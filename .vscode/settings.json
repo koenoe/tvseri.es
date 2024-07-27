@@ -1,0 +1,22 @@
+{
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit"
+  },
+  "search.exclude": {
+    "**/package-lock.json": true,
+    "**/yarn.lock": true,
+    "**/pnpm-lock.yaml": true
+  },
+  "css.validate": false,
+  "files.associations": {
+    "*.css": "postcss"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+  ]
+}

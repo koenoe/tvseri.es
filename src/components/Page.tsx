@@ -2,12 +2,12 @@ import Image from 'next/image';
 import hexToRgb from '@/utils/hexToRgb';
 
 export default function Page({
-  backgroundColor,
-  backgroundImage,
+  backgroundColor = '#000',
+  backgroundImage = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
   children,
 }: Readonly<{
-  backgroundColor: string;
-  backgroundImage: string;
+  backgroundColor?: string;
+  backgroundImage?: string;
   children: React.ReactNode;
 }>) {
   const [r, g, b] = hexToRgb(backgroundColor);

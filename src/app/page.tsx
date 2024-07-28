@@ -4,6 +4,7 @@ import hexToRgb from '@/utils/hexToRgb';
 import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
 import { fetchTrendingMovies } from '@/lib/tmdb';
 import { notFound } from 'next/navigation';
+import formatRuntime from '@/utils/formatRuntime';
 
 export default async function Home() {
   const trendingMovies = await fetchTrendingMovies();
@@ -64,7 +65,9 @@ export default async function Home() {
             </h1>
             <div className="flex gap-4 md:gap-12">
               <div className="flex w-full justify-center gap-2 text-sm md:justify-start md:text-base">
-                <div className="after:content-['_·_']">1h 0m</div>
+                <div className="after:content-['_·_']">
+                  {formatRuntime(spotlight.runtime)}
+                </div>
                 <div className="after:content-['_·_']">
                   {spotlight.genres
                     ?.splice(0, 2)
@@ -87,7 +90,7 @@ export default async function Home() {
             <div className="h-3 w-3 rounded-full bg-white/20 backdrop-blur-2xl" />
             <div className="h-3 w-3 rounded-full bg-white/20 backdrop-blur-2xl" />
           </div>
-          <div className="absolute bottom-[-1.5rem] right-[-1rem] text-[10rem] font-bold leading-none opacity-20 md:bottom-[-5rem] md:right-[-4rem] md:text-[30rem]">
+          <div className="absolute bottom-[-1.5rem] right-[-1.5rem] text-[10rem] font-bold leading-none opacity-20 md:bottom-[-5rem] md:right-[-4rem] md:text-[30rem]">
             1
           </div>
         </div>

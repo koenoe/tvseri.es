@@ -1,0 +1,9 @@
+export default function SkeletonSpotlight() {
+  return (
+    <div className="container relative">
+      <div className="relative flex aspect-video h-[calc(100vh-16rem)] w-full overflow-hidden bg-white/5 shadow-2xl md:h-[calc(70vh-8rem)]">
+        <div className="animate-shimmer absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+      </div>
+    </div>
+  );
+}

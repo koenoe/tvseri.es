@@ -3,7 +3,27 @@ import 'server-only';
 import vision from '@google-cloud/vision';
 import { GoogleAuth, grpc } from 'google-gax';
 import Color from 'color';
-import { kv } from '@vercel/kv';
+import { unstable_cache } from 'next/cache';
+
+const CONTRAST_MINIMUM = 4.5; // Minimum contrast ratio recommended by WCAG
+const BLEND_OPACITY_STEP = 0.05; // Step to blend black into the color
+
+const correctContrast = (input: Color): Color => {
+  // Make sure the output color has enough contrast with white according to WCAG
+  let output = input;
+
+  while (output.contrast(Color('white')) < CONTRAST_MINIMUM) {
+    // Manual blend with black
+    const rgb = output.rgb().object();
+    const blendedR = Math.round(rgb.r * (1 - BLEND_OPACITY_STEP));
+    const blendedG = Math.round(rgb.g * (1 - BLEND_OPACITY_STEP));
+    const blendedB = Math.round(rgb.b * (1 - BLEND_OPACITY_STEP));
+
+    output = Color.rgb(blendedR, blendedG, blendedB);
+  }
+
+  return output;
+};
 
 const getApiKeyCredentials = () => {
   const sslCreds = grpc.credentials.createSsl();
@@ -20,18 +40,10 @@ const getApiKeyCredentials = () => {
 
 const sslCreds = getApiKeyCredentials();
 const client = new vision.ImageAnnotatorClient({ sslCreds });
-const cachePrefix = 'dominant-color:';
+const cachePrefix = 'dominant-color';
 
-export default async function detectDominantColorFromImage(
-  url: string,
-): Promise<string> {
+async function detectDominantColorFromImage(url: string): Promise<string> {
   try {
-    const cacheKey = `${cachePrefix}${url}`;
-    const dominantColorFromCache = await kv.get<string>(cacheKey);
-    if (dominantColorFromCache) {
-      return dominantColorFromCache;
-    }
-
     const imageResponse = await fetch(url);
     const imageArrayBuffer = await imageResponse.arrayBuffer();
     const imageBytes = Buffer.from(imageArrayBuffer);
@@ -44,15 +56,15 @@ export default async function detectDominantColorFromImage(
 
     let hex = '#000000';
     if (closestColor) {
-      const color = Color.rgb(
-        closestColor.color?.red ?? 0,
-        closestColor.color?.green ?? 0,
-        closestColor.color?.blue ?? 0,
+      const color = correctContrast(
+        Color.rgb(
+          closestColor.color?.red ?? 0,
+          closestColor.color?.green ?? 0,
+          closestColor.color?.blue ?? 0,
+        ),
       );
       hex = color.hex();
     }
-
-    await kv.set(cacheKey, hex, { ex: 31536000 }); // 365 days
 
     return hex;
   } catch (error) {
@@ -60,3 +72,13 @@ export default async function detectDominantColorFromImage(
     return '#000000';
   }
 }
+
+const detectDominantColorFromImageWithCache = unstable_cache(
+  async (url: string) => detectDominantColorFromImage(url),
+  [cachePrefix],
+  {
+    revalidate: 31536000, // 365 days
+  },
+);
+
+export default detectDominantColorFromImageWithCache;

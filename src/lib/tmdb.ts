@@ -2,6 +2,7 @@ import 'server-only';
 
 import type { paths } from '@/types/tmdb';
 import type { Movie } from '@/types/movie';
+import detectDominantColorFromImage from './detectDominantColorFromImage';
 
 type TmdbMovie =
   paths[`/3/movie/${number}`]['get']['responses']['200']['content']['application/json'] & {
@@ -53,6 +54,8 @@ function normalizeMovie(movie: TmdbMovie): Movie {
     path.file_path?.includes('png'),
   )[0]?.file_path;
   const poster = images.posters?.[0]?.file_path ?? movie.poster_path;
+  const releaseDate = new Date(movie.release_date ?? '').toISOString();
+  const releaseYear = new Date(releaseDate).getUTCFullYear();
 
   return {
     id: movie.id,
@@ -64,9 +67,11 @@ function normalizeMovie(movie: TmdbMovie): Movie {
       id: genre.id,
       name: genre.name ?? '',
     })),
-    releaseDate: movie.release_date ?? '',
+    releaseDate,
+    releaseYear,
     runtime: movie.runtime,
     backdropImage: backdrop ? generateTmdbImageUrl(backdrop) : undefined,
+    backdropColor: '#000',
     titleTreatmentImage: titleTreatment
       ? generateTmdbImageUrl(titleTreatment, 'w500')
       : undefined,
@@ -78,6 +83,18 @@ export async function fetchMovie(id: number): Promise<Movie> {
   const movie = (await tmdbFetch(
     `/3/movie/${id}?append_to_response=images&include_image_language=en,null`,
   )) as TmdbMovie;
+  const normalizedMovie = normalizeMovie(movie);
+
+  if (normalizedMovie.backdropImage) {
+    const backdropColor = await detectDominantColorFromImage(
+      normalizedMovie.backdropImage,
+    );
+
+    return {
+      ...normalizedMovie,
+      backdropColor,
+    };
+  }
 
   return normalizeMovie(movie);
 }

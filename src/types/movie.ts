@@ -8,8 +8,10 @@ export type Movie = Readonly<{
   tagline: string;
   genres: Genre[];
   releaseDate: string;
+  releaseYear: number;
   runtime: number;
   posterImage?: string;
   backdropImage?: string;
+  backdropColor: string;
   titleTreatmentImage?: string;
 }>;

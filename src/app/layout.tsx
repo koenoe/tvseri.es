@@ -4,7 +4,7 @@ import './globals.css';
 import { Analytics } from '@vercel/analytics/react';
 import Header from '@/components/Header';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
 export const fetchCache = 'default-cache';
 

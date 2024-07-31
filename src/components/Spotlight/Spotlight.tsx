@@ -1,16 +1,15 @@
 'use client';
 
-import type { Movie } from '@/types/movie';
-
 import SpotlightItem from './SpotlightItem';
 import Carousel from '../Carousel/Carousel';
 import { type RefObject, useCallback } from 'react';
 import { usePageStore } from '../Page/PageProvider';
+import type { TvSeries } from '@/types/tv-series';
 
 export default function Spotlight({
   items,
 }: Readonly<{
-  items: Movie[];
+  items: TvSeries[];
 }>) {
   const updateBackground = usePageStore((state) => state.setBackground);
   const itemRenderer = useCallback(

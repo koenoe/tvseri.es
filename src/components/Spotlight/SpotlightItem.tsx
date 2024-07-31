@@ -1,12 +1,11 @@
 'use client';
 
-import { forwardRef, memo } from 'react';
-import type { Movie } from '@/types/movie';
+import { forwardRef, memo, useMemo } from 'react';
 import Image from 'next/image';
-import formatRuntime from '@/utils/formatRuntime';
 import hexToRgb from '@/utils/hexToRgb';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import type { TvSeries } from '@/types/tv-series';
 
 export const variants = {
   hover: {
@@ -22,18 +21,35 @@ const MotionImage = motion(Image);
 const MotionLink = motion(Link);
 
 type Props = Readonly<{
-  item: Movie;
+  item: TvSeries;
   index: number;
 }>;
 
 const SpotlightItem = forwardRef<HTMLElement, Props>(({ item, index }, ref) => {
-  const [r, g, b] = hexToRgb(item.backdropColor);
-  const rgbString = `${r},${g},${b}`;
+  const rgbString = useMemo(() => {
+    return hexToRgb(item.backdropColor).join(',');
+  }, [item.backdropColor]);
+
+  const releaseYear = useMemo(() => {
+    const firstAirYear = new Date(item.firstAirDate).getUTCFullYear();
+    const lastAirYear = new Date(item.lastAirDate).getUTCFullYear();
+    const currentYear = new Date().getUTCFullYear();
+
+    if (firstAirYear === lastAirYear) {
+      return firstAirYear;
+    }
+
+    if (lastAirYear < currentYear) {
+      return `${firstAirYear}– ${lastAirYear}`;
+    }
+
+    return `${firstAirYear}–`;
+  }, [item.firstAirDate, item.lastAirDate]);
 
   return (
     <MotionLink
       ref={ref}
-      href={`https://www.themoviedb.org/movie/${item.id}`}
+      href={`https://www.themoviedb.org/tv/${item.id}`}
       prefetch={false}
       className="relative flex h-full w-full flex-shrink-0 items-end overflow-hidden"
       target="_blank"
@@ -67,9 +83,9 @@ const SpotlightItem = forwardRef<HTMLElement, Props>(({ item, index }, ref) => {
         </div>
       )}
 
-      <div className="relative w-full p-8 md:w-4/5 md:p-14 lg:p-20">
-        <h1 className="relative mb-6 h-20 w-full md:mb-8 md:h-36 md:w-96">
-          {item.titleTreatmentImage ? (
+      <div className="lg:p-18 relative w-full p-8 md:w-4/5 md:p-14">
+        {item.titleTreatmentImage ? (
+          <h1 className="relative mb-6 h-20 w-full md:h-36 md:w-96">
             <Image
               className="object-contain object-bottom md:object-left-bottom"
               src={item.titleTreatmentImage}
@@ -78,26 +94,25 @@ const SpotlightItem = forwardRef<HTMLElement, Props>(({ item, index }, ref) => {
               fill
               draggable={false}
             />
-          ) : (
-            item.title
-          )}
-        </h1>
+          </h1>
+        ) : (
+          <h1 className="relative mb-6 w-full text-center text-3xl font-bold !leading-tight md:w-3/5 md:text-left md:text-4xl lg:text-5xl xl:text-6xl">
+            {item.title}
+          </h1>
+        )}
+
         <div className="flex gap-4 md:gap-12">
-          <div className="flex w-full justify-center gap-2 text-xs md:justify-start md:text-base">
-            <div className="after:content-['_·_']">
-              {formatRuntime(item.runtime)}
+          <div className="flex w-full justify-center gap-2 text-xs opacity-60 md:justify-start md:text-[0.8rem]">
+            <div className="after:ml-2 after:content-['·']">{releaseYear}</div>
+            <div className="after:ml-2 after:content-['·']">
+              {item.numberOfSeasons}{' '}
+              {item.numberOfSeasons === 1 ? 'Season' : 'Seasons'}
             </div>
-            <div className="after:content-['_·_']">
-              {item.genres
-                ?.slice(0, 2)
-                .map((genre) => genre.name)
-                .join(', ')}
-            </div>
-            <div>{item.releaseYear}</div>
+            <div>{item.genres[0].name}</div>
           </div>
         </div>
       </div>
-      <div className="absolute right-[-1.5rem] top-[-1.5rem] text-[10rem] font-bold leading-none opacity-20 md:right-[-4rem] md:top-[-5rem] md:text-[30rem]">
+      <div className="absolute right-[-1.75rem] top-[-1.75rem] text-[12.5rem] font-bold leading-none opacity-20 md:right-[-4rem] md:top-[-5rem] md:text-[30rem]">
         {index + 1}
       </div>
     </MotionLink>

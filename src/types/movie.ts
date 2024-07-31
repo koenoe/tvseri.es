@@ -1,17 +1,18 @@
 import type { Genre } from './genre';
 
 export type Movie = Readonly<{
+  backdropColor: string;
+  backdropImage?: string;
+  description: string;
+  genres: Genre[];
   id: number;
   imdbId: string;
-  title: string;
+  originalLanguage: string;
   originalTitle: string;
-  tagline: string;
-  genres: Genre[];
-  releaseDate: string;
-  releaseYear: number;
-  runtime: number;
   posterImage?: string;
-  backdropImage?: string;
-  backdropColor: string;
+  releaseDate: string;
+  runtime: number;
+  tagline: string;
+  title: string;
   titleTreatmentImage?: string;
 }>;

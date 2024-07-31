@@ -1,19 +1,14 @@
 'use client';
 
+// Note: heavily inspired by https://codesandbox.io/s/infinite-carousel-with-framer-motion-fk0f0
+
+import { memo, useCallback, useState, useMemo, type RefObject } from 'react';
 import {
-  memo,
-  useCallback,
-  useState,
-  useEffect,
-  useMemo,
-  type RefObject,
-} from 'react';
-import { cva } from 'class-variance-authority';
-import {
-  Easing,
+  type Easing,
   type PanInfo,
   useAnimate,
   useMotionValue,
+  motion,
 } from 'framer-motion';
 import CarouselItem from './CarouselItem';
 
@@ -22,18 +17,6 @@ const transition = {
   ease: [0.4, 0, 0.2, 1] as Easing,
   duration: 0.5,
 } as const;
-
-const dot = cva('h-3 w-3 rounded-full cursor-pointer', {
-  variants: {
-    state: {
-      active: 'bg-white',
-      inactive: 'bg-white/20 backdrop-blur-2xl',
-    },
-  },
-  defaultVariants: {
-    state: 'inactive',
-  },
-});
 
 function Carousel({
   itemCount,
@@ -61,19 +44,20 @@ function Carousel({
     [itemCount],
   );
 
+  const calculateNewX = useCallback(
+    (index: number) => -index * (containerRef.current?.clientWidth || 0),
+    [containerRef],
+  );
+
   const updateCurrentIndex = useCallback(
     (index: number) => {
+      animate(x, calculateNewX(index), transition);
       setCurrentIndex(index);
       if (onChange) {
         onChange(calculateItemIndex(index));
       }
     },
-    [calculateItemIndex, onChange],
-  );
-
-  const calculateNewX = useCallback(
-    (index: number) => -index * (containerRef.current?.clientWidth || 0),
-    [containerRef],
+    [animate, calculateItemIndex, calculateNewX, onChange, x],
   );
 
   const handleDotClick = useCallback(
@@ -119,13 +103,6 @@ function Carousel({
     [calculateItemIndex, currentIndex],
   );
 
-  useEffect(() => {
-    const controls = animate(x, calculateNewX(currentIndex), transition);
-
-    return controls.stop;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentIndex]);
-
   return (
     <div className="container relative">
       <div
@@ -144,13 +121,16 @@ function Carousel({
           );
         })}
       </div>
-      <div className="mt-6 flex w-full items-center justify-center gap-2">
+      <div className="mt-6 flex w-full items-center justify-center gap-2.5">
         {Array.from({ length: itemCount }).map((_, i) => (
-          <div
+          <motion.div
             key={i}
-            className={dot({
-              state: currentItemIndex === i ? 'active' : 'inactive',
-            })}
+            initial={false}
+            animate={{
+              scale: currentItemIndex === i ? 1.25 : 1,
+              opacity: currentItemIndex === i ? 1 : 0.2,
+            }}
+            className={'size-2.5 cursor-pointer rounded-full bg-white'}
             onClick={() => handleDotClick(i)}
           />
         ))}

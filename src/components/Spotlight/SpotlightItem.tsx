@@ -94,6 +94,7 @@ const SpotlightItem = forwardRef<HTMLElement, Props>(({ item, index }, ref) => {
               fill
               draggable={false}
             />
+            <span className="hidden">{item.title}</span>
           </h1>
         ) : (
           <h1 className="relative mb-6 w-full text-center text-3xl font-bold !leading-tight md:w-3/5 md:text-left md:text-4xl lg:text-5xl xl:text-6xl">

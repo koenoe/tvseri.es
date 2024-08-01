@@ -9,7 +9,7 @@ export type Movie = Readonly<{
   imdbId: string;
   originalLanguage: string;
   originalTitle: string;
-  posterImage?: string;
+  posterImage: string;
   releaseDate: string;
   runtime: number;
   tagline: string;

@@ -10,7 +10,9 @@ import {
   useMotionValue,
   motion,
 } from 'framer-motion';
+import { cx, cva } from 'class-variance-authority';
 import CarouselItem from './CarouselItem';
+import CarouselDot from './CarouselDot';
 
 const transition = {
   type: 'tween',
@@ -18,11 +20,17 @@ const transition = {
   duration: 0.5,
 } as const;
 
+export const carouselStyles = cva(
+  'relative flex aspect-video h-[calc(95vh-16rem)] w-full overflow-hidden shadow-2xl scrollbar-hide md:h-[calc(75vh-8rem)]',
+);
+
 function Carousel({
+  className,
   itemCount,
   itemRenderer,
   onChange,
 }: Readonly<{
+  className?: string;
   itemCount: number;
   itemRenderer: (index: number, ref: RefObject<HTMLElement>) => JSX.Element;
   onChange?: (index: number) => void;
@@ -104,11 +112,8 @@ function Carousel({
   );
 
   return (
-    <div className="container relative">
-      <div
-        className="relative flex aspect-video h-[calc(95vh-16rem)] w-full overflow-hidden shadow-2xl scrollbar-hide md:h-[calc(75vh-8rem)]"
-        ref={containerRef}
-      >
+    <div className={cx('container relative', className)}>
+      <div className={carouselStyles()} ref={containerRef}>
         {range.map((i) => {
           return (
             <CarouselItem
@@ -123,15 +128,11 @@ function Carousel({
       </div>
       <div className="mt-6 flex w-full items-center justify-center gap-2.5">
         {Array.from({ length: itemCount }).map((_, i) => (
-          <motion.div
+          <CarouselDot
             key={i}
-            initial={false}
-            animate={{
-              scale: currentItemIndex === i ? 1.25 : 1,
-              opacity: currentItemIndex === i ? 1 : 0.2,
-            }}
-            className={'size-2.5 cursor-pointer rounded-full bg-white'}
-            onClick={() => handleDotClick(i)}
+            index={i}
+            isActive={i === currentItemIndex}
+            onClick={handleDotClick}
           />
         ))}
       </div>

@@ -7,8 +7,10 @@ import { usePageStore } from '../Page/PageProvider';
 import type { TvSeries } from '@/types/tv-series';
 
 export default function Spotlight({
+  className,
   items,
 }: Readonly<{
+  className?: string;
   items: TvSeries[];
 }>) {
   const updateBackground = usePageStore((state) => state.setBackground);
@@ -36,6 +38,7 @@ export default function Spotlight({
 
   return (
     <Carousel
+      className={className}
       itemRenderer={itemRenderer}
       itemCount={items.length}
       onChange={handleChange}

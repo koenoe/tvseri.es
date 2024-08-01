@@ -8,7 +8,8 @@ import {
   type TmdbTvSeries,
   type TmdbMovie,
   type TmdbTrendingMovies,
-  TmdbTrendingTvSeries,
+  type TmdbTrendingTvSeries,
+  type TmdbTopRatedTvSeries,
 } from './helpers';
 
 import type { Movie } from '@/types/movie';
@@ -112,18 +113,29 @@ export async function fetchTrendingTvSeries() {
   const trendingTvSeriesResponse =
     ((await tmdbFetch('/3/trending/tv/day')) as TmdbTrendingTvSeries) ?? [];
 
-  const trendingTvSeriesIds = (trendingTvSeriesResponse.results ?? [])
+  const ids = (trendingTvSeriesResponse.results ?? [])
     .filter((series) => series.vote_count > 0)
     .map((series) => series.id)
     .slice(0, 10);
 
   // Fetch images for each series concurrently
   const series = await Promise.all(
-    trendingTvSeriesIds.map(async (id) => {
+    ids.map(async (id) => {
       const serie = await fetchTvSeries(id);
       return serie;
     }),
   );
 
   return series;
+}
+
+export async function fetchTopRatedTvSeries() {
+  const topRatedTvSeriesResponse =
+    ((await tmdbFetch(
+      '/3/discover/tv?include_adult=false&include_null_first_air_dates=false&language=en-US&page=1&sort_by=vote_average.desc&vote_count.gte=5000',
+    )) as TmdbTopRatedTvSeries) ?? [];
+
+  return (topRatedTvSeriesResponse.results ?? []).map((series) => {
+    return normalizeTvSeries(series as TmdbTvSeries);
+  });
 }

@@ -1,0 +1,89 @@
+.inner {
+  --gap: theme(spacing.8);
+  gap: var(--gap);
+}
+
+.inner::before,
+.inner::after {
+  content: '';
+  align-self: stretch;
+  margin-left: calc(var(--gap) * -1);
+}
+
+.inner::before {
+  padding-inline-start: max(
+    theme(container.padding),
+    ((100vw - theme(screens.sm)) / 2) + theme(container.padding)
+  );
+}
+
+.inner::after {
+  padding-inline-end: max(
+    theme(container.padding),
+    ((100vw - theme(screens.sm)) / 2) + theme(container.padding)
+  );
+}
+
+@media screen(md) {
+  .inner::before {
+    padding-inline-start: max(
+      theme(container.padding),
+      ((100vw - theme(screens.md)) / 2) + theme(container.padding)
+    );
+  }
+
+  .inner::after {
+    padding-inline-end: max(
+      theme(container.padding),
+      ((100vw - theme(screens.md)) / 2) + theme(container.padding)
+    );
+  }
+}
+
+@media screen(lg) {
+  .inner::before {
+    padding-inline-start: max(
+      theme(container.padding),
+      ((100vw - theme(screens.lg)) / 2) + theme(container.padding)
+    );
+  }
+
+  .inner::after {
+    padding-inline-end: max(
+      theme(container.padding),
+      ((100vw - theme(screens.lg)) / 2) + theme(container.padding)
+    );
+  }
+}
+
+@media screen(xl) {
+  .inner::before {
+    padding-inline-start: max(
+      theme(container.padding),
+      ((100vw - theme(screens.xl)) / 2) + theme(container.padding)
+    );
+  }
+
+  .inner::after {
+    padding-inline-end: max(
+      theme(container.padding),
+      ((100vw - theme(screens.xl)) / 2) + theme(container.padding)
+    );
+  }
+}
+
+@media screen(2xl) {
+  .inner::before {
+    padding-inline-start: max(
+      theme(container.padding),
+      ((100vw - theme(screens.2xl)) / 2) + theme(container.padding)
+    );
+  }
+
+  .inner::after {
+    padding-inline-end: max(
+      theme(container.padding),
+      ((100vw - theme(screens.2xl)) / 2) + theme(container.padding)
+    );
+  }
+}

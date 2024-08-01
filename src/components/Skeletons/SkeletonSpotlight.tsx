@@ -1,8 +1,25 @@
-export default function SkeletonSpotlight() {
+'use client';
+
+import { cx } from 'class-variance-authority';
+import { carouselStyles } from '../Carousel/Carousel';
+
+export default function SkeletonSpotlight({
+  className,
+}: Readonly<{
+  className?: string;
+}>) {
   return (
-    <div className="container relative">
-      <div className="relative flex aspect-video h-[calc(95vh-16rem)] w-full overflow-hidden bg-white/5 shadow-2xl md:h-[calc(75vh-8rem)]">
-        <div className="absolute inset-0 h-full w-full animate-shimmer bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+    <div className={cx('container relative', className)}>
+      <div className={carouselStyles()}>
+        <div className="absolute inset-0 h-full w-full animate-shimmer bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+      </div>
+      <div className="mt-6 flex w-full items-center justify-center gap-2.5">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div
+            key={i}
+            className={'size-2.5 cursor-pointer rounded-full bg-white/10'}
+          />
+        ))}
       </div>
     </div>
   );

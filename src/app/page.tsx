@@ -1,8 +1,12 @@
-import Page from '@/components/Page/Page';
-import { fetchTrendingMovies, fetchTrendingTvSeries } from '@/lib/tmdb';
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 
+import { fetchTrendingTvSeries } from '@/lib/tmdb';
+
+import Page from '@/components/Page/Page';
 import Spotlight from '@/components/Spotlight/Spotlight';
+import TopRatedList from '@/components/List/TopRatedList';
+import SkeletonList from '@/components/Skeletons/SkeletonList';
 
 export default async function Home() {
   const trendingTvSeries = await fetchTrendingTvSeries();
@@ -17,13 +21,11 @@ export default async function Home() {
       backgroundColor={spotlight.backdropColor}
       backgroundImage={spotlight.backdropImage}
     >
-      <Spotlight items={trendingTvSeries} />
+      <Spotlight items={trendingTvSeries} className="mb-20" />
 
-      <div className="container relative">
-        <div className="relative flex h-screen w-full items-center justify-center">
-          rest of content
-        </div>
-      </div>
+      <Suspense fallback={<SkeletonList />}>
+        <TopRatedList />
+      </Suspense>
     </Page>
   );
 }

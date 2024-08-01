@@ -20,6 +20,9 @@ export type TmdbTrendingMovies =
 export type TmdbTrendingTvSeries =
   paths[`/3/trending/tv/${string}`]['get']['responses']['200']['content']['application/json'];
 
+export type TmdbTopRatedTvSeries =
+  paths['/3/discover/tv']['get']['responses']['200']['content']['application/json'];
+
 function generateTmdbImageUrl(path: string, size = 'original') {
   return `https://image.tmdb.org/t/p/${size}/${path}`;
 }
@@ -39,7 +42,9 @@ function extractImages(item: TmdbTvSeries | TmdbMovie) {
     titleTreatmentImage: titleTreatment
       ? generateTmdbImageUrl(titleTreatment, 'w500')
       : undefined,
-    posterImage: poster ? generateTmdbImageUrl(poster, 'w500') : undefined,
+    posterImage: poster
+      ? generateTmdbImageUrl(poster, 'w300_and_h450_bestv2')
+      : '',
   };
 }
 
@@ -68,8 +73,12 @@ export function normalizeMovie(movie: TmdbMovie): Movie {
 
 export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
   const images = extractImages(series);
-  const firstAirDate = new Date(series.first_air_date ?? '').toISOString();
-  const lastAirDate = new Date(series.last_air_date ?? '').toISOString();
+  const firstAirDate = series.first_air_date
+    ? new Date(series.first_air_date).toISOString()
+    : '';
+  const lastAirDate = series.last_air_date
+    ? new Date(series.last_air_date).toISOString()
+    : '';
 
   return {
     id: series.id,

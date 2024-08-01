@@ -17,7 +17,7 @@ export default function Page({
     >
       <main
         // pt-[8rem] is the height of the header
-        className="min-h-screen pt-[8rem] subpixel-antialiased transition-colors duration-500"
+        className="min-h-screen py-[8rem] subpixel-antialiased transition-colors duration-500"
         style={{ backgroundColor }}
       >
         <Background />

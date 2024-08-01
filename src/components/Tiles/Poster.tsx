@@ -13,11 +13,14 @@ export const posterStyles = cva(
   'relative h-[275px] w-[183px] flex-shrink-0 overflow-clip rounded-lg shadow-lg lg:h-[300px] lg:w-[200px] xl:h-[375px] xl:w-[250px]',
 );
 
-function Poster({ item }: Readonly<{ item: TvSeries }>) {
+function Poster({
+  className,
+  item,
+}: Readonly<{ className?: string; item: TvSeries }>) {
   return (
     <MotionLink
       key={item.id}
-      className={posterStyles()}
+      className={cx(posterStyles(), className)}
       href={`https://www.themoviedb.org/tv/${item.id}`}
       prefetch={false}
       target="_blank"

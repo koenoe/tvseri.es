@@ -1,7 +1,7 @@
 'use client';
 
 import type { TvSeries } from '@/types/tv-series';
-import { cva, cx } from 'class-variance-authority';
+import { cva, cx, type VariantProps } from 'class-variance-authority';
 import { useCallback, useRef } from 'react';
 import {
   useScroll,
@@ -9,8 +9,6 @@ import {
   useMotionValue,
   useMotionValueEvent,
 } from 'framer-motion';
-
-import Poster from '../Tiles/Poster';
 
 // TODO: convert to Tailwind
 import styles from './styles.module.css';
@@ -24,10 +22,27 @@ export const innerStylesWithModuleStyles = () => {
   return cx(innerStyles(), styles.inner);
 };
 
-type Props = React.AllHTMLAttributes<HTMLDivElement> &
-  Readonly<{ items: TvSeries[]; priority?: boolean }>;
+export type HeaderVariantProps = VariantProps<typeof headerVariants>;
+export const headerVariants = cva(
+  'container relative flex items-center justify-between gap-10 md:gap-16',
+  {
+    variants: {
+      titleAlignment: {
+        left: [],
+        right: ['flex-row-reverse'],
+      },
+    },
+    defaultVariants: {
+      titleAlignment: 'left',
+    },
+  },
+);
 
-function List({ className, items, priority, title }: Props) {
+type Props = React.AllHTMLAttributes<HTMLDivElement> &
+  HeaderVariantProps &
+  Readonly<{ children: React.ReactNode }>;
+
+function List({ children, className, title, titleAlignment, style }: Props) {
   const innerRef = useRef<HTMLDivElement>(null);
   const scrollBarRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef<boolean>(false);
@@ -98,13 +113,13 @@ function List({ className, items, priority, title }: Props) {
   }, []);
 
   return (
-    <div className={cx('relative w-full', className)}>
-      <div className="container relative flex items-center justify-between">
-        <h2 className="text-2xl font-medium lg:text-3xl">{title}</h2>
-        <div className="ml-10 flex-grow md:ml-16">
+    <div style={style} className={cx('relative w-full', className)}>
+      <div className={headerVariants({ titleAlignment })}>
+        {title && <h2 className="text-2xl font-medium lg:text-3xl">{title}</h2>}
+        <div className="flex-grow">
           <div
             ref={scrollBarRef}
-            className="relative h-2 w-full cursor-pointer overflow-hidden rounded-2xl bg-white/20"
+            className="relative h-2 w-full cursor-pointer overflow-hidden rounded-2xl bg-white/15"
             onClick={handleClick}
             onMouseDown={handleStartDragging}
             onTouchStart={handleStartDragging}
@@ -123,9 +138,7 @@ function List({ className, items, priority, title }: Props) {
         </div>
       </div>
       <div ref={innerRef} className={innerStylesWithModuleStyles()}>
-        {items.map((item) => (
-          <Poster key={item.id} item={item} priority={priority} />
-        ))}
+        {children}
       </div>
     </div>
   );

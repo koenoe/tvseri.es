@@ -10,10 +10,12 @@ import {
   type TmdbTrendingMovies,
   type TmdbTrendingTvSeries,
   type TmdbDiscoverTvSeries,
+  type TmdbGenresForTvSeries,
 } from './helpers';
 
 import type { Movie } from '@/types/movie';
 import type { TvSeries } from '@/types/tv-series';
+import { Genre } from '@/types/genre';
 
 const GENRES_TO_IGNORE = [16];
 
@@ -155,4 +157,11 @@ export async function fetchPopularBritishCrimeTvSeries() {
   return (tvSeriesResponse.results ?? []).map((series) => {
     return normalizeTvSeries(series as TmdbTvSeries);
   });
+}
+
+export async function fetchGenresForTvSeries() {
+  const genresResponse =
+    ((await tmdbFetch('/3/genre/tv/list')) as TmdbGenresForTvSeries) ?? [];
+
+  return (genresResponse.genres ?? []) as Genre[];
 }

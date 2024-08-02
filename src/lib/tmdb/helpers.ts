@@ -23,6 +23,9 @@ export type TmdbTrendingTvSeries =
 export type TmdbDiscoverTvSeries =
   paths['/3/discover/tv']['get']['responses']['200']['content']['application/json'];
 
+export type TmdbGenresForTvSeries =
+  paths['/3/genre/tv/list']['get']['responses']['200']['content']['application/json'];
+
 function generateTmdbImageUrl(path: string, size = 'original') {
   return `https://image.tmdb.org/t/p/${size}/${path}`;
 }

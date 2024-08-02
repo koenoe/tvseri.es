@@ -8,6 +8,7 @@ import Spotlight from '@/components/Spotlight/Spotlight';
 import TopRatedList from '@/components/List/TopRatedList';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
 import PopularBritishCrimeList from '@/components/List/PopularBritishCrimeList';
+import GenresList from '@/components/List/GenresList';
 
 export default async function Home() {
   const trendingTvSeries = await fetchTrendingTvSeries();
@@ -24,12 +25,23 @@ export default async function Home() {
     >
       <Spotlight items={trendingTvSeries} className="mb-10 md:mb-20" />
 
-      <Suspense fallback={<SkeletonList className="mb-10 md:mb-20" />}>
-        <TopRatedList className="mb-10 md:mb-20" priority />
+      <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
+        <TopRatedList className="mb-10 md:mb-16" priority />
       </Suspense>
 
-      <Suspense fallback={<SkeletonList />}>
-        <PopularBritishCrimeList />
+      <Suspense
+        fallback={
+          <SkeletonList className="mb-10 md:mb-16" titleAlignment="right" />
+        }
+      >
+        <PopularBritishCrimeList
+          className="mb-10 md:mb-16"
+          titleAlignment="right"
+        />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <GenresList />
       </Suspense>
     </Page>
   );

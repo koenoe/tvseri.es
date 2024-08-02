@@ -6,7 +6,7 @@ export default function Loading() {
   return (
     <SkeletonPage>
       <SkeletonSpotlight className="mb-10 md:mb-20" />
-      <SkeletonList className="mb-10 md:mb-20" />
+      <SkeletonList className="mb-10 md:mb-16" />
       <SkeletonList />
     </SkeletonPage>
   );

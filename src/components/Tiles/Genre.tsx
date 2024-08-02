@@ -1,7 +1,7 @@
 'use client';
 
 import React, { memo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useMotionTemplate, useMotionValue } from 'framer-motion';
 import { Genre } from '@/types/genre';
 
 const variants = {
@@ -26,25 +26,31 @@ function GenreTile({
 }: Readonly<{
   genre: Genre;
 }>) {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
 
   const handleMouseMove = (event: React.MouseEvent) => {
     const { left, top } = event.currentTarget.getBoundingClientRect();
     const x = event.clientX - left;
     const y = event.clientY - top;
-    setMousePosition({ x, y });
+
+    mouseX.set(x);
+    mouseY.set(y);
   };
+
+  const backgroundStyle = useMotionTemplate`radial-gradient(circle at ${mouseX}px ${mouseY}px, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 75%)`;
 
   return (
     <motion.div
       className="relative flex aspect-video w-[calc(100vw-4rem)] flex-shrink-0 cursor-pointer items-end overflow-hidden rounded-lg p-8 shadow-lg md:w-96"
       onMouseMove={handleMouseMove}
+      whileHover="visible"
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0.05)_100%)]" />
       <motion.div
         className="absolute inset-0"
         style={{
-          background: `radial-gradient(circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 75%)`,
+          background: backgroundStyle,
         }}
         initial="hidden"
         animate="hidden"

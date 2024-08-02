@@ -29,15 +29,8 @@ export default async function Home() {
         <TopRatedList className="mb-10 md:mb-16" priority />
       </Suspense>
 
-      <Suspense
-        fallback={
-          <SkeletonList className="mb-10 md:mb-16" titleAlignment="right" />
-        }
-      >
-        <PopularBritishCrimeList
-          className="mb-10 md:mb-16"
-          titleAlignment="right"
-        />
+      <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
+        <PopularBritishCrimeList className="mb-10 md:mb-16" />
       </Suspense>
 
       <Suspense fallback={null}>

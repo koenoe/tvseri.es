@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { TvSeries } from '@/types/tv-series';
+import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 const MotionLink = motion(Link);
 
@@ -16,11 +17,13 @@ export const posterStyles = cva(
 function Poster({
   className,
   item,
-}: Readonly<{ className?: string; item: TvSeries }>) {
+  priority,
+}: Readonly<{ className?: string; item: TvSeries; priority?: boolean }>) {
   return (
     <MotionLink
       key={item.id}
       className={cx(posterStyles(), className)}
+      draggable={false}
       href={`https://www.themoviedb.org/tv/${item.id}`}
       prefetch={false}
       target="_blank"
@@ -29,10 +32,12 @@ function Poster({
     >
       <Image
         className="object-contain"
+        draggable={false}
         src={item.posterImage}
         alt={item.title}
         fill
-        priority
+        priority={priority}
+        placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(300, 450)}`}
       />
     </MotionLink>
   );

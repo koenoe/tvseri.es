@@ -3,7 +3,11 @@
 @tailwind utilities;
 
 body {
-  overscroll-behavior-y: none;
+  overscroll-behavior: none;
   background: theme('colors.neutral.800');
   color: #fff;
+}
+
+* {
+  user-select: none;
 }

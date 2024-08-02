@@ -113,7 +113,7 @@ const SpotlightItem = forwardRef<HTMLElement, Props>(({ item, index }, ref) => {
           </div>
         </div>
       </div>
-      <div className="absolute right-[-1.75rem] top-[-1.75rem] text-[12.5rem] font-bold leading-none opacity-20 md:right-[-4rem] md:top-[-5rem] md:text-[30rem]">
+      <div className="absolute right-[-1.75rem] top-[-1.75rem] text-[12.5rem] font-bold leading-none opacity-20 md:right-[-4.05rem] md:top-[-5rem] md:text-[30rem]">
         {index + 1}
       </div>
     </MotionLink>

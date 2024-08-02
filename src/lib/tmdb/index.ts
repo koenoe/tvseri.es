@@ -9,11 +9,13 @@ import {
   type TmdbMovie,
   type TmdbTrendingMovies,
   type TmdbTrendingTvSeries,
-  type TmdbTopRatedTvSeries,
+  type TmdbDiscoverTvSeries,
 } from './helpers';
 
 import type { Movie } from '@/types/movie';
 import type { TvSeries } from '@/types/tv-series';
+
+const GENRES_TO_IGNORE = [16];
 
 async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
   const headers = {
@@ -114,7 +116,11 @@ export async function fetchTrendingTvSeries() {
     ((await tmdbFetch('/3/trending/tv/day')) as TmdbTrendingTvSeries) ?? [];
 
   const ids = (trendingTvSeriesResponse.results ?? [])
-    .filter((series) => series.vote_count > 0)
+    .filter(
+      (series) =>
+        series.vote_count > 0 &&
+        !series.genre_ids?.some((genre) => GENRES_TO_IGNORE.includes(genre)),
+    )
     .map((series) => series.id)
     .slice(0, 10);
 
@@ -132,10 +138,21 @@ export async function fetchTrendingTvSeries() {
 export async function fetchTopRatedTvSeries() {
   const topRatedTvSeriesResponse =
     ((await tmdbFetch(
-      '/3/discover/tv?include_adult=false&include_null_first_air_dates=false&language=en-US&page=1&sort_by=vote_average.desc&vote_count.gte=5000',
-    )) as TmdbTopRatedTvSeries) ?? [];
+      `/3/discover/tv?include_adult=false&language=en-US&page=1&sort_by=vote_average.desc&vote_count.gte=3500&vote_average.gte=8&without_genres=${GENRES_TO_IGNORE.join(',')}`,
+    )) as TmdbDiscoverTvSeries) ?? [];
 
   return (topRatedTvSeriesResponse.results ?? []).map((series) => {
+    return normalizeTvSeries(series as TmdbTvSeries);
+  });
+}
+
+export async function fetchPopularBritishCrimeTvSeries() {
+  const tvSeriesResponse =
+    ((await tmdbFetch(
+      `/3/discover/tv?include_adult=false&language=en-GB&page=1&sort_by=popularity.desc&vote_count.gte=250&watch_region=GB&with_genres=80&without_genres=10766&with_origin_country=GB&with_original_language=en`,
+    )) as TmdbDiscoverTvSeries) ?? [];
+
+  return (tvSeriesResponse.results ?? []).map((series) => {
     return normalizeTvSeries(series as TmdbTvSeries);
   });
 }

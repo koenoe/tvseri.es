@@ -16,8 +16,8 @@ export default function Page({
       backgroundImage={backgroundImage}
     >
       <main
-        // pt-[8rem] is the height of the header
-        className="min-h-screen py-[8rem] subpixel-antialiased transition-colors duration-500"
+        // py-[] is the height of the header
+        className="min-h-screen py-[6rem] subpixel-antialiased transition-colors duration-500 md:py-[8rem]"
         style={{ backgroundColor }}
       >
         <Background />

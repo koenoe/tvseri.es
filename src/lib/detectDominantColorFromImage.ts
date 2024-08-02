@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { kv } from '@vercel/kv';
 import vision from '@google-cloud/vision';
 import { GoogleAuth, grpc } from 'google-gax';
 import Color from 'color';
@@ -74,7 +75,27 @@ async function detectDominantColorFromImage(url: string): Promise<string> {
 }
 
 const detectDominantColorFromImageWithCache = unstable_cache(
-  async (url: string) => detectDominantColorFromImage(url),
+  async (url: string) => {
+    // Note: this is mostly a workaround to prevent a lot of requests to the Vision API
+    // during development. In production just the `unstable_cache` should be sufficient
+    try {
+      const cacheKey = `${cachePrefix}:${url}`;
+      const dominantColorFromKV = await kv.get<string>(cacheKey);
+      if (dominantColorFromKV) {
+        return dominantColorFromKV;
+      }
+
+      const dominantColor = await detectDominantColorFromImage(url);
+
+      await kv.set(cacheKey, dominantColor, {
+        ex: 31536000, // 365 days
+      });
+
+      return dominantColor;
+    } catch (error) {
+      return detectDominantColorFromImage(url);
+    }
+  },
   [cachePrefix],
   {
     revalidate: 31536000, // 365 days

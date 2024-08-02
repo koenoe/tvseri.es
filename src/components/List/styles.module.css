@@ -1,5 +1,9 @@
 .inner {
-  --gap: theme(spacing.8);
+  --gap: theme(spacing.4);
+  --gap-md: theme(spacing.6);
+  --gap-lg: theme(spacing.7);
+  --gap-xl: theme(spacing.7);
+  --gap-2xl: theme(spacing.7);
   gap: var(--gap);
 }
 
@@ -25,6 +29,15 @@
 }
 
 @media screen(md) {
+  .inner {
+    gap: var(--gap-md);
+  }
+
+  .inner::before,
+  .inner::after {
+    margin-left: calc(var(--gap-md) * -1);
+  }
+
   .inner::before {
     padding-inline-start: max(
       theme(container.padding),
@@ -41,6 +54,15 @@
 }
 
 @media screen(lg) {
+  .inner {
+    gap: var(--gap-lg);
+  }
+
+  .inner::before,
+  .inner::after {
+    margin-left: calc(var(--gap-lg) * -1);
+  }
+
   .inner::before {
     padding-inline-start: max(
       theme(container.padding),
@@ -57,6 +79,15 @@
 }
 
 @media screen(xl) {
+  .inner {
+    gap: var(--gap-xl);
+  }
+
+  .inner::before,
+  .inner::after {
+    margin-left: calc(var(--gap-xl) * -1);
+  }
+
   .inner::before {
     padding-inline-start: max(
       theme(container.padding),
@@ -73,6 +104,15 @@
 }
 
 @media screen(2xl) {
+  .inner {
+    gap: var(--gap-2xl);
+  }
+
+  .inner::before,
+  .inner::after {
+    margin-left: calc(var(--gap-2xl) * -1);
+  }
+
   .inner::before {
     padding-inline-start: max(
       theme(container.padding),

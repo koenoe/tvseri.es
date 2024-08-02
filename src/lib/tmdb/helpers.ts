@@ -20,7 +20,7 @@ export type TmdbTrendingMovies =
 export type TmdbTrendingTvSeries =
   paths[`/3/trending/tv/${string}`]['get']['responses']['200']['content']['application/json'];
 
-export type TmdbTopRatedTvSeries =
+export type TmdbDiscoverTvSeries =
   paths['/3/discover/tv']['get']['responses']['200']['content']['application/json'];
 
 function generateTmdbImageUrl(path: string, size = 'original') {

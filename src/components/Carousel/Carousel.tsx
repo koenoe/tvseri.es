@@ -2,7 +2,14 @@
 
 // Note: heavily inspired by https://codesandbox.io/s/infinite-carousel-with-framer-motion-fk0f0
 
-import { memo, useCallback, useState, useMemo, type RefObject } from 'react';
+import {
+  memo,
+  useCallback,
+  useState,
+  useMemo,
+  type RefObject,
+  useEffect,
+} from 'react';
 import {
   type Easing,
   type PanInfo,
@@ -21,7 +28,7 @@ const transition = {
 } as const;
 
 export const carouselStyles = cva(
-  'relative flex aspect-video h-[calc(95vh-12rem)] w-full overflow-hidden shadow-2xl scrollbar-hide md:h-[calc(75vh-8rem)]',
+  'relative flex aspect-video h-[calc(95vh-16rem)] w-full overflow-hidden shadow-2xl scrollbar-hide md:h-[calc(75vh-8rem)]',
 );
 
 function Carousel({
@@ -110,6 +117,18 @@ function Carousel({
     () => calculateItemIndex(currentIndex),
     [calculateItemIndex, currentIndex],
   );
+
+  const handleResize = useCallback(() => {
+    return updateCurrentIndex(currentIndex);
+  }, [currentIndex, updateCurrentIndex]);
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [handleResize]);
 
   return (
     <div className={cx('container relative', className)}>

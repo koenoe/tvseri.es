@@ -8,7 +8,7 @@ import Spotlight from '@/components/Spotlight/Spotlight';
 import TopRatedList from '@/components/List/TopRatedList';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
 import PopularBritishCrimeList from '@/components/List/PopularBritishCrimeList';
-import GenresList from '@/components/List/GenresList';
+import GenresList, { gapStyleOverride } from '@/components/List/GenresList';
 
 export default async function Home() {
   const trendingTvSeries = await fetchTrendingTvSeries();
@@ -33,7 +33,15 @@ export default async function Home() {
         <PopularBritishCrimeList className="mb-10 md:mb-16" />
       </Suspense>
 
-      <Suspense fallback={null}>
+      <Suspense
+        fallback={
+          <SkeletonList
+            variant="genre"
+            style={gapStyleOverride}
+            numberOfItems={5}
+          />
+        }
+      >
         <GenresList />
       </Suspense>
     </Page>

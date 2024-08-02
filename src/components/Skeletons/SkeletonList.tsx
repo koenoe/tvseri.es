@@ -1,6 +1,7 @@
 'use client';
 
 import { cx } from 'class-variance-authority';
+import { useCallback } from 'react';
 
 import {
   type HeaderVariantProps,
@@ -8,21 +9,39 @@ import {
   innerStylesWithModuleStyles,
 } from '../List/List';
 import SkeletonPoster from './SkeletonPoster';
+import SkeletonGenre from './SkeletonGenre';
 
 type Props = Readonly<{
   className?: string;
   numberOfItems?: number;
   hasTitle?: boolean;
+  variant?: 'poster' | 'genre';
+  style?: React.CSSProperties;
 }>;
 
 export default function SkeletonList({
   className,
   hasTitle = true,
-  numberOfItems = 20,
+  numberOfItems = 10,
   titleAlignment,
+  variant = 'poster',
+  style,
 }: Props & HeaderVariantProps) {
+  const renderVariant = useCallback(
+    (index: number) => {
+      switch (variant) {
+        case 'genre':
+          return <SkeletonGenre key={index} />;
+        case 'poster':
+        default:
+          return <SkeletonPoster key={index} />;
+      }
+    },
+    [variant],
+  );
+
   return (
-    <div className={cx('relative w-full', className)}>
+    <div style={style} className={cx('relative w-full', className)}>
       {hasTitle && (
         <div className={headerVariants({ titleAlignment })}>
           <div className="h-9 w-80 bg-white/20" />
@@ -30,9 +49,7 @@ export default function SkeletonList({
         </div>
       )}
       <div className={innerStylesWithModuleStyles()}>
-        {[...Array(numberOfItems)].map((_, index) => (
-          <SkeletonPoster key={index} />
-        ))}
+        {[...Array(numberOfItems)].map((_, index) => renderVariant(index))}
       </div>
     </div>
   );

@@ -1,10 +1,13 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import Image from 'next/image';
-import hexToRgb from '@/utils/hexToRgb';
-import { usePageStore } from '../Page/PageProvider';
+
 import { AnimatePresence, motion } from 'framer-motion';
+import Image from 'next/image';
+
+import hexToRgb from '@/utils/hexToRgb';
+
+import { usePageStore } from '../Page/PageProvider';
 
 const variants = {
   initial: {

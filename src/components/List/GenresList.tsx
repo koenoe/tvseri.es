@@ -1,5 +1,6 @@
-import { fetchGenresForTvSeries } from '@/lib/tmdb';
 import GenreTile from '@/components/Tiles/Genre';
+import { fetchGenresForTvSeries } from '@/lib/tmdb';
+
 import List from './List';
 
 // Note: override the gap in the list with gap-4 (1rem)

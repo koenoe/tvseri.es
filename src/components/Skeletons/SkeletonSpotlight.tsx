@@ -1,6 +1,7 @@
 'use client';
 
 import { cx } from 'class-variance-authority';
+
 import { carouselStyles } from '../Carousel/Carousel';
 
 export default function SkeletonSpotlight({

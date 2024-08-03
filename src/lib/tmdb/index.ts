@@ -1,6 +1,8 @@
 import 'server-only';
 
-import detectDominantColorFromImage from '../detectDominantColorFromImage';
+import { type Genre } from '@/types/genre';
+import type { Movie } from '@/types/movie';
+import type { TvSeries } from '@/types/tv-series';
 
 import {
   normalizeMovie,
@@ -12,10 +14,9 @@ import {
   type TmdbDiscoverTvSeries,
   type TmdbGenresForTvSeries,
 } from './helpers';
+import detectDominantColorFromImage from '../detectDominantColorFromImage';
 
-import type { Movie } from '@/types/movie';
-import type { TvSeries } from '@/types/tv-series';
-import { Genre } from '@/types/genre';
+
 
 const GENRES_TO_IGNORE = [16];
 

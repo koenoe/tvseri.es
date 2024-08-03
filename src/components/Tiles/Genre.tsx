@@ -1,9 +1,11 @@
 'use client';
 
 import React, { memo } from 'react';
-import { motion, useMotionTemplate, useMotionValue } from 'framer-motion';
-import { Genre } from '@/types/genre';
+
 import { cva } from 'class-variance-authority';
+import { motion, useMotionTemplate, useMotionValue } from 'framer-motion';
+
+import { type Genre } from '@/types/genre';
 
 const variants = {
   hidden: { opacity: 0 },

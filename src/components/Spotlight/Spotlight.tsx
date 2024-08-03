@@ -1,10 +1,13 @@
 'use client';
 
+import { type RefObject, useCallback } from 'react';
+
+import type { TvSeries } from '@/types/tv-series';
+
 import SpotlightItem from './SpotlightItem';
 import Carousel from '../Carousel/Carousel';
-import { type RefObject, useCallback } from 'react';
 import { usePageStore } from '../Page/PageProvider';
-import type { TvSeries } from '@/types/tv-series';
+
 
 export default function Spotlight({
   className,

@@ -1,5 +1,5 @@
-import Background from '../Background/Background';
 import { PageStoreProvider } from './PageProvider';
+import Background from '../Background/Background';
 
 export default function Page({
   backgroundColor = '#000',

@@ -1,11 +1,13 @@
 'use client';
 
 import { memo } from 'react';
+
 import { cva, cx } from 'class-variance-authority';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { TvSeries } from '@/types/tv-series';
+
+import { type TvSeries } from '@/types/tv-series';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 const MotionLink = motion(Link);

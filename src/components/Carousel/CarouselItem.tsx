@@ -1,6 +1,7 @@
 'use client';
 
 import { memo, type RefObject, useCallback, useMemo, useRef } from 'react';
+
 import { motion, type MotionValue, type PanInfo } from 'framer-motion';
 
 function CarouselItem({

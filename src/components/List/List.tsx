@@ -1,18 +1,20 @@
 'use client';
 
-import type { TvSeries } from '@/types/tv-series';
-import { cva, cx, type VariantProps } from 'class-variance-authority';
 import { useCallback, useRef } from 'react';
+
+import { cva, cx, type VariantProps } from 'class-variance-authority';
 import {
   useScroll,
   motion,
   useMotionValue,
   useMotionValueEvent,
+  useSpring,
 } from 'framer-motion';
 
 // TODO: convert to Tailwind
-import styles from './styles.module.css';
 import getMousePositionX from '@/utils/getMousePositionX';
+
+import styles from './styles.module.css';
 
 const innerStyles = cva(
   'relative flex w-full flex-nowrap overflow-x-scroll pt-6 pb-6 md:pb-6 md:pt-6 lg:pb-10 lg:pt-7 scrollbar-hide',
@@ -47,10 +49,23 @@ function List({ children, className, title, titleAlignment, style }: Props) {
   const scrollBarRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef<boolean>(false);
   const scrollXProgress = useMotionValue(0);
+  const scrollLeft = useMotionValue(0);
+  const springScrollLeft = useSpring(scrollLeft, {
+    stiffness: 300,
+    damping: 30,
+    mass: 1,
+    bounce: 0,
+  });
 
   const { scrollX } = useScroll({
     container: innerRef,
     axis: 'x',
+  });
+
+  useMotionValueEvent(springScrollLeft, 'change', (left) => {
+    innerRef.current?.scrollTo({
+      left,
+    });
   });
 
   useMotionValueEvent(scrollX, 'change', (value) => {
@@ -62,22 +77,22 @@ function List({ children, className, title, titleAlignment, style }: Props) {
     scrollXProgress.set(x);
   });
 
-  const handleDragging = useCallback((event: Event) => {
-    if (!isDragging.current) {
-      return;
-    }
+  const handleDragging = useCallback(
+    (event: Event) => {
+      if (!isDragging.current) {
+        return;
+      }
 
-    const x = getMousePositionX(event as MouseEvent, scrollBarRef.current);
-    const scrollWidth = innerRef.current?.scrollWidth ?? 0;
-    const clientWidth = innerRef.current?.clientWidth ?? 0;
-    const scrollableWidth = scrollWidth - clientWidth;
-    const left = x * scrollableWidth;
+      const x = getMousePositionX(event as MouseEvent, scrollBarRef.current);
+      const scrollWidth = innerRef.current?.scrollWidth ?? 0;
+      const clientWidth = innerRef.current?.clientWidth ?? 0;
+      const scrollableWidth = scrollWidth - clientWidth;
+      const left = x * scrollableWidth;
 
-    innerRef.current?.scrollTo({
-      left,
-      behavior: 'instant',
-    });
-  }, []);
+      scrollLeft.set(left);
+    },
+    [scrollLeft],
+  );
 
   const handleStopDragging = useCallback(() => {
     isDragging.current = false;
@@ -95,22 +110,22 @@ function List({ children, className, title, titleAlignment, style }: Props) {
     document.addEventListener('touchend', handleStopDragging, { once: true });
   }, [handleDragging, handleStopDragging]);
 
-  const handleClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    if (isDragging.current) {
-      return;
-    }
+  const handleClick = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      if (isDragging.current) {
+        return;
+      }
 
-    const x = getMousePositionX(event.nativeEvent, scrollBarRef.current);
-    const scrollWidth = innerRef.current?.scrollWidth ?? 0;
-    const clientWidth = innerRef.current?.clientWidth ?? 0;
-    const scrollableWidth = scrollWidth - clientWidth;
-    const left = x * scrollableWidth;
+      const x = getMousePositionX(event.nativeEvent, scrollBarRef.current);
+      const scrollWidth = innerRef.current?.scrollWidth ?? 0;
+      const clientWidth = innerRef.current?.clientWidth ?? 0;
+      const scrollableWidth = scrollWidth - clientWidth;
+      const left = x * scrollableWidth;
 
-    innerRef.current?.scrollTo({
-      left,
-      behavior: 'smooth',
-    });
-  }, []);
+      scrollLeft.set(left);
+    },
+    [scrollLeft],
+  );
 
   return (
     <div style={style} className={cx('relative w-full', className)}>

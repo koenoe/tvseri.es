@@ -1,6 +1,7 @@
 'use client';
 
 import { cx } from 'class-variance-authority';
+
 import { genreStyles } from '../Tiles/Genre';
 
 export default function SkeletonGenre() {

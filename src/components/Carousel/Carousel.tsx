@@ -10,16 +10,17 @@ import {
   type RefObject,
   useEffect,
 } from 'react';
+
+import { cx, cva } from 'class-variance-authority';
 import {
   type Easing,
   type PanInfo,
   useAnimate,
   useMotionValue,
-  motion,
 } from 'framer-motion';
-import { cx, cva } from 'class-variance-authority';
-import CarouselItem from './CarouselItem';
+
 import CarouselDot from './CarouselDot';
+import CarouselItem from './CarouselItem';
 
 const transition = {
   type: 'tween',

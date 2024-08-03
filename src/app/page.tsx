@@ -1,14 +1,15 @@
-import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
+import { notFound } from 'next/navigation';
+
+import GenresList, { gapStyleOverride } from '@/components/List/GenresList';
+import PopularBritishCrimeList from '@/components/List/PopularBritishCrimeList';
+import TopRatedList from '@/components/List/TopRatedList';
+import Page from '@/components/Page/Page';
+import SkeletonList from '@/components/Skeletons/SkeletonList';
+import Spotlight from '@/components/Spotlight/Spotlight';
 import { fetchTrendingTvSeries } from '@/lib/tmdb';
 
-import Page from '@/components/Page/Page';
-import Spotlight from '@/components/Spotlight/Spotlight';
-import TopRatedList from '@/components/List/TopRatedList';
-import SkeletonList from '@/components/Skeletons/SkeletonList';
-import PopularBritishCrimeList from '@/components/List/PopularBritishCrimeList';
-import GenresList, { gapStyleOverride } from '@/components/List/GenresList';
 
 export default async function Home() {
   const trendingTvSeries = await fetchTrendingTvSeries();

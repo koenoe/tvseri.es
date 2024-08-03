@@ -1,7 +1,7 @@
 import 'server-only';
 
-import type { paths } from '@/types/tmdb';
 import type { Movie } from '@/types/movie';
+import type { paths } from '@/types/tmdb';
 import type { Episode, TvSeries } from '@/types/tv-series';
 
 export type TmdbMovie =

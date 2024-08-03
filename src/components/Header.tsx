@@ -1,4 +1,5 @@
 import Image from 'next/image';
+
 import logo from '@/assets/logo.svg';
 import searchIcon from '@/assets/search.svg';
 

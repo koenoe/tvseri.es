@@ -1,11 +1,13 @@
 'use client';
 
 import { forwardRef, memo, useMemo } from 'react';
-import Image from 'next/image';
-import hexToRgb from '@/utils/hexToRgb';
+
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import Link from 'next/link';
+
 import type { TvSeries } from '@/types/tv-series';
+import hexToRgb from '@/utils/hexToRgb';
 
 export const variants = {
   hover: {

@@ -1,9 +1,10 @@
 'use client';
 
 import { type ReactNode, createContext, useRef, useContext } from 'react';
+
 import { useStore } from 'zustand';
 
-import { PageState, type PageStore, createPageStore } from './store';
+import { type PageState, type PageStore, createPageStore } from './store';
 
 export type PageStoreApi = ReturnType<typeof createPageStore>;
 

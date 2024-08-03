@@ -1,15 +1,16 @@
 'use client';
 
-import { cx } from 'class-variance-authority';
 import { useCallback } from 'react';
 
+import { cx } from 'class-variance-authority';
+
+import SkeletonGenre from './SkeletonGenre';
+import SkeletonPoster from './SkeletonPoster';
 import {
   type HeaderVariantProps,
   headerVariants,
   innerStylesWithModuleStyles,
 } from '../List/List';
-import SkeletonPoster from './SkeletonPoster';
-import SkeletonGenre from './SkeletonGenre';
 
 type Props = Readonly<{
   className?: string;

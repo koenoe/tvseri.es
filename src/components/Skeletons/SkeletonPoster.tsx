@@ -1,6 +1,7 @@
 'use client';
 
 import { cx } from 'class-variance-authority';
+
 import { posterStyles } from '../Tiles/Poster';
 
 export default function SkeletonPoster() {

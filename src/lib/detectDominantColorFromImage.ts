@@ -1,9 +1,9 @@
 import 'server-only';
 
-import { kv } from '@vercel/kv';
 import vision from '@google-cloud/vision';
-import { GoogleAuth, grpc } from 'google-gax';
+import { kv } from '@vercel/kv';
 import Color from 'color';
+import { GoogleAuth, grpc } from 'google-gax';
 import { unstable_cache } from 'next/cache';
 
 const CONTRAST_MINIMUM = 4.5; // Minimum contrast ratio recommended by WCAG

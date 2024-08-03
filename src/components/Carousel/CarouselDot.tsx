@@ -1,8 +1,9 @@
 'use client';
 
 import { memo, useCallback } from 'react';
-import { motion } from 'framer-motion';
+
 import { cva } from 'class-variance-authority';
+import { motion } from 'framer-motion';
 
 export const carouselDotStyles = cva(
   'size-2.5 cursor-pointer rounded-full bg-white',

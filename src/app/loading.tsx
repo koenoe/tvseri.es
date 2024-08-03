@@ -10,10 +10,12 @@ export default function Loading() {
       <SkeletonList className="mb-10 md:mb-16" />
       <SkeletonList className="mb-10 md:mb-16" />
       <SkeletonList
+        className="mb-10 md:mb-16"
         variant="genre"
         style={gapStyleOverride}
         numberOfItems={5}
       />
+      <SkeletonList />
     </SkeletonPage>
   );
 }

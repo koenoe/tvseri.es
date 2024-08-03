@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 
 import { notFound } from 'next/navigation';
 
+import BestSportsDocumentariesList from '@/components/List/BestSportsDocumentaries';
 import GenresList, { gapStyleOverride } from '@/components/List/GenresList';
 import PopularBritishCrimeList from '@/components/List/PopularBritishCrimeList';
 import TopRatedList from '@/components/List/TopRatedList';
@@ -9,7 +10,6 @@ import Page from '@/components/Page/Page';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
 import Spotlight from '@/components/Spotlight/Spotlight';
 import { fetchTrendingTvSeries } from '@/lib/tmdb';
-
 
 export default async function Home() {
   const trendingTvSeries = await fetchTrendingTvSeries();
@@ -37,13 +37,18 @@ export default async function Home() {
       <Suspense
         fallback={
           <SkeletonList
+            className="mb-10 md:mb-16"
             variant="genre"
             style={gapStyleOverride}
             numberOfItems={5}
           />
         }
       >
-        <GenresList />
+        <GenresList className="mb-10 md:mb-16" />
+      </Suspense>
+
+      <Suspense fallback={<SkeletonList />}>
+        <BestSportsDocumentariesList />
       </Suspense>
     </Page>
   );

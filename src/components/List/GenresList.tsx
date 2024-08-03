@@ -8,7 +8,9 @@ export const gapStyleOverride = {
   '--gap-override': '1rem',
 } as React.CSSProperties;
 
-export default async function GenresList() {
+export default async function GenresList(
+  props: React.AllHTMLAttributes<HTMLDivElement>,
+) {
   const genres = await fetchGenresForTvSeries();
 
   const pairedGenres = [];
@@ -17,7 +19,7 @@ export default async function GenresList() {
   }
 
   return (
-    <List style={gapStyleOverride} title="Genres">
+    <List style={gapStyleOverride} title="Genres" {...props}>
       {pairedGenres.map((pair, index) => (
         <div key={index} className="flex flex-col gap-4">
           {pair.map((genre) => (

@@ -16,8 +16,6 @@ import {
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 
-
-
 const GENRES_TO_IGNORE = [16];
 
 async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
@@ -141,7 +139,7 @@ export async function fetchTrendingTvSeries() {
 export async function fetchTopRatedTvSeries() {
   const topRatedTvSeriesResponse =
     ((await tmdbFetch(
-      `/3/discover/tv?include_adult=false&language=en-US&page=1&sort_by=vote_average.desc&vote_count.gte=3500&vote_average.gte=8&without_genres=${GENRES_TO_IGNORE.join(',')}`,
+      `/3/discover/tv?include_adult=false&page=1&sort_by=vote_average.desc&vote_count.gte=3500&vote_average.gte=8&without_genres=${GENRES_TO_IGNORE.join(',')}`,
     )) as TmdbDiscoverTvSeries) ?? [];
 
   return (topRatedTvSeriesResponse.results ?? []).map((series) => {
@@ -153,6 +151,17 @@ export async function fetchPopularBritishCrimeTvSeries() {
   const tvSeriesResponse =
     ((await tmdbFetch(
       `/3/discover/tv?include_adult=false&language=en-GB&page=1&sort_by=popularity.desc&vote_count.gte=250&watch_region=GB&with_genres=80&without_genres=10766&with_origin_country=GB&with_original_language=en`,
+    )) as TmdbDiscoverTvSeries) ?? [];
+
+  return (tvSeriesResponse.results ?? []).map((series) => {
+    return normalizeTvSeries(series as TmdbTvSeries);
+  });
+}
+
+export async function fetchBestSportsDocumentariesTvSeries() {
+  const tvSeriesResponse =
+    ((await tmdbFetch(
+      `/3/discover/tv?include_adult=false&page=1&sort_by=vote_average.desc&vote_count.gte=7&with_genres=99&without_genres=35&with_keywords=6075|2702&without_keywords=10596,293434,288928`,
     )) as TmdbDiscoverTvSeries) ?? [];
 
   return (tvSeriesResponse.results ?? []).map((series) => {

@@ -43,12 +43,10 @@ function CarouselItem({
 
   return (
     <motion.div
+      className="absolute h-full w-full"
       style={{
-        height: '100%',
         left: `${index * 100}%`,
-        position: 'absolute',
         right: `${index * 100}%`,
-        width: '100%',
         x,
       }}
       drag="x"

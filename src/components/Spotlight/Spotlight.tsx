@@ -8,7 +8,6 @@ import SpotlightItem from './SpotlightItem';
 import Carousel from '../Carousel/Carousel';
 import { usePageStore } from '../Page/PageProvider';
 
-
 export default function Spotlight({
   className,
   items,
@@ -18,7 +17,7 @@ export default function Spotlight({
 }>) {
   const updateBackground = usePageStore((state) => state.setBackground);
   const itemRenderer = useCallback(
-    (index: number, ref: RefObject<HTMLElement>) => (
+    (index: number, ref: RefObject<HTMLAnchorElement>) => (
       <SpotlightItem ref={ref} index={index} item={items[index]} />
     ),
     [items],

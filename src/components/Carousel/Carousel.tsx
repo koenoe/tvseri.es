@@ -40,17 +40,15 @@ function Carousel({
 }: Readonly<{
   className?: string;
   itemCount: number;
-  itemRenderer: (index: number, ref: RefObject<HTMLElement>) => JSX.Element;
+  itemRenderer: (
+    index: number,
+    ref: RefObject<HTMLAnchorElement>,
+  ) => JSX.Element;
   onChange?: (index: number) => void;
 }>) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [containerRef, animate] = useAnimate();
   const x = useMotionValue(0);
-
-  const range = useMemo(() => {
-    const halfRange = Math.floor(itemCount / 2);
-    return Array.from({ length: itemCount + 1 }, (_, i) => i - halfRange);
-  }, [itemCount]);
 
   const calculateItemIndex = useCallback(
     (index: number) => {
@@ -119,6 +117,26 @@ function Carousel({
     [calculateItemIndex, currentIndex],
   );
 
+  const range = useMemo(() => {
+    let rangeStart, rangeEnd;
+
+    if (currentItemIndex === 0) {
+      rangeStart = -1;
+      rangeEnd = itemCount - currentItemIndex;
+    } else if (currentItemIndex === itemCount - 1) {
+      rangeStart = -currentItemIndex;
+      rangeEnd = 2;
+    } else {
+      rangeStart = -currentItemIndex;
+      rangeEnd = Math.min(itemCount - currentItemIndex, itemCount);
+    }
+
+    return Array.from(
+      { length: rangeEnd - rangeStart },
+      (_, i) => rangeStart + i,
+    );
+  }, [itemCount, currentItemIndex]);
+
   const handleResize = useCallback(() => {
     return updateCurrentIndex(currentIndex);
   }, [currentIndex, updateCurrentIndex]);
@@ -138,10 +156,10 @@ function Carousel({
           return (
             <CarouselItem
               key={i + currentIndex}
-              x={x}
-              onDragEnd={handleDragEnd}
               index={i + currentIndex}
               itemRenderer={handleItemRenderer}
+              onDragEnd={handleDragEnd}
+              x={x}
             />
           );
         })}

@@ -8,11 +8,11 @@ export default async function TopRatedList(
     HeaderVariantProps &
     Readonly<{ priority?: boolean }>,
 ) {
-  const topRatedTvSeries = await fetchTopRatedTvSeries();
+  const tvSeries = await fetchTopRatedTvSeries();
 
   return (
     <List title="All time favourites" {...props}>
-      {topRatedTvSeries.map((item) => (
+      {tvSeries.map((item) => (
         <Poster key={item.id} item={item} priority />
       ))}
     </List>

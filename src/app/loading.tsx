@@ -15,6 +15,8 @@ export default function Loading() {
         style={gapStyleOverride}
         numberOfItems={5}
       />
+      <SkeletonList className="mb-10 md:mb-16" />
+      <SkeletonList className="mb-10 md:mb-16" />
       <SkeletonList />
     </SkeletonPage>
   );

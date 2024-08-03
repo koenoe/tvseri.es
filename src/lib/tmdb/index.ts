@@ -139,7 +139,7 @@ export async function fetchTrendingTvSeries() {
 export async function fetchTopRatedTvSeries() {
   const topRatedTvSeriesResponse =
     ((await tmdbFetch(
-      `/3/discover/tv?include_adult=false&page=1&sort_by=vote_average.desc&vote_count.gte=3500&vote_average.gte=8&without_genres=${GENRES_TO_IGNORE.join(',')}`,
+      `/3/discover/tv?include_adult=false&page=1&sort_by=vote_average.desc&vote_count.gte=2000&vote_average.gte=8&without_keywords=2411,299842,12564,158718,193171&without_genres=${GENRES_TO_IGNORE.join(',')}`,
     )) as TmdbDiscoverTvSeries) ?? [];
 
   return (topRatedTvSeriesResponse.results ?? [])

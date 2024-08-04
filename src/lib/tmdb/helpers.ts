@@ -1,5 +1,7 @@
 import 'server-only';
 
+import slugify from 'slugify';
+
 import type { Movie } from '@/types/movie';
 import type { paths } from '@/types/tmdb';
 import type { Episode, TvSeries } from '@/types/tv-series';
@@ -14,6 +16,12 @@ export type TmdbTvSeries =
     images: paths[`/3/tv/${number}/images`]['get']['responses']['200']['content']['application/json'];
   };
 
+export type TmdbTvSeriesContentRatings =
+  paths[`/3/tv/${number}/content_ratings`]['get']['responses']['200']['content']['application/json'];
+
+export type TmdbTvSeriesWatchProviders =
+  paths[`/3/tv/${number}/watch/providers`]['get']['responses']['200']['content']['application/json'];
+
 export type TmdbTrendingMovies =
   paths[`/3/trending/movie/${string}`]['get']['responses']['200']['content']['application/json'];
 
@@ -26,7 +34,7 @@ export type TmdbDiscoverTvSeries =
 export type TmdbGenresForTvSeries =
   paths['/3/genre/tv/list']['get']['responses']['200']['content']['application/json'];
 
-function generateTmdbImageUrl(path: string, size = 'original') {
+export function generateTmdbImageUrl(path: string, size = 'original') {
   return `https://image.tmdb.org/t/p/${size}/${path}`;
 }
 
@@ -51,6 +59,14 @@ function extractImages(item: TmdbTvSeries | TmdbMovie) {
   };
 }
 
+function normalizeGenres(genres: TmdbTvSeries['genres'] | TmdbMovie['genres']) {
+  return (genres ?? []).map((genre) => ({
+    id: genre.id,
+    name: genre.name as string,
+    slug: slugify(genre.name as string, { lower: true, strict: true }),
+  }));
+}
+
 export function normalizeMovie(movie: TmdbMovie): Movie {
   const images = extractImages(movie);
   const releaseDate = new Date(movie.release_date ?? '').toISOString();
@@ -63,15 +79,32 @@ export function normalizeMovie(movie: TmdbMovie): Movie {
     originalLanguage: movie.original_language ?? '',
     originalTitle: movie.original_title ?? '',
     tagline: movie.tagline ?? '',
-    genres: (movie.genres ?? []).map((genre) => ({
-      id: genre.id,
-      name: genre.name ?? '',
-    })),
+    genres: normalizeGenres(movie.genres),
     releaseDate,
     runtime: movie.runtime,
     backdropColor: '#000',
+    slug: slugify(movie.title ?? '', { lower: true, strict: true }),
     ...images,
   };
+}
+
+function formatReleaseYearForTvSeries(
+  firstAirDate: string,
+  lastAirDate: string,
+) {
+  const firstAirYear = new Date(firstAirDate).getUTCFullYear();
+  const lastAirYear = new Date(lastAirDate).getUTCFullYear();
+  const currentYear = new Date().getUTCFullYear();
+
+  if (firstAirYear === lastAirYear) {
+    return `${firstAirYear}`;
+  }
+
+  if (lastAirYear < currentYear) {
+    return `${firstAirYear}– ${lastAirYear}`;
+  }
+
+  return `${firstAirYear}–`;
 }
 
 export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
@@ -82,24 +115,32 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
   const lastAirDate = series.last_air_date
     ? new Date(series.last_air_date).toISOString()
     : '';
+  const releaseYear = formatReleaseYearForTvSeries(firstAirDate, lastAirDate);
 
   return {
     id: series.id,
     title: series.name ?? '',
+    createdBy: (series.created_by ?? []).map((creator) => ({
+      id: creator.id,
+      name: creator.name ?? '',
+      image: creator.profile_path
+        ? generateTmdbImageUrl(creator.profile_path)
+        : '',
+      slug: slugify(creator.name as string, { lower: true, strict: true }),
+    })),
     description: series.overview ?? '',
     originalLanguage: series.original_language ?? '',
     originalTitle: series.original_name ?? '',
     tagline: series.tagline ?? '',
-    genres: (series.genres ?? []).map((genre) => ({
-      id: genre.id,
-      name: genre.name ?? '',
-    })),
+    genres: normalizeGenres(series.genres),
     numberOfSeasons: series.number_of_seasons,
     firstAirDate,
     firstEpisodeToAir: {} as Episode,
     lastEpisodeToAir: {} as Episode,
     lastAirDate,
     backdropColor: '#000',
+    releaseYear,
+    slug: slugify(series.name ?? '', { lower: true, strict: true }),
     ...images,
   };
 }

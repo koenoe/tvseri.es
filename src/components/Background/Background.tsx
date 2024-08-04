@@ -1,11 +1,11 @@
 'use client';
 
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
 
-import hexToRgb from '@/utils/hexToRgb';
+import useRgbString from '@/hooks/useRgbString';
 
 import { usePageStore } from '../Page/PageProvider';
 
@@ -27,14 +27,14 @@ const transition = {
   duration: 0.5,
 };
 
-function Background() {
+export type BackgroundVariant = 'page' | 'spotlight';
+
+function Background({
+  variant = 'page',
+}: Readonly<{ variant: BackgroundVariant }>) {
   const color = usePageStore((state) => state.backgroundColor);
   const image = usePageStore((state) => state.backgroundImage);
-
-  const rgbForRgba = useMemo(() => {
-    const [r, g, b] = hexToRgb(color);
-    return `${r},${g},${b}`;
-  }, [color]);
+  const rgbString = useRgbString(color);
 
   return (
     <AnimatePresence initial={false}>
@@ -48,19 +48,33 @@ function Background() {
         transition={transition}
       >
         <Image
-          className="object-cover opacity-30"
+          className="object-cover"
           src={image}
           alt=""
           priority
           fill
           sizes="100vw"
+          style={{
+            opacity: variant === 'spotlight' ? 0.3 : 1,
+          }}
         />
+
+        {variant === 'page' && (
+          <div
+            className="absolute inset-0 opacity-70"
+            style={{
+              backgroundImage: `linear-gradient(270deg, rgba(${rgbString}, 0) 0%, rgba(${rgbString}, 0.9) 50%, rgba(${rgbString}, 1) 100%)`,
+            }}
+          />
+        )}
+
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `radial-gradient(rgba(${rgbForRgba}, 0) 0%, rgba(${rgbForRgba}, 1) 100%)`,
+            backgroundImage: `radial-gradient(rgba(${rgbString}, 0) 0%, rgba(${rgbString}, 1) 100%)`,
           }}
         />
+
         <div
           className="absolute bottom-0 left-0 h-1/5 w-full"
           style={{

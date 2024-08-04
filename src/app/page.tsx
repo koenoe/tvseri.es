@@ -25,6 +25,7 @@ export default async function Home() {
     <Page
       backgroundColor={spotlight.backdropColor}
       backgroundImage={spotlight.backdropImage}
+      backgroundVariant="spotlight"
     >
       <Spotlight items={trendingTvSeries} className="mb-10 md:mb-20" />
 

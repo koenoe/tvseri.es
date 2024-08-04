@@ -1,4 +1,5 @@
-import type { Movie } from './movie';
+import { type Movie } from './movie';
+import { type Person } from './person';
 
 export type Episode = Readonly<{
   description: string;
@@ -19,14 +20,13 @@ export type Season = Readonly<{
   title: string;
 }>;
 
-export type TvSeries = Omit<
-  Movie,
-  'runtime' | 'releaseDate' | 'releaseYear' | 'imdbId'
-> &
+export type TvSeries = Omit<Movie, 'runtime' | 'releaseDate' | 'imdbId'> &
   Readonly<{
-    numberOfSeasons: number;
+    createdBy: Person[];
     firstAirDate: string;
     firstEpisodeToAir: Episode;
     lastAirDate: string;
     lastEpisodeToAir: Episode;
+    numberOfSeasons: number;
+    releaseYear: string;
   }>;

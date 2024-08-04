@@ -1,4 +1,4 @@
-import type { Genre } from './genre';
+import { type Genre } from './genre';
 
 export type Movie = Readonly<{
   backdropColor: string;
@@ -12,6 +12,7 @@ export type Movie = Readonly<{
   posterImage: string;
   releaseDate: string;
   runtime: number;
+  slug: string;
   tagline: string;
   title: string;
   titleTreatmentImage?: string;

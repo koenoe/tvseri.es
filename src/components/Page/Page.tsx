@@ -1,13 +1,16 @@
 import { PageStoreProvider } from './PageProvider';
-import Background from '../Background/Background';
+import Background, { type BackgroundVariant } from '../Background/Background';
+import BackgroundGlobal from '../Background/BackgroundGlobal';
 
 export default function Page({
   backgroundColor = '#000',
   backgroundImage = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+  backgroundVariant = 'page',
   children,
 }: Readonly<{
   backgroundColor?: string;
   backgroundImage?: string;
+  backgroundVariant?: BackgroundVariant;
   children: React.ReactNode;
 }>) {
   return (
@@ -15,13 +18,13 @@ export default function Page({
       backgroundColor={backgroundColor}
       backgroundImage={backgroundImage}
     >
+      <BackgroundGlobal />
       <main
-        // py-[] is the height of the header
-        className="min-h-screen py-[6rem] subpixel-antialiased transition-colors duration-500 md:py-[8rem]"
-        style={{ backgroundColor }}
+        // pt-[] is the height of the header
+        className="grow pb-20 pt-[6rem] subpixel-antialiased transition-colors duration-500 md:pt-[8rem]"
       >
-        <Background />
-        {children}
+        <Background variant={backgroundVariant} />
+        <div className="relative z-10">{children}</div>
       </main>
     </PageStoreProvider>
   );

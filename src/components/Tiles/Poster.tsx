@@ -26,9 +26,7 @@ function Poster({
       key={item.id}
       className={cx(posterStyles(), className)}
       draggable={false}
-      href={`https://www.themoviedb.org/tv/${item.id}`}
-      prefetch={false}
-      target="_blank"
+      href={`/tv/${item.id}/${item.slug}`}
       whileHover={{ scale: 1.075 }}
       animate={{ scale: 1 }}
     >

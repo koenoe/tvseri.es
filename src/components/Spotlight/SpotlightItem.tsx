@@ -1,12 +1,12 @@
 'use client';
 
-import { forwardRef, memo, useMemo } from 'react';
+import { forwardRef, memo } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
 
+import useRgbString from '@/hooks/useRgbString';
 import type { TvSeries } from '@/types/tv-series';
-import hexToRgb from '@/utils/hexToRgb';
 
 type Props = Readonly<{
   item: TvSeries;
@@ -15,34 +15,13 @@ type Props = Readonly<{
 
 const SpotlightItem = forwardRef<HTMLAnchorElement, Props>(
   ({ item, index }, ref) => {
-    const rgbString = useMemo(() => {
-      return hexToRgb(item.backdropColor).join(',');
-    }, [item.backdropColor]);
-
-    const releaseYear = useMemo(() => {
-      const firstAirYear = new Date(item.firstAirDate).getUTCFullYear();
-      const lastAirYear = new Date(item.lastAirDate).getUTCFullYear();
-      const currentYear = new Date().getUTCFullYear();
-
-      if (firstAirYear === lastAirYear) {
-        return firstAirYear;
-      }
-
-      if (lastAirYear < currentYear) {
-        return `${firstAirYear}– ${lastAirYear}`;
-      }
-
-      return `${firstAirYear}–`;
-    }, [item.firstAirDate, item.lastAirDate]);
+    const rgbString = useRgbString(item.backdropColor);
 
     return (
       <Link
         ref={ref}
-        href={`https://www.themoviedb.org/tv/${item.id}`}
-        // TODO: enable prefetch when we have internal tv series pages
-        prefetch={false}
+        href={`/tv/${item.id}/${item.slug}`}
         className="relative flex h-full w-full flex-shrink-0 items-end overflow-hidden"
-        target="_blank"
         draggable={false}
       >
         {item.backdropImage && (
@@ -56,7 +35,7 @@ const SpotlightItem = forwardRef<HTMLAnchorElement, Props>(
               draggable={false}
             />
             <div
-              className="absolute inset-0 opacity-80"
+              className="absolute inset-0 opacity-70"
               style={{
                 backgroundImage: `linear-gradient(270deg, rgba(${rgbString}, 0) 0%, rgba(${rgbString}, 0.4) 50%, rgba(${rgbString}, 1) 100%)`,
               }}
@@ -92,7 +71,7 @@ const SpotlightItem = forwardRef<HTMLAnchorElement, Props>(
           <div className="flex gap-4 md:gap-12">
             <div className="flex w-full justify-center gap-2 text-xs opacity-60 md:justify-start md:text-[0.8rem]">
               <div className="after:ml-2 after:content-['·']">
-                {releaseYear}
+                {item.releaseYear}
               </div>
               <div className="after:ml-2 after:content-['·']">
                 {item.numberOfSeasons}{' '}

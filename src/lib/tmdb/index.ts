@@ -5,6 +5,7 @@ import type { Movie } from '@/types/movie';
 import type { TvSeries } from '@/types/tv-series';
 
 import {
+  generateTmdbImageUrl,
   normalizeMovie,
   normalizeTvSeries,
   type TmdbTvSeries,
@@ -13,6 +14,8 @@ import {
   type TmdbTrendingTvSeries,
   type TmdbDiscoverTvSeries,
   type TmdbGenresForTvSeries,
+  type TmdbTvSeriesContentRatings,
+  type TmdbTvSeriesWatchProviders,
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 
@@ -71,7 +74,7 @@ export async function fetchMovie(id: number): Promise<Movie> {
   return normalizedMovie;
 }
 
-export async function fetchTvSeries(id: number): Promise<TvSeries> {
+export async function fetchTvSeries(id: number | string): Promise<TvSeries> {
   const series = (await tmdbFetch(
     `/3/tv/${id}?append_to_response=images&include_image_language=en,null`,
   )) as TmdbTvSeries;
@@ -90,6 +93,42 @@ export async function fetchTvSeries(id: number): Promise<TvSeries> {
   }
 
   return normalizedTvSeries;
+}
+
+export async function fetchTvSeriesContentRating(
+  id: number | string,
+  region = 'US',
+): Promise<string | undefined> {
+  const contentRatings = (await tmdbFetch(
+    `/3/tv/${id}/content_ratings`,
+  )) as TmdbTvSeriesContentRatings;
+
+  return contentRatings.results?.find((rating) => rating.iso_3166_1 === region)
+    ?.rating;
+}
+
+export async function fetchTvSeriesWatchProviders(
+  id: number | string,
+  region = 'US',
+): Promise<
+  Readonly<{
+    id: number;
+    name: string;
+    logo: string;
+  }>[]
+> {
+  const watchProviders = (await tmdbFetch(
+    `/3/tv/${id}/watch/providers`,
+  )) as TmdbTvSeriesWatchProviders;
+
+  return (
+    watchProviders.results?.[region as keyof typeof watchProviders.results]
+      ?.flatrate ?? []
+  ).map((provider) => ({
+    id: provider.provider_id,
+    name: provider.provider_name as string,
+    logo: provider.logo_path ? generateTmdbImageUrl(provider.logo_path) : '',
+  }));
 }
 
 export async function fetchTrendingMovies() {
@@ -165,7 +204,7 @@ export async function fetchPopularBritishCrimeTvSeries() {
 export async function fetchBestSportsDocumentariesTvSeries() {
   const tvSeriesResponse =
     ((await tmdbFetch(
-      `/3/discover/tv?include_adult=false&page=1&sort_by=vote_average.desc&vote_count.gte=7&with_genres=99&without_genres=35&with_keywords=6075|2702&without_keywords=10596,293434,288928`,
+      `/3/discover/tv?include_adult=false&page=1&sort_by=vote_average.desc&vote_count.gte=7&with_genres=99&without_genres=35&with_keywords=6075|2702&without_keywords=10596,293434,288928,11672`,
     )) as TmdbDiscoverTvSeries) ?? [];
 
   return (tvSeriesResponse.results ?? [])

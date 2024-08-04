@@ -16,7 +16,7 @@ export default async function ContentRating({
   return contentRating ? (
     <div
       className={cx(
-        'flex h-7 min-w-7 items-center justify-center rounded-md border p-2 text-sm opacity-60',
+        'flex h-7 min-w-7 items-center justify-center rounded-md border p-1 text-sm opacity-60',
         className,
       )}
     >

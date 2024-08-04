@@ -22,6 +22,7 @@ export default function Page({
       <main
         // pt-[] is the height of the header
         className="grow pb-20 pt-[6rem] subpixel-antialiased transition-colors duration-500 md:pt-[8rem]"
+        style={{ backgroundColor }}
       >
         <Background variant={backgroundVariant} />
         <div className="relative z-10">{children}</div>

@@ -11,7 +11,7 @@ export default function Footer() {
           <Image src={logo} alt="" width={150} />
         </Link>
         <p className="text-xs leading-loose opacity-60">
-          This product uses the TMDb API but is neither endorsed nor certified
+          This website uses the TMDb API but is neither endorsed nor certified
           by{' '}
           <a
             href="https://themoviedb.org"
@@ -20,7 +20,7 @@ export default function Footer() {
           >
             TMDb
           </a>
-          . Information on watch providers is courtesy of{' '}
+          . The information on watch providers is courtesy of{' '}
           <a
             href="https://www.justwatch.com/"
             target="_blank"

@@ -86,7 +86,7 @@ export default async function TvSeriesDetails({ params }: Props) {
                 <div className="opacity-60 md:hidden">
                   {tvSeries.genres[0].name}
                 </div>
-                <div className="ml-auto flex gap-2">
+                <div className="ml-auto flex gap-2 md:ml-8">
                   <Suspense
                     fallback={
                       <div className="flex h-7 min-w-7 animate-pulse rounded-sm bg-white/30" />

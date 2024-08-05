@@ -14,6 +14,13 @@ const inter = Inter({ subsets: ['latin'], display: 'swap' });
 export const fetchCache = 'default-cache';
 
 export const metadata: Metadata = {
+  formatDetection: {
+    address: false,
+    date: false,
+    email: false,
+    telephone: false,
+    url: false,
+  },
   title: {
     template: 'TMDB Playground - %s',
     default: 'TMDB Playground',

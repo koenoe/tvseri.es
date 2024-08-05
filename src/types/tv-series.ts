@@ -20,7 +20,7 @@ export type Season = Readonly<{
   title: string;
 }>;
 
-export type TvSeries = Omit<Movie, 'releaseDate' | 'imdbId'> &
+export type TvSeries = Omit<Movie, 'runtime' | 'releaseDate' | 'imdbId'> &
   Readonly<{
     createdBy: Person[];
     firstAirDate: string;

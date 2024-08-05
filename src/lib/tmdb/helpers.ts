@@ -158,7 +158,6 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     lastAirDate,
     backdropColor: '#000',
     releaseYear,
-    runtime: series.episode_run_time?.[0] ?? 0,
     slug,
     ...images,
   };

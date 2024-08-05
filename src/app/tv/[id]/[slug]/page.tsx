@@ -7,7 +7,6 @@ import ContentRating from '@/components/ContentRating/ContentRating';
 import Page from '@/components/Page/Page';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
 import { fetchTvSeries } from '@/lib/tmdb';
-import formatRuntime from '@/utils/formatRuntime';
 
 type Props = Readonly<{
   params: { id: string; slug: string };
@@ -36,7 +35,6 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function TvSeriesDetails({ params }: Props) {
   const tvSeries = await fetchTvSeries(params.id);
-  await new Promise((resolve) => setTimeout(resolve, 2000));
 
   if (!tvSeries) {
     return notFound();
@@ -72,20 +70,15 @@ export default async function TvSeriesDetails({ params }: Props) {
               </h1>
             )}
 
-            <div className="mb-6 flex w-full gap-4 whitespace-nowrap md:gap-12">
-              <div className="flex w-full flex-wrap items-center gap-2 text-xs md:flex-nowrap md:text-[0.8rem]">
-                <div className="opacity-60 after:ml-1 after:content-['·']">
+            <div className="mb-6 flex w-full gap-4 md:gap-12">
+              <div className="flex w-full items-center gap-2 text-xs md:text-[0.8rem]">
+                <div className="opacity-60 after:ml-2 after:content-['·']">
                   {tvSeries.releaseYear}
                 </div>
-                <div className="opacity-60 after:ml-1 after:content-['·']">
+                <div className="opacity-60 after:ml-2 after:content-['·']">
                   {tvSeries.numberOfSeasons}{' '}
                   {tvSeries.numberOfSeasons === 1 ? 'Season' : 'Seasons'}
                 </div>
-                {tvSeries.runtime > 0 && (
-                  <div className="opacity-60 after:ml-1 after:content-['·']">
-                    {formatRuntime(tvSeries.runtime)}
-                  </div>
-                )}
                 {/* TODO: <Link /> to genre pages */}
                 <div className="hidden opacity-60 md:block">
                   {tvSeries.genres.map((genre) => genre.name).join(', ')}
@@ -93,7 +86,7 @@ export default async function TvSeriesDetails({ params }: Props) {
                 <div className="opacity-60 md:hidden">
                   {tvSeries.genres[0].name}
                 </div>
-                <div className="mt-6 flex h-7 w-full gap-2 md:ml-8 md:mt-0 md:w-auto">
+                <div className="ml-auto flex h-7 gap-2 md:ml-8">
                   <Suspense
                     fallback={
                       <div className="flex h-7 min-w-7 animate-pulse rounded-sm bg-white/30" />

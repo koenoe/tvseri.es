@@ -12,17 +12,17 @@ body {
   user-select: none;
 }
 
-body:global(.scrollbar-is-visible)::-webkit-scrollbar-corner,
-body:global(.scrollbar-is-visible)::-webkit-scrollbar-track {
+body.scrollbar-is-visible::-webkit-scrollbar-corner,
+body.scrollbar-is-visible::-webkit-scrollbar-track {
   background: theme('colors.neutral.800');
 }
 
-body:global(.scrollbar-is-visible)::-webkit-scrollbar-thumb {
+body.scrollbar-is-visible::-webkit-scrollbar-thumb {
   background: theme('colors.neutral.600');
   border-radius: 10px;
 }
 
-body:global(.scrollbar-is-visible)::-webkit-scrollbar {
+body.scrollbar-is-visible::-webkit-scrollbar {
   width: auto;
   max-width: 10px;
   max-height: 10px;

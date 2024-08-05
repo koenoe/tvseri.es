@@ -8,6 +8,10 @@ export default function Loading() {
           <div className="w-full xl:w-4/5 2xl:w-3/5">
             <div className="relative mb-6 h-28 w-full bg-white/5 md:h-40 md:w-3/5" />
             <div className="mb-6 h-6 w-4/5 bg-white/10" />
+            <div className="flex gap-2 md:hidden">
+              <div className="mb-6 h-7 w-7 rounded-sm bg-white/15" />
+              <div className="mb-6 h-7 w-7 rounded-sm bg-white/15" />
+            </div>
           </div>
         </div>
         <div className="mb-6 flex w-full flex-col gap-1 xl:w-4/5 2xl:w-3/5">

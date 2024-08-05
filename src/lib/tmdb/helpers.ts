@@ -84,6 +84,7 @@ export function normalizeMovie(movie: TmdbMovie): Movie {
 
   return {
     id: movie.id,
+    isAdult: movie.adult,
     imdbId: movie.imdb_id ?? '',
     title: movie.title ?? '',
     description: movie.overview ?? '',
@@ -135,6 +136,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
 
   return {
     id: series.id,
+    isAdult: series.adult,
     title: series.name ?? '',
     createdBy: (series.created_by ?? []).map((creator) => ({
       id: creator.id,

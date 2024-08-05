@@ -6,6 +6,7 @@ export type Movie = Readonly<{
   description: string;
   genres: Genre[];
   id: number;
+  isAdult: boolean;
   imdbId: string;
   originalLanguage: string;
   originalTitle: string;

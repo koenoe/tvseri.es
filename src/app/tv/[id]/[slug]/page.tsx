@@ -15,7 +15,7 @@ type Props = Readonly<{
 export async function generateMetadata({ params }: Props) {
   const tvSeries = await fetchTvSeries(params.id);
 
-  if (!tvSeries) {
+  if (!tvSeries || tvSeries.isAdult) {
     return notFound();
   }
 

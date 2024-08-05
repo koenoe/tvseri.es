@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import Image from 'next/image';
 import { notFound, redirect } from 'next/navigation';
 
+import Cast from '@/components/Cast/Cast';
 import ContentRating from '@/components/ContentRating/ContentRating';
 import Page from '@/components/Page/Page';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
@@ -119,6 +120,10 @@ export default async function TvSeriesDetails({ params }: Props) {
             </p>
           )}
         </div>
+
+        <Suspense fallback="Loading...">
+          <Cast id={tvSeries.id} />
+        </Suspense>
       </div>
     </Page>
   );

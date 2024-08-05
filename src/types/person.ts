@@ -3,4 +3,6 @@ export type Person = Readonly<{
   name: string;
   image: string;
   slug: string;
+  character: string;
+  job: string;
 }>;

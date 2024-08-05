@@ -22,6 +22,9 @@ export type TmdbTvSeriesContentRatings =
 export type TmdbTvSeriesWatchProviders =
   paths[`/3/tv/${number}/watch/providers`]['get']['responses']['200']['content']['application/json'];
 
+export type TmdbTvSeriesCredits =
+  paths[`/3/tv/${number}/credits`]['get']['responses']['200']['content']['application/json'];
+
 export type TmdbTrendingMovies =
   paths[`/3/trending/movie/${string}`]['get']['responses']['200']['content']['application/json'];
 
@@ -40,9 +43,9 @@ export function generateTmdbImageUrl(path: string, size = 'original') {
 
 export function canSluggify(item: TmdbTvSeries | TmdbMovie) {
   let name = '';
-  if (item.hasOwnProperty('name')) {
+  if ('name' in item) {
     name = (item as TmdbTvSeries).name as string;
-  } else if (item.hasOwnProperty('title')) {
+  } else if ('title' in item) {
     name = (item as TmdbMovie).title as string;
   }
   const slug = slugify(name, { lower: true, strict: true });
@@ -76,6 +79,34 @@ function normalizeGenres(genres: TmdbTvSeries['genres'] | TmdbMovie['genres']) {
     name: genre.name as string,
     slug: slugify(genre.name as string, { lower: true, strict: true }),
   }));
+}
+
+export function normalizePersons(
+  persons:
+    | TmdbTvSeries['created_by']
+    | TmdbTvSeriesCredits['cast']
+    | TmdbTvSeriesCredits['crew'],
+) {
+  return (persons ?? []).map((person) => {
+    let character = '';
+    let job = '';
+    if ('character' in person && person.character) {
+      character = person.character as string;
+    } else if ('job' in person && person.job) {
+      job = person.job as string;
+    }
+
+    return {
+      id: person.id,
+      name: person.name ?? '',
+      image: person.profile_path
+        ? generateTmdbImageUrl(person.profile_path)
+        : '',
+      slug: slugify(person.name as string, { lower: true, strict: true }),
+      character,
+      job,
+    };
+  });
 }
 
 export function normalizeMovie(movie: TmdbMovie): Movie {
@@ -138,14 +169,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     id: series.id,
     isAdult: series.adult,
     title: series.name ?? '',
-    createdBy: (series.created_by ?? []).map((creator) => ({
-      id: creator.id,
-      name: creator.name ?? '',
-      image: creator.profile_path
-        ? generateTmdbImageUrl(creator.profile_path)
-        : '',
-      slug: slugify(creator.name as string, { lower: true, strict: true }),
-    })),
+    createdBy: normalizePersons(series.created_by),
     description: series.overview ?? '',
     originalLanguage: series.original_language ?? '',
     originalTitle: series.original_name ?? '',

@@ -2,6 +2,7 @@ import 'server-only';
 
 import { type Genre } from '@/types/genre';
 import type { Movie } from '@/types/movie';
+import { type Person } from '@/types/person';
 import type { TvSeries } from '@/types/tv-series';
 
 import {
@@ -17,6 +18,8 @@ import {
   type TmdbTvSeriesContentRatings,
   type TmdbTvSeriesWatchProviders,
   canSluggify,
+  type TmdbTvSeriesCredits,
+  normalizePersons,
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 
@@ -130,6 +133,19 @@ export async function fetchTvSeriesWatchProviders(
     name: provider.provider_name as string,
     logo: provider.logo_path ? generateTmdbImageUrl(provider.logo_path) : '',
   }));
+}
+
+export async function fetchTvSeriesCredits(
+  id: number | string,
+): Promise<Readonly<{ cast: Person[]; crew: Person[] }>> {
+  const credits = (await tmdbFetch(
+    `/3/tv/${id}/credits`,
+  )) as TmdbTvSeriesCredits;
+
+  return {
+    cast: normalizePersons(credits.cast),
+    crew: normalizePersons(credits.crew),
+  };
 }
 
 export async function fetchTrendingMovies() {

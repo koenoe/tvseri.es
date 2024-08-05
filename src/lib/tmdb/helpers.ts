@@ -38,6 +38,17 @@ export function generateTmdbImageUrl(path: string, size = 'original') {
   return `https://image.tmdb.org/t/p/${size}/${path}`;
 }
 
+export function canSluggify(item: TmdbTvSeries | TmdbMovie) {
+  let name = '';
+  if (item.hasOwnProperty('name')) {
+    name = (item as TmdbTvSeries).name as string;
+  } else if (item.hasOwnProperty('title')) {
+    name = (item as TmdbMovie).title as string;
+  }
+  const slug = slugify(name, { lower: true, strict: true });
+  return !!slug;
+}
+
 function extractImages(item: TmdbTvSeries | TmdbMovie) {
   const images = item.images ?? {};
   const backdrop =
@@ -116,6 +127,11 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     ? new Date(series.last_air_date).toISOString()
     : '';
   const releaseYear = formatReleaseYearForTvSeries(firstAirDate, lastAirDate);
+  const slug = slugify(series.name ?? '', {
+    lower: true,
+    strict: true,
+    locale: series.languages?.[0] ?? '',
+  });
 
   return {
     id: series.id,
@@ -140,7 +156,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     lastAirDate,
     backdropColor: '#000',
     releaseYear,
-    slug: slugify(series.name ?? '', { lower: true, strict: true }),
+    slug,
     ...images,
   };
 }

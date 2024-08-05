@@ -16,6 +16,7 @@ import {
   type TmdbGenresForTvSeries,
   type TmdbTvSeriesContentRatings,
   type TmdbTvSeriesWatchProviders,
+  canSluggify,
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 
@@ -136,7 +137,7 @@ export async function fetchTrendingMovies() {
     ((await tmdbFetch('/3/trending/movie/day')) as TmdbTrendingMovies) ?? [];
 
   const trendingMoviesIds = (trendingMoviesResponse.results ?? [])
-    .filter((movie) => movie.vote_count > 0)
+    .filter((movie) => movie.vote_count > 0 && canSluggify(movie as TmdbMovie))
     .map((movie) => movie.id)
     .slice(0, 10);
 
@@ -159,7 +160,8 @@ export async function fetchTrendingTvSeries() {
     .filter(
       (series) =>
         series.vote_count > 0 &&
-        !series.genre_ids?.some((genre) => GENRES_TO_IGNORE.includes(genre)),
+        !series.genre_ids?.some((genre) => GENRES_TO_IGNORE.includes(genre)) &&
+        canSluggify(series as TmdbTvSeries),
     )
     .map((series) => series.id)
     .slice(0, 10);

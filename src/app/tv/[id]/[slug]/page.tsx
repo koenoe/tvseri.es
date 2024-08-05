@@ -71,11 +71,11 @@ export default async function TvSeriesDetails({ params }: Props) {
             )}
 
             <div className="mb-6 flex w-full gap-4 md:gap-12">
-              <div className="flex w-full items-center gap-2 text-xs md:text-[0.8rem]">
-                <div className="opacity-60 after:ml-2 after:content-['·']">
+              <div className="flex w-full items-center gap-1 whitespace-nowrap text-xs md:gap-2 md:text-[0.8rem]">
+                <div className="opacity-60 after:ml-1 after:content-['·'] md:after:ml-2">
                   {tvSeries.releaseYear}
                 </div>
-                <div className="opacity-60 after:ml-2 after:content-['·']">
+                <div className="opacity-60 after:ml-1 after:content-['·'] md:after:ml-2">
                   {tvSeries.numberOfSeasons}{' '}
                   {tvSeries.numberOfSeasons === 1 ? 'Season' : 'Seasons'}
                 </div>

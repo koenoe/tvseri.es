@@ -1,10 +1,15 @@
 .inner {
+  --container-padding: theme(container.padding);
   --gap: theme(spacing.4);
   --gap-md: theme(spacing.6);
   --gap-lg: theme(spacing.7);
   --gap-xl: theme(spacing.7);
   --gap-2xl: theme(spacing.7);
   gap: var(--gap-override, var(--gap));
+}
+
+body:global(.scrollbar-is-visible) .inner {
+  --container-padding: theme(container.padding) - 5px; /* half of scrollbar width */
 }
 
 .inner::before,
@@ -16,15 +21,15 @@
 
 .inner::before {
   padding-inline-start: max(
-    theme(container.padding),
-    ((100vw - theme(screens.sm)) / 2) + theme(container.padding)
+    var(--container-padding),
+    ((100vw - theme(screens.sm)) / 2) + var(--container-padding)
   );
 }
 
 .inner::after {
   padding-inline-end: max(
-    theme(container.padding),
-    ((100vw - theme(screens.sm)) / 2) + theme(container.padding)
+    var(--container-padding),
+    ((100vw - theme(screens.sm)) / 2) + var(--container-padding)
   );
 }
 
@@ -40,15 +45,15 @@
 
   .inner::before {
     padding-inline-start: max(
-      theme(container.padding),
-      ((100vw - theme(screens.md)) / 2) + theme(container.padding)
+      var(--container-padding),
+      ((100vw - theme(screens.md)) / 2) + var(--container-padding)
     );
   }
 
   .inner::after {
     padding-inline-end: max(
-      theme(container.padding),
-      ((100vw - theme(screens.md)) / 2) + theme(container.padding)
+      var(--container-padding),
+      ((100vw - theme(screens.md)) / 2) + var(--container-padding)
     );
   }
 }
@@ -65,15 +70,15 @@
 
   .inner::before {
     padding-inline-start: max(
-      theme(container.padding),
-      ((100vw - theme(screens.lg)) / 2) + theme(container.padding)
+      var(--container-padding),
+      ((100vw - theme(screens.lg)) / 2) + var(--container-padding)
     );
   }
 
   .inner::after {
     padding-inline-end: max(
-      theme(container.padding),
-      ((100vw - theme(screens.lg)) / 2) + theme(container.padding)
+      var(--container-padding),
+      ((100vw - theme(screens.lg)) / 2) + var(--container-padding)
     );
   }
 }
@@ -90,15 +95,15 @@
 
   .inner::before {
     padding-inline-start: max(
-      theme(container.padding),
-      ((100vw - theme(screens.xl)) / 2) + theme(container.padding)
+      var(--container-padding),
+      ((100vw - theme(screens.xl)) / 2) + var(--container-padding)
     );
   }
 
   .inner::after {
     padding-inline-end: max(
-      theme(container.padding),
-      ((100vw - theme(screens.xl)) / 2) + theme(container.padding)
+      var(--container-padding),
+      ((100vw - theme(screens.xl)) / 2) + var(--container-padding)
     );
   }
 }
@@ -115,15 +120,15 @@
 
   .inner::before {
     padding-inline-start: max(
-      theme(container.padding),
-      ((100vw - theme(screens.2xl)) / 2) + theme(container.padding)
+      var(--container-padding),
+      ((100vw - theme(screens.2xl)) / 2) + var(--container-padding)
     );
   }
 
   .inner::after {
     padding-inline-end: max(
-      theme(container.padding),
-      ((100vw - theme(screens.2xl)) / 2) + theme(container.padding)
+      var(--container-padding),
+      ((100vw - theme(screens.2xl)) / 2) + var(--container-padding)
     );
   }
 }

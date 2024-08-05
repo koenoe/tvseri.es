@@ -11,3 +11,19 @@ body {
 * {
   user-select: none;
 }
+
+body::-webkit-scrollbar-corner,
+body::-webkit-scrollbar-track {
+  background: theme('colors.neutral.800');
+}
+
+body::-webkit-scrollbar-thumb {
+  background: theme('colors.neutral.600');
+  border-radius: 10px;
+}
+
+body::-webkit-scrollbar {
+  width: auto;
+  max-width: 10px;
+  max-height: 10px;
+}

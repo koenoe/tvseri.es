@@ -5,7 +5,7 @@ import logo from '@/assets/logo.svg';
 
 export default function Footer() {
   return (
-    <footer className="relative flex h-[12rem] w-full items-center">
+    <footer className="relative mt-auto flex h-[12rem] w-full items-center">
       <div className="container z-10 flex flex-col gap-4">
         <Link href="/">
           <Image src={logo} alt="" width={150} />

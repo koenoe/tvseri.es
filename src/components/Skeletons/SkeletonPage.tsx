@@ -6,7 +6,7 @@ export default function SkeletonPage({
   return (
     <main
       // pt-[] is the height of the header
-      className="grow pb-24 pt-[6rem] subpixel-antialiased md:pt-[8rem]"
+      className="grow pb-20 pt-[6rem] subpixel-antialiased md:pt-[8rem]"
     >
       {children}
     </main>

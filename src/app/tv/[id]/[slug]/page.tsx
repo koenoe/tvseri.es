@@ -18,7 +18,11 @@ export async function generateMetadata({ params }: Props) {
   const tvSeries = await fetchTvSeries(params.id);
 
   if (!tvSeries || tvSeries.isAdult) {
-    return {};
+    return notFound();
+  }
+
+  if (tvSeries.slug !== params.slug) {
+    return redirect(`/tv/${params.id}/${tvSeries.slug}`);
   }
 
   return {
@@ -34,7 +38,7 @@ export async function generateMetadata({ params }: Props) {
 export default async function TvSeriesDetails({ params }: Props) {
   const tvSeries = await fetchTvSeries(params.id);
 
-  if (!tvSeries) {
+  if (!tvSeries || tvSeries.isAdult) {
     return notFound();
   }
 

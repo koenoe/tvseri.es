@@ -11,7 +11,9 @@ import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 const MotionImage = motion(Image);
 
-export const avatarsStyles = cva('flex flex-row flex-wrap gap-4 lg:gap-0');
+export const avatarsStyles = cva(
+  'flex flex-row flex-wrap gap-4 lg:gap-0 [&>*:nth-child(n+7)]:hidden md:[&>*:nth-child(n+7)]:flex',
+);
 export const avatarStyles = cva(
   'relative flex w-24 transform-gpu cursor-pointer flex-col lg:-mr-4 lg:-mt-4',
 );

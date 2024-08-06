@@ -6,6 +6,7 @@ import { notFound, redirect } from 'next/navigation';
 import Cast from '@/components/Cast/Cast';
 import ContentRating from '@/components/ContentRating/ContentRating';
 import Page from '@/components/Page/Page';
+import SkeletonAvatars from '@/components/Skeletons/SkeletonAvatars';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
 import { fetchTvSeries } from '@/lib/tmdb';
 
@@ -17,11 +18,7 @@ export async function generateMetadata({ params }: Props) {
   const tvSeries = await fetchTvSeries(params.id);
 
   if (!tvSeries || tvSeries.isAdult) {
-    return notFound();
-  }
-
-  if (tvSeries.slug !== params.slug) {
-    return redirect(`/tv/${params.id}/${tvSeries.slug}`);
+    return {};
   }
 
   return {
@@ -51,7 +48,7 @@ export default async function TvSeriesDetails({ params }: Props) {
       backgroundImage={tvSeries.backdropImage}
     >
       <div className="container">
-        <div className="relative flex h-[calc(95vh-16rem)] items-end md:h-[calc(75vh-8rem)]">
+        <div className="relative flex h-[calc(95vh-16rem)] items-end md:h-[calc(70vh-8rem)]">
           <div className="w-full xl:w-4/5 2xl:w-3/5">
             {tvSeries.titleTreatmentImage ? (
               <h1 className="relative mb-6 h-28 w-full md:h-40 md:w-3/5">
@@ -85,7 +82,7 @@ export default async function TvSeriesDetails({ params }: Props) {
                   {tvSeries.genres.map((genre) => genre.name).join(', ')}
                 </div>
                 <div className="opacity-60 md:hidden">
-                  {tvSeries.genres[0].name}
+                  {tvSeries.genres?.[0].name}
                 </div>
                 <div className="ml-auto flex h-7 gap-2 md:ml-8">
                   <Suspense
@@ -121,8 +118,12 @@ export default async function TvSeriesDetails({ params }: Props) {
           )}
         </div>
 
-        <Suspense fallback="Loading...">
-          <Cast id={tvSeries.id} />
+        <Suspense
+          fallback={
+            <SkeletonAvatars className="my-14 w-full xl:w-4/5 2xl:w-3/5" />
+          }
+        >
+          <Cast className="my-14 w-full xl:w-4/5 2xl:w-3/5" id={tvSeries.id} />
         </Suspense>
       </div>
     </Page>

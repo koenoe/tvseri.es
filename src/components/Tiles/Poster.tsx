@@ -29,6 +29,7 @@ function Poster({
       href={`/tv/${item.id}/${item.slug}`}
       whileHover={{ scale: 1.075 }}
       animate={{ scale: 1 }}
+      layout
     >
       <Image
         className="object-contain"
@@ -39,6 +40,7 @@ function Poster({
         priority={priority}
         placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(300, 450)}`}
       />
+      <div className="absolute left-[50%] top-[-50%] h-full w-full rotate-[-17deg] bg-gradient-to-b from-[rgba(255,255,255,0.2)] to-[rgba(255,255,255,0)]" />
     </MotionLink>
   );
 }

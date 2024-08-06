@@ -5,4 +5,5 @@ export type Person = Readonly<{
   slug: string;
   character: string;
   job: string;
+  episodeCount: number;
 }>;

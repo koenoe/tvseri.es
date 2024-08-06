@@ -139,7 +139,7 @@ export async function fetchTvSeriesCredits(
   id: number | string,
 ): Promise<Readonly<{ cast: Person[]; crew: Person[] }>> {
   const credits = (await tmdbFetch(
-    `/3/tv/${id}/credits`,
+    `/3/tv/${id}/aggregate_credits`,
   )) as TmdbTvSeriesCredits;
 
   return {

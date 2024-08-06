@@ -23,7 +23,7 @@ export type TmdbTvSeriesWatchProviders =
   paths[`/3/tv/${number}/watch/providers`]['get']['responses']['200']['content']['application/json'];
 
 export type TmdbTvSeriesCredits =
-  paths[`/3/tv/${number}/credits`]['get']['responses']['200']['content']['application/json'];
+  paths[`/3/tv/${number}/aggregate_credits`]['get']['responses']['200']['content']['application/json'];
 
 export type TmdbTrendingMovies =
   paths[`/3/trending/movie/${string}`]['get']['responses']['200']['content']['application/json'];
@@ -87,26 +87,30 @@ export function normalizePersons(
     | TmdbTvSeriesCredits['cast']
     | TmdbTvSeriesCredits['crew'],
 ) {
-  return (persons ?? []).map((person) => {
-    let character = '';
-    let job = '';
-    if ('character' in person && person.character) {
-      character = person.character as string;
-    } else if ('job' in person && person.job) {
-      job = person.job as string;
-    }
+  return (persons ?? [])
+    .filter((person) => !!person.profile_path)
+    .map((person) => {
+      let character = '';
+      let job = '';
+      if ('roles' in person && person.roles) {
+        character = person.roles?.[0].character as string;
+      } else if ('jobs' in person && person.jobs) {
+        job = person.jobs?.[0].job as string;
+      }
 
-    return {
-      id: person.id,
-      name: person.name ?? '',
-      image: person.profile_path
-        ? generateTmdbImageUrl(person.profile_path)
-        : '',
-      slug: slugify(person.name as string, { lower: true, strict: true }),
-      character,
-      job,
-    };
-  });
+      return {
+        id: person.id,
+        name: person.name ?? '',
+        image: person.profile_path
+          ? generateTmdbImageUrl(person.profile_path, 'w138_and_h175_face')
+          : '',
+        slug: slugify(person.name as string, { lower: true, strict: true }),
+        character,
+        job,
+        episodeCount:
+          'total_episode_count' in person ? person.total_episode_count : 0,
+      };
+    });
 }
 
 export function normalizeMovie(movie: TmdbMovie): Movie {

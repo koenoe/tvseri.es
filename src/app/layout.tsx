@@ -1,5 +1,7 @@
 import './globals.css';
 
+import { Suspense } from 'react';
+
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { cx } from 'class-variance-authority';
@@ -58,9 +60,11 @@ export default function RootLayout({
         />
         <Header />
         {children}
-        <Footer />
         <Analytics />
         <SpeedInsights />
+        <Suspense>
+          <Footer />
+        </Suspense>
       </body>
     </html>
   );

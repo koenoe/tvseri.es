@@ -25,6 +25,12 @@ export type TmdbTvSeriesWatchProviders =
 export type TmdbTvSeriesCredits =
   paths[`/3/tv/${number}/aggregate_credits`]['get']['responses']['200']['content']['application/json'];
 
+export type TmdbTvSeriesRecommendations =
+  paths[`/3/tv/${number}/recommendations`]['get']['responses']['200']['content']['application/json'];
+
+export type TmdbTvSeriesSimilar =
+  paths[`/3/tv/${number}/similar`]['get']['responses']['200']['content']['application/json'];
+
 export type TmdbTrendingMovies =
   paths[`/3/trending/movie/${string}`]['get']['responses']['200']['content']['application/json'];
 

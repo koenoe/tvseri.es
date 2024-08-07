@@ -6,8 +6,11 @@ import { notFound, redirect } from 'next/navigation';
 import Cast from '@/components/Cast/Cast';
 import ContentRating from '@/components/ContentRating/ContentRating';
 import ExpandableText from '@/components/ExpandableText/ExpandableText';
+import RecommendationsList from '@/components/List/RecommendationsList';
+import SimilarList from '@/components/List/SimilarList';
 import Page from '@/components/Page/Page';
 import SkeletonAvatars from '@/components/Skeletons/SkeletonAvatars';
+import SkeletonList from '@/components/Skeletons/SkeletonList';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
 import { fetchTvSeries } from '@/lib/tmdb';
 
@@ -131,6 +134,12 @@ export default async function TvSeriesDetails({ params }: Props) {
           <Cast className="my-14 w-full xl:w-4/5 2xl:w-3/5" id={tvSeries.id} />
         </Suspense>
       </div>
+      <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
+        <RecommendationsList id={tvSeries.id} className="mb-10 md:mb-16" />
+      </Suspense>
+      <Suspense fallback={<SkeletonList />}>
+        <SimilarList id={tvSeries.id} />
+      </Suspense>
     </Page>
   );
 }

@@ -17,6 +17,8 @@ import {
   type TmdbGenresForTvSeries,
   type TmdbTvSeriesContentRatings,
   type TmdbTvSeriesWatchProviders,
+  type TmdbTvSeriesRecommendations,
+  type TmdbTvSeriesSimilar,
   canSluggify,
   type TmdbTvSeriesCredits,
   normalizePersons,
@@ -146,6 +148,34 @@ export async function fetchTvSeriesCredits(
     cast: normalizePersons(credits.cast),
     crew: normalizePersons(credits.crew),
   };
+}
+
+export async function fetchTvSeriesRecommendations(
+  id: number | string,
+): Promise<TvSeries[]> {
+  const response = (await tmdbFetch(
+    `/3/tv/${id}/recommendations`,
+  )) as TmdbTvSeriesRecommendations;
+
+  return (response.results ?? [])
+    .filter((series) => !!series.poster_path)
+    .map((series) => {
+      return normalizeTvSeries(series as TmdbTvSeries);
+    });
+}
+
+export async function fetchTvSeriesSimilar(
+  id: number | string,
+): Promise<TvSeries[]> {
+  const response = (await tmdbFetch(
+    `/3/tv/${id}/similar`,
+  )) as TmdbTvSeriesSimilar;
+
+  return (response.results ?? [])
+    .filter((series) => !!series.poster_path)
+    .map((series) => {
+      return normalizeTvSeries(series as TmdbTvSeries);
+    });
 }
 
 export async function fetchTrendingMovies() {

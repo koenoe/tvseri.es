@@ -1,4 +1,5 @@
 import SkeletonAvatars from '@/components/Skeletons/SkeletonAvatars';
+import SkeletonList from '@/components/Skeletons/SkeletonList';
 import SkeletonPage from '@/components/Skeletons/SkeletonPage';
 
 export default function Loading() {
@@ -19,6 +20,8 @@ export default function Loading() {
         <div className="h-6 w-2/5 bg-white/10" />
         <SkeletonAvatars className="my-14" />
       </div>
+      <SkeletonList className="mb-10 md:mb-16" />
+      <SkeletonList />
     </SkeletonPage>
   );
 }

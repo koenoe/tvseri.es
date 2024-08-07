@@ -5,6 +5,7 @@ import { notFound, redirect } from 'next/navigation';
 
 import Cast from '@/components/Cast/Cast';
 import ContentRating from '@/components/ContentRating/ContentRating';
+import ExpandableText from '@/components/ExpandableText/ExpandableText';
 import Page from '@/components/Page/Page';
 import SkeletonAvatars from '@/components/Skeletons/SkeletonAvatars';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
@@ -110,9 +111,9 @@ export default async function TvSeriesDetails({ params }: Props) {
         </div>
 
         <div className="w-full xl:w-4/5 2xl:w-3/5">
-          <p className="mb-6 line-clamp-3 leading-loose md:line-clamp-none">
+          <ExpandableText className="mb-6">
             {tvSeries.description}
-          </p>
+          </ExpandableText>
           {tvSeries.createdBy.length > 0 && (
             <p className="inline-flex gap-3 text-sm leading-loose">
               <span className="opacity-60">Created by:</span>

@@ -9,7 +9,7 @@ export default async function SimilarList({
 }: Omit<React.AllHTMLAttributes<HTMLDivElement>, 'id'> &
   HeaderVariantProps &
   Readonly<{
-    id: number;
+    id: number | string;
   }>) {
   const tvSeries = await fetchTvSeriesSimilar(id);
 

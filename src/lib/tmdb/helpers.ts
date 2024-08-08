@@ -31,6 +31,9 @@ export type TmdbTvSeriesRecommendations =
 export type TmdbTvSeriesSimilar =
   paths[`/3/tv/${number}/similar`]['get']['responses']['200']['content']['application/json'];
 
+export type TmdbTvSeriesSeason =
+  paths[`/3/tv/${number}/season/${number}`]['get']['responses']['200']['content']['application/json'];
+
 export type TmdbTrendingMovies =
   paths[`/3/trending/movie/${string}`]['get']['responses']['200']['content']['application/json'];
 

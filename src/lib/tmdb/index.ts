@@ -3,7 +3,7 @@ import 'server-only';
 import { type Genre } from '@/types/genre';
 import type { Movie } from '@/types/movie';
 import { type Person } from '@/types/person';
-import type { TvSeries } from '@/types/tv-series';
+import type { Season, TvSeries } from '@/types/tv-series';
 
 import {
   generateTmdbImageUrl,
@@ -22,6 +22,7 @@ import {
   canSluggify,
   type TmdbTvSeriesCredits,
   normalizePersons,
+  type TmdbTvSeriesSeason,
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 
@@ -95,6 +96,19 @@ export async function fetchTvSeries(id: number | string): Promise<TvSeries> {
     return {
       ...normalizedTvSeries,
       backdropColor,
+      seasons: series.seasons
+        ?.filter((season) => season.episode_count > 0)
+        .map((season) => ({
+          id: season.id,
+          title: season.name as string,
+          description: season.overview ?? '',
+          airDate: season.air_date
+            ? new Date(season.air_date).toISOString()
+            : '',
+          seasonNumber: season.season_number,
+          episodeCount: season.episode_count,
+          episodes: [],
+        })),
     };
   }
 
@@ -176,6 +190,37 @@ export async function fetchTvSeriesSimilar(
     .map((series) => {
       return normalizeTvSeries(series as TmdbTvSeries);
     });
+}
+
+export async function fetchTvSeriesSeason(
+  id: number | string,
+  season: number | string,
+): Promise<Season> {
+  const response = (await tmdbFetch(
+    `/3/tv/${id}/season/${season}`,
+  )) as TmdbTvSeriesSeason;
+
+  const episodes = (response.episodes ?? []).map((episode) => ({
+    id: episode.id,
+    title: episode.name ?? '',
+    description: episode.overview ?? '',
+    episodeNumber: episode.episode_number,
+    seasonNumber: episode.season_number,
+    airDate: episode.air_date ? new Date(episode.air_date).toISOString() : '',
+    runtime: episode.runtime,
+    stillImage: episode.still_path
+      ? generateTmdbImageUrl(episode.still_path)
+      : '',
+  }));
+
+  return {
+    id: response.id,
+    title: response.name as string,
+    description: response.overview ?? '',
+    airDate: response.air_date ? new Date(response.air_date).toISOString() : '',
+    seasonNumber: response.season_number,
+    episodes,
+  };
 }
 
 export async function fetchTrendingMovies() {

@@ -9,15 +9,17 @@ export type Episode = Readonly<{
   seasonNumber: number;
   title: string;
   runtime: number;
+  stillImage: string;
 }>;
 
 export type Season = Readonly<{
   description: string;
   id: number;
-  numberOfEpisodes: number;
   airDate: string;
   seasonNumber: number;
   title: string;
+  episodes: Episode[];
+  episodeCount?: number;
 }>;
 
 export type TvSeries = Omit<Movie, 'runtime' | 'releaseDate' | 'imdbId'> &
@@ -29,4 +31,5 @@ export type TvSeries = Omit<Movie, 'runtime' | 'releaseDate' | 'imdbId'> &
     lastEpisodeToAir: Episode;
     numberOfSeasons: number;
     releaseYear: string;
+    seasons?: Season[];
   }>;

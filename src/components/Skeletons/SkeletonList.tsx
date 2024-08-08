@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 
 import { cx } from 'class-variance-authority';
 
+import SkeletonEpisode from './SkeletonEpisode';
 import SkeletonGenre from './SkeletonGenre';
 import SkeletonPoster from './SkeletonPoster';
 import {
@@ -16,7 +17,7 @@ type Props = Readonly<{
   className?: string;
   numberOfItems?: number;
   hasTitle?: boolean;
-  variant?: 'poster' | 'genre';
+  variant?: 'poster' | 'genre' | 'episode';
   style?: React.CSSProperties;
 }>;
 
@@ -33,6 +34,8 @@ export default function SkeletonList({
       switch (variant) {
         case 'genre':
           return <SkeletonGenre key={index} />;
+        case 'episode':
+          return <SkeletonEpisode key={index} />;
         case 'poster':
         default:
           return <SkeletonPoster key={index} />;

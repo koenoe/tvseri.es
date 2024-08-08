@@ -16,6 +16,14 @@ export const posterStyles = cva(
   'relative h-[275px] w-[183px] flex-shrink-0 overflow-clip rounded-lg shadow-lg lg:h-[300px] lg:w-[200px] xl:h-[375px] xl:w-[250px]',
 );
 
+// export const screens = {
+//   xs: '(min-width: 375px)',
+//   sm: '(min-width: 768px)',
+//   md: '(min-width: 1024px)',
+//   lg: '(min-width: 1280px)',
+//   xl: '(min-width: 1440px)',
+// };
+
 function Poster({
   className,
   item,

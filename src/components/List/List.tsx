@@ -40,9 +40,9 @@ export const headerVariants = cva(
   },
 );
 
-type Props = React.AllHTMLAttributes<HTMLDivElement> &
+type Props = Omit<React.AllHTMLAttributes<HTMLDivElement>, 'title'> &
   HeaderVariantProps &
-  Readonly<{ children: React.ReactNode }>;
+  Readonly<{ children: React.ReactNode; title?: React.ReactNode }>;
 
 function List({ children, className, title, titleAlignment, style }: Props) {
   const innerRef = useRef<HTMLDivElement>(null);
@@ -130,7 +130,11 @@ function List({ children, className, title, titleAlignment, style }: Props) {
   return (
     <div style={style} className={cx('relative w-full', className)}>
       <div className={headerVariants({ titleAlignment })}>
-        {title && <h2 className="text-2xl font-medium lg:text-3xl">{title}</h2>}
+        {typeof title === 'string' ? (
+          <h2 className="text-2xl font-medium lg:text-3xl">{title}</h2>
+        ) : (
+          title
+        )}
         <div className="flex-grow">
           <div
             ref={scrollBarRef}

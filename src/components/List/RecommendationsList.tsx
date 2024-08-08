@@ -9,7 +9,7 @@ export default async function RecommendationsList({
 }: Omit<React.AllHTMLAttributes<HTMLDivElement>, 'id'> &
   HeaderVariantProps &
   Readonly<{
-    id: number;
+    id: number | string;
   }>) {
   const tvSeries = await fetchTvSeriesRecommendations(id);
 

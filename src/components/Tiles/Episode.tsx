@@ -8,7 +8,7 @@ import formatRuntime from '@/utils/formatRuntime';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 export const episodeStyles = cva(
-  'relative flex-shrink-0 w-[300px] md:w-[400px] lg:w-[500px] overflow-clip rounded-lg shadow-lg bg-white/5 flex flex-col',
+  'relative flex-shrink-0 w-[300px] md:w-[350px] lg:w-[450px] overflow-clip rounded-lg shadow-lg bg-white/5 flex flex-col',
 );
 
 function EpisodeTile({

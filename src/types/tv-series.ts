@@ -29,6 +29,7 @@ export type TvSeries = Omit<Movie, 'runtime' | 'releaseDate' | 'imdbId'> &
     firstEpisodeToAir: Episode;
     lastAirDate: string;
     lastEpisodeToAir: Episode;
+    numberOfEpisodes: number;
     numberOfSeasons: number;
     releaseYear: string;
     seasons?: Season[];

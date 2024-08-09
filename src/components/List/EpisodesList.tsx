@@ -18,9 +18,11 @@ export default function EpisodesList({
   Readonly<{
     item: TvSeries;
   }>) {
-  const [isPending, startTransition] = useTransition();
   const lastFetchedKey = useRef<string>('');
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+  const [isInitialFetch, setIsInitialFetch] = useState<boolean>(true);
+  const shouldShowSkeleton = isPending || isInitialFetch;
   const selectedSeason = useMemo(
     () =>
       item.seasons?.find(
@@ -30,7 +32,6 @@ export default function EpisodesList({
       ),
     [item.seasons, searchParams],
   );
-
   const fetchKey = `tv/${item.id}/season/${selectedSeason?.seasonNumber}`;
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const title = useMemo(
@@ -51,19 +52,23 @@ export default function EpisodesList({
     lastFetchedKey.current = fetchKey;
 
     startTransition(async () => {
-      const response = await fetch(`/api/${fetchKey}`);
-      const json = (await response.json()) as Season;
-      if (json) {
-        setEpisodes(json.episodes);
-      } else {
-        setEpisodes([]);
-      }
+      try {
+        const response = await fetch(`/api/${fetchKey}`);
+        const json = (await response.json()) as Season;
+        if (json) {
+          setEpisodes(json.episodes);
+        } else {
+          setEpisodes([]);
+        }
+      } catch (error) {}
+
+      setIsInitialFetch(false);
     });
   }, [fetchKey, isPending]);
 
   return (
     <List key={fetchKey} title={title} {...rest}>
-      {isPending
+      {shouldShowSkeleton
         ? [...Array(10)].map((_, index) => <SkeletonEpisode key={index} />)
         : episodes.map((episode) => (
             <EpisodeTile key={episode.id} item={episode} priority />

@@ -130,13 +130,18 @@ export default async function TvSeriesDetails({ params }: Props) {
 
         <Suspense
           fallback={
-            <SkeletonAvatars className="my-14 w-full xl:w-4/5 2xl:w-3/5" />
+            <SkeletonAvatars className="mb-7 mt-14 w-full xl:w-4/5 2xl:w-3/5" />
           }
         >
-          <Cast className="my-14 w-full xl:w-4/5 2xl:w-3/5" id={tvSeries.id} />
+          <Cast
+            className="mb-7 mt-14 w-full xl:w-4/5 2xl:w-3/5"
+            id={tvSeries.id}
+          />
         </Suspense>
       </div>
-      <EpisodesList className="mb-10 md:mb-16" item={tvSeries} />
+      {tvSeries.numberOfEpisodes > 0 && (
+        <EpisodesList className="mb-10 md:mb-16" item={tvSeries} />
+      )}
       <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
         <RecommendationsList id={tvSeries.id} className="mb-10 md:mb-16" />
       </Suspense>

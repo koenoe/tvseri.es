@@ -1,9 +1,9 @@
 import { cva } from 'class-variance-authority';
-import Image from 'next/image';
 
 import hexToRgb from '@/utils/hexToRgb';
 
 import { type BackgroundContext } from './Background';
+import BackgroundImage from './BackgroundImage';
 
 export const backgroundBaseStyles = cva('absolute inset-0 z-0 transform-gpu');
 
@@ -16,14 +16,8 @@ function BackgroundBase({
 
   return (
     <>
-      <Image
-        className="h-full w-full object-cover"
+      <BackgroundImage
         src={image}
-        alt=""
-        priority
-        sizes="100vw"
-        width={1920}
-        height={1080}
         style={{
           opacity: context === 'spotlight' ? 0.3 : 1,
         }}

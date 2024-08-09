@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { forwardRef, memo } from 'react';
@@ -7,6 +8,8 @@ import Link from 'next/link';
 
 import useRgbString from '@/hooks/useRgbString';
 import type { TvSeries } from '@/types/tv-series';
+
+import BackgroundImage from '../Background/BackgroundImage';
 
 type Props = Readonly<{
   item: TvSeries;
@@ -26,16 +29,7 @@ const SpotlightItem = forwardRef<HTMLAnchorElement, Props>(
       >
         {item.backdropImage && (
           <div className="absolute inset-0">
-            <Image
-              className="h-full w-full object-cover"
-              src={item.backdropImage}
-              alt=""
-              priority
-              draggable={false}
-              sizes="100vw"
-              width={1920}
-              height={1080}
-            />
+            <BackgroundImage src={item.backdropImage} />
             <div
               className="absolute inset-0 opacity-70"
               style={{

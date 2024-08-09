@@ -11,7 +11,7 @@ export default function BackgroundImage({
 
   return (
     <img
-      className="h-full w-full object-cover"
+      className="h-full w-full object-cover object-top"
       src={SD}
       alt=""
       draggable={false}

@@ -130,11 +130,11 @@ export default async function TvSeriesDetails({ params }: Props) {
 
         <Suspense
           fallback={
-            <SkeletonAvatars className="mb-7 mt-14 w-full xl:w-4/5 2xl:w-3/5" />
+            <SkeletonAvatars className="my-14 w-full lg:mb-7 lg:mt-14 xl:w-4/5 2xl:w-3/5" />
           }
         >
           <Cast
-            className="mb-7 mt-14 w-full xl:w-4/5 2xl:w-3/5"
+            className="my-14 w-full lg:mb-7 lg:mt-14 xl:w-4/5 2xl:w-3/5"
             id={tvSeries.id}
           />
         </Suspense>

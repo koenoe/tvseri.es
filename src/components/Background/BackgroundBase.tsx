@@ -17,12 +17,13 @@ function BackgroundBase({
   return (
     <>
       <Image
-        className="object-cover"
+        className="h-full w-full object-cover"
         src={image}
         alt=""
         priority
-        fill
         sizes="100vw"
+        width={1920}
+        height={1080}
         style={{
           opacity: context === 'spotlight' ? 0.3 : 1,
         }}

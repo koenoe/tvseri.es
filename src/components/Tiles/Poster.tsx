@@ -16,13 +16,11 @@ export const posterStyles = cva(
   'relative h-[275px] w-[183px] flex-shrink-0 overflow-clip rounded-lg shadow-lg lg:h-[300px] lg:w-[200px] xl:h-[375px] xl:w-[250px]',
 );
 
-// export const screens = {
-//   xs: '(min-width: 375px)',
-//   sm: '(min-width: 768px)',
-//   md: '(min-width: 1024px)',
-//   lg: '(min-width: 1280px)',
-//   xl: '(min-width: 1440px)',
-// };
+// TODO: improve this?
+const sizes = `
+  (max-width: 374px) 300px,
+  (min-width: 375px) 600px
+`;
 
 function Poster({
   className,
@@ -47,8 +45,8 @@ function Poster({
         fill
         priority={priority}
         placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(300, 450)}`}
+        sizes={sizes}
       />
-      <div className="absolute left-[50%] top-[-50%] h-full w-full rotate-[-17deg] bg-gradient-to-b from-[rgba(255,255,255,0.2)] to-[rgba(255,255,255,0)]" />
     </MotionLink>
   );
 }

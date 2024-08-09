@@ -8,7 +8,7 @@ export default function Footer() {
     <footer className="relative mt-auto flex h-[12rem] w-full items-center">
       <div className="container z-10 flex flex-col gap-4">
         <Link href="/">
-          <Image src={logo} alt="" width={150} />
+          <Image src={logo} alt="" width={150} height={20} />
         </Link>
         <p className="text-xs leading-loose opacity-60">
           This website uses the TMDb API but is neither endorsed nor certified

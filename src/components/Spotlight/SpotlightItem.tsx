@@ -27,12 +27,14 @@ const SpotlightItem = forwardRef<HTMLAnchorElement, Props>(
         {item.backdropImage && (
           <div className="absolute inset-0">
             <Image
-              className="object-cover"
+              className="h-full w-full object-cover"
               src={item.backdropImage}
               alt=""
               priority
-              fill
               draggable={false}
+              sizes="100vw"
+              width={1920}
+              height={1080}
             />
             <div
               className="absolute inset-0 opacity-70"
@@ -59,6 +61,7 @@ const SpotlightItem = forwardRef<HTMLAnchorElement, Props>(
                 priority
                 fill
                 draggable={false}
+                sizes="500px"
               />
               <span className="hidden">{item.title}</span>
             </h1>

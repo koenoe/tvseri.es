@@ -68,6 +68,7 @@ export default async function TvSeriesDetails({ params }: Props) {
                   priority
                   fill
                   draggable={false}
+                  sizes="500px"
                 />
                 <span className="hidden">{tvSeries.title}</span>
               </h1>

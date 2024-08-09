@@ -28,7 +28,7 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
   return (
     <div className="relative z-10">
       <div
-        className="flex cursor-pointer gap-3 text-2xl font-medium"
+        className="flex cursor-pointer items-center gap-3 text-2xl font-medium"
         onClick={() => setIsVisible((previousState) => !previousState)}
       >
         <span>{selectedSeason?.title}</span>

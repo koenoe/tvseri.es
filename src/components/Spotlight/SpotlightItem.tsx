@@ -61,7 +61,7 @@ const SpotlightItem = forwardRef<HTMLAnchorElement, Props>(
                 priority
                 fill
                 draggable={false}
-                sizes="500px"
+                unoptimized
               />
               <span className="hidden">{item.title}</span>
             </h1>

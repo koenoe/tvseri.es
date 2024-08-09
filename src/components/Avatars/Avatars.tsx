@@ -49,6 +49,7 @@ function Avatars({
               inactive: { scale: 1 },
               active: { scale: 1.15 },
             }}
+            unoptimized
           />
           <motion.div
             className="mt-4 hidden w-full flex-col items-center gap-1 text-nowrap text-center lg:flex"

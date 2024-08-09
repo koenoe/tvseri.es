@@ -29,7 +29,7 @@ function EpisodeTile({
             placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(489, 275)}`}
             width={1080}
             height={608}
-            sizes="(max-width: 768px) 50vw, (min-width: 1024px) 33vw"
+            unoptimized
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-white/5">

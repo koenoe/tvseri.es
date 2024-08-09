@@ -16,12 +16,6 @@ export const posterStyles = cva(
   'relative h-[275px] w-[183px] flex-shrink-0 overflow-clip rounded-lg shadow-lg lg:h-[300px] lg:w-[200px] xl:h-[375px] xl:w-[250px]',
 );
 
-// TODO: improve this?
-const sizes = `
-  (max-width: 374px) 300px,
-  (min-width: 375px) 600px
-`;
-
 function Poster({
   className,
   item,
@@ -45,7 +39,7 @@ function Poster({
         fill
         priority={priority}
         placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(300, 450)}`}
-        sizes={sizes}
+        unoptimized
       />
     </MotionLink>
   );

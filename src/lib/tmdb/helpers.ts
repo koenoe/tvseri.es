@@ -47,7 +47,7 @@ export type TmdbGenresForTvSeries =
   paths['/3/genre/tv/list']['get']['responses']['200']['content']['application/json'];
 
 export function generateTmdbImageUrl(path: string, size = 'original') {
-  return `https://image.tmdb.org/t/p/${size}/${path}`;
+  return `https://image.tmdb.org/t/p/${size}${path}`;
 }
 
 export function canSluggify(item: TmdbTvSeries | TmdbMovie) {

@@ -209,7 +209,7 @@ export async function fetchTvSeriesSeason(
     airDate: episode.air_date ? new Date(episode.air_date).toISOString() : '',
     runtime: episode.runtime,
     stillImage: episode.still_path
-      ? generateTmdbImageUrl(episode.still_path)
+      ? generateTmdbImageUrl(episode.still_path, 'w454_and_h254_bestv2')
       : '',
   }));
 

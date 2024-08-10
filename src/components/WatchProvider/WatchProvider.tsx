@@ -22,7 +22,13 @@ export default async function WatchProvider({
         className,
       )}
     >
-      <Image src={provider.logo} alt={provider.name} width={56} height={56} />
+      <Image
+        src={provider.logo}
+        alt={provider.name}
+        width={56}
+        height={56}
+        unoptimized
+      />
     </div>
   ) : null;
 }

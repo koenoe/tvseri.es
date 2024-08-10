@@ -147,7 +147,9 @@ export async function fetchTvSeriesWatchProviders(
   ).map((provider) => ({
     id: provider.provider_id,
     name: provider.provider_name as string,
-    logo: provider.logo_path ? generateTmdbImageUrl(provider.logo_path) : '',
+    logo: provider.logo_path
+      ? generateTmdbImageUrl(provider.logo_path, 'w92')
+      : '',
   }));
 }
 

@@ -80,20 +80,23 @@ export default async function TvSeriesDetails({ params }: Props) {
 
             <div className="mb-6 flex w-full gap-4 md:gap-12">
               <div className="flex w-full items-center gap-1 whitespace-nowrap text-xs md:gap-2 md:text-[0.8rem]">
-                <div className="opacity-60 after:ml-1 after:content-['·'] md:after:ml-2">
-                  {tvSeries.releaseYear}
-                </div>
-                <div className="opacity-60 after:ml-1 after:content-['·'] md:after:ml-2">
+                <div className="opacity-60">{tvSeries.releaseYear}</div>
+                <div className="opacity-60 before:mr-1 before:content-['·'] md:before:mr-2">
                   {tvSeries.numberOfSeasons}{' '}
                   {tvSeries.numberOfSeasons === 1 ? 'Season' : 'Seasons'}
                 </div>
-                {/* TODO: <Link /> to genre pages */}
-                <div className="hidden opacity-60 md:block">
-                  {tvSeries.genres.map((genre) => genre.name).join(', ')}
-                </div>
-                <div className="opacity-60 md:hidden">
-                  {tvSeries.genres?.[0].name}
-                </div>
+                {tvSeries.genres.length > 0 && (
+                  <>
+                    {/* TODO: <Link /> to genre pages */}
+                    <div className="hidden opacity-60 before:mr-1 before:content-['·'] md:block md:before:mr-2">
+                      {tvSeries.genres.map((genre) => genre.name).join(', ')}
+                    </div>
+                    <div className="opacity-60 before:mr-1 before:content-['·'] md:hidden md:before:mr-2">
+                      {tvSeries.genres?.[0].name}
+                    </div>
+                  </>
+                )}
+
                 <div className="ml-auto flex h-7 gap-2 md:ml-8">
                   <Suspense
                     fallback={

@@ -62,7 +62,7 @@ export default async function TvSeriesDetails({ params }: Props) {
             {tvSeries.titleTreatmentImage ? (
               <h1 className="relative mb-6 h-28 w-full md:h-40 md:w-3/5">
                 <Image
-                  className="object-contain object-bottom md:object-left-bottom"
+                  className="max-w-[500px] object-contain object-bottom md:object-left-bottom"
                   src={tvSeries.titleTreatmentImage}
                   alt=""
                   priority

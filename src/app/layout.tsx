@@ -36,7 +36,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cx('flex min-h-screen flex-col', inter.className)}>
+      <body
+        className={cx(
+          'flex min-h-screen select-none flex-col overscroll-y-none bg-neutral-800 text-white',
+          inter.className,
+        )}
+      >
         <script
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{

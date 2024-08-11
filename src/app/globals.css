@@ -2,16 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  overscroll-behavior-y: none;
-  background: theme('colors.neutral.800');
-  color: #fff;
-}
-
-* {
-  user-select: none;
-}
-
 body.scrollbar-is-visible::-webkit-scrollbar-corner,
 body.scrollbar-is-visible::-webkit-scrollbar-track {
   background: theme('colors.neutral.800');

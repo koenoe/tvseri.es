@@ -13,7 +13,7 @@ import SkeletonList from '@/components/Skeletons/SkeletonList';
 import Spotlight from '@/components/Spotlight/Spotlight';
 import { fetchTrendingTvSeries } from '@/lib/tmdb';
 
-export default async function Home() {
+export default async function HomePage() {
   const trendingTvSeries = await fetchTrendingTvSeries();
   const spotlight = trendingTvSeries[0];
 

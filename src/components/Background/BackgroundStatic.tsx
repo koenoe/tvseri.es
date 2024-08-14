@@ -5,7 +5,7 @@ function BackgroundStatic({
   color,
   context,
   image,
-}: Readonly<{ color: string; image: string; context: BackgroundContext }>) {
+}: Readonly<{ color: string; image?: string; context: BackgroundContext }>) {
   return (
     <div className={backgroundBaseStyles()}>
       <BackgroundBase color={color} image={image} context={context} />

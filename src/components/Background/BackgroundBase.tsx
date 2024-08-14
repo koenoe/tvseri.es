@@ -11,7 +11,7 @@ function BackgroundBase({
   color,
   context,
   image,
-}: Readonly<{ color: string; image: string; context: BackgroundContext }>) {
+}: Readonly<{ color: string; image?: string; context: BackgroundContext }>) {
   const rgbString = hexToRgb(color).join(',');
 
   return (

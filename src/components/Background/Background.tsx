@@ -15,7 +15,7 @@ function Background({
   variant: BackgroundVariant;
   context: BackgroundContext;
   color: string;
-  image: string;
+  image?: string;
 }>) {
   return variant === 'static' ? (
     <BackgroundStatic context={context} color={color} image={image} />

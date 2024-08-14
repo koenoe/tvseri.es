@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default async function TvSeriesDetails({ params }: Props) {
+export default async function TvSeriesDetailsPage({ params }: Props) {
   const tvSeries = await fetchTvSeries(params.id);
 
   if (!tvSeries || tvSeries.isAdult) {

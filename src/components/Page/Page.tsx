@@ -3,19 +3,21 @@ import Background, { type BackgroundContext } from '../Background/Background';
 import { type BackgroundVariant } from '../Background/Background';
 import BackgroundGlobal from '../Background/BackgroundGlobal';
 
+export type Props = Readonly<{
+  backgroundColor?: string;
+  backgroundImage?: string;
+  backgroundVariant?: BackgroundVariant;
+  backgroundContext?: BackgroundContext;
+  children: React.ReactNode;
+}>;
+
 export default function Page({
   backgroundColor = '#000',
   backgroundImage = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
   backgroundVariant = 'static',
   backgroundContext = 'page',
   children,
-}: Readonly<{
-  backgroundColor?: string;
-  backgroundImage?: string;
-  backgroundVariant?: BackgroundVariant;
-  backgroundContext?: BackgroundContext;
-  children: React.ReactNode;
-}>) {
+}: Props) {
   return (
     <PageStoreProvider
       backgroundColor={backgroundColor}

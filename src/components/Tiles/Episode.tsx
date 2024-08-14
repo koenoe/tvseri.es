@@ -45,8 +45,8 @@ function EpisodeTile({
               stroke="#ffffff"
               className="opacity-10"
             >
-              <g stroke-width="0"></g>
-              <g stroke-linecap="round" stroke-linejoin="round"></g>
+              <g strokeWidth="0"></g>
+              <g strokeLinecap="round" strokeLinejoin="round"></g>
               <g>
                 <g>
                   <path d="M57,6H1C0.448,6,0,6.447,0,7v44c0,0.553,0.448,1,1,1h56c0.552,0,1-0.447,1-1V7C58,6.447,57.552,6,57,6z M56,50H2V8h54V50z"></path>

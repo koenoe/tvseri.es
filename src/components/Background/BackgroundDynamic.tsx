@@ -26,7 +26,7 @@ const transition = {
   duration: 0.5,
 };
 
-function Background({
+function BackgroundDynamic({
   context = 'page',
 }: Readonly<{ context: BackgroundContext }>) {
   const color = usePageStore((state) => state.backgroundColor);
@@ -49,4 +49,4 @@ function Background({
   );
 }
 
-export default memo(Background);
+export default memo(BackgroundDynamic);

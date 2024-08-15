@@ -27,8 +27,8 @@ importers:
         specifier: ^4.2.3
         version: 4.2.3
       framer-motion:
-        specifier: ^11.3.27
-        version: 11.3.27(react-dom@19.0.0-rc-14a4699f-20240725(react@19.0.0-rc-14a4699f-20240725))(react@19.0.0-rc-14a4699f-20240725)
+        specifier: ^11.3.28
+        version: 11.3.28(react-dom@19.0.0-rc-14a4699f-20240725(react@19.0.0-rc-14a4699f-20240725))(react@19.0.0-rc-14a4699f-20240725)
       google-gax:
         specifier: ^4.3.9
         version: 4.3.9
@@ -51,8 +51,8 @@ importers:
         specifier: ^1.1.7
         version: 1.1.7
       zustand:
-        specifier: ^4.5.4
-        version: 4.5.4(@types/react@18.3.3)(react@19.0.0-rc-14a4699f-20240725)
+        specifier: ^4.5.5
+        version: 4.5.5(@types/react@18.3.3)(react@19.0.0-rc-14a4699f-20240725)
     devDependencies:
       '@tailwindcss/typography':
         specifier: ^0.5.14
@@ -1188,8 +1188,8 @@ packages:
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
 
-  framer-motion@11.3.27:
-    resolution: {integrity: sha512-Uf72PFEZuei/1IeCmGJ236EIl6VUri7SLovtTGg/cOAzMHG01CXXg1aL3ofuTuYr6Sq1QALlcEDaTig0PXb4Dw==}
+  framer-motion@11.3.28:
+    resolution: {integrity: sha512-dqhoawipEAjqdv32zbv72sOMJZjol7dROWn7t/FOq23WXJ40O4OUybgnO2ldnuS+3YquSn8xO/KKRavZ+TBVOQ==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0
@@ -2357,8 +2357,8 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
-  use-sync-external-store@1.2.0:
-    resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}
+  use-sync-external-store@1.2.2:
+    resolution: {integrity: sha512-PElTlVMwpblvbNqQ82d2n6RjStvdSoNe9FG28kNfz3WiXilJm4DdNkEzRhCZuIDwY8U08WVihhGR5iRqAwfDiw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
 
@@ -2439,8 +2439,8 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
-  zustand@4.5.4:
-    resolution: {integrity: sha512-/BPMyLKJPtFEvVL0E9E9BTUM63MNyhPGlvxk1XjrfWTUlV+BR8jufjsovHzrtR6YNcBEcL7cMHovL1n9xHawEg==}
+  zustand@4.5.5:
+    resolution: {integrity: sha512-+0PALYNJNgK6hldkgDq2vLrw5f6g/jCInz52n9RTpropGgeAf/ioFUCdtsjCqu4gNhW9D01rUQBROoRjdzyn2Q==}
     engines: {node: '>=12.7.0'}
     peerDependencies:
       '@types/react': '>=16.8'
@@ -3718,7 +3718,7 @@ snapshots:
 
   fraction.js@4.3.7: {}
 
-  framer-motion@11.3.27(react-dom@19.0.0-rc-14a4699f-20240725(react@19.0.0-rc-14a4699f-20240725))(react@19.0.0-rc-14a4699f-20240725):
+  framer-motion@11.3.28(react-dom@19.0.0-rc-14a4699f-20240725(react@19.0.0-rc-14a4699f-20240725))(react@19.0.0-rc-14a4699f-20240725):
     dependencies:
       tslib: 2.6.3
     optionalDependencies:
@@ -4951,7 +4951,7 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  use-sync-external-store@1.2.0(react@19.0.0-rc-14a4699f-20240725):
+  use-sync-external-store@1.2.2(react@19.0.0-rc-14a4699f-20240725):
     dependencies:
       react: 19.0.0-rc-14a4699f-20240725
 
@@ -5050,9 +5050,9 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zustand@4.5.4(@types/react@18.3.3)(react@19.0.0-rc-14a4699f-20240725):
+  zustand@4.5.5(@types/react@18.3.3)(react@19.0.0-rc-14a4699f-20240725):
     dependencies:
-      use-sync-external-store: 1.2.0(react@19.0.0-rc-14a4699f-20240725)
+      use-sync-external-store: 1.2.2(react@19.0.0-rc-14a4699f-20240725)
     optionalDependencies:
       '@types/react': 18.3.3
       react: 19.0.0-rc-14a4699f-20240725

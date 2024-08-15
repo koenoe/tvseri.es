@@ -25,11 +25,15 @@ const svgVariants = {
 
 function PageModalCloseButton() {
   const router = useRouter();
+
   return (
     <motion.button
       type="button"
       className="flex items-center rounded-lg bg-white/10 p-4 text-white transition-colors hover:bg-white/15"
-      onClick={() => router.replace('/')}
+      // Note: this disables exit animations
+      // see https://github.com/vercel/next.js/discussions/42658#discussioncomment-10258449
+      // but `router.push()` or `router.replace()` will break state restoring
+      onClick={() => router.back()}
       whileHover="active"
       whileTap="active"
       variants={buttonVariants}

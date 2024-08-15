@@ -147,12 +147,16 @@ export default async function TvSeriesDetailsModalPage({ params }: Props) {
         )}
         <MotionDiv variants={childVariants}>
           <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
-            <RecommendationsList id={tvSeries.id} className="mb-10 md:mb-16" />
+            <RecommendationsList
+              id={tvSeries.id}
+              className="mb-10 md:mb-16"
+              replace
+            />
           </Suspense>
         </MotionDiv>
         <MotionDiv variants={childVariants}>
           <Suspense fallback={<SkeletonList />}>
-            <SimilarList id={tvSeries.id} />
+            <SimilarList id={tvSeries.id} replace />
           </Suspense>
         </MotionDiv>
       </MotionDiv>

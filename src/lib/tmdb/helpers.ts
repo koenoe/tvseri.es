@@ -142,6 +142,8 @@ export function normalizeMovie(movie: TmdbMovie): Movie {
     runtime: movie.runtime,
     backdropColor: '#000',
     slug: slugify(movie.title ?? '', { lower: true, strict: true }),
+    voteAverage: movie.vote_average,
+    voteCount: movie.vote_count,
     ...images,
   };
 }
@@ -199,6 +201,8 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     backdropColor: '#000',
     releaseYear,
     slug,
+    voteAverage: series.vote_average,
+    voteCount: series.vote_count,
     ...images,
   };
 }

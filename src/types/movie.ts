@@ -17,4 +17,6 @@ export type Movie = Readonly<{
   tagline: string;
   title: string;
   titleTreatmentImage?: string;
+  voteAverage: number;
+  voteCount: number;
 }>;

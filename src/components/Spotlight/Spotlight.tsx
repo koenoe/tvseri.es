@@ -3,6 +3,7 @@
 import { type RefObject, useCallback } from 'react';
 
 import type { TvSeries } from '@/types/tv-series';
+import preloadImage from '@/utils/preloadImage';
 
 import SpotlightItem from './SpotlightItem';
 import Carousel from '../Carousel/Carousel';
@@ -16,6 +17,7 @@ export default function Spotlight({
   items: TvSeries[];
 }>) {
   const updateBackground = usePageStore((state) => state.setBackground);
+
   const itemRenderer = useCallback(
     (index: number, ref: RefObject<HTMLAnchorElement>) => (
       <SpotlightItem ref={ref} index={index} item={items[index]} />
@@ -26,14 +28,18 @@ export default function Spotlight({
   const handleChange = useCallback(
     (index: number) => {
       const item = items[index];
-      updateBackground({
-        backgroundImage: item.backdropImage as string,
-        backgroundColor: item.backdropColor,
+      const backgroundColor = item.backdropColor;
+      const backgroundImage = item.backdropImage as string;
+
+      preloadImage(backgroundImage).finally(() => {
+        updateBackground({
+          backgroundImage,
+          backgroundColor,
+        });
+
+        document.querySelector('main')!.style.backgroundColor =
+          item.backdropColor;
       });
-      const mainElement = document.querySelector('main');
-      if (mainElement) {
-        mainElement.style.backgroundColor = item.backdropColor;
-      }
     },
     [items, updateBackground],
   );

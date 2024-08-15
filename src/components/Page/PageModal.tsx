@@ -3,10 +3,11 @@
 import { memo, useEffect } from 'react';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { createPortal } from 'react-dom';
 
 import { type Props } from './Page';
+import { usePageStore } from './PageProvider';
 import Background from '../Background/Background';
 
 const transition = {
@@ -15,77 +16,77 @@ const transition = {
   duration: 0.5,
 };
 
-const MotionBackground = motion(Background);
+const variants = {
+  hidden: {
+    opacity: 0,
+    transition,
+  },
+  show: {
+    opacity: 1,
+    transition,
+  },
+};
 
-function PageModal({
-  backgroundColor = '#000',
-  backgroundImage = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
-  backgroundVariant = 'static',
-  backgroundContext = 'page',
-  children,
-  id,
-}: Props &
-  Readonly<{
-    id: string;
-  }>) {
-  const router = useRouter();
+function PageModal({ children }: Props) {
+  const pathname = usePathname();
+  const isVisible = pathname.includes('/tv/');
+  const backgroundColor =
+    document.querySelector('main')!.style.backgroundColor ?? '#000';
+  const setBackground = usePageStore((state) => state.setBackground);
 
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
+    if (isVisible) {
+      // document.body.style.overflow = 'hidden';
+      setTimeout(() => {
+        document.body.classList.add('modal-is-open');
+      }, 500);
+    } else {
+      // document.body.style.overflow = 'unset';
+      setTimeout(() => {
+        document.body.classList.remove('modal-is-open');
+      }, 500);
+
+      setBackground({
+        backgroundColor: undefined,
+        backgroundImage: undefined,
+      });
+    }
 
     return () => {
-      document.body.style.overflow = '';
+      // document.body.style.overflow = 'unset';
+      document.body.classList.remove('modal-is-open');
+
+      setBackground({
+        backgroundColor: undefined,
+        backgroundImage: undefined,
+      });
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVisible]);
 
   return createPortal(
     <AnimatePresence>
-      <motion.div
-        key={`modal-${id}`}
-        transition={{
-          ...transition,
-          when: 'afterChildren',
-        }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="absolute inset-0 z-50 overflow-y-auto pb-12"
-        style={{
-          backgroundColor,
-        }}
-      >
-        <MotionBackground
-          key={`modal-background-${id}`}
-          variant={backgroundVariant}
-          context={backgroundContext}
-          color={backgroundColor}
-          image={backgroundImage}
-          transition={transition}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        />
+      {isVisible && (
         <motion.div
-          key={`modal-content-${id}`}
-          transition={{
-            ...transition,
-            delay: 0.5,
-            duration: 0.3,
+          key="modal"
+          variants={variants}
+          initial="hidden"
+          animate="show"
+          exit="hidden"
+          className="absolute inset-0 z-50 w-screen overflow-y-auto pb-12 transition-colors duration-500"
+          style={{
+            backgroundColor,
           }}
-          initial={{ opacity: 0, y: 100 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -100 }}
-          layout
         >
+          <Background
+            variant="dynamic"
+            context="page"
+            color={backgroundColor}
+          />
+
           {children}
         </motion.div>
-        <button
-          className="absolute left-5 top-5 bg-white p-2 text-black"
-          onClick={() => router.back()}
-        >
-          Close
-        </button>
-      </motion.div>
+      )}
     </AnimatePresence>,
     document.getElementById('modal-root')!,
   );

@@ -4,7 +4,7 @@ import { memo } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 
-import { type BackgroundContext } from './Background';
+import { type Props } from './Background';
 import BackgroundBase, { backgroundBaseStyles } from './BackgroundBase';
 import { usePageStore } from '../Page/PageProvider';
 
@@ -26,9 +26,7 @@ const transition = {
   duration: 0.5,
 };
 
-function BackgroundDynamic({
-  context = 'page',
-}: Readonly<{ context: BackgroundContext }>) {
+function BackgroundDynamic({ context = 'page' }: Pick<Props, 'context'>) {
   const color = usePageStore((state) => state.backgroundColor);
   const image = usePageStore((state) => state.backgroundImage);
 

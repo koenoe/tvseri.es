@@ -35,7 +35,7 @@ export default async function HomePage() {
       </Suspense>
 
       <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
-        <PopularBritishCrimeList className="mb-10 md:mb-16" />
+        <ApplePlusList className="mb-10 md:mb-16" />
       </Suspense>
 
       <Suspense
@@ -52,11 +52,11 @@ export default async function HomePage() {
       </Suspense>
 
       <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
-        <BestSportsDocumentariesList className="mb-10 md:mb-16" />
+        <PopularBritishCrimeList className="mb-10 md:mb-16" />
       </Suspense>
 
       <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
-        <ApplePlusList className="mb-10 md:mb-16" />
+        <BestSportsDocumentariesList className="mb-10 md:mb-16" />
       </Suspense>
 
       <Suspense fallback={<SkeletonList />}>

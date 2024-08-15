@@ -6,17 +6,14 @@ export type BackgroundVariant = 'static' | 'dynamic';
 // with React Context, lol
 export type BackgroundContext = 'page' | 'spotlight';
 
-function Background({
-  variant = 'static',
-  context,
-  color,
-  image,
-}: Readonly<{
+export type Props = Readonly<{
   variant: BackgroundVariant;
   context: BackgroundContext;
   color: string;
   image?: string;
-}>) {
+}>;
+
+function Background({ variant = 'static', context, color, image }: Props) {
   return variant === 'static' ? (
     <BackgroundStatic context={context} color={color} image={image} />
   ) : (

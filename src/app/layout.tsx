@@ -38,7 +38,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cx(
-          'flex min-h-screen select-none flex-col overscroll-y-none bg-neutral-800 text-white',
+          'flex min-h-screen select-none flex-col overscroll-y-none bg-neutral-800 text-white subpixel-antialiased',
           inter.className,
         )}
       >

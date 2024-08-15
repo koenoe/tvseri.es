@@ -2,7 +2,7 @@ import { cva } from 'class-variance-authority';
 
 import hexToRgb from '@/utils/hexToRgb';
 
-import { type BackgroundContext } from './Background';
+import { type Props } from './Background';
 import BackgroundImage from './BackgroundImage';
 
 export const backgroundBaseStyles = cva('absolute inset-0 z-0 transform-gpu');
@@ -11,7 +11,7 @@ function BackgroundBase({
   color,
   context,
   image,
-}: Readonly<{ color: string; image?: string; context: BackgroundContext }>) {
+}: Pick<Props, 'color' | 'context' | 'image'>) {
   const rgbString = hexToRgb(color).join(',');
 
   return (

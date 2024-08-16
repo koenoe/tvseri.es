@@ -23,6 +23,7 @@ import {
   type TmdbTvSeriesCredits,
   normalizePersons,
   type TmdbTvSeriesSeason,
+  type TmdbSearchTvSeries,
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import { fetchImdbTopRatedTvSeries } from '../mdblist';
@@ -343,4 +344,17 @@ export async function fetchGenresForTvSeries() {
   return (genresResponse.genres ?? []).filter(
     (genre) => !genresToIgnoreForOverview.includes(genre.id),
   ) as Genre[];
+}
+
+export async function searchTvSeries(query: string) {
+  const tvSeriesResponse =
+    ((await tmdbFetch(
+      `/3/search/tv?include_adult=false&page=1&query=${query}`,
+    )) as TmdbSearchTvSeries) ?? [];
+
+  return (tvSeriesResponse.results ?? [])
+    .filter((series) => !!series.poster_path)
+    .map((series) => {
+      return normalizeTvSeries(series as TmdbTvSeries);
+    });
 }

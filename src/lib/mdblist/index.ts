@@ -78,7 +78,7 @@ export async function fetchRating(
   returnRating: string = 'imdb',
 ) {
   const response = await fetchTvSeriesOrMovie(id, mediaType);
-  const rating = response.ratings.find(
+  const rating = response.ratings?.find(
     (rating) => rating.source === returnRating,
   );
 

@@ -43,6 +43,9 @@ export type TmdbTrendingTvSeries =
 export type TmdbDiscoverTvSeries =
   paths['/3/discover/tv']['get']['responses']['200']['content']['application/json'];
 
+export type TmdbSearchTvSeries =
+  paths['/3/search/tv']['get']['responses']['200']['content']['application/json'];
+
 export type TmdbGenresForTvSeries =
   paths['/3/genre/tv/list']['get']['responses']['200']['content']['application/json'];
 

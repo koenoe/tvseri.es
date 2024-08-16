@@ -70,6 +70,7 @@ export default function RootLayout({
         <Suspense>
           <Footer />
         </Suspense>
+        <div id="modal-root" />
       </body>
     </html>
   );

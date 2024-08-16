@@ -5,7 +5,9 @@ import hexToRgb from '@/utils/hexToRgb';
 import { type Props } from './Background';
 import BackgroundImage from './BackgroundImage';
 
-export const backgroundBaseStyles = cva('absolute inset-0 z-0 transform-gpu');
+export const backgroundBaseStyles = cva(
+  'absolute inset-0 z-0 transform-gpu w-screen h-screen',
+);
 
 function BackgroundBase({
   color,

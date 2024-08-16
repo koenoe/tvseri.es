@@ -152,7 +152,7 @@ function Search() {
               style={{
                 backgroundColor,
               }}
-              className="fixed inset-0 z-40"
+              className="absolute inset-0 z-40"
               key="modal-backdrop"
               variants={{
                 hidden: {
@@ -175,7 +175,7 @@ function Search() {
               onClick={handleClose}
             />
             <motion.div
-              className="fixed inset-0 z-50 flex h-screen w-screen md:mt-[8rem] md:items-start md:justify-center"
+              className="absolute inset-0 z-50 flex h-screen w-screen md:mt-[8rem] md:items-start md:justify-center"
               key="modal-container"
               layoutId="search"
               layout

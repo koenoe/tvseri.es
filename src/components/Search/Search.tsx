@@ -233,7 +233,7 @@ function Search() {
                 <AnimatePresence>
                   {(results !== null || isPending) && (
                     <motion.div
-                      className="relative h-auto w-full overflow-y-auto p-6 md:max-h-[calc(100vh-16rem)] md:border-t md:border-black/10"
+                      className="relative h-auto w-full overflow-y-scroll p-6 md:max-h-[calc(100vh-16rem)] md:border-t md:border-black/10"
                       key="results"
                     >
                       {isPending ? (

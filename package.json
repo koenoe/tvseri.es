@@ -24,7 +24,7 @@
     "color": "^4.2.3",
     "framer-motion": "^11.3.28",
     "google-gax": "^4.3.9",
-    "next": "15.0.0-canary.115",
+    "next": "15.0.0-canary.116",
     "react": "19.0.0-rc-14a4699f-20240725",
     "react-dom": "19.0.0-rc-14a4699f-20240725",
     "server-only": "^0.0.1",

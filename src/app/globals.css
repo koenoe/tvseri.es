@@ -19,8 +19,7 @@ body.scrollbar-is-visible::-webkit-scrollbar {
 }
 
 body.modal-is-open {
-  overflow: hidden;
-  -webkit-overflow-scrolling: touch;
+  overflow-y: hidden;
 }
 
 body.scrollbar-is-visible.modal-is-open {

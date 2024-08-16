@@ -10,11 +10,12 @@ import EpisodesList from '@/components/List/EpisodesList';
 import RecommendationsList from '@/components/List/RecommendationsList';
 import SimilarList from '@/components/List/SimilarList';
 import Page from '@/components/Page/Page';
+import ImdbRating from '@/components/Rating/ImdbRating';
 import SkeletonAvatars from '@/components/Skeletons/SkeletonAvatars';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
+import SkeletonRating from '@/components/Skeletons/SkeletonRating';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
 import { fetchTvSeries } from '@/lib/tmdb';
-import formatVoteCount from '@/utils/formatCount';
 
 type Props = Readonly<{
   params: { id: string; slug: string };
@@ -124,37 +125,35 @@ export default async function TvSeriesDetailsPage({ params }: Props) {
             {tvSeries.description}
           </ExpandableText>
 
-          {tvSeries.voteAverage > 0 && (
-            <div className="mb-6 flex items-center gap-3">
-              <svg
-                className="h-6 w-6 text-yellow-300"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 22 20"
-              >
-                <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
-              </svg>
-              <div className="flex flex-col">
-                <div className="flex items-center gap-1">
-                  <p className="text-xl font-bold">
-                    {tvSeries.voteAverage.toFixed(1)}
-                  </p>
-                  <p className="text-base font-light opacity-60">/10</p>
-                </div>
-                <p className="text-sm opacity-60">
-                  {formatVoteCount(tvSeries.voteCount)}
-                </p>
-              </div>
-            </div>
-          )}
+          <Suspense fallback={<SkeletonRating className="mb-6" />}>
+            <ImdbRating className="mb-6" id={tvSeries.id} />
+          </Suspense>
 
-          {tvSeries.createdBy.length > 0 && (
-            <p className="inline-flex items-center gap-3 text-sm font-medium leading-loose">
-              <span className="font-light opacity-60">Created by:</span>
-              {/* TODO: <Link /> to person pages */}
-              {tvSeries.createdBy.map((creator) => creator.name).join(', ')}
-            </p>
-          )}
+          <div className="flex flex-col text-xs font-light">
+            {tvSeries.createdBy.length > 0 && (
+              <p className="flex items-center gap-2 font-medium leading-loose">
+                <span className="opacity-60">Created by:</span>
+                {/* TODO: <Link /> to person pages */}
+                {tvSeries.createdBy.map((creator) => creator.name).join(', ')}
+              </p>
+            )}
+
+            {tvSeries.languages.length > 0 && (
+              <p className="flex items-center gap-2 font-medium leading-loose">
+                <span className="opacity-60">Spoken languages:</span>
+                {tvSeries.languages
+                  .map((language) => language.englishName)
+                  .join(', ')}
+              </p>
+            )}
+
+            {tvSeries.countries.length > 0 && (
+              <p className="flex items-center gap-2 font-medium leading-loose">
+                <span className="opacity-60">Country of origin:</span>
+                {tvSeries.countries[0].name}
+              </p>
+            )}
+          </div>
         </div>
 
         <Suspense

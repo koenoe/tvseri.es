@@ -1,6 +1,7 @@
 import SkeletonAvatars from '@/components/Skeletons/SkeletonAvatars';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
 import SkeletonPage from '@/components/Skeletons/SkeletonPage';
+import SkeletonRating from '@/components/Skeletons/SkeletonRating';
 
 export default function Loading() {
   return (
@@ -17,14 +18,12 @@ export default function Loading() {
           <div className="h-7 w-full bg-white/20" />
           <div className="h-7 w-9/12 bg-white/20" />
         </div>
-        <div className="mb-6 flex items-center gap-3">
-          <div className="h-6 w-6 animate-pulse rounded-full bg-white/30" />
-          <div className="flex flex-col gap-1">
-            <div className="h-7 w-24 bg-white/20" />
-            <div className="h-6 w-12 bg-white/10" />
-          </div>
+        <SkeletonRating className="mb-6" />
+        <div className="flex flex-col gap-1">
+          <div className="h-4 w-32 bg-white/10" />
+          <div className="h-4 w-36 bg-white/10" />
+          <div className="h-4 w-48 bg-white/10" />
         </div>
-        <div className="h-6 w-2/5 bg-white/10" />
         <SkeletonAvatars className="my-10 lg:mb-7 lg:mt-14" />
       </div>
       <SkeletonList className="mb-10 md:mb-16" variant="episode" />

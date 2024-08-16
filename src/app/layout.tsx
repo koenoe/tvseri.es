@@ -24,8 +24,8 @@ export const metadata: Metadata = {
     url: false,
   },
   title: {
-    template: 'TMDB Playground - %s',
-    default: 'TMDB Playground',
+    template: 'TV Playground - %s',
+    default: 'TV Playground',
   },
 };
 

@@ -1,5 +1,16 @@
 import { type Genre } from './genre';
 
+type Language = Readonly<{
+  englishName: string;
+  name: string;
+  code: string;
+}>;
+
+type Country = Readonly<{
+  name: string;
+  code: string;
+}>;
+
 export type Movie = Readonly<{
   backdropColor: string;
   backdropImage?: string;
@@ -8,7 +19,8 @@ export type Movie = Readonly<{
   id: number;
   isAdult: boolean;
   imdbId: string;
-  originalLanguage: string;
+  languages: Language[];
+  countries: Country[];
   originalTitle: string;
   posterImage: string;
   releaseDate: string;

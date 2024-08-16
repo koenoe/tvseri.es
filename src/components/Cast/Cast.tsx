@@ -11,5 +11,9 @@ export default async function Cast({
 }) {
   const { cast } = await fetchTvSeriesCredits(id);
 
-  return <Avatars className={className} items={cast} />;
+  return cast.length > 0 ? (
+    <Avatars className={className} items={cast} />
+  ) : (
+    <div className={className} />
+  );
 }

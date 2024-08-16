@@ -25,6 +25,7 @@ import {
   type TmdbTvSeriesSeason,
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
+import { fetchImdbTopRatedTvSeries } from '../mdblist';
 
 const GENRES_TO_IGNORE = [16, 10762, 10764, 10766, 10767];
 
@@ -60,7 +61,7 @@ async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
   return json;
 }
 
-export async function fetchMovie(id: number): Promise<Movie> {
+export async function fetchMovie(id: number | string): Promise<Movie> {
   const movie = (await tmdbFetch(
     `/3/movie/${id}?append_to_response=images&include_image_language=en,null`,
   )) as TmdbMovie;
@@ -160,8 +161,10 @@ export async function fetchTvSeriesCredits(
     `/3/tv/${id}/aggregate_credits`,
   )) as TmdbTvSeriesCredits;
 
+  const cast = credits.cast?.sort((a, b) => a.order - b.order) ?? [];
+
   return {
-    cast: normalizePersons(credits.cast),
+    cast: normalizePersons(cast),
     crew: normalizePersons(credits.crew),
   };
 }
@@ -234,7 +237,6 @@ export async function fetchTrendingMovies() {
     .map((movie) => movie.id)
     .slice(0, 10);
 
-  // Fetch images for each movie concurrently
   const movies = await Promise.all(
     trendingMoviesIds.map(async (id) => {
       const movie = await fetchMovie(id);
@@ -259,7 +261,6 @@ export async function fetchTrendingTvSeries() {
     .map((series) => series.id)
     .slice(0, 10);
 
-  // Fetch images for each series concurrently
   const series = await Promise.all(
     ids.map(async (id) => {
       const serie = await fetchTvSeries(id);
@@ -271,16 +272,14 @@ export async function fetchTrendingTvSeries() {
 }
 
 export async function fetchTopRatedTvSeries() {
-  const topRatedTvSeriesResponse =
-    ((await tmdbFetch(
-      `/3/discover/tv?include_adult=false&page=1&sort_by=vote_average.desc&vote_count.gte=2000&vote_average.gte=8&without_keywords=2411,299842,12564,158718,193171&without_genres=${GENRES_TO_IGNORE.join(',')}`,
-    )) as TmdbDiscoverTvSeries) ?? [];
-
-  return (topRatedTvSeriesResponse.results ?? [])
-    .filter((series) => !!series.poster_path)
-    .map((series) => {
-      return normalizeTvSeries(series as TmdbTvSeries);
-    });
+  const topRatedIds = await fetchImdbTopRatedTvSeries();
+  const series = await Promise.all(
+    topRatedIds.map(async (id) => {
+      const serie = await fetchTvSeries(id);
+      return serie;
+    }),
+  );
+  return series;
 }
 
 export async function fetchPopularBritishCrimeTvSeries() {
@@ -339,5 +338,9 @@ export async function fetchGenresForTvSeries() {
   const genresResponse =
     ((await tmdbFetch('/3/genre/tv/list')) as TmdbGenresForTvSeries) ?? [];
 
-  return (genresResponse.genres ?? []) as Genre[];
+  const genresToIgnoreForOverview = [10763, 10764, 10766, 10767];
+
+  return (genresResponse.genres ?? []).filter(
+    (genre) => !genresToIgnoreForOverview.includes(genre.id),
+  ) as Genre[];
 }

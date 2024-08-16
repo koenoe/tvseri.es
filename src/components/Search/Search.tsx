@@ -119,6 +119,14 @@ function Search() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('modal-is-open');
+    } else {
+      document.body.classList.remove('modal-is-open');
+    }
+  }, [isOpen]);
+
   return (
     <LayoutGroup>
       <motion.div

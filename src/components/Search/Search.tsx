@@ -119,14 +119,6 @@ function Search() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add('modal-is-open');
-    } else {
-      document.body.classList.remove('modal-is-open');
-    }
-  }, [isOpen]);
-
   return (
     <LayoutGroup>
       <motion.div
@@ -175,20 +167,20 @@ function Search() {
               onClick={handleClose}
             />
             <motion.div
-              className="fixed inset-0 z-50 flex h-screen w-screen md:mt-[8rem] md:items-start md:justify-center"
+              className="fixed inset-0 z-50 flex md:mt-[8rem] md:items-start md:justify-center"
               key="modal-container"
               layoutId="search"
               layout
             >
               <motion.div
-                className="relative w-full max-w-screen-md overflow-hidden bg-white shadow-xl md:rounded-2xl"
+                className="flex w-full max-w-screen-md flex-col bg-white shadow-xl md:overflow-hidden md:rounded-2xl"
                 key="modal-content"
                 style={{
                   color: backgroundColor,
                 }}
               >
-                <div className="relative w-full border-b border-black/5 md:border-none">
-                  <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-6">
+                <div className="relative h-auto w-full border-b border-black/5 md:border-none">
+                  <div className="absolute inset-y-0 start-0 flex items-center ps-6">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
@@ -233,7 +225,7 @@ function Search() {
                 <AnimatePresence>
                   {(results !== null || isPending) && (
                     <motion.div
-                      className="relative h-auto w-full overflow-y-scroll p-6 md:max-h-[calc(100vh-16rem)] md:border-t md:border-black/10"
+                      className="relative h-full w-full overflow-x-hidden overflow-y-scroll p-6 md:h-auto md:max-h-[calc(100vh-16rem)] md:border-t md:border-black/10"
                       key="results"
                     >
                       {isPending ? (

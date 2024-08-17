@@ -225,7 +225,7 @@ function Search() {
                     >
                       {isPending ? (
                         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                          {[...Array(4)].map((_, index) => (
+                          {[...Array(8)].map((_, index) => (
                             <div
                               key={index}
                               className="flex h-full w-full flex-col items-center justify-center gap-2"

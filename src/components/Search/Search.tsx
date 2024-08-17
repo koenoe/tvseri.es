@@ -167,13 +167,13 @@ function Search() {
               onClick={handleClose}
             />
             <motion.div
-              className="fixed inset-0 z-50 flex md:mt-[8rem] md:items-start md:justify-center"
+              className="pointer-events-none fixed inset-0 z-50 flex md:mt-[8rem] md:items-start md:justify-center"
               key="modal-container"
               layoutId="search"
               layout
             >
               <motion.div
-                className="flex w-full max-w-screen-md flex-col bg-white shadow-xl md:overflow-hidden md:rounded-2xl"
+                className="pointer-events-auto flex w-full max-w-screen-md flex-col bg-white shadow-xl md:overflow-hidden md:rounded-2xl"
                 key="modal-content"
                 style={{
                   color: backgroundColor,
@@ -225,7 +225,7 @@ function Search() {
                 <AnimatePresence>
                   {(results !== null || isPending) && (
                     <motion.div
-                      className="relative h-full w-full overflow-x-hidden overflow-y-scroll p-6 md:h-auto md:max-h-[calc(100vh-16rem)] md:border-t md:border-black/10"
+                      className="relative h-full w-full overflow-y-auto overflow-x-hidden p-6 md:h-auto md:max-h-[calc(100vh-16rem)] md:border-t md:border-black/10"
                       key="results"
                     >
                       {isPending ? (

@@ -13,7 +13,6 @@ import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { flushSync } from 'react-dom';
 import { useDebouncedCallback } from 'use-debounce';
 
 import searchIcon from '@/assets/search.svg';
@@ -37,10 +36,8 @@ function Search() {
   const router = useRouter();
 
   const handleClose = useCallback(() => {
-    flushSync(() => {
-      setIsOpen(false);
-      setResults(null);
-    });
+    setIsOpen(false);
+    setResults(null);
   }, []);
 
   const handleChange = useDebouncedCallback(
@@ -125,10 +122,8 @@ function Search() {
         key="search"
         className="relative cursor-pointer"
         onClick={() => {
-          flushSync(() => {
-            setBackgroundColor(getMainBackgroundColor());
-            setIsOpen((prev) => !prev);
-          });
+          setBackgroundColor(getMainBackgroundColor());
+          setIsOpen((prev) => !prev);
         }}
       >
         <motion.div

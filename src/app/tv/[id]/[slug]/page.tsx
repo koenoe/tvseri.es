@@ -138,7 +138,7 @@ export default async function TvSeriesDetailsPage({ params }: Props) {
               </p>
             )}
 
-            {tvSeries.languages.length > 0 && (
+            {/* {tvSeries.languages.length > 0 && (
               <p className="flex items-center gap-2 font-medium leading-loose">
                 <span className="opacity-60">Spoken languages:</span>
                 {tvSeries.languages
@@ -152,7 +152,7 @@ export default async function TvSeriesDetailsPage({ params }: Props) {
                 <span className="opacity-60">Country of origin:</span>
                 {tvSeries.countries[0].name}
               </p>
-            )}
+            )} */}
           </div>
         </div>
 

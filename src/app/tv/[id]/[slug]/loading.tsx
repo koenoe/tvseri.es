@@ -21,8 +21,8 @@ export default function Loading() {
         <SkeletonRating className="mb-6" />
         <div className="flex flex-col gap-1">
           <div className="h-4 w-32 bg-white/10" />
-          <div className="h-4 w-36 bg-white/10" />
-          <div className="h-4 w-48 bg-white/10" />
+          {/* <div className="h-4 w-36 bg-white/10" />
+          <div className="h-4 w-48 bg-white/10" /> */}
         </div>
         <SkeletonAvatars className="my-10 lg:mb-7 lg:mt-14" />
       </div>

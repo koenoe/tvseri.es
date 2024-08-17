@@ -129,7 +129,7 @@ export default async function TvSeriesDetailsPage({ params }: Props) {
             <ImdbRating className="mb-6" id={tvSeries.id} />
           </Suspense>
 
-          <div className="flex flex-col text-xs font-light">
+          <div className="flex flex-col text-sm font-light">
             {tvSeries.createdBy.length > 0 && (
               <p className="flex items-center gap-2 font-medium leading-loose">
                 <span className="opacity-60">Created by:</span>

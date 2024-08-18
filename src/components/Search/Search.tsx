@@ -25,7 +25,7 @@ const MotionLink = motion(Link);
 const MotionImage = motion(Image);
 
 const getMainBackgroundColor = () =>
-  document.querySelector('main')!.style.backgroundColor ?? '#000';
+  document.querySelector('main')?.style.backgroundColor ?? '#000';
 
 function Search() {
   const abortControllerRef = useRef<AbortController | null>(null);

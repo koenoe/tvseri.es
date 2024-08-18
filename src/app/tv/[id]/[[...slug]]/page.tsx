@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 
 import Image from 'next/image';
-import { notFound, redirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 
 import Cast from '@/components/Cast/Cast';
 import ContentRating from '@/components/ContentRating/ContentRating';
@@ -18,18 +18,20 @@ import WatchProvider from '@/components/WatchProvider/WatchProvider';
 import { fetchTvSeries } from '@/lib/tmdb';
 
 type Props = Readonly<{
-  params: { id: string; slug: string };
+  params: { id: string; slug: string[] };
 }>;
 
 export async function generateMetadata({ params }: Props) {
   const tvSeries = await fetchTvSeries(params.id);
 
   if (!tvSeries || tvSeries.isAdult) {
-    return notFound();
+    return {};
   }
 
-  if (tvSeries.slug !== params.slug) {
-    return redirect(`/tv/${params.id}/${tvSeries.slug}`);
+  const slug = params.slug?.join('');
+
+  if (tvSeries.slug && tvSeries.slug !== slug) {
+    return permanentRedirect(`/tv/${params.id}/${tvSeries.slug}`);
   }
 
   return {
@@ -49,8 +51,10 @@ export default async function TvSeriesDetailsPage({ params }: Props) {
     return notFound();
   }
 
-  if (tvSeries.slug !== params.slug) {
-    return redirect(`/tv/${params.id}/${tvSeries.slug}`);
+  const slug = params.slug?.join('');
+
+  if (tvSeries.slug && tvSeries.slug !== slug) {
+    return permanentRedirect(`/tv/${params.id}/${tvSeries.slug}`);
   }
 
   return (

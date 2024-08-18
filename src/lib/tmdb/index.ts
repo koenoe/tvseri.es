@@ -19,7 +19,6 @@ import {
   type TmdbTvSeriesWatchProviders,
   type TmdbTvSeriesRecommendations,
   type TmdbTvSeriesSimilar,
-  canSluggify,
   type TmdbTvSeriesCredits,
   normalizePersons,
   type TmdbTvSeriesSeason,
@@ -54,6 +53,10 @@ async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
 
   const response = await fetch(urlWithParams.toString(), patchedOptions);
 
+  if (response.status === 404) {
+    return undefined;
+  }
+
   if (!response.ok) {
     throw new Error(`HTTP error status: ${response.status}`);
   }
@@ -62,10 +65,16 @@ async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
   return json;
 }
 
-export async function fetchMovie(id: number | string): Promise<Movie> {
+export async function fetchMovie(
+  id: number | string,
+): Promise<Movie | undefined> {
   const movie = (await tmdbFetch(
     `/3/movie/${id}?append_to_response=images&include_image_language=en,null`,
   )) as TmdbMovie;
+
+  if (!movie) {
+    return undefined;
+  }
 
   const normalizedMovie = normalizeMovie(movie);
 
@@ -83,10 +92,16 @@ export async function fetchMovie(id: number | string): Promise<Movie> {
   return normalizedMovie;
 }
 
-export async function fetchTvSeries(id: number | string): Promise<TvSeries> {
+export async function fetchTvSeries(
+  id: number | string,
+): Promise<TvSeries | undefined> {
   const series = (await tmdbFetch(
     `/3/tv/${id}?append_to_response=images&include_image_language=en,null`,
   )) as TmdbTvSeries;
+
+  if (!series) {
+    return undefined;
+  }
 
   const normalizedTvSeries = normalizeTvSeries(series);
 
@@ -234,7 +249,7 @@ export async function fetchTrendingMovies() {
     ((await tmdbFetch('/3/trending/movie/day')) as TmdbTrendingMovies) ?? [];
 
   const trendingMoviesIds = (trendingMoviesResponse.results ?? [])
-    .filter((movie) => movie.vote_count > 0 && canSluggify(movie as TmdbMovie))
+    .filter((movie) => movie.vote_count > 0)
     .map((movie) => movie.id)
     .slice(0, 10);
 
@@ -256,8 +271,7 @@ export async function fetchTrendingTvSeries() {
     .filter(
       (series) =>
         series.vote_count > 0 &&
-        !series.genre_ids?.some((genre) => GENRES_TO_IGNORE.includes(genre)) &&
-        canSluggify(series as TmdbTvSeries),
+        !series.genre_ids?.some((genre) => GENRES_TO_IGNORE.includes(genre)),
     )
     .map((series) => series.id)
     .slice(0, 10);
@@ -329,7 +343,7 @@ export async function fetchMostAnticipatedTvSeries() {
     )) as TmdbDiscoverTvSeries) ?? [];
 
   return (tvSeriesResponse.results ?? [])
-    .filter((series) => !!series.poster_path)
+    .filter((series) => !!series.poster_path && !!series.overview)
     .map((series) => {
       return normalizeTvSeries(series as TmdbTvSeries);
     });

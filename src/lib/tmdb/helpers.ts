@@ -53,17 +53,6 @@ export function generateTmdbImageUrl(path: string, size = 'original') {
   return `https://image.tmdb.org/t/p/${size}${path}`;
 }
 
-export function canSluggify(item: TmdbTvSeries | TmdbMovie) {
-  let name = '';
-  if ('name' in item) {
-    name = (item as TmdbTvSeries).name as string;
-  } else if ('title' in item) {
-    name = (item as TmdbMovie).title as string;
-  }
-  const slug = slugify(name, { lower: true, strict: true });
-  return !!slug;
-}
-
 function extractImages(item: TmdbTvSeries | TmdbMovie) {
   const images = item.images ?? {};
   const backdrop =

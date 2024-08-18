@@ -26,7 +26,7 @@ import {
   type TmdbSearchTvSeries,
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
-import { fetchImdbTopRatedTvSeries } from '../mdblist';
+import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
 
 const GENRES_TO_IGNORE = [16, 10762, 10764, 10766, 10767];
 
@@ -357,4 +357,15 @@ export async function searchTvSeries(query: string) {
     .map((series) => {
       return normalizeTvSeries(series as TmdbTvSeries);
     });
+}
+
+export async function fetchKoreasFinestTvSeries() {
+  const ids = await fetchKoreasFinest();
+  const series = await Promise.all(
+    ids.map(async (id) => {
+      const serie = await fetchTvSeries(id);
+      return serie;
+    }),
+  );
+  return series;
 }

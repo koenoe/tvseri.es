@@ -97,3 +97,11 @@ export async function fetchImdbTopRatedTvSeries() {
 
   return response.map((item) => item.id);
 }
+
+export async function fetchKoreasFinest() {
+  const response = (await mdblistFetch(
+    '/lists/koenoe/top-rated-korean-shows-on-netflix/json',
+  )) as Item[];
+
+  return response.map((item) => item.id);
+}

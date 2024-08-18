@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import ApplePlusList from '@/components/List/ApplePlusList';
 import BestSportsDocumentariesList from '@/components/List/BestSportsDocumentariesList';
 import GenresList, { gapStyleOverride } from '@/components/List/GenresList';
+import KoreasFinestList from '@/components/List/KoreasFinestList';
 import MostAnticipatedList from '@/components/List/MostAnticipatedList';
 import PopularBritishCrimeList from '@/components/List/PopularBritishCrimeList';
 import TopRatedList from '@/components/List/TopRatedList';
@@ -36,6 +37,10 @@ export default async function HomePage() {
 
       <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
         <ApplePlusList className="mb-10 md:mb-16" />
+      </Suspense>
+
+      <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
+        <KoreasFinestList className="mb-10 md:mb-16" />
       </Suspense>
 
       <Suspense

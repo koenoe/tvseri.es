@@ -279,7 +279,7 @@ export async function fetchTrendingTvSeries() {
   const series = await Promise.all(
     ids.map(async (id) => {
       const serie = await fetchTvSeries(id);
-      return serie;
+      return serie as TvSeries;
     }),
   );
 

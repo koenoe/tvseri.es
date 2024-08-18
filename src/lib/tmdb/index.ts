@@ -256,7 +256,7 @@ export async function fetchTrendingMovies() {
   const movies = await Promise.all(
     trendingMoviesIds.map(async (id) => {
       const movie = await fetchMovie(id);
-      return movie;
+      return movie as Movie;
     }),
   );
 
@@ -291,7 +291,7 @@ export async function fetchTopRatedTvSeries() {
   const series = await Promise.all(
     topRatedIds.map(async (id) => {
       const serie = await fetchTvSeries(id);
-      return serie;
+      return serie as TvSeries;
     }),
   );
   return series;
@@ -378,7 +378,7 @@ export async function fetchKoreasFinestTvSeries() {
   const series = await Promise.all(
     ids.map(async (id) => {
       const serie = await fetchTvSeries(id);
-      return serie;
+      return serie as TvSeries;
     }),
   );
   return series;

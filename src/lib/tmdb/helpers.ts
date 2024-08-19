@@ -2,19 +2,16 @@ import 'server-only';
 
 import slugify from 'slugify';
 
-import type { Movie } from '@/types/movie';
 import type { paths } from '@/types/tmdb';
 import type { Episode, TvSeries } from '@/types/tv-series';
-
-export type TmdbMovie =
-  paths[`/3/movie/${number}`]['get']['responses']['200']['content']['application/json'] & {
-    images: paths[`/3/movie/${number}/images`]['get']['responses']['200']['content']['application/json'];
-  };
 
 export type TmdbTvSeries =
   paths[`/3/tv/${number}`]['get']['responses']['200']['content']['application/json'] & {
     images: paths[`/3/tv/${number}/images`]['get']['responses']['200']['content']['application/json'];
   };
+
+export type TmdbTvSeriesAccountStates =
+  paths[`/3/tv/${number}/account_states`]['get']['responses']['200']['content']['application/json'];
 
 export type TmdbTvSeriesContentRatings =
   paths[`/3/tv/${number}/content_ratings`]['get']['responses']['200']['content']['application/json'];
@@ -34,9 +31,6 @@ export type TmdbTvSeriesSimilar =
 export type TmdbTvSeriesSeason =
   paths[`/3/tv/${number}/season/${number}`]['get']['responses']['200']['content']['application/json'];
 
-export type TmdbTrendingMovies =
-  paths[`/3/trending/movie/${string}`]['get']['responses']['200']['content']['application/json'];
-
 export type TmdbTrendingTvSeries =
   paths[`/3/trending/tv/${string}`]['get']['responses']['200']['content']['application/json'];
 
@@ -49,11 +43,14 @@ export type TmdbSearchTvSeries =
 export type TmdbGenresForTvSeries =
   paths['/3/genre/tv/list']['get']['responses']['200']['content']['application/json'];
 
+export type TmdbAccountDetails =
+  paths[`/3/account/${number}`]['get']['responses']['200']['content']['application/json'];
+
 export function generateTmdbImageUrl(path: string, size = 'original') {
   return `https://image.tmdb.org/t/p/${size}${path}`;
 }
 
-function extractImages(item: TmdbTvSeries | TmdbMovie) {
+function extractImages(item: TmdbTvSeries) {
   const images = item.images ?? {};
   const backdrop =
     images.backdrops?.filter((path) => path.iso_639_1 === null)[0]?.file_path ??
@@ -76,7 +73,7 @@ function extractImages(item: TmdbTvSeries | TmdbMovie) {
   };
 }
 
-function normalizeGenres(genres: TmdbTvSeries['genres'] | TmdbMovie['genres']) {
+function normalizeGenres(genres: TmdbTvSeries['genres']) {
   return (genres ?? []).map((genre) => ({
     id: genre.id,
     name: genre.name as string,
@@ -114,38 +111,6 @@ export function normalizePersons(
           'total_episode_count' in person ? person.total_episode_count : 0,
       };
     });
-}
-
-export function normalizeMovie(movie: TmdbMovie): Movie {
-  const images = extractImages(movie);
-  const releaseDate = new Date(movie.release_date ?? '').toISOString();
-
-  return {
-    id: movie.id,
-    isAdult: movie.adult,
-    imdbId: movie.imdb_id ?? '',
-    title: movie.title ?? '',
-    countries: (movie.production_countries ?? []).map((country) => ({
-      name: country.name ?? '',
-      code: country.iso_3166_1 ?? '',
-    })),
-    description: movie.overview ?? '',
-    languages: (movie.spoken_languages ?? []).map((language) => ({
-      englishName: language.english_name ?? '',
-      name: language.name ?? '',
-      code: language.iso_639_1 ?? '',
-    })),
-    originalTitle: movie.original_title ?? '',
-    tagline: movie.tagline ?? '',
-    genres: normalizeGenres(movie.genres),
-    releaseDate,
-    runtime: movie.runtime,
-    backdropColor: '#000',
-    slug: slugify(movie.title ?? '', { lower: true, strict: true }),
-    voteAverage: movie.vote_average,
-    voteCount: movie.vote_count,
-    ...images,
-  };
 }
 
 function formatReleaseYearForTvSeries(

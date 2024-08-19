@@ -18,11 +18,6 @@ const nextConfig = {
       },
     ],
   },
-  logging: {
-    fetches: {
-      fullUrl: true,
-    },
-  },
   async headers() {
     return [
       {

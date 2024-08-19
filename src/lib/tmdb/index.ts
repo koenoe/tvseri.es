@@ -1,17 +1,18 @@
 import 'server-only';
 
 import { type Genre } from '@/types/genre';
-import type { Movie } from '@/types/movie';
 import { type Person } from '@/types/person';
-import type { Season, TvSeries } from '@/types/tv-series';
+import type {
+  Season,
+  TvSeries,
+  TvSeriesAccountStates,
+} from '@/types/tv-series';
+import getBaseUrl from '@/utils/getBaseUrl';
 
 import {
   generateTmdbImageUrl,
-  normalizeMovie,
   normalizeTvSeries,
   type TmdbTvSeries,
-  type TmdbMovie,
-  type TmdbTrendingMovies,
   type TmdbTrendingTvSeries,
   type TmdbDiscoverTvSeries,
   type TmdbGenresForTvSeries,
@@ -23,6 +24,8 @@ import {
   normalizePersons,
   type TmdbTvSeriesSeason,
   type TmdbSearchTvSeries,
+  type TmdbAccountDetails,
+  type TmdbTvSeriesAccountStates,
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
@@ -31,7 +34,7 @@ const GENRES_TO_IGNORE = [16, 10762, 10764, 10766, 10767];
 
 async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
   const headers = {
-    accept: 'application/json',
+    'content-type': 'application/json',
   };
   const next = {
     revalidate: 3600,
@@ -62,34 +65,148 @@ async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
   }
 
   const json = await response.json();
+
   return json;
 }
 
-export async function fetchMovie(
-  id: number | string,
-): Promise<Movie | undefined> {
-  const movie = (await tmdbFetch(
-    `/3/movie/${id}?append_to_response=images&include_image_language=en,null`,
-  )) as TmdbMovie;
+export async function createRequestToken(redirectUri: string = getBaseUrl()) {
+  const response = (await tmdbFetch('/4/auth/request_token', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.TMDB_API_ACCESS_TOKEN}`,
+    },
+    body: JSON.stringify({
+      redirect_to: redirectUri,
+    }),
+  })) as Readonly<{
+    success: boolean;
+    status_code: number;
+    status_message: string;
+    request_token: string;
+  }>;
 
-  if (!movie) {
-    return undefined;
-  }
+  return response.request_token;
+}
 
-  const normalizedMovie = normalizeMovie(movie);
+export async function createAccessToken(requestToken: string) {
+  const response = (await tmdbFetch('/4/auth/access_token', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.TMDB_API_ACCESS_TOKEN}`,
+    },
+    body: JSON.stringify({
+      request_token: requestToken,
+    }),
+  })) as Readonly<{
+    success: boolean;
+    status_code: number;
+    status_message: string;
+    account_id: string;
+    access_token: string;
+  }>;
 
-  if (normalizedMovie.backdropImage) {
-    const backdropColor = await detectDominantColorFromImage(
-      normalizedMovie.backdropImage,
-    );
+  return {
+    accountObjectId: response.account_id,
+    accessToken: response.access_token,
+  };
+}
 
-    return {
-      ...normalizedMovie,
-      backdropColor,
-    };
-  }
+export async function createSessionId(accessToken: string) {
+  const response = (await tmdbFetch('/3/authentication/session/convert/4', {
+    method: 'POST',
+    body: JSON.stringify({
+      access_token: accessToken,
+    }),
+    next: {
+      revalidate: 0,
+    },
+  })) as Readonly<{
+    success: boolean;
+    session_id: string;
+  }>;
 
-  return normalizedMovie;
+  return response.session_id;
+}
+
+export async function deleteSessionId(sessionId: string) {
+  await tmdbFetch('/3/authentication/session', {
+    method: 'DELETE',
+    body: JSON.stringify({
+      session_id: sessionId,
+    }),
+  });
+}
+
+export async function deleteAccessToken(accessToken: string) {
+  await tmdbFetch('/4/auth/access_token', {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${process.env.TMDB_API_ACCESS_TOKEN}`,
+    },
+    body: JSON.stringify({
+      access_token: accessToken,
+    }),
+  });
+}
+
+export async function fetchAccountDetails(sessionId: string) {
+  const response = (await tmdbFetch(
+    `/3/account?session_id=${sessionId}`,
+  )) as TmdbAccountDetails;
+
+  return {
+    id: response.id,
+    name: response.name,
+    username: response.username,
+    avatar: response.avatar?.gravatar
+      ? `https://www.gravatar.com/avatar/${response.avatar.gravatar.hash}`
+      : undefined,
+  };
+}
+
+type ToggleArgs = Readonly<{
+  id: number | string;
+  accountId: number | string;
+  sessionId: string;
+  value: boolean;
+}>;
+
+export async function addToOrRemoveFromWatchlist({
+  id,
+  accountId,
+  sessionId,
+  value,
+}: ToggleArgs) {
+  await tmdbFetch(`/3/account/${accountId}/watchlist?session_id=${sessionId}`, {
+    method: 'POST',
+    body: JSON.stringify({
+      media_type: 'tv',
+      media_id: id,
+      watchlist: value,
+    }),
+    next: {
+      revalidate: 0,
+    },
+  });
+}
+
+export async function addToOrRemoveFromFavorites({
+  id,
+  accountId,
+  sessionId,
+  value,
+}: ToggleArgs) {
+  await tmdbFetch(`/3/account/${accountId}/favorite?session_id=${sessionId}`, {
+    method: 'POST',
+    body: JSON.stringify({
+      media_type: 'tv',
+      media_id: id,
+      favorite: value,
+    }),
+    next: {
+      revalidate: 0,
+    },
+  });
 }
 
 export async function fetchTvSeries(
@@ -130,6 +247,32 @@ export async function fetchTvSeries(
   }
 
   return normalizedTvSeries;
+}
+
+export async function fetchTvSeriesAccountStates(
+  id: number | string,
+  sessionId: string,
+): Promise<TvSeriesAccountStates> {
+  const series = (await tmdbFetch(
+    `/3/tv/${id}/account_states?session_id=${sessionId}`,
+    {
+      next: {
+        revalidate: 0,
+      },
+    },
+  )) as TmdbTvSeriesAccountStates;
+
+  if (!series) {
+    return {
+      isFavorited: false,
+      isWatchlisted: false,
+    };
+  }
+
+  return {
+    isFavorited: series.favorite,
+    isWatchlisted: series.watchlist,
+  };
 }
 
 export async function fetchTvSeriesContentRating(
@@ -242,25 +385,6 @@ export async function fetchTvSeriesSeason(
     seasonNumber: response.season_number,
     episodes,
   };
-}
-
-export async function fetchTrendingMovies() {
-  const trendingMoviesResponse =
-    ((await tmdbFetch('/3/trending/movie/day')) as TmdbTrendingMovies) ?? [];
-
-  const trendingMoviesIds = (trendingMoviesResponse.results ?? [])
-    .filter((movie) => movie.vote_count > 0)
-    .map((movie) => movie.id)
-    .slice(0, 10);
-
-  const movies = await Promise.all(
-    trendingMoviesIds.map(async (id) => {
-      const movie = await fetchMovie(id);
-      return movie as Movie;
-    }),
-  );
-
-  return movies;
 }
 
 export async function fetchTrendingTvSeries() {

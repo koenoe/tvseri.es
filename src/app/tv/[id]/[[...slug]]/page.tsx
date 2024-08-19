@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import Image from 'next/image';
 import { notFound, permanentRedirect } from 'next/navigation';
 
+import LikeAndAddButton from '@/components/Buttons/LikeAndAddButton';
 import Cast from '@/components/Cast/Cast';
 import ContentRating from '@/components/ContentRating/ContentRating';
 import ExpandableText from '@/components/ExpandableText/ExpandableText';
@@ -12,6 +13,7 @@ import SimilarList from '@/components/List/SimilarList';
 import Page from '@/components/Page/Page';
 import ImdbRating from '@/components/Rating/ImdbRating';
 import SkeletonAvatars from '@/components/Skeletons/SkeletonAvatars';
+import SkeletonCircleButton from '@/components/Skeletons/SkeletonCircleButton';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
 import SkeletonRating from '@/components/Skeletons/SkeletonRating';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
@@ -103,7 +105,7 @@ export default async function TvSeriesDetailsPage({ params }: Props) {
                   </>
                 )}
 
-                <div className="ml-auto flex h-7 gap-2 md:ml-8">
+                <div className="ml-auto flex h-7 gap-2 md:ml-10">
                   <Suspense
                     fallback={
                       <div className="flex h-7 min-w-7 animate-pulse rounded-sm bg-white/30" />
@@ -129,9 +131,25 @@ export default async function TvSeriesDetailsPage({ params }: Props) {
             {tvSeries.description}
           </ExpandableText>
 
-          <Suspense fallback={<SkeletonRating className="mb-6" />}>
-            <ImdbRating className="mb-6" id={tvSeries.id} />
-          </Suspense>
+          <div className="mb-6 flex items-center">
+            <Suspense
+              fallback={<SkeletonRating className="mr-auto md:mr-10" />}
+            >
+              <ImdbRating id={tvSeries.id} className="mr-auto md:mr-10" />
+            </Suspense>
+            <div className="flex gap-3">
+              <Suspense
+                fallback={
+                  <>
+                    <SkeletonCircleButton />
+                    <SkeletonCircleButton />
+                  </>
+                }
+              >
+                <LikeAndAddButton id={tvSeries.id} />
+              </Suspense>
+            </div>
+          </div>
 
           <div className="flex flex-col text-sm font-light">
             {tvSeries.createdBy.length > 0 && (

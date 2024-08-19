@@ -58,7 +58,11 @@ const LoginButton = ({
         if (profileName) {
           await logout();
         } else {
-          await login();
+          if (typeof window !== 'undefined') {
+            await login(window.location.pathname);
+          } else {
+            await login();
+          }
         }
       } catch (error) {}
     });

@@ -11,8 +11,8 @@ import {
 import { decryptToken, encryptToken } from '@/lib/token';
 import getBaseUrl from '@/utils/getBaseUrl';
 
-export async function login() {
-  const redirectUri = `${getBaseUrl()}/api/auth/callback`;
+export async function login(pathname = '/') {
+  const redirectUri = `${getBaseUrl()}/api/auth/callback?redirect=${pathname}`;
   const requestToken = await createRequestToken(redirectUri);
   const encryptedToken = encryptToken(requestToken);
 

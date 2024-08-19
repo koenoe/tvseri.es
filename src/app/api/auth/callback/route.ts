@@ -1,10 +1,11 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { type NextRequest } from 'next/server';
 
 import { createAccessToken, createSessionId } from '@/lib/tmdb';
 import { decryptToken, encryptToken } from '@/lib/token';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const cookieStore = cookies();
   const encryptedRequestToken = cookieStore.get('requestToken')?.value;
 
@@ -14,6 +15,9 @@ export async function GET() {
       { status: 400 },
     );
   }
+
+  const searchParams = request.nextUrl.searchParams;
+  const redirectUri = searchParams.get('redirect') || '/';
 
   const decryptedRequestToken = decryptToken(encryptedRequestToken);
 
@@ -37,5 +41,5 @@ export async function GET() {
 
   cookieStore.delete('requestToken');
 
-  return redirect('/');
+  return redirect(redirectUri);
 }

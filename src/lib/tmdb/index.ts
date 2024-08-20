@@ -259,6 +259,9 @@ export async function fetchTvSeriesAccountStates(
 ): Promise<TvSeriesAccountStates> {
   const series = (await tmdbFetch(
     `/3/tv/${id}/account_states?session_id=${sessionId}`,
+    {
+      cache: 'no-store',
+    },
   )) as TmdbTvSeriesAccountStates;
 
   if (!series) {

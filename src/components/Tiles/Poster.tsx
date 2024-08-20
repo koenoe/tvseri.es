@@ -32,7 +32,7 @@ function Poster({
       layout
     >
       <Image
-        className="object-contain"
+        className="rounded-lg object-contain"
         draggable={false}
         src={item.posterImage}
         alt={item.title}

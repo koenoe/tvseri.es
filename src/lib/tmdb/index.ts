@@ -150,9 +150,11 @@ export async function deleteAccessToken(accessToken: string) {
 }
 
 export async function fetchAccountDetails(sessionId: string) {
-  const response = (await tmdbFetch(
-    `/3/account?session_id=${sessionId}`,
-  )) as TmdbAccountDetails;
+  const response = (await tmdbFetch(`/3/account?session_id=${sessionId}`, {
+    next: {
+      revalidate: 0,
+    },
+  })) as TmdbAccountDetails;
 
   return {
     id: response.id,

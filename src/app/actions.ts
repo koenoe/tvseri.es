@@ -19,7 +19,7 @@ export async function login(pathname = '/') {
   cookies().set('requestToken', encryptedToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 15 * 60, // 15 minutes
+    maxAge: 10 * 60, // 10 minutes
   });
 
   return redirect(

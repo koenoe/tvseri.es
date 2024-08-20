@@ -33,33 +33,41 @@ import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
 const GENRES_TO_IGNORE = [16, 10762, 10764, 10766, 10767];
 
 async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
-  const headers = {
-    'content-type': 'application/json',
-  };
+  const pathAsString = path.toString();
+  const urlWithParams = new URL(`https://api.themoviedb.org${pathAsString}`);
 
-  const next = {
-    revalidate: 3600,
-  };
-
-  const patchedOptions = {
-    ...init,
-    next: {
-      ...next,
-      ...(init?.next || {}),
-    },
-    headers: {
-      ...headers,
-      ...(init?.headers || {}),
-    },
-  };
-
-  const urlWithParams = new URL(`https://api.themoviedb.org${path}`);
-  if (path.toString().startsWith('/3/')) {
+  if (pathAsString.startsWith('/3/')) {
     urlWithParams.searchParams.set(
       'api_key',
       process.env.TMDB_API_KEY as string,
     );
   }
+
+  const headers = {
+    'content-type': 'application/json',
+    ...(pathAsString.startsWith('/4/') && {
+      Authorization: `Bearer ${process.env.TMDB_API_ACCESS_TOKEN}`,
+    }),
+  };
+
+  // Note: NextJS doesn't allow both revalidate + cache headers
+  const next = init?.cache
+    ? {}
+    : {
+        revalidate: 3600,
+      };
+
+  const patchedOptions = {
+    ...init,
+    next: {
+      ...next,
+      ...init?.next,
+    },
+    headers: {
+      ...headers,
+      ...init?.headers,
+    },
+  };
 
   const response = await fetch(urlWithParams.toString(), patchedOptions);
 
@@ -78,10 +86,8 @@ async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
 
 export async function createRequestToken(redirectUri: string = getBaseUrl()) {
   const response = (await tmdbFetch('/4/auth/request_token', {
+    cache: 'no-store',
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.TMDB_API_ACCESS_TOKEN}`,
-    },
     body: JSON.stringify({
       redirect_to: redirectUri,
     }),
@@ -97,10 +103,8 @@ export async function createRequestToken(redirectUri: string = getBaseUrl()) {
 
 export async function createAccessToken(requestToken: string) {
   const response = (await tmdbFetch('/4/auth/access_token', {
+    cache: 'no-store',
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.TMDB_API_ACCESS_TOKEN}`,
-    },
     body: JSON.stringify({
       request_token: requestToken,
     }),
@@ -120,6 +124,7 @@ export async function createAccessToken(requestToken: string) {
 
 export async function createSessionId(accessToken: string) {
   const response = (await tmdbFetch('/3/authentication/session/convert/4', {
+    cache: 'no-store',
     method: 'POST',
     body: JSON.stringify({
       access_token: accessToken,
@@ -134,6 +139,7 @@ export async function createSessionId(accessToken: string) {
 
 export async function deleteSessionId(sessionId: string) {
   await tmdbFetch('/3/authentication/session', {
+    cache: 'no-store',
     method: 'DELETE',
     body: JSON.stringify({
       session_id: sessionId,
@@ -143,10 +149,8 @@ export async function deleteSessionId(sessionId: string) {
 
 export async function deleteAccessToken(accessToken: string) {
   await tmdbFetch('/4/auth/access_token', {
+    cache: 'no-store',
     method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${process.env.TMDB_API_ACCESS_TOKEN}`,
-    },
     body: JSON.stringify({
       access_token: accessToken,
     }),
@@ -182,6 +186,7 @@ export async function addToOrRemoveFromWatchlist({
   value,
 }: ToggleArgs) {
   await tmdbFetch(`/3/account/${accountId}/watchlist?session_id=${sessionId}`, {
+    cache: 'no-store',
     method: 'POST',
     body: JSON.stringify({
       media_type: 'tv',
@@ -198,6 +203,7 @@ export async function addToOrRemoveFromFavorites({
   value,
 }: ToggleArgs) {
   await tmdbFetch(`/3/account/${accountId}/favorite?session_id=${sessionId}`, {
+    cache: 'no-store',
     method: 'POST',
     body: JSON.stringify({
       media_type: 'tv',

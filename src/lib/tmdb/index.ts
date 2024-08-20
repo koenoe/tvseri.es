@@ -78,6 +78,9 @@ export async function createRequestToken(redirectUri: string = getBaseUrl()) {
     body: JSON.stringify({
       redirect_to: redirectUri,
     }),
+    next: {
+      revalidate: 0,
+    },
   })) as Readonly<{
     success: boolean;
     status_code: number;
@@ -97,6 +100,9 @@ export async function createAccessToken(requestToken: string) {
     body: JSON.stringify({
       request_token: requestToken,
     }),
+    next: {
+      revalidate: 0,
+    },
   })) as Readonly<{
     success: boolean;
     status_code: number;
@@ -134,6 +140,9 @@ export async function deleteSessionId(sessionId: string) {
     body: JSON.stringify({
       session_id: sessionId,
     }),
+    next: {
+      revalidate: 0,
+    },
   });
 }
 
@@ -146,6 +155,9 @@ export async function deleteAccessToken(accessToken: string) {
     body: JSON.stringify({
       access_token: accessToken,
     }),
+    next: {
+      revalidate: 0,
+    },
   });
 }
 

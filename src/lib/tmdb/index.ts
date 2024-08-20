@@ -36,9 +36,11 @@ async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
   const headers = {
     'content-type': 'application/json',
   };
+
   const next = {
     revalidate: 3600,
   };
+
   const patchedOptions = {
     ...init,
     next: {
@@ -52,7 +54,12 @@ async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
   };
 
   const urlWithParams = new URL(`https://api.themoviedb.org${path}`);
-  urlWithParams.searchParams.set('api_key', process.env.TMDB_API_KEY as string);
+  if (path.toString().startsWith('/3/')) {
+    urlWithParams.searchParams.set(
+      'api_key',
+      process.env.TMDB_API_KEY as string,
+    );
+  }
 
   const response = await fetch(urlWithParams.toString(), patchedOptions);
 
@@ -78,9 +85,6 @@ export async function createRequestToken(redirectUri: string = getBaseUrl()) {
     body: JSON.stringify({
       redirect_to: redirectUri,
     }),
-    next: {
-      revalidate: 0,
-    },
   })) as Readonly<{
     success: boolean;
     status_code: number;
@@ -100,9 +104,6 @@ export async function createAccessToken(requestToken: string) {
     body: JSON.stringify({
       request_token: requestToken,
     }),
-    next: {
-      revalidate: 0,
-    },
   })) as Readonly<{
     success: boolean;
     status_code: number;
@@ -123,9 +124,6 @@ export async function createSessionId(accessToken: string) {
     body: JSON.stringify({
       access_token: accessToken,
     }),
-    next: {
-      revalidate: 0,
-    },
   })) as Readonly<{
     success: boolean;
     session_id: string;
@@ -140,9 +138,6 @@ export async function deleteSessionId(sessionId: string) {
     body: JSON.stringify({
       session_id: sessionId,
     }),
-    next: {
-      revalidate: 0,
-    },
   });
 }
 
@@ -155,18 +150,13 @@ export async function deleteAccessToken(accessToken: string) {
     body: JSON.stringify({
       access_token: accessToken,
     }),
-    next: {
-      revalidate: 0,
-    },
   });
 }
 
 export async function fetchAccountDetails(sessionId: string) {
-  const response = (await tmdbFetch(`/3/account?session_id=${sessionId}`, {
-    next: {
-      revalidate: 0,
-    },
-  })) as TmdbAccountDetails;
+  const response = (await tmdbFetch(
+    `/3/account?session_id=${sessionId}`,
+  )) as TmdbAccountDetails;
 
   return {
     id: response.id,
@@ -198,9 +188,6 @@ export async function addToOrRemoveFromWatchlist({
       media_id: id,
       watchlist: value,
     }),
-    next: {
-      revalidate: 0,
-    },
   });
 }
 
@@ -217,9 +204,6 @@ export async function addToOrRemoveFromFavorites({
       media_id: id,
       favorite: value,
     }),
-    next: {
-      revalidate: 0,
-    },
   });
 }
 
@@ -269,11 +253,6 @@ export async function fetchTvSeriesAccountStates(
 ): Promise<TvSeriesAccountStates> {
   const series = (await tmdbFetch(
     `/3/tv/${id}/account_states?session_id=${sessionId}`,
-    {
-      next: {
-        revalidate: 0,
-      },
-    },
   )) as TmdbTvSeriesAccountStates;
 
   if (!series) {

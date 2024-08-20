@@ -154,7 +154,7 @@ const LoginButton = ({
             className="relative h-full truncate text-ellipsis"
             variants={firstTextVariant}
           >
-            {profileName ? 'koenoe' : 'Login'}
+            {profileName ? profileName : 'Login'}
           </motion.span>
           {profileName && (
             <motion.span

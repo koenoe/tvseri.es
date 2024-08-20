@@ -67,8 +67,8 @@ export default async function LikeAndAddButton({
 
   return (
     <>
-      <AddButton action={addToOrRemoveAction} />
       <LikeButton action={addToOrRemoveAction} />
+      <AddButton action={addToOrRemoveAction} />
     </>
   );
 }

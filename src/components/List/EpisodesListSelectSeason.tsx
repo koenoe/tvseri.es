@@ -64,7 +64,11 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
                 onClick={() => {
                   const params = new URLSearchParams(searchParams.toString());
                   params.set('season', item.seasonNumber.toString());
-                  window.history.pushState(null, '', `?${params.toString()}`);
+                  window.history.replaceState(
+                    null,
+                    '',
+                    `?${params.toString()}`,
+                  );
                   setIsVisible(false);
                 }}
               >

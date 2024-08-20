@@ -24,8 +24,8 @@ export const metadata: Metadata = {
     url: false,
   },
   title: {
-    template: 'TV Playground - %s',
-    default: 'TV Playground',
+    template: 'tvseri.es - %s',
+    default: 'tvseri.es',
   },
 };
 

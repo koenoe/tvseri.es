@@ -12,7 +12,7 @@ export default function Header() {
         <div className="ml-auto flex items-center gap-8">
           <Suspense
             fallback={
-              <div className="h-[18px] w-20 animate-pulse bg-white/30" />
+              <div className="h-[18px] w-14 animate-pulse bg-white/30" />
             }
           >
             <LoginButtonContainer />

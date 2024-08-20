@@ -17,7 +17,7 @@ export default function Logo({
         height={30}
       />
       <span className="text-lg font-semibold uppercase leading-none tracking-widest">
-        Playground
+        tvseri.es
       </span>
     </Link>
   );

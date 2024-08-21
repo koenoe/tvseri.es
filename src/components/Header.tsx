@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 
 import Logo from './Logo';
 import MenuContainer from './Menu/MenuContainer';
+import Username from './Menu/Username';
 
 export default function Header() {
   return (
@@ -16,7 +17,15 @@ export default function Header() {
             </div>
           }
         >
-          <MenuContainer />
+          <MenuContainer>
+            <Suspense
+              fallback={
+                <div className="h-[18px] w-16 animate-pulse bg-white/30" />
+              }
+            >
+              <Username />
+            </Suspense>
+          </MenuContainer>
         </Suspense>
       </div>
     </div>

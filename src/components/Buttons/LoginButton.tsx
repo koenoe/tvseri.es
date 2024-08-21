@@ -1,61 +1,36 @@
 'use client';
 
-import React, { useTransition, memo } from 'react';
+import { useTransition, memo } from 'react';
 
-import { motion } from 'framer-motion';
+import { cva } from 'class-variance-authority';
 
 import { login, logout } from '@/app/actions';
 
-const firstTextVariant = {
-  initial: {
-    y: 0,
-  },
-  hover: {
-    y: -20,
-    opacity: 0,
-    transition: {
-      duration: 1.125,
-      ease: [0.19, 1, 0.22, 1],
+const loginButtonStyles = cva(
+  'relative flex items-center justify-end text-3xl lowercase md:leading-none text-white md:text-base md:h-[18px] h-[36px]',
+  {
+    variants: {
+      state: {
+        authenticated: ['md:w-[48px] w-[89px]'],
+        unauthenticated: ['md:w-[37px] w-[69px]'],
+      },
+    },
+    defaultVariants: {
+      state: 'unauthenticated',
     },
   },
-  animate: {
-    y: 0,
-    transition: {
-      duration: 1.125,
-      ease: [0.19, 1, 0.22, 1],
-    },
-  },
-};
-
-const secondTextVariant = {
-  initial: {
-    y: 20,
-    opacity: 0,
-  },
-  hover: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      duration: 1.125,
-      ease: [0.19, 1, 0.22, 1],
-    },
-  },
-  animate: {
-    y: 20,
-    opacity: 0,
-  },
-};
+);
 
 const LoginButton = ({
-  profileName,
+  isAuthenticated,
 }: Readonly<{
-  profileName?: string;
+  isAuthenticated?: boolean;
 }>) => {
   const [isPending, startTransition] = useTransition();
   const handleClick = () => {
     startTransition(async () => {
       try {
-        if (profileName) {
+        if (isAuthenticated) {
           await logout();
         } else {
           if (typeof window !== 'undefined') {
@@ -69,14 +44,14 @@ const LoginButton = ({
   };
 
   return (
-    <motion.button
+    <button
       onClick={handleClick}
-      className="relative flex h-[18px] w-auto min-w-12 items-center justify-end overflow-hidden text-base lowercase leading-none text-white"
-      whileHover={profileName ? 'hover' : 'initial'}
-      initial="initial"
+      className={loginButtonStyles({
+        state: isAuthenticated ? 'authenticated' : 'unauthenticated',
+      })}
     >
       {isPending ? (
-        <motion.svg
+        <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="#fff"
           viewBox="0 0 120 30"
@@ -147,26 +122,11 @@ const LoginButton = ({
               repeatCount="indefinite"
             />
           </circle>
-        </motion.svg>
+        </svg>
       ) : (
-        <>
-          <motion.span
-            className="relative h-full truncate text-ellipsis"
-            variants={firstTextVariant}
-          >
-            {profileName ? profileName : 'Login'}
-          </motion.span>
-          {profileName && (
-            <motion.span
-              variants={secondTextVariant}
-              className="absolute right-0 top-0"
-            >
-              Logout
-            </motion.span>
-          )}
-        </>
+        <span>{isAuthenticated ? 'Logout' : 'Login'}</span>
       )}
-    </motion.button>
+    </button>
   );
 };
 

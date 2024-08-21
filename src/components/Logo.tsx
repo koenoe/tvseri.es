@@ -7,7 +7,7 @@ export default function Logo({
   priority = false,
 }: Readonly<{ priority?: boolean }>) {
   return (
-    <Link href="/" className="flex items-center gap-4">
+    <Link href="/" className="z-10 flex items-center gap-4">
       <Image
         className="mt-[-6px]"
         src={logo}

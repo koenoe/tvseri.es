@@ -17,15 +17,13 @@ import { useDebouncedCallback } from 'use-debounce';
 
 import searchIcon from '@/assets/search.svg';
 import { type TvSeries } from '@/types/tv-series';
+import getMainBackgroundColor from '@/utils/getMainBackgroundColor';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 import Modal from '../Modal';
 
 const MotionLink = motion(Link);
 const MotionImage = motion(Image);
-
-const getMainBackgroundColor = () =>
-  document.querySelector('main')?.style.backgroundColor ?? '#000';
 
 function Search() {
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -120,7 +118,7 @@ function Search() {
     <LayoutGroup>
       <motion.div
         key="search"
-        className="relative cursor-pointer"
+        className="relative z-10 mr-[calc(24px+1.25rem)] cursor-pointer"
         onClick={() => {
           setBackgroundColor(getMainBackgroundColor());
           setIsOpen((prev) => !prev);

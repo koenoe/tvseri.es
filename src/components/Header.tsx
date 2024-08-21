@@ -8,7 +8,7 @@ export default function Header() {
     <div className="absolute h-[6rem] w-screen md:h-[8rem]">
       <div className="container flex h-full w-full items-center justify-stretch">
         <Logo priority />
-        <Suspense fallback={null}>
+        <Suspense>
           <MenuContainer />
         </Suspense>
       </div>

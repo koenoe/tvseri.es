@@ -125,7 +125,6 @@ export default async function TvSeriesDetailsPage({ params }: Props) {
             </div>
           </div>
         </div>
-
         <div className="w-full xl:w-4/5 2xl:w-3/5">
           <ExpandableText className="mb-6">
             {tvSeries.description}
@@ -189,7 +188,7 @@ export default async function TvSeriesDetailsPage({ params }: Props) {
           />
         </Suspense>
       </div>
-      {tvSeries.numberOfEpisodes > 0 && (
+      {tvSeries.numberOfEpisodes > 0 && tvSeries.seasons && (
         <EpisodesList className="mb-10 md:mb-16" item={tvSeries} />
       )}
       <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>

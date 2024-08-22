@@ -23,23 +23,22 @@ export default function EpisodesList({
   const [isPending, startTransition] = useTransition();
   const [isInitialFetch, setIsInitialFetch] = useState<boolean>(true);
   const shouldShowSkeleton = isPending || isInitialFetch;
-  const selectedSeason = useMemo(
-    () =>
-      item.seasons?.find(
-        (season) =>
-          season.seasonNumber.toString() ===
-          (searchParams.get('season') ?? '1'),
-      ),
-    [item.seasons, searchParams],
-  );
-  const fetchKey = `tv/${item.id}/season/${selectedSeason?.seasonNumber}`;
+  const selectedSeason = useMemo(() => {
+    const season = item.seasons?.find(
+      (season) =>
+        season.seasonNumber.toString() === (searchParams.get('season') ?? '1'),
+    );
+    return season ?? item.seasons?.[0];
+  }, [item.seasons, searchParams]);
+
+  const fetchKey = `tv/${item.id}/season/${selectedSeason?.seasonNumber ?? 1}`;
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const title = useMemo(
     () =>
       item.seasons && item.seasons?.length > 1 ? (
         <SelectSeason item={item} />
       ) : (
-        selectedSeason?.title
+        (selectedSeason?.title ?? '')
       ),
     [item, selectedSeason?.title],
   );

@@ -121,21 +121,39 @@ export function normalizePersons(
 }
 
 function formatReleaseYearForTvSeries(
-  firstAirDate: string,
-  lastAirDate: string,
+  firstAirDate: string | undefined,
+  lastAirDate: string | undefined,
 ) {
-  const firstAirYear = new Date(firstAirDate).getUTCFullYear();
-  const lastAirYear = new Date(lastAirDate).getUTCFullYear();
+  // Extract years, defaulting to undefined if the date is invalid or missing
+  const firstAirYear = firstAirDate
+    ? new Date(firstAirDate).getUTCFullYear()
+    : undefined;
+  const lastAirYear = lastAirDate
+    ? new Date(lastAirDate).getUTCFullYear()
+    : undefined;
   const currentYear = new Date().getUTCFullYear();
 
+  // If firstAirDate is undefined, only return lastAirYear
+  if (!firstAirYear && lastAirYear) {
+    return `${lastAirYear}`;
+  }
+
+  // If lastAirDate is undefined, only return firstAirYear
+  if (firstAirYear && !lastAirYear) {
+    return `${firstAirYear}`;
+  }
+
+  // If both years are equal, return the single year
   if (firstAirYear === lastAirYear) {
     return `${firstAirYear}`;
   }
 
-  if (lastAirYear < currentYear) {
-    return `${firstAirYear}– ${lastAirYear}`;
+  // If lastAirYear is less than the current year, return the range
+  if (lastAirYear && lastAirYear < currentYear) {
+    return `${firstAirYear}–${lastAirYear}`;
   }
 
+  // If the series is ongoing, return the start year with a dash
   return `${firstAirYear}–`;
 }
 

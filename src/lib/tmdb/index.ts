@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { type Account } from '@/types/account';
 import { type Genre } from '@/types/genre';
 import { type Person } from '@/types/person';
 import type {
@@ -169,7 +170,7 @@ export async function fetchAccountDetails(sessionId: string) {
     avatar: response.avatar?.gravatar
       ? `https://www.gravatar.com/avatar/${response.avatar.gravatar.hash}`
       : undefined,
-  };
+  } as Account;
 }
 
 type ToggleArgs = Readonly<{

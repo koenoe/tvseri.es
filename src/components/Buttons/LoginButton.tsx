@@ -23,8 +23,10 @@ const loginButtonStyles = cva(
 
 const LoginButton = ({
   isAuthenticated,
+  onLogout,
 }: Readonly<{
   isAuthenticated?: boolean;
+  onLogout?: () => void;
 }>) => {
   const [isPending, startTransition] = useTransition();
   const handleClick = () => {
@@ -32,7 +34,10 @@ const LoginButton = ({
       try {
         if (isAuthenticated) {
           await logout();
+          onLogout?.();
         } else {
+          // Note: we don't have an actual login page,
+          // and we redirect to TMDb, so we don't have a login callback
           if (typeof window !== 'undefined') {
             await login(window.location.pathname);
           } else {

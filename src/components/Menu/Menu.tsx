@@ -1,17 +1,24 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 
 import useMatchMedia from '@/hooks/useMatchMedia';
+import { type Account } from '@/types/account';
 import getMainBackgroundColor from '@/utils/getMainBackgroundColor';
 
 import MenuToggle from './MenuToggle';
 import LoginButton from '../Buttons/LoginButton';
 import Modal from '../Modal';
 import Search from '../Search/Search';
+
+const fetchAccount = async () => {
+  const response = await fetch('/api/account');
+  const json = (await response.json()) as Account;
+  return json;
+};
 
 const MotionLink = motion(Link);
 
@@ -36,7 +43,7 @@ const buttonVariants = {
 
 const childrenVariants = {
   hidden: { opacity: 0, y: 25, transition: { duration: 0.25 } },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.25 } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.25, delay: 0.25 } },
 };
 
 const MenuItem = ({
@@ -65,8 +72,10 @@ const MenuItem = ({
 
 export default function Menu({
   children,
-  isAuthenticated,
-}: Readonly<{ children: React.ReactNode; isAuthenticated?: boolean }>) {
+}: Readonly<{ children: React.ReactNode }>) {
+  const accountIsFetched = useRef(false);
+  const accountIsFetching = useRef(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [backgroundColor, setBackgroundColor] = useState<string>('#000');
   const isMobile = useMatchMedia('(max-width: 768px)');
@@ -76,7 +85,12 @@ export default function Menu({
     setMenuOpen((prev) => !prev);
   }, []);
 
+  const handleLogout = useCallback(() => {
+    setIsAuthenticated(false);
+  }, []);
+
   const renderMenu = useCallback(() => {
+    const showLoginButton = isAuthenticated || isMobile;
     return (
       <>
         <motion.div
@@ -109,28 +123,61 @@ export default function Menu({
             key="menu"
             className="absolute inset-0 flex flex-col items-center justify-center gap-8 md:inset-auto md:right-0 md:top-0 md:flex-row md:justify-normal"
           >
-            <MenuItem label="Home" custom={3} href="/" />
-            <MenuItem label="Discover" custom={2} href="/" />
+            {[
+              { label: 'Home', href: '/' },
+              { label: 'Discover', href: '/' },
+              ...(isAuthenticated ? [{ label: 'Watchlist', href: '/' }] : []),
+            ].map((item, index, array) => (
+              <MenuItem
+                key={index}
+                label={item.label}
+                custom={
+                  showLoginButton
+                    ? array.length - index + 1
+                    : array.length - index
+                }
+                href={item.href}
+              />
+            ))}
 
-            {isAuthenticated && (
-              <MenuItem label="Watchlist" custom={1} href="/" />
+            {showLoginButton && (
+              <motion.div
+                key="login"
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                custom={0}
+                variants={buttonVariants}
+              >
+                <LoginButton
+                  isAuthenticated={isAuthenticated}
+                  onLogout={handleLogout}
+                />
+              </motion.div>
             )}
-
-            <motion.div
-              key={0}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              custom={0} // Reverse stagger
-              variants={buttonVariants}
-            >
-              <LoginButton isAuthenticated={isAuthenticated} />
-            </motion.div>
           </motion.div>
         </div>
       </>
     );
-  }, [backgroundColor, isAuthenticated]);
+  }, [backgroundColor, isAuthenticated, isMobile, handleLogout]);
+
+  // Note: ideally we don't do this, but if we do this with RSC + Suspense
+  // we'll get nested suspense due to `<Username />` being suspensed too.
+  // this then causes a long delay in rendering the menu
+  // cause it waits for `<Username />` to resolve before rendering the menu
+  useEffect(() => {
+    if (!accountIsFetched.current && !accountIsFetching.current) {
+      accountIsFetching.current = true;
+      fetchAccount()
+        .then((account) => {
+          setIsAuthenticated(!!account);
+        })
+        .finally(() => {
+          accountIsFetched.current = true;
+          accountIsFetching.current = false;
+        });
+    }
+  }, []);
 
   return (
     <div className="ml-auto flex items-center gap-10">

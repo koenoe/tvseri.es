@@ -72,6 +72,9 @@ function EpisodeTile({
           <div className="after:ml-2">{item.airDate.split('T')[0]}</div>
         </div>
       </div>
+      <div className="absolute bottom-[-1.5rem] right-[-1rem] text-[10rem] font-bold leading-none opacity-[0.075] md:bottom-[-1.75rem] md:right-[-1rem] md:text-[12.5rem]">
+        {item.episodeNumber}
+      </div>
     </div>
   );
 }

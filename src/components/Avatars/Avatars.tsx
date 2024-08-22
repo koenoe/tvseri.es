@@ -12,7 +12,7 @@ import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 const MotionImage = motion(Image);
 
 export const avatarsStyles = cva(
-  'flex flex-row flex-wrap gap-4 lg:gap-0 [&>*:nth-child(n+7)]:hidden md:[&>*:nth-child(n+7)]:flex lg:min-h-36',
+  'flex flex-row flex-wrap justify-center md:justify-normal gap-4 lg:gap-0 [&>*:nth-child(n+7)]:hidden md:[&>*:nth-child(n+7)]:flex lg:min-h-36',
 );
 
 export const avatarStyles = cva(

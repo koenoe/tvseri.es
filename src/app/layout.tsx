@@ -7,7 +7,6 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { cx } from 'class-variance-authority';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import Script from 'next/script';
 
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
@@ -43,7 +42,7 @@ export default function RootLayout({
           inter.className,
         )}
       >
-        <Script
+        <script
           id="scrollbar-detector"
           suppressHydrationWarning
           // eslint-disable-next-line react/no-danger
@@ -66,7 +65,7 @@ export default function RootLayout({
             `,
           }}
         />
-        <Script
+        <script
           id="history-state-key"
           suppressHydrationWarning
           // eslint-disable-next-line react/no-danger

@@ -14,7 +14,11 @@ export default async function RecommendationsList({
   const tvSeries = await fetchTvSeriesRecommendations(id);
 
   return tvSeries.length > 0 ? (
-    <List title="Recommendations" {...rest}>
+    <List
+      title="Recommendations"
+      scrollRestoreKey={`recommendations-${id}`}
+      {...rest}
+    >
       {tvSeries.map((item) => (
         <Poster key={item.id} item={item} />
       ))}

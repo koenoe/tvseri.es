@@ -9,7 +9,11 @@ export default async function PopularBritishCrimeList(
   const tvSeries = await fetchPopularBritishCrimeTvSeries();
 
   return (
-    <List title="Popular British Crime" {...props}>
+    <List
+      title="Popular British Crime"
+      scrollRestoreKey="popular-british-crime"
+      {...props}
+    >
       {tvSeries.map((item) => (
         <Poster key={item.id} item={item} />
       ))}

@@ -27,6 +27,8 @@ import {
   type TmdbSearchTvSeries,
   type TmdbAccountDetails,
   type TmdbTvSeriesAccountStates,
+  type TmdbWatchlist,
+  type TmdbFavorites,
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
@@ -212,6 +214,60 @@ export async function addToOrRemoveFromFavorites({
       favorite: value,
     }),
   });
+}
+
+export async function fetchWatchlist({
+  accountId,
+  sessionId,
+  page = 1,
+}: Readonly<{
+  accountId: number | string;
+  sessionId: string;
+  page?: number;
+}>) {
+  const response = (await tmdbFetch(
+    `/3/account/${accountId}/watchlist/tv?session_id=${sessionId}&sort_by=created_at.desc&page=${page}`,
+    {
+      cache: 'no-store',
+    },
+  )) as TmdbWatchlist;
+
+  const items = (response.results ?? []).map((series) => {
+    return normalizeTvSeries(series as TmdbTvSeries);
+  });
+
+  return {
+    items,
+    totalNumberOfPages: response.total_pages,
+    totalNumberOfItems: response.total_results,
+  };
+}
+
+export async function fetchFavorites({
+  accountId,
+  sessionId,
+  page = 1,
+}: Readonly<{
+  accountId: number | string;
+  sessionId: string;
+  page?: number;
+}>) {
+  const response = (await tmdbFetch(
+    `/3/account/${accountId}/favorite/tv?session_id=${sessionId}&sort_by=created_at.desc&page=${page}`,
+    {
+      cache: 'no-store',
+    },
+  )) as TmdbFavorites;
+
+  const items = (response.results ?? []).map((series) => {
+    return normalizeTvSeries(series as TmdbTvSeries);
+  });
+
+  return {
+    items,
+    totalNumberOfPages: response.total_pages,
+    totalNumberOfItems: response.total_results,
+  };
 }
 
 export async function fetchTvSeries(

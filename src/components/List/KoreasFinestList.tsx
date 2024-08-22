@@ -9,7 +9,7 @@ export default async function KoreasFinestList(
   const tvSeries = await fetchKoreasFinestTvSeries();
 
   return (
-    <List title="Korea's finest" {...props}>
+    <List title="Korea's finest" scrollRestoreKey="koreas-finest" {...props}>
       {tvSeries.map((item) => (
         <Poster key={item.id} item={item} />
       ))}

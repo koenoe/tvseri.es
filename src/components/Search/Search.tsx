@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 
 import searchIcon from '@/assets/search.svg';
+import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 import { type TvSeries } from '@/types/tv-series';
 import getMainBackgroundColor from '@/utils/getMainBackgroundColor';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
@@ -29,7 +30,9 @@ function Search() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [backgroundColor, setBackgroundColor] = useState<string>('#000');
+  const [backgroundColor, setBackgroundColor] = useState<string>(
+    DEFAULT_BACKGROUND_COLOR,
+  );
   const [results, setResults] = useState<TvSeries[] | null>(null);
   const router = useRouter();
 

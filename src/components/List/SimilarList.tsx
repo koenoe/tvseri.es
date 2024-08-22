@@ -14,7 +14,7 @@ export default async function SimilarList({
   const tvSeries = await fetchTvSeriesSimilar(id);
 
   return tvSeries.length > 0 ? (
-    <List title="Similar" {...rest}>
+    <List title="Similar" scrollRestoreKey={`similar-${id}`} {...rest}>
       {tvSeries.map((item) => (
         <Poster key={item.id} item={item} />
       ))}

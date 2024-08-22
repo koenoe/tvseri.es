@@ -9,7 +9,11 @@ export default async function BestSportsDocumentariesList(
   const tvSeries = await fetchBestSportsDocumentariesTvSeries();
 
   return (
-    <List title="Best sports documentaries" {...props}>
+    <List
+      title="Best sports documentaries"
+      scrollRestoreKey="best-sports-documentaries"
+      {...props}
+    >
       {tvSeries.map((item) => (
         <Poster key={item.id} item={item} />
       ))}

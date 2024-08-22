@@ -31,16 +31,18 @@ function Poster({
       animate={{ scale: 1 }}
       layout
     >
-      <Image
-        className="rounded-lg object-contain"
-        draggable={false}
-        src={item.posterImage}
-        alt={item.title}
-        fill
-        priority={priority}
-        placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(300, 450)}`}
-        unoptimized
-      />
+      <div className="relative w-full pt-[150%]">
+        <Image
+          className="rounded-lg object-contain"
+          draggable={false}
+          src={item.posterImage}
+          alt={item.title}
+          fill
+          priority={priority}
+          placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(300, 450)}`}
+          unoptimized
+        />
+      </div>
     </MotionLink>
   );
 }

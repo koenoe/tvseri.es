@@ -3,13 +3,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
+import Link, { type LinkProps } from 'next/link';
 
 import useMatchMedia from '@/hooks/useMatchMedia';
 import { type Account } from '@/types/account';
 import getMainBackgroundColor from '@/utils/getMainBackgroundColor';
 
-import MenuToggle from './MenuToggle';
+import MenuToggle, { type MenuToggleHandle } from './MenuToggle';
 import LoginButton from '../Buttons/LoginButton';
 import Modal from '../Modal';
 import Search from '../Search/Search';
@@ -25,36 +25,37 @@ const MotionLink = motion(Link);
 const buttonVariants = {
   hidden: (i: number) => ({
     opacity: 0,
-    y: -25,
+    y: -20,
     transition: {
       delay: i * 0.1,
-      duration: 0.25,
+      duration: 0.2,
     },
   }),
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
     transition: {
-      delay: i * 0.15,
-      duration: 0.25,
+      delay: i * 0.1,
+      duration: 0.2,
     },
   }),
 };
 
 const childrenVariants = {
-  hidden: { opacity: 0, y: 25, transition: { duration: 0.25 } },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.25, delay: 0.25 } },
+  hidden: { opacity: 0, y: 20, transition: { duration: 0.2 } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.2, delay: 0.2 } },
 };
 
 const MenuItem = ({
+  onClick,
+  href,
   custom,
   label,
-  href,
-}: Readonly<{
-  label: string;
-  custom: number;
-  href: string;
-}>) => {
+}: LinkProps &
+  Readonly<{
+    label: string;
+    custom: number;
+  }>) => {
   return (
     <MotionLink
       href={href}
@@ -64,6 +65,7 @@ const MenuItem = ({
       exit="hidden"
       custom={custom}
       variants={buttonVariants}
+      onClick={onClick}
     >
       <span className="relative h-full truncate text-ellipsis">{label}</span>
     </MotionLink>
@@ -73,6 +75,7 @@ const MenuItem = ({
 export default function Menu({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const menuToggleRef = useRef<MenuToggleHandle>(null);
   const accountIsFetched = useRef(false);
   const accountIsFetching = useRef(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -80,13 +83,20 @@ export default function Menu({
   const [backgroundColor, setBackgroundColor] = useState<string>('#000');
   const isMobile = useMatchMedia('(max-width: 768px)');
 
-  const handleOnClick = useCallback(() => {
+  const handleMenuToggle = useCallback((open: boolean) => {
     setBackgroundColor(getMainBackgroundColor());
-    setMenuOpen((prev) => !prev);
+    setMenuOpen(open);
   }, []);
 
   const handleLogout = useCallback(() => {
     setIsAuthenticated(false);
+    setMenuOpen(false);
+    menuToggleRef.current?.close();
+  }, []);
+
+  const handleMenuItemClick = useCallback(() => {
+    setMenuOpen(false);
+    menuToggleRef.current?.close();
   }, []);
 
   const renderMenu = useCallback(() => {
@@ -126,7 +136,12 @@ export default function Menu({
             {[
               { label: 'Home', href: '/' },
               { label: 'Discover', href: '/' },
-              ...(isAuthenticated ? [{ label: 'Watchlist', href: '/' }] : []),
+              ...(isAuthenticated
+                ? [
+                    { label: 'Watchlist', href: '/watchlist' },
+                    { label: 'Favorites', href: '/favorites' },
+                  ]
+                : []),
             ].map((item, index, array) => (
               <MenuItem
                 key={index}
@@ -137,6 +152,7 @@ export default function Menu({
                     : array.length - index
                 }
                 href={item.href}
+                onClick={handleMenuItemClick}
               />
             ))}
 
@@ -159,7 +175,13 @@ export default function Menu({
         </div>
       </>
     );
-  }, [backgroundColor, isAuthenticated, isMobile, handleLogout]);
+  }, [
+    isAuthenticated,
+    isMobile,
+    backgroundColor,
+    handleLogout,
+    handleMenuItemClick,
+  ]);
 
   // Note: ideally we don't do this, but if we do this with RSC + Suspense
   // we'll get nested suspense due to `<Username />` being suspensed too.
@@ -204,7 +226,7 @@ export default function Menu({
 
       <div className="relative flex items-center">
         <Search />
-        <MenuToggle onClick={handleOnClick} />
+        <MenuToggle ref={menuToggleRef} onClick={handleMenuToggle} />
       </div>
     </div>
   );

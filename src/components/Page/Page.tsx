@@ -1,3 +1,10 @@
+import { cva } from 'class-variance-authority';
+
+import {
+  DEFAULT_BACKGROUND_COLOR,
+  DEFAULT_BACKGROUND_IMAGE,
+} from '@/constants';
+
 import { PageStoreProvider } from './PageProvider';
 import Background, { type BackgroundContext } from '../Background/Background';
 import { type BackgroundVariant } from '../Background/Background';
@@ -11,9 +18,34 @@ export type Props = Readonly<{
   children: React.ReactNode;
 }>;
 
+const dotsAndGridStyles = cva(
+  [
+    'pointer-events-none',
+    'absolute',
+    'bottom-0',
+    'left-0',
+    'right-0',
+    'top-[-8rem]',
+    'h-screen',
+    'w-screen',
+    '[mask-image:radial-gradient(circle,black,transparent_65%)]',
+  ],
+  {
+    variants: {
+      context: {
+        dots: ['bg-dot-white/[0.2]'],
+        grid: ['bg-grid-white/[0.2]'],
+      },
+    },
+    defaultVariants: {
+      context: 'dots',
+    },
+  },
+);
+
 export default function Page({
-  backgroundColor = '#000',
-  backgroundImage = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+  backgroundColor = DEFAULT_BACKGROUND_COLOR,
+  backgroundImage = DEFAULT_BACKGROUND_IMAGE,
   backgroundVariant = 'static',
   backgroundContext = 'page',
   children,
@@ -29,12 +61,16 @@ export default function Page({
         className="grow pb-20 pt-[6rem] transition-colors duration-500 md:pt-[8rem]"
         style={{ backgroundColor }}
       >
-        <Background
-          variant={backgroundVariant}
-          context={backgroundContext}
-          color={backgroundColor}
-          image={backgroundImage}
-        />
+        {backgroundContext === 'dots' || backgroundContext === 'grid' ? (
+          <div className={dotsAndGridStyles({ context: backgroundContext })} />
+        ) : (
+          <Background
+            variant={backgroundVariant}
+            context={backgroundContext}
+            color={backgroundColor}
+            image={backgroundImage}
+          />
+        )}
         <div className="relative z-10">{children}</div>
       </main>
     </PageStoreProvider>

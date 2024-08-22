@@ -7,6 +7,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { cx } from 'class-variance-authority';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import Script from 'next/script';
 
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
@@ -42,7 +43,9 @@ export default function RootLayout({
           inter.className,
         )}
       >
-        <script
+        <Script
+          id="scrollbar-detector"
+          suppressHydrationWarning
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
             __html: `
@@ -60,6 +63,36 @@ export default function RootLayout({
                 }
                 document.body.removeChild(scrollable);
               }
+            `,
+          }}
+        />
+        <Script
+          id="history-state-key"
+          suppressHydrationWarning
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: `
+              var orgPushState = window.history.pushState;
+              var orgReplaceState = window.history.replaceState;
+
+              function ensureStateKey(state) {
+                  if (!state || !state.key) {
+                      var key = Math.random().toString(32).slice(2);
+                      state = state || {};
+                      state.key = key;
+                  }
+                  return state;
+              }
+
+              window.history.pushState = function (state, unused, url) {
+                  state = ensureStateKey(state);
+                  orgPushState.call(window.history, state, unused, url);
+              };
+
+              window.history.replaceState = function (state, unused, url) {
+                  state = ensureStateKey(state);
+                  orgReplaceState.call(window.history, state, unused, url);
+              };
             `,
           }}
         />

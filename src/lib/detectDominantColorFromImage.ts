@@ -6,6 +6,8 @@ import Color from 'color';
 import { GoogleAuth, grpc } from 'google-gax';
 import { unstable_cache } from 'next/cache';
 
+import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
+
 const CONTRAST_MINIMUM = 4.5; // Minimum contrast ratio recommended by WCAG
 const BLEND_OPACITY_STEP = 0.05; // Step to blend black into the color
 
@@ -55,7 +57,7 @@ async function detectDominantColorFromImage(url: string): Promise<string> {
     );
     const closestColor = dominantColors[0];
 
-    let hex = '#000000';
+    let hex = DEFAULT_BACKGROUND_COLOR;
     if (closestColor) {
       const color = correctContrast(
         Color.rgb(
@@ -70,7 +72,7 @@ async function detectDominantColorFromImage(url: string): Promise<string> {
     return hex;
   } catch (error) {
     console.error('detectDominantColorFromImage', error);
-    return '#000000';
+    return DEFAULT_BACKGROUND_COLOR;
   }
 }
 

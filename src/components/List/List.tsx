@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useLayoutEffect, useRef } from 'react';
 
 import { cva, cx, type VariantProps } from 'class-variance-authority';
 import {
@@ -11,9 +11,10 @@ import {
   useSpring,
 } from 'framer-motion';
 
-// TODO: convert to Tailwind
+import getHistoryKey from '@/utils/getHistoryKey';
 import getMousePositionX from '@/utils/getMousePositionX';
 
+// TODO: convert to Tailwind
 import styles from './styles.module.css';
 
 const innerStyles = cva(
@@ -42,9 +43,20 @@ export const headerVariants = cva(
 
 type Props = Omit<React.AllHTMLAttributes<HTMLDivElement>, 'title'> &
   HeaderVariantProps &
-  Readonly<{ children: React.ReactNode; title?: React.ReactNode }>;
+  Readonly<{
+    children: React.ReactNode;
+    title?: React.ReactNode;
+    scrollRestoreKey: string;
+  }>;
 
-function List({ children, className, title, titleAlignment, style }: Props) {
+function List({
+  children,
+  className,
+  title,
+  titleAlignment,
+  style,
+  scrollRestoreKey,
+}: Props) {
   const innerRef = useRef<HTMLDivElement>(null);
   const scrollBarRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef<boolean>(false);
@@ -126,6 +138,27 @@ function List({ children, className, title, titleAlignment, style }: Props) {
     },
     [scrollLeft],
   );
+
+  useLayoutEffect(() => {
+    const cacheKey = `${scrollRestoreKey}:${getHistoryKey()}`;
+    const scrollOffset = sessionStorage.getItem(cacheKey);
+    const container = innerRef.current;
+
+    if (scrollOffset && container) {
+      container.scrollTo({ left: parseInt(scrollOffset, 10) });
+      sessionStorage.removeItem(cacheKey);
+    }
+
+    return () => {
+      if (container) {
+        const scrollLeft = container.scrollLeft;
+        if (scrollLeft > 0) {
+          sessionStorage.setItem(cacheKey, String(scrollLeft));
+        }
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div style={style} className={cx('relative w-full', className)}>

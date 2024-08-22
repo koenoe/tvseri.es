@@ -67,7 +67,7 @@ export default function EpisodesList({
   }, [fetchKey, isPending]);
 
   return (
-    <List key={fetchKey} title={title} {...rest}>
+    <List key={fetchKey} scrollRestoreKey={fetchKey} title={title} {...rest}>
       {shouldShowSkeleton
         ? [...Array(10)].map((_, index) => <SkeletonEpisode key={index} />)
         : episodes.map((episode) => (

@@ -11,7 +11,11 @@ export default async function TopRatedList(
   const tvSeries = await fetchTopRatedTvSeries();
 
   return (
-    <List title="All time favourites" {...props}>
+    <List
+      title="All time favourites"
+      scrollRestoreKey="all-time-favourites"
+      {...props}
+    >
       {tvSeries.map((item) => (
         <Poster key={item.id} item={item} priority />
       ))}

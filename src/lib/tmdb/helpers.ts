@@ -2,6 +2,7 @@ import 'server-only';
 
 import slugify from 'slugify';
 
+import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 import type { paths } from '@/types/tmdb';
 import type { Episode, TvSeries } from '@/types/tv-series';
 
@@ -45,6 +46,12 @@ export type TmdbGenresForTvSeries =
 
 export type TmdbAccountDetails =
   paths[`/3/account/${number}`]['get']['responses']['200']['content']['application/json'];
+
+export type TmdbWatchlist =
+  paths[`/3/account/${number}/watchlist/tv`]['get']['responses']['200']['content']['application/json'];
+
+export type TmdbFavorites =
+  paths[`/3/account/${number}/favorite/tv`]['get']['responses']['200']['content']['application/json'];
 
 export function generateTmdbImageUrl(path: string, size = 'original') {
   return `https://image.tmdb.org/t/p/${size}${path}`;
@@ -171,7 +178,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     firstEpisodeToAir: {} as Episode,
     lastEpisodeToAir: {} as Episode,
     lastAirDate,
-    backdropColor: '#000',
+    backdropColor: DEFAULT_BACKGROUND_COLOR,
     releaseYear,
     slug,
     voteAverage: series.vote_average,

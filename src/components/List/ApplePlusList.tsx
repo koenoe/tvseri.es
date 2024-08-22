@@ -12,7 +12,11 @@ export default async function ApplePlusList(
   const tvSeries = await fetchApplePlusTvSeries(region);
 
   return (
-    <List title="Must-watch on Apple TV+" {...props}>
+    <List
+      title="Must-watch on Apple TV+"
+      scrollRestoreKey="must-watch-on-apple-tv"
+      {...props}
+    >
       {tvSeries.map((item) => (
         <Poster key={item.id} item={item} />
       ))}

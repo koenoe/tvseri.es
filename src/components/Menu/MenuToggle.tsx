@@ -1,9 +1,9 @@
 'use client';
 
-import { useCallback } from 'react';
+import { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
 
 import { cva } from 'class-variance-authority';
-import { motion, useAnimation, useCycle } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
 
 const firstPathVariants = {
   open: { d: 'M 3.06061 2.99999 L 21.0606 21' },
@@ -28,31 +28,53 @@ const menuToggleStyles = cva('z-50 cursor-pointer md:z-10', {
   },
 });
 
-export default function MenuToggle({
-  onClick,
-}: Readonly<{
-  onClick?: (isOpen: boolean) => void;
-  spacing?: number;
-  width?: number;
-}>) {
-  const [isOpen, toggleOpen] = useCycle(false, true);
+export type MenuToggleHandle = Readonly<{
+  close: () => void;
+}>;
+
+const MenuToggle = forwardRef<
+  MenuToggleHandle,
+  Readonly<{
+    onClick?: (isOpen: boolean) => void;
+  }>
+>(({ onClick }, ref) => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const path01Controls = useAnimation();
   const path02Controls = useAnimation();
 
-  const handleClick = useCallback(async () => {
-    toggleOpen();
-    onClick?.(isOpen);
+  const animateSvg = useCallback(
+    async (open: boolean) => {
+      if (open) {
+        await path02Controls.start(secondPathVariants.moving);
+        path01Controls.start(firstPathVariants.open);
+        path02Controls.start(secondPathVariants.open);
+      } else {
+        path01Controls.start(firstPathVariants.closed);
+        await path02Controls.start(secondPathVariants.moving);
+        path02Controls.start(secondPathVariants.closed);
+      }
+    },
+    [path01Controls, path02Controls],
+  );
 
-    if (!isOpen) {
-      await path02Controls.start(secondPathVariants.moving);
-      path01Controls.start(firstPathVariants.open);
-      path02Controls.start(secondPathVariants.open);
-    } else {
-      path01Controls.start(firstPathVariants.closed);
-      await path02Controls.start(secondPathVariants.moving);
-      path02Controls.start(secondPathVariants.closed);
-    }
-  }, [isOpen, onClick, path01Controls, path02Controls, toggleOpen]);
+  const handleClick = useCallback(() => {
+    setIsOpen((prev) => {
+      onClick?.(!prev);
+      void animateSvg(!prev);
+      return !prev;
+    });
+  }, [animateSvg, onClick]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      close: () => {
+        setIsOpen(false);
+        void animateSvg(false);
+      },
+    }),
+    [animateSvg],
+  );
 
   return (
     <button
@@ -77,4 +99,8 @@ export default function MenuToggle({
       </svg>
     </button>
   );
-}
+});
+
+MenuToggle.displayName = 'MenuToggle';
+
+export default MenuToggle;

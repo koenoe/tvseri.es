@@ -9,7 +9,11 @@ export default async function MostAnticipatedList(
   const tvSeries = await fetchMostAnticipatedTvSeries();
 
   return (
-    <List title="Most anticipated" {...props}>
+    <List
+      title="Most anticipated"
+      scrollRestoreKey="most-anticipated"
+      {...props}
+    >
       {tvSeries.map((item) => (
         <Poster key={item.id} item={item} />
       ))}

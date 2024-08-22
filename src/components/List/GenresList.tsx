@@ -19,7 +19,12 @@ export default async function GenresList(
   }
 
   return (
-    <List style={gapStyleOverride} title="Genres" {...props}>
+    <List
+      style={gapStyleOverride}
+      title="Genres"
+      scrollRestoreKey="genres"
+      {...props}
+    >
       {pairedGenres.map((pair, index) => (
         <div key={index} className="flex flex-col gap-4">
           {pair.map((genre) => (

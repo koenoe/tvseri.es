@@ -40,23 +40,10 @@ export const createPageStore = (initState: PageState = defaultInitState) => {
       {
         name,
         storage: createJSONStorage(() => sessionStorage),
-        onRehydrateStorage: () => {
-          return () => {
-            sessionStorage.removeItem(name);
-          };
-        },
-        // onRehydrateStorage: (state) => {
-        //   // sessionStorage.removeItem(name);
-        //   if (typeof window !== undefined) {
-        // document.querySelector('main')!.style.backgroundColor =
-        //   state.backgroundColor;
-        //   }
-        // },
-        // onRehydrateStorage: (state) => {
-        //   console.log('onRehydrateStorage:', {
-        //     name,
-        //     backgroundColor: state.backgroundColor,
-        //   });
+        // onRehydrateStorage: () => {
+        //   return () => {
+        //     sessionStorage.removeItem(name);
+        //   };
         // },
       },
     ),

@@ -89,9 +89,7 @@ const detectDominantColorFromImageWithCache = unstable_cache(
 
       const dominantColor = await detectDominantColorFromImage(url);
 
-      await kv.set(cacheKey, dominantColor, {
-        ex: 31536000, // 365 days
-      });
+      await kv.set(cacheKey, dominantColor);
 
       return dominantColor;
     } catch (error) {
@@ -99,9 +97,6 @@ const detectDominantColorFromImageWithCache = unstable_cache(
     }
   },
   [cachePrefix],
-  {
-    revalidate: 31536000, // 365 days
-  },
 );
 
 export default detectDominantColorFromImageWithCache;

@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { fetchAccountDetails, fetchFavorites } from '@/lib/tmdb';
 import { decryptToken } from '@/lib/token';
 
-import AccountListGrid from './AccountListGrid';
+import InfiniteGrid from './InfiniteGrid';
 
 export default async function FavoritesGridContainer() {
   const encryptedSessionId = cookies().get('sessionId')?.value;
@@ -21,8 +21,8 @@ export default async function FavoritesGridContainer() {
   });
 
   return (
-    <AccountListGrid
-      listType="favorites"
+    <InfiniteGrid
+      endpoint="/api/account/favorites"
       items={items}
       totalNumberOfItems={totalNumberOfItems}
     />

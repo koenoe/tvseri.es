@@ -9,6 +9,7 @@ import {
   useMemo,
   type RefObject,
   useEffect,
+  useRef,
 } from 'react';
 
 import { cx, cva } from 'class-variance-authority';
@@ -18,6 +19,8 @@ import {
   useAnimate,
   useMotionValue,
 } from 'framer-motion';
+
+import getHistoryKey from '@/utils/getHistoryKey';
 
 import CarouselDot from './CarouselDot';
 import CarouselItem from './CarouselItem';
@@ -37,6 +40,7 @@ function Carousel({
   itemCount,
   itemRenderer,
   onChange,
+  restoreKey,
 }: Readonly<{
   className?: string;
   itemCount: number;
@@ -45,8 +49,10 @@ function Carousel({
     ref: RefObject<HTMLAnchorElement>,
   ) => JSX.Element;
   onChange?: (index: number) => void;
+  restoreKey: string;
 }>) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const currentIndexRef = useRef(currentIndex);
   const [containerRef, animate] = useAnimate();
   const x = useMotionValue(0);
 
@@ -106,9 +112,7 @@ function Carousel({
   );
 
   const handleItemRenderer = useCallback(
-    (index: number, ref: any) => {
-      return itemRenderer(calculateItemIndex(index), ref);
-    },
+    (index: number, ref: any) => itemRenderer(calculateItemIndex(index), ref),
     [calculateItemIndex, itemRenderer],
   );
 
@@ -117,7 +121,7 @@ function Carousel({
     [calculateItemIndex, currentIndex],
   );
 
-  const range = useMemo(() => {
+  const getRange = useCallback(() => {
     let rangeStart, rangeEnd;
 
     if (currentItemIndex === 0) {
@@ -149,10 +153,36 @@ function Carousel({
     };
   }, [handleResize]);
 
+  useEffect(() => {
+    currentIndexRef.current = currentIndex;
+  }, [currentIndex]);
+
+  useEffect(() => {
+    const cacheKey = `${restoreKey}:${getHistoryKey()}`;
+    const cachedCurrentIndex = sessionStorage.getItem(cacheKey);
+
+    if (cachedCurrentIndex) {
+      sessionStorage.removeItem(cacheKey);
+
+      const newIndexFromCache = parseInt(cachedCurrentIndex, 10);
+      const newX = calculateNewX(newIndexFromCache);
+
+      setCurrentIndex(newIndexFromCache);
+      x.set(newX);
+    }
+
+    return () => {
+      if (currentIndexRef.current > 0) {
+        sessionStorage.setItem(cacheKey, currentIndexRef.current.toString());
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className={cx('container relative', className)}>
       <div className={carouselStyles()} ref={containerRef}>
-        {range.map((i) => {
+        {getRange().map((i) => {
           return (
             <CarouselItem
               key={i + currentIndex}

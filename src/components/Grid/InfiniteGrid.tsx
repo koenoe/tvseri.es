@@ -8,25 +8,32 @@ import Grid from './Grid';
 import InfiniteScroll from '../InfiniteScroll/InfiniteScroll';
 import Poster from '../Tiles/Poster';
 
-function AccountListGrid({
+function InfiniteGrid({
+  endpoint,
   items: itemsFromProps,
   totalNumberOfItems,
-  listType,
 }: Readonly<{
+  endpoint: string;
   items: TvSeries[];
   totalNumberOfItems: number;
-  listType: 'watchlist' | 'favorites';
 }>) {
   const [items, setItems] = useState<TvSeries[]>(itemsFromProps);
 
   const handleLoadMore = useCallback(
     async (page: number) => {
-      const response = await fetch(`/api/account/${listType}?page=${page}`);
+      const [baseEndpoint, queryString] = endpoint.split('?');
+
+      const searchParams = new URLSearchParams(queryString);
+      searchParams.set('page', page.toString());
+
+      const response = await fetch(
+        `${baseEndpoint}?${searchParams.toString()}`,
+      );
       const newItems = (await response.json()) as TvSeries[];
 
       setItems((prevItems) => [...prevItems, ...newItems]);
     },
-    [listType],
+    [endpoint],
   );
 
   const hasMoreData = items.length < totalNumberOfItems;
@@ -42,4 +49,4 @@ function AccountListGrid({
   );
 }
 
-export default memo(AccountListGrid);
+export default memo(InfiniteGrid);

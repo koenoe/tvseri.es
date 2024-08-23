@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { fetchAccountDetails, fetchWatchlist } from '@/lib/tmdb';
 import { decryptToken } from '@/lib/token';
 
-import AccountListGrid from './AccountListGrid';
+import InfiniteGrid from './InfiniteGrid';
 
 export default async function WatchlistGridContainer() {
   const encryptedSessionId = cookies().get('sessionId')?.value;
@@ -21,8 +21,8 @@ export default async function WatchlistGridContainer() {
   });
 
   return (
-    <AccountListGrid
-      listType="watchlist"
+    <InfiniteGrid
+      endpoint="/api/account/watchlist"
       items={items}
       totalNumberOfItems={totalNumberOfItems}
     />

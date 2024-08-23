@@ -1,9 +1,11 @@
-import { createStore } from 'zustand/vanilla';
+import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 import {
   DEFAULT_BACKGROUND_COLOR,
   DEFAULT_BACKGROUND_IMAGE,
 } from '@/constants';
+import getHistoryKey from '@/utils/getHistoryKey';
 
 export type PageState = {
   backgroundColor: string;
@@ -24,8 +26,39 @@ export const defaultInitState: PageState = {
 };
 
 export const createPageStore = (initState: PageState = defaultInitState) => {
-  return createStore<PageStore>()((set) => ({
-    ...initState,
-    setBackground: (payload) => set((state) => ({ ...state, ...payload })),
-  }));
+  const name = `page:${getHistoryKey()}`;
+
+  return create(
+    persist<PageStore, [], [], PageState>(
+      (set) => {
+        return {
+          ...initState,
+          setBackground: (payload) =>
+            set((state) => ({ ...state, ...payload })),
+        };
+      },
+      {
+        name,
+        storage: createJSONStorage(() => sessionStorage),
+        onRehydrateStorage: () => {
+          return () => {
+            sessionStorage.removeItem(name);
+          };
+        },
+        // onRehydrateStorage: (state) => {
+        //   // sessionStorage.removeItem(name);
+        //   if (typeof window !== undefined) {
+        // document.querySelector('main')!.style.backgroundColor =
+        //   state.backgroundColor;
+        //   }
+        // },
+        // onRehydrateStorage: (state) => {
+        //   console.log('onRehydrateStorage:', {
+        //     name,
+        //     backgroundColor: state.backgroundColor,
+        //   });
+        // },
+      },
+    ),
+  );
 };

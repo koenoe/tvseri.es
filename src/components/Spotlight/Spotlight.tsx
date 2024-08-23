@@ -36,9 +36,6 @@ export default function Spotlight({
           backgroundImage,
           backgroundColor,
         });
-
-        document.querySelector('main')!.style.backgroundColor =
-          item.backdropColor;
       });
     },
     [items, updateBackground],
@@ -50,6 +47,7 @@ export default function Spotlight({
       itemRenderer={itemRenderer}
       itemCount={items.length}
       onChange={handleChange}
+      restoreKey="spotlight"
     />
   );
 }

@@ -1,16 +1,16 @@
-'use client';
+import { type Props } from './Background';
+import BackgroundGlobalBase from './BackgroundGlobalBase';
+import BackgroundGlobalDynamic from './BackgroundGlobalDynamic';
 
-import { usePageStore } from '../Page/PageProvider';
-
-export default function BackgroundGlobal() {
-  const color = usePageStore((state) => state.backgroundColor);
-
-  return (
-    <style global jsx>{`
-      main,
-      main + footer {
-        background-color: ${color};
-      }
-    `}</style>
+function BackgroundGlobal({
+  variant = 'static',
+  color,
+}: Pick<Props, 'variant' | 'color'>) {
+  return variant === 'static' ? (
+    <BackgroundGlobalBase color={color} />
+  ) : (
+    <BackgroundGlobalDynamic />
   );
 }
+
+export default BackgroundGlobal;

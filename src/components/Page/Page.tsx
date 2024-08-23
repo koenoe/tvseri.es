@@ -50,16 +50,12 @@ export default function Page({
   backgroundContext = 'page',
   children,
 }: Props) {
-  return (
-    <PageStoreProvider
-      backgroundColor={backgroundColor}
-      backgroundImage={backgroundImage}
-    >
-      <BackgroundGlobal />
+  const content = (
+    <>
+      <BackgroundGlobal variant={backgroundVariant} color={backgroundColor} />
       <main
         // pt-[] is the height of the header
         className="grow pb-20 pt-[6rem] transition-colors duration-500 md:pt-[8rem]"
-        style={{ backgroundColor }}
       >
         {backgroundContext === 'dots' || backgroundContext === 'grid' ? (
           <div className={dotsAndGridStyles({ context: backgroundContext })} />
@@ -73,6 +69,19 @@ export default function Page({
         )}
         <div className="relative z-10">{children}</div>
       </main>
+    </>
+  );
+
+  if (backgroundVariant === 'static') {
+    return content;
+  }
+
+  return (
+    <PageStoreProvider
+      backgroundColor={backgroundColor}
+      backgroundImage={backgroundImage}
+    >
+      {content}
     </PageStoreProvider>
   );
 }

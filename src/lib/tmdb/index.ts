@@ -32,11 +32,10 @@ import {
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
-import patchedFetch from '../patchedFetch';
 
 const GENRES_TO_IGNORE = [16, 10762, 10764, 10766, 10767];
 
-function tmdbFetch(path: RequestInfo | URL, init?: RequestInit): Promise<any> {
+async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
   const pathAsString = path.toString();
   const urlWithParams = new URL(`https://api.themoviedb.org${pathAsString}`);
 
@@ -48,18 +47,44 @@ function tmdbFetch(path: RequestInfo | URL, init?: RequestInit): Promise<any> {
   }
 
   const headers = {
+    'content-type': 'application/json',
     ...(pathAsString.startsWith('/4/') && {
       Authorization: `Bearer ${process.env.TMDB_API_ACCESS_TOKEN}`,
     }),
   };
 
-  return patchedFetch(urlWithParams.toString(), {
+  // Note: NextJS doesn't allow both revalidate + cache headers
+  const next = init?.cache
+    ? {}
+    : {
+        revalidate: 3600,
+      };
+
+  const patchedOptions = {
     ...init,
+    next: {
+      ...next,
+      ...init?.next,
+    },
     headers: {
       ...headers,
       ...init?.headers,
     },
-  });
+  };
+
+  const response = await fetch(urlWithParams.toString(), patchedOptions);
+
+  if (response.status === 404) {
+    return undefined;
+  }
+
+  if (!response.ok) {
+    throw new Error(`HTTP error status: ${response.status}`);
+  }
+
+  const json = await response.json();
+
+  return json;
 }
 
 export async function createRequestToken(redirectUri: string = getBaseUrl()) {

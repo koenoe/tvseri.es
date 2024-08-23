@@ -1,7 +1,5 @@
 import 'server-only';
 
-import patchedFetch from '../patchedFetch';
-
 type MediaType = 'movie' | 'show';
 
 type Item = Readonly<{
@@ -10,14 +8,39 @@ type Item = Readonly<{
   mediaType: MediaType;
 }>;
 
-function mdblistFetch(path: RequestInfo | URL, init?: RequestInit) {
+async function mdblistFetch(path: RequestInfo | URL, init?: RequestInit) {
+  const headers = {
+    accept: 'application/json',
+  };
+  const next = {
+    revalidate: 3600,
+  };
+  const patchedOptions = {
+    ...init,
+    next: {
+      ...next,
+      ...(init?.next || {}),
+    },
+    headers: {
+      ...headers,
+      ...(init?.headers || {}),
+    },
+  };
+
   const urlWithParams = new URL(`https://mdblist.com${path}`);
   urlWithParams.searchParams.set(
     'apikey',
     process.env.MDBLIST_API_KEY as string,
   );
 
-  return patchedFetch(urlWithParams.toString(), init);
+  const response = await fetch(urlWithParams.toString(), patchedOptions);
+
+  if (!response.ok) {
+    throw new Error(`HTTP error status: ${response.status}`);
+  }
+
+  const json = await response.json();
+  return json;
 }
 
 export async function fetchTvSeriesOrMovie(

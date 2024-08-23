@@ -9,7 +9,6 @@ import ContentRating from '@/components/ContentRating/ContentRating';
 import ExpandableText from '@/components/ExpandableText/ExpandableText';
 import EpisodesList from '@/components/List/EpisodesList';
 import RecommendationsList from '@/components/List/RecommendationsList';
-import SimilarList from '@/components/List/SimilarList';
 import Page from '@/components/Page/Page';
 import ImdbRating from '@/components/Rating/ImdbRating';
 import SkeletonAvatars from '@/components/Skeletons/SkeletonAvatars';
@@ -193,9 +192,6 @@ export default async function TvSeriesDetailsPage({ params }: Props) {
       )}
       <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
         <RecommendationsList id={tvSeries.id} className="mb-10 md:mb-16" />
-      </Suspense>
-      <Suspense fallback={<SkeletonList />}>
-        <SimilarList id={tvSeries.id} />
       </Suspense>
     </Page>
   );

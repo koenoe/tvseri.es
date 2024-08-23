@@ -27,7 +27,6 @@ export default function Loading() {
         <SkeletonAvatars className="my-10 lg:mb-7 lg:mt-14" />
       </div>
       <SkeletonList className="mb-10 md:mb-16" variant="episode" />
-      <SkeletonList className="mb-10 md:mb-16" />
       <SkeletonList />
     </SkeletonPage>
   );

@@ -7,9 +7,12 @@ export default function BackgroundGlobalBase({
 }>) {
   return (
     <style global jsx>{`
+      :root {
+        --main-background-color: ${color};
+      }
       main,
       main + footer {
-        background-color: ${color};
+        background-color: var(--main-background-color);
       }
     `}</style>
   );

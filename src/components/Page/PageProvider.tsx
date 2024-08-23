@@ -1,6 +1,12 @@
 'use client';
 
-import { type ReactNode, createContext, useRef, useContext } from 'react';
+import {
+  type ReactNode,
+  createContext,
+  useRef,
+  useContext,
+  useEffect,
+} from 'react';
 
 import { useStore } from 'zustand';
 
@@ -25,6 +31,15 @@ export const PageStoreProvider = ({
   if (!storeRef.current) {
     storeRef.current = createPageStore({ backgroundColor, backgroundImage });
   }
+
+  // Note: as we persist the store in sessionStorage,
+  // but remove it after rehydration. We need to make sure to always
+  // update the store with the latest state before the component unmounts.
+  useEffect(() => {
+    return () => {
+      storeRef.current?.setState(storeRef.current.getState());
+    };
+  }, []);
 
   return (
     <PageStoreContext.Provider value={storeRef.current}>

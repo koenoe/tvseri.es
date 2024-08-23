@@ -40,11 +40,11 @@ export const createPageStore = (initState: PageState = defaultInitState) => {
       {
         name,
         storage: createJSONStorage(() => sessionStorage),
-        // onRehydrateStorage: () => {
-        //   return () => {
-        //     sessionStorage.removeItem(name);
-        //   };
-        // },
+        onRehydrateStorage: () => {
+          return () => {
+            sessionStorage.removeItem(name);
+          };
+        },
       },
     ),
   );

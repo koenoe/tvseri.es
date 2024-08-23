@@ -35,7 +35,21 @@ import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
 
 const GENRES_TO_IGNORE = [16, 10762, 10764, 10766, 10767];
 
-async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
+function getExponentialBackoffWithJitter(
+  baseDelay: number,
+  attempt: number,
+): number {
+  const maxDelay = baseDelay * Math.pow(2, attempt);
+  const jitter = Math.random() * maxDelay;
+  return jitter;
+}
+
+async function tmdbFetch(
+  path: RequestInfo | URL,
+  init?: RequestInit,
+  retries: number = 2,
+  baseDelay: number = 250,
+): Promise<any> {
   const pathAsString = path.toString();
   const urlWithParams = new URL(`https://api.themoviedb.org${pathAsString}`);
 
@@ -53,7 +67,6 @@ async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
     }),
   };
 
-  // Note: NextJS doesn't allow both revalidate + cache headers
   const next = init?.cache
     ? {}
     : {
@@ -72,19 +85,36 @@ async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
     },
   };
 
-  const response = await fetch(urlWithParams.toString(), patchedOptions);
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const response = await fetch(urlWithParams.toString(), patchedOptions);
 
-  if (response.status === 404) {
-    return undefined;
+    if (response.ok) {
+      const json = await response.json();
+      return json;
+    }
+
+    switch (response.status) {
+      case 404:
+        return undefined;
+
+      case 503:
+        if (attempt < retries) {
+          const delay = getExponentialBackoffWithJitter(baseDelay, attempt);
+          console.warn(
+            `HTTP error status ${response.status}: attempt ${attempt + 1}, delay ${delay}ms`,
+          );
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          continue;
+        } else {
+          throw new Error(
+            `HTTP error status: ${response.status} after ${retries + 1} attempts`,
+          );
+        }
+
+      default:
+        throw new Error(`HTTP error status: ${response.status}`);
+    }
   }
-
-  if (!response.ok) {
-    throw new Error(`HTTP error status: ${response.status}`);
-  }
-
-  const json = await response.json();
-
-  return json;
 }
 
 export async function createRequestToken(redirectUri: string = getBaseUrl()) {

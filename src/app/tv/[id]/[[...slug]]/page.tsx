@@ -190,8 +190,8 @@ export default async function TvSeriesDetailsPage({ params }: Props) {
       {tvSeries.numberOfEpisodes > 0 && tvSeries.seasons && (
         <EpisodesList className="mb-10 md:mb-16" item={tvSeries} />
       )}
-      <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
-        <RecommendationsList id={tvSeries.id} className="mb-10 md:mb-16" />
+      <Suspense fallback={<SkeletonList />}>
+        <RecommendationsList id={tvSeries.id} />
       </Suspense>
     </Page>
   );

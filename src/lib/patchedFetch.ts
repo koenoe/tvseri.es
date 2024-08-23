@@ -52,17 +52,18 @@ export default async function patchedFetch(
         `HTTP error status: ${response.status}, attempt ${attempt + 1}, delay ${delay}ms`,
       );
       await new Promise((resolve) => setTimeout(resolve, delay));
+      continue;
     } else {
       switch (response.status) {
         case 404:
           return undefined;
 
-        case 503:
-          throw new Error(
-            `HTTP error status: ${response.status} after ${retries + 1} attempts`,
-          );
-
         default:
+          console.error(`Fetch failed: ${path}`, {
+            responseStatus: response.status,
+            responseStatusText: response.statusText,
+            responseBody: response.body,
+          });
           throw new Error(`HTTP error status: ${response.status}`);
       }
     }

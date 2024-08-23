@@ -12,11 +12,11 @@ import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 const MotionImage = motion(Image);
 
 export const avatarsStyles = cva(
-  'flex flex-row flex-wrap justify-center md:justify-normal gap-4 lg:gap-0 [&>*:nth-child(n+7)]:hidden md:[&>*:nth-child(n+7)]:flex lg:min-h-36',
+  'grid grid-cols-3 md:grid-cols-6 lg:flex lg:flex-row lg:flex-wrap gap-4 lg:gap-0 [&>*:nth-child(n+7)]:hidden md:[&>*:nth-child(n+7)]:flex lg:min-h-36',
 );
 
 export const avatarStyles = cva(
-  'relative flex w-24 transform-gpu cursor-pointer flex-col lg:-mr-4 lg:-mt-4',
+  'relative w-full flex lg:pt-0 lg:w-24 transform-gpu cursor-pointer flex-col lg:-mr-4 lg:-mt-4',
 );
 
 function Avatar({ item }: Readonly<{ item: Person }>) {
@@ -35,7 +35,7 @@ function Avatar({ item }: Readonly<{ item: Person }>) {
       <MotionImage
         src={item.image}
         alt={item.name}
-        className="mx-auto aspect-square h-24 w-full rounded-full border-2 border-white object-cover"
+        className="mx-auto aspect-square h-auto w-full rounded-full border-2 border-white object-cover lg:h-24"
         priority
         placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(200, 200)}`}
         width={200}

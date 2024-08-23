@@ -1,3 +1,5 @@
+import 'server-only';
+
 function getExponentialBackoffWithJitter(
   baseDelay: number,
   attempt: number,

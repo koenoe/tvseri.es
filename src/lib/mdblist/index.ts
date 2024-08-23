@@ -1,4 +1,5 @@
 import 'server-only';
+
 import patchedFetch from '../patchedFetch';
 
 type MediaType = 'movie' | 'show';

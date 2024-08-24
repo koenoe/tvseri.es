@@ -11,8 +11,6 @@ export default function createUseRestorableRef<T>(): (
   return function useRestorableRef(cacheKey: string, initialState: T) {
     const key = useMemo(() => `${cacheKey}:${getHistoryKey()}`, [cacheKey]);
 
-    console.log({ key });
-
     const init = useMemo(() => {
       const cachedState = cached.get(key);
       if (cachedState !== undefined) {

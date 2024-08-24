@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { createStore } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import {
@@ -24,17 +24,11 @@ export const defaultInitState: PageState = {
   backgroundImage: DEFAULT_BACKGROUND_IMAGE,
 };
 
-// const storage: PersistStorage<PageState> = {
-//   getItem: (name) => {},
-//   setItem: (name, value) => {},
-//   removeItem: (name) => {},
-// };
-
 export const createPageStore = (
   initState: PageState = defaultInitState,
   name: string,
 ) => {
-  return create(
+  return createStore(
     persist<PageStore, [], [], PageState>(
       (set) => {
         return {
@@ -46,15 +40,11 @@ export const createPageStore = (
       {
         name,
         storage: createJSONStorage(() => sessionStorage),
-        skipHydration: true,
-        // Note: Below is not working as expected
-        // therefore we have our own implementation in <PageProvider /> ¯\_(ツ)_/¯
-        // storage: createJSONStorage(() => sessionStorage),
-        // onRehydrateStorage: () => {
-        //   return () => {
-        //     sessionStorage.removeItem(name);
-        //   };
-        // },
+        onRehydrateStorage: () => {
+          return () => {
+            sessionStorage.removeItem(name);
+          };
+        },
       },
     ),
   );

@@ -31,47 +31,30 @@ export const PageStoreProvider = ({
   backgroundImage,
   children,
 }: PageStoreProviderProps) => {
-  const storeRef = useRef<PageStoreApi>();
-  if (!storeRef.current) {
-    storeRef.current = createPageStore(
-      { backgroundColor, backgroundImage },
-      getStoreName(),
-    );
-  }
+  const storeRef = useRef<PageStoreApi>(
+    createPageStore({ backgroundColor, backgroundImage }, getStoreName()),
+  );
 
   useEffect(() => {
-    const name = getStoreName();
-    // Note: storeRef.current?.persist.getOptions().name gives weird results ¯\_(ツ)_/¯
-    const cachedState = sessionStorage.getItem(name);
-    if (cachedState) {
-      sessionStorage.removeItem(name);
-      try {
-        const parsedCachedState = JSON.parse(cachedState);
-        storeRef.current?.setState((state) => ({
-          ...state,
-          ...parsedCachedState,
-        }));
-      } catch (error) {
-        console.error('Failed to parse cached state', error);
-      }
-    }
+    const store = storeRef.current;
+    const persistOptions = store.persist.getOptions();
+    const name = persistOptions.name as string;
+    const version = persistOptions.version;
 
     return () => {
-      if (storeRef.current) {
-        const state = storeRef.current.getState();
-        const initialState = storeRef.current.getInitialState();
-        if (
-          state.backgroundColor !== initialState.backgroundColor &&
-          state.backgroundImage !== initialState.backgroundImage
-        ) {
-          sessionStorage.setItem(
-            name,
-            JSON.stringify({
-              backgroundColor: state.backgroundColor,
-              backgroundImage: state.backgroundImage,
-            }),
-          );
-        }
+      const currentState = store.getState();
+
+      if (currentState) {
+        sessionStorage.setItem(
+          name,
+          JSON.stringify({
+            state: {
+              backgroundColor: currentState.backgroundColor,
+              backgroundImage: currentState.backgroundImage,
+            },
+            version,
+          }),
+        );
       }
     };
   }, []);

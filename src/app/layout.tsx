@@ -43,29 +43,6 @@ export default function RootLayout({
         )}
       >
         <script
-          id="scrollbar-detector"
-          suppressHydrationWarning
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{
-            __html: `
-              const scrollable = document.createElement("div");
-              scrollable.style.overflow = "scroll";
-              scrollable.style.width = "10px";
-              scrollable.style.height = "10px";
-              scrollable.style.position = "absolute";
-              scrollable.style.top = "0px";
-              scrollable.style.visibility = "hidden";
-              if (document.body) {
-                document.body.appendChild(scrollable);
-                if (scrollable.scrollWidth !== scrollable.offsetWidth) {
-                  document.body.classList.add("scrollbar-is-visible");
-                }
-                document.body.removeChild(scrollable);
-              }
-            `,
-          }}
-        />
-        <script
           id="history-state-key"
           suppressHydrationWarning
           // eslint-disable-next-line react/no-danger
@@ -92,6 +69,29 @@ export default function RootLayout({
                   state = ensureStateKey(state);
                   orgReplaceState.call(window.history, state, unused, url);
               };
+            `,
+          }}
+        />
+        <script
+          id="scrollbar-detector"
+          suppressHydrationWarning
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: `
+              const scrollable = document.createElement("div");
+              scrollable.style.overflow = "scroll";
+              scrollable.style.width = "10px";
+              scrollable.style.height = "10px";
+              scrollable.style.position = "absolute";
+              scrollable.style.top = "0px";
+              scrollable.style.visibility = "hidden";
+              if (document.body) {
+                document.body.appendChild(scrollable);
+                if (scrollable.scrollWidth !== scrollable.offsetWidth) {
+                  document.body.classList.add("scrollbar-is-visible");
+                }
+                document.body.removeChild(scrollable);
+              }
             `,
           }}
         />

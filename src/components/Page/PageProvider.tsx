@@ -40,9 +40,8 @@ export const PageStoreProvider = ({
   }
 
   useEffect(() => {
-    // Note: storeRef.current?.persist.getOptions().name gives weird results ¯\_(ツ)_/¯
     const name = getStoreName();
-
+    // Note: storeRef.current?.persist.getOptions().name gives weird results ¯\_(ツ)_/¯
     const cachedState = sessionStorage.getItem(name);
     if (cachedState) {
       sessionStorage.removeItem(name);

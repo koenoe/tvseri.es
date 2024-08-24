@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 import {
   DEFAULT_BACKGROUND_COLOR,
@@ -24,11 +24,16 @@ export const defaultInitState: PageState = {
   backgroundImage: DEFAULT_BACKGROUND_IMAGE,
 };
 
+// const storage: PersistStorage<PageState> = {
+//   getItem: (name) => {},
+//   setItem: (name, value) => {},
+//   removeItem: (name) => {},
+// };
+
 export const createPageStore = (
   initState: PageState = defaultInitState,
   name: string,
 ) => {
-  console.log('createPageStore', name);
   return create(
     persist<PageStore, [], [], PageState>(
       (set) => {
@@ -40,6 +45,8 @@ export const createPageStore = (
       },
       {
         name,
+        storage: createJSONStorage(() => sessionStorage),
+        skipHydration: true,
         // Note: Below is not working as expected
         // therefore we have our own implementation in <PageProvider /> ¯\_(ツ)_/¯
         // storage: createJSONStorage(() => sessionStorage),

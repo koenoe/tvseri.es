@@ -4,7 +4,7 @@ This is a NextJS application that interacts with multiple APIs to help you disco
 
 _Partial Prerendering FTW 🔥_
 
-## Required Environment Variables for Running the Project Locally
+## Required Environment Variables to run the project locally
 
 ```
 TMDB_API_KEY=

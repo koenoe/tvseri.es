@@ -172,7 +172,7 @@ function Carousel({
     }
 
     return () => {
-      if (currentIndexRef.current > 0) {
+      if (currentIndexRef.current !== 0) {
         sessionStorage.setItem(cacheKey, currentIndexRef.current.toString());
       }
     };

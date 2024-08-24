@@ -1,11 +1,10 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 
 import {
   DEFAULT_BACKGROUND_COLOR,
   DEFAULT_BACKGROUND_IMAGE,
 } from '@/constants';
-import getHistoryKey from '@/utils/getHistoryKey';
 
 export type PageState = {
   backgroundColor: string;
@@ -25,9 +24,11 @@ export const defaultInitState: PageState = {
   backgroundImage: DEFAULT_BACKGROUND_IMAGE,
 };
 
-export const createPageStore = (initState: PageState = defaultInitState) => {
-  const name = `page:${getHistoryKey()}`;
-
+export const createPageStore = (
+  initState: PageState = defaultInitState,
+  name: string,
+) => {
+  console.log('createPageStore', name);
   return create(
     persist<PageStore, [], [], PageState>(
       (set) => {
@@ -39,7 +40,9 @@ export const createPageStore = (initState: PageState = defaultInitState) => {
       },
       {
         name,
-        storage: createJSONStorage(() => sessionStorage),
+        // Note: Below is not working as expected
+        // therefore we have our own implementation in <PageProvider /> ¯\_(ツ)_/¯
+        // storage: createJSONStorage(() => sessionStorage),
         // onRehydrateStorage: () => {
         //   return () => {
         //     sessionStorage.removeItem(name);

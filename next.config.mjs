@@ -2,11 +2,10 @@
 const nextConfig = {
   experimental: {
     ppr: true,
-    // TODO: figure out how to use staleTimes
-    // staleTimes: {
-    //   dynamic: 30,
-    //   static: 180,
-    // },
+    staleTimes: {
+      dynamic: 30,
+      static: 180,
+    },
   },
   images: {
     deviceSizes: [640, 1200, 1920],

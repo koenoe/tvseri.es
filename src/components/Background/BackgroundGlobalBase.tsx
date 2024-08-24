@@ -10,9 +10,10 @@ export default function BackgroundGlobalBase({
       :root {
         --main-background-color: ${color};
       }
+
       main,
       main + footer {
-        background-color: var(--main-background-color);
+        background-color: var(--main-background-color) !important;
       }
     `}</style>
   );

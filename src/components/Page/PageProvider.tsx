@@ -1,8 +1,16 @@
 'use client';
 
-import { type ReactNode, createContext, useRef, useContext } from 'react';
+import {
+  type ReactNode,
+  createContext,
+  useRef,
+  useContext,
+  useEffect,
+} from 'react';
 
 import { useStore } from 'zustand';
+
+import getHistoryKey from '@/utils/getHistoryKey';
 
 import { type PageState, type PageStore, createPageStore } from './store';
 
@@ -16,6 +24,8 @@ export type PageStoreProviderProps = PageState & {
   children: ReactNode;
 };
 
+const getStoreName = () => `page:${getHistoryKey()}`;
+
 export const PageStoreProvider = ({
   backgroundColor,
   backgroundImage,
@@ -23,8 +33,49 @@ export const PageStoreProvider = ({
 }: PageStoreProviderProps) => {
   const storeRef = useRef<PageStoreApi>();
   if (!storeRef.current) {
-    storeRef.current = createPageStore({ backgroundColor, backgroundImage });
+    storeRef.current = createPageStore(
+      { backgroundColor, backgroundImage },
+      getStoreName(),
+    );
   }
+
+  useEffect(() => {
+    // Note: storeRef.current?.persist.getOptions().name gives weird results ¯\_(ツ)_/¯
+    const name = getStoreName();
+
+    const cachedState = sessionStorage.getItem(name);
+    if (cachedState) {
+      sessionStorage.removeItem(name);
+      try {
+        const parsedCachedState = JSON.parse(cachedState);
+        storeRef.current?.setState((state) => ({
+          ...state,
+          ...parsedCachedState,
+        }));
+      } catch (error) {
+        console.error('Failed to parse cached state', error);
+      }
+    }
+
+    return () => {
+      if (storeRef.current) {
+        const state = storeRef.current.getState();
+        const initialState = storeRef.current.getInitialState();
+        if (
+          state.backgroundColor !== initialState.backgroundColor &&
+          state.backgroundImage !== initialState.backgroundImage
+        ) {
+          sessionStorage.setItem(
+            name,
+            JSON.stringify({
+              backgroundColor: state.backgroundColor,
+              backgroundImage: state.backgroundImage,
+            }),
+          );
+        }
+      }
+    };
+  }, []);
 
   return (
     <PageStoreContext.Provider value={storeRef.current}>

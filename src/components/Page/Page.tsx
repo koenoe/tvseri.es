@@ -56,6 +56,9 @@ export default function Page({
       <main
         // pt-[] is the height of the header
         className="grow pb-20 pt-[6rem] transition-colors duration-500 md:pt-[8rem]"
+        style={{
+          backgroundColor,
+        }}
       >
         {backgroundContext === 'dots' || backgroundContext === 'grid' ? (
           <div className={dotsAndGridStyles({ context: backgroundContext })} />

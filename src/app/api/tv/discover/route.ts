@@ -9,5 +9,9 @@ export async function GET(request: NextRequest) {
 
   let response = await fetchDiscoverTvSeries({ page });
 
-  return Response.json(response?.items ?? []);
+  return Response.json(response?.items ?? [], {
+    headers: {
+      'Cache-Control': 'public, max-age=3600, immutable',
+    },
+  });
 }

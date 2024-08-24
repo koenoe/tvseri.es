@@ -5,22 +5,32 @@ import { type ReactNode, useRef, useEffect, useTransition, memo } from 'react';
 import { cx } from 'class-variance-authority';
 import { useInView } from 'framer-motion';
 
+import createUseRestorableRef from '@/hooks/createUseRestorableRef';
+
+const useRestorableLastFetchedPage = createUseRestorableRef<number>();
+
 const InfiniteScroll = ({
   className,
   children,
   hasMoreData,
   loadMore,
+  scrollRestoreKey,
 }: Readonly<{
   children: ReactNode;
   className?: string;
   hasMoreData: boolean;
-  loadMore: () => Promise<unknown>;
+  scrollRestoreKey: string;
+  loadMore: (page: number) => Promise<unknown>;
 }>) => {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const [isPending, startTransition] = useTransition();
   const isInView = useInView(sentinelRef, {
     amount: 'some',
   });
+  const [getLastFetchedPage, setLastFetchedPage] = useRestorableLastFetchedPage(
+    scrollRestoreKey,
+    1,
+  );
 
   useEffect(() => {
     if (!sentinelRef.current || isPending) {
@@ -29,10 +39,12 @@ const InfiniteScroll = ({
 
     if (isInView) {
       startTransition(async () => {
-        await loadMore();
+        const pageToFetch = getLastFetchedPage() + 1;
+        await loadMore(pageToFetch);
+        setLastFetchedPage(pageToFetch);
       });
     }
-  }, [isInView, isPending, loadMore]);
+  }, [getLastFetchedPage, isInView, isPending, loadMore, setLastFetchedPage]);
 
   return (
     <>

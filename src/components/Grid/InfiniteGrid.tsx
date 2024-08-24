@@ -1,12 +1,15 @@
 'use client';
 
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback } from 'react';
 
+import createUseRestorableState from '@/hooks/createUseRestorableState';
 import { type TvSeries } from '@/types/tv-series';
 
 import Grid from './Grid';
 import InfiniteScroll from '../InfiniteScroll/InfiniteScroll';
 import Poster from '../Tiles/Poster';
+
+const useRestorableState = createUseRestorableState<TvSeries[]>();
 
 function InfiniteGrid({
   endpoint,
@@ -17,7 +20,7 @@ function InfiniteGrid({
   items: TvSeries[];
   totalNumberOfItems: number;
 }>) {
-  const [items, setItems] = useState<TvSeries[]>(itemsFromProps);
+  const [items, setItems] = useRestorableState(endpoint, itemsFromProps);
 
   const handleLoadMore = useCallback(
     async (page: number) => {
@@ -33,7 +36,7 @@ function InfiniteGrid({
 
       setItems((prevItems) => [...prevItems, ...newItems]);
     },
-    [endpoint],
+    [endpoint, setItems],
   );
 
   const hasMoreData = items.length < totalNumberOfItems;

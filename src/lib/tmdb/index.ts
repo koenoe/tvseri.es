@@ -29,6 +29,7 @@ import {
   type TmdbTvSeriesAccountStates,
   type TmdbWatchlist,
   type TmdbFavorites,
+  type TmdbDiscoverQuery,
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
@@ -480,10 +481,26 @@ export async function fetchTopRatedTvSeries() {
   return series;
 }
 
-export async function fetchPopularBritishCrimeTvSeries() {
+export async function fetchDiscoverTvSeries(query: TmdbDiscoverQuery) {
+  const defaultQuery = {
+    include_adult: false,
+    page: 1,
+    sort_by: 'popularity.desc',
+  };
+
+  const queryString = Object.entries({
+    ...defaultQuery,
+    ...query,
+  })
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+    )
+    .join('&');
+
   const tvSeriesResponse =
     ((await tmdbFetch(
-      `/3/discover/tv?include_adult=false&language=en-GB&page=1&sort_by=popularity.desc&vote_count.gte=250&watch_region=GB&with_genres=80&without_genres=10766&with_origin_country=GB&with_original_language=en`,
+      `/3/discover/tv?${queryString}`,
     )) as TmdbDiscoverTvSeries) ?? [];
 
   return (tvSeriesResponse.results ?? [])
@@ -491,45 +508,47 @@ export async function fetchPopularBritishCrimeTvSeries() {
     .map((series) => {
       return normalizeTvSeries(series as TmdbTvSeries);
     });
+}
+
+export async function fetchPopularBritishCrimeTvSeries() {
+  return fetchDiscoverTvSeries({
+    language: 'en-GB',
+    sort_by: 'popularity.desc',
+    'vote_count.gte': 250,
+    watch_region: 'GB',
+    with_genres: '80',
+    without_genres: '10766',
+    with_origin_country: 'GB',
+    with_original_language: 'en',
+  });
 }
 
 export async function fetchBestSportsDocumentariesTvSeries() {
-  const tvSeriesResponse =
-    ((await tmdbFetch(
-      `/3/discover/tv?include_adult=false&page=1&sort_by=vote_average.desc&vote_count.gte=7&with_genres=99&without_genres=35&with_keywords=6075|2702&without_keywords=10596,293434,288928,11672`,
-    )) as TmdbDiscoverTvSeries) ?? [];
-
-  return (tvSeriesResponse.results ?? [])
-    .filter((series) => !!series.poster_path)
-    .map((series) => {
-      return normalizeTvSeries(series as TmdbTvSeries);
-    });
+  return fetchDiscoverTvSeries({
+    sort_by: 'vote_average.desc',
+    'vote_count.gte': 7,
+    with_genres: '99',
+    without_genres: '35',
+    with_keywords: '6075|2702',
+    without_keywords: '10596,293434,288928,11672',
+  });
 }
 
 export async function fetchApplePlusTvSeries(region = 'US') {
-  const tvSeriesResponse =
-    ((await tmdbFetch(
-      `/3/discover/tv?include_adult=false&page=1&sort_by=vote_average.desc&vote_count.gte=250&without_genres=99&watch_region=${region}&with_watch_providers=350`,
-    )) as TmdbDiscoverTvSeries) ?? [];
-
-  return (tvSeriesResponse.results ?? [])
-    .filter((series) => !!series.poster_path)
-    .map((series) => {
-      return normalizeTvSeries(series as TmdbTvSeries);
-    });
+  return fetchDiscoverTvSeries({
+    sort_by: 'vote_average.desc',
+    'vote_count.gte': 250,
+    without_genres: '99',
+    watch_region: region,
+    with_watch_providers: '350',
+  });
 }
 
 export async function fetchMostAnticipatedTvSeries() {
-  const tvSeriesResponse =
-    ((await tmdbFetch(
-      `/3/discover/tv?include_adult=false&page=1&sort_by=popularity.desc&without_genres=${GENRES_TO_IGNORE.join(',')}&first_air_date.gte=${new Date().toISOString().split('T')[0]}`,
-    )) as TmdbDiscoverTvSeries) ?? [];
-
-  return (tvSeriesResponse.results ?? [])
-    .filter((series) => !!series.poster_path && !!series.overview)
-    .map((series) => {
-      return normalizeTvSeries(series as TmdbTvSeries);
-    });
+  return fetchDiscoverTvSeries({
+    without_genres: GENRES_TO_IGNORE.join(','),
+    'first_air_date.gte': new Date().toISOString().split('T')[0],
+  });
 }
 
 export async function fetchGenresForTvSeries() {

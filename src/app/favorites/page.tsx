@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 
-import FavoritesGridContainer from '@/components/Grid/FavoritesGridContainer';
+import FavoritesGrid from '@/components/Grid/FavoritesGrid';
 import Grid from '@/components/Grid/Grid';
 import Page from '@/components/Page/Page';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
@@ -18,7 +18,7 @@ export default async function FavoritesPage() {
             </Grid>
           }
         >
-          <FavoritesGridContainer />
+          <FavoritesGrid />
         </Suspense>
       </div>
     </Page>

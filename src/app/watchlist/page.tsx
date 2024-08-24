@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 
 import Grid from '@/components/Grid/Grid';
-import WatchlistGridContainer from '@/components/Grid/WatchlistGridContainer';
+import WatchlistGrid from '@/components/Grid/WatchlistGrid';
 import Page from '@/components/Page/Page';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
 
@@ -18,7 +18,7 @@ export default async function WatchlistPage() {
             </Grid>
           }
         >
-          <WatchlistGridContainer />
+          <WatchlistGrid />
         </Suspense>
       </div>
     </Page>

@@ -5,7 +5,7 @@ import { decryptToken } from '@/lib/token';
 
 import InfiniteGrid from './InfiniteGrid';
 
-export default async function WatchlistGridContainer() {
+export default async function WatchlistGrid() {
   const encryptedSessionId = cookies().get('sessionId')?.value;
 
   if (!encryptedSessionId) {

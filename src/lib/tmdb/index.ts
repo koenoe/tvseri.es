@@ -481,7 +481,7 @@ export async function fetchTopRatedTvSeries() {
   return series;
 }
 
-export async function fetchDiscoverTvSeries(query: TmdbDiscoverQuery) {
+export async function fetchDiscoverTvSeries(query?: TmdbDiscoverQuery) {
   const defaultQuery = {
     include_adult: false,
     page: 1,
@@ -498,20 +498,26 @@ export async function fetchDiscoverTvSeries(query: TmdbDiscoverQuery) {
     )
     .join('&');
 
-  const tvSeriesResponse =
+  const response =
     ((await tmdbFetch(
       `/3/discover/tv?${queryString}`,
     )) as TmdbDiscoverTvSeries) ?? [];
 
-  return (tvSeriesResponse.results ?? [])
+  const items = (response.results ?? [])
     .filter((series) => !!series.poster_path)
     .map((series) => {
       return normalizeTvSeries(series as TmdbTvSeries);
     });
+
+  return {
+    items,
+    totalNumberOfPages: response.total_pages,
+    totalNumberOfItems: response.total_results,
+  };
 }
 
 export async function fetchPopularBritishCrimeTvSeries() {
-  return fetchDiscoverTvSeries({
+  const { items } = await fetchDiscoverTvSeries({
     language: 'en-GB',
     sort_by: 'popularity.desc',
     'vote_count.gte': 250,
@@ -521,10 +527,11 @@ export async function fetchPopularBritishCrimeTvSeries() {
     with_origin_country: 'GB',
     with_original_language: 'en',
   });
+  return items;
 }
 
 export async function fetchBestSportsDocumentariesTvSeries() {
-  return fetchDiscoverTvSeries({
+  const { items } = await fetchDiscoverTvSeries({
     sort_by: 'vote_average.desc',
     'vote_count.gte': 7,
     with_genres: '99',
@@ -532,23 +539,26 @@ export async function fetchBestSportsDocumentariesTvSeries() {
     with_keywords: '6075|2702',
     without_keywords: '10596,293434,288928,11672',
   });
+  return items;
 }
 
 export async function fetchApplePlusTvSeries(region = 'US') {
-  return fetchDiscoverTvSeries({
+  const { items } = await fetchDiscoverTvSeries({
     sort_by: 'vote_average.desc',
     'vote_count.gte': 250,
     without_genres: '99',
     watch_region: region,
     with_watch_providers: '350',
   });
+  return items;
 }
 
 export async function fetchMostAnticipatedTvSeries() {
-  return fetchDiscoverTvSeries({
+  const { items } = await fetchDiscoverTvSeries({
     without_genres: GENRES_TO_IGNORE.join(','),
     'first_air_date.gte': new Date().toISOString().split('T')[0],
   });
+  return items;
 }
 
 export async function fetchGenresForTvSeries() {

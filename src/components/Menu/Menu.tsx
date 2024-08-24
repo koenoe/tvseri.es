@@ -41,11 +41,6 @@ const buttonVariants = {
   }),
 };
 
-const childrenVariants = {
-  hidden: { opacity: 0, y: 20, transition: { duration: 0.2 } },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.2, delay: 0.2 } },
-};
-
 const MenuItem = ({
   onClick,
   href,
@@ -135,7 +130,7 @@ export default function Menu({
           >
             {[
               { label: 'Home', href: '/' },
-              { label: 'Discover', href: '/' },
+              { label: 'Discover', href: '/discover' },
               ...(isAuthenticated
                 ? [
                     { label: 'Watchlist', href: '/watchlist' },
@@ -216,7 +211,14 @@ export default function Menu({
               initial="hidden"
               animate="visible"
               exit="hidden"
-              variants={childrenVariants}
+              variants={{
+                hidden: { opacity: 0, y: 20, transition: { duration: 0.2 } },
+                visible: {
+                  opacity: 1,
+                  y: 0,
+                  transition: { duration: 0.2, delay: 0.2 },
+                },
+              }}
             >
               {children}
             </motion.div>

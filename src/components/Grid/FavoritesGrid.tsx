@@ -5,7 +5,7 @@ import { decryptToken } from '@/lib/token';
 
 import InfiniteGrid from './InfiniteGrid';
 
-export default async function FavoritesGridContainer() {
+export default async function FavoritesGrid() {
   const encryptedSessionId = cookies().get('sessionId')?.value;
 
   if (!encryptedSessionId) {

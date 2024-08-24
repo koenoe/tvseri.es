@@ -9,7 +9,8 @@ import Grid from './Grid';
 import InfiniteScroll from '../InfiniteScroll/InfiniteScroll';
 import Poster from '../Tiles/Poster';
 
-const useRestorableState = createUseRestorableState<TvSeries[]>();
+const useRestorableItems = createUseRestorableState<TvSeries[]>();
+const useRestorableLastFetchedPage = createUseRestorableState<number>();
 
 function InfiniteGrid({
   endpoint,
@@ -20,24 +21,24 @@ function InfiniteGrid({
   items: TvSeries[];
   totalNumberOfItems: number;
 }>) {
-  const [items, setItems] = useRestorableState(endpoint, itemsFromProps);
-
-  const handleLoadMore = useCallback(
-    async (page: number) => {
-      const [baseEndpoint, queryString] = endpoint.split('?');
-
-      const searchParams = new URLSearchParams(queryString);
-      searchParams.set('page', page.toString());
-
-      const response = await fetch(
-        `${baseEndpoint}?${searchParams.toString()}`,
-      );
-      const newItems = (await response.json()) as TvSeries[];
-
-      setItems((prevItems) => [...prevItems, ...newItems]);
-    },
-    [endpoint, setItems],
+  const [items, setItems] = useRestorableItems(endpoint, itemsFromProps);
+  const [lastFetchedPage, setLastFetchedPage] = useRestorableLastFetchedPage(
+    endpoint,
+    1,
   );
+
+  const handleLoadMore = useCallback(async () => {
+    const pageToFetch = lastFetchedPage + 1;
+    const [baseEndpoint, queryString] = endpoint.split('?');
+    const searchParams = new URLSearchParams(queryString);
+    searchParams.set('page', pageToFetch.toString());
+
+    const response = await fetch(`${baseEndpoint}?${searchParams.toString()}`);
+    const newItems = (await response.json()) as TvSeries[];
+
+    setItems((prevItems) => [...prevItems, ...newItems]);
+    setLastFetchedPage(pageToFetch);
+  }, [endpoint, lastFetchedPage, setItems, setLastFetchedPage]);
 
   const hasMoreData = items.length < totalNumberOfItems;
 

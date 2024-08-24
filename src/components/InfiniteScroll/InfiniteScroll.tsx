@@ -14,9 +14,8 @@ const InfiniteScroll = ({
   children: ReactNode;
   className?: string;
   hasMoreData: boolean;
-  loadMore: (page: number) => Promise<unknown>;
+  loadMore: () => Promise<unknown>;
 }>) => {
-  const lastFetchedPage = useRef<number>(1);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const [isPending, startTransition] = useTransition();
   const isInView = useInView(sentinelRef, {
@@ -30,8 +29,7 @@ const InfiniteScroll = ({
 
     if (isInView) {
       startTransition(async () => {
-        await loadMore(lastFetchedPage.current + 1);
-        lastFetchedPage.current += 1;
+        await loadMore();
       });
     }
   }, [isInView, isPending, loadMore]);

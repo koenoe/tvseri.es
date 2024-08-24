@@ -29,6 +29,8 @@ function InfiniteGrid({
 
   const handleLoadMore = useCallback(async () => {
     const pageToFetch = lastFetchedPage + 1;
+    setLastFetchedPage(pageToFetch);
+
     const [baseEndpoint, queryString] = endpoint.split('?');
     const searchParams = new URLSearchParams(queryString);
     searchParams.set('page', pageToFetch.toString());
@@ -37,7 +39,6 @@ function InfiniteGrid({
     const newItems = (await response.json()) as TvSeries[];
 
     setItems((prevItems) => [...prevItems, ...newItems]);
-    setLastFetchedPage(pageToFetch);
   }, [endpoint, lastFetchedPage, setItems, setLastFetchedPage]);
 
   const hasMoreData = items.length < totalNumberOfItems;

@@ -9,6 +9,7 @@ import type {
   TvSeriesAccountStates,
 } from '@/types/tv-series';
 import getBaseUrl from '@/utils/getBaseUrl';
+import { toQueryString } from '@/utils/toQueryString';
 
 import {
   generateTmdbImageUrl,
@@ -488,19 +489,14 @@ export async function fetchDiscoverTvSeries(query?: TmdbDiscoverQuery) {
     sort_by: 'popularity.desc',
   };
 
-  const queryString = Object.entries({
+  const queryString = toQueryString({
     ...defaultQuery,
     ...query,
-  })
-    .map(
-      ([key, value]) =>
-        `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-    )
-    .join('&');
+  });
 
   const response =
     ((await tmdbFetch(
-      `/3/discover/tv?${queryString}`,
+      `/3/discover/tv${queryString}`,
     )) as TmdbDiscoverTvSeries) ?? [];
 
   const items = (response.results ?? [])
@@ -513,6 +509,7 @@ export async function fetchDiscoverTvSeries(query?: TmdbDiscoverQuery) {
     items,
     totalNumberOfPages: response.total_pages,
     totalNumberOfItems: response.total_results,
+    queryString: query ? toQueryString(query) : '',
   };
 }
 

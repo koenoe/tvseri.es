@@ -1,13 +1,19 @@
 import { fetchDiscoverTvSeries } from '@/lib/tmdb';
+import { type TmdbDiscoverQuery } from '@/lib/tmdb/helpers';
 
 import InfiniteGrid from './InfiniteGrid';
 
-export default async function DiscoverGrid() {
-  const { items, totalNumberOfItems } = await fetchDiscoverTvSeries();
+export default async function DiscoverGrid({
+  query,
+}: Readonly<{
+  query?: TmdbDiscoverQuery;
+}>) {
+  const { items, totalNumberOfItems, queryString } =
+    await fetchDiscoverTvSeries(query);
 
   return (
     <InfiniteGrid
-      endpoint="/api/tv/discover"
+      endpoint={`/api/tv/discover${queryString}`}
       items={items}
       totalNumberOfItems={totalNumberOfItems}
     />

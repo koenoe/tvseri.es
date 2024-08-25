@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 
 import createUseRestorableState from '@/hooks/createUseRestorableState';
 import { type TvSeries } from '@/types/tv-series';
@@ -23,6 +23,10 @@ function InfiniteGrid({
   totalNumberOfPages: number;
 }>) {
   const [items, setItems] = useRestorableItems(endpoint, itemsFromProps);
+  const hasMoreData = useMemo(
+    () => items.length < totalNumberOfItems,
+    [items.length, totalNumberOfItems],
+  );
 
   const handleLoadMore = useCallback(async () => {
     const itemsPerPage = Math.ceil(totalNumberOfItems / totalNumberOfPages);
@@ -43,12 +47,26 @@ function InfiniteGrid({
     totalNumberOfPages,
   ]);
 
-  const hasMoreData = items.length < totalNumberOfItems;
+  // Note: use a Set to track unique IDs to prevent duplicates
+  // as TMDb can return same items on different pages
+  // see: https://www.themoviedb.org/talk/5ee3abd1590086001f50b3c1#667b0702a8ad7d3577f69f20
+  const uniqueItems = useMemo(() => {
+    const itemSet = new Set<number>();
+    return items
+      .filter((item) => !!item.posterImage && !!item.backdropImage)
+      .filter((item) => {
+        if (itemSet.has(item.id)) {
+          return false;
+        }
+        itemSet.add(item.id);
+        return true;
+      });
+  }, [items]);
 
   return (
     <InfiniteScroll hasMoreData={hasMoreData} loadMore={handleLoadMore}>
       <Grid>
-        {items.map((item) => (
+        {uniqueItems.map((item) => (
           <Poster key={item.id} item={item} />
         ))}
       </Grid>

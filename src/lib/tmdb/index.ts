@@ -499,11 +499,9 @@ export async function fetchDiscoverTvSeries(query?: TmdbDiscoverQuery) {
       `/3/discover/tv${queryString}`,
     )) as TmdbDiscoverTvSeries) ?? [];
 
-  const items = (response.results ?? [])
-    .filter((series) => !!series.poster_path)
-    .map((series) => {
-      return normalizeTvSeries(series as TmdbTvSeries);
-    });
+  const items = (response.results ?? []).map((series) =>
+    normalizeTvSeries(series as TmdbTvSeries),
+  );
 
   return {
     items,
@@ -524,7 +522,7 @@ export async function fetchPopularBritishCrimeTvSeries() {
     with_origin_country: 'GB',
     with_original_language: 'en',
   });
-  return items;
+  return items.filter((item) => !!item.posterImage && !!item.backdropImage);
 }
 
 export async function fetchBestSportsDocumentariesTvSeries() {
@@ -536,7 +534,7 @@ export async function fetchBestSportsDocumentariesTvSeries() {
     with_keywords: '6075|2702',
     without_keywords: '10596,293434,288928,11672',
   });
-  return items;
+  return items.filter((item) => !!item.posterImage && !!item.backdropImage);
 }
 
 export async function fetchApplePlusTvSeries(region = 'US') {
@@ -555,7 +553,7 @@ export async function fetchMostAnticipatedTvSeries() {
     without_genres: GENRES_TO_IGNORE.join(','),
     'first_air_date.gte': new Date().toISOString().split('T')[0],
   });
-  return items;
+  return items.filter((item) => !!item.posterImage && !!item.backdropImage);
 }
 
 export async function fetchGenresForTvSeries() {

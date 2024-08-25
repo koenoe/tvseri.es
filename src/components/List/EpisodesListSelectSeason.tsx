@@ -6,14 +6,14 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 
 import { type TvSeries } from '@/types/tv-series';
+import getMousePosition from '@/utils/getMousePosition';
 
-const variants = {
-  visible: { opacity: 1, y: 0 },
-  hidden: { opacity: 0, y: 40 },
-};
+import DropdownContainer, {
+  type Position,
+} from '../Dropdown/DropdownContainer';
 
 function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
-  const [isVisible, setIsVisible] = useState(false);
+  const [position, setPosition] = useState<Position | null>(null);
   const searchParams = useSearchParams();
   const selectedSeason = useMemo(
     () =>
@@ -29,7 +29,12 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
     <div className="relative z-10">
       <div
         className="flex cursor-pointer items-center gap-3 text-2xl font-medium"
-        onClick={() => setIsVisible((previousState) => !previousState)}
+        onClick={(event: React.MouseEvent<HTMLDivElement>) => {
+          const { x, y } = getMousePosition(event);
+          setPosition((prevPosition) =>
+            prevPosition ? null : { x, y: y + 32 + 16 },
+          );
+        }}
       >
         <span>{selectedSeason?.title}</span>
         <motion.svg
@@ -37,7 +42,7 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
           viewBox="0 0 20 20"
           fill="currentColor"
           animate={{
-            rotate: isVisible ? 180 : 0,
+            rotate: position ? 180 : 0,
           }}
         >
           <path
@@ -47,35 +52,34 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
           ></path>
         </motion.svg>
       </div>
-      <AnimatePresence>
-        {isVisible && (
-          <motion.div
+      <AnimatePresence mode="wait">
+        {position && (
+          <DropdownContainer
             key="select-season"
-            className="absolute left-0 top-12 flex w-full flex-col gap-2 rounded-lg bg-white p-4 text-black"
-            initial="hidden"
-            animate={isVisible ? 'visible' : 'hidden'}
-            exit="hidden"
-            variants={variants}
+            position={position}
+            onOutsideClick={() => setPosition(null)}
           >
-            {item.seasons?.map((item) => (
-              <button
-                key={item.id}
-                className="text-nowrap p-2 text-left text-sm hover:underline"
-                onClick={() => {
-                  const params = new URLSearchParams(searchParams.toString());
-                  params.set('season', item.seasonNumber.toString());
-                  window.history.replaceState(
-                    null,
-                    '',
-                    `?${params.toString()}`,
-                  );
-                  setIsVisible(false);
-                }}
-              >
-                <span className="drop-shadow-lg">{item.title}</span>
-              </button>
-            ))}
-          </motion.div>
+            <div className="relative flex w-full flex-col gap-2 rounded-lg bg-white p-4 text-black">
+              {item.seasons?.map((item) => (
+                <button
+                  key={item.id}
+                  className="text-nowrap p-2 text-left text-sm hover:underline"
+                  onClick={() => {
+                    const params = new URLSearchParams(searchParams.toString());
+                    params.set('season', item.seasonNumber.toString());
+                    window.history.replaceState(
+                      null,
+                      '',
+                      `?${params.toString()}`,
+                    );
+                    setPosition(null);
+                  }}
+                >
+                  <span className="drop-shadow-lg">{item.title}</span>
+                </button>
+              ))}
+            </div>
+          </DropdownContainer>
         )}
       </AnimatePresence>
     </div>

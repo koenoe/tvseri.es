@@ -12,7 +12,7 @@ import {
 } from 'framer-motion';
 
 import getHistoryKey from '@/utils/getHistoryKey';
-import getMousePositionX from '@/utils/getMousePositionX';
+import getMousePositionWithinElement from '@/utils/getMousePositionWithinElement';
 
 // TODO: convert to Tailwind
 import styles from './styles.module.css';
@@ -95,7 +95,10 @@ function List({
         return;
       }
 
-      const x = getMousePositionX(event as MouseEvent, scrollBarRef.current);
+      const { x } = getMousePositionWithinElement(
+        event as MouseEvent,
+        scrollBarRef.current,
+      );
       const scrollWidth = innerRef.current?.scrollWidth ?? 0;
       const clientWidth = innerRef.current?.clientWidth ?? 0;
       const scrollableWidth = scrollWidth - clientWidth;
@@ -128,7 +131,10 @@ function List({
         return;
       }
 
-      const x = getMousePositionX(event.nativeEvent, scrollBarRef.current);
+      const { x } = getMousePositionWithinElement(
+        event.nativeEvent,
+        scrollBarRef.current,
+      );
       const scrollWidth = innerRef.current?.scrollWidth ?? 0;
       const clientWidth = innerRef.current?.clientWidth ?? 0;
       const scrollableWidth = scrollWidth - clientWidth;

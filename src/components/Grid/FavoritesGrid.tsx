@@ -15,16 +15,18 @@ export default async function FavoritesGrid() {
   const decryptedSessionId = decryptToken(encryptedSessionId);
   const { id: accountId } = await fetchAccountDetails(decryptedSessionId);
 
-  const { items, totalNumberOfItems } = await fetchFavorites({
-    accountId,
-    sessionId: decryptedSessionId,
-  });
+  const { items, totalNumberOfItems, totalNumberOfPages } =
+    await fetchFavorites({
+      accountId,
+      sessionId: decryptedSessionId,
+    });
 
   return (
     <InfiniteGrid
       endpoint="/api/account/favorites"
       items={items}
       totalNumberOfItems={totalNumberOfItems}
+      totalNumberOfPages={totalNumberOfPages}
     />
   );
 }

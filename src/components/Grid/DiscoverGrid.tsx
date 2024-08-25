@@ -8,7 +8,7 @@ export default async function DiscoverGrid({
 }: Readonly<{
   query?: TmdbDiscoverQuery;
 }>) {
-  const { items, totalNumberOfItems, queryString } =
+  const { items, totalNumberOfItems, totalNumberOfPages, queryString } =
     await fetchDiscoverTvSeries(query);
 
   return (
@@ -16,6 +16,7 @@ export default async function DiscoverGrid({
       endpoint={`/api/tv/discover${queryString}`}
       items={items}
       totalNumberOfItems={totalNumberOfItems}
+      totalNumberOfPages={totalNumberOfPages}
     />
   );
 }

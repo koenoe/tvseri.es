@@ -50,18 +50,16 @@ function InfiniteGrid({
   // Note: use a Set to track unique IDs to prevent duplicates
   // as TMDb can return same items on different pages
   // see: https://www.themoviedb.org/talk/5ee3abd1590086001f50b3c1#667b0702a8ad7d3577f69f20
-  const uniqueItems = useMemo(() => {
-    const itemSet = new Set<number>();
-    return items
-      .filter((item) => !!item.posterImage && !!item.backdropImage)
-      .filter((item) => {
-        if (itemSet.has(item.id)) {
-          return false;
-        }
-        itemSet.add(item.id);
-        return true;
-      });
-  }, [items]);
+  const uniqueItems = useMemo(
+    () => [
+      ...new Map(
+        items
+          .filter((item) => !!item.posterImage && !!item.backdropImage)
+          .map((item) => [item.id, item]),
+      ).values(),
+    ],
+    [items],
+  );
 
   return (
     <InfiniteScroll hasMoreData={hasMoreData} loadMore={handleLoadMore}>

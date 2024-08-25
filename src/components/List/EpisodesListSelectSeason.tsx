@@ -52,7 +52,7 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
           ></path>
         </motion.svg>
       </div>
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         {position && (
           <DropdownContainer
             key="select-season"

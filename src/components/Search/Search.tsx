@@ -97,7 +97,7 @@ function Search() {
   );
 
   const handleKeyDown = useDebouncedCallback((event: React.KeyboardEvent) => {
-    if (event.key === 'Enter') {
+    if (!isPending && event.key === 'Enter') {
       const firstResult = results?.[0];
       if (firstResult) {
         router.push(`/tv/${firstResult.id}/${firstResult.slug}`);

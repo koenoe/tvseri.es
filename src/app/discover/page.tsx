@@ -27,6 +27,7 @@ export default async function DiscoverPage({
       }
     >
       <DiscoverGrid
+        key={sortBy}
         query={
           sortBy
             ? {

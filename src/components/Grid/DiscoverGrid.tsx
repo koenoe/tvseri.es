@@ -16,10 +16,12 @@ export default async function DiscoverGrid({
       ...query,
       watch_region: region,
     });
+  const endpoint = `/discover/tv${queryString}`;
 
   return (
     <InfiniteGrid
-      endpoint={`/api/tv/discover${queryString}`}
+      key={endpoint}
+      endpoint={endpoint}
       items={items}
       totalNumberOfItems={totalNumberOfItems}
       totalNumberOfPages={totalNumberOfPages}

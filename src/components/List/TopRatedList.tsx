@@ -12,8 +12,8 @@ export default async function TopRatedList(
 
   return (
     <List
-      title="All time favourites"
-      scrollRestoreKey="all-time-favourites"
+      title="All time favorites"
+      scrollRestoreKey="all-time-favorites"
       {...props}
     >
       {tvSeries.map((item) => (

@@ -58,12 +58,12 @@ const MenuToggle = forwardRef<
   );
 
   const handleClick = useCallback(() => {
+    onClick?.(!isOpen);
     setIsOpen((prev) => {
-      onClick?.(!prev);
       void animateSvg(!prev);
       return !prev;
     });
-  }, [animateSvg, onClick]);
+  }, [animateSvg, isOpen, onClick]);
 
   useImperativeHandle(
     ref,

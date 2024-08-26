@@ -74,7 +74,7 @@ export default function DropdownContainer({
     const rect = el.getBoundingClientRect();
 
     const [x, y] = calculateNextPosition(
-      [position?.x ?? 0, position?.y ?? 0],
+      [position.x, position.y],
       rect,
       window,
     );

@@ -1,3 +1,5 @@
+import { headers } from 'next/headers';
+
 import { fetchDiscoverTvSeries } from '@/lib/tmdb';
 import { type TmdbDiscoverQuery } from '@/lib/tmdb/helpers';
 
@@ -8,8 +10,12 @@ export default async function DiscoverGrid({
 }: Readonly<{
   query?: TmdbDiscoverQuery;
 }>) {
+  const region = headers().get('x-vercel-ip-country') || 'US';
   const { items, totalNumberOfItems, totalNumberOfPages, queryString } =
-    await fetchDiscoverTvSeries(query);
+    await fetchDiscoverTvSeries({
+      ...query,
+      watch_region: region,
+    });
 
   return (
     <InfiniteGrid

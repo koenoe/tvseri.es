@@ -28,19 +28,29 @@ function InfiniteGrid({
     [items.length, totalNumberOfItems],
   );
 
+  const fetchItems = useCallback(
+    async (page: number = 1) => {
+      const [baseEndpoint, queryString] = endpoint.split('?');
+      const searchParams = new URLSearchParams(queryString);
+      searchParams.set('page', page.toString());
+      const response = await fetch(
+        `${baseEndpoint}?${searchParams.toString()}`,
+      );
+      const newItems = (await response.json()) as TvSeries[];
+      return newItems;
+    },
+    [endpoint],
+  );
+
   const handleLoadMore = useCallback(async () => {
     const itemsPerPage = Math.ceil(totalNumberOfItems / totalNumberOfPages);
     const currentPage = Math.ceil(items.length / itemsPerPage);
     const nextPage = currentPage + 1;
-    const [baseEndpoint, queryString] = endpoint.split('?');
-    const searchParams = new URLSearchParams(queryString);
-    searchParams.set('page', nextPage.toString());
-    const response = await fetch(`${baseEndpoint}?${searchParams.toString()}`);
-    const newItems = (await response.json()) as TvSeries[];
+    const newItems = await fetchItems(nextPage);
 
     setItems((prevItems) => [...prevItems, ...newItems]);
   }, [
-    endpoint,
+    fetchItems,
     items.length,
     setItems,
     totalNumberOfItems,

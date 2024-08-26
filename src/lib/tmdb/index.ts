@@ -483,16 +483,17 @@ export async function fetchTopRatedTvSeries() {
 }
 
 export async function fetchDiscoverTvSeries(query?: TmdbDiscoverQuery) {
-  const defaultQuery = {
-    include_adult: false,
+  const mergedQuery = {
     page: 1,
     sort_by: 'popularity.desc',
+    'vote_count.gte': 1,
+    ...query,
+    // Note: always exclude adult content
+    include_adult: false,
+    include_null_first_air_dates: false,
   };
 
-  const queryString = toQueryString({
-    ...defaultQuery,
-    ...query,
-  });
+  const queryString = toQueryString(mergedQuery);
 
   const response =
     ((await tmdbFetch(
@@ -552,6 +553,7 @@ export async function fetchMostAnticipatedTvSeries() {
   const { items } = await fetchDiscoverTvSeries({
     without_genres: GENRES_TO_IGNORE.join(','),
     'first_air_date.gte': new Date().toISOString().split('T')[0],
+    'vote_count.gte': 0,
   });
   return items.filter((item) => !!item.posterImage && !!item.backdropImage);
 }

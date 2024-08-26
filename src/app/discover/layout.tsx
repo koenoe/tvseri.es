@@ -34,12 +34,14 @@ export default async function DiscoverLayout({
   return (
     <Page backgroundContext="dots">
       <div className="container">
-        <div className="mb-10 mt-4 flex items-center">
+        <div className="mb-10 mt-4 flex items-center gap-8">
           <PageDivider className="h-auto" />
           <Suspense
             fallback={<div className="h-44 w-36 rounded-3xl bg-white/5" />}
           >
-            <SortBySelect className="ml-auto" options={sortOptions} />
+            <SearchParamsWrapper>
+              <SortBySelect className="ml-auto" options={sortOptions} />
+            </SearchParamsWrapper>
           </Suspense>
         </div>
         <Suspense fallback={<Loading />}>

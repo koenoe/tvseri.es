@@ -4,7 +4,12 @@ import { memo, useRef, useState } from 'react';
 
 import { cx } from 'class-variance-authority';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import {
+  type ReadonlyURLSearchParams,
+  usePathname,
+  useSearchParams,
+} from 'next/navigation';
 
 import getMousePosition from '@/utils/getMousePosition';
 
@@ -12,17 +17,49 @@ import DropdownContainer, {
   type Position,
 } from '../Dropdown/DropdownContainer';
 
+type Option = Readonly<{
+  label: string;
+  value: string;
+}>;
+
+const createUrl = (
+  pathname: string,
+  params: URLSearchParams | ReadonlyURLSearchParams,
+) => {
+  const paramsString = params.toString();
+  const queryString = `${paramsString.length ? '?' : ''}${paramsString}`;
+
+  return `${pathname}${queryString}`;
+};
+
+function SortBySelectItem({
+  item,
+  onClick,
+}: Readonly<{ item: Option; onClick?: () => void }>) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const newParams = new URLSearchParams(searchParams.toString());
+  newParams.set('sort_by', item.value);
+
+  return (
+    <Link
+      href={createUrl(pathname, newParams)}
+      className="text-nowrap p-2 text-left text-sm hover:underline"
+      onClick={onClick}
+      scroll={false}
+    >
+      <span className="drop-shadow-lg">{item.label}</span>
+    </Link>
+  );
+}
+
 function SortBySelect({
   className,
   options,
 }: Readonly<{
   className?: string;
-  options: Readonly<{
-    label: string;
-    value: string;
-  }>[];
+  options: Option[];
 }>) {
-  const router = useRouter();
   const ref = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<Position | null>(null);
   const searchParams = useSearchParams();
@@ -33,7 +70,7 @@ function SortBySelect({
     <div className={cx('relative z-10', className)}>
       <div
         ref={ref}
-        className="flex w-[9rem] cursor-pointer items-center justify-center gap-2 rounded-3xl bg-white/5 py-3 pl-5 pr-4 text-sm leading-none tracking-wide backdrop-blur-xl"
+        className="flex w-36 cursor-pointer items-center justify-center gap-2 rounded-3xl bg-white/5 py-3 pl-5 pr-4 text-sm leading-none tracking-wide backdrop-blur-xl"
         onClick={(event: React.MouseEvent<HTMLDivElement>) => {
           const { x, y } = getMousePosition(event);
           setPosition((prevPosition) =>
@@ -66,18 +103,11 @@ function SortBySelect({
           >
             <div className="relative flex w-[9rem] flex-col gap-2 rounded-lg bg-white p-4 text-black">
               {options.map((item) => (
-                <button
+                <SortBySelectItem
                   key={item.value}
-                  className="text-nowrap p-2 text-left text-sm hover:underline"
-                  onClick={() => {
-                    const params = new URLSearchParams(searchParams.toString());
-                    params.set('sort_by', item.value);
-                    router.replace(`?${params.toString()}`, { scroll: false });
-                    setPosition(null);
-                  }}
-                >
-                  <span className="drop-shadow-lg">{item.label}</span>
-                </button>
+                  item={item}
+                  onClick={() => setPosition(null)}
+                />
               ))}
             </div>
           </DropdownContainer>

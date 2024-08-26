@@ -18,6 +18,7 @@ export default async function DiscoverPage({
 
   return (
     <Suspense
+      key={sortBy}
       fallback={
         <Grid>
           {[...Array(18)].map((_, index) => (
@@ -27,7 +28,6 @@ export default async function DiscoverPage({
       }
     >
       <DiscoverGrid
-        key={sortBy}
         query={
           sortBy
             ? {

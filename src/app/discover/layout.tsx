@@ -36,7 +36,9 @@ export default async function DiscoverLayout({
       <div className="container">
         <div className="mb-10 mt-4 flex items-center">
           <PageDivider className="h-auto" />
-          <Suspense fallback={null}>
+          <Suspense
+            fallback={<div className="h-44 w-36 rounded-3xl bg-white/5" />}
+          >
             <SortBySelect className="ml-auto" options={sortOptions} />
           </Suspense>
         </div>

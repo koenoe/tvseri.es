@@ -72,7 +72,7 @@ function SortBySelect({
                   onClick={() => {
                     const params = new URLSearchParams(searchParams.toString());
                     params.set('sort_by', item.value);
-                    router.push(`?${params.toString()}`, { scroll: false });
+                    router.replace(`?${params.toString()}`, { scroll: false });
                     setPosition(null);
                   }}
                 >

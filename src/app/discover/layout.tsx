@@ -1,8 +1,11 @@
 import { Suspense } from 'react';
 
+import SearchParamsWrapper from '@/components/Grid/SearchParamsWrapper';
 import SortBySelect from '@/components/Grid/SortBySelect';
 import PageDivider from '@/components/Page/Divider';
 import Page from '@/components/Page/Page';
+
+import Loading from './loading';
 
 const sortOptions = [
   {
@@ -37,7 +40,9 @@ export default async function DiscoverLayout({
             <SortBySelect className="ml-auto" options={sortOptions} />
           </Suspense>
         </div>
-        {children}
+        <Suspense fallback={<Loading />}>
+          <SearchParamsWrapper>{children}</SearchParamsWrapper>
+        </Suspense>
       </div>
     </Page>
   );

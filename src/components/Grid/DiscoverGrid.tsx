@@ -16,7 +16,7 @@ export default async function DiscoverGrid({
       ...query,
       watch_region: region,
     });
-  const endpoint = `/discover/tv${queryString}`;
+  const endpoint = `/api/tv/discover${queryString}`;
 
   return (
     <InfiniteGrid

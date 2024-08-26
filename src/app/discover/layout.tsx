@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+
 import SortBySelect from '@/components/Grid/SortBySelect';
 import Page from '@/components/Page/Page';
 
@@ -30,7 +32,9 @@ export default async function DiscoverLayout({
       <div className="container">
         <div className="my-8 flex items-center">
           <h1 className="text-2xl font-medium lg:text-3xl">Discover</h1>
-          <SortBySelect className="ml-auto" options={sortOptions} />
+          <Suspense fallback={null}>
+            <SortBySelect className="ml-auto" options={sortOptions} />
+          </Suspense>
         </div>
         {children}
       </div>

@@ -4,6 +4,7 @@ import { fetchDiscoverTvSeries } from '@/lib/tmdb';
 import { type TmdbDiscoverQuery } from '@/lib/tmdb/helpers';
 
 import InfiniteGrid from './InfiniteGrid';
+import SearchParamsWrapper from './SearchParamsWrapper';
 
 export default async function DiscoverGrid({
   query,
@@ -16,15 +17,15 @@ export default async function DiscoverGrid({
       ...query,
       watch_region: region,
     });
-  const endpoint = `/api/tv/discover${queryString}`;
 
   return (
-    <InfiniteGrid
-      key={endpoint}
-      endpoint={endpoint}
-      items={items}
-      totalNumberOfItems={totalNumberOfItems}
-      totalNumberOfPages={totalNumberOfPages}
-    />
+    <SearchParamsWrapper>
+      <InfiniteGrid
+        endpoint={`/api/tv/discover${queryString}`}
+        items={items}
+        totalNumberOfItems={totalNumberOfItems}
+        totalNumberOfPages={totalNumberOfPages}
+      />
+    </SearchParamsWrapper>
   );
 }

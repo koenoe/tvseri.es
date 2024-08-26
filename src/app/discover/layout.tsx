@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 
 import SortBySelect from '@/components/Grid/SortBySelect';
+import PageDivider from '@/components/Page/Divider';
 import Page from '@/components/Page/Page';
 
 const sortOptions = [
@@ -30,8 +31,8 @@ export default async function DiscoverLayout({
   return (
     <Page backgroundContext="dots">
       <div className="container">
-        <div className="my-8 flex items-center">
-          <h1 className="text-2xl font-medium lg:text-3xl">Discover</h1>
+        <div className="mb-10 mt-4 flex items-center">
+          <PageDivider className="h-auto" />
           <Suspense fallback={null}>
             <SortBySelect className="ml-auto" options={sortOptions} />
           </Suspense>

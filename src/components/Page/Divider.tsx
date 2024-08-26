@@ -1,6 +1,10 @@
-export default function PageDivider() {
+import { cx } from 'class-variance-authority';
+
+export default function PageDivider({
+  className,
+}: Readonly<{ className?: string }>) {
   return (
-    <div className="relative mx-auto h-12 w-full md:h-20 md:w-[40rem]">
+    <div className={cx('relative w-full md:w-[40rem]', className)}>
       {/* Gradients */}
       <div className="absolute inset-x-0 top-0 h-[2px] w-full bg-gradient-to-r from-transparent via-white/40 to-transparent blur-sm" />
       <div className="absolute inset-x-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-white/60 to-transparent" />

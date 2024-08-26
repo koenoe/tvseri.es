@@ -5,12 +5,9 @@ import { memo, useRef, useState } from 'react';
 import { cx } from 'class-variance-authority';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
-import {
-  type ReadonlyURLSearchParams,
-  usePathname,
-  useSearchParams,
-} from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 
+import createUrl from '@/utils/createUrl';
 import getMousePosition from '@/utils/getMousePosition';
 
 import DropdownContainer, {
@@ -21,16 +18,6 @@ type Option = Readonly<{
   label: string;
   value: string;
 }>;
-
-const createUrl = (
-  pathname: string,
-  params: URLSearchParams | ReadonlyURLSearchParams,
-) => {
-  const paramsString = params.toString();
-  const queryString = `${paramsString.length ? '?' : ''}${paramsString}`;
-
-  return `${pathname}${queryString}`;
-};
 
 function SortBySelectItem({
   item,

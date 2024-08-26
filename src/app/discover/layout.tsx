@@ -3,6 +3,8 @@ import { Suspense } from 'react';
 import SortBySelect from '@/components/Grid/SortBySelect';
 import Page from '@/components/Page/Page';
 
+import ChildrenWrapper from './children-wrapper';
+
 const sortOptions = [
   {
     value: 'popularity.desc',
@@ -36,7 +38,7 @@ export default async function DiscoverLayout({
             <SortBySelect className="ml-auto" options={sortOptions} />
           </Suspense>
         </div>
-        {children}
+        <ChildrenWrapper>{children}</ChildrenWrapper>
       </div>
     </Page>
   );

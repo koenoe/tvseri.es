@@ -5,7 +5,7 @@ const nextConfig = {
     // TODO: figure out what best values are
     staleTimes: {
       dynamic: 0,
-      static: 0,
+      static: 5,
     },
   },
   images: {

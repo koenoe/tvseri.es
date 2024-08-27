@@ -15,10 +15,11 @@ export default async function DiscoverPage({
   };
 }>) {
   const sortBy = searchParams?.sort_by;
+  const key = sortBy ? `discover-${sortBy}` : 'discover';
 
   return (
     <Suspense
-      key={sortBy}
+      key={key}
       fallback={
         <Grid>
           {[...Array(18)].map((_, index) => (
@@ -28,6 +29,7 @@ export default async function DiscoverPage({
       }
     >
       <DiscoverGrid
+        key={key}
         query={
           sortBy
             ? {

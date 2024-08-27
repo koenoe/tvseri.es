@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useRef, useState, useTransition } from 'react';
 
 import { cx } from 'class-variance-authority';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -24,15 +24,18 @@ function SortBySelectItem({
 }: Readonly<{ item: Option; onClick?: () => void }>) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const [, startTransition] = useTransition();
 
   const router = useRouter();
-  const handleClick = useCallback(async () => {
-    await revalidate({ path: pathname });
-    onClick?.();
+  const handleClick = useCallback(() => {
+    startTransition(async () => {
+      await revalidate({ path: pathname });
+      onClick?.();
 
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('sort_by', item.value);
-    router.replace(`?${params.toString()}`, { scroll: false });
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('sort_by', item.value);
+      router.replace(`?${params.toString()}`, { scroll: false });
+    });
   }, [item.value, onClick, pathname, router, searchParams]);
 
   return (

@@ -1,13 +1,12 @@
 'use client';
 
-import { memo, useRef, useState } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 
 import { cx } from 'class-variance-authority';
 import { AnimatePresence, motion } from 'framer-motion';
-import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
-import createUrl from '@/utils/createUrl';
+import { revalidate } from '@/app/actions';
 import getMousePosition from '@/utils/getMousePosition';
 
 import DropdownContainer, {
@@ -23,20 +22,26 @@ function SortBySelectItem({
   item,
   onClick,
 }: Readonly<{ item: Option; onClick?: () => void }>) {
-  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const newParams = new URLSearchParams(searchParams.toString());
-  newParams.set('sort_by', item.value);
+  const pathname = usePathname();
+
+  const router = useRouter();
+  const handleClick = useCallback(async () => {
+    await revalidate({ path: pathname });
+    onClick?.();
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('sort_by', item.value);
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [item.value, onClick, pathname, router, searchParams]);
 
   return (
-    <Link
-      href={createUrl(pathname, newParams)}
+    <button
       className="text-nowrap p-2 text-left text-sm hover:underline"
-      onClick={onClick}
-      scroll={false}
+      onClick={handleClick}
     >
       <span className="drop-shadow-lg">{item.label}</span>
-    </Link>
+    </button>
   );
 }
 

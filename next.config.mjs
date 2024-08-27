@@ -2,10 +2,9 @@
 const nextConfig = {
   experimental: {
     ppr: true,
-    // TODO: figure out what best values are
     staleTimes: {
-      dynamic: 0,
-      static: 5,
+      dynamic: 30,
+      static: 180,
     },
   },
   images: {

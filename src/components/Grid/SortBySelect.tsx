@@ -21,22 +21,10 @@ type Option = Readonly<{
 function SortBySelectItem({
   item,
   onClick,
-}: Readonly<{ item: Option; onClick?: () => void }>) {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const [, startTransition] = useTransition();
-
-  const router = useRouter();
+}: Readonly<{ item: Option; onClick: (item: Option) => void }>) {
   const handleClick = useCallback(() => {
-    startTransition(async () => {
-      await revalidate({ path: pathname });
-      onClick?.();
-
-      const params = new URLSearchParams(searchParams.toString());
-      params.set('sort_by', item.value);
-      router.replace(`?${params.toString()}`, { scroll: false });
-    });
-  }, [item.value, onClick, pathname, router, searchParams]);
+    onClick(item);
+  }, [item, onClick]);
 
   return (
     <button
@@ -55,11 +43,28 @@ function SortBySelect({
   className?: string;
   options: Option[];
 }>) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [, startTransition] = useTransition();
   const ref = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<Position | null>(null);
   const searchParams = useSearchParams();
   const selectedSortByKey = searchParams.get('sort_by') ?? options[0].value;
   const label = options.find((item) => item.value === selectedSortByKey)?.label;
+  const handleClick = useCallback(
+    (item: Option) => {
+      startTransition(async () => {
+        await revalidate({ path: pathname });
+
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('sort_by', item.value);
+        router.replace(`?${params.toString()}`, { scroll: false });
+      });
+
+      setPosition(null);
+    },
+    [pathname, router, searchParams],
+  );
 
   return (
     <div className={cx('relative z-10', className)}>
@@ -101,7 +106,7 @@ function SortBySelect({
                 <SortBySelectItem
                   key={item.value}
                   item={item}
-                  onClick={() => setPosition(null)}
+                  onClick={handleClick}
                 />
               ))}
             </div>

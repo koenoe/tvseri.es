@@ -53,8 +53,8 @@ function SortBySelect({
   const label = options.find((item) => item.value === selectedSortByKey)?.label;
   const handleClick = useCallback(
     (item: Option) => {
-      startTransition(async () => {
-        await revalidate({ path: pathname });
+      startTransition(() => {
+        void revalidate({ path: pathname });
 
         const params = new URLSearchParams(searchParams.toString());
         params.set('sort_by', item.value);

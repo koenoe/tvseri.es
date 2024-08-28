@@ -2,6 +2,7 @@
 const nextConfig = {
   experimental: {
     ppr: true,
+    pprFallbacks: true,
     staleTimes: {
       dynamic: 30,
       static: 180,

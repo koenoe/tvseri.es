@@ -45,9 +45,10 @@ export default async function DiscoverLayout({
             />
           </Suspense>
         </div>
+
         <Suspense
           fallback={
-            <div className="relative ml-auto h-11 w-32 animate-pulse rounded-3xl bg-white/5 backdrop-blur-xl" />
+            <div className="relative mb-10 ml-auto h-11 w-32 animate-pulse rounded-3xl bg-white/5 backdrop-blur-xl" />
           }
         >
           <DiscoverFilters className="relative mb-10 items-end">

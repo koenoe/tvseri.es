@@ -4,6 +4,7 @@ import React, { memo } from 'react';
 
 import { cva } from 'class-variance-authority';
 import { motion, useMotionTemplate, useMotionValue } from 'framer-motion';
+import Link from 'next/link';
 
 import noise from '@/assets/noise.webp';
 import { type Genre } from '@/types/genre';
@@ -29,6 +30,8 @@ export const genreStyles = cva(
   'relative flex aspect-video w-[calc(100vw-4rem)] flex-shrink-0 transform-gpu cursor-pointer items-end overflow-hidden rounded-lg p-8 shadow-lg md:w-96',
 );
 
+const MotionLink = motion(Link);
+
 function GenreTile({
   genre,
 }: Readonly<{
@@ -49,7 +52,8 @@ function GenreTile({
   const backgroundStyle = useMotionTemplate`radial-gradient(circle at ${mouseX}px ${mouseY}px, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 75%)`;
 
   return (
-    <motion.div
+    <MotionLink
+      href={`/discover?with_genres=${genre.id}`}
       className={genreStyles()}
       onMouseMove={handleMouseMove}
       onClick={handleMouseMove}
@@ -85,7 +89,7 @@ function GenreTile({
           {genre.name}
         </motion.div>
       </div>
-    </motion.div>
+    </MotionLink>
   );
 }
 

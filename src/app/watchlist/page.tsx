@@ -10,7 +10,7 @@ export default async function WatchlistPage() {
   return (
     <Page backgroundContext="dots">
       <div className="container">
-        <PageDivider className="mx-auto mt-10 pb-12" />
+        <PageDivider className="mx-auto pb-20" />
         <Suspense
           fallback={
             <Grid>

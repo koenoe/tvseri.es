@@ -1,7 +1,9 @@
 import { Suspense } from 'react';
 
+import DiscoverFilters from '@/components/DiscoverFilters';
+import DiscoverGenresContainer from '@/components/DiscoverFilters/GenresContainer';
+// import DiscoverWatchProvidersContainer from '@/components/DiscoverFilters/WatchProvidersContainer';
 import SortBySelect from '@/components/Grid/SortBySelect';
-import PageDivider from '@/components/Page/Divider';
 import Page from '@/components/Page/Page';
 
 const sortOptions = [
@@ -31,14 +33,32 @@ export default async function DiscoverLayout({
   return (
     <Page backgroundContext="dots">
       <div className="container">
-        <div className="mb-10 mt-4 flex items-center gap-8">
-          <PageDivider className="h-auto" />
+        <div className="relative">
           <Suspense
-            fallback={<div className="h-11 min-w-36 rounded-3xl bg-white/5" />}
+            fallback={
+              <div className="relative ml-auto h-11 w-32 animate-pulse rounded-3xl bg-white/5 backdrop-blur-xl" />
+            }
           >
-            <SortBySelect className="ml-auto" options={sortOptions} />
+            <SortBySelect
+              className="absolute left-0 top-0 z-10 h-11 w-36"
+              options={sortOptions}
+            />
           </Suspense>
         </div>
+        <Suspense
+          fallback={
+            <div className="relative ml-auto h-11 w-32 animate-pulse rounded-3xl bg-white/5 backdrop-blur-xl" />
+          }
+        >
+          <DiscoverFilters className="relative mb-10 items-end">
+            <Suspense fallback="Loading...">
+              <DiscoverGenresContainer />
+            </Suspense>
+            {/* <Suspense fallback="Loading...">
+            <DiscoverWatchProvidersContainer />
+          </Suspense> */}
+          </DiscoverFilters>
+        </Suspense>
         {children}
       </div>
     </Page>

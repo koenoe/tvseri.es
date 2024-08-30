@@ -1,11 +1,14 @@
+import getBaseUrl from './src/utils/getBaseUrl';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
     ppr: true,
     pprFallbacks: true,
     staleTimes: {
-      dynamic: 30,
-      static: 180,
+      // TODO: there's a bug with searchParams atm
+      dynamic: 0, // default is 30
+      static: 0, // default is 180
     },
   },
   images: {
@@ -26,9 +29,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Access-Control-Allow-Origin',
-            value: process.env.VERCEL_URL
-              ? `https://${process.env.VERCEL_URL}`
-              : 'http://localhost:3000',
+            value: getBaseUrl(),
           },
           {
             key: 'Access-Control-Allow-Methods',

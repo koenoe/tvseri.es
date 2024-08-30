@@ -8,14 +8,11 @@ import { type TmdbDiscoverQuery } from '@/lib/tmdb/helpers';
 export default async function DiscoverPage({
   searchParams,
 }: Readonly<{
-  searchParams: {
-    sort_by: TmdbDiscoverQuery extends undefined
-      ? never
-      : Extract<NonNullable<TmdbDiscoverQuery>['sort_by'], string>;
-  };
+  searchParams: TmdbDiscoverQuery;
 }>) {
-  const sortBy = searchParams?.sort_by;
-  const key = sortBy ? `discover-${sortBy}` : 'discover';
+  const key = searchParams
+    ? `discover-${JSON.stringify(searchParams)}`
+    : 'discover';
 
   return (
     <Suspense
@@ -28,16 +25,7 @@ export default async function DiscoverPage({
         </Grid>
       }
     >
-      <DiscoverGrid
-        key={key}
-        query={
-          sortBy
-            ? {
-                sort_by: sortBy,
-              }
-            : undefined
-        }
-      />
+      <DiscoverGrid key={key} query={searchParams} />
     </Suspense>
   );
 }

@@ -56,6 +56,9 @@ export type TmdbWatchlist =
 export type TmdbFavorites =
   paths[`/3/account/${number}/favorite/tv`]['get']['responses']['200']['content']['application/json'];
 
+export type TmdbWatchProviders =
+  paths['/3/watch/providers/tv']['get']['responses']['200']['content']['application/json'];
+
 export function generateTmdbImageUrl(path: string, size = 'original') {
   return `https://image.tmdb.org/t/p/${size}${path}`;
 }

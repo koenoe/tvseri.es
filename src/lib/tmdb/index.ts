@@ -8,6 +8,7 @@ import type {
   TvSeries,
   TvSeriesAccountStates,
 } from '@/types/tv-series';
+import { type WatchProvider } from '@/types/watch-provider';
 import getBaseUrl from '@/utils/getBaseUrl';
 import { toQueryString } from '@/utils/toQueryString';
 
@@ -31,11 +32,12 @@ import {
   type TmdbWatchlist,
   type TmdbFavorites,
   type TmdbDiscoverQuery,
+  type TmdbWatchProviders,
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
 
-const GENRES_TO_IGNORE = [16, 10762, 10764, 10766, 10767];
+const GLOBAL_GENRES_TO_IGNORE = [10763, 10764, 10766, 10767];
 
 async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
   const pathAsString = path.toString();
@@ -351,13 +353,7 @@ export async function fetchTvSeriesContentRating(
 export async function fetchTvSeriesWatchProviders(
   id: number | string,
   region = 'US',
-): Promise<
-  Readonly<{
-    id: number;
-    name: string;
-    logo: string;
-  }>[]
-> {
+): Promise<WatchProvider[]> {
   const watchProviders = (await tmdbFetch(
     `/3/tv/${id}/watch/providers`,
   )) as TmdbTvSeriesWatchProviders;
@@ -365,13 +361,15 @@ export async function fetchTvSeriesWatchProviders(
   return (
     watchProviders.results?.[region as keyof typeof watchProviders.results]
       ?.flatrate ?? []
-  ).map((provider) => ({
-    id: provider.provider_id,
-    name: provider.provider_name as string,
-    logo: provider.logo_path
-      ? generateTmdbImageUrl(provider.logo_path, 'w92')
-      : '',
-  }));
+  )
+    .sort((a, b) => a.display_priority - b.display_priority)
+    .map((provider) => ({
+      id: provider.provider_id,
+      name: provider.provider_name as string,
+      logo: provider.logo_path
+        ? generateTmdbImageUrl(provider.logo_path, 'w92')
+        : '',
+    }));
 }
 
 export async function fetchTvSeriesCredits(
@@ -456,7 +454,9 @@ export async function fetchTrendingTvSeries() {
     .filter(
       (series) =>
         series.vote_count > 0 &&
-        !series.genre_ids?.some((genre) => GENRES_TO_IGNORE.includes(genre)),
+        !series.genre_ids?.some((genre) =>
+          [...GLOBAL_GENRES_TO_IGNORE, 16, 10762].includes(genre),
+        ),
     )
     .map((series) => series.id)
     .slice(0, 10);
@@ -491,6 +491,7 @@ export async function fetchDiscoverTvSeries(query?: TmdbDiscoverQuery) {
     // Note: always exclude adult content
     include_adult: false,
     include_null_first_air_dates: false,
+    without_genres: GLOBAL_GENRES_TO_IGNORE.join(','),
   };
 
   const queryString = toQueryString(mergedQuery);
@@ -551,7 +552,7 @@ export async function fetchApplePlusTvSeries(region = 'US') {
 
 export async function fetchMostAnticipatedTvSeries() {
   const { items } = await fetchDiscoverTvSeries({
-    without_genres: GENRES_TO_IGNORE.join(','),
+    without_genres: [...GLOBAL_GENRES_TO_IGNORE, 16, 10762].join(','),
     'first_air_date.gte': new Date().toISOString().split('T')[0],
     'vote_count.gte': 0,
   });
@@ -562,10 +563,8 @@ export async function fetchGenresForTvSeries() {
   const genresResponse =
     ((await tmdbFetch('/3/genre/tv/list')) as TmdbGenresForTvSeries) ?? [];
 
-  const genresToIgnoreForOverview = [10763, 10764, 10766, 10767];
-
   return (genresResponse.genres ?? []).filter(
-    (genre) => !genresToIgnoreForOverview.includes(genre.id),
+    (genre) => !GLOBAL_GENRES_TO_IGNORE.includes(genre.id),
   ) as Genre[];
 }
 
@@ -591,4 +590,27 @@ export async function fetchKoreasFinestTvSeries() {
     }),
   );
   return series;
+}
+
+export async function fetchWatchProviders(
+  region = 'US',
+): Promise<WatchProvider[]> {
+  const watchProviders = (await tmdbFetch(
+    `/3/watch/providers/tv?watch_region=${region}`,
+  )) as TmdbWatchProviders;
+
+  return (watchProviders.results ?? [])
+    .sort((a, b) => {
+      const sortKey = region as keyof typeof watchProviders.results;
+      const priorityA = a.display_priorities?.[sortKey] ?? a.display_priority;
+      const priorityB = b.display_priorities?.[sortKey] ?? b.display_priority;
+      return priorityA - priorityB;
+    })
+    .map((provider) => ({
+      id: provider.provider_id,
+      name: provider.provider_name as string,
+      logo: provider.logo_path
+        ? generateTmdbImageUrl(provider.logo_path, 'w92')
+        : '',
+    }));
 }

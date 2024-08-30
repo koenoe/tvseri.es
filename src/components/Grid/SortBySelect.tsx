@@ -1,12 +1,10 @@
 'use client';
 
-import { memo, useCallback, useRef, useState, useTransition } from 'react';
+import { memo, useCallback, useRef, useState } from 'react';
 
-import { cx } from 'class-variance-authority';
 import { AnimatePresence, motion } from 'framer-motion';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-import { revalidate } from '@/app/actions';
 import getMousePosition from '@/utils/getMousePosition';
 
 import DropdownContainer, {
@@ -43,9 +41,7 @@ function SortBySelect({
   className?: string;
   options: Option[];
 }>) {
-  const pathname = usePathname();
   const router = useRouter();
-  const [, startTransition] = useTransition();
   const ref = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<Position | null>(null);
   const searchParams = useSearchParams();
@@ -53,24 +49,19 @@ function SortBySelect({
   const label = options.find((item) => item.value === selectedSortByKey)?.label;
   const handleClick = useCallback(
     (item: Option) => {
-      startTransition(() => {
-        void revalidate({ path: pathname });
-
-        const params = new URLSearchParams(searchParams.toString());
-        params.set('sort_by', item.value);
-        router.replace(`?${params.toString()}`, { scroll: false });
-      });
-
       setPosition(null);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('sort_by', item.value);
+      router.replace(`?${params.toString()}`, { scroll: false });
     },
-    [pathname, router, searchParams],
+    [router, searchParams],
   );
 
   return (
-    <div className={cx('relative z-10', className)}>
+    <div className={className}>
       <div
         ref={ref}
-        className="flex w-36 cursor-pointer items-center justify-center gap-2 rounded-3xl bg-white/5 py-3 pl-5 pr-4 text-sm leading-none tracking-wide backdrop-blur-xl"
+        className="flex h-11 w-36 cursor-pointer items-center justify-center gap-2 rounded-3xl bg-white/5 py-3 pl-5 pr-4 text-sm leading-none tracking-wide backdrop-blur-xl"
         onClick={(event: React.MouseEvent<HTMLDivElement>) => {
           const { x, y } = getMousePosition(event);
           setPosition((prevPosition) =>

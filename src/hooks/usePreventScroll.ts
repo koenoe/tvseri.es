@@ -94,13 +94,17 @@ export function usePreventScroll(options: PreventScrollOptions = {}) {
   let { isDisabled } = options;
 
   useLayoutEffect(() => {
-    if (isDisabled || !isIOS()) {
+    if (isDisabled) {
       return;
     }
 
     preventScrollCount++;
     if (preventScrollCount === 1) {
-      restore = preventScrollMobileSafari();
+      if (isIOS()) {
+        restore = preventScrollMobileSafari();
+      } else {
+        restore = preventScrollStandard();
+      }
     }
 
     return () => {
@@ -110,6 +114,17 @@ export function usePreventScroll(options: PreventScrollOptions = {}) {
       }
     };
   }, [isDisabled]);
+}
+
+function preventScrollStandard() {
+  return chain(
+    setStyle(
+      document.documentElement,
+      'paddingRight',
+      `${window.innerWidth - document.documentElement.clientWidth}px`,
+    ),
+    setStyle(document.documentElement, 'overflow', 'hidden'),
+  );
 }
 
 // Mobile Safari is a whole different beast. Even with overflow: hidden,

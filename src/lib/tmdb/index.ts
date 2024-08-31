@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { type Account } from '@/types/account';
+import { type CountryOrLanguage } from '@/types/country-language';
 import { type Genre } from '@/types/genre';
 import { type Person } from '@/types/person';
 import type {
@@ -33,6 +34,9 @@ import {
   type TmdbFavorites,
   type TmdbDiscoverQuery,
   type TmdbWatchProviders,
+  type TmdbKeywords,
+  type TmdbCountries,
+  type TmdbLanguages,
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
@@ -613,4 +617,53 @@ export async function fetchWatchProviders(
         ? generateTmdbImageUrl(provider.logo_path, 'w92')
         : '',
     }));
+}
+
+export async function fetchCountries() {
+  const response =
+    ((await tmdbFetch('/3/configuration/countries')) as TmdbCountries) ?? [];
+
+  return (response ?? [])
+    .map((country) => {
+      return {
+        code: String(country.iso_3166_1),
+        englishName: String(country.english_name),
+        name: String(country.native_name),
+      } as CountryOrLanguage;
+    })
+    .sort((a, b) => {
+      const key = a.englishName && b.englishName ? 'englishName' : 'name';
+      return a[key].localeCompare(b[key]);
+    });
+}
+
+export async function fetchLanguages() {
+  const response =
+    ((await tmdbFetch('/3/configuration/languages')) as TmdbLanguages) ?? [];
+
+  return (response ?? [])
+    .map((language) => {
+      return {
+        code: String(language.iso_639_1),
+        englishName: String(language.english_name),
+        name: String(language.name),
+      } as CountryOrLanguage;
+    })
+    .sort((a, b) => {
+      const key = a.englishName && b.englishName ? 'englishName' : 'name';
+      return a[key].localeCompare(b[key]);
+    });
+}
+
+export async function searchKeywords(query: string) {
+  const tvSeriesResponse =
+    ((await tmdbFetch(`/3/search/keyword&query=${query}`)) as TmdbKeywords) ??
+    [];
+
+  return (tvSeriesResponse.results ?? []).map((keyword) => {
+    return {
+      id: keyword.id,
+      name: keyword.name,
+    };
+  });
 }

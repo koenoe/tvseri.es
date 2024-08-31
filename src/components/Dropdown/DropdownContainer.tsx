@@ -54,12 +54,14 @@ type Props = Readonly<{
   children: ReactNode;
   position: Position;
   onOutsideClick?: () => void;
+  shouldRenderOverlay?: boolean;
 }>;
 
 export default function DropdownContainer({
   children,
   position,
   onOutsideClick,
+  shouldRenderOverlay = true,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState<boolean>(false);
@@ -93,11 +95,13 @@ export default function DropdownContainer({
 
   return (
     <Modal>
-      <motion.div
-        key="overlay"
-        className="fixed inset-0 z-30 bg-transparent"
-        onClick={onOutsideClick}
-      />
+      {shouldRenderOverlay && (
+        <motion.div
+          key="overlay"
+          className="fixed inset-0 z-30 bg-transparent"
+          onClick={onOutsideClick}
+        />
+      )}
       <motion.div
         key="container"
         ref={ref}

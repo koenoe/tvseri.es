@@ -191,7 +191,6 @@ function Search() {
                   </div>
                   <input
                     type="search"
-                    id="default-search"
                     className="block w-full bg-transparent p-6 ps-16 placeholder-black/30 focus:outline-none"
                     placeholder="search tvseri.es"
                     required

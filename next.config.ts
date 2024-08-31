@@ -20,6 +20,11 @@ const nextConfig = {
         hostname: 'image.tmdb.org',
         port: '',
       },
+      {
+        protocol: 'https',
+        hostname: 'flagcdn.com',
+        port: '',
+      },
     ],
   },
   async headers() {

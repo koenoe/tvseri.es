@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 
 import MultiSelect, { type Result } from './MultiSelect';
 
@@ -32,7 +32,7 @@ export default function DiscoverKeywords({
 }>) {
   const [initialResults, setInitialResults] = useState<Result[]>([]);
   const [isPending, startTransition] = useTransition();
-  const fetchIsInitiated = useRef(false);
+  const [initialFetchIsDone, setIsInitialFetchIsDone] = useState(false);
 
   const renderSelectItem = useCallback((item: Result) => {
     return <div className="text-sm">{item.label}</div>;
@@ -65,16 +65,14 @@ export default function DiscoverKeywords({
 
   useEffect(() => {
     const initialKeywordIds = getInitialKeywordIdsFromParams();
-    if (
-      isPending ||
-      initialKeywordIds.length === 0 ||
-      initialResults.length > 0 ||
-      fetchIsInitiated.current
-    ) {
+    if (initialKeywordIds.length === 0) {
+      setIsInitialFetchIsDone(true);
       return;
     }
 
-    fetchIsInitiated.current = true;
+    if (isPending || initialFetchIsDone) {
+      return;
+    }
 
     startTransition(async () => {
       try {
@@ -83,11 +81,12 @@ export default function DiscoverKeywords({
       } catch (error) {
         console.error(error);
       }
+      setIsInitialFetchIsDone(true);
     });
-  }, [initialResults.length, isPending]);
+  }, [initialFetchIsDone, initialResults.length, isPending]);
 
   // TODO: loading state?
-  if (isPending) {
+  if (isPending || !initialFetchIsDone) {
     return null;
   }
 

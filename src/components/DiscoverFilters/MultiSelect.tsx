@@ -15,6 +15,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 
+import isEqualArray from '@/utils/isEqualArray';
+
 import DropdownContainer, {
   type Position,
 } from '../Dropdown/DropdownContainer';
@@ -197,6 +199,16 @@ function MultiSelect({
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const valuesFromSelectedResults = selectedResults.map((results) =>
+      String(results.value),
+    );
+    const valuesFromParams =
+      params.get(searchParamKey)?.split(searchParamSeparator) ?? [];
+
+    if (isEqualArray(valuesFromSelectedResults, valuesFromParams)) {
+      return;
+    }
+
     if (selectedResults.length > 0) {
       params.set(
         searchParamKey,

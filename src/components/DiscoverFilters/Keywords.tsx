@@ -100,7 +100,7 @@ export default function DiscoverKeywords({
       placeholder="Keywords"
       renderSelectItem={renderSelectItem}
       fetchResults={fetchResults}
-      results={initialResults}
+      selectedResults={initialResults}
     />
   );
 }

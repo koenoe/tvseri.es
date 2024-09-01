@@ -12,7 +12,7 @@ import {
 
 import { cx } from 'class-variance-authority';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 
 import DropdownContainer, {
@@ -24,22 +24,14 @@ export type Result = Readonly<{
   label: string;
 }>;
 
-function MultiSelect({
-  className,
-  classNameDropdown,
-  placeholder,
-  searchParamKey,
-  searchParamSeparator = ',',
-  results: resultsFromProps = [],
-  renderSelectItem,
-  fetchResults,
-}: Readonly<{
+type Props = Readonly<{
   className?: string;
   classNameDropdown?: string;
   placeholder?: string;
   searchParamKey: string;
   searchParamSeparator?: string;
   results?: Result[];
+  selectedResults?: Result[];
   renderSelectItem: (item: Result) => React.ReactNode;
   fetchResults?: (
     payload: Readonly<{
@@ -47,7 +39,38 @@ function MultiSelect({
       signal: AbortSignal;
     }>,
   ) => Promise<Array<Result>>;
-}>) {
+}>;
+
+function getInitialSelectedResultsFromParams({
+  searchParamKey,
+  searchParamSeparator,
+  results,
+}: Pick<Props, 'searchParamKey' | 'results'> &
+  Readonly<{
+    searchParamSeparator: string;
+  }>) {
+  const searchParams = new URLSearchParams(window.location.search);
+  const initialIds =
+    searchParams.get(searchParamKey)?.split(searchParamSeparator) ?? [];
+  const selectedResults =
+    results
+      ?.filter((result) => initialIds.includes(String(result.value)))
+      .filter((result) => !!result) ?? [];
+
+  return selectedResults;
+}
+
+function MultiSelect({
+  className,
+  classNameDropdown,
+  placeholder,
+  searchParamKey,
+  searchParamSeparator = ',',
+  results: resultsFromProps = [],
+  selectedResults: selectedResultsFromProps,
+  renderSelectItem,
+  fetchResults,
+}: Props) {
   const inputContainerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [inputValue, setInputValue] = useState('');
@@ -56,18 +79,15 @@ function MultiSelect({
   const [widthOfResults, setWidthOfResults] = useState(0);
   const [isPending, startTransition] = useTransition();
   const [results, setResults] = useState<Result[]>(resultsFromProps);
+  const [selectedResults, setSelectedResults] = useState<Result[]>(
+    selectedResultsFromProps ??
+      getInitialSelectedResultsFromParams({
+        searchParamKey,
+        searchParamSeparator,
+        results,
+      }),
+  );
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const selectedResults = useMemo(() => {
-    const searchParamsValues = searchParams.get(searchParamKey);
-    const values = searchParamsValues
-      ? searchParamsValues.split(searchParamSeparator)
-      : [];
-    return values
-      .map((value) => results?.find((result) => result.value === value))
-      .filter((value) => !!value);
-  }, [results, searchParamKey, searchParamSeparator, searchParams]);
 
   const reposition = useCallback(
     (force = false) => {
@@ -95,40 +115,9 @@ function MultiSelect({
         ? selectedResults.filter((selected) => selected.value !== result.value)
         : [...selectedResults, result];
 
-      if (
-        fetchResults &&
-        isActive &&
-        results.some((r) => r.value === result.value)
-      ) {
-        setResults((prevResuls) =>
-          [...selectedResults, ...prevResuls].filter(
-            (selected) => selected.value !== result.value,
-          ),
-        );
-      }
-
-      const params = new URLSearchParams(searchParams.toString());
-      if (updatedSelectedResults.length > 0) {
-        params.set(
-          searchParamKey,
-          updatedSelectedResults
-            .map((selected) => selected.value)
-            .join(searchParamSeparator),
-        );
-      } else {
-        params.delete(searchParamKey);
-      }
-      router.replace(`?${params.toString()}`, { scroll: false });
+      setSelectedResults(updatedSelectedResults);
     },
-    [
-      fetchResults,
-      results,
-      router,
-      searchParamKey,
-      searchParamSeparator,
-      searchParams,
-      selectedResults,
-    ],
+    [selectedResults],
   );
 
   const handleKeyDown = useDebouncedCallback(
@@ -167,13 +156,9 @@ function MultiSelect({
               signal,
             });
             if (results) {
-              setResults([...selectedResults, ...results]);
-            } else {
-              setResults(selectedResults);
+              setResults(results);
             }
-          } catch (error) {
-            setResults(selectedResults);
-          }
+          } catch (error) {}
         });
       }
     },
@@ -190,18 +175,6 @@ function MultiSelect({
     setPosition(null);
   }, []);
 
-  useEffect(() => {
-    reposition();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedResults]);
-
-  useEffect(() => {
-    return () => {
-      abortControllerRef.current?.abort();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const filteredResults = useMemo(() => {
     let filteredResults =
       selectedResults.length > 0
@@ -213,19 +186,6 @@ function MultiSelect({
           )
         : results;
 
-    if (fetchResults) {
-      filteredResults = filteredResults.filter(
-        (result) =>
-          !resultsFromProps.some(
-            (propResult) =>
-              propResult.value === result.value &&
-              !selectedResults.some(
-                (selected) => selected.value === result.value,
-              ),
-          ),
-      );
-    }
-
     if (inputValue && !fetchResults) {
       return filteredResults.filter((result) =>
         result.label.toLowerCase().includes(inputValue.toLowerCase()),
@@ -233,7 +193,35 @@ function MultiSelect({
     }
 
     return filteredResults;
-  }, [fetchResults, inputValue, results, resultsFromProps, selectedResults]);
+  }, [fetchResults, inputValue, results, selectedResults]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (selectedResults.length > 0) {
+      params.set(
+        searchParamKey,
+        selectedResults
+          .map((selected) => selected.value)
+          .join(searchParamSeparator),
+      );
+    } else {
+      params.delete(searchParamKey);
+    }
+    router.replace(`?${params.toString()}`, { scroll: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedResults]);
+
+  useEffect(() => {
+    reposition();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedResults]);
+
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>

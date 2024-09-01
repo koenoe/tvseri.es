@@ -1,6 +1,5 @@
 'use server';
 
-import { revalidatePath, revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
@@ -45,15 +44,5 @@ export async function logout() {
   if (encryptedAccessToken) {
     const decryptedAccessToken = decryptToken(encryptedAccessToken);
     await deleteAccessToken(decryptedAccessToken);
-  }
-}
-
-export async function revalidate(
-  payload: { path: string; tag?: never } | { path?: never; tag: string },
-) {
-  if (payload.path) {
-    return revalidatePath(payload.path);
-  } else if (payload.tag) {
-    return revalidateTag(payload.tag);
   }
 }

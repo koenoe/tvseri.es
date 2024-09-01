@@ -32,6 +32,7 @@ function MultiSelect({
   searchParamSeparator = ',',
   results: resultsFromProps = [],
   renderSelectItem,
+  fetchResults,
 }: Readonly<{
   className?: string;
   classNameDropdown?: string;
@@ -40,6 +41,12 @@ function MultiSelect({
   searchParamSeparator?: string;
   results?: Result[];
   renderSelectItem: (item: Result) => React.ReactNode;
+  fetchResults?: (
+    payload: Readonly<{
+      query: string;
+      signal: AbortSignal;
+    }>,
+  ) => Promise<Array<Result>>;
 }>) {
   const inputContainerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -58,9 +65,7 @@ function MultiSelect({
       ? searchParamsValues.split(searchParamSeparator)
       : [];
     return values
-      .map((value) => {
-        return results?.find((result) => result.value === value);
-      })
+      .map((value) => results?.find((result) => result.value === value))
       .filter((value) => !!value);
   }, [results, searchParamKey, searchParamSeparator, searchParams]);
 
@@ -82,12 +87,25 @@ function MultiSelect({
 
   const toggleSelect = useCallback(
     (result: Result) => {
-      const isActive = selectedResults.find(
+      const isActive = selectedResults.some(
         (selected) => selected.value === result.value,
       );
+
       const updatedSelectedResults = isActive
         ? selectedResults.filter((selected) => selected.value !== result.value)
         : [...selectedResults, result];
+
+      if (
+        fetchResults &&
+        isActive &&
+        results.some((r) => r.value === result.value)
+      ) {
+        setResults((prevResuls) =>
+          [...selectedResults, ...prevResuls].filter(
+            (selected) => selected.value !== result.value,
+          ),
+        );
+      }
 
       const params = new URLSearchParams(searchParams.toString());
       if (updatedSelectedResults.length > 0) {
@@ -103,6 +121,8 @@ function MultiSelect({
       router.replace(`?${params.toString()}`, { scroll: false });
     },
     [
+      fetchResults,
+      results,
       router,
       searchParamKey,
       searchParamSeparator,
@@ -116,7 +136,7 @@ function MultiSelect({
       const input = inputRef.current;
       if (input) {
         if (event.key === 'Delete' || event.key === 'Backspace') {
-          if (input.value === '' && selectedResults.length > 0) {
+          if (inputValue === '' && selectedResults.length > 0) {
             toggleSelect(selectedResults[selectedResults.length - 1]);
           }
         }
@@ -139,27 +159,23 @@ function MultiSelect({
       const value = event.target.value;
       setInputValue(value);
 
-      // if (value) {
-      //   const filteredResultsByValue = resultsFromProps.filter((result) =>
-      //     result.label.toLowerCase().includes(value),
-      //   );
-      //   setResults(filteredResultsByValue);
-      //   // startTransition(async () => {
-      //   //   try {
-      //   //     // const response = await fetch(`/api/tv/search?q=${value}`, {
-      //   //     //   signal,
-      //   //     // });
-      //   //     // const json = (await response.json()) as TvSeries[];
-      //   //     // if (json) {
-      //   //     //   setResults(json);
-      //   //     // } else {
-      //   //     //   setResults([]);
-      //   //     // }
-      //   //   } catch (error) {}
-      //   // });
-      // } else {
-      //   setResults(resultsFromProps);
-      // }
+      if (fetchResults && value) {
+        startTransition(async () => {
+          try {
+            const results = await fetchResults({
+              query: value,
+              signal,
+            });
+            if (results) {
+              setResults([...selectedResults, ...results]);
+            } else {
+              setResults(selectedResults);
+            }
+          } catch (error) {
+            setResults(selectedResults);
+          }
+        });
+      }
     },
     100,
   );
@@ -187,24 +203,37 @@ function MultiSelect({
   }, []);
 
   const filteredResults = useMemo(() => {
-    const filteredResults =
+    let filteredResults =
       selectedResults.length > 0
         ? results.filter(
             (result) =>
-              !selectedResults.find(
+              !selectedResults.some(
                 (selected) => selected.value === result.value,
               ),
           )
         : results;
 
-    if (inputValue) {
+    if (fetchResults) {
+      filteredResults = filteredResults.filter(
+        (result) =>
+          !resultsFromProps.some(
+            (propResult) =>
+              propResult.value === result.value &&
+              !selectedResults.some(
+                (selected) => selected.value === result.value,
+              ),
+          ),
+      );
+    }
+
+    if (inputValue && !fetchResults) {
       return filteredResults.filter((result) =>
         result.label.toLowerCase().includes(inputValue.toLowerCase()),
       );
     }
 
     return filteredResults;
-  }, [inputValue, results, selectedResults]);
+  }, [fetchResults, inputValue, results, resultsFromProps, selectedResults]);
 
   return (
     <>

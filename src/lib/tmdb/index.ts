@@ -37,6 +37,7 @@ import {
   type TmdbKeywords,
   type TmdbCountries,
   type TmdbLanguages,
+  type TmdbKeyword,
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
@@ -655,12 +656,17 @@ export async function fetchLanguages() {
     });
 }
 
+export async function fetchKeyword(id: number) {
+  const response = (await tmdbFetch(`/3/keyword/${id}`)) as TmdbKeyword;
+  return response;
+}
+
 export async function searchKeywords(query: string) {
-  const tvSeriesResponse =
-    ((await tmdbFetch(`/3/search/keyword&query=${query}`)) as TmdbKeywords) ??
+  const response =
+    ((await tmdbFetch(`/3/search/keyword?query=${query}`)) as TmdbKeywords) ??
     [];
 
-  return (tvSeriesResponse.results ?? []).map((keyword) => {
+  return (response.results ?? []).map((keyword) => {
     return {
       id: keyword.id,
       name: keyword.name,

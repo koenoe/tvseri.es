@@ -47,6 +47,9 @@ export type TmdbSearchTvSeries =
 export type TmdbKeywords =
   paths['/3/search/keyword']['get']['responses']['200']['content']['application/json'];
 
+export type TmdbKeyword =
+  paths[`/3/keyword/${number}`]['get']['responses']['200']['content']['application/json'];
+
 export type TmdbCountries =
   paths['/3/configuration/countries']['get']['responses']['200']['content']['application/json'];
 

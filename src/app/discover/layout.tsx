@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import DiscoverFilters from '@/components/DiscoverFilters';
 import DiscoverCountriesContainer from '@/components/DiscoverFilters/CountriesContainer';
 import DiscoverGenresContainer from '@/components/DiscoverFilters/GenresContainer';
+import DiscoverKeywords from '@/components/DiscoverFilters/Keywords';
 import DiscoverSpokenLanguagesContainer from '@/components/DiscoverFilters/SpokenLanguagesContainer';
 import DiscoverWatchProvidersContainer from '@/components/DiscoverFilters/WatchProvidersContainer';
 import SortBySelect from '@/components/Grid/SortBySelect';
@@ -55,21 +56,24 @@ export default async function DiscoverLayout({
         >
           <DiscoverFilters className="relative mb-10 items-end">
             <div className="grid gap-7">
-              <Suspense fallback="Loading...">
+              <Suspense fallback={null}>
                 <DiscoverGenresContainer />
               </Suspense>
             </div>
             <div className="grid gap-7">
-              <Suspense fallback="Loading...">
+              <Suspense fallback={null}>
                 <DiscoverCountriesContainer />
               </Suspense>
-              <Suspense fallback="Loading...">
+              <Suspense fallback={null}>
                 <DiscoverSpokenLanguagesContainer />
               </Suspense>
             </div>
             <div className="grid gap-7">
-              <Suspense fallback="Loading...">
+              <Suspense fallback={null}>
                 <DiscoverWatchProvidersContainer />
+              </Suspense>
+              <Suspense fallback={null}>
+                <DiscoverKeywords />
               </Suspense>
             </div>
           </DiscoverFilters>

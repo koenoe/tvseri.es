@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { type Genre } from '@/types/genre';
 
 const buttonStyles = cva(
-  'text-nowrap rounded-3xl px-5 py-4 text-xs leading-none tracking-wide font-medium',
+  'text-nowrap rounded-3xl px-5 py-4 leading-none tracking-wide font-medium text-xs',
   {
     variants: {
       state: {

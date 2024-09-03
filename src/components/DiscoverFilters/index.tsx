@@ -53,17 +53,15 @@ export default function DiscoverFilters({
           <motion.div
             key="filters"
             layout
-            className="flex w-full overflow-hidden"
+            className="flex w-full"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'fit-content', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
           >
-            <div className="relative grid grow grid-cols-1 items-start gap-7 rounded-3xl bg-white/5 p-5 md:grid-cols-2 md:p-7 lg:grid-cols-3">
+            <div className="relative grid grow grid-cols-1 items-start gap-7 rounded-3xl bg-white/5 p-5 md:p-7 lg:grid-cols-3">
               {children}
               {/* <ul>
                 <li>air date from/to</li>
-                <li>minimum user vote</li>
-                <li>keywords</li>
               </ul> */}
             </div>
           </motion.div>

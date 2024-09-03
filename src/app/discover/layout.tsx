@@ -54,18 +54,10 @@ export default async function DiscoverLayout({
             <div className="relative mb-10 ml-auto h-11 w-32 animate-pulse rounded-3xl bg-white/5 backdrop-blur-xl" />
           }
         >
-          <DiscoverFilters className="relative mb-10 items-end">
+          <DiscoverFilters className="relative z-30 mb-10 items-end">
             <div className="grid gap-7">
               <Suspense fallback={null}>
                 <DiscoverGenresContainer />
-              </Suspense>
-            </div>
-            <div className="grid gap-7">
-              <Suspense fallback={null}>
-                <DiscoverCountriesContainer />
-              </Suspense>
-              <Suspense fallback={null}>
-                <DiscoverSpokenLanguagesContainer />
               </Suspense>
             </div>
             <div className="grid gap-7">
@@ -74,6 +66,14 @@ export default async function DiscoverLayout({
               </Suspense>
               <Suspense fallback={null}>
                 <DiscoverKeywords />
+              </Suspense>
+            </div>
+            <div className="grid gap-7">
+              <Suspense fallback={null}>
+                <DiscoverCountriesContainer />
+              </Suspense>
+              <Suspense fallback={null}>
+                <DiscoverSpokenLanguagesContainer />
               </Suspense>
             </div>
           </DiscoverFilters>

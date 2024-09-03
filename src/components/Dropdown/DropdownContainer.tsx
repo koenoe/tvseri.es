@@ -55,6 +55,7 @@ type Props = Readonly<{
   position: Position;
   onOutsideClick?: () => void;
   shouldRenderOverlay?: boolean;
+  shouldRenderInModal?: boolean;
 }>;
 
 export default function DropdownContainer({
@@ -62,6 +63,7 @@ export default function DropdownContainer({
   position,
   onOutsideClick,
   shouldRenderOverlay = true,
+  shouldRenderInModal = true,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState<boolean>(false);
@@ -87,32 +89,38 @@ export default function DropdownContainer({
     setIsVisible(true);
   }, [position]);
 
+  const renderContent = useCallback(() => {
+    return (
+      <>
+        {shouldRenderOverlay && (
+          <motion.div
+            key="overlay"
+            className="fixed inset-0 z-30 bg-transparent"
+            onClick={onOutsideClick}
+          />
+        )}
+        <motion.div
+          key="container"
+          ref={ref}
+          animate={isVisible ? 'visible' : 'hidden'}
+          className="fixed z-40"
+          initial="hidden"
+          exit="hidden"
+          variants={variants}
+        >
+          {children}
+        </motion.div>
+      </>
+    );
+  }, [children, isVisible, onOutsideClick, shouldRenderOverlay]);
+
   useLayoutEffect(() => {
-    requestAnimationFrame(() => {
-      reposition();
-    });
+    reposition();
   }, [reposition]);
 
-  return (
-    <Modal>
-      {shouldRenderOverlay && (
-        <motion.div
-          key="overlay"
-          className="fixed inset-0 z-30 bg-transparent"
-          onClick={onOutsideClick}
-        />
-      )}
-      <motion.div
-        key="container"
-        ref={ref}
-        animate={isVisible ? 'visible' : 'hidden'}
-        className="fixed z-40"
-        initial="hidden"
-        exit="hidden"
-        variants={variants}
-      >
-        {children}
-      </motion.div>
-    </Modal>
-  );
+  if (shouldRenderInModal) {
+    return <Modal>{renderContent()}</Modal>;
+  }
+
+  return renderContent();
 }

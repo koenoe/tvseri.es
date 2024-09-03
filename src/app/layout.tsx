@@ -5,7 +5,7 @@ import { Suspense } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { cx } from 'class-variance-authority';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 
 import Footer from '@/components/Footer';
@@ -27,6 +27,13 @@ export const metadata: Metadata = {
     template: 'tvseri.es - %s',
     default: 'tvseri.es',
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#262626',
 };
 
 export default function RootLayout({

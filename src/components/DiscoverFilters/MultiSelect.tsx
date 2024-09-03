@@ -17,9 +17,7 @@ import { useDebouncedCallback } from 'use-debounce';
 
 import isEqualArray from '@/utils/isEqualArray';
 
-import DropdownContainer, {
-  type Position,
-} from '../Dropdown/DropdownContainer';
+import { type Position } from '../Dropdown/DropdownContainer';
 
 export type Result = Readonly<{
   value: string | number;
@@ -42,6 +40,17 @@ type Props = Readonly<{
     }>,
   ) => Promise<Array<Result>>;
 }>;
+
+const dropdownVariants = {
+  visible: {
+    opacity: 1,
+    y: 0,
+  },
+  hidden: {
+    opacity: 0,
+    y: 40,
+  },
+};
 
 function getInitialSelectedResultsFromParams({
   searchParamKey,
@@ -92,16 +101,15 @@ function MultiSelect({
   const router = useRouter();
 
   const reposition = useCallback(
-    (force = false) => {
-      const element = inputContainerRef.current as HTMLDivElement;
-      if (!element || (!force && position === null)) {
+    ({ forceOpen = false }: Readonly<{ forceOpen?: boolean }>) => {
+      const element = inputContainerRef.current!;
+      if (!element || (!forceOpen && position === null)) {
         return;
       }
 
-      const { left, top } = element.getBoundingClientRect();
       setPosition({
-        x: left,
-        y: top + element.clientHeight + 20,
+        x: element.offsetLeft,
+        y: element.offsetTop + element.clientHeight + 20,
       });
     },
     [position],
@@ -168,9 +176,9 @@ function MultiSelect({
   );
 
   const handleOpen = useCallback(() => {
-    const element = inputContainerRef.current as HTMLDivElement;
+    const element = inputContainerRef.current!;
     setWidthOfResults(element.clientWidth);
-    reposition(true);
+    reposition({ forceOpen: true });
   }, [reposition]);
 
   const handleClose = useCallback(() => {
@@ -224,7 +232,7 @@ function MultiSelect({
   }, [selectedResults]);
 
   useEffect(() => {
-    reposition();
+    reposition({ forceOpen: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedResults]);
 
@@ -241,7 +249,7 @@ function MultiSelect({
         ref={inputContainerRef}
         onKeyDown={handleKeyDown}
         className={cx(
-          'text-nowrap rounded-3xl bg-white/10 px-5 py-4 text-sm leading-none tracking-wide text-white',
+          'text-nowrap rounded-3xl bg-white/10 p-5 text-sm leading-none tracking-wide text-white',
           className,
         )}
       >
@@ -296,13 +304,20 @@ function MultiSelect({
       </div>
       <AnimatePresence>
         {position && filteredResults.length > 0 && (
-          <DropdownContainer
-            key="multi-select"
-            position={position}
-            shouldRenderOverlay={false}
+          <motion.div
+            key="dropdown"
+            className="absolute shadow-lg"
+            style={{
+              top: position.y,
+              left: position.x,
+            }}
+            animate="visible"
+            initial="hidden"
+            exit="hidden"
+            variants={dropdownVariants}
           >
             <motion.div
-              className="relative h-auto max-h-40 overflow-y-auto overflow-x-hidden rounded-lg bg-white text-neutral-800 md:max-h-96"
+              className="relative h-40 overflow-y-auto overflow-x-hidden rounded-lg bg-white text-neutral-800 md:h-auto md:max-h-96"
               style={{
                 width: widthOfResults,
               }}
@@ -331,7 +346,7 @@ function MultiSelect({
                 ))}
               </div>
             </motion.div>
-          </DropdownContainer>
+          </motion.div>
         )}
       </AnimatePresence>
     </>

@@ -1,6 +1,6 @@
 # tvseri.es
 
-This is a NextJS application that interacts with multiple APIs to help you discover and track your favourite TV series.
+This is a NextJS application that interacts with multiple APIs, but mostly TMDb, to help you discover and track your favourite TV series.
 
 _Partial Prerendering FTW 🔥_
 

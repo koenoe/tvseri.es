@@ -27,7 +27,7 @@ export default function DiscoverFilters({
       >
         <div className="flex h-[18px] w-[18px] items-center justify-center">
           {filterCount > 0 ? (
-            <span className="flex h-full w-full items-center justify-center rounded-full bg-white text-[10px] font-semibold leading-none text-neutral-800">
+            <span className="flex h-full w-full items-center justify-center rounded-full bg-white text-[11px] font-bold leading-none tracking-tighter text-neutral-800">
               {filterCount}
             </span>
           ) : (
@@ -53,23 +53,15 @@ export default function DiscoverFilters({
           <motion.div
             key="filters"
             layout
-            className="flex w-full overflow-hidden"
+            className="flex w-full"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'fit-content', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
           >
-            {/* <div className="relative grid grow grid-cols-1 items-start gap-7 rounded-3xl bg-white/5 p-5 md:grid-cols-2 md:p-7 lg:grid-cols-3"> */}
-            <div className="relative grid grow grid-cols-1 items-start gap-7 rounded-3xl bg-white/5 p-5 md:p-7">
+            <div className="relative grid grow grid-cols-1 items-start gap-7 rounded-3xl bg-white/5 p-5 md:p-7 lg:grid-cols-3">
               {children}
               {/* <ul>
-                <li>sorting</li>
-                <li>genres</li>
                 <li>air date from/to</li>
-                <li>minimum user vote</li>
-                <li>language</li>
-                <li>country of origin</li>
-                <li>streaming services</li>
-                <li>keywords</li>
               </ul> */}
             </div>
           </motion.div>

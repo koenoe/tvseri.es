@@ -44,6 +44,18 @@ export type TmdbDiscoverQuery =
 export type TmdbSearchTvSeries =
   paths['/3/search/tv']['get']['responses']['200']['content']['application/json'];
 
+export type TmdbKeywords =
+  paths['/3/search/keyword']['get']['responses']['200']['content']['application/json'];
+
+export type TmdbKeyword =
+  paths[`/3/keyword/${number}`]['get']['responses']['200']['content']['application/json'];
+
+export type TmdbCountries =
+  paths['/3/configuration/countries']['get']['responses']['200']['content']['application/json'];
+
+export type TmdbLanguages =
+  paths['/3/configuration/languages']['get']['responses']['200']['content']['application/json'];
+
 export type TmdbGenresForTvSeries =
   paths['/3/genre/tv/list']['get']['responses']['200']['content']['application/json'];
 

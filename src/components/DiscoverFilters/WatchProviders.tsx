@@ -2,97 +2,57 @@
 
 import { useCallback, useMemo } from 'react';
 
-import { cva } from 'class-variance-authority';
 import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
 
 import { type WatchProvider } from '@/types/watch-provider';
 
-const buttonStyles = cva(
-  'relative aspect-square h-8 w-8 overflow-hidden rounded-md opacity-90',
-  {
-    variants: {
-      state: {
-        active: 'border-2 border-white',
-        inactive: 'border-2 border-transparent',
-      },
-    },
-    defaultVariants: {
-      state: 'inactive',
-    },
-  },
-);
-
-function WatchProviderButton({
-  provider,
-  isActive = false,
-  onClick,
-}: Readonly<{
-  provider: WatchProvider;
-  isActive: boolean;
-  onClick?: (provider: WatchProvider) => void;
-}>) {
-  return (
-    <button
-      title={provider.name}
-      className={buttonStyles({ state: isActive ? 'active' : 'inactive' })}
-      onClick={() => onClick?.(provider)}
-    >
-      <Image
-        src={provider.logo}
-        alt={provider.name}
-        width={56}
-        height={56}
-        unoptimized
-      />
-    </button>
-  );
-}
+import MultiSelect, { type Result } from './MultiSelect';
 
 export default function DiscoverWatchProviders({
+  className,
   providers,
 }: Readonly<{
+  className?: string;
   providers: WatchProvider[];
 }>) {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const selectedProviderIds = useMemo(() => {
-    const searchParamsWithWatchProviders = searchParams.get(
-      'with_watch_providers',
-    );
-    return searchParamsWithWatchProviders
-      ? searchParamsWithWatchProviders.split('|').map(Number)
-      : [];
-  }, [searchParams]);
+  const multiSelectValues = useMemo(
+    () =>
+      providers.map((provider) => ({
+        value: String(provider.id),
+        label: provider.name,
+      })),
+    [providers],
+  );
 
-  const handleOnClick = useCallback(
-    (provider: WatchProvider) => {
-      const isActive = selectedProviderIds.includes(provider.id);
-      const updatedProviderIds = isActive
-        ? selectedProviderIds.filter((id) => id !== provider.id)
-        : [...selectedProviderIds, provider.id];
+  const renderSelectItem = useCallback(
+    (item: Result) => {
+      const logo = providers.find(
+        (provider) => String(provider.id) === item.value,
+      )?.logo;
 
-      const params = new URLSearchParams(searchParams.toString());
-      if (updatedProviderIds.length > 0) {
-        params.set('with_watch_providers', updatedProviderIds.join('|'));
-      } else {
-        params.delete('with_watch_providers');
-      }
-      router.replace(`?${params.toString()}`, { scroll: false });
+      return (
+        <Image
+          className="h-8 w-8 object-contain"
+          src={logo as string}
+          alt={item.label}
+          width={56}
+          height={56}
+          unoptimized
+        />
+      );
     },
-    [router, searchParams, selectedProviderIds],
+    [providers],
   );
 
   return (
-    <div className="flex w-full flex-row flex-wrap items-center gap-1">
-      {providers.map((provider) => (
-        <WatchProviderButton
-          key={provider.id}
-          provider={provider}
-          isActive={selectedProviderIds.includes(provider.id)}
-          onClick={handleOnClick}
-        />
-      ))}
-    </div>
+    <MultiSelect
+      className={className}
+      classNameDropdown="grid grid-cols-8 gap-2"
+      searchParamKey="with_watch_providers"
+      searchParamSeparator="|"
+      results={multiSelectValues}
+      placeholder="Streaming service"
+      renderSelectItem={renderSelectItem}
+    />
   );
 }

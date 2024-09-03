@@ -17,11 +17,3 @@ body.scrollbar-is-visible::-webkit-scrollbar {
   max-width: 10px;
   max-height: 10px;
 }
-
-body.modal-is-open {
-  overflow-y: hidden;
-}
-
-body.scrollbar-is-visible.modal-is-open {
-  margin-right: 10px;
-}

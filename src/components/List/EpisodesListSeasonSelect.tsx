@@ -59,7 +59,7 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
             position={position}
             onOutsideClick={() => setPosition(null)}
           >
-            <div className="relative flex w-full flex-col gap-2 rounded-lg bg-white p-4 text-black">
+            <div className="relative flex w-full flex-col gap-2 rounded-lg bg-white p-4 text-black shadow-lg">
               {item.seasons?.map((item) => (
                 <button
                   key={item.id}

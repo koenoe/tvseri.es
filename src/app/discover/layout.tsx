@@ -1,8 +1,11 @@
 import { Suspense } from 'react';
 
 import DiscoverFilters from '@/components/DiscoverFilters';
+import DiscoverCountriesContainer from '@/components/DiscoverFilters/CountriesContainer';
 import DiscoverGenresContainer from '@/components/DiscoverFilters/GenresContainer';
-// import DiscoverWatchProvidersContainer from '@/components/DiscoverFilters/WatchProvidersContainer';
+import DiscoverKeywords from '@/components/DiscoverFilters/Keywords';
+import DiscoverSpokenLanguagesContainer from '@/components/DiscoverFilters/SpokenLanguagesContainer';
+import DiscoverWatchProvidersContainer from '@/components/DiscoverFilters/WatchProvidersContainer';
 import SortBySelect from '@/components/Grid/SortBySelect';
 import Page from '@/components/Page/Page';
 
@@ -51,13 +54,28 @@ export default async function DiscoverLayout({
             <div className="relative mb-10 ml-auto h-11 w-32 animate-pulse rounded-3xl bg-white/5 backdrop-blur-xl" />
           }
         >
-          <DiscoverFilters className="relative mb-10 items-end">
-            <Suspense fallback="Loading...">
-              <DiscoverGenresContainer />
-            </Suspense>
-            {/* <Suspense fallback="Loading...">
-            <DiscoverWatchProvidersContainer />
-          </Suspense> */}
+          <DiscoverFilters className="relative z-30 mb-10 items-end">
+            <div className="grid gap-7">
+              <Suspense fallback={null}>
+                <DiscoverGenresContainer />
+              </Suspense>
+            </div>
+            <div className="grid gap-7">
+              <Suspense fallback={null}>
+                <DiscoverWatchProvidersContainer />
+              </Suspense>
+              <Suspense fallback={null}>
+                <DiscoverKeywords />
+              </Suspense>
+            </div>
+            <div className="grid gap-7">
+              <Suspense fallback={null}>
+                <DiscoverCountriesContainer />
+              </Suspense>
+              <Suspense fallback={null}>
+                <DiscoverSpokenLanguagesContainer />
+              </Suspense>
+            </div>
           </DiscoverFilters>
         </Suspense>
         {children}

@@ -54,9 +54,12 @@ function Search() {
       if (value) {
         startTransition(async () => {
           try {
-            const response = await fetch(`/api/tv/search?q=${value}`, {
-              signal,
-            });
+            const response = await fetch(
+              `/api/tv/search?q=${encodeURIComponent(value)}`,
+              {
+                signal,
+              },
+            );
             const json = (await response.json()) as TvSeries[];
             if (json) {
               setResults(json);
@@ -191,7 +194,6 @@ function Search() {
                   </div>
                   <input
                     type="search"
-                    id="default-search"
                     className="block w-full bg-transparent p-6 ps-16 placeholder-black/30 focus:outline-none"
                     placeholder="search tvseri.es"
                     required

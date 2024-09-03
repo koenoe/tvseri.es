@@ -92,7 +92,7 @@ function SortBySelect({
             position={position}
             onOutsideClick={() => setPosition(null)}
           >
-            <div className="relative flex w-[9rem] flex-col gap-2 rounded-lg bg-white p-4 text-black">
+            <div className="relative flex w-36 flex-col gap-2 rounded-lg bg-white p-4 text-black">
               {options.map((item) => (
                 <SortBySelectItem
                   key={item.value}

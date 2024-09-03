@@ -36,7 +36,7 @@ export default async function DiscoverLayout({
   return (
     <Page backgroundContext="dots">
       <div className="container">
-        <div className="relative">
+        <div className="relative z-40">
           <Suspense
             fallback={
               <div className="absolute left-0 top-0 z-10 h-11 w-36 animate-pulse rounded-3xl bg-white/5 backdrop-blur-xl" />

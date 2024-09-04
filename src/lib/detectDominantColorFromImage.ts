@@ -143,7 +143,6 @@ async function detectMoodBasedColorFromImage(url: string): Promise<string> {
       Math.round(g),
       Math.round(b),
     );
-    console.log(detectedColor.hex());
     const correctedColor = correctContrast(detectedColor);
 
     return correctedColor.hex();

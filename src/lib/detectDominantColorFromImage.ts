@@ -6,31 +6,29 @@ import sharp from 'sharp';
 
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 
-// Constants for color detection and processing
-const CONTRAST_MINIMUM = 4.5; // Minimum contrast ratio for accessibility (WCAG)
-const BLEND_OPACITY_STEP = 0.05; // Incremental step for darkening colors
-const DOMINANT_COLOR_WEIGHT = 0.7; // Weight given to the dominant color (70%)
-const AVERAGE_COLOR_WEIGHT = 0.3; // Weight given to the average color (30%)
-const MAX_IMAGE_DIMENSION = 1000; // Maximum dimension for image resizing
+// Algorithm version - increment this when making significant changes
+const ALGORITHM_VERSION = 2;
+
+// Constants for color detection
+const COLOR_BUCKETS = 32; // Number of buckets for color quantization
+const TOP_COLORS_TO_CONSIDER = 5; // Number of top colors to use in weighted average
 
 /**
- * Adjusts the input color to ensure sufficient contrast with white.
- * @param input The input Color object
- * @returns A new Color object with corrected contrast
+ * Converts RGB color values to LAB color space.
+ * @param r Red value (0-255)
+ * @param g Green value (0-255)
+ * @param b Blue value (0-255)
+ * @returns Array of [L, a, b] values
  */
-const correctContrast = (input: Color): Color => {
-  let output = input;
-  while (output.contrast(Color('white')) < CONTRAST_MINIMUM) {
-    const rgb = output.rgb().object();
-    const blendedR = Math.round(rgb.r * (1 - BLEND_OPACITY_STEP));
-    const blendedG = Math.round(rgb.g * (1 - BLEND_OPACITY_STEP));
-    const blendedB = Math.round(rgb.b * (1 - BLEND_OPACITY_STEP));
-    output = Color.rgb(blendedR, blendedG, blendedB);
-  }
-  return output;
+const rgbToLab = (
+  r: number,
+  g: number,
+  b: number,
+): [number, number, number] => {
+  const color = Color.rgb(r, g, b);
+  const lab = color.lab().array();
+  return [lab[0], lab[1], lab[2]];
 };
-
-const cachePrefix = 'mood-based-color';
 
 /**
  * Detects a mood-based color from an image URL.
@@ -43,82 +41,68 @@ async function detectMoodBasedColorFromImage(url: string): Promise<string> {
     const imageArrayBuffer = await imageResponse.arrayBuffer();
     const imageBuffer = Buffer.from(imageArrayBuffer);
 
-    const detectColor = async () => {
-      const image = sharp(imageBuffer);
+    const { data, info } = await sharp(imageBuffer)
+      .raw()
+      .toBuffer({ resolveWithObject: true });
 
-      // Resize large images to improve performance
-      const metadata = await image.metadata();
-      if (metadata.width && metadata.height) {
-        const maxDimension = Math.max(metadata.width, metadata.height);
-        if (maxDimension > MAX_IMAGE_DIMENSION) {
-          const resizeFactor = MAX_IMAGE_DIMENSION / maxDimension;
-          image.resize(
-            Math.round(metadata.width * resizeFactor),
-            Math.round(metadata.height * resizeFactor),
-          );
-        }
-      }
+    const colorMap = new Map<string, number>();
+    const totalPixels = info.width * info.height;
 
-      // Get the dominant color using Sharp's built-in method
-      const { dominant } = await image.stats();
+    // Analyze all pixels and quantize colors in LAB space
+    for (let i = 0; i < data.length; i += 3) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
 
-      // Process the entire image to calculate the average color
-      const { data, info } = await image
-        .removeAlpha() // Ensure consistent RGB format
-        .raw()
-        .toBuffer({ resolveWithObject: true });
+      const [l, a, b_] = rgbToLab(r, g, b);
 
-      const pixels = info.width * info.height;
-      let totalR = 0,
-        totalG = 0,
-        totalB = 0;
+      const quantL =
+        Math.round(l / (100 / COLOR_BUCKETS)) * (100 / COLOR_BUCKETS);
+      const quantA =
+        Math.round((a + 128) / (256 / COLOR_BUCKETS)) * (256 / COLOR_BUCKETS) -
+        128;
+      const quantB =
+        Math.round((b_ + 128) / (256 / COLOR_BUCKETS)) * (256 / COLOR_BUCKETS) -
+        128;
 
-      // Calculate the sum of all color channels
-      for (let i = 0; i < data.length; i += 3) {
-        totalR += data[i];
-        totalG += data[i + 1];
-        totalB += data[i + 2];
-      }
-
-      // Calculate the average color
-      const averageColor = {
-        r: Math.round(totalR / pixels),
-        g: Math.round(totalG / pixels),
-        b: Math.round(totalB / pixels),
-      };
-
-      // Combine dominant and average colors using weighted average
-      const weightedColor = {
-        r: Math.round(
-          DOMINANT_COLOR_WEIGHT * dominant.r +
-            AVERAGE_COLOR_WEIGHT * averageColor.r,
-        ),
-        g: Math.round(
-          DOMINANT_COLOR_WEIGHT * dominant.g +
-            AVERAGE_COLOR_WEIGHT * averageColor.g,
-        ),
-        b: Math.round(
-          DOMINANT_COLOR_WEIGHT * dominant.b +
-            AVERAGE_COLOR_WEIGHT * averageColor.b,
-        ),
-      };
-
-      return Color.rgb(weightedColor);
-    };
-
-    let hex = DEFAULT_BACKGROUND_COLOR;
-    const moodBasedColor = await detectColor();
-    if (moodBasedColor) {
-      const color = correctContrast(moodBasedColor);
-      hex = color.hex();
+      const key = `${quantL},${quantA},${quantB}`;
+      colorMap.set(key, (colorMap.get(key) || 0) + 1);
     }
 
-    return hex;
+    const sortedColors = Array.from(colorMap.entries()).sort(
+      (a, b) => b[1] - a[1],
+    );
+
+    // Calculate weighted average of top colors
+    let totalWeight = 0;
+    const weightedSum = [0, 0, 0];
+
+    for (
+      let i = 0;
+      i < Math.min(TOP_COLORS_TO_CONSIDER, sortedColors.length);
+      i++
+    ) {
+      const [key, count] = sortedColors[i];
+      const [l, a, b] = key.split(',').map(Number);
+      const weight = count / totalPixels;
+
+      weightedSum[0] += l * weight;
+      weightedSum[1] += a * weight;
+      weightedSum[2] += b * weight;
+      totalWeight += weight;
+    }
+
+    const averageLab = weightedSum.map((sum) => sum / totalWeight);
+    const resultColor = Color.lab(averageLab[0], averageLab[1], averageLab[2]);
+
+    return resultColor.hex();
   } catch (error) {
     console.error('Error in detectMoodBasedColorFromImage:', error);
     return DEFAULT_BACKGROUND_COLOR;
   }
 }
+
+const cachePrefix = `mood-based-color-v${ALGORITHM_VERSION}`;
 
 /**
  * Cached version of the mood-based color detection function.

@@ -6,18 +6,11 @@ import sharp from 'sharp';
 
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 
-// Algorithm version - increment this when making significant changes
-const ALGORITHM_VERSION = 5;
-
-// Constants for color detection and processing
+const ALGORITHM_VERSION = 'v1'; // Version of the algorithm for cache invalidation
 const CONTRAST_MINIMUM = 4.5; // Minimum contrast ratio for accessibility (WCAG)
 const BLEND_OPACITY_STEP = 0.05; // Incremental step for darkening colors
-const COLOR_BUCKETS = 36; // Number of buckets for color quantization
-const TOP_COLORS_TO_CONSIDER = 8; // Number of top colors to use in weighted average
-const SATURATION_WEIGHT = 1.2; // Slight emphasis on more saturated colors
-const LIGHTNESS_RANGE = [10, 90]; // Consider a wide range of lightness values
-const DARK_TONE_WEIGHT = 1.3; // Emphasis on darker tones
-const BACKGROUND_WEIGHT = 1.2; // Emphasis on colors likely to be in the background
+const DOMINANT_COLOR_WEIGHT = 0.7; // Weight given to the dominant color (70%)
+const AVERAGE_COLOR_WEIGHT = 0.3; // Weight given to the average color (30%)
 
 /**
  * Adjusts the input color to ensure sufficient contrast with white.
@@ -36,39 +29,7 @@ const correctContrast = (input: Color): Color => {
   return output;
 };
 
-/**
- * Converts RGB color values to HSL color space.
- * @param r Red value (0-255)
- * @param g Green value (0-255)
- * @param b Blue value (0-255)
- * @returns Array of [h, s, l] values
- */
-const rgbToHsl = (
-  r: number,
-  g: number,
-  b: number,
-): [number, number, number] => {
-  const color = Color.rgb(r, g, b);
-  const hsl = color.hsl().array();
-  return [hsl[0], hsl[1], hsl[2]];
-};
-
-/**
- * Converts HSL color values to RGB color space.
- * @param h Hue value (0-360)
- * @param s Saturation value (0-100)
- * @param l Lightness value (0-100)
- * @returns Array of [r, g, b] values (0-255)
- */
-const hslToRgb = (
-  h: number,
-  s: number,
-  l: number,
-): [number, number, number] => {
-  const color = Color.hsl(h, s, l);
-  const rgb = color.rgb().array();
-  return [rgb[0], rgb[1], rgb[2]];
-};
+const cachePrefix = `mood-based-color-${ALGORITHM_VERSION}`;
 
 /**
  * Detects a mood-based color from an image URL.
@@ -81,82 +42,68 @@ async function detectMoodBasedColorFromImage(url: string): Promise<string> {
     const imageArrayBuffer = await imageResponse.arrayBuffer();
     const imageBuffer = Buffer.from(imageArrayBuffer);
 
-    const { data, info } = await sharp(imageBuffer)
-      .raw()
-      .toBuffer({ resolveWithObject: true });
+    const detectColor = async () => {
+      const image = sharp(imageBuffer);
 
-    const colorMap = new Map<string, number>();
-    const totalPixels = info.width * info.height;
+      // Get the dominant color using Sharp's built-in method
+      const { dominant } = await image.stats();
 
-    // Analyze all pixels and quantize colors in HSL space
-    for (let i = 0; i < data.length; i += 3) {
-      const r = data[i];
-      const g = data[i + 1];
-      const b = data[i + 2];
+      // Process the entire image to calculate the average color
+      const { data, info } = await image
+        .raw()
+        .toBuffer({ resolveWithObject: true });
 
-      const [h, s, l] = rgbToHsl(r, g, b);
+      const pixels = info.width * info.height;
+      let totalR = 0,
+        totalG = 0,
+        totalB = 0;
 
-      // Skip colors that are too light or too dark
-      if (l < LIGHTNESS_RANGE[0] || l > LIGHTNESS_RANGE[1]) continue;
+      // Calculate the sum of all color channels
+      for (let i = 0; i < data.length; i += 3) {
+        totalR += data[i];
+        totalG += data[i + 1];
+        totalB += data[i + 2];
+      }
 
-      const quantH =
-        Math.round(h / (360 / COLOR_BUCKETS)) * (360 / COLOR_BUCKETS);
-      const quantS =
-        Math.round(s / (100 / COLOR_BUCKETS)) * (100 / COLOR_BUCKETS);
-      const quantL =
-        Math.round(l / (100 / COLOR_BUCKETS)) * (100 / COLOR_BUCKETS);
+      // Calculate the average color
+      const averageColor = {
+        r: Math.round(totalR / pixels),
+        g: Math.round(totalG / pixels),
+        b: Math.round(totalB / pixels),
+      };
 
-      const key = `${quantH},${quantS},${quantL}`;
-      colorMap.set(key, (colorMap.get(key) || 0) + 1);
+      // Combine dominant and average colors using weighted average
+      const weightedColor = {
+        r: Math.round(
+          DOMINANT_COLOR_WEIGHT * dominant.r +
+            AVERAGE_COLOR_WEIGHT * averageColor.r,
+        ),
+        g: Math.round(
+          DOMINANT_COLOR_WEIGHT * dominant.g +
+            AVERAGE_COLOR_WEIGHT * averageColor.g,
+        ),
+        b: Math.round(
+          DOMINANT_COLOR_WEIGHT * dominant.b +
+            AVERAGE_COLOR_WEIGHT * averageColor.b,
+        ),
+      };
+
+      return Color.rgb(weightedColor);
+    };
+
+    let hex = DEFAULT_BACKGROUND_COLOR;
+    const moodBasedColor = await detectColor();
+    if (moodBasedColor) {
+      const color = correctContrast(moodBasedColor);
+      hex = color.hex();
     }
 
-    const sortedColors = Array.from(colorMap.entries()).sort(
-      (a, b) => b[1] - a[1],
-    );
-
-    // Calculate weighted average of top colors
-    let totalWeight = 0;
-    const weightedSum = [0, 0, 0];
-
-    for (
-      let i = 0;
-      i < Math.min(TOP_COLORS_TO_CONSIDER, sortedColors.length);
-      i++
-    ) {
-      const [key, count] = sortedColors[i];
-      const [h, s, l] = key.split(',').map(Number);
-
-      // Calculate color weight
-      let weight = Math.pow(count / totalPixels, 0.7); // Frequency weight
-      weight *= Math.pow(s / 100, SATURATION_WEIGHT); // Saturation weight
-      weight *= l < 50 ? DARK_TONE_WEIGHT : 1; // Dark tone emphasis
-      weight *= i < 3 && l > 50 ? BACKGROUND_WEIGHT : 1; // Background emphasis
-
-      weightedSum[0] += h * weight;
-      weightedSum[1] += s * weight;
-      weightedSum[2] += l * weight;
-      totalWeight += weight;
-    }
-
-    const averageHsl = weightedSum.map((sum) => sum / totalWeight);
-    const [r, g, b] = hslToRgb(...(averageHsl as [number, number, number]));
-
-    // Apply contrast correction
-    const detectedColor = Color.rgb(
-      Math.round(r),
-      Math.round(g),
-      Math.round(b),
-    );
-    const correctedColor = correctContrast(detectedColor);
-
-    return correctedColor.hex();
+    return hex;
   } catch (error) {
-    console.error('Error in detectMoodBasedColorFromImage:', error);
+    console.error('Error in `detectMoodBasedColorFromImage`:', error);
     return DEFAULT_BACKGROUND_COLOR;
   }
 }
-
-const cachePrefix = `mood-based-color-v${ALGORITHM_VERSION}`;
 
 /**
  * Cached version of the mood-based color detection function.

@@ -7,7 +7,7 @@ import sharp from 'sharp';
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 
 // Algorithm version - increment this when making significant changes
-const ALGORITHM_VERSION = 4;
+const ALGORITHM_VERSION = 5;
 
 // Constants for color detection and processing
 const CONTRAST_MINIMUM = 4.5; // Minimum contrast ratio for accessibility (WCAG)
@@ -16,6 +16,8 @@ const COLOR_BUCKETS = 36; // Number of buckets for color quantization
 const TOP_COLORS_TO_CONSIDER = 8; // Number of top colors to use in weighted average
 const SATURATION_WEIGHT = 1.2; // Slight emphasis on more saturated colors
 const LIGHTNESS_RANGE = [10, 90]; // Consider a wide range of lightness values
+const DARK_TONE_WEIGHT = 1.3; // Emphasis on darker tones
+const BACKGROUND_WEIGHT = 1.2; // Emphasis on colors likely to be in the background
 
 /**
  * Adjusts the input color to ensure sufficient contrast with white.
@@ -127,6 +129,8 @@ async function detectMoodBasedColorFromImage(url: string): Promise<string> {
       // Calculate color weight
       let weight = Math.pow(count / totalPixels, 0.7); // Frequency weight
       weight *= Math.pow(s / 100, SATURATION_WEIGHT); // Saturation weight
+      weight *= l < 50 ? DARK_TONE_WEIGHT : 1; // Dark tone emphasis
+      weight *= i < 3 && l > 50 ? BACKGROUND_WEIGHT : 1; // Background emphasis
 
       weightedSum[0] += h * weight;
       weightedSum[1] += s * weight;

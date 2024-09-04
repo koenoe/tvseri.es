@@ -7,27 +7,46 @@ import sharp from 'sharp';
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 
 // Algorithm version - increment this when making significant changes
-const ALGORITHM_VERSION = 2;
+const ALGORITHM_VERSION = 3;
 
 // Constants for color detection
-const COLOR_BUCKETS = 32; // Number of buckets for color quantization
-const TOP_COLORS_TO_CONSIDER = 5; // Number of top colors to use in weighted average
+const COLOR_BUCKETS = 36; // Number of buckets for color quantization
+const TOP_COLORS_TO_CONSIDER = 8; // Number of top colors to use in weighted average
+const SATURATION_WEIGHT = 1.2; // Slight emphasis on more saturated colors
+const LIGHTNESS_RANGE = [10, 90]; // Consider a wide range of lightness values
 
 /**
- * Converts RGB color values to LAB color space.
+ * Converts RGB color values to HSL color space.
  * @param r Red value (0-255)
  * @param g Green value (0-255)
  * @param b Blue value (0-255)
- * @returns Array of [L, a, b] values
+ * @returns Array of [h, s, l] values
  */
-const rgbToLab = (
+const rgbToHsl = (
   r: number,
   g: number,
   b: number,
 ): [number, number, number] => {
   const color = Color.rgb(r, g, b);
-  const lab = color.lab().array();
-  return [lab[0], lab[1], lab[2]];
+  const hsl = color.hsl().array();
+  return [hsl[0], hsl[1], hsl[2]];
+};
+
+/**
+ * Converts HSL color values to RGB color space.
+ * @param h Hue value (0-360)
+ * @param s Saturation value (0-100)
+ * @param l Lightness value (0-100)
+ * @returns Array of [r, g, b] values (0-255)
+ */
+const hslToRgb = (
+  h: number,
+  s: number,
+  l: number,
+): [number, number, number] => {
+  const color = Color.hsl(h, s, l);
+  const rgb = color.rgb().array();
+  return [rgb[0], rgb[1], rgb[2]];
 };
 
 /**
@@ -48,24 +67,25 @@ async function detectMoodBasedColorFromImage(url: string): Promise<string> {
     const colorMap = new Map<string, number>();
     const totalPixels = info.width * info.height;
 
-    // Analyze all pixels and quantize colors in LAB space
+    // Analyze all pixels and quantize colors in HSL space
     for (let i = 0; i < data.length; i += 3) {
       const r = data[i];
       const g = data[i + 1];
       const b = data[i + 2];
 
-      const [l, a, b_] = rgbToLab(r, g, b);
+      const [h, s, l] = rgbToHsl(r, g, b);
 
+      // Skip colors that are too light or too dark
+      if (l < LIGHTNESS_RANGE[0] || l > LIGHTNESS_RANGE[1]) continue;
+
+      const quantH =
+        Math.round(h / (360 / COLOR_BUCKETS)) * (360 / COLOR_BUCKETS);
+      const quantS =
+        Math.round(s / (100 / COLOR_BUCKETS)) * (100 / COLOR_BUCKETS);
       const quantL =
         Math.round(l / (100 / COLOR_BUCKETS)) * (100 / COLOR_BUCKETS);
-      const quantA =
-        Math.round((a + 128) / (256 / COLOR_BUCKETS)) * (256 / COLOR_BUCKETS) -
-        128;
-      const quantB =
-        Math.round((b_ + 128) / (256 / COLOR_BUCKETS)) * (256 / COLOR_BUCKETS) -
-        128;
 
-      const key = `${quantL},${quantA},${quantB}`;
+      const key = `${quantH},${quantS},${quantL}`;
       colorMap.set(key, (colorMap.get(key) || 0) + 1);
     }
 
@@ -83,19 +103,22 @@ async function detectMoodBasedColorFromImage(url: string): Promise<string> {
       i++
     ) {
       const [key, count] = sortedColors[i];
-      const [l, a, b] = key.split(',').map(Number);
-      const weight = count / totalPixels;
+      const [h, s, l] = key.split(',').map(Number);
 
-      weightedSum[0] += l * weight;
-      weightedSum[1] += a * weight;
-      weightedSum[2] += b * weight;
+      // Calculate color weight
+      let weight = Math.pow(count / totalPixels, 0.7); // Frequency weight
+      weight *= Math.pow(s / 100, SATURATION_WEIGHT); // Saturation weight
+
+      weightedSum[0] += h * weight;
+      weightedSum[1] += s * weight;
+      weightedSum[2] += l * weight;
       totalWeight += weight;
     }
 
-    const averageLab = weightedSum.map((sum) => sum / totalWeight);
-    const resultColor = Color.lab(averageLab[0], averageLab[1], averageLab[2]);
+    const averageHsl = weightedSum.map((sum) => sum / totalWeight);
+    const [r, g, b] = hslToRgb(...(averageHsl as [number, number, number]));
 
-    return resultColor.hex();
+    return Color.rgb(Math.round(r), Math.round(g), Math.round(b)).hex();
   } catch (error) {
     console.error('Error in detectMoodBasedColorFromImage:', error);
     return DEFAULT_BACKGROUND_COLOR;

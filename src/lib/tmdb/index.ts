@@ -294,7 +294,10 @@ export async function fetchTvSeries(
 
   if (normalizedTvSeries.backdropImage) {
     const backdropColor = await detectDominantColorFromImage(
-      normalizedTvSeries.backdropImage,
+      normalizedTvSeries.backdropImage.replace(
+        'w1920_and_h1080_multi_faces',
+        'w1280_and_h720_multi_faces',
+      ),
     );
 
     return {

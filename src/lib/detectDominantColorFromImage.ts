@@ -1,102 +1,135 @@
 import 'server-only';
 
-import vision from '@google-cloud/vision';
-import { kv } from '@vercel/kv';
 import Color from 'color';
-import { GoogleAuth, grpc } from 'google-gax';
 import { unstable_cache } from 'next/cache';
+import sharp from 'sharp';
 
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 
-const CONTRAST_MINIMUM = 4.5; // Minimum contrast ratio recommended by WCAG
-const BLEND_OPACITY_STEP = 0.05; // Step to blend black into the color
+// Constants for color detection and processing
+const CONTRAST_MINIMUM = 4.5; // Minimum contrast ratio for accessibility (WCAG)
+const BLEND_OPACITY_STEP = 0.05; // Incremental step for darkening colors
+const DOMINANT_COLOR_WEIGHT = 0.7; // Weight given to the dominant color (70%)
+const AVERAGE_COLOR_WEIGHT = 0.3; // Weight given to the average color (30%)
+const MAX_IMAGE_DIMENSION = 1000; // Maximum dimension for image resizing
 
+/**
+ * Adjusts the input color to ensure sufficient contrast with white.
+ * @param input The input Color object
+ * @returns A new Color object with corrected contrast
+ */
 const correctContrast = (input: Color): Color => {
-  // Make sure the output color has enough contrast with white according to WCAG
   let output = input;
-
   while (output.contrast(Color('white')) < CONTRAST_MINIMUM) {
-    // Manual blend with black
     const rgb = output.rgb().object();
     const blendedR = Math.round(rgb.r * (1 - BLEND_OPACITY_STEP));
     const blendedG = Math.round(rgb.g * (1 - BLEND_OPACITY_STEP));
     const blendedB = Math.round(rgb.b * (1 - BLEND_OPACITY_STEP));
-
     output = Color.rgb(blendedR, blendedG, blendedB);
   }
-
   return output;
 };
 
-const getApiKeyCredentials = () => {
-  const sslCreds = grpc.credentials.createSsl();
-  const googleAuth = new GoogleAuth();
-  const authClient = googleAuth.fromAPIKey(
-    String(process.env.GOOGLE_CLOUD_API_KEY),
-  );
-  const credentials = grpc.credentials.combineChannelCredentials(
-    sslCreds,
-    grpc.credentials.createFromGoogleCredential(authClient),
-  );
-  return credentials;
-};
+const cachePrefix = 'mood-based-color';
 
-const sslCreds = getApiKeyCredentials();
-const client = new vision.ImageAnnotatorClient({ sslCreds });
-const cachePrefix = 'dominant-color';
-
-async function detectDominantColorFromImage(url: string): Promise<string> {
+/**
+ * Detects a mood-based color from an image URL.
+ * @param url The URL of the image to analyze
+ * @returns A promise that resolves to the hex code of the detected color
+ */
+async function detectMoodBasedColorFromImage(url: string): Promise<string> {
   try {
     const imageResponse = await fetch(url);
     const imageArrayBuffer = await imageResponse.arrayBuffer();
-    const imageBytes = Buffer.from(imageArrayBuffer);
-    const [data] = await client.imageProperties(imageBytes);
-    const imageProperties = data?.imagePropertiesAnnotation;
-    const dominantColors = (imageProperties?.dominantColors?.colors ?? []).sort(
-      (a, b) => (b.pixelFraction ?? 0) - (a.pixelFraction ?? 0),
-    );
-    const closestColor = dominantColors[0];
+    const imageBuffer = Buffer.from(imageArrayBuffer);
+
+    const detectColor = async () => {
+      const image = sharp(imageBuffer);
+
+      // Resize large images to improve performance
+      const metadata = await image.metadata();
+      if (metadata.width && metadata.height) {
+        const maxDimension = Math.max(metadata.width, metadata.height);
+        if (maxDimension > MAX_IMAGE_DIMENSION) {
+          const resizeFactor = MAX_IMAGE_DIMENSION / maxDimension;
+          image.resize(
+            Math.round(metadata.width * resizeFactor),
+            Math.round(metadata.height * resizeFactor),
+          );
+        }
+      }
+
+      // Get the dominant color using Sharp's built-in method
+      const { dominant } = await image.stats();
+
+      // Process the entire image to calculate the average color
+      const { data, info } = await image
+        .removeAlpha() // Ensure consistent RGB format
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+
+      const pixels = info.width * info.height;
+      let totalR = 0,
+        totalG = 0,
+        totalB = 0;
+
+      // Calculate the sum of all color channels
+      for (let i = 0; i < data.length; i += 3) {
+        totalR += data[i];
+        totalG += data[i + 1];
+        totalB += data[i + 2];
+      }
+
+      // Calculate the average color
+      const averageColor = {
+        r: Math.round(totalR / pixels),
+        g: Math.round(totalG / pixels),
+        b: Math.round(totalB / pixels),
+      };
+
+      // Combine dominant and average colors using weighted average
+      const weightedColor = {
+        r: Math.round(
+          DOMINANT_COLOR_WEIGHT * dominant.r +
+            AVERAGE_COLOR_WEIGHT * averageColor.r,
+        ),
+        g: Math.round(
+          DOMINANT_COLOR_WEIGHT * dominant.g +
+            AVERAGE_COLOR_WEIGHT * averageColor.g,
+        ),
+        b: Math.round(
+          DOMINANT_COLOR_WEIGHT * dominant.b +
+            AVERAGE_COLOR_WEIGHT * averageColor.b,
+        ),
+      };
+
+      return Color.rgb(weightedColor);
+    };
 
     let hex = DEFAULT_BACKGROUND_COLOR;
-    if (closestColor) {
-      const color = correctContrast(
-        Color.rgb(
-          closestColor.color?.red ?? 0,
-          closestColor.color?.green ?? 0,
-          closestColor.color?.blue ?? 0,
-        ),
-      );
+    const moodBasedColor = await detectColor();
+    if (moodBasedColor) {
+      const color = correctContrast(moodBasedColor);
       hex = color.hex();
     }
 
     return hex;
   } catch (error) {
-    console.error('detectDominantColorFromImage', error);
+    console.error('Error in detectMoodBasedColorFromImage:', error);
     return DEFAULT_BACKGROUND_COLOR;
   }
 }
 
-const detectDominantColorFromImageWithCache = unstable_cache(
+/**
+ * Cached version of the mood-based color detection function.
+ * This helps improve performance for repeated requests.
+ */
+const detectMoodBasedColorFromImageWithCache = unstable_cache(
   async (url: string) => {
-    // Note: this is mostly a workaround to prevent a lot of requests to the Vision API
-    // during development. In production just the `unstable_cache` should be sufficient
-    try {
-      const cacheKey = `${cachePrefix}:${url}`;
-      const dominantColorFromKV = await kv.get<string>(cacheKey);
-      if (dominantColorFromKV) {
-        return dominantColorFromKV;
-      }
-
-      const dominantColor = await detectDominantColorFromImage(url);
-
-      await kv.set(cacheKey, dominantColor);
-
-      return dominantColor;
-    } catch (error) {
-      return detectDominantColorFromImage(url);
-    }
+    const moodBasedColor = await detectMoodBasedColorFromImage(url);
+    return moodBasedColor;
   },
   [cachePrefix],
 );
 
-export default detectDominantColorFromImageWithCache;
+export default detectMoodBasedColorFromImageWithCache;

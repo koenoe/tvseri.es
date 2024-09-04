@@ -1,6 +1,6 @@
 # tvseri.es
 
-This is a NextJS application that interacts with multiple APIs, but mostly TMDb, to help you discover and track your favourite TV series.
+This is a NextJS application that interacts with multiple APIs (but mostly TMDb), to help you discover and track your favourite TV series.
 
 _Partial Prerendering FTW 🔥_
 
@@ -22,4 +22,4 @@ SECRET_KEY=
 - To obtain TMDB keys, log into your account and visit [this link](https://www.themoviedb.org/settings/api).
 - To generate a Google Cloud key, go to [this page](https://console.cloud.google.com/apis/credentials) and ensure that the Google Vision service is enabled for the API key.
 - For Vercel KV, follow [this quickstart guide](https://vercel.com/docs/storage/vercel-kv/quickstart#create-a-kv-database).
-- To obtain an mdblist.com API key, visit [this link](https://mdblist.com/preferences/).
+- To obtain a mdblist.com API key, visit [this link](https://mdblist.com/preferences/).

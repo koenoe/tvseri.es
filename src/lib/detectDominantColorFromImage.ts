@@ -6,11 +6,11 @@ import sharp from 'sharp';
 
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 
-const ALGORITHM_VERSION = 'v1'; // Version of the algorithm for cache invalidation
+const ALGORITHM_VERSION = 'v2'; // Incremented version for the slight change
 const CONTRAST_MINIMUM = 4.5; // Minimum contrast ratio for accessibility (WCAG)
 const BLEND_OPACITY_STEP = 0.05; // Incremental step for darkening colors
-const DOMINANT_COLOR_WEIGHT = 0.7; // Weight given to the dominant color (70%)
-const AVERAGE_COLOR_WEIGHT = 0.3; // Weight given to the average color (30%)
+const DOMINANT_COLOR_WEIGHT = 0.75; // Increased weight for dominant color (75%)
+const AVERAGE_COLOR_WEIGHT = 0.25; // Adjusted weight for average color (25%)
 
 /**
  * Adjusts the input color to ensure sufficient contrast with white.
@@ -44,11 +44,7 @@ async function detectMoodBasedColorFromImage(url: string): Promise<string> {
 
     const detectColor = async () => {
       const image = sharp(imageBuffer);
-
-      // Get the dominant color using Sharp's built-in method
-      const { dominant } = await image.stats();
-
-      // Process the entire image to calculate the average color
+      const { dominant: dominantColor } = await image.stats();
       const { data, info } = await image
         .raw()
         .toBuffer({ resolveWithObject: true });
@@ -58,14 +54,12 @@ async function detectMoodBasedColorFromImage(url: string): Promise<string> {
         totalG = 0,
         totalB = 0;
 
-      // Calculate the sum of all color channels
       for (let i = 0; i < data.length; i += 3) {
         totalR += data[i];
         totalG += data[i + 1];
         totalB += data[i + 2];
       }
 
-      // Calculate the average color
       const averageColor = {
         r: Math.round(totalR / pixels),
         g: Math.round(totalG / pixels),
@@ -75,15 +69,15 @@ async function detectMoodBasedColorFromImage(url: string): Promise<string> {
       // Combine dominant and average colors using weighted average
       const weightedColor = {
         r: Math.round(
-          DOMINANT_COLOR_WEIGHT * dominant.r +
+          DOMINANT_COLOR_WEIGHT * dominantColor.r +
             AVERAGE_COLOR_WEIGHT * averageColor.r,
         ),
         g: Math.round(
-          DOMINANT_COLOR_WEIGHT * dominant.g +
+          DOMINANT_COLOR_WEIGHT * dominantColor.g +
             AVERAGE_COLOR_WEIGHT * averageColor.g,
         ),
         b: Math.round(
-          DOMINANT_COLOR_WEIGHT * dominant.b +
+          DOMINANT_COLOR_WEIGHT * dominantColor.b +
             AVERAGE_COLOR_WEIGHT * averageColor.b,
         ),
       };
@@ -100,7 +94,7 @@ async function detectMoodBasedColorFromImage(url: string): Promise<string> {
 
     return hex;
   } catch (error) {
-    console.error('Error in `detectMoodBasedColorFromImage`:', error);
+    console.error('Error in detectMoodBasedColorFromImage:', error);
     return DEFAULT_BACKGROUND_COLOR;
   }
 }

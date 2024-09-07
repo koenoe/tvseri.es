@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'daily'
+      time: '08:00'
+      timezone: 'Europe/London'
+    reviewers:
+      - 'koenoe'
+    labels:
+      - 'npm'
+      - 'dependencies'

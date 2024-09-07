@@ -26,19 +26,19 @@ const correctContrast = (input: Color): Color => {
   return output;
 };
 
-const cachePrefix = 'mood-based-color';
+const cachePrefix = 'dominant-color-with-sharp';
 
-async function detectMoodBasedColorFromImage(url: string): Promise<string> {
+async function detectDominantColorFromImage(url: string): Promise<string> {
   try {
     const imageResponse = await fetch(url);
     const imageArrayBuffer = await imageResponse.arrayBuffer();
     const imageBuffer = Buffer.from(imageArrayBuffer);
 
     const image = sharp(imageBuffer);
-    const { dominant: dominantColor } = await image.stats();
+    const { dominant } = await image.stats();
 
-    const moodBasedColor = Color.rgb(dominantColor);
-    const correctedColor = correctContrast(moodBasedColor);
+    const dominantColor = Color.rgb(dominant);
+    const correctedColor = correctContrast(dominantColor);
 
     return correctedColor.hex();
   } catch (error) {
@@ -47,12 +47,12 @@ async function detectMoodBasedColorFromImage(url: string): Promise<string> {
   }
 }
 
-const detectMoodBasedColorFromImageWithCache = unstable_cache(
+const detectDominantColorFromImageWithCache = unstable_cache(
   async (url: string) => {
-    const moodBasedColor = await detectMoodBasedColorFromImage(url);
-    return moodBasedColor;
+    const dominantColor = await detectDominantColorFromImage(url);
+    return dominantColor;
   },
   [cachePrefix],
 );
 
-export default detectMoodBasedColorFromImageWithCache;
+export default detectDominantColorFromImageWithCache;

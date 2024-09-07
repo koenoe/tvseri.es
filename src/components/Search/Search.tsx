@@ -23,8 +23,8 @@ import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 import Modal from '../Modal';
 
-const MotionLink = motion(Link);
-const MotionImage = motion(Image);
+const MotionLink = motion.create(Link);
+const MotionImage = motion.create(Image);
 
 function Search() {
   const abortControllerRef = useRef<AbortController | null>(null);

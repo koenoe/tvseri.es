@@ -9,7 +9,7 @@ import Image from 'next/image';
 import { type Person } from '@/types/person';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
-const MotionImage = motion(Image);
+const MotionImage = motion.create(Image);
 
 export const avatarsStyles = cva(
   'grid grid-cols-3 md:grid-cols-6 lg:flex lg:flex-row lg:flex-wrap gap-4 lg:gap-0 [&>*:nth-child(n+7)]:hidden md:[&>*:nth-child(n+7)]:flex lg:min-h-36',

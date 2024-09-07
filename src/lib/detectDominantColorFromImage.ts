@@ -8,7 +8,7 @@ import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 
 const CONTRAST_MINIMUM = 4.5; // Minimum contrast ratio for accessibility (WCAG)
 const BLEND_OPACITY_STEP = 0.05; // Incremental step for darkening colors
-const BLUR_SIGMA = 50; // Blur intensity for dominant color detection
+const BLUR_SIGMA = 35; // Blur intensity for dominant color detection
 
 const correctContrast = (input: Color): Color => {
   let output = input;

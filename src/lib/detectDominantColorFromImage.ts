@@ -8,6 +8,7 @@ import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 
 const CONTRAST_MINIMUM = 4.5; // Minimum contrast ratio for accessibility (WCAG)
 const BLEND_OPACITY_STEP = 0.05; // Incremental step for darkening colors
+const BLUR_SIGMA = 50; // Blur intensity for dominant color detection
 
 const correctContrast = (input: Color): Color => {
   let output = input;
@@ -21,7 +22,7 @@ const correctContrast = (input: Color): Color => {
   return output;
 };
 
-const cachePrefix = 'dominant-color-with-sharp';
+const cachePrefix = 'dominant-color-with-sharp-blur';
 
 async function detectDominantColorFromImage(url: string): Promise<string> {
   try {
@@ -30,14 +31,16 @@ async function detectDominantColorFromImage(url: string): Promise<string> {
     const imageBuffer = Buffer.from(imageArrayBuffer);
 
     const image = sharp(imageBuffer);
-    const { dominant } = await image.stats();
+
+    const blurredImage = await image.blur(BLUR_SIGMA).toBuffer();
+    const { dominant } = await sharp(blurredImage).stats();
 
     const dominantColor = Color.rgb(dominant);
     const correctedColor = correctContrast(dominantColor);
 
     return correctedColor.hex();
   } catch (error) {
-    console.error('Error in detectMoodBasedColorFromImage:', error);
+    console.error('Error in detectDominantColorFromImage:', error);
     return DEFAULT_BACKGROUND_COLOR;
   }
 }

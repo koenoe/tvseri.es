@@ -9,11 +9,6 @@ import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 const CONTRAST_MINIMUM = 4.5; // Minimum contrast ratio for accessibility (WCAG)
 const BLEND_OPACITY_STEP = 0.05; // Incremental step for darkening colors
 
-/**
- * Adjusts the input color to ensure sufficient contrast with white.
- * @param input The input Color object
- * @returns A new Color object with corrected contrast
- */
 const correctContrast = (input: Color): Color => {
   let output = input;
   while (output.contrast(Color('white')) < CONTRAST_MINIMUM) {

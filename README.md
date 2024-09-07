@@ -9,7 +9,6 @@ _Partial Prerendering FTW 🔥_
 ```
 TMDB_API_KEY=
 TMDB_API_ACCESS_TOKEN=
-GOOGLE_CLOUD_API_KEY=
 KV_REST_API_READ_ONLY_TOKEN=
 KV_REST_API_TOKEN=
 KV_REST_API_URL=
@@ -20,6 +19,5 @@ SECRET_KEY=
 ```
 
 - To obtain TMDB keys, log into your account and visit [this link](https://www.themoviedb.org/settings/api).
-- To generate a Google Cloud key, go to [this page](https://console.cloud.google.com/apis/credentials) and ensure that the Google Vision service is enabled for the API key.
 - For Vercel KV, follow [this quickstart guide](https://vercel.com/docs/storage/vercel-kv/quickstart#create-a-kv-database).
 - To obtain a mdblist.com API key, visit [this link](https://mdblist.com/preferences/).

@@ -1,102 +1,58 @@
 import 'server-only';
 
-import vision from '@google-cloud/vision';
-import { kv } from '@vercel/kv';
 import Color from 'color';
-import { GoogleAuth, grpc } from 'google-gax';
 import { unstable_cache } from 'next/cache';
+import sharp from 'sharp';
 
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 
-const CONTRAST_MINIMUM = 4.5; // Minimum contrast ratio recommended by WCAG
-const BLEND_OPACITY_STEP = 0.05; // Step to blend black into the color
+const CONTRAST_MINIMUM = 4.5; // Minimum contrast ratio for accessibility (WCAG)
+const BLEND_OPACITY_STEP = 0.05; // Incremental step for darkening colors
 
+/**
+ * Adjusts the input color to ensure sufficient contrast with white.
+ * @param input The input Color object
+ * @returns A new Color object with corrected contrast
+ */
 const correctContrast = (input: Color): Color => {
-  // Make sure the output color has enough contrast with white according to WCAG
   let output = input;
-
   while (output.contrast(Color('white')) < CONTRAST_MINIMUM) {
-    // Manual blend with black
     const rgb = output.rgb().object();
     const blendedR = Math.round(rgb.r * (1 - BLEND_OPACITY_STEP));
     const blendedG = Math.round(rgb.g * (1 - BLEND_OPACITY_STEP));
     const blendedB = Math.round(rgb.b * (1 - BLEND_OPACITY_STEP));
-
     output = Color.rgb(blendedR, blendedG, blendedB);
   }
-
   return output;
 };
 
-const getApiKeyCredentials = () => {
-  const sslCreds = grpc.credentials.createSsl();
-  const googleAuth = new GoogleAuth();
-  const authClient = googleAuth.fromAPIKey(
-    String(process.env.GOOGLE_CLOUD_API_KEY),
-  );
-  const credentials = grpc.credentials.combineChannelCredentials(
-    sslCreds,
-    grpc.credentials.createFromGoogleCredential(authClient),
-  );
-  return credentials;
-};
+const cachePrefix = 'mood-based-color';
 
-const sslCreds = getApiKeyCredentials();
-const client = new vision.ImageAnnotatorClient({ sslCreds });
-const cachePrefix = 'dominant-color';
-
-async function detectDominantColorFromImage(url: string): Promise<string> {
+async function detectMoodBasedColorFromImage(url: string): Promise<string> {
   try {
     const imageResponse = await fetch(url);
     const imageArrayBuffer = await imageResponse.arrayBuffer();
-    const imageBytes = Buffer.from(imageArrayBuffer);
-    const [data] = await client.imageProperties(imageBytes);
-    const imageProperties = data?.imagePropertiesAnnotation;
-    const dominantColors = (imageProperties?.dominantColors?.colors ?? []).sort(
-      (a, b) => (b.pixelFraction ?? 0) - (a.pixelFraction ?? 0),
-    );
-    const closestColor = dominantColors[0];
+    const imageBuffer = Buffer.from(imageArrayBuffer);
 
-    let hex = DEFAULT_BACKGROUND_COLOR;
-    if (closestColor) {
-      const color = correctContrast(
-        Color.rgb(
-          closestColor.color?.red ?? 0,
-          closestColor.color?.green ?? 0,
-          closestColor.color?.blue ?? 0,
-        ),
-      );
-      hex = color.hex();
-    }
+    const image = sharp(imageBuffer);
+    const { dominant: dominantColor } = await image.stats();
 
-    return hex;
+    const moodBasedColor = Color.rgb(dominantColor);
+    const correctedColor = correctContrast(moodBasedColor);
+
+    return correctedColor.hex();
   } catch (error) {
-    console.error('detectDominantColorFromImage', error);
+    console.error('Error in detectMoodBasedColorFromImage:', error);
     return DEFAULT_BACKGROUND_COLOR;
   }
 }
 
-const detectDominantColorFromImageWithCache = unstable_cache(
+const detectMoodBasedColorFromImageWithCache = unstable_cache(
   async (url: string) => {
-    // Note: this is mostly a workaround to prevent a lot of requests to the Vision API
-    // during development. In production just the `unstable_cache` should be sufficient
-    try {
-      const cacheKey = `${cachePrefix}:${url}`;
-      const dominantColorFromKV = await kv.get<string>(cacheKey);
-      if (dominantColorFromKV) {
-        return dominantColorFromKV;
-      }
-
-      const dominantColor = await detectDominantColorFromImage(url);
-
-      await kv.set(cacheKey, dominantColor);
-
-      return dominantColor;
-    } catch (error) {
-      return detectDominantColorFromImage(url);
-    }
+    const moodBasedColor = await detectMoodBasedColorFromImage(url);
+    return moodBasedColor;
   },
   [cachePrefix],
 );
 
-export default detectDominantColorFromImageWithCache;
+export default detectMoodBasedColorFromImageWithCache;

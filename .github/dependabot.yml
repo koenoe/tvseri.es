@@ -11,3 +11,6 @@ updates:
     labels:
       - 'npm'
       - 'dependencies'
+    update-types:
+      - 'minor'
+      - 'patch'

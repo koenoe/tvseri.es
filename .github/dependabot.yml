@@ -14,3 +14,10 @@ updates:
     update-types:
       - 'minor'
       - 'patch'
+    ignore:
+      - dependency-name: 'next'
+        versions: ['*']
+        update-types: ['minor', 'patch']
+    allow:
+      - dependency-name: 'next'
+        versions: ['>= 0.0.0-canary']

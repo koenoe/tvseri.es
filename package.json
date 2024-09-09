@@ -21,7 +21,7 @@
     "class-variance-authority": "^0.7.0",
     "color": "^4.2.3",
     "framer-motion": "^11.5.4",
-    "next": "15.0.0-canary.145",
+    "next": "15.0.0-canary.146",
     "react": "19.0.0-rc-14a4699f-20240725",
     "react-dom": "19.0.0-rc-14a4699f-20240725",
     "server-only": "^0.0.1",
@@ -50,8 +50,8 @@
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.6",
     "sort-package-json": "^2.10.1",
-    "tailwindcss": "^3.4.10",
     "tailwind-scrollbar-hide": "^1.1.7",
-    "typescript": "^5.5.4"
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.6.2"
   }
 }

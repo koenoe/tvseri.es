@@ -1,5 +1,7 @@
 import 'server-only';
 
+import slugify from 'slugify';
+
 import { type Account } from '@/types/account';
 import { type CountryOrLanguage } from '@/types/country-language';
 import { type Genre } from '@/types/genre';
@@ -38,6 +40,8 @@ import {
   type TmdbCountries,
   type TmdbLanguages,
   type TmdbKeyword,
+  type TmdbPerson,
+  type TmdbPersonImages,
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
@@ -675,4 +679,39 @@ export async function searchKeywords(query: string) {
       name: keyword.name,
     };
   });
+}
+
+export async function fetchPerson(id: number | string) {
+  const person = (await tmdbFetch(`/3/person/${id}`)) as TmdbPerson;
+
+  return {
+    id: person.id,
+    name: person.name ?? '',
+    image: person.profile_path
+      ? generateTmdbImageUrl(person.profile_path, 'w138_and_h175_face')
+      : '',
+    slug: slugify(person.name as string, { lower: true, strict: true }),
+    episodeCount:
+      'total_episode_count' in person ? person.total_episode_count : 0,
+    birthdate: person.birthday,
+    deathdate: person.deathday,
+    placeOfBirth: person.place_of_birth,
+    biography: person.biography,
+    imdbId: person.imdb_id,
+    knownForDepartment: person.known_for_department,
+    isAdult: person.adult,
+  } as Person;
+}
+
+export async function fetchPersonImages(id: number) {
+  const response = (await tmdbFetch(
+    `/3/person/${id}/images`,
+  )) as TmdbPersonImages;
+
+  return response.profiles
+    ?.filter((image) => !!image.file_path)
+    .sort((a, b) => b.vote_average - a.vote_average)
+    .map((image) =>
+      generateTmdbImageUrl(image.file_path as string, 'w600_and_h900_bestv2'),
+    );
 }

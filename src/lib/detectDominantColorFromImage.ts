@@ -29,12 +29,9 @@ async function detectDominantColorFromImage(url: string): Promise<string> {
     const imageResponse = await fetch(url);
     const imageArrayBuffer = await imageResponse.arrayBuffer();
     const imageBuffer = Buffer.from(imageArrayBuffer);
-
     const image = sharp(imageBuffer);
-
     const blurredImage = await image.blur(BLUR_SIGMA).toBuffer();
     const { dominant } = await sharp(blurredImage).stats();
-
     const dominantColor = Color.rgb(dominant);
     const correctedColor = correctContrast(dominantColor);
 

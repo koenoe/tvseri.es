@@ -6,7 +6,7 @@ import MultiSelect, { type Result } from './MultiSelect';
 
 const fetchInitialResults = async (ids: string[]) => {
   const response = await fetch(
-    `/api/tv/keywords?id=${encodeURIComponent(ids.join(','))}`,
+    `/api/keywords?id=${encodeURIComponent(ids.join(','))}`,
   );
   const keywords = (await response.json()) as Array<{
     id: number;
@@ -47,7 +47,7 @@ export default function DiscoverKeywords({
       signal: AbortSignal;
     }>) => {
       const response = await fetch(
-        `/api/tv/keywords?q=${encodeURIComponent(query)}`,
+        `/api/keywords?q=${encodeURIComponent(query)}`,
         { signal },
       );
       const keywords = (await response.json()) as Array<{

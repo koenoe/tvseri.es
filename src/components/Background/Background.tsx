@@ -4,7 +4,7 @@ import BackgroundStatic from './BackgroundStatic';
 export type BackgroundVariant = 'static' | 'dynamic';
 // TODO: find a better name for this as it's confusing
 // with React Context, lol
-export type BackgroundContext = 'page' | 'spotlight' | 'dots' | 'grid';
+export type BackgroundContext = 'page' | 'spotlight' | 'dots' | 'grid' | 'blur';
 
 export type Props = Readonly<{
   variant: BackgroundVariant;

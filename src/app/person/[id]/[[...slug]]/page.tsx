@@ -1,9 +1,8 @@
 import { notFound, permanentRedirect } from 'next/navigation';
 
 import Page from '@/components/Page/Page';
-import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
-import { fetchPerson } from '@/lib/tmdb';
-import getBaseUrl from '@/utils/getBaseUrl';
+import detectDominantColorFromImageWithCache from '@/lib/detectDominantColorFromImage';
+import { fetchPerson, fetchPersonKnownFor } from '@/lib/tmdb';
 
 type Props = Readonly<{
   params: { id: string; slug: string[] };
@@ -45,14 +44,28 @@ export default async function PersonDetailsPage({ params }: Props) {
     return permanentRedirect(`/person/${params.id}/${person.slug}`);
   }
 
-  const backdropImageUrl = `${getBaseUrl()}/api/person/${person.id}/background?output=jpg`;
-  const backdropColor = await detectDominantColorFromImage(
-    `${backdropImageUrl}`,
+  const knownForItems = await fetchPersonKnownFor(person);
+  const knownForTvSeries = knownForItems.filter(
+    (item) => 'firstAirDate' in item,
   );
+  const knownForFirstItem =
+    knownForTvSeries.length > 0 ? knownForTvSeries[0] : knownForItems[0];
+  const backdropImage = knownForFirstItem?.backdropImage ?? person.image;
+  const backdropColor =
+    await detectDominantColorFromImageWithCache(backdropImage);
 
   return (
-    <Page backgroundColor={backdropColor} backgroundImage={backdropImageUrl}>
-      <div className="container min-h-screen">hoi</div>
+    <Page
+      backgroundContext="blur"
+      backgroundColor={backdropColor}
+      backgroundImage={backdropImage}
+    >
+      <div className="container">
+        {JSON.stringify({
+          ...person,
+          knownFor: knownForItems,
+        })}
+      </div>
     </Page>
   );
 }

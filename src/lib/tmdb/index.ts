@@ -5,6 +5,7 @@ import slugify from 'slugify';
 import { type Account } from '@/types/account';
 import { type CountryOrLanguage } from '@/types/country-language';
 import { type Genre } from '@/types/genre';
+import { type Movie } from '@/types/movie';
 import { type Person } from '@/types/person';
 import type {
   Season,
@@ -34,19 +35,23 @@ import {
   type TmdbTvSeriesAccountStates,
   type TmdbWatchlist,
   type TmdbFavorites,
-  type TmdbDiscoverQuery,
   type TmdbWatchProviders,
   type TmdbKeywords,
   type TmdbCountries,
   type TmdbLanguages,
   type TmdbKeyword,
   type TmdbPerson,
-  type TmdbPersonImages,
+  normalizeMovie,
+  type TmdbMovie,
+  type TmdbDiscoverTvSeriesQuery,
+  type TmdbDiscoverMovieQuery,
+  type TmdbDiscoverMovies,
+  GLOBAL_GENRES_TO_IGNORE,
+  buildDiscoverQuery,
+  type TmdbSearchPerson,
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
-
-const GLOBAL_GENRES_TO_IGNORE = [10763, 10764, 10766, 10767];
 
 async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
   const pathAsString = path.toString();
@@ -494,19 +499,8 @@ export async function fetchTopRatedTvSeries() {
   return series;
 }
 
-export async function fetchDiscoverTvSeries(query?: TmdbDiscoverQuery) {
-  const mergedQuery = {
-    page: 1,
-    sort_by: 'popularity.desc',
-    'vote_count.gte': 1,
-    ...query,
-    // Note: always exclude adult content
-    include_adult: false,
-    include_null_first_air_dates: false,
-    without_genres: GLOBAL_GENRES_TO_IGNORE.join(','),
-  };
-
-  const queryString = toQueryString(mergedQuery);
+export async function fetchDiscoverTvSeries(query?: TmdbDiscoverTvSeriesQuery) {
+  const queryString = toQueryString(buildDiscoverQuery(query));
 
   const response =
     ((await tmdbFetch(
@@ -515,6 +509,26 @@ export async function fetchDiscoverTvSeries(query?: TmdbDiscoverQuery) {
 
   const items = (response.results ?? []).map((series) =>
     normalizeTvSeries(series as TmdbTvSeries),
+  );
+
+  return {
+    items,
+    totalNumberOfPages: response.total_pages,
+    totalNumberOfItems: response.total_results,
+    queryString: query ? toQueryString(query) : '',
+  };
+}
+
+export async function fetchDiscoverMovies(query?: TmdbDiscoverMovieQuery) {
+  const queryString = toQueryString(buildDiscoverQuery(query));
+
+  const response =
+    ((await tmdbFetch(
+      `/3/discover/movie${queryString}`,
+    )) as TmdbDiscoverMovies) ?? [];
+
+  const items = (response.results ?? []).map((item) =>
+    normalizeMovie(item as TmdbMovie),
   );
 
   return {
@@ -681,6 +695,33 @@ export async function searchKeywords(query: string) {
   });
 }
 
+export async function searchPerson(query: string) {
+  const response =
+    ((await tmdbFetch(
+      `/3/search/person?query=${query}`,
+    )) as TmdbSearchPerson) ?? [];
+
+  return (response.results ?? []).map((person) => {
+    return {
+      id: person.id,
+      name: person.name ?? '',
+      image: person.profile_path
+        ? generateTmdbImageUrl(person.profile_path, 'w600_and_h900_bestv2')
+        : '',
+      slug: slugify(person.name as string, { lower: true, strict: true }),
+      knownForDepartment: person.known_for_department?.toLocaleLowerCase(),
+      isAdult: person.adult,
+      knownFor: (person.known_for ?? []).map((item) => {
+        if (item.media_type === 'tv') {
+          return normalizeTvSeries(item as unknown as TmdbTvSeries);
+        } else {
+          return normalizeMovie(item as TmdbMovie);
+        }
+      }),
+    };
+  });
+}
+
 export async function fetchPerson(id: number | string) {
   const person = (await tmdbFetch(`/3/person/${id}`)) as TmdbPerson;
 
@@ -688,7 +729,7 @@ export async function fetchPerson(id: number | string) {
     id: person.id,
     name: person.name ?? '',
     image: person.profile_path
-      ? generateTmdbImageUrl(person.profile_path, 'w138_and_h175_face')
+      ? generateTmdbImageUrl(person.profile_path, 'w600_and_h900_bestv2')
       : '',
     slug: slugify(person.name as string, { lower: true, strict: true }),
     episodeCount:
@@ -698,20 +739,14 @@ export async function fetchPerson(id: number | string) {
     placeOfBirth: person.place_of_birth,
     biography: person.biography,
     imdbId: person.imdb_id,
-    knownForDepartment: person.known_for_department,
+    knownForDepartment: person.known_for_department?.toLocaleLowerCase(),
     isAdult: person.adult,
   } as Person;
 }
 
-export async function fetchPersonImages(id: number) {
-  const response = (await tmdbFetch(
-    `/3/person/${id}/images`,
-  )) as TmdbPersonImages;
-
-  return response.profiles
-    ?.filter((image) => !!image.file_path)
-    .sort((a, b) => b.vote_average - a.vote_average)
-    .map((image) =>
-      generateTmdbImageUrl(image.file_path as string, 'w600_and_h900_bestv2'),
-    );
+export async function fetchPersonKnownFor(
+  person: Person,
+): Promise<ReadonlyArray<TvSeries | Movie>> {
+  const results = await searchPerson(person.name);
+  return results[0]?.knownFor ?? [];
 }

@@ -53,6 +53,10 @@ export type TmdbDiscoverMovieQuery =
 export type TmdbDiscoverTvSeriesQuery =
   paths['/3/discover/tv']['get']['parameters']['query'];
 
+export type TmdbDiscoverQuery =
+  | TmdbDiscoverMovieQuery
+  | TmdbDiscoverTvSeriesQuery;
+
 export type TmdbSearchTvSeries =
   paths['/3/search/tv']['get']['responses']['200']['content']['application/json'];
 

@@ -4,20 +4,17 @@ import { useCallback, useState } from 'react';
 
 import { cva } from 'class-variance-authority';
 
-const textStyles = cva(
-  'leading-loose md:!line-clamp-none md:pointer-events-none',
-  {
-    variants: {
-      state: {
-        open: ['line-clamp-none'],
-        closed: ['line-clamp-3'],
-      },
-    },
-    defaultVariants: {
-      state: 'open',
+const textStyles = cva('leading-loose', {
+  variants: {
+    state: {
+      open: ['line-clamp-none'],
+      closed: ['line-clamp-3 xl:line-clamp-5'],
     },
   },
-);
+  defaultVariants: {
+    state: 'closed',
+  },
+});
 
 export default function ExpandableText({
   className,

@@ -709,15 +709,15 @@ export async function searchPerson(query: string) {
         ? generateTmdbImageUrl(person.profile_path, 'w600_and_h900_bestv2')
         : '',
       slug: slugify(person.name as string, { lower: true, strict: true }),
-      knownForDepartment: person.known_for_department?.toLocaleLowerCase(),
+      knownForDepartment: person.known_for_department,
       isAdult: person.adult,
       knownFor: (person.known_for ?? []).map((item) => {
         if (item.media_type === 'tv') {
-          return normalizeTvSeries(item as unknown as TmdbTvSeries);
+          return normalizeTvSeries(item as unknown as TmdbTvSeries) as TvSeries;
         } else {
-          return normalizeMovie(item as TmdbMovie);
+          return normalizeMovie(item as TmdbMovie) as Movie;
         }
-      }),
+      }) as ReadonlyArray<TvSeries | Movie>,
     };
   });
 }
@@ -739,7 +739,7 @@ export async function fetchPerson(id: number | string) {
     placeOfBirth: person.place_of_birth,
     biography: person.biography,
     imdbId: person.imdb_id,
-    knownForDepartment: person.known_for_department?.toLocaleLowerCase(),
+    knownForDepartment: person.known_for_department,
     isAdult: person.adult,
   } as Person;
 }

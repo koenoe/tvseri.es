@@ -71,7 +71,7 @@ export default async function PersonDetailsPage({ params }: Props) {
       backgroundImage={backdropImage}
     >
       <div className="mb-10 mt-10 md:container md:mb-16 md:mt-20">
-        <div className="mx-auto grid max-w-screen-xl grid-cols-1 md:grid-cols-3 [&>*]:!h-auto [&>*]:!w-full">
+        <div className="grid max-w-screen-xl grid-cols-1 md:grid-cols-3 [&>*]:!h-auto [&>*]:!w-full">
           <div className="mb-10 px-[2rem] md:mb-0 md:px-0">
             <div className="relative h-auto w-full overflow-hidden rounded-lg pt-[150%] shadow-lg after:absolute after:inset-0 after:rounded-lg after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:mx-0">
               <Image

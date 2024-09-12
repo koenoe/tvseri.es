@@ -93,9 +93,7 @@ export default async function PersonDetailsPage({ params }: Props) {
                 {person.name}
               </h1>
               <div className="mb-4 flex w-full items-center gap-1 whitespace-nowrap text-xs lg:gap-2 lg:text-sm">
-                <div className="opacity-75">
-                  Known for {person.knownForDepartment}
-                </div>
+                <div className="opacity-75">{person.placeOfBirth}</div>
                 {person.birthdate && (
                   <div className="opacity-75 before:mr-1 before:content-['·'] lg:before:mr-2">
                     {formatDate(person.birthdate)}
@@ -109,7 +107,7 @@ export default async function PersonDetailsPage({ params }: Props) {
                 )}
                 {person.birthdate && (
                   <div className="opacity-75 before:mr-1 before:content-['·'] lg:before:mr-2">
-                    {calculateAge(person.birthdate, person.deathdate)} years old
+                    {calculateAge(person.birthdate, person.deathdate)} years
                   </div>
                 )}
               </div>

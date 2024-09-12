@@ -92,7 +92,7 @@ export default async function PersonDetailsPage({ params }: Props) {
               <h1 className="mb-3 w-full text-3xl font-bold !leading-tight md:text-4xl lg:text-5xl xl:text-6xl">
                 {person.name}
               </h1>
-              <div className="mb-4 flex w-full items-center gap-1 whitespace-nowrap text-xs lg:gap-2 lg:text-sm">
+              <div className="mb-4 flex w-full items-center gap-[0.2rem] text-nowrap text-[0.65rem] leading-relaxed lg:gap-2 lg:text-xs xl:text-sm">
                 <div className="opacity-75">{person.placeOfBirth}</div>
                 {person.birthdate && (
                   <div className="opacity-75 before:mr-1 before:content-['·'] lg:before:mr-2">
@@ -107,7 +107,14 @@ export default async function PersonDetailsPage({ params }: Props) {
                 )}
                 {person.birthdate && (
                   <div className="opacity-75 before:mr-1 before:content-['·'] lg:before:mr-2">
-                    {calculateAge(person.birthdate, person.deathdate)} years
+                    <span className="hidden md:inline-block">
+                      {calculateAge(person.birthdate, person.deathdate)} years
+                    </span>
+                    {person.deathdate && (
+                      <span className="ml-1 align-middle text-base leading-none">
+                        †
+                      </span>
+                    )}
                   </div>
                 )}
               </div>

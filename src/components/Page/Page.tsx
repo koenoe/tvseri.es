@@ -57,7 +57,7 @@ export default function Page({
         <div className="pointer-events-none absolute inset-0 h-[40vh] w-screen blur-[100px] saturate-[120%]">
           <BackgroundImage
             src={backgroundImage}
-            className="object-cover object-center opacity-40"
+            className="object-cover object-top opacity-50"
           />
         </div>
       );

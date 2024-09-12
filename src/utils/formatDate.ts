@@ -3,7 +3,7 @@ export default function formatDate(dateString: string): string {
 
   const formatter = new Intl.DateTimeFormat('en-US', {
     day: 'numeric',
-    month: 'long',
+    month: 'short',
     year: 'numeric',
   });
 

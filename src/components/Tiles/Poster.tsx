@@ -11,7 +11,7 @@ import { type Movie } from '@/types/movie';
 import { type TvSeries } from '@/types/tv-series';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
-const MotionLink = motion(Link);
+const MotionLink = motion.create(Link);
 
 export const posterStyles = cva(
   [

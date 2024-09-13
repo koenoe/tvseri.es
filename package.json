@@ -1,7 +1,6 @@
 {
-  "name": "tmdb-playground",
-  "version": "0.1.0",
-  "private": true,
+  "name": "tvseri.es",
+  "version": "1.0.0",
   "scripts": {
     "build": "next build",
     "dev": "next dev",

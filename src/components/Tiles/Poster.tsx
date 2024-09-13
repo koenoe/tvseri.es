@@ -53,7 +53,7 @@ export const posterStyles = cva(
   },
 );
 
-type PosterVariantProps = VariantProps<typeof posterStyles>;
+export type PosterVariantProps = VariantProps<typeof posterStyles>;
 
 type PosterProps = {
   className?: string;

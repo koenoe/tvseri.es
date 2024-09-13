@@ -51,6 +51,7 @@ export type TvSeries = Readonly<{
   numberOfSeasons: number;
   originalTitle: string;
   posterImage: string;
+  popularity: number;
   releaseYear: string;
   seasons?: Season[];
   slug: string;

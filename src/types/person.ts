@@ -1,9 +1,16 @@
 export type Person = Readonly<{
-  id: number;
-  name: string;
-  image: string;
-  slug: string;
+  biography?: string;
+  birthdate?: string;
   character: string;
-  job: string;
+  deathdate?: string;
   episodeCount: number;
+  id: number;
+  image: string;
+  imdbId?: string;
+  isAdult?: boolean;
+  job: string;
+  knownForDepartment?: string;
+  name: string;
+  placeOfBirth?: string;
+  slug: string;
 }>;

@@ -9,6 +9,7 @@ import { PageStoreProvider } from './PageProvider';
 import Background, { type BackgroundContext } from '../Background/Background';
 import { type BackgroundVariant } from '../Background/Background';
 import BackgroundGlobal from '../Background/BackgroundGlobal';
+import BackgroundImage from '../Background/BackgroundImage';
 
 export type Props = Readonly<{
   backgroundColor?: string;
@@ -50,33 +51,53 @@ export default function Page({
   backgroundContext = 'page',
   children,
 }: Props) {
-  const content = (
-    <>
-      <BackgroundGlobal variant={backgroundVariant} color={backgroundColor} />
-      <main
-        // pt-[] is the height of the header
-        className="grow pb-20 pt-[6rem] transition-colors duration-500 md:pt-[8rem]"
-        style={{
-          backgroundColor,
-        }}
-      >
-        {backgroundContext === 'dots' || backgroundContext === 'grid' ? (
-          <div className={dotsAndGridStyles({ context: backgroundContext })} />
-        ) : (
-          <Background
-            variant={backgroundVariant}
-            context={backgroundContext}
-            color={backgroundColor}
-            image={backgroundImage}
+  const background = () => {
+    if (backgroundContext === 'blur') {
+      return (
+        <div className="pointer-events-none absolute inset-0 h-[40vh] w-screen blur-[100px] saturate-[120%]">
+          <BackgroundImage
+            src={backgroundImage}
+            className="object-cover object-top opacity-50"
           />
-        )}
-        <div className="relative z-10">{children}</div>
-      </main>
-    </>
-  );
+        </div>
+      );
+    }
+
+    if (backgroundContext === 'dots' || backgroundContext === 'grid') {
+      return (
+        <div className={dotsAndGridStyles({ context: backgroundContext })} />
+      );
+    }
+
+    return (
+      <Background
+        variant={backgroundVariant}
+        context={backgroundContext}
+        color={backgroundColor}
+        image={backgroundImage}
+      />
+    );
+  };
+  const content = () => {
+    return (
+      <>
+        <BackgroundGlobal variant={backgroundVariant} color={backgroundColor} />
+        <main
+          // pt-[] is the height of the header
+          className="grow pb-20 pt-[6rem] transition-colors duration-500 md:pt-[8rem]"
+          style={{
+            backgroundColor,
+          }}
+        >
+          {background()}
+          <div className="relative z-10">{children}</div>
+        </main>
+      </>
+    );
+  };
 
   if (backgroundVariant === 'static') {
-    return content;
+    return content();
   }
 
   return (
@@ -84,7 +105,7 @@ export default function Page({
       backgroundColor={backgroundColor}
       backgroundImage={backgroundImage}
     >
-      {content}
+      {content()}
     </PageStoreProvider>
   );
 }

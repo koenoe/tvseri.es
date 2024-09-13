@@ -5,11 +5,13 @@ import React, { memo } from 'react';
 import { cva, cx } from 'class-variance-authority';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import { type Person } from '@/types/person';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 const MotionImage = motion.create(Image);
+const MotionLink = motion.create(Link);
 
 export const avatarsStyles = cva(
   'grid grid-cols-3 md:grid-cols-6 lg:flex lg:flex-row lg:flex-wrap gap-4 lg:gap-0 [&>*:nth-child(n+7)]:hidden md:[&>*:nth-child(n+7)]:flex lg:min-h-36',
@@ -21,9 +23,10 @@ export const avatarStyles = cva(
 
 function Avatar({ item }: Readonly<{ item: Person }>) {
   return (
-    <motion.div
+    <MotionLink
       key={item.id}
       layout
+      href={`/person/${item.id}/${item.slug}`}
       className={avatarStyles()}
       initial="inactive"
       whileHover="active"
@@ -62,7 +65,7 @@ function Avatar({ item }: Readonly<{ item: Person }>) {
         <div className="text-sm font-semibold">{item.name}</div>
         <div className="text-xs opacity-60">{item.character ?? item.job}</div>
       </div>
-    </motion.div>
+    </MotionLink>
   );
 }
 

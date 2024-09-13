@@ -35,7 +35,11 @@ function BackgroundBase({
   color,
   context,
   image,
-}: Pick<Props, 'color' | 'context' | 'image'>) {
+  className,
+}: Pick<Props, 'color' | 'context' | 'image'> &
+  Readonly<{
+    className?: string;
+  }>) {
   const rgbString = hexToRgb(color).join(',');
 
   return (
@@ -45,6 +49,7 @@ function BackgroundBase({
         style={{
           opacity: context === 'spotlight' ? 0.3 : 1,
         }}
+        className={className}
       />
       {context === 'page' && (
         <div

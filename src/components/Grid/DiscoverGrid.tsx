@@ -1,7 +1,10 @@
 import { headers } from 'next/headers';
 
 import { fetchDiscoverTvSeries } from '@/lib/tmdb';
-import { type TmdbDiscoverQuery } from '@/lib/tmdb/helpers';
+import {
+  type TmdbDiscoverTvSeriesQuery,
+  type TmdbDiscoverQuery,
+} from '@/lib/tmdb/helpers';
 
 import InfiniteGrid from './InfiniteGrid';
 
@@ -15,7 +18,7 @@ export default async function DiscoverGrid({
     await fetchDiscoverTvSeries({
       ...query,
       watch_region: region,
-    });
+    } as TmdbDiscoverTvSeriesQuery);
 
   return (
     <InfiniteGrid

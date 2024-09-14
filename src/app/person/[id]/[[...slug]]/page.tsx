@@ -106,7 +106,7 @@ export default async function PersonDetailsPage({ params }: Props) {
                   </div>
                 )}
                 {person.birthdate && (
-                  <div className="opacity-75 before:mr-1 before:content-['·'] lg:before:mr-2">
+                  <div className="opacity-75 md:before:mr-1 md:before:content-['·'] lg:before:mr-2">
                     <span className="hidden md:inline-block">
                       {calculateAge(person.birthdate, person.deathdate)} years
                     </span>

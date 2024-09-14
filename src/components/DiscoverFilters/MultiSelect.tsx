@@ -335,7 +335,7 @@ function MultiSelect({
             variants={dropdownVariants}
           >
             <motion.div
-              className="relative h-40 overflow-y-auto overflow-x-hidden rounded-lg bg-white text-neutral-800 md:h-auto md:max-h-96"
+              className="relative h-auto max-h-40 overflow-y-auto overflow-x-hidden rounded-lg bg-white text-neutral-800 md:max-h-96"
               style={{
                 width: widthOfResults,
               }}

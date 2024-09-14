@@ -49,6 +49,7 @@ import {
   GLOBAL_GENRES_TO_IGNORE,
   buildDiscoverQuery,
   type TmdbSearchPerson,
+  type TmdbPersonTvCredits,
 } from './helpers';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
@@ -749,4 +750,55 @@ export async function fetchPersonKnownFor(
 ): Promise<ReadonlyArray<TvSeries | Movie>> {
   const results = await searchPerson(person.name);
   return results[0]?.knownFor ?? [];
+}
+
+export async function fetchPersonTvCredits(id: number | string) {
+  const credits = (await tmdbFetch(
+    `/3/person/${id}/tv_credits`,
+  )) as TmdbPersonTvCredits;
+
+  const sortAndGroup = (
+    results: TmdbPersonTvCredits['cast'] | TmdbPersonTvCredits['crew'] = [],
+  ) => {
+    const currentDate = new Date();
+    const uniqueResults = [
+      ...new Map(results.map((item) => [item.id, item])).values(),
+    ];
+    const normalizedResults = uniqueResults
+      .filter(
+        (series) =>
+          series.poster_path &&
+          series.genre_ids &&
+          series.genre_ids.length > 0 &&
+          !series.genre_ids.some((genre) =>
+            GLOBAL_GENRES_TO_IGNORE.includes(genre),
+          ),
+      )
+      .sort((a, b) => {
+        if (!a.first_air_date && !b.first_air_date) return 0;
+        if (!a.first_air_date) return -1;
+        if (!b.first_air_date) return 1;
+
+        const dateA = new Date(a.first_air_date as string);
+        const dateB = new Date(b.first_air_date as string);
+        return dateB.getTime() - dateA.getTime();
+      })
+      .map((series) => normalizeTvSeries(series as unknown as TmdbTvSeries));
+
+    const upcoming = normalizedResults.filter((series) => {
+      if (!series.firstAirDate) return true;
+      return new Date(series.firstAirDate) > currentDate;
+    });
+    const previous = normalizedResults.filter((series) => {
+      if (!series.firstAirDate) return false;
+      return new Date(series.firstAirDate) <= currentDate;
+    });
+
+    return { upcoming, previous };
+  };
+
+  const cast = sortAndGroup(credits.cast);
+  const crew = sortAndGroup(credits.crew);
+
+  return { cast, crew };
 }

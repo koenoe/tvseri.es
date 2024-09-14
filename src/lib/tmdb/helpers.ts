@@ -99,6 +99,9 @@ export type TmdbPersonImages =
 export type TmdbPersonCredits =
   paths[`/3/person/${number}/combined_credits`]['get']['responses']['200']['content']['application/json'];
 
+export type TmdbPersonTvCredits =
+  paths[`/3/person/${number}/tv_credits`]['get']['responses']['200']['content']['application/json'];
+
 export const GLOBAL_GENRES_TO_IGNORE = [10763, 10764, 10766, 10767];
 
 export function generateTmdbImageUrl(path: string, size = 'original') {

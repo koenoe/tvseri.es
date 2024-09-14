@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 
 import LikeAndAddButton from '@/components/Buttons/LikeAndAddButton';
@@ -153,8 +154,15 @@ export default async function TvSeriesDetailsPage({ params }: Props) {
             {tvSeries.createdBy.length > 0 && (
               <p className="flex items-center gap-2 font-medium leading-loose">
                 <span className="opacity-60">Created by:</span>
-                {/* TODO: <Link /> to person pages */}
-                {tvSeries.createdBy.map((creator) => creator.name).join(', ')}
+                {tvSeries.createdBy.map((creator, index) => (
+                  <Link
+                    key={creator.id}
+                    href={`/person/${creator.id}/${creator.slug}`}
+                  >
+                    {creator.name}
+                    {index < tvSeries.createdBy.length - 1 ? ',' : ''}
+                  </Link>
+                ))}
               </p>
             )}
 

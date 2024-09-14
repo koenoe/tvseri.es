@@ -5,17 +5,9 @@ import { useCallback, useMemo } from 'react';
 import Image from 'next/image';
 
 import { type CountryOrLanguage } from '@/types/country-language';
+import svgSimplePlaceholder from '@/utils/svgSimplePlaceholder';
 
 import MultiSelect, { type Result } from './MultiSelect';
-
-const svgBase64FlagPlaceholder = (width: number, height: number) => {
-  const svg = `
-    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" version="1.1">
-      <rect width="100%" height="100%" fill="rgba(0,0,0,0.1)" />
-    </svg>
-  `;
-  return btoa(svg);
-};
 
 export default function DiscoverCountries({
   className,
@@ -41,9 +33,9 @@ export default function DiscoverCountries({
             className="object-contain"
             src={`https://flagcdn.com/h20/${String(item.value).toLocaleLowerCase()}.webp`}
             alt={item.label}
-            placeholder={`data:image/svg+xml;base64,${svgBase64FlagPlaceholder(30, 20)}`}
+            placeholder={`data:image/svg+xml;base64,${svgSimplePlaceholder(30, 20)}`}
             onError={(e) => {
-              e.currentTarget.src = `data:image/svg+xml;base64,${svgBase64FlagPlaceholder(30, 20)}`;
+              e.currentTarget.src = `data:image/svg+xml;base64,${svgSimplePlaceholder(30, 20)}`;
             }}
             fill
             unoptimized

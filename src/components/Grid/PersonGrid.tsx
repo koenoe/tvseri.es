@@ -17,7 +17,7 @@ export default async function PersonGrid({
   return (
     <>
       {upcoming.length > 0 && (
-        <div>
+        <div className="mb-10 lg:mb-20">
           <h3 className="mb-6 text-2xl font-medium lg:text-3xl">Upcoming</h3>
           <Grid>
             {upcoming.map((item) => (

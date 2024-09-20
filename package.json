@@ -19,7 +19,7 @@
     "@vercel/speed-insights": "^1.0.12",
     "class-variance-authority": "^0.7.0",
     "color": "^4.2.3",
-    "framer-motion": "^11.5.4",
+    "framer-motion": "^11.5.5",
     "next": "15.0.0-canary.159",
     "react": "19.0.0-rc-14a4699f-20240725",
     "react-dom": "19.0.0-rc-14a4699f-20240725",

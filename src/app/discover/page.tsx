@@ -6,10 +6,11 @@ import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
 import { type TmdbDiscoverQuery } from '@/lib/tmdb/helpers';
 
 export default async function DiscoverPage({
-  searchParams,
+  searchParams: searchParamsFromProps,
 }: Readonly<{
-  searchParams: TmdbDiscoverQuery;
+  searchParams: Promise<TmdbDiscoverQuery>;
 }>) {
+  const searchParams = await searchParamsFromProps;
   const key = searchParams
     ? `discover-${JSON.stringify(searchParams)}`
     : 'discover';

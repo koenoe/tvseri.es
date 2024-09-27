@@ -6,7 +6,7 @@ import { createAccessToken, createSessionId } from '@/lib/tmdb';
 import { decryptToken, encryptToken } from '@/lib/token';
 
 export async function GET(request: NextRequest) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const encryptedRequestToken = cookieStore.get('requestToken')?.value;
 
   if (!encryptedRequestToken) {

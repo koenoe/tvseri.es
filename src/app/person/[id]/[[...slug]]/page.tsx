@@ -19,10 +19,11 @@ import isTvSeries from '@/utils/isTvSeries';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 type Props = Readonly<{
-  params: { id: string; slug: string[] };
+  params: Promise<{ id: string; slug: string[] }>;
 }>;
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params: paramsFromProps }: Props) {
+  const params = await paramsFromProps;
   const person = await fetchPerson(params.id);
 
   if (!person || person.isAdult) {
@@ -45,7 +46,10 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default async function PersonDetailsPage({ params }: Props) {
+export default async function PersonDetailsPage({
+  params: paramsFromProps,
+}: Props) {
+  const params = await paramsFromProps;
   const person = await fetchPerson(params.id);
 
   if (!person || person.isAdult) {

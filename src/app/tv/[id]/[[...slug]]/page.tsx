@@ -20,10 +20,11 @@ import WatchProvider from '@/components/WatchProvider/WatchProvider';
 import { fetchTvSeries } from '@/lib/tmdb';
 
 type Props = Readonly<{
-  params: { id: string; slug: string[] };
+  params: Promise<{ id: string; slug: string[] }>;
 }>;
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params: paramsFromProps }: Props) {
+  const params = await paramsFromProps;
   const tvSeries = await fetchTvSeries(params.id);
 
   if (!tvSeries || tvSeries.isAdult) {
@@ -46,7 +47,10 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default async function TvSeriesDetailsPage({ params }: Props) {
+export default async function TvSeriesDetailsPage({
+  params: paramsFromProps,
+}: Props) {
+  const params = await paramsFromProps;
   const tvSeries = await fetchTvSeries(params.id);
 
   if (!tvSeries || tvSeries.isAdult) {

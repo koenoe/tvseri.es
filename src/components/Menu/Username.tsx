@@ -6,7 +6,8 @@ import { decryptToken } from '@/lib/token';
 import LoginButton from '../Buttons/LoginButton';
 
 export default async function Username() {
-  const encryptedSessionId = cookies().get('sessionId')?.value;
+  const cookieStore = await cookies();
+  const encryptedSessionId = cookieStore.get('sessionId')?.value;
 
   if (!encryptedSessionId) {
     return <LoginButton />;

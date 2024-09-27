@@ -12,7 +12,8 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { list: 'watchlist' | 'favorites' } },
 ) {
-  const encryptedSessionId = cookies().get('sessionId')?.value;
+  const cookieStore = await cookies();
+  const encryptedSessionId = cookieStore.get('sessionId')?.value;
 
   if (!encryptedSessionId) {
     return Response.json(null);

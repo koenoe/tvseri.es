@@ -4,7 +4,8 @@ import { fetchAccountDetails } from '@/lib/tmdb';
 import { decryptToken } from '@/lib/token';
 
 export async function GET() {
-  const encryptedSessionId = cookies().get('sessionId')?.value;
+  const cookieStore = await cookies();
+  const encryptedSessionId = cookieStore.get('sessionId')?.value;
 
   if (!encryptedSessionId) {
     return Response.json(null);

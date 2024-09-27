@@ -8,7 +8,7 @@ import Poster from '../Tiles/Poster';
 export default async function ApplePlusList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,
 ) {
-  const region = headers().get('x-vercel-ip-country') || 'US';
+  const region = (await headers()).get('x-vercel-ip-country') || 'US';
   const tvSeries = await fetchApplePlusTvSeries(region);
 
   return (

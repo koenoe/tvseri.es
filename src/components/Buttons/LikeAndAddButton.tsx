@@ -22,7 +22,8 @@ export default async function LikeAndAddButton({
   ) {
     'use server';
 
-    const encryptedSessionId = cookies().get('sessionId')?.value;
+    const cookieStore = await cookies();
+    const encryptedSessionId = cookieStore.get('sessionId')?.value;
 
     if (!encryptedSessionId) {
       return;
@@ -48,7 +49,8 @@ export default async function LikeAndAddButton({
     }
   }
 
-  const encryptedSessionId = cookies().get('sessionId')?.value;
+  const cookieStore = await cookies();
+  const encryptedSessionId = cookieStore.get('sessionId')?.value;
 
   if (encryptedSessionId) {
     const decryptedSessionId = decryptToken(encryptedSessionId);

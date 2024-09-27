@@ -131,7 +131,7 @@ function extractImages(item: TmdbTvSeries | TmdbMovie) {
   const titleTreatment = images.logos?.filter((path) =>
     path.file_path?.includes('png'),
   )[0]?.file_path;
-  const poster = images.posters?.[0]?.file_path ?? item.poster_path;
+  const poster = item.poster_path ?? images.posters?.[0]?.file_path;
 
   return {
     backdropImage: backdrop

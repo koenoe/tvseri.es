@@ -10,8 +10,11 @@ import { decryptToken } from '@/lib/token';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { list: 'watchlist' | 'favorites' } },
+  {
+    params: paramsFromProps,
+  }: { params: Promise<{ list: 'watchlist' | 'favorites' }> },
 ) {
+  const params = await paramsFromProps;
   const cookieStore = await cookies();
   const encryptedSessionId = cookieStore.get('sessionId')?.value;
 

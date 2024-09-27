@@ -12,11 +12,12 @@ import { decryptToken, encryptToken } from '@/lib/token';
 import getBaseUrl from '@/utils/getBaseUrl';
 
 export async function login(pathname = '/') {
+  const cookieStore = await cookies();
   const redirectUri = `${getBaseUrl()}/api/auth/callback?redirect=${pathname}`;
   const requestToken = await createRequestToken(redirectUri);
   const encryptedToken = encryptToken(requestToken);
 
-  cookies().set('requestToken', encryptedToken, {
+  cookieStore.set('requestToken', encryptedToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     maxAge: 10 * 60, // 10 minutes
@@ -28,7 +29,7 @@ export async function login(pathname = '/') {
 }
 
 export async function logout() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const encryptedSessionId = cookieStore.get('sessionId')?.value;
   const encryptedAccessToken = cookieStore.get('accessToken')?.value;
 

@@ -47,7 +47,7 @@ const SpotlightItem = forwardRef<HTMLAnchorElement, Props>(
 
         <div className="lg:p-18 relative w-full p-8 md:w-4/5 md:p-14">
           {item.titleTreatmentImage ? (
-            <h1 className="relative mb-6 h-20 w-full md:h-36 md:w-96">
+            <h1 className="relative mb-6 h-20 w-full md:h-40 md:w-[500px]">
               <Image
                 className="object-contain object-bottom md:object-left-bottom"
                 src={item.titleTreatmentImage}

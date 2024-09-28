@@ -72,7 +72,7 @@ export default async function TvSeriesDetailsPage({
         <div className="relative flex h-[calc(85vh-16rem)] items-end md:h-[calc(65vh-8rem)]">
           <div className="w-full xl:w-4/5 2xl:w-3/5">
             {tvSeries.titleTreatmentImage ? (
-              <h1 className="relative mb-6 h-28 w-full md:h-40 md:w-3/5">
+              <h1 className="relative mb-6 h-28 w-full md:h-40 md:w-[500px]">
                 <Image
                   className="max-w-[500px] object-contain object-bottom md:object-left-bottom"
                   src={tvSeries.titleTreatmentImage}

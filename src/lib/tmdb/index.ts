@@ -289,6 +289,36 @@ export async function fetchFavorites({
   };
 }
 
+export async function fetchRecommendedTvSeries({
+  accountObjectId,
+  accessToken,
+  page = 1,
+}: Readonly<{
+  accountObjectId: string;
+  accessToken: string;
+  page?: number;
+}>) {
+  const response = (await tmdbFetch(
+    `/4/account/${accountObjectId}/tv/recommendations?page=${page}`,
+    {
+      cache: 'no-store',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  )) as TmdbFavorites; // TODO: sort out type, but it's the same as `favorites/watchlist`
+
+  const items = (response.results ?? []).map((series) => {
+    return normalizeTvSeries(series as TmdbTvSeries);
+  });
+
+  return {
+    items,
+    totalNumberOfPages: response.total_pages,
+    totalNumberOfItems: response.total_results,
+  };
+}
+
 export async function fetchTvSeries(
   id: number | string,
 ): Promise<TvSeries | undefined> {

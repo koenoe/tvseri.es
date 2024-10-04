@@ -21,8 +21,8 @@ importers:
         specifier: ^4.2.3
         version: 4.2.3
       framer-motion:
-        specifier: ^11.9.0
-        version: 11.9.0(react-dom@19.0.0-rc-14a4699f-20240725(react@19.0.0-rc-14a4699f-20240725))(react@19.0.0-rc-14a4699f-20240725)
+        specifier: ^11.11.0
+        version: 11.11.0(react-dom@19.0.0-rc-14a4699f-20240725(react@19.0.0-rc-14a4699f-20240725))(react@19.0.0-rc-14a4699f-20240725)
       next:
         specifier: 15.0.0-canary.173
         version: 15.0.0-canary.173(react-dom@19.0.0-rc-14a4699f-20240725(react@19.0.0-rc-14a4699f-20240725))(react@19.0.0-rc-14a4699f-20240725)
@@ -1067,8 +1067,8 @@ packages:
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
 
-  framer-motion@11.9.0:
-    resolution: {integrity: sha512-nCfGxvsQecVLjjYDu35G2F5ls+ArE3FBfhxV0RSiisMaUKqteq5DMBFNRKwMyVj+VqKTNhawt+BV480YCHKFlQ==}
+  framer-motion@11.11.0:
+    resolution: {integrity: sha512-H6Pv12fcXaebinvnLDabTS9vHwtJKAo7XsnVeNLm5t8Yq5LuVvQ3DtL/2yBa2kGmhdIgx9cw8mbj6I8PYx7jPA==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0
@@ -3348,7 +3348,7 @@ snapshots:
 
   fraction.js@4.3.7: {}
 
-  framer-motion@11.9.0(react-dom@19.0.0-rc-14a4699f-20240725(react@19.0.0-rc-14a4699f-20240725))(react@19.0.0-rc-14a4699f-20240725):
+  framer-motion@11.11.0(react-dom@19.0.0-rc-14a4699f-20240725(react@19.0.0-rc-14a4699f-20240725))(react@19.0.0-rc-14a4699f-20240725):
     dependencies:
       tslib: 2.7.0
     optionalDependencies:

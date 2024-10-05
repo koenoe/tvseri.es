@@ -289,6 +289,36 @@ export async function fetchFavorites({
   };
 }
 
+export async function fetchAllFavorites({
+  accountId,
+  sessionId,
+  maxNumberOfItems,
+}: Readonly<{
+  accountId: number | string;
+  sessionId: string;
+  maxNumberOfItems?: number;
+}>) {
+  const allItems: TvSeries[] = [];
+  let currentPage = 1;
+  let totalNumberOfItems: number;
+
+  do {
+    const { items, totalNumberOfItems: total } = await fetchFavorites({
+      accountId,
+      sessionId,
+      page: currentPage,
+    });
+    totalNumberOfItems = total;
+    allItems.push(...items);
+    currentPage++;
+  } while (
+    allItems.length < totalNumberOfItems &&
+    (!maxNumberOfItems || allItems.length < maxNumberOfItems)
+  );
+
+  return allItems;
+}
+
 export async function fetchRecommendedTvSeries({
   accountObjectId,
   accessToken,
@@ -317,6 +347,52 @@ export async function fetchRecommendedTvSeries({
     totalNumberOfPages: response.total_pages,
     totalNumberOfItems: response.total_results,
   };
+}
+
+export async function fetchRecommendedForYou({
+  accountId,
+  sessionId,
+  accountObjectId,
+  accessToken,
+  minNumberOfItems = 25,
+}: Readonly<{
+  accountId: number | string;
+  sessionId: string;
+  accountObjectId: string;
+  accessToken: string;
+  minNumberOfItems?: number;
+}>) {
+  const favorites = await fetchAllFavorites({
+    accountId,
+    sessionId,
+    maxNumberOfItems: 1000,
+  });
+
+  const favoriteIds = new Set(favorites.map((fav) => fav.id));
+
+  const recommendations: TvSeries[] = [];
+  let page = 1;
+
+  while (recommendations.length < minNumberOfItems) {
+    const { items, totalNumberOfPages } = await fetchRecommendedTvSeries({
+      accountObjectId,
+      accessToken,
+      page,
+    });
+
+    const newRecommendations = items.filter(
+      (item) => !favoriteIds.has(item.id),
+    );
+    recommendations.push(...newRecommendations);
+
+    if (page >= totalNumberOfPages) {
+      break;
+    }
+
+    page++;
+  }
+
+  return recommendations;
 }
 
 export async function fetchTvSeries(
@@ -608,12 +684,21 @@ export async function fetchApplePlusTvSeries(region = 'US') {
 }
 
 export async function fetchMostAnticipatedTvSeries() {
+  const withoutGenres = [...GLOBAL_GENRES_TO_IGNORE, 16, 10762];
   const { items } = await fetchDiscoverTvSeries({
-    without_genres: [...GLOBAL_GENRES_TO_IGNORE, 16, 10762].join(','),
+    without_genres: withoutGenres.join(','),
     'first_air_date.gte': new Date().toISOString().split('T')[0],
     'vote_count.gte': 0,
   });
-  return items.filter((item) => !!item.posterImage && !!item.backdropImage);
+
+  return items.filter(
+    (item) =>
+      !!item.posterImage &&
+      !!item.backdropImage &&
+      // Note: somehow we still get some series with genres we want to ignore ¯\_(ツ)_/¯
+      !item.genres?.some((genre) => withoutGenres.includes(genre.id)) &&
+      item.id !== 131835,
+  );
 }
 
 export async function fetchGenresForTvSeries() {

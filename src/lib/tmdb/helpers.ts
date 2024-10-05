@@ -147,11 +147,19 @@ function extractImages(item: TmdbTvSeries | TmdbMovie) {
 }
 
 function normalizeGenres(genres: TmdbTvSeries['genres']) {
-  return (genres ?? []).map((genre) => ({
-    id: genre.id,
-    name: genre.name as string,
-    slug: slugify(genre.name as string, { lower: true, strict: true }),
-  }));
+  return (genres ?? []).map((genre) =>
+    typeof genre === 'number'
+      ? {
+          id: genre,
+          name: '',
+          slug: '',
+        }
+      : {
+          id: genre.id,
+          name: genre.name as string,
+          slug: slugify(genre.name as string, { lower: true, strict: true }),
+        },
+  );
 }
 
 export function normalizePersons(
@@ -255,7 +263,8 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     })),
     originalTitle: series.original_name ?? '',
     tagline: series.tagline ?? '',
-    genres: normalizeGenres(series.genres),
+    // @ts-expect-error genre_ids is not defined in the type
+    genres: normalizeGenres(series.genres ?? series.genre_ids),
     numberOfEpisodes: series.number_of_episodes ?? 0,
     numberOfSeasons: series.number_of_seasons ?? 0,
     popularity: series.popularity,

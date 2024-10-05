@@ -10,6 +10,7 @@ import InfiniteScroll from '../InfiniteScroll/InfiniteScroll';
 import Poster from '../Tiles/Poster';
 
 const useRestorableItems = createUseRestorableState<TvSeries[]>();
+const useRestorableHasMoreData = createUseRestorableState<boolean>();
 
 function InfiniteGrid({
   endpoint,
@@ -23,9 +24,9 @@ function InfiniteGrid({
   totalNumberOfPages: number;
 }>) {
   const [items, setItems] = useRestorableItems(endpoint, itemsFromProps);
-  const hasMoreData = useMemo(
-    () => items.length < totalNumberOfItems,
-    [items.length, totalNumberOfItems],
+  const [hasMoreData, setHasMoreData] = useRestorableHasMoreData(
+    endpoint,
+    items.length < totalNumberOfItems,
   );
 
   const fetchItems = useCallback(
@@ -43,19 +44,30 @@ function InfiniteGrid({
   );
 
   const handleLoadMore = useCallback(async () => {
-    const itemsPerPage = Math.ceil(totalNumberOfItems / totalNumberOfPages);
+    // Note: see https://www.themoviedb.org/talk/623012ed357c00001b46ae10#62308d1fa3e4ba0047843a6c
+    const itemsPerPage = 20;
     const currentPage = Math.ceil(items.length / itemsPerPage);
     const nextPage = currentPage + 1;
+
+    if (nextPage > totalNumberOfPages) {
+      setHasMoreData(false);
+      return;
+    }
+
     const newItems = await fetchItems(nextPage);
 
+    // Note: shouldn't happen, but extra safeguard
+    if (newItems.length === 0) {
+      setHasMoreData(false);
+      return;
+    }
+
     setItems((prevItems) => [...prevItems, ...newItems]);
-  }, [
-    fetchItems,
-    items.length,
-    setItems,
-    totalNumberOfItems,
-    totalNumberOfPages,
-  ]);
+
+    if (nextPage === totalNumberOfPages) {
+      setHasMoreData(false);
+    }
+  }, [fetchItems, items.length, setHasMoreData, setItems, totalNumberOfPages]);
 
   // Note: use a Set to track unique IDs to prevent duplicates
   // as TMDb can return same items on different pages

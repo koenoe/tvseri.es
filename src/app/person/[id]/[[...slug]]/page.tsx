@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 
 import ExpandableText from '@/components/ExpandableText/ExpandableText';
@@ -82,22 +83,27 @@ export default async function PersonDetailsPage({
       <div className="my-10 md:container md:my-20">
         <div className="grid max-w-screen-xl grid-cols-1 md:grid-cols-3 [&>*]:!h-auto [&>*]:!w-full">
           <div className="mb-10 px-[2rem] md:mb-0 md:px-0">
-            <div className="relative h-auto w-full overflow-hidden rounded-lg pt-[150%] shadow-lg after:absolute after:inset-0 after:rounded-lg after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:mx-0">
-              {person.image ? (
-                <Image
-                  className="rounded-lg object-cover"
-                  draggable={false}
-                  src={person.image}
-                  alt={person.name}
-                  fill
-                  unoptimized
-                  priority
-                  placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(300, 450)}`}
-                />
-              ) : (
-                <div className="absolute inset-0 h-full w-full overflow-hidden rounded-lg bg-white/5" />
-              )}
-            </div>
+            <Link
+              href={`https://www.imdb.com/name/${person.imdbId}`}
+              target="_blank"
+            >
+              <div className="relative h-auto w-full overflow-hidden rounded-lg pt-[150%] shadow-lg after:absolute after:inset-0 after:rounded-lg after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:mx-0">
+                {person.image ? (
+                  <Image
+                    className="rounded-lg object-cover"
+                    draggable={false}
+                    src={person.image}
+                    alt={person.name}
+                    fill
+                    unoptimized
+                    priority
+                    placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(300, 450)}`}
+                  />
+                ) : (
+                  <div className="absolute inset-0 h-full w-full overflow-hidden rounded-lg bg-white/5" />
+                )}
+              </div>
+            </Link>
           </div>
 
           <div className="col-span-2">

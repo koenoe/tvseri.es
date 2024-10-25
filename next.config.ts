@@ -4,7 +4,6 @@ import getBaseUrl from './src/utils/getBaseUrl';
 const nextConfig = {
   experimental: {
     ppr: true,
-    pprFallbacks: true,
     staleTimes: {
       // TODO: there's a bug with searchParams atm
       dynamic: 0, // default is 30

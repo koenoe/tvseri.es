@@ -16,7 +16,10 @@ export default async function ImdbRating({
 
     return rating ? (
       <Link
-        className={cx('flex items-center gap-3', className)}
+        className={cx(
+          'flex items-center gap-3 transition-all hover:scale-110',
+          className,
+        )}
         target="_blank"
         href={`https://www.imdb.com/title/${rating.imdbid}`}
       >

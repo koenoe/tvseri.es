@@ -90,7 +90,7 @@ function Poster({
     return (
       <motion.div
         key={item.id}
-        className={cx(posterStyles({ size }), className)}
+        className={cx(posterStyles({ size }), 'cursor-not-allowed', className)}
         draggable={false}
         whileHover={{ scale: 1.075 }}
         animate={{ scale: 1 }}

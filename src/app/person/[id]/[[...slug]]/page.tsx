@@ -138,7 +138,15 @@ export default async function PersonDetailsPage({
                 )}
               </div>
               <ExpandableText className="mb-10">
-                {person.biography}
+                {person.biography
+                  ?.trim()
+                  .split('\n')
+                  .filter((section) => section !== '')
+                  .map((section, i) => (
+                    <p key={i} className="mb-4">
+                      {section}
+                    </p>
+                  ))}
               </ExpandableText>
             </div>
             <h2 className="px-[2rem] text-2xl font-medium md:pl-12 lg:pl-16">

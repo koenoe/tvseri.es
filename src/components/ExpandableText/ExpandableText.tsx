@@ -27,11 +27,11 @@ export default function ExpandableText({
   );
 
   return (
-    <p
+    <div
       className={textStyles({ state: isOpen ? 'open' : 'closed', className })}
       onClick={handleClick}
     >
       {children}
-    </p>
+    </div>
   );
 }

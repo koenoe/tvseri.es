@@ -12,5 +12,9 @@ export async function GET(request: NextRequest) {
 
   const response = await searchTvSeries(query);
 
-  return Response.json(response);
+  return Response.json(response, {
+    headers: {
+      'Cache-Control': 'public, max-age=3600, immutable',
+    },
+  });
 }

@@ -19,5 +19,9 @@ export async function GET(request: NextRequest) {
     response = await Promise.all(promises);
   }
 
-  return Response.json(response);
+  return Response.json(response, {
+    headers: {
+      'Cache-Control': 'public, max-age=3600, immutable',
+    },
+  });
 }

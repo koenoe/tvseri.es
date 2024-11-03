@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 
+import { cx } from 'class-variance-authority';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
@@ -142,8 +143,13 @@ export default async function PersonDetailsPage({
                   ?.trim()
                   .split('\n')
                   .filter((section) => section !== '')
-                  .map((section, i) => (
-                    <p key={i} className="mb-4">
+                  .map((section, i, sections) => (
+                    <p
+                      key={i}
+                      className={cx({
+                        'mb-4': i < sections.length - 1,
+                      })}
+                    >
                       {section}
                     </p>
                   ))}

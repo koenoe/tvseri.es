@@ -12,18 +12,22 @@ async function mdblistFetch(path: RequestInfo | URL, init?: RequestInit) {
   const headers = {
     accept: 'application/json',
   };
-  const next = {
-    revalidate: 3600,
-  };
+  // Note: NextJS doesn't allow both revalidate + cache headers
+  const next = init?.cache
+    ? {}
+    : {
+        revalidate: 3600,
+      };
+
   const patchedOptions = {
     ...init,
     next: {
       ...next,
-      ...(init?.next || {}),
+      ...init?.next,
     },
     headers: {
       ...headers,
-      ...(init?.headers || {}),
+      ...init?.headers,
     },
   };
 
@@ -93,6 +97,11 @@ export async function fetchRating(
 export async function fetchImdbTopRatedTvSeries() {
   const response = (await mdblistFetch(
     '/lists/koenoe/imdb-top-rated-by-koen/json',
+    {
+      next: {
+        revalidate: 604800, // 1 week
+      },
+    },
   )) as Item[];
 
   return response.map((item) => item.id);
@@ -101,6 +110,11 @@ export async function fetchImdbTopRatedTvSeries() {
 export async function fetchKoreasFinest() {
   const response = (await mdblistFetch(
     '/lists/koenoe/top-rated-korean-shows-on-netflix/json',
+    {
+      next: {
+        revalidate: 604800, // 1 week
+      },
+    },
   )) as Item[];
 
   return response.map((item) => item.id);

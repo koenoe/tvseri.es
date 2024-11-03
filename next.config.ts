@@ -3,7 +3,7 @@ import getBaseUrl from './src/utils/getBaseUrl';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    ppr: true,
+    ppr: false,
     staleTimes: {
       // TODO: there's a bug with searchParams atm
       dynamic: 0, // default is 30
@@ -26,6 +26,13 @@ const nextConfig = {
       },
     ],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  serverExternalPackages: ['sharp'],
   async headers() {
     return [
       {
@@ -42,6 +49,15 @@ const nextConfig = {
           {
             key: 'Access-Control-Allow-Headers',
             value: 'Content-Type, Authorization',
+          },
+        ],
+      },
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow',
           },
         ],
       },

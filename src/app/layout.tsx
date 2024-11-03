@@ -2,8 +2,6 @@ import './globals.css';
 
 import { Suspense } from 'react';
 
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import { cx } from 'class-variance-authority';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
@@ -104,8 +102,6 @@ export default function RootLayout({
         />
         <Header />
         {children}
-        <Analytics />
-        <SpeedInsights />
         <Suspense>
           <Footer />
         </Suspense>

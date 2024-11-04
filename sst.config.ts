@@ -35,7 +35,7 @@ export default $config({
       },
       server: {
         architecture,
-        memory: '3072 MB',
+        memory: '3008 MB',
       },
     });
   },

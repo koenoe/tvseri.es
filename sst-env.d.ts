@@ -2,13 +2,13 @@
 /* tslint:disable */
 /* eslint-disable */
 /* deno-fmt-ignore-file */
-import "sst"
-export {}
-declare module "sst" {
+import 'sst';
+export {};
+declare module 'sst' {
   export interface Resource {
-    "tvseries": {
-      "type": "sst.aws.Nextjs"
-      "url": string
-    }
+    tvseries: {
+      type: 'sst.aws.Nextjs';
+      url: string;
+    };
   }
 }

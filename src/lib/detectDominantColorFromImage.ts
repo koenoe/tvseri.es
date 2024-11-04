@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { cache } from 'react';
+
 import Color from 'color';
 import { unstable_cache } from 'next/cache';
 
@@ -43,12 +45,11 @@ async function detectDominantColorFromImage(url: string): Promise<string> {
   }
 }
 
-const detectDominantColorFromImageWithCache = unstable_cache(
-  async (url: string) => {
+const detectDominantColorFromImageWithCache = cache(async (url: string) =>
+  unstable_cache(async () => {
     const dominantColor = await detectDominantColorFromImage(url);
     return dominantColor;
-  },
-  [cachePrefix],
+  }, [cachePrefix, url])(),
 );
 
 export default detectDominantColorFromImageWithCache;

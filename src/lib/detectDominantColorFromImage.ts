@@ -4,10 +4,9 @@ import { cache } from 'react';
 
 import Color from 'color';
 import { unstable_cache } from 'next/cache';
+import sharp from 'sharp';
 
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
-
-const sharp = require('sharp') as typeof import('sharp');
 
 const CONTRAST_MINIMUM = 4.5; // Minimum contrast ratio for accessibility (WCAG)
 const BLEND_OPACITY_STEP = 0.05; // Incremental step for darkening colors

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useLayoutEffect, useRef } from 'react';
+import { memo, useCallback, useLayoutEffect, useRef } from 'react';
 
 import { cva, cx, type VariantProps } from 'class-variance-authority';
 import {
@@ -202,4 +202,4 @@ function List({
   );
 }
 
-export default List;
+export default memo(List);

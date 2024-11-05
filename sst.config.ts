@@ -32,6 +32,8 @@ export default $config({
         SECRET_KEY: process.env.SECRET_KEY as string,
         TMDB_API_ACCESS_TOKEN: process.env.TMDB_API_ACCESS_TOKEN as string,
         TMDB_API_KEY: process.env.TMDB_API_KEY as string,
+        // TODO: figure out how to get the site url here
+        SST_URL: 'https://d2nj72qdee7gz2.cloudfront.net',
       },
       server: {
         architecture,

@@ -32,7 +32,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  serverExternalPackages: ['sharp'],
   async headers() {
     return [
       {

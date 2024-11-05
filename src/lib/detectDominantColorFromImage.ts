@@ -4,7 +4,6 @@ import { cache } from 'react';
 
 import Color from 'color';
 import { unstable_cache } from 'next/cache';
-import sharp from 'sharp';
 
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 
@@ -28,6 +27,7 @@ const cachePrefix = 'dominant-color-with-sharp-blur';
 
 async function detectDominantColorFromImage(url: string): Promise<string> {
   try {
+    const sharp = (await import('sharp')).default;
     const imageResponse = await fetch(url);
     const imageArrayBuffer = await imageResponse.arrayBuffer();
     const imageBuffer = Buffer.from(imageArrayBuffer);

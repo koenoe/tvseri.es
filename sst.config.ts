@@ -21,7 +21,7 @@ export default $config({
 
     new sst.aws.Nextjs('tvseries', {
       buildCommand: `
-        pnpm dlx open-next build && \
+        pnpm dlx @opennextjs/aws build && \
         mkdir -p .open-next/tmp-sharp && \
         pnpm -C='.open-next/tmp-sharp' i sharp --shamefully-hoist --config.arch=${architecture} --config.platform=linux --config.libc=glibc && \
         cp -R .open-next/tmp-sharp/node_modules .open-next/server-functions/default
@@ -33,7 +33,7 @@ export default $config({
         TMDB_API_ACCESS_TOKEN: process.env.TMDB_API_ACCESS_TOKEN as string,
         TMDB_API_KEY: process.env.TMDB_API_KEY as string,
         // TODO: figure out how to get the site url here
-        SST_URL: 'https://d1ygseoktoojlh.cloudfront.net',
+        // SST_URL: '',
       },
       server: {
         architecture,

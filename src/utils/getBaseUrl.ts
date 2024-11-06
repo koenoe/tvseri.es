@@ -8,8 +8,8 @@ export default function getBaseUrl() {
     return `https://${process.env.VERCEL_BRANCH_URL}`;
   } else if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`;
-  } else if (process.env.SST_URL) {
-    return process.env.SST_URL;
+  } else if (process.env.SITE_URL) {
+    return process.env.SITE_URL;
   } else {
     return 'http://localhost:3000';
   }

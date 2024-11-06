@@ -20,7 +20,7 @@
     "class-variance-authority": "^0.7.0",
     "color": "^4.2.3",
     "framer-motion": "^11.11.11",
-    "next": "15.0.3-canary.6",
+    "next": "15.0.3-canary.7",
     "react": "19.0.0-rc-7c8e5e7a-20241101",
     "react-dom": "19.0.0-rc-7c8e5e7a-20241101",
     "server-only": "^0.0.1",

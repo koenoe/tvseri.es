@@ -33,11 +33,24 @@ export default $config({
         TMDB_API_ACCESS_TOKEN: process.env.TMDB_API_ACCESS_TOKEN as string,
         TMDB_API_KEY: process.env.TMDB_API_KEY as string,
         // TODO: figure out how to get the site url here
-        // SST_URL: '',
+        SST_URL: '',
       },
       server: {
         architecture,
         memory: '3008 MB',
+      },
+      transform: {
+        cdn: (options) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const origins = (options.origins || []) as any[];
+          options.origins = origins.map((origin) => ({
+            ...origin,
+            originShield: {
+              enabled: true,
+              originShieldRegion: $app.providers?.aws.region ?? 'eu-west-2',
+            },
+          }));
+        },
       },
     });
   },

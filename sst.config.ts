@@ -26,14 +26,21 @@ export default $config({
         pnpm -C='.open-next/tmp-sharp' i sharp --shamefully-hoist --config.arch=${architecture} --config.platform=linux --config.libc=glibc && \
         cp -R .open-next/tmp-sharp/node_modules .open-next/server-functions/default
         `,
+      // Note: https://sst.dev/docs/custom-domains/#manual-setup
+      // domain: {
+      //   name:
+      //     $app.stage === 'production' ? 'tvseri.es' : `${$app.stage}.tvseri.es`,
+      //   redirects: $app.stage === 'production' ? ['www.tvseri.es'] : undefined,
+      //   dns: false,
+      //   cert: '',
+      // },
       environment: {
         MDBLIST_API_KEY: process.env.MDBLIST_API_KEY as string,
         OPEN_NEXT_FORCE_NON_EMPTY_RESPONSE: 'true',
         SECRET_KEY: process.env.SECRET_KEY as string,
         TMDB_API_ACCESS_TOKEN: process.env.TMDB_API_ACCESS_TOKEN as string,
         TMDB_API_KEY: process.env.TMDB_API_KEY as string,
-        // TODO: figure out how to get the site url here
-        SST_URL: '',
+        SITE_URL: 'https://d1u3k6rlkr0wln.cloudfront.net',
       },
       server: {
         architecture,

@@ -5,10 +5,10 @@ const nextConfig = {
   experimental: {
     // TODO: figure out what broke in latest canary as searchParams aren't working properly anymore
     ppr: false,
-    // TODO: there's a bug with searchParams atm
     staleTimes: {
-      dynamic: 0,
-      static: 0,
+      // TODO: there's a bug with searchParams atm
+      dynamic: 0, // default is 30
+      static: 0, // default is 180
     },
   },
   images: {

@@ -1,6 +1,7 @@
-import { Suspense } from 'react';
+import { cache, Suspense } from 'react';
 
 import { cx } from 'class-variance-authority';
+import { unstable_cache } from 'next/cache';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
@@ -24,9 +25,22 @@ type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
 
+const cachedPerson = cache(async (id: string) =>
+  unstable_cache(
+    async () => {
+      const items = await fetchPerson(id);
+      return items;
+    },
+    ['person', id],
+    {
+      revalidate: 86400, // 1 day
+    },
+  )(),
+);
+
 export async function generateMetadata({ params: paramsFromProps }: Props) {
   const params = await paramsFromProps;
-  const person = await fetchPerson(params.id);
+  const person = await cachedPerson(params.id);
 
   if (!person || person.isAdult) {
     return {};
@@ -52,7 +66,7 @@ export default async function PersonDetailsPage({
   params: paramsFromProps,
 }: Props) {
   const params = await paramsFromProps;
-  const person = await fetchPerson(params.id);
+  const person = await cachedPerson(params.id);
 
   if (!person || person.isAdult) {
     return notFound();

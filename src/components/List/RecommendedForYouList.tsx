@@ -18,7 +18,7 @@ const cachedRecommendedForYou = cache(
       },
       ['recommended-for-you', `${args.accountId}`],
       {
-        revalidate: 86400, // 1 day
+        revalidate: 43200, // 12 hours
       },
     )(),
 );

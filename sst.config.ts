@@ -18,6 +18,10 @@ export default $config({
   },
   async run() {
     const architecture = 'arm64';
+    const domain =
+      $app.stage === 'production'
+        ? 'tvseri.es'
+        : `${$app.stage === 'dev' || $app.stage === 'development' ? 'dev' : `${$app.stage}.dev`}.tvseri.es`;
 
     new sst.aws.Nextjs('tvseries', {
       buildCommand: `
@@ -26,21 +30,23 @@ export default $config({
         pnpm -C='.open-next/tmp-sharp' i sharp --shamefully-hoist --config.arch=${architecture} --config.platform=linux --config.libc=glibc && \
         cp -R .open-next/tmp-sharp/node_modules .open-next/server-functions/default
         `,
-      // Note: https://sst.dev/docs/custom-domains/#manual-setup
-      // domain: {
-      //   name:
-      //     $app.stage === 'production' ? 'tvseri.es' : `${$app.stage}.tvseri.es`,
-      //   redirects: $app.stage === 'production' ? ['www.tvseri.es'] : undefined,
-      //   dns: false,
-      //   cert: '',
-      // },
+      domain: {
+        name: domain,
+        dns: sst.aws.dns({
+          zone:
+            $app.stage === 'production'
+              ? (process.env.AWS_HOSTED_ZONE_ID_PROD as string)
+              : (process.env.AWS_HOSTED_ZONE_ID_DEV as string),
+        }),
+        redirects: $app.stage === 'production' ? ['www.tvseri.es'] : [],
+      },
       environment: {
         MDBLIST_API_KEY: process.env.MDBLIST_API_KEY as string,
         OPEN_NEXT_FORCE_NON_EMPTY_RESPONSE: 'true',
         SECRET_KEY: process.env.SECRET_KEY as string,
         TMDB_API_ACCESS_TOKEN: process.env.TMDB_API_ACCESS_TOKEN as string,
         TMDB_API_KEY: process.env.TMDB_API_KEY as string,
-        SITE_URL: 'https://d1u3k6rlkr0wln.cloudfront.net',
+        SITE_URL: `https://${domain}`,
       },
       server: {
         architecture,

@@ -10,7 +10,11 @@ export default async function ContentRating({
   className?: string;
   id: number;
 }) {
-  const region = (await headers()).get('x-vercel-ip-country') || 'US';
+  const headerStore = await headers();
+  const region =
+    headerStore.get('x-vercel-ip-country') ||
+    headerStore.get('cloudfront-viewer-country') ||
+    'US';
   const contentRating = await fetchTvSeriesContentRating(id, region);
 
   return contentRating ? (

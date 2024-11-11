@@ -13,7 +13,11 @@ export default async function DiscoverGrid({
 }: Readonly<{
   query?: TmdbDiscoverQuery;
 }>) {
-  const region = (await headers()).get('x-vercel-ip-country') || 'US';
+  const headerStore = await headers();
+  const region =
+    headerStore.get('x-vercel-ip-country') ||
+    headerStore.get('cloudfront-viewer-country') ||
+    'US';
   const { items, totalNumberOfItems, totalNumberOfPages, queryString } =
     await fetchDiscoverTvSeries({
       ...query,

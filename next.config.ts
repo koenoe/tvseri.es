@@ -1,5 +1,9 @@
 import getBaseUrl from './src/utils/getBaseUrl';
 
+const baseUrl = getBaseUrl();
+const shouldAddNoIndexHeader =
+  baseUrl.includes('.dev') || baseUrl.includes('.vercel');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
@@ -40,7 +44,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Access-Control-Allow-Origin',
-            value: getBaseUrl(),
+            value: baseUrl,
           },
           {
             key: 'Access-Control-Allow-Methods',
@@ -52,15 +56,19 @@ const nextConfig = {
           },
         ],
       },
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'X-Robots-Tag',
-            value: 'noindex, nofollow',
-          },
-        ],
-      },
+      ...(shouldAddNoIndexHeader
+        ? [
+            {
+              source: '/:path*',
+              headers: [
+                {
+                  key: 'X-Robots-Tag',
+                  value: 'noindex, nofollow',
+                },
+              ],
+            },
+          ]
+        : []),
     ];
   },
   async rewrites() {

@@ -100,8 +100,8 @@ importers:
         specifier: ^2.10.1
         version: 2.10.1
       sst:
-        specifier: ^3.3.3
-        version: 3.3.3
+        specifier: ^3.3.19
+        version: 3.3.19
       tailwind-scrollbar-hide:
         specifier: ^1.1.7
         version: 1.1.7
@@ -1895,33 +1895,33 @@ packages:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
 
-  sst-darwin-arm64@3.3.3:
-    resolution: {integrity: sha512-kVwvk9U80TYZBkJw0JlC/2pdmPB4sz4vjnRIw74kDvspMZiYHuC/UquwEFOPiwlinIffRbuh/hwbBsrXisuykg==}
+  sst-darwin-arm64@3.3.19:
+    resolution: {integrity: sha512-FZoqMDIhMNLp6WS3lyMypEoIA+uOgdKlcNs1G6P4FAS/L6XSqu7WIiWuBrUqxYIHWZbc7Mlbd8/AK1lYHd/kHA==}
     cpu: [arm64]
     os: [darwin]
 
-  sst-darwin-x64@3.3.3:
-    resolution: {integrity: sha512-RBmaW399x+m5rhelLhegK6bm/gS/fkX7lH2aA6HuA5sw3HuSwbcat8Z668BfIZ0yUj4YSJyttRYfqfXO/O4mYw==}
+  sst-darwin-x64@3.3.19:
+    resolution: {integrity: sha512-QFFduBG72+OIscnbsI6TPlQPaR+chyiM+0HG9rBq6L1PYM/iTdX/yL9y+tGUVZsUa17GYOhrLe7+/zEpo2zcKw==}
     cpu: [x64]
     os: [darwin]
 
-  sst-linux-arm64@3.3.3:
-    resolution: {integrity: sha512-itiyFzotkAmoJr+KKtcvWZIU/hZFQPpDp2CeLFSR+5MLG/+BS77u7jIhKuezSBotG7JWZUA7EbUE7LmwH2o/nA==}
+  sst-linux-arm64@3.3.19:
+    resolution: {integrity: sha512-24V6y3HsLVHMTaio9h0vL5Wv+6NuuEjkpDil1JzJJlw8oG79GK7+pJHaCbYwRvxTTULA5YiuDHUXMfmxaLvOVQ==}
     cpu: [arm64]
     os: [linux]
 
-  sst-linux-x64@3.3.3:
-    resolution: {integrity: sha512-6khHdE3fKHqYxoOuq6yaMxf8II4cBXC4tz/uH7tjRsmLJnS/L8LfWctmJS+ImDhtXg9q3p64HbVBG5jrnN8QWw==}
+  sst-linux-x64@3.3.19:
+    resolution: {integrity: sha512-hxya4Wng0LEv0A2JLeP5WnqUYZ9yLkSOP5K5pjuosNgp2mobM7LbEr3gLhNi+oE0ZofXzXsiGwjUMuhyXYQovA==}
     cpu: [x64]
     os: [linux]
 
-  sst-linux-x86@3.3.3:
-    resolution: {integrity: sha512-76gYVikvBgPhXbB+/HwwshMsrb/qJHee03oJvsdSg0ToWyvSA4/imRjdK9JgdsPNHmgro0UTI3smqPqbOGKvnQ==}
+  sst-linux-x86@3.3.19:
+    resolution: {integrity: sha512-7GtPWLR69lTosJONT3kVh/oJhz1Dzqqchtvg3FzdHD8rJcQfgF0wmfUUx2FjCX8LL+wQA44NdFrlDfA2FGGvPA==}
     cpu: [x86]
     os: [linux]
 
-  sst@3.3.3:
-    resolution: {integrity: sha512-M8q6vP6E/S0RKd5P9ODjDsU85mbhaM7sSail8UQEz/xN/JZttkoMdCC/uTXUaJ9uYRuC71pKXCXqU9LgZ0UeMA==}
+  sst@3.3.19:
+    resolution: {integrity: sha512-oZ09YGNqAJOkFQjUp2G2ZyANJ7j7yZEZmho+ASwvCFb10vXJbJbzLjIFS9+FkFpf2Cq+Y8uZpbtHHdPSJPrpGQ==}
     hasBin: true
     peerDependencies:
       hono: 4.x
@@ -2904,7 +2904,6 @@ snapshots:
       function-bind: 1.1.2
       get-intrinsic: 1.2.4
       globalthis: 1.0.4
-      gopd: 1.0.1
       has-property-descriptors: 1.0.2
       has-proto: 1.0.3
       has-symbols: 1.0.3
@@ -4053,32 +4052,32 @@ snapshots:
 
   source-map-js@1.2.1: {}
 
-  sst-darwin-arm64@3.3.3:
+  sst-darwin-arm64@3.3.19:
     optional: true
 
-  sst-darwin-x64@3.3.3:
+  sst-darwin-x64@3.3.19:
     optional: true
 
-  sst-linux-arm64@3.3.3:
+  sst-linux-arm64@3.3.19:
     optional: true
 
-  sst-linux-x64@3.3.3:
+  sst-linux-x64@3.3.19:
     optional: true
 
-  sst-linux-x86@3.3.3:
+  sst-linux-x86@3.3.19:
     optional: true
 
-  sst@3.3.3:
+  sst@3.3.19:
     dependencies:
       aws4fetch: 1.0.20
       jose: 5.2.3
       openid-client: 5.6.4
     optionalDependencies:
-      sst-darwin-arm64: 3.3.3
-      sst-darwin-x64: 3.3.3
-      sst-linux-arm64: 3.3.3
-      sst-linux-x64: 3.3.3
-      sst-linux-x86: 3.3.3
+      sst-darwin-arm64: 3.3.19
+      sst-darwin-x64: 3.3.19
+      sst-linux-arm64: 3.3.19
+      sst-linux-x64: 3.3.19
+      sst-linux-x86: 3.3.19
 
   streamsearch@1.1.0: {}
 

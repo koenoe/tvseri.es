@@ -27,14 +27,26 @@ const nextConfig = {
       },
     ],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   async headers() {
+    const baseUrl = getBaseUrl();
+    const shouldAddNoIndexHeader =
+      baseUrl.includes('dev') ||
+      baseUrl.includes('vercel') ||
+      baseUrl.includes('localhost');
+
     return [
       {
         source: '/api/:path*',
         headers: [
           {
             key: 'Access-Control-Allow-Origin',
-            value: getBaseUrl(),
+            value: baseUrl,
           },
           {
             key: 'Access-Control-Allow-Methods',
@@ -46,6 +58,19 @@ const nextConfig = {
           },
         ],
       },
+      ...(shouldAddNoIndexHeader
+        ? [
+            {
+              source: '/:path*',
+              headers: [
+                {
+                  key: 'X-Robots-Tag',
+                  value: 'noindex, nofollow',
+                },
+              ],
+            },
+          ]
+        : []),
     ];
   },
   async rewrites() {

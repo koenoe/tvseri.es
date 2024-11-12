@@ -11,7 +11,11 @@ export default async function WatchProvider({
   className?: string;
   id: number;
 }) {
-  const region = (await headers()).get('x-vercel-ip-country') || 'US';
+  const headerStore = await headers();
+  const region =
+    headerStore.get('x-vercel-ip-country') ||
+    headerStore.get('cloudfront-viewer-country') ||
+    'US';
   const providers = await fetchTvSeriesWatchProviders(id, region);
   const provider = providers[0];
 

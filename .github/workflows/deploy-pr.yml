@@ -62,7 +62,10 @@ jobs:
         with:
           script: |
             const previewUrl = `https://pr-${context.issue.number}.dev.tvseri.es`;
-            const commentBody = `### 🚀 Preview URL: ${previewUrl}
+            const commentBody = `## 🚀 Your preview environment is ready!
+
+            ${previewUrl}
+
             > Auto-updates with new commits. Removed when PR is closed.`;
 
             const { data: comments } = await github.rest.issues.listComments({
@@ -73,7 +76,7 @@ jobs:
 
             const existingComment = comments.find(comment =>
               comment.user.login === 'github-actions[bot]' &&
-              comment.body.includes('Preview URL')
+              comment.body.includes('preview environment')
             );
 
             if (existingComment) {

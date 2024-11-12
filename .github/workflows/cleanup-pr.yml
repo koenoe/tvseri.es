@@ -1,4 +1,4 @@
-name: Cleanup PR
+name: Cleanup PR Environment
 
 on:
   pull_request:
@@ -63,7 +63,7 @@ jobs:
 
             const existingComment = comments.find(comment =>
               comment.user.login === 'github-actions[bot]' &&
-              comment.body.includes('Preview URL')
+              comment.body.includes('preview environment')
             );
 
             if (existingComment) {
@@ -71,7 +71,10 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 comment_id: existingComment.id,
-                body: `### 🧹 Preview environment removed
+                body: `## 🧹 Preview environment cleaned up!
+
+                Environment has been removed.
+
                 > Was hosted at: \`pr-${context.issue.number}.dev.tvseri.es\``
               });
             }

@@ -36,7 +36,9 @@ const nextConfig = {
   async headers() {
     const baseUrl = getBaseUrl();
     const shouldAddNoIndexHeader =
-      baseUrl.includes('.dev') || baseUrl.includes('.vercel');
+      baseUrl.includes('.dev') ||
+      baseUrl.includes('.vercel') ||
+      baseUrl.includes('localhost');
 
     return [
       {

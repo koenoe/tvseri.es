@@ -6,6 +6,7 @@
     "dev": "next dev --turbo",
     "format": "prettier . --write && sort-package-json",
     "preinstall": "npx only-allow pnpm",
+    "postinstall": "sst install",
     "lint": "next lint",
     "prepare": "husky",
     "start": "next start"

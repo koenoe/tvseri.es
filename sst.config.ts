@@ -17,6 +17,8 @@ export default $config({
     };
   },
   async run() {
+    const { webAcl } = await import('./infra/waf');
+
     const architecture = 'arm64';
     const domain =
       $app.stage === 'production'
@@ -63,6 +65,13 @@ export default $config({
               originShieldRegion: $app.providers?.aws.region ?? 'eu-west-2',
             },
           }));
+
+          // WOOF WOOF
+          options.transform = {
+            distribution(args) {
+              args.webAclId = webAcl.arn;
+            },
+          };
         },
       },
     });

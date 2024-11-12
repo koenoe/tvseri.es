@@ -67,14 +67,15 @@ jobs:
             );
 
             if (existingComment) {
+              const previewUrl = `https://pr-${context.issue.number}.dev.tvseri.es`;
+              const commentBody = `## 🧹 Preview environment cleaned up!
+
+              Was hosted at ${previewUrl}`;
+
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 comment_id: existingComment.id,
-                body: `## 🧹 Preview environment cleaned up!
-
-                Environment has been removed.
-
-                > Was hosted at: \`pr-${context.issue.number}.dev.tvseri.es\``
+                body: commentBody
               });
             }

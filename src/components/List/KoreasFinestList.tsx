@@ -1,5 +1,3 @@
-import { cache } from 'react';
-
 import { unstable_cache } from 'next/cache';
 
 import { fetchKoreasFinestTvSeries } from '@/lib/tmdb';
@@ -7,17 +5,15 @@ import { fetchKoreasFinestTvSeries } from '@/lib/tmdb';
 import List, { type HeaderVariantProps } from './List';
 import Poster from '../Tiles/Poster';
 
-const cachedKoreasFinestTvSeries = cache(async () =>
-  unstable_cache(
-    async () => {
-      const items = await fetchKoreasFinestTvSeries();
-      return items;
-    },
-    ['koreas-finest-tv-series'],
-    {
-      revalidate: 604800, // 1 week
-    },
-  )(),
+const cachedKoreasFinestTvSeries = unstable_cache(
+  async () => {
+    const items = await fetchKoreasFinestTvSeries();
+    return items;
+  },
+  ['koreas-finest'],
+  {
+    revalidate: 604800, // 1 week
+  },
 );
 
 export default async function KoreasFinestList(

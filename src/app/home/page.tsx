@@ -1,4 +1,4 @@
-import { cache, Suspense } from 'react';
+import { Suspense } from 'react';
 
 import { unstable_cache } from 'next/cache';
 import { notFound } from 'next/navigation';
@@ -16,17 +16,15 @@ import SkeletonList from '@/components/Skeletons/SkeletonList';
 import Spotlight from '@/components/Spotlight/Spotlight';
 import { fetchTrendingTvSeries } from '@/lib/tmdb';
 
-const cachedTrendingTvSeries = cache(async () =>
-  unstable_cache(
-    async () => {
-      const items = await fetchTrendingTvSeries();
-      return items;
-    },
-    ['trending-tv-series'],
-    {
-      revalidate: 43200, // 12 hours
-    },
-  )(),
+const cachedTrendingTvSeries = unstable_cache(
+  async () => {
+    const items = await fetchTrendingTvSeries();
+    return items;
+  },
+  ['trending-tv-series'],
+  {
+    revalidate: 43200, // 12 hours
+  },
 );
 
 export default async function HomePage() {

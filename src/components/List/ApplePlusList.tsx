@@ -14,7 +14,7 @@ const cachedApplePlusTvSeries = cache(async (region: string) =>
       const items = await fetchApplePlusTvSeries(region);
       return items;
     },
-    ['apple-plus-tv-series'],
+    ['apple-plus', region],
     {
       revalidate: 604800, // 1 week
     },

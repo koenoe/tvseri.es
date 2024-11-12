@@ -1,9 +1,5 @@
 import getBaseUrl from './src/utils/getBaseUrl';
 
-const baseUrl = getBaseUrl();
-const shouldAddNoIndexHeader =
-  baseUrl.includes('.dev') || baseUrl.includes('.vercel');
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
@@ -38,6 +34,10 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   async headers() {
+    const baseUrl = getBaseUrl();
+    const shouldAddNoIndexHeader =
+      baseUrl.includes('.dev') || baseUrl.includes('.vercel');
+
     return [
       {
         source: '/api/:path*',

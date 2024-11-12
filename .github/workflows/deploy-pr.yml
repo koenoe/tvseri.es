@@ -14,7 +14,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  lint:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:

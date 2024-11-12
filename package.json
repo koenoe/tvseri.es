@@ -4,7 +4,7 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev --turbo",
-    "format": "prettier . --write && sort-package-json",
+    "format": "prettier . --write && sort-package-json && next lint --fix",
     "preinstall": "npx only-allow pnpm",
     "postinstall": "sst install",
     "lint": "next lint",

@@ -15,12 +15,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 
-import Modal from '../Modal';
 import searchIcon from '@/assets/search.svg';
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 import { type TvSeries } from '@/types/tv-series';
 import getMainBackgroundColor from '@/utils/getMainBackgroundColor';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
+
+import Modal from '../Modal';
 
 const MotionLink = motion.create(Link);
 const MotionImage = motion.create(Image);

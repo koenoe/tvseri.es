@@ -1,6 +1,5 @@
 import { cache, Suspense } from 'react';
 
-import { unstable_cache } from 'next/cache';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
@@ -24,18 +23,7 @@ type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
 
-const cachedTvSeries = cache(async (id: string) =>
-  unstable_cache(
-    async () => {
-      const items = await fetchTvSeries(id);
-      return items;
-    },
-    ['tv-series', id],
-    {
-      revalidate: 86400, // 1 day
-    },
-  )(),
-);
+const cachedTvSeries = cache(async (id: string) => fetchTvSeries(id));
 
 export async function generateMetadata({ params: paramsFromProps }: Props) {
   const params = await paramsFromProps;

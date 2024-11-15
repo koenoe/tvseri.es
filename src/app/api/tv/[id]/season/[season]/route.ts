@@ -10,7 +10,7 @@ export async function GET(
   const season = await fetchTvSeriesSeason(params.id, params.season);
   return Response.json(season, {
     headers: {
-      'Cache-Control': 'public, max-age=3600, immutable',
+      'Cache-Control': 'public, max-age=43200, immutable',
     },
   });
 }

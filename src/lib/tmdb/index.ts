@@ -73,11 +73,7 @@ async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
   };
 
   // Note: NextJS doesn't allow both revalidate + cache headers
-  const next = init?.cache
-    ? {}
-    : {
-        revalidate: 3600,
-      };
+  const next = init?.cache ? {} : init?.next;
 
   const patchedOptions = {
     ...init,
@@ -180,9 +176,11 @@ export async function deleteAccessToken(accessToken: string) {
 }
 
 export async function fetchAccountDetails(sessionId: string) {
-  const response = (await tmdbFetch(
-    `/3/account?session_id=${sessionId}`,
-  )) as TmdbAccountDetails;
+  const response = (await tmdbFetch(`/3/account?session_id=${sessionId}`, {
+    next: {
+      revalidate: 900, // 15 minutes
+    },
+  })) as TmdbAccountDetails;
 
   return {
     id: response.id,
@@ -400,6 +398,11 @@ export async function fetchTvSeries(
 ): Promise<TvSeries | undefined> {
   const series = (await tmdbFetch(
     `/3/tv/${id}?append_to_response=images&include_image_language=en,null`,
+    {
+      next: {
+        revalidate: 86400, // 1 day
+      },
+    },
   )) as TmdbTvSeries;
 
   if (!series) {
@@ -466,9 +469,11 @@ export async function fetchTvSeriesContentRating(
   id: number | string,
   region = 'US',
 ): Promise<string | undefined> {
-  const contentRatings = (await tmdbFetch(
-    `/3/tv/${id}/content_ratings`,
-  )) as TmdbTvSeriesContentRatings;
+  const contentRatings = (await tmdbFetch(`/3/tv/${id}/content_ratings`, {
+    next: {
+      revalidate: 86400, // 1 day
+    },
+  })) as TmdbTvSeriesContentRatings;
 
   return contentRatings.results?.find((rating) => rating.iso_3166_1 === region)
     ?.rating;
@@ -478,9 +483,11 @@ export async function fetchTvSeriesWatchProviders(
   id: number | string,
   region = 'US',
 ): Promise<WatchProvider[]> {
-  const watchProviders = (await tmdbFetch(
-    `/3/tv/${id}/watch/providers`,
-  )) as TmdbTvSeriesWatchProviders;
+  const watchProviders = (await tmdbFetch(`/3/tv/${id}/watch/providers`, {
+    next: {
+      revalidate: 86400, // 1 day
+    },
+  })) as TmdbTvSeriesWatchProviders;
 
   return (
     watchProviders.results?.[region as keyof typeof watchProviders.results]
@@ -499,9 +506,11 @@ export async function fetchTvSeriesWatchProviders(
 export async function fetchTvSeriesCredits(
   id: number | string,
 ): Promise<Readonly<{ cast: Person[]; crew: Person[] }>> {
-  const credits = (await tmdbFetch(
-    `/3/tv/${id}/aggregate_credits`,
-  )) as TmdbTvSeriesCredits;
+  const credits = (await tmdbFetch(`/3/tv/${id}/aggregate_credits`, {
+    next: {
+      revalidate: 86400, // 1 day
+    },
+  })) as TmdbTvSeriesCredits;
 
   const cast = credits.cast?.sort((a, b) => a.order - b.order) ?? [];
 
@@ -514,9 +523,11 @@ export async function fetchTvSeriesCredits(
 export async function fetchTvSeriesRecommendations(
   id: number | string,
 ): Promise<TvSeries[]> {
-  const response = (await tmdbFetch(
-    `/3/tv/${id}/recommendations`,
-  )) as TmdbTvSeriesRecommendations;
+  const response = (await tmdbFetch(`/3/tv/${id}/recommendations`, {
+    next: {
+      revalidate: 86400, // 1 day
+    },
+  })) as TmdbTvSeriesRecommendations;
 
   return (response.results ?? [])
     .filter((series) => !!series.poster_path)
@@ -528,9 +539,11 @@ export async function fetchTvSeriesRecommendations(
 export async function fetchTvSeriesSimilar(
   id: number | string,
 ): Promise<TvSeries[]> {
-  const response = (await tmdbFetch(
-    `/3/tv/${id}/similar`,
-  )) as TmdbTvSeriesSimilar;
+  const response = (await tmdbFetch(`/3/tv/${id}/similar`, {
+    next: {
+      revalidate: 86400, // 1 day
+    },
+  })) as TmdbTvSeriesSimilar;
 
   return (response.results ?? [])
     .filter((series) => !!series.poster_path)
@@ -543,9 +556,11 @@ export async function fetchTvSeriesSeason(
   id: number | string,
   season: number | string,
 ): Promise<Season> {
-  const response = (await tmdbFetch(
-    `/3/tv/${id}/season/${season}`,
-  )) as TmdbTvSeriesSeason;
+  const response = (await tmdbFetch(`/3/tv/${id}/season/${season}`, {
+    next: {
+      revalidate: 43200, // 12 hours
+    },
+  })) as TmdbTvSeriesSeason;
 
   const episodes = (response.episodes ?? []).map((episode) => ({
     id: episode.id,
@@ -703,7 +718,11 @@ export async function fetchMostAnticipatedTvSeries() {
 
 export async function fetchGenresForTvSeries() {
   const genresResponse =
-    ((await tmdbFetch('/3/genre/tv/list')) as TmdbGenresForTvSeries) ?? [];
+    ((await tmdbFetch('/3/genre/tv/list', {
+      next: {
+        revalidate: 604800, // 1 week
+      },
+    })) as TmdbGenresForTvSeries) ?? [];
 
   return (genresResponse.genres ?? []).filter(
     (genre) => !GLOBAL_GENRES_TO_IGNORE.includes(genre.id),
@@ -739,6 +758,11 @@ export async function fetchWatchProviders(
 ): Promise<WatchProvider[]> {
   const watchProviders = (await tmdbFetch(
     `/3/watch/providers/tv?watch_region=${region}`,
+    {
+      next: {
+        revalidate: 2629800, // 1 month
+      },
+    },
   )) as TmdbWatchProviders;
 
   return (watchProviders.results ?? [])
@@ -759,7 +783,11 @@ export async function fetchWatchProviders(
 
 export async function fetchCountries() {
   const response =
-    ((await tmdbFetch('/3/configuration/countries')) as TmdbCountries) ?? [];
+    ((await tmdbFetch('/3/configuration/countries', {
+      next: {
+        revalidate: 2629800, // 1 month
+      },
+    })) as TmdbCountries) ?? [];
 
   return (response ?? [])
     .map((country) => {
@@ -777,7 +805,11 @@ export async function fetchCountries() {
 
 export async function fetchLanguages() {
   const response =
-    ((await tmdbFetch('/3/configuration/languages')) as TmdbLanguages) ?? [];
+    ((await tmdbFetch('/3/configuration/languages', {
+      next: {
+        revalidate: 2629800, // 1 month
+      },
+    })) as TmdbLanguages) ?? [];
 
   return (response ?? [])
     .map((language) => {
@@ -839,7 +871,11 @@ export async function searchPerson(query: string) {
 }
 
 export async function fetchPerson(id: number | string) {
-  const person = (await tmdbFetch(`/3/person/${id}`)) as TmdbPerson;
+  const person = (await tmdbFetch(`/3/person/${id}`, {
+    next: {
+      revalidate: 86400,
+    },
+  })) as TmdbPerson;
 
   return {
     id: person.id,
@@ -868,9 +904,11 @@ export async function fetchPersonKnownFor(
 }
 
 export async function fetchPersonTvCredits(id: number | string) {
-  const credits = (await tmdbFetch(
-    `/3/person/${id}/tv_credits`,
-  )) as TmdbPersonTvCredits;
+  const credits = (await tmdbFetch(`/3/person/${id}/tv_credits`, {
+    next: {
+      revalidate: 86400, // 1 day
+    },
+  })) as TmdbPersonTvCredits;
 
   const sortAndGroup = (
     results: TmdbPersonTvCredits['cast'] | TmdbPersonTvCredits['crew'] = [],

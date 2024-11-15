@@ -18,7 +18,7 @@
   "dependencies": {
     "class-variance-authority": "^0.7.0",
     "color": "^4.2.3",
-    "framer-motion": "^11.11.15",
+    "framer-motion": "^11.11.17",
     "next": "15.0.3",
     "react": "19.0.0-rc-7c8e5e7a-20241101",
     "react-dom": "19.0.0-rc-7c8e5e7a-20241101",

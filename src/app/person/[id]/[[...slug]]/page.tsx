@@ -17,6 +17,7 @@ import { type Movie } from '@/types/movie';
 import { type TvSeries } from '@/types/tv-series';
 import calculateAge from '@/utils/calculateAge';
 import formatDate from '@/utils/formatDate';
+import getBaseUrl from '@/utils/getBaseUrl';
 import isTvSeries from '@/utils/isTvSeries';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
@@ -40,12 +41,31 @@ export async function generateMetadata({ params: paramsFromProps }: Props) {
     return permanentRedirect(`/person/${params.id}/${person.slug}`);
   }
 
+  const canonicalUrl = `${getBaseUrl()}/tv/${params.id}/${person.slug}`;
+
   return {
     title: person.name,
     description: person.biography,
     alternates: {
-      // TODO: does this need to be absolute?
-      canonical: `/tv/${params.id}/${person.slug}`,
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: person.name,
+      description: person.biography,
+      url: canonicalUrl,
+      siteName: 'tvseri.es',
+      images: person.image
+        ? [
+            {
+              url: person.image,
+              width: 600,
+              height: 900,
+              alt: `${person.name} poster`,
+            },
+          ]
+        : undefined,
+      locale: 'en_US',
+      type: 'profile',
     },
   };
 }

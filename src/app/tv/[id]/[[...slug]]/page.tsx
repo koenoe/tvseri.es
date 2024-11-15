@@ -18,6 +18,7 @@ import SkeletonList from '@/components/Skeletons/SkeletonList';
 import SkeletonRating from '@/components/Skeletons/SkeletonRating';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
 import { fetchTvSeries } from '@/lib/tmdb';
+import getBaseUrl from '@/utils/getBaseUrl';
 
 type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
@@ -39,12 +40,31 @@ export async function generateMetadata({ params: paramsFromProps }: Props) {
     return permanentRedirect(`/tv/${params.id}/${tvSeries.slug}`);
   }
 
+  const canonicalUrl = `${getBaseUrl()}/tv/${params.id}/${tvSeries.slug}`;
+
   return {
     title: tvSeries.title,
     description: tvSeries.description,
     alternates: {
-      // TODO: does this need to be absolute?
-      canonical: `/tv/${params.id}/${tvSeries.slug}`,
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: tvSeries.title,
+      description: tvSeries.description,
+      url: canonicalUrl,
+      siteName: 'tvseri.es',
+      images: tvSeries.posterImage
+        ? [
+            {
+              url: tvSeries.posterImage,
+              width: 300,
+              height: 450,
+              alt: `${tvSeries.title} poster`,
+            },
+          ]
+        : undefined,
+      locale: 'en_US',
+      type: 'video.tv_show',
     },
   };
 }

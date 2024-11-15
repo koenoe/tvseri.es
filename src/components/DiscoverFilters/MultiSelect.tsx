@@ -303,7 +303,7 @@ function MultiSelect({
           {isPending && (
             <svg
               aria-hidden="true"
-              className="inline h-4 w-4 animate-spin fill-white text-neutral-600"
+              className="inline h-4 w-4 animate-spin fill-white text-neutral-700"
               viewBox="0 0 100 101"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -335,7 +335,7 @@ function MultiSelect({
             variants={dropdownVariants}
           >
             <motion.div
-              className="relative h-auto max-h-40 overflow-y-auto overflow-x-hidden rounded-lg bg-white text-neutral-800 md:max-h-96"
+              className="relative h-auto max-h-40 overflow-y-auto overflow-x-hidden rounded-lg bg-white text-neutral-900 md:max-h-96"
               style={{
                 width: widthOfResults,
               }}

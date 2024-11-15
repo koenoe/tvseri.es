@@ -4,11 +4,11 @@
 
 body.scrollbar-is-visible::-webkit-scrollbar-corner,
 body.scrollbar-is-visible::-webkit-scrollbar-track {
-  background: theme('colors.neutral.800');
+  background: theme('colors.neutral.900');
 }
 
 body.scrollbar-is-visible::-webkit-scrollbar-thumb {
-  background: theme('colors.neutral.600');
+  background: theme('colors.neutral.700');
   border-radius: 10px;
 }
 

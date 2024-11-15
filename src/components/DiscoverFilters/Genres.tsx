@@ -12,7 +12,7 @@ const buttonStyles = cva(
   {
     variants: {
       state: {
-        active: 'bg-white text-neutral-800',
+        active: 'bg-white text-neutral-900',
         inactive: 'bg-white/10 text-white',
       },
     },

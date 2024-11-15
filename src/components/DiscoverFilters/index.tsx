@@ -27,7 +27,7 @@ export default function DiscoverFilters({
       >
         <div className="flex h-[18px] w-[18px] items-center justify-center">
           {filterCount > 0 ? (
-            <span className="flex h-full w-full items-center justify-center rounded-full bg-white text-[11px] font-bold leading-none tracking-tighter text-neutral-800">
+            <span className="flex h-full w-full items-center justify-center rounded-full bg-white text-[11px] font-bold leading-none tracking-tighter text-neutral-900">
               {filterCount}
             </span>
           ) : (

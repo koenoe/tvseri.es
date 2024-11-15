@@ -12,7 +12,9 @@ const cachedRecommendedForYou = async (
   args: Parameters<typeof fetchRecommendedForYou>[0],
 ) => {
   'use cache';
+
   unstable_cacheLife(CACHE_LIFE_TWELVE_HOURS);
+
   const items = await fetchRecommendedForYou(args);
   return items;
 };

@@ -1,3 +1,6 @@
+import { unstable_cacheLife } from 'next/cache';
+
+import { CACHE_LIFE_ONE_DAY } from '@/constants';
 import { fetchTvSeriesSimilar } from '@/lib/tmdb';
 
 import List, { type HeaderVariantProps } from './List';
@@ -11,6 +14,10 @@ export default async function SimilarList({
   Readonly<{
     id: number | string;
   }>) {
+  'use cache';
+
+  unstable_cacheLife(CACHE_LIFE_ONE_DAY);
+
   const tvSeries = await fetchTvSeriesSimilar(id);
 
   return tvSeries.length > 0 ? (

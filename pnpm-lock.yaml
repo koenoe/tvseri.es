@@ -16,16 +16,16 @@ importers:
         version: 4.2.3
       framer-motion:
         specifier: ^11.11.15
-        version: 11.11.15(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101)
+        version: 11.11.15(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1)
       next:
         specifier: 15.0.3
-        version: 15.0.3(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101)
+        version: 15.0.3(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1)
       react:
-        specifier: 19.0.0-rc-7c8e5e7a-20241101
-        version: 19.0.0-rc-7c8e5e7a-20241101
+        specifier: 19.0.0-rc.1
+        version: 19.0.0-rc.1
       react-dom:
-        specifier: 19.0.0-rc-7c8e5e7a-20241101
-        version: 19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101)
+        specifier: 19.0.0-rc.1
+        version: 19.0.0-rc.1(react@19.0.0-rc.1)
       server-only:
         specifier: ^0.0.1
         version: 0.0.1
@@ -37,10 +37,10 @@ importers:
         version: 1.6.6
       use-debounce:
         specifier: ^10.0.4
-        version: 10.0.4(react@19.0.0-rc-7c8e5e7a-20241101)
+        version: 10.0.4(react@19.0.0-rc.1)
       zustand:
         specifier: ^5.0.1
-        version: 5.0.1(@types/react@18.3.12)(react@19.0.0-rc-7c8e5e7a-20241101)(use-sync-external-store@1.2.2(react@19.0.0-rc-7c8e5e7a-20241101))
+        version: 5.0.1(@types/react@18.3.12)(react@19.0.0-rc.1)(use-sync-external-store@1.2.2(react@19.0.0-rc.1))
     devDependencies:
       '@tailwindcss/typography':
         specifier: ^0.5.15
@@ -1745,16 +1745,16 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
-  react-dom@19.0.0-rc-7c8e5e7a-20241101:
-    resolution: {integrity: sha512-p2d+9xTM1xifv0VJd8WJ6WkdaWKaJfOcVIcHKskgaEic+bktU+SvdSzF5K7KpnUdgU9fZA0EAqurLMyqZaheYg==}
+  react-dom@19.0.0-rc.1:
+    resolution: {integrity: sha512-k8MfDX+4G+eaa1cXXI9QF4d+pQtYol3nx8vauqRWUEOPqC7NQn2qmEqUsLoSd28rrZUL+R3T2VC+kZ2Hyx1geQ==}
     peerDependencies:
-      react: 19.0.0-rc-7c8e5e7a-20241101
+      react: 19.0.0-rc.1
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
-  react@19.0.0-rc-7c8e5e7a-20241101:
-    resolution: {integrity: sha512-oinEuyXWHxS9R7lfvdXcW1K3KgN9b7QQeKmO3M/mJZVMutvAYotRjiMKZjlEz0XsomWl/JZb4EYIO1JfcltL2w==}
+  react@19.0.0-rc.1:
+    resolution: {integrity: sha512-NZKln+uyPuyHchzP07I6GGYFxdAoaKhehgpCa3ltJGzwE31OYumLeshGaitA1R/fS5d9D2qpZVwTFAr6zCLM9w==}
     engines: {node: '>=0.10.0'}
 
   read-cache@1.0.0:
@@ -1818,8 +1818,8 @@ packages:
     resolution: {integrity: sha512-CdASjNJPvRa7roO6Ra/gLYBTzYzzPyyBXxIMdGW3USQLyjWEls2RgW5UBTXaQVp+OrpeCK3bLem8smtmheoRuw==}
     engines: {node: '>= 0.4'}
 
-  scheduler@0.25.0-rc-7c8e5e7a-20241101:
-    resolution: {integrity: sha512-6mc2ctXvVbpv4oEFIPjCacS+f+NaydfjptZx+8BK4aFr5WsqwcZYYekwCFnbACkcROBH1yeqOy/WilmCdMKw8A==}
+  scheduler@0.25.0-rc.1:
+    resolution: {integrity: sha512-fVinv2lXqYpKConAMdergOl5owd0rY1O4P/QTe0aWKCqGtu7VsCt1iqQFxSJtqK4Lci/upVSBpGwVC7eWcuS9Q==}
 
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
@@ -3210,12 +3210,12 @@ snapshots:
 
   fraction.js@4.3.7: {}
 
-  framer-motion@11.11.15(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101):
+  framer-motion@11.11.15(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1):
     dependencies:
       tslib: 2.8.1
     optionalDependencies:
-      react: 19.0.0-rc-7c8e5e7a-20241101
-      react-dom: 19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101)
+      react: 19.0.0-rc.1
+      react-dom: 19.0.0-rc.1(react@19.0.0-rc.1)
 
   fs.realpath@1.0.0: {}
 
@@ -3642,7 +3642,7 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  next@15.0.3(react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101))(react@19.0.0-rc-7c8e5e7a-20241101):
+  next@15.0.3(react-dom@19.0.0-rc.1(react@19.0.0-rc.1))(react@19.0.0-rc.1):
     dependencies:
       '@next/env': 15.0.3
       '@swc/counter': 0.1.3
@@ -3650,9 +3650,9 @@ snapshots:
       busboy: 1.6.0
       caniuse-lite: 1.0.30001678
       postcss: 8.4.31
-      react: 19.0.0-rc-7c8e5e7a-20241101
-      react-dom: 19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101)
-      styled-jsx: 5.1.6(react@19.0.0-rc-7c8e5e7a-20241101)
+      react: 19.0.0-rc.1
+      react-dom: 19.0.0-rc.1(react@19.0.0-rc.1)
+      styled-jsx: 5.1.6(react@19.0.0-rc.1)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.0.3
       '@next/swc-darwin-x64': 15.0.3
@@ -3862,14 +3862,14 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
-  react-dom@19.0.0-rc-7c8e5e7a-20241101(react@19.0.0-rc-7c8e5e7a-20241101):
+  react-dom@19.0.0-rc.1(react@19.0.0-rc.1):
     dependencies:
-      react: 19.0.0-rc-7c8e5e7a-20241101
-      scheduler: 0.25.0-rc-7c8e5e7a-20241101
+      react: 19.0.0-rc.1
+      scheduler: 0.25.0-rc.1
 
   react-is@16.13.1: {}
 
-  react@19.0.0-rc-7c8e5e7a-20241101: {}
+  react@19.0.0-rc.1: {}
 
   read-cache@1.0.0:
     dependencies:
@@ -3949,7 +3949,7 @@ snapshots:
       es-errors: 1.3.0
       is-regex: 1.1.4
 
-  scheduler@0.25.0-rc-7c8e5e7a-20241101: {}
+  scheduler@0.25.0-rc.1: {}
 
   semver@6.3.1: {}
 
@@ -4157,10 +4157,10 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  styled-jsx@5.1.6(react@19.0.0-rc-7c8e5e7a-20241101):
+  styled-jsx@5.1.6(react@19.0.0-rc.1):
     dependencies:
       client-only: 0.0.1
-      react: 19.0.0-rc-7c8e5e7a-20241101
+      react: 19.0.0-rc.1
 
   sucrase@3.35.0:
     dependencies:
@@ -4297,13 +4297,13 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  use-debounce@10.0.4(react@19.0.0-rc-7c8e5e7a-20241101):
+  use-debounce@10.0.4(react@19.0.0-rc.1):
     dependencies:
-      react: 19.0.0-rc-7c8e5e7a-20241101
+      react: 19.0.0-rc.1
 
-  use-sync-external-store@1.2.2(react@19.0.0-rc-7c8e5e7a-20241101):
+  use-sync-external-store@1.2.2(react@19.0.0-rc.1):
     dependencies:
-      react: 19.0.0-rc-7c8e5e7a-20241101
+      react: 19.0.0-rc.1
     optional: true
 
   util-deprecate@1.0.2: {}
@@ -4378,8 +4378,8 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zustand@5.0.1(@types/react@18.3.12)(react@19.0.0-rc-7c8e5e7a-20241101)(use-sync-external-store@1.2.2(react@19.0.0-rc-7c8e5e7a-20241101)):
+  zustand@5.0.1(@types/react@18.3.12)(react@19.0.0-rc.1)(use-sync-external-store@1.2.2(react@19.0.0-rc.1)):
     optionalDependencies:
       '@types/react': 18.3.12
-      react: 19.0.0-rc-7c8e5e7a-20241101
-      use-sync-external-store: 1.2.2(react@19.0.0-rc-7c8e5e7a-20241101)
+      react: 19.0.0-rc.1
+      use-sync-external-store: 1.2.2(react@19.0.0-rc.1)

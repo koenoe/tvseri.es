@@ -1,4 +1,4 @@
-import { cache, Suspense } from 'react';
+import { Suspense } from 'react';
 
 import { cx } from 'class-variance-authority';
 import { unstable_cacheLife } from 'next/cache';
@@ -26,14 +26,14 @@ type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
 
-const cachedPerson = cache(async (id: string) => {
+const cachedPerson = async (id: string) => {
   'use cache';
 
   unstable_cacheLife(CACHE_LIFE_ONE_DAY);
 
   const items = await fetchPerson(id);
   return items;
-});
+};
 
 export async function generateMetadata({ params: paramsFromProps }: Props) {
   const params = await paramsFromProps;

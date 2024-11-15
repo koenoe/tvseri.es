@@ -1,4 +1,4 @@
-import { cache, Suspense } from 'react';
+import { Suspense } from 'react';
 
 import { unstable_cacheLife } from 'next/cache';
 import Image from 'next/image';
@@ -25,14 +25,14 @@ type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
 
-const cachedTvSeries = cache(async (id: string) => {
+const cachedTvSeries = async (id: string) => {
   'use cache';
 
   unstable_cacheLife(CACHE_LIFE_ONE_DAY);
 
   const item = await fetchTvSeries(id);
   return item;
-});
+};
 
 export async function generateMetadata({ params: paramsFromProps }: Props) {
   const params = await paramsFromProps;

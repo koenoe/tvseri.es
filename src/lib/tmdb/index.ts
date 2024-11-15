@@ -512,7 +512,10 @@ export async function fetchTvSeriesCredits(
     },
   })) as TmdbTvSeriesCredits;
 
-  const cast = credits.cast?.sort((a, b) => a.order - b.order) ?? [];
+  const cast =
+    credits.cast
+      ?.filter((item) => !!item.profile_path)
+      .sort((a, b) => a.order - b.order) ?? [];
 
   return {
     cast: normalizePersons(cast),

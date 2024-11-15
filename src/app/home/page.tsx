@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 
-import { unstable_cache } from 'next/cache';
+import { unstable_cacheLife } from 'next/cache';
 import { notFound } from 'next/navigation';
 
 import ApplePlusList from '@/components/List/ApplePlusList';
@@ -14,18 +14,17 @@ import TopRatedList from '@/components/List/TopRatedList';
 import Page from '@/components/Page/Page';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
 import Spotlight from '@/components/Spotlight/Spotlight';
+import { CACHE_LIFE_TWELVE_HOURS } from '@/constants';
 import { fetchTrendingTvSeries } from '@/lib/tmdb';
 
-const cachedTrendingTvSeries = unstable_cache(
-  async () => {
-    const items = await fetchTrendingTvSeries();
-    return items;
-  },
-  ['trending-tv-series'],
-  {
-    revalidate: 43200, // 12 hours
-  },
-);
+const cachedTrendingTvSeries = async () => {
+  'use cache';
+
+  unstable_cacheLife(CACHE_LIFE_TWELVE_HOURS);
+
+  const items = await fetchTrendingTvSeries();
+  return items;
+};
 
 export default async function HomePage() {
   const trendingTvSeries = await cachedTrendingTvSeries();

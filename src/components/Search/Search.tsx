@@ -72,7 +72,7 @@ function Search() {
         setResults(null);
       }
     },
-    100,
+    250,
   );
 
   const handleGlobalKeyDown = useCallback(

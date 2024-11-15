@@ -1,6 +1,6 @@
 import { cache, Suspense } from 'react';
 
-import { unstable_cache } from 'next/cache';
+import { unstable_cacheLife } from 'next/cache';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
@@ -18,24 +18,21 @@ import SkeletonCircleButton from '@/components/Skeletons/SkeletonCircleButton';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
 import SkeletonRating from '@/components/Skeletons/SkeletonRating';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
+import { CACHE_LIFE_ONE_DAY } from '@/constants';
 import { fetchTvSeries } from '@/lib/tmdb';
 
 type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
 
-const cachedTvSeries = cache(async (id: string) =>
-  unstable_cache(
-    async () => {
-      const items = await fetchTvSeries(id);
-      return items;
-    },
-    ['tv-series', id],
-    {
-      revalidate: 86400, // 1 day
-    },
-  )(),
-);
+const cachedTvSeries = cache(async (id: string) => {
+  'use cache';
+
+  unstable_cacheLife(CACHE_LIFE_ONE_DAY);
+
+  const item = await fetchTvSeries(id);
+  return item;
+});
 
 export async function generateMetadata({ params: paramsFromProps }: Props) {
   const params = await paramsFromProps;

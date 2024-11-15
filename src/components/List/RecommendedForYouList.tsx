@@ -1,27 +1,21 @@
-import { cache } from 'react';
-
-import { unstable_cache } from 'next/cache';
+import { unstable_cacheLife } from 'next/cache';
 import { cookies } from 'next/headers';
 
+import { CACHE_LIFE_TWELVE_HOURS } from '@/constants';
 import { fetchAccountDetails, fetchRecommendedForYou } from '@/lib/tmdb';
 import { decryptToken } from '@/lib/token';
 
 import List, { type HeaderVariantProps } from './List';
 import Poster from '../Tiles/Poster';
 
-const cachedRecommendedForYou = cache(
-  async (args: Parameters<typeof fetchRecommendedForYou>[0]) =>
-    unstable_cache(
-      async () => {
-        const items = await fetchRecommendedForYou(args);
-        return items;
-      },
-      ['recommended-for-you', `${args.accountId}`],
-      {
-        revalidate: 43200, // 12 hours
-      },
-    )(),
-);
+const cachedRecommendedForYou = async (
+  args: Parameters<typeof fetchRecommendedForYou>[0],
+) => {
+  'use cache';
+  unstable_cacheLife(CACHE_LIFE_TWELVE_HOURS);
+  const items = await fetchRecommendedForYou(args);
+  return items;
+};
 
 export default async function RecommendedForYouList({
   priority,

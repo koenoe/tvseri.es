@@ -1,7 +1,7 @@
 import { cache, Suspense } from 'react';
 
 import { cx } from 'class-variance-authority';
-import { unstable_cache } from 'next/cache';
+import { unstable_cacheLife } from 'next/cache';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
@@ -12,6 +12,7 @@ import PersonGrid from '@/components/Grid/PersonGrid';
 import Page from '@/components/Page/Page';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
 import Poster from '@/components/Tiles/Poster';
+import { CACHE_LIFE_ONE_DAY } from '@/constants';
 import detectDominantColorFromImageWithCache from '@/lib/detectDominantColorFromImage';
 import { fetchPerson, fetchPersonKnownFor } from '@/lib/tmdb';
 import { type Movie } from '@/types/movie';
@@ -25,18 +26,14 @@ type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
 
-const cachedPerson = cache(async (id: string) =>
-  unstable_cache(
-    async () => {
-      const items = await fetchPerson(id);
-      return items;
-    },
-    ['person', id],
-    {
-      revalidate: 86400, // 1 day
-    },
-  )(),
-);
+const cachedPerson = cache(async (id: string) => {
+  'use cache';
+
+  unstable_cacheLife(CACHE_LIFE_ONE_DAY);
+
+  const items = await fetchPerson(id);
+  return items;
+});
 
 export async function generateMetadata({ params: paramsFromProps }: Props) {
   const params = await paramsFromProps;

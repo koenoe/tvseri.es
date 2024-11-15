@@ -1,25 +1,19 @@
-import { unstable_cache } from 'next/cache';
+import { unstable_cacheLife } from 'next/cache';
 
+import { CACHE_LIFE_ONE_DAY } from '@/constants';
 import { fetchMostAnticipatedTvSeries } from '@/lib/tmdb';
 
 import List, { type HeaderVariantProps } from './List';
 import Poster from '../Tiles/Poster';
 
-const cachedMostAnticipatedTvSeries = unstable_cache(
-  async () => {
-    const items = await fetchMostAnticipatedTvSeries();
-    return items;
-  },
-  ['most-anticipated'],
-  {
-    revalidate: 86400, // 1 day
-  },
-);
-
 export default async function MostAnticipatedList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,
 ) {
-  const tvSeries = await cachedMostAnticipatedTvSeries();
+  'use cache';
+
+  unstable_cacheLife(CACHE_LIFE_ONE_DAY);
+
+  const tvSeries = await fetchMostAnticipatedTvSeries();
 
   return (
     <List

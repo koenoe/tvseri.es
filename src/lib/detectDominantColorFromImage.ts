@@ -1,9 +1,7 @@
 import 'server-only';
 
-import { cache } from 'react';
-
 import Color from 'color';
-import { unstable_cache } from 'next/cache';
+import { unstable_cacheLife } from 'next/cache';
 
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 
@@ -22,8 +20,6 @@ const correctContrast = (input: Color): Color => {
   }
   return output;
 };
-
-const cachePrefix = 'dominant-color-with-sharp-blur';
 
 async function detectDominantColorFromImage(url: string): Promise<string> {
   try {
@@ -44,11 +40,11 @@ async function detectDominantColorFromImage(url: string): Promise<string> {
   }
 }
 
-const detectDominantColorFromImageWithCache = cache(async (url: string) =>
-  unstable_cache(async () => {
-    const dominantColor = await detectDominantColorFromImage(url);
-    return dominantColor;
-  }, [cachePrefix, url])(),
-);
+const detectDominantColorFromImageWithCache = async (url: string) => {
+  'use cache';
+  unstable_cacheLife('max');
+  const dominantColor = await detectDominantColorFromImage(url);
+  return dominantColor;
+};
 
 export default detectDominantColorFromImageWithCache;

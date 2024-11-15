@@ -3,10 +3,9 @@ import getBaseUrl from './src/utils/getBaseUrl';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    // TODO: figure out what broke in latest canary as searchParams aren't working properly anymore
+    dynamicIO: true,
     ppr: false,
     staleTimes: {
-      // TODO: there's a bug with searchParams atm
       dynamic: 0, // default is 30
       static: 0, // default is 180
     },

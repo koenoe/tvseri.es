@@ -3,10 +3,10 @@ import { cx } from 'class-variance-authority';
 import { preload } from 'react-dom';
 
 export default function BackgroundImage({
-  src = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==',
+  src,
   className,
   ...rest
-}: React.AllHTMLAttributes<HTMLImageElement>) {
+}: React.AllHTMLAttributes<HTMLImageElement> & Readonly<{ src: string }>) {
   const HD = src;
   const SD = src.includes('w1920_and_h1080_multi_faces')
     ? src.replace('w1920_and_h1080_multi_faces', 'w1280_and_h720_multi_faces')

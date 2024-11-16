@@ -25,17 +25,17 @@ export default function BackgroundImage({
   });
 
   return (
-    <>
-      <img
-        className={cx('h-full w-full object-cover object-top', className)}
-        decoding="async"
-        src={SD}
-        alt=""
-        draggable={false}
-        srcSet={imageSrcSet}
-        sizes={imageSizes}
-        {...rest}
-      />
-    </>
+    <img
+      {...rest}
+      className={cx('h-full w-full object-cover object-top', className)}
+      decoding="async"
+      alt=""
+      draggable={false}
+      sizes={imageSizes}
+      srcSet={imageSrcSet}
+      // It's intended to keep `src` the last attribute because React updates
+      // attributes in order.
+      src={SD}
+    />
   );
 }

@@ -78,7 +78,7 @@ const SpotlightItem = forwardRef<HTMLAnchorElement, Props>(
             </div>
           </div>
           {item.tagline && (
-            <div className="mt-4 text-center text-sm opacity-90 md:mt-6 md:text-left md:text-base">
+            <div className="mt-4 text-center text-sm md:mt-6 md:text-left md:text-base">
               {item.tagline}
             </div>
           )}

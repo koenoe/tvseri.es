@@ -74,7 +74,7 @@ const SpotlightItem = forwardRef<HTMLAnchorElement, Props>(
                 {item.numberOfSeasons}{' '}
                 {item.numberOfSeasons === 1 ? 'Season' : 'Seasons'}
               </div>
-              <div>{item.genres[0].name}</div>
+              <div>{item.genres[0]?.name ?? '-'}</div>
             </div>
           </div>
         </div>

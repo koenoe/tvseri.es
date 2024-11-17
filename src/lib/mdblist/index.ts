@@ -12,12 +12,9 @@ async function mdblistFetch(path: RequestInfo | URL, init?: RequestInit) {
   const headers = {
     accept: 'application/json',
   };
+
   // Note: NextJS doesn't allow both revalidate + cache headers
-  const next = init?.cache
-    ? {}
-    : {
-        revalidate: 3600,
-      };
+  const next = init?.cache ? {} : init?.next;
 
   const patchedOptions = {
     ...init,

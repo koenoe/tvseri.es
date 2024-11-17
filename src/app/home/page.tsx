@@ -49,11 +49,11 @@ export default async function HomePage() {
       </Suspense>
 
       <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
-        <ApplePlusList className="mb-10 md:mb-16" />
+        <TopRatedList className="mb-10 md:mb-16" priority />
       </Suspense>
 
       <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
-        <TopRatedList className="mb-10 md:mb-16" priority />
+        <ApplePlusList className="mb-10 md:mb-16" />
       </Suspense>
 
       <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>

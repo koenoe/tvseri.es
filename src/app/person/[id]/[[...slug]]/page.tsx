@@ -1,6 +1,7 @@
 import { cache, Suspense } from 'react';
 
 import { cx } from 'class-variance-authority';
+import { unstable_cache } from 'next/cache';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
@@ -14,6 +15,7 @@ import Poster from '@/components/Tiles/Poster';
 import detectDominantColorFromImageWithCache from '@/lib/detectDominantColorFromImage';
 import { fetchPerson, fetchPersonKnownFor } from '@/lib/tmdb';
 import { type Movie } from '@/types/movie';
+import { type Person } from '@/types/person';
 import { type TvSeries } from '@/types/tv-series';
 import calculateAge from '@/utils/calculateAge';
 import formatDate from '@/utils/formatDate';
@@ -26,6 +28,19 @@ type Props = Readonly<{
 }>;
 
 const cachedPerson = cache(async (id: string) => fetchPerson(id));
+
+const cachedPersonKnownFor = cache(async (person: Person) =>
+  unstable_cache(
+    async () => {
+      const items = (await fetchPersonKnownFor(person)) as (TvSeries | Movie)[];
+      return items;
+    },
+    ['person-known-for', String(person.id)],
+    {
+      revalidate: 86400, // 1 day
+    },
+  )(),
+);
 
 export async function generateMetadata({ params: paramsFromProps }: Props) {
   const params = await paramsFromProps;
@@ -86,10 +101,7 @@ export default async function PersonDetailsPage({
     return permanentRedirect(`/person/${params.id}/${person.slug}`);
   }
 
-  const knownForItems = (await fetchPersonKnownFor(person)) as (
-    | TvSeries
-    | Movie
-  )[];
+  const knownForItems = await cachedPersonKnownFor(person);
   const knownForTvSeries = knownForItems.filter(isTvSeries);
   const knownForFirstItem =
     knownForTvSeries.length > 0 ? knownForTvSeries[0] : knownForItems[0];

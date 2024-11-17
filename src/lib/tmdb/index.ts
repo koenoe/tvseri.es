@@ -850,9 +850,11 @@ export async function searchKeywords(query: string) {
 
 export async function searchPerson(query: string) {
   const response =
-    ((await tmdbFetch(
-      `/3/search/person?query=${query}`,
-    )) as TmdbSearchPerson) ?? [];
+    ((await tmdbFetch(`/3/search/person?query=${query}`, {
+      next: {
+        revalidate: 900, // 15 minutes
+      },
+    })) as TmdbSearchPerson) ?? [];
 
   return (response.results ?? []).map((person) => {
     return {

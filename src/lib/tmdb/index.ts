@@ -700,7 +700,7 @@ export async function fetchApplePlusTvSeries(region = 'US') {
     watch_region: region,
     with_watch_providers: '350',
   });
-  return items;
+  return items.filter((item) => !!item.posterImage && !!item.backdropImage);
 }
 
 export async function fetchMostAnticipatedTvSeries() {
@@ -717,6 +717,7 @@ export async function fetchMostAnticipatedTvSeries() {
       !!item.backdropImage &&
       // Note: somehow we still get some series with genres we want to ignore ¯\_(ツ)_/¯
       !item.genres?.some((genre) => withoutGenres.includes(genre.id)) &&
+      // Note: bloody annoying show that keeps popping up  ¯\_(ツ)_/¯
       item.id !== 131835,
   );
 }

@@ -595,6 +595,8 @@ export async function fetchTrendingTvSeries() {
   const ids = (trendingTvSeriesResponse.results ?? [])
     .filter(
       (series) =>
+        series.genre_ids &&
+        series.genre_ids?.length > 0 &&
         series.vote_count > 0 &&
         !series.genre_ids?.some((genre) =>
           [...GLOBAL_GENRES_TO_IGNORE, 16, 10762].includes(genre),

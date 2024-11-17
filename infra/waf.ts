@@ -20,6 +20,31 @@ export const webAcl = new aws.wafv2.WebAcl(
     },
     rules: [
       {
+        name: 'AWSManagedBotControlRule',
+        priority: 0, // Highest priority
+        statement: {
+          managedRuleGroupStatement: {
+            name: 'AWSManagedRulesBotControlRuleSet',
+            vendorName: 'AWS',
+            managedRuleGroupConfigs: [
+              {
+                awsManagedRulesBotControlRuleSet: {
+                  inspectionLevel: 'COMMON', // Can be COMMON or TARGETED
+                },
+              },
+            ],
+          },
+        },
+        overrideAction: {
+          none: {},
+        },
+        visibilityConfig: {
+          cloudwatchMetricsEnabled: true,
+          metricName: 'AWSManagedBotControlRule',
+          sampledRequestsEnabled: true,
+        },
+      },
+      {
         name: 'AWSManagedCommonRule',
         priority: 1,
         statement: {

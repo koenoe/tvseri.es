@@ -2,8 +2,6 @@
 
 This is a NextJS application that interacts with multiple APIs (but mostly TMDb), to help you discover and track your favourite TV series.
 
-_Partial Prerendering FTW 🔥_
-
 ## Required Environment Variables to run the project locally
 
 ```

@@ -44,13 +44,15 @@ function BackgroundBase({
 
   return (
     <>
-      <BackgroundImage
-        src={image}
-        style={{
-          opacity: context === 'spotlight' ? 0.3 : 1,
-        }}
-        className={className}
-      />
+      {image && (
+        <BackgroundImage
+          src={image}
+          style={{
+            opacity: context === 'spotlight' ? 0.3 : 1,
+          }}
+          className={className}
+        />
+      )}
       {context === 'page' && (
         <div
           className="absolute inset-0 opacity-70"

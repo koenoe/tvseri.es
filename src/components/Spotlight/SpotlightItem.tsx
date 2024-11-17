@@ -77,6 +77,11 @@ const SpotlightItem = forwardRef<HTMLAnchorElement, Props>(
               <div>{item.genres[0]?.name}</div>
             </div>
           </div>
+          {item.tagline && (
+            <div className="mt-4 text-center text-sm opacity-90 md:mt-6 md:text-left md:text-base">
+              {item.tagline}
+            </div>
+          )}
         </div>
         <div className="absolute right-[-1.75rem] top-[-1.75rem] text-[12.5rem] font-bold leading-none opacity-20 md:right-[-4.05rem] md:top-[-5rem] md:text-[30rem]">
           {index + 1}

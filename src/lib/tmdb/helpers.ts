@@ -134,9 +134,7 @@ function extractImages(item: TmdbTvSeries | TmdbMovie) {
   const poster = item.poster_path ?? images.posters?.[0]?.file_path;
 
   return {
-    backdropImage: backdrop
-      ? generateTmdbImageUrl(backdrop, 'w1920_and_h1080_multi_faces')
-      : undefined,
+    backdropImage: backdrop ? generateTmdbImageUrl(backdrop) : undefined,
     titleTreatmentImage: titleTreatment
       ? generateTmdbImageUrl(titleTreatment, 'w500')
       : undefined,

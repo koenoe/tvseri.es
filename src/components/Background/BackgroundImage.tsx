@@ -6,24 +6,13 @@ const createImageUrl = (src: string, width: number): string => {
   return `/_next/image?url=${src}&w=${width}&q=75`;
 };
 
-const getResizedSrc = (src: string, width: number): string => {
-  if (src.includes('w1920_and_h1080_multi_faces') && width === 1280) {
-    const resizedSrc = src.replace(
-      'w1920_and_h1080_multi_faces',
-      'w1280_and_h720_multi_faces',
-    );
-    return createImageUrl(resizedSrc, width);
-  }
-  return createImageUrl(src, width);
-};
-
 export default function BackgroundImage({
   src,
   className,
   ...rest
 }: React.AllHTMLAttributes<HTMLImageElement> & Readonly<{ src: string }>) {
-  const HD = getResizedSrc(src, 1920);
-  const SD = getResizedSrc(src, 1280);
+  const HD = createImageUrl(src, 1920);
+  const SD = createImageUrl(src, 1280);
   const imageSizes = '100vw';
   const imageSrcSet = `
     ${SD} 768w,

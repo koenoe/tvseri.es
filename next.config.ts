@@ -12,7 +12,7 @@ const nextConfig = {
     },
   },
   images: {
-    deviceSizes: [640, 1200, 1920],
+    deviceSizes: [640, 1280, 1920],
     imageSizes: [128, 256, 384],
     remotePatterns: [
       {

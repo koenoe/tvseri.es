@@ -8,6 +8,7 @@
     "preinstall": "npx only-allow pnpm",
     "postinstall": "sst install",
     "lint": "next lint",
+    "lint:ci": "concurrently \"pnpm tsc\" \"pnpm lint\"",
     "prepare": "husky",
     "start": "next start"
   },
@@ -37,6 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^7",
     "@typescript-eslint/parser": "^7.18.0",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "15.0.3",
     "eslint-plugin-import": "^2.31.0",

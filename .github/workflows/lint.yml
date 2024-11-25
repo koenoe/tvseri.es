@@ -1,6 +1,8 @@
 name: Lint
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -32,8 +34,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Type check
-        run: pnpm tsc
-
-      - name: Run lint
-        run: pnpm lint
+      - name: Linting + Type check
+        run: pnpm lint:ci

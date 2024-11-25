@@ -3,7 +3,14 @@ import { cx } from 'class-variance-authority';
 import { preload } from 'react-dom';
 
 const createImageUrl = (src: string, width: number): string => {
-  return `/_next/image?url=${src}&w=${width}&q=75`;
+  if (src.includes('w1920_and_h1080_multi_faces') && width === 1280) {
+    const resizedSrc = src.replace(
+      'w1920_and_h1080_multi_faces',
+      'w1280_and_h720_multi_faces',
+    );
+    return resizedSrc;
+  }
+  return src;
 };
 
 export default function BackgroundImage({

@@ -11,22 +11,6 @@ const nextConfig = {
       static: 0, // default is 180
     },
   },
-  images: {
-    deviceSizes: [640, 1280, 1920],
-    imageSizes: [128, 256, 384],
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'image.tmdb.org',
-        port: '',
-      },
-      {
-        protocol: 'https',
-        hostname: 'flagcdn.com',
-        port: '',
-      },
-    ],
-  },
   eslint: {
     ignoreDuringBuilds: true,
   },

@@ -17,6 +17,8 @@
     "package.json": "sort-package-json"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.699.0",
+    "@aws-sdk/util-dynamodb": "^3.699.0",
     "class-variance-authority": "^0.7.0",
     "color": "^4.2.3",
     "framer-motion": "^11.11.17",
@@ -26,6 +28,7 @@
     "server-only": "^0.0.1",
     "sharp": "^0.33.5",
     "slugify": "^1.6.6",
+    "ulid": "^2.3.0",
     "use-debounce": "^10.0.4",
     "zustand": "^5.0.1"
   },

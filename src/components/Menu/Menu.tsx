@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link, { type LinkProps } from 'next/link';
 
 import useMatchMedia from '@/hooks/useMatchMedia';
-import { type Account } from '@/types/account';
+import { type User } from '@/types/user';
 import getMainBackgroundColor from '@/utils/getMainBackgroundColor';
 
 import MenuToggle, { type MenuToggleHandle } from './MenuToggle';
@@ -16,7 +16,7 @@ import Search from '../Search/Search';
 
 const fetchAccount = async () => {
   const response = await fetch('/api/account');
-  const json = (await response.json()) as Account;
+  const json = (await response.json()) as User;
   return json;
 };
 

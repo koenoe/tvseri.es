@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { type NextRequest } from 'next/server';
 
+import { findSession } from '@/lib/db/session';
 import {
   fetchAccountDetails,
   fetchFavorites,
@@ -23,7 +24,13 @@ export async function GET(
   }
 
   const decryptedSessionId = decryptToken(encryptedSessionId);
-  const { id: accountId } = await fetchAccountDetails(decryptedSessionId);
+  const session = await findSession(decryptedSessionId);
+
+  if (!session?.tmdbSessionId) {
+    return Response.json(null);
+  }
+
+  const { id: accountId } = await fetchAccountDetails(session.tmdbSessionId);
 
   const searchParams = request.nextUrl.searchParams;
   const pageFromSearchParams = searchParams.get('page');
@@ -33,13 +40,13 @@ export async function GET(
   if (params.list === 'favorites') {
     response = await fetchFavorites({
       accountId,
-      sessionId: decryptedSessionId,
+      sessionId: session.tmdbSessionId,
       page,
     });
   } else if (params.list === 'watchlist') {
     response = await fetchWatchlist({
       accountId,
-      sessionId: decryptedSessionId,
+      sessionId: session.tmdbSessionId,
       page,
     });
   }

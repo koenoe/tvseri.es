@@ -104,7 +104,7 @@ export const findUser = async (
         userId?: never;
         email?: never;
         username?: never;
-        tmdbAccountId: string;
+        tmdbAccountId: number;
       },
 ): Promise<User | null> => {
   const [indexName, prefix, value] = input.userId

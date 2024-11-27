@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 
+import { findSession } from '@/lib/db/session';
 import {
   fetchTvSeriesAccountStates,
   addToOrRemoveFromWatchlist,
@@ -30,20 +31,26 @@ export default async function LikeAndAddButton({
     }
 
     const decryptedSessionId = decryptToken(encryptedSessionId);
-    const { id: accountId } = await fetchAccountDetails(decryptedSessionId);
+    const session = await findSession(decryptedSessionId);
+
+    if (!session?.tmdbSessionId) {
+      return;
+    }
+
+    const { id: accountId } = await fetchAccountDetails(session.tmdbSessionId);
 
     if (listType === 'watchlist') {
       await addToOrRemoveFromWatchlist({
         id,
         accountId,
-        sessionId: decryptedSessionId,
+        sessionId: session.tmdbSessionId,
         value,
       });
     } else if (listType === 'favorites') {
       await addToOrRemoveFromFavorites({
         id,
         accountId,
-        sessionId: decryptedSessionId,
+        sessionId: session.tmdbSessionId,
         value,
       });
     }
@@ -54,17 +61,21 @@ export default async function LikeAndAddButton({
 
   if (encryptedSessionId) {
     const decryptedSessionId = decryptToken(encryptedSessionId);
-    const { isFavorited, isWatchlisted } = await fetchTvSeriesAccountStates(
-      id,
-      decryptedSessionId,
-    );
+    const session = await findSession(decryptedSessionId);
 
-    return (
-      <>
-        <LikeButton isActive={isFavorited} action={addToOrRemoveAction} />
-        <AddButton isActive={isWatchlisted} action={addToOrRemoveAction} />
-      </>
-    );
+    if (session?.tmdbSessionId) {
+      const { isFavorited, isWatchlisted } = await fetchTvSeriesAccountStates(
+        id,
+        session.tmdbSessionId,
+      );
+
+      return (
+        <>
+          <LikeButton isActive={isFavorited} action={addToOrRemoveAction} />
+          <AddButton isActive={isWatchlisted} action={addToOrRemoveAction} />
+        </>
+      );
+    }
   }
 
   return (

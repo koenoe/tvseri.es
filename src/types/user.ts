@@ -6,7 +6,7 @@ export type User = Readonly<{
   email?: string;
   name?: string;
   role: Role;
-  tmdbAccountId?: string;
+  tmdbAccountId?: number;
   tmdbAccountObjectId?: string;
   username?: string;
   version: number;

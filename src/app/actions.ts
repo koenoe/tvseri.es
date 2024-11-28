@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
+import { deleteSession, findSession } from '@/lib/db/session';
 import {
   createRequestToken,
   deleteAccessToken,
@@ -13,11 +14,11 @@ import getBaseUrl from '@/utils/getBaseUrl';
 
 export async function login(pathname = '/') {
   const cookieStore = await cookies();
-  const redirectUri = `${getBaseUrl()}/api/auth/callback?redirect=${pathname}`;
+  const redirectUri = `${getBaseUrl()}/api/auth/callback/tmdb?redirect=${pathname}`;
   const requestToken = await createRequestToken(redirectUri);
   const encryptedToken = encryptToken(requestToken);
 
-  cookieStore.set('requestToken', encryptedToken, {
+  cookieStore.set('requestTokenTmdb', encryptedToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     maxAge: 10 * 60, // 10 minutes
@@ -31,19 +32,26 @@ export async function login(pathname = '/') {
 export async function logout() {
   const cookieStore = await cookies();
   const encryptedSessionId = cookieStore.get('sessionId')?.value;
-  const encryptedAccessToken = cookieStore.get('accessToken')?.value;
 
-  cookieStore.delete('accessToken');
-  cookieStore.delete('accountObjectId');
-  cookieStore.delete('sessionId');
-
-  if (encryptedSessionId) {
-    const decryptedSessionId = decryptToken(encryptedSessionId);
-    await deleteSessionId(decryptedSessionId);
+  if (!encryptedSessionId) {
+    return;
   }
 
-  if (encryptedAccessToken) {
-    const decryptedAccessToken = decryptToken(encryptedAccessToken);
-    await deleteAccessToken(decryptedAccessToken);
+  const decryptedSessionId = decryptToken(encryptedSessionId);
+  const session = await findSession(decryptedSessionId);
+
+  if (!session) {
+    return;
+  }
+
+  cookieStore.delete('sessionId');
+  await deleteSession(session.id);
+
+  // Note: delete the session from TMDB
+  if (session.tmdbSessionId && session.tmdbAccessToken) {
+    await Promise.all([
+      deleteAccessToken(session.tmdbAccessToken),
+      deleteSessionId(session.tmdbSessionId),
+    ]);
   }
 }

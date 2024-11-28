@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 
-import { fetchAccountDetails } from '@/lib/tmdb';
+import { findSession } from '@/lib/db/session';
+import { findUser } from '@/lib/db/user';
 import { decryptToken } from '@/lib/token';
 
 export async function GET() {
@@ -12,7 +13,17 @@ export async function GET() {
   }
 
   const decryptedSessionId = decryptToken(encryptedSessionId);
-  const account = await fetchAccountDetails(decryptedSessionId);
+  const session = await findSession(decryptedSessionId);
 
-  return Response.json(account);
+  if (!session) {
+    return Response.json(null);
+  }
+
+  const user = await findUser({ userId: session.userId });
+
+  if (!user) {
+    return Response.json(null);
+  }
+
+  return Response.json(user);
 }

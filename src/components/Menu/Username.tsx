@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 
-import { fetchAccountDetails } from '@/lib/tmdb';
+import { findSession } from '@/lib/db/session';
+import { findUser } from '@/lib/db/user';
 import { decryptToken } from '@/lib/token';
 
 import LoginButton from '../Buttons/LoginButton';
@@ -14,12 +15,19 @@ export default async function Username() {
   }
 
   const decryptedSessionId = decryptToken(encryptedSessionId);
-  const user = await fetchAccountDetails(decryptedSessionId);
-  const profileName = user.username ?? user.name ?? 'anonymous';
+  const session = await findSession(decryptedSessionId);
+
+  if (!session) {
+    return <LoginButton />;
+  }
+
+  const user = await findUser({ userId: session.userId });
 
   if (!user) {
     return <LoginButton />;
   }
+
+  const profileName = user.username ?? user.name ?? 'anonymous';
 
   return (
     <div className="relative flex h-[18px] w-auto items-center justify-end overflow-hidden text-base lowercase leading-none text-white">

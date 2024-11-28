@@ -1,6 +1,8 @@
 import { cookies } from 'next/headers';
 
-import { fetchAccountDetails, fetchFavorites } from '@/lib/tmdb';
+import { findSession } from '@/lib/db/session';
+import { findUser } from '@/lib/db/user';
+import { fetchFavorites } from '@/lib/tmdb';
 import { decryptToken } from '@/lib/token';
 
 import InfiniteGrid from './InfiniteGrid';
@@ -14,12 +16,22 @@ export default async function FavoritesGrid() {
   }
 
   const decryptedSessionId = decryptToken(encryptedSessionId);
-  const { id: accountId } = await fetchAccountDetails(decryptedSessionId);
+  const session = await findSession(decryptedSessionId);
+
+  if (!session || !session.tmdbSessionId) {
+    return null;
+  }
+
+  const user = await findUser({ userId: session.userId });
+
+  if (!user || !user.tmdbAccountId) {
+    return null;
+  }
 
   const { items, totalNumberOfItems, totalNumberOfPages } =
     await fetchFavorites({
-      accountId,
-      sessionId: decryptedSessionId,
+      accountId: user.tmdbAccountId,
+      sessionId: session.tmdbSessionId,
     });
 
   return (

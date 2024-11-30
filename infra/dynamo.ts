@@ -15,6 +15,7 @@ export const users = new sst.aws.Dynamo('Users', {
     // role: 'string', // 'user' | 'admin'
     // tmdbAccountId: 'number',
     // tmdbAccountObjectId: 'string',
+    // tmdbUsername: 'string',
     // version: 'number',
   },
   primaryIndex: { hashKey: 'pk' },

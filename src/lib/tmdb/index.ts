@@ -7,11 +7,7 @@ import { type CountryOrLanguage } from '@/types/country-language';
 import { type Genre } from '@/types/genre';
 import { type Movie } from '@/types/movie';
 import { type Person } from '@/types/person';
-import type {
-  Season,
-  TvSeries,
-  TvSeriesAccountStates,
-} from '@/types/tv-series';
+import type { Season, TvSeries } from '@/types/tv-series';
 import { type WatchProvider } from '@/types/watch-provider';
 import getBaseUrl from '@/utils/getBaseUrl';
 import { toQueryString } from '@/utils/toQueryString';
@@ -32,7 +28,6 @@ import {
   type TmdbTvSeriesSeason,
   type TmdbSearchTvSeries,
   type TmdbAccountDetails,
-  type TmdbTvSeriesAccountStates,
   type TmdbWatchlist,
   type TmdbFavorites,
   type TmdbWatchProviders,
@@ -363,30 +358,6 @@ export async function fetchTvSeries(
   }
 
   return normalizedTvSeries;
-}
-
-export async function fetchTvSeriesAccountStates(
-  id: number | string,
-  sessionId: string,
-): Promise<TvSeriesAccountStates> {
-  const series = (await tmdbFetch(
-    `/3/tv/${id}/account_states?session_id=${sessionId}`,
-    {
-      cache: 'no-store',
-    },
-  )) as TmdbTvSeriesAccountStates;
-
-  if (!series) {
-    return {
-      isFavorited: false,
-      isWatchlisted: false,
-    };
-  }
-
-  return {
-    isFavorited: series.favorite,
-    isWatchlisted: series.watchlist,
-  };
 }
 
 export async function fetchTvSeriesContentRating(

@@ -1,13 +1,22 @@
 import { cookies } from 'next/headers';
 
-import { findSession } from '@/lib/db/session';
 import {
-  fetchTvSeriesAccountStates,
+  addToFavorites,
+  addToWatchlist,
+  isInFavorites,
+  isInWatchlist,
+  removeFromFavorites,
+  removeFromWatchlist,
+} from '@/lib/db/list';
+import { findSession } from '@/lib/db/session';
+import { findUser } from '@/lib/db/user';
+import {
   addToOrRemoveFromWatchlist,
-  fetchAccountDetails,
   addToOrRemoveFromFavorites,
+  fetchTvSeries,
 } from '@/lib/tmdb';
 import { decryptToken } from '@/lib/token';
+import { type TvSeries } from '@/types/tv-series';
 
 import AddButton from './AddButton';
 import LikeButton from './LikeButton';
@@ -33,26 +42,65 @@ export default async function LikeAndAddButton({
     const decryptedSessionId = decryptToken(encryptedSessionId);
     const session = await findSession(decryptedSessionId);
 
-    if (!session?.tmdbSessionId) {
+    if (!session) {
       return;
     }
 
-    const { id: accountId } = await fetchAccountDetails(session.tmdbSessionId);
+    const user = await findUser({ userId: session.userId });
+
+    if (!user) {
+      return;
+    }
+
+    const tvSeries = (await fetchTvSeries(id)) as TvSeries;
+    const payload = {
+      userId: user.id,
+      item: {
+        id: tvSeries.id,
+        posterImage: tvSeries.posterImage,
+        slug: tvSeries.slug,
+        title: tvSeries.title,
+      },
+    };
 
     if (listType === 'watchlist') {
-      await addToOrRemoveFromWatchlist({
-        id,
-        accountId,
-        sessionId: session.tmdbSessionId,
-        value,
-      });
+      if (value) {
+        await addToWatchlist(payload);
+      } else {
+        await removeFromWatchlist({
+          userId: user.id,
+          id: tvSeries.id,
+        });
+      }
+      // Note: we still save the watchlist and favorites to TMDb
+      // in case tvseri.es ever stops users will still have their data
+      if (session.tmdbSessionId && user.tmdbAccountId) {
+        await addToOrRemoveFromWatchlist({
+          id,
+          accountId: user.tmdbAccountId,
+          sessionId: session.tmdbSessionId,
+          value,
+        });
+      }
     } else if (listType === 'favorites') {
-      await addToOrRemoveFromFavorites({
-        id,
-        accountId,
-        sessionId: session.tmdbSessionId,
-        value,
-      });
+      if (value) {
+        await addToFavorites(payload);
+      } else {
+        await removeFromFavorites({
+          userId: user.id,
+          id: tvSeries.id,
+        });
+      }
+      // Note: we still save the watchlist and favorites to TMDb
+      // in case tvseri.es ever stops users will still have their data
+      if (session.tmdbSessionId && user.tmdbAccountId) {
+        await addToOrRemoveFromFavorites({
+          id,
+          accountId: user.tmdbAccountId,
+          sessionId: session.tmdbSessionId,
+          value,
+        });
+      }
     }
   }
 
@@ -63,11 +111,14 @@ export default async function LikeAndAddButton({
     const decryptedSessionId = decryptToken(encryptedSessionId);
     const session = await findSession(decryptedSessionId);
 
-    if (session?.tmdbSessionId) {
-      const { isFavorited, isWatchlisted } = await fetchTvSeriesAccountStates(
-        id,
-        session.tmdbSessionId,
-      );
+    if (session?.userId) {
+      const payload = {
+        userId: session.userId,
+        id: Number(id),
+      };
+
+      const isFavorited = await isInFavorites(payload);
+      const isWatchlisted = await isInWatchlist(payload);
 
       return (
         <>

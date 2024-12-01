@@ -64,7 +64,7 @@ export default function Menu({
   const [isPending, startTransition] = useTransition();
   const menuToggleRef = useRef<MenuToggleHandle>(null);
   const accountIsFetched = useRef(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [account, setAccount] = useState<User | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [backgroundColor, setBackgroundColor] = useState<string>('#000');
   const isMobile = useMatchMedia('(max-width: 768px)');
@@ -75,7 +75,7 @@ export default function Menu({
   }, []);
 
   const handleLogout = useCallback(() => {
-    setIsAuthenticated(false);
+    setAccount(null);
     setMenuOpen(false);
     menuToggleRef.current?.close();
   }, []);
@@ -86,14 +86,22 @@ export default function Menu({
   }, []);
 
   const renderMenu = useCallback(() => {
-    const showLoginButton = isAuthenticated || isMobile;
+    const showLoginButton = account || isMobile;
     const items = [
       { label: 'Home', href: '/', component: null },
       { label: 'Discover', href: '/discover', component: null },
-      ...(isAuthenticated
+      ...(account
         ? [
-            { label: 'Watchlist', href: '/watchlist', component: null },
-            { label: 'Favorites', href: '/favorites', component: null },
+            {
+              label: 'Watchlist',
+              href: `/u/${account.username}/watchlist`,
+              component: null,
+            },
+            {
+              label: 'Favorites',
+              href: `/u/${account.username}/favorites`,
+              component: null,
+            },
           ]
         : []),
       ...(showLoginButton
@@ -103,7 +111,7 @@ export default function Menu({
               href: '',
               component: (
                 <LoginButton
-                  isAuthenticated={isAuthenticated}
+                  isAuthenticated={!!account}
                   onLogout={handleLogout}
                 />
               ),
@@ -184,7 +192,7 @@ export default function Menu({
       </>
     );
   }, [
-    isAuthenticated,
+    account,
     isMobile,
     isPending,
     backgroundColor,
@@ -204,7 +212,7 @@ export default function Menu({
     startTransition(async () => {
       try {
         const account = await fetchAccount();
-        setIsAuthenticated(!!account);
+        setAccount(account);
       } catch (error) {}
 
       accountIsFetched.current = true;

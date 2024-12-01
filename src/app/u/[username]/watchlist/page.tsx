@@ -1,12 +1,25 @@
 import { Suspense } from 'react';
 
+import { notFound } from 'next/navigation';
+
 import Grid from '@/components/Grid/Grid';
-import WatchlistGrid from '@/components/Grid/WatchlistGrid';
+import ListGrid from '@/components/Grid/ListGrid';
 import PageDivider from '@/components/Page/Divider';
 import Page from '@/components/Page/Page';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
+import { findUser } from '@/lib/db/user';
 
-export default async function WatchlistPage() {
+type Props = Readonly<{
+  params: Promise<{ username: string }>;
+}>;
+
+export default async function WatchlistPage({ params }: Props) {
+  const { username } = await params;
+  const user = await findUser({ username });
+  if (!user) {
+    return notFound();
+  }
+
   return (
     <Page backgroundContext="dots">
       <div className="container">
@@ -20,7 +33,7 @@ export default async function WatchlistPage() {
             </Grid>
           }
         >
-          <WatchlistGrid />
+          <ListGrid user={user} listId="WATCHLIST" />
         </Suspense>
       </div>
     </Page>

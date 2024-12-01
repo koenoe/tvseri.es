@@ -23,7 +23,7 @@ type SortBy = 'title' | 'createdAt' | 'position';
 //   createdAt: number;
 // }>;
 
-type ListItem = Pick<TvSeries, 'id' | 'posterImage' | 'title' | 'slug'> &
+export type ListItem = Pick<TvSeries, 'id' | 'posterImage' | 'title' | 'slug'> &
   Readonly<{
     position?: number;
   }>;
@@ -187,12 +187,7 @@ export const getListItems = async (
   input: Readonly<{
     userId: string;
     listId: string;
-    options?: Partial<{
-      limit?: number;
-      cursor?: string;
-      sortBy?: SortBy;
-      sortDirection?: SortDirection;
-    }>;
+    options?: PaginationOptions;
   }>,
 ) => {
   const isCustomList = !['WATCHLIST', 'FAVORITES'].includes(input.listId);
@@ -228,7 +223,7 @@ export const getListItems = async (
     ScanIndexForward: sortDirection === 'asc',
     Limit: limit,
     ExclusiveStartKey: input.options?.cursor
-      ? JSON.parse(Buffer.from(input.options.cursor, 'base64').toString())
+      ? JSON.parse(Buffer.from(input.options.cursor, 'base64url').toString())
       : undefined,
   });
 
@@ -245,8 +240,10 @@ export const getListItems = async (
         position: normalizedItem.position,
       } as ListItem;
     }),
-    cursor: result.LastEvaluatedKey
-      ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString('base64')
+    nextCursor: result.LastEvaluatedKey
+      ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString(
+          'base64url',
+        )
       : undefined,
   };
 };

@@ -79,3 +79,14 @@ export const lists = new sst.aws.Dynamo('Lists', {
     gsi3: { hashKey: 'gsi3pk', rangeKey: 'gsi3sk', projection: 'all' },
   },
 });
+
+export const preferredImages = new sst.aws.Dynamo('PreferredImages', {
+  fields: {
+    pk: 'string', // SERIES#<seriesId>
+
+    // backdropImagePath: 'string',
+    // titleTreatmentImagePath: 'string',
+    // updatedAt: 'number',
+  },
+  primaryIndex: { hashKey: 'pk' },
+});

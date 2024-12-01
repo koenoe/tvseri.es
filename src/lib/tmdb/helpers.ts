@@ -12,6 +12,9 @@ export type TmdbTvSeries =
     images: paths[`/3/tv/${number}/images`]['get']['responses']['200']['content']['application/json'];
   };
 
+export type TmdbTvSeriesImages =
+  paths[`/3/tv/${number}/images`]['get']['responses']['200']['content']['application/json'];
+
 export type TmdbMovie =
   paths[`/3/movie/${number}`]['get']['responses']['200']['content']['application/json'] & {
     images: paths[`/3/tv/${number}/images`]['get']['responses']['200']['content']['application/json'];
@@ -123,6 +126,18 @@ export function buildDiscoverQuery(
   };
 }
 
+export function buildBackdropImageUrl(path: string) {
+  return generateTmdbImageUrl(path, 'w1920_and_h800_multi_faces');
+}
+
+export function buildTitleTreatmentImageUrl(path: string) {
+  return generateTmdbImageUrl(path, 'w500');
+}
+
+export function buildPosterImageUrl(path: string) {
+  return generateTmdbImageUrl(path, 'w300_and_h450_bestv2');
+}
+
 function extractImages(item: TmdbTvSeries | TmdbMovie) {
   const images = item.images ?? {};
   const backdrop =
@@ -134,15 +149,11 @@ function extractImages(item: TmdbTvSeries | TmdbMovie) {
   const poster = item.poster_path ?? images.posters?.[0]?.file_path;
 
   return {
-    backdropImage: backdrop
-      ? generateTmdbImageUrl(backdrop, 'w1920_and_h1080_multi_faces')
-      : undefined,
+    backdropImage: backdrop ? buildBackdropImageUrl(backdrop) : undefined,
     titleTreatmentImage: titleTreatment
-      ? generateTmdbImageUrl(titleTreatment, 'w500')
+      ? buildTitleTreatmentImageUrl(titleTreatment)
       : undefined,
-    posterImage: poster
-      ? generateTmdbImageUrl(poster, 'w300_and_h450_bestv2')
-      : '',
+    posterImage: poster ? buildPosterImageUrl(poster) : '',
   };
 }
 
@@ -245,6 +256,17 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     strict: true,
     locale: series.languages?.[0] ?? '',
   });
+  const seasons = (series.seasons ?? [])
+    ?.filter((season) => season.episode_count > 0)
+    .map((season) => ({
+      id: season.id,
+      title: season.name as string,
+      description: season.overview ?? '',
+      airDate: season.air_date ? new Date(season.air_date).toISOString() : '',
+      seasonNumber: season.season_number,
+      episodeCount: season.episode_count,
+      episodes: [],
+    }));
 
   return {
     id: series.id,
@@ -274,6 +296,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     lastAirDate,
     backdropColor: DEFAULT_BACKGROUND_COLOR,
     releaseYear,
+    seasons,
     slug,
     voteAverage: series.vote_average,
     voteCount: series.vote_count,

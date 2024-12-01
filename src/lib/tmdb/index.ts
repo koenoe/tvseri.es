@@ -44,7 +44,11 @@ import {
   buildDiscoverQuery,
   type TmdbSearchPerson,
   type TmdbPersonTvCredits,
+  type TmdbTvSeriesImages,
+  buildBackdropImageUrl,
+  buildTitleTreatmentImageUrl,
 } from './helpers';
+import { findPreferredImages } from '../db/preferredImages';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
 
@@ -274,6 +278,20 @@ export async function fetchTvSeries(
   }
 
   const normalizedTvSeries = normalizeTvSeries(series);
+  const preferredImages = await findPreferredImages(series.id);
+
+  if (preferredImages) {
+    return {
+      ...normalizedTvSeries,
+      backdropColor: preferredImages.backdropColor,
+      backdropImage: buildBackdropImageUrl(preferredImages.backdropImagePath),
+      ...(preferredImages.titleTreatmentImagePath && {
+        titleTreatmentImage: buildTitleTreatmentImageUrl(
+          preferredImages.titleTreatmentImagePath,
+        ),
+      }),
+    };
+  }
 
   if (normalizedTvSeries.backdropImage) {
     const backdropColor = await detectDominantColorFromImage(
@@ -286,23 +304,59 @@ export async function fetchTvSeries(
     return {
       ...normalizedTvSeries,
       backdropColor,
-      seasons: series.seasons
-        ?.filter((season) => season.episode_count > 0)
-        .map((season) => ({
-          id: season.id,
-          title: season.name as string,
-          description: season.overview ?? '',
-          airDate: season.air_date
-            ? new Date(season.air_date).toISOString()
-            : '',
-          seasonNumber: season.season_number,
-          episodeCount: season.episode_count,
-          episodes: [],
-        })),
     };
   }
 
   return normalizedTvSeries;
+}
+
+export async function fetchTvSeriesImages(id: number | string) {
+  const response = (await tmdbFetch(
+    `/3/tv/${id}/images?include_image_language=en,null`,
+    {
+      cache: 'no-store',
+    },
+  )) as TmdbTvSeriesImages;
+
+  if (!response) {
+    return undefined;
+  }
+
+  return {
+    backdrops: await Promise.all(
+      (response.backdrops ?? [])
+        .filter(
+          (backdrop) => !!backdrop.file_path && backdrop.iso_639_1 === null,
+        )
+        .sort((a, b) => (b.vote_average ?? 0) - (a.vote_average ?? 0))
+        .slice(0, 10)
+        .map(async (backdrop) => {
+          const url = buildBackdropImageUrl(backdrop.file_path!);
+          const color = await detectDominantColorFromImage(
+            url.replace(
+              'w1920_and_h1080_multi_faces',
+              'w1280_and_h720_multi_faces',
+            ),
+          );
+
+          return {
+            path: backdrop.file_path!,
+            url,
+            color,
+          };
+        }),
+    ),
+    titleTreatment: (response.logos ?? [])
+      .filter((logo) => !!logo.file_path)
+      .sort((a, b) => (b.vote_average ?? 0) - (a.vote_average ?? 0))
+      .slice(0, 10)
+      .map((logo) => {
+        return {
+          path: logo.file_path!,
+          url: buildTitleTreatmentImageUrl(logo.file_path!),
+        };
+      }),
+  };
 }
 
 export async function fetchTvSeriesContentRating(

@@ -11,6 +11,7 @@ import ExpandableText from '@/components/ExpandableText/ExpandableText';
 import EpisodesList from '@/components/List/EpisodesList';
 import RecommendationsList from '@/components/List/RecommendationsList';
 import Page from '@/components/Page/Page';
+import PreferredImagesForAdminContainer from '@/components/PreferredImagesForAdmin/PreferredImagesForAdminContainer';
 import ImdbRating from '@/components/Rating/ImdbRating';
 import SkeletonAvatars from '@/components/Skeletons/SkeletonAvatars';
 import SkeletonCircleButton from '@/components/Skeletons/SkeletonCircleButton';
@@ -87,8 +88,11 @@ export default async function TvSeriesDetailsPage({
 
   return (
     <Page
+      key={tvSeries.id}
       backgroundColor={tvSeries.backdropColor}
       backgroundImage={tvSeries.backdropImage}
+      backgroundVariant="dynamic"
+      backgroundContext="page"
     >
       <div className="container">
         <div className="relative flex h-[calc(85vh-16rem)] items-end md:h-[calc(65vh-8rem)]">
@@ -96,6 +100,7 @@ export default async function TvSeriesDetailsPage({
             {tvSeries.titleTreatmentImage ? (
               <h1 className="relative mb-6 h-28 w-full md:h-40 md:w-[500px]">
                 <Image
+                  id="title-treatment"
                   className="max-w-[500px] object-contain object-bottom md:object-left-bottom"
                   src={tvSeries.titleTreatmentImage}
                   alt=""
@@ -121,7 +126,6 @@ export default async function TvSeriesDetailsPage({
                 </div>
                 {tvSeries.genres.length > 0 && (
                   <>
-                    {/* TODO: <Link /> to genre pages */}
                     <div className="hidden opacity-60 before:mr-1 before:content-['·'] md:block md:before:mr-2">
                       {tvSeries.genres.map((genre, index) => (
                         <Link
@@ -240,6 +244,10 @@ export default async function TvSeriesDetailsPage({
       )}
       <Suspense fallback={<SkeletonList />}>
         <RecommendationsList id={tvSeries.id} />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <PreferredImagesForAdminContainer id={tvSeries.id} />
       </Suspense>
     </Page>
   );

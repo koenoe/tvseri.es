@@ -10,6 +10,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "PreferredImages": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
     "Sessions": {
       "name": string
       "type": "sst.aws.Dynamo"

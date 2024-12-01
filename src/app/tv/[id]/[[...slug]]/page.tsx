@@ -88,7 +88,7 @@ export default async function TvSeriesDetailsPage({
 
   return (
     <Page
-      key={tvSeries.id}
+      key={`tv-${tvSeries.id}`}
       backgroundColor={tvSeries.backdropColor}
       backgroundImage={tvSeries.backdropImage}
       backgroundVariant="dynamic"

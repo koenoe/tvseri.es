@@ -36,6 +36,7 @@ export default async function HomePage() {
 
   return (
     <Page
+      key="home"
       backgroundColor={spotlight.backdropColor}
       backgroundImage={spotlight.backdropImage}
       backgroundVariant="dynamic"

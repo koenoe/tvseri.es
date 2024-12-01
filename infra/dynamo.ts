@@ -85,6 +85,7 @@ export const preferredImages = new sst.aws.Dynamo('PreferredImages', {
     pk: 'string', // SERIES#<seriesId>
 
     // backdropImagePath: 'string',
+    // backdropColor: 'string',
     // titleTreatmentImagePath: 'string',
     // updatedAt: 'number',
   },

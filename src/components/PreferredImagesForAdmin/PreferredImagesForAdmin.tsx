@@ -1,6 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useState, useTransition } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from 'react';
 
 import { cx } from 'class-variance-authority';
 
@@ -36,14 +42,23 @@ export default function PreferredImagesForAdmin({
 
   const handleBackdropNavigation = useCallback(
     (direction: 'prev' | 'next') => {
-      if (!images?.backdrops) return;
+      if (!images?.backdrops) {
+        return;
+      }
 
-      const newIndex =
-        direction === 'prev'
-          ? currentBackdropIndex - 1
-          : currentBackdropIndex + 1;
+      const newIndex = Math.min(
+        Math.max(
+          0,
+          direction === 'prev'
+            ? currentBackdropIndex - 1
+            : currentBackdropIndex + 1,
+        ),
+        images.backdrops.length - 1,
+      );
 
-      if (newIndex < 0 || newIndex >= images.backdrops.length) return;
+      if (newIndex === currentBackdropIndex) {
+        return;
+      }
 
       const newBackground = images.backdrops[newIndex];
       updateBackground({
@@ -57,12 +72,21 @@ export default function PreferredImagesForAdmin({
 
   const handleTitleNavigation = useCallback(
     (direction: 'prev' | 'next') => {
-      if (!images?.titleTreatment) return;
+      if (!images?.titleTreatment) {
+        return;
+      }
 
-      const newIndex =
-        direction === 'prev' ? currentTitleIndex - 1 : currentTitleIndex + 1;
+      const newIndex = Math.min(
+        Math.max(
+          0,
+          direction === 'prev' ? currentTitleIndex - 1 : currentTitleIndex + 1,
+        ),
+        images.titleTreatment.length - 1,
+      );
 
-      if (newIndex < 0 || newIndex >= images.titleTreatment.length) return;
+      if (newIndex === currentTitleIndex) {
+        return;
+      }
 
       getTitleTreatmentElement()?.setAttribute(
         'src',
@@ -73,17 +97,38 @@ export default function PreferredImagesForAdmin({
     [images, currentTitleIndex],
   );
 
-  const canNavigateBackdrops = images?.backdrops && images.backdrops.length > 1;
-  const canNavigateTitles =
-    images?.titleTreatment && images.titleTreatment.length > 1;
+  const canNavigateBackdrops = useMemo(
+    () => images?.backdrops && images.backdrops.length > 1,
+    [images?.backdrops],
+  );
 
-  const isFirstBackdrop = currentBackdropIndex === 0;
-  const isLastBackdrop =
-    images?.backdrops && currentBackdropIndex === images.backdrops.length - 1;
-  const isFirstTitle = currentTitleIndex === 0;
-  const isLastTitle =
-    images?.titleTreatment &&
-    currentTitleIndex === images.titleTreatment.length - 1;
+  const canNavigateTitles = useMemo(
+    () => images?.titleTreatment && images.titleTreatment.length > 1,
+    [images?.titleTreatment],
+  );
+
+  const isFirstBackdrop = useMemo(
+    () => currentBackdropIndex === 0,
+    [currentBackdropIndex],
+  );
+
+  const isLastBackdrop = useMemo(
+    () =>
+      images?.backdrops && currentBackdropIndex === images.backdrops.length - 1,
+    [images?.backdrops, currentBackdropIndex],
+  );
+
+  const isFirstTitle = useMemo(
+    () => currentTitleIndex === 0,
+    [currentTitleIndex],
+  );
+
+  const isLastTitle = useMemo(
+    () =>
+      images?.titleTreatment &&
+      currentTitleIndex === images.titleTreatment.length - 1,
+    [images?.titleTreatment, currentTitleIndex],
+  );
 
   useEffect(() => {
     if (!images?.titleTreatment) return;

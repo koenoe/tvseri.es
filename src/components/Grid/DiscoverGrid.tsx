@@ -18,7 +18,7 @@ export default async function DiscoverGrid({
     headerStore.get('x-vercel-ip-country') ||
     headerStore.get('cloudfront-viewer-country') ||
     'US';
-  const { items, totalNumberOfItems, totalNumberOfPages, queryString } =
+  const { items, totalNumberOfItems, queryString } =
     await fetchDiscoverTvSeries({
       ...query,
       watch_region: region,
@@ -28,8 +28,7 @@ export default async function DiscoverGrid({
     <InfiniteGrid
       endpoint={`/api/tv/discover${queryString}`}
       items={items}
-      totalNumberOfItems={totalNumberOfItems}
-      totalNumberOfPages={totalNumberOfPages}
+      nextPageOrCursor={totalNumberOfItems === items.length ? null : '2'}
     />
   );
 }

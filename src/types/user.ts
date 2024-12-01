@@ -8,6 +8,7 @@ export type User = Readonly<{
   role: Role;
   tmdbAccountId?: number;
   tmdbAccountObjectId?: string;
-  username?: string;
+  tmdbUsername?: string;
+  username: string;
   version: number;
 }>;

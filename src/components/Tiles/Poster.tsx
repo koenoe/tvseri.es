@@ -7,8 +7,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { type Movie } from '@/types/movie';
-import { type TvSeries } from '@/types/tv-series';
+import { type ListItem } from '@/lib/db/list';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 const MotionLink = motion.create(Link);
@@ -57,13 +56,15 @@ export type PosterVariantProps = VariantProps<typeof posterStyles>;
 
 type PosterProps = {
   className?: string;
-  item: TvSeries | Movie;
+  item: ListItem;
+  mediaType?: 'tv' | 'movie';
   priority?: boolean;
 };
 
 function Poster({
   className,
   item,
+  mediaType = 'tv',
   priority,
   size,
 }: Readonly<PosterProps> & PosterVariantProps) {
@@ -84,9 +85,7 @@ function Poster({
     );
   }, [item.posterImage, item.title, priority]);
 
-  // TODO: typeguard doesn't work properly
-  // figure out why
-  if (!('firstAirDate' in item)) {
+  if (mediaType === 'movie') {
     return (
       <motion.div
         key={item.id}

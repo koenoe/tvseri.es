@@ -194,7 +194,13 @@ export default async function PersonDetailsPage({
             </h2>
             <div className="relative flex w-full flex-nowrap gap-4 overflow-x-scroll pb-6 pe-[2rem] ps-[2rem] pt-6 scrollbar-hide md:pe-12 md:ps-12 lg:gap-6 lg:pe-16 lg:ps-16">
               {knownForItems.map((item) => (
-                <Poster key={item.id} item={item} size="small" />
+                <Poster
+                  key={item.id}
+                  item={item}
+                  size="small"
+                  // TODO: typeguard doesn't work properly, figure out why
+                  mediaType={!('firstAirDate' in item) ? 'movie' : 'tv'}
+                />
               ))}
             </div>
           </div>

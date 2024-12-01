@@ -4,7 +4,7 @@ import { fetchDiscoverTvSeries } from '@/lib/tmdb';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const pageFromSearchParams = searchParams.get('page');
+  const pageFromSearchParams = searchParams.get('pageOrCursor');
   const page = pageFromSearchParams ? parseInt(pageFromSearchParams, 10) : 1;
   const query = {
     ...Object.fromEntries(searchParams.entries()),
@@ -12,9 +12,21 @@ export async function GET(request: NextRequest) {
   };
   const response = await fetchDiscoverTvSeries(query);
 
-  return Response.json(response?.items ?? [], {
-    headers: {
-      'Cache-Control': 'public, max-age=3600, immutable',
+  const totalNumberOfPages = response?.totalNumberOfPages ?? 0;
+  const items = response?.items ?? [];
+  const nextPage = page + 1;
+  const nextPageOrCursor =
+    nextPage >= totalNumberOfPages || items.length === 0 ? null : nextPage;
+
+  return Response.json(
+    {
+      items,
+      nextPageOrCursor,
     },
-  });
+    {
+      headers: {
+        'Cache-Control': 'public, max-age=3600, immutable',
+      },
+    },
+  );
 }

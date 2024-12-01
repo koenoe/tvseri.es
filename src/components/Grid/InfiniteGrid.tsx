@@ -3,71 +3,68 @@
 import { memo, useCallback, useMemo } from 'react';
 
 import createUseRestorableState from '@/hooks/createUseRestorableState';
-import { type TvSeries } from '@/types/tv-series';
+import { type ListItem } from '@/lib/db/list';
 
 import Grid from './Grid';
 import InfiniteScroll from '../InfiniteScroll/InfiniteScroll';
 import Poster from '../Tiles/Poster';
 
-const useRestorableItems = createUseRestorableState<TvSeries[]>();
-const useRestorableHasMoreData = createUseRestorableState<boolean>();
+const useRestorableItems = createUseRestorableState<ListItem[]>();
+const useRestorableNextPageOrCursor = createUseRestorableState<
+  string | undefined | null
+>();
 
 function InfiniteGrid({
   endpoint,
   items: itemsFromProps,
-  totalNumberOfItems,
-  totalNumberOfPages,
+  nextPageOrCursor: nextPageOrCursorFromProps,
 }: Readonly<{
   endpoint: string;
-  items: TvSeries[];
-  totalNumberOfItems: number;
-  totalNumberOfPages: number;
+  items: ListItem[];
+  nextPageOrCursor?: string | null;
 }>) {
   const [items, setItems] = useRestorableItems(endpoint, itemsFromProps);
-  const [hasMoreData, setHasMoreData] = useRestorableHasMoreData(
+  const [nextPageOrCursor, setNextPageOrCursor] = useRestorableNextPageOrCursor(
     endpoint,
-    items.length < totalNumberOfItems,
+    nextPageOrCursorFromProps,
   );
 
   const fetchItems = useCallback(
-    async (page: number = 1) => {
+    async (pageOrCursor: string) => {
       const [baseEndpoint, queryString] = endpoint.split('?');
       const searchParams = new URLSearchParams(queryString);
-      searchParams.set('page', page.toString());
+      searchParams.set('pageOrCursor', pageOrCursor);
       const response = await fetch(
         `${baseEndpoint}?${searchParams.toString()}`,
       );
-      const newItems = (await response.json()) as TvSeries[];
-      return newItems;
+      const result = (await response.json()) as Readonly<{
+        items: ListItem[];
+        nextPageOrCursor: string | null;
+      }>;
+      return result;
     },
     [endpoint],
   );
 
   const handleLoadMore = useCallback(async () => {
-    // Note: see https://www.themoviedb.org/talk/623012ed357c00001b46ae10#62308d1fa3e4ba0047843a6c
-    const itemsPerPage = 20;
-    const currentPage = Math.ceil(items.length / itemsPerPage);
-    const nextPage = currentPage + 1;
-
-    if (nextPage > totalNumberOfPages) {
-      setHasMoreData(false);
+    if (!nextPageOrCursor) {
       return;
     }
 
-    const newItems = await fetchItems(nextPage);
+    const result = await fetchItems(nextPageOrCursor);
+    const { items: newItems, nextPageOrCursor: nextPageOrCursorFromResult } =
+      result;
+
+    setNextPageOrCursor(nextPageOrCursorFromResult);
 
     // Note: shouldn't happen, but extra safeguard
     if (newItems.length === 0) {
-      setHasMoreData(false);
+      setNextPageOrCursor(null);
       return;
     }
 
     setItems((prevItems) => [...prevItems, ...newItems]);
-
-    if (nextPage === totalNumberOfPages) {
-      setHasMoreData(false);
-    }
-  }, [fetchItems, items.length, setHasMoreData, setItems, totalNumberOfPages]);
+  }, [fetchItems, nextPageOrCursor, setItems, setNextPageOrCursor]);
 
   // Note: use a Set to track unique IDs to prevent duplicates
   // as TMDb can return same items on different pages
@@ -76,7 +73,7 @@ function InfiniteGrid({
     () => [
       ...new Map(
         items
-          .filter((item) => !!item.posterImage && !!item.backdropImage)
+          .filter((item) => !!item.posterImage)
           .map((item) => [item.id, item]),
       ).values(),
     ],
@@ -84,7 +81,7 @@ function InfiniteGrid({
   );
 
   return (
-    <InfiniteScroll hasMoreData={hasMoreData} loadMore={handleLoadMore}>
+    <InfiniteScroll hasMoreData={!!nextPageOrCursor} loadMore={handleLoadMore}>
       <Grid>
         {uniqueItems.map((item) => (
           <Poster key={item.id} item={item} />

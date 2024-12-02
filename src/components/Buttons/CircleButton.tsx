@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react';
 
-import { cva } from 'class-variance-authority';
+import { cva, cx } from 'class-variance-authority';
 import { motion } from 'framer-motion';
 
 export const circleButtonStyles = cva(
@@ -10,10 +10,12 @@ export const circleButtonStyles = cva(
 );
 
 export default function CircleButton({
+  className,
   children,
   onClick,
   isActive: isActiveFromProps = false,
 }: Readonly<{
+  className?: string;
   children: React.ReactNode;
   onClick?: (value: boolean) => void;
   isActive?: boolean;
@@ -26,7 +28,7 @@ export default function CircleButton({
 
   return (
     <motion.button
-      className={circleButtonStyles()}
+      className={cx(circleButtonStyles({ className }))}
       whileTap="tap"
       whileHover="hover"
       onClick={handleClick}

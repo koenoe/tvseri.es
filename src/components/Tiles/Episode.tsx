@@ -6,6 +6,7 @@ import { type Episode } from '@/types/tv-series';
 import formatRuntime from '@/utils/formatRuntime';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
+import WatchButton from '../Buttons/WatchButton';
 import ImageWithFallback from '../Image/ImageWithFallback';
 
 export const episodeStyles = cva(
@@ -44,6 +45,8 @@ function EpisodeTile({
   item,
   priority,
 }: Readonly<{ className?: string; item: Episode; priority?: boolean }>) {
+  const showWatchButton = new Date(item.airDate) < new Date();
+
   return (
     <div className={cx(episodeStyles(), className)}>
       <div className="relative aspect-video">
@@ -62,6 +65,12 @@ function EpisodeTile({
           />
         ) : (
           <>{renderFallbackStill()}</>
+        )}
+        {showWatchButton && (
+          <WatchButton
+            className="!absolute bottom-4 left-4 md:bottom-6 md:left-6"
+            size="small"
+          />
         )}
       </div>
       <div className="relative flex w-full flex-col gap-3 p-4 md:p-6">

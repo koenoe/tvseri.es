@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 
-import LikeAndAddButton from '@/components/Buttons/LikeAndAddButton';
+import ActionButtons from '@/components/Buttons/ActionButtons';
 import Cast from '@/components/Cast/Cast';
 import ContentRating from '@/components/ContentRating/ContentRating';
 import ExpandableText from '@/components/ExpandableText/ExpandableText';
@@ -186,10 +186,11 @@ export default async function TvSeriesDetailsPage({
                   <>
                     <SkeletonCircleButton />
                     <SkeletonCircleButton />
+                    <SkeletonCircleButton />
                   </>
                 }
               >
-                <LikeAndAddButton id={tvSeries.id} />
+                <ActionButtons id={tvSeries.id} />
               </Suspense>
             </div>
           </div>

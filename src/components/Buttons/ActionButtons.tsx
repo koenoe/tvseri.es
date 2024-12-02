@@ -20,8 +20,9 @@ import { type TvSeries } from '@/types/tv-series';
 
 import AddButton from './AddButton';
 import LikeButton from './LikeButton';
+import WatchButton from './WatchButton';
 
-export default async function LikeAndAddButton({
+export default async function ActionButtons({
   id,
 }: Readonly<{
   id: number | string;
@@ -122,8 +123,9 @@ export default async function LikeAndAddButton({
 
       return (
         <>
-          <LikeButton isActive={isFavorited} action={addToOrRemoveAction} />
+          <WatchButton />
           <AddButton isActive={isWatchlisted} action={addToOrRemoveAction} />
+          <LikeButton isActive={isFavorited} action={addToOrRemoveAction} />
         </>
       );
     }
@@ -131,8 +133,9 @@ export default async function LikeAndAddButton({
 
   return (
     <>
-      <LikeButton action={addToOrRemoveAction} />
+      <WatchButton />
       <AddButton action={addToOrRemoveAction} />
+      <LikeButton action={addToOrRemoveAction} />
     </>
   );
 }

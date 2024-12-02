@@ -3,9 +3,7 @@ const config = {
     enableCacheInterception: true,
   },
   default: {
-    placement: 'global',
     override: {
-      converter: 'aws-cloudfront',
       incrementalCache: 's3-lite',
       queue: 'sqs-lite',
       tagCache: 'dynamodb-lite',

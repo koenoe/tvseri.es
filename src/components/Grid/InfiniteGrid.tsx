@@ -55,14 +55,13 @@ function InfiniteGrid({
     const { items: newItems, nextPageOrCursor: nextPageOrCursorFromResult } =
       result;
 
-    setNextPageOrCursor(nextPageOrCursorFromResult);
-
     // Note: shouldn't happen, but extra safeguard
     if (newItems.length === 0) {
       setNextPageOrCursor(null);
       return;
     }
 
+    setNextPageOrCursor(nextPageOrCursorFromResult);
     setItems((prevItems) => [...prevItems, ...newItems]);
   }, [fetchItems, nextPageOrCursor, setItems, setNextPageOrCursor]);
 

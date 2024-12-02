@@ -232,21 +232,22 @@ export const getListItems = async (
   const result = await client.send(command);
 
   return {
-    items: result.Items?.map((item) => {
-      const normalizedItem = unmarshall(item);
-      return {
-        id: normalizedItem.id,
-        title: normalizedItem.title,
-        slug: normalizedItem.slug,
-        posterImage: normalizedItem.posterImage,
-        position: normalizedItem.position,
-      } as ListItem;
-    }),
+    items:
+      result.Items?.map((item) => {
+        const normalizedItem = unmarshall(item);
+        return {
+          id: normalizedItem.id,
+          title: normalizedItem.title,
+          slug: normalizedItem.slug,
+          posterImage: normalizedItem.posterImage,
+          position: normalizedItem.position,
+        } as ListItem;
+      }) ?? [],
     nextCursor: result.LastEvaluatedKey
       ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString(
           'base64url',
         )
-      : undefined,
+      : null,
   };
 };
 

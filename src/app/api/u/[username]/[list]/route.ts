@@ -33,7 +33,7 @@ export async function GET(
   });
 
   return Response.json({
-    items: response.items ?? [],
+    items: response.items,
     nextPageOrCursor: response.nextCursor,
   });
 }

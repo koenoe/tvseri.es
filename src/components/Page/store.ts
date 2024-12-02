@@ -1,3 +1,4 @@
+import { type StateCreator } from 'zustand';
 import { createStore } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
@@ -27,25 +28,28 @@ export const defaultInitState: PageState = {
 export const createPageStore = (
   initState: PageState = defaultInitState,
   name: string,
+  persistent = true,
 ) => {
-  return createStore(
-    persist<PageStore, [], [], PageState>(
-      (set) => {
-        return {
-          ...initState,
-          setBackground: (payload) =>
-            set((state) => ({ ...state, ...payload })),
+  const storeCreator: StateCreator<PageStore> = (set) => ({
+    ...initState,
+    setBackground: (payload) => set((state) => ({ ...state, ...payload })),
+  });
+
+  if (!persistent) {
+    return createStore(storeCreator) as typeof persistedStore;
+  }
+
+  const persistedStore = createStore(
+    persist<PageStore>(storeCreator, {
+      name,
+      storage: createJSONStorage(() => sessionStorage),
+      onRehydrateStorage: () => {
+        return () => {
+          sessionStorage.removeItem(name);
         };
       },
-      {
-        name,
-        storage: createJSONStorage(() => sessionStorage),
-        onRehydrateStorage: () => {
-          return () => {
-            sessionStorage.removeItem(name);
-          };
-        },
-      },
-    ),
+    }),
   );
+
+  return persistedStore;
 };

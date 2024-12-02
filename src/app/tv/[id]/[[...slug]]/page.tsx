@@ -88,11 +88,11 @@ export default async function TvSeriesDetailsPage({
 
   return (
     <Page
-      key={`tv-${tvSeries.id}`}
       backgroundColor={tvSeries.backdropColor}
       backgroundImage={tvSeries.backdropImage}
       backgroundVariant="dynamic"
       backgroundContext="page"
+      usePersistentStore={false}
     >
       <div className="container">
         <div className="relative flex h-[calc(85vh-16rem)] items-end md:h-[calc(65vh-8rem)]">

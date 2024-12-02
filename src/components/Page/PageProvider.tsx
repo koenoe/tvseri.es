@@ -22,6 +22,7 @@ export const PageStoreContext = createContext<PageStoreApi | undefined>(
 
 export type PageStoreProviderProps = PageState & {
   children: ReactNode;
+  persistent?: boolean;
 };
 
 const getStoreName = () => `page:${getHistoryKey()}`;
@@ -30,21 +31,28 @@ export const PageStoreProvider = ({
   backgroundColor,
   backgroundImage,
   children,
+  persistent = true,
 }: PageStoreProviderProps) => {
   const storeRef = useRef<PageStoreApi>(
-    createPageStore({ backgroundColor, backgroundImage }, getStoreName()),
+    createPageStore(
+      { backgroundColor, backgroundImage },
+      getStoreName(),
+      persistent,
+    ),
   );
 
   useEffect(() => {
     const store = storeRef.current;
-    const persistOptions = store.persist.getOptions();
-    const name = persistOptions.name as string;
-    const version = persistOptions.version;
+    const name = store.persist?.getOptions()?.name ?? '';
+    const version = store.persist?.getOptions()?.version ?? 0;
 
     return () => {
       const currentState = store.getState();
+      const storeOnUnmount = currentState && name && persistent;
 
-      if (currentState) {
+      // Note: this is needed to make sure the store is also persisted
+      // when the state isn't actively updated after a rehydration.
+      if (storeOnUnmount) {
         sessionStorage.setItem(
           name,
           JSON.stringify({
@@ -57,6 +65,7 @@ export const PageStoreProvider = ({
         );
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

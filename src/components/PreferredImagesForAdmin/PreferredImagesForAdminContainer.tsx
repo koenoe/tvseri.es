@@ -46,7 +46,7 @@ export default async function PreferredImagesForAdminContainer({
 
   const images = await fetchTvSeriesImages(id);
 
-  if (!images || images.backdrops.length === 0) {
+  if (!images || images.backdrops.length <= 1) {
     return null;
   }
 

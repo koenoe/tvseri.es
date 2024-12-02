@@ -57,22 +57,22 @@ export default function RootLayout({
               var orgReplaceState = window.history.replaceState;
 
               function ensureStateKey(state) {
-                  if (!state || !state.key) {
-                      var key = Math.random().toString(32).slice(2);
-                      state = state || {};
-                      state.key = key;
-                  }
-                  return state;
+                if (!state || !state.key) {
+                    var key = Math.random().toString(32).slice(2);
+                    state = state || {};
+                    state.key = key;
+                }
+                return state;
               }
 
               window.history.pushState = function (state, unused, url) {
-                  state = ensureStateKey(state);
-                  orgPushState.call(window.history, state, unused, url);
+                state = ensureStateKey(state);
+                orgPushState.call(window.history, state, unused, url);
               };
 
               window.history.replaceState = function (state, unused, url) {
-                  state = ensureStateKey(state);
-                  orgReplaceState.call(window.history, state, unused, url);
+                state = ensureStateKey(state);
+                orgReplaceState.call(window.history, state, unused, url);
               };
             `,
           }}

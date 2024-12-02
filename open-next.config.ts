@@ -4,7 +4,6 @@ const config = {
   },
   default: {
     override: {
-      converter: 'aws-cloudfront',
       incrementalCache: 's3-lite',
       queue: 'sqs-lite',
       tagCache: 'dynamodb-lite',

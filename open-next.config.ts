@@ -5,7 +5,7 @@ const config = {
   default: {
     placement: 'global',
     override: {
-      converter: 'aws-cloudfront',
+      converter: 'aws-apigw-v2',
       incrementalCache: 's3-lite',
       queue: 'sqs-lite',
       tagCache: 'dynamodb-lite',

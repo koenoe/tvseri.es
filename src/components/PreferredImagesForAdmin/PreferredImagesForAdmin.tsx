@@ -29,7 +29,6 @@ export default function PreferredImagesForAdmin({
 }>) {
   const [isPending, startTransition] = useTransition();
   const currentImage = usePageStore((state) => state.backgroundImage);
-  const currentColor = usePageStore((state) => state.backgroundColor);
   const updateBackground = usePageStore((state) => state.setBackground);
 
   const [currentBackdropIndex, setCurrentBackdropIndex] = useState(
@@ -144,12 +143,7 @@ export default function PreferredImagesForAdmin({
   }, []);
 
   return (
-    <div
-      className="fixed bottom-10 right-10 z-[99999] flex gap-2 rounded-lg p-4 text-white"
-      style={{
-        backgroundColor: currentColor,
-      }}
-    >
+    <div className="fixed bottom-10 right-10 z-[99999] flex gap-2 rounded-lg p-4 text-white backdrop-blur-2xl">
       <button
         className={cx('aspect-square w-8 rounded bg-white/40', {
           'cursor-not-allowed opacity-30':

@@ -53,12 +53,12 @@
     "prettier": "^3.4.1",
     "prettier-plugin-tailwindcss": "^0.6.9",
     "sort-package-json": "^2.12.0",
-    "sst": "^3.3.38",
+    "sst": "^3.3.41",
     "tailwind-scrollbar-hide": "^1.1.7",
     "tailwindcss": "^3.4.15",
     "typescript": "^5.5.4"
   },
-  "packageManager": "pnpm@9.14.2",
+  "packageManager": "pnpm@9.14.4",
   "pnpm": {
     "supportedArchitectures": {
       "cpu": [

@@ -27,6 +27,9 @@ export default async function ActionButtons({
 }: Readonly<{
   id: number | string;
 }>) {
+  const tvSeries = (await fetchTvSeries(id)) as TvSeries;
+  const shouldShowWatchButton = new Date(tvSeries.firstAirDate) <= new Date();
+
   async function addToOrRemoveAction(
     value: boolean,
     listType: 'favorites' | 'watchlist',
@@ -53,7 +56,6 @@ export default async function ActionButtons({
       return;
     }
 
-    const tvSeries = (await fetchTvSeries(id)) as TvSeries;
     const payload = {
       userId: user.id,
       item: {
@@ -123,7 +125,7 @@ export default async function ActionButtons({
 
       return (
         <>
-          <WatchButton />
+          {shouldShowWatchButton && <WatchButton />}
           <AddButton isActive={isWatchlisted} action={addToOrRemoveAction} />
           <LikeButton isActive={isFavorited} action={addToOrRemoveAction} />
         </>
@@ -133,7 +135,7 @@ export default async function ActionButtons({
 
   return (
     <>
-      <WatchButton />
+      {shouldShowWatchButton && <WatchButton />}
       <AddButton action={addToOrRemoveAction} />
       <LikeButton action={addToOrRemoveAction} />
     </>

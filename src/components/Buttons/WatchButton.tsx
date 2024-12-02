@@ -9,7 +9,7 @@ import CircleButton from './CircleButton';
 const watchButtonStyles = cva('backdrop-blur', {
   variants: {
     size: {
-      small: ['h-8 w-8 [&_svg.icon]:w-4 [&_svg.icon]:h-4'],
+      small: ['h-10 w-10 [&_svg.icon]:w-5 [&_svg.icon]:h-5'],
       medium: ['h-12 w-12 [&_svg.icon]:w-6 [&_svg.icon]:h-6'],
     },
   },

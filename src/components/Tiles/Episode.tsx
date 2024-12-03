@@ -49,26 +49,29 @@ function EpisodeTile({
 
   return (
     <div className={cx(episodeStyles(), className)}>
-      <div className="relative aspect-video">
+      <div className="relative aspect-video overflow-hidden">
         {item.stillImage ? (
-          <ImageWithFallback
-            className="aspect-video h-full w-full object-cover"
-            draggable={false}
-            src={item.stillImage}
-            alt={item.title}
-            priority={priority}
-            placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(489, 275)}`}
-            width={1080}
-            height={608}
-            unoptimized
-            fallback={renderFallbackStill}
-          />
+          <>
+            <ImageWithFallback
+              className="aspect-video h-full w-full object-cover"
+              draggable={false}
+              src={item.stillImage}
+              alt={item.title}
+              priority={priority}
+              placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(489, 275)}`}
+              width={1080}
+              height={608}
+              unoptimized
+              fallback={renderFallbackStill}
+            />
+            <div className="absolute -bottom-1 left-0 h-2/5 w-full bg-gradient-to-t from-black/60 to-transparent" />
+          </>
         ) : (
           <>{renderFallbackStill()}</>
         )}
         {showWatchButton && (
           <WatchButton
-            className="!absolute bottom-4 left-4 backdrop-blur md:bottom-6 md:left-6"
+            className="!absolute bottom-4 left-4 bg-white/5 backdrop-blur md:bottom-6 md:left-6"
             size="small"
           />
         )}

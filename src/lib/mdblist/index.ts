@@ -28,7 +28,8 @@ async function mdblistFetch(path: RequestInfo | URL, init?: RequestInit) {
     },
   };
 
-  const urlWithParams = new URL(`https://mdblist.com${path}`);
+  const urlWithParams = new URL(`https://api.mdblist.com${path}`);
+  urlWithParams.searchParams.set('format', 'json');
   urlWithParams.searchParams.set(
     'apikey',
     process.env.MDBLIST_API_KEY as string,
@@ -48,7 +49,11 @@ export async function fetchTvSeriesOrMovie(
   id: number | string,
   mediaType: MediaType = 'show',
 ) {
-  const response = (await mdblistFetch(`/api?tm=${id}&m=${mediaType}`)) as {
+  const response = (await mdblistFetch(`/tmdb/${mediaType}/${id}`, {
+    next: {
+      revalidate: 3600, // 1 hour
+    },
+  })) as {
     description: string;
     imdbid: string;
     ratings: Array<{
@@ -93,26 +98,32 @@ export async function fetchRating(
 
 export async function fetchImdbTopRatedTvSeries() {
   const response = (await mdblistFetch(
-    '/lists/koenoe/imdb-top-rated-by-koen/json',
+    '/lists/koenoe/imdb-top-rated-by-koen/items',
     {
       next: {
         revalidate: 604800, // 1 week
       },
     },
-  )) as Item[];
+  )) as Readonly<{
+    movies: Item[];
+    shows: Item[];
+  }>;
 
-  return response.map((item) => item.id);
+  return response.shows?.map((item) => item.id);
 }
 
 export async function fetchKoreasFinest() {
   const response = (await mdblistFetch(
-    '/lists/koenoe/top-rated-korean-shows-on-netflix/json',
+    '/lists/koenoe/top-rated-korean-shows-on-netflix/items',
     {
       next: {
         revalidate: 604800, // 1 week
       },
     },
-  )) as Item[];
+  )) as Readonly<{
+    movies: Item[];
+    shows: Item[];
+  }>;
 
-  return response.map((item) => item.id);
+  return response.shows?.map((item) => item.id);
 }

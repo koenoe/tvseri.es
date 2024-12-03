@@ -68,7 +68,7 @@ function EpisodeTile({
         )}
         {showWatchButton && (
           <WatchButton
-            className="!absolute bottom-4 left-4 md:bottom-6 md:left-6"
+            className="!absolute bottom-4 left-4 backdrop-blur md:bottom-6 md:left-6"
             size="small"
           />
         )}

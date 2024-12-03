@@ -174,16 +174,16 @@ function List({
         ) : (
           title
         )}
-        <div className="flex-grow">
+        <div className="hidden flex-grow md:flex">
           <div
             ref={scrollBarRef}
-            className="relative h-2 w-full cursor-pointer overflow-hidden rounded-2xl bg-white/15"
+            className="relative h-2 w-full cursor-pointer overflow-hidden rounded-2xl bg-white/10"
             onClick={handleClick}
             onMouseDown={handleStartDragging}
             onTouchStart={handleStartDragging}
           >
             <motion.div
-              className="h-full w-full bg-white"
+              className="h-full w-full bg-white/30"
               style={{
                 scaleX: scrollXProgress,
                 transformOrigin: 'left',

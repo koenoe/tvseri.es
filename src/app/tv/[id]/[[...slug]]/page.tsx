@@ -117,7 +117,7 @@ export default async function TvSeriesDetailsPage({
               </h1>
             )}
 
-            <div className="mb-6 flex w-full gap-4 md:gap-12">
+            <div className="mb-4 flex w-full gap-4 md:gap-12">
               <div className="flex w-full items-center gap-1 whitespace-nowrap text-xs md:gap-2 md:text-[0.8rem]">
                 <div className="opacity-60">{tvSeries.releaseYear}</div>
                 <div className="opacity-60 before:mr-1 before:content-['·'] md:before:mr-2">
@@ -167,6 +167,22 @@ export default async function TvSeriesDetailsPage({
                 </div>
               </div>
             </div>
+            <div className="relative my-6 flex h-8 w-full items-center gap-x-2 overflow-hidden whitespace-nowrap rounded-md bg-white/10 p-3 tracking-wide backdrop-blur md:w-4/5">
+              <div className="text-xs font-medium">75% watched</div>
+              <div className="text-[0.7rem] opacity-80 before:mr-2 before:content-['–']">
+                18/24 episodes (13h 36m)
+              </div>
+              <div
+                className="h-full w-full bg-white/20"
+                style={{
+                  transform: 'scaleX(0.75)',
+                  transformOrigin: 'left',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                }}
+              />
+            </div>
           </div>
         </div>
         <div className="w-full xl:w-4/5 2xl:w-3/5">
@@ -197,7 +213,7 @@ export default async function TvSeriesDetailsPage({
 
           <div className="flex flex-col text-sm font-light">
             {tvSeries.createdBy.length > 0 && (
-              <p className="flex items-center gap-2 font-medium leading-loose">
+              <p className="flex flex-wrap items-center gap-x-2 font-medium leading-loose">
                 <span className="opacity-60">Created by:</span>
                 {tvSeries.createdBy.map((creator, index) => (
                   <Link

@@ -8,6 +8,7 @@ import SelectSeason from '@/components/List/EpisodesListSeasonSelect';
 import List from '@/components/List/List';
 import { type Season, type Episode, type TvSeries } from '@/types/tv-series';
 
+import WatchButton from '../Buttons/WatchButton';
 import SkeletonEpisode from '../Skeletons/SkeletonEpisode';
 import EpisodeTile from '../Tiles/Episode';
 
@@ -42,6 +43,7 @@ export default function EpisodesList({
       ),
     [item, selectedSeason?.title],
   );
+  const button = useMemo(() => <WatchButton />, []);
 
   useEffect(() => {
     if (isPending || lastFetchedKey.current === fetchKey) {
@@ -66,7 +68,13 @@ export default function EpisodesList({
   }, [fetchKey, isPending]);
 
   return (
-    <List key={fetchKey} scrollRestoreKey={fetchKey} title={title} {...rest}>
+    <List
+      key={fetchKey}
+      scrollRestoreKey={fetchKey}
+      title={title}
+      button={button}
+      {...rest}
+    >
       {shouldShowSkeleton
         ? [...Array(10)].map((_, index) => <SkeletonEpisode key={index} />)
         : episodes.map((episode) => (

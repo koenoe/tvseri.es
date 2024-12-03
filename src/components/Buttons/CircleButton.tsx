@@ -30,7 +30,7 @@ export default function CircleButton({
     <motion.button
       className={cx(circleButtonStyles({ className }))}
       whileTap="tap"
-      whileHover="hover"
+      whileHover={isActive ? undefined : 'hover'}
       onClick={handleClick}
       initial={false}
       animate={isActive ? 'active' : 'inactive'}
@@ -47,7 +47,7 @@ export default function CircleButton({
           color: 'rgba(255, 255, 255, 0.6)',
         },
         hover: {
-          borderColor: 'rgba(255, 255, 255, 0.6)',
+          borderColor: 'rgba(255, 255, 255, 0.4)',
         },
       }}
       layout

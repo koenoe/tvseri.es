@@ -167,7 +167,7 @@ export default async function TvSeriesDetailsPage({
                 </div>
               </div>
             </div>
-            <div className="relative my-6 flex h-8 w-full items-center gap-x-2 overflow-hidden whitespace-nowrap rounded-md bg-white/10 p-3 tracking-wide backdrop-blur md:w-4/5">
+            <div className="relative my-6 flex h-9 w-full items-center gap-x-2 overflow-hidden whitespace-nowrap rounded-3xl bg-white/10 px-6 tracking-wide backdrop-blur lg:w-9/12">
               <div className="text-xs font-medium">75% watched</div>
               <div className="text-[0.7rem] opacity-80 before:mr-2 before:content-['–']">
                 18/24 episodes (13h 36m)

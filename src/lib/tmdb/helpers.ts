@@ -150,6 +150,7 @@ function extractImages(item: TmdbTvSeries | TmdbMovie) {
 
   return {
     backdropImage: backdrop ? buildBackdropImageUrl(backdrop) : undefined,
+    backdropPath: backdrop,
     titleTreatmentImage: titleTreatment
       ? buildTitleTreatmentImageUrl(titleTreatment)
       : undefined,

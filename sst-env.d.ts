@@ -6,6 +6,10 @@ import "sst"
 export {}
 declare module "sst" {
   export interface Resource {
+    "Cache": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
     "Lists": {
       "name": string
       "type": "sst.aws.Dynamo"

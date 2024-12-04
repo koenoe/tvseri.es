@@ -105,15 +105,19 @@ export default async function PersonDetailsPage({
   const knownForTvSeries = knownForItems.filter(isTvSeries);
   const knownForFirstItem =
     knownForTvSeries.length > 0 ? knownForTvSeries[0] : knownForItems[0];
-  const backdropImage = knownForFirstItem?.backdropImage ?? person.image;
   const backdropColor =
-    await detectDominantColorFromImageWithCache(backdropImage);
+    knownForFirstItem?.backdropImage && knownForFirstItem?.backdropPath
+      ? await detectDominantColorFromImageWithCache(
+          knownForFirstItem?.backdropImage,
+          knownForFirstItem?.backdropPath,
+        )
+      : undefined;
 
   return (
     <Page
       backgroundContext="blur"
       backgroundColor={backdropColor}
-      backgroundImage={backdropImage}
+      backgroundImage={knownForFirstItem?.backdropImage}
     >
       <div className="my-10 md:container md:my-20">
         <div className="grid max-w-screen-xl grid-cols-1 md:grid-cols-3 [&>*]:!h-auto [&>*]:!w-full">

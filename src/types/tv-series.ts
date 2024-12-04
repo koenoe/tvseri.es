@@ -36,6 +36,7 @@ type Country = Readonly<{
 export type TvSeries = Readonly<{
   backdropColor: string;
   backdropImage?: string;
+  backdropPath?: string; // Note: handy for cache keys
   countries: Country[];
   createdBy: Person[];
   description: string;

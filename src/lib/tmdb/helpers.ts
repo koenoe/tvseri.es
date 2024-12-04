@@ -127,7 +127,7 @@ export function buildDiscoverQuery(
 }
 
 export function buildBackdropImageUrl(path: string) {
-  return generateTmdbImageUrl(path, 'w1920_and_h800_multi_faces');
+  return generateTmdbImageUrl(path, 'w1920_and_h1080_multi_faces');
 }
 
 export function buildTitleTreatmentImageUrl(path: string) {

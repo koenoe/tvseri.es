@@ -174,11 +174,9 @@ export async function deleteAccessToken(accessToken: string) {
 }
 
 export async function fetchAccountDetails(sessionId: string) {
-  const response = (await tmdbFetch(`/3/account?session_id=${sessionId}`, {
-    next: {
-      revalidate: 900, // 15 minutes
-    },
-  })) as TmdbAccountDetails;
+  const response = (await tmdbFetch(
+    `/3/account?session_id=${sessionId}`,
+  )) as TmdbAccountDetails;
 
   return {
     id: response.id,
@@ -745,11 +743,9 @@ export async function searchKeywords(query: string) {
 
 export async function searchPerson(query: string) {
   const response =
-    ((await tmdbFetch(`/3/search/person?query=${query}`, {
-      next: {
-        revalidate: 900, // 15 minutes
-      },
-    })) as TmdbSearchPerson) ?? [];
+    ((await tmdbFetch(
+      `/3/search/person?query=${query}`,
+    )) as TmdbSearchPerson) ?? [];
 
   return (response.results ?? []).map((person) => {
     return {
@@ -775,7 +771,7 @@ export async function searchPerson(query: string) {
 export async function fetchPerson(id: number | string) {
   const person = (await tmdbFetch(`/3/person/${id}`, {
     next: {
-      revalidate: 86400,
+      revalidate: 86400, // 1 day
     },
   })) as TmdbPerson;
 

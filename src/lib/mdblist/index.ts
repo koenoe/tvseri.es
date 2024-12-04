@@ -51,7 +51,7 @@ export async function fetchTvSeriesOrMovie(
 ) {
   const response = (await mdblistFetch(`/tmdb/${mediaType}/${id}`, {
     next: {
-      revalidate: 3600, // 1 hour
+      revalidate: 43200, // 12 hours
     },
   })) as {
     description: string;

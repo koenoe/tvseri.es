@@ -11,8 +11,6 @@ import Header from '@/components/Header';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
-export const fetchCache = 'default-cache';
-
 export const metadata: Metadata = {
   formatDetection: {
     address: false,

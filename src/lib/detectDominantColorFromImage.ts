@@ -3,13 +3,15 @@ import 'server-only';
 import { cache } from 'react';
 
 import Color from 'color';
-import { unstable_cache } from 'next/cache';
 
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
+
+import { getCacheItem, setCacheItem } from './db/cache';
 
 const CONTRAST_MINIMUM = 4.5; // Minimum contrast ratio for accessibility (WCAG)
 const BLEND_OPACITY_STEP = 0.05; // Incremental step for darkening colors
 const BLUR_SIGMA = 35; // Blur intensity for dominant color detection
+const CACHE_PREFIX = 'detectDominantColorFromImage:v1:';
 
 const correctContrast = (input: Color): Color => {
   let output = input;
@@ -22,8 +24,6 @@ const correctContrast = (input: Color): Color => {
   }
   return output;
 };
-
-const cachePrefix = 'dominant-color-with-sharp-blur';
 
 async function detectDominantColorFromImage(url: string): Promise<string> {
   try {
@@ -44,11 +44,18 @@ async function detectDominantColorFromImage(url: string): Promise<string> {
   }
 }
 
-const detectDominantColorFromImageWithCache = cache(async (url: string) =>
-  unstable_cache(async () => {
+const detectDominantColorFromImageWithCache = cache(
+  async (url: string, cacheKey?: string) => {
+    const key = `${CACHE_PREFIX}${cacheKey || url}`;
+    const cachedValue = await getCacheItem<string>(key);
+    if (cachedValue) {
+      return cachedValue;
+    }
+
     const dominantColor = await detectDominantColorFromImage(url);
+    await setCacheItem<string>(key, dominantColor, { ttl: null });
     return dominantColor;
-  }, [cachePrefix, url])(),
+  },
 );
 
 export default detectDominantColorFromImageWithCache;

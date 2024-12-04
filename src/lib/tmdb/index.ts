@@ -297,6 +297,7 @@ export async function fetchTvSeries(
         'w1920_and_h1080_multi_faces',
         'w1280_and_h720_multi_faces',
       ),
+      normalizedTvSeries.backdropPath!,
     );
 
     return {
@@ -335,6 +336,7 @@ export async function fetchTvSeriesImages(id: number | string) {
               'w1920_and_h1080_multi_faces',
               'w1280_and_h720_multi_faces',
             ),
+            backdrop.file_path!,
           );
 
           return {

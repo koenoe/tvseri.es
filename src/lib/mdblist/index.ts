@@ -55,7 +55,13 @@ export async function fetchTvSeriesOrMovie(
     },
   })) as {
     description: string;
-    imdbid: string;
+    ids: {
+      imdb: string;
+      tmdb: number;
+      trakt: number;
+      tvdb: number;
+      mal: number;
+    };
     ratings: Array<{
       popular: number;
       score: number;
@@ -69,8 +75,6 @@ export async function fetchTvSeriesOrMovie(
     score: number;
     score_average: number;
     title: string;
-    tmdbid: number;
-    traktid: number;
     type: string;
     year: number;
   };
@@ -91,7 +95,7 @@ export async function fetchRating(
   return rating && rating.value > 0
     ? {
         ...rating,
-        imdbid: response.imdbid,
+        imdbid: response.ids.imdb,
       }
     : null;
 }

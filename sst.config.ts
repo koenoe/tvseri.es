@@ -54,7 +54,7 @@ export default $config({
       link: [cache, lists, preferredImages, sessions, users],
       server: {
         architecture,
-        memory: '2048 MB',
+        memory: '3008 MB',
         runtime: 'nodejs22.x',
       },
       transform: {

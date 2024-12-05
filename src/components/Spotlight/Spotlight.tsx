@@ -7,7 +7,7 @@ import preloadImage from '@/utils/preloadImage';
 
 import SpotlightItem from './SpotlightItem';
 import Carousel from '../Carousel/Carousel';
-import { usePageStore } from '../Page/PageProvider';
+import { usePageStore } from '../Page/PageStoreProvider';
 
 export default function Spotlight({
   className,

@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import { type Props } from './Background';
 import BackgroundBase, { backgroundBaseStyles } from './BackgroundBase';
-import { usePageStore } from '../Page/PageProvider';
+import { usePageStore } from '../Page/PageStoreProvider';
 
 const variants = {
   initial: {

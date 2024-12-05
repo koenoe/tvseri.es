@@ -25,24 +25,28 @@ export type PageStoreProviderProps = PageState & {
   persistent?: boolean;
 };
 
-const getStoreName = () => `page:${getHistoryKey()}`;
-
 export const PageStoreProvider = ({
   backgroundColor,
   backgroundImage,
   children,
   persistent = true,
 }: PageStoreProviderProps) => {
-  const storeRef = useRef<PageStoreApi>(
-    createPageStore(
+  const storeRef = useRef<PageStoreApi>();
+
+  if (!storeRef.current) {
+    storeRef.current = createPageStore(
       { backgroundColor, backgroundImage },
-      getStoreName(),
+      `page:${getHistoryKey()}`,
       persistent,
-    ),
-  );
+    );
+  }
 
   useEffect(() => {
     const store = storeRef.current;
+    if (!store) {
+      return;
+    }
+
     const name = store.persist?.getOptions()?.name ?? '';
     const version = store.persist?.getOptions()?.version ?? 0;
 

@@ -5,7 +5,7 @@ import {
   DEFAULT_BACKGROUND_IMAGE,
 } from '@/constants';
 
-import { PageStoreProvider } from './PageProvider';
+import { PageStoreProvider } from './PageStoreProvider';
 import Background, { type BackgroundContext } from '../Background/Background';
 import { type BackgroundVariant } from '../Background/Background';
 import BackgroundGlobal from '../Background/BackgroundGlobal';

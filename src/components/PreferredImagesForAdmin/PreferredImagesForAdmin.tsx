@@ -12,8 +12,9 @@ import { cx } from 'class-variance-authority';
 
 import { type PreferredImages } from '@/lib/db/preferredImages';
 import { type fetchTvSeriesImages } from '@/lib/tmdb';
+import preloadImage from '@/utils/preloadImage';
 
-import { usePageStore } from '../Page/PageProvider';
+import { usePageStore } from '../Page/PageStoreProvider';
 
 const getTitleTreatmentElement = () =>
   document.getElementById('title-treatment');
@@ -60,11 +61,13 @@ export default function PreferredImagesForAdmin({
       }
 
       const newBackground = images.backdrops[newIndex];
-      updateBackground({
-        backgroundImage: newBackground.url,
-        backgroundColor: newBackground.color,
+      preloadImage(newBackground.url).finally(() => {
+        updateBackground({
+          backgroundImage: newBackground.url,
+          backgroundColor: newBackground.color,
+        });
+        setCurrentBackdropIndex(newIndex);
       });
-      setCurrentBackdropIndex(newIndex);
     },
     [images?.backdrops, currentBackdropIndex, updateBackground],
   );

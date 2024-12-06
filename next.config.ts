@@ -1,12 +1,16 @@
+import { type NextConfig } from 'next';
+
 import getBaseUrl from './src/utils/getBaseUrl';
 
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
     staleTimes: {
       dynamic: 0, // default is 30
       static: 0, // default is 180
     },
+  },
+  compiler: {
+    removeConsole: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -71,6 +75,6 @@ const nextConfig = {
       },
     ];
   },
-};
+} satisfies NextConfig;
 
 export default nextConfig;

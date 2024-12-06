@@ -4,7 +4,8 @@ import getBaseUrl from './src/utils/getBaseUrl';
 
 const nextConfig = {
   experimental: {
-    reactCompiler: true,
+    // TODO: messes up some stuff in the background of the app
+    reactCompiler: false,
     staleTimes: {
       dynamic: 0, // default is 30
       static: 0, // default is 180

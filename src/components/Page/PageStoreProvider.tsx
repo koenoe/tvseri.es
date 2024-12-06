@@ -31,7 +31,7 @@ export const PageStoreProvider = ({
   children,
   persistent = true,
 }: PageStoreProviderProps) => {
-  const storeRef = useRef<PageStoreApi>();
+  const storeRef = useRef<PageStoreApi>(null);
 
   if (!storeRef.current) {
     storeRef.current = createPageStore(

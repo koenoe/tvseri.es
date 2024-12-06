@@ -1,6 +1,13 @@
 'use client';
 
-import { memo, type RefObject, useCallback, useMemo, useRef } from 'react';
+import {
+  memo,
+  type ReactElement,
+  type RefObject,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
 
 import { motion, type MotionValue, type PanInfo } from 'framer-motion';
 
@@ -16,12 +23,12 @@ function CarouselItem({
     event: MouseEvent | TouchEvent | PointerEvent,
     info: PanInfo,
   ) => void;
-  itemRenderer: (index: number, ref: RefObject<HTMLElement>) => JSX.Element;
+  itemRenderer: (index: number, ref: RefObject<HTMLElement>) => ReactElement;
 }>) {
   const childRef = useRef<HTMLElement>(null);
 
   const child = useMemo(
-    () => itemRenderer(index, childRef),
+    () => itemRenderer(index, childRef as RefObject<HTMLElement>),
     [index, itemRenderer],
   );
 

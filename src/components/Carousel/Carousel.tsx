@@ -10,6 +10,7 @@ import {
   type RefObject,
   useEffect,
   useRef,
+  type ReactElement,
 } from 'react';
 
 import { cx, cva } from 'class-variance-authority';
@@ -47,7 +48,7 @@ function Carousel({
   itemRenderer: (
     index: number,
     ref: RefObject<HTMLAnchorElement>,
-  ) => JSX.Element;
+  ) => ReactElement;
   onChange?: (index: number) => void;
   restoreKey: string;
 }>) {

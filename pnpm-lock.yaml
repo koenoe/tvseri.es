@@ -49,7 +49,7 @@ importers:
         version: 10.0.4(react@19.0.0)
       zustand:
         specifier: ^5.0.2
-        version: 5.0.2(@types/react@19.0.0)(react@19.0.0)(use-sync-external-store@1.2.2(react@19.0.0))
+        version: 5.0.2(@types/react@19.0.1)(react@19.0.0)(use-sync-external-store@1.2.2(react@19.0.0))
     devDependencies:
       '@tailwindcss/typography':
         specifier: ^0.5.15
@@ -61,11 +61,11 @@ importers:
         specifier: ^22.10.1
         version: 22.10.1
       '@types/react':
-        specifier: ^19.0.0
-        version: 19.0.0
+        specifier: ^19.0.1
+        version: 19.0.1
       '@types/react-dom':
-        specifier: ^19.0.0
-        version: 19.0.0
+        specifier: ^19.0.1
+        version: 19.0.1
       '@typescript-eslint/eslint-plugin':
         specifier: ^7
         version: 7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.5.4))(eslint@8.57.1)(typescript@5.5.4)
@@ -115,8 +115,8 @@ importers:
         specifier: ^2.12.0
         version: 2.12.0
       sst:
-        specifier: ^3.3.50
-        version: 3.3.50
+        specifier: ^3.3.58
+        version: 3.3.58
       tailwind-scrollbar-hide:
         specifier: ^1.1.7
         version: 1.1.7
@@ -711,11 +711,11 @@ packages:
   '@types/node@22.10.1':
     resolution: {integrity: sha512-qKgsUwfHZV2WCWLAnVP1JqnpE6Im6h3Y0+fYgMTasNQ7V++CBX5OT1as0g0f+OyubbFqhf6XVNIsmN4IIhEgGQ==}
 
-  '@types/react-dom@19.0.0':
-    resolution: {integrity: sha512-1KfiQKsH1o00p9m5ag12axHQSb3FOU9H20UTrujVSkNhuCrRHiQWFqgEnTNK5ZNfnzZv8UWrnXVqCmCF9fgY3w==}
+  '@types/react-dom@19.0.1':
+    resolution: {integrity: sha512-hljHij7MpWPKF6u5vojuyfV0YA4YURsQG7KT6SzV0Zs2BXAtgdTxG6A229Ub/xiWV4w/7JL8fi6aAyjshH4meA==}
 
-  '@types/react@19.0.0':
-    resolution: {integrity: sha512-MY3oPudxvMYyesqs/kW1Bh8y9VqSmf+tzqw3ae8a9DZW68pUe3zAdHeI1jc6iAysuRdACnVknHP8AhwD4/dxtg==}
+  '@types/react@19.0.1':
+    resolution: {integrity: sha512-YW6614BDhqbpR5KtUYzTA+zlA7nayzJRA9ljz9CQoxthR0sDisYZLuvSMsil36t4EH/uAt8T52Xb4sVw17G+SQ==}
 
   '@types/uuid@9.0.8':
     resolution: {integrity: sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==}
@@ -2322,33 +2322,33 @@ packages:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
 
-  sst-darwin-arm64@3.3.50:
-    resolution: {integrity: sha512-fCvsjaWgeMIx5JFWhJwXpJ3GCaro+iOBAhsDFyFf6IuekOUdWyCddUF0+7WpxxxfIsmtoljro8m6sU6pl8xCGQ==}
+  sst-darwin-arm64@3.3.58:
+    resolution: {integrity: sha512-YqAYIOqsZRq3nJF1tD+RxloY+mNqROV6PGnbL9/3jsaKVNI5ghkhhFQLLx7MEcKhw1ZpuWqsEig/mjkY0OW/qQ==}
     cpu: [arm64]
     os: [darwin]
 
-  sst-darwin-x64@3.3.50:
-    resolution: {integrity: sha512-d002gfGTG0iPePRwDtQFEXn0BhJqM5xHbQCPcKja9zcmILaJYFE9IyZDZ52NxnlvckaA8wsLoT4wHIe0klWPAA==}
+  sst-darwin-x64@3.3.58:
+    resolution: {integrity: sha512-6mNADWG4NMw4RM1et253YkbRtoIpuPyptNWgjn4wA0+AE9jPXfYmJOGNjTCFtYZwZYLriXjvaD1HERufRzlX9w==}
     cpu: [x64]
     os: [darwin]
 
-  sst-linux-arm64@3.3.50:
-    resolution: {integrity: sha512-odspMqy90immi7PcaeY5C2O8TSkqd50CuCyuXP8f5sqpwQ8xOUVg3hThLZq1rvbMLrQbpHVD0u2+oCH3p3TxKg==}
+  sst-linux-arm64@3.3.58:
+    resolution: {integrity: sha512-iizegCsgiG3PD1b3CdzkshjkdUiPLoDraV5ascAzUXlADQbJwTrgnfJXc6AdzAzF7U3a73HHHtEj0XbJr78wrg==}
     cpu: [arm64]
     os: [linux]
 
-  sst-linux-x64@3.3.50:
-    resolution: {integrity: sha512-oAoNke16ArxFPaKerkT6Tla1vA2lQTA1UjxLAKmEZ0oTkiYfk8OBYj3s+7NWZKpdgacJx5yVJyxMmPoITb7Ykg==}
+  sst-linux-x64@3.3.58:
+    resolution: {integrity: sha512-kck2/O/EZhO1atfI+r74xIu9MW/fmRWrXdOm53EOtFUYnMlUo7x8UFMMZBbFsBU2SJSsI491FQioJPgjIawDkw==}
     cpu: [x64]
     os: [linux]
 
-  sst-linux-x86@3.3.50:
-    resolution: {integrity: sha512-UDYCx0MTKxwjsEOgDFYqCMF5/H1QlLT2tR3MRbX+Q2mPBfmBfPzKna7tJOerh5gPLEjhpOOb+7KGGx/hNLaFCw==}
+  sst-linux-x86@3.3.58:
+    resolution: {integrity: sha512-HE6sFjISp1nJxN2aBeSq5nVyf3RtUxH5KFDu+QFjo5LMjr2rtX2Y2xPfGJdL/BOqQ8lLyQczlwF1Pt3UMiIG8g==}
     cpu: [x86]
     os: [linux]
 
-  sst@3.3.50:
-    resolution: {integrity: sha512-xlN+cE5yuIiS6Yk8Md0IAxVo5QqPNDtG6NIqJJvjSY6VjtzHmDiLTOfun5LhcrW7sHbT7Ya+IXddO8z73FCuYQ==}
+  sst@3.3.58:
+    resolution: {integrity: sha512-j+XHk65U0c/4iKe2jm4QTCD7/nqIOCyLpIqrbIypPYo6gwVzxySqbTbBDu2XA5vb6J3aV8t+Qs5xMk6utQucoA==}
     hasBin: true
     peerDependencies:
       hono: 4.x
@@ -3589,11 +3589,11 @@ snapshots:
     dependencies:
       undici-types: 6.20.0
 
-  '@types/react-dom@19.0.0':
+  '@types/react-dom@19.0.1':
     dependencies:
-      '@types/react': 19.0.0
+      '@types/react': 19.0.1
 
-  '@types/react@19.0.0':
+  '@types/react@19.0.1':
     dependencies:
       csstype: 3.1.3
 
@@ -5369,32 +5369,32 @@ snapshots:
 
   source-map-js@1.2.1: {}
 
-  sst-darwin-arm64@3.3.50:
+  sst-darwin-arm64@3.3.58:
     optional: true
 
-  sst-darwin-x64@3.3.50:
+  sst-darwin-x64@3.3.58:
     optional: true
 
-  sst-linux-arm64@3.3.50:
+  sst-linux-arm64@3.3.58:
     optional: true
 
-  sst-linux-x64@3.3.50:
+  sst-linux-x64@3.3.58:
     optional: true
 
-  sst-linux-x86@3.3.50:
+  sst-linux-x86@3.3.58:
     optional: true
 
-  sst@3.3.50:
+  sst@3.3.58:
     dependencies:
       aws4fetch: 1.0.20
       jose: 5.2.3
       openid-client: 5.6.4
     optionalDependencies:
-      sst-darwin-arm64: 3.3.50
-      sst-darwin-x64: 3.3.50
-      sst-linux-arm64: 3.3.50
-      sst-linux-x64: 3.3.50
-      sst-linux-x86: 3.3.50
+      sst-darwin-arm64: 3.3.58
+      sst-darwin-x64: 3.3.58
+      sst-linux-arm64: 3.3.58
+      sst-linux-x64: 3.3.58
+      sst-linux-x86: 3.3.58
 
   stable-hash@0.0.4: {}
 
@@ -5767,8 +5767,8 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zustand@5.0.2(@types/react@19.0.0)(react@19.0.0)(use-sync-external-store@1.2.2(react@19.0.0)):
+  zustand@5.0.2(@types/react@19.0.1)(react@19.0.0)(use-sync-external-store@1.2.2(react@19.0.0)):
     optionalDependencies:
-      '@types/react': 19.0.0
+      '@types/react': 19.0.1
       react: 19.0.0
       use-sync-external-store: 1.2.2(react@19.0.0)

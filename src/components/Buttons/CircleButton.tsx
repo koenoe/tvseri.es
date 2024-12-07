@@ -2,12 +2,25 @@
 
 import { useCallback } from 'react';
 
-import { cva, cx } from 'class-variance-authority';
+import { cva, cx, type VariantProps } from 'class-variance-authority';
 import { motion } from 'framer-motion';
 
 export const circleButtonStyles = cva(
   'relative flex aspect-square h-12 w-12 items-center justify-center rounded-full border-2 focus:outline-none',
+  {
+    variants: {
+      size: {
+        small: ['h-8 w-8'],
+        medium: ['h-12 w-12'],
+      },
+    },
+    defaultVariants: {
+      size: 'medium',
+    },
+  },
 );
+
+export type ButtonVariantProps = VariantProps<typeof circleButtonStyles>;
 
 export default function CircleButton({
   className,
@@ -15,20 +28,22 @@ export default function CircleButton({
   onClick,
   isActive = false,
   isDisabled,
-}: Readonly<{
-  className?: string;
-  children: React.ReactNode;
-  onClick?: (value: boolean) => void;
-  isActive?: boolean;
-  isDisabled?: boolean;
-}>) {
+  size,
+}: ButtonVariantProps &
+  Readonly<{
+    className?: string;
+    children: React.ReactNode;
+    onClick?: (value: boolean) => void;
+    isActive?: boolean;
+    isDisabled?: boolean;
+  }>) {
   const handleClick = useCallback(() => {
     onClick?.(!isActive);
   }, [isActive, onClick]);
 
   return (
     <motion.button
-      className={cx(circleButtonStyles({ className }))}
+      className={cx(circleButtonStyles({ className, size }))}
       disabled={isDisabled}
       whileTap="tap"
       whileHover={isActive ? undefined : 'hover'}

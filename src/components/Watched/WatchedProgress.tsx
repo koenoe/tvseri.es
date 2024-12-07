@@ -1,9 +1,11 @@
 'use client';
 
+import { motion } from 'framer-motion';
+
 import { type TvSeries } from '@/types/tv-series';
 import formatRuntime from '@/utils/formatRuntime';
+
 import { useWatchedStore } from './WatchedStoreProvider';
-import { motion } from 'framer-motion';
 
 export default function WatchedProgress({
   tvSeries,
@@ -30,7 +32,7 @@ export default function WatchedProgress({
       <motion.div
         initial={false}
         animate={{ scaleX: progress / 100 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: 0.75, ease: 'easeOut' }}
         className="absolute left-0 top-0 h-full w-full bg-white/15"
         style={{ transformOrigin: 'left' }}
       />

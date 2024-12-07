@@ -17,6 +17,7 @@ type WatchedStateItem = {
 type WatchedState = Record<number, WatchedStateItem>;
 
 type WatchedActions = {
+  isReady: (tvSeriesId: number) => boolean;
   addTvSeries: (tvSeries: TvSeries, watched: WatchedItem[]) => void;
   markAsWatched: (
     tvSeriesId: number,
@@ -47,6 +48,11 @@ export type WatchedStore = WatchedState & WatchedActions;
 
 export const createWatchedStore = () => {
   const storeCreator: StateCreator<WatchedStore> = (set, get) => ({
+    isReady: (tvSeriesId) => {
+      const state = get();
+      return Boolean(state[tvSeriesId]);
+    },
+
     addTvSeries: (tvSeries, initialWatched) =>
       set((state) => {
         const initialWatchedState: Record<

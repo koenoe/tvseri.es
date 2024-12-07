@@ -7,6 +7,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { type WatchedItem } from '@/lib/db/watched';
 
 import CircleButton from './CircleButton';
+import SkeletonCircleButton from '../Skeletons/SkeletonCircleButton';
 import { useWatchedStore } from '../Watched/WatchedStoreProvider';
 
 const watchButtonStyles = cva('', {
@@ -36,6 +37,7 @@ export default function WatchButton({
     seasonNumber?: number;
     episodeNumber?: number;
   }>) {
+  const isReady = useWatchedStore((store) => store.isReady(tvSeriesId));
   const isWatched = useWatchedStore((store) =>
     store.isWatched(tvSeriesId, {
       seasonNumber,
@@ -96,6 +98,10 @@ export default function WatchButton({
       tvSeriesId,
     ],
   );
+
+  if (!isReady) {
+    return <SkeletonCircleButton size={size} />;
+  }
 
   return (
     <CircleButton

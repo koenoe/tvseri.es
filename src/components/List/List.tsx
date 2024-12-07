@@ -27,7 +27,7 @@ export const innerStylesWithModuleStyles = () => {
 
 export type HeaderVariantProps = VariantProps<typeof headerVariants>;
 export const headerVariants = cva(
-  'container relative flex items-center justify-between gap-8 md:gap-16',
+  'container relative flex items-center justify-between gap-8 md:gap-12',
   {
     variants: {
       titleAlignment: {
@@ -44,12 +44,14 @@ export const headerVariants = cva(
 type Props = Omit<React.AllHTMLAttributes<HTMLDivElement>, 'title'> &
   HeaderVariantProps &
   Readonly<{
+    button?: React.ReactNode;
     children: React.ReactNode;
     title?: React.ReactNode;
     scrollRestoreKey: string;
   }>;
 
 function List({
+  button,
   children,
   className,
   title,
@@ -174,16 +176,16 @@ function List({
         ) : (
           title
         )}
-        <div className="flex-grow">
+        <div className="hidden flex-grow md:flex">
           <div
             ref={scrollBarRef}
-            className="relative h-2 w-full cursor-pointer overflow-hidden rounded-2xl bg-white/15"
+            className="relative h-2 w-full cursor-pointer overflow-hidden rounded-2xl bg-white/10"
             onClick={handleClick}
             onMouseDown={handleStartDragging}
             onTouchStart={handleStartDragging}
           >
             <motion.div
-              className="h-full w-full bg-white"
+              className="h-full w-full bg-white/30"
               style={{
                 scaleX: scrollXProgress,
                 transformOrigin: 'left',
@@ -194,6 +196,7 @@ function List({
             />
           </div>
         </div>
+        {button && button}
       </div>
       <div ref={innerRef} className={innerStylesWithModuleStyles()}>
         {children}

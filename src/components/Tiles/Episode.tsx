@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 
 import { cva, cx } from 'class-variance-authority';
 
@@ -6,6 +6,7 @@ import { type Episode } from '@/types/tv-series';
 import formatRuntime from '@/utils/formatRuntime';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
+import WatchButton from '../Buttons/WatchButton';
 import ImageWithFallback from '../Image/ImageWithFallback';
 
 export const episodeStyles = cva(
@@ -43,25 +44,48 @@ function EpisodeTile({
   className,
   item,
   priority,
-}: Readonly<{ className?: string; item: Episode; priority?: boolean }>) {
+  tvSeriesId,
+}: Readonly<{
+  className?: string;
+  item: Episode;
+  priority?: boolean;
+  tvSeriesId: number;
+}>) {
+  const showWatchButton = useMemo(
+    () => item.seasonNumber > 0 && new Date(item.airDate) < new Date(),
+    [item],
+  );
+
   return (
     <div className={cx(episodeStyles(), className)}>
-      <div className="relative aspect-video">
+      <div className="relative aspect-video overflow-hidden">
         {item.stillImage ? (
-          <ImageWithFallback
-            className="aspect-video h-full w-full object-cover"
-            draggable={false}
-            src={item.stillImage}
-            alt={item.title}
-            priority={priority}
-            placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(489, 275)}`}
-            width={1080}
-            height={608}
-            unoptimized
-            fallback={renderFallbackStill}
-          />
+          <>
+            <ImageWithFallback
+              className="aspect-video h-full w-full object-cover"
+              draggable={false}
+              src={item.stillImage}
+              alt={item.title}
+              priority={priority}
+              placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(489, 275)}`}
+              width={1080}
+              height={608}
+              unoptimized
+              fallback={renderFallbackStill}
+            />
+            <div className="absolute -bottom-1 left-0 h-2/5 w-full bg-gradient-to-t from-black/60 to-transparent" />
+          </>
         ) : (
           <>{renderFallbackStill()}</>
+        )}
+        {showWatchButton && (
+          <WatchButton
+            tvSeriesId={tvSeriesId}
+            seasonNumber={item.seasonNumber}
+            episodeNumber={item.episodeNumber}
+            className="!absolute bottom-4 left-4 bg-white/5 backdrop-blur md:bottom-6 md:left-6"
+            size="small"
+          />
         )}
       </div>
       <div className="relative flex w-full flex-col gap-3 p-4 md:p-6">

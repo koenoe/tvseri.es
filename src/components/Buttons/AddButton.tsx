@@ -14,11 +14,10 @@ export default function AddButton({
   action: (value: boolean, listType: 'favorites' | 'watchlist') => void;
 }>) {
   const [isActive, setIsActive] = useState(isActiveFromProps);
-  const [, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
   const handleOnClick = useCallback(
     (value: boolean) => {
       setIsActive(value);
-
       startTransition(async () => {
         try {
           await action(value, 'watchlist');
@@ -31,7 +30,11 @@ export default function AddButton({
   );
 
   return (
-    <CircleButton isActive={isActive} onClick={handleOnClick}>
+    <CircleButton
+      isActive={isActive}
+      onClick={handleOnClick}
+      isDisabled={isPending}
+    >
       <svg
         className="h-6 w-6"
         viewBox="0 0 512 512"

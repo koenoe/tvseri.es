@@ -1,34 +1,52 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 
-import { cva } from 'class-variance-authority';
+import { cva, cx, type VariantProps } from 'class-variance-authority';
 import { motion } from 'framer-motion';
 
 export const circleButtonStyles = cva(
   'relative flex aspect-square h-12 w-12 items-center justify-center rounded-full border-2 focus:outline-none',
+  {
+    variants: {
+      size: {
+        small: ['h-8 w-8'],
+        medium: ['h-12 w-12'],
+      },
+    },
+    defaultVariants: {
+      size: 'medium',
+    },
+  },
 );
 
+export type ButtonVariantProps = VariantProps<typeof circleButtonStyles>;
+
 export default function CircleButton({
+  className,
   children,
   onClick,
-  isActive: isActiveFromProps = false,
-}: Readonly<{
-  children: React.ReactNode;
-  onClick?: (value: boolean) => void;
-  isActive?: boolean;
-}>) {
-  const [isActive, setIsActive] = useState(isActiveFromProps);
+  isActive = false,
+  isDisabled,
+  size,
+}: ButtonVariantProps &
+  Readonly<{
+    className?: string;
+    children: React.ReactNode;
+    onClick?: (value: boolean) => void;
+    isActive?: boolean;
+    isDisabled?: boolean;
+  }>) {
   const handleClick = useCallback(() => {
-    setIsActive(!isActive);
     onClick?.(!isActive);
   }, [isActive, onClick]);
 
   return (
     <motion.button
-      className={circleButtonStyles()}
+      className={cx(circleButtonStyles({ className, size }))}
+      disabled={isDisabled}
       whileTap="tap"
-      whileHover="hover"
+      whileHover={isActive ? undefined : 'hover'}
       onClick={handleClick}
       initial={false}
       animate={isActive ? 'active' : 'inactive'}
@@ -45,7 +63,7 @@ export default function CircleButton({
           color: 'rgba(255, 255, 255, 0.6)',
         },
         hover: {
-          borderColor: 'rgba(255, 255, 255, 0.6)',
+          borderColor: 'rgba(255, 255, 255, 0.4)',
         },
       }}
       layout

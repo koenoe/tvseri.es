@@ -19,7 +19,7 @@ export type Season = Readonly<{
   seasonNumber: number;
   title: string;
   episodes: Episode[];
-  episodeCount?: number;
+  numberOfEpisodes?: number;
 }>;
 
 type Language = Readonly<{
@@ -61,9 +61,4 @@ export type TvSeries = Readonly<{
   titleTreatmentImage?: string;
   voteAverage: number;
   voteCount: number;
-}>;
-
-export type TvSeriesAccountStates = Readonly<{
-  isFavorited: boolean;
-  isWatchlisted: boolean;
 }>;

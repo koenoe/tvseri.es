@@ -20,12 +20,16 @@ import { type TvSeries } from '@/types/tv-series';
 
 import AddButton from './AddButton';
 import LikeButton from './LikeButton';
+import WatchButton from './WatchButton';
 
-export default async function LikeAndAddButton({
+export default async function ActionButtons({
   id,
 }: Readonly<{
   id: number | string;
 }>) {
+  const tvSeries = (await fetchTvSeries(id)) as TvSeries;
+  const shouldShowWatchButton = new Date(tvSeries.firstAirDate) <= new Date();
+
   async function addToOrRemoveAction(
     value: boolean,
     listType: 'favorites' | 'watchlist',
@@ -52,7 +56,6 @@ export default async function LikeAndAddButton({
       return;
     }
 
-    const tvSeries = (await fetchTvSeries(id)) as TvSeries;
     const payload = {
       userId: user.id,
       item: {
@@ -122,8 +125,9 @@ export default async function LikeAndAddButton({
 
       return (
         <>
-          <LikeButton isActive={isFavorited} action={addToOrRemoveAction} />
           <AddButton isActive={isWatchlisted} action={addToOrRemoveAction} />
+          {shouldShowWatchButton && <WatchButton tvSeriesId={Number(id)} />}
+          <LikeButton isActive={isFavorited} action={addToOrRemoveAction} />
         </>
       );
     }
@@ -131,8 +135,9 @@ export default async function LikeAndAddButton({
 
   return (
     <>
-      <LikeButton action={addToOrRemoveAction} />
       <AddButton action={addToOrRemoveAction} />
+      {shouldShowWatchButton && <WatchButton tvSeriesId={Number(id)} />}
+      <LikeButton action={addToOrRemoveAction} />
     </>
   );
 }

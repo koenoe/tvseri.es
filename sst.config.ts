@@ -17,9 +17,8 @@ export default $config({
     };
   },
   async run() {
-    const { cache, lists, preferredImages, sessions, users } = await import(
-      './infra/dynamo'
-    );
+    const { cache, lists, preferredImages, sessions, users, watched } =
+      await import('./infra/dynamo');
     const architecture = 'arm64';
     const domain =
       $app.stage === 'production'
@@ -51,7 +50,7 @@ export default $config({
         TMDB_API_KEY: process.env.TMDB_API_KEY as string,
         SITE_URL: `https://${domain}`,
       },
-      link: [cache, lists, preferredImages, sessions, users],
+      link: [cache, lists, preferredImages, sessions, users, watched],
       server: {
         architecture,
         memory: '3008 MB',

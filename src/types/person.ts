@@ -3,7 +3,7 @@ export type Person = Readonly<{
   birthdate?: string;
   character: string;
   deathdate?: string;
-  episodeCount: number;
+  numberOfEpisodes: number;
   id: number;
   image: string;
   imdbId?: string;

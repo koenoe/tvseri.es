@@ -41,6 +41,9 @@ export type TmdbTvSeriesSimilar =
 export type TmdbTvSeriesSeason =
   paths[`/3/tv/${number}/season/${number}`]['get']['responses']['200']['content']['application/json'];
 
+export type TmdbTvSeriesEpisode =
+  paths[`/3/tv/${number}/season/${number}/episode/${number}`]['get']['responses']['200']['content']['application/json'];
+
 export type TmdbTrendingTvSeries =
   paths[`/3/trending/tv/${string}`]['get']['responses']['200']['content']['application/json'];
 
@@ -200,7 +203,7 @@ export function normalizePersons(
         slug: slugify(person.name as string, { lower: true, strict: true }),
         character,
         job,
-        episodeCount:
+        numberOfEpisodes:
           'total_episode_count' in person ? person.total_episode_count : 0,
       };
     });
@@ -265,7 +268,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
       description: season.overview ?? '',
       airDate: season.air_date ? new Date(season.air_date).toISOString() : '',
       seasonNumber: season.season_number,
-      episodeCount: season.episode_count,
+      numberOfEpisodes: season.episode_count,
       episodes: [],
     }));
 
@@ -302,6 +305,21 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     voteAverage: series.vote_average,
     voteCount: series.vote_count,
     ...images,
+  };
+}
+
+export function normalizeTvSeriesEpisode(episode: TmdbTvSeriesEpisode) {
+  return {
+    id: episode.id,
+    title: episode.name ?? '',
+    description: episode.overview ?? '',
+    episodeNumber: episode.episode_number,
+    seasonNumber: episode.season_number,
+    airDate: episode.air_date ? new Date(episode.air_date).toISOString() : '',
+    runtime: episode.runtime,
+    stillImage: episode.still_path
+      ? generateTmdbImageUrl(episode.still_path, 'w454_and_h254_bestv2')
+      : '',
   };
 }
 

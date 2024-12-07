@@ -11,9 +11,6 @@ const nextConfig = {
       static: 0, // default is 180
     },
   },
-  compiler: {
-    removeConsole: true,
-  },
   eslint: {
     ignoreDuringBuilds: true,
   },

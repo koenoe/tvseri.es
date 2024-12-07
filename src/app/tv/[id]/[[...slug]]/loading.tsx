@@ -10,7 +10,8 @@ export default function Loading() {
         <div className="relative flex h-[calc(85vh-16rem)] items-end md:h-[calc(65vh-8rem)]">
           <div className="w-full xl:w-4/5 2xl:w-3/5">
             <div className="relative mb-6 h-28 w-full bg-white/5 md:h-40 md:w-3/5" />
-            <div className="mb-6 h-6 w-4/5 bg-white/10" />
+            <div className="h-6 w-4/5 bg-white/10" />
+            <div className="relative my-6 flex h-9 w-full rounded-3xl bg-white/5 lg:w-9/12" />
           </div>
         </div>
         <div className="mb-6 flex w-full flex-col gap-1 xl:w-4/5 2xl:w-3/5">

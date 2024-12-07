@@ -1,14 +1,21 @@
 export default function formatRuntime(minutes: number): string {
-  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(minutes / (24 * 60));
+  const hours = Math.floor((minutes % (24 * 60)) / 60);
   const mins = minutes % 60;
 
-  if (hours === 0) {
-    return `${mins}m`;
+  const parts: string[] = [];
+
+  if (days > 0) {
+    parts.push(`${days}d`);
   }
 
-  if (mins === 0) {
-    return `${hours}h`;
+  if (hours > 0) {
+    parts.push(`${hours}h`);
   }
 
-  return `${hours}h ${mins}m`;
+  if (mins > 0) {
+    parts.push(`${mins}m`);
+  }
+
+  return parts.length ? parts.join(' ') : '0m';
 }

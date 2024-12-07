@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 
 import { cva, cx } from 'class-variance-authority';
 
@@ -44,8 +44,17 @@ function EpisodeTile({
   className,
   item,
   priority,
-}: Readonly<{ className?: string; item: Episode; priority?: boolean }>) {
-  const showWatchButton = new Date(item.airDate) < new Date();
+  tvSeriesId,
+}: Readonly<{
+  className?: string;
+  item: Episode;
+  priority?: boolean;
+  tvSeriesId: number;
+}>) {
+  const showWatchButton = useMemo(
+    () => item.seasonNumber > 0 && new Date(item.airDate) < new Date(),
+    [item],
+  );
 
   return (
     <div className={cx(episodeStyles(), className)}>
@@ -71,6 +80,9 @@ function EpisodeTile({
         )}
         {showWatchButton && (
           <WatchButton
+            tvSeriesId={tvSeriesId}
+            seasonNumber={item.seasonNumber}
+            episodeNumber={item.episodeNumber}
             className="!absolute bottom-4 left-4 bg-white/5 backdrop-blur md:bottom-6 md:left-6"
             size="small"
           />

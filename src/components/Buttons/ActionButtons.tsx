@@ -126,7 +126,7 @@ export default async function ActionButtons({
       return (
         <>
           <AddButton isActive={isWatchlisted} action={addToOrRemoveAction} />
-          {shouldShowWatchButton && <WatchButton />}
+          {shouldShowWatchButton && <WatchButton tvSeriesId={Number(id)} />}
           <LikeButton isActive={isFavorited} action={addToOrRemoveAction} />
         </>
       );
@@ -136,7 +136,7 @@ export default async function ActionButtons({
   return (
     <>
       <AddButton action={addToOrRemoveAction} />
-      {shouldShowWatchButton && <WatchButton />}
+      {shouldShowWatchButton && <WatchButton tvSeriesId={Number(id)} />}
       <LikeButton action={addToOrRemoveAction} />
     </>
   );

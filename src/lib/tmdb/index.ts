@@ -7,7 +7,7 @@ import { type CountryOrLanguage } from '@/types/country-language';
 import { type Genre } from '@/types/genre';
 import { type Movie } from '@/types/movie';
 import { type Person } from '@/types/person';
-import type { Season, TvSeries } from '@/types/tv-series';
+import type { Episode, Season, TvSeries } from '@/types/tv-series';
 import { type WatchProvider } from '@/types/watch-provider';
 import getBaseUrl from '@/utils/getBaseUrl';
 import { toQueryString } from '@/utils/toQueryString';
@@ -47,6 +47,8 @@ import {
   type TmdbTvSeriesImages,
   buildBackdropImageUrl,
   buildTitleTreatmentImageUrl,
+  type TmdbTvSeriesEpisode,
+  normalizeTvSeriesEpisode,
 } from './helpers';
 import { findPreferredImages } from '../db/preferredImages';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
@@ -459,18 +461,9 @@ export async function fetchTvSeriesSeason(
     },
   })) as TmdbTvSeriesSeason;
 
-  const episodes = (response.episodes ?? []).map((episode) => ({
-    id: episode.id,
-    title: episode.name ?? '',
-    description: episode.overview ?? '',
-    episodeNumber: episode.episode_number,
-    seasonNumber: episode.season_number,
-    airDate: episode.air_date ? new Date(episode.air_date).toISOString() : '',
-    runtime: episode.runtime,
-    stillImage: episode.still_path
-      ? generateTmdbImageUrl(episode.still_path, 'w454_and_h254_bestv2')
-      : '',
-  }));
+  const episodes = (response.episodes ?? []).map((episode) =>
+    normalizeTvSeriesEpisode(episode as unknown as TmdbTvSeriesEpisode),
+  );
 
   return {
     id: response.id,
@@ -478,8 +471,21 @@ export async function fetchTvSeriesSeason(
     description: response.overview ?? '',
     airDate: response.air_date ? new Date(response.air_date).toISOString() : '',
     seasonNumber: response.season_number,
+    numberOfEpisodes: episodes.length,
     episodes,
   };
+}
+
+export async function fetchTvSeriesEpisode(
+  id: number | string,
+  season: number | string,
+  episode: number | string,
+): Promise<Episode> {
+  const response = (await tmdbFetch(
+    `/3/tv/${id}/season/${season}/episode/${episode}`,
+  )) as TmdbTvSeriesEpisode;
+
+  return normalizeTvSeriesEpisode(response);
 }
 
 export async function fetchTrendingTvSeries() {
@@ -784,7 +790,7 @@ export async function fetchPerson(id: number | string) {
       ? generateTmdbImageUrl(person.profile_path, 'w600_and_h900_bestv2')
       : '',
     slug: slugify(person.name as string, { lower: true, strict: true }),
-    episodeCount:
+    numberOfEpisodes:
       'total_episode_count' in person ? person.total_episode_count : 0,
     birthdate: person.birthday,
     deathdate: person.deathday,

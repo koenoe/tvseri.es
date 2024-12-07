@@ -43,7 +43,19 @@ export default function EpisodesList({
       ),
     [item, selectedSeason?.title],
   );
-  const button = useMemo(() => <WatchButton />, []);
+  const button = useMemo(
+    () =>
+      selectedSeason &&
+      selectedSeason.seasonNumber > 0 &&
+      selectedSeason.airDate &&
+      new Date(selectedSeason.airDate) <= new Date() ? (
+        <WatchButton
+          tvSeriesId={item.id}
+          seasonNumber={selectedSeason.seasonNumber}
+        />
+      ) : null,
+    [item.id, selectedSeason],
+  );
 
   useEffect(() => {
     if (isPending || lastFetchedKey.current === fetchKey) {
@@ -78,7 +90,12 @@ export default function EpisodesList({
       {shouldShowSkeleton
         ? [...Array(10)].map((_, index) => <SkeletonEpisode key={index} />)
         : episodes.map((episode) => (
-            <EpisodeTile key={episode.id} item={episode} priority />
+            <EpisodeTile
+              key={episode.id}
+              tvSeriesId={item.id}
+              item={episode}
+              priority
+            />
           ))}
     </List>
   );

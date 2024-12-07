@@ -1,10 +1,13 @@
 'use client';
 
-import { useCallback, useState, useTransition } from 'react';
+import { useCallback, useTransition, useOptimistic } from 'react';
 
 import { cva, type VariantProps } from 'class-variance-authority';
 
+import { type WatchedItem } from '@/lib/db/watched';
+
 import CircleButton from './CircleButton';
+import { useWatchedStore } from '../Watched/WatchedStoreProvider';
 
 const watchButtonStyles = cva('', {
   variants: {
@@ -22,32 +25,84 @@ type ButtonVariantProps = VariantProps<typeof watchButtonStyles>;
 
 export default function WatchButton({
   className,
-  isActive: isActiveFromProps = false,
   size,
+  tvSeriesId,
+  seasonNumber,
+  episodeNumber,
 }: ButtonVariantProps &
   Readonly<{
     className?: string;
-    isActive?: boolean;
+    tvSeriesId: number;
+    seasonNumber?: number;
+    episodeNumber?: number;
   }>) {
-  const [isActive, setIsActive] = useState(isActiveFromProps);
-  const [, startTransition] = useTransition();
-  const handleOnClick = useCallback((value: boolean) => {
-    setIsActive(value);
+  const isWatched = useWatchedStore((store) =>
+    store.isWatched(tvSeriesId, {
+      seasonNumber,
+      episodeNumber,
+    }),
+  );
+  const [optimisticIsWatched, setOptimisticIsWatched] = useOptimistic(
+    isWatched,
+    (_, optimisticValue: boolean) => optimisticValue,
+  );
 
-    startTransition(async () => {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      } catch (error) {
-        console.error(error);
-      }
-    });
-  }, []);
+  const markAsWatched = useWatchedStore((store) => store.markAsWatched);
+  const markAsUnwatched = useWatchedStore((store) => store.unmarkAsWatched);
+  const [isPending, startTransition] = useTransition();
+  const handleOnClick = useCallback(
+    (value: boolean) => {
+      startTransition(async () => {
+        setOptimisticIsWatched(value);
+
+        if (isPending) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`/api/watch/tv/${tvSeriesId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              watched: value,
+              seasonNumber,
+              episodeNumber,
+            }),
+          });
+
+          if (value) {
+            const watchedItems = (await response.json()) as WatchedItem[];
+            markAsWatched(tvSeriesId, watchedItems);
+          } else {
+            markAsUnwatched(tvSeriesId, {
+              seasonNumber,
+              episodeNumber,
+            });
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      });
+    },
+    [
+      episodeNumber,
+      isPending,
+      markAsUnwatched,
+      markAsWatched,
+      seasonNumber,
+      setOptimisticIsWatched,
+      tvSeriesId,
+    ],
+  );
 
   return (
     <CircleButton
       className={watchButtonStyles({ className, size })}
       onClick={handleOnClick}
-      isActive={isActive}
+      isActive={optimisticIsWatched}
+      isDisabled={isPending}
     >
       <svg
         className="icon"

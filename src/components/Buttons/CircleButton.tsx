@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 
 import { cva, cx } from 'class-variance-authority';
 import { motion } from 'framer-motion';
@@ -13,22 +13,23 @@ export default function CircleButton({
   className,
   children,
   onClick,
-  isActive: isActiveFromProps = false,
+  isActive = false,
+  isDisabled,
 }: Readonly<{
   className?: string;
   children: React.ReactNode;
   onClick?: (value: boolean) => void;
   isActive?: boolean;
+  isDisabled?: boolean;
 }>) {
-  const [isActive, setIsActive] = useState(isActiveFromProps);
   const handleClick = useCallback(() => {
-    setIsActive(!isActive);
     onClick?.(!isActive);
   }, [isActive, onClick]);
 
   return (
     <motion.button
       className={cx(circleButtonStyles({ className }))}
+      disabled={isDisabled}
       whileTap="tap"
       whileHover={isActive ? undefined : 'hover'}
       onClick={handleClick}

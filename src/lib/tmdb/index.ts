@@ -504,6 +504,7 @@ export async function fetchTrendingTvSeries() {
   const ids = (trendingTvSeriesResponse.results ?? [])
     .filter(
       (series) =>
+        series.backdrop_path &&
         series.genre_ids &&
         series.genre_ids?.length > 0 &&
         series.vote_count > 0 &&

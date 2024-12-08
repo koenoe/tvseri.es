@@ -74,6 +74,10 @@ export default function WatchButton({
             }),
           });
 
+          if (!response.ok) {
+            return;
+          }
+
           if (value) {
             const watchedItems = (await response.json()) as WatchedItem[];
             markAsWatched(tvSeriesId, watchedItems);

@@ -16,18 +16,18 @@ export default async function AddTvSeriesToStoreContainer({
   const cookieStore = await cookies();
   const encryptedSessionId = cookieStore.get('sessionId')?.value;
   if (!encryptedSessionId) {
-    return null;
+    return <AddTvSeriesToStore tvSeries={tvSeries} watched={[]} />;
   }
 
   const decryptedSessionId = decryptToken(encryptedSessionId);
   const session = await findSession(decryptedSessionId);
   if (!session) {
-    return null;
+    return <AddTvSeriesToStore tvSeries={tvSeries} watched={[]} />;
   }
 
   const user = await findUser({ userId: session.userId });
   if (!user) {
-    return null;
+    return <AddTvSeriesToStore tvSeries={tvSeries} watched={[]} />;
   }
 
   const watched = await getAllWatchedForTvSeries({

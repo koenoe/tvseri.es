@@ -28,7 +28,11 @@ type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
 
-const cachedTvSeries = cache(async (id: string) => fetchTvSeries(id));
+const cachedTvSeries = cache(async (id: string) =>
+  fetchTvSeries(id, {
+    includeImages: true,
+  }),
+);
 
 export async function generateMetadata({ params: paramsFromProps }: Props) {
   const params = await paramsFromProps;
@@ -257,7 +261,7 @@ export default async function TvSeriesDetailsPage({
         </Suspense>
 
         <Suspense fallback={null}>
-          <PreferredImagesForAdminContainer id={tvSeries.id} />
+          <PreferredImagesForAdminContainer tvSeries={tvSeries} />
         </Suspense>
       </Page>
     </>

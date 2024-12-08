@@ -287,6 +287,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
       name: language.name ?? '',
       code: language.iso_639_1 ?? '',
     })),
+    originalLanguage: series.original_language ?? '',
     originalTitle: series.original_name ?? '',
     tagline: series.tagline ?? '',
     // @ts-expect-error genre_ids is not defined in the type
@@ -345,6 +346,7 @@ export function normalizeMovie(movie: TmdbMovie): Movie {
       name: language.name ?? '',
       code: language.iso_639_1 ?? '',
     })),
+    originalLanguage: movie.original_language ?? '',
     originalTitle: movie.original_title ?? '',
     popularity: movie.popularity,
     tagline: movie.tagline ?? '',

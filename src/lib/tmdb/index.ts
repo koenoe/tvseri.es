@@ -263,18 +263,30 @@ export async function fetchRecommendedTvSeries({
 
 export async function fetchTvSeries(
   id: number | string,
+  options: Readonly<{ includeImages?: boolean }> = { includeImages: false },
 ): Promise<TvSeries | undefined> {
-  const series = (await tmdbFetch(
-    `/3/tv/${id}?append_to_response=images&include_image_language=en,null`,
-    {
-      next: {
-        revalidate: 86400, // 1 day
-      },
+  const series = (await tmdbFetch(`/3/tv/${id}`, {
+    next: {
+      revalidate: 86400, // 1 day
     },
-  )) as TmdbTvSeries;
+  })) as TmdbTvSeries;
 
   if (!series) {
     return undefined;
+  }
+
+  if (options.includeImages) {
+    const images = (await tmdbFetch(
+      `/3/tv/${id}/images?include_image_language=en,null,${series.original_language}`,
+      {
+        next: {
+          revalidate: 86400, // 1 day
+        },
+      },
+    )) as TmdbTvSeriesImages;
+
+    // Note: ewwwww, (ಥ﹏ಥ)
+    series.images = images;
   }
 
   const normalizedTvSeries = normalizeTvSeries(series);
@@ -311,9 +323,12 @@ export async function fetchTvSeries(
   return normalizedTvSeries;
 }
 
-export async function fetchTvSeriesImages(id: number | string) {
+export async function fetchTvSeriesImages(
+  id: number | string,
+  originalLanguage?: string,
+) {
   const response = (await tmdbFetch(
-    `/3/tv/${id}/images?include_image_language=en,null`,
+    `/3/tv/${id}/images?include_image_language=en,null,${originalLanguage}`,
   )) as TmdbTvSeriesImages;
 
   if (!response) {
@@ -501,7 +516,9 @@ export async function fetchTrendingTvSeries() {
 
   const series = await Promise.all(
     ids.map(async (id) => {
-      const serie = await fetchTvSeries(id);
+      const serie = await fetchTvSeries(id, {
+        includeImages: true,
+      });
       return serie as TvSeries;
     }),
   );

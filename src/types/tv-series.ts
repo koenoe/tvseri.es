@@ -50,6 +50,7 @@ export type TvSeries = Readonly<{
   lastEpisodeToAir: Episode;
   numberOfEpisodes: number;
   numberOfSeasons: number;
+  originalLanguage: string;
   originalTitle: string;
   posterImage: string;
   popularity: number;

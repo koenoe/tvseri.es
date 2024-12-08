@@ -60,7 +60,7 @@ export default async function ActionButtons({
       userId: user.id,
       item: {
         id: tvSeries.id,
-        posterImage: tvSeries.posterImage,
+        posterPath: tvSeries.posterPath,
         slug: tvSeries.slug,
         title: tvSeries.title,
       },

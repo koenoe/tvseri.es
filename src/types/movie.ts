@@ -9,6 +9,7 @@ export type Movie = Omit<
   | 'lastEpisodeToAir'
   | 'numberOfEpisodes'
   | 'numberOfSeasons'
+  | 'originCountry'
   | 'releaseYear'
   | 'seasons'
 >;

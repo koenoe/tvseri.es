@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 
 import { findSession } from '@/lib/db/session';
 import { findUser } from '@/lib/db/user';
@@ -10,7 +10,11 @@ import {
   unmarkTvSeriesWatched,
   unmarkWatched,
 } from '@/lib/db/watched';
-import { fetchTvSeries, fetchTvSeriesEpisode } from '@/lib/tmdb';
+import {
+  fetchTvSeries,
+  fetchTvSeriesEpisode,
+  fetchTvSeriesWatchProviders,
+} from '@/lib/tmdb';
 import { decryptToken } from '@/lib/token';
 
 type BodyPayload = Readonly<{
@@ -25,13 +29,11 @@ export async function POST(
 ) {
   const { id } = await params;
   const body = (await req.json()) as BodyPayload;
-
   if (!body) {
     return Response.json({ error: 'No payload found' }, { status: 400 });
   }
 
   const tvSeries = await fetchTvSeries(id);
-
   if (
     !tvSeries ||
     !tvSeries.firstAirDate ||
@@ -40,28 +42,34 @@ export async function POST(
     return Response.json({ error: 'Not found' }, { status: 404 });
   }
 
-  const cookieStore = await cookies();
-  const encryptedSessionId = cookieStore.get('sessionId')?.value;
-
+  const encryptedSessionId = (await cookies()).get('sessionId')?.value;
   if (!encryptedSessionId) {
     return Response.json({ error: 'Invalid session' }, { status: 401 });
   }
 
   const decryptedSessionId = decryptToken(encryptedSessionId);
   const session = await findSession(decryptedSessionId);
-
   if (!session) {
     return Response.json({ error: 'No valid session found' }, { status: 401 });
   }
 
   const user = await findUser({ userId: session.userId });
-
   if (!user) {
     return Response.json(
       { error: 'No valid user found in session' },
       { status: 401 },
     );
   }
+
+  const region = (await headers()).get('cloudfront-viewer-country') || 'US';
+  const watchProviders = await fetchTvSeriesWatchProviders(id, region);
+  const watchProvider = watchProviders[0];
+
+  console.log({
+    region,
+    watchProviders,
+    watchProvider,
+  });
 
   if (body.seasonNumber && body.episodeNumber) {
     const episode = await fetchTvSeriesEpisode(
@@ -76,6 +84,7 @@ export async function POST(
       seasonNumber: episode.seasonNumber,
       tvSeries,
       userId: user.id,
+      watchProvider,
     };
     if (body.watched) {
       const watchedItem = await markWatched(payload);
@@ -96,6 +105,7 @@ export async function POST(
       seasonNumber: body.seasonNumber,
       tvSeries,
       userId: user.id,
+      watchProvider,
     };
     if (body.watched) {
       const watchedItems = await markSeasonWatched(payload);
@@ -113,6 +123,7 @@ export async function POST(
   const payload = {
     tvSeries,
     userId: user.id,
+    watchProvider,
   };
   if (body.watched) {
     const watchedItems = await markTvSeriesWatched(payload);
@@ -124,6 +135,4 @@ export async function POST(
       removedAt: Date.now(),
     });
   }
-
-  return Response.json('hoi');
 }

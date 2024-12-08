@@ -405,6 +405,7 @@ export async function fetchTvSeriesWatchProviders(
       logo: provider.logo_path
         ? generateTmdbImageUrl(provider.logo_path, 'w92')
         : '',
+      logoPath: provider.logo_path!,
     }));
 }
 
@@ -696,6 +697,7 @@ export async function fetchWatchProviders(
       logo: provider.logo_path
         ? generateTmdbImageUrl(provider.logo_path, 'w92')
         : '',
+      logoPath: provider.logo_path!,
     }));
 }
 

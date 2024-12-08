@@ -169,6 +169,7 @@ function extractImages(item: TmdbTvSeries | TmdbMovie) {
       ? buildTitleTreatmentImageUrl(titleTreatment)
       : undefined,
     posterImage: poster ? buildPosterImageUrl(poster) : '',
+    posterPath: poster!,
   };
 }
 
@@ -298,6 +299,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
       name: language.name ?? '',
       code: language.iso_639_1 ?? '',
     })),
+    originCountry: series.origin_country?.[0] ?? '',
     originalLanguage: series.original_language ?? '',
     originalTitle: series.original_name ?? '',
     tagline: series.tagline ?? '',

@@ -25,10 +25,7 @@ export default async function ApplePlusList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,
 ) {
   const headerStore = await headers();
-  const region =
-    headerStore.get('x-vercel-ip-country') ||
-    headerStore.get('cloudfront-viewer-country') ||
-    'US';
+  const region = headerStore.get('cloudfront-viewer-country') || 'US';
   const tvSeries = await cachedApplePlusTvSeries(region);
 
   return (

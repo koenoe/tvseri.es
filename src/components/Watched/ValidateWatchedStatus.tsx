@@ -48,7 +48,7 @@ export default async function ValidateWatchedStatus({
         id: tvSeries.id,
         title: tvSeries.title,
         slug: tvSeries.slug,
-        posterImage: tvSeries.posterImage,
+        posterPath: tvSeries.posterPath,
       },
     });
     return null;

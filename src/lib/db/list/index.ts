@@ -9,6 +9,7 @@ import {
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Resource } from 'sst';
 
+import { buildPosterImageUrl } from '@/lib/tmdb/helpers';
 import { type TvSeries } from '@/types/tv-series';
 
 import client from '../client';
@@ -25,7 +26,10 @@ type SortBy = 'title' | 'createdAt' | 'position';
 //   createdAt: number;
 // }>;
 
-export type ListItem = Pick<TvSeries, 'id' | 'posterImage' | 'title' | 'slug'> &
+export type ListItem = Pick<
+  TvSeries,
+  'id' | 'posterImage' | 'posterPath' | 'title' | 'slug'
+> &
   Readonly<{
     position?: number;
   }>;
@@ -237,11 +241,14 @@ export const getListItems = async (
     items:
       result.Items?.map((item) => {
         const normalizedItem = unmarshall(item);
+        const posterImage = normalizedItem.posterPath
+          ? buildPosterImageUrl(normalizedItem.posterPath)
+          : normalizedItem.posterImage;
         return {
           id: normalizedItem.id,
           title: normalizedItem.title,
           slug: normalizedItem.slug,
-          posterImage: normalizedItem.posterImage,
+          posterImage,
           position: normalizedItem.position,
         } as ListItem;
       }) ?? [],
@@ -280,7 +287,7 @@ export const addToList = async (
   input: Readonly<{
     userId: string;
     listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | ulid()
-    item: Omit<ListItem, 'createdAt'>;
+    item: Omit<ListItem, 'createdAt' | 'posterImage'>;
   }>,
 ) => {
   const now = Date.now();
@@ -297,7 +304,7 @@ export const addToList = async (
       id: input.item.id,
       title: input.item.title,
       slug: input.item.slug,
-      posterImage: input.item.posterImage,
+      posterPath: input.item.posterPath,
       createdAt: now,
       gsi1pk: `LIST#${input.userId}#${input.listId}`,
       gsi1sk: input.item.title.toLowerCase(),
@@ -392,7 +399,7 @@ export const isInFavorites = async (
 export const addToWatchlist = async (
   input: Readonly<{
     userId: string;
-    item: ListItem;
+    item: Omit<ListItem, 'createdAt' | 'posterImage'>;
   }>,
 ) => {
   return addToList({
@@ -405,7 +412,7 @@ export const addToWatchlist = async (
 export const addToFavorites = async (
   input: Readonly<{
     userId: string;
-    item: ListItem;
+    item: Omit<ListItem, 'createdAt' | 'posterImage'>;
   }>,
 ) => {
   return addToList({

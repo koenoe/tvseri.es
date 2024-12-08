@@ -14,10 +14,7 @@ export default async function DiscoverGrid({
   query?: TmdbDiscoverQuery;
 }>) {
   const headerStore = await headers();
-  const region =
-    headerStore.get('x-vercel-ip-country') ||
-    headerStore.get('cloudfront-viewer-country') ||
-    'US';
+  const region = headerStore.get('cloudfront-viewer-country') || 'US';
   const { items, totalNumberOfItems, queryString } =
     await fetchDiscoverTvSeries({
       ...query,

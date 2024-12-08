@@ -12,20 +12,26 @@ import { Resource } from 'sst';
 
 import { fetchTvSeriesSeason } from '@/lib/tmdb';
 import type { TvSeries } from '@/types/tv-series';
+import { type WatchProvider } from '@/types/watch-provider';
 
 import client from '../client';
 import { addToList, removeFromList } from '../list';
 
 export type WatchedItem = Readonly<{
-  seriesId: number;
-  posterImage: string;
-  title: string;
-  slug: string;
-  seasonNumber: number;
+  country: string;
   episodeNumber: number;
+  genreIds: string;
+  posterImage?: string; // deprecated
+  posterPath: string;
   runtime: number;
-  watchedAt: number;
+  seasonNumber: number;
+  seriesId: number;
+  slug: string;
+  title: string;
   userId: string;
+  watchProviderLogoPath?: string | null;
+  watchProviderName?: string | null;
+  watchedAt: number;
 }>;
 
 type PaginationOptions = Readonly<{
@@ -37,55 +43,75 @@ const DYNAMO_DB_BATCH_LIMIT = 25;
 
 const paddedNumber = (value: number) => value.toString().padStart(3, '0');
 
-const createWatchedItem = (
-  userId: string,
-  tvSeries: TvSeries,
-  seasonNumber: number,
-  episodeNumber: number,
-  runtime: number,
-  watchedAt: number,
-): WatchedItem => ({
-  userId,
-  seriesId: tvSeries.id,
-  posterImage: tvSeries.posterImage,
-  title: tvSeries.title,
-  slug: tvSeries.slug,
-  seasonNumber,
+const createWatchedItem = ({
   episodeNumber,
   runtime,
+  seasonNumber,
+  tvSeries,
+  userId,
+  watchProvider,
+  watchedAt,
+}: Readonly<{
+  episodeNumber: number;
+  runtime: number;
+  seasonNumber: number;
+  tvSeries: TvSeries;
+  userId: string;
+  watchProvider?: WatchProvider;
+  watchedAt: number;
+}>): WatchedItem => ({
+  country: tvSeries.originCountry,
+  episodeNumber,
+  genreIds: tvSeries.genres.map((genre) => genre.id).join(','),
+  posterPath: tvSeries.posterPath,
+  runtime,
+  seasonNumber,
+  seriesId: tvSeries.id,
+  slug: tvSeries.slug,
+  title: tvSeries.title,
+  userId,
+  watchProviderLogoPath: watchProvider?.logoPath ?? null,
+  watchProviderName: watchProvider?.name ?? null,
   watchedAt,
 });
 
-export const markWatched = async (
-  input: Readonly<{
-    userId: string;
-    tvSeries: TvSeries;
-    seasonNumber: number;
-    episodeNumber: number;
-    runtime: number;
-  }>,
-) => {
+export const markWatched = async ({
+  userId,
+  tvSeries,
+  seasonNumber,
+  episodeNumber,
+  runtime,
+  watchProvider,
+}: Readonly<{
+  userId: string;
+  tvSeries: TvSeries;
+  seasonNumber: number;
+  episodeNumber: number;
+  runtime: number;
+  watchProvider?: WatchProvider;
+}>) => {
   const now = Date.now();
-  const paddedSeason = paddedNumber(input.seasonNumber);
-  const paddedEpisode = paddedNumber(input.episodeNumber);
+  const paddedSeason = paddedNumber(seasonNumber);
+  const paddedEpisode = paddedNumber(episodeNumber);
 
-  const watchedItem = createWatchedItem(
-    input.userId,
-    input.tvSeries,
-    input.seasonNumber,
-    input.episodeNumber,
-    input.runtime,
-    now,
-  );
+  const watchedItem = createWatchedItem({
+    userId,
+    tvSeries,
+    seasonNumber,
+    episodeNumber,
+    runtime,
+    watchedAt: now,
+    watchProvider,
+  });
 
   const command = new PutItemCommand({
     TableName: Resource.Watched.name,
     Item: marshall({
-      pk: `USER#${input.userId}`,
-      sk: `SERIES#${input.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
-      gsi1pk: `USER#${input.userId}#SERIES#${input.tvSeries.id}`,
+      pk: `USER#${userId}`,
+      sk: `SERIES#${tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
+      gsi1pk: `USER#${userId}#SERIES#${tvSeries.id}`,
       gsi1sk: `S${paddedSeason}#E${paddedEpisode}`,
-      gsi2pk: `USER#${input.userId}#WATCHED`,
+      gsi2pk: `USER#${userId}#WATCHED`,
       gsi2sk: now,
       ...watchedItem,
     }),
@@ -94,19 +120,19 @@ export const markWatched = async (
   await client.send(command);
 
   const tvSeriesIsWatched = await isTvSeriesWatched({
-    userId: input.userId,
-    tvSeries: input.tvSeries,
+    userId: userId,
+    tvSeries: tvSeries,
   });
 
   if (tvSeriesIsWatched) {
     await addToList({
-      userId: input.userId,
+      userId: userId,
       listId: 'WATCHED',
       item: {
-        id: input.tvSeries.id,
-        title: input.tvSeries.title,
-        slug: input.tvSeries.slug,
-        posterImage: input.tvSeries.posterImage,
+        id: tvSeries.id,
+        title: tvSeries.title,
+        slug: tvSeries.slug,
+        posterPath: tvSeries.posterPath,
       },
     });
   }
@@ -149,10 +175,12 @@ export const markSeasonWatched = async ({
   userId,
   seasonNumber,
   tvSeries,
+  watchProvider,
 }: Readonly<{
   userId: string;
   tvSeries: TvSeries;
   seasonNumber: number;
+  watchProvider?: WatchProvider;
 }>) => {
   const season = await fetchTvSeriesSeason(tvSeries.id, seasonNumber);
 
@@ -174,14 +202,15 @@ export const markSeasonWatched = async ({
   const watchedItems: WatchedItem[] = [];
 
   const writeRequests = episodes.map((episode) => {
-    const watchedItem = createWatchedItem(
+    const watchedItem = createWatchedItem({
       userId,
       tvSeries,
       seasonNumber,
-      episode.episodeNumber,
-      episode.runtime,
-      now,
-    );
+      episodeNumber: episode.episodeNumber,
+      runtime: episode.runtime,
+      watchedAt: now,
+      watchProvider,
+    });
 
     watchedItems.push(watchedItem);
 
@@ -228,7 +257,7 @@ export const markSeasonWatched = async ({
         id: tvSeries.id,
         title: tvSeries.title,
         slug: tvSeries.slug,
-        posterImage: tvSeries.posterImage,
+        posterPath: tvSeries.posterPath,
       },
     });
   }
@@ -292,9 +321,11 @@ export const unmarkSeasonWatched = async (
 export const markTvSeriesWatched = async ({
   userId,
   tvSeries,
+  watchProvider,
 }: Readonly<{
   userId: string;
   tvSeries: TvSeries;
+  watchProvider?: WatchProvider;
 }>) => {
   if (!tvSeries.seasons) {
     throw new Error(`No seasons found for ${tvSeries.id}`);
@@ -313,6 +344,7 @@ export const markTvSeriesWatched = async ({
         userId,
         tvSeries,
         seasonNumber: season.seasonNumber,
+        watchProvider,
       }),
     ),
   );
@@ -324,7 +356,7 @@ export const markTvSeriesWatched = async ({
       id: tvSeries.id,
       title: tvSeries.title,
       slug: tvSeries.slug,
-      posterImage: tvSeries.posterImage,
+      posterPath: tvSeries.posterPath,
     },
   });
 

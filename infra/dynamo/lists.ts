@@ -13,7 +13,8 @@ export const lists = new sst.aws.Dynamo('Lists', {
 
     // listId: 'string',
     // id: 'number',
-    // posterImage: 'string',
+    // posterImage: 'string', // deprecated
+    // posterPath: 'string',
     // title: 'string',
     // slug: 'string',
     // description: 'string',

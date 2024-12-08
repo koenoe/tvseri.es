@@ -1,4 +1,8 @@
+import Image from 'next/image';
 import Link from 'next/link';
+
+import JustWatch from '@/assets/justwatch.svg';
+import Tmdb from '@/assets/tmdb.svg';
 
 import Logo from './Logo';
 
@@ -8,26 +12,25 @@ export default function Footer() {
       <div className="container z-10 flex flex-col gap-4">
         <Logo />
         <p className="text-xs leading-loose opacity-60">
-          This website uses the TMDb API but is neither endorsed nor certified
-          by{' '}
+          This site uses data from
           <Link
             href="https://themoviedb.org"
             target="_blank"
-            className="underline"
+            className="mx-1 inline-flex items-center"
             prefetch={false}
           >
-            TMDb
+            <Image src={Tmdb} alt="TMDb" width={66} height={10} />
           </Link>
-          . The information on watch providers is courtesy of{' '}
+          and streaming availability from
           <Link
             href="https://www.justwatch.com/"
             target="_blank"
-            className="underline"
+            className="mx-1 inline-flex items-center"
             prefetch={false}
           >
-            JustWatch
+            <Image src={JustWatch} alt="JustWatch" width={66} height={10} />
           </Link>
-          .
+          but is neither certified nor endorsed by them.
         </p>
       </div>
       <div className="z-5 absolute inset-0 h-full w-full bg-black/5" />

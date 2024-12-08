@@ -137,9 +137,9 @@
 		c0.116192,0.075437,0.244858,0.12837,0.386295,0.157866c0.140827,0.029511,0.286514,0.043808,0.435863,0.043808
 		c0.548412,0,0.969978-0.165465,1.264717-0.497627c0.294739-0.331678,0.442265-0.749305,0.442265-1.253006V6.806348H46.433598z"/>
 	<linearGradient id="SVGID_8_" gradientUnits="userSpaceOnUse" x1="11.644445" y1="3.653051" x2="77.760017" y2="7.370403">
-		<stop  offset="0" style="stop-color:#E2B512"/>
+		<stop  offset="0" style="stop-color:#FFFFFF"/>
 		<stop  offset="0.5" style="stop-color:#FFFFFF"/>
-		<stop  offset="1" style="stop-color:#E2B512"/>
+		<stop  offset="1" style="stop-color:#FFFFFF"/>
 	</linearGradient>
 	<path class="st7" d="M52.25227,4.652555h-1.569798v3.100956c0,0.360131,0.066311,0.617619,0.19923,0.772136
 		c0.132915,0.15542,0.344616,0.232679,0.635403,0.232679c0.10767,0,0.224472-0.011555,0.348869-0.034977
@@ -148,9 +148,9 @@
 		c-0.295052-0.310546-0.442265-0.776217-0.442265-1.39779V4.652555H48.38969V3.682733h1.133915V1.969989h1.158867v1.712743h1.569798
 		V4.652555z"/>
 	<linearGradient id="SVGID_9_" gradientUnits="userSpaceOnUse" x1="11.637589" y1="4.178152" x2="77.713257" y2="7.89326">
-		<stop  offset="0" style="stop-color:#E2B512"/>
+		<stop  offset="0" style="stop-color:#FFFFFF"/>
 		<stop  offset="0.5" style="stop-color:#FFFFFF"/>
-		<stop  offset="1" style="stop-color:#E2B512"/>
+		<stop  offset="1" style="stop-color:#FFFFFF"/>
 	</linearGradient>
 	<path class="st8" d="M57.28558,5.193974c-0.124397-0.193061-0.311153-0.354587-0.560261-0.484841
 		c-0.249126-0.129881-0.515255-0.195117-0.79752-0.195117c-0.30751,0-0.579433,0.058774-0.816086,0.176258
@@ -166,9 +166,9 @@
 		c0.282265-0.277017,0.616543-0.491071,1.002838-0.642396c0.386276-0.151013,0.803905-0.226606,1.252243-0.226606
 		c0.41518,0,0.828541,0.084111,1.239769,0.252006c0.410931,0.168128,0.737297,0.411382,0.97789,0.730291L57.28558,5.193974z"/>
 	<linearGradient id="SVGID_10_" gradientUnits="userSpaceOnUse" x1="11.710626" y1="2.1992" x2="77.832794" y2="5.916923">
-		<stop  offset="0" style="stop-color:#E2B512"/>
+		<stop  offset="0" style="stop-color:#FFFFFF"/>
 		<stop  offset="0.5" style="stop-color:#FFFFFF"/>
-		<stop  offset="1" style="stop-color:#E2B512"/>
+		<stop  offset="1" style="stop-color:#FFFFFF"/>
 	</linearGradient>
 	<path class="st9" d="M60.213768,4.58953c0.14114-0.293758,0.381733-0.545608,0.722706-0.755784
 		c0.340355-0.209725,0.722691-0.314735,1.14608-0.314735c0.382046,0,0.710529,0.065174,0.984585,0.195195

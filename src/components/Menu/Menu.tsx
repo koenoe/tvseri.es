@@ -93,6 +93,11 @@ export default function Menu({
       ...(account
         ? [
             {
+              label: 'Watched',
+              href: `/u/${account.username}/watched`,
+              component: null,
+            },
+            {
               label: 'Watchlist',
               href: `/u/${account.username}/watchlist`,
               component: null,

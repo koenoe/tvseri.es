@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.15",
+    "@types/aws-lambda": "^8.10.146",
     "@types/color": "^4.2.0",
     "@types/node": "^22.10.1",
     "@types/react": "^19.0.1",
@@ -41,6 +42,7 @@
     "@typescript-eslint/eslint-plugin": "^7",
     "@typescript-eslint/parser": "^7.18.0",
     "autoprefixer": "^10.4.20",
+    "aws-lambda": "^1.0.7",
     "babel-plugin-react-compiler": "19.0.0-beta-df7b47d-20241124",
     "concurrently": "^9.1.0",
     "eslint": "^8.57.1",

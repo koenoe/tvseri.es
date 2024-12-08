@@ -7,11 +7,16 @@ export async function GET(
   request: NextRequest,
   {
     params,
-  }: { params: Promise<{ username: string; list: 'watchlist' | 'favorites' }> },
+  }: {
+    params: Promise<{
+      username: string;
+      list: 'watchlist' | 'favorites' | 'watched';
+    }>;
+  },
 ) {
   const { list, username } = await params;
 
-  if (!['watchlist', 'favorites'].includes(list)) {
+  if (!['watchlist', 'favorites', 'watched'].includes(list)) {
     return Response.json({ error: 'Invalid list' }, { status: 400 });
   }
 

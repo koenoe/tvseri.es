@@ -37,6 +37,9 @@ type PaginationOptions = Readonly<{
   sortDirection?: SortDirection;
 }>;
 
+const isCustomList = (listId: string) =>
+  !['WATCHED', 'WATCHLIST', 'FAVORITES'].includes(listId);
+
 // export const createCustomList = async (
 //   input: Readonly<{
 //     userId: string;
@@ -192,7 +195,6 @@ export const getListItems = async (
     options?: PaginationOptions;
   }>,
 ) => {
-  const isCustomList = !['WATCHLIST', 'FAVORITES'].includes(input.listId);
   const sortBy = input.options?.sortBy ?? 'createdAt';
   const sortDirection = input.options?.sortDirection ?? 'desc';
   const limit = input.options?.limit ?? 20;
@@ -207,7 +209,7 @@ export const getListItems = async (
             ':pk': `LIST#${input.userId}#${input.listId}`,
           }),
         }
-      : sortBy === 'position' && isCustomList
+      : sortBy === 'position' && isCustomList(input.listId)
         ? {
             IndexName: 'gsi3',
             KeyConditionExpression: 'gsi3pk = :pk',
@@ -254,12 +256,11 @@ export const getListItems = async (
 export const isInList = async (
   input: Readonly<{
     userId: string;
-    listId: string; // 'WATCHLIST' | 'FAVORITES' | ulid()
+    listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | ulid()
     id: number;
   }>,
 ) => {
-  const isCustomList = !['WATCHLIST', 'FAVORITES'].includes(input.listId);
-  const listPrefix = isCustomList
+  const listPrefix = isCustomList(input.listId)
     ? `LIST#CUSTOM#${input.listId}`
     : `LIST#${input.listId}`;
 
@@ -278,13 +279,13 @@ export const isInList = async (
 export const addToList = async (
   input: Readonly<{
     userId: string;
-    listId: string; // 'WATCHLIST' | 'FAVORITES' | ulid()
+    listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | ulid()
     item: Omit<ListItem, 'createdAt'>;
   }>,
 ) => {
   const now = Date.now();
-  const isCustomList = !['WATCHLIST', 'FAVORITES'].includes(input.listId);
-  const listPrefix = isCustomList
+
+  const listPrefix = isCustomList(input.listId)
     ? `LIST#CUSTOM#${input.listId}`
     : `LIST#${input.listId}`;
 
@@ -302,7 +303,7 @@ export const addToList = async (
       gsi1sk: input.item.title.toLowerCase(),
       gsi2pk: `LIST#${input.userId}#${input.listId}`,
       gsi2sk: now,
-      ...(isCustomList &&
+      ...(isCustomList(input.listId) &&
         input.item.position && {
           position: input.item.position,
           gsi3pk: `LIST#${input.userId}#${input.listId}`,
@@ -317,12 +318,11 @@ export const addToList = async (
 export const removeFromList = async (
   input: Readonly<{
     userId: string;
-    listId: string; // 'WATCHLIST' | 'FAVORITES' | ulid()
+    listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | ulid()
     id: number;
   }>,
 ) => {
-  const isCustomList = !['WATCHLIST', 'FAVORITES'].includes(input.listId);
-  const listPrefix = isCustomList
+  const listPrefix = isCustomList(input.listId)
     ? `LIST#CUSTOM#${input.listId}`
     : `LIST#${input.listId}`;
 

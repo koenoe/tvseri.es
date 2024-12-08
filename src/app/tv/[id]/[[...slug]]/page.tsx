@@ -18,6 +18,7 @@ import SkeletonCircleButton from '@/components/Skeletons/SkeletonCircleButton';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
 import SkeletonRating from '@/components/Skeletons/SkeletonRating';
 import AddTvSeriesToStoreContainer from '@/components/Watched/AddTvSeriesToStoreContainer';
+import ValidateWatchedStatus from '@/components/Watched/ValidateWatchedStatus';
 import WatchedProgress from '@/components/Watched/WatchedProgress';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
 import { fetchTvSeries } from '@/lib/tmdb';
@@ -91,7 +92,8 @@ export default async function TvSeriesDetailsPage({
   return (
     <>
       <Suspense fallback={null}>
-        <AddTvSeriesToStoreContainer id={tvSeries.id} />
+        <AddTvSeriesToStoreContainer tvSeries={tvSeries} />
+        <ValidateWatchedStatus tvSeries={tvSeries} />
       </Suspense>
       <Page
         backgroundColor={tvSeries.backdropColor}

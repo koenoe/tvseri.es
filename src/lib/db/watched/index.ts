@@ -14,6 +14,7 @@ import { fetchTvSeriesSeason } from '@/lib/tmdb';
 import type { TvSeries } from '@/types/tv-series';
 
 import client from '../client';
+import { addToList, removeFromList } from '../list';
 
 export type WatchedItem = Readonly<{
   seriesId: number;
@@ -92,6 +93,24 @@ export const markWatched = async (
 
   await client.send(command);
 
+  const tvSeriesIsWatched = await isTvSeriesWatched({
+    userId: input.userId,
+    tvSeries: input.tvSeries,
+  });
+
+  if (tvSeriesIsWatched) {
+    await addToList({
+      userId: input.userId,
+      listId: 'WATCHED',
+      item: {
+        id: input.tvSeries.id,
+        title: input.tvSeries.title,
+        slug: input.tvSeries.slug,
+        posterImage: input.tvSeries.posterImage,
+      },
+    });
+  }
+
   return watchedItem;
 };
 
@@ -115,7 +134,15 @@ export const unmarkWatched = async (
     }),
   });
 
-  await client.send(command);
+  await Promise.all([
+    client.send(command),
+    // Remove from watchlist as it's no longer fully watched
+    removeFromList({
+      userId: input.userId,
+      listId: 'WATCHED',
+      id: input.tvSeries.id,
+    }),
+  ]);
 };
 
 export const markSeasonWatched = async ({
@@ -188,6 +215,24 @@ export const markSeasonWatched = async ({
 
   await Promise.all(batchPromises);
 
+  const tvSeriesIsWatched = await isTvSeriesWatched({
+    userId,
+    tvSeries,
+  });
+
+  if (tvSeriesIsWatched) {
+    await addToList({
+      userId,
+      listId: 'WATCHED',
+      item: {
+        id: tvSeries.id,
+        title: tvSeries.title,
+        slug: tvSeries.slug,
+        posterImage: tvSeries.posterImage,
+      },
+    });
+  }
+
   return watchedItems;
 };
 
@@ -232,6 +277,15 @@ export const unmarkSeasonWatched = async (
     batchPromises.push(client.send(command));
   }
 
+  batchPromises.push(
+    // Remove from watchlist as it's no longer fully watched
+    removeFromList({
+      userId: input.userId,
+      listId: 'WATCHED',
+      id: input.tvSeries.id,
+    }),
+  );
+
   await Promise.all(batchPromises);
 };
 
@@ -262,6 +316,17 @@ export const markTvSeriesWatched = async ({
       }),
     ),
   );
+
+  await addToList({
+    userId,
+    listId: 'WATCHED',
+    item: {
+      id: tvSeries.id,
+      title: tvSeries.title,
+      slug: tvSeries.slug,
+      posterImage: tvSeries.posterImage,
+    },
+  });
 
   return watchedItems.flat();
 };
@@ -302,6 +367,15 @@ export const unmarkTvSeriesWatched = async (
 
     batchPromises.push(client.send(command));
   }
+
+  batchPromises.push(
+    // Remove from watchlist as it's no longer fully watched
+    removeFromList({
+      userId: input.userId,
+      listId: 'WATCHED',
+      id: input.tvSeries.id,
+    }),
+  );
 
   await Promise.all(batchPromises);
 };

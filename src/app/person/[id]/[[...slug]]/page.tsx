@@ -108,7 +108,10 @@ export default async function PersonDetailsPage({
   const backdropColor =
     knownForFirstItem?.backdropImage && knownForFirstItem?.backdropPath
       ? await detectDominantColorFromImageWithCache(
-          knownForFirstItem?.backdropImage,
+          knownForFirstItem?.backdropImage.replace(
+            'w1920_and_h1080_multi_faces',
+            'w780',
+          ),
           knownForFirstItem?.backdropPath,
         )
       : undefined;

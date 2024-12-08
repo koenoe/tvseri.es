@@ -297,7 +297,7 @@ export async function fetchTvSeries(
     const backdropColor = await detectDominantColorFromImage(
       normalizedTvSeries.backdropImage.replace(
         'w1920_and_h1080_multi_faces',
-        'w1280_and_h720_multi_faces',
+        'w780',
       ),
       normalizedTvSeries.backdropPath!,
     );
@@ -314,9 +314,6 @@ export async function fetchTvSeries(
 export async function fetchTvSeriesImages(id: number | string) {
   const response = (await tmdbFetch(
     `/3/tv/${id}/images?include_image_language=en,null`,
-    {
-      cache: 'no-store',
-    },
   )) as TmdbTvSeriesImages;
 
   if (!response) {
@@ -330,14 +327,11 @@ export async function fetchTvSeriesImages(id: number | string) {
           (backdrop) => !!backdrop.file_path && backdrop.iso_639_1 === null,
         )
         .sort((a, b) => (b.vote_average ?? 0) - (a.vote_average ?? 0))
-        .slice(0, 10)
+        .slice(0, 6)
         .map(async (backdrop) => {
           const url = buildBackdropImageUrl(backdrop.file_path!);
           const color = await detectDominantColorFromImage(
-            url.replace(
-              'w1920_and_h1080_multi_faces',
-              'w1280_and_h720_multi_faces',
-            ),
+            url.replace('w1920_and_h1080_multi_faces', 'w780'),
             backdrop.file_path!,
           );
 
@@ -351,7 +345,7 @@ export async function fetchTvSeriesImages(id: number | string) {
     titleTreatment: (response.logos ?? [])
       .filter((logo) => !!logo.file_path)
       .sort((a, b) => (b.vote_average ?? 0) - (a.vote_average ?? 0))
-      .slice(0, 10)
+      .slice(0, 6)
       .map((logo) => {
         return {
           path: logo.file_path!,

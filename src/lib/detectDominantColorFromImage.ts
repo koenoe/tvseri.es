@@ -27,8 +27,11 @@ const correctContrast = (input: Color): Color => {
 
 async function detectDominantColorFromImage(url: string): Promise<string> {
   try {
-    const sharp = (await import('sharp')).default;
-    const imageResponse = await fetch(url);
+    const [_sharp, imageResponse] = await Promise.all([
+      import('sharp'),
+      fetch(url),
+    ]);
+    const sharp = _sharp.default;
     const imageArrayBuffer = await imageResponse.arrayBuffer();
     const imageBuffer = Buffer.from(imageArrayBuffer);
     const image = sharp(imageBuffer);

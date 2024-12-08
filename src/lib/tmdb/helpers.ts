@@ -146,10 +146,21 @@ function extractImages(item: TmdbTvSeries | TmdbMovie) {
   const backdrop =
     images.backdrops?.filter((path) => path.iso_639_1 === null)[0]?.file_path ??
     item.backdrop_path;
-  const titleTreatment = images.logos?.filter((path) =>
-    path.file_path?.includes('png'),
-  )[0]?.file_path;
   const poster = item.poster_path ?? images.posters?.[0]?.file_path;
+
+  let titleTreatment = images.logos?.find(
+    (path) =>
+      (path.file_path?.toLowerCase().includes('png') ||
+        path.file_path?.toLowerCase().includes('svg')) &&
+      path.iso_639_1 === 'en',
+  )?.file_path;
+  if (!titleTreatment) {
+    titleTreatment = images.logos?.find(
+      (path) =>
+        path.file_path?.toLowerCase().includes('png') ||
+        path.file_path?.toLowerCase().includes('svg'),
+    )?.file_path;
+  }
 
   return {
     backdropImage: backdrop ? buildBackdropImageUrl(backdrop) : undefined,

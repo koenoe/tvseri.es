@@ -18,10 +18,7 @@ import client from '../client';
 import { addToList, removeFromList } from '../list';
 
 export type WatchedItem = Readonly<{
-  country: string;
   episodeNumber: number;
-  genreIds: string;
-  language: string;
   posterImage?: string; // deprecated
   posterPath: string;
   runtime: number;
@@ -61,10 +58,7 @@ const createWatchedItem = ({
   watchProvider?: WatchProvider;
   watchedAt: number;
 }>): WatchedItem => ({
-  country: tvSeries.originCountry,
   episodeNumber,
-  genreIds: tvSeries.genres.map((genre) => genre.id).join(','),
-  language: tvSeries.originalLanguage,
   posterPath: tvSeries.posterPath,
   runtime,
   seasonNumber,

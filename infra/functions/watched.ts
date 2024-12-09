@@ -13,24 +13,6 @@
 // import { unmarshall, marshall } from '@aws-sdk/util-dynamodb';
 // import { Resource } from 'sst';
 
-// type WatchedItem = Readonly<{
-//   pk: string;
-//   sk: string;
-//   gsi1pk: string;
-//   gsi1sk: string;
-//   gsi2pk: string;
-//   gsi2sk: number;
-//   userId: string;
-//   seriesId: number;
-//   seasonNumber: number;
-//   episodeNumber: number;
-//   runtime: number;
-//   watchedAt: number;
-//   posterImage: string;
-//   title: string;
-//   slug: string;
-// }>;
-
 // const client = new DynamoDBClient();
 
 // export const handler = async (event: DynamoDBStreamEvent) => {

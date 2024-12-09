@@ -23,6 +23,9 @@ export const createSession = async (
       userId: string;
       clientIp: string;
       userAgent: string;
+      region?: string;
+      country?: string;
+      city?: string;
     }> &
       (
         | {
@@ -51,6 +54,9 @@ export const createSession = async (
       expiresAt,
       createdAt: now,
       clientIp: input.clientIp,
+      region: input.region,
+      country: input.country,
+      city: input.city,
       userAgent: input.userAgent,
       version: VERSION,
       ...(input.tmdbSessionId && {

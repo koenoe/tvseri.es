@@ -7,6 +7,9 @@ export type Session = Readonly<{
   expiresAt: number;
   createdAt: string;
   clientIp: string;
+  region?: string;
+  country?: string;
+  city?: string;
   userAgent: string;
   version: number;
   tmdbSessionId?: string;

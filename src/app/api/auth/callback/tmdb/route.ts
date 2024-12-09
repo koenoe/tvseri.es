@@ -43,9 +43,26 @@ export async function GET(request: NextRequest) {
     });
   }
 
+  const country =
+    request.headers.get('cloudfront-viewer-country') ||
+    request.headers.get('x-open-next-country') ||
+    '';
+  const city =
+    request.headers.get('cloudfront-viewer-city') ||
+    request.headers.get('x-open-next-city') ||
+    '';
+  const region =
+    request.headers.get('cloudfront-viewer-region') ||
+    request.headers.get('x-open-next-region') ||
+    '';
+
   const sessionId = await createSession({
     userId: user.id,
-    clientIp: request.headers.get('cloudfront-viewer-address') || '',
+    clientIp:
+      request.headers.get('cloudfront-viewer-address')?.split(':')?.[0] || '',
+    country,
+    city,
+    region,
     userAgent: request.headers.get('user-agent') || '',
     tmdbSessionId,
     tmdbAccessToken: accessToken,

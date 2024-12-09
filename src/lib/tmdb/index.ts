@@ -394,10 +394,18 @@ export async function fetchTvSeriesWatchProviders(
     },
   })) as TmdbTvSeriesWatchProviders;
 
-  return (
+  const flatrate =
     watchProviders.results?.[region as keyof typeof watchProviders.results]
-      ?.flatrate ?? []
-  )
+      ?.flatrate;
+
+  // TODO: generate new types from OpenAPI
+  // prettier-ignore
+  const free =
+    watchProviders.results?.[region as keyof typeof watchProviders.results]
+      // @ts-expect-error it does exist
+      ?.free as typeof flatrate;
+
+  return (free ?? flatrate ?? [])
     .sort((a, b) => a.display_priority - b.display_priority)
     .map((provider) => ({
       id: provider.provider_id,

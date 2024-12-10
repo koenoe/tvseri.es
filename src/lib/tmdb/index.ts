@@ -342,25 +342,18 @@ export async function fetchTvSeriesImages(
           (backdrop) => !!backdrop.file_path && backdrop.iso_639_1 === null,
         )
         .sort((a, b) => (b.vote_average ?? 0) - (a.vote_average ?? 0))
-        .slice(0, 6)
         .map(async (backdrop) => {
           const url = buildBackdropImageUrl(backdrop.file_path!);
-          const color = await detectDominantColorFromImage(
-            url.replace('w1920_and_h1080_multi_faces', 'w780'),
-            backdrop.file_path!,
-          );
 
           return {
             path: backdrop.file_path!,
             url,
-            color,
           };
         }),
     ),
     titleTreatment: (response.logos ?? [])
       .filter((logo) => !!logo.file_path)
       .sort((a, b) => (b.vote_average ?? 0) - (a.vote_average ?? 0))
-      .slice(0, 6)
       .map((logo) => {
         return {
           path: logo.file_path!,

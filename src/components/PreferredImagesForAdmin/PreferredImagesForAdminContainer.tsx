@@ -6,6 +6,7 @@ import {
 } from '@/lib/db/preferredImages';
 import { findSession } from '@/lib/db/session';
 import { findUser } from '@/lib/db/user';
+import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
 import { fetchTvSeriesImages } from '@/lib/tmdb';
 import { decryptToken } from '@/lib/token';
 import { type TvSeries } from '@/types/tv-series';
@@ -19,6 +20,23 @@ async function storePreferredImages(
   'use server';
 
   await putPreferredImages(id, preferredImages);
+}
+
+async function getDominantColor({
+  url,
+  path,
+}: Readonly<{
+  url: string;
+  path: string;
+}>) {
+  'use server';
+
+  const color = await detectDominantColorFromImage(
+    url.replace('w1920_and_h1080_multi_faces', 'w780'),
+    path,
+  );
+
+  return color;
 }
 
 export default async function PreferredImagesForAdminContainer({
@@ -56,9 +74,10 @@ export default async function PreferredImagesForAdminContainer({
 
   return (
     <PreferredImagesForAdmin
-      action={storePreferredImages}
       id={tvSeries.id}
       images={images}
+      getDominantColor={getDominantColor}
+      storePreferredImages={storePreferredImages}
     />
   );
 }

@@ -21,14 +21,28 @@ type Direction = 'prev' | 'next';
 const getTitleTreatmentElement = () =>
   document.getElementById('title-treatment');
 
+type Backdrop = Readonly<{
+  url: string;
+  path: string;
+  color: string;
+}>;
+
 export default function PreferredImagesForAdmin({
-  action,
   id,
   images,
+  getDominantColor,
+  storePreferredImages,
 }: Readonly<{
-  action: (id: number, preferredImages: PreferredImages) => Promise<void>;
   id: number;
   images: Awaited<ReturnType<typeof fetchTvSeriesImages>>;
+  getDominantColor: ({}: Readonly<{
+    url: string;
+    path: string;
+  }>) => Promise<string>;
+  storePreferredImages: (
+    id: number,
+    preferredImages: PreferredImages,
+  ) => Promise<void>;
 }>) {
   const [isPending, startTransition] = useTransition();
   const [preloading, setPreloading] = useState<Direction | null>(null);
@@ -36,13 +50,19 @@ export default function PreferredImagesForAdmin({
   const updateBackground = usePageStore((state) => state.setBackground);
   const color = usePageStore((state) => state.backgroundColor);
 
-  const [currentBackdropIndex, setCurrentBackdropIndex] = useState(
+  const [currentBackdrop, setCurrentBackdrop] = useState<Backdrop>({
+    url: currentImage,
+    path: '',
+    color,
+  });
+  const [currentTitleIndex, setCurrentTitleIndex] = useState(-1);
+  const currentBackdropIndex = useMemo(
     () =>
       images?.backdrops?.findIndex(
-        (backdrop) => backdrop.url === currentImage,
-      ) ?? -1,
+        (backdrop) => backdrop.url === currentBackdrop.url,
+      ) ?? 0,
+    [images?.backdrops, currentBackdrop.url],
   );
-  const [currentTitleIndex, setCurrentTitleIndex] = useState(-1);
 
   const handleBackdropNavigation = useCallback(
     (direction: Direction) => {
@@ -64,18 +84,36 @@ export default function PreferredImagesForAdmin({
         return;
       }
 
-      const newBackground = images.backdrops[newIndex];
-      setPreloading(direction);
-      preloadImage(newBackground.url).finally(() => {
+      startTransition(async () => {
+        const newBackground = images.backdrops[newIndex];
+        const color = await getDominantColor(newBackground);
+
+        setCurrentBackdrop({
+          url: newBackground.url,
+          path: newBackground.path,
+          color,
+        });
+
+        setPreloading(direction);
+        try {
+          await preloadImage(newBackground.url);
+        } catch (error) {
+          // empty
+        }
+
         updateBackground({
           backgroundImage: newBackground.url,
-          backgroundColor: newBackground.color,
+          backgroundColor: color,
         });
-        setCurrentBackdropIndex(newIndex);
         setPreloading(null);
       });
     },
-    [images?.backdrops, currentBackdropIndex, updateBackground],
+    [
+      images?.backdrops,
+      currentBackdropIndex,
+      getDominantColor,
+      updateBackground,
+    ],
   );
 
   const handleTitleNavigation = useCallback(
@@ -223,11 +261,10 @@ export default function PreferredImagesForAdmin({
         })}
         onClick={() => {
           startTransition(async () => {
-            const currentBackdrop = images?.backdrops[currentBackdropIndex];
             const currentTitle = images?.titleTreatment[currentTitleIndex];
 
             if (currentBackdrop) {
-              await action(id, {
+              await storePreferredImages(id, {
                 backdropImagePath: currentBackdrop.path,
                 backdropColor: currentBackdrop.color,
                 ...(currentTitle && {

@@ -1,4 +1,4 @@
-export default function preloadImage(src: string) {
+export default function preloadImage(src: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.src = src;

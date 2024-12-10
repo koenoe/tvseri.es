@@ -85,26 +85,32 @@ export default function PreferredImagesForAdmin({
       }
 
       startTransition(async () => {
-        const newBackground = images.backdrops[newIndex];
-        const color = await getDominantColor(newBackground);
-
-        setCurrentBackdrop({
-          url: newBackground.url,
-          path: newBackground.path,
-          color,
-        });
-
+        const newBackdrop = images.backdrops[newIndex];
         setPreloading(direction);
+
         try {
-          await preloadImage(newBackground.url);
+          const [color, preloadedImage] = await Promise.all([
+            getDominantColor(newBackdrop),
+            preloadImage(newBackdrop.url),
+          ]);
+
+          setCurrentBackdrop({
+            url: preloadedImage,
+            path: newBackdrop.path,
+            color,
+          });
+
+          updateBackground({
+            backgroundImage: newBackdrop.url,
+            backgroundColor: color,
+          });
         } catch (error) {
-          // empty
+          console.error('Loading backdrop failed', {
+            error,
+            newBackdrop,
+          });
         }
 
-        updateBackground({
-          backgroundImage: newBackground.url,
-          backgroundColor: color,
-        });
         setPreloading(null);
       });
     },

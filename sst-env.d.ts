@@ -10,6 +10,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "DominantColor": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "Lists": {
       "name": string
       "type": "sst.aws.Dynamo"

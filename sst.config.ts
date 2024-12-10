@@ -20,19 +20,27 @@ export default $config({
   async run() {
     const { cache, lists, preferredImages, sessions, users, watched } =
       await import('./infra/dynamo');
+
     const architecture = 'arm64';
+
+    const dominantColor = new sst.aws.Function('DominantColor', {
+      handler: 'infra/functions/dominantColor.handler',
+      memory: '1024 MB',
+      runtime: 'nodejs22.x',
+      timeout: '30 seconds',
+      architecture,
+      nodejs: {
+        install: ['sharp', 'color'],
+      },
+    });
+
     const domain =
       $app.stage === 'production'
         ? 'tvseri.es'
         : `${$app.stage === 'dev' || $app.stage === 'development' ? 'dev' : `${$app.stage}.dev`}.tvseri.es`;
 
     new sst.aws.Nextjs('tvseries', {
-      buildCommand: `
-        pnpm dlx @opennextjs/aws build && \
-        mkdir -p .open-next/tmp-sharp && \
-        pnpm -C='.open-next/tmp-sharp' i sharp --shamefully-hoist --config.arch=${architecture} --config.platform=linux --config.libc=glibc && \
-        cp -R .open-next/tmp-sharp/node_modules .open-next/server-functions/default
-        `,
+      buildCommand: 'pnpm dlx @opennextjs/aws build',
       domain: {
         name: domain,
         dns: sst.aws.dns({
@@ -51,10 +59,18 @@ export default $config({
         TMDB_API_KEY: process.env.TMDB_API_KEY as string,
         SITE_URL: `https://${domain}`,
       },
-      link: [cache, lists, preferredImages, sessions, users, watched],
+      link: [
+        cache,
+        dominantColor,
+        lists,
+        preferredImages,
+        sessions,
+        users,
+        watched,
+      ],
       server: {
         architecture,
-        memory: '3008 MB',
+        memory: '2048 MB',
         runtime: 'nodejs22.x',
       },
       transform: {

@@ -2,45 +2,31 @@ import 'server-only';
 
 import { cache } from 'react';
 
-import Color from 'color';
+import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
+import { Resource } from 'sst';
 
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 
 import { getCacheItem, setCacheItem } from './db/cache';
 
-const CONTRAST_MINIMUM = 4.5; // Minimum contrast ratio for accessibility (WCAG)
-const BLEND_OPACITY_STEP = 0.05; // Incremental step for darkening colors
-const BLUR_SIGMA = 35; // Blur intensity for dominant color detection
 const CACHE_PREFIX = 'detectDominantColorFromImage:v1:';
 
-const correctContrast = (input: Color): Color => {
-  let output = input;
-  while (output.contrast(Color('white')) < CONTRAST_MINIMUM) {
-    const rgb = output.rgb().object();
-    const blendedR = Math.round(rgb.r * (1 - BLEND_OPACITY_STEP));
-    const blendedG = Math.round(rgb.g * (1 - BLEND_OPACITY_STEP));
-    const blendedB = Math.round(rgb.b * (1 - BLEND_OPACITY_STEP));
-    output = Color.rgb(blendedR, blendedG, blendedB);
-  }
-  return output;
-};
+const lambda = new LambdaClient();
 
 async function detectDominantColorFromImage(url: string): Promise<string> {
   try {
-    const [_sharp, imageResponse] = await Promise.all([
-      import('sharp'),
-      fetch(url),
-    ]);
-    const sharp = _sharp.default;
-    const imageArrayBuffer = await imageResponse.arrayBuffer();
-    const imageBuffer = Buffer.from(imageArrayBuffer);
-    const image = sharp(imageBuffer);
-    const blurredImage = await image.blur(BLUR_SIGMA).toBuffer();
-    const { dominant } = await sharp(blurredImage).stats();
-    const dominantColor = Color.rgb(dominant);
-    const correctedColor = correctContrast(dominantColor);
+    const command = new InvokeCommand({
+      FunctionName: Resource.DominantColor.name,
+      Payload: JSON.stringify({ url }),
+    });
 
-    return correctedColor.hex();
+    const response = await lambda.send(command);
+    const result = JSON.parse(
+      Buffer.from(response.Payload!).toString(),
+    ) as Readonly<{
+      color: string;
+    }>;
+    return result.color;
   } catch (error) {
     console.error('Error in detectDominantColorFromImage:', error);
     return DEFAULT_BACKGROUND_COLOR;

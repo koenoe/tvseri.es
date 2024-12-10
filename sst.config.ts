@@ -25,7 +25,7 @@ export default $config({
 
     const dominantColor = new sst.aws.Function('DominantColor', {
       handler: 'infra/functions/dominantColor.handler',
-      memory: '1024 MB',
+      memory: '512 MB',
       runtime: 'nodejs22.x',
       timeout: '30 seconds',
       architecture,
@@ -70,7 +70,7 @@ export default $config({
       ],
       server: {
         architecture,
-        memory: '2048 MB',
+        memory: '1024 MB',
         runtime: 'nodejs22.x',
       },
       transform: {

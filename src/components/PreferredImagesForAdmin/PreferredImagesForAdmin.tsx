@@ -4,11 +4,13 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   useTransition,
 } from 'react';
 
 import { cx } from 'class-variance-authority';
+import { preload } from 'react-dom';
 
 import { type PreferredImages } from '@/lib/db/preferredImages';
 import { type fetchTvSeriesImages } from '@/lib/tmdb';
@@ -44,6 +46,7 @@ export default function PreferredImagesForAdmin({
     preferredImages: PreferredImages,
   ) => Promise<void>;
 }>) {
+  const imagesPreloaded = useRef<Boolean>(false);
   const [isPending, startTransition] = useTransition();
   const [preloading, setPreloading] = useState<Direction | null>(null);
   const currentImage = usePageStore((state) => state.backgroundImage);
@@ -206,7 +209,9 @@ export default function PreferredImagesForAdmin({
   );
 
   useEffect(() => {
-    if (!images?.titleTreatment) return;
+    if (!images?.titleTreatment) {
+      return;
+    }
 
     const currentSrc = getTitleTreatmentElement()?.getAttribute('src');
     if (currentSrc) {
@@ -217,6 +222,22 @@ export default function PreferredImagesForAdmin({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (
+      !images?.backdrops ||
+      !images.backdrops.length ||
+      imagesPreloaded.current
+    ) {
+      return;
+    }
+
+    images?.backdrops.forEach((backdrop) => {
+      preload(backdrop.url, { as: 'image' });
+    });
+
+    imagesPreloaded.current = true;
+  }, [images?.backdrops]);
 
   return (
     <div className="fixed bottom-10 right-10 z-[99999] flex gap-2 rounded-lg p-4 text-white backdrop-blur-2xl">

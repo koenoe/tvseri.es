@@ -84,9 +84,10 @@ export default function PreferredImagesForAdmin({
         return;
       }
 
+      setPreloading(direction);
+
       startTransition(async () => {
         const newBackdrop = images.backdrops[newIndex];
-        setPreloading(direction);
 
         try {
           const [color, preloadedImage] = await Promise.all([

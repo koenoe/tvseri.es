@@ -69,7 +69,7 @@ export const createSession = async (
   try {
     await client.send(command);
     return sessionId;
-  } catch (error) {
+  } catch (_error) {
     throw new Error('Failed to create session');
   }
 };
@@ -92,7 +92,7 @@ export const findSession = async (
     }
 
     return unmarshall(result.Item) as Session;
-  } catch (error) {
+  } catch (_error) {
     throw new Error('Failed to find session');
   }
 };
@@ -107,7 +107,7 @@ export const deleteSession = async (sessionId: string): Promise<void> => {
 
   try {
     await client.send(command);
-  } catch (error) {
+  } catch (_error) {
     throw new Error('Failed to delete session');
   }
 };

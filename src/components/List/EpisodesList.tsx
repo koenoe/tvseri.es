@@ -73,7 +73,7 @@ export default function EpisodesList({
         } else {
           setEpisodes([]);
         }
-      } catch (error) {}
+      } catch (_error) {}
 
       setIsInitialFetch(false);
     });

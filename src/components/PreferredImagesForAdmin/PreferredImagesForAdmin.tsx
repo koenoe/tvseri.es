@@ -46,7 +46,7 @@ export default function PreferredImagesForAdmin({
     preferredImages: PreferredImages,
   ) => Promise<void>;
 }>) {
-  const imagesPreloaded = useRef<Boolean>(false);
+  const imagesPreloaded = useRef<boolean>(false);
   const [isPending, startTransition] = useTransition();
   const [preloading, setPreloading] = useState<Direction | null>(null);
   const currentImage = usePageStore((state) => state.backgroundImage);

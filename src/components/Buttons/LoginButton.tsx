@@ -44,7 +44,7 @@ const LoginButton = ({
             await login();
           }
         }
-      } catch (error) {}
+      } catch (_error) {}
     });
   };
 

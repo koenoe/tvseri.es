@@ -30,7 +30,7 @@ export const findPreferredImages = async (
     }
 
     return unmarshall(result.Item) as PreferredImages;
-  } catch (error) {
+  } catch (_error) {
     throw new Error('Failed to find preferred images');
   }
 };
@@ -50,7 +50,7 @@ export const putPreferredImages = async (
 
   try {
     await client.send(command);
-  } catch (error) {
+  } catch (_error) {
     throw new Error('Failed to update preferred images');
   }
 };

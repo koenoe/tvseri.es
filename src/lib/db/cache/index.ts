@@ -45,7 +45,7 @@ export const setCacheItem = async <T>(
 
   try {
     await client.send(command);
-  } catch (error) {
+  } catch (_error) {
     throw new Error(`Failed to set cache for key: ${key}`);
   }
 };
@@ -69,7 +69,7 @@ export const getCacheItem = async <T>(key: string): Promise<T | null> => {
     return typeof item.value === 'string'
       ? (item.value as T)
       : (JSON.parse(item.value) as T);
-  } catch (error) {
+  } catch (_error) {
     throw new Error(`Failed to get cache for key: ${key}`);
   }
 };

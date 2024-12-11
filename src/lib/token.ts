@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import 'server-only';
 
 import crypto from 'crypto';

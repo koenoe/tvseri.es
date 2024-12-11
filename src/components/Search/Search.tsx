@@ -66,7 +66,7 @@ function Search() {
             } else {
               setResults([]);
             }
-          } catch (error) {}
+          } catch (_error) {}
         });
       } else {
         setResults(null);

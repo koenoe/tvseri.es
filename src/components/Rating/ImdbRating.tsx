@@ -44,7 +44,7 @@ export default async function ImdbRating({
         </div>
       </Link>
     ) : null;
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }

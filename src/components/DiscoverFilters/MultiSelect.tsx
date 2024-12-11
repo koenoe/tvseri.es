@@ -168,7 +168,7 @@ function MultiSelect({
             if (results) {
               setResults(results);
             }
-          } catch (error) {}
+          } catch (_error) {}
         });
       }
     },
@@ -186,7 +186,7 @@ function MultiSelect({
   }, []);
 
   const filteredResults = useMemo(() => {
-    let filteredResults =
+    const filteredResults =
       selectedResults.length > 0
         ? results.filter(
             (result) =>
@@ -240,7 +240,6 @@ function MultiSelect({
     return () => {
       abortControllerRef.current?.abort();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

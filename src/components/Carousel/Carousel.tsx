@@ -113,6 +113,7 @@ function Carousel({
   );
 
   const handleItemRenderer = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (index: number, ref: any) => itemRenderer(calculateItemIndex(index), ref),
     [calculateItemIndex, itemRenderer],
   );

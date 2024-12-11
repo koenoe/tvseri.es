@@ -218,7 +218,7 @@ export default function Menu({
       try {
         const account = await fetchAccount();
         setAccount(account);
-      } catch (error) {}
+      } catch (_error) {}
 
       accountIsFetched.current = true;
     });

@@ -59,6 +59,10 @@ export default $config({
         TMDB_API_KEY: process.env.TMDB_API_KEY as string,
         SITE_URL: `https://${domain}`,
       },
+      imageOptimization: {
+        memory: '512 MB',
+        staticEtag: true,
+      },
       link: [
         cache,
         dominantColor,

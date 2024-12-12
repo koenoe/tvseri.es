@@ -26,6 +26,7 @@ const eslintConfig = [
         },
       ],
       '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/triple-slash-reference': 'off',
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': [
         'warn',

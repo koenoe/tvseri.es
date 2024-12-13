@@ -13,7 +13,7 @@ import {
 import {
   fetchTvSeries,
   fetchTvSeriesEpisode,
-  fetchTvSeriesWatchProviders,
+  fetchTvSeriesWatchProvider,
 } from '@/lib/tmdb';
 import { decryptToken } from '@/lib/token';
 
@@ -62,8 +62,7 @@ export async function POST(
   }
 
   const region = (await headers()).get('cloudfront-viewer-country') || 'US';
-  const watchProviders = await fetchTvSeriesWatchProviders(id, region);
-  const watchProvider = watchProviders[0];
+  const watchProvider = await fetchTvSeriesWatchProvider(id, region);
 
   if (body.seasonNumber && body.episodeNumber) {
     const episode = await fetchTvSeriesEpisode(

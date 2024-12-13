@@ -121,11 +121,6 @@ export async function fetchRating(
 export async function fetchImdbTopRatedTvSeries() {
   const response = (await mdblistFetch(
     '/lists/koenoe/imdb-top-rated-by-koen/items',
-    {
-      next: {
-        revalidate: 604800, // 1 week
-      },
-    },
   )) as Readonly<{
     movies: Item[];
     shows: Item[];
@@ -137,11 +132,6 @@ export async function fetchImdbTopRatedTvSeries() {
 export async function fetchKoreasFinest() {
   const response = (await mdblistFetch(
     '/lists/koenoe/top-rated-korean-shows-on-netflix/items',
-    {
-      next: {
-        revalidate: 604800, // 1 week
-      },
-    },
   )) as Readonly<{
     movies: Item[];
     shows: Item[];

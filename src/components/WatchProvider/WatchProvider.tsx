@@ -2,7 +2,7 @@ import { cx } from 'class-variance-authority';
 import { headers } from 'next/headers';
 import Image from 'next/image';
 
-import { fetchTvSeriesWatchProviders } from '@/lib/tmdb';
+import { fetchTvSeriesWatchProvider } from '@/lib/tmdb';
 
 export default async function WatchProvider({
   className,
@@ -13,8 +13,7 @@ export default async function WatchProvider({
 }) {
   const headerStore = await headers();
   const region = headerStore.get('cloudfront-viewer-country') || 'US';
-  const providers = await fetchTvSeriesWatchProviders(id, region);
-  const provider = providers[0];
+  const provider = await fetchTvSeriesWatchProvider(id, region);
 
   return provider ? (
     <div

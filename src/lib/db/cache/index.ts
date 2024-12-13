@@ -25,7 +25,11 @@ export const setCacheItem = async <T>(
 ): Promise<void> => {
   const baseItem = {
     pk: `CACHE#${key}`,
-    value: typeof value === 'string' ? value : JSON.stringify(value),
+    value: value
+      ? typeof value === 'string'
+        ? value
+        : JSON.stringify(value)
+      : null,
     createdAt: new Date().toISOString(),
   };
 
@@ -50,7 +54,9 @@ export const setCacheItem = async <T>(
   }
 };
 
-export const getCacheItem = async <T>(key: string): Promise<T | null> => {
+export const getCacheItem = async <T>(
+  key: string,
+): Promise<T | null | undefined> => {
   const command = new GetItemCommand({
     TableName: Resource.Cache.name,
     Key: marshall({
@@ -62,7 +68,7 @@ export const getCacheItem = async <T>(key: string): Promise<T | null> => {
     const result = await client.send(command);
 
     if (!result.Item) {
-      return null;
+      return undefined;
     }
 
     const item = unmarshall(result.Item) as CacheItem;

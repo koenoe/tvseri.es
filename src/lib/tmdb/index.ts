@@ -50,6 +50,7 @@ import {
   type TmdbTvSeriesEpisode,
   normalizeTvSeriesEpisode,
 } from './helpers';
+import { getCacheItem, setCacheItem } from '../db/cache';
 import { findPreferredImages } from '../db/preferredImages';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
@@ -366,26 +367,37 @@ export async function fetchTvSeriesImages(
 export async function fetchTvSeriesContentRating(
   id: number | string,
   region = 'US',
-): Promise<string | undefined> {
-  const contentRatings = (await tmdbFetch(`/3/tv/${id}/content_ratings`, {
-    next: {
-      revalidate: 86400, // 1 day
-    },
-  })) as TmdbTvSeriesContentRatings;
+): Promise<string | undefined | null> {
+  const cacheKey = `content-rating:${id}:${region}`;
+  const cachedContentRating = await getCacheItem<string | null | undefined>(
+    cacheKey,
+  );
+  if (cachedContentRating !== undefined) {
+    return cachedContentRating;
+  }
 
-  return contentRatings.results?.find((rating) => rating.iso_3166_1 === region)
-    ?.rating;
+  const contentRatings = (await tmdbFetch(
+    `/3/tv/${id}/content_ratings`,
+  )) as TmdbTvSeriesContentRatings;
+
+  const contentRating = contentRatings.results?.find(
+    (rating) => rating.iso_3166_1 === region,
+  )?.rating;
+
+  await setCacheItem<string | undefined>(cacheKey, contentRating, {
+    ttl: 86400, // 1 day
+  });
+
+  return contentRating;
 }
 
 export async function fetchTvSeriesWatchProviders(
   id: number | string,
   region = 'US',
 ): Promise<WatchProvider[]> {
-  const watchProviders = (await tmdbFetch(`/3/tv/${id}/watch/providers`, {
-    next: {
-      revalidate: 86400, // 1 day
-    },
-  })) as TmdbTvSeriesWatchProviders;
+  const watchProviders = (await tmdbFetch(
+    `/3/tv/${id}/watch/providers`,
+  )) as TmdbTvSeriesWatchProviders;
 
   const flatrate =
     watchProviders.results?.[region as keyof typeof watchProviders.results]
@@ -408,6 +420,28 @@ export async function fetchTvSeriesWatchProviders(
         : '',
       logoPath: provider.logo_path!,
     }));
+}
+
+export async function fetchTvSeriesWatchProvider(
+  id: number | string,
+  region = 'US',
+): Promise<WatchProvider | null> {
+  const cacheKey = `watch-provider:${id}:${region}`;
+  const cachedWatchedProvider = await getCacheItem<WatchProvider | null>(
+    cacheKey,
+  );
+  if (cachedWatchedProvider !== undefined) {
+    return cachedWatchedProvider;
+  }
+
+  const watchProviders = await fetchTvSeriesWatchProviders(id, region);
+  const watchProvider = watchProviders[0] ?? null;
+
+  await setCacheItem<WatchProvider | null>(cacheKey, watchProvider, {
+    ttl: 86400, // 1 day
+  });
+
+  return watchProvider;
 }
 
 export async function fetchTvSeriesCredits(

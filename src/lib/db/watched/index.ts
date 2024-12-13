@@ -55,7 +55,7 @@ const createWatchedItem = ({
   seasonNumber: number;
   tvSeries: TvSeries;
   userId: string;
-  watchProvider?: WatchProvider;
+  watchProvider?: WatchProvider | null;
   watchedAt: number;
 }>): WatchedItem => ({
   episodeNumber,
@@ -84,7 +84,7 @@ export const markWatched = async ({
   seasonNumber: number;
   episodeNumber: number;
   runtime: number;
-  watchProvider?: WatchProvider;
+  watchProvider?: WatchProvider | null;
 }>) => {
   const now = Date.now();
   const paddedSeason = paddedNumber(seasonNumber);
@@ -176,7 +176,7 @@ export const markSeasonWatched = async ({
   userId: string;
   tvSeries: TvSeries;
   seasonNumber: number;
-  watchProvider?: WatchProvider;
+  watchProvider?: WatchProvider | null;
 }>) => {
   const season = await fetchTvSeriesSeason(tvSeries.id, seasonNumber);
 
@@ -321,7 +321,7 @@ export const markTvSeriesWatched = async ({
 }: Readonly<{
   userId: string;
   tvSeries: TvSeries;
-  watchProvider?: WatchProvider;
+  watchProvider?: WatchProvider | null;
 }>) => {
   if (!tvSeries.seasons) {
     throw new Error(`No seasons found for ${tvSeries.id}`);

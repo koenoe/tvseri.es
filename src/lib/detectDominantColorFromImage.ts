@@ -26,6 +26,7 @@ async function detectDominantColorFromImage(url: string): Promise<string> {
     ) as Readonly<{
       color: string;
     }>;
+
     return result.color;
   } catch (error) {
     console.error('Error in detectDominantColorFromImage:', error);

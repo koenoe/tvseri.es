@@ -65,12 +65,6 @@ export async function POST(
   const watchProviders = await fetchTvSeriesWatchProviders(id, region);
   const watchProvider = watchProviders[0];
 
-  console.log({
-    region,
-    watchProviders,
-    watchProvider,
-  });
-
   if (body.seasonNumber && body.episodeNumber) {
     const episode = await fetchTvSeriesEpisode(
       id,

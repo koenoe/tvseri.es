@@ -95,7 +95,9 @@ export async function fetchRating(
   returnRating: string = 'imdb',
 ) {
   const cacheKey = `rating:${mediaType}:${id}:${returnRating}`;
-  const cachedValue = await getCacheItem<ImdbRating | null>(cacheKey);
+  const cachedValue = await getCacheItem<ImdbRating | null>(cacheKey, {
+    parseAsJson: true,
+  });
   if (cachedValue) {
     return cachedValue;
   }

@@ -49,7 +49,7 @@ export default function SkeletonList({
       {hasTitle && (
         <div className={headerVariants({ titleAlignment })}>
           <div className="h-9 w-80 bg-white/20" />
-          <div className="h-2 flex-grow rounded-2xl bg-white/15" />
+          <div className="hidden h-2 flex-grow rounded-2xl bg-white/15 md:flex" />
         </div>
       )}
       <div className={innerStylesWithModuleStyles()}>

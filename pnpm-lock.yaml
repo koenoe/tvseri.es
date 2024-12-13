@@ -24,8 +24,8 @@ importers:
         specifier: ^4.2.3
         version: 4.2.3
       framer-motion:
-        specifier: 11.14.1
-        version: 11.14.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        specifier: 11.14.3
+        version: 11.14.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       next:
         specifier: 15.1.0
         version: 15.1.0(babel-plugin-react-compiler@19.0.0-beta-df7b47d-20241124)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -124,8 +124,8 @@ importers:
         specifier: ^2.12.0
         version: 2.12.0
       sst:
-        specifier: ^3.3.75
-        version: 3.3.75
+        specifier: ^3.4.1
+        version: 3.4.1
       tailwind-scrollbar-hide:
         specifier: ^1.1.7
         version: 1.1.7
@@ -1454,8 +1454,8 @@ packages:
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
 
-  framer-motion@11.14.1:
-    resolution: {integrity: sha512-6B7jC54zgnefmUSa2l4gkc/2CrqclHL9AUbDxxRfbFyWKLd+4guUYtEabzoYMU8G5ICZ6CdJdydOLy74Ekd7ag==}
+  framer-motion@11.14.3:
+    resolution: {integrity: sha512-waX0Tn8J+Wkd57CG+ctjKtk6C4FlDH5ziNxLnnKNHpqKdny6y5wIXl36rBedVKuyLJC8b9F1wTkYhW4/qlg0vQ==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -1933,11 +1933,11 @@ packages:
   mnemonist@0.38.3:
     resolution: {integrity: sha512-2K9QYubXx/NAjv4VLq1d1Ly8pWNC5L3BrixtdkyTegXWJIqY+zLNDhhX/A+ZwWt70tB1S8H4BE8FLYEFyNoOBw==}
 
-  motion-dom@11.14.1:
-    resolution: {integrity: sha512-Y68tHWR0d2HxHDskNxpeY3pzUdz7L/m5A8TV7VSE6Sq4XUNJdZV8zXco1aeAQ44o48u0i8UKjt8TGIqkZSQ8ew==}
+  motion-dom@11.14.3:
+    resolution: {integrity: sha512-lW+D2wBy5vxLJi6aCP0xyxTxlTfiu+b+zcpVbGVFUxotwThqhdpPRSmX8xztAgtZMPMeU0WGVn/k1w4I+TbPqA==}
 
-  motion-utils@11.14.1:
-    resolution: {integrity: sha512-R6SsehArpkEBUHydkcwQ/8ij8k2PyKWAJ7Y8PN3ztnFwq5RBU3zIamYH6esTp09OgsbwB57mBEZ9DORaN1WTxQ==}
+  motion-utils@11.14.3:
+    resolution: {integrity: sha512-Xg+8xnqIJTpr0L/cidfTTBFkvRw26ZtGGuIhA94J9PQ2p4mEa06Xx7QVYZH0BP+EpMSaDlu+q0I0mmvwADPsaQ==}
 
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
@@ -2409,33 +2409,33 @@ packages:
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
 
-  sst-darwin-arm64@3.3.75:
-    resolution: {integrity: sha512-uUe7oUvSFNVfjchMCHMaUONFIbAnjxqZxlGYdiCTC8XgUNU5hhJe8zRnA0jz1mU4QIewwOen22oAgJSAfTPtUw==}
+  sst-darwin-arm64@3.4.1:
+    resolution: {integrity: sha512-b0PWghjWTEWApjjtwzMdL8gjYfpDXqVdlCTU1zkpD9ZPlCgT26FB407dgpt7TWvjVb9Y7jhSyhIdevM8pe15aw==}
     cpu: [arm64]
     os: [darwin]
 
-  sst-darwin-x64@3.3.75:
-    resolution: {integrity: sha512-S9gSwDuix0SkMb8PyVqUDdp9+ZPjhswy+hRISA5qK6SVtaNqLeW/Wh88OxBO9vhw6M7ARyohnQ50mHjb6AXebQ==}
+  sst-darwin-x64@3.4.1:
+    resolution: {integrity: sha512-hLlv56+TNX1lt0HJGHpxF8BdaQeV7vDwrClluuzjL+PBPmhrfQmvPXbm+12PWRwZEKU/nkpA6n2lkNMtRYtiKw==}
     cpu: [x64]
     os: [darwin]
 
-  sst-linux-arm64@3.3.75:
-    resolution: {integrity: sha512-p1Jj0Uue0z44CnRbfvvaiJdlp7iYgCdz14wJ7b8173ng92GPhkIsV8DNW43vcJRCLYaJN/gWDzYOskZnAzJvpQ==}
+  sst-linux-arm64@3.4.1:
+    resolution: {integrity: sha512-DNCv9m3RvZX2WXQWnWAyzH8wziMp5LSHtVqL/IMhxWyngB8yYJxrIbjQBoqDBluAL/YqqhY7Ct2S+U99eBCnWA==}
     cpu: [arm64]
     os: [linux]
 
-  sst-linux-x64@3.3.75:
-    resolution: {integrity: sha512-V/tMg7wtrxAwwy1Y8qK8Pa71i65nVf4T2EtYsEkIMs1yVrSuzWMul3+BAhXwzGyM3EXoI1YUu3pO8Pg+3ubwUQ==}
+  sst-linux-x64@3.4.1:
+    resolution: {integrity: sha512-kMIDkiZ4KeHDjVKY+pTlE2hrgQTj14K3RwlVF/f6jhh2jDzP0pb+eKZ9wk5kyZk7GgMZwTmLw75bVwwxS3tWuA==}
     cpu: [x64]
     os: [linux]
 
-  sst-linux-x86@3.3.75:
-    resolution: {integrity: sha512-SMhT6Y6qcX/OQuxJlt3a58frwmCA596fHg6ziyjbKfpeBSwoU1RhiF3oaHkD+jPCJA6GcImWQjkAEiTb5YB6Mw==}
+  sst-linux-x86@3.4.1:
+    resolution: {integrity: sha512-w57YQO9l2HR+cmqhatyzJKBtFi9R+paAb7PaNX8JW/gMzzkgcSuAMQ5qHVUrgM2XYf4vL2g+jXd6v8D27rcpkg==}
     cpu: [x86]
     os: [linux]
 
-  sst@3.3.75:
-    resolution: {integrity: sha512-cA4IC9EddeXh/Piu0Cj1ADneqksGMUxpBK4TDGqsgF6Cing9soJkvfUoska2wNuTz7PwQ8tuUfFQWsQEncXAtw==}
+  sst@3.4.1:
+    resolution: {integrity: sha512-1TOpWosN5PsSWCMLG3FOUNL+4Aq2vme8t54l2dInkzQkwl+hK0w8ClVHp4vHDydPPRJGJ61ZXLLyT5T9MkRKAQ==}
     hasBin: true
     peerDependencies:
       hono: 4.x
@@ -4731,10 +4731,10 @@ snapshots:
 
   fraction.js@4.3.7: {}
 
-  framer-motion@11.14.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+  framer-motion@11.14.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
-      motion-dom: 11.14.1
-      motion-utils: 11.14.1
+      motion-dom: 11.14.3
+      motion-utils: 11.14.3
       tslib: 2.8.1
     optionalDependencies:
       react: 19.0.0
@@ -5187,9 +5187,9 @@ snapshots:
     dependencies:
       obliterator: 1.6.1
 
-  motion-dom@11.14.1: {}
+  motion-dom@11.14.3: {}
 
-  motion-utils@11.14.1: {}
+  motion-utils@11.14.3: {}
 
   ms@2.1.3: {}
 
@@ -5618,32 +5618,32 @@ snapshots:
 
   sprintf-js@1.0.3: {}
 
-  sst-darwin-arm64@3.3.75:
+  sst-darwin-arm64@3.4.1:
     optional: true
 
-  sst-darwin-x64@3.3.75:
+  sst-darwin-x64@3.4.1:
     optional: true
 
-  sst-linux-arm64@3.3.75:
+  sst-linux-arm64@3.4.1:
     optional: true
 
-  sst-linux-x64@3.3.75:
+  sst-linux-x64@3.4.1:
     optional: true
 
-  sst-linux-x86@3.3.75:
+  sst-linux-x86@3.4.1:
     optional: true
 
-  sst@3.3.75:
+  sst@3.4.1:
     dependencies:
       aws4fetch: 1.0.20
       jose: 5.2.3
       openid-client: 5.6.4
     optionalDependencies:
-      sst-darwin-arm64: 3.3.75
-      sst-darwin-x64: 3.3.75
-      sst-linux-arm64: 3.3.75
-      sst-linux-x64: 3.3.75
-      sst-linux-x86: 3.3.75
+      sst-darwin-arm64: 3.4.1
+      sst-darwin-x64: 3.4.1
+      sst-linux-arm64: 3.4.1
+      sst-linux-x64: 3.4.1
+      sst-linux-x86: 3.4.1
 
   stable-hash@0.0.4: {}
 

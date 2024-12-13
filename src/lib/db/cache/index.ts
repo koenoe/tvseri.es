@@ -50,13 +50,7 @@ export const setCacheItem = async <T>(
   }
 };
 
-export const getCacheItem = async <T>(
-  key: string,
-  options?: Readonly<{
-    parseAsJson?: boolean;
-  }>,
-): Promise<T | null> => {
-  const { parseAsJson = false } = options ?? {};
+export const getCacheItem = async <T>(key: string): Promise<T | null> => {
   const command = new GetItemCommand({
     TableName: Resource.Cache.name,
     Key: marshall({
@@ -72,7 +66,12 @@ export const getCacheItem = async <T>(
     }
 
     const item = unmarshall(result.Item) as CacheItem;
-    return parseAsJson ? (JSON.parse(item.value) as T) : (item.value as T);
+
+    try {
+      return JSON.parse(item.value) as T;
+    } catch {
+      return item.value as T;
+    }
   } catch (_error) {
     throw new Error(`Failed to get cache for key: ${key}`);
   }

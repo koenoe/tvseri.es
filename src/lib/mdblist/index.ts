@@ -1,4 +1,5 @@
 import 'server-only';
+import { getCacheItem, setCacheItem } from '../db/cache';
 
 type MediaType = 'movie' | 'show';
 
@@ -49,11 +50,7 @@ export async function fetchTvSeriesOrMovie(
   id: number | string,
   mediaType: MediaType = 'show',
 ) {
-  const response = (await mdblistFetch(`/tmdb/${mediaType}/${id}`, {
-    next: {
-      revalidate: 43200, // 12 hours
-    },
-  })) as {
+  const response = (await mdblistFetch(`/tmdb/${mediaType}/${id}`)) as {
     description: string;
     ids: {
       imdb: string;
@@ -82,22 +79,43 @@ export async function fetchTvSeriesOrMovie(
   return response;
 }
 
+// TODO: revise for other ratings when needed
+type ImdbRating = Readonly<{
+  popular: number;
+  score: number;
+  source: string;
+  value: number;
+  votes: number;
+  imdbid: string;
+}>;
+
 export async function fetchRating(
   id: number | string,
   mediaType: MediaType = 'show',
   returnRating: string = 'imdb',
 ) {
+  const cacheKey = `rating:${mediaType}:${id}:${returnRating}`;
+  const cachedValue = await getCacheItem<ImdbRating | null>(cacheKey);
+  if (cachedValue) {
+    return cachedValue;
+  }
+
   const response = await fetchTvSeriesOrMovie(id, mediaType);
   const rating = response.ratings?.find(
     (rating) => rating.source === returnRating,
   );
 
-  return rating && rating.value > 0
-    ? {
-        ...rating,
-        imdbid: response.ids.imdb,
-      }
-    : null;
+  const result =
+    rating && rating.value > 0
+      ? {
+          ...rating,
+          imdbid: response.ids.imdb,
+        }
+      : null;
+
+  await setCacheItem<ImdbRating | null>(cacheKey, result, { ttl: 43200 }); // 12 hours
+
+  return result;
 }
 
 export async function fetchImdbTopRatedTvSeries() {

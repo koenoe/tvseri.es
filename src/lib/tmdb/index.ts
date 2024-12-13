@@ -468,7 +468,7 @@ export async function fetchTvSeriesSeason(
 ): Promise<Season> {
   const response = (await tmdbFetch(`/3/tv/${id}/season/${season}`, {
     next: {
-      revalidate: 43200, // 12 hours
+      revalidate: 86400, // 1 day
     },
   })) as TmdbTvSeriesSeason;
 
@@ -640,7 +640,7 @@ export async function fetchGenresForTvSeries() {
   const genresResponse =
     ((await tmdbFetch('/3/genre/tv/list', {
       next: {
-        revalidate: 604800, // 1 week
+        revalidate: 2629800, // 1 month
       },
     })) as TmdbGenresForTvSeries) ?? [];
 

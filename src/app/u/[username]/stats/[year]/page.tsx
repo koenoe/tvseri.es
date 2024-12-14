@@ -102,7 +102,19 @@ const SvgPattern = ({ className }: Readonly<{ className?: string }>) => (
   </svg>
 );
 
-export default async function WatchlistPage({ params }: Props) {
+export async function generateMetadata({ params }: Props) {
+  const { username } = await params;
+  const user = await findUser({ username });
+  if (!user) {
+    return {};
+  }
+
+  return {
+    title: `A year of tvseri.es with ${user.username}`,
+  };
+}
+
+export default async function StatsByYearPage({ params }: Props) {
   const { username } = await params;
   const user = await findUser({ username });
   if (!user) {
@@ -112,20 +124,29 @@ export default async function WatchlistPage({ params }: Props) {
   return (
     <Page backgroundContext="dots">
       <div className="container relative h-[260px] sm:h-[325px] md:h-[390px]">
-        <div className="absolute inset-0 [mask-image:linear-gradient(to_right,black,transparent_30%,transparent_70%,black)]">
-          <SvgPattern className="absolute -top-8 left-[1rem] w-[280px] sm:w-[320px] md:w-[400px] lg:left-0 lg:w-[480px]" />
-          <SvgPattern className="absolute -top-8 right-[1rem] w-[280px] scale-x-[-1] sm:w-[320px] md:w-[400px] lg:right-0 lg:w-[480px]" />
+        <div className="absolute inset-0 [mask-image:linear-gradient(to_right,black,transparent_30%,transparent_70%,black)] xl:[mask-image:linear-gradient(to_right,black,transparent_35%,transparent_65%,black)]">
+          <SvgPattern className="absolute left-[1rem] top-0 w-[280px] sm:w-[320px] md:w-[400px] lg:-top-8 lg:left-0 lg:w-[480px]" />
+          <SvgPattern className="absolute right-[1rem] top-0 w-[280px] scale-x-[-1] sm:w-[320px] md:w-[400px] lg:-top-8 lg:right-0 lg:w-[480px]" />
         </div>
 
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <h1 className="text-[6rem] font-extrabold leading-none tracking-wide sm:text-[8rem] md:text-[10rem]">
             2024
           </h1>
-          <span className="mt-1 text-lg font-medium opacity-40">
-            Koen&apos;s year in review
+          <span className="mt-2 text-sm text-white/55 md:text-lg">
+            A year of tvseri.es with
+            <span
+              className="ml-2 rounded px-2 py-1 text-white"
+              style={{
+                backgroundColor: colours[0],
+              }}
+            >
+              koenoe
+            </span>
           </span>
         </div>
       </div>
+      <div className="container mt-8">blocks here</div>
     </Page>
   );
 }

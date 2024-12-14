@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     url: false,
   },
   title: {
-    template: 'tvseri.es - %s',
+    template: '%s – tvseri.es',
     default: 'tvseri.es',
   },
 };

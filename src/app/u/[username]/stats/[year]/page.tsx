@@ -121,6 +121,25 @@ export default async function StatsByYearPage({ params }: Props) {
     return notFound();
   }
 
+  /*
+    - total days/hours watched
+    - total episodes watched
+    - total shows finished
+    - total shows unfinished
+    - total added to watchlist
+    - total favourited
+
+    - first play of 2024
+    - last play of 2024
+    - most watched genres
+    - most watched streaming services
+    - most watched countries (world map)
+    - most watched cast
+    - most watched directors/creators
+    - all watched shows in 2024 (grid)
+    - popular shows in 2024 you didn't watch
+  */
+
   return (
     <Page backgroundContext="dots">
       <div className="container relative h-[260px] sm:h-[325px] md:h-[390px]">
@@ -146,7 +165,28 @@ export default async function StatsByYearPage({ params }: Props) {
           </span>
         </div>
       </div>
-      <div className="container mt-8">blocks here</div>
+      <div className="container mt-8">
+        <div className="grid grid-cols-6 gap-4">
+          <div className="flex aspect-video items-center justify-center rounded bg-[#333]">
+            1
+          </div>
+          <div className="flex aspect-video items-center justify-center rounded bg-[#333]">
+            2
+          </div>
+          <div className="flex aspect-video items-center justify-center rounded bg-[#333]">
+            3
+          </div>
+          <div className="flex aspect-video items-center justify-center rounded bg-[#333]">
+            4
+          </div>
+          <div className="flex aspect-video items-center justify-center rounded bg-[#333]">
+            5
+          </div>
+          <div className="flex aspect-video items-center justify-center rounded bg-[#333]">
+            6
+          </div>
+        </div>
+      </div>
     </Page>
   );
 }

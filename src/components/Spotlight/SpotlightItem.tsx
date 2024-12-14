@@ -1,15 +1,13 @@
- 
 'use client';
 
 import { forwardRef, memo } from 'react';
 
-import Image from 'next/image';
 import Link from 'next/link';
 
-import useRgbString from '@/hooks/useRgbString';
 import type { TvSeries } from '@/types/tv-series';
 
-import BackgroundImage from '../Background/BackgroundImage';
+import SpotlightBackground from './SpotlightBackground';
+import SpotlightTitle from './SpotlightTitle';
 
 type Props = Readonly<{
   item: TvSeries;
@@ -18,8 +16,6 @@ type Props = Readonly<{
 
 const SpotlightItem = forwardRef<HTMLAnchorElement, Props>(
   ({ item, index }, ref) => {
-    const rgbString = useRgbString(item.backdropColor);
-
     return (
       <Link
         ref={ref}
@@ -27,43 +23,10 @@ const SpotlightItem = forwardRef<HTMLAnchorElement, Props>(
         className="relative flex h-full w-full flex-shrink-0 items-end overflow-hidden"
         draggable={false}
       >
-        {item.backdropImage && (
-          <div className="absolute inset-0">
-            <BackgroundImage src={item.backdropImage} />
-            <div
-              className="absolute inset-0 opacity-70"
-              style={{
-                backgroundImage: `linear-gradient(270deg, rgba(${rgbString}, 0) 0%, rgba(${rgbString}, 0.4) 50%, rgba(${rgbString}, 1) 100%)`,
-              }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage: `radial-gradient(rgba(${rgbString}, 0) 0%, rgba(${rgbString}, 0.7) 100%)`,
-              }}
-            />
-          </div>
-        )}
+        {item.backdropImage && <SpotlightBackground item={item} />}
 
         <div className="lg:p-18 relative w-full p-8 md:w-4/5 md:p-14">
-          {item.titleTreatmentImage ? (
-            <h1 className="relative mb-6 h-20 w-full md:h-40 md:w-[500px]">
-              <Image
-                className="object-contain object-bottom md:object-left-bottom"
-                src={item.titleTreatmentImage}
-                alt=""
-                priority
-                fill
-                draggable={false}
-                unoptimized
-              />
-              <span className="hidden">{item.title}</span>
-            </h1>
-          ) : (
-            <h1 className="relative mb-6 w-full text-center text-3xl font-bold !leading-tight md:w-3/5 md:text-left md:text-4xl lg:text-5xl xl:text-6xl">
-              {item.title}
-            </h1>
-          )}
+          <SpotlightTitle item={item} className="mb-6" />
 
           <div className="flex gap-4 md:gap-12">
             <div className="flex w-full justify-center gap-2 text-xs opacity-60 md:justify-start md:text-[0.8rem]">

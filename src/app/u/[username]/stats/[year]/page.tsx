@@ -2,7 +2,10 @@ import { cx } from 'class-variance-authority';
 import { notFound } from 'next/navigation';
 
 import Page from '@/components/Page/Page';
+import SpotlightBackground from '@/components/Spotlight/SpotlightBackground';
+import SpotlightTitle from '@/components/Spotlight/SpotlightTitle';
 import { findUser } from '@/lib/db/user';
+import { fetchTvSeries } from '@/lib/tmdb';
 
 type Props = Readonly<{
   params: Promise<{ username: string }>;
@@ -131,21 +134,27 @@ export default async function StatsByYearPage({ params }: Props) {
 
     - first play of 2024
     - last play of 2024
+
     - most watched genres
     - most watched streaming services
     - most watched countries (world map)
     - most watched cast
     - most watched directors/creators
+
     - all watched shows in 2024 (grid)
     - popular shows in 2024 you didn't watch
   */
+
+  const firstShow = await fetchTvSeries(70453, {
+    includeImages: true,
+  });
 
   return (
     <Page backgroundContext="dots">
       <div className="container relative h-[260px] sm:h-[325px] md:h-[390px]">
         <div className="absolute inset-0 [mask-image:linear-gradient(to_right,black,transparent_30%,transparent_70%,black)] xl:[mask-image:linear-gradient(to_right,black,transparent_35%,transparent_65%,black)]">
-          <SvgPattern className="absolute left-[1rem] top-0 w-[280px] sm:w-[320px] md:w-[400px] lg:-top-8 lg:left-0 lg:w-[480px]" />
-          <SvgPattern className="absolute right-[1rem] top-0 w-[280px] scale-x-[-1] sm:w-[320px] md:w-[400px] lg:-top-8 lg:right-0 lg:w-[480px]" />
+          <SvgPattern className="absolute left-[1rem] top-0 w-[280px] sm:w-[320px] md:w-[400px] lg:-top-8 lg:w-[480px]" />
+          <SvgPattern className="absolute right-[1rem] top-0 w-[280px] scale-x-[-1] sm:w-[320px] md:w-[400px] lg:-top-8 lg:w-[480px]" />
         </div>
 
         <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -165,25 +174,68 @@ export default async function StatsByYearPage({ params }: Props) {
           </span>
         </div>
       </div>
-      <div className="container mt-8">
-        <div className="grid grid-cols-6 gap-4">
-          <div className="flex aspect-video items-center justify-center rounded bg-[#333]">
-            1
+      <div className="container mt-10 md:mt-8">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+          <div className="flex flex-col justify-center gap-y-1 whitespace-nowrap rounded bg-[#333] p-3 md:gap-y-2 md:p-6">
+            <span className="text-[0.65rem] text-white/60 md:text-sm">
+              Total runtime
+            </span>
+            <span className="text-lg font-semibold md:text-2xl">
+              17d 15h 59m
+            </span>
           </div>
-          <div className="flex aspect-video items-center justify-center rounded bg-[#333]">
-            2
+          <div className="flex flex-col justify-center gap-y-1 whitespace-nowrap rounded bg-[#333] p-3 md:gap-y-2 md:p-6">
+            <span className="text-[0.65rem] text-white/60 md:text-sm">
+              Episodes watched
+            </span>
+            <span className="text-lg font-semibold md:text-2xl">1,831</span>
           </div>
-          <div className="flex aspect-video items-center justify-center rounded bg-[#333]">
-            3
+          <div className="flex flex-col justify-center gap-y-1 whitespace-nowrap rounded bg-[#333] p-3 md:gap-y-2 md:p-6">
+            <span className="text-[0.65rem] text-white/60 md:text-sm">
+              Series finished
+            </span>
+            <span className="text-lg font-semibold md:text-2xl">12</span>
           </div>
-          <div className="flex aspect-video items-center justify-center rounded bg-[#333]">
-            4
+          <div className="flex flex-col justify-center gap-y-1 whitespace-nowrap rounded bg-[#333] p-3 md:gap-y-2 md:p-6">
+            <span className="text-[0.65rem] text-white/60 md:text-sm">
+              In progress
+            </span>
+            <span className="text-lg font-semibold md:text-2xl">18</span>
           </div>
-          <div className="flex aspect-video items-center justify-center rounded bg-[#333]">
-            5
+          <div className="flex flex-col justify-center gap-y-1 whitespace-nowrap rounded bg-[#333] p-3 md:gap-y-2 md:p-6">
+            <span className="text-[0.65rem] text-white/60 md:text-sm">
+              Added to favorites
+            </span>
+            <span className="text-lg font-semibold md:text-2xl">78</span>
           </div>
-          <div className="flex aspect-video items-center justify-center rounded bg-[#333]">
-            6
+          <div className="flex flex-col justify-center gap-y-1 whitespace-nowrap rounded bg-[#333] p-3 md:gap-y-2 md:p-6">
+            <span className="text-[0.65rem] text-white/60 md:text-sm">
+              Want to watch
+            </span>
+            <span className="text-lg font-semibold md:text-2xl">36</span>
+          </div>
+        </div>
+
+        <div className="mt-20">
+          <div className="mb-6 flex items-center gap-x-6">
+            <h2 className="text-md lg:text-lg">First play of the year</h2>
+            <div className="h-[2px] flex-grow bg-white/10" />
+          </div>
+          <div className="relative flex aspect-square flex-shrink-0 items-end overflow-clip rounded shadow-lg after:absolute after:inset-0 after:rounded after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:aspect-[16/10] lg:aspect-[16/7]">
+            <SpotlightBackground item={firstShow!} />
+            <div className="w-full p-10 xl:p-14">
+              <SpotlightTitle item={firstShow!} size="small" />
+              <div className="mt-6 flex gap-4 md:gap-12">
+                <div className="relative flex w-full justify-center gap-2 text-xs md:justify-start md:text-[0.8rem]">
+                  <div className="after:ml-2 after:content-['·']">
+                    2024-01-01
+                  </div>
+                  <div className="after:ml-2 after:content-['·']">S01E01</div>
+                  <div className="after:ml-2 after:content-['·']">Vanish</div>
+                  <div>1h 3m</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

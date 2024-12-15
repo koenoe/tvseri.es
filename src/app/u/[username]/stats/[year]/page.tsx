@@ -1,9 +1,11 @@
 import { cx } from 'class-variance-authority';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 
 import Page from '@/components/Page/Page';
 import SpotlightBackground from '@/components/Spotlight/SpotlightBackground';
 import SpotlightTitle from '@/components/Spotlight/SpotlightTitle';
+import WatchedPerWeek from '@/components/WatchedPerWeek';
 import { findUser } from '@/lib/db/user';
 import { fetchTvSeries } from '@/lib/tmdb';
 
@@ -145,7 +147,11 @@ export default async function StatsByYearPage({ params }: Props) {
     - popular shows in 2024 you didn't watch
   */
 
-  const firstShow = await fetchTvSeries(70453, {
+  const firstShow = await fetchTvSeries(66276, {
+    includeImages: true,
+  });
+
+  const lastShow = await fetchTvSeries(1396, {
     includeImages: true,
   });
 
@@ -216,28 +222,71 @@ export default async function StatsByYearPage({ params }: Props) {
           </div>
         </div>
 
-        <div className="mt-20">
-          <div className="mb-6 flex items-center gap-x-6">
-            <h2 className="text-md lg:text-lg">First play of the year</h2>
-            <div className="h-[2px] flex-grow bg-white/10" />
-          </div>
-          <div className="relative flex aspect-square flex-shrink-0 items-end overflow-clip rounded shadow-lg after:absolute after:inset-0 after:rounded after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:aspect-[16/10] lg:aspect-[16/7]">
-            <SpotlightBackground item={firstShow!} />
-            <div className="w-full p-10 xl:p-14">
-              <SpotlightTitle item={firstShow!} size="small" />
-              <div className="mt-6 flex gap-4 md:gap-12">
-                <div className="relative flex w-full justify-center gap-2 text-xs md:justify-start md:text-[0.8rem]">
-                  <div className="after:ml-2 after:content-['·']">
-                    2024-01-01
+        <div className="relative mt-14 grid w-full grid-cols-1 gap-10 md:mt-20 xl:grid-cols-2">
+          <div>
+            <div className="mb-6 flex items-center gap-x-6">
+              <h2 className="text-md lg:text-lg">First watch</h2>
+              <div className="h-[2px] flex-grow bg-white/10" />
+            </div>
+            <div className="relative flex aspect-[16/14] flex-shrink-0 items-end overflow-clip rounded shadow-lg after:absolute after:inset-0 after:rounded after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:aspect-[16/10] lg:aspect-[16/8] xl:aspect-[16/12] 2xl:aspect-[16/10]">
+              <SpotlightBackground item={firstShow!} />
+              <div className="w-full p-9 xl:p-12">
+                <SpotlightTitle item={firstShow!} size="small" />
+                <div className="mt-6 flex gap-4 whitespace-nowrap text-white/60 md:gap-12">
+                  <div className="relative flex w-full justify-center gap-2 text-xs md:justify-start md:text-[0.8rem]">
+                    <div className="after:ml-2 after:content-['·']">
+                      2024-01-01
+                    </div>
+                    <div className="after:ml-2 after:content-['·']">S01E01</div>
+                    <div className="after:ml-2 after:content-['·']">
+                      Part 1: The Beach
+                    </div>
+                    <div>1h 19m</div>
                   </div>
-                  <div className="after:ml-2 after:content-['·']">S01E01</div>
-                  <div className="after:ml-2 after:content-['·']">Vanish</div>
-                  <div>1h 3m</div>
                 </div>
               </div>
+              <Image
+                className="absolute right-4 top-4 z-10 h-8 w-8 rounded-md"
+                src="https://image.tmdb.org/t/p/w92/fksCUZ9QDWZMUwL2LgMtLckROUN.jpg"
+                alt=""
+                unoptimized
+                width={92}
+                height={92}
+              />
+            </div>
+          </div>
+          <div>
+            <div className="mb-6 flex items-center gap-x-6">
+              <h2 className="text-md lg:text-lg">Last watch</h2>
+              <div className="h-[2px] flex-grow bg-white/10" />
+            </div>
+            <div className="relative flex aspect-[16/14] flex-shrink-0 items-end overflow-clip rounded shadow-lg after:absolute after:inset-0 after:rounded after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:aspect-[16/10] lg:aspect-[16/8] xl:aspect-[16/12] 2xl:aspect-[16/10]">
+              <SpotlightBackground item={lastShow!} />
+              <div className="w-full p-9 xl:p-12">
+                <SpotlightTitle item={lastShow!} size="small" />
+                <div className="mt-6 flex gap-4 whitespace-nowrap text-white/60 md:gap-12">
+                  <div className="relative flex w-full justify-center gap-2 text-xs md:justify-start md:text-[0.8rem]">
+                    <div className="after:ml-2 after:content-['·']">
+                      2024-12-31
+                    </div>
+                    <div className="after:ml-2 after:content-['·']">S05E16</div>
+                    <div className="after:ml-2 after:content-['·']">Felina</div>
+                    <div>56m</div>
+                  </div>
+                </div>
+              </div>
+              <Image
+                className="absolute right-4 top-4 z-10 h-8 w-8 rounded-md"
+                src="https://image.tmdb.org/t/p/w92/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg"
+                alt=""
+                unoptimized
+                width={92}
+                height={92}
+              />
             </div>
           </div>
         </div>
+        <WatchedPerWeek />
       </div>
     </Page>
   );

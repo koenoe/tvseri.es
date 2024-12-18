@@ -826,11 +826,7 @@ export async function searchPerson(query: string) {
 }
 
 export async function fetchPerson(id: number | string) {
-  const person = (await tmdbFetch(`/3/person/${id}`, {
-    next: {
-      revalidate: 86400, // 1 day
-    },
-  })) as TmdbPerson;
+  const person = (await tmdbFetch(`/3/person/${id}`)) as TmdbPerson;
 
   return {
     id: person.id,
@@ -859,11 +855,9 @@ export async function fetchPersonKnownFor(
 }
 
 export async function fetchPersonTvCredits(id: number | string) {
-  const credits = (await tmdbFetch(`/3/person/${id}/tv_credits`, {
-    next: {
-      revalidate: 86400, // 1 day
-    },
-  })) as TmdbPersonTvCredits;
+  const credits = (await tmdbFetch(
+    `/3/person/${id}/tv_credits`,
+  )) as TmdbPersonTvCredits;
 
   const sortAndGroup = (
     results: TmdbPersonTvCredits['cast'] | TmdbPersonTvCredits['crew'] = [],

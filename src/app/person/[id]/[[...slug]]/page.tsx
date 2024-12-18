@@ -27,9 +27,6 @@ type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
 
-export const dynamic = 'force-static';
-export const revalidate = 86400; // 1 day
-
 const cachedPerson = cache(async (id: string) => fetchPerson(id));
 
 const cachedPersonKnownFor = cache(async (person: Person) =>

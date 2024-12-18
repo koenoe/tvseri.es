@@ -34,6 +34,9 @@ const cachedTvSeries = cache(async (id: string) =>
   }),
 );
 
+export const dynamic = 'force-static';
+export const revalidate = 86400; // 1 day
+
 export async function generateMetadata({ params: paramsFromProps }: Props) {
   const params = await paramsFromProps;
   const tvSeries = await cachedTvSeries(params.id);

@@ -8,7 +8,7 @@ export default $config({
       home: 'aws',
       providers: {
         aws: {
-          version: '6.64.0',
+          version: '6.65.0',
           profile:
             input.stage === 'production'
               ? 'tvseries-production'

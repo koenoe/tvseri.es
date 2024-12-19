@@ -52,7 +52,7 @@ export async function generateMetadata({ params: paramsFromProps }: Props) {
   const slug = params.slug?.join('');
 
   if (person.slug && person.slug !== slug) {
-    return permanentRedirect(`/person/${params.id}/${person.slug}`);
+    return {};
   }
 
   const canonicalUrl = `${getBaseUrl()}/tv/${params.id}/${person.slug}`;

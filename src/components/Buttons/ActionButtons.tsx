@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 
+import cachedTvSeries from '@/lib/cachedTvSeries';
 import {
   addToFavorites,
   addToWatchlist,
@@ -13,7 +14,6 @@ import { findUser } from '@/lib/db/user';
 import {
   addToOrRemoveFromWatchlist,
   addToOrRemoveFromFavorites,
-  fetchTvSeries,
 } from '@/lib/tmdb';
 import { decryptToken } from '@/lib/token';
 import { type TvSeries } from '@/types/tv-series';
@@ -27,7 +27,7 @@ export default async function ActionButtons({
 }: Readonly<{
   id: number | string;
 }>) {
-  const tvSeries = (await fetchTvSeries(id)) as TvSeries;
+  const tvSeries = (await cachedTvSeries(id)) as TvSeries;
   const shouldShowWatchButton = new Date(tvSeries.firstAirDate) <= new Date();
 
   async function addToOrRemoveAction(

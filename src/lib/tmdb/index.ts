@@ -235,11 +235,7 @@ export async function fetchTvSeries(
   id: number | string,
   options: Readonly<{ includeImages?: boolean }> = { includeImages: false },
 ): Promise<TvSeries | undefined> {
-  const series = (await tmdbFetch(`/3/tv/${id}`, {
-    next: {
-      revalidate: 86400, // 1 day
-    },
-  })) as TmdbTvSeries;
+  const series = (await tmdbFetch(`/3/tv/${id}`)) as TmdbTvSeries;
 
   if (!series) {
     return undefined;

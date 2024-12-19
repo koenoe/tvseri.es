@@ -3,14 +3,6 @@ import { type NextConfig } from 'next';
 import getBaseUrl from './src/utils/getBaseUrl';
 
 const nextConfig = {
-  experimental: {
-    // TODO: messes up some stuff in the background of the app
-    reactCompiler: false,
-    staleTimes: {
-      dynamic: 0, // default is 30
-      static: 0, // default is 180
-    },
-  },
   eslint: {
     ignoreDuringBuilds: true,
   },

@@ -20,7 +20,7 @@ const cachedTrendingTvSeries = unstable_cache(
     const items = await fetchTrendingTvSeries();
     return items;
   },
-  ['trending-tv-series'],
+  ['trending'],
   {
     revalidate: 28800, // 8 hours
   },

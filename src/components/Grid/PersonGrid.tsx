@@ -21,7 +21,7 @@ export default async function PersonGrid({
           <h3 className="mb-6 text-2xl font-medium lg:text-3xl">Upcoming</h3>
           <Grid>
             {upcoming.map((item) => (
-              <Poster key={item.id} item={item} />
+              <Poster key={item.id} item={item} prefetch={null} />
             ))}
           </Grid>
         </div>
@@ -31,7 +31,7 @@ export default async function PersonGrid({
           <h3 className="mb-6 text-2xl font-medium lg:text-3xl">Previous</h3>
           <Grid>
             {previous.map((item) => (
-              <Poster key={item.id} item={item} />
+              <Poster key={item.id} item={item} prefetch={null} />
             ))}
           </Grid>
         </div>

@@ -3,12 +3,6 @@ import { type NextConfig } from 'next';
 import getBaseUrl from './src/utils/getBaseUrl';
 
 const nextConfig = {
-  experimental: {
-    staleTimes: {
-      static: 300,
-      dynamic: 0,
-    },
-  },
   output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true,

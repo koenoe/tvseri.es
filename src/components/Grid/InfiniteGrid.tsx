@@ -83,7 +83,7 @@ function InfiniteGrid({
     <InfiniteScroll hasMoreData={!!nextPageOrCursor} loadMore={handleLoadMore}>
       <Grid>
         {uniqueItems.map((item) => (
-          <Poster key={item.id} item={item} />
+          <Poster key={item.id} item={item} prefetch={null} />
         ))}
       </Grid>
     </InfiniteScroll>

@@ -75,9 +75,14 @@ export default async function ActionButtons({
           id: tvSeries.id,
         });
       }
+
       // Note: we still save the watchlist and favorites to TMDb
       // in case tvseri.es ever stops users will still have their data
-      if (session.tmdbSessionId && user.tmdbAccountId) {
+      if (
+        process.env.NODE_ENV === 'production' &&
+        session.tmdbSessionId &&
+        user.tmdbAccountId
+      ) {
         await addToOrRemoveFromWatchlist({
           id,
           accountId: user.tmdbAccountId,
@@ -96,7 +101,11 @@ export default async function ActionButtons({
       }
       // Note: we still save the watchlist and favorites to TMDb
       // in case tvseri.es ever stops users will still have their data
-      if (session.tmdbSessionId && user.tmdbAccountId) {
+      if (
+        process.env.NODE_ENV === 'production' &&
+        session.tmdbSessionId &&
+        user.tmdbAccountId
+      ) {
         await addToOrRemoveFromFavorites({
           id,
           accountId: user.tmdbAccountId,

@@ -85,8 +85,7 @@ export default function Page({
       <>
         <BackgroundGlobal variant={backgroundVariant} color={backgroundColor} />
         <main
-          // pt-[] is the height of the header
-          className="grow pb-20 pt-[6rem] transition-colors duration-500 md:pt-[8rem]"
+          className="grow scroll-mt-[6rem] pb-20 pt-[6rem] transition-colors duration-500 md:scroll-mt-[8rem] md:pt-[8rem]"
           style={{
             backgroundColor,
           }}

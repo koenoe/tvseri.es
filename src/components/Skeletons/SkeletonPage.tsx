@@ -4,11 +4,8 @@ export default function SkeletonPage({
   children: React.ReactNode;
 }>) {
   return (
-    <main
-      // pt-[] is the height of the header
-      className="grow pb-20 pt-[6rem] subpixel-antialiased md:pt-[8rem]"
-    >
-      {children}
+    <main className="grow scroll-mt-[6rem] pb-20 pt-[6rem] md:scroll-mt-[8rem] md:pt-[8rem]">
+      <div className="relative z-10">{children}</div>
     </main>
   );
 }

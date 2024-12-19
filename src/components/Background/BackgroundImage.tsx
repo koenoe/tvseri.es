@@ -36,7 +36,10 @@ export default function BackgroundImage({
   return (
     <img
       {...rest}
-      className={cx('h-full w-full object-cover object-top', className)}
+      className={cx(
+        'h-full w-full transform-gpu object-cover object-top',
+        className,
+      )}
       decoding="async"
       alt=""
       draggable={false}

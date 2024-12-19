@@ -55,20 +55,20 @@ function BackgroundBase({
       )}
       {context === 'page' && (
         <div
-          className="absolute inset-0 opacity-70"
+          className="absolute inset-0 transform-gpu opacity-70"
           style={{
             backgroundImage: `linear-gradient(270deg, rgba(${rgbString}, 0) 0%, rgba(${rgbString}, 0.9) 60%, rgba(${rgbString}, 1) 100%)`,
           }}
         />
       )}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 transform-gpu"
         style={{
           backgroundImage: `radial-gradient(rgba(${rgbString}, 0) 0%, rgba(${rgbString}, 1) 100%)`,
         }}
       />
       <div
-        className="absolute bottom-0 left-0 h-1/5 w-full"
+        className="absolute bottom-0 left-0 h-1/5 w-full transform-gpu"
         style={{
           backgroundImage: `linear-gradient(to top, ${color}, transparent)`,
           ...(context === 'page' && {

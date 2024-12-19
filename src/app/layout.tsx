@@ -44,22 +44,20 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cx(
-          'overflow-x-hidden overscroll-y-none bg-neutral-900 text-white subpixel-antialiased',
+          'flex min-h-screen select-none flex-col overflow-x-hidden overscroll-y-none bg-neutral-900 text-white subpixel-antialiased',
           inter.className,
         )}
       >
         <EnsureHistoryKey />
         <ScrollbarDetection />
+
         <Header />
 
-        <div className="flex min-h-screen select-none flex-col">
-          <WatchedStoreProvider>{children}</WatchedStoreProvider>
+        <WatchedStoreProvider>{children}</WatchedStoreProvider>
 
-          <Suspense fallback={<div className="h-[12rem]" />}>
-            <Footer />
-          </Suspense>
-        </div>
-
+        <Suspense>
+          <Footer />
+        </Suspense>
         <div id="modal-root" />
       </body>
     </html>

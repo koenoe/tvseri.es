@@ -28,7 +28,6 @@ import {
   type TmdbTvSeriesSeason,
   type TmdbSearchTvSeries,
   type TmdbAccountDetails,
-  type TmdbFavorites,
   type TmdbWatchProviders,
   type TmdbKeywords,
   type TmdbCountries,
@@ -230,36 +229,6 @@ export async function addToOrRemoveFromFavorites({
       favorite: value,
     }),
   });
-}
-
-export async function fetchRecommendedTvSeries({
-  accountObjectId,
-  accessToken,
-  page = 1,
-}: Readonly<{
-  accountObjectId: string;
-  accessToken: string;
-  page?: number;
-}>) {
-  const response = (await tmdbFetch(
-    `/4/account/${accountObjectId}/tv/recommendations?page=${page}`,
-    {
-      cache: 'no-store',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    },
-  )) as TmdbFavorites; // TODO: sort out type, but it's the same as `favorites/watchlist`
-
-  const items = (response.results ?? []).map((series) => {
-    return normalizeTvSeries(series as TmdbTvSeries);
-  });
-
-  return {
-    items,
-    totalNumberOfPages: response.total_pages,
-    totalNumberOfItems: response.total_results,
-  };
 }
 
 export async function fetchTvSeries(
@@ -826,7 +795,11 @@ export async function searchPerson(query: string) {
 }
 
 export async function fetchPerson(id: number | string) {
-  const person = (await tmdbFetch(`/3/person/${id}`)) as TmdbPerson;
+  const person = (await tmdbFetch(`/3/person/${id}`, {
+    next: {
+      revalidate: 86400, // 1 day
+    },
+  })) as TmdbPerson;
 
   return {
     id: person.id,

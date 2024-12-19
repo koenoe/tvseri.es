@@ -59,14 +59,12 @@ type PosterProps = {
   item: ListItem;
   mediaType?: 'tv' | 'movie';
   priority?: boolean;
-  prefetch?: boolean | null;
 };
 
 function Poster({
   className,
   item,
   mediaType = 'tv',
-  prefetch = true,
   priority,
   size,
 }: Readonly<PosterProps> & PosterVariantProps) {
@@ -111,7 +109,6 @@ function Poster({
       whileHover={{ scale: 1.075 }}
       animate={{ scale: 1 }}
       layout
-      prefetch={prefetch}
     >
       {poster()}
     </MotionLink>

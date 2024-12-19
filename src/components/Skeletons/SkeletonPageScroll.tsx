@@ -4,7 +4,8 @@ import { useEffect } from 'react';
 
 export default function SkeletonPageScroll() {
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const htmlElement = document.documentElement;
+    htmlElement.scrollTop = 0;
   }, []);
 
   return null;

@@ -21,7 +21,7 @@ import AddTvSeriesToStoreContainer from '@/components/Watched/AddTvSeriesToStore
 import ValidateWatchedStatus from '@/components/Watched/ValidateWatchedStatus';
 import WatchedProgress from '@/components/Watched/WatchedProgress';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
-import cachedTvSeries from '@/lib/cachedTvSeries';
+import { cachedTvSeries } from '@/lib/cached';
 import getBaseUrl from '@/utils/getBaseUrl';
 
 type Props = Readonly<{

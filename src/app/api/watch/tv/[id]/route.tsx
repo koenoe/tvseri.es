@@ -1,6 +1,6 @@
 import { cookies, headers } from 'next/headers';
 
-import cachedTvSeries from '@/lib/cachedTvSeries';
+import { cachedTvSeries } from '@/lib/cached';
 import { findSession } from '@/lib/db/session';
 import { findUser } from '@/lib/db/user';
 import {

@@ -56,7 +56,7 @@ export default function Page({
   const background = () => {
     if (backgroundContext === 'blur') {
       return (
-        <div className="pointer-events-none absolute inset-0 h-[50vh] w-screen opacity-50 blur-[75px] grayscale-[100%]">
+        <div className="pointer-events-none absolute inset-0 h-[50vh] w-screen transform-gpu opacity-50 blur-[75px] grayscale-[100%]">
           <BackgroundImage
             src={backgroundImage}
             className="object-cover object-top opacity-50"

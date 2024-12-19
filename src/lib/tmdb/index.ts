@@ -791,11 +791,7 @@ export async function searchPerson(query: string) {
 }
 
 export async function fetchPerson(id: number | string) {
-  const person = (await tmdbFetch(`/3/person/${id}`, {
-    next: {
-      revalidate: 86400, // 1 day
-    },
-  })) as TmdbPerson;
+  const person = (await tmdbFetch(`/3/person/${id}`)) as TmdbPerson;
 
   return {
     id: person.id,

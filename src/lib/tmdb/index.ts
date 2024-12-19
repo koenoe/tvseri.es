@@ -345,11 +345,11 @@ export async function fetchTvSeriesContentRating(
     `/3/tv/${id}/content_ratings`,
   )) as TmdbTvSeriesContentRatings;
 
-  const contentRating = contentRatings.results?.find(
-    (rating) => rating.iso_3166_1 === region,
-  )?.rating;
+  const contentRating =
+    contentRatings.results?.find((rating) => rating.iso_3166_1 === region)
+      ?.rating ?? null;
 
-  await setCacheItem<string | undefined>(cacheKey, contentRating, {
+  await setCacheItem<string | null>(cacheKey, contentRating, {
     ttl: 86400, // 1 day
   });
 

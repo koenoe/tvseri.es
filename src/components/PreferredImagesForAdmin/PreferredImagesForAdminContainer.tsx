@@ -1,6 +1,6 @@
-import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 
+import { deleteCacheItem } from '@/lib/db/cache';
 import {
   type PreferredImages,
   putPreferredImages,
@@ -22,7 +22,7 @@ async function storePreferredImages(
 
   await Promise.all([
     putPreferredImages(id, preferredImages),
-    revalidateTag(`tv:${id}`),
+    deleteCacheItem(`tv:${id}`),
   ]);
 }
 

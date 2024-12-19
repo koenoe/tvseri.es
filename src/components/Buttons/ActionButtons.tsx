@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 
-import cachedTvSeries from '@/lib/cachedTvSeries';
+import { cachedTvSeries } from '@/lib/cached';
 import {
   addToFavorites,
   addToWatchlist,

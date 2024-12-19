@@ -1,4 +1,4 @@
-// import SkeletonPageScroll from './SkeletonPageScroll';
+import SkeletonPageScroll from './SkeletonPageScroll';
 
 export default function SkeletonPage({
   children,
@@ -7,7 +7,7 @@ export default function SkeletonPage({
 }>) {
   return (
     <>
-      {/* <SkeletonPageScroll /> */}
+      <SkeletonPageScroll />
       <main className="grow scroll-mt-[6rem] pb-20 pt-[6rem] transition-colors duration-500 md:scroll-mt-[8rem] md:pt-[8rem]">
         {children}
       </main>

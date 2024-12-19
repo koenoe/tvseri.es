@@ -83,15 +83,6 @@ export default function Page({
   const content = () => {
     return (
       <>
-        {/*
-            https://github.com/vercel/next.js/discussions/64435
-            The default scrolling behavior of <Link> in Next.js is to maintain scroll position, similar to how browsers handle back and forwards navigation.
-            When you navigate to a new Page, scroll position will stay the same as long as the Page is visible in the viewport.
-            However, if the Page is not visible in the viewport, Next.js will scroll to the top of the first Page element.
-         */}
-        <div className="h-0 text-transparent" aria-hidden="true">
-          scrollfix
-        </div>
         <BackgroundGlobal variant={backgroundVariant} color={backgroundColor} />
         <main
           // pt-[] is the height of the header

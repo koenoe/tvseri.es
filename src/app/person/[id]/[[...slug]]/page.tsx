@@ -12,9 +12,8 @@ import PersonGrid from '@/components/Grid/PersonGrid';
 import Page from '@/components/Page/Page';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
 import Poster from '@/components/Tiles/Poster';
-import { cachedPerson } from '@/lib/cached';
 import detectDominantColorFromImageWithCache from '@/lib/detectDominantColorFromImage';
-import { fetchPersonKnownFor } from '@/lib/tmdb';
+import { fetchPerson, fetchPersonKnownFor } from '@/lib/tmdb';
 import { type Movie } from '@/types/movie';
 import { type Person } from '@/types/person';
 import { type TvSeries } from '@/types/tv-series';
@@ -27,6 +26,19 @@ import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
+
+const cachedPerson = cache(async (id: string | number) =>
+  unstable_cache(
+    async () => {
+      const items = await fetchPerson(id);
+      return items;
+    },
+    [`person:${id}`],
+    {
+      revalidate: 86400, // 1 day
+    },
+  )(),
+);
 
 const cachedPersonKnownFor = cache(async (person: Person) =>
   unstable_cache(

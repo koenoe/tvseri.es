@@ -3,6 +3,7 @@ import { type NextConfig } from 'next';
 import getBaseUrl from './src/utils/getBaseUrl';
 
 const nextConfig = {
+  output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true,
   },

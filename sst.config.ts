@@ -18,8 +18,7 @@ export default $config({
     };
   },
   async run() {
-    const { cache, lists, preferredImages, sessions, users, watched } =
-      await import('./infra/dynamo');
+    const dynamo = await import('./infra/dynamo');
 
     const architecture = 'arm64';
 
@@ -64,13 +63,13 @@ export default $config({
         staticEtag: true,
       },
       link: [
-        cache,
         dominantColor,
-        lists,
-        preferredImages,
-        sessions,
-        users,
-        watched,
+        dynamo.cache,
+        dynamo.lists,
+        dynamo.preferredImages,
+        dynamo.sessions,
+        dynamo.users,
+        dynamo.watched,
       ],
       server: {
         architecture,

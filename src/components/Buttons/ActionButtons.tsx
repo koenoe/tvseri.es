@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 
+import { cachedTvSeries } from '@/lib/cached';
 import {
   addToFavorites,
   addToWatchlist,
@@ -13,7 +14,6 @@ import { findUser } from '@/lib/db/user';
 import {
   addToOrRemoveFromWatchlist,
   addToOrRemoveFromFavorites,
-  fetchTvSeries,
 } from '@/lib/tmdb';
 import { decryptToken } from '@/lib/token';
 import { type TvSeries } from '@/types/tv-series';
@@ -27,7 +27,7 @@ export default async function ActionButtons({
 }: Readonly<{
   id: number | string;
 }>) {
-  const tvSeries = (await fetchTvSeries(id)) as TvSeries;
+  const tvSeries = (await cachedTvSeries(id)) as TvSeries;
   const shouldShowWatchButton = new Date(tvSeries.firstAirDate) <= new Date();
 
   async function addToOrRemoveAction(
@@ -75,9 +75,14 @@ export default async function ActionButtons({
           id: tvSeries.id,
         });
       }
+
       // Note: we still save the watchlist and favorites to TMDb
       // in case tvseri.es ever stops users will still have their data
-      if (session.tmdbSessionId && user.tmdbAccountId) {
+      if (
+        process.env.NODE_ENV === 'production' &&
+        session.tmdbSessionId &&
+        user.tmdbAccountId
+      ) {
         await addToOrRemoveFromWatchlist({
           id,
           accountId: user.tmdbAccountId,
@@ -96,7 +101,11 @@ export default async function ActionButtons({
       }
       // Note: we still save the watchlist and favorites to TMDb
       // in case tvseri.es ever stops users will still have their data
-      if (session.tmdbSessionId && user.tmdbAccountId) {
+      if (
+        process.env.NODE_ENV === 'production' &&
+        session.tmdbSessionId &&
+        user.tmdbAccountId
+      ) {
         await addToOrRemoveFromFavorites({
           id,
           accountId: user.tmdbAccountId,

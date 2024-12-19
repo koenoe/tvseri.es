@@ -50,11 +50,8 @@ export default function RootLayout({
       >
         <EnsureHistoryKey />
         <ScrollbarDetection />
-
         <Header />
-
         <WatchedStoreProvider>{children}</WatchedStoreProvider>
-
         <Suspense>
           <Footer />
         </Suspense>

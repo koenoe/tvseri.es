@@ -1,4 +1,4 @@
-import { cache, Suspense } from 'react';
+import { Suspense } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -21,18 +21,12 @@ import AddTvSeriesToStoreContainer from '@/components/Watched/AddTvSeriesToStore
 import ValidateWatchedStatus from '@/components/Watched/ValidateWatchedStatus';
 import WatchedProgress from '@/components/Watched/WatchedProgress';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
-import { fetchTvSeries } from '@/lib/tmdb';
+import { cachedTvSeries } from '@/lib/cached';
 import getBaseUrl from '@/utils/getBaseUrl';
 
 type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
-
-const cachedTvSeries = cache(async (id: string) =>
-  fetchTvSeries(id, {
-    includeImages: true,
-  }),
-);
 
 export async function generateMetadata({ params: paramsFromProps }: Props) {
   const params = await paramsFromProps;

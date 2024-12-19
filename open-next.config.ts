@@ -1,7 +1,4 @@
 const config = {
-  dangerous: {
-    enableCacheInterception: true,
-  },
   default: {
     override: {
       incrementalCache: 's3-lite',

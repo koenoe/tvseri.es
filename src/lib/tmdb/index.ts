@@ -235,11 +235,7 @@ export async function fetchTvSeries(
   id: number | string,
   options: Readonly<{ includeImages?: boolean }> = { includeImages: false },
 ): Promise<TvSeries | undefined> {
-  const series = (await tmdbFetch(`/3/tv/${id}`, {
-    next: {
-      revalidate: 86400, // 1 day
-    },
-  })) as TmdbTvSeries;
+  const series = (await tmdbFetch(`/3/tv/${id}`)) as TmdbTvSeries;
 
   if (!series) {
     return undefined;
@@ -795,11 +791,7 @@ export async function searchPerson(query: string) {
 }
 
 export async function fetchPerson(id: number | string) {
-  const person = (await tmdbFetch(`/3/person/${id}`, {
-    next: {
-      revalidate: 86400, // 1 day
-    },
-  })) as TmdbPerson;
+  const person = (await tmdbFetch(`/3/person/${id}`)) as TmdbPerson;
 
   return {
     id: person.id,

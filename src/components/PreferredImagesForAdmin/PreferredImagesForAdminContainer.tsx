@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 
+import { deleteCacheItem } from '@/lib/db/cache';
 import {
   type PreferredImages,
   putPreferredImages,
@@ -19,7 +20,10 @@ async function storePreferredImages(
 ) {
   'use server';
 
-  await putPreferredImages(id, preferredImages);
+  await Promise.all([
+    putPreferredImages(id, preferredImages),
+    deleteCacheItem(`tv:${id}`),
+  ]);
 }
 
 async function getDominantColor({

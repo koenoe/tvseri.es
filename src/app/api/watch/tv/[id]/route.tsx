@@ -1,5 +1,6 @@
 import { cookies, headers } from 'next/headers';
 
+import { cachedTvSeries } from '@/lib/cached';
 import { findSession } from '@/lib/db/session';
 import { findUser } from '@/lib/db/user';
 import {
@@ -10,11 +11,7 @@ import {
   unmarkTvSeriesWatched,
   unmarkWatched,
 } from '@/lib/db/watched';
-import {
-  fetchTvSeries,
-  fetchTvSeriesEpisode,
-  fetchTvSeriesWatchProvider,
-} from '@/lib/tmdb';
+import { fetchTvSeriesEpisode, fetchTvSeriesWatchProvider } from '@/lib/tmdb';
 import { decryptToken } from '@/lib/token';
 
 type BodyPayload = Readonly<{
@@ -33,7 +30,7 @@ export async function POST(
     return Response.json({ error: 'No payload found' }, { status: 400 });
   }
 
-  const tvSeries = await fetchTvSeries(id);
+  const tvSeries = await cachedTvSeries(id);
   if (
     !tvSeries ||
     !tvSeries.firstAirDate ||

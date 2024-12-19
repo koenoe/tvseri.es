@@ -88,137 +88,136 @@ export default async function TvSeriesDetailsPage({
   }
 
   return (
-    <>
+    <Page
+      backgroundColor={tvSeries.backdropColor}
+      backgroundImage={tvSeries.backdropImage}
+      backgroundVariant="dynamic"
+      backgroundContext="page"
+      usePersistentStore={false}
+    >
       <Suspense fallback={null}>
         <AddTvSeriesToStoreContainer tvSeries={tvSeries} />
         <ValidateWatchedStatus tvSeries={tvSeries} />
       </Suspense>
-      <Page
-        backgroundColor={tvSeries.backdropColor}
-        backgroundImage={tvSeries.backdropImage}
-        backgroundVariant="dynamic"
-        backgroundContext="page"
-        usePersistentStore={false}
-      >
-        <div className="container">
-          <div className="relative flex h-[calc(85vh-16rem)] items-end md:h-[calc(65vh-8rem)]">
-            <div className="w-full xl:w-4/5 2xl:w-3/5">
-              {tvSeries.titleTreatmentImage ? (
-                <h1 className="relative mb-6 h-28 w-full md:h-40 md:w-[500px]">
-                  <Image
-                    id="title-treatment"
-                    className="max-w-[500px] object-contain object-bottom md:object-left-bottom"
-                    src={tvSeries.titleTreatmentImage}
-                    alt=""
-                    priority
-                    fill
-                    draggable={false}
-                    unoptimized
-                  />
-                  <span className="hidden">{tvSeries.title}</span>
-                </h1>
-              ) : (
-                <h1 className="relative mb-6 w-full text-center text-3xl font-bold !leading-tight md:w-3/5 md:text-left md:text-4xl lg:text-5xl xl:text-6xl">
-                  {tvSeries.title}
-                </h1>
-              )}
+      <div className="container">
+        <div className="relative flex h-[calc(85vh-16rem)] items-end md:h-[calc(65vh-8rem)]">
+          <div className="w-full xl:w-4/5 2xl:w-3/5">
+            {tvSeries.titleTreatmentImage ? (
+              <h1 className="relative mb-6 h-28 w-full md:h-40 md:w-[500px]">
+                <Image
+                  id="title-treatment"
+                  className="max-w-[500px] object-contain object-bottom md:object-left-bottom"
+                  src={tvSeries.titleTreatmentImage}
+                  alt=""
+                  priority
+                  fill
+                  draggable={false}
+                  unoptimized
+                />
+                <span className="hidden">{tvSeries.title}</span>
+              </h1>
+            ) : (
+              <h1 className="relative mb-6 w-full text-center text-3xl font-bold !leading-tight md:w-3/5 md:text-left md:text-4xl lg:text-5xl xl:text-6xl">
+                {tvSeries.title}
+              </h1>
+            )}
 
-              <div className="mb-4 flex w-full gap-4 md:gap-12">
-                <div className="flex w-full items-center gap-1 whitespace-nowrap text-xs md:gap-2 md:text-[0.8rem]">
-                  <div className="opacity-60">{tvSeries.releaseYear}</div>
-                  <div className="opacity-60 before:mr-1 before:content-['·'] md:before:mr-2">
-                    {tvSeries.numberOfSeasons}{' '}
-                    {tvSeries.numberOfSeasons === 1 ? 'Season' : 'Seasons'}
-                  </div>
-                  {tvSeries.genres.length > 0 && (
-                    <>
-                      <div className="hidden opacity-60 before:mr-1 before:content-['·'] md:block md:before:mr-2">
-                        {tvSeries.genres.map((genre, index) => (
-                          <Link
-                            key={genre.id}
-                            href={`/discover?with_genres=${genre.id}`}
-                            className="hover:underline"
-                          >
-                            {genre.name}
-                            {index < tvSeries.genres.length - 1 ? ', ' : ''}
-                          </Link>
-                        ))}
-                      </div>
-                      <div className="opacity-60 before:mr-1 before:content-['·'] md:hidden md:before:mr-2">
+            <div className="mb-4 flex w-full gap-4 md:gap-12">
+              <div className="flex w-full items-center gap-1 whitespace-nowrap text-xs md:gap-2 md:text-[0.8rem]">
+                <div className="opacity-60">{tvSeries.releaseYear}</div>
+                <div className="opacity-60 before:mr-1 before:content-['·'] md:before:mr-2">
+                  {tvSeries.numberOfSeasons}{' '}
+                  {tvSeries.numberOfSeasons === 1 ? 'Season' : 'Seasons'}
+                </div>
+                {tvSeries.genres.length > 0 && (
+                  <>
+                    <div className="hidden opacity-60 before:mr-1 before:content-['·'] md:block md:before:mr-2">
+                      {tvSeries.genres.map((genre, index) => (
                         <Link
-                          href={`/discover?with_genres=${tvSeries.genres?.[0].id}`}
+                          key={genre.id}
+                          href={`/discover?with_genres=${genre.id}`}
                           className="hover:underline"
                         >
-                          {tvSeries.genres?.[0].name}
+                          {genre.name}
+                          {index < tvSeries.genres.length - 1 ? ', ' : ''}
                         </Link>
-                      </div>
-                    </>
-                  )}
+                      ))}
+                    </div>
+                    <div className="opacity-60 before:mr-1 before:content-['·'] md:hidden md:before:mr-2">
+                      <Link
+                        href={`/discover?with_genres=${tvSeries.genres?.[0].id}`}
+                        className="hover:underline"
+                      >
+                        {tvSeries.genres?.[0].name}
+                      </Link>
+                    </div>
+                  </>
+                )}
 
-                  <div className="ml-auto flex h-7 gap-2 md:ml-10">
-                    <Suspense
-                      fallback={
-                        <div className="flex h-7 min-w-7 animate-pulse rounded-sm bg-white/30" />
-                      }
-                    >
-                      <ContentRating id={tvSeries.id} />
-                    </Suspense>
-                    <Suspense
-                      fallback={
-                        <div className="flex h-7 min-w-7 animate-pulse rounded bg-white/30" />
-                      }
-                    >
-                      <WatchProvider id={tvSeries.id} />
-                    </Suspense>
-                  </div>
+                <div className="ml-auto flex h-7 gap-2 md:ml-10">
+                  <Suspense
+                    fallback={
+                      <div className="flex h-7 min-w-7 animate-pulse rounded-sm bg-white/30" />
+                    }
+                  >
+                    <ContentRating id={tvSeries.id} />
+                  </Suspense>
+                  <Suspense
+                    fallback={
+                      <div className="flex h-7 min-w-7 animate-pulse rounded bg-white/30" />
+                    }
+                  >
+                    <WatchProvider id={tvSeries.id} />
+                  </Suspense>
                 </div>
               </div>
-              <WatchedProgress tvSeries={tvSeries} />
+            </div>
+            <WatchedProgress tvSeries={tvSeries} />
+          </div>
+        </div>
+        <div className="w-full xl:w-4/5 2xl:w-3/5">
+          <ExpandableText className="mb-6">
+            {tvSeries.description}
+          </ExpandableText>
+
+          <div className="mb-6 flex items-center">
+            <Suspense
+              fallback={<SkeletonRating className="mr-auto md:mr-10" />}
+            >
+              <ImdbRating id={tvSeries.id} className="mr-auto md:mr-10" />
+            </Suspense>
+            <div className="flex gap-3">
+              <Suspense
+                fallback={
+                  <>
+                    <SkeletonCircleButton />
+                    <SkeletonCircleButton />
+                    <SkeletonCircleButton />
+                  </>
+                }
+              >
+                <ActionButtons id={tvSeries.id} />
+              </Suspense>
             </div>
           </div>
-          <div className="w-full xl:w-4/5 2xl:w-3/5">
-            <ExpandableText className="mb-6">
-              {tvSeries.description}
-            </ExpandableText>
 
-            <div className="mb-6 flex items-center">
-              <Suspense
-                fallback={<SkeletonRating className="mr-auto md:mr-10" />}
-              >
-                <ImdbRating id={tvSeries.id} className="mr-auto md:mr-10" />
-              </Suspense>
-              <div className="flex gap-3">
-                <Suspense
-                  fallback={
-                    <>
-                      <SkeletonCircleButton />
-                      <SkeletonCircleButton />
-                      <SkeletonCircleButton />
-                    </>
-                  }
-                >
-                  <ActionButtons id={tvSeries.id} />
-                </Suspense>
-              </div>
-            </div>
+          <div className="flex flex-col text-sm font-light">
+            {tvSeries.createdBy.length > 0 && (
+              <p className="flex flex-wrap items-center gap-x-2 font-medium leading-loose">
+                <span className="opacity-60">Created by:</span>
+                {tvSeries.createdBy.map((creator, index) => (
+                  <Link
+                    key={creator.id}
+                    href={`/person/${creator.id}/${creator.slug}`}
+                  >
+                    {creator.name}
+                    {index < tvSeries.createdBy.length - 1 ? ',' : ''}
+                  </Link>
+                ))}
+              </p>
+            )}
 
-            <div className="flex flex-col text-sm font-light">
-              {tvSeries.createdBy.length > 0 && (
-                <p className="flex flex-wrap items-center gap-x-2 font-medium leading-loose">
-                  <span className="opacity-60">Created by:</span>
-                  {tvSeries.createdBy.map((creator, index) => (
-                    <Link
-                      key={creator.id}
-                      href={`/person/${creator.id}/${creator.slug}`}
-                    >
-                      {creator.name}
-                      {index < tvSeries.createdBy.length - 1 ? ',' : ''}
-                    </Link>
-                  ))}
-                </p>
-              )}
-
-              {/* {tvSeries.languages.length > 0 && (
+            {/* {tvSeries.languages.length > 0 && (
               <p className="flex items-center gap-2 font-medium leading-loose">
                 <span className="opacity-60">Spoken languages:</span>
                 {tvSeries.languages
@@ -233,31 +232,30 @@ export default async function TvSeriesDetailsPage({
                 {tvSeries.countries[0].name}
               </p>
             )} */}
-            </div>
           </div>
-
-          <Suspense
-            fallback={
-              <SkeletonAvatars className="my-10 w-full lg:mb-7 lg:mt-14 xl:w-4/5 2xl:w-3/5" />
-            }
-          >
-            <Cast
-              className="my-10 w-full lg:mb-7 lg:mt-14 xl:w-4/5 2xl:w-3/5"
-              id={tvSeries.id}
-            />
-          </Suspense>
         </div>
-        {tvSeries.numberOfEpisodes > 0 && tvSeries.seasons && (
-          <EpisodesList className="mb-10 md:mb-16" item={tvSeries} />
-        )}
-        <Suspense fallback={<SkeletonList />}>
-          <RecommendationsList id={tvSeries.id} />
-        </Suspense>
 
-        <Suspense fallback={null}>
-          <PreferredImagesForAdminContainer tvSeries={tvSeries} />
+        <Suspense
+          fallback={
+            <SkeletonAvatars className="my-10 w-full lg:mb-7 lg:mt-14 xl:w-4/5 2xl:w-3/5" />
+          }
+        >
+          <Cast
+            className="my-10 w-full lg:mb-7 lg:mt-14 xl:w-4/5 2xl:w-3/5"
+            id={tvSeries.id}
+          />
         </Suspense>
-      </Page>
-    </>
+      </div>
+      {tvSeries.numberOfEpisodes > 0 && tvSeries.seasons && (
+        <EpisodesList className="mb-10 md:mb-16" item={tvSeries} />
+      )}
+      <Suspense fallback={<SkeletonList />}>
+        <RecommendationsList id={tvSeries.id} />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <PreferredImagesForAdminContainer tvSeries={tvSeries} />
+      </Suspense>
+    </Page>
   );
 }

@@ -22,7 +22,7 @@ const Noise = () => {
         backgroundImage: `url(${noise.src})`,
         backgroundSize: '30%',
       }}
-    ></div>
+    />
   );
 };
 

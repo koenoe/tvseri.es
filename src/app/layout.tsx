@@ -50,9 +50,9 @@ export default function RootLayout({
       >
         <EnsureHistoryKey />
         <ScrollbarDetection />
+        <Header />
 
         <div className="flex min-h-screen select-none flex-col">
-          <Header />
           <WatchedStoreProvider>{children}</WatchedStoreProvider>
 
           <Suspense fallback={<div className="h-[12rem]" />}>

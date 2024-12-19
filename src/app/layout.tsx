@@ -48,7 +48,6 @@ export default function RootLayout({
           inter.className,
         )}
       >
-        <div />
         <EnsureHistoryKey />
         <ScrollbarDetection />
 

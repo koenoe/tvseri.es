@@ -127,11 +127,11 @@ importers:
         specifier: ^2.12.0
         version: 2.12.0
       sst:
-        specifier: ^3.4.22
-        version: 3.4.22
+        specifier: ^3.4.24
+        version: 3.4.24
       tailwind-scrollbar-hide:
-        specifier: ^1.1.7
-        version: 1.1.7
+        specifier: ^1.3.1
+        version: 1.3.1(tailwindcss@3.4.17)
       tailwindcss:
         specifier: ^3.4.17
         version: 3.4.17
@@ -2620,33 +2620,33 @@ packages:
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
 
-  sst-darwin-arm64@3.4.22:
-    resolution: {integrity: sha512-jl2RltvWy2e65ubiv0O11QDIAx3MorG8gYpzyWkPzWsFyXvrBzdlLS3BF3vpr/JGemMwbu0OkNIrP2/0AtP2ZA==}
+  sst-darwin-arm64@3.4.24:
+    resolution: {integrity: sha512-9tZIurBW0rstTEldqSabl+qw3Err4YmjKq4ZH5qcD9apoSc1jS8jOB1IlZ2OTy9KyZV72i4xBtH7btlRd8TzFA==}
     cpu: [arm64]
     os: [darwin]
 
-  sst-darwin-x64@3.4.22:
-    resolution: {integrity: sha512-/8Z/WAJGKM9IyEVwaZkA/KhxotYLMobiCfB0KRy2AtmXzY7iJUMEnnPL3ekwMefaAlBMoXbEbVHW7gj+/q9pfA==}
+  sst-darwin-x64@3.4.24:
+    resolution: {integrity: sha512-2RFKeoE1h9GFZJNhjjsi0DW4pV8EBJXbX1TjRZ4RVLZFwXoykTC+ZdaY4M7HhdNuIrTJ3wQAyRi7XLNxgIxhTQ==}
     cpu: [x64]
     os: [darwin]
 
-  sst-linux-arm64@3.4.22:
-    resolution: {integrity: sha512-aIj2l0LmgBXF3rwKjcaMa89U5w3GPSnW2ODS5xeAYcmU+VM0u4yKzwylGYIAskZaHB1Gox9aqLkPcip9/4dX8w==}
+  sst-linux-arm64@3.4.24:
+    resolution: {integrity: sha512-ZELYqOVF2bka8s63kYsXCGH1DF7f6EK6YdZy96WqMpHrYdX4TKc0gF1ICt6nFkRGMRW5KO/I8DahxEkAzQa3Bw==}
     cpu: [arm64]
     os: [linux]
 
-  sst-linux-x64@3.4.22:
-    resolution: {integrity: sha512-dS/3xxdvnt/nbkaKTQ8EUIl88SMCvFR+Y3u+wUivzhyM1qtrNlDT/gxEbVL4iAl0fea2wpXCgNEGuN35D7PRuA==}
+  sst-linux-x64@3.4.24:
+    resolution: {integrity: sha512-aF5Qzr2DPWgoOmcv9q43SOJNRFyYQ3T/9qonUV190zulfrDqMgPNl2nE17uOBp337mFryInfwWSMyODaObaQuQ==}
     cpu: [x64]
     os: [linux]
 
-  sst-linux-x86@3.4.22:
-    resolution: {integrity: sha512-tRNuq6TArcr0wytrxRqudLK55vPNMvhNKJkL35rAnj+4wHwO69KyDe/q67K5opL26bbxCYiI3LQhBbVt5S5imA==}
+  sst-linux-x86@3.4.24:
+    resolution: {integrity: sha512-k/DdwhBT42M2JDRTKwBFcJdTb3v1O52a+jLeawbH3NxJsvMJRwv7sEDYxw1GQSGeBMySy+sfHn1VEOnEYmR42A==}
     cpu: [x86]
     os: [linux]
 
-  sst@3.4.22:
-    resolution: {integrity: sha512-EBNeC1pZikmf64WIl8NGP+sJ+YTjA5iOe3lIhPEWJ/Dakfs15QLQLNvn3oQw2JfhHijpN4HMUWaInsRa1YsMtg==}
+  sst@3.4.24:
+    resolution: {integrity: sha512-oWt1zVCSukSynIhdQ3L74RCCDMys+rktnmt8lRvkC+NhNkSSioVDCdffiEkwLyMU5ig+ZucPaNBwGW6hqbv7/w==}
     hasBin: true
     peerDependencies:
       hono: 4.x
@@ -2763,8 +2763,10 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  tailwind-scrollbar-hide@1.1.7:
-    resolution: {integrity: sha512-X324n9OtpTmOMqEgDUEA/RgLrNfBF/jwJdctaPZDzB3mppxJk7TLIDmOreEDm1Bq4R9LSPu4Epf8VSdovNU+iA==}
+  tailwind-scrollbar-hide@1.3.1:
+    resolution: {integrity: sha512-eUAvPTltKnAGHbCBRpOk5S7+UZTkFZgDKmZLZ6jZXXs4V7mRXvwshBjeMwrv3vmiWqm3IGEDFVKzUSm1JuoXKw==}
+    peerDependencies:
+      tailwindcss: '>=3.0.0 || >= 4.0.0 || >= 4.0.0-beta.8 || >= 4.0.0-alpha.20'
 
   tailwindcss@3.4.17:
     resolution: {integrity: sha512-w33E2aCvSDP0tW9RZuNXadXlkHXqFzSkQew/aIa2i/Sj8fThxwovwlXHSPXTbAHwEIhBFXAedUhP2tueAKP8Og==}
@@ -6108,32 +6110,32 @@ snapshots:
 
   sprintf-js@1.0.3: {}
 
-  sst-darwin-arm64@3.4.22:
+  sst-darwin-arm64@3.4.24:
     optional: true
 
-  sst-darwin-x64@3.4.22:
+  sst-darwin-x64@3.4.24:
     optional: true
 
-  sst-linux-arm64@3.4.22:
+  sst-linux-arm64@3.4.24:
     optional: true
 
-  sst-linux-x64@3.4.22:
+  sst-linux-x64@3.4.24:
     optional: true
 
-  sst-linux-x86@3.4.22:
+  sst-linux-x86@3.4.24:
     optional: true
 
-  sst@3.4.22:
+  sst@3.4.24:
     dependencies:
       aws4fetch: 1.0.20
       jose: 5.2.3
       openid-client: 5.6.4
     optionalDependencies:
-      sst-darwin-arm64: 3.4.22
-      sst-darwin-x64: 3.4.22
-      sst-linux-arm64: 3.4.22
-      sst-linux-x64: 3.4.22
-      sst-linux-x86: 3.4.22
+      sst-darwin-arm64: 3.4.24
+      sst-darwin-x64: 3.4.24
+      sst-linux-arm64: 3.4.24
+      sst-linux-x64: 3.4.24
+      sst-linux-x86: 3.4.24
 
   stable-hash@0.0.4: {}
 
@@ -6262,7 +6264,9 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  tailwind-scrollbar-hide@1.1.7: {}
+  tailwind-scrollbar-hide@1.3.1(tailwindcss@3.4.17):
+    dependencies:
+      tailwindcss: 3.4.17
 
   tailwindcss@3.4.17:
     dependencies:

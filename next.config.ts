@@ -3,9 +3,6 @@ import { type NextConfig } from 'next';
 import getBaseUrl from './src/utils/getBaseUrl';
 
 const nextConfig = {
-  experimental: {
-    ppr: true,
-  },
   output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true,

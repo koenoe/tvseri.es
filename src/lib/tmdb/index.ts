@@ -243,7 +243,7 @@ export async function fetchTvSeries(
 
   if (options.includeImages) {
     const images = (await tmdbFetch(
-      `/3/tv/${id}/images?include_image_language=en,null,${series.original_language}`
+      `/3/tv/${id}/images?include_image_language=en,null,${series.original_language}`,
     )) as TmdbTvSeriesImages;
 
     // Note: ewwwww, (ಥ﹏ಥ)

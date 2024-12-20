@@ -1,7 +1,6 @@
-import { cache, Suspense } from 'react';
+import { Suspense } from 'react';
 
 import { cx } from 'class-variance-authority';
-import { unstable_cache } from 'next/cache';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
@@ -9,37 +8,18 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import ExpandableText from '@/components/ExpandableText/ExpandableText';
 import Grid from '@/components/Grid/Grid';
 import PersonGrid from '@/components/Grid/PersonGrid';
+import KnownFor from '@/components/KnownFor/KnownFor';
 import Page from '@/components/Page/Page';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
-import Poster from '@/components/Tiles/Poster';
 import { cachedPerson } from '@/lib/cached';
-import detectDominantColorFromImageWithCache from '@/lib/detectDominantColorFromImage';
-import { fetchPersonKnownFor } from '@/lib/tmdb';
-import { type Movie } from '@/types/movie';
-import { type Person } from '@/types/person';
-import { type TvSeries } from '@/types/tv-series';
 import calculateAge from '@/utils/calculateAge';
 import formatDate from '@/utils/formatDate';
 import getBaseUrl from '@/utils/getBaseUrl';
-import isTvSeries from '@/utils/isTvSeries';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
-
-const cachedPersonKnownFor = cache(async (person: Person) =>
-  unstable_cache(
-    async () => {
-      const items = (await fetchPersonKnownFor(person)) as (TvSeries | Movie)[];
-      return items;
-    },
-    ['person-known-for', String(person.id)],
-    {
-      revalidate: 86400, // 1 day
-    },
-  )(),
-);
 
 export async function generateMetadata({ params: paramsFromProps }: Props) {
   const params = await paramsFromProps;
@@ -100,27 +80,8 @@ export default async function PersonDetailsPage({
     return permanentRedirect(`/person/${params.id}/${person.slug}`);
   }
 
-  const knownForItems = await cachedPersonKnownFor(person);
-  const knownForTvSeries = knownForItems.filter(isTvSeries);
-  const knownForFirstItem =
-    knownForTvSeries.length > 0 ? knownForTvSeries[0] : knownForItems[0];
-  const backdropColor =
-    knownForFirstItem?.backdropImage && knownForFirstItem?.backdropPath
-      ? await detectDominantColorFromImageWithCache(
-          knownForFirstItem?.backdropImage.replace(
-            'w1920_and_h1080_multi_faces',
-            'w780',
-          ),
-          knownForFirstItem?.backdropPath,
-        )
-      : undefined;
-
   return (
-    <Page
-      backgroundContext="blur"
-      backgroundColor={backdropColor}
-      backgroundImage={knownForFirstItem?.backdropImage}
-    >
+    <Page backgroundContext="dots">
       <div className="my-10 md:container md:my-20">
         <div className="grid max-w-screen-xl grid-cols-1 md:grid-cols-3 [&>*]:!h-auto [&>*]:!w-full">
           <div className="mb-10 px-[2rem] md:mb-0 md:px-0">
@@ -195,20 +156,20 @@ export default async function PersonDetailsPage({
                   ))}
               </ExpandableText>
             </div>
-            <h2 className="px-[2rem] text-2xl font-medium md:pl-12 lg:pl-16">
-              Known for
-            </h2>
-            <div className="relative flex w-full flex-nowrap gap-4 overflow-x-scroll pb-6 pe-[2rem] ps-[2rem] pt-6 scrollbar-hide md:pe-12 md:ps-12 lg:gap-6 lg:pe-16 lg:ps-16">
-              {knownForItems.map((item) => (
-                <Poster
-                  key={item.id}
-                  item={item}
-                  size="small"
-                  // TODO: typeguard doesn't work properly, figure out why
-                  mediaType={!('firstAirDate' in item) ? 'movie' : 'tv'}
-                />
-              ))}
-            </div>
+            <Suspense
+              fallback={
+                <>
+                  <div className="mx-[2rem] mb-2 mt-6 h-7 w-2/12 bg-white/20 md:ml-12 lg:ml-16" />
+                  <div className="relative flex w-full flex-nowrap gap-4 overflow-x-scroll px-[2rem] pb-6 pt-6 scrollbar-hide md:px-12 lg:gap-6 lg:px-16">
+                    {[...Array(3)].map((_, index) => (
+                      <SkeletonPoster key={index} size="small" />
+                    ))}
+                  </div>
+                </>
+              }
+            >
+              <KnownFor item={person} />
+            </Suspense>
           </div>
         </div>
       </div>

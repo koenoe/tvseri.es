@@ -253,7 +253,7 @@ export async function fetchTvSeries(
   const normalizedTvSeries = normalizeTvSeries(series);
   const preferredImages = await findPreferredImages(series.id);
 
-  if (preferredImages) {
+  if (preferredImages && preferredImages.backdropImagePath) {
     return {
       ...normalizedTvSeries,
       backdropColor: preferredImages.backdropColor,

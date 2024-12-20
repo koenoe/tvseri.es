@@ -52,10 +52,14 @@ export default function PreferredImagesForAdmin({
   const currentImage = usePageStore((state) => state.backgroundImage);
   const updateBackground = usePageStore((state) => state.setBackground);
   const color = usePageStore((state) => state.backgroundColor);
+  const backdrop = useMemo(
+    () => images?.backdrops?.find((image) => image.url === currentImage),
+    [currentImage, images?.backdrops],
+  );
 
   const [currentBackdrop, setCurrentBackdrop] = useState<Backdrop>({
-    url: currentImage,
-    path: '',
+    url: backdrop?.url ?? currentImage,
+    path: backdrop?.path ?? '',
     color,
   });
   const [currentTitleIndex, setCurrentTitleIndex] = useState(-1);
@@ -291,7 +295,7 @@ export default function PreferredImagesForAdmin({
           startTransition(async () => {
             const currentTitle = images?.titleTreatment[currentTitleIndex];
 
-            if (currentBackdrop) {
+            if (currentBackdrop && currentBackdrop.path) {
               await storePreferredImages(id, {
                 backdropImagePath: currentBackdrop.path,
                 backdropColor: currentBackdrop.color,

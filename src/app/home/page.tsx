@@ -23,6 +23,7 @@ const cachedTrendingTvSeries = unstable_cache(
   ['trending'],
   {
     revalidate: 28800, // 8 hours
+    tags: ['trending'],
   },
 );
 

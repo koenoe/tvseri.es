@@ -6,6 +6,7 @@ const nextConfig = {
   experimental: {
     ppr: true,
   },
+  output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true,
   },

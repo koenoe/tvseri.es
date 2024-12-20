@@ -5,6 +5,8 @@ import { notFound } from 'next/navigation';
 import Page from '@/components/Page/Page';
 import SpotlightBackground from '@/components/Spotlight/SpotlightBackground';
 import SpotlightTitle from '@/components/Spotlight/SpotlightTitle';
+import MostWatchedGenres from '@/components/Stats/MostWatchedGenres';
+import MostWatchedProviders from '@/components/Stats/MostWatchedProviders';
 import WatchedPerWeek from '@/components/WatchedPerWeek';
 import { findUser } from '@/lib/db/user';
 import { fetchTvSeries } from '@/lib/tmdb';
@@ -287,6 +289,10 @@ export default async function StatsByYearPage({ params }: Props) {
           </div>
         </div>
         <WatchedPerWeek />
+        <div className="mt-10 grid grid-cols-1 gap-10 md:mt-20 xl:grid-cols-2">
+          <MostWatchedGenres />
+          <MostWatchedProviders />
+        </div>
       </div>
     </Page>
   );

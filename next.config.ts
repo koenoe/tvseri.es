@@ -4,10 +4,8 @@ import getBaseUrl from './src/utils/getBaseUrl';
 
 const nextConfig = {
   experimental: {
-    dynamicIO: true,
     ppr: true,
   },
-  output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true,
   },

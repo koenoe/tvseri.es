@@ -2,7 +2,14 @@
 
 import * as React from 'react';
 
-import { Bar, BarChart, Tooltip, XAxis, ResponsiveContainer } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  Tooltip,
+  XAxis,
+  ResponsiveContainer,
+  CartesianGrid,
+} from 'recharts';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -34,7 +41,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     }
 
     return (
-      <div className="b w-40 rounded-lg border-0 bg-neutral-900 px-4 py-2 text-xs">
+      <div className="w-40 rounded-lg border-0 bg-neutral-900 px-4 py-2 text-xs">
         <div className="mb-1 font-medium text-white">{weekText}</div>
         <div className="mb-1 text-[0.65rem] text-zinc-500">{dateRange}</div>
         <div className="flex items-center gap-1">
@@ -106,15 +113,24 @@ const chartData = [
   { week: 53, episodes: 11 },
 ];
 
+const BAR_SIZE = 32;
+const BAR_GAP = 4;
+
 export default function WatchedPerWeek() {
   return (
-    <div className="mt-20 h-[200px] w-full">
+    <div className="mt-20 h-[200px] w-full md:h-auto">
       <div className="mb-6 flex items-center gap-x-6">
         <h2 className="text-md lg:text-lg">By week</h2>
         <div className="h-[2px] flex-grow bg-white/10" />
       </div>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={chartData}>
+      <ResponsiveContainer width="100%" height="100%" minHeight={200}>
+        <BarChart data={chartData} barGap={BAR_GAP} barSize={BAR_SIZE}>
+          <CartesianGrid
+            vertical={false}
+            horizontal={true}
+            stroke="rgba(255,255,255,0.1)"
+            strokeDasharray="3 3"
+          />
           <XAxis
             dataKey="week"
             tickLine={false}
@@ -122,7 +138,7 @@ export default function WatchedPerWeek() {
             ticks={[1, 53]}
             tickFormatter={(value) => (value === 1 ? 'Jan' : 'Dec')}
             tickMargin={10}
-            className="text-[0.65rem] text-white/60 md:text-sm"
+            className="text-[0.55rem] text-white/60 md:text-[0.65rem] xl:text-sm"
             strokeWidth={0}
           />
           <Tooltip

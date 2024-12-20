@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 import {
   BarChart,
   Bar,
@@ -7,25 +9,27 @@ import {
   YAxis,
   ResponsiveContainer,
   Tooltip,
+  LabelList,
+  Cell,
+  CartesianGrid,
 } from 'recharts';
 
 const data = [
-  { genre: 'Drama', count: 156, fill: '#00B8D4' },
-  { genre: 'Action & Adventure', count: 142, fill: '#00B8D4' },
-  { genre: 'Comedy', count: 128, fill: '#00B8D4' },
-  { genre: 'Crime', count: 112, fill: '#00B8D4' },
-  { genre: 'Sci-Fi & Fantasy', count: 98, fill: '#00B8D4' },
-  { genre: 'Mystery', count: 86, fill: '#00B8D4' },
-  { genre: 'Documentary', count: 74, fill: '#00B8D4' },
-  { genre: 'Animation', count: 68, fill: '#00B8D4' },
-  { genre: 'War & Politics', count: 52, fill: '#00B8D4' },
-  { genre: 'Family', count: 48, fill: '#00B8D4' },
-  { genre: 'Kids', count: 42, fill: '#00B8D4' },
-  { genre: 'Western', count: 38, fill: '#00B8D4' },
+  { genre: 'Drama', count: 156 },
+  { genre: 'Action & Adventure', count: 142 },
+  { genre: 'Comedy', count: 128 },
+  { genre: 'Crime', count: 112 },
+  { genre: 'Sci-Fi & Fantasy', count: 98 },
+  { genre: 'Mystery', count: 86 },
+  { genre: 'Documentary', count: 74 },
+  { genre: 'Animation', count: 68 },
+  { genre: 'War & Politics', count: 52 },
+  { genre: 'Family', count: 48 },
+  { genre: 'Kids', count: 42 },
+  { genre: 'Western', count: 38 },
 ].sort((a, b) => b.count - a.count);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomTooltip = ({ active, payload }: any) => {
+const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
       <div className="w-40 rounded-lg border-0 bg-neutral-900 px-4 py-2 text-xs">
@@ -45,47 +49,81 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-export default function MostWatchedGenres() {
+const BAR_SIZE = 30;
+const BAR_GAP = 6;
+
+const CustomLabel = ({ x, y, value, index, focusBar, height, width }) => {
+  // Calculate vertical center of the bar
+  const centerY = y + height / 2;
+
   return (
-    <div className="mt-20 h-[400px] w-full">
+    <text
+      x={x + 16}
+      y={centerY}
+      fontSize={11}
+      fill={focusBar === index ? '#fff' : '#999'}
+      textAnchor="start"
+      dominantBaseline="middle"
+    >
+      {value}
+    </text>
+  );
+};
+
+export default function MostWatchedGenres() {
+  const [focusBar, setFocusBar] = useState(null);
+
+  return (
+    <div className="relative h-[450px] w-full">
       <div className="mb-6 flex items-center gap-x-6">
-        <h2 className="text-md lg:text-lg">By genre</h2>
+        <h2 className="text-md lg:text-lg">Genres</h2>
         <div className="h-[2px] flex-grow bg-white/10" />
       </div>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} layout="vertical">
+      <ResponsiveContainer width="100%" height="100%" maxHeight={400}>
+        <BarChart
+          margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
+          barSize={BAR_SIZE}
+          barGap={BAR_GAP}
+          data={data}
+          layout="vertical"
+          onMouseMove={(state) => {
+            if (state?.isTooltipActive) {
+              setFocusBar(state.activeTooltipIndex);
+            } else {
+              setFocusBar(null);
+            }
+          }}
+          onMouseLeave={() => setFocusBar(null)}
+        >
+          <CartesianGrid
+            vertical={true}
+            horizontal={false}
+            stroke="rgba(255,255,255,0.1)"
+            strokeDasharray="3 3"
+          />
           <YAxis
+            hide
             dataKey="genre"
             type="category"
             tickLine={false}
             axisLine={false}
-            tick={(props) => {
-              const { x, y, payload } = props;
-              return (
-                <g transform={`translate(${x},${y})`}>
-                  <text
-                    x={-196}
-                    y={0}
-                    className="text-[0.65rem] text-white/40 md:text-sm"
-                    fill="currentColor"
-                    textAnchor="start"
-                    dominantBaseline="middle"
-                    style={{ whiteSpace: 'nowrap' }}
-                  >
-                    {payload.value}
-                  </text>
-                </g>
-              );
-            }}
-            width={200}
           />
-          <XAxis type="number" hide />
-          <Tooltip
-            content={<CustomTooltip />}
-            cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
-            animationDuration={200}
-          />
-          <Bar dataKey="count" fill="#666666" minPointSize={1} />
+          <XAxis type="number" hide domain={[0, 'dataMax']} tickCount={12} />
+          <Tooltip content={<CustomTooltip />} cursor={false} />
+          <Bar dataKey="count">
+            {data.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={focusBar === index ? '#00B8D4' : '#333333'}
+              />
+            ))}
+            <LabelList
+              dataKey="genre"
+              content={(props) => (
+                <CustomLabel {...props} focusBar={focusBar} />
+              )}
+            />
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     </div>

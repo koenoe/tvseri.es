@@ -9,7 +9,6 @@ import { PageStoreProvider } from './PageStoreProvider';
 import Background, { type BackgroundContext } from '../Background/Background';
 import { type BackgroundVariant } from '../Background/Background';
 import BackgroundGlobal from '../Background/BackgroundGlobal';
-import BackgroundImage from '../Background/BackgroundImage';
 
 export type Props = Readonly<{
   backgroundColor?: string;
@@ -54,17 +53,6 @@ export default function Page({
   usePersistentStore,
 }: Props) {
   const background = () => {
-    if (backgroundContext === 'blur') {
-      return (
-        <div className="pointer-events-none absolute inset-0 h-[50vh] w-screen transform-gpu opacity-50 blur-[75px] grayscale-[100%]">
-          <BackgroundImage
-            src={backgroundImage}
-            className="object-cover object-top opacity-50"
-          />
-        </div>
-      );
-    }
-
     if (backgroundContext === 'dots' || backgroundContext === 'grid') {
       return (
         <div className={dotsAndGridStyles({ context: backgroundContext })} />
@@ -80,6 +68,7 @@ export default function Page({
       />
     );
   };
+
   const content = () => {
     return (
       <>

@@ -244,11 +244,6 @@ export async function fetchTvSeries(
   if (options.includeImages) {
     const images = (await tmdbFetch(
       `/3/tv/${id}/images?include_image_language=en,null,${series.original_language}`,
-      {
-        next: {
-          revalidate: 86400, // 1 day
-        },
-      },
     )) as TmdbTvSeriesImages;
 
     // Note: ewwwww, (ಥ﹏ಥ)
@@ -258,7 +253,7 @@ export async function fetchTvSeries(
   const normalizedTvSeries = normalizeTvSeries(series);
   const preferredImages = await findPreferredImages(series.id);
 
-  if (preferredImages) {
+  if (preferredImages && preferredImages.backdropImagePath) {
     return {
       ...normalizedTvSeries,
       backdropColor: preferredImages.backdropColor,

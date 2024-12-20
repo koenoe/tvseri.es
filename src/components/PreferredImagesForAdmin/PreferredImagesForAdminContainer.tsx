@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import { revalidateTag } from 'next/cache';
 
 import { deleteCacheItem } from '@/lib/db/cache';
 import {
@@ -19,6 +20,8 @@ async function storePreferredImages(
   preferredImages: PreferredImages,
 ) {
   'use server';
+
+  revalidateTag('trending');
 
   await Promise.all([
     putPreferredImages(id, preferredImages),

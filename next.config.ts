@@ -3,8 +3,8 @@ import { type NextConfig } from 'next';
 import getBaseUrl from './src/utils/getBaseUrl';
 
 const nextConfig = {
-  compress: false,
   experimental: {
+    dynamicIO: true,
     ppr: true,
   },
   output: 'standalone',

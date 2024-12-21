@@ -53,7 +53,7 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 const BAR_SIZE = 40;
-const BAR_GAP = 6;
+const BAR_GAP = 4;
 
 const CustomLabel = ({ x, y, value, index, focusBar, height }: any) => {
   // Calculate vertical center of the bar
@@ -77,12 +77,15 @@ export default function MostWatchedGenres() {
   const [focusBar, setFocusBar] = useState(null);
 
   return (
-    <div className="relative h-[600px] w-full">
+    <div className="relative w-full">
       <div className="mb-6 flex items-center gap-x-6">
         <h2 className="text-md lg:text-lg">Genres</h2>
         <div className="h-[2px] flex-grow bg-white/10" />
       </div>
-      <ResponsiveContainer width="100%" height="100%" maxHeight={550}>
+      <ResponsiveContainer
+        width="100%"
+        height={data.length * (BAR_SIZE + BAR_GAP)}
+      >
         <BarChart
           margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
           barSize={BAR_SIZE}

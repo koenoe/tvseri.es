@@ -51,9 +51,7 @@ export async function GET(request: NextRequest) {
     request.headers.get('cloudfront-viewer-city') ||
     request.headers.get('x-open-next-city') ||
     '';
-  const region =
-    request.headers.get('cloudFront-viewer-country-region') ||
-    '';
+  const region = request.headers.get('cloudFront-viewer-country-region') || '';
 
   const sessionId = await createSession({
     userId: user.id,

@@ -82,15 +82,15 @@ const streamingServices = [
   //   logo: 'https://image.tmdb.org/t/p/w92/2aGrp1xw3qhwCYvNGAJZPdjfeeX.jpg',
   //   defaultColor: '#000000',
   // },
-  {
-    name: 'Viaplay',
-    count: 1,
-    logo: 'https://image.tmdb.org/t/p/w92/bnoTnLzz2MAhK3Yc6P9KXe5drIz.jpg',
-    defaultColor: '#E61D2B',
-  },
+  // {
+  //   name: 'Viaplay',
+  //   count: 1,
+  //   logo: 'https://image.tmdb.org/t/p/w92/bnoTnLzz2MAhK3Yc6P9KXe5drIz.jpg',
+  //   defaultColor: '#E61D2B',
+  // },
   {
     name: 'Hulu',
-    count: 52,
+    count: 1,
     logo: 'https://image.tmdb.org/t/p/w92/bxBlRPEPpMVDc4jMhSrTf2339DW.jpg',
     defaultColor: '#1CE783',
   },

@@ -26,7 +26,9 @@ const data = [
   { genre: 'War & Politics', count: 52 },
   { genre: 'Family', count: 0 },
   { genre: 'Kids', count: 0 },
-  { genre: 'Western', count: 38 },
+  { genre: 'Western', count: 28 },
+  { genre: 'Reality', count: 18 },
+  { genre: 'Soap', count: 38 },
 ].sort((a, b) => b.count - a.count);
 
 const CustomTooltip = ({ active, payload }) => {
@@ -49,7 +51,7 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
-const BAR_SIZE = 30;
+const BAR_SIZE = 40;
 const BAR_GAP = 6;
 
 const CustomLabel = ({ x, y, value, index, focusBar, height, width }) => {
@@ -74,12 +76,12 @@ export default function MostWatchedGenres() {
   const [focusBar, setFocusBar] = useState(null);
 
   return (
-    <div className="relative h-[450px] w-full">
+    <div className="relative h-[600px] w-full">
       <div className="mb-6 flex items-center gap-x-6">
         <h2 className="text-md lg:text-lg">Genres</h2>
         <div className="h-[2px] flex-grow bg-white/10" />
       </div>
-      <ResponsiveContainer width="100%" height="100%" maxHeight={400}>
+      <ResponsiveContainer width="100%" height="100%" maxHeight={550}>
         <BarChart
           margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
           barSize={BAR_SIZE}

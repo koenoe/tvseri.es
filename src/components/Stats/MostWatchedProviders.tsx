@@ -69,6 +69,36 @@ const streamingServices = [
     logo: 'https://image.tmdb.org/t/p/w92/qN7uDYanT47WI0MmbwOr5HFFot.jpg',
     defaultColor: '#FF0018', // Videoland red
   },
+  {
+    name: 'Sky',
+    count: 62,
+    logo: 'https://image.tmdb.org/t/p/w92/1UrT2H9x6DuQ9ytNhsSCUFtTUwS.jpg',
+    defaultColor: '#0072C9',
+  },
+  {
+    name: 'Peacock',
+    count: 58,
+    logo: 'https://image.tmdb.org/t/p/w92/2aGrp1xw3qhwCYvNGAJZPdjfeeX.jpg',
+    defaultColor: '#000000',
+  },
+  {
+    name: 'Viaplay',
+    count: 46,
+    logo: 'https://image.tmdb.org/t/p/w92/bnoTnLzz2MAhK3Yc6P9KXe5drIz.jpg',
+    defaultColor: '#E61D2B',
+  },
+  {
+    name: 'Hulu',
+    count: 52,
+    logo: 'https://image.tmdb.org/t/p/w92/bxBlRPEPpMVDc4jMhSrTf2339DW.jpg',
+    defaultColor: '#1CE783',
+  },
+  {
+    name: 'Hayu',
+    count: 42,
+    logo: 'https://image.tmdb.org/t/p/w92/jxIBXlxRbCcy7Y4GvOZKszCd0dv.jpg',
+    defaultColor: '#FF0052',
+  },
 ].sort((a, b) => b.count - a.count);
 
 const CustomTooltip = ({ active, payload }) => {
@@ -150,12 +180,12 @@ export default function StreamingServicesChart() {
   const [focusBar, setFocusBar] = useState(null);
 
   return (
-    <div className="relative h-[450px] w-full">
+    <div className="relative h-[600px] w-full">
       <div className="mb-6 flex items-center gap-x-6">
         <h2 className="text-md lg:text-lg">Streaming services</h2>
         <div className="h-[2px] flex-grow bg-white/10" />
       </div>
-      <ResponsiveContainer width="100%" height="100%" maxHeight={400}>
+      <ResponsiveContainer width="100%" height="100%" maxHeight={550}>
         <BarChart
           margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
           barSize={BAR_SIZE}

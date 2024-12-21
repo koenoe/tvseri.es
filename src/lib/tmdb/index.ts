@@ -505,7 +505,7 @@ export async function fetchTrendingTvSeries() {
         series.genre_ids?.length > 0 &&
         series.vote_count > 0 &&
         !series.genre_ids?.some((genre) =>
-          [...GLOBAL_GENRES_TO_IGNORE, 16, 10762].includes(genre),
+          [...GLOBAL_GENRES_TO_IGNORE, 16, 10762, 10764, 10766].includes(genre),
         ),
     )
     .map((series) => series.id)
@@ -612,7 +612,7 @@ export async function fetchApplePlusTvSeries(region = 'US') {
 }
 
 export async function fetchMostAnticipatedTvSeries() {
-  const withoutGenres = [...GLOBAL_GENRES_TO_IGNORE, 16, 10762];
+  const withoutGenres = [...GLOBAL_GENRES_TO_IGNORE, 16, 10762, 10764, 10766];
   const { items } = await fetchDiscoverTvSeries({
     without_genres: withoutGenres.join(','),
     'first_air_date.gte': new Date().toISOString().split('T')[0],
@@ -638,9 +638,7 @@ export async function fetchGenresForTvSeries() {
       },
     })) as TmdbGenresForTvSeries) ?? [];
 
-  return (genresResponse.genres ?? []).filter(
-    (genre) => !GLOBAL_GENRES_TO_IGNORE.includes(genre.id),
-  ) as Genre[];
+  return (genresResponse.genres ?? []) as Genre[];
 }
 
 export async function searchTvSeries(query: string) {

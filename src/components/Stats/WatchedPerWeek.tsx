@@ -114,7 +114,7 @@ const chartData = [
 ];
 
 const BAR_SIZE = 32;
-const BAR_GAP = 4;
+const BAR_GAP = 6;
 
 export default function WatchedPerWeek() {
   return (
@@ -143,10 +143,15 @@ export default function WatchedPerWeek() {
           />
           <Tooltip
             content={<CustomTooltip />}
-            cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
+            cursor={{ fill: 'rgba(255, 255, 255, 0.1)', radius: 2 }}
             animationDuration={200}
           />
-          <Bar dataKey="episodes" fill="#D60073" minPointSize={1} />
+          <Bar
+            dataKey="episodes"
+            fill="#D60073"
+            minPointSize={1}
+            radius={[2, 2, 2, 2]}
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>

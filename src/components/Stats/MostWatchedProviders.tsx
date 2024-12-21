@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState } from 'react';
@@ -101,7 +102,7 @@ const streamingServices = [
   },
 ].sort((a, b) => b.count - a.count);
 
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     const { name, defaultColor } = payload[0].payload;
     return (
@@ -123,7 +124,7 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
-const CustomLabel = (props) => {
+const CustomLabel = (props: any) => {
   const { x, y, value, index, focusBar, height } = props;
   const centerY = y + height / 2;
   const isActive = focusBar === index;
@@ -192,7 +193,7 @@ export default function StreamingServicesChart() {
           barGap={BAR_GAP}
           data={streamingServices}
           layout="vertical"
-          onMouseMove={(state) => {
+          onMouseMove={(state: any) => {
             if (state?.isTooltipActive) {
               setFocusBar(state.activeTooltipIndex);
             } else {
@@ -216,7 +217,7 @@ export default function StreamingServicesChart() {
           />
           <XAxis type="number" hide domain={[0, 'dataMax']} tickCount={12} />
           <Tooltip content={<CustomTooltip />} cursor={false} />
-          <Bar dataKey="count" minPointSize={2}>
+          <Bar dataKey="count" minPointSize={2} radius={[4, 4, 4, 4]}>
             {streamingServices.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}

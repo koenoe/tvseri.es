@@ -223,8 +223,7 @@ export default async function StatsByYearPage({ params }: Props) {
             <span className="text-lg font-semibold md:text-2xl">36</span>
           </div>
         </div>
-
-        <div className="relative mt-14 grid w-full grid-cols-1 gap-10 md:mt-20 xl:grid-cols-2">
+        <div className="relative mt-14 grid w-full grid-cols-1 gap-20 md:mt-20 xl:grid-cols-2 xl:gap-10">
           <div>
             <div className="mb-6 flex items-center gap-x-6">
               <h2 className="text-md lg:text-lg">First watch</h2>
@@ -289,7 +288,7 @@ export default async function StatsByYearPage({ params }: Props) {
           </div>
         </div>
         <WatchedPerWeek />
-        <div className="mt-20 grid grid-cols-1 gap-10 xl:grid-cols-2">
+        <div className="mt-20 grid grid-cols-1 gap-20 xl:grid-cols-2 xl:gap-10">
           <MostWatchedGenres />
           <MostWatchedProviders />
         </div>

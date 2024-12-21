@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState } from 'react';
@@ -31,7 +32,7 @@ const data = [
   { genre: 'Soap', count: 38 },
 ].sort((a, b) => b.count - a.count);
 
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     return (
       <div className="w-40 rounded-lg border-0 bg-neutral-900 px-4 py-2 text-xs">
@@ -54,7 +55,7 @@ const CustomTooltip = ({ active, payload }) => {
 const BAR_SIZE = 40;
 const BAR_GAP = 6;
 
-const CustomLabel = ({ x, y, value, index, focusBar, height, width }) => {
+const CustomLabel = ({ x, y, value, index, focusBar, height }: any) => {
   // Calculate vertical center of the bar
   const centerY = y + height / 2;
 
@@ -88,7 +89,7 @@ export default function MostWatchedGenres() {
           barGap={BAR_GAP}
           data={data}
           layout="vertical"
-          onMouseMove={(state) => {
+          onMouseMove={(state: any) => {
             if (state?.isTooltipActive) {
               setFocusBar(state.activeTooltipIndex);
             } else {
@@ -112,7 +113,7 @@ export default function MostWatchedGenres() {
           />
           <XAxis type="number" hide domain={[0, 'dataMax']} tickCount={12} />
           <Tooltip content={<CustomTooltip />} cursor={false} />
-          <Bar dataKey="count" minPointSize={2}>
+          <Bar dataKey="count" minPointSize={2} radius={[4, 4, 4, 4]}>
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}

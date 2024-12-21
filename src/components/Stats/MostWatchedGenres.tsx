@@ -24,8 +24,8 @@ const data = [
   { genre: 'Documentary', count: 74 },
   { genre: 'Animation', count: 68 },
   { genre: 'War & Politics', count: 52 },
-  { genre: 'Family', count: 48 },
-  { genre: 'Kids', count: 42 },
+  { genre: 'Family', count: 0 },
+  { genre: 'Kids', count: 0 },
   { genre: 'Western', count: 38 },
 ].sort((a, b) => b.count - a.count);
 
@@ -110,7 +110,7 @@ export default function MostWatchedGenres() {
           />
           <XAxis type="number" hide domain={[0, 'dataMax']} tickCount={12} />
           <Tooltip content={<CustomTooltip />} cursor={false} />
-          <Bar dataKey="count">
+          <Bar dataKey="count" minPointSize={2}>
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}

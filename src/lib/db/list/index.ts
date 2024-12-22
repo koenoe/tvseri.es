@@ -196,12 +196,32 @@ export const getListItems = async (
   input: Readonly<{
     userId: string;
     listId: string;
+    startDate?: Date;
+    endDate?: Date;
     options?: PaginationOptions;
   }>,
 ) => {
   const sortBy = input.options?.sortBy ?? 'createdAt';
   const sortDirection = input.options?.sortDirection ?? 'desc';
   const limit = input.options?.limit ?? 20;
+
+  const hasDateRange = input.startDate && input.endDate;
+  const condition = hasDateRange
+    ? {
+        KeyConditionExpression:
+          'gsi2pk = :pk AND gsi2sk BETWEEN :startDate AND :endDate',
+        ExpressionAttributeValues: marshall({
+          ':pk': `LIST#${input.userId}#${input.listId}`,
+          ':startDate': input.startDate.getTime(),
+          ':endDate': input.endDate.getTime(),
+        }),
+      }
+    : {
+        KeyConditionExpression: 'gsi2pk = :pk',
+        ExpressionAttributeValues: marshall({
+          ':pk': `LIST#${input.userId}#${input.listId}`,
+        }),
+      };
 
   const command = new QueryCommand({
     TableName: Resource.Lists.name,
@@ -223,10 +243,7 @@ export const getListItems = async (
           }
         : {
             IndexName: 'gsi2',
-            KeyConditionExpression: 'gsi2pk = :pk',
-            ExpressionAttributeValues: marshall({
-              ':pk': `LIST#${input.userId}#${input.listId}`,
-            }),
+            ...condition,
           }),
     ScanIndexForward: sortDirection === 'asc',
     Limit: limit,

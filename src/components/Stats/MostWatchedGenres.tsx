@@ -80,7 +80,7 @@ export default function MostWatchedGenres() {
     <div className="relative w-full">
       <div className="mb-6 flex items-center gap-x-6">
         <h2 className="text-md lg:text-lg">Genres</h2>
-        <div className="h-[2px] flex-grow bg-white/10" />
+        <div className="h-[3px] flex-grow bg-white/10" />
       </div>
       <ResponsiveContainer
         width="100%"

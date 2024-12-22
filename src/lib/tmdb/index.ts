@@ -630,6 +630,27 @@ export async function fetchMostAnticipatedTvSeries() {
   );
 }
 
+export async function fetchPopularTvSeriesByYear(year: number | string) {
+  const withoutGenres = [...GLOBAL_GENRES_TO_IGNORE, 16, 10762, 10764, 10766];
+  const startDate = `${year}-01-01`;
+  const endDate = `${year}-12-31`;
+
+  const { items } = await fetchDiscoverTvSeries({
+    without_genres: withoutGenres.join(','),
+    'first_air_date.gte': startDate,
+    'first_air_date.lte': endDate,
+    sort_by: 'vote_count.desc',
+  });
+
+  return items.filter(
+    (item) =>
+      !!item.posterImage &&
+      !!item.backdropImage &&
+      // Note: somehow we still get some series with genres we want to ignore ¯\_(ツ)_/¯
+      !item.genres?.some((genre) => withoutGenres.includes(genre.id)),
+  );
+}
+
 export async function fetchGenresForTvSeries() {
   const genresResponse =
     ((await tmdbFetch('/3/genre/tv/list', {

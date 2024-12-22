@@ -45,7 +45,7 @@ export default function WorldMapForStats({
     <div className={cx('relative w-full', className)}>
       <div className="mb-8 flex items-center gap-x-6">
         <h2 className="text-md lg:text-lg">World map</h2>
-        <div className="h-[2px] flex-grow bg-white/10" />
+        <div className="h-[3px] flex-grow bg-white/10" />
       </div>
       <div className="flex items-center justify-center">
         <WorldMap

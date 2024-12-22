@@ -121,7 +121,7 @@ export default function WatchedPerWeek() {
     <div className="mt-20 h-[200px] w-full md:h-auto">
       <div className="mb-6 flex items-center gap-x-6">
         <h2 className="text-md lg:text-lg">By week</h2>
-        <div className="h-[2px] flex-grow bg-white/10" />
+        <div className="h-[3px] flex-grow bg-white/10" />
       </div>
       <ResponsiveContainer width="100%" height="100%" minHeight={200}>
         <BarChart data={chartData} barGap={BAR_GAP} barSize={BAR_SIZE}>

@@ -18,7 +18,7 @@ import SkeletonSpotlight from '@/components/Stats/SkeletonSpotlight';
 import SpotlightContainer from '@/components/Stats/SpotlightContainer';
 import SvgPattern from '@/components/Stats/SvgPattern';
 import WatchedByYear from '@/components/Stats/Watched';
-import WatchedPerWeek from '@/components/Stats/WatchedPerWeek';
+import WatchedPerWeekContainer from '@/components/Stats/WatchedPerWeekContainer';
 import WorldMap from '@/components/Stats/WorldMap';
 import { findUser } from '@/lib/db/user';
 
@@ -113,7 +113,15 @@ export default async function StatsByYearPage({ params }: Props) {
             </Suspense>
           </div>
         </div>
-        <WatchedPerWeek />
+        <div className="mt-20 h-[200px] w-full md:h-auto">
+          <div className="mb-6 flex items-center gap-x-6">
+            <h2 className="text-md lg:text-lg">By week</h2>
+            <div className="h-[3px] flex-grow bg-white/10" />
+          </div>
+          <Suspense fallback={<div className="h-[200px] w-full" />}>
+            <WatchedPerWeekContainer userId={user.id} year={year} />
+          </Suspense>
+        </div>
         <div className="mt-20 grid grid-cols-1 gap-20 xl:grid-cols-2 xl:gap-10">
           <MostWatchedGenres />
           <MostWatchedProviders />

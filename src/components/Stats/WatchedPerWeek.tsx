@@ -57,103 +57,45 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-const chartData = [
-  { week: 1, episodes: 0 },
-  { week: 2, episodes: 0 },
-  { week: 3, episodes: 0 },
-  { week: 4, episodes: 0 },
-  { week: 5, episodes: 1 },
-  { week: 6, episodes: 0 },
-  { week: 7, episodes: 2 },
-  { week: 8, episodes: 0 },
-  { week: 9, episodes: 1 },
-  { week: 10, episodes: 0 },
-  { week: 11, episodes: 2 },
-  { week: 12, episodes: 1 },
-  { week: 13, episodes: 0 },
-  { week: 14, episodes: 2 },
-  { week: 15, episodes: 0 },
-  { week: 16, episodes: 1 },
-  { week: 17, episodes: 2 },
-  { week: 18, episodes: 1 },
-  { week: 19, episodes: 3 },
-  { week: 20, episodes: 2 },
-  { week: 21, episodes: 1 },
-  { week: 22, episodes: 2 },
-  { week: 23, episodes: 3 },
-  { week: 24, episodes: 2 },
-  { week: 25, episodes: 4 },
-  { week: 26, episodes: 3 },
-  { week: 27, episodes: 8 },
-  { week: 28, episodes: 12 },
-  { week: 29, episodes: 9 },
-  { week: 30, episodes: 14 },
-  { week: 31, episodes: 11 },
-  { week: 32, episodes: 15 },
-  { week: 33, episodes: 10 },
-  { week: 34, episodes: 13 },
-  { week: 35, episodes: 12 },
-  { week: 36, episodes: 16 },
-  { week: 37, episodes: 11 },
-  { week: 38, episodes: 14 },
-  { week: 39, episodes: 13 },
-  { week: 40, episodes: 12 },
-  { week: 41, episodes: 15 },
-  { week: 42, episodes: 13 },
-  { week: 43, episodes: 10 },
-  { week: 44, episodes: 14 },
-  { week: 45, episodes: 12 },
-  { week: 46, episodes: 11 },
-  { week: 47, episodes: 15 },
-  { week: 48, episodes: 13 },
-  { week: 49, episodes: 12 },
-  { week: 50, episodes: 14 },
-  { week: 51, episodes: 11 },
-  { week: 52, episodes: 13 },
-  { week: 53, episodes: 11 },
-];
-
 const BAR_SIZE = 32;
 const BAR_GAP = 6;
 
-export default function WatchedPerWeek() {
+export default function WatchedPerWeek({
+  data,
+}: Readonly<{
+  data: { week: number; episodes: number }[];
+}>) {
   return (
-    <div className="mt-20 h-[200px] w-full md:h-auto">
-      <div className="mb-6 flex items-center gap-x-6">
-        <h2 className="text-md lg:text-lg">By week</h2>
-        <div className="h-[3px] flex-grow bg-white/10" />
-      </div>
-      <ResponsiveContainer width="100%" height="100%" minHeight={200}>
-        <BarChart data={chartData} barGap={BAR_GAP} barSize={BAR_SIZE}>
-          <CartesianGrid
-            vertical={false}
-            horizontal={true}
-            stroke="rgba(255,255,255,0.1)"
-            strokeDasharray="3 3"
-          />
-          <XAxis
-            dataKey="week"
-            tickLine={false}
-            axisLine={true}
-            ticks={[1, 53]}
-            tickFormatter={(value) => (value === 1 ? 'Jan' : 'Dec')}
-            tickMargin={10}
-            className="text-[0.55rem] text-white/60 md:text-[0.65rem] xl:text-sm"
-            strokeWidth={0}
-          />
-          <Tooltip
-            content={<CustomTooltip />}
-            cursor={{ fill: 'rgba(255, 255, 255, 0.1)', radius: 2 }}
-            animationDuration={200}
-          />
-          <Bar
-            dataKey="episodes"
-            fill="#D60073"
-            minPointSize={1}
-            radius={[2, 2, 2, 2]}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+    <ResponsiveContainer width="100%" height="100%" minHeight={200}>
+      <BarChart data={data} barGap={BAR_GAP} barSize={BAR_SIZE}>
+        <CartesianGrid
+          vertical={false}
+          horizontal={true}
+          stroke="rgba(255,255,255,0.1)"
+          strokeDasharray="3 3"
+        />
+        <XAxis
+          dataKey="week"
+          tickLine={false}
+          axisLine={true}
+          ticks={[1, 53]}
+          tickFormatter={(value) => (value === 1 ? 'Jan' : 'Dec')}
+          tickMargin={10}
+          className="text-[0.55rem] text-white/60 md:text-[0.65rem] xl:text-sm"
+          strokeWidth={0}
+        />
+        <Tooltip
+          content={<CustomTooltip />}
+          cursor={{ fill: 'rgba(255, 255, 255, 0.1)', radius: 2 }}
+          animationDuration={200}
+        />
+        <Bar
+          dataKey="episodes"
+          fill="#D60073"
+          minPointSize={1}
+          radius={[2, 2, 2, 2]}
+        />
+      </BarChart>
+    </ResponsiveContainer>
   );
 }

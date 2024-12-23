@@ -20,7 +20,7 @@ import SpotlightContainer from '@/components/Stats/SpotlightContainer';
 import SvgPattern from '@/components/Stats/SvgPattern';
 import WatchedByYear from '@/components/Stats/Watched';
 import WatchedPerWeekContainer from '@/components/Stats/WatchedPerWeekContainer';
-import WorldMap from '@/components/Stats/WorldMap';
+import WorldMapContainer from '@/components/Stats/WorldMapContainer';
 import { findUser } from '@/lib/db/user';
 
 type Props = Readonly<{
@@ -162,7 +162,15 @@ export default async function StatsByYearPage({ params }: Props) {
             </Suspense>
           </div>
         </div>
-        <WorldMap className="mt-20" />
+        <div className="relative mt-20 w-full">
+          <div className="mb-8 flex items-center gap-x-6">
+            <h2 className="text-md lg:text-lg">World map</h2>
+            <div className="h-[3px] flex-grow bg-white/10" />
+          </div>
+          <Suspense fallback={null}>
+            <WorldMapContainer userId={user.id} year={year} />
+          </Suspense>
+        </div>
       </div>
       <Suspense
         fallback={

@@ -91,7 +91,6 @@ export default function WorldMap({
   return (
     <div className={cx('relative w-full', className)}>
       <svg
-        className="aspect-video"
         version="1.1"
         id={`svg2-${instanceId}`}
         x="0px"

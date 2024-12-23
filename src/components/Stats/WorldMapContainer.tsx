@@ -55,7 +55,5 @@ export default async function WorldMapContainer({
     year,
   });
 
-  console.log({ data });
-
   return <WorldMap data={data} />;
 }

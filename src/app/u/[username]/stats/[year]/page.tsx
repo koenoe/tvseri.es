@@ -167,7 +167,9 @@ export default async function StatsByYearPage({ params }: Props) {
             <h2 className="text-md lg:text-lg">World map</h2>
             <div className="h-[3px] flex-grow bg-white/10" />
           </div>
-          <Suspense fallback={null}>
+          <Suspense
+            fallback={<div className="relative aspect-[192/95] w-full" />}
+          >
             <WorldMapContainer userId={user.id} year={year} />
           </Suspense>
         </div>

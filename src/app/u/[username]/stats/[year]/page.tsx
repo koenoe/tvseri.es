@@ -11,7 +11,7 @@ import BlockSeriesFinished from '@/components/Stats/BlockSeriesFinished';
 import BlockSeriesInProgress from '@/components/Stats/BlockSeriesInProgress';
 import BlockTotalRuntime from '@/components/Stats/BlockTotalRuntime';
 import BlockWatchlist from '@/components/Stats/BlockWatchlist';
-import MostWatchedGenres from '@/components/Stats/MostWatchedGenres';
+import MostWatchedGenresContainer from '@/components/Stats/MostWatchedGenresContainer';
 import MostWatchedProviders from '@/components/Stats/MostWatchedProviders';
 import PopularNotWatched from '@/components/Stats/PopularNotWatched';
 import SkeletonBlock from '@/components/Stats/SkeletonBlock';
@@ -129,7 +129,9 @@ export default async function StatsByYearPage({ params }: Props) {
               <h2 className="text-md lg:text-lg">Genres</h2>
               <div className="h-[3px] flex-grow bg-white/10" />
             </div>
-            <MostWatchedGenres />
+            <Suspense fallback={<div className="relative h-[704px] w-full" />}>
+              <MostWatchedGenresContainer userId={user.id} year={year} />
+            </Suspense>
           </div>
           <div className="relative h-full w-full">
             <div className="mb-6 flex items-center gap-x-6">

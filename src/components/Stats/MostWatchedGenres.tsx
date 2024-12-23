@@ -15,23 +15,6 @@ import {
   CartesianGrid,
 } from 'recharts';
 
-const data = [
-  { genre: 'Drama', count: 156 },
-  { genre: 'Action & Adventure', count: 142 },
-  { genre: 'Comedy', count: 128 },
-  { genre: 'Crime', count: 112 },
-  { genre: 'Sci-Fi & Fantasy', count: 98 },
-  { genre: 'Mystery', count: 86 },
-  { genre: 'Documentary', count: 74 },
-  { genre: 'Animation', count: 68 },
-  { genre: 'War & Politics', count: 52 },
-  { genre: 'Family', count: 0 },
-  { genre: 'Kids', count: 0 },
-  { genre: 'Western', count: 28 },
-  { genre: 'Reality', count: 18 },
-  { genre: 'Soap', count: 38 },
-].sort((a, b) => b.count - a.count);
-
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     return (
@@ -73,7 +56,14 @@ const CustomLabel = ({ x, y, value, index, focusBar, height }: any) => {
   );
 };
 
-export default function MostWatchedGenres() {
+export default function MostWatchedGenres({
+  data,
+}: Readonly<{
+  data: {
+    genre: string;
+    count: number;
+  }[];
+}>) {
   const [focusBar, setFocusBar] = useState(null);
 
   return (

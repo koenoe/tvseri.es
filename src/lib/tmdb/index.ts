@@ -639,7 +639,8 @@ export async function fetchPopularTvSeriesByYear(year: number | string) {
     without_genres: withoutGenres.join(','),
     'first_air_date.gte': startDate,
     'first_air_date.lte': endDate,
-    sort_by: 'vote_count.desc',
+    'vote_count.gte': 200,
+    sort_by: 'vote_average.desc',
   });
 
   return items.filter(

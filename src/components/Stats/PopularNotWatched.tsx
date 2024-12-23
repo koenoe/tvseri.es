@@ -1,34 +1,23 @@
-import { cache } from 'react';
-
-import { unstable_cache } from 'next/cache';
-
 import List, { type HeaderVariantProps } from '@/components/List/List';
+import { cachedWatchedByYear } from '@/lib/cached';
 import { fetchPopularTvSeriesByYear } from '@/lib/tmdb';
 
 import Poster from '../Tiles/Poster';
 
-const cachedPopularNotWatched = cache(async (year: number) =>
-  unstable_cache(
-    async () => {
-      // TODO: filter out watched items obviously
-      const items = await fetchPopularTvSeriesByYear(year);
-      return items;
-    },
-    ['top-year', year.toString()],
-    {
-      revalidate: 604800, // 1 week
-    },
-  )(),
-);
-
 export default async function PopularNotWatched({
   priority,
   year,
+  userId,
   ...rest
 }: React.AllHTMLAttributes<HTMLDivElement> &
   HeaderVariantProps &
-  Readonly<{ priority?: boolean; year: number }>) {
-  const tvSeries = await cachedPopularNotWatched(year);
+  Readonly<{ priority?: boolean; year: number | string; userId: string }>) {
+  const tvSeries = await fetchPopularTvSeriesByYear(year);
+  const items = await cachedWatchedByYear({ userId, year });
+  const watchedSeriesIds = [...new Set(items.map((item) => item.seriesId))];
+  const unwatchedSeries = tvSeries.filter(
+    (series) => !watchedSeriesIds.includes(series.id),
+  );
 
   return (
     <List
@@ -37,7 +26,7 @@ export default async function PopularNotWatched({
       scrollBarClassName="h-[3px] rounded-none"
       {...rest}
     >
-      {tvSeries.map((item) => (
+      {unwatchedSeries.map((item) => (
         <Poster key={item.id} item={item} priority={priority} size="small" />
       ))}
     </List>

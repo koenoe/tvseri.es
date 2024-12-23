@@ -635,19 +635,48 @@ export async function fetchPopularTvSeriesByYear(year: number | string) {
   const startDate = `${year}-01-01`;
   const endDate = `${year}-12-31`;
 
-  const { items } = await fetchDiscoverTvSeries({
+  const firstPage = await fetchDiscoverTvSeries({
     without_genres: withoutGenres.join(','),
+    // Note: maybe we should use `air_date` instead of `first_air_date`?
     'first_air_date.gte': startDate,
     'first_air_date.lte': endDate,
     'vote_count.gte': 200,
     sort_by: 'vote_average.desc',
+    page: 1,
   });
 
-  return items.filter(
+  // If total pages is 3, we need 2 more pages (numberOfPagesToFetch = 2)
+  const numberOfPagesToFetch = Math.min(firstPage.totalNumberOfPages - 1, 2);
+
+  // Pages 2-5 (or fewer)
+  const additionalPages =
+    numberOfPagesToFetch > 0
+      ? await Promise.all(
+          Array.from({ length: numberOfPagesToFetch }, (_, i) =>
+            fetchDiscoverTvSeries({
+              without_genres: withoutGenres.join(','),
+              'first_air_date.gte': startDate,
+              'first_air_date.lte': endDate,
+              'vote_count.gte': 200,
+              sort_by: 'vote_average.desc',
+              page: i + 2, // This gives us pages 2,3,4,5
+            }),
+          ),
+        )
+      : [];
+
+  const uniqueItems = Array.from(
+    new Map(
+      [firstPage, ...additionalPages]
+        .flatMap((page) => page.items)
+        .map((item) => [item.id, item]),
+    ).values(),
+  );
+
+  return uniqueItems.filter(
     (item) =>
       !!item.posterImage &&
       !!item.backdropImage &&
-      // Note: somehow we still get some series with genres we want to ignore ¯\_(ツ)_/¯
       !item.genres?.some((genre) => withoutGenres.includes(genre.id)),
   );
 }

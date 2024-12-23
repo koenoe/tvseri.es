@@ -11,19 +11,17 @@ type WeeklyCount = {
 const getWeeklyWatchedCount = async (
   input: Readonly<{
     userId: string;
-    year: number;
+    year: number | string;
   }>,
 ): Promise<WeeklyCount[]> => {
   const items = await cachedWatchedByYear(input);
-
-  // If the last day of the year is week 1, it's a 53-week year
-  const lastDay = new Date(`${input.year}-12-31`);
-  const lastWeekNumber = getWeekNumber(lastDay);
-  const totalWeeks = lastWeekNumber === 1 ? 53 : 52;
-
+  const totalWeeks = 53;
   const weekCounts: WeeklyCount[] = Array.from(
     { length: totalWeeks },
-    (_, i) => ({ week: i + 1, episodes: 0 }),
+    (_, i) => ({
+      week: i + 1,
+      episodes: 0,
+    }),
   );
 
   items.forEach((item) => {
@@ -40,11 +38,12 @@ const getWeeklyWatchedCount = async (
 
 type Props = Readonly<{
   userId: string;
-  year: number;
+  year: number | string;
 }>;
 
 export default async function WatchedPerWeekContainer({ userId, year }: Props) {
   const data = await getWeeklyWatchedCount({ userId, year });
+  console.log(data);
 
-  return <WatchedPerWeek data={data} />;
+  return <WatchedPerWeek data={data} year={parseInt(`${year}`, 10)} />;
 }

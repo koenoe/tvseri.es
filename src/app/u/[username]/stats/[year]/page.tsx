@@ -183,7 +183,7 @@ export default async function StatsByYearPage({ params }: Props) {
           />
         }
       >
-        <PopularNotWatched year={year} className="mt-20" />
+        <PopularNotWatched userId={user.id} year={year} className="mt-20" />
       </Suspense>
     </Page>
   );

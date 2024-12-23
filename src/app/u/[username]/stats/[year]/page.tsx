@@ -12,7 +12,7 @@ import BlockSeriesInProgress from '@/components/Stats/BlockSeriesInProgress';
 import BlockTotalRuntime from '@/components/Stats/BlockTotalRuntime';
 import BlockWatchlist from '@/components/Stats/BlockWatchlist';
 import MostWatchedGenresContainer from '@/components/Stats/MostWatchedGenresContainer';
-import MostWatchedProviders from '@/components/Stats/MostWatchedProviders';
+import MostWatchedProvidersContainer from '@/components/Stats/MostWatchedProvidersContainer';
 import PopularNotWatched from '@/components/Stats/PopularNotWatched';
 import SkeletonBlock from '@/components/Stats/SkeletonBlock';
 import SkeletonSpotlight from '@/components/Stats/SkeletonSpotlight';
@@ -138,7 +138,9 @@ export default async function StatsByYearPage({ params }: Props) {
               <h2 className="text-md lg:text-lg">Streaming services</h2>
               <div className="h-[3px] flex-grow bg-white/10" />
             </div>
-            <MostWatchedProviders />
+            <Suspense fallback={<div className="relative h-[704px] w-full" />}>
+              <MostWatchedProvidersContainer userId={user.id} year={year} />
+            </Suspense>
           </div>
         </div>
         <div className="mt-20">

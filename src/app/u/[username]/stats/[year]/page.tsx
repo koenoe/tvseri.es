@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 
 import Page from '@/components/Page/Page';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
+import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
 import BlockEpisodesWatched from '@/components/Stats/BlockEpisodesWatched';
 import BlockFavorites from '@/components/Stats/BlockFavorites';
 import BlockSeriesFinished from '@/components/Stats/BlockSeriesFinished';
@@ -123,13 +124,39 @@ export default async function StatsByYearPage({ params }: Props) {
           </Suspense>
         </div>
         <div className="mt-20 grid grid-cols-1 gap-20 xl:grid-cols-2 xl:gap-10">
-          <MostWatchedGenres />
-          <MostWatchedProviders />
+          <div className="relative w-full">
+            <div className="mb-6 flex items-center gap-x-6">
+              <h2 className="text-md lg:text-lg">Genres</h2>
+              <div className="h-[3px] flex-grow bg-white/10" />
+            </div>
+            <MostWatchedGenres />
+          </div>
+          <div className="relative h-full w-full">
+            <div className="mb-6 flex items-center gap-x-6">
+              <h2 className="text-md lg:text-lg">Streaming services</h2>
+              <div className="h-[3px] flex-grow bg-white/10" />
+            </div>
+            <MostWatchedProviders />
+          </div>
         </div>
         <div className="mt-20">
-          <Suspense fallback={null}>
-            <WatchedByYear year={year} userId={user.id} />
-          </Suspense>
+          <div className="mb-6 flex items-center gap-x-6">
+            <h2 className="text-md lg:text-lg">Finished in {year}</h2>
+            <div className="h-[3px] flex-grow bg-white/10" />
+          </div>
+          <div className="grid grid-cols-4 gap-4 md:grid-cols-6 lg:grid-cols-8 xl:gap-6 2xl:grid-cols-10 [&>*]:!h-full [&>*]:!w-full">
+            <Suspense
+              fallback={
+                <>
+                  {[...Array(36)].map((_, index) => (
+                    <SkeletonPoster key={index} />
+                  ))}
+                </>
+              }
+            >
+              <WatchedByYear year={year} userId={user.id} />
+            </Suspense>
+          </div>
         </div>
         <WorldMap className="mt-20" />
       </div>

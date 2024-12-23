@@ -1,4 +1,4 @@
-import { getAllWatchedByDate } from '@/lib/db/watched';
+import { cachedWatchedByYear } from '@/lib/cached';
 import getWeekNumber from '@/utils/getWeekNumberFromDate';
 
 import WatchedPerWeek from './WatchedPerWeek';
@@ -14,11 +14,7 @@ const getWeeklyWatchedCount = async (
     year: number;
   }>,
 ): Promise<WeeklyCount[]> => {
-  const items = await getAllWatchedByDate({
-    userId: input.userId,
-    startDate: new Date(`${input.year}-01-01`),
-    endDate: new Date(`${input.year}-12-31`),
-  });
+  const items = await cachedWatchedByYear(input);
 
   // If the last day of the year is week 1, it's a 53-week year
   const lastDay = new Date(`${input.year}-12-31`);

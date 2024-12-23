@@ -19,20 +19,9 @@ export default async function WatchedByYear({
 
   return (
     <>
-      <div className="mb-6 flex items-center gap-x-6">
-        <h2 className="text-md lg:text-lg">Finished in {year}</h2>
-        <div className="h-[3px] flex-grow bg-white/10" />
-      </div>
-      <div className="grid grid-cols-4 gap-4 md:grid-cols-6 lg:grid-cols-8 xl:gap-6 2xl:grid-cols-10 [&>*]:!h-full [&>*]:!w-full">
-        {items.map((item) => (
-          <Poster
-            key={item.slug}
-            item={item}
-            priority={priority}
-            size="small"
-          />
-        ))}
-      </div>
+      {items.map((item) => (
+        <Poster key={item.slug} item={item} priority={priority} size="small" />
+      ))}
     </>
   );
 }

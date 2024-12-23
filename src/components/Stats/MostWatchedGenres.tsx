@@ -77,61 +77,53 @@ export default function MostWatchedGenres() {
   const [focusBar, setFocusBar] = useState(null);
 
   return (
-    <div className="relative w-full">
-      <div className="mb-6 flex items-center gap-x-6">
-        <h2 className="text-md lg:text-lg">Genres</h2>
-        <div className="h-[3px] flex-grow bg-white/10" />
-      </div>
-      <ResponsiveContainer
-        width="100%"
-        height={data.length * (BAR_SIZE + BAR_GAP)}
+    <ResponsiveContainer
+      width="100%"
+      height={data.length * (BAR_SIZE + BAR_GAP)}
+    >
+      <BarChart
+        margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
+        barSize={BAR_SIZE}
+        barGap={BAR_GAP}
+        data={data}
+        layout="vertical"
+        onMouseMove={(state: any) => {
+          if (state?.isTooltipActive) {
+            setFocusBar(state.activeTooltipIndex);
+          } else {
+            setFocusBar(null);
+          }
+        }}
+        onMouseLeave={() => setFocusBar(null)}
       >
-        <BarChart
-          margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
-          barSize={BAR_SIZE}
-          barGap={BAR_GAP}
-          data={data}
-          layout="vertical"
-          onMouseMove={(state: any) => {
-            if (state?.isTooltipActive) {
-              setFocusBar(state.activeTooltipIndex);
-            } else {
-              setFocusBar(null);
-            }
-          }}
-          onMouseLeave={() => setFocusBar(null)}
-        >
-          <CartesianGrid
-            vertical={true}
-            horizontal={false}
-            stroke="rgba(255,255,255,0.1)"
-            strokeDasharray="3 3"
-          />
-          <YAxis
-            hide
-            dataKey="genre"
-            type="category"
-            tickLine={false}
-            axisLine={false}
-          />
-          <XAxis type="number" hide domain={[0, 'dataMax']} tickCount={12} />
-          <Tooltip content={<CustomTooltip />} cursor={false} />
-          <Bar dataKey="count" minPointSize={2} radius={[4, 4, 4, 4]}>
-            {data.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={focusBar === index ? '#00B8D4' : '#333333'}
-              />
-            ))}
-            <LabelList
-              dataKey="genre"
-              content={(props) => (
-                <CustomLabel {...props} focusBar={focusBar} />
-              )}
+        <CartesianGrid
+          vertical={true}
+          horizontal={false}
+          stroke="rgba(255,255,255,0.1)"
+          strokeDasharray="3 3"
+        />
+        <YAxis
+          hide
+          dataKey="genre"
+          type="category"
+          tickLine={false}
+          axisLine={false}
+        />
+        <XAxis type="number" hide domain={[0, 'dataMax']} tickCount={12} />
+        <Tooltip content={<CustomTooltip />} cursor={false} />
+        <Bar dataKey="count" minPointSize={2} radius={[4, 4, 4, 4]}>
+          {data.map((entry, index) => (
+            <Cell
+              key={`cell-${index}`}
+              fill={focusBar === index ? '#00B8D4' : '#333333'}
             />
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+          ))}
+          <LabelList
+            dataKey="genre"
+            content={(props) => <CustomLabel {...props} focusBar={focusBar} />}
+          />
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
   );
 }

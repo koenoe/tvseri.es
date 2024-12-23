@@ -1,4 +1,4 @@
-import { getAllWatchedByDate } from '@/lib/db/watched';
+import { cachedWatchedByYear } from '@/lib/cached';
 import formatRuntime from '@/utils/formatRuntime';
 
 import Block from './Block';
@@ -10,12 +10,7 @@ export default async function BlockTotalRuntime({
   userId: string;
   year: number;
 }>) {
-  const items = await getAllWatchedByDate({
-    userId,
-    startDate: new Date(`${year}-01-01`),
-    endDate: new Date(`${year}-12-31`),
-  });
-
+  const items = await cachedWatchedByYear({ userId, year });
   const totalRuntime = items.reduce(
     (sum, item) => sum + (item.runtime || 0),
     0,

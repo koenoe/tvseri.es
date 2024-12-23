@@ -6,6 +6,7 @@ import { type Person } from '@/types/person';
 import { type TvSeries } from '@/types/tv-series';
 
 import { getCacheItem, setCacheItem } from './db/cache';
+import { getAllWatchedByDate } from './db/watched';
 import { fetchPerson, fetchTvSeries } from './tmdb';
 
 export const cachedTvSeries = cache(async (id: string | number) => {
@@ -41,3 +42,19 @@ export const cachedPerson = cache(async (id: string | number) => {
 
   return tvSeries;
 });
+
+export const cachedWatchedByYear = cache(
+  async (
+    input: Readonly<{
+      userId: string;
+      year: number | string;
+    }>,
+  ) => {
+    const items = await getAllWatchedByDate({
+      userId: input.userId,
+      startDate: new Date(`${input.year}-01-01`),
+      endDate: new Date(`${input.year}-12-31`),
+    });
+    return items;
+  },
+);

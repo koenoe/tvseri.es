@@ -11,6 +11,7 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Resource } from 'sst';
 
 import { fetchTvSeriesSeason } from '@/lib/tmdb';
+import { generateTmdbImageUrl } from '@/lib/tmdb/helpers';
 import type { TvSeries } from '@/types/tv-series';
 import { type WatchProvider } from '@/types/watch-provider';
 
@@ -28,13 +29,17 @@ export type WatchedItem = Readonly<{
   title: string;
   userId: string;
   watchProviderLogoPath?: string | null;
+  watchProviderLogoImage?: string | null;
   watchProviderName?: string | null;
   watchedAt: number;
 }>;
 
+type SortDirection = 'asc' | 'desc';
+
 type PaginationOptions = Readonly<{
   limit?: number;
   cursor?: string | null;
+  sortDirection?: SortDirection;
 }>;
 
 const DYNAMO_DB_BATCH_LIMIT = 25;
@@ -591,7 +596,7 @@ export const getWatchedByDate = async (
     options?: PaginationOptions;
   }>,
 ) => {
-  const { limit = 20, cursor } = input.options ?? {};
+  const { limit = 20, cursor, sortDirection = 'desc' } = input.options ?? {};
 
   const command = new QueryCommand({
     TableName: Resource.Watched.name,
@@ -602,6 +607,7 @@ export const getWatchedByDate = async (
       ':start': input.startDate.getTime(),
       ':end': input.endDate.getTime(),
     }),
+    ScanIndexForward: sortDirection === 'asc',
     Limit: limit,
     ExclusiveStartKey: cursor
       ? JSON.parse(Buffer.from(cursor, 'base64url').toString())
@@ -611,13 +617,73 @@ export const getWatchedByDate = async (
   const result = await client.send(command);
 
   return {
-    items: result.Items?.map((item) => unmarshall(item) as WatchedItem) ?? [],
+    items:
+      result.Items?.map((item) => {
+        const unmarshalled = unmarshall(item) as WatchedItem;
+        return {
+          ...unmarshalled,
+          watchProviderLogoImage: unmarshalled.watchProviderLogoPath
+            ? generateTmdbImageUrl(unmarshalled.watchProviderLogoPath, 'w92')
+            : undefined,
+        };
+      }) ?? [],
     nextCursor: result.LastEvaluatedKey
       ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString(
           'base64url',
         )
       : null,
   };
+};
+
+export const getAllWatchedByDate = async (
+  input: Readonly<{
+    userId: string;
+    startDate: Date;
+    endDate: Date;
+  }>,
+): Promise<WatchedItem[]> => {
+  const allItems: WatchedItem[] = [];
+  let cursor: string | null = null;
+
+  do {
+    const result = await getWatchedByDate({
+      userId: input.userId,
+      startDate: input.startDate,
+      endDate: input.endDate,
+      options: {
+        limit: 1000, // Dynamo DB limit
+        cursor,
+      },
+    });
+
+    allItems.push(...result.items);
+    cursor = result.nextCursor;
+  } while (cursor !== null);
+
+  return allItems;
+};
+
+export const getWatchedCountByDate = async (
+  input: Readonly<{
+    userId: string;
+    startDate: Date;
+    endDate: Date;
+  }>,
+) => {
+  const command = new QueryCommand({
+    TableName: Resource.Watched.name,
+    IndexName: 'gsi2',
+    KeyConditionExpression: 'gsi2pk = :pk AND gsi2sk BETWEEN :start AND :end',
+    ExpressionAttributeValues: marshall({
+      ':pk': `USER#${input.userId}#WATCHED`,
+      ':start': input.startDate.getTime(),
+      ':end': input.endDate.getTime(),
+    }),
+    Select: 'COUNT',
+  });
+
+  const result = await client.send(command);
+  return result.Count ?? 0;
 };
 
 export const isWatched = async (

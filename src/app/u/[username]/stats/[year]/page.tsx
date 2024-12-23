@@ -1,23 +1,26 @@
 import { Suspense } from 'react';
 
-import Image from 'next/image';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import Page from '@/components/Page/Page';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
-import SpotlightBackground from '@/components/Spotlight/SpotlightBackground';
-import SpotlightTitle from '@/components/Spotlight/SpotlightTitle';
-import Block from '@/components/Stats/Block';
+import BlockEpisodesWatched from '@/components/Stats/BlockEpisodesWatched';
+import BlockFavorites from '@/components/Stats/BlockFavorites';
+import BlockSeriesFinished from '@/components/Stats/BlockSeriesFinished';
+import BlockSeriesInProgress from '@/components/Stats/BlockSeriesInProgress';
+import BlockTotalRuntime from '@/components/Stats/BlockTotalRuntime';
+import BlockWatchlist from '@/components/Stats/BlockWatchlist';
 import MostWatchedGenres from '@/components/Stats/MostWatchedGenres';
 import MostWatchedProviders from '@/components/Stats/MostWatchedProviders';
 import PopularNotWatched from '@/components/Stats/PopularNotWatched';
+import SkeletonBlock from '@/components/Stats/SkeletonBlock';
+import SkeletonSpotlight from '@/components/Stats/SkeletonSpotlight';
+import SpotlightContainer from '@/components/Stats/SpotlightContainer';
 import SvgPattern from '@/components/Stats/SvgPattern';
 import WatchedByYear from '@/components/Stats/Watched';
 import WatchedPerWeek from '@/components/Stats/WatchedPerWeek';
 import WorldMap from '@/components/Stats/WorldMap';
 import { findUser } from '@/lib/db/user';
-import { fetchTvSeries } from '@/lib/tmdb';
 
 type Props = Readonly<{
   params: Promise<{ username: string; year: number }>;
@@ -42,14 +45,6 @@ export default async function StatsByYearPage({ params }: Props) {
     return notFound();
   }
 
-  const firstShow = await fetchTvSeries(66276, {
-    includeImages: true,
-  });
-
-  const lastShow = await fetchTvSeries(1396, {
-    includeImages: true,
-  });
-
   return (
     <Page backgroundContext="dots">
       <div className="container relative h-[260px] sm:h-[325px] md:h-[390px]">
@@ -71,12 +66,24 @@ export default async function StatsByYearPage({ params }: Props) {
       </div>
       <div className="container mt-10 md:mt-8">
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
-          <Block label="Total runtime" value="17d 15h 59m" />
-          <Block label="Episodes watched" value="1,831" />
-          <Block label="Series finished" value="12" />
-          <Block label="In progress" value="18" />
-          <Block label="Added to favorites" value="78" />
-          <Block label="Want to watch" value="36" />
+          <Suspense fallback={<SkeletonBlock />}>
+            <BlockTotalRuntime userId={user.id} year={year} />
+          </Suspense>
+          <Suspense fallback={<SkeletonBlock />}>
+            <BlockEpisodesWatched userId={user.id} year={year} />
+          </Suspense>
+          <Suspense fallback={<SkeletonBlock />}>
+            <BlockSeriesFinished userId={user.id} year={year} />
+          </Suspense>
+          <Suspense fallback={<SkeletonBlock />}>
+            <BlockSeriesInProgress userId={user.id} year={year} />
+          </Suspense>
+          <Suspense fallback={<SkeletonBlock />}>
+            <BlockFavorites userId={user.id} year={year} />
+          </Suspense>
+          <Suspense fallback={<SkeletonBlock />}>
+            <BlockWatchlist userId={user.id} year={year} />
+          </Suspense>
         </div>
         <div className="relative mt-14 grid w-full grid-cols-1 gap-20 md:mt-20 xl:grid-cols-2 xl:gap-10">
           <div>
@@ -84,68 +91,26 @@ export default async function StatsByYearPage({ params }: Props) {
               <h2 className="text-md lg:text-lg">First watch</h2>
               <div className="h-[3px] flex-grow bg-white/10" />
             </div>
-            <Link
-              href={`/tv/${firstShow!.id}/${firstShow!.slug}`}
-              className="relative flex aspect-[16/14] flex-shrink-0 items-end overflow-clip rounded shadow-lg after:absolute after:inset-0 after:rounded after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:aspect-[16/10] lg:aspect-[16/8] xl:aspect-[16/12] 2xl:aspect-[16/10]"
-            >
-              <SpotlightBackground item={firstShow!} />
-              <div className="w-full p-9 xl:p-12">
-                <SpotlightTitle item={firstShow!} size="small" />
-                <div className="mt-6 flex gap-4 whitespace-nowrap text-white/60 md:gap-12">
-                  <div className="relative flex w-full justify-center gap-2 text-xs md:justify-start md:text-[0.8rem]">
-                    <div className="after:ml-2 after:content-['·']">
-                      2024-01-01
-                    </div>
-                    <div className="after:ml-2 after:content-['·']">S01E01</div>
-                    <div className="after:ml-2 after:content-['·']">
-                      Part 1: The Beach
-                    </div>
-                    <div>1h 19m</div>
-                  </div>
-                </div>
-              </div>
-              <Image
-                className="absolute right-4 top-4 z-10 h-8 w-8 rounded-md"
-                src="https://image.tmdb.org/t/p/w92/fksCUZ9QDWZMUwL2LgMtLckROUN.jpg"
-                alt=""
-                unoptimized
-                width={92}
-                height={92}
+            <Suspense fallback={<SkeletonSpotlight />}>
+              <SpotlightContainer
+                userId={user.id}
+                year={year}
+                boundary="first"
               />
-            </Link>
+            </Suspense>
           </div>
           <div>
             <div className="mb-6 flex items-center gap-x-6">
               <h2 className="text-md lg:text-lg">Last watch</h2>
               <div className="h-[3px] flex-grow bg-white/10" />
             </div>
-            <Link
-              href={`/tv/${lastShow!.id}/${lastShow!.slug}`}
-              className="relative flex aspect-[16/14] flex-shrink-0 items-end overflow-clip rounded shadow-lg after:absolute after:inset-0 after:rounded after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:aspect-[16/10] lg:aspect-[16/8] xl:aspect-[16/12] 2xl:aspect-[16/10]"
-            >
-              <SpotlightBackground item={lastShow!} />
-              <div className="w-full p-9 xl:p-12">
-                <SpotlightTitle item={lastShow!} size="small" />
-                <div className="mt-6 flex gap-4 whitespace-nowrap text-white/60 md:gap-12">
-                  <div className="relative flex w-full justify-center gap-2 text-xs md:justify-start md:text-[0.8rem]">
-                    <div className="after:ml-2 after:content-['·']">
-                      2024-12-31
-                    </div>
-                    <div className="after:ml-2 after:content-['·']">S05E16</div>
-                    <div className="after:ml-2 after:content-['·']">Felina</div>
-                    <div>56m</div>
-                  </div>
-                </div>
-              </div>
-              <Image
-                className="absolute right-4 top-4 z-10 h-8 w-8 rounded-md"
-                src="https://image.tmdb.org/t/p/w92/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg"
-                alt=""
-                unoptimized
-                width={92}
-                height={92}
+            <Suspense fallback={<SkeletonSpotlight />}>
+              <SpotlightContainer
+                userId={user.id}
+                year={year}
+                boundary="last"
               />
-            </Link>
+            </Suspense>
           </div>
         </div>
         <WatchedPerWeek />

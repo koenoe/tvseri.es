@@ -12,8 +12,10 @@ export default async function PopularNotWatched({
 }: React.AllHTMLAttributes<HTMLDivElement> &
   HeaderVariantProps &
   Readonly<{ priority?: boolean; year: number | string; userId: string }>) {
-  const tvSeries = await fetchPopularTvSeriesByYear(year);
-  const items = await cachedWatchedByYear({ userId, year });
+  const [tvSeries, items] = await Promise.all([
+    fetchPopularTvSeriesByYear(year),
+    cachedWatchedByYear({ userId, year }),
+  ]);
   const watchedSeriesIds = [...new Set(items.map((item) => item.seriesId))];
   const unwatchedSeries = tvSeries.filter(
     (series) => !watchedSeriesIds.includes(series.id),

@@ -196,12 +196,32 @@ export const getListItems = async (
   input: Readonly<{
     userId: string;
     listId: string;
+    startDate?: Date;
+    endDate?: Date;
     options?: PaginationOptions;
   }>,
 ) => {
   const sortBy = input.options?.sortBy ?? 'createdAt';
   const sortDirection = input.options?.sortDirection ?? 'desc';
   const limit = input.options?.limit ?? 20;
+
+  const hasDateRange = input.startDate && input.endDate;
+  const condition = hasDateRange
+    ? {
+        KeyConditionExpression:
+          'gsi2pk = :pk AND gsi2sk BETWEEN :startDate AND :endDate',
+        ExpressionAttributeValues: marshall({
+          ':pk': `LIST#${input.userId}#${input.listId}`,
+          ':startDate': input.startDate.getTime(),
+          ':endDate': input.endDate.getTime(),
+        }),
+      }
+    : {
+        KeyConditionExpression: 'gsi2pk = :pk',
+        ExpressionAttributeValues: marshall({
+          ':pk': `LIST#${input.userId}#${input.listId}`,
+        }),
+      };
 
   const command = new QueryCommand({
     TableName: Resource.Lists.name,
@@ -223,10 +243,7 @@ export const getListItems = async (
           }
         : {
             IndexName: 'gsi2',
-            KeyConditionExpression: 'gsi2pk = :pk',
-            ExpressionAttributeValues: marshall({
-              ':pk': `LIST#${input.userId}#${input.listId}`,
-            }),
+            ...condition,
           }),
     ScanIndexForward: sortDirection === 'asc',
     Limit: limit,
@@ -258,6 +275,43 @@ export const getListItems = async (
         )
       : null,
   };
+};
+
+export const getListItemsCount = async (
+  input: Readonly<{
+    userId: string;
+    listId: string;
+    startDate?: Date;
+    endDate?: Date;
+  }>,
+) => {
+  const hasDateRange = input.startDate && input.endDate;
+  const condition = hasDateRange
+    ? {
+        KeyConditionExpression:
+          'gsi2pk = :pk AND gsi2sk BETWEEN :startDate AND :endDate',
+        ExpressionAttributeValues: marshall({
+          ':pk': `LIST#${input.userId}#${input.listId}`,
+          ':startDate': input.startDate.getTime(),
+          ':endDate': input.endDate.getTime(),
+        }),
+      }
+    : {
+        KeyConditionExpression: 'gsi2pk = :pk',
+        ExpressionAttributeValues: marshall({
+          ':pk': `LIST#${input.userId}#${input.listId}`,
+        }),
+      };
+
+  const command = new QueryCommand({
+    TableName: Resource.Lists.name,
+    IndexName: 'gsi2', // Always use gsi2 for count since we don't need sorting
+    ...condition,
+    Select: 'COUNT',
+  });
+
+  const result = await client.send(command);
+  return result.Count ?? 0;
 };
 
 export const isInList = async (
@@ -357,6 +411,17 @@ export const getWatchlist = async (
   });
 };
 
+export const getWatchlistCount = async (
+  input: Readonly<{
+    userId: string;
+  }>,
+) => {
+  return getListItemsCount({
+    userId: input.userId,
+    listId: 'WATCHLIST',
+  });
+};
+
 export const getFavorites = async (
   input: Readonly<{
     userId: string;
@@ -367,6 +432,17 @@ export const getFavorites = async (
     userId: input.userId,
     listId: 'FAVORITES',
     options: input.options,
+  });
+};
+
+export const getFavoritesCount = async (
+  input: Readonly<{
+    userId: string;
+  }>,
+) => {
+  return getListItemsCount({
+    userId: input.userId,
+    listId: 'FAVORITES',
   });
 };
 

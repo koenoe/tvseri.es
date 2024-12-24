@@ -108,7 +108,7 @@ export type TmdbPersonCredits =
 export type TmdbPersonTvCredits =
   paths[`/3/person/${number}/tv_credits`]['get']['responses']['200']['content']['application/json'];
 
-export const GLOBAL_GENRES_TO_IGNORE = [10763, 10764, 10766, 10767];
+export const GLOBAL_GENRES_TO_IGNORE = [10763, 10767];
 
 export function generateTmdbImageUrl(path: string, size = 'original') {
   return `https://image.tmdb.org/t/p/${size}${path}`;
@@ -125,7 +125,6 @@ export function buildDiscoverQuery(
     // Note: always exclude adult content
     include_adult: false,
     include_null_first_air_dates: false,
-    without_genres: GLOBAL_GENRES_TO_IGNORE.join(','),
   };
 }
 

@@ -9,10 +9,7 @@ export const watched = new sst.aws.Dynamo('Watched', {
     gsi2pk: 'string', // USER#<userId>#WATCHED
     gsi2sk: 'number', // watched_at
 
-    // country: 'string', // iso_3166_1
     // episodeNumber: 'number',
-    // genreIds: 'string', // comma-separated
-    // language: 'string', // iso_639_1
     // posterImage: 'string', // deprecated
     // posterPath: 'string',
     // runtime: 'number',

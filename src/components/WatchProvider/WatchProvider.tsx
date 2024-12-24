@@ -18,7 +18,7 @@ export default async function WatchProvider({
   return provider ? (
     <div
       className={cx(
-        'relative aspect-square h-7 w-7 overflow-hidden rounded-md opacity-90',
+        'relative aspect-square h-7 w-7 overflow-hidden rounded-md',
         className,
       )}
     >

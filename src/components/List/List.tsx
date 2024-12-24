@@ -48,6 +48,7 @@ type Props = Omit<React.AllHTMLAttributes<HTMLDivElement>, 'title'> &
     children: React.ReactNode;
     title?: React.ReactNode;
     scrollRestoreKey: string;
+    scrollBarClassName?: string;
   }>;
 
 function List({
@@ -58,6 +59,7 @@ function List({
   titleAlignment,
   style,
   scrollRestoreKey,
+  scrollBarClassName,
 }: Props) {
   const innerRef = useRef<HTMLDivElement>(null);
   const scrollBarRef = useRef<HTMLDivElement>(null);
@@ -179,7 +181,10 @@ function List({
         <div className="hidden flex-grow md:flex">
           <div
             ref={scrollBarRef}
-            className="relative h-2 w-full cursor-pointer overflow-hidden rounded-2xl bg-white/10"
+            className={cx(
+              'relative h-2 w-full cursor-pointer overflow-hidden rounded-2xl bg-white/10',
+              scrollBarClassName,
+            )}
             onClick={handleClick}
             onMouseDown={handleStartDragging}
             onTouchStart={handleStartDragging}

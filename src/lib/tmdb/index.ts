@@ -2,6 +2,7 @@ import 'server-only';
 
 import slugify from 'slugify';
 
+import { WATCH_PROVIDER_PRIORITY } from '@/constants';
 import { type Account } from '@/types/account';
 import { type CountryOrLanguage } from '@/types/country-language';
 import { type Genre } from '@/types/genre';
@@ -361,17 +362,25 @@ export async function fetchTvSeriesWatchProviders(
 
   const flatrate =
     watchProviders.results?.[region as keyof typeof watchProviders.results]
-      ?.flatrate;
+      ?.flatrate ?? [];
 
   // TODO: generate new types from OpenAPI
   // prettier-ignore
   const free =
-    watchProviders.results?.[region as keyof typeof watchProviders.results]
-      // @ts-expect-error it does exist
-      ?.free as typeof flatrate;
+    (watchProviders.results?.[region as keyof typeof watchProviders.results]
+       // @ts-expect-error it does exist
+      ?.free as typeof flatrate) ?? [];
 
-  return (free ?? flatrate ?? [])
-    .sort((a, b) => a.display_priority - b.display_priority)
+  const providers = [...free, ...flatrate];
+
+  return providers
+    .sort((a, b) => {
+      const aPriority =
+        WATCH_PROVIDER_PRIORITY[a.provider_name!] ?? a.display_priority ?? 0;
+      const bPriority =
+        WATCH_PROVIDER_PRIORITY[b.provider_name!] ?? b.display_priority ?? 0;
+      return aPriority - bPriority;
+    })
     .map((provider) => ({
       id: provider.provider_id,
       name: provider.provider_name as string,
@@ -386,7 +395,7 @@ export async function fetchTvSeriesWatchProvider(
   id: number | string,
   region = 'US',
 ): Promise<WatchProvider | null> {
-  const cacheKey = `watch-provider:${id}:${region}`;
+  const cacheKey = `watch-provider:v3:${id}:${region}`;
   const cachedWatchedProvider = await getCacheItem<WatchProvider | null>(
     cacheKey,
   );
@@ -505,7 +514,7 @@ export async function fetchTrendingTvSeries() {
         series.genre_ids?.length > 0 &&
         series.vote_count > 0 &&
         !series.genre_ids?.some((genre) =>
-          [...GLOBAL_GENRES_TO_IGNORE, 16, 10762].includes(genre),
+          [...GLOBAL_GENRES_TO_IGNORE, 16, 10762, 10764, 10766].includes(genre),
         ),
     )
     .map((series) => series.id)
@@ -612,7 +621,7 @@ export async function fetchApplePlusTvSeries(region = 'US') {
 }
 
 export async function fetchMostAnticipatedTvSeries() {
-  const withoutGenres = [...GLOBAL_GENRES_TO_IGNORE, 16, 10762];
+  const withoutGenres = [...GLOBAL_GENRES_TO_IGNORE, 16, 10762, 10764, 10766];
   const { items } = await fetchDiscoverTvSeries({
     without_genres: withoutGenres.join(','),
     'first_air_date.gte': new Date().toISOString().split('T')[0],
@@ -627,6 +636,57 @@ export async function fetchMostAnticipatedTvSeries() {
       !item.genres?.some((genre) => withoutGenres.includes(genre.id)) &&
       // Note: bloody annoying show that keeps popping up  ¯\_(ツ)_/¯
       item.id !== 131835,
+  );
+}
+
+export async function fetchPopularTvSeriesByYear(year: number | string) {
+  const withoutGenres = [...GLOBAL_GENRES_TO_IGNORE, 16, 10762, 10764, 10766];
+  const startDate = `${year}-01-01`;
+  const endDate = `${year}-12-31`;
+
+  const firstPage = await fetchDiscoverTvSeries({
+    without_genres: withoutGenres.join(','),
+    // Note: maybe we should use `air_date` instead of `first_air_date`?
+    'first_air_date.gte': startDate,
+    'first_air_date.lte': endDate,
+    'vote_count.gte': 200,
+    sort_by: 'vote_average.desc',
+    page: 1,
+  });
+
+  // If total pages is 3, we need 2 more pages (numberOfPagesToFetch = 2)
+  const numberOfPagesToFetch = Math.min(firstPage.totalNumberOfPages - 1, 2);
+
+  // Pages 2-5 (or fewer)
+  const additionalPages =
+    numberOfPagesToFetch > 0
+      ? await Promise.all(
+          Array.from({ length: numberOfPagesToFetch }, (_, i) =>
+            fetchDiscoverTvSeries({
+              without_genres: withoutGenres.join(','),
+              'first_air_date.gte': startDate,
+              'first_air_date.lte': endDate,
+              'vote_count.gte': 200,
+              sort_by: 'vote_average.desc',
+              page: i + 2, // This gives us pages 2,3,4,5
+            }),
+          ),
+        )
+      : [];
+
+  const uniqueItems = Array.from(
+    new Map(
+      [firstPage, ...additionalPages]
+        .flatMap((page) => page.items)
+        .map((item) => [item.id, item]),
+    ).values(),
+  );
+
+  return uniqueItems.filter(
+    (item) =>
+      !!item.posterImage &&
+      !!item.backdropImage &&
+      !item.genres?.some((genre) => withoutGenres.includes(genre.id)),
   );
 }
 

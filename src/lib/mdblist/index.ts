@@ -139,14 +139,3 @@ export async function fetchKoreasFinest() {
 
   return response.shows?.map((item) => item.id);
 }
-
-export async function fetchTop2024() {
-  const response = (await mdblistFetch(
-    '/lists/koenoe/2024/items',
-  )) as Readonly<{
-    movies: Item[];
-    shows: Item[];
-  }>;
-
-  return response.shows?.map((item) => item.id);
-}

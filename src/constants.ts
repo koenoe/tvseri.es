@@ -4,9 +4,8 @@ export const DEFAULT_BACKGROUND_IMAGE =
 
 // TODO: eventually we'll just show the provider that users are subscribed to
 // but in order to do this we need a profile page or some way to store this information
-export const WATCH_PROVIDER_PRIORITY_ADJUSTMENTS: Record<string, number> = {
-  'Sky Go': 1000, // Sky GO sucks, so pust it down the list
-  'BBC iPlayer': -20, // BBC iPlayer is free, so push it up the list
-  Netflix: -30, // Highest priority for Netflix
-  'Now TV': -15, // Good priority but below iPlayer
+export const WATCH_PROVIDER_PRIORITY: Record<string, number> = {
+  'BBC iPlayer': -10,
+  Netflix: 0,
+  'Sky Go': 1000, // Sky Go is only available for Sky TV customers, so kinda sucks
 };

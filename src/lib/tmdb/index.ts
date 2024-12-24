@@ -2,7 +2,7 @@ import 'server-only';
 
 import slugify from 'slugify';
 
-import { WATCH_PROVIDER_PRIORITY_ADJUSTMENTS } from '@/constants';
+import { WATCH_PROVIDER_PRIORITY } from '@/constants';
 import { type Account } from '@/types/account';
 import { type CountryOrLanguage } from '@/types/country-language';
 import { type Genre } from '@/types/genre';
@@ -375,13 +375,10 @@ export async function fetchTvSeriesWatchProviders(
 
   return providers
     .sort((a, b) => {
-      // Apply priority adjustments if they exist for these providers
       const aPriority =
-        a.display_priority +
-        (WATCH_PROVIDER_PRIORITY_ADJUSTMENTS[a.provider_name!] ?? 0);
+        WATCH_PROVIDER_PRIORITY[a.provider_name!] ?? a.display_priority ?? 0;
       const bPriority =
-        b.display_priority +
-        (WATCH_PROVIDER_PRIORITY_ADJUSTMENTS[b.provider_name!] ?? 0);
+        WATCH_PROVIDER_PRIORITY[b.provider_name!] ?? b.display_priority ?? 0;
       return aPriority - bPriority;
     })
     .map((provider) => ({
@@ -398,7 +395,7 @@ export async function fetchTvSeriesWatchProvider(
   id: number | string,
   region = 'US',
 ): Promise<WatchProvider | null> {
-  const cacheKey = `watch-provider:v1:${id}:${region}`;
+  const cacheKey = `watch-provider:v3:${id}:${region}`;
   const cachedWatchedProvider = await getCacheItem<WatchProvider | null>(
     cacheKey,
   );

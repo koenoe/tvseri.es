@@ -12,7 +12,7 @@ type Input = Readonly<{
 }>;
 
 export const cachedInProgressCount = cache(async ({ userId, year }: Input) => {
-  const key = `total-in-progress:${userId}_${year}`;
+  const key = `total-in-progress:v1:${userId}_${year}`;
   const cachedValue = await getCacheItem<number>(key);
   if (cachedValue) {
     return cachedValue;

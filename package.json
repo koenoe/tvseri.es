@@ -18,6 +18,7 @@
     "@aws-sdk/util-dynamodb": "^3.716.0",
     "class-variance-authority": "^0.7.1",
     "color": "^4.2.3",
+    "date-fns": "^4.1.0",
     "framer-motion": "11.15.0",
     "next": "15.1.2",
     "react": "19.0.0",

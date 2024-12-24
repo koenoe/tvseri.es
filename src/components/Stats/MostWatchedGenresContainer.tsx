@@ -29,6 +29,10 @@ export const getGenreStats = async (
     }),
   ]);
 
+  if (watchedItems.length === 0) {
+    return [];
+  }
+
   const uniqueSeriesIds = [
     ...new Set(watchedItems.map((item) => item.seriesId)),
   ];
@@ -65,6 +69,10 @@ export default async function MostWatchedGenresContainer({
     userId,
     year,
   });
+
+  if (data.length === 0) {
+    return null;
+  }
 
   return <MostWatchedGenres data={data} />;
 }

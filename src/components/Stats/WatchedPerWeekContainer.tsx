@@ -1,5 +1,6 @@
+import { getISOWeek } from 'date-fns';
+
 import { cachedWatchedByYear } from '@/lib/cached';
-import getWeekNumber from '@/utils/getWeekNumberFromDate';
 
 import WatchedPerWeek from './WatchedPerWeek';
 
@@ -15,21 +16,19 @@ const getWeeklyWatchedCount = async (
   }>,
 ): Promise<WeeklyCount[]> => {
   const items = await cachedWatchedByYear(input);
-  const totalWeeks = 53;
-  const weekCounts: WeeklyCount[] = Array.from(
-    { length: totalWeeks },
-    (_, i) => ({
-      week: i + 1,
-      episodes: 0,
-    }),
-  );
+
+  // Always create 53 weeks of data
+  const weekCounts: WeeklyCount[] = Array.from({ length: 53 }, (_, i) => ({
+    week: i + 1,
+    episodes: 0,
+  }));
 
   items.forEach((item) => {
     const date = new Date(item.watchedAt);
-    const week = getWeekNumber(date);
+    const weekNumber = getISOWeek(date);
 
-    if (week <= totalWeeks) {
-      weekCounts[week - 1].episodes += 1;
+    if (weekNumber <= 53) {
+      weekCounts[weekNumber - 1].episodes += 1;
     }
   });
 
@@ -43,7 +42,6 @@ type Props = Readonly<{
 
 export default async function WatchedPerWeekContainer({ userId, year }: Props) {
   const data = await getWeeklyWatchedCount({ userId, year });
-  console.log(data);
 
   return <WatchedPerWeek data={data} year={parseInt(`${year}`, 10)} />;
 }

@@ -1,4 +1,5 @@
 import { cachedTvSeries, cachedWatchedByYear } from '@/lib/cached';
+import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 import { fetchGenresForTvSeries } from '@/lib/tmdb';
 import sleep from '@/utils/sleep';
 
@@ -9,18 +10,18 @@ type GenreStat = {
   count: number;
 };
 
+type Input = Readonly<{
+  userId: string;
+  year: number | string;
+}>;
+
 const cachedTvSeriesWithSleep = async (id: number) => {
   const result = await cachedTvSeries(id);
   await sleep(20); // 20ms = ~50 requests per second
   return result;
 };
 
-export const getGenreStats = async (
-  input: Readonly<{
-    userId: string;
-    year: number | string;
-  }>,
-): Promise<GenreStat[]> => {
+const getGenreStats = async (input: Input): Promise<GenreStat[]> => {
   const [genres, watchedItems] = await Promise.all([
     fetchGenresForTvSeries(),
     cachedWatchedByYear({
@@ -58,14 +59,25 @@ export const getGenreStats = async (
     .sort((a, b) => b.count - a.count);
 };
 
+const cachedGenreStats = async (input: Input) => {
+  const key = `most-watched-genres:${input.userId}_${input.year}`;
+  const cachedValue = await getCacheItem<GenreStat[]>(key);
+  if (cachedValue) {
+    return cachedValue;
+  }
+
+  const stats = await getGenreStats(input);
+
+  await setCacheItem(key, stats, { ttl: 3600 });
+
+  return stats;
+};
+
 export default async function MostWatchedGenresContainer({
   userId,
   year,
-}: Readonly<{
-  userId: string;
-  year: number | string;
-}>) {
-  const data = await getGenreStats({
+}: Input) {
+  const data = await cachedGenreStats({
     userId,
     year,
   });

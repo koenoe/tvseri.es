@@ -398,7 +398,7 @@ export async function fetchTvSeriesWatchProvider(
   id: number | string,
   region = 'US',
 ): Promise<WatchProvider | null> {
-  const cacheKey = `watch-provider:v2:${id}:${region}`;
+  const cacheKey = `watch-provider:v1:${id}:${region}`;
   const cachedWatchedProvider = await getCacheItem<WatchProvider | null>(
     cacheKey,
   );

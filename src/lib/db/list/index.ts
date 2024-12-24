@@ -36,7 +36,7 @@ export type ListItem = Pick<
 
 type PaginationOptions = Readonly<{
   limit?: number;
-  cursor?: string;
+  cursor?: string | null;
   sortBy?: SortBy;
   sortDirection?: SortDirection;
 }>;
@@ -275,6 +275,40 @@ export const getListItems = async (
         )
       : null,
   };
+};
+
+export const getAllListItems = async (
+  input: Readonly<{
+    userId: string;
+    listId: string;
+    startDate?: Date;
+    endDate?: Date;
+    sortBy?: 'createdAt' | 'title' | 'position';
+    sortDirection?: 'asc' | 'desc';
+  }>,
+): Promise<ListItem[]> => {
+  const allItems: ListItem[] = [];
+  let cursor: string | null = null;
+
+  do {
+    const result = await getListItems({
+      userId: input.userId,
+      listId: input.listId,
+      startDate: input.startDate,
+      endDate: input.endDate,
+      options: {
+        limit: 1000, // Dynamo DB limit
+        cursor,
+        sortBy: input.sortBy,
+        sortDirection: input.sortDirection,
+      },
+    });
+
+    allItems.push(...result.items);
+    cursor = result.nextCursor;
+  } while (cursor !== null);
+
+  return allItems;
 };
 
 export const getListItemsCount = async (

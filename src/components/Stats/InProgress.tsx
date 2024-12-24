@@ -1,5 +1,5 @@
-import { cachedWatchedByYear } from '@/lib/cached';
-import { getListItems, type ListItem } from '@/lib/db/list';
+import { cachedWatchedByYear, cachedWatchedByYearFromList } from '@/lib/cached';
+import { type ListItem } from '@/lib/db/list';
 
 import Poster from '../Tiles/Poster';
 
@@ -8,15 +8,10 @@ export default async function InProgressByYear({
   year,
   userId,
 }: Readonly<{ priority?: boolean; year: number; userId: string }>) {
-  const [{ items: watchedTvSeries }, watchedItems] = await Promise.all([
-    getListItems({
-      listId: 'WATCHED',
+  const [watchedTvSeries, watchedItems] = await Promise.all([
+    cachedWatchedByYearFromList({
       userId,
-      startDate: new Date(`${year}-01-01`),
-      endDate: new Date(`${year}-12-31`),
-      options: {
-        limit: 100,
-      },
+      year,
     }),
     cachedWatchedByYear({
       userId,

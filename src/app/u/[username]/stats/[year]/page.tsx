@@ -94,7 +94,13 @@ export default async function StatsByYearPage({ params }: Props) {
               <h2 className="text-md lg:text-lg">First watch</h2>
               <div className="h-[3px] flex-grow bg-white/10" />
             </div>
-            <Suspense fallback={<SkeletonSpotlight />}>
+            <Suspense
+              fallback={
+                <div className="bg-white/5">
+                  <SkeletonSpotlight />
+                </div>
+              }
+            >
               <SpotlightContainer
                 userId={user.id}
                 year={year}
@@ -107,7 +113,13 @@ export default async function StatsByYearPage({ params }: Props) {
               <h2 className="text-md lg:text-lg">Last watch</h2>
               <div className="h-[3px] flex-grow bg-white/10" />
             </div>
-            <Suspense fallback={<SkeletonSpotlight />}>
+            <Suspense
+              fallback={
+                <div className="bg-white/5">
+                  <SkeletonSpotlight />
+                </div>
+              }
+            >
               <SpotlightContainer
                 userId={user.id}
                 year={year}
@@ -154,7 +166,7 @@ export default async function StatsByYearPage({ params }: Props) {
             <Suspense
               fallback={
                 <>
-                  {[...Array(36)].map((_, index) => (
+                  {[...Array(30)].map((_, index) => (
                     <SkeletonPoster key={index} />
                   ))}
                 </>
@@ -173,7 +185,7 @@ export default async function StatsByYearPage({ params }: Props) {
             <Suspense
               fallback={
                 <>
-                  {[...Array(36)].map((_, index) => (
+                  {[...Array(10)].map((_, index) => (
                     <SkeletonPoster key={index} />
                   ))}
                 </>

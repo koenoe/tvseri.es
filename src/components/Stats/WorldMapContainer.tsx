@@ -1,9 +1,15 @@
 import { cachedTvSeries, cachedWatchedByYear } from '@/lib/cached';
+import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 import sleep from '@/utils/sleep';
 
 import WorldMap from './WorldMap';
 
 type CountryStats = Record<string, number>;
+
+type Input = Readonly<{
+  userId: string;
+  year: number | string;
+}>;
 
 const cachedTvSeriesWithSleep = async (id: number) => {
   const result = await cachedTvSeries(id);
@@ -11,7 +17,7 @@ const cachedTvSeriesWithSleep = async (id: number) => {
   return result;
 };
 
-export const getCountryStats = async (
+const getCountryStats = async (
   input: Readonly<{
     userId: string;
     year: number | string;
@@ -43,6 +49,20 @@ export const getCountryStats = async (
   return countryStats;
 };
 
+const cachedCountryStats = async (input: Input) => {
+  const key = `most-watched-countries:${input.userId}_${input.year}`;
+  const cachedValue = await getCacheItem<CountryStats>(key);
+  if (cachedValue) {
+    return cachedValue;
+  }
+
+  const stats = await getCountryStats(input);
+
+  await setCacheItem(key, stats, { ttl: 3600 });
+
+  return stats;
+};
+
 export default async function WorldMapContainer({
   userId,
   year,
@@ -50,7 +70,7 @@ export default async function WorldMapContainer({
   userId: string;
   year: number | string;
 }>) {
-  const data = await getCountryStats({
+  const data = await cachedCountryStats({
     userId,
     year,
   });

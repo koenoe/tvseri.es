@@ -689,7 +689,9 @@ export async function fetchGenresForTvSeries() {
       },
     })) as TmdbGenresForTvSeries) ?? [];
 
-  return (genresResponse.genres ?? []) as Genre[];
+  return (genresResponse.genres ?? []).filter(
+    (genre) => !GLOBAL_GENRES_TO_IGNORE.includes(genre.id),
+  ) as Genre[];
 }
 
 export async function searchTvSeries(query: string) {

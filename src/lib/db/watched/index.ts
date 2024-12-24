@@ -80,7 +80,7 @@ const normalizeWatchedItem = (item: WatchedItem) => ({
   ...item,
   posterImage: item.posterPath
     ? buildPosterImageUrl(item.posterPath)
-    : undefined,
+    : item.posterImage,
   watchProviderLogoImage: item.watchProviderLogoPath
     ? generateTmdbImageUrl(item.watchProviderLogoPath, 'w92')
     : undefined,

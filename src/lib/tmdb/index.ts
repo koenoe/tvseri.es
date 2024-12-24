@@ -2,6 +2,7 @@ import 'server-only';
 
 import slugify from 'slugify';
 
+import { WATCH_PROVIDER_PRIORITY_ADJUSTMENTS } from '@/constants';
 import { type Account } from '@/types/account';
 import { type CountryOrLanguage } from '@/types/country-language';
 import { type Genre } from '@/types/genre';
@@ -367,13 +368,22 @@ export async function fetchTvSeriesWatchProviders(
   // prettier-ignore
   const free =
     (watchProviders.results?.[region as keyof typeof watchProviders.results]
-      // @ts-expect-error it does exist
+       // @ts-expect-error it does exist
       ?.free as typeof flatrate) ?? [];
 
   const providers = [...free, ...flatrate];
 
   return providers
-    .sort((a, b) => a.display_priority - b.display_priority)
+    .sort((a, b) => {
+      // Apply priority adjustments if they exist for these providers
+      const aPriority =
+        a.display_priority +
+        (WATCH_PROVIDER_PRIORITY_ADJUSTMENTS[a.provider_name!] ?? 0);
+      const bPriority =
+        b.display_priority +
+        (WATCH_PROVIDER_PRIORITY_ADJUSTMENTS[b.provider_name!] ?? 0);
+      return aPriority - bPriority;
+    })
     .map((provider) => ({
       id: provider.provider_id,
       name: provider.provider_name as string,

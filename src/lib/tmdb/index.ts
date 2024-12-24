@@ -361,16 +361,18 @@ export async function fetchTvSeriesWatchProviders(
 
   const flatrate =
     watchProviders.results?.[region as keyof typeof watchProviders.results]
-      ?.flatrate;
+      ?.flatrate ?? [];
 
   // TODO: generate new types from OpenAPI
   // prettier-ignore
   const free =
-    watchProviders.results?.[region as keyof typeof watchProviders.results]
+    (watchProviders.results?.[region as keyof typeof watchProviders.results]
       // @ts-expect-error it does exist
-      ?.free as typeof flatrate;
+      ?.free as typeof flatrate) ?? [];
 
-  return (free ?? flatrate ?? [])
+  const providers = [...free, ...flatrate];
+
+  return providers
     .sort((a, b) => a.display_priority - b.display_priority)
     .map((provider) => ({
       id: provider.provider_id,
@@ -386,7 +388,7 @@ export async function fetchTvSeriesWatchProvider(
   id: number | string,
   region = 'US',
 ): Promise<WatchProvider | null> {
-  const cacheKey = `watch-provider:${id}:${region}`;
+  const cacheKey = `watch-provider:v2:${id}:${region}`;
   const cachedWatchedProvider = await getCacheItem<WatchProvider | null>(
     cacheKey,
   );

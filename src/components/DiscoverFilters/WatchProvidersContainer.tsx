@@ -9,7 +9,5 @@ export default async function DiscoverWatchProvidersContainer() {
   const region = headerStore.get('cloudfront-viewer-country') || 'GB';
   const providers = await fetchWatchProviders(region);
 
-  console.log({ providers });
-
   return <DiscoverWatchProviders providers={providers} />;
 }

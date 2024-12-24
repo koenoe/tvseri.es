@@ -11,6 +11,8 @@ import BlockSeriesFinished from '@/components/Stats/BlockSeriesFinished';
 import BlockSeriesInProgress from '@/components/Stats/BlockSeriesInProgress';
 import BlockTotalRuntime from '@/components/Stats/BlockTotalRuntime';
 import BlockWatchlist from '@/components/Stats/BlockWatchlist';
+import Grid from '@/components/Stats/Grid';
+import InProgressByYear from '@/components/Stats/InProgress';
 import MostWatchedGenresContainer from '@/components/Stats/MostWatchedGenresContainer';
 import MostWatchedProvidersContainer from '@/components/Stats/MostWatchedProvidersContainer';
 import PopularNotWatched from '@/components/Stats/PopularNotWatched';
@@ -145,10 +147,10 @@ export default async function StatsByYearPage({ params }: Props) {
         </div>
         <div className="mt-20">
           <div className="mb-6 flex items-center gap-x-6">
-            <h2 className="text-md lg:text-lg">Finished in {year}</h2>
+            <h2 className="text-md lg:text-lg">Watched</h2>
             <div className="h-[3px] flex-grow bg-white/10" />
           </div>
-          <div className="grid grid-cols-4 gap-4 md:grid-cols-6 lg:grid-cols-8 xl:gap-6 2xl:grid-cols-10 [&>*]:!h-full [&>*]:!w-full">
+          <Grid>
             <Suspense
               fallback={
                 <>
@@ -160,7 +162,26 @@ export default async function StatsByYearPage({ params }: Props) {
             >
               <WatchedByYear year={year} userId={user.id} />
             </Suspense>
+          </Grid>
+        </div>
+        <div className="mt-20">
+          <div className="mb-6 flex items-center gap-x-6">
+            <h2 className="text-md lg:text-lg">In progress</h2>
+            <div className="h-[3px] flex-grow bg-white/10" />
           </div>
+          <Grid>
+            <Suspense
+              fallback={
+                <>
+                  {[...Array(36)].map((_, index) => (
+                    <SkeletonPoster key={index} />
+                  ))}
+                </>
+              }
+            >
+              <InProgressByYear year={year} userId={user.id} />
+            </Suspense>
+          </Grid>
         </div>
         <div className="relative mt-20 w-full">
           <div className="mb-8 flex items-center gap-x-6">
@@ -178,7 +199,7 @@ export default async function StatsByYearPage({ params }: Props) {
         fallback={
           <SkeletonList
             className="mt-20"
-            size="small"
+            size="medium"
             scrollBarClassName="h-[3px] rounded-none"
           />
         }

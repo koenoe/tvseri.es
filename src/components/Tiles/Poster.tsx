@@ -36,7 +36,15 @@ export const posterStyles = cva(
           'lg:h-[225px]',
           'lg:w-[150px]',
         ],
-        default: [
+        medium: [
+          'h-[250px]',
+          'w-[167px]',
+          'lg:h-[275px]',
+          'lg:w-[183px]',
+          'xl:h-[325px]',
+          'xl:w-[217px]',
+        ],
+        large: [
           'h-[275px]',
           'w-[183px]',
           'lg:h-[300px]',
@@ -47,7 +55,7 @@ export const posterStyles = cva(
       },
     },
     defaultVariants: {
-      size: 'default',
+      size: 'large',
     },
   },
 );

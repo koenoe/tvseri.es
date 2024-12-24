@@ -11,7 +11,7 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Resource } from 'sst';
 
 import { fetchTvSeriesSeason } from '@/lib/tmdb';
-import { generateTmdbImageUrl } from '@/lib/tmdb/helpers';
+import { buildPosterImageUrl, generateTmdbImageUrl } from '@/lib/tmdb/helpers';
 import type { TvSeries } from '@/types/tv-series';
 import { type WatchProvider } from '@/types/watch-provider';
 
@@ -74,6 +74,16 @@ const createWatchedItem = ({
   watchProviderLogoPath: watchProvider?.logoPath ?? null,
   watchProviderName: watchProvider?.name ?? null,
   watchedAt,
+});
+
+const normalizeWatchedItem = (item: WatchedItem) => ({
+  ...item,
+  posterImage: item.posterPath
+    ? buildPosterImageUrl(item.posterPath)
+    : undefined,
+  watchProviderLogoImage: item.watchProviderLogoPath
+    ? generateTmdbImageUrl(item.watchProviderLogoPath, 'w92')
+    : undefined,
 });
 
 export const markWatched = async ({
@@ -438,7 +448,11 @@ export const getWatchedForTvSeries = async (
   const result = await client.send(command);
 
   return {
-    items: result.Items?.map((item) => unmarshall(item) as WatchedItem) ?? [],
+    items:
+      result.Items?.map((item) => {
+        const unmarshalled = unmarshall(item) as WatchedItem;
+        return normalizeWatchedItem(unmarshalled);
+      }) ?? [],
     nextCursor: result.LastEvaluatedKey
       ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString(
           'base64url',
@@ -554,40 +568,6 @@ export const getWatchedCountForSeason = async (
   return result.Count ?? 0;
 };
 
-export const getRecentlyWatched = async (
-  input: Readonly<{
-    userId: string;
-    options?: PaginationOptions;
-  }>,
-) => {
-  const { limit = 20, cursor } = input.options ?? {};
-
-  const command = new QueryCommand({
-    TableName: Resource.Watched.name,
-    IndexName: 'gsi2',
-    KeyConditionExpression: 'gsi2pk = :pk',
-    ExpressionAttributeValues: marshall({
-      ':pk': `USER#${input.userId}#WATCHED`,
-    }),
-    Limit: limit,
-    ScanIndexForward: false, // newest first
-    ExclusiveStartKey: cursor
-      ? JSON.parse(Buffer.from(cursor, 'base64url').toString())
-      : undefined,
-  });
-
-  const result = await client.send(command);
-
-  return {
-    items: result.Items?.map((item) => unmarshall(item) as WatchedItem) ?? [],
-    nextCursor: result.LastEvaluatedKey
-      ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString(
-          'base64url',
-        )
-      : null,
-  };
-};
-
 export const getWatchedByDate = async (
   input: Readonly<{
     userId: string;
@@ -620,12 +600,7 @@ export const getWatchedByDate = async (
     items:
       result.Items?.map((item) => {
         const unmarshalled = unmarshall(item) as WatchedItem;
-        return {
-          ...unmarshalled,
-          watchProviderLogoImage: unmarshalled.watchProviderLogoPath
-            ? generateTmdbImageUrl(unmarshalled.watchProviderLogoPath, 'w92')
-            : undefined,
-        };
+        return normalizeWatchedItem(unmarshalled);
       }) ?? [],
     nextCursor: result.LastEvaluatedKey
       ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString(

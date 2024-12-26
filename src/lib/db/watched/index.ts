@@ -255,7 +255,6 @@ export const markSeasonWatched = async ({
   await Promise.all(batchPromises);
 
   const lastWatchedItem = watchedItems[watchedItems.length - 1];
-
   const isLastEpisodeOfSeries =
     lastWatchedItem.seasonNumber === tvSeries.lastEpisodeToAir?.seasonNumber &&
     lastWatchedItem.episodeNumber === tvSeries.lastEpisodeToAir?.episodeNumber;

@@ -107,6 +107,11 @@ export default function Menu({
               href: `/u/${account.username}/favorites`,
               component: null,
             },
+            {
+              label: 'Settings',
+              href: '/settings',
+              component: null,
+            },
           ]
         : []),
       ...(showLoginButton

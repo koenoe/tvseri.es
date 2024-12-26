@@ -4,6 +4,7 @@ import getBaseUrl from './src/utils/getBaseUrl';
 
 const nextConfig = {
   experimental: {
+    authInterrupts: true,
     staleTimes: {
       static: 0,
       dynamic: 0,
@@ -69,6 +70,11 @@ const nextConfig = {
       {
         source: '/home',
         destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/settings',
+        destination: '/settings/profile',
         permanent: true,
       },
     ];

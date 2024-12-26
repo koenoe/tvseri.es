@@ -172,6 +172,7 @@ export default async function TvSeriesDetailsPage({
                 </div>
               </div>
             </div>
+            {/* Note: we need to pass `tvSeries` here, because client component */}
             <WatchedProgress tvSeries={tvSeries} />
           </div>
         </div>
@@ -252,9 +253,8 @@ export default async function TvSeriesDetailsPage({
       <Suspense fallback={<SkeletonList />}>
         <RecommendationsList id={tvSeries.id} />
       </Suspense>
-
       <Suspense fallback={null}>
-        <PreferredImagesForAdminContainer tvSeries={tvSeries} />
+        <PreferredImagesForAdminContainer id={tvSeries.id} />
       </Suspense>
     </Page>
   );

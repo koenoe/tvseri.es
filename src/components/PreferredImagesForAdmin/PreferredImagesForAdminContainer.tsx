@@ -1,6 +1,7 @@
 import { revalidateTag } from 'next/cache';
 import { cookies } from 'next/headers';
 
+import { cachedTvSeries } from '@/lib/cached';
 import { deleteCacheItem } from '@/lib/db/cache';
 import {
   type PreferredImages,
@@ -11,7 +12,6 @@ import { findUser } from '@/lib/db/user';
 import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
 import { fetchTvSeriesImages } from '@/lib/tmdb';
 import { decryptToken } from '@/lib/token';
-import { type TvSeries } from '@/types/tv-series';
 
 import PreferredImagesForAdmin from './PreferredImagesForAdmin';
 
@@ -47,10 +47,12 @@ async function getDominantColor({
 }
 
 export default async function PreferredImagesForAdminContainer({
-  tvSeries,
+  id,
 }: Readonly<{
-  tvSeries: TvSeries;
+  id: number;
 }>) {
+  const tvSeriesFromCache = await cachedTvSeries(id);
+  const tvSeries = tvSeriesFromCache!;
   const cookieStore = await cookies();
   const encryptedSessionId = cookieStore.get('sessionId')?.value;
 

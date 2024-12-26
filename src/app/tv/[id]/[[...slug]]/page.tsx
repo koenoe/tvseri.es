@@ -96,8 +96,8 @@ export default async function TvSeriesDetailsPage({
       usePersistentStore={false}
     >
       <Suspense fallback={null}>
-        <AddTvSeriesToStoreContainer tvSeries={tvSeries} />
-        <ValidateWatchedStatus tvSeries={tvSeries} />
+        <AddTvSeriesToStoreContainer id={tvSeries.id} />
+        <ValidateWatchedStatus id={tvSeries.id} />
       </Suspense>
       <div className="container">
         <div className="relative flex h-[calc(85vh-16rem)] items-end md:h-[calc(65vh-8rem)]">
@@ -172,6 +172,7 @@ export default async function TvSeriesDetailsPage({
                 </div>
               </div>
             </div>
+            {/* Note: we need to pass `tvSeries` here, because client component */}
             <WatchedProgress tvSeries={tvSeries} />
           </div>
         </div>
@@ -252,9 +253,8 @@ export default async function TvSeriesDetailsPage({
       <Suspense fallback={<SkeletonList />}>
         <RecommendationsList id={tvSeries.id} />
       </Suspense>
-
       <Suspense fallback={null}>
-        <PreferredImagesForAdminContainer tvSeries={tvSeries} />
+        <PreferredImagesForAdminContainer id={tvSeries.id} />
       </Suspense>
     </Page>
   );

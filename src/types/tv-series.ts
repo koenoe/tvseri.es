@@ -41,7 +41,6 @@ export type TvSeries = Readonly<{
   createdBy: Person[];
   description: string;
   firstAirDate: string;
-  firstEpisodeToAir: Episode;
   genres: Genre[];
   id: number;
   isAdult: boolean;

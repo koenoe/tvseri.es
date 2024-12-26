@@ -1,16 +1,16 @@
 import { cookies } from 'next/headers';
 
+import { cachedTvSeries } from '@/lib/cached';
 import { addToList, isInList, removeFromList } from '@/lib/db/list';
 import { findSession } from '@/lib/db/session';
 import { findUser } from '@/lib/db/user';
 import { isTvSeriesWatched } from '@/lib/db/watched';
 import { decryptToken } from '@/lib/token';
-import { type TvSeries } from '@/types/tv-series';
 
 export default async function ValidateWatchedStatus({
-  tvSeries,
+  id,
 }: Readonly<{
-  tvSeries: TvSeries;
+  id: number;
 }>) {
   const cookieStore = await cookies();
   const encryptedSessionId = cookieStore.get('sessionId')?.value;
@@ -26,6 +26,11 @@ export default async function ValidateWatchedStatus({
 
   const user = await findUser({ userId: session.userId });
   if (!user) {
+    return null;
+  }
+
+  const tvSeries = await cachedTvSeries(id);
+  if (!tvSeries) {
     return null;
   }
 

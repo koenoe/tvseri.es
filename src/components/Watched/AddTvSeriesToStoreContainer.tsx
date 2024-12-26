@@ -1,18 +1,21 @@
 import { cookies } from 'next/headers';
 
+import { cachedTvSeries } from '@/lib/cached';
 import { findSession } from '@/lib/db/session';
 import { findUser } from '@/lib/db/user';
 import { getAllWatchedForTvSeries } from '@/lib/db/watched';
 import { decryptToken } from '@/lib/token';
-import { type TvSeries } from '@/types/tv-series';
 
 import AddTvSeriesToStore from './AddTvSeriesToStore';
 
 export default async function AddTvSeriesToStoreContainer({
-  tvSeries,
+  id,
 }: Readonly<{
-  tvSeries: TvSeries;
+  id: number;
 }>) {
+  const tvSeriesFromCache = await cachedTvSeries(id);
+  const tvSeries = tvSeriesFromCache!;
+
   const cookieStore = await cookies();
   const encryptedSessionId = cookieStore.get('sessionId')?.value;
   if (!encryptedSessionId) {

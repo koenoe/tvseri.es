@@ -52,7 +52,14 @@ export default async function SettingsPage({
   }
 
   if (tab === 'import') {
-    return <FileUploader />;
+    return (
+      <FileUploader
+        accept={{ 'text/csv': [] }}
+        multiple={false}
+        maxSize={4 * 1024 * 1024}
+        maxFileCount={1}
+      />
+    );
   }
 
   if (tab === 'webhooks') {

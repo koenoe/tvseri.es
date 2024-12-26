@@ -11,7 +11,7 @@ import { getAllWatchedByDate } from './db/watched';
 import { fetchPerson, fetchTvSeries } from './tmdb';
 
 export const cachedTvSeries = cache(async (id: string | number) => {
-  const dynamoCacheKey = `tv:${id}`;
+  const dynamoCacheKey = `tv:v2:${id}`;
   const dynamoCachedItem = await getCacheItem<TvSeries>(dynamoCacheKey);
   if (dynamoCachedItem) {
     return dynamoCachedItem;
@@ -29,7 +29,7 @@ export const cachedTvSeries = cache(async (id: string | number) => {
 });
 
 export const cachedPerson = cache(async (id: string | number) => {
-  const dynamoCacheKey = `person:${id}`;
+  const dynamoCacheKey = `person:v1:${id}`;
   const dynamoCachedItem = await getCacheItem<Person>(dynamoCacheKey);
   if (dynamoCachedItem) {
     return dynamoCachedItem;

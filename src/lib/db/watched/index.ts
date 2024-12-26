@@ -86,6 +86,27 @@ const normalizeWatchedItem = (item: WatchedItem) => ({
     : undefined,
 });
 
+export const isWatchedItemLastEpisodeOfSeries = ({
+  watchedItem,
+  tvSeries,
+}: Readonly<{
+  watchedItem: WatchedItem;
+  tvSeries: TvSeries;
+}>) => {
+  const tvSeriesSeasons = tvSeries.seasons ?? [];
+  const lastSeason = tvSeriesSeasons[tvSeriesSeasons.length - 1];
+  if (!lastSeason) {
+    return false;
+  }
+
+  const lastSeasonNumber = lastSeason.seasonNumber;
+  const lastSeasonEpisodeNumber = lastSeason.numberOfEpisodes;
+  return (
+    watchedItem.seasonNumber === lastSeasonNumber &&
+    watchedItem.episodeNumber === lastSeasonEpisodeNumber
+  );
+};
+
 export const markWatched = async ({
   userId,
   tvSeries,
@@ -130,11 +151,7 @@ export const markWatched = async ({
 
   await client.send(command);
 
-  const isLastEpisodeOfSeries =
-    watchedItem.seasonNumber === tvSeries.lastEpisodeToAir?.seasonNumber &&
-    watchedItem.episodeNumber === tvSeries.lastEpisodeToAir?.episodeNumber;
-
-  if (isLastEpisodeOfSeries) {
+  if (isWatchedItemLastEpisodeOfSeries({ watchedItem, tvSeries })) {
     await addToList({
       userId: userId,
       listId: 'WATCHED',
@@ -255,11 +272,13 @@ export const markSeasonWatched = async ({
   await Promise.all(batchPromises);
 
   const lastWatchedItem = watchedItems[watchedItems.length - 1];
-  const isLastEpisodeOfSeries =
-    lastWatchedItem.seasonNumber === tvSeries.lastEpisodeToAir?.seasonNumber &&
-    lastWatchedItem.episodeNumber === tvSeries.lastEpisodeToAir?.episodeNumber;
 
-  if (isLastEpisodeOfSeries) {
+  if (
+    isWatchedItemLastEpisodeOfSeries({
+      tvSeries,
+      watchedItem: lastWatchedItem,
+    })
+  ) {
     await addToList({
       userId,
       listId: 'WATCHED',

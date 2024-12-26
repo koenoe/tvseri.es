@@ -34,16 +34,17 @@ export default async function ValidateWatchedStatus({
     return null;
   }
 
-  const isInWatchedList = await isInList({
-    userId: user.id,
-    listId: 'WATCHED',
-    id: tvSeries.id,
-  });
-
-  const tvSeriesIsWatched = await isTvSeriesWatched({
-    userId: user.id,
-    tvSeries,
-  });
+  const [tvSeriesIsWatched, isInWatchedList] = await Promise.all([
+    isTvSeriesWatched({
+      userId: user.id,
+      tvSeries,
+    }),
+    isInList({
+      userId: user.id,
+      listId: 'WATCHED',
+      id: tvSeries.id,
+    }),
+  ]);
 
   if (!isInWatchedList && tvSeriesIsWatched) {
     await addToList({

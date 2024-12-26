@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { notFound, unauthorized } from 'next/navigation';
 
+import FileUploader from '@/components/FileUploader/FileUploader';
 import Webhook from '@/components/Webhook/Webhook';
 import { findSession } from '@/lib/db/session';
 import { findUser } from '@/lib/db/user';
@@ -51,7 +52,7 @@ export default async function SettingsPage({
   }
 
   if (tab === 'import') {
-    return <p>Data importer here</p>;
+    return <FileUploader />;
   }
 
   if (tab === 'webhooks') {

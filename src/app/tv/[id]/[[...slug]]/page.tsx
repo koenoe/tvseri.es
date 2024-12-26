@@ -96,8 +96,8 @@ export default async function TvSeriesDetailsPage({
       usePersistentStore={false}
     >
       <Suspense fallback={null}>
-        <AddTvSeriesToStoreContainer tvSeries={tvSeries} />
-        <ValidateWatchedStatus tvSeries={tvSeries} />
+        <AddTvSeriesToStoreContainer id={tvSeries.id} />
+        <ValidateWatchedStatus id={tvSeries.id} />
       </Suspense>
       <div className="container">
         <div className="relative flex h-[calc(85vh-16rem)] items-end md:h-[calc(65vh-8rem)]">

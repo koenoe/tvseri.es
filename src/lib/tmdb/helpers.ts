@@ -308,8 +308,11 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     numberOfSeasons: series.number_of_seasons ?? 0,
     popularity: series.popularity,
     firstAirDate,
-    firstEpisodeToAir: {} as Episode,
-    lastEpisodeToAir: {} as Episode,
+    lastEpisodeToAir: series.last_episode_to_air
+      ? normalizeTvSeriesEpisode(
+          series.last_episode_to_air as unknown as TmdbTvSeriesEpisode,
+        )
+      : ({} as Episode),
     lastAirDate,
     backdropColor: DEFAULT_BACKGROUND_COLOR,
     releaseYear,

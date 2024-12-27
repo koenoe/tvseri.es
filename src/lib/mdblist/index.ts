@@ -1,4 +1,7 @@
 import 'server-only';
+import { createFetch } from '@better-fetch/fetch';
+
+import nextPlugin from '../betterFetchNextPlugin';
 import { getCacheItem, setCacheItem } from '../db/cache';
 
 type MediaType = 'movie' | 'show';
@@ -9,41 +12,39 @@ type Item = Readonly<{
   mediaType: MediaType;
 }>;
 
+const $fetch = createFetch({
+  baseURL: 'https://api.mdblist.com',
+  retry: {
+    type: 'exponential',
+    attempts: 4, // Initial + 3 retries
+    baseDelay: 250, // Start with 250ms delay
+    maxDelay: 2000, // Cap at 2 seconds
+  },
+  plugins: [nextPlugin],
+});
+
 async function mdblistFetch(path: RequestInfo | URL, init?: RequestInit) {
   const headers = {
     accept: 'application/json',
   };
 
-  // Note: NextJS doesn't allow both revalidate + cache headers
-  const next = init?.cache ? {} : init?.next;
-
-  const patchedOptions = {
+  const { data, error } = await $fetch(path.toString(), {
     ...init,
-    next: {
-      ...next,
-      ...init?.next,
-    },
     headers: {
       ...headers,
       ...init?.headers,
     },
-  };
+    query: {
+      format: 'json',
+      apikey: process.env.MDBLIST_API_KEY as string,
+    },
+  });
 
-  const urlWithParams = new URL(`https://api.mdblist.com${path}`);
-  urlWithParams.searchParams.set('format', 'json');
-  urlWithParams.searchParams.set(
-    'apikey',
-    process.env.MDBLIST_API_KEY as string,
-  );
-
-  const response = await fetch(urlWithParams.toString(), patchedOptions);
-
-  if (!response.ok) {
-    throw new Error(`HTTP error status: ${response.status}`);
+  if (error) {
+    throw new Error(`HTTP error status: ${error.status}`);
   }
 
-  const json = await response.json();
-  return json;
+  return data;
 }
 
 export async function fetchTvSeriesOrMovie(

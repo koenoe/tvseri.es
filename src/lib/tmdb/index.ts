@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { createFetch } from '@better-fetch/fetch';
 import slugify from 'slugify';
 
 import { WATCH_PROVIDER_PRIORITY } from '@/constants';
@@ -50,21 +51,25 @@ import {
   type TmdbTvSeriesEpisode,
   normalizeTvSeriesEpisode,
 } from './helpers';
+import nextPlugin from '../betterFetchNextPlugin';
 import { getCacheItem, setCacheItem } from '../db/cache';
 import { findPreferredImages } from '../db/preferredImages';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
 
+const $fetch = createFetch({
+  baseURL: 'https://api.themoviedb.org',
+  retry: {
+    type: 'exponential',
+    attempts: 4, // Initial + 3 retries
+    baseDelay: 250, // Start with 250ms delay
+    maxDelay: 2000, // Cap at 2 seconds
+  },
+  plugins: [nextPlugin],
+});
+
 async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
   const pathAsString = path.toString();
-  const urlWithParams = new URL(`https://api.themoviedb.org${pathAsString}`);
-
-  if (pathAsString.startsWith('/3/')) {
-    urlWithParams.searchParams.set(
-      'api_key',
-      process.env.TMDB_API_KEY as string,
-    );
-  }
 
   const headers = {
     'content-type': 'application/json',
@@ -73,34 +78,28 @@ async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
     }),
   };
 
-  // Note: NextJS doesn't allow both revalidate + cache headers
-  const next = init?.cache ? {} : init?.next;
-
-  const patchedOptions = {
+  const { data, error } = await $fetch(pathAsString, {
     ...init,
-    next: {
-      ...next,
-      ...init?.next,
-    },
     headers: {
       ...headers,
       ...init?.headers,
     },
-  };
+    query: {
+      ...(pathAsString.startsWith('/3/') && {
+        api_key: process.env.TMDB_API_KEY as string,
+      }),
+    },
+  });
 
-  const response = await fetch(urlWithParams.toString(), patchedOptions);
-
-  if (response.status === 404) {
+  if (error?.status === 404) {
     return undefined;
   }
 
-  if (!response.ok) {
-    throw new Error(`HTTP error status: ${response.status}`);
+  if (error) {
+    throw new Error(`HTTP error status: ${error.status}`);
   }
 
-  const json = await response.json();
-
-  return json;
+  return data;
 }
 
 export async function createRequestToken(redirectUri: string = getBaseUrl()) {

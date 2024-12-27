@@ -17,6 +17,9 @@ importers:
       '@aws-sdk/util-dynamodb':
         specifier: ^3.716.0
         version: 3.716.0(@aws-sdk/client-dynamodb@3.716.0)
+      '@better-fetch/fetch':
+        specifier: ^1.1.12
+        version: 1.1.12
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -302,6 +305,9 @@ packages:
   '@babel/types@7.26.3':
     resolution: {integrity: sha512-vN5p+1kl59GVKMvTHt55NzzmYVxprfJD+ql7U9NFIfKCBkYE55LYtS+WtPlaYOyzydrKI8Nezd+aZextrd+FMA==}
     engines: {node: '>=6.9.0'}
+
+  '@better-fetch/fetch@1.1.12':
+    resolution: {integrity: sha512-B3bfloI/2UBQWIATRN6qmlORrvx3Mp0kkNjmXLv0b+DtbtR+pP4/I5kQA/rDUv+OReLywCCldf6co4LdDmh8JA==}
 
   '@emnapi/runtime@1.2.0':
     resolution: {integrity: sha512-bV21/9LQmcQeCPEg3BDFtvwL6cwiTMksYNWQQ4KOxCZikEGalWtenoZ0wCiukJINlGCIi2KXx01g4FoH/LxpzQ==}
@@ -3534,6 +3540,8 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
+
+  '@better-fetch/fetch@1.1.12': {}
 
   '@emnapi/runtime@1.2.0':
     dependencies:

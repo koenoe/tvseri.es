@@ -11,88 +11,19 @@ import Dropzone, {
 import formatBytes from '@/utils/formatBytes';
 
 interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
-  /**
-   * Value of the uploader.
-   * @type File[]
-   * @default undefined
-   * @example value={files}
-   */
   value?: File[];
-
-  /**
-   * Function to be called when the value changes.
-   * @type (files: File[]) => void
-   * @default undefined
-   * @example onValueChange={(files) => setFiles(files)}
-   */
-  onValueChange?: (files: File[]) => void;
-
-  /**
-   * Function to be called when files are uploaded.
-   * @type (files: File[]) => Promise<void>
-   * @default undefined
-   * @example onUpload={(files) => uploadFiles(files)}
-   */
-  onUpload?: (files: File[]) => Promise<void>;
-
-  /**
-   * Progress of the uploaded files.
-   * @type Record<string, number> | undefined
-   * @default undefined
-   * @example progresses={{ "file1.png": 50 }}
-   */
-  progresses?: Record<string, number>;
-
-  /**
-   * Accepted file types for the uploader.
-   * @type { [key: string]: string[]}
-   * @default
-   * ```ts
-   * { "image/*": [] }
-   * ```
-   * @example accept={["image/png", "image/jpeg"]}
-   */
+  onUpload?: (files: File[]) => void;
   accept?: DropzoneProps['accept'];
-
-  /**
-   * Maximum file size for the uploader.
-   * @type number | undefined
-   * @default 1024 * 1024 * 2 // 2MB
-   * @example maxSize={1024 * 1024 * 2} // 2MB
-   */
   maxSize?: DropzoneProps['maxSize'];
-
-  /**
-   * Maximum number of files for the uploader.
-   * @type number | undefined
-   * @default 1
-   * @example maxFileCount={4}
-   */
   maxFileCount?: DropzoneProps['maxFiles'];
-
-  /**
-   * Whether the uploader should accept multiple files.
-   * @type boolean
-   * @default false
-   * @example multiple
-   */
   multiple?: boolean;
-
-  /**
-   * Whether the uploader is disabled.
-   * @type boolean
-   * @default false
-   * @example disabled
-   */
   disabled?: boolean;
 }
 
 export default function FileUploader(props: FileUploaderProps) {
   const {
     value: valueProp,
-    onValueChange,
     onUpload,
-    progresses,
     accept = {
       'image/*': [],
     },
@@ -118,13 +49,7 @@ export default function FileUploader(props: FileUploaderProps) {
         return;
       }
 
-      const newFiles = acceptedFiles.map((file) =>
-        Object.assign(file, {
-          preview: URL.createObjectURL(file),
-        }),
-      );
-
-      const updatedFiles = files ? [...files, ...newFiles] : newFiles;
+      const updatedFiles = files ? [...files, ...acceptedFiles] : acceptedFiles;
 
       setFiles(updatedFiles);
 
@@ -133,6 +58,8 @@ export default function FileUploader(props: FileUploaderProps) {
           console.error(`File ${file.name} was rejected`);
         });
       }
+
+      console.log('Uploading files:', updatedFiles);
 
       if (
         onUpload &&
@@ -143,14 +70,13 @@ export default function FileUploader(props: FileUploaderProps) {
       }
     },
 
-    [files, maxFileCount, multiple, onUpload, setFiles],
+    [files, maxFileCount, multiple, onUpload],
   );
 
   function onRemove(index: number) {
     if (!files) return;
     const newFiles = files.filter((_, i) => i !== index);
     setFiles(newFiles);
-    onValueChange?.(newFiles);
   }
 
   const isDisabled = disabled || (files?.length ?? 0) >= maxFileCount;
@@ -169,65 +95,49 @@ export default function FileUploader(props: FileUploaderProps) {
           <div
             {...getRootProps()}
             className={cx(
-              'border-muted-foreground/25 hover:bg-muted/25 group relative grid h-52 w-full cursor-pointer place-items-center rounded-lg border-2 border-dashed px-5 py-2.5 text-center transition',
-              'ring-offset-background focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-              isDragActive && 'border-muted-foreground/50',
-              isDisabled && 'pointer-events-none opacity-60',
+              'relative grid h-52 w-full cursor-pointer place-items-center rounded-xl border-2 border-dashed border-white/40 px-5 py-2.5 text-center transition hover:bg-white/[0.01]',
+              {
+                '!border-white !bg-transparent !text-white': isDragActive,
+                'pointer-events-none opacity-50': isDisabled,
+              },
               className,
             )}
             {...dropzoneProps}
           >
             <input {...getInputProps()} />
-            {isDragActive ? (
-              <div className="flex flex-col items-center justify-center gap-4 sm:px-5">
-                <div className="rounded-full border border-dashed p-5">
-                  <svg
-                    className="size-7"
-                    fill="currentColor"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                  >
-                    <g>
-                      <g>
-                        <path d="M24,24H0v-8h2v6h20v-6h2V24z M13,18h-2V3.8L5.7,9.1L4.3,7.7L12,0l7.7,7.7l-1.4,1.4L13,3.8V18z" />
-                      </g>
-                    </g>
-                  </svg>
-                </div>
-                <p className="text-muted-foreground font-medium">
-                  Drop the files here
-                </p>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-4 sm:px-5">
-                <div className="rounded-full border border-dashed p-5">
-                  <svg
-                    className="size-7"
-                    fill="currentColor"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                  >
-                    <g>
-                      <g>
-                        <path d="M24,24H0v-8h2v6h20v-6h2V24z M13,18h-2V3.8L5.7,9.1L4.3,7.7L12,0l7.7,7.7l-1.4,1.4L13,3.8V18z" />
-                      </g>
-                    </g>
-                  </svg>
-                </div>
-                <div className="flex flex-col gap-px">
-                  <p className="text-muted-foreground font-medium">
-                    Drag {`'n'`} drop files here, or click to select files
-                  </p>
-                  <p className="text-muted-foreground/70 text-sm">
-                    You can upload
-                    {maxFileCount > 1
-                      ? ` ${maxFileCount === Infinity ? 'multiple' : maxFileCount}
-                      files (up to ${formatBytes(maxSize)} each)`
-                      : ` a file with ${formatBytes(maxSize)}`}
-                  </p>
-                </div>
-              </div>
-            )}
+            <div className="flex flex-col items-center justify-center pb-6 pt-5">
+              <svg
+                className={cx('mb-4 h-8 w-8 text-white/60', {
+                  '!text-white': isDragActive,
+                })}
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 20 16"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                />
+              </svg>
+              <p
+                className={cx('mb-2 text-base text-white/60', {
+                  '!text-white': isDragActive,
+                })}
+              >
+                <span className="font-bold">Click to upload</span> or drag and
+                drop
+              </p>
+              <p
+                className={cx('text-sm text-white/60', {
+                  '!text-white': isDragActive,
+                })}
+              >
+                {formatBytes(maxSize)} max file size
+              </p>
+            </div>
           </div>
         )}
       </Dropzone>
@@ -239,7 +149,6 @@ export default function FileUploader(props: FileUploaderProps) {
                 key={index}
                 file={file}
                 onRemove={() => onRemove(index)}
-                progress={progresses?.[file.name]}
               />
             ))}
           </div>
@@ -249,53 +158,47 @@ export default function FileUploader(props: FileUploaderProps) {
   );
 }
 
-interface FileCardProps {
+function FileCard({
+  file,
+  onRemove,
+}: Readonly<{
   file: File;
   onRemove: () => void;
-  progress?: number;
-}
-
-function FileCard({ file, progress, onRemove }: FileCardProps) {
+}>) {
   return (
-    <div className="relative flex items-center gap-2.5">
-      <div className="flex flex-1 gap-2.5">
+    <div className="relative flex items-center gap-4">
+      <div className="flex flex-1 gap-4">
         <svg
           className="size-10"
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"
           fill="currentColor"
         >
-          <path d="M15.29 1H3v11h1V2h10v6h6v14H4v-3H3v4h18V6.709zM20 7h-5V2h.2L20 6.8zm-4.96 11l2.126-5H16.08l-1.568 3.688L12.966 13h-1.084l2.095 5zM7 14.349v.302A1.35 1.35 0 0 0 8.349 16H9.65a.349.349 0 0 1 .349.349v.302A.349.349 0 0 1 9.65 17H7v1h2.651A1.35 1.35 0 0 0 11 16.651v-.302A1.35 1.35 0 0 0 9.651 15H8.35a.349.349 0 0 1-.35-.349v-.302A.349.349 0 0 1 8.349 14H11v-1H8.349A1.35 1.35 0 0 0 7 14.349zm-5 .692v.918A2.044 2.044 0 0 0 4.041 18H6v-1H4.041A1.042 1.042 0 0 1 3 15.959v-.918A1.042 1.042 0 0 1 4.041 14H6v-1H4.041A2.044 2.044 0 0 0 2 15.041z" />
+          <path d="M6 10h12v1H6zM3 1h12.29L21 6.709V23H3zm12 6h5v-.2L15.2 2H15zM4 22h16V8h-6V2H4zm2-7h12v-1H6zm0 4h9v-1H6z" />
           <path fill="none" d="M0 0h24v24H0z" />
         </svg>
-        <div className="flex w-full flex-col gap-2">
-          <div className="flex flex-col gap-px">
-            <p className="text-foreground/80 line-clamp-1 text-sm font-medium">
-              {file.name}
-            </p>
-            <p className="text-muted-foreground text-xs">
-              {formatBytes(file.size)}
-            </p>
-          </div>
-          {progress ? <progress value={progress} /> : null}
+        <div className="flex w-full flex-col gap-1">
+          <p className="text-foreground/80 line-clamp-1 text-sm font-medium">
+            {file.name}
+          </p>
+          <p className="text-muted-foreground text-xs">
+            {formatBytes(file.size)}
+          </p>
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          className="size-7 rounded border border-white/40 text-white"
-          onClick={onRemove}
+      <button
+        type="button"
+        className="size-8 rounded-md border border-white p-1 text-white"
+        onClick={onRemove}
+      >
+        <svg
+          fill="currentColor"
+          viewBox="0 0 1024 1024"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          <svg
-            fill="currentColor"
-            viewBox="0 0 1024 1024"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M697.4 759.2l61.8-61.8L573.8 512l185.4-185.4-61.8-61.8L512 450.2 326.6 264.8l-61.8 61.8L450.2 512 264.8 697.4l61.8 61.8L512 573.8z" />
-          </svg>
-          <span className="sr-only">Remove file</span>
-        </button>
-      </div>
+          <path d="M697.4 759.2l61.8-61.8L573.8 512l185.4-185.4-61.8-61.8L512 450.2 326.6 264.8l-61.8 61.8L450.2 512 264.8 697.4l61.8 61.8L512 573.8z" />
+        </svg>
+      </button>
     </div>
   );
 }

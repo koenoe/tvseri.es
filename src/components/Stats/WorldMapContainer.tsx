@@ -1,6 +1,5 @@
 import { cachedTvSeries, cachedWatchedByYear } from '@/lib/cached';
 import { getCacheItem, setCacheItem } from '@/lib/db/cache';
-import sleep from '@/utils/sleep';
 
 import WorldMap from './WorldMap';
 
@@ -10,12 +9,6 @@ type Input = Readonly<{
   userId: string;
   year: number | string;
 }>;
-
-const cachedTvSeriesWithSleep = async (id: number) => {
-  const result = await cachedTvSeries(id);
-  await sleep(20); // 20ms = ~50 requests per second
-  return result;
-};
 
 const getCountryStats = async (
   input: Readonly<{
@@ -33,7 +26,7 @@ const getCountryStats = async (
   ];
 
   const seriesWithCountries = await Promise.all(
-    uniqueSeriesIds.map((id) => cachedTvSeriesWithSleep(id)),
+    uniqueSeriesIds.map((id) => cachedTvSeries(id)),
   );
 
   const countryStats: CountryStats = {};

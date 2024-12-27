@@ -16,6 +16,7 @@
     "@aws-sdk/client-dynamodb": "^3.716.0",
     "@aws-sdk/client-lambda": "^3.716.0",
     "@aws-sdk/util-dynamodb": "^3.716.0",
+    "@better-fetch/fetch": "^1.1.12",
     "class-variance-authority": "^0.7.1",
     "color": "^4.2.3",
     "date-fns": "^4.1.0",
@@ -56,7 +57,7 @@
     "prettier-plugin-tailwindcss": "^0.6.9",
     "sharp": "^0.33.5",
     "sort-package-json": "^2.12.0",
-    "sst": "^3.4.31",
+    "sst": "^3.4.32",
     "tailwind-scrollbar-hide": "^2.0.0",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2"

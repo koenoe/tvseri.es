@@ -7,6 +7,7 @@ import Dropzone, {
   type DropzoneProps,
   type FileRejection,
 } from 'react-dropzone';
+import { toast } from 'sonner';
 
 import formatBytes from '@/utils/formatBytes';
 
@@ -40,12 +41,12 @@ export default function FileUploader(props: FileUploaderProps) {
   const onDrop = useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
       if (!multiple && maxFileCount === 1 && acceptedFiles.length > 1) {
-        console.error('Cannot upload more than 1 file at a time');
+        toast.error('Cannot upload more than 1 file at a time');
         return;
       }
 
       if ((files?.length ?? 0) + acceptedFiles.length > maxFileCount) {
-        console.error(`Cannot upload more than ${maxFileCount} files`);
+        toast.error(`Cannot upload more than ${maxFileCount} files`);
         return;
       }
 
@@ -55,11 +56,9 @@ export default function FileUploader(props: FileUploaderProps) {
 
       if (rejectedFiles.length > 0) {
         rejectedFiles.forEach(({ file }) => {
-          console.error(`File ${file.name} was rejected`);
+          toast.error(`File ${file.name} was rejected`);
         });
       }
-
-      console.log('Uploading files:', updatedFiles);
 
       if (
         onUpload &&

@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { notFound, unauthorized } from 'next/navigation';
 
 import Import from '@/components/Import/Import';
-import Webhook from '@/components/Webhook/Webhook';
+// import Webhook from '@/components/Webhook/Webhook';
 import { findSession } from '@/lib/db/session';
 import { findUser } from '@/lib/db/user';
 import { decryptToken } from '@/lib/token';
@@ -57,16 +57,20 @@ export default async function SettingsPage({
 
   if (tab === 'webhooks') {
     return (
-      <div className="relative w-full">
-        <h2 className="text-md mb-4 lg:text-lg">Plex</h2>
-        <Webhook
-          url={`${process.env.SITE_URL}/api/webhooks/plex?token=foobar`}
-        />
-        <h2 className="text-md mb-4 mt-10 lg:text-lg">Jellyfin</h2>
-        <Webhook
-          url={`${process.env.SITE_URL}/api/webhooks/jellyfin?token=foobar`}
-        />
-      </div>
+      <p className="text-sm italic">
+        Soon you&apos;ll be able to configure webhooks for Plex and Jellyfin
+        here.
+      </p>
+      // <div className="relative w-full">
+      //   <h2 className="text-md mb-4 lg:text-lg">Plex</h2>
+      //   <Webhook
+      //     url={`${process.env.SITE_URL}/api/webhooks/plex?token=foobar`}
+      //   />
+      //   <h2 className="text-md mb-4 mt-10 lg:text-lg">Jellyfin</h2>
+      //   <Webhook
+      //     url={`${process.env.SITE_URL}/api/webhooks/jellyfin?token=foobar`}
+      //   />
+      // </div>
     );
   }
 

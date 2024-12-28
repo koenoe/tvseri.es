@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { notFound, unauthorized } from 'next/navigation';
 
-import FileUploader from '@/components/FileUploader/FileUploader';
+import Import from '@/components/Import/Import';
 import Webhook from '@/components/Webhook/Webhook';
 import { findSession } from '@/lib/db/session';
 import { findUser } from '@/lib/db/user';
@@ -52,14 +52,7 @@ export default async function SettingsPage({
   }
 
   if (tab === 'import') {
-    return (
-      <FileUploader
-        accept={{ 'text/csv': [] }}
-        multiple={false}
-        maxSize={4 * 1024 * 1024}
-        maxFileCount={1}
-      />
-    );
+    return <Import />;
   }
 
   if (tab === 'webhooks') {

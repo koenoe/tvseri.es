@@ -9,13 +9,15 @@ import { cx } from 'class-variance-authority';
 
 const Table = forwardRef<HTMLTableElement, HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
-    <div className="relative w-full overflow-auto rounded-md border border-neutral-700 bg-neutral-900 [&_*]:border-neutral-700">
+    <div
+      className={cx(
+        'relative w-full overflow-auto rounded-md border border-neutral-700 bg-neutral-900 [&_*]:border-neutral-700',
+        className,
+      )}
+    >
       <table
         ref={ref}
-        className={cx(
-          'w-full caption-bottom text-sm [&>tbody>tr:hover]:bg-neutral-800 [&>tbody>tr]:bg-neutral-900',
-          className,
-        )}
+        className="w-full caption-bottom text-sm [&>tbody>tr:hover]:bg-neutral-800 [&>tbody>tr]:bg-neutral-900"
         {...props}
       />
     </div>

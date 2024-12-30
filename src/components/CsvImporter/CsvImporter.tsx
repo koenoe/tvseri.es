@@ -2,18 +2,60 @@
 
 import { useCallback, useState } from 'react';
 
-import useCsvParser from '@/hooks/useCsvParser';
+import useCsvParser, { type Field } from '@/hooks/useCsvParser';
 
 import FileUploader from '../FileUploader/FileUploader';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '../Table';
 import PreviewTableHead from './PreviewTableHead';
 
-const fields = [
-  { label: 'Title', value: 'title' },
+const fields: Field[] = [
+  {
+    label: 'Title',
+    value: 'title',
+    parser: {
+      regex:
+        /^(.+?)(?=(?:\s+Season|\s*[-–]\s*Season|:\s*(?:Season|Part|Limited Series|Episode|Chapter)))/i,
+      transform: (match, value) => (match ? match[1].trim() : value),
+    },
+  },
   { label: 'Date', value: 'date' },
-  { label: 'Season', value: 'season' },
-  { label: 'Episode', value: 'episode' },
-  // { label: 'Streaming service', value: 'watchProvider' },
+  {
+    label: 'Season',
+    value: 'season',
+    parser: {
+      regex: /Season (\d+)|Season#(\d+)|Part (\d+)/,
+      transform: (match) =>
+        match ? parseInt(match[1] || match[2] || match[3], 10) : 1,
+    },
+  },
+  {
+    label: 'Episode',
+    value: 'episode',
+    parser: {
+      regex:
+        /(?:Episode[# ](\d+)|Chapter[# ](\d+)|Part (?:One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten))/i,
+      transform: (match) => {
+        if (!match) return '';
+        if (match[1] || match[2]) return parseInt(match[1] || match[2], 10);
+
+        const wordToNumber: Record<string, number> = {
+          one: 1,
+          two: 2,
+          three: 3,
+          four: 4,
+          five: 5,
+          six: 6,
+          seven: 7,
+          eight: 8,
+          nine: 9,
+          ten: 10,
+        };
+
+        const word = match[0].replace('Part ', '').toLowerCase();
+        return wordToNumber[word] || '';
+      },
+    },
+  },
 ];
 
 export default function CsvImporter() {
@@ -51,8 +93,8 @@ export default function CsvImporter() {
           <span>Reset</span>
         </button>
       </div>
-      <Table className="text-xs">
-        <TableHeader>
+      <Table className="h-[calc(100vh-28.25rem)] text-xs">
+        <TableHeader className="sticky top-0 z-10 border-b">
           <TableRow>
             {fields.map((field) => (
               <PreviewTableHead

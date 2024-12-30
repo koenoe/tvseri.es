@@ -27,7 +27,7 @@ const Noise = () => {
 };
 
 export const genreStyles = cva(
-  'relative flex aspect-video w-[calc(100vw-4rem)] flex-shrink-0 transform-gpu cursor-pointer items-end overflow-hidden rounded-lg p-8 shadow-lg md:w-96',
+  'relative select-none flex aspect-video w-[calc(100vw-4rem)] flex-shrink-0 transform-gpu cursor-pointer items-end overflow-hidden rounded-lg p-8 shadow-lg md:w-96',
 );
 
 const MotionLink = motion.create(Link);

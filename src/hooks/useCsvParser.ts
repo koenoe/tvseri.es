@@ -2,7 +2,18 @@ import { useState } from 'react';
 
 import * as Papa from 'papaparse';
 
-interface CsvState {
+export type Parser = Readonly<{
+  regex: RegExp;
+  transform: (match: RegExpMatchArray | null, value: string) => string | number;
+}>;
+
+export type Field = Readonly<{
+  label: string;
+  value: string;
+  parser?: Parser;
+}>;
+
+type CsvState = Readonly<{
   fileName: string;
   data: {
     parsed: Record<string, unknown>[];
@@ -13,13 +24,31 @@ interface CsvState {
     current: Record<string, string | undefined>;
   };
   error: string | null;
-}
+}>;
 
-interface UseCsvParserProps extends Papa.ParseConfig {
-  fields: { label: string; value: string }[];
+type UseCsvParserProps = {
+  fields: Field[];
   onSuccess?: (data: Record<string, unknown>[]) => void;
   onError?: (message: string) => void;
-}
+} & Papa.ParseConfig;
+
+const parseValue = (
+  value: unknown,
+  targetField: string,
+  fields: Field[],
+): unknown => {
+  if (typeof value !== 'string') {
+    return value;
+  }
+
+  const field = fields.find((f) => f.value === targetField);
+  if (!field?.parser) {
+    return value;
+  }
+
+  const match = value.match(field.parser.regex);
+  return field.parser.transform(match, value);
+};
 
 export default function useCsvParser({
   fields,
@@ -108,7 +137,7 @@ export default function useCsvParser({
             throw new Error(`Only ${limit} rows are allowed`);
           }
         } catch (err) {
-          const error = (err as Error).toString();
+          const error = (err as Error)?.message;
           setCsvState((prevState) => ({
             ...prevState,
             error,
@@ -147,10 +176,15 @@ export default function useCsvParser({
       },
       data: {
         ...prevState.data,
-        mapped: prevState.data.mapped.map((row, index) => ({
-          ...row,
-          [newValue]: prevState.data.parsed[index]?.[oldValue],
-        })),
+        mapped: prevState.data.mapped.map((row, index) => {
+          const originalValue = prevState.data.parsed[index]?.[oldValue];
+          const parsedValue = parseValue(originalValue, newValue, fields);
+
+          return {
+            ...row,
+            [newValue]: parsedValue,
+          };
+        }),
       },
     }));
   }

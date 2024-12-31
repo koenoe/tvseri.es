@@ -8,6 +8,8 @@ import FileUploader from '../FileUploader/FileUploader';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '../Table';
 import PreviewTableHead from './PreviewTableHead';
 
+type Part = 'title' | 'season' | 'episode';
+
 const getDelimiter = (value: string): string => {
   const colonCount = (value.match(/:\s/g) || []).length;
   const dashCount = (value.match(/-\s/g) || []).length;
@@ -20,47 +22,53 @@ const getDelimiter = (value: string): string => {
       : '– ';
 };
 
-const formatParts = (value: string) => {
+const formatPart = (value: string, part: Part): string => {
+  const seasonMatch = value.match(
+    /Season\s+[^:]*|Limited Series|Part\s+[^:]*/i,
+  );
+
+  if (seasonMatch) {
+    if (part === 'title') {
+      return value
+        .substring(0, seasonMatch.index)
+        .trim()
+        .replace(/[:\\—–-]\s*$/, '');
+    }
+    if (part === 'season') {
+      return seasonMatch[0];
+    }
+    if (part === 'episode') {
+      return value
+        .substring(seasonMatch.index! + seasonMatch[0].length)
+        .trim()
+        .replace(/^[:\\—–-]\s*/, '');
+    }
+  }
+
   const delimiter = getDelimiter(value);
   const parts = value.split(delimiter);
 
   if (parts.length > 2) {
-    const secondLastPart = parts[parts.length - 2];
-    const seasonMatch = secondLastPart.match(
-      /Season|Limited Series|Chapter|Part/i,
-    );
-
-    if (seasonMatch) {
-      return {
-        title: parts.slice(0, -2).join(delimiter),
-        season: secondLastPart,
-        episode: parts[parts.length - 1],
-      };
-    }
-
-    return {
-      title: parts.slice(0, -1).join(delimiter),
-      season: '',
-      episode: parts[parts.length - 1],
-    };
+    if (part === 'title') return parts.slice(0, -1).join(delimiter);
+    if (part === 'season') return '';
+    if (part === 'episode') return parts[parts.length - 1];
   }
 
   if (parts.length > 1) {
-    return {
-      title: parts[0],
-      season: '',
-      episode: parts.slice(1).join(delimiter),
-    };
+    if (part === 'title') return parts[0];
+    if (part === 'season') return '';
+    if (part === 'episode') return parts.slice(1).join(delimiter);
   }
 
-  return { title: value, season: '', episode: '' };
+  if (part === 'title') return value;
+  return '';
 };
 
 const fields: Field[] = [
   {
     label: 'Title',
     value: 'title',
-    format: (value) => formatParts(value).title,
+    format: (value) => formatPart(value, 'title'),
   },
   {
     label: 'Date',
@@ -69,12 +77,12 @@ const fields: Field[] = [
   {
     label: 'Season',
     value: 'season',
-    format: (value) => formatParts(value).season,
+    format: (value) => formatPart(value, 'season'),
   },
   {
     label: 'Episode',
     value: 'episode',
-    format: (value) => formatParts(value).episode,
+    format: (value) => formatPart(value, 'episode'),
   },
   {
     label: 'Streaming service',

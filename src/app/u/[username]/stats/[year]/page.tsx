@@ -59,12 +59,12 @@ export default async function StatsByYearPage({ params }: Props) {
           <h1 className="text-[6rem] font-extrabold leading-none tracking-wide sm:text-[8rem] md:text-[10rem]">
             {year}
           </h1>
-          <span className="mt-2 text-sm text-white/55 md:text-lg">
+          <div className="mt-2 text-sm text-white/55 md:text-lg">
             A year of tvseri.es with
             <span className="ml-2 rounded bg-[#666] px-2 py-1 text-white">
               {user.username}
             </span>
-          </span>
+          </div>
         </div>
       </div>
       <div className="container mt-10 md:mt-8">

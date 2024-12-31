@@ -12,49 +12,54 @@ const fields: Field[] = [
   {
     label: 'Title',
     value: 'title',
-    parser: {
-      regex:
-        /^(.+?)(?=(?:\s+Season|\s*[-–]\s*Season|:\s*(?:Season|Part|Limited Series|Episode|Chapter)))/i,
-      transform: (match, value) => (match ? match[1].trim() : value),
-    },
+    format: (value) =>
+      value
+        .match(
+          /^(.+?)(?=(?:\s+Season|\s*[-–]\s*Season|:\s*(?:Season|Part|Limited Series|Episode|Chapter)))/i,
+        )?.[1]
+        ?.trim() || value,
   },
-  { label: 'Date', value: 'date' },
+  {
+    label: 'Date',
+    value: 'date',
+  },
   {
     label: 'Season',
     value: 'season',
-    parser: {
-      regex: /Season (\d+)|Season#(\d+)|Part (\d+)/,
-      transform: (match) =>
-        match ? parseInt(match[1] || match[2] || match[3], 10) : 1,
+    format: (value) => {
+      const match = value.match(/Season (\d+)|Season#(\d+)|Part (\d+)/);
+      return match ? parseInt(match[1] || match[2] || match[3], 10) : 1;
     },
   },
   {
     label: 'Episode',
     value: 'episode',
-    parser: {
-      regex:
+    format: (value) => {
+      const match = value.match(
         /(?:Episode[# ](\d+)|Chapter[# ](\d+)|Part (?:One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten))/i,
-      transform: (match) => {
-        if (!match) return '';
-        if (match[1] || match[2]) return parseInt(match[1] || match[2], 10);
+      );
+      if (!match) return '';
+      if (match[1] || match[2]) return parseInt(match[1] || match[2], 10);
 
-        const wordToNumber: Record<string, number> = {
-          one: 1,
-          two: 2,
-          three: 3,
-          four: 4,
-          five: 5,
-          six: 6,
-          seven: 7,
-          eight: 8,
-          nine: 9,
-          ten: 10,
-        };
-
-        const word = match[0].replace('Part ', '').toLowerCase();
-        return wordToNumber[word] || '';
-      },
+      const wordMap: Record<string, number> = {
+        one: 1,
+        two: 2,
+        three: 3,
+        four: 4,
+        five: 5,
+        six: 6,
+        seven: 7,
+        eight: 8,
+        nine: 9,
+        ten: 10,
+      };
+      const word = match[0].replace('Part ', '').toLowerCase();
+      return wordMap[word] || '';
     },
+  },
+  {
+    label: 'Streaming service',
+    value: 'watchProvider',
   },
 ];
 

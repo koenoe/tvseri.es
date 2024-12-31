@@ -5,7 +5,14 @@ import { useCallback, useState } from 'react';
 import useCsvParser, { type Field } from '@/hooks/useCsvParser';
 
 import FileUploader from '../FileUploader/FileUploader';
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '../Table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../Table';
 import PreviewTableHead from './PreviewTableHead';
 
 type Part = 'title' | 'season' | 'episode';
@@ -24,7 +31,7 @@ const getDelimiter = (value: string): string => {
 
 const formatPart = (value: string, part: Part): string => {
   const seasonMatch = value.match(
-    /Season\s+[^:]*|Limited Series|Part\s+[^:]*/i,
+    /(?:Season|Series|Part)\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|Limited Series|[A-Z][a-z]+(?:st|nd|rd|th) Season/i,
   );
 
   if (seasonMatch) {
@@ -94,22 +101,92 @@ export default function CsvImporter() {
   const [file, setFile] = useState<File | null>(null);
   const {
     data,
+    error,
     fieldMappings,
     onParse,
     onFieldChange,
     onFieldsReset,
     getSanitizedData,
+    fileName,
   } = useCsvParser({ fields });
+
+  console.log({ fileName });
 
   const handleUpload = useCallback(
     (files: File[]) => {
       setFile(files[0]);
-      onParse({ file: files[0], limit: 1001 });
+      onParse({ file: files[0] });
     },
     [onParse],
   );
 
-  return file ? (
+  if (!file) {
+    return (
+      <FileUploader
+        accept={{ 'text/csv': [] }}
+        multiple={false}
+        maxSize={4 * 1024 * 1024}
+        maxFileCount={1}
+        onUpload={handleUpload}
+      />
+    );
+  }
+
+  if (file && !fileName && !error) {
+    return (
+      <div className="relative w-full animate-pulse">
+        <div className="mb-10 flex w-full gap-x-10">
+          <div>
+            <div className="mb-2 h-7 w-32 bg-white/15" />
+            <div className="h-5 w-64 bg-white/5" />
+          </div>
+          <div className="ml-auto h-11 w-24 rounded-3xl bg-white/5" />
+        </div>
+
+        <Table className="h-[calc(100vh-28.25rem)] text-xs">
+          <TableHeader className="sticky top-0 z-10 border-b">
+            <TableRow>
+              {Array(5)
+                .fill(null)
+                .map((_, index) => (
+                  <TableHead key={index}>
+                    <div className="h-9 w-48 rounded bg-white/5" />
+                  </TableHead>
+                ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Array(20)
+              .fill(null)
+              .map((_, rowIndex) => (
+                <TableRow key={rowIndex} className="h-9">
+                  {Array(5)
+                    .fill(null)
+                    .map((_, cellIndex) => (
+                      <TableCell key={cellIndex}>
+                        <div className="h-3 w-full bg-white/5" />
+                      </TableCell>
+                    ))}
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+
+        <div className="mt-10 flex w-full items-center gap-x-4">
+          <div className="flex h-7 items-center gap-x-2">
+            <div className="h-7 w-16 rounded bg-white/10" />
+            <div className="h-4 w-12 bg-white/5" />
+          </div>
+          <div className="ml-auto flex gap-x-4">
+            <div className="h-11 w-24 rounded-3xl bg-white/5" />
+            <div className="h-11 w-24 rounded-3xl bg-white/20" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
     <div className="relative w-full">
       <div className="mb-10 flex w-full gap-x-10">
         <div>
@@ -158,7 +235,13 @@ export default function CsvImporter() {
           ))}
         </TableBody>
       </Table>
-      <div className="mt-10 flex w-full gap-x-4">
+      <div className="mt-10 flex w-full items-center gap-x-4">
+        <div className="flex items-baseline text-sm text-white/60">
+          <span className="rounded bg-white/10 px-2 py-1 font-medium text-white">
+            {data.length.toLocaleString()}
+          </span>
+          <span className="ml-2">items</span>
+        </div>
         <button
           onClick={() => setFile(null)}
           className="ml-auto flex h-11 min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-white/5 px-5 text-sm leading-none tracking-wide hover:bg-white/10"
@@ -173,13 +256,5 @@ export default function CsvImporter() {
         </button>
       </div>
     </div>
-  ) : (
-    <FileUploader
-      accept={{ 'text/csv': [] }}
-      multiple={false}
-      maxSize={4 * 1024 * 1024}
-      maxFileCount={1}
-      onUpload={handleUpload}
-    />
   );
 }

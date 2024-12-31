@@ -11,13 +11,13 @@ import PreviewTableHead from './PreviewTableHead';
 const getDelimiter = (value: string): string => {
   const colonCount = (value.match(/:\s/g) || []).length;
   const dashCount = (value.match(/-\s/g) || []).length;
-  const emDashCount = (value.match(/—\s/g) || []).length;
+  const emDashCount = (value.match(/–\s/g) || []).length;
 
   return colonCount >= dashCount && colonCount >= emDashCount
     ? ': '
     : dashCount >= emDashCount
       ? '- '
-      : '— ';
+      : '– ';
 };
 
 const formatParts = (value: string) => {

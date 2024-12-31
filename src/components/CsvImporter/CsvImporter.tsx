@@ -26,7 +26,9 @@ const formatParts = (value: string) => {
 
   if (parts.length > 2) {
     const secondLastPart = parts[parts.length - 2];
-    const seasonMatch = secondLastPart.match(/Season|Limited Series|Part/i);
+    const seasonMatch = secondLastPart.match(
+      /Season|Limited Series|Chapter|Part/i,
+    );
 
     if (seasonMatch) {
       return {

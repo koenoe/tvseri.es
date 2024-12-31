@@ -8,16 +8,57 @@ import FileUploader from '../FileUploader/FileUploader';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '../Table';
 import PreviewTableHead from './PreviewTableHead';
 
+const getDelimiter = (value: string): string => {
+  const colonCount = (value.match(/:\s/g) || []).length;
+  const dashCount = (value.match(/-\s/g) || []).length;
+  const emDashCount = (value.match(/—\s/g) || []).length;
+
+  return colonCount >= dashCount && colonCount >= emDashCount
+    ? ': '
+    : dashCount >= emDashCount
+      ? '- '
+      : '— ';
+};
+
+const formatParts = (value: string) => {
+  const delimiter = getDelimiter(value);
+  const parts = value.split(delimiter);
+
+  if (parts.length > 2) {
+    const secondLastPart = parts[parts.length - 2];
+    const seasonMatch = secondLastPart.match(/Season|Limited Series|Part/i);
+
+    if (seasonMatch) {
+      return {
+        title: parts.slice(0, -2).join(delimiter),
+        season: secondLastPart,
+        episode: parts[parts.length - 1],
+      };
+    }
+
+    return {
+      title: parts.slice(0, -1).join(delimiter),
+      season: '',
+      episode: parts[parts.length - 1],
+    };
+  }
+
+  if (parts.length > 1) {
+    return {
+      title: parts[0],
+      season: '',
+      episode: parts.slice(1).join(delimiter),
+    };
+  }
+
+  return { title: value, season: '', episode: '' };
+};
+
 const fields: Field[] = [
   {
     label: 'Title',
     value: 'title',
-    format: (value) =>
-      value
-        .match(
-          /^(.+?)(?=(?:\s+Season|\s*[-–]\s*Season|:\s*(?:Season|Part|Limited Series|Episode|Chapter)))/i,
-        )?.[1]
-        ?.trim() || value,
+    format: (value) => formatParts(value).title,
   },
   {
     label: 'Date',
@@ -26,36 +67,12 @@ const fields: Field[] = [
   {
     label: 'Season',
     value: 'season',
-    format: (value) => {
-      const match = value.match(/Season (\d+)|Season#(\d+)|Part (\d+)/);
-      return match ? parseInt(match[1] || match[2] || match[3], 10) : 1;
-    },
+    format: (value) => formatParts(value).season,
   },
   {
     label: 'Episode',
     value: 'episode',
-    format: (value) => {
-      const match = value.match(
-        /(?:Episode[# ](\d+)|Chapter[# ](\d+)|Part (?:One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten))/i,
-      );
-      if (!match) return '';
-      if (match[1] || match[2]) return parseInt(match[1] || match[2], 10);
-
-      const wordMap: Record<string, number> = {
-        one: 1,
-        two: 2,
-        three: 3,
-        four: 4,
-        five: 5,
-        six: 6,
-        seven: 7,
-        eight: 8,
-        nine: 9,
-        ten: 10,
-      };
-      const word = match[0].replace('Part ', '').toLowerCase();
-      return wordMap[word] || '';
-    },
+    format: (value) => formatParts(value).episode,
   },
   {
     label: 'Streaming service',

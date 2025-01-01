@@ -106,7 +106,7 @@ export default function FileUploader(props: FileUploaderProps) {
             <input {...getInputProps()} />
             <div className="flex flex-col items-center justify-center pb-6 pt-5">
               <svg
-                className={cx('mb-4 h-8 w-8 text-white/60', {
+                className={cx('mb-4 size-8 text-white/60', {
                   '!text-white': isDragActive,
                 })}
                 xmlns="http://www.w3.org/2000/svg"

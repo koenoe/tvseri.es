@@ -1,6 +1,7 @@
 'use client';
 
 import { type Field } from '@/hooks/useCsvParser';
+import { type WatchProvider } from '@/types/watch-provider';
 
 import CsvImporter from '../CsvImporter/CsvImporter';
 
@@ -60,43 +61,38 @@ const formatPart = (value: string, part: Part): string => {
   return '';
 };
 
-const fields: Field[] = [
-  {
-    label: 'Title',
-    value: 'title',
-    format: (value) => formatPart(value, 'title'),
-  },
-  {
-    label: 'Date',
-    value: 'date',
-  },
-  {
-    label: 'Season',
-    value: 'season',
-    format: (value) => formatPart(value, 'season'),
-  },
-  {
-    label: 'Episode',
-    value: 'episode',
-    format: (value) => formatPart(value, 'episode'),
-  },
-  {
-    label: 'Streaming service',
-    value: 'watchProvider',
-    predefined: [
-      'Netflix',
-      'Prime Video',
-      'Disney+',
-      'Hulu',
-      'Apple TV+',
-      'HBO Max',
-      'Paramount+',
-      'Peacock',
-    ] as const,
-  },
-];
+export default function Import({
+  watchProviders,
+}: Readonly<{
+  watchProviders: WatchProvider[];
+}>) {
+  const fields: Field[] = [
+    {
+      label: 'Title',
+      value: 'title',
+      format: (value) => formatPart(value, 'title'),
+    },
+    {
+      label: 'Date',
+      value: 'date',
+    },
+    {
+      label: 'Season',
+      value: 'season',
+      format: (value) => formatPart(value, 'season'),
+    },
+    {
+      label: 'Episode',
+      value: 'episode',
+      format: (value) => formatPart(value, 'episode'),
+    },
+    {
+      label: 'Streaming service',
+      value: 'watchProvider',
+      predefined: watchProviders.map((provider) => provider.name),
+    },
+  ];
 
-export default function Import() {
   return (
     <CsvImporter
       fields={fields}

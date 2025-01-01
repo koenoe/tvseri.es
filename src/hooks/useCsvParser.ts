@@ -69,16 +69,14 @@ export default function useCsvParser({
         ...props,
         header: true,
         dynamicTyping: true,
-        skipEmptyLines: true,
+        skipEmptyLines: 'greedy',
         beforeFirstChunk: (chunk) => {
           const parsedChunk = Papa.parse<string[]>(chunk, {
             header: false,
-            skipEmptyLines: true,
+            skipEmptyLines: 'greedy',
           });
-
           const rows = parsedChunk.data;
           const columns = rows[0] ?? [];
-
           const newColumns = columns
             .map((column, index) => {
               if (column.trim() === '') {
@@ -99,6 +97,7 @@ export default function useCsvParser({
             .filter((column) => column !== null);
 
           rows[0] = newColumns;
+
           return Papa.unparse(rows);
         },
         step: (results, parser) => {

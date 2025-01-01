@@ -6,6 +6,7 @@ export type Field = Readonly<{
   label: string;
   value: string;
   format?: (value: string) => string | number;
+  predefined?: ReadonlyArray<string | number>;
 }>;
 
 type CsvState = Readonly<{
@@ -165,12 +166,20 @@ export default function useCsvParser({
         data: {
           ...prevState.data,
           mapped: prevState.data.mapped.map((row, index) => {
-            const originalValue = prevState.data.parsed[index]?.[oldValue];
-            const parsedValue = formatValue(originalValue, newValue, fields);
+            const field = fields.find((f) => f.value === newValue);
+            const isPredefinedValue = field?.predefined?.includes(oldValue);
+
+            const value = isPredefinedValue
+              ? oldValue
+              : formatValue(
+                  prevState.data.parsed[index]?.[oldValue],
+                  newValue,
+                  fields,
+                );
 
             return {
               ...row,
-              [newValue]: parsedValue,
+              [newValue]: value,
             };
           }),
         },
@@ -184,14 +193,21 @@ export default function useCsvParser({
       ...prevState,
       fieldMappings: {
         ...prevState.fieldMappings,
-        current: prevState.fieldMappings.original,
+        current: Object.fromEntries(
+          fields.map((field) => [
+            field.value,
+            field.predefined
+              ? ''
+              : prevState.fieldMappings.original[field.value],
+          ]),
+        ),
       },
       data: {
         ...prevState.data,
         mapped: prevState.data.parsed,
       },
     }));
-  }, []);
+  }, [fields]);
 
   const getSanitizedData = useCallback(
     ({ data }: { data: Record<string, unknown>[] }) =>

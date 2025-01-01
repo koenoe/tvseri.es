@@ -94,6 +94,16 @@ const fields: Field[] = [
   {
     label: 'Streaming service',
     value: 'watchProvider',
+    predefined: [
+      'Netflix',
+      'Prime Video',
+      'Disney+',
+      'Hulu',
+      'Apple TV+',
+      'HBO Max',
+      'Paramount+',
+      'Peacock',
+    ] as const,
   },
 ];
 
@@ -109,8 +119,6 @@ export default function CsvImporter() {
     getSanitizedData,
     fileName,
   } = useCsvParser({ fields });
-
-  console.log({ fileName });
 
   const handleUpload = useCallback(
     (files: File[]) => {

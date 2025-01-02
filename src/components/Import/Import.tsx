@@ -197,6 +197,7 @@ export default function Import({
                 error: `Import failed: ${error.message}`,
               },
             ]);
+            setIsImporting(false);
           }
         }
       })();

@@ -5,18 +5,17 @@ import { notFound, unauthorized } from 'next/navigation';
 
 // import Webhook from '@/components/Webhook/Webhook';
 import ImportContainer from '@/components/Import/ImportContainer';
+import { tabs, type Tab } from '@/components/Tabs/Tabs';
 import { findSession } from '@/lib/db/session';
 import { findUser } from '@/lib/db/user';
 import { decryptToken } from '@/lib/token';
-
-const tabs = ['profile', 'import', 'webhooks'] as const;
 
 export default async function SettingsPage({
   params,
 }: Readonly<{
   params: Promise<
     Readonly<{
-      tab: (typeof tabs)[number];
+      tab: Tab;
     }>
   >;
 }>) {
@@ -45,13 +44,13 @@ export default async function SettingsPage({
     return notFound();
   }
 
-  if (tab === 'profile') {
-    return (
-      <p className="text-sm italic">
-        Soon you&apos;ll be able to edit your profile details here.
-      </p>
-    );
-  }
+  // if (tab === 'profile') {
+  //   return (
+  //     <p className="text-sm italic">
+  //       Soon you&apos;ll be able to edit your profile details here.
+  //     </p>
+  //   );
+  // }
 
   if (tab === 'import') {
     return (
@@ -71,24 +70,24 @@ export default async function SettingsPage({
     );
   }
 
-  if (tab === 'webhooks') {
-    return (
-      <p className="text-sm italic">
-        Soon you&apos;ll be able to configure webhooks for Plex and Jellyfin
-        here.
-      </p>
-      // <div className="relative w-full">
-      //   <h2 className="text-md mb-4 lg:text-lg">Plex</h2>
-      //   <Webhook
-      //     url={`${process.env.SITE_URL}/api/webhooks/plex?token=foobar`}
-      //   />
-      //   <h2 className="text-md mb-4 mt-10 lg:text-lg">Jellyfin</h2>
-      //   <Webhook
-      //     url={`${process.env.SITE_URL}/api/webhooks/jellyfin?token=foobar`}
-      //   />
-      // </div>
-    );
-  }
+  // if (tab === 'webhooks') {
+  //   return (
+  //     <p className="text-sm italic">
+  //       Soon you&apos;ll be able to configure webhooks for Plex and Jellyfin
+  //       here.
+  //     </p>
+  //     <div className="relative w-full">
+  //       <h2 className="text-md mb-4 lg:text-lg">Plex</h2>
+  //       <Webhook
+  //         url={`${process.env.SITE_URL}/api/webhooks/plex?token=foobar`}
+  //       />
+  //       <h2 className="text-md mb-4 mt-10 lg:text-lg">Jellyfin</h2>
+  //       <Webhook
+  //         url={`${process.env.SITE_URL}/api/webhooks/jellyfin?token=foobar`}
+  //       />
+  //     </div>
+  //   );
+  // }
 
   return null;
 }

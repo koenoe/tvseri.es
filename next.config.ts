@@ -74,8 +74,8 @@ const nextConfig = {
       },
       {
         source: '/settings',
-        destination: '/settings/profile',
-        permanent: true,
+        destination: '/settings/import',
+        permanent: false,
       },
     ];
   },

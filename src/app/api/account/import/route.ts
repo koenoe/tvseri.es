@@ -101,12 +101,13 @@ function parseSeasonNumber(seasonStr: string): number {
   }
 
   const seasonRegex =
-    /(?:season|series|part)\s*(\d+|one|two|three|four|five|six|seven|eight|nine|ten)/i;
+    /(?:Season|Series|Part)\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|[A-Z][a-z]+(?:st|nd|rd|th) Season/i;
   const match = normalizedStr.match(seasonRegex);
 
   if (match) {
+    const numberPart = match[0].replace(/Season|Series|Part/i, '').trim();
     const parsedNum =
-      parseWrittenNumber(match[1]) || parseOrdinalNumber(match[1]);
+      parseWrittenNumber(numberPart) || parseOrdinalNumber(numberPart);
     return parsedNum && parsedNum > 0 ? parsedNum : 1;
   }
 
@@ -116,11 +117,15 @@ function parseSeasonNumber(seasonStr: string): number {
 function parseEpisodeNumber(episodeStr: string): number | null {
   const normalizedStr = episodeStr.toLowerCase().trim();
 
-  const episodeRegex = /(?:episode|chapter).*?(\d+)/i;
+  const episodeRegex =
+    /(?:Episode|Chapter)[.\s#-]*(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|[A-Z][a-z]+(?:st|nd|rd|th) Episode/i;
   const match = normalizedStr.match(episodeRegex);
 
   if (match) {
-    return parseInt(match[1], 10);
+    const numberPart = match[0].replace(/Episode|Chapter/i, '').trim();
+    const parsedNum =
+      parseWrittenNumber(numberPart) || parseOrdinalNumber(numberPart);
+    return parsedNum && parsedNum > 0 ? parsedNum : null;
   }
 
   return null;
@@ -199,27 +204,18 @@ export async function POST(req: Request) {
   const region = (await headers()).get('cloudfront-viewer-country') || 'US';
   const providers = await fetchWatchProviders(region);
 
-  const validItems = body.filter(
-    (item) =>
-      item.episode &&
-      item.title &&
-      String(item.title).trim().length > 0 &&
-      String(item.episode).trim().length > 0 &&
-      item.title !== item.season,
-  );
-
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        for (let i = 0; i < validItems.length; i += BATCH_SIZE) {
+        for (let i = 0; i < body.length; i += BATCH_SIZE) {
           if (signal.aborted) {
             controller.close();
             return;
           }
 
           let successCount = 0;
-          const batch = validItems.slice(i, i + BATCH_SIZE);
+          const batch = body.slice(i, i + BATCH_SIZE);
           const watchedItems: Array<{
             userId: string;
             tvSeries: TvSeries;

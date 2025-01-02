@@ -118,50 +118,50 @@ export const markWatchedInBatch = async (
     watchedAt: number;
   }>,
 ) => {
-  const uniqueCompositeKeys = new Set<string>();
   const watchedItems: WatchedItem[] = [];
-  const writeRequests = items
-    .filter((item) => {
-      const paddedSeason = paddedNumber(item.seasonNumber);
-      const paddedEpisode = paddedNumber(item.episodeNumber);
-      const compositeKey = `USER#${item.userId}#SERIES#${item.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`;
+  const uniqueCompositeKeys = new Set<string>();
+  const uniqueItems = items.filter((item) => {
+    const paddedSeason = paddedNumber(item.seasonNumber);
+    const paddedEpisode = paddedNumber(item.episodeNumber);
+    const compositeKey = `USER#${item.userId}#SERIES#${item.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`;
 
-      if (uniqueCompositeKeys.has(compositeKey)) {
-        return false;
-      }
+    if (uniqueCompositeKeys.has(compositeKey)) {
+      return false;
+    }
 
-      uniqueCompositeKeys.add(compositeKey);
-      return true;
-    })
-    .map((item) => {
-      const paddedSeason = paddedNumber(item.seasonNumber);
-      const paddedEpisode = paddedNumber(item.episodeNumber);
-      const watchedItem = createWatchedItem({
-        userId: item.userId,
-        tvSeries: item.tvSeries,
-        seasonNumber: item.seasonNumber,
-        episodeNumber: item.episodeNumber,
-        runtime: item.runtime,
-        watchedAt: item.watchedAt,
-        watchProvider: item.watchProvider,
-      });
+    uniqueCompositeKeys.add(compositeKey);
+    return true;
+  });
 
-      watchedItems.push(watchedItem);
-
-      return {
-        PutRequest: {
-          Item: marshall({
-            pk: `USER#${item.userId}`,
-            sk: `SERIES#${item.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
-            gsi1pk: `USER#${item.userId}#SERIES#${item.tvSeries.id}`,
-            gsi1sk: `S${paddedSeason}#E${paddedEpisode}`,
-            gsi2pk: `USER#${item.userId}#WATCHED`,
-            gsi2sk: item.watchedAt,
-            ...watchedItem,
-          }),
-        },
-      };
+  const writeRequests = uniqueItems.map((item) => {
+    const paddedSeason = paddedNumber(item.seasonNumber);
+    const paddedEpisode = paddedNumber(item.episodeNumber);
+    const watchedItem = createWatchedItem({
+      userId: item.userId,
+      tvSeries: item.tvSeries,
+      seasonNumber: item.seasonNumber,
+      episodeNumber: item.episodeNumber,
+      runtime: item.runtime,
+      watchedAt: item.watchedAt,
+      watchProvider: item.watchProvider,
     });
+
+    watchedItems.push(watchedItem);
+
+    return {
+      PutRequest: {
+        Item: marshall({
+          pk: `USER#${item.userId}`,
+          sk: `SERIES#${item.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
+          gsi1pk: `USER#${item.userId}#SERIES#${item.tvSeries.id}`,
+          gsi1sk: `S${paddedSeason}#E${paddedEpisode}`,
+          gsi2pk: `USER#${item.userId}#WATCHED`,
+          gsi2sk: item.watchedAt,
+          ...watchedItem,
+        }),
+      },
+    };
+  });
 
   const batchPromises = [];
   for (let i = 0; i < writeRequests.length; i += DYNAMO_DB_BATCH_LIMIT) {
@@ -176,27 +176,25 @@ export const markWatchedInBatch = async (
 
   await Promise.all(batchPromises);
   await Promise.all(
-    items
-      .map((item, index) => {
-        if (
-          isWatchedItemLastEpisodeOfSeries({
-            tvSeries: item.tvSeries,
-            watchedItem: watchedItems[index],
-          })
-        ) {
-          return addToList({
-            userId: item.userId,
-            listId: 'WATCHED',
-            item: {
-              id: item.tvSeries.id,
-              title: item.tvSeries.title,
-              slug: item.tvSeries.slug,
-              posterPath: item.tvSeries.posterPath,
-            },
-          });
-        }
-      })
-      .filter(Boolean),
+    uniqueItems
+      .filter((item, index) =>
+        isWatchedItemLastEpisodeOfSeries({
+          tvSeries: item.tvSeries,
+          watchedItem: watchedItems[index],
+        }),
+      )
+      .map((item) =>
+        addToList({
+          userId: item.userId,
+          listId: 'WATCHED',
+          item: {
+            id: item.tvSeries.id,
+            title: item.tvSeries.title,
+            slug: item.tvSeries.slug,
+            posterPath: item.tvSeries.posterPath,
+          },
+        }),
+      ),
   );
 
   return watchedItems;

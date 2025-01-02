@@ -13,7 +13,7 @@ export default function SpotlightBackground({
 
   return (
     <div className={cx('absolute inset-0', className)}>
-      <BackgroundImage src={item.backdropImage!} />
+      {item.backdropImage && <BackgroundImage src={item.backdropImage} />}
       <div
         className="absolute inset-0 opacity-70"
         style={{

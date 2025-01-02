@@ -41,13 +41,13 @@ export async function POST(
 
   const encryptedSessionId = (await cookies()).get('sessionId')?.value;
   if (!encryptedSessionId) {
-    return Response.json({ error: 'Invalid session' }, { status: 401 });
+    return Response.json({ error: 'No session' }, { status: 401 });
   }
 
   const decryptedSessionId = decryptToken(encryptedSessionId);
   const session = await findSession(decryptedSessionId);
   if (!session) {
-    return Response.json({ error: 'No valid session found' }, { status: 401 });
+    return Response.json({ error: 'Invalid session' }, { status: 401 });
   }
 
   const user = await findUser({ userId: session.userId });

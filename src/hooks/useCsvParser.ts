@@ -68,12 +68,12 @@ export default function useCsvParser({
       Papa.parse<Record<string, unknown>>(file, {
         ...props,
         header: true,
-        dynamicTyping: true,
-        skipEmptyLines: 'greedy',
+        // dynamicTyping: true,
+        skipEmptyLines: true,
         beforeFirstChunk: (chunk) => {
           const parsedChunk = Papa.parse<string[]>(chunk, {
             header: false,
-            skipEmptyLines: 'greedy',
+            skipEmptyLines: true,
           });
           const rows = parsedChunk.data;
           const columns = rows[0] ?? [];

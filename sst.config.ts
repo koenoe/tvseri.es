@@ -77,6 +77,9 @@ export default $config({
         runtime: 'nodejs22.x',
       },
       transform: {
+        server: {
+          timeout: '5 minutes',
+        },
         cdn: (options) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const origins = (options.origins || []) as any[];

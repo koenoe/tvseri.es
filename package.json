@@ -35,6 +35,7 @@
     "zustand": "^5.0.2"
   },
   "devDependencies": {
+    "@opennextjs/aws": "^3.3.1",
     "@tailwindcss/typography": "^0.5.15",
     "@types/aws-lambda": "^8.10.146",
     "@types/color": "^4.2.0",

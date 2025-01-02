@@ -118,37 +118,50 @@ export const markWatchedInBatch = async (
     watchedAt: number;
   }>,
 ) => {
+  const uniqueCompositeKeys = new Set<string>();
   const watchedItems: WatchedItem[] = [];
-  const writeRequests = items.map((item) => {
-    const paddedSeason = paddedNumber(item.seasonNumber);
-    const paddedEpisode = paddedNumber(item.episodeNumber);
+  const writeRequests = items
+    .filter((item) => {
+      const paddedSeason = paddedNumber(item.seasonNumber);
+      const paddedEpisode = paddedNumber(item.episodeNumber);
+      const compositeKey = `USER#${item.userId}#SERIES#${item.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`;
 
-    const watchedItem = createWatchedItem({
-      userId: item.userId,
-      tvSeries: item.tvSeries,
-      seasonNumber: item.seasonNumber,
-      episodeNumber: item.episodeNumber,
-      runtime: item.runtime,
-      watchedAt: item.watchedAt,
-      watchProvider: item.watchProvider,
+      if (uniqueCompositeKeys.has(compositeKey)) {
+        return false;
+      }
+
+      uniqueCompositeKeys.add(compositeKey);
+      return true;
+    })
+    .map((item) => {
+      const paddedSeason = paddedNumber(item.seasonNumber);
+      const paddedEpisode = paddedNumber(item.episodeNumber);
+      const watchedItem = createWatchedItem({
+        userId: item.userId,
+        tvSeries: item.tvSeries,
+        seasonNumber: item.seasonNumber,
+        episodeNumber: item.episodeNumber,
+        runtime: item.runtime,
+        watchedAt: item.watchedAt,
+        watchProvider: item.watchProvider,
+      });
+
+      watchedItems.push(watchedItem);
+
+      return {
+        PutRequest: {
+          Item: marshall({
+            pk: `USER#${item.userId}`,
+            sk: `SERIES#${item.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
+            gsi1pk: `USER#${item.userId}#SERIES#${item.tvSeries.id}`,
+            gsi1sk: `S${paddedSeason}#E${paddedEpisode}`,
+            gsi2pk: `USER#${item.userId}#WATCHED`,
+            gsi2sk: item.watchedAt,
+            ...watchedItem,
+          }),
+        },
+      };
     });
-
-    watchedItems.push(watchedItem);
-
-    return {
-      PutRequest: {
-        Item: marshall({
-          pk: `USER#${item.userId}`,
-          sk: `SERIES#${item.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
-          gsi1pk: `USER#${item.userId}#SERIES#${item.tvSeries.id}`,
-          gsi1sk: `S${paddedSeason}#E${paddedEpisode}`,
-          gsi2pk: `USER#${item.userId}#WATCHED`,
-          gsi2sk: item.watchedAt,
-          ...watchedItem,
-        }),
-      },
-    };
-  });
 
   const batchPromises = [];
   for (let i = 0; i < writeRequests.length; i += DYNAMO_DB_BATCH_LIMIT) {
@@ -162,7 +175,6 @@ export const markWatchedInBatch = async (
   }
 
   await Promise.all(batchPromises);
-
   await Promise.all(
     items
       .map((item, index) => {

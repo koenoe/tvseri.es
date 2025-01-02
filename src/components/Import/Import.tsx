@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
+import slugify from 'slugify';
 
 import { type Field } from '@/hooks/useCsvParser';
 import { type WatchProvider } from '@/types/watch-provider';
@@ -38,7 +39,7 @@ const getDelimiter = (value: string): string => {
 
 const formatPart = (value: string, part: Part): string => {
   const seasonMatch = value.match(
-    /(?:Season|Series|Part)\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|Limited Series|[A-Z][a-z]+(?:st|nd|rd|th) Season/i,
+    /(?:Season|Series|Part)\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|Limited Series|(?:The\s+Complete\s+)?[A-Z][a-z]+(?:st|nd|rd|th)\s+Season/i,
   );
 
   if (seasonMatch) {
@@ -57,6 +58,21 @@ const formatPart = (value: string, part: Part): string => {
         .trim()
         .replace(/^[:\\—–-]\s*/, '');
     }
+  }
+
+  const episodeMatch = value.match(
+    /Episode\s+\d+(?:[:\\—–-]\s*|\s+).*|Chapter\s+\d+(?:[:\\—–-]\s*|\s+).*/i,
+  );
+
+  if (episodeMatch) {
+    if (part === 'title') {
+      return value
+        .substring(0, episodeMatch.index)
+        .trim()
+        .replace(/[:\\—–-]\s*$/, '');
+    }
+    if (part === 'season') return '';
+    if (part === 'episode') return episodeMatch[0];
   }
 
   const delimiter = getDelimiter(value);
@@ -96,25 +112,46 @@ export default function Import({
       const controller = new AbortController();
       abortControllerRef.current = controller;
 
+      // Note: filter out duplicates
+      const uniqueItemKeys = new Set();
+      const uniqueItems = data.filter((item) => {
+        const uniqueItemKey = slugify(
+          `${item.title}${item.season}${item.episode}`,
+          { lower: true, strict: true, trim: true },
+        );
+        if (uniqueItemKeys.has(uniqueItemKey)) {
+          return false;
+        }
+        uniqueItemKeys.add(uniqueItemKey);
+        return true;
+      });
+
       // Note: filter out items that are probably films and not episodes of tv series
-      const filteredData = data.filter(
-        (item) =>
-          item.episode &&
-          item.title &&
-          String(item.title).trim().length > 0 &&
-          String(item.episode).trim().length > 0 &&
-          item.title !== item.season,
-      );
+      const filteredItems = uniqueItems.filter((item) => {
+        const normalizedTitle = String(item.title).toLowerCase().trim();
+        const normalizedEpisode = String(item.episode).toLowerCase().trim();
+        const normalizedSeason = String(item.season).toLowerCase().trim();
+        const isMovie = 'Type' in item && String(item.Type) === 'Movie';
+        const isTrailer = normalizedEpisode.includes('trailer');
+
+        return (
+          normalizedTitle.length > 0 &&
+          normalizedEpisode.length > 0 &&
+          normalizedTitle !== normalizedSeason &&
+          !isMovie &&
+          !isTrailer
+        );
+      });
 
       setHideCsvImporter(true);
       setIsImporting(true);
-      setTotalNumberOfItems(filteredData.length);
+      setTotalNumberOfItems(filteredItems.length);
 
       (async () => {
         try {
           const response = await fetch('/api/account/import', {
             method: 'POST',
-            body: JSON.stringify(filteredData),
+            body: JSON.stringify(filteredItems),
             signal: controller.signal,
           });
 
@@ -213,19 +250,26 @@ export default function Import({
                 className="!fixed -top-[15rem] left-0 md:-top-[20rem]"
                 initial={{
                   opacity: 0,
+                  scale: 0,
                 }}
                 animate={{
                   opacity: 1,
+                  scale: 1,
+                }}
+                transition={{
+                  type: 'tween',
+                  ease: [0.4, 0, 0.2, 1],
+                  duration: 0.25,
                 }}
               />
             )}
           </AnimatePresence>
 
-          <div className="mt-24 inline-flex items-center text-2xl text-white/55">
+          <div className="mt-24 inline-flex flex-nowrap items-center text-lg text-white/55 md:text-2xl">
             <span className="mr-4 rounded bg-[#666] px-4 py-1 font-semibold text-white">
               {successCount.toLocaleString()}
             </span>
-            items successfully imported out of
+            items imported out of
             <span className="ml-2 font-semibold text-white">
               {totalNumberOfItems.toLocaleString()}
             </span>{' '}

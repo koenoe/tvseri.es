@@ -150,7 +150,8 @@ async function findEpisode(
 
     const matchOnTitle = season.episodes.find(
       (episode) =>
-        episode.title.toLowerCase().trim() === episodeStr.toLowerCase().trim(),
+        episode.title.toLowerCase().trim() ===
+        String(episodeStr).toLowerCase().trim(),
     );
 
     if (matchOnTitle) {
@@ -234,7 +235,7 @@ export async function POST(req: Request) {
             }
 
             try {
-              const normalizedTitle = item.title?.toLowerCase().trim();
+              const normalizedTitle = String(item.title).toLowerCase().trim();
               let tvSeries = tvSeriesCache.get(normalizedTitle);
               if (tvSeries === undefined) {
                 const tvSeriesResults = await searchTvSeries(normalizedTitle);

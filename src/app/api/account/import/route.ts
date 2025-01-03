@@ -112,12 +112,15 @@ function parseSeasonNumber(seasonStr: string | number): number {
   }
 
   const seasonRegex =
-    /(?:Season|Seizoen|Deel|Hoofdstuk|Boek|Series|Part|Volume)\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|[A-Z][a-z]+(?:st|nd|rd|th) (Season|Series)/i;
+    /(?:Season|Seizoen|Deel|Hoofdstuk|Boek|Series|Part|Volume|Chapter)\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|[A-Z][a-z]+(?:st|nd|rd|th) (Season|Series)/i;
   const match = normalizedStr.match(seasonRegex);
 
   if (match) {
     const numberPart = match[0]
-      .replace(/Season|Seizoen|Deel|Hoofdstuk|Boek|Series|Part|Volume/i, '')
+      .replace(
+        /Season|Seizoen|Deel|Hoofdstuk|Boek|Series|Part|Volume|Chapter/i,
+        '',
+      )
       .trim();
     const parsedNum =
       parseWrittenNumber(numberPart) || parseOrdinalNumber(numberPart);
@@ -139,7 +142,7 @@ function parseEpisodeNumber(episodeStr: string | number): number | null {
 
   if (match) {
     const numberPart = match[0]
-      .replace(/Episode|Chapter|Aflevering/i, '')
+      .replace(/Chapter|Episode|Aflevering/i, '')
       .trim();
     const parsedNum =
       parseWrittenNumber(numberPart) || parseOrdinalNumber(numberPart);

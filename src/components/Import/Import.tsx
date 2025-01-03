@@ -79,9 +79,19 @@ const formatPart = (value: string, part: Part): string => {
   const parts = value.split(delimiter);
 
   if (parts.length > 2) {
-    if (part === 'title') return parts.slice(0, -1).join(delimiter);
-    if (part === 'season') return '';
-    if (part === 'episode') return parts[parts.length - 1];
+    const chapterMatch = parts[parts.length - 1].match(
+      /Chapter\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)/i,
+    );
+
+    if (chapterMatch) {
+      if (part === 'title') return parts.slice(0, -1).join(delimiter);
+      if (part === 'season') return chapterMatch[0];
+      if (part === 'episode') return '';
+    } else {
+      if (part === 'title') return parts.slice(0, -1).join(delimiter);
+      if (part === 'season') return '';
+      if (part === 'episode') return parts[parts.length - 1];
+    }
   }
 
   if (parts.length > 1) {

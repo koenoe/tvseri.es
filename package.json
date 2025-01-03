@@ -35,7 +35,7 @@
     "@tailwindcss/typography": "^0.5.15",
     "@types/aws-lambda": "^8.10.146",
     "@types/color": "^4.2.0",
-    "@types/node": "^22.10.2",
+    "@types/node": "^22.10.5",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "@typescript-eslint/eslint-plugin": "^8.18.2",

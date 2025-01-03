@@ -13,7 +13,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.716.0",
+    "@aws-sdk/client-dynamodb": "^3.721.0",
     "@aws-sdk/client-lambda": "^3.716.0",
     "@aws-sdk/util-dynamodb": "^3.716.0",
     "@better-fetch/fetch": "^1.1.12",

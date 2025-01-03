@@ -4,7 +4,10 @@ import { cachedTvSeries } from '@/lib/cached';
 import { addToList, isInList, removeFromList } from '@/lib/db/list';
 import { findSession } from '@/lib/db/session';
 import { findUser } from '@/lib/db/user';
-import { getLastWatchedForTvSeries, isTvSeriesWatched } from '@/lib/db/watched';
+import {
+  getLastWatchedItemForTvSeries,
+  isTvSeriesWatched,
+} from '@/lib/db/watched';
 import { decryptToken } from '@/lib/token';
 
 export default async function ValidateWatchedStatus({
@@ -45,7 +48,7 @@ export default async function ValidateWatchedStatus({
         listId: 'WATCHED',
         id: tvSeries.id,
       }),
-      getLastWatchedForTvSeries({
+      getLastWatchedItemForTvSeries({
         userId: user.id,
         tvSeries,
       }),

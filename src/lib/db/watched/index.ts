@@ -577,7 +577,7 @@ export const getWatchedForTvSeries = async (
   };
 };
 
-export const getLastWatchedForTvSeries = async (
+export const getLastWatchedItemForTvSeries = async (
   input: Readonly<{
     userId: string;
     tvSeries: TvSeries;

@@ -283,7 +283,7 @@ export async function POST(req: Request) {
                       slugifiedTitle.includes(slugifiedResultTitle)
                     );
                   })
-                  .sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+                  .sort((a, b) => (b.voteCount || 0) - (a.voteCount || 0));
 
                 const result = matchingResults[0] ?? tvSeriesResults[0] ?? null;
                 if (result) {

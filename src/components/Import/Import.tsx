@@ -79,14 +79,14 @@ const formatPart = (value: string, part: Part): string => {
   const parts = value.split(delimiter);
 
   if (parts.length > 2) {
-    const chapterMatch = parts[parts.length - 1].match(
+    const chapterMatch = parts[1].match(
       /Chapter\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)/i,
     );
 
     if (chapterMatch) {
-      if (part === 'title') return parts.slice(0, -1).join(delimiter);
+      if (part === 'title') return parts[0];
       if (part === 'season') return chapterMatch[0];
-      if (part === 'episode') return '';
+      if (part === 'episode') return parts[parts.length - 1];
     } else {
       if (part === 'title') return parts.slice(0, -1).join(delimiter);
       if (part === 'season') return '';

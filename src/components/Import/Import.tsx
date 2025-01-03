@@ -85,8 +85,8 @@ const formatPart = (value: string, part: Part): string => {
 
     if (chapterMatch) {
       if (part === 'title') return parts[0];
-      if (part === 'season') return chapterMatch[0];
-      if (part === 'episode') return parts[parts.length - 1];
+      if (part === 'season') return '';
+      if (part === 'episode') return parts.slice(1).join(delimiter);
     } else {
       if (part === 'title') return parts.slice(0, -1).join(delimiter);
       if (part === 'season') return '';

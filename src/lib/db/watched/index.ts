@@ -193,6 +193,7 @@ export const markWatchedInBatch = async (
               slug: item.tvSeries.slug,
               posterPath: item.tvSeries.posterPath,
             },
+            createdAt: item.watchedAt,
           });
         }
         return null;

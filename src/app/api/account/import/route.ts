@@ -2,6 +2,7 @@ import { isValid, parse } from 'date-fns';
 import { cookies, headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+import { cachedTvSeries } from '@/lib/cached';
 import { findSession } from '@/lib/db/session';
 import { findUser } from '@/lib/db/user';
 import { markWatchedInBatch } from '@/lib/db/watched';
@@ -243,8 +244,11 @@ export async function POST(req: Request) {
                   (result) =>
                     result.title.toLowerCase().trim() === normalizedTitle,
                 );
-                tvSeries = matchFromResults ?? tvSeriesResults[0] ?? null;
-                tvSeriesCache.set(item.title, tvSeries);
+                const result = matchFromResults ?? tvSeriesResults[0] ?? null;
+                if (result) {
+                  tvSeries = await cachedTvSeries(result.id);
+                }
+                tvSeriesCache.set(item.title, tvSeries!);
               }
 
               if (!tvSeries) {

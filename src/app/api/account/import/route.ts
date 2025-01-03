@@ -112,7 +112,7 @@ function parseSeasonNumber(seasonStr: string | number): number {
   }
 
   const seasonRegex =
-    /(?:Season|Seizoen|Deel|Hoofdstuk|Boek|Series|Part|Volume|Chapter|Tiger King|Stranger Things)\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|[A-Z][a-z]+(?:st|nd|rd|th) (Season|Series)/i;
+    /(?:Season|Seizoen|Deel|Hoofdstuk|Boek|Series|Part|Volume|Chapter|Tiger King|Stranger Things)\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|[A-Z][a-z]+(?:st|nd|rd|th)\s+(?:Season|Series)/i;
   const match = normalizedStr.match(seasonRegex);
 
   if (match) {

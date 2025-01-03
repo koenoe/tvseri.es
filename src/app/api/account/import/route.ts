@@ -1,5 +1,5 @@
 import { isValid, parse } from 'date-fns';
-import diceCoefficient from 'dice-coefficient';
+import { diceCoefficient } from 'dice-coefficient';
 import { cookies, headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 
@@ -27,6 +27,7 @@ const tvSeriesCache = new Map<string, TvSeries | null>();
 const seasonCache = new Map<string, Season | null>();
 
 const BATCH_SIZE = 25;
+const DICE_COEFFICIENT_THRESHOLD = 0.75;
 
 const WRITTEN_NUMBERS: Record<string, number> = {
   one: 1,
@@ -166,8 +167,12 @@ async function findEpisode(
 
     const matchOnTitle = season.episodes.find(
       (episode) =>
+        diceCoefficient(
+          episode.title.toLowerCase().trim(),
+          String(episodeStr).toLowerCase().trim(),
+        ) > DICE_COEFFICIENT_THRESHOLD ||
         episode.title.toLowerCase().trim() ===
-        String(episodeStr).toLowerCase().trim(),
+          String(episodeStr).toLowerCase().trim(),
     );
 
     if (matchOnTitle) {
@@ -263,7 +268,7 @@ export async function POST(req: Request) {
                       .trim();
                     return (
                       diceCoefficient(normalizedResultTitle, normalizedTitle) >
-                        0.75 ||
+                        DICE_COEFFICIENT_THRESHOLD ||
                       normalizedResultTitle.includes(normalizedTitle) ||
                       normalizedTitle.includes(normalizedResultTitle)
                     );

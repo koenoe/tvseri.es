@@ -3,6 +3,7 @@ import { diceCoefficient } from 'dice-coefficient';
 import { cookies, headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import slugify from 'slugify';
+import wordsToNumbers from 'words-to-numbers';
 
 import { cachedTvSeries } from '@/lib/cached';
 import { findSession } from '@/lib/db/session';
@@ -30,29 +31,6 @@ const seasonCache = new Map<string, Season | null>();
 const BATCH_SIZE = 25;
 const DICE_COEFFICIENT_THRESHOLD = 0.75;
 
-const WRITTEN_NUMBERS: Record<string, number> = {
-  one: 1,
-  two: 2,
-  three: 3,
-  four: 4,
-  five: 5,
-  six: 6,
-  seven: 7,
-  eight: 8,
-  nine: 9,
-  ten: 10,
-  first: 1,
-  second: 2,
-  third: 3,
-  fourth: 4,
-  fifth: 5,
-  sixth: 6,
-  seventh: 7,
-  eighth: 8,
-  ninth: 9,
-  tenth: 10,
-};
-
 function parseDate(dateStr: string): number | null {
   const formats = [
     'dd/MM/yyyy', // 31/12/2024
@@ -75,8 +53,9 @@ function parseDate(dateStr: string): number | null {
 }
 
 function parseOrdinalNumber(text: string): number | null {
+  const textLower = text.toLowerCase().trim();
   const ordinalRegex = /(\d+)(?:st|nd|rd|th)/i;
-  const match = text.match(ordinalRegex);
+  const match = textLower.match(ordinalRegex);
   return match ? parseInt(match[1], 10) : null;
 }
 
@@ -85,16 +64,16 @@ function parseWrittenNumber(text: string): number | null {
 
   const digitMatch = textLower.match(/\d+/);
   if (digitMatch) {
-    return parseInt(digitMatch[0], 10);
+    const parsed = parseInt(digitMatch[0], 10);
+    return !isNaN(parsed) && parsed > 0 ? parsed : null;
   }
 
-  for (const [word, num] of Object.entries(WRITTEN_NUMBERS)) {
-    if (textLower.includes(word)) {
-      return num;
-    }
+  const numberFromWord = wordsToNumbers(textLower);
+  if (typeof numberFromWord === 'string') {
+    const parsed = parseInt(numberFromWord, 10);
+    return !isNaN(parsed) && parsed > 0 ? parsed : null;
   }
-
-  return null;
+  return numberFromWord && numberFromWord > 0 ? numberFromWord : null;
 }
 
 function parseSeasonNumber(seasonStr: string | number): number {

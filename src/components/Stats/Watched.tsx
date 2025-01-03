@@ -1,4 +1,4 @@
-import { cachedWatchedByYearFromList } from '@/lib/cached';
+import { getAllListItems } from '@/lib/db/list';
 
 import Poster from '../Tiles/Poster';
 
@@ -7,7 +7,12 @@ export default async function WatchedByYear({
   year,
   userId,
 }: Readonly<{ priority?: boolean; year: number; userId: string }>) {
-  const items = await cachedWatchedByYearFromList({ userId, year });
+  const items = await getAllListItems({
+    listId: 'WATCHED',
+    userId,
+    startDate: new Date(`${year}-01-01`),
+    endDate: new Date(`${year}-12-31`),
+  });
 
   return (
     <>

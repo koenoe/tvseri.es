@@ -78,7 +78,7 @@ export default $config({
       },
       transform: {
         server: {
-          timeout: '5 minutes',
+          timeout: '30 seconds',
         },
         cdn: (options) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any

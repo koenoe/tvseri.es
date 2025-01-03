@@ -94,6 +94,44 @@ const formatPart = (value: string, part: Part): string => {
   return '';
 };
 
+const CHUNK_SIZE = 50;
+
+const processChunk = async (
+  chunk: Record<string, unknown>[],
+  signal: AbortSignal,
+  cb: (successCount: number, errors: ImportError[]) => void,
+) => {
+  const response = await fetch('/api/account/import', {
+    method: 'POST',
+    body: JSON.stringify(chunk),
+    signal,
+  });
+
+  const reader = response.body?.getReader();
+  if (!reader) {
+    throw new Error('No reader available');
+  }
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+
+    const chunk = new TextDecoder().decode(value);
+    const lines = chunk.split('\n').filter(Boolean);
+
+    for (const line of lines) {
+      try {
+        const data = JSON.parse(line);
+        cb(data.successCount, data.errors);
+      } catch (_) {
+        console.error('Failed to parse line:', line);
+      }
+    }
+  }
+};
+
 export default function Import({
   watchProviders,
 }: Readonly<{
@@ -149,37 +187,20 @@ export default function Import({
 
       (async () => {
         try {
-          const response = await fetch('/api/account/import', {
-            method: 'POST',
-            body: JSON.stringify(filteredItems),
-            signal: controller.signal,
-          });
+          const chunks = Array.from(
+            { length: Math.ceil(filteredItems.length / CHUNK_SIZE) },
+            (_, i) => filteredItems.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE),
+          );
 
-          const reader = response.body?.getReader();
-          if (!reader) {
-            throw new Error('No reader available');
-          }
-
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) {
-              setIsImporting(false);
-              break;
-            }
-
-            const chunk = new TextDecoder().decode(value);
-            const lines = chunk.split('\n').filter(Boolean);
-
-            for (const line of lines) {
-              try {
-                const data = JSON.parse(line);
-
-                setSuccessCount((prev) => prev + data.successCount);
-                setErrors((prev) => [...prev, ...data.errors]);
-              } catch (_) {
-                console.error('Failed to parse line:', line);
-              }
-            }
+          for (const chunk of chunks) {
+            await processChunk(
+              chunk,
+              controller.signal,
+              (chunkSuccessCount, chunkErrors) => {
+                setSuccessCount((prev) => prev + chunkSuccessCount);
+                setErrors((prev) => [...prev, ...chunkErrors]);
+              },
+            );
           }
         } catch (err) {
           const error = err as Error;
@@ -187,19 +208,14 @@ export default function Import({
             setErrors((prev) => [
               ...prev,
               {
-                item: {
-                  title: '',
-                  date: '',
-                  season: '',
-                  episode: '',
-                  watchProvider: '',
-                },
-                error: `Import failed: ${error.message}`,
+                item: { title: '', date: '', season: '', episode: '' },
+                error: `Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
               },
             ]);
-            setIsImporting(false);
           }
         }
+
+        setIsImporting(false);
       })();
     },
     [],

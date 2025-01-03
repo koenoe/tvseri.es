@@ -2,6 +2,7 @@ import { isValid, parse } from 'date-fns';
 import { diceCoefficient } from 'dice-coefficient';
 import { cookies, headers } from 'next/headers';
 import { NextResponse } from 'next/server';
+import slugify from 'slugify';
 
 import { cachedTvSeries } from '@/lib/cached';
 import { findSession } from '@/lib/db/session';
@@ -165,15 +166,25 @@ async function findEpisode(
       return null;
     }
 
-    const matchOnTitle = season.episodes.find(
-      (episode) =>
-        diceCoefficient(
-          episode.title.toLowerCase().trim(),
-          String(episodeStr).toLowerCase().trim(),
-        ) > DICE_COEFFICIENT_THRESHOLD ||
-        episode.title.toLowerCase().trim() ===
-          String(episodeStr).toLowerCase().trim(),
-    );
+    const matchOnTitle = season.episodes.find((episode) => {
+      const slugifiedTitle = slugify(episode.title, {
+        lower: true,
+        strict: true,
+        trim: true,
+      });
+      const slugifiedEpisodeStr = slugify(String(episodeStr), {
+        lower: true,
+        strict: true,
+        trim: true,
+      });
+
+      return (
+        diceCoefficient(slugifiedTitle, slugifiedEpisodeStr) >
+          DICE_COEFFICIENT_THRESHOLD ||
+        slugifiedTitle.includes(slugifiedEpisodeStr) ||
+        slugifiedEpisodeStr.includes(slugifiedTitle)
+      );
+    });
 
     if (matchOnTitle) {
       return matchOnTitle;
@@ -263,14 +274,22 @@ export async function POST(req: Request) {
                 const matchFromResults = tvSeriesResults
                   .filter((result) => result.voteCount > 0)
                   .find((result) => {
-                    const normalizedResultTitle = result.title
-                      .toLowerCase()
-                      .trim();
+                    const slugifiedTitle = slugify(normalizedTitle, {
+                      lower: true,
+                      strict: true,
+                      trim: true,
+                    });
+                    const slugifiedResultTitle = slugify(result.title, {
+                      lower: true,
+                      strict: true,
+                      trim: true,
+                    });
+
                     return (
-                      diceCoefficient(normalizedResultTitle, normalizedTitle) >
+                      diceCoefficient(slugifiedTitle, slugifiedResultTitle) >
                         DICE_COEFFICIENT_THRESHOLD ||
-                      normalizedResultTitle.includes(normalizedTitle) ||
-                      normalizedTitle.includes(normalizedResultTitle)
+                      slugifiedResultTitle.includes(slugifiedTitle) ||
+                      slugifiedTitle.includes(slugifiedResultTitle)
                     );
                   });
                 const result = matchFromResults ?? tvSeriesResults[0] ?? null;

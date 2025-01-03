@@ -69,6 +69,7 @@ export default function useCsvParser({
         ...props,
         header: true,
         skipEmptyLines: true,
+        dynamicTyping: true,
         beforeFirstChunk: (chunk) => {
           const parsedChunk = Papa.parse<string[]>(chunk, {
             header: false,

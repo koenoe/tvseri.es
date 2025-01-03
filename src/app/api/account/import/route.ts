@@ -94,9 +94,12 @@ function parseWrittenNumber(text: string): number | null {
   return null;
 }
 
-function parseSeasonNumber(seasonStr: string): number {
-  const normalizedStr = seasonStr.toLowerCase().trim();
+function parseSeasonNumber(seasonStr: string | number): number {
+  if (typeof seasonStr === 'number' && !isNaN(seasonStr)) {
+    return Math.max(1, seasonStr);
+  }
 
+  const normalizedStr = String(seasonStr).toLowerCase().trim();
   if (!normalizedStr || normalizedStr.includes('limited series')) {
     return 1;
   }
@@ -115,9 +118,12 @@ function parseSeasonNumber(seasonStr: string): number {
   return 1;
 }
 
-function parseEpisodeNumber(episodeStr: string): number | null {
-  const normalizedStr = episodeStr.toLowerCase().trim();
+function parseEpisodeNumber(episodeStr: string | number): number | null {
+  if (typeof episodeStr === 'number' && !isNaN(episodeStr)) {
+    return episodeStr;
+  }
 
+  const normalizedStr = String(episodeStr).toLowerCase().trim();
   const episodeRegex =
     /(?:Episode|Chapter)[.\s#-]*(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|[A-Z][a-z]+(?:st|nd|rd|th) Episode/i;
   const match = normalizedStr.match(episodeRegex);

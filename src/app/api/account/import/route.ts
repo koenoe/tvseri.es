@@ -270,7 +270,12 @@ export async function POST(req: Request) {
             }
 
             try {
-              const normalizedTitle = String(item.title).toLowerCase().trim();
+              const normalizedTitle = String(item.title)
+                .toLowerCase()
+                // Note: bit hacky, but some TV titles have (TV) in the title
+                // which doesn't work well with TMDB search
+                .replace('(tv)', '')
+                .trim();
               let tvSeries = tvSeriesCache.get(normalizedTitle);
               if (tvSeries === undefined) {
                 const tvSeriesResults = await searchTvSeries(normalizedTitle);

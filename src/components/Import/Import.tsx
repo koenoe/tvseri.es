@@ -88,10 +88,7 @@ const formatPart = (value: string, part: Part): string => {
       if (part === 'season') return '';
       if (part === 'episode') return parts.slice(1).join(delimiter);
     } else {
-      // Note: bit hacky, but some TV titles have (TV) in the title
-      // which doesn't work well with TMDB search
-      if (part === 'title')
-        return parts.slice(0, -1).join(delimiter).replace('(TV)', '');
+      if (part === 'title') return parts.slice(0, -1).join(delimiter);
       if (part === 'season') return '';
       if (part === 'episode') return parts[parts.length - 1];
     }

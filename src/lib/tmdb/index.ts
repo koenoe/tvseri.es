@@ -467,14 +467,18 @@ export async function fetchTvSeriesSimilar(
 export async function fetchTvSeriesSeason(
   id: number | string,
   season: number | string,
-): Promise<Season> {
+): Promise<Season | undefined> {
   const response = (await tmdbFetch(`/3/tv/${id}/season/${season}`, {
     next: {
       revalidate: 86400, // 1 day
     },
   })) as TmdbTvSeriesSeason;
 
-  const episodes = (response.episodes ?? []).map((episode) =>
+  if (!response) {
+    return undefined;
+  }
+
+  const episodes = (response?.episodes ?? []).map((episode) =>
     normalizeTvSeriesEpisode(episode as unknown as TmdbTvSeriesEpisode),
   );
 

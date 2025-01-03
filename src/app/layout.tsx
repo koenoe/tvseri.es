@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 import { cx } from 'class-variance-authority';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
+import { Toaster } from 'sonner';
 
 import EnsureHistoryKey from '@/components/EnsureHistoryKey';
 import Footer from '@/components/Footer';
@@ -44,10 +45,20 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cx(
-          'flex min-h-screen select-none flex-col overflow-x-hidden overscroll-y-none bg-neutral-900 text-white subpixel-antialiased',
+          'flex min-h-screen flex-col overflow-x-hidden overscroll-y-none bg-neutral-900 text-white subpixel-antialiased',
           inter.className,
         )}
       >
+        <Toaster
+          toastOptions={{
+            classNames: {
+              toast: 'bg-white',
+              title: 'text-neutral-900',
+              description: 'text-neutral-900 fill-current',
+              icon: 'text-neutral-900 fill-current',
+            },
+          }}
+        />
         <EnsureHistoryKey />
         <ScrollbarDetection />
         <Header />

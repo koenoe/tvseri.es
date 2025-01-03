@@ -107,6 +107,103 @@ export const isWatchedItemLastEpisodeOfSeries = ({
   );
 };
 
+export const markWatchedInBatch = async (
+  items: ReadonlyArray<{
+    userId: string;
+    tvSeries: TvSeries;
+    seasonNumber: number;
+    episodeNumber: number;
+    runtime: number;
+    watchProvider?: WatchProvider | null;
+    watchedAt: number;
+  }>,
+) => {
+  const watchedItems: WatchedItem[] = [];
+  const uniqueCompositeKeys = new Set<string>();
+  const uniqueItems = items.filter((item) => {
+    const paddedSeason = paddedNumber(item.seasonNumber);
+    const paddedEpisode = paddedNumber(item.episodeNumber);
+    const compositeKey = `USER#${item.userId}#SERIES#${item.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`;
+
+    if (uniqueCompositeKeys.has(compositeKey)) {
+      return false;
+    }
+
+    uniqueCompositeKeys.add(compositeKey);
+    return true;
+  });
+
+  const writeRequests = uniqueItems.map((item) => {
+    const paddedSeason = paddedNumber(item.seasonNumber);
+    const paddedEpisode = paddedNumber(item.episodeNumber);
+    const watchedItem = createWatchedItem({
+      userId: item.userId,
+      tvSeries: item.tvSeries,
+      seasonNumber: item.seasonNumber,
+      episodeNumber: item.episodeNumber,
+      runtime: item.runtime,
+      watchedAt: item.watchedAt,
+      watchProvider: item.watchProvider,
+    });
+
+    watchedItems.push(watchedItem);
+
+    return {
+      PutRequest: {
+        Item: marshall({
+          pk: `USER#${item.userId}`,
+          sk: `SERIES#${item.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
+          gsi1pk: `USER#${item.userId}#SERIES#${item.tvSeries.id}`,
+          gsi1sk: `S${paddedSeason}#E${paddedEpisode}`,
+          gsi2pk: `USER#${item.userId}#WATCHED`,
+          gsi2sk: item.watchedAt,
+          ...watchedItem,
+        }),
+      },
+    };
+  });
+
+  const batchPromises = [];
+  for (let i = 0; i < writeRequests.length; i += DYNAMO_DB_BATCH_LIMIT) {
+    const batch = writeRequests.slice(i, i + DYNAMO_DB_BATCH_LIMIT);
+    const command = new BatchWriteItemCommand({
+      RequestItems: {
+        [Resource.Watched.name]: batch,
+      },
+    });
+    batchPromises.push(client.send(command));
+  }
+
+  await Promise.all(batchPromises);
+  await Promise.all(
+    uniqueItems
+      .map((item, index) => {
+        if (
+          isWatchedItemLastEpisodeOfSeries({
+            tvSeries: item.tvSeries,
+            watchedItem: watchedItems[index],
+          })
+        ) {
+          return addToList({
+            userId: item.userId,
+            listId: 'WATCHED',
+            item: {
+              id: item.tvSeries.id,
+              title: item.tvSeries.title,
+              slug: item.tvSeries.slug,
+              posterPath: item.tvSeries.posterPath,
+            },
+            createdAt: item.watchedAt,
+          });
+        }
+        return null;
+      })
+      .filter(Boolean),
+  );
+
+  return watchedItems;
+};
+
 export const markWatched = async ({
   userId,
   tvSeries,

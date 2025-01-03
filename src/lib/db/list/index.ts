@@ -376,10 +376,10 @@ export const addToList = async (
     userId: string;
     listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | ulid()
     item: Omit<ListItem, 'createdAt' | 'posterImage'>;
+    createdAt?: number;
   }>,
 ) => {
-  const now = Date.now();
-
+  const now = input.createdAt ?? Date.now();
   const listPrefix = isCustomList(input.listId)
     ? `LIST#CUSTOM#${input.listId}`
     : `LIST#${input.listId}`;

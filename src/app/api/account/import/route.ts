@@ -255,12 +255,16 @@ export async function POST(req: Request) {
                 // which doesn't work well with TMDB search
                 .replace('(tv)', '')
                 .trim();
+
               let tvSeries = tvSeriesCache.get(normalizedTitle);
+
               if (tvSeries === undefined) {
                 const tvSeriesResults = await searchTvSeries(normalizedTitle);
-                const matchFromResults = tvSeriesResults
+
+                // Filter results with vote count > 0 and find all matching titles
+                const matchingResults = tvSeriesResults
                   .filter((result) => result.voteCount > 0)
-                  .find((result) => {
+                  .filter((result) => {
                     const slugifiedTitle = slugify(normalizedTitle, {
                       lower: true,
                       strict: true,
@@ -278,12 +282,15 @@ export async function POST(req: Request) {
                       slugifiedResultTitle.includes(slugifiedTitle) ||
                       slugifiedTitle.includes(slugifiedResultTitle)
                     );
-                  });
-                const result = matchFromResults ?? tvSeriesResults[0] ?? null;
+                  })
+                  .sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+
+                const result = matchingResults[0] ?? tvSeriesResults[0] ?? null;
                 if (result) {
                   tvSeries = await cachedTvSeries(result.id);
                 }
-                tvSeriesCache.set(item.title, tvSeries!);
+
+                tvSeriesCache.set(normalizedTitle, tvSeries!);
               }
 
               if (!tvSeries) {

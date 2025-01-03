@@ -39,7 +39,7 @@ const getDelimiter = (value: string): string => {
 
 const formatPart = (value: string, part: Part): string => {
   const seasonMatch = value.match(
-    /(?:Season|Seizoen|Deel|Hoofdstuk|Boek|Series|Part|Volume)\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|Limited Series|Miniserie|(?:The\s+Complete\s+)?[A-Z][a-z]+(?:st|nd|rd|th)\s+(Season|Series)/i,
+    /(?:Season|Seizoen|Deel|Hoofdstuk|Boek|Series|Part|Volume|Tiger King|Stranger Things)\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|Limited Series|Miniserie|(?:The\s+Complete\s+)?[A-Z][a-z]+(?:st|nd|rd|th)\s+(Season|Series)/i,
   );
 
   if (seasonMatch) {

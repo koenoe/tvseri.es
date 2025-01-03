@@ -39,7 +39,7 @@ const getDelimiter = (value: string): string => {
 
 const formatPart = (value: string, part: Part): string => {
   const seasonMatch = value.match(
-    /(?:Season|Series|Part)\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|Limited Series|(?:The\s+Complete\s+)?[A-Z][a-z]+(?:st|nd|rd|th)\s+Season/i,
+    /(?:Season|Seizoen|Deel|Hoofdstuk|Boek|Series|Part|Volume)\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|Limited Series|Miniserie|(?:The\s+Complete\s+)?[A-Z][a-z]+(?:st|nd|rd|th)\s+(Season|Series)/i,
   );
 
   if (seasonMatch) {
@@ -61,7 +61,7 @@ const formatPart = (value: string, part: Part): string => {
   }
 
   const episodeMatch = value.match(
-    /Episode\s+\d+(?:[:\\—–-]\s*|\s+).*|Chapter\s+\d+(?:[:\\—–-]\s*|\s+).*/i,
+    /(Chapter|Episode|Aflevering)\s+\d+(?:[:\\—–-]\s*|\s+).*/i,
   );
 
   if (episodeMatch) {
@@ -166,9 +166,18 @@ export default function Import({
 
       // Note: filter out items that are probably films and not episodes of tv series
       const filteredItems = uniqueItems.filter((item) => {
-        const normalizedTitle = String(item.title).toLowerCase().trim();
-        const normalizedEpisode = String(item.episode).toLowerCase().trim();
-        const normalizedSeason = String(item.season).toLowerCase().trim();
+        const normalizedTitle = (item?.title ?? '')
+          .toString()
+          .toLowerCase()
+          .trim();
+        const normalizedEpisode = (item?.episode ?? '')
+          .toString()
+          .toLowerCase()
+          .trim();
+        const normalizedSeason = (item?.season ?? '')
+          .toString()
+          .toLowerCase()
+          .trim();
         const isMovie = 'Type' in item && String(item.Type) === 'Movie';
         const isTrailer = normalizedEpisode.includes('trailer');
 

@@ -100,16 +100,22 @@ function parseSeasonNumber(seasonStr: string | number): number {
   }
 
   const normalizedStr = String(seasonStr).toLowerCase().trim();
-  if (!normalizedStr || normalizedStr.includes('limited series')) {
+  if (
+    !normalizedStr ||
+    normalizedStr.includes('limited series') ||
+    normalizedStr.includes('miniseries')
+  ) {
     return 1;
   }
 
   const seasonRegex =
-    /(?:Season|Series|Part)\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|[A-Z][a-z]+(?:st|nd|rd|th) Season/i;
+    /(?:Season|Seizoen|Deel|Hoofdstuk|Boek|Series|Part|Volume)\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|[A-Z][a-z]+(?:st|nd|rd|th) (Season|Series)/i;
   const match = normalizedStr.match(seasonRegex);
 
   if (match) {
-    const numberPart = match[0].replace(/Season|Series|Part/i, '').trim();
+    const numberPart = match[0]
+      .replace(/Season|Seizoen|Deel|Hoofdstuk|Boek|Series|Part|Volume/i, '')
+      .trim();
     const parsedNum =
       parseWrittenNumber(numberPart) || parseOrdinalNumber(numberPart);
     return parsedNum && parsedNum > 0 ? parsedNum : 1;
@@ -125,11 +131,13 @@ function parseEpisodeNumber(episodeStr: string | number): number | null {
 
   const normalizedStr = String(episodeStr).toLowerCase().trim();
   const episodeRegex =
-    /(?:Episode|Chapter)[.\s#-]*(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|[A-Z][a-z]+(?:st|nd|rd|th) Episode/i;
+    /(?:Chapter|Episode|Aflevering)[.\s#-]*(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|[A-Z][a-z]+(?:st|nd|rd|th) Episode/i;
   const match = normalizedStr.match(episodeRegex);
 
   if (match) {
-    const numberPart = match[0].replace(/Episode|Chapter/i, '').trim();
+    const numberPart = match[0]
+      .replace(/Episode|Chapter|Aflevering/i, '')
+      .trim();
     const parsedNum =
       parseWrittenNumber(numberPart) || parseOrdinalNumber(numberPart);
     return parsedNum && parsedNum > 0 ? parsedNum : null;

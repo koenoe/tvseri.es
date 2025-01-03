@@ -1,4 +1,5 @@
 import { isValid, parse } from 'date-fns';
+import diceCoefficient from 'dice-coefficient';
 import { cookies, headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 
@@ -254,10 +255,19 @@ export async function POST(req: Request) {
               let tvSeries = tvSeriesCache.get(normalizedTitle);
               if (tvSeries === undefined) {
                 const tvSeriesResults = await searchTvSeries(normalizedTitle);
-                const matchFromResults = tvSeriesResults.find(
-                  (result) =>
-                    result.title.toLowerCase().trim() === normalizedTitle,
-                );
+                const matchFromResults = tvSeriesResults
+                  .filter((result) => result.voteCount > 0)
+                  .find((result) => {
+                    const normalizedResultTitle = result.title
+                      .toLowerCase()
+                      .trim();
+                    return (
+                      diceCoefficient(normalizedResultTitle, normalizedTitle) >
+                        0.75 ||
+                      normalizedResultTitle.includes(normalizedTitle) ||
+                      normalizedTitle.includes(normalizedResultTitle)
+                    );
+                  });
                 const result = matchFromResults ?? tvSeriesResults[0] ?? null;
                 if (result) {
                   tvSeries = await cachedTvSeries(result.id);

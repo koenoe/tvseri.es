@@ -4,7 +4,7 @@ import { cachedTvSeries } from '@/lib/cached';
 import { addToList, isInList, removeFromList } from '@/lib/db/list';
 import { findSession } from '@/lib/db/session';
 import { findUser } from '@/lib/db/user';
-import { isTvSeriesWatched } from '@/lib/db/watched';
+import { getLastWatchedForTvSeries, isTvSeriesWatched } from '@/lib/db/watched';
 import { decryptToken } from '@/lib/token';
 
 export default async function ValidateWatchedStatus({
@@ -34,17 +34,22 @@ export default async function ValidateWatchedStatus({
     return null;
   }
 
-  const [tvSeriesIsWatched, isInWatchedList] = await Promise.all([
-    isTvSeriesWatched({
-      userId: user.id,
-      tvSeries,
-    }),
-    isInList({
-      userId: user.id,
-      listId: 'WATCHED',
-      id: tvSeries.id,
-    }),
-  ]);
+  const [tvSeriesIsWatched, isInWatchedList, lastWatchedItem] =
+    await Promise.all([
+      isTvSeriesWatched({
+        userId: user.id,
+        tvSeries,
+      }),
+      isInList({
+        userId: user.id,
+        listId: 'WATCHED',
+        id: tvSeries.id,
+      }),
+      getLastWatchedForTvSeries({
+        userId: user.id,
+        tvSeries,
+      }),
+    ]);
 
   if (!isInWatchedList && tvSeriesIsWatched) {
     await addToList({
@@ -55,6 +60,7 @@ export default async function ValidateWatchedStatus({
         title: tvSeries.title,
         slug: tvSeries.slug,
         posterPath: tvSeries.posterPath,
+        createdAt: lastWatchedItem?.watchedAt,
       },
     });
     return null;

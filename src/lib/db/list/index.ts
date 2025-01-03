@@ -375,11 +375,13 @@ export const addToList = async (
   input: Readonly<{
     userId: string;
     listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | ulid()
-    item: Omit<ListItem, 'createdAt' | 'posterImage'>;
-    createdAt?: number;
+    item: Omit<ListItem, 'createdAt' | 'posterImage'> &
+      Readonly<{
+        createdAt?: number;
+      }>;
   }>,
 ) => {
-  const now = input.createdAt ?? Date.now();
+  const now = input.item.createdAt ?? Date.now();
   const listPrefix = isCustomList(input.listId)
     ? `LIST#CUSTOM#${input.listId}`
     : `LIST#${input.listId}`;

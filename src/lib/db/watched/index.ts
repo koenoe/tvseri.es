@@ -192,8 +192,8 @@ export const markWatchedInBatch = async (
               title: item.tvSeries.title,
               slug: item.tvSeries.slug,
               posterPath: item.tvSeries.posterPath,
+              createdAt: item.watchedAt,
             },
-            createdAt: item.watchedAt,
           });
         }
         return null;
@@ -545,7 +545,7 @@ export const getWatchedForTvSeries = async (
     options?: PaginationOptions;
   }>,
 ) => {
-  const { limit = 20, cursor } = input.options ?? {};
+  const { limit = 20, cursor, sortDirection = 'desc' } = input.options ?? {};
 
   const command = new QueryCommand({
     TableName: Resource.Watched.name,
@@ -555,6 +555,7 @@ export const getWatchedForTvSeries = async (
       ':pk': `USER#${input.userId}#SERIES#${input.tvSeries.id}`,
     }),
     Limit: limit,
+    ScanIndexForward: sortDirection === 'asc',
     ExclusiveStartKey: cursor
       ? JSON.parse(Buffer.from(cursor, 'base64url').toString())
       : undefined,
@@ -574,6 +575,23 @@ export const getWatchedForTvSeries = async (
         )
       : null,
   };
+};
+
+export const getLastWatchedForTvSeries = async (
+  input: Readonly<{
+    userId: string;
+    tvSeries: TvSeries;
+  }>,
+): Promise<WatchedItem | undefined> => {
+  const result = await getWatchedForTvSeries({
+    userId: input.userId,
+    tvSeries: input.tvSeries,
+    options: {
+      limit: 1,
+    },
+  });
+
+  return result.items[0];
 };
 
 export const getAllWatchedForTvSeries = async (

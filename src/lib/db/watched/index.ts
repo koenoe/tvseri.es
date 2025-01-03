@@ -177,24 +177,27 @@ export const markWatchedInBatch = async (
   await Promise.all(batchPromises);
   await Promise.all(
     uniqueItems
-      .filter((item, index) =>
-        isWatchedItemLastEpisodeOfSeries({
-          tvSeries: item.tvSeries,
-          watchedItem: watchedItems[index],
-        }),
-      )
-      .map((item) =>
-        addToList({
-          userId: item.userId,
-          listId: 'WATCHED',
-          item: {
-            id: item.tvSeries.id,
-            title: item.tvSeries.title,
-            slug: item.tvSeries.slug,
-            posterPath: item.tvSeries.posterPath,
-          },
-        }),
-      ),
+      .map((item, index) => {
+        if (
+          isWatchedItemLastEpisodeOfSeries({
+            tvSeries: item.tvSeries,
+            watchedItem: watchedItems[index],
+          })
+        ) {
+          return addToList({
+            userId: item.userId,
+            listId: 'WATCHED',
+            item: {
+              id: item.tvSeries.id,
+              title: item.tvSeries.title,
+              slug: item.tvSeries.slug,
+              posterPath: item.tvSeries.posterPath,
+            },
+          });
+        }
+        return null;
+      })
+      .filter(Boolean),
   );
 
   return watchedItems;

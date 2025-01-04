@@ -137,51 +137,69 @@ async function findEpisode(
   seasonNumber: number,
 ): Promise<Episode | null> {
   try {
+    // Try to get season from cache first
     const cacheKey = `${tvSeries.id}-${seasonNumber}`;
     let season = seasonCache.get(cacheKey);
+
+    // Fetch and cache if not found
     if (season === undefined) {
       season = await fetchTvSeriesSeason(tvSeries.id, seasonNumber);
       seasonCache.set(cacheKey, season ?? null);
     }
 
-    if (!season || !season.episodes) {
+    // Early return if no season or episodes
+    if (!season?.episodes?.length) {
       return null;
     }
 
-    const matchOnTitle = season.episodes.find((episode) => {
-      const slugifiedTitle = slugify(episode.title, {
-        lower: true,
-        strict: true,
-        trim: true,
-      });
-      const slugifiedEpisodeStr = slugify(String(episodeStr), {
-        lower: true,
-        strict: true,
-        trim: true,
-      });
-
-      return (
-        diceCoefficient(slugifiedTitle, slugifiedEpisodeStr) >
-          DICE_COEFFICIENT_THRESHOLD ||
-        slugifiedTitle.includes(slugifiedEpisodeStr) ||
-        slugifiedEpisodeStr.includes(slugifiedTitle)
-      );
-    });
-
-    if (matchOnTitle) {
-      return matchOnTitle;
-    }
-
+    // Try to match by episode number first (fastest and most reliable)
     const episodeNumber = parseEpisodeNumber(episodeStr);
     if (episodeNumber) {
       const matchOnNumber = season.episodes.find(
         (episode) => episode.episodeNumber === episodeNumber,
       );
-      return matchOnNumber ?? null;
+      if (matchOnNumber) {
+        return matchOnNumber;
+      }
     }
 
-    return null;
-  } catch (_) {
+    // Fall back to title matching if episode number not found
+    const slugifiedEpisodeStr = slugify(String(episodeStr), {
+      lower: true,
+      strict: true,
+      trim: true,
+    });
+
+    return (
+      season.episodes.find((episode) => {
+        const slugifiedTitle = slugify(episode.title, {
+          lower: true,
+          strict: true,
+          trim: true,
+        });
+
+        // 1. Check for exact match first
+        if (slugifiedTitle === slugifiedEpisodeStr) {
+          return true;
+        }
+
+        // 2. Check for full containment
+        if (
+          slugifiedTitle.includes(slugifiedEpisodeStr) ||
+          slugifiedEpisodeStr.includes(slugifiedTitle)
+        ) {
+          return true;
+        }
+
+        // 3. Fall back to fuzzy matching
+        return (
+          diceCoefficient(slugifiedTitle, slugifiedEpisodeStr) >
+          DICE_COEFFICIENT_THRESHOLD
+        );
+      }) ?? null
+    );
+  } catch (error) {
+    console.error('Error finding episode:', error);
     return null;
   }
 }

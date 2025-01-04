@@ -267,63 +267,112 @@ export async function POST(req: Request) {
             }
 
             try {
+              // Normalize the title by removing common problematic strings and whitespace
               const normalizedTitle = String(item.title)
                 .toLowerCase()
-                // Note: bit hacky, but some TV titles have (TV) in the title
-                // which doesn't work well with TMDB search
+                // Some TV titles have (TV) in the title which doesn't work well with TMDB search
                 .replace('(tv)', '')
+                // TMDB search doesn't like the UK and US abbreviations
+                .replace(/\(u\.k\.\)/g, '(uk)')
+                .replace(/\(u\.s\.\)/g, '(us)')
                 .trim();
+
+              // Try to get series from cache first
               let tvSeries = tvSeriesCache.get(normalizedTitle);
+
               if (tvSeries === undefined) {
                 const tvSeriesResults = await searchTvSeries(normalizedTitle);
-                const matchFromResults = tvSeriesResults
-                  .filter((result) => result.voteCount > 0)
-                  .find((result) => {
-                    const slugifiedTitle = slugify(normalizedTitle, {
-                      lower: true,
-                      strict: true,
-                      trim: true,
-                    });
-                    const slugifiedResultTitle = slugify(result.title, {
-                      lower: true,
-                      strict: true,
-                      trim: true,
-                    });
 
-                    // 1. Check for exact match first (fastest and most accurate)
-                    if (slugifiedTitle === slugifiedResultTitle) {
-                      return true;
-                    }
+                // Handle cases where multiple series might have the same title (e.g., "The Staircase")
+                const exactMatches = [];
+                let fuzzyMatch = null;
 
-                    // 2. Check for full containment (one title fully contains the other)
+                // Sort results into exact matches and potential fuzzy matches
+                for (const result of tvSeriesResults) {
+                  const slugifiedTitle = slugify(normalizedTitle, {
+                    lower: true,
+                    strict: true,
+                    trim: true,
+                  });
+                  const slugifiedResultTitle = slugify(result.title, {
+                    lower: true,
+                    strict: true,
+                    trim: true,
+                  });
+
+                  // If we find an exact match, add it to our collection of exact matches
+                  if (slugifiedTitle === slugifiedResultTitle) {
+                    exactMatches.push(result);
+                    continue;
+                  }
+
+                  // Store the first fuzzy match we find as a fallback
+                  if (!fuzzyMatch) {
+                    // Check if one title contains the other
                     if (
                       slugifiedResultTitle.includes(slugifiedTitle) ||
                       slugifiedTitle.includes(slugifiedResultTitle)
                     ) {
-                      return true;
+                      fuzzyMatch = result;
+                      continue;
                     }
 
-                    // 3. Fall back to fuzzy matching using Dice coefficient
-                    return (
+                    // Last resort: check similarity using Dice coefficient
+                    if (
                       diceCoefficient(slugifiedTitle, slugifiedResultTitle) >
                       DICE_COEFFICIENT_THRESHOLD
-                    );
-                  });
-                const result = matchFromResults ?? tvSeriesResults[0] ?? null;
-                if (result) {
-                  tvSeries = await cachedTvSeries(result.id);
+                    ) {
+                      fuzzyMatch = result;
+                    }
+                  }
                 }
-                tvSeriesCache.set(normalizedTitle, tvSeries!);
+
+                // If we have exact matches, try each one until we find one with the episode we're looking for
+                const seasonNumber = parseSeasonNumber(item.season);
+
+                if (exactMatches.length > 0) {
+                  for (const match of exactMatches) {
+                    const possibleSeries = await cachedTvSeries(match.id);
+
+                    // Try to find the episode in this series
+                    const episode = await findEpisode(
+                      item.episode,
+                      possibleSeries!,
+                      seasonNumber,
+                    );
+
+                    // If we found the episode, this is the correct series
+                    if (episode) {
+                      tvSeries = possibleSeries;
+                      tvSeriesCache.set(normalizedTitle, tvSeries!);
+                      break;
+                    }
+                  }
+                }
+
+                // If no exact matches worked, try our fuzzy match as a last resort
+                if (!tvSeries && fuzzyMatch) {
+                  tvSeries = await cachedTvSeries(fuzzyMatch.id);
+                  tvSeriesCache.set(normalizedTitle, tvSeries!);
+                }
+
+                if (!tvSeries && tvSeriesResults.length > 0) {
+                  tvSeries = await cachedTvSeries(tvSeriesResults[0].id);
+                  tvSeriesCache.set(normalizedTitle, tvSeries!);
+                }
               }
 
+              // Handle case where we couldn't find any matching series
               if (!tvSeries) {
                 erroredItems.push({
                   item,
-                  error: `Could not find series: "${item.title}"`,
+                  error: `Could not find series: "${normalizedTitle}"`,
                 });
+                tvSeriesCache.set(normalizedTitle, null);
                 continue;
               }
 
+              // Try to find the specific episode
               const seasonNumber = parseSeasonNumber(item.season);
               const episode = await findEpisode(
                 item.episode,
@@ -339,12 +388,14 @@ export async function POST(req: Request) {
                 continue;
               }
 
+              // Find matching watch provider if one was specified
               const watchProvider =
                 providers.find(
                   (p) =>
                     p.name.toLowerCase() === item.watchProvider?.toLowerCase(),
                 ) || null;
 
+              // Validate and parse the watch date
               const watchedAt = parseDate(item.date);
               if (!watchedAt) {
                 erroredItems.push({
@@ -354,6 +405,7 @@ export async function POST(req: Request) {
                 continue;
               }
 
+              // Add the successfully processed item
               watchedItems.push({
                 userId: user.id,
                 tvSeries,

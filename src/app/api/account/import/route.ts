@@ -272,11 +272,23 @@ export async function POST(req: Request) {
                       trim: true,
                     });
 
-                    return (
-                      diceCoefficient(slugifiedTitle, slugifiedResultTitle) >
-                        DICE_COEFFICIENT_THRESHOLD ||
+                    // 1. Check for exact match first (fastest and most accurate)
+                    if (slugifiedTitle === slugifiedResultTitle) {
+                      return true;
+                    }
+
+                    // 2. Check for full containment (one title fully contains the other)
+                    if (
                       slugifiedResultTitle.includes(slugifiedTitle) ||
                       slugifiedTitle.includes(slugifiedResultTitle)
+                    ) {
+                      return true;
+                    }
+
+                    // 3. Fall back to fuzzy matching using Dice coefficient
+                    return (
+                      diceCoefficient(slugifiedTitle, slugifiedResultTitle) >
+                      DICE_COEFFICIENT_THRESHOLD
                     );
                   });
                 const result = matchFromResults ?? tvSeriesResults[0] ?? null;

@@ -1,6 +1,8 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+
+import { cx } from 'class-variance-authority';
 
 import useCsvParser, { type Field } from '@/hooks/useCsvParser';
 
@@ -41,6 +43,13 @@ export default function CsvImporter({
     },
     [onParse],
   );
+
+  const areAllFieldsMapped = useMemo(() => {
+    return fields.every((field) => {
+      const currentMapping = fieldMappings.current[field.value];
+      return currentMapping && currentMapping !== '';
+    });
+  }, [fields, fieldMappings]);
 
   if (!file) {
     return (
@@ -175,7 +184,13 @@ export default function CsvImporter({
         </button>
         <button
           onClick={() => onImport(getSanitizedData({ data }))}
-          className="flex h-11 min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-white px-5 text-sm leading-none tracking-wide text-neutral-900"
+          className={cx(
+            'flex h-11 min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-white px-5 text-sm leading-none tracking-wide text-neutral-900',
+            {
+              '!cursor-not-allowed opacity-40': !areAllFieldsMapped,
+            },
+          )}
+          disabled={!areAllFieldsMapped}
         >
           <span>Import</span>
         </button>

@@ -2,69 +2,83 @@
 
 import { useState } from 'react';
 
-import { cx } from 'class-variance-authority';
+import { toast } from 'sonner';
+import { twMerge } from 'tailwind-merge';
 
 export default function Webhook({
   className,
   url,
 }: Readonly<{
   className?: string;
-  url: string;
+  url?: string;
 }>) {
-  const [isCopying, setIsCopying] = useState(false);
-
+  const [showCopied, setShowCopied] = useState(false);
   const handleCopy = async () => {
-    try {
-      setIsCopying(true);
-      await navigator.clipboard.writeText(url);
+    if (!url) {
+      return;
+    }
 
-      setTimeout(() => setIsCopying(false), 500);
+    try {
+      await navigator.clipboard.writeText(url);
+      setShowCopied(true);
+      setTimeout(() => setShowCopied(false), 1000);
     } catch (err) {
-      console.error('Failed to copy url:', err);
+      const error = err as Error;
+      toast.error('Failed to copy URL: ' + error.message);
     }
   };
 
   return (
-    <code
-      className={cx(
-        'flex items-center space-x-4 rounded-lg bg-neutral-800 p-4 text-left text-xs text-neutral-300 md:inline-flex',
+    <div
+      className={twMerge(
+        'relative flex h-28 w-full items-center rounded-lg bg-gradient-to-br from-neutral-800 to-neutral-900 px-8 shadow-lg',
         className,
-        {
-          'cursor-pointer': !isCopying,
-          'cursor-wait': isCopying,
-        },
       )}
-      onClick={handleCopy}
     >
-      <span className="truncate">{url}</span>
-      {isCopying ? (
-        <svg
-          aria-hidden="true"
-          className="h-5 w-5 shrink-0 animate-spin text-neutral-600"
-          viewBox="0 0 100 101"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-            fill="currentColor"
-          />
-          <path
-            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-            fill="#fff"
-          />
-        </svg>
+      {url ? (
+        <div className="flex w-full items-center gap-x-4 truncate rounded-lg bg-black/20 px-4 py-2 text-xs text-white/60 outline-none">
+          <span className="truncate">{url}</span>
+          <button
+            onClick={handleCopy}
+            className="ml-auto inline-flex shrink-0 items-center justify-center rounded-lg bg-white/10 px-3 py-2 text-white/60 hover:text-white"
+          >
+            {showCopied ? (
+              <span className="inline-flex items-center">
+                <svg
+                  className="me-1.5 h-3 w-3 text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 16 12"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M1 5.917 5.724 10.5 15 1.5"
+                  />
+                </svg>
+                <span className="text-xs font-semibold text-white">Copied</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center">
+                <svg
+                  className="me-1.5 h-3 w-3"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 18 20"
+                >
+                  <path d="M16 1h-3.278A1.992 1.992 0 0 0 11 0H7a1.993 1.993 0 0 0-1.722 1H2a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2Zm-3 14H5a1 1 0 0 1 0-2h8a1 1 0 0 1 0 2Zm0-4H5a1 1 0 0 1 0-2h8a1 1 0 1 1 0 2Zm0-5H5a1 1 0 0 1 0-2h2V2h4v2h2a1 1 0 1 1 0 2Z" />
+                </svg>
+                <span className="text-xs font-semibold">Copy</span>
+              </span>
+            )}
+          </button>
+        </div>
       ) : (
-        <svg
-          className="h-5 w-5 shrink-0 text-neutral-500"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox={isCopying ? '0 0 32 32' : '0 0 20 20'}
-          fill="currentColor"
-        >
-          <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"></path>
-          <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"></path>
-        </svg>
+        <span className="italic text-white/60">Coming soon</span>
       )}
-    </code>
+    </div>
   );
 }

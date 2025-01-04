@@ -26,11 +26,11 @@ export const menuItems = [
     label: 'Import',
     href: '/settings/import',
   },
-  // {
-  //   id: 'webhooks',
-  //   label: 'Webhooks',
-  //   href: '/settings/webhooks',
-  // },
+  {
+    id: 'webhooks',
+    label: 'Webhooks',
+    href: '/settings/webhooks',
+  },
 ] as const;
 
 export const tabs = menuItems.map((item) => item.id);

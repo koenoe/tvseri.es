@@ -22,6 +22,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "ScrobbleQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
     "Sessions": {
       "name": string
       "type": "sst.aws.Dynamo"
@@ -31,6 +35,10 @@ declare module "sst" {
       "type": "sst.aws.Dynamo"
     }
     "Watched": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "WebhookTokens": {
       "name": string
       "type": "sst.aws.Dynamo"
     }

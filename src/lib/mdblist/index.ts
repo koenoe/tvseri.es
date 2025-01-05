@@ -1,10 +1,13 @@
-import 'server-only';
 import { createFetch } from '@better-fetch/fetch';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
 
 import nextPlugin from '../betterFetchNextPlugin';
 import { getCacheItem, setCacheItem } from '../db/cache';
+
+if (!process.env.MDBLIST_API_KEY) {
+  throw new Error('No "API_KEY" found for MDBList');
+}
 
 type MediaType = 'movie' | 'show';
 

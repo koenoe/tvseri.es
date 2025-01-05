@@ -60,7 +60,7 @@ export const handler: Handler<ProcessImageEvent, ProcessImageResult> = async (
       color: correctedColor.hex(),
     };
   } catch (error) {
-    console.error('Error processing image:', error);
+    console.error('Dominant color detection failed:', error);
     throw error;
   }
 };

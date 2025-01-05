@@ -1,5 +1,3 @@
-import 'server-only';
-
 import crypto from 'crypto';
 
 const key = Buffer.from(String(process.env.SECRET_KEY), 'base64');

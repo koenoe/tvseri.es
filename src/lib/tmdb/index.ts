@@ -60,6 +60,10 @@ import { findPreferredImages } from '../db/preferredImages';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
 
+if (!process.env.TMDB_API_ACCESS_TOKEN || !process.env.TMDB_API_KEY) {
+  throw new Error('No "API_KEY" found for TMDb');
+}
+
 const $fetch = createFetch({
   baseURL: 'https://api.themoviedb.org',
   retry: DEFAULT_FETCH_RETRY_OPTIONS,

@@ -1,5 +1,9 @@
 import crypto from 'crypto';
 
+if (!process.env.SECRET_KEY) {
+  throw new Error('No "SECRET_KEY" found');
+}
+
 const key = Buffer.from(String(process.env.SECRET_KEY), 'base64');
 
 export function encryptToken(plaintext: string) {

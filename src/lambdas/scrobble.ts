@@ -96,10 +96,6 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
 
       const metadata = normalizePlexMetadata(payload.metadata.plex);
 
-      console.log('Processing Plex scrobble:', {
-        payload,
-      });
-
       const { tvdb: tvdbId } = metadata.externalIds;
       if (!tvdbId) {
         console.error('No `tvdbId` found, skipping', {

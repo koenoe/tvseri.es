@@ -135,7 +135,7 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
       await markWatched(markWatchedPayload);
 
       console.log(
-        `[SCROBBLE] Plex | ${tvSeries!.title} - S${String(episode.seasonNumber).padStart(2, '0')}E${String(episode.episodeNumber).padStart(2, '0')} "${episode.title}" | User: ${payload.userId}`,
+        `[SUCCESS] Plex | ${tvSeries!.title} - S${String(episode.seasonNumber).padStart(2, '0')}E${String(episode.episodeNumber).padStart(2, '0')} "${episode.title}" | User: ${payload.userId}`,
       );
     }
   } catch (error) {

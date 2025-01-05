@@ -98,9 +98,7 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
 
       const { tvdb: tvdbId } = metadata.externalIds;
       if (!tvdbId) {
-        console.error('No `tvdbId` found, skipping', {
-          payload,
-        });
+        console.error('No `tvdbId` found, skipping', JSON.stringify(payload));
         continue;
       }
 
@@ -112,9 +110,7 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
       const episode = externalIdResults.episodes[0];
       if (!episode) {
         // TODO: fuzzy matching by title, year etc.
-        console.error('No episode found, skipping', {
-          payload,
-        });
+        console.error('No episode found, skipping', JSON.stringify(payload));
         continue;
       }
 
@@ -137,6 +133,11 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
       };
 
       await markWatched(markWatchedPayload);
+
+      console.log(
+        'Successfully processed scrobble event',
+        JSON.stringify(payload),
+      );
     }
   } catch (error) {
     console.error('Error processing scrobble event:', error);

@@ -3,7 +3,10 @@ import 'server-only';
 import { createFetch } from '@better-fetch/fetch';
 import slugify from 'slugify';
 
-import { WATCH_PROVIDER_PRIORITY } from '@/constants';
+import {
+  DEFAULT_FETCH_RETRY_OPTIONS,
+  WATCH_PROVIDER_PRIORITY,
+} from '@/constants';
 import { type Account } from '@/types/account';
 import { type CountryOrLanguage } from '@/types/country-language';
 import { type Genre } from '@/types/genre';
@@ -61,12 +64,7 @@ import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
 
 const $fetch = createFetch({
   baseURL: 'https://api.themoviedb.org',
-  retry: {
-    type: 'exponential',
-    attempts: 4, // Initial + 3 retries
-    baseDelay: 250, // Start with 250ms delay
-    maxDelay: 2000, // Cap at 2 seconds
-  },
+  retry: DEFAULT_FETCH_RETRY_OPTIONS,
   plugins: [nextPlugin],
 });
 

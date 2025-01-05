@@ -1,7 +1,10 @@
 import { type Handler } from 'aws-lambda';
 
+import { createFetch } from '@better-fetch/fetch';
 import Color from 'color';
 import sharp from 'sharp';
+
+import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
 
 const BLUR_SIGMA = 35;
 const CONTRAST_MINIMUM = 4.5;
@@ -14,6 +17,10 @@ type ProcessImageEvent = Readonly<{
 type ProcessImageResult = Readonly<{
   color: string;
 }>;
+
+const $fetch = createFetch({
+  retry: DEFAULT_FETCH_RETRY_OPTIONS,
+});
 
 const correctContrast = (input: Color): Color => {
   let output = input;
@@ -35,19 +42,17 @@ export const handler: Handler<ProcessImageEvent, ProcessImageResult> = async (
       throw new Error('Invalid URL provided');
     }
 
-    const imageResponse = await fetch(event.url);
+    const { data, error } = await $fetch(event.url);
 
-    if (!imageResponse.ok) {
-      throw new Error(`Failed to fetch image: ${imageResponse.status}`);
+    if (error) {
+      throw new Error(`Failed to fetch image: ${error.message}`);
     }
 
-    const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
-
+    const imageBuffer = Buffer.from(await data.arrayBuffer());
     const { dominant } = await sharp(imageBuffer)
       .blur(BLUR_SIGMA)
       .raw()
       .stats();
-
     const dominantColor = Color.rgb(dominant);
     const correctedColor = correctContrast(dominantColor);
 

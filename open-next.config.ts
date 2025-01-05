@@ -11,8 +11,10 @@ const config = {
   },
   functions: {
     edge: {
-      runtime: 'edge',
       placement: 'global',
+      override: {
+        converter: 'aws-cloudfront',
+      },
       routes: ['app/api/webhooks/scrobble/[provider]/route'],
       patterns: ['api/webhooks/*'],
     },

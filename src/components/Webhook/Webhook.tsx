@@ -36,7 +36,7 @@ export default function Webhook({
       )}
     >
       {url ? (
-        <div className="flex w-full items-center gap-x-4 truncate rounded-lg bg-black/20 px-4 py-2 text-xs text-white/60 outline-none">
+        <div className="flex w-full items-center gap-x-4 truncate rounded-lg bg-black/20 px-4 py-2 text-sm text-white/60 outline-none">
           <span className="truncate">{url}</span>
           <button
             onClick={handleCopy}

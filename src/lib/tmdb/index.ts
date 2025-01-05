@@ -50,6 +50,8 @@ import {
   buildTitleTreatmentImageUrl,
   type TmdbTvSeriesEpisode,
   normalizeTvSeriesEpisode,
+  type TmdbFindByIdResults,
+  type TmdbExternalSource,
 } from './helpers';
 import nextPlugin from '../betterFetchNextPlugin';
 import { getCacheItem, setCacheItem } from '../db/cache';
@@ -706,10 +708,23 @@ export async function fetchGenresForTvSeries() {
   ) as Genre[];
 }
 
-export async function searchTvSeries(query: string) {
+export async function searchTvSeries(
+  query: string,
+  {
+    year,
+  }: Readonly<{
+    year?: number | string;
+  }> = {},
+) {
+  const params = new URLSearchParams({
+    include_adult: 'false',
+    page: '1',
+    query,
+    ...(year && { year: `${year}` }),
+  });
   const tvSeriesResponse =
     ((await tmdbFetch(
-      `/3/search/tv?include_adult=false&page=1&query=${query}`,
+      `/3/search/tv?${params.toString()}`,
     )) as TmdbSearchTvSeries) ?? [];
 
   return (tvSeriesResponse.results ?? [])
@@ -926,4 +941,45 @@ export async function fetchPersonTvCredits(id: number | string) {
   const crew = sortAndGroup(credits.crew);
 
   return { cast, crew };
+}
+
+export async function findByExternalId({
+  externalId,
+  externalSource,
+}: Readonly<{
+  externalId: string;
+  externalSource: TmdbExternalSource;
+}>) {
+  const response = (await tmdbFetch(
+    `/3/find/${externalId}?external_source=${externalSource}`,
+  )) as TmdbFindByIdResults;
+
+  const tvSeries = (response.tv_results ?? []).map((series) => {
+    return normalizeTvSeries(series as TmdbTvSeries);
+  });
+  const episodes = (response.tv_episode_results ?? []).map((episode) => {
+    return {
+      ...normalizeTvSeriesEpisode(episode as TmdbTvSeriesEpisode),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      tvSeriesId: (episode as any).show_id,
+    };
+  });
+  const seasons = (response.tv_season_results ?? []).map((_season) => {
+    const season = _season as TmdbTvSeriesSeason;
+    return {
+      id: season.id,
+      title: season.name as string,
+      description: season.overview ?? '',
+      airDate: season.air_date ? new Date(season.air_date).toISOString() : '',
+      seasonNumber: season.season_number,
+      numberOfEpisodes: episodes.length,
+      episodes: [],
+    };
+  });
+
+  return {
+    tvSeries,
+    seasons,
+    episodes,
+  };
 }

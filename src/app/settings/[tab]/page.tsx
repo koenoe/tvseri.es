@@ -5,7 +5,7 @@ import { notFound, unauthorized } from 'next/navigation';
 
 import ImportContainer from '@/components/Import/ImportContainer';
 import { tabs, type Tab } from '@/components/Tabs/Tabs';
-import Webhook from '@/components/Webhook/Webhook';
+import WebhookForPlex from '@/components/Webhook/WebhookForPlex';
 import { findSession } from '@/lib/db/session';
 import { findUser } from '@/lib/db/user';
 import { decryptToken } from '@/lib/token';
@@ -72,22 +72,25 @@ export default async function SettingsPage({
 
   if (tab === 'webhooks') {
     return (
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <div className="relative w-full">
           <h2 className="text-md mb-4 lg:text-lg">Plex</h2>
-          <Webhook
-            className="bg-gradient-to-br from-[#e5a00d] to-[#b17a0a]"
-            url={`${process.env.SITE_URL}/api/webhooks/plex?token=foobar`}
-          />
+          <Suspense
+            fallback={
+              <div className="relative flex h-28 w-full animate-pulse rounded-lg bg-white/10 shadow-lg" />
+            }
+          >
+            <WebhookForPlex userId={user.id} />
+          </Suspense>
         </div>
-        <div className="relative w-full">
+        {/* <div className="relative w-full">
           <h2 className="text-md mb-4 lg:text-lg">Jellyfin</h2>
           <Webhook className="bg-gradient-to-br from-[#aa5cc3] to-[#00a4dc]" />
         </div>
         <div className="relative w-full">
           <h2 className="text-md mb-4 lg:text-lg">Emby</h2>
           <Webhook className="bg-gradient-to-br from-[#4caf50] to-[#357a38]" />
-        </div>
+        </div> */}
       </div>
     );
   }

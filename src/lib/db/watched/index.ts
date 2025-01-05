@@ -211,6 +211,7 @@ export const markWatched = async ({
   episodeNumber,
   runtime,
   watchProvider,
+  watchedAt = Date.now(),
 }: Readonly<{
   userId: string;
   tvSeries: TvSeries;
@@ -218,8 +219,8 @@ export const markWatched = async ({
   episodeNumber: number;
   runtime: number;
   watchProvider?: WatchProvider | null;
+  watchedAt?: number;
 }>) => {
-  const now = Date.now();
   const paddedSeason = paddedNumber(seasonNumber);
   const paddedEpisode = paddedNumber(episodeNumber);
 
@@ -229,7 +230,7 @@ export const markWatched = async ({
     seasonNumber,
     episodeNumber,
     runtime,
-    watchedAt: now,
+    watchedAt,
     watchProvider,
   });
 
@@ -241,7 +242,7 @@ export const markWatched = async ({
       gsi1pk: `USER#${userId}#SERIES#${tvSeries.id}`,
       gsi1sk: `S${paddedSeason}#E${paddedEpisode}`,
       gsi2pk: `USER#${userId}#WATCHED`,
-      gsi2sk: now,
+      gsi2sk: watchedAt,
       ...watchedItem,
     }),
   });

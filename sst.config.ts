@@ -69,6 +69,7 @@ export default $config({
         dynamo.sessions,
         dynamo.users,
         dynamo.watched,
+        dynamo.webhooks,
       ],
       server: {
         architecture,

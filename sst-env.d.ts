@@ -34,6 +34,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "Webhooks": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
     "tvseries": {
       "type": "sst.aws.Nextjs"
       "url": string

@@ -108,6 +108,12 @@ export type TmdbPersonCredits =
 export type TmdbPersonTvCredits =
   paths[`/3/person/${number}/tv_credits`]['get']['responses']['200']['content']['application/json'];
 
+export type TmdbExternalSource =
+  paths[`/3/find/${string}`]['get']['parameters']['query']['external_source'];
+
+export type TmdbFindByIdResults =
+  paths[`/3/find/${string}`]['get']['responses']['200']['content']['application/json'];
+
 export const GLOBAL_GENRES_TO_IGNORE = [10763, 10767];
 
 export function generateTmdbImageUrl(path: string, size = 'original') {

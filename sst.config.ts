@@ -22,13 +22,13 @@ export default $config({
     const architecture = 'arm64';
 
     const dominantColor = new sst.aws.Function('DominantColor', {
-      handler: 'infra/functions/dominantColor.handler',
+      handler: 'src/lambdas/dominantColor.handler',
       memory: '512 MB',
       runtime: 'nodejs22.x',
       timeout: '30 seconds',
       architecture,
       nodejs: {
-        install: ['sharp', 'color'],
+        install: ['sharp', 'color', '@better-fetch/fetch'],
       },
     });
 

@@ -1,6 +1,8 @@
 import 'server-only';
 import { createFetch } from '@better-fetch/fetch';
 
+import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
+
 import nextPlugin from '../betterFetchNextPlugin';
 import { getCacheItem, setCacheItem } from '../db/cache';
 
@@ -14,12 +16,7 @@ type Item = Readonly<{
 
 const $fetch = createFetch({
   baseURL: 'https://api.mdblist.com',
-  retry: {
-    type: 'exponential',
-    attempts: 4, // Initial + 3 retries
-    baseDelay: 250, // Start with 250ms delay
-    maxDelay: 2000, // Cap at 2 seconds
-  },
+  retry: DEFAULT_FETCH_RETRY_OPTIONS,
   plugins: [nextPlugin],
 });
 

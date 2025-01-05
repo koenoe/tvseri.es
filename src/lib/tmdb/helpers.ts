@@ -1,5 +1,3 @@
-import 'server-only';
-
 import slugify from 'slugify';
 
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';

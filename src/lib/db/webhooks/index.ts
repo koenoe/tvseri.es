@@ -35,7 +35,7 @@ export const createWebhookToken = async (input: {
   };
 
   const command = new PutItemCommand({
-    TableName: Resource.Webhooks.name,
+    TableName: Resource.WebhookTokens.name,
     Item: marshall({
       pk: `TOKEN#${token}`,
       gsi1pk: `USER#${input.userId}#TYPE#${input.type}`,
@@ -55,7 +55,7 @@ export const findWebhookTokenByUserAndType = async ({
   type: string;
 }): Promise<WebhookToken | null> => {
   const command = new QueryCommand({
-    TableName: Resource.Webhooks.name,
+    TableName: Resource.WebhookTokens.name,
     IndexName: 'gsi1',
     KeyConditionExpression: 'gsi1pk = :gsi1pk',
     ExpressionAttributeValues: marshall({
@@ -77,7 +77,7 @@ export const findWebhookToken = async (
   token: string,
 ): Promise<WebhookToken | null> => {
   const command = new GetItemCommand({
-    TableName: Resource.Webhooks.name,
+    TableName: Resource.WebhookTokens.name,
     Key: marshall({
       pk: `TOKEN#${token}`,
     }),

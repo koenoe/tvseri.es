@@ -1,4 +1,3 @@
-import 'server-only';
 import { createFetch } from '@better-fetch/fetch';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';

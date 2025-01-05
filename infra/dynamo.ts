@@ -4,4 +4,4 @@ export * from './dynamo/preferredImages';
 export * from './dynamo/sessions';
 export * from './dynamo/users';
 export * from './dynamo/watched';
-export * from './dynamo/webhooks';
+export * from './dynamo/webhookTokens';

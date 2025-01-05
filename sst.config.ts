@@ -19,16 +19,39 @@ export default $config({
   async run() {
     const dynamo = await import('./infra/dynamo');
 
-    const architecture = 'arm64';
-
     const dominantColor = new sst.aws.Function('DominantColor', {
+      architecture: 'arm64',
       handler: 'src/lambdas/dominantColor.handler',
       memory: '512 MB',
       runtime: 'nodejs22.x',
       timeout: '30 seconds',
-      architecture,
       nodejs: {
-        install: ['sharp', 'color', '@better-fetch/fetch'],
+        install: ['@better-fetch/fetch', 'color', 'sharp'],
+      },
+    });
+
+    const scrobbleQueue = new sst.aws.Queue('ScrobbleQueue');
+    scrobbleQueue.subscribe({
+      architecture: 'arm64',
+      handler: 'src/lambdas/scrobble.handler',
+      memory: '512 MB',
+      runtime: 'nodejs22.x',
+      timeout: '30 seconds',
+      environment: {
+        MDBLIST_API_KEY: process.env.MDBLIST_API_KEY as string,
+        TMDB_API_ACCESS_TOKEN: process.env.TMDB_API_ACCESS_TOKEN as string,
+        TMDB_API_KEY: process.env.TMDB_API_KEY as string,
+      },
+      link: [
+        dominantColor,
+        dynamo.cache,
+        dynamo.lists,
+        dynamo.preferredImages,
+        dynamo.users,
+        dynamo.watched,
+      ],
+      nodejs: {
+        install: ['@better-fetch/fetch', 'slugify'],
       },
     });
 
@@ -69,10 +92,11 @@ export default $config({
         dynamo.sessions,
         dynamo.users,
         dynamo.watched,
-        dynamo.webhooks,
+        dynamo.webhookTokens,
+        scrobbleQueue,
       ],
       server: {
-        architecture,
+        architecture: 'arm64',
         memory: '1024 MB',
         runtime: 'nodejs22.x',
       },

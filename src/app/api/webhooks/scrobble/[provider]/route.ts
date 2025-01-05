@@ -1,8 +1,10 @@
-import { cachedTvSeries } from '@/lib/cached';
-import { markWatched } from '@/lib/db/watched';
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+import { Resource } from 'sst';
+
+import { type PlexMetadata, type ScrobbleEvent } from '@/lambdas/scrobble';
 import { findWebhookToken } from '@/lib/db/webhooks';
-import { findByExternalId } from '@/lib/tmdb';
-import { type WatchProvider } from '@/types/watch-provider';
+
+const sqs = new SQSClient({});
 
 export async function POST(
   request: Request,
@@ -35,17 +37,7 @@ export async function POST(
 
       const payload = JSON.parse(payloadJson.toString()) as Readonly<{
         event: string;
-        Metadata: Readonly<{
-          librarySectionType: string;
-          Guid?: ReadonlyArray<{ id: string }>;
-          parentIndex: number; // Season number?
-          index: number; // Episode number?
-          year: number;
-          title: string; // Episode title
-          parentTitle: string; // Season title
-          grandparentTitle: string; // Series title
-          type: string;
-        }>;
+        Metadata: PlexMetadata;
       }>;
 
       if (
@@ -56,46 +48,17 @@ export async function POST(
         return Response.json({ message: 'OK' }, { status: 200 });
       }
 
-      const tvdbId = payload.Metadata.Guid?.find((guid) =>
-        guid.id.startsWith('tvdb://'),
-      )?.id.replace('tvdb://', '');
-
-      if (!tvdbId) {
-        // TODO: match by title, year etc.
-        return Response.json({ message: 'OK' }, { status: 200 });
-      }
-
-      const externalIdResults = await findByExternalId({
-        externalId: tvdbId,
-        externalSource: 'tvdb_id',
-      });
-      const episode = externalIdResults.episodes[0];
-
-      if (!episode) {
-        // TODO: match by title, year etc.
-        return Response.json({ message: 'OK' }, { status: 200 });
-      }
-
-      const tvSeries = await cachedTvSeries(episode.tvSeriesId);
-
-      // TODO: make it prettier
-      const watchProvider = {
-        id: 0,
-        name: 'Plex',
-        logo: '',
-        logoPath: '/vLZKlXUNDcZR7ilvfY9Wr9k80FZ.jpg',
-      } as WatchProvider;
-
-      const markWatchedPayload = {
-        userId: webhookToken.userId,
-        tvSeries: tvSeries!,
-        seasonNumber: episode.seasonNumber,
-        episodeNumber: episode.episodeNumber,
-        runtime: episode.runtime,
-        watchProvider,
-      };
-
-      await markWatched(markWatchedPayload);
+      await sqs.send(
+        new SendMessageCommand({
+          QueueUrl: Resource.ScrobbleQueue.url,
+          MessageBody: JSON.stringify({
+            userId: webhookToken.userId,
+            metadata: {
+              plex: payload.Metadata,
+            },
+          } satisfies ScrobbleEvent),
+        }),
+      );
 
       return Response.json({ message: 'OK' });
     } catch (error) {

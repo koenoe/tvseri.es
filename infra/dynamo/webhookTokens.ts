@@ -1,6 +1,6 @@
 /// <reference path="../../.sst/platform/config.d.ts" />
 
-export const webhooks = new sst.aws.Dynamo('Webhooks', {
+export const webhookTokens = new sst.aws.Dynamo('WebhookTokens', {
   fields: {
     pk: 'string', // TOKEN#<token>
     gsi1pk: 'string', // USER#<userId>#TYPE#<type>

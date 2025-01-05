@@ -1,5 +1,3 @@
-import 'server-only';
-
 import { createFetch } from '@better-fetch/fetch';
 import slugify from 'slugify';
 

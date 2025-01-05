@@ -83,30 +83,6 @@ function normalizePlexMetadata(metadata: PlexMetadata): Metadata {
   };
 }
 
-function formatScrobbleEventForLogging(payload: ScrobbleEvent) {
-  const { userId, metadata } = payload;
-  const provider = metadata.plex ? 'Plex' : 'Jellyfin';
-
-  if (!metadata.plex) {
-    return JSON.stringify(payload);
-  }
-
-  const showTitle = metadata.plex.grandparentTitle;
-  const seasonNum = metadata.plex.parentIndex;
-  const episodeNum = metadata.plex.index;
-  const episodeTitle = metadata.plex.title;
-
-  return `
-----------------------------------------
-|        SCROBBLE SUCCESSFUL           |
-----------------------------------------
-| Provider | ${provider.padEnd(28)} |
-| Show     | ${showTitle.padEnd(28)} |
-| Episode  | S${String(seasonNum).padStart(2, '0')}E${String(episodeNum).padStart(2, '0')} - ${episodeTitle.padEnd(20)} |
-| User     | ${userId.padEnd(28)} |
-----------------------------------------`;
-}
-
 export const handler: SQSHandler = async (event: SQSEvent) => {
   try {
     for (const record of event.Records) {
@@ -158,7 +134,9 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
 
       await markWatched(markWatchedPayload);
 
-      console.log(formatScrobbleEventForLogging(payload));
+      console.log(
+        `[SCROBBLE] Plex | ${tvSeries!.title} - S${String(episode.seasonNumber).padStart(2, '0')}E${String(episode.episodeNumber).padStart(2, '0')} "${episode.title}" | User: ${payload.userId}`,
+      );
     }
   } catch (error) {
     console.error('Error processing scrobble event:', error);

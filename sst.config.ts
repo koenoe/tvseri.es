@@ -52,6 +52,11 @@ export default $config({
       ],
       nodejs: {
         install: ['@better-fetch/fetch', 'slugify'],
+        // Note: this should work and allow usage of `import 'server-only';` in the lambda
+        // but it doesn't seem to work as expected: https://github.com/sst/sst/issues/4514
+        // esbuild: {
+        //   conditions: ['react-server'],
+        // },
       },
     });
 

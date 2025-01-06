@@ -12,7 +12,7 @@ import {
 import { decryptToken, encryptToken } from '@/lib/token';
 import getBaseUrl from '@/utils/getBaseUrl';
 
-export async function login(pathname = '/') {
+export async function loginWithTmdb(pathname = '/') {
   const cookieStore = await cookies();
   const redirectUri = `${getBaseUrl()}/api/auth/callback/tmdb?redirect=${pathname}`;
   const requestToken = await createRequestToken(redirectUri);
@@ -27,6 +27,16 @@ export async function login(pathname = '/') {
   return redirect(
     `https://www.themoviedb.org/auth/access?request_token=${requestToken}`,
   );
+}
+
+export async function login(formData: FormData) {
+  const rawFormData = {
+    email: formData.get('email'),
+  };
+
+  console.log('login:', rawFormData);
+
+  return redirect(`/login/otp?email=${rawFormData.email}`);
 }
 
 export async function logout() {

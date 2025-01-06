@@ -193,7 +193,6 @@ export default function PreferredImagesForAdmin({
   const spinner = useMemo(
     () => (
       <svg
-        aria-hidden="true"
         className="0 inline h-4 w-4 animate-spin"
         viewBox="0 0 100 101"
         fill="none"

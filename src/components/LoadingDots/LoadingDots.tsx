@@ -1,12 +1,15 @@
-'use client';
+import { twMerge } from 'tailwind-merge';
 
-import { motion } from 'framer-motion';
-
-export default function LoadingDots() {
+export default function LoadingDots({
+  className,
+}: Readonly<{
+  className?: string;
+}>) {
   return (
-    <motion.svg
+    <svg
+      className={twMerge('h-full w-full text-white', className)}
       xmlns="http://www.w3.org/2000/svg"
-      fill="#fff"
+      fill="currentColor"
       viewBox="0 0 120 30"
     >
       <circle cx="15" cy="15" r="15">
@@ -75,6 +78,6 @@ export default function LoadingDots() {
           repeatCount="indefinite"
         />
       </circle>
-    </motion.svg>
+    </svg>
   );
 }

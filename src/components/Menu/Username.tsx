@@ -5,27 +5,27 @@ import { findSession } from '@/lib/db/session';
 import { findUser } from '@/lib/db/user';
 import { decryptToken } from '@/lib/token';
 
-import LoginButton from '../Buttons/LoginButton';
+import AuthButton from '../Buttons/AuthButton';
 
 export default async function Username() {
   const cookieStore = await cookies();
   const encryptedSessionId = cookieStore.get('sessionId')?.value;
 
   if (!encryptedSessionId) {
-    return <LoginButton />;
+    return <AuthButton />;
   }
 
   const decryptedSessionId = decryptToken(encryptedSessionId);
   const session = await findSession(decryptedSessionId);
 
   if (!session) {
-    return <LoginButton />;
+    return <AuthButton />;
   }
 
   const user = await findUser({ userId: session.userId });
 
   if (!user) {
-    return <LoginButton />;
+    return <AuthButton />;
   }
 
   const profileName =

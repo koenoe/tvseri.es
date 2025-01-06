@@ -3,15 +3,15 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import Link, { type LinkProps } from 'next/link';
 
 import useMatchMedia from '@/hooks/useMatchMedia';
 import { type User } from '@/types/user';
 import getMainBackgroundColor from '@/utils/getMainBackgroundColor';
 
 import MenuToggle, { type MenuToggleHandle } from './MenuToggle';
-import LoginButton from '../Buttons/LoginButton';
 import Modal from '../Modal';
+import MenuItem from './MenuItem';
+import AuthButton from '../Buttons/AuthButton';
 import Search from '../Search/Search';
 
 const fetchAccount = async () => {
@@ -37,25 +37,6 @@ const buttonVariants = {
       duration: 0.2,
     },
   }),
-};
-
-const MenuItem = ({
-  onClick,
-  href,
-  label,
-}: LinkProps &
-  Readonly<{
-    label: string;
-  }>) => {
-  return (
-    <Link
-      href={href}
-      className="relative flex h-full w-full items-center overflow-hidden text-3xl lowercase leading-none text-white md:justify-end md:text-base md:leading-none"
-      onClick={onClick}
-    >
-      <span className="relative h-full truncate text-ellipsis">{label}</span>
-    </Link>
-  );
 };
 
 export default function Menu({
@@ -87,6 +68,7 @@ export default function Menu({
 
   const renderMenu = useCallback(() => {
     const showLoginButton = account || isMobile;
+    const isAuthenticated = !!account;
     const items = [
       { label: 'Home', href: '/', component: null },
       { label: 'Discover', href: '/discover', component: null },
@@ -120,8 +102,8 @@ export default function Menu({
               label: '',
               href: '',
               component: (
-                <LoginButton
-                  isAuthenticated={!!account}
+                <AuthButton
+                  isAuthenticated={isAuthenticated}
                   onLogout={handleLogout}
                 />
               ),

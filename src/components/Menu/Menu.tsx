@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
 import useMatchMedia from '@/hooks/useMatchMedia';
 import { type User } from '@/types/user';
@@ -42,6 +43,7 @@ const buttonVariants = {
 export default function Menu({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const menuToggleRef = useRef<MenuToggleHandle>(null);
   const accountIsFetched = useRef(false);
@@ -59,7 +61,8 @@ export default function Menu({
     setAccount(null);
     setMenuOpen(false);
     menuToggleRef.current?.close();
-  }, []);
+    router.replace('/');
+  }, [router]);
 
   const handleMenuItemClick = useCallback(() => {
     setMenuOpen(false);

@@ -1,9 +1,8 @@
 'use client';
 
-import { useTransition, memo, useMemo, useCallback } from 'react';
+import { useTransition, memo, useCallback } from 'react';
 
 import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
 import { twMerge } from 'tailwind-merge';
 
 import { loginWithTmdb } from '@/app/actions';
@@ -13,15 +12,12 @@ import LoadingDots from '../LoadingDots/LoadingDots';
 
 const TmdbAuthButton = ({
   className,
+  redirectPath = '/',
 }: Readonly<{
   className?: string;
+  redirectPath?: string;
 }>) => {
   const [isPending, startTransition] = useTransition();
-  const searchParams = useSearchParams();
-  const redirectPath = useMemo(
-    () => decodeURIComponent(searchParams.get('redirect') ?? '/'),
-    [searchParams],
-  );
 
   const handleClick = useCallback(() => {
     startTransition(async () => {

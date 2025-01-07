@@ -1,9 +1,16 @@
 'use server';
 
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-import { deleteSession, findSession } from '@/lib/db/session';
+import { createOTP, validateOTP } from '@/lib/db/otp';
+import {
+  createSession,
+  deleteSession,
+  findSession,
+  SESSION_DURATION,
+} from '@/lib/db/session';
+import { createUser, findUser } from '@/lib/db/user';
 import {
   createRequestToken,
   deleteAccessToken,
@@ -32,11 +39,61 @@ export async function loginWithTmdb(pathname = '/') {
 export async function login(formData: FormData) {
   const rawFormData = {
     email: formData.get('email'),
+    redirectPath: formData.get('redirectPath'),
   };
 
-  console.log('login:', rawFormData);
+  if (!rawFormData.email) {
+    throw new Error('Email is required');
+  }
 
-  return redirect(`/login/otp?email=${rawFormData.email}`);
+  const email = rawFormData.email as string;
+  const redirectPath = (rawFormData.redirectPath as string) ?? '/';
+  const otp = await createOTP({ email });
+
+  // TODO: email OTP to the user
+  console.log('otp:', otp);
+
+  return redirect(
+    `/login/otp?email=${email}&redirectPath=${encodeURIComponent(redirectPath)}`,
+  );
+}
+
+export async function loginWithOTP({
+  email,
+  otp,
+}: Readonly<{
+  email: string;
+  otp: string;
+}>) {
+  const isValid = await validateOTP({ email, otp });
+  if (!isValid) {
+    throw new Error('Invalid code');
+  }
+
+  const [headerStore, cookieStore] = await Promise.all([headers(), cookies()]);
+
+  let user = await findUser({ email });
+  if (!user) {
+    user = await createUser({
+      email,
+    });
+  }
+
+  const sessionId = await createSession({
+    userId: user.id,
+    clientIp:
+      headerStore.get('cloudfront-viewer-address')?.split(':')?.[0] || '',
+    country: headerStore.get('cloudfront-viewer-country') || '',
+    city: headerStore.get('cloudfront-viewer-city') || '',
+    region: headerStore.get('cloudFront-viewer-country-region') || '',
+    userAgent: headerStore.get('user-agent') || '',
+  });
+
+  cookieStore.set('sessionId', encryptToken(sessionId), {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: SESSION_DURATION,
+  } as const);
 }
 
 export async function logout() {

@@ -3,6 +3,7 @@ type Role = 'user' | 'admin';
 export type User = Readonly<{
   id: string;
   createdAt: string;
+  updatedAt?: string;
   email?: string;
   name?: string;
   role: Role;

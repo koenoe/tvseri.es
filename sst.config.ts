@@ -93,6 +93,7 @@ export default $config({
         dominantColor,
         dynamo.cache,
         dynamo.lists,
+        dynamo.otp,
         dynamo.preferredImages,
         dynamo.sessions,
         dynamo.users,

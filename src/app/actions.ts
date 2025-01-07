@@ -11,6 +11,7 @@ import {
   SESSION_DURATION,
 } from '@/lib/db/session';
 import { createUser, findUser } from '@/lib/db/user';
+import { sendEmail } from '@/lib/email';
 import {
   createRequestToken,
   deleteAccessToken,
@@ -50,8 +51,12 @@ export async function login(formData: FormData) {
   const redirectPath = (rawFormData.redirectPath as string) ?? '/';
   const otp = await createOTP({ email });
 
-  // TODO: email OTP to the user
-  console.log('otp:', otp);
+  await sendEmail({
+    recipient: email,
+    sender: 'auth',
+    subject: `tvseri.es OTP: ${otp}`,
+    body: `Your OTP is <strong>${otp}</strong>`,
+  });
 
   return redirect(
     `/login/otp?email=${email}&redirectPath=${encodeURIComponent(redirectPath)}`,

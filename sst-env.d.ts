@@ -14,6 +14,11 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Function"
     }
+    "Email": {
+      "configSet": string
+      "sender": string
+      "type": "sst.aws.Email"
+    }
     "Lists": {
       "name": string
       "type": "sst.aws.Dynamo"

@@ -24,6 +24,7 @@ export default async function LoginPage({
           placeholder="Email"
           data-1p-ignore
           required
+          autoFocus
         />
         <LoginButton />
       </form>

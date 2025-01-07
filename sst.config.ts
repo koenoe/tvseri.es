@@ -60,21 +60,29 @@ export default $config({
       },
     });
 
+    const dns = sst.aws.dns({
+      zone:
+        $app.stage === 'production'
+          ? (process.env.AWS_HOSTED_ZONE_ID_PROD as string)
+          : (process.env.AWS_HOSTED_ZONE_ID_DEV as string),
+    });
+
     const domain =
       $app.stage === 'production'
         ? 'tvseri.es'
         : `${$app.stage === 'dev' || $app.stage === 'development' ? 'dev' : `${$app.stage}.dev`}.tvseri.es`;
 
+    const email = new sst.aws.Email('Email', {
+      sender: domain,
+      dmarc: 'v=DMARC1; p=quarantine; adkim=s; aspf=s;',
+      dns,
+    });
+
     new sst.aws.Nextjs('tvseries', {
       buildCommand: 'pnpm dlx @opennextjs/aws build',
       domain: {
         name: domain,
-        dns: sst.aws.dns({
-          zone:
-            $app.stage === 'production'
-              ? (process.env.AWS_HOSTED_ZONE_ID_PROD as string)
-              : (process.env.AWS_HOSTED_ZONE_ID_DEV as string),
-        }),
+        dns,
         redirects: $app.stage === 'production' ? ['www.tvseri.es'] : [],
       },
       environment: {
@@ -99,6 +107,7 @@ export default $config({
         dynamo.users,
         dynamo.watched,
         dynamo.webhookTokens,
+        email,
         scrobbleQueue,
       ],
       server: {

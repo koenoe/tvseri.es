@@ -61,7 +61,7 @@ const formatPart = (value: string, part: Part): string => {
   }
 
   const episodeMatch = value.match(
-    /(Chapter|Episode|Aflevering)\s+\d+(?:[:\\—–-]\s*|\s+).*/i,
+    /(Chapter|Episode|Aflevering)\s+\d+(?:(?:[:\\—–-]\s*|\s+).*)?/i,
   );
 
   if (episodeMatch) {

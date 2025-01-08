@@ -19,7 +19,7 @@ export default async function LoginPage({
         <div aria-hidden="true" className="fixed -left-full -top-full">
           <input
             type="email"
-            name="backup_email"
+            name="verify_email"
             tabIndex={-1}
             autoComplete="off"
           />

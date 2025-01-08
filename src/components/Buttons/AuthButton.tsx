@@ -42,7 +42,9 @@ const AuthButton = ({
         } else {
           const redirectPath =
             typeof window !== 'undefined' ? window.location.pathname : '/';
-          router.push(`/login?redirect=${encodeURIComponent(redirectPath)}`);
+          router.push(
+            `/login?redirectPath=${encodeURIComponent(redirectPath)}`,
+          );
         }
       } catch (_error) {}
     });

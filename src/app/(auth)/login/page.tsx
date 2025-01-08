@@ -16,6 +16,14 @@ export default async function LoginPage({
     <>
       <form className="mb-4 flex w-full flex-col space-y-4" action={login}>
         <input type="hidden" name="redirectPath" value={redirectPath} />
+        <div aria-hidden="true" className="fixed -left-full -top-full">
+          <input
+            type="email"
+            name="backup_email"
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </div>
         <input
           type="email"
           name="email"

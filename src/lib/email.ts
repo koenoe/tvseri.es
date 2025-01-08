@@ -16,7 +16,7 @@ export const sendEmail = async ({
 }>) => {
   await client.send(
     new SendEmailCommand({
-      FromEmailAddress: `${sender ?? 'no-reply'}@${Resource.Email.sender}`,
+      FromEmailAddress: `tvseri.es <${sender ?? 'no-reply'}@${Resource.Email.sender}>`,
       Destination: {
         ToAddresses: typeof recipient === 'string' ? [recipient] : recipient,
       },

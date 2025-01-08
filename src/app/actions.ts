@@ -54,7 +54,7 @@ export async function login(formData: FormData) {
   await sendEmail({
     recipient: email,
     sender: 'auth',
-    subject: `tvseri.es OTP: ${otp}`,
+    subject: `Your OTP: ${otp}`,
     body: `Your OTP is <strong>${otp}</strong>`,
   });
 

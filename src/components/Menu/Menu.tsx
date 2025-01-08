@@ -61,7 +61,7 @@ export default function Menu({
     setAccount(null);
     setMenuOpen(false);
     menuToggleRef.current?.close();
-    router.replace('/');
+    router.refresh();
   }, [router]);
 
   const handleMenuItemClick = useCallback(() => {

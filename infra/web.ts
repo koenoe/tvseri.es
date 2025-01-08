@@ -1,6 +1,6 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
-import { domain } from './dns';
+import { domain, zone } from './dns';
 import { dominantColor } from './dominantColor';
 import * as dynamo from './dynamo';
 import { email } from './email';
@@ -12,7 +12,7 @@ new sst.aws.Nextjs('tvseries', {
     name: domain,
     redirects: $app.stage === 'production' ? ['www.tvseri.es'] : [],
     dns: sst.aws.dns({
-      override: true,
+      zone,
     }),
   },
   environment: {

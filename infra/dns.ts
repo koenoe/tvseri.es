@@ -8,36 +8,18 @@ export const { zone, domain } = (() => {
 
   if ($app.stage === 'production')
     return {
-      zone: new aws.route53.Zone(
-        'Zone',
-        {
-          name: PRODUCTION,
-        },
-        {
-          retainOnDelete: true,
-          import: process.env.AWS_HOSTED_ZONE_ID_PROD as string,
-        },
-      ),
+      zone: process.env.AWS_HOSTED_ZONE_ID_PROD as string,
       domain: PRODUCTION,
     };
 
   if ($app.stage === 'dev')
     return {
-      zone: new aws.route53.Zone(
-        'Zone',
-        {
-          name: DEV,
-        },
-        {
-          import: AWS_HOSTED_ZONE_ID_DEV,
-          ignoreChanges: ['*'],
-        },
-      ),
+      zone: AWS_HOSTED_ZONE_ID_DEV,
       domain: DEV,
     };
 
   return {
-    zone: aws.route53.Zone.get('Zone', AWS_HOSTED_ZONE_ID_DEV),
+    zone: AWS_HOSTED_ZONE_ID_DEV,
     domain: `${$app.stage}.${DEV}`,
   };
 })();

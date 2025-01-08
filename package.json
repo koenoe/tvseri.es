@@ -15,6 +15,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.721.0",
     "@aws-sdk/client-lambda": "^3.721.0",
+    "@aws-sdk/client-sesv2": "^3.723.0",
     "@aws-sdk/client-sqs": "^3.721.0",
     "@aws-sdk/util-dynamodb": "^3.721.0",
     "@better-fetch/fetch": "^1.1.12",
@@ -69,5 +70,5 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2"
   },
-  "packageManager": "pnpm@9.15.2"
+  "packageManager": "pnpm@9.15.3"
 }

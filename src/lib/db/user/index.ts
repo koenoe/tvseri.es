@@ -2,6 +2,7 @@ import {
   PutItemCommand,
   ConditionalCheckFailedException,
   QueryCommand,
+  UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Resource } from 'sst';
@@ -54,19 +55,18 @@ export const findUser = async (
 
 export const createUser = async (
   input: Readonly<
-    Omit<User, 'id' | 'createdAt' | 'role' | 'version'> &
+    Omit<User, 'id' | 'createdAt' | 'role' | 'version' | 'username' | 'email'> &
       (
         | { username: string; email?: string }
         | { username?: string; email: string }
       )
   >,
 ): Promise<User> => {
-  let username = input.email ? input.email.split('@')[0] : input.username;
-  if (username) {
-    const isUsernameTaken = await findUser({ username });
-    if (isUsernameTaken) {
-      username = generateUsername();
-    }
+  let username = input.email ? input.email.split('@')[0] : input.username!;
+
+  const isUsernameTaken = await findUser({ username });
+  if (isUsernameTaken) {
+    username = generateUsername();
   }
 
   // ⠀⠀⠀⠀⠀⠀⢀⣤⠤⠤⠤⠤⠤⠤⠤⠤⠤⢤⣤⣀⣀⡀⠀⠀⠀⠀⠀⠀
@@ -91,15 +91,16 @@ export const createUser = async (
     Item: marshall({
       pk: `USER#${userId}`,
       id: userId,
-      name: input.name,
       createdAt: now,
+      ...(input.name && {
+        name: input.name,
+      }),
       role,
       version: VERSION,
       ...(input.email && {
         gsi1pk: `EMAIL#${input.email.toLowerCase()}`,
         email: input.email,
       }),
-
       gsi2pk: `USERNAME#${username.toLowerCase()}`,
       username,
       ...(input.tmdbAccountId &&
@@ -143,5 +144,91 @@ export const createUser = async (
       throw new Error('Email, username, or TMDB account already exists');
     }
     throw new Error('Failed to create user');
+  }
+};
+
+export const updateUser = async (
+  userId: string,
+  updates: Readonly<{
+    email?: string;
+    username?: string;
+    name?: string;
+  }> &
+    ({ email: string } | { username: string } | { name: string }),
+): Promise<User> => {
+  const currentUser = await findUser({ userId });
+  if (!currentUser) {
+    throw new Error('User not found');
+  }
+
+  if (updates.email) {
+    const existingUser = await findUser({ email: updates.email });
+    if (existingUser && existingUser.id !== userId) {
+      throw new Error('Email already taken');
+    }
+  }
+
+  if (updates.username) {
+    const existingUser = await findUser({ username: updates.username });
+    if (existingUser && existingUser.id !== userId) {
+      throw new Error('Username already taken');
+    }
+  }
+
+  const updateExpressions: string[] = [];
+  const values: Record<string, string | number> = {};
+
+  const now = new Date().toISOString();
+  values[':updatedAt'] = now;
+  values[':lastUpdatedAt'] = currentUser.updatedAt || currentUser.createdAt;
+  updateExpressions.push('updatedAt = :updatedAt');
+
+  if (updates.email) {
+    values[':email'] = updates.email;
+    values[':newEmailIndex'] = `EMAIL#${updates.email.toLowerCase()}`;
+    updateExpressions.push('email = :email');
+    updateExpressions.push('gsi1pk = :newEmailIndex');
+  }
+
+  if (updates.username) {
+    values[':username'] = updates.username;
+    values[':newUsernameIndex'] = `USERNAME#${updates.username.toLowerCase()}`;
+    updateExpressions.push('username = :username');
+    updateExpressions.push('gsi2pk = :newUsernameIndex');
+  }
+
+  if (updates.name) {
+    values[':name'] = updates.name;
+    updateExpressions.push('name = :name');
+  }
+
+  try {
+    await client.send(
+      new UpdateItemCommand({
+        TableName: Resource.Users.name,
+        Key: marshall({
+          pk: `USER#${userId}`,
+        }),
+        UpdateExpression: `SET ${updateExpressions.join(', ')}`,
+        ExpressionAttributeValues: marshall(values),
+        ConditionExpression:
+          '(updatedAt = :lastUpdatedAt OR attribute_not_exists(updatedAt))',
+      }),
+    );
+
+    const updatedUser = {
+      ...currentUser,
+      ...updates,
+      updatedAt: now,
+    };
+
+    return updatedUser;
+  } catch (error) {
+    if (error instanceof ConditionalCheckFailedException) {
+      throw new Error(
+        "Looks like you're updating your profile on another device. Please try again.",
+      );
+    }
+    throw error;
   }
 };

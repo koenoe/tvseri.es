@@ -24,9 +24,7 @@ export async function GET(request: NextRequest) {
 
   const searchParams = request.nextUrl.searchParams;
   const redirectUri = searchParams.get('redirect') || '/';
-
   const decryptedRequestToken = decryptToken(encryptedRequestToken);
-
   const { accessToken, accountObjectId } = await createAccessToken(
     decryptedRequestToken,
   );
@@ -43,16 +41,9 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const country =
-    request.headers.get('cloudfront-viewer-country') ||
-    request.headers.get('x-open-next-country') ||
-    '';
-  const city =
-    request.headers.get('cloudfront-viewer-city') ||
-    request.headers.get('x-open-next-city') ||
-    '';
+  const country = request.headers.get('cloudfront-viewer-country') || '';
+  const city = request.headers.get('cloudfront-viewer-city') || '';
   const region = request.headers.get('cloudFront-viewer-country-region') || '';
-
   const sessionId = await createSession({
     userId: user.id,
     clientIp:
@@ -64,9 +55,7 @@ export async function GET(request: NextRequest) {
     tmdbSessionId,
     tmdbAccessToken: accessToken,
   });
-
   const encryptedSessionId = encryptToken(sessionId);
-
   const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',

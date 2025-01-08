@@ -38,7 +38,7 @@ export async function loginWithTmdb(pathname = '/') {
 }
 
 export async function login(formData: FormData) {
-  const honeypotValue = formData.get('backup_email');
+  const honeypotValue = formData.get('verify_email');
   if (honeypotValue) {
     return;
   }

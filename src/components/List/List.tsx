@@ -171,7 +171,7 @@ function List({
   }, []);
 
   return (
-    <div style={style} className={cx('relative w-full', className)}>
+    <div style={style} className={cx('relative w-full select-none', className)}>
       <div className={headerVariants({ titleAlignment })}>
         {typeof title === 'string' ? (
           <h2 className="text-2xl font-medium lg:text-3xl">{title}</h2>

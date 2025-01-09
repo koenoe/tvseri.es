@@ -23,9 +23,9 @@
     "color": "^4.2.3",
     "date-fns": "^4.1.0",
     "dice-coefficient": "^2.1.1",
-    "framer-motion": "11.16.1",
+    "framer-motion": "11.16.4",
     "next": "15.1.4",
-    "papaparse": "^5.4.1",
+    "papaparse": "^5.5.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-dropzone": "^14.3.5",
@@ -45,7 +45,7 @@
     "@types/color": "^4.2.0",
     "@types/node": "^22.10.5",
     "@types/papaparse": "^5.3.15",
-    "@types/react": "^19.0.3",
+    "@types/react": "^19.0.4",
     "@types/react-dom": "^19.0.2",
     "@typescript-eslint/eslint-plugin": "^8.19.1",
     "@typescript-eslint/parser": "^8.19.1",
@@ -65,10 +65,10 @@
     "prettier-plugin-tailwindcss": "^0.6.9",
     "sharp": "^0.33.5",
     "sort-package-json": "^2.12.0",
-    "sst": "^3.5.1",
+    "sst": "^3.5.4",
     "tailwind-scrollbar-hide": "^2.0.0",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.3"
   },
   "packageManager": "pnpm@9.15.3"
 }

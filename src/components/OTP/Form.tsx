@@ -53,7 +53,11 @@ const OTPForm = ({
           router.replace(redirectPath);
         } catch (err) {
           const error = err as Error;
-          toast.error(error.message);
+          if (error.message === 'InvalidCode') {
+            toast.error('Invalid code');
+          } else {
+            toast.error('An unknown error occurred, please try again');
+          }
           reset();
         }
       });

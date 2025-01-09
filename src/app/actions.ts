@@ -63,8 +63,17 @@ export async function login(formData: FormData) {
     body: `Your OTP is <strong>${otp}</strong>`,
   });
 
+  const cookieStore = await cookies();
+  const encryptedEmail = encryptToken(email);
+
+  cookieStore.set('emailOTP', encryptedEmail, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 10 * 60, // 10 minutes
+  });
+
   return redirect(
-    `/login/otp?email=${email}&redirectPath=${encodeURIComponent(redirectPath)}`,
+    `/login/otp?redirectPath=${encodeURIComponent(redirectPath)}`,
   );
 }
 
@@ -77,7 +86,7 @@ export async function loginWithOTP({
 }>) {
   const isValid = await validateOTP({ email, otp });
   if (!isValid) {
-    throw new Error('Invalid code');
+    throw new Error('InvalidCode');
   }
 
   const [headerStore, cookieStore] = await Promise.all([headers(), cookies()]);
@@ -104,6 +113,8 @@ export async function loginWithOTP({
     secure: process.env.NODE_ENV === 'production',
     maxAge: SESSION_DURATION,
   } as const);
+
+  cookieStore.delete('emailOTP');
 }
 
 export async function logout() {

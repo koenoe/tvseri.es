@@ -1,6 +1,8 @@
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import OTPForm from '@/components/OTP/Form';
+import { decryptToken } from '@/lib/token';
 
 export default async function OTPPage({
   searchParams: searchParamsFromProps,
@@ -10,13 +12,18 @@ export default async function OTPPage({
     email: string;
   }>;
 }>) {
-  const searchParams = await searchParamsFromProps;
+  const [searchParams, cookieStore] = await Promise.all([
+    searchParamsFromProps,
+    cookies(),
+  ]);
   const redirectPath = decodeURIComponent(searchParams.redirectPath ?? '/');
-  const email = searchParams.email;
+  const encryptedEmail = cookieStore.get('emailOTP')?.value;
 
-  if (!email) {
+  if (!encryptedEmail) {
     return redirect(`/login?redirectPath=${encodeURIComponent(redirectPath)}`);
   }
+
+  const email = decryptToken(encryptedEmail);
 
   return <OTPForm email={email} redirectPath={redirectPath} />;
 }

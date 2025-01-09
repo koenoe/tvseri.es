@@ -1,14 +1,11 @@
 import { Suspense } from 'react';
 
-import { cookies } from 'next/headers';
 import { notFound, unauthorized } from 'next/navigation';
 
 import ImportContainer from '@/components/Import/ImportContainer';
 import { tabs, type Tab } from '@/components/Tabs/Tabs';
 import WebhookForPlex from '@/components/Webhook/WebhookForPlex';
-import { findSession } from '@/lib/db/session';
-import { findUser } from '@/lib/db/user';
-import { decryptToken } from '@/lib/token';
+import auth from '@/lib/auth';
 
 export default async function SettingsPage({
   params,
@@ -19,22 +16,7 @@ export default async function SettingsPage({
     }>
   >;
 }>) {
-  const { tab } = await params;
-  const cookieStore = await cookies();
-  const encryptedSessionId = cookieStore.get('sessionId')?.value;
-
-  if (!encryptedSessionId) {
-    return unauthorized();
-  }
-
-  const decryptedSessionId = decryptToken(encryptedSessionId);
-  const session = await findSession(decryptedSessionId);
-
-  if (!session) {
-    return unauthorized();
-  }
-
-  const user = await findUser({ userId: session.userId });
+  const [{ tab }, { user }] = await Promise.all([params, auth()]);
 
   if (!user) {
     return unauthorized();

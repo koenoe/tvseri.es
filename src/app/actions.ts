@@ -3,11 +3,11 @@
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
+import auth from '@/lib/auth';
 import { createOTP, validateOTP } from '@/lib/db/otp';
 import {
   createSession,
   deleteSession,
-  findSession,
   SESSION_DURATION,
 } from '@/lib/db/session';
 import { createUser, findUser } from '@/lib/db/user';
@@ -17,7 +17,7 @@ import {
   deleteAccessToken,
   deleteSessionId,
 } from '@/lib/tmdb';
-import { decryptToken, encryptToken } from '@/lib/token';
+import { encryptToken } from '@/lib/token';
 import getBaseUrl from '@/utils/getBaseUrl';
 
 export async function loginWithTmdb(pathname = '/') {
@@ -118,21 +118,12 @@ export async function loginWithOTP({
 }
 
 export async function logout() {
-  const cookieStore = await cookies();
-  const encryptedSessionId = cookieStore.get('sessionId')?.value;
-
-  if (!encryptedSessionId) {
-    return;
-  }
-
-  const decryptedSessionId = decryptToken(encryptedSessionId);
-  const session = await findSession(decryptedSessionId);
-
+  const { session } = await auth();
   if (!session) {
     return;
   }
 
-  cookieStore.delete('sessionId');
+  (await cookies()).delete('sessionId');
   await deleteSession(session.id);
 
   // Note: delete the session from TMDB

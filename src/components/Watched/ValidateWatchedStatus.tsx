@@ -1,33 +1,17 @@
-import { cookies } from 'next/headers';
-
+import auth from '@/lib/auth';
 import { cachedTvSeries } from '@/lib/cached';
 import { addToList, isInList, removeFromList } from '@/lib/db/list';
-import { findSession } from '@/lib/db/session';
-import { findUser } from '@/lib/db/user';
 import {
   getLastWatchedItemForTvSeries,
   isTvSeriesWatched,
 } from '@/lib/db/watched';
-import { decryptToken } from '@/lib/token';
 
 export default async function ValidateWatchedStatus({
   id,
 }: Readonly<{
   id: number;
 }>) {
-  const cookieStore = await cookies();
-  const encryptedSessionId = cookieStore.get('sessionId')?.value;
-  if (!encryptedSessionId) {
-    return null;
-  }
-
-  const decryptedSessionId = decryptToken(encryptedSessionId);
-  const session = await findSession(decryptedSessionId);
-  if (!session) {
-    return null;
-  }
-
-  const user = await findUser({ userId: session.userId });
+  const { user } = await auth();
   if (!user) {
     return null;
   }

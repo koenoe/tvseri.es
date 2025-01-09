@@ -1,28 +1,11 @@
-import { cookies } from 'next/headers';
 import Link from 'next/link';
 
-import { findSession } from '@/lib/db/session';
-import { findUser } from '@/lib/db/user';
-import { decryptToken } from '@/lib/token';
+import auth from '@/lib/auth';
 
 import AuthButton from '../Buttons/AuthButton';
 
 export default async function Username() {
-  const cookieStore = await cookies();
-  const encryptedSessionId = cookieStore.get('sessionId')?.value;
-
-  if (!encryptedSessionId) {
-    return <AuthButton />;
-  }
-
-  const decryptedSessionId = decryptToken(encryptedSessionId);
-  const session = await findSession(decryptedSessionId);
-
-  if (!session) {
-    return <AuthButton />;
-  }
-
-  const user = await findUser({ userId: session.userId });
+  const { user } = await auth();
 
   if (!user) {
     return <AuthButton />;

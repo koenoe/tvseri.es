@@ -1,8 +1,7 @@
-import { cookies, headers } from 'next/headers';
+import { headers } from 'next/headers';
 
+import auth from '@/lib/auth';
 import { cachedTvSeries } from '@/lib/cached';
-import { findSession } from '@/lib/db/session';
-import { findUser } from '@/lib/db/user';
 import {
   markSeasonWatched,
   markTvSeriesWatched,
@@ -12,7 +11,6 @@ import {
   unmarkWatched,
 } from '@/lib/db/watched';
 import { fetchTvSeriesEpisode, fetchTvSeriesWatchProvider } from '@/lib/tmdb';
-import { decryptToken } from '@/lib/token';
 
 type BodyPayload = Readonly<{
   watched: boolean;
@@ -24,8 +22,8 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params;
-  const body = (await req.json()) as BodyPayload;
+  const [{ id }, json] = await Promise.all([params, req.json()]);
+  const body = json as BodyPayload;
   if (!body) {
     return Response.json({ error: 'No payload found' }, { status: 400 });
   }
@@ -39,23 +37,9 @@ export async function POST(
     return Response.json({ error: 'Not found' }, { status: 404 });
   }
 
-  const encryptedSessionId = (await cookies()).get('sessionId')?.value;
-  if (!encryptedSessionId) {
-    return Response.json({ error: 'No session' }, { status: 401 });
-  }
-
-  const decryptedSessionId = decryptToken(encryptedSessionId);
-  const session = await findSession(decryptedSessionId);
-  if (!session) {
-    return Response.json({ error: 'Invalid session' }, { status: 401 });
-  }
-
-  const user = await findUser({ userId: session.userId });
+  const { user } = await auth();
   if (!user) {
-    return Response.json(
-      { error: 'No valid user found in session' },
-      { status: 401 },
-    );
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const region = (await headers()).get('cloudfront-viewer-country') || 'US';

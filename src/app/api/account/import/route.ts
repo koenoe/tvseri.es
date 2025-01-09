@@ -1,17 +1,15 @@
 import { isValid, parse } from 'date-fns';
 import { diceCoefficient } from 'dice-coefficient';
-import { cookies, headers } from 'next/headers';
+import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import slugify from 'slugify';
 import wordsToNumbers from 'words-to-numbers';
 
+import auth from '@/lib/auth';
 import { cachedTvSeries } from '@/lib/cached';
-import { findSession } from '@/lib/db/session';
-import { findUser } from '@/lib/db/user';
 import { markWatchedInBatch } from '@/lib/db/watched';
 import { fetchWatchProviders } from '@/lib/tmdb';
 import { searchTvSeries, fetchTvSeriesSeason } from '@/lib/tmdb';
-import { decryptToken } from '@/lib/token';
 import { type TvSeries, type Episode, type Season } from '@/types/tv-series';
 import { type WatchProvider } from '@/types/watch-provider';
 
@@ -210,33 +208,14 @@ export async function POST(req: Request) {
     return Response.json({ error: 'No payload found' }, { status: 400 });
   }
 
-  const encryptedSessionId = (await cookies()).get('sessionId')?.value;
-
-  if (!encryptedSessionId) {
-    return Response.json({ error: 'No session' }, { status: 401 });
-  }
-
-  const decryptedSessionId = decryptToken(encryptedSessionId);
-  const session = await findSession(decryptedSessionId);
-
-  if (!session) {
-    return Response.json({ error: 'Invalid session' }, { status: 401 });
-  }
-
-  const user = await findUser({ userId: session.userId });
-
+  const { user } = await auth();
   if (!user) {
-    return Response.json(
-      { error: 'No valid user found in session' },
-      { status: 401 },
-    );
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const signal = req.signal;
-
   const region = (await headers()).get('cloudfront-viewer-country') || 'US';
   const providers = await fetchWatchProviders(region);
-
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {

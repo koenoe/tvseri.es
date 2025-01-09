@@ -16,6 +16,10 @@ const generateOTP = () => {
   return randomInt(100000, 999999).toString();
 };
 
+const encodeEmail = (email: string): string => {
+  return Buffer.from(email.toLowerCase()).toString('base64url');
+};
+
 export const createOTP = async (
   input: Readonly<{
     email: string;
@@ -28,7 +32,7 @@ export const createOTP = async (
   const command = new PutItemCommand({
     TableName: Resource.OTP.name,
     Item: marshall({
-      pk: `EMAIL#${input.email.toLowerCase()}`,
+      pk: `EMAIL#${encodeEmail(input.email)}`,
       sk: `CODE#${code}`,
       email: input.email.toLowerCase(),
       createdAt: now,
@@ -53,7 +57,7 @@ export const validateOTP = async (
   const command = new GetItemCommand({
     TableName: Resource.OTP.name,
     Key: marshall({
-      pk: `EMAIL#${input.email.toLowerCase()}`,
+      pk: `EMAIL#${encodeEmail(input.email)}`,
       sk: `CODE#${input.otp}`,
     }),
   });

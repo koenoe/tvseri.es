@@ -1,5 +1,4 @@
-import { cookies } from 'next/headers';
-
+import auth from '@/lib/auth';
 import { cachedTvSeries } from '@/lib/cached';
 import {
   addToFavorites,
@@ -9,13 +8,10 @@ import {
   removeFromFavorites,
   removeFromWatchlist,
 } from '@/lib/db/list';
-import { findSession } from '@/lib/db/session';
-import { findUser } from '@/lib/db/user';
 import {
   addToOrRemoveFromWatchlist,
   addToOrRemoveFromFavorites,
 } from '@/lib/tmdb';
-import { decryptToken } from '@/lib/token';
 import { type TvSeries } from '@/types/tv-series';
 
 import AddButton from './AddButton';
@@ -36,23 +32,8 @@ export default async function ActionButtons({
   ) {
     'use server';
 
-    const cookieStore = await cookies();
-    const encryptedSessionId = cookieStore.get('sessionId')?.value;
-
-    if (!encryptedSessionId) {
-      return;
-    }
-
-    const decryptedSessionId = decryptToken(encryptedSessionId);
-    const session = await findSession(decryptedSessionId);
-
-    if (!session) {
-      return;
-    }
-
-    const user = await findUser({ userId: session.userId });
-
-    if (!user) {
+    const { user, session } = await auth();
+    if (!user || !session) {
       return;
     }
 
@@ -116,30 +97,23 @@ export default async function ActionButtons({
     }
   }
 
-  const cookieStore = await cookies();
-  const encryptedSessionId = cookieStore.get('sessionId')?.value;
+  const { session } = await auth();
+  if (session) {
+    const payload = {
+      userId: session.userId,
+      id: Number(id),
+    };
 
-  if (encryptedSessionId) {
-    const decryptedSessionId = decryptToken(encryptedSessionId);
-    const session = await findSession(decryptedSessionId);
+    const isFavorited = await isInFavorites(payload);
+    const isWatchlisted = await isInWatchlist(payload);
 
-    if (session?.userId) {
-      const payload = {
-        userId: session.userId,
-        id: Number(id),
-      };
-
-      const isFavorited = await isInFavorites(payload);
-      const isWatchlisted = await isInWatchlist(payload);
-
-      return (
-        <>
-          <AddButton isActive={isWatchlisted} action={addToOrRemoveAction} />
-          {shouldShowWatchButton && <WatchButton tvSeriesId={Number(id)} />}
-          <LikeButton isActive={isFavorited} action={addToOrRemoveAction} />
-        </>
-      );
-    }
+    return (
+      <>
+        <AddButton isActive={isWatchlisted} action={addToOrRemoveAction} />
+        {shouldShowWatchButton && <WatchButton tvSeriesId={Number(id)} />}
+        <LikeButton isActive={isFavorited} action={addToOrRemoveAction} />
+      </>
+    );
   }
 
   return (

@@ -3,11 +3,11 @@
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
+import auth from '@/lib/auth';
 import { createOTP, validateOTP } from '@/lib/db/otp';
 import {
   createSession,
   deleteSession,
-  findSession,
   SESSION_DURATION,
 } from '@/lib/db/session';
 import { createUser, findUser } from '@/lib/db/user';
@@ -17,7 +17,7 @@ import {
   deleteAccessToken,
   deleteSessionId,
 } from '@/lib/tmdb';
-import { decryptToken, encryptToken } from '@/lib/token';
+import { encryptToken } from '@/lib/token';
 import getBaseUrl from '@/utils/getBaseUrl';
 
 export async function loginWithTmdb(pathname = '/') {
@@ -63,8 +63,17 @@ export async function login(formData: FormData) {
     body: `Your OTP is <strong>${otp}</strong>`,
   });
 
+  const cookieStore = await cookies();
+  const encryptedEmail = encryptToken(email);
+
+  cookieStore.set('emailOTP', encryptedEmail, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 10 * 60, // 10 minutes
+  });
+
   return redirect(
-    `/login/otp?email=${email}&redirectPath=${encodeURIComponent(redirectPath)}`,
+    `/login/otp?redirectPath=${encodeURIComponent(redirectPath)}`,
   );
 }
 
@@ -77,7 +86,7 @@ export async function loginWithOTP({
 }>) {
   const isValid = await validateOTP({ email, otp });
   if (!isValid) {
-    throw new Error('Invalid code');
+    throw new Error('InvalidCode');
   }
 
   const [headerStore, cookieStore] = await Promise.all([headers(), cookies()]);
@@ -104,24 +113,17 @@ export async function loginWithOTP({
     secure: process.env.NODE_ENV === 'production',
     maxAge: SESSION_DURATION,
   } as const);
+
+  cookieStore.delete('emailOTP');
 }
 
 export async function logout() {
-  const cookieStore = await cookies();
-  const encryptedSessionId = cookieStore.get('sessionId')?.value;
-
-  if (!encryptedSessionId) {
-    return;
-  }
-
-  const decryptedSessionId = decryptToken(encryptedSessionId);
-  const session = await findSession(decryptedSessionId);
-
+  const { session } = await auth();
   if (!session) {
     return;
   }
 
-  cookieStore.delete('sessionId');
+  (await cookies()).delete('sessionId');
   await deleteSession(session.id);
 
   // Note: delete the session from TMDB

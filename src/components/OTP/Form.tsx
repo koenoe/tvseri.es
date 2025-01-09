@@ -53,7 +53,11 @@ const OTPForm = ({
           router.replace(redirectPath);
         } catch (err) {
           const error = err as Error;
-          toast.error(error.message);
+          if (error.message === 'InvalidCode') {
+            toast.error('Invalid code');
+          } else {
+            toast.error('An unknown error occurred, please try again');
+          }
           reset();
         }
       });
@@ -137,6 +141,9 @@ const OTPForm = ({
           }}
           type="text"
           inputMode="numeric"
+          pattern="[0-9]*"
+          autoComplete={index === 0 ? 'one-time-code' : 'off'}
+          aria-label={`Digit ${index + 1} of verification code`}
           value={value}
           onChange={(e) => handleInput(e, index)}
           onKeyDown={(e) => handleKeyDown(e, index)}

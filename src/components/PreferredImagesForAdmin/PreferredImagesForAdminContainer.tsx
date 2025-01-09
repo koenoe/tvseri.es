@@ -1,17 +1,14 @@
 import { revalidateTag } from 'next/cache';
-import { cookies } from 'next/headers';
 
+import auth from '@/lib/auth';
 import { cachedTvSeries } from '@/lib/cached';
 import { deleteCacheItem } from '@/lib/db/cache';
 import {
   type PreferredImages,
   putPreferredImages,
 } from '@/lib/db/preferredImages';
-import { findSession } from '@/lib/db/session';
-import { findUser } from '@/lib/db/user';
 import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
 import { fetchTvSeriesImages } from '@/lib/tmdb';
-import { decryptToken } from '@/lib/token';
 
 import PreferredImagesForAdmin from './PreferredImagesForAdmin';
 
@@ -53,21 +50,8 @@ export default async function PreferredImagesForAdminContainer({
 }>) {
   const tvSeriesFromCache = await cachedTvSeries(id);
   const tvSeries = tvSeriesFromCache!;
-  const cookieStore = await cookies();
-  const encryptedSessionId = cookieStore.get('sessionId')?.value;
+  const { user } = await auth();
 
-  if (!encryptedSessionId) {
-    return null;
-  }
-
-  const decryptedSessionId = decryptToken(encryptedSessionId);
-  const session = await findSession(decryptedSessionId);
-
-  if (!session) {
-    return null;
-  }
-
-  const user = await findUser({ userId: session.userId });
   if (user?.role !== 'admin') {
     return null;
   }

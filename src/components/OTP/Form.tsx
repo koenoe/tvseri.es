@@ -141,6 +141,9 @@ const OTPForm = ({
           }}
           type="text"
           inputMode="numeric"
+          pattern="[0-9]*"
+          autoComplete={index === 0 ? 'one-time-code' : 'off'}
+          aria-label={`Digit ${index + 1} of verification code`}
           value={value}
           onChange={(e) => handleInput(e, index)}
           onKeyDown={(e) => handleKeyDown(e, index)}

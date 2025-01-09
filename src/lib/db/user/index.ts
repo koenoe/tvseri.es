@@ -15,6 +15,10 @@ import client from '../client';
 
 const VERSION = 1;
 
+const encodeEmail = (email: string): string => {
+  return Buffer.from(email.toLowerCase()).toString('base64url');
+};
+
 export const findUser = async (
   input:
     | { userId: string; email?: never; username?: never; tmdbAccountId?: never }
@@ -30,7 +34,7 @@ export const findUser = async (
   const [indexName, prefix, value] = input.userId
     ? [undefined, 'USER#', input.userId]
     : input.email
-      ? ['gsi1', 'EMAIL#', input.email.toLowerCase()]
+      ? ['gsi1', 'EMAIL#', encodeEmail(input.email)]
       : input.username
         ? ['gsi2', 'USERNAME#', input.username.toLowerCase()]
         : ['gsi3', 'TMDB#', input.tmdbAccountId];
@@ -98,7 +102,7 @@ export const createUser = async (
       role,
       version: VERSION,
       ...(input.email && {
-        gsi1pk: `EMAIL#${input.email.toLowerCase()}`,
+        gsi1pk: `EMAIL#${encodeEmail(input.email)}`,
         email: input.email,
       }),
       gsi2pk: `USERNAME#${username.toLowerCase()}`,
@@ -185,7 +189,7 @@ export const updateUser = async (
 
   if (updates.email) {
     values[':email'] = updates.email;
-    values[':newEmailIndex'] = `EMAIL#${updates.email.toLowerCase()}`;
+    values[':newEmailIndex'] = `EMAIL#${encodeEmail(updates.email)}`;
     updateExpressions.push('email = :email');
     updateExpressions.push('gsi1pk = :newEmailIndex');
   }

@@ -1,16 +1,24 @@
 'use server';
 
 import { cookies, headers } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { redirect, unauthorized } from 'next/navigation';
+import isEqual from 'react-fast-compare';
+import slugify from 'slugify';
 
 import auth from '@/lib/auth';
 import { createOTP, validateOTP } from '@/lib/db/otp';
 import {
   createSession,
   deleteSession,
+  removeTmdbFromSession,
   SESSION_DURATION,
 } from '@/lib/db/session';
-import { createUser, findUser } from '@/lib/db/user';
+import {
+  createUser,
+  findUser,
+  removeTmdbFromUser,
+  updateUser,
+} from '@/lib/db/user';
 import { sendEmail } from '@/lib/email';
 import {
   createRequestToken,
@@ -132,5 +140,101 @@ export async function logout() {
       deleteAccessToken(session.tmdbAccessToken),
       deleteSessionId(session.tmdbSessionId),
     ]);
+  }
+}
+
+export async function updateProfile(_: unknown, formData: FormData) {
+  const { user } = await auth();
+
+  if (!user) {
+    unauthorized();
+  }
+
+  const currentUser = {
+    email: user.email ?? '',
+    name: user.name ?? '',
+    username: user.username ?? '',
+  };
+
+  const rawFormData = {
+    email: formData.get('email')?.toString() ?? '',
+    name: formData.get('name')?.toString() ?? '',
+    username: formData.get('username')?.toString() ?? '',
+  };
+
+  if (isEqual(currentUser, rawFormData)) {
+    return {
+      message: 'No changes detected',
+      success: false,
+    };
+  }
+
+  const slugifiedUsername = slugify(rawFormData.username, {
+    lower: true,
+    strict: true,
+    trim: true,
+  });
+
+  if (slugifiedUsername !== rawFormData.username) {
+    return {
+      message: 'Username can only contain letters, numbers, and dashes',
+      success: false,
+    };
+  }
+
+  try {
+    await updateUser(user, {
+      email: rawFormData.email,
+      name: rawFormData.name,
+      username: slugifiedUsername,
+    });
+  } catch (err) {
+    const error = err as Error;
+    return {
+      message: error.message,
+      success: false,
+    };
+  }
+
+  return {
+    message: 'Profile updated successfully',
+    success: true,
+  };
+}
+
+export async function removeTmdbAccount() {
+  const { user, session } = await auth();
+
+  if (!user || !session) {
+    unauthorized();
+  }
+
+  const isTmdbUser =
+    user.tmdbAccountId && user.tmdbAccountObjectId && user.tmdbUsername;
+  const isTmdbSession = session.tmdbSessionId && session.tmdbAccessToken;
+
+  try {
+    if (isTmdbUser) {
+      await removeTmdbFromUser(user);
+    }
+
+    if (isTmdbSession) {
+      await Promise.all([
+        removeTmdbFromSession(session),
+        deleteAccessToken(session.tmdbAccessToken),
+        deleteSessionId(session.tmdbSessionId),
+      ]);
+    }
+
+    return {
+      message: 'TMDb removed from your account',
+      success: true,
+    };
+  } catch (err) {
+    const error = err as Error;
+    return {
+      message: error.message,
+      success: false,
+    };
   }
 }

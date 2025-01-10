@@ -8,16 +8,14 @@ import {
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Resource } from 'sst';
 
+import { encodeToBase64Url } from '@/utils/stringBase64Url';
+
 import client from '../client';
 
 const OTP_DURATION = 15 * 60; // 15 minutes in seconds
 
 const generateOTP = () => {
   return randomInt(100000, 999999).toString();
-};
-
-const encodeEmail = (email: string): string => {
-  return Buffer.from(email.toLowerCase()).toString('base64url');
 };
 
 export const createOTP = async (
@@ -32,7 +30,7 @@ export const createOTP = async (
   const command = new PutItemCommand({
     TableName: Resource.OTP.name,
     Item: marshall({
-      pk: `EMAIL#${encodeEmail(input.email)}`,
+      pk: `EMAIL#${encodeToBase64Url(input.email)}`,
       sk: `CODE#${code}`,
       email: input.email.toLowerCase(),
       createdAt: now,
@@ -57,7 +55,7 @@ export const validateOTP = async (
   const command = new GetItemCommand({
     TableName: Resource.OTP.name,
     Key: marshall({
-      pk: `EMAIL#${encodeEmail(input.email)}`,
+      pk: `EMAIL#${encodeToBase64Url(input.email)}`,
       sk: `CODE#${input.otp}`,
     }),
   });

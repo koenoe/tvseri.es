@@ -16,11 +16,11 @@ export const tabStyles = cva('inline-block rounded-t-lg border-b-2 p-4', {
 export type ButtonVariantProps = VariantProps<typeof tabStyles>;
 
 export const menuItems = [
-  // {
-  //   id: 'profile',
-  //   label: 'Profile',
-  //   href: '/settings/profile',
-  // },
+  {
+    id: 'profile',
+    label: 'Profile',
+    href: '/settings/profile',
+  },
   {
     id: 'import',
     label: 'Import',

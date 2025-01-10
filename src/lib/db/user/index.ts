@@ -5,19 +5,17 @@ import {
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import slugify from 'slugify';
 import { Resource } from 'sst';
 import { ulid } from 'ulid';
 
 import { type User } from '@/types/user';
 import generateUsername from '@/utils/generateUsername';
+import { encodeToBase64Url } from '@/utils/stringBase64Url';
 
 import client from '../client';
 
 const VERSION = 1;
-
-const encodeEmail = (email: string): string => {
-  return Buffer.from(email.toLowerCase()).toString('base64url');
-};
 
 export const findUser = async (
   input:
@@ -34,9 +32,9 @@ export const findUser = async (
   const [indexName, prefix, value] = input.userId
     ? [undefined, 'USER#', input.userId]
     : input.email
-      ? ['gsi1', 'EMAIL#', encodeEmail(input.email)]
+      ? ['gsi1', 'EMAIL#', encodeToBase64Url(input.email)]
       : input.username
-        ? ['gsi2', 'USERNAME#', input.username.toLowerCase()]
+        ? ['gsi2', 'USERNAME#', input.username]
         : ['gsi3', 'TMDB#', input.tmdbAccountId];
 
   const result = await client.send(
@@ -66,7 +64,13 @@ export const createUser = async (
       )
   >,
 ): Promise<User> => {
-  let username = input.email ? input.email.split('@')[0] : input.username!;
+  let username = input.email
+    ? slugify(input.email.split('@')[0], {
+        lower: true,
+        strict: true,
+        trim: true,
+      })
+    : input.username!;
 
   const isUsernameTaken = await findUser({ username });
   if (isUsernameTaken) {
@@ -102,10 +106,10 @@ export const createUser = async (
       role,
       version: VERSION,
       ...(input.email && {
-        gsi1pk: `EMAIL#${encodeEmail(input.email)}`,
+        gsi1pk: `EMAIL#${encodeToBase64Url(input.email)}`,
         email: input.email,
       }),
-      gsi2pk: `USERNAME#${username.toLowerCase()}`,
+      gsi2pk: `USERNAME#${username}`,
       username,
       ...(input.tmdbAccountId &&
         input.tmdbAccountObjectId && {
@@ -152,7 +156,7 @@ export const createUser = async (
 };
 
 export const updateUser = async (
-  userId: string,
+  user: User,
   updates: Readonly<{
     email?: string;
     username?: string;
@@ -160,50 +164,47 @@ export const updateUser = async (
   }> &
     ({ email: string } | { username: string } | { name: string }),
 ): Promise<User> => {
-  const currentUser = await findUser({ userId });
-  if (!currentUser) {
-    throw new Error('User not found');
-  }
-
   if (updates.email) {
     const existingUser = await findUser({ email: updates.email });
-    if (existingUser && existingUser.id !== userId) {
+    if (existingUser && existingUser.id !== user.id) {
       throw new Error('Email already taken');
     }
   }
 
   if (updates.username) {
     const existingUser = await findUser({ username: updates.username });
-    if (existingUser && existingUser.id !== userId) {
+    if (existingUser && existingUser.id !== user.id) {
       throw new Error('Username already taken');
     }
   }
 
   const updateExpressions: string[] = [];
+  const expressionAttributeNames: Record<string, string> = {};
   const values: Record<string, string | number> = {};
 
   const now = new Date().toISOString();
   values[':updatedAt'] = now;
-  values[':lastUpdatedAt'] = currentUser.updatedAt || currentUser.createdAt;
+  values[':lastUpdatedAt'] = user.updatedAt || user.createdAt;
   updateExpressions.push('updatedAt = :updatedAt');
 
   if (updates.email) {
     values[':email'] = updates.email;
-    values[':newEmailIndex'] = `EMAIL#${encodeEmail(updates.email)}`;
+    values[':newEmailIndex'] = `EMAIL#${encodeToBase64Url(updates.email)}`;
     updateExpressions.push('email = :email');
     updateExpressions.push('gsi1pk = :newEmailIndex');
   }
 
   if (updates.username) {
     values[':username'] = updates.username;
-    values[':newUsernameIndex'] = `USERNAME#${updates.username.toLowerCase()}`;
+    values[':newUsernameIndex'] = `USERNAME#${updates.username}`;
     updateExpressions.push('username = :username');
     updateExpressions.push('gsi2pk = :newUsernameIndex');
   }
 
   if (updates.name) {
     values[':name'] = updates.name;
-    updateExpressions.push('name = :name');
+    expressionAttributeNames['#fullName'] = 'name';
+    updateExpressions.push('#fullName = :name');
   }
 
   try {
@@ -211,20 +212,132 @@ export const updateUser = async (
       new UpdateItemCommand({
         TableName: Resource.Users.name,
         Key: marshall({
-          pk: `USER#${userId}`,
+          pk: `USER#${user.id}`,
         }),
         UpdateExpression: `SET ${updateExpressions.join(', ')}`,
         ExpressionAttributeValues: marshall(values),
+        ...(Object.keys(expressionAttributeNames).length > 0 && {
+          ExpressionAttributeNames: expressionAttributeNames,
+        }),
         ConditionExpression:
           '(updatedAt = :lastUpdatedAt OR attribute_not_exists(updatedAt))',
       }),
     );
 
     const updatedUser = {
-      ...currentUser,
+      ...user,
       ...updates,
       updatedAt: now,
     };
+
+    return updatedUser;
+  } catch (error) {
+    if (error instanceof ConditionalCheckFailedException) {
+      throw new Error(
+        "Looks like you're updating your profile on another device. Please try again.",
+      );
+    }
+    throw error;
+  }
+};
+
+export const addTmdbToUser = async (
+  user: User,
+  input: Readonly<{
+    tmdbAccountId: number;
+    tmdbAccountObjectId: string;
+    tmdbUsername: string;
+  }>,
+): Promise<User> => {
+  const now = new Date().toISOString();
+
+  try {
+    await client.send(
+      new UpdateItemCommand({
+        TableName: Resource.Users.name,
+        Key: marshall({
+          pk: `USER#${user.id}`,
+        }),
+        UpdateExpression: `
+          SET #tmdbAccountId = :tmdbAccountId,
+              #tmdbAccountObjectId = :tmdbAccountObjectId,
+              #tmdbUsername = :tmdbUsername,
+              #gsi3pk = :gsi3pk,
+              #updatedAt = :updatedAt`,
+        ExpressionAttributeValues: marshall({
+          ':tmdbAccountId': input.tmdbAccountId,
+          ':tmdbAccountObjectId': input.tmdbAccountObjectId,
+          ':tmdbUsername': input.tmdbUsername,
+          ':gsi3pk': `TMDB#${input.tmdbAccountId}`,
+          ':updatedAt': now,
+          ':lastUpdatedAt': user.updatedAt || user.createdAt,
+        }),
+        ExpressionAttributeNames: {
+          '#tmdbAccountId': 'tmdbAccountId',
+          '#tmdbAccountObjectId': 'tmdbAccountObjectId',
+          '#tmdbUsername': 'tmdbUsername',
+          '#gsi3pk': 'gsi3pk',
+          '#updatedAt': 'updatedAt',
+        },
+        ConditionExpression:
+          '(#updatedAt = :lastUpdatedAt OR attribute_not_exists(#updatedAt))',
+      }),
+    );
+
+    return {
+      ...user,
+      tmdbAccountId: input.tmdbAccountId,
+      tmdbAccountObjectId: input.tmdbAccountObjectId,
+      tmdbUsername: input.tmdbUsername,
+      updatedAt: now,
+    };
+  } catch (error) {
+    if (error instanceof ConditionalCheckFailedException) {
+      throw new Error(
+        "Looks like you're connecting your TMDB account on another device. Please try again.",
+      );
+    }
+    throw error;
+  }
+};
+
+export const removeTmdbFromUser = async (user: User): Promise<User> => {
+  const now = new Date().toISOString();
+
+  try {
+    await client.send(
+      new UpdateItemCommand({
+        TableName: Resource.Users.name,
+        Key: marshall({
+          pk: `USER#${user.id}`,
+        }),
+        UpdateExpression:
+          'REMOVE #tmdbAccountId, #tmdbAccountObjectId, #tmdbUsername, #gsi3pk SET #updatedAt = :updatedAt',
+        ExpressionAttributeValues: marshall({
+          ':updatedAt': now,
+          ':lastUpdatedAt': user.updatedAt || user.createdAt,
+        }),
+        ExpressionAttributeNames: {
+          '#tmdbAccountId': 'tmdbAccountId',
+          '#tmdbAccountObjectId': 'tmdbAccountObjectId',
+          '#tmdbUsername': 'tmdbUsername',
+          '#gsi3pk': 'gsi3pk',
+          '#updatedAt': 'updatedAt',
+        },
+        ConditionExpression:
+          '(#updatedAt = :lastUpdatedAt OR attribute_not_exists(#updatedAt))',
+      }),
+    );
+
+    const updatedUser = {
+      ...user,
+      updatedAt: now,
+    };
+
+    // Remove TMDB fields from the returned user object
+    delete updatedUser.tmdbAccountId;
+    delete updatedUser.tmdbAccountObjectId;
+    delete updatedUser.tmdbUsername;
 
     return updatedUser;
   } catch (error) {

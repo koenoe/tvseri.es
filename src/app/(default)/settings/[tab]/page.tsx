@@ -3,8 +3,11 @@ import { Suspense } from 'react';
 import { notFound, unauthorized } from 'next/navigation';
 
 import ImportContainer from '@/components/Import/ImportContainer';
+import ProfileForm from '@/components/Profile/Form';
 import { tabs, type Tab } from '@/components/Tabs/Tabs';
-import WebhookForPlex from '@/components/Webhook/WebhookForPlex';
+import WebhookForPlex, {
+  plexStyles,
+} from '@/components/Webhook/WebhookForPlex';
 import auth from '@/lib/auth';
 
 export default async function SettingsPage({
@@ -26,13 +29,9 @@ export default async function SettingsPage({
     return notFound();
   }
 
-  // if (tab === 'profile') {
-  //   return (
-  //     <p className="text-sm italic">
-  //       Soon you&apos;ll be able to edit your profile details here.
-  //     </p>
-  //   );
-  // }
+  if (tab === 'profile') {
+    return <ProfileForm user={user} />;
+  }
 
   if (tab === 'import') {
     return (
@@ -59,7 +58,14 @@ export default async function SettingsPage({
           <h2 className="text-md mb-4 lg:text-lg">Plex</h2>
           <Suspense
             fallback={
-              <div className="relative flex h-28 w-full animate-pulse rounded-lg bg-white/10 shadow-lg" />
+              <div
+                className={plexStyles({
+                  className:
+                    'flex h-28 w-full items-center justify-center rounded-lg px-8 shadow-lg',
+                })}
+              >
+                <div className="h-12 w-full animate-pulse rounded-lg bg-black/20" />
+              </div>
             }
           >
             <WebhookForPlex userId={user.id} />

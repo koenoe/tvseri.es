@@ -2,8 +2,13 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { type NextRequest } from 'next/server';
 
-import { createSession, SESSION_DURATION } from '@/lib/db/session';
-import { createUser, findUser } from '@/lib/db/user';
+import auth from '@/lib/auth';
+import {
+  addTmdbToSession,
+  createSession,
+  SESSION_DURATION,
+} from '@/lib/db/session';
+import { addTmdbToUser, createUser, findUser } from '@/lib/db/user';
 import {
   createAccessToken,
   createSessionId,
@@ -32,6 +37,32 @@ export async function GET(request: NextRequest) {
   const tmdbAccount = await fetchAccountDetails(tmdbSessionId);
 
   let user = await findUser({ tmdbAccountId: tmdbAccount.id });
+
+  // Note: check if we are connecting an authenticated user
+  const { user: currentUser, session: currentSession } = await auth();
+  if (currentUser && currentSession) {
+    if (user) {
+      const [baseUrl, queryString] = redirectUri.split('?');
+      const searchParams = new URLSearchParams(queryString);
+      searchParams.append('error', 'tmdbAccountAlreadyLinked');
+      return redirect(`${baseUrl}?${searchParams.toString()}`);
+    }
+
+    await Promise.all([
+      addTmdbToSession(currentSession, {
+        tmdbSessionId,
+        tmdbAccessToken: accessToken,
+      }),
+      addTmdbToUser(currentUser, {
+        tmdbAccountId: tmdbAccount.id,
+        tmdbAccountObjectId: accountObjectId,
+        tmdbUsername: tmdbAccount.username,
+      }),
+    ]);
+    cookieStore.delete('requestTokenTmdb');
+    return redirect(redirectUri);
+  }
+
   if (!user) {
     user = await createUser({
       name: tmdbAccount.name,

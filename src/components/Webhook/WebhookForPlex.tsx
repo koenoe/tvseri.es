@@ -1,3 +1,5 @@
+import { cva } from 'class-variance-authority';
+
 import {
   createWebhookToken,
   findWebhookTokenByUserAndType,
@@ -5,6 +7,8 @@ import {
 
 import generateWebhookUrl from './generateWebhookUrl';
 import Webhook from './Webhook';
+
+export const plexStyles = cva('bg-gradient-to-br from-[#e5a00d] to-[#b17a0a]');
 
 export default async function WebhookForPlex({
   userId,
@@ -20,7 +24,7 @@ export default async function WebhookForPlex({
 
   return (
     <Webhook
-      className="bg-gradient-to-br from-[#e5a00d] to-[#b17a0a]"
+      className={plexStyles()}
       url={generateWebhookUrl({
         token: webhookToken.token,
         type: 'plex',

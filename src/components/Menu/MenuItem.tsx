@@ -11,7 +11,7 @@ const MenuItem = ({
   return (
     <Link
       href={href}
-      className="relative flex h-full w-full items-center overflow-hidden text-3xl lowercase leading-none text-white md:justify-end md:text-base md:leading-none"
+      className="relative flex h-full w-full items-center overflow-hidden text-3xl lowercase leading-tight text-white md:justify-end md:text-base md:leading-none"
       onClick={onClick}
     >
       <span className="relative h-full truncate text-ellipsis">{label}</span>

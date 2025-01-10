@@ -1,3 +1,5 @@
+import { cache } from 'react';
+
 import { cookies } from 'next/headers';
 
 import { type Session } from '@/types/session';
@@ -25,11 +27,13 @@ async function user(_session: Session) {
   return findUser({ userId: _session.userId });
 }
 
-export default async function auth() {
+const auth = cache(async () => {
   const _session = await session();
 
   return {
     session: _session,
     user: _session ? await user(_session) : null,
   };
-}
+});
+
+export default auth;

@@ -12,7 +12,7 @@ export default async function Username() {
   }
 
   const profileName =
-    user.tmdbUsername || user.username || user.name || 'anonymous';
+    user.username || user.tmdbUsername || user.name || 'anonymous';
 
   return (
     <div className="relative flex h-[18px] w-auto items-center justify-end overflow-hidden text-base lowercase leading-none text-white">

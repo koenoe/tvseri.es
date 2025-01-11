@@ -70,28 +70,22 @@ export default function Menu({
   }, []);
 
   const renderMenu = useCallback(() => {
-    const showLoginButton = account || isMobile;
+    const showAuthButton = account || isMobile;
+    const showProfileItem = account && isMobile;
     const isAuthenticated = !!account;
     const items = [
       { label: 'Home', href: '/', component: null },
       { label: 'Discover', href: '/discover', component: null },
-      ...(account
+      ...(showProfileItem
         ? [
             {
-              label: 'Watched',
-              href: `/u/${account.username}/watched`,
-              component: null,
+              label: 'Profile',
+              href: `/u/${account.username}`,
             },
-            {
-              label: 'Watchlist',
-              href: `/u/${account.username}/watchlist`,
-              component: null,
-            },
-            {
-              label: 'Favorites',
-              href: `/u/${account.username}/favorites`,
-              component: null,
-            },
+          ]
+        : []),
+      ...(account
+        ? [
             {
               label: 'Settings',
               href: '/settings',
@@ -99,7 +93,7 @@ export default function Menu({
             },
           ]
         : []),
-      ...(showLoginButton
+      ...(showAuthButton
         ? [
             {
               label: '',

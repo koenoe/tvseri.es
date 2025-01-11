@@ -77,6 +77,11 @@ const nextConfig = {
         destination: '/settings/profile',
         permanent: false,
       },
+      {
+        source: '/u/:username',
+        destination: '/u/:username/watched',
+        permanent: false,
+      },
     ];
   },
 } satisfies NextConfig;

@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 
 import Page from '@/components/Page/Page';
-import Tabs from '@/components/Tabs/Tabs';
+import Pills from '@/components/Tabs/Pills';
 
 export default async function Layout({
   children,
@@ -38,7 +38,9 @@ export default async function Layout({
   return (
     <Page backgroundContext="dots">
       <div className="container">
-        <Tabs items={menuItems} className="mb-10" layoutId="profile" />
+        <div className="relative mb-10 w-full">
+          <Pills items={menuItems} layoutId="profile" className="w-full" />
+        </div>
         {children}
       </div>
     </Page>

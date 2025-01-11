@@ -18,7 +18,7 @@ export default async function Username() {
     <div className="relative flex h-[18px] w-auto items-center justify-end overflow-hidden text-base lowercase leading-none text-white">
       <Link
         className="relative h-full truncate text-ellipsis"
-        href={`/u/${user.username}/stats/2024`}
+        href={`/u/${user.username}`}
       >
         {profileName}
       </Link>

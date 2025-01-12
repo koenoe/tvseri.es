@@ -142,7 +142,7 @@ export default function Menu({
             className="absolute inset-0 flex flex-col items-center justify-center gap-8 md:inset-auto md:right-0 md:top-0 md:flex-row md:justify-normal"
           >
             {isPending
-              ? Array.from({ length: 5 }).map((_, index, array) => (
+              ? Array.from({ length: 4 }).map((_, index, array) => (
                   <motion.div
                     key={index}
                     className={'h-[30px] w-32 md:h-[18px] md:w-16'}

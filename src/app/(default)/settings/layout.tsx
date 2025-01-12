@@ -26,8 +26,8 @@ export default function SettingsLayout({
   return (
     <Page backgroundContext="dots">
       <div className="container">
-        <Tabs items={menuItems} />
-        <div className="mt-10">{children}</div>
+        <Tabs items={menuItems} className="mb-10" layoutId="settings" />
+        {children}
       </div>
     </Page>
   );

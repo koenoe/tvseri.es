@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense, type ReactNode } from 'react';
 
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
@@ -6,7 +6,7 @@ import Header from '@/components/Header';
 export default function Layout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <div className="flex min-h-screen flex-col">

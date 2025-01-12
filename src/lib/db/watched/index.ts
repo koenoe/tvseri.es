@@ -513,7 +513,7 @@ export const getWatchedForSeason = async (
     options?: PaginationOptions;
   }>,
 ) => {
-  const { limit = 20, cursor } = input.options ?? {};
+  const { limit = 1000, cursor } = input.options ?? {};
   const paddedSeason = paddedNumber(input.seasonNumber);
 
   const command = new QueryCommand({
@@ -540,30 +540,6 @@ export const getWatchedForSeason = async (
         )
       : null,
   };
-};
-
-export const getWatchedCountForSeason = async (
-  input: Readonly<{
-    userId: string;
-    tvSeries: TvSeries;
-    seasonNumber: number;
-  }>,
-) => {
-  const paddedSeason = paddedNumber(input.seasonNumber);
-
-  const command = new QueryCommand({
-    TableName: Resource.Watched.name,
-    IndexName: 'gsi1',
-    KeyConditionExpression: 'gsi1pk = :pk AND begins_with(gsi1sk, :season)',
-    ExpressionAttributeValues: marshall({
-      ':pk': `USER#${input.userId}#SERIES#${input.tvSeries.id}`,
-      ':season': `S${paddedSeason}`,
-    }),
-    Select: 'COUNT',
-  });
-
-  const result = await client.send(command);
-  return result.Count ?? 0;
 };
 
 export const getWatchedByDate = async (

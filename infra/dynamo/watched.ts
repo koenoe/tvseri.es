@@ -42,7 +42,7 @@ watched.subscribe(
     handler: 'src/lambdas/watched.handler',
     memory: '512 MB',
     runtime: 'nodejs22.x',
-    timeout: '20 seconds',
+    timeout: '30 seconds',
     link: [cache, dominantColor, lists, preferredImages, watched],
     environment: {
       MDBLIST_API_KEY: process.env.MDBLIST_API_KEY as string,

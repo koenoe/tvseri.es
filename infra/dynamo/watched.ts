@@ -46,7 +46,7 @@ watched.subscribe(
     nodejs: {
       install: ['@better-fetch/fetch', 'slugify'],
     },
-    link: [cache, lists, preferredImages, dominantColor],
+    link: [cache, dominantColor, lists, preferredImages, watched],
     environment: {
       MDBLIST_API_KEY: process.env.MDBLIST_API_KEY as string,
       TMDB_API_ACCESS_TOKEN: process.env.TMDB_API_ACCESS_TOKEN as string,

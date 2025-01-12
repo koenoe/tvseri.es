@@ -14,7 +14,6 @@ import type { TvSeries } from '@/types/tv-series';
 import { type WatchProvider } from '@/types/watch-provider';
 
 import client from '../client';
-import { addToList, removeFromList } from '../list';
 
 export type WatchedItem = Readonly<{
   episodeNumber: number;
@@ -84,27 +83,6 @@ const normalizeWatchedItem = (item: WatchedItem) => ({
     : undefined,
 });
 
-export const isWatchedItemLastEpisodeOfSeries = ({
-  watchedItem,
-  tvSeries,
-}: Readonly<{
-  watchedItem: WatchedItem;
-  tvSeries: TvSeries;
-}>) => {
-  const tvSeriesSeasons = tvSeries.seasons ?? [];
-  const lastSeason = tvSeriesSeasons[tvSeriesSeasons.length - 1];
-  if (!lastSeason) {
-    return false;
-  }
-
-  const lastSeasonNumber = lastSeason.seasonNumber;
-  const lastSeasonEpisodeNumber = lastSeason.numberOfEpisodes;
-  return (
-    watchedItem.seasonNumber === lastSeasonNumber &&
-    watchedItem.episodeNumber === lastSeasonEpisodeNumber
-  );
-};
-
 export const markWatchedInBatch = async (
   items: ReadonlyArray<{
     userId: string;
@@ -173,31 +151,6 @@ export const markWatchedInBatch = async (
   }
 
   await Promise.all(batchPromises);
-  await Promise.all(
-    uniqueItems
-      .map((item, index) => {
-        if (
-          isWatchedItemLastEpisodeOfSeries({
-            tvSeries: item.tvSeries,
-            watchedItem: watchedItems[index],
-          })
-        ) {
-          return addToList({
-            userId: item.userId,
-            listId: 'WATCHED',
-            item: {
-              id: item.tvSeries.id,
-              title: item.tvSeries.title,
-              slug: item.tvSeries.slug,
-              posterPath: item.tvSeries.posterPath,
-              createdAt: item.watchedAt,
-            },
-          });
-        }
-        return null;
-      })
-      .filter(Boolean),
-  );
 
   return watchedItems;
 };
@@ -247,19 +200,6 @@ export const markWatched = async ({
 
   await client.send(command);
 
-  if (isWatchedItemLastEpisodeOfSeries({ watchedItem, tvSeries })) {
-    await addToList({
-      userId: userId,
-      listId: 'WATCHED',
-      item: {
-        id: tvSeries.id,
-        title: tvSeries.title,
-        slug: tvSeries.slug,
-        posterPath: tvSeries.posterPath,
-      },
-    });
-  }
-
   return watchedItem;
 };
 
@@ -283,15 +223,7 @@ export const unmarkWatched = async (
     }),
   });
 
-  await Promise.all([
-    client.send(command),
-    // Remove from watchlist as it's no longer fully watched
-    removeFromList({
-      userId: input.userId,
-      listId: 'WATCHED',
-      id: input.tvSeries.id,
-    }),
-  ]);
+  await client.send(command);
 };
 
 export const markSeasonWatched = async ({
@@ -367,26 +299,6 @@ export const markSeasonWatched = async ({
 
   await Promise.all(batchPromises);
 
-  const lastWatchedItem = watchedItems[watchedItems.length - 1];
-
-  if (
-    isWatchedItemLastEpisodeOfSeries({
-      tvSeries,
-      watchedItem: lastWatchedItem,
-    })
-  ) {
-    await addToList({
-      userId,
-      listId: 'WATCHED',
-      item: {
-        id: tvSeries.id,
-        title: tvSeries.title,
-        slug: tvSeries.slug,
-        posterPath: tvSeries.posterPath,
-      },
-    });
-  }
-
   return watchedItems;
 };
 
@@ -431,15 +343,6 @@ export const unmarkSeasonWatched = async (
     batchPromises.push(client.send(command));
   }
 
-  batchPromises.push(
-    // Remove from watchlist as it's no longer fully watched
-    removeFromList({
-      userId: input.userId,
-      listId: 'WATCHED',
-      id: input.tvSeries.id,
-    }),
-  );
-
   await Promise.all(batchPromises);
 };
 
@@ -473,17 +376,6 @@ export const markTvSeriesWatched = async ({
       }),
     ),
   );
-
-  await addToList({
-    userId,
-    listId: 'WATCHED',
-    item: {
-      id: tvSeries.id,
-      title: tvSeries.title,
-      slug: tvSeries.slug,
-      posterPath: tvSeries.posterPath,
-    },
-  });
 
   return watchedItems.flat();
 };
@@ -524,15 +416,6 @@ export const unmarkTvSeriesWatched = async (
 
     batchPromises.push(client.send(command));
   }
-
-  batchPromises.push(
-    // Remove from watchlist as it's no longer fully watched
-    removeFromList({
-      userId: input.userId,
-      listId: 'WATCHED',
-      id: input.tvSeries.id,
-    }),
-  );
 
   await Promise.all(batchPromises);
 };

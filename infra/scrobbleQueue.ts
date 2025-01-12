@@ -9,7 +9,7 @@ scrobbleQueue.subscribe({
   handler: 'src/lambdas/scrobble.handler',
   memory: '512 MB',
   runtime: 'nodejs22.x',
-  timeout: '30 seconds',
+  timeout: '20 seconds',
   environment: {
     MDBLIST_API_KEY: process.env.MDBLIST_API_KEY as string,
     TMDB_API_ACCESS_TOKEN: process.env.TMDB_API_ACCESS_TOKEN as string,

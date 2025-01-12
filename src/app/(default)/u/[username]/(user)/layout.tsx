@@ -22,6 +22,10 @@ export default async function Layout({
       href: `/u/${username}/watched`,
     },
     {
+      label: 'In progress',
+      href: `/u/${username}/in-progress`,
+    },
+    {
       label: 'Watchlist',
       href: `/u/${username}/watchlist`,
     },

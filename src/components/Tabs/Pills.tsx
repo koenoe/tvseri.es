@@ -1,9 +1,25 @@
 'use client';
 
+import { cva } from 'class-variance-authority';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { twMerge } from 'tailwind-merge';
+
+export const tabStyles = cva(
+  'z-15 relative text-nowrap rounded-lg px-4 py-1.5 text-sm text-neutral-400 transition',
+  {
+    variants: {
+      state: {
+        active: ['text-white'],
+        inactive: ['hover:text-white/60'],
+      },
+    },
+    defaultVariants: {
+      state: 'inactive',
+    },
+  },
+);
 
 export default function Pills({
   className,
@@ -23,17 +39,14 @@ export default function Pills({
         className,
       )}
     >
-      <div className="flex space-x-2 overflow-x-auto scrollbar-hide md:items-center md:justify-center">
+      <div className="flex flex-nowrap space-x-2 overflow-x-auto scrollbar-hide md:items-center md:justify-center">
         {items.map((item) => (
           <Link
             key={item.label}
             href={item.href}
-            className={`${
-              pathname === item.href ? 'text-white' : 'hover:text-white/60'
-            } z-15 relative rounded-lg px-4 py-1.5 text-sm text-neutral-400 transition`}
-            style={{
-              WebkitTapHighlightColor: 'transparent',
-            }}
+            className={tabStyles({
+              state: pathname === item.href ? 'active' : 'inactive',
+            })}
           >
             {pathname === item.href && (
               <motion.span

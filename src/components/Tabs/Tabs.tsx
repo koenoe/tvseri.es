@@ -1,12 +1,12 @@
 'use client';
 
-import { cva, type VariantProps } from 'class-variance-authority';
+import { cva } from 'class-variance-authority';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { twMerge } from 'tailwind-merge';
 
-export const tabStyles = cva('relative inline-block p-4', {
+export const tabStyles = cva('relative inline-block p-4 text-nowrap', {
   variants: {
     state: {
       active: ['text-white'],
@@ -17,8 +17,6 @@ export const tabStyles = cva('relative inline-block p-4', {
     state: 'inactive',
   },
 });
-
-export type ButtonVariantProps = VariantProps<typeof tabStyles>;
 
 export default function Tabs({
   className,

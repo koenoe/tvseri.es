@@ -248,8 +248,22 @@ export const markSeasonWatched = async ({
     throw new Error(`Invalid season for ${tvSeries.id}`);
   }
 
+  // Get already watched episodes
+  const { items: existingWatched } = await getWatchedForSeason({
+    userId,
+    tvSeries,
+    seasonNumber,
+  });
+
+  const existingEpisodeNumbers = new Set(
+    existingWatched.map((item) => item.episodeNumber),
+  );
+
   const episodes = season.episodes.filter(
-    (episode) => episode.airDate && new Date(episode.airDate) <= new Date(),
+    (episode) =>
+      episode.airDate &&
+      new Date(episode.airDate) <= new Date() &&
+      !existingEpisodeNumbers.has(episode.episodeNumber),
   );
 
   const now = Date.now();
@@ -284,6 +298,10 @@ export const markSeasonWatched = async ({
     };
   });
 
+  if (writeRequests.length === 0) {
+    return existingWatched;
+  }
+
   const batchPromises = [];
   for (let i = 0; i < writeRequests.length; i += DYNAMO_DB_BATCH_LIMIT) {
     const batch = writeRequests.slice(i, i + DYNAMO_DB_BATCH_LIMIT);
@@ -299,7 +317,7 @@ export const markSeasonWatched = async ({
 
   await Promise.all(batchPromises);
 
-  return watchedItems;
+  return [...existingWatched, ...watchedItems];
 };
 
 export const unmarkSeasonWatched = async (

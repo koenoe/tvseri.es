@@ -39,17 +39,24 @@ export default async function ValidateWatchedStatus({
     ]);
 
   if (!isInWatchedList && tvSeriesIsWatched) {
-    await addToList({
-      userId: user.id,
-      listId: 'WATCHED',
-      item: {
+    await Promise.all([
+      addToList({
+        userId: user.id,
+        listId: 'WATCHED',
+        item: {
+          id: tvSeries.id,
+          title: tvSeries.title,
+          slug: tvSeries.slug,
+          posterPath: tvSeries.posterPath,
+          createdAt: lastWatchedItem?.watchedAt,
+        },
+      }),
+      removeFromList({
+        userId: user.id,
+        listId: 'IN_PROGRESS',
         id: tvSeries.id,
-        title: tvSeries.title,
-        slug: tvSeries.slug,
-        posterPath: tvSeries.posterPath,
-        createdAt: lastWatchedItem?.watchedAt,
-      },
-    });
+      }),
+    ]);
     return null;
   }
 

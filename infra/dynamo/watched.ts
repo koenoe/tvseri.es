@@ -43,14 +43,14 @@ watched.subscribe(
     memory: '512 MB',
     runtime: 'nodejs22.x',
     timeout: '20 seconds',
-    nodejs: {
-      install: ['@better-fetch/fetch', 'slugify'],
-    },
     link: [cache, dominantColor, lists, preferredImages, watched],
     environment: {
       MDBLIST_API_KEY: process.env.MDBLIST_API_KEY as string,
       TMDB_API_ACCESS_TOKEN: process.env.TMDB_API_ACCESS_TOKEN as string,
       TMDB_API_KEY: process.env.TMDB_API_KEY as string,
+    },
+    nodejs: {
+      install: ['@better-fetch/fetch', 'slugify'],
     },
   },
   {
@@ -58,6 +58,7 @@ watched.subscribe(
       eventSourceMapping: {
         batchSize: 25,
         maximumBatchingWindowInSeconds: 1,
+        maximumRetryAttempts: 10,
       },
     },
   },

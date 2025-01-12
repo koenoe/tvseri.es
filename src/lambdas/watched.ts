@@ -83,6 +83,7 @@ export const handler = async (event: DynamoDBStreamEvent) => {
       lastSeriesId = item.seriesId;
     }
 
+    // FIXME: We probably should remove this in future with more users lol
     console.log(
       `[${record.eventName}] ${tvSeries.title} - S${String(item.seasonNumber).padStart(2, '0')}E${String(item.episodeNumber).padStart(2, '0')} | User: ${item.userId} | Count: ${lastCount}/${tvSeries.numberOfEpisodes}`,
     );

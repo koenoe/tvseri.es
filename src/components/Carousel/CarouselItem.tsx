@@ -50,7 +50,7 @@ function CarouselItem({
 
   return (
     <motion.div
-      className="absolute h-full w-full"
+      className="absolute h-full w-full transform-gpu"
       style={{
         left: `${index * 100}%`,
         right: `${index * 100}%`,

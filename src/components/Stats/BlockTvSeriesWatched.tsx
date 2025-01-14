@@ -1,9 +1,9 @@
-import { cachedWatchedByYear } from '@/lib/cached';
+import { cachedUniqueWatchedByYear } from '@/lib/cached';
 import calculatePercentageDelta from '@/utils/calculatePercentageDelta';
 
 import Block from './Block';
 
-export default async function BlockEpisodesWatched({
+export default async function BlockTvSeriesWatched({
   userId,
   year,
 }: Readonly<{
@@ -11,15 +11,15 @@ export default async function BlockEpisodesWatched({
   year: number;
 }>) {
   const [current, previous] = await Promise.all([
-    cachedWatchedByYear({ userId, year }),
-    cachedWatchedByYear({ userId, year: year - 1 }),
+    cachedUniqueWatchedByYear({ userId, year }),
+    cachedUniqueWatchedByYear({ userId, year: year - 1 }),
   ]);
 
   const delta = calculatePercentageDelta(current.length, previous.length);
 
   return (
     <Block
-      label="Episodes watched"
+      label="Series tracked"
       value={current.length.toLocaleString()}
       comparison={{
         previousValue: previous.length.toLocaleString(),

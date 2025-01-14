@@ -1,4 +1,5 @@
 import { cachedWatchedByYear } from '@/lib/cached';
+import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
 
 import MostWatchedProviders from './MostWatchedProviders';
@@ -10,6 +11,11 @@ type StreamingServiceStat = {
   defaultColor: string;
 };
 
+type Input = Readonly<{
+  userId: string;
+  year: number | string;
+}>;
+
 const PREDEFINED_COLORS: Record<string, string> = {
   'Amazon Prime Video': '#00A8E1',
   'BBC iPlayer': '#FF4E98',
@@ -19,11 +25,8 @@ const PREDEFINED_COLORS: Record<string, string> = {
   Unknown: '#000000',
 };
 
-export const getStreamingServiceStats = async (
-  input: Readonly<{
-    userId: string;
-    year: number | string;
-  }>,
+const getStreamingServiceStats = async (
+  input: Input,
 ): Promise<StreamingServiceStat[]> => {
   const watchedItems = await cachedWatchedByYear({
     userId: input.userId,
@@ -40,8 +43,8 @@ export const getStreamingServiceStats = async (
 
   watchedItems.forEach((item) => {
     const serviceName = item.watchProviderName || 'Unknown';
-
     const existing = serviceMap.get(serviceName);
+
     if (existing) {
       existing.series.add(item.seriesId);
       if (!existing.logo && item.watchProviderLogoImage) {
@@ -71,6 +74,20 @@ export const getStreamingServiceStats = async (
   return stats.sort((a, b) => b.count - a.count);
 };
 
+const cachedStreamingServiceStats = async (input: Input) => {
+  const key = `most-watched-streaming-services:${input.userId}_${input.year}`;
+  const cachedValue = await getCacheItem<StreamingServiceStat[]>(key);
+  if (cachedValue) {
+    return cachedValue;
+  }
+
+  const stats = await getStreamingServiceStats(input);
+
+  await setCacheItem(key, stats, { ttl: 3600 });
+
+  return stats;
+};
+
 export default async function MostWatchedProvidersContainer({
   userId,
   year,
@@ -86,7 +103,7 @@ export default async function MostWatchedProvidersContainer({
   //   }),
   //   fetchWatchProviders(region),
   // ]);
-  const data = await getStreamingServiceStats({ userId, year });
+  const data = await cachedStreamingServiceStats({ userId, year });
 
   return <MostWatchedProviders data={data} />;
 }

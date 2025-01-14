@@ -2,6 +2,7 @@ import { cache } from 'react';
 
 import { cachedWatchedByYear } from '@/lib/cached';
 import { getCacheItem, setCacheItem } from '@/lib/db/cache';
+import calculatePercentageDelta from '@/utils/calculatePercentageDelta';
 import formatRuntime from '@/utils/formatRuntime';
 
 import Block from './Block';
@@ -30,7 +31,22 @@ export const cachedTotalRuntime = cache(async ({ userId, year }: Input) => {
 });
 
 export default async function BlockTotalRuntime({ userId, year }: Input) {
-  const totalRuntime = await cachedTotalRuntime({ userId, year });
+  const [totalRuntime, previousYearRuntime] = await Promise.all([
+    cachedTotalRuntime({ userId, year }),
+    cachedTotalRuntime({ userId, year: year - 1 }),
+  ]);
 
-  return <Block label="Total runtime" value={formatRuntime(totalRuntime)} />;
+  const delta = calculatePercentageDelta(totalRuntime, previousYearRuntime);
+
+  return (
+    <Block
+      label="Total runtime"
+      value={formatRuntime(totalRuntime, false)}
+      comparison={{
+        previousValue: formatRuntime(previousYearRuntime, false),
+        delta,
+        type: 'percentage',
+      }}
+    />
+  );
 }

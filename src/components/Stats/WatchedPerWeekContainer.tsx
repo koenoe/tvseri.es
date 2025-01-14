@@ -1,6 +1,7 @@
 import { getISOWeek } from 'date-fns';
 
 import { cachedWatchedByYear } from '@/lib/cached';
+import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 
 import WatchedPerWeek from './WatchedPerWeek';
 
@@ -9,12 +10,12 @@ type WeeklyCount = {
   episodes: number;
 };
 
-const getWeeklyWatchedCount = async (
-  input: Readonly<{
-    userId: string;
-    year: number | string;
-  }>,
-): Promise<WeeklyCount[]> => {
+type Input = Readonly<{
+  userId: string;
+  year: number | string;
+}>;
+
+const getWeeklyWatchedCount = async (input: Input): Promise<WeeklyCount[]> => {
   const items = await cachedWatchedByYear(input);
 
   // Always create 53 weeks of data
@@ -35,13 +36,22 @@ const getWeeklyWatchedCount = async (
   return weekCounts;
 };
 
-type Props = Readonly<{
-  userId: string;
-  year: number | string;
-}>;
+const cachedWeeklyWatchedCount = async (input: Input) => {
+  const key = `watched-per-week:${input.userId}_${input.year}`;
+  const cachedValue = await getCacheItem<WeeklyCount[]>(key);
+  if (cachedValue) {
+    return cachedValue;
+  }
 
-export default async function WatchedPerWeekContainer({ userId, year }: Props) {
-  const data = await getWeeklyWatchedCount({ userId, year });
+  const stats = await getWeeklyWatchedCount(input);
+
+  await setCacheItem(key, stats, { ttl: 3600 });
+
+  return stats;
+};
+
+export default async function WatchedPerWeekContainer({ userId, year }: Input) {
+  const data = await cachedWeeklyWatchedCount({ userId, year });
 
   return <WatchedPerWeek data={data} year={parseInt(`${year}`, 10)} />;
 }

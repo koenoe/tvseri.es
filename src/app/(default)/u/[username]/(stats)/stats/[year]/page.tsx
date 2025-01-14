@@ -18,7 +18,7 @@ import PopularNotWatched from '@/components/Stats/PopularNotWatched';
 import SkeletonBlock from '@/components/Stats/SkeletonBlock';
 import SkeletonSpotlight from '@/components/Stats/SkeletonSpotlight';
 import SpotlightContainer from '@/components/Stats/SpotlightContainer';
-import SvgPattern from '@/components/Stats/SvgPattern';
+import SvgGlowAnimatePattern from '@/components/Stats/SvgGlowAnimatePattern';
 import WatchedByYear from '@/components/Stats/Watched';
 import WatchedPerWeekContainer from '@/components/Stats/WatchedPerWeekContainer';
 import WorldMapContainer from '@/components/Stats/WorldMapContainer';
@@ -49,10 +49,10 @@ export default async function StatsByYearPage({ params }: Props) {
 
   return (
     <Page backgroundContext="dots">
-      <div className="container relative h-[260px] sm:h-[325px] md:h-[390px]">
-        <div className="absolute inset-0 [mask-image:linear-gradient(to_right,black,transparent_30%,transparent_70%,black)] xl:[mask-image:linear-gradient(to_right,black,transparent_35%,transparent_65%,black)]">
-          <SvgPattern className="absolute left-[1rem] top-0 w-[280px] sm:w-[320px] md:w-[400px] lg:-top-8 lg:w-[480px]" />
-          <SvgPattern className="absolute right-[1rem] top-0 w-[280px] scale-x-[-1] sm:w-[320px] md:w-[400px] lg:-top-8 lg:w-[480px]" />
+      <div className="container relative h-[300px] md:h-[340px]">
+        <div className="absolute inset-0 overflow-hidden [mask-image:linear-gradient(to_right,black,transparent_30%,transparent_70%,black)] xl:[mask-image:linear-gradient(to_right,black,transparent_35%,transparent_65%,black)]">
+          <SvgGlowAnimatePattern className="absolute left-[1rem] top-1/2 w-1/2 -translate-y-1/2 md:left-[2rem]" />
+          <SvgGlowAnimatePattern className="absolute right-[1rem] top-1/2 w-1/2 -translate-y-1/2 scale-x-[-1] md:right-[2rem]" />
         </div>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <h1 className="text-[6rem] font-extrabold leading-none tracking-wide sm:text-[8rem] md:text-[10rem]">

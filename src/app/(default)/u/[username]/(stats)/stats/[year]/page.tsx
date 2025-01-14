@@ -49,7 +49,7 @@ export default async function StatsByYearPage({ params }: Props) {
 
   return (
     <Page backgroundContext="dots">
-      <div className="container relative h-[300px] md:h-[340px]">
+      <div className="container relative h-[300px] md:h-[360px]">
         <div className="absolute inset-0 overflow-hidden [mask-image:linear-gradient(to_right,black,transparent_30%,transparent_70%,black)] xl:[mask-image:linear-gradient(to_right,black,transparent_35%,transparent_65%,black)]">
           <SvgGlowAnimatePattern className="absolute left-[1rem] top-1/2 w-1/2 -translate-y-1/2 md:left-[2rem]" />
           <SvgGlowAnimatePattern className="absolute right-[1rem] top-1/2 w-1/2 -translate-y-1/2 scale-x-[-1] md:right-[2rem]" />

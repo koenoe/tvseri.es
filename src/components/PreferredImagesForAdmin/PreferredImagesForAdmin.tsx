@@ -303,10 +303,10 @@ export default function PreferredImagesForAdmin({
                     titleTreatmentImagePath: currentTitle.path,
                   }),
                 });
-                toast.success('Preferred images successfully saved.');
+                toast.success('Preferred images successfully stored.');
               }
             } catch (_error) {
-              toast.error('Failed to save preferred images.');
+              toast.error('Failed to store preferred images.');
             }
           });
         }}

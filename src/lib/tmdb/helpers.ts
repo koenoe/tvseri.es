@@ -276,32 +276,12 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     locale: series.languages?.[0] ?? '',
   });
 
-  const status = series.status?.toLowerCase();
-
-  // Calculate total aired episodes based on status and last_episode_to_air
-  let numberOfAiredEpisodes = 0;
-  if (status === 'ended' || status === 'canceled') {
-    numberOfAiredEpisodes = series.number_of_episodes ?? 0;
-  } else if (series.last_episode_to_air) {
-    const completedSeasonsEpisodes = (series.seasons ?? [])
-      .filter(
-        (season) =>
-          season.season_number < series.last_episode_to_air!.season_number,
-      )
-      .reduce((sum, season) => sum + (season.episode_count ?? 0), 0);
-
-    numberOfAiredEpisodes =
-      completedSeasonsEpisodes + series.last_episode_to_air.episode_number;
-  }
-
   const seasons = (series.seasons ?? [])
     ?.filter((season) => season.episode_count > 0)
     .map((season) => {
       let numberOfAiredEpisodesForSeason = 0;
 
-      if (status === 'ended' || status === 'canceled') {
-        numberOfAiredEpisodesForSeason = season.episode_count;
-      } else if (series.last_episode_to_air) {
+      if (series.last_episode_to_air) {
         if (season.season_number < series.last_episode_to_air.season_number) {
           numberOfAiredEpisodesForSeason = season.episode_count;
         } else if (
@@ -323,6 +303,11 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
         episodes: [],
       };
     });
+
+  const numberOfAiredEpisodes = seasons.reduce(
+    (sum, season) => sum + season.numberOfAiredEpisodes,
+    0,
+  );
 
   return {
     id: series.id,

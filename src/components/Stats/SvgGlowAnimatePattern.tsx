@@ -19,6 +19,9 @@ const LINE_CONFIG = [
   { delay: 1300, height: 0, className: 'hidden md:block' },
   { delay: 500, height: 69, className: 'block' },
   { delay: 1600, height: 0, className: 'hidden md:block' },
+  { delay: 700, height: 0, className: 'block' },
+  { delay: 1100, height: 40, className: 'block' },
+  { delay: 1900, height: 0, className: 'block' },
 ] as const;
 
 type SvgGlowAnimatePatternProps = {
@@ -31,7 +34,7 @@ export default function SvgGlowAnimatePattern({
   return (
     <div
       className={twMerge(
-        'flex transform-gpu items-center gap-3 lg:gap-5',
+        'flex transform-gpu items-center gap-2 md:gap-3 lg:gap-4',
         className,
       )}
     >

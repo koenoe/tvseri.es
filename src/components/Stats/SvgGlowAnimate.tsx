@@ -48,7 +48,6 @@ function SvgGlowAnimate({
           stroke: `url(#gradient-glow-${id})`,
           strokeWidth: 6,
           filter: `blur(2px) drop-shadow(0px 0px 2px ${color})`,
-          WebkitFilter: `blur(2px) drop-shadow(0px 0px 2px ${color})`,
         }}
         initial={{ opacity: 0 }}
         animate={{ opacity: [0, 1, 0] }}

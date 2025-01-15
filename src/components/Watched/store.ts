@@ -171,7 +171,7 @@ export const createWatchedStore = () => {
           (total, season) => total + Object.keys(season).length,
           0,
         );
-        return numberOfWatched === tvSeriesState.tvSeries.numberOfEpisodes;
+        return numberOfWatched === tvSeriesState.tvSeries.numberOfAiredEpisodes;
       }
 
       const { seasonNumber, episodeNumber } = options;
@@ -180,7 +180,7 @@ export const createWatchedStore = () => {
         const season = tvSeriesState.tvSeries.seasons?.find(
           (s) => s.seasonNumber === seasonNumber,
         );
-        const totalEpisodesInSeason = season?.numberOfEpisodes ?? 0;
+        const totalEpisodesInSeason = season?.numberOfAiredEpisodes ?? 0;
         const watchedEpisodes = tvSeriesState.watched[seasonNumber] || {};
 
         return (
@@ -227,7 +227,7 @@ export const createWatchedStore = () => {
         { totalRuntime: 0, numberOfWatched: 0 },
       );
 
-      const totalEpisodes = series.tvSeries.numberOfEpisodes;
+      const totalEpisodes = series.tvSeries.numberOfAiredEpisodes;
       const progress =
         totalEpisodes > 0
           ? Math.round((numberOfWatched / totalEpisodes) * 100)

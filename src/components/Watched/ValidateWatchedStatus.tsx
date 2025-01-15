@@ -24,13 +24,13 @@ export default async function ValidateWatchedStatus({
   }
 
   const [tvSeriesIsWatched, isInWatchedList] = await Promise.all([
-    async () => {
+    (async () => {
       const watchedCount = await getWatchedCountForTvSeries({
         userId: user.id,
         tvSeries,
       });
-      return watchedCount === tvSeries.numberOfEpisodes;
-    },
+      return watchedCount === tvSeries.numberOfAiredEpisodes;
+    })(),
     isInList({
       userId: user.id,
       listId: 'WATCHED',
@@ -38,21 +38,36 @@ export default async function ValidateWatchedStatus({
     }),
   ]);
 
+  const item = {
+    id: tvSeries.id,
+    title: tvSeries.title,
+    slug: tvSeries.slug,
+    posterPath: tvSeries.posterPath,
+  };
+
   if (isInWatchedList && !tvSeriesIsWatched) {
     await Promise.all([
       addToList({
         userId: user.id,
         listId: 'IN_PROGRESS',
-        item: {
-          id: tvSeries.id,
-          title: tvSeries.title,
-          slug: tvSeries.slug,
-          posterPath: tvSeries.posterPath,
-        },
+        item,
       }),
       removeFromList({
         userId: user.id,
         listId: 'WATCHED',
+        id: tvSeries.id,
+      }),
+    ]);
+  } else if (tvSeriesIsWatched && !isInWatchedList) {
+    await Promise.all([
+      addToList({
+        userId: user.id,
+        listId: 'WATCHED',
+        item,
+      }),
+      removeFromList({
+        userId: user.id,
+        listId: 'IN_PROGRESS',
         id: tvSeries.id,
       }),
     ]);

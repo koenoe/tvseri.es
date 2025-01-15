@@ -85,11 +85,11 @@ export const handler = async (event: DynamoDBStreamEvent) => {
 
     // FIXME: We probably should remove this in future with more users lol
     console.log(
-      `[${record.eventName}] ${tvSeries.title} - S${String(item.seasonNumber).padStart(2, '0')}E${String(item.episodeNumber).padStart(2, '0')} | User: ${item.userId} | Count: ${lastCount}/${tvSeries.numberOfEpisodes}`,
+      `[${record.eventName}] ${tvSeries.title} - S${String(item.seasonNumber).padStart(2, '0')}E${String(item.episodeNumber).padStart(2, '0')} | User: ${item.userId} | Count: ${lastCount}/${tvSeries.numberOfAiredEpisodes}`,
     );
 
     // Update lists based on new count
-    if (lastCount === tvSeries.numberOfEpisodes) {
+    if (lastCount === tvSeries.numberOfAiredEpisodes) {
       // Series is fully watched
       await Promise.all([
         addToList({
@@ -105,6 +105,10 @@ export const handler = async (event: DynamoDBStreamEvent) => {
         removeFromList({
           userId: item.userId,
           listId: 'IN_PROGRESS',
+          id: tvSeries.id,
+        }),
+        removeFromWatchlist({
+          userId: item.userId,
           id: tvSeries.id,
         }),
       ]);

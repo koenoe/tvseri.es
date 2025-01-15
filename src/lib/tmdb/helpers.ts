@@ -275,17 +275,54 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     strict: true,
     locale: series.languages?.[0] ?? '',
   });
+
+  const status = series.status?.toLowerCase();
+
+  // Calculate total aired episodes based on status and last_episode_to_air
+  let numberOfAiredEpisodes = 0;
+  if (status === 'ended' || status === 'canceled') {
+    numberOfAiredEpisodes = series.number_of_episodes ?? 0;
+  } else if (series.last_episode_to_air) {
+    const completedSeasonsEpisodes = (series.seasons ?? [])
+      .filter(
+        (season) =>
+          season.season_number < series.last_episode_to_air!.season_number,
+      )
+      .reduce((sum, season) => sum + (season.episode_count ?? 0), 0);
+
+    numberOfAiredEpisodes =
+      completedSeasonsEpisodes + series.last_episode_to_air.episode_number;
+  }
+
   const seasons = (series.seasons ?? [])
     ?.filter((season) => season.episode_count > 0)
-    .map((season) => ({
-      id: season.id,
-      title: season.name as string,
-      description: season.overview ?? '',
-      airDate: season.air_date ? new Date(season.air_date).toISOString() : '',
-      seasonNumber: season.season_number,
-      numberOfEpisodes: season.episode_count,
-      episodes: [],
-    }));
+    .map((season) => {
+      let numberOfAiredEpisodesForSeason = 0;
+
+      if (status === 'ended' || status === 'canceled') {
+        numberOfAiredEpisodesForSeason = season.episode_count;
+      } else if (series.last_episode_to_air) {
+        if (season.season_number < series.last_episode_to_air.season_number) {
+          numberOfAiredEpisodesForSeason = season.episode_count;
+        } else if (
+          season.season_number === series.last_episode_to_air.season_number
+        ) {
+          numberOfAiredEpisodesForSeason =
+            series.last_episode_to_air.episode_number;
+        }
+      }
+
+      return {
+        id: season.id,
+        title: season.name as string,
+        description: season.overview ?? '',
+        airDate: season.air_date ? new Date(season.air_date).toISOString() : '',
+        seasonNumber: season.season_number,
+        numberOfEpisodes: season.episode_count,
+        numberOfAiredEpisodes: numberOfAiredEpisodesForSeason,
+        episodes: [],
+      };
+    });
 
   return {
     id: series.id,
@@ -309,6 +346,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     // @ts-expect-error genre_ids is not defined in the type
     genres: normalizeGenres(series.genres ?? series.genre_ids),
     numberOfEpisodes: series.number_of_episodes ?? 0,
+    numberOfAiredEpisodes,
     numberOfSeasons: series.number_of_seasons ?? 0,
     popularity: series.popularity,
     firstAirDate,
@@ -322,6 +360,9 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     releaseYear,
     seasons,
     slug,
+    status: series.status
+      ? (series.status.toLowerCase() as TvSeries['status'])
+      : 'ended',
     voteAverage: series.vote_average,
     voteCount: series.vote_count,
     ...images,

@@ -75,8 +75,7 @@ function Avatars({
 }: Readonly<{ className?: string; items: Person[] }>) {
   return (
     <div className={cx(avatarsStyles(), className)}>
-      {/* TODO: add links to person page eventually */}
-      {items.slice(0, 10).map((item) => (
+      {items.map((item) => (
         <Avatar key={item.id} item={item} />
       ))}
     </div>

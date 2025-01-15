@@ -24,13 +24,13 @@ export default async function ValidateWatchedStatus({
   }
 
   const [tvSeriesIsWatched, isInWatchedList] = await Promise.all([
-    async () => {
+    (async () => {
       const watchedCount = await getWatchedCountForTvSeries({
         userId: user.id,
         tvSeries,
       });
       return watchedCount === tvSeries.numberOfEpisodes;
-    },
+    })(),
     isInList({
       userId: user.id,
       listId: 'WATCHED',

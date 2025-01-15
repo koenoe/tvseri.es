@@ -107,19 +107,14 @@ export const handler = async (event: DynamoDBStreamEvent) => {
           listId: 'IN_PROGRESS',
           id: tvSeries.id,
         }),
-      ]);
-    } else if (lastCount > 0) {
-      // Series is partially watched
-      await Promise.all([
-        removeFromList({
-          userId: item.userId,
-          listId: 'WATCHED',
-          id: tvSeries.id,
-        }),
         removeFromWatchlist({
           userId: item.userId,
           id: tvSeries.id,
         }),
+      ]);
+    } else if (lastCount > 0) {
+      // Series is partially watched
+      await Promise.all([
         addToList({
           userId: item.userId,
           listId: 'IN_PROGRESS',
@@ -129,6 +124,15 @@ export const handler = async (event: DynamoDBStreamEvent) => {
             slug: tvSeries.slug,
             posterPath: tvSeries.posterPath,
           },
+        }),
+        removeFromList({
+          userId: item.userId,
+          listId: 'WATCHED',
+          id: tvSeries.id,
+        }),
+        removeFromWatchlist({
+          userId: item.userId,
+          id: tvSeries.id,
         }),
       ]);
     } else {

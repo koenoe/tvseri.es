@@ -243,17 +243,21 @@ export async function fetchTvSeries(
     return undefined;
   }
 
-  if (options.includeImages) {
-    const images = (await tmdbFetch(
-      `/3/tv/${id}/images?include_image_language=en,null,${series.original_language}`,
-    )) as TmdbTvSeriesImages;
+  const [preferredImages, images] = await Promise.all([
+    findPreferredImages(series.id),
+    options.includeImages
+      ? (tmdbFetch(
+          `/3/tv/${series.id}/images?include_image_language=en,null,${series.original_language}`,
+        ) as Promise<TmdbTvSeriesImages>)
+      : Promise.resolve(undefined),
+  ]);
 
-    // Note: ewwwww, (ಥ﹏ಥ)
+  // Note: ewwwww, (ಥ﹏ಥ)
+  if (images) {
     series.images = images;
   }
 
   const normalizedTvSeries = normalizeTvSeries(series);
-  const preferredImages = await findPreferredImages(series.id);
 
   if (preferredImages && preferredImages.backdropImagePath) {
     return {

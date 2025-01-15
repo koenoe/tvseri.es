@@ -704,7 +704,7 @@ export async function fetchPopularTvSeriesByYear(year: number | string) {
 export async function fetchGenresForTvSeries() {
   const cacheKey = 'genres-for-tv';
   const cachedGenres = await getCacheItem<Genre[]>(cacheKey);
-  if (cachedGenres !== undefined) {
+  if (cachedGenres) {
     return cachedGenres;
   }
 

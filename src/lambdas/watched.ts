@@ -4,7 +4,7 @@ import { type AttributeValue } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 
 import { cachedTvSeries as _cachedTvSeries } from '@/lib/cached';
-import { addToList, removeFromList } from '@/lib/db/list';
+import { addToList, removeFromList, removeFromWatchlist } from '@/lib/db/list';
 import { getWatchedCountForTvSeries, type WatchedItem } from '@/lib/db/watched';
 import { type TvSeries } from '@/types/tv-series';
 
@@ -114,6 +114,10 @@ export const handler = async (event: DynamoDBStreamEvent) => {
         removeFromList({
           userId: item.userId,
           listId: 'WATCHED',
+          id: tvSeries.id,
+        }),
+        removeFromWatchlist({
+          userId: item.userId,
           id: tvSeries.id,
         }),
         addToList({

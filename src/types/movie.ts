@@ -6,9 +6,11 @@ export type Movie = Omit<
   | 'firstAirDate'
   | 'lastAirDate'
   | 'lastEpisodeToAir'
+  | 'numberOfAiredEpisodes'
   | 'numberOfEpisodes'
   | 'numberOfSeasons'
   | 'originCountry'
   | 'releaseYear'
   | 'seasons'
+  | 'status'
 >;

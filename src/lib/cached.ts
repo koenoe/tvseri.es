@@ -9,7 +9,7 @@ import { fetchPerson, fetchTvSeries } from './tmdb';
 import { buildPosterImageUrl } from './tmdb/helpers';
 
 export const cachedTvSeries = cache(async (id: string | number) => {
-  const dynamoCacheKey = `tv:v2:${id}`;
+  const dynamoCacheKey = `tv:v4:${id}`;
   const dynamoCachedItem = await getCacheItem<TvSeries>(dynamoCacheKey);
   if (dynamoCachedItem) {
     return dynamoCachedItem;

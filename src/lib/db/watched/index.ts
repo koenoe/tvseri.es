@@ -241,7 +241,7 @@ export const markSeasonWatched = async ({
 
   if (
     !season ||
-    !season.numberOfEpisodes ||
+    !season.numberOfAiredEpisodes ||
     !season.airDate ||
     new Date(season.airDate) >= new Date()
   ) {

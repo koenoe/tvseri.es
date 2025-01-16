@@ -4,6 +4,7 @@ import { cachedTvSeries } from '@/lib/cached';
 import { markWatched } from '@/lib/db/watched';
 import { findByExternalId } from '@/lib/tmdb';
 import { type WatchProvider } from '@/types/watch-provider';
+import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 
 type JellyfinMetadata = unknown;
 
@@ -135,7 +136,7 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
       await markWatched(markWatchedPayload);
 
       console.log(
-        `[SUCCESS] Plex | ${tvSeries!.title} - S${String(episode.seasonNumber).padStart(2, '0')}E${String(episode.episodeNumber).padStart(2, '0')} "${episode.title}" | User: ${payload.userId}`,
+        `[SUCCESS] Plex | ${tvSeries!.title} - ${formatSeasonAndEpisode({ episodeNumber: episode.episodeNumber, seasonNumber: episode.seasonNumber })} "${episode.title}" | User: ${payload.userId}`,
       );
     }
   } catch (error) {

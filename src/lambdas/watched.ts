@@ -7,6 +7,7 @@ import { cachedTvSeries as _cachedTvSeries } from '@/lib/cached';
 import { addToList, removeFromList, removeFromWatchlist } from '@/lib/db/list';
 import { getWatchedCountForTvSeries, type WatchedItem } from '@/lib/db/watched';
 import { type TvSeries } from '@/types/tv-series';
+import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 
 /**
  * Module-level cache for TV series data that persists between Lambda invocations.
@@ -60,32 +61,35 @@ export const handler = async (event: DynamoDBStreamEvent) => {
     }
 
     const image = record.dynamodb.NewImage ?? record.dynamodb.OldImage;
-    const item = unmarshall(
+    const watchedItem = unmarshall(
       image as Record<string, AttributeValue>,
     ) as WatchedItem;
 
     // Get cached TV series data (from memory or DynamoDB)
-    const tvSeries = await cachedTvSeries(item.seriesId);
+    const tvSeries = await cachedTvSeries(watchedItem.seriesId);
     if (!tvSeries) {
       console.error(
-        `[ERROR] No TV series found for ID "${item.seriesId}" | User: ${item.userId}`,
+        `[ERROR] No TV series found for ID "${watchedItem.seriesId}" | User: ${watchedItem.userId}`,
       );
       continue;
     }
 
     // Only query count when switching to different user+series combination
-    if (item.userId !== lastUserId || item.seriesId !== lastSeriesId) {
+    if (
+      watchedItem.userId !== lastUserId ||
+      watchedItem.seriesId !== lastSeriesId
+    ) {
       lastCount = await getWatchedCountForTvSeries({
-        userId: item.userId,
+        userId: watchedItem.userId,
         tvSeries,
       });
-      lastUserId = item.userId;
-      lastSeriesId = item.seriesId;
+      lastUserId = watchedItem.userId;
+      lastSeriesId = watchedItem.seriesId;
     }
 
     // FIXME: We probably should remove this in future with more users lol
     console.log(
-      `[${record.eventName}] ${tvSeries.title} - S${String(item.seasonNumber).padStart(2, '0')}E${String(item.episodeNumber).padStart(2, '0')} | User: ${item.userId} | Count: ${lastCount}/${tvSeries.numberOfAiredEpisodes}`,
+      `[${record.eventName}] ${tvSeries.title} - ${formatSeasonAndEpisode({ episodeNumber: watchedItem.episodeNumber, seasonNumber: watchedItem.seasonNumber })} | User: ${watchedItem.userId} | Count: ${lastCount}/${tvSeries.numberOfAiredEpisodes}`,
     );
 
     const hasWatchedEpisodes = lastCount > 0;
@@ -104,17 +108,17 @@ export const handler = async (event: DynamoDBStreamEvent) => {
       // Series is fully watched
       await Promise.all([
         addToList({
-          userId: item.userId,
+          userId: watchedItem.userId,
           listId: 'WATCHED',
           item: listItem,
         }),
         removeFromList({
-          userId: item.userId,
+          userId: watchedItem.userId,
           listId: 'IN_PROGRESS',
           id: tvSeries.id,
         }),
         removeFromWatchlist({
-          userId: item.userId,
+          userId: watchedItem.userId,
           id: tvSeries.id,
         }),
       ]);
@@ -122,17 +126,17 @@ export const handler = async (event: DynamoDBStreamEvent) => {
       // Series is partially watched
       await Promise.all([
         addToList({
-          userId: item.userId,
+          userId: watchedItem.userId,
           listId: 'IN_PROGRESS',
           item: listItem,
         }),
         removeFromList({
-          userId: item.userId,
+          userId: watchedItem.userId,
           listId: 'WATCHED',
           id: tvSeries.id,
         }),
         removeFromWatchlist({
-          userId: item.userId,
+          userId: watchedItem.userId,
           id: tvSeries.id,
         }),
       ]);
@@ -140,12 +144,12 @@ export const handler = async (event: DynamoDBStreamEvent) => {
       // No episodes watched or no episodes aired
       await Promise.all([
         removeFromList({
-          userId: item.userId,
+          userId: watchedItem.userId,
           listId: 'WATCHED',
           id: tvSeries.id,
         }),
         removeFromList({
-          userId: item.userId,
+          userId: watchedItem.userId,
           listId: 'IN_PROGRESS',
           id: tvSeries.id,
         }),

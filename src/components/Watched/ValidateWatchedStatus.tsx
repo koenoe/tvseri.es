@@ -11,6 +11,11 @@ import { getWatchedCountForTvSeries } from '@/lib/db/watched';
 // Note: The DynamoDB subscriber (`src/lambdas/watched.ts`) handles marking a TV series as watched or in progress.
 // However, a series marked as watched may later have new episodes added.
 // In such cases, the series should be moved from the "watched" list to the "in progress" list.
+// We never automatically add series to "in progress" if they aren't in any list already,
+// as users may have manually removed them and we want to respect that choice.
+// Note that the Lambda will still add series to "in progress" on new watch events
+// (e.g., if a user removes a show from "in progress" but later watches more episodes),
+// as this represents active user intent to watch the show.
 // Automating this process in the future with a cron job or similar mechanism could be beneficial.
 // For now, this is handled when navigating to the TV series page, which renders this component.
 export default async function ValidateWatchedStatus({

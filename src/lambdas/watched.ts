@@ -101,7 +101,6 @@ export const handler = async (event: DynamoDBStreamEvent) => {
       title: tvSeries.title,
       slug: tvSeries.slug,
       posterPath: tvSeries.posterPath,
-      createdAt: watchedItem.watchedAt,
     };
 
     // Update lists based on watch status
@@ -111,7 +110,10 @@ export const handler = async (event: DynamoDBStreamEvent) => {
         addToList({
           userId: watchedItem.userId,
           listId: 'WATCHED',
-          item: listItem,
+          item: {
+            ...listItem,
+            createdAt: watchedItem.watchedAt,
+          },
         }),
         removeFromList({
           userId: watchedItem.userId,

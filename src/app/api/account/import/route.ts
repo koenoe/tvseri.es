@@ -5,8 +5,8 @@ import { NextResponse } from 'next/server';
 import slugify from 'slugify';
 import wordsToNumbers from 'words-to-numbers';
 
-import auth from '@/lib/auth';
-import { cachedTvSeries } from '@/lib/cached';
+import { cachedTvSeries } from '@/app/cached';
+import auth from '@/auth';
 import { markWatchedInBatch } from '@/lib/db/watched';
 import { fetchWatchProviders } from '@/lib/tmdb';
 import { searchTvSeries, fetchTvSeriesSeason } from '@/lib/tmdb';

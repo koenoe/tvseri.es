@@ -1,14 +1,16 @@
-import { cache } from 'react';
-
+/**
+ * Caches method results in DynamoDB for persistence.
+ * Note: Only suitable for small result sets due to DynamoDB constraints.
+ * Used because it's cost-effective for this use case.
+ */
 import { type Person } from '@/types/person';
 import { type TvSeries } from '@/types/tv-series';
 
 import { getCacheItem, setCacheItem } from './db/cache';
-import { getAllWatchedByDate } from './db/watched';
 import { fetchPerson, fetchTvSeries } from './tmdb';
 
-export const cachedTvSeries = cache(async (id: string | number) => {
-  const dynamoCacheKey = `tv:v2:${id}`;
+export const cachedTvSeries = async (id: string | number) => {
+  const dynamoCacheKey = `tv:v4:${id}`;
   const dynamoCachedItem = await getCacheItem<TvSeries>(dynamoCacheKey);
   if (dynamoCachedItem) {
     return dynamoCachedItem;
@@ -23,9 +25,9 @@ export const cachedTvSeries = cache(async (id: string | number) => {
   });
 
   return tvSeries;
-});
+};
 
-export const cachedPerson = cache(async (id: string | number) => {
+export const cachedPerson = async (id: string | number) => {
   const dynamoCacheKey = `person:v1:${id}`;
   const dynamoCachedItem = await getCacheItem<Person>(dynamoCacheKey);
   if (dynamoCachedItem) {
@@ -39,20 +41,4 @@ export const cachedPerson = cache(async (id: string | number) => {
   });
 
   return tvSeries;
-});
-
-export const cachedWatchedByYear = cache(
-  async (
-    input: Readonly<{
-      userId: string;
-      year: number | string;
-    }>,
-  ) => {
-    const items = await getAllWatchedByDate({
-      userId: input.userId,
-      startDate: new Date(`${input.year}-01-01`),
-      endDate: new Date(`${input.year}-12-31`),
-    });
-    return items;
-  },
-);
+};

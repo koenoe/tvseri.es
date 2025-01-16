@@ -70,28 +70,22 @@ export default function Menu({
   }, []);
 
   const renderMenu = useCallback(() => {
-    const showLoginButton = account || isMobile;
+    const showAuthButton = account || isMobile;
+    const showProfileItem = account && isMobile;
     const isAuthenticated = !!account;
     const items = [
       { label: 'Home', href: '/', component: null },
       { label: 'Discover', href: '/discover', component: null },
-      ...(account
+      ...(showProfileItem
         ? [
             {
-              label: 'Watched',
-              href: `/u/${account.username}/watched`,
-              component: null,
+              label: 'Profile',
+              href: `/u/${account.username}`,
             },
-            {
-              label: 'Watchlist',
-              href: `/u/${account.username}/watchlist`,
-              component: null,
-            },
-            {
-              label: 'Favorites',
-              href: `/u/${account.username}/favorites`,
-              component: null,
-            },
+          ]
+        : []),
+      ...(account
+        ? [
             {
               label: 'Settings',
               href: '/settings',
@@ -99,7 +93,7 @@ export default function Menu({
             },
           ]
         : []),
-      ...(showLoginButton
+      ...(showAuthButton
         ? [
             {
               label: '',
@@ -148,7 +142,7 @@ export default function Menu({
             className="absolute inset-0 flex flex-col items-center justify-center gap-8 md:inset-auto md:right-0 md:top-0 md:flex-row md:justify-normal"
           >
             {isPending
-              ? Array.from({ length: 5 }).map((_, index, array) => (
+              ? Array.from({ length: 4 }).map((_, index, array) => (
                   <motion.div
                     key={index}
                     className={'h-[30px] w-32 md:h-[18px] md:w-16'}

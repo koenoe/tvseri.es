@@ -33,7 +33,7 @@ const transition = {
 } as const;
 
 export const carouselStyles = cva(
-  'relative flex aspect-video h-[calc(95vh-16rem)] w-full overflow-hidden shadow-xl scrollbar-hide md:h-[calc(80vh-8rem)]',
+  'relative flex aspect-video h-[calc(95vh-16rem)] w-full overflow-hidden shadow-xl scrollbar-hide md:h-[calc(80vh-8rem)] transform-gpu',
 );
 
 function Carousel({

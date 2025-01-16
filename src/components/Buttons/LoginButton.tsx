@@ -11,7 +11,7 @@ export default function LoginButton() {
     <button
       disabled={pending}
       type="submit"
-      className="hover:bg-primary-700 relative flex h-11 w-full items-center justify-center space-x-3 rounded-lg bg-white px-5 py-2.5 text-center text-sm font-medium text-neutral-900 outline-none transition-colors"
+      className="relative flex h-11 w-full items-center justify-center space-x-3 rounded-lg bg-white px-5 py-2.5 text-center text-sm font-medium text-neutral-900 outline-none"
     >
       {pending ? <LoadingDots className="h-3 text-neutral-900" /> : 'Sign in'}
     </button>

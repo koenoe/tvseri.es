@@ -3,6 +3,8 @@ import { type NextRequest } from 'next/server';
 import { getListItems } from '@/lib/db/list';
 import { findUser } from '@/lib/db/user';
 
+const lists = ['watchlist', 'favorites', 'watched', 'in_progress'] as const;
+
 export async function GET(
   request: NextRequest,
   {
@@ -10,13 +12,13 @@ export async function GET(
   }: {
     params: Promise<{
       username: string;
-      list: 'watchlist' | 'favorites' | 'watched';
+      list: (typeof lists)[number];
     }>;
   },
 ) {
   const { list, username } = await params;
 
-  if (!['watchlist', 'favorites', 'watched'].includes(list)) {
+  if (!lists.includes(list)) {
     return Response.json({ error: 'Invalid list' }, { status: 400 });
   }
 

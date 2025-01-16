@@ -243,17 +243,21 @@ export async function fetchTvSeries(
     return undefined;
   }
 
-  if (options.includeImages) {
-    const images = (await tmdbFetch(
-      `/3/tv/${id}/images?include_image_language=en,null,${series.original_language}`,
-    )) as TmdbTvSeriesImages;
+  const [preferredImages, images] = await Promise.all([
+    findPreferredImages(series.id),
+    options.includeImages
+      ? (tmdbFetch(
+          `/3/tv/${series.id}/images?include_image_language=en,null,${series.original_language}`,
+        ) as Promise<TmdbTvSeriesImages>)
+      : Promise.resolve(undefined),
+  ]);
 
-    // Note: ewwwww, (ಥ﹏ಥ)
+  // Note: ewwwww, (ಥ﹏ಥ)
+  if (images) {
     series.images = images;
   }
 
   const normalizedTvSeries = normalizeTvSeries(series);
-  const preferredImages = await findPreferredImages(series.id);
 
   if (preferredImages && preferredImages.backdropImagePath) {
     return {
@@ -417,11 +421,9 @@ export async function fetchTvSeriesWatchProvider(
 export async function fetchTvSeriesCredits(
   id: number | string,
 ): Promise<Readonly<{ cast: Person[]; crew: Person[] }>> {
-  const credits = (await tmdbFetch(`/3/tv/${id}/aggregate_credits`, {
-    next: {
-      revalidate: 86400, // 1 day
-    },
-  })) as TmdbTvSeriesCredits;
+  const credits = (await tmdbFetch(
+    `/3/tv/${id}/aggregate_credits`,
+  )) as TmdbTvSeriesCredits;
 
   const cast =
     credits.cast
@@ -470,11 +472,9 @@ export async function fetchTvSeriesSeason(
   id: number | string,
   season: number | string,
 ): Promise<Season | undefined> {
-  const response = (await tmdbFetch(`/3/tv/${id}/season/${season}`, {
-    next: {
-      revalidate: 86400, // 1 day
-    },
-  })) as TmdbTvSeriesSeason;
+  const response = (await tmdbFetch(
+    `/3/tv/${id}/season/${season}`,
+  )) as TmdbTvSeriesSeason;
 
   if (!response) {
     return undefined;
@@ -483,6 +483,11 @@ export async function fetchTvSeriesSeason(
   const episodes = (response?.episodes ?? []).map((episode) =>
     normalizeTvSeriesEpisode(episode as unknown as TmdbTvSeriesEpisode),
   );
+  const numberOfEpisodes = episodes.length;
+  const now = new Date();
+  const numberOfAiredEpisodes =
+    episodes.filter((episode) => new Date(episode.airDate) <= now).length ??
+    numberOfEpisodes;
 
   return {
     id: response.id,
@@ -490,7 +495,8 @@ export async function fetchTvSeriesSeason(
     description: response.overview ?? '',
     airDate: response.air_date ? new Date(response.air_date).toISOString() : '',
     seasonNumber: response.season_number,
-    numberOfEpisodes: episodes.length,
+    numberOfEpisodes,
+    numberOfAiredEpisodes,
     episodes,
   };
 }
@@ -696,16 +702,23 @@ export async function fetchPopularTvSeriesByYear(year: number | string) {
 }
 
 export async function fetchGenresForTvSeries() {
-  const genresResponse =
-    ((await tmdbFetch('/3/genre/tv/list', {
-      next: {
-        revalidate: 2629800, // 1 month
-      },
-    })) as TmdbGenresForTvSeries) ?? [];
+  const cacheKey = 'genres-for-tv';
+  const cachedGenres = await getCacheItem<Genre[]>(cacheKey);
+  if (cachedGenres) {
+    return cachedGenres;
+  }
 
-  return (genresResponse.genres ?? []).filter(
+  const genresResponse =
+    ((await tmdbFetch('/3/genre/tv/list')) as TmdbGenresForTvSeries) ?? [];
+  const genres = (genresResponse.genres ?? []).filter(
     (genre) => !GLOBAL_GENRES_TO_IGNORE.includes(genre.id),
   ) as Genre[];
+
+  await setCacheItem<Genre[]>(cacheKey, genres, {
+    ttl: 2629800, // 1 month
+  });
+
+  return genres;
 }
 
 export async function searchTvSeries(

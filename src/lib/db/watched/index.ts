@@ -14,7 +14,6 @@ import type { TvSeries } from '@/types/tv-series';
 import { type WatchProvider } from '@/types/watch-provider';
 
 import client from '../client';
-import { addToList, removeFromList } from '../list';
 
 export type WatchedItem = Readonly<{
   episodeNumber: number;
@@ -84,27 +83,6 @@ const normalizeWatchedItem = (item: WatchedItem) => ({
     : undefined,
 });
 
-export const isWatchedItemLastEpisodeOfSeries = ({
-  watchedItem,
-  tvSeries,
-}: Readonly<{
-  watchedItem: WatchedItem;
-  tvSeries: TvSeries;
-}>) => {
-  const tvSeriesSeasons = tvSeries.seasons ?? [];
-  const lastSeason = tvSeriesSeasons[tvSeriesSeasons.length - 1];
-  if (!lastSeason) {
-    return false;
-  }
-
-  const lastSeasonNumber = lastSeason.seasonNumber;
-  const lastSeasonEpisodeNumber = lastSeason.numberOfEpisodes;
-  return (
-    watchedItem.seasonNumber === lastSeasonNumber &&
-    watchedItem.episodeNumber === lastSeasonEpisodeNumber
-  );
-};
-
 export const markWatchedInBatch = async (
   items: ReadonlyArray<{
     userId: string;
@@ -173,31 +151,6 @@ export const markWatchedInBatch = async (
   }
 
   await Promise.all(batchPromises);
-  await Promise.all(
-    uniqueItems
-      .map((item, index) => {
-        if (
-          isWatchedItemLastEpisodeOfSeries({
-            tvSeries: item.tvSeries,
-            watchedItem: watchedItems[index],
-          })
-        ) {
-          return addToList({
-            userId: item.userId,
-            listId: 'WATCHED',
-            item: {
-              id: item.tvSeries.id,
-              title: item.tvSeries.title,
-              slug: item.tvSeries.slug,
-              posterPath: item.tvSeries.posterPath,
-              createdAt: item.watchedAt,
-            },
-          });
-        }
-        return null;
-      })
-      .filter(Boolean),
-  );
 
   return watchedItems;
 };
@@ -247,19 +200,6 @@ export const markWatched = async ({
 
   await client.send(command);
 
-  if (isWatchedItemLastEpisodeOfSeries({ watchedItem, tvSeries })) {
-    await addToList({
-      userId: userId,
-      listId: 'WATCHED',
-      item: {
-        id: tvSeries.id,
-        title: tvSeries.title,
-        slug: tvSeries.slug,
-        posterPath: tvSeries.posterPath,
-      },
-    });
-  }
-
   return watchedItem;
 };
 
@@ -283,15 +223,7 @@ export const unmarkWatched = async (
     }),
   });
 
-  await Promise.all([
-    client.send(command),
-    // Remove from watchlist as it's no longer fully watched
-    removeFromList({
-      userId: input.userId,
-      listId: 'WATCHED',
-      id: input.tvSeries.id,
-    }),
-  ]);
+  await client.send(command);
 };
 
 export const markSeasonWatched = async ({
@@ -309,15 +241,29 @@ export const markSeasonWatched = async ({
 
   if (
     !season ||
-    !season.numberOfEpisodes ||
+    !season.numberOfAiredEpisodes ||
     !season.airDate ||
     new Date(season.airDate) >= new Date()
   ) {
     throw new Error(`Invalid season for ${tvSeries.id}`);
   }
 
+  // Get already watched episodes
+  const { items: existingWatched } = await getWatchedForSeason({
+    userId,
+    tvSeries,
+    seasonNumber,
+  });
+
+  const existingEpisodeNumbers = new Set(
+    existingWatched.map((item) => item.episodeNumber),
+  );
+
   const episodes = season.episodes.filter(
-    (episode) => episode.airDate && new Date(episode.airDate) <= new Date(),
+    (episode) =>
+      episode.airDate &&
+      new Date(episode.airDate) <= new Date() &&
+      !existingEpisodeNumbers.has(episode.episodeNumber),
   );
 
   const now = Date.now();
@@ -352,6 +298,10 @@ export const markSeasonWatched = async ({
     };
   });
 
+  if (writeRequests.length === 0) {
+    return existingWatched;
+  }
+
   const batchPromises = [];
   for (let i = 0; i < writeRequests.length; i += DYNAMO_DB_BATCH_LIMIT) {
     const batch = writeRequests.slice(i, i + DYNAMO_DB_BATCH_LIMIT);
@@ -367,27 +317,7 @@ export const markSeasonWatched = async ({
 
   await Promise.all(batchPromises);
 
-  const lastWatchedItem = watchedItems[watchedItems.length - 1];
-
-  if (
-    isWatchedItemLastEpisodeOfSeries({
-      tvSeries,
-      watchedItem: lastWatchedItem,
-    })
-  ) {
-    await addToList({
-      userId,
-      listId: 'WATCHED',
-      item: {
-        id: tvSeries.id,
-        title: tvSeries.title,
-        slug: tvSeries.slug,
-        posterPath: tvSeries.posterPath,
-      },
-    });
-  }
-
-  return watchedItems;
+  return [...existingWatched, ...watchedItems];
 };
 
 export const unmarkSeasonWatched = async (
@@ -431,15 +361,6 @@ export const unmarkSeasonWatched = async (
     batchPromises.push(client.send(command));
   }
 
-  batchPromises.push(
-    // Remove from watchlist as it's no longer fully watched
-    removeFromList({
-      userId: input.userId,
-      listId: 'WATCHED',
-      id: input.tvSeries.id,
-    }),
-  );
-
   await Promise.all(batchPromises);
 };
 
@@ -473,17 +394,6 @@ export const markTvSeriesWatched = async ({
       }),
     ),
   );
-
-  await addToList({
-    userId,
-    listId: 'WATCHED',
-    item: {
-      id: tvSeries.id,
-      title: tvSeries.title,
-      slug: tvSeries.slug,
-      posterPath: tvSeries.posterPath,
-    },
-  });
 
   return watchedItems.flat();
 };
@@ -524,15 +434,6 @@ export const unmarkTvSeriesWatched = async (
 
     batchPromises.push(client.send(command));
   }
-
-  batchPromises.push(
-    // Remove from watchlist as it's no longer fully watched
-    removeFromList({
-      userId: input.userId,
-      listId: 'WATCHED',
-      id: input.tvSeries.id,
-    }),
-  );
 
   await Promise.all(batchPromises);
 };
@@ -647,7 +548,7 @@ export const getWatchedForSeason = async (
     options?: PaginationOptions;
   }>,
 ) => {
-  const { limit = 20, cursor } = input.options ?? {};
+  const { limit = 1000, cursor } = input.options ?? {};
   const paddedSeason = paddedNumber(input.seasonNumber);
 
   const command = new QueryCommand({
@@ -674,30 +575,6 @@ export const getWatchedForSeason = async (
         )
       : null,
   };
-};
-
-export const getWatchedCountForSeason = async (
-  input: Readonly<{
-    userId: string;
-    tvSeries: TvSeries;
-    seasonNumber: number;
-  }>,
-) => {
-  const paddedSeason = paddedNumber(input.seasonNumber);
-
-  const command = new QueryCommand({
-    TableName: Resource.Watched.name,
-    IndexName: 'gsi1',
-    KeyConditionExpression: 'gsi1pk = :pk AND begins_with(gsi1sk, :season)',
-    ExpressionAttributeValues: marshall({
-      ':pk': `USER#${input.userId}#SERIES#${input.tvSeries.id}`,
-      ':season': `S${paddedSeason}`,
-    }),
-    Select: 'COUNT',
-  });
-
-  const result = await client.send(command);
-  return result.Count ?? 0;
 };
 
 export const getWatchedByDate = async (
@@ -814,41 +691,4 @@ export const isWatched = async (
 
   const result = await client.send(command);
   return !!result.Item;
-};
-
-export const isSeasonWatched = async ({
-  userId,
-  tvSeries,
-  seasonNumber,
-}: Readonly<{
-  userId: string;
-  tvSeries: TvSeries;
-  seasonNumber: number;
-}>) => {
-  const season = tvSeries.seasons?.find((s) => s.seasonNumber === seasonNumber);
-  const numberOfEpisodesInSeason = season?.numberOfEpisodes ?? 0;
-  const seasonCount = await getWatchedCountForSeason({
-    userId,
-    tvSeries,
-    seasonNumber,
-  });
-
-  return (
-    numberOfEpisodesInSeason > 0 && numberOfEpisodesInSeason === seasonCount
-  );
-};
-
-export const isTvSeriesWatched = async ({
-  userId,
-  tvSeries,
-}: Readonly<{
-  userId: string;
-  tvSeries: TvSeries;
-}>) => {
-  const totalCount = await getWatchedCountForTvSeries({
-    userId,
-    tvSeries,
-  });
-
-  return totalCount === tvSeries.numberOfEpisodes;
 };

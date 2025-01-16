@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 
 import {
   BarChart,

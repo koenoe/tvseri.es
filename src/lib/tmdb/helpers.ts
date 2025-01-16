@@ -3,7 +3,7 @@ import slugify from 'slugify';
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 import { type Movie } from '@/types/movie';
 import type { paths } from '@/types/tmdb';
-import type { Episode, TvSeries } from '@/types/tv-series';
+import type { TvSeries } from '@/types/tv-series';
 
 export type TmdbTvSeries =
   paths[`/3/tv/${number}`]['get']['responses']['200']['content']['application/json'] & {
@@ -275,17 +275,39 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     strict: true,
     locale: series.languages?.[0] ?? '',
   });
+
   const seasons = (series.seasons ?? [])
-    ?.filter((season) => season.episode_count > 0)
-    .map((season) => ({
-      id: season.id,
-      title: season.name as string,
-      description: season.overview ?? '',
-      airDate: season.air_date ? new Date(season.air_date).toISOString() : '',
-      seasonNumber: season.season_number,
-      numberOfEpisodes: season.episode_count,
-      episodes: [],
-    }));
+    ?.filter((season) => season.episode_count > 0 && season.season_number > 0)
+    .map((season) => {
+      let numberOfAiredEpisodesForSeason = 0;
+
+      if (series.last_episode_to_air) {
+        if (season.season_number < series.last_episode_to_air.season_number) {
+          numberOfAiredEpisodesForSeason = season.episode_count;
+        } else if (
+          season.season_number === series.last_episode_to_air.season_number
+        ) {
+          numberOfAiredEpisodesForSeason =
+            series.last_episode_to_air.episode_number;
+        }
+      }
+
+      return {
+        id: season.id,
+        title: season.name as string,
+        description: season.overview ?? '',
+        airDate: season.air_date ? new Date(season.air_date).toISOString() : '',
+        seasonNumber: season.season_number,
+        numberOfEpisodes: season.episode_count,
+        numberOfAiredEpisodes: numberOfAiredEpisodesForSeason,
+        episodes: [],
+      };
+    });
+
+  const numberOfAiredEpisodes = seasons.reduce(
+    (sum, season) => sum + season.numberOfAiredEpisodes,
+    0,
+  );
 
   return {
     id: series.id,
@@ -309,6 +331,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     // @ts-expect-error genre_ids is not defined in the type
     genres: normalizeGenres(series.genres ?? series.genre_ids),
     numberOfEpisodes: series.number_of_episodes ?? 0,
+    numberOfAiredEpisodes,
     numberOfSeasons: series.number_of_seasons ?? 0,
     popularity: series.popularity,
     firstAirDate,
@@ -316,12 +339,20 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
       ? normalizeTvSeriesEpisode(
           series.last_episode_to_air as unknown as TmdbTvSeriesEpisode,
         )
-      : ({} as Episode),
+      : null,
     lastAirDate,
+    nextEpisodeToAir: series.next_episode_to_air
+      ? normalizeTvSeriesEpisode(
+          series.next_episode_to_air as unknown as TmdbTvSeriesEpisode,
+        )
+      : null,
     backdropColor: DEFAULT_BACKGROUND_COLOR,
     releaseYear,
     seasons,
     slug,
+    status: series.status
+      ? (series.status.toLowerCase() as TvSeries['status'])
+      : 'ended',
     voteAverage: series.vote_average,
     voteCount: series.vote_count,
     ...images,

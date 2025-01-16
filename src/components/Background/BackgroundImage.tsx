@@ -37,7 +37,7 @@ export default function BackgroundImage({
     <img
       {...rest}
       className={cx(
-        'h-full w-full transform-gpu select-none object-cover object-top',
+        'relative h-full w-full select-none object-cover object-top',
         className,
       )}
       decoding="async"

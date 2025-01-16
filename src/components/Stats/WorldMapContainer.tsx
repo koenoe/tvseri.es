@@ -1,4 +1,6 @@
-import { cachedTvSeries, cachedWatchedByYear } from '@/lib/cached';
+import { Suspense } from 'react';
+
+import { cachedWatchedByYear, cachedTvSeries } from '@/app/cached';
 import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 
 import WorldMap from './WorldMap';
@@ -68,5 +70,9 @@ export default async function WorldMapContainer({
     year,
   });
 
-  return <WorldMap data={data} />;
+  return (
+    <Suspense fallback={<div className="relative aspect-[192/95] w-full" />}>
+      <WorldMap data={data} />
+    </Suspense>
+  );
 }

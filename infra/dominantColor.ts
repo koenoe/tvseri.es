@@ -8,5 +8,6 @@ export const dominantColor = new sst.aws.Function('DominantColor', {
   timeout: '30 seconds',
   nodejs: {
     install: ['@better-fetch/fetch', 'color', 'sharp'],
+    minify: true,
   },
 });

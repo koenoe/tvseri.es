@@ -1,4 +1,5 @@
-import { getWatchedCountByDate } from '@/lib/db/watched';
+import { cachedWatchedByYear } from '@/app/cached';
+import calculatePercentageDelta from '@/utils/calculatePercentageDelta';
 
 import Block from './Block';
 
@@ -9,11 +10,22 @@ export default async function BlockEpisodesWatched({
   userId: string;
   year: number;
 }>) {
-  const count = await getWatchedCountByDate({
-    userId,
-    startDate: new Date(`${year}-01-01`),
-    endDate: new Date(`${year}-12-31`),
-  });
+  const [current, previous] = await Promise.all([
+    cachedWatchedByYear({ userId, year }),
+    cachedWatchedByYear({ userId, year: year - 1 }),
+  ]);
 
-  return <Block label="Episodes watched" value={count.toLocaleString()} />;
+  const delta = calculatePercentageDelta(current.length, previous.length);
+
+  return (
+    <Block
+      label="Episodes watched"
+      value={current.length.toLocaleString()}
+      comparison={{
+        previousValue: previous.length.toLocaleString(),
+        delta,
+        type: 'percentage',
+      }}
+    />
+  );
 }

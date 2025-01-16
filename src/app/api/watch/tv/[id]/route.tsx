@@ -1,7 +1,7 @@
 import { headers } from 'next/headers';
 
-import auth from '@/lib/auth';
-import { cachedTvSeries } from '@/lib/cached';
+import { cachedTvSeries } from '@/app/cached';
+import auth from '@/auth';
 import {
   markSeasonWatched,
   markTvSeriesWatched,
@@ -20,15 +20,16 @@ type BodyPayload = Readonly<{
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params: _params }: { params: Promise<{ id: string }> },
 ) {
-  const [{ id }, json] = await Promise.all([params, req.json()]);
+  const [params, json] = await Promise.all([_params, req.json()]);
   const body = json as BodyPayload;
-  if (!body) {
+
+  if (!body || !params.id) {
     return Response.json({ error: 'No payload found' }, { status: 400 });
   }
 
-  const tvSeries = await cachedTvSeries(id);
+  const tvSeries = await cachedTvSeries(params.id);
   if (
     !tvSeries ||
     !tvSeries.firstAirDate ||
@@ -43,11 +44,11 @@ export async function POST(
   }
 
   const region = (await headers()).get('cloudfront-viewer-country') || 'US';
-  const watchProvider = await fetchTvSeriesWatchProvider(id, region);
+  const watchProvider = await fetchTvSeriesWatchProvider(tvSeries.id, region);
 
   if (body.seasonNumber && body.episodeNumber) {
     const episode = await fetchTvSeriesEpisode(
-      id,
+      tvSeries.id,
       body.seasonNumber,
       body.episodeNumber,
     );

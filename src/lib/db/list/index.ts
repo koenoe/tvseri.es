@@ -40,7 +40,7 @@ type PaginationOptions = Readonly<{
 }>;
 
 const isCustomList = (listId: string) =>
-  !['WATCHED', 'WATCHLIST', 'FAVORITES'].includes(listId);
+  !['WATCHED', 'WATCHLIST', 'FAVORITES', 'IN_PROGRESS'].includes(listId);
 
 // export const createCustomList = async (
 //   input: Readonly<{
@@ -349,7 +349,7 @@ export const getListItemsCount = async (
 export const isInList = async (
   input: Readonly<{
     userId: string;
-    listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | ulid()
+    listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | 'IN_PROGRESS' | ulid()
     id: number;
   }>,
 ) => {
@@ -372,7 +372,7 @@ export const isInList = async (
 export const addToList = async (
   input: Readonly<{
     userId: string;
-    listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | ulid()
+    listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | 'IN_PROGRESS' | ulid()
     item: Omit<ListItem, 'createdAt' | 'posterImage'> &
       Readonly<{
         createdAt?: number;
@@ -413,7 +413,7 @@ export const addToList = async (
 export const removeFromList = async (
   input: Readonly<{
     userId: string;
-    listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | ulid()
+    listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | 'IN_PROGRESS' | ulid()
     id: number;
   }>,
 ) => {

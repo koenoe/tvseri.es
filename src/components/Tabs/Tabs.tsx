@@ -1,11 +1,16 @@
-import { cva, type VariantProps } from 'class-variance-authority';
-import Link from 'next/link';
+'use client';
 
-export const tabStyles = cva('inline-block rounded-t-lg border-b-2 p-4', {
+import { cva } from 'class-variance-authority';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { twMerge } from 'tailwind-merge';
+
+export const tabStyles = cva('relative inline-block p-4 text-nowrap', {
   variants: {
     state: {
-      active: ['border-white p-4 text-white'],
-      inactive: ['border-transparent'],
+      active: ['text-white'],
+      inactive: ['hover:text-white/60'],
     },
   },
   defaultVariants: {
@@ -13,42 +18,41 @@ export const tabStyles = cva('inline-block rounded-t-lg border-b-2 p-4', {
   },
 });
 
-export type ButtonVariantProps = VariantProps<typeof tabStyles>;
+export default function Tabs({
+  className,
+  items,
+  layoutId = 'line',
+}: Readonly<{
+  className?: string;
+  items: readonly { label: string; href: string }[];
+  layoutId?: string;
+}>) {
+  const pathname = usePathname();
 
-export const menuItems = [
-  // {
-  //   id: 'profile',
-  //   label: 'Profile',
-  //   href: '/settings/profile',
-  // },
-  {
-    id: 'import',
-    label: 'Import',
-    href: '/settings/import',
-  },
-  {
-    id: 'webhooks',
-    label: 'Webhooks',
-    href: '/settings/webhooks',
-  },
-] as const;
-
-export const tabs = menuItems.map((item) => item.id);
-export type Tab = (typeof tabs)[number];
-
-export default function Tabs({ activeTab }: Readonly<{ activeTab: Tab }>) {
   return (
-    <div className="overflow-x-auto border-b border-white/10 text-sm text-white/40 scrollbar-hide">
+    <div
+      className={twMerge(
+        'overflow-x-auto border-b border-white/10 text-sm text-white/40 scrollbar-hide',
+        className,
+      )}
+    >
       <ul className="-mb-px flex flex-nowrap">
-        {menuItems.map((item) => (
-          <li key={item.id} className="me-2">
+        {items.map((item) => (
+          <li key={item.label} className="me-2">
             <Link
               href={item.href}
               className={tabStyles({
-                state: activeTab === item.id ? 'active' : 'inactive',
+                state: pathname === item.href ? 'active' : 'inactive',
               })}
             >
               {item.label}
+              {pathname === item.href && (
+                <motion.span
+                  layoutId={layoutId}
+                  className="absolute bottom-0 left-0 z-10 h-[3px] w-full bg-white"
+                  transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                />
+              )}
             </Link>
           </li>
         ))}

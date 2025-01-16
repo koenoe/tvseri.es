@@ -1,7 +1,7 @@
 import { revalidateTag } from 'next/cache';
 
-import auth from '@/lib/auth';
-import { cachedTvSeries } from '@/lib/cached';
+import { cachedTvSeries } from '@/app/cached';
+import auth from '@/auth';
 import { deleteCacheItem } from '@/lib/db/cache';
 import {
   type PreferredImages,

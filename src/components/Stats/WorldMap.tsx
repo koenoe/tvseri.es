@@ -3,8 +3,9 @@
 import { useCallback, useMemo } from 'react';
 
 import { cx } from 'class-variance-authority';
+import dynamic from 'next/dynamic';
 
-import WorldMap from '../WorldMap/WorldMap';
+const WorldMap = dynamic(() => import('../WorldMap/WorldMap'));
 
 function generateCountryData(data: Record<string, number>) {
   const maxViews = Math.max(...Object.values(data));

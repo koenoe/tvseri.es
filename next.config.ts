@@ -75,7 +75,12 @@ const nextConfig = {
       },
       {
         source: '/settings',
-        destination: '/settings/import',
+        destination: '/settings/profile',
+        permanent: false,
+      },
+      {
+        source: '/u/:username',
+        destination: '/u/:username/watched',
         permanent: false,
       },
     ];

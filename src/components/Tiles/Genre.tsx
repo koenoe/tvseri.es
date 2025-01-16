@@ -1,6 +1,6 @@
 'use client';
 
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 import { cva } from 'class-variance-authority';
 import { motion, useMotionTemplate, useMotionValue } from 'framer-motion';

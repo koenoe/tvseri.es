@@ -1,6 +1,6 @@
 'use client';
 
-import React, { type CSSProperties } from 'react';
+import { memo, type CSSProperties } from 'react';
 
 import { cx } from 'class-variance-authority';
 
@@ -11,7 +11,7 @@ interface RippleProps {
   className?: string;
 }
 
-const Ripple = React.memo(function Ripple({
+const Ripple = memo(function Ripple({
   mainCircleSize = 150,
   mainCircleOpacity = 0.3,
   numCircles = 20,
@@ -34,7 +34,7 @@ const Ripple = React.memo(function Ripple({
         return (
           <div
             key={i}
-            className={`animate-ripple absolute left-1/2 top-1/2 translate-x-1/2 translate-y-1/2 border bg-white/15 shadow-xl [--i:${i}]`}
+            className={`absolute left-1/2 top-1/2 translate-x-1/2 translate-y-1/2 animate-ripple border bg-white/15 shadow-xl [--i:${i}]`}
             style={
               {
                 borderRadius: '50%',

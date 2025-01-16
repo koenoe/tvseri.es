@@ -34,7 +34,6 @@ export const watched = new sst.aws.Dynamo('Watched', {
   stream: 'new-and-old-images',
 });
 
-// Note: just leave this here for future reference
 watched.subscribe(
   'WatchedSubscriber',
   {
@@ -57,7 +56,7 @@ watched.subscribe(
     transform: {
       eventSourceMapping: {
         batchSize: 25,
-        maximumBatchingWindowInSeconds: 1,
+        maximumBatchingWindowInSeconds: 2,
         maximumRetryAttempts: 10,
       },
     },

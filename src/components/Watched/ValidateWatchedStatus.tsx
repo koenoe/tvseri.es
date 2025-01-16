@@ -6,7 +6,10 @@ import {
   removeFromList,
   removeFromWatchlist,
 } from '@/lib/db/list';
-import { getWatchedCountForTvSeries } from '@/lib/db/watched';
+import {
+  getLastWatchedItemForTvSeries,
+  getWatchedCountForTvSeries,
+} from '@/lib/db/watched';
 
 // Note: The DynamoDB subscriber (`src/lambdas/watched.ts`) handles marking a TV series as watched or in progress.
 // However, a series marked as watched may later have new episodes added.
@@ -33,22 +36,27 @@ export default async function ValidateWatchedStatus({
     return null;
   }
 
-  const [watchedCount, isInWatchedList, isInProgressList] = await Promise.all([
-    getWatchedCountForTvSeries({
-      userId: user.id,
-      tvSeries,
-    }),
-    isInList({
-      userId: user.id,
-      listId: 'WATCHED',
-      id: tvSeries.id,
-    }),
-    isInList({
-      userId: user.id,
-      listId: 'IN_PROGRESS',
-      id: tvSeries.id,
-    }),
-  ]);
+  const [watchedCount, lastWatchedItem, isInWatchedList, isInProgressList] =
+    await Promise.all([
+      getWatchedCountForTvSeries({
+        userId: user.id,
+        tvSeries,
+      }),
+      getLastWatchedItemForTvSeries({
+        userId: user.id,
+        tvSeries,
+      }),
+      isInList({
+        userId: user.id,
+        listId: 'WATCHED',
+        id: tvSeries.id,
+      }),
+      isInList({
+        userId: user.id,
+        listId: 'IN_PROGRESS',
+        id: tvSeries.id,
+      }),
+    ]);
 
   const tvSeriesIsWatched =
     watchedCount > 0 && watchedCount === tvSeries.numberOfAiredEpisodes;
@@ -99,7 +107,10 @@ export default async function ValidateWatchedStatus({
       addToList({
         userId: user.id,
         listId: 'WATCHED',
-        item,
+        item: {
+          ...item,
+          createdAt: lastWatchedItem?.watchedAt,
+        },
       }),
       removeFromList({
         userId: user.id,

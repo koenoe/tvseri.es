@@ -477,6 +477,23 @@ export const getWatchedForTvSeries = async (
   };
 };
 
+export const getLastWatchedItemForTvSeries = async (
+  input: Readonly<{
+    userId: string;
+    tvSeries: TvSeries;
+  }>,
+): Promise<WatchedItem | undefined> => {
+  const result = await getWatchedForTvSeries({
+    userId: input.userId,
+    tvSeries: input.tvSeries,
+    options: {
+      limit: 1,
+    },
+  });
+
+  return result.items[0];
+};
+
 export const getAllWatchedForTvSeries = async (
   input: Readonly<{
     userId: string;

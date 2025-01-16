@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { type NextRequest } from 'next/server';
 
-import auth from '@/lib/auth';
+import auth from '@/auth';
 import {
   addTmdbToSession,
   createSession,

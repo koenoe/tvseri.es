@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 
+import { cachedTvSeries } from '@/app/cached';
 import ActionButtons from '@/components/Buttons/ActionButtons';
 import Cast from '@/components/Cast/Cast';
 import ContentRating from '@/components/ContentRating/ContentRating';
@@ -21,7 +22,6 @@ import AddTvSeriesToStoreContainer from '@/components/Watched/AddTvSeriesToStore
 import ValidateWatchedStatus from '@/components/Watched/ValidateWatchedStatus';
 import WatchedProgress from '@/components/Watched/WatchedProgress';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
-import { cachedTvSeries } from '@/lib/cached';
 import getBaseUrl from '@/utils/getBaseUrl';
 
 type Props = Readonly<{

@@ -5,7 +5,7 @@ import { redirect, unauthorized } from 'next/navigation';
 import isEqual from 'react-fast-compare';
 import slugify from 'slugify';
 
-import auth from '@/lib/auth';
+import auth from '@/auth';
 import { createOTP, validateOTP } from '@/lib/db/otp';
 import {
   createSession,

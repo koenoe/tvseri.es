@@ -2,7 +2,7 @@ import { cache } from 'react';
 
 import { startOfDay, isEqual, addDays } from 'date-fns';
 
-import { cachedWatchedByYear } from '@/lib/cached';
+import { cachedWatchedByYear } from '@/app/cached';
 import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 
 import Block from './Block';

@@ -1,4 +1,4 @@
-import { cachedTvSeries } from '@/lib/cached';
+import { cachedTvSeries } from '@/app/cached';
 import { getWatchedByDate } from '@/lib/db/watched';
 import { fetchTvSeriesEpisode } from '@/lib/tmdb';
 

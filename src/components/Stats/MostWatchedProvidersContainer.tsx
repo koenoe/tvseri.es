@@ -1,4 +1,4 @@
-import { cachedWatchedByYear } from '@/lib/cached';
+import { cachedWatchedByYear } from '@/app/cached';
 import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
 

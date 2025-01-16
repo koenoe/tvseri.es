@@ -1,4 +1,4 @@
-import { cachedUniqueWatchedByYear } from '@/lib/cached';
+import { cachedUniqueWatchedByYear } from '@/app/cached';
 
 import Poster from '../Tiles/Poster';
 

@@ -2,8 +2,8 @@ import { Suspense } from 'react';
 
 import { unauthorized } from 'next/navigation';
 
+import auth from '@/auth';
 import ImportContainer from '@/components/Import/ImportContainer';
-import auth from '@/lib/auth';
 
 export default async function SettingsImportPage() {
   const { user } = await auth();

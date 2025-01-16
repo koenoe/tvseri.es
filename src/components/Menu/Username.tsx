@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import auth from '@/lib/auth';
+import auth from '@/auth';
 
 import AuthButton from '../Buttons/AuthButton';
 

@@ -1,6 +1,6 @@
 import { cache } from 'react';
 
-import { cachedWatchedByYear } from '@/lib/cached';
+import { cachedWatchedByYear } from '@/app/cached';
 import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 import calculatePercentageDelta from '@/utils/calculatePercentageDelta';
 import formatRuntime from '@/utils/formatRuntime';

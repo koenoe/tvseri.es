@@ -1,5 +1,5 @@
+import { cachedWatchedByYear } from '@/app/cached';
 import List, { type HeaderVariantProps } from '@/components/List/List';
-import { cachedWatchedByYear } from '@/lib/cached';
 import { fetchPopularTvSeriesByYear } from '@/lib/tmdb';
 
 import Poster from '../Tiles/Poster';

@@ -4,9 +4,9 @@ import { cookies } from 'next/headers';
 
 import { type Session } from '@/types/session';
 
-import { findSession } from './db/session';
-import { findUser } from './db/user';
-import { decryptToken } from './token';
+import { findSession } from './lib/db/session';
+import { findUser } from './lib/db/user';
+import { decryptToken } from './lib/token';
 
 async function session() {
   const encryptedSessionId = (await cookies()).get('sessionId')?.value;

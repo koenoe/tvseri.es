@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 
-import { cachedTvSeries, cachedWatchedByYear } from '@/lib/cached';
+import { cachedWatchedByYear, cachedTvSeries } from '@/app/cached';
 import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 
 import WorldMap from './WorldMap';

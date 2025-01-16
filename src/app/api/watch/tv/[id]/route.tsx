@@ -1,7 +1,7 @@
 import { headers } from 'next/headers';
 
-import auth from '@/lib/auth';
-import { cachedTvSeries } from '@/lib/cached';
+import { cachedTvSeries } from '@/app/cached';
+import auth from '@/auth';
 import {
   markSeasonWatched,
   markTvSeriesWatched,

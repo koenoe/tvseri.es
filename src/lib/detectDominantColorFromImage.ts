@@ -1,5 +1,3 @@
-import { cache } from 'react';
-
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { Resource } from 'sst';
 
@@ -32,18 +30,19 @@ async function detectDominantColorFromImage(url: string): Promise<string> {
   }
 }
 
-const detectDominantColorFromImageWithCache = cache(
-  async (url: string, cacheKey?: string) => {
-    const key = `${CACHE_PREFIX}${cacheKey || url}`;
-    const cachedValue = await getCacheItem<string>(key);
-    if (cachedValue) {
-      return cachedValue;
-    }
+const detectDominantColorFromImageWithCache = async (
+  url: string,
+  cacheKey?: string,
+) => {
+  const key = `${CACHE_PREFIX}${cacheKey || url}`;
+  const cachedValue = await getCacheItem<string>(key);
+  if (cachedValue) {
+    return cachedValue;
+  }
 
-    const dominantColor = await detectDominantColorFromImage(url);
-    await setCacheItem<string>(key, dominantColor, { ttl: null });
-    return dominantColor;
-  },
-);
+  const dominantColor = await detectDominantColorFromImage(url);
+  await setCacheItem<string>(key, dominantColor, { ttl: null });
+  return dominantColor;
+};
 
 export default detectDominantColorFromImageWithCache;

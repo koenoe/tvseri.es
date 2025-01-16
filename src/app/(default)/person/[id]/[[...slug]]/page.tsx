@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { cache, Suspense } from 'react';
 
 import { cx } from 'class-variance-authority';
 import Image from 'next/image';
@@ -11,7 +11,7 @@ import PersonGrid from '@/components/Grid/PersonGrid';
 import KnownFor from '@/components/KnownFor/KnownFor';
 import Page from '@/components/Page/Page';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
-import { cachedPerson } from '@/lib/cached';
+import { cachedPerson as _cachedPerson } from '@/lib/cached';
 import calculateAge from '@/utils/calculateAge';
 import formatDate from '@/utils/formatDate';
 import getBaseUrl from '@/utils/getBaseUrl';
@@ -20,6 +20,8 @@ import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
+
+const cachedPerson = cache(_cachedPerson);
 
 export async function generateMetadata({ params: paramsFromProps }: Props) {
   const params = await paramsFromProps;

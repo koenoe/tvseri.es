@@ -2,10 +2,10 @@ import { Suspense } from 'react';
 
 import { unauthorized } from 'next/navigation';
 
+import auth from '@/auth';
 import WebhookForPlex, {
   plexStyles,
 } from '@/components/Webhook/WebhookForPlex';
-import auth from '@/lib/auth';
 
 export default async function SettingsWebhooksPage() {
   const { user } = await auth();

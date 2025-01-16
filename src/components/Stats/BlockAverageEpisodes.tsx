@@ -1,4 +1,4 @@
-import { cachedWatchedByYear } from '@/lib/cached';
+import { cachedWatchedByYear } from '@/app/cached';
 import calculatePercentageDelta from '@/utils/calculatePercentageDelta';
 
 import Block from './Block';

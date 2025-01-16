@@ -1,4 +1,4 @@
-import { cachedTvSeries, cachedUniqueWatchedByYear } from '@/lib/cached';
+import { cachedUniqueWatchedByYear, cachedTvSeries } from '@/app/cached';
 import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 import { fetchGenresForTvSeries } from '@/lib/tmdb';
 

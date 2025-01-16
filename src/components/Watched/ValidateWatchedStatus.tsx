@@ -57,8 +57,15 @@ export default async function ValidateWatchedStatus({
     posterPath: tvSeries.posterPath,
   };
 
-  // 1. If series was marked as watched but is now partially watched, move to "in progress"
+  // First handle active transitions between lists. While most state changes are handled by
+  // the Lambda watch handler, these transitions can occur when:
+  // - New episodes are released for a previously watched series
+  // - Episodes are removed/corrected in the external TV database
+  // - Edge cases or failures in the Lambda handler
+
   if (isInWatchedList && tvSeriesIsInProgress) {
+    // Series was marked as watched but is now partially watched
+    // Most commonly happens when new episodes were released
     await Promise.all([
       addToList({
         userId: user.id,
@@ -75,9 +82,14 @@ export default async function ValidateWatchedStatus({
         id: tvSeries.id,
       }),
     ]);
+    return null;
   }
-  // 2. If all episodes are now watched but series isn't in watched list, move to "watched"
-  else if (tvSeriesIsWatched && !isInWatchedList) {
+
+  if (!isInWatchedList && tvSeriesIsWatched) {
+    // Series is fully watched but not in watched list
+    // This is usually handled by the Lambda but could occur from:
+    // - Edge cases in the Lambda handler
+    // - Episode count corrections in external TV database
     await Promise.all([
       addToList({
         userId: user.id,
@@ -94,17 +106,42 @@ export default async function ValidateWatchedStatus({
         id: tvSeries.id,
       }),
     ]);
+    return null;
   }
-  // 3. Clean up "in progress" list if series is fully watched or not even started
-  else if (
-    isInProgressList &&
-    (tvSeriesIsWatched || tvSeriesIsNotWatchedNorInProgress)
-  ) {
-    await removeFromList({
-      userId: user.id,
-      listId: 'IN_PROGRESS',
-      id: tvSeries.id,
-    });
+
+  // Collect cleanup tasks for invalid states that could arise from:
+  // - Data corrections in external TV database
+  // - Edge cases in Lambda handler
+  // - Network errors during list operations
+  const cleanupTasks = [];
+
+  if (isInProgressList && tvSeriesIsNotWatchedNorInProgress) {
+    // Remove from "in progress" if no episodes are watched
+    cleanupTasks.push(
+      removeFromList({
+        userId: user.id,
+        listId: 'IN_PROGRESS',
+        id: tvSeries.id,
+      }),
+    );
+  }
+
+  if (isInWatchedList && tvSeriesIsNotWatchedNorInProgress) {
+    // Remove from "watched" list if no episodes are watched
+    // Can occur due to:
+    // - Episode count corrections in external TV database
+    // - Edge cases in Lambda handler
+    cleanupTasks.push(
+      removeFromList({
+        userId: user.id,
+        listId: 'WATCHED',
+        id: tvSeries.id,
+      }),
+    );
+  }
+
+  if (cleanupTasks.length > 0) {
+    await Promise.all(cleanupTasks);
   }
 
   return null;

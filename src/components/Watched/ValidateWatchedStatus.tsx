@@ -29,7 +29,11 @@ export default async function ValidateWatchedStatus({
         userId: user.id,
         tvSeries,
       });
-      return watchedCount === tvSeries.numberOfAiredEpisodes;
+      return (
+        watchedCount > 0 &&
+        tvSeries.numberOfAiredEpisodes > 0 &&
+        watchedCount === tvSeries.numberOfAiredEpisodes
+      );
     })(),
     isInList({
       userId: user.id,

@@ -88,19 +88,25 @@ export const handler = async (event: DynamoDBStreamEvent) => {
       `[${record.eventName}] ${tvSeries.title} - S${String(item.seasonNumber).padStart(2, '0')}E${String(item.episodeNumber).padStart(2, '0')} | User: ${item.userId} | Count: ${lastCount}/${tvSeries.numberOfAiredEpisodes}`,
     );
 
-    // Update lists based on new count
-    if (lastCount === tvSeries.numberOfAiredEpisodes) {
+    const hasWatchedEpisodes = lastCount > 0;
+    const hasAiredEpisodes = tvSeries.numberOfAiredEpisodes > 0;
+    const hasWatchedAllEpisodes = lastCount === tvSeries.numberOfAiredEpisodes;
+
+    const listItem = {
+      id: tvSeries.id,
+      title: tvSeries.title,
+      slug: tvSeries.slug,
+      posterPath: tvSeries.posterPath,
+    };
+
+    // Update lists based on watch status
+    if (hasWatchedEpisodes && hasAiredEpisodes && hasWatchedAllEpisodes) {
       // Series is fully watched
       await Promise.all([
         addToList({
           userId: item.userId,
           listId: 'WATCHED',
-          item: {
-            id: tvSeries.id,
-            title: tvSeries.title,
-            slug: tvSeries.slug,
-            posterPath: tvSeries.posterPath,
-          },
+          item: listItem,
         }),
         removeFromList({
           userId: item.userId,
@@ -112,18 +118,13 @@ export const handler = async (event: DynamoDBStreamEvent) => {
           id: tvSeries.id,
         }),
       ]);
-    } else if (lastCount > 0) {
+    } else if (hasWatchedEpisodes && hasAiredEpisodes) {
       // Series is partially watched
       await Promise.all([
         addToList({
           userId: item.userId,
           listId: 'IN_PROGRESS',
-          item: {
-            id: tvSeries.id,
-            title: tvSeries.title,
-            slug: tvSeries.slug,
-            posterPath: tvSeries.posterPath,
-          },
+          item: listItem,
         }),
         removeFromList({
           userId: item.userId,
@@ -136,7 +137,7 @@ export const handler = async (event: DynamoDBStreamEvent) => {
         }),
       ]);
     } else {
-      // No episodes watched
+      // No episodes watched or no episodes aired
       await Promise.all([
         removeFromList({
           userId: item.userId,

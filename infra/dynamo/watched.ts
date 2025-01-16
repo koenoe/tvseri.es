@@ -50,6 +50,7 @@ watched.subscribe(
     },
     nodejs: {
       install: ['@better-fetch/fetch', 'slugify'],
+      minify: true,
     },
   },
   {

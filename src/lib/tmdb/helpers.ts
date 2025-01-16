@@ -3,7 +3,7 @@ import slugify from 'slugify';
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 import { type Movie } from '@/types/movie';
 import type { paths } from '@/types/tmdb';
-import type { Episode, TvSeries } from '@/types/tv-series';
+import type { TvSeries } from '@/types/tv-series';
 
 export type TmdbTvSeries =
   paths[`/3/tv/${number}`]['get']['responses']['200']['content']['application/json'] & {
@@ -277,7 +277,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
   });
 
   const seasons = (series.seasons ?? [])
-    ?.filter((season) => season.episode_count > 0)
+    ?.filter((season) => season.episode_count > 0 && season.season_number > 0)
     .map((season) => {
       let numberOfAiredEpisodesForSeason = 0;
 
@@ -339,8 +339,13 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
       ? normalizeTvSeriesEpisode(
           series.last_episode_to_air as unknown as TmdbTvSeriesEpisode,
         )
-      : ({} as Episode),
+      : null,
     lastAirDate,
+    nextEpisodeToAir: series.next_episode_to_air
+      ? normalizeTvSeriesEpisode(
+          series.next_episode_to_air as unknown as TmdbTvSeriesEpisode,
+        )
+      : null,
     backdropColor: DEFAULT_BACKGROUND_COLOR,
     releaseYear,
     seasons,

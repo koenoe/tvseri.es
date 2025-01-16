@@ -55,7 +55,8 @@ export type TvSeries = Readonly<{
   isAdult: boolean;
   languages: Language[];
   lastAirDate: string;
-  lastEpisodeToAir: Episode;
+  lastEpisodeToAir?: Episode | null;
+  nextEpisodeToAir?: Episode | null;
   numberOfEpisodes: number;
   numberOfAiredEpisodes: number;
   numberOfSeasons: number;

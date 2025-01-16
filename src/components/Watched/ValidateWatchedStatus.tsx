@@ -1,6 +1,11 @@
 import auth from '@/lib/auth';
 import { cachedTvSeries } from '@/lib/cached';
-import { addToList, isInList, removeFromList } from '@/lib/db/list';
+import {
+  addToList,
+  isInList,
+  removeFromList,
+  removeFromWatchlist,
+} from '@/lib/db/list';
 import { getWatchedCountForTvSeries } from '@/lib/db/watched';
 
 // Note: The DynamoDB subscriber (`src/lambdas/watched.ts`) handles marking a TV series as watched or in progress.
@@ -23,24 +28,27 @@ export default async function ValidateWatchedStatus({
     return null;
   }
 
-  const [tvSeriesIsWatched, isInWatchedList] = await Promise.all([
-    (async () => {
-      const watchedCount = await getWatchedCountForTvSeries({
-        userId: user.id,
-        tvSeries,
-      });
-      return (
-        watchedCount > 0 &&
-        tvSeries.numberOfAiredEpisodes > 0 &&
-        watchedCount === tvSeries.numberOfAiredEpisodes
-      );
-    })(),
+  const [watchedCount, isInWatchedList, isInProgressList] = await Promise.all([
+    getWatchedCountForTvSeries({
+      userId: user.id,
+      tvSeries,
+    }),
     isInList({
       userId: user.id,
       listId: 'WATCHED',
       id: tvSeries.id,
     }),
+    isInList({
+      userId: user.id,
+      listId: 'IN_PROGRESS',
+      id: tvSeries.id,
+    }),
   ]);
+
+  const tvSeriesIsWatched =
+    watchedCount > 0 && watchedCount === tvSeries.numberOfAiredEpisodes;
+  const tvSeriesIsInProgress = watchedCount > 0 && !tvSeriesIsWatched;
+  const tvSeriesIsNotWatchedNorInProgress = watchedCount === 0;
 
   const item = {
     id: tvSeries.id,
@@ -49,7 +57,8 @@ export default async function ValidateWatchedStatus({
     posterPath: tvSeries.posterPath,
   };
 
-  if (isInWatchedList && !tvSeriesIsWatched) {
+  // 1. If series was marked as watched but is now partially watched, move to "in progress"
+  if (isInWatchedList && tvSeriesIsInProgress) {
     await Promise.all([
       addToList({
         userId: user.id,
@@ -61,8 +70,14 @@ export default async function ValidateWatchedStatus({
         listId: 'WATCHED',
         id: tvSeries.id,
       }),
+      removeFromWatchlist({
+        userId: user.id,
+        id: tvSeries.id,
+      }),
     ]);
-  } else if (tvSeriesIsWatched && !isInWatchedList) {
+  }
+  // 2. If all episodes are now watched but series isn't in watched list, move to "watched"
+  else if (tvSeriesIsWatched && !isInWatchedList) {
     await Promise.all([
       addToList({
         userId: user.id,
@@ -74,7 +89,22 @@ export default async function ValidateWatchedStatus({
         listId: 'IN_PROGRESS',
         id: tvSeries.id,
       }),
+      removeFromWatchlist({
+        userId: user.id,
+        id: tvSeries.id,
+      }),
     ]);
+  }
+  // 3. Clean up "in progress" list if series is fully watched or not even started
+  else if (
+    isInProgressList &&
+    (tvSeriesIsWatched || tvSeriesIsNotWatchedNorInProgress)
+  ) {
+    await removeFromList({
+      userId: user.id,
+      listId: 'IN_PROGRESS',
+      id: tvSeries.id,
+    });
   }
 
   return null;

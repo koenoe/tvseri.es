@@ -89,6 +89,7 @@ function Poster({
           placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(300, 450)}`}
           unoptimized
         />
+        <span className="sr-only">{item.title}</span>
       </div>
     );
   }, [item.posterImage, item.title, priority]);

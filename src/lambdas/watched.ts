@@ -110,7 +110,10 @@ export const handler = async (event: DynamoDBStreamEvent) => {
         addToList({
           userId: watchedItem.userId,
           listId: 'WATCHED',
-          item: listItem,
+          item: {
+            ...listItem,
+            createdAt: watchedItem.watchedAt,
+          },
         }),
         removeFromList({
           userId: watchedItem.userId,

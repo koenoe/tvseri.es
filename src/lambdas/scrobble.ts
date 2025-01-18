@@ -3,6 +3,7 @@ import { type SQSHandler, type SQSEvent } from 'aws-lambda';
 import { cachedTvSeries } from '@/lib/cached';
 import { markWatched } from '@/lib/db/watched';
 import { findByExternalId } from '@/lib/tmdb';
+import { type TmdbExternalSource } from '@/lib/tmdb/helpers';
 import { type WatchProvider } from '@/types/watch-provider';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 
@@ -37,6 +38,8 @@ export type PlexMetadata = Readonly<{
   year?: number;
 }>;
 
+type ExternalIds = Record<Partial<TmdbExternalSource>, string | undefined>;
+
 type Metadata = Readonly<{
   episodeTitle: string;
   seasonTitle: string;
@@ -44,11 +47,7 @@ type Metadata = Readonly<{
   episodeNumber: number;
   seasonNumber: number;
   year?: number;
-  externalIds: {
-    tvdb?: string;
-    tmdb?: string;
-    imdb?: string;
-  };
+  externalIds?: ExternalIds;
 }>;
 
 type ScrobbleMetadata =
@@ -68,10 +67,10 @@ function normalizePlexMetadata(metadata: PlexMetadata): Metadata {
   };
 
   const externalIds = {
-    tvdb: extractExternalId(metadata.Guid, 'tvdb'),
-    tmdb: extractExternalId(metadata.Guid, 'tmdb'),
-    imdb: extractExternalId(metadata.Guid, 'imdb'),
-  };
+    tvdb_id: extractExternalId(metadata.Guid, 'tvdb'),
+    tmdb_id: extractExternalId(metadata.Guid, 'tmdb'),
+    imdb_id: extractExternalId(metadata.Guid, 'imdb'),
+  } as unknown as ExternalIds;
 
   return {
     episodeTitle: metadata.title,
@@ -80,7 +79,9 @@ function normalizePlexMetadata(metadata: PlexMetadata): Metadata {
     episodeNumber: metadata.index,
     seasonNumber: metadata.parentIndex,
     year: metadata.year,
-    externalIds,
+    externalIds: Object.values(externalIds).some(Boolean)
+      ? externalIds
+      : undefined,
   };
 }
 
@@ -96,19 +97,28 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
       }
 
       const metadata = normalizePlexMetadata(payload.metadata.plex);
-
-      const { tvdb: tvdbId } = metadata.externalIds;
-      if (!tvdbId) {
-        console.error('No `tvdbId` found, skipping', JSON.stringify(payload));
+      if (!metadata.externalIds) {
+        console.error(
+          'No external IDs found, skipping',
+          JSON.stringify(payload),
+        );
         continue;
       }
 
-      const externalIdResults = await findByExternalId({
-        externalId: tvdbId,
-        externalSource: 'tvdb_id',
+      const searches = (['imdb_id', 'tvdb_id'] as const).map((source) => {
+        const id = metadata.externalIds?.[source];
+        return id
+          ? findByExternalId({
+              externalId: id,
+              externalSource: source,
+            })
+          : Promise.resolve(undefined);
       });
 
-      const episode = externalIdResults.episodes[0];
+      const episode = (await Promise.all(searches)).find(
+        (r) => r?.episodes.length,
+      )?.episodes[0];
+
       if (!episode) {
         // TODO: fuzzy matching by title, year etc.
         console.error('No episode found, skipping', JSON.stringify(payload));

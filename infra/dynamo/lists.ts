@@ -10,6 +10,7 @@ export const lists = new sst.aws.Dynamo('Lists', {
     gsi2sk: 'number', // created_at
     gsi3pk: 'string', // LIST#<userId>#<listId> (only for custom lists)
     gsi3sk: 'number', // position (only for custom lists)
+    gsi4pk: 'string', // SERIES#<tmdbId>
 
     // listId: 'string',
     // id: 'number',
@@ -26,5 +27,6 @@ export const lists = new sst.aws.Dynamo('Lists', {
     gsi1: { hashKey: 'gsi1pk', rangeKey: 'gsi1sk', projection: 'all' },
     gsi2: { hashKey: 'gsi2pk', rangeKey: 'gsi2sk', projection: 'all' },
     gsi3: { hashKey: 'gsi3pk', rangeKey: 'gsi3sk', projection: 'all' },
+    gsi4: { hashKey: 'gsi4pk', projection: 'all' },
   },
 });

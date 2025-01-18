@@ -398,6 +398,7 @@ export const addToList = async (
       gsi1sk: input.item.title.toLowerCase(),
       gsi2pk: `LIST#${input.userId}#${input.listId}`,
       gsi2sk: now,
+      gsi4pk: `SERIES#${input.item.id}`,
       ...(isCustomList(input.listId) &&
         input.item.position && {
           position: input.item.position,

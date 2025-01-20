@@ -1,9 +1,8 @@
-import 'server-only';
-
 import {
   DeleteItemCommand,
   GetItemCommand,
   PutItemCommand,
+  UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Resource } from 'sst';
@@ -109,5 +108,92 @@ export const deleteSession = async (sessionId: string): Promise<void> => {
     await client.send(command);
   } catch (_error) {
     throw new Error('Failed to delete session');
+  }
+};
+
+export const removeTmdbFromSession = async (
+  session: Session,
+): Promise<Session> => {
+  const now = new Date().toISOString();
+
+  try {
+    await client.send(
+      new UpdateItemCommand({
+        TableName: Resource.Sessions.name,
+        Key: marshall({
+          pk: `SESSION#${session.id}`,
+        }),
+        UpdateExpression:
+          'REMOVE #tmdbSessionId, #tmdbAccessToken SET updatedAt = :updatedAt, #provider = :provider',
+        ExpressionAttributeValues: marshall({
+          ':updatedAt': now,
+          ':provider': 'internal',
+        }),
+        ExpressionAttributeNames: {
+          '#tmdbSessionId': 'tmdbSessionId',
+          '#tmdbAccessToken': 'tmdbAccessToken',
+          '#provider': 'provider',
+        },
+      }),
+    );
+
+    const updatedSession = {
+      ...session,
+      updatedAt: now,
+      provider: 'internal' as const,
+    };
+
+    // Remove TMDB fields from the returned session object
+    delete updatedSession.tmdbSessionId;
+    delete updatedSession.tmdbAccessToken;
+
+    return updatedSession;
+  } catch (_error) {
+    throw new Error('Failed to remove TMDB from session');
+  }
+};
+
+export const addTmdbToSession = async (
+  session: Session,
+  input: Readonly<{
+    tmdbAccessToken: string;
+    tmdbSessionId: string;
+  }>,
+): Promise<Session> => {
+  const now = new Date().toISOString();
+
+  try {
+    await client.send(
+      new UpdateItemCommand({
+        TableName: Resource.Sessions.name,
+        Key: marshall({
+          pk: `SESSION#${session.id}`,
+        }),
+        UpdateExpression:
+          'SET #tmdbSessionId = :tmdbSessionId, #tmdbAccessToken = :tmdbAccessToken, ' +
+          '#provider = :provider, #updatedAt = :updatedAt',
+        ExpressionAttributeValues: marshall({
+          ':tmdbSessionId': input.tmdbSessionId,
+          ':tmdbAccessToken': input.tmdbAccessToken,
+          ':provider': 'tmdb',
+          ':updatedAt': now,
+        }),
+        ExpressionAttributeNames: {
+          '#tmdbSessionId': 'tmdbSessionId',
+          '#tmdbAccessToken': 'tmdbAccessToken',
+          '#provider': 'provider',
+          '#updatedAt': 'updatedAt',
+        },
+      }),
+    );
+
+    return {
+      ...session,
+      tmdbSessionId: input.tmdbSessionId,
+      tmdbAccessToken: input.tmdbAccessToken,
+      provider: 'tmdb' as const,
+    };
+  } catch (_error) {
+    throw new Error('Failed to add TMDB to session');
   }
 };

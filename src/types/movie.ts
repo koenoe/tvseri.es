@@ -4,12 +4,13 @@ export type Movie = Omit<
   TvSeries,
   | 'createdBy'
   | 'firstAirDate'
-  | 'firstEpisodeToAir'
   | 'lastAirDate'
   | 'lastEpisodeToAir'
+  | 'numberOfAiredEpisodes'
   | 'numberOfEpisodes'
   | 'numberOfSeasons'
   | 'originCountry'
   | 'releaseYear'
   | 'seasons'
+  | 'status'
 >;

@@ -1,8 +1,7 @@
-import { cookies, headers } from 'next/headers';
+import { headers } from 'next/headers';
 
-import { cachedTvSeries } from '@/lib/cached';
-import { findSession } from '@/lib/db/session';
-import { findUser } from '@/lib/db/user';
+import { cachedTvSeries } from '@/app/cached';
+import auth from '@/auth';
 import {
   markSeasonWatched,
   markTvSeriesWatched,
@@ -12,7 +11,6 @@ import {
   unmarkWatched,
 } from '@/lib/db/watched';
 import { fetchTvSeriesEpisode, fetchTvSeriesWatchProvider } from '@/lib/tmdb';
-import { decryptToken } from '@/lib/token';
 
 type BodyPayload = Readonly<{
   watched: boolean;
@@ -22,15 +20,16 @@ type BodyPayload = Readonly<{
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params: _params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params;
-  const body = (await req.json()) as BodyPayload;
-  if (!body) {
+  const [params, json] = await Promise.all([_params, req.json()]);
+  const body = json as BodyPayload;
+
+  if (!body || !params.id) {
     return Response.json({ error: 'No payload found' }, { status: 400 });
   }
 
-  const tvSeries = await cachedTvSeries(id);
+  const tvSeries = await cachedTvSeries(params.id);
   if (
     !tvSeries ||
     !tvSeries.firstAirDate ||
@@ -39,31 +38,17 @@ export async function POST(
     return Response.json({ error: 'Not found' }, { status: 404 });
   }
 
-  const encryptedSessionId = (await cookies()).get('sessionId')?.value;
-  if (!encryptedSessionId) {
-    return Response.json({ error: 'Invalid session' }, { status: 401 });
-  }
-
-  const decryptedSessionId = decryptToken(encryptedSessionId);
-  const session = await findSession(decryptedSessionId);
-  if (!session) {
-    return Response.json({ error: 'No valid session found' }, { status: 401 });
-  }
-
-  const user = await findUser({ userId: session.userId });
+  const { user } = await auth();
   if (!user) {
-    return Response.json(
-      { error: 'No valid user found in session' },
-      { status: 401 },
-    );
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const region = (await headers()).get('cloudfront-viewer-country') || 'US';
-  const watchProvider = await fetchTvSeriesWatchProvider(id, region);
+  const watchProvider = await fetchTvSeriesWatchProvider(tvSeries.id, region);
 
   if (body.seasonNumber && body.episodeNumber) {
     const episode = await fetchTvSeriesEpisode(
-      id,
+      tvSeries.id,
       body.seasonNumber,
       body.episodeNumber,
     );

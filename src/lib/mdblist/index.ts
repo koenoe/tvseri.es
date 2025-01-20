@@ -1,5 +1,13 @@
-import 'server-only';
+import { createFetch } from '@better-fetch/fetch';
+
+import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
+
+import nextPlugin from '../betterFetchNextPlugin';
 import { getCacheItem, setCacheItem } from '../db/cache';
+
+if (!process.env.MDBLIST_API_KEY) {
+  throw new Error('No "API_KEY" found for MDBList');
+}
 
 type MediaType = 'movie' | 'show';
 
@@ -9,41 +17,34 @@ type Item = Readonly<{
   mediaType: MediaType;
 }>;
 
+const $fetch = createFetch({
+  baseURL: 'https://api.mdblist.com',
+  retry: DEFAULT_FETCH_RETRY_OPTIONS,
+  plugins: [nextPlugin],
+});
+
 async function mdblistFetch(path: RequestInfo | URL, init?: RequestInit) {
   const headers = {
     accept: 'application/json',
   };
 
-  // Note: NextJS doesn't allow both revalidate + cache headers
-  const next = init?.cache ? {} : init?.next;
-
-  const patchedOptions = {
+  const { data, error } = await $fetch(path.toString(), {
     ...init,
-    next: {
-      ...next,
-      ...init?.next,
-    },
     headers: {
       ...headers,
       ...init?.headers,
     },
-  };
+    query: {
+      format: 'json',
+      apikey: process.env.MDBLIST_API_KEY as string,
+    },
+  });
 
-  const urlWithParams = new URL(`https://api.mdblist.com${path}`);
-  urlWithParams.searchParams.set('format', 'json');
-  urlWithParams.searchParams.set(
-    'apikey',
-    process.env.MDBLIST_API_KEY as string,
-  );
-
-  const response = await fetch(urlWithParams.toString(), patchedOptions);
-
-  if (!response.ok) {
-    throw new Error(`HTTP error status: ${response.status}`);
+  if (error) {
+    throw new Error(`HTTP error status: ${error.status}`);
   }
 
-  const json = await response.json();
-  return json;
+  return data;
 }
 
 export async function fetchTvSeriesOrMovie(
@@ -132,17 +133,6 @@ export async function fetchImdbTopRatedTvSeries() {
 export async function fetchKoreasFinest() {
   const response = (await mdblistFetch(
     '/lists/koenoe/top-rated-korean-shows-on-netflix/items',
-  )) as Readonly<{
-    movies: Item[];
-    shows: Item[];
-  }>;
-
-  return response.shows?.map((item) => item.id);
-}
-
-export async function fetchTop2024() {
-  const response = (await mdblistFetch(
-    '/lists/koenoe/2024/items',
   )) as Readonly<{
     movies: Item[];
     shows: Item[];

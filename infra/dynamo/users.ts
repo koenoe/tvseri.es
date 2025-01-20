@@ -12,6 +12,7 @@ export const users = new sst.aws.Dynamo('Users', {
     // email: 'string',
     // name: 'string',
     // createdAt: 'string',
+    // updatedAt?: 'string',
     // role: 'string', // 'user' | 'admin'
     // tmdbAccountId: 'number',
     // tmdbAccountObjectId: 'string',

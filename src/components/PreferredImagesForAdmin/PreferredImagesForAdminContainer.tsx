@@ -1,17 +1,14 @@
 import { revalidateTag } from 'next/cache';
-import { cookies } from 'next/headers';
 
+import { cachedTvSeries } from '@/app/cached';
+import auth from '@/auth';
 import { deleteCacheItem } from '@/lib/db/cache';
 import {
   type PreferredImages,
   putPreferredImages,
 } from '@/lib/db/preferredImages';
-import { findSession } from '@/lib/db/session';
-import { findUser } from '@/lib/db/user';
 import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
 import { fetchTvSeriesImages } from '@/lib/tmdb';
-import { decryptToken } from '@/lib/token';
-import { type TvSeries } from '@/types/tv-series';
 
 import PreferredImagesForAdmin from './PreferredImagesForAdmin';
 
@@ -25,7 +22,7 @@ async function storePreferredImages(
 
   await Promise.all([
     putPreferredImages(id, preferredImages),
-    deleteCacheItem(`tv:${id}`),
+    deleteCacheItem(`tv:v4:${id}`),
   ]);
 }
 
@@ -47,25 +44,14 @@ async function getDominantColor({
 }
 
 export default async function PreferredImagesForAdminContainer({
-  tvSeries,
+  id,
 }: Readonly<{
-  tvSeries: TvSeries;
+  id: number;
 }>) {
-  const cookieStore = await cookies();
-  const encryptedSessionId = cookieStore.get('sessionId')?.value;
+  const tvSeriesFromCache = await cachedTvSeries(id);
+  const tvSeries = tvSeriesFromCache!;
+  const { user } = await auth();
 
-  if (!encryptedSessionId) {
-    return null;
-  }
-
-  const decryptedSessionId = decryptToken(encryptedSessionId);
-  const session = await findSession(decryptedSessionId);
-
-  if (!session) {
-    return null;
-  }
-
-  const user = await findUser({ userId: session.userId });
   if (user?.role !== 'admin') {
     return null;
   }

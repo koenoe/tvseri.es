@@ -1,5 +1,5 @@
-export default function formatDate(dateString: string): string {
-  const date = new Date(dateString);
+export default function formatDate(input: string | number): string {
+  const date = new Date(input);
 
   const formatter = new Intl.DateTimeFormat('en-US', {
     day: 'numeric',

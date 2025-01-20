@@ -2,8 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 /* deno-fmt-ignore-file */
-import "sst"
-export {}
+
 declare module "sst" {
   export interface Resource {
     "Cache": {
@@ -14,13 +13,26 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Function"
     }
+    "Email": {
+      "configSet": string
+      "sender": string
+      "type": "sst.aws.Email"
+    }
     "Lists": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "OTP": {
       "name": string
       "type": "sst.aws.Dynamo"
     }
     "PreferredImages": {
       "name": string
       "type": "sst.aws.Dynamo"
+    }
+    "ScrobbleQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
     }
     "Sessions": {
       "name": string
@@ -34,9 +46,17 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "WebhookTokens": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
     "tvseries": {
       "type": "sst.aws.Nextjs"
       "url": string
     }
   }
 }
+/// <reference path="sst-env.d.ts" />
+
+import "sst"
+export {}

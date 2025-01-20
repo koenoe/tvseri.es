@@ -1,40 +1,27 @@
-import { cookies } from 'next/headers';
+import Link from 'next/link';
 
-import { findSession } from '@/lib/db/session';
-import { findUser } from '@/lib/db/user';
-import { decryptToken } from '@/lib/token';
+import auth from '@/auth';
 
-import LoginButton from '../Buttons/LoginButton';
+import AuthButton from '../Buttons/AuthButton';
 
 export default async function Username() {
-  const cookieStore = await cookies();
-  const encryptedSessionId = cookieStore.get('sessionId')?.value;
-
-  if (!encryptedSessionId) {
-    return <LoginButton />;
-  }
-
-  const decryptedSessionId = decryptToken(encryptedSessionId);
-  const session = await findSession(decryptedSessionId);
-
-  if (!session) {
-    return <LoginButton />;
-  }
-
-  const user = await findUser({ userId: session.userId });
+  const { user } = await auth();
 
   if (!user) {
-    return <LoginButton />;
+    return <AuthButton />;
   }
 
   const profileName =
-    user.tmdbUsername || user.username || user.name || 'anonymous';
+    user.username || user.tmdbUsername || user.name || 'anonymous';
 
   return (
     <div className="relative flex h-[18px] w-auto items-center justify-end overflow-hidden text-base lowercase leading-none text-white">
-      <span className="relative h-full truncate text-ellipsis">
+      <Link
+        className="relative h-full truncate text-ellipsis"
+        href={`/u/${user.username}`}
+      >
         {profileName}
-      </span>
+      </Link>
     </div>
   );
 }

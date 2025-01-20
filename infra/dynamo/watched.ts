@@ -1,5 +1,10 @@
 /// <reference path="../../.sst/platform/config.d.ts" />
 
+import { dominantColor } from '../dominantColor';
+import { cache } from './cache';
+import { lists } from './lists';
+import { preferredImages } from './preferredImages';
+
 export const watched = new sst.aws.Dynamo('Watched', {
   fields: {
     pk: 'string', // USER#<userId>
@@ -9,10 +14,7 @@ export const watched = new sst.aws.Dynamo('Watched', {
     gsi2pk: 'string', // USER#<userId>#WATCHED
     gsi2sk: 'number', // watched_at
 
-    // country: 'string', // iso_3166_1
     // episodeNumber: 'number',
-    // genreIds: 'string', // comma-separated
-    // language: 'string', // iso_639_1
     // posterImage: 'string', // deprecated
     // posterPath: 'string',
     // runtime: 'number',
@@ -29,15 +31,35 @@ export const watched = new sst.aws.Dynamo('Watched', {
     gsi1: { hashKey: 'gsi1pk', rangeKey: 'gsi1sk', projection: 'all' }, // For series/season queries
     gsi2: { hashKey: 'gsi2pk', rangeKey: 'gsi2sk', projection: 'all' }, // For time-based queries
   },
-  // stream: 'new-and-old-images',
+  stream: 'new-and-old-images',
 });
 
-// Note: just leave this here for future reference
-// watched.subscribe('WatchedSubscriber', {
-//   architecture: 'arm64',
-//   handler: 'infra/functions/watched.handler',
-//   memory: '1024 MB',
-//   runtime: 'nodejs22.x',
-//   timeout: '10 seconds',
-//   link: [lists, watched],
-// });
+watched.subscribe(
+  'WatchedSubscriber',
+  {
+    architecture: 'arm64',
+    handler: 'src/lambdas/watched.handler',
+    memory: '512 MB',
+    runtime: 'nodejs22.x',
+    timeout: '30 seconds',
+    link: [cache, dominantColor, lists, preferredImages, watched],
+    environment: {
+      MDBLIST_API_KEY: process.env.MDBLIST_API_KEY as string,
+      TMDB_API_ACCESS_TOKEN: process.env.TMDB_API_ACCESS_TOKEN as string,
+      TMDB_API_KEY: process.env.TMDB_API_KEY as string,
+    },
+    nodejs: {
+      install: ['@better-fetch/fetch', 'slugify'],
+      minify: true,
+    },
+  },
+  {
+    transform: {
+      eventSourceMapping: {
+        batchSize: 25,
+        maximumBatchingWindowInSeconds: 2,
+        maximumRetryAttempts: 10,
+      },
+    },
+  },
+);

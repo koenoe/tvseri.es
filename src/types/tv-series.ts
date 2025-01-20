@@ -20,7 +20,16 @@ export type Season = Readonly<{
   title: string;
   episodes: Episode[];
   numberOfEpisodes?: number;
+  numberOfAiredEpisodes?: number;
 }>;
+
+type Status =
+  | 'returning series'
+  | 'planned'
+  | 'in production'
+  | 'ended'
+  | 'canceled'
+  | 'pilot';
 
 type Language = Readonly<{
   englishName: string;
@@ -41,24 +50,26 @@ export type TvSeries = Readonly<{
   createdBy: Person[];
   description: string;
   firstAirDate: string;
-  firstEpisodeToAir: Episode;
   genres: Genre[];
   id: number;
   isAdult: boolean;
   languages: Language[];
   lastAirDate: string;
-  lastEpisodeToAir: Episode;
+  lastEpisodeToAir?: Episode | null;
+  nextEpisodeToAir?: Episode | null;
   numberOfEpisodes: number;
+  numberOfAiredEpisodes: number;
   numberOfSeasons: number;
   originCountry: string;
   originalLanguage: string;
   originalTitle: string;
+  popularity: number;
   posterImage: string;
   posterPath: string;
-  popularity: number;
   releaseYear: string;
   seasons?: Season[];
   slug: string;
+  status: Status;
   tagline: string;
   title: string;
   titleTreatmentImage?: string;

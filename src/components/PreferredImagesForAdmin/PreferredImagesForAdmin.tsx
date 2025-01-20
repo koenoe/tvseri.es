@@ -11,6 +11,7 @@ import {
 
 import { cx } from 'class-variance-authority';
 import { preload } from 'react-dom';
+import { toast } from 'sonner';
 
 import { type PreferredImages } from '@/lib/db/preferredImages';
 import { type fetchTvSeriesImages } from '@/lib/tmdb';
@@ -193,7 +194,6 @@ export default function PreferredImagesForAdmin({
   const spinner = useMemo(
     () => (
       <svg
-        aria-hidden="true"
         className="0 inline h-4 w-4 animate-spin"
         viewBox="0 0 100 101"
         fill="none"
@@ -293,16 +293,20 @@ export default function PreferredImagesForAdmin({
         })}
         onClick={() => {
           startTransition(async () => {
-            const currentTitle = images?.titleTreatment[currentTitleIndex];
-
-            if (currentBackdrop && currentBackdrop.path) {
-              await storePreferredImages(id, {
-                backdropImagePath: currentBackdrop.path,
-                backdropColor: currentBackdrop.color,
-                ...(currentTitle && {
-                  titleTreatmentImagePath: currentTitle.path,
-                }),
-              });
+            try {
+              const currentTitle = images?.titleTreatment[currentTitleIndex];
+              if (currentBackdrop && currentBackdrop.path) {
+                await storePreferredImages(id, {
+                  backdropImagePath: currentBackdrop.path,
+                  backdropColor: currentBackdrop.color,
+                  ...(currentTitle && {
+                    titleTreatmentImagePath: currentTitle.path,
+                  }),
+                });
+                toast.success('Preferred images successfully stored.');
+              }
+            } catch (_error) {
+              toast.error('Failed to store preferred images.');
             }
           });
         }}

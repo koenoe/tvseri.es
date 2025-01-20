@@ -38,7 +38,7 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
       >
         <span>{selectedSeason?.title}</span>
         <motion.svg
-          className="h-6 w-6"
+          className="size-6"
           viewBox="0 0 20 20"
           fill="currentColor"
           animate={{

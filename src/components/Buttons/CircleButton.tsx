@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { type ReactNode, useCallback } from 'react';
 
 import { cva, cx, type VariantProps } from 'class-variance-authority';
 import { motion } from 'framer-motion';
@@ -32,7 +32,7 @@ export default function CircleButton({
 }: ButtonVariantProps &
   Readonly<{
     className?: string;
-    children: React.ReactNode;
+    children: ReactNode;
     onClick?: (value: boolean) => void;
     isActive?: boolean;
     isDisabled?: boolean;

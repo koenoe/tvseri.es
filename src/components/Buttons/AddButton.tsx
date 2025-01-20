@@ -36,7 +36,7 @@ export default function AddButton({
       isDisabled={isPending}
     >
       <svg
-        className="h-6 w-6"
+        className="size-6"
         viewBox="0 0 512 512"
         xmlns="http://www.w3.org/2000/svg"
       >

@@ -24,7 +24,7 @@ export default async function ImdbRating({
         href={`https://www.imdb.com/title/${rating.imdbid}`}
       >
         <svg
-          className="h-6 w-6 text-yellow-300"
+          className="size-6 text-yellow-300"
           xmlns="http://www.w3.org/2000/svg"
           fill="currentColor"
           viewBox="0 0 22 20"

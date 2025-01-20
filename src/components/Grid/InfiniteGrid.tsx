@@ -18,10 +18,12 @@ function InfiniteGrid({
   endpoint,
   items: itemsFromProps,
   nextPageOrCursor: nextPageOrCursorFromProps,
+  onRemoveItem,
 }: Readonly<{
   endpoint: string;
   items: ListItem[];
   nextPageOrCursor?: string | null;
+  onRemoveItem?: (item: ListItem) => void;
 }>) {
   const [items, setItems] = useRestorableItems(endpoint, itemsFromProps);
   const [nextPageOrCursor, setNextPageOrCursor] = useRestorableNextPageOrCursor(
@@ -83,7 +85,7 @@ function InfiniteGrid({
     <InfiniteScroll hasMoreData={!!nextPageOrCursor} loadMore={handleLoadMore}>
       <Grid>
         {uniqueItems.map((item) => (
-          <Poster key={item.id} item={item} />
+          <Poster key={item.id} item={item} onRemove={onRemoveItem} />
         ))}
       </Grid>
     </InfiniteScroll>

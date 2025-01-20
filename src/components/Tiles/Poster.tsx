@@ -67,12 +67,14 @@ type PosterProps = {
   item: ListItem;
   mediaType?: 'tv' | 'movie';
   priority?: boolean;
+  onRemove?: (item: ListItem) => void;
 };
 
 function Poster({
   className,
   item,
   mediaType = 'tv',
+  onRemove,
   priority,
   size,
 }: Readonly<PosterProps> & PosterVariantProps) {
@@ -120,6 +122,50 @@ function Poster({
       layout
     >
       {poster()}
+      {onRemove && (
+        <>
+          <div className="absolute -top-1 left-0 h-2/5 w-full bg-gradient-to-b from-black/60 to-transparent" />
+          <motion.button
+            className="!absolute right-2 top-2 z-10 flex size-6 items-center justify-center rounded-full border border-white/10 bg-white/5 backdrop-blur"
+            onClick={(e) => {
+              e.preventDefault();
+              onRemove(item);
+            }}
+            whileTap="tap"
+            whileHover="hover"
+            initial={false}
+            animate="inactive"
+            variants={{
+              active: {
+                borderColor: 'rgba(255, 255, 255, 1)',
+                color: 'rgba(255, 255, 255, 1)',
+                transition: {
+                  duration: 0.6,
+                },
+              },
+              inactive: {
+                borderColor: 'rgba(255, 255, 255, 0.2)',
+                color: 'rgba(255, 255, 255, 0.6)',
+              },
+              hover: {
+                borderColor: 'rgba(255, 255, 255, 0.4)',
+              },
+            }}
+          >
+            <motion.svg
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+              className="size-2"
+              fill="currentColor"
+              variants={{
+                tap: { scale: 0.6 },
+              }}
+            >
+              <path d="m24 2.4-2.4-2.4-9.6 9.6-9.6-9.6-2.4 2.4 9.6 9.6-9.6 9.6 2.4 2.4 9.6-9.6 9.6 9.6 2.4-2.4-9.6-9.6z" />
+            </motion.svg>
+          </motion.button>
+        </>
+      )}
     </MotionLink>
   );
 }

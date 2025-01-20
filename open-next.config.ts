@@ -9,6 +9,9 @@ const config = {
       wrapper: 'aws-lambda-streaming',
     },
   },
+  dangerous: {
+    enableCacheInterception: true,
+  },
 } satisfies OpenNextConfig;
 
 export default config;

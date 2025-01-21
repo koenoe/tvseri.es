@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { type ReactNode, Suspense } from 'react';
 
 import DiscoverFilters from '@/components/DiscoverFilters';
 import DiscoverCountriesContainer from '@/components/DiscoverFilters/CountriesContainer';
@@ -31,7 +31,7 @@ const sortOptions = [
 export default async function DiscoverLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <Page backgroundContext="dots">

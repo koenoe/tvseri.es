@@ -33,7 +33,7 @@
     "recharts": "^2.15.0",
     "slugify": "^1.6.6",
     "sonner": "^1.7.2",
-    "sst": "^3.5.15",
+    "sst": "^3.6.2",
     "tailwind-merge": "^2.6.0",
     "ulid": "^2.3.0",
     "use-debounce": "^10.0.4",

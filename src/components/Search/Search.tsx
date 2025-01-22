@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import Image from 'next/image';
@@ -13,10 +13,11 @@ import { useSearch } from '@/hooks/useSearch';
 import getMainBackgroundColor from '@/utils/getMainBackgroundColor';
 
 import Modal from '../Modal';
-import SearchInput from './SearchInput';
+import SearchInput, { type SearchInputHandle } from './SearchInput';
 import SearchResults from './SearchResults';
 
 function Search() {
+  const searchInputRef = useRef<SearchInputHandle>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [backgroundColor, setBackgroundColor] = useState<string>(
     DEFAULT_BACKGROUND_COLOR,
@@ -28,6 +29,7 @@ function Search() {
   const handleClose = useCallback(() => {
     setIsOpen(false);
     reset();
+    searchInputRef.current?.reset();
   }, [reset]);
 
   const handleKeyDown = useDebouncedCallback((event: React.KeyboardEvent) => {
@@ -131,6 +133,7 @@ function Search() {
                 }}
               >
                 <SearchInput
+                  ref={searchInputRef}
                   className="border-b border-black/5 md:border-none"
                   color={backgroundColor}
                   onChange={handleSearch}

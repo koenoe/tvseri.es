@@ -1,10 +1,24 @@
 'use client';
 
-import { type ChangeEvent, memo } from 'react';
+import {
+  type ChangeEvent,
+  type KeyboardEvent,
+  memo,
+  type Ref,
+  useCallback,
+  useImperativeHandle,
+} from 'react';
 
 import { twMerge } from 'tailwind-merge';
 
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
+import createUseRestorableState from '@/hooks/createUseRestorableState';
+
+const useRestorableState = createUseRestorableState<string>();
+
+export type SearchInputHandle = Readonly<{
+  reset: () => void;
+}>;
 
 function SearchInput({
   className,
@@ -12,13 +26,34 @@ function SearchInput({
   onChange,
   onClose,
   onKeyDown,
+  ref,
 }: Readonly<{
   className?: string;
   color?: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onClose: () => void;
-  onKeyDown?: (event: React.KeyboardEvent) => void;
+  onKeyDown?: (event: KeyboardEvent) => void;
+  ref?: Ref<SearchInputHandle>;
 }>) {
+  const [value, setValue] = useRestorableState('q', '');
+  const handleChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      setValue(event.target.value);
+      onChange(event);
+    },
+    [onChange, setValue],
+  );
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      reset: () => {
+        setValue('');
+      },
+    }),
+    [setValue],
+  );
+
   return (
     <div
       className={twMerge('relative h-auto w-full', className)}
@@ -49,7 +84,8 @@ function SearchInput({
         required
         spellCheck="false"
         type="text"
-        onChange={onChange}
+        value={value}
+        onChange={handleChange}
         onKeyDown={onKeyDown}
       />
       <button

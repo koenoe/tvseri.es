@@ -2,6 +2,9 @@
 
 import { memo, useCallback } from 'react';
 
+import { useRouter } from 'next/navigation';
+import { useDebouncedCallback } from 'use-debounce';
+
 import { useSearch } from '@/hooks/useSearch';
 import { type TvSeries } from '@/types/tv-series';
 
@@ -10,8 +13,18 @@ import SearchResults from '../Search/SearchResults';
 
 function TrackSearch() {
   const { results, isPending, handleSearch, reset } = useSearch();
+  const router = useRouter();
 
   const itemHref = useCallback((series: TvSeries) => `/track/${series.id}`, []);
+
+  const handleKeyDown = useDebouncedCallback((event: React.KeyboardEvent) => {
+    if (!isPending && event.key === 'Enter') {
+      const firstResult = results?.[0];
+      if (firstResult) {
+        router.push(`/track/${firstResult.id}`);
+      }
+    }
+  }, 100);
 
   return (
     <div className="flex flex-col gap-10">
@@ -20,6 +33,7 @@ function TrackSearch() {
         color="white"
         onChange={handleSearch}
         onClose={reset}
+        onKeyDown={handleKeyDown}
       />
       <SearchResults
         className="grid grid-cols-2 gap-6 text-neutral-500 md:grid-cols-4 xl:grid-cols-8"

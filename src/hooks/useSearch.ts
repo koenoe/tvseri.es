@@ -1,15 +1,19 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
+import { useCallback, useEffect, useRef, useTransition } from 'react';
 
 import { useDebouncedCallback } from 'use-debounce';
 
 import { type TvSeries } from '@/types/tv-series';
 
+import createUseRestorableState from './createUseRestorableState';
+
+const useResults = createUseRestorableState<TvSeries[] | null>();
+
 export function useSearch() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [results, setResults] = useState<TvSeries[] | null>(null);
+  const [results, setResults] = useResults('search', null);
 
   const handleSearch = useDebouncedCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,7 +51,7 @@ export function useSearch() {
 
   const reset = useCallback(() => {
     setResults(null);
-  }, []);
+  }, [setResults]);
 
   useEffect(() => {
     return () => {

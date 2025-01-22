@@ -61,7 +61,7 @@ function SearchResults({
               </div>
               <span
                 className={twMerge(
-                  'h-3 w-full animate-pulse',
+                  'h-3 w-4/5 animate-pulse',
                   mode === 'light' ? 'bg-black/5' : 'bg-white/5',
                 )}
               />

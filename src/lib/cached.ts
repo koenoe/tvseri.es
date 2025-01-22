@@ -7,7 +7,7 @@ import { type Person } from '@/types/person';
 import { type TvSeries } from '@/types/tv-series';
 
 import { getCacheItem, setCacheItem } from './db/cache';
-import { fetchPerson, fetchTvSeries } from './tmdb';
+import { fetchPerson, fetchTvSeries, fetchTvSeriesSeason } from './tmdb';
 
 export const cachedTvSeries = async (id: string | number) => {
   const dynamoCacheKey = `tv:v4:${id}`;
@@ -19,6 +19,25 @@ export const cachedTvSeries = async (id: string | number) => {
   const tvSeries = await fetchTvSeries(id, {
     includeImages: true,
   });
+
+  await setCacheItem(dynamoCacheKey, tvSeries, {
+    ttl: 86400, // 1 day
+  });
+
+  return tvSeries;
+};
+
+export const cachedTvSeriesSeason = async (
+  id: number | string,
+  season: number | string,
+) => {
+  const dynamoCacheKey = `tv:season:${id}_${season}`;
+  const dynamoCachedItem = await getCacheItem<TvSeries>(dynamoCacheKey);
+  if (dynamoCachedItem) {
+    return dynamoCachedItem;
+  }
+
+  const tvSeries = await fetchTvSeriesSeason(id, season);
 
   await setCacheItem(dynamoCacheKey, tvSeries, {
     ttl: 86400, // 1 day

@@ -24,7 +24,7 @@
     "date-fns": "^4.1.0",
     "dice-coefficient": "^2.1.1",
     "framer-motion": "11.18.1",
-    "next": "15.1.5",
+    "next": "15.1.6",
     "papaparse": "^5.5.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",

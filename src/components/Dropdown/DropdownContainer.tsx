@@ -53,7 +53,7 @@ const calculateNextPosition = (
 type Props = Readonly<{
   children: ReactNode;
   position: Position;
-  onOutsideClick?: () => void;
+  onOutsideClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
   shouldRenderOverlay?: boolean;
   shouldRenderInModal?: boolean;
 }>;
@@ -95,7 +95,7 @@ export default function DropdownContainer({
         {shouldRenderOverlay && (
           <motion.div
             key="overlay"
-            className="fixed inset-0 z-30 bg-transparent"
+            className="fixed inset-0 z-40 bg-transparent"
             onClick={onOutsideClick}
           />
         )}
@@ -103,7 +103,7 @@ export default function DropdownContainer({
           key="container"
           ref={ref}
           animate={isVisible ? 'visible' : 'hidden'}
-          className="fixed z-40"
+          className="fixed z-50"
           initial="hidden"
           exit="hidden"
           variants={variants}

@@ -20,11 +20,14 @@ import WatchButton from './WatchButton';
 
 export default async function ActionButtons({
   id,
+  showWatchButton = true,
 }: Readonly<{
   id: number | string;
+  showWatchButton?: boolean;
 }>) {
   const tvSeries = (await cachedTvSeries(id)) as TvSeries;
-  const shouldShowWatchButton = new Date(tvSeries.firstAirDate) <= new Date();
+  const shouldShowWatchButton =
+    showWatchButton && new Date(tvSeries.firstAirDate) <= new Date();
 
   async function addToOrRemoveAction(
     value: boolean,

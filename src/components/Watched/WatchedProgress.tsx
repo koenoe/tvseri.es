@@ -28,7 +28,7 @@ export default function WatchedProgress({
       <div className="text-[0.7rem] opacity-80 before:mr-2 before:content-['–']">
         {numberOfWatched}/
         {tvSeries.numberOfAiredEpisodes || tvSeries.numberOfEpisodes} episodes
-        {totalRuntime > 0 && `(${formatRuntime(totalRuntime)})`}
+        {totalRuntime > 0 && ` (${formatRuntime(totalRuntime)})`}
       </div>
       <motion.div
         initial={false}

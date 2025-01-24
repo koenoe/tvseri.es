@@ -10,6 +10,7 @@ import InfoLine from '@/components/InfoLine/InfoLine';
 import SkeletonCircleButton from '@/components/Skeletons/SkeletonCircleButton';
 import Poster from '@/components/Tiles/Poster';
 import EpisodesContainer from '@/components/Track/EpisodesContainer';
+import EpisodesSkeleton from '@/components/Track/EpisodesSkeleton';
 
 type Props = Readonly<{
   params: Promise<{ id: string }>;
@@ -60,7 +61,7 @@ export default async function TrackPage({ params: paramsFromProps }: Props) {
         </div>
       </div>
       <div className="mt-10">
-        <Suspense fallback="Loading...">
+        <Suspense fallback={<EpisodesSkeleton />}>
           <EpisodesContainer tvSeries={tvSeries} user={user} />
         </Suspense>
       </div>

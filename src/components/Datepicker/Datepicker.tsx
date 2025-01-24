@@ -17,22 +17,25 @@ function DatePicker({
   className,
   children,
   offset = { x: 0, y: 0 },
+  selected: selectedFromProps = new Date(),
   onSelect,
   onClick,
 }: Readonly<{
   className?: string;
   children: ReactNode;
   offset?: Position;
-  onSelect: (value: Date | undefined) => void;
+  selected?: Date;
+  onSelect: (value: string) => void;
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }>) {
   const [position, setPosition] = useState<Position | null>(null);
-  const [selected, setSelected] = useState<Date>();
+  const [selected, setSelected] = useState<Date>(selectedFromProps);
 
   const handleSelect = useCallback(
     (value: Date | undefined) => {
-      setSelected(value);
-      onSelect(value);
+      const newSelected = value || new Date();
+      setSelected(newSelected);
+      onSelect(newSelected.toISOString());
     },
     [onSelect],
   );
@@ -62,6 +65,7 @@ function DatePicker({
             }}
           >
             <DayPicker
+              defaultMonth={selected}
               selected={selected}
               onSelect={handleSelect}
               showOutsideDays

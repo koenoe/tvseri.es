@@ -1,7 +1,11 @@
 import { headers } from 'next/headers';
 
 import { cachedTvSeriesSeason } from '@/app/cached';
-import { getAllWatchedForTvSeries } from '@/lib/db/watched';
+import {
+  getAllWatchedForTvSeries,
+  markWatchedInBatch,
+  type WatchedItem,
+} from '@/lib/db/watched';
 import { fetchTvSeriesWatchProvider } from '@/lib/tmdb';
 import { type TvSeries, type Episode, type Season } from '@/types/tv-series';
 import { type User } from '@/types/user';
@@ -53,11 +57,33 @@ export default async function EpisodesContainer({
     fetchTvSeriesWatchProvider(tvSeries.id, region),
   ]);
 
+  async function markEpisodesAsWatched(items: Partial<WatchedItem>[]) {
+    'use server';
+
+    try {
+      const payload = items.map((item) => ({
+        episodeNumber: item.episodeNumber!,
+        runtime: item.runtime!,
+        seasonNumber: item.seasonNumber!,
+        tvSeries,
+        userId: user.id,
+        watchProvider,
+        watchedAt: item.watchedAt!,
+      }));
+
+      await markWatchedInBatch(payload);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
   return (
     <Episodes
       episodes={episodes}
       watched={watched}
       watchProvider={watchProvider}
+      action={markEpisodesAsWatched}
     />
   );
 }

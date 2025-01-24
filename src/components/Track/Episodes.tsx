@@ -1,9 +1,10 @@
 'use client';
 
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useState, useTransition } from 'react';
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { twMerge } from 'tailwind-merge';
 
 import {
@@ -23,39 +24,76 @@ import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 
 import Datepicker from '../Datepicker/Datepicker';
 
+type CheckableWatchedItem = Partial<WatchedItem> &
+  Readonly<{
+    isChecked: boolean;
+  }>;
+
 function EpisodeRow({
   episode,
-  isChecked,
   item,
   onToggle,
+  onUpdate,
   watchProvider,
 }: Readonly<{
   episode: Episode;
-  isChecked: boolean;
-  item?: Partial<WatchedItem>;
-  onToggle: (episode: Episode) => void;
+  item: CheckableWatchedItem;
+  onToggle: (item: Partial<WatchedItem>) => void;
+  onUpdate: (item: Partial<WatchedItem>) => void;
   watchProvider?: WatchProvider | null;
 }>) {
-  const [watchedAt, setWatchedAt] = useState<Date>(
-    item?.watchedAt ? new Date(item.watchedAt) : new Date(),
+  const handleDateSelect = useCallback(
+    (dateStr: string) => {
+      onUpdate({
+        ...item,
+        seasonNumber: episode.seasonNumber,
+        episodeNumber: episode.episodeNumber,
+        watchedAt: new Date(dateStr).getTime(),
+        watchProviderName: watchProvider?.name,
+        watchProviderLogoImage: watchProvider?.logo,
+        watchProviderLogoPath: watchProvider?.logoPath,
+      });
+    },
+    [
+      episode.episodeNumber,
+      episode.seasonNumber,
+      item,
+      onUpdate,
+      watchProvider?.logo,
+      watchProvider?.logoPath,
+      watchProvider?.name,
+    ],
   );
-  const watchProviderName = item?.watchProviderName || watchProvider?.name;
-  const watchProviderLogoImage =
-    item?.watchProviderLogoImage || watchProvider?.logo;
 
   return (
     <TableRow
       onClick={(e) => {
         if (!(e.target as HTMLElement).closest('button')) {
-          onToggle(episode);
+          onToggle({
+            seasonNumber: episode.seasonNumber,
+            episodeNumber: episode.episodeNumber,
+            watchedAt: item.watchedAt || Date.now(),
+            watchProviderName: watchProvider?.name,
+            watchProviderLogoImage: watchProvider?.logo,
+            watchProviderLogoPath: watchProvider?.logoPath,
+          });
         }
       }}
     >
       <TableCell>
         <input
           type="checkbox"
-          checked={isChecked}
-          onChange={() => onToggle(episode)}
+          checked={item.isChecked}
+          onChange={() =>
+            onToggle({
+              seasonNumber: episode.seasonNumber,
+              episodeNumber: episode.episodeNumber,
+              watchedAt: item.watchedAt || Date.now(),
+              watchProviderName: watchProvider?.name,
+              watchProviderLogoImage: watchProvider?.logo,
+              watchProviderLogoPath: watchProvider?.logoPath,
+            })
+          }
           onClick={(e) => e.stopPropagation()}
         />
       </TableCell>
@@ -81,35 +119,29 @@ function EpisodeRow({
             x: 0,
             y: 30,
           }}
-          onSelect={(selected) =>
-            setWatchedAt(selected ? new Date(selected) : new Date())
-          }
-          onClick={(e) => {
-            if (item) {
-              e.stopPropagation();
-              console.log('click watched on:', item);
-            }
-          }}
+          onSelect={handleDateSelect}
+          onClick={(e) => e.stopPropagation()}
         >
-          {formatDate(watchedAt.toISOString())}
+          {formatDate(new Date(item.watchedAt || Date.now()).toISOString())}
         </Datepicker>
       </TableCell>
       <TableCell>
-        {watchProviderName && watchProviderLogoImage && (
-          <div className="flex flex-nowrap items-center gap-x-3">
-            <Image
-              className="rounded"
-              src={watchProviderLogoImage}
-              alt={watchProviderName}
-              width={24}
-              height={24}
-              unoptimized
-            />
-            <span className="truncate text-ellipsis text-xs text-white">
-              {watchProviderName}
-            </span>
-          </div>
-        )}
+        {(item.watchProviderName || watchProvider?.name) &&
+          (item.watchProviderLogoImage || watchProvider?.logo) && (
+            <div className="flex flex-nowrap items-center gap-x-3">
+              <Image
+                className="rounded"
+                src={item.watchProviderLogoImage || watchProvider?.logo || ''}
+                alt={item.watchProviderName || watchProvider?.name || ''}
+                width={24}
+                height={24}
+                unoptimized
+              />
+              <span className="truncate text-ellipsis text-xs text-white">
+                {item.watchProviderName || watchProvider?.name}
+              </span>
+            </div>
+          )}
       </TableCell>
     </TableRow>
   );
@@ -119,87 +151,98 @@ function Episodes({
   episodes,
   watched,
   watchProvider,
+  action,
 }: Readonly<{
   episodes: Episode[];
   watched: WatchedItem[];
   watchProvider?: WatchProvider | null;
+  action: (items: Partial<WatchedItem>[]) => void;
 }>) {
   const router = useRouter();
-  const [checkedItems, setCheckedItems] = useState<Partial<WatchedItem>[]>(
-    () => {
-      const unwatchedEpisodes = episodes.filter(
-        (episode) =>
-          !watched.some(
-            (item) =>
-              item.seasonNumber === episode.seasonNumber &&
-              item.episodeNumber === episode.episodeNumber,
-          ),
+  const [isPending, startTransition] = useTransition();
+  const [items, setItems] = useState<CheckableWatchedItem[]>(() =>
+    episodes.map((episode) => {
+      const watchedItem = watched.find(
+        (w) =>
+          w.seasonNumber === episode.seasonNumber &&
+          w.episodeNumber === episode.episodeNumber,
       );
-      return unwatchedEpisodes.map((episode) => ({
+
+      return {
         seasonNumber: episode.seasonNumber,
         episodeNumber: episode.episodeNumber,
-        watchedAt: Date.now(),
-      }));
-    },
+        watchedAt: watchedItem?.watchedAt || Date.now(),
+        watchProviderName:
+          watchedItem?.watchProviderName || watchProvider?.name,
+        watchProviderLogoImage:
+          watchedItem?.watchProviderLogoImage || watchProvider?.logo,
+        watchProviderLogoPath:
+          watchedItem?.watchProviderLogoPath || watchProvider?.logoPath,
+        isChecked: !watchedItem,
+      };
+    }),
   );
 
-  const handleToggle = useCallback((episode: Episode) => {
-    setCheckedItems((prev) => {
-      const isChecked = prev.some(
-        (item) =>
-          item.seasonNumber === episode.seasonNumber &&
-          item.episodeNumber === episode.episodeNumber,
-      );
+  const handleToggle = useCallback((watchedItem: Partial<WatchedItem>) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.seasonNumber === watchedItem.seasonNumber &&
+        item.episodeNumber === watchedItem.episodeNumber
+          ? { ...item, isChecked: !item.isChecked }
+          : item,
+      ),
+    );
+  }, []);
 
-      if (isChecked) {
-        return prev.filter(
-          (item) =>
-            item.seasonNumber !== episode.seasonNumber ||
-            item.episodeNumber !== episode.episodeNumber,
-        );
-      } else {
-        return [
-          ...prev,
-          {
-            seasonNumber: episode.seasonNumber,
-            episodeNumber: episode.episodeNumber,
-            watchedAt: Date.now(),
-          },
-        ];
-      }
-    });
+  const handleUpdate = useCallback((watchedItem: Partial<WatchedItem>) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.seasonNumber === watchedItem.seasonNumber &&
+        item.episodeNumber === watchedItem.episodeNumber
+          ? { ...watchedItem, isChecked: true }
+          : item,
+      ),
+    );
   }, []);
 
   const handleCheckAll = useCallback(() => {
-    const allChecked = episodes.every((episode) =>
-      checkedItems.some(
-        (item) =>
-          item.seasonNumber === episode.seasonNumber &&
-          item.episodeNumber === episode.episodeNumber,
-      ),
+    const allChecked = items.every((item) => item.isChecked);
+    setItems((prev) =>
+      prev.map((item) => ({
+        ...item,
+        isChecked: !allChecked,
+      })),
     );
+  }, [items]);
 
-    if (allChecked) {
-      setCheckedItems([]);
-    } else {
-      setCheckedItems(
-        episodes.map((episode) => ({
-          seasonNumber: episode.seasonNumber,
-          episodeNumber: episode.episodeNumber,
-          watchedAt: Date.now(),
-          watchProviderName: watchProvider?.name,
-          watchProviderLogoImage: watchProvider?.logo,
-          watchProviderLogoPath: watchProvider?.logoPath,
-        })),
-      );
-    }
-  }, [
-    checkedItems,
-    episodes,
-    watchProvider?.logo,
-    watchProvider?.logoPath,
-    watchProvider?.name,
-  ]);
+  const handleSave = useCallback(() => {
+    startTransition(async () => {
+      try {
+        await action(
+          items
+            .filter((i) => i.isChecked)
+            .map((item) => {
+              const episode = episodes.find(
+                (e) =>
+                  e.seasonNumber === item.seasonNumber &&
+                  e.episodeNumber === item.episodeNumber,
+              )!;
+
+              return {
+                episodeNumber: episode.episodeNumber,
+                runtime: episode.runtime,
+                seasonNumber: episode.seasonNumber,
+                watchedAt: item.watchedAt,
+              };
+            }),
+        );
+      } catch (_) {
+        toast.error('Something went wrong. Please try again later.');
+      }
+    });
+  }, [action, episodes, items]);
+
+  const saveButtonIsDisabled = !items.some((i) => i.isChecked) || isPending;
 
   return (
     <>
@@ -209,13 +252,7 @@ function Episodes({
             <TableHead className="w-10">
               <input
                 type="checkbox"
-                checked={episodes.every((episode) =>
-                  checkedItems.some(
-                    (item) =>
-                      item.seasonNumber === episode.seasonNumber &&
-                      item.episodeNumber === episode.episodeNumber,
-                  ),
-                )}
+                checked={items.every((item) => item.isChecked)}
                 onChange={handleCheckAll}
               />
             </TableHead>
@@ -229,12 +266,15 @@ function Episodes({
                   x: 0,
                   y: 46,
                 }}
-                onSelect={(selected) =>
-                  console.log('onSelect:', {
-                    selected,
-                    selectedAsString: selected?.toISOString(),
-                  })
-                }
+                onSelect={(selected) => {
+                  setItems((prev) =>
+                    prev.map((item) =>
+                      item.isChecked
+                        ? { ...item, watchedAt: new Date(selected).getTime() }
+                        : item,
+                    ),
+                  );
+                }}
               >
                 <span className="block w-full min-w-32 cursor-pointer appearance-none rounded-md border border-neutral-800 bg-neutral-900 py-2 pl-3 pr-6 text-left outline-none">
                   Watched on
@@ -259,24 +299,19 @@ function Episodes({
         </TableHeader>
         <TableBody>
           {episodes.map((episode) => {
-            const checkedItem = checkedItems.find(
-              (item) =>
-                item.seasonNumber === episode.seasonNumber &&
-                item.episodeNumber === episode.episodeNumber,
-            );
-            const watchedItem = watched.find(
-              (item) =>
-                item.seasonNumber === episode.seasonNumber &&
-                item.episodeNumber === episode.episodeNumber,
-            );
+            const item = items.find(
+              (i) =>
+                i.seasonNumber === episode.seasonNumber &&
+                i.episodeNumber === episode.episodeNumber,
+            )!;
 
             return (
               <EpisodeRow
                 key={episode.id}
                 episode={episode}
-                isChecked={Boolean(checkedItem)}
-                item={checkedItem ?? watchedItem}
+                item={item}
                 onToggle={handleToggle}
+                onUpdate={handleUpdate}
                 watchProvider={watchProvider}
               />
             );
@@ -286,9 +321,10 @@ function Episodes({
       <div className="mt-10 flex w-full items-center gap-x-4">
         <div className="flex items-baseline text-sm text-white/60">
           <span className="rounded bg-white/10 px-2 py-1 font-medium text-white">
-            {checkedItems.length.toLocaleString()}
+            {items.filter((i) => i.isChecked).length.toLocaleString()}/
+            {episodes.length.toLocaleString()}
           </span>
-          <span className="ml-2">items</span>
+          <span className="ml-2">episodes</span>
         </div>
         <button
           onClick={() => router.back()}
@@ -297,12 +333,12 @@ function Episodes({
           <span>Back</span>
         </button>
         <button
-          onClick={() => console.log('SAVE:', checkedItems)}
+          onClick={handleSave}
           className={twMerge(
             'flex h-11 min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-white px-5 text-sm leading-none tracking-wide text-neutral-900',
-            !checkedItems.length && 'cursor-not-allowed opacity-40',
+            saveButtonIsDisabled && 'cursor-not-allowed opacity-40',
           )}
-          disabled={!checkedItems.length}
+          disabled={saveButtonIsDisabled}
         >
           <span>Save</span>
         </button>

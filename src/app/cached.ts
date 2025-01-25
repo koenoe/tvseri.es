@@ -5,11 +5,16 @@
  */
 import { cache } from 'react';
 
-import { cachedTvSeries as _cachedTvSeries } from '@/lib/cached';
+import {
+  cachedTvSeries as _cachedTvSeries,
+  cachedTvSeriesSeason as _cachedTvSeriesSeason,
+} from '@/lib/cached';
 import { getAllWatchedByDate } from '@/lib/db/watched';
 import { buildPosterImageUrl } from '@/lib/tmdb/helpers';
 
 export const cachedTvSeries = cache(_cachedTvSeries);
+
+export const cachedTvSeriesSeason = cache(_cachedTvSeriesSeason);
 
 export const cachedWatchedByYear = cache(
   async (

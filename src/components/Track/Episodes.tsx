@@ -298,7 +298,7 @@ function Episodes({
                 onChange={handleCheckAll}
               />
             </TableHead>
-            <TableHead>Episode</TableHead>
+            <TableHead className="min-w-60">Episode</TableHead>
             <TableHead className="w-40">Air date</TableHead>
             <TableHead className="w-24">Runtime</TableHead>
             <TableHead className="w-40">

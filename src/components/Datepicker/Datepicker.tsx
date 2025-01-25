@@ -1,11 +1,9 @@
 'use client';
 
-import { memo, type ReactNode, useCallback, useState } from 'react';
+import { memo, type ReactNode, useCallback, useRef, useState } from 'react';
 
 import { AnimatePresence } from 'framer-motion';
 import { DayFlag, DayPicker, SelectionState, UI } from 'react-day-picker';
-
-import getMousePosition from '@/utils/getMousePosition';
 
 import DropdownContainer, {
   type Position,
@@ -16,7 +14,6 @@ import 'react-day-picker/style.css';
 function DatePicker({
   className,
   children,
-  offset = { x: 0, y: 0 },
   selected: selectedFromProps = new Date(),
   onSelect,
   onClick,
@@ -28,7 +25,8 @@ function DatePicker({
   onSelect: (value: string) => void;
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }>) {
-  const [position, setPosition] = useState<Position | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<Date>(selectedFromProps);
 
   const handleSelect = useCallback(
@@ -43,25 +41,24 @@ function DatePicker({
   return (
     <>
       <button
+        ref={triggerRef}
         className={className}
         onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-          const { x, y } = getMousePosition(event);
-          setPosition((prevPosition) =>
-            prevPosition ? null : { x: x + offset.x, y: y + offset.y },
-          );
+          setIsOpen((prev) => !prev);
           onClick?.(event);
         }}
       >
         {children}
       </button>
       <AnimatePresence>
-        {position && (
+        {isOpen && (
           <DropdownContainer
             key="dropdown-datepicker"
-            position={position}
+            triggerRef={triggerRef}
+            position={{ x: 'center', y: 'end' }}
             onOutsideClick={(event: React.MouseEvent<HTMLDivElement>) => {
               event.stopPropagation();
-              setPosition(null);
+              setIsOpen(false);
             }}
           >
             <DayPicker

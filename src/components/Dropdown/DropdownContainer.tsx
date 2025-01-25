@@ -6,15 +6,19 @@ import {
   useState,
   useCallback,
   useLayoutEffect,
+  type RefObject,
 } from 'react';
 
 import { motion } from 'framer-motion';
 
 import Modal from '../Modal';
 
+type Alignment = 'start' | 'center' | 'end';
+type AxisPosition = number | Alignment;
+
 export type Position = Readonly<{
-  x: number;
-  y: number;
+  x: AxisPosition;
+  y: AxisPosition;
 }>;
 
 const variants = {
@@ -28,66 +32,191 @@ const variants = {
   },
 };
 
-const calculateNextPosition = (
-  currentPosition: [number, number],
-  rect: DOMRect,
-  _window: typeof window,
-) => {
+const calculateAlignedPosition = (
+  alignment: Alignment,
+  start: number,
+  triggerSize: number,
+  dropdownSize: number,
+  offset: number = 0,
+): number => {
+  switch (alignment) {
+    case 'center':
+      return start + triggerSize / 2 - dropdownSize / 2 + offset;
+    case 'end':
+      return start + triggerSize + offset;
+    case 'start':
+    default:
+      return start - offset;
+  }
+};
+
+const calculateNextPosition = ({
+  position,
+  triggerRect,
+  dropdownRect,
+  window: _window,
+  viewportOffset = 8,
+  alignmentOffset,
+}: Readonly<{
+  position: Position;
+  triggerRect?: DOMRect;
+  dropdownRect: DOMRect;
+  window: Window;
+  viewportOffset?: number;
+  alignmentOffset: { x: number; y: number };
+}>) => {
   const { innerWidth, innerHeight } = _window;
-  const width = rect.width;
-  const height = rect.height;
 
-  let [x, y] = currentPosition;
+  if (typeof position.x === 'number' && typeof position.y === 'number') {
+    const x = position.x + alignmentOffset.x;
+    const y = position.y + alignmentOffset.y;
 
-  if (y + height > innerHeight) {
-    y -= height;
+    return [
+      Math.max(
+        viewportOffset,
+        Math.min(x, innerWidth - dropdownRect.width - viewportOffset),
+      ),
+      Math.max(
+        viewportOffset,
+        Math.min(y, innerHeight - dropdownRect.height - viewportOffset),
+      ),
+    ] as const;
   }
 
-  if (x + width > innerWidth) {
-    x -= width;
+  if (!triggerRect) {
+    throw new Error('triggerRect is required for alignment-based positioning');
   }
 
-  return [Math.max(0, x), Math.max(0, y)];
+  let x = calculateAlignedPosition(
+    position.x as Alignment,
+    triggerRect.left,
+    triggerRect.width,
+    dropdownRect.width,
+    alignmentOffset.x,
+  );
+
+  let y = calculateAlignedPosition(
+    position.y as Alignment,
+    triggerRect.top,
+    triggerRect.height,
+    dropdownRect.height,
+    alignmentOffset.y,
+  );
+
+  if (x + dropdownRect.width > innerWidth) {
+    x = triggerRect.right - dropdownRect.width - alignmentOffset.x;
+  }
+  if (x < 0) {
+    x = triggerRect.left + alignmentOffset.x;
+  }
+
+  if (y + dropdownRect.height > innerHeight) {
+    y = triggerRect.top - dropdownRect.height - alignmentOffset.y;
+  }
+  if (y < 0) {
+    y = triggerRect.bottom + alignmentOffset.y;
+  }
+
+  x = Math.max(
+    viewportOffset,
+    Math.min(x, innerWidth - dropdownRect.width - viewportOffset),
+  );
+  y = Math.max(
+    viewportOffset,
+    Math.min(y, innerHeight - dropdownRect.height - viewportOffset),
+  );
+
+  return [x, y] as const;
 };
 
 type Props = Readonly<{
   children: ReactNode;
+  triggerRef?: RefObject<HTMLElement | null>;
   position: Position;
+  offset?: Readonly<{
+    x: number;
+    y: number;
+  }>;
   onOutsideClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
   shouldRenderOverlay?: boolean;
   shouldRenderInModal?: boolean;
+  viewportOffset?: number;
 }>;
 
 export default function DropdownContainer({
   children,
+  triggerRef,
   position,
+  offset = { x: 0, y: 8 },
   onOutsideClick,
   shouldRenderOverlay = true,
   shouldRenderInModal = true,
+  viewportOffset = 16,
 }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
   const reposition = useCallback(() => {
-    const el = ref.current;
-
-    if (!el) {
+    const containerEl = containerRef.current;
+    if (!containerEl) {
       return;
     }
 
-    const rect = el.getBoundingClientRect();
+    if (typeof position.x === 'string' || typeof position.y === 'string') {
+      const triggerEl = triggerRef?.current;
+      if (!triggerEl) {
+        return;
+      }
 
-    const [x, y] = calculateNextPosition(
-      [position.x, position.y],
-      rect,
+      const triggerRect = triggerEl.getBoundingClientRect();
+      const containerRect = containerEl.getBoundingClientRect();
+
+      const [x, y] = calculateNextPosition({
+        position,
+        triggerRect,
+        dropdownRect: containerRect,
+        window,
+        viewportOffset,
+        alignmentOffset: { x: offset.x ?? 0, y: offset.y ?? 8 },
+      });
+
+      containerEl.style.top = `${y}px`;
+      containerEl.style.left = `${x}px`;
+      setIsVisible(true);
+      return;
+    }
+
+    // For absolute positioning, we don't need the triggerRef
+    const containerRect = containerEl.getBoundingClientRect();
+    const [x, y] = calculateNextPosition({
+      position,
+      triggerRect: undefined,
+      dropdownRect: containerRect,
       window,
-    );
+      viewportOffset,
+      alignmentOffset: { x: offset.x ?? 0, y: offset.y ?? 8 },
+    });
 
-    el.style.top = `${y}px`;
-    el.style.left = `${x}px`;
-
+    containerEl.style.top = `${y}px`;
+    containerEl.style.left = `${x}px`;
     setIsVisible(true);
-  }, [position]);
+  }, [position, viewportOffset, triggerRef, offset]);
+
+  useLayoutEffect(() => {
+    const handleResize = () => {
+      reposition();
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [reposition]);
+
+  useLayoutEffect(() => {
+    reposition();
+  }, [reposition]);
 
   const renderContent = useCallback(() => {
     return (
@@ -101,22 +230,21 @@ export default function DropdownContainer({
         )}
         <motion.div
           key="container"
-          ref={ref}
+          ref={containerRef}
           animate={isVisible ? 'visible' : 'hidden'}
           className="fixed z-50"
           initial="hidden"
           exit="hidden"
           variants={variants}
+          onAnimationStart={() => {
+            if (!isVisible) reposition();
+          }}
         >
           {children}
         </motion.div>
       </>
     );
-  }, [children, isVisible, onOutsideClick, shouldRenderOverlay]);
-
-  useLayoutEffect(() => {
-    reposition();
-  }, [reposition]);
+  }, [children, isVisible, onOutsideClick, shouldRenderOverlay, reposition]);
 
   if (shouldRenderInModal) {
     return <Modal>{renderContent()}</Modal>;

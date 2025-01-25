@@ -10,13 +10,13 @@ import {
 export default function EpisodesSkeleton() {
   return (
     <div className="relative w-full animate-pulse">
-      <Table className="h-full max-h-[calc(100vh-24rem)] text-xs md:max-h-[calc(100vh-33rem)]">
+      <Table className="relative max-h-[calc(100vh-24rem)] w-full text-xs md:max-h-[calc(100vh-33rem)]">
         <TableHeader className="sticky top-0 z-10 border-b">
           <TableRow>
             <TableHead className="w-10">
               <div className="size-3 bg-white/10" />
             </TableHead>
-            <TableHead>
+            <TableHead className="w-60">
               <div className="flex h-11 items-center">
                 <div className="h-5 w-full bg-white/10" />
               </div>

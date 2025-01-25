@@ -361,7 +361,7 @@ function Episodes({
           <button
             onClick={handleDelete}
             className={twMerge(
-              'flex h-11 min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-red-600 px-5 text-sm leading-none tracking-wide text-white',
+              'flex h-11 min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-red-500 px-5 text-sm leading-none tracking-wide text-white',
               disableDeleteButton && 'cursor-not-allowed opacity-40',
             )}
             disabled={disableDeleteButton || isDeletePending}

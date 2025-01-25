@@ -68,6 +68,7 @@ function EpisodeRow({
       watchProvider?.name,
     ],
   );
+  const date = new Date(item.watchedAt || Date.now());
 
   return (
     <TableRow
@@ -127,10 +128,11 @@ function EpisodeRow({
               x: 0,
               y: 30,
             }}
+            selected={date}
             onSelect={handleDateSelect}
             onClick={(e) => e.stopPropagation()}
           >
-            {formatDate(new Date(item.watchedAt || Date.now()).toISOString())}
+            {formatDate(date.toISOString())}
           </Datepicker>
           {isWatched && (
             <svg

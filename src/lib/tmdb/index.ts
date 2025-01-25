@@ -58,7 +58,11 @@ import nextPlugin from '../betterFetchNextPlugin';
 import { getCacheItem, setCacheItem } from '../db/cache';
 import { findPreferredImages } from '../db/preferredImages';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
-import { fetchImdbTopRatedTvSeries, fetchKoreasFinest } from '../mdblist';
+import {
+  fetchImdbTopRatedTvSeries,
+  fetchKoreasFinest,
+  fetchMostPopularThisMonth,
+} from '../mdblist';
 
 if (!process.env.TMDB_API_ACCESS_TOKEN || !process.env.TMDB_API_KEY) {
   throw new Error('No "API_KEY" found for TMDb');
@@ -749,6 +753,17 @@ export async function searchTvSeries(
 
 export async function fetchKoreasFinestTvSeries() {
   const ids = await fetchKoreasFinest();
+  const series = await Promise.all(
+    ids.map(async (id) => {
+      const serie = await fetchTvSeries(id);
+      return serie as TvSeries;
+    }),
+  );
+  return series;
+}
+
+export async function fetchMostPopularTvSeriesThisMonth() {
+  const ids = await fetchMostPopularThisMonth();
   const series = await Promise.all(
     ids.map(async (id) => {
       const serie = await fetchTvSeries(id);

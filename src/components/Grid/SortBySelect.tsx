@@ -5,11 +5,7 @@ import { memo, useCallback, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import getMousePosition from '@/utils/getMousePosition';
-
-import DropdownContainer, {
-  type Position,
-} from '../Dropdown/DropdownContainer';
+import DropdownContainer from '../Dropdown/DropdownContainer';
 
 type Option = Readonly<{
   label: string;
@@ -43,13 +39,13 @@ function SortBySelect({
 }>) {
   const router = useRouter();
   const ref = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<Position | null>(null);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const searchParams = useSearchParams();
   const selectedSortByKey = searchParams.get('sort_by') ?? options[0].value;
   const label = options.find((item) => item.value === selectedSortByKey)?.label;
   const handleClick = useCallback(
     (item: Option) => {
-      setPosition(null);
+      setIsOpen(false);
       const params = new URLSearchParams(searchParams.toString());
       params.set('sort_by', item.value);
       router.replace(`?${params.toString()}`, { scroll: false });
@@ -62,11 +58,8 @@ function SortBySelect({
       <div
         ref={ref}
         className="flex h-11 w-36 cursor-pointer items-center justify-center gap-2 rounded-3xl bg-white/5 py-3 pl-5 pr-4 text-sm leading-none tracking-wide backdrop-blur-xl"
-        onClick={(event: React.MouseEvent<HTMLDivElement>) => {
-          const { x, y } = getMousePosition(event);
-          setPosition((prevPosition) =>
-            prevPosition ? null : { x, y: y + 60 },
-          );
+        onClick={() => {
+          setIsOpen((prev) => !prev);
         }}
       >
         <span>{label}</span>
@@ -75,7 +68,7 @@ function SortBySelect({
           viewBox="0 0 20 20"
           fill="currentColor"
           animate={{
-            rotate: position ? 180 : 0,
+            rotate: isOpen ? 180 : 0,
           }}
         >
           <path
@@ -86,11 +79,12 @@ function SortBySelect({
         </motion.svg>
       </div>
       <AnimatePresence>
-        {position && (
+        {isOpen && (
           <DropdownContainer
             key="select-season"
-            position={position}
-            onOutsideClick={() => setPosition(null)}
+            position={{ x: 'center', y: 'end' }}
+            triggerRef={ref}
+            onOutsideClick={() => setIsOpen(false)}
           >
             <div className="relative flex w-36 flex-col gap-2 rounded-lg bg-white p-4 text-black">
               {options.map((item) => (

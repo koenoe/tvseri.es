@@ -1,19 +1,17 @@
 'use client';
 
-import { memo, useMemo, useState } from 'react';
+import { memo, useMemo, useRef, useState } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 
 import { type TvSeries } from '@/types/tv-series';
-import getMousePosition from '@/utils/getMousePosition';
 
-import DropdownContainer, {
-  type Position,
-} from '../Dropdown/DropdownContainer';
+import DropdownContainer from '../Dropdown/DropdownContainer';
 
 function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
-  const [position, setPosition] = useState<Position | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const searchParams = useSearchParams();
   const selectedSeason = useMemo(
     () =>
@@ -28,12 +26,10 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
   return (
     <div className="relative z-10">
       <div
+        ref={ref}
         className="flex cursor-pointer items-center gap-3 text-2xl font-medium"
-        onClick={(event: React.MouseEvent<HTMLDivElement>) => {
-          const { x, y } = getMousePosition(event);
-          setPosition((prevPosition) =>
-            prevPosition ? null : { x, y: y + 32 + 16 },
-          );
+        onClick={() => {
+          setIsOpen((prev) => !prev);
         }}
       >
         <span>{selectedSeason?.title}</span>
@@ -42,7 +38,7 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
           viewBox="0 0 20 20"
           fill="currentColor"
           animate={{
-            rotate: position ? 180 : 0,
+            rotate: isOpen ? 180 : 0,
           }}
         >
           <path
@@ -53,11 +49,15 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
         </motion.svg>
       </div>
       <AnimatePresence>
-        {position && (
+        {isOpen && (
           <DropdownContainer
             key="select-season"
-            position={position}
-            onOutsideClick={() => setPosition(null)}
+            triggerRef={ref}
+            position={{ x: 'start', y: 'end' }}
+            offset={{ x: 0, y: 16 }}
+            onOutsideClick={() => {
+              setIsOpen(false);
+            }}
           >
             <div className="relative flex w-full flex-col gap-2 rounded-lg bg-white p-4 text-black shadow-lg">
               {item.seasons?.map((item) => (
@@ -72,7 +72,7 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
                       '',
                       `?${params.toString()}`,
                     );
-                    setPosition(null);
+                    setIsOpen(false);
                   }}
                 >
                   <span className="drop-shadow-lg">{item.title}</span>

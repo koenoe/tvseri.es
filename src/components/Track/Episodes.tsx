@@ -363,8 +363,8 @@ function Episodes({
           })}
         </TableBody>
       </Table>
-      <div className="mt-10 flex w-full items-center gap-x-4">
-        <div className="flex items-baseline text-sm text-white/60">
+      <div className="mt-6 flex w-full flex-col items-center gap-4 md:mt-10 md:flex-row">
+        <div className="mb-2 items-baseline text-sm text-white/60 md:mb-0">
           <span className="rounded bg-white/10 px-2 py-1 font-medium text-white">
             {items.filter((i) => i.isChecked).length.toLocaleString()}/
             {episodes.length.toLocaleString()}
@@ -373,7 +373,7 @@ function Episodes({
         </div>
         <button
           onClick={() => router.back()}
-          className="ml-auto flex h-11 min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-white/5 px-5 text-sm leading-none tracking-wide hover:bg-white/10"
+          className="flex h-11 w-full min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-white/5 px-5 text-sm leading-none tracking-wide hover:bg-white/10 md:ml-auto md:w-auto"
         >
           <span>Back</span>
         </button>
@@ -381,7 +381,7 @@ function Episodes({
           <button
             onClick={handleDelete}
             className={twMerge(
-              'flex h-11 min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-red-500 px-5 text-sm leading-none tracking-wide text-white',
+              'flex h-11 w-full min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-red-500 px-5 text-sm leading-none tracking-wide text-white md:w-auto',
               disableDeleteButton && 'cursor-not-allowed opacity-40',
             )}
             disabled={disableDeleteButton || isDeletePending}
@@ -397,7 +397,7 @@ function Episodes({
         <button
           onClick={handleSave}
           className={twMerge(
-            'flex h-11 min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-white px-5 text-sm leading-none tracking-wide text-neutral-900',
+            'flex h-11 w-full min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-white px-5 text-sm leading-none tracking-wide text-neutral-900 md:w-auto',
             disableSaveButton && 'cursor-not-allowed opacity-40',
           )}
           disabled={disableSaveButton || isSavePending}

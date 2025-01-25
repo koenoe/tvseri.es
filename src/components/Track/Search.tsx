@@ -15,13 +15,16 @@ function TrackSearch() {
   const { results, isPending, handleSearch, reset } = useSearch();
   const router = useRouter();
 
-  const itemHref = useCallback((series: TvSeries) => `/track/${series.id}`, []);
+  const itemHref = useCallback(
+    (series: TvSeries) => `/track/${series.id}/${series.slug}`,
+    [],
+  );
 
   const handleKeyDown = useDebouncedCallback((event: React.KeyboardEvent) => {
     if (!isPending && event.key === 'Enter') {
       const firstResult = results?.[0];
       if (firstResult) {
-        router.push(`/track/${firstResult.id}`);
+        router.push(`/track/${firstResult.id}/${firstResult.slug}`);
       }
     }
   }, 100);

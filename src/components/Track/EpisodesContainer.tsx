@@ -4,6 +4,7 @@ import { cachedTvSeriesSeason } from '@/app/cached';
 import {
   getAllWatchedForTvSeries,
   markWatchedInBatch,
+  unmarkWatchedInBatch,
   type WatchedItem,
 } from '@/lib/db/watched';
 import { fetchTvSeriesWatchProvider } from '@/lib/tmdb';
@@ -57,7 +58,7 @@ export default async function EpisodesContainer({
     fetchTvSeriesWatchProvider(tvSeries.id, region),
   ]);
 
-  async function markEpisodesAsWatched(items: Partial<WatchedItem>[]) {
+  async function saveWatchedItems(items: Partial<WatchedItem>[]) {
     'use server';
 
     try {
@@ -78,12 +79,34 @@ export default async function EpisodesContainer({
     }
   }
 
+  async function deleteWatchedItems(items: Partial<WatchedItem>[]) {
+    'use server';
+
+    try {
+      const payload = items.map((item) => ({
+        episodeNumber: item.episodeNumber!,
+        runtime: item.runtime!,
+        seasonNumber: item.seasonNumber!,
+        tvSeries,
+        userId: user.id,
+        watchProvider,
+        watchedAt: item.watchedAt!,
+      }));
+
+      await unmarkWatchedInBatch(payload);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
   return (
     <Episodes
       episodes={episodes}
       watched={watched}
       watchProvider={watchProvider}
-      action={markEpisodesAsWatched}
+      saveAction={saveWatchedItems}
+      deleteAction={deleteWatchedItems}
     />
   );
 }

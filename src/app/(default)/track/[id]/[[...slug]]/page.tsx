@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 
-import { notFound, unauthorized } from 'next/navigation';
+import { notFound, permanentRedirect, unauthorized } from 'next/navigation';
 
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
@@ -13,7 +13,7 @@ import EpisodesContainer from '@/components/Track/EpisodesContainer';
 import EpisodesSkeleton from '@/components/Track/EpisodesSkeleton';
 
 type Props = Readonly<{
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; slug: string[] }>;
 }>;
 
 export default async function TrackPage({ params: paramsFromProps }: Props) {
@@ -28,6 +28,12 @@ export default async function TrackPage({ params: paramsFromProps }: Props) {
 
   if (!tvSeries || tvSeries.isAdult) {
     return notFound();
+  }
+
+  const slug = params.slug?.join('');
+
+  if (tvSeries.slug && tvSeries.slug !== slug) {
+    return permanentRedirect(`/track/${params.id}/${tvSeries.slug}`);
   }
 
   return (

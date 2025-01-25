@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useCallback, useState, useTransition } from 'react';
+import { memo, useCallback, useRef, useState, useTransition } from 'react';
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -23,6 +23,7 @@ import formatRuntime from '@/utils/formatRuntime';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 
 import Datepicker from '../Datepicker/Datepicker';
+import LoadingDots from '../LoadingDots/LoadingDots';
 
 type CheckableWatchedItem = Partial<WatchedItem> &
   Readonly<{
@@ -42,6 +43,7 @@ function EpisodeRow({
   onUpdate: (item: Partial<WatchedItem>) => void;
   watchProvider?: WatchProvider | null;
 }>) {
+  const ref = useRef<HTMLTableRowElement>(null);
   const handleDateSelect = useCallback(
     (dateStr: string) => {
       onUpdate({
@@ -67,8 +69,11 @@ function EpisodeRow({
 
   return (
     <TableRow
+      ref={ref}
       onClick={(e) => {
-        if (!(e.target as HTMLElement).closest('button')) {
+        const fromWithin =
+          ref.current?.contains(e.target as Node) && e.target !== ref.current;
+        if (fromWithin) {
           onToggle({
             seasonNumber: episode.seasonNumber,
             episodeNumber: episode.episodeNumber,
@@ -151,15 +156,18 @@ function Episodes({
   episodes,
   watched,
   watchProvider,
-  action,
+  saveAction,
+  deleteAction,
 }: Readonly<{
   episodes: Episode[];
   watched: WatchedItem[];
   watchProvider?: WatchProvider | null;
-  action: (items: Partial<WatchedItem>[]) => void;
+  saveAction: (items: Partial<WatchedItem>[]) => void;
+  deleteAction: (items: Partial<WatchedItem>[]) => void;
 }>) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isDeletePending, startDeleteTransition] = useTransition();
+  const [isSavePending, startSaveTransition] = useTransition();
   const [items, setItems] = useState<CheckableWatchedItem[]>(() =>
     episodes.map((episode) => {
       const watchedItem = watched.find(
@@ -182,6 +190,25 @@ function Episodes({
       };
     }),
   );
+
+  const getPayloadForAction = useCallback(() => {
+    return items
+      .filter((i) => i.isChecked)
+      .map((item) => {
+        const episode = episodes.find(
+          (e) =>
+            e.seasonNumber === item.seasonNumber &&
+            e.episodeNumber === item.episodeNumber,
+        )!;
+
+        return {
+          episodeNumber: episode.episodeNumber,
+          runtime: episode.runtime,
+          seasonNumber: episode.seasonNumber,
+          watchedAt: item.watchedAt,
+        };
+      });
+  }, [episodes, items]);
 
   const handleToggle = useCallback((watchedItem: Partial<WatchedItem>) => {
     setItems((prev) =>
@@ -216,33 +243,31 @@ function Episodes({
   }, [items]);
 
   const handleSave = useCallback(() => {
-    startTransition(async () => {
+    startSaveTransition(async () => {
       try {
-        await action(
-          items
-            .filter((i) => i.isChecked)
-            .map((item) => {
-              const episode = episodes.find(
-                (e) =>
-                  e.seasonNumber === item.seasonNumber &&
-                  e.episodeNumber === item.episodeNumber,
-              )!;
-
-              return {
-                episodeNumber: episode.episodeNumber,
-                runtime: episode.runtime,
-                seasonNumber: episode.seasonNumber,
-                watchedAt: item.watchedAt,
-              };
-            }),
-        );
+        await saveAction(getPayloadForAction());
+        router.refresh();
       } catch (_) {
         toast.error('Something went wrong. Please try again later.');
       }
     });
-  }, [action, episodes, items]);
+  }, [getPayloadForAction, router, saveAction]);
 
-  const saveButtonIsDisabled = !items.some((i) => i.isChecked) || isPending;
+  const handleDelete = useCallback(() => {
+    startDeleteTransition(async () => {
+      try {
+        await deleteAction(getPayloadForAction());
+        router.refresh();
+      } catch (_) {
+        toast.error('Something went wrong. Please try again later.');
+      }
+    });
+  }, [deleteAction, getPayloadForAction, router]);
+
+  const showDeleteButton = watched.length > 0;
+  const disableActionButtons = !items.some((i) => i.isChecked);
+  const disableSaveButton = disableActionButtons;
+  const disableDeleteButton = showDeleteButton && disableActionButtons;
 
   return (
     <>
@@ -268,11 +293,11 @@ function Episodes({
                 }}
                 onSelect={(selected) => {
                   setItems((prev) =>
-                    prev.map((item) =>
-                      item.isChecked
-                        ? { ...item, watchedAt: new Date(selected).getTime() }
-                        : item,
-                    ),
+                    prev.map((item) => ({
+                      ...item,
+                      isChecked: true,
+                      watchedAt: new Date(selected).getTime(),
+                    })),
                   );
                 }}
               >
@@ -332,15 +357,36 @@ function Episodes({
         >
           <span>Back</span>
         </button>
+        {showDeleteButton && (
+          <button
+            onClick={handleDelete}
+            className={twMerge(
+              'flex h-11 min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-red-600 px-5 text-sm leading-none tracking-wide text-white',
+              disableDeleteButton && 'cursor-not-allowed opacity-40',
+            )}
+            disabled={disableDeleteButton || isDeletePending}
+          >
+            {isDeletePending ? (
+              <LoadingDots className="h-2 text-white" />
+            ) : (
+              'Delete'
+            )}
+          </button>
+        )}
+
         <button
           onClick={handleSave}
           className={twMerge(
             'flex h-11 min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-white px-5 text-sm leading-none tracking-wide text-neutral-900',
-            saveButtonIsDisabled && 'cursor-not-allowed opacity-40',
+            disableSaveButton && 'cursor-not-allowed opacity-40',
           )}
-          disabled={saveButtonIsDisabled}
+          disabled={disableSaveButton || isSavePending}
         >
-          <span>Save</span>
+          {isSavePending ? (
+            <LoadingDots className="h-2 text-neutral-900" />
+          ) : (
+            'Save'
+          )}
         </button>
       </div>
     </>

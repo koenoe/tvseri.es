@@ -63,7 +63,7 @@ export default function EpisodesSkeleton() {
 
       <div className="mt-10 flex w-full items-center gap-x-4">
         <div className="flex h-7 items-center gap-x-2">
-          <div className="h-7 w-16 rounded bg-white/10" />
+          <div className="h-7 w-10 rounded bg-white/10" />
           <div className="h-4 w-14 bg-white/5" />
         </div>
         <div className="ml-auto flex gap-x-4">

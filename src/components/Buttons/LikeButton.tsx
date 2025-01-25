@@ -34,7 +34,7 @@ export default function LikeButton({
       isDisabled={isPending}
     >
       <svg
-        className="h-7 w-7"
+        className="size-7"
         viewBox="0 0 32 32"
         xmlns="http://www.w3.org/2000/svg"
         fill="currentColor"

@@ -16,7 +16,7 @@ export default function EpisodesSkeleton() {
             <TableHead className="w-10">
               <div className="size-3 bg-white/10" />
             </TableHead>
-            <TableHead className="w-60">
+            <TableHead className="min-w-60">
               <div className="flex h-11 items-center">
                 <div className="h-5 w-full bg-white/10" />
               </div>

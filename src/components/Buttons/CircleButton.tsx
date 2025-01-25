@@ -33,13 +33,19 @@ export default function CircleButton({
   Readonly<{
     className?: string;
     children: React.ReactNode;
-    onClick?: (value: boolean) => void;
+    onClick?: (
+      value: boolean,
+      event: React.MouseEvent<HTMLButtonElement>,
+    ) => void;
     isActive?: boolean;
     isDisabled?: boolean;
   }>) {
-  const handleClick = useCallback(() => {
-    onClick?.(!isActive);
-  }, [isActive, onClick]);
+  const handleClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      onClick?.(!isActive, event);
+    },
+    [isActive, onClick],
+  );
 
   return (
     <motion.button

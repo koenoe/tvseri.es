@@ -21,7 +21,7 @@ export default function EpisodesSkeleton() {
                 <div className="h-5 w-full bg-white/10" />
               </div>
             </TableHead>
-            <TableHead className="w-44">
+            <TableHead className="w-40">
               <div className="flex h-11 items-center">
                 <div className="h-5 w-full bg-white/10" />
               </div>
@@ -31,7 +31,7 @@ export default function EpisodesSkeleton() {
                 <div className="h-5 w-full bg-white/10" />
               </div>
             </TableHead>
-            <TableHead className="w-44">
+            <TableHead className="w-40">
               <div className="flex h-11 items-center">
                 <div className="h-5 w-full bg-white/10" />
               </div>

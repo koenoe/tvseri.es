@@ -33,12 +33,14 @@ type CheckableWatchedItem = Partial<WatchedItem> &
 function EpisodeRow({
   episode,
   item,
+  isWatched,
   onToggle,
   onUpdate,
   watchProvider,
 }: Readonly<{
   episode: Episode;
   item: CheckableWatchedItem;
+  isWatched: boolean;
   onToggle: (item: Partial<WatchedItem>) => void;
   onUpdate: (item: Partial<WatchedItem>) => void;
   watchProvider?: WatchProvider | null;
@@ -103,7 +105,7 @@ function EpisodeRow({
         />
       </TableCell>
       <TableCell>
-        <div className="flex min-h-3 flex-nowrap gap-3 text-nowrap leading-relaxed">
+        <div className="flex min-h-3 flex-nowrap items-center gap-3 text-nowrap leading-relaxed">
           <span className="flex h-6 w-14 flex-shrink-0 items-center justify-center rounded-md bg-neutral-700 text-center text-xs font-medium">
             {formatSeasonAndEpisode({
               seasonNumber: episode.seasonNumber,
@@ -118,17 +120,30 @@ function EpisodeRow({
       </TableCell>
       <TableCell>{formatRuntime(episode.runtime)}</TableCell>
       <TableCell>
-        <Datepicker
-          className="inline cursor-pointer text-nowrap rounded-md border border-neutral-700 bg-neutral-800 px-1.5 py-1 text-center text-xs text-neutral-400"
-          offset={{
-            x: 0,
-            y: 30,
-          }}
-          onSelect={handleDateSelect}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {formatDate(new Date(item.watchedAt || Date.now()).toISOString())}
-        </Datepicker>
+        <div className="flex flex-nowrap items-center gap-2">
+          <Datepicker
+            className="w-24 flex-shrink-0 cursor-pointer text-nowrap rounded-md border border-neutral-700 bg-neutral-800 px-1.5 py-1 text-center text-xs text-neutral-400"
+            offset={{
+              x: 0,
+              y: 30,
+            }}
+            onSelect={handleDateSelect}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {formatDate(new Date(item.watchedAt || Date.now()).toISOString())}
+          </Datepicker>
+          {isWatched && (
+            <svg
+              fill="currentColor"
+              viewBox="0 0 512 512"
+              xmlns="http://www.w3.org/2000/svg"
+              className="ml-2 mr-2 size-4"
+            >
+              <circle cx="256" cy="256" r="64" />
+              <path d="M394.82,141.18C351.1,111.2,304.31,96,255.76,96c-43.69,0-86.28,13-126.59,38.48C88.52,160.23,48.67,207,16,256c26.42,44,62.56,89.24,100.2,115.18C159.38,400.92,206.33,416,255.76,416c49,0,95.85-15.07,139.3-44.79C433.31,345,469.71,299.82,496,256,469.62,212.57,433.1,167.44,394.82,141.18ZM256,352a96,96,0,1,1,96-96A96.11,96.11,0,0,1,256,352Z" />
+            </svg>
+          )}
+        </div>
       </TableCell>
       <TableCell>
         {(item.watchProviderName || watchProvider?.name) &&
@@ -282,9 +297,9 @@ function Episodes({
               />
             </TableHead>
             <TableHead>Episode</TableHead>
-            <TableHead className="w-44">Air date</TableHead>
+            <TableHead className="w-40">Air date</TableHead>
             <TableHead className="w-24">Runtime</TableHead>
-            <TableHead className="w-44">
+            <TableHead className="w-40">
               <Datepicker
                 className="relative w-full"
                 offset={{
@@ -302,7 +317,7 @@ function Episodes({
                 }}
               >
                 <span className="block w-full min-w-32 cursor-pointer appearance-none rounded-md border border-neutral-800 bg-neutral-900 py-2 pl-3 pr-6 text-left outline-none">
-                  Watched on
+                  {watched.length > 0 ? 'Watched on' : 'Watch date'}
                 </span>
                 <svg
                   viewBox="0 0 15 15"
@@ -335,6 +350,11 @@ function Episodes({
                 key={episode.id}
                 episode={episode}
                 item={item}
+                isWatched={watched.some(
+                  (i) =>
+                    i.seasonNumber === episode.seasonNumber &&
+                    i.episodeNumber === episode.episodeNumber,
+                )}
                 onToggle={handleToggle}
                 onUpdate={handleUpdate}
                 watchProvider={watchProvider}

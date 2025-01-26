@@ -73,7 +73,7 @@ export default async function ValidateWatchedStatus({
   // First handle active transitions between lists. While most state changes are handled by
   // the Lambda watch handler, these transitions can occur when:
   // - New episodes are released for a previously watched series
-  // - Episodes are removed/corrected in the external TV database
+  // - Episodes are removed/corrected in the TMDB
   // - Edge cases or failures in the Lambda handler
 
   if (isInWatchedList && tvSeriesIsInProgress) {
@@ -102,7 +102,7 @@ export default async function ValidateWatchedStatus({
     // Series is fully watched but not in watched list
     // This is usually handled by the Lambda but could occur from:
     // - Edge cases in the Lambda handler
-    // - Episode count corrections in external TV database
+    // - Episode count corrections in TMDB
     await Promise.all([
       addToList({
         userId: user.id,
@@ -126,7 +126,7 @@ export default async function ValidateWatchedStatus({
   }
 
   // Collect cleanup tasks for invalid states that could arise from:
-  // - Data corrections in external TV database
+  // - Data corrections in TMDB
   // - Edge cases in Lambda handler
   // - Network errors during list operations
   const cleanupTasks = [];
@@ -145,7 +145,7 @@ export default async function ValidateWatchedStatus({
   if (isInWatchedList && tvSeriesIsNotWatchedNorInProgress) {
     // Remove from "watched" list if no episodes are watched
     // Can occur due to:
-    // - Episode count corrections in external TV database
+    // - Episode count corrections in TMDB
     // - Edge cases in Lambda handler
     cleanupTasks.push(
       removeFromList({

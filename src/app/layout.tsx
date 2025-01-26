@@ -1,5 +1,7 @@
 import './globals.css';
 
+import { type ReactNode } from 'react';
+
 import { cx } from 'class-variance-authority';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
@@ -34,8 +36,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({
   children,
+  modal,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
+  modal: ReactNode;
 }>) {
   return (
     <html lang="en">
@@ -57,7 +61,10 @@ export default function RootLayout({
         />
         <EnsureHistoryKey />
         <ScrollbarDetection />
-        <WatchedStoreProvider>{children}</WatchedStoreProvider>
+        <WatchedStoreProvider>
+          {children}
+          {modal}
+        </WatchedStoreProvider>
         <div id="modal-root" />
       </body>
     </html>

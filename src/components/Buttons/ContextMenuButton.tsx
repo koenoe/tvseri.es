@@ -117,6 +117,7 @@ export default function ContextMenuButton({
             >
               <Link
                 href={`/track/${tvSeries.id}/${tvSeries.slug}`}
+                onClick={() => setIsOpen(false)}
                 className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap border-b-2 border-neutral-200 pb-2 text-sm font-medium hover:text-neutral-800"
               >
                 <svg

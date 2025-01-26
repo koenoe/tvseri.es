@@ -53,7 +53,7 @@ function TrackForm({
               <h2 className="text-lg font-medium">{season.title}</h2>
               <div className="ml-auto flex items-center gap-4">
                 <Datepicker
-                  className="flex h-9 cursor-pointer items-center gap-1 text-nowrap rounded-md border border-white/10 bg-black/20 px-2.5 text-center text-sm text-white/60"
+                  className="flex h-9 cursor-pointer items-center gap-1 text-nowrap rounded-md border border-white/10 bg-black/20 px-2.5 text-center text-sm text-white/75"
                   offset={{
                     x: 0,
                     y: 30,
@@ -65,6 +65,18 @@ function TrackForm({
                   <span className="font-semibold">
                     {formatDate(new Date().toISOString())}
                   </span>
+                  <svg
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log('clear watched date');
+                    }}
+                    className="ml-1 size-5"
+                    fill="currentColor"
+                    viewBox="0 0 32 32"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M7.004 23.087l7.08-7.081-7.07-7.071L8.929 7.02l7.067 7.069L23.084 7l1.912 1.913-7.089 7.093 7.075 7.077-1.912 1.913-7.074-7.073L8.917 25z" />
+                  </svg>
                 </Datepicker>
                 <svg className="size-6" viewBox="0 0 20 20" fill="currentColor">
                   <path
@@ -102,17 +114,29 @@ function TrackForm({
                   </div>
                   <div className="ml-auto flex items-center gap-4">
                     <Datepicker
-                      className="h-8 cursor-pointer text-nowrap rounded-md border border-white/5 bg-black/5 px-2 text-center text-xs text-white/50"
+                      className="flex h-8 cursor-pointer items-center gap-1 text-nowrap rounded-md border border-white/5 bg-black/5 px-2 text-center text-xs text-white/75"
                       offset={{
                         x: 0,
                         y: 30,
                       }}
                       onSelect={(value) => console.log({ value })}
                     >
-                      Watched on{' '}
+                      <span>Watched on</span>
                       <span className="font-semibold">
                         {formatDate(new Date().toISOString())}
                       </span>
+                      <svg
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          console.log('clear watched date');
+                        }}
+                        className="ml-0.5 size-4"
+                        fill="currentColor"
+                        viewBox="0 0 32 32"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path d="M7.004 23.087l7.08-7.081-7.07-7.071L8.929 7.02l7.067 7.069L23.084 7l1.912 1.913-7.089 7.093 7.075 7.077-1.912 1.913-7.074-7.073L8.917 25z" />
+                      </svg>
                       {/* Mark as watched */}
                     </Datepicker>
                     <Image

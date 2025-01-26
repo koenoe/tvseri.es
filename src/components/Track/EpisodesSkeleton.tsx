@@ -18,27 +18,27 @@ export default function EpisodesSkeleton() {
             </TableHead>
             <TableHead className="min-w-60">
               <div className="flex h-11 items-center">
-                <div className="h-5 w-full bg-white/10" />
+                <div className="h-5 w-60 bg-white/10" />
               </div>
             </TableHead>
             <TableHead className="w-40">
               <div className="flex h-11 items-center">
-                <div className="h-5 w-full bg-white/10" />
+                <div className="h-5 w-40 bg-white/10" />
               </div>
             </TableHead>
             <TableHead className="w-24">
               <div className="flex h-11 items-center">
-                <div className="h-5 w-full bg-white/10" />
+                <div className="h-5 w-24 bg-white/10" />
               </div>
             </TableHead>
             <TableHead className="w-40">
               <div className="flex h-11 items-center">
-                <div className="h-5 w-full bg-white/10" />
+                <div className="h-5 w-40 bg-white/10" />
               </div>
             </TableHead>
             <TableHead className="w-56">
               <div className="flex h-11 items-center">
-                <div className="h-5 w-full bg-white/10" />
+                <div className="h-5 w-56 bg-white/10" />
               </div>
             </TableHead>
           </TableRow>

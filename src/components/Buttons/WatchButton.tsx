@@ -13,8 +13,8 @@ import { useWatchedStore } from '../Watched/WatchedStoreProvider';
 const watchButtonStyles = cva('', {
   variants: {
     size: {
-      small: ['h-8 w-8 [&_svg.icon]:w-4 [&_svg.icon]:h-4'],
-      medium: ['h-12 w-12 [&_svg.icon]:w-6 [&_svg.icon]:h-6'],
+      small: ['size-8 md:size-8 [&_svg.icon]:size-4 md:[&_svg.icon]:size-4'],
+      medium: ['size-10 md:size-12 [&_svg.icon]:size-5 md:[&_svg.icon]:size-6'],
     },
   },
   defaultVariants: {

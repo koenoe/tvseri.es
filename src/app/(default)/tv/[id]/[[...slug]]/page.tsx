@@ -157,11 +157,11 @@ export default async function TvSeriesDetailsPage({
 
           <div className="mb-6 flex items-center">
             <Suspense
-              fallback={<SkeletonRating className="mr-auto md:mr-10" />}
+              fallback={<SkeletonRating className="mr-auto md:mr-12" />}
             >
-              <ImdbRating id={tvSeries.id} className="mr-auto md:mr-10" />
+              <ImdbRating id={tvSeries.id} className="mr-auto md:mr-12" />
             </Suspense>
-            <div className="flex gap-3">
+            <div className="flex gap-2 md:gap-3">
               <Suspense
                 fallback={
                   <>

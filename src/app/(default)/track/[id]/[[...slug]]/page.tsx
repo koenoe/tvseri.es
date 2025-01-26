@@ -61,7 +61,11 @@ export default async function TrackPage({ params: paramsFromProps }: Props) {
                 </>
               }
             >
-              <ActionButtons id={tvSeries.id} showWatchButton={false} />
+              <ActionButtons
+                id={tvSeries.id}
+                showWatchButton={false}
+                showContextMenuButton={false}
+              />
             </Suspense>
           </div>
         </div>

@@ -9,7 +9,7 @@ import {
   type RefObject,
 } from 'react';
 
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 
 import Modal from '../Modal';
 
@@ -20,17 +20,6 @@ export type Position = Readonly<{
   x: AxisPosition;
   y: AxisPosition;
 }>;
-
-const variants = {
-  visible: {
-    opacity: 1,
-    y: 0,
-  },
-  hidden: {
-    opacity: 0,
-    y: 40,
-  },
-};
 
 const calculateAlignedPosition = (
   alignment: Alignment,
@@ -141,6 +130,7 @@ type Props = Readonly<{
   shouldRenderOverlay?: boolean;
   shouldRenderInModal?: boolean;
   viewportOffset?: number;
+  variants?: Variants;
 }>;
 
 export default function DropdownContainer({
@@ -152,6 +142,16 @@ export default function DropdownContainer({
   shouldRenderOverlay = true,
   shouldRenderInModal = true,
   viewportOffset = 16,
+  variants = {
+    visible: {
+      opacity: 1,
+      y: 0,
+    },
+    hidden: {
+      opacity: 0,
+      y: 40,
+    },
+  },
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState<boolean>(false);
@@ -244,7 +244,14 @@ export default function DropdownContainer({
         </motion.div>
       </>
     );
-  }, [children, isVisible, onOutsideClick, shouldRenderOverlay, reposition]);
+  }, [
+    shouldRenderOverlay,
+    onOutsideClick,
+    isVisible,
+    variants,
+    children,
+    reposition,
+  ]);
 
   if (shouldRenderInModal) {
     return <Modal>{renderContent()}</Modal>;

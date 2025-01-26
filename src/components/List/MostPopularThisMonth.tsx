@@ -26,7 +26,7 @@ export default async function MostPopularThisMonthList({
 
   return (
     <List
-      title="Popular right now"
+      title="Popular this month"
       scrollRestoreKey="most-popular-this-month"
       {...rest}
     >

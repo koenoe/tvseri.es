@@ -4,11 +4,13 @@ import { cachedTvSeriesSeason } from '@/app/cached';
 import {
   getAllWatchedForTvSeries,
   markWatchedInBatch,
+  unmarkWatchedInBatch,
   type WatchedItem,
 } from '@/lib/db/watched';
 import { fetchTvSeriesWatchProvider } from '@/lib/tmdb';
 import { type TvSeries, type Season } from '@/types/tv-series';
 import { type User } from '@/types/user';
+import { type WatchProvider } from '@/types/watch-provider';
 
 import TrackForm from './Form';
 
@@ -19,11 +21,7 @@ async function fetchAllSeasons(tvSeriesId: number, numberOfSeasons: number) {
 
   try {
     const seasons = await Promise.all(seasonPromises);
-    return seasons
-      .filter((season): season is Season => season !== undefined)
-      .sort((a, b) => {
-        return b.seasonNumber - a.seasonNumber;
-      });
+    return seasons.filter((season): season is Season => season !== undefined);
   } catch (error) {
     throw error;
   }
@@ -39,7 +37,7 @@ export default async function TrackFormContainer({
   const headerStore = await headers();
   const region = headerStore.get('cloudfront-viewer-country') || 'US';
 
-  const [watched, seasons, watchProvider] = await Promise.all([
+  const [watchedItems, seasons, watchProvider] = await Promise.all([
     getAllWatchedForTvSeries({
       userId: user.id,
       tvSeries,
@@ -48,21 +46,44 @@ export default async function TrackFormContainer({
     fetchTvSeriesWatchProvider(tvSeries.id, region),
   ]);
 
+  async function deleteWatchedItems(items: Partial<WatchedItem>[]) {
+    'use server';
+
+    try {
+      const itemsToRemove = items.map((item) => ({
+        episodeNumber: item.episodeNumber!,
+        seasonNumber: item.seasonNumber!,
+        tvSeries,
+        userId: user.id,
+      }));
+
+      await unmarkWatchedInBatch(itemsToRemove);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
   async function saveWatchedItems(items: Partial<WatchedItem>[]) {
     'use server';
 
     try {
-      const payload = items.map((item) => ({
+      const itemsToUpdate = items.map((item) => ({
         episodeNumber: item.episodeNumber!,
         runtime: item.runtime!,
         seasonNumber: item.seasonNumber!,
         tvSeries,
         userId: user.id,
-        watchProvider,
+        watchProvider: {
+          id: 0,
+          name: item.watchProviderName || watchProvider?.name,
+          logo: item.watchProviderLogoImage || watchProvider?.logo,
+          logoPath: item.watchProviderLogoPath || watchProvider?.logoPath,
+        } as WatchProvider,
         watchedAt: item.watchedAt!,
       }));
 
-      await markWatchedInBatch(payload);
+      await markWatchedInBatch(itemsToUpdate);
     } catch (error) {
       console.error(error);
       throw error;
@@ -72,8 +93,10 @@ export default async function TrackFormContainer({
   return (
     <TrackForm
       seasons={seasons}
-      watched={watched}
+      watchedItems={watchedItems}
       watchProvider={watchProvider}
+      saveAction={saveWatchedItems}
+      deleteAction={deleteWatchedItems}
     />
   );
 }

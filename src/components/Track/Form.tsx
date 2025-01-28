@@ -1,9 +1,17 @@
 'use client';
 
-import { memo, useCallback, useState, useTransition } from 'react';
+import {
+  memo,
+  useCallback,
+  useOptimistic,
+  useRef,
+  useState,
+  useTransition,
+} from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 import { type WatchedItem } from '@/lib/db/watched';
@@ -22,7 +30,7 @@ function EpisodeCard({
 }: Readonly<{
   episode: Episode;
   watchProvider?: WatchProvider | null;
-  watchedItem?: WatchedItem | null;
+  watchedItem?: Partial<WatchedItem> | null;
 }>) {
   return (
     <div
@@ -53,25 +61,31 @@ function EpisodeCard({
             x: 0,
             y: 30,
           }}
+          selected={watchedItem ? new Date(watchedItem.watchedAt!) : undefined}
           onSelect={(value) => console.log({ value })}
         >
-          <span>Watched on</span>
-          <span className="font-semibold">
-            {formatDate(new Date().toISOString())}
-          </span>
-          <svg
-            onClick={(e) => {
-              e.stopPropagation();
-              console.log('clear watched date');
-            }}
-            className="ml-0.5 size-4"
-            fill="currentColor"
-            viewBox="0 0 32 32"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M7.004 23.087l7.08-7.081-7.07-7.071L8.929 7.02l7.067 7.069L23.084 7l1.912 1.913-7.089 7.093 7.075 7.077-1.912 1.913-7.074-7.073L8.917 25z" />
-          </svg>
-          {/* Mark as watched */}
+          {watchedItem ? (
+            <>
+              <span>Watched on</span>
+              <span className="font-semibold">
+                {formatDate(new Date(watchedItem.watchedAt!).toISOString())}
+              </span>
+              <svg
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log('clear watched date');
+                }}
+                className="ml-0.5 size-4"
+                fill="currentColor"
+                viewBox="0 0 32 32"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M7.004 23.087l7.08-7.081-7.07-7.071L8.929 7.02l7.067 7.069L23.084 7l1.912 1.913-7.089 7.093 7.075 7.077-1.912 1.913-7.074-7.073L8.917 25z" />
+              </svg>
+            </>
+          ) : (
+            <span>Select watch date</span>
+          )}
         </Datepicker>
         <Image
           className="rounded"
@@ -86,22 +100,37 @@ function EpisodeCard({
   );
 }
 
-function SeasonCard({
+function SeasonCard_({
   season,
   watchProvider,
-  watched,
+  watchedItems,
+  updateItems,
 }: Readonly<{
   season: Season;
   watchProvider?: WatchProvider | null;
-  watched: WatchedItem[];
+  watchedItems: Partial<WatchedItem>[];
+  updateItems: (action: WatchedAction) => void;
 }>) {
+  const ref = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const watchedForSeason = watchedItems.filter(
+    (item) => item.seasonNumber === season.seasonNumber,
+  );
+  const lastWatched = watchedForSeason[watchedForSeason.length - 1];
+  const isFinished = season.numberOfAiredEpisodes === watchedForSeason.length;
 
   return (
     <div className="rounded-lg bg-white/5 p-6">
       <div
+        ref={ref}
         className="relative w-full cursor-pointer"
-        onClick={() => setIsExpanded((prev) => !prev)}
+        onClick={(e) => {
+          const fromWithin =
+            ref.current?.contains(e.target as Node) && e.target !== ref.current;
+          if (fromWithin) {
+            setIsExpanded((prev) => !prev);
+          }
+        }}
       >
         <div className="flex items-center">
           <h2 className="text-lg font-medium">{season.title}</h2>
@@ -112,26 +141,48 @@ function SeasonCard({
                 x: 0,
                 y: 30,
               }}
-              onSelect={(value) => console.log({ value })}
+              selected={
+                lastWatched ? new Date(lastWatched.watchedAt!) : undefined
+              }
+              onSelect={(value) => {
+                updateItems({
+                  type: 'update',
+                  items: season.episodes.map((episode) => ({
+                    episodeNumber: episode.episodeNumber,
+                    runtime: episode.runtime,
+                    seasonNumber: episode.seasonNumber,
+                    watchedAt: new Date(value).getTime(),
+                  })),
+                });
+              }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* {formatDate(new Date().toISOString())} */}
-              <span>Finished on</span>
-              <span className="font-semibold">
-                {formatDate(new Date().toISOString())}
-              </span>
-              <svg
-                onClick={(e) => {
-                  e.stopPropagation();
-                  console.log('clear watched date');
-                }}
-                className="ml-1 size-5"
-                fill="currentColor"
-                viewBox="0 0 32 32"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M7.004 23.087l7.08-7.081-7.07-7.071L8.929 7.02l7.067 7.069L23.084 7l1.912 1.913-7.089 7.093 7.075 7.077-1.912 1.913-7.074-7.073L8.917 25z" />
-              </svg>
+              {lastWatched ? (
+                <>
+                  <span>{isFinished ? 'Finished' : 'Last watched'} on</span>
+                  <span className="font-semibold">
+                    {formatDate(new Date(lastWatched.watchedAt!).toISOString())}
+                  </span>
+                  <svg
+                    onClick={(e) => {
+                      e.stopPropagation();
+
+                      updateItems({
+                        type: 'delete',
+                        items: watchedForSeason,
+                      });
+                    }}
+                    className="ml-1 size-5"
+                    fill="currentColor"
+                    viewBox="0 0 32 32"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M7.004 23.087l7.08-7.081-7.07-7.071L8.929 7.02l7.067 7.069L23.084 7l1.912 1.913-7.089 7.093 7.075 7.077-1.912 1.913-7.074-7.073L8.917 25z" />
+                  </svg>
+                </>
+              ) : (
+                <span>Select watch date</span>
+              )}
             </Datepicker>
             <motion.svg
               className="size-6"
@@ -169,10 +220,8 @@ function SeasonCard({
                   key={episode.id}
                   episode={episode}
                   watchProvider={watchProvider}
-                  watchedItem={watched.find(
-                    (item) =>
-                      item.episodeNumber === episode.episodeNumber &&
-                      item.seasonNumber === season.seasonNumber,
+                  watchedItem={watchedForSeason.find(
+                    (item) => item.episodeNumber === episode.episodeNumber,
                   )}
                 />
               ))}
@@ -184,40 +233,101 @@ function SeasonCard({
   );
 }
 
+const SeasonCard = memo(SeasonCard_);
+
+type WatchedAction = Readonly<{
+  type: 'delete' | 'update';
+  items: Partial<WatchedItem>[];
+}>;
+
 function TrackForm({
   seasons,
   watchProvider,
-  watched,
+  watchedItems,
+  deleteAction,
+  saveAction,
 }: Readonly<{
   seasons: Season[];
   watchProvider?: WatchProvider | null;
-  watched: WatchedItem[];
+  watchedItems: WatchedItem[];
+  deleteAction: (items: Partial<WatchedItem>[]) => void;
+  saveAction: (items: Partial<WatchedItem>[]) => void;
 }>) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [optimisticWatchedItems, setOptimisticWatchedItems] = useOptimistic<
+    Partial<WatchedItem>[],
+    WatchedAction
+  >(watchedItems, (state, { type, items }) => {
+    switch (type) {
+      case 'delete': {
+        const updatedState = state.filter(
+          (item) =>
+            !items.some(
+              (watchedItem) =>
+                item.episodeNumber === watchedItem.episodeNumber &&
+                item.seasonNumber === watchedItem.seasonNumber,
+            ),
+        );
 
-  const handleSave = useCallback(() => {
-    startTransition(async () => {
-      try {
-        // await saveAction();
-      } catch (_) {
-        toast.error('Something went wrong. Please try again later.');
+        return updatedState;
       }
-    });
-  }, []);
+      case 'update':
+      default: {
+        const updatedState = [...state];
+
+        items.forEach((watchedItem) => {
+          const existingIndex = updatedState.findIndex(
+            (item) =>
+              item.episodeNumber === watchedItem.episodeNumber &&
+              item.seasonNumber === watchedItem.seasonNumber,
+          );
+
+          if (existingIndex !== -1) {
+            updatedState[existingIndex] = {
+              ...updatedState[existingIndex],
+              ...watchedItem,
+            };
+          } else {
+            updatedState.push(watchedItem);
+          }
+        });
+
+        return updatedState;
+      }
+    }
+  });
+
+  const updateItems = useCallback(
+    ({ type, items }: WatchedAction) => {
+      startTransition(async () => {
+        setOptimisticWatchedItems({ type, items });
+
+        try {
+          await (type === 'delete' ? deleteAction(items) : saveAction(items));
+          router.refresh();
+        } catch (_) {
+          toast.error('Something went wrong. Please try again.');
+        }
+      });
+    },
+    [deleteAction, router, saveAction, setOptimisticWatchedItems],
+  );
 
   return (
-    <>
-      <div className="flex flex-col gap-4">
-        {seasons.map((season) => (
-          <SeasonCard
-            key={season.id}
-            season={season}
-            watched={watched}
-            watchProvider={watchProvider}
-          />
-        ))}
-      </div>
-    </>
+    <div className="flex flex-col gap-4">
+      {seasons.map((season) => (
+        <SeasonCard
+          key={season.id}
+          season={season}
+          watchedItems={optimisticWatchedItems.filter(
+            (item) => item.seasonNumber === season.seasonNumber,
+          )}
+          watchProvider={watchProvider}
+          updateItems={updateItems}
+        />
+      ))}
+    </div>
   );
 }
 

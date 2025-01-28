@@ -31,7 +31,7 @@
     "react-dom": "19.0.0",
     "react-dropzone": "^14.3.5",
     "react-fast-compare": "^3.2.2",
-    "recharts": "^2.15.0",
+    "recharts": "^2.15.1",
     "slugify": "^1.6.6",
     "sonner": "^1.7.2",
     "sst": "^3.6.17",

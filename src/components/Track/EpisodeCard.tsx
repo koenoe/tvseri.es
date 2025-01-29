@@ -27,6 +27,8 @@ function EpisodeCard({
 }>) {
   const watchProviderLogoImage =
     watchedItem?.watchProviderLogoImage || watchProvider?.logo;
+  const watchProviderLogoPath =
+    watchedItem?.watchProviderLogoPath || watchProvider?.logoPath;
   const watchProviderName =
     watchedItem?.watchProviderName || watchProvider?.name;
 
@@ -71,6 +73,9 @@ function EpisodeCard({
                   runtime: episode.runtime,
                   seasonNumber: episode.seasonNumber,
                   watchedAt: new Date(value).getTime(),
+                  watchProviderLogoPath,
+                  watchProviderLogoImage,
+                  watchProviderName,
                 },
               ],
             });

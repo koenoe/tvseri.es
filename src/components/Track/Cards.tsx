@@ -77,7 +77,7 @@ function TrackForm({
   deleteAction: (items: Partial<WatchedItem>[]) => void;
   saveAction: (items: Partial<WatchedItem>[]) => void;
 }>) {
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [watchedItems, dispatch] = useReducer(reducer, watchedItemsFromProps);
   const [optimisticWatchedItems, optimisticDispatch] = useOptimistic(
     watchedItems,

@@ -9,7 +9,7 @@ import ExpandableText from '@/components/ExpandableText/ExpandableText';
 import InfoLine from '@/components/InfoLine/InfoLine';
 import SkeletonCircleButton from '@/components/Skeletons/SkeletonCircleButton';
 import Poster from '@/components/Tiles/Poster';
-import TrackFormContainer from '@/components/Track/FormContainer';
+import CardsContainer from '@/components/Track/CardsContainer';
 
 type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
@@ -70,8 +70,22 @@ export default async function TrackPage({ params: paramsFromProps }: Props) {
         </div>
       </div>
       <div className="mt-10">
-        <Suspense fallback={'Loading...'}>
-          <TrackFormContainer tvSeries={tvSeries} user={user} />
+        <Suspense
+          fallback={
+            <div className="flex animate-pulse flex-col gap-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex h-[7.5rem] flex-col gap-3 rounded-lg bg-white/5 p-6 md:h-[5.25rem] md:flex-row md:items-center"
+                >
+                  <div className="h-6 w-32 bg-white/15" />
+                  <div className="h-8 w-full rounded bg-white/5 md:ml-auto md:w-48" />
+                </div>
+              ))}
+            </div>
+          }
+        >
+          <CardsContainer tvSeries={tvSeries} user={user} />
         </Suspense>
       </div>
     </>

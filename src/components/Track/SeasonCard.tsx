@@ -9,8 +9,8 @@ import { type Season } from '@/types/tv-series';
 import { type WatchProvider } from '@/types/watch-provider';
 import formatDate from '@/utils/formatDate';
 
+import { type WatchedAction } from './Cards';
 import EpisodeCard from './EpisodeCard';
-import { type WatchedAction } from './Form';
 import Datepicker from '../Datepicker/Datepicker';
 
 function SeasonCard({

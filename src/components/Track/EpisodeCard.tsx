@@ -11,7 +11,7 @@ import formatDate from '@/utils/formatDate';
 import formatRuntime from '@/utils/formatRuntime';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 
-import { type WatchedAction } from './Form';
+import { type WatchedAction } from './Cards';
 import Datepicker from '../Datepicker/Datepicker';
 
 function EpisodeCard({

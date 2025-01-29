@@ -34,12 +34,23 @@ export default async function TrackPageInModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/90" />
-      <div className="fixed left-1/2 top-1/2 z-50 h-full max-h-[calc(100vh-21rem)] w-full max-w-screen-xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-neutral-800 bg-neutral-900 p-12 shadow-xl">
+      <div
+        className="fixed inset-0 z-40"
+        style={{
+          backgroundColor: tvSeries.backdropColor,
+          opacity: 0.9,
+        }}
+      />
+      <div
+        className="fixed left-1/2 top-1/2 z-50 h-full max-h-[calc(100vh-21rem)] w-full max-w-screen-xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-white/5 p-12 shadow-xl"
+        style={{
+          backgroundColor: tvSeries.backdropColor,
+        }}
+      >
         <Suspense
           fallback={
             <div className="flex animate-pulse flex-col gap-4">
-              {Array.from({ length: 5 }).map((_, i) => (
+              {Array.from({ length: tvSeries.numberOfSeasons }).map((_, i) => (
                 <div
                   key={i}
                   className="flex h-[7.5rem] flex-col gap-3 rounded-lg bg-white/5 p-6 md:h-[5.25rem] md:flex-row md:items-center"

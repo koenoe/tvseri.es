@@ -224,7 +224,7 @@ export default function DropdownContainer({
         {shouldRenderOverlay && (
           <motion.div
             key="overlay"
-            className="fixed inset-0 z-40 bg-transparent"
+            className="fixed inset-0 z-[99] bg-transparent"
             onClick={onOutsideClick}
           />
         )}
@@ -232,7 +232,7 @@ export default function DropdownContainer({
           key="container"
           ref={containerRef}
           animate={isVisible ? 'visible' : 'hidden'}
-          className="fixed z-50"
+          className="fixed z-[100]"
           initial="hidden"
           exit="hidden"
           variants={variants}

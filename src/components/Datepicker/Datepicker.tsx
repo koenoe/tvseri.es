@@ -1,15 +1,18 @@
 'use client';
 
+import 'react-day-picker/style.css';
+
 import { memo, type ReactNode, useCallback, useRef, useState } from 'react';
 
 import { AnimatePresence } from 'framer-motion';
 import { DayFlag, DayPicker, SelectionState, UI } from 'react-day-picker';
 
+import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
+import getMainBackgroundColor from '@/utils/getMainBackgroundColor';
+
 import DropdownContainer, {
   type Position,
 } from '../Dropdown/DropdownContainer';
-
-import 'react-day-picker/style.css';
 
 function DatePicker({
   className,
@@ -28,6 +31,9 @@ function DatePicker({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<Date>(selectedFromProps);
+  const [backgroundColor, setBackgroundColor] = useState(
+    DEFAULT_BACKGROUND_COLOR,
+  );
 
   const handleSelect = useCallback(
     (value: Date | undefined) => {
@@ -44,6 +50,7 @@ function DatePicker({
         ref={triggerRef}
         className={className}
         onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+          setBackgroundColor(getMainBackgroundColor());
           setIsOpen((prev) => !prev);
           onClick?.(event);
         }}
@@ -67,7 +74,8 @@ function DatePicker({
               onSelect={handleSelect}
               showOutsideDays
               disabled={{ after: new Date() }}
-              className="rounded-md border border-neutral-600 bg-neutral-900 p-3 shadow-lg"
+              className="rounded-md border border-white/10 p-3 shadow-lg"
+              style={{ backgroundColor }}
               mode="single"
               // footer={<div>hallo pik</div>}
               classNames={{
@@ -86,16 +94,16 @@ function DatePicker({
                   'rounded-md w-9 font-normal text-[0.8rem] text-neutral-400',
                 [UI.Week]: 'flex w-full mt-2',
                 [UI.Day]:
-                  'size-9 text-center rounded-md text-sm p-0 relative hover:bg-neutral-700 hover:aria-selected:bg-white',
+                  'size-9 text-center rounded-md text-sm p-0 relative hover:bg-white/10 hover:aria-selected:bg-white',
                 [UI.DayButton]: 'size-9 font-normal p-0 focus:outline-none',
                 [UI.Chevron]: 'size-4 fill-white',
                 [SelectionState.selected]:
                   'bg-white text-neutral-900 hover:bg-white hover:text-neutral-900 focus:bg-white focus:text-neutral-900',
                 [DayFlag.today]:
-                  'bg-neutral-600 text-white hover:bg-neutral-600 aria-selected:bg-white aria-selected:text-neutral-900',
+                  'bg-white/20 text-white hover:bg-white/20 aria-selected:bg-white aria-selected:text-neutral-900',
                 [DayFlag.outside]: 'opacity-40',
                 [DayFlag.disabled]:
-                  '!opacity-15 hover:bg-transparent hover:text-white',
+                  '!opacity-15 hover:bg-white/0 hover:text-white',
                 [DayFlag.hidden]: 'invisible',
               }}
             />

@@ -8,20 +8,23 @@ import {
   type WatchedItem,
 } from '@/lib/db/watched';
 import { fetchTvSeriesWatchProvider } from '@/lib/tmdb';
-import { type TvSeries, type Season } from '@/types/tv-series';
+import { type Season, type TvSeries } from '@/types/tv-series';
 import { type User } from '@/types/user';
 import { type WatchProvider } from '@/types/watch-provider';
 
 import Cards from './Cards';
 
-async function fetchAllSeasons(tvSeriesId: number, numberOfSeasons: number) {
-  const seasonPromises = Array.from({ length: numberOfSeasons }, (_, index) =>
-    cachedTvSeriesSeason(tvSeriesId, index + 1),
-  );
+async function fetchAllSeasons(tvSeries: TvSeries) {
+  const seasonPromises =
+    tvSeries.seasons?.map((season) =>
+      cachedTvSeriesSeason(tvSeries.id, season.seasonNumber),
+    ) ?? [];
 
   try {
     const seasons = await Promise.all(seasonPromises);
-    return seasons.filter((season): season is Season => season !== undefined);
+    return seasons
+      .filter((season): season is Season => season !== undefined)
+      .filter((season) => new Date(season.airDate).getTime() <= Date.now());
   } catch (error) {
     throw error;
   }
@@ -42,7 +45,7 @@ export default async function CardsContainer({
       userId: user.id,
       tvSeries,
     }),
-    fetchAllSeasons(tvSeries.id, tvSeries.numberOfSeasons),
+    fetchAllSeasons(tvSeries),
     fetchTvSeriesWatchProvider(tvSeries.id, region),
   ]);
 

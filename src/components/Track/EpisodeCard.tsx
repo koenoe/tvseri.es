@@ -25,6 +25,11 @@ function EpisodeCard({
   watchedItem?: Partial<WatchedItem> | null;
   updateItems: (action: WatchedAction) => void;
 }>) {
+  const watchProviderLogoImage =
+    watchedItem?.watchProviderLogoImage || watchProvider?.logo;
+  const watchProviderName =
+    watchedItem?.watchProviderName || watchProvider?.name;
+
   return (
     <div
       key={episode.id}
@@ -114,14 +119,16 @@ function EpisodeCard({
             </>
           )}
         </Datepicker>
-        <Image
-          className="absolute right-4 top-4 rounded md:relative md:right-auto md:top-auto"
-          src={watchProvider?.logo || ''}
-          alt={watchProvider?.name || ''}
-          width={28}
-          height={28}
-          unoptimized
-        />
+        {watchProviderLogoImage && watchProviderName && (
+          <Image
+            className="absolute right-4 top-4 rounded md:relative md:right-auto md:top-auto"
+            src={watchProviderLogoImage}
+            alt={watchProviderName}
+            width={28}
+            height={28}
+            unoptimized
+          />
+        )}
       </div>
     </div>
   );

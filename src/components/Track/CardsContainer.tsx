@@ -8,38 +8,26 @@ import {
   type WatchedItem,
 } from '@/lib/db/watched';
 import { fetchTvSeriesWatchProvider } from '@/lib/tmdb';
-import { type TvSeries, type Episode, type Season } from '@/types/tv-series';
+import { type TvSeries, type Season } from '@/types/tv-series';
 import { type User } from '@/types/user';
+import { type WatchProvider } from '@/types/watch-provider';
 
-import Episodes from './Episodes';
+import Cards from './Cards';
 
-async function fetchAllEpisodes(
-  tvSeriesId: number,
-  numberOfSeasons: number,
-): Promise<Episode[]> {
-  const currentDate = new Date().getTime();
+async function fetchAllSeasons(tvSeriesId: number, numberOfSeasons: number) {
   const seasonPromises = Array.from({ length: numberOfSeasons }, (_, index) =>
     cachedTvSeriesSeason(tvSeriesId, index + 1),
   );
 
   try {
     const seasons = await Promise.all(seasonPromises);
-    return seasons
-      .filter((season): season is Season => season !== undefined)
-      .flatMap((season) => season.episodes || [])
-      .filter((episode) => new Date(episode.airDate).getTime() <= currentDate)
-      .sort((a, b) => {
-        const seasonDiff = b.seasonNumber - a.seasonNumber;
-        return seasonDiff !== 0
-          ? seasonDiff
-          : b.episodeNumber - a.episodeNumber;
-      });
+    return seasons.filter((season): season is Season => season !== undefined);
   } catch (error) {
     throw error;
   }
 }
 
-export default async function EpisodesContainer({
+export default async function CardsContainer({
   tvSeries,
   user,
 }: Readonly<{
@@ -49,51 +37,53 @@ export default async function EpisodesContainer({
   const headerStore = await headers();
   const region = headerStore.get('cloudfront-viewer-country') || 'US';
 
-  const [watched, episodes, watchProvider] = await Promise.all([
+  const [watchedItems, seasons, watchProvider] = await Promise.all([
     getAllWatchedForTvSeries({
       userId: user.id,
       tvSeries,
     }),
-    fetchAllEpisodes(tvSeries.id, tvSeries.numberOfEpisodes),
+    fetchAllSeasons(tvSeries.id, tvSeries.numberOfSeasons),
     fetchTvSeriesWatchProvider(tvSeries.id, region),
   ]);
 
-  async function saveWatchedItems(items: Partial<WatchedItem>[]) {
+  async function deleteWatchedItems(items: Partial<WatchedItem>[]) {
     'use server';
 
     try {
-      const payload = items.map((item) => ({
+      const itemsToRemove = items.map((item) => ({
         episodeNumber: item.episodeNumber!,
-        runtime: item.runtime!,
         seasonNumber: item.seasonNumber!,
         tvSeries,
         userId: user.id,
-        watchProvider,
-        watchedAt: item.watchedAt!,
       }));
 
-      await markWatchedInBatch(payload);
+      await unmarkWatchedInBatch(itemsToRemove);
     } catch (error) {
       console.error(error);
       throw error;
     }
   }
 
-  async function deleteWatchedItems(items: Partial<WatchedItem>[]) {
+  async function saveWatchedItems(items: Partial<WatchedItem>[]) {
     'use server';
 
     try {
-      const payload = items.map((item) => ({
+      const itemsToUpdate = items.map((item) => ({
         episodeNumber: item.episodeNumber!,
         runtime: item.runtime!,
         seasonNumber: item.seasonNumber!,
         tvSeries,
         userId: user.id,
-        watchProvider,
+        watchProvider: {
+          id: 0,
+          name: item.watchProviderName || watchProvider?.name,
+          logo: item.watchProviderLogoImage || watchProvider?.logo,
+          logoPath: item.watchProviderLogoPath || watchProvider?.logoPath,
+        } as WatchProvider,
         watchedAt: item.watchedAt!,
       }));
 
-      await unmarkWatchedInBatch(payload);
+      await markWatchedInBatch(itemsToUpdate);
     } catch (error) {
       console.error(error);
       throw error;
@@ -101,9 +91,9 @@ export default async function EpisodesContainer({
   }
 
   return (
-    <Episodes
-      episodes={episodes}
-      watched={watched}
+    <Cards
+      seasons={seasons}
+      watchedItems={watchedItems}
       watchProvider={watchProvider}
       saveAction={saveWatchedItems}
       deleteAction={deleteWatchedItems}

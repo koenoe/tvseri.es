@@ -95,7 +95,7 @@ export default function ContextMenuButton({
             }}
           >
             <motion.div
-              className="flex h-36 w-56 flex-col items-center justify-center gap-2 rounded-3xl bg-white p-5 text-neutral-700 shadow-lg"
+              className="flex w-[230px] flex-col items-center justify-center gap-3 rounded-3xl bg-white p-6 text-neutral-700 shadow-lg"
               initial={{ scale: 0 }}
               animate={{
                 scale: 1,
@@ -117,8 +117,7 @@ export default function ContextMenuButton({
             >
               <Link
                 href={`/track/${tvSeries.id}/${tvSeries.slug}`}
-                onClick={() => setIsOpen(false)}
-                className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap border-b-2 border-neutral-200 pb-2 text-sm font-medium hover:text-neutral-800"
+                className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap border-b-2 border-neutral-200 pb-3 text-sm font-medium hover:text-neutral-800"
               >
                 <svg
                   fill="currentColor"
@@ -133,7 +132,7 @@ export default function ContextMenuButton({
               </Link>
               <button
                 onClick={() => handleActionClick(!isFavorited, 'favorites')}
-                className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap border-b-2 border-neutral-200 pb-2 text-sm font-medium hover:text-neutral-800"
+                className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap border-b-2 border-neutral-200 pb-3 text-sm font-medium hover:text-neutral-800"
               >
                 <svg
                   className="size-5 shrink-0"

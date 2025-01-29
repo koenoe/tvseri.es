@@ -73,7 +73,7 @@ export default async function TrackPage({ params: paramsFromProps }: Props) {
         <Suspense
           fallback={
             <div className="flex animate-pulse flex-col gap-4">
-              {Array.from({ length: 5 }).map((_, i) => (
+              {Array.from({ length: tvSeries.numberOfSeasons }).map((_, i) => (
                 <div
                   key={i}
                   className="flex h-[7.5rem] flex-col gap-3 rounded-lg bg-white/5 p-6 md:h-[5.25rem] md:flex-row md:items-center"

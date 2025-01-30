@@ -18,7 +18,7 @@ const cachedCast = cache(async (id: number) => {
   const items = cast.slice(0, 10);
 
   await setCacheItem(dynamoCacheKey, items, {
-    ttl: 86400, // 1 day
+    ttl: 43200, // 12 hours
   });
 
   return items;

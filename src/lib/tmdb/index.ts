@@ -355,7 +355,7 @@ export async function fetchTvSeriesContentRating(
       ?.rating ?? null;
 
   await setCacheItem<string | null>(cacheKey, contentRating, {
-    ttl: 86400, // 1 day
+    ttl: 43200, // 12 hours
   });
 
   return contentRating;
@@ -416,7 +416,7 @@ export async function fetchTvSeriesWatchProvider(
   const watchProvider = watchProviders[0] ?? null;
 
   await setCacheItem<WatchProvider | null>(cacheKey, watchProvider, {
-    ttl: 86400, // 1 day
+    ttl: 43200, // 12 hours
   });
 
   return watchProvider;

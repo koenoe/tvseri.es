@@ -21,7 +21,7 @@ export const cachedTvSeries = async (id: string | number) => {
   });
 
   await setCacheItem(dynamoCacheKey, tvSeries, {
-    ttl: 86400, // 1 day
+    ttl: 43200, // 12 hours
   });
 
   return tvSeries;
@@ -40,7 +40,7 @@ export const cachedTvSeriesSeason = async (
   const tvSeriesSeason = await fetchTvSeriesSeason(id, season);
 
   await setCacheItem(dynamoCacheKey, tvSeriesSeason, {
-    ttl: 86400, // 1 day
+    ttl: 43200, // 12 hours
   });
 
   return tvSeriesSeason;

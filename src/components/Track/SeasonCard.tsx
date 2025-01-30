@@ -32,7 +32,7 @@ function SeasonCard({
     () =>
       watchedItems
         .filter((item) => item.seasonNumber === season.seasonNumber)
-        .sort((a, b) => a.episodeNumber! - b.episodeNumber!),
+        .sort((a, b) => a.watchedAt! - b.watchedAt!),
     [season.seasonNumber, watchedItems],
   );
   const lastWatched = watchedForSeason[watchedForSeason.length - 1];

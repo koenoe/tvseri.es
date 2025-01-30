@@ -60,7 +60,7 @@ function SeasonCard({
           <h2 className="w-full text-lg font-medium">{season.title}</h2>
           <div className="flex items-center gap-4 md:ml-auto">
             <Datepicker
-              className="flex h-9 w-full cursor-pointer items-center gap-1 text-nowrap rounded-md border border-white/10 bg-black/20 px-2.5 text-center text-sm text-white/75 md:w-auto"
+              className="flex h-9 w-full cursor-pointer items-center gap-1 text-nowrap rounded-md border border-white/10 bg-black/10 px-2.5 text-center text-sm text-white/75 md:w-auto"
               offset={{
                 x: 0,
                 y: 30,

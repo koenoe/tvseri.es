@@ -35,7 +35,7 @@ function EpisodeCard({
   return (
     <div
       key={episode.id}
-      className="relative flex flex-col gap-4 rounded-lg bg-black/25 p-4 md:flex-row md:items-center"
+      className="relative flex flex-col gap-4 rounded-lg bg-black/10 p-4 md:flex-row md:items-center"
     >
       <div>
         <div className="flex flex-nowrap gap-3">
@@ -58,7 +58,7 @@ function EpisodeCard({
       </div>
       <div className="flex items-center gap-4 md:ml-auto">
         <Datepicker
-          className="flex h-8 w-full cursor-pointer items-center gap-1 text-nowrap rounded-md border border-white/5 bg-black/5 px-2 text-center text-xs text-white/75 md:w-auto"
+          className="flex h-8 w-full cursor-pointer items-center gap-1 text-nowrap rounded-md border border-white/10 bg-black/10 px-2 text-center text-xs text-white/75 md:w-auto"
           offset={{
             x: 0,
             y: 30,

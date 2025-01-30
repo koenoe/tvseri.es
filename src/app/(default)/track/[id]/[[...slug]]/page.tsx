@@ -69,7 +69,7 @@ export default async function TrackPage({ params: paramsFromProps }: Props) {
           </div>
         </div>
       </div>
-      <div className="mt-10">
+      <div className="mt-10 bg-neutral-900">
         <Suspense
           fallback={
             <div className="flex animate-pulse flex-col gap-4">

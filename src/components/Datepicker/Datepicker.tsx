@@ -102,8 +102,7 @@ function DatePicker({
                 [DayFlag.today]:
                   'bg-white/20 text-white hover:bg-white/20 aria-selected:bg-white aria-selected:text-neutral-900',
                 [DayFlag.outside]: 'opacity-40',
-                [DayFlag.disabled]:
-                  '!opacity-15 hover:bg-white/0 hover:text-white',
+                [DayFlag.disabled]: '!opacity-15 hover:bg-transparent',
                 [DayFlag.hidden]: 'invisible',
               }}
             />

@@ -5,11 +5,11 @@ import { NextResponse } from 'next/server';
 import slugify from 'slugify';
 import wordsToNumbers from 'words-to-numbers';
 
-import { cachedTvSeries } from '@/app/cached';
+import { cachedTvSeries, cachedTvSeriesSeason } from '@/app/cached';
 import auth from '@/auth';
 import { markWatchedInBatch } from '@/lib/db/watched';
 import { fetchWatchProviders } from '@/lib/tmdb';
-import { searchTvSeries, fetchTvSeriesSeason } from '@/lib/tmdb';
+import { searchTvSeries } from '@/lib/tmdb';
 import { type TvSeries, type Episode, type Season } from '@/types/tv-series';
 import { type WatchProvider } from '@/types/watch-provider';
 
@@ -141,7 +141,7 @@ async function findEpisode(
 
     // Fetch and cache if not found
     if (season === undefined) {
-      season = await fetchTvSeriesSeason(tvSeries.id, seasonNumber);
+      season = await cachedTvSeriesSeason(tvSeries.id, seasonNumber);
       seasonCache.set(cacheKey, season ?? null);
     }
 

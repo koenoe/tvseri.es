@@ -4,7 +4,7 @@
  * Used because it's cost-effective for this use case.
  */
 import { type Person } from '@/types/person';
-import { type TvSeries } from '@/types/tv-series';
+import { type Season, type TvSeries } from '@/types/tv-series';
 
 import { getCacheItem, setCacheItem } from './db/cache';
 import { fetchPerson, fetchTvSeries, fetchTvSeriesSeason } from './tmdb';
@@ -32,18 +32,18 @@ export const cachedTvSeriesSeason = async (
   season: number | string,
 ) => {
   const dynamoCacheKey = `tv:season:${id}_${season}`;
-  const dynamoCachedItem = await getCacheItem<TvSeries>(dynamoCacheKey);
+  const dynamoCachedItem = await getCacheItem<Season>(dynamoCacheKey);
   if (dynamoCachedItem) {
     return dynamoCachedItem;
   }
 
-  const tvSeries = await fetchTvSeriesSeason(id, season);
+  const tvSeriesSeason = await fetchTvSeriesSeason(id, season);
 
-  await setCacheItem(dynamoCacheKey, tvSeries, {
+  await setCacheItem(dynamoCacheKey, tvSeriesSeason, {
     ttl: 86400, // 1 day
   });
 
-  return tvSeries;
+  return tvSeriesSeason;
 };
 
 export const cachedPerson = async (id: string | number) => {

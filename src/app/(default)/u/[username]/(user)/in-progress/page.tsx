@@ -2,9 +2,7 @@ import { Suspense } from 'react';
 
 import { notFound } from 'next/navigation';
 
-import Grid from '@/components/Grid/Grid';
-import ListGrid from '@/components/Grid/ListGrid';
-import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
+import InProgressGrid from '@/components/Grid/InProgressGrid';
 import { findUser } from '@/lib/db/user';
 
 type Props = Readonly<{
@@ -19,16 +17,8 @@ export default async function InProgressPage({ params }: Props) {
   }
 
   return (
-    <Suspense
-      fallback={
-        <Grid>
-          {[...Array(18)].map((_, index) => (
-            <SkeletonPoster key={index} />
-          ))}
-        </Grid>
-      }
-    >
-      <ListGrid user={user} listId="IN_PROGRESS" />
+    <Suspense fallback={<>Loading...</>}>
+      <InProgressGrid user={user} />
     </Suspense>
   );
 }

@@ -18,12 +18,12 @@ export default async function Layout({
     //   href: `/u/${username}/profile`,
     // },
     {
-      label: 'Watched',
-      href: `/u/${username}/watched`,
-    },
-    {
       label: 'In progress',
       href: `/u/${username}/in-progress`,
+    },
+    {
+      label: 'Finished',
+      href: `/u/${username}/finished`,
     },
     {
       label: 'Watchlist',

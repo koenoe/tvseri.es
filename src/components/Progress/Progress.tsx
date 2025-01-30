@@ -22,7 +22,11 @@ function Progress({
 }>) {
   const percentage =
     numberOfWatched > 0 && numberOfEpisodes > 0
-      ? Math.round((numberOfWatched / numberOfEpisodes) * 100)
+      ? (() => {
+          const raw = (numberOfWatched / numberOfEpisodes) * 100;
+          const rounded = Math.round(raw);
+          return rounded === 0 && raw > 0 ? 1 : rounded;
+        })()
       : 0;
 
   return (

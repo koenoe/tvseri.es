@@ -30,7 +30,9 @@ function SeasonCard({
   const [isExpanded, setIsExpanded] = useState<boolean>(isExpandedFromProps);
   const watchedForSeason = useMemo(
     () =>
-      watchedItems.filter((item) => item.seasonNumber === season.seasonNumber),
+      watchedItems
+        .filter((item) => item.seasonNumber === season.seasonNumber)
+        .sort((a, b) => a.episodeNumber! - b.episodeNumber!),
     [season.seasonNumber, watchedItems],
   );
   const lastWatched = watchedForSeason[watchedForSeason.length - 1];

@@ -20,6 +20,7 @@ function DatePicker({
   selected: selectedFromProps = new Date(),
   onSelect,
   onClick,
+  footer,
 }: Readonly<{
   className?: string;
   children: ReactNode;
@@ -27,6 +28,7 @@ function DatePicker({
   selected?: Date;
   onSelect: (value: string) => void;
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  footer?: ReactNode;
 }>) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -77,7 +79,7 @@ function DatePicker({
               className="rounded-md border border-white/10 p-3 shadow-lg"
               style={{ backgroundColor }}
               mode="single"
-              // footer={<div>hallo pik</div>}
+              footer={footer}
               classNames={{
                 [UI.Months]: 'relative',
                 [UI.Month]: 'space-y-4 ml-0',

@@ -73,7 +73,7 @@ function SeasonCard({
               onSelect={(value) => {
                 updateItems({
                   type: 'update',
-                  items: season.episodes.map((episode) => ({
+                  items: episodes.map((episode) => ({
                     episodeNumber: episode.episodeNumber,
                     runtime: episode.runtime,
                     seasonNumber: episode.seasonNumber,
@@ -82,6 +82,44 @@ function SeasonCard({
                 });
               }}
               onClick={(e) => e.stopPropagation()}
+              footer={
+                <div className="mt-4 flex gap-3">
+                  <button
+                    className="flex w-1/2 items-center justify-center text-nowrap rounded-lg bg-white/5 p-3 text-xs tracking-wide hover:bg-white/10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateItems({
+                        type: 'update',
+                        items: episodes.map((episode) => ({
+                          episodeNumber: episode.episodeNumber,
+                          runtime: episode.runtime,
+                          seasonNumber: episode.seasonNumber,
+                          watchedAt: new Date().getTime(),
+                        })),
+                      });
+                    }}
+                  >
+                    Just finished
+                  </button>
+                  <button
+                    className="flex w-1/2 items-center justify-center text-nowrap rounded-lg bg-white/5 p-3 text-xs tracking-wide hover:bg-white/10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateItems({
+                        type: 'update',
+                        items: episodes.map((episode) => ({
+                          episodeNumber: episode.episodeNumber,
+                          runtime: episode.runtime,
+                          seasonNumber: episode.seasonNumber,
+                          watchedAt: new Date(episode.airDate).getTime(),
+                        })),
+                      });
+                    }}
+                  >
+                    Release date
+                  </button>
+                </div>
+              }
             >
               {lastWatched ? (
                 <>

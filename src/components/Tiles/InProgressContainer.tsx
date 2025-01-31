@@ -81,7 +81,6 @@ export default async function InProgressContainer({
     <InProgress
       tvSeries={tvSeries!}
       currentSeason={currentSeason}
-      totalWatchCount={watchedItems.length}
       currentSeasonWatchCount={watchCount}
       removeAction={removeAction}
       removeIsAllowed={authenticatedUser?.id === user.id}

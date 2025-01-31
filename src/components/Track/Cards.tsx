@@ -8,6 +8,7 @@ import {
   useTransition,
 } from 'react';
 
+import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 
 import { type WatchedItem } from '@/lib/db/watched';
@@ -77,12 +78,14 @@ function TrackForm({
   deleteAction: (items: Partial<WatchedItem>[]) => void;
   saveAction: (items: Partial<WatchedItem>[]) => void;
 }>) {
+  const searchParams = useSearchParams();
   const [, startTransition] = useTransition();
   const [watchedItems, dispatch] = useReducer(reducer, watchedItemsFromProps);
   const [optimisticWatchedItems, optimisticDispatch] = useOptimistic(
     watchedItems,
     reducer,
   );
+  const seasonNumberFromSearchParams = searchParams.get('season');
 
   const updateItems = useCallback(
     ({ type, items }: WatchedAction) => {
@@ -111,6 +114,9 @@ function TrackForm({
           )}
           watchProvider={watchProvider}
           updateItems={updateItems}
+          isExpanded={
+            String(season.seasonNumber) === seasonNumberFromSearchParams
+          }
         />
       ))}
     </div>

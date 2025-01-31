@@ -77,14 +77,14 @@ export default async function InProgressContainer({
     }
   };
 
-  return (
+  return currentSeason ? (
     <InProgress
       tvSeries={tvSeries!}
-      currentSeason={currentSeason!}
+      currentSeason={currentSeason}
       totalWatchCount={watchedItems.length}
       currentSeasonWatchCount={watchCount}
       removeAction={removeAction}
       removeIsAllowed={authenticatedUser?.id === user.id}
     />
-  );
+  ) : null;
 }

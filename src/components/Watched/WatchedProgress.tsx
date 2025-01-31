@@ -20,7 +20,9 @@ export default function WatchedProgress({
   return (
     <Progress
       className="my-6 lg:w-9/12"
-      numberOfEpisodes={tvSeries.numberOfEpisodes}
+      numberOfEpisodes={
+        tvSeries.numberOfAiredEpisodes || tvSeries.numberOfEpisodes || 0
+      }
       numberOfWatched={numberOfWatched}
       runtime={totalRuntime}
     />

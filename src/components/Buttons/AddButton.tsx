@@ -1,23 +1,25 @@
 'use client';
 
-import { useCallback, useState, useTransition } from 'react';
+import { useCallback, useTransition } from 'react';
 
 import { motion } from 'framer-motion';
 
+import { useActionButtons } from './ActionButtonsProvider';
 import CircleButton from './CircleButton';
 
 export default function AddButton({
-  isActive: isActiveFromProps = false,
   action,
 }: Readonly<{
-  isActive?: boolean;
   action: (value: boolean, listType: 'favorites' | 'watchlist') => void;
 }>) {
-  const [isActive, setIsActive] = useState(isActiveFromProps);
+  const [{ isWatchlisted }, setState] = useActionButtons();
   const [isPending, startTransition] = useTransition();
   const handleOnClick = useCallback(
     (value: boolean) => {
-      setIsActive(value);
+      setState((prevState) => ({
+        ...prevState,
+        isWatchlisted: value,
+      }));
       startTransition(async () => {
         try {
           await action(value, 'watchlist');
@@ -26,21 +28,21 @@ export default function AddButton({
         }
       });
     },
-    [action],
+    [action, setState],
   );
 
   return (
     <CircleButton
-      isActive={isActive}
+      isActive={isWatchlisted}
       onClick={handleOnClick}
       isDisabled={isPending}
     >
       <svg
-        className="h-6 w-6"
+        className="size-5 md:size-6"
         viewBox="0 0 512 512"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {isActive ? (
+        {isWatchlisted ? (
           <motion.polyline
             points="416 128 192 384 96 288"
             style={{

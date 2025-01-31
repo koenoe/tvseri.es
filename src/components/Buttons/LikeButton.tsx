@@ -1,21 +1,24 @@
 'use client';
 
-import { useCallback, useState, useTransition } from 'react';
+import { useCallback, useTransition } from 'react';
 
+import { useActionButtons } from './ActionButtonsProvider';
 import CircleButton from './CircleButton';
 
 export default function LikeButton({
-  isActive: isActiveFromProps = false,
   action,
 }: Readonly<{
-  isActive?: boolean;
   action: (value: boolean, listType: 'favorites' | 'watchlist') => void;
 }>) {
-  const [isActive, setIsActive] = useState(isActiveFromProps);
+  const [{ isFavorited }, setState] = useActionButtons();
   const [isPending, startTransition] = useTransition();
   const handleOnClick = useCallback(
     (value: boolean) => {
-      setIsActive(value);
+      setState((prevState) => ({
+        ...prevState,
+        isFavorited: value,
+      }));
+
       startTransition(async () => {
         try {
           await action(value, 'favorites');
@@ -24,17 +27,17 @@ export default function LikeButton({
         }
       });
     },
-    [action],
+    [action, setState],
   );
 
   return (
     <CircleButton
       onClick={handleOnClick}
-      isActive={isActive}
+      isActive={isFavorited}
       isDisabled={isPending}
     >
       <svg
-        className="h-7 w-7"
+        className="size-6 md:size-7"
         viewBox="0 0 32 32"
         xmlns="http://www.w3.org/2000/svg"
         fill="currentColor"

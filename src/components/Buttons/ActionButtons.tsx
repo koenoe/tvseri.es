@@ -14,17 +14,24 @@ import {
 } from '@/lib/tmdb';
 import { type TvSeries } from '@/types/tv-series';
 
+import ActionButtonsProvider from './ActionButtonsProvider';
 import AddButton from './AddButton';
+import ContextMenuButtonTvSeries from './ContextMenuButtonTvSeries';
 import LikeButton from './LikeButton';
 import WatchButton from './WatchButton';
 
 export default async function ActionButtons({
   id,
+  showWatchButton = true,
+  showContextMenuButton = true,
 }: Readonly<{
   id: number | string;
+  showWatchButton?: boolean;
+  showContextMenuButton?: boolean;
 }>) {
   const tvSeries = (await cachedTvSeries(id)) as TvSeries;
-  const shouldShowWatchButton = new Date(tvSeries.firstAirDate) <= new Date();
+  const shouldShowWatchButton =
+    showWatchButton && new Date(tvSeries.firstAirDate) <= new Date();
 
   async function addToOrRemoveAction(
     value: boolean,
@@ -108,19 +115,34 @@ export default async function ActionButtons({
     const isWatchlisted = await isInWatchlist(payload);
 
     return (
-      <>
+      <ActionButtonsProvider
+        isFavorited={isFavorited}
+        isWatchlisted={isWatchlisted}
+      >
         {shouldShowWatchButton && <WatchButton tvSeriesId={Number(id)} />}
-        <LikeButton isActive={isFavorited} action={addToOrRemoveAction} />
-        <AddButton isActive={isWatchlisted} action={addToOrRemoveAction} />
-      </>
+        <LikeButton action={addToOrRemoveAction} />
+        <AddButton action={addToOrRemoveAction} />
+        {showContextMenuButton && (
+          <ContextMenuButtonTvSeries
+            tvSeries={tvSeries}
+            action={addToOrRemoveAction}
+          />
+        )}
+      </ActionButtonsProvider>
     );
   }
 
   return (
-    <>
+    <ActionButtonsProvider isFavorited={false} isWatchlisted={false}>
       {shouldShowWatchButton && <WatchButton tvSeriesId={Number(id)} />}
       <LikeButton action={addToOrRemoveAction} />
       <AddButton action={addToOrRemoveAction} />
-    </>
+      {showContextMenuButton && (
+        <ContextMenuButtonTvSeries
+          tvSeries={tvSeries}
+          action={addToOrRemoveAction}
+        />
+      )}
+    </ActionButtonsProvider>
   );
 }

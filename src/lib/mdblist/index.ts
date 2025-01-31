@@ -140,3 +140,14 @@ export async function fetchKoreasFinest() {
 
   return response.shows?.map((item) => item.id);
 }
+
+export async function fetchMostPopularThisMonth() {
+  const response = (await mdblistFetch(
+    '/lists/koenoe/most-popular-this-month/items',
+  )) as Readonly<{
+    movies: Item[];
+    shows: Item[];
+  }>;
+
+  return response.shows?.map((item) => item.id);
+}

@@ -4,10 +4,10 @@
  * Used because it's cost-effective for this use case.
  */
 import { type Person } from '@/types/person';
-import { type TvSeries } from '@/types/tv-series';
+import { type Season, type TvSeries } from '@/types/tv-series';
 
 import { getCacheItem, setCacheItem } from './db/cache';
-import { fetchPerson, fetchTvSeries } from './tmdb';
+import { fetchPerson, fetchTvSeries, fetchTvSeriesSeason } from './tmdb';
 
 export const cachedTvSeries = async (id: string | number) => {
   const dynamoCacheKey = `tv:v4:${id}`;
@@ -21,10 +21,29 @@ export const cachedTvSeries = async (id: string | number) => {
   });
 
   await setCacheItem(dynamoCacheKey, tvSeries, {
-    ttl: 86400, // 1 day
+    ttl: 43200, // 12 hours
   });
 
   return tvSeries;
+};
+
+export const cachedTvSeriesSeason = async (
+  id: number | string,
+  season: number | string,
+) => {
+  const dynamoCacheKey = `tv:season:${id}_${season}`;
+  const dynamoCachedItem = await getCacheItem<Season>(dynamoCacheKey);
+  if (dynamoCachedItem) {
+    return dynamoCachedItem;
+  }
+
+  const tvSeriesSeason = await fetchTvSeriesSeason(id, season);
+
+  await setCacheItem(dynamoCacheKey, tvSeriesSeason, {
+    ttl: 43200, // 12 hours
+  });
+
+  return tvSeriesSeason;
 };
 
 export const cachedPerson = async (id: string | number) => {

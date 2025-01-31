@@ -6,12 +6,12 @@ import { cva, cx, type VariantProps } from 'class-variance-authority';
 import { motion } from 'framer-motion';
 
 export const circleButtonStyles = cva(
-  'relative flex aspect-square h-12 w-12 items-center justify-center rounded-full border-2 focus:outline-none',
+  'relative flex aspect-square items-center justify-center rounded-full border-2 focus:outline-none',
   {
     variants: {
       size: {
-        small: ['h-8 w-8'],
-        medium: ['h-12 w-12'],
+        small: ['size-8'],
+        medium: ['size-10 md:size-12'],
       },
     },
     defaultVariants: {
@@ -29,24 +29,33 @@ export default function CircleButton({
   isActive = false,
   isDisabled,
   size,
+  ref,
 }: ButtonVariantProps &
   Readonly<{
+    ref?: React.Ref<HTMLButtonElement>;
     className?: string;
     children: React.ReactNode;
-    onClick?: (value: boolean) => void;
+    onClick?: (
+      value: boolean,
+      event: React.MouseEvent<HTMLButtonElement>,
+    ) => void;
     isActive?: boolean;
     isDisabled?: boolean;
   }>) {
-  const handleClick = useCallback(() => {
-    onClick?.(!isActive);
-  }, [isActive, onClick]);
+  const handleClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      onClick?.(!isActive, event);
+    },
+    [isActive, onClick],
+  );
 
   return (
     <motion.button
+      ref={ref}
       className={cx(circleButtonStyles({ className, size }))}
       disabled={isDisabled}
       whileTap="tap"
-      whileHover={isActive ? undefined : 'hover'}
+      whileHover={isActive ? 'hover-active' : 'hover-inactive'}
       onClick={handleClick}
       initial={false}
       animate={isActive ? 'active' : 'inactive'}
@@ -62,8 +71,11 @@ export default function CircleButton({
           borderColor: 'rgba(255, 255, 255, 0.2)',
           color: 'rgba(255, 255, 255, 0.6)',
         },
-        hover: {
+        'hover-inactive': {
           borderColor: 'rgba(255, 255, 255, 0.4)',
+        },
+        'hover-active': {
+          borderColor: 'rgba(255, 255, 255, 1)',
         },
       }}
       layout

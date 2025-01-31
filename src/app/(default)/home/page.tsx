@@ -8,6 +8,7 @@ import BestSportsDocumentariesList from '@/components/List/BestSportsDocumentari
 import GenresList, { gapStyleOverride } from '@/components/List/GenresList';
 import KoreasFinestList from '@/components/List/KoreasFinestList';
 import MostAnticipatedList from '@/components/List/MostAnticipatedList';
+import MostPopularThisMonthList from '@/components/List/MostPopularThisMonth';
 import PopularBritishCrimeList from '@/components/List/PopularBritishCrimeList';
 import TopRatedList from '@/components/List/TopRatedList';
 import Page from '@/components/Page/Page';
@@ -22,7 +23,7 @@ const cachedTrendingTvSeries = unstable_cache(
   },
   ['trending'],
   {
-    revalidate: 28800, // 8 hours
+    revalidate: 43200, // 12 hours
     tags: ['trending'],
   },
 );
@@ -45,15 +46,15 @@ export default async function HomePage() {
       <Spotlight items={trendingTvSeries} className="mb-10 md:mb-20" />
 
       <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
-        <TopRatedList className="mb-10 md:mb-16" priority />
+        <MostPopularThisMonthList className="mb-10 md:mb-16" priority />
+      </Suspense>
+
+      <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
+        <TopRatedList className="mb-10 md:mb-16" />
       </Suspense>
 
       <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
         <ApplePlusList className="mb-10 md:mb-16" />
-      </Suspense>
-
-      <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
-        <KoreasFinestList className="mb-10 md:mb-16" />
       </Suspense>
 
       <Suspense
@@ -67,6 +68,10 @@ export default async function HomePage() {
         }
       >
         <GenresList className="mb-10 md:mb-16" />
+      </Suspense>
+
+      <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
+        <KoreasFinestList className="mb-10 md:mb-16" />
       </Suspense>
 
       <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>

@@ -203,6 +203,56 @@ export const markWatched = async ({
   return watchedItem;
 };
 
+export const unmarkWatchedInBatch = async (
+  items: ReadonlyArray<{
+    userId: string;
+    tvSeries: TvSeries;
+    seasonNumber: number;
+    episodeNumber: number;
+  }>,
+) => {
+  const uniqueCompositeKeys = new Set<string>();
+  const uniqueItems = items.filter((item) => {
+    const paddedSeason = paddedNumber(item.seasonNumber);
+    const paddedEpisode = paddedNumber(item.episodeNumber);
+    const compositeKey = `USER#${item.userId}#SERIES#${item.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`;
+
+    if (uniqueCompositeKeys.has(compositeKey)) {
+      return false;
+    }
+
+    uniqueCompositeKeys.add(compositeKey);
+    return true;
+  });
+
+  const deleteRequests = uniqueItems.map((item) => {
+    const paddedSeason = paddedNumber(item.seasonNumber);
+    const paddedEpisode = paddedNumber(item.episodeNumber);
+
+    return {
+      DeleteRequest: {
+        Key: marshall({
+          pk: `USER#${item.userId}`,
+          sk: `SERIES#${item.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
+        }),
+      },
+    };
+  });
+
+  const batchPromises = [];
+  for (let i = 0; i < deleteRequests.length; i += DYNAMO_DB_BATCH_LIMIT) {
+    const batch = deleteRequests.slice(i, i + DYNAMO_DB_BATCH_LIMIT);
+    const command = new BatchWriteItemCommand({
+      RequestItems: {
+        [Resource.Watched.name]: batch,
+      },
+    });
+    batchPromises.push(client.send(command));
+  }
+
+  await Promise.all(batchPromises);
+};
+
 export const unmarkWatched = async (
   input: Readonly<{
     userId: string;

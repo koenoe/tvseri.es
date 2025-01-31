@@ -239,13 +239,18 @@ export const createWatchedStore = () => {
         { totalRuntime: 0, numberOfWatched: 0 },
       );
 
-      const totalEpisodes =
+      const numberOfEpisodes =
         series.tvSeries.numberOfAiredEpisodes ||
         series.tvSeries.numberOfEpisodes ||
         0;
+
       const progress =
-        numberOfWatched > 0 && totalEpisodes > 0
-          ? Math.round((numberOfWatched / totalEpisodes) * 100)
+        numberOfWatched > 0 && numberOfEpisodes > 0
+          ? (() => {
+              const raw = (numberOfWatched / numberOfEpisodes) * 100;
+              const rounded = Math.round(raw);
+              return rounded === 0 && raw > 0 ? 1 : rounded;
+            })()
           : 0;
 
       return {

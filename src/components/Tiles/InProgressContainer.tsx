@@ -1,7 +1,8 @@
 import { cachedTvSeries } from '@/app/cached';
-import { type ListItem } from '@/lib/db/list';
+import auth from '@/auth';
+import { removeFromList, type ListItem } from '@/lib/db/list';
 import { getAllWatchedForTvSeries, type WatchedItem } from '@/lib/db/watched';
-import { type TvSeries, type Season } from '@/types/tv-series';
+import { type Season } from '@/types/tv-series';
 import { type User } from '@/types/user';
 
 import InProgress from './InProgress';
@@ -42,23 +43,48 @@ export default async function InProgressContainer({
   item: ListItem;
   user: User;
 }>) {
-  const tvSeries = (await cachedTvSeries(item.id)) as TvSeries;
+  const [{ user: authenticatedUser }, tvSeries] = await Promise.all([
+    auth(),
+    cachedTvSeries(item.id),
+  ]);
+
   const watchedItems = (await getAllWatchedForTvSeries({
     userId: user.id,
-    tvSeries,
+    tvSeries: tvSeries!,
   })) as WatchedItem[];
 
   const { currentSeason, watchCount } = getCurrentSeason(
     watchedItems,
-    tvSeries.seasons!,
+    tvSeries!.seasons!,
   );
+
+  const removeAction = async () => {
+    'use server';
+
+    if (authenticatedUser?.id !== user.id) {
+      return;
+    }
+
+    try {
+      await removeFromList({
+        userId: user.id,
+        listId: 'IN_PROGRESS',
+        id: tvSeries!.id,
+      });
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
 
   return (
     <InProgress
-      tvSeries={tvSeries}
+      tvSeries={tvSeries!}
       currentSeason={currentSeason!}
       totalWatchCount={watchedItems.length}
       currentSeasonWatchCount={watchCount}
+      removeAction={removeAction}
+      removeIsAllowed={authenticatedUser?.id === user.id}
     />
   );
 }

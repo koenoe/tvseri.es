@@ -79,8 +79,13 @@ const nextConfig = {
       },
       {
         source: '/u/:username',
-        destination: '/u/:username/watched',
+        destination: '/u/:username/in-progress',
         permanent: false,
+      },
+      {
+        source: '/u/:username/watched',
+        destination: '/u/:username/finished',
+        permanent: true,
       },
     ];
   },

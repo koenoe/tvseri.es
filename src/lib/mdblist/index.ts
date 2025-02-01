@@ -11,6 +11,32 @@ if (!process.env.MDBLIST_API_KEY) {
 
 type MediaType = 'movie' | 'show';
 
+type MediaInfo = {
+  description: string;
+  ids: {
+    imdb: string;
+    tmdb: number;
+    trakt: number;
+    tvdb: number;
+    mal: number;
+  };
+  ratings: Array<{
+    popular: number;
+    score: number;
+    source: string;
+    value: number;
+    votes: number;
+  }>;
+  released: string;
+  released_digital: string | null;
+  runtime: number;
+  score: number;
+  score_average: number;
+  title: string;
+  type: string;
+  year: number;
+};
+
 type Item = Readonly<{
   id: number; // tmdb id
   title: string;
@@ -26,6 +52,7 @@ const $fetch = createFetch({
 async function mdblistFetch(path: RequestInfo | URL, init?: RequestInit) {
   const headers = {
     accept: 'application/json',
+    'content-type': 'application/json',
   };
 
   const { data, error } = await $fetch(path.toString(), {
@@ -51,31 +78,9 @@ export async function fetchTvSeriesOrMovie(
   id: number | string,
   mediaType: MediaType = 'show',
 ) {
-  const response = (await mdblistFetch(`/tmdb/${mediaType}/${id}`)) as {
-    description: string;
-    ids: {
-      imdb: string;
-      tmdb: number;
-      trakt: number;
-      tvdb: number;
-      mal: number;
-    };
-    ratings: Array<{
-      popular: number;
-      score: number;
-      source: string;
-      value: number;
-      votes: number;
-    }>;
-    released: string;
-    released_digital: string | null;
-    runtime: number;
-    score: number;
-    score_average: number;
-    title: string;
-    type: string;
-    year: number;
-  };
+  const response = (await mdblistFetch(
+    `/tmdb/${mediaType}/${id}`,
+  )) as MediaInfo;
 
   return response;
 }
@@ -150,4 +155,15 @@ export async function fetchMostPopularThisMonth() {
   }>;
 
   return response.shows?.map((item) => item.id);
+}
+
+export async function fetchMediaInfoInBatch(ids: string[]) {
+  const response = (await mdblistFetch('/tmdb/show', {
+    method: 'POST',
+    body: JSON.stringify({
+      ids,
+    }),
+  })) as MediaInfo[];
+
+  return response;
 }

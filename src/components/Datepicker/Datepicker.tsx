@@ -71,6 +71,7 @@ function DatePicker({
             }}
           >
             <DayPicker
+              captionLayout="dropdown-years"
               defaultMonth={selected}
               selected={selected}
               onSelect={handleSelect}
@@ -85,7 +86,7 @@ function DatePicker({
                 [UI.Month]: 'space-y-4 ml-0',
                 [UI.Nav]: 'relative w-full',
                 [UI.MonthCaption]: 'flex justify-center items-center h-7',
-                [UI.CaptionLabel]: 'text-sm font-medium',
+                [UI.CaptionLabel]: 'font-normal flex items-center gap-x-1 h-7',
                 [UI.PreviousMonthButton]:
                   'absolute left-1 top-0 size-7 bg-transparent p-0 opacity-30 hover:opacity-60 flex items-center justify-center border border-white rounded',
                 [UI.NextMonthButton]:

@@ -39,7 +39,7 @@ function Progress({
       <div className="text-xs font-medium">{percentage}% watched</div>
       <div className="text-nowrap text-[0.7rem] opacity-80 before:mr-1 before:content-['–'] md:before:mr-2">
         {numberOfWatched}/{numberOfEpisodes} episodes
-        {runtime && runtime > 0 && ` (${formatRuntime(runtime)})`}
+        {runtime && runtime > 0 ? ` (${formatRuntime(runtime)})` : ''}
       </div>
       {shouldAnimate ? (
         <motion.div

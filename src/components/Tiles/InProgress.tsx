@@ -93,7 +93,7 @@ function InProgress({
                   <div>{tvSeries.genres[0]?.name}</div>
                 </div>
               </div>
-              <div className="relative flex transform-gpu cursor-default items-center gap-3 rounded-lg p-4 shadow-lg backdrop-blur md:flex-row md:items-center md:gap-10 md:p-6">
+              <div className="relative flex cursor-default items-center gap-3 rounded-lg p-4 shadow-lg backdrop-blur md:flex-row md:items-center md:gap-10 md:p-6">
                 <h2 className="flex-nowrap text-ellipsis text-nowrap text-sm font-medium md:w-auto md:text-lg">
                   <span className="hidden sm:inline-block">
                     {currentSeason.title}

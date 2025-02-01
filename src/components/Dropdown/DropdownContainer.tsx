@@ -186,7 +186,6 @@ export default function DropdownContainer({
       return;
     }
 
-    // For absolute positioning, we don't need the triggerRef
     const containerRect = containerEl.getBoundingClientRect();
     const [x, y] = calculateNextPosition({
       position,
@@ -199,6 +198,7 @@ export default function DropdownContainer({
 
     containerEl.style.top = `${y}px`;
     containerEl.style.left = `${x}px`;
+
     setIsVisible(true);
   }, [position, viewportOffset, triggerRef, offset]);
 
@@ -236,22 +236,12 @@ export default function DropdownContainer({
           initial="hidden"
           exit="hidden"
           variants={variants}
-          onAnimationStart={() => {
-            if (!isVisible) reposition();
-          }}
         >
           {children}
         </motion.div>
       </>
     );
-  }, [
-    shouldRenderOverlay,
-    onOutsideClick,
-    isVisible,
-    variants,
-    children,
-    reposition,
-  ]);
+  }, [shouldRenderOverlay, onOutsideClick, isVisible, variants, children]);
 
   if (shouldRenderInModal) {
     return <Modal>{renderContent()}</Modal>;

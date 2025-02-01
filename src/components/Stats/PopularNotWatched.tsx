@@ -21,6 +21,10 @@ export default async function PopularNotWatched({
     (series) => !watchedSeriesIds.includes(series.id),
   );
 
+  if (unwatchedSeries.length === 0) {
+    return null;
+  }
+
   return (
     <List
       title={<h2 className="text-md lg:text-lg">Popular unwatched</h2>}

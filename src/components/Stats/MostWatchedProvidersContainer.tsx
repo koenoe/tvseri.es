@@ -42,7 +42,11 @@ const getStreamingServiceStats = async (
   >();
 
   watchedItems.forEach((item) => {
-    const serviceName = item.watchProviderName || 'Unknown';
+    if (!item.watchProviderName) {
+      return;
+    }
+
+    const serviceName = item.watchProviderName;
     const existing = serviceMap.get(serviceName);
 
     if (existing) {

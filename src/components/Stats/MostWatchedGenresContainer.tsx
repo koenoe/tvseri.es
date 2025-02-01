@@ -1,6 +1,5 @@
 import { cachedUniqueWatchedByYear, cachedTvSeries } from '@/app/cached';
 import { getCacheItem, setCacheItem } from '@/lib/db/cache';
-import { fetchGenresForTvSeries } from '@/lib/tmdb';
 
 import MostWatchedGenres from './MostWatchedGenres';
 
@@ -15,13 +14,10 @@ type Input = Readonly<{
 }>;
 
 const getGenreStats = async (input: Input): Promise<GenreStat[]> => {
-  const [genres, watchedItems] = await Promise.all([
-    fetchGenresForTvSeries(),
-    cachedUniqueWatchedByYear({
-      userId: input.userId,
-      year: input.year,
-    }),
-  ]);
+  const watchedItems = await cachedUniqueWatchedByYear({
+    userId: input.userId,
+    year: input.year,
+  });
 
   if (watchedItems.length === 0) {
     return [];
@@ -30,11 +26,7 @@ const getGenreStats = async (input: Input): Promise<GenreStat[]> => {
   const seriesWithGenres = await Promise.all(
     watchedItems.map((item) => cachedTvSeries(item.id)),
   );
-
   const genreCounts = new Map<string, number>();
-  genres.forEach((genre) => {
-    genreCounts.set(genre.name, 0);
-  });
 
   seriesWithGenres.forEach((series) => {
     series!.genres.forEach((genre) => {

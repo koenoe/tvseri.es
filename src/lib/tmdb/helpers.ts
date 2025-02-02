@@ -234,11 +234,6 @@ function formatReleaseYearForTvSeries(
     ? new Date(lastAirDate).getUTCFullYear()
     : undefined;
 
-  // Return single year if both dates are in the same year
-  if (firstAirYear && lastAirYear && firstAirYear === lastAirYear) {
-    return `${firstAirYear}`;
-  }
-
   switch (status) {
     case 'Ended':
     case 'Canceled': {

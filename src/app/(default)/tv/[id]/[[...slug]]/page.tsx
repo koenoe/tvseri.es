@@ -168,6 +168,7 @@ export default async function TvSeriesDetailsPage({
                     <SkeletonCircleButton />
                     <SkeletonCircleButton />
                     <SkeletonCircleButton />
+                    <SkeletonCircleButton />
                   </>
                 }
               >

@@ -240,7 +240,7 @@ function formatReleaseYearForTvSeries(
       if (!firstAirYear) {
         return lastAirYear ? `${lastAirYear}` : 'TBA';
       }
-      if (lastAirYear) {
+      if (lastAirYear && lastAirYear !== firstAirYear) {
         return `${firstAirYear}–${lastAirYear}`;
       }
       return `${firstAirYear}`;

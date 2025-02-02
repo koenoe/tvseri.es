@@ -22,7 +22,7 @@ async function storePreferredImages(
 
   await Promise.all([
     putPreferredImages(id, preferredImages),
-    deleteCacheItem(`tv:v7:${id}`),
+    deleteCacheItem(`tv:v8:${id}`),
   ]);
 }
 

@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react';
 
 import { cva, cx } from 'class-variance-authority';
+import { twMerge } from 'tailwind-merge';
 
 import { type Episode } from '@/types/tv-series';
 import formatDate from '@/utils/formatDate';
@@ -97,7 +98,12 @@ function EpisodeTile({
         <div className="mt-1 flex w-full gap-2 text-xs opacity-60 md:text-[0.8rem]">
           {item.runtime && <div>{formatRuntime(item.runtime)}</div>}
           {item.airDate && (
-            <div className="before:mr-2 before:content-['·']">
+            <div
+              className={twMerge(
+                'before:mr-2 before:content-["·"]',
+                !item.runtime && 'before:mr-0 before:content-none',
+              )}
+            >
               {formatDate(item.airDate)}
             </div>
           )}

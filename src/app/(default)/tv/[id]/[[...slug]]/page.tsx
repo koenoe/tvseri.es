@@ -8,6 +8,8 @@ import { cachedTvSeries } from '@/app/cached';
 import ActionButtons from '@/components/Buttons/ActionButtons';
 import Cast from '@/components/Cast/Cast';
 import ContentRating from '@/components/ContentRating/ContentRating';
+import ExpandableCreators from '@/components/ExpandableList/ExpandableCreators';
+import ExpandableLanguages from '@/components/ExpandableList/ExpandableLanguages';
 import ExpandableText from '@/components/ExpandableText/ExpandableText';
 import InfoLine from '@/components/InfoLine/InfoLine';
 import EpisodesList from '@/components/List/EpisodesList';
@@ -178,19 +180,7 @@ export default async function TvSeriesDetailsPage({
 
           <div className="flex flex-wrap items-start gap-x-6 text-nowrap text-xs font-light md:text-[0.8rem]">
             {tvSeries.createdBy.length > 0 && (
-              <p className="flex flex-nowrap items-center gap-x-1 font-medium leading-loose">
-                <span className="opacity-60">Created by:</span>
-                {tvSeries.createdBy.map((creator, index) => (
-                  <Link
-                    key={creator.id}
-                    className="hover:underline"
-                    href={`/person/${creator.id}/${creator.slug}`}
-                  >
-                    {creator.name}
-                    {index < tvSeries.createdBy.length - 1 ? ',' : ''}
-                  </Link>
-                ))}
-              </p>
+              <ExpandableCreators creators={tvSeries.createdBy} />
             )}
 
             {tvSeries.originCountry && (
@@ -207,19 +197,7 @@ export default async function TvSeriesDetailsPage({
             )}
 
             {tvSeries.languages.length > 0 && (
-              <p className="flex flex-nowrap items-center gap-x-1 font-medium leading-loose">
-                <span className="opacity-60">Languages:</span>
-                {tvSeries.languages.map((language, index) => (
-                  <Link
-                    key={language.code}
-                    className="hover:underline"
-                    href={`/discover?with_original_language=${language.code}`}
-                  >
-                    {language.englishName}
-                    {index < tvSeries.languages.length - 1 ? ',' : ''}
-                  </Link>
-                ))}
-              </p>
+              <ExpandableLanguages languages={tvSeries.languages} />
             )}
           </div>
         </div>

@@ -917,7 +917,7 @@ export async function fetchPersonKnownFor(
   person: Person,
 ): Promise<ReadonlyArray<TvSeries | Movie>> {
   const results = await searchPerson(person.name);
-  return results[0]?.knownFor ?? [];
+  return results[0]?.knownFor.filter((item) => !!item.posterImage) ?? [];
 }
 
 export async function fetchPersonTvCredits(id: number | string) {

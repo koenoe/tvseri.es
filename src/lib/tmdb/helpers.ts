@@ -198,30 +198,28 @@ export function normalizePersons(
     | TmdbTvSeriesCredits['cast']
     | TmdbTvSeriesCredits['crew'],
 ) {
-  return (persons ?? [])
-    .filter((person) => !!person.profile_path)
-    .map((person) => {
-      let character = '';
-      let job = '';
-      if ('roles' in person && person.roles) {
-        character = person.roles?.[0].character as string;
-      } else if ('jobs' in person && person.jobs) {
-        job = person.jobs?.[0].job as string;
-      }
+  return (persons ?? []).map((person) => {
+    let character = '';
+    let job = '';
+    if ('roles' in person && person.roles) {
+      character = person.roles?.[0].character as string;
+    } else if ('jobs' in person && person.jobs) {
+      job = person.jobs?.[0].job as string;
+    }
 
-      return {
-        id: person.id,
-        name: person.name ?? '',
-        image: person.profile_path
-          ? generateTmdbImageUrl(person.profile_path, 'w138_and_h175_face')
-          : '',
-        slug: slugify(person.name as string, { lower: true, strict: true }),
-        character,
-        job,
-        numberOfEpisodes:
-          'total_episode_count' in person ? person.total_episode_count : 0,
-      };
-    });
+    return {
+      id: person.id,
+      name: person.name ?? '',
+      image: person.profile_path
+        ? generateTmdbImageUrl(person.profile_path, 'w138_and_h175_face')
+        : '',
+      slug: slugify(person.name as string, { lower: true, strict: true }),
+      character,
+      job,
+      numberOfEpisodes:
+        'total_episode_count' in person ? person.total_episode_count : 0,
+    };
+  });
 }
 
 function formatReleaseYearForTvSeries(
@@ -330,6 +328,17 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
       }
     : undefined;
 
+  const originalLanguage = series.original_language ?? '';
+  const languages = (series.spoken_languages ?? [])
+    .map((language) => ({
+      englishName: language.english_name ?? '',
+      name: language.name ?? '',
+      code: language.iso_639_1 ?? '',
+    }))
+    .sort((a, b) =>
+      a.code === originalLanguage ? -1 : b.code === originalLanguage ? 1 : 0,
+    );
+
   return {
     id: series.id,
     isAdult: series.adult,
@@ -340,13 +349,9 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     })),
     createdBy: normalizePersons(series.created_by),
     description: series.overview ?? '',
-    languages: (series.spoken_languages ?? []).map((language) => ({
-      englishName: language.english_name ?? '',
-      name: language.name ?? '',
-      code: language.iso_639_1 ?? '',
-    })),
+    languages,
     originCountry,
-    originalLanguage: series.original_language ?? '',
+    originalLanguage,
     originalTitle: series.original_name ?? '',
     tagline: series.tagline ?? '',
     // @ts-expect-error genre_ids is not defined in the type

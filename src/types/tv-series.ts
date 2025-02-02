@@ -24,12 +24,12 @@ export type Season = Readonly<{
 }>;
 
 type Status =
-  | 'returning series'
-  | 'planned'
-  | 'in production'
-  | 'ended'
-  | 'canceled'
-  | 'pilot';
+  | 'Returning Series'
+  | 'Planned'
+  | 'In Production'
+  | 'Ended'
+  | 'Canceled'
+  | 'Pilot';
 
 type Language = Readonly<{
   englishName: string;
@@ -60,7 +60,7 @@ export type TvSeries = Readonly<{
   numberOfEpisodes: number;
   numberOfAiredEpisodes: number;
   numberOfSeasons: number;
-  originCountry: string;
+  originCountry?: Country;
   originalLanguage: string;
   originalTitle: string;
   popularity: number;

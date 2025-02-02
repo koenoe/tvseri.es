@@ -4,13 +4,13 @@
  * Used because it's cost-effective for this use case.
  */
 import { type Person } from '@/types/person';
-import { type Season, type TvSeries } from '@/types/tv-series';
+import { type TvSeries, type Season } from '@/types/tv-series';
 
 import { getCacheItem, setCacheItem } from './db/cache';
 import { fetchPerson, fetchTvSeries, fetchTvSeriesSeason } from './tmdb';
 
 export const cachedTvSeries = async (id: string | number) => {
-  const dynamoCacheKey = `tv:v4:${id}`;
+  const dynamoCacheKey = `tv:v5:${id}`;
   const dynamoCachedItem = await getCacheItem<TvSeries>(dynamoCacheKey);
   if (dynamoCachedItem) {
     return dynamoCachedItem;

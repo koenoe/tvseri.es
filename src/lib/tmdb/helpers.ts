@@ -198,78 +198,87 @@ export function normalizePersons(
     | TmdbTvSeriesCredits['cast']
     | TmdbTvSeriesCredits['crew'],
 ) {
-  return (persons ?? [])
-    .filter((person) => !!person.profile_path)
-    .map((person) => {
-      let character = '';
-      let job = '';
-      if ('roles' in person && person.roles) {
-        character = person.roles?.[0].character as string;
-      } else if ('jobs' in person && person.jobs) {
-        job = person.jobs?.[0].job as string;
-      }
+  return (persons ?? []).map((person) => {
+    let character = '';
+    let job = '';
+    if ('roles' in person && person.roles) {
+      character = person.roles?.[0].character as string;
+    } else if ('jobs' in person && person.jobs) {
+      job = person.jobs?.[0].job as string;
+    }
 
-      return {
-        id: person.id,
-        name: person.name ?? '',
-        image: person.profile_path
-          ? generateTmdbImageUrl(person.profile_path, 'w138_and_h175_face')
-          : '',
-        slug: slugify(person.name as string, { lower: true, strict: true }),
-        character,
-        job,
-        numberOfEpisodes:
-          'total_episode_count' in person ? person.total_episode_count : 0,
-      };
-    });
+    return {
+      id: person.id,
+      name: person.name ?? '',
+      image: person.profile_path
+        ? generateTmdbImageUrl(person.profile_path, 'w138_and_h175_face')
+        : '',
+      slug: slugify(person.name as string, { lower: true, strict: true }),
+      character,
+      job,
+      numberOfEpisodes:
+        'total_episode_count' in person ? person.total_episode_count : 0,
+    };
+  });
 }
 
 function formatReleaseYearForTvSeries(
   firstAirDate: string | undefined,
   lastAirDate: string | undefined,
+  status: TvSeries['status'],
 ) {
-  // Extract years, defaulting to undefined if the date is invalid or missing
   const firstAirYear = firstAirDate
     ? new Date(firstAirDate).getUTCFullYear()
     : undefined;
   const lastAirYear = lastAirDate
     ? new Date(lastAirDate).getUTCFullYear()
     : undefined;
-  const currentYear = new Date().getUTCFullYear();
 
-  // If firstAirDate is undefined, only return lastAirYear
-  if (!firstAirYear && lastAirYear) {
-    return `${lastAirYear}`;
-  }
-
-  // If lastAirDate is undefined, only return firstAirYear
-  if (firstAirYear && !lastAirYear) {
+  // Return single year if both dates are in the same year
+  if (firstAirYear && lastAirYear && firstAirYear === lastAirYear) {
     return `${firstAirYear}`;
   }
 
-  // If both years are equal, return the single year
-  if (firstAirYear === lastAirYear) {
-    return `${firstAirYear}`;
-  }
+  switch (status) {
+    case 'Ended':
+    case 'Canceled': {
+      if (!firstAirYear) {
+        return lastAirYear ? `${lastAirYear}` : 'TBA';
+      }
+      if (lastAirYear) {
+        return `${firstAirYear}–${lastAirYear}`;
+      }
+      return `${firstAirYear}`;
+    }
 
-  // If lastAirYear is less than the current year, return the range
-  if (lastAirYear && lastAirYear < currentYear) {
-    return `${firstAirYear}–${lastAirYear}`;
+    case 'Returning Series':
+    case 'In Production':
+    case 'Planned':
+    case 'Pilot': {
+      if (!firstAirYear) {
+        return 'TBA';
+      }
+      return `${firstAirYear}–`;
+    }
   }
-
-  // If the series is ongoing, return the start year with a dash
-  return `${firstAirYear}–`;
 }
 
 export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
   const images = extractImages(series);
+  const status = series.status
+    ? (series.status as TvSeries['status'])
+    : 'Ended';
   const firstAirDate = series.first_air_date
     ? new Date(series.first_air_date).toISOString()
     : '';
   const lastAirDate = series.last_air_date
     ? new Date(series.last_air_date).toISOString()
     : '';
-  const releaseYear = formatReleaseYearForTvSeries(firstAirDate, lastAirDate);
+  const releaseYear = formatReleaseYearForTvSeries(
+    firstAirDate,
+    lastAirDate,
+    status,
+  );
   const slug = slugify(series.name ?? '', {
     lower: true,
     strict: true,
@@ -309,6 +318,27 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     0,
   );
 
+  const countryDisplayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+  const originCountry = series.origin_country?.[0]
+    ? {
+        code: series.origin_country[0],
+        name:
+          countryDisplayNames.of(series.origin_country[0]) ??
+          series.origin_country[0],
+      }
+    : undefined;
+
+  const originalLanguage = series.original_language ?? '';
+  const languages = (series.spoken_languages ?? [])
+    .map((language) => ({
+      englishName: language.english_name ?? '',
+      name: language.name ?? '',
+      code: language.iso_639_1 ?? '',
+    }))
+    .sort((a, b) =>
+      a.code === originalLanguage ? -1 : b.code === originalLanguage ? 1 : 0,
+    );
+
   return {
     id: series.id,
     isAdult: series.adult,
@@ -319,13 +349,9 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     })),
     createdBy: normalizePersons(series.created_by),
     description: series.overview ?? '',
-    languages: (series.spoken_languages ?? []).map((language) => ({
-      englishName: language.english_name ?? '',
-      name: language.name ?? '',
-      code: language.iso_639_1 ?? '',
-    })),
-    originCountry: series.origin_country?.[0] ?? '',
-    originalLanguage: series.original_language ?? '',
+    languages,
+    originCountry,
+    originalLanguage,
     originalTitle: series.original_name ?? '',
     tagline: series.tagline ?? '',
     // @ts-expect-error genre_ids is not defined in the type
@@ -350,9 +376,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     releaseYear,
     seasons,
     slug,
-    status: series.status
-      ? (series.status.toLowerCase() as TvSeries['status'])
-      : 'ended',
+    status,
     voteAverage: series.vote_average,
     voteCount: series.vote_count,
     ...images,

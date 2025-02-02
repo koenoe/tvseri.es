@@ -8,6 +8,8 @@ import { cachedTvSeries } from '@/app/cached';
 import ActionButtons from '@/components/Buttons/ActionButtons';
 import Cast from '@/components/Cast/Cast';
 import ContentRating from '@/components/ContentRating/ContentRating';
+import ExpandableCreators from '@/components/ExpandableList/ExpandableCreators';
+import ExpandableLanguages from '@/components/ExpandableList/ExpandableLanguages';
 import ExpandableText from '@/components/ExpandableText/ExpandableText';
 import InfoLine from '@/components/InfoLine/InfoLine';
 import EpisodesList from '@/components/List/EpisodesList';
@@ -176,37 +178,27 @@ export default async function TvSeriesDetailsPage({
             </div>
           </div>
 
-          <div className="flex flex-col text-sm font-light">
+          <div className="flex flex-wrap items-start gap-x-6 text-nowrap text-xs font-light md:text-[0.8rem]">
             {tvSeries.createdBy.length > 0 && (
-              <p className="flex flex-wrap items-center gap-x-2 font-medium leading-loose">
-                <span className="opacity-60">Created by:</span>
-                {tvSeries.createdBy.map((creator, index) => (
-                  <Link
-                    key={creator.id}
-                    href={`/person/${creator.id}/${creator.slug}`}
-                  >
-                    {creator.name}
-                    {index < tvSeries.createdBy.length - 1 ? ',' : ''}
-                  </Link>
-                ))}
+              <ExpandableCreators creators={tvSeries.createdBy} />
+            )}
+
+            {tvSeries.originCountry && (
+              <p className="flex flex-nowrap items-center gap-x-1 font-medium leading-loose">
+                <span className="opacity-60">Country:</span>
+                <Link
+                  key={tvSeries.originCountry.code}
+                  className="hover:underline"
+                  href={`/discover?with_origin_country=${tvSeries.originCountry.code}`}
+                >
+                  {tvSeries.originCountry.name}
+                </Link>
               </p>
             )}
 
-            {/* {tvSeries.languages.length > 0 && (
-              <p className="flex items-center gap-2 font-medium leading-loose">
-                <span className="opacity-60">Spoken languages:</span>
-                {tvSeries.languages
-                  .map((language) => language.englishName)
-                  .join(', ')}
-              </p>
+            {tvSeries.languages.length > 0 && (
+              <ExpandableLanguages languages={tvSeries.languages} />
             )}
-
-            {tvSeries.countries.length > 0 && (
-              <p className="flex items-center gap-2 font-medium leading-loose">
-                <span className="opacity-60">Country of origin:</span>
-                {tvSeries.countries[0].name}
-              </p>
-            )} */}
           </div>
         </div>
 

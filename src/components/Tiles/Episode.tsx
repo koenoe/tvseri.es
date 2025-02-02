@@ -1,8 +1,10 @@
 import { memo, useMemo } from 'react';
 
 import { cva, cx } from 'class-variance-authority';
+import { twMerge } from 'tailwind-merge';
 
 import { type Episode } from '@/types/tv-series';
+import formatDate from '@/utils/formatDate';
 import formatRuntime from '@/utils/formatRuntime';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
@@ -94,12 +96,17 @@ function EpisodeTile({
           {item.description}
         </p>
         <div className="mt-1 flex w-full gap-2 text-xs opacity-60 md:text-[0.8rem]">
-          {item.runtime && (
-            <div className="after:ml-2 after:content-['·']">
-              {formatRuntime(item.runtime)}
+          {item.runtime && <div>{formatRuntime(item.runtime)}</div>}
+          {item.airDate && (
+            <div
+              className={twMerge(
+                'before:mr-2 before:content-["·"]',
+                !item.runtime && 'before:mr-0 before:content-none',
+              )}
+            >
+              {formatDate(item.airDate)}
             </div>
           )}
-          <div className="after:ml-2">{item.airDate.split('T')[0]}</div>
         </div>
       </div>
       <div className="absolute bottom-[-1.5rem] right-[-1rem] text-[10rem] font-bold leading-none opacity-[0.075] md:bottom-[-1.75rem] md:right-[-1rem] md:text-[12.5rem]">

@@ -54,7 +54,7 @@
     "@typescript-eslint/parser": "^8.23.0",
     "autoprefixer": "^10.4.20",
     "aws-lambda": "^1.0.7",
-    "babel-plugin-react-compiler": "19.0.0-beta-e552027-20250112",
+    "babel-plugin-react-compiler": "19.0.0-beta-714736e-20250131",
     "concurrently": "^9.1.2",
     "eslint": "^9.19.0",
     "eslint-config-next": "15.1.6",

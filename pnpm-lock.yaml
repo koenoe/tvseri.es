@@ -39,8 +39,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       framer-motion:
-        specifier: 12.0.11
-        version: 12.0.11(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        specifier: 12.1.0
+        version: 12.1.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       next:
         specifier: 15.1.6
         version: 15.1.6(babel-plugin-react-compiler@19.0.0-beta-e552027-20250112)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -72,11 +72,8 @@ importers:
         specifier: ^1.7.4
         version: 1.7.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       sst:
-        specifier: ^3.7.2
-        version: 3.7.2
-      tailwind-merge:
-        specifier: ^2.6.0
-        version: 2.6.0
+        specifier: ^3.7.7
+        version: 3.7.7
       ulid:
         specifier: ^2.3.0
         version: 2.3.0
@@ -103,8 +100,8 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0
       '@types/node':
-        specifier: ^22.13.0
-        version: 22.13.0
+        specifier: ^22.13.1
+        version: 22.13.1
       '@types/papaparse':
         specifier: ^5.3.15
         version: 5.3.15
@@ -168,6 +165,9 @@ importers:
       sort-package-json:
         specifier: ^2.14.0
         version: 2.14.0
+      tailwind-merge:
+        specifier: ^2.6.0
+        version: 2.6.0
       tailwind-scrollbar-hide:
         specifier: ^2.0.0
         version: 2.0.0(tailwindcss@3.4.17)
@@ -1347,8 +1347,8 @@ packages:
   '@types/json5@0.0.29':
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
 
-  '@types/node@22.13.0':
-    resolution: {integrity: sha512-ClIbNe36lawluuvq3+YYhnIN2CELi+6q8NpnM7PYp4hBn/TatfboPgVSm2rwKRfnV2M+Ty9GWDFI64KEe+kysA==}
+  '@types/node@22.13.1':
+    resolution: {integrity: sha512-jK8uzQlrvXqEU91UxiK5J7pKHyzgnI1Qnl0QDHIgVGuolJhRb9EEl28Cj9b3rGR8B2lhFCtvIm5os8lFnO/1Ew==}
 
   '@types/papaparse@5.3.15':
     resolution: {integrity: sha512-JHe6vF6x/8Z85nCX4yFdDslN11d+1pr12E526X8WAfhadOeaOTx5AuIkvDKIBopfvlzpzkdMx4YyvSKCM9oqtw==}
@@ -2281,8 +2281,8 @@ packages:
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
 
-  framer-motion@12.0.11:
-    resolution: {integrity: sha512-1F+YNXr3bSHxt5sCzeCVL56sc4MngbOhdU5ptv02vaepdFYcQd0fZtuAHvFJgMbn5V7SOsaX/3hVqr21ZaCKhA==}
+  framer-motion@12.1.0:
+    resolution: {integrity: sha512-0wc6Zn3Yf1pIKMXIndgEePDaPttRVbSKJMS4E2e999G/UPRgt5i9t3+e+nAy5K7U1STBJ4TXEvB3dPrPJ7IA8g==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -3574,33 +3574,33 @@ packages:
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
 
-  sst-darwin-arm64@3.7.2:
-    resolution: {integrity: sha512-yzDmSp806FsSKKG7ehCLOsSrZ8EmJjcNwTGCaS3gFJrbM9+vDKCtkV7eBSbDov/3VCZdubDRIRpcRfCvFDz86A==}
+  sst-darwin-arm64@3.7.7:
+    resolution: {integrity: sha512-G9GCF5YLVnJZdehr1S/7c4L177ZJEtU1ChpV6Aub2XswTQaM7BcDHlorWFK/Dcxko2FA3FuZZB+gfd/ZVLTYeA==}
     cpu: [arm64]
     os: [darwin]
 
-  sst-darwin-x64@3.7.2:
-    resolution: {integrity: sha512-CDs7oT4lwBqph7ScsmjertjeTRDs2G2lNhmYmvSu9Si7ruhNcIUcuehkJQjLi6TnURJPuJbgoK0dyDYMOEp2NQ==}
+  sst-darwin-x64@3.7.7:
+    resolution: {integrity: sha512-r6dZgPwMtuR/qErSc09trQ9EJHF1InY0EL6tSPcBEnuc4c+d7z/QF2ps62tFgzUsSbqmKX63jB29JKg0eq5NEA==}
     cpu: [x64]
     os: [darwin]
 
-  sst-linux-arm64@3.7.2:
-    resolution: {integrity: sha512-Qh87zzJGl+sBiEEuSYmCCR/Um1CC9p+MTdS571bH6touEo8de3i/4XGnt3dCDr1OjKSt+JIwDkG3CRsaVU1URA==}
+  sst-linux-arm64@3.7.7:
+    resolution: {integrity: sha512-CSlfoUQjuxlR+mfBpjTl6VlKXspN1zCGqUqw27sbzrXg/U0wYRlf2jhfKVoNOQbWiZaDPVLafOhVCodNpT/3GQ==}
     cpu: [arm64]
     os: [linux]
 
-  sst-linux-x64@3.7.2:
-    resolution: {integrity: sha512-xWnxHDu5Zy0B4S7xyAmLlr1hklvuIgBqtT8q/F3rl8Pr9OLZo/4iJm/RmKipALGxBVb7zU/HfLGcsh9F3KFSnQ==}
+  sst-linux-x64@3.7.7:
+    resolution: {integrity: sha512-/3Ktm48orrI3PahT4wxkA5e9o53RdgoA9U5bVRKa+B9nxROr4YYRpdjZ21ayidDTmI8BhGR7ENRx4Nj40ENuJA==}
     cpu: [x64]
     os: [linux]
 
-  sst-linux-x86@3.7.2:
-    resolution: {integrity: sha512-vCcj3LvssobrvYF8dk/sQPExytX4vOTmbnT/8LVZ1QEeaS8EJ78XxTH+iahv88HMfufCil7dfg+uaFLuIJTRvg==}
+  sst-linux-x86@3.7.7:
+    resolution: {integrity: sha512-CaWa6dUQuwwTliy8O3Ld/3lSRwqr+VLkkaVgfWEf7Jb4NHQ7WB/Xsq960zPoi7lk8x8bAhjyAvhQvEMOz0IFdg==}
     cpu: [x86]
     os: [linux]
 
-  sst@3.7.2:
-    resolution: {integrity: sha512-0J8WYmz2ZGsBMYIyK8CIbBWILIfIsqqxDP9lgpVD75ONytBkTd2rVF3YLS8ALx4PuDQgIgRiLz0EQDZ39FC4NA==}
+  sst@3.7.7:
+    resolution: {integrity: sha512-olCJHSgCp0S5mB3bBrpA2Ha+4IIBmWjhxFY/cCCNSNwTAiqPJNhfAWejg4nZqQGRRWa8hiCXvofByb2yhOkh6Q==}
     hasBin: true
 
   stable-hash@0.0.4:
@@ -6053,13 +6053,13 @@ snapshots:
 
   '@types/json5@0.0.29': {}
 
-  '@types/node@22.13.0':
+  '@types/node@22.13.1':
     dependencies:
       undici-types: 6.20.0
 
   '@types/papaparse@5.3.15':
     dependencies:
-      '@types/node': 22.13.0
+      '@types/node': 22.13.1
 
   '@types/react-dom@19.0.3(@types/react@19.0.8)':
     dependencies:
@@ -7286,7 +7286,7 @@ snapshots:
 
   fraction.js@4.3.7: {}
 
-  framer-motion@12.0.11(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+  framer-motion@12.1.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
       motion-dom: 12.0.0
       motion-utils: 12.0.0
@@ -8571,32 +8571,32 @@ snapshots:
 
   sprintf-js@1.0.3: {}
 
-  sst-darwin-arm64@3.7.2:
+  sst-darwin-arm64@3.7.7:
     optional: true
 
-  sst-darwin-x64@3.7.2:
+  sst-darwin-x64@3.7.7:
     optional: true
 
-  sst-linux-arm64@3.7.2:
+  sst-linux-arm64@3.7.7:
     optional: true
 
-  sst-linux-x64@3.7.2:
+  sst-linux-x64@3.7.7:
     optional: true
 
-  sst-linux-x86@3.7.2:
+  sst-linux-x86@3.7.7:
     optional: true
 
-  sst@3.7.2:
+  sst@3.7.7:
     dependencies:
       aws4fetch: 1.0.20
       jose: 5.2.3
       openid-client: 5.6.4
     optionalDependencies:
-      sst-darwin-arm64: 3.7.2
-      sst-darwin-x64: 3.7.2
-      sst-linux-arm64: 3.7.2
-      sst-linux-x64: 3.7.2
-      sst-linux-x86: 3.7.2
+      sst-darwin-arm64: 3.7.7
+      sst-darwin-x64: 3.7.7
+      sst-linux-arm64: 3.7.7
+      sst-linux-x64: 3.7.7
+      sst-linux-x86: 3.7.7
 
   stable-hash@0.0.4: {}
 

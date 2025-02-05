@@ -68,6 +68,7 @@ export default async function ValidateWatchedStatus({
     title: tvSeries.title,
     slug: tvSeries.slug,
     posterPath: tvSeries.posterPath,
+    status: tvSeries.status,
   };
 
   // First handle active transitions between lists. While most state changes are handled by

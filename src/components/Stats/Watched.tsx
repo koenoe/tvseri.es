@@ -1,4 +1,5 @@
 import { cachedUniqueWatchedByYear } from '@/app/cached';
+import { type ListItem } from '@/lib/db/list';
 
 import Poster from '../Tiles/Poster';
 
@@ -12,7 +13,12 @@ export default async function WatchedByYear({
   return (
     <>
       {items.map((item) => (
-        <Poster key={item.slug} item={item} priority={priority} size="small" />
+        <Poster
+          key={item.slug}
+          item={item as ListItem}
+          priority={priority}
+          size="small"
+        />
       ))}
     </>
   );

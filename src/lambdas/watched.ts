@@ -101,6 +101,7 @@ export const handler = async (event: DynamoDBStreamEvent) => {
       title: tvSeries.title,
       slug: tvSeries.slug,
       posterPath: tvSeries.posterPath,
+      status: tvSeries.status,
     };
 
     // Update lists based on watch status

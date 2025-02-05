@@ -18,8 +18,6 @@ export default async function WatchlistPage({ params }: Props) {
     return notFound();
   }
 
-  console.log({ user });
-
   return (
     <Suspense
       fallback={

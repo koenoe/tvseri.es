@@ -62,14 +62,19 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
             const tvSeriesIsInProgress = watchedCount > 0 && !tvSeriesIsWatched;
             const tvSeriesIsNotWatchedNorInProgress = watchedCount === 0;
 
-            console.log(
-              `[INFO] | ${user.id} | ${tvSeries.title} | ${watchedCount}/${tvSeries.numberOfAiredEpisodes}`,
-            );
-
             // Note: series still watched, no need to move it to in progress
             if (tvSeriesIsWatched) {
               return;
             }
+
+            console.log(
+              `[UPDATE] | ${user.id} | ${tvSeries.title} | ${watchedCount}/${tvSeries.numberOfAiredEpisodes}`,
+              {
+                tvSeriesIsWatched,
+                tvSeriesIsInProgress,
+                tvSeriesIsNotWatchedNorInProgress,
+              },
+            );
 
             // Note: there's new episodes to watch, move series to in progress
             if (tvSeriesIsInProgress) {
@@ -92,7 +97,6 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
                   id: tvSeries.id,
                 }),
               ]);
-              return;
             }
 
             // Note: should never happen, but just in case

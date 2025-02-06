@@ -35,48 +35,27 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
         listId: 'WATCHED',
       });
 
-      if (watchedListItems.length === 0) {
+      const filteredWatchedListItems = watchedListItems.filter(
+        (item) => item.status === 'Returning Series',
+      );
+
+      if (filteredWatchedListItems.length === 0) {
         continue;
       }
 
       await Promise.all(
-        watchedListItems.map((item) => {
+        filteredWatchedListItems.map((item) => {
           return (async () => {
-            const tvSeries = (await cachedTvSeries(item.id)) as TvSeries;
-            const payload = {
-              id: tvSeries.id,
-              posterPath: tvSeries.posterPath,
-              slug: tvSeries.slug,
-              status: tvSeries.status,
-              title: tvSeries.title,
-            };
-
-            if (!item.status) {
-              // Note: we've added status field later, so migrate old items for now.
-              // `addToList` does a put, so it updates the item if it already exists
-              await addToList({
+            const [tvSeries_, watchedCount] = await Promise.all([
+              cachedTvSeries(item.id),
+              getWatchedCountForTvSeries({
                 userId: user.id,
-                listId: 'WATCHED',
-                item: {
-                  ...payload,
-                  createdAt: item.createdAt || Date.now(),
-                },
-              });
-            }
-
-            // TODO: in future we can add a check if `item.status !== 'Returning Series'`
-            // this will improve performance by not having to fetch TV series data from TMDB
-            if (tvSeries.status !== 'Returning Series') {
-              // Note: we only care about TV series that are still airing
-              return;
-            }
-
-            const watchedCount = await getWatchedCountForTvSeries({
-              userId: user.id,
-              tvSeriesId: tvSeries.id,
-            });
+                tvSeriesId: item.id,
+              }),
+            ]);
 
             // Note: constants to make the code more readable
+            const tvSeries = tvSeries_!;
             const tvSeriesIsWatched =
               watchedCount > 0 &&
               watchedCount === tvSeries.numberOfAiredEpisodes;
@@ -95,7 +74,11 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
                   userId: user.id,
                   listId: 'IN_PROGRESS',
                   item: {
-                    ...payload,
+                    id: tvSeries.id,
+                    posterPath: tvSeries.posterPath,
+                    slug: tvSeries.slug,
+                    status: tvSeries.status,
+                    title: tvSeries.title,
                     createdAt: Date.now(),
                   },
                 }),

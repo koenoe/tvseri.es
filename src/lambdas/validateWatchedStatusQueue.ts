@@ -5,6 +5,7 @@ import { getWatchedCountForTvSeries } from '@/lib/db/watched';
 import { fetchTvSeries } from '@/lib/tmdb';
 import { type TvSeries } from '@/types/tv-series';
 import { type User } from '@/types/user';
+import { deleteCacheItem } from '@/lib/db/cache';
 
 /**
  * Module-level cache for TV series data that persists between Lambda invocations.
@@ -75,6 +76,9 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
                 tvSeriesIsNotWatchedNorInProgress,
               },
             );
+
+            // Note: clear dynamoDB cache for this TV series
+            await deleteCacheItem(`tv:v8:${tvSeries.id}`);
 
             // Note: there's new episodes to watch, move series to in progress
             if (tvSeriesIsInProgress) {

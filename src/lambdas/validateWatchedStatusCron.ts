@@ -54,6 +54,10 @@ export const handler = async () => {
       lastEvaluatedKey = result.LastEvaluatedKey;
     } while (lastEvaluatedKey);
 
+    console.log(
+      `[SUCCESS] ${queuedCount} users queued to validate their watched items`,
+    );
+
     return {
       statusCode: 200,
       body: JSON.stringify({ queuedCount }),

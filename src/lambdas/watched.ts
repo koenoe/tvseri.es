@@ -22,7 +22,7 @@ const tvSeriesCache = new Map<string, TvSeries | null>();
  * - Caches both found and not-found (null) results
  */
 const cachedTvSeries = async (id: number) => {
-  const cacheKey = `${id}`;
+  const cacheKey = `watched-queue:${id}`;
 
   if (tvSeriesCache.has(cacheKey)) {
     return tvSeriesCache.get(cacheKey);

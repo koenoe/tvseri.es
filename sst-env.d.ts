@@ -3,64 +3,64 @@
 /* eslint-disable */
 /* deno-fmt-ignore-file */
 
-declare module 'sst' {
+declare module "sst" {
   export interface Resource {
-    Cache: {
-      name: string;
-      type: 'sst.aws.Dynamo';
-    };
-    DominantColor: {
-      name: string;
-      type: 'sst.aws.Function';
-    };
-    Email: {
-      configSet: string;
-      sender: string;
-      type: 'sst.aws.Email';
-    };
-    Lists: {
-      name: string;
-      type: 'sst.aws.Dynamo';
-    };
-    OTP: {
-      name: string;
-      type: 'sst.aws.Dynamo';
-    };
-    PreferredImages: {
-      name: string;
-      type: 'sst.aws.Dynamo';
-    };
-    ScrobbleQueue: {
-      type: 'sst.aws.Queue';
-      url: string;
-    };
-    Sessions: {
-      name: string;
-      type: 'sst.aws.Dynamo';
-    };
-    Users: {
-      name: string;
-      type: 'sst.aws.Dynamo';
-    };
-    ValidateWatchedStatusQueue: {
-      type: 'sst.aws.Queue';
-      url: string;
-    };
-    Watched: {
-      name: string;
-      type: 'sst.aws.Dynamo';
-    };
-    WebhookTokens: {
-      name: string;
-      type: 'sst.aws.Dynamo';
-    };
-    tvseries: {
-      type: 'sst.aws.Nextjs';
-      url: string;
-    };
+    "Cache": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "DominantColor": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "Email": {
+      "configSet": string
+      "sender": string
+      "type": "sst.aws.Email"
+    }
+    "Lists": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "OTP": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "PreferredImages": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "ScrobbleQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "Sessions": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "Users": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "ValidateWatchedStatusQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "Watched": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "WebhookTokens": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "tvseries": {
+      "type": "sst.aws.Nextjs"
+      "url": string
+    }
   }
 }
 /// <reference path="sst-env.d.ts" />
 
-import 'sst';
-export {};
+import "sst"
+export {}

@@ -13,7 +13,7 @@ import { type User } from '@/types/user';
 const tvSeriesCache = new Map<string, TvSeries | null>();
 
 const cachedTvSeries = async (id: number) => {
-  const cacheKey = `${id}`;
+  const cacheKey = `validate-watched-status-queue:${id}`;
 
   if (tvSeriesCache.has(cacheKey)) {
     return tvSeriesCache.get(cacheKey);
@@ -61,6 +61,10 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
               watchedCount === tvSeries.numberOfAiredEpisodes;
             const tvSeriesIsInProgress = watchedCount > 0 && !tvSeriesIsWatched;
             const tvSeriesIsNotWatchedNorInProgress = watchedCount === 0;
+
+            console.log(
+              `[INFO] | ${user.id} | ${tvSeries.title} | ${watchedCount}/${tvSeries.numberOfAiredEpisodes}`,
+            );
 
             // Note: series still watched, no need to move it to in progress
             if (tvSeriesIsWatched) {

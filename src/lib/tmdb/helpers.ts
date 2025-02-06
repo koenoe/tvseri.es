@@ -285,15 +285,25 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     .map((season) => {
       let numberOfAiredEpisodesForSeason = 0;
 
-      if (series.last_episode_to_air) {
-        if (season.season_number < series.last_episode_to_air.season_number) {
+      const lastEpisodeToAir = series.last_episode_to_air;
+      const nextEpisodeToAir =
+        series.next_episode_to_air as typeof lastEpisodeToAir;
+
+      if (lastEpisodeToAir) {
+        if (season.season_number < lastEpisodeToAir.season_number) {
           numberOfAiredEpisodesForSeason = season.episode_count;
-        } else if (
-          season.season_number === series.last_episode_to_air.season_number
-        ) {
-          numberOfAiredEpisodesForSeason =
-            series.last_episode_to_air.episode_number;
+        } else if (season.season_number === lastEpisodeToAir.season_number) {
+          numberOfAiredEpisodesForSeason = lastEpisodeToAir.episode_number;
         }
+      }
+
+      if (
+        nextEpisodeToAir &&
+        nextEpisodeToAir.air_date &&
+        nextEpisodeToAir.season_number === season.season_number &&
+        new Date(nextEpisodeToAir.air_date).getTime() <= Date.now()
+      ) {
+        numberOfAiredEpisodesForSeason += 1;
       }
 
       return {
@@ -303,7 +313,10 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
         airDate: season.air_date ? new Date(season.air_date).toISOString() : '',
         seasonNumber: season.season_number,
         numberOfEpisodes: season.episode_count,
-        numberOfAiredEpisodes: numberOfAiredEpisodesForSeason,
+        numberOfAiredEpisodes: Math.min(
+          numberOfAiredEpisodesForSeason,
+          season.episode_count,
+        ),
         episodes: [],
       };
     });

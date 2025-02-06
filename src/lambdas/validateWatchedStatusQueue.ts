@@ -1,11 +1,11 @@
 import { type SQSHandler, type SQSEvent } from 'aws-lambda';
 
+import { deleteCacheItem } from '@/lib/db/cache';
 import { addToList, getAllListItems, removeFromList } from '@/lib/db/list';
 import { getWatchedCountForTvSeries } from '@/lib/db/watched';
 import { fetchTvSeries } from '@/lib/tmdb';
 import { type TvSeries } from '@/types/tv-series';
 import { type User } from '@/types/user';
-import { deleteCacheItem } from '@/lib/db/cache';
 
 /**
  * Module-level cache for TV series data that persists between Lambda invocations.

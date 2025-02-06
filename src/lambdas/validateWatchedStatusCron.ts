@@ -1,14 +1,19 @@
+import {
+  type AttributeValue,
+  DynamoDBClient,
+  ScanCommand,
+} from '@aws-sdk/client-dynamodb';
 import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
-import { DynamoDBClient, ScanCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { Resource } from 'sst';
+
 import { type User } from '@/types/user';
 
 const dynamo = new DynamoDBClient({});
 const sqs = new SQSClient({});
 
 export const handler = async () => {
-  let lastEvaluatedKey: Record<string, any> | undefined;
+  let lastEvaluatedKey: Record<string, AttributeValue> | undefined;
   let queuedCount = 0;
 
   try {

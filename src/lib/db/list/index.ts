@@ -30,7 +30,7 @@ export type ListItem = Pick<
 > &
   Readonly<{
     position?: number;
-    createdAt: number;
+    createdAt?: number;
   }>;
 
 type PaginationOptions = Readonly<{
@@ -382,7 +382,7 @@ export const addToList = async (
       }>;
   }>,
 ) => {
-  const createdAt = input.item.createdAt ?? Date.now();
+  const createdAt = input.item.createdAt || Date.now();
   const listPrefix = isCustomList(input.listId)
     ? `LIST#CUSTOM#${input.listId}`
     : `LIST#${input.listId}`;

@@ -1,9 +1,10 @@
+import { type SQSHandler, type SQSEvent } from 'aws-lambda';
+
 import { addToList, getAllListItems, removeFromList } from '@/lib/db/list';
 import { getWatchedCountForTvSeries } from '@/lib/db/watched';
 import { fetchTvSeries } from '@/lib/tmdb';
-import { TvSeries } from '@/types/tv-series';
-import { User } from '@/types/user';
-import { type SQSHandler, type SQSEvent } from 'aws-lambda';
+import { type TvSeries } from '@/types/tv-series';
+import { type User } from '@/types/user';
 
 /**
  * Module-level cache for TV series data that persists between Lambda invocations.
@@ -58,7 +59,7 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
                 listId: 'WATCHED',
                 item: {
                   ...payload,
-                  createdAt: item.createdAt,
+                  createdAt: item.createdAt || Date.now(),
                 },
               });
             }

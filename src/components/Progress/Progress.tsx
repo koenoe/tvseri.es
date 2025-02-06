@@ -1,10 +1,11 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 
 import { motion } from 'framer-motion';
 import { twMerge } from 'tailwind-merge';
 
+import calculateProgress from '@/utils/calculateProgress';
 import formatRuntime from '@/utils/formatRuntime';
 
 function Progress({
@@ -20,17 +21,13 @@ function Progress({
   numberOfWatched: number;
   runtime?: number;
 }>) {
-  const percentage =
-    numberOfWatched > 0 && numberOfEpisodes > 0
-      ? (() => {
-          const raw = (numberOfWatched / numberOfEpisodes) * 100;
-          if (numberOfWatched === numberOfEpisodes) {
-            return 100;
-          }
-          const rounded = Math.floor(raw);
-          return rounded === 0 && raw > 0 ? 1 : rounded;
-        })()
-      : 0;
+  const percentage = useMemo(
+    () =>
+      numberOfWatched > 0 && numberOfEpisodes > 0
+        ? calculateProgress(numberOfWatched, numberOfEpisodes)
+        : 0,
+    [numberOfEpisodes, numberOfWatched],
+  );
 
   return (
     <div

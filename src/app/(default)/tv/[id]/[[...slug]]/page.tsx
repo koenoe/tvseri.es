@@ -29,6 +29,19 @@ type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
 
+export async function generateViewport({ params: paramsFromProps }: Props) {
+  const params = await paramsFromProps;
+  const tvSeries = await cachedTvSeries(params.id);
+
+  if (!tvSeries || tvSeries.isAdult) {
+    return {};
+  }
+
+  return {
+    themeColor: tvSeries.backdropColor,
+  };
+}
+
 export async function generateMetadata({ params: paramsFromProps }: Props) {
   const params = await paramsFromProps;
   const tvSeries = await cachedTvSeries(params.id);

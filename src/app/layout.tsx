@@ -10,6 +10,7 @@ import { Toaster } from 'sonner';
 import EnsureHistoryKey from '@/components/EnsureHistoryKey';
 import ScrollbarDetection from '@/components/ScrollbarDetection';
 import WatchedStoreProvider from '@/components/Watched/WatchedStoreProvider';
+import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
@@ -31,7 +32,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#171717',
+  themeColor: DEFAULT_BACKGROUND_COLOR,
 };
 
 export default function RootLayout({

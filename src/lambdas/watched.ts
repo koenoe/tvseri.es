@@ -81,7 +81,7 @@ export const handler = async (event: DynamoDBStreamEvent) => {
     ) {
       lastCount = await getWatchedCountForTvSeries({
         userId: watchedItem.userId,
-        tvSeries,
+        tvSeriesId: watchedItem.seriesId,
       });
       lastUserId = watchedItem.userId;
       lastSeriesId = watchedItem.seriesId;

@@ -30,6 +30,7 @@ export type ListItem = Pick<
 > &
   Readonly<{
     position?: number;
+    createdAt: number;
   }>;
 
 type PaginationOptions = Readonly<{
@@ -260,11 +261,13 @@ export const getListItems = async (
           ? buildPosterImageUrl(normalizedItem.posterPath)
           : normalizedItem.posterImage;
         return {
+          createdAt: normalizedItem.createdAt,
           id: normalizedItem.id,
-          title: normalizedItem.title,
-          slug: normalizedItem.slug,
-          posterImage,
           position: normalizedItem.position,
+          posterImage,
+          slug: normalizedItem.slug,
+          status: normalizedItem.status,
+          title: normalizedItem.title,
         } as ListItem;
       }) ?? [],
     nextCursor: result.LastEvaluatedKey

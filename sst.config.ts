@@ -21,6 +21,7 @@ export default $config({
     await import('./infra/email');
     await import('./infra/dominantColor');
     await import('./infra/scrobbleQueue');
+    await import('./infra/watchedStatus');
     await import('./infra/web');
   },
 });

@@ -24,7 +24,10 @@ function Progress({
     numberOfWatched > 0 && numberOfEpisodes > 0
       ? (() => {
           const raw = (numberOfWatched / numberOfEpisodes) * 100;
-          const rounded = Math.round(raw);
+          if (numberOfWatched === numberOfEpisodes) {
+            return 100;
+          }
+          const rounded = Math.floor(raw);
           return rounded === 0 && raw > 0 ? 1 : rounded;
         })()
       : 0;

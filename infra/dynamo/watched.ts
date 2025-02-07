@@ -38,6 +38,9 @@ watched.subscribe(
   'WatchedSubscriber',
   {
     architecture: 'arm64',
+    concurrency: {
+      reserved: 100,
+    },
     handler: 'src/lambdas/watched.handler',
     memory: '512 MB',
     runtime: 'nodejs22.x',

@@ -22,7 +22,7 @@ const tvSeriesCache = new Map<string, TvSeries | null>();
  * - Caches both found and not-found (null) results
  */
 const cachedTvSeries = async (id: number) => {
-  const cacheKey = `${id}`;
+  const cacheKey = `watched-queue:${id}`;
 
   if (tvSeriesCache.has(cacheKey)) {
     return tvSeriesCache.get(cacheKey);
@@ -81,7 +81,7 @@ export const handler = async (event: DynamoDBStreamEvent) => {
     ) {
       lastCount = await getWatchedCountForTvSeries({
         userId: watchedItem.userId,
-        tvSeries,
+        tvSeriesId: watchedItem.seriesId,
       });
       lastUserId = watchedItem.userId;
       lastSeriesId = watchedItem.seriesId;
@@ -101,6 +101,7 @@ export const handler = async (event: DynamoDBStreamEvent) => {
       title: tvSeries.title,
       slug: tvSeries.slug,
       posterPath: tvSeries.posterPath,
+      status: tvSeries.status,
     };
 
     // Update lists based on watch status

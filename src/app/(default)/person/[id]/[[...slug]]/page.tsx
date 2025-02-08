@@ -84,9 +84,9 @@ export default async function PersonDetailsPage({
 
   return (
     <Page backgroundContext="dots">
-      <div className="my-10 md:container md:my-20">
-        <div className="grid max-w-screen-xl grid-cols-1 md:grid-cols-3 [&>*]:!h-auto [&>*]:!w-full">
-          <div className="mb-10 px-[2rem] md:mb-0 md:px-0">
+      <div className="my-10 md:container md:mb-16 md:mt-10">
+        <div className="mx-auto grid grid-cols-1 md:grid-cols-4 [&>*]:!h-auto [&>*]:!w-full">
+          <div className="mb-10 px-[2rem] md:mb-0 md:mt-20 md:px-0 xl:px-4">
             <Link
               href={`https://www.imdb.com/name/${person.imdbId}`}
               target="_blank"
@@ -109,69 +109,70 @@ export default async function PersonDetailsPage({
               </div>
             </Link>
           </div>
-
-          <div className="col-span-2">
-            <div className="px-[2rem] md:pl-12 lg:pl-16">
-              <h1 className="mb-3 w-full text-3xl font-bold !leading-tight md:text-4xl lg:text-5xl xl:text-6xl">
-                {person.name}
-              </h1>
-              <div className="mb-4 flex w-full items-center gap-[0.2rem] text-nowrap text-[0.65rem] leading-relaxed lg:gap-2 lg:text-xs xl:text-sm">
-                <div className="opacity-75">{person.placeOfBirth}</div>
-                {person.birthdate && (
-                  <div className="opacity-75 before:mr-1 before:content-['·'] lg:before:mr-2">
-                    {formatDate(person.birthdate)}
-                    {person.deathdate && (
-                      <>
-                        <span className="mx-1">–</span>
-                        {formatDate(person.deathdate)}
-                      </>
-                    )}
-                  </div>
-                )}
-                {person.birthdate && (
-                  <div className="opacity-75 md:before:mr-1 md:before:content-['·'] lg:before:mr-2">
-                    <span className="hidden md:inline-block">
-                      {calculateAge(person.birthdate, person.deathdate)} years
-                    </span>
-                    {person.deathdate && (
-                      <span className="ml-1 align-middle text-base leading-none">
-                        †
+          <div className="md:col-span-3">
+            <div className="md:-ml-12 md:rounded-lg md:bg-gradient-to-br md:from-neutral-800/60 md:to-neutral-900 md:py-12 md:pl-10 md:pr-4 lg:-ml-24 lg:py-14 lg:pl-20 lg:pr-8 xl:min-h-[640px]">
+              <div className="px-[2rem] md:pl-12 lg:pl-16">
+                <h1 className="mb-3 w-full text-3xl font-bold !leading-tight md:text-4xl lg:text-5xl xl:text-6xl">
+                  {person.name}
+                </h1>
+                <div className="mb-4 flex w-full items-center gap-[0.2rem] text-nowrap text-[0.65rem] leading-relaxed lg:gap-2 lg:text-xs xl:text-sm">
+                  <div className="opacity-75">{person.placeOfBirth}</div>
+                  {person.birthdate && (
+                    <div className="opacity-75 before:mr-1 before:content-['·'] lg:before:mr-2">
+                      {formatDate(person.birthdate)}
+                      {person.deathdate && (
+                        <>
+                          <span className="mx-1">–</span>
+                          {formatDate(person.deathdate)}
+                        </>
+                      )}
+                    </div>
+                  )}
+                  {person.birthdate && (
+                    <div className="opacity-75 md:before:mr-1 md:before:content-['·'] lg:before:mr-2">
+                      <span className="hidden md:inline-block">
+                        {calculateAge(person.birthdate, person.deathdate)} years
                       </span>
-                    )}
-                  </div>
-                )}
-              </div>
-              <ExpandableText className="mb-10">
-                {person.biography
-                  ?.trim()
-                  .split('\n')
-                  .filter((section) => section !== '')
-                  .map((section, i, sections) => (
-                    <p
-                      key={i}
-                      className={cx({
-                        'mb-4': i < sections.length - 1,
-                      })}
-                    >
-                      {section}
-                    </p>
-                  ))}
-              </ExpandableText>
-            </div>
-            <Suspense
-              fallback={
-                <>
-                  <div className="mx-[2rem] mb-2 mt-6 h-7 w-2/12 bg-white/20 md:ml-12 lg:ml-16" />
-                  <div className="relative flex w-full flex-nowrap gap-4 overflow-x-scroll px-[2rem] pb-6 pt-6 scrollbar-hide md:px-12 lg:gap-6 lg:px-16">
-                    {[...Array(3)].map((_, index) => (
-                      <SkeletonPoster key={index} size="small" />
+                      {person.deathdate && (
+                        <span className="ml-1 align-middle text-base leading-none">
+                          †
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <ExpandableText className="mb-10">
+                  {person.biography
+                    ?.trim()
+                    .split('\n')
+                    .filter((section) => section !== '')
+                    .map((section, i, sections) => (
+                      <p
+                        key={i}
+                        className={cx({
+                          'mb-4': i < sections.length - 1,
+                        })}
+                      >
+                        {section}
+                      </p>
                     ))}
-                  </div>
-                </>
-              }
-            >
-              <KnownFor item={person} />
-            </Suspense>
+                </ExpandableText>
+              </div>
+              <Suspense
+                fallback={
+                  <>
+                    <div className="mx-[2rem] mb-2 mt-6 h-7 w-2/12 bg-white/20 md:ml-12 lg:ml-16" />
+                    <div className="relative flex w-full flex-nowrap gap-4 overflow-x-scroll px-[2rem] pb-6 pt-6 scrollbar-hide md:px-12 lg:gap-6 lg:px-16">
+                      {[...Array(3)].map((_, index) => (
+                        <SkeletonPoster key={index} size="small" />
+                      ))}
+                    </div>
+                  </>
+                }
+              >
+                <KnownFor item={person} />
+              </Suspense>
+            </div>
           </div>
         </div>
       </div>

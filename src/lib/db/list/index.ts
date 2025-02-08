@@ -26,10 +26,11 @@ type SortBy = 'title' | 'createdAt' | 'position';
 
 export type ListItem = Pick<
   TvSeries,
-  'id' | 'posterImage' | 'posterPath' | 'title' | 'slug'
+  'id' | 'posterImage' | 'posterPath' | 'title' | 'slug' | 'status'
 > &
   Readonly<{
     position?: number;
+    createdAt?: number;
   }>;
 
 type PaginationOptions = Readonly<{
@@ -260,11 +261,13 @@ export const getListItems = async (
           ? buildPosterImageUrl(normalizedItem.posterPath)
           : normalizedItem.posterImage;
         return {
+          createdAt: normalizedItem.createdAt,
           id: normalizedItem.id,
-          title: normalizedItem.title,
-          slug: normalizedItem.slug,
-          posterImage,
           position: normalizedItem.position,
+          posterImage,
+          slug: normalizedItem.slug,
+          status: normalizedItem.status,
+          title: normalizedItem.title,
         } as ListItem;
       }) ?? [],
     nextCursor: result.LastEvaluatedKey
@@ -379,7 +382,7 @@ export const addToList = async (
       }>;
   }>,
 ) => {
-  const now = input.item.createdAt ?? Date.now();
+  const createdAt = input.item.createdAt || Date.now();
   const listPrefix = isCustomList(input.listId)
     ? `LIST#CUSTOM#${input.listId}`
     : `LIST#${input.listId}`;
@@ -392,12 +395,13 @@ export const addToList = async (
       id: input.item.id,
       title: input.item.title,
       slug: input.item.slug,
+      status: input.item.status,
       posterPath: input.item.posterPath,
-      createdAt: now,
+      createdAt,
       gsi1pk: `LIST#${input.userId}#${input.listId}`,
       gsi1sk: input.item.title.toLowerCase(),
       gsi2pk: `LIST#${input.userId}#${input.listId}`,
-      gsi2sk: now,
+      gsi2sk: createdAt,
       gsi4pk: `SERIES#${input.item.id}`,
       ...(isCustomList(input.listId) &&
         input.item.position && {

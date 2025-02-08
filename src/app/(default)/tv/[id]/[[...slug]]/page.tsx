@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 
 import { cachedTvSeries } from '@/app/cached';
@@ -9,7 +8,6 @@ import ActionButtons from '@/components/Buttons/ActionButtons';
 import Cast from '@/components/Cast/Cast';
 import ContentRating from '@/components/ContentRating/ContentRating';
 import ExpandableCreators from '@/components/ExpandableList/ExpandableCreators';
-import ExpandableLanguages from '@/components/ExpandableList/ExpandableLanguages';
 import ExpandableText from '@/components/ExpandableText/ExpandableText';
 import InfoLine from '@/components/InfoLine/InfoLine';
 import EpisodesList from '@/components/List/EpisodesList';
@@ -30,6 +28,19 @@ import getBaseUrl from '@/utils/getBaseUrl';
 type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
+
+export async function generateViewport({ params: paramsFromProps }: Props) {
+  const params = await paramsFromProps;
+  const tvSeries = await cachedTvSeries(params.id);
+
+  if (!tvSeries || tvSeries.isAdult) {
+    return {};
+  }
+
+  return {
+    themeColor: tvSeries.backdropColor,
+  };
+}
 
 export async function generateMetadata({ params: paramsFromProps }: Props) {
   const params = await paramsFromProps;
@@ -170,6 +181,7 @@ export default async function TvSeriesDetailsPage({
                     <SkeletonCircleButton />
                     <SkeletonCircleButton />
                     <SkeletonCircleButton />
+                    <SkeletonCircleButton />
                   </>
                 }
               >
@@ -178,12 +190,12 @@ export default async function TvSeriesDetailsPage({
             </div>
           </div>
 
-          <div className="flex flex-wrap items-start gap-x-6 text-nowrap text-xs font-light md:text-[0.8rem]">
+          <div className="flex flex-wrap items-start gap-x-6 text-nowrap text-sm font-medium">
             {tvSeries.createdBy.length > 0 && (
               <ExpandableCreators creators={tvSeries.createdBy} />
             )}
 
-            {tvSeries.originCountry && (
+            {/* {tvSeries.originCountry && (
               <p className="flex flex-nowrap items-center gap-x-1 font-medium leading-loose">
                 <span className="opacity-60">Country:</span>
                 <Link
@@ -198,7 +210,7 @@ export default async function TvSeriesDetailsPage({
 
             {tvSeries.languages.length > 0 && (
               <ExpandableLanguages languages={tvSeries.languages} />
-            )}
+            )} */}
           </div>
         </div>
 

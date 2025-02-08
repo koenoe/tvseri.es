@@ -3,6 +3,7 @@ import { devtools } from 'zustand/middleware';
 
 import { type WatchedItem } from '@/lib/db/watched';
 import { type TvSeries } from '@/types/tv-series';
+import calculateProgress from '@/utils/calculateProgress';
 
 type WatchedItemForStore = Pick<
   WatchedItem,
@@ -246,11 +247,7 @@ export const createWatchedStore = () => {
 
       const progress =
         numberOfWatched > 0 && numberOfEpisodes > 0
-          ? (() => {
-              const raw = (numberOfWatched / numberOfEpisodes) * 100;
-              const rounded = Math.round(raw);
-              return rounded === 0 && raw > 0 ? 1 : rounded;
-            })()
+          ? calculateProgress(numberOfWatched, numberOfEpisodes)
           : 0;
 
       return {

@@ -573,7 +573,7 @@ export const getAllWatchedForTvSeries = async (
 export const getWatchedCountForTvSeries = async (
   input: Readonly<{
     userId: string;
-    tvSeries: TvSeries;
+    tvSeriesId: number | string;
   }>,
 ) => {
   const command = new QueryCommand({
@@ -581,7 +581,7 @@ export const getWatchedCountForTvSeries = async (
     IndexName: 'gsi1',
     KeyConditionExpression: 'gsi1pk = :pk',
     ExpressionAttributeValues: marshall({
-      ':pk': `USER#${input.userId}#SERIES#${input.tvSeries.id}`,
+      ':pk': `USER#${input.userId}#SERIES#${input.tvSeriesId}`,
     }),
     Select: 'COUNT',
   });

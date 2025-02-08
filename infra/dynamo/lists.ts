@@ -18,6 +18,7 @@ export const lists = new sst.aws.Dynamo('Lists', {
     // posterPath: 'string',
     // title: 'string',
     // slug: 'string',
+    // status: 'string', // status of series
     // description: 'string',
     // createdAt: 'number',
     // position: 'number', // Optional, only for custom lists

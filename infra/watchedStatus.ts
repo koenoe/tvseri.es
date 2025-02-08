@@ -3,14 +3,16 @@
 import { dominantColor } from './dominantColor';
 import * as dynamo from './dynamo';
 
-export const scrobbleQueue = new sst.aws.Queue('ScrobbleQueue');
-scrobbleQueue.subscribe(
+export const watchedStatusQueue = new sst.aws.Queue(
+  'ValidateWatchedStatusQueue',
+);
+watchedStatusQueue.subscribe(
   {
     architecture: 'arm64',
     concurrency: {
       reserved: 25,
     },
-    handler: 'src/lambdas/scrobble.handler',
+    handler: 'src/lambdas/validateWatchedStatusQueue.handler',
     memory: '512 MB',
     runtime: 'nodejs22.x',
     timeout: '30 seconds',
@@ -30,18 +32,28 @@ scrobbleQueue.subscribe(
     nodejs: {
       install: ['@better-fetch/fetch', 'slugify'],
       minify: true,
-      // Note: this should work and allow usage of `import 'server-only';` in the lambda
-      // but it doesn't seem to work as expected: https://github.com/sst/sst/issues/4514
-      // esbuild: {
-      //   conditions: ['react-server'],
-      // },
     },
   },
   {
     // Default = {size: 10, window: “20 seconds”, partialResponses: false}
     batch: {
       size: 25,
-      window: '30 seconds',
+      window: '1 minute',
     },
   },
 );
+
+export const watchedStatusCron = new sst.aws.Cron('ValidateWatchedStatus', {
+  schedule: 'cron(0 5 * * ? *)', // 05:00 UTC, daily
+  function: {
+    architecture: 'arm64',
+    handler: 'src/lambdas/validateWatchedStatusCron.handler',
+    memory: '512 MB',
+    runtime: 'nodejs22.x',
+    timeout: '30 seconds',
+    link: [dynamo.users, watchedStatusQueue],
+    nodejs: {
+      minify: true,
+    },
+  },
+});

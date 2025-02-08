@@ -3,6 +3,7 @@ import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 
 import Poster from '@/components/Tiles/Poster';
+import { type ListItem } from '@/lib/db/list';
 import { fetchPersonKnownFor } from '@/lib/tmdb';
 import { type Movie } from '@/types/movie';
 import { type Person } from '@/types/person';
@@ -37,7 +38,7 @@ export default async function KnownFor({
         {knownForItems.map((item) => (
           <Poster
             key={item.id}
-            item={item}
+            item={item as ListItem}
             size="small"
             // TODO: typeguard doesn't work properly, figure out why
             mediaType={!('firstAirDate' in item) ? 'movie' : 'tv'}

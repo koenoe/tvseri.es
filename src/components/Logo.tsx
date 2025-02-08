@@ -12,9 +12,9 @@ export default function Logo({
         className="mt-[-6px]"
         src={logo}
         alt=""
-        width={30}
+        width={24}
         priority={priority}
-        height={30}
+        height={24}
       />
       <span className="text-lg font-semibold uppercase leading-none tracking-widest">
         tvseri.es

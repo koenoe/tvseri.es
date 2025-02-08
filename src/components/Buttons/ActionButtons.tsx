@@ -50,6 +50,7 @@ export default async function ActionButtons({
         id: tvSeries.id,
         posterPath: tvSeries.posterPath,
         slug: tvSeries.slug,
+        status: tvSeries.status,
         title: tvSeries.title,
       },
     };

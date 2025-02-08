@@ -11,7 +11,7 @@ export default function ExpandableCreators({
     <ExpandableList
       items={creators}
       label="Created by"
-      initialDisplayCount={2}
+      initialDisplayCount={1}
       itemKey={(index) => creators[index].id}
       itemLabel={(index) => creators[index].name}
       itemHref={(index) =>

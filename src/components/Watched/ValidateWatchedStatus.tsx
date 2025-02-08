@@ -19,8 +19,6 @@ import {
 // Note that the Lambda will still add series to "in progress" on new watch events
 // (e.g., if a user removes a show from "in progress" but later watches more episodes),
 // as this represents active user intent to watch the show.
-// Automating this process in the future with a cron job or similar mechanism could be beneficial.
-// For now, this is handled when navigating to the TV series page, which renders this component.
 export default async function ValidateWatchedStatus({
   id,
 }: Readonly<{
@@ -40,7 +38,7 @@ export default async function ValidateWatchedStatus({
     await Promise.all([
       getWatchedCountForTvSeries({
         userId: user.id,
-        tvSeries,
+        tvSeriesId: tvSeries.id,
       }),
       getLastWatchedItemForTvSeries({
         userId: user.id,
@@ -68,6 +66,7 @@ export default async function ValidateWatchedStatus({
     title: tvSeries.title,
     slug: tvSeries.slug,
     posterPath: tvSeries.posterPath,
+    status: tvSeries.status,
   };
 
   // First handle active transitions between lists. While most state changes are handled by

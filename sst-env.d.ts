@@ -42,6 +42,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "ValidateWatchedStatusQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
     "Watched": {
       "name": string
       "type": "sst.aws.Dynamo"

@@ -10,7 +10,7 @@ import { getCacheItem, setCacheItem } from './db/cache';
 import { fetchPerson, fetchTvSeries, fetchTvSeriesSeason } from './tmdb';
 
 export const cachedTvSeries = async (id: string | number) => {
-  const dynamoCacheKey = `tv:v6:${id}`;
+  const dynamoCacheKey = `tv:v8:${id}`;
   const dynamoCachedItem = await getCacheItem<TvSeries>(dynamoCacheKey);
   if (dynamoCachedItem) {
     return dynamoCachedItem;

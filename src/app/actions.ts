@@ -177,7 +177,8 @@ export async function updateProfile(_: unknown, formData: FormData) {
 
   if (slugifiedUsername !== rawFormData.username) {
     return {
-      message: 'Username can only contain letters, numbers, and dashes',
+      message:
+        'Username can only contain lowercase letters, numbers, and dashes',
       success: false,
     };
   }

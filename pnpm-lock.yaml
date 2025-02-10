@@ -39,8 +39,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       framer-motion:
-        specifier: 12.4.1
-        version: 12.4.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        specifier: 12.4.2
+        version: 12.4.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       next:
         specifier: 15.1.6
         version: 15.1.6(babel-plugin-react-compiler@19.0.0-beta-e552027-20250112)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -72,8 +72,8 @@ importers:
         specifier: ^1.7.4
         version: 1.7.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       sst:
-        specifier: ^3.7.15
-        version: 3.7.15
+        specifier: ^3.8.2
+        version: 3.8.2
       ulid:
         specifier: ^2.3.0
         version: 2.3.0
@@ -163,11 +163,11 @@ importers:
         specifier: ^8.5.1
         version: 8.5.1
       prettier:
-        specifier: ^3.4.2
-        version: 3.4.2
+        specifier: ^3.5.0
+        version: 3.5.0
       prettier-plugin-tailwindcss:
         specifier: ^0.6.11
-        version: 0.6.11(prettier@3.4.2)
+        version: 0.6.11(prettier@3.5.0)
       sharp:
         specifier: ^0.33.5
         version: 0.33.5
@@ -2339,8 +2339,8 @@ packages:
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
 
-  framer-motion@12.4.1:
-    resolution: {integrity: sha512-5Ijbea3topSZjadQ0hgc/TcWj2ldMZmNREM7RvAhvsThYOA1HHOA8TT1yKvMu1YXP3jWaFwoZ6Vo9Nw+DUZrzA==}
+  framer-motion@12.4.2:
+    resolution: {integrity: sha512-pW307cQKjDqEuO1flEoIFf6TkuJRfKr+c7qsHAJhDo4368N/5U8/7WU8J+xhd9+gjmOgJfgp+46evxRRFM39dA==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -3304,8 +3304,8 @@ packages:
       prettier-plugin-svelte:
         optional: true
 
-  prettier@3.4.2:
-    resolution: {integrity: sha512-e9MewbtFo+Fevyuxn/4rrcDAaq0IYxPGLvObpQjiZBMAzB9IGmzlnG9RZy3FFas+eBMu2vA0CszMeduow5dIuQ==}
+  prettier@3.5.0:
+    resolution: {integrity: sha512-quyMrVt6svPS7CjQ9gKb3GLEX/rl3BCL2oa/QkNcXv4YNVBC9olt3s+H7ukto06q7B1Qz46PbrKLO34PR6vXcA==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -3624,33 +3624,33 @@ packages:
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
 
-  sst-darwin-arm64@3.7.15:
-    resolution: {integrity: sha512-vapEyCClGAohdeiT2reCqWhymb2gX87ahR0seCyF4SWwQkM9i+HXqP01ZL2flmilKrxUgET0ZH/d2vg8DvDQ5Q==}
+  sst-darwin-arm64@3.8.2:
+    resolution: {integrity: sha512-N0nZJAkrNUpRmRkNz3T5QA7s6QPi9hgAJJorPv0VQwhGtoxnsPU8RgVqklQKVHBgH3f4FThESZGMKPKt2JcvcA==}
     cpu: [arm64]
     os: [darwin]
 
-  sst-darwin-x64@3.7.15:
-    resolution: {integrity: sha512-S78apT6093iQeznNw4YLqvREInV43HbmOht9qGeLGYUBP315sghTXoD29kUXsoaIcqKWtJhgtAFTLlxc2+AElw==}
+  sst-darwin-x64@3.8.2:
+    resolution: {integrity: sha512-RDf/kVYNE+vXNiNBK6v3LHz1YEa3Ka8/G2T52mI4qQh40ZBbEapIR7x6dZqV0kLQQTs4t/XxSkf9wH7pft1tEA==}
     cpu: [x64]
     os: [darwin]
 
-  sst-linux-arm64@3.7.15:
-    resolution: {integrity: sha512-UkUTXPIbvUpzTSWnCNFQpy15khsPD6bvbmocsCj19ymkY0CiEJ8nCEzCjWE1/MAkOfcGiJby5xXbggFrgXkpTg==}
+  sst-linux-arm64@3.8.2:
+    resolution: {integrity: sha512-CGS81oW+96HJ5ZkjjHCNCk5YLwPDbqQKPnyC/APFzHMLC+gSPMVU0Ig6gKBvJ7mIzEwSEIxPoGnZkjZjxLlG4w==}
     cpu: [arm64]
     os: [linux]
 
-  sst-linux-x64@3.7.15:
-    resolution: {integrity: sha512-rNjCnYGA+sz+zmSD2HmuZmZ8uT9pciKNjSqlQWPo34H8GMt2L07W62izk0i/fmxtRubaV0QLP1L6hk7RaRbl7g==}
+  sst-linux-x64@3.8.2:
+    resolution: {integrity: sha512-8K5giZiSEnNTBnlYBMf/IEM0ywNuakKzHjLQRh0VCWfEcyWgL1uxeOUtDIh6KyNW6Ww7/uEYtySqax3KkZIKiA==}
     cpu: [x64]
     os: [linux]
 
-  sst-linux-x86@3.7.15:
-    resolution: {integrity: sha512-sR1v6setvSvG4e576qveXaDcAwqZIsg9B5JA8lh7QSHG+US3Ejil9A7AIC7teRwFQV25mSET6emXQ6Cfy/NAAg==}
+  sst-linux-x86@3.8.2:
+    resolution: {integrity: sha512-uBFhhqr2sAq51YKkFN4v8mYIKsiKOJCyB2afoue+vF6QEwlyubnbftWwv0ISfHKUZ1DbxTnO78dAMYA4hAuVCA==}
     cpu: [x86]
     os: [linux]
 
-  sst@3.7.15:
-    resolution: {integrity: sha512-6Pyt9x/UgxN1g/odgJxQLZ3p+lJOBhIgrFTzZcqAYxFHWkXnN911xXX0VT2sr6/hLpJ7tppP1E5mLweMnq797A==}
+  sst@3.8.2:
+    resolution: {integrity: sha512-CoFlEiX8cdqB/sgn4ZN+BnJaPlOUk2eGzMwTbPFkBn3hHAQMNdo1UXdo+DwbfE0en9K4Ol0j/AIO6TBTRfUIow==}
     hasBin: true
 
   stable-hash@0.0.4:
@@ -7519,7 +7519,7 @@ snapshots:
 
   fraction.js@4.3.7: {}
 
-  framer-motion@12.4.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+  framer-motion@12.4.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
       motion-dom: 12.0.0
       motion-utils: 12.0.0
@@ -8386,11 +8386,11 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier-plugin-tailwindcss@0.6.11(prettier@3.4.2):
+  prettier-plugin-tailwindcss@0.6.11(prettier@3.5.0):
     dependencies:
-      prettier: 3.4.2
+      prettier: 3.5.0
 
-  prettier@3.4.2: {}
+  prettier@3.5.0: {}
 
   promise.series@0.2.0: {}
 
@@ -8795,32 +8795,32 @@ snapshots:
 
   sprintf-js@1.0.3: {}
 
-  sst-darwin-arm64@3.7.15:
+  sst-darwin-arm64@3.8.2:
     optional: true
 
-  sst-darwin-x64@3.7.15:
+  sst-darwin-x64@3.8.2:
     optional: true
 
-  sst-linux-arm64@3.7.15:
+  sst-linux-arm64@3.8.2:
     optional: true
 
-  sst-linux-x64@3.7.15:
+  sst-linux-x64@3.8.2:
     optional: true
 
-  sst-linux-x86@3.7.15:
+  sst-linux-x86@3.8.2:
     optional: true
 
-  sst@3.7.15:
+  sst@3.8.2:
     dependencies:
       aws4fetch: 1.0.20
       jose: 5.2.3
       openid-client: 5.6.4
     optionalDependencies:
-      sst-darwin-arm64: 3.7.15
-      sst-darwin-x64: 3.7.15
-      sst-linux-arm64: 3.7.15
-      sst-linux-x64: 3.7.15
-      sst-linux-x86: 3.7.15
+      sst-darwin-arm64: 3.8.2
+      sst-darwin-x64: 3.8.2
+      sst-linux-arm64: 3.8.2
+      sst-linux-x64: 3.8.2
+      sst-linux-x86: 3.8.2
 
   stable-hash@0.0.4: {}
 

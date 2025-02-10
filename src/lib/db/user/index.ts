@@ -34,7 +34,15 @@ export const findUser = async (
     : input.email
       ? ['gsi1', 'EMAIL#', encodeToBase64Url(input.email)]
       : input.username
-        ? ['gsi2', 'USERNAME#', input.username]
+        ? [
+            'gsi2',
+            'USERNAME#',
+            slugify(input.username, {
+              lower: true,
+              strict: true,
+              trim: true,
+            }),
+          ]
         : ['gsi3', 'TMDB#', input.tmdbAccountId];
 
   const result = await client.send(
@@ -120,7 +128,7 @@ export const createUser = async (
           gsi3pk: `TMDB#${input.tmdbAccountId}`,
           tmdbAccountId: input.tmdbAccountId,
           tmdbAccountObjectId: input.tmdbAccountObjectId,
-          tmdbUsername: input.username,
+          tmdbUsername: input.tmdbUsername,
         }),
     }),
     ConditionExpression:

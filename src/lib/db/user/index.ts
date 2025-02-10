@@ -70,7 +70,11 @@ export const createUser = async (
         strict: true,
         trim: true,
       })
-    : input.username!;
+    : slugify(input.username!, {
+        lower: true,
+        strict: true,
+        trim: true,
+      });
 
   const isUsernameTaken = await findUser({ username });
   if (isUsernameTaken) {

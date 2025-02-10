@@ -237,6 +237,5 @@ export default function generateUsername(): string {
   return slugify(`${adjective}-${noun}-${number}`, {
     lower: true,
     strict: true,
-    trim: true,
   });
 }

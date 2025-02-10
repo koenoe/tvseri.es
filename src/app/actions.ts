@@ -172,7 +172,6 @@ export async function updateProfile(_: unknown, formData: FormData) {
   const slugifiedUsername = slugify(rawFormData.username, {
     lower: true,
     strict: true,
-    trim: true,
   });
 
   if (slugifiedUsername !== rawFormData.username) {

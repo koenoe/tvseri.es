@@ -40,7 +40,6 @@ export const findUser = async (
             slugify(input.username, {
               lower: true,
               strict: true,
-              trim: true,
             }),
           ]
         : ['gsi3', 'TMDB#', input.tmdbAccountId];
@@ -76,12 +75,10 @@ export const createUser = async (
     ? slugify(input.email.split('@')[0], {
         lower: true,
         strict: true,
-        trim: true,
       })
     : slugify(input.username!, {
         lower: true,
         strict: true,
-        trim: true,
       });
 
   const isUsernameTaken = await findUser({ username });

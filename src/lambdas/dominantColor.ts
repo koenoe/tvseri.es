@@ -48,6 +48,7 @@ export const handler: Handler<ProcessImageEvent, ProcessImageResult> = async (
       throw new Error(`Failed to fetch image: ${error.message}`);
     }
 
+    // @ts-expect-error - data is `unknown` type
     const imageBuffer = Buffer.from(await data.arrayBuffer());
     const { dominant } = await sharp(imageBuffer)
       .blur(BLUR_SIGMA)

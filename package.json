@@ -18,13 +18,13 @@
     "@aws-sdk/client-sesv2": "^3.744.0",
     "@aws-sdk/client-sqs": "^3.744.0",
     "@aws-sdk/util-dynamodb": "^3.744.0",
-    "@better-fetch/fetch": "^1.1.12",
+    "@better-fetch/fetch": "^1.1.13",
     "class-variance-authority": "^0.7.1",
     "color": "^4.2.3",
     "date-fns": "^4.1.0",
     "dice-coefficient": "^2.1.1",
     "framer-motion": "12.4.2",
-    "next": "15.1.6",
+    "next": "15.1.7",
     "papaparse": "^5.5.2",
     "react": "19.0.0",
     "react-day-picker": "^9.5.1",
@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
-    "@next/eslint-plugin-next": "^15.1.6",
+    "@next/eslint-plugin-next": "^15.1.7",
     "@opennextjs/aws": "^3.4.2",
     "@tailwindcss/typography": "^0.5.16",
     "@types/aws-lambda": "^8.10.147",
@@ -58,7 +58,7 @@
     "babel-plugin-react-compiler": "19.0.0-beta-e552027-20250112",
     "concurrently": "^9.1.2",
     "eslint": "^9.20.0",
-    "eslint-config-next": "^15.1.6",
+    "eslint-config-next": "^15.1.7",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-unused-imports": "^4",
@@ -75,5 +75,5 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3"
   },
-  "packageManager": "pnpm@10.2.1"
+  "packageManager": "pnpm@10.3.0"
 }

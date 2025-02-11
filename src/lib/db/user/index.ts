@@ -160,6 +160,10 @@ export const createUser = async (
     if (error instanceof ConditionalCheckFailedException) {
       throw new Error('Email, username, or TMDB account already exists');
     }
+    console.error('Failed to create user', {
+      error,
+      input,
+    });
     throw new Error('Failed to create user');
   }
 };

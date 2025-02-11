@@ -140,9 +140,17 @@ export async function createAccessToken(requestToken: string) {
     access_token: string;
   }>;
 
+  if (!response.success) {
+    console.error('Failed to create access token in TMDb:', response);
+    return {
+      accountObjectId: null,
+      accessToken: null,
+    };
+  }
+
   return {
-    accountObjectId: response.account_id,
-    accessToken: response.access_token,
+    accountObjectId: response?.account_id,
+    accessToken: response?.access_token,
   };
 }
 
@@ -157,6 +165,11 @@ export async function createSessionId(accessToken: string) {
     success: boolean;
     session_id: string;
   }>;
+
+  if (!response.success) {
+    console.error('Failed to create session in TMDb:', response);
+    return '';
+  }
 
   return response.session_id;
 }
@@ -187,9 +200,9 @@ export async function fetchAccountDetails(sessionId: string) {
   )) as TmdbAccountDetails;
 
   return {
-    id: response.id,
-    name: response.name,
-    username: response.username,
+    id: response?.id,
+    name: response?.name,
+    username: response?.username,
     avatar: response.avatar?.gravatar
       ? `https://www.gravatar.com/avatar/${response.avatar.gravatar.hash}`
       : undefined,

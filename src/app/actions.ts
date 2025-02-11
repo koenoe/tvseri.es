@@ -48,6 +48,7 @@ export async function loginWithTmdb(pathname = '/') {
 export async function login(formData: FormData) {
   const honeypotValue = formData.get('verify_email');
   if (honeypotValue) {
+    console.error('[LOGIN] Honeypot triggered');
     return;
   }
 

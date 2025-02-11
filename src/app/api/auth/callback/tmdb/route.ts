@@ -33,8 +33,29 @@ export async function GET(request: NextRequest) {
   const { accessToken, accountObjectId } = await createAccessToken(
     decryptedRequestToken,
   );
+
+  if (!accessToken) {
+    return Response.json(
+      { error: 'Failed to create access token in TMDb.' },
+      { status: 500 },
+    );
+  }
+
   const tmdbSessionId = await createSessionId(accessToken);
+  if (!tmdbSessionId) {
+    return Response.json(
+      { error: 'Failed to create session in TMDb.' },
+      { status: 500 },
+    );
+  }
+
   const tmdbAccount = await fetchAccountDetails(tmdbSessionId);
+  if (!tmdbAccount) {
+    return Response.json(
+      { error: 'Failed to fetch account details from TMDb.' },
+      { status: 500 },
+    );
+  }
 
   let user = await findUser({ tmdbAccountId: tmdbAccount.id });
 

@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
-    "@next/eslint-plugin-next": "^15.1.6",
+    "@next/eslint-plugin-next": "^15.1.7",
     "@opennextjs/aws": "^3.4.2",
     "@tailwindcss/typography": "^0.5.16",
     "@types/aws-lambda": "^8.10.147",

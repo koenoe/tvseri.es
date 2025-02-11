@@ -122,7 +122,11 @@ export async function createRequestToken(redirectUri: string = getBaseUrl()) {
     request_token: string;
   }>;
 
-  return response.request_token;
+  if (!response.success) {
+    console.error('Failed to create request token in TMDb:', response);
+  }
+
+  return response.request_token ?? '';
 }
 
 export async function createAccessToken(requestToken: string) {

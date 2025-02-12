@@ -183,6 +183,9 @@ importers:
       tailwindcss:
         specifier: ^3.4.17
         version: 3.4.17
+      tailwindcss-content-visibility:
+        specifier: ^1.0.2
+        version: 1.0.2(tailwindcss@3.4.17)
       typescript:
         specifier: ^5.7.3
         version: 5.7.3
@@ -3810,6 +3813,11 @@ packages:
     resolution: {integrity: sha512-lqiIutHliEiODwBRHy4G2+Tcayo2U7+3+4frBmoMETD72qtah+XhOk5XcPzC1nJvXhXUdfl2ajlMhUc2qC6CIg==}
     peerDependencies:
       tailwindcss: '>=3.0.0 || >= 4.0.0 || >= 4.0.0-beta.8 || >= 4.0.0-alpha.20'
+
+  tailwindcss-content-visibility@1.0.2:
+    resolution: {integrity: sha512-Sch6hzEstDxFIDdMrI7tdUhYCUiFLS9FjJM5RfMFbRt5y0q24UwaXRGNvepoAzoHj60IqAwoysN+274XFzT01A==}
+    peerDependencies:
+      tailwindcss: ^3.0.0
 
   tailwindcss@3.4.17:
     resolution: {integrity: sha512-w33E2aCvSDP0tW9RZuNXadXlkHXqFzSkQew/aIa2i/Sj8fThxwovwlXHSPXTbAHwEIhBFXAedUhP2tueAKP8Og==}
@@ -9034,6 +9042,10 @@ snapshots:
   tailwind-merge@2.6.0: {}
 
   tailwind-scrollbar-hide@2.0.0(tailwindcss@3.4.17):
+    dependencies:
+      tailwindcss: 3.4.17
+
+  tailwindcss-content-visibility@1.0.2(tailwindcss@3.4.17):
     dependencies:
       tailwindcss: 3.4.17
 

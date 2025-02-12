@@ -1,7 +1,7 @@
 import { type Handler } from 'aws-lambda';
 
 import { createFetch } from '@better-fetch/fetch';
-import Color from 'color';
+import Color, { type ColorInstance } from 'color';
 import sharp from 'sharp';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
@@ -22,7 +22,7 @@ const $fetch = createFetch({
   retry: DEFAULT_FETCH_RETRY_OPTIONS,
 });
 
-const correctContrast = (input: Color): Color => {
+const correctContrast = (input: ColorInstance): ColorInstance => {
   let output = input;
   while (output.contrast(Color('white')) < CONTRAST_MINIMUM) {
     const rgb = output.rgb().object();

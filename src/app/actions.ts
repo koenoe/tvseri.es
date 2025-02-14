@@ -48,6 +48,7 @@ export async function loginWithTmdb(pathname = '/') {
 export async function login(formData: FormData) {
   const honeypotValue = formData.get('verify_email');
   if (honeypotValue) {
+    console.error('[LOGIN] Honeypot triggered');
     return;
   }
 
@@ -172,12 +173,12 @@ export async function updateProfile(_: unknown, formData: FormData) {
   const slugifiedUsername = slugify(rawFormData.username, {
     lower: true,
     strict: true,
-    trim: true,
   });
 
   if (slugifiedUsername !== rawFormData.username) {
     return {
-      message: 'Username can only contain letters, numbers, and dashes',
+      message:
+        'Username can only contain lowercase letters, numbers, and dashes',
       success: false,
     };
   }

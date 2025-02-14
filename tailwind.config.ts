@@ -39,6 +39,7 @@ const config: Config = {
     },
   },
   plugins: [
+    require('tailwindcss-content-visibility'),
     require('@tailwindcss/typography'),
     require('tailwind-scrollbar-hide'),
     function ({ matchUtilities, theme }: any) {

@@ -20,6 +20,7 @@ import {
   useAnimate,
   useMotionValue,
 } from 'framer-motion';
+import { useDebouncedCallback } from 'use-debounce';
 
 import getHistoryKey from '@/utils/getHistoryKey';
 
@@ -143,9 +144,9 @@ function Carousel({
     );
   }, [itemCount, currentItemIndex]);
 
-  const handleResize = useCallback(() => {
+  const handleResize = useDebouncedCallback(() => {
     return updateCurrentIndex(currentIndex);
-  }, [currentIndex, updateCurrentIndex]);
+  }, 100);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);

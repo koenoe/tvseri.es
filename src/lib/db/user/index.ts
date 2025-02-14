@@ -34,7 +34,14 @@ export const findUser = async (
     : input.email
       ? ['gsi1', 'EMAIL#', encodeToBase64Url(input.email)]
       : input.username
-        ? ['gsi2', 'USERNAME#', input.username]
+        ? [
+            'gsi2',
+            'USERNAME#',
+            slugify(input.username, {
+              lower: true,
+              strict: true,
+            }),
+          ]
         : ['gsi3', 'TMDB#', input.tmdbAccountId];
 
   const result = await client.send(
@@ -68,9 +75,11 @@ export const createUser = async (
     ? slugify(input.email.split('@')[0], {
         lower: true,
         strict: true,
-        trim: true,
       })
-    : input.username!;
+    : slugify(input.username!, {
+        lower: true,
+        strict: true,
+      });
 
   const isUsernameTaken = await findUser({ username });
   if (isUsernameTaken) {
@@ -96,29 +105,37 @@ export const createUser = async (
 
   const command = new PutItemCommand({
     TableName: Resource.Users.name,
-    Item: marshall({
-      pk: `USER#${userId}`,
-      id: userId,
-      createdAt: now,
-      ...(input.name && {
-        name: input.name,
-      }),
-      role,
-      version: VERSION,
-      ...(input.email && {
-        gsi1pk: `EMAIL#${encodeToBase64Url(input.email)}`,
-        email: input.email,
-      }),
-      gsi2pk: `USERNAME#${username}`,
-      username,
-      ...(input.tmdbAccountId &&
-        input.tmdbAccountObjectId && {
-          gsi3pk: `TMDB#${input.tmdbAccountId}`,
-          tmdbAccountId: input.tmdbAccountId,
-          tmdbAccountObjectId: input.tmdbAccountObjectId,
-          tmdbUsername: input.username,
+    Item: marshall(
+      {
+        pk: `USER#${userId}`,
+        id: userId,
+        createdAt: now,
+        ...(input.name && {
+          name: input.name,
         }),
-    }),
+        role,
+        version: VERSION,
+        ...(input.email && {
+          gsi1pk: `EMAIL#${encodeToBase64Url(input.email)}`,
+          email: input.email,
+        }),
+        gsi2pk: `USERNAME#${username}`,
+        username,
+        ...(input.tmdbAccountId &&
+          input.tmdbAccountObjectId && {
+            gsi3pk: `TMDB#${input.tmdbAccountId}`,
+            tmdbAccountId: input.tmdbAccountId,
+            tmdbAccountObjectId: input.tmdbAccountObjectId,
+            tmdbUsername: input.tmdbUsername,
+          }),
+      },
+      // Note: even though we safeguard possible empty values, DynamoDB still fails with
+      // "Pass options.removeUndefinedValues=true to remove undefined values from map/array/set."
+      // figure out later why this is happening
+      {
+        removeUndefinedValues: true,
+      },
+    ),
     ConditionExpression:
       [
         'attribute_not_exists(gsi2pk)',
@@ -151,6 +168,10 @@ export const createUser = async (
     if (error instanceof ConditionalCheckFailedException) {
       throw new Error('Email, username, or TMDB account already exists');
     }
+    console.error('Failed to create user', {
+      error,
+      input,
+    });
     throw new Error('Failed to create user');
   }
 };

@@ -50,10 +50,10 @@ function CarouselItem({
 
   return (
     <motion.div
-      className="absolute h-full w-full transform-gpu"
+      className="content-visibility-auto absolute h-full w-full transform-gpu"
       style={{
+        contain: 'paint layout',
         left: `${index * 100}%`,
-        right: `${index * 100}%`,
         x,
       }}
       drag="x"

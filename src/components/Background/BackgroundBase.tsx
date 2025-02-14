@@ -1,3 +1,5 @@
+import { memo, useMemo } from 'react';
+
 import { cva } from 'class-variance-authority';
 
 import hexToRgb from '@/utils/hexToRgb';
@@ -6,7 +8,7 @@ import { type Props } from './Background';
 import BackgroundImage from './BackgroundImage';
 
 export const backgroundBaseStyles = cva(
-  'absolute inset-0 z-0 transform-gpu w-screen h-screen',
+  'absolute inset-0 z-0 transform-gpu w-screen h-screen will-change-opacity content-visibility-auto',
 );
 
 const backdropFilterValue = 'saturate(120%) blur(60px)';
@@ -31,6 +33,13 @@ const maskImageValue = `
     rgba(0, 0, 0, 0.991) 100%
   )`;
 
+const filterValues = {
+  backdropFilter: backdropFilterValue,
+  WebkitBackdropFilter: backdropFilterValue,
+  maskImage: maskImageValue,
+  WebkitMaskImage: maskImageValue,
+};
+
 function BackgroundBase({
   color,
   context,
@@ -40,47 +49,54 @@ function BackgroundBase({
   Readonly<{
     className?: string;
   }>) {
-  const rgbString = hexToRgb(color).join(',');
+  const rgbString = useMemo(() => hexToRgb(color).join(','), [color]);
+
+  const overlayStyles = useMemo(
+    () => ({
+      backgroundImage: `linear-gradient(270deg, rgba(${rgbString}, 0) 0%, rgba(${rgbString}, 0.9) 60%, rgba(${rgbString}, 1) 100%)`,
+    }),
+    [rgbString],
+  );
+
+  const radialGradientStyles = useMemo(
+    () => ({
+      backgroundImage: `radial-gradient(rgba(${rgbString}, 0) 0%, rgba(${rgbString}, 1) 100%)`,
+    }),
+    [rgbString],
+  );
+
+  const bottomGradientStyles = useMemo(
+    () => ({
+      backgroundImage: `linear-gradient(to top, ${color}, transparent)`,
+      ...(context === 'page' ? filterValues : undefined),
+    }),
+    [color, context],
+  );
+
+  const imageStyles = useMemo(
+    () => ({ opacity: context === 'spotlight' ? 0.3 : 1 }),
+    [context],
+  );
 
   return (
     <>
       {image && (
         <BackgroundImage
           src={image}
-          style={{
-            opacity: context === 'spotlight' ? 0.3 : 1,
-          }}
+          style={imageStyles}
           className={className}
         />
       )}
       {context === 'page' && (
-        <div
-          className="absolute inset-0 transform-gpu opacity-70"
-          style={{
-            backgroundImage: `linear-gradient(270deg, rgba(${rgbString}, 0) 0%, rgba(${rgbString}, 0.9) 60%, rgba(${rgbString}, 1) 100%)`,
-          }}
-        />
+        <div className="absolute inset-0 opacity-70" style={overlayStyles} />
       )}
+      <div className="absolute inset-0" style={radialGradientStyles} />
       <div
-        className="absolute inset-0 transform-gpu"
-        style={{
-          backgroundImage: `radial-gradient(rgba(${rgbString}, 0) 0%, rgba(${rgbString}, 1) 100%)`,
-        }}
-      />
-      <div
-        className="absolute bottom-0 left-0 h-1/5 w-full transform-gpu"
-        style={{
-          backgroundImage: `linear-gradient(to top, ${color}, transparent)`,
-          ...(context === 'page' && {
-            backdropFilter: backdropFilterValue,
-            WebkitBackdropFilter: backdropFilterValue, // Safari support
-            maskImage: maskImageValue,
-            WebkitMaskImage: maskImageValue, // Safari support
-          }),
-        }}
+        className="absolute bottom-0 left-0 h-1/5 w-full"
+        style={bottomGradientStyles}
       />
     </>
   );
 }
 
-export default BackgroundBase;
+export default memo(BackgroundBase);

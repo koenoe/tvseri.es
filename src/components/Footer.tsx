@@ -36,7 +36,7 @@ export default function Footer() {
           </p>
         </div>
         <Link
-          className="ml-auto"
+          className="ml-auto shrink-0"
           href="https://github.com/koenoe/tvseri.es"
           prefetch={false}
           target="_blank"

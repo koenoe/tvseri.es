@@ -165,7 +165,6 @@ async function findEpisode(
     const slugifiedEpisodeStr = slugify(String(episodeStr), {
       lower: true,
       strict: true,
-      trim: true,
     });
 
     return (
@@ -173,7 +172,6 @@ async function findEpisode(
         const slugifiedTitle = slugify(episode.title, {
           lower: true,
           strict: true,
-          trim: true,
         });
 
         // 1. Check for exact match first
@@ -271,12 +269,10 @@ export async function POST(req: Request) {
                   const slugifiedTitle = slugify(normalizedTitle, {
                     lower: true,
                     strict: true,
-                    trim: true,
                   });
                   const slugifiedResultTitle = slugify(result.title, {
                     lower: true,
                     strict: true,
-                    trim: true,
                   });
 
                   // If we find an exact match, add it to our collection of exact matches

@@ -446,9 +446,16 @@ export async function fetchTvSeriesCredits(
     `/3/tv/${id}/aggregate_credits`,
   )) as TmdbTvSeriesCredits;
 
+  if (!credits.cast) {
+    return {
+      cast: [],
+      crew: [],
+    };
+  }
+
   const cast =
     credits.cast
-      ?.filter((item) => !!item.profile_path)
+      .filter((item) => !!item.profile_path)
       .sort((a, b) => a.order - b.order) ?? [];
 
   return {

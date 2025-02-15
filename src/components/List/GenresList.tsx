@@ -1,7 +1,10 @@
-import GenreTile from '@/components/Tiles/Genre';
+import dynamic from 'next/dynamic';
+
 import { fetchGenresForTvSeries } from '@/lib/tmdb';
 
 import List from './List';
+
+const GenreTile = dynamic(() => import('@/components/Tiles/Genre'));
 
 // Note: override the gap in the list with gap-4 (1rem)
 export const gapStyleOverride = {

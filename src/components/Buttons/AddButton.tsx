@@ -36,6 +36,7 @@ export default function AddButton({
       isActive={isWatchlisted}
       onClick={handleOnClick}
       isDisabled={isPending}
+      title={isWatchlisted ? 'Remove from watchlist' : 'Add to watchlist'}
     >
       <svg
         className="size-5 md:size-6"

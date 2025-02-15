@@ -35,6 +35,7 @@ export default function LikeButton({
       onClick={handleOnClick}
       isActive={isFavorited}
       isDisabled={isPending}
+      title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
     >
       <svg
         className="size-6 md:size-7"

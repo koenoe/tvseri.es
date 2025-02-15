@@ -12,7 +12,7 @@ const cachedBestSportsDocumentariesTvSeries = unstable_cache(
   },
   ['best-sports-documentaries'],
   {
-    revalidate: 604800, // 1 week
+    revalidate: 2629800, // 1 month
   },
 );
 

@@ -12,7 +12,7 @@ const cachedMostPopularThisMonth = unstable_cache(
   },
   ['most-popular-this-month'],
   {
-    revalidate: 259200, // 3 days
+    revalidate: 604800, // 1 week
   },
 );
 

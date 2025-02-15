@@ -2,7 +2,7 @@
 
 import { memo, useMemo, useRef, useState } from 'react';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { useSearchParams } from 'next/navigation';
 
 import { type TvSeries } from '@/types/tv-series';

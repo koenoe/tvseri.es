@@ -4,7 +4,7 @@
 import { type ReactNode, useCallback, useEffect, useId, useState } from 'react';
 
 import { cx } from 'class-variance-authority';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 import { countries, paths } from './constants';
 

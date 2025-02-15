@@ -9,7 +9,7 @@ import {
   useMotionValue,
   useMotionValueEvent,
   useSpring,
-} from 'framer-motion';
+} from 'motion/react';
 
 import getHistoryKey from '@/utils/getHistoryKey';
 import getMousePositionWithinElement from '@/utils/getMousePositionWithinElement';

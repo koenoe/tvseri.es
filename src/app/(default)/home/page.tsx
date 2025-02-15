@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { cache, Suspense } from 'react';
 
 import { unstable_cache } from 'next/cache';
 import { notFound } from 'next/navigation';
@@ -16,7 +16,7 @@ import SkeletonList from '@/components/Skeletons/SkeletonList';
 import Spotlight from '@/components/Spotlight/Spotlight';
 import { fetchTrendingTvSeries } from '@/lib/tmdb';
 
-const cachedTrendingTvSeries = unstable_cache(
+const _cachedTrendingTvSeries = unstable_cache(
   async () => {
     const items = await fetchTrendingTvSeries();
     return items;
@@ -27,6 +27,8 @@ const cachedTrendingTvSeries = unstable_cache(
     tags: ['trending'],
   },
 );
+
+const cachedTrendingTvSeries = cache(_cachedTrendingTvSeries);
 
 export async function generateViewport() {
   const trendingTvSeries = await cachedTrendingTvSeries();

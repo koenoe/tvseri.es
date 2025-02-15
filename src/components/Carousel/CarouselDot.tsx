@@ -3,7 +3,7 @@
 import { memo, useCallback } from 'react';
 
 import { cva } from 'class-variance-authority';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 export const carouselDotStyles = cva(
   'size-2.5 cursor-pointer rounded-full bg-white',

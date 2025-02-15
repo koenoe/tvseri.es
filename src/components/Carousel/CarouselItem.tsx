@@ -9,7 +9,7 @@ import {
   useRef,
 } from 'react';
 
-import { motion, type MotionValue, type PanInfo } from 'framer-motion';
+import { motion, type MotionValue, type PanInfo } from 'motion/react';
 
 function CarouselItem({
   index,
@@ -50,7 +50,7 @@ function CarouselItem({
 
   return (
     <motion.div
-      className="content-visibility-auto absolute h-full w-full transform-gpu"
+      className="absolute h-full w-full transform-gpu content-visibility-auto"
       style={{
         contain: 'paint layout',
         left: `${index * 100}%`,

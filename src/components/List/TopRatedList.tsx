@@ -12,7 +12,7 @@ const cachedTopRatedTvSeries = unstable_cache(
   },
   ['top-rated'],
   {
-    revalidate: 604800, // 1 week
+    revalidate: 2629800, // 1 month
   },
 );
 

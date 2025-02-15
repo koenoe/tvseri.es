@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { twMerge } from 'tailwind-merge';
 
 const START_GRADIENT_POSITION = -130;

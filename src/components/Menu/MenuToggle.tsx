@@ -3,7 +3,7 @@
 import { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
 
 import { cva } from 'class-variance-authority';
-import { motion, useAnimation } from 'framer-motion';
+import { motion, useAnimation } from 'motion/react';
 
 const firstPathVariants = {
   open: { d: 'M 3.06061 2.99999 L 21.0606 21' },

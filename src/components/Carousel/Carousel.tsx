@@ -19,7 +19,7 @@ import {
   type PanInfo,
   useAnimate,
   useMotionValue,
-} from 'framer-motion';
+} from 'motion/react';
 import { useDebouncedCallback } from 'use-debounce';
 
 import getHistoryKey from '@/utils/getHistoryKey';

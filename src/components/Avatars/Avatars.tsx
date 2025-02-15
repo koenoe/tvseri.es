@@ -3,7 +3,7 @@
 import { memo } from 'react';
 
 import { cva, cx } from 'class-variance-authority';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
 

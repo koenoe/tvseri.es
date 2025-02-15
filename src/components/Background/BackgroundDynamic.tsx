@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 
 import { type Props } from './Background';
 import BackgroundBase, { backgroundBaseStyles } from './BackgroundBase';

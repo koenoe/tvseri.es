@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 
 import { cva, cx, type VariantProps } from 'class-variance-authority';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 export const circleButtonStyles = cva(
   'relative flex aspect-square items-center justify-center rounded-full border-2 focus:outline-none',

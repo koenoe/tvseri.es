@@ -11,7 +11,7 @@ import {
 } from 'react';
 
 import { cx } from 'class-variance-authority';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 

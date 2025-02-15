@@ -4,7 +4,7 @@ import 'react-day-picker/style.css';
 
 import { memo, type ReactNode, useCallback, useRef, useState } from 'react';
 
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'motion/react';
 import { DayFlag, DayPicker, SelectionState, UI } from 'react-day-picker';
 
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';

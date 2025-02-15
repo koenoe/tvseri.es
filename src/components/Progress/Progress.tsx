@@ -2,7 +2,7 @@
 
 import { memo, useMemo } from 'react';
 
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { twMerge } from 'tailwind-merge';
 
 import calculateProgress from '@/utils/calculateProgress';

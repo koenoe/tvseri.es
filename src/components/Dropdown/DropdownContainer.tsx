@@ -9,7 +9,7 @@ import {
   type RefObject,
 } from 'react';
 
-import { motion, type Variants } from 'framer-motion';
+import { motion, type Variants } from 'motion/react';
 
 import Modal from '../Modal';
 

@@ -3,7 +3,7 @@
 import { type ReactNode, useRef, useEffect, useTransition, memo } from 'react';
 
 import { cx } from 'class-variance-authority';
-import { useInView } from 'framer-motion';
+import { useInView } from 'motion/react';
 
 const InfiniteScroll = ({
   className,

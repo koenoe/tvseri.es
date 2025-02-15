@@ -9,7 +9,7 @@ import {
   useTransition,
 } from 'react';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 

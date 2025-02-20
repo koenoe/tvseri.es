@@ -1,6 +1,6 @@
 'use client';
 
-import { type RefObject, useCallback } from 'react';
+import { useCallback } from 'react';
 
 import type { TvSeries } from '@/types/tv-series';
 import preloadImage from '@/utils/preloadImage';
@@ -19,9 +19,7 @@ export default function Spotlight({
   const updateBackground = usePageStore((state) => state.setBackground);
 
   const itemRenderer = useCallback(
-    (index: number, ref: RefObject<HTMLAnchorElement>) => (
-      <SpotlightItem ref={ref} index={index} item={items[index]} />
-    ),
+    (index: number) => <SpotlightItem index={index} item={items[index]} />,
     [items],
   );
 

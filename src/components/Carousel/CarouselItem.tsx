@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  memo,
-  type ReactElement,
-  type RefObject,
-  useMemo,
-  useRef,
-} from 'react';
+import { memo, type ReactElement } from 'react';
 
 import { motion, type MotionValue, type PanInfo } from 'motion/react';
 
@@ -22,15 +16,8 @@ function CarouselItem({
     event: MouseEvent | TouchEvent | PointerEvent,
     info: PanInfo,
   ) => void;
-  itemRenderer: (index: number, ref: RefObject<HTMLElement>) => ReactElement;
+  itemRenderer: (index: number) => ReactElement;
 }>) {
-  const childRef = useRef<HTMLElement>(null);
-
-  const child = useMemo(
-    () => itemRenderer(index, childRef as RefObject<HTMLElement>),
-    [index, itemRenderer],
-  );
-
   return (
     <motion.div
       className="absolute h-full w-full transform-gpu content-visibility-auto"
@@ -47,7 +34,7 @@ function CarouselItem({
         pointerEvents: 'none',
       }}
     >
-      {child}
+      {itemRenderer(index)}
     </motion.div>
   );
 }

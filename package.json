@@ -23,7 +23,7 @@
     "color": "^5.0.0",
     "date-fns": "^4.1.0",
     "dice-coefficient": "^2.1.1",
-    "motion": "^12.4.3",
+    "motion": "^12.4.7",
     "next": "15.1.7",
     "papaparse": "^5.5.2",
     "react": "19.0.0",

@@ -72,8 +72,8 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       sst:
-        specifier: ^3.9.10
-        version: 3.9.10
+        specifier: ^3.9.14
+        version: 3.9.14
       ulid:
         specifier: ^2.3.0
         version: 2.3.0
@@ -3197,8 +3197,8 @@ packages:
   obliterator@1.6.1:
     resolution: {integrity: sha512-9WXswnqINnnhOG/5SLimUlzuU1hFJUc8zkwyD59Sd+dPOMf05PmnYG/d6Q7HZ+KmgkZJa1PxRso6QdM3sTNHig==}
 
-  oidc-token-hash@5.0.3:
-    resolution: {integrity: sha512-IF4PcGgzAr6XXSff26Sk/+P4KZFJVuHAJZj3wgO3vX2bMdNVp/QXTP3P7CEm9V1IdG8lDLY3HhiqpsE/nOwpPw==}
+  oidc-token-hash@5.1.0:
+    resolution: {integrity: sha512-y0W+X7Ppo7oZX6eovsRkuzcSM40Bicg2JEJkDJ4irIt1wsYAP5MLSNv+QAogO8xivMffw/9OvV3um1pxXgt1uA==}
     engines: {node: ^10.13.0 || >=12.0.0}
 
   on-finished@2.4.1:
@@ -3738,33 +3738,33 @@ packages:
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
 
-  sst-darwin-arm64@3.9.10:
-    resolution: {integrity: sha512-X+fLAd7SbX+Al17NqAijFUke1ZkD5/l/Go8+vjxKWhDc2QvzmZu9Yk9csK4K7Y7iYt6F0RnjW5bFhBMlq6/P2g==}
+  sst-darwin-arm64@3.9.14:
+    resolution: {integrity: sha512-XWbamcQutaCdZNgZ457AHEBfy2wDBjal9dXIVAbjUdvJYLuGyXk9zlt2Uw+axr5TOYDTstBpjFlNnmbXHP+fmw==}
     cpu: [arm64]
     os: [darwin]
 
-  sst-darwin-x64@3.9.10:
-    resolution: {integrity: sha512-hSJTjgsS5b70Jld+N2dmgFOej5oQYOsoFWvawuuqEFg2lirQOvczy+KKGlv+99ceAyONIRksCiOFu3gY3OOsbQ==}
+  sst-darwin-x64@3.9.14:
+    resolution: {integrity: sha512-6gfW1ysQhaOiZ8AB3RpTy1zjLwIBi6lHt9hmwHv85XxkHnaMVUMoSQP4RN66T6r/SymTylpq/yAxqU7oqoefvA==}
     cpu: [x64]
     os: [darwin]
 
-  sst-linux-arm64@3.9.10:
-    resolution: {integrity: sha512-CzwlaVbxNf3j9OU42MuvupcAfx+cQcJJBi4GU0aF738/nasOoGN+2Nz3+F4zYuAWqxRyIc6gjRs69X5Qx9k/0A==}
+  sst-linux-arm64@3.9.14:
+    resolution: {integrity: sha512-11GuizrWnORy2MZNvMb0RAd0Tr+2nnVolIHNDzTvXClnUU6uM25Z8rFl9Z5ZMcqthLYgrg/WhxodTjsqC5bAyA==}
     cpu: [arm64]
     os: [linux]
 
-  sst-linux-x64@3.9.10:
-    resolution: {integrity: sha512-4M6Jt7t6eUDFLjXfVcJhksDyNI1R6DYCG8p1ELl4Eu9QIEFrXBncUssY3UdIkjzOXBOUubmp1W7XkLYELs0DKw==}
+  sst-linux-x64@3.9.14:
+    resolution: {integrity: sha512-H3P+a2VCjfadgLPjP6bSpbOPgs1EQJEbVcZkc0tlUnC1eDvXyVtH7h2ZS+L7pq4/KXzKJadSynT28rLwoCAtUw==}
     cpu: [x64]
     os: [linux]
 
-  sst-linux-x86@3.9.10:
-    resolution: {integrity: sha512-6KTIbnndKHH8UrpbuSHuOgLRDMbr8tkjoboa+O6Z68JDjNSIf+Qnkw92n6nROA4io+yPmcACtH5AfOK3oe0WhQ==}
+  sst-linux-x86@3.9.14:
+    resolution: {integrity: sha512-50211MszKj0/mewk6GpkciRBPdwMVbDHF9j0BKMzJYjSPCF+y0IqbZIF/w0jk6lJHz1nkKGb4Nd+8nybmkVw+w==}
     cpu: [x86]
     os: [linux]
 
-  sst@3.9.10:
-    resolution: {integrity: sha512-+BH2p6T12+kvPR5DbXZGtYPQfscXHmZ0NgMUIvfXIZxr8dhh9pcHv8Dzm4YEguJ5ZTudRTgkkQX0y3qJZPnBNA==}
+  sst@3.9.14:
+    resolution: {integrity: sha512-h0IHosOFLXY2T3KWmR9gXThO/uqjqTEUfoPFmA8l5oFvncRrPTAlUg5RgtUsBm/kS52lkVRk7kFq8U6UXD3QKw==}
     hasBin: true
 
   stable-hash@0.0.4:
@@ -8559,7 +8559,7 @@ snapshots:
 
   obliterator@1.6.1: {}
 
-  oidc-token-hash@5.0.3: {}
+  oidc-token-hash@5.1.0: {}
 
   on-finished@2.4.1:
     dependencies:
@@ -8582,7 +8582,7 @@ snapshots:
       jose: 4.15.9
       lru-cache: 6.0.0
       object-hash: 2.2.0
-      oidc-token-hash: 5.0.3
+      oidc-token-hash: 5.1.0
 
   optionator@0.9.4:
     dependencies:
@@ -9111,32 +9111,32 @@ snapshots:
 
   sprintf-js@1.0.3: {}
 
-  sst-darwin-arm64@3.9.10:
+  sst-darwin-arm64@3.9.14:
     optional: true
 
-  sst-darwin-x64@3.9.10:
+  sst-darwin-x64@3.9.14:
     optional: true
 
-  sst-linux-arm64@3.9.10:
+  sst-linux-arm64@3.9.14:
     optional: true
 
-  sst-linux-x64@3.9.10:
+  sst-linux-x64@3.9.14:
     optional: true
 
-  sst-linux-x86@3.9.10:
+  sst-linux-x86@3.9.14:
     optional: true
 
-  sst@3.9.10:
+  sst@3.9.14:
     dependencies:
       aws4fetch: 1.0.20
       jose: 5.2.3
       openid-client: 5.6.4
     optionalDependencies:
-      sst-darwin-arm64: 3.9.10
-      sst-darwin-x64: 3.9.10
-      sst-linux-arm64: 3.9.10
-      sst-linux-x64: 3.9.10
-      sst-linux-x86: 3.9.10
+      sst-darwin-arm64: 3.9.14
+      sst-darwin-x64: 3.9.14
+      sst-linux-arm64: 3.9.14
+      sst-linux-x64: 3.9.14
+      sst-linux-x86: 3.9.14
 
   stable-hash@0.0.4: {}
 

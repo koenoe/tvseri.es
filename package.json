@@ -58,7 +58,7 @@
     "babel-plugin-react-compiler": "19.0.0-beta-e552027-20250112",
     "concurrently": "^9.1.2",
     "eslint": "^9.21.0",
-    "eslint-config-next": "^15.1.7",
+    "eslint-config-next": "^15.2.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-unused-imports": "^4",

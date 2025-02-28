@@ -16,7 +16,7 @@
     "@aws-sdk/client-dynamodb": "^3.751.0",
     "@aws-sdk/client-lambda": "^3.750.0",
     "@aws-sdk/client-sesv2": "^3.753.0",
-    "@aws-sdk/client-sqs": "^3.750.0",
+    "@aws-sdk/client-sqs": "^3.758.0",
     "@aws-sdk/util-dynamodb": "^3.751.0",
     "@better-fetch/fetch": "^1.1.15",
     "class-variance-authority": "^0.7.1",

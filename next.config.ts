@@ -6,11 +6,14 @@ const nextConfig = {
   experimental: {
     authInterrupts: true,
     ppr: true,
+    inlineCss: true,
     staleTimes: {
       static: 0,
       dynamic: 0,
     },
   },
+  output: 'standalone',
+  poweredByHeader: false,
   eslint: {
     ignoreDuringBuilds: true,
   },

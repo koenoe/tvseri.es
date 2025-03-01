@@ -7,7 +7,6 @@ import {
   useCallback,
   useState,
   useMemo,
-  type RefObject,
   useEffect,
   useRef,
   type ReactElement,
@@ -46,10 +45,7 @@ function Carousel({
 }: Readonly<{
   className?: string;
   itemCount: number;
-  itemRenderer: (
-    index: number,
-    ref: RefObject<HTMLAnchorElement>,
-  ) => ReactElement;
+  itemRenderer: (index: number) => ReactElement;
   onChange?: (index: number) => void;
   restoreKey: string;
 }>) {
@@ -114,8 +110,7 @@ function Carousel({
   );
 
   const handleItemRenderer = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (index: number, ref: any) => itemRenderer(calculateItemIndex(index), ref),
+    (index: number) => itemRenderer(calculateItemIndex(index)),
     [calculateItemIndex, itemRenderer],
   );
 

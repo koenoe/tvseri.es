@@ -12,8 +12,6 @@ const nextConfig = {
       dynamic: 0,
     },
   },
-  output: 'standalone',
-  poweredByHeader: false,
   eslint: {
     ignoreDuringBuilds: true,
   },

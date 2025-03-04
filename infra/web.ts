@@ -45,20 +45,20 @@ new sst.aws.Nextjs('tvseries', {
     memory: '1024 MB',
     runtime: 'nodejs22.x',
   },
-  // transform: {
-  //   server: {
-  //     timeout: '30 seconds',
-  //   },
-  //   cdn: (options) => {
-  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //     const origins = (options.origins || []) as any[];
-  //     options.origins = origins.map((origin) => ({
-  //       ...origin,
-  //       originShield: {
-  //         enabled: true,
-  //         originShieldRegion: $app.providers?.aws.region ?? 'eu-west-2',
-  //       },
-  //     }));
-  //   },
-  // },
+  transform: {
+    server: {
+      timeout: '30 seconds',
+    },
+    cdn: (options) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const origins = (options.origins || []) as any[];
+      options.origins = origins.map((origin) => ({
+        ...origin,
+        originShield: {
+          enabled: true,
+          originShieldRegion: $app.providers?.aws.region ?? 'eu-west-2',
+        },
+      }));
+    },
+  },
 });

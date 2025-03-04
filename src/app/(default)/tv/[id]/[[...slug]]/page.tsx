@@ -226,7 +226,13 @@ export default async function TvSeriesDetailsPage({
         </Suspense>
       </div>
       {tvSeries.numberOfEpisodes > 0 && tvSeries.seasons && (
-        <EpisodesList className="mb-10 md:mb-16" item={tvSeries} />
+        <Suspense
+          fallback={
+            <SkeletonList className="mb-10 md:mb-16" variant="episode" />
+          }
+        >
+          <EpisodesList className="mb-10 md:mb-16" item={tvSeries} />
+        </Suspense>
       )}
       <Suspense fallback={<SkeletonList />}>
         <RecommendationsList id={tvSeries.id} />

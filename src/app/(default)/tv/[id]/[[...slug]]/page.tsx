@@ -23,69 +23,67 @@ import AddTvSeriesToStoreContainer from '@/components/Watched/AddTvSeriesToStore
 import ValidateWatchedStatus from '@/components/Watched/ValidateWatchedStatus';
 import WatchedProgress from '@/components/Watched/WatchedProgress';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
-import getBaseUrl from '@/utils/getBaseUrl';
+// import getBaseUrl from '@/utils/getBaseUrl';
 
 type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
 
-export const dynamic = 'force-dynamic';
+// export async function generateViewport({ params: paramsFromProps }: Props) {
+//   const params = await paramsFromProps;
+//   const tvSeries = await cachedTvSeries(params.id);
 
-export async function generateViewport({ params: paramsFromProps }: Props) {
-  const params = await paramsFromProps;
-  const tvSeries = await cachedTvSeries(params.id);
+//   if (!tvSeries || tvSeries.isAdult) {
+//     return {};
+//   }
 
-  if (!tvSeries || tvSeries.isAdult) {
-    return {};
-  }
+//   return {
+//     themeColor: tvSeries.backdropColor,
+//   };
+// }
 
-  return {
-    themeColor: tvSeries.backdropColor,
-  };
-}
+// export async function generateMetadata({ params: paramsFromProps }: Props) {
+//   const params = await paramsFromProps;
+//   const tvSeries = await cachedTvSeries(params.id);
 
-export async function generateMetadata({ params: paramsFromProps }: Props) {
-  const params = await paramsFromProps;
-  const tvSeries = await cachedTvSeries(params.id);
+//   if (!tvSeries || tvSeries.isAdult) {
+//     return {};
+//   }
 
-  if (!tvSeries || tvSeries.isAdult) {
-    return {};
-  }
+//   const slug = params.slug?.join('');
 
-  const slug = params.slug?.join('');
+//   if (tvSeries.slug && tvSeries.slug !== slug) {
+//     return {};
+//   }
 
-  if (tvSeries.slug && tvSeries.slug !== slug) {
-    return {};
-  }
+//   const canonicalUrl = `${getBaseUrl()}/tv/${params.id}/${tvSeries.slug}`;
 
-  const canonicalUrl = `${getBaseUrl()}/tv/${params.id}/${tvSeries.slug}`;
-
-  return {
-    title: tvSeries.title,
-    description: tvSeries.description,
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    openGraph: {
-      title: tvSeries.title,
-      description: tvSeries.description,
-      url: canonicalUrl,
-      siteName: 'tvseri.es',
-      images: tvSeries.posterImage
-        ? [
-            {
-              url: tvSeries.posterImage,
-              width: 300,
-              height: 450,
-              alt: `${tvSeries.title} poster`,
-            },
-          ]
-        : undefined,
-      locale: 'en_US',
-      type: 'video.tv_show',
-    },
-  };
-}
+//   return {
+//     title: tvSeries.title,
+//     description: tvSeries.description,
+//     alternates: {
+//       canonical: canonicalUrl,
+//     },
+//     openGraph: {
+//       title: tvSeries.title,
+//       description: tvSeries.description,
+//       url: canonicalUrl,
+//       siteName: 'tvseri.es',
+//       images: tvSeries.posterImage
+//         ? [
+//             {
+//               url: tvSeries.posterImage,
+//               width: 300,
+//               height: 450,
+//               alt: `${tvSeries.title} poster`,
+//             },
+//           ]
+//         : undefined,
+//       locale: 'en_US',
+//       type: 'video.tv_show',
+//     },
+//   };
+// }
 
 export default async function TvSeriesDetailsPage({
   params: paramsFromProps,

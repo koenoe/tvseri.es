@@ -24,11 +24,11 @@
     "date-fns": "^4.1.0",
     "dice-coefficient": "^2.1.1",
     "motion": "^12.4.3",
-    "next": "15.2.2-canary.0",
+    "next": "15.2.2-canary.3",
     "papaparse": "^5.5.2",
-    "react": "19.1.0-canary-443b7ff2-20250303",
+    "react": "19.1.0-canary-f9d78089-20250306",
     "react-day-picker": "^9.5.1",
-    "react-dom": "19.1.0-canary-443b7ff2-20250303",
+    "react-dom": "19.1.0-canary-f9d78089-20250306",
     "react-dropzone": "^14.3.8",
     "react-fast-compare": "^3.2.2",
     "recharts": "^2.15.1",
@@ -76,5 +76,5 @@
     "tailwindcss-content-visibility": "^1.0.2",
     "typescript": "^5.8.2"
   },
-  "packageManager": "pnpm@10.5.2"
+  "packageManager": "pnpm@10.6.1"
 }

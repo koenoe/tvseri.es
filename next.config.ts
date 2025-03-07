@@ -6,6 +6,11 @@ const nextConfig = {
   experimental: {
     authInterrupts: true,
     inlineCss: true,
+    // Note: this can be removed if session storage + carousel nightmare is fixed
+    staleTimes: {
+      static: 0,
+      dynamic: 0,
+    },
   },
   output: 'standalone',
   poweredByHeader: false,

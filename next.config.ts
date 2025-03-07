@@ -7,10 +7,6 @@ const nextConfig = {
     authInterrupts: true,
     ppr: true,
     inlineCss: true,
-    staleTimes: {
-      static: 0,
-      dynamic: 0,
-    },
   },
   eslint: {
     ignoreDuringBuilds: true,

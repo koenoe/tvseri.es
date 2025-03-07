@@ -88,15 +88,15 @@ export default function PreferredImagesForAdmin({
         images.backdrops.length - 1,
       );
 
-      if (newIndex === currentBackdropIndex) {
+      const newBackdrop = images.backdrops[newIndex];
+
+      if (newIndex === currentBackdropIndex || !newBackdrop) {
         return;
       }
 
       setPreloading(direction);
 
       startTransition(async () => {
-        const newBackdrop = images.backdrops[newIndex];
-
         try {
           const [color, preloadedImage] = await Promise.all([
             getDominantColor(newBackdrop),

@@ -6,10 +6,6 @@ const nextConfig = {
   experimental: {
     authInterrupts: true,
     inlineCss: true,
-    staleTimes: {
-      static: 0,
-      dynamic: 0,
-    },
   },
   output: 'standalone',
   poweredByHeader: false,

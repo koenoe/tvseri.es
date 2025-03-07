@@ -72,8 +72,8 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       sst:
-        specifier: ^3.9.23
-        version: 3.9.23
+        specifier: ^3.9.30
+        version: 3.9.30
       ulid:
         specifier: ^2.3.0
         version: 2.3.0
@@ -828,6 +828,10 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
+  '@modelcontextprotocol/sdk@1.6.1':
+    resolution: {integrity: sha512-oxzMzYCkZHMntzuyerehK3fV6A2Kwh5BD6CGEJSVDU2QNEhfLOptf2X7esQgaHZXHZY0oHmMsOtIDLP71UJXgA==}
+    engines: {node: '>=18'}
+
   '@next/env@15.2.1':
     resolution: {integrity: sha512-JmY0qvnPuS2NCWOz2bbby3Pe0VzdAQ7XpEB6uLIHmtXNfAsAO0KLQLkuAoc42Bxbo3/jMC3dcn9cdf+piCcG2Q==}
 
@@ -1286,6 +1290,9 @@ packages:
     resolution: {integrity: sha512-0wDLwCVF5V3x3b1SGXPCDcdsbDHMBe+lkFzBRaHeLvNi+nrrnZ1lA18u+OTWO8iSWU2GxUOCvlXtDuqftc1oiA==}
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders || >=4.0.0-alpha.20 || >=4.0.0-beta.1'
+
+  '@tsconfig/bun@1.0.7':
+    resolution: {integrity: sha512-udGrGJBNQdXGVulehc1aWT73wkR9wdaGBtB6yL70RJsqwW/yJhIg6ZbRlPOfIUiFNrnBuYLBi9CSmMKfDC7dvA==}
 
   '@tsconfig/node18@1.0.3':
     resolution: {integrity: sha512-RbwvSJQsuN9TB04AQbGULYfOGE/RnSFk/FLQ5b0NmDf5Kx2q/lABZbHQPKCO1vZ6Fiwkplu+yb9pGdLy1iGseQ==}
@@ -1747,6 +1754,10 @@ packages:
     resolution: {integrity: sha512-Kb2wC0fvsWfQrgk8HU5lW6U/Lcs8+9aaYcy4ZFc6DDlo4nZ7n70dEgE5rtR0oG6ufKDUnrwfWL1mXR5ljDatrQ==}
     deprecated: core-js@<3.23.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Some versions have web compatibility issues. Please, upgrade your dependencies to the actual version of core-js.
 
+  cors@2.8.5:
+    resolution: {integrity: sha512-KIHbLJqu73RGr/hnbrO9uBeixNGuvSQjul/jdFvS/KFSIH1hWVd1ng7zOHx+YrEfInLG7q4n6GHQ9cDtxv/P6g==}
+    engines: {node: '>= 0.10'}
+
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
@@ -2181,9 +2192,23 @@ packages:
     resolution: {integrity: sha512-kEcvvCBByWXGnZy6JUlgAp2gBIUjfCAV6P6TgT1/aaQKcmuAEC4OZTV1I4EWQLz2gxZw76atuVyvHhTxvi0Flw==}
     engines: {node: '>=0.4.x'}
 
+  eventsource-parser@3.0.0:
+    resolution: {integrity: sha512-T1C0XCUimhxVQzW4zFipdx0SficT651NnkR0ZSH3yQwh+mFMdLfgjABVi4YtMTtaL4s168593DaoaRLMqryavA==}
+    engines: {node: '>=18.0.0'}
+
+  eventsource@3.0.5:
+    resolution: {integrity: sha512-LT/5J605bx5SNyE+ITBDiM3FxffBiq9un7Vx0EwMDM3vg8sWKx/tO2zC+LMqZ+smAM0F2hblaDZUVZF0te2pSw==}
+    engines: {node: '>=18.0.0'}
+
   execa@8.0.1:
     resolution: {integrity: sha512-VyhnebXciFV2DESc+p6B+y0LjSm0krU4OgJN44qFAhBY0TJ+1V61tYD2+wHusZ6F9n5K+vl8k0sTy7PEfV4qpg==}
     engines: {node: '>=16.17'}
+
+  express-rate-limit@7.5.0:
+    resolution: {integrity: sha512-eB5zbQh5h+VenMPM3fh+nw1YExi5nMr6HUCR62ELSP11huvxm/Uir1H1QEyTkk5QX6A58pX6NmaTMceKZ0Eodg==}
+    engines: {node: '>= 16'}
+    peerDependencies:
+      express: ^4.11 || 5 || ^5.0.0-beta.1
 
   express@5.0.1:
     resolution: {integrity: sha512-ORF7g6qGnD+YtUG9yx4DFoqCShNMmUKiXuT5oWMHiOvt/4WFbHC6yCwQMTSBMno7AqntNCAzzcnnjowRkTL9eQ==}
@@ -2445,6 +2470,10 @@ packages:
   hasown@2.0.2:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
+
+  hono@4.7.4:
+    resolution: {integrity: sha512-Pst8FuGqz3L7tFF+u9Pu70eI0xa5S3LPUmrNd5Jm8nTHze9FxLTK9Kaj5g/k4UcwuJSXTP65SyHOPLrffpcAJg==}
+    engines: {node: '>=16.9.0'}
 
   http-errors@2.0.0:
     resolution: {integrity: sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==}
@@ -3064,6 +3093,10 @@ packages:
     resolution: {integrity: sha512-VXJjc87FScF88uafS3JllDgvAm+c/Slfz06lorj2uAY34rlUu0Nt+v8wreiImcrgAjjIHp1rXpTDlLOGw29WwQ==}
     engines: {node: '>=18'}
 
+  opencontrol@0.0.6:
+    resolution: {integrity: sha512-QeCrpOK5D15QV8kjnGVeD/BHFLwcVr+sn4T6KKmP0WAMs2pww56e4h+eOGHb5iPOufUQXbdbBKi6WV2kk7tefQ==}
+    hasBin: true
+
   openid-client@5.6.4:
     resolution: {integrity: sha512-T1h3B10BRPKfcObdBklX639tVz+xh34O7GjofqrqiAQdm7eHsQ00ih18x6wuJ/E6FxdtS2u3FmUGPDeEcMwzNA==}
 
@@ -3149,6 +3182,10 @@ packages:
   pirates@4.0.6:
     resolution: {integrity: sha512-saLsH7WeYYPiD25LDuLRRY/i+6HaPYr6G1OUlN39otzkSTxKnubR9RTxS3/Kk50s1g2JTgFwWQDQyplC5/SHZg==}
     engines: {node: '>= 6'}
+
+  pkce-challenge@4.1.0:
+    resolution: {integrity: sha512-ZBmhE1C9LcPoH9XZSdwiPtbPHZROwAnMy+kIFQVrnMCxY4Cudlz3gBOpzilgc0jOgRaiT3sIWfpMomW2ar2orQ==}
+    engines: {node: '>=16.20.0'}
 
   possible-typed-array-names@1.0.0:
     resolution: {integrity: sha512-d7Uw+eZoloe0EHDIYoe+bQ5WXnGMOpmiZFTuMWCwpjzzkL2nTjcKiAk4hh8TjnGye2TwWOk3UXucZ+3rbmBa8Q==}
@@ -3581,33 +3618,33 @@ packages:
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
 
-  sst-darwin-arm64@3.9.23:
-    resolution: {integrity: sha512-pGauM2ep7/9cjlxNcLumHqoicpXv6Mdn9UEI0eCKwfMTt0Attdnr6L9xCWHuBD+VVG0jSVcpU3qfn2wu1ycDhQ==}
+  sst-darwin-arm64@3.9.30:
+    resolution: {integrity: sha512-vD6RHjm2bmyJjcbt63D0k5lKrOdq+dH3h5FMetZCv4a+jsGkNr3dnTA/ZeqryilopQ70NadHf+y23uz2VvLm0w==}
     cpu: [arm64]
     os: [darwin]
 
-  sst-darwin-x64@3.9.23:
-    resolution: {integrity: sha512-q00Dn4cX06SOwYeDlwi9priTgSGe1kpPbBE2xT5ZJTm2DbL/DmezT5unUNov6ac6PM2DoN2GRqJLPOHvqrsJBg==}
+  sst-darwin-x64@3.9.30:
+    resolution: {integrity: sha512-I1HA+Uun4HU/gqve3Q5DJY87S5tHYF8Gh4nHlIb37ynBY88VA2i4/wrPf3BU7uDckQnleCUiB6pV26DWrsbRdA==}
     cpu: [x64]
     os: [darwin]
 
-  sst-linux-arm64@3.9.23:
-    resolution: {integrity: sha512-fXGA7M9UDzxqkMAxzyfoXr5gif+ti4+dbLzsgBP1EPT4fQcspqLpCIffcLnLcLf7xtPgZXCsufFNqtQupraE9g==}
+  sst-linux-arm64@3.9.30:
+    resolution: {integrity: sha512-vClylUn5TQqKOT6sXITzsjNDZE25PjQ8zwA1Jkq5/+bFOSpPxp8D+wjDomfXRZzywS8jZthRQfNNhFlQE/5QoQ==}
     cpu: [arm64]
     os: [linux]
 
-  sst-linux-x64@3.9.23:
-    resolution: {integrity: sha512-Es+0ifiHrrm4jNNV0nXqwSAUWIIaIUf+Zr3fHXdPg7v8jDZcqyw1SplRVe37PDMaLU/sqRM/jDs7p5M1Ucqmsg==}
+  sst-linux-x64@3.9.30:
+    resolution: {integrity: sha512-+WzEb7VdLIFYs+7C9jYVDbs9MEdhSr28g/eGPhnHps+eI53o3fX/TZntAiMNdwEU/AgsWipob6aTQMqRZ0n5Og==}
     cpu: [x64]
     os: [linux]
 
-  sst-linux-x86@3.9.23:
-    resolution: {integrity: sha512-q8YKnTHuPBnpJDS+3GGe1/8gvoGk0pPJhDByO3VMBjbtGK710MiwyV87Qk43ArCwxrFSwgVJ4CevLReuLT80Jg==}
+  sst-linux-x86@3.9.30:
+    resolution: {integrity: sha512-33XS0Ax40L0o8EWmQxPyAaMowCIIp/QFlmhVnMIGI52mKbTjWWwM6IO4ewq2AtNWlhQPpWwlvsNWbnWbGNw0hw==}
     cpu: [x86]
     os: [linux]
 
-  sst@3.9.23:
-    resolution: {integrity: sha512-G+6MlYgyND6BtafQYNzsSLGGVp09mk7TsvARI7/lC6HhQFxr46H3Yc2T7qOZM5e0lBNA30bFuqYV3Yj8GZYrOQ==}
+  sst@3.9.30:
+    resolution: {integrity: sha512-lrJVr3zvCVuT3h/AApRp55744ukWQ1XlzUCCmbUjqFWcPVOrmhZ19yHeQ6+KNbn+A2LCA7dN8H6I6YqScS/4Ag==}
     hasBin: true
 
   stable-hash@0.0.4:
@@ -4002,6 +4039,14 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  zod-to-json-schema@3.24.3:
+    resolution: {integrity: sha512-HIAfWdYIt1sssHfYZFCXp4rU1w2r8hVVXYIlmoa0r0gABLs5di3RCqPU5DDROogVz1pAdYBaz7HK5n9pSUNs3A==}
+    peerDependencies:
+      zod: ^3.24.1
+
+  zod@3.24.2:
+    resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
 
   zustand@5.0.3:
     resolution: {integrity: sha512-14fwWQtU3pH4dE0dOpdMiWjddcH+QzKIgk1cl8epwSE7yag43k/AD/m4L6+K7DytAOr9gGBe3/EXj9g7cdostg==}
@@ -5286,6 +5331,20 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
+  '@modelcontextprotocol/sdk@1.6.1':
+    dependencies:
+      content-type: 1.0.5
+      cors: 2.8.5
+      eventsource: 3.0.5
+      express: 5.0.1
+      express-rate-limit: 7.5.0(express@5.0.1)
+      pkce-challenge: 4.1.0
+      raw-body: 3.0.0
+      zod: 3.24.2
+      zod-to-json-schema: 3.24.3(zod@3.24.2)
+    transitivePeerDependencies:
+      - supports-color
+
   '@next/env@15.2.1': {}
 
   '@next/eslint-plugin-next@15.2.1':
@@ -5947,6 +6006,8 @@ snapshots:
       postcss-selector-parser: 6.0.10
       tailwindcss: 3.4.17
 
+  '@tsconfig/bun@1.0.7': {}
+
   '@tsconfig/node18@1.0.3': {}
 
   '@types/aws-lambda@8.10.147': {}
@@ -6486,6 +6547,11 @@ snapshots:
   cookie@0.7.1: {}
 
   core-js@2.6.12: {}
+
+  cors@2.8.5:
+    dependencies:
+      object-assign: 4.1.1
+      vary: 1.1.2
 
   cross-spawn@7.0.6:
     dependencies:
@@ -7083,6 +7149,12 @@ snapshots:
 
   events@1.1.1: {}
 
+  eventsource-parser@3.0.0: {}
+
+  eventsource@3.0.5:
+    dependencies:
+      eventsource-parser: 3.0.0
+
   execa@8.0.1:
     dependencies:
       cross-spawn: 7.0.6
@@ -7094,6 +7166,10 @@ snapshots:
       onetime: 6.0.0
       signal-exit: 4.1.0
       strip-final-newline: 3.0.0
+
+  express-rate-limit@7.5.0(express@5.0.1):
+    dependencies:
+      express: 5.0.1
 
   express@5.0.1:
     dependencies:
@@ -7397,6 +7473,8 @@ snapshots:
   hasown@2.0.2:
     dependencies:
       function-bind: 1.1.2
+
+  hono@4.7.4: {}
 
   http-errors@2.0.0:
     dependencies:
@@ -7992,6 +8070,16 @@ snapshots:
     dependencies:
       mimic-function: 5.0.1
 
+  opencontrol@0.0.6:
+    dependencies:
+      '@modelcontextprotocol/sdk': 1.6.1
+      '@tsconfig/bun': 1.0.7
+      hono: 4.7.4
+      zod: 3.24.2
+      zod-to-json-schema: 3.24.3(zod@3.24.2)
+    transitivePeerDependencies:
+      - supports-color
+
   openid-client@5.6.4:
     dependencies:
       jose: 4.15.9
@@ -8062,6 +8150,8 @@ snapshots:
   pify@2.3.0: {}
 
   pirates@4.0.6: {}
+
+  pkce-challenge@4.1.0: {}
 
   possible-typed-array-names@1.0.0: {}
 
@@ -8518,32 +8608,35 @@ snapshots:
 
   sprintf-js@1.0.3: {}
 
-  sst-darwin-arm64@3.9.23:
+  sst-darwin-arm64@3.9.30:
     optional: true
 
-  sst-darwin-x64@3.9.23:
+  sst-darwin-x64@3.9.30:
     optional: true
 
-  sst-linux-arm64@3.9.23:
+  sst-linux-arm64@3.9.30:
     optional: true
 
-  sst-linux-x64@3.9.23:
+  sst-linux-x64@3.9.30:
     optional: true
 
-  sst-linux-x86@3.9.23:
+  sst-linux-x86@3.9.30:
     optional: true
 
-  sst@3.9.23:
+  sst@3.9.30:
     dependencies:
       aws4fetch: 1.0.20
       jose: 5.2.3
+      opencontrol: 0.0.6
       openid-client: 5.6.4
     optionalDependencies:
-      sst-darwin-arm64: 3.9.23
-      sst-darwin-x64: 3.9.23
-      sst-linux-arm64: 3.9.23
-      sst-linux-x64: 3.9.23
-      sst-linux-x86: 3.9.23
+      sst-darwin-arm64: 3.9.30
+      sst-darwin-x64: 3.9.30
+      sst-linux-arm64: 3.9.30
+      sst-linux-x64: 3.9.30
+      sst-linux-x86: 3.9.30
+    transitivePeerDependencies:
+      - supports-color
 
   stable-hash@0.0.4: {}
 
@@ -9050,6 +9143,12 @@ snapshots:
       yargs-parser: 21.1.1
 
   yocto-queue@0.1.0: {}
+
+  zod-to-json-schema@3.24.3(zod@3.24.2):
+    dependencies:
+      zod: 3.24.2
+
+  zod@3.24.2: {}
 
   zustand@5.0.3(@types/react@19.0.10)(react@19.0.0)(use-sync-external-store@1.2.2(react@19.0.0)):
     optionalDependencies:

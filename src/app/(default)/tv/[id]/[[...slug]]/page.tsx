@@ -109,10 +109,6 @@ export default async function TvSeriesDetailsPage({
       backgroundContext="page"
       usePersistentStore={false}
     >
-      <Suspense fallback={null}>
-        <AddTvSeriesToStoreContainer id={tvSeries.id} />
-        <ValidateWatchedStatus id={tvSeries.id} />
-      </Suspense>
       <div className="container">
         <div className="relative flex h-[calc(85vh-16rem)] items-end md:h-[calc(65vh-8rem)]">
           <div className="w-full xl:w-4/5 2xl:w-3/5">
@@ -238,6 +234,8 @@ export default async function TvSeriesDetailsPage({
         <RecommendationsList id={tvSeries.id} />
       </Suspense>
       <Suspense fallback={null}>
+        <AddTvSeriesToStoreContainer id={tvSeries.id} />
+        <ValidateWatchedStatus id={tvSeries.id} />
         <PreferredImagesForAdminContainer id={tvSeries.id} />
       </Suspense>
     </Page>

@@ -5,10 +5,9 @@ import getBaseUrl from './src/utils/getBaseUrl';
 const nextConfig = {
   experimental: {
     authInterrupts: true,
+    ppr: true,
     inlineCss: true,
   },
-  output: 'standalone',
-  poweredByHeader: false,
   eslint: {
     ignoreDuringBuilds: true,
   },

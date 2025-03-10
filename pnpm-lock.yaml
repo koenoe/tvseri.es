@@ -72,8 +72,8 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       sst:
-        specifier: ^3.9.31
-        version: 3.9.31
+        specifier: ^3.9.33
+        version: 3.9.33
       ulid:
         specifier: ^2.3.0
         version: 2.3.0
@@ -1544,6 +1544,9 @@ packages:
     resolution: {integrity: sha512-x511uiJ/57FIsbgUe5csJ13k3uzu25uWQE+XqfBis/sB0SFoiElJWXRkgEAUh0U6n40eT3ay5Ue4oPkRMu1LYw==}
     engines: {node: '>= 10.0.0'}
 
+  aws4fetch@1.0.18:
+    resolution: {integrity: sha512-3Cf+YaUl07p24MoQ46rFwulAmiyCwH2+1zw1ZyPAX5OtJ34Hh185DwB8y/qRLb6cYYYtSFJ9pthyLc0MD4e8sQ==}
+
   aws4fetch@1.0.20:
     resolution: {integrity: sha512-/djoAN709iY65ETD6LKCtyyEI04XIBP5xVvfmNxsEP0uJB5tyaGBztSryRr4HqMStr9R06PisQE7m9zDTXKu6g==}
 
@@ -2530,8 +2533,8 @@ packages:
     resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
     engines: {node: '>= 0.10'}
 
-  is-arguments@1.1.1:
-    resolution: {integrity: sha512-8Q7EARjzEnKpt/PCD7e1cgUS0a6X8u5tdSiMqXhojOdoV9TsMsiO+9VLC5vAmO8N7/GmXn7yjR8qnA6bVAEzfA==}
+  is-arguments@1.2.0:
+    resolution: {integrity: sha512-7bVbi0huj/wrIAOzb8U1aszg9kdi3KN/CyU19CTI7tAoZYEZoL9yCDXpbXN+uPsuWnP02cyug1gleqq+TU+YCA==}
     engines: {node: '>= 0.4'}
 
   is-array-buffer@3.0.4:
@@ -2622,10 +2625,6 @@ packages:
   is-fullwidth-code-point@5.0.0:
     resolution: {integrity: sha512-OVa3u9kkBbw7b8Xw5F9P+D/T9X+Z4+JruYVNapTjPYZYUznQ5YfWeFkOj606XYYW8yugTfC8Pj0hYqvi4ryAhA==}
     engines: {node: '>=18'}
-
-  is-generator-function@1.0.10:
-    resolution: {integrity: sha512-jsEjy9l3yiXEQ+PsXdmBwEPcOxaXWLspKdplFUVI9vq1iZgIekeC0L167qeu86czQaxed3q/Uzuw0swL0irL8A==}
-    engines: {node: '>= 0.4'}
 
   is-generator-function@1.1.0:
     resolution: {integrity: sha512-nPUB5km40q9e8UfN/Zc24eLlzdSf9OfKByBw9CIdw4H1giPMeA0OIJvbchsCu4npfI2QcMVBsGEBHKZ7wLTWmQ==}
@@ -3618,33 +3617,33 @@ packages:
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
 
-  sst-darwin-arm64@3.9.31:
-    resolution: {integrity: sha512-qeAKGSS8b4i+gh4LNdYQXaf1Wsbas9YF0glZLPZ+Ik8xcvwmlrBTAMAIFGVmzWfKvEuNv4nxNAc2XXXJ/QZxng==}
+  sst-darwin-arm64@3.9.33:
+    resolution: {integrity: sha512-FMfVrkGc+VwP1OaS7LkgthwHoE4WsRzxaJMyxWYjKoENvtxSwKgody1jkm4xDfOz7AtBVNzODdBzp2PKGBHC0g==}
     cpu: [arm64]
     os: [darwin]
 
-  sst-darwin-x64@3.9.31:
-    resolution: {integrity: sha512-ZDDGx3eEZZ44sGqnI3AKdWHbtmMopjUumiKJai9k09Dydc66zKpwfq49I/rtPSDGYK7uAvjrsq3VuivcDhcvlw==}
+  sst-darwin-x64@3.9.33:
+    resolution: {integrity: sha512-2Cyqv9Fgiy4wqqzDCiA7ReYafU3WAfS8i/IyDwCmgub+XRph0IijZZqk37xHyDbJapVWzx84FHD1mEC0F2IUjg==}
     cpu: [x64]
     os: [darwin]
 
-  sst-linux-arm64@3.9.31:
-    resolution: {integrity: sha512-8L44UnvNFJ3ba8vMWdveC+7BAhq+am67myJGshrRaX71N6Rh9pe9Gov6dmG4i+77WDGpdhmhDt+eH+SZtGrMyg==}
+  sst-linux-arm64@3.9.33:
+    resolution: {integrity: sha512-JVpMNrfBMJ5P8sJUshVXz8A/qj/vTZVhBTE9d83mv1be5QnWGuom4G5fYLzeUCLXRJDpWghMSbNWB8eXDX43Gg==}
     cpu: [arm64]
     os: [linux]
 
-  sst-linux-x64@3.9.31:
-    resolution: {integrity: sha512-peNeccsn/aBGQ4Tn6ms0JtLl+nIq6H6xL0a3XZUKrmRyx39iKIKoPAkivbL6o8j1iYvoOATb5Z5KS9JL2cZQVg==}
+  sst-linux-x64@3.9.33:
+    resolution: {integrity: sha512-+CCDKE93gAuXsa0ErQq+OIXiFjlOeD9dUg25uoCZC2KQsWkTGP7rySIF9Dl4DGg5ct6jY1JDELU8CN608SIyAw==}
     cpu: [x64]
     os: [linux]
 
-  sst-linux-x86@3.9.31:
-    resolution: {integrity: sha512-r+HKyVRXyZFsxNIfopvh4g8TBcR+0SQ6lrm8u41oWXODyDsnTwQJ+UMVksnd91+EBOb4NV2y+EhVa3MiAKurLg==}
+  sst-linux-x86@3.9.33:
+    resolution: {integrity: sha512-Mu6GCujp5do6/DZt7rusFxcVj4QFDVC5Uh+dsPSn0+EwBx0UoEzpzQMWq8el0HdOeTqRkeIr9hEi1KpKHIpC9Q==}
     cpu: [x86]
     os: [linux]
 
-  sst@3.9.31:
-    resolution: {integrity: sha512-NvdpgbEPYZrGr+mptgcN/WcYode2lC7upjuJij1IHpJiFoAw06Cn/vcu0H6S0t+KgQoNdxdVhG3feBNF9yvHeA==}
+  sst@3.9.33:
+    resolution: {integrity: sha512-hi4bOsnWpTRemTc9jGCY9riVd3eIb175nRsIW1uzlSQS9uwmK8r1cnDGQIl4nHc2AsS+VUvWnTDgEokG0N6wjg==}
     hasBin: true
 
   stable-hash@0.0.4:
@@ -3968,12 +3967,8 @@ packages:
     resolution: {integrity: sha512-oV0jmFtUky6CXfkqehVvBP/LSWJ2sy4vWMioiENyJLePrBO/yKyV9OyJySfAKosh+RYkIl5zJCNZ8/4JncrpdA==}
     engines: {node: '>= 0.4'}
 
-  which-typed-array@1.1.16:
-    resolution: {integrity: sha512-g+N+GAWiRj66DngFwHvISJd+ITsyphZvD1vChfVg6cEdnzy53GzB3oy0fUNlvhz7H7+MiqhYr26qxQShCpKTTQ==}
-    engines: {node: '>= 0.4'}
-
-  which-typed-array@1.1.18:
-    resolution: {integrity: sha512-qEcY+KJYlWyLH9vNbsr6/5j59AXk5ni5aakf8ldzBvGde6Iz4sxZGkJyWSAueTG7QhOvNRYb1lDdFmL5Td0QKA==}
+  which-typed-array@1.1.19:
+    resolution: {integrity: sha512-rEvr90Bck4WZt9HHFC4DJMsjvu7x+r6bImz0/BrbWb7A2djJ8hnZMrWnHo9F8ssv0OMErasDhftrfROTyqSDrw==}
     engines: {node: '>= 0.4'}
 
   which@2.0.2:
@@ -6330,6 +6325,8 @@ snapshots:
       uuid: 8.0.0
       xml2js: 0.6.2
 
+  aws4fetch@1.0.18: {}
+
   aws4fetch@1.0.20: {}
 
   axe-core@4.10.2: {}
@@ -6834,7 +6831,7 @@ snapshots:
       typed-array-byte-offset: 1.0.4
       typed-array-length: 1.0.7
       unbox-primitive: 1.1.0
-      which-typed-array: 1.1.18
+      which-typed-array: 1.1.19
 
   es-define-property@1.0.0:
     dependencies:
@@ -7525,9 +7522,9 @@ snapshots:
 
   ipaddr.js@1.9.1: {}
 
-  is-arguments@1.1.1:
+  is-arguments@1.2.0:
     dependencies:
-      call-bind: 1.0.8
+      call-bound: 1.0.4
       has-tostringtag: 1.0.2
 
   is-array-buffer@3.0.4:
@@ -7624,10 +7621,6 @@ snapshots:
     dependencies:
       get-east-asian-width: 1.3.0
 
-  is-generator-function@1.0.10:
-    dependencies:
-      has-tostringtag: 1.0.2
-
   is-generator-function@1.1.0:
     dependencies:
       call-bound: 1.0.4
@@ -7707,7 +7700,7 @@ snapshots:
 
   is-typed-array@1.1.15:
     dependencies:
-      which-typed-array: 1.1.18
+      which-typed-array: 1.1.19
 
   is-weakmap@2.0.2: {}
 
@@ -8608,33 +8601,34 @@ snapshots:
 
   sprintf-js@1.0.3: {}
 
-  sst-darwin-arm64@3.9.31:
+  sst-darwin-arm64@3.9.33:
     optional: true
 
-  sst-darwin-x64@3.9.31:
+  sst-darwin-x64@3.9.33:
     optional: true
 
-  sst-linux-arm64@3.9.31:
+  sst-linux-arm64@3.9.33:
     optional: true
 
-  sst-linux-x64@3.9.31:
+  sst-linux-x64@3.9.33:
     optional: true
 
-  sst-linux-x86@3.9.31:
+  sst-linux-x86@3.9.33:
     optional: true
 
-  sst@3.9.31:
+  sst@3.9.33:
     dependencies:
-      aws4fetch: 1.0.20
+      aws-sdk: 2.1692.0
+      aws4fetch: 1.0.18
       jose: 5.2.3
       opencontrol: 0.0.6
       openid-client: 5.6.4
     optionalDependencies:
-      sst-darwin-arm64: 3.9.31
-      sst-darwin-x64: 3.9.31
-      sst-linux-arm64: 3.9.31
-      sst-linux-x64: 3.9.31
-      sst-linux-x86: 3.9.31
+      sst-darwin-arm64: 3.9.33
+      sst-darwin-x64: 3.9.33
+      sst-linux-arm64: 3.9.33
+      sst-linux-x64: 3.9.33
+      sst-linux-x86: 3.9.33
     transitivePeerDependencies:
       - supports-color
 
@@ -8984,10 +8978,10 @@ snapshots:
   util@0.12.5:
     dependencies:
       inherits: 2.0.4
-      is-arguments: 1.1.1
-      is-generator-function: 1.0.10
-      is-typed-array: 1.1.13
-      which-typed-array: 1.1.16
+      is-arguments: 1.2.0
+      is-generator-function: 1.1.0
+      is-typed-array: 1.1.15
+      which-typed-array: 1.1.19
 
   utils-merge@1.0.1: {}
 
@@ -9049,7 +9043,7 @@ snapshots:
       isarray: 2.0.5
       which-boxed-primitive: 1.1.1
       which-collection: 1.0.2
-      which-typed-array: 1.1.18
+      which-typed-array: 1.1.19
 
   which-collection@1.0.2:
     dependencies:
@@ -9066,20 +9060,13 @@ snapshots:
       gopd: 1.0.1
       has-tostringtag: 1.0.2
 
-  which-typed-array@1.1.16:
-    dependencies:
-      available-typed-arrays: 1.0.7
-      call-bind: 1.0.8
-      for-each: 0.3.3
-      gopd: 1.2.0
-      has-tostringtag: 1.0.2
-
-  which-typed-array@1.1.18:
+  which-typed-array@1.1.19:
     dependencies:
       available-typed-arrays: 1.0.7
       call-bind: 1.0.8
       call-bound: 1.0.4
       for-each: 0.3.5
+      get-proto: 1.0.1
       gopd: 1.2.0
       has-tostringtag: 1.0.2
 

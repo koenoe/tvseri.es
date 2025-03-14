@@ -13,11 +13,11 @@
     "start": "next start"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.758.0",
+    "@aws-sdk/client-dynamodb": "^3.767.0",
     "@aws-sdk/client-lambda": "^3.758.0",
     "@aws-sdk/client-sesv2": "^3.758.0",
     "@aws-sdk/client-sqs": "^3.758.0",
-    "@aws-sdk/util-dynamodb": "^3.758.0",
+    "@aws-sdk/util-dynamodb": "^3.767.0",
     "@better-fetch/fetch": "^1.1.15",
     "class-variance-authority": "^0.7.1",
     "color": "^5.0.0",

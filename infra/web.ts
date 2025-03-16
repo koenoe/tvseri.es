@@ -5,6 +5,7 @@ import { dominantColor } from './dominantColor';
 import * as dynamo from './dynamo';
 import { email } from './email';
 import { scrobbleQueue } from './scrobbleQueue';
+import { webAcl } from './waf';
 
 new sst.aws.Nextjs('tvseries', {
   buildCommand: 'pnpm dlx @opennextjs/aws build',
@@ -59,6 +60,13 @@ new sst.aws.Nextjs('tvseries', {
           originShieldRegion: $app.providers?.aws.region ?? 'eu-west-2',
         },
       }));
+
+      // WOOF WOOF
+      options.transform = {
+        distribution(args) {
+          args.webAclId = webAcl.arn;
+        },
+      };
     },
   },
 });

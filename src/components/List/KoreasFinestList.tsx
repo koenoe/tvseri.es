@@ -19,13 +19,18 @@ const cachedKoreasFinestTvSeries = unstable_cache(
 export default async function KoreasFinestList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,
 ) {
-  const tvSeries = await cachedKoreasFinestTvSeries();
+  try {
+    const tvSeries = await cachedKoreasFinestTvSeries();
 
-  return (
-    <List title="Korea's finest" scrollRestoreKey="koreas-finest" {...props}>
-      {tvSeries.map((item) => (
-        <Poster key={item.id} item={item} />
-      ))}
-    </List>
-  );
+    return (
+      <List title="Korea's finest" scrollRestoreKey="koreas-finest" {...props}>
+        {tvSeries.map((item) => (
+          <Poster key={item.id} item={item} />
+        ))}
+      </List>
+    );
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }

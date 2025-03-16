@@ -22,17 +22,22 @@ export default async function TopRatedList({
 }: React.AllHTMLAttributes<HTMLDivElement> &
   HeaderVariantProps &
   Readonly<{ priority?: boolean }>) {
-  const tvSeries = await cachedTopRatedTvSeries();
+  try {
+    const tvSeries = await cachedTopRatedTvSeries();
 
-  return (
-    <List
-      title="All time favorites"
-      scrollRestoreKey="all-time-favorites"
-      {...rest}
-    >
-      {tvSeries.map((item) => (
-        <Poster key={item.id} item={item} priority={priority} />
-      ))}
-    </List>
-  );
+    return (
+      <List
+        title="All time favorites"
+        scrollRestoreKey="all-time-favorites"
+        {...rest}
+      >
+        {tvSeries.map((item) => (
+          <Poster key={item.id} item={item} priority={priority} />
+        ))}
+      </List>
+    );
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }

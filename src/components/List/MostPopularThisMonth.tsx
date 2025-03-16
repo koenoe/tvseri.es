@@ -22,17 +22,22 @@ export default async function MostPopularThisMonthList({
 }: React.AllHTMLAttributes<HTMLDivElement> &
   HeaderVariantProps &
   Readonly<{ priority?: boolean }>) {
-  const tvSeries = await cachedMostPopularThisMonth();
+  try {
+    const tvSeries = await cachedMostPopularThisMonth();
 
-  return (
-    <List
-      title="Popular this month"
-      scrollRestoreKey="most-popular-this-month"
-      {...rest}
-    >
-      {tvSeries.map((item) => (
-        <Poster key={item.id} item={item} priority={priority} />
-      ))}
-    </List>
-  );
+    return (
+      <List
+        title="Popular this month"
+        scrollRestoreKey="most-popular-this-month"
+        {...rest}
+      >
+        {tvSeries.map((item) => (
+          <Poster key={item.id} item={item} priority={priority} />
+        ))}
+      </List>
+    );
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }

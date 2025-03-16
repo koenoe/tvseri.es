@@ -22,6 +22,7 @@ export const metadata: Metadata = {
     telephone: false,
     url: false,
   },
+  robots: 'noai,noimageai',
   title: {
     template: '%s – tvseri.es',
     default: 'tvseri.es',

@@ -20,8 +20,36 @@ export const webAcl = new aws.wafv2.WebAcl(
     },
     rules: [
       {
+        name: 'GeoBlockHighRiskCountries',
+        priority: 0,
+        statement: {
+          geoMatchStatement: {
+            countryCodes: [
+              'RU', // Russia
+              'CN', // China
+              'KP', // North Korea
+              'IR', // Iran
+              'BY', // Belarus
+              'IN', // India
+              'PK', // Pakistan
+              'TR', // Turkey
+              'TW', // Taiwan
+              'BD', // Bangladesh
+            ],
+          },
+        },
+        action: {
+          block: {},
+        },
+        visibilityConfig: {
+          cloudwatchMetricsEnabled: true,
+          metricName: 'GeoBlockHighRiskCountries',
+          sampledRequestsEnabled: true,
+        },
+      },
+      {
         name: 'AWSManagedBotControlRule',
-        priority: 0, // Highest priority
+        priority: 1,
         statement: {
           managedRuleGroupStatement: {
             name: 'AWSManagedRulesBotControlRuleSet',
@@ -29,7 +57,7 @@ export const webAcl = new aws.wafv2.WebAcl(
             managedRuleGroupConfigs: [
               {
                 awsManagedRulesBotControlRuleSet: {
-                  inspectionLevel: 'COMMON', // Can be COMMON or TARGETED
+                  inspectionLevel: 'COMMON',
                 },
               },
             ],
@@ -46,7 +74,7 @@ export const webAcl = new aws.wafv2.WebAcl(
       },
       {
         name: 'AWSManagedCommonRule',
-        priority: 1,
+        priority: 2,
         statement: {
           managedRuleGroupStatement: {
             name: 'AWSManagedRulesCommonRuleSet',
@@ -64,10 +92,10 @@ export const webAcl = new aws.wafv2.WebAcl(
       },
       {
         name: 'IPRateLimit',
-        priority: 2,
+        priority: 3,
         statement: {
           rateBasedStatement: {
-            limit: 2000,
+            limit: 1500,
             aggregateKeyType: 'IP',
           },
         },

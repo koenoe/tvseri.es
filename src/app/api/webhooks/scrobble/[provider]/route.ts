@@ -60,6 +60,8 @@ export async function POST(
         }),
       );
 
+      console.log(`[INFO] Scrobble queued | User: ${webhookToken.userId}`);
+
       return Response.json({ message: 'OK' });
     } catch (error) {
       console.error('Failed to process Plex scrobble:', error);

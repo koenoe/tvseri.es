@@ -45,6 +45,10 @@ export async function POST(
         payload.Metadata.type !== 'episode' ||
         payload.Metadata.librarySectionType !== 'show'
       ) {
+        console.log(
+          `[WARNING] Invalid scrobble queued | User: ${webhookToken.userId}`,
+          JSON.stringify(payload),
+        );
         return Response.json({ message: 'OK' }, { status: 200 });
       }
 
@@ -60,7 +64,10 @@ export async function POST(
         }),
       );
 
-      console.log(`[INFO] Scrobble queued | User: ${webhookToken.userId}`);
+      console.log(
+        `[SUCCESS] Scrobble queued | User: ${webhookToken.userId}`,
+        JSON.stringify(payload),
+      );
 
       return Response.json({ message: 'OK' });
     } catch (error) {

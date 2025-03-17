@@ -8,6 +8,7 @@
  * - DDoS mitigation
  * - Cost efficiency for a hobby project
  * - Geographic filtering of high-risk regions
+ * - Allowing legitimate webhooks (Plex)
  *
  * Expected monthly cost: ~$10-12 with moderate traffic
  */
@@ -34,7 +35,45 @@ export const webAcl = new aws.wafv2.WebAcl(
     },
     rules: [
       /**
-       * RULE 1: Geographic Blocking
+       * RULE 1: Allow Scrobble Webhook
+       *
+       * Benefits:
+       * - Ensures Scrobble webhook functionality works correctly
+       * - Takes precedence over bot protection rules
+       * - Precisely targets only the specific Scrobble webhook path and user-agent
+       * - No impact on general security posture
+       */
+      {
+        name: 'AllowScrobbleWebhook',
+        priority: 0, // Highest priority - evaluated first
+        statement: {
+          // Simply check if the path starts with /api/webhooks/scrobble
+          byteMatchStatement: {
+            fieldToMatch: {
+              uriPath: {},
+            },
+            positionalConstraint: 'STARTS_WITH',
+            searchString: '/api/webhooks/scrobble',
+            textTransformations: [
+              {
+                priority: 0,
+                type: 'NONE',
+              },
+            ],
+          },
+        },
+        action: {
+          allow: {}, // Explicitly allow matching requests to bypass other rules
+        },
+        visibilityConfig: {
+          cloudwatchMetricsEnabled: true,
+          metricName: 'AllowScrobbleWebhook',
+          sampledRequestsEnabled: true,
+        },
+      },
+
+      /**
+       * RULE 2: Geographic Blocking
        *
        * Benefits:
        * - Very cost-effective (minimal impact on WAF costs)
@@ -44,7 +83,7 @@ export const webAcl = new aws.wafv2.WebAcl(
        */
       {
         name: 'GeoBlockHighRiskCountries',
-        priority: 0, // First rule to evaluate - blocks traffic before other rules process it
+        priority: 1, // Evaluated after Scrobble allowlist
         statement: {
           geoMatchStatement: {
             countryCodes: [
@@ -72,7 +111,7 @@ export const webAcl = new aws.wafv2.WebAcl(
       },
 
       /**
-       * RULE 2: AWS Bot Control
+       * RULE 3: AWS Bot Control
        *
        * Benefits:
        * - Sophisticated bot detection capabilities
@@ -85,7 +124,7 @@ export const webAcl = new aws.wafv2.WebAcl(
        */
       {
         name: 'AWSManagedBotControlRule',
-        priority: 1, // Evaluated after geographic blocking
+        priority: 2, // Evaluated after geographic blocking
         statement: {
           managedRuleGroupStatement: {
             name: 'AWSManagedRulesBotControlRuleSet',
@@ -111,7 +150,7 @@ export const webAcl = new aws.wafv2.WebAcl(
       },
 
       /**
-       * RULE 3: AWS Known Bad Inputs
+       * RULE 4: AWS Known Bad Inputs
        *
        * Benefits:
        * - Cost-effective protection against common attack patterns
@@ -122,7 +161,7 @@ export const webAcl = new aws.wafv2.WebAcl(
        */
       {
         name: 'AWSManagedKnownBadInputsRule',
-        priority: 2, // Evaluated after bot control
+        priority: 3, // Evaluated after bot control
         statement: {
           managedRuleGroupStatement: {
             name: 'AWSManagedRulesKnownBadInputsRuleSet',
@@ -140,7 +179,7 @@ export const webAcl = new aws.wafv2.WebAcl(
       },
 
       /**
-       * RULE 4: IP Rate Limiting
+       * RULE 5: IP Rate Limiting
        *
        * Benefits:
        * - Very cost-effective protection against DDoS and aggressive bots
@@ -150,7 +189,7 @@ export const webAcl = new aws.wafv2.WebAcl(
        */
       {
         name: 'IPRateLimit',
-        priority: 3, // Final rule evaluated
+        priority: 4, // Final rule evaluated
         statement: {
           rateBasedStatement: {
             limit: 1500, // 1500 requests per 5 minutes (~5 requests per second)

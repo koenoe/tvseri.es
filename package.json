@@ -45,7 +45,7 @@
     "@next/eslint-plugin-next": "^15.2.3",
     "@opennextjs/aws": "^3.5.3",
     "@tailwindcss/typography": "^0.5.16",
-    "@types/aws-lambda": "^8.10.147",
+    "@types/aws-lambda": "^8.10.148",
     "@types/color": "^4.2.0",
     "@types/node": "^22.13.11",
     "@types/papaparse": "^5.3.15",

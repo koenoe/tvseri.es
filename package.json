@@ -35,7 +35,7 @@
     "slugify": "^1.6.6",
     "sonner": "^2.0.1",
     "sst": "^3.10.8",
-    "ulid": "^2.4.0",
+    "ulid": "^3.0.0",
     "use-debounce": "^10.0.4",
     "words-to-numbers": "^1.5.1",
     "zustand": "^5.0.3"

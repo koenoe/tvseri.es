@@ -18,7 +18,7 @@
     "@aws-sdk/client-sesv2": "^3.774.0",
     "@aws-sdk/client-sqs": "^3.774.0",
     "@aws-sdk/util-dynamodb": "^3.774.0",
-    "@better-fetch/fetch": "^1.1.17",
+    "@better-fetch/fetch": "^1.1.18",
     "class-variance-authority": "^0.7.1",
     "color": "^5.0.0",
     "date-fns": "^4.1.0",

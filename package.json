@@ -27,7 +27,7 @@
     "next": "15.2.4",
     "papaparse": "^5.5.2",
     "react": "19.1.0",
-    "react-day-picker": "^9.6.3",
+    "react-day-picker": "^9.6.4",
     "react-dom": "19.1.0",
     "react-dropzone": "^14.3.8",
     "react-fast-compare": "^3.2.2",

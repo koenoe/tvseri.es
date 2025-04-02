@@ -5,7 +5,6 @@ import { dominantColor } from './dominantColor';
 import * as dynamo from './dynamo';
 import { email } from './email';
 import { scrobbleQueue } from './scrobbleQueue';
-import { webAcl } from './waf';
 
 new sst.aws.Nextjs('tvseries', {
   buildCommand: 'pnpm dlx @opennextjs/aws build',
@@ -62,11 +61,15 @@ new sst.aws.Nextjs('tvseries', {
       }));
 
       // WOOF WOOF
-      options.transform = {
-        distribution(args) {
-          args.webAclId = webAcl.arn;
-        },
-      };
+      if ($app.stage === 'production') {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { webAcl } = require('./waf');
+        options.transform = {
+          distribution(args) {
+            args.webAclId = webAcl.arn;
+          },
+        };
+      }
     },
   },
 });

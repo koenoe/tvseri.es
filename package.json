@@ -44,7 +44,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@next/eslint-plugin-next": "^15.2.4",
-    "@opennextjs/aws": "^3.5.3",
+    "@opennextjs/aws": "^3.5.4",
     "@tailwindcss/typography": "^0.5.16",
     "@types/aws-lambda": "^8.10.148",
     "@types/color": "^4.2.0",

@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@aws-sdk/client-dynamodb':
-        specifier: ^3.787.0
-        version: 3.787.0
+        specifier: ^3.788.0
+        version: 3.788.0
       '@aws-sdk/client-lambda':
         specifier: ^3.787.0
         version: 3.787.0
@@ -21,8 +21,8 @@ importers:
         specifier: ^3.787.0
         version: 3.787.0
       '@aws-sdk/util-dynamodb':
-        specifier: ^3.787.0
-        version: 3.787.0(@aws-sdk/client-dynamodb@3.787.0)
+        specifier: ^3.788.0
+        version: 3.788.0(@aws-sdk/client-dynamodb@3.788.0)
       '@better-fetch/fetch':
         specifier: ^1.1.18
         version: 1.1.18
@@ -72,8 +72,8 @@ importers:
         specifier: ^2.0.3
         version: 2.0.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       sst:
-        specifier: ^3.13.9
-        version: 3.13.9
+        specifier: ^3.13.10
+        version: 3.13.10
       ulid:
         specifier: ^3.0.0
         version: 3.0.0
@@ -296,8 +296,8 @@ packages:
     resolution: {integrity: sha512-kISKhqN1k48TaMPbLgq9jj7mO2jvbJdhirvfu4JW3jhFhENnkY0oCwTPvR4Q6Ne2as6GFAMo2XZDZq4rxC7YDw==}
     engines: {node: '>=14.0.0'}
 
-  '@aws-sdk/client-dynamodb@3.787.0':
-    resolution: {integrity: sha512-mqR+MrO/Jef9fHU0QH4jDW5zJ3RtHUnyt6OVwO0ezQD5hWajIwT8fl2Bp0zqakhkhUAiW7FpGAiF+G+kEqb/rQ==}
+  '@aws-sdk/client-dynamodb@3.788.0':
+    resolution: {integrity: sha512-agm2+5p47uDbAcWRJjRqsIIpbjig5P0AMB/1lQjkQKTnGOfdgzIrFLtQ3tO0kWWbTb7gH6Pg5EviuTC8j6axLQ==}
     engines: {node: '>=18.0.0'}
 
   '@aws-sdk/client-lambda@3.787.0':
@@ -524,11 +524,11 @@ packages:
     resolution: {integrity: sha512-ZhEfvUwNliOQROcAk34WJWVYTlTa4694kSVhDSjW6lE1bMataPnIN8A0ycukEzBXmd8ZSoBcQLn6lKGl7XIJ5w==}
     engines: {node: '>=18.0.0'}
 
-  '@aws-sdk/util-dynamodb@3.787.0':
-    resolution: {integrity: sha512-wPccKwwNs36sGoE3GuyJebQentnMnQqf5EaTonqFuC+sfUqp49SwF0waExYKQihp64i0mYpl7UjLL7ALUn9vWw==}
+  '@aws-sdk/util-dynamodb@3.788.0':
+    resolution: {integrity: sha512-+7M+Lr5oroXtY3SDa4nvB1OSI6+zqjiNGbVKFdgPonArLTGsNYP5lWh5y5GksFE8A19aZun4yUSrny+pbEarhw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      '@aws-sdk/client-dynamodb': ^3.787.0
+      '@aws-sdk/client-dynamodb': ^3.788.0
 
   '@aws-sdk/util-endpoints@3.398.0':
     resolution: {integrity: sha512-Fy0gLYAei/Rd6BrXG4baspCnWTUSd0NdokU1pZh4KlfEAEN1i8SPPgfiO5hLk7+2inqtCmqxVJlfqbMVe9k4bw==}
@@ -3778,33 +3778,33 @@ packages:
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
 
-  sst-darwin-arm64@3.13.9:
-    resolution: {integrity: sha512-rVSFitbF919G4ofl1ZKtaw4Vekkxy1L7K9a0mB64YfIF7nWTIk0PGLfzdG2YNREObK7h9DRey0UFV5PYD6V/cA==}
+  sst-darwin-arm64@3.13.10:
+    resolution: {integrity: sha512-fEH72tZU+sE+BIJZt0IFlnOC0eQoSF1grsmn9rWa0PPCq5l9ruP88B5qLFTzirKJpsyoGr4AYneQXSovIYKw/Q==}
     cpu: [arm64]
     os: [darwin]
 
-  sst-darwin-x64@3.13.9:
-    resolution: {integrity: sha512-gxHdy2bZnhHJwK2XSKL1ABGc69rb3JHUAsaJztn79k1/ogpU1vEbkjWBPbanYRZ21ZDGr+LwzxBIzDpjGvK+Ag==}
+  sst-darwin-x64@3.13.10:
+    resolution: {integrity: sha512-HFsVDUg0IwLON+E9wE5Qh6cyhUWqxGDXvJ0WP6uRj+/lgDAn4adNuqjt52s+GILW1lzE4JoHt/11FngXD0aUBg==}
     cpu: [x64]
     os: [darwin]
 
-  sst-linux-arm64@3.13.9:
-    resolution: {integrity: sha512-vxe3hpX6JMLBqzlp3OfiIu5YXf6GNZBt1TmGh0ZeJyThM0Flo/GA8cuwi3fkrGL2ema9vDFGjG9p3WrYx/nSOA==}
+  sst-linux-arm64@3.13.10:
+    resolution: {integrity: sha512-FdrndGFupoiKmlDE0Ng6mfHp+AS2Z1L586ewmfDGt2gchws2m6/wxmnnvHgi7YTM41D2O94TBYgGrFQqTkEleg==}
     cpu: [arm64]
     os: [linux]
 
-  sst-linux-x64@3.13.9:
-    resolution: {integrity: sha512-vP87bxySNemA2D/+ExJn9Vt7Hfoplgckx6nVQ1B2kACgXMPvL96srE2gspf4TumOz4c/1EPiijpfZbwAYnSEXQ==}
+  sst-linux-x64@3.13.10:
+    resolution: {integrity: sha512-97RdiM4xI/SWJ0cpEEx1gZM6dFos3AecN2uNIMjlRPcGA1Qr4zkTfD0WLx/Oa+m/dH6g1hjxmsPkGwx0jIuN+Q==}
     cpu: [x64]
     os: [linux]
 
-  sst-linux-x86@3.13.9:
-    resolution: {integrity: sha512-Ix2+twHnFTrDLW4flpPzz8n9wvrFxe/rCg1yEam+5xbaolakF+x0mfF9JFHUXiwOvu2MtyJmy5zUXaDtxKOqkQ==}
+  sst-linux-x86@3.13.10:
+    resolution: {integrity: sha512-a2wV4KUQcwfDqQKQO8342qEhDjVpyjGxUQ8nqQ75uT36+3Nvo247AX3THn8M6pJNnmHOBNHLBErGkm8DN1l1YQ==}
     cpu: [x86]
     os: [linux]
 
-  sst@3.13.9:
-    resolution: {integrity: sha512-mGX/GOlcf64v2rTUHzwZRv/yxbip7W8q7apfuO8cONewYGWkeEDH9Bw+mqC2CQJLU8PQc7q4/Oic6N98xZPDKA==}
+  sst@3.13.10:
+    resolution: {integrity: sha512-QUCJtbU1EMZ27NsrjFnOJGjGXjbKS8xfYA8VJgeDxrELCdoODR8t3hz7IbticsxLMJTQuUOnfOQCI2XRHeNHXA==}
     hasBin: true
 
   stable-hash@0.0.5:
@@ -4379,7 +4379,7 @@ snapshots:
     transitivePeerDependencies:
       - aws-crt
 
-  '@aws-sdk/client-dynamodb@3.787.0':
+  '@aws-sdk/client-dynamodb@3.788.0':
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
       '@aws-crypto/sha256-js': 5.2.0
@@ -5371,9 +5371,9 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@aws-sdk/util-dynamodb@3.787.0(@aws-sdk/client-dynamodb@3.787.0)':
+  '@aws-sdk/util-dynamodb@3.788.0(@aws-sdk/client-dynamodb@3.788.0)':
     dependencies:
-      '@aws-sdk/client-dynamodb': 3.787.0
+      '@aws-sdk/client-dynamodb': 3.788.0
       tslib: 2.8.1
 
   '@aws-sdk/util-endpoints@3.398.0':
@@ -5802,7 +5802,7 @@ snapshots:
     dependencies:
       '@ast-grep/napi': 0.35.0
       '@aws-sdk/client-cloudfront': 3.398.0
-      '@aws-sdk/client-dynamodb': 3.787.0
+      '@aws-sdk/client-dynamodb': 3.788.0
       '@aws-sdk/client-lambda': 3.787.0
       '@aws-sdk/client-s3': 3.782.0
       '@aws-sdk/client-sqs': 3.787.0
@@ -9055,22 +9055,22 @@ snapshots:
 
   sprintf-js@1.0.3: {}
 
-  sst-darwin-arm64@3.13.9:
+  sst-darwin-arm64@3.13.10:
     optional: true
 
-  sst-darwin-x64@3.13.9:
+  sst-darwin-x64@3.13.10:
     optional: true
 
-  sst-linux-arm64@3.13.9:
+  sst-linux-arm64@3.13.10:
     optional: true
 
-  sst-linux-x64@3.13.9:
+  sst-linux-x64@3.13.10:
     optional: true
 
-  sst-linux-x86@3.13.9:
+  sst-linux-x86@3.13.10:
     optional: true
 
-  sst@3.13.9:
+  sst@3.13.10:
     dependencies:
       aws-sdk: 2.1692.0
       aws4fetch: 1.0.18
@@ -9078,11 +9078,11 @@ snapshots:
       opencontrol: 0.0.6
       openid-client: 5.6.4
     optionalDependencies:
-      sst-darwin-arm64: 3.13.9
-      sst-darwin-x64: 3.13.9
-      sst-linux-arm64: 3.13.9
-      sst-linux-x64: 3.13.9
-      sst-linux-x86: 3.13.9
+      sst-darwin-arm64: 3.13.10
+      sst-darwin-x64: 3.13.10
+      sst-linux-arm64: 3.13.10
+      sst-linux-x64: 3.13.10
+      sst-linux-x86: 3.13.10
     transitivePeerDependencies:
       - supports-color
 

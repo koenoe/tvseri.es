@@ -14,11 +14,11 @@
     "start": "next start"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.787.0",
+    "@aws-sdk/client-dynamodb": "^3.788.0",
     "@aws-sdk/client-lambda": "^3.787.0",
     "@aws-sdk/client-sesv2": "^3.787.0",
     "@aws-sdk/client-sqs": "^3.787.0",
-    "@aws-sdk/util-dynamodb": "^3.787.0",
+    "@aws-sdk/util-dynamodb": "^3.788.0",
     "@better-fetch/fetch": "^1.1.18",
     "class-variance-authority": "^0.7.1",
     "color": "^5.0.0",
@@ -35,7 +35,7 @@
     "recharts": "^2.15.2",
     "slugify": "^1.6.6",
     "sonner": "^2.0.3",
-    "sst": "^3.13.9",
+    "sst": "^3.13.10",
     "ulid": "^3.0.0",
     "use-debounce": "^10.0.4",
     "words-to-numbers": "^1.5.1",

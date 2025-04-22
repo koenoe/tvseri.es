@@ -59,17 +59,6 @@ new sst.aws.Nextjs('tvseries', {
           originShieldRegion: $app.providers?.aws.region ?? 'eu-west-2',
         },
       }));
-
-      // WOOF WOOF
-      if ($app.stage === 'production') {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { webAcl } = require('./waf');
-        options.transform = {
-          distribution(args) {
-            args.webAclId = webAcl.arn;
-          },
-        };
-      }
     },
   },
 });

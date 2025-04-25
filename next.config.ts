@@ -6,7 +6,6 @@ const nextConfig = {
   experimental: {
     authInterrupts: true,
     inlineCss: true,
-    nodeMiddleware: true,
   },
   cleanDistDir: true,
   output: 'standalone',

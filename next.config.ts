@@ -7,6 +7,10 @@ const nextConfig = {
     authInterrupts: true,
     inlineCss: true,
     nodeMiddleware: true,
+    staleTimes: {
+      dynamic: 0,
+      static: 0,
+    },
   },
   cleanDistDir: true,
   output: 'standalone',

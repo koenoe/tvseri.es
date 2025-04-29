@@ -95,6 +95,9 @@ function EpisodeCard({
                         runtime: episode.runtime,
                         seasonNumber: episode.seasonNumber,
                         watchedAt: new Date().getTime(),
+                        watchProviderLogoPath,
+                        watchProviderLogoImage,
+                        watchProviderName,
                       },
                     ],
                   });
@@ -114,6 +117,9 @@ function EpisodeCard({
                         runtime: episode.runtime,
                         seasonNumber: episode.seasonNumber,
                         watchedAt: new Date(episode.airDate).getTime(),
+                        watchProviderLogoPath,
+                        watchProviderLogoImage,
+                        watchProviderName,
                       },
                     ],
                   });

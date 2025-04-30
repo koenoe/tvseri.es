@@ -5,14 +5,15 @@ import getBaseUrl from './src/utils/getBaseUrl';
 const nextConfig = {
   experimental: {
     authInterrupts: true,
-    dynamicIO: true,
+    // dynamicIO: true,
     inlineCss: true,
     nodeMiddleware: true,
-    ppr: false,
+    ppr: true,
     staleTimes: {
       dynamic: 0,
       static: 0,
     },
+    useCache: true,
   },
   cleanDistDir: true,
   output: 'standalone',

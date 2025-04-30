@@ -8,8 +8,16 @@ import { cache } from 'react';
 import { unstable_cacheLife } from 'next/cache';
 
 import { getAllWatchedByDate } from '@/lib/db/watched';
-import { fetchTvSeries, fetchTvSeriesSeason } from '@/lib/tmdb';
+import { fetchPerson, fetchTvSeries, fetchTvSeriesSeason } from '@/lib/tmdb';
 import { buildPosterImageUrl } from '@/lib/tmdb/helpers';
+
+export const cachedPerson = async (id: string | number) => {
+  'use cache';
+  unstable_cacheLife('days');
+
+  const person = await fetchPerson(id);
+  return person;
+};
 
 export const cachedTvSeries = async (id: string | number) => {
   'use cache';

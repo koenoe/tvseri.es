@@ -1,18 +1,17 @@
-import { cache, Suspense } from 'react';
+import { Suspense } from 'react';
 
 import { cx } from 'class-variance-authority';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 
+import { cachedPerson } from '@/app/cached';
 import ExpandableText from '@/components/ExpandableText/ExpandableText';
 import Grid from '@/components/Grid/Grid';
 import PersonGrid from '@/components/Grid/PersonGrid';
 import KnownFor from '@/components/KnownFor/KnownFor';
 import Page from '@/components/Page/Page';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
-import { cachedPerson as _cachedPerson } from '@/lib/cached';
-import calculateAge from '@/utils/calculateAge';
 import formatDate from '@/utils/formatDate';
 import getBaseUrl from '@/utils/getBaseUrl';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
@@ -20,8 +19,6 @@ import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
-
-const cachedPerson = cache(_cachedPerson);
 
 export async function generateMetadata({ params: paramsFromProps }: Props) {
   const params = await paramsFromProps;
@@ -128,10 +125,10 @@ export default async function PersonDetailsPage({
                       )}
                     </div>
                   )}
-                  {person.birthdate && (
+                  {person.age && (
                     <div className="opacity-75 md:before:mr-1 md:before:content-['·'] lg:before:mr-2">
                       <span className="hidden md:inline-block">
-                        {calculateAge(person.birthdate, person.deathdate)} years
+                        {person.age} years
                       </span>
                       {person.deathdate && (
                         <span className="ml-1 align-middle text-base leading-none">

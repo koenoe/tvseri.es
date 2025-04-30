@@ -12,6 +12,7 @@ import { type Movie } from '@/types/movie';
 import { type Person } from '@/types/person';
 import type { Episode, Season, TvSeries } from '@/types/tv-series';
 import { type WatchProvider } from '@/types/watch-provider';
+import calculateAge from '@/utils/calculateAge';
 import getBaseUrl from '@/utils/getBaseUrl';
 import { toQueryString } from '@/utils/toQueryString';
 
@@ -922,6 +923,12 @@ export async function fetchPerson(id: number | string) {
 
   return {
     id: person.id,
+    age: person.birthday
+      ? calculateAge(
+          person.birthday,
+          person.deathday as (typeof person)['birthday'],
+        )
+      : undefined,
     name: person.name ?? '',
     image: person.profile_path
       ? generateTmdbImageUrl(person.profile_path, 'w600_and_h900_bestv2')

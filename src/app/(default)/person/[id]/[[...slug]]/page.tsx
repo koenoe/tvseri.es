@@ -170,7 +170,7 @@ export default async function PersonDetailsPage({
                   </>
                 }
               >
-                <KnownFor item={person} />
+                <KnownFor person={person} />
               </Suspense>
             </div>
           </div>

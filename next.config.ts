@@ -8,6 +8,7 @@ const nextConfig = {
     dynamicIO: true,
     inlineCss: true,
     nodeMiddleware: true,
+    ppr: false,
     staleTimes: {
       dynamic: 0,
       static: 0,

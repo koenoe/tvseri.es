@@ -26,18 +26,18 @@ const cachedTrendingTvSeries = async () => {
   return items;
 };
 
-export async function generateViewport() {
-  const trendingTvSeries = await cachedTrendingTvSeries();
-  const spotlight = trendingTvSeries[0];
+// export async function generateViewport() {
+//   const trendingTvSeries = await cachedTrendingTvSeries();
+//   const spotlight = trendingTvSeries[0];
 
-  if (!spotlight) {
-    return {};
-  }
+//   if (!spotlight) {
+//     return {};
+//   }
 
-  return {
-    themeColor: spotlight.backdropColor,
-  };
-}
+//   return {
+//     themeColor: spotlight.backdropColor,
+//   };
+// }
 
 export default async function HomePage() {
   const trendingTvSeries = await cachedTrendingTvSeries();

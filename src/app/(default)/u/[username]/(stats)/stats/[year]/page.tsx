@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 
+import { unstable_cacheLife } from 'next/cache';
 import { notFound } from 'next/navigation';
-import { connection } from 'next/server';
 
 import Page from '@/components/Page/Page';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
@@ -30,7 +30,8 @@ type Props = Readonly<{
 }>;
 
 export async function generateMetadata({ params }: Props) {
-  await connection();
+  'use cache';
+  unstable_cacheLife('hours');
 
   const { username } = await params;
   const user = await findUser({ username });
@@ -44,7 +45,8 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function StatsByYearPage({ params }: Props) {
-  await connection();
+  'use cache';
+  unstable_cacheLife('hours');
 
   const { username, year } = await params;
   const user = await findUser({ username });

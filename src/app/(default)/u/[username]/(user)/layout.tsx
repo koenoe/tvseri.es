@@ -1,9 +1,16 @@
 import { type ReactNode } from 'react';
 
-import { connection } from 'next/server';
+import { unstable_cacheLife } from 'next/cache';
 
 import Page from '@/components/Page/Page';
 import Pills from '@/components/Tabs/Pills';
+
+const getCurrentYear = async () => {
+  'use cache';
+  unstable_cacheLife('max');
+
+  return new Date().getFullYear();
+};
 
 export default async function Layout({
   children,
@@ -12,9 +19,7 @@ export default async function Layout({
   children: ReactNode;
   params: Promise<{ username: string }>;
 }>) {
-  await connection();
-
-  const { username } = await params;
+  const [{ username }, year] = await Promise.all([params, getCurrentYear()]);
 
   const menuItems = [
     // {
@@ -39,7 +44,7 @@ export default async function Layout({
     },
     {
       label: 'Stats',
-      href: `/u/${username}/stats/${new Date().getFullYear()}`,
+      href: `/u/${username}/stats/${year}`,
     },
   ] as const;
 

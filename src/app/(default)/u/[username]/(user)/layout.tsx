@@ -1,5 +1,7 @@
 import { type ReactNode } from 'react';
 
+import { connection } from 'next/server';
+
 import Page from '@/components/Page/Page';
 import Pills from '@/components/Tabs/Pills';
 
@@ -10,6 +12,8 @@ export default async function Layout({
   children: ReactNode;
   params: Promise<{ username: string }>;
 }>) {
+  await connection();
+
   const { username } = await params;
 
   const menuItems = [

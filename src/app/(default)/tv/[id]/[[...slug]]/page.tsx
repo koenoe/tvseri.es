@@ -10,7 +10,7 @@ import ContentRating from '@/components/ContentRating/ContentRating';
 import ExpandableCreators from '@/components/ExpandableList/ExpandableCreators';
 import ExpandableText from '@/components/ExpandableText/ExpandableText';
 import InfoLine from '@/components/InfoLine/InfoLine';
-import EpisodesList from '@/components/List/EpisodesList';
+import EpisodesListContainer from '@/components/List/EpisodesListContainer';
 import RecommendationsList from '@/components/List/RecommendationsList';
 import Page from '@/components/Page/Page';
 import PreferredImagesForAdminContainer from '@/components/PreferredImagesForAdmin/PreferredImagesForAdminContainer';
@@ -227,7 +227,7 @@ export default async function TvSeriesDetailsPage({
             <SkeletonList className="mb-10 md:mb-16" variant="episode" />
           }
         >
-          <EpisodesList className="mb-10 md:mb-16" item={tvSeries} />
+          <EpisodesListContainer className="mb-10 md:mb-16" item={tvSeries} />
         </Suspense>
       )}
       <Suspense fallback={<SkeletonList />}>

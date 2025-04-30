@@ -512,16 +512,18 @@ export async function fetchTvSeriesSeason(
     normalizeTvSeriesEpisode(episode as unknown as TmdbTvSeriesEpisode),
   );
   const numberOfEpisodes = episodes.length;
-  const now = new Date();
   const numberOfAiredEpisodes =
-    episodes.filter((episode) => new Date(episode.airDate) <= now).length ??
-    numberOfEpisodes;
+    episodes.filter((episode) => episode.hasAired).length ?? numberOfEpisodes;
+  const airDate = response.air_date
+    ? new Date(response.air_date).toISOString()
+    : '';
 
   return {
     id: response.id,
     title: response.name as string,
     description: response.overview ?? '',
-    airDate: response.air_date ? new Date(response.air_date).toISOString() : '',
+    airDate,
+    hasAired: new Date(airDate) <= new Date(),
     seasonNumber: response.season_number,
     numberOfEpisodes,
     numberOfAiredEpisodes,

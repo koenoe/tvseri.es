@@ -10,6 +10,7 @@ export type Episode = Readonly<{
   title: string;
   runtime: number;
   stillImage: string;
+  hasAired: boolean;
 }>;
 
 export type Season = Readonly<{
@@ -21,6 +22,7 @@ export type Season = Readonly<{
   episodes: Episode[];
   numberOfEpisodes?: number;
   numberOfAiredEpisodes?: number;
+  hasAired: boolean;
 }>;
 
 type Status =
@@ -53,6 +55,7 @@ export type TvSeries = Readonly<{
   genres: Genre[];
   id: number;
   isAdult: boolean;
+  hasAired: boolean;
   languages: Language[];
   lastAirDate: string;
   lastEpisodeToAir?: Episode | null;

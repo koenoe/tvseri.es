@@ -1,25 +1,17 @@
-import { unstable_cache } from 'next/cache';
+import { unstable_cacheLife } from 'next/cache';
 
 import { fetchPopularBritishCrimeTvSeries } from '@/lib/tmdb';
 
 import List, { type HeaderVariantProps } from './List';
 import Poster from '../Tiles/Poster';
 
-const cachedPopularBritishCrimeTvSeries = unstable_cache(
-  async () => {
-    const items = await fetchPopularBritishCrimeTvSeries();
-    return items;
-  },
-  ['popular-british-crime'],
-  {
-    revalidate: 604800, // 1 week
-  },
-);
-
 export default async function PopularBritishCrimeList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,
 ) {
-  const tvSeries = await cachedPopularBritishCrimeTvSeries();
+  'use cache';
+  unstable_cacheLife('weeks');
+
+  const tvSeries = await fetchPopularBritishCrimeTvSeries();
 
   return (
     <List

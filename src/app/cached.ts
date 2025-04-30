@@ -5,16 +5,33 @@
  */
 import { cache } from 'react';
 
-import {
-  cachedTvSeries as _cachedTvSeries,
-  cachedTvSeriesSeason as _cachedTvSeriesSeason,
-} from '@/lib/cached';
+import { unstable_cacheLife } from 'next/cache';
+
 import { getAllWatchedByDate } from '@/lib/db/watched';
+import { fetchTvSeries, fetchTvSeriesSeason } from '@/lib/tmdb';
 import { buildPosterImageUrl } from '@/lib/tmdb/helpers';
 
-export const cachedTvSeries = cache(_cachedTvSeries);
+export const cachedTvSeries = async (id: string | number) => {
+  'use cache';
+  unstable_cacheLife('days');
 
-export const cachedTvSeriesSeason = cache(_cachedTvSeriesSeason);
+  const tvSeries = await fetchTvSeries(id, {
+    includeImages: true,
+  });
+
+  return tvSeries;
+};
+
+export const cachedTvSeriesSeason = async (
+  id: number | string,
+  season: number | string,
+) => {
+  'use cache';
+  unstable_cacheLife('days');
+
+  const result = await fetchTvSeriesSeason(id, season);
+  return result;
+};
 
 export const cachedWatchedByYear = cache(
   async (

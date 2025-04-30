@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 
 import { notFound } from 'next/navigation';
+import { connection } from 'next/server';
 
 import InProgressGrid from '@/components/Grid/InProgressGrid';
 import { findUser } from '@/lib/db/user';
@@ -10,6 +11,8 @@ type Props = Readonly<{
 }>;
 
 export default async function InProgressPage({ params }: Props) {
+  await connection();
+
   const { username } = await params;
   const user = await findUser({ username });
   if (!user) {

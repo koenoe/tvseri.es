@@ -54,7 +54,7 @@ function EpisodeTile({
   tvSeriesId: number;
 }>) {
   const showWatchButton = useMemo(
-    () => item.seasonNumber > 0 && new Date(item.airDate) < new Date(),
+    () => item.seasonNumber > 0 && item.hasAired,
     [item],
   );
 

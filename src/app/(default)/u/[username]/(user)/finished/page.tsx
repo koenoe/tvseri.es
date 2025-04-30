@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 
 import { notFound } from 'next/navigation';
+import { connection } from 'next/server';
 
 import Grid from '@/components/Grid/Grid';
 import ListGrid from '@/components/Grid/ListGrid';
@@ -12,6 +13,8 @@ type Props = Readonly<{
 }>;
 
 export default async function WatchedPage({ params }: Props) {
+  await connection();
+
   const { username } = await params;
   const user = await findUser({ username });
   if (!user) {

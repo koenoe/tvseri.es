@@ -285,6 +285,9 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     .map((season) => {
       let numberOfAiredEpisodesForSeason = 0;
 
+      const airDate = season.air_date
+        ? new Date(season.air_date).toISOString()
+        : '';
       const lastEpisodeToAir = series.last_episode_to_air;
       const nextEpisodeToAir =
         series.next_episode_to_air as typeof lastEpisodeToAir;
@@ -308,6 +311,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
 
       return {
         id: season.id,
+        hasAired: new Date(airDate) <= new Date(),
         title: season.name as string,
         description: season.overview ?? '',
         airDate: season.air_date ? new Date(season.air_date).toISOString() : '',
@@ -350,6 +354,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
   return {
     id: series.id,
     isAdult: series.adult,
+    hasAired: new Date(firstAirDate) <= new Date(),
     title: series.name ?? '',
     countries: (series.production_countries ?? []).map((country) => ({
       name: country.name ?? '',
@@ -392,17 +397,21 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
 }
 
 export function normalizeTvSeriesEpisode(episode: TmdbTvSeriesEpisode) {
+  const airDate = episode.air_date
+    ? new Date(episode.air_date).toISOString()
+    : '';
   return {
     id: episode.id,
     title: episode.name ?? '',
     description: episode.overview ?? '',
     episodeNumber: episode.episode_number,
     seasonNumber: episode.season_number,
-    airDate: episode.air_date ? new Date(episode.air_date).toISOString() : '',
+    airDate,
     runtime: episode.runtime,
     stillImage: episode.still_path
       ? generateTmdbImageUrl(episode.still_path, 'w454_and_h254_bestv2')
       : '',
+    hasAired: new Date(airDate) <= new Date(),
   };
 }
 

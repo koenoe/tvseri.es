@@ -30,8 +30,7 @@ export default async function ActionButtons({
   showContextMenuButton?: boolean;
 }>) {
   const tvSeries = (await cachedTvSeries(id)) as TvSeries;
-  const shouldShowWatchButton =
-    showWatchButton && new Date(tvSeries.firstAirDate) <= new Date();
+  const shouldShowWatchButton = showWatchButton && tvSeries.hasAired;
 
   async function addToOrRemoveAction(
     value: boolean,

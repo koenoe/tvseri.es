@@ -12,6 +12,7 @@ import { type Movie } from '@/types/movie';
 import { type Person } from '@/types/person';
 import type { Episode, Season, TvSeries } from '@/types/tv-series';
 import { type WatchProvider } from '@/types/watch-provider';
+import calculateAge from '@/utils/calculateAge';
 import getBaseUrl from '@/utils/getBaseUrl';
 import { toQueryString } from '@/utils/toQueryString';
 
@@ -512,16 +513,18 @@ export async function fetchTvSeriesSeason(
     normalizeTvSeriesEpisode(episode as unknown as TmdbTvSeriesEpisode),
   );
   const numberOfEpisodes = episodes.length;
-  const now = new Date();
   const numberOfAiredEpisodes =
-    episodes.filter((episode) => new Date(episode.airDate) <= now).length ??
-    numberOfEpisodes;
+    episodes.filter((episode) => episode.hasAired).length ?? numberOfEpisodes;
+  const airDate = response.air_date
+    ? new Date(response.air_date).toISOString()
+    : '';
 
   return {
     id: response.id,
     title: response.name as string,
     description: response.overview ?? '',
-    airDate: response.air_date ? new Date(response.air_date).toISOString() : '',
+    airDate,
+    hasAired: new Date(airDate) <= new Date(),
     seasonNumber: response.season_number,
     numberOfEpisodes,
     numberOfAiredEpisodes,
@@ -920,6 +923,12 @@ export async function fetchPerson(id: number | string) {
 
   return {
     id: person.id,
+    age: person.birthday
+      ? calculateAge(
+          person.birthday,
+          person.deathday as (typeof person)['birthday'],
+        )
+      : undefined,
     name: person.name ?? '',
     image: person.profile_path
       ? generateTmdbImageUrl(person.profile_path, 'w600_and_h900_bestv2')

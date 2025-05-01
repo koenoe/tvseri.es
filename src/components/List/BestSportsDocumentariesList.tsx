@@ -1,25 +1,16 @@
-import { unstable_cache } from 'next/cache';
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 
 import { fetchBestSportsDocumentariesTvSeries } from '@/lib/tmdb';
 
 import List, { type HeaderVariantProps } from './List';
 import Poster from '../Tiles/Poster';
 
-const cachedBestSportsDocumentariesTvSeries = unstable_cache(
-  async () => {
-    const items = await fetchBestSportsDocumentariesTvSeries();
-    return items;
-  },
-  ['best-sports-documentaries'],
-  {
-    revalidate: 2629800, // 1 month
-  },
-);
-
 export default async function BestSportsDocumentariesList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,
 ) {
-  const tvSeries = await cachedBestSportsDocumentariesTvSeries();
+  'use cache';
+  cacheLife('weeks');
+  const tvSeries = await fetchBestSportsDocumentariesTvSeries();
 
   return (
     <List

@@ -11,6 +11,7 @@ const nextConfig = {
       dynamic: 0,
       static: 0,
     },
+    useCache: true,
   },
   cleanDistDir: true,
   output: 'standalone',

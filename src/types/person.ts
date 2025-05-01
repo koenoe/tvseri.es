@@ -13,4 +13,5 @@ export type Person = Readonly<{
   name: string;
   placeOfBirth?: string;
   slug: string;
+  age?: number;
 }>;

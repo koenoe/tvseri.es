@@ -1,20 +1,9 @@
-import { unstable_cache } from 'next/cache';
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 
 import { fetchTopRatedTvSeries } from '@/lib/tmdb';
 
 import List, { type HeaderVariantProps } from './List';
 import Poster from '../Tiles/Poster';
-
-const cachedTopRatedTvSeries = unstable_cache(
-  async () => {
-    const items = await fetchTopRatedTvSeries();
-    return items;
-  },
-  ['top-rated'],
-  {
-    revalidate: 2629800, // 1 month
-  },
-);
 
 export default async function TopRatedList({
   priority,
@@ -22,8 +11,12 @@ export default async function TopRatedList({
 }: React.AllHTMLAttributes<HTMLDivElement> &
   HeaderVariantProps &
   Readonly<{ priority?: boolean }>) {
+  'use cache';
+
+  cacheLife('weeks');
+
   try {
-    const tvSeries = await cachedTopRatedTvSeries();
+    const tvSeries = await fetchTopRatedTvSeries();
 
     return (
       <List

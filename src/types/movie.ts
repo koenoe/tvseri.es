@@ -4,6 +4,7 @@ export type Movie = Omit<
   TvSeries,
   | 'createdBy'
   | 'firstAirDate'
+  | 'hasAired'
   | 'lastAirDate'
   | 'lastEpisodeToAir'
   | 'numberOfAiredEpisodes'

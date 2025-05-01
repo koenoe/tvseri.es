@@ -53,11 +53,11 @@ export const cachedPerson = async (id: string | number) => {
     return dynamoCachedItem;
   }
 
-  const tvSeries = await fetchPerson(id);
+  const person = await fetchPerson(id);
 
-  await setCacheItem(dynamoCacheKey, tvSeries, {
+  await setCacheItem(dynamoCacheKey, person, {
     ttl: 86400, // 1 day
   });
 
-  return tvSeries;
+  return person;
 };

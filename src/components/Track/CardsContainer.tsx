@@ -24,7 +24,7 @@ async function fetchAllSeasons(tvSeries: TvSeries) {
     const seasons = await Promise.all(seasonPromises);
     return seasons
       .filter((season): season is Season => season !== undefined)
-      .filter((season) => new Date(season.airDate).getTime() <= Date.now());
+      .filter((season) => season.hasAired);
   } catch (error) {
     throw error;
   }

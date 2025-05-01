@@ -30,11 +30,7 @@ export async function POST(
   }
 
   const tvSeries = await cachedTvSeries(params.id);
-  if (
-    !tvSeries ||
-    !tvSeries.firstAirDate ||
-    new Date(tvSeries.firstAirDate) > new Date()
-  ) {
+  if (!tvSeries || !tvSeries.firstAirDate || !tvSeries.hasAired) {
     return Response.json({ error: 'Not found' }, { status: 404 });
   }
 

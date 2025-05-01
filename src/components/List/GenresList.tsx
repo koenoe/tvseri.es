@@ -1,3 +1,4 @@
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 import dynamic from 'next/dynamic';
 
 import { fetchGenresForTvSeries } from '@/lib/tmdb';
@@ -14,6 +15,9 @@ export const gapStyleOverride = {
 export default async function GenresList(
   props: React.AllHTMLAttributes<HTMLDivElement>,
 ) {
+  'use cache';
+  cacheLife('max');
+
   const genres = await fetchGenresForTvSeries();
 
   const pairedGenres = [];

@@ -1,20 +1,9 @@
-import { unstable_cache } from 'next/cache';
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 
 import { fetchMostPopularTvSeriesThisMonth } from '@/lib/tmdb';
 
 import List, { type HeaderVariantProps } from './List';
 import Poster from '../Tiles/Poster';
-
-const cachedMostPopularThisMonth = unstable_cache(
-  async () => {
-    const items = await fetchMostPopularTvSeriesThisMonth();
-    return items;
-  },
-  ['most-popular-this-month'],
-  {
-    revalidate: 604800, // 1 week
-  },
-);
 
 export default async function MostPopularThisMonthList({
   priority,
@@ -22,8 +11,12 @@ export default async function MostPopularThisMonthList({
 }: React.AllHTMLAttributes<HTMLDivElement> &
   HeaderVariantProps &
   Readonly<{ priority?: boolean }>) {
+  'use cache';
+
+  cacheLife('weeks');
+
   try {
-    const tvSeries = await cachedMostPopularThisMonth();
+    const tvSeries = await fetchMostPopularTvSeriesThisMonth();
 
     return (
       <List

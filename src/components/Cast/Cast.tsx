@@ -6,7 +6,6 @@ import { type Person } from '@/types/person';
 
 import Avatars from '../Avatars/Avatars';
 
-// Note: this won't work if we need more than 10 cast members
 const cachedCast = cache(async (id: number) => {
   const dynamoCacheKey = `cast:${id}`;
   const dynamoCachedItem = await getCacheItem<Person[]>(dynamoCacheKey);
@@ -31,10 +30,10 @@ export default async function Cast({
   className?: string;
   id: number;
 }) {
-  const cast = await cachedCast(id);
+  const items = await cachedCast(id);
 
-  return cast.length > 0 ? (
-    <Avatars className={className} items={cast.slice(0, 10)} />
+  return items.length > 0 ? (
+    <Avatars className={className} items={items.slice(0, 10)} />
   ) : (
     <div className={className} />
   );

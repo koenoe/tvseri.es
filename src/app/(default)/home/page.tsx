@@ -1,6 +1,9 @@
 import { cache, Suspense } from 'react';
 
-import { unstable_cache } from 'next/cache';
+import {
+  unstable_cacheLife as cacheLife,
+  unstable_cacheTag as cacheTag,
+} from 'next/cache';
 import { notFound } from 'next/navigation';
 
 import ApplePlusList from '@/components/List/ApplePlusList';
@@ -16,17 +19,19 @@ import SkeletonList from '@/components/Skeletons/SkeletonList';
 import Spotlight from '@/components/Spotlight/Spotlight';
 import { fetchTrendingTvSeries } from '@/lib/tmdb';
 
-const _cachedTrendingTvSeries = unstable_cache(
-  async () => {
-    const items = await fetchTrendingTvSeries();
-    return items;
-  },
-  ['trending'],
-  {
-    revalidate: 43200, // 12 hours
-    tags: ['trending'],
-  },
-);
+const _cachedTrendingTvSeries = async () => {
+  'use cache';
+
+  cacheTag('trending');
+  cacheLife({
+    stale: 43200,
+    revalidate: 28800,
+    expire: 43200,
+  });
+
+  const items = await fetchTrendingTvSeries();
+  return items;
+};
 
 const cachedTrendingTvSeries = cache(_cachedTrendingTvSeries);
 

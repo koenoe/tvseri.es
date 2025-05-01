@@ -38,10 +38,7 @@ function SeasonCard({
   const lastWatched = watchedForSeason[watchedForSeason.length - 1];
   const isFinished = season.numberOfAiredEpisodes === watchedForSeason.length;
   const episodes = useMemo(
-    () =>
-      season.episodes.filter(
-        (episode) => new Date(episode.airDate).getTime() <= Date.now(),
-      ),
+    () => season.episodes.filter((episode) => episode.hasAired),
     [season.episodes],
   );
 

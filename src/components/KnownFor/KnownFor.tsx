@@ -1,6 +1,4 @@
-import { cache } from 'react';
-
-import { unstable_cache } from 'next/cache';
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 
 import Poster from '@/components/Tiles/Poster';
 import { type ListItem } from '@/lib/db/list';
@@ -9,25 +7,19 @@ import { type Movie } from '@/types/movie';
 import { type Person } from '@/types/person';
 import { type TvSeries } from '@/types/tv-series';
 
-const cachedPersonKnownFor = cache(async (person: Person) =>
-  unstable_cache(
-    async () => {
-      const items = (await fetchPersonKnownFor(person)) as (TvSeries | Movie)[];
-      return items;
-    },
-    ['person-known-for', String(person.id)],
-    {
-      revalidate: 86400, // 1 day
-    },
-  )(),
-);
-
 export default async function KnownFor({
-  item,
+  person,
 }: Readonly<{
-  item: Person;
+  person: Person;
 }>) {
-  const knownForItems = await cachedPersonKnownFor(item);
+  'use cache';
+
+  cacheLife('days');
+
+  const knownForItems = (await fetchPersonKnownFor(person)) as (
+    | TvSeries
+    | Movie
+  )[];
 
   return (
     <>

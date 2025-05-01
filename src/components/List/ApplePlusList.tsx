@@ -1,6 +1,4 @@
-import { cache } from 'react';
-
-import { unstable_cache } from 'next/cache';
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 import { headers } from 'next/headers';
 
 import { fetchApplePlusTvSeries } from '@/lib/tmdb';
@@ -8,18 +6,14 @@ import { fetchApplePlusTvSeries } from '@/lib/tmdb';
 import List, { type HeaderVariantProps } from './List';
 import Poster from '../Tiles/Poster';
 
-const cachedApplePlusTvSeries = cache(async (region: string) =>
-  unstable_cache(
-    async () => {
-      const items = await fetchApplePlusTvSeries(region);
-      return items;
-    },
-    ['apple-plus', region],
-    {
-      revalidate: 604800, // 1 week
-    },
-  )(),
-);
+const cachedApplePlusTvSeries = async (region: string) => {
+  'use cache';
+
+  cacheLife('weeks');
+
+  const items = await fetchApplePlusTvSeries(region);
+  return items;
+};
 
 export default async function ApplePlusList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,

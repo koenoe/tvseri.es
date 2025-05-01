@@ -1,14 +1,10 @@
 import { type ReactNode } from 'react';
 
-import { unstable_cacheLife as cacheLife } from 'next/cache';
-
 import Page from '@/components/Page/Page';
 import Pills from '@/components/Tabs/Pills';
 
 const getCurrentYear = async () => {
   'use cache';
-  cacheLife('max');
-
   return new Date().getFullYear();
 };
 

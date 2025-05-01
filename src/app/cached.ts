@@ -5,45 +5,18 @@
  */
 import { cache } from 'react';
 
-import { unstable_cacheLife as cacheLife } from 'next/cache';
-
+import {
+  cachedPerson as _cachedPerson,
+  cachedTvSeries as _cachedTvSeries,
+  cachedTvSeriesSeason as _cachedTvSeriesSeason,
+} from '@/lib/cached';
 import { getAllWatchedByDate } from '@/lib/db/watched';
-import { fetchPerson, fetchTvSeries, fetchTvSeriesSeason } from '@/lib/tmdb';
 import { buildPosterImageUrl } from '@/lib/tmdb/helpers';
 
-export const cachedPerson = async (id: string | number) => {
-  'use cache';
-  cacheLife('days');
+export const cachedTvSeries = cache(_cachedTvSeries);
+export const cachedTvSeriesSeason = cache(_cachedTvSeriesSeason);
+export const cachedPerson = cache(_cachedPerson);
 
-  const person = await fetchPerson(id);
-  return person;
-};
-
-export const cachedTvSeries = async (id: string | number) => {
-  'use cache';
-  cacheLife('days');
-
-  const tvSeries = await fetchTvSeries(id, {
-    includeImages: true,
-  });
-
-  return tvSeries;
-};
-
-export const cachedTvSeriesSeason = async (
-  id: number | string,
-  season: number | string,
-) => {
-  'use cache';
-  cacheLife('days');
-
-  const result = await fetchTvSeriesSeason(id, season);
-  return result;
-};
-
-// Note: the methods below are used for the stats page
-// and is simply deduping the methods with React's cache method
-// as there's several components needing the same data
 export const cachedWatchedByYear = cache(
   async (
     input: Readonly<{

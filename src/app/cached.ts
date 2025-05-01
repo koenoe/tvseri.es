@@ -41,6 +41,9 @@ export const cachedTvSeriesSeason = async (
   return result;
 };
 
+// Note: the methods below are used for the stats page
+// and is simply deduping the methods with React's cache method
+// as there's several components needing the same data
 export const cachedWatchedByYear = cache(
   async (
     input: Readonly<{

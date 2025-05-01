@@ -40,37 +40,37 @@ importers:
         version: 2.1.1
       motion:
         specifier: ^12.9.2
-        version: 12.9.2(react-dom@19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430))(react@19.2.0-canary-408d055a-20250430)
+        version: 12.9.2(react-dom@19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501))(react@19.2.0-canary-e9db3cc2-20250501)
       next:
         specifier: 15.4.0-canary.17
-        version: 15.4.0-canary.17(babel-plugin-react-compiler@19.1.0-rc.1)(react-dom@19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430))(react@19.2.0-canary-408d055a-20250430)
+        version: 15.4.0-canary.17(babel-plugin-react-compiler@19.1.0-rc.1)(react-dom@19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501))(react@19.2.0-canary-e9db3cc2-20250501)
       papaparse:
         specifier: ^5.5.2
         version: 5.5.2
       react:
-        specifier: 19.2.0-canary-408d055a-20250430
-        version: 19.2.0-canary-408d055a-20250430
+        specifier: 19.2.0-canary-e9db3cc2-20250501
+        version: 19.2.0-canary-e9db3cc2-20250501
       react-day-picker:
         specifier: ^9.6.7
-        version: 9.6.7(react@19.2.0-canary-408d055a-20250430)
+        version: 9.6.7(react@19.2.0-canary-e9db3cc2-20250501)
       react-dom:
-        specifier: 19.2.0-canary-408d055a-20250430
-        version: 19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430)
+        specifier: 19.2.0-canary-e9db3cc2-20250501
+        version: 19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501)
       react-dropzone:
         specifier: ^14.3.8
-        version: 14.3.8(react@19.2.0-canary-408d055a-20250430)
+        version: 14.3.8(react@19.2.0-canary-e9db3cc2-20250501)
       react-fast-compare:
         specifier: ^3.2.2
         version: 3.2.2
       recharts:
         specifier: ^2.15.3
-        version: 2.15.3(react-dom@19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430))(react@19.2.0-canary-408d055a-20250430)
+        version: 2.15.3(react-dom@19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501))(react@19.2.0-canary-e9db3cc2-20250501)
       slugify:
         specifier: ^1.6.6
         version: 1.6.6
       sonner:
         specifier: ^2.0.3
-        version: 2.0.3(react-dom@19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430))(react@19.2.0-canary-408d055a-20250430)
+        version: 2.0.3(react-dom@19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501))(react@19.2.0-canary-e9db3cc2-20250501)
       sst:
         specifier: ^3.14.11
         version: 3.14.11
@@ -79,13 +79,13 @@ importers:
         version: 3.0.0
       use-debounce:
         specifier: ^10.0.4
-        version: 10.0.4(react@19.2.0-canary-408d055a-20250430)
+        version: 10.0.4(react@19.2.0-canary-e9db3cc2-20250501)
       words-to-numbers:
         specifier: ^1.5.1
         version: 1.5.1
       zustand:
         specifier: ^5.0.3
-        version: 5.0.3(@types/react@19.1.2)(react@19.2.0-canary-408d055a-20250430)(use-sync-external-store@1.2.2(react@19.2.0-canary-408d055a-20250430))
+        version: 5.0.3(@types/react@19.1.2)(react@19.2.0-canary-e9db3cc2-20250501)(use-sync-external-store@1.2.2(react@19.2.0-canary-e9db3cc2-20250501))
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.3.1
@@ -3473,10 +3473,10 @@ packages:
     peerDependencies:
       react: '>=16.8.0'
 
-  react-dom@19.2.0-canary-408d055a-20250430:
-    resolution: {integrity: sha512-4UlhEnQGtQ+dJM4Vv9ZoGlLlCVLG4vNq2SW+0FCTIvhk4fEQ0zVPtnhj/WLu/B/A15iqL/8oIFon8a3Lk+fftQ==}
+  react-dom@19.2.0-canary-e9db3cc2-20250501:
+    resolution: {integrity: sha512-A7uhzoWBAvMKEEM6um9/oRSUO178gc0kQtApsxmcPbjQLufa43mk2c4By5PhNBIV77xwtTUdwYjAUyXhUlwQzA==}
     peerDependencies:
-      react: 19.2.0-canary-408d055a-20250430
+      react: 19.2.0-canary-e9db3cc2-20250501
 
   react-dropzone@14.3.8:
     resolution: {integrity: sha512-sBgODnq+lcA4P296DY4wacOZz3JFpD99fp+hb//iBO2HHnyeZU3FwWyXJ6salNpqQdsZrgMrotuko/BdJMV8Ug==}
@@ -3505,8 +3505,8 @@ packages:
       react: '>=16.6.0'
       react-dom: '>=16.6.0'
 
-  react@19.2.0-canary-408d055a-20250430:
-    resolution: {integrity: sha512-5kJrlaa4OgrQoOSMNyOWlY+PoOq7a5RRnJrrA9ERhAwAmP2r8ndaSFfDet0ihOmxVjEARRgo2mB7Nj2GBiC1xg==}
+  react@19.2.0-canary-e9db3cc2-20250501:
+    resolution: {integrity: sha512-Td6Vr54eyXPmWsAzE1JZMUZ8M2jhNjDUiteZ82e3BI/1ho2KwZ2niDQjtdI0NEM8mWdNpe66BnPkForwVI80Aw==}
     engines: {node: '>=0.10.0'}
 
   read-cache@1.0.0:
@@ -3613,8 +3613,8 @@ packages:
   sax@1.2.1:
     resolution: {integrity: sha512-8I2a3LovHTOpm7NV5yOyO8IHqgVsfK4+UuySrXU8YXkSRX7k6hCV9b3HrkKCr3nMpgj+0bmocaJJWpvp1oc7ZA==}
 
-  scheduler@0.27.0-canary-408d055a-20250430:
-    resolution: {integrity: sha512-EkgiabfBQKXfGsKbrc1tECJUjkKOayh9aKOvsZYaEa5cNlYmQfmiXWkJkq6IWINuBnMDPgMO8WCUsYJOKOs5/A==}
+  scheduler@0.27.0-canary-e9db3cc2-20250501:
+    resolution: {integrity: sha512-QkUg4ycMlKqj8vq0guYhXXiM/l+FOhenXzzqUNkTpIqiMOKRvTJYZ2IMIbBRavwEqhb8qmRVfSBnhur0Dsg8Nw==}
 
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
@@ -7563,14 +7563,14 @@ snapshots:
 
   fraction.js@4.3.7: {}
 
-  framer-motion@12.9.4(react-dom@19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430))(react@19.2.0-canary-408d055a-20250430):
+  framer-motion@12.9.4(react-dom@19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501))(react@19.2.0-canary-e9db3cc2-20250501):
     dependencies:
       motion-dom: 12.9.4
       motion-utils: 12.9.4
       tslib: 2.8.1
     optionalDependencies:
-      react: 19.2.0-canary-408d055a-20250430
-      react-dom: 19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430)
+      react: 19.2.0-canary-e9db3cc2-20250501
+      react-dom: 19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501)
 
   fresh@2.0.0: {}
 
@@ -8158,13 +8158,13 @@ snapshots:
 
   motion-utils@12.9.4: {}
 
-  motion@12.9.2(react-dom@19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430))(react@19.2.0-canary-408d055a-20250430):
+  motion@12.9.2(react-dom@19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501))(react@19.2.0-canary-e9db3cc2-20250501):
     dependencies:
-      framer-motion: 12.9.4(react-dom@19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430))(react@19.2.0-canary-408d055a-20250430)
+      framer-motion: 12.9.4(react-dom@19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501))(react@19.2.0-canary-e9db3cc2-20250501)
       tslib: 2.8.1
     optionalDependencies:
-      react: 19.2.0-canary-408d055a-20250430
-      react-dom: 19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430)
+      react: 19.2.0-canary-e9db3cc2-20250501
+      react-dom: 19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501)
 
   ms@2.1.2: {}
 
@@ -8186,15 +8186,15 @@ snapshots:
 
   negotiator@1.0.0: {}
 
-  next@15.4.0-canary.17(babel-plugin-react-compiler@19.1.0-rc.1)(react-dom@19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430))(react@19.2.0-canary-408d055a-20250430):
+  next@15.4.0-canary.17(babel-plugin-react-compiler@19.1.0-rc.1)(react-dom@19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501))(react@19.2.0-canary-e9db3cc2-20250501):
     dependencies:
       '@next/env': 15.4.0-canary.17
       '@swc/helpers': 0.5.15
       caniuse-lite: 1.0.30001714
       postcss: 8.4.31
-      react: 19.2.0-canary-408d055a-20250430
-      react-dom: 19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430)
-      styled-jsx: 5.1.6(react@19.2.0-canary-408d055a-20250430)
+      react: 19.2.0-canary-e9db3cc2-20250501
+      react-dom: 19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501)
+      styled-jsx: 5.1.6(react@19.2.0-canary-e9db3cc2-20250501)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.4.0-canary.17
       '@next/swc-darwin-x64': 15.4.0-canary.17
@@ -8478,24 +8478,24 @@ snapshots:
       iconv-lite: 0.6.3
       unpipe: 1.0.0
 
-  react-day-picker@9.6.7(react@19.2.0-canary-408d055a-20250430):
+  react-day-picker@9.6.7(react@19.2.0-canary-e9db3cc2-20250501):
     dependencies:
       '@date-fns/tz': 1.2.0
       date-fns: 4.1.0
       date-fns-jalali: 4.1.0-0
-      react: 19.2.0-canary-408d055a-20250430
+      react: 19.2.0-canary-e9db3cc2-20250501
 
-  react-dom@19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430):
+  react-dom@19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501):
     dependencies:
-      react: 19.2.0-canary-408d055a-20250430
-      scheduler: 0.27.0-canary-408d055a-20250430
+      react: 19.2.0-canary-e9db3cc2-20250501
+      scheduler: 0.27.0-canary-e9db3cc2-20250501
 
-  react-dropzone@14.3.8(react@19.2.0-canary-408d055a-20250430):
+  react-dropzone@14.3.8(react@19.2.0-canary-e9db3cc2-20250501):
     dependencies:
       attr-accept: 2.2.5
       file-selector: 2.1.2
       prop-types: 15.8.1
-      react: 19.2.0-canary-408d055a-20250430
+      react: 19.2.0-canary-e9db3cc2-20250501
 
   react-fast-compare@3.2.2: {}
 
@@ -8503,24 +8503,24 @@ snapshots:
 
   react-is@18.3.1: {}
 
-  react-smooth@4.0.4(react-dom@19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430))(react@19.2.0-canary-408d055a-20250430):
+  react-smooth@4.0.4(react-dom@19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501))(react@19.2.0-canary-e9db3cc2-20250501):
     dependencies:
       fast-equals: 5.2.2
       prop-types: 15.8.1
-      react: 19.2.0-canary-408d055a-20250430
-      react-dom: 19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430)
-      react-transition-group: 4.4.5(react-dom@19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430))(react@19.2.0-canary-408d055a-20250430)
+      react: 19.2.0-canary-e9db3cc2-20250501
+      react-dom: 19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501)
+      react-transition-group: 4.4.5(react-dom@19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501))(react@19.2.0-canary-e9db3cc2-20250501)
 
-  react-transition-group@4.4.5(react-dom@19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430))(react@19.2.0-canary-408d055a-20250430):
+  react-transition-group@4.4.5(react-dom@19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501))(react@19.2.0-canary-e9db3cc2-20250501):
     dependencies:
       '@babel/runtime': 7.27.0
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
-      react: 19.2.0-canary-408d055a-20250430
-      react-dom: 19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430)
+      react: 19.2.0-canary-e9db3cc2-20250501
+      react-dom: 19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501)
 
-  react@19.2.0-canary-408d055a-20250430: {}
+  react@19.2.0-canary-e9db3cc2-20250501: {}
 
   read-cache@1.0.0:
     dependencies:
@@ -8534,15 +8534,15 @@ snapshots:
     dependencies:
       decimal.js-light: 2.5.1
 
-  recharts@2.15.3(react-dom@19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430))(react@19.2.0-canary-408d055a-20250430):
+  recharts@2.15.3(react-dom@19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501))(react@19.2.0-canary-e9db3cc2-20250501):
     dependencies:
       clsx: 2.1.1
       eventemitter3: 4.0.7
       lodash: 4.17.21
-      react: 19.2.0-canary-408d055a-20250430
-      react-dom: 19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430)
+      react: 19.2.0-canary-e9db3cc2-20250501
+      react-dom: 19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501)
       react-is: 18.3.1
-      react-smooth: 4.0.4(react-dom@19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430))(react@19.2.0-canary-408d055a-20250430)
+      react-smooth: 4.0.4(react-dom@19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501))(react@19.2.0-canary-e9db3cc2-20250501)
       recharts-scale: 0.4.5
       tiny-invariant: 1.3.3
       victory-vendor: 36.9.2
@@ -8661,7 +8661,7 @@ snapshots:
 
   sax@1.2.1: {}
 
-  scheduler@0.27.0-canary-408d055a-20250430: {}
+  scheduler@0.27.0-canary-e9db3cc2-20250501: {}
 
   semver@6.3.1: {}
 
@@ -8797,10 +8797,10 @@ snapshots:
 
   slugify@1.6.6: {}
 
-  sonner@2.0.3(react-dom@19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430))(react@19.2.0-canary-408d055a-20250430):
+  sonner@2.0.3(react-dom@19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501))(react@19.2.0-canary-e9db3cc2-20250501):
     dependencies:
-      react: 19.2.0-canary-408d055a-20250430
-      react-dom: 19.2.0-canary-408d055a-20250430(react@19.2.0-canary-408d055a-20250430)
+      react: 19.2.0-canary-e9db3cc2-20250501
+      react-dom: 19.2.0-canary-e9db3cc2-20250501(react@19.2.0-canary-e9db3cc2-20250501)
 
   sort-object-keys@1.1.3: {}
 
@@ -8971,10 +8971,10 @@ snapshots:
 
   strnum@1.1.2: {}
 
-  styled-jsx@5.1.6(react@19.2.0-canary-408d055a-20250430):
+  styled-jsx@5.1.6(react@19.2.0-canary-e9db3cc2-20250501):
     dependencies:
       client-only: 0.0.1
-      react: 19.2.0-canary-408d055a-20250430
+      react: 19.2.0-canary-e9db3cc2-20250501
 
   sucrase@3.35.0:
     dependencies:
@@ -9218,13 +9218,13 @@ snapshots:
 
   urlpattern-polyfill@10.0.0: {}
 
-  use-debounce@10.0.4(react@19.2.0-canary-408d055a-20250430):
+  use-debounce@10.0.4(react@19.2.0-canary-e9db3cc2-20250501):
     dependencies:
-      react: 19.2.0-canary-408d055a-20250430
+      react: 19.2.0-canary-e9db3cc2-20250501
 
-  use-sync-external-store@1.2.2(react@19.2.0-canary-408d055a-20250430):
+  use-sync-external-store@1.2.2(react@19.2.0-canary-e9db3cc2-20250501):
     dependencies:
-      react: 19.2.0-canary-408d055a-20250430
+      react: 19.2.0-canary-e9db3cc2-20250501
     optional: true
 
   util-deprecate@1.0.2: {}
@@ -9389,8 +9389,8 @@ snapshots:
 
   zod@3.24.2: {}
 
-  zustand@5.0.3(@types/react@19.1.2)(react@19.2.0-canary-408d055a-20250430)(use-sync-external-store@1.2.2(react@19.2.0-canary-408d055a-20250430)):
+  zustand@5.0.3(@types/react@19.1.2)(react@19.2.0-canary-e9db3cc2-20250501)(use-sync-external-store@1.2.2(react@19.2.0-canary-e9db3cc2-20250501)):
     optionalDependencies:
       '@types/react': 19.1.2
-      react: 19.2.0-canary-408d055a-20250430
-      use-sync-external-store: 1.2.2(react@19.2.0-canary-408d055a-20250430)
+      react: 19.2.0-canary-e9db3cc2-20250501
+      use-sync-external-store: 1.2.2(react@19.2.0-canary-e9db3cc2-20250501)

@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { cache, Suspense } from 'react';
 
 import {
   unstable_cacheLife as cacheLife,
@@ -19,15 +19,21 @@ import SkeletonList from '@/components/Skeletons/SkeletonList';
 import Spotlight from '@/components/Spotlight/Spotlight';
 import { fetchTrendingTvSeries } from '@/lib/tmdb';
 
-const cachedTrendingTvSeries = async () => {
+const _cachedTrendingTvSeries = async () => {
   'use cache';
 
   cacheTag('trending');
-  cacheLife('days');
+  cacheLife({
+    stale: 43200,
+    revalidate: 28800,
+    expire: 43200,
+  });
 
   const items = await fetchTrendingTvSeries();
   return items;
 };
+
+const cachedTrendingTvSeries = cache(_cachedTrendingTvSeries);
 
 export async function generateViewport() {
   const trendingTvSeries = await cachedTrendingTvSeries();

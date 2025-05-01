@@ -1,5 +1,3 @@
-import { connection } from 'next/server';
-
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
 import {
@@ -31,11 +29,8 @@ export default async function ActionButtons({
   showWatchButton?: boolean;
   showContextMenuButton?: boolean;
 }>) {
-  await connection();
-
   const tvSeries = (await cachedTvSeries(id)) as TvSeries;
-  const shouldShowWatchButton =
-    showWatchButton && new Date(tvSeries.firstAirDate) <= new Date();
+  const shouldShowWatchButton = showWatchButton && tvSeries.hasAired;
 
   async function addToOrRemoveAction(
     value: boolean,

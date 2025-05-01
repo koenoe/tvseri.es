@@ -1,4 +1,4 @@
-import { unstable_cacheLife } from 'next/cache';
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 
 import Poster from '@/components/Tiles/Poster';
 import { type ListItem } from '@/lib/db/list';
@@ -14,7 +14,7 @@ export default async function KnownFor({
 }>) {
   'use cache';
 
-  unstable_cacheLife('days');
+  cacheLife('days');
 
   const knownForItems = (await fetchPersonKnownFor(person)) as (
     | TvSeries

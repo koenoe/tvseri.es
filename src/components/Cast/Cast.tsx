@@ -1,4 +1,4 @@
-import { unstable_cacheLife } from 'next/cache';
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 
 import { fetchTvSeriesCredits } from '@/lib/tmdb';
 
@@ -12,7 +12,7 @@ export default async function Cast({
   id: number;
 }) {
   'use cache';
-  unstable_cacheLife('days');
+  cacheLife('days');
 
   const { cast } = await fetchTvSeriesCredits(id);
   const items = cast.slice(0, 10);

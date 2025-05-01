@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 import { notFound } from 'next/navigation';
 
 import Page from '@/components/Page/Page';
@@ -29,6 +30,9 @@ type Props = Readonly<{
 }>;
 
 export async function generateMetadata({ params }: Props) {
+  'use cache';
+  cacheLife('days');
+
   const { username } = await params;
   const user = await findUser({ username });
   if (!user) {
@@ -41,6 +45,9 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function StatsByYearPage({ params }: Props) {
+  'use cache';
+  cacheLife('days');
+
   const { username, year } = await params;
   const user = await findUser({ username });
   if (!user) {

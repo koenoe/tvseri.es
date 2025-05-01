@@ -1,5 +1,5 @@
 import { cx } from 'class-variance-authority';
-import { unstable_cacheLife } from 'next/cache';
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 import Link from 'next/link';
 
 import { fetchRating } from '@/lib/mdblist';
@@ -13,7 +13,7 @@ export default async function ImdbRating({
   id: number;
 }) {
   'use cache';
-  unstable_cacheLife('days');
+  cacheLife('days');
 
   try {
     const rating = await fetchRating(id, 'show', 'imdb');

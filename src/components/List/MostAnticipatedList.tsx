@@ -1,4 +1,4 @@
-import { unstable_cacheLife } from 'next/cache';
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 
 import { fetchMostAnticipatedTvSeries } from '@/lib/tmdb';
 
@@ -10,7 +10,7 @@ export default async function MostAnticipatedList(
 ) {
   'use cache';
 
-  unstable_cacheLife('days');
+  cacheLife('days');
 
   const tvSeries = await fetchMostAnticipatedTvSeries();
 

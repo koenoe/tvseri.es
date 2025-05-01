@@ -5,7 +5,7 @@
  */
 import { cache } from 'react';
 
-import { unstable_cacheLife } from 'next/cache';
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 
 import { getAllWatchedByDate } from '@/lib/db/watched';
 import { fetchPerson, fetchTvSeries, fetchTvSeriesSeason } from '@/lib/tmdb';
@@ -13,7 +13,7 @@ import { buildPosterImageUrl } from '@/lib/tmdb/helpers';
 
 export const cachedPerson = async (id: string | number) => {
   'use cache';
-  unstable_cacheLife('days');
+  cacheLife('days');
 
   const person = await fetchPerson(id);
   return person;
@@ -21,7 +21,7 @@ export const cachedPerson = async (id: string | number) => {
 
 export const cachedTvSeries = async (id: string | number) => {
   'use cache';
-  unstable_cacheLife('days');
+  cacheLife('days');
 
   const tvSeries = await fetchTvSeries(id, {
     includeImages: true,
@@ -35,7 +35,7 @@ export const cachedTvSeriesSeason = async (
   season: number | string,
 ) => {
   'use cache';
-  unstable_cacheLife('days');
+  cacheLife('days');
 
   const result = await fetchTvSeriesSeason(id, season);
   return result;

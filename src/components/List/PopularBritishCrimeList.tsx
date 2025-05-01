@@ -1,4 +1,4 @@
-import { unstable_cacheLife } from 'next/cache';
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 
 import { fetchPopularBritishCrimeTvSeries } from '@/lib/tmdb';
 
@@ -9,7 +9,7 @@ export default async function PopularBritishCrimeList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,
 ) {
   'use cache';
-  unstable_cacheLife('weeks');
+  cacheLife('weeks');
 
   const tvSeries = await fetchPopularBritishCrimeTvSeries();
 

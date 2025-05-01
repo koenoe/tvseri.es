@@ -1,4 +1,4 @@
-import { unstable_cacheLife } from 'next/cache';
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 
 import { fetchTopRatedTvSeries } from '@/lib/tmdb';
 
@@ -13,7 +13,7 @@ export default async function TopRatedList({
   Readonly<{ priority?: boolean }>) {
   'use cache';
 
-  unstable_cacheLife('weeks');
+  cacheLife('weeks');
 
   try {
     const tvSeries = await fetchTopRatedTvSeries();

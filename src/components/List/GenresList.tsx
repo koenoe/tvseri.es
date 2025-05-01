@@ -1,4 +1,4 @@
-import { unstable_cacheLife } from 'next/cache';
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 import dynamic from 'next/dynamic';
 
 import { fetchGenresForTvSeries } from '@/lib/tmdb';
@@ -16,7 +16,7 @@ export default async function GenresList(
   props: React.AllHTMLAttributes<HTMLDivElement>,
 ) {
   'use cache';
-  unstable_cacheLife('max');
+  cacheLife('max');
 
   const genres = await fetchGenresForTvSeries();
 

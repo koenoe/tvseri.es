@@ -1,4 +1,4 @@
-import { unstable_cacheLife } from 'next/cache';
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 import { headers } from 'next/headers';
 
 import { fetchApplePlusTvSeries } from '@/lib/tmdb';
@@ -9,7 +9,7 @@ import Poster from '../Tiles/Poster';
 const cachedApplePlusTvSeries = async (region: string) => {
   'use cache';
 
-  unstable_cacheLife('weeks');
+  cacheLife('weeks');
 
   const items = await fetchApplePlusTvSeries(region);
   return items;

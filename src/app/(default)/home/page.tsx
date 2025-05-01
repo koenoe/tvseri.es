@@ -1,6 +1,9 @@
 import { Suspense } from 'react';
 
-import { unstable_cacheLife, unstable_cacheTag } from 'next/cache';
+import {
+  unstable_cacheLife as cacheLife,
+  unstable_cacheTag as cacheTag,
+} from 'next/cache';
 import { notFound } from 'next/navigation';
 
 import ApplePlusList from '@/components/List/ApplePlusList';
@@ -19,8 +22,8 @@ import { fetchTrendingTvSeries } from '@/lib/tmdb';
 const cachedTrendingTvSeries = async () => {
   'use cache';
 
-  unstable_cacheTag('trending');
-  unstable_cacheLife('days');
+  cacheTag('trending');
+  cacheLife('days');
 
   const items = await fetchTrendingTvSeries();
   return items;

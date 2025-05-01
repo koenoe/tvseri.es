@@ -5,10 +5,8 @@ import getBaseUrl from './src/utils/getBaseUrl';
 const nextConfig = {
   experimental: {
     authInterrupts: true,
-    // dynamicIO: true,
     inlineCss: true,
     nodeMiddleware: true,
-    ppr: true,
     staleTimes: {
       dynamic: 0,
       static: 0,

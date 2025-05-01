@@ -1,4 +1,4 @@
-import { unstable_cacheLife } from 'next/cache';
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 
 import { fetchKoreasFinestTvSeries } from '@/lib/tmdb';
 
@@ -10,7 +10,7 @@ export default async function KoreasFinestList(
 ) {
   'use cache';
 
-  unstable_cacheLife('weeks');
+  cacheLife('weeks');
 
   try {
     const tvSeries = await fetchKoreasFinestTvSeries();

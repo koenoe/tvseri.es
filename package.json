@@ -39,7 +39,7 @@
     "ulid": "^3.0.0",
     "use-debounce": "^10.0.4",
     "words-to-numbers": "^1.5.1",
-    "zustand": "^5.0.3"
+    "zustand": "^5.0.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",

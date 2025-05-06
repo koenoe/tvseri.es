@@ -48,7 +48,7 @@
     "@tailwindcss/typography": "^0.5.16",
     "@types/aws-lambda": "^8.10.149",
     "@types/color": "^4.2.0",
-    "@types/node": "^22.15.3",
+    "@types/node": "^22.15.12",
     "@types/papaparse": "^5.3.15",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.3",

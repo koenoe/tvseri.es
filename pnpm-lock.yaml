@@ -39,8 +39,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       motion:
-        specifier: ^12.9.2
-        version: 12.9.4(react-dom@19.2.0-canary-7a2c7045-20250506(react@19.2.0-canary-7a2c7045-20250506))(react@19.2.0-canary-7a2c7045-20250506)
+        specifier: ^12.10.0
+        version: 12.10.0(react-dom@19.2.0-canary-7a2c7045-20250506(react@19.2.0-canary-7a2c7045-20250506))(react@19.2.0-canary-7a2c7045-20250506)
       next:
         specifier: 15.4.0-canary.23
         version: 15.4.0-canary.23(babel-plugin-react-compiler@19.1.0-rc.1)(react-dom@19.2.0-canary-7a2c7045-20250506(react@19.2.0-canary-7a2c7045-20250506))(react@19.2.0-canary-7a2c7045-20250506)
@@ -2517,8 +2517,8 @@ packages:
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
 
-  framer-motion@12.9.4:
-    resolution: {integrity: sha512-yaeGDmGQ3eCQEwZ95/pRQMaSh/Q4E2CK6JYOclG/PdjyQad0MULJ+JFVV8911Fl5a6tF6o0wgW8Dpl5Qx4Adjg==}
+  framer-motion@12.10.0:
+    resolution: {integrity: sha512-fce/SPS/lrIHYLGfRNytdvzwotc43hBGnEGjXAS304xB+uX9iAm0BpPDx9SuO3TatJkQMm9mglVu94wIPdOTjw==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -3122,14 +3122,14 @@ packages:
   mnemonist@0.38.3:
     resolution: {integrity: sha512-2K9QYubXx/NAjv4VLq1d1Ly8pWNC5L3BrixtdkyTegXWJIqY+zLNDhhX/A+ZwWt70tB1S8H4BE8FLYEFyNoOBw==}
 
-  motion-dom@12.9.4:
-    resolution: {integrity: sha512-25TWkQPj5I18m+qVjXGtCsxboY11DaRC5HMjd29tHKExazW4Zf4XtAagBdLpyKsVuAxEQ6cx5/E4AB21PFpLnQ==}
+  motion-dom@12.10.0:
+    resolution: {integrity: sha512-TbRFEjQmRIDEFXJFIHfvM3VW8PuQ8bSWwwYxWA5Elq+GCghzqYUQ1FDQK/K6PmtmOoLiQY3ttJE6CrOedRrGgw==}
 
   motion-utils@12.9.4:
     resolution: {integrity: sha512-BW3I65zeM76CMsfh3kHid9ansEJk9Qvl+K5cu4DVHKGsI52n76OJ4z2CUJUV+Mn3uEP9k1JJA3tClG0ggSrRcg==}
 
-  motion@12.9.4:
-    resolution: {integrity: sha512-ZMKNnhWylaIbtFmU+scDxdldk//3Rn/8B+dcDhIpGlixAl7yhiLx1WXyGD4TSJZf3sDU6yrnu3L3FWGFo4fTEQ==}
+  motion@12.10.0:
+    resolution: {integrity: sha512-GeIt/h4iVA5EW2UcCnBeuWeZX1pHjB7HEw0jn5sooq2VhnxkWCIbK5adYISVxhxpYcCz3HS1N8TDprz8PlY0kw==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -7884,9 +7884,9 @@ snapshots:
 
   fraction.js@4.3.7: {}
 
-  framer-motion@12.9.4(react-dom@19.2.0-canary-7a2c7045-20250506(react@19.2.0-canary-7a2c7045-20250506))(react@19.2.0-canary-7a2c7045-20250506):
+  framer-motion@12.10.0(react-dom@19.2.0-canary-7a2c7045-20250506(react@19.2.0-canary-7a2c7045-20250506))(react@19.2.0-canary-7a2c7045-20250506):
     dependencies:
-      motion-dom: 12.9.4
+      motion-dom: 12.10.0
       motion-utils: 12.9.4
       tslib: 2.8.1
     optionalDependencies:
@@ -8473,15 +8473,15 @@ snapshots:
     dependencies:
       obliterator: 1.6.1
 
-  motion-dom@12.9.4:
+  motion-dom@12.10.0:
     dependencies:
       motion-utils: 12.9.4
 
   motion-utils@12.9.4: {}
 
-  motion@12.9.4(react-dom@19.2.0-canary-7a2c7045-20250506(react@19.2.0-canary-7a2c7045-20250506))(react@19.2.0-canary-7a2c7045-20250506):
+  motion@12.10.0(react-dom@19.2.0-canary-7a2c7045-20250506(react@19.2.0-canary-7a2c7045-20250506))(react@19.2.0-canary-7a2c7045-20250506):
     dependencies:
-      framer-motion: 12.9.4(react-dom@19.2.0-canary-7a2c7045-20250506(react@19.2.0-canary-7a2c7045-20250506))(react@19.2.0-canary-7a2c7045-20250506)
+      framer-motion: 12.10.0(react-dom@19.2.0-canary-7a2c7045-20250506(react@19.2.0-canary-7a2c7045-20250506))(react@19.2.0-canary-7a2c7045-20250506)
       tslib: 2.8.1
     optionalDependencies:
       react: 19.2.0-canary-7a2c7045-20250506

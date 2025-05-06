@@ -24,7 +24,7 @@
     "color": "^5.0.0",
     "date-fns": "^4.1.0",
     "dice-coefficient": "^2.1.1",
-    "motion": "^12.9.2",
+    "motion": "^12.10.0",
     "next": "15.4.0-canary.23",
     "papaparse": "^5.5.2",
     "react": "19.2.0-canary-7a2c7045-20250506",

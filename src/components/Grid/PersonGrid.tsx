@@ -1,3 +1,5 @@
+import { unstable_cacheLife as cacheLife } from 'next/cache';
+
 import { fetchPersonTvCredits } from '@/lib/tmdb';
 import { type Person } from '@/types/person';
 
@@ -9,6 +11,10 @@ export default async function PersonGrid({
 }: Readonly<{
   person: Person;
 }>) {
+  'use cache';
+
+  cacheLife('days');
+
   const { cast, crew } = await fetchPersonTvCredits(person.id);
   const isActor = person.knownForDepartment === 'Acting';
   const upcoming = isActor ? cast.upcoming : crew.upcoming;

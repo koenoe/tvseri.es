@@ -3,10 +3,7 @@ import { type ReactNode } from 'react';
 import Page from '@/components/Page/Page';
 import Pills from '@/components/Tabs/Pills';
 
-const getCurrentYear = async () => {
-  'use cache';
-  return new Date().getFullYear();
-};
+const year = new Date().getFullYear();
 
 export default async function Layout({
   children,
@@ -15,7 +12,7 @@ export default async function Layout({
   children: ReactNode;
   params: Promise<{ username: string }>;
 }>) {
-  const [{ username }, year] = await Promise.all([params, getCurrentYear()]);
+  const { username } = await params;
 
   const menuItems = [
     // {

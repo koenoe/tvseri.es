@@ -6,7 +6,7 @@ import { type Person } from '@/types/person';
 
 import Avatars from '../Avatars/Avatars';
 
-const cachedCast = cache(async (id: number) => {
+const cachedItems = cache(async (id: number) => {
   const dynamoCacheKey = `cast:${id}`;
   const dynamoCachedItem = await getCacheItem<Person[]>(dynamoCacheKey);
   if (dynamoCachedItem) {
@@ -30,7 +30,7 @@ export default async function Cast({
   className?: string;
   id: number;
 }) {
-  const items = await cachedCast(id);
+  const items = await cachedItems(id);
 
   return items.length > 0 ? (
     <Avatars className={className} items={items.slice(0, 10)} />

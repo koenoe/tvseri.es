@@ -1,9 +1,5 @@
 import { cache, Suspense } from 'react';
 
-import {
-  unstable_cacheLife as cacheLife,
-  unstable_cacheTag as cacheTag,
-} from 'next/cache';
 import { notFound } from 'next/navigation';
 
 import ApplePlusList from '@/components/List/ApplePlusList';
@@ -17,19 +13,23 @@ import TopRatedList from '@/components/List/TopRatedList';
 import Page from '@/components/Page/Page';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
 import Spotlight from '@/components/Spotlight/Spotlight';
+import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 import { fetchTrendingTvSeries } from '@/lib/tmdb';
+import { type TvSeries } from '@/types/tv-series';
 
 const _cachedTrendingTvSeries = async () => {
-  'use cache';
-
-  cacheTag('trending');
-  cacheLife({
-    stale: 43200,
-    revalidate: 28800,
-    expire: 43200,
-  });
+  const dynamoCacheKey = 'trending';
+  const dynamoCachedItem = await getCacheItem<TvSeries[]>(dynamoCacheKey);
+  if (dynamoCachedItem) {
+    return dynamoCachedItem;
+  }
 
   const items = await fetchTrendingTvSeries();
+
+  await setCacheItem(dynamoCacheKey, items, {
+    ttl: 28800, // 8 hours
+  });
+
   return items;
 };
 

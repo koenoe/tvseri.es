@@ -1,6 +1,5 @@
-import { unstable_cacheLife as cacheLife } from 'next/cache';
-
 import Poster from '@/components/Tiles/Poster';
+import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 import { type ListItem } from '@/lib/db/list';
 import { fetchPersonKnownFor } from '@/lib/tmdb';
 import { type Movie } from '@/types/movie';
@@ -8,12 +7,20 @@ import { type Person } from '@/types/person';
 import { type TvSeries } from '@/types/tv-series';
 
 const cachedPersonKnownFor = async (person: Person) => {
-  'use cache';
+  const dynamoCacheKey = `person:known-for:${person.id}`;
+  const dynamoCachedItem =
+    await getCacheItem<(TvSeries | Movie)[]>(dynamoCacheKey);
+  if (dynamoCachedItem) {
+    return dynamoCachedItem;
+  }
 
-  cacheLife('days');
+  const items = (await fetchPersonKnownFor(person)) as (TvSeries | Movie)[];
 
-  const result = (await fetchPersonKnownFor(person)) as (TvSeries | Movie)[];
-  return result;
+  await setCacheItem(dynamoCacheKey, items, {
+    ttl: 43200, // 12 hours
+  });
+
+  return items;
 };
 
 export default async function KnownFor({

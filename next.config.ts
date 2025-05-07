@@ -6,12 +6,10 @@ const nextConfig = {
   experimental: {
     authInterrupts: true,
     inlineCss: true,
-    nodeMiddleware: true,
     staleTimes: {
       dynamic: 0,
       static: 0,
     },
-    useCache: true,
   },
   cleanDistDir: true,
   output: 'standalone',

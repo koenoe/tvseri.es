@@ -1,7 +1,8 @@
-import { unstable_cacheLife as cacheLife } from 'next/cache';
 import dynamic from 'next/dynamic';
 
+import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 import { fetchGenresForTvSeries } from '@/lib/tmdb';
+import { type Genre } from '@/types/genre';
 
 import List from './List';
 
@@ -12,13 +13,26 @@ export const gapStyleOverride = {
   '--gap-override': '1rem',
 } as React.CSSProperties;
 
+const cachedItems = async () => {
+  const dynamoCacheKey = 'genres';
+  const dynamoCachedItem = await getCacheItem<Genre[]>(dynamoCacheKey);
+  if (dynamoCachedItem) {
+    return dynamoCachedItem;
+  }
+
+  const items = await fetchGenresForTvSeries();
+
+  await setCacheItem(dynamoCacheKey, items, {
+    ttl: 31536000, // 1 year
+  });
+
+  return items;
+};
+
 export default async function GenresList(
   props: React.AllHTMLAttributes<HTMLDivElement>,
 ) {
-  'use cache';
-  cacheLife('max');
-
-  const genres = await fetchGenresForTvSeries();
+  const genres = await cachedItems();
 
   const pairedGenres = [];
   for (let i = 0; i < genres.length; i += 2) {

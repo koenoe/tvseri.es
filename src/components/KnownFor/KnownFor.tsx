@@ -7,19 +7,21 @@ import { type Movie } from '@/types/movie';
 import { type Person } from '@/types/person';
 import { type TvSeries } from '@/types/tv-series';
 
+const cachedPersonKnownFor = async (person: Person) => {
+  'use cache';
+
+  cacheLife('days');
+
+  const result = (await fetchPersonKnownFor(person)) as (TvSeries | Movie)[];
+  return result;
+};
+
 export default async function KnownFor({
   person,
 }: Readonly<{
   person: Person;
 }>) {
-  'use cache';
-
-  cacheLife('days');
-
-  const knownForItems = (await fetchPersonKnownFor(person)) as (
-    | TvSeries
-    | Movie
-  )[];
+  const knownForItems = await cachedPersonKnownFor(person);
 
   return (
     <>

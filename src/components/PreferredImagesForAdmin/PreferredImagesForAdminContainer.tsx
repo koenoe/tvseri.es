@@ -1,5 +1,3 @@
-import { revalidateTag } from 'next/cache';
-
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
 import { deleteCacheItem } from '@/lib/db/cache';
@@ -18,11 +16,10 @@ async function storePreferredImages(
 ) {
   'use server';
 
-  revalidateTag('trending');
-
   await Promise.all([
     putPreferredImages(id, preferredImages),
-    deleteCacheItem(`tv:v8:${id}`),
+    deleteCacheItem(`tv:${id}`),
+    deleteCacheItem('trending'),
   ]);
 }
 

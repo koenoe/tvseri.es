@@ -78,7 +78,7 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
             );
 
             // Note: clear dynamoDB cache for this TV series
-            await deleteCacheItem(`tv:v8:${tvSeries.id}`);
+            await deleteCacheItem(`tv:${tvSeries.id}`);
 
             // Note: there's new episodes to watch, move series to in progress
             if (tvSeriesIsInProgress) {

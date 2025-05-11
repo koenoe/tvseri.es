@@ -64,7 +64,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-unused-imports": "^4",
     "husky": "^9.1.7",
-    "lint-staged": "^15.5.2",
+    "lint-staged": "^16.0.0",
     "mini-svg-data-uri": "^1.4.4",
     "postcss": "^8.5.3",
     "prettier": "^3.5.3",

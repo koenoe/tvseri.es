@@ -35,7 +35,7 @@
     "recharts": "^2.15.3",
     "slugify": "^1.6.6",
     "sonner": "^2.0.3",
-    "sst": "^3.16.1",
+    "sst": "^3.16.3",
     "ulid": "^3.0.0",
     "use-debounce": "^10.0.4",
     "words-to-numbers": "^1.5.1",

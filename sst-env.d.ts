@@ -18,6 +18,10 @@ declare module "sst" {
       "sender": string
       "type": "sst.aws.Email"
     }
+    "Follow": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
     "Lists": {
       "name": string
       "type": "sst.aws.Dynamo"

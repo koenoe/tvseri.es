@@ -1,4 +1,5 @@
 export * from './dynamo/cache';
+export * from './dynamo/follow';
 export * from './dynamo/lists';
 export * from './dynamo/preferredImages';
 export * from './dynamo/sessions';

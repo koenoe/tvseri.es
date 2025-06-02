@@ -10,12 +10,14 @@ import {
   cachedTvSeries as _cachedTvSeries,
   cachedTvSeriesSeason as _cachedTvSeriesSeason,
 } from '@/lib/cached';
-import { getAllWatchedByDate } from '@/lib/db/watched';
+import { findUser } from '@/lib/db/user';
+import { getAllWatched } from '@/lib/db/watched';
 import { buildPosterImageUrl } from '@/lib/tmdb/helpers';
 
 export const cachedTvSeries = cache(_cachedTvSeries);
 export const cachedTvSeriesSeason = cache(_cachedTvSeriesSeason);
 export const cachedPerson = cache(_cachedPerson);
+export const cachedUser = cache(findUser);
 
 export const cachedWatchedByYear = cache(
   async (
@@ -24,7 +26,7 @@ export const cachedWatchedByYear = cache(
       year: number | string;
     }>,
   ) => {
-    const items = await getAllWatchedByDate({
+    const items = await getAllWatched({
       userId: input.userId,
       startDate: new Date(`${input.year}-01-01`),
       endDate: new Date(`${input.year}-12-31`),

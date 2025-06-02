@@ -2,18 +2,30 @@ import { Suspense } from 'react';
 
 import { notFound } from 'next/navigation';
 
+import { cachedUser } from '@/app/cached';
 import Grid from '@/components/Grid/Grid';
 import ListGrid from '@/components/Grid/ListGrid';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
-import { findUser } from '@/lib/db/user';
 
 type Props = Readonly<{
   params: Promise<{ username: string }>;
 }>;
 
+export async function generateMetadata({ params }: Props) {
+  const { username } = await params;
+  const user = await cachedUser({ username });
+  if (!user) {
+    return {};
+  }
+
+  return {
+    title: `${user.username}'s finished series`,
+  };
+}
+
 export default async function WatchedPage({ params }: Props) {
   const { username } = await params;
-  const user = await findUser({ username });
+  const user = await cachedUser({ username });
   if (!user) {
     return notFound();
   }

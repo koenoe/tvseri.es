@@ -30,6 +30,7 @@ new sst.aws.Nextjs('tvseries', {
   link: [
     dominantColor,
     dynamo.cache,
+    dynamo.follow,
     dynamo.lists,
     dynamo.otp,
     dynamo.preferredImages,

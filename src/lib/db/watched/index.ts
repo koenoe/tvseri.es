@@ -627,25 +627,30 @@ export const getWatchedForSeason = async (
   };
 };
 
-export const getWatchedByDate = async (
+export const getWatched = async (
   input: Readonly<{
     userId: string;
-    startDate: Date;
-    endDate: Date;
+    startDate?: Date;
+    endDate?: Date;
     options?: PaginationOptions;
   }>,
 ) => {
   const { limit = 20, cursor, sortDirection = 'desc' } = input.options ?? {};
+  let KeyConditionExpression = 'gsi2pk = :pk';
+  const ExpressionAttributeValues: Record<string, string | number> = {
+    ':pk': `USER#${input.userId}#WATCHED`,
+  };
+  if (input.startDate && input.endDate) {
+    KeyConditionExpression += ' AND gsi2sk BETWEEN :start AND :end';
+    ExpressionAttributeValues[':start'] = input.startDate.getTime();
+    ExpressionAttributeValues[':end'] = input.endDate.getTime();
+  }
 
   const command = new QueryCommand({
     TableName: Resource.Watched.name,
     IndexName: 'gsi2',
-    KeyConditionExpression: 'gsi2pk = :pk AND gsi2sk BETWEEN :start AND :end',
-    ExpressionAttributeValues: marshall({
-      ':pk': `USER#${input.userId}#WATCHED`,
-      ':start': input.startDate.getTime(),
-      ':end': input.endDate.getTime(),
-    }),
+    KeyConditionExpression,
+    ExpressionAttributeValues: marshall(ExpressionAttributeValues),
     ScanIndexForward: sortDirection === 'asc',
     Limit: limit,
     ExclusiveStartKey: cursor
@@ -669,18 +674,18 @@ export const getWatchedByDate = async (
   };
 };
 
-export const getAllWatchedByDate = async (
+export const getAllWatched = async (
   input: Readonly<{
     userId: string;
-    startDate: Date;
-    endDate: Date;
+    startDate?: Date;
+    endDate?: Date;
   }>,
 ): Promise<WatchedItem[]> => {
   const allItems: WatchedItem[] = [];
   let cursor: string | null = null;
 
   do {
-    const result = await getWatchedByDate({
+    const result = await getWatched({
       userId: input.userId,
       startDate: input.startDate,
       endDate: input.endDate,
@@ -697,22 +702,28 @@ export const getAllWatchedByDate = async (
   return allItems;
 };
 
-export const getWatchedCountByDate = async (
+export const getWatchedCount = async (
   input: Readonly<{
     userId: string;
-    startDate: Date;
-    endDate: Date;
+    startDate?: Date;
+    endDate?: Date;
   }>,
 ) => {
+  let KeyConditionExpression = 'gsi2pk = :pk';
+  const ExpressionAttributeValues: Record<string, string | number> = {
+    ':pk': `USER#${input.userId}#WATCHED`,
+  };
+  if (input.startDate && input.endDate) {
+    KeyConditionExpression += ' AND gsi2sk BETWEEN :start AND :end';
+    ExpressionAttributeValues[':start'] = input.startDate.getTime();
+    ExpressionAttributeValues[':end'] = input.endDate.getTime();
+  }
+
   const command = new QueryCommand({
     TableName: Resource.Watched.name,
     IndexName: 'gsi2',
-    KeyConditionExpression: 'gsi2pk = :pk AND gsi2sk BETWEEN :start AND :end',
-    ExpressionAttributeValues: marshall({
-      ':pk': `USER#${input.userId}#WATCHED`,
-      ':start': input.startDate.getTime(),
-      ':end': input.endDate.getTime(),
-    }),
+    KeyConditionExpression,
+    ExpressionAttributeValues: marshall(ExpressionAttributeValues),
     Select: 'COUNT',
   });
 

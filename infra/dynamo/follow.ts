@@ -25,13 +25,13 @@ export const follow = new sst.aws.Dynamo('Follow', {
   },
   globalIndexes: {
     // Get all followers of a user, sorted by when they followed
-    followersIndex: {
+    gsi1: {
       hashKey: 'gsi1pk',
       rangeKey: 'gsi1sk',
       projection: 'all',
     },
     // Get all users someone is following, sorted by when they followed them
-    followingIndex: {
+    gsi2: {
       hashKey: 'gsi2pk',
       rangeKey: 'gsi2sk',
       projection: 'all',

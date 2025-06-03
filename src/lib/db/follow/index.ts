@@ -84,7 +84,7 @@ export async function getFollowers(
   const { limit = 20, cursor, sortDirection = 'desc' } = options;
   const params = {
     TableName: Resource.Follow.name,
-    IndexName: 'followersIndex',
+    IndexName: 'gsi1',
     KeyConditionExpression: 'gsi1pk = :gsi1pk',
     ExpressionAttributeValues: marshall({ ':gsi1pk': followersPk(userId) }),
     Limit: limit,
@@ -115,7 +115,7 @@ export async function getFollowing(
   const { limit = 20, cursor, sortDirection = 'desc' } = options;
   const params = {
     TableName: Resource.Follow.name,
-    IndexName: 'followingIndex',
+    IndexName: 'gsi2',
     KeyConditionExpression: 'gsi2pk = :gsi2pk',
     ExpressionAttributeValues: marshall({ ':gsi2pk': followingPk(userId) }),
     Limit: limit,
@@ -139,7 +139,7 @@ export async function getFollowing(
 export async function getFollowerCount(userId: string): Promise<number> {
   const command = new QueryCommand({
     TableName: Resource.Follow.name,
-    IndexName: 'followersIndex',
+    IndexName: 'gsi1',
     KeyConditionExpression: 'gsi1pk = :gsi1pk',
     ExpressionAttributeValues: marshall({ ':gsi1pk': followersPk(userId) }),
     Select: 'COUNT',
@@ -151,7 +151,7 @@ export async function getFollowerCount(userId: string): Promise<number> {
 export async function getFollowingCount(userId: string): Promise<number> {
   const command = new QueryCommand({
     TableName: Resource.Follow.name,
-    IndexName: 'followingIndex',
+    IndexName: 'gsi2',
     KeyConditionExpression: 'gsi2pk = :gsi2pk',
     ExpressionAttributeValues: marshall({ ':gsi2pk': followingPk(userId) }),
     Select: 'COUNT',

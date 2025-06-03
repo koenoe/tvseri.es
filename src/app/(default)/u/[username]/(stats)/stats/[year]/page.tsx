@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 
 import { notFound } from 'next/navigation';
 
+import { cachedUser } from '@/app/cached';
 import Page from '@/components/Page/Page';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
@@ -22,7 +23,6 @@ import SvgGlowAnimatePattern from '@/components/Stats/SvgGlowAnimatePattern';
 import WatchedByYear from '@/components/Stats/Watched';
 import WatchedPerWeekContainer from '@/components/Stats/WatchedPerWeekContainer';
 import WorldMapContainer from '@/components/Stats/WorldMapContainer';
-import { findUser } from '@/lib/db/user';
 
 type Props = Readonly<{
   params: Promise<{ username: string; year: number }>;
@@ -30,7 +30,7 @@ type Props = Readonly<{
 
 export async function generateMetadata({ params }: Props) {
   const { username } = await params;
-  const user = await findUser({ username });
+  const user = await cachedUser({ username });
   if (!user) {
     return {};
   }
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function StatsByYearPage({ params }: Props) {
   const { username, year } = await params;
-  const user = await findUser({ username });
+  const user = await cachedUser({ username });
   if (!user) {
     return notFound();
   }

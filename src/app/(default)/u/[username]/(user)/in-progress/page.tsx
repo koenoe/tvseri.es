@@ -2,16 +2,28 @@ import { Suspense } from 'react';
 
 import { notFound } from 'next/navigation';
 
+import { cachedUser } from '@/app/cached';
 import InProgressGrid from '@/components/Grid/InProgressGrid';
-import { findUser } from '@/lib/db/user';
 
 type Props = Readonly<{
   params: Promise<{ username: string }>;
 }>;
 
+export async function generateMetadata({ params }: Props) {
+  const { username } = await params;
+  const user = await cachedUser({ username });
+  if (!user) {
+    return {};
+  }
+
+  return {
+    title: `${user.username}'s in progress`,
+  };
+}
+
 export default async function InProgressPage({ params }: Props) {
   const { username } = await params;
-  const user = await findUser({ username });
+  const user = await cachedUser({ username });
   if (!user) {
     return notFound();
   }

@@ -3,9 +3,7 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 
 import { cachedUser } from '@/app/cached';
-import Grid from '@/components/Grid/Grid';
-import ListGrid from '@/components/Grid/ListGrid';
-import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
+import CardContainer from '@/components/Follow/CardContainer';
 
 type Props = Readonly<{
   params: Promise<{ username: string }>;
@@ -19,11 +17,11 @@ export async function generateMetadata({ params }: Props) {
   }
 
   return {
-    title: `${user.username}'s finished series`,
+    title: `${user.username}'s friends`,
   };
 }
 
-export default async function WatchedPage({ params }: Props) {
+export default async function SocialPage({ params }: Props) {
   const { username } = await params;
   const user = await cachedUser({ username });
   if (!user) {
@@ -31,16 +29,13 @@ export default async function WatchedPage({ params }: Props) {
   }
 
   return (
-    <Suspense
-      fallback={
-        <Grid>
-          {[...Array(18)].map((_, index) => (
-            <SkeletonPoster key={index} />
-          ))}
-        </Grid>
-      }
-    >
-      <ListGrid user={user} listId="WATCHED" />
-    </Suspense>
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <Suspense fallback={null}>
+        <CardContainer username={user.username} type="following" />
+      </Suspense>
+      <Suspense fallback={null}>
+        <CardContainer username={user.username} type="followers" />
+      </Suspense>
+    </div>
   );
 }

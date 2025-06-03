@@ -1,5 +1,5 @@
 import { cachedTvSeries } from '@/app/cached';
-import { getWatchedByDate } from '@/lib/db/watched';
+import { getWatched } from '@/lib/db/watched';
 import { fetchTvSeriesEpisode } from '@/lib/tmdb';
 
 import Spotlight from './Spotlight';
@@ -13,7 +13,7 @@ export default async function SpotlightContainer({
   year: number;
   boundary: 'first' | 'last';
 }>) {
-  const { items } = await getWatchedByDate({
+  const { items } = await getWatched({
     userId,
     startDate: new Date(`${year}-01-01`),
     endDate: new Date(`${year}-12-31`),

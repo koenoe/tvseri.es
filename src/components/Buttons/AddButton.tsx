@@ -1,49 +1,52 @@
 'use client';
 
-import { useCallback, useTransition } from 'react';
-
+import { cva } from 'class-variance-authority';
 import { motion } from 'motion/react';
 
-import { useActionButtons } from './ActionButtonsProvider';
-import CircleButton from './CircleButton';
+import CircleButton, { type ButtonVariantProps } from './CircleButton';
+
+const svgStyles = cva('', {
+  variants: {
+    size: {
+      small: ['size-3 md:size-4'],
+      medium: ['size-5 md:size-6'],
+    },
+  },
+  defaultVariants: {
+    size: 'medium',
+  },
+});
 
 export default function AddButton({
-  action,
-}: Readonly<{
-  action: (value: boolean, listType: 'favorites' | 'watchlist') => void;
-}>) {
-  const [{ isWatchlisted }, setState] = useActionButtons();
-  const [isPending, startTransition] = useTransition();
-  const handleOnClick = useCallback(
-    (value: boolean) => {
-      setState((prevState) => ({
-        ...prevState,
-        isWatchlisted: value,
-      }));
-      startTransition(async () => {
-        try {
-          await action(value, 'watchlist');
-        } catch (error) {
-          console.error(error);
-        }
-      });
-    },
-    [action, setState],
-  );
-
+  isActive,
+  isDisabled,
+  onClick,
+  title,
+  size,
+}: ButtonVariantProps &
+  Readonly<{
+    isActive?: boolean;
+    isDisabled?: boolean;
+    onClick?: (
+      value: boolean,
+      event: React.MouseEvent<HTMLButtonElement>,
+    ) => void;
+    title?: string;
+  }>) {
   return (
     <CircleButton
-      isActive={isWatchlisted}
-      onClick={handleOnClick}
-      isDisabled={isPending}
-      title={isWatchlisted ? 'Remove from watchlist' : 'Add to watchlist'}
+      isActive={isActive}
+      onClick={onClick}
+      isDisabled={isDisabled}
+      title={title}
+      size={size}
     >
       <svg
-        className="size-5 md:size-6"
+        className={svgStyles({ size })}
         viewBox="0 0 512 512"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {isWatchlisted ? (
+        {isActive ? (
           <motion.polyline
             points="416 128 192 384 96 288"
             style={{

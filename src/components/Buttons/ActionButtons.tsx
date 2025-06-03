@@ -15,10 +15,10 @@ import {
 import { type TvSeries } from '@/types/tv-series';
 
 import ActionButtonsProvider from './ActionButtonsProvider';
-import AddButton from './AddButton';
 import ContextMenuButtonTvSeries from './ContextMenuButtonTvSeries';
 import LikeButton from './LikeButton';
 import WatchButton from './WatchButton';
+import WatchlistButton from './WatchlistButton';
 
 export default async function ActionButtons({
   id,
@@ -121,7 +121,7 @@ export default async function ActionButtons({
       >
         {shouldShowWatchButton && <WatchButton tvSeriesId={Number(id)} />}
         <LikeButton action={addToOrRemoveAction} />
-        <AddButton action={addToOrRemoveAction} />
+        <WatchlistButton action={addToOrRemoveAction} />
         {showContextMenuButton && (
           <ContextMenuButtonTvSeries
             tvSeries={tvSeries}
@@ -136,7 +136,7 @@ export default async function ActionButtons({
     <ActionButtonsProvider isFavorited={false} isWatchlisted={false}>
       {shouldShowWatchButton && <WatchButton tvSeriesId={Number(id)} />}
       <LikeButton action={addToOrRemoveAction} />
-      <AddButton action={addToOrRemoveAction} />
+      <WatchlistButton action={addToOrRemoveAction} />
       {showContextMenuButton && (
         <ContextMenuButtonTvSeries
           tvSeries={tvSeries}

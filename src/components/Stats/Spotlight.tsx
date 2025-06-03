@@ -1,5 +1,6 @@
 import { cx } from 'class-variance-authority';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import { type WatchedItem } from '@/lib/db/watched';
 import { type Episode, type TvSeries } from '@/types/tv-series';
@@ -22,7 +23,8 @@ export default function Spotlight({
   className?: string;
 }>) {
   return (
-    <div
+    <Link
+      href={`/tv/${tvSeries.id}/${tvSeries.slug}?season=${episode.seasonNumber}`}
       className={cx(
         "relative flex aspect-[16/14] flex-shrink-0 items-end overflow-clip rounded shadow-lg after:absolute after:inset-0 after:rounded after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:aspect-[16/10] lg:aspect-[16/8] xl:aspect-[16/12] 2xl:aspect-[16/10]",
         className,
@@ -59,6 +61,6 @@ export default function Spotlight({
           height={92}
         />
       )}
-    </div>
+    </Link>
   );
 }

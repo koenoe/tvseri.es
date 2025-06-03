@@ -13,3 +13,12 @@ export type User = Readonly<{
   username: string;
   version: number;
 }>;
+
+export type UserWithFollowInfo = User &
+  Readonly<{
+    isFollowing: boolean;
+    isFollower: boolean;
+    isMe: boolean;
+    followingCount: number;
+    followerCount: number;
+  }>;

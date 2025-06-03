@@ -33,10 +33,7 @@ function EpisodeCard({
     watchedItem?.watchProviderName || watchProvider?.name;
 
   return (
-    <div
-      key={episode.id}
-      className="relative flex flex-col gap-4 rounded-lg bg-black/10 p-4 md:flex-row md:items-center"
-    >
+    <div className="relative flex flex-col gap-4 rounded-lg bg-black/10 p-4 md:flex-row md:items-center">
       <div>
         <div className="flex flex-nowrap gap-3">
           <span className="flex h-6 w-14 flex-shrink-0 items-center justify-center rounded-md bg-white/10 text-center text-xs font-medium">

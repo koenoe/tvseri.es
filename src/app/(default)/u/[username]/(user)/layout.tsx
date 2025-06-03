@@ -58,7 +58,7 @@ export default async function Layout({
   return (
     <Page backgroundContext="dots">
       <div className="container">
-        <div className="mb-10 flex items-center justify-center space-x-6">
+        <div className="mb-10 flex items-center justify-between md:justify-center md:space-x-6">
           <Suspense
             fallback={
               <div className="flex flex-col space-y-1 md:space-y-2">
@@ -71,13 +71,13 @@ export default async function Layout({
           </Suspense>
           <Suspense
             fallback={
-              <div className="flex items-center justify-center space-x-2">
+              <div className="flex space-x-2">
                 <SkeletonCircleButton />
                 <SkeletonCircleButton />
               </div>
             }
           >
-            <div className="flex items-center justify-center space-x-2">
+            <div className="flex space-x-2">
               <UserButtons username={username} />
             </div>
           </Suspense>

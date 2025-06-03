@@ -14,18 +14,19 @@ function Item({
   user: UserWithFollowInfo;
 }>) {
   return (
-    <div className="relative flex flex-col gap-4 rounded-lg bg-black/10 p-4 md:flex-row md:items-center">
+    <div className="relative flex flex-row gap-3 rounded-lg bg-black/10 p-3 md:flex-row md:items-center md:gap-4 md:p-4">
       <div>
         <div className="flex flex-nowrap gap-3">
           <Link
-            className="w-[calc(100%-6.5rem)] truncate md:w-full"
+            className="w-full max-w-32 truncate md:max-w-max"
+            title={user.username}
             href={`/u/${user.username}`}
           >
-            {user.username}
+            {user.username} asd asd asd asd asd asd
           </Link>
         </div>
-        <div className="mt-1 flex w-full gap-1.5 text-xs text-white/50">
-          <div className="flex items-center space-x-1 text-xs text-white/50">
+        <div className="mt-1 inline-flex gap-1.5 text-[0.65rem] text-white/50 md:text-xs">
+          <div className="flex items-center space-x-1">
             <span>
               {user.followerCount.toLocaleString()} follower
               {user.followerCount !== 1 ? 's' : ''}
@@ -36,9 +37,9 @@ function Item({
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-4 md:ml-auto">
+      <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-3 md:relative md:right-auto md:top-auto md:ml-auto md:-translate-y-0 md:gap-4">
         {user.isFollower ? (
-          <span className="cursor-default rounded bg-white/20 px-2.5 py-1.5 text-[0.65rem] font-semibold uppercase tracking-wider text-white">
+          <span className="cursor-default text-nowrap rounded bg-white/20 px-1.5 py-1 text-[0.5rem] font-semibold uppercase text-white md:px-2.5 md:py-1.5 md:text-[0.65rem] md:tracking-wider">
             Follows you
           </span>
         ) : null}

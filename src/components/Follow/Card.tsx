@@ -57,11 +57,11 @@ function Card({
   }, [fetchItems, nextCursor]);
 
   return (
-    <div className="rounded-lg bg-white/5 p-6">
+    <div className="rounded-lg bg-white/5 p-4 md:p-6">
       <div className="relative w-full">
         <h2 className="w-full text-lg font-medium">{title}</h2>
       </div>
-      <div className="flex flex-col gap-2 pt-6">
+      <div className="flex flex-col gap-2 pt-4 md:pt-6">
         {items.map((user) => (
           <Item key={user.id} user={user} />
         ))}

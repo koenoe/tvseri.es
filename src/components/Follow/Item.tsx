@@ -22,7 +22,7 @@ function Item({
             title={user.username}
             href={`/u/${user.username}`}
           >
-            {user.username} asd asd asd asd asd asd
+            {user.username}
           </Link>
         </div>
         <div className="mt-1 inline-flex gap-1.5 text-[0.65rem] text-white/50 md:text-xs">

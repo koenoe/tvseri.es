@@ -2,17 +2,20 @@
 
 import { useCallback, useOptimistic, useState, useTransition } from 'react';
 
+import { toggleFollow } from '@/app/actions';
+
 import AddButton from './AddButton';
+import { type ButtonVariantProps } from './CircleButton';
 
 export default function FollowButton({
   isFollowing: isFollowingFromProps,
-  action,
   username,
-}: Readonly<{
-  isFollowing: boolean;
-  action: (value: boolean) => void;
-  username: string;
-}>) {
+  size,
+}: ButtonVariantProps &
+  Readonly<{
+    isFollowing: boolean;
+    username: string;
+  }>) {
   const [isFollowing, setIsFollowing] = useState(isFollowingFromProps);
   const [optimisticIsFollowing, setOptimisticIsFollowing] = useOptimistic(
     isFollowing,
@@ -25,7 +28,7 @@ export default function FollowButton({
         setOptimisticIsFollowing(value);
 
         try {
-          await action(value);
+          await toggleFollow(value, username);
 
           setIsFollowing(value);
         } catch (error) {
@@ -33,11 +36,12 @@ export default function FollowButton({
         }
       });
     },
-    [action, setOptimisticIsFollowing],
+    [setOptimisticIsFollowing, username],
   );
 
   return (
     <AddButton
+      size={size}
       isActive={optimisticIsFollowing}
       onClick={handleOnClick}
       isDisabled={isPending}

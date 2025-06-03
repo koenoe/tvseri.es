@@ -1,6 +1,6 @@
 import { cachedUser } from '@/app/cached';
 import auth from '@/auth';
-import { follow, isFollowing, unfollow } from '@/lib/db/follow';
+import { isFollowing as _isFollowing } from '@/lib/db/follow';
 
 import ContextMenuButtonUser from './ContextMenuButtonUser';
 import EditProfileButton from './EditProfileButton';
@@ -16,34 +16,9 @@ export default async function UserButtons({
     return null;
   }
 
-  async function followAction(value: boolean) {
-    'use server';
-
-    const { user: userFromSession, session } = await auth();
-    if (!userFromSession || !session) {
-      return;
-    }
-
-    const user = await cachedUser({ username });
-    if (!user || user.id === userFromSession.id) {
-      return;
-    }
-
-    const payload = {
-      userId: userFromSession.id,
-      targetUserId: user.id,
-    };
-
-    if (value) {
-      await follow(payload);
-    } else {
-      await unfollow(payload);
-    }
-  }
-
   const { user: userFromSession } = await auth();
   if (userFromSession) {
-    const _isFollowing = await isFollowing({
+    const isFollowing = await _isFollowing({
       userId: userFromSession?.id,
       targetUserId: user.id,
     });
@@ -53,11 +28,7 @@ export default async function UserButtons({
         {userFromSession.id === user.id ? (
           <EditProfileButton />
         ) : (
-          <FollowButton
-            username={username}
-            action={followAction}
-            isFollowing={_isFollowing}
-          />
+          <FollowButton username={username} isFollowing={isFollowing} />
         )}
         <ContextMenuButtonUser user={user} />
       </>
@@ -66,11 +37,7 @@ export default async function UserButtons({
 
   return (
     <>
-      <FollowButton
-        isFollowing={false}
-        action={followAction}
-        username={username}
-      />
+      <FollowButton isFollowing={false} username={username} />
       <ContextMenuButtonUser user={user} />
     </>
   );

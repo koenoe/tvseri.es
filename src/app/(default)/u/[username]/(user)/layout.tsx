@@ -46,6 +46,10 @@ export default async function Layout({
       href: `/u/${username}/favorites`,
     },
     {
+      label: 'Social',
+      href: `/u/${username}/social`,
+    },
+    {
       label: 'Stats',
       href: `/u/${username}/stats/${year}`,
     },

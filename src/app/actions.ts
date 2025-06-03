@@ -6,6 +6,7 @@ import isEqual from 'react-fast-compare';
 import slugify from 'slugify';
 
 import auth from '@/auth';
+import { follow, unfollow } from '@/lib/db/follow';
 import { createOTP, validateOTP } from '@/lib/db/otp';
 import {
   createSession,
@@ -27,6 +28,8 @@ import {
 } from '@/lib/tmdb';
 import { encryptToken } from '@/lib/token';
 import getBaseUrl from '@/utils/getBaseUrl';
+
+import { cachedUser } from './cached';
 
 export async function loginWithTmdb(pathname = '/') {
   const cookieStore = await cookies();
@@ -237,5 +240,28 @@ export async function removeTmdbAccount() {
       message: error.message,
       success: false,
     };
+  }
+}
+
+export async function toggleFollow(value: boolean, username: string) {
+  const { user: userFromSession, session } = await auth();
+  if (!userFromSession || !session) {
+    return;
+  }
+
+  const user = await cachedUser({ username });
+  if (!user || user.id === userFromSession.id) {
+    return;
+  }
+
+  const payload = {
+    userId: userFromSession.id,
+    targetUserId: user.id,
+  };
+
+  if (value) {
+    await follow(payload);
+  } else {
+    await unfollow(payload);
   }
 }

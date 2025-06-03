@@ -14,7 +14,7 @@ export default async function ListGrid({
 
   return (
     <InfiniteGrid
-      endpoint={`/api/u/${user.username}/${listId.toLowerCase()}`}
+      endpoint={`/api/u/${user.username}/list/${listId.toLowerCase()}`}
       items={response.items}
       nextPageOrCursor={response.nextCursor}
     />

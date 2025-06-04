@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 
 import { cachedUser } from '@/app/cached';
 import CardContainer from '@/components/Follow/CardContainer';
+import SkeletonCard from '@/components/Follow/SkeletonCard';
 
 type Props = Readonly<{
   params: Promise<{ username: string }>;
@@ -29,13 +30,17 @@ export default async function SocialPage({ params }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      <Suspense fallback={null}>
-        <CardContainer username={user.username} type="following" />
-      </Suspense>
-      <Suspense fallback={null}>
-        <CardContainer username={user.username} type="followers" />
-      </Suspense>
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+      <div className="flex-1">
+        <Suspense fallback={<SkeletonCard />}>
+          <CardContainer username={user.username} type="following" />
+        </Suspense>
+      </div>
+      <div className="flex-1">
+        <Suspense fallback={<SkeletonCard />}>
+          <CardContainer username={user.username} type="followers" />
+        </Suspense>
+      </div>
     </div>
   );
 }

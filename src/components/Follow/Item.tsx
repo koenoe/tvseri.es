@@ -37,7 +37,7 @@ function Item({
           </div>
         </div>
       </div>
-      <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-3 md:relative md:right-auto md:top-auto md:ml-auto md:-translate-y-0 md:gap-4">
+      <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-4 md:relative md:right-auto md:top-auto md:ml-auto md:-translate-y-0 md:gap-5">
         {user.isFollower ? (
           <span className="cursor-default text-nowrap rounded bg-white/20 px-1.5 py-1 text-[0.5rem] font-semibold uppercase text-white md:px-2.5 md:py-1.5 md:text-[0.65rem] md:tracking-wider">
             Follows you

@@ -2,11 +2,17 @@ import { type SQSHandler, type SQSEvent } from 'aws-lambda';
 
 import { cachedTvSeries } from '@/lib/cached';
 import { markWatched } from '@/lib/db/watched';
-import { findByExternalId } from '@/lib/tmdb';
+import {
+  fetchTvSeriesEpisode,
+  findByExternalId,
+  searchTvSeries,
+} from '@/lib/tmdb';
 import { type TmdbExternalSource } from '@/lib/tmdb/helpers';
+import { type Episode, type TvSeries } from '@/types/tv-series';
 import { type WatchProvider } from '@/types/watch-provider';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 
+type EpisodeWithTvSeriesId = Episode & { tvSeriesId: number };
 type JellyfinMetadata = unknown;
 
 export type PlexMetadata = Readonly<{
@@ -96,37 +102,6 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
         continue;
       }
 
-      const metadata = normalizePlexMetadata(payload.metadata.plex);
-      if (!metadata.externalIds) {
-        console.error(
-          'No external IDs found, skipping',
-          JSON.stringify(payload),
-        );
-        continue;
-      }
-
-      const searches = (['imdb_id', 'tvdb_id'] as const).map((source) => {
-        const id = metadata.externalIds?.[source];
-        return id
-          ? findByExternalId({
-              externalId: id,
-              externalSource: source,
-            })
-          : Promise.resolve(undefined);
-      });
-
-      const episode = (await Promise.all(searches)).find(
-        (r) => r?.episodes.length,
-      )?.episodes[0];
-
-      if (!episode) {
-        // TODO: fuzzy matching by title, year etc.
-        console.error('No episode found, skipping', JSON.stringify(payload));
-        continue;
-      }
-
-      const tvSeries = await cachedTvSeries(episode.tvSeriesId);
-      // FIXME: make it prettier, lol
       const watchProvider = {
         id: 0,
         name: 'Plex',
@@ -134,19 +109,75 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
         logoPath: '/vLZKlXUNDcZR7ilvfY9Wr9k80FZ.jpg',
       } as WatchProvider;
 
-      const markWatchedPayload = {
+      const metadata = normalizePlexMetadata(payload.metadata.plex);
+
+      // Try to find episode by external IDs first
+      let episode: Episode | undefined = undefined;
+      let tvSeries: TvSeries | undefined = undefined;
+
+      if (metadata.externalIds) {
+        const searches = (['imdb_id', 'tvdb_id'] as const).map((source) => {
+          const id = metadata.externalIds?.[source];
+          return id
+            ? findByExternalId({
+                externalId: id,
+                externalSource: source,
+              })
+            : Promise.resolve(undefined);
+        });
+
+        const externalEpisode = (await Promise.all(searches)).find(
+          (r) => r?.episodes.length,
+        )?.episodes[0] as EpisodeWithTvSeriesId | undefined;
+
+        if (externalEpisode) {
+          episode = externalEpisode;
+          tvSeries = await cachedTvSeries(externalEpisode.tvSeriesId);
+        }
+      }
+
+      // If no episode found via external IDs or no external IDs, try fuzzy search
+      if (!episode) {
+        const fuzzyResult = await searchTvSeries(metadata.seriesTitle, {
+          year: metadata.year,
+        });
+
+        if (fuzzyResult.length > 0) {
+          const tvSeriesFromResult = fuzzyResult[0];
+          const episodeFromResult = await fetchTvSeriesEpisode(
+            tvSeriesFromResult.id,
+            metadata.seasonNumber,
+            metadata.episodeNumber,
+          );
+
+          if (episodeFromResult) {
+            episode = episodeFromResult;
+            tvSeries = tvSeriesFromResult;
+          }
+        }
+      }
+
+      // If still no episode found, skip
+      if (!episode || !tvSeries) {
+        const reason = !metadata.externalIds
+          ? 'No external IDs found in payload, and no fuzzy result'
+          : 'No episode found via external IDs or fuzzy search';
+        console.error(`${reason}, skipping`, JSON.stringify(payload));
+        continue;
+      }
+
+      // Mark as watched and log success
+      await markWatched({
         userId: payload.userId,
-        tvSeries: tvSeries!,
+        tvSeries: tvSeries,
         seasonNumber: episode.seasonNumber,
         episodeNumber: episode.episodeNumber,
         runtime: episode.runtime,
         watchProvider,
-      };
-
-      await markWatched(markWatchedPayload);
+      });
 
       console.log(
-        `[SUCCESS] Plex | ${tvSeries!.title} - ${formatSeasonAndEpisode({ episodeNumber: episode.episodeNumber, seasonNumber: episode.seasonNumber })} "${episode.title}" | User: ${payload.userId}`,
+        `[SUCCESS] Plex | ${tvSeries.title} - ${formatSeasonAndEpisode({ episodeNumber: episode.episodeNumber, seasonNumber: episode.seasonNumber })} "${episode.title}" | User: ${payload.userId}`,
       );
     }
   } catch (error) {

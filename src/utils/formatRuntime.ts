@@ -3,15 +3,19 @@ export default function formatRuntime(
   showMinutes = true,
 ): string {
   if (!showMinutes) {
-    // Round to nearest hour before calculating days
     minutes = Math.round(minutes / 60) * 60;
   }
 
-  const days = Math.floor(minutes / (24 * 60));
+  const weeks = Math.floor(minutes / (7 * 24 * 60));
+  const days = Math.floor((minutes % (7 * 24 * 60)) / (24 * 60));
   const hours = Math.floor((minutes % (24 * 60)) / 60);
   const mins = minutes % 60;
 
   const parts: string[] = [];
+
+  if (weeks > 0) {
+    parts.push(`${weeks}w`);
+  }
 
   if (days > 0) {
     parts.push(`${days}d`);

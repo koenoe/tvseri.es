@@ -15,7 +15,7 @@ export const cachedTotalRuntime = cache(async ({ userId }: Input) => {
   const key = `total-runtime:${userId}`;
   const cachedValue = await getCacheItem<number>(key);
   if (cachedValue) {
-    return cachedValue;
+    // return cachedValue;
   }
 
   const items = await getAllWatched({ userId });

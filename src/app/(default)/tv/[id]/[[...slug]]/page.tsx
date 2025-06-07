@@ -299,26 +299,24 @@ export default async function TvSeriesDetailsPage({
               </div>
             </div>
 
-            <div className="flex flex-col gap-6">
-              {tvSeries.network && (
-                <div className="flex flex-col flex-nowrap gap-1 text-sm">
-                  <div className="opacity-60">Network</div>
-                  <Link
-                    href={`/discover?with_networks=${tvSeries.network.id}`}
-                    prefetch={false}
-                  >
-                    <Image
-                      src={tvSeries.network.logo}
-                      alt={tvSeries.network.name}
-                      width={96}
-                      height={96}
-                      unoptimized
-                      className="brightness-0 invert"
-                    />
-                  </Link>
-                </div>
-              )}
-            </div>
+            {tvSeries.network && (
+              <div className="flex flex-col flex-nowrap gap-3 text-sm">
+                <div className="opacity-60">Network</div>
+                <Link
+                  href={`/discover?with_networks=${tvSeries.network.id}`}
+                  prefetch={false}
+                >
+                  <Image
+                    src={tvSeries.network.logo}
+                    alt={tvSeries.network.name}
+                    width={96}
+                    height={96}
+                    unoptimized
+                    className="brightness-0 invert"
+                  />
+                </Link>
+              </div>
+            )}
           </div>
         </div>
         <div className="z-5 pointer-events-none absolute inset-0 h-full w-full bg-black/10" />

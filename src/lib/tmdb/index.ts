@@ -8,6 +8,7 @@ import {
 import { type Account } from '@/types/account';
 import { type CountryOrLanguage } from '@/types/country-language';
 import { type Genre } from '@/types/genre';
+import { type Keyword } from '@/types/keyword';
 import { type Movie } from '@/types/movie';
 import { type Person } from '@/types/person';
 import type { Episode, Season, TvSeries } from '@/types/tv-series';
@@ -54,6 +55,7 @@ import {
   normalizeTvSeriesEpisode,
   type TmdbFindByIdResults,
   type TmdbExternalSource,
+  type TmdbTvSeriesKeywords,
 } from './helpers';
 import nextPlugin from '../betterFetchNextPlugin';
 import { getCacheItem, setCacheItem } from '../db/cache';
@@ -495,6 +497,19 @@ export async function fetchTvSeriesSimilar(
     .map((series) => {
       return normalizeTvSeries(series as TmdbTvSeries);
     });
+}
+
+export async function fetchTvSeriesKeywords(
+  id: number | string,
+): Promise<Keyword[] | undefined> {
+  const { results } = (await tmdbFetch(
+    `/3/tv/${id}/keywords`,
+  )) as TmdbTvSeriesKeywords;
+
+  return results?.map((keyword) => ({
+    id: keyword.id,
+    name: String(keyword.name),
+  }));
 }
 
 export async function fetchTvSeriesSeason(

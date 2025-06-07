@@ -36,6 +36,9 @@ export type TmdbTvSeriesRecommendations =
 export type TmdbTvSeriesSimilar =
   paths[`/3/tv/${number}/similar`]['get']['responses']['200']['content']['application/json'];
 
+export type TmdbTvSeriesKeywords =
+  paths[`/3/tv/${number}/keywords`]['get']['responses']['200']['content']['application/json'];
+
 export type TmdbTvSeriesSeason =
   paths[`/3/tv/${number}/season/${number}`]['get']['responses']['200']['content']['application/json'];
 
@@ -350,6 +353,16 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     .sort((a, b) =>
       a.code === originalLanguage ? -1 : b.code === originalLanguage ? 1 : 0,
     );
+  const firstNetwork = series.networks?.[0];
+  const network = firstNetwork
+    ? {
+        name: firstNetwork.name as string,
+        id: firstNetwork.id,
+        logo: firstNetwork.logo_path
+          ? generateTmdbImageUrl(firstNetwork.logo_path, 'w500')
+          : '',
+      }
+    : undefined;
 
   return {
     id: series.id,
@@ -369,6 +382,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     tagline: series.tagline ?? '',
     // @ts-expect-error genre_ids is not defined in the type
     genres: normalizeGenres(series.genres ?? series.genre_ids),
+    network,
     numberOfEpisodes: series.number_of_episodes ?? 0,
     numberOfAiredEpisodes,
     numberOfSeasons: series.number_of_seasons ?? 0,
@@ -390,8 +404,10 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     seasons,
     slug,
     status,
+    type: series.type as string,
     voteAverage: series.vote_average,
     voteCount: series.vote_count,
+    website: series.homepage,
     ...images,
   };
 }

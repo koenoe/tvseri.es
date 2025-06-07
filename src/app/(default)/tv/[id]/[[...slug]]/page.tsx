@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 
 import { cachedTvSeries } from '@/app/cached';
@@ -10,6 +11,7 @@ import ContentRating from '@/components/ContentRating/ContentRating';
 import ExpandableCreators from '@/components/ExpandableList/ExpandableCreators';
 import ExpandableText from '@/components/ExpandableText/ExpandableText';
 import InfoLine from '@/components/InfoLine/InfoLine';
+import KeywordsContainer from '@/components/Keywords/KeywordsContainer';
 import EpisodesList from '@/components/List/EpisodesList';
 import RecommendationsList from '@/components/List/RecommendationsList';
 import Page from '@/components/Page/Page';
@@ -102,142 +104,224 @@ export default async function TvSeriesDetailsPage({
   }
 
   return (
-    <Page
-      backgroundColor={tvSeries.backdropColor}
-      backgroundImage={tvSeries.backdropImage}
-      backgroundVariant="dynamic"
-      backgroundContext="page"
-      usePersistentStore={false}
-    >
-      <div className="container">
-        <div className="relative flex h-[calc(85vh-16rem)] items-end md:h-[calc(65vh-8rem)]">
-          <div className="w-full xl:w-4/5 2xl:w-3/5">
-            {tvSeries.titleTreatmentImage ? (
-              <h1 className="relative mb-6 h-28 w-full md:h-40 md:w-[500px]">
-                <Image
-                  id="title-treatment"
-                  className="max-w-[500px] object-contain object-bottom md:object-left-bottom"
-                  src={tvSeries.titleTreatmentImage}
-                  alt=""
-                  priority
-                  fill
-                  draggable={false}
-                  unoptimized
-                />
-                <span className="hidden">{tvSeries.title}</span>
-              </h1>
-            ) : (
-              <h1 className="relative mb-6 w-full text-center text-3xl font-bold !leading-tight md:w-3/5 md:text-left md:text-4xl lg:text-5xl xl:text-6xl">
-                {tvSeries.title}
-              </h1>
-            )}
+    <>
+      <Page
+        backgroundColor={tvSeries.backdropColor}
+        backgroundImage={tvSeries.backdropImage}
+        backgroundVariant="dynamic"
+        backgroundContext="page"
+        usePersistentStore={false}
+      >
+        <div className="container">
+          <div className="relative flex h-[calc(85vh-16rem)] items-end md:h-[calc(65vh-8rem)]">
+            <div className="w-full xl:w-4/5 2xl:w-3/5">
+              {tvSeries.titleTreatmentImage ? (
+                <h1 className="relative mb-6 h-28 w-full md:h-40 md:w-[500px]">
+                  <Image
+                    id="title-treatment"
+                    className="max-w-[500px] object-contain object-bottom md:object-left-bottom"
+                    src={tvSeries.titleTreatmentImage}
+                    alt=""
+                    priority
+                    fill
+                    draggable={false}
+                    unoptimized
+                  />
+                  <span className="hidden">{tvSeries.title}</span>
+                </h1>
+              ) : (
+                <h1 className="relative mb-6 w-full text-center text-3xl font-bold !leading-tight md:w-3/5 md:text-left md:text-4xl lg:text-5xl xl:text-6xl">
+                  {tvSeries.title}
+                </h1>
+              )}
 
-            <div className="mb-4 flex w-full gap-4 md:gap-12">
-              <InfoLine
-                tvSeries={tvSeries}
-                className="md:gap-2 md:text-[0.8rem]"
-              >
-                <div className="ml-auto flex h-7 gap-2 md:ml-10">
-                  <Suspense
-                    fallback={
-                      <div className="flex h-7 min-w-7 animate-pulse rounded-sm bg-white/30" />
-                    }
-                  >
-                    <ContentRating id={tvSeries.id} />
-                  </Suspense>
-                  <Suspense
-                    fallback={
-                      <div className="flex h-7 min-w-7 animate-pulse rounded bg-white/30" />
-                    }
-                  >
-                    <WatchProvider id={tvSeries.id} />
-                  </Suspense>
-                </div>
-              </InfoLine>
-            </div>
-            {/* Note: we need to pass `tvSeries` here, because client component */}
-            <WatchedProgress tvSeries={tvSeries} />
-          </div>
-        </div>
-        <div className="w-full xl:w-4/5 2xl:w-3/5">
-          <ExpandableText className="mb-6">
-            {tvSeries.description}
-          </ExpandableText>
-
-          <div className="mb-6 flex items-center">
-            <Suspense
-              fallback={<SkeletonRating className="mr-auto md:mr-12" />}
-            >
-              <ImdbRating id={tvSeries.id} className="mr-auto md:mr-12" />
-            </Suspense>
-            <div className="flex gap-2 md:gap-3">
-              <Suspense
-                fallback={
-                  <>
-                    <SkeletonCircleButton />
-                    <SkeletonCircleButton />
-                    <SkeletonCircleButton />
-                    <SkeletonCircleButton />
-                  </>
-                }
-              >
-                <ActionButtons id={tvSeries.id} />
-              </Suspense>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-start gap-x-6 text-nowrap text-sm font-medium">
-            {tvSeries.createdBy.length > 0 && (
-              <ExpandableCreators creators={tvSeries.createdBy} />
-            )}
-
-            {/* {tvSeries.originCountry && (
-              <p className="flex flex-nowrap items-center gap-x-1 font-medium leading-loose">
-                <span className="opacity-60">Country:</span>
-                <Link
-                  key={tvSeries.originCountry.code}
-                  className="hover:underline"
-                  href={`/discover?with_origin_country=${tvSeries.originCountry.code}`}
+              <div className="mb-4 flex w-full gap-4 md:gap-12">
+                <InfoLine
+                  tvSeries={tvSeries}
+                  className="md:gap-2 md:text-[0.8rem]"
                 >
-                  {tvSeries.originCountry.name}
-                </Link>
-              </p>
-            )}
+                  <div className="ml-auto flex h-7 gap-2 md:ml-10">
+                    <Suspense
+                      fallback={
+                        <div className="flex h-7 min-w-7 animate-pulse rounded-sm bg-white/30" />
+                      }
+                    >
+                      <ContentRating id={tvSeries.id} />
+                    </Suspense>
+                    <Suspense
+                      fallback={
+                        <div className="flex h-7 min-w-7 animate-pulse rounded bg-white/30" />
+                      }
+                    >
+                      <WatchProvider id={tvSeries.id} />
+                    </Suspense>
+                  </div>
+                </InfoLine>
+              </div>
+              {/* Note: we need to pass `tvSeries` here, because client component */}
+              <WatchedProgress tvSeries={tvSeries} />
+            </div>
+          </div>
+          <div className="w-full xl:w-4/5 2xl:w-3/5">
+            <ExpandableText className="mb-6">
+              {tvSeries.description}
+            </ExpandableText>
 
-            {tvSeries.languages.length > 0 && (
-              <ExpandableLanguages languages={tvSeries.languages} />
-            )} */}
+            <div className="mb-6 flex items-center">
+              <Suspense
+                fallback={<SkeletonRating className="mr-auto md:mr-12" />}
+              >
+                <ImdbRating id={tvSeries.id} className="mr-auto md:mr-12" />
+              </Suspense>
+              <div className="flex gap-2 md:gap-3">
+                <Suspense
+                  fallback={
+                    <>
+                      <SkeletonCircleButton />
+                      <SkeletonCircleButton />
+                      <SkeletonCircleButton />
+                      <SkeletonCircleButton />
+                    </>
+                  }
+                >
+                  <ActionButtons id={tvSeries.id} />
+                </Suspense>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-start gap-x-6 text-nowrap text-sm font-medium">
+              {tvSeries.createdBy.length > 0 && (
+                <ExpandableCreators creators={tvSeries.createdBy} />
+              )}
+            </div>
+          </div>
+
+          <Suspense
+            fallback={
+              <SkeletonAvatars className="my-10 w-full lg:mb-7 lg:mt-14 xl:w-4/5 2xl:w-3/5" />
+            }
+          >
+            <Cast
+              className="my-10 w-full lg:mb-7 lg:mt-14 xl:w-4/5 2xl:w-3/5"
+              id={tvSeries.id}
+            />
+          </Suspense>
+        </div>
+        {tvSeries.numberOfEpisodes > 0 && tvSeries.seasons && (
+          <Suspense
+            fallback={
+              <SkeletonList className="mb-10 md:mb-16" variant="episode" />
+            }
+          >
+            <EpisodesList className="mb-10 md:mb-16" item={tvSeries} />
+          </Suspense>
+        )}
+        <Suspense fallback={<SkeletonList />}>
+          <RecommendationsList id={tvSeries.id} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <AddTvSeriesToStoreContainer id={tvSeries.id} />
+          <ValidateWatchedStatus id={tvSeries.id} />
+          <PreferredImagesForAdminContainer id={tvSeries.id} />
+        </Suspense>
+      </Page>
+      <div
+        className="relative z-10 w-full !bg-[var(--main-background-color)] py-10 md:py-16"
+        style={{
+          backgroundColor: tvSeries.backdropColor,
+        }}
+      >
+        <div className="container">
+          <h3 className="mb-4 text-2xl font-medium">Storyline</h3>
+          <div className="mb-10 grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-10">
+            <div className="col-span-1 lg:col-span-2">
+              <div className="relative rounded-xl bg-[rgba(255,255,255,0.035)] p-4 text-sm leading-loose">
+                {tvSeries.description}
+              </div>
+            </div>
+            <Suspense fallback={null}>
+              <KeywordsContainer tvSeriesId={tvSeries.id} />
+            </Suspense>
+          </div>
+          <h3 className="mb-6 text-2xl font-medium">Information</h3>
+          <div className="grid grid-cols-1 gap-x-10 gap-y-6 lg:grid-cols-3">
+            <div className="flex flex-col gap-6">
+              {tvSeries.originalTitle && (
+                <div className="flex flex-col flex-nowrap gap-1 text-sm">
+                  <div className="opacity-60">Original title</div>
+                  <div>{tvSeries.originalTitle}</div>
+                </div>
+              )}
+
+              {tvSeries.status && (
+                <div className="flex flex-col flex-nowrap gap-1 text-sm">
+                  <div className="opacity-60">Status</div>
+                  <div>{tvSeries.status}</div>
+                </div>
+              )}
+
+              {tvSeries.type && (
+                <div className="flex flex-col flex-nowrap gap-1 text-sm">
+                  <div className="opacity-60">Type</div>
+                  <div>{tvSeries.type}</div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-4">
+              {tvSeries.originCountry && (
+                <div className="flex flex-col flex-nowrap gap-1 text-sm">
+                  <div className="opacity-60">Country of origin</div>
+                  <Link
+                    className="hover:underline"
+                    href={`/discover?with_origin_country=${tvSeries.originCountry.code}`}
+                    prefetch={false}
+                  >
+                    {tvSeries.originCountry.name}
+                  </Link>
+                </div>
+              )}
+
+              <div className="flex flex-col flex-nowrap gap-1 text-sm">
+                <div className="opacity-60">Spoken languages</div>
+                <div className="flex flex-row flex-wrap gap-1 text-sm">
+                  {tvSeries.languages.map((language) => (
+                    <Link
+                      key={language.code}
+                      href={`/discover?with_original_language=${language.code}`}
+                      className="after:content-[',_'] last:after:content-none hover:underline"
+                    >
+                      {language.englishName}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              {tvSeries.network && (
+                <div className="flex flex-col flex-nowrap gap-3 text-sm">
+                  <div className="opacity-60">Network</div>
+                  <Link
+                    href={`/discover?with_networks=${tvSeries.network.id}`}
+                    prefetch={false}
+                  >
+                    <Image
+                      src={tvSeries.network.logo}
+                      alt={tvSeries.network.name}
+                      width={96}
+                      height={96}
+                      unoptimized
+                      className="brightness-0 invert"
+                    />
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-
-        <Suspense
-          fallback={
-            <SkeletonAvatars className="my-10 w-full lg:mb-7 lg:mt-14 xl:w-4/5 2xl:w-3/5" />
-          }
-        >
-          <Cast
-            className="my-10 w-full lg:mb-7 lg:mt-14 xl:w-4/5 2xl:w-3/5"
-            id={tvSeries.id}
-          />
-        </Suspense>
+        <div className="z-5 pointer-events-none absolute inset-0 h-full w-full bg-black/10" />
       </div>
-      {tvSeries.numberOfEpisodes > 0 && tvSeries.seasons && (
-        <Suspense
-          fallback={
-            <SkeletonList className="mb-10 md:mb-16" variant="episode" />
-          }
-        >
-          <EpisodesList className="mb-10 md:mb-16" item={tvSeries} />
-        </Suspense>
-      )}
-      <Suspense fallback={<SkeletonList />}>
-        <RecommendationsList id={tvSeries.id} />
-      </Suspense>
-      <Suspense fallback={null}>
-        <AddTvSeriesToStoreContainer id={tvSeries.id} />
-        <ValidateWatchedStatus id={tvSeries.id} />
-        <PreferredImagesForAdminContainer id={tvSeries.id} />
-      </Suspense>
-    </Page>
+    </>
   );
 }

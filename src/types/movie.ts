@@ -7,6 +7,7 @@ export type Movie = Omit<
   | 'hasAired'
   | 'lastAirDate'
   | 'lastEpisodeToAir'
+  | 'network'
   | 'numberOfAiredEpisodes'
   | 'numberOfEpisodes'
   | 'numberOfSeasons'
@@ -14,4 +15,5 @@ export type Movie = Omit<
   | 'releaseYear'
   | 'seasons'
   | 'status'
+  | 'type'
 >;

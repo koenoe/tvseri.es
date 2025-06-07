@@ -3,8 +3,10 @@
 import { useState } from 'react';
 
 import Link from 'next/link';
+import { twMerge } from 'tailwind-merge';
 
 export default function ExpandableList({
+  className,
   items,
   label,
   initialDisplayCount,
@@ -12,6 +14,7 @@ export default function ExpandableList({
   itemLabel,
   itemHref,
 }: Readonly<{
+  className?: string;
   items: unknown[];
   label: string;
   initialDisplayCount: number;
@@ -23,7 +26,12 @@ export default function ExpandableList({
   const displayedItems = showAll ? items : items.slice(0, initialDisplayCount);
 
   return (
-    <p className="flex flex-wrap items-center gap-x-1 font-medium leading-loose">
+    <p
+      className={twMerge(
+        'flex flex-wrap items-center gap-x-1 font-medium leading-loose',
+        className,
+      )}
+    >
       <span className="opacity-60">{label}:</span>
       {displayedItems.map((item, index) => (
         <Link

@@ -23,7 +23,8 @@ export default function BackgroundGlobalBase({
   return (
     <style global jsx>{`
       main,
-      main + footer {
+      main + div,
+      footer {
         background-color: var(--main-background-color) !important;
       }
     `}</style>

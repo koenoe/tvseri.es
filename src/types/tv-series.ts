@@ -44,6 +44,12 @@ type Country = Readonly<{
   code: string;
 }>;
 
+type Network = Readonly<{
+  name: string;
+  id: number;
+  logo: string;
+}>;
+
 export type TvSeries = Readonly<{
   backdropColor: string;
   backdropImage?: string;
@@ -60,6 +66,7 @@ export type TvSeries = Readonly<{
   lastAirDate: string;
   lastEpisodeToAir?: Episode | null;
   nextEpisodeToAir?: Episode | null;
+  network?: Network;
   numberOfEpisodes: number;
   numberOfAiredEpisodes: number;
   numberOfSeasons: number;
@@ -76,6 +83,8 @@ export type TvSeries = Readonly<{
   tagline: string;
   title: string;
   titleTreatmentImage?: string;
+  type: string;
   voteAverage: number;
   voteCount: number;
+  website?: string;
 }>;

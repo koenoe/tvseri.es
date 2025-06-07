@@ -290,6 +290,7 @@ export default async function TvSeriesDetailsPage({
                       key={language.code}
                       href={`/discover?with_original_language=${language.code}`}
                       className="after:content-[',_'] last:after:content-none hover:underline"
+                      prefetch={false}
                     >
                       {language.englishName}
                     </Link>

@@ -34,6 +34,7 @@ export default function InfoLine({
                 key={genre.id}
                 href={`/discover?with_genres=${genre.id}`}
                 className="hover:underline"
+                prefetch={false}
               >
                 {genre.name}
                 {index < tvSeries.genres.length - 1 ? ', ' : ''}
@@ -44,6 +45,7 @@ export default function InfoLine({
             <Link
               href={`/discover?with_genres=${tvSeries.genres?.[0].id}`}
               className="hover:underline"
+              prefetch={false}
             >
               {tvSeries.genres?.[0].name}
             </Link>

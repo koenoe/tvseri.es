@@ -268,7 +268,7 @@ export default async function TvSeriesDetailsPage({
               )}
             </div>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-6">
               {tvSeries.originCountry && (
                 <div className="flex flex-col flex-nowrap gap-1 text-sm">
                   <div className="opacity-60">Country of origin</div>
@@ -299,9 +299,9 @@ export default async function TvSeriesDetailsPage({
               </div>
             </div>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-6">
               {tvSeries.network && (
-                <div className="flex flex-col flex-nowrap gap-3 text-sm">
+                <div className="flex flex-col flex-nowrap gap-1 text-sm">
                   <div className="opacity-60">Network</div>
                   <Link
                     href={`/discover?with_networks=${tvSeries.network.id}`}

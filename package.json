@@ -37,7 +37,7 @@
     "sonner": "^2.0.5",
     "sst": "^3.17.3",
     "ulid": "^3.0.0",
-    "use-debounce": "^10.0.4",
+    "use-debounce": "^10.0.5",
     "words-to-numbers": "^1.5.1",
     "zustand": "^5.0.5"
   },

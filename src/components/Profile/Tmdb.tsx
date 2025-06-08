@@ -116,7 +116,7 @@ export default function Tmdb({ user }: Readonly<{ user: User }>) {
                   fill="currentColor"
                 />
               </svg>
-              <div className="flex items-center gap-x-2">
+              <div className="flex flex-nowrap items-center gap-x-2 truncate text-nowrap">
                 Link your
                 <Image
                   src={TmdbLogo}

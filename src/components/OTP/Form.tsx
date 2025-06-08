@@ -145,9 +145,8 @@ const OTPForm = ({
             inputRefs.current[index] = el;
           }}
           type="text"
-          {...(index === 0
-            ? {}
-            : { inputMode: 'numeric', pattern: '[0-9]*' })}
+          inputMode="numeric"
+          pattern="[0-9]*"
           autoComplete={index === 0 ? 'one-time-code' : 'off'}
           aria-label={`Digit ${index + 1} of verification code`}
           value={value}

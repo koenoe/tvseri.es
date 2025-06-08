@@ -15,7 +15,7 @@ export default async function UserInfo({
 
   return (
     <div className={twMerge('flex flex-row items-center', className)}>
-      <div className="flex w-full max-w-48 flex-col space-y-1 md:space-y-2">
+      <div className="flex w-full max-w-sm flex-col space-y-1 md:space-y-2">
         <span className="truncate whitespace-nowrap text-3xl md:text-4xl">
           {user.username}
         </span>

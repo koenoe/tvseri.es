@@ -226,7 +226,7 @@ export default async function TvSeriesDetailsPage({
         </Suspense>
       </Page>
       <div
-        className="relative z-10 w-full !bg-[var(--main-background-color)] py-10 md:py-16"
+        className="relative w-full !bg-[var(--main-background-color)] py-10 md:py-16"
         style={{
           backgroundColor: tvSeries.backdropColor,
         }}
@@ -319,7 +319,7 @@ export default async function TvSeriesDetailsPage({
             )}
           </div>
         </div>
-        <div className="z-5 pointer-events-none absolute inset-0 h-full w-full bg-black/10" />
+        <div className="pointer-events-none absolute inset-0 h-full w-full bg-black/10" />
       </div>
     </>
   );

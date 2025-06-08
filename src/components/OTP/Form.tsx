@@ -67,12 +67,17 @@ const OTPForm = ({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLInputElement>, index: number) => {
+      // Only prevent default for non-control keys, but allow paste and navigation
       if (
         !/^[0-9]{1}$/.test(e.key) &&
         e.key !== 'Backspace' &&
         e.key !== 'Delete' &&
         e.key !== 'Tab' &&
-        !e.metaKey
+        e.key !== 'ArrowLeft' &&
+        e.key !== 'ArrowRight' &&
+        !e.metaKey &&
+        !e.ctrlKey &&
+        !e.altKey
       ) {
         e.preventDefault();
       }
@@ -140,8 +145,9 @@ const OTPForm = ({
             inputRefs.current[index] = el;
           }}
           type="text"
-          inputMode="numeric"
-          pattern="[0-9]*"
+          {...(index === 0
+            ? {}
+            : { inputMode: 'numeric', pattern: '[0-9]*' })}
           autoComplete={index === 0 ? 'one-time-code' : 'off'}
           aria-label={`Digit ${index + 1} of verification code`}
           value={value}

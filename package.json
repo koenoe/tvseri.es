@@ -6,7 +6,7 @@
     "dev": "next dev --turbo",
     "format": "prettier . --write && sort-package-json",
     "preinstall": "npx only-allow pnpm",
-    "postinstall": "concurrently \"sst install\" \"pnpm save-ai-robots\"",
+    "postinstall": "sst install",
     "lint": "next lint",
     "lint:ci": "concurrently \"pnpm tsc\" \"pnpm lint\"",
     "prepare": "husky",

@@ -22,7 +22,6 @@ import SkeletonCircleButton from '@/components/Skeletons/SkeletonCircleButton';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
 import SkeletonRating from '@/components/Skeletons/SkeletonRating';
 import AddTvSeriesToStoreContainer from '@/components/Watched/AddTvSeriesToStoreContainer';
-import ValidateWatchedStatus from '@/components/Watched/ValidateWatchedStatus';
 import WatchedProgress from '@/components/Watched/WatchedProgress';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
 import getBaseUrl from '@/utils/getBaseUrl';
@@ -221,7 +220,6 @@ export default async function TvSeriesDetailsPage({
         </Suspense>
         <Suspense fallback={null}>
           <AddTvSeriesToStoreContainer id={tvSeries.id} />
-          <ValidateWatchedStatus id={tvSeries.id} />
           <PreferredImagesForAdminContainer id={tvSeries.id} />
         </Suspense>
       </Page>

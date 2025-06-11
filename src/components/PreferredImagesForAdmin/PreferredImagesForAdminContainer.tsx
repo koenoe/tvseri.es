@@ -45,9 +45,11 @@ export default async function PreferredImagesForAdminContainer({
 }: Readonly<{
   id: number;
 }>) {
-  const tvSeriesFromCache = await cachedTvSeries(id);
+  const [tvSeriesFromCache, { user }] = await Promise.all([
+    cachedTvSeries(id),
+    auth(),
+  ]);
   const tvSeries = tvSeriesFromCache!;
-  const { user } = await auth();
 
   if (user?.role !== 'admin') {
     return null;

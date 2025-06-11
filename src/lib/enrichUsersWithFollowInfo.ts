@@ -16,7 +16,7 @@ export default async function enrichUsersWithFollowInfo(
 ) {
   const { username, type = 'followers' } = options || {};
   const { user: userFromSession } = await auth();
-  const isMeFollowers =
+  const isMeAndFollowers =
     userFromSession?.username === username && type === 'followers';
 
   return await Promise.all(
@@ -25,7 +25,7 @@ export default async function enrichUsersWithFollowInfo(
         await Promise.all([
           getFollowerCount(u.id),
           getFollowingCount(u.id),
-          userFromSession && userFromSession.id !== u.id && !isMeFollowers
+          userFromSession && userFromSession.id !== u.id && !isMeAndFollowers
             ? _isFollower({
                 userId: userFromSession.id,
                 targetUserId: u.id,

@@ -59,6 +59,7 @@ function GenreTile({
       onClick={handleMouseMove}
       whileHover="visible"
       whileTap="visible"
+      prefetch={false}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0.05)_100%)]" />
       <motion.div

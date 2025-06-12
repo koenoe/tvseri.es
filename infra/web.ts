@@ -7,7 +7,7 @@ import { email } from './email';
 import { scrobbleQueue } from './scrobbleQueue';
 
 new sst.aws.Nextjs('tvseries', {
-  buildCommand: 'pnpm dlx @opennextjs/aws build',
+  // buildCommand: 'pnpm dlx @opennextjs/aws build',
   domain: {
     name: domain,
     redirects: $app.stage === 'production' ? ['www.tvseri.es'] : [],
@@ -41,6 +41,7 @@ new sst.aws.Nextjs('tvseries', {
     email,
     scrobbleQueue,
   ],
+  path: 'apps/web',
   server: {
     architecture: 'arm64',
     memory: '512 MB',

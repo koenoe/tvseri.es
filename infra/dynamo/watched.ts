@@ -41,7 +41,7 @@ watched.subscribe(
     concurrency: {
       reserved: 100,
     },
-    handler: 'src/lambdas/watched.handler',
+    handler: 'apps/web/src/lambdas/watched.handler',
     memory: '512 MB',
     runtime: 'nodejs22.x',
     timeout: '30 seconds',

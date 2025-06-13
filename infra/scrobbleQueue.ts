@@ -10,7 +10,7 @@ scrobbleQueue.subscribe(
     concurrency: {
       reserved: 25,
     },
-    handler: 'src/lambdas/scrobble.handler',
+    handler: 'apps/web/src/lambdas/scrobble.handler',
     memory: '512 MB',
     runtime: 'nodejs22.x',
     timeout: '30 seconds',

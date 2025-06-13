@@ -12,7 +12,7 @@ watchedStatusQueue.subscribe(
     concurrency: {
       reserved: 25,
     },
-    handler: 'src/lambdas/validateWatchedStatusQueue.handler',
+    handler: 'apps/web/src/lambdas/validateWatchedStatusQueue.handler',
     memory: '512 MB',
     runtime: 'nodejs22.x',
     timeout: '30 seconds',
@@ -47,7 +47,7 @@ export const watchedStatusCron = new sst.aws.Cron('ValidateWatchedStatus', {
   schedule: 'cron(0 5 * * ? *)', // 05:00 UTC, daily
   function: {
     architecture: 'arm64',
-    handler: 'src/lambdas/validateWatchedStatusCron.handler',
+    handler: 'apps/web/src/lambdas/validateWatchedStatusCron.handler',
     memory: '512 MB',
     runtime: 'nodejs22.x',
     timeout: '30 seconds',

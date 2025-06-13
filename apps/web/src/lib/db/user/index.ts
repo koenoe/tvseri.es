@@ -72,7 +72,7 @@ export const createUser = async (
   >,
 ): Promise<User> => {
   let username = input.email
-    ? slugify(input.email.split('@')[0], {
+    ? slugify(input.email.split('@')[0]!, {
         lower: true,
         strict: true,
       })

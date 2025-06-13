@@ -8,9 +8,9 @@ const getMousePosition = (
   const isTouchEvent = 'TouchEvent' in window && event instanceof TouchEvent;
 
   if (isTouchEvent) {
-    x = (event as React.TouchEvent).touches[0].clientX;
-    y = (event as React.TouchEvent).touches[0].clientY;
-    target = (event as React.TouchEvent).touches[0].target;
+    x = (event as React.TouchEvent).touches[0]!.clientX;
+    y = (event as React.TouchEvent).touches[0]!.clientY;
+    target = (event as React.TouchEvent).touches[0]!.target;
   } else {
     x = (event as React.MouseEvent)?.clientX;
     y = (event as React.MouseEvent)?.clientY;

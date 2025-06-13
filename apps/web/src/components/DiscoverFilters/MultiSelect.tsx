@@ -136,7 +136,7 @@ function MultiSelect({
       if (input) {
         if (event.key === 'Delete' || event.key === 'Backspace') {
           if (inputValue === '' && selectedResults.length > 0) {
-            toggleSelect(selectedResults[selectedResults.length - 1]);
+            toggleSelect(selectedResults[selectedResults.length - 1]!);
           }
         }
         if (event.key === 'Escape') {

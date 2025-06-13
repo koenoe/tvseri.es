@@ -29,7 +29,7 @@ const getWeeklyWatchedCount = async (input: Input): Promise<WeeklyCount[]> => {
     const weekNumber = getISOWeek(date);
 
     if (weekNumber <= 53) {
-      weekCounts[weekNumber - 1].episodes += 1;
+      weekCounts[weekNumber - 1]!.episodes += 1;
     }
   });
 

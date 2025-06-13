@@ -43,11 +43,11 @@ export default function InfoLine({
           </div>
           <div className="opacity-60 before:mr-1 before:content-['·'] md:hidden md:before:mr-2">
             <Link
-              href={`/discover?with_genres=${tvSeries.genres?.[0].id}`}
+              href={`/discover?with_genres=${tvSeries.genres?.[0]?.id}`}
               className="hover:underline"
               prefetch={false}
             >
-              {tvSeries.genres?.[0].name}
+              {tvSeries.genres?.[0]?.name}
             </Link>
           </div>
         </>

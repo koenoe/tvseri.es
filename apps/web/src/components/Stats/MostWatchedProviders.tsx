@@ -39,7 +39,7 @@ function MostWatchedProviders({
         filter: isActive ? 'none' : 'grayscale(100%)',
         opacity: isActive ? 1 : 0.5,
       };
-      const logo = data[index].logo;
+      const logo = data[index]!.logo;
 
       return (
         <g>

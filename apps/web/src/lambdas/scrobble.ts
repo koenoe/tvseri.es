@@ -143,7 +143,7 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
         });
 
         if (fuzzyResult.length > 0) {
-          const tvSeriesFromResult = fuzzyResult[0];
+          const tvSeriesFromResult = fuzzyResult[0]!;
           const episodeFromResult = await fetchTvSeriesEpisode(
             tvSeriesFromResult.id,
             metadata.seasonNumber,

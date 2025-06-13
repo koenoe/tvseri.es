@@ -29,7 +29,7 @@ function getCurrentSeason(watchedItems: WatchedItem[], seasons: Season[]) {
   )[0];
 
   const lastWatchedSeason = sortedSeasons.find(
-    (season) => season.seasonNumber === lastWatched.seasonNumber,
+    (season) => season.seasonNumber === lastWatched?.seasonNumber,
   );
 
   if (lastWatchedSeason) {
@@ -55,7 +55,7 @@ function getCurrentSeason(watchedItems: WatchedItem[], seasons: Season[]) {
     if (nextSeasonIndex < sortedSeasons.length) {
       const nextSeason = sortedSeasons[nextSeasonIndex];
 
-      if (nextSeason.numberOfAiredEpisodes) {
+      if (nextSeason?.numberOfAiredEpisodes) {
         return {
           currentSeason: nextSeason,
           watchCount: watchCounts[nextSeason.seasonNumber] || 0,

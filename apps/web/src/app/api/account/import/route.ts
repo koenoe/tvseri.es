@@ -54,7 +54,7 @@ function parseOrdinalNumber(text: string): number | null {
   const textLower = text.toLowerCase().trim();
   const ordinalRegex = /(\d+)(?:st|nd|rd|th)/i;
   const match = textLower.match(ordinalRegex);
-  return match ? parseInt(match[1], 10) : null;
+  return match ? parseInt(match[1]!, 10) : null;
 }
 
 function parseWrittenNumber(text: string): number | null {
@@ -332,7 +332,7 @@ export async function POST(req: Request) {
                 }
 
                 if (!tvSeries && tvSeriesResults.length > 0) {
-                  tvSeries = await cachedTvSeries(tvSeriesResults[0].id);
+                  tvSeries = await cachedTvSeries(tvSeriesResults[0]!.id);
                   tvSeriesCache.set(normalizedTitle, tvSeries!);
                 }
               }

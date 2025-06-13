@@ -38,8 +38,8 @@ export default function CsvImporter({
 
   const handleUpload = useCallback(
     (files: File[]) => {
-      setFile(files[0]);
-      onParse({ file: files[0] });
+      setFile(files[0]!);
+      onParse({ file: files[0]! });
     },
     [onParse],
   );

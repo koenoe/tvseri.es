@@ -41,7 +41,7 @@ function SortBySelect({
   const ref = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const searchParams = useSearchParams();
-  const selectedSortByKey = searchParams.get('sort_by') ?? options[0].value;
+  const selectedSortByKey = searchParams.get('sort_by') ?? options[0]!.value;
   const label = options.find((item) => item.value === selectedSortByKey)?.label;
   const handleClick = useCallback(
     (item: Option) => {

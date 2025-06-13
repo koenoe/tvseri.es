@@ -205,9 +205,9 @@ export function normalizePersons(
     let character = '';
     let job = '';
     if ('roles' in person && person.roles) {
-      character = person.roles?.[0].character as string;
+      character = person.roles?.[0]?.character as string;
     } else if ('jobs' in person && person.jobs) {
-      job = person.jobs?.[0].job as string;
+      job = person.jobs?.[0]?.job as string;
     }
 
     return {

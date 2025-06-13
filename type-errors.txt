@@ -1,0 +1,72 @@
+
+> tvseri.es@0.0.0 check-types /Users/koen/Projects/tvseri.es
+> turbo run check-types
+
+• Packages in scope: @tvseri.es/eslint-config, @tvseri.es/typescript-config, @tvseri.es/web
+• Running check-types in 3 packages
+• Remote caching disabled
+@tvseri.es/web:check-types: cache miss, executing d21854b54bd34a07
+@tvseri.es/web:check-types: 
+@tvseri.es/web:check-types: > @tvseri.es/web@0.0.0 check-types /Users/koen/Projects/tvseri.es/apps/web
+@tvseri.es/web:check-types: > tsc --noEmit
+@tvseri.es/web:check-types: 
+@tvseri.es/web:check-types: src/app/api/account/import/route.ts(57,27): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+@tvseri.es/web:check-types:   Type 'undefined' is not assignable to type 'string'.
+@tvseri.es/web:check-types: src/app/api/account/import/route.ts(335,51): error TS2532: Object is possibly 'undefined'.
+@tvseri.es/web:check-types: src/components/CsvImporter/CsvImporter.tsx(41,15): error TS2345: Argument of type 'File | undefined' is not assignable to parameter of type 'SetStateAction<File | null>'.
+@tvseri.es/web:check-types:   Type 'undefined' is not assignable to type 'SetStateAction<File | null>'.
+@tvseri.es/web:check-types: src/components/CsvImporter/CsvImporter.tsx(42,17): error TS2322: Type 'File | undefined' is not assignable to type 'File'.
+@tvseri.es/web:check-types:   Type 'undefined' is not assignable to type 'File'.
+@tvseri.es/web:check-types: src/components/DiscoverFilters/MultiSelect.tsx(139,26): error TS2345: Argument of type 'Readonly<{ value: string | number; label: string; }> | undefined' is not assignable to parameter of type 'Readonly<{ value: string | number; label: string; }>'.
+@tvseri.es/web:check-types:   Type 'undefined' is not assignable to type 'Readonly<{ value: string | number; label: string; }>'.
+@tvseri.es/web:check-types: src/components/Grid/SortBySelect.tsx(44,60): error TS2532: Object is possibly 'undefined'.
+@tvseri.es/web:check-types: src/components/Import/Import.tsx(82,26): error TS2532: Object is possibly 'undefined'.
+@tvseri.es/web:check-types: src/components/Import/Import.tsx(87,29): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+@tvseri.es/web:check-types:   Type 'undefined' is not assignable to type 'string'.
+@tvseri.es/web:check-types: src/components/Import/Import.tsx(93,31): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+@tvseri.es/web:check-types:   Type 'undefined' is not assignable to type 'string'.
+@tvseri.es/web:check-types: src/components/Import/Import.tsx(98,27): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+@tvseri.es/web:check-types:   Type 'undefined' is not assignable to type 'string'.
+@tvseri.es/web:check-types: src/components/InfoLine/InfoLine.tsx(46,46): error TS2532: Object is possibly 'undefined'.
+@tvseri.es/web:check-types: src/components/InfoLine/InfoLine.tsx(50,16): error TS2532: Object is possibly 'undefined'.
+@tvseri.es/web:check-types: src/components/PreferredImagesForAdmin/PreferredImagesForAdmin.tsx(155,9): error TS2532: Object is possibly 'undefined'.
+@tvseri.es/web:check-types: src/components/Spotlight/Spotlight.tsx(22,53): error TS2322: Type 'Readonly<{ backdropColor: string; backdropImage?: string | undefined; backdropPath?: string | undefined; countries: Readonly<{ name: string; code: string; }>[]; createdBy: Readonly<{ biography?: string | undefined; ... 13 more ...; age?: number | undefined; }>[]; ... 30 more ...; website?: string | undefined; }> | u...' is not assignable to type 'Readonly<{ backdropColor: string; backdropImage?: string | undefined; backdropPath?: string | undefined; countries: Readonly<{ name: string; code: string; }>[]; createdBy: Readonly<{ biography?: string | undefined; ... 13 more ...; age?: number | undefined; }>[]; ... 30 more ...; website?: string | undefined; }>'.
+@tvseri.es/web:check-types:   Type 'undefined' is not assignable to type 'Readonly<{ backdropColor: string; backdropImage?: string | undefined; backdropPath?: string | undefined; countries: Readonly<{ name: string; code: string; }>[]; createdBy: Readonly<{ biography?: string | undefined; ... 13 more ...; age?: number | undefined; }>[]; ... 30 more ...; website?: string | undefined; }>'.
+@tvseri.es/web:check-types: src/components/Spotlight/Spotlight.tsx(29,31): error TS18048: 'item' is possibly 'undefined'.
+@tvseri.es/web:check-types: src/components/Spotlight/Spotlight.tsx(30,31): error TS18048: 'item' is possibly 'undefined'.
+@tvseri.es/web:check-types: src/components/Stats/BlockLongestStreak.tsx(34,34): error TS2345: Argument of type 'Date | undefined' is not assignable to parameter of type 'DateArg<Date>'.
+@tvseri.es/web:check-types:   Type 'undefined' is not assignable to type 'DateArg<Date>'.
+@tvseri.es/web:check-types: src/components/Stats/BlockLongestStreak.tsx(36,54): error TS2345: Argument of type 'Date | undefined' is not assignable to parameter of type 'DateArg<Date>'.
+@tvseri.es/web:check-types:   Type 'undefined' is not assignable to type 'DateArg<Date>'.
+@tvseri.es/web:check-types: src/components/Stats/MostWatchedProviders.tsx(42,20): error TS2532: Object is possibly 'undefined'.
+@tvseri.es/web:check-types: src/components/Stats/SvgGlowAnimatePattern.tsx(47,11): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+@tvseri.es/web:check-types:   Type 'undefined' is not assignable to type 'string'.
+@tvseri.es/web:check-types: src/components/Stats/WatchedPerWeekContainer.tsx(32,7): error TS2532: Object is possibly 'undefined'.
+@tvseri.es/web:check-types: src/components/Tiles/InProgressContainer.tsx(32,41): error TS18048: 'lastWatched' is possibly 'undefined'.
+@tvseri.es/web:check-types: src/components/Tiles/InProgressContainer.tsx(58,11): error TS18048: 'nextSeason' is possibly 'undefined'.
+@tvseri.es/web:check-types: src/components/Tiles/InProgressContainer.tsx(61,35): error TS18048: 'nextSeason' is possibly 'undefined'.
+@tvseri.es/web:check-types: src/components/Watched/store.ts(68,11): error TS2532: Object is possibly 'undefined'.
+@tvseri.es/web:check-types: src/components/Watched/store.ts(99,11): error TS2532: Object is possibly 'undefined'.
+@tvseri.es/web:check-types: src/lambdas/dominantColor.ts(29,33): error TS18048: 'rgb.r' is possibly 'undefined'.
+@tvseri.es/web:check-types: src/lambdas/dominantColor.ts(30,33): error TS18048: 'rgb.g' is possibly 'undefined'.
+@tvseri.es/web:check-types: src/lambdas/dominantColor.ts(31,33): error TS18048: 'rgb.b' is possibly 'undefined'.
+@tvseri.es/web:check-types: src/lambdas/scrobble.ts(148,13): error TS18048: 'tvSeriesFromResult' is possibly 'undefined'.
+@tvseri.es/web:check-types: src/lib/db/user/index.ts(75,15): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+@tvseri.es/web:check-types:   Type 'undefined' is not assignable to type 'string'.
+@tvseri.es/web:check-types: src/lib/tmdb/helpers.ts(208,19): error TS2532: Object is possibly 'undefined'.
+@tvseri.es/web:check-types: src/lib/tmdb/helpers.ts(210,13): error TS2532: Object is possibly 'undefined'.
+@tvseri.es/web:check-types: src/utils/generateUsername.ts(229,3): error TS2322: Type 'T | undefined' is not assignable to type 'T'.
+@tvseri.es/web:check-types:   'T' could be instantiated with an arbitrary type which could be unrelated to 'T | undefined'.
+@tvseri.es/web:check-types: src/utils/getMousePosition.ts(11,9): error TS2532: Object is possibly 'undefined'.
+@tvseri.es/web:check-types: src/utils/getMousePosition.ts(12,9): error TS2532: Object is possibly 'undefined'.
+@tvseri.es/web:check-types: src/utils/getMousePosition.ts(13,14): error TS2532: Object is possibly 'undefined'.
+@tvseri.es/web:check-types: src/utils/getMousePositionWithinElement.ts(10,7): error TS2532: Object is possibly 'undefined'.
+@tvseri.es/web:check-types: src/utils/getMousePositionWithinElement.ts(13,7): error TS2532: Object is possibly 'undefined'.
+@tvseri.es/web:check-types:  ELIFECYCLE  Command failed with exit code 2.
+
+ Tasks:    0 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    3.568s 
+Failed:    @tvseri.es/web#check-types
+
+ ELIFECYCLE  Command failed with exit code 2.

@@ -31,9 +31,9 @@ export const cachedLongestStreak = cache(async ({ userId, year }: Input) => {
   let longestStreak = 1;
 
   for (let i = 1; i < watchDates.length; i++) {
-    const expectedDate = addDays(watchDates[i - 1], 1);
+    const expectedDate = addDays(watchDates[i - 1]!, 1);
 
-    if (isEqual(startOfDay(expectedDate), startOfDay(watchDates[i]))) {
+    if (isEqual(startOfDay(expectedDate), startOfDay(watchDates[i]!))) {
       currentStreak++;
       longestStreak = Math.max(longestStreak, currentStreak);
     } else {

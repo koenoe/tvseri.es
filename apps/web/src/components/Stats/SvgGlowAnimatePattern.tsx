@@ -44,7 +44,7 @@ export default function SvgGlowAnimatePattern({
           id={index + 1}
           movementDelay={config.delay}
           additionalHeight={config.height}
-          color={COLORS[index % COLORS.length]}
+          color={COLORS[index % COLORS.length]!}
           className={config.className}
         />
       ))}

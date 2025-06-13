@@ -7,10 +7,10 @@ const getMousePositionWithinElement = (
   const isTouchEvent = 'TouchEvent' in window && event instanceof TouchEvent;
 
   const xCoordinateWithinBlock = isTouchEvent
-    ? event.touches[0].clientX - boundingRect.left
+    ? event.touches[0]!.clientX - boundingRect.left
     : (event as MouseEvent).clientX - boundingRect.left;
   const yCoordinateWithinBlock = isTouchEvent
-    ? event.touches[0].clientY - boundingRect.top
+    ? event.touches[0]!.clientY - boundingRect.top
     : (event as MouseEvent).clientY - boundingRect.top;
 
   const width = boundingRect.width;

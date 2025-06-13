@@ -65,7 +65,7 @@ export const createWatchedStore = () => {
           if (!initialWatchedState[item.seasonNumber]) {
             initialWatchedState[item.seasonNumber] = {};
           }
-          initialWatchedState[item.seasonNumber][item.episodeNumber] = {
+          initialWatchedState[item.seasonNumber]![item.episodeNumber] = {
             seasonNumber: item.seasonNumber,
             episodeNumber: item.episodeNumber,
             runtime: item.runtime,
@@ -96,7 +96,7 @@ export const createWatchedStore = () => {
           if (!newWatched[item.seasonNumber]) {
             newWatched[item.seasonNumber] = {};
           }
-          newWatched[item.seasonNumber][item.episodeNumber] = {
+          newWatched[item.seasonNumber]![item.episodeNumber] = {
             ...item,
             watchedAt: now,
           };

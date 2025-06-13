@@ -152,7 +152,7 @@ export default function PreferredImagesForAdmin({
 
       getTitleTreatmentElement()?.setAttribute(
         'src',
-        images.titleTreatment[newIndex].url,
+        images.titleTreatment[newIndex]!.url,
       );
       setCurrentTitleIndex(newIndex);
     },

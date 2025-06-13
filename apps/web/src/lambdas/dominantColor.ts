@@ -26,9 +26,9 @@ const correctContrast = (input: ColorInstance): ColorInstance => {
   let output = input;
   while (output.contrast(Color('white')) < CONTRAST_MINIMUM) {
     const rgb = output.rgb().object();
-    const blendedR = Math.round(rgb.r * (1 - BLEND_OPACITY_STEP));
-    const blendedG = Math.round(rgb.g * (1 - BLEND_OPACITY_STEP));
-    const blendedB = Math.round(rgb.b * (1 - BLEND_OPACITY_STEP));
+    const blendedR = Math.round(rgb.r! * (1 - BLEND_OPACITY_STEP));
+    const blendedG = Math.round(rgb.g! * (1 - BLEND_OPACITY_STEP));
+    const blendedB = Math.round(rgb.b! * (1 - BLEND_OPACITY_STEP));
     output = Color.rgb(blendedR, blendedG, blendedB);
   }
   return output;

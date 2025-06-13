@@ -1,5 +1,4 @@
 {
-  "**/*.{js,jsx,ts,tsx}": "lint -- --fix",
   "**/*": "prettier --write --ignore-unknown",
   "**/package.json": "sort-package-json"
 }

@@ -55,7 +55,6 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
   timeout: '30 seconds',
   nodejs: {
     minify: true,
-    splitting: true,
   },
   environment: {
     MDBLIST_API_KEY: process.env.MDBLIST_API_KEY as string,

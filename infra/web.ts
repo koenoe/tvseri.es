@@ -5,9 +5,10 @@ import { dominantColor } from './dominantColor';
 import * as dynamo from './dynamo';
 import { email } from './email';
 import { scrobbleQueue } from './scrobbleQueue';
+import { apiRouter } from './api';
 
 new sst.aws.Nextjs('tvseries', {
-  // buildCommand: 'pnpm dlx @opennextjs/aws build',
+  buildCommand: 'pnpm dlx @opennextjs/aws build',
   domain: {
     name: domain,
     redirects: $app.stage === 'production' ? ['www.tvseri.es'] : [],
@@ -16,6 +17,7 @@ new sst.aws.Nextjs('tvseries', {
     }),
   },
   environment: {
+    API_URL: apiRouter.url,
     MDBLIST_API_KEY: process.env.MDBLIST_API_KEY as string,
     OPEN_NEXT_FORCE_NON_EMPTY_RESPONSE: 'true',
     SECRET_KEY: process.env.SECRET_KEY as string,

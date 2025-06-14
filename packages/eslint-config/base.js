@@ -2,6 +2,7 @@ import js from '@eslint/js';
 import typescriptEslint from '@typescript-eslint/eslint-plugin';
 import unusedImports from 'eslint-plugin-unused-imports';
 import tseslint from 'typescript-eslint';
+import importPlugin from 'eslint-plugin-import';
 
 /** @type { import("eslint").Linter.FlatConfig[] } */
 export const config = [
@@ -11,6 +12,7 @@ export const config = [
     plugins: {
       '@typescript-eslint': typescriptEslint,
       'unused-imports': unusedImports,
+      import: importPlugin,
     },
     rules: {
       'no-empty': ['error', { allowEmptyCatch: true }],

@@ -3,6 +3,7 @@ import type { BetterFetchOption } from '@better-fetch/fetch';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
 import { type Genre } from '@/types/genre';
+import { type Movie } from '@/types/movie';
 import { type Person } from '@/types/person';
 import { type Rating } from '@/types/rating';
 import { type Episode, type Season, type TvSeries } from '@/types/tv-series';
@@ -52,50 +53,48 @@ async function apiFetch(path: string | URL, options?: BetterFetchOption) {
 }
 
 export async function fetchTrendingTvSeries() {
-  const series = (await apiFetch('/collections/trending')) as TvSeries[];
+  const series = (await apiFetch('/collection/trending')) as TvSeries[];
   return series;
 }
 
 export async function fetchTopRatedTvSeries() {
-  const series = (await apiFetch('/collections/top-rated')) as TvSeries[];
+  const series = (await apiFetch('/collection/top-rated')) as TvSeries[];
   return series;
 }
 
 export async function fetchMostPopularTvSeriesThisMonth() {
   const series = (await apiFetch(
-    '/collections/most-popular-this-month',
+    '/collection/most-popular-this-month',
   )) as TvSeries[];
   return series;
 }
 
 export async function fetchMostAnticipatedTvSeries() {
-  const series = (await apiFetch(
-    '/collections/most-anticipated',
-  )) as TvSeries[];
+  const series = (await apiFetch('/collection/most-anticipated')) as TvSeries[];
   return series;
 }
 
 export async function fetchKoreasFinestTvSeries() {
-  const series = (await apiFetch('/collections/koreas-finest')) as TvSeries[];
+  const series = (await apiFetch('/collection/koreas-finest')) as TvSeries[];
   return series;
 }
 
 export async function fetchPopularBritishCrimeTvSeries() {
   const series = (await apiFetch(
-    '/collections/popular-british-crime',
+    '/collection/popular-british-crime',
   )) as TvSeries[];
   return series;
 }
 
 export async function fetchBestSportsDocumentariesTvSeries() {
   const series = (await apiFetch(
-    '/collections/best-sports-documentaries',
+    '/collection/best-sports-documentaries',
   )) as TvSeries[];
   return series;
 }
 
 export async function fetchApplePlusTvSeries(region?: string) {
-  const series = (await apiFetch('/collections/must-watch-on-apple-tv', {
+  const series = (await apiFetch('/collection/must-watch-on-apple-tv', {
     query: {
       region,
     },
@@ -215,4 +214,31 @@ export async function fetchTvSeriesKeywords(id: number | string) {
     name: string;
   }>[];
   return keywords;
+}
+
+export async function fetchPerson(id: number | string) {
+  const person = (await apiFetch(`/person/${id}`)) as Person | undefined;
+  return person;
+}
+
+export async function fetchPersonTvCredits(id: number | string) {
+  const credits = (await apiFetch(`/person/${id}/credits`)) as Readonly<{
+    cast: {
+      upcoming: TvSeries[];
+      previous: TvSeries[];
+    };
+    crew: {
+      upcoming: TvSeries[];
+      previous: TvSeries[];
+    };
+  }>;
+  return credits;
+}
+
+export async function fetchPersonKnownFor(id: number | string) {
+  const items = (await apiFetch(`/person/${id}/known-for`)) as (
+    | TvSeries
+    | Movie
+  )[];
+  return items;
 }

@@ -5,8 +5,7 @@
  */
 import { cache } from 'react';
 
-import { fetchTvSeries, fetchTvSeriesSeason } from '@/lib/api';
-import { cachedPerson as _cachedPerson } from '@/lib/cached';
+import { fetchPerson, fetchTvSeries, fetchTvSeriesSeason } from '@/lib/api';
 import { findUser } from '@/lib/db/user';
 import { getAllWatched } from '@/lib/db/watched';
 import { buildPosterImageUrl } from '@/lib/tmdb/helpers';
@@ -25,7 +24,13 @@ export const cachedTvSeriesSeason = cache(
   },
 );
 
-export const cachedPerson = cache(_cachedPerson);
+export const cachedPerson = cache(
+  async (...args: Parameters<typeof fetchPerson>) => {
+    const person = await fetchPerson(...args);
+    return person;
+  },
+);
+
 export const cachedUser = cache(findUser);
 
 export const cachedWatchedByYear = cache(

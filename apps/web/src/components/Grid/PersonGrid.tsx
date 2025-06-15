@@ -1,4 +1,4 @@
-import { fetchPersonTvCredits } from '@/lib/tmdb';
+import { fetchPersonTvCredits } from '@/lib/api';
 import { type Person } from '@/types/person';
 
 import Grid from './Grid';

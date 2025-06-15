@@ -3,8 +3,9 @@ import { handle } from 'hono/aws-lambda';
 import { compress } from 'hono/compress';
 import { etag } from 'hono/etag';
 
-import collections from './routes/collections';
+import collection from './routes/collection';
 import genres from './routes/genres';
+import person from './routes/person';
 import search from './routes/search';
 import series from './routes/series';
 
@@ -12,8 +13,9 @@ const app = new Hono();
 
 app.use(compress());
 app.use(etag());
-app.route('/collections', collections);
+app.route('/collection', collection);
 app.route('/genres', genres);
+app.route('/person', person);
 app.route('/search', search);
 app.route('/series', series);
 

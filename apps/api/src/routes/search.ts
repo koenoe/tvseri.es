@@ -22,4 +22,6 @@ app.get('/series', async (c) => {
   return c.json(series);
 });
 
+// TODO: person search
+
 export default app;

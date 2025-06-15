@@ -1,30 +1,12 @@
-import { getCacheItem, setCacheItem } from '@/lib/db/cache';
-import { fetchPopularBritishCrimeTvSeries } from '@/lib/tmdb';
-import { type TvSeries } from '@/types/tv-series';
+import { fetchPopularBritishCrimeTvSeries } from '@/lib/api';
 
 import List, { type HeaderVariantProps } from './List';
 import Poster from '../Tiles/Poster';
 
-const cachedItems = async () => {
-  const dynamoCacheKey = 'popular-british-crime';
-  const dynamoCachedItem = await getCacheItem<TvSeries[]>(dynamoCacheKey);
-  if (dynamoCachedItem) {
-    return dynamoCachedItem;
-  }
-
-  const items = await fetchPopularBritishCrimeTvSeries();
-
-  await setCacheItem(dynamoCacheKey, items, {
-    ttl: 2629800, // 1 month
-  });
-
-  return items;
-};
-
 export default async function PopularBritishCrimeList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,
 ) {
-  const items = await cachedItems();
+  const items = await fetchPopularBritishCrimeTvSeries();
 
   return (
     <List

@@ -6,7 +6,7 @@ import * as dynamo from './dynamo';
 import { email } from './email';
 import { scrobbleQueue } from './scrobbleQueue';
 
-const VALID_API_KEYS = [process.env.API_KEY];
+const VALID_API_KEYS = [process.env.API_KEY_WEB];
 
 export const apiRouter = new sst.aws.Router('ApiRouter', {
   domain: {

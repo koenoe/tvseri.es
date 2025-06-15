@@ -17,6 +17,7 @@ new sst.aws.Nextjs('tvseries', {
     }),
   },
   environment: {
+    API_KEY: process.env.API_KEY_WEB as string,
     API_URL: apiRouter.url,
     MDBLIST_API_KEY: process.env.MDBLIST_API_KEY as string,
     OPEN_NEXT_FORCE_NON_EMPTY_RESPONSE: 'true',

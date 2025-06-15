@@ -141,7 +141,7 @@ export async function fetchTvSeries(
 ) {
   const series = (await apiFetch(`/series/${id}`, {
     query: {
-      includeImages: options.includeImages,
+      include_images: options.includeImages,
     },
   })) as TvSeries | undefined;
   return series;

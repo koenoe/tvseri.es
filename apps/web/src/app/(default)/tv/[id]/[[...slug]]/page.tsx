@@ -90,7 +90,9 @@ export default async function TvSeriesDetailsPage({
   params: paramsFromProps,
 }: Props) {
   const params = await paramsFromProps;
-  const tvSeries = await cachedTvSeries(params.id);
+  const tvSeries = await cachedTvSeries(params.id, {
+    includeImages: true,
+  });
 
   if (!tvSeries || tvSeries.isAdult) {
     return notFound();

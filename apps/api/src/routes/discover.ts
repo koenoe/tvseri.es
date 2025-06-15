@@ -1,6 +1,11 @@
 import { Hono } from 'hono';
 
-import { fetchDiscoverTvSeries } from '@/lib/tmdb';
+import {
+  fetchCountries,
+  fetchDiscoverTvSeries,
+  fetchLanguages,
+  fetchWatchProviders,
+} from '@/lib/tmdb';
 
 const app = new Hono();
 
@@ -21,6 +26,41 @@ app.get('/', async (c) => {
   ); // 1h, allow stale for 5m
 
   return c.json(result);
+});
+
+app.get('/countries', async (c) => {
+  const countries = await fetchCountries();
+
+  c.header(
+    'Cache-Control',
+    'public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=3600',
+  ); // 1 month, allow stale for 1h
+
+  return c.json(countries);
+});
+
+app.get('/languages', async (c) => {
+  const languages = await fetchLanguages();
+
+  c.header(
+    'Cache-Control',
+    'public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=3600',
+  ); // 1 month, allow stale for 1h
+
+  return c.json(languages);
+});
+
+app.get('/watch-providers', async (c) => {
+  const watchProviders = await fetchWatchProviders(
+    c.req.query('region') || 'US',
+  );
+
+  c.header(
+    'Cache-Control',
+    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=3600',
+  ); // 1w, allow stale for 1h
+
+  return c.json(watchProviders);
 });
 
 export default app;

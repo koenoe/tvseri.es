@@ -1,4 +1,4 @@
-import { fetchLanguages } from '@/lib/tmdb';
+import { fetchLanguages } from '@/lib/api';
 
 import DiscoverSpokenLanguages from './SpokenLanguages';
 

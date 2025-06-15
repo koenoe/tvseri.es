@@ -2,7 +2,9 @@ import { createFetch } from '@better-fetch/fetch';
 import type { BetterFetchOption } from '@better-fetch/fetch';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
+import { type CountryOrLanguage } from '@/types/country-language';
 import { type Genre } from '@/types/genre';
+import { type Keyword } from '@/types/keyword';
 import { type Movie } from '@/types/movie';
 import { type Person } from '@/types/person';
 import { type Rating } from '@/types/rating';
@@ -122,6 +124,15 @@ export async function searchTvSeries(
     },
   })) as TvSeries[];
   return series;
+}
+
+export async function searchKeywords(query: string) {
+  const keywords = (await apiFetch('/search/keyword', {
+    query: {
+      q: query,
+    },
+  })) as Keyword[];
+  return keywords;
 }
 
 export async function fetchTvSeries(
@@ -255,4 +266,32 @@ export async function fetchDiscoverTvSeries(
     queryString?: string;
   }>;
   return results;
+}
+
+export async function fetchCountries() {
+  const countries = (await apiFetch(
+    '/discover/countries',
+  )) as CountryOrLanguage[];
+  return countries;
+}
+
+export async function fetchLanguages() {
+  const languages = (await apiFetch(
+    '/discover/languages',
+  )) as CountryOrLanguage[];
+  return languages;
+}
+
+export async function fetchWatchProviders(region?: string) {
+  const watchProviders = (await apiFetch('/discover/watch-providers', {
+    query: {
+      region,
+    },
+  })) as WatchProvider[];
+  return watchProviders;
+}
+
+export async function fetchKeyword(id: number | string) {
+  const keyword = (await apiFetch(`/keyword/${id}`)) as Keyword | undefined;
+  return keyword;
 }

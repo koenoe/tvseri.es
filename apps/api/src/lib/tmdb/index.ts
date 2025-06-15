@@ -811,9 +811,9 @@ export async function fetchLanguages() {
     });
 }
 
-export async function fetchKeyword(id: number) {
+export async function fetchKeyword(id: number | string) {
   const response = (await tmdbFetch(`/3/keyword/${id}`)) as TmdbKeyword;
-  return response;
+  return response as Keyword | undefined;
 }
 
 export async function searchKeywords(query: string) {
@@ -825,7 +825,7 @@ export async function searchKeywords(query: string) {
     return {
       id: keyword.id,
       name: keyword.name,
-    };
+    } as Keyword;
   });
 }
 

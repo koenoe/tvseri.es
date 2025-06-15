@@ -1,6 +1,6 @@
 import { type NextRequest } from 'next/server';
 
-import { fetchKeyword, searchKeywords } from '@/lib/tmdb';
+import { fetchKeyword, searchKeywords } from '@/lib/api';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -19,9 +19,5 @@ export async function GET(request: NextRequest) {
     response = await Promise.all(promises);
   }
 
-  return Response.json(response, {
-    headers: {
-      'Cache-Control': 'public, max-age=3600, immutable',
-    },
-  });
+  return Response.json(response);
 }

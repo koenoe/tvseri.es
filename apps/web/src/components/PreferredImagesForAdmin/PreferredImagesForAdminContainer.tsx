@@ -1,6 +1,5 @@
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
-import { deleteCacheItem } from '@/lib/db/cache';
 import {
   type PreferredImages,
   putPreferredImages,
@@ -18,8 +17,9 @@ async function storePreferredImages(
 
   await Promise.all([
     putPreferredImages(id, preferredImages),
-    deleteCacheItem(`tv:${id}`),
-    deleteCacheItem('trending'),
+    // TODO: figure out how to invalidate Cloudfront API cache, lol
+    // deleteCacheItem(`tv:${id}`),
+    // deleteCacheItem('trending'),
   ]);
 }
 

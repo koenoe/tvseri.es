@@ -1,7 +1,7 @@
 /**
  * Provides memoization/caching for methods used in React Server Components (RSCs).
  * Purpose: Prevents duplicate calls when the same method is invoked multiple times
- * during server-side rendering.
+ * during server-side rendering cycle.
  */
 import { cache } from 'react';
 

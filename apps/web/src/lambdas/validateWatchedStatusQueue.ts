@@ -1,9 +1,8 @@
 import { type SQSHandler, type SQSEvent } from 'aws-lambda';
 
-import { deleteCacheItem } from '@/lib/db/cache';
+import { fetchTvSeries } from '@/lib/api';
 import { addToList, getAllListItems, removeFromList } from '@/lib/db/list';
 import { getWatchedCountForTvSeries } from '@/lib/db/watched';
-import { fetchTvSeries } from '@/lib/tmdb';
 import { type TvSeries } from '@/types/tv-series';
 import { type User } from '@/types/user';
 
@@ -76,9 +75,6 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
                 tvSeriesIsNotWatchedNorInProgress,
               },
             );
-
-            // Note: clear dynamoDB cache for this TV series
-            await deleteCacheItem(`tv:${tvSeries.id}`);
 
             // Note: there's new episodes to watch, move series to in progress
             if (tvSeriesIsInProgress) {

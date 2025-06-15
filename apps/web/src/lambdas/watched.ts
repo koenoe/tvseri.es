@@ -3,7 +3,7 @@ import { type DynamoDBStreamEvent } from 'aws-lambda';
 import { type AttributeValue } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 
-import { cachedTvSeries as _cachedTvSeries } from '@/lib/cached';
+import { fetchTvSeries } from '@/lib/api';
 import { addToList, removeFromList, removeFromWatchlist } from '@/lib/db/list';
 import { getWatchedCountForTvSeries, type WatchedItem } from '@/lib/db/watched';
 import { type TvSeries } from '@/types/tv-series';
@@ -15,12 +15,6 @@ import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
  */
 const tvSeriesCache = new Map<string, TvSeries | null>();
 
-/**
- * Memory-cached version of the DynamoDB-cached TV series lookup.
- * - First checks module-level memory cache
- * - If not found, falls back to DynamoDB cache (_cachedTvSeries)
- * - Caches both found and not-found (null) results
- */
 const cachedTvSeries = async (id: number) => {
   const cacheKey = `watched-queue:${id}`;
 
@@ -28,7 +22,7 @@ const cachedTvSeries = async (id: number) => {
     return tvSeriesCache.get(cacheKey);
   }
 
-  const tvSeries = await _cachedTvSeries(id);
+  const tvSeries = await fetchTvSeries(id);
   tvSeriesCache.set(cacheKey, tvSeries ?? null);
 
   return tvSeries;

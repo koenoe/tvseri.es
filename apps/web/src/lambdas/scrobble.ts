@@ -1,12 +1,8 @@
 import { type SQSHandler, type SQSEvent } from 'aws-lambda';
 
-import { cachedTvSeries } from '@/lib/cached';
+import { fetchTvSeries, fetchTvSeriesEpisode, searchTvSeries } from '@/lib/api';
 import { markWatched } from '@/lib/db/watched';
-import {
-  fetchTvSeriesEpisode,
-  findByExternalId,
-  searchTvSeries,
-} from '@/lib/tmdb';
+import { findByExternalId } from '@/lib/tmdb';
 import { type TmdbExternalSource } from '@/lib/tmdb/helpers';
 import { type Episode, type TvSeries } from '@/types/tv-series';
 import { type WatchProvider } from '@/types/watch-provider';
@@ -132,7 +128,7 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
 
         if (externalEpisode) {
           episode = externalEpisode;
-          tvSeries = await cachedTvSeries(externalEpisode.tvSeriesId);
+          tvSeries = await fetchTvSeries(externalEpisode.tvSeriesId);
         }
       }
 

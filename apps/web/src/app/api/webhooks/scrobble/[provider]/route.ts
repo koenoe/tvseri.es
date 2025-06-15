@@ -17,9 +17,10 @@ export async function POST(
     return Response.json({ error: 'Missing token' }, { status: 400 });
   }
 
-  const { provider } = await params;
-
-  const webhookToken = await findWebhookToken(token);
+  const [{ provider }, webhookToken] = await Promise.all([
+    params,
+    findWebhookToken(token),
+  ]);
 
   if (!webhookToken || webhookToken.type !== provider) {
     return Response.json({ error: 'Invalid token' }, { status: 401 });

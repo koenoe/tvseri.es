@@ -4,6 +4,7 @@ import { compress } from 'hono/compress';
 import { etag } from 'hono/etag';
 
 import collection from './routes/collection';
+import discover from './routes/discover';
 import genres from './routes/genres';
 import person from './routes/person';
 import search from './routes/search';
@@ -14,6 +15,7 @@ const app = new Hono();
 app.use(compress());
 app.use(etag());
 app.route('/collection', collection);
+app.route('/discover', discover);
 app.route('/genres', genres);
 app.route('/person', person);
 app.route('/search', search);

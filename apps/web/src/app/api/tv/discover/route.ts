@@ -1,6 +1,6 @@
 import { type NextRequest } from 'next/server';
 
-import { fetchDiscoverTvSeries } from '@/lib/tmdb';
+import { fetchDiscoverTvSeries } from '@/lib/api';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -18,15 +18,8 @@ export async function GET(request: NextRequest) {
   const nextPageOrCursor =
     nextPage >= totalNumberOfPages || items.length === 0 ? null : nextPage;
 
-  return Response.json(
-    {
-      items,
-      nextPageOrCursor,
-    },
-    {
-      headers: {
-        'Cache-Control': 'public, max-age=3600, immutable',
-      },
-    },
-  );
+  return Response.json({
+    items,
+    nextPageOrCursor,
+  });
 }

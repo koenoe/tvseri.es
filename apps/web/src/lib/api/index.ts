@@ -242,3 +242,17 @@ export async function fetchPersonKnownFor(id: number | string) {
   )[];
   return items;
 }
+
+export async function fetchDiscoverTvSeries(
+  query: Record<string, string | number | boolean> = {},
+) {
+  const results = (await apiFetch('/discover', {
+    query,
+  })) as Readonly<{
+    items: TvSeries[];
+    totalNumberOfItems: number;
+    totalNumberOfPages: number;
+    queryString?: string;
+  }>;
+  return results;
+}

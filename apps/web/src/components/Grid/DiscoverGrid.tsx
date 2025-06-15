@@ -1,17 +1,13 @@
 import { headers } from 'next/headers';
 
-import { fetchDiscoverTvSeries } from '@/lib/tmdb';
-import {
-  type TmdbDiscoverTvSeriesQuery,
-  type TmdbDiscoverQuery,
-} from '@/lib/tmdb/helpers';
+import { fetchDiscoverTvSeries } from '@/lib/api';
 
 import InfiniteGrid from './InfiniteGrid';
 
 export default async function DiscoverGrid({
   query,
 }: Readonly<{
-  query?: TmdbDiscoverQuery;
+  query?: Record<string, string | number | boolean>;
 }>) {
   const headerStore = await headers();
   const region = headerStore.get('cloudfront-viewer-country') || 'US';
@@ -19,7 +15,7 @@ export default async function DiscoverGrid({
     await fetchDiscoverTvSeries({
       ...query,
       watch_region: region,
-    } as TmdbDiscoverTvSeriesQuery);
+    });
 
   return (
     <InfiniteGrid

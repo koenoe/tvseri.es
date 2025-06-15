@@ -90,6 +90,7 @@ export async function GET(request: NextRequest) {
       username: tmdbAccount.username,
       tmdbAccountId: tmdbAccount.id,
       tmdbAccountObjectId: accountObjectId,
+      tmdbUsername: tmdbAccount.username,
     });
   }
 

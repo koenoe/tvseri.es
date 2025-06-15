@@ -1,13 +1,13 @@
 import { headers } from 'next/headers';
 
 import { cachedTvSeriesSeason } from '@/app/cached';
+import { fetchTvSeriesWatchProvider } from '@/lib/api';
 import {
   getAllWatchedForTvSeries,
   markWatchedInBatch,
   unmarkWatchedInBatch,
   type WatchedItem,
 } from '@/lib/db/watched';
-import { fetchTvSeriesWatchProvider } from '@/lib/tmdb';
 import { type Season, type TvSeries } from '@/types/tv-series';
 import { type User } from '@/types/user';
 import { type WatchProvider } from '@/types/watch-provider';

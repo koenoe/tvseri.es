@@ -13,8 +13,8 @@ import { cx } from 'class-variance-authority';
 import { preload } from 'react-dom';
 import { toast } from 'sonner';
 
+import { type fetchTvSeriesImages } from '@/lib/api';
 import { type PreferredImages } from '@/lib/db/preferredImages';
-import { type fetchTvSeriesImages } from '@/lib/tmdb';
 import preloadImage from '@/utils/preloadImage';
 
 import { usePageStore } from '../Page/PageStoreProvider';

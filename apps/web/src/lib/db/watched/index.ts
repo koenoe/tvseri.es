@@ -8,7 +8,7 @@ import {
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Resource } from 'sst';
 
-import { fetchTvSeriesSeason } from '@/lib/tmdb';
+import { fetchTvSeriesSeason } from '@/lib/api';
 import { buildPosterImageUrl, generateTmdbImageUrl } from '@/lib/tmdb/helpers';
 import type { TvSeries } from '@/types/tv-series';
 import { type WatchProvider } from '@/types/watch-provider';

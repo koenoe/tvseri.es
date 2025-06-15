@@ -1,11 +1,11 @@
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
+import { fetchTvSeriesImages } from '@/lib/api';
 import {
   type PreferredImages,
   putPreferredImages,
 } from '@/lib/db/preferredImages';
 import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
-import { fetchTvSeriesImages } from '@/lib/tmdb';
 
 import PreferredImagesForAdmin from './PreferredImagesForAdmin';
 

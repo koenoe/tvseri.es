@@ -1,4 +1,4 @@
-import { cachedTvSeriesSeason } from '@/lib/cached';
+import { fetchTvSeriesSeason } from '@/lib/api';
 
 export async function GET(
   _req: Request,
@@ -7,7 +7,7 @@ export async function GET(
   }: { params: Promise<{ id: string; season: string }> },
 ) {
   const params = await paramsFromProps;
-  const season = await cachedTvSeriesSeason(params.id, params.season);
+  const season = await fetchTvSeriesSeason(params.id, params.season);
 
   return Response.json(season);
 }

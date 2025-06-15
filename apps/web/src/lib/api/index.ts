@@ -168,6 +168,27 @@ export async function fetchTvSeriesEpisode(
   return episode;
 }
 
+export async function fetchTvSeriesImages(
+  id: number | string,
+  language?: string,
+) {
+  const images = (await apiFetch(`/series/${id}/images`, {
+    query: {
+      language,
+    },
+  })) as Readonly<{
+    backdrops: Readonly<{
+      url: string;
+      path: string;
+    }>[];
+    titleTreatment: Readonly<{
+      url: string;
+      path: string;
+    }>[];
+  }>;
+  return images;
+}
+
 export async function fetchTvSeriesContentRating(
   id: number | string,
   region: string = 'US',

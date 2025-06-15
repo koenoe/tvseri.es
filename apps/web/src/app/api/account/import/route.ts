@@ -7,9 +7,9 @@ import wordsToNumbers from 'words-to-numbers';
 
 import { cachedTvSeries, cachedTvSeriesSeason } from '@/app/cached';
 import auth from '@/auth';
+import { fetchWatchProviders } from '@/lib/api';
+import { searchTvSeries } from '@/lib/api';
 import { markWatchedInBatch } from '@/lib/db/watched';
-import { fetchWatchProviders } from '@/lib/tmdb';
-import { searchTvSeries } from '@/lib/tmdb';
 import { type TvSeries, type Episode, type Season } from '@/types/tv-series';
 import { type WatchProvider } from '@/types/watch-provider';
 

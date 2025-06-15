@@ -2,6 +2,7 @@ import { headers } from 'next/headers';
 
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
+import { fetchTvSeriesEpisode, fetchTvSeriesWatchProvider } from '@/lib/api';
 import {
   markSeasonWatched,
   markTvSeriesWatched,
@@ -10,7 +11,6 @@ import {
   unmarkTvSeriesWatched,
   unmarkWatched,
 } from '@/lib/db/watched';
-import { fetchTvSeriesEpisode, fetchTvSeriesWatchProvider } from '@/lib/tmdb';
 
 type BodyPayload = Readonly<{
   watched: boolean;
@@ -50,9 +50,9 @@ export async function POST(
     );
 
     const payload = {
-      episodeNumber: episode.episodeNumber,
-      runtime: episode.runtime,
-      seasonNumber: episode.seasonNumber,
+      episodeNumber: episode!.episodeNumber,
+      runtime: episode!.runtime,
+      seasonNumber: episode!.seasonNumber,
       tvSeries,
       userId: user.id,
       watchProvider,

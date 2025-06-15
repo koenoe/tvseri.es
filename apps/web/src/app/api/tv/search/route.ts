@@ -1,6 +1,6 @@
 import { type NextRequest } from 'next/server';
 
-import { searchTvSeries } from '@/lib/tmdb';
+import { searchTvSeries } from '@/lib/api';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -12,9 +12,5 @@ export async function GET(request: NextRequest) {
 
   const response = await searchTvSeries(query);
 
-  return Response.json(response, {
-    headers: {
-      'Cache-Control': 'public, max-age=3600, immutable',
-    },
-  });
+  return Response.json(response);
 }

@@ -9,9 +9,5 @@ export async function GET(
   const params = await paramsFromProps;
   const season = await cachedTvSeriesSeason(params.id, params.season);
 
-  return Response.json(season, {
-    headers: {
-      'Cache-Control': 'public, max-age=43200, immutable',
-    },
-  });
+  return Response.json(season);
 }

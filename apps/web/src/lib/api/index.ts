@@ -3,7 +3,7 @@ import type { BetterFetchOption } from '@better-fetch/fetch';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
 import { type Genre } from '@/types/genre';
-import { type TvSeries } from '@/types/tv-series';
+import { type Episode, type Season, type TvSeries } from '@/types/tv-series';
 
 import nextPlugin from '../betterFetchNextPlugin';
 
@@ -103,4 +103,54 @@ export async function fetchApplePlusTvSeries(region?: string) {
 export async function fetchGenresForTvSeries() {
   const genres = (await apiFetch('/genres')) as Genre[];
   return genres;
+}
+
+export async function searchTvSeries(
+  query: string,
+  {
+    year,
+  }: Readonly<{
+    year?: number | string;
+  }> = {},
+) {
+  const series = (await apiFetch('/search/series', {
+    query: {
+      q: query,
+      year,
+    },
+  })) as TvSeries[];
+  return series;
+}
+
+export async function fetchTvSeries(
+  id: number | string,
+  options: Readonly<{ includeImages?: boolean }> = { includeImages: false },
+) {
+  const series = (await apiFetch(`/series/${id}`, {
+    query: {
+      includeImages: options.includeImages,
+    },
+  })) as TvSeries | undefined;
+  return series;
+}
+
+export async function fetchTvSeriesSeason(
+  id: number | string,
+  seasonNumber: number | string,
+) {
+  const season = (await apiFetch(`/series/${id}/season/${seasonNumber}`)) as
+    | Season
+    | undefined;
+  return season;
+}
+
+export async function fetchTvSeriesEpisode(
+  id: number | string,
+  seasonNumber: number | string,
+  episodeNumber: number | string,
+) {
+  const episode = (await apiFetch(
+    `/series/${id}/season/${seasonNumber}/episode/${episodeNumber}`,
+  )) as Episode | undefined;
+  return episode;
 }

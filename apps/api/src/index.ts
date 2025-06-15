@@ -5,6 +5,7 @@ import { etag } from 'hono/etag';
 
 import collections from './routes/collections';
 import genres from './routes/genres';
+import search from './routes/search';
 import series from './routes/series';
 
 const app = new Hono();
@@ -13,6 +14,7 @@ app.use(compress());
 app.use(etag());
 app.route('/collections', collections);
 app.route('/genres', genres);
+app.route('/search', search);
 app.route('/series', series);
 
 export const handler = handle(app);

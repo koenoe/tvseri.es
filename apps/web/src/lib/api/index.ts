@@ -3,6 +3,7 @@ import type { BetterFetchOption } from '@better-fetch/fetch';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
 import { type Genre } from '@/types/genre';
+import { type Person } from '@/types/person';
 import { type Rating } from '@/types/rating';
 import { type Episode, type Season, type TvSeries } from '@/types/tv-series';
 import { type WatchProvider } from '@/types/watch-provider';
@@ -191,4 +192,27 @@ export async function fetchTvSeriesRating(
     },
   })) as Rating | null;
   return rating;
+}
+
+export async function fetchTvSeriesCredits(id: number | string) {
+  const credits = (await apiFetch(`/series/${id}/credits`)) as Readonly<{
+    cast: Person[];
+    crew: Person[];
+  }>;
+  return credits;
+}
+
+export async function fetchTvSeriesRecommendations(id: number | string) {
+  const recommendations = (await apiFetch(
+    `/series/${id}/recommendations`,
+  )) as TvSeries[];
+  return recommendations;
+}
+
+export async function fetchTvSeriesKeywords(id: number | string) {
+  const keywords = (await apiFetch(`/series/${id}/keywords`)) as Readonly<{
+    id: number;
+    name: string;
+  }>[];
+  return keywords;
 }

@@ -2,7 +2,7 @@ import { cx } from 'class-variance-authority';
 import { headers } from 'next/headers';
 import Image from 'next/image';
 
-import { fetchTvSeriesWatchProvider } from '@/lib/tmdb';
+import { fetchTvSeriesWatchProvider } from '@/lib/api';
 
 export default async function WatchProvider({
   className,

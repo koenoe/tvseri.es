@@ -1,9 +1,9 @@
 import { createFetch } from '@better-fetch/fetch';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
+import { type Rating } from '@/types/rating';
 
 import nextPlugin from '../betterFetchNextPlugin';
-import { getCacheItem, setCacheItem } from '../db/cache';
 
 if (!process.env.MDBLIST_API_KEY) {
   throw new Error('No "API_KEY" found for MDBList');
@@ -85,41 +85,22 @@ export async function fetchTvSeriesOrMovie(
   return response;
 }
 
-// TODO: revise for other ratings when needed
-type ImdbRating = Readonly<{
-  popular: number;
-  score: number;
-  source: string;
-  value: number;
-  votes: number;
-  imdbid: string;
-}>;
-
 export async function fetchRating(
   id: number | string,
   mediaType: MediaType = 'show',
   returnRating: string = 'imdb',
 ) {
-  const cacheKey = `rating:${mediaType}:${id}:${returnRating}`;
-  const cachedValue = await getCacheItem<ImdbRating | null>(cacheKey);
-  if (cachedValue) {
-    return cachedValue;
-  }
-
   const response = await fetchTvSeriesOrMovie(id, mediaType);
   const rating = response.ratings?.find(
     (rating) => rating.source === returnRating,
   );
-
   const result =
     rating && rating.value > 0
-      ? {
+      ? ({
           ...rating,
           imdbid: response.ids.imdb,
-        }
+        } as Rating)
       : null;
-
-  await setCacheItem<ImdbRating | null>(cacheKey, result, { ttl: 43200 }); // 12 hours
 
   return result;
 }

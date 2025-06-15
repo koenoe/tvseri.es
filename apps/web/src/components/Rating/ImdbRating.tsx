@@ -1,7 +1,7 @@
 import { cx } from 'class-variance-authority';
 import Link from 'next/link';
 
-import { fetchRating } from '@/lib/mdblist';
+import { fetchTvSeriesRating } from '@/lib/api';
 import formatVoteCount from '@/utils/formatCount';
 
 export default async function ImdbRating({
@@ -12,7 +12,7 @@ export default async function ImdbRating({
   id: number;
 }) {
   try {
-    const rating = await fetchRating(id, 'show', 'imdb');
+    const rating = await fetchTvSeriesRating(id, 'imdb');
 
     return rating ? (
       <Link

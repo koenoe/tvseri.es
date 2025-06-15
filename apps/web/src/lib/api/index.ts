@@ -3,7 +3,9 @@ import type { BetterFetchOption } from '@better-fetch/fetch';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
 import { type Genre } from '@/types/genre';
+import { type Rating } from '@/types/rating';
 import { type Episode, type Season, type TvSeries } from '@/types/tv-series';
+import { type WatchProvider } from '@/types/watch-provider';
 
 import nextPlugin from '../betterFetchNextPlugin';
 
@@ -153,4 +155,40 @@ export async function fetchTvSeriesEpisode(
     `/series/${id}/season/${seasonNumber}/episode/${episodeNumber}`,
   )) as Episode | undefined;
   return episode;
+}
+
+export async function fetchTvSeriesContentRating(
+  id: number | string,
+  region: string = 'US',
+) {
+  const contentRating = (await apiFetch(`/series/${id}/content-rating`, {
+    query: {
+      region,
+    },
+  })) as string | undefined;
+  return contentRating;
+}
+
+export async function fetchTvSeriesWatchProvider(
+  id: number | string,
+  region: string = 'US',
+) {
+  const watchProvider = (await apiFetch(`/series/${id}/watch-provider`, {
+    query: {
+      region,
+    },
+  })) as WatchProvider | undefined;
+  return watchProvider;
+}
+
+export async function fetchTvSeriesRating(
+  id: number | string,
+  source: string = 'imdb',
+) {
+  const rating = (await apiFetch(`/series/${id}/rating`, {
+    query: {
+      source,
+    },
+  })) as Rating | null;
+  return rating;
 }

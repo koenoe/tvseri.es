@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 
+import { fetchRating } from '@/lib/mdblist';
 import {
   fetchTvSeries,
   fetchTvSeriesContentRating,
@@ -88,7 +89,7 @@ app.get('/:id/images', async (c) => {
   return c.json(images);
 });
 
-app.get('/:id/content_rating', async (c) => {
+app.get('/:id/content-rating', async (c) => {
   const rating = await fetchTvSeriesContentRating(
     c.req.param('id'),
     c.req.query('region') || 'US',
@@ -106,7 +107,7 @@ app.get('/:id/content_rating', async (c) => {
   return c.json(rating);
 });
 
-app.get('/:id/watch_providers', async (c) => {
+app.get('/:id/watch-providers', async (c) => {
   const providers = await fetchTvSeriesWatchProviders(
     c.req.param('id'),
     c.req.query('region') || 'US',
@@ -124,7 +125,7 @@ app.get('/:id/watch_providers', async (c) => {
   return c.json(providers);
 });
 
-app.get('/:id/watch_provider', async (c) => {
+app.get('/:id/watch-provider', async (c) => {
   const provider = await fetchTvSeriesWatchProvider(
     c.req.param('id'),
     c.req.query('region') || 'US',
@@ -200,6 +201,25 @@ app.get('/:id/keywords', async (c) => {
   ); // 12h, allow stale for 1h
 
   return c.json(keywords);
+});
+
+app.get('/:id/rating', async (c) => {
+  const rating = await fetchRating(
+    c.req.param('id'),
+    'show',
+    c.req.query('source') || 'imdb',
+  );
+
+  if (!rating) {
+    return c.notFound();
+  }
+
+  c.header(
+    'Cache-Control',
+    'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
+  ); // 12h, allow stale for 1h
+
+  return c.json(rating);
 });
 
 export default app;

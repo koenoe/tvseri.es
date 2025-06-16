@@ -1,11 +1,12 @@
 import { type SQSHandler, type SQSEvent } from 'aws-lambda';
 
+import { type TmdbExternalSource } from '@tvseri.es/types';
+import { type Episode, type TvSeries } from '@tvseri.es/types';
+import { type WatchProvider } from '@tvseri.es/types';
+
 import { fetchTvSeries, fetchTvSeriesEpisode, searchTvSeries } from '@/lib/api';
 import { markWatched } from '@/lib/db/watched';
 import { findByExternalId } from '@/lib/tmdb';
-import { type TmdbExternalSource } from '@/lib/tmdb/helpers';
-import { type Episode, type TvSeries } from '@/types/tv-series';
-import { type WatchProvider } from '@/types/watch-provider';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 
 type EpisodeWithTvSeriesId = Episode & { tvSeriesId: number };

@@ -5,11 +5,11 @@ import {
   GetItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import type { TvSeries } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
 import client from '../client';
 import { buildPosterImageUrl } from '@/lib/tmdb/helpers';
-import { type TvSeries } from '@/types/tv-series';
 
 // const BATCH_SIZE = 25;
 

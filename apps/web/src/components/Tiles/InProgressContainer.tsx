@@ -1,9 +1,10 @@
+import { type Season } from '@tvseri.es/types';
+import { type User } from '@tvseri.es/types';
+
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
 import { removeFromList, type ListItem } from '@/lib/db/list';
 import { getAllWatchedForTvSeries, type WatchedItem } from '@/lib/db/watched';
-import { type Season } from '@/types/tv-series';
-import { type User } from '@/types/user';
 
 import InProgress from './InProgress';
 

@@ -1,3 +1,5 @@
+import { type TvSeries, type Episode, type Season } from '@tvseri.es/types';
+import { type WatchProvider } from '@tvseri.es/types';
 import { isValid, parse } from 'date-fns';
 import { diceCoefficient } from 'dice-coefficient';
 import { headers } from 'next/headers';
@@ -10,8 +12,6 @@ import auth from '@/auth';
 import { fetchWatchProviders } from '@/lib/api';
 import { searchTvSeries } from '@/lib/api';
 import { markWatchedInBatch } from '@/lib/db/watched';
-import { type TvSeries, type Episode, type Season } from '@/types/tv-series';
-import { type WatchProvider } from '@/types/watch-provider';
 
 type CsvItem = Readonly<{
   title: string;

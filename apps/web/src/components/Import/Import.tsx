@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { type WatchProvider } from '@tvseri.es/types';
 import { AnimatePresence, motion } from 'motion/react';
 import slugify from 'slugify';
 
 import { type Field } from '@/hooks/useCsvParser';
-import { type WatchProvider } from '@/types/watch-provider';
 
 import Ripple from './Ripple';
 import CsvImporter from '../CsvImporter/CsvImporter';

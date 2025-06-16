@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 
+import { type User } from '@tvseri.es/types';
 import { motion, AnimatePresence } from 'motion/react';
 import { useRouter } from 'next/navigation';
 
 import useMatchMedia from '@/hooks/useMatchMedia';
-import { type User } from '@/types/user';
 import getMainBackgroundColor from '@/utils/getMainBackgroundColor';
 
 import MenuToggle, { type MenuToggleHandle } from './MenuToggle';

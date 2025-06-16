@@ -1,3 +1,5 @@
+import { type TvSeries } from '@tvseri.es/types';
+
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
 import {
@@ -12,7 +14,6 @@ import {
   addToOrRemoveFromWatchlist,
   addToOrRemoveFromFavorites,
 } from '@/lib/tmdb';
-import { type TvSeries } from '@/types/tv-series';
 
 import ActionButtonsProvider from './ActionButtonsProvider';
 import ContextMenuButtonTvSeries from './ContextMenuButtonTvSeries';

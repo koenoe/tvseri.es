@@ -2,9 +2,9 @@
 
 import { useCallback, useMemo } from 'react';
 
+import { type CountryOrLanguage } from '@tvseri.es/types';
 import Image from 'next/image';
 
-import { type CountryOrLanguage } from '@/types/country-language';
 import svgSimplePlaceholder from '@/utils/svgSimplePlaceholder';
 
 import MultiSelect, { type Result } from './MultiSelect';

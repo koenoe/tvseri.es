@@ -1,44 +1,45 @@
 import { createFetch } from '@better-fetch/fetch';
+import type {
+  Account,
+  CountryOrLanguage,
+  Genre,
+  Keyword,
+  Movie,
+  Person,
+  TmdbTvSeries,
+  TmdbDiscoverTvSeriesQuery,
+  TmdbMovie,
+  TmdbTvSeriesEpisode,
+  TmdbTvSeriesCredits,
+  Episode,
+  Season,
+  TvSeries,
+  WatchProvider,
+  TmdbTvSeriesImages,
+  TmdbTvSeriesContentRatings,
+  TmdbTvSeriesWatchProviders,
+  TmdbTvSeriesRecommendations,
+  TmdbTvSeriesSimilar,
+  TmdbTvSeriesKeywords,
+  TmdbTvSeriesSeason,
+  TmdbTrendingTvSeries,
+  TmdbDiscoverTvSeries,
+  TmdbAccountDetails,
+  TmdbGenresForTvSeries,
+  TmdbSearchTvSeries,
+  TmdbWatchProviders,
+  TmdbCountries,
+  TmdbLanguages,
+  TmdbKeyword,
+  TmdbKeywords,
+  TmdbSearchPerson,
+  TmdbPerson,
+  TmdbPersonTvCredits,
+  TmdbExternalSource,
+  TmdbFindByIdResults,
+} from '@tvseri.es/types';
 import slugify from 'slugify';
 
-import {
-  generateTmdbImageUrl,
-  normalizeTvSeries,
-  type TmdbTvSeries,
-  type TmdbTrendingTvSeries,
-  type TmdbDiscoverTvSeries,
-  type TmdbGenresForTvSeries,
-  type TmdbTvSeriesContentRatings,
-  type TmdbTvSeriesWatchProviders,
-  type TmdbTvSeriesRecommendations,
-  type TmdbTvSeriesSimilar,
-  type TmdbTvSeriesCredits,
-  normalizePersons,
-  type TmdbTvSeriesSeason,
-  type TmdbSearchTvSeries,
-  type TmdbAccountDetails,
-  type TmdbWatchProviders,
-  type TmdbKeywords,
-  type TmdbCountries,
-  type TmdbLanguages,
-  type TmdbKeyword,
-  type TmdbPerson,
-  normalizeMovie,
-  type TmdbMovie,
-  type TmdbDiscoverTvSeriesQuery,
-  GLOBAL_GENRES_TO_IGNORE,
-  buildDiscoverQuery,
-  type TmdbSearchPerson,
-  type TmdbPersonTvCredits,
-  type TmdbTvSeriesImages,
-  buildBackdropImageUrl,
-  buildTitleTreatmentImageUrl,
-  type TmdbTvSeriesEpisode,
-  normalizeTvSeriesEpisode,
-  type TmdbFindByIdResults,
-  type TmdbExternalSource,
-  type TmdbTvSeriesKeywords,
-} from './helpers';
 import { findPreferredImages } from '../db/preferredImages';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import {
@@ -47,17 +48,20 @@ import {
   fetchMostPopularThisMonth,
 } from '../mdblist';
 import {
+  GLOBAL_GENRES_TO_IGNORE,
+  buildBackdropImageUrl,
+  buildDiscoverQuery,
+  buildTitleTreatmentImageUrl,
+  generateTmdbImageUrl,
+  normalizeMovie,
+  normalizePersons,
+  normalizeTvSeries,
+  normalizeTvSeriesEpisode,
+} from './helpers';
+import {
   DEFAULT_FETCH_RETRY_OPTIONS,
   WATCH_PROVIDER_PRIORITY,
 } from '@/constants';
-import { type Account } from '@/types/account';
-import { type CountryOrLanguage } from '@/types/country-language';
-import { type Genre } from '@/types/genre';
-import { type Keyword } from '@/types/keyword';
-import { type Movie } from '@/types/movie';
-import { type Person } from '@/types/person';
-import type { Episode, Season, TvSeries } from '@/types/tv-series';
-import { type WatchProvider } from '@/types/watch-provider';
 import calculateAge from '@/utils/calculateAge';
 import { toQueryString } from '@/utils/toQueryString';
 

@@ -5,11 +5,11 @@ import {
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import type { Session } from '@tvseri.es/types';
 import { Resource } from 'sst';
 import { ulid } from 'ulid';
 
 import client from '../client';
-import { type Session } from '@/types/session';
 
 export const SESSION_DURATION = 6 * 30 * 24 * 60 * 60; // 6 months in seconds
 

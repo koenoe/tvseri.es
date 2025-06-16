@@ -1,7 +1,8 @@
+import { type Person } from '@tvseri.es/types';
+
 import Poster from '@/components/Tiles/Poster';
 import { fetchPersonKnownFor } from '@/lib/api';
 import { type ListItem } from '@/lib/db/list';
-import { type Person } from '@/types/person';
 
 export default async function KnownFor({
   personId,

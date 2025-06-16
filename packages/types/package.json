@@ -1,0 +1,16 @@
+{
+  "name": "@tvseri.es/types",
+  "version": "0.0.0",
+  "private": true,
+  "types": "./src/index.ts",
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "extract-tmdb-types": "openapi-typescript --path-params-as-types"
+  },
+  "devDependencies": {
+    "@tvseri.es/typescript-config": "workspace:*",
+    "concurrently": "^9.1.2",
+    "openapi-typescript": "^7.8.0",
+    "typescript": "^5.8.3"
+  }
+}

@@ -2,9 +2,8 @@
 
 import { memo } from 'react';
 
+import type { TvSeries } from '@tvseri.es/types';
 import Link from 'next/link';
-
-import type { TvSeries } from '@/types/tv-series';
 
 import SpotlightBackground from './SpotlightBackground';
 import SpotlightTitle from './SpotlightTitle';

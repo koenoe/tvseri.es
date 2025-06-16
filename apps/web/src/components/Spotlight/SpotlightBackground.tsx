@@ -1,7 +1,7 @@
+import { type TvSeries } from '@tvseri.es/types';
 import { cx } from 'class-variance-authority';
 
 import useRgbString from '@/hooks/useRgbString';
-import { type TvSeries } from '@/types/tv-series';
 
 import BackgroundImage from '../Background/BackgroundImage';
 

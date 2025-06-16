@@ -5,10 +5,9 @@ import {
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { type Session } from '@tvseri.es/types';
 import { Resource } from 'sst';
 import { ulid } from 'ulid';
-
-import { type Session } from '@/types/session';
 
 import client from '../client';
 

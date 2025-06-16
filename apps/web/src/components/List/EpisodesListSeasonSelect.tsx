@@ -2,10 +2,9 @@
 
 import { memo, useMemo, useRef, useState } from 'react';
 
+import { type TvSeries } from '@tvseri.es/types';
 import { AnimatePresence, motion } from 'motion/react';
 import { useSearchParams } from 'next/navigation';
-
-import { type TvSeries } from '@/types/tv-series';
 
 import DropdownContainer from '../Dropdown/DropdownContainer';
 

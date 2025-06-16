@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useState, useTransition } from 'react';
 
-import { type UserWithFollowInfo } from '@/types/user';
+import { type UserWithFollowInfo } from '@tvseri.es/types';
 
 import Item from './Item';
 import LoadingDots from '../LoadingDots/LoadingDots';

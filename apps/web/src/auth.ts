@@ -1,8 +1,7 @@
 import { cache } from 'react';
 
+import { type Session } from '@tvseri.es/types';
 import { cookies } from 'next/headers';
-
-import { type Session } from '@/types/session';
 
 import { findSession } from './lib/db/session';
 import { findUser } from './lib/db/user';

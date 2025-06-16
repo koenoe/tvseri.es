@@ -8,9 +8,8 @@ import {
   BatchGetItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { unmarshall, marshall } from '@aws-sdk/util-dynamodb';
+import { type User } from '@tvseri.es/types';
 import { Resource } from 'sst';
-
-import { type User } from '@/types/user';
 
 import client from '../client';
 

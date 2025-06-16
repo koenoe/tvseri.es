@@ -1,6 +1,6 @@
 'use client';
 
-import { type TvSeries } from '@/types/tv-series';
+import { type TvSeries } from '@tvseri.es/types';
 
 import ExpandableList from './ExpandableList';
 

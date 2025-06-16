@@ -2,11 +2,11 @@
 
 import { useActionState, useEffect } from 'react';
 
+import { type User } from '@tvseri.es/types';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 import { updateProfile } from '@/app/actions';
-import { type User } from '@/types/user';
 
 import Tmdb from './Tmdb';
 import LoadingDots from '../LoadingDots/LoadingDots';

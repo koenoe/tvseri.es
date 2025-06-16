@@ -2,12 +2,12 @@
 
 import { memo } from 'react';
 
+import { type Person } from '@tvseri.es/types';
 import { cva, cx } from 'class-variance-authority';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { type Person } from '@/types/person';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 const MotionImage = motion.create(Image);

@@ -2,12 +2,12 @@
 
 import { memo } from 'react';
 
+import { type Genre } from '@tvseri.es/types';
 import { cva } from 'class-variance-authority';
 import { motion, useMotionTemplate, useMotionValue } from 'motion/react';
 import Link from 'next/link';
 
 import noise from '@/assets/noise.webp';
-import { type Genre } from '@/types/genre';
 
 const variants = {
   hidden: { opacity: 0 },

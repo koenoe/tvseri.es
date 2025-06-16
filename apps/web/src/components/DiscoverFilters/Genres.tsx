@@ -2,10 +2,9 @@
 
 import { useCallback, useMemo } from 'react';
 
+import { type Genre } from '@tvseri.es/types';
 import { cva } from 'class-variance-authority';
 import { useRouter, useSearchParams } from 'next/navigation';
-
-import { type Genre } from '@/types/genre';
 
 const buttonStyles = cva(
   'text-nowrap rounded-3xl px-5 py-4 leading-none tracking-wide font-medium text-xs',

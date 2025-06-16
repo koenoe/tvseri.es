@@ -2,11 +2,11 @@
 
 import { memo } from 'react';
 
+import { type Episode } from '@tvseri.es/types';
+import { type WatchProvider } from '@tvseri.es/types';
 import Image from 'next/image';
 
 import { type WatchedItem } from '@/lib/db/watched';
-import { type Episode } from '@/types/tv-series';
-import { type WatchProvider } from '@/types/watch-provider';
 import formatDate from '@/utils/formatDate';
 import formatRuntime from '@/utils/formatRuntime';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';

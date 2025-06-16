@@ -1,23 +1,25 @@
 import { createFetch } from '@better-fetch/fetch';
+import type {
+  Account,
+  TmdbAccountDetails,
+  TmdbDiscoverTvSeries,
+  TmdbDiscoverTvSeriesQuery,
+  TmdbExternalSource,
+  TmdbFindByIdResults,
+  TmdbTvSeries,
+  TmdbTvSeriesEpisode,
+  TmdbTvSeriesSeason,
+} from '@tvseri.es/types';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
-import { type Account } from '@/types/account';
 import getBaseUrl from '@/utils/getBaseUrl';
 import { toQueryString } from '@/utils/toQueryString';
 
 import {
-  normalizeTvSeries,
-  type TmdbTvSeries,
-  type TmdbTvSeriesSeason,
-  type TmdbAccountDetails,
-  type TmdbTvSeriesEpisode,
-  normalizeTvSeriesEpisode,
-  type TmdbFindByIdResults,
-  type TmdbExternalSource,
-  buildDiscoverQuery,
-  type TmdbDiscoverTvSeriesQuery,
-  type TmdbDiscoverTvSeries,
   GLOBAL_GENRES_TO_IGNORE,
+  buildDiscoverQuery,
+  normalizeTvSeries,
+  normalizeTvSeriesEpisode,
 } from './helpers';
 import nextPlugin from '../betterFetchNextPlugin';
 

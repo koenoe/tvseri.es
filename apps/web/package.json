@@ -42,6 +42,7 @@
     "@opennextjs/aws": "^3.6.5",
     "@tailwindcss/typography": "^0.5.16",
     "@tvseri.es/eslint-config": "workspace:*",
+    "@tvseri.es/types": "workspace:*",
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/aws-lambda": "^8.10.149",
     "@types/color": "^4.2.0",

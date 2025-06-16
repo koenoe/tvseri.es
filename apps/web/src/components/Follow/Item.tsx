@@ -2,9 +2,8 @@
 
 import { memo } from 'react';
 
+import { type UserWithFollowInfo } from '@tvseri.es/types';
 import Link from 'next/link';
-
-import { type UserWithFollowInfo } from '@/types/user';
 
 import FollowButton from '../Buttons/FollowButton';
 

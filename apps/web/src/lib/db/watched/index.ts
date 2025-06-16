@@ -6,12 +6,12 @@ import {
   QueryCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import type { TvSeries } from '@tvseri.es/types';
+import { type WatchProvider } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
 import { fetchTvSeriesSeason } from '@/lib/api';
 import { buildPosterImageUrl, generateTmdbImageUrl } from '@/lib/tmdb/helpers';
-import type { TvSeries } from '@/types/tv-series';
-import { type WatchProvider } from '@/types/watch-provider';
 
 import client from '../client';
 

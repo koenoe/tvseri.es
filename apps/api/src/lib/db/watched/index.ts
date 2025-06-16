@@ -6,13 +6,12 @@ import {
   QueryCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import type { TvSeries, WatchProvider } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
 import client from '../client';
 import { fetchTvSeriesSeason } from '@/lib/tmdb';
 import { buildPosterImageUrl, generateTmdbImageUrl } from '@/lib/tmdb/helpers';
-import type { TvSeries } from '@/types/tv-series';
-import { type WatchProvider } from '@/types/watch-provider';
 
 export type WatchedItem = Readonly<{
   episodeNumber: number;

@@ -5,11 +5,11 @@ import {
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { type User } from '@tvseri.es/types';
 import slugify from 'slugify';
 import { Resource } from 'sst';
 import { ulid } from 'ulid';
 
-import { type User } from '@/types/user';
 import generateUsername from '@/utils/generateUsername';
 import { encodeToBase64Url } from '@/utils/stringBase64Url';
 

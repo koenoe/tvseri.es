@@ -3,7 +3,7 @@
  * Do not make direct changes to the file.
  */
 
-export type paths = {
+export interface paths {
   '/3/search/movie': {
     parameters: {
       query?: never;
@@ -44,7 +44,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/movie/${integer}`]: {
+  [path: `/3/movie/${number}`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -64,7 +64,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}`]: {
+  [path: `/3/tv/${number}`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -164,7 +164,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/season/${integer}`]: {
+  [path: `/3/tv/${number}/season/${number}`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -184,7 +184,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/season/${integer}/episode/${integer}`]: {
+  [path: `/3/tv/${number}/season/${number}/episode/${number}`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -224,7 +224,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/movie/${integer}/images`]: {
+  [path: `/3/movie/${number}/images`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -244,7 +244,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/images`]: {
+  [path: `/3/tv/${number}/images`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -264,7 +264,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/season/${integer}/images`]: {
+  [path: `/3/tv/${number}/season/${number}/images`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -284,7 +284,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/season/${integer}/episode/${integer}/images`]: {
+  [path: `/3/tv/${number}/season/${number}/episode/${number}/images`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -364,7 +364,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/movie/${integer}/account_states`]: {
+  [path: `/3/movie/${number}/account_states`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -384,7 +384,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/account_states`]: {
+  [path: `/3/tv/${number}/account_states`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -404,9 +404,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [
-    path: `/3/tv/${integer}/season/${integer}/episode/${integer}/account_states`
-  ]: {
+  [path: `/3/tv/${number}/season/${number}/episode/${number}/account_states`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -446,7 +444,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/movie/${integer}/alternative_titles`]: {
+  [path: `/3/movie/${number}/alternative_titles`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -466,7 +464,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/movie/${integer}/changes`]: {
+  [path: `/3/movie/${number}/changes`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -486,7 +484,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/movie/${integer}/credits`]: {
+  [path: `/3/movie/${number}/credits`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -503,7 +501,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/movie/${integer}/external_ids`]: {
+  [path: `/3/movie/${number}/external_ids`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -537,7 +535,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/movie/${integer}/lists`]: {
+  [path: `/3/movie/${number}/lists`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -557,7 +555,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/movie/${integer}/recommendations`]: {
+  [path: `/3/movie/${number}/recommendations`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -574,7 +572,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/movie/${integer}/release_dates`]: {
+  [path: `/3/movie/${number}/release_dates`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -594,7 +592,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/movie/${integer}/reviews`]: {
+  [path: `/3/movie/${number}/reviews`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -614,7 +612,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/movie/${integer}/similar`]: {
+  [path: `/3/movie/${number}/similar`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -634,7 +632,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/movie/${integer}/translations`]: {
+  [path: `/3/movie/${number}/translations`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -654,7 +652,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/movie/${integer}/videos`]: {
+  [path: `/3/movie/${number}/videos`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -671,7 +669,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/movie/${integer}/watch/providers`]: {
+  [path: `/3/movie/${number}/watch/providers`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -691,7 +689,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/movie/${integer}/rating`]: {
+  [path: `/3/movie/${number}/rating`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -820,7 +818,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/person/${integer}`]: {
+  [path: `/3/person/${number}`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -840,7 +838,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/person/${integer}/changes`]: {
+  [path: `/3/person/${number}/changes`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -860,7 +858,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/changes`]: {
+  [path: `/3/tv/${number}/changes`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -880,7 +878,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/person/${integer}/images`]: {
+  [path: `/3/person/${number}/images`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -900,7 +898,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/person/${integer}/movie_credits`]: {
+  [path: `/3/person/${number}/movie_credits`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -920,7 +918,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/person/${integer}/tv_credits`]: {
+  [path: `/3/person/${number}/tv_credits`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -960,7 +958,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/person/${integer}/external_ids`]: {
+  [path: `/3/person/${number}/external_ids`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -980,7 +978,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/person/${integer}/tagged_images`]: {
+  [path: `/3/person/${number}/tagged_images`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1000,7 +998,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/person/${integer}/translations`]: {
+  [path: `/3/person/${number}/translations`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1240,7 +1238,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/aggregate_credits`]: {
+  [path: `/3/tv/${number}/aggregate_credits`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1260,7 +1258,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/alternative_titles`]: {
+  [path: `/3/tv/${number}/alternative_titles`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1280,7 +1278,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/content_ratings`]: {
+  [path: `/3/tv/${number}/content_ratings`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1300,7 +1298,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/credits`]: {
+  [path: `/3/tv/${number}/credits`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1320,7 +1318,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/episode_groups`]: {
+  [path: `/3/tv/${number}/episode_groups`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1340,7 +1338,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/external_ids`]: {
+  [path: `/3/tv/${number}/external_ids`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1360,7 +1358,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/keywords`]: {
+  [path: `/3/tv/${number}/keywords`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1380,7 +1378,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/recommendations`]: {
+  [path: `/3/tv/${number}/recommendations`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1397,7 +1395,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/reviews`]: {
+  [path: `/3/tv/${number}/reviews`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1417,7 +1415,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/screened_theatrically`]: {
+  [path: `/3/tv/${number}/screened_theatrically`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1457,7 +1455,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/translations`]: {
+  [path: `/3/tv/${number}/translations`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1477,7 +1475,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/videos`]: {
+  [path: `/3/tv/${number}/videos`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1497,7 +1495,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/watch/providers`]: {
+  [path: `/3/tv/${number}/watch/providers`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1517,7 +1515,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/rating`]: {
+  [path: `/3/tv/${number}/rating`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1538,7 +1536,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/season/${integer}/account_states`]: {
+  [path: `/3/tv/${number}/season/${number}/account_states`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1558,7 +1556,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/season/${integer}/aggregate_credits`]: {
+  [path: `/3/tv/${number}/season/${number}/aggregate_credits`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1578,7 +1576,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/season/${integer}/changes`]: {
+  [path: `/3/tv/season/${number}/changes`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1598,7 +1596,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/season/${integer}/credits`]: {
+  [path: `/3/tv/${number}/season/${number}/credits`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1615,7 +1613,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/season/${integer}/external_ids`]: {
+  [path: `/3/tv/${number}/season/${number}/external_ids`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1635,7 +1633,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/season/${integer}/translations`]: {
+  [path: `/3/tv/${number}/season/${number}/translations`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1655,7 +1653,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/season/${integer}/videos`]: {
+  [path: `/3/tv/${number}/season/${number}/videos`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1675,7 +1673,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/season/${integer}/episode/${integer}/credits`]: {
+  [path: `/3/tv/${number}/season/${number}/episode/${number}/credits`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1692,7 +1690,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/season/${integer}/episode/${string}/external_ids`]: {
+  [path: `/3/tv/${number}/season/${number}/episode/${string}/external_ids`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1712,9 +1710,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [
-    path: `/3/tv/${integer}/season/${integer}/episode/${integer}/translations`
-  ]: {
+  [path: `/3/tv/${number}/season/${number}/episode/${number}/translations`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1734,7 +1730,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/season/${integer}/episode/${integer}/videos`]: {
+  [path: `/3/tv/${number}/season/${number}/episode/${number}/videos`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1754,7 +1750,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/season/${integer}/episode/${integer}/rating`]: {
+  [path: `/3/tv/${number}/season/${number}/episode/${number}/rating`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1778,14 +1774,17 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/account/${integer}`]: {
+  [path: `/3/account/${number}`]: {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Details */
+    /**
+     * Details
+     * @description Get the public details of an account on TMDB.
+     */
     get: operations['account-details'];
     put?: never;
     post?: never;
@@ -1795,14 +1794,17 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/account/${integer}/lists`]: {
+  [path: `/3/account/${number}/lists`]: {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Lists */
+    /**
+     * Lists
+     * @description Get a users list of custom lists.
+     */
     get: operations['account-lists'];
     put?: never;
     post?: never;
@@ -1812,14 +1814,17 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/account/${integer}/favorite/movies`]: {
+  [path: `/3/account/${number}/favorite/movies`]: {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Favorite Movies */
+    /**
+     * Favorite Movies
+     * @description Get a users list of favourite movies.
+     */
     get: operations['account-get-favorites'];
     put?: never;
     post?: never;
@@ -1829,14 +1834,17 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/account/${integer}/favorite/tv`]: {
+  [path: `/3/account/${number}/favorite/tv`]: {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Favorite TV */
+    /**
+     * Favorite TV
+     * @description Get a users list of favourite TV shows.
+     */
     get: operations['account-favorite-tv'];
     put?: never;
     post?: never;
@@ -1846,14 +1854,17 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/account/${integer}/rated/movies`]: {
+  [path: `/3/account/${number}/rated/movies`]: {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Rated Movies */
+    /**
+     * Rated Movies
+     * @description Get a users list of rated movies.
+     */
     get: operations['account-rated-movies'];
     put?: never;
     post?: never;
@@ -1863,14 +1874,17 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/account/${integer}/rated/tv`]: {
+  [path: `/3/account/${number}/rated/tv`]: {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Rated TV */
+    /**
+     * Rated TV
+     * @description Get a users list of rated TV shows.
+     */
     get: operations['account-rated-tv'];
     put?: never;
     post?: never;
@@ -1880,14 +1894,17 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/account/${integer}/rated/tv/episodes`]: {
+  [path: `/3/account/${number}/rated/tv/episodes`]: {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Rated TV Episodes */
+    /**
+     * Rated TV Episodes
+     * @description Get a users list of rated TV episodes.
+     */
     get: operations['account-rated-tv-episodes'];
     put?: never;
     post?: never;
@@ -1897,14 +1914,17 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/account/${integer}/watchlist/movies`]: {
+  [path: `/3/account/${number}/watchlist/movies`]: {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Watchlist Movies */
+    /**
+     * Watchlist Movies
+     * @description Get a list of movies added to a users watchlist.
+     */
     get: operations['account-watchlist-movies'];
     put?: never;
     post?: never;
@@ -1914,14 +1934,17 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/account/${integer}/watchlist/tv`]: {
+  [path: `/3/account/${number}/watchlist/tv`]: {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Watchlist TV */
+    /**
+     * Watchlist TV
+     * @description Get a list of TV shows added to a users watchlist.
+     */
     get: operations['account-watchlist-tv'];
     put?: never;
     post?: never;
@@ -1931,7 +1954,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/account/${integer}/favorite`]: {
+  [path: `/3/account/${number}/favorite`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1940,7 +1963,10 @@ export type paths = {
     };
     get?: never;
     put?: never;
-    /** Add Favorite */
+    /**
+     * Add Favorite
+     * @description Mark a movie or TV show as a favourite.
+     */
     post: operations['account-add-favorite'];
     delete?: never;
     options?: never;
@@ -1948,7 +1974,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/account/${integer}/watchlist`]: {
+  [path: `/3/account/${number}/watchlist`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -1957,7 +1983,10 @@ export type paths = {
     };
     get?: never;
     put?: never;
-    /** Add To Watchlist */
+    /**
+     * Add To Watchlist
+     * @description Add a movie or TV show to your watchlist.
+     */
     post: operations['account-add-to-watchlist'];
     delete?: never;
     options?: never;
@@ -2056,7 +2085,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/collection/${integer}`]: {
+  [path: `/3/collection/${number}`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2076,7 +2105,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/collection/${integer}/images`]: {
+  [path: `/3/collection/${number}/images`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2096,7 +2125,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/collection/${integer}/translations`]: {
+  [path: `/3/collection/${number}/translations`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2113,7 +2142,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/company/${integer}`]: {
+  [path: `/3/company/${number}`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2133,7 +2162,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/company/${integer}/alternative_names`]: {
+  [path: `/3/company/${number}/alternative_names`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2153,7 +2182,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/company/${integer}/images`]: {
+  [path: `/3/company/${number}/images`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2353,7 +2382,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/keyword/${integer}`]: {
+  [path: `/3/keyword/${number}`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2387,7 +2416,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/list/${integer}`]: {
+  [path: `/3/list/${number}`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2408,7 +2437,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/list/${integer}/item_status`]: {
+  [path: `/3/list/${number}/item_status`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2445,7 +2474,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/list/${integer}/add_item`]: {
+  [path: `/3/list/${number}/add_item`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2465,7 +2494,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/list/${integer}/remove_item`]: {
+  [path: `/3/list/${number}/remove_item`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2485,7 +2514,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/list/${integer}/clear`]: {
+  [path: `/3/list/${number}/clear`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2505,7 +2534,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/network/${integer}`]: {
+  [path: `/3/network/${number}`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2522,7 +2551,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/network/${integer}/alternative_names`]: {
+  [path: `/3/network/${number}/alternative_names`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2542,7 +2571,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/network/${integer}/images`]: {
+  [path: `/3/network/${number}/images`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2602,7 +2631,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/season/${integer}/watch/providers`]: {
+  [path: `/3/tv/${number}/season/${number}/watch/providers`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2762,7 +2791,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/episode/${integer}/changes`]: {
+  [path: `/3/tv/episode/${number}/changes`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2862,7 +2891,7 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-  [path: `/3/tv/${integer}/lists`]: {
+  [path: `/3/tv/${number}/lists`]: {
     parameters: {
       query?: never;
       header?: never;
@@ -2882,16 +2911,16 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
-};
+}
 export type webhooks = Record<string, never>;
-export type components = {
+export interface components {
   schemas: never;
   responses: never;
   parameters: never;
   requestBodies: never;
   headers: never;
   pathItems: never;
-};
+}
 export type $defs = Record<string, never>;
 export interface operations {
   'search-movie': {
@@ -10656,6 +10685,8 @@ export interface operations {
                  *
                  *     Description above from the Wikipedia article Tom Hanks, licensed under CC-BY-SA, full list of contributors on Wikipedia. */
                 biography?: string;
+                /** @example Tom Hanks */
+                name?: string;
               };
             }[];
           };

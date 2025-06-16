@@ -1,15 +1,19 @@
 import { createFetch } from '@better-fetch/fetch';
 import type { BetterFetchOption } from '@better-fetch/fetch';
+import type {
+  CountryOrLanguage,
+  Genre,
+  Keyword,
+  Movie,
+  Person,
+  Rating,
+  Episode,
+  Season,
+  TvSeries,
+  WatchProvider,
+} from '@tvseri.es/types';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
-import { type CountryOrLanguage } from '@/types/country-language';
-import { type Genre } from '@/types/genre';
-import { type Keyword } from '@/types/keyword';
-import { type Movie } from '@/types/movie';
-import { type Person } from '@/types/person';
-import { type Rating } from '@/types/rating';
-import { type Episode, type Season, type TvSeries } from '@/types/tv-series';
-import { type WatchProvider } from '@/types/watch-provider';
 
 import nextPlugin from '../betterFetchNextPlugin';
 

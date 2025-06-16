@@ -1,0 +1,9 @@
+apis:
+  tmdb-v3:
+    root: https://developer.themoviedb.org/openapi/64542913e1f86100738e227f
+    x-openapi-ts:
+      output: ./tmdb-v3.d.ts
+  tmdb-v4:
+    root: https://developer.themoviedb.org/openapi/6453cc549c91cf004cd2a015
+    x-openapi-ts:
+      output: ./tmdb-v4.d.ts

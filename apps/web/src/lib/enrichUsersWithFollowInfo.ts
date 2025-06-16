@@ -1,3 +1,5 @@
+import { type User } from '@tvseri.es/types';
+
 import auth from '@/auth';
 import {
   getFollowerCount,
@@ -5,7 +7,6 @@ import {
   isFollower as _isFollower,
   isFollowing as _isFollowing,
 } from '@/lib/db/follow';
-import { type User } from '@/types/user';
 
 export default async function enrichUsersWithFollowInfo(
   users: User[],

@@ -1,3 +1,6 @@
+import { type Season, type TvSeries } from '@tvseri.es/types';
+import { type User } from '@tvseri.es/types';
+import { type WatchProvider } from '@tvseri.es/types';
 import { headers } from 'next/headers';
 
 import { cachedTvSeriesSeason } from '@/app/cached';
@@ -8,9 +11,6 @@ import {
   unmarkWatchedInBatch,
   type WatchedItem,
 } from '@/lib/db/watched';
-import { type Season, type TvSeries } from '@/types/tv-series';
-import { type User } from '@/types/user';
-import { type WatchProvider } from '@/types/watch-provider';
 
 import Cards from './Cards';
 

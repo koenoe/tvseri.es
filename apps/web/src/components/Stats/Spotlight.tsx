@@ -1,9 +1,9 @@
+import { type Episode, type TvSeries } from '@tvseri.es/types';
 import { cx } from 'class-variance-authority';
 import Image from 'next/image';
 import Link from 'next/link';
 
 import { type WatchedItem } from '@/lib/db/watched';
-import { type Episode, type TvSeries } from '@/types/tv-series';
 import formatDate from '@/utils/formatDate';
 import formatRuntime from '@/utils/formatRuntime';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';

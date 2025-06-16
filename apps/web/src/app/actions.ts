@@ -68,8 +68,6 @@ export async function login(formData: FormData) {
   const redirectPath = (rawFormData.redirectPath as string) ?? '/';
   const otp = await createOTP({ email });
 
-  // TODO: should become an api call to api.tvseri.es
-  // api should then send the email
   await sendEmail({
     recipient: email,
     sender: 'auth',

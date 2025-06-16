@@ -4,11 +4,7 @@ import type {
   TmdbAccountDetails,
   TmdbDiscoverTvSeries,
   TmdbDiscoverTvSeriesQuery,
-  TmdbExternalSource,
-  TmdbFindByIdResults,
   TmdbTvSeries,
-  TmdbTvSeriesEpisode,
-  TmdbTvSeriesSeason,
 } from '@tvseri.es/types';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
@@ -19,7 +15,6 @@ import {
   GLOBAL_GENRES_TO_IGNORE,
   buildDiscoverQuery,
   normalizeTvSeries,
-  normalizeTvSeriesEpisode,
 } from './helpers';
 import nextPlugin from '../betterFetchNextPlugin';
 
@@ -211,47 +206,6 @@ export async function addToOrRemoveFromFavorites({
       favorite: value,
     }),
   });
-}
-
-export async function findByExternalId({
-  externalId,
-  externalSource,
-}: Readonly<{
-  externalId: string;
-  externalSource: TmdbExternalSource;
-}>) {
-  const response = (await tmdbFetch(
-    `/3/find/${externalId}?external_source=${externalSource}`,
-  )) as TmdbFindByIdResults;
-
-  const tvSeries = (response.tv_results ?? []).map((series) => {
-    return normalizeTvSeries(series as TmdbTvSeries);
-  });
-  const episodes = (response.tv_episode_results ?? []).map((episode) => {
-    return {
-      ...normalizeTvSeriesEpisode(episode as TmdbTvSeriesEpisode),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tvSeriesId: (episode as any).show_id,
-    };
-  });
-  const seasons = (response.tv_season_results ?? []).map((_season) => {
-    const season = _season as TmdbTvSeriesSeason;
-    return {
-      id: season.id,
-      title: season.name as string,
-      description: season.overview ?? '',
-      airDate: season.air_date ? new Date(season.air_date).toISOString() : '',
-      seasonNumber: season.season_number,
-      numberOfEpisodes: episodes.length,
-      episodes: [],
-    };
-  });
-
-  return {
-    tvSeries,
-    seasons,
-    episodes,
-  };
 }
 
 export async function fetchDiscoverTvSeries(query?: TmdbDiscoverTvSeriesQuery) {

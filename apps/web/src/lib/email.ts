@@ -3,6 +3,9 @@ import { Resource } from 'sst';
 
 const client = new SESv2Client();
 
+// TODO: should become an api call to api.tvseri.es
+// api should then send the email
+
 export const sendEmail = async ({
   sender,
   recipient,

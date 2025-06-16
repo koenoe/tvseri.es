@@ -54,6 +54,7 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
   runtime: 'nodejs22.x',
   timeout: '30 seconds',
   nodejs: {
+    install: ['@better-fetch/fetch', 'hono', 'slugify'],
     minify: true,
   },
   environment: {

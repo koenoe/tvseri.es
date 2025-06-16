@@ -62,6 +62,8 @@ export async function POST(
         return Response.json({ message: 'OK' }, { status: 200 });
       }
 
+      // TODO: this should do an API call to api.tvseri.es
+      // api should then fill the SQS queue
       await sqs.send(
         new SendMessageCommand({
           QueueUrl: Resource.ScrobbleQueue.url,

@@ -9,6 +9,11 @@ const CACHE_PREFIX = 'detectDominantColorFromImage:v1:';
 
 const lambda = new LambdaClient();
 
+// TODO: this should be moved to api.tvseri.es
+// and the API should call the dominantColor lambda
+// to detect the dominant color from an image URL
+// including caching the result
+
 async function detectDominantColorFromImage(url: string): Promise<string> {
   const command = new InvokeCommand({
     FunctionName: Resource.DominantColor.name,

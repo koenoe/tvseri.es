@@ -2,8 +2,9 @@
 
 import { memo, useCallback, useMemo } from 'react';
 
+import type { ListItem } from '@tvseri.es/types';
+
 import createUseRestorableState from '@/hooks/createUseRestorableState';
-import { type ListItem } from '@/lib/db/list';
 
 import Grid from './Grid';
 import InfiniteScroll from '../InfiniteScroll/InfiniteScroll';

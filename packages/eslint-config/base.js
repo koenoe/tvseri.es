@@ -9,6 +9,7 @@ export const config = [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
+    ignores: ['**/sst-env.d.ts'],
     plugins: {
       '@typescript-eslint': typescriptEslint,
       'unused-imports': unusedImports,

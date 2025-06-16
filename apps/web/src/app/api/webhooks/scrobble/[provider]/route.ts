@@ -1,7 +1,7 @@
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+import { type PlexMetadata, type ScrobbleEvent } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
-import { type PlexMetadata, type ScrobbleEvent } from '@/lambdas/scrobble';
 import { findWebhookToken } from '@/lib/db/webhooks';
 
 const sqs = new SQSClient({});

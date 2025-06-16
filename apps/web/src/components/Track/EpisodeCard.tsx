@@ -4,9 +4,9 @@ import { memo } from 'react';
 
 import { type Episode } from '@tvseri.es/types';
 import { type WatchProvider } from '@tvseri.es/types';
+import type { WatchedItem } from '@tvseri.es/types';
 import Image from 'next/image';
 
-import { type WatchedItem } from '@/lib/db/watched';
 import formatDate from '@/utils/formatDate';
 import formatRuntime from '@/utils/formatRuntime';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';

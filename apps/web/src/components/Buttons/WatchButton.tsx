@@ -2,9 +2,8 @@
 
 import { useCallback, useTransition, useOptimistic } from 'react';
 
+import type { WatchedItem } from '@tvseri.es/types';
 import { cva, type VariantProps } from 'class-variance-authority';
-
-import { type WatchedItem } from '@/lib/db/watched';
 
 import CircleButton from './CircleButton';
 import SkeletonCircleButton from '../Skeletons/SkeletonCircleButton';

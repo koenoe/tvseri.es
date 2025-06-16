@@ -1,45 +1,24 @@
 import { type SQSHandler, type SQSEvent } from 'aws-lambda';
 
-import { type TmdbExternalSource } from '@tvseri.es/types';
-import { type Episode, type TvSeries } from '@tvseri.es/types';
-import { type WatchProvider } from '@tvseri.es/types';
+import {
+  type Episode,
+  type PlexMetadata,
+  type ScrobbleEvent,
+  type TmdbExternalSource,
+  type TvSeries,
+  type WatchProvider,
+} from '@tvseri.es/types';
 
-import { fetchTvSeries, fetchTvSeriesEpisode, searchTvSeries } from '@/lib/api';
 import { markWatched } from '@/lib/db/watched';
+import {
+  fetchTvSeries,
+  fetchTvSeriesEpisode,
+  searchTvSeries,
+} from '@/lib/tmdb';
 import { findByExternalId } from '@/lib/tmdb';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 
 type EpisodeWithTvSeriesId = Episode & { tvSeriesId: number };
-type JellyfinMetadata = unknown;
-
-export type PlexMetadata = Readonly<{
-  librarySectionType: string;
-  ratingKey: string;
-  key: string;
-  parentRatingKey: string;
-  grandparentRatingKey: string;
-  guid: string;
-  Guid?: ReadonlyArray<{ id: string }>;
-  librarySectionID: number;
-  type: string;
-  title: string;
-  grandparentKey: string;
-  parentKey: string;
-  grandparentTitle: string;
-  parentTitle: string;
-  summary?: string;
-  index: number;
-  parentIndex: number;
-  ratingCount?: number;
-  thumb?: string;
-  art?: string;
-  parentThumb?: string;
-  grandparentThumb?: string;
-  grandparentArt?: string;
-  addedAt: number;
-  updatedAt: number;
-  year?: number;
-}>;
 
 type ExternalIds = Record<Partial<TmdbExternalSource>, string | undefined>;
 
@@ -51,15 +30,6 @@ type Metadata = Readonly<{
   seasonNumber: number;
   year?: number;
   externalIds?: ExternalIds;
-}>;
-
-type ScrobbleMetadata =
-  | { plex: PlexMetadata; jellyfin?: never }
-  | { plex?: never; jellyfin: JellyfinMetadata };
-
-export type ScrobbleEvent = Readonly<{
-  userId: string;
-  metadata: ScrobbleMetadata;
 }>;
 
 function normalizePlexMetadata(metadata: PlexMetadata): Metadata {

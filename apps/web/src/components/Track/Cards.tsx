@@ -10,10 +10,9 @@ import {
 
 import { type Season } from '@tvseri.es/types';
 import { type WatchProvider } from '@tvseri.es/types';
+import type { WatchedItem } from '@tvseri.es/types';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
-
-import { type WatchedItem } from '@/lib/db/watched';
 
 import SeasonCard from './SeasonCard';
 

@@ -14,6 +14,7 @@
     "@aws-sdk/client-sqs": "^3.828.0",
     "@aws-sdk/util-dynamodb": "^3.828.0",
     "@better-fetch/fetch": "^1.1.18",
+    "color": "^5.0.0",
     "hono": "^4.7.11",
     "slugify": "^1.6.6",
     "sst": "*",
@@ -23,8 +24,11 @@
     "@tvseri.es/eslint-config": "workspace:*",
     "@tvseri.es/types": "workspace:*",
     "@tvseri.es/typescript-config": "workspace:*",
+    "@types/aws-lambda": "^8.10.149",
+    "@types/color": "^4.2.0",
     "@types/node": "^22.15.30",
     "eslint": "^9.28.0",
+    "sharp": "^0.34.2",
     "typescript": "^5.8.3"
   }
 }

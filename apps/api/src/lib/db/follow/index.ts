@@ -8,18 +8,10 @@ import {
   BatchGetItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { unmarshall, marshall } from '@aws-sdk/util-dynamodb';
-import type { User } from '@tvseri.es/types';
+import type { PaginationOptions, User } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
 import client from '../client';
-
-type SortDirection = 'asc' | 'desc';
-
-type PaginationOptions = Readonly<{
-  limit?: number;
-  cursor?: string | null;
-  sortDirection?: SortDirection;
-}>;
 
 function userPk(userId: string) {
   return `USER#${userId}`;

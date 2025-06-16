@@ -4,19 +4,10 @@ import {
   PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { type CacheItem, type CacheOptions } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
 import client from '../client';
-
-export type CacheOptions = Readonly<{
-  ttl?: number | null; // null means no expiration
-}>;
-
-export type CacheItem = Readonly<{
-  value: string;
-  expiresAt?: number;
-  createdAt: string;
-}>;
 
 const DEFAULT_TTL = 86400; // 24 hours in seconds
 

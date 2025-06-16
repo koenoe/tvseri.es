@@ -2,11 +2,11 @@ import { type DynamoDBStreamEvent } from 'aws-lambda';
 
 import { type AttributeValue } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
-import { type TvSeries } from '@tvseri.es/types';
+import { type TvSeries, type WatchedItem } from '@tvseri.es/types';
 
-import { fetchTvSeries } from '@/lib/api';
 import { addToList, removeFromList, removeFromWatchlist } from '@/lib/db/list';
-import { getWatchedCountForTvSeries, type WatchedItem } from '@/lib/db/watched';
+import { getWatchedCountForTvSeries } from '@/lib/db/watched';
+import { fetchTvSeries } from '@/lib/tmdb';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 
 /**

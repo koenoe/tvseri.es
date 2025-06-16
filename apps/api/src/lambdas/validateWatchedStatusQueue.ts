@@ -1,11 +1,10 @@
 import { type SQSHandler, type SQSEvent } from 'aws-lambda';
 
-import { type TvSeries } from '@tvseri.es/types';
-import { type User } from '@tvseri.es/types';
+import { type TvSeries, type User } from '@tvseri.es/types';
 
-import { fetchTvSeries } from '@/lib/api';
 import { addToList, getAllListItems, removeFromList } from '@/lib/db/list';
 import { getWatchedCountForTvSeries } from '@/lib/db/watched';
+import { fetchTvSeries } from '@/lib/tmdb';
 
 /**
  * Module-level cache for TV series data that persists between Lambda invocations.

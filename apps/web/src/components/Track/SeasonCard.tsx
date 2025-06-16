@@ -4,9 +4,9 @@ import { memo, useMemo, useRef, useState } from 'react';
 
 import { type Season } from '@tvseri.es/types';
 import { type WatchProvider } from '@tvseri.es/types';
+import type { WatchedItem } from '@tvseri.es/types';
 import { AnimatePresence, motion } from 'motion/react';
 
-import { type WatchedItem } from '@/lib/db/watched';
 import formatDate from '@/utils/formatDate';
 
 import { type WatchedAction } from './Cards';

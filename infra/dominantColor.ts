@@ -2,7 +2,7 @@
 
 export const dominantColor = new sst.aws.Function('DominantColor', {
   architecture: 'arm64',
-  handler: 'apps/web/src/lambdas/dominantColor.handler',
+  handler: 'apps/api/src/lambdas/dominantColor.handler',
   memory: '512 MB',
   runtime: 'nodejs22.x',
   timeout: '30 seconds',

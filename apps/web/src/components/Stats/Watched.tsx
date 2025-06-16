@@ -1,5 +1,6 @@
+import type { ListItem } from '@tvseri.es/types';
+
 import { cachedUniqueWatchedByYear } from '@/app/cached';
-import { type ListItem } from '@/lib/db/list';
 
 import Poster from '../Tiles/Poster';
 

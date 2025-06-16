@@ -1,6 +1,7 @@
 import { type Season, type TvSeries } from '@tvseri.es/types';
 import { type User } from '@tvseri.es/types';
 import { type WatchProvider } from '@tvseri.es/types';
+import type { WatchedItem } from '@tvseri.es/types';
 import { headers } from 'next/headers';
 
 import { cachedTvSeriesSeason } from '@/app/cached';
@@ -9,7 +10,6 @@ import {
   getAllWatchedForTvSeries,
   markWatchedInBatch,
   unmarkWatchedInBatch,
-  type WatchedItem,
 } from '@/lib/db/watched';
 
 import Cards from './Cards';

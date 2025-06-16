@@ -5,7 +5,7 @@ import {
   GetItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import type { TvSeries } from '@tvseri.es/types';
+import { type ListItem, type PaginationOptions } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
 import client from '../client';
@@ -13,31 +13,12 @@ import { buildPosterImageUrl } from '@/lib/tmdb/helpers';
 
 // const BATCH_SIZE = 25;
 
-type SortDirection = 'asc' | 'desc';
-type SortBy = 'title' | 'createdAt' | 'position';
-
 // type List = Readonly<{
 //   id: string;
 //   title: string;
 //   description?: string;
 //   createdAt: number;
 // }>;
-
-export type ListItem = Pick<
-  TvSeries,
-  'id' | 'posterImage' | 'posterPath' | 'title' | 'slug' | 'status'
-> &
-  Readonly<{
-    position?: number;
-    createdAt?: number;
-  }>;
-
-type PaginationOptions = Readonly<{
-  limit?: number;
-  cursor?: string | null;
-  sortBy?: SortBy;
-  sortDirection?: SortDirection;
-}>;
 
 const isCustomList = (listId: string) =>
   !['WATCHED', 'WATCHLIST', 'FAVORITES', 'IN_PROGRESS'].includes(listId);

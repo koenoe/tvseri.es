@@ -1,14 +1,9 @@
 import { GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { type PreferredImages } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
 import client from '../client';
-
-export type PreferredImages = Readonly<{
-  backdropImagePath: string;
-  backdropColor: string;
-  titleTreatmentImagePath?: string;
-}>;
 
 export const findPreferredImages = async (
   id: number,

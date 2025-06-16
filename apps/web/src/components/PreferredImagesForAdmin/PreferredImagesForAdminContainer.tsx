@@ -1,10 +1,8 @@
+import type { PreferredImages } from '@tvseri.es/types';
+
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
 import { fetchTvSeriesImages } from '@/lib/api';
-import {
-  type PreferredImages,
-  putPreferredImages,
-} from '@/lib/db/preferredImages';
 import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
 
 import PreferredImagesForAdmin from './PreferredImagesForAdmin';
@@ -16,7 +14,6 @@ async function storePreferredImages(
   'use server';
 
   await Promise.all([
-    putPreferredImages(id, preferredImages),
     // TODO: figure out how to invalidate Cloudfront API cache, lol
     // deleteCacheItem(`tv:${id}`),
     // deleteCacheItem('trending'),

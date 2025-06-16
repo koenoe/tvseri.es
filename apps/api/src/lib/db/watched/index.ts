@@ -6,36 +6,17 @@ import {
   QueryCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import type { TvSeries, WatchProvider } from '@tvseri.es/types';
+import type {
+  PaginationOptions,
+  TvSeries,
+  WatchedItem,
+  WatchProvider,
+} from '@tvseri.es/types';
 import { Resource } from 'sst';
 
 import client from '../client';
 import { fetchTvSeriesSeason } from '@/lib/tmdb';
 import { buildPosterImageUrl, generateTmdbImageUrl } from '@/lib/tmdb/helpers';
-
-export type WatchedItem = Readonly<{
-  episodeNumber: number;
-  posterImage?: string; // deprecated
-  posterPath: string;
-  runtime: number;
-  seasonNumber: number;
-  seriesId: number;
-  slug: string;
-  title: string;
-  userId: string;
-  watchProviderLogoPath?: string | null;
-  watchProviderLogoImage?: string | null;
-  watchProviderName?: string | null;
-  watchedAt: number;
-}>;
-
-type SortDirection = 'asc' | 'desc';
-
-type PaginationOptions = Readonly<{
-  limit?: number;
-  cursor?: string | null;
-  sortDirection?: SortDirection;
-}>;
 
 const DYNAMO_DB_BATCH_LIMIT = 25;
 

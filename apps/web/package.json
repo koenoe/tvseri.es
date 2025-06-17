@@ -12,7 +12,7 @@
     "lint:ci": "concurrently \"pnpm check-types\" \"pnpm lint\""
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.828.0",
+    "@aws-sdk/client-dynamodb": "^3.830.0",
     "@aws-sdk/client-lambda": "^3.828.0",
     "@aws-sdk/client-sesv2": "^3.828.0",
     "@aws-sdk/client-sqs": "^3.828.0",

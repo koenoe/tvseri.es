@@ -320,3 +320,12 @@ export async function fetchKeyword(id: number | string) {
   const keyword = (await apiFetch(`/keyword/${id}`)) as Keyword | undefined;
   return keyword;
 }
+
+export async function fetchPopularTvSeriesByYear(year?: number | string) {
+  const items = (await apiFetch('/popular/:year', {
+    params: {
+      year,
+    },
+  })) as TvSeries[];
+  return items;
+}

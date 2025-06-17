@@ -8,6 +8,7 @@ import discover from './routes/discover';
 import genres from './routes/genres';
 import keyword from './routes/keyword';
 import person from './routes/person';
+import popular from './routes/popular';
 import search from './routes/search';
 import series from './routes/series';
 
@@ -21,6 +22,7 @@ app.route('/discover', discover);
 app.route('/genres', genres);
 app.route('/keyword', keyword);
 app.route('/person', person);
+app.route('/popular', popular);
 app.route('/search', search);
 app.route('/series', series);
 

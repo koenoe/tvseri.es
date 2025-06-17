@@ -1,21 +1,9 @@
 import { createFetch } from '@better-fetch/fetch';
-import type {
-  Account,
-  TmdbAccountDetails,
-  TmdbDiscoverTvSeries,
-  TmdbDiscoverTvSeriesQuery,
-  TmdbTvSeries,
-} from '@tvseri.es/types';
+import type { Account, TmdbAccountDetails } from '@tvseri.es/types';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
 import getBaseUrl from '@/utils/getBaseUrl';
-import { toQueryString } from '@/utils/toQueryString';
 
-import {
-  GLOBAL_GENRES_TO_IGNORE,
-  buildDiscoverQuery,
-  normalizeTvSeries,
-} from './helpers';
 import nextPlugin from '../betterFetchNextPlugin';
 
 if (!process.env.TMDB_API_ACCESS_TOKEN || !process.env.TMDB_API_KEY) {
@@ -206,75 +194,4 @@ export async function addToOrRemoveFromFavorites({
       favorite: value,
     }),
   });
-}
-
-export async function fetchDiscoverTvSeries(query?: TmdbDiscoverTvSeriesQuery) {
-  const queryString = toQueryString(buildDiscoverQuery(query));
-
-  const response =
-    ((await tmdbFetch(
-      `/3/discover/tv${queryString}`,
-    )) as TmdbDiscoverTvSeries) ?? [];
-
-  const items = (response.results ?? []).map((series) =>
-    normalizeTvSeries(series as TmdbTvSeries),
-  );
-
-  return {
-    items,
-    totalNumberOfPages: response.total_pages,
-    totalNumberOfItems: response.total_results,
-    queryString: query ? toQueryString(query) : '',
-  };
-}
-
-export async function fetchPopularTvSeriesByYear(year: number | string) {
-  const withoutGenres = [...GLOBAL_GENRES_TO_IGNORE, 16, 10762, 10764, 10766];
-  const startDate = `${year}-01-01`;
-  const endDate = `${year}-12-31`;
-
-  const firstPage = await fetchDiscoverTvSeries({
-    without_genres: withoutGenres.join(','),
-    // Note: maybe we should use `air_date` instead of `first_air_date`?
-    'first_air_date.gte': startDate,
-    'first_air_date.lte': endDate,
-    'vote_count.gte': 200,
-    sort_by: 'vote_average.desc',
-    page: 1,
-  });
-
-  // If total pages is 3, we need 2 more pages (numberOfPagesToFetch = 2)
-  const numberOfPagesToFetch = Math.min(firstPage.totalNumberOfPages - 1, 2);
-
-  // Pages 2-5 (or fewer)
-  const additionalPages =
-    numberOfPagesToFetch > 0
-      ? await Promise.all(
-          Array.from({ length: numberOfPagesToFetch }, (_, i) =>
-            fetchDiscoverTvSeries({
-              without_genres: withoutGenres.join(','),
-              'first_air_date.gte': startDate,
-              'first_air_date.lte': endDate,
-              'vote_count.gte': 200,
-              sort_by: 'vote_average.desc',
-              page: i + 2, // This gives us pages 2,3,4,5
-            }),
-          ),
-        )
-      : [];
-
-  const uniqueItems = Array.from(
-    new Map(
-      [firstPage, ...additionalPages]
-        .flatMap((page) => page.items)
-        .map((item) => [item.id, item]),
-    ).values(),
-  );
-
-  return uniqueItems.filter(
-    (item) =>
-      !!item.posterImage &&
-      !!item.backdropImage &&
-      !item.genres?.some((genre) => withoutGenres.includes(genre.id)),
-  );
 }

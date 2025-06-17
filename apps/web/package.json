@@ -45,7 +45,7 @@
     "@opennextjs/aws": "^3.6.5",
     "@tailwindcss/typography": "^0.5.16",
     "@types/color": "^4.2.0",
-    "@types/node": "^22.15.30",
+    "@types/node": "^24.0.3",
     "autoprefixer": "^10.4.21",
     "aws-lambda": "^1.0.7",
     "babel-plugin-react-compiler": "19.1.0-rc.2",

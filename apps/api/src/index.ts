@@ -5,6 +5,7 @@ import { etag } from 'hono/etag';
 
 import collection from './routes/collection';
 import discover from './routes/discover';
+import dominantColor from './routes/dominant-color';
 import genres from './routes/genres';
 import keyword from './routes/keyword';
 import person from './routes/person';
@@ -19,6 +20,7 @@ app.use(etag());
 
 app.route('/collection', collection);
 app.route('/discover', discover);
+app.route('/dominant-color', dominantColor);
 app.route('/genres', genres);
 app.route('/keyword', keyword);
 app.route('/person', person);

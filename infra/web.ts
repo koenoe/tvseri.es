@@ -1,7 +1,6 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
 import { domain, zone } from './dns';
-import { dominantColor } from './dominantColor';
 import * as dynamo from './dynamo';
 import { email } from './email';
 import { scrobbleQueue } from './scrobbleQueue';
@@ -30,7 +29,6 @@ new sst.aws.Nextjs('tvseries', {
     staticEtag: true,
   },
   link: [
-    dominantColor,
     dynamo.cache,
     dynamo.follow,
     dynamo.lists,

@@ -1,18 +1,12 @@
 import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
+import { Hono } from 'hono';
 import { Resource } from 'sst';
 
-import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
-
-import { getCacheItem, setCacheItem } from './db/cache';
+import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 
 const CACHE_PREFIX = 'detectDominantColorFromImage:v1:';
 
 const lambda = new LambdaClient();
-
-// TODO: this should be moved to api.tvseri.es
-// and the API should call the dominantColor lambda
-// to detect the dominant color from an image URL
-// including caching the result
 
 async function detectDominantColorFromImage(url: string): Promise<string> {
   const command = new InvokeCommand({
@@ -30,11 +24,14 @@ async function detectDominantColorFromImage(url: string): Promise<string> {
   return result.color;
 }
 
-const detectDominantColorFromImageWithCache = async (
-  url: string,
-  cacheKey?: string,
-) => {
-  const key = `${CACHE_PREFIX}${cacheKey || url}`;
+const detectDominantColorFromImageWithCache = async ({
+  url,
+  cacheKey,
+}: Readonly<{
+  url: string;
+  cacheKey: string;
+}>) => {
+  const key = `${CACHE_PREFIX}${cacheKey}`;
   const cachedValue = await getCacheItem<string>(key);
   if (cachedValue) {
     return cachedValue;
@@ -45,8 +42,32 @@ const detectDominantColorFromImageWithCache = async (
     await setCacheItem<string>(key, dominantColor, { ttl: null });
     return dominantColor;
   } catch (_error) {
-    return DEFAULT_BACKGROUND_COLOR;
+    return '#000000'; // Default to black if there's an error
   }
 };
 
-export default detectDominantColorFromImageWithCache;
+const app = new Hono();
+
+app.get('/', async (c) => {
+  const url = c.req.query('url');
+  if (!url) {
+    return c.json({ error: 'No url provided' }, 400);
+  }
+
+  const cacheKey = c.req.query('cacheKey') ?? url;
+  const dominantColor = await detectDominantColorFromImageWithCache({
+    url,
+    cacheKey,
+  });
+
+  c.header(
+    'Cache-Control',
+    'public, max-age=31536000, s-maxage=31536000, immutable',
+  );
+
+  return c.json({
+    hex: dominantColor,
+  });
+});
+
+export default app;

@@ -2,8 +2,7 @@ import type { PreferredImages } from '@tvseri.es/types';
 
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
-import { fetchTvSeriesImages } from '@/lib/api';
-import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
+import { fetchTvSeriesImages, detectDominantColorFromImage } from '@/lib/api';
 
 import PreferredImagesForAdmin from './PreferredImagesForAdmin';
 
@@ -29,10 +28,10 @@ async function getDominantColor({
 }>) {
   'use server';
 
-  const color = await detectDominantColorFromImage(
-    url.replace('w1920_and_h1080_multi_faces', 'w780'),
-    path,
-  );
+  const color = await detectDominantColorFromImage({
+    url: url.replace('w1920_and_h1080_multi_faces', 'w780'),
+    cacheKey: path,
+  });
 
   return color;
 }

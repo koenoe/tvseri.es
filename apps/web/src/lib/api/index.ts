@@ -329,3 +329,22 @@ export async function fetchPopularTvSeriesByYear(year?: number | string) {
   })) as TvSeries[];
   return items;
 }
+
+export async function detectDominantColorFromImage({
+  url,
+  cacheKey,
+}: Readonly<{
+  url: string;
+  cacheKey?: string;
+}>) {
+  const response = (await apiFetch('/dominant-color', {
+    query: {
+      url,
+      cacheKey,
+    },
+  })) as Readonly<{
+    hex: string;
+  }>;
+
+  return response.hex;
+}

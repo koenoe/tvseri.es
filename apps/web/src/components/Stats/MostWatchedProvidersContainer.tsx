@@ -1,6 +1,6 @@
 import { cachedWatchedByYear } from '@/app/cached';
+import { detectDominantColorFromImage } from '@/lib/api';
 import { getCacheItem, setCacheItem } from '@/lib/db/cache';
-import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
 
 import MostWatchedProviders from './MostWatchedProviders';
 
@@ -69,7 +69,11 @@ const getStreamingServiceStats = async (
       logo,
       defaultColor:
         PREDEFINED_COLORS[name] ||
-        (logo ? await detectDominantColorFromImage(logo) : '#000000'),
+        (logo
+          ? await detectDominantColorFromImage({
+              url: logo,
+            })
+          : '#000000'),
     }),
   );
 

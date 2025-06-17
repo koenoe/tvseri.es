@@ -20,7 +20,6 @@ import {
   removeTmdbFromUser,
   updateUser,
 } from '@/lib/db/user';
-import { sendEmail } from '@/lib/email';
 import {
   createRequestToken,
   deleteAccessToken,
@@ -66,16 +65,9 @@ export async function login(formData: FormData) {
 
   const email = rawFormData.email as string;
   const redirectPath = (rawFormData.redirectPath as string) ?? '/';
-  const otp = await createOTP({ email });
 
-  await sendEmail({
-    recipient: email,
-    sender: 'auth',
-    subject: `Your OTP: ${otp}`,
-    body: `Your OTP is <strong>${otp}</strong>`,
-  });
+  const [cookieStore] = await Promise.all([cookies(), createOTP({ email })]);
 
-  const cookieStore = await cookies();
   const encryptedEmail = encryptToken(email);
 
   cookieStore.set('emailOTP', encryptedEmail, {

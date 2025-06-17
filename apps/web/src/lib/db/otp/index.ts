@@ -35,6 +35,7 @@ export const createOTP = async (
       email: input.email.toLowerCase(),
       createdAt: now,
       expiresAt,
+      code,
     }),
   });
 

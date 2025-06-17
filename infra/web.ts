@@ -2,7 +2,6 @@
 
 import { domain, zone } from './dns';
 import * as dynamo from './dynamo';
-import { email } from './email';
 import { scrobbleQueue } from './scrobbleQueue';
 import { apiRouter } from './api';
 
@@ -38,7 +37,6 @@ new sst.aws.Nextjs('tvseries', {
     dynamo.users,
     dynamo.watched,
     dynamo.webhookTokens,
-    email,
     scrobbleQueue,
   ],
   path: 'apps/web',

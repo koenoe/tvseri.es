@@ -10,10 +10,6 @@ import {
   removeFromFavorites,
   removeFromWatchlist,
 } from '@/lib/db/list';
-import {
-  addToOrRemoveFromWatchlist,
-  addToOrRemoveFromFavorites,
-} from '@/lib/tmdb';
 
 import ActionButtonsProvider from './ActionButtonsProvider';
 import ContextMenuButtonTvSeries from './ContextMenuButtonTvSeries';
@@ -64,21 +60,6 @@ export default async function ActionButtons({
           id: tvSeries.id,
         });
       }
-
-      // Note: we still save the watchlist and favorites to TMDb
-      // in case tvseri.es ever stops users will still have their data
-      if (
-        process.env.NODE_ENV === 'production' &&
-        session.tmdbSessionId &&
-        user.tmdbAccountId
-      ) {
-        await addToOrRemoveFromWatchlist({
-          id,
-          accountId: user.tmdbAccountId,
-          sessionId: session.tmdbSessionId,
-          value,
-        });
-      }
     } else if (listType === 'favorites') {
       if (value) {
         await addToFavorites(payload);
@@ -86,20 +67,6 @@ export default async function ActionButtons({
         await removeFromFavorites({
           userId: user.id,
           id: tvSeries.id,
-        });
-      }
-      // Note: we still save the watchlist and favorites to TMDb
-      // in case tvseri.es ever stops users will still have their data
-      if (
-        process.env.NODE_ENV === 'production' &&
-        session.tmdbSessionId &&
-        user.tmdbAccountId
-      ) {
-        await addToOrRemoveFromFavorites({
-          id,
-          accountId: user.tmdbAccountId,
-          sessionId: session.tmdbSessionId,
-          value,
         });
       }
     }

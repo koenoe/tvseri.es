@@ -54,6 +54,9 @@ importers:
       '@better-fetch/fetch':
         specifier: ^1.1.18
         version: 1.1.18
+      '@hono/valibot-validator':
+        specifier: ^0.4.0
+        version: 0.4.1(hono@4.7.11)(valibot@1.1.0(typescript@5.8.3))
       color:
         specifier: ^5.0.0
         version: 5.0.0
@@ -283,6 +286,10 @@ importers:
         version: 8.34.0(eslint@9.29.0(jiti@1.21.7))(typescript@5.8.3)
 
   packages/types:
+    dependencies:
+      valibot:
+        specifier: ^1.1.0
+        version: 1.1.0(typescript@5.8.3)
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -945,6 +952,12 @@ packages:
   '@eslint/plugin-kit@0.3.1':
     resolution: {integrity: sha512-0J+zgWxHN+xXONWIyPWKFMgVuJoZuGiIFu8yxk7RJjxkzpGmyja5wRFqZIVtjDVOQpV+Rw0iOAjYPE2eQyjr0w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@hono/valibot-validator@0.4.1':
+    resolution: {integrity: sha512-yOxJfU//A6T5oceBz+SylwYCQEmbgvsLxjqereIBSnRABEbQpd1j7zKf4lBP8i7JP5zvrKsHZHLmcLa/TCh8Sw==}
+    peerDependencies:
+      hono: '>=3.9.0'
+      valibot: ^1.0.0 || ^1.0.0-beta || ^1.0.0-rc
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -4197,6 +4210,14 @@ packages:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
 
+  valibot@1.1.0:
+    resolution: {integrity: sha512-Nk8lX30Qhu+9txPYTwM0cFlWLdPFsFr6LblzqIySfbZph9+BFsAHsNvHOymEviUepeIW6KFHzpX8TKhbptBXXw==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
@@ -5785,6 +5806,11 @@ snapshots:
     dependencies:
       '@eslint/core': 0.14.0
       levn: 0.4.1
+
+  '@hono/valibot-validator@0.4.1(hono@4.7.11)(valibot@1.1.0(typescript@5.8.3))':
+    dependencies:
+      hono: 4.7.11
+      valibot: 1.1.0(typescript@5.8.3)
 
   '@humanfs/core@0.19.1': {}
 
@@ -9471,6 +9497,10 @@ snapshots:
   uuid@8.0.0: {}
 
   uuid@9.0.1: {}
+
+  valibot@1.1.0(typescript@5.8.3):
+    optionalDependencies:
+      typescript: 5.8.3
 
   vary@1.1.2: {}
 

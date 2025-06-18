@@ -5,7 +5,7 @@ import {
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import type { User } from '@tvseri.es/types';
+import type { User, CreateUser } from '@tvseri.es/types';
 import slugify from 'slugify';
 import { Resource } from 'sst';
 import { ulid } from 'ulid';
@@ -25,7 +25,7 @@ export const findUser = async (
         userId?: never;
         email?: never;
         username?: never;
-        tmdbAccountId: number;
+        tmdbAccountId: number | string;
       },
 ): Promise<User | null> => {
   const [indexName, prefix, value] = input.userId
@@ -58,17 +58,38 @@ export const findUser = async (
     return null;
   }
 
-  return unmarshall(result.Items[0]) as User;
+  const user = unmarshall(result.Items[0]) as User;
+  const {
+    id,
+    createdAt,
+    updatedAt,
+    email,
+    name,
+    role,
+    tmdbAccountId,
+    tmdbAccountObjectId,
+    tmdbUsername,
+    username,
+    version,
+  } = user;
+
+  return {
+    id,
+    createdAt,
+    updatedAt,
+    email,
+    name,
+    role,
+    tmdbAccountId,
+    tmdbAccountObjectId,
+    tmdbUsername,
+    username,
+    version,
+  };
 };
 
 export const createUser = async (
-  input: Readonly<
-    Omit<User, 'id' | 'createdAt' | 'role' | 'version' | 'username' | 'email'> &
-      (
-        | { username: string; email?: string }
-        | { username?: string; email: string }
-      )
-  >,
+  input: Readonly<CreateUser>,
 ): Promise<User> => {
   let username = input.email
     ? slugify(input.email.split('@')[0]!, {
@@ -79,6 +100,20 @@ export const createUser = async (
         lower: true,
         strict: true,
       });
+
+  if (input.email) {
+    const existingUser = await findUser({ email: input.email });
+    if (existingUser) {
+      throw new Error('UserAlreadyExists');
+    }
+  }
+
+  if (input.tmdbAccountId) {
+    const existingUser = await findUser({ tmdbAccountId: input.tmdbAccountId });
+    if (existingUser) {
+      throw new Error('UserAlreadyExists');
+    }
+  }
 
   const isUsernameTaken = await findUser({ username });
   if (isUsernameTaken) {
@@ -115,21 +150,10 @@ export const createUser = async (
             tmdbUsername: input.tmdbUsername,
           }),
       },
-      // Note: even though we safeguard possible empty values, DynamoDB still fails with
-      // "Pass options.removeUndefinedValues=true to remove undefined values from map/array/set."
-      // figure out later why this is happening
       {
         removeUndefinedValues: true,
       },
     ),
-    ConditionExpression:
-      [
-        'attribute_not_exists(gsi2pk)',
-        input.email && 'attribute_not_exists(gsi1pk)',
-        input.tmdbAccountId && 'attribute_not_exists(gsi3pk)',
-      ]
-        .filter(Boolean)
-        .join(' AND ') || undefined,
   });
 
   try {
@@ -146,19 +170,19 @@ export const createUser = async (
         input.tmdbAccountObjectId && {
           tmdbAccountId: input.tmdbAccountId,
           tmdbAccountObjectId: input.tmdbAccountObjectId,
-          tmdbUsername: input.username,
+          tmdbUsername: input.tmdbUsername,
         }),
       version: VERSION,
     };
   } catch (error) {
     if (error instanceof ConditionalCheckFailedException) {
-      throw new Error('Email, username, or TMDB account already exists');
+      throw new Error('UserAlreadyExists');
     }
     console.error('Failed to create user', {
       error,
       input,
     });
-    throw new Error('Failed to create user');
+    throw new Error('UserCreationFailed');
   }
 };
 

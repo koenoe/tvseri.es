@@ -39,6 +39,7 @@ import type {
   TmdbFindByIdResults,
 } from '@tvseri.es/types';
 import slugify from 'slugify';
+import { Resource } from 'sst';
 
 import { findPreferredImages } from '../db/preferredImages';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
@@ -65,7 +66,10 @@ import {
 import calculateAge from '@/utils/calculateAge';
 import { toQueryString } from '@/utils/toQueryString';
 
-if (!process.env.TMDB_API_ACCESS_TOKEN || !process.env.TMDB_API_KEY) {
+const tmdbApiKey = Resource.TmdbApiKey.value;
+const tmdbApiAccessToken = Resource.TmdbApiAccessToken.value;
+
+if (!tmdbApiKey || !tmdbApiAccessToken) {
   throw new Error('No "API_KEY" found for TMDb');
 }
 
@@ -80,7 +84,7 @@ async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
   const headers = {
     'content-type': 'application/json',
     ...(pathAsString.startsWith('/4/') && {
-      Authorization: `Bearer ${process.env.TMDB_API_ACCESS_TOKEN}`,
+      Authorization: `Bearer ${tmdbApiAccessToken}`,
     }),
   };
 
@@ -92,7 +96,7 @@ async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
     },
     query: {
       ...(pathAsString.startsWith('/3/') && {
-        api_key: process.env.TMDB_API_KEY as string,
+        api_key: tmdbApiKey,
       }),
     },
   });

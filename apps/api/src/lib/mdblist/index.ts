@@ -1,4 +1,5 @@
-import { createFetch } from '@better-fetch/fetch';
+import { type BetterFetchOption, createFetch } from '@better-fetch/fetch';
+import { Resource } from 'sst';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
 
@@ -36,32 +37,27 @@ type Item = Readonly<{
   mediaType: MediaType;
 }>;
 
-if (!process.env.MDBLIST_API_KEY) {
+const apiKey = Resource.MdblistApiKey.value;
+
+if (!apiKey) {
   throw new Error('No "API_KEY" found for MDBList');
 }
 
 const $fetch = createFetch({
   baseURL: 'https://api.mdblist.com',
   retry: DEFAULT_FETCH_RETRY_OPTIONS,
-});
-
-async function mdblistFetch(path: RequestInfo | URL, init?: RequestInit) {
-  const headers = {
+  query: {
+    apikey: apiKey,
+    format: 'json',
+  },
+  headers: {
     accept: 'application/json',
     'content-type': 'application/json',
-  };
+  },
+});
 
-  const { data, error } = await $fetch(path.toString(), {
-    ...init,
-    headers: {
-      ...headers,
-      ...init?.headers,
-    },
-    query: {
-      format: 'json',
-      apikey: process.env.MDBLIST_API_KEY as string,
-    },
-  });
+async function mdblistFetch(path: string, options?: BetterFetchOption) {
+  const { data, error } = await $fetch(path, options);
 
   if (error) {
     throw new Error(`HTTP error status: ${error.status}`);

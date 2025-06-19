@@ -1,10 +1,14 @@
 import crypto from 'crypto';
 
-if (!process.env.SECRET_KEY) {
+import { Resource } from 'sst';
+
+const secretKey = Resource.SecretKey.value;
+
+if (!secretKey) {
   throw new Error('No "SECRET_KEY" found');
 }
 
-const key = Buffer.from(String(process.env.SECRET_KEY), 'base64');
+const key = Buffer.from(secretKey, 'base64');
 
 export function encryptToken(plaintext: string) {
   const iv = crypto.randomBytes(16);

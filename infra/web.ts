@@ -4,6 +4,7 @@ import { domain, zone } from './dns';
 import * as dynamo from './dynamo';
 import { scrobbleQueue } from './scrobbleQueue';
 import { apiRouter } from './api';
+import * as secrets from './secrets';
 
 new sst.aws.Nextjs('tvseries', {
   buildCommand: 'pnpm dlx @opennextjs/aws build',
@@ -15,12 +16,8 @@ new sst.aws.Nextjs('tvseries', {
     }),
   },
   environment: {
-    API_KEY: process.env.API_KEY_WEB as string,
     API_URL: apiRouter.url,
     OPEN_NEXT_FORCE_NON_EMPTY_RESPONSE: 'true',
-    SECRET_KEY: process.env.SECRET_KEY as string,
-    TMDB_API_ACCESS_TOKEN: process.env.TMDB_API_ACCESS_TOKEN as string,
-    TMDB_API_KEY: process.env.TMDB_API_KEY as string,
     SITE_URL: `https://${domain}`,
   },
   imageOptimization: {
@@ -38,6 +35,11 @@ new sst.aws.Nextjs('tvseries', {
     dynamo.watched,
     dynamo.webhookTokens,
     scrobbleQueue,
+    secrets.apiKey,
+    secrets.mdblistApiKey,
+    secrets.secretKey,
+    secrets.tmdbApiAccessToken,
+    secrets.tmdbApiKey,
   ],
   path: 'apps/web',
   server: {

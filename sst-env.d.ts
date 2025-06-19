@@ -10,6 +10,10 @@ declare module "sst" {
       "type": "sst.aws.Function"
       "url": string
     }
+    "ApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "ApiRouter": {
       "type": "sst.aws.Router"
       "url": string
@@ -35,6 +39,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "MdblistApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "OTP": {
       "name": string
       "type": "sst.aws.Dynamo"
@@ -47,9 +55,21 @@ declare module "sst" {
       "type": "sst.aws.Queue"
       "url": string
     }
+    "SecretKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "Sessions": {
       "name": string
       "type": "sst.aws.Dynamo"
+    }
+    "TmdbApiAccessToken": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "TmdbApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
     }
     "Users": {
       "name": string

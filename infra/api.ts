@@ -5,8 +5,7 @@ import { dominantColor } from './dominantColor';
 import * as dynamo from './dynamo';
 import { email } from './email';
 import { scrobbleQueue } from './scrobbleQueue';
-
-const VALID_API_KEYS = [process.env.API_KEY_WEB];
+import * as secrets from './secrets';
 
 export const apiRouter = new sst.aws.Router('ApiRouter', {
   domain: {
@@ -18,9 +17,8 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
   edge: {
     viewerRequest: {
       injection: $interpolate`
-        const validApiKeys = ${JSON.stringify(VALID_API_KEYS)};
         const apiKey = event.request.headers["x-api-key"] && event.request.headers["x-api-key"].value;
-        if (!apiKey || !validApiKeys.includes(apiKey)) {
+        if (!apiKey || apiKey !== "${secrets.apiKey.value}") {
           return {
             statusCode: 401,
             statusDescription: 'Unauthorized',
@@ -57,11 +55,6 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
     install: ['@better-fetch/fetch', 'hono', 'slugify'],
     minify: true,
   },
-  environment: {
-    MDBLIST_API_KEY: process.env.MDBLIST_API_KEY as string,
-    TMDB_API_ACCESS_TOKEN: process.env.TMDB_API_ACCESS_TOKEN as string,
-    TMDB_API_KEY: process.env.TMDB_API_KEY as string,
-  },
   url: {
     router: {
       instance: apiRouter,
@@ -80,5 +73,9 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
     dynamo.webhookTokens,
     email,
     scrobbleQueue,
+    secrets.apiKey,
+    secrets.mdblistApiKey,
+    secrets.tmdbApiAccessToken,
+    secrets.tmdbApiKey,
   ],
 });

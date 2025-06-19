@@ -12,12 +12,15 @@ import type {
   TvSeries,
   WatchProvider,
 } from '@tvseri.es/types';
+import { Resource } from 'sst';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
 
 import nextPlugin from '../betterFetchNextPlugin';
 
-if (!process.env.API_KEY) {
+const apiKey = Resource.ApiKey.value;
+
+if (!apiKey) {
   throw new Error('No "API_KEY" found');
 }
 
@@ -29,23 +32,18 @@ const $fetch = createFetch({
   baseURL: process.env.API_URL as string,
   retry: DEFAULT_FETCH_RETRY_OPTIONS,
   plugins: [nextPlugin],
+  headers: {
+    'content-type': 'application/json',
+    'x-api-key': apiKey,
+  },
+  // auth: {
+  //     type: "Bearer",
+  //     token: "my-token",
+  // },
 });
 
-async function apiFetch(path: string | URL, options?: BetterFetchOption) {
-  const pathAsString = path.toString();
-
-  const headers = {
-    'content-type': 'application/json',
-    'x-api-key': process.env.API_KEY as string,
-  };
-
-  const { data, error } = await $fetch(pathAsString, {
-    ...options,
-    headers: {
-      ...headers,
-      ...options?.headers,
-    },
-  });
+async function apiFetch(path: string, options?: BetterFetchOption) {
+  const { data, error } = await $fetch(path, options);
 
   if (error?.status === 404) {
     return undefined;

@@ -1,12 +1,16 @@
 import { createFetch } from '@better-fetch/fetch';
 import type { Account, TmdbAccountDetails } from '@tvseri.es/types';
+import { Resource } from 'sst';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
 import getBaseUrl from '@/utils/getBaseUrl';
 
 import nextPlugin from '../betterFetchNextPlugin';
 
-if (!process.env.TMDB_API_ACCESS_TOKEN || !process.env.TMDB_API_KEY) {
+const tmdbApiKey = Resource.TmdbApiKey.value;
+const tmdbApiAccessToken = Resource.TmdbApiAccessToken.value;
+
+if (!tmdbApiKey || !tmdbApiAccessToken) {
   throw new Error('No "API_KEY" found for TMDb');
 }
 
@@ -22,7 +26,7 @@ async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
   const headers = {
     'content-type': 'application/json',
     ...(pathAsString.startsWith('/4/') && {
-      Authorization: `Bearer ${process.env.TMDB_API_ACCESS_TOKEN}`,
+      Authorization: `Bearer ${tmdbApiAccessToken}`,
     }),
   };
 
@@ -34,7 +38,7 @@ async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
     },
     query: {
       ...(pathAsString.startsWith('/3/') && {
-        api_key: process.env.TMDB_API_KEY as string,
+        api_key: tmdbApiKey,
       }),
     },
   });

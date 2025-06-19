@@ -13,7 +13,6 @@
   },
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",
-    "concurrently": "^9.1.2",
     "openapi-typescript": "^7.8.0",
     "typescript": "^5.8.3"
   }

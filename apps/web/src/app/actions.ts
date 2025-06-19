@@ -1,11 +1,13 @@
 'use server';
 
+import { encryptToken } from '@tvseri.es/token';
 import { cookies, headers } from 'next/headers';
 import { redirect, unauthorized } from 'next/navigation';
 import isEqual from 'react-fast-compare';
 import slugify from 'slugify';
 
 import auth from '@/auth';
+import { createUser, findUser } from '@/lib/api';
 import { follow, unfollow } from '@/lib/db/follow';
 import { createOTP, validateOTP } from '@/lib/db/otp';
 import {
@@ -14,18 +16,12 @@ import {
   removeTmdbFromSession,
   SESSION_DURATION,
 } from '@/lib/db/session';
-import {
-  createUser,
-  findUser,
-  removeTmdbFromUser,
-  updateUser,
-} from '@/lib/db/user';
+import { removeTmdbFromUser, updateUser } from '@/lib/db/user';
 import {
   createRequestToken,
   deleteAccessToken,
   deleteSessionId,
 } from '@/lib/tmdb';
-import { encryptToken } from '@/lib/token';
 import getBaseUrl from '@/utils/getBaseUrl';
 
 import { cachedUser } from './cached';

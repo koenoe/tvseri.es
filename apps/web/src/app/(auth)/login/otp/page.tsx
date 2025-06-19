@@ -1,8 +1,8 @@
+import { decryptToken } from '@tvseri.es/token';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import OTPForm from '@/components/OTP/Form';
-import { decryptToken } from '@/lib/token';
 
 export default async function OTPPage({
   searchParams: searchParamsFromProps,

@@ -1,20 +1,21 @@
+import { decryptToken, encryptToken } from '@tvseri.es/token';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { type NextRequest } from 'next/server';
 
 import auth from '@/auth';
+import { createUser, findUser } from '@/lib/api';
 import {
   addTmdbToSession,
   createSession,
   SESSION_DURATION,
 } from '@/lib/db/session';
-import { addTmdbToUser, createUser, findUser } from '@/lib/db/user';
+import { addTmdbToUser } from '@/lib/db/user';
 import {
   createAccessToken,
   createSessionId,
   fetchAccountDetails,
 } from '@/lib/tmdb';
-import { decryptToken, encryptToken } from '@/lib/token';
 
 export async function GET(request: NextRequest) {
   const cookieStore = await cookies();

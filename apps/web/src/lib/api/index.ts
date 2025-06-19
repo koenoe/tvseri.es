@@ -11,6 +11,9 @@ import type {
   Season,
   TvSeries,
   WatchProvider,
+  User,
+  CreateUser,
+  Session,
 } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
@@ -27,6 +30,10 @@ if (!apiKey) {
 if (!process.env.API_URL) {
   throw new Error('No "API_URL" found');
 }
+
+type Context = Readonly<{
+  sessionId?: string;
+}>;
 
 const $fetch = createFetch({
   baseURL: process.env.API_URL as string,
@@ -345,4 +352,83 @@ export async function detectDominantColorFromImage({
   }>;
 
   return response.hex;
+}
+
+export async function me({ sessionId }: Context) {
+  const response = await apiFetch('me', {
+    auth: {
+      type: 'Bearer',
+      token: sessionId,
+    },
+  });
+
+  if (!response) {
+    return {
+      user: null,
+      session: null,
+    };
+  }
+
+  const result = response as Readonly<{
+    user: User;
+    session: Session;
+  }>;
+
+  return result;
+}
+
+export async function findUser(
+  input:
+    | { userId: string; email?: never; username?: never; tmdbAccountId?: never }
+    | { userId?: never; email: string; username?: never; tmdbAccountId?: never }
+    | { userId?: never; email?: never; username: string; tmdbAccountId?: never }
+    | {
+        userId?: never;
+        email?: never;
+        username?: never;
+        tmdbAccountId: number;
+      },
+) {
+  if (input.userId) {
+    return (await apiFetch('/user/:id', {
+      params: {
+        id: input.userId,
+      },
+    })) as User | undefined;
+  }
+
+  if (input.email) {
+    return (await apiFetch('/user/by-email/:email', {
+      params: {
+        email: encodeURIComponent(input.email),
+      },
+    })) as User | undefined;
+  }
+
+  if (input.username) {
+    return (await apiFetch('/user/by-username/:username', {
+      params: {
+        username: input.username,
+      },
+    })) as User | undefined;
+  }
+
+  if (input.tmdbAccountId) {
+    return (await apiFetch('/user/by-tmdb/:tmdb-account-id', {
+      params: {
+        'tmdb-account-id': input.tmdbAccountId,
+      },
+    })) as User | undefined;
+  }
+
+  throw new Error('InvalidInputError');
+}
+
+export async function createUser(input: Readonly<CreateUser>) {
+  const user = (await apiFetch('/user', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })) as User;
+
+  return user;
 }

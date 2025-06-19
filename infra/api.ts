@@ -77,5 +77,6 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
     secrets.mdblistApiKey,
     secrets.tmdbApiAccessToken,
     secrets.tmdbApiKey,
+    secrets.secretKey,
   ],
 });

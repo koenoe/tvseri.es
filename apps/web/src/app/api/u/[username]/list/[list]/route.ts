@@ -1,7 +1,7 @@
 import { type NextRequest } from 'next/server';
 
+import { findUser } from '@/lib/api';
 import { getListItems } from '@/lib/db/list';
-import { findUser } from '@/lib/db/user';
 
 const lists = ['watchlist', 'favorites', 'watched', 'in_progress'] as const;
 

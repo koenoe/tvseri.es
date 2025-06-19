@@ -1,38 +1,24 @@
 import { cache } from 'react';
 
-import { type Session } from '@tvseri.es/types';
 import { cookies } from 'next/headers';
 
-import { findSession } from './lib/db/session';
-import { findUser } from './lib/db/user';
-import { decryptToken } from './lib/token';
+import { me } from './lib/api';
 
-async function session() {
+const auth = cache(async () => {
   const encryptedSessionId = (await cookies()).get('sessionId')?.value;
 
   if (!encryptedSessionId) {
-    return null;
+    return {
+      user: null,
+      session: null,
+    };
   }
 
-  const decryptedSessionId = decryptToken(encryptedSessionId);
-  return findSession(decryptedSessionId);
-}
+  const result = await me({
+    sessionId: encryptedSessionId,
+  });
 
-async function user(_session: Session) {
-  if (!_session) {
-    return null;
-  }
-
-  return findUser({ userId: _session.userId });
-}
-
-const auth = cache(async () => {
-  const _session = await session();
-
-  return {
-    session: _session,
-    user: _session ? await user(_session) : null,
-  };
+  return result;
 });
 
 export default auth;

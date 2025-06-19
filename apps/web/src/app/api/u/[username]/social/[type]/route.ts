@@ -1,7 +1,7 @@
 import { type NextRequest } from 'next/server';
 
+import { findUser } from '@/lib/api';
 import { getFollowers, getFollowing } from '@/lib/db/follow';
-import { findUser } from '@/lib/db/user';
 import enrichUsersWithFollowInfo from '@/lib/enrichUsersWithFollowInfo';
 
 const types = ['followers', 'following'] as const;

@@ -16,6 +16,7 @@
     "@aws-sdk/client-sqs": "^3.828.0",
     "@aws-sdk/util-dynamodb": "^3.828.0",
     "@better-fetch/fetch": "^1.1.18",
+    "@tvseri.es/token": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "color": "^5.0.0",
     "date-fns": "^4.1.0",

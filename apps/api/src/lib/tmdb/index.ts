@@ -1,4 +1,4 @@
-import { createFetch } from '@better-fetch/fetch';
+import { type BetterFetchOption, createFetch } from '@better-fetch/fetch';
 import type {
   Account,
   CountryOrLanguage,
@@ -78,24 +78,22 @@ const $fetch = createFetch({
   retry: DEFAULT_FETCH_RETRY_OPTIONS,
 });
 
-async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
-  const pathAsString = path.toString();
-
+async function tmdbFetch(path: string, options?: BetterFetchOption) {
   const headers = {
     'content-type': 'application/json',
-    ...(pathAsString.startsWith('/4/') && {
+    ...(path.startsWith('/4/') && {
       Authorization: `Bearer ${tmdbApiAccessToken}`,
     }),
   };
 
-  const { data, error } = await $fetch(pathAsString, {
-    ...init,
+  const { data, error } = await $fetch(path, {
+    ...options,
     headers: {
       ...headers,
-      ...init?.headers,
+      ...options?.headers,
     },
     query: {
-      ...(pathAsString.startsWith('/3/') && {
+      ...(path.startsWith('/3/') && {
         api_key: tmdbApiKey,
       }),
     },
@@ -114,7 +112,6 @@ async function tmdbFetch(path: RequestInfo | URL, init?: RequestInit) {
 
 export async function createRequestToken(redirectUri: string) {
   const response = (await tmdbFetch('/4/auth/request_token', {
-    cache: 'no-store',
     method: 'POST',
     body: JSON.stringify({
       redirect_to: redirectUri,
@@ -135,7 +132,6 @@ export async function createRequestToken(redirectUri: string) {
 
 export async function createAccessToken(requestToken: string) {
   const response = (await tmdbFetch('/4/auth/access_token', {
-    cache: 'no-store',
     method: 'POST',
     body: JSON.stringify({
       request_token: requestToken,
@@ -164,7 +160,6 @@ export async function createAccessToken(requestToken: string) {
 
 export async function createSessionId(accessToken: string) {
   const response = (await tmdbFetch('/3/authentication/session/convert/4', {
-    cache: 'no-store',
     method: 'POST',
     body: JSON.stringify({
       access_token: accessToken,
@@ -184,7 +179,6 @@ export async function createSessionId(accessToken: string) {
 
 export async function deleteSessionId(sessionId: string) {
   await tmdbFetch('/3/authentication/session', {
-    cache: 'no-store',
     method: 'DELETE',
     body: JSON.stringify({
       session_id: sessionId,
@@ -194,7 +188,6 @@ export async function deleteSessionId(sessionId: string) {
 
 export async function deleteAccessToken(accessToken: string) {
   await tmdbFetch('/4/auth/access_token', {
-    cache: 'no-store',
     method: 'DELETE',
     body: JSON.stringify({
       access_token: accessToken,
@@ -215,47 +208,6 @@ export async function fetchAccountDetails(sessionId: string) {
       ? `https://www.gravatar.com/avatar/${response.avatar.gravatar.hash}`
       : undefined,
   } as Account;
-}
-
-type ToggleArgs = Readonly<{
-  id: number | string;
-  accountId: number | string;
-  sessionId: string;
-  value: boolean;
-}>;
-
-export async function addToOrRemoveFromWatchlist({
-  id,
-  accountId,
-  sessionId,
-  value,
-}: ToggleArgs) {
-  await tmdbFetch(`/3/account/${accountId}/watchlist?session_id=${sessionId}`, {
-    cache: 'no-store',
-    method: 'POST',
-    body: JSON.stringify({
-      media_type: 'tv',
-      media_id: id,
-      watchlist: value,
-    }),
-  });
-}
-
-export async function addToOrRemoveFromFavorites({
-  id,
-  accountId,
-  sessionId,
-  value,
-}: ToggleArgs) {
-  await tmdbFetch(`/3/account/${accountId}/favorite?session_id=${sessionId}`, {
-    cache: 'no-store',
-    method: 'POST',
-    body: JSON.stringify({
-      media_type: 'tv',
-      media_id: id,
-      favorite: value,
-    }),
-  });
 }
 
 export async function fetchTvSeries(

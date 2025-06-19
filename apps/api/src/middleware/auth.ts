@@ -6,9 +6,13 @@ import { HTTPException } from 'hono/http-exception';
 import { findSession } from '@/lib/db/session';
 import { findUser } from '@/lib/db/user';
 
+export type Auth = Readonly<{
+  session: Session;
+  user: User;
+}> | null;
+
 export type Variables = {
-  session: Session | null;
-  user: User | null;
+  auth: Auth;
 };
 
 export const auth = (): MiddlewareHandler<{ Variables: Variables }> => {
@@ -51,10 +55,14 @@ export const auth = (): MiddlewareHandler<{ Variables: Variables }> => {
           message: 'Unauthorized',
         });
       }
-    }
 
-    c.set('session', session);
-    c.set('user', user);
+      c.set('auth', {
+        session,
+        user,
+      });
+    } else {
+      c.set('auth', null);
+    }
 
     await next();
   };
@@ -62,10 +70,9 @@ export const auth = (): MiddlewareHandler<{ Variables: Variables }> => {
 
 export const requireAuth = (): MiddlewareHandler<{ Variables: Variables }> => {
   return async (c, next) => {
-    const user = c.get('user');
-    const session = c.get('session');
+    const auth = c.get('auth');
 
-    if (!user || !session) {
+    if (!auth) {
       throw new HTTPException(401, {
         message: 'Authentication required',
       });

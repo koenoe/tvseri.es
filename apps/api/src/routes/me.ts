@@ -7,13 +7,8 @@ const app = new Hono<{ Variables: Variables }>();
 app.use(requireAuth());
 
 app.get('/', async (c) => {
-  const user = c.get('user');
-  const session = c.get('session');
-
-  return c.json({
-    user,
-    session,
-  });
+  const auth = c.get('auth');
+  return c.json(auth);
 });
 
 export default app;

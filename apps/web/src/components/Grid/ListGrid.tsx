@@ -1,6 +1,6 @@
 import { type User } from '@tvseri.es/types';
 
-import { getListItems } from '@/lib/db/list';
+import { getListItems } from '@/lib/api';
 
 import InfiniteGrid from './InfiniteGrid';
 

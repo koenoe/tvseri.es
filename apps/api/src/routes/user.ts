@@ -1,22 +1,82 @@
 import { vValidator } from '@hono/valibot-validator';
-import { CreateUserSchema } from '@tvseri.es/types';
-import { Hono } from 'hono';
+import {
+  CreateUserSchema,
+  type SortBy,
+  type SortDirection,
+  type User,
+} from '@tvseri.es/types';
+import { Hono, type MiddlewareHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
+import { getListItems } from '@/lib/db/list';
 import { createUser, findUser } from '@/lib/db/user';
+
+const lists = ['favorites', 'in_progress', 'watched', 'watchlist'] as const;
+
+type ListType = (typeof lists)[number];
 
 const app = new Hono();
 
-app.get('/:id', async (c) => {
-  const user = await findUser({
-    userId: c.req.param('id'),
+type Variables = {
+  user: User;
+};
+
+export const user = (): MiddlewareHandler<{ Variables: Variables }> => {
+  return async (c, next) => {
+    const userId = c.req.param('id');
+
+    if (!userId) {
+      throw new HTTPException(400, {
+        message: 'Missing user ID',
+      });
+    }
+
+    const user = await findUser({
+      userId: userId.toUpperCase(),
+    });
+
+    if (!user) {
+      return c.notFound();
+    }
+
+    c.set('user', user);
+
+    await next();
+  };
+};
+
+app.get('/:id', user(), (c) => {
+  const user = c.get('user');
+  return c.json(user);
+});
+
+app.get(`/:id/list/:list{${lists.join('|')}}`, user(), async (c) => {
+  const user = c.get('user');
+  const listParam = c.req.param('list') as ListType;
+  const listId = listParam.toUpperCase();
+  const startDate = c.req.query('start_date')
+    ? new Date(c.req.query('start_date')!)
+    : undefined;
+  const endDate = c.req.query('end_date')
+    ? new Date(c.req.query('end_date')!)
+    : undefined;
+  const limit = c.req.query('limit')
+    ? parseInt(c.req.query('limit')!, 10)
+    : undefined;
+  const result = await getListItems({
+    userId: user.id,
+    listId,
+    startDate,
+    endDate,
+    options: {
+      limit,
+      cursor: c.req.query('cursor'),
+      sortBy: c.req.query('sort_by') as SortBy | undefined,
+      sortDirection: c.req.query('sort_direction') as SortDirection | undefined,
+    },
   });
 
-  if (!user) {
-    return c.notFound();
-  }
-
-  return c.json(user);
+  return c.json(result);
 });
 
 app.post('/', vValidator('json', CreateUserSchema), async (c) => {

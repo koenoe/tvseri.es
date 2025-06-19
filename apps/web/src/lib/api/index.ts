@@ -14,6 +14,8 @@ import type {
   User,
   CreateUser,
   Session,
+  PaginationOptions,
+  ListItem,
 } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
@@ -345,7 +347,7 @@ export async function detectDominantColorFromImage({
   const response = (await apiFetch('/dominant-color', {
     query: {
       url,
-      cacheKey,
+      cache_key: cacheKey,
     },
   })) as Readonly<{
     hex: string;
@@ -431,4 +433,34 @@ export async function createUser(input: Readonly<CreateUser>) {
   })) as User;
 
   return user;
+}
+
+export async function getListItems(
+  input: Readonly<{
+    userId: string;
+    listId: string;
+    startDate?: Date;
+    endDate?: Date;
+    options?: PaginationOptions;
+  }>,
+) {
+  const result = (await apiFetch('/user/:id/list/:list', {
+    params: {
+      id: input.userId,
+      list: input.listId.toLowerCase(),
+    },
+    query: {
+      start_date: input.startDate?.toISOString(),
+      end_date: input.endDate?.toISOString(),
+      limit: input.options?.limit,
+      cursor: input.options?.cursor,
+      sort_by: input.options?.sortBy,
+      sort_direction: input.options?.sortDirection,
+    },
+  })) as Readonly<{
+    items: ListItem[];
+    nextCursor?: string;
+  }>;
+
+  return result;
 }

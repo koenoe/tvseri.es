@@ -258,40 +258,6 @@ export const getListItems = async (
   };
 };
 
-export const getAllListItems = async (
-  input: Readonly<{
-    userId: string;
-    listId: string;
-    startDate?: Date;
-    endDate?: Date;
-    sortBy?: 'createdAt' | 'title' | 'position';
-    sortDirection?: 'asc' | 'desc';
-  }>,
-): Promise<ListItem[]> => {
-  const allItems: ListItem[] = [];
-  let cursor: string | null = null;
-
-  do {
-    const result = await getListItems({
-      userId: input.userId,
-      listId: input.listId,
-      startDate: input.startDate,
-      endDate: input.endDate,
-      options: {
-        limit: 1000, // Dynamo DB limit
-        cursor,
-        sortBy: input.sortBy,
-        sortDirection: input.sortDirection,
-      },
-    });
-
-    allItems.push(...result.items);
-    cursor = result.nextCursor;
-  } while (cursor !== null);
-
-  return allItems;
-};
-
 export const getListItemsCount = async (
   input: Readonly<{
     userId: string;
@@ -415,54 +381,6 @@ export const removeFromList = async (
   });
 
   await client.send(command);
-};
-
-export const getWatchlist = async (
-  input: Readonly<{
-    userId: string;
-    options?: PaginationOptions;
-  }>,
-) => {
-  return getListItems({
-    userId: input.userId,
-    listId: 'WATCHLIST',
-    options: input.options,
-  });
-};
-
-export const getWatchlistCount = async (
-  input: Readonly<{
-    userId: string;
-  }>,
-) => {
-  return getListItemsCount({
-    userId: input.userId,
-    listId: 'WATCHLIST',
-  });
-};
-
-export const getFavorites = async (
-  input: Readonly<{
-    userId: string;
-    options?: PaginationOptions;
-  }>,
-) => {
-  return getListItems({
-    userId: input.userId,
-    listId: 'FAVORITES',
-    options: input.options,
-  });
-};
-
-export const getFavoritesCount = async (
-  input: Readonly<{
-    userId: string;
-  }>,
-) => {
-  return getListItemsCount({
-    userId: input.userId,
-    listId: 'FAVORITES',
-  });
 };
 
 export const isInWatchlist = async (

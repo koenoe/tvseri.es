@@ -4,6 +4,7 @@ import { dominantColor } from '../dominantColor';
 import { cache } from './cache';
 import { lists } from './lists';
 import { preferredImages } from './preferredImages';
+import * as secrets from '../secrets';
 
 export const watched = new sst.aws.Dynamo('Watched', {
   fields: {
@@ -45,12 +46,16 @@ watched.subscribe(
     memory: '512 MB',
     runtime: 'nodejs22.x',
     timeout: '30 seconds',
-    link: [cache, dominantColor, lists, preferredImages, watched],
-    environment: {
-      MDBLIST_API_KEY: process.env.MDBLIST_API_KEY as string,
-      TMDB_API_ACCESS_TOKEN: process.env.TMDB_API_ACCESS_TOKEN as string,
-      TMDB_API_KEY: process.env.TMDB_API_KEY as string,
-    },
+    link: [
+      cache,
+      dominantColor,
+      lists,
+      preferredImages,
+      watched,
+      secrets.mdblistApiKey,
+      secrets.tmdbApiAccessToken,
+      secrets.tmdbApiKey,
+    ],
     nodejs: {
       install: ['@better-fetch/fetch', 'slugify'],
       minify: true,

@@ -54,7 +54,7 @@ app.get('/', async (c) => {
     return c.json({ error: 'No url provided' }, 400);
   }
 
-  const cacheKey = c.req.query('cacheKey') ?? url;
+  const cacheKey = c.req.query('cache_key') ?? url;
   const dominantColor = await detectDominantColorFromImageWithCache({
     url,
     cacheKey,

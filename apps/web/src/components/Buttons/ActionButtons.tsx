@@ -35,8 +35,8 @@ export default async function ActionButtons({
   ) {
     'use server';
 
-    const { user, session } = await auth();
-    if (!user || !session) {
+    const { user, session, encryptedSessionId } = await auth();
+    if (!user || !session || !encryptedSessionId) {
       return;
     }
 
@@ -79,8 +79,10 @@ export default async function ActionButtons({
       id: Number(id),
     };
 
-    const isFavorited = await isInFavorites(payload);
-    const isWatchlisted = await isInWatchlist(payload);
+    const [isFavorited, isWatchlisted] = await Promise.all([
+      isInFavorites(payload),
+      isInWatchlist(payload),
+    ]);
 
     return (
       <ActionButtonsProvider

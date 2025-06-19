@@ -1,4 +1,4 @@
-import { getListItemsCount } from '@/lib/db/list';
+import { getListItemsCount } from '@/lib/api';
 
 import Block from './Block';
 

@@ -60,8 +60,6 @@ export const auth = (): MiddlewareHandler<{ Variables: Variables }> => {
         session,
         user,
       });
-    } else {
-      c.set('auth', null);
     }
 
     await next();

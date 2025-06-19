@@ -11,6 +11,7 @@ const auth = cache(async () => {
     return {
       user: null,
       session: null,
+      encryptedSessionId: null,
     };
   }
 
@@ -18,7 +19,10 @@ const auth = cache(async () => {
     sessionId: encryptedSessionId,
   });
 
-  return result;
+  return {
+    ...result,
+    encryptedSessionId,
+  };
 });
 
 export default auth;

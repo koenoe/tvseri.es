@@ -1,6 +1,5 @@
 import {
   PutItemCommand,
-  QueryCommand,
   DeleteItemCommand,
   GetItemCommand,
 } from '@aws-sdk/client-dynamodb';
@@ -14,43 +13,6 @@ import client from '../client';
 
 const isCustomList = (listId: string) =>
   !['WATCHED', 'WATCHLIST', 'FAVORITES', 'IN_PROGRESS'].includes(listId);
-
-export const getListItemsCount = async (
-  input: Readonly<{
-    userId: string;
-    listId: string;
-    startDate?: Date;
-    endDate?: Date;
-  }>,
-) => {
-  const hasDateRange = input.startDate && input.endDate;
-  const condition = hasDateRange
-    ? {
-        KeyConditionExpression:
-          'gsi2pk = :pk AND gsi2sk BETWEEN :startDate AND :endDate',
-        ExpressionAttributeValues: marshall({
-          ':pk': `LIST#${input.userId}#${input.listId}`,
-          ':startDate': input.startDate.getTime(),
-          ':endDate': input.endDate.getTime(),
-        }),
-      }
-    : {
-        KeyConditionExpression: 'gsi2pk = :pk',
-        ExpressionAttributeValues: marshall({
-          ':pk': `LIST#${input.userId}#${input.listId}`,
-        }),
-      };
-
-  const command = new QueryCommand({
-    TableName: Resource.Lists.name,
-    IndexName: 'gsi2', // Always use gsi2 for count since we don't need sorting
-    ...condition,
-    Select: 'COUNT',
-  });
-
-  const result = await client.send(command);
-  return result.Count ?? 0;
-};
 
 export const isInList = async (
   input: Readonly<{

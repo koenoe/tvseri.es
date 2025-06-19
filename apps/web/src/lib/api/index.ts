@@ -464,3 +464,153 @@ export async function getListItems(
 
   return result;
 }
+
+export async function getListItemsCount(
+  input: Omit<Parameters<typeof getListItems>[0], 'options'>,
+) {
+  const result = (await apiFetch('/user/:id/list/:list/count', {
+    params: {
+      id: input.userId,
+      list: input.listId.toLowerCase(),
+    },
+    query: {
+      start_date: input.startDate?.toISOString(),
+      end_date: input.endDate?.toISOString(),
+    },
+  })) as Readonly<{
+    count: number;
+  }>;
+
+  return result.count;
+}
+
+export async function isInList(
+  input: Readonly<{
+    userId: string;
+    listId: string;
+    id: number;
+  }>,
+) {
+  const result = (await apiFetch('/user/:id/list/:list/:itemId', {
+    params: {
+      id: input.userId,
+      list: input.listId.toLowerCase(),
+      itemId: input.id,
+    },
+  })) as Readonly<{
+    value: boolean;
+  }>;
+
+  return result.value;
+}
+
+export async function isInWatchlist(
+  input: Omit<Parameters<typeof isInList>[0], 'listId'>,
+) {
+  return isInList({
+    userId: input.userId,
+    listId: 'WATCHLIST',
+    id: input.id,
+  });
+}
+
+export async function isInFavorites(
+  input: Parameters<typeof isInWatchlist>[0],
+) {
+  return isInList({
+    userId: input.userId,
+    listId: 'FAVORITES',
+    id: input.id,
+  });
+}
+
+export async function addToList(
+  input: Readonly<{
+    userId: string;
+    listId: string;
+    item: Omit<ListItem, 'createdAt' | 'posterImage'> &
+      Readonly<{
+        createdAt?: number;
+      }>;
+    sessionId: string;
+  }>,
+) {
+  await apiFetch('/user/:id/list/:list', {
+    method: 'POST',
+    params: {
+      id: input.userId,
+      list: input.listId.toLowerCase(),
+    },
+    body: JSON.stringify(input.item),
+    auth: {
+      type: 'Bearer',
+      token: input.sessionId,
+    },
+  });
+}
+
+export async function addToFavorites(
+  input: Omit<Parameters<typeof addToList>[0], 'listId'>,
+) {
+  return addToList({
+    userId: input.userId,
+    listId: 'FAVORITES',
+    item: input.item,
+    sessionId: input.sessionId,
+  });
+}
+
+export async function addToWatchlist(
+  input: Parameters<typeof addToFavorites>[0],
+) {
+  return addToList({
+    userId: input.userId,
+    listId: 'WATCHLIST',
+    item: input.item,
+    sessionId: input.sessionId,
+  });
+}
+
+export async function removeFromList(
+  input: Readonly<{
+    userId: string;
+    listId: string;
+    id: number;
+    sessionId: string;
+  }>,
+) {
+  await apiFetch('/user/:id/list/:list/:itemId', {
+    method: 'DELETE',
+    params: {
+      id: input.userId,
+      list: input.listId.toLowerCase(),
+      itemId: input.id,
+    },
+    auth: {
+      type: 'Bearer',
+      token: input.sessionId,
+    },
+  });
+}
+
+export async function removeFromFavorites(
+  input: Omit<Parameters<typeof removeFromList>[0], 'listId'>,
+) {
+  return removeFromList({
+    userId: input.userId,
+    listId: 'FAVORITES',
+    id: input.id,
+    sessionId: input.sessionId,
+  });
+}
+
+export async function removeFromWatchlist(
+  input: Parameters<typeof removeFromFavorites>[0],
+) {
+  return removeFromList({
+    userId: input.userId,
+    listId: 'WATCHLIST',
+    id: input.id,
+    sessionId: input.sessionId,
+  });
+}

@@ -45,7 +45,7 @@ export const auth = (): MiddlewareHandler<{ Variables: Variables }> => {
           throw error;
         }
 
-        console.error('Failed to find session or user:', error);
+        console.error('Failed to match token with user:', error);
 
         throw new HTTPException(401, {
           message: 'Unauthorized',

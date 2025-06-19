@@ -5,7 +5,7 @@ import type { WatchedItem } from '@tvseri.es/types';
 
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
-import { removeFromList } from '@/lib/db/list';
+import { removeFromList } from '@/lib/api';
 import { getAllWatchedForTvSeries } from '@/lib/db/watched';
 
 import InProgress from './InProgress';
@@ -92,10 +92,8 @@ export default async function InProgressContainer({
   item: ListItem;
   user: User;
 }>) {
-  const [{ user: authenticatedUser }, tvSeries] = await Promise.all([
-    auth(),
-    cachedTvSeries(item.id),
-  ]);
+  const [{ user: authenticatedUser, encryptedSessionId }, tvSeries] =
+    await Promise.all([auth(), cachedTvSeries(item.id)]);
 
   const watchedItems = (await getAllWatchedForTvSeries({
     userId: user.id,
@@ -110,7 +108,7 @@ export default async function InProgressContainer({
   const removeAction = async () => {
     'use server';
 
-    if (authenticatedUser?.id !== user.id) {
+    if (authenticatedUser?.id !== user.id || !encryptedSessionId) {
       return;
     }
 
@@ -119,6 +117,7 @@ export default async function InProgressContainer({
         userId: user.id,
         listId: 'IN_PROGRESS',
         id: tvSeries!.id,
+        sessionId: encryptedSessionId,
       });
     } catch (error) {
       console.error(error);

@@ -150,6 +150,30 @@ app.get(
 );
 
 app.get(
+  '/:id/list/:list{favorites|in_progress|watched|watchlist}/:itemId',
+  user(),
+  async (c) => {
+    const user = c.get('user');
+    const listId = c.req.param('list').toUpperCase();
+    const itemId = parseInt(c.req.param('itemId'), 10);
+
+    if (isNaN(itemId)) {
+      throw new HTTPException(400, {
+        message: 'Invalid item ID',
+      });
+    }
+
+    const value = await isInList({
+      userId: user.id,
+      listId,
+      id: itemId,
+    });
+
+    return c.json({ value }, 200);
+  },
+);
+
+app.get(
   '/:id/list/:list{favorites|in_progress|watched|watchlist}',
   user(),
   async (c) => {
@@ -183,30 +207,6 @@ app.get(
   },
 );
 
-app.get(
-  '/:id/list/:list{favorites|in_progress|watched|watchlist}/:itemId',
-  user(),
-  async (c) => {
-    const user = c.get('user');
-    const listId = c.req.param('list').toUpperCase();
-    const itemId = parseInt(c.req.param('itemId'), 10);
-
-    if (isNaN(itemId)) {
-      throw new HTTPException(400, {
-        message: 'Invalid item ID',
-      });
-    }
-
-    const value = await isInList({
-      userId: user.id,
-      listId,
-      id: itemId,
-    });
-
-    return c.json({ value }, 200);
-  },
-);
-
 app.post(
   '/:id/list/:list{favorites|watchlist}',
   user(),
@@ -237,7 +237,7 @@ app.post(
 );
 
 app.delete(
-  '/:id/list/:list{favorites|watchlist}/:itemId',
+  '/:id/list/:list{favorites|in_progress|watchlist}/:itemId',
   user(),
   requireIsMe(),
   async (c) => {

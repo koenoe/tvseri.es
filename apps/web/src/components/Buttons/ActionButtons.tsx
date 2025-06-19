@@ -9,7 +9,7 @@ import {
   isInWatchlist,
   removeFromFavorites,
   removeFromWatchlist,
-} from '@/lib/db/list';
+} from '@/lib/api';
 
 import ActionButtonsProvider from './ActionButtonsProvider';
 import ContextMenuButtonTvSeries from './ContextMenuButtonTvSeries';
@@ -49,6 +49,7 @@ export default async function ActionButtons({
         status: tvSeries.status,
         title: tvSeries.title,
       },
+      sessionId: encryptedSessionId,
     };
 
     if (listType === 'watchlist') {
@@ -58,6 +59,7 @@ export default async function ActionButtons({
         await removeFromWatchlist({
           userId: user.id,
           id: tvSeries.id,
+          sessionId: encryptedSessionId,
         });
       }
     } else if (listType === 'favorites') {
@@ -67,6 +69,7 @@ export default async function ActionButtons({
         await removeFromFavorites({
           userId: user.id,
           id: tvSeries.id,
+          sessionId: encryptedSessionId,
         });
       }
     }

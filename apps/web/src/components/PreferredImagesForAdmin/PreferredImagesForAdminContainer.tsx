@@ -42,7 +42,9 @@ export default async function PreferredImagesForAdminContainer({
   id: number;
 }>) {
   const [tvSeriesFromCache, { user }] = await Promise.all([
-    cachedTvSeries(id),
+    cachedTvSeries(id, {
+      includeImages: true,
+    }),
     auth(),
   ]);
   const tvSeries = tvSeriesFromCache!;

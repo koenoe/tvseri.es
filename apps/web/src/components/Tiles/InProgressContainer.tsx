@@ -93,7 +93,10 @@ export default async function InProgressContainer({
   user: User;
 }>) {
   const [{ user: authenticatedUser, encryptedSessionId }, tvSeries] =
-    await Promise.all([auth(), cachedTvSeries(item.id)]);
+    await Promise.all([
+      auth(),
+      cachedTvSeries(item.id, { includeImages: true }),
+    ]);
 
   const watchedItems = (await getAllWatchedForTvSeries({
     userId: user.id,

@@ -29,7 +29,7 @@ export default async function SpotlightContainer({
   }
 
   const [tvSeries, episode] = await Promise.all([
-    cachedTvSeries(watchedItem.seriesId),
+    cachedTvSeries(watchedItem.seriesId, { includeImages: true }),
     fetchTvSeriesEpisode(
       watchedItem.seriesId,
       watchedItem.seasonNumber,

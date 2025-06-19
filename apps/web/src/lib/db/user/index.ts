@@ -1,21 +1,16 @@
 import {
-  PutItemCommand,
   ConditionalCheckFailedException,
   QueryCommand,
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { type User, type CreateUser } from '@tvseri.es/types';
+import { type User } from '@tvseri.es/types';
 import slugify from 'slugify';
 import { Resource } from 'sst';
-import { ulid } from 'ulid';
 
-import generateUsername from '@/utils/generateUsername';
 import { encodeToBase64Url } from '@/utils/stringBase64Url';
 
 import client from '../client';
-
-const VERSION = 1;
 
 export const findUser = async (
   input:
@@ -87,104 +82,6 @@ export const findUser = async (
     username,
     version,
   };
-};
-
-export const createUser = async (
-  input: Readonly<CreateUser>,
-): Promise<User> => {
-  let username = input.email
-    ? slugify(input.email.split('@')[0]!, {
-        lower: true,
-        strict: true,
-      })
-    : slugify(input.username!, {
-        lower: true,
-        strict: true,
-      });
-
-  if (input.email) {
-    const existingUser = await findUser({ email: input.email });
-    if (existingUser) {
-      throw new Error('UserAlreadyExists');
-    }
-  }
-
-  if (input.tmdbAccountId) {
-    const existingUser = await findUser({ tmdbAccountId: input.tmdbAccountId });
-    if (existingUser) {
-      throw new Error('UserAlreadyExists');
-    }
-  }
-
-  const isUsernameTaken = await findUser({ username });
-  if (isUsernameTaken) {
-    username = generateUsername();
-  }
-
-  const role = username === 'koenoe' ? 'admin' : 'user';
-  const userId = ulid();
-  const now = new Date().toISOString();
-
-  const command = new PutItemCommand({
-    TableName: Resource.Users.name,
-    Item: marshall(
-      {
-        pk: `USER#${userId}`,
-        id: userId,
-        createdAt: now,
-        ...(input.name && {
-          name: input.name,
-        }),
-        role,
-        version: VERSION,
-        ...(input.email && {
-          gsi1pk: `EMAIL#${encodeToBase64Url(input.email)}`,
-          email: input.email,
-        }),
-        gsi2pk: `USERNAME#${username}`,
-        username,
-        ...(input.tmdbAccountId &&
-          input.tmdbAccountObjectId && {
-            gsi3pk: `TMDB#${input.tmdbAccountId}`,
-            tmdbAccountId: input.tmdbAccountId,
-            tmdbAccountObjectId: input.tmdbAccountObjectId,
-            tmdbUsername: input.tmdbUsername,
-          }),
-      },
-      {
-        removeUndefinedValues: true,
-      },
-    ),
-  });
-
-  try {
-    await client.send(command);
-
-    return {
-      id: userId,
-      email: input.email,
-      username,
-      name: input.name,
-      createdAt: now,
-      role,
-      ...(input.tmdbAccountId &&
-        input.tmdbAccountObjectId && {
-          tmdbAccountId: input.tmdbAccountId,
-          tmdbAccountObjectId: input.tmdbAccountObjectId,
-          tmdbUsername: input.tmdbUsername,
-        }),
-      version: VERSION,
-    };
-  } catch (error) {
-    if (error instanceof ConditionalCheckFailedException) {
-      throw new Error('UserAlreadyExists');
-    }
-    console.error('Failed to create user', {
-      error,
-      input,
-    });
-    throw new Error('UserCreationFailed');
-  }
 };
 
 export const updateUser = async (

@@ -28,7 +28,6 @@ new sst.aws.Nextjs('tvseries', {
     dynamo.cache,
     dynamo.follow,
     dynamo.otp,
-    dynamo.preferredImages,
     dynamo.sessions,
     dynamo.users,
     dynamo.watched,

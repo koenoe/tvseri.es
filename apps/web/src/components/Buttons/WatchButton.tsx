@@ -125,6 +125,7 @@ export default function WatchButton({
       isActive={optimisticIsWatched}
       isDisabled={isPending}
       title={optimisticIsWatched ? 'Mark as unwatched' : 'Mark as watched'}
+      initial={!isReady ? (optimisticIsWatched ? 'active' : 'inactive') : false}
     >
       <svg
         className="icon"

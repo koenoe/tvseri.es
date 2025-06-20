@@ -1,6 +1,12 @@
 'use client';
 
-import { useCallback, useTransition, useOptimistic } from 'react';
+import {
+  useCallback,
+  useTransition,
+  useOptimistic,
+  useState,
+  useEffect,
+} from 'react';
 
 import type { WatchedItem } from '@tvseri.es/types';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -36,6 +42,8 @@ export default function WatchButton({
     seasonNumber?: number;
     episodeNumber?: number;
   }>) {
+  const [isHydrated, setIsHydrated] = useState(false);
+
   const isReady = useWatchedStore((store) => store.isReady(tvSeriesId));
   const isWatched = useWatchedStore((store) =>
     store.isWatched(tvSeriesId, {
@@ -102,7 +110,11 @@ export default function WatchButton({
     ],
   );
 
-  if (!isReady) {
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  if (!isHydrated || !isReady) {
     return <SkeletonCircleButton size={size} />;
   }
 

@@ -532,26 +532,6 @@ export const getAllWatchedForTvSeries = async (
   return allItems;
 };
 
-export const getWatchedCountForTvSeries = async (
-  input: Readonly<{
-    userId: string;
-    tvSeriesId: number | string;
-  }>,
-) => {
-  const command = new QueryCommand({
-    TableName: Resource.Watched.name,
-    IndexName: 'gsi1',
-    KeyConditionExpression: 'gsi1pk = :pk',
-    ExpressionAttributeValues: marshall({
-      ':pk': `USER#${input.userId}#SERIES#${input.tvSeriesId}`,
-    }),
-    Select: 'COUNT',
-  });
-
-  const result = await client.send(command);
-  return result.Count ?? 0;
-};
-
 const getWatchedForSeason = async (
   input: Readonly<{
     userId: string;

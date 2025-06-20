@@ -16,6 +16,7 @@ import type {
   Session,
   PaginationOptions,
   ListItem,
+  WatchedItem,
 } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
@@ -459,7 +460,7 @@ export async function getListItems(
     },
   })) as Readonly<{
     items: ListItem[];
-    nextCursor?: string;
+    nextCursor: string | null;
   }>;
 
   return result;
@@ -614,3 +615,98 @@ export async function removeFromWatchlist(
     sessionId: input.sessionId,
   });
 }
+
+export async function getWatched(
+  input: Readonly<{
+    userId: string;
+    startDate?: Date;
+    endDate?: Date;
+    options?: Omit<PaginationOptions, 'sortBy'>;
+  }>,
+) {
+  const result = (await apiFetch('/user/:id/watched', {
+    params: {
+      id: input.userId,
+    },
+    query: {
+      start_date: input.startDate?.toISOString(),
+      end_date: input.endDate?.toISOString(),
+      limit: input.options?.limit,
+      cursor: input.options?.cursor,
+      sort_direction: input.options?.sortDirection,
+    },
+  })) as Readonly<{
+    items: WatchedItem[];
+    nextCursor: string | null;
+  }>;
+
+  return result;
+}
+
+export async function getWatchedCount(
+  input: Omit<Parameters<typeof getWatched>[0], 'options'>,
+) {
+  const result = (await apiFetch('/user/:id/watched/count', {
+    params: {
+      id: input.userId,
+    },
+    query: {
+      start_date: input.startDate?.toISOString(),
+      end_date: input.endDate?.toISOString(),
+    },
+  })) as Readonly<{
+    count: number;
+  }>;
+
+  return result.count;
+}
+
+export async function getWatchedRuntime(
+  input: Omit<Parameters<typeof getWatched>[0], 'options'>,
+) {
+  const result = (await apiFetch('/user/:id/watched/runtime', {
+    params: {
+      id: input.userId,
+    },
+    query: {
+      start_date: input.startDate?.toISOString(),
+      end_date: input.endDate?.toISOString(),
+    },
+  })) as Readonly<{
+    runtime: number;
+  }>;
+
+  return result.runtime;
+}
+
+export const getWatchedByYear = async (
+  input: Readonly<{
+    userId: string;
+    year: number | string;
+  }>,
+): Promise<WatchedItem[]> => {
+  const result = (await apiFetch('/user/:id/watched/year/:year', {
+    params: {
+      id: input.userId,
+      year: input.year,
+    },
+  })) as WatchedItem[];
+
+  return result;
+};
+
+export const getAllWatchedForTvSeries = async (
+  input: Readonly<{
+    userId: string;
+    seriesId: number | string;
+  }>,
+): Promise<WatchedItem[]> => {
+  const result = (await apiFetch('/user/:id/watched/series/:seriesId', {
+    params: {
+      id: input.userId,
+      seriesId: input.seriesId,
+    },
+  })) as WatchedItem[];
+
+  return result;
+};

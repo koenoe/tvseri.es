@@ -1,7 +1,6 @@
 import {
   PutItemCommand,
   DeleteItemCommand,
-  GetItemCommand,
   BatchWriteItemCommand,
   QueryCommand,
 } from '@aws-sdk/client-dynamodb';
@@ -507,23 +506,6 @@ export const getWatchedForTvSeries = async (
   };
 };
 
-export const getLastWatchedItemForTvSeries = async (
-  input: Readonly<{
-    userId: string;
-    tvSeries: TvSeries;
-  }>,
-): Promise<WatchedItem | undefined> => {
-  const result = await getWatchedForTvSeries({
-    userId: input.userId,
-    tvSeries: input.tvSeries,
-    options: {
-      limit: 1,
-    },
-  });
-
-  return result.items[0];
-};
-
 export const getAllWatchedForTvSeries = async (
   input: Readonly<{
     userId: string;
@@ -570,7 +552,7 @@ export const getWatchedCountForTvSeries = async (
   return result.Count ?? 0;
 };
 
-export const getWatchedForSeason = async (
+const getWatchedForSeason = async (
   input: Readonly<{
     userId: string;
     tvSeries: TvSeries;
@@ -605,131 +587,4 @@ export const getWatchedForSeason = async (
         )
       : null,
   };
-};
-
-export const getWatched = async (
-  input: Readonly<{
-    userId: string;
-    startDate?: Date;
-    endDate?: Date;
-    options?: PaginationOptions;
-  }>,
-) => {
-  const { limit = 20, cursor, sortDirection = 'desc' } = input.options ?? {};
-  let KeyConditionExpression = 'gsi2pk = :pk';
-  const ExpressionAttributeValues: Record<string, string | number> = {
-    ':pk': `USER#${input.userId}#WATCHED`,
-  };
-  if (input.startDate && input.endDate) {
-    KeyConditionExpression += ' AND gsi2sk BETWEEN :start AND :end';
-    ExpressionAttributeValues[':start'] = input.startDate.getTime();
-    ExpressionAttributeValues[':end'] = input.endDate.getTime();
-  }
-
-  const command = new QueryCommand({
-    TableName: Resource.Watched.name,
-    IndexName: 'gsi2',
-    KeyConditionExpression,
-    ExpressionAttributeValues: marshall(ExpressionAttributeValues),
-    ScanIndexForward: sortDirection === 'asc',
-    Limit: limit,
-    ExclusiveStartKey: cursor
-      ? JSON.parse(Buffer.from(cursor, 'base64url').toString())
-      : undefined,
-  });
-
-  const result = await client.send(command);
-
-  return {
-    items:
-      result.Items?.map((item) => {
-        const unmarshalled = unmarshall(item) as WatchedItem;
-        return normalizeWatchedItem(unmarshalled);
-      }) ?? [],
-    nextCursor: result.LastEvaluatedKey
-      ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString(
-          'base64url',
-        )
-      : null,
-  };
-};
-
-export const getAllWatched = async (
-  input: Readonly<{
-    userId: string;
-    startDate?: Date;
-    endDate?: Date;
-  }>,
-): Promise<WatchedItem[]> => {
-  const allItems: WatchedItem[] = [];
-  let cursor: string | null = null;
-
-  do {
-    const result = await getWatched({
-      userId: input.userId,
-      startDate: input.startDate,
-      endDate: input.endDate,
-      options: {
-        limit: 1000, // Dynamo DB limit
-        cursor,
-      },
-    });
-
-    allItems.push(...result.items);
-    cursor = result.nextCursor;
-  } while (cursor !== null);
-
-  return allItems;
-};
-
-export const getWatchedCount = async (
-  input: Readonly<{
-    userId: string;
-    startDate?: Date;
-    endDate?: Date;
-  }>,
-) => {
-  let KeyConditionExpression = 'gsi2pk = :pk';
-  const ExpressionAttributeValues: Record<string, string | number> = {
-    ':pk': `USER#${input.userId}#WATCHED`,
-  };
-  if (input.startDate && input.endDate) {
-    KeyConditionExpression += ' AND gsi2sk BETWEEN :start AND :end';
-    ExpressionAttributeValues[':start'] = input.startDate.getTime();
-    ExpressionAttributeValues[':end'] = input.endDate.getTime();
-  }
-
-  const command = new QueryCommand({
-    TableName: Resource.Watched.name,
-    IndexName: 'gsi2',
-    KeyConditionExpression,
-    ExpressionAttributeValues: marshall(ExpressionAttributeValues),
-    Select: 'COUNT',
-  });
-
-  const result = await client.send(command);
-  return result.Count ?? 0;
-};
-
-export const isWatched = async (
-  input: Readonly<{
-    userId: string;
-    tvSeries: TvSeries;
-    seasonNumber: number;
-    episodeNumber: number;
-  }>,
-) => {
-  const paddedSeason = paddedNumber(input.seasonNumber);
-  const paddedEpisode = paddedNumber(input.episodeNumber);
-
-  const command = new GetItemCommand({
-    TableName: Resource.Watched.name,
-    Key: marshall({
-      pk: `USER#${input.userId}`,
-      sk: `SERIES#${input.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
-    }),
-  });
-
-  const result = await client.send(command);
-  return !!result.Item;
 };

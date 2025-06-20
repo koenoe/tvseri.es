@@ -5,12 +5,11 @@ import type { WatchedItem } from '@tvseri.es/types';
 import { headers } from 'next/headers';
 
 import { cachedTvSeriesSeason } from '@/app/cached';
-import { fetchTvSeriesWatchProvider } from '@/lib/api';
 import {
+  fetchTvSeriesWatchProvider,
   getAllWatchedForTvSeries,
-  markWatchedInBatch,
-  unmarkWatchedInBatch,
-} from '@/lib/db/watched';
+} from '@/lib/api';
+import { markWatchedInBatch, unmarkWatchedInBatch } from '@/lib/db/watched';
 
 import Cards from './Cards';
 
@@ -39,7 +38,7 @@ export default async function CardsContainer({
   const [watchedItems, seasons, watchProvider] = await Promise.all([
     getAllWatchedForTvSeries({
       userId: user.id,
-      tvSeries,
+      seriesId: tvSeries.id,
     }),
     fetchAllSeasons(tvSeries),
     fetchTvSeriesWatchProvider(tvSeries.id, region),

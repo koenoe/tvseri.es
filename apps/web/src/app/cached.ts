@@ -10,30 +10,15 @@ import {
   fetchTvSeries,
   fetchTvSeriesSeason,
   findUser,
+  getWatchedByYear,
 } from '@/lib/api';
-import { getAllWatched } from '@/lib/db/watched';
 import { buildPosterImageUrl } from '@/lib/tmdb/helpers';
 
 export const cachedPerson = cache(fetchPerson);
 export const cachedTvSeries = cache(fetchTvSeries);
 export const cachedTvSeriesSeason = cache(fetchTvSeriesSeason);
 export const cachedUser = cache(findUser);
-
-export const cachedWatchedByYear = cache(
-  async (
-    input: Readonly<{
-      userId: string;
-      year: number | string;
-    }>,
-  ) => {
-    const items = await getAllWatched({
-      userId: input.userId,
-      startDate: new Date(`${input.year}-01-01`),
-      endDate: new Date(`${input.year}-12-31`),
-    });
-    return items;
-  },
-);
+export const cachedWatchedByYear = cache(getWatchedByYear);
 
 export const cachedUniqueWatchedByYear = cache(
   async (

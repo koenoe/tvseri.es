@@ -1,6 +1,6 @@
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
-import { getAllWatchedForTvSeries } from '@/lib/db/watched';
+import { getAllWatchedForTvSeries } from '@/lib/api';
 
 import AddTvSeriesToStore from './AddTvSeriesToStore';
 
@@ -21,7 +21,7 @@ export default async function AddTvSeriesToStoreContainer({
 
   const watched = await getAllWatchedForTvSeries({
     userId: user.id,
-    tvSeries,
+    seriesId: tvSeries.id,
   });
 
   return <AddTvSeriesToStore tvSeries={tvSeries} watched={watched} />;

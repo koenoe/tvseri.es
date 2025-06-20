@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
 
 import { cachedWatchedByYear, cachedTvSeries } from '@/app/cached';
-import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 
 import WorldMap from './WorldMap';
 
@@ -45,16 +44,7 @@ const getCountryStats = async (
 };
 
 const cachedCountryStats = async (input: Input) => {
-  const key = `most-watched-countries:${input.userId}_${input.year}`;
-  const cachedValue = await getCacheItem<CountryStats>(key);
-  if (cachedValue) {
-    return cachedValue;
-  }
-
   const stats = await getCountryStats(input);
-
-  await setCacheItem(key, stats, { ttl: 3600 });
-
   return stats;
 };
 

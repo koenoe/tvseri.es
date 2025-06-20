@@ -1,6 +1,5 @@
 import { cachedTvSeries } from '@/app/cached';
-import { fetchTvSeriesEpisode } from '@/lib/api';
-import { getWatched } from '@/lib/db/watched';
+import { fetchTvSeriesEpisode, getWatched } from '@/lib/api';
 
 import Spotlight from './Spotlight';
 

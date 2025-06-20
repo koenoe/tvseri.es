@@ -1,7 +1,6 @@
 import { cache } from 'react';
 
-import { cachedWatchedByYear } from '@/app/cached';
-import { getCacheItem, setCacheItem } from '@/lib/db/cache';
+import { getWatchedRuntime } from '@/lib/api';
 import calculatePercentageDelta from '@/utils/calculatePercentageDelta';
 import formatRuntime from '@/utils/formatRuntime';
 
@@ -13,21 +12,13 @@ type Input = Readonly<{
 }>;
 
 export const cachedTotalRuntime = cache(async ({ userId, year }: Input) => {
-  const key = `total-runtime:${userId}_${year}`;
-  const cachedValue = await getCacheItem<number>(key);
-  if (cachedValue) {
-    return cachedValue;
-  }
+  const runtime = await getWatchedRuntime({
+    userId,
+    startDate: new Date(`${year}-01-01`),
+    endDate: new Date(`${year}-12-31`),
+  });
 
-  const items = await cachedWatchedByYear({ userId, year });
-  const totalRuntime = items.reduce(
-    (sum, item) => sum + (item.runtime || 0),
-    0,
-  );
-
-  await setCacheItem<number>(key, totalRuntime, { ttl: 900 });
-
-  return totalRuntime;
+  return runtime;
 });
 
 export default async function BlockTotalRuntime({ userId, year }: Input) {

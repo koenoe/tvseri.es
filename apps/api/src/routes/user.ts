@@ -17,6 +17,12 @@ import {
   isInList,
 } from '@/lib/db/list';
 import { createUser, findUser } from '@/lib/db/user';
+import {
+  getAllWatched,
+  getAllWatchedForTvSeries,
+  getWatched,
+  getWatchedCount,
+} from '@/lib/db/watched';
 import { type Variables as AuthVariables } from '@/middleware/auth';
 
 type Variables = {
@@ -123,6 +129,101 @@ app.get('/by-tmdb/:tmdb-account-id', async (c) => {
   return c.json(user);
 });
 
+app.get('/:id/watched/count', user(), async (c) => {
+  const user = c.get('user');
+  const startDate = c.req.query('start_date')
+    ? new Date(c.req.query('start_date')!)
+    : undefined;
+  const endDate = c.req.query('end_date')
+    ? new Date(c.req.query('end_date')!)
+    : undefined;
+  const count = await getWatchedCount({
+    userId: user.id,
+    startDate,
+    endDate,
+  });
+
+  return c.json({
+    count,
+  });
+});
+
+// TODO: abstract stats into a separate dynamo table
+// populate it in the watched subscription
+app.get('/:id/watched/runtime', user(), async (c) => {
+  const user = c.get('user');
+  const startDate = c.req.query('start_date')
+    ? new Date(c.req.query('start_date')!)
+    : undefined;
+  const endDate = c.req.query('end_date')
+    ? new Date(c.req.query('end_date')!)
+    : undefined;
+  const items = await getAllWatched({
+    userId: user.id,
+    startDate,
+    endDate,
+  });
+
+  c.header(
+    'Cache-Control',
+    'public, max-age=3600, s-maxage=3600, stale-while-revalidate=900',
+  ); // 1h, allow stale for 5m
+
+  return c.json({
+    runtime: items.reduce((sum, item) => sum + (item.runtime || 0), 0),
+  });
+});
+
+app.get('/:id/watched/year/:year', user(), async (c) => {
+  const user = c.get('user');
+  const items = await getAllWatched({
+    userId: user.id,
+    startDate: new Date(`${c.req.param('year')}-01-01`),
+    endDate: new Date(`${c.req.param('year')}-12-31`),
+  });
+
+  c.header(
+    'Cache-Control',
+    'public, max-age=3600, s-maxage=3600, stale-while-revalidate=900',
+  ); // 1h, allow stale for 5m
+
+  return c.json(items);
+});
+
+app.get('/:id/watched/series/:series-id', user(), async (c) => {
+  const user = c.get('user');
+  const items = await getAllWatchedForTvSeries({
+    userId: user.id,
+    tvSeriesId: c.req.param('series-id'),
+  });
+
+  return c.json(items);
+});
+
+app.get('/:id/watched', user(), async (c) => {
+  const user = c.get('user');
+  const startDate = c.req.query('start_date')
+    ? new Date(c.req.query('start_date')!)
+    : undefined;
+  const endDate = c.req.query('end_date')
+    ? new Date(c.req.query('end_date')!)
+    : undefined;
+  const limit = c.req.query('limit')
+    ? parseInt(c.req.query('limit')!, 10)
+    : undefined;
+  const result = await getWatched({
+    userId: user.id,
+    startDate,
+    endDate,
+    options: {
+      limit,
+      cursor: c.req.query('cursor'),
+      sortDirection: c.req.query('sort_direction') as SortDirection | undefined,
+    },
+  });
+  return c.json(result);
+});
+
 app.get(
   '/:id/list/:list{favorites|in_progress|watched|watchlist}/count',
   user(),
@@ -150,12 +251,12 @@ app.get(
 );
 
 app.get(
-  '/:id/list/:list{favorites|in_progress|watched|watchlist}/:itemId',
+  '/:id/list/:list{favorites|in_progress|watched|watchlist}/:item-id',
   user(),
   async (c) => {
     const user = c.get('user');
     const listId = c.req.param('list').toUpperCase();
-    const itemId = parseInt(c.req.param('itemId'), 10);
+    const itemId = parseInt(c.req.param('item-id'), 10);
 
     if (isNaN(itemId)) {
       throw new HTTPException(400, {

@@ -435,7 +435,7 @@ export const unmarkTvSeriesWatched = async (
 ) => {
   const items = await getAllWatchedForTvSeries({
     userId: input.userId,
-    tvSeries: input.tvSeries,
+    tvSeriesId: input.tvSeries.id,
   });
 
   if (!items.length) {
@@ -470,7 +470,7 @@ export const unmarkTvSeriesWatched = async (
 export const getWatchedForTvSeries = async (
   input: Readonly<{
     userId: string;
-    tvSeries: TvSeries;
+    tvSeriesId: number | string;
     options?: PaginationOptions;
   }>,
 ) => {
@@ -481,7 +481,7 @@ export const getWatchedForTvSeries = async (
     IndexName: 'gsi1',
     KeyConditionExpression: 'gsi1pk = :pk',
     ExpressionAttributeValues: marshall({
-      ':pk': `USER#${input.userId}#SERIES#${input.tvSeries.id}`,
+      ':pk': `USER#${input.userId}#SERIES#${input.tvSeriesId}`,
     }),
     Limit: limit,
     ScanIndexForward: sortDirection === 'asc',
@@ -506,28 +506,8 @@ export const getWatchedForTvSeries = async (
   };
 };
 
-export const getLastWatchedItemForTvSeries = async (
-  input: Readonly<{
-    userId: string;
-    tvSeries: TvSeries;
-  }>,
-): Promise<WatchedItem | undefined> => {
-  const result = await getWatchedForTvSeries({
-    userId: input.userId,
-    tvSeries: input.tvSeries,
-    options: {
-      limit: 1,
-    },
-  });
-
-  return result.items[0];
-};
-
 export const getAllWatchedForTvSeries = async (
-  input: Readonly<{
-    userId: string;
-    tvSeries: TvSeries;
-  }>,
+  input: Omit<Parameters<typeof getWatchedForTvSeries>[0], 'options'>,
 ): Promise<WatchedItem[]> => {
   const allItems: WatchedItem[] = [];
   let cursor: string | null = null;
@@ -535,7 +515,7 @@ export const getAllWatchedForTvSeries = async (
   do {
     const result = await getWatchedForTvSeries({
       userId: input.userId,
-      tvSeries: input.tvSeries,
+      tvSeriesId: input.tvSeriesId,
       options: {
         limit: 1000, // Dynamo DB limit
         cursor,
@@ -550,10 +530,7 @@ export const getAllWatchedForTvSeries = async (
 };
 
 export const getWatchedCountForTvSeries = async (
-  input: Readonly<{
-    userId: string;
-    tvSeriesId: number | string;
-  }>,
+  input: Omit<Parameters<typeof getWatchedForTvSeries>[0], 'options'>,
 ) => {
   const command = new QueryCommand({
     TableName: Resource.Watched.name,
@@ -569,7 +546,7 @@ export const getWatchedCountForTvSeries = async (
   return result.Count ?? 0;
 };
 
-export const getWatchedForSeason = async (
+const getWatchedForSeason = async (
   input: Readonly<{
     userId: string;
     tvSeries: TvSeries;
@@ -611,7 +588,7 @@ export const getWatched = async (
     userId: string;
     startDate?: Date;
     endDate?: Date;
-    options?: PaginationOptions;
+    options?: Omit<PaginationOptions, 'sortBy'>;
   }>,
 ) => {
   const { limit = 20, cursor, sortDirection = 'desc' } = input.options ?? {};

@@ -5,8 +5,7 @@ import type { WatchedItem } from '@tvseri.es/types';
 
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
-import { removeFromList } from '@/lib/api';
-import { getAllWatchedForTvSeries } from '@/lib/db/watched';
+import { removeFromList, getAllWatchedForTvSeries } from '@/lib/api';
 
 import InProgress from './InProgress';
 
@@ -98,10 +97,10 @@ export default async function InProgressContainer({
       cachedTvSeries(item.id, { includeImages: true }),
     ]);
 
-  const watchedItems = (await getAllWatchedForTvSeries({
+  const watchedItems = await getAllWatchedForTvSeries({
     userId: user.id,
-    tvSeries: tvSeries!,
-  })) as WatchedItem[];
+    seriesId: tvSeries!.id,
+  });
 
   const { currentSeason, watchCount } = getCurrentSeason(
     watchedItems,

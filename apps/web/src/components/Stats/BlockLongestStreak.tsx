@@ -3,7 +3,6 @@ import { cache } from 'react';
 import { startOfDay, isEqual, addDays } from 'date-fns';
 
 import { cachedWatchedByYear } from '@/app/cached';
-import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 
 import Block from './Block';
 
@@ -13,12 +12,6 @@ type Input = Readonly<{
 }>;
 
 export const cachedLongestStreak = cache(async ({ userId, year }: Input) => {
-  const key = `longest-streak:${userId}_${year}`;
-  const cachedValue = await getCacheItem<number>(key);
-  if (cachedValue) {
-    return cachedValue;
-  }
-
   const items = await cachedWatchedByYear({ userId, year });
   const uniqueDays = new Set(
     items.map((item) => startOfDay(item.watchedAt).getTime()),
@@ -40,8 +33,6 @@ export const cachedLongestStreak = cache(async ({ userId, year }: Input) => {
       currentStreak = 1;
     }
   }
-
-  await setCacheItem<number>(key, longestStreak, { ttl: 900 });
 
   return longestStreak;
 });

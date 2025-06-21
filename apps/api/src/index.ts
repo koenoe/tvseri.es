@@ -17,6 +17,7 @@ import popular from './routes/popular';
 import search from './routes/search';
 import series from './routes/series';
 import user from './routes/user';
+import webhook from './routes/webhook';
 
 const app = new Hono<{ Variables: Variables }>();
 
@@ -35,6 +36,7 @@ app.route('/person', person);
 app.route('/popular', popular);
 app.route('/search', search);
 app.route('/series', series);
+app.route('/webhook', webhook);
 app.route('/user', user);
 
 app.onError((error, c) => {

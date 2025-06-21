@@ -22,6 +22,7 @@ import type {
   AuthenticateWithTmdb,
   AddTmdbToUser,
   UpdateUser,
+  WebhookToken,
 } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
@@ -1023,4 +1024,39 @@ export async function me({ sessionId }: AuthContext) {
   }>;
 
   return result;
+}
+
+export async function fetchTokenForWebhookByType(
+  input: Readonly<{
+    type: 'plex' | 'jellyfin';
+  }> &
+    AuthContext,
+) {
+  const token = (await apiFetch('/webhook/type/:type', {
+    params: {
+      type: input.type,
+    },
+    auth: {
+      type: 'Bearer',
+      token: input.sessionId,
+    },
+  })) as Readonly<{
+    token: string;
+  }>;
+
+  return token.token;
+}
+
+export async function fetchTokenForWebhook(
+  input: Readonly<{
+    token: string;
+  }>,
+) {
+  const token = (await apiFetch('/webhook/token/:token', {
+    params: {
+      type: input.token,
+    },
+  })) as WebhookToken;
+
+  return token;
 }

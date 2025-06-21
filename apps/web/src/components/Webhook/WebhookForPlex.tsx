@@ -1,9 +1,6 @@
 import { cva } from 'class-variance-authority';
 
-import {
-  createWebhookToken,
-  findWebhookTokenByUserAndType,
-} from '@/lib/db/webhooks';
+import { fetchTokenForWebhookByType } from '@/lib/api';
 
 import generateWebhookUrl from './generateWebhookUrl';
 import Webhook from './Webhook';
@@ -11,23 +8,22 @@ import Webhook from './Webhook';
 export const plexStyles = cva('bg-gradient-to-br from-[#e5a00d] to-[#b17a0a]');
 
 export default async function WebhookForPlex({
-  userId,
+  encryptedSessionId,
 }: Readonly<{
-  userId: string;
+  encryptedSessionId: string;
 }>) {
-  const payload = { userId, type: 'plex' };
-
-  let webhookToken = await findWebhookTokenByUserAndType(payload);
-  if (!webhookToken) {
-    webhookToken = await createWebhookToken(payload);
-  }
+  const type = 'plex';
+  const token = await fetchTokenForWebhookByType({
+    sessionId: encryptedSessionId,
+    type,
+  });
 
   return (
     <Webhook
       className={plexStyles()}
       url={generateWebhookUrl({
-        token: webhookToken.token,
-        type: 'plex',
+        token,
+        type,
       })}
     />
   );

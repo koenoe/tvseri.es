@@ -2,7 +2,7 @@ import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { type PlexMetadata, type ScrobbleEvent } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
-import { findWebhookToken } from '@/lib/db/webhooks';
+import { fetchTokenForWebhook } from '@/lib/api';
 
 const sqs = new SQSClient({});
 
@@ -19,7 +19,7 @@ export async function POST(
 
   const [{ provider }, webhookToken] = await Promise.all([
     params,
-    findWebhookToken(token),
+    fetchTokenForWebhook({ token }),
   ]);
 
   if (!webhookToken || webhookToken.type !== provider) {

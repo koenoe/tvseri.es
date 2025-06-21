@@ -24,13 +24,7 @@ new sst.aws.Nextjs('tvseries', {
     memory: '512 MB',
     staticEtag: true,
   },
-  link: [
-    dynamo.follow,
-    dynamo.webhookTokens,
-    scrobbleQueue,
-    secrets.apiKey,
-    secrets.secretKey,
-  ],
+  link: [dynamo.follow, scrobbleQueue, secrets.apiKey, secrets.secretKey],
   path: 'apps/web',
   server: {
     architecture: 'arm64',

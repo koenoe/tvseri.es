@@ -11,6 +11,7 @@ const nextConfig = {
       static: 0,
     },
   },
+  transpilePackages: ['@tvseri.es/token', '@tvseri.es/types'],
   serverComponentsExternalPackages: [
     'date-fns',
     'motion',

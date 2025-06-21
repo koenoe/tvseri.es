@@ -1,6 +1,6 @@
 import { cachedUser } from '@/app/cached';
 import auth from '@/auth';
-import { isFollowing as _isFollowing } from '@/lib/db/follow';
+import { isFollowing as isFollowingResult } from '@/lib/api';
 
 import ContextMenuButtonUser from './ContextMenuButtonUser';
 import EditProfileButton from './EditProfileButton';
@@ -18,7 +18,7 @@ export default async function UserButtons({
 
   const { user: userFromSession } = await auth();
   if (userFromSession) {
-    const isFollowing = await _isFollowing({
+    const isFollowing = await isFollowingResult({
       userId: userFromSession?.id,
       targetUserId: user.id,
     });

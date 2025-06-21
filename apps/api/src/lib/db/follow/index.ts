@@ -68,7 +68,7 @@ async function batchGetUsers(
 export async function getFollowers(
   input: Readonly<{
     userId: string;
-    options?: PaginationOptions;
+    options?: Omit<PaginationOptions, 'sortBy'>;
   }>,
 ) {
   const { userId, options = {} } = input;
@@ -99,7 +99,7 @@ export async function getFollowers(
 export async function getFollowing(
   input: Readonly<{
     userId: string;
-    options?: PaginationOptions;
+    options?: Omit<PaginationOptions, 'sortBy'>;
   }>,
 ) {
   const { userId, options = {} } = input;
@@ -227,18 +227,4 @@ export async function isFollower({
   targetUserId: string;
 }) {
   return isFollowing({ userId: targetUserId, targetUserId: userId });
-}
-
-export async function isMutualFollow({
-  userId,
-  targetUserId,
-}: {
-  userId: string;
-  targetUserId: string;
-}) {
-  const [userFollowsTarget, targetFollowsUser] = await Promise.all([
-    isFollowing({ userId, targetUserId }),
-    isFollowing({ userId: targetUserId, targetUserId: userId }),
-  ]);
-  return userFollowsTarget && targetFollowsUser;
 }

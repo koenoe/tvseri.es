@@ -12,11 +12,12 @@ import {
   createOTP,
   createTmdbRequestToken,
   authenticateWithOTP,
+  follow,
+  unfollow,
   unauthenticate,
   unlinkTmdbAccount,
   updateUser,
 } from '@/lib/api';
-import { follow, unfollow } from '@/lib/db/follow';
 import getBaseUrl from '@/utils/getBaseUrl';
 
 import { cachedUser } from './cached';
@@ -221,8 +222,8 @@ export async function removeTmdbAccount() {
 }
 
 export async function toggleFollow(value: boolean, username: string) {
-  const { user: userFromSession, session } = await auth();
-  if (!userFromSession || !session) {
+  const { user: userFromSession, session, encryptedSessionId } = await auth();
+  if (!userFromSession || !session || !encryptedSessionId) {
     return;
   }
 
@@ -232,8 +233,8 @@ export async function toggleFollow(value: boolean, username: string) {
   }
 
   const payload = {
-    userId: userFromSession.id,
-    targetUserId: user.id,
+    userId: user.id,
+    sessionId: encryptedSessionId,
   };
 
   if (value) {

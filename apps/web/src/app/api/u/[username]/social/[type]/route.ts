@@ -1,8 +1,7 @@
 import { type NextRequest } from 'next/server';
 
-import { findUser } from '@/lib/api';
-import { getFollowers, getFollowing } from '@/lib/db/follow';
-import enrichUsersWithFollowInfo from '@/lib/enrichUsersWithFollowInfo';
+import auth from '@/auth';
+import { findUser, getFollowers, getFollowing } from '@/lib/api';
 
 const types = ['followers', 'following'] as const;
 
@@ -29,10 +28,12 @@ export async function GET(
     return Response.json({ error: 'User not found' }, { status: 404 });
   }
 
+  const { encryptedSessionId } = await auth();
   const searchParams = request.nextUrl.searchParams;
   const cursorFromSearchParams = searchParams.get('cursor') ?? '';
   const payload = {
     userId: user.id,
+    sessionId: encryptedSessionId ?? undefined,
     options: {
       cursor: cursorFromSearchParams,
     },
@@ -43,10 +44,7 @@ export async function GET(
     : getFollowers(payload));
 
   return Response.json({
-    items: await enrichUsersWithFollowInfo(items, {
-      username,
-      type,
-    }),
+    items,
     nextCursor,
   });
 }

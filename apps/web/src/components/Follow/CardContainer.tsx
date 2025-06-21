@@ -1,6 +1,6 @@
 import { cachedUser } from '@/app/cached';
-import { getFollowers, getFollowing } from '@/lib/db/follow';
-import enrichUsersWithFollowInfo from '@/lib/enrichUsersWithFollowInfo';
+import auth from '@/auth';
+import { getFollowers, getFollowing } from '@/lib/api';
 
 import Card from './Card';
 
@@ -16,8 +16,10 @@ export default async function CardContainer({
     return null;
   }
 
+  const { encryptedSessionId } = await auth();
   const payload = {
     userId: user.id,
+    sessionId: encryptedSessionId ?? undefined,
   };
 
   const { items, nextCursor } = await (type === 'following'
@@ -28,15 +30,10 @@ export default async function CardContainer({
     return null;
   }
 
-  const users = await enrichUsersWithFollowInfo(items, {
-    username,
-    type,
-  });
-
   return (
     <Card
       title={type === 'following' ? 'Following' : 'Followers'}
-      items={users}
+      items={items}
       nextCursor={nextCursor}
       loadMoreUrl={`/api/u/${username}/social/${type}`}
     />

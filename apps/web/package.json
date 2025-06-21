@@ -11,8 +11,6 @@
     "start": "next start"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.828.0",
-    "@aws-sdk/util-dynamodb": "^3.828.0",
     "@better-fetch/fetch": "^1.1.18",
     "@tvseri.es/token": "workspace:*",
     "class-variance-authority": "^0.7.1",

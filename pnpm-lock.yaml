@@ -106,12 +106,6 @@ importers:
 
   apps/web:
     dependencies:
-      '@aws-sdk/client-dynamodb':
-        specifier: ^3.828.0
-        version: 3.828.0
-      '@aws-sdk/util-dynamodb':
-        specifier: ^3.828.0
-        version: 3.828.0(@aws-sdk/client-dynamodb@3.828.0)
       '@better-fetch/fetch':
         specifier: ^1.1.18
         version: 1.1.18

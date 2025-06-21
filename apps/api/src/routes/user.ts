@@ -17,6 +17,16 @@ import { Hono, type MiddlewareHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
 import {
+  follow,
+  getFollowerCount,
+  getFollowers,
+  getFollowing,
+  getFollowingCount,
+  isFollower,
+  isFollowing,
+  unfollow,
+} from '@/lib/db/follow';
+import {
   getListItems,
   getListItemsCount,
   addToList,
@@ -43,7 +53,10 @@ import {
   fetchTvSeriesEpisode,
   fetchTvSeriesWatchProvider,
 } from '@/lib/tmdb';
-import { type Variables as AuthVariables } from '@/middleware/auth';
+import {
+  requireAuth,
+  type Variables as AuthVariables,
+} from '@/middleware/auth';
 
 type Variables = {
   series: TvSeries;
@@ -131,6 +144,75 @@ const validateBatchWatchedItemsOwnership = (
       message: 'Forbidden: Some items do not belong to the authenticated user',
     });
   }
+};
+
+const enrichUsersWithFollowInfo = async (
+  users: User[],
+  userFromSession?: User,
+  options?: Readonly<{
+    targetUserId: string;
+    type: 'following' | 'followers';
+  }>,
+) => {
+  if (!userFromSession) {
+    // If no authenticated user, just add basic counts
+    return await Promise.all(
+      users.map(async (user) => {
+        const [followerCount, followingCount] = await Promise.all([
+          getFollowerCount(user.id),
+          getFollowingCount(user.id),
+        ]);
+
+        return {
+          ...user,
+          followerCount,
+          followingCount,
+          isFollower: false,
+          isFollowing: false,
+          isMe: false,
+        };
+      }),
+    );
+  }
+
+  const { targetUserId, type = 'followers' } = options || {};
+  const isMeAndFollowers =
+    userFromSession?.id === targetUserId && type === 'followers';
+
+  return await Promise.all(
+    users.map(async (user) => {
+      const [
+        followerCount,
+        followingCount,
+        isFollowerResult,
+        isFollowingResult,
+      ] = await Promise.all([
+        getFollowerCount(user.id),
+        getFollowingCount(user.id),
+        userFromSession.id !== user.id && !isMeAndFollowers
+          ? isFollower({
+              userId: userFromSession.id,
+              targetUserId: user.id,
+            })
+          : Promise.resolve(false),
+        userFromSession.id !== user.id
+          ? isFollowing({
+              userId: userFromSession.id,
+              targetUserId: user.id,
+            })
+          : Promise.resolve(false),
+      ]);
+
+      return {
+        ...user,
+        followerCount,
+        followingCount,
+        isFollower: isFollowerResult,
+        isFollowing: isFollowingResult,
+        isMe: userFromSession.id === user.id,
+      };
+    }),
+  );
 };
 
 app.get('/:id', user(), (c) => {
@@ -631,5 +713,139 @@ app.delete(
     }
   },
 );
+
+app.post('/:id/follow', user(), requireAuth(), async (c) => {
+  const { user: userFromSession } = c.get('auth')!;
+  const user = c.get('user');
+
+  if (user.id === userFromSession.id) {
+    throw new HTTPException(400, {
+      message: 'You cannot follow yourself',
+    });
+  }
+
+  await follow({
+    userId: userFromSession.id,
+    targetUserId: user.id,
+  });
+
+  return c.json({ message: 'OK' });
+});
+
+app.delete('/:id/unfollow', user(), requireAuth(), async (c) => {
+  const { user: userFromSession } = c.get('auth')!;
+  const user = c.get('user');
+
+  if (user.id === userFromSession.id) {
+    throw new HTTPException(400, {
+      message: 'You cannot unfollow yourself',
+    });
+  }
+
+  await unfollow({
+    userId: userFromSession.id,
+    targetUserId: user.id,
+  });
+
+  return c.json({ message: 'OK' });
+});
+
+app.get('/:id/followers/count', user(), async (c) => {
+  const user = c.get('user');
+  const count = await getFollowerCount(user.id);
+
+  return c.json({ count });
+});
+
+app.get('/:id/following/count', user(), async (c) => {
+  const user = c.get('user');
+  const count = await getFollowingCount(user.id);
+
+  return c.json({ count });
+});
+
+app.get('/:id/follower/:follower-id', user(), async (c) => {
+  const user = c.get('user');
+  const followerId = c.req.param('follower-id');
+  const isFollowerResult = await isFollower({
+    userId: user.id,
+    targetUserId: followerId,
+  });
+  return c.json({ value: isFollowerResult });
+});
+
+app.get('/:id/following/:following-id', user(), async (c) => {
+  const user = c.get('user');
+  const followingId = c.req.param('following-id');
+  const isFollowingResult = await isFollowing({
+    userId: user.id,
+    targetUserId: followingId,
+  });
+  return c.json({ value: isFollowingResult });
+});
+
+app.get('/:id/followers', user(), async (c) => {
+  const auth = c.get('auth');
+  const userFromSession = auth?.user;
+
+  const user = c.get('user');
+  const limit = c.req.query('limit')
+    ? parseInt(c.req.query('limit')!, 10)
+    : undefined;
+  const { items, nextCursor } = await getFollowers({
+    userId: user.id,
+    options: {
+      limit,
+      cursor: c.req.query('cursor'),
+      sortDirection: c.req.query('sort_direction') as SortDirection | undefined,
+    },
+  });
+
+  const enrichedUsers = await enrichUsersWithFollowInfo(
+    items,
+    userFromSession,
+    {
+      targetUserId: user.id,
+      type: 'followers',
+    },
+  );
+
+  return c.json({
+    items: enrichedUsers,
+    nextCursor,
+  });
+});
+
+app.get('/:id/following', user(), async (c) => {
+  const auth = c.get('auth');
+  const userFromSession = auth?.user;
+
+  const user = c.get('user');
+  const limit = c.req.query('limit')
+    ? parseInt(c.req.query('limit')!, 10)
+    : undefined;
+  const { items, nextCursor } = await getFollowing({
+    userId: user.id,
+    options: {
+      limit,
+      cursor: c.req.query('cursor'),
+      sortDirection: c.req.query('sort_direction') as SortDirection | undefined,
+    },
+  });
+
+  const enrichedUsers = await enrichUsersWithFollowInfo(
+    items,
+    userFromSession,
+    {
+      targetUserId: user.id,
+      type: 'following',
+    },
+  );
+
+  return c.json({
+    items: enrichedUsers,
+    nextCursor,
+  });
+});
 
 export default app;

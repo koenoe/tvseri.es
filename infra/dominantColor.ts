@@ -7,7 +7,7 @@ export const dominantColor = new sst.aws.Function('DominantColor', {
   runtime: 'nodejs22.x',
   timeout: '30 seconds',
   nodejs: {
-    install: ['@better-fetch/fetch', 'color', 'sharp'],
+    install: ['sharp'],
     minify: true,
     esbuild: {
       external: [

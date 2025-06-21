@@ -27,7 +27,6 @@ scrobbleQueue.subscribe(
       secrets.tmdbApiKey,
     ],
     nodejs: {
-      install: ['@better-fetch/fetch', 'slugify'],
       minify: true,
       esbuild: {
         external: [

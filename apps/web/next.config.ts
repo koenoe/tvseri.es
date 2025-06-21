@@ -22,13 +22,13 @@ const nextConfig = {
       'use-debounce',
       'zustand',
     ],
-    serverComponentsExternalPackages: [
-      '@opennextjs/aws',
-      '@better-fetch/fetch',
-      'crypto',
-      'sst',
-    ],
   },
+  serverExternalPackages: [
+    '@opennextjs/aws',
+    '@better-fetch/fetch',
+    'crypto',
+    'sst',
+  ],
   transpilePackages: ['@tvseri.es/token', '@tvseri.es/types'],
   cleanDistDir: true,
   eslint: {

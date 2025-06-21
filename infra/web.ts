@@ -35,7 +35,7 @@ new sst.aws.Nextjs('tvseries', {
       nodejs: {
         minify: true,
         esbuild: {
-          external: ['@opennextjs/aws'],
+          external: ['@opennextjs/aws', '@better-fetch/fetch'],
         },
       },
     },

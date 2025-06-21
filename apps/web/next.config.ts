@@ -11,8 +11,7 @@ const nextConfig = {
       static: 0,
     },
   },
-  transpilePackages: ['@tvseri.es/token', '@tvseri.es/types'],
-  serverComponentsExternalPackages: [
+  optimizePackageImports: [
     'date-fns',
     'motion',
     'papaparse',
@@ -23,6 +22,8 @@ const nextConfig = {
     'use-debounce',
     'zustand',
   ],
+  transpilePackages: ['@tvseri.es/token', '@tvseri.es/types'],
+  serverComponentsExternalPackages: ['@opennextjs/aws'],
   cleanDistDir: true,
   output: 'standalone',
   eslint: {

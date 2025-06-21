@@ -11,6 +11,7 @@ const nextConfig = {
       static: 0,
     },
   },
+  optimizeServerReact: true,
   optimizePackageImports: [
     'date-fns',
     'motion',

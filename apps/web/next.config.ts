@@ -28,9 +28,9 @@ const nextConfig = {
     '@opennextjs/aws',
     '@better-fetch/fetch',
     'crypto',
+    'sst',
   ],
   cleanDistDir: true,
-  output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true,
   },

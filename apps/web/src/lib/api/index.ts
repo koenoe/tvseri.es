@@ -1054,9 +1054,14 @@ export async function fetchTokenForWebhook(
 ) {
   const token = (await apiFetch('/webhook/token/:token', {
     params: {
-      type: input.token,
+      token: input.token,
     },
   })) as WebhookToken;
 
   return token;
+}
+
+export async function proxy(path: string, options?: BetterFetchOption) {
+  const response = await apiFetch(path, options);
+  return response;
 }

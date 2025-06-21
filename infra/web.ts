@@ -2,7 +2,6 @@
 
 import { domain, zone } from './dns';
 import * as dynamo from './dynamo';
-import { scrobbleQueue } from './scrobbleQueue';
 import { apiRouter } from './api';
 import * as secrets from './secrets';
 
@@ -24,7 +23,7 @@ new sst.aws.Nextjs('tvseries', {
     memory: '512 MB',
     staticEtag: true,
   },
-  link: [dynamo.follow, scrobbleQueue, secrets.apiKey, secrets.secretKey],
+  link: [dynamo.follow, secrets.apiKey, secrets.secretKey],
   path: 'apps/web',
   server: {
     architecture: 'arm64',

@@ -11,6 +11,17 @@ const nextConfig = {
       static: 0,
     },
   },
+  serverComponentsExternalPackages: [
+    'date-fns',
+    'motion',
+    'papaparse',
+    'react-day-picker',
+    'react-dropzone',
+    'recharts',
+    'sonner',
+    'use-debounce',
+    'zustand',
+  ],
   cleanDistDir: true,
   output: 'standalone',
   eslint: {

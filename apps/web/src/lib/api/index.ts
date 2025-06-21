@@ -710,3 +710,108 @@ export const getAllWatchedForTvSeries = async (
 
   return result;
 };
+
+export async function markWatched(
+  input: Readonly<{
+    episodeNumber?: number;
+    seasonNumber?: number;
+    seriesId: number;
+    userId: string;
+    watchProvider: WatchProvider | null;
+    sessionId: string;
+  }>,
+) {
+  const auth = {
+    type: 'Bearer' as const,
+    token: input.sessionId,
+  };
+  const body = JSON.stringify({
+    watchProvider: input.watchProvider,
+  });
+
+  if (input.seasonNumber && input.episodeNumber) {
+    return apiFetch(
+      '/user/:id/watched/series/:seriesId/season/:season/episode/:episode',
+      {
+        method: 'POST',
+        params: {
+          id: input.userId,
+          seriesId: input.seriesId,
+          season: input.seasonNumber,
+          episode: input.episodeNumber,
+        },
+        auth,
+        body,
+      },
+    ) as Promise<WatchedItem[]>;
+  }
+
+  if (input.seasonNumber) {
+    return apiFetch('/user/:id/watched/series/:seriesId/season/:season', {
+      method: 'POST',
+      params: {
+        id: input.userId,
+        seriesId: input.seriesId,
+        season: input.seasonNumber,
+      },
+      auth,
+      body,
+    }) as Promise<WatchedItem[]>;
+  }
+
+  return apiFetch('/user/:id/watched/series/:seriesId', {
+    method: 'POST',
+    params: {
+      id: input.userId,
+      seriesId: input.seriesId,
+    },
+    auth,
+    body,
+  }) as Promise<WatchedItem[]>;
+}
+
+export async function unmarkWatched(
+  input: Omit<Parameters<typeof markWatched>[0], 'watchProvider'>,
+) {
+  const auth = {
+    type: 'Bearer' as const,
+    token: input.sessionId,
+  };
+
+  if (input.seasonNumber && input.episodeNumber) {
+    return apiFetch(
+      '/user/:id/watched/series/:seriesId/season/:season/episode/:episode',
+      {
+        method: 'DELETE',
+        params: {
+          id: input.userId,
+          seriesId: input.seriesId,
+          season: input.seasonNumber,
+          episode: input.episodeNumber,
+        },
+        auth,
+      },
+    ) as Promise<{ message: string }>;
+  }
+
+  if (input.seasonNumber) {
+    return apiFetch('/user/:id/watched/series/:seriesId/season/:season', {
+      method: 'DELETE',
+      params: {
+        id: input.userId,
+        seriesId: input.seriesId,
+        season: input.seasonNumber,
+      },
+      auth,
+    }) as Promise<{ message: string }>;
+  }
+
+  return apiFetch('/user/:id/watched/series/:seriesId', {
+    method: 'DELETE',
+    params: {
+      id: input.userId,
+      seriesId: input.seriesId,
+    },
+    auth,
+  }) as Promise<{ message: string }>;
+}

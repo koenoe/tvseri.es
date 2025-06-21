@@ -2,6 +2,9 @@ import { vValidator } from '@hono/valibot-validator';
 import {
   CreateListItemSchema,
   CreateUserSchema,
+  CreateWatchedItemSchema,
+  type CreateWatchedItem,
+  type TvSeries,
   type SortBy,
   type SortDirection,
   type User,
@@ -22,15 +25,57 @@ import {
   getAllWatchedForTvSeries,
   getWatched,
   getWatchedCount,
+  markSeasonWatched,
+  markTvSeriesWatched,
+  markWatched,
+  unmarkWatched,
+  unmarkSeasonWatched,
+  unmarkTvSeriesWatched,
 } from '@/lib/db/watched';
+import {
+  fetchTvSeries,
+  fetchTvSeriesEpisode,
+  fetchTvSeriesWatchProvider,
+} from '@/lib/tmdb';
 import { type Variables as AuthVariables } from '@/middleware/auth';
 
 type Variables = {
+  series: TvSeries;
   user: User;
   isMe: boolean;
 } & AuthVariables;
 
 const app = new Hono();
+
+const parseWatchProviderFromBody = async (
+  body: CreateWatchedItem,
+  tvSeriesId: number,
+) => {
+  return (
+    body.watchProvider ||
+    (await fetchTvSeriesWatchProvider(tvSeriesId, body.region))
+  );
+};
+
+const series = (): MiddlewareHandler<{ Variables: Variables }> => {
+  return async (c, next) => {
+    const id = c.req.param('series-id');
+
+    if (!id) {
+      return c.notFound();
+    }
+
+    const tvSeries = await fetchTvSeries(id);
+
+    if (!tvSeries || !tvSeries.firstAirDate || !tvSeries.hasAired) {
+      return c.notFound();
+    }
+
+    c.set('series', tvSeries);
+
+    return next();
+  };
+};
 
 const user = (): MiddlewareHandler<{ Variables: Variables }> => {
   return async (c, next) => {
@@ -53,7 +98,7 @@ const user = (): MiddlewareHandler<{ Variables: Variables }> => {
     c.set('user', user);
     c.set('isMe', c.get('auth')?.user.id === user.id);
 
-    await next();
+    return next();
   };
 };
 
@@ -64,7 +109,7 @@ const requireIsMe = (): MiddlewareHandler<{ Variables: Variables }> => {
         message: 'Unauthorized',
       });
     }
-    await next();
+    return next();
   };
 };
 
@@ -199,6 +244,167 @@ app.get('/:id/watched/series/:series-id', user(), async (c) => {
 
   return c.json(items);
 });
+
+app.post(
+  '/:id/watched/series/:series-id',
+  user(),
+  requireIsMe(),
+  series(),
+  vValidator('json', CreateWatchedItemSchema),
+  async (c) => {
+    const body = c.req.valid('json');
+    const tvSeries = c.get('series');
+    const user = c.get('user');
+    const watchProvider = await parseWatchProviderFromBody(body, tvSeries.id);
+    const watchedItems = await markTvSeriesWatched({
+      tvSeries,
+      userId: user.id,
+      watchProvider,
+    });
+
+    return c.json(watchedItems);
+  },
+);
+
+app.post(
+  '/:id/watched/series/:series-id/season/:season',
+  user(),
+  requireIsMe(),
+  series(),
+  vValidator('json', CreateWatchedItemSchema),
+  async (c) => {
+    const body = c.req.valid('json');
+    const tvSeries = c.get('series');
+    const user = c.get('user');
+    const seasonNumber = parseInt(c.req.param('season'), 10);
+
+    if (isNaN(seasonNumber)) {
+      throw new HTTPException(400, {
+        message: 'Invalid season number',
+      });
+    }
+
+    const watchProvider = await parseWatchProviderFromBody(body, tvSeries.id);
+    const watchedItems = await markSeasonWatched({
+      seasonNumber,
+      tvSeries,
+      userId: user.id,
+      watchProvider,
+    });
+
+    return c.json(watchedItems);
+  },
+);
+
+app.post(
+  '/:id/watched/series/:series-id/season/:season/episode/:episode',
+  user(),
+  requireIsMe(),
+  series(),
+  vValidator('json', CreateWatchedItemSchema),
+  async (c) => {
+    const body = c.req.valid('json');
+    const tvSeries = c.get('series');
+    const user = c.get('user');
+    const seasonNumber = parseInt(c.req.param('season'), 10);
+    const episodeNumber = parseInt(c.req.param('episode'), 10);
+
+    if (isNaN(seasonNumber) || isNaN(episodeNumber)) {
+      throw new HTTPException(400, {
+        message: 'Invalid season or episode number',
+      });
+    }
+
+    const watchProvider = await parseWatchProviderFromBody(body, tvSeries.id);
+    const episode = await fetchTvSeriesEpisode(
+      tvSeries.id,
+      seasonNumber,
+      episodeNumber,
+    );
+    const watchedItem = await markWatched({
+      episodeNumber: episode!.episodeNumber,
+      runtime: episode!.runtime,
+      seasonNumber: episode!.seasonNumber,
+      tvSeries,
+      userId: user.id,
+      watchProvider,
+    });
+
+    return c.json([watchedItem]);
+  },
+);
+
+app.delete(
+  '/:id/watched/series/:series-id',
+  user(),
+  requireIsMe(),
+  series(),
+  async (c) => {
+    const tvSeries = c.get('series');
+    const user = c.get('user');
+
+    await unmarkTvSeriesWatched({
+      tvSeries,
+      userId: user.id,
+    });
+
+    return c.json({ message: 'OK' });
+  },
+);
+
+app.delete(
+  '/:id/watched/series/:series-id/season/:season',
+  user(),
+  requireIsMe(),
+  series(),
+  async (c) => {
+    const tvSeries = c.get('series');
+    const user = c.get('user');
+    const seasonNumber = parseInt(c.req.param('season'), 10);
+
+    if (isNaN(seasonNumber)) {
+      throw new HTTPException(400, {
+        message: 'Invalid season number',
+      });
+    }
+
+    await unmarkSeasonWatched({
+      seasonNumber,
+      tvSeries,
+      userId: user.id,
+    });
+
+    return c.json({ message: 'OK' });
+  },
+);
+
+app.delete(
+  '/:id/watched/series/:series-id/season/:season/episode/:episode',
+  user(),
+  requireIsMe(),
+  series(),
+  async (c) => {
+    const tvSeries = c.get('series');
+    const user = c.get('user');
+    const seasonNumber = parseInt(c.req.param('season'), 10);
+    const episodeNumber = parseInt(c.req.param('episode'), 10);
+
+    if (isNaN(seasonNumber) || isNaN(episodeNumber)) {
+      throw new HTTPException(400, {
+        message: 'Invalid season or episode number',
+      });
+    }
+
+    await unmarkWatched({
+      episodeNumber,
+      seasonNumber,
+      tvSeries,
+      userId: user.id,
+    });
+
+    return c.json({ message: 'OK' });
+  },
+);
 
 app.get('/:id/watched', user(), async (c) => {
   const user = c.get('user');

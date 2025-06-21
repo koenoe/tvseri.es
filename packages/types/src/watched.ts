@@ -1,4 +1,5 @@
 import * as v from 'valibot';
+import { WatchProviderSchema } from './watch-provider';
 
 export const WatchedItemSchema = v.object({
   episodeNumber: v.number(),
@@ -17,3 +18,20 @@ export const WatchedItemSchema = v.object({
 });
 
 export type WatchedItem = Readonly<v.InferOutput<typeof WatchedItemSchema>>;
+
+export const CreateWatchedItemSchema = v.intersect([
+  v.object({
+    watchProvider: v.optional(WatchProviderSchema),
+    region: v.optional(v.string()),
+  }),
+  v.union([
+    v.object({
+      watchProvider: WatchProviderSchema,
+    }),
+    v.object({
+      region: v.string(),
+    }),
+  ]),
+]);
+
+export type CreateWatchedItem = v.InferOutput<typeof CreateWatchedItemSchema>;

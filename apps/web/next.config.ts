@@ -23,6 +23,7 @@ const nextConfig = {
       'zustand',
     ],
   },
+  output: 'standalone',
   serverExternalPackages: [
     '@opennextjs/aws',
     '@better-fetch/fetch',

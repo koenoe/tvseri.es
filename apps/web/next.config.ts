@@ -23,7 +23,11 @@ const nextConfig = {
     'zustand',
   ],
   transpilePackages: ['@tvseri.es/token', '@tvseri.es/types'],
-  serverComponentsExternalPackages: ['@opennextjs/aws'],
+  serverComponentsExternalPackages: [
+    '@opennextjs/aws',
+    '@better-fetch/fetch',
+    'crypto',
+  ],
   cleanDistDir: true,
   output: 'standalone',
   eslint: {

@@ -57,7 +57,7 @@ jobs:
 
       - name: Setup SST secrets
         run: |
-          pnpm sst secret set ApiKey "$(openssl rand -base64 32)" --stage production
+          pnpm sst secret set ApiKey "${{ secrets.API_KEY }}" --stage production
           pnpm sst secret set MdblistApiKey "${{ secrets.MDBLIST_API_KEY }}" --stage production
           pnpm sst secret set SecretKey "${{ secrets.SECRET_KEY }}" --stage production
           pnpm sst secret set TmdbApiAccessToken "${{ secrets.TMDB_API_ACCESS_TOKEN }}" --stage production

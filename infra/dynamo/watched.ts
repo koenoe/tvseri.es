@@ -59,6 +59,13 @@ watched.subscribe(
     nodejs: {
       install: ['@better-fetch/fetch', 'slugify'],
       minify: true,
+      esbuild: {
+        external: [
+          '@aws-sdk/client-dynamodb',
+          '@aws-sdk/client-lambda',
+          '@aws-sdk/util-dynamodb',
+        ],
+      },
     },
   },
   {

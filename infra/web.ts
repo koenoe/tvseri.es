@@ -32,6 +32,12 @@ new sst.aws.Nextjs('tvseries', {
   transform: {
     server: {
       timeout: '30 seconds',
+      nodejs: {
+        minify: true,
+        esbuild: {
+          external: ['@opennextjs/aws'],
+        },
+      },
     },
     cdn: (options) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -9,5 +9,14 @@ export const dominantColor = new sst.aws.Function('DominantColor', {
   nodejs: {
     install: ['@better-fetch/fetch', 'color', 'sharp'],
     minify: true,
+    esbuild: {
+      external: [
+        '@aws-sdk/client-dynamodb',
+        '@aws-sdk/client-lambda',
+        '@aws-sdk/client-sesv2',
+        '@aws-sdk/client-sqs',
+        '@aws-sdk/util-dynamodb',
+      ],
+    },
   },
 });

@@ -31,6 +31,14 @@ watchedStatusQueue.subscribe(
     nodejs: {
       install: ['@better-fetch/fetch', 'slugify'],
       minify: true,
+      esbuild: {
+        external: [
+          '@aws-sdk/client-dynamodb',
+          '@aws-sdk/client-lambda',
+          '@aws-sdk/client-sqs',
+          '@aws-sdk/util-dynamodb',
+        ],
+      },
     },
   },
   {
@@ -53,6 +61,15 @@ export const watchedStatusCron = new sst.aws.Cron('ValidateWatchedStatus', {
     link: [dynamo.users, watchedStatusQueue],
     nodejs: {
       minify: true,
+      esbuild: {
+        external: [
+          '@aws-sdk/client-dynamodb',
+          '@aws-sdk/client-lambda',
+          '@aws-sdk/client-sesv2',
+          '@aws-sdk/client-sqs',
+          '@aws-sdk/util-dynamodb',
+        ],
+      },
     },
   },
 });

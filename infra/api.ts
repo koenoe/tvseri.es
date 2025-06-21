@@ -52,8 +52,16 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
   runtime: 'nodejs22.x',
   timeout: '30 seconds',
   nodejs: {
-    install: ['@better-fetch/fetch', 'hono', 'slugify'],
     minify: true,
+    esbuild: {
+      external: [
+        '@aws-sdk/client-dynamodb',
+        '@aws-sdk/client-lambda',
+        '@aws-sdk/client-sesv2',
+        '@aws-sdk/client-sqs',
+        '@aws-sdk/util-dynamodb',
+      ],
+    },
   },
   url: {
     router: {

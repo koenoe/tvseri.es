@@ -10,8 +10,7 @@ import { type Variables, requireAuth } from '@/middleware/auth';
 const app = new Hono<{ Variables: Variables }>();
 
 app.get('/token/:token', async (c) => {
-  const token = findWebhookToken(c.req.param('token'));
-
+  const token = await findWebhookToken(c.req.param('token'));
   return c.json(token);
 });
 

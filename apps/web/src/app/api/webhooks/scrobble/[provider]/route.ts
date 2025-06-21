@@ -30,16 +30,19 @@ export async function POST(
   }
 
   try {
+    const query = Object.fromEntries(url.searchParams.entries());
+    const headers = {
+      ...Object.fromEntries(request.headers.entries()),
+      'content-type':
+        request.headers.get('content-type') ||
+        'application/x-www-form-urlencoded',
+    };
+
     const result = await proxy('/scrobble/provider/:provider', {
       method: 'POST',
       params: { provider },
-      query: Object.fromEntries(url.searchParams.entries()),
-      headers: {
-        ...Object.fromEntries(request.headers.entries()),
-        'content-type':
-          request.headers.get('content-type') ||
-          'application/x-www-form-urlencoded',
-      },
+      query,
+      headers,
       body,
     });
 

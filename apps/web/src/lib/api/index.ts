@@ -88,7 +88,13 @@ async function apiFetch(path: string, options?: BetterFetchOption) {
 }
 
 export async function proxy(path: string, options?: BetterFetchOption) {
-  const response = await apiFetch(path, options);
+  const response = await apiFetch(path, {
+    ...options,
+    headers: {
+      ...options?.headers,
+      'x-api-key': apiKey,
+    },
+  });
   return response;
 }
 

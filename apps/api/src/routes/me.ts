@@ -3,7 +3,7 @@ import { AddTmdbToUserSchema, UpdateUserSchema } from '@tvseri.es/types';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
-import { addTmdbToSession, removeTmdbFromSession } from '@/lib/db/session';
+import { addTmdbToSession, removeTmdbFromSessions } from '@/lib/db/session';
 import {
   addTmdbToUser,
   findUser,
@@ -101,27 +101,34 @@ app.put('/tmdb', vValidator('json', AddTmdbToUserSchema), async (c) => {
 });
 
 app.delete('/tmdb', async (c) => {
-  const { user, session } = c.get('auth')!;
-
+  const { user } = c.get('auth')!;
   const isTmdbUser =
     user.tmdbAccountId && user.tmdbAccountObjectId && user.tmdbUsername;
-  const isTmdbSession = session.tmdbSessionId && session.tmdbAccessToken;
-
   const promises = [];
 
   if (isTmdbUser) {
     promises.push(removeTmdbFromUser(user));
   }
 
-  if (isTmdbSession) {
-    promises.push(
-      removeTmdbFromSession(session),
-      deleteAccessToken(session.tmdbAccessToken!),
-      deleteSessionId(session.tmdbSessionId!),
-    );
-  }
+  const tmdbSessionsToCleanup = await removeTmdbFromSessions(user.id);
+  const tmdbCleanupPromises = tmdbSessionsToCleanup
+    .map((session) => {
+      const p = [];
+      if (session.accessToken) {
+        p.push(deleteAccessToken(session.accessToken));
+      }
+      if (session.sessionId) {
+        p.push(deleteSessionId(session.sessionId));
+      }
+      return p;
+    })
+    .flat();
+
+  promises.push(...tmdbCleanupPromises);
 
   await Promise.all(promises);
+
+  return c.json({ message: 'OK' });
 });
 
 export default app;

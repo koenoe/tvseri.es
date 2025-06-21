@@ -135,6 +135,8 @@ app.delete('/', requireAuth(), async (c) => {
       deleteSessionId(session.tmdbSessionId),
     ]);
   }
+
+  return c.json({ success: true });
 });
 
 export default app;

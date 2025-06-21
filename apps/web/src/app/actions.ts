@@ -113,11 +113,9 @@ export async function logout() {
   }
 
   try {
-    (await cookies()).delete('sessionId');
     await unauthenticate(encryptedSessionId);
-  } catch (error) {
-    console.error('Logout failed:', error);
-    throw new Error('LogoutFailed');
+  } finally {
+    (await cookies()).delete('sessionId');
   }
 }
 
@@ -195,11 +193,7 @@ export async function removeTmdbAccount() {
   }
 
   const isTmdb =
-    user.tmdbAccountId &&
-    user.tmdbAccountObjectId &&
-    user.tmdbUsername &&
-    session.tmdbSessionId &&
-    session.tmdbAccessToken;
+    user.tmdbAccountId && user.tmdbAccountObjectId && user.tmdbUsername;
 
   try {
     if (isTmdb) {

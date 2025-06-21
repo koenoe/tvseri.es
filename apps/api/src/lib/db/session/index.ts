@@ -3,6 +3,8 @@ import {
   GetItemCommand,
   PutItemCommand,
   UpdateItemCommand,
+  QueryCommand,
+  BatchWriteItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { Session } from '@tvseri.es/types';
@@ -195,4 +197,68 @@ export const addTmdbToSession = async (
   } catch (_error) {
     throw new Error('Failed to add TMDB to session');
   }
+};
+
+export const findSessions = async (userId: string): Promise<Session[]> => {
+  const command = new QueryCommand({
+    TableName: Resource.Sessions.name,
+    IndexName: 'gsi1',
+    KeyConditionExpression: 'gsi1pk = :gsi1pk',
+    ExpressionAttributeValues: marshall({
+      ':gsi1pk': `USER#${userId}`,
+    }),
+  });
+
+  const result = await client.send(command);
+
+  if (!result.Items || result.Items.length === 0) {
+    return [];
+  }
+
+  return result.Items.map((item) => unmarshall(item) as Session);
+};
+
+export const removeTmdbFromSessions = async (userId: string) => {
+  const sessions = await findSessions(userId);
+  const tmdbSessions = sessions.filter(
+    (session) => session.tmdbSessionId || session.tmdbAccessToken,
+  );
+
+  if (tmdbSessions.length === 0) {
+    return [];
+  }
+
+  const batchSize = 25;
+  const now = new Date().toISOString();
+
+  for (let i = 0; i < tmdbSessions.length; i += batchSize) {
+    const batch = tmdbSessions.slice(i, i + batchSize);
+    const putRequests = batch.map(
+      ({
+        tmdbSessionId: _tmdbSessionId,
+        tmdbAccessToken: _tmdbAccessToken,
+        ...rest
+      }) => ({
+        PutRequest: {
+          Item: marshall({
+            ...rest,
+            provider: 'internal',
+            updatedAt: now,
+          }),
+        },
+      }),
+    );
+    const command = new BatchWriteItemCommand({
+      RequestItems: {
+        [Resource.Sessions.name]: putRequests,
+      },
+    });
+
+    await client.send(command);
+  }
+
+  return tmdbSessions.map((session) => ({
+    sessionId: session.tmdbSessionId,
+    accessToken: session.tmdbAccessToken,
+  }));
 };

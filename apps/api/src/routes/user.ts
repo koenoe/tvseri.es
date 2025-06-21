@@ -3,7 +3,11 @@ import {
   CreateListItemSchema,
   CreateUserSchema,
   CreateWatchedItemSchema,
+  CreateWatchedItemBatchSchema,
+  DeleteWatchedItemBatchSchema,
   type CreateWatchedItem,
+  type CreateWatchedItemBatch,
+  type DeleteWatchedItemBatch,
   type TvSeries,
   type SortBy,
   type SortDirection,
@@ -28,9 +32,11 @@ import {
   markSeasonWatched,
   markTvSeriesWatched,
   markWatched,
+  markWatchedInBatch,
   unmarkWatched,
   unmarkSeasonWatched,
   unmarkTvSeriesWatched,
+  unmarkWatchedInBatch,
 } from '@/lib/db/watched';
 import {
   fetchTvSeries,
@@ -111,6 +117,20 @@ const requireIsMe = (): MiddlewareHandler<{ Variables: Variables }> => {
     }
     return next();
   };
+};
+
+const validateBatchWatchedItemsOwnership = (
+  items: CreateWatchedItemBatch | DeleteWatchedItemBatch,
+  authenticatedUserId: string,
+) => {
+  const invalidItems = items.filter(
+    (item) => item.userId !== authenticatedUserId,
+  );
+  if (invalidItems.length > 0) {
+    throw new HTTPException(403, {
+      message: 'Forbidden: Some items do not belong to the authenticated user',
+    });
+  }
 };
 
 app.get('/:id', user(), (c) => {
@@ -429,6 +449,41 @@ app.get('/:id/watched', user(), async (c) => {
   });
   return c.json(result);
 });
+
+app.post(
+  '/:id/watched/batch',
+  user(),
+  requireIsMe(),
+  vValidator('json', CreateWatchedItemBatchSchema),
+  async (c) => {
+    const body = c.req.valid('json');
+    const user = c.get('user');
+
+    validateBatchWatchedItemsOwnership(body, user.id);
+
+    const watchedItems = await markWatchedInBatch(body);
+    return c.json(watchedItems);
+  },
+);
+
+// Using POST instead of DELETE for batch deletion because:
+// - Many HTTP clients/proxies don't properly support request bodies in DELETE requests
+// - Avoids potential issues with body size limits in DELETE requests
+app.post(
+  '/:id/watched/batch/delete',
+  user(),
+  requireIsMe(),
+  vValidator('json', DeleteWatchedItemBatchSchema),
+  async (c) => {
+    const body = c.req.valid('json');
+    const user = c.get('user');
+
+    validateBatchWatchedItemsOwnership(body, user.id);
+
+    await unmarkWatchedInBatch(body);
+    return c.json({ message: 'OK' });
+  },
+);
 
 app.get(
   '/:id/list/:list{favorites|in_progress|watched|watchlist}/count',

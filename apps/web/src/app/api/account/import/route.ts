@@ -9,9 +9,8 @@ import wordsToNumbers from 'words-to-numbers';
 
 import { cachedTvSeries, cachedTvSeriesSeason } from '@/app/cached';
 import auth from '@/auth';
-import { fetchWatchProviders } from '@/lib/api';
+import { fetchWatchProviders, markWatchedInBatch } from '@/lib/api';
 import { searchTvSeries } from '@/lib/api';
-import { markWatchedInBatch } from '@/lib/db/watched';
 
 type CsvItem = Readonly<{
   title: string;
@@ -206,8 +205,8 @@ export async function POST(req: Request) {
     return Response.json({ error: 'No payload found' }, { status: 400 });
   }
 
-  const { user } = await auth();
-  if (!user) {
+  const { user, encryptedSessionId } = await auth();
+  if (!user || !encryptedSessionId) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -400,7 +399,11 @@ export async function POST(req: Request) {
 
           if (watchedItems.length > 0) {
             try {
-              await markWatchedInBatch(watchedItems);
+              await markWatchedInBatch({
+                userId: user.id,
+                sessionId: encryptedSessionId,
+                items: watchedItems,
+              });
               successCount += watchedItems.length;
             } catch (error) {
               erroredItems.push(

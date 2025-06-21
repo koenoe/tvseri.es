@@ -25,12 +25,10 @@ new sst.aws.Nextjs('tvseries', {
     staticEtag: true,
   },
   link: [
-    dynamo.cache,
     dynamo.follow,
     dynamo.otp,
     dynamo.sessions,
     dynamo.users,
-    dynamo.watched,
     dynamo.webhookTokens,
     scrobbleQueue,
     secrets.apiKey,

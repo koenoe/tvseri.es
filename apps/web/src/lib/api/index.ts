@@ -46,10 +46,6 @@ const $fetch = createFetch({
     'content-type': 'application/json',
     'x-api-key': apiKey,
   },
-  // auth: {
-  //     type: "Bearer",
-  //     token: "my-token",
-  // },
 });
 
 async function apiFetch(path: string, options?: BetterFetchOption) {
@@ -60,6 +56,7 @@ async function apiFetch(path: string, options?: BetterFetchOption) {
   }
 
   if (error) {
+    console.error('API Fetch Error:', error);
     throw new Error(`HTTP error status: ${error.status}`);
   }
 
@@ -814,4 +811,85 @@ export async function unmarkWatched(
     },
     auth,
   }) as Promise<{ message: string }>;
+}
+
+export async function markWatchedInBatch(
+  input: Readonly<{
+    userId: string;
+    items: Array<{
+      userId: string;
+      tvSeries: TvSeries;
+      seasonNumber: number;
+      episodeNumber: number;
+      runtime: number;
+      watchProvider?: WatchProvider | null;
+      watchedAt: number;
+    }>;
+    sessionId: string;
+  }>,
+) {
+  const BATCH_SIZE = 25;
+  const batches: Array<typeof input.items> = [];
+
+  for (let i = 0; i < input.items.length; i += BATCH_SIZE) {
+    batches.push(input.items.slice(i, i + BATCH_SIZE));
+  }
+
+  // Process all batches concurrently
+  const batchPromises = batches.map(
+    (chunk) =>
+      apiFetch('/user/:id/watched/batch', {
+        method: 'POST',
+        params: {
+          id: input.userId,
+        },
+        body: JSON.stringify(chunk),
+        auth: {
+          type: 'Bearer',
+          token: input.sessionId,
+        },
+      }) as Promise<WatchedItem[]>,
+  );
+
+  const batchResults = await Promise.all(batchPromises);
+
+  return batchResults.flat();
+}
+
+export async function unmarkWatchedInBatch(
+  input: Readonly<{
+    userId: string;
+    items: Array<{
+      userId: string;
+      tvSeries: TvSeries;
+      seasonNumber: number;
+      episodeNumber: number;
+    }>;
+    sessionId: string;
+  }>,
+) {
+  const BATCH_SIZE = 25;
+  const batches: Array<typeof input.items> = [];
+
+  for (let i = 0; i < input.items.length; i += BATCH_SIZE) {
+    batches.push(input.items.slice(i, i + BATCH_SIZE));
+  }
+
+  const batchPromises = batches.map((chunk) =>
+    apiFetch('/user/:id/watched/batch/delete', {
+      method: 'POST',
+      params: {
+        id: input.userId,
+      },
+      body: JSON.stringify(chunk),
+      auth: {
+        type: 'Bearer',
+        token: input.sessionId,
+      },
+    }),
+  );
+
+  await Promise.all(batchPromises);
+
+  return { message: 'OK' };
 }

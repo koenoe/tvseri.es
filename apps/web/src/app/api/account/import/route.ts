@@ -366,7 +366,7 @@ export async function POST(req: Request) {
               const watchProvider =
                 providers.find(
                   (p) =>
-                    p.name.toLowerCase() === item.watchProvider?.toLowerCase(),
+                    p.name?.toLowerCase() === item.watchProvider?.toLowerCase(),
                 ) || null;
 
               // Validate and parse the watch date

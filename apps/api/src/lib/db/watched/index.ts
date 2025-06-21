@@ -9,6 +9,7 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type {
   PaginationOptions,
   TvSeries,
+  TvSeriesForWatched,
   WatchedItem,
   WatchProvider,
 } from '@tvseri.es/types';
@@ -34,7 +35,7 @@ const createWatchedItem = ({
   episodeNumber: number;
   runtime: number;
   seasonNumber: number;
-  tvSeries: TvSeries;
+  tvSeries: TvSeriesForWatched;
   userId: string;
   watchProvider?: WatchProvider | null;
   watchedAt: number;
@@ -65,7 +66,7 @@ const normalizeWatchedItem = (item: WatchedItem) => ({
 export const markWatchedInBatch = async (
   items: ReadonlyArray<{
     userId: string;
-    tvSeries: TvSeries;
+    tvSeries: TvSeriesForWatched;
     seasonNumber: number;
     episodeNumber: number;
     runtime: number;
@@ -144,7 +145,7 @@ export const markWatched = async ({
   watchedAt = Date.now(),
 }: Readonly<{
   userId: string;
-  tvSeries: TvSeries;
+  tvSeries: TvSeriesForWatched;
   seasonNumber: number;
   episodeNumber: number;
   runtime: number;
@@ -185,7 +186,7 @@ export const markWatched = async ({
 export const unmarkWatchedInBatch = async (
   items: ReadonlyArray<{
     userId: string;
-    tvSeries: TvSeries;
+    tvSeries: TvSeriesForWatched;
     seasonNumber: number;
     episodeNumber: number;
   }>,
@@ -235,7 +236,7 @@ export const unmarkWatchedInBatch = async (
 export const unmarkWatched = async (
   input: Readonly<{
     userId: string;
-    tvSeries: TvSeries;
+    tvSeries: TvSeriesForWatched;
     seasonNumber: number;
     episodeNumber: number;
     runtime?: number;
@@ -549,7 +550,7 @@ export const getWatchedCountForTvSeries = async (
 const getWatchedForSeason = async (
   input: Readonly<{
     userId: string;
-    tvSeries: TvSeries;
+    tvSeries: TvSeriesForWatched;
     seasonNumber: number;
     options?: PaginationOptions;
   }>,
@@ -690,7 +691,7 @@ export const getWatchedCount = async (
 export const isWatched = async (
   input: Readonly<{
     userId: string;
-    tvSeries: TvSeries;
+    tvSeries: TvSeriesForWatched;
     seasonNumber: number;
     episodeNumber: number;
   }>,

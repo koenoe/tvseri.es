@@ -11,7 +11,7 @@ export const EpisodeSchema = v.object({
   title: v.string(),
   runtime: v.number(),
   stillImage: v.string(),
-  hasAired: v.boolean(),
+  hasAired: v.fallback(v.boolean(), false),
 });
 
 export type Episode = v.InferOutput<typeof EpisodeSchema>;
@@ -25,7 +25,7 @@ export const SeasonSchema = v.object({
   episodes: v.array(EpisodeSchema),
   numberOfEpisodes: v.optional(v.number()),
   numberOfAiredEpisodes: v.optional(v.number()),
-  hasAired: v.boolean(),
+  hasAired: v.fallback(v.boolean(), false),
 });
 
 export type Season = v.InferOutput<typeof SeasonSchema>;
@@ -57,9 +57,6 @@ const NetworkSchema = v.object({
 });
 
 export type Status = v.InferOutput<typeof StatusSchema>;
-type Language = v.InferOutput<typeof LanguageSchema>;
-type Country = v.InferOutput<typeof CountrySchema>;
-type Network = v.InferOutput<typeof NetworkSchema>;
 
 export const TvSeriesSchema = v.object({
   backdropColor: v.string(),
@@ -71,20 +68,20 @@ export const TvSeriesSchema = v.object({
   firstAirDate: v.string(),
   genres: v.array(GenreSchema),
   id: v.number(),
-  isAdult: v.boolean(),
-  hasAired: v.boolean(),
+  isAdult: v.fallback(v.boolean(), false),
+  hasAired: v.fallback(v.boolean(), false),
   languages: v.array(LanguageSchema),
   lastAirDate: v.string(),
   lastEpisodeToAir: v.optional(v.nullable(EpisodeSchema)),
   nextEpisodeToAir: v.optional(v.nullable(EpisodeSchema)),
   network: v.optional(NetworkSchema),
-  numberOfEpisodes: v.number(),
-  numberOfAiredEpisodes: v.number(),
-  numberOfSeasons: v.number(),
+  numberOfEpisodes: v.fallback(v.number(), 0),
+  numberOfAiredEpisodes: v.fallback(v.number(), 0),
+  numberOfSeasons: v.fallback(v.number(), 0),
   originCountry: v.optional(CountrySchema),
   originalLanguage: v.string(),
   originalTitle: v.string(),
-  popularity: v.number(),
+  popularity: v.fallback(v.number(), 0),
   posterImage: v.string(),
   posterPath: v.string(),
   releaseYear: v.string(),
@@ -95,8 +92,8 @@ export const TvSeriesSchema = v.object({
   title: v.string(),
   titleTreatmentImage: v.optional(v.string()),
   type: v.string(),
-  voteAverage: v.number(),
-  voteCount: v.number(),
+  voteAverage: v.fallback(v.number(), 0),
+  voteCount: v.fallback(v.number(), 0),
   website: v.optional(v.string()),
 });
 

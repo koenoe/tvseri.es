@@ -10,6 +10,7 @@ import type {
   Episode,
   Season,
   TvSeries,
+  TvSeriesForWatched,
   WatchProvider,
   User,
   CreateUser,
@@ -33,6 +34,15 @@ if (!apiKey) {
 if (!process.env.API_URL) {
   throw new Error('No "API_URL" found');
 }
+
+// Helper function to convert full TvSeries to minimal TvSeriesForWatched
+const toMinimalTvSeries = (tvSeries: TvSeries): TvSeriesForWatched => ({
+  id: tvSeries.id,
+  posterPath: tvSeries.posterPath,
+  slug: tvSeries.slug,
+  title: tvSeries.title,
+  ...(tvSeries.seasons && { seasons: tvSeries.seasons }),
+});
 
 type Context = Readonly<{
   sessionId?: string;
@@ -836,20 +846,25 @@ export async function markWatchedInBatch(
   }
 
   // Process all batches concurrently
-  const batchPromises = batches.map(
-    (chunk) =>
-      apiFetch('/user/:id/watched/batch', {
-        method: 'POST',
-        params: {
-          id: input.userId,
-        },
-        body: JSON.stringify(chunk),
-        auth: {
-          type: 'Bearer',
-          token: input.sessionId,
-        },
-      }) as Promise<WatchedItem[]>,
-  );
+  const batchPromises = batches.map((chunk) => {
+    // Convert full TvSeries objects to minimal ones for the API
+    const minimalChunk = chunk.map((item) => ({
+      ...item,
+      tvSeries: toMinimalTvSeries(item.tvSeries),
+    }));
+
+    return apiFetch('/user/:id/watched/batch', {
+      method: 'POST',
+      params: {
+        id: input.userId,
+      },
+      body: JSON.stringify(minimalChunk),
+      auth: {
+        type: 'Bearer',
+        token: input.sessionId,
+      },
+    }) as Promise<WatchedItem[]>;
+  });
 
   const batchResults = await Promise.all(batchPromises);
 
@@ -875,19 +890,25 @@ export async function unmarkWatchedInBatch(
     batches.push(input.items.slice(i, i + BATCH_SIZE));
   }
 
-  const batchPromises = batches.map((chunk) =>
-    apiFetch('/user/:id/watched/batch/delete', {
+  const batchPromises = batches.map((chunk) => {
+    // Convert full TvSeries objects to minimal ones for the API
+    const minimalChunk = chunk.map((item) => ({
+      ...item,
+      tvSeries: toMinimalTvSeries(item.tvSeries),
+    }));
+
+    return apiFetch('/user/:id/watched/batch/delete', {
       method: 'POST',
       params: {
         id: input.userId,
       },
-      body: JSON.stringify(chunk),
+      body: JSON.stringify(minimalChunk),
       auth: {
         type: 'Bearer',
         token: input.sessionId,
       },
-    }),
-  );
+    });
+  });
 
   await Promise.all(batchPromises);
 

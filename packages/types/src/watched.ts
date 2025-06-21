@@ -1,12 +1,23 @@
 import * as v from 'valibot';
 import { WatchProviderSchema } from './watch-provider';
-import { TvSeriesSchema } from './tv-series';
+import { TvSeriesSchema, SeasonSchema } from './tv-series';
+
+// Minimal TV series schema for watched operations - only includes fields actually used
+export const TvSeriesForWatchedSchema = v.object({
+  id: v.number(),
+  posterPath: v.string(),
+  slug: v.string(),
+  title: v.string(),
+  seasons: v.optional(v.array(SeasonSchema)), // Only needed for markTvSeriesWatched
+});
+
+export type TvSeriesForWatched = v.InferOutput<typeof TvSeriesForWatchedSchema>;
 
 export const WatchedItemSchema = v.object({
   episodeNumber: v.number(),
   posterImage: v.optional(v.string()), // deprecated
   posterPath: v.string(),
-  runtime: v.number(),
+  runtime: v.fallback(v.number(), 0),
   seasonNumber: v.number(),
   seriesId: v.number(),
   slug: v.string(),
@@ -38,13 +49,15 @@ export const CreateWatchedItemSchema = v.intersect([
 export const CreateWatchedItemBatchSchema = v.pipe(
   v.array(
     v.object({
-      userId: v.string(),
-      tvSeries: TvSeriesSchema,
-      seasonNumber: v.number(),
-      episodeNumber: v.number(),
-      runtime: v.number(),
+      ...v.pick(WatchedItemSchema, [
+        'episodeNumber',
+        'runtime',
+        'seasonNumber',
+        'userId',
+        'watchedAt',
+      ]).entries,
+      tvSeries: TvSeriesForWatchedSchema,
       watchProvider: v.optional(v.nullable(WatchProviderSchema)),
-      watchedAt: v.number(),
     }),
   ),
   v.minLength(1, 'Batch cannot be empty.'),
@@ -55,7 +68,7 @@ export const DeleteWatchedItemBatchSchema = v.pipe(
   v.array(
     v.object({
       userId: v.string(),
-      tvSeries: TvSeriesSchema,
+      tvSeries: TvSeriesForWatchedSchema,
       seasonNumber: v.number(),
       episodeNumber: v.number(),
     }),

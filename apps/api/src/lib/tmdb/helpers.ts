@@ -318,7 +318,7 @@ export function normalizeTvSeriesEpisode(episode: TmdbTvSeriesEpisode) {
     episodeNumber: episode.episode_number,
     seasonNumber: episode.season_number,
     airDate,
-    runtime: episode.runtime,
+    runtime: episode.runtime ?? 0,
     stillImage: episode.still_path
       ? generateTmdbImageUrl(episode.still_path, 'w454_and_h254_bestv2')
       : '',

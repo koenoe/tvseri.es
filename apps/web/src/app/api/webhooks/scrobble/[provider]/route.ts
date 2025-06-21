@@ -9,9 +9,9 @@ function jsonResponse(data: unknown, status = 200) {
 
 export async function POST(
   request: Request,
-  { params }: { params: { provider: string } },
+  { params }: { params: Promise<{ provider: string }> },
 ) {
-  const { provider } = params;
+  const { provider } = await params;
   const url = new URL(request.url);
   const body = await request.text();
 

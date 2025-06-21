@@ -33,6 +33,15 @@ otp.subscribe(
     link: [email],
     nodejs: {
       minify: true,
+      esbuild: {
+        external: [
+          '@aws-sdk/client-dynamodb',
+          '@aws-sdk/client-lambda',
+          '@aws-sdk/client-sesv2',
+          '@aws-sdk/client-sqs',
+          '@aws-sdk/util-dynamodb',
+        ],
+      },
     },
   },
   {

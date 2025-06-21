@@ -4,18 +4,8 @@ import { redirect } from 'next/navigation';
 import { type NextRequest } from 'next/server';
 
 import auth from '@/auth';
-import { createUser, findUser } from '@/lib/api';
-import {
-  addTmdbToSession,
-  createSession,
-  SESSION_DURATION,
-} from '@/lib/db/session';
-import { addTmdbToUser } from '@/lib/db/user';
-import {
-  createAccessToken,
-  createSessionId,
-  fetchAccountDetails,
-} from '@/lib/tmdb';
+import { SESSION_DURATION } from '@/constants';
+import { authenticateWithTmdb, linkTmdbAccount } from '@/lib/api';
 
 export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
@@ -31,84 +21,44 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const redirectUri = searchParams.get('redirect') || '/';
   const decryptedRequestToken = decryptToken(encryptedRequestToken);
-  const { accessToken, accountObjectId } = await createAccessToken(
-    decryptedRequestToken,
-  );
-
-  if (!accessToken) {
-    return Response.json(
-      { error: 'Failed to create access token in TMDb.' },
-      { status: 500 },
-    );
-  }
-
-  const tmdbSessionId = await createSessionId(accessToken);
-  if (!tmdbSessionId) {
-    return Response.json(
-      { error: 'Failed to create session in TMDb.' },
-      { status: 500 },
-    );
-  }
-
-  const tmdbAccount = await fetchAccountDetails(tmdbSessionId);
-  if (!tmdbAccount) {
-    return Response.json(
-      { error: 'Failed to fetch account details from TMDb.' },
-      { status: 500 },
-    );
-  }
-
-  let user = await findUser({ tmdbAccountId: tmdbAccount.id });
 
   // Note: check if we are connecting an authenticated user
-  const { user: currentUser, session: currentSession } = await auth();
-  if (currentUser && currentSession) {
-    if (user) {
+  const {
+    user: currentUser,
+    session: currentSession,
+    encryptedSessionId: currentEncryptedSessionId,
+  } = await auth();
+  if (currentUser && currentSession && currentEncryptedSessionId) {
+    try {
+      await linkTmdbAccount({
+        requestToken: decryptedRequestToken,
+        sessionId: currentEncryptedSessionId,
+      });
+    } catch (error) {
       const [baseUrl, queryString] = redirectUri.split('?');
       const searchParams = new URLSearchParams(queryString);
-      searchParams.append('error', 'tmdbAccountAlreadyLinked');
+      if (error instanceof Error && error.message === 'ApiConflictError') {
+        searchParams.append('error', 'tmdbAccountAlreadyLinked');
+      } else {
+        searchParams.append('error', 'unknownError');
+      }
       return redirect(`${baseUrl}?${searchParams.toString()}`);
     }
 
-    await Promise.all([
-      addTmdbToSession(currentSession, {
-        tmdbSessionId,
-        tmdbAccessToken: accessToken,
-      }),
-      addTmdbToUser(currentUser, {
-        tmdbAccountId: tmdbAccount.id,
-        tmdbAccountObjectId: accountObjectId,
-        tmdbUsername: tmdbAccount.username,
-      }),
-    ]);
     cookieStore.delete('requestTokenTmdb');
     return redirect(redirectUri);
   }
 
-  if (!user) {
-    user = await createUser({
-      name: tmdbAccount.name,
-      username: tmdbAccount.username,
-      tmdbAccountId: tmdbAccount.id,
-      tmdbAccountObjectId: accountObjectId,
-      tmdbUsername: tmdbAccount.username,
-    });
-  }
-
-  const country = request.headers.get('cloudfront-viewer-country') || '';
-  const city = request.headers.get('cloudfront-viewer-city') || '';
-  const region = request.headers.get('cloudFront-viewer-country-region') || '';
-  const sessionId = await createSession({
-    userId: user.id,
+  const sessionId = await authenticateWithTmdb({
+    requestToken: decryptedRequestToken,
     clientIp:
       request.headers.get('cloudfront-viewer-address')?.split(':')?.[0] || '',
-    country,
-    city,
-    region,
+    country: request.headers.get('cloudfront-viewer-country') || '',
+    city: request.headers.get('cloudfront-viewer-city') || '',
+    region: request.headers.get('cloudFront-viewer-country-region') || '',
     userAgent: request.headers.get('user-agent') || '',
-    tmdbSessionId,
-    tmdbAccessToken: accessToken,
   });
+
   const encryptedSessionId = encryptToken(sessionId);
   const cookieOptions = {
     httpOnly: true,

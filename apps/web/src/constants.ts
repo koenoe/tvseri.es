@@ -10,3 +10,5 @@ export const DEFAULT_FETCH_RETRY_OPTIONS = {
   baseDelay: 250, // Start with 250ms delay
   maxDelay: 2000, // Cap at 2 seconds
 } as RetryOptions;
+
+export const SESSION_DURATION = 6 * 30 * 24 * 60 * 60; // 6 months in seconds

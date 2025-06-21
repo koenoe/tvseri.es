@@ -5,6 +5,7 @@ import { etag } from 'hono/etag';
 import { HTTPException } from 'hono/http-exception';
 
 import { auth, type Variables } from './middleware/auth';
+import authenticate from './routes/authenticate';
 import collection from './routes/collection';
 import discover from './routes/discover';
 import dominantColor from './routes/dominant-color';
@@ -23,6 +24,7 @@ app.use(compress());
 app.use(etag());
 app.use(auth());
 
+app.route('/authenticate', authenticate);
 app.route('/collection', collection);
 app.route('/discover', discover);
 app.route('/dominant-color', dominantColor);

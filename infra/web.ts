@@ -26,16 +26,10 @@ new sst.aws.Nextjs('tvseries', {
   },
   link: [
     dynamo.follow,
-    dynamo.otp,
-    dynamo.sessions,
-    dynamo.users,
     dynamo.webhookTokens,
     scrobbleQueue,
     secrets.apiKey,
-    secrets.mdblistApiKey,
     secrets.secretKey,
-    secrets.tmdbApiAccessToken,
-    secrets.tmdbApiKey,
   ],
   path: 'apps/web',
   server: {

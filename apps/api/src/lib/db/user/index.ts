@@ -198,14 +198,14 @@ export const updateUser = async (
   if (updates.email) {
     const existingUser = await findUser({ email: updates.email });
     if (existingUser && existingUser.id !== user.id) {
-      throw new Error('Email already taken');
+      throw new Error('EmailAlreadyTaken');
     }
   }
 
   if (updates.username) {
     const existingUser = await findUser({ username: updates.username });
     if (existingUser && existingUser.id !== user.id) {
-      throw new Error('Username already taken');
+      throw new Error('UsernameAlreadyTaken');
     }
   }
 

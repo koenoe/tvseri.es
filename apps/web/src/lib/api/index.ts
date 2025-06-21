@@ -18,6 +18,10 @@ import type {
   PaginationOptions,
   ListItem,
   WatchedItem,
+  AuthenticateWithOTP,
+  AuthenticateWithTmdb,
+  AddTmdbToUser,
+  UpdateUser,
 } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
@@ -44,7 +48,7 @@ const toMinimalTvSeries = (tvSeries: TvSeries): TvSeriesForWatched => ({
   ...(tvSeries.seasons && { seasons: tvSeries.seasons }),
 });
 
-type Context = Readonly<{
+type AuthContext = Readonly<{
   sessionId?: string;
 }>;
 
@@ -65,9 +69,17 @@ async function apiFetch(path: string, options?: BetterFetchOption) {
     return undefined;
   }
 
+  if (error?.status === 409) {
+    throw new Error('ApiConflictError', {
+      cause: error.message,
+    });
+  }
+
   if (error) {
     console.error('API Fetch Error:', error);
-    throw new Error(`HTTP error status: ${error.status}`);
+    throw new Error('ApiFetchError', {
+      cause: `HTTP error status: ${error.status}`,
+    });
   }
 
   return data;
@@ -364,27 +376,46 @@ export async function detectDominantColorFromImage({
   return response.hex;
 }
 
-export async function me({ sessionId }: Context) {
-  const response = await apiFetch('me', {
+export async function linkTmdbAccount({
+  requestToken,
+  sessionId,
+}: AuthContext & AddTmdbToUser) {
+  await apiFetch('/me/tmdb', {
+    method: 'PUT',
+    auth: {
+      type: 'Bearer',
+      token: sessionId,
+    },
+    body: JSON.stringify({
+      requestToken,
+    }),
+  });
+}
+
+export async function unlinkTmdbAccount({ sessionId }: AuthContext) {
+  await apiFetch('/me/tmdb', {
+    method: 'DELETE',
     auth: {
       type: 'Bearer',
       token: sessionId,
     },
   });
+}
 
-  if (!response) {
-    return {
-      user: null,
-      session: null,
-    };
-  }
+export async function updateUser({
+  sessionId,
+  ...rest
+}: UpdateUser & AuthContext) {
+  const user = (await apiFetch('/me', {
+    method: 'PUT',
+    auth: {
+      type: 'Bearer',
+      token: sessionId,
+    },
+    body: JSON.stringify(rest),
+  })) as User;
 
-  const result = response as Readonly<{
-    user: User;
-    session: Session;
-  }>;
-
-  return result;
+  return user;
 }
 
 export async function findUser(
@@ -913,4 +944,83 @@ export async function unmarkWatchedInBatch(
   await Promise.all(batchPromises);
 
   return { message: 'OK' };
+}
+
+export async function createOTP(input: Readonly<{ email: string }>) {
+  const response = (await apiFetch('/authenticate/otp/create', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })) as Readonly<{
+    otp: string;
+  }>;
+
+  return response.otp;
+}
+
+export async function authenticateWithOTP(input: AuthenticateWithOTP) {
+  const response = (await apiFetch('/authenticate/otp', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })) as Readonly<{
+    sessionId: string;
+  }>;
+
+  return response.sessionId;
+}
+
+export async function unauthenticate(sessionId: string) {
+  await apiFetch('/authenticate', {
+    method: 'DELETE',
+    auth: {
+      type: 'Bearer',
+      token: sessionId,
+    },
+  });
+}
+
+export async function createTmdbRequestToken(
+  input: Readonly<{ redirectUri: string }>,
+) {
+  const response = (await apiFetch('/authenticate/tmdb/create-request-token', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })) as Readonly<{
+    token: string;
+  }>;
+
+  return response.token;
+}
+
+export async function authenticateWithTmdb(input: AuthenticateWithTmdb) {
+  const response = (await apiFetch('/authenticate/tmdb', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })) as Readonly<{
+    sessionId: string;
+  }>;
+
+  return response.sessionId;
+}
+
+export async function me({ sessionId }: AuthContext) {
+  const response = await apiFetch('/me', {
+    auth: {
+      type: 'Bearer',
+      token: sessionId,
+    },
+  });
+
+  if (!response) {
+    return {
+      user: null,
+      session: null,
+    };
+  }
+
+  const result = response as Readonly<{
+    user: User;
+    session: Session;
+  }>;
+
+  return result;
 }

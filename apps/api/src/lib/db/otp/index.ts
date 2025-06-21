@@ -80,7 +80,7 @@ export const validateOTP = async (
   }
 };
 
-export const deleteOTP = async (email: string, code: string): Promise<void> => {
+const deleteOTP = async (email: string, code: string): Promise<void> => {
   const command = new DeleteItemCommand({
     TableName: Resource.OTP.name,
     Key: marshall({

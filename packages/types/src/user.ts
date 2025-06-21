@@ -49,8 +49,28 @@ export const CreateUserSchema = v.intersect([
   ]),
 ]);
 
-// Export the inferred types for backward compatibility
+export const UpdateUserSchema = v.intersect([
+  v.union([
+    v.object({
+      username: UsernameSchema,
+      email: v.optional(v.pipe(v.string(), v.email())),
+      name: v.optional(v.string()),
+    }),
+    v.object({
+      username: v.optional(UsernameSchema),
+      email: v.pipe(v.string(), v.email()),
+      name: v.optional(v.string()),
+    }),
+  ]),
+]);
+
+export const AddTmdbToUserSchema = v.object({
+  requestToken: v.string(),
+});
+
 export type Role = v.InferOutput<typeof RoleSchema>;
 export type User = v.InferOutput<typeof UserSchema>;
 export type UserWithFollowInfo = v.InferOutput<typeof UserWithFollowInfoSchema>;
 export type CreateUser = v.InferOutput<typeof CreateUserSchema>;
+export type AddTmdbToUser = v.InferOutput<typeof AddTmdbToUserSchema>;
+export type UpdateUser = v.InferOutput<typeof UpdateUserSchema>;

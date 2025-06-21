@@ -282,7 +282,7 @@ app.post(
       watchProvider,
     });
 
-    return c.json(watchedItems);
+    return c.json(watchedItems, 201);
   },
 );
 
@@ -312,7 +312,7 @@ app.post(
       watchProvider,
     });
 
-    return c.json(watchedItems);
+    return c.json(watchedItems, 201);
   },
 );
 
@@ -350,7 +350,7 @@ app.post(
       watchProvider,
     });
 
-    return c.json([watchedItem]);
+    return c.json([watchedItem], 201);
   },
 );
 
@@ -462,7 +462,7 @@ app.post(
     validateBatchWatchedItemsOwnership(body, user.id);
 
     const watchedItems = await markWatchedInBatch(body);
-    return c.json(watchedItems);
+    return c.json(watchedItems, 201);
   },
 );
 
@@ -481,7 +481,7 @@ app.post(
     validateBatchWatchedItemsOwnership(body, user.id);
 
     await unmarkWatchedInBatch(body);
-    return c.json({ message: 'OK' });
+    return c.json({ message: 'OK' }, 201);
   },
 );
 

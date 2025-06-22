@@ -4,13 +4,11 @@ import { domain, zone } from './dns';
 // import { apiRouter } from './api';
 import * as secrets from './secrets';
 
-const project = new vercel.Project('tvseries', {
+const project = new vercel.Project('Website', {
   buildCommand: 'pnpm run build',
   devCommand: 'pnpm run dev',
-  enablePreviewFeedback: false,
   framework: 'nextjs',
   name: 'tvseries',
-  nodeVersion: '22.x',
   rootDirectory: 'apps/web',
 });
 
@@ -19,7 +17,7 @@ const dir = vercel.getProjectDirectoryOutput({
 });
 
 if (!$dev) {
-  new vercel.Deployment(`${project.name}Deployment`, {
+  new vercel.Deployment('WebsiteDeployment', {
     projectId: project.id,
     production: $app.stage === 'production',
     files: dir.files,

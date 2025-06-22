@@ -26,8 +26,12 @@ const getCountryStats = async (
     ...new Set(watchedItems.map((item) => item.seriesId)),
   ];
 
-  const seriesWithCountries = await Promise.all(
+  const uniqueSeries = await Promise.all(
     uniqueSeriesIds.map((id) => cachedTvSeries(id)),
+  );
+
+  const seriesWithCountries = uniqueSeries.filter(
+    (series) => series && series.countries,
   );
 
   const countryStats: CountryStats = {};

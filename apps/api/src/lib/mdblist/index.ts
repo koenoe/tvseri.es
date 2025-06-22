@@ -59,6 +59,10 @@ const $fetch = createFetch({
 async function mdblistFetch(path: string, options?: BetterFetchOption) {
   const { data, error } = await $fetch(path, options);
 
+  if (error?.status === 404) {
+    return undefined;
+  }
+
   if (error) {
     throw new Error(`HTTP error status: ${error.status}`);
   }
@@ -70,9 +74,9 @@ export async function fetchTvSeriesOrMovie(
   id: number | string,
   mediaType: MediaType = 'show',
 ) {
-  const response = (await mdblistFetch(
-    `/tmdb/${mediaType}/${id}`,
-  )) as MediaInfo;
+  const response = (await mdblistFetch(`/tmdb/${mediaType}/${id}`)) as
+    | MediaInfo
+    | undefined;
 
   return response;
 }
@@ -83,7 +87,7 @@ export async function fetchRating(
   returnRating: string = 'imdb',
 ) {
   const response = await fetchTvSeriesOrMovie(id, mediaType);
-  const rating = response.ratings?.find(
+  const rating = response?.ratings?.find(
     (rating) => rating.source === returnRating,
   );
 
@@ -91,7 +95,7 @@ export async function fetchRating(
     rating && rating.value > 0
       ? {
           ...rating,
-          imdbid: response.ids.imdb,
+          imdbid: response?.ids.imdb,
         }
       : null;
 

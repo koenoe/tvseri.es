@@ -10,7 +10,6 @@ const nextConfig = {
       dynamic: 0,
       static: 0,
     },
-    optimizeServerReact: true,
     optimizePackageImports: [
       'date-fns',
       'motion',

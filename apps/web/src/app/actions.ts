@@ -7,7 +7,7 @@ import isEqual from 'react-fast-compare';
 import slugify from 'slugify';
 
 import auth from '@/auth';
-import { SESSION_DURATION } from '@/constants';
+import { SECRET_KEY, SESSION_DURATION } from '@/constants';
 import {
   createOTP,
   createTmdbRequestToken,
@@ -26,7 +26,7 @@ export async function loginWithTmdb(pathname = '/') {
   const cookieStore = await cookies();
   const redirectUri = `${getBaseUrl()}/api/auth/callback/tmdb?redirect=${pathname}`;
   const requestToken = await createTmdbRequestToken({ redirectUri });
-  const encryptedToken = encryptToken(requestToken);
+  const encryptedToken = encryptToken(requestToken, SECRET_KEY);
 
   cookieStore.set('requestTokenTmdb', encryptedToken, {
     httpOnly: true,
@@ -60,7 +60,7 @@ export async function login(formData: FormData) {
 
   const [cookieStore] = await Promise.all([cookies(), createOTP({ email })]);
 
-  const encryptedEmail = encryptToken(email);
+  const encryptedEmail = encryptToken(email, SECRET_KEY);
 
   cookieStore.set('emailOTP', encryptedEmail, {
     httpOnly: true,
@@ -93,7 +93,7 @@ export async function loginWithOTP({
       userAgent: headerStore.get('user-agent') || '',
     });
 
-    cookieStore.set('sessionId', encryptToken(sessionId), {
+    cookieStore.set('sessionId', encryptToken(sessionId, SECRET_KEY), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: SESSION_DURATION,

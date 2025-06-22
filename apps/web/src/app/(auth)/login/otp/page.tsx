@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import OTPForm from '@/components/OTP/Form';
+import { SECRET_KEY } from '@/constants';
 
 export default async function OTPPage({
   searchParams: searchParamsFromProps,
@@ -23,7 +24,7 @@ export default async function OTPPage({
     return redirect(`/login?redirectPath=${encodeURIComponent(redirectPath)}`);
   }
 
-  const email = decryptToken(encryptedEmail);
+  const email = decryptToken(encryptedEmail, SECRET_KEY);
 
   return <OTPForm email={email} redirectPath={redirectPath} />;
 }

@@ -27,12 +27,14 @@ const getGenreStats = async (input: Input): Promise<GenreStat[]> => {
   );
   const genreCounts = new Map<string, number>();
 
-  seriesWithGenres.forEach((series) => {
-    series!.genres.forEach((genre) => {
-      const currentCount = genreCounts.get(genre.name) || 0;
-      genreCounts.set(genre.name, currentCount + 1);
+  seriesWithGenres
+    .filter((genre) => !!genre)
+    .forEach((series) => {
+      series.genres.forEach((genre) => {
+        const currentCount = genreCounts.get(genre.name) || 0;
+        genreCounts.set(genre.name, currentCount + 1);
+      });
     });
-  });
 
   return [...genreCounts.entries()]
     .map(([genre, count]) => ({ genre, count }))

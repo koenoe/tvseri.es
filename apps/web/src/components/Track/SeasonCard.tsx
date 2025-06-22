@@ -11,7 +11,7 @@ import formatDate from '@/utils/formatDate';
 
 import { type WatchedAction } from './Cards';
 import EpisodeCard from './EpisodeCard';
-import Datepicker from '../Datepicker/Datepicker';
+import Datepicker from '../Datepicker/DatepickerLazy';
 
 function SeasonCard({
   isExpanded: isExpandedFromProps = false,

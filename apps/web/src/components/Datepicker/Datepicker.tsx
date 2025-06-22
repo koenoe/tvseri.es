@@ -14,14 +14,7 @@ import DropdownContainer, {
   type Position,
 } from '../Dropdown/DropdownContainer';
 
-function DatePicker({
-  className,
-  children,
-  selected: selectedFromProps = new Date(),
-  onSelect,
-  onClick,
-  footer,
-}: Readonly<{
+export type Props = Readonly<{
   className?: string;
   children: ReactNode;
   offset?: Position;
@@ -29,7 +22,16 @@ function DatePicker({
   onSelect: (value: string) => void;
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   footer?: ReactNode;
-}>) {
+}>;
+
+function DatePicker({
+  className,
+  children,
+  selected: selectedFromProps = new Date(),
+  onSelect,
+  onClick,
+  footer,
+}: Props) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<Date>(selectedFromProps);

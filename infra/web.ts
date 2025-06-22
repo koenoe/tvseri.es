@@ -34,9 +34,9 @@ if (!$dev) {
       SITE_URL: `https://${domain}`,
     },
     projectSettings: {
-      buildCommand: 'pnpm run build',
+      buildCommand: 'cd ../.. && pnpm --filter=web run build',
       framework: 'nextjs',
-      installCommand: 'pnpm install --frozen-lockfile',
+      installCommand: 'cd ../.. && pnpm install --frozen-lockfile',
       outputDirectory: '.next',
       rootDirectory: 'apps/web',
     },

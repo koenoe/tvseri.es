@@ -15,7 +15,6 @@ export default $config({
         vercel: {
           apiToken: process.env.VERCEL_API_TOKEN,
           team: process.env.VERCEL_TEAM_ID,
-          version: '1.15.0',
         },
       },
     };

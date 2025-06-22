@@ -5,7 +5,6 @@ import { apiRouter } from './api';
 import * as secrets from './secrets';
 
 new sst.aws.Nextjs('tvseries', {
-  buildCommand: 'pnpm dlx @opennextjs/aws build',
   domain: {
     name: domain,
     redirects: $app.stage === 'production' ? ['www.tvseri.es'] : [],
@@ -29,13 +28,14 @@ new sst.aws.Nextjs('tvseries', {
     memory: '512 MB',
     runtime: 'nodejs22.x',
   },
+  warm: 3,
   transform: {
     server: {
       timeout: '30 seconds',
       nodejs: {
         minify: true,
         esbuild: {
-          external: ['@opennextjs/aws', '@better-fetch/fetch'],
+          external: ['@opennextjs/aws'],
         },
       },
     },

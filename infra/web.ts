@@ -33,6 +33,13 @@ if (!$dev) {
       SECRET_KEY: secrets.secretKey.value,
       SITE_URL: `https://${domain}`,
     },
+    projectSettings: {
+      buildCommand: 'pnpm run build',
+      framework: 'nextjs',
+      installCommand: 'pnpm install --frozen-lockfile',
+      outputDirectory: '.next',
+      rootDirectory: 'apps/web',
+    },
   });
 } else {
   console.log('Not implemented yet.');

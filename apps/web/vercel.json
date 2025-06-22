@@ -3,6 +3,6 @@
   "buildCommand": "pnpm run build",
   "devCommand": "pnpm run dev",
   "framework": "nextjs",
-  "installCommand": "pnpm install",
+  "installCommand": "pnpm install --frozen-lockfile",
   "outputDirectory": ".next"
 }

@@ -17,6 +17,7 @@ export const dominantColor = new sst.aws.Function('DominantColor', {
         '@aws-sdk/client-sesv2',
         '@aws-sdk/client-sqs',
         '@aws-sdk/util-dynamodb',
+        'sharp',
       ],
     },
   },

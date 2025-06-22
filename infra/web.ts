@@ -17,7 +17,7 @@ async function run() {
     name: 'tvseries',
   });
 
-  const dir = vercel.getProjectDirectoryOutput({
+  const dir = await vercel.getProjectDirectory({
     path: process.cwd(),
   });
 

@@ -36,6 +36,7 @@ if (!$dev) {
     projectId: project.then((p) => p.id),
     production: $app.stage === 'production',
     files: dir.then((d) => d.files),
+    pathPrefix: dir.then((d) => d.path),
     environment: {
       // API_URL: apiRouter.url,
       API_URL: 'https://api.tvseri.es',

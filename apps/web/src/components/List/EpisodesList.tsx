@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 
+import { type Season, type Episode, type TvSeries } from '@tvseri.es/types';
 import { useSearchParams } from 'next/navigation';
 
 import SelectSeason from '@/components/List/EpisodesListSeasonSelect';
 import List from '@/components/List/List';
-import { type Season, type Episode, type TvSeries } from '@/types/tv-series';
 
 import WatchButton from '../Buttons/WatchButton';
 import SkeletonEpisode from '../Skeletons/SkeletonEpisode';

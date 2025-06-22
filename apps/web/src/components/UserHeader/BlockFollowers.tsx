@@ -1,5 +1,5 @@
 import { cachedUser } from '@/app/cached';
-import { getFollowerCount } from '@/lib/db/follow';
+import { getFollowerCount } from '@/lib/api';
 
 import Block from './Block';
 

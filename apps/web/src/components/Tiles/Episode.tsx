@@ -1,9 +1,9 @@
 import { memo, useMemo } from 'react';
 
+import { type Episode } from '@tvseri.es/types';
 import { cva, cx } from 'class-variance-authority';
 import { twMerge } from 'tailwind-merge';
 
-import { type Episode } from '@/types/tv-series';
 import formatDate from '@/utils/formatDate';
 import formatRuntime from '@/utils/formatRuntime';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';

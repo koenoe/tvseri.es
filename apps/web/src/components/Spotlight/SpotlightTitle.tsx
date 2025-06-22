@@ -1,7 +1,6 @@
+import { type TvSeries } from '@tvseri.es/types';
 import { cva, type VariantProps } from 'class-variance-authority';
 import Image from 'next/image';
-
-import { type TvSeries } from '@/types/tv-series';
 
 const imageStyles = cva('relative w-full', {
   variants: {

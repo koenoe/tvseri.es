@@ -2,9 +2,8 @@
 
 import { useCallback, useMemo } from 'react';
 
+import { type WatchProvider } from '@tvseri.es/types';
 import Image from 'next/image';
-
-import { type WatchProvider } from '@/types/watch-provider';
 
 import MultiSelect, { type Result } from './MultiSelect';
 

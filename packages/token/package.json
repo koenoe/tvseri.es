@@ -1,0 +1,21 @@
+{
+  "name": "@tvseri.es/token",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "check-types": "tsc",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "sst": "^3.17.6"
+  },
+  "devDependencies": {
+    "@tvseri.es/eslint-config": "workspace:*",
+    "@tvseri.es/typescript-config": "workspace:*",
+    "@types/node": "^22.15.30",
+    "eslint": "^9.28.0",
+    "typescript": "^5.8.3"
+  }
+}

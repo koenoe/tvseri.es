@@ -2,8 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
-import { type WatchedItem } from '@/lib/db/watched';
-import { type TvSeries } from '@/types/tv-series';
+import { type TvSeries, type WatchedItem } from '@tvseri.es/types';
 
 import { useWatchedStore } from './WatchedStoreProvider';
 

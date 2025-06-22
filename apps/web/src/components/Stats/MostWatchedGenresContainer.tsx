@@ -1,7 +1,6 @@
 import { cachedUniqueWatchedByYear, cachedTvSeries } from '@/app/cached';
-import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 
-import MostWatchedGenres from './MostWatchedGenres';
+import MostWatchedGenres from './MostWatchedGenresLazy';
 
 type GenreStat = {
   genre: string;
@@ -41,16 +40,7 @@ const getGenreStats = async (input: Input): Promise<GenreStat[]> => {
 };
 
 const cachedGenreStats = async (input: Input) => {
-  const key = `most-watched-genres:${input.userId}_${input.year}`;
-  const cachedValue = await getCacheItem<GenreStat[]>(key);
-  if (cachedValue) {
-    return cachedValue;
-  }
-
   const stats = await getGenreStats(input);
-
-  await setCacheItem(key, stats, { ttl: 3600 });
-
   return stats;
 };
 

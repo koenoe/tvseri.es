@@ -2,12 +2,12 @@
 
 import { memo, type MouseEvent } from 'react';
 
+import { type TvSeries } from '@tvseri.es/types';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { twMerge } from 'tailwind-merge';
 
-import { type TvSeries } from '@/types/tv-series';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 const MotionLink = motion.create(Link);

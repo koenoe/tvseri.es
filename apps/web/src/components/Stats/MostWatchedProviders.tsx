@@ -18,16 +18,16 @@ import {
 const BAR_SIZE = 40;
 const BAR_GAP = 4;
 
-function MostWatchedProviders({
-  data,
-}: Readonly<{
+export type Props = Readonly<{
   data: {
     name: string;
     count: number;
     logo?: string | null;
     defaultColor: string;
   }[];
-}>) {
+}>;
+
+function MostWatchedProviders({ data }: Props) {
   const [focusBar, setFocusBar] = useState(null);
   const renderContent = useCallback(
     (props: any) => {

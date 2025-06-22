@@ -1,9 +1,8 @@
 import { type ReactNode } from 'react';
 
+import { type TvSeries } from '@tvseri.es/types';
 import Link from 'next/link';
 import { twMerge } from 'tailwind-merge';
-
-import { type TvSeries } from '@/types/tv-series';
 
 export default function InfoLine({
   children,

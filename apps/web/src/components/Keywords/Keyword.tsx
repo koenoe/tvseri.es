@@ -1,6 +1,5 @@
+import { type Keyword } from '@tvseri.es/types';
 import Link from 'next/link';
-
-import { type Keyword } from '@/types/keyword';
 
 export default function Keyword({
   keyword,

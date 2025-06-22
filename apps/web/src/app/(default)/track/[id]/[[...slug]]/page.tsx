@@ -16,9 +16,9 @@ type Props = Readonly<{
 }>;
 
 export default async function TrackPage({ params: paramsFromProps }: Props) {
-  const { user } = await auth();
+  const { user, encryptedSessionId } = await auth();
 
-  if (!user) {
+  if (!user || !encryptedSessionId) {
     return unauthorized();
   }
 
@@ -85,7 +85,11 @@ export default async function TrackPage({ params: paramsFromProps }: Props) {
             </div>
           }
         >
-          <CardsContainer tvSeries={tvSeries} user={user} />
+          <CardsContainer
+            tvSeries={tvSeries}
+            user={user}
+            sessionId={encryptedSessionId}
+          />
         </Suspense>
       </div>
     </>

@@ -1,6 +1,5 @@
 import { cachedTvSeries } from '@/app/cached';
-import { getWatched } from '@/lib/db/watched';
-import { fetchTvSeriesEpisode } from '@/lib/tmdb';
+import { fetchTvSeriesEpisode, getWatched } from '@/lib/api';
 
 import Spotlight from './Spotlight';
 
@@ -29,7 +28,7 @@ export default async function SpotlightContainer({
   }
 
   const [tvSeries, episode] = await Promise.all([
-    cachedTvSeries(watchedItem.seriesId),
+    cachedTvSeries(watchedItem.seriesId, { includeImages: true }),
     fetchTvSeriesEpisode(
       watchedItem.seriesId,
       watchedItem.seasonNumber,

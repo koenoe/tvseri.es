@@ -1,94 +1,60 @@
-import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
-import { Resource } from 'sst';
+import { fetchTokenForWebhook, proxy } from '@/lib/api';
 
-import { type PlexMetadata, type ScrobbleEvent } from '@/lambdas/scrobble';
-import { findWebhookToken } from '@/lib/db/webhooks';
-
-const sqs = new SQSClient({});
+function jsonResponse(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'content-type': 'application/json' },
+  });
+}
 
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ provider: string }> },
 ) {
-  const { searchParams } = new URL(request.url);
-  const token = searchParams.get('token');
+  const { provider } = await params;
+  const url = new URL(request.url);
+  const body = await request.text();
 
+  const token = url.searchParams.get('token');
   if (!token) {
-    return Response.json({ error: 'Missing token' }, { status: 400 });
+    return jsonResponse({ error: 'Missing token' }, 400);
   }
 
-  const [{ provider }, webhookToken] = await Promise.all([
-    params,
-    findWebhookToken(token),
-  ]);
-
-  if (!webhookToken || webhookToken.type !== provider) {
-    return Response.json({ error: 'Invalid token' }, { status: 401 });
-  }
-
-  // Note: for now we only support Plex
-  if (provider === 'plex') {
-    try {
-      const formData = await request.formData();
-      const payloadJson = formData.get('payload');
-
-      if (!payloadJson) {
-        return Response.json({ error: 'No payload found' }, { status: 400 });
-      }
-
-      let payload = null;
-      try {
-        payload = JSON.parse(payloadJson.toString()) as Readonly<{
-          event: string;
-          Metadata: PlexMetadata;
-        }>;
-      } catch (error) {
-        console.error('Failed to parse payload:', {
-          error,
-          payload: payloadJson.toString(),
-        });
-
-        return Response.json(
-          { error: 'Failed to parse payload' },
-          { status: 500 },
-        );
-      }
-
-      if (
-        payload.event !== 'media.scrobble' ||
-        payload.Metadata.type !== 'episode' ||
-        payload.Metadata.librarySectionType !== 'show'
-      ) {
-        return Response.json({ message: 'OK' }, { status: 200 });
-      }
-
-      await sqs.send(
-        new SendMessageCommand({
-          QueueUrl: Resource.ScrobbleQueue.url,
-          MessageBody: JSON.stringify({
-            userId: webhookToken.userId,
-            metadata: {
-              plex: payload.Metadata,
-            },
-          } satisfies ScrobbleEvent),
-        }),
-      );
-
-      console.log(
-        `[SUCCESS] Scrobble queued | User: ${webhookToken.userId}`,
-        JSON.stringify(payload),
-      );
-
-      return Response.json({ message: 'OK' });
-    } catch (error) {
-      console.error('Failed to process Plex scrobble:', error);
-
-      return Response.json(
-        { error: 'Failed to process Plex scrobble' },
-        { status: 500 },
-      );
+  try {
+    const webhookToken = await fetchTokenForWebhook({ token });
+    if (!webhookToken || webhookToken.type !== provider) {
+      return jsonResponse({ error: 'Invalid token' }, 401);
     }
+  } catch {
+    return jsonResponse({ error: 'Invalid token' }, 401);
   }
 
-  return Response.json({ error: 'Invalid provider' }, { status: 400 });
+  try {
+    const query = Object.fromEntries(url.searchParams.entries());
+    const headers = {
+      ...Object.fromEntries(request.headers.entries()),
+      'content-type':
+        request.headers.get('content-type') ||
+        'application/x-www-form-urlencoded',
+    };
+
+    const result = await proxy('/scrobble/provider/:provider', {
+      method: 'POST',
+      params: { provider },
+      query,
+      headers,
+      body,
+    });
+
+    return jsonResponse(result);
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    const errorStatus =
+      error && typeof error === 'object' && 'status' in error
+        ? (error.status as number)
+        : 500;
+
+    return jsonResponse({ error: errorMessage }, errorStatus);
+  }
 }

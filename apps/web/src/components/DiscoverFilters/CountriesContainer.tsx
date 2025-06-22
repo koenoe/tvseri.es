@@ -1,4 +1,4 @@
-import { fetchCountries } from '@/lib/tmdb';
+import { fetchCountries } from '@/lib/api';
 
 import DiscoverCountries from './Countries';
 

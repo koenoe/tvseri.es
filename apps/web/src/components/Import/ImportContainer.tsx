@@ -1,6 +1,6 @@
 import { headers } from 'next/headers';
 
-import { fetchWatchProviders } from '@/lib/tmdb';
+import { fetchWatchProviders } from '@/lib/api';
 
 import Import from './Import';
 

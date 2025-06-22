@@ -1,9 +1,10 @@
 import { Suspense } from 'react';
 
+import { type TmdbDiscoverQuery } from '@tvseri.es/types';
+
 import DiscoverGrid from '@/components/Grid/DiscoverGrid';
 import Grid from '@/components/Grid/Grid';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
-import { type TmdbDiscoverQuery } from '@/lib/tmdb/helpers';
 
 export default async function DiscoverPage({
   searchParams: searchParamsFromProps,

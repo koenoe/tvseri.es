@@ -1,4 +1,4 @@
-import { fetchGenresForTvSeries } from '@/lib/tmdb';
+import { fetchGenresForTvSeries } from '@/lib/api';
 
 import DiscoverGenres from './Genres';
 

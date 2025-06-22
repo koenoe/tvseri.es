@@ -2,37 +2,26 @@ import { cache } from 'react';
 
 import { cookies } from 'next/headers';
 
-import { type Session } from '@/types/session';
+import { me } from './lib/api';
 
-import { findSession } from './lib/db/session';
-import { findUser } from './lib/db/user';
-import { decryptToken } from './lib/token';
-
-async function session() {
+const auth = cache(async () => {
   const encryptedSessionId = (await cookies()).get('sessionId')?.value;
 
   if (!encryptedSessionId) {
-    return null;
+    return {
+      user: null,
+      session: null,
+      encryptedSessionId: null,
+    };
   }
 
-  const decryptedSessionId = decryptToken(encryptedSessionId);
-  return findSession(decryptedSessionId);
-}
-
-async function user(_session: Session) {
-  if (!_session) {
-    return null;
-  }
-
-  return findUser({ userId: _session.userId });
-}
-
-const auth = cache(async () => {
-  const _session = await session();
+  const result = await me({
+    sessionId: encryptedSessionId,
+  });
 
   return {
-    session: _session,
-    user: _session ? await user(_session) : null,
+    ...result,
+    encryptedSessionId,
   };
 });
 

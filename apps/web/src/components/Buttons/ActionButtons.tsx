@@ -1,3 +1,5 @@
+import { type TvSeries } from '@tvseri.es/types';
+
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
 import {
@@ -7,12 +9,7 @@ import {
   isInWatchlist,
   removeFromFavorites,
   removeFromWatchlist,
-} from '@/lib/db/list';
-import {
-  addToOrRemoveFromWatchlist,
-  addToOrRemoveFromFavorites,
-} from '@/lib/tmdb';
-import { type TvSeries } from '@/types/tv-series';
+} from '@/lib/api';
 
 import ActionButtonsProvider from './ActionButtonsProvider';
 import ContextMenuButtonTvSeries from './ContextMenuButtonTvSeries';
@@ -38,8 +35,8 @@ export default async function ActionButtons({
   ) {
     'use server';
 
-    const { user, session } = await auth();
-    if (!user || !session) {
+    const { user, session, encryptedSessionId } = await auth();
+    if (!user || !session || !encryptedSessionId) {
       return;
     }
 
@@ -52,6 +49,7 @@ export default async function ActionButtons({
         status: tvSeries.status,
         title: tvSeries.title,
       },
+      sessionId: encryptedSessionId,
     };
 
     if (listType === 'watchlist') {
@@ -61,21 +59,7 @@ export default async function ActionButtons({
         await removeFromWatchlist({
           userId: user.id,
           id: tvSeries.id,
-        });
-      }
-
-      // Note: we still save the watchlist and favorites to TMDb
-      // in case tvseri.es ever stops users will still have their data
-      if (
-        process.env.NODE_ENV === 'production' &&
-        session.tmdbSessionId &&
-        user.tmdbAccountId
-      ) {
-        await addToOrRemoveFromWatchlist({
-          id,
-          accountId: user.tmdbAccountId,
-          sessionId: session.tmdbSessionId,
-          value,
+          sessionId: encryptedSessionId,
         });
       }
     } else if (listType === 'favorites') {
@@ -85,20 +69,7 @@ export default async function ActionButtons({
         await removeFromFavorites({
           userId: user.id,
           id: tvSeries.id,
-        });
-      }
-      // Note: we still save the watchlist and favorites to TMDb
-      // in case tvseri.es ever stops users will still have their data
-      if (
-        process.env.NODE_ENV === 'production' &&
-        session.tmdbSessionId &&
-        user.tmdbAccountId
-      ) {
-        await addToOrRemoveFromFavorites({
-          id,
-          accountId: user.tmdbAccountId,
-          sessionId: session.tmdbSessionId,
-          value,
+          sessionId: encryptedSessionId,
         });
       }
     }
@@ -111,8 +82,10 @@ export default async function ActionButtons({
       id: Number(id),
     };
 
-    const isFavorited = await isInFavorites(payload);
-    const isWatchlisted = await isInWatchlist(payload);
+    const [isFavorited, isWatchlisted] = await Promise.all([
+      isInFavorites(payload),
+      isInWatchlist(payload),
+    ]);
 
     return (
       <ActionButtonsProvider

@@ -1,9 +1,8 @@
 import { getISOWeek } from 'date-fns';
 
 import { cachedWatchedByYear } from '@/app/cached';
-import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 
-import WatchedPerWeek from './WatchedPerWeek';
+import WatchedPerWeek from './WatchedPerWeekLazy';
 
 type WeeklyCount = {
   week: number;
@@ -37,15 +36,7 @@ const getWeeklyWatchedCount = async (input: Input): Promise<WeeklyCount[]> => {
 };
 
 const cachedWeeklyWatchedCount = async (input: Input) => {
-  const key = `watched-per-week:${input.userId}_${input.year}`;
-  const cachedValue = await getCacheItem<WeeklyCount[]>(key);
-  if (cachedValue) {
-    return cachedValue;
-  }
-
   const stats = await getWeeklyWatchedCount(input);
-
-  await setCacheItem(key, stats, { ttl: 3600 });
 
   return stats;
 };

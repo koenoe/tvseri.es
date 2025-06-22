@@ -3,14 +3,10 @@ import { headers } from 'next/headers';
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
 import {
-  markSeasonWatched,
-  markTvSeriesWatched,
+  fetchTvSeriesWatchProvider,
   markWatched,
-  unmarkSeasonWatched,
-  unmarkTvSeriesWatched,
   unmarkWatched,
-} from '@/lib/db/watched';
-import { fetchTvSeriesEpisode, fetchTvSeriesWatchProvider } from '@/lib/tmdb';
+} from '@/lib/api';
 
 type BodyPayload = Readonly<{
   watched: boolean;
@@ -34,74 +30,36 @@ export async function POST(
     return Response.json({ error: 'Not found' }, { status: 404 });
   }
 
-  const { user } = await auth();
-  if (!user) {
+  const { user, encryptedSessionId } = await auth();
+  if (!user || !encryptedSessionId) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const region = (await headers()).get('cloudfront-viewer-country') || 'US';
-  const watchProvider = await fetchTvSeriesWatchProvider(tvSeries.id, region);
+  const watchProvider =
+    (await fetchTvSeriesWatchProvider(tvSeries.id, region)) ?? null;
 
-  if (body.seasonNumber && body.episodeNumber) {
-    const episode = await fetchTvSeriesEpisode(
-      tvSeries.id,
-      body.seasonNumber,
-      body.episodeNumber,
-    );
-
-    const payload = {
-      episodeNumber: episode.episodeNumber,
-      runtime: episode.runtime,
-      seasonNumber: episode.seasonNumber,
-      tvSeries,
-      userId: user.id,
-      watchProvider,
-    };
-    if (body.watched) {
-      const watchedItem = await markWatched(payload);
-      return Response.json([watchedItem]);
-    } else {
-      await unmarkWatched(payload);
-      return Response.json({
-        episodeNumber: payload.episodeNumber,
-        seasonNumber: payload.seasonNumber,
-        tvSeriesId: tvSeries.id,
-        removedAt: Date.now(),
-      });
-    }
-  }
-
-  if (body.seasonNumber) {
-    const payload = {
-      seasonNumber: body.seasonNumber,
-      tvSeries,
-      userId: user.id,
-      watchProvider,
-    };
-    if (body.watched) {
-      const watchedItems = await markSeasonWatched(payload);
-      return Response.json(watchedItems);
-    } else {
-      await unmarkSeasonWatched(payload);
-      return Response.json({
-        seasonNumber: payload.seasonNumber,
-        tvSeriesId: tvSeries.id,
-        removedAt: Date.now(),
-      });
-    }
-  }
-
-  const payload = {
-    tvSeries,
-    userId: user.id,
-    watchProvider,
-  };
   if (body.watched) {
-    const watchedItems = await markTvSeriesWatched(payload);
+    const watchedItems = await markWatched({
+      episodeNumber: body.episodeNumber,
+      seasonNumber: body.seasonNumber,
+      seriesId: tvSeries.id,
+      userId: user.id,
+      watchProvider,
+      sessionId: encryptedSessionId,
+    });
     return Response.json(watchedItems);
   } else {
-    await unmarkTvSeriesWatched(payload);
+    await unmarkWatched({
+      episodeNumber: body.episodeNumber,
+      seasonNumber: body.seasonNumber,
+      seriesId: tvSeries.id,
+      userId: user.id,
+      sessionId: encryptedSessionId,
+    });
     return Response.json({
+      episodeNumber: body.episodeNumber,
+      seasonNumber: body.seasonNumber,
       tvSeriesId: tvSeries.id,
       removedAt: Date.now(),
     });

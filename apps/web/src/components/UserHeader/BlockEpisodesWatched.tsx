@@ -1,28 +1,11 @@
 import { cache } from 'react';
 
 import { cachedUser } from '@/app/cached';
-import { getCacheItem, setCacheItem } from '@/lib/db/cache';
-import { getWatchedCount } from '@/lib/db/watched';
+import { getWatchedCount } from '@/lib/api';
 
 import Block from './Block';
 
-type Input = Readonly<{
-  userId: string;
-}>;
-
-export const cachedWatchedCount = cache(async ({ userId }: Input) => {
-  const key = `watched-count:${userId}`;
-  const cachedValue = await getCacheItem<number>(key);
-  if (cachedValue) {
-    return cachedValue;
-  }
-
-  const count = await getWatchedCount({ userId });
-
-  await setCacheItem<number>(key, count, { ttl: 900 });
-
-  return count;
-});
+export const cachedWatchedCount = cache(getWatchedCount);
 
 export default async function BlockEpisodesWatched({
   username,

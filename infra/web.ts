@@ -1,13 +1,11 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
 import { domain, zone } from './dns';
-import { dominantColor } from './dominantColor';
-import * as dynamo from './dynamo';
-import { email } from './email';
-import { scrobbleQueue } from './scrobbleQueue';
+import { apiRouter } from './api';
+import * as secrets from './secrets';
 
 new sst.aws.Nextjs('tvseries', {
-  // buildCommand: 'pnpm dlx @opennextjs/aws build',
+  buildCommand: 'pnpm dlx @opennextjs/aws build',
   domain: {
     name: domain,
     redirects: $app.stage === 'production' ? ['www.tvseri.es'] : [],
@@ -16,31 +14,15 @@ new sst.aws.Nextjs('tvseries', {
     }),
   },
   environment: {
-    MDBLIST_API_KEY: process.env.MDBLIST_API_KEY as string,
+    API_URL: apiRouter.url,
     OPEN_NEXT_FORCE_NON_EMPTY_RESPONSE: 'true',
-    SECRET_KEY: process.env.SECRET_KEY as string,
-    TMDB_API_ACCESS_TOKEN: process.env.TMDB_API_ACCESS_TOKEN as string,
-    TMDB_API_KEY: process.env.TMDB_API_KEY as string,
     SITE_URL: `https://${domain}`,
   },
   imageOptimization: {
     memory: '512 MB',
     staticEtag: true,
   },
-  link: [
-    dominantColor,
-    dynamo.cache,
-    dynamo.follow,
-    dynamo.lists,
-    dynamo.otp,
-    dynamo.preferredImages,
-    dynamo.sessions,
-    dynamo.users,
-    dynamo.watched,
-    dynamo.webhookTokens,
-    email,
-    scrobbleQueue,
-  ],
+  link: [secrets.apiKey, secrets.secretKey],
   path: 'apps/web',
   server: {
     architecture: 'arm64',
@@ -50,6 +32,12 @@ new sst.aws.Nextjs('tvseries', {
   transform: {
     server: {
       timeout: '30 seconds',
+      nodejs: {
+        minify: true,
+        esbuild: {
+          external: ['@opennextjs/aws', '@better-fetch/fetch'],
+        },
+      },
     },
     cdn: (options) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

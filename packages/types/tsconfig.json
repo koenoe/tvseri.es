@@ -1,0 +1,10 @@
+{
+  "extends": "@tvseri.es/typescript-config/base.json",
+  "compilerOptions": {
+    "module": "ESNext", // or "NodeNext"
+    "moduleResolution": "Bundler", // or "NodeNext"
+    "noUncheckedIndexedAccess": true
+  },
+  "include": ["tmdb-v3.d.ts", "tmdb-v4.d.ts", "./src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

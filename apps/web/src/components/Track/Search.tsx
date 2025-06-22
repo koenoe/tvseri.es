@@ -2,11 +2,11 @@
 
 import { memo, useCallback } from 'react';
 
+import { type TvSeries } from '@tvseri.es/types';
 import { useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { useSearch } from '@/hooks/useSearch';
-import { type TvSeries } from '@/types/tv-series';
 
 import SearchInput from '../Search/SearchInput';
 import SearchResults from '../Search/SearchResults';

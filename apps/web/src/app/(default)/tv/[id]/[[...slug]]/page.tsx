@@ -90,7 +90,9 @@ export default async function TvSeriesDetailsPage({
   params: paramsFromProps,
 }: Props) {
   const params = await paramsFromProps;
-  const tvSeries = await cachedTvSeries(params.id);
+  const tvSeries = await cachedTvSeries(params.id, {
+    includeImages: true,
+  });
 
   if (!tvSeries || tvSeries.isAdult) {
     return notFound();
@@ -271,7 +273,7 @@ export default async function TvSeriesDetailsPage({
                 <div className="flex flex-col flex-nowrap gap-1 text-sm">
                   <div className="opacity-60">Country of origin</div>
                   <Link
-                    className="hover:underline"
+                    className="inline-block w-auto self-start hover:underline"
                     href={`/discover?with_origin_country=${tvSeries.originCountry.code}`}
                     prefetch={false}
                   >

@@ -3,68 +3,97 @@
 /* eslint-disable */
 /* deno-fmt-ignore-file */
 
-declare module 'sst' {
+declare module "sst" {
   export interface Resource {
-    Cache: {
-      name: string;
-      type: 'sst.aws.Dynamo';
-    };
-    DominantColor: {
-      name: string;
-      type: 'sst.aws.Function';
-    };
-    Email: {
-      configSet: string;
-      sender: string;
-      type: 'sst.aws.Email';
-    };
-    Follow: {
-      name: string;
-      type: 'sst.aws.Dynamo';
-    };
-    Lists: {
-      name: string;
-      type: 'sst.aws.Dynamo';
-    };
-    OTP: {
-      name: string;
-      type: 'sst.aws.Dynamo';
-    };
-    PreferredImages: {
-      name: string;
-      type: 'sst.aws.Dynamo';
-    };
-    ScrobbleQueue: {
-      type: 'sst.aws.Queue';
-      url: string;
-    };
-    Sessions: {
-      name: string;
-      type: 'sst.aws.Dynamo';
-    };
-    Users: {
-      name: string;
-      type: 'sst.aws.Dynamo';
-    };
-    ValidateWatchedStatusQueue: {
-      type: 'sst.aws.Queue';
-      url: string;
-    };
-    Watched: {
-      name: string;
-      type: 'sst.aws.Dynamo';
-    };
-    WebhookTokens: {
-      name: string;
-      type: 'sst.aws.Dynamo';
-    };
-    tvseries: {
-      type: 'sst.aws.Nextjs';
-      url: string;
-    };
+    "ApiFunction": {
+      "name": string
+      "type": "sst.aws.Function"
+      "url": string
+    }
+    "ApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "ApiRouter": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
+    "Cache": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "DominantColor": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "Email": {
+      "configSet": string
+      "sender": string
+      "type": "sst.aws.Email"
+    }
+    "Follow": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "Lists": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "MdblistApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "OTP": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "PreferredImages": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "ScrobbleQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "SecretKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "Sessions": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "TmdbApiAccessToken": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "TmdbApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "Users": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "ValidateWatchedStatusQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "Watched": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "WebhookTokens": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "tvseries": {
+      "type": "sst.aws.Nextjs"
+      "url": string
+    }
   }
 }
 /// <reference path="sst-env.d.ts" />
 
-import 'sst';
-export {};
+import "sst"
+export {}

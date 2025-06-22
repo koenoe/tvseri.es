@@ -1,4 +1,4 @@
-import { fetchTvSeriesRecommendations } from '@/lib/tmdb';
+import { fetchTvSeriesRecommendations } from '@/lib/api';
 
 import List, { type HeaderVariantProps } from './List';
 import Poster from '../Tiles/Poster';

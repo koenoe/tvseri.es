@@ -1,9 +1,8 @@
 import { type NextRequest } from 'next/server';
 
-import { getListItems } from '@/lib/db/list';
-import { findUser } from '@/lib/db/user';
+import { findUser, getListItems } from '@/lib/api';
 
-const lists = ['watchlist', 'favorites', 'watched', 'in_progress'] as const;
+const lists = ['favorites', 'in_progress', 'watched', 'watchlist'] as const;
 
 export async function GET(
   request: NextRequest,

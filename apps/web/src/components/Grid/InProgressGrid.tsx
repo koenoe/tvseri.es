@@ -1,5 +1,6 @@
-import { getListItems } from '@/lib/db/list';
-import { type User } from '@/types/user';
+import { type User } from '@tvseri.es/types';
+
+import { getListItems } from '@/lib/api';
 
 import InProgressContainer from '../Tiles/InProgressContainer';
 

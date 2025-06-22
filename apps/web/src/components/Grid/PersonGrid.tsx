@@ -1,5 +1,6 @@
-import { fetchPersonTvCredits } from '@/lib/tmdb';
-import { type Person } from '@/types/person';
+import { type Person } from '@tvseri.es/types';
+
+import { fetchPersonTvCredits } from '@/lib/api';
 
 import Grid from './Grid';
 import Poster from '../Tiles/Poster';

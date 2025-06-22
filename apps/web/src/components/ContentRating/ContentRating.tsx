@@ -1,7 +1,7 @@
 import { cx } from 'class-variance-authority';
 import { headers } from 'next/headers';
 
-import { fetchTvSeriesContentRating } from '@/lib/tmdb';
+import { fetchTvSeriesContentRating } from '@/lib/api';
 
 export default async function ContentRating({
   className,

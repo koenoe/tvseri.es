@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from 'react';
 
-import { type CountryOrLanguage } from '@/types/country-language';
+import { type CountryOrLanguage } from '@tvseri.es/types';
 
 import MultiSelect, { type Result } from './MultiSelect';
 

@@ -2,6 +2,7 @@
 
 import { dominantColor } from './dominantColor';
 import * as dynamo from './dynamo';
+import * as secrets from './secrets';
 
 export const scrobbleQueue = new sst.aws.Queue('ScrobbleQueue');
 scrobbleQueue.subscribe(
@@ -10,15 +11,10 @@ scrobbleQueue.subscribe(
     concurrency: {
       reserved: 25,
     },
-    handler: 'apps/web/src/lambdas/scrobble.handler',
+    handler: 'apps/api/src/lambdas/scrobble.handler',
     memory: '512 MB',
     runtime: 'nodejs22.x',
     timeout: '30 seconds',
-    environment: {
-      MDBLIST_API_KEY: process.env.MDBLIST_API_KEY as string,
-      TMDB_API_ACCESS_TOKEN: process.env.TMDB_API_ACCESS_TOKEN as string,
-      TMDB_API_KEY: process.env.TMDB_API_KEY as string,
-    },
     link: [
       dominantColor,
       dynamo.cache,
@@ -26,15 +22,22 @@ scrobbleQueue.subscribe(
       dynamo.preferredImages,
       dynamo.users,
       dynamo.watched,
+      secrets.mdblistApiKey,
+      secrets.tmdbApiAccessToken,
+      secrets.tmdbApiKey,
     ],
     nodejs: {
-      install: ['@better-fetch/fetch', 'slugify'],
       minify: true,
-      // Note: this should work and allow usage of `import 'server-only';` in the lambda
-      // but it doesn't seem to work as expected: https://github.com/sst/sst/issues/4514
-      // esbuild: {
-      //   conditions: ['react-server'],
-      // },
+      esbuild: {
+        external: [
+          '@aws-sdk/client-cloudfront',
+          '@aws-sdk/client-dynamodb',
+          '@aws-sdk/client-lambda',
+          '@aws-sdk/client-sesv2',
+          '@aws-sdk/client-sqs',
+          '@aws-sdk/util-dynamodb',
+        ],
+      },
     },
   },
   {

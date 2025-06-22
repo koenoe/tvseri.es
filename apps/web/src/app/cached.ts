@@ -1,39 +1,24 @@
 /**
  * Provides memoization/caching for methods used in React Server Components (RSCs).
  * Purpose: Prevents duplicate calls when the same method is invoked multiple times
- * during server-side rendering.
+ * during server-side rendering cycle.
  */
 import { cache } from 'react';
 
 import {
-  cachedPerson as _cachedPerson,
-  cachedTvSeries as _cachedTvSeries,
-  cachedTvSeriesSeason as _cachedTvSeriesSeason,
-} from '@/lib/cached';
-import { findUser } from '@/lib/db/user';
-import { getAllWatched } from '@/lib/db/watched';
+  fetchPerson,
+  fetchTvSeries,
+  fetchTvSeriesSeason,
+  findUser,
+  getWatchedByYear,
+} from '@/lib/api';
 import { buildPosterImageUrl } from '@/lib/tmdb/helpers';
 
-export const cachedTvSeries = cache(_cachedTvSeries);
-export const cachedTvSeriesSeason = cache(_cachedTvSeriesSeason);
-export const cachedPerson = cache(_cachedPerson);
+export const cachedPerson = cache(fetchPerson);
+export const cachedTvSeries = cache(fetchTvSeries);
+export const cachedTvSeriesSeason = cache(fetchTvSeriesSeason);
 export const cachedUser = cache(findUser);
-
-export const cachedWatchedByYear = cache(
-  async (
-    input: Readonly<{
-      userId: string;
-      year: number | string;
-    }>,
-  ) => {
-    const items = await getAllWatched({
-      userId: input.userId,
-      startDate: new Date(`${input.year}-01-01`),
-      endDate: new Date(`${input.year}-12-31`),
-    });
-    return items;
-  },
-);
+export const cachedWatchedByYear = cache(getWatchedByYear);
 
 export const cachedUniqueWatchedByYear = cache(
   async (

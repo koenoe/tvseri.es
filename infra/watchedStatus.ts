@@ -2,6 +2,7 @@
 
 import { dominantColor } from './dominantColor';
 import * as dynamo from './dynamo';
+import * as secrets from './secrets';
 
 export const watchedStatusQueue = new sst.aws.Queue(
   'ValidateWatchedStatusQueue',
@@ -12,15 +13,10 @@ watchedStatusQueue.subscribe(
     concurrency: {
       reserved: 25,
     },
-    handler: 'apps/web/src/lambdas/validateWatchedStatusQueue.handler',
+    handler: 'apps/api/src/lambdas/validateWatchedStatusQueue.handler',
     memory: '512 MB',
     runtime: 'nodejs22.x',
     timeout: '30 seconds',
-    environment: {
-      MDBLIST_API_KEY: process.env.MDBLIST_API_KEY as string,
-      TMDB_API_ACCESS_TOKEN: process.env.TMDB_API_ACCESS_TOKEN as string,
-      TMDB_API_KEY: process.env.TMDB_API_KEY as string,
-    },
     link: [
       dominantColor,
       dynamo.cache,
@@ -28,10 +24,22 @@ watchedStatusQueue.subscribe(
       dynamo.preferredImages,
       dynamo.users,
       dynamo.watched,
+      secrets.mdblistApiKey,
+      secrets.tmdbApiAccessToken,
+      secrets.tmdbApiKey,
     ],
     nodejs: {
-      install: ['@better-fetch/fetch', 'slugify'],
       minify: true,
+      esbuild: {
+        external: [
+          '@aws-sdk/client-cloudfront',
+          '@aws-sdk/client-dynamodb',
+          '@aws-sdk/client-lambda',
+          '@aws-sdk/client-sesv2',
+          '@aws-sdk/client-sqs',
+          '@aws-sdk/util-dynamodb',
+        ],
+      },
     },
   },
   {
@@ -47,13 +55,23 @@ export const watchedStatusCron = new sst.aws.Cron('ValidateWatchedStatus', {
   schedule: 'cron(0 5 * * ? *)', // 05:00 UTC, daily
   function: {
     architecture: 'arm64',
-    handler: 'apps/web/src/lambdas/validateWatchedStatusCron.handler',
+    handler: 'apps/api/src/lambdas/validateWatchedStatusCron.handler',
     memory: '512 MB',
     runtime: 'nodejs22.x',
     timeout: '30 seconds',
     link: [dynamo.users, watchedStatusQueue],
     nodejs: {
       minify: true,
+      esbuild: {
+        external: [
+          '@aws-sdk/client-cloudfront',
+          '@aws-sdk/client-dynamodb',
+          '@aws-sdk/client-lambda',
+          '@aws-sdk/client-sesv2',
+          '@aws-sdk/client-sqs',
+          '@aws-sdk/util-dynamodb',
+        ],
+      },
     },
   },
 });

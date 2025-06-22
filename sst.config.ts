@@ -20,8 +20,10 @@ export default $config({
     await import('./infra/dns');
     await import('./infra/email');
     await import('./infra/dominantColor');
+    await import('./infra/dynamo');
     await import('./infra/scrobbleQueue');
     await import('./infra/watchedStatus');
+    await import('./infra/api');
     await import('./infra/web');
   },
 });

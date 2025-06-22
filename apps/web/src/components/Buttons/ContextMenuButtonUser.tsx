@@ -2,9 +2,8 @@
 
 import { useRef } from 'react';
 
+import { type User } from '@tvseri.es/types';
 import { toast } from 'sonner';
-
-import { type User } from '@/types/user';
 
 import ContextMenuButton, {
   type ContextMenuButtonHandle,

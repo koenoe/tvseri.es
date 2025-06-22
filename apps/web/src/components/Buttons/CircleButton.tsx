@@ -31,6 +31,7 @@ export default function CircleButton({
   size,
   ref,
   title,
+  initial,
 }: ButtonVariantProps &
   Readonly<{
     ref?: React.Ref<HTMLButtonElement>;
@@ -43,6 +44,7 @@ export default function CircleButton({
     isActive?: boolean;
     isDisabled?: boolean;
     title?: string;
+    initial?: boolean | string;
   }>) {
   const handleClick = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -60,7 +62,7 @@ export default function CircleButton({
       whileTap="tap"
       whileHover={isActive ? 'hover-active' : 'hover-inactive'}
       onClick={handleClick}
-      initial={false}
+      initial={initial ?? false}
       animate={isActive ? 'active' : 'inactive'}
       variants={{
         active: {

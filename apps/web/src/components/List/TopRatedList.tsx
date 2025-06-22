@@ -1,25 +1,7 @@
-import { getCacheItem, setCacheItem } from '@/lib/db/cache';
-import { fetchTopRatedTvSeries } from '@/lib/tmdb';
-import { type TvSeries } from '@/types/tv-series';
+import { fetchTopRatedTvSeries } from '@/lib/api';
 
 import List, { type HeaderVariantProps } from './List';
 import Poster from '../Tiles/Poster';
-
-const cachedItems = async () => {
-  const dynamoCacheKey = 'top-rated';
-  const dynamoCachedItem = await getCacheItem<TvSeries[]>(dynamoCacheKey);
-  if (dynamoCachedItem) {
-    return dynamoCachedItem;
-  }
-
-  const items = await fetchTopRatedTvSeries();
-
-  await setCacheItem(dynamoCacheKey, items, {
-    ttl: 604800, // 1 week
-  });
-
-  return items;
-};
 
 export default async function TopRatedList({
   priority,
@@ -28,7 +10,7 @@ export default async function TopRatedList({
   HeaderVariantProps &
   Readonly<{ priority?: boolean }>) {
   try {
-    const items = await cachedItems();
+    const items = await fetchTopRatedTvSeries();
 
     return (
       <List

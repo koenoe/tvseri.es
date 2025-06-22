@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useRef, useTransition } from 'react';
 
+import { type TvSeries } from '@tvseri.es/types';
 import { useDebouncedCallback } from 'use-debounce';
-
-import { type TvSeries } from '@/types/tv-series';
 
 import createUseRestorableState from './createUseRestorableState';
 

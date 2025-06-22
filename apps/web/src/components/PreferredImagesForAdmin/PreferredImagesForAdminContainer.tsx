@@ -1,12 +1,12 @@
+import type { PreferredImages } from '@tvseri.es/types';
+
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
-import { deleteCacheItem } from '@/lib/db/cache';
 import {
-  type PreferredImages,
-  putPreferredImages,
-} from '@/lib/db/preferredImages';
-import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
-import { fetchTvSeriesImages } from '@/lib/tmdb';
+  fetchTvSeriesImages,
+  detectDominantColorFromImage,
+  updatePreferredImages,
+} from '@/lib/api';
 
 import PreferredImagesForAdmin from './PreferredImagesForAdmin';
 
@@ -16,11 +16,17 @@ async function storePreferredImages(
 ) {
   'use server';
 
-  await Promise.all([
-    putPreferredImages(id, preferredImages),
-    deleteCacheItem(`tv:${id}`),
-    deleteCacheItem('trending'),
-  ]);
+  const { encryptedSessionId } = await auth();
+
+  if (!encryptedSessionId) {
+    return;
+  }
+
+  await updatePreferredImages({
+    id,
+    preferredImages,
+    sessionId: encryptedSessionId,
+  });
 }
 
 async function getDominantColor({
@@ -32,10 +38,10 @@ async function getDominantColor({
 }>) {
   'use server';
 
-  const color = await detectDominantColorFromImage(
-    url.replace('w1920_and_h1080_multi_faces', 'w780'),
-    path,
-  );
+  const color = await detectDominantColorFromImage({
+    url: url.replace('w1920_and_h1080_multi_faces', 'w780'),
+    cacheKey: path,
+  });
 
   return color;
 }
@@ -46,7 +52,9 @@ export default async function PreferredImagesForAdminContainer({
   id: number;
 }>) {
   const [tvSeriesFromCache, { user }] = await Promise.all([
-    cachedTvSeries(id),
+    cachedTvSeries(id, {
+      includeImages: true,
+    }),
     auth(),
   ]);
   const tvSeries = tvSeriesFromCache!;

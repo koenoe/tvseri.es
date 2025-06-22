@@ -9,12 +9,12 @@ import {
   useTransition,
 } from 'react';
 
+import type { PreferredImages } from '@tvseri.es/types';
 import { cx } from 'class-variance-authority';
 import { preload } from 'react-dom';
 import { toast } from 'sonner';
 
-import { type PreferredImages } from '@/lib/db/preferredImages';
-import { type fetchTvSeriesImages } from '@/lib/tmdb';
+import { type fetchTvSeriesImages } from '@/lib/api';
 import preloadImage from '@/utils/preloadImage';
 
 import { usePageStore } from '../Page/PageStoreProvider';

@@ -2,28 +2,19 @@
 
 import { memo } from 'react';
 
+import { type Genre } from '@tvseri.es/types';
 import { cva } from 'class-variance-authority';
 import { motion, useMotionTemplate, useMotionValue } from 'motion/react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 
-import noise from '@/assets/noise.webp';
-import { type Genre } from '@/types/genre';
+const Noise = dynamic(() => import('./Noise'), {
+  ssr: false,
+});
 
 const variants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1 },
-};
-
-const Noise = () => {
-  return (
-    <div
-      className="pointer-events-none absolute inset-0 h-full w-full scale-[1.2] transform opacity-10 [mask-image:radial-gradient(#fff,transparent,75%)]"
-      style={{
-        backgroundImage: `url(${noise.src})`,
-        backgroundSize: '30%',
-      }}
-    />
-  );
 };
 
 export const genreStyles = cva(

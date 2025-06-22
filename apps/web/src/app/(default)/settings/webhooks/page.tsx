@@ -8,9 +8,9 @@ import WebhookForPlex, {
 } from '@/components/Webhook/WebhookForPlex';
 
 export default async function SettingsWebhooksPage() {
-  const { user } = await auth();
+  const { encryptedSessionId } = await auth();
 
-  if (!user) {
+  if (!encryptedSessionId) {
     return unauthorized();
   }
 
@@ -30,7 +30,7 @@ export default async function SettingsWebhooksPage() {
             </div>
           }
         >
-          <WebhookForPlex userId={user.id} />
+          <WebhookForPlex encryptedSessionId={encryptedSessionId} />
         </Suspense>
       </div>
       {/* <div className="relative w-full">

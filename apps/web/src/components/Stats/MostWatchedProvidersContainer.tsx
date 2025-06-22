@@ -1,8 +1,7 @@
 import { cachedWatchedByYear } from '@/app/cached';
-import { getCacheItem, setCacheItem } from '@/lib/db/cache';
-import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
+import { detectDominantColorFromImage } from '@/lib/api';
 
-import MostWatchedProviders from './MostWatchedProviders';
+import MostWatchedProviders from './MostWatchedProvidersLazy';
 
 type StreamingServiceStat = {
   name: string;
@@ -69,7 +68,11 @@ const getStreamingServiceStats = async (
       logo,
       defaultColor:
         PREDEFINED_COLORS[name] ||
-        (logo ? await detectDominantColorFromImage(logo) : '#000000'),
+        (logo
+          ? await detectDominantColorFromImage({
+              url: logo,
+            })
+          : '#000000'),
     }),
   );
 
@@ -79,16 +82,7 @@ const getStreamingServiceStats = async (
 };
 
 const cachedStreamingServiceStats = async (input: Input) => {
-  const key = `most-watched-streaming-services:${input.userId}_${input.year}`;
-  const cachedValue = await getCacheItem<StreamingServiceStat[]>(key);
-  if (cachedValue) {
-    return cachedValue;
-  }
-
   const stats = await getStreamingServiceStats(input);
-
-  await setCacheItem(key, stats, { ttl: 3600 });
-
   return stats;
 };
 

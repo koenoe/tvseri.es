@@ -2,14 +2,18 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { type WatchProvider } from '@tvseri.es/types';
 import { AnimatePresence, motion } from 'motion/react';
+import dynamic from 'next/dynamic';
 import slugify from 'slugify';
 
 import { type Field } from '@/hooks/useCsvParser';
-import { type WatchProvider } from '@/types/watch-provider';
 
 import Ripple from './Ripple';
-import CsvImporter from '../CsvImporter/CsvImporter';
+
+const CsvImporter = dynamic(() => import('../CsvImporter/CsvImporter'), {
+  ssr: false,
+});
 
 type Part = 'title' | 'season' | 'episode';
 

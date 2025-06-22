@@ -2,6 +2,7 @@
 
 import { useEffect, useTransition } from 'react';
 
+import { type User } from '@tvseri.es/types';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
@@ -9,7 +10,6 @@ import { twMerge } from 'tailwind-merge';
 
 import { loginWithTmdb, removeTmdbAccount } from '@/app/actions';
 import TmdbLogo from '@/assets/tmdb.svg';
-import { type User } from '@/types/user';
 
 import LoadingDots from '../LoadingDots/LoadingDots';
 

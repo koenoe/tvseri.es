@@ -9,12 +9,12 @@ import {
   useTransition,
 } from 'react';
 
+import { type Season, type TvSeries } from '@tvseri.es/types';
 import { motion, AnimatePresence } from 'motion/react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
 import useRgbString from '@/hooks/useRgbString';
-import { type Season, type TvSeries } from '@/types/tv-series';
 
 import ContextMenuButton, {
   type ContextMenuButtonHandle,

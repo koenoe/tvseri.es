@@ -167,7 +167,7 @@ export default async function PersonDetailsPage({
                   </>
                 }
               >
-                <KnownFor person={person} />
+                <KnownFor personId={person.id} />
               </Suspense>
             </div>
           </div>

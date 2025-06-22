@@ -2,9 +2,8 @@
 
 import { useCallback, useRef, useTransition } from 'react';
 
+import { type TvSeries } from '@tvseri.es/types';
 import Link from 'next/link';
-
-import { type TvSeries } from '@/types/tv-series';
 
 import { useActionButtons } from './ActionButtonsProvider';
 import ContextMenuButton, {

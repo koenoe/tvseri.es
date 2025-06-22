@@ -2,7 +2,8 @@
 
 import { useCallback } from 'react';
 
-import type { TvSeries } from '@/types/tv-series';
+import type { TvSeries } from '@tvseri.es/types';
+
 import preloadImage from '@/utils/preloadImage';
 
 import SpotlightItem from './SpotlightItem';

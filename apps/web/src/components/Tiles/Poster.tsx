@@ -2,12 +2,12 @@
 
 import { memo, useCallback } from 'react';
 
+import type { ListItem } from '@tvseri.es/types';
 import { cva, cx, type VariantProps } from 'class-variance-authority';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { type ListItem } from '@/lib/db/list';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 const MotionLink = motion.create(Link);

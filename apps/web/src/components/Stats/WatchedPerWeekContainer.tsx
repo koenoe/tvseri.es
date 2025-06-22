@@ -2,7 +2,7 @@ import { getISOWeek } from 'date-fns';
 
 import { cachedWatchedByYear } from '@/app/cached';
 
-import WatchedPerWeek from './WatchedPerWeek';
+import WatchedPerWeek from './WatchedPerWeekLazy';
 
 type WeeklyCount = {
   week: number;

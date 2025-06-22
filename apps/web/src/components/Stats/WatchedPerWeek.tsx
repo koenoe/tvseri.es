@@ -110,13 +110,12 @@ function getWeekInfo(
   };
 }
 
-export default function WatchedPerWeek({
-  data,
-  year,
-}: Readonly<{
+export type Props = Readonly<{
   data: { week: number; episodes: number }[];
   year: number;
-}>) {
+}>;
+
+export default function WatchedPerWeek({ data, year }: Props) {
   const renderTooltip = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ({ active, payload, label }: any) => {

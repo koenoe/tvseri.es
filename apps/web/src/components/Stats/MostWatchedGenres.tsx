@@ -18,14 +18,14 @@ import {
 const BAR_SIZE = 40;
 const BAR_GAP = 4;
 
-export default function MostWatchedGenres({
-  data,
-}: Readonly<{
+export type Props = Readonly<{
   data: {
     genre: string;
     count: number;
   }[];
-}>) {
+}>;
+
+export default function MostWatchedGenres({ data }: Props) {
   const [focusBar, setFocusBar] = useState(null);
 
   const renderTooltip = useCallback(({ active, payload }: any) => {

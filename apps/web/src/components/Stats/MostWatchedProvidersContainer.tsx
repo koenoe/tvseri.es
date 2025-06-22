@@ -1,7 +1,7 @@
 import { cachedWatchedByYear } from '@/app/cached';
 import { detectDominantColorFromImage } from '@/lib/api';
 
-import MostWatchedProviders from './MostWatchedProviders';
+import MostWatchedProviders from './MostWatchedProvidersLazy';
 
 type StreamingServiceStat = {
   name: string;

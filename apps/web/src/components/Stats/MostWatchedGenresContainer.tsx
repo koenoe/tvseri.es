@@ -1,6 +1,6 @@
 import { cachedUniqueWatchedByYear, cachedTvSeries } from '@/app/cached';
 
-import MostWatchedGenres from './MostWatchedGenres';
+import MostWatchedGenres from './MostWatchedGenresLazy';
 
 type GenreStat = {
   genre: string;

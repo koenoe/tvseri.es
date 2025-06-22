@@ -4,35 +4,43 @@ import { domain, zone } from './dns';
 // import { apiRouter } from './api';
 import * as secrets from './secrets';
 
-const project = new vercel.Project('Website', {
-  buildCommand: 'pnpm run build',
-  devCommand: 'pnpm run dev',
-  framework: 'nextjs',
-  name: 'tvseries',
-  rootDirectory: 'apps/web',
-});
+// const project = new vercel.Project('Website', {
+//   buildCommand: 'pnpm run build',
+//   devCommand: 'pnpm run dev',
+//   framework: 'nextjs',
+//   name: 'tvseries',
+//   rootDirectory: 'apps/web',
+// });
 
-const dir = vercel.getProjectDirectoryOutput({
-  path: process.cwd(),
-});
-
-if (!$dev) {
-  new vercel.Deployment('WebsiteDeployment', {
-    projectId: project.id,
-    production: $app.stage === 'production',
-    files: dir.files,
-    pathPrefix: dir.path,
-    environment: {
-      // API_URL: apiRouter.url,
-      API_URL: 'https://api.tvseri.es',
-      API_KEY: secrets.apiKey.value,
-      SECRET_KEY: secrets.secretKey.value,
-      SITE_URL: `https://${domain}`,
-    },
+async function run() {
+  const project = await vercel.getProject({
+    name: 'tvseries',
   });
-} else {
-  console.log('Not implemented yet.');
+
+  const dir = vercel.getProjectDirectoryOutput({
+    path: process.cwd(),
+  });
+
+  if (!$dev) {
+    new vercel.Deployment('WebsiteDeployment', {
+      projectId: project.id,
+      production: $app.stage === 'production',
+      files: dir.files,
+      pathPrefix: dir.path,
+      environment: {
+        // API_URL: apiRouter.url,
+        API_URL: 'https://api.tvseri.es',
+        API_KEY: secrets.apiKey.value,
+        SECRET_KEY: secrets.secretKey.value,
+        SITE_URL: `https://${domain}`,
+      },
+    });
+  } else {
+    console.log('Not implemented yet.');
+  }
 }
+
+run();
 
 // if (!$dev) {
 //   new vercel.Deployment('MstrV2DashboardVercel', {

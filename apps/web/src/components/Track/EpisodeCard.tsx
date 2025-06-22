@@ -12,7 +12,7 @@ import formatRuntime from '@/utils/formatRuntime';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 
 import { type WatchedAction } from './Cards';
-import Datepicker from '../Datepicker/Datepicker';
+import Datepicker from '../Datepicker/DatepickerLazy';
 
 function EpisodeCard({
   episode,

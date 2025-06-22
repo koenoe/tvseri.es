@@ -48,7 +48,7 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
 export const apiFunction = new sst.aws.Function('ApiFunction', {
   handler: 'apps/api/src/index.handler',
   architecture: 'arm64',
-  memory: '512 MB',
+  memory: '1 GB',
   runtime: 'nodejs22.x',
   timeout: '30 seconds',
   nodejs: {

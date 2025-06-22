@@ -5,7 +5,6 @@ import { diceCoefficient } from 'dice-coefficient';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import slugify from 'slugify';
-import wordsToNumbers from 'words-to-numbers';
 
 import { cachedTvSeries, cachedTvSeriesSeason } from '@/app/cached';
 import auth from '@/auth';
@@ -27,6 +26,18 @@ const seasonCache = new Map<string, Season | null>();
 
 const BATCH_SIZE = 25;
 const DICE_COEFFICIENT_THRESHOLD = 0.75;
+
+// Note: heavy import, so we load it dynamically
+let wordsToNumbers: ((text: string) => string | number | null) | null = null;
+async function importWordsToNumbers(): Promise<
+  (text: string, options?: { fuzzy: boolean }) => string | number | null
+> {
+  if (!wordsToNumbers) {
+    const wordsModule = await import('words-to-numbers');
+    wordsToNumbers = wordsModule.default;
+  }
+  return wordsToNumbers;
+}
 
 function parseDate(dateStr: string): number | null {
   const formats = [
@@ -56,7 +67,7 @@ function parseOrdinalNumber(text: string): number | null {
   return match ? parseInt(match[1]!, 10) : null;
 }
 
-function parseWrittenNumber(text: string): number | null {
+async function parseWrittenNumber(text: string): Promise<number | null> {
   const textLower = text.toLowerCase().trim();
 
   const digitMatch = textLower.match(/\d+/);
@@ -65,7 +76,8 @@ function parseWrittenNumber(text: string): number | null {
     return !isNaN(parsed) && parsed > 0 ? parsed : null;
   }
 
-  const numberFromWord = wordsToNumbers(textLower);
+  const wordsToNumbersFn = await importWordsToNumbers();
+  const numberFromWord = wordsToNumbersFn(textLower);
   if (typeof numberFromWord === 'string') {
     const parsed = parseInt(numberFromWord, 10);
     return !isNaN(parsed) && parsed > 0 ? parsed : null;
@@ -73,7 +85,7 @@ function parseWrittenNumber(text: string): number | null {
   return numberFromWord && numberFromWord > 0 ? numberFromWord : null;
 }
 
-function parseSeasonNumber(seasonStr: string | number): number {
+async function parseSeasonNumber(seasonStr: string | number): Promise<number> {
   if (typeof seasonStr === 'number' && !isNaN(seasonStr)) {
     return Math.max(1, seasonStr);
   }
@@ -99,14 +111,16 @@ function parseSeasonNumber(seasonStr: string | number): number {
       )
       .trim();
     const parsedNum =
-      parseWrittenNumber(numberPart) || parseOrdinalNumber(numberPart);
+      (await parseWrittenNumber(numberPart)) || parseOrdinalNumber(numberPart);
     return parsedNum && parsedNum > 0 ? parsedNum : 1;
   }
 
   return 1;
 }
 
-function parseEpisodeNumber(episodeStr: string | number): number | null {
+async function parseEpisodeNumber(
+  episodeStr: string | number,
+): Promise<number | null> {
   if (typeof episodeStr === 'number' && !isNaN(episodeStr)) {
     return episodeStr;
   }
@@ -121,7 +135,7 @@ function parseEpisodeNumber(episodeStr: string | number): number | null {
       .replace(/Chapter|Episode|Aflevering/i, '')
       .trim();
     const parsedNum =
-      parseWrittenNumber(numberPart) || parseOrdinalNumber(numberPart);
+      (await parseWrittenNumber(numberPart)) || parseOrdinalNumber(numberPart);
     return parsedNum && parsedNum > 0 ? parsedNum : null;
   }
 
@@ -150,7 +164,7 @@ async function findEpisode(
     }
 
     // Try to match by episode number first (fastest and most reliable)
-    const episodeNumber = parseEpisodeNumber(episodeStr);
+    const episodeNumber = await parseEpisodeNumber(episodeStr);
     if (episodeNumber) {
       const matchOnNumber = season.episodes.find(
         (episode) => episode.episodeNumber === episodeNumber,
@@ -302,7 +316,7 @@ export async function POST(req: Request) {
                 }
 
                 // If we have exact matches, try each one until we find one with the episode we're looking for
-                const seasonNumber = parseSeasonNumber(item.season);
+                const seasonNumber = await parseSeasonNumber(item.season);
 
                 if (exactMatches.length > 0) {
                   for (const match of exactMatches) {
@@ -347,7 +361,7 @@ export async function POST(req: Request) {
               }
 
               // Try to find the specific episode
-              const seasonNumber = parseSeasonNumber(item.season);
+              const seasonNumber = await parseSeasonNumber(item.season);
               const episode = await findEpisode(
                 item.episode,
                 tvSeries,

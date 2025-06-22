@@ -1,5 +1,4 @@
 /// <reference path="./.sst/platform/config.d.ts" />
-
 export default $config({
   app(input) {
     return {
@@ -13,9 +12,10 @@ export default $config({
               ? 'tvseries-production'
               : 'tvseries-dev',
         },
-        '@pulumiverse/vercel': {
+        vercel: {
           apiToken: process.env.VERCEL_API_TOKEN,
           team: process.env.VERCEL_TEAM_ID,
+          version: '1.15.0',
         },
       },
     };

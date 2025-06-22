@@ -19,7 +19,7 @@ app.put(
 
     await Promise.all([
       putPreferredImages(id, body),
-      invalidatePaths([`/series/${id}`, '/collection/trending']),
+      invalidatePaths([`/series/${id}*`, '/collection/trending']),
     ]);
 
     return c.json({

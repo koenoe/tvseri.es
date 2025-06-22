@@ -12,31 +12,20 @@ import * as secrets from './secrets';
 //   rootDirectory: 'apps/web',
 // });
 
-//  * const exampleFile = vercel.getFile({
-//  *     path: "index.html",
-//  * });
-//  * const exampleProject = vercel.getProject({
-//  *     name: "my-project",
-//  * });
-//  * const exampleDeployment = new vercel.Deployment("exampleDeployment", {
-//  *     projectId: exampleProject.then(exampleProject => exampleProject.id),
-//  *     files: exampleFile.then(exampleFile => exampleFile.file),
-//  * });
-
-const project = vercel.getProject({
+const project = vercel.getProjectOutput({
   name: 'tvseries',
 });
 
-const dir = vercel.getProjectDirectory({
-  path: process.cwd(),
+const dir = vercel.getProjectDirectoryOutput({
+  path: process.cwd() + '/apps/web',
 });
 
 if (!$dev) {
   new vercel.Deployment('WebsiteDeployment', {
-    projectId: project.then((p) => p.id),
+    projectId: project.id,
     production: $app.stage === 'production',
-    files: dir.then((d) => d.files),
-    pathPrefix: dir.then((d) => d.path),
+    files: dir.files,
+    pathPrefix: process.cwd(),
     environment: {
       // API_URL: apiRouter.url,
       API_URL: 'https://api.tvseri.es',

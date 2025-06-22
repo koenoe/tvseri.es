@@ -29,7 +29,7 @@ export const findPreferredImages = async (
 };
 
 export const putPreferredImages = async (
-  id: number,
+  id: number | string,
   preferred: PreferredImages,
 ): Promise<void> => {
   const command = new PutItemCommand({

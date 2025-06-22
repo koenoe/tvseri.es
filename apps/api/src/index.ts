@@ -5,6 +5,7 @@ import { etag } from 'hono/etag';
 import { HTTPException } from 'hono/http-exception';
 
 import { auth, type Variables } from './middleware/auth';
+import admin from './routes/admin';
 import authenticate from './routes/authenticate';
 import collection from './routes/collection';
 import discover from './routes/discover';
@@ -26,6 +27,7 @@ app.use(compress());
 app.use(etag());
 app.use(auth());
 
+app.route('/admin', admin);
 app.route('/authenticate', authenticate);
 app.route('/collection', collection);
 app.route('/discover', discover);

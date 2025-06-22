@@ -2,7 +2,11 @@ import type { PreferredImages } from '@tvseri.es/types';
 
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
-import { fetchTvSeriesImages, detectDominantColorFromImage } from '@/lib/api';
+import {
+  fetchTvSeriesImages,
+  detectDominantColorFromImage,
+  updatePreferredImages,
+} from '@/lib/api';
 
 import PreferredImagesForAdmin from './PreferredImagesForAdmin';
 
@@ -12,11 +16,17 @@ async function storePreferredImages(
 ) {
   'use server';
 
-  await Promise.all([
-    // TODO: figure out how to invalidate Cloudfront API cache, lol
-    // deleteCacheItem(`tv:${id}`),
-    // deleteCacheItem('trending'),
-  ]);
+  const { encryptedSessionId } = await auth();
+
+  if (!encryptedSessionId) {
+    return;
+  }
+
+  await updatePreferredImages({
+    id,
+    preferredImages,
+    sessionId: encryptedSessionId,
+  });
 }
 
 async function getDominantColor({

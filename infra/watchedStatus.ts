@@ -32,6 +32,7 @@ watchedStatusQueue.subscribe(
       minify: true,
       esbuild: {
         external: [
+          '@aws-sdk/client-cloudfront',
           '@aws-sdk/client-dynamodb',
           '@aws-sdk/client-lambda',
           '@aws-sdk/client-sesv2',
@@ -63,6 +64,7 @@ export const watchedStatusCron = new sst.aws.Cron('ValidateWatchedStatus', {
       minify: true,
       esbuild: {
         external: [
+          '@aws-sdk/client-cloudfront',
           '@aws-sdk/client-dynamodb',
           '@aws-sdk/client-lambda',
           '@aws-sdk/client-sesv2',

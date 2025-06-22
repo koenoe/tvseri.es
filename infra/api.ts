@@ -55,6 +55,7 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
     minify: true,
     esbuild: {
       external: [
+        '@aws-sdk/client-cloudfront',
         '@aws-sdk/client-dynamodb',
         '@aws-sdk/client-lambda',
         '@aws-sdk/client-sesv2',
@@ -63,11 +64,22 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
       ],
     },
   },
+  environment: {
+    CLOUDFRONT_DISTRIBUTION_ID: apiRouter.distributionID,
+  },
   url: {
     router: {
       instance: apiRouter,
     },
   },
+  permissions: [
+    {
+      actions: ['cloudfront:CreateInvalidation'],
+      resources: [
+        $interpolate`arn:aws:cloudfront::${aws.getCallerIdentityOutput().accountId}:distribution/${apiRouter.distributionID}`,
+      ],
+    },
+  ],
   link: [
     dominantColor,
     dynamo.cache,

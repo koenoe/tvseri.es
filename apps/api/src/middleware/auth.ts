@@ -79,3 +79,19 @@ export const requireAuth = (): MiddlewareHandler<{ Variables: Variables }> => {
     await next();
   };
 };
+
+export const requireAuthAdmin = (): MiddlewareHandler<{
+  Variables: Variables;
+}> => {
+  return async (c, next) => {
+    const auth = c.get('auth');
+
+    if (!auth?.user || auth.user.role !== 'admin') {
+      throw new HTTPException(401, {
+        message: 'Unauthorized',
+      });
+    }
+
+    await next();
+  };
+};

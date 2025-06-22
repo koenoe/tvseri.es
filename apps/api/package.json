@@ -8,6 +8,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@aws-sdk/client-cloudfront": "^3.830.0",
     "@aws-sdk/client-dynamodb": "^3.830.0",
     "@aws-sdk/client-lambda": "^3.833.0",
     "@aws-sdk/client-sesv2": "^3.830.0",

@@ -24,6 +24,7 @@ import type {
   UpdateUser,
   WebhookToken,
   UserWithFollowInfo,
+  PreferredImages,
 } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
@@ -1218,4 +1219,26 @@ export async function isFollower({
   }>;
 
   return result.value;
+}
+
+export async function updatePreferredImages({
+  id,
+  preferredImages,
+  sessionId,
+}: Readonly<{
+  id: number;
+  preferredImages: PreferredImages;
+}> &
+  AuthContext) {
+  await apiFetch('/admin/preferred-images/series/:id', {
+    method: 'PUT',
+    params: {
+      id,
+    },
+    body: JSON.stringify(preferredImages),
+    auth: {
+      type: 'Bearer',
+      token: sessionId,
+    },
+  });
 }

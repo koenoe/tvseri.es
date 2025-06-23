@@ -28,7 +28,7 @@ new sst.aws.Nextjs('tvseries', {
     memory: '1 GB',
     runtime: 'nodejs22.x',
   },
-  warm: 3,
+  warm: $app.stage === 'production' ? 3 : 0,
   transform: {
     server: {
       timeout: '30 seconds',

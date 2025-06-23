@@ -25,6 +25,7 @@ if (!$dev) {
     projectId: project.id,
     production: $app.stage === 'production',
     files: dir.files,
+    pathPrefix: dir.path,
     environment: {
       // API_URL: apiRouter.url,
       API_URL: 'https://api.tvseri.es',

@@ -17,7 +17,7 @@ const project = vercel.getProjectOutput({
 });
 
 const dir = vercel.getProjectDirectoryOutput({
-  path: process.cwd() + '/apps/web',
+  path: process.cwd(),
 });
 
 if (!$dev) {
@@ -25,7 +25,6 @@ if (!$dev) {
     projectId: project.id,
     production: $app.stage === 'production',
     files: dir.files,
-    pathPrefix: process.cwd(),
     environment: {
       // API_URL: apiRouter.url,
       API_URL: 'https://api.tvseri.es',
@@ -36,7 +35,7 @@ if (!$dev) {
     projectSettings: {
       buildCommand: 'pnpm run build',
       framework: 'nextjs',
-      installCommand: 'pnpm i -r --frozen-lockfile',
+      installCommand: 'pnpm i --frozen-lockfile',
       outputDirectory: '.next',
       rootDirectory: 'apps/web',
     },

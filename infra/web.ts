@@ -17,7 +17,8 @@ const project = vercel.getProjectOutput({
 });
 
 const dir = vercel.getProjectDirectoryOutput({
-  path: process.cwd() + '/apps/web',
+  // path: process.cwd() + '/apps/web',
+  path: process.cwd(),
 });
 
 if (!$dev) {
@@ -34,9 +35,9 @@ if (!$dev) {
       SITE_URL: `https://${domain}`,
     },
     projectSettings: {
-      buildCommand: 'cd ../.. && pnpm --filter=web run build',
+      buildCommand: 'pnpm run build',
       framework: 'nextjs',
-      installCommand: 'cd ../.. && pnpm install --frozen-lockfile',
+      installCommand: 'pnpm install --frozen-lockfile',
       outputDirectory: '.next',
       rootDirectory: 'apps/web',
     },

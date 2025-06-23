@@ -4,28 +4,18 @@ import { domain, zone } from './dns';
 // import { apiRouter } from './api';
 import * as secrets from './secrets';
 
-// const project = new vercel.Project('Website', {
-//   buildCommand: 'pnpm run build',
-//   devCommand: 'pnpm run dev',
-//   framework: 'nextjs',
-//   name: 'tvseries',
-//   rootDirectory: 'apps/web',
-// });
-
 const project = vercel.getProjectOutput({
-  name: 'tvseries',
-});
-
-const dir = vercel.getProjectDirectoryOutput({
-  path: process.cwd(),
+  name: 'website',
 });
 
 if (!$dev) {
   new vercel.Deployment('WebsiteDeployment', {
     projectId: project.id,
     production: $app.stage === 'production',
-    files: dir.files,
-    pathPrefix: dir.path,
+    ref:
+      $app.stage === 'production'
+        ? process.env.GITHUB_SHA
+        : process.env.GITHUB_REF_NAME,
     environment: {
       // API_URL: apiRouter.url,
       API_URL: 'https://api.tvseri.es',

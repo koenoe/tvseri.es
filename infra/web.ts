@@ -11,7 +11,7 @@ const project = vercel.getProjectOutput({
 export const web = new vercel.Deployment('WebDeployment', {
   projectId: project.id,
   production: $app.stage === 'production',
-  ref: 'infra/vercel',
+  ref: process.env.GITHUB_SHA ?? 'infra/bad-decision',
   // ref:
   //   $app.stage === 'production'
   //     ? process.env.GITHUB_SHA

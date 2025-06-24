@@ -25,6 +25,7 @@ import type {
   WebhookToken,
   UserWithFollowInfo,
   PreferredImages,
+  WorldmapData,
 } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
@@ -1241,4 +1242,9 @@ export async function updatePreferredImages({
       token: sessionId,
     },
   });
+}
+
+export async function fetchWorldMap() {
+  const data = (await apiFetch('/worldmap')) as WorldmapData;
+  return data;
 }

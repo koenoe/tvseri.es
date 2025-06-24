@@ -3,10 +3,9 @@
 
 import { type ReactNode, useCallback, useEffect, useId, useState } from 'react';
 
+import { type WorldmapData } from '@tvseri.es/types';
 import { cx } from 'class-variance-authority';
 import { motion, AnimatePresence } from 'motion/react';
-
-import { countries, paths } from './constants';
 
 type CountryData = Readonly<{
   color: string;
@@ -15,14 +14,9 @@ type CountryData = Readonly<{
   content?: unknown;
 }>;
 
-export default function WorldMap({
-  className,
-  defaultColor = '#333333',
-  defaultHoverColor = '#444444',
-  defaultStrokeColor = '#222222',
-  data = {},
-  renderTooltip,
-}: Readonly<{
+export type Props = Readonly<{
+  countries: WorldmapData['countries'];
+  paths: WorldmapData['paths'];
   className?: string;
   defaultColor?: string;
   defaultHoverColor?: string;
@@ -37,7 +31,18 @@ export default function WorldMap({
       content: unknown;
     }>,
   ) => ReactNode;
-}>) {
+}>;
+
+export default function WorldMap({
+  countries,
+  paths,
+  className,
+  defaultColor = '#333333',
+  defaultHoverColor = '#444444',
+  defaultStrokeColor = '#222222',
+  data = {},
+  renderTooltip,
+}: Props) {
   const instanceId = useId().replace(/:/g, '');
   const [viewBox, setViewBox] = useState<string>('0 0 100 100');
   const [tooltipData, setTooltipData] = useState<{

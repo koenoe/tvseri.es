@@ -20,6 +20,7 @@ import search from './routes/search';
 import series from './routes/series';
 import user from './routes/user';
 import webhook from './routes/webhook';
+import worldmap from './routes/worldmap';
 
 const app = new Hono<{ Variables: Variables }>();
 
@@ -40,8 +41,9 @@ app.route('/popular', popular);
 app.route('/scrobble', scrobble);
 app.route('/search', search);
 app.route('/series', series);
-app.route('/webhook', webhook);
 app.route('/user', user);
+app.route('/webhook', webhook);
+app.route('/worldmap', worldmap);
 
 app.onError((error, c) => {
   if (error instanceof HTTPException) {

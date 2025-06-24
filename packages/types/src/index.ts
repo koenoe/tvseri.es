@@ -17,4 +17,3 @@ export * from './user';
 export * from './watch-provider';
 export * from './watched';
 export * from './webhook';
-export * from './worldmap';

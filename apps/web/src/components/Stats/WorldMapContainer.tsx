@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
 
 import { cachedWatchedByYear, cachedTvSeries } from '@/app/cached';
-import { fetchWorldMap } from '@/lib/api';
 
 import WorldMap from './WorldMap';
 
@@ -53,26 +52,6 @@ const cachedCountryStats = async (input: Input) => {
   return stats;
 };
 
-function generateCountryData(data: Record<string, number>) {
-  const maxViews = Math.max(...Object.values(data));
-  const countryData: Record<
-    string,
-    { color: string; hoverColor: string; content: { views: number } }
-  > = {};
-  const minOpacity = 0.3;
-
-  Object.entries(data).forEach(([country, views]) => {
-    const opacity = minOpacity + (views / maxViews) * (1 - minOpacity);
-    countryData[country] = {
-      color: `rgba(255, 0, 128, ${opacity})`,
-      hoverColor: '#00B8D4',
-      content: { views },
-    };
-  });
-
-  return countryData;
-}
-
 export default async function WorldMapContainer({
   userId,
   year,
@@ -80,19 +59,14 @@ export default async function WorldMapContainer({
   userId: string;
   year: number | string;
 }>) {
-  const [data, { countries, paths }] = await Promise.all([
-    cachedCountryStats({
-      userId,
-      year,
-    }),
-    fetchWorldMap(),
-  ]);
-
-  const formattedData = generateCountryData(data);
+  const data = await cachedCountryStats({
+    userId,
+    year,
+  });
 
   return (
     <Suspense fallback={<div className="relative aspect-[192/95] w-full" />}>
-      <WorldMap data={formattedData} countries={countries} paths={paths} />
+      <WorldMap data={data} />
     </Suspense>
   );
 }

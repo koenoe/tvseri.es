@@ -1,27 +1,40 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
-import { type WorldmapData } from '@tvseri.es/types';
 import { cx } from 'class-variance-authority';
 import dynamic from 'next/dynamic';
-
-import { type Props } from '../WorldMap/WorldMap';
 
 const WorldMap = dynamic(() => import('../WorldMap/WorldMap'), {
   ssr: false,
 });
 
+function generateCountryData(data: Record<string, number>) {
+  const maxViews = Math.max(...Object.values(data));
+  const countryData: Record<
+    string,
+    { color: string; hoverColor: string; content: { views: number } }
+  > = {};
+  const minOpacity = 0.3;
+
+  Object.entries(data).forEach(([country, views]) => {
+    const opacity = minOpacity + (views / maxViews) * (1 - minOpacity);
+    countryData[country] = {
+      color: `rgba(255, 0, 128, ${opacity})`,
+      hoverColor: '#00B8D4',
+      content: { views },
+    };
+  });
+
+  return countryData;
+}
+
 export default function WorldMapForStats({
-  countries,
-  paths,
   className,
   data,
 }: Readonly<{
-  countries: WorldmapData['countries'];
-  paths: WorldmapData['paths'];
   className?: string;
-  data?: Props['data'];
+  data: Record<string, number>;
 }>) {
   const renderTooltip = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -45,13 +58,13 @@ export default function WorldMapForStats({
     [],
   );
 
+  const countryData = useMemo(() => generateCountryData(data), [data]);
+
   return (
     <div className={cx('flex items-center justify-center', className)}>
       <WorldMap
         className="w-full md:w-3/4"
-        countries={countries}
-        paths={paths}
-        data={data}
+        data={countryData}
         renderTooltip={renderTooltip}
       />
     </div>

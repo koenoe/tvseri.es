@@ -21,6 +21,10 @@ const project = currentProject
   ? currentProject
   : new vercel.Project('WebProject', {
       name: 'web',
+      gitRepository: {
+        type: 'github',
+        repo: 'koenoe/tvseries',
+      },
       ...projectSettings,
     });
 
@@ -32,7 +36,7 @@ const gitBranch =
   process.env.GITHUB_REF_NAME ||
   execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
 
-const deployment = new vercel.Deployment('WebDeployment', {
+export const web = new vercel.Deployment('WebDeployment', {
   projectId: project.id,
   production: $app.stage === 'production',
   ref: $app.stage === 'production' ? gitHash : gitBranch,
@@ -48,11 +52,6 @@ const deployment = new vercel.Deployment('WebDeployment', {
   },
   projectSettings,
 });
-
-export const web = {
-  ...deployment,
-  url: `https://${deployment.domains[0] ?? deployment.url}`,
-};
 
 // if (!$dev) {
 //   new vercel.Deployment('MstrV2DashboardVercel', {

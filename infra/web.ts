@@ -23,6 +23,7 @@ if (!$dev) {
       API_KEY: secrets.apiKey.value,
       SECRET_KEY: secrets.secretKey.value,
       SITE_URL: `https://${domain}`,
+      SST_STAGE: $app.stage,
     },
     projectSettings: {
       buildCommand: 'pnpm run build',

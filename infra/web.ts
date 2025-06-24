@@ -1,5 +1,6 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
+import { execSync } from 'child_process';
 import { domain, zone } from './dns';
 // import { apiRouter } from './api';
 import * as secrets from './secrets';
@@ -8,13 +9,13 @@ const project = vercel.getProjectOutput({
   name: 'web',
 });
 
+const gitHash = execSync('git rev-parse --short HEAD').toString().trim();
+const gitBranch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+
 export const web = new vercel.Deployment('WebDeployment', {
   projectId: project.id,
   production: $app.stage === 'production',
-  ref:
-    $app.stage === 'production'
-      ? process.env.GITHUB_SHA
-      : process.env.GITHUB_REF,
+  ref: $app.stage === 'production' ? gitHash : gitBranch,
   environment: {
     // API_URL: apiRouter.url,
     API_URL: 'https://api.tvseri.es',
@@ -22,6 +23,8 @@ export const web = new vercel.Deployment('WebDeployment', {
     SECRET_KEY: secrets.secretKey.value,
     SITE_URL: `https://${domain}`,
     SST_STAGE: $app.stage,
+    GIT_HASH: gitHash,
+    GIT_BRANCH: gitBranch,
   },
   projectSettings: {
     buildCommand: 'pnpm run build',

@@ -71,8 +71,6 @@ jobs:
           AWS_HOSTED_ZONE_ID_DEV: ${{ secrets.AWS_HOSTED_ZONE_ID_DEV }}
           VERCEL_API_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
           VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
-          GITHUB_SHA: ${{ github.sha }}
-          GITHUB_REF: ${{ github.ref }}
 
         run: pnpm sst deploy --stage pr-${{ github.event.pull_request.number }}
 

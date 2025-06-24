@@ -11,11 +11,10 @@ const project = vercel.getProjectOutput({
 export const web = new vercel.Deployment('WebDeployment', {
   projectId: project.id,
   production: $app.stage === 'production',
-  ref: process.env.GITHUB_SHA ?? 'infra/bad-decision',
-  // ref:
-  //   $app.stage === 'production'
-  //     ? process.env.GITHUB_SHA
-  //     : process.env.GITHUB_REF_NAME,
+  ref:
+    $app.stage === 'production'
+      ? process.env.GITHUB_SHA
+      : process.env.GITHUB_REF_NAME,
   environment: {
     // API_URL: apiRouter.url,
     API_URL: 'https://api.tvseri.es',

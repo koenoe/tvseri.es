@@ -5,6 +5,14 @@ import { domain, zone } from './dns';
 // import { apiRouter } from './api';
 import * as secrets from './secrets';
 
+const gitHash =
+  process.env.GITHUB_SHA ||
+  execSync('git rev-parse --short HEAD').toString().trim();
+const gitBranch =
+  process.env.GITHUB_HEAD_REF ||
+  process.env.GITHUB_REF_NAME ||
+  execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+
 const projectSettings = {
   buildCommand: 'pnpm run build',
   framework: 'nextjs',
@@ -27,14 +35,6 @@ const project = currentProject
       },
       ...projectSettings,
     });
-
-const gitHash =
-  process.env.GITHUB_SHA ||
-  execSync('git rev-parse --short HEAD').toString().trim();
-const gitBranch =
-  process.env.GITHUB_HEAD_REF ||
-  process.env.GITHUB_REF_NAME ||
-  execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
 
 export const web = new vercel.Deployment('WebDeployment', {
   projectId: project.id,

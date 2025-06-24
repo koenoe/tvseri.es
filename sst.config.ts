@@ -28,12 +28,12 @@ export default $config({
     await import('./infra/scrobbleQueue');
     await import('./infra/watchedStatus');
 
-    const { apiRouter } = await import('./infra/api');
+    const { apiRouter: api } = await import('./infra/api');
     const { web } = await import('./infra/web');
 
     return {
-      api: apiRouter.url,
-      web: web.domains[0] ?? web.url,
+      api: api.url,
+      web: web.url,
     };
   },
 });

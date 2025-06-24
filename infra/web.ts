@@ -5,9 +5,24 @@ import { domain, zone } from './dns';
 // import { apiRouter } from './api';
 import * as secrets from './secrets';
 
-const project = vercel.getProjectOutput({
+const projectSettings = {
+  buildCommand: 'pnpm run build',
+  framework: 'nextjs',
+  installCommand: 'pnpm install --frozen-lockfile',
+  outputDirectory: '.next',
+  rootDirectory: 'apps/web',
+};
+
+const currentProject = vercel.getProjectOutput({
   name: 'web',
 });
+
+const project = currentProject
+  ? currentProject
+  : new vercel.Project('WebProject', {
+      name: 'web',
+      ...projectSettings,
+    });
 
 const gitHash =
   process.env.GITHUB_SHA ||
@@ -17,7 +32,7 @@ const gitBranch =
   process.env.GITHUB_REF_NAME ||
   execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
 
-export const web = new vercel.Deployment('WebDeployment', {
+const deployment = new vercel.Deployment('WebDeployment', {
   projectId: project.id,
   production: $app.stage === 'production',
   ref: $app.stage === 'production' ? gitHash : gitBranch,
@@ -31,14 +46,13 @@ export const web = new vercel.Deployment('WebDeployment', {
     GIT_HASH: gitHash,
     GIT_BRANCH: gitBranch,
   },
-  projectSettings: {
-    buildCommand: 'pnpm run build',
-    framework: 'nextjs',
-    installCommand: 'pnpm install --frozen-lockfile',
-    outputDirectory: '.next',
-    rootDirectory: 'apps/web',
-  },
+  projectSettings,
 });
+
+export const web = {
+  ...deployment,
+  url: `https://${deployment.domains[0] ?? deployment.url}`,
+};
 
 // if (!$dev) {
 //   new vercel.Deployment('MstrV2DashboardVercel', {

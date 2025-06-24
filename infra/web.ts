@@ -9,14 +9,20 @@ const project = vercel.getProjectOutput({
   name: 'web',
 });
 
-const gitHash = execSync('git rev-parse --short HEAD').toString();
-const gitBranch = execSync('git rev-parse --abbrev-ref HEAD').toString();
+const gitHash =
+  process.env.GITHUB_SHA ||
+  execSync('git rev-parse --short HEAD').toString().trim();
+const gitBranch =
+  process.env.GITHUB_HEAD_REF ||
+  process.env.GITHUB_REF_NAME ||
+  execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
 
 console.log('Git Hash:', gitHash);
 console.log('Git Branch:', gitBranch);
 console.log('GITHUB_SHA', process.env.GITHUB_SHA);
 console.log('GITHUB_REF', process.env.GITHUB_REF);
 console.log('GITHUB_REF_NAME', process.env.GITHUB_REF_NAME);
+console.log('GITHUB_HEAD_REF', process.env.GITHUB_HEAD_REF);
 
 export const web = new vercel.Deployment('WebDeployment', {
   projectId: project.id,

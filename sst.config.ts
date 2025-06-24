@@ -33,7 +33,7 @@ export default $config({
 
     return {
       api: apiRouter.url,
-      web: web.url,
+      web: web.domains[0] ?? web.url,
     };
   },
 });

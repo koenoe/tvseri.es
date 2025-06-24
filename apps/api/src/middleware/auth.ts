@@ -3,6 +3,7 @@ import { type Session, type User } from '@tvseri.es/types';
 import { type MiddlewareHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
+import { SECRET_KEY } from '@/constants';
 import { findSession } from '@/lib/db/session';
 import { findUser } from '@/lib/db/user';
 
@@ -28,7 +29,7 @@ export const auth = (): MiddlewareHandler<{ Variables: Variables }> => {
       const encryptedToken = match[1];
 
       try {
-        const sessionId = decryptToken(encryptedToken);
+        const sessionId = decryptToken(encryptedToken, SECRET_KEY);
         session = await findSession(sessionId);
 
         if (!session) {

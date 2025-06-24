@@ -13,6 +13,10 @@ export default $config({
               ? 'tvseries-production'
               : 'tvseries-dev',
         },
+        vercel: {
+          apiToken: process.env.VERCEL_API_TOKEN,
+          team: process.env.VERCEL_TEAM_ID,
+        },
       },
     };
   },

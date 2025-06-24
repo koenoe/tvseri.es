@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { type NextRequest } from 'next/server';
 
 import auth from '@/auth';
-import { SESSION_DURATION } from '@/constants';
+import { SECRET_KEY, SESSION_DURATION } from '@/constants';
 import { authenticateWithTmdb, linkTmdbAccount } from '@/lib/api';
 
 export async function GET(request: NextRequest) {
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
   const searchParams = request.nextUrl.searchParams;
   const redirectUri = searchParams.get('redirect') || '/';
-  const decryptedRequestToken = decryptToken(encryptedRequestToken);
+  const decryptedRequestToken = decryptToken(encryptedRequestToken, SECRET_KEY);
 
   // Note: check if we are connecting an authenticated user
   const {
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     userAgent: request.headers.get('user-agent') || '',
   });
 
-  const encryptedSessionId = encryptToken(sessionId);
+  const encryptedSessionId = encryptToken(sessionId, SECRET_KEY);
   const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',

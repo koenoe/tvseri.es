@@ -274,10 +274,6 @@ importers:
         version: 8.35.0(eslint@9.29.0(jiti@1.21.7))(typescript@5.8.3)
 
   packages/token:
-    dependencies:
-      sst:
-        specifier: ^3.17.6
-        version: 3.17.6
     devDependencies:
       '@tvseri.es/eslint-config':
         specifier: workspace:*

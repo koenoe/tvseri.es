@@ -1,16 +1,7 @@
 import crypto from 'crypto';
 
-import { Resource } from 'sst';
-
-const secretKey = Resource.SecretKey.value;
-
-if (!secretKey) {
-  throw new Error('No "SECRET_KEY" found');
-}
-
-const key = Buffer.from(secretKey, 'base64');
-
-export function encryptToken(plaintext: string) {
+export function encryptToken(plaintext: string, secretKey: string) {
+  const key = Buffer.from(secretKey, 'base64');
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
   const encrypted = Buffer.concat([
@@ -21,7 +12,8 @@ export function encryptToken(plaintext: string) {
   return encrypted.toString('base64url');
 }
 
-export function decryptToken(ivCiphertextB64: string) {
+export function decryptToken(ivCiphertextB64: string, secretKey: string) {
+  const key = Buffer.from(secretKey, 'base64');
   const ivCiphertext = Buffer.from(ivCiphertextB64, 'base64url');
   const iv = ivCiphertext.subarray(0, 16);
   const ciphertext = ivCiphertext.subarray(16);

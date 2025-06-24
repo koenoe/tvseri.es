@@ -8,9 +8,6 @@
     "check-types": "tsc",
     "lint": "eslint ."
   },
-  "dependencies": {
-    "sst": "^3.17.6"
-  },
   "devDependencies": {
     "@tvseri.es/eslint-config": "workspace:*",
     "@tvseri.es/typescript-config": "workspace:*",

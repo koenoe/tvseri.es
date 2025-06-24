@@ -1,4 +1,5 @@
 import { type RetryOptions } from '@better-fetch/fetch';
+import { Resource } from 'sst';
 
 // TODO: eventually we'll just show the provider that users are subscribed to
 // but in order to do this we need a profile page or some way to store this information
@@ -14,3 +15,5 @@ export const DEFAULT_FETCH_RETRY_OPTIONS = {
   baseDelay: 250, // Start with 250ms delay
   maxDelay: 2000, // Cap at 2 seconds
 } as RetryOptions;
+
+export const SECRET_KEY = Resource.SecretKey.value;

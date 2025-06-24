@@ -9,8 +9,8 @@ const project = vercel.getProjectOutput({
   name: 'web',
 });
 
-const gitHash = execSync('git rev-parse --short HEAD').toString().trim();
-const gitBranch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+const gitHash = execSync('git rev-parse --short HEAD').toString();
+const gitBranch = execSync('git rev-parse --abbrev-ref HEAD').toString();
 
 export const web = new vercel.Deployment('WebDeployment', {
   projectId: project.id,

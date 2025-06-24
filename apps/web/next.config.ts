@@ -1,6 +1,11 @@
+import bundleAnalyzer from '@next/bundle-analyzer';
 import { type NextConfig } from 'next';
 
 import getBaseUrl from './src/utils/getBaseUrl';
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 const nextConfig = {
   experimental: {
@@ -21,7 +26,6 @@ const nextConfig = {
       'use-debounce',
       'zustand',
     ],
-    ppr: false,
   },
   output: 'standalone',
   serverExternalPackages: [
@@ -44,7 +48,6 @@ const nextConfig = {
       baseUrl.includes('dev') ||
       baseUrl.includes('vercel') ||
       baseUrl.includes('localhost');
-
     return [
       {
         source: '/api/:path*',
@@ -112,4 +115,4 @@ const nextConfig = {
   },
 } satisfies NextConfig;
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

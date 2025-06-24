@@ -8,34 +8,30 @@ const project = vercel.getProjectOutput({
   name: 'web',
 });
 
-if (!$dev) {
-  new vercel.Deployment('WebDeployment', {
-    projectId: project.id,
-    production: $app.stage === 'production',
-    ref: 'infra/vercel',
-    // ref:
-    //   $app.stage === 'production'
-    //     ? process.env.GITHUB_SHA
-    //     : process.env.GITHUB_REF_NAME,
-    environment: {
-      // API_URL: apiRouter.url,
-      API_URL: 'https://api.tvseri.es',
-      API_KEY: secrets.apiKey.value,
-      SECRET_KEY: secrets.secretKey.value,
-      SITE_URL: `https://${domain}`,
-      SST_STAGE: $app.stage,
-    },
-    projectSettings: {
-      buildCommand: 'pnpm run build',
-      framework: 'nextjs',
-      installCommand: 'pnpm install --frozen-lockfile',
-      outputDirectory: '.next',
-      rootDirectory: 'apps/web',
-    },
-  });
-} else {
-  console.log('Not implemented yet.');
-}
+export const web = new vercel.Deployment('WebDeployment', {
+  projectId: project.id,
+  production: $app.stage === 'production',
+  ref: 'infra/vercel',
+  // ref:
+  //   $app.stage === 'production'
+  //     ? process.env.GITHUB_SHA
+  //     : process.env.GITHUB_REF_NAME,
+  environment: {
+    // API_URL: apiRouter.url,
+    API_URL: 'https://api.tvseri.es',
+    API_KEY: secrets.apiKey.value,
+    SECRET_KEY: secrets.secretKey.value,
+    SITE_URL: `https://${domain}`,
+    SST_STAGE: $app.stage,
+  },
+  projectSettings: {
+    buildCommand: 'pnpm run build',
+    framework: 'nextjs',
+    installCommand: 'pnpm install --frozen-lockfile',
+    outputDirectory: '.next',
+    rootDirectory: 'apps/web',
+  },
+});
 
 // if (!$dev) {
 //   new vercel.Deployment('MstrV2DashboardVercel', {

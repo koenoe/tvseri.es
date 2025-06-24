@@ -14,7 +14,7 @@ export const web = new vercel.Deployment('WebDeployment', {
   ref:
     $app.stage === 'production'
       ? process.env.GITHUB_SHA
-      : process.env.GITHUB_REF_NAME,
+      : process.env.GITHUB_REF,
   environment: {
     // API_URL: apiRouter.url,
     API_URL: 'https://api.tvseri.es',

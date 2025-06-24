@@ -114,7 +114,9 @@ function Poster({
       key={item.id}
       className={cx(posterStyles({ size }), className)}
       draggable={false}
-      href={`/tv/${item.id}/${item.slug}`}
+      href={{
+        pathname: `/tv/${item.id}/${item.slug}`,
+      }}
       whileHover={{ scale: 1.075 }}
       animate={{ scale: 1 }}
       layout

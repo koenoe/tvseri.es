@@ -16,7 +16,9 @@ type Props = Readonly<{
 const SpotlightItem = ({ item, index }: Props) => {
   return (
     <Link
-      href={`/tv/${item.id}/${item.slug}`}
+      href={{
+        pathname: `/tv/${item.id}/${item.slug}`,
+      }}
       className="relative flex h-full w-full flex-shrink-0 items-end overflow-hidden"
       draggable={false}
     >

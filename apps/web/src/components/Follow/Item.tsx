@@ -19,7 +19,9 @@ function Item({
           <Link
             className="w-full max-w-32 truncate md:max-w-max"
             title={user.username}
-            href={`/u/${user.username}`}
+            href={{
+              pathname: `/u/${user.username}`,
+            }}
           >
             {user.username}
           </Link>

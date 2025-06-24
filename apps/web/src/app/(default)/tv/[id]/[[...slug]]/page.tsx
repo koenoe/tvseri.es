@@ -274,7 +274,12 @@ export default async function TvSeriesDetailsPage({
                   <div className="opacity-60">Country of origin</div>
                   <Link
                     className="inline-block w-auto self-start hover:underline"
-                    href={`/discover?with_origin_country=${tvSeries.originCountry.code}`}
+                    href={{
+                      pathname: '/discover',
+                      query: {
+                        with_origin_country: tvSeries.originCountry.code,
+                      },
+                    }}
                     prefetch={false}
                   >
                     {tvSeries.originCountry.name}
@@ -288,7 +293,10 @@ export default async function TvSeriesDetailsPage({
                   {tvSeries.languages.map((language) => (
                     <Link
                       key={language.code}
-                      href={`/discover?with_original_language=${language.code}`}
+                      href={{
+                        pathname: '/discover',
+                        query: { with_original_language: language.code },
+                      }}
                       className="after:content-[',_'] last:after:content-none hover:underline"
                       prefetch={false}
                     >
@@ -303,7 +311,10 @@ export default async function TvSeriesDetailsPage({
               <div className="flex flex-col flex-nowrap gap-3 text-sm">
                 <div className="opacity-60">Network</div>
                 <Link
-                  href={`/discover?with_networks=${tvSeries.network.id}`}
+                  href={{
+                    pathname: '/discover',
+                    query: { with_networks: tvSeries.network.id },
+                  }}
                   prefetch={false}
                 >
                   <Image

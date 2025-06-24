@@ -73,7 +73,10 @@ function InProgress({
         >
           <Link
             className="relative z-10 flex aspect-[16/21] flex-shrink-0 items-end md:aspect-[16/14] lg:aspect-[16/8] xl:aspect-[16/15] 2xl:aspect-[16/12]"
-            href={`/tv/${tvSeries.id}/${tvSeries.slug}?season=${currentSeason.seasonNumber}`}
+            href={{
+              pathname: `/tv/${tvSeries.id}/${tvSeries.slug}`,
+              query: { season: currentSeason.seasonNumber },
+            }}
           >
             {tvSeries.backdropImage && <SpotlightBackground item={tvSeries} />}
 

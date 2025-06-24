@@ -44,7 +44,10 @@ function GenreTile({
 
   return (
     <MotionLink
-      href={`/discover?with_genres=${genre.id}`}
+      href={{
+        pathname: '/discover',
+        query: { with_genres: genre.id },
+      }}
       className={genreStyles()}
       onMouseMove={handleMouseMove}
       onClick={handleMouseMove}

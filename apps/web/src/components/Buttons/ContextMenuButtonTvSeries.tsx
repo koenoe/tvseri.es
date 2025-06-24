@@ -48,7 +48,9 @@ export default function ContextMenuButtonTvSeries({
     <ContextMenuButton className={className} isDisabled={isPending}>
       <Link
         onClick={() => contextMenuButtonRef.current?.close()}
-        href={`/track/${tvSeries.id}/${tvSeries.slug}`}
+        href={{
+          pathname: `/track/${tvSeries.id}/${tvSeries.slug}`,
+        }}
         className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap border-b-2 border-neutral-200 pb-3 text-sm font-medium hover:text-neutral-800"
       >
         <svg

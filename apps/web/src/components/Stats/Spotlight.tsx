@@ -27,7 +27,10 @@ export default function Spotlight({
 }>) {
   return (
     <Link
-      href={`/tv/${tvSeries.id}/${tvSeries.slug}?season=${episode.seasonNumber}`}
+      href={{
+        pathname: `/tv/${tvSeries.id}/${tvSeries.slug}`,
+        query: { season: episode.seasonNumber },
+      }}
       className={cx(
         "relative flex aspect-[16/14] flex-shrink-0 items-end overflow-clip rounded shadow-lg after:absolute after:inset-0 after:rounded after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:aspect-[16/10] lg:aspect-[16/8] xl:aspect-[16/12] 2xl:aspect-[16/10]",
         className,

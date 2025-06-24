@@ -26,7 +26,9 @@ function Avatar({ item }: Readonly<{ item: Person }>) {
     <MotionLink
       key={item.id}
       layout
-      href={`/person/${item.id}/${item.slug}`}
+      href={{
+        pathname: `/person/${item.id}/${item.slug}`,
+      }}
       className={avatarStyles()}
       initial="inactive"
       whileHover="active"

@@ -9,7 +9,10 @@ import { removeFromList, getAllWatchedForTvSeries } from '@/lib/api';
 
 import InProgress from './InProgress';
 
-function getCurrentSeason(watchedItems: WatchedItem[], seasons: Season[]) {
+function getCurrentSeasonFromWatchedItems(
+  watchedItems: WatchedItem[],
+  seasons: Season[],
+) {
   if (watchedItems.length === 0 || seasons.length === 0) {
     return { currentSeason: undefined, watchCount: 0 };
   }
@@ -102,7 +105,7 @@ export default async function InProgressContainer({
     seriesId: tvSeries!.id,
   });
 
-  const { currentSeason, watchCount } = getCurrentSeason(
+  const { currentSeason, watchCount } = getCurrentSeasonFromWatchedItems(
     watchedItems,
     tvSeries!.seasons!,
   );

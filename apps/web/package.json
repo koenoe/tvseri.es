@@ -18,7 +18,7 @@
     "date-fns": "^4.1.0",
     "dice-coefficient": "^2.1.1",
     "motion": "^12.19.1",
-    "next": "15.4.0-canary.93",
+    "next": "15.4.0-canary.94",
     "papaparse": "^5.5.3",
     "react": "19.2.0-canary-fa3feba6-20250623",
     "react-day-picker": "^9.7.0",

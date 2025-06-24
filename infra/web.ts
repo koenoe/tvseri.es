@@ -27,7 +27,7 @@ if (!$dev) {
     projectSettings: {
       buildCommand: 'pnpm run build',
       framework: 'nextjs',
-      installCommand: 'pnpm i --frozen-lockfile',
+      installCommand: 'pnpm install --frozen-lockfile',
       outputDirectory: '.next',
       rootDirectory: 'apps/web',
     },

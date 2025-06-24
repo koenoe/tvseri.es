@@ -21,7 +21,7 @@ const nextConfig = {
       'use-debounce',
       'zustand',
     ],
-    ppr: false,
+    // ppr: true,
   },
   output: 'standalone',
   serverExternalPackages: [

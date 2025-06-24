@@ -159,6 +159,8 @@ function List({
       sessionStorage.removeItem(cacheKey);
     }
 
+    console.log('*** List mounted ***', { scrollRestoreKey, cacheKey });
+
     return () => {
       if (container) {
         const scrollLeft = container.scrollLeft;

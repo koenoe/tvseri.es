@@ -11,6 +11,7 @@ const nextConfig = {
   experimental: {
     authInterrupts: true,
     inlineCss: true,
+    reactCompiler: false,
     staleTimes: {
       dynamic: 0,
       static: 0,
@@ -33,7 +34,6 @@ const nextConfig = {
       './**/*.cjs.map',
       './**/*.js.map',
       './**/*.mjs.map',
-      // './@babel/helper*',
       './@babel/types*',
       './@esbuild*',
       './@node-rs/argon2-linux-x64-gnu',
@@ -42,7 +42,7 @@ const nextConfig = {
       './@node-rs/bcrypt-linux-x64-musl',
       './@swc/core-linux-x64-gnu*',
       './@swc/core-linux-x64-musl*',
-      // './@swc/helpers*',
+      './babel-plugin-react-compiler*',
       './rollup*',
       './sharp*',
       './source-map-js*',

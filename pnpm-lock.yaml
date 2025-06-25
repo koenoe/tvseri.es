@@ -59,7 +59,7 @@ importers:
         version: 1.1.18
       '@hono/valibot-validator':
         specifier: ^0.5.2
-        version: 0.5.2(hono@4.8.2)(valibot@1.1.0(typescript@5.8.3))
+        version: 0.5.2(hono@4.8.3)(valibot@1.1.0(typescript@5.8.3))
       '@tvseri.es/token':
         specifier: workspace:*
         version: link:../../packages/token
@@ -67,8 +67,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
       hono:
-        specifier: ^4.8.2
-        version: 4.8.2
+        specifier: ^4.8.3
+        version: 4.8.3
       slugify:
         specifier: ^1.6.6
         version: 1.6.6
@@ -2796,8 +2796,8 @@ packages:
     resolution: {integrity: sha512-Pst8FuGqz3L7tFF+u9Pu70eI0xa5S3LPUmrNd5Jm8nTHze9FxLTK9Kaj5g/k4UcwuJSXTP65SyHOPLrffpcAJg==}
     engines: {node: '>=16.9.0'}
 
-  hono@4.8.2:
-    resolution: {integrity: sha512-hM+1RIn9PK1I6SiTNS6/y7O1mvg88awYLFEuEtoiMtRyT3SD2iu9pSFgbBXT3b1Ua4IwzvSTLvwO0SEhDxCi4w==}
+  hono@4.8.3:
+    resolution: {integrity: sha512-jYZ6ZtfWjzBdh8H/0CIFfCBHaFL75k+KMzaM177hrWWm2TWL39YMYaJgB74uK/niRc866NMlH9B8uCvIo284WQ==}
     engines: {node: '>=16.9.0'}
 
   html-escaper@2.0.2:
@@ -5849,9 +5849,9 @@ snapshots:
       '@eslint/core': 0.14.0
       levn: 0.4.1
 
-  '@hono/valibot-validator@0.5.2(hono@4.8.2)(valibot@1.1.0(typescript@5.8.3))':
+  '@hono/valibot-validator@0.5.2(hono@4.8.3)(valibot@1.1.0(typescript@5.8.3))':
     dependencies:
-      hono: 4.8.2
+      hono: 4.8.3
       valibot: 1.1.0(typescript@5.8.3)
 
   '@humanfs/core@0.19.1': {}
@@ -8081,7 +8081,7 @@ snapshots:
 
   hono@4.7.4: {}
 
-  hono@4.8.2: {}
+  hono@4.8.3: {}
 
   html-escaper@2.0.2: {}
 

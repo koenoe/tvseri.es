@@ -18,7 +18,7 @@
     "@hono/valibot-validator": "^0.5.2",
     "@tvseri.es/token": "workspace:*",
     "color": "^5.0.0",
-    "hono": "^4.8.2",
+    "hono": "^4.8.3",
     "slugify": "^1.6.6",
     "sst": "^3.17.6",
     "ulid": "^3.0.1"

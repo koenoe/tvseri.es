@@ -43,7 +43,6 @@ const nextConfig = {
       './@swc/core-linux-x64-gnu*',
       './@swc/core-linux-x64-musl*',
       './@swc/helpers*',
-      './babel-plugin-react-compiler*',
       './rollup*',
       './sharp*',
       './source-map-js*',

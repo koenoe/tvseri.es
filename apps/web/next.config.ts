@@ -1,6 +1,11 @@
+import bundleAnalyzer from '@next/bundle-analyzer';
 import { type NextConfig } from 'next';
 
 import getBaseUrl from './src/utils/getBaseUrl';
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 const nextConfig = {
   experimental: {
@@ -23,6 +28,27 @@ const nextConfig = {
     ],
     ppr: true,
   },
+  output: 'standalone',
+  outputFileTracingExcludes: {
+    '*': [
+      './**/*.cjs.map',
+      './**/*.js.map',
+      './**/*.mjs.map',
+      './@babel/types*',
+      './@esbuild*',
+      './@node-rs/argon2-linux-x64-gnu',
+      './@node-rs/argon2-linux-x64-musl',
+      './@node-rs/bcrypt-linux-x64-gnu',
+      './@node-rs/bcrypt-linux-x64-musl',
+      './@swc/core-linux-x64-gnu*',
+      './@swc/core-linux-x64-musl*',
+      './rollup*',
+      './sharp*',
+      './source-map-js*',
+      './terser*',
+      './webpack/',
+    ],
+  },
   serverExternalPackages: [
     '@opennextjs/aws',
     '@better-fetch/fetch',
@@ -43,7 +69,6 @@ const nextConfig = {
       baseUrl.includes('dev') ||
       baseUrl.includes('vercel') ||
       baseUrl.includes('localhost');
-
     return [
       {
         source: '/api/:path*',
@@ -111,4 +136,4 @@ const nextConfig = {
   },
 } satisfies NextConfig;
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

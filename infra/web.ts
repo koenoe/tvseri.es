@@ -4,7 +4,18 @@ import { domain, zone } from './dns';
 import { apiRouter } from './api';
 import * as secrets from './secrets';
 
+let openNextVersion: string | undefined;
+try {
+  openNextVersion =
+    require('../apps/web/package.json').devDependencies?.[
+      '@opennextjs/aws'
+    ]?.replace('^', '') ?? undefined;
+} catch {
+  openNextVersion = undefined;
+}
+
 new sst.aws.Nextjs('tvseries', {
+  openNextVersion,
   domain: {
     name: domain,
     redirects: $app.stage === 'production' ? ['www.tvseri.es'] : [],

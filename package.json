@@ -10,7 +10,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "sst": "^3.17.6"
+    "sst": "^3.17.8"
   },
   "devDependencies": {
     "husky": "^9.1.7",

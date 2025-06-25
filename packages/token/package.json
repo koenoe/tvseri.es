@@ -14,7 +14,7 @@
   "devDependencies": {
     "@tvseri.es/eslint-config": "workspace:*",
     "@tvseri.es/typescript-config": "workspace:*",
-    "@types/node": "^22.15.30",
+    "@types/node": "^24.0.4",
     "eslint": "^9.28.0",
     "typescript": "^5.8.3"
   }

@@ -3,6 +3,7 @@ import { type RetryOptions } from '@better-fetch/fetch';
 // TODO: eventually we'll just show the provider that users are subscribed to
 // but in order to do this we need a profile page or some way to store this information
 export const WATCH_PROVIDER_PRIORITY: Record<string, number> = {
+  'Apple TV+': -5,
   'BBC iPlayer': -10,
   Netflix: 0,
   'Sky Go': 1000, // Sky Go is only available for Sky TV customers, so kinda sucks

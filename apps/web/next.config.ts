@@ -46,6 +46,7 @@ const nextConfig = {
       './sharp*',
       './source-map-js*',
       './terser*',
+      './typescript*',
       './webpack/',
     ],
   },

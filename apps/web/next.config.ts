@@ -45,7 +45,9 @@ const nextConfig = {
       './sharp*',
       './source-map-js*',
       './terser*',
+      './typescript*',
       './webpack/',
+      '**/amphtml-validator/*',
     ],
   },
   serverExternalPackages: [

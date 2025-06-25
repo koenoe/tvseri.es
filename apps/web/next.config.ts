@@ -11,7 +11,6 @@ const nextConfig = {
   experimental: {
     authInterrupts: true,
     inlineCss: true,
-    reactCompiler: false,
     staleTimes: {
       dynamic: 0,
       static: 0,
@@ -42,7 +41,6 @@ const nextConfig = {
       './@node-rs/bcrypt-linux-x64-musl',
       './@swc/core-linux-x64-gnu*',
       './@swc/core-linux-x64-musl*',
-      './babel-plugin-react-compiler*',
       './rollup*',
       './sharp*',
       './source-map-js*',

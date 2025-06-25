@@ -15,6 +15,7 @@ const nextConfig = {
       dynamic: 0,
       static: 0,
     },
+    // Note: don't think this does much, but alas
     optimizePackageImports: [
       'date-fns',
       'motion',
@@ -28,6 +29,7 @@ const nextConfig = {
     ],
   },
   output: 'standalone',
+  // Note: to keep the Lambda size small
   outputFileTracingExcludes: {
     '*': [
       './**/*.cjs.map',
@@ -50,12 +52,7 @@ const nextConfig = {
       '**/amphtml-validator/*',
     ],
   },
-  serverExternalPackages: [
-    '@opennextjs/aws',
-    '@better-fetch/fetch',
-    'crypto',
-    'sst',
-  ],
+  serverExternalPackages: ['@opennextjs/aws', 'crypto', 'sst'],
   transpilePackages: ['@tvseri.es/token', '@tvseri.es/types'],
   cleanDistDir: true,
   eslint: {

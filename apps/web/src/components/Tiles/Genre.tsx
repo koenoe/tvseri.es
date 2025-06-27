@@ -1,12 +1,11 @@
 'use client';
 
-import { memo } from 'react';
-
-import { type Genre } from '@tvseri.es/types';
+import type { Genre } from '@tvseri.es/types';
 import { cva } from 'class-variance-authority';
 import { motion, useMotionTemplate, useMotionValue } from 'motion/react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { memo } from 'react';
 
 const Noise = dynamic(() => import('./Noise'), {
   ssr: false,
@@ -44,42 +43,42 @@ function GenreTile({
 
   return (
     <MotionLink
+      className={genreStyles()}
       href={{
         pathname: '/discover',
         query: { with_genres: genre.id },
       }}
-      className={genreStyles()}
-      onMouseMove={handleMouseMove}
       onClick={handleMouseMove}
+      onMouseMove={handleMouseMove}
+      prefetch={false}
       whileHover="visible"
       whileTap="visible"
-      prefetch={false}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0.05)_100%)]" />
       <motion.div
+        animate="hidden"
         className="absolute inset-0"
+        initial="hidden"
         style={{
           background: backgroundStyle,
         }}
-        initial="hidden"
-        animate="hidden"
+        variants={variants}
         whileHover="visible"
         whileTap="visible"
-        variants={variants}
       />
       <Noise />
       <div className="pointer-events-none relative w-full">
         <motion.div
-          variants={{
-            visible: { scaleY: 1.25, opacity: 1 },
-          }}
           className="absolute -left-8 bottom-0 h-8 w-1 origin-center rounded-br-full rounded-tr-full bg-white opacity-20"
+          variants={{
+            visible: { opacity: 1, scaleY: 1.25 },
+          }}
         />
         <motion.div
+          className="flex h-8 w-full items-center font-medium drop-shadow-lg"
           variants={{
             visible: { x: 8 },
           }}
-          className="flex h-8 w-full items-center font-medium drop-shadow-lg"
         >
           {genre.name}
         </motion.div>

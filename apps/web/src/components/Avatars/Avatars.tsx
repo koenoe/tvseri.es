@@ -1,12 +1,11 @@
 'use client';
 
-import { memo } from 'react';
-
-import { type Person } from '@tvseri.es/types';
+import type { Person } from '@tvseri.es/types';
 import { cva, cx } from 'class-variance-authority';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { memo } from 'react';
 
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
@@ -24,39 +23,39 @@ export const avatarStyles = cva(
 function Avatar({ item }: Readonly<{ item: Person }>) {
   return (
     <MotionLink
-      key={item.id}
-      layout
+      className={avatarStyles()}
       href={{
         pathname: `/person/${item.id}/${item.slug}`,
       }}
-      className={avatarStyles()}
       initial="inactive"
-      whileHover="active"
+      key={item.id}
+      layout
       variants={{
-        inactive: { zIndex: 0 },
         active: { zIndex: 10 },
+        inactive: { zIndex: 0 },
       }}
+      whileHover="active"
     >
       <MotionImage
-        src={item.image}
         alt={item.name}
         className="mx-auto aspect-square h-auto w-full rounded-full border-2 border-white object-cover lg:h-24"
-        priority
-        placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(200, 200)}`}
-        width={200}
         height={200}
-        variants={{
-          inactive: { scale: 1 },
-          active: { scale: 1.15 },
-        }}
+        placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(200, 200)}`}
+        priority
+        src={item.image}
         unoptimized
+        variants={{
+          active: { scale: 1.15 },
+          inactive: { scale: 1 },
+        }}
+        width={200}
       />
 
       <motion.div
         className="mt-4 hidden w-full flex-col items-center gap-1 text-nowrap text-center lg:flex"
         variants={{
-          inactive: { opacity: 0, y: -15 },
           active: { opacity: 1, y: 0 },
+          inactive: { opacity: 0, y: -15 },
         }}
       >
         <div className="text-sm font-semibold">{item.name}</div>
@@ -78,7 +77,7 @@ function Avatars({
   return (
     <div className={cx(avatarsStyles(), className)}>
       {items.map((item) => (
-        <Avatar key={item.id} item={item} />
+        <Avatar item={item} key={item.id} />
       ))}
     </div>
   );

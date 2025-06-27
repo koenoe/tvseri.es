@@ -1,8 +1,7 @@
 'use client';
 
-import { memo, type ReactNode, useState } from 'react';
-
 import Image, { type ImageProps } from 'next/image';
+import { memo, type ReactNode, useState } from 'react';
 
 function ImageWithFallback({
   fallback,
@@ -21,10 +20,8 @@ function ImageWithFallback({
   }
 
   return (
-    // eslint-disable-next-line jsx-a11y/alt-text
     <Image
       {...rest}
-      src={imgSrc}
       onError={() => {
         if (typeof fallback === 'string') {
           setImgSrc(fallback);
@@ -32,6 +29,7 @@ function ImageWithFallback({
           setFallbackComponent(fallback());
         }
       }}
+      src={imgSrc}
     />
   );
 }

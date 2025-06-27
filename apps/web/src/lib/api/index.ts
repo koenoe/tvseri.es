@@ -1,30 +1,30 @@
-import { createFetch } from '@better-fetch/fetch';
 import type { BetterFetchOption } from '@better-fetch/fetch';
+import { createFetch } from '@better-fetch/fetch';
 import type {
-  CountryOrLanguage,
-  Genre,
-  Keyword,
-  Movie,
-  Person,
-  Rating,
-  Episode,
-  Season,
-  TvSeries,
-  TvSeriesForWatched,
-  WatchProvider,
-  User,
-  CreateUser,
-  Session,
-  PaginationOptions,
-  ListItem,
-  WatchedItem,
+  AddTmdbToUser,
   AuthenticateWithOTP,
   AuthenticateWithTmdb,
-  AddTmdbToUser,
-  UpdateUser,
-  WebhookToken,
-  UserWithFollowInfo,
+  CountryOrLanguage,
+  CreateUser,
+  Episode,
+  Genre,
+  Keyword,
+  ListItem,
+  Movie,
+  PaginationOptions,
+  Person,
   PreferredImages,
+  Rating,
+  Season,
+  Session,
+  TvSeries,
+  TvSeriesForWatched,
+  UpdateUser,
+  User,
+  UserWithFollowInfo,
+  WatchedItem,
+  WatchProvider,
+  WebhookToken,
 } from '@tvseri.es/types';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
@@ -56,12 +56,12 @@ type AuthContext = Readonly<{
 
 const $fetch = createFetch({
   baseURL: process.env.API_URL as string,
-  retry: DEFAULT_FETCH_RETRY_OPTIONS,
-  plugins: [nextPlugin],
   headers: {
     'content-type': 'application/json',
     'x-api-key': apiKey,
   },
+  plugins: [nextPlugin],
+  retry: DEFAULT_FETCH_RETRY_OPTIONS,
 });
 
 async function apiFetch(path: string, options?: BetterFetchOption) {
@@ -379,8 +379,8 @@ export async function detectDominantColorFromImage({
 }>) {
   const response = (await apiFetch('/dominant-color', {
     query: {
-      url,
       cache_key: cacheKey,
+      url,
     },
   })) as Readonly<{
     hex: string;
@@ -394,24 +394,24 @@ export async function linkTmdbAccount({
   sessionId,
 }: AuthContext & AddTmdbToUser) {
   await apiFetch('/me/tmdb', {
-    method: 'PUT',
     auth: {
-      type: 'Bearer',
       token: sessionId,
+      type: 'Bearer',
     },
     body: JSON.stringify({
       requestToken,
     }),
+    method: 'PUT',
   });
 }
 
 export async function unlinkTmdbAccount({ sessionId }: AuthContext) {
   await apiFetch('/me/tmdb', {
-    method: 'DELETE',
     auth: {
-      type: 'Bearer',
       token: sessionId,
+      type: 'Bearer',
     },
+    method: 'DELETE',
   });
 }
 
@@ -420,12 +420,12 @@ export async function updateUser({
   ...rest
 }: UpdateUser & AuthContext) {
   const user = (await apiFetch('/me', {
-    method: 'PUT',
     auth: {
-      type: 'Bearer',
       token: sessionId,
+      type: 'Bearer',
     },
     body: JSON.stringify(rest),
+    method: 'PUT',
   })) as User;
 
   return user;
@@ -480,8 +480,8 @@ export async function findUser(
 
 export async function createUser(input: Readonly<CreateUser>) {
   const user = (await apiFetch('/user', {
-    method: 'POST',
     body: JSON.stringify(input),
+    method: 'POST',
   })) as User;
 
   return user;
@@ -502,12 +502,12 @@ export async function getListItems(
       list: input.listId.toLowerCase(),
     },
     query: {
-      start_date: input.startDate?.toISOString(),
+      cursor: input.options?.cursor,
       end_date: input.endDate?.toISOString(),
       limit: input.options?.limit,
-      cursor: input.options?.cursor,
       sort_by: input.options?.sortBy,
       sort_direction: input.options?.sortDirection,
+      start_date: input.startDate?.toISOString(),
     },
   })) as Readonly<{
     items: ListItem[];
@@ -526,8 +526,8 @@ export async function getListItemsCount(
       list: input.listId.toLowerCase(),
     },
     query: {
-      start_date: input.startDate?.toISOString(),
       end_date: input.endDate?.toISOString(),
+      start_date: input.startDate?.toISOString(),
     },
   })) as Readonly<{
     count: number;
@@ -546,8 +546,8 @@ export async function isInList(
   const result = (await apiFetch('/user/:id/list/:list/:itemId', {
     params: {
       id: input.userId,
-      list: input.listId.toLowerCase(),
       itemId: input.id,
+      list: input.listId.toLowerCase(),
     },
   })) as Readonly<{
     value: boolean;
@@ -560,9 +560,9 @@ export async function isInWatchlist(
   input: Omit<Parameters<typeof isInList>[0], 'listId'>,
 ) {
   return isInList({
-    userId: input.userId,
-    listId: 'WATCHLIST',
     id: input.id,
+    listId: 'WATCHLIST',
+    userId: input.userId,
   });
 }
 
@@ -570,9 +570,9 @@ export async function isInFavorites(
   input: Parameters<typeof isInWatchlist>[0],
 ) {
   return isInList({
-    userId: input.userId,
-    listId: 'FAVORITES',
     id: input.id,
+    listId: 'FAVORITES',
+    userId: input.userId,
   });
 }
 
@@ -588,15 +588,15 @@ export async function addToList(
   }>,
 ) {
   await apiFetch('/user/:id/list/:list', {
+    auth: {
+      token: input.sessionId,
+      type: 'Bearer',
+    },
+    body: JSON.stringify(input.item),
     method: 'POST',
     params: {
       id: input.userId,
       list: input.listId.toLowerCase(),
-    },
-    body: JSON.stringify(input.item),
-    auth: {
-      type: 'Bearer',
-      token: input.sessionId,
     },
   });
 }
@@ -605,10 +605,10 @@ export async function addToFavorites(
   input: Omit<Parameters<typeof addToList>[0], 'listId'>,
 ) {
   return addToList({
-    userId: input.userId,
-    listId: 'FAVORITES',
     item: input.item,
+    listId: 'FAVORITES',
     sessionId: input.sessionId,
+    userId: input.userId,
   });
 }
 
@@ -616,10 +616,10 @@ export async function addToWatchlist(
   input: Parameters<typeof addToFavorites>[0],
 ) {
   return addToList({
-    userId: input.userId,
-    listId: 'WATCHLIST',
     item: input.item,
+    listId: 'WATCHLIST',
     sessionId: input.sessionId,
+    userId: input.userId,
   });
 }
 
@@ -632,15 +632,15 @@ export async function removeFromList(
   }>,
 ) {
   await apiFetch('/user/:id/list/:list/:itemId', {
+    auth: {
+      token: input.sessionId,
+      type: 'Bearer',
+    },
     method: 'DELETE',
     params: {
       id: input.userId,
-      list: input.listId.toLowerCase(),
       itemId: input.id,
-    },
-    auth: {
-      type: 'Bearer',
-      token: input.sessionId,
+      list: input.listId.toLowerCase(),
     },
   });
 }
@@ -649,10 +649,10 @@ export async function removeFromFavorites(
   input: Omit<Parameters<typeof removeFromList>[0], 'listId'>,
 ) {
   return removeFromList({
-    userId: input.userId,
-    listId: 'FAVORITES',
     id: input.id,
+    listId: 'FAVORITES',
     sessionId: input.sessionId,
+    userId: input.userId,
   });
 }
 
@@ -660,10 +660,10 @@ export async function removeFromWatchlist(
   input: Parameters<typeof removeFromFavorites>[0],
 ) {
   return removeFromList({
-    userId: input.userId,
-    listId: 'WATCHLIST',
     id: input.id,
+    listId: 'WATCHLIST',
     sessionId: input.sessionId,
+    userId: input.userId,
   });
 }
 
@@ -680,11 +680,11 @@ export async function getWatched(
       id: input.userId,
     },
     query: {
-      start_date: input.startDate?.toISOString(),
+      cursor: input.options?.cursor,
       end_date: input.endDate?.toISOString(),
       limit: input.options?.limit,
-      cursor: input.options?.cursor,
       sort_direction: input.options?.sortDirection,
+      start_date: input.startDate?.toISOString(),
     },
   })) as Readonly<{
     items: WatchedItem[];
@@ -702,8 +702,8 @@ export async function getWatchedCount(
       id: input.userId,
     },
     query: {
-      start_date: input.startDate?.toISOString(),
       end_date: input.endDate?.toISOString(),
+      start_date: input.startDate?.toISOString(),
     },
   })) as Readonly<{
     count: number;
@@ -720,8 +720,8 @@ export async function getWatchedRuntime(
       id: input.userId,
     },
     query: {
-      start_date: input.startDate?.toISOString(),
       end_date: input.endDate?.toISOString(),
+      start_date: input.startDate?.toISOString(),
     },
   })) as Readonly<{
     runtime: number;
@@ -773,8 +773,8 @@ export async function markWatched(
   }>,
 ) {
   const auth = {
-    type: 'Bearer' as const,
     token: input.sessionId,
+    type: 'Bearer' as const,
   };
   const body = JSON.stringify({
     watchProvider: input.watchProvider,
@@ -784,40 +784,40 @@ export async function markWatched(
     return apiFetch(
       '/user/:id/watched/series/:seriesId/season/:season/episode/:episode',
       {
-        method: 'POST',
-        params: {
-          id: input.userId,
-          seriesId: input.seriesId,
-          season: input.seasonNumber,
-          episode: input.episodeNumber,
-        },
         auth,
         body,
+        method: 'POST',
+        params: {
+          episode: input.episodeNumber,
+          id: input.userId,
+          season: input.seasonNumber,
+          seriesId: input.seriesId,
+        },
       },
     ) as Promise<WatchedItem[]>;
   }
 
   if (input.seasonNumber) {
     return apiFetch('/user/:id/watched/series/:seriesId/season/:season', {
+      auth,
+      body,
       method: 'POST',
       params: {
         id: input.userId,
-        seriesId: input.seriesId,
         season: input.seasonNumber,
+        seriesId: input.seriesId,
       },
-      auth,
-      body,
     }) as Promise<WatchedItem[]>;
   }
 
   return apiFetch('/user/:id/watched/series/:seriesId', {
+    auth,
+    body,
     method: 'POST',
     params: {
       id: input.userId,
       seriesId: input.seriesId,
     },
-    auth,
-    body,
   }) as Promise<WatchedItem[]>;
 }
 
@@ -825,45 +825,45 @@ export async function unmarkWatched(
   input: Omit<Parameters<typeof markWatched>[0], 'watchProvider'>,
 ) {
   const auth = {
-    type: 'Bearer' as const,
     token: input.sessionId,
+    type: 'Bearer' as const,
   };
 
   if (input.seasonNumber && input.episodeNumber) {
     return apiFetch(
       '/user/:id/watched/series/:seriesId/season/:season/episode/:episode',
       {
+        auth,
         method: 'DELETE',
         params: {
-          id: input.userId,
-          seriesId: input.seriesId,
-          season: input.seasonNumber,
           episode: input.episodeNumber,
+          id: input.userId,
+          season: input.seasonNumber,
+          seriesId: input.seriesId,
         },
-        auth,
       },
     ) as Promise<{ message: string }>;
   }
 
   if (input.seasonNumber) {
     return apiFetch('/user/:id/watched/series/:seriesId/season/:season', {
+      auth,
       method: 'DELETE',
       params: {
         id: input.userId,
-        seriesId: input.seriesId,
         season: input.seasonNumber,
+        seriesId: input.seriesId,
       },
-      auth,
     }) as Promise<{ message: string }>;
   }
 
   return apiFetch('/user/:id/watched/series/:seriesId', {
+    auth,
     method: 'DELETE',
     params: {
       id: input.userId,
       seriesId: input.seriesId,
     },
-    auth,
   }) as Promise<{ message: string }>;
 }
 
@@ -898,14 +898,14 @@ export async function markWatchedInBatch(
     }));
 
     return apiFetch('/user/:id/watched/batch', {
+      auth: {
+        token: input.sessionId,
+        type: 'Bearer',
+      },
+      body: JSON.stringify(minimalChunk),
       method: 'POST',
       params: {
         id: input.userId,
-      },
-      body: JSON.stringify(minimalChunk),
-      auth: {
-        type: 'Bearer',
-        token: input.sessionId,
       },
     }) as Promise<WatchedItem[]>;
   });
@@ -942,14 +942,14 @@ export async function unmarkWatchedInBatch(
     }));
 
     return apiFetch('/user/:id/watched/batch/delete', {
+      auth: {
+        token: input.sessionId,
+        type: 'Bearer',
+      },
+      body: JSON.stringify(minimalChunk),
       method: 'POST',
       params: {
         id: input.userId,
-      },
-      body: JSON.stringify(minimalChunk),
-      auth: {
-        type: 'Bearer',
-        token: input.sessionId,
       },
     });
   });
@@ -961,8 +961,8 @@ export async function unmarkWatchedInBatch(
 
 export async function createOTP(input: Readonly<{ email: string }>) {
   const response = (await apiFetch('/authenticate/otp/create', {
-    method: 'POST',
     body: JSON.stringify(input),
+    method: 'POST',
   })) as Readonly<{
     otp: string;
   }>;
@@ -972,8 +972,8 @@ export async function createOTP(input: Readonly<{ email: string }>) {
 
 export async function authenticateWithOTP(input: AuthenticateWithOTP) {
   const response = (await apiFetch('/authenticate/otp', {
-    method: 'POST',
     body: JSON.stringify(input),
+    method: 'POST',
   })) as Readonly<{
     sessionId: string;
   }>;
@@ -983,11 +983,11 @@ export async function authenticateWithOTP(input: AuthenticateWithOTP) {
 
 export async function unauthenticate(sessionId: string) {
   await apiFetch('/authenticate', {
-    method: 'DELETE',
     auth: {
-      type: 'Bearer',
       token: sessionId,
+      type: 'Bearer',
     },
+    method: 'DELETE',
   });
 }
 
@@ -995,8 +995,8 @@ export async function createTmdbRequestToken(
   input: Readonly<{ redirectUri: string }>,
 ) {
   const response = (await apiFetch('/authenticate/tmdb/create-request-token', {
-    method: 'POST',
     body: JSON.stringify(input),
+    method: 'POST',
   })) as Readonly<{
     token: string;
   }>;
@@ -1006,8 +1006,8 @@ export async function createTmdbRequestToken(
 
 export async function authenticateWithTmdb(input: AuthenticateWithTmdb) {
   const response = (await apiFetch('/authenticate/tmdb', {
-    method: 'POST',
     body: JSON.stringify(input),
+    method: 'POST',
   })) as Readonly<{
     sessionId: string;
   }>;
@@ -1018,15 +1018,15 @@ export async function authenticateWithTmdb(input: AuthenticateWithTmdb) {
 export async function me({ sessionId }: AuthContext) {
   const response = await apiFetch('/me', {
     auth: {
-      type: 'Bearer',
       token: sessionId,
+      type: 'Bearer',
     },
   });
 
   if (!response) {
     return {
-      user: null,
       session: null,
+      user: null,
     };
   }
 
@@ -1045,12 +1045,12 @@ export async function fetchTokenForWebhookByType(
     AuthContext,
 ) {
   const token = (await apiFetch('/webhook/type/:type', {
+    auth: {
+      token: input.sessionId,
+      type: 'Bearer',
+    },
     params: {
       type: input.type,
-    },
-    auth: {
-      type: 'Bearer',
-      token: input.sessionId,
     },
   })) as Readonly<{
     token: string;
@@ -1082,8 +1082,8 @@ export async function follow({
   AuthContext) {
   await apiFetch('/user/:id/follow', {
     auth: {
-      type: 'Bearer',
       token: sessionId,
+      type: 'Bearer',
     },
     method: 'POST',
     params: {
@@ -1098,8 +1098,8 @@ export async function unfollow({
 }: Parameters<typeof follow>[0]) {
   await apiFetch('/user/:id/unfollow', {
     auth: {
-      type: 'Bearer',
       token: sessionId,
+      type: 'Bearer',
     },
     method: 'DELETE',
     params: {
@@ -1141,15 +1141,15 @@ export async function getFollowers(
 ) {
   const result = (await apiFetch('/user/:id/followers', {
     auth: {
-      type: 'Bearer',
       token: input.sessionId,
+      type: 'Bearer',
     },
     params: {
       id: input.userId,
     },
     query: {
-      limit: input.options?.limit,
       cursor: input.options?.cursor,
+      limit: input.options?.limit,
       sort_direction: input.options?.sortDirection,
     },
   })) as Readonly<{
@@ -1163,15 +1163,15 @@ export async function getFollowers(
 export async function getFollowing(input: Parameters<typeof getFollowers>[0]) {
   const result = (await apiFetch('/user/:id/following', {
     auth: {
-      type: 'Bearer',
       token: input.sessionId,
+      type: 'Bearer',
     },
     params: {
       id: input.userId,
     },
     query: {
-      limit: input.options?.limit,
       cursor: input.options?.cursor,
+      limit: input.options?.limit,
       sort_direction: input.options?.sortDirection,
     },
   })) as Readonly<{
@@ -1230,14 +1230,14 @@ export async function updatePreferredImages({
 }> &
   AuthContext) {
   await apiFetch('/admin/preferred-images/series/:id', {
+    auth: {
+      token: sessionId,
+      type: 'Bearer',
+    },
+    body: JSON.stringify(preferredImages),
     method: 'PUT',
     params: {
       id,
-    },
-    body: JSON.stringify(preferredImages),
-    auth: {
-      type: 'Bearer',
-      token: sessionId,
     },
   });
 }

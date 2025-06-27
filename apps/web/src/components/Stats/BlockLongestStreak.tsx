@@ -1,6 +1,5 @@
+import { addDays, isEqual, startOfDay } from 'date-fns';
 import { cache } from 'react';
-
-import { startOfDay, isEqual, addDays } from 'date-fns';
 
 import { cachedWatchedByYear } from '@/app/cached';
 
@@ -47,13 +46,13 @@ export default async function BlockLongestStreak({ userId, year }: Input) {
 
   return (
     <Block
-      label="Longest streak"
-      value={`${currentStreak} day${currentStreak === 1 ? '' : 's'}`}
       comparison={{
-        previousValue: `${previousStreak} day${previousStreak === 1 ? '' : 's'}`,
         delta,
+        previousValue: `${previousStreak} day${previousStreak === 1 ? '' : 's'}`,
         type: 'absolute',
       }}
+      label="Longest streak"
+      value={`${currentStreak} day${currentStreak === 1 ? '' : 's'}`}
     />
   );
 }

@@ -1,6 +1,5 @@
-import { cache, Suspense } from 'react';
-
 import { notFound } from 'next/navigation';
+import { cache, Suspense } from 'react';
 
 import ApplePlusList from '@/components/List/ApplePlusList';
 import BestSportsDocumentariesList from '@/components/List/BestSportsDocumentariesList';
@@ -41,11 +40,11 @@ export default async function HomePage() {
   return (
     <Page
       backgroundColor={spotlight.backdropColor}
+      backgroundContext="spotlight"
       backgroundImage={spotlight.backdropImage}
       backgroundVariant="dynamic"
-      backgroundContext="spotlight"
     >
-      <Spotlight items={trendingTvSeries} className="mb-10 md:mb-20" />
+      <Spotlight className="mb-10 md:mb-20" items={trendingTvSeries} />
 
       <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
         <MostPopularThisMonthList className="mb-10 md:mb-16" priority />
@@ -63,9 +62,9 @@ export default async function HomePage() {
         fallback={
           <SkeletonList
             className="mb-10 md:mb-16"
-            variant="genre"
-            style={gapStyleOverride}
             numberOfItems={5}
+            style={gapStyleOverride}
+            variant="genre"
           />
         }
       >

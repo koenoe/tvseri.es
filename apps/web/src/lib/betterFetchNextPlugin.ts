@@ -1,8 +1,7 @@
-import { type BetterFetchPlugin } from '@better-fetch/fetch';
+import type { BetterFetchPlugin } from '@better-fetch/fetch';
 
 const nextPlugin = {
   id: 'next-plugin',
-  name: 'NextJS Plugin',
   init: async (url, options) => {
     // Note: NextJS doesn't allow both revalidate + cache headers
     const next = options?.cache ? {} : options?.next;
@@ -15,10 +14,11 @@ const nextPlugin = {
       },
     };
     return {
-      url,
       options: patchedOptions,
+      url,
     };
   },
+  name: 'NextJS Plugin',
 } satisfies BetterFetchPlugin;
 
 export default nextPlugin;

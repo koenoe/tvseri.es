@@ -19,8 +19,8 @@ const getWeeklyWatchedCount = async (input: Input): Promise<WeeklyCount[]> => {
 
   // Always create 53 weeks of data
   const weekCounts: WeeklyCount[] = Array.from({ length: 53 }, (_, i) => ({
-    week: i + 1,
     episodes: 0,
+    week: i + 1,
   }));
 
   items.forEach((item) => {

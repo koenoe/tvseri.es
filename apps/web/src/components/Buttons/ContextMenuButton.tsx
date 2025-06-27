@@ -1,5 +1,7 @@
 'use client';
 
+import { cva, type VariantProps } from 'class-variance-authority';
+import { AnimatePresence, motion } from 'motion/react';
 import {
   type ReactNode,
   type Ref,
@@ -8,13 +10,9 @@ import {
   useRef,
   useState,
 } from 'react';
-
-import { cva, type VariantProps } from 'class-variance-authority';
-import { AnimatePresence, motion } from 'motion/react';
 import { twMerge } from 'tailwind-merge';
-
-import CircleButton from './CircleButton';
 import DropdownContainer from '../Dropdown/DropdownContainer';
+import CircleButton from './CircleButton';
 
 export type ContextMenuButtonHandle = Readonly<{
   close: () => void;
@@ -22,14 +20,14 @@ export type ContextMenuButtonHandle = Readonly<{
 }>;
 
 const contextMenuButtonStyles = cva('', {
-  variants: {
-    size: {
-      small: ['size-8 md:size-8 [&_svg.icon]:size-6 md:[&_svg.icon]:size-7'],
-      medium: ['size-10 md:size-12 [&_svg.icon]:size-7 md:[&_svg.icon]:size-9'],
-    },
-  },
   defaultVariants: {
     size: 'medium',
+  },
+  variants: {
+    size: {
+      medium: ['size-10 md:size-12 [&_svg.icon]:size-7 md:[&_svg.icon]:size-9'],
+      small: ['size-8 md:size-8 [&_svg.icon]:size-6 md:[&_svg.icon]:size-7'],
+    },
   },
 });
 
@@ -74,16 +72,16 @@ export default function ContextMenuButton({
   return (
     <>
       <CircleButton
-        ref={triggerRef}
-        onClick={handleOnClick}
-        isActive={isOpen}
         className={contextMenuButtonStyles({ className, size })}
+        isActive={isOpen}
         isDisabled={isDisabled}
+        onClick={handleOnClick}
+        ref={triggerRef}
       >
         <svg
           className="icon"
-          viewBox="0 0 25 25"
           fill="currentColor"
+          viewBox="0 0 25 25"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path d="M6.5 11C7.32843 11 8 11.6716 8 12.5C8 13.3284 7.32843 14 6.5 14C5.67157 14 5 13.3284 5 12.5C5 11.6716 5.67157 11 6.5 11Z" />
@@ -94,50 +92,50 @@ export default function ContextMenuButton({
       <AnimatePresence>
         {isOpen && (
           <DropdownContainer
-            triggerRef={triggerRef}
-            position={{
-              x: 'center',
-              y: 'center',
-            }}
             offset={{
               x: 0,
               y: 0,
             }}
             onOutsideClick={() => setIsOpen(false)}
+            position={{
+              x: 'center',
+              y: 'center',
+            }}
+            triggerRef={triggerRef}
             variants={{
-              visible: {
-                opacity: 1,
-                y: 0,
-              },
               hidden: {
                 opacity: 0,
+                y: 0,
+              },
+              visible: {
+                opacity: 1,
                 y: 0,
               },
             }}
           >
             <motion.div
-              className={twMerge(
-                'flex w-[230px] flex-col items-center justify-center gap-3 rounded-3xl bg-white p-6 text-neutral-700 shadow-lg',
-                classNameContainer,
-              )}
-              initial={{ scale: 0 }}
               animate={{
                 scale: 1,
                 transformOrigin: 'center center',
                 transition: {
-                  type: 'spring',
-                  stiffness: 400,
                   damping: 25,
-                  mass: 1,
                   duration: 0.3,
+                  mass: 1,
+                  stiffness: 400,
+                  type: 'spring',
                 },
               }}
+              className={twMerge(
+                'flex w-[230px] flex-col items-center justify-center gap-3 rounded-3xl bg-white p-6 text-neutral-700 shadow-lg',
+                classNameContainer,
+              )}
               exit={{
                 scale: 0,
                 transition: {
                   duration: 0.2,
                 },
               }}
+              initial={{ scale: 0 }}
             >
               {children}
             </motion.div>

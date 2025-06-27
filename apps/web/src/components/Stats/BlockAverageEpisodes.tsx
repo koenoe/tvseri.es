@@ -39,13 +39,13 @@ export default async function BlockAverageEpisodes({
 
   return (
     <Block
-      label="Average per day"
-      value={currentAvg.toLocaleString()}
       comparison={{
-        previousValue: previousAvg.toLocaleString(),
         delta,
+        previousValue: previousAvg.toLocaleString(),
         type: 'percentage',
       }}
+      label="Average per day"
+      value={currentAvg.toLocaleString()}
     />
   );
 }

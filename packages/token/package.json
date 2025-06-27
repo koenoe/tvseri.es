@@ -1,18 +1,18 @@
 {
-  "name": "@tvseri.es/token",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "main": "./src/index.ts",
-  "scripts": {
-    "check-types": "tsc",
-    "lint": "eslint ."
+  "dependencies": {
+    "sst": "^3.17.8"
   },
   "devDependencies": {
-    "@tvseri.es/eslint-config": "workspace:*",
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/node": "^22.15.30",
-    "eslint": "^9.28.0",
     "typescript": "^5.8.3"
-  }
+  },
+  "main": "./src/index.ts",
+  "name": "@tvseri.es/token",
+  "private": true,
+  "scripts": {
+    "check-types": "tsc"
+  },
+  "type": "module",
+  "version": "0.0.0"
 }

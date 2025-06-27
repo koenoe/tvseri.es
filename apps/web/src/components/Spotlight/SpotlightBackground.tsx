@@ -1,4 +1,4 @@
-import { type TvSeries } from '@tvseri.es/types';
+import type { TvSeries } from '@tvseri.es/types';
 import { cx } from 'class-variance-authority';
 
 import useRgbString from '@/hooks/useRgbString';

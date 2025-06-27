@@ -2,9 +2,8 @@
 
 import 'react-day-picker/style.css';
 
-import { memo, type ReactNode, useCallback, useRef, useState } from 'react';
-
 import { AnimatePresence } from 'motion/react';
+import { memo, type ReactNode, useCallback, useRef, useState } from 'react';
 import { DayFlag, DayPicker, SelectionState, UI } from 'react-day-picker';
 
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
@@ -51,13 +50,13 @@ function DatePicker({
   return (
     <>
       <button
-        ref={triggerRef}
         className={className}
         onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
           setBackgroundColor(getMainBackgroundColor());
           setIsOpen((prev) => !prev);
           onClick?.(event);
         }}
+        ref={triggerRef}
       >
         {children}
       </button>
@@ -65,24 +64,16 @@ function DatePicker({
         {isOpen && (
           <DropdownContainer
             key="dropdown-datepicker"
-            triggerRef={triggerRef}
-            position={{ x: 'center', y: 'end' }}
             onOutsideClick={(event: React.MouseEvent<HTMLDivElement>) => {
               event.stopPropagation();
               setIsOpen(false);
             }}
+            position={{ x: 'center', y: 'end' }}
+            triggerRef={triggerRef}
           >
             <DayPicker
               captionLayout="dropdown-years"
-              defaultMonth={selected}
-              selected={selected}
-              onSelect={handleSelect}
-              showOutsideDays
-              disabled={{ after: new Date() }}
               className="rounded-md border border-white/10 p-3 shadow-lg"
-              style={{ backgroundColor }}
-              mode="single"
-              footer={footer}
               classNames={{
                 [UI.Months]: 'relative',
                 [UI.Month]: 'space-y-4 ml-0',
@@ -110,6 +101,14 @@ function DatePicker({
                 [DayFlag.disabled]: '!opacity-15 hover:bg-transparent',
                 [DayFlag.hidden]: 'invisible',
               }}
+              defaultMonth={selected}
+              disabled={{ after: new Date() }}
+              footer={footer}
+              mode="single"
+              onSelect={handleSelect}
+              selected={selected}
+              showOutsideDays
+              style={{ backgroundColor }}
             />
           </DropdownContainer>
         )}

@@ -18,8 +18,8 @@ export default async function CardContainer({
 
   const { encryptedSessionId } = await auth();
   const payload = {
-    userId: user.id,
     sessionId: encryptedSessionId ?? undefined,
+    userId: user.id,
   };
 
   const { items, nextCursor } = await (type === 'following'
@@ -32,10 +32,10 @@ export default async function CardContainer({
 
   return (
     <Card
-      title={type === 'following' ? 'Following' : 'Followers'}
       items={items}
-      nextCursor={nextCursor}
       loadMoreUrl={`/api/u/${username}/social/${type}`}
+      nextCursor={nextCursor}
+      title={type === 'following' ? 'Following' : 'Followers'}
     />
   );
 }

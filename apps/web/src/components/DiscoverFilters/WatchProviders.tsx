@@ -1,9 +1,8 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
-
-import { type WatchProvider } from '@tvseri.es/types';
+import type { WatchProvider } from '@tvseri.es/types';
 import Image from 'next/image';
+import { useCallback, useMemo } from 'react';
 
 import MultiSelect, { type Result } from './MultiSelect';
 
@@ -17,8 +16,8 @@ export default function DiscoverWatchProviders({
   const multiSelectValues = useMemo(
     () =>
       providers.map((provider) => ({
-        value: String(provider.id),
         label: provider.name,
+        value: String(provider.id),
       })),
     [providers],
   );
@@ -31,12 +30,12 @@ export default function DiscoverWatchProviders({
 
       return (
         <Image
-          className="h-8 w-8 object-contain"
-          src={logo as string}
           alt={item.label}
-          width={56}
+          className="h-8 w-8 object-contain"
           height={56}
+          src={logo as string}
           unoptimized
+          width={56}
         />
       );
     },
@@ -47,11 +46,11 @@ export default function DiscoverWatchProviders({
     <MultiSelect
       className={className}
       classNameDropdown="grid grid-cols-8 gap-2"
-      searchParamKey="with_watch_providers"
-      searchParamSeparator="|"
-      results={multiSelectValues}
       placeholder="Streaming service"
       renderSelectItem={renderSelectItem}
+      results={multiSelectValues}
+      searchParamKey="with_watch_providers"
+      searchParamSeparator="|"
     />
   );
 }

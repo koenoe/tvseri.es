@@ -1,8 +1,7 @@
 'use client';
 
-import { useCallback, useState } from 'react';
-
 import { cx } from 'class-variance-authority';
+import { useCallback, useState } from 'react';
 import Dropzone, {
   type DropzoneProps,
   type FileRejection,
@@ -83,12 +82,12 @@ export default function FileUploader(props: FileUploaderProps) {
   return (
     <div className="relative flex flex-col gap-6 overflow-hidden">
       <Dropzone
-        onDrop={onDrop}
         accept={accept}
-        maxSize={maxSize}
-        maxFiles={maxFileCount}
-        multiple={maxFileCount > 1 || multiple}
         disabled={isDisabled}
+        maxFiles={maxFileCount}
+        maxSize={maxSize}
+        multiple={maxFileCount > 1 || multiple}
+        onDrop={onDrop}
       >
         {({ getRootProps, getInputProps, isDragActive }) => (
           <div
@@ -109,16 +108,16 @@ export default function FileUploader(props: FileUploaderProps) {
                 className={cx('mb-4 size-8 text-white/60', {
                   '!text-white': isDragActive,
                 })}
-                xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 20 16"
+                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
+                  d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
                   stroke="currentColor"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
                 />
               </svg>
               <p
@@ -145,8 +144,8 @@ export default function FileUploader(props: FileUploaderProps) {
           <div className="flex max-h-48 flex-col gap-4">
             {files?.map((file, index) => (
               <FileCard
-                key={index}
                 file={file}
+                key={index}
                 onRemove={() => onRemove(index)}
               />
             ))}
@@ -169,12 +168,12 @@ function FileCard({
       <div className="flex flex-1 gap-4">
         <svg
           className="size-10"
+          fill="currentColor"
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"
-          fill="currentColor"
         >
           <path d="M6 10h12v1H6zM3 1h12.29L21 6.709V23H3zm12 6h5v-.2L15.2 2H15zM4 22h16V8h-6V2H4zm2-7h12v-1H6zm0 4h9v-1H6z" />
-          <path fill="none" d="M0 0h24v24H0z" />
+          <path d="M0 0h24v24H0z" fill="none" />
         </svg>
         <div className="flex w-full flex-col gap-1">
           <p className="text-foreground/80 line-clamp-1 text-sm font-medium">
@@ -186,9 +185,9 @@ function FileCard({
         </div>
       </div>
       <button
-        type="button"
         className="size-8 rounded-md border border-white p-1 text-white"
         onClick={onRemove}
+        type="button"
       >
         <svg
           fill="currentColor"

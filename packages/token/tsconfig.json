@@ -1,14 +1,14 @@
 {
-  "extends": "@tvseri.es/typescript-config/base.json",
   "compilerOptions": {
+    "allowJs": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "allowJs": true,
     "noEmit": true,
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "extends": "@tvseri.es/typescript-config/base.json",
+  "include": ["**/*.ts"]
 }

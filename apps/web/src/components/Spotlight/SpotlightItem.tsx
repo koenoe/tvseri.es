@@ -1,9 +1,8 @@
 'use client';
 
-import { memo } from 'react';
-
 import type { TvSeries } from '@tvseri.es/types';
 import Link from 'next/link';
+import { memo } from 'react';
 
 import SpotlightBackground from './SpotlightBackground';
 import SpotlightTitle from './SpotlightTitle';
@@ -16,16 +15,16 @@ type Props = Readonly<{
 const SpotlightItem = ({ item, index }: Props) => {
   return (
     <Link
+      className="relative flex h-full w-full flex-shrink-0 items-end overflow-hidden"
+      draggable={false}
       href={{
         pathname: `/tv/${item.id}/${item.slug}`,
       }}
-      className="relative flex h-full w-full flex-shrink-0 items-end overflow-hidden"
-      draggable={false}
     >
       {item.backdropImage && <SpotlightBackground item={item} />}
 
       <div className="lg:p-18 relative w-full p-8 md:w-4/5 md:p-14">
-        <SpotlightTitle item={item} className="mb-6" />
+        <SpotlightTitle className="mb-6" item={item} />
 
         <div className="flex gap-4 md:gap-12">
           <div className="flex w-full justify-center gap-2 text-xs opacity-60 md:justify-start md:text-[0.8rem]">

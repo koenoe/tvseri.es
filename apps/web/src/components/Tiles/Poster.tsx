@@ -1,12 +1,11 @@
 'use client';
 
-import { memo, useCallback } from 'react';
-
 import type { ListItem } from '@tvseri.es/types';
 import { cva, cx, type VariantProps } from 'class-variance-authority';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { memo, useCallback } from 'react';
 
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
@@ -26,15 +25,18 @@ export const posterStyles = cva(
     'after:content-[""]',
   ],
   {
+    defaultVariants: {
+      size: 'large',
+    },
     variants: {
       size: {
-        small: [
-          'md:w-[126px]',
-          'md:h-[189px]',
-          'h-[225px]',
-          'w-[150px]',
-          'lg:h-[225px]',
-          'lg:w-[150px]',
+        large: [
+          'h-[275px]',
+          'w-[183px]',
+          'lg:h-[300px]',
+          'lg:w-[200px]',
+          'xl:h-[375px]',
+          'xl:w-[250px]',
         ],
         medium: [
           'h-[250px]',
@@ -44,18 +46,15 @@ export const posterStyles = cva(
           'xl:h-[325px]',
           'xl:w-[217px]',
         ],
-        large: [
-          'h-[275px]',
-          'w-[183px]',
-          'lg:h-[300px]',
-          'lg:w-[200px]',
-          'xl:h-[375px]',
-          'xl:w-[250px]',
+        small: [
+          'md:w-[126px]',
+          'md:h-[189px]',
+          'h-[225px]',
+          'w-[150px]',
+          'lg:h-[225px]',
+          'lg:w-[150px]',
         ],
       },
-    },
-    defaultVariants: {
-      size: 'large',
     },
   },
 );
@@ -80,13 +79,13 @@ function Poster({
     return (
       <div className="relative w-full pt-[150%]">
         <Image
+          alt={item.title}
           className="rounded-lg object-contain"
           draggable={false}
-          src={item.posterImage}
-          alt={item.title}
           fill
-          priority={priority}
           placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(300, 450)}`}
+          priority={priority}
+          src={item.posterImage}
           unoptimized
         />
         <span className="sr-only">{item.title}</span>
@@ -97,12 +96,12 @@ function Poster({
   if (mediaType === 'movie') {
     return (
       <motion.div
-        key={item.id}
+        animate={{ scale: 1 }}
         className={cx(posterStyles({ size }), 'cursor-not-allowed', className)}
         draggable={false}
-        whileHover={{ scale: 1.075 }}
-        animate={{ scale: 1 }}
+        key={item.id}
         layout
+        whileHover={{ scale: 1.075 }}
       >
         {poster()}
       </motion.div>
@@ -111,15 +110,15 @@ function Poster({
 
   return (
     <MotionLink
-      key={item.id}
+      animate={{ scale: 1 }}
       className={cx(posterStyles({ size }), className)}
       draggable={false}
       href={{
         pathname: `/tv/${item.id}/${item.slug}`,
       }}
-      whileHover={{ scale: 1.075 }}
-      animate={{ scale: 1 }}
+      key={item.id}
       layout
+      whileHover={{ scale: 1.075 }}
     >
       {poster()}
     </MotionLink>

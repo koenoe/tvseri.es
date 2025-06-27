@@ -19,13 +19,13 @@ export default async function BlockTvSeriesWatched({
 
   return (
     <Block
-      label="Series tracked"
-      value={current.length.toLocaleString()}
       comparison={{
-        previousValue: previous.length.toLocaleString(),
         delta,
+        previousValue: previous.length.toLocaleString(),
         type: 'percentage',
       }}
+      label="Series tracked"
+      value={current.length.toLocaleString()}
     />
   );
 }

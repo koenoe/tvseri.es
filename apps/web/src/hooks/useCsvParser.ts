@@ -1,6 +1,5 @@
-import { useCallback, useState } from 'react';
-
 import * as Papa from 'papaparse';
+import { useCallback, useState } from 'react';
 
 export type Field = Readonly<{
   label: string;
@@ -48,16 +47,16 @@ export default function useCsvParser({
   ...props
 }: UseCsvParserProps) {
   const [csvState, setCsvState] = useState<CsvState>({
-    fileName: '',
     data: {
-      parsed: [],
       mapped: [],
+      parsed: [],
     },
+    error: null,
     fieldMappings: {
       current: {},
       original: {},
     },
-    error: null,
+    fileName: '',
   });
 
   const onParse = useCallback(
@@ -67,9 +66,6 @@ export default function useCsvParser({
 
       Papa.parse<Record<string, unknown>>(file, {
         ...props,
-        header: true,
-        skipEmptyLines: true,
-        dynamicTyping: true,
         beforeFirstChunk: (chunk) => {
           const parsedChunk = Papa.parse<string[]>(chunk, {
             header: false,
@@ -100,11 +96,28 @@ export default function useCsvParser({
 
           return Papa.unparse(rows);
         },
+        complete: (_, localFile: File) => {
+          setCsvState((prevState) => ({
+            ...prevState,
+            data: {
+              mapped: allResults,
+              parsed: allResults,
+            },
+            fileName: localFile?.name
+              ? localFile.name.replace(/\.[^/.]+$/, '')
+              : 'Untitled',
+          }));
+          onSuccess?.(allResults);
+        },
+        dynamicTyping: true,
+        header: true,
+        skipEmptyLines: true,
         step: (results, parser) => {
           try {
             if (count === 0) {
               const mappings = (results.meta.fields ?? [])?.reduce(
                 (acc, field) => ({
+                  // biome-ignore lint/performance/noAccumulatingSpread: blablabla
                   ...acc,
                   [field]: field,
                 }),
@@ -114,8 +127,8 @@ export default function useCsvParser({
               setCsvState((prevState) => ({
                 ...prevState,
                 fieldMappings: {
-                  original: mappings,
                   current: mappings,
+                  original: mappings,
                 },
               }));
             }
@@ -136,21 +149,9 @@ export default function useCsvParser({
             onError?.(error);
           }
         },
-        complete: (_, localFile: File) => {
-          setCsvState((prevState) => ({
-            ...prevState,
-            fileName: localFile?.name
-              ? localFile.name.replace(/\.[^/.]+$/, '')
-              : 'Untitled',
-            data: {
-              parsed: allResults,
-              mapped: allResults,
-            },
-          }));
-          onSuccess?.(allResults);
-        },
       });
     },
+    // biome-ignore lint/correctness/useExhaustiveDependencies: blablabla
     [onError, onSuccess, props],
   );
 
@@ -158,10 +159,6 @@ export default function useCsvParser({
     ({ oldValue, newValue }: { oldValue: string; newValue: string }) => {
       setCsvState((prevState) => ({
         ...prevState,
-        fieldMappings: {
-          ...prevState.fieldMappings,
-          current: { ...prevState.fieldMappings.current, [newValue]: oldValue },
-        },
         data: {
           ...prevState.data,
           mapped: prevState.data.mapped.map((row, index) => {
@@ -182,6 +179,10 @@ export default function useCsvParser({
             };
           }),
         },
+        fieldMappings: {
+          ...prevState.fieldMappings,
+          current: { ...prevState.fieldMappings.current, [newValue]: oldValue },
+        },
       }));
     },
     [fields],
@@ -190,6 +191,10 @@ export default function useCsvParser({
   const onFieldsReset = useCallback(() => {
     setCsvState((prevState) => ({
       ...prevState,
+      data: {
+        ...prevState.data,
+        mapped: prevState.data.parsed,
+      },
       fieldMappings: {
         ...prevState.fieldMappings,
         current: Object.fromEntries(
@@ -201,10 +206,6 @@ export default function useCsvParser({
           ]),
         ),
       },
-      data: {
-        ...prevState.data,
-        mapped: prevState.data.parsed,
-      },
     }));
   }, [fields]);
 
@@ -213,6 +214,7 @@ export default function useCsvParser({
       data.map((row) =>
         Object.keys(row).reduce(
           (acc, key) => ({
+            // biome-ignore lint/performance/noAccumulatingSpread: blablabla
             ...acc,
             [key]: row[key] === null ? '' : row[key],
           }),
@@ -223,13 +225,13 @@ export default function useCsvParser({
   );
 
   return {
-    fileName: csvState.fileName,
     data: csvState.data.mapped,
-    fieldMappings: csvState.fieldMappings,
     error: csvState.error,
+    fieldMappings: csvState.fieldMappings,
+    fileName: csvState.fileName,
     getSanitizedData,
-    onParse,
     onFieldChange,
     onFieldsReset,
+    onParse,
   };
 }

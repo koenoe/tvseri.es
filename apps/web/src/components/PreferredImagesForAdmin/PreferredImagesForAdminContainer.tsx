@@ -3,8 +3,8 @@ import type { PreferredImages } from '@tvseri.es/types';
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
 import {
-  fetchTvSeriesImages,
   detectDominantColorFromImage,
+  fetchTvSeriesImages,
   updatePreferredImages,
 } from '@/lib/api';
 
@@ -39,8 +39,8 @@ async function getDominantColor({
   'use server';
 
   const color = await detectDominantColorFromImage({
-    url: url.replace('w1920_and_h1080_multi_faces', 'w780'),
     cacheKey: path,
+    url: url.replace('w1920_and_h1080_multi_faces', 'w780'),
   });
 
   return color;
@@ -74,9 +74,9 @@ export default async function PreferredImagesForAdminContainer({
 
   return (
     <PreferredImagesForAdmin
+      getDominantColor={getDominantColor}
       id={tvSeries.id}
       images={images}
-      getDominantColor={getDominantColor}
       storePreferredImages={storePreferredImages}
     />
   );

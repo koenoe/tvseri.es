@@ -19,13 +19,13 @@ export default async function BlockEpisodesWatched({
 
   return (
     <Block
-      label="Episodes watched"
-      value={current.length.toLocaleString()}
       comparison={{
-        previousValue: previous.length.toLocaleString(),
         delta,
+        previousValue: previous.length.toLocaleString(),
         type: 'percentage',
       }}
+      label="Episodes watched"
+      value={current.length.toLocaleString()}
     />
   );
 }

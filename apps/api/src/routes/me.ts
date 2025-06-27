@@ -17,7 +17,7 @@ import {
   deleteSessionId,
   fetchAccountDetails,
 } from '@/lib/tmdb';
-import { type Variables, requireAuth } from '@/middleware/auth';
+import { requireAuth, type Variables } from '@/middleware/auth';
 
 const app = new Hono<{ Variables: Variables }>();
 
@@ -87,8 +87,8 @@ app.put('/tmdb', vValidator('json', AddTmdbToUserSchema), async (c) => {
 
   await Promise.all([
     addTmdbToSession(session, {
-      tmdbSessionId,
       tmdbAccessToken: accessToken,
+      tmdbSessionId,
     }),
     addTmdbToUser(userFromSession, {
       tmdbAccountId: tmdbAccount.id,
@@ -111,18 +111,16 @@ app.delete('/tmdb', async (c) => {
   }
 
   const tmdbSessionsToCleanup = await removeTmdbFromSessions(user.id);
-  const tmdbCleanupPromises = tmdbSessionsToCleanup
-    .map((session) => {
-      const p = [];
-      if (session.accessToken) {
-        p.push(deleteAccessToken(session.accessToken));
-      }
-      if (session.sessionId) {
-        p.push(deleteSessionId(session.sessionId));
-      }
-      return p;
-    })
-    .flat();
+  const tmdbCleanupPromises = tmdbSessionsToCleanup.flatMap((session) => {
+    const p = [];
+    if (session.accessToken) {
+      p.push(deleteAccessToken(session.accessToken));
+    }
+    if (session.sessionId) {
+      p.push(deleteSessionId(session.sessionId));
+    }
+    return p;
+  });
 
   promises.push(...tmdbCleanupPromises);
 

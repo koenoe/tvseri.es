@@ -11,16 +11,16 @@ export default async function BlockFavorites({
 }>) {
   const [current, previous] = await Promise.all([
     getListItemsCount({
-      listId: 'FAVORITES',
-      userId,
-      startDate: new Date(`${year}-01-01`),
       endDate: new Date(`${year}-12-31`),
+      listId: 'FAVORITES',
+      startDate: new Date(`${year}-01-01`),
+      userId,
     }),
     getListItemsCount({
-      listId: 'FAVORITES',
-      userId,
-      startDate: new Date(`${year - 1}-01-01`),
       endDate: new Date(`${year - 1}-12-31`),
+      listId: 'FAVORITES',
+      startDate: new Date(`${year - 1}-01-01`),
+      userId,
     }),
   ]);
 
@@ -28,13 +28,13 @@ export default async function BlockFavorites({
 
   return (
     <Block
-      label="Added to favorites"
-      value={current.toLocaleString()}
       comparison={{
-        previousValue: previous.toLocaleString(),
         delta,
+        previousValue: previous.toLocaleString(),
         type: 'absolute',
       }}
+      label="Added to favorites"
+      value={current.toLocaleString()}
     />
   );
 }

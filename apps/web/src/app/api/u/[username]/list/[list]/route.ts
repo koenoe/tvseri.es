@@ -1,4 +1,4 @@
-import { type NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 import { findUser, getListItems } from '@/lib/api';
 
@@ -31,11 +31,11 @@ export async function GET(
   const cursorFromSearchParams = searchParams.get('pageOrCursor') ?? '';
 
   const response = await getListItems({
-    userId: user.id,
     listId: list.toUpperCase(),
     options: {
       cursor: cursorFromSearchParams,
     },
+    userId: user.id,
   });
 
   return Response.json({

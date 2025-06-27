@@ -3,9 +3,8 @@
 export default $config({
   app(input) {
     return {
-      name: 'tvseries',
-      removal: input?.stage === 'production' ? 'retain' : 'remove',
       home: 'aws',
+      name: 'tvseries',
       providers: {
         aws: {
           profile:
@@ -18,6 +17,7 @@ export default $config({
           team: process.env.VERCEL_TEAM_ID,
         },
       },
+      removal: input?.stage === 'production' ? 'retain' : 'remove',
     };
   },
   async run() {

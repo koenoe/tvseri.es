@@ -19,8 +19,8 @@ export default async function UserButtons({
   const { user: userFromSession } = await auth();
   if (userFromSession) {
     const isFollowing = await isFollowingResult({
-      userId: userFromSession?.id,
       targetUserId: user.id,
+      userId: userFromSession?.id,
     });
 
     return (
@@ -28,7 +28,7 @@ export default async function UserButtons({
         {userFromSession.id === user.id ? (
           <EditProfileButton />
         ) : (
-          <FollowButton username={username} isFollowing={isFollowing} />
+          <FollowButton isFollowing={isFollowing} username={username} />
         )}
         <ContextMenuButtonUser user={user} />
       </>

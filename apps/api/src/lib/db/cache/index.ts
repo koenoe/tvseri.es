@@ -4,7 +4,7 @@ import {
   PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { type CacheItem, type CacheOptions } from '@tvseri.es/types';
+import type { CacheItem, CacheOptions } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
 import client from '../client';
@@ -17,13 +17,13 @@ export const setCacheItem = async <T>(
   options: CacheOptions = {},
 ): Promise<void> => {
   const baseItem = {
+    createdAt: new Date().toISOString(),
     pk: `CACHE#${key}`,
     value: value
       ? typeof value === 'string'
         ? value
         : JSON.stringify(value)
       : null,
-    createdAt: new Date().toISOString(),
   };
 
   const item =
@@ -36,8 +36,8 @@ export const setCacheItem = async <T>(
         };
 
   const command = new PutItemCommand({
-    TableName: Resource.Cache.name,
     Item: marshall(item),
+    TableName: Resource.Cache.name,
   });
 
   try {
@@ -51,10 +51,10 @@ export const getCacheItem = async <T>(
   key: string,
 ): Promise<T | null | undefined> => {
   const command = new GetItemCommand({
-    TableName: Resource.Cache.name,
     Key: marshall({
       pk: `CACHE#${key}`,
     }),
+    TableName: Resource.Cache.name,
   });
 
   try {
@@ -78,10 +78,10 @@ export const getCacheItem = async <T>(
 
 export const deleteCacheItem = async (key: string): Promise<void> => {
   const command = new DeleteItemCommand({
-    TableName: Resource.Cache.name,
     Key: marshall({
       pk: `CACHE#${key}`,
     }),
+    TableName: Resource.Cache.name,
   });
 
   try {

@@ -1,9 +1,8 @@
 'use client';
 
-import { memo } from 'react';
-
-import { type UserWithFollowInfo } from '@tvseri.es/types';
+import type { UserWithFollowInfo } from '@tvseri.es/types';
 import Link from 'next/link';
+import { memo } from 'react';
 
 import FollowButton from '../Buttons/FollowButton';
 
@@ -18,10 +17,10 @@ function Item({
         <div className="flex flex-nowrap gap-3">
           <Link
             className="w-full max-w-32 truncate md:max-w-max"
-            title={user.username}
             href={{
               pathname: `/u/${user.username}`,
             }}
+            title={user.username}
           >
             {user.username}
           </Link>
@@ -47,8 +46,8 @@ function Item({
         {user.isMe ? null : (
           <FollowButton
             isFollowing={user.isFollowing}
-            username={user.username}
             size="small"
+            username={user.username}
           />
         )}
       </div>

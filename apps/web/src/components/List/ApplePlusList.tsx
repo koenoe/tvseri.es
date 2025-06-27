@@ -1,9 +1,8 @@
 import { headers } from 'next/headers';
 
 import { fetchApplePlusTvSeries } from '@/lib/api';
-
-import List, { type HeaderVariantProps } from './List';
 import Poster from '../Tiles/Poster';
+import List, { type HeaderVariantProps } from './List';
 
 export default async function ApplePlusList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,
@@ -14,12 +13,12 @@ export default async function ApplePlusList(
 
   return (
     <List
-      title="Must-watch on Apple TV+"
       scrollRestoreKey="must-watch-on-apple-tv"
+      title="Must-watch on Apple TV+"
       {...props}
     >
       {tvSeries.map((item) => (
-        <Poster key={item.id} item={item} />
+        <Poster item={item} key={item.id} />
       ))}
     </List>
   );

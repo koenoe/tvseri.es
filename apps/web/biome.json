@@ -1,0 +1,10 @@
+{
+  "extends": "//",
+  "linter": {
+    "domains": {
+      "next": "all",
+      "react": "all"
+    }
+  },
+  "root": false
+}

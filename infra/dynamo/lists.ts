@@ -2,15 +2,15 @@
 
 export const lists = new sst.aws.Dynamo('Lists', {
   fields: {
-    pk: 'string', // USER#<userId>
-    sk: 'string', // LIST#CUSTOM#<listId> or LIST#WATCHLIST or LIST#FAVORITES or LIST#<listId>#ITEM#<tmdbId>
-    gsi1pk: 'string', // LIST#<userId>#<listId>
-    gsi1sk: 'string', // title (lowercase)
+    gsi1pk: 'string', // USER#<userId>
+    gsi1sk: 'string', // LIST#CUSTOM#<listId> or LIST#WATCHLIST or LIST#FAVORITES or LIST#<listId>#ITEM#<tmdbId>
     gsi2pk: 'string', // LIST#<userId>#<listId>
-    gsi2sk: 'number', // created_at
-    gsi3pk: 'string', // LIST#<userId>#<listId> (only for custom lists)
-    gsi3sk: 'number', // position (only for custom lists)
-    gsi4pk: 'string', // SERIES#<tmdbId>
+    gsi2sk: 'number', // title (lowercase)
+    gsi3pk: 'string', // LIST#<userId>#<listId>
+    gsi3sk: 'number', // created_at
+    gsi4pk: 'string', // LIST#<userId>#<listId> (only for custom lists)
+    pk: 'string', // position (only for custom lists)
+    sk: 'string', // SERIES#<tmdbId>
 
     // listId: 'string',
     // id: 'number',
@@ -23,11 +23,11 @@ export const lists = new sst.aws.Dynamo('Lists', {
     // createdAt: 'number',
     // position: 'number', // Optional, only for custom lists
   },
-  primaryIndex: { hashKey: 'pk', rangeKey: 'sk' },
   globalIndexes: {
-    gsi1: { hashKey: 'gsi1pk', rangeKey: 'gsi1sk', projection: 'all' },
-    gsi2: { hashKey: 'gsi2pk', rangeKey: 'gsi2sk', projection: 'all' },
-    gsi3: { hashKey: 'gsi3pk', rangeKey: 'gsi3sk', projection: 'all' },
+    gsi1: { hashKey: 'gsi1pk', projection: 'all', rangeKey: 'gsi1sk' },
+    gsi2: { hashKey: 'gsi2pk', projection: 'all', rangeKey: 'gsi2sk' },
+    gsi3: { hashKey: 'gsi3pk', projection: 'all', rangeKey: 'gsi3sk' },
     gsi4: { hashKey: 'gsi4pk', projection: 'all' },
   },
+  primaryIndex: { hashKey: 'pk', rangeKey: 'sk' },
 });

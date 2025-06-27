@@ -32,8 +32,8 @@ export default function WatchlistButton({
   return (
     <AddButton
       isActive={isWatchlisted}
-      onClick={handleOnClick}
       isDisabled={isPending}
+      onClick={handleOnClick}
       title={isWatchlisted ? 'Remove from watchlist' : 'Add to watchlist'}
     />
   );

@@ -1,13 +1,12 @@
-import { Buffer } from 'buffer';
-
+import { Buffer } from 'node:buffer';
 import {
-  QueryCommand,
-  PutItemCommand,
+  BatchGetItemCommand,
   DeleteItemCommand,
   GetItemCommand,
-  BatchGetItemCommand,
+  PutItemCommand,
+  QueryCommand,
 } from '@aws-sdk/client-dynamodb';
-import { unmarshall, marshall } from '@aws-sdk/util-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { PaginationOptions, User } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
@@ -58,7 +57,7 @@ async function batchGetUsers(
   const users: Record<string, User | null> = {};
   (data.Responses?.[Resource.Users.name] || []).forEach((item) => {
     const user = unmarshall(item) as User;
-    if (user && user.id) {
+    if (user?.id) {
       users[user.id] = user;
     }
   });
@@ -74,13 +73,13 @@ export async function getFollowers(
   const { userId, options = {} } = input;
   const { limit = 20, cursor, sortDirection = 'desc' } = options;
   const params = {
-    TableName: Resource.Follow.name,
+    ExclusiveStartKey: decodeCursor(cursor),
+    ExpressionAttributeValues: marshall({ ':gsi1pk': followersPk(userId) }),
     IndexName: 'gsi1',
     KeyConditionExpression: 'gsi1pk = :gsi1pk',
-    ExpressionAttributeValues: marshall({ ':gsi1pk': followersPk(userId) }),
     Limit: limit,
-    ExclusiveStartKey: decodeCursor(cursor),
     ScanIndexForward: sortDirection === 'asc',
+    TableName: Resource.Follow.name,
   };
   const data = await client.send(new QueryCommand(params));
   const items = (data.Items || []).map((item) => unmarshall(item));
@@ -105,13 +104,13 @@ export async function getFollowing(
   const { userId, options = {} } = input;
   const { limit = 20, cursor, sortDirection = 'desc' } = options;
   const params = {
-    TableName: Resource.Follow.name,
+    ExclusiveStartKey: decodeCursor(cursor),
+    ExpressionAttributeValues: marshall({ ':gsi2pk': followingPk(userId) }),
     IndexName: 'gsi2',
     KeyConditionExpression: 'gsi2pk = :gsi2pk',
-    ExpressionAttributeValues: marshall({ ':gsi2pk': followingPk(userId) }),
     Limit: limit,
-    ExclusiveStartKey: decodeCursor(cursor),
     ScanIndexForward: sortDirection === 'asc',
+    TableName: Resource.Follow.name,
   };
   const data = await client.send(new QueryCommand(params));
   const items = (data.Items || []).map((item) => unmarshall(item));
@@ -129,11 +128,11 @@ export async function getFollowing(
 
 export async function getFollowerCount(userId: string): Promise<number> {
   const command = new QueryCommand({
-    TableName: Resource.Follow.name,
+    ExpressionAttributeValues: marshall({ ':gsi1pk': followersPk(userId) }),
     IndexName: 'gsi1',
     KeyConditionExpression: 'gsi1pk = :gsi1pk',
-    ExpressionAttributeValues: marshall({ ':gsi1pk': followersPk(userId) }),
     Select: 'COUNT',
+    TableName: Resource.Follow.name,
   });
   const result = await client.send(command);
   return result.Count ?? 0;
@@ -141,11 +140,11 @@ export async function getFollowerCount(userId: string): Promise<number> {
 
 export async function getFollowingCount(userId: string): Promise<number> {
   const command = new QueryCommand({
-    TableName: Resource.Follow.name,
+    ExpressionAttributeValues: marshall({ ':gsi2pk': followingPk(userId) }),
     IndexName: 'gsi2',
     KeyConditionExpression: 'gsi2pk = :gsi2pk',
-    ExpressionAttributeValues: marshall({ ':gsi2pk': followingPk(userId) }),
     Select: 'COUNT',
+    TableName: Resource.Follow.name,
   });
   const result = await client.send(command);
   return result.Count ?? 0;
@@ -162,19 +161,19 @@ export async function follow({
   const followKey = followPk(userId, targetUserId);
 
   const item = marshall({
+    createdAt: now,
+    followerId: userId,
+    followingId: targetUserId, // For getting followers of targetUserId
+    gsi1pk: followersPk(targetUserId),
+    gsi1sk: createSortKey(now, userId), // For getting users that userId is following
+    gsi2pk: followingPk(userId),
+    gsi2sk: createSortKey(now, targetUserId),
     pk: followKey,
     sk: followKey,
-    gsi1pk: followersPk(targetUserId), // For getting followers of targetUserId
-    gsi1sk: createSortKey(now, userId),
-    gsi2pk: followingPk(userId), // For getting users that userId is following
-    gsi2sk: createSortKey(now, targetUserId),
-    followerId: userId,
-    followingId: targetUserId,
-    createdAt: now,
   });
 
   await client.send(
-    new PutItemCommand({ TableName: Resource.Follow.name, Item: item }),
+    new PutItemCommand({ Item: item, TableName: Resource.Follow.name }),
   );
 }
 
@@ -189,11 +188,11 @@ export async function unfollow({
 
   await client.send(
     new DeleteItemCommand({
-      TableName: Resource.Follow.name,
       Key: marshall({
         pk: followKey,
         sk: followKey,
       }),
+      TableName: Resource.Follow.name,
     }),
   );
 }
@@ -208,11 +207,11 @@ export async function isFollowing({
   const followKey = followPk(userId, targetUserId);
 
   const params = {
-    TableName: Resource.Follow.name,
     Key: marshall({
       pk: followKey,
       sk: followKey,
     }),
+    TableName: Resource.Follow.name,
   };
 
   const data = await client.send(new GetItemCommand(params));
@@ -226,5 +225,5 @@ export async function isFollower({
   userId: string;
   targetUserId: string;
 }) {
-  return isFollowing({ userId: targetUserId, targetUserId: userId });
+  return isFollowing({ targetUserId: userId, userId: targetUserId });
 }

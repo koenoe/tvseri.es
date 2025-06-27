@@ -1,9 +1,8 @@
-import { Suspense } from 'react';
-
 import { cx } from 'class-variance-authority';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
+import { Suspense } from 'react';
 
 import { cachedPerson } from '@/app/cached';
 import ExpandableText from '@/components/ExpandableText/ExpandableText';
@@ -37,29 +36,29 @@ export async function generateMetadata({ params: paramsFromProps }: Props) {
   const canonicalUrl = `${getBaseUrl()}/tv/${params.id}/${person.slug}`;
 
   return {
-    title: person.name,
-    description: person.biography,
     alternates: {
       canonical: canonicalUrl,
     },
+    description: person.biography,
     openGraph: {
-      title: person.name,
       description: person.biography,
-      url: canonicalUrl,
-      siteName: 'tvseri.es',
       images: person.image
         ? [
             {
+              alt: `${person.name} poster`,
+              height: 900,
               url: person.image,
               width: 600,
-              height: 900,
-              alt: `${person.name} poster`,
             },
           ]
         : undefined,
       locale: 'en_US',
+      siteName: 'tvseri.es',
+      title: person.name,
       type: 'profile',
+      url: canonicalUrl,
     },
+    title: person.name,
   };
 }
 
@@ -91,14 +90,14 @@ export default async function PersonDetailsPage({
               <div className="relative h-auto w-full overflow-hidden rounded-lg pt-[150%] shadow-lg after:absolute after:inset-0 after:rounded-lg after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:mx-0">
                 {person.image ? (
                   <Image
+                    alt={person.name}
                     className="rounded-lg object-cover"
                     draggable={false}
-                    src={person.image}
-                    alt={person.name}
                     fill
-                    unoptimized
-                    priority
                     placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(300, 450)}`}
+                    priority
+                    src={person.image}
+                    unoptimized
                   />
                 ) : (
                   <div className="absolute inset-0 h-full w-full overflow-hidden rounded-lg bg-white/5" />
@@ -145,10 +144,10 @@ export default async function PersonDetailsPage({
                     .filter((section) => section !== '')
                     .map((section, i, sections) => (
                       <p
-                        key={i}
                         className={cx({
                           'mb-4': i < sections.length - 1,
                         })}
+                        key={i}
                       >
                         {section}
                       </p>

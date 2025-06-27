@@ -1,6 +1,6 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
-import { execSync } from 'child_process';
+import { execSync } from 'node:child_process';
 import { domain, zone } from './dns';
 // import { apiRouter } from './api';
 import * as secrets from './secrets';
@@ -28,29 +28,29 @@ const currentProject = vercel.getProjectOutput({
 const project = currentProject
   ? currentProject
   : new vercel.Project('WebProject', {
-      name: 'web',
       gitRepository: {
-        type: 'github',
         repo: 'koenoe/tvseries',
+        type: 'github',
       },
+      name: 'web',
       ...projectSettings,
     });
 
 export const web = new vercel.Deployment('WebDeployment', {
-  projectId: project.id,
-  production: $app.stage === 'production',
-  ref: $app.stage === 'production' ? gitHash : gitBranch,
   environment: {
+    API_KEY: secrets.apiKey.value,
     // API_URL: apiRouter.url,
     API_URL: 'https://api.tvseri.es',
-    API_KEY: secrets.apiKey.value,
+    GIT_BRANCH: gitBranch,
+    GIT_HASH: gitHash,
     SECRET_KEY: secrets.secretKey.value,
     SITE_URL: `https://${domain}`,
     SST_STAGE: $app.stage,
-    GIT_HASH: gitHash,
-    GIT_BRANCH: gitBranch,
   },
+  production: $app.stage === 'production',
+  projectId: project.id,
   projectSettings,
+  ref: $app.stage === 'production' ? gitHash : gitBranch,
 });
 
 // if (!$dev) {
@@ -81,18 +81,17 @@ try {
 }
 
 new sst.aws.Nextjs('tvseries', {
-  openNextVersion,
   domain: {
-    name: domain,
-    redirects: $app.stage === 'production' ? ['www.tvseri.es'] : [],
     dns: sst.aws.dns({
       zone,
     }),
+    name: domain,
+    redirects: $app.stage === 'production' ? ['www.tvseri.es'] : [],
   },
   environment: {
+    API_KEY: secrets.apiKey.value,
     // API_URL: apiRouter.url,
     API_URL: 'https://api.tvseri.es',
-    API_KEY: secrets.apiKey.value,
     OPEN_NEXT_FORCE_NON_EMPTY_RESPONSE: 'true',
     SECRET_KEY: secrets.secretKey.value,
     SITE_URL: `https://${domain}`,
@@ -107,19 +106,9 @@ new sst.aws.Nextjs('tvseries', {
     memory: '1 GB',
     runtime: 'nodejs22.x',
   },
-  warm: $app.stage === 'production' ? 3 : 0,
   transform: {
-    server: {
-      timeout: '30 seconds',
-      nodejs: {
-        minify: true,
-        esbuild: {
-          external: ['@opennextjs/aws'],
-        },
-      },
-    },
     cdn: (options) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // biome-ignore lint/suspicious/noExplicitAny: sort out later
       const origins = (options.origins || []) as any[];
       options.origins = origins.map((origin) => ({
         ...origin,
@@ -129,5 +118,15 @@ new sst.aws.Nextjs('tvseries', {
         },
       }));
     },
+    server: {
+      nodejs: {
+        esbuild: {
+          external: ['@opennextjs/aws'],
+        },
+        minify: true,
+      },
+      timeout: '30 seconds',
+    },
   },
+  warm: $app.stage === 'production' ? 3 : 0,
 });

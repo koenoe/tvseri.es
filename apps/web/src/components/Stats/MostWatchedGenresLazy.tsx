@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 
-import { type Props } from './MostWatchedGenres';
+import type { Props } from './MostWatchedGenres';
 
 const MostWatchedGenres = dynamic(() => import('./MostWatchedGenres'), {
   ssr: false,

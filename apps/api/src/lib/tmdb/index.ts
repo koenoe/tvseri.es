@@ -2,45 +2,50 @@ import { type BetterFetchOption, createFetch } from '@better-fetch/fetch';
 import type {
   Account,
   CountryOrLanguage,
+  Episode,
   Genre,
   Keyword,
   Movie,
   Person,
-  TmdbTvSeries,
-  TmdbDiscoverTvSeriesQuery,
-  TmdbMovie,
-  TmdbTvSeriesEpisode,
-  TmdbTvSeriesCredits,
-  Episode,
   Season,
-  TvSeries,
-  WatchProvider,
-  TmdbTvSeriesImages,
-  TmdbTvSeriesContentRatings,
-  TmdbTvSeriesWatchProviders,
-  TmdbTvSeriesRecommendations,
-  TmdbTvSeriesSimilar,
-  TmdbTvSeriesKeywords,
-  TmdbTvSeriesSeason,
-  TmdbTrendingTvSeries,
-  TmdbDiscoverTvSeries,
   TmdbAccountDetails,
-  TmdbGenresForTvSeries,
-  TmdbSearchTvSeries,
-  TmdbWatchProviders,
   TmdbCountries,
-  TmdbLanguages,
-  TmdbKeyword,
-  TmdbKeywords,
-  TmdbSearchPerson,
-  TmdbPerson,
-  TmdbPersonTvCredits,
+  TmdbDiscoverTvSeries,
+  TmdbDiscoverTvSeriesQuery,
   TmdbExternalSource,
   TmdbFindByIdResults,
+  TmdbGenresForTvSeries,
+  TmdbKeyword,
+  TmdbKeywords,
+  TmdbLanguages,
+  TmdbMovie,
+  TmdbPerson,
+  TmdbPersonTvCredits,
+  TmdbSearchPerson,
+  TmdbSearchTvSeries,
+  TmdbTrendingTvSeries,
+  TmdbTvSeries,
+  TmdbTvSeriesContentRatings,
+  TmdbTvSeriesCredits,
+  TmdbTvSeriesEpisode,
+  TmdbTvSeriesImages,
+  TmdbTvSeriesKeywords,
+  TmdbTvSeriesRecommendations,
+  TmdbTvSeriesSeason,
+  TmdbTvSeriesSimilar,
+  TmdbTvSeriesWatchProviders,
+  TmdbWatchProviders,
+  TvSeries,
+  WatchProvider,
 } from '@tvseri.es/types';
 import slugify from 'slugify';
 import { Resource } from 'sst';
-
+import {
+  DEFAULT_FETCH_RETRY_OPTIONS,
+  WATCH_PROVIDER_PRIORITY,
+} from '@/constants';
+import calculateAge from '@/utils/calculateAge';
+import { toQueryString } from '@/utils/toQueryString';
 import { findPreferredImages } from '../db/preferredImages';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import {
@@ -49,22 +54,16 @@ import {
   fetchMostPopularThisMonth,
 } from '../mdblist';
 import {
-  GLOBAL_GENRES_TO_IGNORE,
   buildBackdropImageUrl,
   buildDiscoverQuery,
   buildTitleTreatmentImageUrl,
+  GLOBAL_GENRES_TO_IGNORE,
   generateTmdbImageUrl,
   normalizeMovie,
   normalizePersons,
   normalizeTvSeries,
   normalizeTvSeriesEpisode,
 } from './helpers';
-import {
-  DEFAULT_FETCH_RETRY_OPTIONS,
-  WATCH_PROVIDER_PRIORITY,
-} from '@/constants';
-import calculateAge from '@/utils/calculateAge';
-import { toQueryString } from '@/utils/toQueryString';
 
 const tmdbApiKey = Resource.TmdbApiKey.value;
 const tmdbApiAccessToken = Resource.TmdbApiAccessToken.value;
@@ -112,10 +111,10 @@ async function tmdbFetch(path: string, options?: BetterFetchOption) {
 
 export async function createRequestToken(redirectUri: string) {
   const response = (await tmdbFetch('/4/auth/request_token', {
-    method: 'POST',
     body: JSON.stringify({
       redirect_to: redirectUri,
     }),
+    method: 'POST',
   })) as Readonly<{
     success: boolean;
     status_code: number;
@@ -132,10 +131,10 @@ export async function createRequestToken(redirectUri: string) {
 
 export async function createAccessToken(requestToken: string) {
   const response = (await tmdbFetch('/4/auth/access_token', {
-    method: 'POST',
     body: JSON.stringify({
       request_token: requestToken,
     }),
+    method: 'POST',
   })) as Readonly<{
     success: boolean;
     status_code: number;
@@ -147,23 +146,23 @@ export async function createAccessToken(requestToken: string) {
   if (!response.success) {
     console.error('Failed to create access token in TMDb:', response);
     return {
-      accountObjectId: null,
       accessToken: null,
+      accountObjectId: null,
     };
   }
 
   return {
-    accountObjectId: response?.account_id,
     accessToken: response?.access_token,
+    accountObjectId: response?.account_id,
   };
 }
 
 export async function createSessionId(accessToken: string) {
   const response = (await tmdbFetch('/3/authentication/session/convert/4', {
-    method: 'POST',
     body: JSON.stringify({
       access_token: accessToken,
     }),
+    method: 'POST',
   })) as Readonly<{
     success: boolean;
     session_id: string;
@@ -179,19 +178,19 @@ export async function createSessionId(accessToken: string) {
 
 export async function deleteSessionId(sessionId: string) {
   await tmdbFetch('/3/authentication/session', {
-    method: 'DELETE',
     body: JSON.stringify({
       session_id: sessionId,
     }),
+    method: 'DELETE',
   });
 }
 
 export async function deleteAccessToken(accessToken: string) {
   await tmdbFetch('/4/auth/access_token', {
-    method: 'DELETE',
     body: JSON.stringify({
       access_token: accessToken,
     }),
+    method: 'DELETE',
   });
 }
 
@@ -201,12 +200,12 @@ export async function fetchAccountDetails(sessionId: string) {
   )) as TmdbAccountDetails;
 
   return {
-    id: response?.id,
-    name: response?.name,
-    username: response?.username,
     avatar: response.avatar?.gravatar
       ? `https://www.gravatar.com/avatar/${response.avatar.gravatar.hash}`
       : undefined,
+    id: response?.id,
+    name: response?.name,
+    username: response?.username,
   } as Account;
 }
 
@@ -236,7 +235,7 @@ export async function fetchTvSeries(
 
   const normalizedTvSeries = normalizeTvSeries(series);
 
-  if (preferredImages && preferredImages.backdropImagePath) {
+  if (preferredImages?.backdropImagePath) {
     return {
       ...normalizedTvSeries,
       backdropColor: preferredImages.backdropColor,
@@ -330,16 +329,15 @@ export async function fetchTvSeriesWatchProviders(
     `/3/tv/${id}/watch/providers`,
   )) as TmdbTvSeriesWatchProviders;
 
-  const flatrate =
-    watchProviders.results?.[region as keyof typeof watchProviders.results]
-      ?.flatrate ?? [];
-
-  // TODO: generate new types from OpenAPI
-  // prettier-ignore
+  const regionProviders =
+    watchProviders.results?.[region as keyof typeof watchProviders.results];
+  const flatrate = regionProviders?.flatrate ?? [];
   const free =
-    (watchProviders.results?.[region as keyof typeof watchProviders.results]
-       // @ts-expect-error it does exist
-      ?.free as typeof flatrate) ?? [];
+    (regionProviders &&
+    'free' in regionProviders &&
+    Array.isArray(regionProviders.free)
+      ? (regionProviders.free as typeof flatrate)
+      : []) ?? [];
 
   const providers = [...free, ...flatrate];
 
@@ -353,11 +351,11 @@ export async function fetchTvSeriesWatchProviders(
     })
     .map((provider) => ({
       id: provider.provider_id,
-      name: provider.provider_name as string,
       logo: provider.logo_path
         ? generateTmdbImageUrl(provider.logo_path, 'w92')
         : '',
       logoPath: provider.logo_path!,
+      name: provider.provider_name as string,
     }));
 }
 
@@ -461,15 +459,15 @@ export async function fetchTvSeriesSeason(
     : '';
 
   return {
-    id: response.id,
-    title: response.name as string,
-    description: response.overview ?? '',
     airDate,
-    hasAired: new Date(airDate) <= new Date(),
-    seasonNumber: response.season_number,
-    numberOfEpisodes,
-    numberOfAiredEpisodes,
+    description: response.overview ?? '',
     episodes,
+    hasAired: new Date(airDate) <= new Date(),
+    id: response.id,
+    numberOfAiredEpisodes,
+    numberOfEpisodes,
+    seasonNumber: response.season_number,
+    title: response.name as string,
   };
 }
 
@@ -540,9 +538,9 @@ export async function fetchDiscoverTvSeries(query?: TmdbDiscoverTvSeriesQuery) {
 
   return {
     items,
-    totalNumberOfPages: response.total_pages,
-    totalNumberOfItems: response.total_results,
     queryString: query ? toQueryString(query) : '',
+    totalNumberOfItems: response.total_results,
+    totalNumberOfPages: response.total_pages,
   };
 }
 
@@ -553,9 +551,9 @@ export async function fetchPopularBritishCrimeTvSeries() {
     'vote_count.gte': 250,
     watch_region: 'GB',
     with_genres: '80',
-    without_genres: '10766',
     with_origin_country: 'GB',
     with_original_language: 'en',
+    without_genres: '10766',
   });
   return items.filter((item) => !!item.posterImage && !!item.backdropImage);
 }
@@ -565,8 +563,8 @@ export async function fetchBestSportsDocumentariesTvSeries() {
     sort_by: 'vote_average.desc',
     'vote_count.gte': 7,
     with_genres: '99',
-    without_genres: '35',
     with_keywords: '6075|2702',
+    without_genres: '35',
     without_keywords: '10596,293434,288928,11672',
   });
   return items.filter((item) => !!item.posterImage && !!item.backdropImage);
@@ -576,9 +574,9 @@ export async function fetchApplePlusTvSeries(region = 'US') {
   const { items } = await fetchDiscoverTvSeries({
     sort_by: 'vote_average.desc',
     'vote_count.gte': 250,
-    without_genres: '99',
     watch_region: region,
     with_watch_providers: '350',
+    without_genres: '99',
   });
   return items.filter((item) => !!item.posterImage && !!item.backdropImage);
 }
@@ -586,9 +584,9 @@ export async function fetchApplePlusTvSeries(region = 'US') {
 export async function fetchMostAnticipatedTvSeries() {
   const withoutGenres = [...GLOBAL_GENRES_TO_IGNORE, 16, 10762, 10764, 10766];
   const { items } = await fetchDiscoverTvSeries({
-    without_genres: withoutGenres.join(','),
     'first_air_date.gte': new Date().toISOString().split('T')[0],
     'vote_count.gte': 0,
+    without_genres: withoutGenres.join(','),
   });
 
   return items.filter(
@@ -608,13 +606,13 @@ export async function fetchPopularTvSeriesByYear(year: number | string) {
   const endDate = `${year}-12-31`;
 
   const firstPage = await fetchDiscoverTvSeries({
-    without_genres: withoutGenres.join(','),
     // Note: maybe we should use `air_date` instead of `first_air_date`?
     'first_air_date.gte': startDate,
     'first_air_date.lte': endDate,
-    'vote_count.gte': 200,
-    sort_by: 'vote_average.desc',
     page: 1,
+    sort_by: 'vote_average.desc',
+    'vote_count.gte': 200,
+    without_genres: withoutGenres.join(','),
   });
 
   // If total pages is 3, we need 2 more pages (numberOfPagesToFetch = 2)
@@ -626,12 +624,12 @@ export async function fetchPopularTvSeriesByYear(year: number | string) {
       ? await Promise.all(
           Array.from({ length: numberOfPagesToFetch }, (_, i) =>
             fetchDiscoverTvSeries({
-              without_genres: withoutGenres.join(','),
               'first_air_date.gte': startDate,
               'first_air_date.lte': endDate,
-              'vote_count.gte': 200,
+              page: i + 2,
               sort_by: 'vote_average.desc',
-              page: i + 2, // This gives us pages 2,3,4,5
+              'vote_count.gte': 200,
+              without_genres: withoutGenres.join(','), // This gives us pages 2,3,4,5
             }),
           ),
         )
@@ -727,11 +725,11 @@ export async function fetchWatchProviders(
     })
     .map((provider) => ({
       id: provider.provider_id,
-      name: provider.provider_name as string,
       logo: provider.logo_path
         ? generateTmdbImageUrl(provider.logo_path, 'w92')
         : '',
       logoPath: provider.logo_path!,
+      name: provider.provider_name as string,
     }));
 }
 
@@ -798,12 +796,9 @@ export async function searchPerson(query: string) {
   return (response.results ?? []).map((person) => {
     return {
       id: person.id,
-      name: person.name ?? '',
       image: person.profile_path
         ? generateTmdbImageUrl(person.profile_path, 'w600_and_h900_bestv2')
         : '',
-      slug: slugify(person.name as string, { lower: true, strict: true }),
-      knownForDepartment: person.known_for_department,
       isAdult: person.adult,
       knownFor: (person.known_for ?? []).map((item) => {
         if (item.media_type === 'tv') {
@@ -812,6 +807,9 @@ export async function searchPerson(query: string) {
           return normalizeMovie(item as TmdbMovie) as Movie;
         }
       }) as ReadonlyArray<TvSeries | Movie>,
+      knownForDepartment: person.known_for_department,
+      name: person.name ?? '',
+      slug: slugify(person.name as string, { lower: true, strict: true }),
     };
   });
 }
@@ -820,27 +818,27 @@ export async function fetchPerson(id: number | string) {
   const person = (await tmdbFetch(`/3/person/${id}`)) as TmdbPerson;
 
   return {
-    id: person.id,
     age: person.birthday
       ? calculateAge(
           person.birthday,
           person.deathday as (typeof person)['birthday'],
         )
       : undefined,
-    name: person.name ?? '',
+    biography: person.biography,
+    birthdate: person.birthday,
+    deathdate: person.deathday,
+    id: person.id,
     image: person.profile_path
       ? generateTmdbImageUrl(person.profile_path, 'w600_and_h900_bestv2')
       : '',
-    slug: slugify(person.name as string, { lower: true, strict: true }),
+    imdbId: person.imdb_id,
+    isAdult: person.adult,
+    knownForDepartment: person.known_for_department,
+    name: person.name ?? '',
     numberOfEpisodes:
       'total_episode_count' in person ? person.total_episode_count : 0,
-    birthdate: person.birthday,
-    deathdate: person.deathday,
     placeOfBirth: person.place_of_birth,
-    biography: person.biography,
-    imdbId: person.imdb_id,
-    knownForDepartment: person.known_for_department,
-    isAdult: person.adult,
+    slug: slugify(person.name as string, { lower: true, strict: true }),
   } as Person;
 }
 
@@ -893,7 +891,7 @@ export async function fetchPersonTvCredits(id: number | string) {
       return new Date(series.firstAirDate) <= currentDate;
     });
 
-    return { upcoming, previous };
+    return { previous, upcoming };
   };
 
   const cast = sortAndGroup(credits.cast);
@@ -919,26 +917,26 @@ export async function findByExternalId({
   const episodes = (response.tv_episode_results ?? []).map((episode) => {
     return {
       ...normalizeTvSeriesEpisode(episode as TmdbTvSeriesEpisode),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // biome-ignore lint/suspicious/noExplicitAny: sort out one day
       tvSeriesId: (episode as any).show_id,
     };
   });
   const seasons = (response.tv_season_results ?? []).map((_season) => {
     const season = _season as TmdbTvSeriesSeason;
     return {
-      id: season.id,
-      title: season.name as string,
-      description: season.overview ?? '',
       airDate: season.air_date ? new Date(season.air_date).toISOString() : '',
-      seasonNumber: season.season_number,
-      numberOfEpisodes: episodes.length,
+      description: season.overview ?? '',
       episodes: [],
+      id: season.id,
+      numberOfEpisodes: episodes.length,
+      seasonNumber: season.season_number,
+      title: season.name as string,
     };
   });
 
   return {
-    tvSeries,
-    seasons,
     episodes,
+    seasons,
+    tvSeries,
   };
 }

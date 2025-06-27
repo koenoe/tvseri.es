@@ -1,4 +1,4 @@
-import { type TmdbDiscoverQuery } from '@tvseri.es/types';
+import type { TmdbDiscoverQuery } from '@tvseri.es/types';
 import { headers } from 'next/headers';
 
 import { fetchDiscoverTvSeries } from '@/lib/api';

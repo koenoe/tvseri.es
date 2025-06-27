@@ -1,9 +1,8 @@
 'use client';
 
-import { memo, useCallback } from 'react';
-
-import { type TvSeries } from '@tvseri.es/types';
+import type { TvSeries } from '@tvseri.es/types';
 import { useRouter } from 'next/navigation';
+import { memo, useCallback } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { useSearch } from '@/hooks/useSearch';
@@ -41,9 +40,9 @@ function TrackSearch() {
       <SearchResults
         className="grid grid-cols-2 gap-6 text-neutral-500 md:grid-cols-4 xl:grid-cols-8"
         isPending={isPending}
-        results={results}
         itemHref={itemHref}
         mode="dark"
+        results={results}
       />
     </div>
   );

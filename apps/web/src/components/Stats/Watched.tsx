@@ -15,8 +15,8 @@ export default async function WatchedByYear({
     <>
       {items.map((item) => (
         <Poster
-          key={item.id}
           item={item as ListItem}
+          key={item.id}
           priority={priority}
           size="small"
         />

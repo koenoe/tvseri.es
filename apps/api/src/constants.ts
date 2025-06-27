@@ -1,4 +1,4 @@
-import { type RetryOptions } from '@better-fetch/fetch';
+import type { RetryOptions } from '@better-fetch/fetch';
 import { Resource } from 'sst';
 
 // TODO: eventually we'll just show the provider that users are subscribed to
@@ -11,10 +11,10 @@ export const WATCH_PROVIDER_PRIORITY: Record<string, number> = {
 };
 
 export const DEFAULT_FETCH_RETRY_OPTIONS = {
-  type: 'exponential',
-  attempts: 4, // Initial + 3 retries
-  baseDelay: 250, // Start with 250ms delay
-  maxDelay: 2000, // Cap at 2 seconds
+  attempts: 4,
+  baseDelay: 250, // Initial + 3 retries
+  maxDelay: 2000, // Start with 250ms delay
+  type: 'exponential', // Cap at 2 seconds
 } as RetryOptions;
 
 export const SECRET_KEY = Resource.SecretKey.value;

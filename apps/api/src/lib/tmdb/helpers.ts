@@ -1,11 +1,11 @@
 import type {
   Movie,
-  TmdbTvSeries,
   TmdbDiscoverMovieQuery,
   TmdbDiscoverTvSeriesQuery,
   TmdbMovie,
-  TmdbTvSeriesEpisode,
+  TmdbTvSeries,
   TmdbTvSeriesCredits,
+  TmdbTvSeriesEpisode,
   TvSeries,
 } from '@tvseri.es/types';
 import slugify from 'slugify';
@@ -66,11 +66,11 @@ function extractImages(item: TmdbTvSeries | TmdbMovie) {
   return {
     backdropImage: backdrop ? buildBackdropImageUrl(backdrop) : undefined,
     backdropPath: backdrop,
+    posterImage: poster ? buildPosterImageUrl(poster) : '',
+    posterPath: poster!,
     titleTreatmentImage: titleTreatment
       ? buildTitleTreatmentImageUrl(titleTreatment)
       : undefined,
-    posterImage: poster ? buildPosterImageUrl(poster) : '',
-    posterPath: poster!,
   };
 }
 
@@ -106,16 +106,16 @@ export function normalizePersons(
     }
 
     return {
+      character,
       id: person.id,
-      name: person.name ?? '',
       image: person.profile_path
         ? generateTmdbImageUrl(person.profile_path, 'w138_and_h175_face')
         : '',
-      slug: slugify(person.name as string, { lower: true, strict: true }),
-      character,
       job,
+      name: person.name ?? '',
       numberOfEpisodes:
         'total_episode_count' in person ? person.total_episode_count : 0,
+      slug: slugify(person.name as string, { lower: true, strict: true }),
     };
   });
 }
@@ -173,9 +173,9 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     status,
   );
   const slug = slugify(series.name ?? '', {
+    locale: series.languages?.[0] ?? '',
     lower: true,
     strict: true,
-    locale: series.languages?.[0] ?? '',
   });
 
   const seasons = (series.seasons ?? [])
@@ -199,8 +199,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
       }
 
       if (
-        nextEpisodeToAir &&
-        nextEpisodeToAir.air_date &&
+        nextEpisodeToAir?.air_date &&
         nextEpisodeToAir.season_number === season.season_number &&
         new Date(nextEpisodeToAir.air_date).getTime() <= Date.now()
       ) {
@@ -208,18 +207,18 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
       }
 
       return {
-        id: season.id,
-        hasAired: new Date(airDate) <= new Date(),
-        title: season.name as string,
-        description: season.overview ?? '',
         airDate: season.air_date ? new Date(season.air_date).toISOString() : '',
-        seasonNumber: season.season_number,
-        numberOfEpisodes: season.episode_count,
+        description: season.overview ?? '',
+        episodes: [],
+        hasAired: new Date(airDate) <= new Date(),
+        id: season.id,
         numberOfAiredEpisodes: Math.min(
           numberOfAiredEpisodesForSeason,
           season.episode_count,
         ),
-        episodes: [],
+        numberOfEpisodes: season.episode_count,
+        seasonNumber: season.season_number,
+        title: season.name as string,
       };
     });
 
@@ -241,9 +240,9 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
   const originalLanguage = series.original_language ?? '';
   const languages = (series.spoken_languages ?? [])
     .map((language) => ({
+      code: language.iso_639_1 ?? '',
       englishName: language.english_name ?? '',
       name: language.name ?? '',
-      code: language.iso_639_1 ?? '',
     }))
     .sort((a, b) =>
       a.code === originalLanguage ? -1 : b.code === originalLanguage ? 1 : 0,
@@ -251,54 +250,54 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
   const firstNetwork = series.networks?.[0];
   const network = firstNetwork
     ? {
-        name: firstNetwork.name as string,
         id: firstNetwork.id,
         logo: firstNetwork.logo_path
           ? generateTmdbImageUrl(firstNetwork.logo_path, 'w500')
           : '',
+        name: firstNetwork.name as string,
       }
     : undefined;
 
   return {
-    id: series.id,
-    isAdult: series.adult,
-    hasAired: new Date(firstAirDate) <= new Date(),
-    title: series.name ?? '',
+    backdropColor: '#000000',
     countries: (series.production_countries ?? []).map((country) => ({
-      name: country.name ?? '',
       code: country.iso_3166_1 ?? '',
+      name: country.name ?? '',
     })),
     createdBy: normalizePersons(series.created_by),
     description: series.overview ?? '',
-    languages,
-    originCountry,
-    originalLanguage,
-    originalTitle: series.original_name ?? '',
-    tagline: series.tagline ?? '',
+    firstAirDate,
     // @ts-expect-error genre_ids is not defined in the type
     genres: normalizeGenres(series.genres ?? series.genre_ids),
-    network,
-    numberOfEpisodes: series.number_of_episodes ?? 0,
-    numberOfAiredEpisodes,
-    numberOfSeasons: series.number_of_seasons ?? 0,
-    popularity: series.popularity,
-    firstAirDate,
+    hasAired: new Date(firstAirDate) <= new Date(),
+    id: series.id,
+    isAdult: series.adult,
+    languages,
+    lastAirDate,
     lastEpisodeToAir: series.last_episode_to_air
       ? normalizeTvSeriesEpisode(
           series.last_episode_to_air as unknown as TmdbTvSeriesEpisode,
         )
       : null,
-    lastAirDate,
+    network,
     nextEpisodeToAir: series.next_episode_to_air
       ? normalizeTvSeriesEpisode(
           series.next_episode_to_air as unknown as TmdbTvSeriesEpisode,
         )
       : null,
-    backdropColor: '#000000',
+    numberOfAiredEpisodes,
+    numberOfEpisodes: series.number_of_episodes ?? 0,
+    numberOfSeasons: series.number_of_seasons ?? 0,
+    originalLanguage,
+    originalTitle: series.original_name ?? '',
+    originCountry,
+    popularity: series.popularity,
     releaseYear,
     seasons,
     slug,
     status,
+    tagline: series.tagline ?? '',
+    title: series.name ?? '',
     type: series.type as string,
     voteAverage: series.vote_average,
     voteCount: series.vote_count,
@@ -312,17 +311,17 @@ export function normalizeTvSeriesEpisode(episode: TmdbTvSeriesEpisode) {
     ? new Date(episode.air_date).toISOString()
     : '';
   return {
-    id: episode.id,
-    title: episode.name ?? '',
+    airDate,
     description: episode.overview ?? '',
     episodeNumber: episode.episode_number,
-    seasonNumber: episode.season_number,
-    airDate,
+    hasAired: new Date(airDate) <= new Date(),
+    id: episode.id,
     runtime: episode.runtime ?? 0,
+    seasonNumber: episode.season_number,
     stillImage: episode.still_path
       ? generateTmdbImageUrl(episode.still_path, 'w454_and_h254_bestv2')
       : '',
-    hasAired: new Date(airDate) <= new Date(),
+    title: episode.name ?? '',
   };
 }
 
@@ -335,26 +334,26 @@ export function normalizeMovie(movie: TmdbMovie): Movie {
   });
 
   return {
-    id: movie.id,
-    isAdult: movie.adult,
-    title: movie.title ?? '',
+    backdropColor: '#000000',
     countries: (movie.production_countries ?? []).map((country) => ({
-      name: country.name ?? '',
       code: country.iso_3166_1 ?? '',
+      name: country.name ?? '',
     })),
     description: movie.overview ?? '',
+    genres: normalizeGenres(movie.genres),
+    id: movie.id,
+    isAdult: movie.adult,
     languages: (movie.spoken_languages ?? []).map((language) => ({
+      code: language.iso_639_1 ?? '',
       englishName: language.english_name ?? '',
       name: language.name ?? '',
-      code: language.iso_639_1 ?? '',
     })),
     originalLanguage: movie.original_language ?? '',
     originalTitle: movie.original_title ?? '',
     popularity: movie.popularity,
-    tagline: movie.tagline ?? '',
-    genres: normalizeGenres(movie.genres),
-    backdropColor: '#000000',
     slug,
+    tagline: movie.tagline ?? '',
+    title: movie.title ?? '',
     voteAverage: movie.vote_average,
     voteCount: movie.vote_count,
     ...images,

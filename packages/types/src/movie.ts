@@ -1,4 +1,4 @@
-import { type TvSeries } from './tv-series';
+import type { TvSeries } from './tv-series';
 
 export type Movie = Omit<
   TvSeries,

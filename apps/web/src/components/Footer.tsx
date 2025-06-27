@@ -16,21 +16,21 @@ export default function Footer() {
           <p className="text-xs leading-loose opacity-60">
             This site uses data from
             <Link
-              href="https://themoviedb.org"
-              target="_blank"
               className="mx-1 inline-flex items-center"
+              href="https://themoviedb.org"
               prefetch={false}
+              target="_blank"
             >
-              <Image src={Tmdb} alt="TMDb" width={66} height={10} />
+              <Image alt="TMDb" height={10} src={Tmdb} width={66} />
             </Link>
             and streaming availability from
             <Link
-              href="https://www.justwatch.com/"
-              target="_blank"
               className="mx-1 inline-flex items-center"
+              href="https://www.justwatch.com/"
               prefetch={false}
+              target="_blank"
             >
-              <Image src={JustWatch} alt="JustWatch" width={66} height={10} />
+              <Image alt="JustWatch" height={10} src={JustWatch} width={66} />
             </Link>
             but is neither certified nor endorsed by them.
           </p>
@@ -41,7 +41,7 @@ export default function Footer() {
           prefetch={false}
           target="_blank"
         >
-          <Image src={Github} alt="Github" width={20} height={20} />
+          <Image alt="Github" height={20} src={Github} width={20} />
         </Link>
       </div>
       <div className="z-5 pointer-events-none absolute inset-0 h-full w-full bg-black/5" />

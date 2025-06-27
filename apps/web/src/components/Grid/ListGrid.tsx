@@ -1,4 +1,4 @@
-import { type User } from '@tvseri.es/types';
+import type { User } from '@tvseri.es/types';
 
 import { getListItems } from '@/lib/api';
 
@@ -9,8 +9,8 @@ export default async function ListGrid({
   listId,
 }: Readonly<{ user: User; listId: string }>) {
   const response = await getListItems({
-    userId: user.id,
     listId,
+    userId: user.id,
   });
 
   return (

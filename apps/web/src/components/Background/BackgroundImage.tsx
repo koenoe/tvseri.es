@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { cx } from 'class-variance-authority';
 import { preload } from 'react-dom';
 
@@ -29,25 +28,26 @@ export default function BackgroundImage({
   preload(SD, {
     as: 'image',
     fetchPriority: 'high',
-    imageSrcSet,
     imageSizes,
+    imageSrcSet,
   });
 
   return (
+    // biome-ignore lint/performance/noImgElement: exception
     <img
       {...rest}
+      alt=""
       className={cx(
         'relative h-full w-full select-none object-cover object-top',
         className,
       )}
       decoding="async"
-      alt=""
       draggable={false}
       sizes={imageSizes}
-      srcSet={imageSrcSet}
+      src={SD}
       // It's intended to keep `src` the last attribute because React updates
       // attributes in order.
-      src={SD}
+      srcSet={imageSrcSet}
     />
   );
 }

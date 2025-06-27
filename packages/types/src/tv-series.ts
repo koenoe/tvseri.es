@@ -1,31 +1,31 @@
 import * as v from 'valibot';
-import { GenreSchema, type Genre } from './genre';
-import { PersonSchema, type Person } from './person';
+import { GenreSchema } from './genre';
+import { PersonSchema } from './person';
 
 export const EpisodeSchema = v.object({
+  airDate: v.string(),
   description: v.string(),
   episodeNumber: v.number(),
-  id: v.number(),
-  airDate: v.string(),
-  seasonNumber: v.number(),
-  title: v.string(),
-  runtime: v.number(),
-  stillImage: v.string(),
   hasAired: v.fallback(v.boolean(), false),
+  id: v.number(),
+  runtime: v.number(),
+  seasonNumber: v.number(),
+  stillImage: v.string(),
+  title: v.string(),
 });
 
 export type Episode = v.InferOutput<typeof EpisodeSchema>;
 
 export const SeasonSchema = v.object({
-  description: v.string(),
-  id: v.number(),
   airDate: v.string(),
+  description: v.string(),
+  episodes: v.array(EpisodeSchema),
+  hasAired: v.fallback(v.boolean(), false),
+  id: v.number(),
+  numberOfAiredEpisodes: v.optional(v.number()),
+  numberOfEpisodes: v.optional(v.number()),
   seasonNumber: v.number(),
   title: v.string(),
-  episodes: v.array(EpisodeSchema),
-  numberOfEpisodes: v.optional(v.number()),
-  numberOfAiredEpisodes: v.optional(v.number()),
-  hasAired: v.fallback(v.boolean(), false),
 });
 
 export type Season = v.InferOutput<typeof SeasonSchema>;
@@ -40,20 +40,20 @@ export const StatusSchema = v.picklist([
 ]);
 
 const LanguageSchema = v.object({
+  code: v.string(),
   englishName: v.string(),
   name: v.string(),
-  code: v.string(),
 });
 
 const CountrySchema = v.object({
-  name: v.string(),
   code: v.string(),
+  name: v.string(),
 });
 
 const NetworkSchema = v.object({
-  name: v.string(),
   id: v.number(),
   logo: v.string(),
+  name: v.string(),
 });
 
 export type Status = v.InferOutput<typeof StatusSchema>;
@@ -67,20 +67,20 @@ export const TvSeriesSchema = v.object({
   description: v.string(),
   firstAirDate: v.string(),
   genres: v.array(GenreSchema),
+  hasAired: v.fallback(v.boolean(), false),
   id: v.number(),
   isAdult: v.fallback(v.boolean(), false),
-  hasAired: v.fallback(v.boolean(), false),
   languages: v.array(LanguageSchema),
   lastAirDate: v.string(),
   lastEpisodeToAir: v.optional(v.nullable(EpisodeSchema)),
-  nextEpisodeToAir: v.optional(v.nullable(EpisodeSchema)),
   network: v.optional(NetworkSchema),
-  numberOfEpisodes: v.fallback(v.number(), 0),
+  nextEpisodeToAir: v.optional(v.nullable(EpisodeSchema)),
   numberOfAiredEpisodes: v.fallback(v.number(), 0),
+  numberOfEpisodes: v.fallback(v.number(), 0),
   numberOfSeasons: v.fallback(v.number(), 0),
-  originCountry: v.optional(CountrySchema),
   originalLanguage: v.string(),
   originalTitle: v.string(),
+  originCountry: v.optional(CountrySchema),
   popularity: v.fallback(v.number(), 0),
   posterImage: v.string(),
   posterPath: v.string(),

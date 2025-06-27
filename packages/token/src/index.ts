@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 export function encryptToken(plaintext: string, secretKey: string) {
   const key = Buffer.from(secretKey, 'base64');

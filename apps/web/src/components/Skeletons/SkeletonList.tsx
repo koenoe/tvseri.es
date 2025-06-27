@@ -1,18 +1,16 @@
 'use client';
 
-import { type CSSProperties, useCallback } from 'react';
-
 import { cx } from 'class-variance-authority';
-
-import SkeletonEpisode from './SkeletonEpisode';
-import SkeletonGenre from './SkeletonGenre';
-import SkeletonPoster from './SkeletonPoster';
+import { type CSSProperties, useCallback } from 'react';
 import {
   type HeaderVariantProps,
   headerVariants,
   innerStylesWithModuleStyles,
 } from '../List/List';
-import { type PosterVariantProps } from '../Tiles/Poster';
+import type { PosterVariantProps } from '../Tiles/Poster';
+import SkeletonEpisode from './SkeletonEpisode';
+import SkeletonGenre from './SkeletonGenre';
+import SkeletonPoster from './SkeletonPoster';
 
 type Props = Readonly<{
   className?: string;
@@ -40,7 +38,6 @@ export default function SkeletonList({
           return <SkeletonGenre key={index} />;
         case 'episode':
           return <SkeletonEpisode key={index} />;
-        case 'poster':
         default:
           return <SkeletonPoster key={index} size={size} />;
       }
@@ -49,7 +46,7 @@ export default function SkeletonList({
   );
 
   return (
-    <div style={style} className={cx('relative w-full', className)}>
+    <div className={cx('relative w-full', className)} style={style}>
       {hasTitle && (
         <div className={headerVariants({ titleAlignment })}>
           <div

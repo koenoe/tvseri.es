@@ -1,15 +1,14 @@
 import {
-  PutItemCommand,
-  QueryCommand,
   DeleteItemCommand,
   GetItemCommand,
+  PutItemCommand,
+  QueryCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { type ListItem, type PaginationOptions } from '@tvseri.es/types';
+import type { ListItem, PaginationOptions } from '@tvseri.es/types';
 import { Resource } from 'sst';
-
-import client from '../client';
 import { buildPosterImageUrl } from '@/lib/tmdb/helpers';
+import client from '../client';
 
 // const BATCH_SIZE = 25;
 
@@ -187,48 +186,48 @@ export const getListItems = async (
   const hasDateRange = input.startDate && input.endDate;
   const condition = hasDateRange
     ? {
-        KeyConditionExpression:
-          'gsi2pk = :pk AND gsi2sk BETWEEN :startDate AND :endDate',
         ExpressionAttributeValues: marshall({
+          ':endDate': input.endDate.getTime(),
           ':pk': `LIST#${input.userId}#${input.listId}`,
           ':startDate': input.startDate.getTime(),
-          ':endDate': input.endDate.getTime(),
         }),
+        KeyConditionExpression:
+          'gsi2pk = :pk AND gsi2sk BETWEEN :startDate AND :endDate',
       }
     : {
-        KeyConditionExpression: 'gsi2pk = :pk',
         ExpressionAttributeValues: marshall({
           ':pk': `LIST#${input.userId}#${input.listId}`,
         }),
+        KeyConditionExpression: 'gsi2pk = :pk',
       };
 
   const command = new QueryCommand({
     TableName: Resource.Lists.name,
     ...(sortBy === 'title'
       ? {
-          IndexName: 'gsi1',
-          KeyConditionExpression: 'gsi1pk = :pk',
           ExpressionAttributeValues: marshall({
             ':pk': `LIST#${input.userId}#${input.listId}`,
           }),
+          IndexName: 'gsi1',
+          KeyConditionExpression: 'gsi1pk = :pk',
         }
       : sortBy === 'position' && isCustomList(input.listId)
         ? {
-            IndexName: 'gsi3',
-            KeyConditionExpression: 'gsi3pk = :pk',
             ExpressionAttributeValues: marshall({
               ':pk': `LIST#${input.userId}#${input.listId}`,
             }),
+            IndexName: 'gsi3',
+            KeyConditionExpression: 'gsi3pk = :pk',
           }
         : {
             IndexName: 'gsi2',
             ...condition,
           }),
-    ScanIndexForward: sortDirection === 'asc',
-    Limit: limit,
     ExclusiveStartKey: input.options?.cursor
       ? JSON.parse(Buffer.from(input.options.cursor, 'base64url').toString())
       : undefined,
+    Limit: limit,
+    ScanIndexForward: sortDirection === 'asc',
   });
 
   const result = await client.send(command);
@@ -269,24 +268,24 @@ export const getListItemsCount = async (
   const hasDateRange = input.startDate && input.endDate;
   const condition = hasDateRange
     ? {
-        KeyConditionExpression:
-          'gsi2pk = :pk AND gsi2sk BETWEEN :startDate AND :endDate',
         ExpressionAttributeValues: marshall({
+          ':endDate': input.endDate.getTime(),
           ':pk': `LIST#${input.userId}#${input.listId}`,
           ':startDate': input.startDate.getTime(),
-          ':endDate': input.endDate.getTime(),
         }),
+        KeyConditionExpression:
+          'gsi2pk = :pk AND gsi2sk BETWEEN :startDate AND :endDate',
       }
     : {
-        KeyConditionExpression: 'gsi2pk = :pk',
         ExpressionAttributeValues: marshall({
           ':pk': `LIST#${input.userId}#${input.listId}`,
         }),
+        KeyConditionExpression: 'gsi2pk = :pk',
       };
 
   const command = new QueryCommand({
-    TableName: Resource.Lists.name,
-    IndexName: 'gsi2', // Always use gsi2 for count since we don't need sorting
+    IndexName: 'gsi2',
+    TableName: Resource.Lists.name, // Always use gsi2 for count since we don't need sorting
     ...condition,
     Select: 'COUNT',
   });
@@ -310,16 +309,16 @@ export const getAllListItems = async (
 
   do {
     const result = await getListItems({
-      userId: input.userId,
-      listId: input.listId,
-      startDate: input.startDate,
       endDate: input.endDate,
+      listId: input.listId,
       options: {
-        limit: 1000, // Dynamo DB limit
-        cursor,
+        cursor, // Dynamo DB limit
+        limit: 1000,
         sortBy: input.sortBy,
         sortDirection: input.sortDirection,
       },
+      startDate: input.startDate,
+      userId: input.userId,
     });
 
     allItems.push(...result.items);
@@ -341,11 +340,11 @@ export const isInList = async (
     : `LIST#${input.listId}`;
 
   const command = new GetItemCommand({
-    TableName: Resource.Lists.name,
     Key: marshall({
       pk: `USER#${input.userId}`,
       sk: `${listPrefix}#ITEM#${input.id}`,
     }),
+    TableName: Resource.Lists.name,
   });
 
   const result = await client.send(command);
@@ -368,28 +367,28 @@ export const addToList = async (
     : `LIST#${input.listId}`;
 
   const command = new PutItemCommand({
-    TableName: Resource.Lists.name,
     Item: marshall({
-      pk: `USER#${input.userId}`,
-      sk: `${listPrefix}#ITEM#${input.item.id}`,
-      id: input.item.id,
-      title: input.item.title,
-      slug: input.item.slug,
-      status: input.item.status,
-      posterPath: input.item.posterPath,
       createdAt,
       gsi1pk: `LIST#${input.userId}#${input.listId}`,
       gsi1sk: input.item.title.toLowerCase(),
       gsi2pk: `LIST#${input.userId}#${input.listId}`,
       gsi2sk: createdAt,
       gsi4pk: `SERIES#${input.item.id}`,
+      id: input.item.id,
+      pk: `USER#${input.userId}`,
+      posterPath: input.item.posterPath,
+      sk: `${listPrefix}#ITEM#${input.item.id}`,
+      slug: input.item.slug,
+      status: input.item.status,
+      title: input.item.title,
       ...(isCustomList(input.listId) &&
         input.item.position && {
-          position: input.item.position,
           gsi3pk: `LIST#${input.userId}#${input.listId}`,
           gsi3sk: input.item.position,
+          position: input.item.position,
         }),
     }),
+    TableName: Resource.Lists.name,
   });
 
   await client.send(command);
@@ -407,11 +406,11 @@ export const removeFromList = async (
     : `LIST#${input.listId}`;
 
   const command = new DeleteItemCommand({
-    TableName: Resource.Lists.name,
     Key: marshall({
       pk: `USER#${input.userId}`,
       sk: `${listPrefix}#ITEM#${input.id}`,
     }),
+    TableName: Resource.Lists.name,
   });
 
   await client.send(command);
@@ -424,9 +423,9 @@ export const isInWatchlist = async (
   }>,
 ) => {
   return isInList({
-    userId: input.userId,
-    listId: 'WATCHLIST',
     id: input.id,
+    listId: 'WATCHLIST',
+    userId: input.userId,
   });
 };
 
@@ -437,9 +436,9 @@ export const isInFavorites = async (
   }>,
 ) => {
   return isInList({
-    userId: input.userId,
-    listId: 'FAVORITES',
     id: input.id,
+    listId: 'FAVORITES',
+    userId: input.userId,
   });
 };
 
@@ -450,9 +449,9 @@ export const addToWatchlist = async (
   }>,
 ) => {
   return addToList({
-    userId: input.userId,
-    listId: 'WATCHLIST',
     item: input.item,
+    listId: 'WATCHLIST',
+    userId: input.userId,
   });
 };
 
@@ -463,9 +462,9 @@ export const addToFavorites = async (
   }>,
 ) => {
   return addToList({
-    userId: input.userId,
-    listId: 'FAVORITES',
     item: input.item,
+    listId: 'FAVORITES',
+    userId: input.userId,
   });
 };
 
@@ -476,9 +475,9 @@ export const removeFromWatchlist = async (
   }>,
 ) => {
   return removeFromList({
-    userId: input.userId,
-    listId: 'WATCHLIST',
     id: input.id,
+    listId: 'WATCHLIST',
+    userId: input.userId,
   });
 };
 
@@ -489,8 +488,8 @@ export const removeFromFavorites = async (
   }>,
 ) => {
   return removeFromList({
-    userId: input.userId,
-    listId: 'FAVORITES',
     id: input.id,
+    listId: 'FAVORITES',
+    userId: input.userId,
   });
 };

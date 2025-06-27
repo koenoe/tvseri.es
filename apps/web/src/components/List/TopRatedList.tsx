@@ -1,7 +1,6 @@
 import { fetchTopRatedTvSeries } from '@/lib/api';
-
-import List, { type HeaderVariantProps } from './List';
 import Poster from '../Tiles/Poster';
+import List, { type HeaderVariantProps } from './List';
 
 export default async function TopRatedList({
   priority,
@@ -14,12 +13,12 @@ export default async function TopRatedList({
 
     return (
       <List
-        title="All time favorites"
         scrollRestoreKey="all-time-favorites"
+        title="All time favorites"
         {...rest}
       >
         {items.map((item) => (
-          <Poster key={item.id} item={item} priority={priority} />
+          <Poster item={item} key={item.id} priority={priority} />
         ))}
       </List>
     );

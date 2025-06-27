@@ -1,13 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-
-import { type WatchProvider } from '@tvseri.es/types';
+import type { WatchProvider } from '@tvseri.es/types';
 import { AnimatePresence, motion } from 'motion/react';
 import dynamic from 'next/dynamic';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import slugify from 'slugify';
 
-import { type Field } from '@/hooks/useCsvParser';
+import type { Field } from '@/hooks/useCsvParser';
 
 import Ripple from './Ripple';
 
@@ -116,8 +115,8 @@ const processChunk = async (
   cb: (successCount: number, errors: ImportError[]) => void,
 ) => {
   const response = await fetch('/api/account/import', {
-    method: 'POST',
     body: JSON.stringify(chunk),
+    method: 'POST',
     signal,
   });
 
@@ -231,8 +230,8 @@ export default function Import({
             setErrors((prev) => [
               ...prev,
               {
-                item: { title: '', date: '', season: '', episode: '' },
                 error: `Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                item: { date: '', episode: '', season: '', title: '' },
               },
             ]);
           }
@@ -252,28 +251,28 @@ export default function Import({
 
   const fields: Field[] = [
     {
+      format: (value) => formatPart(value, 'title'),
       label: 'Title',
       value: 'title',
-      format: (value) => formatPart(value, 'title'),
     },
     {
       label: 'Date',
       value: 'date',
     },
     {
+      format: (value) => formatPart(value, 'season'),
       label: 'Season',
       value: 'season',
-      format: (value) => formatPart(value, 'season'),
     },
     {
+      format: (value) => formatPart(value, 'episode'),
       label: 'Episode',
       value: 'episode',
-      format: (value) => formatPart(value, 'episode'),
     },
     {
       label: 'Streaming service',
-      value: 'watchProvider',
       predefined: watchProviders.map((provider) => provider.name),
+      value: 'watchProvider',
     },
   ];
 
@@ -286,20 +285,20 @@ export default function Import({
           <AnimatePresence>
             {isImporting && (
               <MotionRipple
-                key="ripple"
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                }}
                 className="!fixed -top-[15rem] left-0 md:-top-[20rem]"
                 initial={{
                   opacity: 0,
                   scale: 0,
                 }}
-                animate={{
-                  opacity: 1,
-                  scale: 1,
-                }}
+                key="ripple"
                 transition={{
-                  type: 'tween',
-                  ease: [0.4, 0, 0.2, 1],
                   duration: 0.25,
+                  ease: [0.4, 0, 0.2, 1],
+                  type: 'tween',
                 }}
               />
             )}
@@ -323,7 +322,7 @@ export default function Import({
               </h3>
               <div className="flex flex-col space-y-4">
                 {errors.map((error, index) => (
-                  <div key={index} className="rounded-md bg-neutral-800 p-4">
+                  <div className="rounded-md bg-neutral-800 p-4" key={index}>
                     <h4 className="text-lg font-semibold text-red-400">
                       {error.item.title}
                     </h4>

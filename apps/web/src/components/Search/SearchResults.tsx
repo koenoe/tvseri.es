@@ -1,11 +1,10 @@
 'use client';
 
-import { memo, type MouseEvent } from 'react';
-
-import { type TvSeries } from '@tvseri.es/types';
+import type { TvSeries } from '@tvseri.es/types';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { type MouseEvent, memo } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
@@ -39,8 +38,8 @@ function SearchResults({
         <div className={mergedClassName}>
           {[...Array(8)].map((_, index) => (
             <div
-              key={index}
               className="flex h-full w-full flex-col items-center justify-center gap-2"
+              key={index}
             >
               <div className="relative w-full pt-[150%]">
                 <div
@@ -74,26 +73,26 @@ function SearchResults({
         <div className={mergedClassName}>
           {results?.map((series) => (
             <MotionLink
-              key={series.id}
               className="flex h-full w-full flex-col items-center justify-center gap-2"
               href={itemHref(series)}
+              key={series.id}
+              layout
               onClick={itemClick}
               whileHover="active"
-              layout
             >
               <div className="relative w-full pt-[150%]">
                 <MotionImage
-                  variants={{
-                    inactive: { scale: 1 },
-                    active: { scale: 1.04 },
-                  }}
-                  className="rounded-lg object-contain shadow-lg"
-                  src={series.posterImage}
                   alt={series.title}
+                  className="rounded-lg object-contain shadow-lg"
                   fill
-                  priority
-                  unoptimized
                   placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(100, 150)}`}
+                  priority
+                  src={series.posterImage}
+                  unoptimized
+                  variants={{
+                    active: { scale: 1.04 },
+                    inactive: { scale: 1 },
+                  }}
                 />
               </div>
               <span className="w-full truncate text-ellipsis text-center text-xs">

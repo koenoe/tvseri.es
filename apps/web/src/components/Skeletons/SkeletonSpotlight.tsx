@@ -17,8 +17,8 @@ export default function SkeletonSpotlight({
       <div className="mt-6 flex w-full items-center justify-center gap-2.5">
         {Array.from({ length: 10 }).map((_, i) => (
           <div
-            key={i}
             className={'size-2.5 cursor-pointer rounded-full bg-white/10'}
+            key={i}
           />
         ))}
       </div>

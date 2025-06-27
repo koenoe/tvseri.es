@@ -6,14 +6,14 @@ import { motion } from 'motion/react';
 import CircleButton, { type ButtonVariantProps } from './CircleButton';
 
 const svgStyles = cva('', {
-  variants: {
-    size: {
-      small: ['size-3 md:size-4'],
-      medium: ['size-5 md:size-6'],
-    },
-  },
   defaultVariants: {
     size: 'medium',
+  },
+  variants: {
+    size: {
+      medium: ['size-5 md:size-6'],
+      small: ['size-3 md:size-4'],
+    },
   },
 });
 
@@ -36,10 +36,10 @@ export default function AddButton({
   return (
     <CircleButton
       isActive={isActive}
-      onClick={onClick}
       isDisabled={isDisabled}
-      title={title}
+      onClick={onClick}
       size={size}
+      title={title}
     >
       <svg
         className={svgStyles({ size })}
@@ -58,10 +58,10 @@ export default function AddButton({
             }}
           />
         ) : (
-          <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+          <g fill="none" fillRule="evenodd" stroke="none" strokeWidth="1">
             <g
-              id="uncollapse"
               fill="currentColor"
+              id="uncollapse"
               transform="translate(64.000000, 64.000000)"
             >
               <motion.path d="M213.333333,1.42108547e-14 L213.333,170.666 L384,170.666667 L384,213.333333 L213.333,213.333 L213.333333,384 L170.666667,384 L170.666,213.333 L1.42108547e-14,213.333333 L1.42108547e-14,170.666667 L170.666,170.666 L170.666667,1.42108547e-14 L213.333333,1.42108547e-14 Z" />

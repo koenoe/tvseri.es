@@ -1,8 +1,7 @@
 'use client';
 
-import { memo, useMemo } from 'react';
-
 import { motion } from 'motion/react';
+import { memo, useMemo } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import calculateProgress from '@/utils/calculateProgress';
@@ -43,15 +42,15 @@ function Progress({
       </div>
       {shouldAnimate ? (
         <motion.div
-          initial={false}
           animate={{ scaleX: percentage / 100 }}
-          transition={{ duration: 0.75, ease: 'easeOut' }}
           className="absolute left-0 top-0 h-full w-full origin-left bg-white/15"
+          initial={false}
+          transition={{ duration: 0.75, ease: 'easeOut' }}
         />
       ) : (
         <div
-          style={{ transform: `scaleX(${percentage / 100})` }}
           className="absolute left-0 top-0 h-full w-full origin-left bg-white/15"
+          style={{ transform: `scaleX(${percentage / 100})` }}
         />
       )}
     </div>

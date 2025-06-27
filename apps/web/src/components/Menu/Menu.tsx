@@ -1,19 +1,17 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
-
-import { type User } from '@tvseri.es/types';
-import { motion, AnimatePresence } from 'motion/react';
+import type { User } from '@tvseri.es/types';
+import { AnimatePresence, motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 
 import useMatchMedia from '@/hooks/useMatchMedia';
 import getMainBackgroundColor from '@/utils/getMainBackgroundColor';
-
-import MenuToggle, { type MenuToggleHandle } from './MenuToggle';
-import Modal from '../Modal';
-import MenuItem from './MenuItem';
 import AuthButton from '../Buttons/AuthButton';
+import Modal from '../Modal';
 import Search from '../Search/Search';
+import MenuItem from './MenuItem';
+import MenuToggle, { type MenuToggleHandle } from './MenuToggle';
 
 const fetchAccount = async () => {
   const response = await fetch('/api/account');
@@ -24,19 +22,19 @@ const fetchAccount = async () => {
 const buttonVariants = {
   hidden: (i: number) => ({
     opacity: 0,
-    y: -20,
     transition: {
       delay: i * 0.1,
       duration: 0.2,
     },
+    y: -20,
   }),
   visible: (i: number) => ({
     opacity: 1,
-    y: 0,
     transition: {
       delay: i * 0.1,
       duration: 0.2,
     },
+    y: 0,
   }),
 };
 
@@ -74,36 +72,36 @@ export default function Menu({
     const showProfileItem = account && isMobile;
     const isAuthenticated = !!account;
     const items = [
-      { label: 'Home', href: '/', component: null },
-      { label: 'Discover', href: '/discover', component: null },
+      { component: null, href: '/', label: 'Home' },
+      { component: null, href: '/discover', label: 'Discover' },
       ...(showProfileItem
         ? [
             {
-              label: 'Profile',
               href: `/u/${account.username}`,
+              label: 'Profile',
             },
           ]
         : []),
       ...(account
         ? [
             {
-              label: 'Settings',
-              href: '/settings',
               component: null,
+              href: '/settings',
+              label: 'Settings',
             },
           ]
         : []),
       ...(showAuthButton
         ? [
             {
-              label: '',
-              href: '',
               component: (
                 <AuthButton
                   isAuthenticated={isAuthenticated}
                   onLogout={handleLogout}
                 />
               ),
+              href: '',
+              label: '',
             },
           ]
         : []),
@@ -112,17 +110,20 @@ export default function Menu({
     return (
       <>
         <motion.div
+          animate="visible"
+          className="fixed inset-0 z-20 md:hidden"
+          exit="hidden"
+          initial="hidden"
+          key="menu-backdrop"
           style={{
             backgroundColor,
           }}
-          className="fixed inset-0 z-20 md:hidden"
-          key="menu-backdrop"
           variants={{
             hidden: {
               opacity: 0,
               transition: {
-                duration: 0.25,
                 delay: 0.5,
+                duration: 0.25,
               },
             },
             visible: {
@@ -132,24 +133,21 @@ export default function Menu({
               },
             },
           }}
-          initial="hidden"
-          exit="hidden"
-          animate="visible"
         />
         <div className="fixed inset-0 z-30 md:relative md:inset-auto">
           <motion.div
-            key="menu"
             className="absolute inset-0 flex flex-col items-center justify-center gap-8 md:inset-auto md:right-0 md:top-0 md:flex-row md:justify-normal"
+            key="menu"
           >
             {isPending
               ? Array.from({ length: 4 }).map((_, index, array) => (
                   <motion.div
-                    key={index}
-                    className={'h-[30px] w-32 md:h-[18px] md:w-16'}
-                    initial="hidden"
                     animate="visible"
-                    exit="hidden"
+                    className={'h-[30px] w-32 md:h-[18px] md:w-16'}
                     custom={array.length - index}
+                    exit="hidden"
+                    initial="hidden"
+                    key={index}
                     variants={buttonVariants}
                   >
                     <span className="block h-full w-full animate-pulse bg-white/30" />
@@ -157,20 +155,20 @@ export default function Menu({
                 ))
               : items.map((item, index, array) => (
                   <motion.div
-                    key={index}
-                    className="md:h-[18px] md:min-w-12"
-                    initial="hidden"
                     animate="visible"
-                    exit="hidden"
+                    className="md:h-[18px] md:min-w-12"
                     custom={array.length - index}
+                    exit="hidden"
+                    initial="hidden"
+                    key={index}
                     variants={buttonVariants}
                   >
                     {item.component ? (
                       item.component
                     ) : (
                       <MenuItem
-                        label={item.label}
                         href={item.href}
+                        label={item.label}
                         onClick={handleMenuItemClick}
                       />
                     )}
@@ -212,23 +210,22 @@ export default function Menu({
     <div className="ml-auto flex items-center gap-10">
       <div className="relative h-[18px] w-auto">
         <AnimatePresence initial={false}>
-          {menuOpen && (
-            <>{isMobile ? <Modal>{renderMenu()}</Modal> : renderMenu()}</>
-          )}
+          {menuOpen &&
+            (isMobile ? <Modal>{renderMenu()}</Modal> : renderMenu())}
 
           {!menuOpen && (
             <motion.div
-              className="absolute right-0 top-0 z-10 hidden md:block"
-              key="children"
-              initial="hidden"
               animate="visible"
+              className="absolute right-0 top-0 z-10 hidden md:block"
               exit="hidden"
+              initial="hidden"
+              key="children"
               variants={{
-                hidden: { opacity: 0, y: 20, transition: { duration: 0.2 } },
+                hidden: { opacity: 0, transition: { duration: 0.2 }, y: 20 },
                 visible: {
                   opacity: 1,
+                  transition: { delay: 0.2, duration: 0.2 },
                   y: 0,
-                  transition: { duration: 0.2, delay: 0.2 },
                 },
               }}
             >
@@ -240,7 +237,7 @@ export default function Menu({
 
       <div className="relative flex items-center">
         <Search />
-        <MenuToggle ref={menuToggleRef} onClick={handleMenuToggle} />
+        <MenuToggle onClick={handleMenuToggle} ref={menuToggleRef} />
       </div>
     </div>
   );

@@ -1,18 +1,17 @@
 import {
-  PutItemCommand,
   ConditionalCheckFailedException,
+  PutItemCommand,
   QueryCommand,
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import type { User, CreateUser } from '@tvseri.es/types';
+import type { CreateUser, User } from '@tvseri.es/types';
 import slugify from 'slugify';
 import { Resource } from 'sst';
 import { ulid } from 'ulid';
-
-import client from '../client';
 import generateUsername from '@/utils/generateUsername';
 import { encodeToBase64Url } from '@/utils/stringBase64Url';
+import client from '../client';
 
 const VERSION = 1;
 
@@ -45,12 +44,12 @@ export const findUser = async (
 
   const result = await client.send(
     new QueryCommand({
-      TableName: Resource.Users.name,
-      IndexName: indexName,
-      KeyConditionExpression: `${indexName ? `${indexName}pk` : 'pk'} = :value`,
       ExpressionAttributeValues: marshall({
         ':value': `${prefix}${value}`,
       }),
+      IndexName: indexName,
+      KeyConditionExpression: `${indexName ? `${indexName}pk` : 'pk'} = :value`,
+      TableName: Resource.Users.name,
     }),
   );
 
@@ -74,15 +73,15 @@ export const findUser = async (
   } = user;
 
   return {
-    id,
     createdAt,
-    updatedAt,
     email,
+    id,
     name,
     role,
     tmdbAccountId,
     tmdbAccountObjectId,
     tmdbUsername,
+    updatedAt,
     username,
     version,
   };
@@ -125,20 +124,19 @@ export const createUser = async (
   const now = new Date().toISOString();
 
   const command = new PutItemCommand({
-    TableName: Resource.Users.name,
     Item: marshall(
       {
-        pk: `USER#${userId}`,
-        id: userId,
         createdAt: now,
+        id: userId,
+        pk: `USER#${userId}`,
         ...(input.name && {
           name: input.name,
         }),
         role,
         version: VERSION,
         ...(input.email && {
-          gsi1pk: `EMAIL#${encodeToBase64Url(input.email)}`,
           email: input.email,
+          gsi1pk: `EMAIL#${encodeToBase64Url(input.email)}`,
         }),
         gsi2pk: `USERNAME#${username}`,
         username,
@@ -154,18 +152,19 @@ export const createUser = async (
         removeUndefinedValues: true,
       },
     ),
+    TableName: Resource.Users.name,
   });
 
   try {
     await client.send(command);
 
     return {
-      id: userId,
-      email: input.email,
-      username,
-      name: input.name,
       createdAt: now,
+      email: input.email,
+      id: userId,
+      name: input.name,
       role,
+      username,
       ...(input.tmdbAccountId &&
         input.tmdbAccountObjectId && {
           tmdbAccountId: input.tmdbAccountId,
@@ -241,12 +240,12 @@ export const updateUser = async (
   try {
     await client.send(
       new UpdateItemCommand({
-        TableName: Resource.Users.name,
+        ExpressionAttributeValues: marshall(values),
         Key: marshall({
           pk: `USER#${user.id}`,
         }),
+        TableName: Resource.Users.name,
         UpdateExpression: `SET ${updateExpressions.join(', ')}`,
-        ExpressionAttributeValues: marshall(values),
         ...(Object.keys(expressionAttributeNames).length > 0 && {
           ExpressionAttributeNames: expressionAttributeNames,
         }),
@@ -285,33 +284,33 @@ export const addTmdbToUser = async (
   try {
     await client.send(
       new UpdateItemCommand({
-        TableName: Resource.Users.name,
+        ConditionExpression:
+          '(#updatedAt = :lastUpdatedAt OR attribute_not_exists(#updatedAt))',
+        ExpressionAttributeNames: {
+          '#gsi3pk': 'gsi3pk',
+          '#tmdbAccountId': 'tmdbAccountId',
+          '#tmdbAccountObjectId': 'tmdbAccountObjectId',
+          '#tmdbUsername': 'tmdbUsername',
+          '#updatedAt': 'updatedAt',
+        },
+        ExpressionAttributeValues: marshall({
+          ':gsi3pk': `TMDB#${input.tmdbAccountId}`,
+          ':lastUpdatedAt': user.updatedAt || user.createdAt,
+          ':tmdbAccountId': input.tmdbAccountId,
+          ':tmdbAccountObjectId': input.tmdbAccountObjectId,
+          ':tmdbUsername': input.tmdbUsername,
+          ':updatedAt': now,
+        }),
         Key: marshall({
           pk: `USER#${user.id}`,
         }),
+        TableName: Resource.Users.name,
         UpdateExpression: `
           SET #tmdbAccountId = :tmdbAccountId,
               #tmdbAccountObjectId = :tmdbAccountObjectId,
               #tmdbUsername = :tmdbUsername,
               #gsi3pk = :gsi3pk,
               #updatedAt = :updatedAt`,
-        ExpressionAttributeValues: marshall({
-          ':tmdbAccountId': input.tmdbAccountId,
-          ':tmdbAccountObjectId': input.tmdbAccountObjectId,
-          ':tmdbUsername': input.tmdbUsername,
-          ':gsi3pk': `TMDB#${input.tmdbAccountId}`,
-          ':updatedAt': now,
-          ':lastUpdatedAt': user.updatedAt || user.createdAt,
-        }),
-        ExpressionAttributeNames: {
-          '#tmdbAccountId': 'tmdbAccountId',
-          '#tmdbAccountObjectId': 'tmdbAccountObjectId',
-          '#tmdbUsername': 'tmdbUsername',
-          '#gsi3pk': 'gsi3pk',
-          '#updatedAt': 'updatedAt',
-        },
-        ConditionExpression:
-          '(#updatedAt = :lastUpdatedAt OR attribute_not_exists(#updatedAt))',
       }),
     );
 
@@ -338,25 +337,25 @@ export const removeTmdbFromUser = async (user: User): Promise<User> => {
   try {
     await client.send(
       new UpdateItemCommand({
-        TableName: Resource.Users.name,
-        Key: marshall({
-          pk: `USER#${user.id}`,
-        }),
-        UpdateExpression:
-          'REMOVE #tmdbAccountId, #tmdbAccountObjectId, #tmdbUsername, #gsi3pk SET #updatedAt = :updatedAt',
-        ExpressionAttributeValues: marshall({
-          ':updatedAt': now,
-          ':lastUpdatedAt': user.updatedAt || user.createdAt,
-        }),
+        ConditionExpression:
+          '(#updatedAt = :lastUpdatedAt OR attribute_not_exists(#updatedAt))',
         ExpressionAttributeNames: {
+          '#gsi3pk': 'gsi3pk',
           '#tmdbAccountId': 'tmdbAccountId',
           '#tmdbAccountObjectId': 'tmdbAccountObjectId',
           '#tmdbUsername': 'tmdbUsername',
-          '#gsi3pk': 'gsi3pk',
           '#updatedAt': 'updatedAt',
         },
-        ConditionExpression:
-          '(#updatedAt = :lastUpdatedAt OR attribute_not_exists(#updatedAt))',
+        ExpressionAttributeValues: marshall({
+          ':lastUpdatedAt': user.updatedAt || user.createdAt,
+          ':updatedAt': now,
+        }),
+        Key: marshall({
+          pk: `USER#${user.id}`,
+        }),
+        TableName: Resource.Users.name,
+        UpdateExpression:
+          'REMOVE #tmdbAccountId, #tmdbAccountObjectId, #tmdbUsername, #gsi3pk SET #updatedAt = :updatedAt',
       }),
     );
 

@@ -1,18 +1,17 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useCallback, useState } from 'react';
 
 import {
-  BarChart,
   Bar,
-  XAxis,
-  YAxis,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  LabelList,
   ResponsiveContainer,
   Tooltip,
-  LabelList,
-  Cell,
-  CartesianGrid,
+  XAxis,
+  YAxis,
 } from 'recharts';
 
 const BAR_SIZE = 40;
@@ -28,6 +27,7 @@ export type Props = Readonly<{
 export default function MostWatchedGenres({ data }: Props) {
   const [focusBar, setFocusBar] = useState(null);
 
+  // biome-ignore lint/suspicious/noExplicitAny: sort out later
   const renderTooltip = useCallback(({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
@@ -49,17 +49,18 @@ export default function MostWatchedGenres({ data }: Props) {
   }, []);
 
   const renderContent = useCallback(
+    // biome-ignore lint/suspicious/noExplicitAny: sort out later
     ({ x, y, value, index, height }: any) => {
       const centerY = y + height / 2;
 
       return (
         <text
+          dominantBaseline="middle"
+          fill={focusBar === index ? '#fff' : '#999'}
+          fontSize={11}
+          textAnchor="start"
           x={x + 16}
           y={centerY}
-          fontSize={11}
-          fill={focusBar === index ? '#fff' : '#999'}
-          textAnchor="start"
-          dominantBaseline="middle"
         >
           {value}
         </text>
@@ -70,15 +71,17 @@ export default function MostWatchedGenres({ data }: Props) {
 
   return (
     <ResponsiveContainer
-      width="100%"
       height={data.length * (BAR_SIZE + BAR_GAP)}
+      width="100%"
     >
       <BarChart
-        margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        barSize={BAR_SIZE}
         barGap={BAR_GAP}
+        barSize={BAR_SIZE}
         data={data}
         layout="vertical"
+        margin={{ bottom: 0, left: 0, right: 0, top: 0 }}
+        onMouseLeave={() => setFocusBar(null)}
+        // biome-ignore lint/suspicious/noExplicitAny: sort out later
         onMouseMove={(state: any) => {
           if (state?.isTooltipActive) {
             setFocusBar(state.activeTooltipIndex);
@@ -86,31 +89,30 @@ export default function MostWatchedGenres({ data }: Props) {
             setFocusBar(null);
           }
         }}
-        onMouseLeave={() => setFocusBar(null)}
       >
         <CartesianGrid
-          vertical={true}
           horizontal={false}
           stroke="rgba(255,255,255,0.1)"
           strokeDasharray="3 3"
+          vertical={true}
         />
         <YAxis
-          hide
-          dataKey="genre"
-          type="category"
-          tickLine={false}
           axisLine={false}
+          dataKey="genre"
+          hide
+          tickLine={false}
+          type="category"
         />
-        <XAxis type="number" hide domain={[0, 'dataMax']} tickCount={12} />
+        <XAxis domain={[0, 'dataMax']} hide tickCount={12} type="number" />
         <Tooltip content={renderTooltip} cursor={false} />
         <Bar dataKey="count" minPointSize={2} radius={[4, 4, 4, 4]}>
-          {data.map((entry, index) => (
+          {data.map((_entry, index) => (
             <Cell
-              key={`cell-${index}`}
               fill={focusBar === index ? '#00B8D4' : '#333333'}
+              key={`cell-${index}`}
             />
           ))}
-          <LabelList dataKey="genre" content={renderContent} />
+          <LabelList content={renderContent} dataKey="genre" />
         </Bar>
       </BarChart>
     </ResponsiveContainer>

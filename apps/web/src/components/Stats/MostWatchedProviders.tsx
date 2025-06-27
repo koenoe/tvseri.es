@@ -1,18 +1,17 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { memo, useCallback, useState } from 'react';
 
 import {
-  BarChart,
   Bar,
-  XAxis,
-  YAxis,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  LabelList,
   ResponsiveContainer,
   Tooltip,
-  LabelList,
-  Cell,
-  CartesianGrid,
+  XAxis,
+  YAxis,
 } from 'recharts';
 
 const BAR_SIZE = 40;
@@ -30,14 +29,15 @@ export type Props = Readonly<{
 function MostWatchedProviders({ data }: Props) {
   const [focusBar, setFocusBar] = useState(null);
   const renderContent = useCallback(
+    // biome-ignore lint/suspicious/noExplicitAny: sort out later
     (props: any) => {
       const { x, y, value, index, height } = props;
       const centerY = y + height / 2;
       const isActive = focusBar === index;
       const styles = {
-        transition: 'filter 0.2s, opacity 0.2s',
         filter: isActive ? 'none' : 'grayscale(100%)',
         opacity: isActive ? 1 : 0.5,
+        transition: 'filter 0.2s, opacity 0.2s',
       };
       const logo = data[index]!.logo;
 
@@ -54,27 +54,27 @@ function MostWatchedProviders({ data }: Props) {
               />
             </filter>
             <clipPath id={`roundedImage-${index}`}>
-              <rect x={x + 16} y={centerY - 12} width="24" height="24" rx="4" />
+              <rect height="24" rx="4" width="24" x={x + 16} y={centerY - 12} />
             </clipPath>
           </defs>
           {logo && (
             <image
-              x={x + 16}
-              y={centerY - 12}
-              width="24"
+              clipPath={`url(#roundedImage-${index})`}
               height="24"
               href={logo}
-              clipPath={`url(#roundedImage-${index})`}
               style={styles}
+              width="24"
+              x={x + 16}
+              y={centerY - 12}
             />
           )}
           <text
+            dominantBaseline="middle"
+            fill={isActive ? '#fff' : '#999'}
+            fontSize={11}
+            textAnchor="start"
             x={x + 48}
             y={centerY}
-            fontSize={11}
-            fill={isActive ? '#fff' : '#999'}
-            textAnchor="start"
-            dominantBaseline="middle"
           >
             {value}
           </text>
@@ -84,6 +84,7 @@ function MostWatchedProviders({ data }: Props) {
     [data, focusBar],
   );
 
+  // biome-ignore lint/suspicious/noExplicitAny: sort out later
   const renderTooltip = useCallback(({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const { name, defaultColor } = payload[0].payload;
@@ -110,6 +111,7 @@ function MostWatchedProviders({ data }: Props) {
     setFocusBar(null);
   }, []);
 
+  // biome-ignore lint/suspicious/noExplicitAny: sort out later
   const handleMouseMove = useCallback((state: any) => {
     if (state?.isTooltipActive) {
       setFocusBar(state.activeTooltipIndex);
@@ -120,41 +122,41 @@ function MostWatchedProviders({ data }: Props) {
 
   return (
     <ResponsiveContainer
-      width="100%"
       height={data.length * (BAR_SIZE + BAR_GAP)}
+      width="100%"
     >
       <BarChart
-        margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        barSize={BAR_SIZE}
         barGap={BAR_GAP}
+        barSize={BAR_SIZE}
         data={data}
         layout="vertical"
-        onMouseMove={handleMouseMove}
+        margin={{ bottom: 0, left: 0, right: 0, top: 0 }}
         onMouseLeave={handleMouseLeave}
+        onMouseMove={handleMouseMove}
       >
         <CartesianGrid
-          vertical={true}
           horizontal={false}
           stroke="rgba(255,255,255,0.1)"
           strokeDasharray="3 3"
+          vertical={true}
         />
         <YAxis
-          hide
-          dataKey="name"
-          type="category"
-          tickLine={false}
           axisLine={false}
+          dataKey="name"
+          hide
+          tickLine={false}
+          type="category"
         />
-        <XAxis type="number" hide domain={[0, 'dataMax']} tickCount={12} />
+        <XAxis domain={[0, 'dataMax']} hide tickCount={12} type="number" />
         <Tooltip content={renderTooltip} cursor={false} />
         <Bar dataKey="count" minPointSize={2} radius={[4, 4, 4, 4]}>
           {data.map((entry, index) => (
             <Cell
-              key={`cell-${index}`}
               fill={focusBar === index ? entry.defaultColor : '#333333'}
+              key={`cell-${index}`}
             />
           ))}
-          <LabelList dataKey="name" content={renderContent} />
+          <LabelList content={renderContent} dataKey="name" />
         </Bar>
       </BarChart>
     </ResponsiveContainer>

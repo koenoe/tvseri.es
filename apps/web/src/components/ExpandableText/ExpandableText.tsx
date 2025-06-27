@@ -1,18 +1,17 @@
 'use client';
 
+import { cva } from 'class-variance-authority';
 import { useCallback, useState } from 'react';
 
-import { cva } from 'class-variance-authority';
-
 const textStyles = cva('leading-loose', {
-  variants: {
-    state: {
-      open: ['line-clamp-none'],
-      closed: ['line-clamp-3 xl:line-clamp-5'],
-    },
-  },
   defaultVariants: {
     state: 'closed',
+  },
+  variants: {
+    state: {
+      closed: ['line-clamp-3 xl:line-clamp-5'],
+      open: ['line-clamp-none'],
+    },
   },
 });
 
@@ -28,7 +27,7 @@ export default function ExpandableText({
 
   return (
     <div
-      className={textStyles({ state: isOpen ? 'open' : 'closed', className })}
+      className={textStyles({ className, state: isOpen ? 'open' : 'closed' })}
       onClick={handleClick}
     >
       {children}

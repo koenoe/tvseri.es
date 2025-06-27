@@ -1,5 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/ban-ts-comment */
 // This code comes from https://github.com/adobe/react-spectrum/blob/main/packages/%40react-aria/overlays/src/usePreventScroll.ts
+/** biome-ignore-all lint/suspicious/noExplicitAny: external code */
+/** biome-ignore-all lint/suspicious/noImplicitAnyLet: external code */
 // @ts-nocheck
 
 import { useEffect, useLayoutEffect } from 'react';
@@ -300,16 +301,16 @@ function preventScrollMobileSafari() {
 
   const removeEvents = chain(
     addEvent(document, 'touchstart', onTouchStart, {
-      passive: false,
       capture: true,
+      passive: false,
     }),
     addEvent(document, 'touchmove', onTouchMove, {
-      passive: false,
       capture: true,
+      passive: false,
     }),
     addEvent(document, 'touchend', onTouchEnd, {
-      passive: false,
       capture: true,
+      passive: false,
     }),
     addEvent(document, 'focus', onFocus, true),
   );

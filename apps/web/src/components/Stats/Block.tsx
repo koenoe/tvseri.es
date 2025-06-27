@@ -20,11 +20,12 @@ export default function Block({
   value: string | number;
   comparison: ComparisonData;
 }>) {
-  const params = useParams<
-    Readonly<{
-      year: string;
-    }>
-  >();
+  const params =
+    useParams<
+      Readonly<{
+        year: string;
+      }>
+    >();
   const isPositiveDelta = comparison.delta > 0;
 
   const formatDelta = (delta: number, type: 'percentage' | 'absolute') => {
@@ -54,13 +55,13 @@ export default function Block({
             )}
           >
             <svg
-              viewBox="0 0 32 32"
-              fill="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
               className={cx(
                 'size-3 shrink-0',
                 isPositiveDelta ? 'rotate-[0deg]' : '-rotate-[180deg]',
               )}
+              fill="currentColor"
+              viewBox="0 0 32 32"
+              xmlns="http://www.w3.org/2000/svg"
             >
               <path d="M17.504 26.025l.001-14.287 6.366 6.367L26 15.979 15.997 5.975 6 15.971 8.129 18.1l6.366-6.368v14.291z" />
             </svg>

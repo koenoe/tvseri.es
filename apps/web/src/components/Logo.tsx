@@ -7,14 +7,14 @@ export default function Logo({
   priority = false,
 }: Readonly<{ priority?: boolean }>) {
   return (
-    <Link href="/" className="z-10 flex items-center gap-4" replace>
+    <Link className="z-10 flex items-center gap-4" href="/" replace>
       <Image
-        className="mt-[-6px]"
-        src={logo}
         alt=""
-        width={24}
-        priority={priority}
+        className="mt-[-6px]"
         height={24}
+        priority={priority}
+        src={logo}
+        width={24}
       />
       <span className="text-lg font-semibold uppercase leading-none tracking-widest">
         tvseri.es

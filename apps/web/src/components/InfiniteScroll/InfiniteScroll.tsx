@@ -34,17 +34,15 @@ const InfiniteScroll = ({
   }, [isInView, isPending, loadMore]);
 
   return (
-    <>
-      <div className={cx('relative', className)}>
-        {children}
-        {hasMoreData && (
-          <div
-            className="pointer-events-none absolute bottom-0 left-0 block h-[25vh] w-full"
-            ref={sentinelRef}
-          />
-        )}
-      </div>
-    </>
+    <div className={cx('relative', className)}>
+      {children}
+      {hasMoreData && (
+        <div
+          className="pointer-events-none absolute bottom-0 left-0 block h-[25vh] w-full"
+          ref={sentinelRef}
+        />
+      )}
+    </div>
   );
 };
 

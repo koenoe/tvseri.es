@@ -333,12 +333,14 @@ export async function fetchTvSeriesWatchProviders(
     watchProviders.results?.[region as keyof typeof watchProviders.results]
       ?.flatrate ?? [];
 
-  // TODO: generate new types from OpenAPI
-  // prettier-ignore
+  const regionProviders =
+    watchProviders.results?.[region as keyof typeof watchProviders.results];
   const free =
-    // @ts-expect-error it does exist
-    (watchProviders.results?.[region as keyof typeof watchProviders.results]
-      ?.free as typeof flatrate) ?? [];
+    (regionProviders &&
+    'free' in regionProviders &&
+    Array.isArray(regionProviders.free)
+      ? (regionProviders.free as typeof flatrate)
+      : []) ?? [];
 
   const providers = [...free, ...flatrate];
 

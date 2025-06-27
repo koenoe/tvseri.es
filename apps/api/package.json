@@ -1,12 +1,4 @@
 {
-  "name": "@tvseri.es/api",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "check-types": "tsc",
-    "lint": "eslint ."
-  },
   "dependencies": {
     "@aws-sdk/client-cloudfront": "^3.835.0",
     "@aws-sdk/client-dynamodb": "^3.835.0",
@@ -24,14 +16,20 @@
     "ulid": "^3.0.1"
   },
   "devDependencies": {
-    "@tvseri.es/eslint-config": "workspace:*",
     "@tvseri.es/types": "workspace:*",
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/aws-lambda": "^8.10.150",
     "@types/color": "^4.2.0",
     "@types/node": "^22.15.30",
-    "eslint": "^9.28.0",
     "sharp": "^0.34.2",
     "typescript": "^5.8.3"
-  }
+  },
+  "name": "@tvseri.es/api",
+  "private": true,
+  "scripts": {
+    "check-types": "tsc",
+    "lint": "eslint ."
+  },
+  "type": "module",
+  "version": "0.0.0"
 }

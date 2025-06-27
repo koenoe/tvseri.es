@@ -1,6 +1,5 @@
-import { Suspense } from 'react';
-
 import { unauthorized } from 'next/navigation';
+import { Suspense } from 'react';
 
 import auth from '@/auth';
 import WebhookForPlex, {

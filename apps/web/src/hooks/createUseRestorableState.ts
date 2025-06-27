@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import getHistoryKey from '../utils/getHistoryKey';
 
@@ -35,7 +35,7 @@ export default function createUseRestorableState<State>(): (
         cached.set(key, newState);
         _setState(newState);
       },
-      [key, _setState, _state],
+      [key, _state],
     );
 
     return [_state, setState];

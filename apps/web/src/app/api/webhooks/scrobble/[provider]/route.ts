@@ -2,8 +2,8 @@ import { fetchTokenForWebhook, proxy } from '@/lib/api';
 
 function jsonResponse(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
-    status,
     headers: { 'content-type': 'application/json' },
+    status,
   });
 }
 
@@ -39,11 +39,11 @@ export async function POST(
     };
 
     const result = await proxy('/scrobble/provider/:provider', {
+      body,
+      headers,
       method: 'POST',
       params: { provider },
       query,
-      headers,
-      body,
     });
 
     return jsonResponse(result);

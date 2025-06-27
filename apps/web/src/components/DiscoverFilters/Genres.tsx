@@ -1,22 +1,21 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
-
-import { type Genre } from '@tvseri.es/types';
+import type { Genre } from '@tvseri.es/types';
 import { cva } from 'class-variance-authority';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useMemo } from 'react';
 
 const buttonStyles = cva(
   'text-nowrap rounded-3xl px-5 py-4 leading-none tracking-wide font-medium text-xs',
   {
+    defaultVariants: {
+      state: 'inactive',
+    },
     variants: {
       state: {
         active: 'bg-white text-neutral-900',
         inactive: 'bg-white/10 text-white',
       },
-    },
-    defaultVariants: {
-      state: 'inactive',
     },
   },
 );
@@ -76,9 +75,9 @@ export default function DiscoverGenres({
     <div className="flex w-full flex-row flex-wrap items-start gap-3">
       {genres.map((genre) => (
         <GenreButton
-          key={genre.id}
           genre={genre}
           isActive={selectedGenreIds.includes(genre.id)}
+          key={genre.id}
           onClick={handleOnClick}
         />
       ))}

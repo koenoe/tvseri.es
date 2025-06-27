@@ -1,11 +1,10 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { useInsertionEffect } from 'react';
 
-import { usePathname } from 'next/navigation';
-
 export default function EnsureHistoryKey() {
-  const pathname = usePathname();
+  const _pathname = usePathname();
 
   useInsertionEffect(() => {
     if (!window.history.state || !window.history.state.key) {
@@ -14,7 +13,7 @@ export default function EnsureHistoryKey() {
         '',
       );
     }
-  }, [pathname]);
+  }, []);
 
   return null;
 }

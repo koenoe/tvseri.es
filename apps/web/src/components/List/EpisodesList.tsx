@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
-
-import { type Season, type Episode, type TvSeries } from '@tvseri.es/types';
+import type { Episode, Season, TvSeries } from '@tvseri.es/types';
 import { useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 
 import SelectSeason from '@/components/List/EpisodesListSeasonSelect';
 import List from '@/components/List/List';
@@ -50,8 +49,8 @@ export default function EpisodesList({
       selectedSeason.airDate &&
       new Date(selectedSeason.airDate) <= new Date() ? (
         <WatchButton
-          tvSeriesId={item.id}
           seasonNumber={selectedSeason.seasonNumber}
+          tvSeriesId={item.id}
         />
       ) : null,
     [item.id, selectedSeason],
@@ -81,20 +80,20 @@ export default function EpisodesList({
 
   return (
     <List
+      button={button}
       key={fetchKey}
       scrollRestoreKey={fetchKey}
       title={title}
-      button={button}
       {...rest}
     >
       {shouldShowSkeleton
         ? [...Array(10)].map((_, index) => <SkeletonEpisode key={index} />)
         : episodes.map((episode) => (
             <EpisodeTile
-              key={episode.id}
-              tvSeriesId={item.id}
               item={episode}
+              key={episode.id}
               priority
+              tvSeriesId={item.id}
             />
           ))}
     </List>

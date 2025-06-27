@@ -1,7 +1,6 @@
-import { type ReactNode } from 'react';
-
-import { type TvSeries } from '@tvseri.es/types';
+import type { TvSeries } from '@tvseri.es/types';
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 export default function InfoLine({
@@ -30,12 +29,12 @@ export default function InfoLine({
           <div className="hidden opacity-60 before:mr-1 before:content-['·'] md:block md:before:mr-2">
             {tvSeries.genres.map((genre, index) => (
               <Link
-                key={genre.id}
+                className="hover:underline"
                 href={{
                   pathname: '/discover',
                   query: { with_genres: genre.id },
                 }}
-                className="hover:underline"
+                key={genre.id}
                 prefetch={false}
               >
                 {genre.name}
@@ -45,11 +44,11 @@ export default function InfoLine({
           </div>
           <div className="opacity-60 before:mr-1 before:content-['·'] md:hidden md:before:mr-2">
             <Link
+              className="hover:underline"
               href={{
                 pathname: '/discover',
                 query: { with_genres: tvSeries.genres?.[0]?.id },
               }}
-              className="hover:underline"
               prefetch={false}
             >
               {tvSeries.genres?.[0]?.name}

@@ -9,12 +9,12 @@ import slugify from 'slugify';
 import auth from '@/auth';
 import { SESSION_DURATION } from '@/constants';
 import {
+  authenticateWithOTP,
   createOTP,
   createTmdbRequestToken,
-  authenticateWithOTP,
   follow,
-  unfollow,
   unauthenticate,
+  unfollow,
   unlinkTmdbAccount,
   updateUser,
 } from '@/lib/api';
@@ -30,8 +30,8 @@ export async function loginWithTmdb(pathname = '/') {
 
   cookieStore.set('requestTokenTmdb', encryptedToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 10 * 60, // 10 minutes
+    maxAge: 10 * 60,
+    secure: process.env.NODE_ENV === 'production', // 10 minutes
   });
 
   return redirect(
@@ -64,8 +64,8 @@ export async function login(formData: FormData) {
 
   cookieStore.set('emailOTP', encryptedEmail, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 10 * 60, // 10 minutes
+    maxAge: 10 * 60,
+    secure: process.env.NODE_ENV === 'production', // 10 minutes
   });
 
   return redirect(
@@ -83,20 +83,20 @@ export async function loginWithOTP({
   const [headerStore, cookieStore] = await Promise.all([headers(), cookies()]);
   try {
     const sessionId = await authenticateWithOTP({
-      email,
-      otp,
+      city: headerStore.get('cloudfront-viewer-city') || '',
       clientIp:
         headerStore.get('cloudfront-viewer-address')?.split(':')?.[0] || '',
       country: headerStore.get('cloudfront-viewer-country') || '',
-      city: headerStore.get('cloudfront-viewer-city') || '',
+      email,
+      otp,
       region: headerStore.get('cloudFront-viewer-country-region') || '',
       userAgent: headerStore.get('user-agent') || '',
     });
 
     cookieStore.set('sessionId', encryptToken(sessionId), {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
       maxAge: SESSION_DURATION,
+      secure: process.env.NODE_ENV === 'production',
     } as const);
 
     cookieStore.delete('emailOTP');
@@ -227,8 +227,8 @@ export async function toggleFollow(value: boolean, username: string) {
   }
 
   const payload = {
-    userId: user.id,
     sessionId: encryptedSessionId,
+    userId: user.id,
   };
 
   if (value) {

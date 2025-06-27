@@ -1,9 +1,9 @@
 import { vValidator } from '@hono/valibot-validator';
 import {
-  CreateOTPSchema,
   AuthenticateWithOTPSchema,
-  CreateTmdbRequestTokenSchema,
   AuthenticateWithTmdbSchema,
+  CreateOTPSchema,
+  CreateTmdbRequestTokenSchema,
 } from '@tvseri.es/types';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
@@ -49,12 +49,12 @@ app.post('/otp', vValidator('json', AuthenticateWithOTPSchema), async (c) => {
   }
 
   const sessionId = await createSession({
-    userId: user.id,
+    city,
     clientIp,
     country,
-    city,
     region,
     userAgent,
+    userId: user.id,
   });
 
   return c.json({ sessionId }, 201);
@@ -102,22 +102,22 @@ app.post('/tmdb', vValidator('json', AuthenticateWithTmdbSchema), async (c) => {
   if (!user) {
     user = await createUser({
       name: tmdbAccount.name,
-      username: tmdbAccount.username,
       tmdbAccountId: tmdbAccount.id,
       tmdbAccountObjectId: accountObjectId,
       tmdbUsername: tmdbAccount.username,
+      username: tmdbAccount.username,
     });
   }
 
   const sessionId = await createSession({
-    userId: user.id,
+    city,
     clientIp,
     country,
-    city,
     region,
-    userAgent,
-    tmdbSessionId,
     tmdbAccessToken: accessToken,
+    tmdbSessionId,
+    userAgent,
+    userId: user.id,
   });
 
   return c.json({ sessionId }, 201);

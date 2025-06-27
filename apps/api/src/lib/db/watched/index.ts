@@ -1,8 +1,8 @@
 import {
-  PutItemCommand,
+  BatchWriteItemCommand,
   DeleteItemCommand,
   GetItemCommand,
-  BatchWriteItemCommand,
+  PutItemCommand,
   QueryCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
@@ -14,10 +14,9 @@ import type {
   WatchProvider,
 } from '@tvseri.es/types';
 import { Resource } from 'sst';
-
-import client from '../client';
 import { fetchTvSeriesSeason } from '@/lib/tmdb';
 import { buildPosterImageUrl, generateTmdbImageUrl } from '@/lib/tmdb/helpers';
+import client from '../client';
 
 const DYNAMO_DB_BATCH_LIMIT = 25;
 
@@ -48,9 +47,9 @@ const createWatchedItem = ({
   slug: tvSeries.slug,
   title: tvSeries.title,
   userId,
+  watchedAt,
   watchProviderLogoPath: watchProvider?.logoPath ?? null,
   watchProviderName: watchProvider?.name ?? null,
-  watchedAt,
 });
 
 const normalizeWatchedItem = (item: WatchedItem) => ({
@@ -93,11 +92,11 @@ export const markWatchedInBatch = async (
     const paddedSeason = paddedNumber(item.seasonNumber);
     const paddedEpisode = paddedNumber(item.episodeNumber);
     const watchedItem = createWatchedItem({
-      userId: item.userId,
-      tvSeries: item.tvSeries,
-      seasonNumber: item.seasonNumber,
       episodeNumber: item.episodeNumber,
       runtime: item.runtime,
+      seasonNumber: item.seasonNumber,
+      tvSeries: item.tvSeries,
+      userId: item.userId,
       watchedAt: item.watchedAt,
       watchProvider: item.watchProvider,
     });
@@ -107,12 +106,12 @@ export const markWatchedInBatch = async (
     return {
       PutRequest: {
         Item: marshall({
-          pk: `USER#${item.userId}`,
-          sk: `SERIES#${item.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
           gsi1pk: `USER#${item.userId}#SERIES#${item.tvSeries.id}`,
           gsi1sk: `S${paddedSeason}#E${paddedEpisode}`,
           gsi2pk: `USER#${item.userId}#WATCHED`,
           gsi2sk: item.watchedAt,
+          pk: `USER#${item.userId}`,
+          sk: `SERIES#${item.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
           ...watchedItem,
         }),
       },
@@ -156,26 +155,26 @@ export const markWatched = async ({
   const paddedEpisode = paddedNumber(episodeNumber);
 
   const watchedItem = createWatchedItem({
-    userId,
-    tvSeries,
-    seasonNumber,
     episodeNumber,
     runtime,
+    seasonNumber,
+    tvSeries,
+    userId,
     watchedAt,
     watchProvider,
   });
 
   const command = new PutItemCommand({
-    TableName: Resource.Watched.name,
     Item: marshall({
-      pk: `USER#${userId}`,
-      sk: `SERIES#${tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
       gsi1pk: `USER#${userId}#SERIES#${tvSeries.id}`,
       gsi1sk: `S${paddedSeason}#E${paddedEpisode}`,
       gsi2pk: `USER#${userId}#WATCHED`,
       gsi2sk: watchedAt,
+      pk: `USER#${userId}`,
+      sk: `SERIES#${tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
       ...watchedItem,
     }),
+    TableName: Resource.Watched.name,
   });
 
   await client.send(command);
@@ -246,11 +245,11 @@ export const unmarkWatched = async (
   const paddedEpisode = paddedNumber(input.episodeNumber);
 
   const command = new DeleteItemCommand({
-    TableName: Resource.Watched.name,
     Key: marshall({
       pk: `USER#${input.userId}`,
       sk: `SERIES#${input.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
     }),
+    TableName: Resource.Watched.name,
   });
 
   await client.send(command);
@@ -280,9 +279,9 @@ export const markSeasonWatched = async ({
 
   // Get already watched episodes
   const { items: existingWatched } = await getWatchedForSeason({
-    userId,
-    tvSeries,
     seasonNumber,
+    tvSeries,
+    userId,
   });
 
   const existingEpisodeNumbers = new Set(
@@ -302,11 +301,11 @@ export const markSeasonWatched = async ({
 
   const writeRequests = episodes.map((episode) => {
     const watchedItem = createWatchedItem({
-      userId,
-      tvSeries,
-      seasonNumber,
       episodeNumber: episode.episodeNumber,
       runtime: episode.runtime,
+      seasonNumber,
+      tvSeries,
+      userId,
       watchedAt: now,
       watchProvider,
     });
@@ -316,12 +315,12 @@ export const markSeasonWatched = async ({
     return {
       PutRequest: {
         Item: marshall({
-          pk: `USER#${userId}`,
-          sk: `SERIES#${tvSeries.id}#S${paddedSeason}#E${paddedNumber(episode.episodeNumber)}`,
           gsi1pk: `USER#${userId}#SERIES#${tvSeries.id}`,
           gsi1sk: `S${paddedSeason}#E${paddedNumber(episode.episodeNumber)}`,
           gsi2pk: `USER#${userId}#WATCHED`,
           gsi2sk: now,
+          pk: `USER#${userId}`,
+          sk: `SERIES#${tvSeries.id}#S${paddedSeason}#E${paddedNumber(episode.episodeNumber)}`,
           ...watchedItem,
         }),
       },
@@ -358,9 +357,9 @@ export const unmarkSeasonWatched = async (
   }>,
 ) => {
   const { items } = await getWatchedForSeason({
-    userId: input.userId,
-    tvSeries: input.tvSeries,
     seasonNumber: input.seasonNumber,
+    tvSeries: input.tvSeries,
+    userId: input.userId,
   });
 
   if (!items.length) {
@@ -417,9 +416,9 @@ export const markTvSeriesWatched = async ({
   const watchedItems = await Promise.all(
     seasons.map((season) =>
       markSeasonWatched({
-        userId,
-        tvSeries,
         seasonNumber: season.seasonNumber,
+        tvSeries,
+        userId,
         watchProvider,
       }),
     ),
@@ -435,8 +434,8 @@ export const unmarkTvSeriesWatched = async (
   }>,
 ) => {
   const items = await getAllWatchedForTvSeries({
-    userId: input.userId,
     tvSeriesId: input.tvSeries.id,
+    userId: input.userId,
   });
 
   if (!items.length) {
@@ -478,17 +477,17 @@ export const getWatchedForTvSeries = async (
   const { limit = 20, cursor, sortDirection = 'desc' } = input.options ?? {};
 
   const command = new QueryCommand({
-    TableName: Resource.Watched.name,
-    IndexName: 'gsi1',
-    KeyConditionExpression: 'gsi1pk = :pk',
-    ExpressionAttributeValues: marshall({
-      ':pk': `USER#${input.userId}#SERIES#${input.tvSeriesId}`,
-    }),
-    Limit: limit,
-    ScanIndexForward: sortDirection === 'asc',
     ExclusiveStartKey: cursor
       ? JSON.parse(Buffer.from(cursor, 'base64url').toString())
       : undefined,
+    ExpressionAttributeValues: marshall({
+      ':pk': `USER#${input.userId}#SERIES#${input.tvSeriesId}`,
+    }),
+    IndexName: 'gsi1',
+    KeyConditionExpression: 'gsi1pk = :pk',
+    Limit: limit,
+    ScanIndexForward: sortDirection === 'asc',
+    TableName: Resource.Watched.name,
   });
 
   const result = await client.send(command);
@@ -515,12 +514,12 @@ export const getAllWatchedForTvSeries = async (
 
   do {
     const result = await getWatchedForTvSeries({
-      userId: input.userId,
-      tvSeriesId: input.tvSeriesId,
       options: {
-        limit: 1000, // Dynamo DB limit
-        cursor,
+        cursor, // Dynamo DB limit
+        limit: 1000,
       },
+      tvSeriesId: input.tvSeriesId,
+      userId: input.userId,
     });
 
     allItems.push(...result.items);
@@ -534,13 +533,13 @@ export const getWatchedCountForTvSeries = async (
   input: Omit<Parameters<typeof getWatchedForTvSeries>[0], 'options'>,
 ) => {
   const command = new QueryCommand({
-    TableName: Resource.Watched.name,
-    IndexName: 'gsi1',
-    KeyConditionExpression: 'gsi1pk = :pk',
     ExpressionAttributeValues: marshall({
       ':pk': `USER#${input.userId}#SERIES#${input.tvSeriesId}`,
     }),
+    IndexName: 'gsi1',
+    KeyConditionExpression: 'gsi1pk = :pk',
     Select: 'COUNT',
+    TableName: Resource.Watched.name,
   });
 
   const result = await client.send(command);
@@ -559,17 +558,17 @@ const getWatchedForSeason = async (
   const paddedSeason = paddedNumber(input.seasonNumber);
 
   const command = new QueryCommand({
-    TableName: Resource.Watched.name,
-    IndexName: 'gsi1',
-    KeyConditionExpression: 'gsi1pk = :pk AND begins_with(gsi1sk, :season)',
+    ExclusiveStartKey: cursor
+      ? JSON.parse(Buffer.from(cursor, 'base64url').toString())
+      : undefined,
     ExpressionAttributeValues: marshall({
       ':pk': `USER#${input.userId}#SERIES#${input.tvSeries.id}`,
       ':season': `S${paddedSeason}`,
     }),
+    IndexName: 'gsi1',
+    KeyConditionExpression: 'gsi1pk = :pk AND begins_with(gsi1sk, :season)',
     Limit: limit,
-    ExclusiveStartKey: cursor
-      ? JSON.parse(Buffer.from(cursor, 'base64url').toString())
-      : undefined,
+    TableName: Resource.Watched.name,
   });
 
   const result = await client.send(command);
@@ -604,15 +603,15 @@ export const getWatched = async (
   }
 
   const command = new QueryCommand({
-    TableName: Resource.Watched.name,
-    IndexName: 'gsi2',
-    KeyConditionExpression,
-    ExpressionAttributeValues: marshall(ExpressionAttributeValues),
-    ScanIndexForward: sortDirection === 'asc',
-    Limit: limit,
     ExclusiveStartKey: cursor
       ? JSON.parse(Buffer.from(cursor, 'base64url').toString())
       : undefined,
+    ExpressionAttributeValues: marshall(ExpressionAttributeValues),
+    IndexName: 'gsi2',
+    KeyConditionExpression,
+    Limit: limit,
+    ScanIndexForward: sortDirection === 'asc',
+    TableName: Resource.Watched.name,
   });
 
   const result = await client.send(command);
@@ -643,13 +642,13 @@ export const getAllWatched = async (
 
   do {
     const result = await getWatched({
-      userId: input.userId,
-      startDate: input.startDate,
       endDate: input.endDate,
       options: {
-        limit: 1000, // Dynamo DB limit
-        cursor,
+        cursor, // Dynamo DB limit
+        limit: 1000,
       },
+      startDate: input.startDate,
+      userId: input.userId,
     });
 
     allItems.push(...result.items);
@@ -677,11 +676,11 @@ export const getWatchedCount = async (
   }
 
   const command = new QueryCommand({
-    TableName: Resource.Watched.name,
+    ExpressionAttributeValues: marshall(ExpressionAttributeValues),
     IndexName: 'gsi2',
     KeyConditionExpression,
-    ExpressionAttributeValues: marshall(ExpressionAttributeValues),
     Select: 'COUNT',
+    TableName: Resource.Watched.name,
   });
 
   const result = await client.send(command);
@@ -700,11 +699,11 @@ export const isWatched = async (
   const paddedEpisode = paddedNumber(input.episodeNumber);
 
   const command = new GetItemCommand({
-    TableName: Resource.Watched.name,
     Key: marshall({
       pk: `USER#${input.userId}`,
       sk: `SERIES#${input.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
     }),
+    TableName: Resource.Watched.name,
   });
 
   const result = await client.send(command);

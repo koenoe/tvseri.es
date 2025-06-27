@@ -3,19 +3,19 @@ import * as v from 'valibot';
 const ProviderSchema = v.picklist(['internal', 'tmdb']);
 
 export const SessionSchema = v.object({
-  id: v.string(),
-  userId: v.string(),
-  provider: ProviderSchema,
-  expiresAt: v.number(),
-  createdAt: v.string(),
-  clientIp: v.string(),
-  region: v.optional(v.string()),
-  country: v.optional(v.string()),
   city: v.optional(v.string()),
-  userAgent: v.string(),
-  version: v.number(),
-  tmdbSessionId: v.optional(v.string()),
+  clientIp: v.string(),
+  country: v.optional(v.string()),
+  createdAt: v.string(),
+  expiresAt: v.number(),
+  id: v.string(),
+  provider: ProviderSchema,
+  region: v.optional(v.string()),
   tmdbAccessToken: v.optional(v.string()),
+  tmdbSessionId: v.optional(v.string()),
+  userAgent: v.string(),
+  userId: v.string(),
+  version: v.number(),
 });
 
 export const CreateOTPSchema = v.object({

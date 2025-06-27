@@ -1,7 +1,6 @@
-import { type DynamoDBStreamEvent } from 'aws-lambda';
-
-import { type AttributeValue } from '@aws-sdk/client-dynamodb';
+import type { AttributeValue } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
+import type { DynamoDBStreamEvent } from 'aws-lambda';
 
 import { sendEmail } from '@/lib/email';
 
@@ -20,10 +19,10 @@ export const handler = async (event: DynamoDBStreamEvent) => {
     }
 
     await sendEmail({
+      body: `Your OTP is <strong>${otpItem.code}</strong>`,
       recipient: otpItem.email,
       sender: 'auth',
       subject: `Your OTP: ${otpItem.code}`,
-      body: `Your OTP is <strong>${otpItem.code}</strong>`,
     });
   }
 };

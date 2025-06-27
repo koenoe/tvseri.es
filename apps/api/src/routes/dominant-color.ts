@@ -56,8 +56,8 @@ app.get('/', async (c) => {
 
   const cacheKey = c.req.query('cache_key') ?? url;
   const dominantColor = await detectDominantColorFromImageWithCache({
-    url,
     cacheKey,
+    url,
   });
 
   c.header(

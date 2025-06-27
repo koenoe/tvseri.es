@@ -1,7 +1,6 @@
 import { fetchBestSportsDocumentariesTvSeries } from '@/lib/api';
-
-import List, { type HeaderVariantProps } from './List';
 import Poster from '../Tiles/Poster';
+import List, { type HeaderVariantProps } from './List';
 
 export default async function BestSportsDocumentariesList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,
@@ -10,12 +9,12 @@ export default async function BestSportsDocumentariesList(
 
   return (
     <List
-      title="Best sports documentaries"
       scrollRestoreKey="best-sports-documentaries"
+      title="Best sports documentaries"
       {...props}
     >
       {items.map((item) => (
-        <Poster key={item.id} item={item} />
+        <Poster item={item} key={item.id} />
       ))}
     </List>
   );

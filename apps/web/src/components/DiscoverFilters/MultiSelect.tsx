@@ -1,5 +1,8 @@
 'use client';
 
+import { cx } from 'class-variance-authority';
+import { AnimatePresence, motion } from 'motion/react';
+import { useRouter } from 'next/navigation';
 import {
   memo,
   useCallback,
@@ -9,15 +12,11 @@ import {
   useState,
   useTransition,
 } from 'react';
-
-import { cx } from 'class-variance-authority';
-import { AnimatePresence, motion } from 'motion/react';
-import { useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 
 import isEqualArray from '@/utils/isEqualArray';
 
-import { type Position } from '../Dropdown/DropdownContainer';
+import type { Position } from '../Dropdown/DropdownContainer';
 
 export type Result = Readonly<{
   value: string | number;
@@ -42,13 +41,13 @@ type Props = Readonly<{
 }>;
 
 const dropdownVariants = {
-  visible: {
-    opacity: 1,
-    y: 0,
-  },
   hidden: {
     opacity: 0,
     y: 40,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
   },
 };
 
@@ -93,9 +92,9 @@ function MultiSelect({
   const [selectedResults, setSelectedResults] = useState<Result[]>(
     selectedResultsFromProps ??
       getInitialSelectedResultsFromParams({
+        results,
         searchParamKey,
         searchParamSeparator,
-        results,
       }),
   );
   const router = useRouter();
@@ -228,13 +227,11 @@ function MultiSelect({
       params.delete(searchParamKey);
     }
     router.replace(`?${params.toString()}`, { scroll: false });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedResults]);
+  }, [selectedResults, router.replace, searchParamKey, searchParamSeparator]);
 
   useEffect(() => {
     reposition({ forceOpen: false });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedResults]);
+  }, [reposition]);
 
   useEffect(() => {
     return () => {
@@ -245,19 +242,20 @@ function MultiSelect({
   return (
     <>
       <div
-        ref={inputContainerRef}
-        onKeyDown={handleKeyDown}
         className={cx(
           'text-nowrap rounded-3xl bg-white/10 p-5 text-sm leading-none tracking-wide text-white',
           className,
         )}
+        onKeyDown={handleKeyDown}
+        ref={inputContainerRef}
       >
         <div className="flex flex-wrap gap-2">
           {selectedResults.map((result) => {
             return (
               <button
-                key={result.value}
                 className="flex items-center justify-center gap-1 text-nowrap rounded-3xl bg-white/10 px-3 py-2 text-xs leading-none tracking-wide text-white"
+                key={result.value}
+                onClick={() => toggleSelect(result)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     toggleSelect(result);
@@ -267,44 +265,43 @@ function MultiSelect({
                   e.preventDefault();
                   e.stopPropagation();
                 }}
-                onClick={() => toggleSelect(result)}
               >
                 <span>{result.label}</span>
                 <svg
+                  className="h-3 w-3"
                   viewBox="0 0 15 15"
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-3 w-3"
                 >
                   <path
+                    clipRule="evenodd"
                     d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z"
                     fill="currentColor"
                     fillRule="evenodd"
-                    clipRule="evenodd"
                   />
                 </svg>
               </button>
             );
           })}
           <input
-            ref={inputRef}
-            onChange={handleChange}
-            onBlur={handleClose}
-            onFocus={handleOpen}
-            placeholder={placeholder}
-            className="ml-2 flex-1 bg-transparent outline-none placeholder:text-xs placeholder:text-white/50"
             autoComplete="off"
             autoCorrect="off"
+            className="ml-2 flex-1 bg-transparent outline-none placeholder:text-xs placeholder:text-white/50"
+            data-1p-ignore
+            defaultValue={inputValue}
+            onBlur={handleClose}
+            onChange={handleChange}
+            onFocus={handleOpen}
+            placeholder={placeholder}
+            ref={inputRef}
             spellCheck="false"
             type="text"
-            defaultValue={inputValue}
-            data-1p-ignore
           />
           {isPending && (
             <svg
               aria-hidden="true"
               className="inline h-4 w-4 animate-spin fill-white text-neutral-700"
-              viewBox="0 0 100 101"
               fill="none"
+              viewBox="0 0 100 101"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
@@ -322,15 +319,15 @@ function MultiSelect({
       <AnimatePresence>
         {position && filteredResults.length > 0 && (
           <motion.div
-            key="dropdown"
-            className="absolute shadow-lg"
-            style={{
-              top: position.y,
-              left: position.x,
-            }}
             animate="visible"
-            initial="hidden"
+            className="absolute shadow-lg"
             exit="hidden"
+            initial="hidden"
+            key="dropdown"
+            style={{
+              left: position.x,
+              top: position.y,
+            }}
             variants={dropdownVariants}
           >
             <motion.div
@@ -346,16 +343,16 @@ function MultiSelect({
                   <div
                     className="relative cursor-pointer"
                     key={result.value}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
                     onClick={() => {
                       if (inputRef.current) {
                         inputRef.current.value = '';
                       }
                       setInputValue('');
                       toggleSelect(result);
+                    }}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                     }}
                   >
                     {renderSelectItem(result)}

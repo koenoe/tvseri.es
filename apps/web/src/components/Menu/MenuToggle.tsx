@@ -1,30 +1,29 @@
 'use client';
 
-import { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
-
 import { cva } from 'class-variance-authority';
 import { motion, useAnimation } from 'motion/react';
+import { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
 
 const firstPathVariants = {
-  open: { d: 'M 3.06061 2.99999 L 21.0606 21' },
   closed: { d: 'M 0 9.5 L 24 9.5' },
+  open: { d: 'M 3.06061 2.99999 L 21.0606 21' },
 };
 
 const secondPathVariants = {
-  open: { d: 'M 3.00006 21.0607 L 21 3.06064' },
-  moving: { d: 'M 0 15.5 L 24 15.5' },
   closed: { d: 'M 0 15.5 L 15 15.5' },
+  moving: { d: 'M 0 15.5 L 24 15.5' },
+  open: { d: 'M 3.00006 21.0607 L 21 3.06064' },
 };
 
 const menuToggleStyles = cva('z-50 cursor-pointer md:z-10', {
-  variants: {
-    state: {
-      open: ['fixed md:absolute right-[2rem] md:right-0'],
-      closed: ['absolute right-0'],
-    },
-  },
   defaultVariants: {
     state: 'closed',
+  },
+  variants: {
+    state: {
+      closed: ['absolute right-0'],
+      open: ['fixed md:absolute right-[2rem] md:right-0'],
+    },
   },
 });
 
@@ -78,23 +77,23 @@ const MenuToggle = forwardRef<
 
   return (
     <button
-      onClick={handleClick}
       className={menuToggleStyles({ state: isOpen ? 'open' : 'closed' })}
+      onClick={handleClick}
     >
-      <svg width="24" height="24" viewBox="0 0 24 24">
+      <svg height="24" viewBox="0 0 24 24" width="24">
         <motion.path
           {...firstPathVariants.closed}
           animate={path01Controls}
-          transition={{ duration: 0.2 }}
           stroke="#fff"
           strokeWidth={2.5}
+          transition={{ duration: 0.2 }}
         />
         <motion.path
           {...secondPathVariants.closed}
           animate={path02Controls}
-          transition={{ duration: 0.2 }}
           stroke="#fff"
           strokeWidth={2.5}
+          transition={{ duration: 0.2 }}
         />
       </svg>
     </button>

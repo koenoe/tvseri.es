@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-
 import Link from 'next/link';
+import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 export default function ExpandableList({
@@ -33,18 +32,18 @@ export default function ExpandableList({
       )}
     >
       <span className="opacity-60">{label}:</span>
-      {displayedItems.map((item, index) => (
+      {displayedItems.map((_item, index) => (
         <Link
-          key={itemKey(index)}
           className="hover:underline"
           href={itemHref(index)}
+          key={itemKey(index)}
         >
           {itemLabel(index)}
           {index < displayedItems.length - 1 ? ',' : ''}
         </Link>
       ))}
       {!showAll && items.length > initialDisplayCount && (
-        <button onClick={() => setShowAll(true)} className="hover:underline">
+        <button className="hover:underline" onClick={() => setShowAll(true)}>
           + {items.length - initialDisplayCount} more
         </button>
       )}

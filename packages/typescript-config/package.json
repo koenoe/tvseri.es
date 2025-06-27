@@ -1,9 +1,9 @@
 {
-  "name": "@tvseri.es/typescript-config",
-  "version": "0.0.0",
-  "private": true,
   "license": "MIT",
+  "name": "@tvseri.es/typescript-config",
+  "private": true,
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "version": "0.0.0"
 }

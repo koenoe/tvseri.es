@@ -7,14 +7,14 @@ import { usePathname } from 'next/navigation';
 import { twMerge } from 'tailwind-merge';
 
 export const tabStyles = cva('relative inline-block p-4 text-nowrap', {
+  defaultVariants: {
+    state: 'inactive',
+  },
   variants: {
     state: {
       active: ['text-white'],
       inactive: ['hover:text-white/60'],
     },
-  },
-  defaultVariants: {
-    state: 'inactive',
   },
 });
 
@@ -38,19 +38,19 @@ export default function Tabs({
     >
       <ul className="-mb-px flex flex-nowrap">
         {items.map((item) => (
-          <li key={item.label} className="me-2">
+          <li className="me-2" key={item.label}>
             <Link
-              href={item.href}
               className={tabStyles({
                 state: pathname === item.href ? 'active' : 'inactive',
               })}
+              href={item.href}
             >
               {item.label}
               {pathname === item.href && (
                 <motion.span
-                  layoutId={layoutId}
                   className="absolute bottom-0 left-0 z-10 h-[3px] w-full bg-white"
-                  transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                  layoutId={layoutId}
+                  transition={{ bounce: 0.2, duration: 0.6, type: 'spring' }}
                 />
               )}
             </Link>

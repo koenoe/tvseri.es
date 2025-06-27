@@ -2,23 +2,22 @@
 
 // Note: heavily inspired by https://codesandbox.io/s/infinite-carousel-with-framer-motion-fk0f0
 
-import {
-  memo,
-  useCallback,
-  useState,
-  useMemo,
-  useEffect,
-  useRef,
-  type ReactElement,
-} from 'react';
-
-import { cx, cva } from 'class-variance-authority';
+import { cva, cx } from 'class-variance-authority';
 import {
   type Easing,
   type PanInfo,
   useAnimate,
   useMotionValue,
 } from 'motion/react';
+import {
+  memo,
+  type ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 import getHistoryKey from '@/utils/getHistoryKey';
@@ -27,9 +26,9 @@ import CarouselDot from './CarouselDot';
 import CarouselItem from './CarouselItem';
 
 const transition = {
-  type: 'tween',
-  ease: [0.4, 0, 0.2, 1] as Easing,
   duration: 0.5,
+  ease: [0.4, 0, 0.2, 1] as Easing,
+  type: 'tween',
 } as const;
 
 export const carouselStyles = cva(
@@ -88,7 +87,7 @@ function Carousel({
   );
 
   const handleDragEnd = useCallback(
-    (event: Event, dragProps: PanInfo) => {
+    (_event: Event, dragProps: PanInfo) => {
       const containerWidth = containerRef.current?.clientWidth || 0;
       const offsetTreshold = containerWidth / 4;
       const { offset, velocity } = dragProps;
@@ -120,7 +119,7 @@ function Carousel({
   );
 
   const getRange = useCallback(() => {
-    let rangeStart, rangeEnd;
+    let rangeStart: number, rangeEnd: number;
 
     if (currentItemIndex === 0) {
       rangeStart = -1;
@@ -174,8 +173,7 @@ function Carousel({
         sessionStorage.setItem(cacheKey, currentIndexRef.current.toString());
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [calculateNewX, restoreKey, x.set]);
 
   return (
     <div className={cx('container relative', className)}>
@@ -183,9 +181,9 @@ function Carousel({
         {getRange().map((i) => {
           return (
             <CarouselItem
-              key={i + currentIndex}
               index={i + currentIndex}
               itemRenderer={handleItemRenderer}
+              key={i + currentIndex}
               onDragEnd={handleDragEnd}
               x={x}
             />
@@ -195,9 +193,9 @@ function Carousel({
       <div className="mt-6 flex w-full items-center justify-center gap-2.5">
         {Array.from({ length: itemCount }).map((_, i) => (
           <CarouselDot
-            key={i}
             index={i}
             isActive={i === currentItemIndex}
+            key={i}
             onClick={handleDotClick}
           />
         ))}

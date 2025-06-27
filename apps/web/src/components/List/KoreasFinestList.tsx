@@ -1,7 +1,6 @@
 import { fetchKoreasFinestTvSeries } from '@/lib/api';
-
-import List, { type HeaderVariantProps } from './List';
 import Poster from '../Tiles/Poster';
+import List, { type HeaderVariantProps } from './List';
 
 export default async function KoreasFinestList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,
@@ -10,9 +9,9 @@ export default async function KoreasFinestList(
     const items = await fetchKoreasFinestTvSeries();
 
     return (
-      <List title="Korea's finest" scrollRestoreKey="koreas-finest" {...props}>
+      <List scrollRestoreKey="koreas-finest" title="Korea's finest" {...props}>
         {items.map((item) => (
-          <Poster key={item.id} item={item} />
+          <Poster item={item} key={item.id} />
         ))}
       </List>
     );

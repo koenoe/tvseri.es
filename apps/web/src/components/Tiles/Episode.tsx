@@ -1,7 +1,6 @@
-import { memo, useMemo } from 'react';
-
-import { type Episode } from '@tvseri.es/types';
+import type { Episode } from '@tvseri.es/types';
 import { cva, cx } from 'class-variance-authority';
+import { memo, useMemo } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import formatDate from '@/utils/formatDate';
@@ -18,16 +17,16 @@ export const episodeStyles = cva(
 const renderFallbackStill = () => (
   <div className="flex h-full w-full items-center justify-center bg-white/5">
     <svg
+      className="opacity-10"
       fill="#ffffff"
       height="100px"
-      width="100px"
+      stroke="#ffffff"
       version="1.1"
+      viewBox="0 0 58 58"
+      width="100px"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
-      viewBox="0 0 58 58"
       xmlSpace="preserve"
-      stroke="#ffffff"
-      className="opacity-10"
     >
       <g strokeWidth="0"></g>
       <g strokeLinecap="round" strokeLinejoin="round"></g>
@@ -64,29 +63,29 @@ function EpisodeTile({
         {item.stillImage ? (
           <>
             <ImageWithFallback
+              alt={item.title}
               className="aspect-video h-full w-full object-cover"
               draggable={false}
-              src={item.stillImage}
-              alt={item.title}
-              priority={priority}
-              placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(489, 275)}`}
-              width={1080}
-              height={608}
-              unoptimized
               fallback={renderFallbackStill}
+              height={608}
+              placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(489, 275)}`}
+              priority={priority}
+              src={item.stillImage}
+              unoptimized
+              width={1080}
             />
             <div className="absolute -bottom-1 left-0 h-2/5 w-full bg-gradient-to-t from-black/60 to-transparent" />
           </>
         ) : (
-          <>{renderFallbackStill()}</>
+          renderFallbackStill()
         )}
         {showWatchButton && (
           <WatchButton
-            tvSeriesId={tvSeriesId}
-            seasonNumber={item.seasonNumber}
-            episodeNumber={item.episodeNumber}
             className="!absolute bottom-4 left-4 bg-white/5 backdrop-blur md:bottom-6 md:left-6"
+            episodeNumber={item.episodeNumber}
+            seasonNumber={item.seasonNumber}
             size="small"
+            tvSeriesId={tvSeriesId}
           />
         )}
       </div>

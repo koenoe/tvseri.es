@@ -1,11 +1,9 @@
 'use client';
 
+import type { UserWithFollowInfo } from '@tvseri.es/types';
 import { memo, useCallback, useState, useTransition } from 'react';
-
-import { type UserWithFollowInfo } from '@tvseri.es/types';
-
-import Item from './Item';
 import LoadingDots from '../LoadingDots/LoadingDots';
+import Item from './Item';
 
 function Card({
   items: itemsFromProps,
@@ -68,24 +66,24 @@ function Card({
       </div>
       {nextCursor ? (
         <button
-          onClick={handleLoadMore}
-          disabled={isPending}
           className="mx-auto mt-4 flex h-11 w-auto min-w-36 items-center justify-center gap-x-2 rounded-full border-2 border-white/10 pl-4 pr-6 text-sm font-medium text-white"
+          disabled={isPending}
+          onClick={handleLoadMore}
         >
           {isPending ? (
             <LoadingDots className="h-2" />
           ) : (
             <>
               <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
                 className="size-5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  fillRule="evenodd"
-                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
                   clipRule="evenodd"
+                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                  fillRule="evenodd"
                 />
               </svg>
               Load more

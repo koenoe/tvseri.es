@@ -12,9 +12,6 @@ scrobbleQueue.subscribe(
       reserved: 25,
     },
     handler: 'apps/api/src/lambdas/scrobble.handler',
-    memory: '512 MB',
-    runtime: 'nodejs22.x',
-    timeout: '30 seconds',
     link: [
       dominantColor,
       dynamo.cache,
@@ -26,8 +23,8 @@ scrobbleQueue.subscribe(
       secrets.tmdbApiAccessToken,
       secrets.tmdbApiKey,
     ],
+    memory: '512 MB',
     nodejs: {
-      minify: true,
       esbuild: {
         external: [
           '@aws-sdk/client-cloudfront',
@@ -38,7 +35,10 @@ scrobbleQueue.subscribe(
           '@aws-sdk/util-dynamodb',
         ],
       },
+      minify: true,
     },
+    runtime: 'nodejs22.x',
+    timeout: '30 seconds',
   },
   {
     // Default = {size: 10, window: “20 seconds”, partialResponses: false}

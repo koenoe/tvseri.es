@@ -1,18 +1,17 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import {
+  type ChangeEvent,
+  type ClipboardEvent,
+  type FocusEvent,
+  type KeyboardEvent,
+  memo,
+  useCallback,
   useRef,
   useState,
-  useCallback,
-  type KeyboardEvent,
-  type FocusEvent,
-  type ClipboardEvent,
-  type ChangeEvent,
   useTransition,
-  memo,
 } from 'react';
-
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 import { loginWithOTP } from '@/app/actions';
@@ -139,24 +138,24 @@ const OTPForm = ({
     <div className="relative flex w-full justify-between gap-2">
       {otpValues.map((value, index) => (
         <input
-          key={index}
+          aria-label={`Digit ${index + 1} of verification code`}
+          autoComplete={index === 0 ? 'one-time-code' : 'off'}
           autoFocus={index === 0}
+          className="block size-12 rounded-lg border border-neutral-700 bg-neutral-800 p-0 text-center text-neutral-400 placeholder-neutral-600 focus:border-neutral-500 focus:outline-none disabled:opacity-50"
+          data-1p-ignore
+          inputMode="numeric"
+          key={index}
+          maxLength={1}
+          onChange={(e) => handleInput(e, index)}
+          onFocus={handleFocus}
+          onKeyDown={(e) => handleKeyDown(e, index)}
+          onPaste={handlePaste}
+          pattern="[0-9]*"
           ref={(el) => {
             inputRefs.current[index] = el;
           }}
           type="text"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          autoComplete={index === 0 ? 'one-time-code' : 'off'}
-          aria-label={`Digit ${index + 1} of verification code`}
           value={value}
-          onChange={(e) => handleInput(e, index)}
-          onKeyDown={(e) => handleKeyDown(e, index)}
-          onFocus={handleFocus}
-          onPaste={handlePaste}
-          className="block size-12 rounded-lg border border-neutral-700 bg-neutral-800 p-0 text-center text-neutral-400 placeholder-neutral-600 focus:border-neutral-500 focus:outline-none disabled:opacity-50"
-          maxLength={1}
-          data-1p-ignore
         />
       ))}
     </div>

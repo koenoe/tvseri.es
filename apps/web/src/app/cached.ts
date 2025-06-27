@@ -37,8 +37,8 @@ export const cachedUniqueWatchedByYear = cache(
         ? buildPosterImageUrl(item.posterPath)
         : item.posterImage) as string,
       posterPath: item.posterPath,
-      title: item.title,
       slug: item.slug,
+      title: item.title,
     }));
   },
 );

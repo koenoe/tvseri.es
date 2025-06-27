@@ -2,11 +2,10 @@
 
 export const sessions = new sst.aws.Dynamo('Sessions', {
   fields: {
-    // Primary key for looking up single sessions
-    pk: 'string', // SESSION#<sessionId>
-
     // Global Secondary Index for looking up all sessions by userId
-    gsi1pk: 'string', // USER#<userId>
+    gsi1pk: 'string', // SESSION#<sessionId>
+    // Primary key for looking up single sessions
+    pk: 'string', // USER#<userId>
 
     // userId: 'string',
     // provider: 'string', // 'internal' | 'tmdb'
@@ -20,9 +19,9 @@ export const sessions = new sst.aws.Dynamo('Sessions', {
     // tmdbSessionId: 'string', // v3 API session
     // tmdbAccessToken: 'string', // v4 API token
   },
-  primaryIndex: { hashKey: 'pk' },
   globalIndexes: {
     gsi1: { hashKey: 'gsi1pk', projection: 'all' },
   },
+  primaryIndex: { hashKey: 'pk' },
   ttl: 'expiresAt',
 });

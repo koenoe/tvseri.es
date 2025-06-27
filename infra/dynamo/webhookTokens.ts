@@ -2,8 +2,8 @@
 
 export const webhookTokens = new sst.aws.Dynamo('WebhookTokens', {
   fields: {
-    pk: 'string', // TOKEN#<token>
-    gsi1pk: 'string', // USER#<userId>#TYPE#<type>
+    gsi1pk: 'string', // TOKEN#<token>
+    pk: 'string', // USER#<userId>#TYPE#<type>
 
     // Other fields will be stored but not indexed
     // token: 'string',
@@ -11,11 +11,11 @@ export const webhookTokens = new sst.aws.Dynamo('WebhookTokens', {
     // type: 'string', // e.g., 'plex'
     // createdAt: 'string',
   },
-  primaryIndex: { hashKey: 'pk' },
   globalIndexes: {
     gsi1: {
       hashKey: 'gsi1pk',
       projection: 'all',
     },
   },
+  primaryIndex: { hashKey: 'pk' },
 });

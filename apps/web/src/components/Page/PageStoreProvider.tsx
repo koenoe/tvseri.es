@@ -1,18 +1,18 @@
 'use client';
 
 import {
-  type ReactNode,
   createContext,
-  useRef,
+  type ReactNode,
   useContext,
   useEffect,
+  useRef,
 } from 'react';
 
 import { useStore } from 'zustand';
 
 import getHistoryKey from '@/utils/getHistoryKey';
 
-import { type PageState, type PageStore, createPageStore } from './store';
+import { createPageStore, type PageState, type PageStore } from './store';
 
 export type PageStoreApi = ReturnType<typeof createPageStore>;
 
@@ -67,8 +67,7 @@ export const PageStoreProvider = ({
         );
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [persistent]);
 
   return (
     <PageStoreContext.Provider value={storeRef.current}>

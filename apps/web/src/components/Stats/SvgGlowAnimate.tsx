@@ -1,8 +1,7 @@
 'use client';
 
-import { memo } from 'react';
-
 import { motion } from 'motion/react';
+import { memo } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 const START_GRADIENT_POSITION = -130;
@@ -33,30 +32,30 @@ function SvgGlowAnimate({
 
   return (
     <motion.svg
-      width="12"
+      className={twMerge('transform-gpu', className)}
+      fill="none"
       height={svgHeight}
       viewBox={`0 0 12 ${svgHeight}`}
-      fill="none"
+      width="12"
       xmlns="http://www.w3.org/2000/svg"
-      className={twMerge('transform-gpu', className)}
     >
-      <path id={`main-line-${id}`} d={`M6 ${svgHeight} L6 0`} />
+      <path d={`M6 ${svgHeight} L6 0`} id={`main-line-${id}`} />
 
       <motion.use
+        animate={{ opacity: [0, 1, 0] }}
         href={`#main-line-${id}`}
+        initial={{ opacity: 0 }}
         style={{
+          filter: `blur(2px) drop-shadow(0px 0px 2px ${color})`,
           stroke: `url(#gradient-glow-${id})`,
           strokeWidth: 6,
-          filter: `blur(2px) drop-shadow(0px 0px 2px ${color})`,
         }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 1, 0] }}
         transition={{
+          delay: movementDelay / 1000,
           duration: 2,
-          times: [0, 0.5, 1],
           ease: 'linear',
           repeat: Infinity,
-          delay: movementDelay / 1000,
+          times: [0, 0.5, 1],
         }}
       />
 
@@ -68,25 +67,25 @@ function SvgGlowAnimate({
 
       <defs>
         <motion.linearGradient
-          id={`gradient-glow-${id}`}
-          x1="6"
-          x2="6"
-          gradientUnits="userSpaceOnUse"
-          initial={{
-            y1: START_GRADIENT_POSITION,
-            y2: END_GRADIENT_POSITION,
-          }}
           animate={{
             y1: [START_GRADIENT_POSITION, endY1],
             y2: [END_GRADIENT_POSITION, endY2],
           }}
+          gradientUnits="userSpaceOnUse"
+          id={`gradient-glow-${id}`}
+          initial={{
+            y1: START_GRADIENT_POSITION,
+            y2: END_GRADIENT_POSITION,
+          }}
           transition={{
+            delay: movementDelay / 1000,
             duration: 2,
             ease: 'linear',
             repeat: Infinity,
-            delay: movementDelay / 1000,
             repeatDelay: 0,
           }}
+          x1="6"
+          x2="6"
         >
           <stop offset="0.38" stopColor={color} stopOpacity="0" />
           <stop offset="0.5" stopColor={color} stopOpacity="0.8" />
@@ -94,12 +93,12 @@ function SvgGlowAnimate({
         </motion.linearGradient>
 
         <linearGradient
+          gradientUnits="userSpaceOnUse"
           id={`gradient-solid-${id}`}
           x1="6"
-          y1={initialGradientY}
           x2="6"
+          y1={initialGradientY}
           y2={svgHeight}
-          gradientUnits="userSpaceOnUse"
         >
           <stop stopColor={color} stopOpacity="0" />
           <stop offset="0.5" stopColor={color} />

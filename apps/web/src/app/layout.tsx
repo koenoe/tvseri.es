@@ -1,10 +1,9 @@
 import './globals.css';
 
-import { type ReactNode } from 'react';
-
 import { cx } from 'class-variance-authority';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
+import type { ReactNode } from 'react';
 import { Toaster } from 'sonner';
 
 import EnsureHistoryKey from '@/components/EnsureHistoryKey';
@@ -12,7 +11,7 @@ import ScrollbarDetection from '@/components/ScrollbarDetection';
 import WatchedStoreProvider from '@/components/Watched/WatchedStoreProvider';
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 
-const inter = Inter({ subsets: ['latin'], display: 'swap' });
+const inter = Inter({ display: 'swap', subsets: ['latin'] });
 
 export const metadata: Metadata = {
   formatDetection: {
@@ -24,16 +23,16 @@ export const metadata: Metadata = {
   },
   robots: 'noai,noimageai',
   title: {
-    template: '%s – tvseri.es',
     default: 'tvseri.es',
+    template: '%s – tvseri.es',
   },
 };
 
 export const viewport: Viewport = {
-  width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
   themeColor: DEFAULT_BACKGROUND_COLOR,
+  width: 'device-width',
 };
 
 export default function RootLayout({
@@ -52,10 +51,10 @@ export default function RootLayout({
         <Toaster
           toastOptions={{
             classNames: {
-              toast: 'bg-white',
-              title: 'text-neutral-900',
               description: 'text-neutral-900 fill-current',
               icon: 'text-neutral-900 fill-current',
+              title: 'text-neutral-900',
+              toast: 'bg-white',
             },
           }}
         />

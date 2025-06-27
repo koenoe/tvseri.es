@@ -1,5 +1,7 @@
 'use client';
 
+import type { PreferredImages } from '@tvseri.es/types';
+import { cx } from 'class-variance-authority';
 import {
   useCallback,
   useEffect,
@@ -8,13 +10,10 @@ import {
   useState,
   useTransition,
 } from 'react';
-
-import type { PreferredImages } from '@tvseri.es/types';
-import { cx } from 'class-variance-authority';
 import { preload } from 'react-dom';
 import { toast } from 'sonner';
 
-import { type fetchTvSeriesImages } from '@/lib/api';
+import type { fetchTvSeriesImages } from '@/lib/api';
 import preloadImage from '@/utils/preloadImage';
 
 import { usePageStore } from '../Page/PageStoreProvider';
@@ -38,11 +37,12 @@ export default function PreferredImagesForAdmin({
 }: Readonly<{
   id: number;
   images: Awaited<ReturnType<typeof fetchTvSeriesImages>>;
-  // eslint-disable-next-line no-empty-pattern
-  getDominantColor: ({}: Readonly<{
-    url: string;
-    path: string;
-  }>) => Promise<string>;
+  getDominantColor: (
+    args: Readonly<{
+      url: string;
+      path: string;
+    }>,
+  ) => Promise<string>;
   storePreferredImages: (
     id: number,
     preferredImages: PreferredImages,
@@ -60,9 +60,9 @@ export default function PreferredImagesForAdmin({
   );
 
   const [currentBackdrop, setCurrentBackdrop] = useState<Backdrop>({
-    url: backdrop?.url ?? currentImage,
-    path: backdrop?.path ?? '',
     color,
+    path: backdrop?.path ?? '',
+    url: backdrop?.url ?? currentImage,
   });
   const [currentTitleIndex, setCurrentTitleIndex] = useState(-1);
   const currentBackdropIndex = useMemo(
@@ -105,14 +105,14 @@ export default function PreferredImagesForAdmin({
           ]);
 
           setCurrentBackdrop({
-            url: preloadedImage,
-            path: newBackdrop.path,
             color,
+            path: newBackdrop.path,
+            url: preloadedImage,
           });
 
           updateBackground({
-            backgroundImage: newBackdrop.url,
             backgroundColor: color,
+            backgroundImage: newBackdrop.url,
           });
         } catch (error) {
           console.error('Loading backdrop failed', {
@@ -196,8 +196,8 @@ export default function PreferredImagesForAdmin({
     () => (
       <svg
         className="0 inline h-4 w-4 animate-spin"
-        viewBox="0 0 100 101"
         fill="none"
+        viewBox="0 0 100 101"
         xmlns="http://www.w3.org/2000/svg"
       >
         <path
@@ -225,8 +225,7 @@ export default function PreferredImagesForAdmin({
       );
       setCurrentTitleIndex(index);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [images.titleTreatment.findIndex, images?.titleTreatment]);
 
   useEffect(() => {
     if (
@@ -251,8 +250,8 @@ export default function PreferredImagesForAdmin({
           'cursor-not-allowed opacity-30':
             !canNavigateBackdrops || isFirstBackdrop,
         })}
-        onClick={() => handleBackdropNavigation('prev')}
         disabled={!canNavigateBackdrops || isFirstBackdrop || !!preloading}
+        onClick={() => handleBackdropNavigation('prev')}
         title="Previous background"
       >
         {preloading === 'prev' ? spinner : '⬅️'}
@@ -261,8 +260,8 @@ export default function PreferredImagesForAdmin({
         className={cx('aspect-square w-8 rounded bg-white/40', {
           'cursor-not-allowed opacity-30': !canNavigateTitles || isFirstTitle,
         })}
-        onClick={() => handleTitleNavigation('prev')}
         disabled={!canNavigateTitles || isFirstTitle}
+        onClick={() => handleTitleNavigation('prev')}
         title="Previous title treatment"
       >
         «
@@ -271,8 +270,8 @@ export default function PreferredImagesForAdmin({
         className={cx('aspect-square w-8 rounded bg-white/40', {
           'cursor-not-allowed opacity-30': !canNavigateTitles || isLastTitle,
         })}
-        onClick={() => handleTitleNavigation('next')}
         disabled={!canNavigateTitles || isLastTitle}
+        onClick={() => handleTitleNavigation('next')}
         title="Next title treatment"
       >
         »
@@ -282,8 +281,8 @@ export default function PreferredImagesForAdmin({
           'cursor-not-allowed opacity-30':
             !canNavigateBackdrops || isLastBackdrop,
         })}
-        onClick={() => handleBackdropNavigation('next')}
         disabled={!canNavigateBackdrops || isLastBackdrop || !!preloading}
+        onClick={() => handleBackdropNavigation('next')}
         title="Next background"
       >
         {preloading === 'next' ? spinner : '➡️'}
@@ -292,14 +291,15 @@ export default function PreferredImagesForAdmin({
         className={cx('ml-8 aspect-square w-8 rounded bg-white/40', {
           'cursor-progress': isPending,
         })}
+        disabled={isPending}
         onClick={() => {
           startTransition(async () => {
             try {
               const currentTitle = images?.titleTreatment[currentTitleIndex];
-              if (currentBackdrop && currentBackdrop.path) {
+              if (currentBackdrop?.path) {
                 await storePreferredImages(id, {
-                  backdropImagePath: currentBackdrop.path,
                   backdropColor: currentBackdrop.color,
+                  backdropImagePath: currentBackdrop.path,
                   ...(currentTitle && {
                     titleTreatmentImagePath: currentTitle.path,
                   }),
@@ -312,7 +312,6 @@ export default function PreferredImagesForAdmin({
           });
         }}
         title="Save changes"
-        disabled={isPending}
       >
         💾
       </button>

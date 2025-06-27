@@ -1,6 +1,5 @@
-import { type Handler } from 'aws-lambda';
-
 import { createFetch } from '@better-fetch/fetch';
+import type { Handler } from 'aws-lambda';
 import Color, { type ColorInstance } from 'color';
 import sharp from 'sharp';
 

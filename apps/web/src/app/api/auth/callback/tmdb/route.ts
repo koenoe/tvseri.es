@@ -1,7 +1,7 @@
 import { decryptToken, encryptToken } from '@tvseri.es/token';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { type NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 import auth from '@/auth';
 import { SESSION_DURATION } from '@/constants';
@@ -50,20 +50,20 @@ export async function GET(request: NextRequest) {
   }
 
   const sessionId = await authenticateWithTmdb({
-    requestToken: decryptedRequestToken,
+    city: request.headers.get('cloudfront-viewer-city') || '',
     clientIp:
       request.headers.get('cloudfront-viewer-address')?.split(':')?.[0] || '',
     country: request.headers.get('cloudfront-viewer-country') || '',
-    city: request.headers.get('cloudfront-viewer-city') || '',
     region: request.headers.get('cloudFront-viewer-country-region') || '',
+    requestToken: decryptedRequestToken,
     userAgent: request.headers.get('user-agent') || '',
   });
 
   const encryptedSessionId = encryptToken(sessionId);
   const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
     maxAge: SESSION_DURATION,
+    secure: process.env.NODE_ENV === 'production',
   } as const;
 
   cookieStore.set('sessionId', encryptedSessionId, cookieOptions);

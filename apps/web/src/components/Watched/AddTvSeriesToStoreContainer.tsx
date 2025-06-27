@@ -20,8 +20,8 @@ export default async function AddTvSeriesToStoreContainer({
   }
 
   const watched = await getAllWatchedForTvSeries({
-    userId: user.id,
     seriesId: tvSeries.id,
+    userId: user.id,
   });
 
   return <AddTvSeriesToStore tvSeries={tvSeries} watched={watched} />;

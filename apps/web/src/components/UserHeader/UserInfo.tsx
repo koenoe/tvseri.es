@@ -21,10 +21,10 @@ export default async function UserInfo({
         </span>
         <div className="flex items-center space-x-2 text-xs text-white/50 md:text-sm">
           <svg
-            xmlns="http://www.w3.org/2000/svg"
             className="size-5"
-            viewBox="0 0 24 24"
             fill="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
           >
             <g fill="none">
               <path d="M0 0h24v24H0z"></path>

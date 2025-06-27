@@ -1,10 +1,9 @@
 // Note: heavily inspired by https://github.com/react-map/react-map/blob/master/packages/world/src/World.tsx
 'use client';
 
-import { type ReactNode, useCallback, useEffect, useId, useState } from 'react';
-
 import { cx } from 'class-variance-authority';
-import { motion, AnimatePresence } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
+import { type ReactNode, useCallback, useEffect, useId, useState } from 'react';
 
 import { countries, paths } from './constants';
 
@@ -72,11 +71,11 @@ export default function WorldMap({
 
       const rect = svgElement.getBoundingClientRect();
       setTooltipData({
-        country,
         color: countryData?.color ?? defaultColor,
+        content: countryData?.content ?? null,
+        country,
         hoverColor: countryData?.hoverColor ?? defaultHoverColor,
         strokeColor: countryData?.strokeColor ?? defaultStrokeColor,
-        content: countryData?.content ?? null,
         x: e.clientX - rect.left + 10, // little offset
         y: e.clientY - rect.top + 10, // little offset
       });
@@ -91,26 +90,26 @@ export default function WorldMap({
   return (
     <div className={cx('relative w-full', className)}>
       <svg
-        version="1.1"
         id={`svg2-${instanceId}`}
+        version="1.1"
+        viewBox={viewBox}
         x="0px"
         y="0px"
-        viewBox={viewBox}
       >
         {countries?.map((name, index) => (
           <motion.path
-            key={index}
-            id={`${name}-${instanceId}`}
             d={paths[name as keyof typeof paths]}
-            style={{
-              strokeWidth: 1,
-              stroke: data[name]?.strokeColor ?? defaultStrokeColor,
-              cursor: 'pointer',
-            }}
+            id={`${name}-${instanceId}`}
             initial={{ fill: data[name]?.color ?? defaultColor }}
-            whileHover={{ fill: data[name]?.hoverColor ?? defaultHoverColor }}
-            onMouseMove={(e) => handleMouseMove(e, name)}
+            key={index}
             onMouseLeave={handleMouseLeave}
+            onMouseMove={(e) => handleMouseMove(e, name)}
+            style={{
+              cursor: 'pointer',
+              stroke: data[name]?.strokeColor ?? defaultStrokeColor,
+              strokeWidth: 1,
+            }}
+            whileHover={{ fill: data[name]?.hoverColor ?? defaultHoverColor }}
           />
         ))}
       </svg>
@@ -118,26 +117,26 @@ export default function WorldMap({
       {renderTooltip && tooltipData && (
         <AnimatePresence>
           <motion.div
-            className="pointer-events-none absolute left-0 top-0"
-            initial={{ opacity: 0, x: tooltipData.x - 20, y: tooltipData.y }}
             animate={{
               opacity: 1,
               x: tooltipData.x,
               y: tooltipData.y,
             }}
+            className="pointer-events-none absolute left-0 top-0"
             exit={{ opacity: 0 }}
+            initial={{ opacity: 0, x: tooltipData.x - 20, y: tooltipData.y }}
             transition={{
-              type: 'tween',
               duration: 0.1,
               ease: 'linear',
+              type: 'tween',
             }}
           >
             {renderTooltip({
-              country: tooltipData.country,
               color: tooltipData.color,
+              content: tooltipData.content,
+              country: tooltipData.country,
               hoverColor: tooltipData.hoverColor,
               strokeColor: tooltipData.strokeColor,
-              content: tooltipData.content,
             })}
           </motion.div>
         </AnimatePresence>

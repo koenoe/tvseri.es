@@ -1,6 +1,5 @@
-import { Suspense } from 'react';
-
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 
 import { cachedUser } from '@/app/cached';
 import Grid from '@/components/Grid/Grid';
@@ -40,7 +39,7 @@ export default async function FavoritesPage({ params }: Props) {
         </Grid>
       }
     >
-      <ListGrid user={user} listId="FAVORITES" />
+      <ListGrid listId="FAVORITES" user={user} />
     </Suspense>
   );
 }

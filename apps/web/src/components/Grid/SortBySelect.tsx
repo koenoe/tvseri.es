@@ -1,9 +1,8 @@
 'use client';
 
-import { memo, useCallback, useRef, useState } from 'react';
-
 import { AnimatePresence, motion } from 'motion/react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { memo, useCallback, useRef, useState } from 'react';
 
 import DropdownContainer from '../Dropdown/DropdownContainer';
 
@@ -56,25 +55,25 @@ function SortBySelect({
   return (
     <div className={className}>
       <div
-        ref={ref}
         className="flex h-11 w-36 cursor-pointer items-center justify-center gap-2 rounded-3xl bg-white/5 py-3 pl-5 pr-4 text-sm leading-none tracking-wide backdrop-blur-xl"
         onClick={() => {
           setIsOpen((prev) => !prev);
         }}
+        ref={ref}
       >
         <span>{label}</span>
         <motion.svg
-          className="h-5 w-5"
-          viewBox="0 0 20 20"
-          fill="currentColor"
           animate={{
             rotate: isOpen ? 180 : 0,
           }}
+          className="h-5 w-5"
+          fill="currentColor"
+          viewBox="0 0 20 20"
         >
           <path
             clipRule="evenodd"
-            fillRule="evenodd"
             d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+            fillRule="evenodd"
           />
         </motion.svg>
       </div>
@@ -82,15 +81,15 @@ function SortBySelect({
         {isOpen && (
           <DropdownContainer
             key="select-season"
+            onOutsideClick={() => setIsOpen(false)}
             position={{ x: 'center', y: 'end' }}
             triggerRef={ref}
-            onOutsideClick={() => setIsOpen(false)}
           >
             <div className="relative flex w-36 flex-col gap-2 rounded-lg bg-white p-4 text-black">
               {options.map((item) => (
                 <SortBySelectItem
-                  key={item.value}
                   item={item}
+                  key={item.value}
                   onClick={handleClick}
                 />
               ))}

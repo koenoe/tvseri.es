@@ -1,8 +1,7 @@
 'use client';
 
+import type { CountryOrLanguage } from '@tvseri.es/types';
 import { useCallback, useMemo } from 'react';
-
-import { type CountryOrLanguage } from '@tvseri.es/types';
 
 import MultiSelect, { type Result } from './MultiSelect';
 
@@ -16,8 +15,8 @@ export default function DiscoverSpokenLanguages({
   const multiSelectValues = useMemo(
     () =>
       languages.map((country) => ({
-        value: country.code,
         label: country.englishName,
+        value: country.code,
       })),
     [languages],
   );
@@ -30,11 +29,11 @@ export default function DiscoverSpokenLanguages({
     <MultiSelect
       className={className}
       classNameDropdown="flex flex-col gap-2"
-      searchParamKey="with_original_language"
-      searchParamSeparator="|"
-      results={multiSelectValues}
       placeholder="Spoken language"
       renderSelectItem={renderSelectItem}
+      results={multiSelectValues}
+      searchParamKey="with_original_language"
+      searchParamSeparator="|"
     />
   );
 }

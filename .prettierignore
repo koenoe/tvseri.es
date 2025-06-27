@@ -1,7 +1,0 @@
-.next
-.sst
-.turbo
-node_modules
-pnpm-lock.yaml
-public
-sst-env.d.ts

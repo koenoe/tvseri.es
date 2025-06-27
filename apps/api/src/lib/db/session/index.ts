@@ -1,10 +1,10 @@
 import {
+  BatchWriteItemCommand,
   DeleteItemCommand,
   GetItemCommand,
   PutItemCommand,
-  UpdateItemCommand,
   QueryCommand,
-  BatchWriteItemCommand,
+  UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { Session } from '@tvseri.es/types';
@@ -44,26 +44,26 @@ export const createSession = async (
   const sessionId = ulid();
 
   const command = new PutItemCommand({
-    TableName: Resource.Sessions.name,
     Item: marshall({
-      pk: `SESSION#${sessionId}`,
+      city: input.city,
+      clientIp: input.clientIp,
+      country: input.country,
+      createdAt: now,
+      expiresAt,
       gsi1pk: `USER#${input.userId}`,
       id: sessionId,
-      userId: input.userId,
+      pk: `SESSION#${sessionId}`,
       provider: input.tmdbSessionId ? 'tmdb' : 'internal',
-      expiresAt,
-      createdAt: now,
-      clientIp: input.clientIp,
       region: input.region,
-      country: input.country,
-      city: input.city,
       userAgent: input.userAgent,
+      userId: input.userId,
       version: VERSION,
       ...(input.tmdbSessionId && {
-        tmdbSessionId: input.tmdbSessionId,
         tmdbAccessToken: input.tmdbAccessToken,
+        tmdbSessionId: input.tmdbSessionId,
       }),
     }),
+    TableName: Resource.Sessions.name,
   });
 
   try {
@@ -78,10 +78,10 @@ export const findSession = async (
   sessionId: string,
 ): Promise<Session | null> => {
   const command = new GetItemCommand({
-    TableName: Resource.Sessions.name,
     Key: marshall({
       pk: `SESSION#${sessionId}`,
     }),
+    TableName: Resource.Sessions.name,
   });
 
   try {
@@ -99,10 +99,10 @@ export const findSession = async (
 
 export const deleteSession = async (sessionId: string): Promise<void> => {
   const command = new DeleteItemCommand({
-    TableName: Resource.Sessions.name,
     Key: marshall({
       pk: `SESSION#${sessionId}`,
     }),
+    TableName: Resource.Sessions.name,
   });
 
   try {
@@ -120,28 +120,28 @@ export const removeTmdbFromSession = async (
   try {
     await client.send(
       new UpdateItemCommand({
-        TableName: Resource.Sessions.name,
+        ExpressionAttributeNames: {
+          '#provider': 'provider',
+          '#tmdbAccessToken': 'tmdbAccessToken',
+          '#tmdbSessionId': 'tmdbSessionId',
+        },
+        ExpressionAttributeValues: marshall({
+          ':provider': 'internal',
+          ':updatedAt': now,
+        }),
         Key: marshall({
           pk: `SESSION#${session.id}`,
         }),
+        TableName: Resource.Sessions.name,
         UpdateExpression:
           'REMOVE #tmdbSessionId, #tmdbAccessToken SET updatedAt = :updatedAt, #provider = :provider',
-        ExpressionAttributeValues: marshall({
-          ':updatedAt': now,
-          ':provider': 'internal',
-        }),
-        ExpressionAttributeNames: {
-          '#tmdbSessionId': 'tmdbSessionId',
-          '#tmdbAccessToken': 'tmdbAccessToken',
-          '#provider': 'provider',
-        },
       }),
     );
 
     const updatedSession = {
       ...session,
-      updatedAt: now,
       provider: 'internal' as const,
+      updatedAt: now,
     };
 
     // Remove TMDB fields from the returned session object
@@ -166,33 +166,33 @@ export const addTmdbToSession = async (
   try {
     await client.send(
       new UpdateItemCommand({
-        TableName: Resource.Sessions.name,
+        ExpressionAttributeNames: {
+          '#provider': 'provider',
+          '#tmdbAccessToken': 'tmdbAccessToken',
+          '#tmdbSessionId': 'tmdbSessionId',
+          '#updatedAt': 'updatedAt',
+        },
+        ExpressionAttributeValues: marshall({
+          ':provider': 'tmdb',
+          ':tmdbAccessToken': input.tmdbAccessToken,
+          ':tmdbSessionId': input.tmdbSessionId,
+          ':updatedAt': now,
+        }),
         Key: marshall({
           pk: `SESSION#${session.id}`,
         }),
+        TableName: Resource.Sessions.name,
         UpdateExpression:
           'SET #tmdbSessionId = :tmdbSessionId, #tmdbAccessToken = :tmdbAccessToken, ' +
           '#provider = :provider, #updatedAt = :updatedAt',
-        ExpressionAttributeValues: marshall({
-          ':tmdbSessionId': input.tmdbSessionId,
-          ':tmdbAccessToken': input.tmdbAccessToken,
-          ':provider': 'tmdb',
-          ':updatedAt': now,
-        }),
-        ExpressionAttributeNames: {
-          '#tmdbSessionId': 'tmdbSessionId',
-          '#tmdbAccessToken': 'tmdbAccessToken',
-          '#provider': 'provider',
-          '#updatedAt': 'updatedAt',
-        },
       }),
     );
 
     return {
       ...session,
-      tmdbSessionId: input.tmdbSessionId,
-      tmdbAccessToken: input.tmdbAccessToken,
       provider: 'tmdb' as const,
+      tmdbAccessToken: input.tmdbAccessToken,
+      tmdbSessionId: input.tmdbSessionId,
     };
   } catch (_error) {
     throw new Error('Failed to add TMDB to session');
@@ -201,12 +201,12 @@ export const addTmdbToSession = async (
 
 export const findSessions = async (userId: string): Promise<Session[]> => {
   const command = new QueryCommand({
-    TableName: Resource.Sessions.name,
-    IndexName: 'gsi1',
-    KeyConditionExpression: 'gsi1pk = :gsi1pk',
     ExpressionAttributeValues: marshall({
       ':gsi1pk': `USER#${userId}`,
     }),
+    IndexName: 'gsi1',
+    KeyConditionExpression: 'gsi1pk = :gsi1pk',
+    TableName: Resource.Sessions.name,
   });
 
   const result = await client.send(command);
@@ -258,7 +258,7 @@ export const removeTmdbFromSessions = async (userId: string) => {
   }
 
   return tmdbSessions.map((session) => ({
-    sessionId: session.tmdbSessionId,
     accessToken: session.tmdbAccessToken,
+    sessionId: session.tmdbSessionId,
   }));
 };

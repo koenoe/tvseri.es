@@ -1,8 +1,7 @@
 'use client';
 
+import type { TvSeries, WatchedItem } from '@tvseri.es/types';
 import { useEffect, useRef } from 'react';
-
-import { type TvSeries, type WatchedItem } from '@tvseri.es/types';
 
 import { useWatchedStore } from './WatchedStoreProvider';
 

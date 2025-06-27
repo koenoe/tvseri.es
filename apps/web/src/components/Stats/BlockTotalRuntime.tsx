@@ -13,9 +13,9 @@ type Input = Readonly<{
 
 export const cachedTotalRuntime = cache(async ({ userId, year }: Input) => {
   const runtime = await getWatchedRuntime({
-    userId,
-    startDate: new Date(`${year}-01-01`),
     endDate: new Date(`${year}-12-31`),
+    startDate: new Date(`${year}-01-01`),
+    userId,
   });
 
   return runtime;
@@ -31,13 +31,13 @@ export default async function BlockTotalRuntime({ userId, year }: Input) {
 
   return (
     <Block
-      label="Total runtime"
-      value={formatRuntime(totalRuntime, false)}
       comparison={{
-        previousValue: formatRuntime(previousYearRuntime, false),
         delta,
+        previousValue: formatRuntime(previousYearRuntime, false),
         type: 'percentage',
       }}
+      label="Total runtime"
+      value={formatRuntime(totalRuntime, false)}
     />
   );
 }

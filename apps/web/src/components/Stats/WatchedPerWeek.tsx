@@ -1,26 +1,25 @@
 'use client';
 
-import { useCallback } from 'react';
-
 import {
-  setISOWeek,
-  startOfWeek,
   endOfWeek,
-  setYear,
-  format,
-  isSameMonth,
-  getISOWeek,
-  startOfYear,
   endOfYear,
+  format,
+  getISOWeek,
   getISOWeekYear,
+  isSameMonth,
+  setISOWeek,
+  setYear,
+  startOfWeek,
+  startOfYear,
 } from 'date-fns';
+import { useCallback } from 'react';
 import {
   Bar,
   BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
   Tooltip,
   XAxis,
-  ResponsiveContainer,
-  CartesianGrid,
 } from 'recharts';
 
 const BAR_SIZE = 32;
@@ -105,8 +104,8 @@ function getWeekInfo(
 
   return {
     actualWeek,
-    displayYear,
     dateRange,
+    displayYear,
   };
 }
 
@@ -117,7 +116,7 @@ export type Props = Readonly<{
 
 export default function WatchedPerWeek({ data, year }: Props) {
   const renderTooltip = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: sort out one day
     ({ active, payload, label }: any) => {
       if (active && payload && payload.length) {
         const { actualWeek, dateRange, displayYear } = getWeekInfo(
@@ -148,28 +147,28 @@ export default function WatchedPerWeek({ data, year }: Props) {
   );
 
   return (
-    <ResponsiveContainer width="100%" height="100%" minHeight={200}>
-      <BarChart data={data} barGap={BAR_GAP} barSize={BAR_SIZE}>
+    <ResponsiveContainer height="100%" minHeight={200} width="100%">
+      <BarChart barGap={BAR_GAP} barSize={BAR_SIZE} data={data}>
         <CartesianGrid
-          vertical={false}
           horizontal={true}
           stroke="rgba(255,255,255,0.1)"
           strokeDasharray="3 3"
+          vertical={false}
         />
         <XAxis
-          dataKey="week"
-          tickLine={false}
           axisLine={true}
-          ticks={[1, 53]}
-          tickFormatter={(value) => (value === 1 ? 'Jan' : 'Dec')}
-          tickMargin={10}
           className="text-[0.55rem] text-white/60 md:text-[0.65rem] xl:text-sm"
+          dataKey="week"
           strokeWidth={0}
+          tickFormatter={(value) => (value === 1 ? 'Jan' : 'Dec')}
+          tickLine={false}
+          tickMargin={10}
+          ticks={[1, 53]}
         />
         <Tooltip
+          animationDuration={200}
           content={renderTooltip}
           cursor={{ fill: 'rgba(255, 255, 255, 0.1)', radius: 2 }}
-          animationDuration={200}
         />
         <Bar
           dataKey="episodes"

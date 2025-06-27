@@ -1,5 +1,5 @@
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
-import { type PlexMetadata, type ScrobbleEvent } from '@tvseri.es/types';
+import type { PlexMetadata, ScrobbleEvent } from '@tvseri.es/types';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
@@ -64,13 +64,13 @@ app.post('/provider/:provider', async (c) => {
 
       await sqs.send(
         new SendMessageCommand({
-          QueueUrl: Resource.ScrobbleQueue.url,
           MessageBody: JSON.stringify({
-            userId: webhookToken.userId,
             metadata: {
               plex: payload.Metadata,
             },
+            userId: webhookToken.userId,
           } satisfies ScrobbleEvent),
+          QueueUrl: Resource.ScrobbleQueue.url,
         }),
       );
 

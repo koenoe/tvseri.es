@@ -9,10 +9,10 @@ import * as secrets from './secrets';
 
 export const apiRouter = new sst.aws.Router('ApiRouter', {
   domain: {
-    name: `api.${domain}`,
     dns: sst.aws.dns({
       zone,
     }),
+    name: `api.${domain}`,
   },
   edge: {
     viewerRequest: {
@@ -33,6 +33,7 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
   },
   transform: {
     cdn: (options) => {
+      // biome-ignore lint/suspicious/noExplicitAny: sort out later
       const origins = (options.origins || []) as any[];
       options.origins = origins.map((origin) => ({
         ...origin,
@@ -46,40 +47,11 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
 });
 
 export const apiFunction = new sst.aws.Function('ApiFunction', {
-  handler: 'apps/api/src/index.handler',
   architecture: 'arm64',
-  memory: '1 GB',
-  runtime: 'nodejs22.x',
-  timeout: '30 seconds',
-  nodejs: {
-    minify: true,
-    esbuild: {
-      external: [
-        '@aws-sdk/client-cloudfront',
-        '@aws-sdk/client-dynamodb',
-        '@aws-sdk/client-lambda',
-        '@aws-sdk/client-sesv2',
-        '@aws-sdk/client-sqs',
-        '@aws-sdk/util-dynamodb',
-      ],
-    },
-  },
   environment: {
     CLOUDFRONT_DISTRIBUTION_ID: apiRouter.distributionID,
   },
-  url: {
-    router: {
-      instance: apiRouter,
-    },
-  },
-  permissions: [
-    {
-      actions: ['cloudfront:CreateInvalidation'],
-      resources: [
-        $interpolate`arn:aws:cloudfront::${aws.getCallerIdentityOutput().accountId}:distribution/${apiRouter.distributionID}`,
-      ],
-    },
-  ],
+  handler: 'apps/api/src/index.handler',
   link: [
     dominantColor,
     dynamo.cache,
@@ -99,4 +71,33 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
     secrets.tmdbApiKey,
     secrets.secretKey,
   ],
+  memory: '1 GB',
+  nodejs: {
+    esbuild: {
+      external: [
+        '@aws-sdk/client-cloudfront',
+        '@aws-sdk/client-dynamodb',
+        '@aws-sdk/client-lambda',
+        '@aws-sdk/client-sesv2',
+        '@aws-sdk/client-sqs',
+        '@aws-sdk/util-dynamodb',
+      ],
+    },
+    minify: true,
+  },
+  permissions: [
+    {
+      actions: ['cloudfront:CreateInvalidation'],
+      resources: [
+        $interpolate`arn:aws:cloudfront::${aws.getCallerIdentityOutput().accountId}:distribution/${apiRouter.distributionID}`,
+      ],
+    },
+  ],
+  runtime: 'nodejs22.x',
+  timeout: '30 seconds',
+  url: {
+    router: {
+      instance: apiRouter,
+    },
+  },
 });

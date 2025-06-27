@@ -1,8 +1,7 @@
 'use client';
 
+import type { User } from '@tvseri.es/types';
 import { useRef } from 'react';
-
-import { type User } from '@tvseri.es/types';
 import { toast } from 'sonner';
 
 import ContextMenuButton, {
@@ -28,15 +27,15 @@ export default function ContextMenuButtonUser({
       toast.success('Profile link copied to clipboard!');
     } catch (err) {
       const error = err as Error;
-      toast.error('Failed to copy profile link: ' + error.message);
+      toast.error(`Failed to copy profile link: ${error.message}`);
     }
   };
 
   return (
     <ContextMenuButton className={className} ref={contextMenuButtonRef}>
       <button
-        onClick={handleCopy}
         className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap text-sm font-medium hover:text-neutral-800"
+        onClick={handleCopy}
       >
         <svg className="size-3 shrink-0" fill="none" viewBox="0 0 16 16">
           <path

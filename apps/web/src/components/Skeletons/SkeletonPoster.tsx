@@ -2,7 +2,7 @@
 
 import { cx } from 'class-variance-authority';
 
-import { posterStyles, type PosterVariantProps } from '../Tiles/Poster';
+import { type PosterVariantProps, posterStyles } from '../Tiles/Poster';
 
 export default function SkeletonPoster({
   className,

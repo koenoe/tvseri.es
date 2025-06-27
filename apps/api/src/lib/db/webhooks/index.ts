@@ -1,12 +1,11 @@
-import { randomBytes } from 'crypto';
-
+import { randomBytes } from 'node:crypto';
 import {
   GetItemCommand,
   PutItemCommand,
   QueryCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { type WebhookToken } from '@tvseri.es/types';
+import type { WebhookToken } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
 import client from '../client';
@@ -22,19 +21,19 @@ export const createWebhookToken = async (input: {
   const token = generateToken();
 
   const webhookToken: WebhookToken = {
-    token,
-    userId: input.userId,
-    type: input.type,
     createdAt: new Date().toISOString(),
+    token,
+    type: input.type,
+    userId: input.userId,
   };
 
   const command = new PutItemCommand({
-    TableName: Resource.WebhookTokens.name,
     Item: marshall({
-      pk: `TOKEN#${token}`,
       gsi1pk: `USER#${input.userId}#TYPE#${input.type}`,
+      pk: `TOKEN#${token}`,
       ...webhookToken,
     }),
+    TableName: Resource.WebhookTokens.name,
   });
 
   await client.send(command);
@@ -49,13 +48,13 @@ export const findWebhookTokenByUserAndType = async ({
   type: string;
 }): Promise<WebhookToken | null> => {
   const command = new QueryCommand({
-    TableName: Resource.WebhookTokens.name,
-    IndexName: 'gsi1',
-    KeyConditionExpression: 'gsi1pk = :gsi1pk',
     ExpressionAttributeValues: marshall({
       ':gsi1pk': `USER#${userId}#TYPE#${type}`,
     }),
+    IndexName: 'gsi1',
+    KeyConditionExpression: 'gsi1pk = :gsi1pk',
     Limit: 1,
+    TableName: Resource.WebhookTokens.name,
   });
 
   const result = await client.send(command);
@@ -71,10 +70,10 @@ export const findWebhookToken = async (
   token: string,
 ): Promise<WebhookToken | null> => {
   const command = new GetItemCommand({
-    TableName: Resource.WebhookTokens.name,
     Key: marshall({
       pk: `TOKEN#${token}`,
     }),
+    TableName: Resource.WebhookTokens.name,
   });
 
   const result = await client.send(command);

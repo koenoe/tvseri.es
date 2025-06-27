@@ -1,7 +1,7 @@
 'use client';
 
-import BackgroundGlobalBase from './BackgroundGlobalBase';
 import { usePageStore } from '../Page/PageStoreProvider';
+import BackgroundGlobalBase from './BackgroundGlobalBase';
 
 export default function BackgroundGlobalDynamic() {
   const color = usePageStore((state) => state.backgroundColor);

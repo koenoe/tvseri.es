@@ -16,19 +16,19 @@ export const sendEmail = async ({
 }>) => {
   await client.send(
     new SendEmailCommand({
-      FromEmailAddress: `tvseri.es <${sender ?? 'no-reply'}@${Resource.Email.sender}>`,
-      Destination: {
-        ToAddresses: typeof recipient === 'string' ? [recipient] : recipient,
-      },
       Content: {
         Simple: {
-          Subject: { Data: subject },
           Body: {
             Html: { Data: body },
             Text: { Data: body.replace(/<[^>]*>/g, '') },
           },
+          Subject: { Data: subject },
         },
       },
+      Destination: {
+        ToAddresses: typeof recipient === 'string' ? [recipient] : recipient,
+      },
+      FromEmailAddress: `tvseri.es <${sender ?? 'no-reply'}@${Resource.Email.sender}>`,
     }),
   );
 };

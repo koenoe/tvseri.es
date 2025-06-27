@@ -1,8 +1,7 @@
 'use client';
 
+import { type MotionValue, motion, type PanInfo } from 'motion/react';
 import { memo, type ReactElement } from 'react';
-
-import { motion, type MotionValue, type PanInfo } from 'motion/react';
 
 function CarouselItem({
   index,
@@ -21,15 +20,15 @@ function CarouselItem({
   return (
     <motion.div
       className="content-visibility-auto absolute h-full w-full transform-gpu"
+      drag="x"
+      dragElastic={1}
+      draggable
+      onDragEnd={onDragEnd}
       style={{
         contain: 'paint layout',
         left: `${index * 100}%`,
         x,
       }}
-      drag="x"
-      dragElastic={1}
-      draggable
-      onDragEnd={onDragEnd}
       whileDrag={{
         pointerEvents: 'none',
       }}

@@ -1,8 +1,7 @@
 'use client';
 
-import { memo, type CSSProperties } from 'react';
-
 import { cx } from 'class-variance-authority';
+import { type CSSProperties, memo } from 'react';
 
 interface RippleProps {
   mainCircleSize?: number;
@@ -33,18 +32,18 @@ const Ripple = memo(function Ripple({
 
         return (
           <div
-            key={i}
             className={`animate-ripple absolute left-1/2 top-1/2 translate-x-1/2 translate-y-1/2 border bg-white/15 shadow-xl [--i:${i}]`}
+            key={i}
             style={
               {
-                borderRadius: '50%',
-                width: `${size}px`,
-                height: `${size}px`,
-                opacity: opacity,
                 animationDelay: animationDelay,
+                borderColor: `rgba(255,255,255, ${borderOpacity / 100})`,
+                borderRadius: '50%',
                 borderStyle: borderStyle,
                 borderWidth: '1px',
-                borderColor: `rgba(255,255,255, ${borderOpacity / 100})`,
+                height: `${size}px`,
+                opacity: opacity,
+                width: `${size}px`,
               } as CSSProperties
             }
           />

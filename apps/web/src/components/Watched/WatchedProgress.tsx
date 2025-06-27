@@ -1,9 +1,8 @@
 'use client';
 
-import { type TvSeries } from '@tvseri.es/types';
-
-import { useWatchedStore } from './WatchedStoreProvider';
+import type { TvSeries } from '@tvseri.es/types';
 import Progress from '../Progress/Progress';
+import { useWatchedStore } from './WatchedStoreProvider';
 
 export default function WatchedProgress({
   tvSeries,

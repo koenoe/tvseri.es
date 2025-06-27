@@ -329,12 +329,9 @@ export async function fetchTvSeriesWatchProviders(
     `/3/tv/${id}/watch/providers`,
   )) as TmdbTvSeriesWatchProviders;
 
-  const flatrate =
-    watchProviders.results?.[region as keyof typeof watchProviders.results]
-      ?.flatrate ?? [];
-
   const regionProviders =
     watchProviders.results?.[region as keyof typeof watchProviders.results];
+  const flatrate = regionProviders?.flatrate ?? [];
   const free =
     (regionProviders &&
     'free' in regionProviders &&

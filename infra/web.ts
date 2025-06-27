@@ -100,6 +100,7 @@ new sst.aws.Nextjs('tvseries', {
     memory: '512 MB',
     staticEtag: true,
   },
+  openNextVersion,
   path: 'apps/web',
   server: {
     architecture: 'arm64',

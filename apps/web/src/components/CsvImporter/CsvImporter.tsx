@@ -1,8 +1,7 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
-
 import { cx } from 'class-variance-authority';
+import { useCallback, useMemo, useState } from 'react';
 
 import useCsvParser, { type Field } from '@/hooks/useCsvParser';
 
@@ -55,9 +54,9 @@ export default function CsvImporter({
     return (
       <FileUploader
         accept={{ 'text/csv': [] }}
-        multiple={false}
-        maxSize={4 * 1024 * 1024}
         maxFileCount={1}
+        maxSize={4 * 1024 * 1024}
+        multiple={false}
         onUpload={handleUpload}
       />
     );
@@ -93,7 +92,7 @@ export default function CsvImporter({
             {Array(50)
               .fill(null)
               .map((_, rowIndex) => (
-                <TableRow key={rowIndex} className="h-9">
+                <TableRow className="h-9" key={rowIndex}>
                   {Array(5)
                     .fill(null)
                     .map((_, cellIndex) => (
@@ -130,8 +129,8 @@ export default function CsvImporter({
           </p>
         </div>
         <button
-          onClick={onFieldsReset}
           className="ml-auto flex h-11 min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-white/5 px-5 text-sm leading-none tracking-wide hover:bg-white/10"
+          onClick={onFieldsReset}
         >
           <span>Reset</span>
         </button>
@@ -141,16 +140,16 @@ export default function CsvImporter({
           <TableRow>
             {fields.map((field) => (
               <PreviewTableHead
-                key={field.value}
+                currentFieldMapping={fieldMappings.current[field.value]}
                 field={field}
+                key={field.value}
                 onFieldChange={(f) => {
                   onFieldChange({
-                    oldValue: f.value,
                     newValue: field.value,
+                    oldValue: f.value,
                   });
                 }}
                 originalFieldMappings={fieldMappings.original}
-                currentFieldMapping={fieldMappings.current[field.value]}
               />
             ))}
           </TableRow>
@@ -177,13 +176,12 @@ export default function CsvImporter({
           <span className="ml-2">items</span>
         </div>
         <button
-          onClick={() => setFile(null)}
           className="ml-auto flex h-11 min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-white/5 px-5 text-sm leading-none tracking-wide hover:bg-white/10"
+          onClick={() => setFile(null)}
         >
           <span>Back</span>
         </button>
         <button
-          onClick={() => onImport(getSanitizedData({ data }))}
           className={cx(
             'flex h-11 min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-white px-5 text-sm leading-none tracking-wide text-neutral-900',
             {
@@ -191,6 +189,7 @@ export default function CsvImporter({
             },
           )}
           disabled={!areAllFieldsMapped}
+          onClick={() => onImport(getSanitizedData({ data }))}
         >
           <span>Import</span>
         </button>

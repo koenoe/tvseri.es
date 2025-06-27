@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import { TvSeriesSchema, type TvSeries } from './tv-series';
+import { TvSeriesSchema } from './tv-series';
 
 // export type List = Readonly<{
 //   id: string;
@@ -9,14 +9,14 @@ import { TvSeriesSchema, type TvSeries } from './tv-series';
 // }>;
 
 export const ListItemSchema = v.object({
+  createdAt: v.optional(v.number()),
   id: TvSeriesSchema.entries.id,
+  position: v.optional(v.number()),
   posterImage: TvSeriesSchema.entries.posterImage,
   posterPath: TvSeriesSchema.entries.posterPath,
-  title: TvSeriesSchema.entries.title,
   slug: TvSeriesSchema.entries.slug,
   status: TvSeriesSchema.entries.status,
-  position: v.optional(v.number()),
-  createdAt: v.optional(v.number()),
+  title: TvSeriesSchema.entries.title,
 });
 
 export type ListItem = v.InferOutput<typeof ListItemSchema>;

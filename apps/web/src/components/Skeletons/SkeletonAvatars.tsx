@@ -2,7 +2,7 @@
 
 import { cx } from 'class-variance-authority';
 
-import { avatarsStyles, avatarStyles } from '../Avatars/Avatars';
+import { avatarStyles, avatarsStyles } from '../Avatars/Avatars';
 
 export default function SkeletonAvatars({
   className,
@@ -12,7 +12,7 @@ export default function SkeletonAvatars({
   return (
     <div className={cx(avatarsStyles(), className)}>
       {[...Array(10)].map((_, index) => (
-        <div key={index} className={avatarStyles()}>
+        <div className={avatarStyles()} key={index}>
           <div className="relative aspect-square h-auto w-full overflow-hidden rounded-full bg-white/10 lg:h-24">
             <div className="animate-shimmer absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/5 to-transparent" />
           </div>

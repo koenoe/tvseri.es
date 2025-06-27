@@ -14,8 +14,8 @@ const fetchInitialResults = async (ids: string[]) => {
   }>;
 
   return keywords.map((keyword) => ({
-    value: keyword.id.toString(),
     label: keyword.name,
+    value: keyword.id.toString(),
   }));
 };
 
@@ -56,8 +56,8 @@ export default function DiscoverKeywords({
       }>;
 
       return keywords.map((keyword) => ({
-        value: keyword.id.toString(),
         label: keyword.name,
+        value: keyword.id.toString(),
       }));
     },
     [],
@@ -83,7 +83,7 @@ export default function DiscoverKeywords({
       }
       setIsInitialFetchIsDone(true);
     });
-  }, [initialFetchIsDone, initialResults.length, isPending]);
+  }, [initialFetchIsDone, isPending]);
 
   // TODO: loading state?
   if (isPending || !initialFetchIsDone) {
@@ -94,11 +94,11 @@ export default function DiscoverKeywords({
     <MultiSelect
       className={className}
       classNameDropdown="flex flex-col gap-2"
-      searchParamKey="with_keywords"
-      searchParamSeparator="|"
+      fetchResults={fetchResults}
       placeholder="Keywords"
       renderSelectItem={renderSelectItem}
-      fetchResults={fetchResults}
+      searchParamKey="with_keywords"
+      searchParamSeparator="|"
       selectedResults={initialResults}
     />
   );

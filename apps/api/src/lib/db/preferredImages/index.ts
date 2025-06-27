@@ -1,6 +1,6 @@
 import { GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { type PreferredImages } from '@tvseri.es/types';
+import type { PreferredImages } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
 import client from '../client';
@@ -9,10 +9,10 @@ export const findPreferredImages = async (
   id: number,
 ): Promise<PreferredImages | null> => {
   const command = new GetItemCommand({
-    TableName: Resource.PreferredImages.name,
     Key: marshall({
       pk: `SERIES#${id}`,
     }),
+    TableName: Resource.PreferredImages.name,
   });
 
   try {
@@ -33,12 +33,12 @@ export const putPreferredImages = async (
   preferred: PreferredImages,
 ): Promise<void> => {
   const command = new PutItemCommand({
-    TableName: Resource.PreferredImages.name,
     Item: marshall({
       pk: `SERIES#${id}`,
       updatedAt: Date.now(),
       ...preferred,
     }),
+    TableName: Resource.PreferredImages.name,
   });
 
   try {

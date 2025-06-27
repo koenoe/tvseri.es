@@ -44,9 +44,9 @@ export async function POST(
       episodeNumber: body.episodeNumber,
       seasonNumber: body.seasonNumber,
       seriesId: tvSeries.id,
+      sessionId: encryptedSessionId,
       userId: user.id,
       watchProvider,
-      sessionId: encryptedSessionId,
     });
     return Response.json(watchedItems);
   } else {
@@ -54,14 +54,14 @@ export async function POST(
       episodeNumber: body.episodeNumber,
       seasonNumber: body.seasonNumber,
       seriesId: tvSeries.id,
-      userId: user.id,
       sessionId: encryptedSessionId,
+      userId: user.id,
     });
     return Response.json({
       episodeNumber: body.episodeNumber,
+      removedAt: Date.now(),
       seasonNumber: body.seasonNumber,
       tvSeriesId: tvSeries.id,
-      removedAt: Date.now(),
     });
   }
 }

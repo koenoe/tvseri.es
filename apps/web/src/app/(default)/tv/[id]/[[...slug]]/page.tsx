@@ -1,8 +1,7 @@
-import { Suspense } from 'react';
-
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
+import { Suspense } from 'react';
 
 import { cachedTvSeries } from '@/app/cached';
 import ActionButtons from '@/components/Buttons/ActionButtons';
@@ -60,29 +59,29 @@ export async function generateMetadata({ params: paramsFromProps }: Props) {
   const canonicalUrl = `${getBaseUrl()}/tv/${params.id}/${tvSeries.slug}`;
 
   return {
-    title: tvSeries.title,
-    description: tvSeries.description,
     alternates: {
       canonical: canonicalUrl,
     },
+    description: tvSeries.description,
     openGraph: {
-      title: tvSeries.title,
       description: tvSeries.description,
-      url: canonicalUrl,
-      siteName: 'tvseri.es',
       images: tvSeries.posterImage
         ? [
             {
+              alt: `${tvSeries.title} poster`,
+              height: 450,
               url: tvSeries.posterImage,
               width: 300,
-              height: 450,
-              alt: `${tvSeries.title} poster`,
             },
           ]
         : undefined,
       locale: 'en_US',
+      siteName: 'tvseri.es',
+      title: tvSeries.title,
       type: 'video.tv_show',
+      url: canonicalUrl,
     },
+    title: tvSeries.title,
   };
 }
 
@@ -108,9 +107,9 @@ export default async function TvSeriesDetailsPage({
     <>
       <Page
         backgroundColor={tvSeries.backdropColor}
+        backgroundContext="page"
         backgroundImage={tvSeries.backdropImage}
         backgroundVariant="dynamic"
-        backgroundContext="page"
         usePersistentStore={false}
       >
         <div className="container">
@@ -119,13 +118,13 @@ export default async function TvSeriesDetailsPage({
               {tvSeries.titleTreatmentImage ? (
                 <h1 className="relative mb-6 h-28 w-full md:h-40 md:w-[500px]">
                   <Image
-                    id="title-treatment"
-                    className="max-w-[500px] object-contain object-bottom md:object-left-bottom"
-                    src={tvSeries.titleTreatmentImage}
                     alt=""
-                    priority
-                    fill
+                    className="max-w-[500px] object-contain object-bottom md:object-left-bottom"
                     draggable={false}
+                    fill
+                    id="title-treatment"
+                    priority
+                    src={tvSeries.titleTreatmentImage}
                     unoptimized
                   />
                   <span className="hidden">{tvSeries.title}</span>
@@ -138,8 +137,8 @@ export default async function TvSeriesDetailsPage({
 
               <div className="mb-4 flex w-full gap-4 md:gap-12">
                 <InfoLine
-                  tvSeries={tvSeries}
                   className="md:gap-2 md:text-[0.8rem]"
+                  tvSeries={tvSeries}
                 >
                   <div className="ml-auto flex h-7 gap-2 md:ml-10">
                     <Suspense
@@ -172,7 +171,7 @@ export default async function TvSeriesDetailsPage({
               <Suspense
                 fallback={<SkeletonRating className="mr-auto md:mr-12" />}
               >
-                <ImdbRating id={tvSeries.id} className="mr-auto md:mr-12" />
+                <ImdbRating className="mr-auto md:mr-12" id={tvSeries.id} />
               </Suspense>
               <div className="flex gap-2 md:gap-3">
                 <Suspense
@@ -292,12 +291,12 @@ export default async function TvSeriesDetailsPage({
                 <div className="flex flex-row flex-wrap gap-1 text-sm">
                   {tvSeries.languages.map((language) => (
                     <Link
-                      key={language.code}
+                      className="after:content-[',_'] last:after:content-none hover:underline"
                       href={{
                         pathname: '/discover',
                         query: { with_original_language: language.code },
                       }}
-                      className="after:content-[',_'] last:after:content-none hover:underline"
+                      key={language.code}
                       prefetch={false}
                     >
                       {language.englishName}
@@ -318,12 +317,12 @@ export default async function TvSeriesDetailsPage({
                   prefetch={false}
                 >
                   <Image
-                    src={tvSeries.network.logo}
                     alt={tvSeries.network.name}
-                    width={96}
-                    height={96}
-                    unoptimized
                     className="brightness-0 invert"
+                    height={96}
+                    src={tvSeries.network.logo}
+                    unoptimized
+                    width={96}
                   />
                 </Link>
               </div>

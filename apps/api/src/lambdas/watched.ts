@@ -1,8 +1,7 @@
-import { type DynamoDBStreamEvent } from 'aws-lambda';
-
-import { type AttributeValue } from '@aws-sdk/client-dynamodb';
+import type { AttributeValue } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
-import { type TvSeries, type WatchedItem } from '@tvseri.es/types';
+import type { TvSeries, WatchedItem } from '@tvseri.es/types';
+import type { DynamoDBStreamEvent } from 'aws-lambda';
 
 import { addToList, removeFromList, removeFromWatchlist } from '@/lib/db/list';
 import { getWatchedCountForTvSeries } from '@/lib/db/watched';
@@ -74,8 +73,8 @@ export const handler = async (event: DynamoDBStreamEvent) => {
       watchedItem.seriesId !== lastSeriesId
     ) {
       lastCount = await getWatchedCountForTvSeries({
-        userId: watchedItem.userId,
         tvSeriesId: watchedItem.seriesId,
+        userId: watchedItem.userId,
       });
       lastUserId = watchedItem.userId;
       lastSeriesId = watchedItem.seriesId;
@@ -92,10 +91,10 @@ export const handler = async (event: DynamoDBStreamEvent) => {
 
     const listItem = {
       id: tvSeries.id,
-      title: tvSeries.title,
-      slug: tvSeries.slug,
       posterPath: tvSeries.posterPath,
+      slug: tvSeries.slug,
       status: tvSeries.status,
+      title: tvSeries.title,
     };
 
     // Update lists based on watch status
@@ -103,53 +102,53 @@ export const handler = async (event: DynamoDBStreamEvent) => {
       // Series is fully watched
       await Promise.all([
         addToList({
-          userId: watchedItem.userId,
-          listId: 'WATCHED',
           item: {
             ...listItem,
             createdAt: watchedItem.watchedAt,
           },
+          listId: 'WATCHED',
+          userId: watchedItem.userId,
         }),
         removeFromList({
-          userId: watchedItem.userId,
-          listId: 'IN_PROGRESS',
           id: tvSeries.id,
+          listId: 'IN_PROGRESS',
+          userId: watchedItem.userId,
         }),
         removeFromWatchlist({
-          userId: watchedItem.userId,
           id: tvSeries.id,
+          userId: watchedItem.userId,
         }),
       ]);
     } else if (hasWatchedEpisodes && hasAiredEpisodes) {
       // Series is partially watched
       await Promise.all([
         addToList({
-          userId: watchedItem.userId,
-          listId: 'IN_PROGRESS',
           item: listItem,
+          listId: 'IN_PROGRESS',
+          userId: watchedItem.userId,
         }),
         removeFromList({
-          userId: watchedItem.userId,
-          listId: 'WATCHED',
           id: tvSeries.id,
+          listId: 'WATCHED',
+          userId: watchedItem.userId,
         }),
         removeFromWatchlist({
-          userId: watchedItem.userId,
           id: tvSeries.id,
+          userId: watchedItem.userId,
         }),
       ]);
     } else {
       // No episodes watched or no episodes aired
       await Promise.all([
         removeFromList({
-          userId: watchedItem.userId,
-          listId: 'WATCHED',
           id: tvSeries.id,
+          listId: 'WATCHED',
+          userId: watchedItem.userId,
         }),
         removeFromList({
-          userId: watchedItem.userId,
-          listId: 'IN_PROGRESS',
           id: tvSeries.id,
+          listId: 'IN_PROGRESS',
+          userId: watchedItem.userId,
         }),
       ]);
     }

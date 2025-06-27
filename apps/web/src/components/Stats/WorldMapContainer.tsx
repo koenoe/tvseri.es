@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 
-import { cachedWatchedByYear, cachedTvSeries } from '@/app/cached';
+import { cachedTvSeries, cachedWatchedByYear } from '@/app/cached';
 
 import WorldMap from './WorldMap';
 
@@ -31,7 +31,7 @@ const getCountryStats = async (
   );
 
   const seriesWithCountries = uniqueSeries.filter(
-    (series) => series && series.countries,
+    (series) => series?.countries,
   );
 
   const countryStats: CountryStats = {};

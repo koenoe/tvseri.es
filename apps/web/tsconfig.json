@@ -1,21 +1,21 @@
 {
-  "extends": "@tvseri.es/typescript-config/nextjs.json",
   "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "plugins": [
       {
         "name": "next"
       }
-    ],
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    ]
   },
+  "exclude": ["node_modules"],
+  "extends": "@tvseri.es/typescript-config/nextjs.json",
   "include": [
     "**/*.ts",
     "**/*.tsx",
     "next-env.d.ts",
     "next.config.js",
     ".next/types/**/*.ts"
-  ],
-  "exclude": ["node_modules"]
+  ]
 }

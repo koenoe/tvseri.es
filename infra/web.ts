@@ -1,7 +1,7 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
-import { domain, zone } from './dns';
 import { apiRouter } from './api';
+import { domain, zone } from './dns';
 import * as secrets from './secrets';
 
 let openNextVersion: string | undefined;
@@ -15,13 +15,12 @@ try {
 }
 
 new sst.aws.Nextjs('tvseries', {
-  openNextVersion,
   domain: {
-    name: domain,
-    redirects: $app.stage === 'production' ? ['www.tvseri.es'] : [],
     dns: sst.aws.dns({
       zone,
     }),
+    name: domain,
+    redirects: $app.stage === 'production' ? ['www.tvseri.es'] : [],
   },
   environment: {
     API_URL: apiRouter.url,
@@ -33,25 +32,16 @@ new sst.aws.Nextjs('tvseries', {
     staticEtag: true,
   },
   link: [secrets.apiKey, secrets.secretKey],
+  openNextVersion,
   path: 'apps/web',
   server: {
     architecture: 'arm64',
     memory: '1 GB',
     runtime: 'nodejs22.x',
   },
-  warm: $app.stage === 'production' ? 3 : 0,
   transform: {
-    server: {
-      timeout: '30 seconds',
-      nodejs: {
-        minify: true,
-        esbuild: {
-          external: ['@opennextjs/aws'],
-        },
-      },
-    },
     cdn: (options) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // biome-ignore lint/suspicious/noExplicitAny: sort out later
       const origins = (options.origins || []) as any[];
       options.origins = origins.map((origin) => ({
         ...origin,
@@ -61,5 +51,15 @@ new sst.aws.Nextjs('tvseries', {
         },
       }));
     },
+    server: {
+      nodejs: {
+        esbuild: {
+          external: ['@opennextjs/aws'],
+        },
+        minify: true,
+      },
+      timeout: '30 seconds',
+    },
   },
+  warm: $app.stage === 'production' ? 3 : 0,
 });

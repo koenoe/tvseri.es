@@ -1,6 +1,5 @@
-import { cache } from 'react';
-
 import { cookies } from 'next/headers';
+import { cache } from 'react';
 
 import { me } from './lib/api';
 
@@ -9,9 +8,9 @@ const auth = cache(async () => {
 
   if (!encryptedSessionId) {
     return {
-      user: null,
-      session: null,
       encryptedSessionId: null,
+      session: null,
+      user: null,
     };
   }
 

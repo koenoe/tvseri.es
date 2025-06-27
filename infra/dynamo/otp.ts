@@ -15,8 +15,8 @@ export const otp = new sst.aws.Dynamo('OTP', {
     hashKey: 'pk',
     rangeKey: 'sk',
   },
-  ttl: 'expiresAt',
   stream: 'new-image',
+  ttl: 'expiresAt',
 });
 
 otp.subscribe(
@@ -27,12 +27,9 @@ otp.subscribe(
       reserved: 100,
     },
     handler: 'apps/api/src/lambdas/otp.handler',
-    memory: '512 MB',
-    runtime: 'nodejs22.x',
-    timeout: '30 seconds',
     link: [email],
+    memory: '512 MB',
     nodejs: {
-      minify: true,
       esbuild: {
         external: [
           '@aws-sdk/client-cloudfront',
@@ -43,7 +40,10 @@ otp.subscribe(
           '@aws-sdk/util-dynamodb',
         ],
       },
+      minify: true,
     },
+    runtime: 'nodejs22.x',
+    timeout: '30 seconds',
   },
   {
     transform: {

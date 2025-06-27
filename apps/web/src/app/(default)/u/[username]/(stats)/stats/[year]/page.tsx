@@ -1,6 +1,5 @@
-import { Suspense } from 'react';
-
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 
 import { cachedUser } from '@/app/cached';
 import Page from '@/components/Page/Page';
@@ -101,9 +100,9 @@ export default async function StatsByYearPage({ params }: Props) {
               }
             >
               <SpotlightContainer
+                boundary="first"
                 userId={user.id}
                 year={year}
-                boundary="first"
               />
             </Suspense>
           </div>
@@ -120,9 +119,9 @@ export default async function StatsByYearPage({ params }: Props) {
               }
             >
               <SpotlightContainer
+                boundary="last"
                 userId={user.id}
                 year={year}
-                boundary="last"
               />
             </Suspense>
           </div>
@@ -163,15 +162,11 @@ export default async function StatsByYearPage({ params }: Props) {
           </div>
           <Grid>
             <Suspense
-              fallback={
-                <>
-                  {[...Array(30)].map((_, index) => (
-                    <SkeletonPoster key={index} />
-                  ))}
-                </>
-              }
+              fallback={[...Array(30)].map((_, index) => (
+                <SkeletonPoster key={index} />
+              ))}
             >
-              <WatchedByYear year={year} userId={user.id} />
+              <WatchedByYear userId={user.id} year={year} />
             </Suspense>
           </Grid>
         </div>
@@ -191,12 +186,12 @@ export default async function StatsByYearPage({ params }: Props) {
         fallback={
           <SkeletonList
             className="mt-20"
-            size="medium"
             scrollBarClassName="h-[3px] rounded-none"
+            size="medium"
           />
         }
       >
-        <PopularNotWatched userId={user.id} year={year} className="mt-20" />
+        <PopularNotWatched className="mt-20" userId={user.id} year={year} />
       </Suspense>
     </Page>
   );

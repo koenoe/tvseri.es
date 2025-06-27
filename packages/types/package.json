@@ -1,13 +1,4 @@
 {
-  "name": "@tvseri.es/types",
-  "version": "0.0.0",
-  "private": true,
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
-  "scripts": {
-    "check-types": "tsc --noEmit",
-    "extract-tmdb-types": "openapi-typescript --path-params-as-types"
-  },
   "dependencies": {
     "valibot": "^1.1.0"
   },
@@ -15,5 +6,14 @@
     "@tvseri.es/typescript-config": "workspace:*",
     "openapi-typescript": "^7.8.0",
     "typescript": "^5.8.3"
-  }
+  },
+  "main": "./src/index.ts",
+  "name": "@tvseri.es/types",
+  "private": true,
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "extract-tmdb-types": "openapi-typescript --path-params-as-types"
+  },
+  "types": "./src/index.ts",
+  "version": "0.0.0"
 }

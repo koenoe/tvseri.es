@@ -5,7 +5,7 @@ import { useCallback, useOptimistic, useState, useTransition } from 'react';
 import { toggleFollow } from '@/app/actions';
 
 import AddButton from './AddButton';
-import { type ButtonVariantProps } from './CircleButton';
+import type { ButtonVariantProps } from './CircleButton';
 
 export default function FollowButton({
   isFollowing: isFollowingFromProps,
@@ -41,10 +41,10 @@ export default function FollowButton({
 
   return (
     <AddButton
-      size={size}
       isActive={optimisticIsFollowing}
-      onClick={handleOnClick}
       isDisabled={isPending}
+      onClick={handleOnClick}
+      size={size}
       title={`${optimisticIsFollowing ? 'Unfollow' : 'Follow'} '${username}'`}
     />
   );

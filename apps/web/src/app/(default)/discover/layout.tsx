@@ -11,20 +11,20 @@ import Page from '@/components/Page/Page';
 
 const sortOptions = [
   {
-    value: 'popularity.desc',
     label: 'Popularity',
+    value: 'popularity.desc',
   },
   {
-    value: 'first_air_date.desc',
     label: 'Air date',
+    value: 'first_air_date.desc',
   },
   {
-    value: 'vote_average.desc',
     label: 'Vote avg.',
+    value: 'vote_average.desc',
   },
   {
-    value: 'vote_count.desc',
     label: 'Vote count',
+    value: 'vote_count.desc',
   },
 ];
 

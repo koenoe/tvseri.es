@@ -1,5 +1,9 @@
-import { type TvSeries, type Episode, type Season } from '@tvseri.es/types';
-import { type WatchProvider } from '@tvseri.es/types';
+import type {
+  Episode,
+  Season,
+  TvSeries,
+  WatchProvider,
+} from '@tvseri.es/types';
 import { isValid, parse } from 'date-fns';
 import { diceCoefficient } from 'dice-coefficient';
 import { headers } from 'next/headers';
@@ -8,8 +12,11 @@ import slugify from 'slugify';
 
 import { cachedTvSeries, cachedTvSeriesSeason } from '@/app/cached';
 import auth from '@/auth';
-import { fetchWatchProviders, markWatchedInBatch } from '@/lib/api';
-import { searchTvSeries } from '@/lib/api';
+import {
+  fetchWatchProviders,
+  markWatchedInBatch,
+  searchTvSeries,
+} from '@/lib/api';
 
 type CsvItem = Readonly<{
   title: string;
@@ -73,20 +80,20 @@ async function parseWrittenNumber(text: string): Promise<number | null> {
   const digitMatch = textLower.match(/\d+/);
   if (digitMatch) {
     const parsed = parseInt(digitMatch[0], 10);
-    return !isNaN(parsed) && parsed > 0 ? parsed : null;
+    return !Number.isNaN(parsed) && parsed > 0 ? parsed : null;
   }
 
   const wordsToNumbersFn = await importWordsToNumbers();
   const numberFromWord = wordsToNumbersFn(textLower);
   if (typeof numberFromWord === 'string') {
     const parsed = parseInt(numberFromWord, 10);
-    return !isNaN(parsed) && parsed > 0 ? parsed : null;
+    return !Number.isNaN(parsed) && parsed > 0 ? parsed : null;
   }
   return numberFromWord && numberFromWord > 0 ? numberFromWord : null;
 }
 
 async function parseSeasonNumber(seasonStr: string | number): Promise<number> {
-  if (typeof seasonStr === 'number' && !isNaN(seasonStr)) {
+  if (typeof seasonStr === 'number' && !Number.isNaN(seasonStr)) {
     return Math.max(1, seasonStr);
   }
 
@@ -121,7 +128,7 @@ async function parseSeasonNumber(seasonStr: string | number): Promise<number> {
 async function parseEpisodeNumber(
   episodeStr: string | number,
 ): Promise<number | null> {
-  if (typeof episodeStr === 'number' && !isNaN(episodeStr)) {
+  if (typeof episodeStr === 'number' && !Number.isNaN(episodeStr)) {
     return episodeStr;
   }
 
@@ -353,8 +360,8 @@ export async function POST(req: Request) {
               // Handle case where we couldn't find any matching series
               if (!tvSeries) {
                 erroredItems.push({
-                  item,
                   error: `Could not find series: "${normalizedTitle}"`,
+                  item,
                 });
                 tvSeriesCache.set(normalizedTitle, null);
                 continue;
@@ -370,8 +377,8 @@ export async function POST(req: Request) {
 
               if (!episode) {
                 erroredItems.push({
-                  item,
                   error: `Could not find episode: "${item.episode}"`,
+                  item,
                 });
                 continue;
               }
@@ -387,26 +394,26 @@ export async function POST(req: Request) {
               const watchedAt = parseDate(item.date);
               if (!watchedAt) {
                 erroredItems.push({
-                  item,
                   error: `Invalid date format: "${item.date}"`,
+                  item,
                 });
                 continue;
               }
 
               // Add the successfully processed item
               watchedItems.push({
-                userId: user.id,
-                tvSeries,
-                seasonNumber,
                 episodeNumber: episode.episodeNumber,
                 runtime: episode.runtime,
-                watchProvider,
+                seasonNumber,
+                tvSeries,
+                userId: user.id,
                 watchedAt,
+                watchProvider,
               });
             } catch (error) {
               erroredItems.push({
-                item,
                 error: `Processing error: ${(error as Error).message}`,
+                item,
               });
             }
           }
@@ -414,21 +421,21 @@ export async function POST(req: Request) {
           if (watchedItems.length > 0) {
             try {
               await markWatchedInBatch({
-                userId: user.id,
-                sessionId: encryptedSessionId,
                 items: watchedItems,
+                sessionId: encryptedSessionId,
+                userId: user.id,
               });
               successCount += watchedItems.length;
             } catch (error) {
               erroredItems.push(
                 ...watchedItems.map((item) => ({
-                  item: {
-                    title: item.tvSeries.title,
-                    date: item.watchedAt.toString(),
-                    season: item.seasonNumber.toString(),
-                    episode: item.episodeNumber.toString(),
-                  },
                   error: `Database error: ${(error as Error).message}`,
+                  item: {
+                    date: item.watchedAt.toString(),
+                    episode: item.episodeNumber.toString(),
+                    season: item.seasonNumber.toString(),
+                    title: item.tvSeries.title,
+                  },
                 })),
               );
             }
@@ -436,11 +443,11 @@ export async function POST(req: Request) {
 
           controller.enqueue(
             encoder.encode(
-              JSON.stringify({
+              `${JSON.stringify({
+                errors: erroredItems,
                 status: 'progress',
                 successCount,
-                errors: erroredItems,
-              }) + '\n',
+              })}\n`,
             ),
           );
         }

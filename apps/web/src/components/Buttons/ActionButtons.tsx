@@ -1,4 +1,4 @@
-import { type TvSeries } from '@tvseri.es/types';
+import type { TvSeries } from '@tvseri.es/types';
 
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
@@ -41,7 +41,6 @@ export default async function ActionButtons({
     }
 
     const payload = {
-      userId: user.id,
       item: {
         id: tvSeries.id,
         posterPath: tvSeries.posterPath,
@@ -50,6 +49,7 @@ export default async function ActionButtons({
         title: tvSeries.title,
       },
       sessionId: encryptedSessionId,
+      userId: user.id,
     };
 
     if (listType === 'watchlist') {
@@ -57,9 +57,9 @@ export default async function ActionButtons({
         await addToWatchlist(payload);
       } else {
         await removeFromWatchlist({
-          userId: user.id,
           id: tvSeries.id,
           sessionId: encryptedSessionId,
+          userId: user.id,
         });
       }
     } else if (listType === 'favorites') {
@@ -67,9 +67,9 @@ export default async function ActionButtons({
         await addToFavorites(payload);
       } else {
         await removeFromFavorites({
-          userId: user.id,
           id: tvSeries.id,
           sessionId: encryptedSessionId,
+          userId: user.id,
         });
       }
     }
@@ -78,8 +78,8 @@ export default async function ActionButtons({
   const { session } = await auth();
   if (session) {
     const payload = {
-      userId: session.userId,
       id: Number(id),
+      userId: session.userId,
     };
 
     const [isFavorited, isWatchlisted] = await Promise.all([
@@ -97,8 +97,8 @@ export default async function ActionButtons({
         <WatchlistButton action={addToOrRemoveAction} />
         {showContextMenuButton && (
           <ContextMenuButtonTvSeries
-            tvSeries={tvSeries}
             action={addToOrRemoveAction}
+            tvSeries={tvSeries}
           />
         )}
       </ActionButtonsProvider>
@@ -112,8 +112,8 @@ export default async function ActionButtons({
       <WatchlistButton action={addToOrRemoveAction} />
       {showContextMenuButton && (
         <ContextMenuButtonTvSeries
-          tvSeries={tvSeries}
           action={addToOrRemoveAction}
+          tvSeries={tvSeries}
         />
       )}
     </ActionButtonsProvider>

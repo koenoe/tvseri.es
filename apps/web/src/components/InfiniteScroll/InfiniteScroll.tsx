@@ -1,9 +1,8 @@
 'use client';
 
-import { type ReactNode, useRef, useEffect, useTransition, memo } from 'react';
-
 import { cx } from 'class-variance-authority';
 import { useInView } from 'motion/react';
+import { memo, type ReactNode, useEffect, useRef, useTransition } from 'react';
 
 const InfiniteScroll = ({
   className,
@@ -40,8 +39,8 @@ const InfiniteScroll = ({
         {children}
         {hasMoreData && (
           <div
-            ref={sentinelRef}
             className="pointer-events-none absolute bottom-0 left-0 block h-[25vh] w-full"
+            ref={sentinelRef}
           />
         )}
       </div>

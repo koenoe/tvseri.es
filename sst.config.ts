@@ -3,9 +3,8 @@
 export default $config({
   app(input) {
     return {
-      name: 'tvseries',
-      removal: input?.stage === 'production' ? 'retain' : 'remove',
       home: 'aws',
+      name: 'tvseries',
       providers: {
         aws: {
           profile:
@@ -14,6 +13,7 @@ export default $config({
               : 'tvseries-dev',
         },
       },
+      removal: input?.stage === 'production' ? 'retain' : 'remove',
     };
   },
   async run() {

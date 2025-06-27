@@ -1,6 +1,5 @@
-import { Suspense } from 'react';
-
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 
 import { cachedUser } from '@/app/cached';
 import Grid from '@/components/Grid/Grid';
@@ -40,7 +39,7 @@ export default async function WatchlistPage({ params }: Props) {
         </Grid>
       }
     >
-      <ListGrid user={user} listId="WATCHLIST" />
+      <ListGrid listId="WATCHLIST" user={user} />
     </Suspense>
   );
 }

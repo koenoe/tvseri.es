@@ -1,9 +1,8 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
-
-import { type CountryOrLanguage } from '@tvseri.es/types';
+import type { CountryOrLanguage } from '@tvseri.es/types';
 import Image from 'next/image';
+import { useCallback, useMemo } from 'react';
 
 import svgSimplePlaceholder from '@/utils/svgSimplePlaceholder';
 
@@ -19,8 +18,8 @@ export default function DiscoverCountries({
   const multiSelectValues = useMemo(
     () =>
       countries.map((country) => ({
-        value: country.code,
         label: country.englishName,
+        value: country.code,
       })),
     [countries],
   );
@@ -30,14 +29,14 @@ export default function DiscoverCountries({
       <div className="flex items-center gap-2 text-sm">
         <div className="relative h-[20px] w-auto min-w-[20px]">
           <Image
-            className="object-contain"
-            src={`https://flagcdn.com/h20/${String(item.value).toLocaleLowerCase()}.webp`}
             alt={item.label}
-            placeholder={`data:image/svg+xml;base64,${svgSimplePlaceholder(30, 20)}`}
+            className="object-contain"
+            fill
             onError={(e) => {
               e.currentTarget.src = `data:image/svg+xml;base64,${svgSimplePlaceholder(30, 20)}`;
             }}
-            fill
+            placeholder={`data:image/svg+xml;base64,${svgSimplePlaceholder(30, 20)}`}
+            src={`https://flagcdn.com/h20/${String(item.value).toLocaleLowerCase()}.webp`}
             unoptimized
           />
         </div>
@@ -50,11 +49,11 @@ export default function DiscoverCountries({
     <MultiSelect
       className={className}
       classNameDropdown="flex flex-col gap-2"
-      searchParamKey="with_origin_country"
-      searchParamSeparator="|"
-      results={multiSelectValues}
       placeholder="Country of origin"
       renderSelectItem={renderSelectItem}
+      results={multiSelectValues}
+      searchParamKey="with_origin_country"
+      searchParamSeparator="|"
     />
   );
 }

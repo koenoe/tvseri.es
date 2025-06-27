@@ -1,29 +1,27 @@
 'use client';
 
-import {
-  useCallback,
-  useTransition,
-  useOptimistic,
-  useState,
-  useEffect,
-} from 'react';
-
 import type { WatchedItem } from '@tvseri.es/types';
 import { cva, type VariantProps } from 'class-variance-authority';
-
-import CircleButton from './CircleButton';
+import {
+  useCallback,
+  useEffect,
+  useOptimistic,
+  useState,
+  useTransition,
+} from 'react';
 import SkeletonCircleButton from '../Skeletons/SkeletonCircleButton';
 import { useWatchedStore } from '../Watched/WatchedStoreProvider';
+import CircleButton from './CircleButton';
 
 const watchButtonStyles = cva('', {
-  variants: {
-    size: {
-      small: ['size-8 md:size-8 [&_svg.icon]:size-4 md:[&_svg.icon]:size-4'],
-      medium: ['size-10 md:size-12 [&_svg.icon]:size-5 md:[&_svg.icon]:size-6'],
-    },
-  },
   defaultVariants: {
     size: 'medium',
+  },
+  variants: {
+    size: {
+      medium: ['size-10 md:size-12 [&_svg.icon]:size-5 md:[&_svg.icon]:size-6'],
+      small: ['size-8 md:size-8 [&_svg.icon]:size-4 md:[&_svg.icon]:size-4'],
+    },
   },
 });
 
@@ -47,8 +45,8 @@ export default function WatchButton({
   const isReady = useWatchedStore((store) => store.isReady(tvSeriesId));
   const isWatched = useWatchedStore((store) =>
     store.isWatched(tvSeriesId, {
-      seasonNumber,
       episodeNumber,
+      seasonNumber,
     }),
   );
   const [optimisticIsWatched, setOptimisticIsWatched] = useOptimistic(
@@ -70,15 +68,15 @@ export default function WatchButton({
 
         try {
           const response = await fetch(`/api/watch/tv/${tvSeriesId}`, {
-            method: 'POST',
+            body: JSON.stringify({
+              episodeNumber,
+              seasonNumber,
+              watched: value,
+            }),
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              watched: value,
-              seasonNumber,
-              episodeNumber,
-            }),
+            method: 'POST',
           });
 
           if (!response.ok) {
@@ -90,8 +88,8 @@ export default function WatchButton({
             markAsWatched(tvSeriesId, watchedItems);
           } else {
             markAsUnwatched(tvSeriesId, {
-              seasonNumber,
               episodeNumber,
+              seasonNumber,
             });
           }
         } catch (error) {
@@ -121,11 +119,11 @@ export default function WatchButton({
   return (
     <CircleButton
       className={watchButtonStyles({ className, size })}
-      onClick={handleOnClick}
+      initial={!isReady ? (optimisticIsWatched ? 'active' : 'inactive') : false}
       isActive={optimisticIsWatched}
       isDisabled={isPending}
+      onClick={handleOnClick}
       title={optimisticIsWatched ? 'Mark as unwatched' : 'Mark as watched'}
-      initial={!isReady ? (optimisticIsWatched ? 'active' : 'inactive') : false}
     >
       <svg
         className="icon"

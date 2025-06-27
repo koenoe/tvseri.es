@@ -15,7 +15,7 @@ export type Props = Readonly<{
 
 function Background({ variant = 'static', context, color, image }: Props) {
   return variant === 'static' ? (
-    <BackgroundStatic context={context} color={color} image={image} />
+    <BackgroundStatic color={color} context={context} image={image} />
   ) : (
     <BackgroundDynamic context={context} />
   );

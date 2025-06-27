@@ -11,8 +11,8 @@ export async function invalidatePaths(paths: string[]) {
     InvalidationBatch: {
       CallerReference: `${Date.now()}`,
       Paths: {
-        Quantity: paths.length,
         Items: paths,
+        Quantity: paths.length,
       },
     },
   });

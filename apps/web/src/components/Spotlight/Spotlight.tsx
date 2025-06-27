@@ -1,14 +1,12 @@
 'use client';
 
+import type { TvSeries } from '@tvseri.es/types';
 import { useCallback } from 'react';
 
-import type { TvSeries } from '@tvseri.es/types';
-
 import preloadImage from '@/utils/preloadImage';
-
-import SpotlightItem from './SpotlightItem';
 import Carousel from '../Carousel/Carousel';
 import { usePageStore } from '../Page/PageStoreProvider';
+import SpotlightItem from './SpotlightItem';
 
 export default function Spotlight({
   className,
@@ -32,8 +30,8 @@ export default function Spotlight({
 
       preloadImage(backgroundImage).finally(() => {
         updateBackground({
-          backgroundImage,
           backgroundColor,
+          backgroundImage,
         });
       });
     },
@@ -43,8 +41,8 @@ export default function Spotlight({
   return (
     <Carousel
       className={className}
-      itemRenderer={itemRenderer}
       itemCount={items.length}
+      itemRenderer={itemRenderer}
       onChange={handleChange}
       restoreKey="spotlight"
     />

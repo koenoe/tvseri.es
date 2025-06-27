@@ -1,11 +1,8 @@
-import { type Season } from '@tvseri.es/types';
-import { type User } from '@tvseri.es/types';
-import type { ListItem } from '@tvseri.es/types';
-import type { WatchedItem } from '@tvseri.es/types';
+import type { ListItem, Season, User, WatchedItem } from '@tvseri.es/types';
 
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
-import { removeFromList, getAllWatchedForTvSeries } from '@/lib/api';
+import { getAllWatchedForTvSeries, removeFromList } from '@/lib/api';
 
 import InProgress from './InProgress';
 
@@ -101,8 +98,8 @@ export default async function InProgressContainer({
     ]);
 
   const watchedItems = await getAllWatchedForTvSeries({
-    userId: user.id,
     seriesId: tvSeries!.id,
+    userId: user.id,
   });
 
   const { currentSeason, watchCount } = getCurrentSeasonFromWatchedItems(
@@ -119,10 +116,10 @@ export default async function InProgressContainer({
 
     try {
       await removeFromList({
-        userId: user.id,
-        listId: 'IN_PROGRESS',
         id: tvSeries!.id,
+        listId: 'IN_PROGRESS',
         sessionId: encryptedSessionId,
+        userId: user.id,
       });
     } catch (error) {
       console.error(error);
@@ -132,11 +129,11 @@ export default async function InProgressContainer({
 
   return currentSeason ? (
     <InProgress
-      tvSeries={tvSeries!}
       currentSeason={currentSeason}
       currentSeasonWatchCount={watchCount}
       removeAction={removeAction}
       removeIsAllowed={authenticatedUser?.id === user.id}
+      tvSeries={tvSeries!}
     />
   ) : null;
 }

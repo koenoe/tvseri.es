@@ -45,15 +45,15 @@ if (!apiKey) {
 
 const $fetch = createFetch({
   baseURL: 'https://api.mdblist.com',
-  retry: DEFAULT_FETCH_RETRY_OPTIONS,
-  query: {
-    apikey: apiKey,
-    format: 'json',
-  },
   headers: {
     accept: 'application/json',
     'content-type': 'application/json',
   },
+  query: {
+    apikey: apiKey,
+    format: 'json',
+  },
+  retry: DEFAULT_FETCH_RETRY_OPTIONS,
 });
 
 async function mdblistFetch(path: string, options?: BetterFetchOption) {
@@ -137,10 +137,10 @@ export async function fetchMostPopularThisMonth() {
 
 export async function fetchMediaInfoInBatch(ids: string[]) {
   const response = (await mdblistFetch('/tmdb/show', {
-    method: 'POST',
     body: JSON.stringify({
       ids,
     }),
+    method: 'POST',
   })) as MediaInfo[];
 
   return response;

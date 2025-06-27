@@ -1,15 +1,14 @@
 'use client';
 
-import { memo, useCallback, useLayoutEffect, useRef } from 'react';
-
 import { cva, cx, type VariantProps } from 'class-variance-authority';
 import {
-  useScroll,
   motion,
   useMotionValue,
   useMotionValueEvent,
+  useScroll,
   useSpring,
 } from 'motion/react';
+import { memo, useCallback, useLayoutEffect, useRef } from 'react';
 
 import getHistoryKey from '@/utils/getHistoryKey';
 import getMousePositionWithinElement from '@/utils/getMousePositionWithinElement';
@@ -29,14 +28,14 @@ export type HeaderVariantProps = VariantProps<typeof headerVariants>;
 export const headerVariants = cva(
   'container relative flex items-center justify-between gap-8 md:gap-12',
   {
+    defaultVariants: {
+      titleAlignment: 'left',
+    },
     variants: {
       titleAlignment: {
         left: [],
         right: ['flex-row-reverse'],
       },
-    },
-    defaultVariants: {
-      titleAlignment: 'left',
     },
   },
 );
@@ -67,15 +66,15 @@ function List({
   const scrollXProgress = useMotionValue(0);
   const scrollLeft = useMotionValue(0);
   const springScrollLeft = useSpring(scrollLeft, {
-    stiffness: 300,
+    bounce: 0,
     damping: 30,
     mass: 1,
-    bounce: 0,
+    stiffness: 300,
   });
 
   const { scrollX } = useScroll({
-    container: innerRef,
     axis: 'x',
+    container: innerRef,
   });
 
   useMotionValueEvent(springScrollLeft, 'change', (left) => {
@@ -167,11 +166,10 @@ function List({
         }
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [scrollRestoreKey]);
 
   return (
-    <div style={style} className={cx('relative w-full select-none', className)}>
+    <div className={cx('relative w-full select-none', className)} style={style}>
       <div className={headerVariants({ titleAlignment })}>
         {typeof title === 'string' ? (
           <h2 className="text-2xl font-medium lg:text-3xl">{title}</h2>
@@ -180,7 +178,6 @@ function List({
         )}
         <div className="hidden flex-grow md:flex">
           <div
-            ref={scrollBarRef}
             className={cx(
               'relative h-2 w-full cursor-pointer overflow-hidden rounded-2xl bg-white/10',
               scrollBarClassName,
@@ -188,22 +185,23 @@ function List({
             onClick={handleClick}
             onMouseDown={handleStartDragging}
             onTouchStart={handleStartDragging}
+            ref={scrollBarRef}
           >
             <motion.div
               className="h-full w-full bg-white/30"
               style={{
-                scaleX: scrollXProgress,
-                transformOrigin: 'left',
-                position: 'absolute',
-                top: 0,
                 left: 0,
+                position: 'absolute',
+                scaleX: scrollXProgress,
+                top: 0,
+                transformOrigin: 'left',
               }}
             />
           </div>
         </div>
         {button && button}
       </div>
-      <div ref={innerRef} className={innerStylesWithModuleStyles()}>
+      <div className={innerStylesWithModuleStyles()} ref={innerRef}>
         {children}
       </div>
     </div>

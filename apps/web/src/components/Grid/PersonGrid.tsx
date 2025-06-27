@@ -1,9 +1,8 @@
-import { type Person } from '@tvseri.es/types';
+import type { Person } from '@tvseri.es/types';
 
 import { fetchPersonTvCredits } from '@/lib/api';
-
-import Grid from './Grid';
 import Poster from '../Tiles/Poster';
+import Grid from './Grid';
 
 export default async function PersonGrid({
   person,
@@ -22,7 +21,7 @@ export default async function PersonGrid({
           <h3 className="mb-6 text-2xl font-medium lg:text-3xl">Upcoming</h3>
           <Grid>
             {upcoming.map((item) => (
-              <Poster key={item.id} item={item} />
+              <Poster item={item} key={item.id} />
             ))}
           </Grid>
         </div>
@@ -32,7 +31,7 @@ export default async function PersonGrid({
           <h3 className="mb-6 text-2xl font-medium lg:text-3xl">Previous</h3>
           <Grid>
             {previous.map((item) => (
-              <Poster key={item.id} item={item} />
+              <Poster item={item} key={item.id} />
             ))}
           </Grid>
         </div>

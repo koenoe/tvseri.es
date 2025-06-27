@@ -8,6 +8,6 @@ export default async function DiscoverSpokenLanguagesContainer({
   const languages = await fetchLanguages();
 
   return (
-    <DiscoverSpokenLanguages languages={languages} className={className} />
+    <DiscoverSpokenLanguages className={className} languages={languages} />
   );
 }

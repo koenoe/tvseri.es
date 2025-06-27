@@ -1,6 +1,5 @@
-import { Suspense } from 'react';
-
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 
 import { cachedUser } from '@/app/cached';
 import CardContainer from '@/components/Follow/CardContainer';
@@ -33,12 +32,12 @@ export default async function SocialPage({ params }: Props) {
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
       <div className="flex-1">
         <Suspense fallback={<SkeletonCard />}>
-          <CardContainer username={user.username} type="following" />
+          <CardContainer type="following" username={user.username} />
         </Suspense>
       </div>
       <div className="flex-1">
         <Suspense fallback={<SkeletonCard />}>
-          <CardContainer username={user.username} type="followers" />
+          <CardContainer type="followers" username={user.username} />
         </Suspense>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { type NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 import { fetchKeyword, searchKeywords } from '@/lib/api';
 
@@ -11,7 +11,9 @@ export async function GET(request: NextRequest) {
     return Response.json({ error: 'No query or ids' }, { status: 400 });
   }
 
-  let response;
+  let response:
+    | Awaited<ReturnType<typeof searchKeywords>>
+    | Awaited<ReturnType<typeof fetchKeyword>>[];
   if (query) {
     response = await searchKeywords(query);
   } else {

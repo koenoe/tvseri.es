@@ -27,13 +27,13 @@ export default async function PopularNotWatched({
 
   return (
     <List
-      title={<h2 className="text-md lg:text-lg">Popular unwatched</h2>}
-      scrollRestoreKey="top-rated-shows-unwatched"
       scrollBarClassName="h-[3px] rounded-none"
+      scrollRestoreKey="top-rated-shows-unwatched"
+      title={<h2 className="text-md lg:text-lg">Popular unwatched</h2>}
       {...rest}
     >
       {unwatchedSeries.map((item) => (
-        <Poster key={item.id} item={item} priority={priority} size="medium" />
+        <Poster item={item} key={item.id} priority={priority} size="medium" />
       ))}
     </List>
   );

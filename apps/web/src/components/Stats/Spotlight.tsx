@@ -1,8 +1,4 @@
-import {
-  type Episode,
-  type TvSeries,
-  type WatchedItem,
-} from '@tvseri.es/types';
+import type { Episode, TvSeries, WatchedItem } from '@tvseri.es/types';
 import { cx } from 'class-variance-authority';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -27,14 +23,14 @@ export default function Spotlight({
 }>) {
   return (
     <Link
-      href={{
-        pathname: `/tv/${tvSeries.id}/${tvSeries.slug}`,
-        query: { season: episode.seasonNumber },
-      }}
       className={cx(
         "relative flex aspect-[16/14] flex-shrink-0 items-end overflow-clip rounded shadow-lg after:absolute after:inset-0 after:rounded after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:aspect-[16/10] lg:aspect-[16/8] xl:aspect-[16/12] 2xl:aspect-[16/10]",
         className,
       )}
+      href={{
+        pathname: `/tv/${tvSeries.id}/${tvSeries.slug}`,
+        query: { season: episode.seasonNumber },
+      }}
     >
       <SpotlightBackground item={tvSeries} />
       <div className="w-full p-9 xl:p-12">
@@ -46,8 +42,8 @@ export default function Spotlight({
             </div>
             <div className="after:ml-2 after:content-['·']">
               {formatSeasonAndEpisode({
-                seasonNumber: item.seasonNumber,
                 episodeNumber: item.episodeNumber,
+                seasonNumber: item.seasonNumber,
               })}
             </div>
             <div className="after:ml-2 after:content-['·']">
@@ -59,12 +55,12 @@ export default function Spotlight({
       </div>
       {item.watchProviderLogoImage && (
         <Image
-          className="absolute right-4 top-4 z-10 h-8 w-8 rounded-md"
-          src={item.watchProviderLogoImage}
           alt=""
+          className="absolute right-4 top-4 z-10 h-8 w-8 rounded-md"
+          height={92}
+          src={item.watchProviderLogoImage}
           unoptimized
           width={92}
-          height={92}
         />
       )}
     </Link>

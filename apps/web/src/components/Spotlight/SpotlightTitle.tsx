@@ -1,30 +1,30 @@
-import { type TvSeries } from '@tvseri.es/types';
+import type { TvSeries } from '@tvseri.es/types';
 import { cva, type VariantProps } from 'class-variance-authority';
 import Image from 'next/image';
 
 const imageStyles = cva('relative w-full', {
-  variants: {
-    size: {
-      small: ['h-24 md:h-36 md:w-[425px]'],
-      medium: ['h-24 md:h-40 md:w-[500px]'],
-    },
-  },
   defaultVariants: {
     size: 'medium',
+  },
+  variants: {
+    size: {
+      medium: ['h-24 md:h-40 md:w-[500px]'],
+      small: ['h-24 md:h-36 md:w-[425px]'],
+    },
   },
 });
 
 const textStyles = cva(
   'relative w-full text-center font-bold !leading-tight  md:text-left md:w-3/5',
   {
-    variants: {
-      size: {
-        small: ['text-xl md:text-2xl lg:text-3xl xl:text-4xl'],
-        medium: ['text-3xl md:text-4xl lg:text-5xl xl:text-6xl'],
-      },
-    },
     defaultVariants: {
       size: 'medium',
+    },
+    variants: {
+      size: {
+        medium: ['text-3xl md:text-4xl lg:text-5xl xl:text-6xl'],
+        small: ['text-xl md:text-2xl lg:text-3xl xl:text-4xl'],
+      },
     },
   },
 );
@@ -39,20 +39,20 @@ export default function SpotlightTitle({
   return (
     <>
       {item.titleTreatmentImage ? (
-        <h1 className={imageStyles({ size, className })}>
+        <h1 className={imageStyles({ className, size })}>
           <Image
-            className="object-contain object-bottom md:object-left-bottom"
-            src={item.titleTreatmentImage}
             alt={item.title}
-            priority
-            fill
+            className="object-contain object-bottom md:object-left-bottom"
             draggable={false}
+            fill
+            priority
+            src={item.titleTreatmentImage}
             unoptimized
           />
           <span className="hidden">{item.title}</span>
         </h1>
       ) : (
-        <h1 className={textStyles({ size, className })}>{item.title}</h1>
+        <h1 className={textStyles({ className, size })}>{item.title}</h1>
       )}
     </>
   );

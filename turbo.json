@@ -1,12 +1,13 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "ui": "tui",
   "tasks": {
-    "lint": {
-      "dependsOn": ["^lint"]
+    "//#format-and-lint": {},
+    "//#format-and-lint:fix": {
+      "cache": false
     },
     "check-types": {
       "dependsOn": ["^check-types"]
     }
-  }
+  },
+  "ui": "tui"
 }

@@ -1,9 +1,8 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
-
 import { cx } from 'class-variance-authority';
 import dynamic from 'next/dynamic';
+import { useCallback, useMemo } from 'react';
 
 const WorldMap = dynamic(() => import('../WorldMap/WorldMap'), {
   ssr: false,
@@ -21,8 +20,8 @@ function generateCountryData(data: Record<string, number>) {
     const opacity = minOpacity + (views / maxViews) * (1 - minOpacity);
     countryData[country] = {
       color: `rgba(255, 0, 128, ${opacity})`,
-      hoverColor: '#00B8D4',
       content: { views },
+      hoverColor: '#00B8D4',
     };
   });
 
@@ -37,7 +36,7 @@ export default function WorldMapForStats({
   data: Record<string, number>;
 }>) {
   const renderTooltip = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: sort out later
     ({ country, content, hoverColor }: any) => (
       <div className="w-40 rounded-lg border-0 bg-neutral-900 px-4 py-2 text-xs">
         <div className="mb-1 font-medium text-white">{country}</div>

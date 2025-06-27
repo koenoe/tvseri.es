@@ -13,13 +13,13 @@ export default async function SpotlightContainer({
   boundary: 'first' | 'last';
 }>) {
   const { items } = await getWatched({
-    userId,
-    startDate: new Date(`${year}-01-01`),
     endDate: new Date(`${year}-12-31`),
     options: {
       limit: 1,
       sortDirection: boundary === 'first' ? 'asc' : 'desc',
     },
+    startDate: new Date(`${year}-01-01`),
+    userId,
   });
   const watchedItem = items[0];
 
@@ -40,5 +40,5 @@ export default async function SpotlightContainer({
     return null;
   }
 
-  return <Spotlight item={watchedItem} tvSeries={tvSeries} episode={episode} />;
+  return <Spotlight episode={episode} item={watchedItem} tvSeries={tvSeries} />;
 }

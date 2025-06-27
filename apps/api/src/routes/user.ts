@@ -2,15 +2,15 @@ import { vValidator } from '@hono/valibot-validator';
 import {
   CreateListItemSchema,
   CreateUserSchema,
-  CreateWatchedItemSchema,
-  CreateWatchedItemBatchSchema,
-  DeleteWatchedItemBatchSchema,
   type CreateWatchedItem,
   type CreateWatchedItemBatch,
+  CreateWatchedItemBatchSchema,
+  CreateWatchedItemSchema,
   type DeleteWatchedItemBatch,
-  type TvSeries,
+  DeleteWatchedItemBatchSchema,
   type SortBy,
   type SortDirection,
+  type TvSeries,
   type User,
 } from '@tvseri.es/types';
 import { Hono, type MiddlewareHandler } from 'hono';
@@ -27,11 +27,11 @@ import {
   unfollow,
 } from '@/lib/db/follow';
 import {
+  addToList,
   getListItems,
   getListItemsCount,
-  addToList,
-  removeFromList,
   isInList,
+  removeFromList,
 } from '@/lib/db/list';
 import { createUser, findUser } from '@/lib/db/user';
 import {
@@ -43,9 +43,9 @@ import {
   markTvSeriesWatched,
   markWatched,
   markWatchedInBatch,
-  unmarkWatched,
   unmarkSeasonWatched,
   unmarkTvSeriesWatched,
+  unmarkWatched,
   unmarkWatchedInBatch,
 } from '@/lib/db/watched';
 import {
@@ -54,8 +54,8 @@ import {
   fetchTvSeriesWatchProvider,
 } from '@/lib/tmdb';
 import {
-  requireAuth,
   type Variables as AuthVariables,
+  requireAuth,
 } from '@/middleware/auth';
 
 type Variables = {
@@ -191,14 +191,14 @@ const enrichUsersWithFollowInfo = async (
         getFollowingCount(user.id),
         userFromSession.id !== user.id && !isMeAndFollowers
           ? isFollower({
-              userId: userFromSession.id,
               targetUserId: user.id,
+              userId: userFromSession.id,
             })
           : Promise.resolve(false),
         userFromSession.id !== user.id
           ? isFollowing({
-              userId: userFromSession.id,
               targetUserId: user.id,
+              userId: userFromSession.id,
             })
           : Promise.resolve(false),
       ]);
@@ -285,9 +285,9 @@ app.get('/:id/watched/count', user(), async (c) => {
     ? new Date(c.req.query('end_date')!)
     : undefined;
   const count = await getWatchedCount({
-    userId: user.id,
-    startDate,
     endDate,
+    startDate,
+    userId: user.id,
   });
 
   return c.json({
@@ -306,9 +306,9 @@ app.get('/:id/watched/runtime', user(), async (c) => {
     ? new Date(c.req.query('end_date')!)
     : undefined;
   const items = await getAllWatched({
-    userId: user.id,
-    startDate,
     endDate,
+    startDate,
+    userId: user.id,
   });
 
   c.header(
@@ -324,9 +324,9 @@ app.get('/:id/watched/runtime', user(), async (c) => {
 app.get('/:id/watched/year/:year', user(), async (c) => {
   const user = c.get('user');
   const items = await getAllWatched({
-    userId: user.id,
-    startDate: new Date(`${c.req.param('year')}-01-01`),
     endDate: new Date(`${c.req.param('year')}-12-31`),
+    startDate: new Date(`${c.req.param('year')}-01-01`),
+    userId: user.id,
   });
 
   c.header(
@@ -340,8 +340,8 @@ app.get('/:id/watched/year/:year', user(), async (c) => {
 app.get('/:id/watched/series/:series-id', user(), async (c) => {
   const user = c.get('user');
   const items = await getAllWatchedForTvSeries({
-    userId: user.id,
     tvSeriesId: c.req.param('series-id'),
+    userId: user.id,
   });
 
   return c.json(items);
@@ -380,7 +380,7 @@ app.post(
     const user = c.get('user');
     const seasonNumber = parseInt(c.req.param('season'), 10);
 
-    if (isNaN(seasonNumber)) {
+    if (Number.isNaN(seasonNumber)) {
       throw new HTTPException(400, {
         message: 'Invalid season number',
       });
@@ -411,7 +411,7 @@ app.post(
     const seasonNumber = parseInt(c.req.param('season'), 10);
     const episodeNumber = parseInt(c.req.param('episode'), 10);
 
-    if (isNaN(seasonNumber) || isNaN(episodeNumber)) {
+    if (Number.isNaN(seasonNumber) || Number.isNaN(episodeNumber)) {
       throw new HTTPException(400, {
         message: 'Invalid season or episode number',
       });
@@ -464,7 +464,7 @@ app.delete(
     const user = c.get('user');
     const seasonNumber = parseInt(c.req.param('season'), 10);
 
-    if (isNaN(seasonNumber)) {
+    if (Number.isNaN(seasonNumber)) {
       throw new HTTPException(400, {
         message: 'Invalid season number',
       });
@@ -491,7 +491,7 @@ app.delete(
     const seasonNumber = parseInt(c.req.param('season'), 10);
     const episodeNumber = parseInt(c.req.param('episode'), 10);
 
-    if (isNaN(seasonNumber) || isNaN(episodeNumber)) {
+    if (Number.isNaN(seasonNumber) || Number.isNaN(episodeNumber)) {
       throw new HTTPException(400, {
         message: 'Invalid season or episode number',
       });
@@ -520,14 +520,14 @@ app.get('/:id/watched', user(), async (c) => {
     ? parseInt(c.req.query('limit')!, 10)
     : undefined;
   const result = await getWatched({
-    userId: user.id,
-    startDate,
     endDate,
     options: {
-      limit,
       cursor: c.req.query('cursor'),
+      limit,
       sortDirection: c.req.query('sort_direction') as SortDirection | undefined,
     },
+    startDate,
+    userId: user.id,
   });
   return c.json(result);
 });
@@ -581,10 +581,10 @@ app.get(
       : undefined;
 
     const count = await getListItemsCount({
-      userId: user.id,
+      endDate,
       listId,
       startDate,
-      endDate,
+      userId: user.id,
     });
 
     return c.json({
@@ -601,16 +601,16 @@ app.get(
     const listId = c.req.param('list').toUpperCase();
     const itemId = parseInt(c.req.param('item-id'), 10);
 
-    if (isNaN(itemId)) {
+    if (Number.isNaN(itemId)) {
       throw new HTTPException(400, {
         message: 'Invalid item ID',
       });
     }
 
     const value = await isInList({
-      userId: user.id,
-      listId,
       id: itemId,
+      listId,
+      userId: user.id,
     });
 
     return c.json({ value }, 200);
@@ -633,18 +633,18 @@ app.get(
       ? parseInt(c.req.query('limit')!, 10)
       : undefined;
     const result = await getListItems({
-      userId: user.id,
-      listId,
-      startDate,
       endDate,
+      listId,
       options: {
-        limit,
         cursor: c.req.query('cursor'),
+        limit,
         sortBy: c.req.query('sort_by') as SortBy | undefined,
         sortDirection: c.req.query('sort_direction') as
           | SortDirection
           | undefined,
       },
+      startDate,
+      userId: user.id,
     });
 
     return c.json(result);
@@ -663,9 +663,9 @@ app.post(
 
     try {
       await addToList({
-        userId: user.id,
-        listId,
         item: body,
+        listId,
+        userId: user.id,
       });
 
       return c.json({ message: 'OK' }, 201);
@@ -689,7 +689,7 @@ app.delete(
     const listId = c.req.param('list').toUpperCase();
     const itemId = parseInt(c.req.param('itemId'), 10);
 
-    if (isNaN(itemId)) {
+    if (Number.isNaN(itemId)) {
       throw new HTTPException(400, {
         message: 'Invalid item ID',
       });
@@ -697,9 +697,9 @@ app.delete(
 
     try {
       await removeFromList({
-        userId: user.id,
-        listId,
         id: itemId,
+        listId,
+        userId: user.id,
       });
 
       return c.json({ message: 'OK' }, 200);
@@ -725,8 +725,8 @@ app.post('/:id/follow', user(), requireAuth(), async (c) => {
   }
 
   await follow({
-    userId: userFromSession.id,
     targetUserId: user.id,
+    userId: userFromSession.id,
   });
 
   return c.json({ message: 'OK' });
@@ -743,8 +743,8 @@ app.delete('/:id/unfollow', user(), requireAuth(), async (c) => {
   }
 
   await unfollow({
-    userId: userFromSession.id,
     targetUserId: user.id,
+    userId: userFromSession.id,
   });
 
   return c.json({ message: 'OK' });
@@ -768,8 +768,8 @@ app.get('/:id/follower/:follower-id', user(), async (c) => {
   const user = c.get('user');
   const followerId = c.req.param('follower-id');
   const isFollowerResult = await isFollower({
-    userId: user.id,
     targetUserId: followerId,
+    userId: user.id,
   });
   return c.json({ value: isFollowerResult });
 });
@@ -778,8 +778,8 @@ app.get('/:id/following/:following-id', user(), async (c) => {
   const user = c.get('user');
   const followingId = c.req.param('following-id');
   const isFollowingResult = await isFollowing({
-    userId: user.id,
     targetUserId: followingId,
+    userId: user.id,
   });
   return c.json({ value: isFollowingResult });
 });
@@ -793,12 +793,12 @@ app.get('/:id/followers', user(), async (c) => {
     ? parseInt(c.req.query('limit')!, 10)
     : undefined;
   const { items, nextCursor } = await getFollowers({
-    userId: user.id,
     options: {
-      limit,
       cursor: c.req.query('cursor'),
+      limit,
       sortDirection: c.req.query('sort_direction') as SortDirection | undefined,
     },
+    userId: user.id,
   });
 
   const enrichedUsers = await enrichUsersWithFollowInfo(
@@ -825,12 +825,12 @@ app.get('/:id/following', user(), async (c) => {
     ? parseInt(c.req.query('limit')!, 10)
     : undefined;
   const { items, nextCursor } = await getFollowing({
-    userId: user.id,
     options: {
-      limit,
       cursor: c.req.query('cursor'),
+      limit,
       sortDirection: c.req.query('sort_direction') as SortDirection | undefined,
     },
+    userId: user.id,
   });
 
   const enrichedUsers = await enrichUsersWithFollowInfo(

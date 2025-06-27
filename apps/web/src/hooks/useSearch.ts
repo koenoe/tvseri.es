@@ -1,8 +1,7 @@
 'use client';
 
+import type { TvSeries } from '@tvseri.es/types';
 import { useCallback, useEffect, useRef, useTransition } from 'react';
-
-import { type TvSeries } from '@tvseri.es/types';
 import { useDebouncedCallback } from 'use-debounce';
 
 import createUseRestorableState from './createUseRestorableState';
@@ -60,9 +59,9 @@ export function useSearch() {
   }, [handleSearch]);
 
   return {
-    results,
-    isPending,
     handleSearch,
+    isPending,
     reset,
+    results,
   } as const;
 }

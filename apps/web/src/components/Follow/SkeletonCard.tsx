@@ -9,8 +9,8 @@ export default function SkeletonCard({
       <div className="flex flex-col gap-2 pt-4 md:pt-6">
         {[...Array(numberOfItems)].map((_, index) => (
           <div
-            key={index}
             className="relative flex flex-row gap-3 overflow-hidden rounded-lg bg-black/10 p-3 md:flex-row md:items-center md:gap-4 md:p-4"
+            key={index}
           >
             <div className="flex flex-col gap-3">
               <div className="h-5 w-40 bg-white/10" />

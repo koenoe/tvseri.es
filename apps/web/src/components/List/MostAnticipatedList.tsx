@@ -1,7 +1,6 @@
 import { fetchMostAnticipatedTvSeries } from '@/lib/api';
-
-import List, { type HeaderVariantProps } from './List';
 import Poster from '../Tiles/Poster';
+import List, { type HeaderVariantProps } from './List';
 
 export default async function MostAnticipatedList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,
@@ -10,12 +9,12 @@ export default async function MostAnticipatedList(
 
   return (
     <List
-      title="Most anticipated"
       scrollRestoreKey="most-anticipated"
+      title="Most anticipated"
       {...props}
     >
       {items.map((item) => (
-        <Poster key={item.id} item={item} />
+        <Poster item={item} key={item.id} />
       ))}
     </List>
   );

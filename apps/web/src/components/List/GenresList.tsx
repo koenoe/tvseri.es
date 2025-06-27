@@ -1,7 +1,6 @@
 import { fetchGenresForTvSeries } from '@/lib/api';
-
-import List from './List';
 import GenreTile from '../Tiles/Genre';
+import List from './List';
 
 // Note: override the gap in the list with gap-4 (1rem)
 export const gapStyleOverride = {
@@ -20,15 +19,15 @@ export default async function GenresList(
 
   return (
     <List
+      scrollRestoreKey="genres"
       style={gapStyleOverride}
       title="Genres"
-      scrollRestoreKey="genres"
       {...props}
     >
       {pairedGenres.map((pair, index) => (
-        <div key={index} className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4" key={index}>
           {pair.map((genre) => (
-            <GenreTile key={genre.id} genre={genre} />
+            <GenreTile genre={genre} key={genre.id} />
           ))}
         </div>
       ))}

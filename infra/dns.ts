@@ -8,18 +8,18 @@ export const { zone, domain } = (() => {
 
   if ($app.stage === 'production')
     return {
-      zone: process.env.AWS_HOSTED_ZONE_ID_PROD as string,
       domain: PRODUCTION,
+      zone: process.env.AWS_HOSTED_ZONE_ID_PROD as string,
     };
 
   if ($app.stage === 'dev')
     return {
-      zone: AWS_HOSTED_ZONE_ID_DEV,
       domain: DEV,
+      zone: AWS_HOSTED_ZONE_ID_DEV,
     };
 
   return {
-    zone: AWS_HOSTED_ZONE_ID_DEV,
     domain: `${$app.stage}.${DEV}`,
+    zone: AWS_HOSTED_ZONE_ID_DEV,
   };
 })();

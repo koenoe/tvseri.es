@@ -1,10 +1,9 @@
 'use client';
 
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
-
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 import searchIcon from '@/assets/search.svg';
@@ -77,28 +76,32 @@ function Search() {
   return (
     <LayoutGroup>
       <motion.div
-        key="search"
         className="relative z-10 mr-[calc(24px+1.25rem)] cursor-pointer"
+        key="search"
         onClick={() => {
           setBackgroundColor(getMainBackgroundColor());
           setIsOpen((prev) => !prev);
         }}
       >
         <motion.div
-          layoutId="search"
           className="absolute h-[24px] w-[24px] md:rounded-2xl"
+          layoutId="search"
         />
-        <Image src={searchIcon} alt="" width={24} height={24} priority />
+        <Image alt="" height={24} priority src={searchIcon} width={24} />
       </motion.div>
       <AnimatePresence>
         {isOpen && (
           <Modal>
             <motion.div
+              animate="visible"
+              className="fixed inset-0 z-40"
+              exit="hidden"
+              initial="hidden"
+              key="modal-backdrop"
+              onClick={handleClose}
               style={{
                 backgroundColor,
               }}
-              className="fixed inset-0 z-40"
-              key="modal-backdrop"
               variants={{
                 hidden: {
                   opacity: 0,
@@ -114,16 +117,12 @@ function Search() {
                   },
                 },
               }}
-              initial="hidden"
-              exit="hidden"
-              animate="visible"
-              onClick={handleClose}
             />
             <motion.div
               className="pointer-events-none fixed inset-0 z-50 flex md:mt-[8rem] md:items-start md:justify-center"
               key="modal-container"
-              layoutId="search"
               layout
+              layoutId="search"
             >
               <motion.div
                 className="pointer-events-auto flex w-full max-w-screen-md flex-col bg-white shadow-xl md:overflow-hidden md:rounded-2xl"
@@ -133,12 +132,12 @@ function Search() {
                 }}
               >
                 <SearchInput
-                  ref={searchInputRef}
                   className="border-b border-black/5 md:border-none"
                   color={backgroundColor}
                   onChange={handleSearch}
                   onClose={handleClose}
                   onKeyDown={handleKeyDown}
+                  ref={searchInputRef}
                 />
                 <AnimatePresence>
                   {(results !== null || isPending) && (
@@ -147,9 +146,9 @@ function Search() {
                       key="results"
                     >
                       <SearchResults
-                        results={results}
                         isPending={isPending}
                         itemClick={handleClose}
+                        results={results}
                       />
                     </motion.div>
                   )}

@@ -1,5 +1,4 @@
-import { randomInt } from 'crypto';
-
+import { randomInt } from 'node:crypto';
 import {
   DeleteItemCommand,
   GetItemCommand,
@@ -7,9 +6,8 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Resource } from 'sst';
-
-import client from '../client';
 import { encodeToBase64Url } from '@/utils/stringBase64Url';
+import client from '../client';
 
 const OTP_DURATION = 15 * 60; // 15 minutes in seconds
 
@@ -27,15 +25,15 @@ export const createOTP = async (
   const code = generateOTP();
 
   const command = new PutItemCommand({
-    TableName: Resource.OTP.name,
     Item: marshall({
+      code,
+      createdAt: now,
+      email: input.email.toLowerCase(),
+      expiresAt,
       pk: `EMAIL#${encodeToBase64Url(input.email)}`,
       sk: `CODE#${code}`,
-      email: input.email.toLowerCase(),
-      createdAt: now,
-      expiresAt,
-      code,
     }),
+    TableName: Resource.OTP.name,
   });
 
   try {
@@ -53,11 +51,11 @@ export const validateOTP = async (
   }>,
 ): Promise<boolean> => {
   const command = new GetItemCommand({
-    TableName: Resource.OTP.name,
     Key: marshall({
       pk: `EMAIL#${encodeToBase64Url(input.email)}`,
       sk: `CODE#${input.otp}`,
     }),
+    TableName: Resource.OTP.name,
   });
 
   try {
@@ -82,11 +80,11 @@ export const validateOTP = async (
 
 const deleteOTP = async (email: string, code: string): Promise<void> => {
   const command = new DeleteItemCommand({
-    TableName: Resource.OTP.name,
     Key: marshall({
       pk: `EMAIL#${email.toLowerCase()}`,
       sk: `CODE#${code}`,
     }),
+    TableName: Resource.OTP.name,
   });
 
   try {

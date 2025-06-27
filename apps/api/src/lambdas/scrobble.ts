@@ -1,21 +1,20 @@
-import { type SQSHandler, type SQSEvent } from 'aws-lambda';
-
-import {
-  type Episode,
-  type PlexMetadata,
-  type ScrobbleEvent,
-  type TmdbExternalSource,
-  type TvSeries,
-  type WatchProvider,
+import type {
+  Episode,
+  PlexMetadata,
+  ScrobbleEvent,
+  TmdbExternalSource,
+  TvSeries,
+  WatchProvider,
 } from '@tvseri.es/types';
+import type { SQSEvent, SQSHandler } from 'aws-lambda';
 
 import { markWatched } from '@/lib/db/watched';
 import {
   fetchTvSeries,
   fetchTvSeriesEpisode,
+  findByExternalId,
   searchTvSeries,
 } from '@/lib/tmdb';
-import { findByExternalId } from '@/lib/tmdb';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 
 type EpisodeWithTvSeriesId = Episode & { tvSeriesId: number };
@@ -40,21 +39,21 @@ function normalizePlexMetadata(metadata: PlexMetadata): Metadata {
   };
 
   const externalIds = {
-    tvdb_id: extractExternalId(metadata.Guid, 'tvdb'),
-    tmdb_id: extractExternalId(metadata.Guid, 'tmdb'),
     imdb_id: extractExternalId(metadata.Guid, 'imdb'),
+    tmdb_id: extractExternalId(metadata.Guid, 'tmdb'),
+    tvdb_id: extractExternalId(metadata.Guid, 'tvdb'),
   } as unknown as ExternalIds;
 
   return {
-    episodeTitle: metadata.title,
-    seasonTitle: metadata.parentTitle,
-    seriesTitle: metadata.grandparentTitle,
     episodeNumber: metadata.index,
-    seasonNumber: metadata.parentIndex,
-    year: metadata.year,
+    episodeTitle: metadata.title,
     externalIds: Object.values(externalIds).some(Boolean)
       ? externalIds
       : undefined,
+    seasonNumber: metadata.parentIndex,
+    seasonTitle: metadata.parentTitle,
+    seriesTitle: metadata.grandparentTitle,
+    year: metadata.year,
   };
 }
 
@@ -71,16 +70,16 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
 
       const watchProvider = {
         id: 0,
-        name: 'Plex',
         logo: '',
         logoPath: '/vLZKlXUNDcZR7ilvfY9Wr9k80FZ.jpg',
+        name: 'Plex',
       } as WatchProvider;
 
       const metadata = normalizePlexMetadata(payload.metadata.plex);
 
       // Try to find episode by external IDs first
-      let episode: Episode | undefined = undefined;
-      let tvSeries: TvSeries | undefined = undefined;
+      let episode: Episode | undefined;
+      let tvSeries: TvSeries | undefined;
 
       if (metadata.externalIds) {
         const searches = (['imdb_id', 'tvdb_id'] as const).map((source) => {
@@ -135,11 +134,11 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
 
       // Mark as watched and log success
       await markWatched({
-        userId: payload.userId,
-        tvSeries: tvSeries,
-        seasonNumber: episode.seasonNumber,
         episodeNumber: episode.episodeNumber,
         runtime: episode.runtime,
+        seasonNumber: episode.seasonNumber,
+        tvSeries: tvSeries,
+        userId: payload.userId,
         watchProvider,
       });
 

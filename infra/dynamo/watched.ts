@@ -1,19 +1,19 @@
 /// <reference path="../../.sst/platform/config.d.ts" />
 
 import { dominantColor } from '../dominantColor';
+import * as secrets from '../secrets';
 import { cache } from './cache';
 import { lists } from './lists';
 import { preferredImages } from './preferredImages';
-import * as secrets from '../secrets';
 
 export const watched = new sst.aws.Dynamo('Watched', {
   fields: {
-    pk: 'string', // USER#<userId>
-    sk: 'string', // SERIES#<seriesId>#S<seasonNum>#E<episodeNum>
-    gsi1pk: 'string', // USER#<userId>#SERIES#<seriesId>
-    gsi1sk: 'string', // S001#E001 (for sorting within series)
-    gsi2pk: 'string', // USER#<userId>#WATCHED
-    gsi2sk: 'number', // watched_at
+    gsi1pk: 'string', // USER#<userId>
+    gsi1sk: 'string', // SERIES#<seriesId>#S<seasonNum>#E<episodeNum>
+    gsi2pk: 'string', // USER#<userId>#SERIES#<seriesId>
+    gsi2sk: 'number', // S001#E001 (for sorting within series)
+    pk: 'string', // USER#<userId>#WATCHED
+    sk: 'string', // watched_at
 
     // episodeNumber: 'number',
     // posterImage: 'string', // deprecated
@@ -27,11 +27,11 @@ export const watched = new sst.aws.Dynamo('Watched', {
     // watchProviderName: 'string',
     // watchedAt: 'number'
   },
-  primaryIndex: { hashKey: 'pk', rangeKey: 'sk' },
   globalIndexes: {
-    gsi1: { hashKey: 'gsi1pk', rangeKey: 'gsi1sk', projection: 'all' }, // For series/season queries
-    gsi2: { hashKey: 'gsi2pk', rangeKey: 'gsi2sk', projection: 'all' }, // For time-based queries
+    gsi1: { hashKey: 'gsi1pk', projection: 'all', rangeKey: 'gsi1sk' }, // For series/season queries
+    gsi2: { hashKey: 'gsi2pk', projection: 'all', rangeKey: 'gsi2sk' }, // For time-based queries
   },
+  primaryIndex: { hashKey: 'pk', rangeKey: 'sk' },
   stream: 'new-and-old-images',
 });
 
@@ -43,9 +43,6 @@ watched.subscribe(
       reserved: 100,
     },
     handler: 'apps/api/src/lambdas/watched.handler',
-    memory: '512 MB',
-    runtime: 'nodejs22.x',
-    timeout: '30 seconds',
     link: [
       cache,
       dominantColor,
@@ -56,8 +53,8 @@ watched.subscribe(
       secrets.tmdbApiAccessToken,
       secrets.tmdbApiKey,
     ],
+    memory: '512 MB',
     nodejs: {
-      minify: true,
       esbuild: {
         external: [
           '@aws-sdk/client-cloudfront',
@@ -68,7 +65,10 @@ watched.subscribe(
           '@aws-sdk/util-dynamodb',
         ],
       },
+      minify: true,
     },
+    runtime: 'nodejs22.x',
+    timeout: '30 seconds',
   },
   {
     transform: {

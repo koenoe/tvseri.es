@@ -8,26 +8,26 @@ export const UsernameSchema = v.pipe(
 );
 
 export const UserSchema = v.object({
-  id: v.string(),
   createdAt: v.string(),
-  updatedAt: v.optional(v.string()),
   email: v.optional(v.pipe(v.string(), v.email())),
+  id: v.string(),
   name: v.optional(v.string()),
   role: RoleSchema,
   tmdbAccountId: v.optional(v.number()),
   tmdbAccountObjectId: v.optional(v.string()),
   tmdbUsername: v.optional(v.string()),
+  updatedAt: v.optional(v.string()),
   username: UsernameSchema,
   version: v.number(),
 });
 
 export const UserWithFollowInfoSchema = v.object({
   ...UserSchema.entries,
-  isFollowing: v.boolean(),
-  isFollower: v.boolean(),
-  isMe: v.boolean(),
-  followingCount: v.number(),
   followerCount: v.number(),
+  followingCount: v.number(),
+  isFollower: v.boolean(),
+  isFollowing: v.boolean(),
+  isMe: v.boolean(),
 });
 
 export const CreateUserSchema = v.intersect([
@@ -39,12 +39,12 @@ export const CreateUserSchema = v.intersect([
   }),
   v.union([
     v.object({
-      username: UsernameSchema,
       email: v.optional(v.pipe(v.string(), v.email())),
+      username: UsernameSchema,
     }),
     v.object({
-      username: v.optional(UsernameSchema),
       email: v.pipe(v.string(), v.email()),
+      username: v.optional(UsernameSchema),
     }),
   ]),
 ]);
@@ -52,14 +52,14 @@ export const CreateUserSchema = v.intersect([
 export const UpdateUserSchema = v.intersect([
   v.union([
     v.object({
-      username: UsernameSchema,
       email: v.optional(v.pipe(v.string(), v.email())),
       name: v.optional(v.string()),
+      username: UsernameSchema,
     }),
     v.object({
-      username: v.optional(UsernameSchema),
       email: v.pipe(v.string(), v.email()),
       name: v.optional(v.string()),
+      username: v.optional(UsernameSchema),
     }),
   ]),
 ]);

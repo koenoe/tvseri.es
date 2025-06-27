@@ -1,21 +1,20 @@
 'use client';
 
-import { memo, useCallback } from 'react';
-
 import { cva } from 'class-variance-authority';
 import { useRouter } from 'next/navigation';
+import { memo, useCallback } from 'react';
 
 import CircleButton, { type ButtonVariantProps } from './CircleButton';
 
 const svgStyles = cva('', {
-  variants: {
-    size: {
-      small: ['size-2 md:size-3'],
-      medium: ['size-3 md:size-4'],
-    },
-  },
   defaultVariants: {
     size: 'medium',
+  },
+  variants: {
+    size: {
+      medium: ['size-3 md:size-4'],
+      small: ['size-2 md:size-3'],
+    },
   },
 });
 
@@ -27,7 +26,7 @@ const EditProfileButton = ({ size }: ButtonVariantProps) => {
 
   return (
     <CircleButton onClick={handleClick} size={size} title="Edit profile">
-      <svg viewBox="0 0 16 16" fill="none" className={svgStyles({ size })}>
+      <svg className={svgStyles({ size })} fill="none" viewBox="0 0 16 16">
         <path
           d="M8.29289 3.70711L1 11V15H5L12.2929 7.70711L8.29289 3.70711Z"
           fill="currentColor"

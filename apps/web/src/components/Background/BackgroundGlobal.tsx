@@ -1,4 +1,4 @@
-import { type Props } from './Background';
+import type { Props } from './Background';
 import BackgroundGlobalBase from './BackgroundGlobalBase';
 import BackgroundGlobalDynamic from './BackgroundGlobalDynamic';
 

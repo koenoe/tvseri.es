@@ -1,15 +1,14 @@
 'use client';
 
+import { motion, type Variants } from 'motion/react';
 import {
-  useRef,
   type ReactNode,
-  useState,
+  type RefObject,
   useCallback,
   useLayoutEffect,
-  type RefObject,
+  useRef,
+  useState,
 } from 'react';
-
-import { motion, type Variants } from 'motion/react';
 
 import Modal from '../Modal';
 
@@ -33,7 +32,6 @@ const calculateAlignedPosition = (
       return start + triggerSize / 2 - dropdownSize / 2 + offset;
     case 'end':
       return start + triggerSize + offset;
-    case 'start':
     default:
       return start - offset;
   }
@@ -143,13 +141,13 @@ export default function DropdownContainer({
   shouldRenderInModal = true,
   viewportOffset = 16,
   variants = {
-    visible: {
-      opacity: 1,
-      y: 0,
-    },
     hidden: {
       opacity: 0,
       y: 40,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
     },
   },
 }: Props) {
@@ -172,12 +170,12 @@ export default function DropdownContainer({
       const containerRect = containerEl.getBoundingClientRect();
 
       const [x, y] = calculateNextPosition({
+        alignmentOffset: { x: offset.x ?? 0, y: offset.y ?? 8 },
+        dropdownRect: containerRect,
         position,
         triggerRect,
-        dropdownRect: containerRect,
-        window,
         viewportOffset,
-        alignmentOffset: { x: offset.x ?? 0, y: offset.y ?? 8 },
+        window,
       });
 
       containerEl.style.top = `${y}px`;
@@ -188,12 +186,12 @@ export default function DropdownContainer({
 
     const containerRect = containerEl.getBoundingClientRect();
     const [x, y] = calculateNextPosition({
+      alignmentOffset: { x: offset.x ?? 0, y: offset.y ?? 8 },
+      dropdownRect: containerRect,
       position,
       triggerRect: undefined,
-      dropdownRect: containerRect,
-      window,
       viewportOffset,
-      alignmentOffset: { x: offset.x ?? 0, y: offset.y ?? 8 },
+      window,
     });
 
     containerEl.style.top = `${y}px`;
@@ -223,18 +221,18 @@ export default function DropdownContainer({
       <>
         {shouldRenderOverlay && (
           <motion.div
-            key="overlay"
             className="fixed inset-0 z-[99] bg-transparent"
+            key="overlay"
             onClick={onOutsideClick}
           />
         )}
         <motion.div
-          key="container"
-          ref={containerRef}
           animate={isVisible ? 'visible' : 'hidden'}
           className="fixed z-[100]"
-          initial="hidden"
           exit="hidden"
+          initial="hidden"
+          key="container"
+          ref={containerRef}
           variants={variants}
         >
           {children}

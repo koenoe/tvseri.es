@@ -1,14 +1,12 @@
 'use client';
 
+import type { ListItem } from '@tvseri.es/types';
 import { memo, useCallback, useMemo } from 'react';
 
-import type { ListItem } from '@tvseri.es/types';
-
 import createUseRestorableState from '@/hooks/createUseRestorableState';
-
-import Grid from './Grid';
 import InfiniteScroll from '../InfiniteScroll/InfiniteScroll';
 import Poster from '../Tiles/Poster';
+import Grid from './Grid';
 
 const useRestorableItems = createUseRestorableState<ListItem[]>();
 const useRestorableNextPageOrCursor = createUseRestorableState<
@@ -84,7 +82,7 @@ function InfiniteGrid({
     <InfiniteScroll hasMoreData={!!nextPageOrCursor} loadMore={handleLoadMore}>
       <Grid>
         {uniqueItems.map((item) => (
-          <Poster key={item.id} item={item} />
+          <Poster item={item} key={item.id} />
         ))}
       </Grid>
     </InfiniteScroll>

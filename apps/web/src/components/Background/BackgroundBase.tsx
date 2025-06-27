@@ -1,10 +1,9 @@
-import { memo, useMemo } from 'react';
-
 import { cva } from 'class-variance-authority';
+import { memo, useMemo } from 'react';
 
 import hexToRgb from '@/utils/hexToRgb';
 
-import { type Props } from './Background';
+import type { Props } from './Background';
 import BackgroundImage from './BackgroundImage';
 
 export const backgroundBaseStyles = cva(
@@ -35,8 +34,8 @@ const maskImageValue = `
 
 const filterValues = {
   backdropFilter: backdropFilterValue,
-  WebkitBackdropFilter: backdropFilterValue,
   maskImage: maskImageValue,
+  WebkitBackdropFilter: backdropFilterValue,
   WebkitMaskImage: maskImageValue,
 };
 
@@ -82,9 +81,9 @@ function BackgroundBase({
     <>
       {image && (
         <BackgroundImage
+          className={className}
           src={image}
           style={imageStyles}
-          className={className}
         />
       )}
       {context === 'page' && (

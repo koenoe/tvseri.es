@@ -1,4 +1,4 @@
-import { type paths } from '../tmdb-v3';
+import type { paths } from '../tmdb-v3';
 
 export type TmdbTvSeries =
   paths[`/3/tv/${number}`]['get']['responses']['200']['content']['application/json'] & {

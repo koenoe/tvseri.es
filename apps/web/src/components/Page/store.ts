@@ -1,5 +1,4 @@
-import { type StateCreator } from 'zustand';
-import { createStore } from 'zustand';
+import { createStore, type StateCreator } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import {
@@ -42,12 +41,12 @@ export const createPageStore = (
   const persistedStore = createStore(
     persist<PageStore>(storeCreator, {
       name,
-      storage: createJSONStorage(() => sessionStorage),
       onRehydrateStorage: () => {
         return () => {
           sessionStorage.removeItem(name);
         };
       },
+      storage: createJSONStorage(() => sessionStorage),
     }),
   );
 

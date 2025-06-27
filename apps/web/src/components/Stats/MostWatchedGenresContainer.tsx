@@ -1,4 +1,4 @@
-import { cachedUniqueWatchedByYear, cachedTvSeries } from '@/app/cached';
+import { cachedTvSeries, cachedUniqueWatchedByYear } from '@/app/cached';
 
 import MostWatchedGenres from './MostWatchedGenresLazy';
 
@@ -37,7 +37,7 @@ const getGenreStats = async (input: Input): Promise<GenreStat[]> => {
     });
 
   return [...genreCounts.entries()]
-    .map(([genre, count]) => ({ genre, count }))
+    .map(([genre, count]) => ({ count, genre }))
     .sort((a, b) => b.count - a.count);
 };
 

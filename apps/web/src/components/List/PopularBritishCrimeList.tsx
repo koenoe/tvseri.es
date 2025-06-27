@@ -1,7 +1,6 @@
 import { fetchPopularBritishCrimeTvSeries } from '@/lib/api';
-
-import List, { type HeaderVariantProps } from './List';
 import Poster from '../Tiles/Poster';
+import List, { type HeaderVariantProps } from './List';
 
 export default async function PopularBritishCrimeList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,
@@ -10,12 +9,12 @@ export default async function PopularBritishCrimeList(
 
   return (
     <List
-      title="Popular British Crime"
       scrollRestoreKey="popular-british-crime"
+      title="Popular British Crime"
       {...props}
     >
       {items.map((item) => (
-        <Poster key={item.id} item={item} />
+        <Poster item={item} key={item.id} />
       ))}
     </List>
   );

@@ -1,4 +1,4 @@
-import { type NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 import auth from '@/auth';
 import { findUser, getFollowers, getFollowing } from '@/lib/api';
@@ -32,11 +32,11 @@ export async function GET(
   const searchParams = request.nextUrl.searchParams;
   const cursorFromSearchParams = searchParams.get('cursor') ?? '';
   const payload = {
-    userId: user.id,
-    sessionId: encryptedSessionId ?? undefined,
     options: {
       cursor: cursorFromSearchParams,
     },
+    sessionId: encryptedSessionId ?? undefined,
+    userId: user.id,
   };
 
   const { items, nextCursor } = await (type === 'following'

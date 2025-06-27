@@ -1,5 +1,5 @@
 import bundleAnalyzer from '@next/bundle-analyzer';
-import { type NextConfig } from 'next';
+import type { NextConfig } from 'next';
 
 import getBaseUrl from './src/utils/getBaseUrl';
 
@@ -8,13 +8,13 @@ const withBundleAnalyzer = bundleAnalyzer({
 });
 
 const nextConfig = {
+  cleanDistDir: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   experimental: {
     authInterrupts: true,
     inlineCss: true,
-    staleTimes: {
-      dynamic: 0,
-      static: 0,
-    },
     // Note: don't think this does much, but alas
     optimizePackageImports: [
       'date-fns',
@@ -27,6 +27,49 @@ const nextConfig = {
       'use-debounce',
       'zustand',
     ],
+    staleTimes: {
+      dynamic: 0,
+      static: 0,
+    },
+  },
+  async headers() {
+    const baseUrl = getBaseUrl();
+    const shouldAddNoIndexHeader =
+      baseUrl.includes('dev') ||
+      baseUrl.includes('vercel') ||
+      baseUrl.includes('localhost');
+    return [
+      {
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: baseUrl,
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Authorization',
+          },
+        ],
+        source: '/api/:path*',
+      },
+      ...(shouldAddNoIndexHeader
+        ? [
+            {
+              headers: [
+                {
+                  key: 'X-Robots-Tag',
+                  value: 'noindex, nofollow',
+                },
+              ],
+              source: '/:path*',
+            },
+          ]
+        : []),
+    ];
   },
   output: 'standalone',
   // Note: to keep the Lambda size small
@@ -52,85 +95,42 @@ const nextConfig = {
       '**/amphtml-validator/*',
     ],
   },
-  serverExternalPackages: ['@opennextjs/aws', 'crypto', 'sst'],
-  transpilePackages: ['@tvseri.es/token', '@tvseri.es/types'],
-  cleanDistDir: true,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  async headers() {
-    const baseUrl = getBaseUrl();
-    const shouldAddNoIndexHeader =
-      baseUrl.includes('dev') ||
-      baseUrl.includes('vercel') ||
-      baseUrl.includes('localhost');
+  async redirects() {
     return [
       {
-        source: '/api/:path*',
-        headers: [
-          {
-            key: 'Access-Control-Allow-Origin',
-            value: baseUrl,
-          },
-          {
-            key: 'Access-Control-Allow-Methods',
-            value: 'GET, POST, PUT, DELETE, OPTIONS',
-          },
-          {
-            key: 'Access-Control-Allow-Headers',
-            value: 'Content-Type, Authorization',
-          },
-        ],
+        destination: '/',
+        permanent: true,
+        source: '/home',
       },
-      ...(shouldAddNoIndexHeader
-        ? [
-            {
-              source: '/:path*',
-              headers: [
-                {
-                  key: 'X-Robots-Tag',
-                  value: 'noindex, nofollow',
-                },
-              ],
-            },
-          ]
-        : []),
+      {
+        destination: '/settings/profile',
+        permanent: false,
+        source: '/settings',
+      },
+      {
+        destination: '/u/:username/in-progress',
+        permanent: false,
+        source: '/u/:username',
+      },
+      {
+        destination: '/u/:username/finished',
+        permanent: true,
+        source: '/u/:username/watched',
+      },
     ];
   },
   async rewrites() {
     return [
       {
-        source: '/',
         destination: '/home',
+        source: '/',
       },
     ];
   },
-  async redirects() {
-    return [
-      {
-        source: '/home',
-        destination: '/',
-        permanent: true,
-      },
-      {
-        source: '/settings',
-        destination: '/settings/profile',
-        permanent: false,
-      },
-      {
-        source: '/u/:username',
-        destination: '/u/:username/in-progress',
-        permanent: false,
-      },
-      {
-        source: '/u/:username/watched',
-        destination: '/u/:username/finished',
-        permanent: true,
-      },
-    ];
+  serverExternalPackages: ['@opennextjs/aws', 'crypto', 'sst'],
+  transpilePackages: ['@tvseri.es/token', '@tvseri.es/types'],
+  typescript: {
+    ignoreBuildErrors: true,
   },
 } satisfies NextConfig;
 

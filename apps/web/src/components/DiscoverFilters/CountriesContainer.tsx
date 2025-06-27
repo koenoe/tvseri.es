@@ -7,5 +7,5 @@ export default async function DiscoverCountriesContainer({
 }: Readonly<{ className?: string }>) {
   const countries = await fetchCountries();
 
-  return <DiscoverCountries countries={countries} className={className} />;
+  return <DiscoverCountries className={className} countries={countries} />;
 }

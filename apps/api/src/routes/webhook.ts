@@ -5,7 +5,7 @@ import {
   findWebhookToken,
   findWebhookTokenByUserAndType,
 } from '@/lib/db/webhooks';
-import { type Variables, requireAuth } from '@/middleware/auth';
+import { requireAuth, type Variables } from '@/middleware/auth';
 
 const app = new Hono<{ Variables: Variables }>();
 
@@ -17,8 +17,8 @@ app.get('/token/:token', async (c) => {
 app.get('/type/:type{plex|jellyfin|emby}', requireAuth(), async (c) => {
   const { user } = c.get('auth')!;
   const payload = {
-    userId: user.id,
     type: c.req.param('type'),
+    userId: user.id,
   };
 
   let webhookToken = await findWebhookTokenByUserAndType(payload);

@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 
-import { type Props } from './WatchedPerWeek';
+import type { Props } from './WatchedPerWeek';
 
 const WatchedPerWeek = dynamic(() => import('./WatchedPerWeek'), {
   ssr: false,

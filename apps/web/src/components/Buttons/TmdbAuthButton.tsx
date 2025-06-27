@@ -1,8 +1,7 @@
 'use client';
 
-import { useTransition, memo, useCallback } from 'react';
-
 import Image from 'next/image';
+import { memo, useCallback, useTransition } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import { loginWithTmdb } from '@/app/actions';
@@ -29,16 +28,16 @@ const TmdbAuthButton = ({
 
   return (
     <button
-      onClick={handleClick}
       className={twMerge(
         'relative flex h-[10px] w-[66px] items-center justify-start',
         className,
       )}
+      onClick={handleClick}
     >
       {isPending ? (
         <LoadingDots />
       ) : (
-        <Image src={Tmdb} alt="TMDb" width={66} height={10} />
+        <Image alt="TMDb" height={10} src={Tmdb} width={66} />
       )}
     </button>
   );

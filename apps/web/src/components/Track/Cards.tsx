@@ -1,5 +1,7 @@
 'use client';
 
+import type { Season, WatchedItem, WatchProvider } from '@tvseri.es/types';
+import { useSearchParams } from 'next/navigation';
 import {
   memo,
   useCallback,
@@ -7,11 +9,6 @@ import {
   useReducer,
   useTransition,
 } from 'react';
-
-import { type Season } from '@tvseri.es/types';
-import { type WatchProvider } from '@tvseri.es/types';
-import type { WatchedItem } from '@tvseri.es/types';
-import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 
 import SeasonCard from './SeasonCard';
@@ -38,7 +35,6 @@ const reducer = (
 
       return updatedState;
     }
-    case 'update':
     default: {
       const updatedState = [...state];
 
@@ -89,11 +85,11 @@ function TrackForm({
   const updateItems = useCallback(
     ({ type, items }: WatchedAction) => {
       startTransition(async () => {
-        optimisticDispatch({ type, items });
+        optimisticDispatch({ items, type });
 
         try {
           await (type === 'delete' ? deleteAction(items) : saveAction(items));
-          dispatch({ type, items });
+          dispatch({ items, type });
         } catch (_) {
           toast.error('Something went wrong. Please try again.');
         }
@@ -106,16 +102,16 @@ function TrackForm({
     <div className="flex flex-col gap-4">
       {seasons.map((season) => (
         <SeasonCard
+          isExpanded={
+            String(season.seasonNumber) === seasonNumberFromSearchParams
+          }
           key={season.id}
           season={season}
+          updateItems={updateItems}
           watchedItems={optimisticWatchedItems.filter(
             (item) => item.seasonNumber === season.seasonNumber,
           )}
           watchProvider={watchProvider}
-          updateItems={updateItems}
-          isExpanded={
-            String(season.seasonNumber) === seasonNumberFromSearchParams
-          }
         />
       ))}
     </div>

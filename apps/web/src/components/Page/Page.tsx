@@ -4,11 +4,12 @@ import {
   DEFAULT_BACKGROUND_COLOR,
   DEFAULT_BACKGROUND_IMAGE,
 } from '@/constants';
-
-import { PageStoreProvider } from './PageStoreProvider';
-import Background, { type BackgroundContext } from '../Background/Background';
-import { type BackgroundVariant } from '../Background/Background';
+import Background, {
+  type BackgroundContext,
+  type BackgroundVariant,
+} from '../Background/Background';
 import BackgroundGlobal from '../Background/BackgroundGlobal';
+import { PageStoreProvider } from './PageStoreProvider';
 
 export type Props = Readonly<{
   backgroundColor?: string;
@@ -32,14 +33,14 @@ const dotsAndGridStyles = cva(
     '[mask-image:radial-gradient(circle,black,transparent_65%)]',
   ],
   {
+    defaultVariants: {
+      context: 'dots',
+    },
     variants: {
       context: {
         dots: ['bg-dot-white/[0.2]'],
         grid: ['bg-grid-white/[0.2]'],
       },
-    },
-    defaultVariants: {
-      context: 'dots',
     },
   },
 );
@@ -61,10 +62,10 @@ export default function Page({
 
     return (
       <Background
-        variant={backgroundVariant}
-        context={backgroundContext}
         color={backgroundColor}
+        context={backgroundContext}
         image={backgroundImage}
+        variant={backgroundVariant}
       />
     );
   };
@@ -72,7 +73,7 @@ export default function Page({
   const content = () => {
     return (
       <>
-        <BackgroundGlobal variant={backgroundVariant} color={backgroundColor} />
+        <BackgroundGlobal color={backgroundColor} variant={backgroundVariant} />
         <main
           className="grow scroll-mt-[6rem] pb-10 pt-[6rem] transition-colors duration-500 md:scroll-mt-[8rem] md:pb-16 md:pt-[8rem]"
           style={{

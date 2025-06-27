@@ -1,10 +1,9 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 
-import dynamic from 'next/dynamic';
-
-import { type Props } from './Datepicker';
+import type { Props } from './Datepicker';
 
 const Datepicker = dynamic(() => import('./Datepicker'), {
   ssr: false,

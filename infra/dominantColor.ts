@@ -4,11 +4,7 @@ export const dominantColor = new sst.aws.Function('DominantColor', {
   architecture: 'arm64',
   handler: 'apps/api/src/lambdas/dominantColor.handler',
   memory: '512 MB',
-  runtime: 'nodejs22.x',
-  timeout: '30 seconds',
   nodejs: {
-    install: ['sharp'],
-    minify: true,
     esbuild: {
       external: [
         '@aws-sdk/client-cloudfront',
@@ -20,5 +16,9 @@ export const dominantColor = new sst.aws.Function('DominantColor', {
         'sharp',
       ],
     },
+    install: ['sharp'],
+    minify: true,
   },
+  runtime: 'nodejs22.x',
+  timeout: '30 seconds',
 });

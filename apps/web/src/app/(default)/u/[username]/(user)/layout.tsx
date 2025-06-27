@@ -1,4 +1,4 @@
-import { Suspense, type ReactNode } from 'react';
+import { type ReactNode, Suspense } from 'react';
 
 import UserButtons from '@/components/Buttons/UserButtons';
 import Page from '@/components/Page/Page';
@@ -30,28 +30,28 @@ export default async function Layout({
     //   href: `/u/${username}`,
     // },
     {
-      label: 'In progress',
       href: `/u/${username}/in-progress`,
+      label: 'In progress',
     },
     {
-      label: 'Finished',
       href: `/u/${username}/finished`,
+      label: 'Finished',
     },
     {
-      label: 'Watchlist',
       href: `/u/${username}/watchlist`,
+      label: 'Watchlist',
     },
     {
-      label: 'Favorites',
       href: `/u/${username}/favorites`,
+      label: 'Favorites',
     },
     {
-      label: 'Social',
       href: `/u/${username}/social`,
+      label: 'Social',
     },
     {
-      label: 'Stats',
       href: `/u/${username}/stats/${year}`,
+      label: 'Stats',
     },
   ] as const;
 
@@ -104,7 +104,7 @@ export default async function Layout({
           </Suspense>
         </div>
         <div className="relative mb-10 w-full">
-          <Pills items={menuItems} layoutId="profile" className="w-full" />
+          <Pills className="w-full" items={menuItems} layoutId="profile" />
         </div>
         {children}
       </div>

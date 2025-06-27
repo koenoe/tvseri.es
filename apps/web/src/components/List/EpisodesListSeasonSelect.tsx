@@ -1,10 +1,9 @@
 'use client';
 
-import { memo, useMemo, useRef, useState } from 'react';
-
-import { type TvSeries } from '@tvseri.es/types';
+import type { TvSeries } from '@tvseri.es/types';
 import { AnimatePresence, motion } from 'motion/react';
 import { useSearchParams } from 'next/navigation';
+import { memo, useMemo, useRef, useState } from 'react';
 
 import DropdownContainer from '../Dropdown/DropdownContainer';
 
@@ -25,25 +24,25 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
   return (
     <div className="relative z-10">
       <div
-        ref={ref}
         className="flex cursor-pointer items-center gap-3 text-2xl font-medium"
         onClick={() => {
           setIsOpen((prev) => !prev);
         }}
+        ref={ref}
       >
         <span>{selectedSeason?.title}</span>
         <motion.svg
-          className="h-6 w-6"
-          viewBox="0 0 20 20"
-          fill="currentColor"
           animate={{
             rotate: isOpen ? 180 : 0,
           }}
+          className="h-6 w-6"
+          fill="currentColor"
+          viewBox="0 0 20 20"
         >
           <path
-            fillRule="evenodd"
-            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
             clipRule="evenodd"
+            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+            fillRule="evenodd"
           ></path>
         </motion.svg>
       </div>
@@ -51,18 +50,18 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
         {isOpen && (
           <DropdownContainer
             key="select-season"
-            triggerRef={ref}
-            position={{ x: 'start', y: 'end' }}
             offset={{ x: 0, y: 16 }}
             onOutsideClick={() => {
               setIsOpen(false);
             }}
+            position={{ x: 'start', y: 'end' }}
+            triggerRef={ref}
           >
             <div className="relative flex w-full flex-col gap-2 rounded-lg bg-white p-4 text-black shadow-lg">
               {item.seasons?.map((item) => (
                 <button
-                  key={item.id}
                   className="text-nowrap p-2 text-left text-sm hover:underline"
+                  key={item.id}
                   onClick={() => {
                     const params = new URLSearchParams(searchParams.toString());
                     params.set('season', item.seasonNumber.toString());

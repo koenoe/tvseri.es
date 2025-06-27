@@ -3,9 +3,9 @@ import {
   DynamoDBClient,
   ScanCommand,
 } from '@aws-sdk/client-dynamodb';
-import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
+import { SendMessageBatchCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
-import { type User } from '@tvseri.es/types';
+import type { User } from '@tvseri.es/types';
 import { Resource } from 'sst';
 
 const dynamo = new DynamoDBClient({});
@@ -18,16 +18,16 @@ export const handler = async () => {
   try {
     do {
       const command = new ScanCommand({
-        TableName: Resource.Users.name,
-        ProjectionExpression: '#id, #email, #name, #username',
+        ExclusiveStartKey: lastEvaluatedKey,
         ExpressionAttributeNames: {
-          '#id': 'id',
           '#email': 'email',
+          '#id': 'id',
           '#name': 'name',
           '#username': 'username',
         },
         Limit: 1000,
-        ExclusiveStartKey: lastEvaluatedKey,
+        ProjectionExpression: '#id, #email, #name, #username',
+        TableName: Resource.Users.name,
       });
 
       const result = await dynamo.send(command);
@@ -38,11 +38,11 @@ export const handler = async () => {
 
           await sqs.send(
             new SendMessageBatchCommand({
-              QueueUrl: Resource.ValidateWatchedStatusQueue.url,
               Entries: batch.map((item, index) => ({
                 Id: `${index}`,
                 MessageBody: JSON.stringify(unmarshall(item) as User),
               })),
+              QueueUrl: Resource.ValidateWatchedStatusQueue.url,
             }),
           );
 
@@ -58,8 +58,8 @@ export const handler = async () => {
     );
 
     return {
-      statusCode: 200,
       body: JSON.stringify({ queuedCount }),
+      statusCode: 200,
     };
   } catch (error) {
     console.error(
@@ -68,10 +68,10 @@ export const handler = async () => {
     );
 
     return {
-      statusCode: 500,
       body: JSON.stringify({
         error: error instanceof Error ? error.message : 'Unknown error',
       }),
+      statusCode: 500,
     };
   }
 };

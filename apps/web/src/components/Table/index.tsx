@@ -1,11 +1,10 @@
+import { cx } from 'class-variance-authority';
 import {
   forwardRef,
   type HTMLAttributes,
-  type ThHTMLAttributes,
   type TdHTMLAttributes,
+  type ThHTMLAttributes,
 } from 'react';
-
-import { cx } from 'class-variance-authority';
 
 const Table = forwardRef<HTMLTableElement, HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
@@ -16,8 +15,8 @@ const Table = forwardRef<HTMLTableElement, HTMLAttributes<HTMLTableElement>>(
       )}
     >
       <table
-        ref={ref}
         className="w-full caption-bottom text-sm [&>tbody>tr:hover]:bg-neutral-800 [&>tbody>tr]:bg-neutral-900"
+        ref={ref}
         {...props}
       />
     </div>
@@ -30,8 +29,8 @@ const TableHeader = forwardRef<
   HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
   <thead
-    ref={ref}
     className={cx('bg-neutral-800 [&_tr]:border-b', className)}
+    ref={ref}
     {...props}
   />
 ));
@@ -42,8 +41,8 @@ const TableBody = forwardRef<
   HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
   <tbody
-    ref={ref}
     className={cx('[&_tr:last-child]:border-0', className)}
+    ref={ref}
     {...props}
   />
 ));
@@ -54,8 +53,8 @@ const TableFooter = forwardRef<
   HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
   <tfoot
-    ref={ref}
     className={cx('border-t font-medium [&>tr]:last:border-b-0', className)}
+    ref={ref}
     {...props}
   />
 ));
@@ -66,8 +65,8 @@ const TableRow = forwardRef<
   HTMLAttributes<HTMLTableRowElement>
 >(({ className, ...props }, ref) => (
   <tr
-    ref={ref}
     className={cx('border-b transition-colors', className)}
+    ref={ref}
     {...props}
   />
 ));
@@ -78,11 +77,11 @@ const TableHead = forwardRef<
   ThHTMLAttributes<HTMLTableCellElement>
 >(({ className, ...props }, ref) => (
   <th
-    ref={ref}
     className={cx(
       'whitespace-nowrap border-r p-3 text-left align-middle font-medium last:border-r-0 [&:has([role=checkbox])]:pr-0',
       className,
     )}
+    ref={ref}
     {...props}
   />
 ));
@@ -93,11 +92,11 @@ const TableCell = forwardRef<
   TdHTMLAttributes<HTMLTableCellElement>
 >(({ className, ...props }, ref) => (
   <td
-    ref={ref}
     className={cx(
       'border-r p-3 align-middle last:border-r-0 [&:has([role=checkbox])]:pr-0',
       className,
     )}
+    ref={ref}
     {...props}
   />
 ));
@@ -107,7 +106,7 @@ const TableCaption = forwardRef<
   HTMLTableCaptionElement,
   HTMLAttributes<HTMLTableCaptionElement>
 >(({ className, ...props }, ref) => (
-  <caption ref={ref} className={cx('mt-4 text-sm', className)} {...props} />
+  <caption className={cx('mt-4 text-sm', className)} ref={ref} {...props} />
 ));
 TableCaption.displayName = 'TableCaption';
 

@@ -2,9 +2,9 @@
 
 import {
   createContext,
+  type PropsWithChildren,
   useContext,
   useState,
-  type PropsWithChildren,
 } from 'react';
 
 type State = Readonly<{

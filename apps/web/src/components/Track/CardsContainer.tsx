@@ -1,7 +1,10 @@
-import { type Season, type TvSeries } from '@tvseri.es/types';
-import { type User } from '@tvseri.es/types';
-import { type WatchProvider } from '@tvseri.es/types';
-import type { WatchedItem } from '@tvseri.es/types';
+import type {
+  Season,
+  TvSeries,
+  User,
+  WatchedItem,
+  WatchProvider,
+} from '@tvseri.es/types';
 import { headers } from 'next/headers';
 
 import { cachedTvSeriesSeason } from '@/app/cached';
@@ -43,8 +46,8 @@ export default async function CardsContainer({
 
   const [watchedItems, seasons, watchProvider] = await Promise.all([
     getAllWatchedForTvSeries({
-      userId: user.id,
       seriesId: tvSeries.id,
+      userId: user.id,
     }),
     fetchAllSeasons(tvSeries),
     fetchTvSeriesWatchProvider(tvSeries.id, region),
@@ -84,15 +87,15 @@ export default async function CardsContainer({
           seasonNumber: item.seasonNumber!,
           tvSeries,
           userId: user.id,
+          watchedAt: item.watchedAt!,
           watchProvider: hasWatchProvider
             ? ({
                 id: 0,
-                name: item.watchProviderName || watchProvider?.name,
                 logo: item.watchProviderLogoImage || watchProvider?.logo,
                 logoPath: item.watchProviderLogoPath || watchProvider?.logoPath,
+                name: item.watchProviderName || watchProvider?.name,
               } as WatchProvider)
             : null,
-          watchedAt: item.watchedAt!,
         };
       });
 
@@ -109,11 +112,11 @@ export default async function CardsContainer({
 
   return (
     <Cards
+      deleteAction={deleteWatchedItems}
+      saveAction={saveWatchedItems}
       seasons={seasons}
       watchedItems={watchedItems}
       watchProvider={watchProvider}
-      saveAction={saveWatchedItems}
-      deleteAction={deleteWatchedItems}
     />
   );
 }

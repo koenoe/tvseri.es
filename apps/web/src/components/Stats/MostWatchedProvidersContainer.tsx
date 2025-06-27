@@ -55,17 +55,15 @@ const getStreamingServiceStats = async (
       }
     } else {
       serviceMap.set(serviceName, {
-        series: new Set([item.seriesId]),
         logo: item.watchProviderLogoImage,
+        series: new Set([item.seriesId]),
       });
     }
   });
 
   const statsPromises = [...serviceMap.entries()].map(
     async ([name, { series, logo }]) => ({
-      name,
       count: series.size,
-      logo,
       defaultColor:
         PREDEFINED_COLORS[name] ||
         (logo
@@ -73,6 +71,8 @@ const getStreamingServiceStats = async (
               url: logo,
             })
           : '#000000'),
+      logo,
+      name,
     }),
   );
 

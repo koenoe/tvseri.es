@@ -42,8 +42,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Linting
-        run: pnpm lint
+      - name: Format and lint
+        run: pnpm format-and-lint
 
       - name: Check types
         run: pnpm check-types

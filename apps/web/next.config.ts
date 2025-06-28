@@ -27,6 +27,7 @@ const nextConfig = {
       'use-debounce',
       'zustand',
     ],
+    ppr: false,
     staleTimes: {
       dynamic: 0,
       static: 0,

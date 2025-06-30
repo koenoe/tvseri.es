@@ -20,7 +20,7 @@
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/aws-lambda": "^8.10.150",
     "@types/color": "^4.2.0",
-    "@types/node": "^22.15.30",
+    "@types/node": "^24.0.7",
     "sharp": "^0.34.2",
     "typescript": "^5.8.3"
   },

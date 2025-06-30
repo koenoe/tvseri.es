@@ -35,7 +35,7 @@ new sst.aws.Nextjs('tvseries', {
   path: 'apps/web',
   server: {
     architecture: 'arm64',
-    memory: '2048 MB',
+    memory: '2582 MB',
     runtime: 'nodejs22.x',
   },
   transform: {

@@ -28,7 +28,6 @@ new sst.aws.Nextjs('tvseries', {
     SITE_URL: `https://${domain}`,
   },
   imageOptimization: {
-    memory: '512 MB',
     staticEtag: true,
   },
   link: [secrets.apiKey, secrets.secretKey],
@@ -36,7 +35,7 @@ new sst.aws.Nextjs('tvseries', {
   path: 'apps/web',
   server: {
     architecture: 'arm64',
-    memory: '1 GB',
+    memory: '3008 MB',
     runtime: 'nodejs22.x',
   },
   transform: {

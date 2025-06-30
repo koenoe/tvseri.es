@@ -14,6 +14,8 @@ try {
   openNextVersion = undefined;
 }
 
+const defaultRegion = $app.providers?.aws.region ?? 'eu-west-2';
+
 new sst.aws.Nextjs('tvseries', {
   domain: {
     dns: sst.aws.dns({
@@ -33,6 +35,7 @@ new sst.aws.Nextjs('tvseries', {
   link: [secrets.apiKey, secrets.secretKey],
   openNextVersion,
   path: 'apps/web',
+  regions: [defaultRegion, 'us-east-1'],
   server: {
     architecture: 'arm64',
     memory: '2582 MB',
@@ -46,7 +49,7 @@ new sst.aws.Nextjs('tvseries', {
         ...origin,
         originShield: {
           enabled: true,
-          originShieldRegion: $app.providers?.aws.region ?? 'eu-west-2',
+          originShieldRegion: defaultRegion,
         },
       }));
     },

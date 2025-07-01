@@ -26,13 +26,12 @@ import type {
   WatchProvider,
   WebhookToken,
 } from '@tvseri.es/types';
-import { Resource } from 'sst';
 
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
 
 import nextPlugin from '../betterFetchNextPlugin';
 
-const apiKey = Resource.ApiKey.value;
+const apiKey = process.env.API_KEY!;
 
 if (!apiKey) {
   throw new Error('No "API_KEY" found');

@@ -1,4 +1,5 @@
 import type { RetryOptions } from '@better-fetch/fetch';
+import { Resource } from 'sst';
 
 export const WATCH_PROVIDER_PREDEFINED_COLOR: Record<string, string> = {
   'Amazon Prime Video': '#00A8E1',
@@ -25,3 +26,5 @@ export const DEFAULT_FETCH_RETRY_OPTIONS = {
   maxDelay: 2000, // Start with 250ms delay
   type: 'exponential', // Cap at 2 seconds
 } as RetryOptions;
+
+export const SECRET_KEY = Resource.SecretKey.value;

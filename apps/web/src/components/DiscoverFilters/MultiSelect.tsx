@@ -204,6 +204,7 @@ function MultiSelect({
     return filteredResults;
   }, [fetchResults, inputValue, results, selectedResults]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: yeah whatever
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const valuesFromSelectedResults = selectedResults.map((results) =>
@@ -227,11 +228,12 @@ function MultiSelect({
       params.delete(searchParamKey);
     }
     router.replace(`?${params.toString()}`, { scroll: false });
-  }, [selectedResults, router.replace, searchParamKey, searchParamSeparator]);
+  }, [selectedResults]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: yeah whatever
   useEffect(() => {
     reposition({ forceOpen: false });
-  }, [reposition]);
+  }, [selectedResults]);
 
   useEffect(() => {
     return () => {

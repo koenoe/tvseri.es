@@ -1,5 +1,6 @@
 import type { RetryOptions } from '@better-fetch/fetch';
 
+// TODO: abstract into one place
 export const WATCH_PROVIDER_PREDEFINED_COLOR: Record<string, string> = {
   'Amazon Prime Video': '#00A8E1',
   'BBC iPlayer': '#FF4E98',

@@ -1,5 +1,7 @@
+import type { WatchProvider } from '@tvseri.es/types';
 import { Hono } from 'hono';
-
+import { WATCH_PROVIDER_PREDEFINED_COLOR } from '@/constants';
+import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
 import {
   fetchCountries,
   fetchDiscoverTvSeries,
@@ -8,6 +10,27 @@ import {
 } from '@/lib/tmdb';
 
 const app = new Hono();
+
+const enrichWatchProvidersWithColors = async (
+  watchProviders: WatchProvider[],
+) => {
+  const enrichedProviders = await Promise.all(
+    watchProviders.map(async (provider) => {
+      return {
+        ...provider,
+        color:
+          WATCH_PROVIDER_PREDEFINED_COLOR[provider.name] ||
+          (provider.logo
+            ? await detectDominantColorFromImage(
+                provider.logo,
+                provider.logoPath,
+              )
+            : '#000000'),
+      };
+    }),
+  );
+  return enrichedProviders;
+};
 
 app.get('/', async (c) => {
   const searchParams = c.req.query();
@@ -59,6 +82,12 @@ app.get('/watch-providers', async (c) => {
     'Cache-Control',
     'public, max-age=604800, s-maxage=604800, stale-while-revalidate=3600',
   ); // 1w, allow stale for 1h
+
+  if (c.req.query('include_colors') === 'true') {
+    const enrichedWatchProviders =
+      await enrichWatchProvidersWithColors(watchProviders);
+    return c.json(enrichedWatchProviders);
+  }
 
   return c.json(watchProviders);
 });

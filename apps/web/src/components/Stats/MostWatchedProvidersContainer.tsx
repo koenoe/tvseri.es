@@ -1,6 +1,6 @@
+import { headers } from 'next/headers';
 import { cachedWatchedByYear } from '@/app/cached';
-import { detectDominantColorFromImage } from '@/lib/api';
-
+import { fetchWatchProviders } from '@/lib/api';
 import MostWatchedProviders from './MostWatchedProvidersLazy';
 
 type StreamingServiceStat = {
@@ -15,70 +15,48 @@ type Input = Readonly<{
   year: number | string;
 }>;
 
-const PREDEFINED_COLORS: Record<string, string> = {
-  'Amazon Prime Video': '#00A8E1',
-  'BBC iPlayer': '#FF4E98',
-  'Disney+': '#0E47BA',
-  Max: '#0046FF',
-  Netflix: '#E50914',
-  Unknown: '#000000',
-};
-
 const getStreamingServiceStats = async (
   input: Input,
 ): Promise<StreamingServiceStat[]> => {
-  const watchedItems = await cachedWatchedByYear({
-    userId: input.userId,
-    year: input.year,
-  });
+  const region = (await headers()).get('cloudfront-viewer-country') || 'US';
+  const [watchedItems, watchProviders] = await Promise.all([
+    cachedWatchedByYear({
+      userId: input.userId,
+      year: input.year,
+    }),
+    fetchWatchProviders(region, {
+      includeColors: true,
+    }),
+  ]);
 
-  const serviceMap = new Map<
-    string,
-    {
-      series: Set<number>;
-      logo?: string | null;
-    }
-  >();
+  // Create a map to track unique series per provider
+  const serviceMap = watchedItems.reduce((map, item) => {
+    if (!item.watchProviderName) return map;
 
-  watchedItems.forEach((item) => {
-    if (!item.watchProviderName) {
-      return;
-    }
-
-    const serviceName = item.watchProviderName;
-    const existing = serviceMap.get(serviceName);
-
+    const existing = map.get(item.watchProviderName);
     if (existing) {
       existing.series.add(item.seriesId);
-      if (!existing.logo && item.watchProviderLogoImage) {
-        existing.logo = item.watchProviderLogoImage;
-      }
+      existing.logo ||= item.watchProviderLogoImage;
     } else {
-      serviceMap.set(serviceName, {
+      map.set(item.watchProviderName, {
         logo: item.watchProviderLogoImage,
         series: new Set([item.seriesId]),
       });
     }
-  });
+    return map;
+  }, new Map<string, { series: Set<number>; logo?: string | null }>());
 
-  const statsPromises = [...serviceMap.entries()].map(
-    async ([name, { series, logo }]) => ({
+  // Convert the map to an array of stats
+  return [...serviceMap.entries()]
+    .map(([name, { series, logo }]) => ({
       count: series.size,
       defaultColor:
-        PREDEFINED_COLORS[name] ||
-        (logo
-          ? await detectDominantColorFromImage({
-              url: logo,
-            })
-          : '#000000'),
+        watchProviders.find((provider) => provider.name === name)?.color ||
+        '#000000',
       logo,
       name,
-    }),
-  );
-
-  const stats = await Promise.all(statsPromises);
-
-  return stats.sort((a, b) => b.count - a.count);
+    }))
+    .sort((a, b) => b.count - a.count);
 };
 
 const cachedStreamingServiceStats = async (input: Input) => {
@@ -93,15 +71,6 @@ export default async function MostWatchedProvidersContainer({
   userId: string;
   year: number | string;
 }>) {
-  // const region = (await headers()).get('cloudfront-viewer-country') || 'US';
-  // const [watchedItems, watchProviders] = await Promise.all([
-  //   cachedWatchedByYear({
-  //     userId,
-  //     year,
-  //   }),
-  //   fetchWatchProviders(region),
-  // ]);
   const data = await cachedStreamingServiceStats({ userId, year });
-
   return <MostWatchedProviders data={data} />;
 }

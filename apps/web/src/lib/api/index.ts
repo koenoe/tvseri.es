@@ -348,9 +348,13 @@ export async function fetchLanguages() {
   return languages;
 }
 
-export async function fetchWatchProviders(region?: string) {
+export async function fetchWatchProviders(
+  region?: string,
+  options: Readonly<{ includeColors?: boolean }> = { includeColors: false },
+) {
   const watchProviders = (await apiFetch('/discover/watch-providers', {
     query: {
+      include_colors: options.includeColors,
       region,
     },
   })) as WatchProvider[];

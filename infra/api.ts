@@ -7,6 +7,8 @@ import { email } from './email';
 import { scrobbleQueue } from './scrobbleQueue';
 import * as secrets from './secrets';
 
+const defaultRegion = $app.providers?.aws.region ?? 'eu-west-2';
+
 export const apiRouter = new sst.aws.Router('ApiRouter', {
   domain: {
     dns: sst.aws.dns({
@@ -39,7 +41,7 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
         ...origin,
         originShield: {
           enabled: true,
-          originShieldRegion: $app.providers?.aws.region ?? 'eu-west-2',
+          originShieldRegion: defaultRegion,
         },
       }));
     },
@@ -71,7 +73,7 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
     secrets.tmdbApiKey,
     secrets.secretKey,
   ],
-  memory: '1 GB',
+  memory: '2048 MB',
   nodejs: {
     esbuild: {
       external: [

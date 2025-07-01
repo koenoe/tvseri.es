@@ -25,7 +25,6 @@ watchedStatusQueue.subscribe(
       secrets.tmdbApiAccessToken,
       secrets.tmdbApiKey,
     ],
-    memory: '512 MB',
     nodejs: {
       esbuild: {
         external: [

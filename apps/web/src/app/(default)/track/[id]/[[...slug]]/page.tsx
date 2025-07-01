@@ -36,9 +36,9 @@ export default async function TrackPage({ params: paramsFromProps }: Props) {
 
   return (
     <>
-      <div className="flex gap-10">
+      <div className="flex gap-6 md:gap-10">
         <Poster
-          className="hidden flex-shrink-0 md:block"
+          className="flex-shrink-0 w-[75px] h-[113px]"
           item={tvSeries}
           size="small"
         />

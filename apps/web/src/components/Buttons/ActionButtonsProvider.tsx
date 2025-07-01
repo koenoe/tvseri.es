@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  memo,
   type PropsWithChildren,
   useContext,
   useState,
@@ -16,11 +17,11 @@ const ActionButtonsContext = createContext<
   [State, (action: State | ((prevState: State) => State)) => void] | null
 >(null);
 
-export const ActionButtonsProvider = ({
+function ActionButtonsProvider({
   children,
   isFavorited,
   isWatchlisted,
-}: PropsWithChildren & State) => {
+}: PropsWithChildren & State) {
   const state = useState<State>({
     isFavorited,
     isWatchlisted,
@@ -31,9 +32,9 @@ export const ActionButtonsProvider = ({
       {children}
     </ActionButtonsContext.Provider>
   );
-};
+}
 
-export const useActionButtons = () => {
+export function useActionButtons() {
   const context = useContext(ActionButtonsContext);
 
   if (!context) {
@@ -43,6 +44,6 @@ export const useActionButtons = () => {
   }
 
   return context;
-};
+}
 
-export default ActionButtonsProvider;
+export default memo(ActionButtonsProvider);

@@ -454,9 +454,25 @@ export async function fetchTvSeriesSeason(
   const numberOfEpisodes = episodes.length;
   const numberOfAiredEpisodes =
     episodes.filter((episode) => episode.hasAired).length ?? numberOfEpisodes;
-  const airDate = response.air_date
-    ? new Date(response.air_date).toISOString()
-    : '';
+
+  let airDate = '';
+  if (response.air_date) {
+    airDate = new Date(response.air_date).toISOString();
+  } else {
+    // If season air_date is null, find the earliest aired episode's date
+    const airedEpisodesWithDates = episodes.filter(
+      (episode) => episode.hasAired && episode.airDate,
+    );
+    if (airedEpisodesWithDates.length > 0) {
+      const earliestEpisode = airedEpisodesWithDates.reduce(
+        (earliest, current) =>
+          new Date(current.airDate) < new Date(earliest.airDate)
+            ? current
+            : earliest,
+      );
+      airDate = earliestEpisode.airDate;
+    }
+  }
 
   return {
     airDate,

@@ -57,7 +57,7 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
             position={{ x: 'start', y: 'end' }}
             triggerRef={ref}
           >
-            <div className="relative flex w-full flex-col gap-2 rounded-lg bg-white p-4 text-black shadow-lg">
+            <div className="relative flex w-full flex-col gap-2 rounded-lg bg-white p-4 text-black shadow-lg max-h-[500px] overflow-y-auto">
               {item.seasons?.map((item) => (
                 <button
                   className="text-nowrap p-2 text-left text-sm hover:underline"

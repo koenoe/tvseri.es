@@ -1,12 +1,12 @@
 'use client';
 
 import type { ListItem } from '@tvseri.es/types';
-import { cva, cx, type VariantProps } from 'class-variance-authority';
+import { cva, type VariantProps } from 'class-variance-authority';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { memo, useCallback } from 'react';
-
+import { twMerge } from 'tailwind-merge';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 const MotionLink = motion.create(Link);
@@ -97,7 +97,11 @@ function Poster({
     return (
       <motion.div
         animate={{ scale: 1 }}
-        className={cx(posterStyles({ size }), 'cursor-not-allowed', className)}
+        className={twMerge(
+          posterStyles({ size }),
+          'cursor-not-allowed',
+          className,
+        )}
         draggable={false}
         key={item.id}
         layout
@@ -111,7 +115,7 @@ function Poster({
   return (
     <MotionLink
       animate={{ scale: 1 }}
-      className={cx(posterStyles({ size }), className)}
+      className={twMerge(posterStyles({ size }), className)}
       draggable={false}
       href={{
         pathname: `/tv/${item.id}/${item.slug}`,

@@ -39,6 +39,7 @@ export const PageStoreProvider = ({
     );
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: wablief
   useEffect(() => {
     const store = storeRef.current;
     if (!store) {
@@ -67,7 +68,7 @@ export const PageStoreProvider = ({
         );
       }
     };
-  }, [persistent]);
+  }, []);
 
   return (
     <PageStoreContext.Provider value={storeRef.current}>

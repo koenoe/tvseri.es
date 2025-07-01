@@ -154,6 +154,7 @@ function Carousel({
     currentIndexRef.current = currentIndex;
   }, [currentIndex]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: bitch please
   useEffect(() => {
     const cacheKey = `${restoreKey}:${getHistoryKey()}`;
     const cachedCurrentIndex = sessionStorage.getItem(cacheKey);
@@ -173,7 +174,7 @@ function Carousel({
         sessionStorage.setItem(cacheKey, currentIndexRef.current.toString());
       }
     };
-  }, [calculateNewX, restoreKey, x.set]);
+  }, []);
 
   return (
     <div className={cx('container relative', className)}>

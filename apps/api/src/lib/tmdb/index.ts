@@ -249,13 +249,13 @@ export async function fetchTvSeries(
   }
 
   if (normalizedTvSeries.backdropImage) {
-    const backdropColor = await detectDominantColorFromImage(
-      normalizedTvSeries.backdropImage.replace(
+    const backdropColor = await detectDominantColorFromImage({
+      cacheKey: normalizedTvSeries.backdropPath!,
+      url: normalizedTvSeries.backdropImage.replace(
         'w1920_and_h1080_multi_faces',
         'w780',
       ),
-      normalizedTvSeries.backdropPath!,
-    );
+    });
 
     return {
       ...normalizedTvSeries,

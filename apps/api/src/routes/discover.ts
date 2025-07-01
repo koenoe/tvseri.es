@@ -21,10 +21,10 @@ const enrichWatchProvidersWithColors = async (
         color:
           WATCH_PROVIDER_PREDEFINED_COLOR[provider.name] ||
           (provider.logo
-            ? await detectDominantColorFromImage(
-                provider.logo,
-                provider.logoPath,
-              )
+            ? await detectDominantColorFromImage({
+                cacheKey: provider.logoPath,
+                url: provider.logo,
+              })
             : '#000000'),
       };
     }),

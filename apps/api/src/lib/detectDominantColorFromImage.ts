@@ -23,11 +23,14 @@ async function detectDominantColorFromImage(url: string): Promise<string> {
   return result.color;
 }
 
-const detectDominantColorFromImageWithCache = async (
-  url: string,
-  cacheKey?: string,
-) => {
-  const key = `${CACHE_PREFIX}${cacheKey || url}`;
+const detectDominantColorFromImageWithCache = async ({
+  url,
+  cacheKey,
+}: Readonly<{
+  url: string;
+  cacheKey: string;
+}>) => {
+  const key = `${CACHE_PREFIX}${cacheKey}`;
   const cachedValue = await getCacheItem<string>(key);
   if (cachedValue) {
     return cachedValue;
@@ -38,7 +41,7 @@ const detectDominantColorFromImageWithCache = async (
     await setCacheItem<string>(key, dominantColor, { ttl: null });
     return dominantColor;
   } catch (_error) {
-    return '#000000';
+    return '#000000'; // Default to black if there's an error
   }
 };
 

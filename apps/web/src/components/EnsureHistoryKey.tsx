@@ -4,8 +4,9 @@ import { usePathname } from 'next/navigation';
 import { useInsertionEffect } from 'react';
 
 export default function EnsureHistoryKey() {
-  const _pathname = usePathname();
+  const pathname = usePathname();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: yeah right
   useInsertionEffect(() => {
     if (!window.history.state || !window.history.state.key) {
       window.history.replaceState(
@@ -13,7 +14,7 @@ export default function EnsureHistoryKey() {
         '',
       );
     }
-  }, []);
+  }, [pathname]);
 
   return null;
 }

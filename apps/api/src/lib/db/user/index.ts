@@ -5,7 +5,7 @@ import {
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import type { CreateUser, User } from '@tvseri.es/types';
+import type { CreateUser, User, WatchProvider } from '@tvseri.es/types';
 import slugify from 'slugify';
 import { Resource } from 'sst';
 import { ulid } from 'ulid';
@@ -70,6 +70,7 @@ export const findUser = async (
     tmdbUsername,
     username,
     version,
+    watchProviders,
   } = user;
 
   return {
@@ -84,6 +85,7 @@ export const findUser = async (
     updatedAt,
     username,
     version,
+    watchProviders,
   };
 };
 
@@ -191,8 +193,14 @@ export const updateUser = async (
     email?: string;
     username?: string;
     name?: string;
+    watchProviders?: WatchProvider[];
   }> &
-    ({ email: string } | { username: string } | { name: string }),
+    (
+      | { email: string }
+      | { username: string }
+      | { name: string }
+      | { watchProviders: WatchProvider[] }
+    ),
 ): Promise<User> => {
   if (updates.email) {
     const existingUser = await findUser({ email: updates.email });
@@ -210,7 +218,7 @@ export const updateUser = async (
 
   const updateExpressions: string[] = [];
   const expressionAttributeNames: Record<string, string> = {};
-  const values: Record<string, string | number> = {};
+  const values: Record<string, string | number | WatchProvider[]> = {};
 
   const now = new Date().toISOString();
   values[':updatedAt'] = now;
@@ -235,6 +243,11 @@ export const updateUser = async (
     values[':name'] = updates.name;
     expressionAttributeNames['#fullName'] = 'name';
     updateExpressions.push('#fullName = :name');
+  }
+
+  if (updates.watchProviders) {
+    values[':watchProviders'] = updates.watchProviders;
+    updateExpressions.push('watchProviders = :watchProviders');
   }
 
   try {

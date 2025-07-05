@@ -1,5 +1,9 @@
 import { vValidator } from '@hono/valibot-validator';
-import { AddTmdbToUserSchema, UpdateUserSchema } from '@tvseri.es/types';
+import {
+  AddTmdbToUserSchema,
+  UpdateUserSchema,
+  UpdateWatchProvidersForUserSchema,
+} from '@tvseri.es/types';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
@@ -128,5 +132,17 @@ app.delete('/tmdb', async (c) => {
 
   return c.json({ message: 'OK' });
 });
+
+app.put(
+  '/watch-providers',
+  vValidator('json', UpdateWatchProvidersForUserSchema),
+  async (c) => {
+    const { user } = c.get('auth')!;
+    const body = c.req.valid('json');
+
+    const updatedUser = await updateUser(user, body);
+    return c.json(updatedUser);
+  },
+);
 
 export default app;

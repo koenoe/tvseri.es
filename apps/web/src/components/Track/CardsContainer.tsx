@@ -50,7 +50,7 @@ export default async function CardsContainer({
       userId: user.id,
     }),
     fetchAllSeasons(tvSeries),
-    fetchTvSeriesWatchProvider(tvSeries.id, region),
+    fetchTvSeriesWatchProvider(tvSeries.id, region, sessionId),
   ]);
 
   async function deleteWatchedItems(items: Partial<WatchedItem>[]) {

@@ -1,7 +1,7 @@
 import { cx } from 'class-variance-authority';
 import { headers } from 'next/headers';
 import Image from 'next/image';
-
+import auth from '@/auth';
 import { fetchTvSeriesWatchProvider } from '@/lib/api';
 
 export default async function WatchProvider({
@@ -11,9 +11,16 @@ export default async function WatchProvider({
   className?: string;
   id: number;
 }) {
-  const headerStore = await headers();
+  const [headerStore, { encryptedSessionId }] = await Promise.all([
+    headers(),
+    auth(),
+  ]);
   const region = headerStore.get('cloudfront-viewer-country') || 'US';
-  const provider = await fetchTvSeriesWatchProvider(id, region);
+  const provider = await fetchTvSeriesWatchProvider(
+    id,
+    region,
+    encryptedSessionId ?? undefined,
+  );
 
   return provider ? (
     <div

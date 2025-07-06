@@ -62,6 +62,10 @@ export const auth = (): MiddlewareHandler<{ Variables: Variables }> => {
       });
     }
 
+    // Note: prevent caching issues with CDN
+    // by varying the response based on the Authorization header
+    c.header('Vary', 'Authorization');
+
     await next();
   };
 };

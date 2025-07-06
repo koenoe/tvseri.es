@@ -11,9 +11,9 @@ import {
   fetchTvSeriesRecommendations,
   fetchTvSeriesSeason,
   fetchTvSeriesSimilar,
-  fetchTvSeriesWatchProvider,
   fetchTvSeriesWatchProviders,
 } from '@/lib/tmdb';
+import { auth } from '@/middleware/auth';
 
 const app = new Hono();
 
@@ -125,20 +125,37 @@ app.get('/:id/watch-providers', async (c) => {
   return c.json(providers);
 });
 
-app.get('/:id/watch-provider', async (c) => {
-  const provider = await fetchTvSeriesWatchProvider(
+app.get('/:id/watch-provider', auth(), async (c) => {
+  const providers = await fetchTvSeriesWatchProviders(
     c.req.param('id'),
     c.req.query('region') || 'US',
   );
 
-  if (!provider) {
+  if (providers.length === 0) {
     return c.notFound();
   }
 
-  c.header(
-    'Cache-Control',
-    'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
-  ); // 12h, allow stale for 1h
+  let provider = providers[0];
+
+  const auth = c.get('auth');
+  if (auth) {
+    const providersForUser = auth.user.watchProviders ?? [];
+    // Find the highest priority provider (first in user's preferred order)
+    const matchingProvider = providersForUser
+      .map((userProvider) => providers.find((p) => p.id === userProvider.id))
+      .filter(Boolean)[0];
+
+    if (matchingProvider) {
+      provider = matchingProvider;
+    }
+  }
+
+  if (!auth) {
+    c.header(
+      'Cache-Control',
+      'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
+    ); // 12h, allow stale for 1h
+  }
 
   return c.json(provider);
 });

@@ -20,6 +20,12 @@ export default async function SettingsStreamingServicesPage() {
             </div>
           </div>
           <div className="bg-neutral-900">
+            <div className="rounded-lg bg-white/5 py-3 px-6 h-[4.5rem] flex items-center justify-start gap-6">
+              <div className="size-6 bg-white/10 animate-pulse rounded-full" />
+              <div className="relative h-6 w-48 bg-white/5" />
+            </div>
+          </div>
+          <div className="bg-neutral-900">
             <div className="rounded-lg bg-white/5 p-4 md:p-6">
               <div className="flex flex-col gap-2">
                 {[...Array(10)].map((_, index) => (

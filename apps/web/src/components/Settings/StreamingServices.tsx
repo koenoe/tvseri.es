@@ -2,8 +2,16 @@
 
 import type { WatchProvider } from '@tvseri.es/types';
 import Image from 'next/image';
-import { useCallback, useOptimistic, useReducer, useTransition } from 'react';
+import {
+  useCallback,
+  useMemo,
+  useOptimistic,
+  useReducer,
+  useState,
+  useTransition,
+} from 'react';
 import { toast } from 'sonner';
+import SearchInput from '../Search/SearchInput';
 import StreamingService from './StreamingService';
 
 export type WatchProviderAction = Readonly<{
@@ -46,6 +54,16 @@ export default function StreamingServices({
     selected,
     reducer,
   );
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredProviders = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return providers;
+    }
+    return providers.filter((provider) =>
+      provider.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+  }, [providers, searchTerm]);
 
   const handleSelect = useCallback(
     (provider: WatchProvider, isSelected: boolean) => {
@@ -68,6 +86,17 @@ export default function StreamingServices({
     },
     [action, selected, optimisticDispatch],
   );
+
+  const handleSearchChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchTerm(event.target.value);
+    },
+    [],
+  );
+
+  const handleSearchReset = useCallback(() => {
+    setSearchTerm('');
+  }, []);
 
   return (
     <div className="flex flex-col gap-6">
@@ -114,18 +143,35 @@ export default function StreamingServices({
         </div>
       </div>
       <div className="bg-neutral-900">
+        <SearchInput
+          alwaysShowCloseButton={false}
+          autoFocus={false}
+          className="rounded-lg bg-white/5"
+          color="white"
+          onChange={handleSearchChange}
+          onClose={handleSearchReset}
+          placeholder="Filter streaming services"
+        />
+      </div>
+      <div className="bg-neutral-900">
         <div className="rounded-lg bg-white/5 p-4 md:p-6">
           <div className="flex flex-col gap-2">
-            {providers.map((provider) => (
-              <StreamingService
-                isSelected={optimisticSelected.some(
-                  (p) => p.id === provider.id,
-                )}
-                key={provider.id}
-                onSelect={handleSelect}
-                provider={provider}
-              />
-            ))}
+            {filteredProviders.length > 0 ? (
+              filteredProviders.map((provider) => (
+                <StreamingService
+                  isSelected={optimisticSelected.some(
+                    (p) => p.id === provider.id,
+                  )}
+                  key={provider.id}
+                  onSelect={handleSelect}
+                  provider={provider}
+                />
+              ))
+            ) : (
+              <p className="text-center text-neutral-400 text-sm w-full">
+                No streaming services found matching your search
+              </p>
+            )}
           </div>
         </div>
       </div>

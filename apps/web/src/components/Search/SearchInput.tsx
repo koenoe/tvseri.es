@@ -21,15 +21,21 @@ export type SearchInputHandle = Readonly<{
 }>;
 
 function SearchInput({
+  autoFocus = true,
+  placeholder = 'search tvseri.es',
   className,
   color = DEFAULT_BACKGROUND_COLOR,
+  alwaysShowCloseButton = true,
   onChange,
   onClose,
   onKeyDown,
   ref,
 }: Readonly<{
+  autoFocus?: boolean;
+  placeholder?: string;
   className?: string;
   color?: string;
+  alwaysShowCloseButton?: boolean;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onClose: () => void;
   onKeyDown?: (event: KeyboardEvent) => void;
@@ -43,6 +49,11 @@ function SearchInput({
     },
     [onChange, setValue],
   );
+
+  const handleClose = useCallback(() => {
+    setValue('');
+    onClose();
+  }, [setValue, onClose]);
 
   useImperativeHandle(
     ref,
@@ -58,7 +69,7 @@ function SearchInput({
     <div
       className={twMerge('relative h-auto w-full', className)}
       style={{
-        color: color,
+        color,
       }}
     >
       <div className="absolute inset-y-0 start-0 flex items-center ps-6">
@@ -77,20 +88,23 @@ function SearchInput({
       <input
         autoComplete="off"
         autoCorrect="off"
-        autoFocus
+        autoFocus={autoFocus}
         className="block w-full bg-transparent p-6 ps-16 placeholder:opacity-50 focus:outline-none"
         data-1p-ignore
         onChange={handleChange}
         onKeyDown={onKeyDown}
-        placeholder="search tvseri.es"
+        placeholder={placeholder}
         required
         spellCheck="false"
         type="text"
         value={value}
       />
       <button
-        className="absolute right-6 top-6 focus:outline-none"
-        onClick={onClose}
+        className={twMerge(
+          'absolute right-6 top-6 focus:outline-none',
+          !alwaysShowCloseButton && !value && 'hidden',
+        )}
+        onClick={handleClose}
         type="button"
       >
         <svg

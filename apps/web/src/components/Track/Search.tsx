@@ -31,6 +31,7 @@ function TrackSearch() {
   return (
     <div className="flex flex-col gap-10">
       <SearchInput
+        alwaysShowCloseButton={false}
         className="rounded-3xl bg-white/5"
         color="white"
         onChange={handleSearch}

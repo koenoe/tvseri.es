@@ -833,6 +833,10 @@ export async function searchPerson(query: string) {
 export async function fetchPerson(id: number | string) {
   const person = (await tmdbFetch(`/3/person/${id}`)) as TmdbPerson;
 
+  if (!person) {
+    return undefined;
+  }
+
   return {
     age: person.birthday
       ? calculateAge(

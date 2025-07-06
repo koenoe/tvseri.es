@@ -28,6 +28,7 @@ otp.subscribe(
     },
     handler: 'apps/api/src/lambdas/otp.handler',
     link: [email],
+    memory: '512 MB',
     nodejs: {
       esbuild: {
         external: [
@@ -42,7 +43,7 @@ otp.subscribe(
       minify: true,
     },
     runtime: 'nodejs22.x',
-    timeout: '30 seconds',
+    timeout: '10 seconds',
   },
   {
     transform: {

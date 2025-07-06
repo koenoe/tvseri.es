@@ -25,6 +25,7 @@ watchedStatusQueue.subscribe(
       secrets.tmdbApiAccessToken,
       secrets.tmdbApiKey,
     ],
+    memory: '512 MB',
     nodejs: {
       esbuild: {
         external: [
@@ -39,7 +40,7 @@ watchedStatusQueue.subscribe(
       minify: true,
     },
     runtime: 'nodejs22.x',
-    timeout: '30 seconds',
+    timeout: '20 seconds',
   },
   {
     // Default = {size: 10, window: “20 seconds”, partialResponses: false}

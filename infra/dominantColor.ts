@@ -3,6 +3,7 @@
 export const dominantColor = new sst.aws.Function('DominantColor', {
   architecture: 'arm64',
   handler: 'apps/api/src/lambdas/dominantColor.handler',
+  memory: '512 MB',
   nodejs: {
     esbuild: {
       external: [
@@ -19,5 +20,5 @@ export const dominantColor = new sst.aws.Function('DominantColor', {
     minify: true,
   },
   runtime: 'nodejs22.x',
-  timeout: '30 seconds',
+  timeout: '20 seconds',
 });

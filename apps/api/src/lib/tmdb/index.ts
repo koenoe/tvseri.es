@@ -249,13 +249,13 @@ export async function fetchTvSeries(
   }
 
   if (normalizedTvSeries.backdropImage) {
-    const backdropColor = await detectDominantColorFromImage(
-      normalizedTvSeries.backdropImage.replace(
+    const backdropColor = await detectDominantColorFromImage({
+      cacheKey: normalizedTvSeries.backdropPath!,
+      url: normalizedTvSeries.backdropImage.replace(
         'w1920_and_h1080_multi_faces',
         'w780',
       ),
-      normalizedTvSeries.backdropPath!,
-    );
+    });
 
     return {
       ...normalizedTvSeries,
@@ -832,6 +832,10 @@ export async function searchPerson(query: string) {
 
 export async function fetchPerson(id: number | string) {
   const person = (await tmdbFetch(`/3/person/${id}`)) as TmdbPerson;
+
+  if (!person) {
+    return undefined;
+  }
 
   return {
     age: person.birthday

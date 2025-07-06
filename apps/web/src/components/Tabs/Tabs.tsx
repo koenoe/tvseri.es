@@ -36,7 +36,7 @@ export default function Tabs({
         className,
       )}
     >
-      <ul className="-mb-px flex flex-nowrap">
+      <ul className="scrollbar-hide flex flex-nowrap space-x-2 overflow-x-auto">
         {items.map((item) => (
           <li className="me-2" key={item.label}>
             <Link

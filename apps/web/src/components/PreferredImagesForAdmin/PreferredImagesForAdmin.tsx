@@ -213,6 +213,7 @@ export default function PreferredImagesForAdmin({
     [color],
   );
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: zip it
   useEffect(() => {
     if (!images?.titleTreatment) {
       return;
@@ -225,7 +226,7 @@ export default function PreferredImagesForAdmin({
       );
       setCurrentTitleIndex(index);
     }
-  }, [images.titleTreatment.findIndex, images?.titleTreatment]);
+  }, []);
 
   useEffect(() => {
     if (

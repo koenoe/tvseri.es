@@ -13,6 +13,10 @@ const menuItems = [
     label: 'Import',
   },
   {
+    href: '/settings/streaming-services',
+    label: 'Streaming services',
+  },
+  {
     href: '/settings/webhooks',
     label: 'Webhooks',
   },

@@ -1,4 +1,5 @@
 import * as v from 'valibot';
+import { WatchProviderSchema } from './watch-provider';
 
 export const RoleSchema = v.picklist(['user', 'admin']);
 export const UsernameSchema = v.pipe(
@@ -19,6 +20,7 @@ export const UserSchema = v.object({
   updatedAt: v.optional(v.string()),
   username: UsernameSchema,
   version: v.number(),
+  watchProviders: v.optional(v.array(WatchProviderSchema)),
 });
 
 export const UserWithFollowInfoSchema = v.object({
@@ -68,9 +70,16 @@ export const AddTmdbToUserSchema = v.object({
   requestToken: v.string(),
 });
 
+export const UpdateWatchProvidersForUserSchema = v.object({
+  watchProviders: v.array(WatchProviderSchema),
+});
+
 export type Role = v.InferOutput<typeof RoleSchema>;
 export type User = v.InferOutput<typeof UserSchema>;
 export type UserWithFollowInfo = v.InferOutput<typeof UserWithFollowInfoSchema>;
 export type CreateUser = v.InferOutput<typeof CreateUserSchema>;
 export type AddTmdbToUser = v.InferOutput<typeof AddTmdbToUserSchema>;
 export type UpdateUser = v.InferOutput<typeof UpdateUserSchema>;
+export type UpdateWatchProvidersForUser = v.InferOutput<
+  typeof UpdateWatchProvidersForUserSchema
+>;

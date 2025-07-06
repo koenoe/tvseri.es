@@ -103,7 +103,7 @@ export default async function Layout({
             <BlockFollowers username={username} />
           </Suspense>
         </div>
-        <div className="relative mb-10 w-full">
+        <div className="relative mb-10 w-full bg-neutral-900">
           <Pills className="w-full" items={menuItems} layoutId="profile" />
         </div>
         {children}

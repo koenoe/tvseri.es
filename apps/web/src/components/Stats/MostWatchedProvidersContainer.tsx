@@ -1,6 +1,6 @@
-import { headers } from 'next/headers';
 import { cachedWatchedByYear } from '@/app/cached';
-import { fetchWatchProviders } from '@/lib/api';
+import { WATCH_PROVIDER_PREDEFINED_COLOR } from '@/constants';
+import { detectDominantColorFromImage } from '@/lib/api';
 import MostWatchedProviders from './MostWatchedProvidersLazy';
 
 type StreamingServiceStat = {
@@ -18,19 +18,12 @@ type Input = Readonly<{
 const getStreamingServiceStats = async (
   input: Input,
 ): Promise<StreamingServiceStat[]> => {
-  const region = (await headers()).get('cloudfront-viewer-country') || 'US';
-  const [watchedItems, watchProviders] = await Promise.all([
-    cachedWatchedByYear({
-      userId: input.userId,
-      year: input.year,
-    }),
-    fetchWatchProviders(region, {
-      includeColors: true,
-    }),
-  ]);
+  const watchedItems = await cachedWatchedByYear({
+    userId: input.userId,
+    year: input.year,
+  });
 
-  // Create a map to track unique series per provider
-  const serviceMap = watchedItems.reduce((map, item) => {
+  const map = watchedItems.reduce((map, item) => {
     if (!item.watchProviderName) return map;
 
     const existing = map.get(item.watchProviderName);
@@ -40,23 +33,34 @@ const getStreamingServiceStats = async (
     } else {
       map.set(item.watchProviderName, {
         logo: item.watchProviderLogoImage,
+        logoPath: item.watchProviderLogoPath,
         series: new Set([item.seriesId]),
       });
     }
     return map;
-  }, new Map<string, { series: Set<number>; logo?: string | null }>());
+  }, new Map<
+    string,
+    { series: Set<number>; logo?: string | null; logoPath?: string | null }
+  >());
 
-  // Convert the map to an array of stats
-  return [...serviceMap.entries()]
-    .map(([name, { series, logo }]) => ({
+  const entries = [...map.entries()];
+  const stats = await Promise.all(
+    entries.map(async ([name, { series, logo, logoPath }]) => ({
       count: series.size,
       defaultColor:
-        watchProviders.find((provider) => provider.name === name)?.color ||
-        '#000000',
+        WATCH_PROVIDER_PREDEFINED_COLOR[name] ||
+        (logo && logoPath
+          ? await detectDominantColorFromImage({
+              cacheKey: logoPath,
+              url: logo,
+            })
+          : '#000000'),
       logo,
       name,
-    }))
-    .sort((a, b) => b.count - a.count);
+    })),
+  );
+
+  return stats.sort((a, b) => b.count - a.count);
 };
 
 const cachedStreamingServiceStats = async (input: Input) => {

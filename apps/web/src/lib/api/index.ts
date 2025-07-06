@@ -1245,3 +1245,22 @@ export async function updatePreferredImages({
     },
   });
 }
+
+export async function updateWatchProviders({
+  sessionId,
+  watchProviders,
+}: Readonly<{
+  watchProviders: WatchProvider[];
+}> &
+  AuthContext) {
+  const user = (await apiFetch('/me/watch-providers', {
+    auth: {
+      token: sessionId,
+      type: 'Bearer',
+    },
+    body: JSON.stringify({ watchProviders }),
+    method: 'PUT',
+  })) as User;
+
+  return user;
+}

@@ -14,7 +14,7 @@ const initialState = {
   success: false,
 };
 
-export default function ProfileSection({
+export default function ProfileForm({
   user,
 }: Readonly<{
   user: User;

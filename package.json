@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "sst": "^3.17.8"
+    "sst": "^3.17.10"
   },
   "devDependencies": {
     "@biomejs/biome": "2.0.6",

@@ -148,6 +148,7 @@ function List({
     [scrollLeft],
   );
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: ExPlaNatIon
   useLayoutEffect(() => {
     const cacheKey = `${scrollRestoreKey}:${getHistoryKey()}`;
     const scrollOffset = sessionStorage.getItem(cacheKey);
@@ -166,7 +167,7 @@ function List({
         }
       }
     };
-  }, [scrollRestoreKey]);
+  }, []);
 
   return (
     <div className={cx('relative w-full select-none', className)} style={style}>

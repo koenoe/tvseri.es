@@ -52,8 +52,8 @@ importers:
         specifier: ^1.1.18
         version: 1.1.18
       '@hono/valibot-validator':
-        specifier: ^0.5.2
-        version: 0.5.2(hono@4.8.4)(valibot@1.1.0(typescript@5.8.3))
+        specifier: ^0.5.3
+        version: 0.5.3(hono@4.8.4)(valibot@1.1.0(typescript@5.8.3))
       '@tvseri.es/token':
         specifier: workspace:*
         version: link:../../packages/token
@@ -844,8 +844,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@hono/valibot-validator@0.5.2':
-    resolution: {integrity: sha512-WbTr8PCFNAME0ale62rmmq+E8bGp5a7VPiVNmNT+Ue12GJE3Ax+CWBGtHhR0TzAEiloPvJND3IbjHIgtNtsqhw==}
+  '@hono/valibot-validator@0.5.3':
+    resolution: {integrity: sha512-91wjmjDvrTdEm2ZcuCyLBghtld78QoLEduzfkqLo1L74n6sqqoVfc0gDfmju1Ar6w1eK8Q0UyIubrtj4KMWVnQ==}
     peerDependencies:
       hono: '>=3.9.0'
       valibot: ^1.0.0 || ^1.0.0-beta.4 || ^1.0.0-rc
@@ -4483,7 +4483,7 @@ snapshots:
   '@esbuild/win32-x64@0.25.4':
     optional: true
 
-  '@hono/valibot-validator@0.5.2(hono@4.8.4)(valibot@1.1.0(typescript@5.8.3))':
+  '@hono/valibot-validator@0.5.3(hono@4.8.4)(valibot@1.1.0(typescript@5.8.3))':
     dependencies:
       hono: 4.8.4
       valibot: 1.1.0(typescript@5.8.3)

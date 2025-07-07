@@ -7,7 +7,7 @@
     "@aws-sdk/client-sqs": "^3.840.0",
     "@aws-sdk/util-dynamodb": "^3.840.0",
     "@better-fetch/fetch": "^1.1.18",
-    "@hono/valibot-validator": "^0.5.2",
+    "@hono/valibot-validator": "^0.5.3",
     "@tvseri.es/token": "workspace:*",
     "color": "^5.0.0",
     "hono": "^4.8.4",

@@ -62,7 +62,7 @@ new sst.aws.Nextjs('tvseries', {
   link: [secrets.apiKey, secrets.secretKey],
   openNextVersion,
   path: 'apps/web',
-  regions: [defaultRegion, 'us-east-1'],
+  regions: [defaultRegion],
   server: {
     architecture: 'arm64',
     memory: '2582 MB',

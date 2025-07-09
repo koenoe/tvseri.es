@@ -9,7 +9,6 @@ export const watchedStatusQueue = new sst.aws.Queue(
 );
 watchedStatusQueue.subscribe(
   {
-    architecture: 'arm64',
     concurrency: {
       reserved: 25,
     },
@@ -39,7 +38,6 @@ watchedStatusQueue.subscribe(
       },
       minify: true,
     },
-    runtime: 'nodejs22.x',
     timeout: '20 seconds',
   },
   {
@@ -53,7 +51,6 @@ watchedStatusQueue.subscribe(
 
 export const watchedStatusCron = new sst.aws.Cron('ValidateWatchedStatus', {
   function: {
-    architecture: 'arm64',
     handler: 'apps/api/src/lambdas/validateWatchedStatusCron.handler',
     link: [dynamo.users, watchedStatusQueue],
     memory: '512 MB',
@@ -70,7 +67,6 @@ export const watchedStatusCron = new sst.aws.Cron('ValidateWatchedStatus', {
       },
       minify: true,
     },
-    runtime: 'nodejs22.x',
     timeout: '30 seconds',
   }, // 05:00 UTC, daily
   schedule: 'cron(0 5 * * ? *)',

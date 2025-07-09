@@ -59,13 +59,6 @@ new sst.aws.Nextjs('tvseries', {
             const { webAcl } = require('./waf');
             args.webAclId = webAcl.arn;
           }
-
-          args.restrictions = {
-            geoRestriction: {
-              locations: ['BY', 'CN', 'CU', 'IR', 'KP', 'RU', 'SG', 'VE'],
-              restrictionType: 'blacklist',
-            },
-          };
         },
       };
     },

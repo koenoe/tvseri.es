@@ -49,7 +49,6 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
 });
 
 export const apiFunction = new sst.aws.Function('ApiFunction', {
-  architecture: 'arm64',
   environment: {
     CLOUDFRONT_DISTRIBUTION_ID: apiRouter.distributionID,
   },
@@ -98,7 +97,6 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
       ],
     },
   ],
-  runtime: 'nodejs22.x',
   timeout: '30 seconds',
   url: {
     router: {

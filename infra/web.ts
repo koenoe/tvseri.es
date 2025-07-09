@@ -24,33 +24,6 @@ new sst.aws.Nextjs('tvseries', {
     name: domain,
     redirects: $app.stage === 'production' ? ['www.tvseri.es'] : [],
   },
-  edge: {
-    viewerRequest: {
-      injection: $interpolate`
-          // Geographic blocking for high-risk countries
-          const blockedCountries = ['BY', 'CN', 'CU', 'IR', 'KP', 'RU', 'SG', 'VE'];
-          const country = event.request.headers['cloudfront-viewer-country'] &&
-                         event.request.headers['cloudfront-viewer-country'].value;
-
-          if (country && blockedCountries.includes(country)) {
-            return {
-              statusCode: 403,
-              statusDescription: 'Forbidden',
-              headers: {
-                'content-type': [{
-                  key: 'Content-Type',
-                  value: 'text/html'
-                }]
-              },
-              body: {
-                encoding: "text",
-                data: '<html><head><title>403 Forbidden</title></head><body><center><h1>403 Forbidden</h1></center></body></html>'
-              }
-            }
-          }
-        `,
-    },
-  },
   environment: {
     API_URL: apiRouter.url,
     OPEN_NEXT_FORCE_NON_EMPTY_RESPONSE: 'true',
@@ -80,15 +53,21 @@ new sst.aws.Nextjs('tvseries', {
         },
       }));
 
-      // WOOF WOOF
-      if ($app.stage === 'production') {
-        const { webAcl } = require('./waf');
-        options.transform = {
-          distribution(args) {
+      options.transform = {
+        distribution(args) {
+          if ($app.stage === 'production') {
+            const { webAcl } = require('./waf');
             args.webAclId = webAcl.arn;
-          },
-        };
-      }
+          }
+
+          args.restrictions = {
+            geoRestriction: {
+              locations: ['BY', 'CN', 'CU', 'IR', 'KP', 'RU', 'SG', 'VE'],
+              restrictionType: 'blacklist',
+            },
+          };
+        },
+      };
     },
     server: {
       layers: [

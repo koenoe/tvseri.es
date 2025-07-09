@@ -28,7 +28,7 @@ new sst.aws.Nextjs('tvseries', {
     viewerRequest: {
       injection: $interpolate`
           // Geographic blocking for high-risk countries
-          const blockedCountries = ['CN', 'RU', 'KP', 'IR', 'BY', 'VE', 'CU'];
+          const blockedCountries = ['CN', 'RU', 'KP', 'IR', 'BY', 'VE', 'CU', 'SG'];
           const country = event.request.headers['cloudfront-viewer-country'] &&
                          event.request.headers['cloudfront-viewer-country'].value;
 

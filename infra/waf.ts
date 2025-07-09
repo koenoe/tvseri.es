@@ -35,7 +35,7 @@ export const webAcl = new aws.wafv2.WebAcl(
         visibilityConfig: {
           cloudwatchMetricsEnabled: true,
           metricName: 'AllowScrobbleWebhook',
-          sampledRequestsEnabled: false, // Reduce CloudWatch costs
+          sampledRequestsEnabled: true,
         },
       },
       {
@@ -53,7 +53,7 @@ export const webAcl = new aws.wafv2.WebAcl(
         visibilityConfig: {
           cloudwatchMetricsEnabled: true,
           metricName: 'IPRateLimit',
-          sampledRequestsEnabled: false, // Reduce CloudWatch costs
+          sampledRequestsEnabled: true,
         },
       },
       {

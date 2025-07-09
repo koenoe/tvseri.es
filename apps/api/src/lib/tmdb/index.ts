@@ -23,7 +23,6 @@ import type {
   TmdbPersonTvCredits,
   TmdbSearchPerson,
   TmdbSearchTvSeries,
-  TmdbTrendingTvSeries,
   TmdbTvSeries,
   TmdbTvSeriesContentRatings,
   TmdbTvSeriesCredits,
@@ -51,7 +50,9 @@ import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import {
   fetchImdbTopRatedTvSeries,
   fetchKoreasFinest,
+  fetchMostAnticipated,
   fetchMostPopularThisMonth,
+  fetchTrending,
 } from '../mdblist';
 import {
   buildBackdropImageUrl,
@@ -499,47 +500,6 @@ export async function fetchTvSeriesEpisode(
   return normalizeTvSeriesEpisode(response);
 }
 
-export async function fetchTrendingTvSeries() {
-  const trendingTvSeriesResponse =
-    ((await tmdbFetch('/3/trending/tv/day')) as TmdbTrendingTvSeries) ?? [];
-
-  const ids = (trendingTvSeriesResponse.results ?? [])
-    .filter(
-      (series) =>
-        series.backdrop_path &&
-        series.genre_ids &&
-        series.genre_ids?.length > 0 &&
-        series.vote_count > 0 &&
-        !series.genre_ids?.some((genre) =>
-          [...GLOBAL_GENRES_TO_IGNORE, 16, 10762, 10764, 10766].includes(genre),
-        ),
-    )
-    .map((series) => series.id)
-    .slice(0, 10);
-
-  const series = await Promise.all(
-    ids.map(async (id) => {
-      const serie = await fetchTvSeries(id, {
-        includeImages: true,
-      });
-      return serie as TvSeries;
-    }),
-  );
-
-  return series;
-}
-
-export async function fetchTopRatedTvSeries() {
-  const topRatedIds = await fetchImdbTopRatedTvSeries();
-  const series = await Promise.all(
-    topRatedIds.map(async (id) => {
-      const serie = await fetchTvSeries(id);
-      return serie as TvSeries;
-    }),
-  );
-  return series;
-}
-
 export async function fetchDiscoverTvSeries(query?: TmdbDiscoverTvSeriesQuery) {
   const queryString = toQueryString(buildDiscoverQuery(query));
 
@@ -595,25 +555,6 @@ export async function fetchApplePlusTvSeries(region = 'US') {
     without_genres: '99',
   });
   return items.filter((item) => !!item.posterImage && !!item.backdropImage);
-}
-
-export async function fetchMostAnticipatedTvSeries() {
-  const withoutGenres = [...GLOBAL_GENRES_TO_IGNORE, 16, 10762, 10764, 10766];
-  const { items } = await fetchDiscoverTvSeries({
-    'first_air_date.gte': new Date().toISOString().split('T')[0],
-    'vote_count.gte': 0,
-    without_genres: withoutGenres.join(','),
-  });
-
-  return items.filter(
-    (item) =>
-      !!item.posterImage &&
-      !!item.backdropImage &&
-      // Note: somehow we still get some series with genres we want to ignore ¯\_(ツ)_/¯
-      !item.genres?.some((genre) => withoutGenres.includes(genre.id)) &&
-      // Note: bloody annoying show that keeps popping up  ¯\_(ツ)_/¯
-      item.id !== 131835,
-  );
 }
 
 export async function fetchPopularTvSeriesByYear(year: number | string) {
@@ -701,28 +642,6 @@ export async function searchTvSeries(
     .map((series) => {
       return normalizeTvSeries(series as TmdbTvSeries);
     });
-}
-
-export async function fetchKoreasFinestTvSeries() {
-  const ids = await fetchKoreasFinest();
-  const series = await Promise.all(
-    ids.map(async (id) => {
-      const serie = await fetchTvSeries(id);
-      return serie as TvSeries;
-    }),
-  );
-  return series;
-}
-
-export async function fetchMostPopularTvSeriesThisMonth() {
-  const ids = await fetchMostPopularThisMonth();
-  const series = await Promise.all(
-    ids.map(async (id) => {
-      const serie = await fetchTvSeries(id);
-      return serie as TvSeries;
-    }),
-  );
-  return series;
 }
 
 export async function fetchWatchProviders(
@@ -959,4 +878,63 @@ export async function findByExternalId({
     seasons,
     tvSeries,
   };
+}
+
+export async function fetchTrendingTvSeries() {
+  const trendingIds = await fetchTrending();
+  const series = await Promise.all(
+    trendingIds.map(async (id) => {
+      const serie = await fetchTvSeries(id, {
+        includeImages: true,
+      });
+      return serie as TvSeries;
+    }),
+  );
+  return series.filter((item) =>
+    Boolean(item.posterImage && item.backdropImage),
+  );
+}
+
+export async function fetchTopRatedTvSeries() {
+  const topRatedIds = await fetchImdbTopRatedTvSeries();
+  const series = await Promise.all(
+    topRatedIds.map(async (id) => {
+      const serie = await fetchTvSeries(id);
+      return serie as TvSeries;
+    }),
+  );
+  return series.filter((serie) => !!serie.posterImage);
+}
+
+export async function fetchKoreasFinestTvSeries() {
+  const ids = await fetchKoreasFinest();
+  const series = await Promise.all(
+    ids.map(async (id) => {
+      const serie = await fetchTvSeries(id);
+      return serie as TvSeries;
+    }),
+  );
+  return series.filter((serie) => !!serie.posterImage);
+}
+
+export async function fetchMostPopularTvSeriesThisMonth() {
+  const ids = await fetchMostPopularThisMonth();
+  const series = await Promise.all(
+    ids.map(async (id) => {
+      const serie = await fetchTvSeries(id);
+      return serie as TvSeries;
+    }),
+  );
+  return series.filter((serie) => !!serie.posterImage);
+}
+
+export async function fetchMostAnticipatedTvSeries() {
+  const ids = await fetchMostAnticipated();
+  const series = await Promise.all(
+    ids.map(async (id) => {
+      const serie = await fetchTvSeries(id);
+      return serie as TvSeries;
+    }),
+  );
+  return series.filter((serie) => !!serie.posterImage);
 }

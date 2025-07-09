@@ -18,8 +18,8 @@ app.get('/trending', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=28800, s-maxage=28800, stale-while-revalidate=3600',
-  ); // 8h, allow stale for 1h
+    'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
+  ); // 12h, allow stale for 1h
 
   return c.json(items);
 });
@@ -51,8 +51,8 @@ app.get('/most-anticipated', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=3600',
-  ); // 1w, allow stale for 1h
+    'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
+  ); // 12h, allow stale for 1h
 
   return c.json(items);
 });

@@ -47,7 +47,7 @@ export const webAcl = new aws.wafv2.WebAcl(
         statement: {
           rateBasedStatement: {
             aggregateKeyType: 'IP',
-            limit: 2500,
+            limit: 2000, // per 5 mins
           },
         },
         visibilityConfig: {

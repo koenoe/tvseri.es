@@ -28,7 +28,7 @@ new sst.aws.Nextjs('tvseries', {
     viewerRequest: {
       injection: $interpolate`
           // Geographic blocking for high-risk countries
-          const blockedCountries = ['CN', 'RU', 'KP', 'IR', 'BY', 'VE', 'CU', 'SG'];
+          const blockedCountries = ['BY', 'CN', 'CU', 'IR', 'KP', 'RU', 'SG', 'VE'];
           const country = event.request.headers['cloudfront-viewer-country'] &&
                          event.request.headers['cloudfront-viewer-country'].value;
 
@@ -44,7 +44,7 @@ new sst.aws.Nextjs('tvseries', {
               },
               body: {
                 encoding: "text",
-                data: '<html><head><title>403 Forbidden</title></head><body><center><h1>Access Denied</h1><p>Your region is not supported.</p></center></body></html>'
+                data: '<html><head><title>403 Forbidden</title></head><body><center><h1>403 Forbidden</h1></center></body></html>'
               }
             }
           }
@@ -91,6 +91,9 @@ new sst.aws.Nextjs('tvseries', {
       }
     },
     server: {
+      layers: [
+        'arn:aws:lambda:eu-west-2:580247275435:layer:LambdaInsightsExtension-Arm64:5',
+      ],
       nodejs: {
         esbuild: {
           external: ['@opennextjs/aws'],

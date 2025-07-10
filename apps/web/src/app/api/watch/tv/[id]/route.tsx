@@ -37,7 +37,11 @@ export async function POST(
 
   const region = (await headers()).get('cloudfront-viewer-country') || 'US';
   const watchProvider =
-    (await fetchTvSeriesWatchProvider(tvSeries.id, region)) ?? null;
+    (await fetchTvSeriesWatchProvider(
+      tvSeries.id,
+      region,
+      encryptedSessionId,
+    )) ?? null;
 
   if (body.watched) {
     const watchedItems = await markWatched({

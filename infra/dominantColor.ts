@@ -1,7 +1,6 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
 export const dominantColor = new sst.aws.Function('DominantColor', {
-  architecture: 'arm64',
   handler: 'apps/api/src/lambdas/dominantColor.handler',
   memory: '512 MB',
   nodejs: {
@@ -17,8 +16,6 @@ export const dominantColor = new sst.aws.Function('DominantColor', {
       ],
     },
     install: ['sharp'],
-    minify: true,
   },
-  runtime: 'nodejs22.x',
   timeout: '20 seconds',
 });

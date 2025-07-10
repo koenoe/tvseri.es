@@ -80,8 +80,6 @@ try {
   openNextVersion = undefined;
 }
 
-const defaultRegion = $app.providers?.aws.region ?? 'eu-west-2';
-
 new sst.aws.Nextjs('tvseries', {
   domain: {
     dns: sst.aws.dns({
@@ -89,6 +87,31 @@ new sst.aws.Nextjs('tvseries', {
     }),
     name: domain,
     redirects: $app.stage === 'production' ? ['www.tvseri.es'] : [],
+  },
+  edge: {
+    viewerRequest: {
+      injection: $interpolate`
+          const uri = event.request.uri.toLowerCase();
+          const blockedPattern = /\.(php|asp|aspx|jsp|cgi|pl|py|sh|sql|env|config|bak|backup)(\?|$)/;
+
+          if (blockedPattern.test(uri)) {
+            return {
+              statusCode: 403,
+              statusDescription: 'Forbidden',
+              headers: {
+                'content-type': [{
+                  key: 'Content-Type',
+                  value: 'text/html'
+                }]
+              },
+              body: {
+                encoding: "text",
+                data: '<html><head><title>403 Forbidden</title></head><body><center><h1>403 Forbidden</h1></center></body></html>'
+              }
+            };
+          }
+        `,
+    },
   },
   environment: {
     API_KEY: secrets.apiKey.value,
@@ -103,7 +126,7 @@ new sst.aws.Nextjs('tvseries', {
   },
   openNextVersion,
   path: 'apps/web',
-  regions: [defaultRegion, 'us-east-1'],
+  // regions: [$app.providers?.aws.region ?? 'eu-west-2'],
   server: {
     architecture: 'arm64',
     memory: '2582 MB',
@@ -111,17 +134,19 @@ new sst.aws.Nextjs('tvseries', {
   },
   transform: {
     cdn: (options) => {
-      // biome-ignore lint/suspicious/noExplicitAny: sort out later
-      const origins = (options.origins || []) as any[];
-      options.origins = origins.map((origin) => ({
-        ...origin,
-        originShield: {
-          enabled: true,
-          originShieldRegion: defaultRegion,
+      options.transform = {
+        distribution(args) {
+          if ($app.stage === 'production') {
+            const { webAcl } = require('./waf');
+            args.webAclId = webAcl.arn;
+          }
         },
-      }));
+      };
     },
     server: {
+      layers: [
+        'arn:aws:lambda:eu-west-2:580247275435:layer:LambdaInsightsExtension-Arm64:5',
+      ],
       nodejs: {
         esbuild: {
           external: ['@opennextjs/aws'],

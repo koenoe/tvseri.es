@@ -7,7 +7,6 @@ import * as secrets from './secrets';
 export const scrobbleQueue = new sst.aws.Queue('ScrobbleQueue');
 scrobbleQueue.subscribe(
   {
-    architecture: 'arm64',
     concurrency: {
       reserved: 25,
     },
@@ -35,9 +34,7 @@ scrobbleQueue.subscribe(
           '@aws-sdk/util-dynamodb',
         ],
       },
-      minify: true,
     },
-    runtime: 'nodejs22.x',
     timeout: '30 seconds',
   },
   {

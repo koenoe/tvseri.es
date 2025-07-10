@@ -7,8 +7,6 @@ import { email } from './email';
 import { scrobbleQueue } from './scrobbleQueue';
 import * as secrets from './secrets';
 
-const defaultRegion = $app.providers?.aws.region ?? 'eu-west-2';
-
 export const apiRouter = new sst.aws.Router('ApiRouter', {
   domain: {
     dns: sst.aws.dns({
@@ -33,23 +31,9 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
       `,
     },
   },
-  transform: {
-    cdn: (options) => {
-      // biome-ignore lint/suspicious/noExplicitAny: sort out later
-      const origins = (options.origins || []) as any[];
-      options.origins = origins.map((origin) => ({
-        ...origin,
-        originShield: {
-          enabled: true,
-          originShieldRegion: defaultRegion,
-        },
-      }));
-    },
-  },
 });
 
 export const apiFunction = new sst.aws.Function('ApiFunction', {
-  architecture: 'arm64',
   environment: {
     CLOUDFRONT_DISTRIBUTION_ID: apiRouter.distributionID,
   },
@@ -85,7 +69,6 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
         '@aws-sdk/util-dynamodb',
       ],
     },
-    minify: true,
   },
   permissions: [
     {
@@ -95,7 +78,6 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
       ],
     },
   ],
-  runtime: 'nodejs22.x',
   timeout: '30 seconds',
   url: {
     router: {

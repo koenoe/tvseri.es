@@ -135,6 +135,28 @@ export async function fetchMostPopularThisMonth() {
   return response.shows?.map((item) => item.id);
 }
 
+export async function fetchTrending() {
+  const response = (await mdblistFetch(
+    '/lists/koenoe/trending-trakttv/items',
+  )) as Readonly<{
+    movies: Item[];
+    shows: Item[];
+  }>;
+
+  return response.shows?.map((item) => item.id);
+}
+
+export async function fetchMostAnticipated() {
+  const response = (await mdblistFetch(
+    '/lists/koenoe/most-anticipated/items',
+  )) as Readonly<{
+    movies: Item[];
+    shows: Item[];
+  }>;
+
+  return response.shows?.map((item) => item.id);
+}
+
 export async function fetchMediaInfoInBatch(ids: string[]) {
   const response = (await mdblistFetch('/tmdb/show', {
     body: JSON.stringify({

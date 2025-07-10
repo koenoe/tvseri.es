@@ -15,26 +15,47 @@ export const webAcl = new aws.wafv2.WebAcl(
         action: {
           allow: {},
         },
-        name: 'AllowScrobbleWebhook',
+        name: 'AllowSpecificPaths',
         priority: 0,
         statement: {
-          byteMatchStatement: {
-            fieldToMatch: {
-              uriPath: {},
-            },
-            positionalConstraint: 'STARTS_WITH',
-            searchString: '/api/webhooks/scrobble',
-            textTransformations: [
+          orStatement: {
+            statements: [
               {
-                priority: 0,
-                type: 'NONE',
+                byteMatchStatement: {
+                  fieldToMatch: {
+                    uriPath: {},
+                  },
+                  positionalConstraint: 'STARTS_WITH',
+                  searchString: '/api/webhooks/scrobble',
+                  textTransformations: [
+                    {
+                      priority: 0,
+                      type: 'NONE',
+                    },
+                  ],
+                },
+              },
+              {
+                byteMatchStatement: {
+                  fieldToMatch: {
+                    uriPath: {},
+                  },
+                  positionalConstraint: 'EXACTLY',
+                  searchString: '/robots.txt',
+                  textTransformations: [
+                    {
+                      priority: 0,
+                      type: 'NONE',
+                    },
+                  ],
+                },
               },
             ],
           },
         },
         visibilityConfig: {
           cloudwatchMetricsEnabled: true,
-          metricName: 'AllowScrobbleWebhook',
+          metricName: 'AllowSpecificPaths',
           sampledRequestsEnabled: true,
         },
       },

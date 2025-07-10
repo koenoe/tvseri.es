@@ -118,7 +118,7 @@ export default async function TvSeriesDetailsPage({
               {tvSeries.titleTreatmentImage ? (
                 <h1 className="relative mb-6 h-28 w-full md:h-40 md:w-[500px]">
                   <Image
-                    alt=""
+                    alt={tvSeries.title}
                     className="max-w-[500px] object-contain object-bottom md:object-left-bottom"
                     draggable={false}
                     fill

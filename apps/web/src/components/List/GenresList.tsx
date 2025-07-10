@@ -21,7 +21,7 @@ export default async function GenresList(
     <List
       scrollRestoreKey="genres"
       style={gapStyleOverride}
-      title="Genres"
+      title="Browse by Genre"
       {...props}
     >
       {pairedGenres.map((pair, index) => (

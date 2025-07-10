@@ -34,7 +34,6 @@ scrobbleQueue.subscribe(
           '@aws-sdk/util-dynamodb',
         ],
       },
-      minify: true,
     },
     timeout: '30 seconds',
   },

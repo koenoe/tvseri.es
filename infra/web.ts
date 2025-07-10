@@ -14,8 +14,6 @@ try {
   openNextVersion = undefined;
 }
 
-const defaultRegion = $app.providers?.aws.region ?? 'eu-west-2';
-
 new sst.aws.Nextjs('tvseries', {
   domain: {
     dns: sst.aws.dns({
@@ -35,7 +33,7 @@ new sst.aws.Nextjs('tvseries', {
   link: [secrets.apiKey, secrets.secretKey],
   openNextVersion,
   path: 'apps/web',
-  regions: [defaultRegion],
+  // regions: [$app.providers?.aws.region ?? 'eu-west-2'],
   server: {
     architecture: 'arm64',
     memory: '2582 MB',
@@ -43,16 +41,6 @@ new sst.aws.Nextjs('tvseries', {
   },
   transform: {
     cdn: (options) => {
-      // biome-ignore lint/suspicious/noExplicitAny: sort out later
-      const origins = (options.origins || []) as any[];
-      options.origins = origins.map((origin) => ({
-        ...origin,
-        originShield: {
-          enabled: true,
-          originShieldRegion: defaultRegion,
-        },
-      }));
-
       options.transform = {
         distribution(args) {
           if ($app.stage === 'production') {

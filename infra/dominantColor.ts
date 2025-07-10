@@ -16,7 +16,6 @@ export const dominantColor = new sst.aws.Function('DominantColor', {
       ],
     },
     install: ['sharp'],
-    minify: true,
   },
   timeout: '20 seconds',
 });

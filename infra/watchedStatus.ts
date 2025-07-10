@@ -36,7 +36,6 @@ watchedStatusQueue.subscribe(
           '@aws-sdk/util-dynamodb',
         ],
       },
-      minify: true,
     },
     timeout: '20 seconds',
   },
@@ -65,7 +64,6 @@ export const watchedStatusCron = new sst.aws.Cron('ValidateWatchedStatus', {
           '@aws-sdk/util-dynamodb',
         ],
       },
-      minify: true,
     },
     timeout: '30 seconds',
   }, // 05:00 UTC, daily

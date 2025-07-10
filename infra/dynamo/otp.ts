@@ -40,7 +40,6 @@ otp.subscribe(
           '@aws-sdk/util-dynamodb',
         ],
       },
-      minify: true,
     },
     runtime: 'nodejs22.x',
     timeout: '10 seconds',

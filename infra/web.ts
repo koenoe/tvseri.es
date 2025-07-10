@@ -22,6 +22,31 @@ new sst.aws.Nextjs('tvseries', {
     name: domain,
     redirects: $app.stage === 'production' ? ['www.tvseri.es'] : [],
   },
+  edge: {
+    viewerRequest: {
+      injection: $interpolate`
+          const uri = event.request.uri.toLowerCase();
+          const blockedPattern = /\.(php|asp|aspx|jsp|cgi|pl|py|sh|sql|env|config|bak|backup)(\?|$)/;
+
+          if (blockedPattern.test(uri)) {
+            return {
+              statusCode: 403,
+              statusDescription: 'Forbidden',
+              headers: {
+                'content-type': [{
+                  key: 'Content-Type',
+                  value: 'text/html'
+                }]
+              },
+              body: {
+                encoding: "text",
+                data: '<html><head><title>403 Forbidden</title></head><body><center><h1>403 Forbidden</h1></center></body></html>'
+              }
+            };
+          }
+        `,
+    },
+  },
   environment: {
     API_URL: apiRouter.url,
     OPEN_NEXT_FORCE_NON_EMPTY_RESPONSE: 'true',

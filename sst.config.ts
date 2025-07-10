@@ -18,6 +18,7 @@ export default $config({
   },
   async run() {
     // Global transform to apply geographic restrictions to all CloudFront distributions
+    // and enable origin shield
     $transform(aws.cloudfront.Distribution, (args) => {
       args.restrictions = {
         geoRestriction: {
@@ -41,9 +42,12 @@ export default $config({
     $transform(sst.aws.Function, (args) => {
       args.architecture = 'arm64';
       args.runtime = 'nodejs22.x';
-      args.layers = [
-        'arn:aws:lambda:eu-west-2:580247275435:layer:LambdaInsightsExtension-Arm64:5',
-      ];
+      args.layers =
+        $app.stage === 'production'
+          ? [
+              'arn:aws:lambda:eu-west-2:580247275435:layer:LambdaInsightsExtension-Arm64:5',
+            ]
+          : [];
       args.nodejs = {
         ...args.nodejs,
         minify: true,

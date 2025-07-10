@@ -48,14 +48,13 @@ new sst.aws.Nextjs('tvseries', {
     },
   },
   environment: {
-    API_URL: apiRouter.url,
     OPEN_NEXT_FORCE_NON_EMPTY_RESPONSE: 'true',
     SITE_URL: `https://${domain}`,
   },
   imageOptimization: {
     staticEtag: true,
   },
-  link: [secrets.apiKey, secrets.secretKey],
+  link: [apiRouter, secrets.apiKey, secrets.secretKey],
   openNextVersion,
   path: 'apps/web',
   // regions: [$app.providers?.aws.region ?? 'eu-west-2'],

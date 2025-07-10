@@ -16,10 +16,20 @@
     },
     "linter": {
       "enabled": false
+    },
+    "parser": {
+      "cssModules": true
     }
   },
   "files": {
-    "includes": ["**", "!**/pnpm-lock.yaml", "!**/public", "!**/sst-env.d.ts"],
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!**/pnpm-lock.yaml",
+      "!**/public",
+      "!**/sst-env.d.ts",
+      "!**/*.module.css"
+    ],
     "maxSize": 1572864
   },
   "formatter": {

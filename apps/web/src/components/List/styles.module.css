@@ -1,11 +1,11 @@
 .inner {
-  --container-padding: theme(container.padding);
   --gap: theme(spacing.4);
   --gap-md: theme(spacing.6);
   --gap-lg: theme(spacing.7);
   --gap-xl: theme(spacing.7);
   --gap-2xl: theme(spacing.7);
   gap: var(--gap-override, var(--gap));
+  --container-padding: theme(container.padding);
 }
 
 body:global(.scrollbar-is-visible) .inner {
@@ -14,9 +14,9 @@ body:global(.scrollbar-is-visible) .inner {
 
 .inner::before,
 .inner::after {
-  content: '';
   align-self: stretch;
   margin-left: calc(var(--gap-override, var(--gap)) * -1);
+  content: '';
 }
 
 .inner::before {

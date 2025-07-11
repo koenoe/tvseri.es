@@ -75,9 +75,12 @@ new sst.aws.Nextjs('tvseries', {
       };
     },
     server: {
-      layers: [
-        'arn:aws:lambda:eu-west-2:580247275435:layer:LambdaInsightsExtension-Arm64:5',
-      ],
+      layers:
+        $app.stage === 'production'
+          ? [
+              'arn:aws:lambda:eu-west-2:580247275435:layer:LambdaInsightsExtension-Arm64:5',
+            ]
+          : [],
       nodejs: {
         esbuild: {
           external: ['@opennextjs/aws'],

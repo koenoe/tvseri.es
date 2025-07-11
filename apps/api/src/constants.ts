@@ -1,4 +1,5 @@
 import type { RetryOptions } from '@better-fetch/fetch';
+import { Resource } from 'sst';
 
 // TODO: abstract into one place
 export const WATCH_PROVIDER_PREDEFINED_COLOR: Record<string, string> = {
@@ -26,3 +27,5 @@ export const DEFAULT_FETCH_RETRY_OPTIONS = {
   maxDelay: 2000, // Start with 250ms delay
   type: 'exponential', // Cap at 2 seconds
 } as RetryOptions;
+
+export const SECRET_KEY = Resource.SecretKey.value;

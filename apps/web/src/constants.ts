@@ -13,6 +13,8 @@ export const DEFAULT_FETCH_RETRY_OPTIONS = {
 
 export const SESSION_DURATION = 6 * 30 * 24 * 60 * 60; // 6 months in seconds
 
+export const SECRET_KEY = process.env.SECRET_KEY!;
+
 // TODO: abstract into one place
 export const WATCH_PROVIDER_PREDEFINED_COLOR: Record<string, string> = {
   'Amazon Prime Video': '#00A8E1',

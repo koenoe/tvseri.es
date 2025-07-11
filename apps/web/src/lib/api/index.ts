@@ -32,12 +32,13 @@ import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
 import nextPlugin from '../betterFetchNextPlugin';
 
 const apiKey = process.env.API_KEY!;
+const apiUrl = process.env.API_URL!;
 
 if (!apiKey) {
   throw new Error('No "API_KEY" found');
 }
 
-if (!process.env.API_URL) {
+if (!apiUrl) {
   throw new Error('No "API_URL" found');
 }
 
@@ -55,7 +56,7 @@ type AuthContext = Readonly<{
 }>;
 
 const $fetch = createFetch({
-  baseURL: process.env.API_URL as string,
+  baseURL: apiUrl,
   headers: {
     'content-type': 'application/json',
     'x-api-key': apiKey,

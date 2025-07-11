@@ -2,7 +2,6 @@
 
 import { execSync } from 'node:child_process';
 import { domain, zone } from './dns';
-// import { apiRouter } from './api';
 import * as secrets from './secrets';
 
 const gitHash =
@@ -115,7 +114,6 @@ new sst.aws.Nextjs('tvseries', {
   },
   environment: {
     API_KEY: secrets.apiKey.value,
-    // API_URL: apiRouter.url,
     API_URL: 'https://api.tvseri.es',
     OPEN_NEXT_FORCE_NON_EMPTY_RESPONSE: 'true',
     SECRET_KEY: secrets.secretKey.value,
@@ -144,9 +142,12 @@ new sst.aws.Nextjs('tvseries', {
       };
     },
     server: {
-      layers: [
-        'arn:aws:lambda:eu-west-2:580247275435:layer:LambdaInsightsExtension-Arm64:5',
-      ],
+      layers:
+        $app.stage === 'production'
+          ? [
+              'arn:aws:lambda:eu-west-2:580247275435:layer:LambdaInsightsExtension-Arm64:5',
+            ]
+          : [],
       nodejs: {
         esbuild: {
           external: ['@opennextjs/aws'],

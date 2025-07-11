@@ -551,6 +551,7 @@ export async function fetchApplePlusTvSeries(region = 'US') {
     sort_by: 'vote_average.desc',
     'vote_count.gte': 250,
     watch_region: region,
+    with_networks: 2552,
     with_watch_providers: '350',
     without_genres: '99',
   });

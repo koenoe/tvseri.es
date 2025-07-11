@@ -4,10 +4,13 @@ import { getFollowerCount } from '@/lib/api';
 import Block from './Block';
 
 export default async function BlockFollowers({
-  username,
+  params,
 }: Readonly<{
-  username: string;
+  params: Promise<{
+    username: string;
+  }>;
 }>) {
+  const { username } = await params;
   const user = await cachedUser({ username });
 
   if (!user) {

@@ -7,10 +7,13 @@ import EditProfileButton from './EditProfileButton';
 import FollowButton from './FollowButton';
 
 export default async function UserButtons({
-  username,
+  params,
 }: Readonly<{
-  username: string;
+  params: Promise<{
+    username: string;
+  }>;
 }>) {
+  const { username } = await params;
   const user = await cachedUser({ username });
   if (!user) {
     return null;

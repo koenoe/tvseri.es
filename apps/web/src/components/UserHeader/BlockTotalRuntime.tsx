@@ -5,8 +5,13 @@ import formatRuntime from '@/utils/formatRuntime';
 import Block from './Block';
 
 export default async function BlockTotalRuntime({
-  username,
-}: Readonly<{ username: string }>) {
+  params,
+}: Readonly<{
+  params: Promise<{
+    username: string;
+  }>;
+}>) {
+  const { username } = await params;
   const user = await cachedUser({ username });
 
   if (!user) {

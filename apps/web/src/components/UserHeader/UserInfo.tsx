@@ -5,8 +5,14 @@ import formatDate from '@/utils/formatDate';
 
 export default async function UserInfo({
   className,
-  username,
-}: Readonly<{ username: string; className?: string }>) {
+  params,
+}: Readonly<{
+  params: Promise<{
+    username: string;
+  }>;
+  className?: string;
+}>) {
+  const { username } = await params;
   const user = await cachedUser({ username });
 
   if (!user) {

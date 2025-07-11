@@ -8,8 +8,13 @@ import Block from './Block';
 export const cachedWatchedCount = cache(getWatchedCount);
 
 export default async function BlockEpisodesWatched({
-  username,
-}: Readonly<{ username: string }>) {
+  params,
+}: Readonly<{
+  params: Promise<{
+    username: string;
+  }>;
+}>) {
+  const { username } = await params;
   const user = await cachedUser({ username });
 
   if (!user) {

@@ -1,11 +1,11 @@
-import { fetchPopularBritishCrimeTvSeries } from '@/lib/api';
+import { fetchBestBritishCrimeTvSeries } from '@/lib/api';
 import Poster from '../Tiles/Poster';
 import List, { type HeaderVariantProps } from './List';
 
-export default async function PopularBritishCrimeList(
+export default async function BestBritishCrimeList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,
 ) {
-  const items = await fetchPopularBritishCrimeTvSeries();
+  const items = await fetchBestBritishCrimeTvSeries();
 
   return (
     <List

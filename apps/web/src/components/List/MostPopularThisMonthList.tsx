@@ -14,7 +14,7 @@ export default async function MostPopularThisMonthList({
   return (
     <List
       scrollRestoreKey="most-popular-this-month"
-      title={`Top picks for ${currentMonth}`}
+      title={`Top Picks for ${currentMonth}`}
       {...rest}
     >
       {items.map((item) => (

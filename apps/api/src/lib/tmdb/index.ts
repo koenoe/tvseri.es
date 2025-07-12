@@ -48,6 +48,7 @@ import { toQueryString } from '@/utils/toQueryString';
 import { findPreferredImages } from '../db/preferredImages';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import {
+  fetchBestBritishCrime,
   fetchImdbTopRatedTvSeries,
   fetchKoreasFinest,
   fetchMostAnticipated,
@@ -521,20 +522,6 @@ export async function fetchDiscoverTvSeries(query?: TmdbDiscoverTvSeriesQuery) {
   };
 }
 
-export async function fetchPopularBritishCrimeTvSeries() {
-  const { items } = await fetchDiscoverTvSeries({
-    language: 'en-GB',
-    sort_by: 'popularity.desc',
-    'vote_count.gte': 250,
-    watch_region: 'GB',
-    with_genres: '80',
-    with_origin_country: 'GB',
-    with_original_language: 'en',
-    without_genres: '10766',
-  });
-  return items.filter((item) => !!item.posterImage && !!item.backdropImage);
-}
-
 export async function fetchBestSportsDocumentariesTvSeries() {
   const { items } = await fetchDiscoverTvSeries({
     sort_by: 'vote_average.desc',
@@ -554,6 +541,20 @@ export async function fetchApplePlusTvSeries(region = 'US') {
     watch_region: region,
     with_networks: 2552,
     with_watch_providers: '350',
+  });
+  return items.filter((item) => !!item.posterImage && !!item.backdropImage);
+}
+
+export async function fetchNetflixOriginals(region = 'US') {
+  const withoutGenres = [...GLOBAL_GENRES_TO_IGNORE, 10764, 16];
+  const { items } = await fetchDiscoverTvSeries({
+    sort_by: 'vote_average.desc',
+    'vote_count.gte': 1000,
+    watch_region: region,
+    with_networks: 213,
+    with_watch_providers: '8',
+    without_genres: withoutGenres.join(','),
+    without_keywords: '4344|228221',
   });
   return items.filter((item) => !!item.posterImage && !!item.backdropImage);
 }
@@ -920,6 +921,17 @@ export async function fetchMostPopularTvSeriesThisMonth() {
 
 export async function fetchMostAnticipatedTvSeries() {
   const ids = await fetchMostAnticipated();
+  const series = await Promise.all(
+    ids.map(async (id) => {
+      const serie = await fetchTvSeries(id);
+      return serie as TvSeries;
+    }),
+  );
+  return series.filter((serie) => !!serie.posterImage);
+}
+
+export async function fetchBestBritishCrimeTvSeries() {
+  const ids = await fetchBestBritishCrime();
   const series = await Promise.all(
     ids.map(async (id) => {
       const serie = await fetchTvSeries(id);

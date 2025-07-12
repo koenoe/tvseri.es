@@ -157,6 +157,17 @@ export async function fetchMostAnticipated() {
   return response.shows?.map((item) => item.id);
 }
 
+export async function fetchBestBritishCrime() {
+  const response = (await mdblistFetch(
+    '/lists/koenoe/british-crime/items',
+  )) as Readonly<{
+    movies: Item[];
+    shows: Item[];
+  }>;
+
+  return response.shows?.map((item) => item.id);
+}
+
 export async function fetchMediaInfoInBatch(ids: string[]) {
   const response = (await mdblistFetch('/tmdb/show', {
     body: JSON.stringify({

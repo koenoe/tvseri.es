@@ -2,11 +2,12 @@ import { Hono } from 'hono';
 
 import {
   fetchApplePlusTvSeries,
+  fetchBestBritishCrimeTvSeries,
   fetchBestSportsDocumentariesTvSeries,
   fetchKoreasFinestTvSeries,
   fetchMostAnticipatedTvSeries,
   fetchMostPopularTvSeriesThisMonth,
-  fetchPopularBritishCrimeTvSeries,
+  fetchNetflixOriginals,
   fetchTopRatedTvSeries,
   fetchTrendingTvSeries,
 } from '@/lib/tmdb';
@@ -79,6 +80,17 @@ app.get('/must-watch-on-apple-tv', async (c) => {
   return c.json(items);
 });
 
+app.get('/netflix-originals', async (c) => {
+  const items = await fetchNetflixOriginals(c.req.query('region'));
+
+  c.header(
+    'Cache-Control',
+    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=3600',
+  ); // 1w, allow stale for 1h
+
+  return c.json(items);
+});
+
 app.get('/best-sports-documentaries', async (c) => {
   const items = await fetchBestSportsDocumentariesTvSeries();
 
@@ -90,8 +102,8 @@ app.get('/best-sports-documentaries', async (c) => {
   return c.json(items);
 });
 
-app.get('/popular-british-crime', async (c) => {
-  const items = await fetchPopularBritishCrimeTvSeries();
+app.get('/best-british-crime', async (c) => {
+  const items = await fetchBestBritishCrimeTvSeries();
 
   c.header(
     'Cache-Control',

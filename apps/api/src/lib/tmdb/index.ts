@@ -58,6 +58,7 @@ import {
   buildBackdropImageUrl,
   buildDiscoverQuery,
   buildTitleTreatmentImageUrl,
+  deduplicateDiscoverItems,
   GLOBAL_GENRES_TO_IGNORE,
   generateTmdbImageUrl,
   normalizeMovie,
@@ -553,55 +554,43 @@ export async function fetchApplePlusTvSeries(region = 'US') {
     watch_region: region,
     with_networks: 2552,
     with_watch_providers: '350',
-    without_genres: '99',
   });
   return items.filter((item) => !!item.posterImage && !!item.backdropImage);
 }
 
 export async function fetchPopularTvSeriesByYear(year: number | string) {
-  const withoutGenres = [...GLOBAL_GENRES_TO_IGNORE, 16, 10762, 10764, 10766];
+  const withoutGenres = [...GLOBAL_GENRES_TO_IGNORE, 10764, 16];
   const startDate = `${year}-01-01`;
   const endDate = `${year}-12-31`;
 
-  const firstPage = await fetchDiscoverTvSeries({
+  const query = {
     // Note: maybe we should use `air_date` instead of `first_air_date`?
     'first_air_date.gte': startDate,
     'first_air_date.lte': endDate,
-    page: 1,
     sort_by: 'vote_average.desc',
-    'vote_count.gte': 200,
+    'vote_count.gte': 250,
     without_genres: withoutGenres.join(','),
+  } as const;
+
+  const firstPage = await fetchDiscoverTvSeries({
+    ...query,
+    page: 1,
   });
 
-  // If total pages is 3, we need 2 more pages (numberOfPagesToFetch = 2)
-  const numberOfPagesToFetch = Math.min(firstPage.totalNumberOfPages - 1, 2);
-
-  // Pages 2-5 (or fewer)
+  const numberOfPagesToFetch = Math.min(firstPage.totalNumberOfPages - 1, 4);
   const additionalPages =
     numberOfPagesToFetch > 0
       ? await Promise.all(
           Array.from({ length: numberOfPagesToFetch }, (_, i) =>
             fetchDiscoverTvSeries({
-              'first_air_date.gte': startDate,
-              'first_air_date.lte': endDate,
-              page: i + 2,
-              sort_by: 'vote_average.desc',
-              'vote_count.gte': 200,
-              without_genres: withoutGenres.join(','), // This gives us pages 2,3,4,5
+              ...query,
+              page: i + 2, // Pages 2, 3, 4, 5
             }),
           ),
         )
       : [];
 
-  const uniqueItems = Array.from(
-    new Map(
-      [firstPage, ...additionalPages]
-        .flatMap((page) => page.items)
-        .map((item) => [item.id, item]),
-    ).values(),
-  );
-
-  return uniqueItems.filter(
+  return deduplicateDiscoverItems([firstPage, ...additionalPages]).filter(
     (item) =>
       !!item.posterImage &&
       !!item.backdropImage &&

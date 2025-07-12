@@ -6,7 +6,7 @@ import BestSportsDocumentariesList from '@/components/List/BestSportsDocumentari
 import GenresList, { gapStyleOverride } from '@/components/List/GenresList';
 import KoreasFinestList from '@/components/List/KoreasFinestList';
 import MostAnticipatedList from '@/components/List/MostAnticipatedList';
-import MostPopularThisMonthList from '@/components/List/MostPopularThisMonth';
+import MostPopularThisMonthList from '@/components/List/MostPopularThisMonthList';
 import PopularBritishCrimeList from '@/components/List/PopularBritishCrimeList';
 import TopRatedList from '@/components/List/TopRatedList';
 import Page from '@/components/Page/Page';

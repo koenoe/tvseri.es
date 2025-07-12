@@ -226,14 +226,14 @@ export async function POST(req: Request) {
     return Response.json({ error: 'No payload found' }, { status: 400 });
   }
 
-  const { user, encryptedSessionId } = await auth();
-  if (!user || !encryptedSessionId) {
+  const { user, encryptedSessionId, session } = await auth();
+  if (!user || !encryptedSessionId || !session) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const signal = req.signal;
   const region = (await headers()).get('cloudfront-viewer-country') || 'US';
-  const providers = await fetchWatchProviders(region);
+  const providers = await fetchWatchProviders(session.country ?? region);
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {

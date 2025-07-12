@@ -6,7 +6,6 @@ import {
 } from '@tvseri.es/types';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-
 import { addTmdbToSession, removeTmdbFromSessions } from '@/lib/db/session';
 import {
   addTmdbToUser,

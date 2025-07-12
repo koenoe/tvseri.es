@@ -1,5 +1,4 @@
 import { headers } from 'next/headers';
-
 import { fetchApplePlusTvSeries } from '@/lib/api';
 import Poster from '../Tiles/Poster';
 import List, { type HeaderVariantProps } from './List';

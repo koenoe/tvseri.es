@@ -9,8 +9,8 @@ export default async function PopularBritishCrimeList(
 
   return (
     <List
-      scrollRestoreKey="popular-british-crime"
-      title="Popular British Crime"
+      scrollRestoreKey="best-of-british-crime"
+      title="Best of British Crime"
       {...props}
     >
       {items.map((item) => (

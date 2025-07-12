@@ -40,8 +40,8 @@ app.get('/most-popular-this-month', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=3600',
-  ); // 1w, allow stale for 1h
+    'public, max-age=86400, s-maxage=86400, stale-while-revalidate=3600',
+  ); // 24h, allow stale for 1h
 
   return c.json(items);
 });

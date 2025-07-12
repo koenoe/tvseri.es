@@ -12,9 +12,7 @@ import {
   useTransition,
 } from 'react';
 import { toast } from 'sonner';
-
 import useRgbString from '@/hooks/useRgbString';
-
 import ContextMenuButton, {
   type ContextMenuButtonHandle,
 } from '../Buttons/ContextMenuButton';

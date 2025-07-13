@@ -9,8 +9,8 @@ export default async function BestSportsDocumentariesList(
 
   return (
     <List
-      scrollRestoreKey="best-sports-documentaries"
-      title="Best sports documentaries"
+      scrollRestoreKey="true-stories-in-sport"
+      title="True Stories in Sport"
       {...props}
     >
       {items.map((item) => (

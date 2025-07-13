@@ -10,7 +10,7 @@ import type {
 } from '@tvseri.es/types';
 import slugify from 'slugify';
 
-export const GLOBAL_GENRES_TO_IGNORE = [10763, 10767];
+export const GLOBAL_GENRES_TO_IGNORE = [10763, 10767, 10766, 10762];
 
 export function generateTmdbImageUrl(path: string, size = 'original') {
   return `https://image.tmdb.org/t/p/${size}${path}`;
@@ -40,6 +40,18 @@ export function buildTitleTreatmentImageUrl(path: string) {
 
 export function buildPosterImageUrl(path: string) {
   return generateTmdbImageUrl(path, 'w300_and_h450_bestv2');
+}
+
+export function deduplicateDiscoverItems(
+  pages: Array<{ items: TvSeries[] }>,
+): TvSeries[] {
+  const deduplicated = Array.from(
+    new Map(
+      pages.flatMap((page) => page.items).map((item) => [item.id, item]),
+    ).values(),
+  );
+
+  return deduplicated;
 }
 
 function extractImages(item: TmdbTvSeries | TmdbMovie) {

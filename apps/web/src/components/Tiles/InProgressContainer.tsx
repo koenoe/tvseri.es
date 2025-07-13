@@ -91,20 +91,22 @@ export default async function InProgressContainer({
   item: ListItem;
   user: User;
 }>) {
-  const [{ user: authenticatedUser, encryptedSessionId }, tvSeries] =
-    await Promise.all([
-      auth(),
-      cachedTvSeries(item.id, { includeImages: true }),
-    ]);
-
-  const watchedItems = await getAllWatchedForTvSeries({
-    seriesId: tvSeries!.id,
-    userId: user.id,
-  });
+  const [
+    { user: authenticatedUser, encryptedSessionId },
+    tvSeries,
+    watchedItems,
+  ] = await Promise.all([
+    auth(),
+    cachedTvSeries(item.id, { includeImages: true }),
+    getAllWatchedForTvSeries({
+      seriesId: item.id,
+      userId: user.id,
+    }),
+  ]);
 
   const { currentSeason, watchCount } = getCurrentSeasonFromWatchedItems(
     watchedItems,
-    tvSeries!.seasons!,
+    tvSeries!.seasons ?? [],
   );
 
   const removeAction = async () => {

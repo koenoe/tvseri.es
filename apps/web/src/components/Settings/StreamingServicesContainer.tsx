@@ -5,13 +5,17 @@ import { fetchWatchProviders, updateWatchProviders } from '@/lib/api';
 import StreamingServices from './StreamingServices';
 
 export default async function StreamingServicesContainer() {
-  const [headerStore, { user }] = await Promise.all([headers(), auth()]);
+  const [headerStore, { user, session }] = await Promise.all([
+    headers(),
+    auth(),
+  ]);
 
-  if (!user) {
+  if (!user || !session) {
     return null;
   }
 
-  const region = headerStore.get('cloudfront-viewer-country') || 'US';
+  const region =
+    session.country ?? headerStore.get('cloudfront-viewer-country') ?? 'US';
   const providers = await fetchWatchProviders(region, {
     includeColors: true,
   });

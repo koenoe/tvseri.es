@@ -14,7 +14,7 @@ export default async function TopRatedList({
     return (
       <List
         scrollRestoreKey="all-time-favorites"
-        title="All time favorites"
+        title="All Time Favorites"
         {...rest}
       >
         {items.map((item) => (

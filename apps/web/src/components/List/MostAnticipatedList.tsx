@@ -10,7 +10,7 @@ export default async function MostAnticipatedList(
   return (
     <List
       scrollRestoreKey="most-anticipated"
-      title="Most anticipated"
+      title="Most Anticipated"
       {...props}
     >
       {items.map((item) => (

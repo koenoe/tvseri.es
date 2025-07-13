@@ -126,9 +126,9 @@ export async function fetchKoreasFinestTvSeries() {
   return series;
 }
 
-export async function fetchPopularBritishCrimeTvSeries() {
+export async function fetchBestBritishCrimeTvSeries() {
   const series = (await apiFetch(
-    '/collection/popular-british-crime',
+    '/collection/best-british-crime',
   )) as TvSeries[];
   return series;
 }
@@ -142,6 +142,15 @@ export async function fetchBestSportsDocumentariesTvSeries() {
 
 export async function fetchApplePlusTvSeries(region?: string) {
   const series = (await apiFetch('/collection/must-watch-on-apple-tv', {
+    query: {
+      region,
+    },
+  })) as TvSeries[];
+  return series;
+}
+
+export async function fetchNetflixOriginals(region?: string) {
+  const series = (await apiFetch('/collection/netflix-originals', {
     query: {
       region,
     },

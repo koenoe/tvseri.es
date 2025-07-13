@@ -95,8 +95,8 @@ function EpisodeTile({
           {item.description}
         </p>
         <div className="mt-1 flex w-full gap-2 text-xs opacity-60 md:text-[0.8rem]">
-          {item.runtime && <div>{formatRuntime(item.runtime)}</div>}
-          {item.airDate && (
+          {item.runtime ? <div>{formatRuntime(item.runtime)}</div> : null}
+          {item.airDate ? (
             <div
               className={twMerge(
                 'before:mr-2 before:content-["·"]',
@@ -105,7 +105,7 @@ function EpisodeTile({
             >
               {formatDate(item.airDate)}
             </div>
-          )}
+          ) : null}
         </div>
       </div>
       <div className="absolute bottom-[-1.5rem] right-[-1rem] text-[10rem] font-bold leading-none opacity-[0.075] md:bottom-[-1.75rem] md:right-[-1rem] md:text-[12.5rem]">

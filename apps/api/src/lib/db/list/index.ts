@@ -20,7 +20,13 @@ import client from '../client';
 // }>;
 
 const isCustomList = (listId: string) =>
-  !['WATCHED', 'WATCHLIST', 'FAVORITES', 'IN_PROGRESS'].includes(listId);
+  ![
+    'WATCHED',
+    'WATCHLIST',
+    'FAVORITES',
+    'IN_PROGRESS',
+    'RESUMING_SOON',
+  ].includes(listId);
 
 // export const createCustomList = async (
 //   input: Readonly<{
@@ -331,7 +337,7 @@ export const getAllListItems = async (
 export const isInList = async (
   input: Readonly<{
     userId: string;
-    listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | 'IN_PROGRESS' | ulid()
+    listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | 'IN_PROGRESS' | 'RESUMING_SOON' | ulid()
     id: number;
   }>,
 ) => {
@@ -354,7 +360,7 @@ export const isInList = async (
 export const addToList = async (
   input: Readonly<{
     userId: string;
-    listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | 'IN_PROGRESS' | ulid()
+    listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | 'IN_PROGRESS' | 'RESUMING_SOON' | ulid()
     item: Omit<ListItem, 'createdAt' | 'posterImage'> &
       Readonly<{
         createdAt?: number;
@@ -397,7 +403,7 @@ export const addToList = async (
 export const removeFromList = async (
   input: Readonly<{
     userId: string;
-    listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | 'IN_PROGRESS' | ulid()
+    listId: string; // 'WATCHED' | 'WATCHLIST' | 'FAVORITES' | 'IN_PROGRESS' | 'RESUMING_SOON' | ulid()
     id: number;
   }>,
 ) => {

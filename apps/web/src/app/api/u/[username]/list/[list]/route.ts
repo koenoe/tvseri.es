@@ -2,7 +2,13 @@ import type { NextRequest } from 'next/server';
 
 import { findUser, getListItems } from '@/lib/api';
 
-const lists = ['favorites', 'in_progress', 'watched', 'watchlist'] as const;
+const lists = [
+  'favorites',
+  'in_progress',
+  'resuming_soon',
+  'watched',
+  'watchlist',
+] as const;
 
 export async function GET(
   request: NextRequest,

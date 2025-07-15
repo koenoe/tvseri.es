@@ -67,7 +67,7 @@ watched.subscribe(
       },
     },
     runtime: 'nodejs22.x',
-    timeout: '20 seconds',
+    timeout: '30 seconds',
   },
   {
     transform: {

@@ -50,10 +50,10 @@ export default function BackgroundImage({
         'relative h-full w-full select-none object-cover object-top',
         className,
       )}
-      decoding="sync"
+      decoding="async"
       draggable={false}
       fetchPriority={fetchPriority}
-      loading="eager"
+      loading="lazy"
       sizes={imageSizes}
       srcSet={imageSrcSet}
       // It's intended to keep `src` the last attribute because React updates

@@ -6,7 +6,7 @@
     "color": "^5.0.0",
     "date-fns": "^4.1.0",
     "dice-coefficient": "^2.1.1",
-    "motion": "^12.23.5",
+    "motion": "^12.23.6",
     "next": "15.4.1",
     "papaparse": "^5.5.3",
     "react": "19.1.0",
@@ -24,7 +24,7 @@
     "zustand": "^5.0.6"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^15.3.5",
+    "@next/bundle-analyzer": "^15.4.1",
     "@opennextjs/aws": "^3.7.0",
     "@tailwindcss/typography": "^0.5.16",
     "@tvseri.es/types": "workspace:*",

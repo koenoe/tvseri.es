@@ -1,7 +1,12 @@
 import type { TvSeries, User } from '@tvseri.es/types';
 import type { SQSEvent, SQSHandler } from 'aws-lambda';
 
-import { addToList, getAllListItems, removeFromList } from '@/lib/db/list';
+import {
+  addToList,
+  getAllListItems,
+  isInList,
+  removeFromList,
+} from '@/lib/db/list';
 import { getWatchedCountForTvSeries } from '@/lib/db/watched';
 import { fetchTvSeries } from '@/lib/tmdb';
 
@@ -59,26 +64,27 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
               watchedCount > 0 &&
               watchedCount === tvSeries.numberOfAiredEpisodes;
             const tvSeriesIsInProgress = watchedCount > 0 && !tvSeriesIsWatched;
-            const tvSeriesIsNotWatchedNorInProgress = watchedCount === 0;
+            const tvSeriesIsNotWatchedAtAll = watchedCount === 0;
 
-            // Note: series still watched, no need to move it to in progress
-            if (tvSeriesIsWatched) {
-              return;
-            }
-
-            console.log(
-              `[UPDATE] | ${user.id} | ${tvSeries.title} | ${watchedCount}/${tvSeries.numberOfAiredEpisodes}`,
-              {
-                tvSeriesIsInProgress,
-                tvSeriesIsNotWatchedNorInProgress,
-                tvSeriesIsWatched,
-              },
+            const twoWeeksFromNow = new Date(
+              Date.now() + 14 * 24 * 60 * 60 * 1000,
             );
+            const tvSeriesIsResumingSoon =
+              tvSeries.nextEpisodeToAir &&
+              new Date(tvSeries.nextEpisodeToAir.airDate) <= twoWeeksFromNow;
 
-            // Note: there's new episodes to watch, move series to in progress
-            if (tvSeriesIsInProgress) {
-              await Promise.all([
-                addToList({
+            if (tvSeriesIsWatched && tvSeriesIsResumingSoon) {
+              const isCurrentlyInResumingSoon = await isInList({
+                id: tvSeries.id,
+                listId: 'RESUMING_SOON',
+                userId: user.id,
+              });
+
+              if (!isCurrentlyInResumingSoon) {
+                console.log(
+                  `[UPDATE] | ${user.id} | ${tvSeries.title} | Added to RESUMING_SOON (new episodes within 2 weeks)`,
+                );
+                await addToList({
                   item: {
                     createdAt: Date.now(),
                     id: tvSeries.id,
@@ -87,19 +93,59 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
                     status: tvSeries.status,
                     title: tvSeries.title,
                   },
-                  listId: 'IN_PROGRESS',
+                  listId: 'RESUMING_SOON',
                   userId: user.id,
-                }),
-                removeFromList({
-                  id: tvSeries.id,
-                  listId: 'WATCHED',
-                  userId: user.id,
-                }),
-              ]);
+                });
+              }
+            }
+
+            if (tvSeriesIsWatched) {
+              return;
+            }
+
+            if (tvSeriesIsInProgress) {
+              const isCurrentlyInWatched = await isInList({
+                id: tvSeries.id,
+                listId: 'WATCHED',
+                userId: user.id,
+              });
+
+              if (isCurrentlyInWatched) {
+                console.log(
+                  `[UPDATE] | ${user.id} | ${tvSeries.title} | Moved from WATCHED to IN_PROGRESS | ${watchedCount}/${tvSeries.numberOfAiredEpisodes}`,
+                );
+                await Promise.all([
+                  addToList({
+                    item: {
+                      createdAt: Date.now(),
+                      id: tvSeries.id,
+                      posterPath: tvSeries.posterPath,
+                      slug: tvSeries.slug,
+                      status: tvSeries.status,
+                      title: tvSeries.title,
+                    },
+                    listId: 'IN_PROGRESS',
+                    userId: user.id,
+                  }),
+                  removeFromList({
+                    id: tvSeries.id,
+                    listId: 'WATCHED',
+                    userId: user.id,
+                  }),
+                  removeFromList({
+                    id: tvSeries.id,
+                    listId: 'RESUMING_SOON',
+                    userId: user.id,
+                  }),
+                ]);
+              }
             }
 
             // Note: should never happen, but just in case
-            if (tvSeriesIsNotWatchedNorInProgress) {
+            if (tvSeriesIsNotWatchedAtAll) {
+              console.log(
+                `[UPDATE] | ${user.id} | ${tvSeries.title} | Removing from all lists (no episodes watched) | ${watchedCount}/${tvSeries.numberOfAiredEpisodes}`,
+              );
               await Promise.all([
                 removeFromList({
                   id: tvSeries.id,
@@ -109,6 +155,11 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
                 removeFromList({
                   id: tvSeries.id,
                   listId: 'WATCHED',
+                  userId: user.id,
+                }),
+                removeFromList({
+                  id: tvSeries.id,
+                  listId: 'RESUMING_SOON',
                   userId: user.id,
                 }),
               ]);

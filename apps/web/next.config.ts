@@ -14,6 +14,7 @@ const nextConfig = {
   },
   experimental: {
     authInterrupts: true,
+    clientSegmentCache: true,
     inlineCss: true,
     // Note: don't think this does much, but alas
     optimizePackageImports: [

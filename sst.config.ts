@@ -22,7 +22,22 @@ export default $config({
     $transform(aws.cloudfront.Distribution, (args) => {
       args.restrictions = {
         geoRestriction: {
-          locations: ['BY', 'CN', 'CU', 'IR', 'KP', 'RU', 'SG', 'VE'],
+          locations: [
+            'BD', // Bangladesh - high bot traffic
+            'BY', // Belarus - sanctions/compliance
+            'CN', // China - bot traffic and compliance
+            'CU', // Cuba - sanctions/compliance
+            'ID', // Indonesia - high bot traffic
+            'IN', // India - high bot traffic
+            'IR', // Iran - sanctions/compliance
+            'KP', // North Korea - sanctions/compliance
+            'PK', // Pakistan - high bot traffic
+            'RU', // Russia - sanctions/compliance
+            'SG', // Singapore - bot traffic
+            'TR', // Turkey - problematic traffic
+            'UA', // Ukraine - current situation/mixed traffic
+            'VE', // Venezuela - sanctions/compliance
+          ],
           restrictionType: 'blacklist',
         },
       };
@@ -42,12 +57,6 @@ export default $config({
     $transform(sst.aws.Function, (args) => {
       args.architecture = 'arm64';
       args.runtime = 'nodejs22.x';
-      args.layers =
-        $app.stage === 'production'
-          ? [
-              'arn:aws:lambda:eu-west-2:580247275435:layer:LambdaInsightsExtension-Arm64:5',
-            ]
-          : [];
       args.nodejs = {
         ...args.nodejs,
         minify: true,

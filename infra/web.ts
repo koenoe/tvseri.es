@@ -4,6 +4,8 @@ import { execSync } from 'node:child_process';
 import { domain, zone } from './dns';
 import * as secrets from './secrets';
 
+const ENABLE_WAF = false;
+
 const gitHash =
   process.env.GITHUB_SHA ||
   execSync('git rev-parse --short HEAD').toString().trim();
@@ -124,7 +126,8 @@ new sst.aws.Nextjs('tvseries', {
   },
   openNextVersion,
   path: 'apps/web',
-  // regions: [$app.providers?.aws.region ?? 'eu-west-2'],
+  // Note: disable multi region for now as it's not really worth the extra costs
+  // regions: [$app.providers?.aws.region ?? 'eu-west-2', 'us-east-1'],
   server: {
     architecture: 'arm64',
     memory: '2582 MB',
@@ -134,7 +137,7 @@ new sst.aws.Nextjs('tvseries', {
     cdn: (options) => {
       options.transform = {
         distribution(args) {
-          if ($app.stage === 'production') {
+          if (ENABLE_WAF && $app.stage === 'production') {
             const { webAcl } = require('./waf');
             args.webAclId = webAcl.arn;
           }
@@ -142,12 +145,6 @@ new sst.aws.Nextjs('tvseries', {
       };
     },
     server: {
-      layers:
-        $app.stage === 'production'
-          ? [
-              'arn:aws:lambda:eu-west-2:580247275435:layer:LambdaInsightsExtension-Arm64:5',
-            ]
-          : [],
       nodejs: {
         esbuild: {
           external: ['@opennextjs/aws'],

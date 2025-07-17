@@ -1,3 +1,4 @@
+/** biome-ignore-all assist/source/useSortedAttributes: src should be last */
 import { cx } from 'class-variance-authority';
 import { preload } from 'react-dom';
 
@@ -24,10 +25,18 @@ export default function BackgroundImage({
     ${SD} 768w,
     ${HD} 1200w
   `;
+  const fetchPriority = 'high';
 
   preload(SD, {
     as: 'image',
-    fetchPriority: 'high',
+    fetchPriority,
+    imageSizes,
+    imageSrcSet,
+  });
+
+  preload(HD, {
+    as: 'image',
+    fetchPriority,
     imageSizes,
     imageSrcSet,
   });
@@ -43,11 +52,13 @@ export default function BackgroundImage({
       )}
       decoding="async"
       draggable={false}
+      fetchPriority={fetchPriority}
+      loading="lazy"
       sizes={imageSizes}
-      src={SD}
+      srcSet={imageSrcSet}
       // It's intended to keep `src` the last attribute because React updates
       // attributes in order.
-      srcSet={imageSrcSet}
+      src={SD}
     />
   );
 }

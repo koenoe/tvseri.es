@@ -24,7 +24,6 @@ watchedStatusQueue.subscribe(
       secrets.tmdbApiAccessToken,
       secrets.tmdbApiKey,
     ],
-    memory: '512 MB',
     nodejs: {
       esbuild: {
         external: [
@@ -37,7 +36,7 @@ watchedStatusQueue.subscribe(
         ],
       },
     },
-    timeout: '20 seconds',
+    timeout: '60 seconds',
   },
   {
     // Default = {size: 10, window: “20 seconds”, partialResponses: false}
@@ -65,7 +64,7 @@ export const watchedStatusCron = new sst.aws.Cron('ValidateWatchedStatus', {
         ],
       },
     },
-    timeout: '30 seconds',
+    timeout: '10 seconds',
   }, // 05:00 UTC, daily
   schedule: 'cron(0 5 * * ? *)',
 });

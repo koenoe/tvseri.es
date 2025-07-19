@@ -3,7 +3,7 @@
     "@aws-sdk/client-cloudfront": "^3.848.0",
     "@aws-sdk/client-dynamodb": "^3.848.0",
     "@aws-sdk/client-lambda": "^3.848.0",
-    "@aws-sdk/client-sesv2": "^3.848.0",
+    "@aws-sdk/client-sesv2": "^3.849.0",
     "@aws-sdk/client-sqs": "^3.848.0",
     "@aws-sdk/util-dynamodb": "^3.848.0",
     "@better-fetch/fetch": "^1.1.18",
@@ -18,7 +18,7 @@
   "devDependencies": {
     "@tvseri.es/types": "workspace:*",
     "@tvseri.es/typescript-config": "workspace:*",
-    "@types/aws-lambda": "^8.10.150",
+    "@types/aws-lambda": "^8.10.152",
     "@types/color": "^4.2.0",
     "@types/node": "^22.15.30",
     "sharp": "^0.34.3",

@@ -12,6 +12,10 @@ export default $config({
               ? 'tvseries-production'
               : 'tvseries-dev',
         },
+        vercel: {
+          apiToken: process.env.VERCEL_API_TOKEN,
+          team: process.env.VERCEL_TEAM_ID,
+        },
       },
       removal: input?.stage === 'production' ? 'retain' : 'remove',
     };
@@ -69,7 +73,13 @@ export default $config({
     await import('./infra/dynamo');
     await import('./infra/scrobbleQueue');
     await import('./infra/watchedStatus');
-    await import('./infra/api');
-    await import('./infra/web');
+
+    const { apiRouter: api } = await import('./infra/api');
+    const { web } = await import('./infra/web');
+
+    return {
+      api: api.url,
+      web: web.url,
+    };
   },
 });

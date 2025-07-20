@@ -127,7 +127,6 @@ export const hardBudget = new aws.budgets.Budget('hard_budget', {
   budgetType: 'COST',
   limitAmount: '50.00',
   limitUnit: 'USD',
-  name: 'Hard budget',
   notifications: [
     {
       comparisonOperator: 'GREATER_THAN',

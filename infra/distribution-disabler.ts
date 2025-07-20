@@ -1,3 +1,5 @@
+/// <reference path="../.sst/platform/config.d.ts" />
+
 // https://github.com/laniakita/website/blob/main/infra/distribution-disablers.ts
 
 /*
@@ -47,31 +49,6 @@ const useast1 = new aws.Provider('useast1', { region: 'us-east-1' });
 const current = await aws.getCallerIdentity({});
 
 /*
- * Our CloudFront disabler function or distribution "kill switch", which
- * finds all our cloudfront distributions, and "updates" them to a disabled state.
- */
-export const killSwitch = new sst.aws.Function(
-  'KillSwitch',
-  {
-    architecture: 'arm64',
-    handler:
-      'packages/kill-switch/disable-cloudfront-distributions/index.handler',
-    permissions: [
-      {
-        actions: [
-          'cloudfront:ListDistributions',
-          'cloudfront:UpdateDistribution',
-          'cloudfront:GetDistributionConfig',
-        ],
-        resources: ['*'],
-      },
-    ],
-    timeout: '5 seconds',
-  },
-  { provider: useast1 },
-);
-
-/*
  * We create a new SNS Topic, which can be
  * connected to a budget alert, that upon
  * triggering, will notify it (SNS topic),
@@ -83,7 +60,6 @@ export const killSwitchSnsTopic = new sst.aws.SnsTopic(
   {
     transform: {
       topic: {
-        name: 'budget-alert-sns',
         policy: $jsonStringify({
           Statement: [
             {
@@ -125,7 +101,22 @@ export const killSwitchSnsTopic = new sst.aws.SnsTopic(
 );
 
 // Subscribe the kill switch Lambda to the SNS topic
-killSwitchSnsTopic.subscribe('KillSwitchSubscription', killSwitch.arn);
+killSwitchSnsTopic.subscribe('KillSwitchSubscription', {
+  architecture: 'arm64',
+  handler:
+    'packages/kill-switch/disable-cloudfront-distributions/index.handler',
+  permissions: [
+    {
+      actions: [
+        'cloudfront:ListDistributions',
+        'cloudfront:UpdateDistribution',
+        'cloudfront:GetDistributionConfig',
+      ],
+      resources: ['*'],
+    },
+  ],
+  timeout: '5 seconds',
+});
 
 /*
  * This is the budget that will trigger the alert
@@ -178,7 +169,7 @@ export const monitorCloudFrontMetricsCron = new sst.aws.Cron(
       ],
       timeout: '5 seconds',
     },
-    schedule: 'rate(1 hour)', // Run every hour
+    schedule: 'rate(1 hour)',
   },
   { provider: useast1 },
 );

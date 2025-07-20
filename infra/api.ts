@@ -7,6 +7,19 @@ import { email } from './email';
 import { scrobbleQueue } from './scrobbleQueue';
 import * as secrets from './secrets';
 
+// TODO: implement proper api key rotation
+// export const routerSecretRotation = new time.Rotating('RouterSecretRotation', {
+//   rotationMonths: 1,
+// });
+
+// export const routerSecret = new random.RandomPassword('RouterSecret', {
+//   keepers: {
+//     rotation: routerSecretRotation.id,
+//   },
+//   length: 32,
+//   special: true,
+// });
+
 export const apiRouter = new sst.aws.Router('ApiRouter', {
   domain: {
     dns: sst.aws.dns({

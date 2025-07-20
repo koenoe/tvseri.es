@@ -18,6 +18,10 @@ declare module "sst" {
       "type": "sst.aws.Router"
       "url": string
     }
+    "BudgetAlertSNS": {
+      "arn": string
+      "type": "sst.aws.SnsTopic"
+    }
     "Cache": {
       "name": string
       "type": "sst.aws.Dynamo"
@@ -35,6 +39,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "KillSwitch": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "Lists": {
       "name": string
       "type": "sst.aws.Dynamo"
@@ -42,6 +50,10 @@ declare module "sst" {
     "MdblistApiKey": {
       "type": "sst.sst.Secret"
       "value": string
+    }
+    "MonitorCloudFrontMetrics": {
+      "name": string
+      "type": "sst.aws.Function"
     }
     "OTP": {
       "name": string

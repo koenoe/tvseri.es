@@ -71,5 +71,6 @@ export default $config({
     await import('./infra/watchedStatus');
     await import('./infra/api');
     await import('./infra/web');
+    await import('./infra/distribution-disabler');
   },
 });

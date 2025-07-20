@@ -51,6 +51,8 @@ export default $config({
           originShieldRegion: $app.providers?.aws.region ?? 'eu-west-2',
         },
       }));
+
+      args.priceClass = 'PriceClass_100';
     });
 
     // Global transform to standardize all Lambda functions

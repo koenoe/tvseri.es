@@ -4,8 +4,8 @@ import { apiRouter } from './api';
 import { domain, zone } from './dns';
 import * as secrets from './secrets';
 
-// Note: for now we disable WAF as it's quite expensive
-const ENABLE_WAF = false;
+// Note: flag to easily enable or disable WAF
+const ENABLE_WAF = true;
 
 let openNextVersion: string | undefined;
 try {

@@ -46,58 +46,9 @@ const useast1 = new aws.Provider('useast1', { region: 'us-east-1' });
 // @ts-expect-error
 const current = await aws.getCallerIdentity({});
 
-// Policy to disable active CloudFront distributions
-export const killSwitchPolicy = new aws.iam.Policy(
-  'disable-cloudfront-policy',
-  {
-    description:
-      'Allows policyholder to list distributions, update distributions, and get distribution configs',
-    name: 'disable-cloudfront-policy',
-    path: '/',
-    policy: JSON.stringify({
-      Statement: [
-        {
-          Action: [
-            'cloudfront:ListDistributions',
-            'cloudfront:UpdateDistribution',
-            'cloudfront:GetDistributionConfig',
-          ],
-          Effect: 'Allow',
-          Resource: '*',
-        },
-      ],
-      Version: '2012-10-17',
-    }),
-  },
-);
-
-// The disable-cloudfront-policy is attached to the Role, which will be
-// assigned to a Lambda func that disables CloudFront distributions on exec.
-export const killSwitchRole = new aws.iam.Role('BudgetCloudFrontDisableRole', {
-  assumeRolePolicy: JSON.stringify({
-    Statement: [
-      {
-        Action: 'sts:AssumeRole',
-        Effect: 'Allow',
-        Principal: {
-          Service: 'lambda.amazonaws.com',
-        },
-        Sid: '',
-      },
-    ],
-    Version: '2012-10-17',
-  }),
-  managedPolicyArns: [
-    'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
-    killSwitchPolicy.arn,
-  ],
-  name: 'budget_cloudfront_disable_role',
-});
-
 /*
- * Our CloudFront disabler function or distribution "kill switch", is
- * assigned the budget_cloudfront_disable_role, which lets it find all
- * our cloudfront distributions, and "updates" them to a disabled state.
+ * Our CloudFront disabler function or distribution "kill switch", which
+ * finds all our cloudfront distributions, and "updates" them to a disabled state.
  */
 export const killSwitch = new sst.aws.Function(
   'KillSwitch',
@@ -105,7 +56,16 @@ export const killSwitch = new sst.aws.Function(
     architecture: 'arm64',
     handler:
       'packages/kill-switch/disable-cloudfront-distributions/index.handler',
-    role: killSwitchRole.arn,
+    permissions: [
+      {
+        actions: [
+          'cloudfront:ListDistributions',
+          'cloudfront:UpdateDistribution',
+          'cloudfront:GetDistributionConfig',
+        ],
+        resources: ['*'],
+      },
+    ],
     timeout: '5 seconds',
   },
   { provider: useast1 },
@@ -124,100 +84,48 @@ export const killSwitchSnsTopic = new sst.aws.SnsTopic(
     transform: {
       topic: {
         name: 'budget-alert-sns',
+        policy: $jsonStringify({
+          Statement: [
+            {
+              Action: [
+                'SNS:Subscribe',
+                'SNS:SetTopicAttributes',
+                'SNS:RemovePermission',
+                'SNS:Receive',
+                'SNS:Publish',
+                'SNS:ListSubscriptionsByTopic',
+                'SNS:GetTopicAttributes',
+                'SNS:DeleteTopic',
+                'SNS:AddPermission',
+              ],
+              Condition: {
+                StringEquals: {
+                  'AWS:SourceOwner': current.accountId,
+                },
+              },
+              Effect: 'Allow',
+              Principal: { AWS: '*' },
+              Resource: '*',
+              Sid: '__default_statement_ID',
+            },
+            {
+              Action: 'SNS:Publish',
+              Effect: 'Allow',
+              Principal: { Service: 'budgets.amazonaws.com' },
+              Resource: '*',
+              Sid: 'BudgetAction',
+            },
+          ],
+          Version: '2012-10-17',
+        }),
       },
     },
   },
   { provider: useast1 },
 );
 
-/*
- * This is the body of the SNS Topic Policy assigned
- * to the "kill switch" SNS. The Policy is
- * declared here, to inject its ARN.
- */
-const killSwitchSnsTopicPolicy = killSwitchSnsTopic.arn.apply((arn) =>
-  aws.iam.getPolicyDocumentOutput({
-    policyId: '__default_policy_ID',
-    statements: [
-      {
-        actions: [
-          'SNS:Subscribe',
-          'SNS:SetTopicAttributes',
-          'SNS:RemovePermission',
-          'SNS:Receive',
-          'SNS:Publish',
-          'SNS:ListSubscriptionsByTopic',
-          'SNS:GetTopicAttributes',
-          'SNS:DeleteTopic',
-          'SNS:AddPermission',
-        ],
-        conditions: [
-          {
-            test: 'StringEquals',
-            values: [current.accountId],
-            variable: 'AWS:SourceOwner',
-          },
-        ],
-        effect: 'Allow',
-        principals: [
-          {
-            identifiers: ['*'],
-            type: 'AWS',
-          },
-        ],
-        resources: [arn],
-        sid: '__default_statement_ID',
-      },
-      {
-        actions: ['SNS:Publish'],
-        effect: 'Allow',
-        principals: [
-          {
-            identifiers: ['budgets.amazonaws.com'],
-            type: 'Service',
-          },
-        ],
-        resources: [arn],
-        sid: 'BudgetAction',
-      },
-    ],
-  }),
-);
-
-/*
- * This is what actually creates the Policy,
- * and assigns it to the "kill switch" SNS Topic.
- * It also injects the body of the policy declared
- * above. It's deployed to US-EAST-1 so it can
- * operate with the Global CloudFront distributions.
- */
-export const defaultKillSwitchSnsTopicPolicy = new aws.sns.TopicPolicy(
-  'default',
-  {
-    arn: killSwitchSnsTopic.arn,
-    policy: killSwitchSnsTopicPolicy.apply(
-      (killSwitchSnsTopicPolicy) => killSwitchSnsTopicPolicy.json,
-    ),
-  },
-  { provider: useast1 },
-);
-
-/*
- * This subscribes our distribution "kill switch" SNS to the
- * Lambda function that will actually disable our CloudFront
- * distributions upon invocation. This is deployed to
- * US-EAST-1, because that's where the "kill switch" SNS
- * Topic currently exists.
- */
-export const killSwitchLambdaTarget = new aws.sns.TopicSubscription(
-  'kill_switch_lambda_target',
-  {
-    endpoint: killSwitch.arn,
-    protocol: 'lambda',
-    topic: killSwitchSnsTopic.arn,
-  },
-  { provider: useast1 },
-);
+// Subscribe the kill switch Lambda to the SNS topic
+killSwitchSnsTopic.subscribe('KillSwitchSubscription', killSwitch.arn);
 
 /*
  * This is the budget that will trigger the alert
@@ -233,7 +141,7 @@ export const hardBudget = new aws.budgets.Budget('hard_budget', {
     {
       comparisonOperator: 'GREATER_THAN',
       notificationType: 'ACTUAL',
-      subscriberSnsTopicArns: [killSwitchLambdaTarget.arn],
+      subscriberSnsTopicArns: [killSwitchSnsTopic.arn],
       threshold: 95,
       thresholdType: 'PERCENTAGE',
     },
@@ -244,182 +152,33 @@ export const hardBudget = new aws.budgets.Budget('hard_budget', {
 /*
  * Because AWS only refreshes the Budget metrics 3x a day,
  * it might be a good idea to have a backup "kill switch".
- * The following creates a Lambda function, which is
- * scheduled by Event Bridge, to periodically check the
- * current CloudFront usage metrics. If an invocation
- * reveals the usage metrics are beyond the defined
- * limits (default: Free tier), then it will trigger the
- * "kill switch" SNS Topic, which will invoke the
- * distribution disabler lambda function.
+ * The following creates a scheduled Lambda function that
+ * periodically checks the current CloudFront usage metrics.
+ * If the usage metrics are beyond the defined limits
+ * (default: Free tier), it will trigger the "kill switch"
+ * SNS Topic, which will invoke the distribution disabler
+ * lambda function.
  */
-
-/*
- * This defines a Policy body, which injects the ARN
- * of the "kill switch" SNS Topic.
- */
-const monitorPolicy = killSwitchSnsTopic.arn.apply((arn) =>
-  aws.iam.getPolicyDocument({
-    statements: [
-      {
-        actions: ['cloudwatch:GetMetricData', 'cloudfront:ListDistributions'],
-        effect: 'Allow',
-        resources: ['*'],
-      },
-      {
-        actions: ['sns:Publish'],
-        effect: 'Allow',
-        resources: [arn],
-      },
-    ],
-  }),
-);
-
-/*
- * This creates the actual Policy, which will let
- * the Lambda function fetch the current CloudFront
- * usage metrics, for all our distributions. It
- * also gives it the power to send a message to
- * the "kill switch" SNS Topic.
- */
-export const monitorMetricsPolicy = new aws.iam.Policy(
-  'lambda-monitor-metrics-sns-policy',
-  {
-    description:
-      'Allows policyholder to list distributions, get distribution metrics from Cloudwatch, and send SNS to disable distributions',
-    name: 'lambda-monitor-metrics-sns-policy',
-    path: '/',
-    policy: monitorPolicy.apply((monitorPolicy) => monitorPolicy.json),
-  },
-);
-
-/*
- * This is the body of the Role which will be
- * assigned to the metric fetcher Lambda function.
- */
-const metricsRole = aws.iam.getPolicyDocument({
-  statements: [
-    {
-      actions: ['sts:AssumeRole'],
-      principals: [
-        {
-          identifiers: ['lambda.amazonaws.com'],
-          type: 'Service',
-        },
-      ],
-    },
-  ],
-});
-
-/*
- * This is creates the actual Role, which integrates the
- * body of the Role above, and the monitor-metrics-sns-policy.
- */
-export const monitorMetricsRole = new aws.iam.Role('monitorMetricsRole', {
-  assumeRolePolicy: metricsRole.then((metricsRole) => metricsRole.json),
-  managedPolicyArns: [
-    'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
-    monitorMetricsPolicy.arn,
-  ],
-  name: 'monitor_metrics_role',
-});
-
-/*
- * This creates the actual Lambda function which fetch
- * the CloudFront usage metrics from CloudWatch. It's
- * defined in the US-EAST-1 region, because CloudFront
- * is Global.
- */
-export const monitorCloudFrontMetrics = new sst.aws.Function(
+export const monitorCloudFrontMetricsCron = new sst.aws.Cron(
   'MonitorCloudFrontMetrics',
   {
-    architecture: 'arm64',
-    handler: 'packages/kill-switch/metrics-monitor/index.handler',
-    link: [killSwitchSnsTopic],
-    role: monitorMetricsRole.arn,
-    timeout: '5 seconds',
-  },
-  { provider: useast1 },
-);
-
-/*
- * This defines the body of the Role Policy
- * of the Event Bridge scheduler.
- */
-const scheduleRolePolicy = aws.iam.getPolicyDocument({
-  statements: [
-    {
-      actions: ['sts:AssumeRole'],
-      effect: 'Allow',
-      principals: [
+    function: {
+      architecture: 'arm64',
+      handler: 'packages/kill-switch/metrics-monitor/index.handler',
+      link: [killSwitchSnsTopic],
+      permissions: [
         {
-          identifiers: ['scheduler.amazonaws.com'],
-          type: 'Service',
+          actions: ['cloudwatch:GetMetricData', 'cloudfront:ListDistributions'],
+          resources: ['*'],
+        },
+        {
+          actions: ['sns:Publish'],
+          resources: [killSwitchSnsTopic.arn],
         },
       ],
+      timeout: '5 seconds',
     },
-  ],
-});
-
-/*
- * This injects the ARN of the metrics fetcher function.
- * into the body of the Policy, which will be assigned
- * to the EventBridge schedule executioner.
- */
-const invokeLambdaPolicy = monitorCloudFrontMetrics.arn.apply((arn) =>
-  aws.iam.getPolicyDocument({
-    statements: [
-      {
-        actions: ['lambda:InvokeFunction'],
-        effect: 'Allow',
-        resources: [arn],
-      },
-    ],
-  }),
-);
-
-/*
- * This creates the actual role to be used
- * by the EventBridge schedule executioner.
- */
-export const metricsExecutionRole = new aws.iam.Role('MetricsScheduleRole', {
-  assumeRolePolicy: scheduleRolePolicy.then(
-    (scheduleRolePolicy) => scheduleRolePolicy.json,
-  ),
-  inlinePolicies: [
-    {
-      name: 'invoke-metrics-lambda',
-      policy: invokeLambdaPolicy.apply(
-        (invokeLambdaPolicy) => invokeLambdaPolicy.json,
-      ),
-    },
-  ],
-  name: 'metrics_schedule_executioner_role',
-});
-
-/*
- * This creates the scheduler for the metrics
- * fetcher Lambda function. It's set to invoke
- * the Lambda metric monitor function hourly,
- * and the schedule executioner is assigned
- * the role which let's it invoke said function.
- *
- * The EventBridge scheduler is deployed to
- * US-EAST-1, because that's where the target
- * Lambda function exists.
- */
-export const monitorEventBridgeSchedule = new aws.scheduler.Schedule(
-  'MonitorMetricsSchedule',
-  {
-    flexibleTimeWindow: {
-      mode: 'OFF',
-    },
-    groupName: 'default',
-    name: 'monitor-metrics-schedule',
-    scheduleExpression: 'rate(1 hours)',
-    target: {
-      arn: monitorCloudFrontMetrics.arn,
-      roleArn: metricsExecutionRole.arn,
-    },
+    schedule: 'rate(1 hour)', // Run every hour
   },
   { provider: useast1 },
 );

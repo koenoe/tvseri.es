@@ -1,4 +1,3 @@
-/// <reference path="../.sst/platform/config.d.ts" />
 // https://github.com/laniakita/website/blob/main/infra/distribution-disablers.ts
 
 /*
@@ -44,7 +43,8 @@
 // CloudFront is global, so some thing's need to be deployed to US-EAST-1.
 const useast1 = new aws.Provider('useast1', { region: 'us-east-1' });
 // This let's us get our Account info dynamically.
-const current = aws.getCallerIdentityOutput();
+// @ts-expect-error
+const current = await aws.getCallerIdentity({});
 
 // Policy to disable active CloudFront distributions
 export const killSwitchPolicy = new aws.iam.Policy(
@@ -52,7 +52,7 @@ export const killSwitchPolicy = new aws.iam.Policy(
   {
     description:
       'Allows policyholder to list distributions, update distributions, and get distribution configs',
-    name: `${$app.stage}-disable-cloudfront-policy`,
+    name: 'disable-cloudfront-policy',
     path: '/',
     policy: JSON.stringify({
       Statement: [
@@ -91,7 +91,7 @@ export const killSwitchRole = new aws.iam.Role('BudgetCloudFrontDisableRole', {
     'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
     killSwitchPolicy.arn,
   ],
-  name: `${$app.stage}-budget-cloudfront-disable-role`,
+  name: 'budget_cloudfront_disable_role',
 });
 
 /*
@@ -123,7 +123,7 @@ export const killSwitchSnsTopic = new sst.aws.SnsTopic(
   {
     transform: {
       topic: {
-        name: `${$app.stage}-budget-alert-sns`,
+        name: 'budget-alert-sns',
       },
     },
   },
@@ -228,7 +228,7 @@ export const hardBudget = new aws.budgets.Budget('hard_budget', {
   budgetType: 'COST',
   limitAmount: '50.00',
   limitUnit: 'USD',
-  name: `Hard budget ${$app.stage}`,
+  name: 'Hard budget',
   notifications: [
     {
       comparisonOperator: 'GREATER_THAN',
@@ -286,7 +286,7 @@ export const monitorMetricsPolicy = new aws.iam.Policy(
   {
     description:
       'Allows policyholder to list distributions, get distribution metrics from Cloudwatch, and send SNS to disable distributions',
-    name: `${$app.stage}-lambda-monitor-metrics-sns-policy`,
+    name: 'lambda-monitor-metrics-sns-policy',
     path: '/',
     policy: monitorPolicy.apply((monitorPolicy) => monitorPolicy.json),
   },
@@ -320,7 +320,7 @@ export const monitorMetricsRole = new aws.iam.Role('monitorMetricsRole', {
     'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
     monitorMetricsPolicy.arn,
   ],
-  name: `${$app.stage}-monitor-metrics-role`,
+  name: 'monitor_metrics_role',
 });
 
 /*
@@ -393,7 +393,7 @@ export const metricsExecutionRole = new aws.iam.Role('MetricsScheduleRole', {
       ),
     },
   ],
-  name: `${$app.stage}-metrics-schedule-executioner-role`,
+  name: 'metrics_schedule_executioner_role',
 });
 
 /*
@@ -414,7 +414,7 @@ export const monitorEventBridgeSchedule = new aws.scheduler.Schedule(
       mode: 'OFF',
     },
     groupName: 'default',
-    name: `${$app.stage}-monitor-metrics-schedule`,
+    name: 'monitor-metrics-schedule',
     scheduleExpression: 'rate(1 hours)',
     target: {
       arn: monitorCloudFrontMetrics.arn,

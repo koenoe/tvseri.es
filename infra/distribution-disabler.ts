@@ -60,7 +60,6 @@ export const killSwitchSnsTopic = new sst.aws.SnsTopic(
   {
     transform: {
       topic: {
-        name: `${$app.stage}-budget-alert-sns`,
         policy: $jsonStringify({
           Statement: [
             {

@@ -46,34 +46,46 @@ export const webAcl = new aws.wafv2.WebAcl(
             ],
             name: 'AWSManagedRulesBotControlRuleSet',
             scopeDownStatement: {
-              notStatement: {
+              orStatement: {
                 statements: [
                   {
-                    byteMatchStatement: {
-                      fieldToMatch: {
-                        uriPath: {},
-                      },
-                      positionalConstraint: 'STARTS_WITH',
-                      searchString: '/api/webhooks/scrobble',
-                      textTransformations: [
+                    notStatement: {
+                      statements: [
                         {
-                          priority: 0,
-                          type: 'NONE',
+                          byteMatchStatement: {
+                            fieldToMatch: {
+                              uriPath: {},
+                            },
+                            positionalConstraint: 'STARTS_WITH',
+                            searchString: '/api/webhooks/scrobble',
+                            textTransformations: [
+                              {
+                                priority: 0,
+                                type: 'NONE',
+                              },
+                            ],
+                          },
                         },
                       ],
                     },
                   },
                   {
-                    byteMatchStatement: {
-                      fieldToMatch: {
-                        uriPath: {},
-                      },
-                      positionalConstraint: 'EXACTLY',
-                      searchString: '/robots.txt',
-                      textTransformations: [
+                    notStatement: {
+                      statements: [
                         {
-                          priority: 0,
-                          type: 'NONE',
+                          byteMatchStatement: {
+                            fieldToMatch: {
+                              uriPath: {},
+                            },
+                            positionalConstraint: 'EXACTLY',
+                            searchString: '/robots.txt',
+                            textTransformations: [
+                              {
+                                priority: 0,
+                                type: 'NONE',
+                              },
+                            ],
+                          },
                         },
                       ],
                     },

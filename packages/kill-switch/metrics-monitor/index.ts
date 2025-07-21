@@ -23,10 +23,13 @@ const metricsToTrack = {
   distribution: ['Requests', 'BytesDownloaded'] as const,
   function: ['FunctionInvocations'] as const,
   limits: {
-    // AWS Always Free Tier limits
     BytesDownloaded: 1_000_000_000_000, // 1 TB per month
-    FunctionInvocations: 2_000_000, // 2 million invocations per month
-    Requests: 10_000_000, // 10 million requests per month
+    FunctionInvocations: 10_000_000, // 10 million
+    Requests: 10_000_000, // 10 million
+    // AWS Always Free Tier limits
+    // BytesDownloaded: 1_000_000_000_000, // 1 TB per month
+    // FunctionInvocations: 2_000_000, // 2 million invocations per month
+    // Requests: 10_000_000, // 10 million requests per month
   } as const,
 };
 

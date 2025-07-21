@@ -6,12 +6,14 @@ export default $config({
       home: 'aws',
       name: 'tvseries',
       providers: {
+        '@pulumiverse/time': true,
         aws: {
           profile:
             input.stage === 'production'
               ? 'tvseries-production'
               : 'tvseries-dev',
         },
+        random: true,
       },
       removal: input?.stage === 'production' ? 'retain' : 'remove',
     };

@@ -60,7 +60,6 @@ jobs:
 
       - name: Setup SST secrets
         run: |
-          pnpm sst secret set ApiKey "${{ secrets.API_KEY }}" --stage pr-${{ github.event.pull_request.number }}
           pnpm sst secret set MdblistApiKey "${{ secrets.MDBLIST_API_KEY }}" --stage pr-${{ github.event.pull_request.number }}
           pnpm sst secret set SecretKey "${{ secrets.SECRET_KEY }}" --stage pr-${{ github.event.pull_request.number }}
           pnpm sst secret set TmdbApiAccessToken "${{ secrets.TMDB_API_ACCESS_TOKEN }}" --stage pr-${{ github.event.pull_request.number }}

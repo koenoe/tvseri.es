@@ -11,7 +11,7 @@ declare module "sst" {
       "url": string
     }
     "ApiKey": {
-      "type": "sst.sst.Secret"
+      "type": "sst.sst.Linkable"
       "value": string
     }
     "ApiRouter": {
@@ -39,10 +39,6 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
-    "KillSwitch": {
-      "name": string
-      "type": "sst.aws.Function"
-    }
     "Lists": {
       "name": string
       "type": "sst.aws.Dynamo"
@@ -50,10 +46,6 @@ declare module "sst" {
     "MdblistApiKey": {
       "type": "sst.sst.Secret"
       "value": string
-    }
-    "MonitorCloudFrontMetrics": {
-      "name": string
-      "type": "sst.aws.Function"
     }
     "OTP": {
       "name": string

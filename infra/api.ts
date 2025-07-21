@@ -7,19 +7,6 @@ import { email } from './email';
 import { scrobbleQueue } from './scrobbleQueue';
 import * as secrets from './secrets';
 
-// TODO: implement proper api key rotation
-// export const routerSecretRotation = new time.Rotating('RouterSecretRotation', {
-//   rotationMonths: 1,
-// });
-
-// export const routerSecret = new random.RandomPassword('RouterSecret', {
-//   keepers: {
-//     rotation: routerSecretRotation.id,
-//   },
-//   length: 32,
-//   special: true,
-// });
-
 export const apiRouter = new sst.aws.Router('ApiRouter', {
   domain: {
     dns: sst.aws.dns({
@@ -29,19 +16,22 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
   },
   edge: {
     viewerRequest: {
-      injection: $interpolate`
-        const apiKey = event.request.headers["x-api-key"] && event.request.headers["x-api-key"].value;
-        if (!apiKey || apiKey !== "${secrets.apiKey.value}") {
-          return {
-            statusCode: 401,
-            statusDescription: 'Unauthorized',
-            body: {
-              encoding: "text",
-              data: '<html><head><title>401 Unauthorized</title></head><body><center><h1>401 Unauthorized</h1></center></body></html>'
+      injection: $resolve([secrets.apiKeyRandom.result]).apply(
+        ([resolvedApiKey]) =>
+          `
+          const apiKey = event.request.headers["x-api-key"] && event.request.headers["x-api-key"].value;
+          if (!apiKey || apiKey !== "${resolvedApiKey}") {
+            return {
+              statusCode: 401,
+              statusDescription: 'Unauthorized',
+              body: {
+                encoding: "text",
+                data: '<html><head><title>401 Unauthorized</title></head><body><center><h1>401 Unauthorized</h1></center></body></html>'
+              }
             }
           }
-        }
-      `,
+        `,
+      ),
     },
   },
 });

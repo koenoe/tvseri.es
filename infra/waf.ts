@@ -4,6 +4,22 @@ const wafProvider = new aws.Provider('waf-provider', {
   region: 'us-east-1',
 });
 
+const scrobbleWebhookByteMatch = {
+  byteMatchStatement: {
+    fieldToMatch: {
+      uriPath: {},
+    },
+    positionalConstraint: 'STARTS_WITH',
+    searchString: '/api/webhooks/scrobble',
+    textTransformations: [
+      {
+        priority: 0,
+        type: 'NONE',
+      },
+    ],
+  },
+};
+
 export const webAcl = new aws.wafv2.WebAcl(
   'webAcl',
   {
@@ -50,23 +66,7 @@ export const webAcl = new aws.wafv2.WebAcl(
                 statements: [
                   {
                     notStatement: {
-                      statements: [
-                        {
-                          byteMatchStatement: {
-                            fieldToMatch: {
-                              uriPath: {},
-                            },
-                            positionalConstraint: 'STARTS_WITH',
-                            searchString: '/api/webhooks/scrobble',
-                            textTransformations: [
-                              {
-                                priority: 0,
-                                type: 'NONE',
-                              },
-                            ],
-                          },
-                        },
-                      ],
+                      statements: [scrobbleWebhookByteMatch],
                     },
                   },
                   {
@@ -111,6 +111,11 @@ export const webAcl = new aws.wafv2.WebAcl(
         statement: {
           managedRuleGroupStatement: {
             name: 'AWSManagedRulesCommonRuleSet',
+            scopeDownStatement: {
+              notStatement: {
+                statements: [scrobbleWebhookByteMatch],
+              },
+            },
             vendorName: 'AWS',
           },
         },

@@ -37,8 +37,8 @@ importers:
         specifier: ^3.848.0
         version: 3.848.0
       '@aws-sdk/client-lambda':
-        specifier: ^3.848.0
-        version: 3.848.0
+        specifier: ^3.851.0
+        version: 3.851.0
       '@aws-sdk/client-sesv2':
         specifier: ^3.849.0
         version: 3.849.0
@@ -399,8 +399,8 @@ packages:
     resolution: {integrity: sha512-sZSezrnvHmzsvWM7Yr5lu07tks5vzs156FwzT3u56KXgs7rd/BOrAuUeGLZ6qlxGuwMOyHnOM4GFalNzsIzbTA==}
     engines: {node: '>=18.0.0'}
 
-  '@aws-sdk/client-lambda@3.848.0':
-    resolution: {integrity: sha512-kxFzSsXPq8ZiFU23q3tOLi40Aqz43VPmBqDfVZbDXOV1kESGMop+sWFEToSolfV85OTYlFHa29OpgxqHpC3zbg==}
+  '@aws-sdk/client-lambda@3.851.0':
+    resolution: {integrity: sha512-wChFgkDH4TepG9HdqVAVYLrczzab4PN2hogK3k/h2KJKoHFiSjY66tlDlZ/CueLk09u3PGMkVrDBDEs0znaXIA==}
     engines: {node: '>=18.0.0'}
 
   '@aws-sdk/client-s3@3.850.0':
@@ -3558,7 +3558,7 @@ snapshots:
     transitivePeerDependencies:
       - aws-crt
 
-  '@aws-sdk/client-lambda@3.848.0':
+  '@aws-sdk/client-lambda@3.851.0':
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
       '@aws-crypto/sha256-js': 5.2.0
@@ -4780,7 +4780,7 @@ snapshots:
       '@ast-grep/napi': 0.35.0
       '@aws-sdk/client-cloudfront': 3.398.0
       '@aws-sdk/client-dynamodb': 3.848.0
-      '@aws-sdk/client-lambda': 3.848.0
+      '@aws-sdk/client-lambda': 3.851.0
       '@aws-sdk/client-s3': 3.850.0
       '@aws-sdk/client-sqs': 3.848.0
       '@node-minify/core': 8.0.6

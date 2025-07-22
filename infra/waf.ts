@@ -46,7 +46,7 @@ export const webAcl = new aws.wafv2.WebAcl(
             ],
             name: 'AWSManagedRulesBotControlRuleSet',
             scopeDownStatement: {
-              orStatement: {
+              andStatement: {
                 statements: [
                   {
                     notStatement: {

@@ -31,8 +31,8 @@ importers:
   apps/api:
     dependencies:
       '@aws-sdk/client-cloudfront':
-        specifier: ^3.848.0
-        version: 3.848.0
+        specifier: ^3.850.0
+        version: 3.850.0
       '@aws-sdk/client-dynamodb':
         specifier: ^3.848.0
         version: 3.848.0
@@ -222,8 +222,8 @@ importers:
   packages/kill-switch:
     dependencies:
       '@aws-sdk/client-cloudfront':
-        specifier: ^3.848.0
-        version: 3.848.0
+        specifier: ^3.850.0
+        version: 3.850.0
       '@aws-sdk/client-cloudwatch':
         specifier: ^3.848.0
         version: 3.848.0
@@ -387,8 +387,8 @@ packages:
     resolution: {integrity: sha512-kISKhqN1k48TaMPbLgq9jj7mO2jvbJdhirvfu4JW3jhFhENnkY0oCwTPvR4Q6Ne2as6GFAMo2XZDZq4rxC7YDw==}
     engines: {node: '>=14.0.0'}
 
-  '@aws-sdk/client-cloudfront@3.848.0':
-    resolution: {integrity: sha512-/myHSVAi1BDIIHdQNuBQ1G1BbgXDzBH1vXeK+LWqRnJLrU03jfX+ldpWbqZ3QN6Claf2ndHic9tyazlLTJiU/w==}
+  '@aws-sdk/client-cloudfront@3.850.0':
+    resolution: {integrity: sha512-uD6F27qdX9PLskFi8QP4dLmkcBTztI52etyKm30MXlEMQZ6WxsQlJVArB+fUmtyavkNIbLyPLIougTV3PeQyeg==}
     engines: {node: '>=18.0.0'}
 
   '@aws-sdk/client-cloudwatch@3.848.0':
@@ -3417,7 +3417,7 @@ snapshots:
     transitivePeerDependencies:
       - aws-crt
 
-  '@aws-sdk/client-cloudfront@3.848.0':
+  '@aws-sdk/client-cloudfront@3.850.0':
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
       '@aws-crypto/sha256-js': 5.2.0

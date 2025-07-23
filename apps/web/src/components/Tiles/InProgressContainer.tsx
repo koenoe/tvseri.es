@@ -3,10 +3,10 @@ import type { ListItem, Season, User, WatchedItem } from '@tvseri.es/types';
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
 import { getAllWatchedForTvSeries, removeFromList } from '@/lib/api';
-
+import { formatSeasonAndEpisode } from '@/utils/formatSeasonAndEpisode';
 import InProgress from './InProgress';
 
-function getCurrentSeasonFromWatchedItems(
+function extractCurrentSeasonFromWatchedItems(
   watchedItems: WatchedItem[],
   seasons: Season[],
 ) {
@@ -26,9 +26,17 @@ function getCurrentSeasonFromWatchedItems(
     (a, b) => a.seasonNumber - b.seasonNumber,
   );
 
-  const lastWatched = [...watchedItems].sort(
-    (a, b) => b.watchedAt - a.watchedAt,
-  )[0];
+  const lastWatched = [...watchedItems].sort((a, b) => {
+    return formatSeasonAndEpisode({
+      episodeNumber: b.episodeNumber ?? 0,
+      seasonNumber: b.seasonNumber ?? 0,
+    }).localeCompare(
+      formatSeasonAndEpisode({
+        episodeNumber: a.episodeNumber ?? 0,
+        seasonNumber: a.seasonNumber ?? 0,
+      }),
+    );
+  })[0];
 
   const lastWatchedSeason = sortedSeasons.find(
     (season) => season.seasonNumber === lastWatched?.seasonNumber,
@@ -104,7 +112,7 @@ export default async function InProgressContainer({
     }),
   ]);
 
-  const { currentSeason, watchCount } = getCurrentSeasonFromWatchedItems(
+  const { currentSeason, watchCount } = extractCurrentSeasonFromWatchedItems(
     watchedItems,
     tvSeries!.seasons ?? [],
   );

@@ -795,6 +795,7 @@ export async function markWatched(
     userId: string;
     watchProvider: WatchProvider | null;
     sessionId: string;
+    region?: string;
   }>,
 ) {
   const auth = {
@@ -802,6 +803,7 @@ export async function markWatched(
     type: 'Bearer' as const,
   };
   const body = JSON.stringify({
+    region: input.region,
     watchProvider: input.watchProvider,
   });
 

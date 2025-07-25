@@ -47,6 +47,7 @@ export async function POST(
   if (body.watched) {
     const watchedItems = await markWatched({
       episodeNumber: body.episodeNumber,
+      region,
       seasonNumber: body.seasonNumber,
       seriesId: tvSeries.id,
       sessionId: encryptedSessionId,

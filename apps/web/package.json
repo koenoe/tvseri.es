@@ -7,7 +7,7 @@
     "date-fns": "^4.1.0",
     "dice-coefficient": "^2.1.1",
     "motion": "^12.23.9",
-    "next": "15.4.3",
+    "next": "15.4.4",
     "papaparse": "^5.5.3",
     "react": "19.1.0",
     "react-day-picker": "^9.8.0",
@@ -24,7 +24,7 @@
     "zustand": "^5.0.6"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^15.4.3",
+    "@next/bundle-analyzer": "^15.4.4",
     "@opennextjs/aws": "^3.7.1",
     "@tailwindcss/typography": "^0.5.16",
     "@tvseri.es/types": "workspace:*",

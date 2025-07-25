@@ -15,7 +15,7 @@ export default async function StreamingServicesContainer() {
   }
 
   const region =
-    session.country ?? headerStore.get('cloudfront-viewer-country') ?? 'US';
+    session.country || headerStore.get('cloudfront-viewer-country') || 'US';
   const providers = await fetchWatchProviders(region, {
     includeColors: true,
   });

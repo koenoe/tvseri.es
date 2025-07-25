@@ -30,12 +30,13 @@ export async function POST(
     return Response.json({ error: 'Not found' }, { status: 404 });
   }
 
-  const { user, encryptedSessionId } = await auth();
-  if (!user || !encryptedSessionId) {
+  const { user, encryptedSessionId, session } = await auth();
+  if (!user || !encryptedSessionId || !session) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
-
-  const region = (await headers()).get('cloudfront-viewer-country') || 'US';
+  const headerStore = await headers();
+  const region =
+    session.country || headerStore.get('cloudfront-viewer-country') || 'US';
   const watchProvider =
     (await fetchTvSeriesWatchProvider(
       tvSeries.id,

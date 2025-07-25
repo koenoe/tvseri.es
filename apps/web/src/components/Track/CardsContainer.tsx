@@ -8,13 +8,13 @@ import type {
 import { headers } from 'next/headers';
 
 import { cachedTvSeriesSeason } from '@/app/cached';
+import auth from '@/auth';
 import {
   fetchTvSeriesWatchProvider,
   getAllWatchedForTvSeries,
   markWatchedInBatch,
   unmarkWatchedInBatch,
 } from '@/lib/api';
-
 import Cards from './Cards';
 
 async function fetchAllSeasons(tvSeries: TvSeries) {
@@ -32,16 +32,15 @@ async function fetchAllSeasons(tvSeries: TvSeries) {
 export default async function CardsContainer({
   tvSeries,
   user,
-  sessionId,
 }: Readonly<{
   tvSeries: TvSeries;
   user: User;
-  // TODO: eventually this component should work for both authenticated and unauthenticated users
-  // For now, we pass the sessionId to ensure the user is authenticated
-  // and to allow the server actions to work correctly
-  sessionId: string;
 }>) {
-  const headerStore = await headers();
+  const [headerStore, { encryptedSessionId, session }] = await Promise.all([
+    headers(),
+    auth(),
+  ]);
+  const sessionId = encryptedSessionId!;
   const region = headerStore.get('cloudfront-viewer-country') || 'US';
 
   const [watchedItems, seasons, watchProvider] = await Promise.all([
@@ -50,7 +49,11 @@ export default async function CardsContainer({
       userId: user.id,
     }),
     fetchAllSeasons(tvSeries),
-    fetchTvSeriesWatchProvider(tvSeries.id, region, sessionId),
+    fetchTvSeriesWatchProvider(
+      tvSeries.id,
+      session?.country ?? region,
+      sessionId,
+    ),
   ]);
 
   async function deleteWatchedItems(items: Partial<WatchedItem>[]) {

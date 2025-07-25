@@ -34,7 +34,7 @@ export type WatchedItem = Readonly<v.InferOutput<typeof WatchedItemSchema>>;
 export const CreateWatchedItemSchema = v.intersect([
   v.object({
     region: v.optional(v.string()),
-    watchProvider: v.optional(WatchProviderSchema),
+    watchProvider: v.optional(v.nullable(WatchProviderSchema)),
   }),
   v.union([
     v.object({

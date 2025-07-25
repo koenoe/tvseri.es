@@ -84,11 +84,7 @@ export default async function TrackPage({ params: paramsFromProps }: Props) {
             </div>
           }
         >
-          <CardsContainer
-            sessionId={encryptedSessionId}
-            tvSeries={tvSeries}
-            user={user}
-          />
+          <CardsContainer tvSeries={tvSeries} user={user} />
         </Suspense>
       </div>
     </>

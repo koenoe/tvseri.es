@@ -70,10 +70,13 @@ const parseWatchProviderFromBody = async (
   body: CreateWatchedItem,
   tvSeriesId: number,
 ) => {
-  return (
-    body.watchProvider ||
-    (await fetchTvSeriesWatchProvider(tvSeriesId, body.region))
-  );
+  if (body.watchProvider != null) {
+    return body.watchProvider;
+  }
+  if (body.region) {
+    return fetchTvSeriesWatchProvider(tvSeriesId, body.region);
+  }
+  return null;
 };
 
 const series = (): MiddlewareHandler<{ Variables: Variables }> => {

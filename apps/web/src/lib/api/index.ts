@@ -247,8 +247,13 @@ export async function fetchTvSeriesImages(
 export async function fetchTvSeriesContentRating(
   id: number | string,
   region: string = 'US',
+  sessionId?: string,
 ) {
   const contentRating = (await apiFetch(`/series/${id}/content-rating`, {
+    auth: {
+      token: sessionId,
+      type: 'Bearer',
+    },
     query: {
       region,
     },

@@ -89,11 +89,10 @@ app.get('/:id/images', async (c) => {
   return c.json(images);
 });
 
-app.get('/:id/content-rating', async (c) => {
-  const rating = await fetchTvSeriesContentRating(
-    c.req.param('id'),
-    c.req.query('region') || 'US',
-  );
+app.get('/:id/content-rating', auth(), async (c) => {
+  const auth = c.get('auth');
+  const region = auth?.session?.country || c.req.query('region') || 'US';
+  const rating = await fetchTvSeriesContentRating(c.req.param('id'), region);
 
   if (!rating) {
     return c.notFound();
@@ -107,10 +106,12 @@ app.get('/:id/content-rating', async (c) => {
   return c.json(rating);
 });
 
-app.get('/:id/watch-providers', async (c) => {
+app.get('/:id/watch-providers', auth(), async (c) => {
+  const auth = c.get('auth');
+  const region = auth?.session?.country || c.req.query('region') || 'US';
   const providers = await fetchTvSeriesWatchProviders(
     c.req.param('id'),
-    c.req.query('region') || 'US',
+    region,
   );
 
   if (!providers) {
@@ -126,9 +127,11 @@ app.get('/:id/watch-providers', async (c) => {
 });
 
 app.get('/:id/watch-provider', auth(), async (c) => {
+  const auth = c.get('auth');
+  const region = auth?.session?.country || c.req.query('region') || 'US';
   const providers = await fetchTvSeriesWatchProviders(
     c.req.param('id'),
-    c.req.query('region') || 'US',
+    region,
   );
 
   if (providers.length === 0) {
@@ -137,7 +140,6 @@ app.get('/:id/watch-provider', auth(), async (c) => {
 
   let provider = providers[0];
 
-  const auth = c.get('auth');
   if (auth) {
     const providersForUser = auth.user.watchProviders ?? [];
     // Find the highest priority provider (first in user's preferred order)

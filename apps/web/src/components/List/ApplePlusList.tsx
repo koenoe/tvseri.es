@@ -9,7 +9,7 @@ export default async function ApplePlusList(
 ) {
   const [headerStore, { session }] = await Promise.all([headers(), auth()]);
   const region =
-    session?.country ?? headerStore.get('cloudfront-viewer-country') ?? 'US';
+    session?.country || headerStore.get('cloudfront-viewer-country') || 'US';
   const tvSeries = await fetchApplePlusTvSeries(region);
 
   return (

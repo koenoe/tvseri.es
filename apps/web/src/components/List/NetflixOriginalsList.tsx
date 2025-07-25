@@ -9,7 +9,7 @@ export default async function NetflixOriginalsList(
 ) {
   const [headerStore, { session }] = await Promise.all([headers(), auth()]);
   const region =
-    session?.country ?? headerStore.get('cloudfront-viewer-country') ?? 'US';
+    session?.country || headerStore.get('cloudfront-viewer-country') || 'US';
   const tvSeries = await fetchNetflixOriginals(region);
 
   return (

@@ -53,7 +53,7 @@ importers:
         version: 1.1.18
       '@hono/valibot-validator':
         specifier: ^0.5.3
-        version: 0.5.3(hono@4.8.5)(valibot@1.1.0(typescript@5.8.3))
+        version: 0.5.3(hono@4.8.7)(valibot@1.1.0(typescript@5.8.3))
       '@tvseri.es/token':
         specifier: workspace:*
         version: link:../../packages/token
@@ -61,8 +61,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
       hono:
-        specifier: ^4.8.5
-        version: 4.8.5
+        specifier: ^4.8.7
+        version: 4.8.7
       slugify:
         specifier: ^1.6.6
         version: 1.6.6
@@ -2153,8 +2153,8 @@ packages:
     resolution: {integrity: sha512-Pst8FuGqz3L7tFF+u9Pu70eI0xa5S3LPUmrNd5Jm8nTHze9FxLTK9Kaj5g/k4UcwuJSXTP65SyHOPLrffpcAJg==}
     engines: {node: '>=16.9.0'}
 
-  hono@4.8.5:
-    resolution: {integrity: sha512-Up2cQbtNz1s111qpnnECdTGqSIUIhZJMLikdKkshebQSEBcoUKq6XJayLGqSZWidiH0zfHRCJqFu062Mz5UuRA==}
+  hono@4.8.7:
+    resolution: {integrity: sha512-gS/IyUw6MzcdnOyVRcRshn9hc/EygYc75glsnI3iESod3kGg9Mz194Y9NWJN8O/4qybIoonyIq6E4agc/t0i/g==}
     engines: {node: '>=16.9.0'}
 
   html-escaper@2.0.2:
@@ -4582,9 +4582,9 @@ snapshots:
   '@esbuild/win32-x64@0.25.4':
     optional: true
 
-  '@hono/valibot-validator@0.5.3(hono@4.8.5)(valibot@1.1.0(typescript@5.8.3))':
+  '@hono/valibot-validator@0.5.3(hono@4.8.7)(valibot@1.1.0(typescript@5.8.3))':
     dependencies:
-      hono: 4.8.5
+      hono: 4.8.7
       valibot: 1.1.0(typescript@5.8.3)
 
   '@img/sharp-darwin-arm64@0.34.3':
@@ -6101,7 +6101,7 @@ snapshots:
 
   hono@4.7.4: {}
 
-  hono@4.8.5: {}
+  hono@4.8.7: {}
 
   html-escaper@2.0.2: {}
 

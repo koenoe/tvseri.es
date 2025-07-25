@@ -165,8 +165,8 @@ importers:
         version: 5.0.6(@types/react@19.1.8)(react@19.1.0)
     devDependencies:
       '@next/bundle-analyzer':
-        specifier: ^15.4.3
-        version: 15.4.3
+        specifier: ^15.4.4
+        version: 15.4.4
       '@opennextjs/aws':
         specifier: ^3.7.1
         version: 3.7.1
@@ -1028,8 +1028,8 @@ packages:
     resolution: {integrity: sha512-oxzMzYCkZHMntzuyerehK3fV6A2Kwh5BD6CGEJSVDU2QNEhfLOptf2X7esQgaHZXHZY0oHmMsOtIDLP71UJXgA==}
     engines: {node: '>=18'}
 
-  '@next/bundle-analyzer@15.4.3':
-    resolution: {integrity: sha512-tESVtA147P9TXR8oh/sNR1yu8hx1K9lHEqQdxXqZew87BCvpx+hDvS/8oqp0Kn05qM8mlsjXmH8kKt19dMNZ+w==}
+  '@next/bundle-analyzer@15.4.4':
+    resolution: {integrity: sha512-/jDIIgLhzErHv36+DBymfMSMrmBq8EPfTGwBCjfz9DZFN9sdUC+4dJcu9OuDKpna+EuznAJnVTrMLd9NSBFVwg==}
 
   '@next/env@15.4.3':
     resolution: {integrity: sha512-lKJ9KJAvaWzqurIsz6NWdQOLj96mdhuDMusLSYHw9HBe2On7BjUwU1WeRvq19x7NrEK3iOgMeSBV5qEhVH1cMw==}
@@ -4715,7 +4715,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@next/bundle-analyzer@15.4.3':
+  '@next/bundle-analyzer@15.4.4':
     dependencies:
       webpack-bundle-analyzer: 4.10.1
     transitivePeerDependencies:

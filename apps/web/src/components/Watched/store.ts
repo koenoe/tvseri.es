@@ -145,7 +145,7 @@ export const createWatchedStore = () => {
         return (
           numberOfWatched > 0 &&
           tvSeriesState.tvSeries.numberOfAiredEpisodes > 0 &&
-          numberOfWatched === tvSeriesState.tvSeries.numberOfAiredEpisodes
+          numberOfWatched >= tvSeriesState.tvSeries.numberOfAiredEpisodes
         );
       }
 
@@ -166,7 +166,7 @@ export const createWatchedStore = () => {
         return (
           numberOfWatchedInSeason > 0 &&
           totalEpisodesInSeason > 0 &&
-          numberOfWatchedInSeason === totalEpisodesInSeason
+          numberOfWatchedInSeason >= totalEpisodesInSeason
         );
       }
 

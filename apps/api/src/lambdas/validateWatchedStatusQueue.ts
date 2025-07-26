@@ -62,7 +62,7 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
             const tvSeries = tvSeries_!;
             const tvSeriesIsWatched =
               watchedCount > 0 &&
-              watchedCount === tvSeries.numberOfAiredEpisodes;
+              watchedCount >= tvSeries.numberOfAiredEpisodes;
             const tvSeriesIsInProgress = watchedCount > 0 && !tvSeriesIsWatched;
             const tvSeriesIsNotWatchedAtAll = watchedCount === 0;
 

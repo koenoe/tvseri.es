@@ -87,7 +87,7 @@ export const handler = async (event: DynamoDBStreamEvent) => {
 
     const hasWatchedEpisodes = lastCount > 0;
     const hasAiredEpisodes = tvSeries.numberOfAiredEpisodes > 0;
-    const hasWatchedAllEpisodes = lastCount === tvSeries.numberOfAiredEpisodes;
+    const hasWatchedAllEpisodes = lastCount >= tvSeries.numberOfAiredEpisodes;
 
     const listItem = {
       id: tvSeries.id,

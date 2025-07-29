@@ -35,7 +35,7 @@ function SeasonCard({
   const numberOfAiredEpisodes = season.numberOfAiredEpisodes ?? 0;
   const isFinished =
     numberOfAiredEpisodes > 0 &&
-    numberOfAiredEpisodes >= watchedForSeason.length;
+    watchedForSeason.length >= numberOfAiredEpisodes;
   const episodes = useMemo(
     () => season.episodes.filter((episode) => episode.hasAired),
     [season.episodes],

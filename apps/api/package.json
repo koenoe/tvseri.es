@@ -1,11 +1,11 @@
 {
   "dependencies": {
-    "@aws-sdk/client-cloudfront": "^3.855.0",
-    "@aws-sdk/client-dynamodb": "^3.855.0",
-    "@aws-sdk/client-lambda": "^3.855.0",
-    "@aws-sdk/client-sesv2": "^3.855.0",
-    "@aws-sdk/client-sqs": "^3.855.0",
-    "@aws-sdk/util-dynamodb": "^3.855.0",
+    "@aws-sdk/client-cloudfront": "^3.856.0",
+    "@aws-sdk/client-dynamodb": "^3.856.0",
+    "@aws-sdk/client-lambda": "^3.856.0",
+    "@aws-sdk/client-sesv2": "^3.856.0",
+    "@aws-sdk/client-sqs": "^3.856.0",
+    "@aws-sdk/util-dynamodb": "^3.856.0",
     "@better-fetch/fetch": "^1.1.18",
     "@hono/valibot-validator": "^0.5.3",
     "@tvseri.es/token": "workspace:*",

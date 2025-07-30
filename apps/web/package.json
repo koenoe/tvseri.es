@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^15.4.4",
-    "@opennextjs/aws": "^3.7.1",
+    "@opennextjs/aws": "^3.7.2",
     "@tailwindcss/typography": "^0.5.16",
     "@tvseri.es/types": "workspace:*",
     "@tvseri.es/typescript-config": "workspace:*",

@@ -46,8 +46,8 @@ importers:
         specifier: ^3.856.0
         version: 3.856.0
       '@aws-sdk/util-dynamodb':
-        specifier: ^3.856.0
-        version: 3.856.0(@aws-sdk/client-dynamodb@3.856.0)
+        specifier: ^3.857.0
+        version: 3.857.0(@aws-sdk/client-dynamodb@3.856.0)
       '@better-fetch/fetch':
         specifier: ^1.1.18
         version: 1.1.18
@@ -595,11 +595,11 @@ packages:
     resolution: {integrity: sha512-wmBJqn1DRXnZu3b4EkE6CWnoWMo1ZMvlfkqU5zPz67xx1GMaXlDCchFvKAXMjk4jn/L1O3tKnoFDNsoLV1kgNQ==}
     engines: {node: '>=18.0.0'}
 
-  '@aws-sdk/util-dynamodb@3.856.0':
-    resolution: {integrity: sha512-EHgesHvEXXz+1CtcLIYmhYouBfHeYSJE8vBKvR09sFsSSu3nZNSfrh5G14ydinAGvYSnBcm6iPaXIptrTfNsww==}
+  '@aws-sdk/util-dynamodb@3.857.0':
+    resolution: {integrity: sha512-j7JOyrHtzYqQQxCixiR6OS+hBBLLKAshPgwOjpmGEEUZhiEnT7cENYu9S/HyEfCh1WkfOUYS+3ApgJv1J65+3w==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      '@aws-sdk/client-dynamodb': ^3.856.0
+      '@aws-sdk/client-dynamodb': ^3.857.0
 
   '@aws-sdk/util-endpoints@3.398.0':
     resolution: {integrity: sha512-Fy0gLYAei/Rd6BrXG4baspCnWTUSd0NdokU1pZh4KlfEAEN1i8SPPgfiO5hLk7+2inqtCmqxVJlfqbMVe9k4bw==}
@@ -4390,7 +4390,7 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@aws-sdk/util-dynamodb@3.856.0(@aws-sdk/client-dynamodb@3.856.0)':
+  '@aws-sdk/util-dynamodb@3.857.0(@aws-sdk/client-dynamodb@3.856.0)':
     dependencies:
       '@aws-sdk/client-dynamodb': 3.856.0
       tslib: 2.8.1

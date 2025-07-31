@@ -20,6 +20,22 @@ const scrobbleWebhookByteMatch = {
   },
 };
 
+const robotsTxtByteMatch = {
+  byteMatchStatement: {
+    fieldToMatch: {
+      uriPath: {},
+    },
+    positionalConstraint: 'EXACTLY',
+    searchString: '/robots.txt',
+    textTransformations: [
+      {
+        priority: 0,
+        type: 'NONE',
+      },
+    ],
+  },
+};
+
 export const webAcl = new aws.wafv2.WebAcl(
   'webAcl',
   {
@@ -71,23 +87,7 @@ export const webAcl = new aws.wafv2.WebAcl(
                   },
                   {
                     notStatement: {
-                      statements: [
-                        {
-                          byteMatchStatement: {
-                            fieldToMatch: {
-                              uriPath: {},
-                            },
-                            positionalConstraint: 'EXACTLY',
-                            searchString: '/robots.txt',
-                            textTransformations: [
-                              {
-                                priority: 0,
-                                type: 'NONE',
-                              },
-                            ],
-                          },
-                        },
-                      ],
+                      statements: [robotsTxtByteMatch],
                     },
                   },
                 ],
@@ -112,8 +112,19 @@ export const webAcl = new aws.wafv2.WebAcl(
           managedRuleGroupStatement: {
             name: 'AWSManagedRulesCommonRuleSet',
             scopeDownStatement: {
-              notStatement: {
-                statements: [scrobbleWebhookByteMatch],
+              andStatement: {
+                statements: [
+                  {
+                    notStatement: {
+                      statements: [scrobbleWebhookByteMatch],
+                    },
+                  },
+                  {
+                    notStatement: {
+                      statements: [robotsTxtByteMatch],
+                    },
+                  },
+                ],
               },
             },
             vendorName: 'AWS',

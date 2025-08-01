@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@aws-sdk/client-cloudfront": "^3.857.0",
+    "@aws-sdk/client-cloudfront": "^3.858.0",
     "@aws-sdk/client-cloudwatch": "^3.857.0",
     "@aws-sdk/client-sns": "^3.857.0",
     "sst": "^3.17.10"

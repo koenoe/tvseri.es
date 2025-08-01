@@ -3,7 +3,7 @@
     "@aws-sdk/client-cloudfront": "^3.857.0",
     "@aws-sdk/client-dynamodb": "^3.857.0",
     "@aws-sdk/client-lambda": "^3.857.0",
-    "@aws-sdk/client-sesv2": "^3.857.0",
+    "@aws-sdk/client-sesv2": "^3.858.0",
     "@aws-sdk/client-sqs": "^3.857.0",
     "@aws-sdk/util-dynamodb": "^3.857.0",
     "@better-fetch/fetch": "^1.1.18",

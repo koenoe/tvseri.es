@@ -5,7 +5,7 @@
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",
     "openapi-typescript": "^7.8.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "main": "./src/index.ts",
   "name": "@tvseri.es/types",

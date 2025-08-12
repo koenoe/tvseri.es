@@ -30,7 +30,7 @@
     "@tvseri.es/types": "workspace:*",
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/color": "^4.2.0",
-    "@types/node": "^22.15.30",
+    "@types/node": "^24.2.1",
     "@types/papaparse": "^5.3.16",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",

@@ -3,9 +3,9 @@
     "sst": "^3.17.10"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.1.3",
+    "@biomejs/biome": "2.1.4",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.4",
+    "lint-staged": "^16.1.5",
     "turbo": "^2.5.5",
     "typescript": "^5.9.2"
   },

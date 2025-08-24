@@ -70,7 +70,7 @@ const parseWatchProviderFromBody = async (
   body: CreateWatchedItem,
   tvSeriesId: number,
 ) => {
-  if (body.watchProvider != null) {
+  if (body.watchProvider !== null) {
     return body.watchProvider;
   }
   if (body.region) {

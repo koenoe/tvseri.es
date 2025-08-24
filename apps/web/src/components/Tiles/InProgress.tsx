@@ -3,6 +3,7 @@
 import type { Season, TvSeries } from '@tvseri.es/types';
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   memo,
   useCallback,
@@ -24,15 +25,18 @@ function InProgress({
   currentSeason,
   currentSeasonWatchCount,
   tvSeries,
+  markNextAsWatched,
   removeAction,
   removeIsAllowed = false,
 }: Readonly<{
   currentSeason: Season;
   currentSeasonWatchCount: number;
   tvSeries: TvSeries;
+  markNextAsWatched: () => void;
   removeAction: () => void;
   removeIsAllowed?: boolean;
 }>) {
+  const router = useRouter();
   const contextMenuButtonRef = useRef<ContextMenuButtonHandle>(null);
   const backdropColorRgbString = useRgbString(tvSeries.backdropColor);
   const [isRemoved, setIsRemoved] = useState(false);
@@ -40,12 +44,13 @@ function InProgress({
     isRemoved,
     (_, optimisticValue: boolean) => optimisticValue,
   );
-  const [isRemoving, startTransition] = useTransition();
+  const [isRemoving, startRemove] = useTransition();
+  const [isMarkingNextAsWatched, startMarkingNextAsWatched] = useTransition();
 
   const handleRemove = useCallback(() => {
     contextMenuButtonRef.current?.close();
 
-    startTransition(async () => {
+    startRemove(async () => {
       try {
         setIsOptimisticRemoved(true);
         await removeAction();
@@ -55,6 +60,23 @@ function InProgress({
       }
     });
   }, [removeAction, setIsOptimisticRemoved]);
+
+  const handleMarkNextAsWatched = useCallback(() => {
+    contextMenuButtonRef.current?.close();
+
+    startMarkingNextAsWatched(async () => {
+      const promise = (async () => {
+        await markNextAsWatched();
+        router.refresh();
+      })();
+
+      toast.promise(promise, {
+        error: 'Failed to mark next episode as watched',
+        loading: 'Marking next episode as watched...',
+        success: 'Next episode marked as watched',
+      });
+    });
+  }, [markNextAsWatched, router]);
 
   return (
     <AnimatePresence initial={false}>
@@ -127,6 +149,29 @@ function InProgress({
               ref={contextMenuButtonRef}
               size="small"
             >
+              <button
+                className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap border-b-2 border-neutral-200 pb-3 text-sm font-medium hover:text-neutral-800"
+                disabled={isMarkingNextAsWatched}
+                onClick={handleMarkNextAsWatched}
+              >
+                <svg
+                  className="size-5"
+                  viewBox="0 0 512 512"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <polyline
+                    points="416 128 192 384 96 288"
+                    style={{
+                      fill: 'none',
+                      stroke: 'currentColor',
+                      strokeLinecap: 'square',
+                      strokeMiterlimit: 10,
+                      strokeWidth: '44px',
+                    }}
+                  />
+                </svg>
+                <span>Watched next episode</span>
+              </button>
               <Link
                 className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap border-b-2 border-neutral-200 pb-3 text-sm font-medium hover:text-neutral-800"
                 href={`/track/${tvSeries.id}/${tvSeries.slug}?season=${currentSeason.seasonNumber}`}

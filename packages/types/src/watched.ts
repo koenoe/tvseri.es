@@ -41,6 +41,9 @@ export const CreateWatchedItemSchema = v.intersect([
       watchProvider: WatchProviderSchema,
     }),
     v.object({
+      watchProvider: v.null(),
+    }),
+    v.object({
       region: v.string(),
     }),
   ]),

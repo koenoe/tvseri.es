@@ -1,8 +1,13 @@
 import type { ListItem, Season, User, WatchedItem } from '@tvseri.es/types';
-
+import { headers } from 'next/headers';
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
-import { getAllWatchedForTvSeries, removeFromList } from '@/lib/api';
+import {
+  fetchTvSeriesWatchProvider,
+  getAllWatchedForTvSeries,
+  markWatched,
+  removeFromList,
+} from '@/lib/api';
 import { formatSeasonAndEpisode } from '@/utils/formatSeasonAndEpisode';
 import InProgress from './InProgress';
 
@@ -100,7 +105,7 @@ export default async function InProgressContainer({
   user: User;
 }>) {
   const [
-    { user: authenticatedUser, encryptedSessionId },
+    { user: authenticatedUser, encryptedSessionId, session },
     tvSeries,
     watchedItems,
   ] = await Promise.all([
@@ -137,10 +142,59 @@ export default async function InProgressContainer({
     }
   };
 
+  const markNextAsWatchedAction = async () => {
+    'use server';
+
+    if (
+      authenticatedUser?.id !== user.id ||
+      !encryptedSessionId ||
+      !currentSeason
+    ) {
+      return;
+    }
+
+    try {
+      const nextEpisodeNumber = watchCount + 1;
+      const maxNumberOfEpisodes =
+        currentSeason.numberOfAiredEpisodes ||
+        currentSeason.numberOfEpisodes ||
+        0;
+
+      if (nextEpisodeNumber > maxNumberOfEpisodes) {
+        return;
+      }
+
+      const headerStore = await headers();
+      const region =
+        session?.country ||
+        headerStore.get('cloudfront-viewer-country') ||
+        'US';
+      const watchProvider =
+        (await fetchTvSeriesWatchProvider(
+          tvSeries!.id,
+          region,
+          encryptedSessionId ?? undefined,
+        )) ?? null;
+
+      await markWatched({
+        episodeNumber: nextEpisodeNumber,
+        seasonNumber: currentSeason.seasonNumber,
+        seriesId: tvSeries!.id,
+        sessionId: encryptedSessionId,
+        userId: user.id,
+        watchProvider,
+      });
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
   return currentSeason ? (
     <InProgress
       currentSeason={currentSeason}
       currentSeasonWatchCount={watchCount}
+      markNextAsWatched={markNextAsWatchedAction}
       removeAction={removeAction}
       removeIsAllowed={authenticatedUser?.id === user.id}
       tvSeries={tvSeries!}

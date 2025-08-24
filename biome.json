@@ -56,7 +56,7 @@
     "enabled": true,
     "rules": {
       "a11y": "off",
-      "nursery": {
+      "correctness": {
         "useUniqueElementIds": "off"
       },
       "recommended": true,

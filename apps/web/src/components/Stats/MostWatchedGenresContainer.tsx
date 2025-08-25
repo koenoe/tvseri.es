@@ -38,7 +38,8 @@ const getGenreStats = async (input: Input): Promise<GenreStat[]> => {
 
   return [...genreCounts.entries()]
     .map(([genre, count]) => ({ count, genre }))
-    .sort((a, b) => b.count - a.count);
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10); // Limit to top 10 genres
 };
 
 const cachedGenreStats = async (input: Input) => {

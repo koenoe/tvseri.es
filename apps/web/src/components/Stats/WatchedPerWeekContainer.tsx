@@ -7,6 +7,8 @@ import WatchedPerWeek from './WatchedPerWeekLazy';
 type WeeklyCount = {
   week: number;
   episodes: number;
+  totalRuntime: number;
+  runtimeHours: number;
 };
 
 type Input = Readonly<{
@@ -20,6 +22,8 @@ const getWeeklyWatchedCount = async (input: Input): Promise<WeeklyCount[]> => {
   // Always create 53 weeks of data
   const weekCounts: WeeklyCount[] = Array.from({ length: 53 }, (_, i) => ({
     episodes: 0,
+    runtimeHours: 0,
+    totalRuntime: 0,
     week: i + 1,
   }));
 
@@ -29,7 +33,17 @@ const getWeeklyWatchedCount = async (input: Input): Promise<WeeklyCount[]> => {
 
     if (weekNumber <= 53) {
       weekCounts[weekNumber - 1]!.episodes += 1;
+      weekCounts[weekNumber - 1]!.totalRuntime += item.runtime || 0;
     }
+  });
+
+  // Convert runtime to hours for better visual scaling with episode counts
+  weekCounts.forEach((week) => {
+    // Simple logic: Use hours directly, which naturally creates good proportions
+    // - Anime (many short episodes): 60 episodes vs 20 hours → episodes bar larger
+    // - Drama series (few long episodes): 5 episodes vs 7.5 hours → runtime bar larger
+    // This way the bar sizes reflect which metric is more significant for that viewing pattern
+    week.runtimeHours = Math.round((week.totalRuntime / 60) * 10) / 10; // Round to 1 decimal
   });
 
   return weekCounts;

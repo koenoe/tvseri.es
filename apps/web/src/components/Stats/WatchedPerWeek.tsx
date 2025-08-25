@@ -21,6 +21,7 @@ import {
   Tooltip,
   XAxis,
 } from 'recharts';
+import formatRuntime from '@/utils/formatRuntime';
 
 const BAR_SIZE = 32;
 const BAR_GAP = 6;
@@ -110,7 +111,12 @@ function getWeekInfo(
 }
 
 export type Props = Readonly<{
-  data: { week: number; episodes: number }[];
+  data: {
+    week: number;
+    episodes: number;
+    totalRuntime: number;
+    runtimeHours: number;
+  }[];
   year: number;
 }>;
 
@@ -124,18 +130,32 @@ export default function WatchedPerWeek({ data, year }: Props) {
           parseInt(label, 10),
         );
 
+        // Find the episodes data (first bar in stack)
+        const episodesData = payload.find(
+          (p: { dataKey: string }) => p.dataKey === 'episodes',
+        );
+        // Get the data point to access totalRuntime
+        const dataPoint = payload[0]?.payload;
+
         return (
-          <div className="w-40 rounded-lg border-0 bg-neutral-900 px-4 py-2 text-xs">
+          <div className="w-48 rounded-lg border-0 bg-neutral-900 px-4 py-2 text-xs">
             <div className="mb-1 font-medium text-white">
               Week {actualWeek}
               {displayYear ? ` (${displayYear})` : ''}
             </div>
             <div className="mb-1 text-[0.65rem] text-zinc-500">{dateRange}</div>
             <div className="flex items-center gap-1">
-              <div className="mr-1 h-3 w-3 rounded-sm bg-[#D60073]" />
+              <div className="mr-1 h-3 w-3 rounded-sm bg-[#9A0455]" />
               <span className="text-zinc-400">Episodes</span>
               <span className="ml-auto font-medium text-white">
-                {payload[0].value}
+                {episodesData?.value || 0}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 mt-1">
+              <div className="mr-1 h-3 w-3 rounded-sm bg-[#D60073]" />
+              <span className="text-zinc-400">Runtime</span>
+              <span className="ml-auto font-medium text-white">
+                {formatRuntime(dataPoint?.totalRuntime || 0)}
               </span>
             </div>
           </div>
@@ -174,7 +194,15 @@ export default function WatchedPerWeek({ data, year }: Props) {
           dataKey="episodes"
           fill="#D60073"
           minPointSize={1}
-          radius={[2, 2, 2, 2]}
+          radius={[0, 0, 2, 2]}
+          stackId="watchedData"
+        />
+        <Bar
+          dataKey="runtimeHours"
+          fill="#9A0455"
+          minPointSize={0}
+          radius={[2, 2, 0, 0]}
+          stackId="watchedData"
         />
       </BarChart>
     </ResponsiveContainer>

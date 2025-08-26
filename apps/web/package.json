@@ -33,7 +33,7 @@
     "@types/node": "^22.15.30",
     "@types/papaparse": "^5.3.16",
     "@types/react": "^19.1.11",
-    "@types/react-dom": "^19.1.7",
+    "@types/react-dom": "^19.1.8",
     "autoprefixer": "^10.4.21",
     "mini-svg-data-uri": "^1.4.4",
     "postcss": "^8.5.6",

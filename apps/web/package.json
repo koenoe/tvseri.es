@@ -7,7 +7,7 @@
     "date-fns": "^4.1.0",
     "dice-coefficient": "^2.1.1",
     "motion": "^12.23.12",
-    "next": "15.5.0",
+    "next": "15.5.2",
     "papaparse": "^5.5.3",
     "react": "19.1.1",
     "react-day-picker": "^9.9.0",

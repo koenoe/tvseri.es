@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "sst": "^3.17.10"
+    "sst": "^3.17.12"
   },
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",

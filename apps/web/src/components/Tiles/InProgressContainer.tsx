@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
 import {
+  fetchTvSeriesSeason,
   fetchTvSeriesWatchProvider,
   getAllWatchedForTvSeries,
   markWatched,
@@ -154,13 +155,27 @@ export default async function InProgressContainer({
     }
 
     try {
-      const nextEpisodeNumber = watchCount + 1;
-      const maxNumberOfEpisodes =
-        currentSeason.numberOfAiredEpisodes ||
-        currentSeason.numberOfEpisodes ||
-        0;
+      const season = await fetchTvSeriesSeason(
+        tvSeries!.id,
+        currentSeason.seasonNumber,
+      );
 
-      if (nextEpisodeNumber > maxNumberOfEpisodes) {
+      if (!season) {
+        return;
+      }
+
+      const watchedEpisodeNumbers = new Set(
+        watchedItems
+          .filter((item) => item.seasonNumber === season.seasonNumber)
+          .map((item) => item.episodeNumber),
+      );
+
+      const nextUnwatchedEpisode = season.episodes
+        .filter((episode) => episode.hasAired)
+        .sort((a, b) => a.episodeNumber - b.episodeNumber)
+        .find((episode) => !watchedEpisodeNumbers.has(episode.episodeNumber));
+
+      if (!nextUnwatchedEpisode) {
         return;
       }
 
@@ -177,7 +192,7 @@ export default async function InProgressContainer({
         )) ?? null;
 
       await markWatched({
-        episodeNumber: nextEpisodeNumber,
+        episodeNumber: nextUnwatchedEpisode.episodeNumber,
         seasonNumber: currentSeason.seasonNumber,
         seriesId: tvSeries!.id,
         sessionId: encryptedSessionId,

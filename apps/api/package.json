@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@aws-sdk/client-cloudfront": "^3.881.0",
+    "@aws-sdk/client-cloudfront": "^3.882.0",
     "@aws-sdk/client-dynamodb": "^3.879.0",
     "@aws-sdk/client-lambda": "^3.879.0",
     "@aws-sdk/client-sesv2": "^3.879.0",

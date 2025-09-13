@@ -1,9 +1,9 @@
 {
   "dependencies": {
-    "sst": "^3.17.12"
+    "sst": "^3.17.13"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.2",
+    "@biomejs/biome": "2.2.4",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.6",
     "turbo": "^2.5.6",

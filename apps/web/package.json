@@ -51,7 +51,6 @@
     "check-types": "tsc",
     "dev": "next dev --turbo",
     "lint": "next lint",
-    "save-ai-robots": "mkdir -p public && curl -s https://raw.githubusercontent.com/ai-robots-txt/ai.robots.txt/refs/heads/main/robots.txt > public/robots.txt",
     "start": "next start"
   },
   "version": "0.0.0"

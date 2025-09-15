@@ -3,7 +3,7 @@
     "@better-fetch/fetch": "^1.1.18",
     "@tvseri.es/token": "workspace:*",
     "class-variance-authority": "^0.7.1",
-    "color": "^5.0.0",
+    "color": "^5.0.2",
     "date-fns": "^4.1.0",
     "dice-coefficient": "^2.1.1",
     "motion": "^12.23.12",

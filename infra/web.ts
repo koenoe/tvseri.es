@@ -5,7 +5,7 @@ import { domain, zone } from './dns';
 import * as secrets from './secrets';
 
 // Note: flag to easily enable or disable WAF
-const ENABLE_WAF = false;
+const ENABLE_WAF = true;
 
 let openNextVersion: string | undefined;
 try {

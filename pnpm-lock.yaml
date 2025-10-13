@@ -86,8 +86,8 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0
       '@types/node':
-        specifier: ^22.15.30
-        version: 22.16.3
+        specifier: ^24.7.2
+        version: 24.7.2
       sharp:
         specifier: ^0.34.4
         version: 0.34.4
@@ -183,8 +183,8 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0
       '@types/node':
-        specifier: ^22.15.30
-        version: 22.16.3
+        specifier: ^24.7.2
+        version: 24.7.2
       '@types/papaparse':
         specifier: ^5.3.16
         version: 5.3.16
@@ -241,8 +241,8 @@ importers:
         specifier: ^8.10.155
         version: 8.10.155
       '@types/node':
-        specifier: ^22.15.30
-        version: 22.16.3
+        specifier: ^24.7.2
+        version: 24.7.2
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -257,8 +257,8 @@ importers:
         specifier: workspace:*
         version: link:../typescript-config
       '@types/node':
-        specifier: ^22.15.30
-        version: 22.16.3
+        specifier: ^24.7.2
+        version: 24.7.2
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -1557,8 +1557,8 @@ packages:
   '@types/d3-timer@3.0.2':
     resolution: {integrity: sha512-Ps3T8E8dZDam6fUyNiMkekK3XUsaUEik+idO9/YjPtfj2qruF8tFBXS7XhtE4iIXBLxhmLjP3SXpLhVf21I9Lw==}
 
-  '@types/node@22.16.3':
-    resolution: {integrity: sha512-sr4Xz74KOUeYadexo1r8imhRtlVXcs+j3XK3TcoiYk7B1t3YRVJgtaD3cwX73NYb71pmVuMLNRhJ9XKdoDB74g==}
+  '@types/node@24.7.2':
+    resolution: {integrity: sha512-/NbVmcGTP+lj5oa4yiYxxeBjRivKQ5Ns1eSZeB99ExsEQ6rX5XYU1Zy/gGxY/ilqtD4Etx9mKyrPxZRetiahhA==}
 
   '@types/papaparse@5.3.16':
     resolution: {integrity: sha512-T3VuKMC2H0lgsjI9buTB3uuKj3EMD2eap1MOuEQuBQ44EnDx/IkGhU6EwiTf9zG3za4SKlmwKAImdDKdNnCsXg==}
@@ -3108,8 +3108,8 @@ packages:
     resolution: {integrity: sha512-dPJyqPzx8preQhqq24bBG1YNkvigm87K8kVEHCD+ruZg24t6IFEFv00xMWfxcC4djmFtiTLdFuADn4+DOz6R7Q==}
     hasBin: true
 
-  undici-types@6.21.0:
-    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
+  undici-types@7.14.0:
+    resolution: {integrity: sha512-QQiYxHuyZ9gQUIrmPo3IA+hUl4KYk8uSA7cHrcKd/l3p1OTpZcM0Tbp9x7FAtXdAYhlasd60ncPpgu6ihG6TOA==}
 
   unpipe@1.0.0:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
@@ -5486,13 +5486,13 @@ snapshots:
 
   '@types/d3-timer@3.0.2': {}
 
-  '@types/node@22.16.3':
+  '@types/node@24.7.2':
     dependencies:
-      undici-types: 6.21.0
+      undici-types: 7.14.0
 
   '@types/papaparse@5.3.16':
     dependencies:
-      '@types/node': 22.16.3
+      '@types/node': 24.7.2
 
   '@types/react-dom@19.2.2(@types/react@19.2.2)':
     dependencies:
@@ -7040,7 +7040,7 @@ snapshots:
 
   ulid@3.0.1: {}
 
-  undici-types@6.21.0: {}
+  undici-types@7.14.0: {}
 
   unpipe@1.0.0: {}
 

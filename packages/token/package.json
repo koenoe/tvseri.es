@@ -4,7 +4,7 @@
   },
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",
-    "@types/node": "^22.15.30",
+    "@types/node": "^24.7.2",
     "typescript": "^5.9.3"
   },
   "main": "./src/index.ts",

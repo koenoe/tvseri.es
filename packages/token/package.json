@@ -1,11 +1,11 @@
 {
   "dependencies": {
-    "sst": "^3.17.13"
+    "sst": "^3.17.19"
   },
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/node": "^22.15.30",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
   "main": "./src/index.ts",
   "name": "@tvseri.es/token",

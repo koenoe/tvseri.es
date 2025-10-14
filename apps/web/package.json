@@ -24,7 +24,7 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^15.5.4",
+    "@next/bundle-analyzer": "^15.5.5",
     "@opennextjs/aws": "^3.8.4",
     "@tailwindcss/typography": "^0.5.19",
     "@tvseri.es/types": "workspace:*",

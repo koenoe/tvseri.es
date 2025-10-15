@@ -7,7 +7,7 @@
     "date-fns": "^4.1.0",
     "dice-coefficient": "^2.1.1",
     "motion": "^12.23.24",
-    "next": "15.5.4",
+    "next": "15.5.5",
     "papaparse": "^5.5.3",
     "react": "19.2.0",
     "react-day-picker": "^9.11.1",
@@ -24,8 +24,8 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^15.5.4",
-    "@opennextjs/aws": "^3.8.4",
+    "@next/bundle-analyzer": "^15.5.5",
+    "@opennextjs/aws": "^3.8.5",
     "@tailwindcss/typography": "^0.5.19",
     "@tvseri.es/types": "workspace:*",
     "@tvseri.es/typescript-config": "workspace:*",

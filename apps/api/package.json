@@ -18,7 +18,7 @@
   "devDependencies": {
     "@tvseri.es/types": "workspace:*",
     "@tvseri.es/typescript-config": "workspace:*",
-    "@types/aws-lambda": "^8.10.155",
+    "@types/aws-lambda": "^8.10.156",
     "@types/color": "^4.2.0",
     "@types/node": "^22.15.30",
     "sharp": "^0.34.4",

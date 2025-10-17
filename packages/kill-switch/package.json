@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",
-    "@types/aws-lambda": "^8.10.155",
+    "@types/aws-lambda": "^8.10.156",
     "@types/node": "^22.15.30",
     "typescript": "^5.9.3"
   },

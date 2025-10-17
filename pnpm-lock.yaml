@@ -80,8 +80,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/typescript-config
       '@types/aws-lambda':
-        specifier: ^8.10.155
-        version: 8.10.155
+        specifier: ^8.10.156
+        version: 8.10.156
       '@types/color':
         specifier: ^4.2.0
         version: 4.2.0
@@ -238,8 +238,8 @@ importers:
         specifier: workspace:*
         version: link:../typescript-config
       '@types/aws-lambda':
-        specifier: ^8.10.155
-        version: 8.10.155
+        specifier: ^8.10.156
+        version: 8.10.156
       '@types/node':
         specifier: ^22.15.30
         version: 22.16.3
@@ -1518,8 +1518,8 @@ packages:
   '@tsconfig/node18@1.0.3':
     resolution: {integrity: sha512-RbwvSJQsuN9TB04AQbGULYfOGE/RnSFk/FLQ5b0NmDf5Kx2q/lABZbHQPKCO1vZ6Fiwkplu+yb9pGdLy1iGseQ==}
 
-  '@types/aws-lambda@8.10.155':
-    resolution: {integrity: sha512-wd1XgoL0gy/ybo7WozUKQBd+IOgUkdfG6uUGI0fQOTEq06FBFdO7tmPDSxgjkFkl8GlfApvk5TvqZlAl0g+Lbg==}
+  '@types/aws-lambda@8.10.156':
+    resolution: {integrity: sha512-LElQP+QliVWykC7OF8dNr04z++HJCMO2lF7k9HuKoSDARqhcjHq8MzbrRwujCSDeBHIlvaimbuY/tVZL36KXFQ==}
 
   '@types/color-convert@2.0.4':
     resolution: {integrity: sha512-Ub1MmDdyZ7mX//g25uBAoH/mWGd9swVbt8BseymnaE18SU4po/PjmCrHxqIIRjBo3hV/vh1KGr0eMxUhp+t+dQ==}
@@ -5441,7 +5441,7 @@ snapshots:
 
   '@tsconfig/node18@1.0.3': {}
 
-  '@types/aws-lambda@8.10.155': {}
+  '@types/aws-lambda@8.10.156': {}
 
   '@types/color-convert@2.0.4':
     dependencies:

@@ -43,24 +43,25 @@ export const webAcl = new aws.wafv2.WebAcl(
       allow: {},
     },
     rules: [
-      {
-        action: {
-          block: {},
-        },
-        name: 'IPRateLimit',
-        priority: 0,
-        statement: {
-          rateBasedStatement: {
-            aggregateKeyType: 'IP',
-            limit: 1500, // per 5 mins
-          },
-        },
-        visibilityConfig: {
-          cloudwatchMetricsEnabled: true,
-          metricName: 'IPRateLimitMetric',
-          sampledRequestsEnabled: true,
-        },
-      },
+      // TODO: figure out why this gets hit so often and whether it's needed
+      // {
+      //   action: {
+      //     block: {},
+      //   },
+      //   name: 'IPRateLimit',
+      //   priority: 0,
+      //   statement: {
+      //     rateBasedStatement: {
+      //       aggregateKeyType: 'IP',
+      //       limit: 1500, // per 5 mins
+      //     },
+      //   },
+      //   visibilityConfig: {
+      //     cloudwatchMetricsEnabled: true,
+      //     metricName: 'IPRateLimitMetric',
+      //     sampledRequestsEnabled: true,
+      //   },
+      // },
       {
         name: 'AWSManagedBotControlRule',
         overrideAction: {

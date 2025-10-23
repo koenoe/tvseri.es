@@ -9,9 +9,6 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 const nextConfig = {
   cleanDistDir: true,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   experimental: {
     authInterrupts: true,
     inlineCss: true,

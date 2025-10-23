@@ -1,11 +1,11 @@
 {
   "dependencies": {
-    "sst": "^3.17.19"
+    "sst": "^3.17.21"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.6",
+    "@biomejs/biome": "2.2.7",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.4",
+    "lint-staged": "^16.2.6",
     "turbo": "^2.5.8",
     "typescript": "^5.9.3"
   },
@@ -13,7 +13,7 @@
     "node": "22.x"
   },
   "name": "tvseri.es",
-  "packageManager": "pnpm@10.18.2",
+  "packageManager": "pnpm@10.19.0",
   "scripts": {
     "check-types": "turbo run check-types",
     "format-and-lint": "biome check .",

@@ -62,6 +62,7 @@
       "recommended": true,
       "style": {
         "noNonNullAssertion": "off",
+        "useComponentExportOnlyModules": "off",
         "useTemplate": "error"
       },
       "suspicious": {

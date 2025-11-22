@@ -65,6 +65,6 @@ export const watchedStatusCron = new sst.aws.Cron('ValidateWatchedStatus', {
       },
     },
     timeout: '10 seconds',
-  }, // 05:00 UTC, daily
-  schedule: 'cron(0 5 * * ? *)',
+  }, // 03:00 UTC, daily
+  schedule: 'cron(0 3 * * ? *)',
 });

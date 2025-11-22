@@ -28,7 +28,8 @@
       "!**/pnpm-lock.yaml",
       "!**/public",
       "!**/sst-env.d.ts",
-      "!**/*.module.css"
+      "!**/*.module.css",
+      "!**/next-env.d.ts"
     ],
     "maxSize": 1572864
   },

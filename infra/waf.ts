@@ -78,6 +78,14 @@ export const webAcl = new aws.wafv2.WebAcl(
               },
             ],
             name: 'AWSManagedRulesBotControlRuleSet',
+            ruleActionOverrides: [
+              {
+                actionToUse: {
+                  allow: {},
+                },
+                name: 'SizeRestrictions_BODY',
+              },
+            ],
             scopeDownStatement: {
               andStatement: {
                 statements: [

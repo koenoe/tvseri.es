@@ -12,7 +12,7 @@
     "color": "^5.0.3",
     "hono": "^4.10.6",
     "slugify": "^1.6.6",
-    "sst": "^3.17.23",
+    "sst": "catalog:",
     "ulid": "^3.0.1"
   },
   "devDependencies": {
@@ -20,7 +20,7 @@
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/aws-lambda": "^8.10.159",
     "@types/color": "^4.2.0",
-    "@types/node": "^22.15.30",
+    "@types/node": "catalog:",
     "sharp": "^0.34.5",
     "typescript": "^5.9.3"
   },

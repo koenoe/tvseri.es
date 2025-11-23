@@ -3,12 +3,12 @@
     "@aws-sdk/client-cloudfront": "^3.937.0",
     "@aws-sdk/client-cloudwatch": "^3.936.0",
     "@aws-sdk/client-sns": "^3.936.0",
-    "sst": "^3.17.23"
+    "sst": "catalog:"
   },
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/aws-lambda": "^8.10.159",
-    "@types/node": "^22.15.30",
+    "@types/node": "catalog:",
     "typescript": "^5.9.3"
   },
   "exports": {

@@ -1,10 +1,10 @@
 {
   "dependencies": {
-    "sst": "^3.17.23"
+    "sst": "catalog:"
   },
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",
-    "@types/node": "^22.15.30",
+    "@types/node": "catalog:",
     "typescript": "^5.9.3"
   },
   "main": "./src/index.ts",

@@ -4,12 +4,21 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@types/node':
+      specifier: 22.15.30
+      version: 22.15.30
+    sst:
+      specifier: 3.17.23
+      version: 3.17.23
+
 importers:
 
   .:
     dependencies:
       sst:
-        specifier: ^3.17.23
+        specifier: 'catalog:'
         version: 3.17.23
     devDependencies:
       '@biomejs/biome':
@@ -67,7 +76,7 @@ importers:
         specifier: ^1.6.6
         version: 1.6.6
       sst:
-        specifier: ^3.17.23
+        specifier: 'catalog:'
         version: 3.17.23
       ulid:
         specifier: ^3.0.1
@@ -86,8 +95,8 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0
       '@types/node':
-        specifier: ^22.15.30
-        version: 22.16.3
+        specifier: 'catalog:'
+        version: 22.15.30
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
@@ -149,7 +158,7 @@ importers:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       sst:
-        specifier: ^3.17.23
+        specifier: 'catalog:'
         version: 3.17.23
       ulid:
         specifier: ^3.0.1
@@ -183,8 +192,8 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0
       '@types/node':
-        specifier: ^22.15.30
-        version: 22.16.3
+        specifier: 'catalog:'
+        version: 22.15.30
       '@types/papaparse':
         specifier: ^5.5.0
         version: 5.5.0
@@ -231,7 +240,7 @@ importers:
         specifier: ^3.936.0
         version: 3.936.0
       sst:
-        specifier: ^3.17.23
+        specifier: 'catalog:'
         version: 3.17.23
     devDependencies:
       '@tvseri.es/typescript-config':
@@ -241,8 +250,8 @@ importers:
         specifier: ^8.10.159
         version: 8.10.159
       '@types/node':
-        specifier: ^22.15.30
-        version: 22.16.3
+        specifier: 'catalog:'
+        version: 22.15.30
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -250,15 +259,15 @@ importers:
   packages/token:
     dependencies:
       sst:
-        specifier: ^3.17.23
+        specifier: 'catalog:'
         version: 3.17.23
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
       '@types/node':
-        specifier: ^22.15.30
-        version: 22.16.3
+        specifier: 'catalog:'
+        version: 22.15.30
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -1572,8 +1581,8 @@ packages:
   '@types/d3-timer@3.0.2':
     resolution: {integrity: sha512-Ps3T8E8dZDam6fUyNiMkekK3XUsaUEik+idO9/YjPtfj2qruF8tFBXS7XhtE4iIXBLxhmLjP3SXpLhVf21I9Lw==}
 
-  '@types/node@22.16.3':
-    resolution: {integrity: sha512-sr4Xz74KOUeYadexo1r8imhRtlVXcs+j3XK3TcoiYk7B1t3YRVJgtaD3cwX73NYb71pmVuMLNRhJ9XKdoDB74g==}
+  '@types/node@22.15.30':
+    resolution: {integrity: sha512-6Q7lr06bEHdlfplU6YRbgG1SFBdlsfNC4/lX+SkhiTs0cpJkOElmWls8PxDFv4yY/xKb8Y6SO0OmSX4wgqTZbA==}
 
   '@types/papaparse@5.5.0':
     resolution: {integrity: sha512-GVs5iMQmUr54BAZYYkByv8zPofFxmyxUpISPb2oh8sayR3+1zbxasrOvoKiHJ/nnoq/uULuPsu1Lze1EkagVFg==}
@@ -5494,13 +5503,13 @@ snapshots:
 
   '@types/d3-timer@3.0.2': {}
 
-  '@types/node@22.16.3':
+  '@types/node@22.15.30':
     dependencies:
       undici-types: 6.21.0
 
   '@types/papaparse@5.5.0':
     dependencies:
-      '@types/node': 22.16.3
+      '@types/node': 22.15.30
 
   '@types/react-dom@19.2.3(@types/react@19.2.6)':
     dependencies:

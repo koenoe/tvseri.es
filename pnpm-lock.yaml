@@ -95,6 +95,28 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  apps/auth:
+    dependencies:
+      '@hono/valibot-validator':
+        specifier: ^0.6.0
+        version: 0.6.0(hono@4.10.6)(valibot@1.1.0(typescript@5.9.3))
+      sst:
+        specifier: ^3.17.23
+        version: 3.17.23
+    devDependencies:
+      '@tvseri.es/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@tvseri.es/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
+      '@types/node':
+        specifier: ^22.15.30
+        version: 22.16.3
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   apps/web:
     dependencies:
       '@better-fetch/fetch':

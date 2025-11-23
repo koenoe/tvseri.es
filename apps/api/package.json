@@ -27,8 +27,7 @@
   "name": "@tvseri.es/api",
   "private": true,
   "scripts": {
-    "check-types": "tsc",
-    "lint": "eslint ."
+    "check-types": "tsc"
   },
   "type": "module",
   "version": "0.0.0"

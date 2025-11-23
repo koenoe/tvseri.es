@@ -1,19 +1,17 @@
 {
   "dependencies": {
-    "@hono/valibot-validator": "^0.6.0",
-    "sst": "^3.17.23"
+    "sst": "catalog:"
   },
   "devDependencies": {
     "@tvseri.es/types": "workspace:*",
     "@tvseri.es/typescript-config": "workspace:*",
-    "@types/node": "^22.15.30",
-    "typescript": "^5.9.3"
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
   },
   "name": "@tvseri.es/auth",
   "private": true,
   "scripts": {
-    "check-types": "tsc",
-    "lint": "eslint ."
+    "check-types": "tsc"
   },
   "type": "module",
   "version": "0.0.0"

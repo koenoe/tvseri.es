@@ -1,8 +1,13 @@
 {
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.936.0",
+    "@aws-sdk/util-dynamodb": "^3.936.0",
     "@openauthjs/openauth": "^0.4.3",
+    "@tvseri.es/utils": "workspace:*",
     "hono": "^4.10.6",
+    "slugify": "^1.6.6",
     "sst": "catalog:",
+    "ulid": "^3.0.1",
     "valibot": "^1.1.0"
   },
   "devDependencies": {

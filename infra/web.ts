@@ -1,6 +1,7 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
 import { apiRouter } from './api';
+import { auth } from './auth';
 import { domain, zone } from './dns';
 import * as secrets from './secrets';
 
@@ -57,7 +58,7 @@ new sst.aws.Nextjs('tvseries', {
   imageOptimization: {
     staticEtag: true,
   },
-  link: [apiRouter, secrets.apiKey, secrets.secretKey],
+  link: [auth, apiRouter, secrets.apiKey, secrets.secretKey],
   openNextVersion,
   path: 'apps/web',
   // Note: disable multi region for now as it's not really worth the extra costs

@@ -1,10 +1,9 @@
 'use client';
 
 import { cva } from 'class-variance-authority';
-import { useRouter } from 'next/navigation';
 import { memo, useTransition } from 'react';
 
-import { logout } from '@/app/actions';
+import { login, logout } from '@/app/actions';
 
 import LoadingDots from '../LoadingDots/LoadingDots';
 
@@ -30,7 +29,6 @@ const AuthButton = ({
   isAuthenticated?: boolean;
   onLogout?: () => void;
 }>) => {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const handleClick = () => {
     startTransition(async () => {
@@ -39,11 +37,7 @@ const AuthButton = ({
           await logout();
           onLogout?.();
         } else {
-          const redirectPath =
-            typeof window !== 'undefined' ? window.location.pathname : '/';
-          router.push(
-            `/login?redirectPath=${encodeURIComponent(redirectPath)}`,
-          );
+          await login();
         }
       } catch (_error) {}
     });

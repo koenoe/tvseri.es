@@ -18,6 +18,10 @@ declare module "sst" {
       "type": "sst.aws.Router"
       "url": string
     }
+    "Auth": {
+      "type": "sst.aws.Auth"
+      "url": string
+    }
     "BudgetAlertSNS": {
       "arn": string
       "type": "sst.aws.SnsTopic"

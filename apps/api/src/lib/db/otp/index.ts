@@ -5,8 +5,8 @@ import {
   PutItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { encodeToBase64Url } from '@tvseri.es/utils';
 import { Resource } from 'sst';
-import { encodeToBase64Url } from '@/utils/stringBase64Url';
 import client from '../client';
 
 const OTP_DURATION = 15 * 60; // 15 minutes in seconds

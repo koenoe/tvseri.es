@@ -41,10 +41,10 @@ import type {
   TvSeries,
   WatchProvider,
 } from '@tvseri.es/schemas';
+import { toQueryString } from '@tvseri.es/utils';
 import slugify from 'slugify';
 import { Resource } from 'sst';
 import calculateAge from '@/utils/calculateAge';
-import { toQueryString } from '@/utils/toQueryString';
 import { findPreferredImages } from '../db/preferredImages';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import {

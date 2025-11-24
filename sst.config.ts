@@ -73,6 +73,7 @@ export default $config({
     await import('./infra/dynamo');
     await import('./infra/scrobbleQueue');
     await import('./infra/watchedStatus');
+    await import('./infra/auth');
     await import('./infra/api');
     await import('./infra/web');
     await import('./infra/distribution-disabler');

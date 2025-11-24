@@ -6,11 +6,11 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { CreateUser, User, WatchProvider } from '@tvseri.es/schemas';
+import { encodeToBase64Url } from '@tvseri.es/utils';
 import slugify from 'slugify';
 import { Resource } from 'sst';
 import { ulid } from 'ulid';
 import generateUsername from '@/utils/generateUsername';
-import { encodeToBase64Url } from '@/utils/stringBase64Url';
 import client from '../client';
 
 const VERSION = 1;

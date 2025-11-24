@@ -1,4 +1,4 @@
-export function toQueryString(
+export default function toQueryString(
   query: Record<string, string | number | boolean>,
 ) {
   return `?${Object.entries(query)

@@ -1,6 +1,6 @@
 'use client';
 
-import type { UserWithFollowInfo } from '@tvseri.es/types';
+import type { UserWithFollowInfo } from '@tvseri.es/schemas';
 import Link from 'next/link';
 import { memo } from 'react';
 

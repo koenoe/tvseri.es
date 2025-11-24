@@ -1,6 +1,6 @@
-import type { WatchProvider } from '@tvseri.es/types';
+import { WATCH_PROVIDER_PREDEFINED_COLOR } from '@tvseri.es/constants';
+import type { WatchProvider } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
-import { WATCH_PROVIDER_PREDEFINED_COLOR } from '@/constants';
 import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
 import {
   fetchCountries,

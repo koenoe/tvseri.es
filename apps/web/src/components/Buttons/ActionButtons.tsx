@@ -1,4 +1,4 @@
-import type { TvSeries } from '@tvseri.es/types';
+import type { TvSeries } from '@tvseri.es/schemas';
 
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';

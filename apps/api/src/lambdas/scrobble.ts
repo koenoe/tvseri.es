@@ -5,7 +5,7 @@ import type {
   TmdbExternalSource,
   TvSeries,
   WatchProvider,
-} from '@tvseri.es/types';
+} from '@tvseri.es/schemas';
 import type { SQSEvent, SQSHandler } from 'aws-lambda';
 
 import { markWatched } from '@/lib/db/watched';

@@ -1,4 +1,4 @@
-import type { ListItem, Person } from '@tvseri.es/types';
+import type { ListItem, Person } from '@tvseri.es/schemas';
 
 import Poster from '@/components/Tiles/Poster';
 import { fetchPersonKnownFor } from '@/lib/api';

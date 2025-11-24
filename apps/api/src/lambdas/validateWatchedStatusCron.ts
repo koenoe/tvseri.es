@@ -5,7 +5,7 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { SendMessageBatchCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
-import type { User } from '@tvseri.es/types';
+import type { User } from '@tvseri.es/schemas';
 import { Resource } from 'sst';
 
 const dynamo = new DynamoDBClient({});

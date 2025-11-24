@@ -1,6 +1,6 @@
 import type { AttributeValue } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
-import type { TvSeries, WatchedItem } from '@tvseri.es/types';
+import type { TvSeries, WatchedItem } from '@tvseri.es/schemas';
 import type { DynamoDBStreamEvent } from 'aws-lambda';
 
 import { addToList, removeFromList, removeFromWatchlist } from '@/lib/db/list';

@@ -1,6 +1,6 @@
 'use client';
 
-import type { User } from '@tvseri.es/types';
+import type { User } from '@tvseri.es/schemas';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useTransition } from 'react';

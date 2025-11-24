@@ -1,5 +1,5 @@
 import { vValidator } from '@hono/valibot-validator';
-import { PreferredImagesSchema } from '@tvseri.es/types';
+import { PreferredImagesSchema } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
 
 import { invalidatePaths } from '@/lib/cdn';

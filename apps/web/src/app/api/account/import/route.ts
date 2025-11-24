@@ -3,7 +3,7 @@ import type {
   Season,
   TvSeries,
   WatchProvider,
-} from '@tvseri.es/types';
+} from '@tvseri.es/schemas';
 import { isValid, parse } from 'date-fns';
 import { diceCoefficient } from 'dice-coefficient';
 import { headers } from 'next/headers';

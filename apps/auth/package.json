@@ -1,9 +1,12 @@
 {
   "dependencies": {
-    "sst": "catalog:"
+    "@openauthjs/openauth": "^0.4.3",
+    "hono": "^4.10.6",
+    "sst": "catalog:",
+    "valibot": "^1.1.0"
   },
   "devDependencies": {
-    "@tvseri.es/types": "workspace:*",
+    "@tvseri.es/schemas": "workspace:*",
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:"

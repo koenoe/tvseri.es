@@ -1,5 +1,6 @@
 import type { BetterFetchOption } from '@better-fetch/fetch';
 import { createFetch } from '@better-fetch/fetch';
+import { DEFAULT_FETCH_RETRY_OPTIONS } from '@tvseri.es/constants';
 import type {
   AddTmdbToUser,
   AuthenticateWithOTP,
@@ -25,10 +26,8 @@ import type {
   WatchedItem,
   WatchProvider,
   WebhookToken,
-} from '@tvseri.es/types';
+} from '@tvseri.es/schemas';
 import { Resource } from 'sst';
-
-import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
 
 import nextPlugin from '../betterFetchNextPlugin';
 

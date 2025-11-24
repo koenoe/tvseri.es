@@ -1,6 +1,6 @@
 'use client';
 
-import type { User } from '@tvseri.es/types';
+import type { User } from '@tvseri.es/schemas';
 import { AnimatePresence, motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';

@@ -4,7 +4,7 @@ import {
   AuthenticateWithTmdbSchema,
   CreateOTPSchema,
   CreateTmdbRequestTokenSchema,
-} from '@tvseri.es/types';
+} from '@tvseri.es/schemas';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 

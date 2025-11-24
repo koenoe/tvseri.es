@@ -1,6 +1,6 @@
 'use client';
 
-import type { ListItem } from '@tvseri.es/types';
+import type { ListItem } from '@tvseri.es/schemas';
 import { memo, useCallback, useMemo } from 'react';
 
 import createUseRestorableState from '@/hooks/createUseRestorableState';

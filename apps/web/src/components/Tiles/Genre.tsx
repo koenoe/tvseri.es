@@ -1,6 +1,6 @@
 'use client';
 
-import type { Genre } from '@tvseri.es/types';
+import type { Genre } from '@tvseri.es/schemas';
 import { cva } from 'class-variance-authority';
 import { motion, useMotionTemplate, useMotionValue } from 'motion/react';
 import dynamic from 'next/dynamic';

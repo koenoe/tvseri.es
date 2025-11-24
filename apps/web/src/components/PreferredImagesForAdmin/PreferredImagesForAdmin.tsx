@@ -1,6 +1,6 @@
 'use client';
 
-import type { PreferredImages } from '@tvseri.es/types';
+import type { PreferredImages } from '@tvseri.es/schemas';
 import { cx } from 'class-variance-authority';
 import {
   useCallback,

@@ -1,6 +1,6 @@
 'use client';
 
-import type { Episode, Season, TvSeries } from '@tvseri.es/types';
+import type { Episode, Season, TvSeries } from '@tvseri.es/schemas';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 

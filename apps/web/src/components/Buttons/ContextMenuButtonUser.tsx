@@ -1,6 +1,6 @@
 'use client';
 
-import type { User } from '@tvseri.es/types';
+import type { User } from '@tvseri.es/schemas';
 import { useRef } from 'react';
 import { toast } from 'sonner';
 

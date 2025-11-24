@@ -1,6 +1,6 @@
 'use client';
 
-import type { Genre } from '@tvseri.es/types';
+import type { Genre } from '@tvseri.es/schemas';
 import { cva } from 'class-variance-authority';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo } from 'react';

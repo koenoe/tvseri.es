@@ -1,4 +1,4 @@
-import type { PreferredImages } from '@tvseri.es/types';
+import type { PreferredImages } from '@tvseri.es/schemas';
 
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';

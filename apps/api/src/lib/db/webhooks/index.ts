@@ -5,7 +5,7 @@ import {
   QueryCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import type { WebhookToken } from '@tvseri.es/types';
+import type { WebhookToken } from '@tvseri.es/schemas';
 import { Resource } from 'sst';
 
 import client from '../client';

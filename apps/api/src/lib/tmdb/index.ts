@@ -1,4 +1,8 @@
 import { type BetterFetchOption, createFetch } from '@better-fetch/fetch';
+import {
+  DEFAULT_FETCH_RETRY_OPTIONS,
+  WATCH_PROVIDER_PRIORITY,
+} from '@tvseri.es/constants';
 import type {
   Account,
   CountryOrLanguage,
@@ -36,13 +40,9 @@ import type {
   TmdbWatchProviders,
   TvSeries,
   WatchProvider,
-} from '@tvseri.es/types';
+} from '@tvseri.es/schemas';
 import slugify from 'slugify';
 import { Resource } from 'sst';
-import {
-  DEFAULT_FETCH_RETRY_OPTIONS,
-  WATCH_PROVIDER_PRIORITY,
-} from '@/constants';
 import calculateAge from '@/utils/calculateAge';
 import { toQueryString } from '@/utils/toQueryString';
 import { findPreferredImages } from '../db/preferredImages';

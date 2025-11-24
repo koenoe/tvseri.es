@@ -1,4 +1,4 @@
-import type { WatchProvider } from '@tvseri.es/types';
+import type { WatchProvider } from '@tvseri.es/schemas';
 import { headers } from 'next/headers';
 import auth from '@/auth';
 import { fetchWatchProviders, updateWatchProviders } from '@/lib/api';

@@ -1,6 +1,6 @@
 'use client';
 
-import type { UserWithFollowInfo } from '@tvseri.es/types';
+import type { UserWithFollowInfo } from '@tvseri.es/schemas';
 import { memo, useCallback, useState, useTransition } from 'react';
 import LoadingDots from '../LoadingDots/LoadingDots';
 import Item from './Item';

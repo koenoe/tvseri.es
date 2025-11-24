@@ -1,6 +1,6 @@
 'use client';
 
-import type { Season, WatchedItem, WatchProvider } from '@tvseri.es/types';
+import type { Season, WatchedItem, WatchProvider } from '@tvseri.es/schemas';
 import { useSearchParams } from 'next/navigation';
 import {
   memo,

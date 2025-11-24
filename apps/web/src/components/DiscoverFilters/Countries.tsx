@@ -1,6 +1,6 @@
 'use client';
 
-import type { CountryOrLanguage } from '@tvseri.es/types';
+import type { CountryOrLanguage } from '@tvseri.es/schemas';
 import Image from 'next/image';
 import { useCallback, useMemo } from 'react';
 

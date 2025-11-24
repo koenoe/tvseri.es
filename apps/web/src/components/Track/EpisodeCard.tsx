@@ -1,6 +1,6 @@
 'use client';
 
-import type { Episode, WatchedItem, WatchProvider } from '@tvseri.es/types';
+import type { Episode, WatchedItem, WatchProvider } from '@tvseri.es/schemas';
 import Image from 'next/image';
 import { memo } from 'react';
 

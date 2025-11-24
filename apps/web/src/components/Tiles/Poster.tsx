@@ -1,6 +1,6 @@
 'use client';
 
-import type { ListItem } from '@tvseri.es/types';
+import type { ListItem } from '@tvseri.es/schemas';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { motion } from 'motion/react';
 import Image from 'next/image';

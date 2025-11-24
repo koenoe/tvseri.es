@@ -1,4 +1,4 @@
-import type { TvSeries } from '@tvseri.es/types';
+import type { TvSeries } from '@tvseri.es/schemas';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { twMerge } from 'tailwind-merge';

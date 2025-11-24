@@ -3,8 +3,8 @@
  * Purpose: Prevents duplicate calls when the same method is invoked multiple times
  * during server-side rendering cycle.
  */
+import { buildPosterImageUrl } from '@tvseri.es/utils';
 import { cache } from 'react';
-
 import {
   fetchPerson,
   fetchTvSeries,
@@ -12,7 +12,6 @@ import {
   findUser,
   getWatchedByYear,
 } from '@/lib/api';
-import { buildPosterImageUrl } from '@/lib/tmdb/helpers';
 
 export const cachedPerson = cache(fetchPerson);
 export const cachedTvSeries = cache(fetchTvSeries);

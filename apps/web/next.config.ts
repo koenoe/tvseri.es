@@ -125,7 +125,7 @@ const nextConfig = {
     ];
   },
   serverExternalPackages: ['@opennextjs/aws', 'crypto', 'sst'],
-  transpilePackages: ['@tvseri.es/token', '@tvseri.es/types'],
+  transpilePackages: ['@tvseri.es/token', '@tvseri.es/schemas'],
   typescript: {
     ignoreBuildErrors: true,
   },

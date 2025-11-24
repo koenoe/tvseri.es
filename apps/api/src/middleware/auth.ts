@@ -1,5 +1,5 @@
+import type { Session, User } from '@tvseri.es/schemas';
 import { decryptToken } from '@tvseri.es/token';
-import type { Session, User } from '@tvseri.es/types';
 import type { MiddlewareHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 

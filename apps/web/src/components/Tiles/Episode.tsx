@@ -1,4 +1,4 @@
-import type { Episode } from '@tvseri.es/types';
+import type { Episode } from '@tvseri.es/schemas';
 import { cva, cx } from 'class-variance-authority';
 import { memo, useMemo } from 'react';
 import { twMerge } from 'tailwind-merge';

@@ -1,4 +1,4 @@
-import type { TvSeries, User } from '@tvseri.es/types';
+import type { TvSeries, User } from '@tvseri.es/schemas';
 import type { SQSEvent, SQSHandler } from 'aws-lambda';
 
 import {

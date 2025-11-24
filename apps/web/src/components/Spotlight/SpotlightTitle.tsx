@@ -1,4 +1,4 @@
-import type { TvSeries } from '@tvseri.es/types';
+import type { TvSeries } from '@tvseri.es/schemas';
 import { cva, type VariantProps } from 'class-variance-authority';
 import Image from 'next/image';
 

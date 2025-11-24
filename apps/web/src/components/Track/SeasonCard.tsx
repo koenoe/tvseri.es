@@ -1,6 +1,6 @@
 'use client';
 
-import type { Season, WatchedItem, WatchProvider } from '@tvseri.es/types';
+import type { Season, WatchedItem, WatchProvider } from '@tvseri.es/schemas';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useMemo, useRef, useState } from 'react';
 

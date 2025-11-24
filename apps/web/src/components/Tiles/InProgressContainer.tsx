@@ -1,4 +1,4 @@
-import type { ListItem, Season, User, WatchedItem } from '@tvseri.es/types';
+import type { ListItem, Season, User, WatchedItem } from '@tvseri.es/schemas';
 import { headers } from 'next/headers';
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';

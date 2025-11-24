@@ -9,7 +9,7 @@
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/aws-lambda": "^8.10.159",
     "@types/node": "catalog:",
-    "typescript": "^5.9.3"
+    "typescript": "catalog:"
   },
   "exports": {
     ".": "./index.mjs"

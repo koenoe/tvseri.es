@@ -1,5 +1,5 @@
+import { WATCH_PROVIDER_PREDEFINED_COLOR } from '@tvseri.es/constants';
 import { cachedWatchedByYear } from '@/app/cached';
-import { WATCH_PROVIDER_PREDEFINED_COLOR } from '@/constants';
 import { detectDominantColorFromImage } from '@/lib/api';
 import MostWatchedProviders from './MostWatchedProvidersLazy';
 

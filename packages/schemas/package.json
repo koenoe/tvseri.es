@@ -5,10 +5,10 @@
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",
     "openapi-typescript": "^7.10.1",
-    "typescript": "^5.9.3"
+    "typescript": "catalog:"
   },
   "main": "./src/index.ts",
-  "name": "@tvseri.es/types",
+  "name": "@tvseri.es/schemas",
   "private": true,
   "scripts": {
     "check-types": "tsc --noEmit",

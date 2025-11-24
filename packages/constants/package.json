@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "sst": "catalog:"
+  },
+  "devDependencies": {
+    "@better-fetch/fetch": "^1.1.18",
+    "@tvseri.es/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  },
+  "main": "./src/index.ts",
+  "name": "@tvseri.es/constants",
+  "private": true,
+  "scripts": {
+    "check-types": "tsc"
+  },
+  "type": "module",
+  "version": "0.0.0"
+}

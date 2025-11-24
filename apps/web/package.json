@@ -1,7 +1,9 @@
 {
   "dependencies": {
     "@better-fetch/fetch": "^1.1.18",
+    "@tvseri.es/constants": "workspace:*",
     "@tvseri.es/token": "workspace:*",
+    "@tvseri.es/utils": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "color": "^5.0.3",
     "date-fns": "^4.1.0",
@@ -27,7 +29,7 @@
     "@next/bundle-analyzer": "^16.0.3",
     "@opennextjs/aws": "^3.9.0",
     "@tailwindcss/typography": "^0.5.19",
-    "@tvseri.es/types": "workspace:*",
+    "@tvseri.es/schemas": "workspace:*",
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/color": "^4.2.0",
     "@types/node": "catalog:",
@@ -41,7 +43,7 @@
     "tailwind-scrollbar-hide": "^2.0.0",
     "tailwindcss": "^3.4.17",
     "tailwindcss-content-visibility": "^1.0.2",
-    "typescript": "^5.9.3"
+    "typescript": "catalog:"
   },
   "name": "@tvseri.es/web",
   "private": true,

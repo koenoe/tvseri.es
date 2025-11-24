@@ -3,7 +3,7 @@ import {
   AddTmdbToUserSchema,
   UpdateUserSchema,
   UpdateWatchProvidersForUserSchema,
-} from '@tvseri.es/types';
+} from '@tvseri.es/schemas';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { addTmdbToSession, removeTmdbFromSessions } from '@/lib/db/session';

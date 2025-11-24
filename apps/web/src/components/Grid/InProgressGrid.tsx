@@ -1,4 +1,4 @@
-import type { User } from '@tvseri.es/types';
+import type { User } from '@tvseri.es/schemas';
 import { Suspense } from 'react';
 import { getListItems } from '@/lib/api';
 import InProgressContainer from '../Tiles/InProgressContainer';

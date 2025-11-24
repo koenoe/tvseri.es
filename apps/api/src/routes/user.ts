@@ -12,7 +12,7 @@ import {
   type SortDirection,
   type TvSeries,
   type User,
-} from '@tvseri.es/types';
+} from '@tvseri.es/schemas';
 import { Hono, type MiddlewareHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 

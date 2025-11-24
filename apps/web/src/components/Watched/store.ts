@@ -1,4 +1,4 @@
-import type { TvSeries, WatchedItem } from '@tvseri.es/types';
+import type { TvSeries, WatchedItem } from '@tvseri.es/schemas';
 import { createStore, type StateCreator } from 'zustand';
 import { devtools } from 'zustand/middleware';
 

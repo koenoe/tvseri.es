@@ -19,6 +19,9 @@ export const auth = new sst.aws.Auth('Auth', {
       esbuild: {
         external: ['@aws-sdk/client-dynamodb', '@aws-sdk/util-dynamodb'],
       },
+      loader: {
+        '.css': 'text',
+      },
     },
     timeout: '30 seconds',
   },

@@ -1,26 +1,33 @@
 import { issuer } from '@openauthjs/openauth';
 import { CodeProvider } from '@openauthjs/openauth/provider/code';
-import { CodeUI } from '@openauthjs/openauth/ui/code';
-import { THEME_SST, type Theme } from '@openauthjs/openauth/ui/theme';
+// import { PasswordProvider } from '@openauthjs/openauth/provider/password';
+// import { PasswordUI } from '@openauthjs/openauth/ui/password';
 import { handle } from 'hono/aws-lambda';
 import { createUser, findUser } from './db';
 import { subjects } from './subjects';
+import { CodeUI, SelectUI } from './ui';
 
-const MY_THEME: Theme = {
-  ...THEME_SST,
-  title: 'tvseri.es',
-};
+const codeUI = CodeUI({
+  sendCode: async (claims, code) => {
+    console.log(claims.email, code);
+  },
+});
 
 const app = issuer({
   providers: {
-    code: CodeProvider(
-      CodeUI({
-        sendCode: async (email, code) => {
-          console.log(email, code);
-        },
-      }),
-    ),
+    code: CodeProvider(codeUI),
+    // password: PasswordProvider(
+    //   PasswordUI({
+    //     copy: {
+    //       error_email_taken: 'This email is already taken.',
+    //     },
+    //     sendCode: async (email, code) => {
+    //       console.log(email, code);
+    //     },
+    //   }),
+    // ),
   },
+  select: SelectUI(),
   subjects,
   success: async (ctx, value) => {
     if (value.provider === 'code') {
@@ -32,7 +39,6 @@ const app = issuer({
     }
     throw new Error('Invalid provider');
   },
-  theme: MY_THEME,
   ttl: {
     access: 300, // tmp 5 minutes
     refresh: 60 * 60 * 1, // tmp 1 hour

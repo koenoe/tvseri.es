@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "allowJs": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx",
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "noEmit": true,

@@ -2,7 +2,14 @@ import { client, setTokens } from '@/auth';
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const code = url.searchParams.get('code');
+  const searchParams = url.searchParams;
+  const code = searchParams.get('code');
+  const error = searchParams.get('error');
+  const error_description = searchParams.get('error_description');
+
+  if (error) {
+    return Response.json({ error, error_description }, { status: 400 });
+  }
 
   if (!code) {
     return Response.json({ error: 'No code found' }, { status: 400 });

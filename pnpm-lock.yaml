@@ -372,6 +372,9 @@ importers:
 
   packages/utils:
     dependencies:
+      slugify:
+        specifier: ^1.6.6
+        version: 1.6.6
       sst:
         specifier: 'catalog:'
         version: 3.17.23

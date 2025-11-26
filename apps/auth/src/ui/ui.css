@@ -33,6 +33,10 @@
   --border-radius: 0.5rem;
 }
 
+@view-transition {
+  navigation: auto;
+}
+
 [data-component="root"] {
   position: absolute;
   inset: 0;
@@ -49,7 +53,7 @@
 [data-component="center"] {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
   align-items: center;
   width: 100%;
   max-width: 24rem;
@@ -130,13 +134,24 @@
 }
 
 [data-component="button"][data-color="ghost"] {
+  height: 3rem;
   color: var(--color-foreground);
   background-color: var(--color-input-bg);
   border: 1px solid var(--color-border);
 }
 
+[data-component="button"][data-color="ghost"] [data-slot="text"] {
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  opacity: 0.75;
+}
+
 [data-component="button"][data-color="ghost"]:hover {
   border-color: var(--color-input-focus);
+}
+
+[data-component="button"][data-color="ghost"]:hover [data-slot="text"] {
+  opacity: 1;
 }
 
 [data-component="button"] [data-slot="icon"] {

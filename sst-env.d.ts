@@ -43,6 +43,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "GoogleClientId": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "Lists": {
       "name": string
       "type": "sst.aws.Dynamo"
@@ -51,10 +55,6 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "OTP": {
-      "name": string
-      "type": "sst.aws.Dynamo"
-    }
     "PreferredImages": {
       "name": string
       "type": "sst.aws.Dynamo"
@@ -62,10 +62,6 @@ declare module "sst" {
     "ScrobbleQueue": {
       "type": "sst.aws.Queue"
       "url": string
-    }
-    "SecretKey": {
-      "type": "sst.sst.Secret"
-      "value": string
     }
     "Sessions": {
       "name": string

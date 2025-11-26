@@ -1,5 +1,6 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
+import { auth } from './auth';
 import { domain, zone } from './dns';
 import { dominantColor } from './dominantColor';
 import * as dynamo from './dynamo';
@@ -42,11 +43,11 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
   },
   handler: 'apps/api/src/index.handler',
   link: [
+    auth,
     dominantColor,
     dynamo.cache,
     dynamo.follow,
     dynamo.lists,
-    dynamo.otp,
     dynamo.preferredImages,
     dynamo.sessions,
     dynamo.users,
@@ -58,7 +59,6 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
     secrets.mdblistApiKey,
     secrets.tmdbApiAccessToken,
     secrets.tmdbApiKey,
-    secrets.secretKey,
   ],
   memory: '2048 MB',
   nodejs: {

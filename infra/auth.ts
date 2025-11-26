@@ -3,6 +3,7 @@
 import { domain, zone } from './dns';
 import * as dynamo from './dynamo';
 import { email } from './email';
+import * as secrets from './secrets';
 
 export const auth = new sst.aws.Auth('Auth', {
   domain: {
@@ -13,7 +14,7 @@ export const auth = new sst.aws.Auth('Auth', {
   },
   issuer: {
     handler: 'apps/auth/src/index.handler',
-    link: [dynamo.users, email],
+    link: [dynamo.users, email, secrets.googleClientId],
     memory: '2048 MB',
     nodejs: {
       esbuild: {

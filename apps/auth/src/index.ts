@@ -1,8 +1,8 @@
 import { issuer } from '@openauthjs/openauth';
 import { CodeProvider } from '@openauthjs/openauth/provider/code';
-// import { PasswordProvider } from '@openauthjs/openauth/provider/password';
-// import { PasswordUI } from '@openauthjs/openauth/ui/password';
+import { GoogleOidcProvider } from '@openauthjs/openauth/provider/google';
 import { handle } from 'hono/aws-lambda';
+import { Resource } from 'sst';
 import { createUser, findUser } from './db';
 import { subjects } from './subjects';
 import { CodeUI, SelectUI } from './ui';
@@ -16,27 +16,31 @@ const codeUI = CodeUI({
 const app = issuer({
   providers: {
     code: CodeProvider(codeUI),
-    // password: PasswordProvider(
-    //   PasswordUI({
-    //     copy: {
-    //       error_email_taken: 'This email is already taken.',
-    //     },
-    //     sendCode: async (email, code) => {
-    //       console.log(email, code);
-    //     },
-    //   }),
-    // ),
+    google: GoogleOidcProvider({
+      clientID: Resource.GoogleClientId.value,
+      scopes: ['openid', 'email'],
+    }),
   },
   select: SelectUI(),
   subjects,
   success: async (ctx, value) => {
-    if (value.provider === 'code') {
-      let user = await findUser({ email: value.claims.email! });
+    console.log('succes:', value);
+
+    let email: string | undefined;
+    if (value.provider === 'google') {
+      email = value.id.email as string;
+    } else if (value.provider === 'code') {
+      email = value.claims.email;
+    }
+
+    if (email) {
+      let user = await findUser({ email });
       if (!user) {
-        user = await createUser({ email: value.claims.email! });
+        user = await createUser({ email });
       }
       return ctx.subject('user', user);
     }
+
     throw new Error('Invalid provider');
   },
   ttl: {

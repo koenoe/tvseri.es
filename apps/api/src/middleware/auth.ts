@@ -1,5 +1,4 @@
 import type { Session, User } from '@tvseri.es/schemas';
-import { decryptToken } from '@tvseri.es/token';
 import type { MiddlewareHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
@@ -28,7 +27,7 @@ export const auth = (): MiddlewareHandler<{ Variables: Variables }> => {
       const encryptedToken = match[1];
 
       try {
-        const sessionId = decryptToken(encryptedToken);
+        const sessionId = encryptedToken;
         session = await findSession(sessionId);
 
         if (!session) {

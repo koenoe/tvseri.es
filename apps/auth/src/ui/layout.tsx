@@ -1,5 +1,4 @@
 /** @jsxImportSource hono/jsx */
-
 import type { PropsWithChildren } from 'hono/jsx';
 
 import css from './ui.css';

@@ -1,7 +1,7 @@
 import { PutItemCommand, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { User } from '@tvseri.es/schemas';
-import { encodeToBase64Url } from '@tvseri.es/utils';
+import { encodeToBase64Url, generateUsername } from '@tvseri.es/utils';
 import slugify from 'slugify';
 import { Resource } from 'sst';
 import { ulid } from 'ulid';
@@ -50,9 +50,6 @@ export const findUser = async (
     email,
     name,
     role,
-    tmdbAccountId,
-    tmdbAccountObjectId,
-    tmdbUsername,
     username,
     version,
     watchProviders,
@@ -64,9 +61,6 @@ export const findUser = async (
     id,
     name,
     role,
-    tmdbAccountId,
-    tmdbAccountObjectId,
-    tmdbUsername,
     updatedAt,
     username,
     version,
@@ -80,17 +74,18 @@ export const createUser = async (
     name?: string;
   }>,
 ): Promise<User> => {
-  const username = slugify(input.email.split('@')[0]!, {
+  const userByEmail = await findUser({ email: input.email });
+  if (userByEmail) {
+    throw new Error('UserAlreadyExists');
+  }
+
+  let username = slugify(input.email.split('@')[0]!, {
     lower: true,
     strict: true,
   });
-  const [userByEmail, userByUsername] = await Promise.all([
-    findUser({ email: input.email }),
-    findUser({ username }),
-  ]);
-
-  if (userByEmail || userByUsername) {
-    throw new Error('UserAlreadyExists');
+  const userByUsername = await findUser({ username });
+  if (userByUsername) {
+    username = generateUsername();
   }
 
   const role = 'user';
@@ -106,14 +101,12 @@ export const createUser = async (
         ...(input.name && {
           name: input.name,
         }),
-        role,
-        version: VERSION,
-        ...(input.email && {
-          email: input.email,
-          gsi1pk: `EMAIL#${encodeToBase64Url(input.email)}`,
-        }),
+        email: input.email,
+        gsi1pk: `EMAIL#${encodeToBase64Url(input.email)}`,
         gsi2pk: `USERNAME#${username}`,
+        role,
         username,
+        version: VERSION,
       },
       {
         removeUndefinedValues: true,

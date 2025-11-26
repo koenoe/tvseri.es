@@ -2,11 +2,7 @@ import type { BetterFetchOption } from '@better-fetch/fetch';
 import { createFetch } from '@better-fetch/fetch';
 import { DEFAULT_FETCH_RETRY_OPTIONS } from '@tvseri.es/constants';
 import type {
-  AddTmdbToUser,
-  AuthenticateWithOTP,
-  AuthenticateWithTmdb,
   CountryOrLanguage,
-  CreateUser,
   Episode,
   Genre,
   Keyword,
@@ -413,32 +409,6 @@ export async function detectDominantColorFromImage({
   return response.hex;
 }
 
-export async function linkTmdbAccount({
-  requestToken,
-  sessionId,
-}: AuthContext & AddTmdbToUser) {
-  await apiFetch('/me/tmdb', {
-    auth: {
-      token: sessionId,
-      type: 'Bearer',
-    },
-    body: JSON.stringify({
-      requestToken,
-    }),
-    method: 'PUT',
-  });
-}
-
-export async function unlinkTmdbAccount({ sessionId }: AuthContext) {
-  await apiFetch('/me/tmdb', {
-    auth: {
-      token: sessionId,
-      type: 'Bearer',
-    },
-    method: 'DELETE',
-  });
-}
-
 export async function updateUser({
   sessionId,
   ...rest
@@ -457,14 +427,13 @@ export async function updateUser({
 
 export async function findUser(
   input:
-    | { userId: string; email?: never; username?: never; tmdbAccountId?: never }
-    | { userId?: never; email: string; username?: never; tmdbAccountId?: never }
-    | { userId?: never; email?: never; username: string; tmdbAccountId?: never }
+    | { userId: string; email?: never; username?: never }
+    | { userId?: never; email: string; username?: never }
+    | { userId?: never; email?: never; username: string }
     | {
         userId?: never;
         email?: never;
         username?: never;
-        tmdbAccountId: number;
       },
 ) {
   if (input.userId) {
@@ -491,24 +460,7 @@ export async function findUser(
     })) as User | undefined;
   }
 
-  if (input.tmdbAccountId) {
-    return (await apiFetch('/user/by-tmdb/:tmdb-account-id', {
-      params: {
-        'tmdb-account-id': input.tmdbAccountId,
-      },
-    })) as User | undefined;
-  }
-
   throw new Error('InvalidInputError');
-}
-
-export async function createUser(input: Readonly<CreateUser>) {
-  const user = (await apiFetch('/user', {
-    body: JSON.stringify(input),
-    method: 'POST',
-  })) as User;
-
-  return user;
 }
 
 export async function getListItems(
@@ -983,62 +935,6 @@ export async function unmarkWatchedInBatch(
   await Promise.all(batchPromises);
 
   return { message: 'OK' };
-}
-
-export async function createOTP(input: Readonly<{ email: string }>) {
-  const response = (await apiFetch('/authenticate/otp/create', {
-    body: JSON.stringify(input),
-    method: 'POST',
-  })) as Readonly<{
-    otp: string;
-  }>;
-
-  return response.otp;
-}
-
-export async function authenticateWithOTP(input: AuthenticateWithOTP) {
-  const response = (await apiFetch('/authenticate/otp', {
-    body: JSON.stringify(input),
-    method: 'POST',
-  })) as Readonly<{
-    sessionId: string;
-  }>;
-
-  return response.sessionId;
-}
-
-export async function unauthenticate(sessionId: string) {
-  await apiFetch('/authenticate', {
-    auth: {
-      token: sessionId,
-      type: 'Bearer',
-    },
-    method: 'DELETE',
-  });
-}
-
-export async function createTmdbRequestToken(
-  input: Readonly<{ redirectUri: string }>,
-) {
-  const response = (await apiFetch('/authenticate/tmdb/create-request-token', {
-    body: JSON.stringify(input),
-    method: 'POST',
-  })) as Readonly<{
-    token: string;
-  }>;
-
-  return response.token;
-}
-
-export async function authenticateWithTmdb(input: AuthenticateWithTmdb) {
-  const response = (await apiFetch('/authenticate/tmdb', {
-    body: JSON.stringify(input),
-    method: 'POST',
-  })) as Readonly<{
-    sessionId: string;
-  }>;
-
-  return response.sessionId;
 }
 
 export async function me({ sessionId }: AuthContext) {

@@ -11,8 +11,7 @@ export default async function Username() {
     return <AuthButton />;
   }
 
-  const profileName =
-    user.username || user.tmdbUsername || user.name || 'anonymous';
+  const profileName = user.username || user.name || 'anonymous';
 
   return (
     <div className="relative flex h-[18px] w-auto items-center justify-end overflow-hidden text-base lowercase leading-none text-white">

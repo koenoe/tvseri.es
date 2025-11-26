@@ -1,5 +1,4 @@
 /** @jsxImportSource hono/jsx */
-
 import type { JSX } from 'hono/jsx/jsx-runtime';
 import { Layout } from './layout';
 
@@ -99,7 +98,10 @@ export function SelectUI(options?: SelectUIOptions) {
         <div data-component="form">
           {Object.entries(providers).map(([key, type]) => {
             const match = options?.providers?.[key];
-            if (match?.hide) return null;
+            if (match?.hide) {
+              return null;
+            }
+
             const icon = ICON[key];
             return (
               <a
@@ -108,7 +110,9 @@ export function SelectUI(options?: SelectUIOptions) {
                 href={`/${key}/authorize`}
               >
                 {icon && <span data-slot="icon">{icon}</span>}
-                Continue with {match?.display ?? DISPLAY[type] ?? type}
+                <span data-slot="text">
+                  Continue with {match?.display ?? DISPLAY[type] ?? type}
+                </span>
               </a>
             );
           })}

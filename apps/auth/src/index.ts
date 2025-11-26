@@ -18,7 +18,7 @@ const app = issuer({
     ),
     google: GoogleOidcProvider({
       clientID: Resource.GoogleClientId.value,
-      scopes: ['openid', 'email'],
+      scopes: ['openid', 'email', 'profile'],
     }),
   },
   select: SelectUI(),
@@ -27,8 +27,14 @@ const app = issuer({
     console.log('succes:', value);
 
     let email: string | undefined;
+    let name: string | undefined;
     if (value.provider === 'google') {
+      if (!value.id.email_verified) {
+        throw new Error('Google email not verified');
+      }
+
       email = value.id.email as string;
+      name = value.id.name as string;
     } else if (value.provider === 'code') {
       email = value.claims.email;
     }
@@ -36,7 +42,7 @@ const app = issuer({
     if (email) {
       let user = await findUser({ email });
       if (!user) {
-        user = await createUser({ email });
+        user = await createUser({ email, name });
       }
       return ctx.subject('user', user);
     }

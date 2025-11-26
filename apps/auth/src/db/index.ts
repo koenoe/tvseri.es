@@ -79,7 +79,7 @@ export const createUser = async (
     throw new Error('UserAlreadyExists');
   }
 
-  let username = slugify(input.email.split('@')[0]!, {
+  let username = slugify(input.name ?? input.email.split('@')[0]!, {
     lower: true,
     strict: true,
   });

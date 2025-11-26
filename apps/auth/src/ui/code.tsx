@@ -5,6 +5,7 @@ import type {
   CodeProviderState,
 } from '@openauthjs/openauth/provider/code';
 import type { CodeUICopy } from '@openauthjs/openauth/ui/code';
+import { html } from 'hono/html';
 import { Layout } from './layout';
 import { LoadingDots } from './loading-dots';
 
@@ -30,129 +31,6 @@ export interface CodeUIOptions {
   copy?: Partial<CodeUICopy>;
 }
 
-/**
- * Polyfill for esbuild's __name helper which is injected during compilation
- * but not available in the browser when using .toString() on functions.
- */
-const __namePolyfill = `var __defProp=Object.defineProperty;var __name=function(t,n){return __defProp(t,"name",{value:n,configurable:true})};`;
-
-/**
- * Inline script for form submit loading state.
- * Only applies to forms without data-form attribute (i.e., email form, not OTP form).
- */
-function formScript() {
-  document.querySelectorAll('form:not([data-form])').forEach((form) => {
-    form.addEventListener('submit', () => {
-      const button = form.querySelector('[data-component="button"]');
-      if (button) {
-        button.setAttribute('data-loading', 'true');
-        (button as HTMLButtonElement).disabled = true;
-      }
-    });
-  });
-}
-
-/**
- * Inline script for OTP input handling.
- * Uses vanilla JS/DOM for a stateless approach (similar to SST Console).
- */
-function otpScript() {
-  const inputs = () =>
-    document.querySelectorAll<HTMLInputElement>('[data-element="code"]');
-  const hidden = () =>
-    document.querySelector<HTMLInputElement>('input[name="code"]');
-  const form = () =>
-    document.querySelector<HTMLFormElement>('form[data-form="code"]');
-
-  function setDisabled(disabled: boolean) {
-    inputs().forEach((input) => {
-      input.disabled = disabled;
-    });
-  }
-
-  function setValue() {
-    const values = Array.from(inputs()).map((el) => el.value);
-    const hiddenInput = hidden();
-    if (hiddenInput) {
-      hiddenInput.value = values.join('');
-    }
-
-    // Auto-submit when all 6 digits are entered
-    if (values.every((v) => v.length === 1) && values.length === 6) {
-      setDisabled(true);
-      form()?.submit();
-    }
-  }
-
-  function focusNext(current: HTMLInputElement) {
-    const all = Array.from(inputs());
-    const idx = all.indexOf(current);
-    all[idx + 1]?.focus();
-  }
-
-  function focusPrev(current: HTMLInputElement) {
-    const all = Array.from(inputs());
-    const idx = all.indexOf(current);
-    all[idx - 1]?.focus();
-  }
-
-  inputs().forEach((input) => {
-    input.addEventListener('paste', (e) => {
-      e.preventDefault();
-      const paste = (
-        e.clipboardData ||
-        (window as unknown as { clipboardData: DataTransfer }).clipboardData
-      ).getData('text');
-      const digits = paste.replace(/\D/g, '').slice(0, 6).split('');
-      const all = Array.from(inputs());
-
-      digits.forEach((digit: string, i: number) => {
-        if (all[i]) {
-          all[i].value = digit;
-        }
-      });
-
-      // Focus last filled or last input
-      const focusIdx = Math.min(digits.length, all.length - 1);
-      all[focusIdx]?.focus();
-      setValue();
-    });
-
-    input.addEventListener('input', (e) => {
-      const target = e.target as HTMLInputElement;
-      const value = target.value.replace(/\D/g, '');
-      target.value = value.slice(-1); // Only keep last digit
-
-      if (value.length > 0) {
-        focusNext(target);
-      }
-      setValue();
-    });
-
-    input.addEventListener('keydown', (e) => {
-      const target = e.target as HTMLInputElement;
-      if (e.key === 'Backspace') {
-        if (target.value === '') {
-          focusPrev(target);
-        } else {
-          target.value = '';
-        }
-        setValue();
-      } else if (e.key === 'ArrowLeft') {
-        e.preventDefault();
-        focusPrev(target);
-      } else if (e.key === 'ArrowRight') {
-        e.preventDefault();
-        focusNext(target);
-      }
-    });
-
-    input.addEventListener('focus', (e) => {
-      (e.target as HTMLInputElement).select();
-    });
-  });
-}
-
 export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
   const copy: CodeUICopy = {
     ...DEFAULT_COPY,
@@ -169,13 +47,32 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
       if (state.type === 'start') {
         const jsx = (
           <Layout>
-            <form data-component="form" method="post">
+            {html`
+              <script>
+                function disableSubmitButton(event) {
+                  const form = event.target;
+                  const button = form.querySelector('[data-component="button"]');
+                  if (button) {
+                    button.setAttribute('data-loading', 'true');
+                    if (button instanceof HTMLButtonElement) {
+                      button.disabled = true;
+                    }
+                  }
+                }
+              </script>
+            `}
+            <form
+              data-component="form"
+              method="post"
+              onsubmit="disableSubmitButton(event)"
+            >
               <input name="action" type="hidden" value="request" />
               <input
                 autofocus
                 data-1p-ignore
                 data-component="input"
                 id="email"
+                inputMode="email"
                 name="email"
                 placeholder={copy.email_placeholder}
                 required
@@ -186,11 +83,6 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
                 <LoadingDots />
               </button>
             </form>
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `${__namePolyfill}(${formScript.toString()})();`,
-              }}
-            />
           </Layout>
         );
 
@@ -204,7 +96,140 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
       if (state.type === 'code') {
         const jsx = (
           <Layout>
-            <form data-component="form" data-form="code" method="post">
+            {html`
+              <script>
+                function getCodeInputs() {
+                  return Array.from(document.querySelectorAll('[data-element="code"]')).filter(
+                    (el) => el instanceof HTMLInputElement,
+                  );
+                }
+
+                function getHiddenCodeInput() {
+                  return document.querySelector('input[name="code"]');
+                }
+
+                function getCodeFormElement() {
+                  return document.querySelector('form[data-form="code"]');
+                }
+
+                function disableCodeInputs() {
+                  getCodeInputs().forEach((input) => {
+                    input.disabled = true;
+                  });
+                }
+
+                function updateCodeValue() {
+                  const values = getCodeInputs().map((input) => input.value);
+                  const hiddenInput = getHiddenCodeInput();
+                  if (hiddenInput instanceof HTMLInputElement) {
+                    hiddenInput.value = values.join('');
+                  }
+
+                  if (values.every((v) => v.length === 1) && values.length === 6) {
+                    disableCodeInputs();
+                    const codeForm = getCodeFormElement();
+                    if (codeForm instanceof HTMLFormElement) {
+                      if (typeof codeForm.requestSubmit === 'function') {
+                        codeForm.requestSubmit();
+                      } else {
+                        codeForm.submit();
+                      }
+                    }
+                  }
+                }
+
+                function focusNextInput(current) {
+                  if (!(current instanceof HTMLInputElement)) {
+                    return;
+                  }
+                  const all = getCodeInputs();
+                  const idx = all.indexOf(current);
+                  if (idx > -1) {
+                    all[idx + 1]?.focus();
+                  }
+                }
+
+                function focusPreviousInput(current) {
+                  if (!(current instanceof HTMLInputElement)) {
+                    return;
+                  }
+                  const all = getCodeInputs();
+                  const idx = all.indexOf(current);
+                  if (idx > -1) {
+                    all[idx - 1]?.focus();
+                  }
+                }
+
+                function handleCodePaste(event) {
+                  event.preventDefault();
+                  const paste = (event.clipboardData || window.clipboardData).getData('text');
+                  const digits = paste.replace(/\D/g, '').slice(0, 6).split('');
+                  const all = getCodeInputs();
+
+                  digits.forEach((digit, i) => {
+                    if (all[i]) {
+                      all[i].value = digit;
+                    }
+                  });
+
+                  const focusIdx = Math.min(digits.length, all.length - 1);
+                  all[focusIdx]?.focus();
+                  updateCodeValue();
+                }
+
+                function handleCodeInput(event) {
+                  const target = event.target;
+                  if (!(target instanceof HTMLInputElement)) {
+                    return;
+                  }
+                  const value = target.value.replace(/\D/g, '');
+                  target.value = value.slice(-1);
+
+                  if (value.length > 0) {
+                    focusNextInput(target);
+                  }
+                  updateCodeValue();
+                }
+
+                function handleCodeKeyDown(event) {
+                  const target = event.target;
+                  if (!(target instanceof HTMLInputElement)) {
+                    return;
+                  }
+                  if (event.key === 'Backspace') {
+                    if (target.value === '') {
+                      focusPreviousInput(target);
+                    } else {
+                      target.value = '';
+                    }
+                    updateCodeValue();
+                  } else if (event.key === 'ArrowLeft') {
+                    event.preventDefault();
+                    focusPreviousInput(target);
+                  } else if (event.key === 'ArrowRight') {
+                    event.preventDefault();
+                    focusNextInput(target);
+                  }
+                }
+
+                function handleCodeFocus(event) {
+                  const target = event.target;
+                  if (target instanceof HTMLInputElement) {
+                    target.select();
+                  }
+                }
+
+                function handleCodeFormSubmit() {
+                  disableCodeInputs();
+                }
+              </script>
+            `}
+            <form
+              data-component="form"
+              data-form="code"
+              method="post"
+              onsubmit="handleCodeFormSubmit()"
+            >
               <input name="action" type="hidden" value="verify" />
               <input name="code" type="hidden" value="" />
               <div data-component="code-inputs">
@@ -219,6 +244,10 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
                     inputMode="numeric"
                     key={i}
                     maxLength={1}
+                    onfocus="handleCodeFocus(event)"
+                    oninput="handleCodeInput(event)"
+                    onkeydown="handleCodeKeyDown(event)"
+                    onpaste="handleCodePaste(event)"
                     pattern="[0-9]*"
                     required
                     type="text"
@@ -238,11 +267,6 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
                 </button>
               </div>
             </form>
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `${__namePolyfill}(${otpScript.toString()})();`,
-              }}
-            />
           </Layout>
         );
 

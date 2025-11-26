@@ -7,15 +7,15 @@ import { createUser, findUser } from './db';
 import { subjects } from './subjects';
 import { CodeUI, SelectUI } from './ui';
 
-const codeUI = CodeUI({
-  sendCode: async (claims, code) => {
-    console.log(claims.email, code);
-  },
-});
-
 const app = issuer({
   providers: {
-    code: CodeProvider(codeUI),
+    code: CodeProvider(
+      CodeUI({
+        sendCode: async (claims, code) => {
+          console.log(claims.email, code);
+        },
+      }),
+    ),
     google: GoogleOidcProvider({
       clientID: Resource.GoogleClientId.value,
       scopes: ['openid', 'email'],

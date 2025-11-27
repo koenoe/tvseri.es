@@ -78,9 +78,10 @@ const parseWatchProviderFromBody = async (
   return null;
 };
 
-const toMinimalUser = (user: User): Partial<User> => ({
-  id: user.id,
-  username: user.username,
+const toMinimalUser = ({ id, username, createdAt }: User): Partial<User> => ({
+  createdAt,
+  id,
+  username,
 });
 
 const series = (): MiddlewareHandler<{ Variables: Variables }> => {

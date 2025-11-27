@@ -1,8 +1,26 @@
 import { createClient } from '@openauthjs/openauth/client';
-import { subjects } from '@tvseri.es/schemas';
-import { cookies } from 'next/headers';
+import { subjects, type User } from '@tvseri.es/schemas';
+import type { NextApiRequest } from 'next';
+import { cookies, headers } from 'next/headers';
+import type { NextRequest } from 'next/server';
+import { cache } from 'react';
 import { Resource } from 'sst';
 import { me } from './lib/api';
+import getBaseUrl from './utils/getBaseUrl';
+
+type AuthArgs = NextApiRequest | Request | NextRequest;
+
+type SessionResult = Readonly<{
+  accessToken: string | null;
+  user: User | null;
+}>;
+
+const EMPTY_SESSION: SessionResult = {
+  accessToken: null,
+  user: null,
+};
+
+const SECURE_COOKIE = process.env.NODE_ENV === 'production';
 
 export const client = createClient({
   clientID: 'website',
@@ -18,6 +36,7 @@ export async function setTokens(access: string, refresh: string) {
     name: 'access_token',
     path: '/',
     sameSite: 'lax',
+    secure: SECURE_COOKIE,
     value: access,
   });
   cookiesStore.set({
@@ -26,48 +45,65 @@ export async function setTokens(access: string, refresh: string) {
     name: 'refresh_token',
     path: '/',
     sameSite: 'lax',
+    secure: SECURE_COOKIE,
     value: refresh,
   });
 }
 
-export async function auth() {
+export async function clearTokens() {
   const cookiesStore = await cookies();
-  const accessTokenCookie = cookiesStore.get('access_token');
-  const refreshTokenCookie = cookiesStore.get('refresh_token');
+
+  cookiesStore.delete('access_token');
+  cookiesStore.delete('refresh_token');
+}
+
+async function getSession(headers: Headers): Promise<SessionResult> {
+  try {
+    const url = `${getBaseUrl()}/api/auth/session`;
+    const res = await fetch(url, {
+      cache: 'no-store',
+      headers: { cookie: headers.get('cookie') ?? '' },
+    });
+
+    if (!res.ok) {
+      return EMPTY_SESSION;
+    }
+
+    const result = (await res.json()) as SessionResult;
+    return result;
+  } catch {
+    return EMPTY_SESSION;
+  }
+}
+
+async function handleAuth() {
+  const cookieStore = await cookies();
+  const accessTokenCookie = cookieStore.get('access_token')?.value;
+  const refreshTokenCookie = cookieStore.get('refresh_token')?.value;
 
   if (!accessTokenCookie) {
-    return {
-      accessToken: null,
-      user: null,
-    };
+    return EMPTY_SESSION;
   }
 
-  const verified = await client.verify(subjects, accessTokenCookie.value, {
-    refresh: refreshTokenCookie?.value,
+  const verified = await client.verify(subjects, accessTokenCookie, {
+    refresh: refreshTokenCookie,
   });
 
-  if (verified.err) {
-    return {
-      accessToken: null,
-      user: null,
-    };
+  if ('err' in verified) {
+    await clearTokens();
+    return EMPTY_SESSION;
   }
 
   if (verified.tokens) {
     await setTokens(verified.tokens.access, verified.tokens.refresh);
   }
 
-  const accessToken = verified.tokens
-    ? verified.tokens.access
-    : accessTokenCookie.value;
-
-  const user = await me({ accessToken });
+  const accessToken = verified.tokens?.access ?? accessTokenCookie;
+  const user = await me({ accessToken }).catch(() => null);
 
   if (!user) {
-    return {
-      accessToken: null,
-      user: null,
-    };
+    await clearTokens();
+    return EMPTY_SESSION;
   }
 
   return {
@@ -75,5 +111,21 @@ export async function auth() {
     user,
   };
 }
+
+export const auth = cache(async (args?: AuthArgs) => {
+  if (!args) {
+    // React Server Components
+    const _headers = await headers();
+    const session = await getSession(_headers);
+    return session;
+  }
+
+  // Handle API Routes / Route Handlers
+  if (args instanceof Request) {
+    return handleAuth();
+  }
+
+  return EMPTY_SESSION;
+});
 
 export default auth;

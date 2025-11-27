@@ -30,7 +30,7 @@ export async function POST(
     return Response.json({ error: 'Not found' }, { status: 404 });
   }
 
-  const { user, accessToken } = await auth();
+  const { user, accessToken } = await auth(req);
   if (!user || !accessToken) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }

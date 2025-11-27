@@ -5,7 +5,7 @@ import { cookies, headers } from 'next/headers';
 import { redirect, unauthorized } from 'next/navigation';
 import isEqual from 'react-fast-compare';
 import slugify from 'slugify';
-import auth, { client, setTokens } from '@/auth';
+import auth, { clearTokens, client, setTokens } from '@/auth';
 import { follow, unfollow, updateUser } from '@/lib/api';
 
 import { cachedUser } from './cached';
@@ -37,9 +37,7 @@ export async function login() {
 }
 
 export async function logout() {
-  const cookieStore = await cookies();
-  cookieStore.delete('access_token');
-  cookieStore.delete('refresh_token');
+  await clearTokens();
 
   redirect('/');
 }

@@ -30,37 +30,34 @@ export async function POST(
     return Response.json({ error: 'Not found' }, { status: 404 });
   }
 
-  const { user, encryptedSessionId, session } = await auth();
-  if (!user || !encryptedSessionId || !session) {
+  const { user, accessToken } = await auth();
+  if (!user || !accessToken) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const headerStore = await headers();
   const region =
-    session.country || headerStore.get('cloudfront-viewer-country') || 'US';
+    user.country || headerStore.get('cloudfront-viewer-country') || 'US';
   const watchProvider =
-    (await fetchTvSeriesWatchProvider(
-      tvSeries.id,
-      region,
-      encryptedSessionId,
-    )) ?? null;
+    (await fetchTvSeriesWatchProvider(tvSeries.id, region, accessToken)) ??
+    null;
 
   if (body.watched) {
     const watchedItems = await markWatched({
+      accessToken,
       episodeNumber: body.episodeNumber,
       region,
       seasonNumber: body.seasonNumber,
       seriesId: tvSeries.id,
-      sessionId: encryptedSessionId,
       userId: user.id,
       watchProvider,
     });
     return Response.json(watchedItems);
   } else {
     await unmarkWatched({
+      accessToken,
       episodeNumber: body.episodeNumber,
       seasonNumber: body.seasonNumber,
       seriesId: tvSeries.id,
-      sessionId: encryptedSessionId,
       userId: user.id,
     });
     return Response.json({

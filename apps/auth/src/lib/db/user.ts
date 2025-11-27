@@ -72,6 +72,7 @@ export const createUser = async (
   input: Readonly<{
     email: string;
     name?: string;
+    country?: string | null;
   }>,
 ): Promise<User> => {
   const userByEmail = await findUser({ email: input.email });
@@ -98,6 +99,9 @@ export const createUser = async (
         createdAt: now,
         id: userId,
         pk: `USER#${userId}`,
+        ...(input.country && {
+          country: input.country,
+        }),
         ...(input.name && {
           name: input.name,
         }),

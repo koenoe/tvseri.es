@@ -78,6 +78,11 @@ const parseWatchProviderFromBody = async (
   return null;
 };
 
+const toMinimalUser = (user: User): Partial<User> => ({
+  id: user.id,
+  username: user.username,
+});
+
 const series = (): MiddlewareHandler<{ Variables: Variables }> => {
   return async (c, next) => {
     const id = c.req.param('series-id');
@@ -166,7 +171,7 @@ const enrichUsersWithFollowInfo = async (
         ]);
 
         return {
-          ...user,
+          ...toMinimalUser(user),
           followerCount,
           followingCount,
           isFollower: false,
@@ -206,7 +211,7 @@ const enrichUsersWithFollowInfo = async (
       ]);
 
       return {
-        ...user,
+        ...toMinimalUser(user),
         followerCount,
         followingCount,
         isFollower: isFollowerResult,
@@ -219,21 +224,7 @@ const enrichUsersWithFollowInfo = async (
 
 app.get('/:id', user(), (c) => {
   const user = c.get('user');
-  return c.json(user);
-});
-
-app.get('/by-email/:email', async (c) => {
-  const email = decodeURIComponent(c.req.param('email'));
-
-  const user = await findUser({
-    email,
-  });
-
-  if (!user) {
-    return c.notFound();
-  }
-
-  return c.json(user);
+  return c.json(toMinimalUser(user));
 });
 
 app.get('/by-username/:username', async (c) => {
@@ -245,7 +236,7 @@ app.get('/by-username/:username', async (c) => {
     return c.notFound();
   }
 
-  return c.json(user);
+  return c.json(toMinimalUser(user));
 });
 
 app.get('/:id/watched/count', user(), async (c) => {

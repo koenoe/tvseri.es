@@ -10,16 +10,16 @@ export default async function ContentRating({
   className?: string;
   id: number;
 }) {
-  const [headerStore, { encryptedSessionId, session }] = await Promise.all([
+  const [headerStore, { user, accessToken }] = await Promise.all([
     headers(),
     auth(),
   ]);
   const region =
-    session?.country || headerStore.get('cloudfront-viewer-country') || 'US';
+    user?.country || headerStore.get('cloudfront-viewer-country') || 'US';
   const contentRating = await fetchTvSeriesContentRating(
     id,
     region,
-    encryptedSessionId ?? undefined,
+    accessToken ?? undefined,
   );
 
   return contentRating ? (

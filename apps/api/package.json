@@ -3,12 +3,13 @@
     "@aws-sdk/client-cloudfront": "^3.937.0",
     "@aws-sdk/client-dynamodb": "^3.936.0",
     "@aws-sdk/client-lambda": "^3.938.0",
-    "@aws-sdk/client-sesv2": "^3.938.0",
     "@aws-sdk/client-sqs": "^3.936.0",
     "@aws-sdk/util-dynamodb": "^3.936.0",
     "@better-fetch/fetch": "^1.1.18",
     "@hono/valibot-validator": "^0.6.0",
+    "@openauthjs/openauth": "^0.4.3",
     "@tvseri.es/constants": "workspace:*",
+    "@tvseri.es/schemas": "workspace:*",
     "@tvseri.es/utils": "workspace:*",
     "color": "^5.0.3",
     "hono": "^4.10.6",
@@ -17,7 +18,6 @@
     "ulid": "^3.0.1"
   },
   "devDependencies": {
-    "@tvseri.es/schemas": "workspace:*",
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/aws-lambda": "^8.10.159",
     "@types/color": "^4.2.0",

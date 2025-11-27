@@ -9,6 +9,9 @@
   },
   "main": "./src/index.ts",
   "name": "@tvseri.es/schemas",
+  "peerDependencies": {
+    "@openauthjs/openauth": "^0.4"
+  },
   "private": true,
   "scripts": {
     "check-types": "tsc --noEmit",

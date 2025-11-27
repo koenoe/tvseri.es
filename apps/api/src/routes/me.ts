@@ -14,8 +14,8 @@ const app = new Hono<{ Variables: Variables }>();
 app.use(requireAuth());
 
 app.get('/', async (c) => {
-  const auth = c.get('auth');
-  return c.json(auth);
+  const { user } = c.get('auth')!;
+  return c.json(user);
 });
 
 app.put('/', vValidator('json', UpdateUserSchema), async (c) => {

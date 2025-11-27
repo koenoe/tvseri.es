@@ -9,6 +9,7 @@ export const UsernameSchema = v.pipe(
 );
 
 export const UserSchema = v.object({
+  country: v.optional(v.string()),
   createdAt: v.string(),
   email: v.optional(v.pipe(v.string(), v.email())),
   id: v.string(),
@@ -28,22 +29,6 @@ export const UserWithFollowInfoSchema = v.object({
   isFollowing: v.boolean(),
   isMe: v.boolean(),
 });
-
-export const CreateUserSchema = v.intersect([
-  v.object({
-    name: v.optional(v.string()),
-  }),
-  v.union([
-    v.object({
-      email: v.optional(v.pipe(v.string(), v.email())),
-      username: UsernameSchema,
-    }),
-    v.object({
-      email: v.pipe(v.string(), v.email()),
-      username: v.optional(UsernameSchema),
-    }),
-  ]),
-]);
 
 export const UpdateUserSchema = v.intersect([
   v.union([
@@ -67,7 +52,6 @@ export const UpdateWatchProvidersForUserSchema = v.object({
 export type Role = v.InferOutput<typeof RoleSchema>;
 export type User = v.InferOutput<typeof UserSchema>;
 export type UserWithFollowInfo = v.InferOutput<typeof UserWithFollowInfoSchema>;
-export type CreateUser = v.InferOutput<typeof CreateUserSchema>;
 export type UpdateUser = v.InferOutput<typeof UpdateUserSchema>;
 export type UpdateWatchProvidersForUser = v.InferOutput<
   typeof UpdateWatchProvidersForUserSchema

@@ -36,11 +36,9 @@ export default async function CardsContainer({
   tvSeries: TvSeries;
   user: User;
 }>) {
-  const [headerStore, { encryptedSessionId, session }] = await Promise.all([
-    headers(),
-    auth(),
-  ]);
-  const sessionId = encryptedSessionId!;
+  const [headerStore, { accessToken, user: userFromSession }] =
+    await Promise.all([headers(), auth()]);
+
   const region = headerStore.get('cloudfront-viewer-country') || 'US';
 
   const [watchedItems, seasons, watchProvider] = await Promise.all([
@@ -51,8 +49,8 @@ export default async function CardsContainer({
     fetchAllSeasons(tvSeries),
     fetchTvSeriesWatchProvider(
       tvSeries.id,
-      session?.country ?? region,
-      sessionId,
+      userFromSession?.country ?? region,
+      accessToken!,
     ),
   ]);
 
@@ -68,8 +66,8 @@ export default async function CardsContainer({
       }));
 
       await unmarkWatchedInBatch({
+        accessToken: accessToken!,
         items: itemsToRemove,
-        sessionId,
         userId: user.id,
       });
     } catch (error) {
@@ -103,8 +101,8 @@ export default async function CardsContainer({
       });
 
       await markWatchedInBatch({
+        accessToken: accessToken!,
         items: itemsToUpdate,
-        sessionId,
         userId: user.id,
       });
     } catch (error) {

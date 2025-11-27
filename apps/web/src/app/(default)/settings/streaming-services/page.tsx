@@ -4,9 +4,9 @@ import auth from '@/auth';
 import StreamingServicesContainer from '@/components/Settings/StreamingServicesContainer';
 
 export default async function SettingsStreamingServicesPage() {
-  const { encryptedSessionId } = await auth();
+  const { accessToken } = await auth();
 
-  if (!encryptedSessionId) {
+  if (!accessToken) {
     return unauthorized();
   }
 

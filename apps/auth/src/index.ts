@@ -1,18 +1,29 @@
 import { issuer } from '@openauthjs/openauth';
 import { CodeProvider } from '@openauthjs/openauth/provider/code';
 import { GoogleOidcProvider } from '@openauthjs/openauth/provider/google';
+import { subjects } from '@tvseri.es/schemas';
 import { handle } from 'hono/aws-lambda';
 import { Resource } from 'sst';
-import { createUser, findUser } from './db';
-import { subjects } from './subjects';
+import { createUser, findUser } from './lib/db/user';
+import { sendEmail } from './lib/email';
 import { CodeUI, SelectUI } from './ui';
+
+const ttl = {
+  access: 300, // tmp 5 minutes
+  refresh: 60 * 60 * 1, // tmp 1 hour
+};
 
 const app = issuer({
   providers: {
     code: CodeProvider(
       CodeUI({
         sendCode: async (claims, code) => {
-          console.log(claims.email, code);
+          await sendEmail({
+            body: `Your OTP is <strong>${code}</strong>`,
+            recipient: claims.email!,
+            sender: 'auth',
+            subject: `Your OTP: ${code}`,
+          });
         },
       }),
     ),
@@ -23,11 +34,10 @@ const app = issuer({
   },
   select: SelectUI(),
   subjects,
-  success: async (ctx, value) => {
-    console.log('succes:', value);
-
+  success: async (ctx, value, req) => {
     let email: string | undefined;
     let name: string | undefined;
+
     if (value.provider === 'google') {
       if (!value.id.email_verified) {
         throw new Error('Google email not verified');
@@ -42,17 +52,21 @@ const app = issuer({
     if (email) {
       let user = await findUser({ email });
       if (!user) {
-        user = await createUser({ email, name });
+        user = await createUser({
+          country: req.headers.get('cloudfront-viewer-country'),
+          email,
+          name,
+        });
       }
-      return ctx.subject('user', user);
+
+      return ctx.subject('user', {
+        id: user.id,
+      });
     }
 
     throw new Error('Invalid provider');
   },
-  ttl: {
-    access: 300, // tmp 5 minutes
-    refresh: 60 * 60 * 1, // tmp 1 hour
-  },
+  ttl,
 });
 
 export const handler = handle(app);

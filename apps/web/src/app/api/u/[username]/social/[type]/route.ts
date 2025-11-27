@@ -28,14 +28,14 @@ export async function GET(
     return Response.json({ error: 'User not found' }, { status: 404 });
   }
 
-  const { encryptedSessionId } = await auth();
+  const { accessToken } = await auth();
   const searchParams = request.nextUrl.searchParams;
   const cursorFromSearchParams = searchParams.get('cursor') ?? '';
   const payload = {
+    accessToken: accessToken ?? undefined,
     options: {
       cursor: cursorFromSearchParams,
     },
-    sessionId: encryptedSessionId ?? undefined,
     userId: user.id,
   };
 

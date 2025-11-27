@@ -3,6 +3,7 @@
     "@better-fetch/fetch": "^1.1.18",
     "@openauthjs/openauth": "^0.4.3",
     "@tvseri.es/constants": "workspace:*",
+    "@tvseri.es/schemas": "workspace:*",
     "@tvseri.es/utils": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "color": "^5.0.3",
@@ -29,7 +30,7 @@
     "@next/bundle-analyzer": "^16.0.3",
     "@opennextjs/aws": "^3.9.0",
     "@tailwindcss/typography": "^0.5.19",
-    "@tvseri.es/schemas": "workspace:*",
+
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/color": "^4.2.0",
     "@types/node": "catalog:",

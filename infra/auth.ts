@@ -18,7 +18,11 @@ export const auth = new sst.aws.Auth('Auth', {
     memory: '2048 MB',
     nodejs: {
       esbuild: {
-        external: ['@aws-sdk/client-dynamodb', '@aws-sdk/util-dynamodb'],
+        external: [
+          '@aws-sdk/client-dynamodb',
+          '@aws-sdk/client-sesv2',
+          '@aws-sdk/util-dynamodb',
+        ],
       },
       loader: {
         '.css': 'text',

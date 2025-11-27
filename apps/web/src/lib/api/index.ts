@@ -13,7 +13,6 @@ import type {
   PreferredImages,
   Rating,
   Season,
-  Session,
   TvSeries,
   TvSeriesForWatched,
   UpdateUser,
@@ -48,7 +47,7 @@ const toMinimalTvSeries = (tvSeries: TvSeries): TvSeriesForWatched => ({
 });
 
 type AuthContext = Readonly<{
-  sessionId?: string;
+  accessToken?: string;
 }>;
 
 const $fetch = createFetch({
@@ -242,11 +241,11 @@ export async function fetchTvSeriesImages(
 export async function fetchTvSeriesContentRating(
   id: number | string,
   region: string = 'US',
-  sessionId?: string,
+  accessToken?: string,
 ) {
   const contentRating = (await apiFetch(`/series/${id}/content-rating`, {
     auth: {
-      token: sessionId,
+      token: accessToken,
       type: 'Bearer',
     },
     query: {
@@ -259,11 +258,11 @@ export async function fetchTvSeriesContentRating(
 export async function fetchTvSeriesWatchProvider(
   id: number | string,
   region: string = 'US',
-  sessionId?: string,
+  accessToken?: string,
 ) {
   const watchProvider = (await apiFetch(`/series/${id}/watch-provider`, {
     auth: {
-      token: sessionId,
+      token: accessToken,
       type: 'Bearer',
     },
     query: {
@@ -410,12 +409,12 @@ export async function detectDominantColorFromImage({
 }
 
 export async function updateUser({
-  sessionId,
+  accessToken,
   ...rest
 }: UpdateUser & AuthContext) {
   const user = (await apiFetch('/me', {
     auth: {
-      token: sessionId,
+      token: accessToken,
       type: 'Bearer',
     },
     body: JSON.stringify(rest),
@@ -425,42 +424,12 @@ export async function updateUser({
   return user;
 }
 
-export async function findUser(
-  input:
-    | { userId: string; email?: never; username?: never }
-    | { userId?: never; email: string; username?: never }
-    | { userId?: never; email?: never; username: string }
-    | {
-        userId?: never;
-        email?: never;
-        username?: never;
-      },
-) {
-  if (input.userId) {
-    return (await apiFetch('/user/:id', {
-      params: {
-        id: input.userId,
-      },
-    })) as User | undefined;
-  }
-
-  if (input.email) {
-    return (await apiFetch('/user/by-email/:email', {
-      params: {
-        email: encodeURIComponent(input.email),
-      },
-    })) as User | undefined;
-  }
-
-  if (input.username) {
-    return (await apiFetch('/user/by-username/:username', {
-      params: {
-        username: input.username,
-      },
-    })) as User | undefined;
-  }
-
-  throw new Error('InvalidInputError');
+export async function findUser({ username }: Pick<User, 'username'>) {
+  return (await apiFetch('/user/by-username/:username', {
+    params: {
+      username,
+    },
+  })) as User | undefined;
 }
 
 export async function getListItems(
@@ -560,12 +529,12 @@ export async function addToList(
       Readonly<{
         createdAt?: number;
       }>;
-    sessionId: string;
+    accessToken: string;
   }>,
 ) {
   await apiFetch('/user/:id/list/:list', {
     auth: {
-      token: input.sessionId,
+      token: input.accessToken,
       type: 'Bearer',
     },
     body: JSON.stringify(input.item),
@@ -581,9 +550,9 @@ export async function addToFavorites(
   input: Omit<Parameters<typeof addToList>[0], 'listId'>,
 ) {
   return addToList({
+    accessToken: input.accessToken,
     item: input.item,
     listId: 'FAVORITES',
-    sessionId: input.sessionId,
     userId: input.userId,
   });
 }
@@ -592,9 +561,9 @@ export async function addToWatchlist(
   input: Parameters<typeof addToFavorites>[0],
 ) {
   return addToList({
+    accessToken: input.accessToken,
     item: input.item,
     listId: 'WATCHLIST',
-    sessionId: input.sessionId,
     userId: input.userId,
   });
 }
@@ -604,12 +573,12 @@ export async function removeFromList(
     userId: string;
     listId: string;
     id: number;
-    sessionId: string;
+    accessToken: string;
   }>,
 ) {
   await apiFetch('/user/:id/list/:list/:itemId', {
     auth: {
-      token: input.sessionId,
+      token: input.accessToken,
       type: 'Bearer',
     },
     method: 'DELETE',
@@ -625,9 +594,9 @@ export async function removeFromFavorites(
   input: Omit<Parameters<typeof removeFromList>[0], 'listId'>,
 ) {
   return removeFromList({
+    accessToken: input.accessToken,
     id: input.id,
     listId: 'FAVORITES',
-    sessionId: input.sessionId,
     userId: input.userId,
   });
 }
@@ -636,9 +605,9 @@ export async function removeFromWatchlist(
   input: Parameters<typeof removeFromFavorites>[0],
 ) {
   return removeFromList({
+    accessToken: input.accessToken,
     id: input.id,
     listId: 'WATCHLIST',
-    sessionId: input.sessionId,
     userId: input.userId,
   });
 }
@@ -745,12 +714,12 @@ export async function markWatched(
     seriesId: number;
     userId: string;
     watchProvider: WatchProvider | null;
-    sessionId: string;
+    accessToken: string;
     region?: string;
   }>,
 ) {
   const auth = {
-    token: input.sessionId,
+    token: input.accessToken,
     type: 'Bearer' as const,
   };
   const body = JSON.stringify({
@@ -803,7 +772,7 @@ export async function unmarkWatched(
   input: Omit<Parameters<typeof markWatched>[0], 'watchProvider'>,
 ) {
   const auth = {
-    token: input.sessionId,
+    token: input.accessToken,
     type: 'Bearer' as const,
   };
 
@@ -857,7 +826,7 @@ export async function markWatchedInBatch(
       watchProvider?: WatchProvider | null;
       watchedAt: number;
     }>;
-    sessionId: string;
+    accessToken: string;
   }>,
 ) {
   const BATCH_SIZE = 25;
@@ -877,7 +846,7 @@ export async function markWatchedInBatch(
 
     return apiFetch('/user/:id/watched/batch', {
       auth: {
-        token: input.sessionId,
+        token: input.accessToken,
         type: 'Bearer',
       },
       body: JSON.stringify(minimalChunk),
@@ -902,7 +871,7 @@ export async function unmarkWatchedInBatch(
       seasonNumber: number;
       episodeNumber: number;
     }>;
-    sessionId: string;
+    accessToken: string;
   }>,
 ) {
   const BATCH_SIZE = 25;
@@ -921,7 +890,7 @@ export async function unmarkWatchedInBatch(
 
     return apiFetch('/user/:id/watched/batch/delete', {
       auth: {
-        token: input.sessionId,
+        token: input.accessToken,
         type: 'Bearer',
       },
       body: JSON.stringify(minimalChunk),
@@ -937,25 +906,19 @@ export async function unmarkWatchedInBatch(
   return { message: 'OK' };
 }
 
-export async function me({ sessionId }: AuthContext) {
+export async function me({ accessToken }: AuthContext) {
   const response = await apiFetch('/me', {
     auth: {
-      token: sessionId,
+      token: accessToken,
       type: 'Bearer',
     },
   });
 
   if (!response) {
-    return {
-      session: null,
-      user: null,
-    };
+    return null;
   }
 
-  const result = response as Readonly<{
-    user: User;
-    session: Session;
-  }>;
+  const result = response as User;
 
   return result;
 }
@@ -968,7 +931,7 @@ export async function fetchTokenForWebhookByType(
 ) {
   const token = (await apiFetch('/webhook/type/:type', {
     auth: {
-      token: input.sessionId,
+      token: input.accessToken,
       type: 'Bearer',
     },
     params: {
@@ -997,14 +960,14 @@ export async function fetchTokenForWebhook(
 
 export async function follow({
   userId,
-  sessionId,
+  accessToken,
 }: Readonly<{
   userId: string;
 }> &
   AuthContext) {
   await apiFetch('/user/:id/follow', {
     auth: {
-      token: sessionId,
+      token: accessToken,
       type: 'Bearer',
     },
     method: 'POST',
@@ -1016,11 +979,11 @@ export async function follow({
 
 export async function unfollow({
   userId,
-  sessionId,
+  accessToken,
 }: Parameters<typeof follow>[0]) {
   await apiFetch('/user/:id/unfollow', {
     auth: {
-      token: sessionId,
+      token: accessToken,
       type: 'Bearer',
     },
     method: 'DELETE',
@@ -1063,7 +1026,7 @@ export async function getFollowers(
 ) {
   const result = (await apiFetch('/user/:id/followers', {
     auth: {
-      token: input.sessionId,
+      token: input.accessToken,
       type: 'Bearer',
     },
     params: {
@@ -1085,7 +1048,7 @@ export async function getFollowers(
 export async function getFollowing(input: Parameters<typeof getFollowers>[0]) {
   const result = (await apiFetch('/user/:id/following', {
     auth: {
-      token: input.sessionId,
+      token: input.accessToken,
       type: 'Bearer',
     },
     params: {
@@ -1145,7 +1108,7 @@ export async function isFollower({
 export async function updatePreferredImages({
   id,
   preferredImages,
-  sessionId,
+  accessToken,
 }: Readonly<{
   id: number;
   preferredImages: PreferredImages;
@@ -1153,7 +1116,7 @@ export async function updatePreferredImages({
   AuthContext) {
   await apiFetch('/admin/preferred-images/series/:id', {
     auth: {
-      token: sessionId,
+      token: accessToken,
       type: 'Bearer',
     },
     body: JSON.stringify(preferredImages),
@@ -1165,7 +1128,7 @@ export async function updatePreferredImages({
 }
 
 export async function updateWatchProviders({
-  sessionId,
+  accessToken,
   watchProviders,
 }: Readonly<{
   watchProviders: WatchProvider[];
@@ -1173,7 +1136,7 @@ export async function updateWatchProviders({
   AuthContext) {
   const user = (await apiFetch('/me/watch-providers', {
     auth: {
-      token: sessionId,
+      token: accessToken,
       type: 'Bearer',
     },
     body: JSON.stringify({ watchProviders }),

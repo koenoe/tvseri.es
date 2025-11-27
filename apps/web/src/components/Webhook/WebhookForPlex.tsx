@@ -8,13 +8,13 @@ import Webhook from './Webhook';
 export const plexStyles = cva('bg-gradient-to-br from-[#e5a00d] to-[#b17a0a]');
 
 export default async function WebhookForPlex({
-  encryptedSessionId,
+  accessToken,
 }: Readonly<{
-  encryptedSessionId: string;
+  accessToken: string;
 }>) {
   const type = 'plex';
   const token = await fetchTokenForWebhookByType({
-    sessionId: encryptedSessionId,
+    accessToken,
     type,
   });
 

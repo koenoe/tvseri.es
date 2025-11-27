@@ -1,12 +1,11 @@
 'use server';
 
-import type { Session, User } from '@tvseri.es/schemas';
-
+import { subjects } from '@tvseri.es/schemas';
 import { cookies, headers } from 'next/headers';
 import { redirect, unauthorized } from 'next/navigation';
 import isEqual from 'react-fast-compare';
 import slugify from 'slugify';
-import { client, setTokens, subjects } from '@/auth';
+import auth, { client, setTokens } from '@/auth';
 import { follow, unfollow, updateUser } from '@/lib/api';
 
 import { cachedUser } from './cached';
@@ -46,10 +45,9 @@ export async function logout() {
 }
 
 export async function updateProfile(_: unknown, formData: FormData) {
-  const user = null as User | null;
-  const encryptedSessionId = null;
+  const { user, accessToken } = await auth();
 
-  if (!user || !encryptedSessionId) {
+  if (!user || !accessToken) {
     unauthorized();
   }
 
@@ -87,9 +85,9 @@ export async function updateProfile(_: unknown, formData: FormData) {
 
   try {
     await updateUser({
+      accessToken,
       email: rawFormData.email,
       name: rawFormData.name,
-      sessionId: encryptedSessionId,
       username: slugifiedUsername,
     });
   } catch (err) {
@@ -113,11 +111,9 @@ export async function updateProfile(_: unknown, formData: FormData) {
 }
 
 export async function toggleFollow(value: boolean, username: string) {
-  const userFromSession = null as User | null;
-  const session = null as Session | null;
-  const encryptedSessionId = null;
+  const { user: userFromSession, accessToken } = await auth();
 
-  if (!userFromSession || !session || !encryptedSessionId) {
+  if (!userFromSession || !accessToken) {
     return;
   }
 
@@ -127,7 +123,7 @@ export async function toggleFollow(value: boolean, username: string) {
   }
 
   const payload = {
-    sessionId: encryptedSessionId,
+    accessToken,
     userId: user.id,
   };
 

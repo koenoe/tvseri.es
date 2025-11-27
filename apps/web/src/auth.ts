@@ -1,13 +1,8 @@
 import { createClient } from '@openauthjs/openauth/client';
-import { createSubjects } from '@openauthjs/openauth/subject';
-import { UserSchema } from '@tvseri.es/schemas/src/user';
+import { subjects } from '@tvseri.es/schemas';
 import { cookies } from 'next/headers';
-
 import { Resource } from 'sst';
-
-export const subjects = createSubjects({
-  user: UserSchema,
-});
+import { me } from './lib/api';
 
 export const client = createClient({
   clientID: 'website',
@@ -37,25 +32,23 @@ export async function setTokens(access: string, refresh: string) {
 
 export async function auth() {
   const cookiesStore = await cookies();
-  const accessToken = cookiesStore.get('access_token');
-  const refreshToken = cookiesStore.get('refresh_token');
+  const accessTokenCookie = cookiesStore.get('access_token');
+  const refreshTokenCookie = cookiesStore.get('refresh_token');
 
-  if (!accessToken) {
+  if (!accessTokenCookie) {
     return {
-      encryptedSessionId: null,
-      session: null,
+      accessToken: null,
       user: null,
     };
   }
 
-  const verified = await client.verify(subjects, accessToken.value, {
-    refresh: refreshToken?.value,
+  const verified = await client.verify(subjects, accessTokenCookie.value, {
+    refresh: refreshTokenCookie?.value,
   });
 
   if (verified.err) {
     return {
-      encryptedSessionId: null,
-      session: null,
+      accessToken: null,
       user: null,
     };
   }
@@ -64,10 +57,22 @@ export async function auth() {
     await setTokens(verified.tokens.access, verified.tokens.refresh);
   }
 
+  const accessToken = verified.tokens
+    ? verified.tokens.access
+    : accessTokenCookie.value;
+
+  const user = await me({ accessToken });
+
+  if (!user) {
+    return {
+      accessToken: null,
+      user: null,
+    };
+  }
+
   return {
-    encryptedSessionId: null,
-    session: null,
-    user: verified.subject.properties,
+    accessToken,
+    user,
   };
 }
 

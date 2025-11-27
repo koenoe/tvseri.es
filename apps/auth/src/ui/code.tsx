@@ -42,7 +42,7 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
       _req: Request,
       state: CodeProviderState,
       _form?: FormData,
-      error?: CodeProviderError,
+      _error?: CodeProviderError,
     ): Promise<Response> => {
       if (state.type === 'start') {
         const jsx = (

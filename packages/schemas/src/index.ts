@@ -10,7 +10,7 @@ export * from './person';
 export * from './preferred-images';
 export * from './rating';
 export * from './scrobble';
-export * from './session';
+export * from './subject';
 export * from './tmdb';
 export * from './tv-series';
 export * from './user';

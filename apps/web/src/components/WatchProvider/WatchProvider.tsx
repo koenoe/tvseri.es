@@ -11,16 +11,16 @@ export default async function WatchProvider({
   className?: string;
   id: number;
 }) {
-  const [headerStore, { encryptedSessionId, session }] = await Promise.all([
+  const [headerStore, { user, accessToken }] = await Promise.all([
     headers(),
     auth(),
   ]);
   const region =
-    session?.country || headerStore.get('cloudfront-viewer-country') || 'US';
+    user?.country || headerStore.get('cloudfront-viewer-country') || 'US';
   const provider = await fetchTvSeriesWatchProvider(
     id,
     region,
-    encryptedSessionId ?? undefined,
+    accessToken ?? undefined,
   );
 
   return provider ? (

@@ -16,16 +16,16 @@ async function storePreferredImages(
 ) {
   'use server';
 
-  const { encryptedSessionId } = await auth();
+  const { accessToken } = await auth();
 
-  if (!encryptedSessionId) {
+  if (!accessToken) {
     return;
   }
 
   await updatePreferredImages({
+    accessToken,
     id,
     preferredImages,
-    sessionId: encryptedSessionId,
   });
 }
 

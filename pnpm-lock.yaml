@@ -51,9 +51,6 @@ importers:
       '@aws-sdk/client-lambda':
         specifier: ^3.938.0
         version: 3.938.0
-      '@aws-sdk/client-sesv2':
-        specifier: ^3.938.0
-        version: 3.938.0
       '@aws-sdk/client-sqs':
         specifier: ^3.936.0
         version: 3.936.0
@@ -66,12 +63,15 @@ importers:
       '@hono/valibot-validator':
         specifier: ^0.6.0
         version: 0.6.0(hono@4.10.6)(valibot@1.1.0(typescript@5.9.3))
+      '@openauthjs/openauth':
+        specifier: ^0.4.3
+        version: 0.4.3(arctic@2.3.4)(hono@4.10.6)
       '@tvseri.es/constants':
         specifier: workspace:*
         version: link:../../packages/constants
-      '@tvseri.es/token':
+      '@tvseri.es/schemas':
         specifier: workspace:*
-        version: link:../../packages/token
+        version: link:../../packages/schemas
       '@tvseri.es/utils':
         specifier: workspace:*
         version: link:../../packages/utils
@@ -91,9 +91,6 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
     devDependencies:
-      '@tvseri.es/schemas':
-        specifier: workspace:*
-        version: link:../../packages/schemas
       '@tvseri.es/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
@@ -118,12 +115,18 @@ importers:
       '@aws-sdk/client-dynamodb':
         specifier: ^3.936.0
         version: 3.936.0
+      '@aws-sdk/client-sesv2':
+        specifier: ^3.938.0
+        version: 3.938.0
       '@aws-sdk/util-dynamodb':
         specifier: ^3.936.0
         version: 3.936.0(@aws-sdk/client-dynamodb@3.936.0)
       '@openauthjs/openauth':
         specifier: ^0.4.3
         version: 0.4.3(arctic@2.3.4)(hono@4.10.6)
+      '@tvseri.es/schemas':
+        specifier: workspace:*
+        version: link:../../packages/schemas
       '@tvseri.es/utils':
         specifier: workspace:*
         version: link:../../packages/utils
@@ -143,9 +146,6 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(typescript@5.9.3)
     devDependencies:
-      '@tvseri.es/schemas':
-        specifier: workspace:*
-        version: link:../../packages/schemas
       '@tvseri.es/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
@@ -167,9 +167,9 @@ importers:
       '@tvseri.es/constants':
         specifier: workspace:*
         version: link:../../packages/constants
-      '@tvseri.es/token':
+      '@tvseri.es/schemas':
         specifier: workspace:*
-        version: link:../../packages/token
+        version: link:../../packages/schemas
       '@tvseri.es/utils':
         specifier: workspace:*
         version: link:../../packages/utils
@@ -243,9 +243,6 @@ importers:
       '@tailwindcss/typography':
         specifier: ^0.5.19
         version: 0.5.19(tailwindcss@3.4.17)
-      '@tvseri.es/schemas':
-        specifier: workspace:*
-        version: link:../../packages/schemas
       '@tvseri.es/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
@@ -338,6 +335,9 @@ importers:
 
   packages/schemas:
     dependencies:
+      '@openauthjs/openauth':
+        specifier: ^0.4
+        version: 0.4.3(arctic@2.3.4)(hono@4.10.6)
       valibot:
         specifier: ^1.1.0
         version: 1.1.0(typescript@5.9.3)
@@ -348,22 +348,6 @@ importers:
       openapi-typescript:
         specifier: ^7.10.1
         version: 7.10.1(typescript@5.9.3)
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-
-  packages/token:
-    dependencies:
-      sst:
-        specifier: 'catalog:'
-        version: 3.17.23
-    devDependencies:
-      '@tvseri.es/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
-      '@types/node':
-        specifier: 'catalog:'
-        version: 22.15.30
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -3509,7 +3493,7 @@ snapshots:
 
   '@aws-crypto/util@3.0.0':
     dependencies:
-      '@aws-sdk/types': 3.398.0
+      '@aws-sdk/types': 3.936.0
       '@aws-sdk/util-utf8-browser': 3.259.0
       tslib: 1.14.1
 

@@ -1,62 +1,50 @@
-import type { Session, User } from '@tvseri.es/schemas';
+import { createClient } from '@openauthjs/openauth/client';
+import { subjects, type User } from '@tvseri.es/schemas';
 import type { MiddlewareHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-
-import { findSession } from '@/lib/db/session';
+import { Resource } from 'sst';
 import { findUser } from '@/lib/db/user';
 
 export type Auth = Readonly<{
-  session: Session;
   user: User;
 }> | null;
 
-export type Variables = {
+export type Variables = Readonly<{
   auth: Auth;
-};
+}>;
+
+const client = createClient({
+  clientID: 'api',
+  issuer: Resource.Auth.url,
+});
 
 export const auth = (): MiddlewareHandler<{ Variables: Variables }> => {
   return async (c, next) => {
-    const headerToken = c.req.header('Authorization') ?? '';
-    const regexp = /^Bearer\s+([A-Za-z0-9._~+/-]+=*)\s*$/;
-    const match = regexp.exec(headerToken);
+    const authHeader = c.req.header('Authorization') ?? '';
+    const bearerToken = authHeader.split(' ')[1];
 
-    let session: Session | null = null;
     let user: User | null = null;
 
-    if (match?.[1]) {
-      const encryptedToken = match[1];
+    if (bearerToken) {
+      const verified = await client.verify(subjects, bearerToken);
 
-      try {
-        const sessionId = encryptedToken;
-        session = await findSession(sessionId);
+      if (verified.err) {
+        throw new HTTPException(401, {
+          message: 'Unauthorized',
+        });
+      }
 
-        if (!session) {
-          throw new HTTPException(401, {
-            message: 'Unauthorized',
-          });
-        }
+      user = await findUser({
+        userId: verified.subject.properties.id,
+      });
 
-        user = await findUser({ userId: session.userId });
-
-        if (!user) {
-          throw new HTTPException(401, {
-            message: 'Unauthorized',
-          });
-        }
-      } catch (error) {
-        if (error instanceof HTTPException) {
-          throw error;
-        }
-
-        console.error('Failed to match token with user:', error);
-
+      if (!user) {
         throw new HTTPException(401, {
           message: 'Unauthorized',
         });
       }
 
       c.set('auth', {
-        session,
         user,
       });
     }

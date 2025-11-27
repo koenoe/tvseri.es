@@ -63,10 +63,6 @@ declare module "sst" {
       "type": "sst.aws.Queue"
       "url": string
     }
-    "Sessions": {
-      "name": string
-      "type": "sst.aws.Dynamo"
-    }
     "TmdbApiAccessToken": {
       "type": "sst.sst.Secret"
       "value": string

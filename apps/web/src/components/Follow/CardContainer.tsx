@@ -16,9 +16,9 @@ export default async function CardContainer({
     return null;
   }
 
-  const { encryptedSessionId } = await auth();
+  const { accessToken } = await auth();
   const payload = {
-    sessionId: encryptedSessionId ?? undefined,
+    accessToken: accessToken ?? undefined,
     userId: user.id,
   };
 

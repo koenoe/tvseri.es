@@ -28,7 +28,7 @@ export async function GET(
     return Response.json({ error: 'User not found' }, { status: 404 });
   }
 
-  const { accessToken } = await auth(request);
+  const { accessToken } = await auth();
   const searchParams = request.nextUrl.searchParams;
   const cursorFromSearchParams = searchParams.get('cursor') ?? '';
   const payload = {

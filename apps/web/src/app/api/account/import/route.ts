@@ -226,7 +226,7 @@ export async function POST(req: Request) {
     return Response.json({ error: 'No payload found' }, { status: 400 });
   }
 
-  const { user, accessToken } = await auth(req);
+  const { user, accessToken } = await auth();
   if (!user || !accessToken) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }

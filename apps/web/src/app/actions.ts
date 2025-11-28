@@ -1,23 +1,21 @@
 'use server';
 
 import { subjects } from '@tvseri.es/schemas';
-import { cookies, headers } from 'next/headers';
+import { headers } from 'next/headers';
 import { redirect, unauthorized } from 'next/navigation';
 import isEqual from 'react-fast-compare';
 import slugify from 'slugify';
-import auth, { client, deleteTokens, setTokens } from '@/auth';
+import auth, { client, deleteTokens, getTokens, setTokens } from '@/auth';
 import { follow, unfollow, updateUser } from '@/lib/api';
 
 import { cachedUser } from './cached';
 
 export async function login() {
-  const cookiesStore = await cookies();
-  const accessToken = cookiesStore.get('access_token');
-  const refreshToken = cookiesStore.get('refresh_token');
+  const { accessToken, refreshToken } = await getTokens();
 
   if (accessToken) {
-    const verified = await client.verify(subjects, accessToken.value, {
-      refresh: refreshToken?.value,
+    const verified = await client.verify(subjects, accessToken, {
+      refresh: refreshToken,
     });
     if (!verified.err && verified.tokens) {
       await setTokens(verified.tokens.access, verified.tokens.refresh);

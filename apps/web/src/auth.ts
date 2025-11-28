@@ -17,8 +17,8 @@ export const client = createClient({
 
 export async function getTokens() {
   const cookieStore = await cookies();
-  const accessToken = cookieStore.get('access_token')?.value ?? null;
-  const refreshToken = cookieStore.get('refresh_token')?.value ?? null;
+  const accessToken = cookieStore.get('access_token')?.value;
+  const refreshToken = cookieStore.get('refresh_token')?.value;
   return { accessToken, refreshToken };
 }
 

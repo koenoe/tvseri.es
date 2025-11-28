@@ -124,6 +124,9 @@ importers:
       '@openauthjs/openauth':
         specifier: ^0.4.3
         version: 0.4.3(arctic@2.3.4)(hono@4.10.6)
+      '@tvseri.es/constants':
+        specifier: workspace:*
+        version: link:../../packages/constants
       '@tvseri.es/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas

@@ -23,3 +23,16 @@ export const WATCH_PROVIDER_PRIORITY: Record<string, number> = {
   Netflix: 0,
   'Sky Go': 1000, // Sky Go is only available for Sky TV customers, so kinda sucks
 };
+
+export const AUTH_TTL =
+  process.env.NODE_ENV === 'development'
+    ? {
+        access: 60 * 5, // 5 minutes
+        refresh: 60 * 60 * 2, // 2 hour
+        reuse: 60 * 60 * 1, // 1 hour
+      }
+    : {
+        access: 60 * 60 * 24, // 1 day
+        refresh: 60 * 60 * 24 * 365, // 1 year
+        reuse: 60 * 60 * 24, // 1 day
+      };

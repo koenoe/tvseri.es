@@ -1,11 +1,12 @@
 import { createClient } from '@openauthjs/openauth/client';
+import { AUTH_TTL } from '@tvseri.es/constants';
 import { subjects, type User } from '@tvseri.es/schemas';
 import { CompactEncrypt, compactDecrypt } from 'jose';
 import { cookies } from 'next/headers';
 import type { NextRequest, NextResponse } from 'next/server';
 import { cache } from 'react';
 import { Resource } from 'sst';
-import { ACCESS_TOKEN_TTL, SESSION_REFRESH_THRESHOLD } from './constants';
+import { SESSION_REFRESH_THRESHOLD } from './constants';
 import { me } from './lib/api';
 
 // Session cookie configuration
@@ -98,7 +99,7 @@ export async function createSession(
 ): Promise<void> {
   console.log('[auth] createSession, token:', accessToken.slice(-5));
   const cookieStore = await cookies();
-  const expiresAt = Math.floor(Date.now() / 1000) + ACCESS_TOKEN_TTL;
+  const expiresAt = Math.floor(Date.now() / 1000) + AUTH_TTL.access;
   const encrypted = await encryptSession({
     accessToken,
     expiresAt,
@@ -189,7 +190,7 @@ async function verifySession(
 
     accessToken = refreshed.tokens.access;
     refreshToken = refreshed.tokens.refresh;
-    expiresAt = Math.floor(Date.now() / 1000) + ACCESS_TOKEN_TTL;
+    expiresAt = Math.floor(Date.now() / 1000) + AUTH_TTL.access;
 
     // Persist refreshed tokens (no-op for RSC since cookieJar.set is a no-op)
     const encrypted = await encryptSession({

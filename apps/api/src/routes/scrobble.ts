@@ -1,5 +1,5 @@
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
-import type { PlexMetadata, ScrobbleEvent } from '@tvseri.es/types';
+import type { PlexMetadata, ScrobbleEvent } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';

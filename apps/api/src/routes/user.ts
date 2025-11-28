@@ -1,7 +1,6 @@
 import { vValidator } from '@hono/valibot-validator';
 import {
   CreateListItemSchema,
-  CreateUserSchema,
   type CreateWatchedItem,
   type CreateWatchedItemBatch,
   CreateWatchedItemBatchSchema,
@@ -12,7 +11,7 @@ import {
   type SortDirection,
   type TvSeries,
   type User,
-} from '@tvseri.es/types';
+} from '@tvseri.es/schemas';
 import { Hono, type MiddlewareHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
@@ -33,7 +32,7 @@ import {
   isInList,
   removeFromList,
 } from '@/lib/db/list';
-import { createUser, findUser } from '@/lib/db/user';
+import { findUser } from '@/lib/db/user';
 import {
   getAllWatched,
   getAllWatchedForTvSeries,
@@ -78,6 +77,12 @@ const parseWatchProviderFromBody = async (
   }
   return null;
 };
+
+const toMinimalUser = ({ id, username, createdAt }: User): Partial<User> => ({
+  createdAt,
+  id,
+  username,
+});
 
 const series = (): MiddlewareHandler<{ Variables: Variables }> => {
   return async (c, next) => {
@@ -167,7 +172,7 @@ const enrichUsersWithFollowInfo = async (
         ]);
 
         return {
-          ...user,
+          ...toMinimalUser(user),
           followerCount,
           followingCount,
           isFollower: false,
@@ -207,7 +212,7 @@ const enrichUsersWithFollowInfo = async (
       ]);
 
       return {
-        ...user,
+        ...toMinimalUser(user),
         followerCount,
         followingCount,
         isFollower: isFollowerResult,
@@ -220,39 +225,7 @@ const enrichUsersWithFollowInfo = async (
 
 app.get('/:id', user(), (c) => {
   const user = c.get('user');
-  return c.json(user);
-});
-
-app.post('/', vValidator('json', CreateUserSchema), async (c) => {
-  const body = c.req.valid('json');
-
-  try {
-    const user = await createUser(body);
-    return c.json(user, 201);
-  } catch (error) {
-    if (error instanceof Error && error.message === 'UserAlreadyExists') {
-      throw new HTTPException(409, {
-        message:
-          'A user with this email, username, or TMDB account already exists',
-      });
-    }
-
-    throw error; // Re-throw unexpected errors
-  }
-});
-
-app.get('/by-email/:email', async (c) => {
-  const email = decodeURIComponent(c.req.param('email'));
-
-  const user = await findUser({
-    email,
-  });
-
-  if (!user) {
-    return c.notFound();
-  }
-
-  return c.json(user);
+  return c.json(toMinimalUser(user));
 });
 
 app.get('/by-username/:username', async (c) => {
@@ -264,19 +237,7 @@ app.get('/by-username/:username', async (c) => {
     return c.notFound();
   }
 
-  return c.json(user);
-});
-
-app.get('/by-tmdb/:tmdb-account-id', async (c) => {
-  const user = await findUser({
-    tmdbAccountId: c.req.param('tmdb-account-id'),
-  });
-
-  if (!user) {
-    return c.notFound();
-  }
-
-  return c.json(user);
+  return c.json(toMinimalUser(user));
 });
 
 app.get('/:id/watched/count', user(), async (c) => {

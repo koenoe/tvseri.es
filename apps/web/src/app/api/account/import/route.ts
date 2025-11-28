@@ -3,11 +3,11 @@ import type {
   Season,
   TvSeries,
   WatchProvider,
-} from '@tvseri.es/types';
+} from '@tvseri.es/schemas';
 import { isValid, parse } from 'date-fns';
 import { diceCoefficient } from 'dice-coefficient';
 import { headers } from 'next/headers';
-import { NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import slugify from 'slugify';
 
 import { cachedTvSeries, cachedTvSeriesSeason } from '@/app/cached';
@@ -220,20 +220,20 @@ async function findEpisode(
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const body = (await req.json()) as BodyPayload;
   if (!body) {
     return Response.json({ error: 'No payload found' }, { status: 400 });
   }
 
-  const { user, encryptedSessionId, session } = await auth();
-  if (!user || !encryptedSessionId || !session) {
+  const { user, accessToken } = await auth(req);
+  if (!user || !accessToken) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const signal = req.signal;
   const region = (await headers()).get('cloudfront-viewer-country') || 'US';
-  const providers = await fetchWatchProviders(session.country ?? region);
+  const providers = await fetchWatchProviders(user.country ?? region);
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
@@ -421,8 +421,8 @@ export async function POST(req: Request) {
           if (watchedItems.length > 0) {
             try {
               await markWatchedInBatch({
+                accessToken,
                 items: watchedItems,
-                sessionId: encryptedSessionId,
                 userId: user.id,
               });
               successCount += watchedItems.length;

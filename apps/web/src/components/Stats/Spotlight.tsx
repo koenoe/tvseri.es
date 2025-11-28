@@ -1,4 +1,4 @@
-import type { Episode, TvSeries, WatchedItem } from '@tvseri.es/types';
+import type { Episode, TvSeries, WatchedItem } from '@tvseri.es/schemas';
 import { cx } from 'class-variance-authority';
 import Image from 'next/image';
 import Link from 'next/link';

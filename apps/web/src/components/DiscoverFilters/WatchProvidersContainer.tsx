@@ -4,9 +4,9 @@ import { fetchWatchProviders } from '@/lib/api';
 import DiscoverWatchProviders from './WatchProviders';
 
 export default async function DiscoverWatchProvidersContainer() {
-  const [{ session }, headerStore] = await Promise.all([auth(), headers()]);
+  const [{ user }, headerStore] = await Promise.all([auth(), headers()]);
   const region = headerStore.get('cloudfront-viewer-country') || 'US';
-  const providers = await fetchWatchProviders(session?.country ?? region);
+  const providers = await fetchWatchProviders(user?.country ?? region);
 
   return <DiscoverWatchProviders providers={providers} />;
 }

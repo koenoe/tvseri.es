@@ -1,4 +1,4 @@
-import type { Person } from '@tvseri.es/types';
+import type { Person } from '@tvseri.es/schemas';
 
 import { fetchPersonTvCredits } from '@/lib/api';
 import Poster from '../Tiles/Poster';

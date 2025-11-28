@@ -1,6 +1,6 @@
 import { GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import type { PreferredImages } from '@tvseri.es/types';
+import type { PreferredImages } from '@tvseri.es/schemas';
 import { Resource } from 'sst';
 
 import client from '../client';

@@ -1,6 +1,6 @@
 'use client';
 
-import type { Person } from '@tvseri.es/types';
+import type { Person } from '@tvseri.es/schemas';
 import { cva, cx } from 'class-variance-authority';
 import { motion } from 'motion/react';
 import Image from 'next/image';

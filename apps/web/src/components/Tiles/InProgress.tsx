@@ -1,6 +1,6 @@
 'use client';
 
-import type { Season, TvSeries } from '@tvseri.es/types';
+import type { Season, TvSeries } from '@tvseri.es/schemas';
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';

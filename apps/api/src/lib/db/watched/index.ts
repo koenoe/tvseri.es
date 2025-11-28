@@ -12,7 +12,7 @@ import type {
   TvSeriesForWatched,
   WatchedItem,
   WatchProvider,
-} from '@tvseri.es/types';
+} from '@tvseri.es/schemas';
 import { Resource } from 'sst';
 import { fetchTvSeriesSeason } from '@/lib/tmdb';
 import { buildPosterImageUrl, generateTmdbImageUrl } from '@/lib/tmdb/helpers';

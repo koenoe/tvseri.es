@@ -1,4 +1,4 @@
-import type { TmdbDiscoverQuery } from '@tvseri.es/types';
+import type { TmdbDiscoverQuery } from '@tvseri.es/schemas';
 import { Suspense } from 'react';
 
 import DiscoverGrid from '@/components/Grid/DiscoverGrid';

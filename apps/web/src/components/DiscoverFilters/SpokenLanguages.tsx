@@ -1,6 +1,6 @@
 'use client';
 
-import type { CountryOrLanguage } from '@tvseri.es/types';
+import type { CountryOrLanguage } from '@tvseri.es/schemas';
 import { useCallback, useMemo } from 'react';
 
 import MultiSelect, { type Result } from './MultiSelect';

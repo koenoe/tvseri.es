@@ -1,13 +1,12 @@
 'use client';
 
-import type { User } from '@tvseri.es/types';
+import type { User } from '@tvseri.es/schemas';
 import { useRouter } from 'next/navigation';
 import { useActionState, useEffect } from 'react';
 import { toast } from 'sonner';
 
 import { updateProfile } from '@/app/actions';
 import LoadingDots from '../LoadingDots/LoadingDots';
-import Tmdb from './Tmdb';
 
 const initialState = {
   message: '',
@@ -112,8 +111,6 @@ export default function ProfileForm({
           </button>
         </form>
       </div>
-
-      <Tmdb user={user} />
     </div>
   );
 }

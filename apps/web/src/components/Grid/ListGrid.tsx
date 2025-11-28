@@ -1,4 +1,4 @@
-import type { User } from '@tvseri.es/types';
+import type { User } from '@tvseri.es/schemas';
 
 import { getListItems } from '@/lib/api';
 

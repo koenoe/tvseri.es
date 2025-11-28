@@ -1,4 +1,4 @@
-import type { ListItem } from '@tvseri.es/types';
+import type { ListItem } from '@tvseri.es/schemas';
 
 import { cachedUniqueWatchedByYear } from '@/app/cached';
 

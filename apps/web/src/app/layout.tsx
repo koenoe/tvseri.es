@@ -3,11 +3,12 @@ import './globals.css';
 import { cx } from 'class-variance-authority';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import type { ReactNode } from 'react';
+import { type ReactNode, Suspense } from 'react';
 import { Toaster } from 'sonner';
 
 import EnsureHistoryKey from '@/components/EnsureHistoryKey';
 import ScrollbarDetection from '@/components/ScrollbarDetection';
+import SessionSync from '@/components/SessionSync';
 import WatchedStoreProvider from '@/components/Watched/WatchedStoreProvider';
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 
@@ -48,6 +49,9 @@ export default function RootLayout({
           inter.className,
         )}
       >
+        <Suspense fallback={null}>
+          <SessionSync />
+        </Suspense>
         <Toaster
           toastOptions={{
             classNames: {

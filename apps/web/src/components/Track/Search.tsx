@@ -1,6 +1,6 @@
 'use client';
 
-import type { TvSeries } from '@tvseri.es/types';
+import type { TvSeries } from '@tvseri.es/schemas';
 import { useRouter } from 'next/navigation';
 import { memo, useCallback } from 'react';
 import { useDebouncedCallback } from 'use-debounce';

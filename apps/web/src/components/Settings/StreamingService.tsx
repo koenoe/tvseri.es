@@ -1,6 +1,6 @@
 'use client';
 
-import type { WatchProvider } from '@tvseri.es/types';
+import type { WatchProvider } from '@tvseri.es/schemas';
 import Image from 'next/image';
 import { useCallback } from 'react';
 import SwitchButton from '../Buttons/SwitchButton';

@@ -1,6 +1,6 @@
 'use client';
 
-import type { TvSeries } from '@tvseri.es/types';
+import type { TvSeries } from '@tvseri.es/schemas';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';

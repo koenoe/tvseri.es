@@ -7,7 +7,7 @@ import type {
   TmdbTvSeriesCredits,
   TmdbTvSeriesEpisode,
   TvSeries,
-} from '@tvseri.es/types';
+} from '@tvseri.es/schemas';
 import slugify from 'slugify';
 
 export const GLOBAL_GENRES_TO_IGNORE = [10763, 10767, 10766, 10762];

@@ -1,4 +1,4 @@
-import type { TvSeries } from '@tvseri.es/types';
+import type { TvSeries } from '@tvseri.es/schemas';
 
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
@@ -35,12 +35,13 @@ export default async function ActionButtons({
   ) {
     'use server';
 
-    const { user, session, encryptedSessionId } = await auth();
-    if (!user || !session || !encryptedSessionId) {
+    const { user, accessToken } = await auth();
+    if (!user || !accessToken) {
       return;
     }
 
     const payload = {
+      accessToken,
       item: {
         id: tvSeries.id,
         posterPath: tvSeries.posterPath,
@@ -48,7 +49,6 @@ export default async function ActionButtons({
         status: tvSeries.status,
         title: tvSeries.title,
       },
-      sessionId: encryptedSessionId,
       userId: user.id,
     };
 
@@ -57,8 +57,8 @@ export default async function ActionButtons({
         await addToWatchlist(payload);
       } else {
         await removeFromWatchlist({
+          accessToken,
           id: tvSeries.id,
-          sessionId: encryptedSessionId,
           userId: user.id,
         });
       }
@@ -67,19 +67,19 @@ export default async function ActionButtons({
         await addToFavorites(payload);
       } else {
         await removeFromFavorites({
+          accessToken,
           id: tvSeries.id,
-          sessionId: encryptedSessionId,
           userId: user.id,
         });
       }
     }
   }
 
-  const { session } = await auth();
-  if (session) {
+  const { user } = await auth();
+  if (user) {
     const payload = {
       id: Number(id),
-      userId: session.userId,
+      userId: user.id,
     };
 
     const [isFavorited, isWatchlisted] = await Promise.all([

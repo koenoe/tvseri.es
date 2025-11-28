@@ -1,0 +1,22 @@
+{
+  "dependencies": {
+    "valibot": "^1.2.0"
+  },
+  "devDependencies": {
+    "@tvseri.es/typescript-config": "workspace:*",
+    "openapi-typescript": "^7.10.1",
+    "typescript": "catalog:"
+  },
+  "main": "./src/index.ts",
+  "name": "@tvseri.es/schemas",
+  "peerDependencies": {
+    "@openauthjs/openauth": "^0.4"
+  },
+  "private": true,
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "extract-tmdb-types": "openapi-typescript --path-params-as-types"
+  },
+  "types": "./src/index.ts",
+  "version": "0.0.0"
+}

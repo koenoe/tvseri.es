@@ -1,6 +1,9 @@
 import { type BetterFetchOption, createFetch } from '@better-fetch/fetch';
+import {
+  DEFAULT_FETCH_RETRY_OPTIONS,
+  WATCH_PROVIDER_PRIORITY,
+} from '@tvseri.es/constants';
 import type {
-  Account,
   CountryOrLanguage,
   Episode,
   Genre,
@@ -8,7 +11,6 @@ import type {
   Movie,
   Person,
   Season,
-  TmdbAccountDetails,
   TmdbCountries,
   TmdbDiscoverTvSeries,
   TmdbDiscoverTvSeriesQuery,
@@ -36,15 +38,11 @@ import type {
   TmdbWatchProviders,
   TvSeries,
   WatchProvider,
-} from '@tvseri.es/types';
+} from '@tvseri.es/schemas';
+import { toQueryString } from '@tvseri.es/utils';
 import slugify from 'slugify';
 import { Resource } from 'sst';
-import {
-  DEFAULT_FETCH_RETRY_OPTIONS,
-  WATCH_PROVIDER_PRIORITY,
-} from '@/constants';
 import calculateAge from '@/utils/calculateAge';
-import { toQueryString } from '@/utils/toQueryString';
 import { findPreferredImages } from '../db/preferredImages';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import {
@@ -110,106 +108,6 @@ async function tmdbFetch(path: string, options?: BetterFetchOption) {
   }
 
   return data;
-}
-
-export async function createRequestToken(redirectUri: string) {
-  const response = (await tmdbFetch('/4/auth/request_token', {
-    body: JSON.stringify({
-      redirect_to: redirectUri,
-    }),
-    method: 'POST',
-  })) as Readonly<{
-    success: boolean;
-    status_code: number;
-    status_message: string;
-    request_token: string;
-  }>;
-
-  if (!response.success) {
-    console.error('Failed to create request token in TMDb:', response);
-  }
-
-  return response.request_token ?? '';
-}
-
-export async function createAccessToken(requestToken: string) {
-  const response = (await tmdbFetch('/4/auth/access_token', {
-    body: JSON.stringify({
-      request_token: requestToken,
-    }),
-    method: 'POST',
-  })) as Readonly<{
-    success: boolean;
-    status_code: number;
-    status_message: string;
-    account_id: string;
-    access_token: string;
-  }>;
-
-  if (!response.success) {
-    console.error('Failed to create access token in TMDb:', response);
-    return {
-      accessToken: null,
-      accountObjectId: null,
-    };
-  }
-
-  return {
-    accessToken: response?.access_token,
-    accountObjectId: response?.account_id,
-  };
-}
-
-export async function createSessionId(accessToken: string) {
-  const response = (await tmdbFetch('/3/authentication/session/convert/4', {
-    body: JSON.stringify({
-      access_token: accessToken,
-    }),
-    method: 'POST',
-  })) as Readonly<{
-    success: boolean;
-    session_id: string;
-  }>;
-
-  if (!response.success) {
-    console.error('Failed to create session in TMDb:', response);
-    return '';
-  }
-
-  return response.session_id;
-}
-
-export async function deleteSessionId(sessionId: string) {
-  await tmdbFetch('/3/authentication/session', {
-    body: JSON.stringify({
-      session_id: sessionId,
-    }),
-    method: 'DELETE',
-  });
-}
-
-export async function deleteAccessToken(accessToken: string) {
-  await tmdbFetch('/4/auth/access_token', {
-    body: JSON.stringify({
-      access_token: accessToken,
-    }),
-    method: 'DELETE',
-  });
-}
-
-export async function fetchAccountDetails(sessionId: string) {
-  const response = (await tmdbFetch(
-    `/3/account?session_id=${sessionId}`,
-  )) as TmdbAccountDetails;
-
-  return {
-    avatar: response.avatar?.gravatar
-      ? `https://www.gravatar.com/avatar/${response.avatar.gravatar.hash}`
-      : undefined,
-    id: response?.id,
-    name: response?.name,
-    username: response?.username,
-  } as Account;
 }
 
 export async function fetchTvSeries(

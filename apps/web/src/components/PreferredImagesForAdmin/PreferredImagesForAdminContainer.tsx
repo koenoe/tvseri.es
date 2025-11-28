@@ -1,4 +1,4 @@
-import type { PreferredImages } from '@tvseri.es/types';
+import type { PreferredImages } from '@tvseri.es/schemas';
 
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
@@ -16,16 +16,16 @@ async function storePreferredImages(
 ) {
   'use server';
 
-  const { encryptedSessionId } = await auth();
+  const { accessToken } = await auth();
 
-  if (!encryptedSessionId) {
+  if (!accessToken) {
     return;
   }
 
   await updatePreferredImages({
+    accessToken,
     id,
     preferredImages,
-    sessionId: encryptedSessionId,
   });
 }
 

@@ -1,4 +1,4 @@
-import type { ListItem, Season, User, WatchedItem } from '@tvseri.es/types';
+import type { ListItem, Season, User, WatchedItem } from '@tvseri.es/schemas';
 import { headers } from 'next/headers';
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
@@ -105,18 +105,15 @@ export default async function InProgressContainer({
   item: ListItem;
   user: User;
 }>) {
-  const [
-    { user: authenticatedUser, encryptedSessionId, session },
-    tvSeries,
-    watchedItems,
-  ] = await Promise.all([
-    auth(),
-    cachedTvSeries(item.id, { includeImages: true }),
-    getAllWatchedForTvSeries({
-      seriesId: item.id,
-      userId: user.id,
-    }),
-  ]);
+  const [{ user: authenticatedUser, accessToken }, tvSeries, watchedItems] =
+    await Promise.all([
+      auth(),
+      cachedTvSeries(item.id, { includeImages: true }),
+      getAllWatchedForTvSeries({
+        seriesId: item.id,
+        userId: user.id,
+      }),
+    ]);
 
   const { currentSeason, watchCount } = extractCurrentSeasonFromWatchedItems(
     watchedItems,
@@ -126,15 +123,15 @@ export default async function InProgressContainer({
   const removeAction = async () => {
     'use server';
 
-    if (authenticatedUser?.id !== user.id || !encryptedSessionId) {
+    if (authenticatedUser?.id !== user.id || !accessToken) {
       return;
     }
 
     try {
       await removeFromList({
+        accessToken,
         id: tvSeries!.id,
         listId: 'IN_PROGRESS',
-        sessionId: encryptedSessionId,
         userId: user.id,
       });
     } catch (error) {
@@ -146,11 +143,7 @@ export default async function InProgressContainer({
   const markNextAsWatchedAction = async () => {
     'use server';
 
-    if (
-      authenticatedUser?.id !== user.id ||
-      !encryptedSessionId ||
-      !currentSeason
-    ) {
+    if (authenticatedUser?.id !== user.id || !accessToken || !currentSeason) {
       return;
     }
 
@@ -181,21 +174,21 @@ export default async function InProgressContainer({
 
       const headerStore = await headers();
       const region =
-        session?.country ||
+        authenticatedUser?.country ||
         headerStore.get('cloudfront-viewer-country') ||
         'US';
       const watchProvider =
         (await fetchTvSeriesWatchProvider(
           tvSeries!.id,
           region,
-          encryptedSessionId ?? undefined,
+          accessToken ?? undefined,
         )) ?? null;
 
       await markWatched({
+        accessToken,
         episodeNumber: nextUnwatchedEpisode.episodeNumber,
         seasonNumber: currentSeason.seasonNumber,
         seriesId: tvSeries!.id,
-        sessionId: encryptedSessionId,
         userId: user.id,
         watchProvider,
       });

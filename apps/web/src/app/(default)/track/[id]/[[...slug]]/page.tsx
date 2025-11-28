@@ -15,9 +15,9 @@ type Props = Readonly<{
 }>;
 
 export default async function TrackPage({ params: paramsFromProps }: Props) {
-  const { user, encryptedSessionId } = await auth();
+  const { user } = await auth();
 
-  if (!user || !encryptedSessionId) {
+  if (!user) {
     return unauthorized();
   }
 

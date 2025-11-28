@@ -1,6 +1,6 @@
 'use client';
 
-import type { WatchedItem } from '@tvseri.es/types';
+import type { WatchedItem } from '@tvseri.es/schemas';
 import { cva, type VariantProps } from 'class-variance-authority';
 import {
   useCallback,

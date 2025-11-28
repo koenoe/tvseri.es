@@ -1,6 +1,6 @@
 'use client';
 
-import type { WatchProvider } from '@tvseri.es/types';
+import type { WatchProvider } from '@tvseri.es/schemas';
 import { AnimatePresence, motion } from 'motion/react';
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useRef, useState } from 'react';

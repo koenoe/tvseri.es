@@ -7,9 +7,9 @@ import List, { type HeaderVariantProps } from './List';
 export default async function ApplePlusList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,
 ) {
-  const [headerStore, { session }] = await Promise.all([headers(), auth()]);
+  const [headerStore, { user }] = await Promise.all([headers(), auth()]);
   const region =
-    session?.country || headerStore.get('cloudfront-viewer-country') || 'US';
+    user?.country || headerStore.get('cloudfront-viewer-country') || 'US';
   const tvSeries = await fetchApplePlusTvSeries(region);
 
   return (

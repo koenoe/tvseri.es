@@ -1,7 +1,6 @@
 import { type BetterFetchOption, createFetch } from '@better-fetch/fetch';
+import { DEFAULT_FETCH_RETRY_OPTIONS } from '@tvseri.es/constants';
 import { Resource } from 'sst';
-
-import { DEFAULT_FETCH_RETRY_OPTIONS } from '@/constants';
 
 type MediaType = 'movie' | 'show';
 

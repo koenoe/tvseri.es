@@ -91,7 +91,7 @@ app.get('/:id/images', async (c) => {
 
 app.get('/:id/content-rating', auth(), async (c) => {
   const auth = c.get('auth');
-  const region = auth?.session?.country || c.req.query('region') || 'US';
+  const region = auth?.user?.country || c.req.query('region') || 'US';
   const rating = await fetchTvSeriesContentRating(c.req.param('id'), region);
 
   if (!rating) {
@@ -108,7 +108,7 @@ app.get('/:id/content-rating', auth(), async (c) => {
 
 app.get('/:id/watch-providers', auth(), async (c) => {
   const auth = c.get('auth');
-  const region = auth?.session?.country || c.req.query('region') || 'US';
+  const region = auth?.user?.country || c.req.query('region') || 'US';
   const providers = await fetchTvSeriesWatchProviders(
     c.req.param('id'),
     region,
@@ -128,7 +128,7 @@ app.get('/:id/watch-providers', auth(), async (c) => {
 
 app.get('/:id/watch-provider', auth(), async (c) => {
   const auth = c.get('auth');
-  const region = auth?.session?.country || c.req.query('region') || 'US';
+  const region = auth?.user?.country || c.req.query('region') || 'US';
   const providers = await fetchTvSeriesWatchProviders(
     c.req.param('id'),
     region,

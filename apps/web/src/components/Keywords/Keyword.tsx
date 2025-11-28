@@ -1,4 +1,4 @@
-import type { Keyword as KeywordType } from '@tvseri.es/types';
+import type { Keyword as KeywordType } from '@tvseri.es/schemas';
 import Link from 'next/link';
 
 export default function Keyword({

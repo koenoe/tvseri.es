@@ -263,3 +263,10 @@
 [data-component="button"][data-loading="true"] [data-slot="text"] {
   display: none;
 }
+
+/* Honeypot field - hidden from users */
+[data-component="form-verify"] {
+  position: fixed;
+  top: -9999px;
+  left: -9999px;
+}

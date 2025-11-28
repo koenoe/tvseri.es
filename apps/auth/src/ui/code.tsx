@@ -41,9 +41,17 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
     request: async (
       _req: Request,
       state: CodeProviderState,
-      _form?: FormData,
+      form?: FormData,
       _error?: CodeProviderError,
     ): Promise<Response> => {
+      // Honeypot: bots fill hidden fields, humans don't see them
+      if (form?.get('verify_email')) {
+        return new Response(null, {
+          headers: { Location: '/code/authorize' },
+          status: 302,
+        });
+      }
+
       if (state.type === 'start') {
         const jsx = (
           <Layout>
@@ -67,6 +75,14 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
               onsubmit="disableSubmitButton(event)"
             >
               <input name="action" type="hidden" value="request" />
+              <div aria-hidden="true" data-component="form-verify">
+                <input
+                  autoComplete="off"
+                  name="verify_email"
+                  tabIndex={-1}
+                  type="email"
+                />
+              </div>
               <input
                 autofocus
                 data-1p-ignore
@@ -285,6 +301,13 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
         status: 302,
       });
     },
-    sendCode: options.sendCode,
+    sendCode: async (claims, code) => {
+      // Honeypot: bots fill hidden fields, humans don't see them
+      if (claims.verify_email) {
+        console.log('Honeypot triggered, hihi');
+        return;
+      }
+      await options.sendCode(claims, code);
+    },
   };
 }

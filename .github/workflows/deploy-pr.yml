@@ -64,6 +64,7 @@ jobs:
           pnpm sst secret set TmdbApiAccessToken "${{ secrets.TMDB_API_ACCESS_TOKEN }}" --stage pr-${{ github.event.pull_request.number }}
           pnpm sst secret set TmdbApiKey "${{ secrets.TMDB_API_KEY }}" --stage pr-${{ github.event.pull_request.number }}
           pnpm sst secret set GoogleClientId "${{ secrets.GOOGLE_CLIENT_ID }}" --stage pr-${{ github.event.pull_request.number }}
+          pnpm sst secret set SessionSecret "${{ secrets.SESSION_SECRET }}" --stage pr-${{ github.event.pull_request.number }}
 
       - name: Deploy PR
         env:

@@ -61,6 +61,7 @@ jobs:
           pnpm sst secret set TmdbApiAccessToken "${{ secrets.TMDB_API_ACCESS_TOKEN }}" --stage production
           pnpm sst secret set TmdbApiKey "${{ secrets.TMDB_API_KEY }}" --stage production
           pnpm sst secret set GoogleClientId "${{ secrets.GOOGLE_CLIENT_ID }}" --stage production
+          pnpm sst secret set SessionSecret "${{ secrets.SESSION_SECRET }}" --stage production
 
       - name: Deploy Production
         env:

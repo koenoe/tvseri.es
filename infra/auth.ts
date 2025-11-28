@@ -12,6 +12,7 @@ export const auth = new sst.aws.Auth('Auth', {
     }),
     name: `auth.${domain}`,
   },
+  forceUpgrade: 'v2',
   issuer: {
     handler: 'apps/auth/src/index.handler',
     link: [dynamo.users, email, secrets.googleClientId],

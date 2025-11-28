@@ -37,6 +37,12 @@
   navigation: auto;
 }
 
+body {
+  font-family: var(--font-family);
+  color: var(--color-foreground);
+  background-color: var(--color-background);
+}
+
 [data-component="root"] {
   position: absolute;
   inset: 0;
@@ -44,10 +50,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
-  font-family: var(--font-family);
-  color: var(--color-foreground);
-  background-color: var(--color-background);
 }
 
 [data-component="center"] {

@@ -29,8 +29,6 @@ export async function login() {
 
 export async function logout() {
   await deleteSession();
-
-  redirect('/');
 }
 
 export async function updateProfile(_: unknown, formData: FormData) {

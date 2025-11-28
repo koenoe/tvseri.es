@@ -6,6 +6,9 @@ import * as secrets from './secrets';
 
 export const watchedStatusQueue = new sst.aws.Queue(
   'ValidateWatchedStatusQueue',
+  {
+    visibilityTimeout: '60 seconds',
+  },
 );
 watchedStatusQueue.subscribe(
   {

@@ -10,7 +10,6 @@ import EnsureHistoryKey from '@/components/EnsureHistoryKey';
 import ScrollbarDetection from '@/components/ScrollbarDetection';
 import SessionSync from '@/components/SessionSync';
 import WatchedStoreProvider from '@/components/Watched/WatchedStoreProvider';
-import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 
 const inter = Inter({ display: 'swap', subsets: ['latin'] });
 
@@ -32,7 +31,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
-  themeColor: DEFAULT_BACKGROUND_COLOR,
   width: 'device-width',
 };
 

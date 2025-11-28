@@ -8,12 +8,6 @@ export default function BackgroundGlobalBase({
   color: string;
 }>) {
   useInsertionEffect(() => {
-    // Update theme-color meta tag
-    const meta = document.querySelector("meta[name='theme-color']");
-    if (meta) {
-      meta.setAttribute('content', color);
-    }
-
     document.documentElement.style.setProperty(
       '--main-background-color',
       color,
@@ -22,6 +16,7 @@ export default function BackgroundGlobalBase({
 
   return (
     <style global jsx>{`
+      body,
       main,
       main + div,
       footer {

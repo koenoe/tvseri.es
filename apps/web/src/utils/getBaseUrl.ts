@@ -1,6 +1,8 @@
+const LOCALHOST = 'http://localhost:3000';
+
 export default function getBaseUrl() {
   if (process.env.NODE_ENV === 'development') {
-    return 'http://localhost:3000';
+    return LOCALHOST;
   } else if (process.env.VERCEL_ENV === 'production') {
     return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
   } else if (
@@ -13,4 +15,6 @@ export default function getBaseUrl() {
   } else if (process.env.SITE_URL) {
     return process.env.SITE_URL;
   }
+
+  return LOCALHOST;
 }

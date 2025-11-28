@@ -1,11 +1,14 @@
+import type { User } from '@tvseri.es/schemas';
 import Link from 'next/link';
-
-import auth from '@/auth';
 
 import AuthButton from '../Buttons/AuthButton';
 
-export default async function Username() {
-  const { user } = await auth();
+export default async function Username({
+  authPromise,
+}: Readonly<{
+  authPromise: Promise<{ user: User | null }>;
+}>) {
+  const { user } = await authPromise;
 
   if (!user) {
     return <AuthButton />;

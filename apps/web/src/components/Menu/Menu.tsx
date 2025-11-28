@@ -3,49 +3,24 @@
 import type { User } from '@tvseri.es/schemas';
 import { AnimatePresence, motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
+import { Suspense, useCallback, useRef, useState } from 'react';
 
 import useMatchMedia from '@/hooks/useMatchMedia';
 import getMainBackgroundColor from '@/utils/getMainBackgroundColor';
-import AuthButton from '../Buttons/AuthButton';
 import Modal from '../Modal';
 import Search from '../Search/Search';
-import MenuItem from './MenuItem';
+import MenuItems, { MenuItemsSkeleton } from './MenuItems';
 import MenuToggle, { type MenuToggleHandle } from './MenuToggle';
-
-const fetchAccount = async () => {
-  const response = await fetch('/api/account');
-  const json = (await response.json()) as User;
-  return json;
-};
-
-const buttonVariants = {
-  hidden: (i: number) => ({
-    opacity: 0,
-    transition: {
-      delay: i * 0.1,
-      duration: 0.2,
-    },
-    y: -20,
-  }),
-  visible: (i: number) => ({
-    opacity: 1,
-    transition: {
-      delay: i * 0.1,
-      duration: 0.2,
-    },
-    y: 0,
-  }),
-};
 
 export default function Menu({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+  authPromise,
+}: Readonly<{
+  children: React.ReactNode;
+  authPromise: Promise<{ user: User | null }>;
+}>) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
   const menuToggleRef = useRef<MenuToggleHandle>(null);
-  const accountIsFetched = useRef(false);
-  const [account, setAccount] = useState<User | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [backgroundColor, setBackgroundColor] = useState<string>('#000');
   const isMobile = useMatchMedia('(max-width: 768px)');
@@ -56,7 +31,6 @@ export default function Menu({
   }, []);
 
   const handleLogout = useCallback(() => {
-    setAccount(null);
     setMenuOpen(false);
     menuToggleRef.current?.close();
     router.refresh();
@@ -68,45 +42,6 @@ export default function Menu({
   }, []);
 
   const renderMenu = useCallback(() => {
-    const showAuthButton = account || isMobile;
-    const showProfileItem = account && isMobile;
-    const isAuthenticated = !!account;
-    const items = [
-      { component: null, href: '/', label: 'Home' },
-      { component: null, href: '/discover', label: 'Discover' },
-      ...(showProfileItem
-        ? [
-            {
-              href: `/u/${account.username}`,
-              label: 'Profile',
-            },
-          ]
-        : []),
-      ...(account
-        ? [
-            {
-              component: null,
-              href: '/settings',
-              label: 'Settings',
-            },
-          ]
-        : []),
-      ...(showAuthButton
-        ? [
-            {
-              component: (
-                <AuthButton
-                  isAuthenticated={isAuthenticated}
-                  onLogout={handleLogout}
-                />
-              ),
-              href: '',
-              label: '',
-            },
-          ]
-        : []),
-    ];
-
     return (
       <>
         <motion.div
@@ -139,72 +74,25 @@ export default function Menu({
             className="absolute inset-0 flex flex-col items-center justify-center gap-8 md:inset-auto md:right-0 md:top-0 md:flex-row md:justify-normal"
             key="menu"
           >
-            {isPending
-              ? Array.from({ length: 4 }).map((_, index, array) => (
-                  <motion.div
-                    animate="visible"
-                    className={'h-[30px] w-32 md:h-[18px] md:w-16'}
-                    custom={array.length - index}
-                    exit="hidden"
-                    initial="hidden"
-                    key={index}
-                    variants={buttonVariants}
-                  >
-                    <span className="block h-full w-full animate-pulse bg-white/30" />
-                  </motion.div>
-                ))
-              : items.map((item, index, array) => (
-                  <motion.div
-                    animate="visible"
-                    className="md:h-[18px] md:min-w-12"
-                    custom={array.length - index}
-                    exit="hidden"
-                    initial="hidden"
-                    key={index}
-                    variants={buttonVariants}
-                  >
-                    {item.component ? (
-                      item.component
-                    ) : (
-                      <MenuItem
-                        href={item.href}
-                        label={item.label}
-                        onClick={handleMenuItemClick}
-                      />
-                    )}
-                  </motion.div>
-                ))}
+            <Suspense fallback={<MenuItemsSkeleton />}>
+              <MenuItems
+                authPromise={authPromise}
+                isMobile={isMobile}
+                onItemClick={handleMenuItemClick}
+                onLogout={handleLogout}
+              />
+            </Suspense>
           </motion.div>
         </div>
       </>
     );
   }, [
-    account,
-    isMobile,
-    isPending,
     backgroundColor,
+    authPromise,
+    isMobile,
     handleLogout,
     handleMenuItemClick,
   ]);
-
-  // Note: ideally we don't do this, but if we do this with RSC + Suspense
-  // we'll get nested suspense due to `<Username />` being suspensed too.
-  // this then causes a long delay in rendering the menu
-  // cause it waits for `<Username />` to resolve before rendering the menu
-  useEffect(() => {
-    if (isPending || accountIsFetched.current) {
-      return;
-    }
-
-    startTransition(async () => {
-      try {
-        const account = await fetchAccount();
-        setAccount(account);
-      } catch (_error) {}
-
-      accountIsFetched.current = true;
-    });
-  }, [isPending]);
 
   return (
     <div className="ml-auto flex items-center gap-10">

@@ -222,7 +222,6 @@ async function verifySession(
   };
 }
 
-// RSC auth - verify only, no refresh
 async function authRSC(): Promise<Session | EmptySession> {
   const cookieStore = await cookies();
   return verifySession(
@@ -235,7 +234,6 @@ async function authRSC(): Promise<Session | EmptySession> {
   );
 }
 
-// Route Handler auth - can refresh tokens
 async function authRouteHandler(
   req: NextRequest,
 ): Promise<Session | EmptySession> {
@@ -255,7 +253,6 @@ async function authRouteHandler(
   );
 }
 
-// Middleware auth - can refresh, writes to response cookies
 async function authMiddleware(
   req: NextRequest,
   res: NextResponse,

@@ -63,6 +63,10 @@ declare module "sst" {
       "type": "sst.aws.Queue"
       "url": string
     }
+    "SessionSecret": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "TmdbApiAccessToken": {
       "type": "sst.sst.Secret"
       "value": string

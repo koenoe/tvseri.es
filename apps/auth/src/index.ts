@@ -11,7 +11,7 @@ import { CodeUI, SelectUI } from './ui';
 const ttl = {
   access: 60 * 5, // tmp 5 minutes, change to: 60 * 60 * 24 = 1 day
   refresh: 60 * 60 * 1, // tmp 1 hour, change to: 60 * 60 * 24 * 365 = 1 year
-  reuse: 60 * 5, // tmp 5 minutes
+  reuse: 60 * 60 * 1, // tmp 1 hour, disables strict refresh token rotation
 };
 
 const app = issuer({

@@ -1,4 +1,4 @@
-import { client, setTokens } from '@/auth';
+import { client, createSession } from '@/auth';
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -24,7 +24,7 @@ export async function GET(req: Request) {
     return Response.json(exchanged.err, { status: 400 });
   }
 
-  await setTokens(exchanged.tokens.access, exchanged.tokens.refresh);
+  await createSession(exchanged.tokens.access, exchanged.tokens.refresh);
 
   return Response.redirect(`${url.origin}/`);
 }

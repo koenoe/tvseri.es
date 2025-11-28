@@ -74,7 +74,10 @@ async function apiFetch(path: string, options?: BetterFetchOption) {
   }
 
   if (error) {
-    console.error('API Fetch Error:', error);
+    console.error('API Fetch Error:', {
+      error,
+      path,
+    });
     throw new Error('ApiFetchError', {
       cause: `HTTP error status: ${error.status}`,
     });

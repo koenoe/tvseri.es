@@ -7,7 +7,7 @@ import type {
 import { isValid, parse } from 'date-fns';
 import { diceCoefficient } from 'dice-coefficient';
 import { headers } from 'next/headers';
-import { NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import slugify from 'slugify';
 
 import { cachedTvSeries, cachedTvSeriesSeason } from '@/app/cached';
@@ -220,13 +220,13 @@ async function findEpisode(
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const body = (await req.json()) as BodyPayload;
   if (!body) {
     return Response.json({ error: 'No payload found' }, { status: 400 });
   }
 
-  const { user, accessToken } = await auth();
+  const { user, accessToken } = await auth(req);
   if (!user || !accessToken) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }

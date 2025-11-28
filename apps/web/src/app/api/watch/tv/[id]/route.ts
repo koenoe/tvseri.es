@@ -1,5 +1,5 @@
 import { headers } from 'next/headers';
-
+import type { NextRequest } from 'next/server';
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
 import {
@@ -15,7 +15,7 @@ type BodyPayload = Readonly<{
 }>;
 
 export async function POST(
-  req: Request,
+  req: NextRequest,
   { params: _params }: { params: Promise<{ id: string }> },
 ) {
   const [params, json] = await Promise.all([_params, req.json()]);
@@ -30,7 +30,7 @@ export async function POST(
     return Response.json({ error: 'Not found' }, { status: 404 });
   }
 
-  const { user, accessToken } = await auth();
+  const { user, accessToken } = await auth(req);
   if (!user || !accessToken) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }

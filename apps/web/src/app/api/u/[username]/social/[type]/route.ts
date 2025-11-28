@@ -6,7 +6,7 @@ import { findUser, getFollowers, getFollowing } from '@/lib/api';
 const types = ['followers', 'following'] as const;
 
 export async function GET(
-  request: NextRequest,
+  req: NextRequest,
   {
     params,
   }: {
@@ -28,8 +28,8 @@ export async function GET(
     return Response.json({ error: 'User not found' }, { status: 404 });
   }
 
-  const { accessToken } = await auth();
-  const searchParams = request.nextUrl.searchParams;
+  const { accessToken } = await auth(req);
+  const searchParams = req.nextUrl.searchParams;
   const cursorFromSearchParams = searchParams.get('cursor') ?? '';
   const payload = {
     accessToken: accessToken ?? undefined,

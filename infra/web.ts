@@ -58,7 +58,7 @@ new sst.aws.Nextjs('tvseries', {
   imageOptimization: {
     staticEtag: true,
   },
-  link: [auth, apiRouter, secrets.apiKey],
+  link: [auth, apiRouter, secrets.apiKey, secrets.sessionSecret],
   openNextVersion,
   path: 'apps/web',
   // Note: disable multi region for now as it's not really worth the extra costs

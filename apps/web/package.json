@@ -5,10 +5,12 @@
     "@tvseri.es/constants": "workspace:*",
     "@tvseri.es/schemas": "workspace:*",
     "@tvseri.es/utils": "workspace:*",
+    "@xstate/react": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "color": "^5.0.3",
     "date-fns": "^4.1.0",
     "dice-coefficient": "^2.1.1",
+    "jose": "^6.1.2",
     "motion": "^12.23.24",
     "next": "16.0.3",
     "papaparse": "^5.5.3",
@@ -24,13 +26,13 @@
     "ulid": "^3.0.1",
     "use-debounce": "^10.0.6",
     "words-to-numbers": "^1.5.1",
+    "xstate": "^5.24.0",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.0.3",
     "@opennextjs/aws": "^3.9.0",
     "@tailwindcss/typography": "^0.5.19",
-
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/color": "^4.2.0",
     "@types/node": "catalog:",

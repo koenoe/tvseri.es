@@ -1,7 +1,7 @@
 export const mdblistApiKey = new sst.Secret('MdblistApiKey');
 export const tmdbApiAccessToken = new sst.Secret('TmdbApiAccessToken');
 export const tmdbApiKey = new sst.Secret('TmdbApiKey');
-
+export const sessionSecret = new sst.Secret('SessionSecret');
 export const googleClientId = new sst.Secret('GoogleClientId');
 
 const apiKeyRotation = new time.Rotating('ApiKeyRotation', {

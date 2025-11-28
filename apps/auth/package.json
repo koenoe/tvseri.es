@@ -1,17 +1,17 @@
 {
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.936.0",
-    "@aws-sdk/client-sesv2": "^3.938.0",
-    "@aws-sdk/util-dynamodb": "^3.936.0",
+    "@aws-sdk/client-dynamodb": "^3.940.0",
+    "@aws-sdk/client-sesv2": "^3.940.0",
+    "@aws-sdk/util-dynamodb": "^3.940.0",
     "@openauthjs/openauth": "^0.4.3",
     "@tvseri.es/constants": "workspace:*",
     "@tvseri.es/schemas": "workspace:*",
     "@tvseri.es/utils": "workspace:*",
-    "hono": "^4.10.6",
+    "hono": "^4.10.7",
     "slugify": "^1.6.6",
     "sst": "catalog:",
     "ulid": "^3.0.1",
-    "valibot": "^1.1.0"
+    "valibot": "^1.2.0"
   },
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",

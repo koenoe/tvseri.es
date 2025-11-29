@@ -11,13 +11,25 @@ export type Props = Readonly<{
   context: BackgroundContext;
   color: string;
   image?: string;
+  priority?: boolean;
 }>;
 
-function Background({ variant = 'static', context, color, image }: Props) {
+function Background({
+  variant = 'static',
+  context,
+  color,
+  image,
+  priority = false,
+}: Props) {
   return variant === 'static' ? (
-    <BackgroundStatic color={color} context={context} image={image} />
+    <BackgroundStatic
+      color={color}
+      context={context}
+      image={image}
+      priority={priority}
+    />
   ) : (
-    <BackgroundDynamic context={context} />
+    <BackgroundDynamic context={context} priority={priority} />
   );
 }
 

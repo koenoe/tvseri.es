@@ -18,7 +18,10 @@ const transition = {
   type: 'tween',
 } as const;
 
-function BackgroundDynamic({ context = 'page' }: Pick<Props, 'context'>) {
+function BackgroundDynamic({
+  context = 'page',
+  priority = false,
+}: Pick<Props, 'context'> & { priority?: boolean }) {
   const color = usePageStore((state) => state.backgroundColor);
   const image = usePageStore((state) => state.backgroundImage);
 
@@ -33,7 +36,12 @@ function BackgroundDynamic({ context = 'page' }: Pick<Props, 'context'>) {
         transition={transition}
         variants={variants}
       >
-        <BackgroundBase color={color} context={context} image={image} />
+        <BackgroundBase
+          color={color}
+          context={context}
+          image={image}
+          priority={priority}
+        />
       </motion.div>
     </AnimatePresence>
   );

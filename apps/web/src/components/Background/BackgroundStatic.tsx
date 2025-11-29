@@ -5,10 +5,16 @@ function BackgroundStatic({
   color,
   context,
   image,
-}: Pick<Props, 'color' | 'context' | 'image'>) {
+  priority = false,
+}: Pick<Props, 'color' | 'context' | 'image'> & { priority?: boolean }) {
   return (
     <div className={backgroundBaseStyles()}>
-      <BackgroundBase color={color} context={context} image={image} />
+      <BackgroundBase
+        color={color}
+        context={context}
+        image={image}
+        priority={priority}
+      />
     </div>
   );
 }

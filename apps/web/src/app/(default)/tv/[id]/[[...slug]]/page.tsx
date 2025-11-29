@@ -112,6 +112,7 @@ export default async function TvSeriesDetailsPage({
         backgroundColor={tvSeries.backdropColor}
         backgroundContext="page"
         backgroundImage={tvSeries.backdropImage}
+        backgroundPriority
         backgroundVariant="dynamic"
         usePersistentStore={false}
       >
@@ -126,6 +127,7 @@ export default async function TvSeriesDetailsPage({
                     draggable={false}
                     fill
                     id="title-treatment"
+                    loading="eager"
                     priority
                     src={tvSeries.titleTreatmentImage}
                     unoptimized

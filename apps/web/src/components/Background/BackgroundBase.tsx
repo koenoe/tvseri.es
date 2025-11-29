@@ -44,9 +44,11 @@ function BackgroundBase({
   context,
   image,
   className,
+  priority = false,
 }: Pick<Props, 'color' | 'context' | 'image'> &
   Readonly<{
     className?: string;
+    priority?: boolean;
   }>) {
   const rgbString = useMemo(() => hexToRgb(color).join(','), [color]);
 
@@ -82,6 +84,7 @@ function BackgroundBase({
       {image && (
         <BackgroundImage
           className={className}
+          priority={priority}
           src={image}
           style={imageStyles}
         />

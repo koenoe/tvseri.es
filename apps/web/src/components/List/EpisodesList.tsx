@@ -88,11 +88,11 @@ export default function EpisodesList({
     >
       {shouldShowSkeleton
         ? [...Array(10)].map((_, index) => <SkeletonEpisode key={index} />)
-        : episodes.map((episode) => (
+        : episodes.map((episode, index) => (
             <EpisodeTile
               item={episode}
               key={episode.id}
-              priority
+              priority={index < 3}
               tvSeriesId={item.id}
             />
           ))}

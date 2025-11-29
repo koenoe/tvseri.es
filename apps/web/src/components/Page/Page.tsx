@@ -16,6 +16,7 @@ export type Props = Readonly<{
   backgroundImage?: string;
   backgroundVariant?: BackgroundVariant;
   backgroundContext?: BackgroundContext;
+  backgroundPriority?: boolean;
   children: React.ReactNode;
   usePersistentStore?: boolean;
 }>;
@@ -50,6 +51,7 @@ export default function Page({
   backgroundImage = DEFAULT_BACKGROUND_IMAGE,
   backgroundVariant = 'static',
   backgroundContext = 'page',
+  backgroundPriority = false,
   children,
   usePersistentStore,
 }: Props) {
@@ -65,6 +67,7 @@ export default function Page({
         color={backgroundColor}
         context={backgroundContext}
         image={backgroundImage}
+        priority={backgroundPriority}
         variant={backgroundVariant}
       />
     );

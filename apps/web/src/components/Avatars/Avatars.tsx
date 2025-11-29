@@ -20,7 +20,10 @@ export const avatarStyles = cva(
   'relative w-full flex lg:pt-0 lg:w-24 transform-gpu cursor-pointer flex-col lg:-mr-4 lg:-mt-4',
 );
 
-function Avatar({ item }: Readonly<{ item: Person }>) {
+function Avatar({
+  item,
+  priority = false,
+}: Readonly<{ item: Person; priority?: boolean }>) {
   return (
     <MotionLink
       className={avatarStyles()}
@@ -41,7 +44,7 @@ function Avatar({ item }: Readonly<{ item: Person }>) {
         className="mx-auto aspect-square h-auto w-full rounded-full border-2 border-white object-cover lg:h-24"
         height={200}
         placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(200, 200)}`}
-        priority
+        priority={priority}
         src={item.image}
         unoptimized
         variants={{
@@ -76,8 +79,8 @@ function Avatars({
 }: Readonly<{ className?: string; items: Person[] }>) {
   return (
     <div className={cx(avatarsStyles(), className)}>
-      {items.map((item) => (
-        <Avatar item={item} key={item.id} />
+      {items.map((item, index) => (
+        <Avatar item={item} key={item.id} priority={index < 6} />
       ))}
     </div>
   );

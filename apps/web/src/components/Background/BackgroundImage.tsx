@@ -2,6 +2,9 @@
 import { cx } from 'class-variance-authority';
 import { preload } from 'react-dom';
 
+// Track preloaded URLs to avoid duplicate preloads
+const preloadedUrls = new Set<string>();
+
 const createImageUrl = (src: string, width: number): string => {
   if (src.includes('w1920_and_h1080_multi_faces') && width === 1280) {
     const resizedSrc = src.replace(
@@ -31,19 +34,26 @@ export default function BackgroundImage({
 
   if (priority) {
     // Preload both sizes - browser will use the appropriate one based on viewport
-    preload(SD, {
-      as: 'image',
-      fetchPriority: 'high',
-      imageSizes,
-      imageSrcSet,
-    });
+    // Use Set to avoid duplicate preloads when same image is rendered multiple times
+    if (!preloadedUrls.has(SD)) {
+      preloadedUrls.add(SD);
+      preload(SD, {
+        as: 'image',
+        fetchPriority: 'high',
+        imageSizes,
+        imageSrcSet,
+      });
+    }
 
-    preload(HD, {
-      as: 'image',
-      fetchPriority: 'high',
-      imageSizes,
-      imageSrcSet,
-    });
+    if (!preloadedUrls.has(HD)) {
+      preloadedUrls.add(HD);
+      preload(HD, {
+        as: 'image',
+        fetchPriority: 'high',
+        imageSizes,
+        imageSrcSet,
+      });
+    }
   }
 
   return (

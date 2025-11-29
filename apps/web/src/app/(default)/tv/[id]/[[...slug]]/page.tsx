@@ -2,7 +2,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { Suspense } from 'react';
-import { preload } from 'react-dom';
 
 import { cachedTvSeries } from '@/app/cached';
 import ActionButtons from '@/components/Buttons/ActionButtons';
@@ -89,21 +88,6 @@ export default async function TvSeriesDetailsPage({
 
   if (tvSeries.slug && tvSeries.slug !== slug) {
     return permanentRedirect(`/tv/${params.id}/${tvSeries.slug}`);
-  }
-
-  // Preload LCP images from server component
-  if (tvSeries.backdropImage) {
-    preload(tvSeries.backdropImage, {
-      as: 'image',
-      fetchPriority: 'high',
-    });
-  }
-
-  if (tvSeries.titleTreatmentImage) {
-    preload(tvSeries.titleTreatmentImage, {
-      as: 'image',
-      fetchPriority: 'high',
-    });
   }
 
   return (

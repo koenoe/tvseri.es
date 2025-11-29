@@ -16,6 +16,9 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: Preview
+      url: https://pr-${{ github.event.pull_request.number }}.dev.tvseri.es
 
     if: github.actor != 'dependabot[bot]'
 

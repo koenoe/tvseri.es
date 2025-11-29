@@ -11,13 +11,43 @@ updates:
     labels:
       - 'npm'
       - 'dependencies'
-    update-types:
-      - 'minor'
-      - 'patch'
-    ignore:
-      - dependency-name: 'next'
-        versions: ['*']
-        update-types: ['minor', 'patch']
-    allow:
-      - dependency-name: 'next'
-        versions: ['>= 0.0.0-canary']
+    open-pull-requests-limit: 10
+    groups:
+      react:
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+      next:
+        patterns:
+          - 'next'
+          - '@next/*'
+          - '@opennextjs/*'
+      aws-sdk:
+        patterns:
+          - '@aws-sdk/*'
+      hono:
+        patterns:
+          - 'hono'
+          - '@hono/*'
+      auth:
+        patterns:
+          - '@openauthjs/*'
+      infrastructure:
+        patterns:
+          - 'sst'
+      tailwind:
+        patterns:
+          - 'tailwindcss'
+          - 'tailwind-*'
+          - '@tailwindcss/*'
+      types:
+        patterns:
+          - '@types/*'
+        exclude-patterns:
+          - '@types/react'
+          - '@types/react-*'
+      misc:
+        patterns:
+          - '*'

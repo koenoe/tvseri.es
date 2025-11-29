@@ -14,6 +14,7 @@ import {
   type ReactElement,
   useCallback,
   useEffect,
+  useEffectEvent,
   useLayoutEffect,
   useRef,
   useState,
@@ -158,8 +159,14 @@ function Carousel({
     currentIndexRef.current = currentIndex;
   }, [currentIndex]);
 
+  const onRestore = useEffectEvent((index: number) => {
+    setCurrentIndex(index);
+    setTargetIndex(index);
+    x.set(calculateNewX(index));
+    onChange?.(getItemIndex(index));
+  });
+
   // Restore index from sessionStorage before paint
-  // biome-ignore lint/correctness/useExhaustiveDependencies: only run once on mount
   useLayoutEffect(() => {
     if (hasRestoredRef.current) return;
     hasRestoredRef.current = true;
@@ -169,10 +176,7 @@ function Carousel({
       sessionStorage.removeItem(cacheKeyRef.current);
       const restored = parseInt(cached, 10);
       if (restored !== 0) {
-        setCurrentIndex(restored);
-        setTargetIndex(restored);
-        x.set(calculateNewX(restored));
-        onChange?.(getItemIndex(restored));
+        onRestore(restored);
       }
     }
   }, []);

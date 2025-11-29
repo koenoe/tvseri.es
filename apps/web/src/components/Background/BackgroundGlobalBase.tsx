@@ -1,27 +1,38 @@
-'use client';
-
-import { useInsertionEffect } from 'react';
-
 export default function BackgroundGlobalBase({
   color,
+  enableTransitions = false,
 }: Readonly<{
   color: string;
+  enableTransitions?: boolean;
 }>) {
-  useInsertionEffect(() => {
-    document.documentElement.style.setProperty(
-      '--main-background-color',
-      color,
-    );
-  }, [color]);
+  const transitionStyles = enableTransitions
+    ? `
+          body,
+          main,
+          main + div,
+          footer {
+            transition-property: background-color;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 500ms;
+          }
+        `
+    : '';
 
   return (
-    <style global jsx>{`
-      body,
-      main,
-      main + div,
-      footer {
-        background-color: var(--main-background-color) !important;
-      }
-    `}</style>
+    <style
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: ignore
+      dangerouslySetInnerHTML={{
+        __html: `
+          :root { --main-background-color: ${color}; }
+          body,
+          main,
+          main + div,
+          footer {
+            background-color: var(--main-background-color) !important;
+          }
+          ${transitionStyles}
+        `,
+      }}
+    />
   );
 }

@@ -75,7 +75,7 @@ export default function Page({
       <>
         <BackgroundGlobal color={backgroundColor} variant={backgroundVariant} />
         <main
-          className="grow scroll-mt-[6rem] pb-10 pt-[6rem] transition-colors duration-500 md:scroll-mt-[8rem] md:pb-16 md:pt-[8rem]"
+          className="grow scroll-mt-[6rem] pb-10 pt-[6rem] md:scroll-mt-[8rem] md:pb-16 md:pt-[8rem]"
           style={{
             backgroundColor,
           }}

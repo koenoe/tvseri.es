@@ -3,14 +3,19 @@
 # dependencies
 node_modules
 .pnp
-.pnp.js
-.yarn/install-state.gz
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
 # testing
 coverage
 
 # next.js
-.next
+.next/
+out/
 
 # production
 build
@@ -24,8 +29,9 @@ dist
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
-# local env files
+# env files
 .env*
 
 # vercel
@@ -33,8 +39,8 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-type-errors.txt
 
+# turborepo
 .turbo
 
 # sst
@@ -42,3 +48,9 @@ type-errors.txt
 
 # open-next
 .open-next
+
+# playwright
+.playwright*
+
+# aws
+.aws-sam

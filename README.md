@@ -37,7 +37,7 @@ pnpm install
 pnpm sst dev
 ```
 
-## API Keys
+## External APIs
 
 - [TMDB](https://www.themoviedb.org/settings/api) – TV series metadata
 - [mdblist](https://mdblist.com/preferences/) – IMDb ratings and curated lists

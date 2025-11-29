@@ -60,7 +60,9 @@ export default function RootLayout({
             },
           }}
         />
-        <EnsureHistoryKey />
+        <Suspense fallback={null}>
+          <EnsureHistoryKey />
+        </Suspense>
         <ScrollbarDetection />
         <WatchedStoreProvider>{children}</WatchedStoreProvider>
         <div id="modal-root" />

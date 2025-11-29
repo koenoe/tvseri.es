@@ -22,6 +22,7 @@ const nextConfig = {
       'recharts',
       'sonner',
       'use-debounce',
+      'xstate',
       'zustand',
     ],
   },

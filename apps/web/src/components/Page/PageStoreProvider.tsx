@@ -5,6 +5,7 @@ import {
   type ReactNode,
   useContext,
   useEffect,
+  useEffectEvent,
   useRef,
 } from 'react';
 
@@ -39,35 +40,44 @@ export const PageStoreProvider = ({
     );
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: wablief
+  // Clear sessionStorage on refresh to start fresh
   useEffect(() => {
+    const name = storeRef.current?.persist?.getOptions()?.name;
+    if (!name) return;
+
+    const handleBeforeUnload = () => {
+      sessionStorage.removeItem(name);
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
+  const onSaveState = useEffectEvent(() => {
     const store = storeRef.current;
-    if (!store) {
-      return;
-    }
+    if (!store || !persistent) return;
 
     const name = store.persist?.getOptions()?.name ?? '';
     const version = store.persist?.getOptions()?.version ?? 0;
+    const currentState = store.getState();
 
-    return () => {
-      const currentState = store.getState();
-      const storeOnUnmount = currentState && name && persistent;
+    if (currentState && name) {
+      sessionStorage.setItem(
+        name,
+        JSON.stringify({
+          state: {
+            backgroundColor: currentState.backgroundColor,
+            backgroundImage: currentState.backgroundImage,
+          },
+          version,
+        }),
+      );
+    }
+  });
 
-      // Note: this is needed to make sure the store is also persisted
-      // when the state isn't actively updated after a rehydration.
-      if (storeOnUnmount) {
-        sessionStorage.setItem(
-          name,
-          JSON.stringify({
-            state: {
-              backgroundColor: currentState.backgroundColor,
-              backgroundImage: currentState.backgroundImage,
-            },
-            version,
-          }),
-        );
-      }
-    };
+  // Save state on unmount (navigation, not refresh)
+  useEffect(() => {
+    return () => onSaveState();
   }, []);
 
   return (

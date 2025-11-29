@@ -14,6 +14,7 @@ import {
   type ReactElement,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -48,8 +49,13 @@ function Carousel({
   onChange?: (index: number) => void;
   restoreKey: string;
 }>) {
+  const cacheKey = useMemo(
+    () => `${restoreKey}:${getHistoryKey()}`,
+    [restoreKey],
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
   const currentIndexRef = useRef(currentIndex);
+  const hasRestoredRef = useRef(false);
   const [containerRef, animate] = useAnimate();
   const x = useMotionValue(0);
 
@@ -154,27 +160,31 @@ function Carousel({
     currentIndexRef.current = currentIndex;
   }, [currentIndex]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: bitch please
-  useEffect(() => {
-    const cacheKey = `${restoreKey}:${getHistoryKey()}`;
-    const cachedCurrentIndex = sessionStorage.getItem(cacheKey);
-
-    if (cachedCurrentIndex) {
-      sessionStorage.removeItem(cacheKey);
-
-      const newIndexFromCache = parseInt(cachedCurrentIndex, 10);
-      const newX = calculateNewX(newIndexFromCache);
-
-      setCurrentIndex(newIndexFromCache);
-      x.set(newX);
+  // Restore index from sessionStorage before paint
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only run once on mount
+  useLayoutEffect(() => {
+    if (!hasRestoredRef.current) {
+      hasRestoredRef.current = true;
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        sessionStorage.removeItem(cacheKey);
+        const restored = parseInt(cached, 10);
+        if (restored !== 0) {
+          setCurrentIndex(restored);
+          x.set(calculateNewX(restored));
+        }
+      }
     }
+  }, []);
 
+  // Save state on unmount
+  useEffect(() => {
     return () => {
       if (currentIndexRef.current !== 0) {
         sessionStorage.setItem(cacheKey, currentIndexRef.current.toString());
       }
     };
-  }, []);
+  }, [cacheKey]);
 
   return (
     <div className={cx('container relative', className)}>

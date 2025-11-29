@@ -24,10 +24,6 @@ const nextConfig = {
       'use-debounce',
       'zustand',
     ],
-    staleTimes: {
-      dynamic: 0,
-      static: 0,
-    },
   },
   async headers() {
     const baseUrl = getBaseUrl();

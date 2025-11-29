@@ -8,12 +8,15 @@ import BackgroundImage from '../Background/BackgroundImage';
 export default function SpotlightBackground({
   className,
   item,
-}: Readonly<{ className?: string; item: TvSeries }>) {
+  priority = false,
+}: Readonly<{ className?: string; item: TvSeries; priority?: boolean }>) {
   const rgbString = useRgbString(item.backdropColor);
 
   return (
     <div className={cx('absolute inset-0', className)}>
-      {item.backdropImage && <BackgroundImage src={item.backdropImage} />}
+      {item.backdropImage && (
+        <BackgroundImage priority={priority} src={item.backdropImage} />
+      )}
       <div
         className="absolute inset-0 opacity-70"
         style={{

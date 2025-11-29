@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { cache, Suspense } from 'react';
+import { preload } from 'react-dom';
 
 import ApplePlusList from '@/components/List/ApplePlusList';
 import BestBritishCrimeList from '@/components/List/BestBritishCrimeList';
@@ -22,6 +23,22 @@ export default async function HomePage() {
 
   if (!spotlight) {
     return notFound();
+  }
+
+  // Preload LCP image (spotlight backdrop) from server component
+  if (spotlight.backdropImage) {
+    preload(spotlight.backdropImage, {
+      as: 'image',
+      fetchPriority: 'high',
+    });
+  }
+
+  // Preload title treatment image if present
+  if (spotlight.titleTreatmentImage) {
+    preload(spotlight.titleTreatmentImage, {
+      as: 'image',
+      fetchPriority: 'high',
+    });
   }
 
   return (

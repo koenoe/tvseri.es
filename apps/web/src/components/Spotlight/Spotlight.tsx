@@ -18,7 +18,13 @@ export default function Spotlight({
   const updateBackground = usePageStore((state) => state.setBackground);
 
   const itemRenderer = useCallback(
-    (index: number) => <SpotlightItem index={index} item={items[index]!} />,
+    (index: number) => (
+      <SpotlightItem
+        index={index}
+        item={items[index]!}
+        priority={index === 0}
+      />
+    ),
     [items],
   );
 

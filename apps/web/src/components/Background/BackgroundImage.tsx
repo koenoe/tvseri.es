@@ -16,8 +16,10 @@ const createImageUrl = (src: string, width: number): string => {
 export default function BackgroundImage({
   src,
   className,
+  priority = false,
   ...rest
-}: React.AllHTMLAttributes<HTMLImageElement> & Readonly<{ src: string }>) {
+}: React.AllHTMLAttributes<HTMLImageElement> &
+  Readonly<{ src: string; priority?: boolean }>) {
   const HD = createImageUrl(src, 1920);
   const SD = createImageUrl(src, 1280);
   const imageSizes = '100vw';
@@ -25,21 +27,24 @@ export default function BackgroundImage({
     ${SD} 768w,
     ${HD} 1200w
   `;
-  const fetchPriority = 'high';
+  const fetchPriority = priority ? 'high' : 'auto';
 
-  preload(SD, {
-    as: 'image',
-    fetchPriority,
-    imageSizes,
-    imageSrcSet,
-  });
+  if (priority) {
+    // Preload both sizes - browser will use the appropriate one based on viewport
+    preload(SD, {
+      as: 'image',
+      fetchPriority: 'high',
+      imageSizes,
+      imageSrcSet,
+    });
 
-  preload(HD, {
-    as: 'image',
-    fetchPriority,
-    imageSizes,
-    imageSrcSet,
-  });
+    preload(HD, {
+      as: 'image',
+      fetchPriority: 'high',
+      imageSizes,
+      imageSrcSet,
+    });
+  }
 
   return (
     // biome-ignore lint/performance/noImgElement: exception
@@ -53,7 +58,7 @@ export default function BackgroundImage({
       decoding="async"
       draggable={false}
       fetchPriority={fetchPriority}
-      loading="lazy"
+      loading={priority ? 'eager' : 'lazy'}
       sizes={imageSizes}
       srcSet={imageSrcSet}
       // It's intended to keep `src` the last attribute because React updates

@@ -10,9 +10,10 @@ import SpotlightTitle from './SpotlightTitle';
 type Props = Readonly<{
   item: TvSeries;
   index: number;
+  priority?: boolean;
 }>;
 
-const SpotlightItem = ({ item, index }: Props) => {
+const SpotlightItem = ({ item, index, priority = false }: Props) => {
   return (
     <Link
       className="relative flex h-full w-full flex-shrink-0 items-end overflow-hidden"
@@ -21,7 +22,9 @@ const SpotlightItem = ({ item, index }: Props) => {
         pathname: `/tv/${item.id}/${item.slug}`,
       }}
     >
-      {item.backdropImage && <SpotlightBackground item={item} />}
+      {item.backdropImage && (
+        <SpotlightBackground item={item} priority={priority} />
+      )}
 
       <div className="lg:p-18 relative w-full p-8 md:w-4/5 md:p-14">
         <SpotlightTitle className="mb-6" item={item} />

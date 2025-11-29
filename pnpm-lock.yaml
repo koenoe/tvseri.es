@@ -10,8 +10,8 @@ catalogs:
       specifier: 22.15.30
       version: 22.15.30
     sst:
-      specifier: 3.17.23
-      version: 3.17.23
+      specifier: 3.17.24
+      version: 3.17.24
     typescript:
       specifier: 5.9.3
       version: 5.9.3
@@ -21,8 +21,8 @@ importers:
   .:
     dependencies:
       sst:
-        specifier: 'catalog:'
-        version: 3.17.23
+        specifier: 3.17.24
+        version: 3.17.24
     devDependencies:
       '@biomejs/biome':
         specifier: 2.3.8
@@ -86,7 +86,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.17.23
+        version: 3.17.24
       ulid:
         specifier: ^3.0.1
         version: 3.0.1
@@ -141,7 +141,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.17.23
+        version: 3.17.24
       ulid:
         specifier: ^3.0.1
         version: 3.0.1
@@ -229,7 +229,7 @@ importers:
         version: 2.0.7(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       sst:
         specifier: 'catalog:'
-        version: 3.17.23
+        version: 3.17.24
       ulid:
         specifier: ^3.0.1
         version: 3.0.1
@@ -302,7 +302,7 @@ importers:
     dependencies:
       sst:
         specifier: 'catalog:'
-        version: 3.17.23
+        version: 3.17.24
     devDependencies:
       '@better-fetch/fetch':
         specifier: ^1.1.18
@@ -330,7 +330,7 @@ importers:
         version: 3.940.0
       sst:
         specifier: 'catalog:'
-        version: 3.17.23
+        version: 3.17.24
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -349,7 +349,7 @@ importers:
     dependencies:
       '@openauthjs/openauth':
         specifier: ^0.4
-        version: 0.4.3(arctic@2.3.4)(hono@4.10.6)
+        version: 0.4.3(arctic@2.3.4)(hono@4.10.7)
       valibot:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
@@ -373,7 +373,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.17.23
+        version: 3.17.24
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -2315,10 +2315,6 @@ packages:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
 
-  hono@4.10.6:
-    resolution: {integrity: sha512-BIdolzGpDO9MQ4nu3AUuDwHZZ+KViNm+EZ75Ae55eMXMqLVhDFqEMXxtUe9Qh8hjL+pIna/frs2j6Y2yD5Ua/g==}
-    engines: {node: '>=16.9.0'}
-
   hono@4.10.7:
     resolution: {integrity: sha512-icXIITfw/07Q88nLSkB9aiUrd8rYzSweK681Kjo/TSggaGbOX4RRyxxm71v+3PC8C/j+4rlxGeoTRxQDkaJkUw==}
     engines: {node: '>=16.9.0'}
@@ -2329,10 +2325,6 @@ packages:
 
   html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
-
-  http-errors@2.0.0:
-    resolution: {integrity: sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==}
-    engines: {node: '>= 0.8'}
 
   http-errors@2.0.1:
     resolution: {integrity: sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ==}
@@ -2839,10 +2831,6 @@ packages:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
     engines: {node: '>= 0.6'}
 
-  raw-body@3.0.1:
-    resolution: {integrity: sha512-9G8cA+tuMS75+6G/TzW8OtLzmBDMo8p1JRxN5AZ+LAp8uxGA8V8GZm4GQ4/N5QNQEnLmg6SS7wyuSmbKepiKqA==}
-    engines: {node: '>= 0.10'}
-
   raw-body@3.0.2:
     resolution: {integrity: sha512-K5zQjDllxWkf7Z5xJdV0/B0WTNqx6vxG70zJE4N0kBs4LovmEYWJzQGxC9bS9RAKu3bgM40lrd5zoLJ12MQ5BA==}
     engines: {node: '>= 0.10'}
@@ -3030,53 +3018,49 @@ packages:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
 
-  sst-darwin-arm64@3.17.23:
-    resolution: {integrity: sha512-R6kvmF+rUideOoU7KBs2SdvrIupoE+b+Dor/eq9Uo4Dojj7KvYDZI/EDm8sSCbbcx/opiWeyNqKtlnLEdCxE6g==}
+  sst-darwin-arm64@3.17.24:
+    resolution: {integrity: sha512-5GSSjgfU4ODdc2Dzu9Rbxpd71GueqzSCLSIcx9QP8Wq5aanoLQjPCI3FxToWqK6aiX6V0AAraQpzR5lk/ennaQ==}
     cpu: [arm64]
     os: [darwin]
 
-  sst-darwin-x64@3.17.23:
-    resolution: {integrity: sha512-WW4P1S35iYCifQXxD+sE3wuzcN+LHLpuKMaNoaBqEcWGZnH3IPaDJ7rpLF0arkDAo/z3jZmWWzOCkr0JuqJ8vQ==}
+  sst-darwin-x64@3.17.24:
+    resolution: {integrity: sha512-958gQYhQEWchwUMwVmJWRmb9CWR/YKdqre/gk+j7Dneprrctc9Lzg+jh6ZQ4mkwq/g1/w6jAcbPaNmRpexiwEQ==}
     cpu: [x64]
     os: [darwin]
 
-  sst-linux-arm64@3.17.23:
-    resolution: {integrity: sha512-TjtNqgIh7RlAWgPLFCAt0mXvIB+J7WjmRvIRrAdX0mXsndOiBJ/DMOgXSLVsIWHCfPj8MIEot/hWpnJgXgIeag==}
+  sst-linux-arm64@3.17.24:
+    resolution: {integrity: sha512-3ThacfDnJEAWl8539HaPrwg72vlJsKnFS/wRA2G87Cd6m931REu2zqJVmGTPFRW6OJfPsYpjIRJUd7UXnx+Kyw==}
     cpu: [arm64]
     os: [linux]
 
-  sst-linux-x64@3.17.23:
-    resolution: {integrity: sha512-qdqJiEbYfCjZlI3F/TA6eoIU7JXVkEEI/UMILNf2JWhky0KQdCW2Xyz+wb6c0msVJCWdUM/uj+1DaiP2eXvghw==}
+  sst-linux-x64@3.17.24:
+    resolution: {integrity: sha512-tLXbXUCaTC2Zqh7GGa13v/lisV8h/UJ25wsgfjGotf2wmlUfRRpnHJ+MdJv7RIET15N50iq97c+p4QKg8TvQhQ==}
     cpu: [x64]
     os: [linux]
 
-  sst-linux-x86@3.17.23:
-    resolution: {integrity: sha512-aGmUujIvoNlmAABEGsOgfY1rxD9koC6hN8bnTLbDI+oI/u/zjHYh50jsbL0p3TlaHpwF/lxP3xFSuT6IKp+KgA==}
+  sst-linux-x86@3.17.24:
+    resolution: {integrity: sha512-qsFFpBYklP5xs62Eu6QiHhl4pbOxYiJDWBnkxq8klNyXfp7YVK3VlEI604bgZNUg9kWTwfRjpOseE1bnH+1Mkg==}
     cpu: [x86]
     os: [linux]
 
-  sst-win32-arm64@3.17.23:
-    resolution: {integrity: sha512-ZxdkGqYDrrZGz98rijDCN+m5yuCcwD6Bc9/6hubLsvdpNlVorUqzpg801Ec97xSK0nIC9g6pNiRyxAcsQQstUg==}
+  sst-win32-arm64@3.17.24:
+    resolution: {integrity: sha512-Xpcg/ZfuGFCssRvBCs+7cjCZPOYOtxrbIgBCbEkKXxFTAakJ2mPS/4xiFo9BkrFPUvh5Mu6Mw7DT1Bfx+8OKdg==}
     cpu: [arm64]
     os: [win32]
 
-  sst-win32-x64@3.17.23:
-    resolution: {integrity: sha512-yc9cor4MS49Ccy2tQCF1tf6M81yLeSGzGL+gjhUxpVKo2pN3bxl3w70eyU/mTXSEeyAmG9zEfbt6FNu4sy5cUA==}
+  sst-win32-x64@3.17.24:
+    resolution: {integrity: sha512-9jVi/U0eqDCg2EA9PM/2Dcz0ZWPOiu1KJl5RYdxiBmZnoYkvlbGft/P9cm+99/r/rY+QuDNaCXR/ZrN7lCUeVg==}
     cpu: [x64]
     os: [win32]
 
-  sst-win32-x86@3.17.23:
-    resolution: {integrity: sha512-DIp3s54IpNAfdYjSRt6McvkbEPQDMxUu6RUeRAd2C+FcTJgTloon/ghAPQBaDgu2VoVgymjcJARO/XyfKcCLOQ==}
+  sst-win32-x86@3.17.24:
+    resolution: {integrity: sha512-mj8M3guZT5RtM/YJulaNdS8GAmDqPsOI9EIQgNK6GtsKg6KV2gTaqio7wtI008DODfjjshnIUuFwURPrTefDnw==}
     cpu: [x86]
     os: [win32]
 
-  sst@3.17.23:
-    resolution: {integrity: sha512-TwKgUgDnZdc1Swe+bvCNeyO4dQnYz5cTodMpYj3jlXZdK9/KNz0PVxT1f0u5E76i1pmilXrUBL/f7iiMPw4RDg==}
+  sst@3.17.24:
+    resolution: {integrity: sha512-Oc0kaA1ox8G6KFsNGMAYl+kOJvVLucV41X4oDz5YPzSwQf3euw+6P3o4veE5822XUfG+h5TYWa1EQ/CpBeK5Ew==}
     hasBin: true
-
-  statuses@2.0.1:
-    resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
-    engines: {node: '>= 0.8'}
 
   statuses@2.0.2:
     resolution: {integrity: sha512-DvEy55V3DB7uknRo+4iOGT5fP1slR8wQohVdknigZPMpMstaKJQWhwiYBACJE3Ul2pTnATihhBYnRhZQHGBiRw==}
@@ -4909,7 +4893,7 @@ snapshots:
       express: 5.1.0
       express-rate-limit: 7.5.1(express@5.1.0)
       pkce-challenge: 4.1.0
-      raw-body: 3.0.1
+      raw-body: 3.0.2
       zod: 3.24.2
       zod-to-json-schema: 3.24.3(zod@3.24.2)
     transitivePeerDependencies:
@@ -4974,14 +4958,6 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
-
-  '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.10.6)':
-    dependencies:
-      '@standard-schema/spec': 1.0.0-beta.3
-      arctic: 2.3.4
-      aws4fetch: 1.0.20
-      hono: 4.10.6
-      jose: 5.9.6
 
   '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.10.7)':
     dependencies:
@@ -6306,21 +6282,11 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
-  hono@4.10.6: {}
-
   hono@4.10.7: {}
 
   hono@4.7.4: {}
 
   html-escaper@2.0.2: {}
-
-  http-errors@2.0.0:
-    dependencies:
-      depd: 2.0.0
-      inherits: 2.0.4
-      setprototypeof: 1.2.0
-      statuses: 2.0.1
-      toidentifier: 1.0.1
 
   http-errors@2.0.1:
     dependencies:
@@ -6758,13 +6724,6 @@ snapshots:
 
   range-parser@1.2.1: {}
 
-  raw-body@3.0.1:
-    dependencies:
-      bytes: 3.1.2
-      http-errors: 2.0.0
-      iconv-lite: 0.7.0
-      unpipe: 1.0.0
-
   raw-body@3.0.2:
     dependencies:
       bytes: 3.1.2
@@ -7018,31 +6977,31 @@ snapshots:
 
   source-map@0.6.1: {}
 
-  sst-darwin-arm64@3.17.23:
+  sst-darwin-arm64@3.17.24:
     optional: true
 
-  sst-darwin-x64@3.17.23:
+  sst-darwin-x64@3.17.24:
     optional: true
 
-  sst-linux-arm64@3.17.23:
+  sst-linux-arm64@3.17.24:
     optional: true
 
-  sst-linux-x64@3.17.23:
+  sst-linux-x64@3.17.24:
     optional: true
 
-  sst-linux-x86@3.17.23:
+  sst-linux-x86@3.17.24:
     optional: true
 
-  sst-win32-arm64@3.17.23:
+  sst-win32-arm64@3.17.24:
     optional: true
 
-  sst-win32-x64@3.17.23:
+  sst-win32-x64@3.17.24:
     optional: true
 
-  sst-win32-x86@3.17.23:
+  sst-win32-x86@3.17.24:
     optional: true
 
-  sst@3.17.23:
+  sst@3.17.24:
     dependencies:
       aws-sdk: 2.1692.0
       aws4fetch: 1.0.18
@@ -7050,18 +7009,16 @@ snapshots:
       opencontrol: 0.0.6
       openid-client: 5.6.4
     optionalDependencies:
-      sst-darwin-arm64: 3.17.23
-      sst-darwin-x64: 3.17.23
-      sst-linux-arm64: 3.17.23
-      sst-linux-x64: 3.17.23
-      sst-linux-x86: 3.17.23
-      sst-win32-arm64: 3.17.23
-      sst-win32-x64: 3.17.23
-      sst-win32-x86: 3.17.23
+      sst-darwin-arm64: 3.17.24
+      sst-darwin-x64: 3.17.24
+      sst-linux-arm64: 3.17.24
+      sst-linux-x64: 3.17.24
+      sst-linux-x86: 3.17.24
+      sst-win32-arm64: 3.17.24
+      sst-win32-x64: 3.17.24
+      sst-win32-x86: 3.17.24
     transitivePeerDependencies:
       - supports-color
-
-  statuses@2.0.1: {}
 
   statuses@2.0.2: {}
 

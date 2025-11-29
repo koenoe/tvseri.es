@@ -31,12 +31,6 @@ updates:
         patterns:
           - 'hono'
           - '@hono/*'
-      auth:
-        patterns:
-          - '@openauthjs/*'
-      infrastructure:
-        patterns:
-          - 'sst'
       tailwind:
         patterns:
           - 'tailwindcss'
@@ -48,6 +42,8 @@ updates:
         exclude-patterns:
           - '@types/react'
           - '@types/react-*'
-      misc:
-        patterns:
-          - '*'
+          - '@types/node'
+    ignore:
+      - dependency-name: '@types/node'
+        update-types:
+          - 'version-update:semver-major'

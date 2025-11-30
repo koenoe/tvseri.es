@@ -29,6 +29,6 @@ export const auth = new sst.aws.Auth('Auth', {
         '.css': 'text',
       },
     },
-    timeout: '10 seconds',
+    timeout: '15 seconds',
   },
 });

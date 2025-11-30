@@ -86,7 +86,7 @@ new sst.aws.Nextjs('tvseries', {
         },
         minify: true,
       },
-      timeout: '30 seconds',
+      timeout: '10 seconds',
     },
   },
   warm: $app.stage === 'production' ? 1 : 0,

@@ -1,159 +1,152 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
+/**
+ * WAF Configuration for CloudFront
+ *
+ * Uses 4 FREE AWS Managed Rule Groups:
+ * - IP Reputation List: Blocks known malicious IPs, DDoS sources
+ * - Known Bad Inputs: Blocks Log4j, Java deserialization, etc.
+ * - Common Rule Set: OWASP Top 10 protections
+ * - Anonymous IP List: Blocks VPNs, proxies, Tor exit nodes
+ *
+ * Excluded paths (never blocked):
+ * - /api/webhooks/scrobble (external service webhooks)
+ * - /robots.txt (search engine crawlers)
+ */
+
 const wafProvider = new aws.Provider('waf-provider', {
   region: 'us-east-1',
 });
 
-const scrobbleWebhookByteMatch = {
-  byteMatchStatement: {
-    fieldToMatch: {
-      uriPath: {},
+// -----------------------------------------------------------------------------
+// Path Exclusions
+// These paths are excluded from WAF rules to allow legitimate traffic
+// -----------------------------------------------------------------------------
+
+const excludedPaths = {
+  robotsTxt: {
+    byteMatchStatement: {
+      fieldToMatch: { uriPath: {} },
+      positionalConstraint: 'EXACTLY',
+      searchString: '/robots.txt',
+      textTransformations: [{ priority: 0, type: 'NONE' }],
     },
-    positionalConstraint: 'STARTS_WITH',
-    searchString: '/api/webhooks/scrobble',
-    textTransformations: [
-      {
-        priority: 0,
-        type: 'NONE',
-      },
+  },
+  scrobbleWebhook: {
+    byteMatchStatement: {
+      fieldToMatch: { uriPath: {} },
+      positionalConstraint: 'STARTS_WITH',
+      searchString: '/api/webhooks/scrobble',
+      textTransformations: [{ priority: 0, type: 'NONE' }],
+    },
+  },
+};
+
+// Scope down statement that excludes both paths from rule evaluation
+const excludeProtectedPaths = {
+  andStatement: {
+    statements: [
+      { notStatement: { statements: [excludedPaths.scrobbleWebhook] } },
+      { notStatement: { statements: [excludedPaths.robotsTxt] } },
     ],
   },
 };
 
-const robotsTxtByteMatch = {
-  byteMatchStatement: {
-    fieldToMatch: {
-      uriPath: {},
-    },
-    positionalConstraint: 'EXACTLY',
-    searchString: '/robots.txt',
-    textTransformations: [
-      {
-        priority: 0,
-        type: 'NONE',
-      },
-    ],
-  },
+// -----------------------------------------------------------------------------
+// Helper to create managed rule group config
+// -----------------------------------------------------------------------------
+
+type ManagedRuleConfig = {
+  metricName: string;
+  name: string;
+  priority: number;
+  ruleActionOverrides?: Array<{
+    actionToUse: { allow?: object; count?: object };
+    name: string;
+  }>;
+  ruleName: string;
 };
+
+const createManagedRule = ({
+  metricName,
+  name,
+  priority,
+  ruleActionOverrides,
+  ruleName,
+}: ManagedRuleConfig) => ({
+  name,
+  overrideAction: { none: {} },
+  priority,
+  statement: {
+    managedRuleGroupStatement: {
+      name: ruleName,
+      ...(ruleActionOverrides && { ruleActionOverrides }),
+      scopeDownStatement: excludeProtectedPaths,
+      vendorName: 'AWS',
+    },
+  },
+  visibilityConfig: {
+    cloudwatchMetricsEnabled: true,
+    metricName,
+    sampledRequestsEnabled: true,
+  },
+});
+
+// -----------------------------------------------------------------------------
+// WAF Web ACL
+// -----------------------------------------------------------------------------
 
 export const webAcl = new aws.wafv2.WebAcl(
   'webAcl',
   {
-    defaultAction: {
-      allow: {},
-    },
+    defaultAction: { allow: {} },
     rules: [
-      // TODO: figure out why this gets hit so often and whether it's needed
-      // {
-      //   action: {
-      //     block: {},
-      //   },
-      //   name: 'IPRateLimit',
-      //   priority: 0,
-      //   statement: {
-      //     rateBasedStatement: {
-      //       aggregateKeyType: 'IP',
-      //       limit: 1500, // per 5 mins
-      //     },
-      //   },
-      //   visibilityConfig: {
-      //     cloudwatchMetricsEnabled: true,
-      //     metricName: 'IPRateLimitMetric',
-      //     sampledRequestsEnabled: true,
-      //   },
-      // },
-      {
-        name: 'AWSManagedBotControlRule',
-        overrideAction: {
-          none: {},
-        },
+      // Blocks known malicious IPs and DDoS sources
+      createManagedRule({
+        metricName: 'IPReputationList',
+        name: 'IPReputationList',
+        priority: 0,
+        ruleName: 'AWSManagedRulesAmazonIpReputationList',
+      }),
+
+      // Blocks Log4j exploits, Java deserialization attacks, etc.
+      createManagedRule({
+        metricName: 'KnownBadInputs',
+        name: 'KnownBadInputs',
         priority: 1,
-        statement: {
-          managedRuleGroupStatement: {
-            managedRuleGroupConfigs: [
-              {
-                awsManagedRulesBotControlRuleSet: {
-                  inspectionLevel: 'COMMON',
-                },
-              },
-            ],
-            name: 'AWSManagedRulesBotControlRuleSet',
-            scopeDownStatement: {
-              andStatement: {
-                statements: [
-                  {
-                    notStatement: {
-                      statements: [scrobbleWebhookByteMatch],
-                    },
-                  },
-                  {
-                    notStatement: {
-                      statements: [robotsTxtByteMatch],
-                    },
-                  },
-                ],
-              },
-            },
-            vendorName: 'AWS',
-          },
-        },
-        visibilityConfig: {
-          cloudwatchMetricsEnabled: true,
-          metricName: 'AWSManagedRulesBotControlRuleSetMetric',
-          sampledRequestsEnabled: true,
-        },
-      },
-      {
-        name: 'AWSManagedCoreRuleSet',
-        overrideAction: {
-          none: {},
-        },
+        ruleName: 'AWSManagedRulesKnownBadInputsRuleSet',
+      }),
+
+      // OWASP Top 10 protections (XSS, SQLi, etc.)
+      // SizeRestrictions_BODY allowed to prevent false positives on large POST bodies
+      createManagedRule({
+        metricName: 'CoreRuleSet',
+        name: 'CoreRuleSet',
         priority: 2,
-        statement: {
-          managedRuleGroupStatement: {
-            name: 'AWSManagedRulesCommonRuleSet',
-            ruleActionOverrides: [
-              {
-                actionToUse: {
-                  allow: {},
-                },
-                name: 'SizeRestrictions_BODY',
-              },
-            ],
-            scopeDownStatement: {
-              andStatement: {
-                statements: [
-                  {
-                    notStatement: {
-                      statements: [scrobbleWebhookByteMatch],
-                    },
-                  },
-                  {
-                    notStatement: {
-                      statements: [robotsTxtByteMatch],
-                    },
-                  },
-                ],
-              },
-            },
-            vendorName: 'AWS',
-          },
-        },
-        visibilityConfig: {
-          cloudwatchMetricsEnabled: true,
-          metricName: 'AWSManagedRulesCommonRuleSetMetric',
-          sampledRequestsEnabled: true,
-        },
-      },
+        ruleActionOverrides: [
+          { actionToUse: { allow: {} }, name: 'SizeRestrictions_BODY' },
+        ],
+        ruleName: 'AWSManagedRulesCommonRuleSet',
+      }),
+
+      // Blocks anonymous proxies, VPNs, Tor exit nodes
+      // HostingProviderIPList set to count-only to avoid blocking legitimate cloud services
+      createManagedRule({
+        metricName: 'AnonymousIPList',
+        name: 'AnonymousIPList',
+        priority: 3,
+        ruleActionOverrides: [
+          { actionToUse: { count: {} }, name: 'HostingProviderIPList' },
+        ],
+        ruleName: 'AWSManagedRulesAnonymousIpList',
+      }),
     ],
     scope: 'CLOUDFRONT',
     visibilityConfig: {
       cloudwatchMetricsEnabled: true,
-      metricName: 'WebACLMetrics',
+      metricName: 'WebACL',
       sampledRequestsEnabled: true,
     },
   },
-  {
-    provider: wafProvider,
-  },
+  { provider: wafProvider },
 );

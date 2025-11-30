@@ -13,6 +13,7 @@ import {
   type User,
 } from '@tvseri.es/schemas';
 import { Hono, type MiddlewareHandler } from 'hono';
+import { every } from 'hono/combine';
 import { HTTPException } from 'hono/http-exception';
 
 import {
@@ -54,6 +55,7 @@ import {
 } from '@/lib/tmdb';
 import {
   type Variables as AuthVariables,
+  auth,
   requireAuth,
 } from '@/middleware/auth';
 
@@ -104,7 +106,7 @@ const series = (): MiddlewareHandler<{ Variables: Variables }> => {
   };
 };
 
-const user = (): MiddlewareHandler<{ Variables: Variables }> => {
+const userMiddleware = (): MiddlewareHandler<{ Variables: Variables }> => {
   return async (c, next) => {
     const userId = c.req.param('id');
 
@@ -123,15 +125,26 @@ const user = (): MiddlewareHandler<{ Variables: Variables }> => {
     }
 
     c.set('user', user);
-    c.set('isMe', c.get('auth')?.user.id === user.id);
 
     return next();
   };
 };
 
-const requireIsMe = (): MiddlewareHandler<{ Variables: Variables }> => {
+/**
+ * User middleware - loads user from :id param.
+ * Does NOT include auth - use auth() separately if needed.
+ */
+const user = () => userMiddleware();
+
+/**
+ * Middleware to check if current user is viewing their own profile.
+ * Must be used after auth() middleware.
+ */
+const checkIsMe = (): MiddlewareHandler<{ Variables: Variables }> => {
   return async (c, next) => {
-    if (!c.get('isMe')) {
+    const authData = c.get('auth');
+    const user = c.get('user');
+    if (authData?.user.id !== user.id) {
       throw new HTTPException(401, {
         message: 'Unauthorized',
       });
@@ -139,6 +152,12 @@ const requireIsMe = (): MiddlewareHandler<{ Variables: Variables }> => {
     return next();
   };
 };
+
+/**
+ * Requires that the authenticated user is the same as the :id user.
+ * Automatically runs auth() first.
+ */
+const requireIsMe = () => every(auth(), checkIsMe());
 
 const validateBatchWatchedItemsOwnership = (
   items: CreateWatchedItemBatch | DeleteWatchedItemBatch,
@@ -748,7 +767,7 @@ app.get('/:id/following/:following-id', user(), async (c) => {
   return c.json({ value: isFollowingResult });
 });
 
-app.get('/:id/followers', user(), async (c) => {
+app.get('/:id/followers', user(), auth(), async (c) => {
   const auth = c.get('auth');
   const userFromSession = auth?.user;
 
@@ -780,7 +799,7 @@ app.get('/:id/followers', user(), async (c) => {
   });
 });
 
-app.get('/:id/following', user(), async (c) => {
+app.get('/:id/following', user(), auth(), async (c) => {
   const auth = c.get('auth');
   const userFromSession = auth?.user;
 

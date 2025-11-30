@@ -1,7 +1,10 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
 /**
- * WAF Configuration for CloudFront
+ * WAF Configuration for CloudFront (Web Distribution Only)
+ *
+ * Note: This WAF is only attached to the web (tvseri.es) distribution.
+ * The API (api.tvseri.es) uses x-api-key header authentication instead.
  *
  * Uses 4 FREE AWS Managed Rule Groups:
  * - IP Reputation List: Blocks known malicious IPs, DDoS sources
@@ -10,7 +13,6 @@
  * - Anonymous IP List: Blocks VPNs, proxies, Tor exit nodes
  *
  * Excluded paths (never blocked):
- * - /api/webhooks/scrobble (external service webhooks)
  * - /robots.txt (search engine crawlers)
  */
 

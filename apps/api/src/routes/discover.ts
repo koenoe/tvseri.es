@@ -74,10 +74,10 @@ app.get('/languages', async (c) => {
 });
 
 app.get('/watch-providers', async (c) => {
-  const watchProviders = await fetchWatchProviders(
-    c.req.query('region') || 'US',
-  );
+  const region = c.req.query('region') || 'US';
+  const watchProviders = await fetchWatchProviders(region);
 
+  // Region is a query param, not header, so CDN will cache by URL including ?region=
   c.header(
     'Cache-Control',
     'public, max-age=604800, s-maxage=604800, stale-while-revalidate=3600',

@@ -4,7 +4,7 @@ import { compress } from 'hono/compress';
 import { etag } from 'hono/etag';
 import { HTTPException } from 'hono/http-exception';
 
-import { auth, type Variables } from './middleware/auth';
+import type { Variables } from './middleware/auth';
 import admin from './routes/admin';
 import collection from './routes/collection';
 import discover from './routes/discover';
@@ -24,7 +24,6 @@ const app = new Hono<{ Variables: Variables }>();
 
 app.use(compress());
 app.use(etag());
-app.use(auth());
 
 app.route('/admin', admin);
 app.route('/collection', collection);

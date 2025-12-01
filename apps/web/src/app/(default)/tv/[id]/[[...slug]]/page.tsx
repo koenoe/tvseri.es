@@ -109,6 +109,7 @@ export default async function TvSeriesDetailsPage({
                     alt={tvSeries.title}
                     className="max-w-[500px] object-contain object-bottom md:object-left-bottom"
                     draggable={false}
+                    fetchPriority="high"
                     fill
                     id="title-treatment"
                     loading="eager"

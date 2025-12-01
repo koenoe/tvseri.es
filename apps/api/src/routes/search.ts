@@ -16,8 +16,8 @@ app.get('/series', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=3600, s-maxage=3600, stale-while-revalidate=300',
-  ); // 1h, allow stale for 5m
+    'public, max-age=21600, s-maxage=21600, stale-while-revalidate=3600',
+  ); // 6h, allow stale for 1h
 
   return c.json(series);
 });
@@ -32,8 +32,8 @@ app.get('/keyword', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=3600, s-maxage=3600, stale-while-revalidate=300',
-  ); // 1h, allow stale for 5m
+    'public, max-age=21600, s-maxage=21600, stale-while-revalidate=3600',
+  ); // 6h, allow stale for 1h
 
   return c.json(keywords);
 });

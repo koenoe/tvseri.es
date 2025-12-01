@@ -9,8 +9,8 @@ app.get('/', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=3600',
-  ); // 1 month, allow stale for 1h
+    'public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=86400',
+  ); // 1 month, allow stale for 24h
 
   return c.json(genres);
 });

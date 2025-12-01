@@ -13,8 +13,8 @@ app.get('/:id', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=3600, s-maxage=3600, stale-while-revalidate=300',
-  ); // 1h, allow stale for 5m
+    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
+  ); // 1w, allow stale for 24h
 
   return c.json(keyword);
 });

@@ -296,8 +296,8 @@ app.get('/:id/watched/runtime', user(), async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=3600, s-maxage=3600, stale-while-revalidate=900',
-  ); // 1h, allow stale for 5m
+    'public, max-age=3600, s-maxage=3600, stale-while-revalidate=3600',
+  ); // 1h, allow stale for 1h
 
   return c.json({
     runtime: items.reduce((sum, item) => sum + (item.runtime || 0), 0),
@@ -314,8 +314,8 @@ app.get('/:id/watched/year/:year', user(), async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=3600, s-maxage=3600, stale-while-revalidate=900',
-  ); // 1h, allow stale for 5m
+    'public, max-age=3600, s-maxage=3600, stale-while-revalidate=3600',
+  ); // 1h, allow stale for 1h
 
   return c.json(items);
 });

@@ -17,8 +17,8 @@ app.get('/:id', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
-  ); // 12h, allow stale for 1h
+    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
+  ); // 1w, allow stale for 24h
 
   return c.json(person);
 });
@@ -32,8 +32,8 @@ app.get('/:id/credits', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
-  ); // 12h, allow stale for 1h
+    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
+  ); // 1w, allow stale for 24h
 
   return c.json(credits);
 });
@@ -49,8 +49,8 @@ app.get('/:id/known-for', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
-  ); // 12h, allow stale for 1h
+    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
+  ); // 1w, allow stale for 24h
 
   return c.json(items);
 });

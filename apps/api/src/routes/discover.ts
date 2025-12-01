@@ -45,8 +45,8 @@ app.get('/', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=3600, s-maxage=3600, stale-while-revalidate=300',
-  ); // 1h, allow stale for 5m
+    'public, max-age=21600, s-maxage=21600, stale-while-revalidate=3600',
+  ); // 6h, allow stale for 1h
 
   return c.json(result);
 });
@@ -56,8 +56,8 @@ app.get('/countries', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=3600',
-  ); // 1 month, allow stale for 1h
+    'public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=86400',
+  ); // 1 month, allow stale for 24h
 
   return c.json(countries);
 });
@@ -67,8 +67,8 @@ app.get('/languages', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=3600',
-  ); // 1 month, allow stale for 1h
+    'public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=86400',
+  ); // 1 month, allow stale for 24h
 
   return c.json(languages);
 });
@@ -80,8 +80,8 @@ app.get('/watch-providers', async (c) => {
   // Region is a query param, not header, so CDN will cache by URL including ?region=
   c.header(
     'Cache-Control',
-    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=3600',
-  ); // 1w, allow stale for 1h
+    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
+  ); // 1w, allow stale for 24h
 
   if (c.req.query('include_colors') === 'true') {
     const enrichedWatchProviders =

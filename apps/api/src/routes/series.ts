@@ -27,8 +27,8 @@ app.get('/:id', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
-  ); // 12h, allow stale for 1h
+    'public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600',
+  ); // 24h, allow stale for 6h
 
   return c.json(series);
 });
@@ -45,8 +45,8 @@ app.get('/:id/season/:season', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
-  ); // 12h, allow stale for 1h
+    'public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600',
+  ); // 24h, allow stale for 6h
 
   return c.json(series);
 });
@@ -64,8 +64,8 @@ app.get('/:id/season/:season/episode/:episode', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
-  ); // 12h, allow stale for 1h
+    'public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600',
+  ); // 24h, allow stale for 6h
 
   return c.json(series);
 });
@@ -82,8 +82,8 @@ app.get('/:id/images', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=900, s-maxage=900, stale-while-revalidate=60',
-  ); // 5m, allow stale for 1m
+    'public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600',
+  ); // 24h, allow stale for 6h
 
   return c.json(images);
 });
@@ -98,8 +98,8 @@ app.get('/:id/content-rating', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
-  ); // 12h, allow stale for 1h
+    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
+  ); // 1w, allow stale for 24h
 
   return c.json(rating);
 });
@@ -117,8 +117,8 @@ app.get('/:id/watch-providers', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
-  ); // 12h, allow stale for 1h
+    'public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600',
+  ); // 24h, allow stale for 6h
 
   return c.json(providers);
 });
@@ -132,8 +132,8 @@ app.get('/:id/credits', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
-  ); // 12h, allow stale for 1h
+    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
+  ); // 1w, allow stale for 24h
 
   return c.json(credits);
 });
@@ -147,8 +147,8 @@ app.get('/:id/recommendations', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
-  ); // 12h, allow stale for 1h
+    'public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600',
+  ); // 24h, allow stale for 6h
 
   return c.json(items);
 });
@@ -162,8 +162,8 @@ app.get('/:id/similar', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
-  ); // 12h, allow stale for 1h
+    'public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600',
+  ); // 24h, allow stale for 6h
 
   return c.json(items);
 });
@@ -177,8 +177,8 @@ app.get('/:id/keywords', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
-  ); // 12h, allow stale for 1h
+    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
+  ); // 1w, allow stale for 24h
 
   return c.json(keywords);
 });
@@ -196,8 +196,8 @@ app.get('/:id/rating', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
-  ); // 12h, allow stale for 1h
+    'public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600',
+  ); // 24h, allow stale for 6h
 
   return c.json(rating);
 });

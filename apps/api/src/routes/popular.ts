@@ -11,8 +11,8 @@ app.get('/:year?', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=3600',
-  ); // 1w, allow stale for 1h
+    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
+  ); // 1w, allow stale for 24h
 
   return c.json(items);
 });

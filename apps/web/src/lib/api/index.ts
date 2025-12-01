@@ -1,6 +1,9 @@
 import type { BetterFetchOption } from '@better-fetch/fetch';
 import { createFetch } from '@better-fetch/fetch';
-import { DEFAULT_FETCH_RETRY_OPTIONS } from '@tvseri.es/constants';
+import {
+  DEFAULT_FETCH_RETRY_OPTIONS,
+  DEFAULT_FETCH_TIMEOUT,
+} from '@tvseri.es/constants';
 import type {
   CountryOrLanguage,
   Episode,
@@ -58,6 +61,7 @@ const $fetch = createFetch({
   },
   plugins: [nextPlugin],
   retry: DEFAULT_FETCH_RETRY_OPTIONS,
+  timeout: DEFAULT_FETCH_TIMEOUT,
 });
 
 async function apiFetch(path: string, options?: BetterFetchOption) {

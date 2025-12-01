@@ -2,10 +2,13 @@ import type { RetryOptions } from '@better-fetch/fetch';
 
 export const DEFAULT_FETCH_RETRY_OPTIONS = {
   attempts: 4,
-  baseDelay: 250, // Initial + 3 retries
-  maxDelay: 2000, // Start with 250ms delay
-  type: 'exponential', // Cap at 2 seconds
+  baseDelay: 250,
+  maxDelay: 2000,
+  type: 'exponential',
 } as RetryOptions;
+
+// 10 second timeout - prevents hung requests from blocking Lambda
+export const DEFAULT_FETCH_TIMEOUT = 10000;
 
 export const WATCH_PROVIDER_PREDEFINED_COLOR: Record<string, string> = {
   'Amazon Prime Video': '#00A8E1',

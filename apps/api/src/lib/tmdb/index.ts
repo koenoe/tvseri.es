@@ -1,6 +1,7 @@
 import { type BetterFetchOption, createFetch } from '@better-fetch/fetch';
 import {
   DEFAULT_FETCH_RETRY_OPTIONS,
+  DEFAULT_FETCH_TIMEOUT,
   WATCH_PROVIDER_PRIORITY,
 } from '@tvseri.es/constants';
 import type {
@@ -53,6 +54,7 @@ import {
   fetchMostPopularThisMonth,
   fetchTrending,
 } from '../mdblist';
+import { dedupe } from './deduplicator';
 import {
   buildBackdropImageUrl,
   buildDiscoverQuery,
@@ -76,38 +78,44 @@ if (!tmdbApiKey || !tmdbApiAccessToken) {
 const $fetch = createFetch({
   baseURL: 'https://api.themoviedb.org',
   retry: DEFAULT_FETCH_RETRY_OPTIONS,
+  timeout: DEFAULT_FETCH_TIMEOUT,
 });
 
 async function tmdbFetch(path: string, options?: BetterFetchOption) {
-  const headers = {
-    'content-type': 'application/json',
-    ...(path.startsWith('/4/') && {
-      Authorization: `Bearer ${tmdbApiAccessToken}`,
-    }),
-  };
+  // Dedupe concurrent requests to the same path within a Lambda invocation
+  const cacheKey = `${path}${options?.query ? JSON.stringify(options.query) : ''}`;
 
-  const { data, error } = await $fetch(path, {
-    ...options,
-    headers: {
-      ...headers,
-      ...options?.headers,
-    },
-    query: {
-      ...(path.startsWith('/3/') && {
-        api_key: tmdbApiKey,
+  return dedupe(cacheKey, async () => {
+    const headers = {
+      'content-type': 'application/json',
+      ...(path.startsWith('/4/') && {
+        Authorization: `Bearer ${tmdbApiAccessToken}`,
       }),
-    },
+    };
+
+    const { data, error } = await $fetch(path, {
+      ...options,
+      headers: {
+        ...headers,
+        ...options?.headers,
+      },
+      query: {
+        ...(path.startsWith('/3/') && {
+          api_key: tmdbApiKey,
+        }),
+      },
+    });
+
+    if (error?.status === 404) {
+      return undefined;
+    }
+
+    if (error) {
+      throw new Error(`HTTP error status: ${error.status}`);
+    }
+
+    return data;
   });
-
-  if (error?.status === 404) {
-    return undefined;
-  }
-
-  if (error) {
-    throw new Error(`HTTP error status: ${error.status}`);
-  }
-
-  return data;
 }
 
 export async function fetchTvSeries(

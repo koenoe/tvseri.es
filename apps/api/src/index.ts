@@ -3,6 +3,8 @@ import { handle } from 'hono/aws-lambda';
 import { compress } from 'hono/compress';
 import { etag } from 'hono/etag';
 import { HTTPException } from 'hono/http-exception';
+import { requestId } from 'hono/request-id';
+import { timeout } from 'hono/timeout';
 
 import type { Variables } from './middleware/auth';
 import admin from './routes/admin';
@@ -21,6 +23,12 @@ import user from './routes/user';
 import webhook from './routes/webhook';
 
 const app = new Hono<{ Variables: Variables }>();
+
+// Observability middleware
+app.use(requestId());
+
+// Request timeout (Lambda timeout is 15s, use 14s to allow graceful response)
+app.use(timeout(14_000));
 
 app.use(compress());
 app.use(etag());
@@ -41,6 +49,10 @@ app.route('/webhook', webhook);
 app.route('/user', user);
 
 app.onError((error, c) => {
+  const reqId = c.get('requestId') ?? 'unknown';
+  const path = c.req.path;
+  const method = c.req.method;
+
   if (error instanceof HTTPException) {
     return c.json(
       {
@@ -51,7 +63,17 @@ app.onError((error, c) => {
     );
   }
 
-  console.error('Unhandled API error:', error);
+  // Log server errors - no stack traces or sensitive details
+  console.error(
+    JSON.stringify({
+      error: error.name,
+      level: 'error',
+      method,
+      path,
+      requestId: reqId,
+    }),
+  );
+
   return c.json({ message: 'Internal server error' }, 500);
 });
 

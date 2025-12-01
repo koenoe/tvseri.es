@@ -88,6 +88,8 @@ app.post('/provider/:provider', async (c) => {
       });
     }
   }
+
+  return c.json({ error: 'Unsupported provider' }, 400);
 });
 
 export default app;

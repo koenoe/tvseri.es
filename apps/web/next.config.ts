@@ -69,10 +69,14 @@ const nextConfig = {
   // Note: to keep the Lambda size small
   outputFileTracingExcludes: {
     '*': [
+      // Source maps (not needed in production)
       './**/*.cjs.map',
       './**/*.js.map',
       './**/*.mjs.map',
-      './@babel/types*',
+      './**/*.d.ts',
+      './**/*.d.ts.map',
+      // Build tools (not needed at runtime)
+      './@babel*',
       './@esbuild*',
       './@node-rs/argon2-linux-x64-gnu',
       './@node-rs/argon2-linux-x64-musl',
@@ -82,11 +86,24 @@ const nextConfig = {
       './@swc/core-linux-x64-musl*',
       './rollup*',
       './sharp*',
-      './source-map-js*',
       './terser*',
       './typescript*',
-      './webpack/',
+      './webpack*',
       '**/amphtml-validator/*',
+      // Debug tools (not needed in production)
+      './source-map@*',
+      './source-map-support@*',
+      './source-map-js*',
+      // Version checking (not needed at runtime)
+      './semver*',
+      // Duplicate/unused packages
+      './detect-libc*',
+      './buffer-from*',
+      './styled-jsx*',
+      // Next.js build artifacts not needed at runtime
+      './**/next/dist/compiled/webpack/*',
+      './**/next/dist/compiled/@babel/*',
+      './**/next/dist/compiled/terser/*',
     ],
   },
   async redirects() {

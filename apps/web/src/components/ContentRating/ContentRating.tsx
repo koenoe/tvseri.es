@@ -10,17 +10,10 @@ export default async function ContentRating({
   className?: string;
   id: number;
 }) {
-  const [headerStore, { user, accessToken }] = await Promise.all([
-    headers(),
-    auth(),
-  ]);
+  const [headerStore, { user }] = await Promise.all([headers(), auth()]);
   const region =
     user?.country || headerStore.get('cloudfront-viewer-country') || 'US';
-  const contentRating = await fetchTvSeriesContentRating(
-    id,
-    region,
-    accessToken ?? undefined,
-  );
+  const contentRating = await fetchTvSeriesContentRating(id, region);
 
   return contentRating ? (
     <div

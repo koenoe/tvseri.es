@@ -13,7 +13,6 @@ import {
   fetchTvSeriesSimilar,
   fetchTvSeriesWatchProviders,
 } from '@/lib/tmdb';
-import { auth } from '@/middleware/auth';
 
 const app = new Hono();
 
@@ -89,9 +88,8 @@ app.get('/:id/images', async (c) => {
   return c.json(images);
 });
 
-app.get('/:id/content-rating', auth(), async (c) => {
-  const auth = c.get('auth');
-  const region = auth?.user?.country || c.req.query('region') || 'US';
+app.get('/:id/content-rating', async (c) => {
+  const region = c.req.query('region') || 'US';
   const rating = await fetchTvSeriesContentRating(c.req.param('id'), region);
 
   if (!rating) {
@@ -106,9 +104,8 @@ app.get('/:id/content-rating', auth(), async (c) => {
   return c.json(rating);
 });
 
-app.get('/:id/watch-providers', auth(), async (c) => {
-  const auth = c.get('auth');
-  const region = auth?.user?.country || c.req.query('region') || 'US';
+app.get('/:id/watch-providers', async (c) => {
+  const region = c.req.query('region') || 'US';
   const providers = await fetchTvSeriesWatchProviders(
     c.req.param('id'),
     region,
@@ -124,42 +121,6 @@ app.get('/:id/watch-providers', auth(), async (c) => {
   ); // 12h, allow stale for 1h
 
   return c.json(providers);
-});
-
-app.get('/:id/watch-provider', auth(), async (c) => {
-  const auth = c.get('auth');
-  const region = auth?.user?.country || c.req.query('region') || 'US';
-  const providers = await fetchTvSeriesWatchProviders(
-    c.req.param('id'),
-    region,
-  );
-
-  if (providers.length === 0) {
-    return c.notFound();
-  }
-
-  let provider = providers[0];
-
-  if (auth) {
-    const providersForUser = auth.user.watchProviders ?? [];
-    // Find the highest priority provider (first in user's preferred order)
-    const matchingProvider = providersForUser
-      .map((userProvider) => providers.find((p) => p.id === userProvider.id))
-      .filter(Boolean)[0];
-
-    if (matchingProvider) {
-      provider = matchingProvider;
-    }
-  }
-
-  if (!auth) {
-    c.header(
-      'Cache-Control',
-      'public, max-age=43200, s-maxage=43200, stale-while-revalidate=3600',
-    ); // 12h, allow stale for 1h
-  }
-
-  return c.json(provider);
 });
 
 app.get('/:id/credits', async (c) => {

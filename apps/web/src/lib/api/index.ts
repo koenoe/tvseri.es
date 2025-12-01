@@ -248,13 +248,8 @@ export async function fetchTvSeriesImages(
 export async function fetchTvSeriesContentRating(
   id: number | string,
   region: string = 'US',
-  accessToken?: string,
 ) {
   const contentRating = (await apiFetch(`/series/${id}/content-rating`, {
-    auth: {
-      token: accessToken,
-      type: 'Bearer',
-    },
     query: {
       region,
     },
@@ -262,21 +257,41 @@ export async function fetchTvSeriesContentRating(
   return contentRating;
 }
 
-export async function fetchTvSeriesWatchProvider(
+export async function fetchTvSeriesWatchProviders(
   id: number | string,
   region: string = 'US',
-  accessToken?: string,
 ) {
-  const watchProvider = (await apiFetch(`/series/${id}/watch-provider`, {
-    auth: {
-      token: accessToken,
-      type: 'Bearer',
-    },
+  const watchProviders = (await apiFetch(`/series/${id}/watch-providers`, {
     query: {
       region,
     },
-  })) as WatchProvider | undefined;
-  return watchProvider;
+  })) as WatchProvider[];
+  return watchProviders;
+}
+
+export async function fetchTvSeriesWatchProvider(
+  id: number | string,
+  region: string,
+  user?: Pick<User, 'watchProviders'> | null,
+) {
+  const providers = await fetchTvSeriesWatchProviders(id, region);
+
+  if (providers.length === 0) {
+    return undefined;
+  }
+
+  // If user has preferred providers, find the first matching one
+  if (user?.watchProviders && user.watchProviders.length > 0) {
+    const matchingProvider = user.watchProviders
+      .map((userProvider) => providers.find((p) => p.id === userProvider.id))
+      .filter(Boolean)[0];
+
+    if (matchingProvider) {
+      return matchingProvider;
+    }
+  }
+
+  return providers[0];
 }
 
 export async function fetchTvSeriesRating(

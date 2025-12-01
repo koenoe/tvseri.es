@@ -181,7 +181,7 @@ export default async function InProgressContainer({
         (await fetchTvSeriesWatchProvider(
           tvSeries!.id,
           region,
-          accessToken ?? undefined,
+          authenticatedUser,
         )) ?? null;
 
       await markWatched({

@@ -36,10 +36,13 @@ export default async function CardsContainer({
   tvSeries: TvSeries;
   user: User;
 }>) {
-  const [headerStore, { accessToken, user: userFromSession }] =
+  const [headerStore, { accessToken, user: authenticatedUser }] =
     await Promise.all([headers(), auth()]);
 
-  const region = headerStore.get('cloudfront-viewer-country') || 'US';
+  const region =
+    authenticatedUser?.country ||
+    headerStore.get('cloudfront-viewer-country') ||
+    'US';
 
   const [watchedItems, seasons, watchProvider] = await Promise.all([
     getAllWatchedForTvSeries({
@@ -47,11 +50,7 @@ export default async function CardsContainer({
       userId: user.id,
     }),
     fetchAllSeasons(tvSeries),
-    fetchTvSeriesWatchProvider(
-      tvSeries.id,
-      userFromSession?.country ?? region,
-      accessToken!,
-    ),
+    fetchTvSeriesWatchProvider(tvSeries.id, region, authenticatedUser),
   ]);
 
   async function deleteWatchedItems(items: Partial<WatchedItem>[]) {

@@ -27,7 +27,7 @@
     "use-debounce": "^10.0.6",
     "words-to-numbers": "^1.5.1",
     "xstate": "^5.24.0",
-    "zustand": "^5.0.8"
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.0.5",

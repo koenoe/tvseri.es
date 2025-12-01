@@ -27,7 +27,7 @@ const SpotlightItem = ({ item, index, priority = false }: Props) => {
       )}
 
       <div className="lg:p-18 relative w-full p-8 md:w-4/5 md:p-14">
-        <SpotlightTitle className="mb-6" item={item} />
+        <SpotlightTitle className="mb-6" item={item} priority={priority} />
 
         <div className="flex gap-4 md:gap-12">
           <div className="flex w-full justify-center gap-2 text-xs opacity-60 md:justify-start md:text-[0.8rem]">

@@ -34,8 +34,10 @@ type TitleVariantProps = VariantProps<typeof imageStyles | typeof textStyles>;
 export default function SpotlightTitle({
   className,
   item,
+  priority = false,
   size,
-}: TitleVariantProps & Readonly<{ className?: string; item: TvSeries }>) {
+}: TitleVariantProps &
+  Readonly<{ className?: string; item: TvSeries; priority?: boolean }>) {
   return (
     <>
       {item.titleTreatmentImage ? (
@@ -44,8 +46,10 @@ export default function SpotlightTitle({
             alt={item.title}
             className="object-contain object-bottom md:object-left-bottom"
             draggable={false}
+            fetchPriority={priority ? 'high' : 'auto'}
             fill
-            priority
+            loading={priority ? 'eager' : 'lazy'}
+            priority={priority}
             src={item.titleTreatmentImage}
             unoptimized
           />

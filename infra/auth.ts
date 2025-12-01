@@ -16,7 +16,7 @@ export const auth = new sst.aws.Auth('Auth', {
   issuer: {
     handler: 'apps/auth/src/index.handler',
     link: [dynamo.users, email, secrets.googleClientId],
-    memory: '2048 MB',
+    memory: '1024 MB',
     nodejs: {
       esbuild: {
         external: [

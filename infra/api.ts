@@ -59,7 +59,7 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
     secrets.tmdbApiAccessToken,
     secrets.tmdbApiKey,
   ],
-  memory: '2048 MB',
+  memory: '1024 MB',
   nodejs: {
     esbuild: {
       external: [

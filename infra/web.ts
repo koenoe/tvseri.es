@@ -65,7 +65,7 @@ new sst.aws.Nextjs('tvseries', {
   // regions: [$app.providers?.aws.region ?? 'eu-west-2', 'us-east-1'],
   server: {
     architecture: 'arm64',
-    memory: '2582 MB',
+    memory: '2048 MB',
     runtime: 'nodejs22.x',
   },
   transform: {

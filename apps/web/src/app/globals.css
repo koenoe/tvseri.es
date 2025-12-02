@@ -2,18 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-body.scrollbar-is-visible::-webkit-scrollbar-corner,
-body.scrollbar-is-visible::-webkit-scrollbar-track {
+body::-webkit-scrollbar-corner,
+body::-webkit-scrollbar-track {
   background: theme("colors.neutral.900");
 }
 
-body.scrollbar-is-visible::-webkit-scrollbar-thumb {
+body::-webkit-scrollbar-thumb {
   background: theme("colors.neutral.700");
   border-radius: 10px;
 }
 
-body.scrollbar-is-visible::-webkit-scrollbar {
-  width: auto;
-  max-width: 10px;
-  max-height: 10px;
+body::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
 }

@@ -7,7 +7,6 @@ import { type ReactNode, Suspense } from 'react';
 import { Toaster } from 'sonner';
 
 import EnsureHistoryKey from '@/components/EnsureHistoryKey';
-import ScrollbarDetection from '@/components/ScrollbarDetection';
 import SessionSync from '@/components/SessionSync';
 import WatchedStoreProvider from '@/components/Watched/WatchedStoreProvider';
 
@@ -46,7 +45,29 @@ export default function RootLayout({
           'overflow-x-hidden overscroll-y-none bg-neutral-900 text-white subpixel-antialiased',
           inter.className,
         )}
+        suppressHydrationWarning
       >
+        <script
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: it's ok
+          dangerouslySetInnerHTML={{
+            __html: `
+              const scrollbarCheck = document.createElement("div");
+              scrollbarCheck.style.overflow = "scroll";
+              scrollbarCheck.style.width = "10px";
+              scrollbarCheck.style.height = "10px";
+              scrollbarCheck.style.position = "absolute";
+              scrollbarCheck.style.top = "0px";
+              scrollbarCheck.style.visibility = "hidden";
+              if (document.body) {
+                document.body.appendChild(scrollbarCheck);
+                if (scrollbarCheck.scrollWidth !== scrollbarCheck.offsetWidth) {
+                  document.body.classList.add("scrollbar-is-visible");
+                }
+                document.body.removeChild(scrollbarCheck);
+              }
+            `,
+          }}
+        />
         <Suspense fallback={null}>
           <SessionSync />
         </Suspense>
@@ -63,7 +84,6 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <EnsureHistoryKey />
         </Suspense>
-        <ScrollbarDetection />
         <WatchedStoreProvider>{children}</WatchedStoreProvider>
         <div id="modal-root" />
       </body>

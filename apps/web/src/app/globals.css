@@ -2,17 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-body::-webkit-scrollbar-corner,
-body::-webkit-scrollbar-track {
+body.scrollbar-is-visible::-webkit-scrollbar-corner,
+body.scrollbar-is-visible::-webkit-scrollbar-track {
   background: theme("colors.neutral.900");
 }
 
-body::-webkit-scrollbar-thumb {
+body.scrollbar-is-visible::-webkit-scrollbar-thumb {
   background: theme("colors.neutral.700");
   border-radius: 10px;
 }
 
-body::-webkit-scrollbar {
+body.scrollbar-is-visible::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }

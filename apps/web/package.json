@@ -36,7 +36,7 @@
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/color": "^4.2.0",
     "@types/node": "catalog:",
-    "@types/papaparse": "^5.5.0",
+    "@types/papaparse": "^5.5.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.4.22",

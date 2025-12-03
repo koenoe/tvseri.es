@@ -7,8 +7,8 @@ export const DEFAULT_FETCH_RETRY_OPTIONS = {
   type: 'exponential',
 } as RetryOptions;
 
-// 10 second timeout - prevents hung requests from blocking Lambda
-export const DEFAULT_FETCH_TIMEOUT = 10000;
+// 14 second timeout - prevents hung requests from blocking Lambda
+export const DEFAULT_FETCH_TIMEOUT = 14000;
 
 export const WATCH_PROVIDER_PREDEFINED_COLOR: Record<string, string> = {
   'Amazon Prime Video': '#00A8E1',

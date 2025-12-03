@@ -62,6 +62,8 @@ function EpisodeCard({
                     items: [
                       {
                         episodeNumber: episode.episodeNumber,
+                        episodeStillPath: episode.stillPath,
+                        episodeTitle: episode.title,
                         runtime: episode.runtime,
                         seasonNumber: episode.seasonNumber,
                         watchedAt: Date.now(),
@@ -84,6 +86,8 @@ function EpisodeCard({
                     items: [
                       {
                         episodeNumber: episode.episodeNumber,
+                        episodeStillPath: episode.stillPath,
+                        episodeTitle: episode.title,
                         runtime: episode.runtime,
                         seasonNumber: episode.seasonNumber,
                         watchedAt: new Date(episode.airDate).getTime(),
@@ -110,6 +114,8 @@ function EpisodeCard({
               items: [
                 {
                   episodeNumber: episode.episodeNumber,
+                  episodeStillPath: episode.stillPath,
+                  episodeTitle: episode.title,
                   runtime: episode.runtime,
                   seasonNumber: episode.seasonNumber,
                   watchedAt: new Date(value).getTime(),

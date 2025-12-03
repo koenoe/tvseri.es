@@ -11,8 +11,22 @@ export const TvSeriesForWatchedSchema = v.object({
 
 export type TvSeriesForWatched = v.InferOutput<typeof TvSeriesForWatchedSchema>;
 
+// Minimal episode schema for watched operations - only includes fields actually used
+export const EpisodeForWatchedSchema = v.object({
+  episodeNumber: v.number(),
+  runtime: v.number(),
+  seasonNumber: v.number(),
+  stillPath: v.nullable(v.string()),
+  title: v.string(),
+});
+
+export type EpisodeForWatched = v.InferOutput<typeof EpisodeForWatchedSchema>;
+
 export const WatchedItemSchema = v.object({
   episodeNumber: v.number(),
+  episodeStillImage: v.optional(v.nullable(v.string())),
+  episodeStillPath: v.optional(v.nullable(v.string())),
+  episodeTitle: v.optional(v.string()),
   posterImage: v.optional(v.string()), // deprecated
   posterPath: v.string(),
   runtime: v.fallback(v.number(), 0),
@@ -50,14 +64,10 @@ export const CreateWatchedItemSchema = v.intersect([
 export const CreateWatchedItemBatchSchema = v.pipe(
   v.array(
     v.object({
-      ...v.pick(WatchedItemSchema, [
-        'episodeNumber',
-        'runtime',
-        'seasonNumber',
-        'userId',
-        'watchedAt',
-      ]).entries,
+      episode: EpisodeForWatchedSchema,
       tvSeries: TvSeriesForWatchedSchema,
+      userId: v.string(),
+      watchedAt: v.number(),
       watchProvider: v.optional(v.nullable(WatchProviderSchema)),
     }),
   ),

@@ -134,9 +134,13 @@ export const handler: SQSHandler = async (event: SQSEvent) => {
 
       // Mark as watched and log success
       await markWatched({
-        episodeNumber: episode.episodeNumber,
-        runtime: episode.runtime,
-        seasonNumber: episode.seasonNumber,
+        episode: {
+          episodeNumber: episode.episodeNumber,
+          runtime: episode.runtime,
+          seasonNumber: episode.seasonNumber,
+          stillPath: episode.stillPath,
+          title: episode.title,
+        },
         tvSeries: tvSeries,
         userId: payload.userId,
         watchProvider,

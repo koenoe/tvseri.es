@@ -68,6 +68,8 @@ function SeasonCard({
                       updateItems({
                         items: episodes.map((episode) => ({
                           episodeNumber: episode.episodeNumber,
+                          episodeStillPath: episode.stillPath,
+                          episodeTitle: episode.title,
                           runtime: episode.runtime,
                           seasonNumber: episode.seasonNumber,
                           watchedAt: Date.now(),
@@ -85,6 +87,8 @@ function SeasonCard({
                       updateItems({
                         items: episodes.map((episode) => ({
                           episodeNumber: episode.episodeNumber,
+                          episodeStillPath: episode.stillPath,
+                          episodeTitle: episode.title,
                           runtime: episode.runtime,
                           seasonNumber: episode.seasonNumber,
                           watchedAt: new Date(episode.airDate).getTime(),
@@ -106,6 +110,8 @@ function SeasonCard({
                 updateItems({
                   items: episodes.map((episode) => ({
                     episodeNumber: episode.episodeNumber,
+                    episodeStillPath: episode.stillPath,
+                    episodeTitle: episode.title,
                     runtime: episode.runtime,
                     seasonNumber: episode.seasonNumber,
                     watchedAt: new Date(value).getTime(),

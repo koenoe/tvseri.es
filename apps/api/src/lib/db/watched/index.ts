@@ -7,13 +7,18 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type {
+  EpisodeForWatched,
   PaginationOptions,
   TvSeries,
   TvSeriesForWatched,
   WatchedItem,
   WatchProvider,
 } from '@tvseri.es/schemas';
-import { buildLogoImageUrl, buildPosterImageUrl } from '@tvseri.es/utils';
+import {
+  buildLogoImageUrl,
+  buildPosterImageUrl,
+  buildStillImageUrl,
+} from '@tvseri.es/utils';
 import { Resource } from 'sst';
 import { fetchTvSeriesSeason } from '@/lib/tmdb';
 import client from '../client';
@@ -23,26 +28,24 @@ const DYNAMO_DB_BATCH_LIMIT = 25;
 const paddedNumber = (value: number) => value.toString().padStart(3, '0');
 
 const createWatchedItem = ({
-  episodeNumber,
-  runtime,
-  seasonNumber,
+  episode,
   tvSeries,
   userId,
   watchProvider,
   watchedAt,
 }: Readonly<{
-  episodeNumber: number;
-  runtime: number;
-  seasonNumber: number;
+  episode: EpisodeForWatched;
   tvSeries: TvSeriesForWatched;
   userId: string;
   watchProvider?: WatchProvider | null;
   watchedAt: number;
 }>): WatchedItem => ({
-  episodeNumber,
+  episodeNumber: episode.episodeNumber,
+  episodeStillPath: episode.stillPath,
+  episodeTitle: episode.title,
   posterPath: tvSeries.posterPath,
-  runtime,
-  seasonNumber,
+  runtime: episode.runtime,
+  seasonNumber: episode.seasonNumber,
   seriesId: tvSeries.id,
   slug: tvSeries.slug,
   title: tvSeries.title,
@@ -54,6 +57,9 @@ const createWatchedItem = ({
 
 const normalizeWatchedItem = (item: WatchedItem) => ({
   ...item,
+  episodeStillImage: item.episodeStillPath
+    ? buildStillImageUrl(item.episodeStillPath)
+    : undefined,
   posterImage: item.posterPath
     ? buildPosterImageUrl(item.posterPath)
     : item.posterImage,
@@ -64,20 +70,18 @@ const normalizeWatchedItem = (item: WatchedItem) => ({
 
 export const markWatchedInBatch = async (
   items: ReadonlyArray<{
-    userId: string;
+    episode: EpisodeForWatched;
     tvSeries: TvSeriesForWatched;
-    seasonNumber: number;
-    episodeNumber: number;
-    runtime: number;
-    watchProvider?: WatchProvider | null;
+    userId: string;
     watchedAt: number;
+    watchProvider?: WatchProvider | null;
   }>,
 ) => {
   const watchedItems: WatchedItem[] = [];
   const uniqueCompositeKeys = new Set<string>();
   const uniqueItems = items.filter((item) => {
-    const paddedSeason = paddedNumber(item.seasonNumber);
-    const paddedEpisode = paddedNumber(item.episodeNumber);
+    const paddedSeason = paddedNumber(item.episode.seasonNumber);
+    const paddedEpisode = paddedNumber(item.episode.episodeNumber);
     const compositeKey = `USER#${item.userId}#SERIES#${item.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`;
 
     if (uniqueCompositeKeys.has(compositeKey)) {
@@ -89,12 +93,10 @@ export const markWatchedInBatch = async (
   });
 
   const writeRequests = uniqueItems.map((item) => {
-    const paddedSeason = paddedNumber(item.seasonNumber);
-    const paddedEpisode = paddedNumber(item.episodeNumber);
+    const paddedSeason = paddedNumber(item.episode.seasonNumber);
+    const paddedEpisode = paddedNumber(item.episode.episodeNumber);
     const watchedItem = createWatchedItem({
-      episodeNumber: item.episodeNumber,
-      runtime: item.runtime,
-      seasonNumber: item.seasonNumber,
+      episode: item.episode,
       tvSeries: item.tvSeries,
       userId: item.userId,
       watchedAt: item.watchedAt,
@@ -135,29 +137,23 @@ export const markWatchedInBatch = async (
 };
 
 export const markWatched = async ({
-  userId,
+  episode,
   tvSeries,
-  seasonNumber,
-  episodeNumber,
-  runtime,
-  watchProvider,
+  userId,
   watchedAt = Date.now(),
+  watchProvider,
 }: Readonly<{
-  userId: string;
+  episode: EpisodeForWatched;
   tvSeries: TvSeriesForWatched;
-  seasonNumber: number;
-  episodeNumber: number;
-  runtime: number;
-  watchProvider?: WatchProvider | null;
+  userId: string;
   watchedAt?: number;
+  watchProvider?: WatchProvider | null;
 }>) => {
-  const paddedSeason = paddedNumber(seasonNumber);
-  const paddedEpisode = paddedNumber(episodeNumber);
+  const paddedSeason = paddedNumber(episode.seasonNumber);
+  const paddedEpisode = paddedNumber(episode.episodeNumber);
 
   const watchedItem = createWatchedItem({
-    episodeNumber,
-    runtime,
-    seasonNumber,
+    episode,
     tvSeries,
     userId,
     watchedAt,
@@ -301,9 +297,13 @@ export const markSeasonWatched = async ({
 
   const writeRequests = episodes.map((episode) => {
     const watchedItem = createWatchedItem({
-      episodeNumber: episode.episodeNumber,
-      runtime: episode.runtime,
-      seasonNumber,
+      episode: {
+        episodeNumber: episode.episodeNumber,
+        runtime: episode.runtime,
+        seasonNumber,
+        stillPath: episode.stillPath,
+        title: episode.title,
+      },
       tvSeries,
       userId,
       watchedAt: now,

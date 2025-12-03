@@ -48,8 +48,12 @@ async function importWordsToNumbers(): Promise<
 
 function parseDate(dateStr: string): number | null {
   const formats = [
+    'M/d/yy', // 12/2/25 (Netflix format - month/day/2-digit year)
+    'd/M/yy', // 2/12/25 (day/month/2-digit year)
     'dd/MM/yyyy', // 31/12/2024
     'MM/dd/yyyy', // 12/31/2024
+    'M/d/yyyy', // 1/2/2024 (no leading zeros)
+    'd/M/yyyy', // 2/1/2024 (no leading zeros)
     'yyyy-MM-dd', // 2024-12-31
     'dd-MM-yyyy', // 31-12-2024
     'dd.MM.yyyy', // 31.12.2024
@@ -247,13 +251,17 @@ export async function POST(req: NextRequest) {
           let successCount = 0;
           const batch = body.slice(i, i + BATCH_SIZE);
           const watchedItems: Array<{
-            userId: string;
+            episode: {
+              episodeNumber: number;
+              runtime: number;
+              seasonNumber: number;
+              stillPath: string | null;
+              title: string;
+            };
             tvSeries: TvSeries;
-            seasonNumber: number;
-            episodeNumber: number;
-            runtime: number;
-            watchProvider?: WatchProvider | null;
+            userId: string;
             watchedAt: number;
+            watchProvider?: WatchProvider | null;
           }> = [];
           const erroredItems: Array<{ item: CsvItem; error: string }> = [];
 
@@ -402,9 +410,13 @@ export async function POST(req: NextRequest) {
 
               // Add the successfully processed item
               watchedItems.push({
-                episodeNumber: episode.episodeNumber,
-                runtime: episode.runtime,
-                seasonNumber,
+                episode: {
+                  episodeNumber: episode.episodeNumber,
+                  runtime: episode.runtime,
+                  seasonNumber,
+                  stillPath: episode.stillPath,
+                  title: episode.title,
+                },
                 tvSeries,
                 userId: user.id,
                 watchedAt,
@@ -432,8 +444,8 @@ export async function POST(req: NextRequest) {
                   error: `Database error: ${(error as Error).message}`,
                   item: {
                     date: item.watchedAt.toString(),
-                    episode: item.episodeNumber.toString(),
-                    season: item.seasonNumber.toString(),
+                    episode: item.episode.episodeNumber.toString(),
+                    season: item.episode.seasonNumber.toString(),
                     title: item.tvSeries.title,
                   },
                 })),

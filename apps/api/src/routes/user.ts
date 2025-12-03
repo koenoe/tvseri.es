@@ -407,9 +407,13 @@ app.post(
       episodeNumber,
     );
     const watchedItem = await markWatched({
-      episodeNumber: episode!.episodeNumber,
-      runtime: episode!.runtime,
-      seasonNumber: episode!.seasonNumber,
+      episode: {
+        episodeNumber: episode!.episodeNumber,
+        runtime: episode!.runtime,
+        seasonNumber: episode!.seasonNumber,
+        stillPath: episode!.stillPath,
+        title: episode!.title,
+      },
       tvSeries,
       userId: user.id,
       watchProvider,

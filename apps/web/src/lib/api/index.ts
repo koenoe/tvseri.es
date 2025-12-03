@@ -7,6 +7,7 @@ import {
 import type {
   CountryOrLanguage,
   Episode,
+  EpisodeForWatched,
   Genre,
   Keyword,
   ListItem,
@@ -839,13 +840,11 @@ export async function markWatchedInBatch(
   input: Readonly<{
     userId: string;
     items: Array<{
-      userId: string;
+      episode: EpisodeForWatched;
       tvSeries: TvSeries;
-      seasonNumber: number;
-      episodeNumber: number;
-      runtime: number;
-      watchProvider?: WatchProvider | null;
+      userId: string;
       watchedAt: number;
+      watchProvider?: WatchProvider | null;
     }>;
     accessToken: string;
   }>,
@@ -861,8 +860,11 @@ export async function markWatchedInBatch(
   const batchPromises = batches.map((chunk) => {
     // Convert full TvSeries objects to minimal ones for the API
     const minimalChunk = chunk.map((item) => ({
-      ...item,
+      episode: item.episode,
       tvSeries: toMinimalTvSeries(item.tvSeries),
+      userId: item.userId,
+      watchedAt: item.watchedAt,
+      watchProvider: item.watchProvider,
     }));
 
     return apiFetch('/user/:id/watched/batch', {
@@ -887,10 +889,9 @@ export async function unmarkWatchedInBatch(
   input: Readonly<{
     userId: string;
     items: Array<{
-      userId: string;
+      episode: Pick<Episode, 'episodeNumber' | 'seasonNumber'>;
       tvSeries: TvSeries;
-      seasonNumber: number;
-      episodeNumber: number;
+      userId: string;
     }>;
     accessToken: string;
   }>,
@@ -903,10 +904,12 @@ export async function unmarkWatchedInBatch(
   }
 
   const batchPromises = batches.map((chunk) => {
-    // Convert full TvSeries objects to minimal ones for the API
+    // Convert full objects to minimal ones for the API
     const minimalChunk = chunk.map((item) => ({
-      ...item,
+      episodeNumber: item.episode.episodeNumber,
+      seasonNumber: item.episode.seasonNumber,
       tvSeries: toMinimalTvSeries(item.tvSeries),
+      userId: item.userId,
     }));
 
     return apiFetch('/user/:id/watched/batch/delete', {

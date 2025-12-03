@@ -58,8 +58,10 @@ export default async function CardsContainer({
 
     try {
       const itemsToRemove = items.map((item) => ({
-        episodeNumber: item.episodeNumber!,
-        seasonNumber: item.seasonNumber!,
+        episode: {
+          episodeNumber: item.episodeNumber!,
+          seasonNumber: item.seasonNumber!,
+        },
         tvSeries,
         userId: user.id,
       }));
@@ -82,9 +84,13 @@ export default async function CardsContainer({
       const itemsToUpdate = items.map((item) => {
         const hasWatchProvider = item.watchProviderName || watchProvider?.name;
         return {
-          episodeNumber: item.episodeNumber!,
-          runtime: item.runtime!,
-          seasonNumber: item.seasonNumber!,
+          episode: {
+            episodeNumber: item.episodeNumber!,
+            runtime: item.runtime!,
+            seasonNumber: item.seasonNumber!,
+            stillPath: item.episodeStillPath ?? null,
+            title: item.episodeTitle ?? '',
+          },
           tvSeries,
           userId: user.id,
           watchedAt: item.watchedAt!,

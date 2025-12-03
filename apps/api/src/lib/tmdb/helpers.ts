@@ -8,13 +8,17 @@ import type {
   TmdbTvSeriesEpisode,
   TvSeries,
 } from '@tvseri.es/schemas';
+import {
+  buildBackdropImageUrl,
+  buildPosterImageUrl,
+  buildProfileImageUrl,
+  buildStillImageUrl,
+  buildTitleTreatmentImageUrl,
+  generateTmdbImageUrl,
+} from '@tvseri.es/utils';
 import slugify from 'slugify';
 
 export const GLOBAL_GENRES_TO_IGNORE = [10763, 10767, 10766, 10762];
-
-export function generateTmdbImageUrl(path: string, size = 'original') {
-  return `https://image.tmdb.org/t/p/${size}${path}`;
-}
 
 export function buildDiscoverQuery(
   query: TmdbDiscoverMovieQuery | TmdbDiscoverTvSeriesQuery,
@@ -28,18 +32,6 @@ export function buildDiscoverQuery(
     include_adult: false,
     include_null_first_air_dates: false,
   };
-}
-
-export function buildBackdropImageUrl(path: string) {
-  return generateTmdbImageUrl(path, 'w1920_and_h1080_multi_faces');
-}
-
-export function buildTitleTreatmentImageUrl(path: string) {
-  return generateTmdbImageUrl(path, 'w500');
-}
-
-export function buildPosterImageUrl(path: string) {
-  return generateTmdbImageUrl(path, 'w300_and_h450_bestv2');
 }
 
 export function deduplicateDiscoverItems(
@@ -121,7 +113,7 @@ export function normalizePersons(
       character,
       id: person.id,
       image: person.profile_path
-        ? generateTmdbImageUrl(person.profile_path, 'w138_and_h175_face')
+        ? buildProfileImageUrl(person.profile_path, 'w138_and_h175_face')
         : '',
       job,
       name: person.name ?? '',
@@ -331,8 +323,9 @@ export function normalizeTvSeriesEpisode(episode: TmdbTvSeriesEpisode) {
     runtime: episode.runtime ?? 0,
     seasonNumber: episode.season_number,
     stillImage: episode.still_path
-      ? generateTmdbImageUrl(episode.still_path, 'w454_and_h254_bestv2')
+      ? buildStillImageUrl(episode.still_path)
       : '',
+    stillPath: episode.still_path ?? '',
     title: episode.name ?? '',
   };
 }

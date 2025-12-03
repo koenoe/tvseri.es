@@ -6,8 +6,8 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { ListItem, PaginationOptions } from '@tvseri.es/schemas';
+import { buildPosterImageUrl } from '@tvseri.es/utils';
 import { Resource } from 'sst';
-import { buildPosterImageUrl } from '@/lib/tmdb/helpers';
 import client from '../client';
 
 // const BATCH_SIZE = 25;

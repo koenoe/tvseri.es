@@ -13,9 +13,9 @@ import type {
   WatchedItem,
   WatchProvider,
 } from '@tvseri.es/schemas';
+import { buildLogoImageUrl, buildPosterImageUrl } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 import { fetchTvSeriesSeason } from '@/lib/tmdb';
-import { buildPosterImageUrl, generateTmdbImageUrl } from '@/lib/tmdb/helpers';
 import client from '../client';
 
 const DYNAMO_DB_BATCH_LIMIT = 25;
@@ -58,7 +58,7 @@ const normalizeWatchedItem = (item: WatchedItem) => ({
     ? buildPosterImageUrl(item.posterPath)
     : item.posterImage,
   watchProviderLogoImage: item.watchProviderLogoPath
-    ? generateTmdbImageUrl(item.watchProviderLogoPath, 'w92')
+    ? buildLogoImageUrl(item.watchProviderLogoPath)
     : undefined,
 });
 

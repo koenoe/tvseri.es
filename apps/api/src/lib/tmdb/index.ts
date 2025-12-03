@@ -40,7 +40,13 @@ import type {
   TvSeries,
   WatchProvider,
 } from '@tvseri.es/schemas';
-import { toQueryString } from '@tvseri.es/utils';
+import {
+  buildBackdropImageUrl,
+  buildLogoImageUrl,
+  buildProfileImageUrl,
+  buildTitleTreatmentImageUrl,
+  toQueryString,
+} from '@tvseri.es/utils';
 import slugify from 'slugify';
 import { Resource } from 'sst';
 import calculateAge from '@/utils/calculateAge';
@@ -56,12 +62,9 @@ import {
 } from '../mdblist';
 import { dedupe } from './deduplicator';
 import {
-  buildBackdropImageUrl,
   buildDiscoverQuery,
-  buildTitleTreatmentImageUrl,
   deduplicateDiscoverItems,
   GLOBAL_GENRES_TO_IGNORE,
-  generateTmdbImageUrl,
   normalizeMovie,
   normalizePersons,
   normalizeTvSeries,
@@ -260,9 +263,7 @@ export async function fetchTvSeriesWatchProviders(
     })
     .map((provider) => ({
       id: provider.provider_id,
-      logo: provider.logo_path
-        ? generateTmdbImageUrl(provider.logo_path, 'w92')
-        : '',
+      logo: provider.logo_path ? buildLogoImageUrl(provider.logo_path) : '',
       logoPath: provider.logo_path!,
       name: provider.provider_name as string,
     }));
@@ -557,9 +558,7 @@ export async function fetchWatchProviders(
     })
     .map((provider) => ({
       id: provider.provider_id,
-      logo: provider.logo_path
-        ? generateTmdbImageUrl(provider.logo_path, 'w92')
-        : '',
+      logo: provider.logo_path ? buildLogoImageUrl(provider.logo_path) : '',
       logoPath: provider.logo_path!,
       name: provider.provider_name as string,
     }));
@@ -629,7 +628,7 @@ export async function searchPerson(query: string) {
     return {
       id: person.id,
       image: person.profile_path
-        ? generateTmdbImageUrl(person.profile_path, 'w600_and_h900_bestv2')
+        ? buildProfileImageUrl(person.profile_path)
         : '',
       isAdult: person.adult,
       knownFor: (person.known_for ?? []).map((item) => {
@@ -664,9 +663,7 @@ export async function fetchPerson(id: number | string) {
     birthdate: person.birthday,
     deathdate: person.deathday,
     id: person.id,
-    image: person.profile_path
-      ? generateTmdbImageUrl(person.profile_path, 'w600_and_h900_bestv2')
-      : '',
+    image: person.profile_path ? buildProfileImageUrl(person.profile_path) : '',
     imdbId: person.imdb_id,
     isAdult: person.adult,
     knownForDepartment: person.known_for_department,

@@ -11,6 +11,7 @@ export const EpisodeSchema = v.object({
   runtime: v.number(),
   seasonNumber: v.number(),
   stillImage: v.string(),
+  stillPath: v.string(),
   title: v.string(),
 });
 

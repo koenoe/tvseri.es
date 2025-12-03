@@ -32,9 +32,9 @@ migrateWatchedQueue.subscribe(
   {
     batch: {
       // Process items from same series/season together to leverage cache
+      // Note: window not supported for FIFO queues
       partialResponses: true,
       size: 10,
-      window: '10 seconds',
     },
   },
 );

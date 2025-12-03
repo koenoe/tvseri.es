@@ -1,14 +1,12 @@
 import * as v from 'valibot';
-import { SeasonSchema } from './tv-series';
 import { WatchProviderSchema } from './watch-provider';
 
 // Minimal TV series schema for watched operations - only includes fields actually used
 export const TvSeriesForWatchedSchema = v.object({
   id: v.number(),
   posterPath: v.string(),
-  seasons: v.optional(v.array(SeasonSchema)),
   slug: v.string(),
-  title: v.string(), // Only needed for markTvSeriesWatched
+  title: v.string(),
 });
 
 export type TvSeriesForWatched = v.InferOutput<typeof TvSeriesForWatchedSchema>;

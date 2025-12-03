@@ -46,7 +46,6 @@ const toMinimalTvSeries = (tvSeries: TvSeries): TvSeriesForWatched => ({
   posterPath: tvSeries.posterPath,
   slug: tvSeries.slug,
   title: tvSeries.title,
-  ...(tvSeries.seasons && { seasons: tvSeries.seasons }),
 });
 
 type AuthContext = Readonly<{

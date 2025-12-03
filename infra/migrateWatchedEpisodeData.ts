@@ -33,7 +33,13 @@ migrateWatchedQueue.subscribe(
       reserved: 2,
     },
     handler: 'apps/api/src/lambdas/migrateWatchedEpisodeData/process.handler',
-    link: [watched, secrets.tmdbApiAccessToken, secrets.tmdbApiKey],
+    // Note: mdblistApiKey is needed because tmdb/index.ts imports from mdblist at module level
+    link: [
+      watched,
+      secrets.mdblistApiKey,
+      secrets.tmdbApiAccessToken,
+      secrets.tmdbApiKey,
+    ],
     memory: '512 MB',
     nodejs: {
       esbuild: {

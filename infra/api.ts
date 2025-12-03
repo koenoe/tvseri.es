@@ -79,7 +79,7 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
       ],
     },
   ],
-  timeout: '15 seconds',
+  timeout: '20 seconds',
   url: {
     router: {
       instance: apiRouter,

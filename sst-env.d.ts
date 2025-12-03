@@ -55,11 +55,11 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "MigrateWatchedEnqueue": {
-      "name": string
-      "type": "sst.aws.Function"
+    "MigrateWatchedDlq": {
+      "type": "sst.aws.Queue"
+      "url": string
     }
-    "MigrateWatchedEpisodeData": {
+    "MigrateWatchedEnqueue": {
       "name": string
       "type": "sst.aws.Function"
     }

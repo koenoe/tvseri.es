@@ -7,17 +7,30 @@ import * as secrets from './secrets';
 // Run the enqueue Lambda manually via AWS Console or CLI to start migration
 // Remove after migration is complete
 
+// Dead letter queue for failed messages
+export const migrateWatchedDlq = new sst.aws.Queue('MigrateWatchedDlq', {
+  fifo: {
+    contentBasedDeduplication: true,
+  },
+});
+
 export const migrateWatchedQueue = new sst.aws.Queue('MigrateWatchedQueue', {
-  fifo: true,
+  dlq: {
+    queue: migrateWatchedDlq.arn,
+    retry: 3, // Move to DLQ after 3 failed attempts
+  },
+  fifo: {
+    contentBasedDeduplication: true,
+  },
 });
 
 // Processor Lambda - triggered by SQS messages
 migrateWatchedQueue.subscribe(
   {
-    // Limit concurrency to avoid TMDB rate limits (~50 req/sec)
-    // With batch size 10 and ~1 TMDB call per unique season, this allows ~50 req/sec
+    // Limit concurrency to avoid TMDB rate limits (~40 req/sec)
+    // With 2 concurrent Lambdas and delays between calls, we stay under the limit
     concurrency: {
-      reserved: 5,
+      reserved: 2,
     },
     handler: 'apps/api/src/lambdas/migrateWatchedEpisodeData/process.handler',
     link: [watched, secrets.tmdbApiAccessToken, secrets.tmdbApiKey],

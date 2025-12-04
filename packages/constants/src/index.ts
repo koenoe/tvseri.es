@@ -31,8 +31,8 @@ export const AUTH_TTL =
   process.env.NODE_ENV === 'development'
     ? {
         access: 60 * 5, // 5 minutes
-        refresh: 60 * 60 * 2, // 2 hour
-        reuse: 60 * 60 * 1, // 1 hour
+        refresh: 60 * 60 * 24 * 1, // 1 day
+        reuse: 60 * 60 * 24 * 1, // 1 day
       }
     : {
         access: 60 * 60 * 24, // 1 day

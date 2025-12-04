@@ -1,6 +1,6 @@
 import type { ListItem } from '@tvseri.es/schemas';
 
-import { cachedUniqueWatchedByYear } from '@/app/cached';
+import { getStatsWatchedSeries } from '@/lib/api';
 
 import Poster from '../Tiles/Poster';
 
@@ -9,7 +9,7 @@ export default async function WatchedByYear({
   year,
   userId,
 }: Readonly<{ priority?: boolean; year: number; userId: string }>) {
-  const items = await cachedUniqueWatchedByYear({ userId, year });
+  const items = await getStatsWatchedSeries({ userId, year });
 
   return (
     <>

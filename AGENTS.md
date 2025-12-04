@@ -41,8 +41,47 @@ This project uses **Biome** (not ESLint/Prettier) for formatting and linting.
 - **Arrow parens**: Always (`(x) => x`)
 - **No `any`**: `noExplicitAny: error`
 - **Template literals**: Use template strings over concatenation
-- **Imports**: Auto-organized and sorted
+- **Imports**: Auto-organised and sorted
 - **Formatting**: Uses `.editorconfig` (2 spaces, UTF-8, final newline)
+
+### Code Reuse & DRY Principle
+
+**Never copy-paste code.** Always extract shared logic into reusable modules:
+
+- **Cross-app utilities**: Place in `packages/utils` for reuse across all apps
+- **Cross-app types/schemas**: Place in `packages/schemas`
+- **Cross-app constants**: Place in `packages/constants`
+- **App-specific shared code**: Create dedicated files within the app's directory structure
+- **Feature-specific shared code**: When files in the same feature/directory share logic, extract to a shared file
+
+**Examples:**
+
+```
+# Bad: Duplicating a utility function across apps
+apps/web/src/utils/formatDate.ts  → defines formatDate()
+apps/api/src/utils/formatDate.ts  → copy-pastes formatDate()
+
+# Good: Extract to shared package
+packages/utils/src/formatDate.ts  → exports formatDate()
+apps/web/...                      → imports from @tvseri.es/utils
+apps/api/...                      → imports from @tvseri.es/utils
+```
+
+```
+# Bad: Duplicating logic within the same app
+apps/web/src/components/List.tsx      → defines useListData()
+apps/web/src/components/ListGrid.tsx  → copy-pastes useListData()
+
+# Good: Extract to shared hook
+apps/web/src/hooks/useListData.ts     → exports useListData()
+apps/web/src/components/List.tsx      → imports from hooks
+apps/web/src/components/ListGrid.tsx  → imports from hooks
+```
+
+Before writing new code, check if similar logic already exists that can be:
+1. Imported directly from an existing package or file
+2. Extracted into a shared module (package for cross-app, local file for app-specific)
+3. Generalised to handle both use cases
 
 ## Commands
 
@@ -54,6 +93,7 @@ pnpm sst dev
 ```
 
 This runs the full stack locally with live reload via SST's dev mode.
+Never run any sst deploy commands.
 
 ### After Making Changes
 
@@ -151,6 +191,34 @@ Key directories:
 | `infra/dynamo.ts` | DynamoDB tables |
 | `infra/dynamo/*.ts` | Individual table definitions |
 | `infra/secrets.ts` | SST Secrets (API keys, etc.) |
+
+### SST Links
+
+SST uses **links** to connect resources (Lambdas, APIs) to other resources (DynamoDB tables, secrets, queues). When a Lambda needs access to a resource, it must be explicitly linked.
+
+**Critical rule:** When modifying a Lambda to use a new resource (e.g., adding DynamoDB table access), you **must** add the resource to the Lambda's `link` array in the infrastructure definition.
+
+**Example:**
+
+```typescript
+// infra/dynamo/watched.ts
+watched.subscribe(
+  'WatchedSubscriber',
+  {
+    handler: 'apps/api/src/lambdas/watched.handler',
+    link: [
+      cache,           // ← Lambda can access Cache table
+      dominantColor,   // ← Lambda can invoke dominantColor function
+      lists,           // ← Lambda can access Lists table
+      secrets.tmdbApiKey, // ← Lambda can read TMDB API key
+    ],
+  },
+);
+```
+
+**If you add code that uses `Resource.SomeTable.name` but forget to link it, the Lambda will fail at runtime with a "Resource not found" error.**
+
+Before adding imports like `import { Resource } from 'sst';` to a Lambda file, verify the resource is linked in the corresponding `infra/*.ts` file.
 
 ### Deployment
 

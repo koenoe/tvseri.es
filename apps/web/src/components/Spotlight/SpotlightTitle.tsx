@@ -1,4 +1,3 @@
-import type { TvSeries } from '@tvseri.es/schemas';
 import { cva, type VariantProps } from 'class-variance-authority';
 import Image from 'next/image';
 
@@ -31,13 +30,22 @@ const textStyles = cva(
 
 type TitleVariantProps = VariantProps<typeof imageStyles | typeof textStyles>;
 
+type SpotlightTitleItem = {
+  title: string;
+  titleTreatmentImage?: string | null;
+};
+
 export default function SpotlightTitle({
   className,
   item,
   priority = false,
   size,
 }: TitleVariantProps &
-  Readonly<{ className?: string; item: TvSeries; priority?: boolean }>) {
+  Readonly<{
+    className?: string;
+    item: SpotlightTitleItem;
+    priority?: boolean;
+  }>) {
   return (
     <>
       {item.titleTreatmentImage ? (

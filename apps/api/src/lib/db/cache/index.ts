@@ -19,11 +19,12 @@ export const setCacheItem = async <T>(
   const baseItem = {
     createdAt: new Date().toISOString(),
     pk: `CACHE#${key}`,
-    value: value
-      ? typeof value === 'string'
-        ? value
-        : JSON.stringify(value)
-      : null,
+    value:
+      value == null
+        ? null
+        : typeof value === 'string'
+          ? value
+          : JSON.stringify(value),
   };
 
   const item =
@@ -88,5 +89,39 @@ export const deleteCacheItem = async (key: string): Promise<void> => {
     await client.send(command);
   } catch (_error) {
     throw new Error(`Failed to delete cache for key: ${key}`);
+  }
+};
+
+/**
+ * Deletes multiple cache items by their keys.
+ * Uses BatchWriteItem for efficiency (max 25 items per batch).
+ */
+export const deleteCacheItems = async (keys: string[]): Promise<void> => {
+  if (keys.length === 0) return;
+
+  // BatchWriteItem allows max 25 items per request
+  const batches: string[][] = [];
+  for (let i = 0; i < keys.length; i += 25) {
+    batches.push(keys.slice(i, i + 25));
+  }
+
+  const { BatchWriteItemCommand } = await import('@aws-sdk/client-dynamodb');
+
+  for (const batch of batches) {
+    const command = new BatchWriteItemCommand({
+      RequestItems: {
+        [Resource.Cache.name]: batch.map((key) => ({
+          DeleteRequest: {
+            Key: marshall({ pk: `CACHE#${key}` }),
+          },
+        })),
+      },
+    });
+
+    try {
+      await client.send(command);
+    } catch (_error) {
+      throw new Error(`Failed to delete cache items: ${batch.join(', ')}`);
+    }
   }
 };

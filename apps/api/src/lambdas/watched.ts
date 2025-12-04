@@ -3,8 +3,10 @@ import { unmarshall } from '@aws-sdk/util-dynamodb';
 import type { TvSeries, WatchedItem } from '@tvseri.es/schemas';
 import type { DynamoDBStreamEvent } from 'aws-lambda';
 
+import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 import { addToList, removeFromList, removeFromWatchlist } from '@/lib/db/list';
 import { getWatchedCountForTvSeries } from '@/lib/db/watched';
+import { invalidateStatsCache } from '@/lib/stats';
 import { fetchTvSeries } from '@/lib/tmdb';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 
@@ -47,16 +49,56 @@ export const handler = async (event: DynamoDBStreamEvent) => {
   let lastSeriesId: number | null = null;
   let lastCount = 0;
 
+  // Track user+year combinations for stats cache invalidation
+  const statsToInvalidate = new Set<string>();
+  // Track runtime changes per user for incremental updates
+  const runtimeChanges = new Map<string, number>();
+
   for (const record of event.Records) {
     if (!record.dynamodb?.NewImage && !record.dynamodb?.OldImage) {
       console.error('Missing dynamodb image data:', JSON.stringify(record));
       continue;
     }
 
-    const image = record.dynamodb.NewImage ?? record.dynamodb.OldImage;
-    const watchedItem = unmarshall(
-      image as Record<string, AttributeValue>,
-    ) as WatchedItem;
+    const newImage = record.dynamodb.NewImage
+      ? (unmarshall(
+          record.dynamodb.NewImage as Record<string, AttributeValue>,
+        ) as WatchedItem)
+      : null;
+    const oldImage = record.dynamodb.OldImage
+      ? (unmarshall(
+          record.dynamodb.OldImage as Record<string, AttributeValue>,
+        ) as WatchedItem)
+      : null;
+
+    const watchedItem = newImage ?? oldImage!;
+
+    // Track stats cache invalidation
+    if (record.eventName === 'MODIFY' && oldImage && newImage) {
+      // For modifications, invalidate both old and new year (in case date changed)
+      const oldYear = new Date(oldImage.watchedAt).getUTCFullYear();
+      const newYear = new Date(newImage.watchedAt).getUTCFullYear();
+      statsToInvalidate.add(`${watchedItem.userId}:${oldYear}`);
+      statsToInvalidate.add(`${watchedItem.userId}:${newYear}`);
+    } else {
+      // For INSERT/REMOVE, just invalidate the relevant year
+      const watchedYear = new Date(watchedItem.watchedAt).getUTCFullYear();
+      statsToInvalidate.add(`${watchedItem.userId}:${watchedYear}`);
+    }
+
+    // Track runtime change for this user (only for INSERT/REMOVE, not MODIFY)
+    const runtime = watchedItem.runtime || 0;
+    if (record.eventName === 'INSERT') {
+      runtimeChanges.set(
+        watchedItem.userId,
+        (runtimeChanges.get(watchedItem.userId) || 0) + runtime,
+      );
+    } else if (record.eventName === 'REMOVE') {
+      runtimeChanges.set(
+        watchedItem.userId,
+        (runtimeChanges.get(watchedItem.userId) || 0) - runtime,
+      );
+    }
 
     // Get cached TV series data (from memory or DynamoDB)
     const tvSeries = await cachedTvSeries(watchedItem.seriesId);
@@ -152,5 +194,36 @@ export const handler = async (event: DynamoDBStreamEvent) => {
         }),
       ]);
     }
+  }
+
+  // Invalidate stats cache for all affected user+year combinations
+  if (statsToInvalidate.size > 0) {
+    await Promise.all(
+      Array.from(statsToInvalidate).map((key) => {
+        const [userId, year] = key.split(':');
+        return invalidateStatsCache(userId!, Number.parseInt(year!, 10));
+      }),
+    );
+    console.log(
+      `[CACHE] Invalidated stats cache for: ${Array.from(statsToInvalidate).join(', ')}`,
+    );
+  }
+
+  // Update profile runtime cache incrementally for affected users
+  for (const [userId, runtimeDelta] of runtimeChanges) {
+    if (runtimeDelta === 0) continue;
+
+    const cacheKey = `profile:${userId}:watched-runtime`;
+    const currentRuntime = await getCacheItem<number>(cacheKey);
+
+    if (typeof currentRuntime === 'number') {
+      // Update existing cache with delta (no TTL - permanent)
+      const newRuntime = Math.max(0, currentRuntime + runtimeDelta);
+      await setCacheItem(cacheKey, newRuntime, { ttl: null });
+      console.log(
+        `[CACHE] Updated runtime for ${userId}: ${currentRuntime} -> ${newRuntime} (delta: ${runtimeDelta})`,
+      );
+    }
+    // If no cache exists, the API will compute it fresh on next request
   }
 };

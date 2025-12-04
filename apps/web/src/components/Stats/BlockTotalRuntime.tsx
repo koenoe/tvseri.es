@@ -1,6 +1,4 @@
-import { cache } from 'react';
-
-import { getWatchedRuntime } from '@/lib/api';
+import { getStatsSummary } from '@/lib/api';
 import calculatePercentageDelta from '@/utils/calculatePercentageDelta';
 import formatRuntime from '@/utils/formatRuntime';
 
@@ -11,33 +9,23 @@ type Input = Readonly<{
   year: number;
 }>;
 
-export const cachedTotalRuntime = cache(async ({ userId, year }: Input) => {
-  const runtime = await getWatchedRuntime({
-    endDate: new Date(`${year}-12-31`),
-    startDate: new Date(`${year}-01-01`),
-    userId,
-  });
-
-  return runtime;
-});
-
 export default async function BlockTotalRuntime({ userId, year }: Input) {
-  const [totalRuntime, previousYearRuntime] = await Promise.all([
-    cachedTotalRuntime({ userId, year }),
-    cachedTotalRuntime({ userId, year: year - 1 }),
-  ]);
+  const summary = await getStatsSummary({ userId, year });
 
-  const delta = calculatePercentageDelta(totalRuntime, previousYearRuntime);
+  const delta = calculatePercentageDelta(
+    summary.current.totalRuntime,
+    summary.previous.totalRuntime,
+  );
 
   return (
     <Block
       comparison={{
         delta,
-        previousValue: formatRuntime(previousYearRuntime, false),
+        previousValue: formatRuntime(summary.previous.totalRuntime, false),
         type: 'percentage',
       }}
       label="Total runtime"
-      value={formatRuntime(totalRuntime, false)}
+      value={formatRuntime(summary.current.totalRuntime, false)}
     />
   );
 }

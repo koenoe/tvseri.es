@@ -55,6 +55,8 @@ export const findUser = async (
     createdAt,
     updatedAt,
     email,
+    followerCount,
+    followingCount,
     name,
     role,
     username,
@@ -65,6 +67,8 @@ export const findUser = async (
   return {
     createdAt,
     email,
+    followerCount,
+    followingCount,
     id,
     name,
     role,

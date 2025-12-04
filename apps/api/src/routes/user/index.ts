@@ -13,15 +13,13 @@ import {
   type User,
 } from '@tvseri.es/schemas';
 import { Hono, type MiddlewareHandler } from 'hono';
-import { every } from 'hono/combine';
 import { HTTPException } from 'hono/http-exception';
 
+import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 import {
   follow,
-  getFollowerCount,
   getFollowers,
   getFollowing,
-  getFollowingCount,
   isFollower,
   isFollowing,
   unfollow,
@@ -53,19 +51,19 @@ import {
   fetchTvSeriesEpisode,
   fetchTvSeriesWatchProvider,
 } from '@/lib/tmdb';
-import {
-  type Variables as AuthVariables,
-  auth,
-  requireAuth,
-} from '@/middleware/auth';
+import { auth, requireAuth } from '@/middleware/auth';
+
+import { requireIsMe, type UserVariables, user } from './middleware';
+import stats from './stats';
 
 type Variables = {
   series: TvSeries;
-  user: User;
   isMe: boolean;
-} & AuthVariables;
+} & UserVariables;
 
 const app = new Hono();
+
+app.route('/', stats);
 
 const parseWatchProviderFromBody = async (
   body: CreateWatchedItem,
@@ -106,59 +104,6 @@ const series = (): MiddlewareHandler<{ Variables: Variables }> => {
   };
 };
 
-const userMiddleware = (): MiddlewareHandler<{ Variables: Variables }> => {
-  return async (c, next) => {
-    const userId = c.req.param('id');
-
-    if (!userId) {
-      throw new HTTPException(400, {
-        message: 'Missing user ID',
-      });
-    }
-
-    const user = await findUser({
-      userId: userId.toUpperCase(),
-    });
-
-    if (!user) {
-      return c.notFound();
-    }
-
-    c.set('user', user);
-
-    return next();
-  };
-};
-
-/**
- * User middleware - loads user from :id param.
- * Does NOT include auth - use auth() separately if needed.
- */
-const user = () => userMiddleware();
-
-/**
- * Middleware to check if current user is viewing their own profile.
- * Must be used after auth() middleware.
- */
-const checkIsMe = (): MiddlewareHandler<{ Variables: Variables }> => {
-  return async (c, next) => {
-    const authData = c.get('auth');
-    const user = c.get('user');
-    if (authData?.user.id !== user.id) {
-      throw new HTTPException(401, {
-        message: 'Unauthorized',
-      });
-    }
-    return next();
-  };
-};
-
-/**
- * Requires that the authenticated user is the same as the :id user.
- * Automatically runs auth() first.
- */
-const requireIsMe = () => every(auth(), checkIsMe());
-
 const validateBatchWatchedItemsOwnership = (
   items: CreateWatchedItemBatch | DeleteWatchedItemBatch,
   authenticatedUserId: string,
@@ -182,24 +127,15 @@ const enrichUsersWithFollowInfo = async (
   }>,
 ) => {
   if (!userFromSession) {
-    // If no authenticated user, just add basic counts
-    return await Promise.all(
-      users.map(async (user) => {
-        const [followerCount, followingCount] = await Promise.all([
-          getFollowerCount(user.id),
-          getFollowingCount(user.id),
-        ]);
-
-        return {
-          ...toMinimalUser(user),
-          followerCount,
-          followingCount,
-          isFollower: false,
-          isFollowing: false,
-          isMe: false,
-        };
-      }),
-    );
+    // If no authenticated user, just return stored counts
+    return users.map((user) => ({
+      ...toMinimalUser(user),
+      followerCount: user.followerCount ?? 0,
+      followingCount: user.followingCount ?? 0,
+      isFollower: false,
+      isFollowing: false,
+      isMe: false,
+    }));
   }
 
   const { targetUserId, type = 'followers' } = options || {};
@@ -208,14 +144,8 @@ const enrichUsersWithFollowInfo = async (
 
   return await Promise.all(
     users.map(async (user) => {
-      const [
-        followerCount,
-        followingCount,
-        isFollowerResult,
-        isFollowingResult,
-      ] = await Promise.all([
-        getFollowerCount(user.id),
-        getFollowingCount(user.id),
+      // Only query isFollower/isFollowing - counts come from user record
+      const [isFollowerResult, isFollowingResult] = await Promise.all([
         userFromSession.id !== user.id && !isMeAndFollowers
           ? isFollower({
               targetUserId: user.id,
@@ -232,8 +162,8 @@ const enrichUsersWithFollowInfo = async (
 
       return {
         ...toMinimalUser(user),
-        followerCount,
-        followingCount,
+        followerCount: user.followerCount ?? 0,
+        followingCount: user.followingCount ?? 0,
         isFollower: isFollowerResult,
         isFollowing: isFollowingResult,
         isMe: userFromSession.id === user.id,
@@ -267,57 +197,39 @@ app.get('/:id/watched/count', user(), async (c) => {
   const endDate = c.req.query('end_date')
     ? new Date(c.req.query('end_date')!)
     : undefined;
+
   const count = await getWatchedCount({
     endDate,
     startDate,
     userId: user.id,
   });
 
-  return c.json({
-    count,
-  });
+  return c.json({ count });
 });
 
-// TODO: abstract stats into a separate dynamo table
-// populate it in the watched subscription
+// All-time runtime - stored permanently in cache, updated incrementally by watched subscriber
 app.get('/:id/watched/runtime', user(), async (c) => {
+  const cacheHeader =
+    'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800';
   const user = c.get('user');
-  const startDate = c.req.query('start_date')
-    ? new Date(c.req.query('start_date')!)
-    : undefined;
-  const endDate = c.req.query('end_date')
-    ? new Date(c.req.query('end_date')!)
-    : undefined;
-  const items = await getAllWatched({
-    endDate,
-    startDate,
-    userId: user.id,
-  });
+  const cacheKey = `profile:${user.id}:watched-runtime`;
+  const cached = await getCacheItem<number>(cacheKey);
 
-  c.header(
-    'Cache-Control',
-    'public, max-age=3600, s-maxage=3600, stale-while-revalidate=3600',
-  ); // 1h, allow stale for 1h
+  if (typeof cached === 'number') {
+    c.header('Cache-Control', cacheHeader);
 
-  return c.json({
-    runtime: items.reduce((sum, item) => sum + (item.runtime || 0), 0),
-  });
-});
+    return c.json({ runtime: cached });
+  }
 
-app.get('/:id/watched/year/:year', user(), async (c) => {
-  const user = c.get('user');
-  const items = await getAllWatched({
-    endDate: new Date(`${c.req.param('year')}-12-31`),
-    startDate: new Date(`${c.req.param('year')}-01-01`),
-    userId: user.id,
-  });
+  // Compute for existing users who don't have cache yet (or have corrupted null)
+  const items = await getAllWatched({ userId: user.id });
+  const runtime = items.reduce((sum, item) => sum + (item.runtime || 0), 0);
 
-  c.header(
-    'Cache-Control',
-    'public, max-age=3600, s-maxage=3600, stale-while-revalidate=3600',
-  ); // 1h, allow stale for 1h
+  await setCacheItem(cacheKey, runtime, { ttl: null });
 
-  return c.json(items);
+  c.header('Cache-Control', cacheHeader);
+
+  return c.json({ runtime });
 });
 
 app.get('/:id/watched/series/:series-id', user(), async (c) => {
@@ -574,9 +486,7 @@ app.get(
       userId: user.id,
     });
 
-    return c.json({
-      count,
-    });
+    return c.json({ count });
   },
 );
 
@@ -737,18 +647,14 @@ app.delete('/:id/unfollow', user(), requireAuth(), async (c) => {
   return c.json({ message: 'OK' });
 });
 
-app.get('/:id/followers/count', user(), async (c) => {
+app.get('/:id/followers/count', user(), (c) => {
   const user = c.get('user');
-  const count = await getFollowerCount(user.id);
-
-  return c.json({ count });
+  return c.json({ count: user.followerCount ?? 0 });
 });
 
-app.get('/:id/following/count', user(), async (c) => {
+app.get('/:id/following/count', user(), (c) => {
   const user = c.get('user');
-  const count = await getFollowingCount(user.id);
-
-  return c.json({ count });
+  return c.json({ count: user.followingCount ?? 0 });
 });
 
 app.get('/:id/follower/:follower-id', user(), async (c) => {

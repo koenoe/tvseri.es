@@ -1,5 +1,4 @@
-import { cachedTvSeries } from '@/app/cached';
-import { fetchTvSeriesEpisode, getWatched } from '@/lib/api';
+import { getStatsSpotlight } from '@/lib/api';
 
 import Spotlight from './Spotlight';
 
@@ -12,33 +11,12 @@ export default async function SpotlightContainer({
   year: number;
   boundary: 'first' | 'last';
 }>) {
-  const { items } = await getWatched({
-    endDate: new Date(`${year}-12-31`),
-    options: {
-      limit: 1,
-      sortDirection: boundary === 'first' ? 'asc' : 'desc',
-    },
-    startDate: new Date(`${year}-01-01`),
-    userId,
-  });
-  const watchedItem = items[0];
+  const spotlight = await getStatsSpotlight({ userId, year });
+  const item = boundary === 'first' ? spotlight.first : spotlight.last;
 
-  if (!watchedItem) {
+  if (!item) {
     return null;
   }
 
-  const [tvSeries, episode] = await Promise.all([
-    cachedTvSeries(watchedItem.seriesId, { includeImages: true }),
-    fetchTvSeriesEpisode(
-      watchedItem.seriesId,
-      watchedItem.seasonNumber,
-      watchedItem.episodeNumber,
-    ),
-  ]);
-
-  if (!tvSeries || !episode) {
-    return null;
-  }
-
-  return <Spotlight episode={episode} item={watchedItem} tvSeries={tvSeries} />;
+  return <Spotlight item={item} />;
 }

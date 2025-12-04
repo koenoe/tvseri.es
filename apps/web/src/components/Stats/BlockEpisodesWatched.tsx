@@ -1,4 +1,4 @@
-import { cachedWatchedByYear } from '@/app/cached';
+import { getStatsSummary } from '@/lib/api';
 import calculatePercentageDelta from '@/utils/calculatePercentageDelta';
 
 import Block from './Block';
@@ -10,22 +10,22 @@ export default async function BlockEpisodesWatched({
   userId: string;
   year: number;
 }>) {
-  const [current, previous] = await Promise.all([
-    cachedWatchedByYear({ userId, year }),
-    cachedWatchedByYear({ userId, year: year - 1 }),
-  ]);
+  const summary = await getStatsSummary({ userId, year });
 
-  const delta = calculatePercentageDelta(current.length, previous.length);
+  const delta = calculatePercentageDelta(
+    summary.current.episodeCount,
+    summary.previous.episodeCount,
+  );
 
   return (
     <Block
       comparison={{
         delta,
-        previousValue: previous.length.toLocaleString(),
+        previousValue: summary.previous.episodeCount.toLocaleString(),
         type: 'percentage',
       }}
       label="Episodes watched"
-      value={current.length.toLocaleString()}
+      value={summary.current.episodeCount.toLocaleString()}
     />
   );
 }

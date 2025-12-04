@@ -1,6 +1,5 @@
-import { cachedWatchedByYear } from '@/app/cached';
 import List, { type HeaderVariantProps } from '@/components/List/List';
-import { fetchPopularTvSeriesByYear } from '@/lib/api';
+import { fetchPopularTvSeriesByYear, getStatsWatchedSeries } from '@/lib/api';
 
 import Poster from '../Tiles/Poster';
 
@@ -12,13 +11,13 @@ export default async function PopularNotWatched({
 }: React.AllHTMLAttributes<HTMLDivElement> &
   HeaderVariantProps &
   Readonly<{ priority?: boolean; year: number | string; userId: string }>) {
-  const [tvSeries, items] = await Promise.all([
+  const [tvSeries, watchedSeries] = await Promise.all([
     fetchPopularTvSeriesByYear(year),
-    cachedWatchedByYear({ userId, year }),
+    getStatsWatchedSeries({ userId, year }),
   ]);
-  const watchedSeriesIds = [...new Set(items.map((item) => item.seriesId))];
+  const watchedSeriesIds = new Set(watchedSeries.map((item) => item.id));
   const unwatchedSeries = tvSeries.filter(
-    (series) => !watchedSeriesIds.includes(series.id),
+    (series) => !watchedSeriesIds.has(series.id),
   );
 
   if (unwatchedSeries.length === 0) {

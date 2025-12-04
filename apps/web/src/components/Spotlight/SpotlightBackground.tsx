@@ -1,16 +1,25 @@
-import type { TvSeries } from '@tvseri.es/schemas';
 import { cx } from 'class-variance-authority';
 
 import useRgbString from '@/hooks/useRgbString';
 
 import BackgroundImage from '../Background/BackgroundImage';
 
+type SpotlightBackgroundItem = {
+  backdropImage?: string | null;
+  backdropPath?: string | null;
+  backdropColor?: string | null;
+};
+
 export default function SpotlightBackground({
   className,
   item,
   priority = false,
-}: Readonly<{ className?: string; item: TvSeries; priority?: boolean }>) {
-  const rgbString = useRgbString(item.backdropColor);
+}: Readonly<{
+  className?: string;
+  item: SpotlightBackgroundItem;
+  priority?: boolean;
+}>) {
+  const rgbString = useRgbString(item.backdropColor ?? '#000000');
 
   return (
     <div className={cx('absolute inset-0', className)}>

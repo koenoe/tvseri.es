@@ -1,5 +1,7 @@
 /// <reference path="../../.sst/platform/config.d.ts" />
 
+import { users } from './users';
+
 export const follow = new sst.aws.Dynamo('Follow', {
   fields: {
     // GSI1: Query followers of a user (sorted by creation date)
@@ -36,4 +38,31 @@ export const follow = new sst.aws.Dynamo('Follow', {
     hashKey: 'pk',
     rangeKey: 'sk',
   },
+  stream: 'new-and-old-images',
 });
+
+follow.subscribe(
+  'FollowSubscriber',
+  {
+    architecture: 'arm64',
+    handler: 'apps/api/src/lambdas/follow.handler',
+    link: [users],
+    memory: '256 MB',
+    nodejs: {
+      esbuild: {
+        external: ['@aws-sdk/client-dynamodb', '@aws-sdk/util-dynamodb'],
+      },
+    },
+    runtime: 'nodejs22.x',
+    timeout: '10 seconds',
+  },
+  {
+    transform: {
+      eventSourceMapping: {
+        batchSize: 10,
+        maximumBatchingWindowInSeconds: 1,
+        maximumRetryAttempts: 5,
+      },
+    },
+  },
+);

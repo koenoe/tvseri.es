@@ -12,6 +12,8 @@ export const UserSchema = v.object({
   country: v.optional(v.string()),
   createdAt: v.string(),
   email: v.optional(v.pipe(v.string(), v.email())),
+  followerCount: v.optional(v.number()),
+  followingCount: v.optional(v.number()),
   id: v.string(),
   name: v.optional(v.string()),
   role: RoleSchema,

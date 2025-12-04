@@ -164,6 +164,7 @@ app.get('/:id/stats/:year/spotlight', user(), yearMiddleware(), async (c) => {
         title: tvSeries.title,
       },
       watchedAt: item.watchedAt,
+      watchProviderLogo: item.watchProviderLogoImage ?? null,
     };
   };
 

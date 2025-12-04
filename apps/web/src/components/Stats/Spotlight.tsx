@@ -1,5 +1,6 @@
 import type { StatsSpotlightItem } from '@tvseri.es/schemas';
 import { cx } from 'class-variance-authority';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import formatDate from '@/utils/formatDate';
@@ -16,7 +17,7 @@ export default function Spotlight({
   item: NonNullable<StatsSpotlightItem>;
   className?: string;
 }>) {
-  const { tvSeries, episode, watchedAt } = item;
+  const { tvSeries, episode, watchedAt, watchProviderLogo } = item;
 
   return (
     <Link
@@ -59,6 +60,16 @@ export default function Spotlight({
           </div>
         </div>
       </div>
+      {watchProviderLogo && (
+        <Image
+          alt=""
+          className="absolute right-4 top-4 z-10 h-8 w-8 rounded-md"
+          height={92}
+          src={watchProviderLogo}
+          unoptimized
+          width={92}
+        />
+      )}
     </Link>
   );
 }

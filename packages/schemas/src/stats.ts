@@ -61,6 +61,7 @@ export const StatsSpotlightItemSchema = v.nullable(
     episode: StatsSpotlightEpisodeSchema,
     tvSeries: StatsSpotlightTvSeriesSchema,
     watchedAt: v.number(),
+    watchProviderLogo: v.nullable(v.string()),
   }),
 );
 

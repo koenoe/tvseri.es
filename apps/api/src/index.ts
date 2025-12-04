@@ -68,9 +68,11 @@ app.onError((error, c) => {
     JSON.stringify({
       error: error.name,
       level: 'error',
+      message: error.message,
       method,
       path,
       requestId: reqId,
+      stack: error.stack,
     }),
   );
 

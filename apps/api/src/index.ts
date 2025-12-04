@@ -72,7 +72,6 @@ app.onError((error, c) => {
       method,
       path,
       requestId: reqId,
-      stack: error.stack,
     }),
   );
 

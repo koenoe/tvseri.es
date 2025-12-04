@@ -3,7 +3,6 @@
  */
 
 export const STATS_CACHE_KEYS = [
-  'watched-items',
   'summary',
   'favorites-count',
   'spotlight',
@@ -11,7 +10,6 @@ export const STATS_CACHE_KEYS = [
   'genres',
   'providers',
   'countries',
-  'watched-series',
 ] as const;
 
 export type StatsCacheKey = (typeof STATS_CACHE_KEYS)[number];

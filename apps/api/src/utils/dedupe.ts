@@ -1,7 +1,7 @@
 /**
- * In-flight request deduplication for TMDB API calls.
+ * In-flight request deduplication.
  *
- * Prevents duplicate concurrent requests to the same TMDB endpoint
+ * Prevents duplicate concurrent requests for the same resource
  * within a single Lambda invocation. Multiple callers requesting the
  * same resource will share the same Promise.
  *
@@ -11,7 +11,10 @@
  */
 const inFlight = new Map<string, Promise<unknown>>();
 
-export async function dedupe<T>(key: string, fn: () => Promise<T>): Promise<T> {
+export const dedupe = async <T>(
+  key: string,
+  fn: () => Promise<T>,
+): Promise<T> => {
   const existing = inFlight.get(key);
   if (existing) {
     return existing as Promise<T>;
@@ -23,4 +26,4 @@ export async function dedupe<T>(key: string, fn: () => Promise<T>): Promise<T> {
 
   inFlight.set(key, promise);
   return promise;
-}
+};

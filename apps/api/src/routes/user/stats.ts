@@ -300,6 +300,7 @@ app.get('/:id/stats/:year/countries', user(), yearMiddleware(), async (c) => {
 });
 
 // Watched series list (unique series with poster info)
+// Note: Not cached in DynamoDB as the list can be large and we already fetch watched items fresh
 app.get(
   '/:id/stats/:year/watched-series',
   user(),
@@ -307,12 +308,6 @@ app.get(
   async (c) => {
     const { id: userId } = c.get('user');
     const year = c.get('year');
-
-    const cached = await getStatsCache(userId, year, 'watched-series');
-    if (cached) {
-      c.header('Cache-Control', CACHE_HEADER);
-      return c.json(cached);
-    }
 
     const items = await getWatchedItemsForYear(userId, year);
 
@@ -330,7 +325,6 @@ app.get(
       title: item.title,
     }));
 
-    await setStatsCache(userId, year, 'watched-series', result);
     c.header('Cache-Control', CACHE_HEADER);
     return c.json(result);
   },

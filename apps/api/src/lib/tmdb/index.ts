@@ -50,6 +50,7 @@ import {
 import slugify from 'slugify';
 import { Resource } from 'sst';
 import calculateAge from '@/utils/calculateAge';
+import { dedupe } from '@/utils/dedupe';
 import { findPreferredImages } from '../db/preferredImages';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import {
@@ -60,7 +61,6 @@ import {
   fetchMostPopularThisMonth,
   fetchTrending,
 } from '../mdblist';
-import { dedupe } from './deduplicator';
 import {
   buildDiscoverQuery,
   deduplicateDiscoverItems,

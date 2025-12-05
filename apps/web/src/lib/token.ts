@@ -1,11 +1,11 @@
 import { CompactEncrypt, compactDecrypt } from 'jose';
 import { Resource } from 'sst';
 
-export type TokenPayload = {
+type TokenPayload = Readonly<{
   accessToken: string;
   expiresAt: number;
   refreshToken: string;
-};
+}>;
 
 // Encryption key derived from secret (cached)
 let encryptionKey: Uint8Array | null = null;

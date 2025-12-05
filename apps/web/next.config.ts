@@ -88,7 +88,7 @@ const nextConfig = {
       './sharp*',
       './terser*',
       './typescript*',
-      './webpack*',
+      // './webpack*',
       '**/amphtml-validator/*',
       // Debug tools (not needed in production)
       './source-map@*',
@@ -101,9 +101,9 @@ const nextConfig = {
       './buffer-from*',
       './styled-jsx*',
       // Next.js build artifacts not needed at runtime
-      './**/next/dist/compiled/webpack/*',
-      './**/next/dist/compiled/@babel/*',
-      './**/next/dist/compiled/terser/*',
+      // './**/next/dist/compiled/webpack/*',
+      // './**/next/dist/compiled/@babel/*',
+      // './**/next/dist/compiled/terser/*',
     ],
   },
   async redirects() {

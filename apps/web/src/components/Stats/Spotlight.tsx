@@ -32,6 +32,7 @@ export default function Spotlight({
     >
       <SpotlightBackground
         item={{
+          backdropColor: tvSeries.backdropColor,
           backdropImage: tvSeries.backdropImage,
         }}
       />

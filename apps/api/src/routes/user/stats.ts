@@ -157,6 +157,7 @@ app.get('/:id/stats/:year/spotlight', user(), yearMiddleware(), async (c) => {
         title: item.episodeTitle ?? `Episode ${item.episodeNumber}`,
       },
       tvSeries: {
+        backdropColor: tvSeries.backdropColor ?? null,
         backdropImage: tvSeries.backdropPath
           ? buildBackdropImageUrl(tvSeries.backdropPath, 'w1280')
           : null,

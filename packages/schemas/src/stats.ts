@@ -44,6 +44,7 @@ export type StatsSpotlightEpisode = Readonly<
 
 // Spotlight TV series info
 export const StatsSpotlightTvSeriesSchema = v.object({
+  backdropColor: v.nullable(v.string()),
   backdropImage: v.nullable(v.string()),
   id: v.number(),
   posterImage: v.nullable(v.string()),

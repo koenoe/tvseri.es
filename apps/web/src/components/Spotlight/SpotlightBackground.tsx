@@ -5,9 +5,8 @@ import useRgbString from '@/hooks/useRgbString';
 import BackgroundImage from '../Background/BackgroundImage';
 
 type SpotlightBackgroundItem = {
-  backdropImage?: string | null;
-  backdropPath?: string | null;
   backdropColor?: string | null;
+  backdropImage?: string | null;
 };
 
 export default function SpotlightBackground({

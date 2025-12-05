@@ -32,10 +32,10 @@ export const AUTH_TTL =
     ? {
         access: 60 * 5, // 5 minutes
         refresh: 60 * 60 * 24 * 1, // 1 day
-        reuse: 60 * 60 * 24 * 1, // 1 day
+        reuse: 60 * 5, // 5 minutes
       }
     : {
         access: 60 * 60 * 24, // 1 day
         refresh: 60 * 60 * 24 * 365, // 1 year
-        reuse: 60 * 60 * 24 * 7, // 7 days
+        reuse: 60 * 5, // 5 minutes
       };

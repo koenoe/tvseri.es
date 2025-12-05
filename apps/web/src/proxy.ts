@@ -29,7 +29,7 @@ export async function proxy(req: NextRequest) {
 
   // Check if refresh is needed
   const now = Math.floor(Date.now() / 1000);
-  const needsRefresh = payload.expiresAt - now < SESSION_REFRESH_THRESHOLD;
+  const needsRefresh = payload.expiresAt - now <= SESSION_REFRESH_THRESHOLD;
 
   if (!needsRefresh) {
     return res;

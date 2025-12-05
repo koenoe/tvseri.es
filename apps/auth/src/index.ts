@@ -8,6 +8,18 @@ import { createUser, findUser } from './lib/db/user';
 import { sendEmail } from './lib/email';
 import { CodeUI, SelectUI } from './ui';
 
+const ttl = Resource.App.stage.startsWith('pr-')
+  ? {
+      access: 60 * 10, // 10 minutes
+      refresh: 60 * 60 * 24 * 1, // 1 day
+      reuse: 60 * 5, // 5 minutes - window for concurrent refresh requests
+    }
+  : {
+      access: 60 * 60 * 24, // 1 day
+      refresh: 60 * 60 * 24 * 365, // 1 year
+      reuse: 60 * 5, // 5 minutes - window for concurrent refresh requests
+    };
+
 const app = issuer({
   providers: {
     code: CodeProvider(
@@ -61,18 +73,7 @@ const app = issuer({
 
     throw new Error('Invalid provider');
   },
-  ttl:
-    process.env.NODE_ENV === 'development'
-      ? {
-          access: 60 * 10, // 10 minutes
-          refresh: 60 * 60 * 24 * 1, // 1 day
-          reuse: 60 * 5, // 5 minutes - window for concurrent refresh requests
-        }
-      : {
-          access: 60 * 60 * 24, // 1 day
-          refresh: 60 * 60 * 24 * 365, // 1 year
-          reuse: 60 * 5, // 5 minutes - window for concurrent refresh requests
-        },
+  ttl,
 });
 
 export const handler = handle(app);

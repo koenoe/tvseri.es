@@ -58,8 +58,8 @@ importers:
         specifier: ^3.943.0
         version: 3.943.0(@aws-sdk/client-dynamodb@3.943.0)
       '@better-fetch/fetch':
-        specifier: ^1.1.18
-        version: 1.1.18
+        specifier: ^1.1.19
+        version: 1.1.19
       '@hono/valibot-validator':
         specifier: ^0.6.0
         version: 0.6.0(hono@4.10.7)(valibot@1.2.0(typescript@5.9.3))
@@ -165,8 +165,8 @@ importers:
   apps/web:
     dependencies:
       '@better-fetch/fetch':
-        specifier: ^1.1.18
-        version: 1.1.18
+        specifier: ^1.1.19
+        version: 1.1.19
       '@openauthjs/openauth':
         specifier: ^0.4.3
         version: 0.4.3(arctic@2.3.4)(hono@4.10.7)
@@ -308,8 +308,8 @@ importers:
         version: 3.17.24
     devDependencies:
       '@better-fetch/fetch':
-        specifier: ^1.1.18
-        version: 1.1.18
+        specifier: ^1.1.19
+        version: 1.1.19
       '@tvseri.es/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -781,8 +781,8 @@ packages:
     resolution: {integrity: sha512-vbavdySgbTTrmFE+EsiqUTzlOr5bzlnJtUv9PynGCAKvfQqjIXbvFdumPM/GxMDfyuGMJaJAU6TO4zc1Jf1i8Q==}
     engines: {node: '>=6.9.0'}
 
-  '@better-fetch/fetch@1.1.18':
-    resolution: {integrity: sha512-rEFOE1MYIsBmoMJtQbl32PGHHXuG2hDxvEd7rUHE0vCBoFQVSDqaVs9hkZEtHCxRoY+CljXKFCOuJ8uxqw1LcA==}
+  '@better-fetch/fetch@1.1.19':
+    resolution: {integrity: sha512-cYVhTzWEus0D8bHPsmg9Hkc3XK0c2jkxYwsJGU3JK884paZ2c0QkUbLAfI1kmQSEN4uvk/YnUDWTqS4CFS3/Pw==}
 
   '@biomejs/biome@2.3.8':
     resolution: {integrity: sha512-Qjsgoe6FEBxWAUzwFGFrB+1+M8y/y5kwmg5CHac+GSVOdmOIqsAiXM5QMVGZJ1eCUCLlPZtq4aFAQ0eawEUuUA==}
@@ -4658,7 +4658,7 @@ snapshots:
 
   '@babel/runtime@7.27.6': {}
 
-  '@better-fetch/fetch@1.1.18': {}
+  '@better-fetch/fetch@1.1.19': {}
 
   '@biomejs/biome@2.3.8':
     optionalDependencies:

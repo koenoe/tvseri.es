@@ -4,10 +4,10 @@ import { headers } from 'next/headers';
 import { redirect, unauthorized } from 'next/navigation';
 import isEqual from 'react-fast-compare';
 import slugify from 'slugify';
-import auth, { deleteSession } from '@/auth';
+import auth from '@/auth';
 import { client } from '@/auth/client';
+import { deleteSession } from '@/auth/session';
 import { follow, unfollow, updateUser } from '@/lib/api';
-
 import { cachedUser } from './cached';
 
 export async function login() {

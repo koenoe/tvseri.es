@@ -1,14 +1,16 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { client } from './auth/client';
+import { decryptToken, encryptToken } from './auth/crypto';
 import {
   SESSION_COOKIE_NAME,
   SESSION_COOKIE_OPTIONS,
   SESSION_REFRESH_THRESHOLD,
 } from './constants';
-import { decryptToken, encryptToken } from './lib/token';
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+  ],
 };
 
 export async function proxy(req: NextRequest) {
@@ -22,14 +24,25 @@ export async function proxy(req: NextRequest) {
 
   const payload = await decryptToken(sessionCookie);
   if (!payload) {
-    // Invalid session, delete cookie
+    console.log('[proxy] invalid session, deleting cookie');
     res.cookies.delete(SESSION_COOKIE_NAME);
     return res;
   }
 
-  // Check if refresh is needed
   const now = Math.floor(Date.now() / 1000);
-  const needsRefresh = payload.expiresAt - now <= SESSION_REFRESH_THRESHOLD;
+  const expiresIn = payload.expiresAt - now;
+  const needsRefresh = expiresIn <= SESSION_REFRESH_THRESHOLD;
+
+  console.log(
+    '[proxy] session check, AT:',
+    payload.accessToken.slice(-5),
+    'RT:',
+    payload.refreshToken.slice(-5),
+    'needsRefresh:',
+    needsRefresh,
+    'expiresIn:',
+    expiresIn,
+  );
 
   if (!needsRefresh) {
     return res;
@@ -38,10 +51,25 @@ export async function proxy(req: NextRequest) {
   const refreshed = await client.refresh(payload.refreshToken);
 
   if (refreshed.err || !refreshed.tokens) {
-    // Refresh failed, delete cookie
+    console.log(
+      '[proxy] refresh failed, RT:',
+      payload.refreshToken.slice(-5),
+      refreshed.err ?? 'no tokens returned',
+    );
     res.cookies.delete(SESSION_COOKIE_NAME);
     return res;
   }
+
+  console.log(
+    '[proxy] tokens refreshed, old AT:',
+    payload.accessToken.slice(-5),
+    'new AT:',
+    refreshed.tokens.access.slice(-5),
+    'RT:',
+    payload.refreshToken.slice(-5),
+    '→',
+    refreshed.tokens.refresh.slice(-5),
+  );
 
   // Encrypt and set new session
   const encrypted = await encryptToken({

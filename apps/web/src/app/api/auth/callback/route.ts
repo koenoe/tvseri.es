@@ -1,5 +1,5 @@
-import { createSession } from '@/auth';
 import { client } from '@/auth/client';
+import { createSession } from '@/auth/session';
 
 export async function GET(req: Request) {
   const url = new URL(req.url);

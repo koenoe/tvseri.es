@@ -1,4 +1,3 @@
-import type { Tokens } from '@openauthjs/openauth/client';
 import { subjects, type User } from '@tvseri.es/schemas';
 import { cookies } from 'next/headers';
 import type { NextRequest } from 'next/server';
@@ -9,8 +8,8 @@ import {
   SESSION_REFRESH_THRESHOLD,
 } from '../constants';
 import { me } from '../lib/api';
-import { decryptToken, encryptToken } from '../lib/token';
 import { client } from './client';
+import { decryptToken, encryptToken } from './crypto';
 
 type Session = {
   accessToken: string;
@@ -25,30 +24,6 @@ const EMPTY_SESSION = {
 } as const;
 
 type EmptySession = typeof EMPTY_SESSION;
-
-// Create a new session (for callback route)
-export async function createSession(tokens: Tokens): Promise<void> {
-  const { access, refresh, expiresIn } = tokens;
-  console.log(
-    '[auth] createSession, AT:',
-    access.slice(-5),
-    'RT:',
-    refresh.slice(-5),
-  );
-  const cookieStore = await cookies();
-  const encrypted = await encryptToken({
-    accessToken: access,
-    expiresAt: Math.floor(Date.now() / 1000) + expiresIn,
-    refreshToken: refresh,
-  });
-  cookieStore.set(SESSION_COOKIE_NAME, encrypted, SESSION_COOKIE_OPTIONS);
-}
-
-// Delete session (for logout)
-export async function deleteSession(): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.delete(SESSION_COOKIE_NAME);
-}
 
 async function fetchUser(accessToken: string): Promise<User | null> {
   try {
@@ -69,10 +44,10 @@ type VerifyContext = 'RSC' | 'RouteHandler' | 'Middleware';
 
 async function verifySession(
   cookieJar: CookieJar,
-  options: {
+  options: Readonly<{
     context: VerifyContext;
     readOnly?: boolean;
-  },
+  }>,
 ): Promise<Session | EmptySession> {
   const sessionCookie = cookieJar.get();
 
@@ -151,7 +126,6 @@ async function verifySession(
     refreshToken = refreshed.tokens.refresh;
     expiresAt = now + refreshed.tokens.expiresIn;
 
-    // Persist refreshed tokens (no-op for RSC since cookieJar.set is a no-op)
     const encrypted = await encryptToken({
       accessToken,
       expiresAt,

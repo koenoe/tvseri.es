@@ -7,7 +7,6 @@ import { type ReactNode, Suspense } from 'react';
 import { Toaster } from 'sonner';
 
 import EnsureHistoryKey from '@/components/EnsureHistoryKey';
-import SessionSync from '@/components/SessionSync';
 import WatchedStoreProvider from '@/components/Watched/WatchedStoreProvider';
 
 const inter = Inter({ display: 'swap', subsets: ['latin'] });
@@ -69,7 +68,7 @@ export default function RootLayout({
           }}
         />
         <Suspense fallback={null}>
-          <SessionSync />
+          <EnsureHistoryKey />
         </Suspense>
         <Toaster
           toastOptions={{
@@ -81,9 +80,6 @@ export default function RootLayout({
             },
           }}
         />
-        <Suspense fallback={null}>
-          <EnsureHistoryKey />
-        </Suspense>
         <WatchedStoreProvider>{children}</WatchedStoreProvider>
         <div id="modal-root" />
       </body>

@@ -9,9 +9,10 @@ const config = {
       wrapper: 'aws-lambda-streaming',
     },
   },
-  middleware: {
-    external: true,
-  },
+  // TODO: figure out why this doesn't work
+  // middleware: {
+  //   external: true,
+  // },
 } satisfies OpenNextConfig;
 
 export default config;

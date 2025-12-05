@@ -10,8 +10,8 @@ catalogs:
       specifier: 22.15.30
       version: 22.15.30
     sst:
-      specifier: 3.17.24
-      version: 3.17.24
+      specifier: 3.17.25
+      version: 3.17.25
     typescript:
       specifier: 5.9.3
       version: 5.9.3
@@ -22,7 +22,7 @@ importers:
     dependencies:
       sst:
         specifier: 'catalog:'
-        version: 3.17.24
+        version: 3.17.25
     devDependencies:
       '@biomejs/biome':
         specifier: 2.3.8
@@ -55,8 +55,8 @@ importers:
         specifier: ^3.946.0
         version: 3.946.0
       '@aws-sdk/util-dynamodb':
-        specifier: ^3.943.0
-        version: 3.943.0(@aws-sdk/client-dynamodb@3.946.0)
+        specifier: ^3.946.0
+        version: 3.946.0(@aws-sdk/client-dynamodb@3.946.0)
       '@better-fetch/fetch':
         specifier: ^1.1.19
         version: 1.1.19
@@ -89,7 +89,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.17.24
+        version: 3.17.25
       ulid:
         specifier: ^3.0.2
         version: 3.0.2
@@ -122,8 +122,8 @@ importers:
         specifier: ^3.946.0
         version: 3.946.0
       '@aws-sdk/util-dynamodb':
-        specifier: ^3.943.0
-        version: 3.943.0(@aws-sdk/client-dynamodb@3.946.0)
+        specifier: ^3.946.0
+        version: 3.946.0(@aws-sdk/client-dynamodb@3.946.0)
       '@openauthjs/openauth':
         specifier: ^0.4.3
         version: 0.4.3(arctic@2.3.4)(hono@4.10.7)
@@ -141,7 +141,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.17.24
+        version: 3.17.25
       ulid:
         specifier: ^3.0.2
         version: 3.0.2
@@ -226,7 +226,7 @@ importers:
         version: 2.0.7(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       sst:
         specifier: 'catalog:'
-        version: 3.17.24
+        version: 3.17.25
       ulid:
         specifier: ^3.0.2
         version: 3.0.2
@@ -296,7 +296,7 @@ importers:
     dependencies:
       sst:
         specifier: 'catalog:'
-        version: 3.17.24
+        version: 3.17.25
     devDependencies:
       '@better-fetch/fetch':
         specifier: ^1.1.19
@@ -324,7 +324,7 @@ importers:
         version: 3.946.0
       sst:
         specifier: 'catalog:'
-        version: 3.17.24
+        version: 3.17.25
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -367,7 +367,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.17.24
+        version: 3.17.25
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -763,11 +763,11 @@ packages:
     resolution: {integrity: sha512-u8H4f2Zsi19DGnwj5FSZzDMhytYF/bCh37vAtBsn3cNDL3YG578X5oc+wSX54pM3tOxS+NY7tvOAo52SW7koUA==}
     engines: {node: '>=18.0.0'}
 
-  '@aws-sdk/util-dynamodb@3.943.0':
-    resolution: {integrity: sha512-F2qVauKYoTleiv/Kv423P7zin93sSuwRkIKUKh+dR4oP7P9EP43/I3NHHeA3AlifIFGZG9jzuHi4MvhF4yC2yg==}
+  '@aws-sdk/util-dynamodb@3.946.0':
+    resolution: {integrity: sha512-L1i5w52Ue2R4hmvtrZQ/8hmXiGBLrv6YlWKZCU4nN45E16TDLcn0rNMR7DXbLM/vRU8/pvqrhIwJRxuR1sjy1A==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      '@aws-sdk/client-dynamodb': ^3.943.0
+      '@aws-sdk/client-dynamodb': ^3.946.0
 
   '@aws-sdk/util-endpoints@3.398.0':
     resolution: {integrity: sha512-Fy0gLYAei/Rd6BrXG4baspCnWTUSd0NdokU1pZh4KlfEAEN1i8SPPgfiO5hLk7+2inqtCmqxVJlfqbMVe9k4bw==}
@@ -2261,10 +2261,6 @@ packages:
     peerDependencies:
       express: '>= 4.11'
 
-  express@5.1.0:
-    resolution: {integrity: sha512-DT9ck5YIRU+8GYzzU5kT3eHGA5iL+1Zd0EutOmTE9Dtk+Tvuzd23VBU+ec7HPNSTxXYO55gPV/hq4pSBJDjFpA==}
-    engines: {node: '>= 18'}
-
   express@5.2.1:
     resolution: {integrity: sha512-hIS4idWWai69NezIdRt2xFVofaF4j+6INOpJlVOLDO8zXGpUVEVzIYk12UUi2JzjEzWL3IOAxcTubgz9Po0yXw==}
     engines: {node: '>= 18'}
@@ -2301,10 +2297,6 @@ packages:
   fill-range@7.1.1:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
     engines: {node: '>=8'}
-
-  finalhandler@2.1.0:
-    resolution: {integrity: sha512-/t88Ty3d5JWQbWYgaOGCCYfXRwV1+be02WqYYlL6h0lEiUAMPM8o8qKGO01YIkOHzka2up08wvgYD0mDiI+q3Q==}
-    engines: {node: '>= 0.8'}
 
   finalhandler@2.1.1:
     resolution: {integrity: sha512-S8KoZgRZN+a5rNwqTxlZZePjT/4cnm0ROV70LedRHZ0p8u9fRID0hJUZQpkKLzro8LfmC8sx23bY6tVNxv8pQA==}
@@ -3112,48 +3104,48 @@ packages:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
 
-  sst-darwin-arm64@3.17.24:
-    resolution: {integrity: sha512-5GSSjgfU4ODdc2Dzu9Rbxpd71GueqzSCLSIcx9QP8Wq5aanoLQjPCI3FxToWqK6aiX6V0AAraQpzR5lk/ennaQ==}
+  sst-darwin-arm64@3.17.25:
+    resolution: {integrity: sha512-g6Bft4SNVnuZnk1uI0icWiLH5yqboqfk2Jhn1cvE9cXCiiPzX6usSAAKAzvPAO9sUDqYnL6dMT6KgFVmKo53Kw==}
     cpu: [arm64]
     os: [darwin]
 
-  sst-darwin-x64@3.17.24:
-    resolution: {integrity: sha512-958gQYhQEWchwUMwVmJWRmb9CWR/YKdqre/gk+j7Dneprrctc9Lzg+jh6ZQ4mkwq/g1/w6jAcbPaNmRpexiwEQ==}
+  sst-darwin-x64@3.17.25:
+    resolution: {integrity: sha512-WGpjYAaWNpMJeYANASgxOjbIAspRg1NbTSC3DakkCBFos6pJ09QYIXgXYbNeEhYALEmaoaSEaMuXbQ//cq71Jg==}
     cpu: [x64]
     os: [darwin]
 
-  sst-linux-arm64@3.17.24:
-    resolution: {integrity: sha512-3ThacfDnJEAWl8539HaPrwg72vlJsKnFS/wRA2G87Cd6m931REu2zqJVmGTPFRW6OJfPsYpjIRJUd7UXnx+Kyw==}
+  sst-linux-arm64@3.17.25:
+    resolution: {integrity: sha512-nrJ3D5j58ss5AT0VSCIi2DtClTAphyZFIbc9VDGQfaD/4bJ5Uldg9knRWnq6C4EWPAofpuGtMsOl8Ntwksa1Og==}
     cpu: [arm64]
     os: [linux]
 
-  sst-linux-x64@3.17.24:
-    resolution: {integrity: sha512-tLXbXUCaTC2Zqh7GGa13v/lisV8h/UJ25wsgfjGotf2wmlUfRRpnHJ+MdJv7RIET15N50iq97c+p4QKg8TvQhQ==}
+  sst-linux-x64@3.17.25:
+    resolution: {integrity: sha512-BNaOEU3mwGuIMT8frQRFfDlb8/5Z0Wq4HVfw+a8M5tnEotvUr7692oH6jzOFEkfCsdEsrRBEPfrNLvNfZO7PKQ==}
     cpu: [x64]
     os: [linux]
 
-  sst-linux-x86@3.17.24:
-    resolution: {integrity: sha512-qsFFpBYklP5xs62Eu6QiHhl4pbOxYiJDWBnkxq8klNyXfp7YVK3VlEI604bgZNUg9kWTwfRjpOseE1bnH+1Mkg==}
+  sst-linux-x86@3.17.25:
+    resolution: {integrity: sha512-4wcnoXuFM9wew9yj8QcfqUxkjyVncezs4BSE1bCy2zoVHI1p2T13YAtGRFaWLAuyBy6YxrXK/SO1Rm0CqMX0yg==}
     cpu: [x86]
     os: [linux]
 
-  sst-win32-arm64@3.17.24:
-    resolution: {integrity: sha512-Xpcg/ZfuGFCssRvBCs+7cjCZPOYOtxrbIgBCbEkKXxFTAakJ2mPS/4xiFo9BkrFPUvh5Mu6Mw7DT1Bfx+8OKdg==}
+  sst-win32-arm64@3.17.25:
+    resolution: {integrity: sha512-4BsgY4RNXkcSbdbDMKDxn70+HPYslQTL8IVVSL2sf/trCqH9eoLyS6qR+2dU2LQJp4oxIl5FbX9mIli6U6+vnQ==}
     cpu: [arm64]
     os: [win32]
 
-  sst-win32-x64@3.17.24:
-    resolution: {integrity: sha512-9jVi/U0eqDCg2EA9PM/2Dcz0ZWPOiu1KJl5RYdxiBmZnoYkvlbGft/P9cm+99/r/rY+QuDNaCXR/ZrN7lCUeVg==}
+  sst-win32-x64@3.17.25:
+    resolution: {integrity: sha512-awU34Bvpm0Z+3k9d2f6DOaKfEBdmbyKIckLrrhGkQmchQ3N2e/ZU9frLpKlDrNpsLCER9eTPHTUUv7fxLFPt+w==}
     cpu: [x64]
     os: [win32]
 
-  sst-win32-x86@3.17.24:
-    resolution: {integrity: sha512-mj8M3guZT5RtM/YJulaNdS8GAmDqPsOI9EIQgNK6GtsKg6KV2gTaqio7wtI008DODfjjshnIUuFwURPrTefDnw==}
+  sst-win32-x86@3.17.25:
+    resolution: {integrity: sha512-1vmUYMnb1ALrjnyQ3yz8EwGevYD33OaCxAXlE0e7BOSSTAAFBYy1JlgRJYvhJdTxcg/xT3q8QXIgeyk5oCUxhw==}
     cpu: [x86]
     os: [win32]
 
-  sst@3.17.24:
-    resolution: {integrity: sha512-Oc0kaA1ox8G6KFsNGMAYl+kOJvVLucV41X4oDz5YPzSwQf3euw+6P3o4veE5822XUfG+h5TYWa1EQ/CpBeK5Ew==}
+  sst@3.17.25:
+    resolution: {integrity: sha512-WSXsr1gaRDbipLCxKIGVRpemt/f/rYXxArNQbZngmW1irkdxagjZRbqdtcXqARW1wlGCvE8Nf7bveiYjlDWkYA==}
     hasBin: true
 
   statuses@2.0.2:
@@ -4898,7 +4890,7 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@aws-sdk/util-dynamodb@3.943.0(@aws-sdk/client-dynamodb@3.946.0)':
+  '@aws-sdk/util-dynamodb@3.946.0(@aws-sdk/client-dynamodb@3.946.0)':
     dependencies:
       '@aws-sdk/client-dynamodb': 3.946.0
       tslib: 2.8.1
@@ -5250,8 +5242,8 @@ snapshots:
       content-type: 1.0.5
       cors: 2.8.5
       eventsource: 3.0.7
-      express: 5.1.0
-      express-rate-limit: 7.5.1(express@5.1.0)
+      express: 5.2.1
+      express-rate-limit: 7.5.1(express@5.2.1)
       pkce-challenge: 4.1.0
       raw-body: 3.0.2
       zod: 3.24.2
@@ -6518,41 +6510,9 @@ snapshots:
     dependencies:
       eventsource-parser: 3.0.6
 
-  express-rate-limit@7.5.1(express@5.1.0):
+  express-rate-limit@7.5.1(express@5.2.1):
     dependencies:
-      express: 5.1.0
-
-  express@5.1.0:
-    dependencies:
-      accepts: 2.0.0
-      body-parser: 2.2.1
-      content-disposition: 1.0.1
-      content-type: 1.0.5
-      cookie: 0.7.2
-      cookie-signature: 1.2.2
-      debug: 4.4.3(supports-color@10.2.2)
-      encodeurl: 2.0.0
-      escape-html: 1.0.3
-      etag: 1.8.1
-      finalhandler: 2.1.0
-      fresh: 2.0.0
-      http-errors: 2.0.1
-      merge-descriptors: 2.0.0
-      mime-types: 3.0.2
-      on-finished: 2.4.1
-      once: 1.4.0
-      parseurl: 1.3.3
-      proxy-addr: 2.0.7
-      qs: 6.14.0
-      range-parser: 1.2.1
-      router: 2.2.0
-      send: 1.2.0
-      serve-static: 2.2.0
-      statuses: 2.0.2
-      type-is: 2.0.1
-      vary: 1.1.2
-    transitivePeerDependencies:
-      - supports-color
+      express: 5.2.1
 
   express@5.2.1:
     dependencies:
@@ -6620,17 +6580,6 @@ snapshots:
   fill-range@7.1.1:
     dependencies:
       to-regex-range: 5.0.1
-
-  finalhandler@2.1.0:
-    dependencies:
-      debug: 4.4.3(supports-color@10.2.2)
-      encodeurl: 2.0.0
-      escape-html: 1.0.3
-      on-finished: 2.4.1
-      parseurl: 1.3.3
-      statuses: 2.0.2
-    transitivePeerDependencies:
-      - supports-color
 
   finalhandler@2.1.1:
     dependencies:
@@ -7435,31 +7384,31 @@ snapshots:
 
   source-map@0.6.1: {}
 
-  sst-darwin-arm64@3.17.24:
+  sst-darwin-arm64@3.17.25:
     optional: true
 
-  sst-darwin-x64@3.17.24:
+  sst-darwin-x64@3.17.25:
     optional: true
 
-  sst-linux-arm64@3.17.24:
+  sst-linux-arm64@3.17.25:
     optional: true
 
-  sst-linux-x64@3.17.24:
+  sst-linux-x64@3.17.25:
     optional: true
 
-  sst-linux-x86@3.17.24:
+  sst-linux-x86@3.17.25:
     optional: true
 
-  sst-win32-arm64@3.17.24:
+  sst-win32-arm64@3.17.25:
     optional: true
 
-  sst-win32-x64@3.17.24:
+  sst-win32-x64@3.17.25:
     optional: true
 
-  sst-win32-x86@3.17.24:
+  sst-win32-x86@3.17.25:
     optional: true
 
-  sst@3.17.24:
+  sst@3.17.25:
     dependencies:
       aws-sdk: 2.1692.0
       aws4fetch: 1.0.18
@@ -7467,14 +7416,14 @@ snapshots:
       opencontrol: 0.0.6
       openid-client: 5.6.4
     optionalDependencies:
-      sst-darwin-arm64: 3.17.24
-      sst-darwin-x64: 3.17.24
-      sst-linux-arm64: 3.17.24
-      sst-linux-x64: 3.17.24
-      sst-linux-x86: 3.17.24
-      sst-win32-arm64: 3.17.24
-      sst-win32-x64: 3.17.24
-      sst-win32-x86: 3.17.24
+      sst-darwin-arm64: 3.17.25
+      sst-darwin-x64: 3.17.25
+      sst-linux-arm64: 3.17.25
+      sst-linux-x64: 3.17.25
+      sst-linux-x86: 3.17.25
+      sst-win32-arm64: 3.17.25
+      sst-win32-x64: 3.17.25
+      sst-win32-x86: 3.17.25
     transitivePeerDependencies:
       - supports-color
 

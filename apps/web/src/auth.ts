@@ -1,29 +1,17 @@
 import { createClient } from '@openauthjs/openauth/client';
 import { AUTH_TTL } from '@tvseri.es/constants';
 import { subjects, type User } from '@tvseri.es/schemas';
-import { CompactEncrypt, compactDecrypt } from 'jose';
 import { cookies } from 'next/headers';
-import type { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 import { cache } from 'react';
 import { Resource } from 'sst';
-import { SESSION_REFRESH_THRESHOLD } from './constants';
+import {
+  SESSION_COOKIE_NAME,
+  SESSION_COOKIE_OPTIONS,
+  SESSION_REFRESH_THRESHOLD,
+} from './constants';
 import { me } from './lib/api';
-
-// Session cookie configuration
-const SESSION_COOKIE_NAME = '__tvseries_session';
-const SESSION_COOKIE_NAME_OPTIONS = {
-  httpOnly: true,
-  maxAge: 60 * 60 * 24 * 365, // 1 year,
-  path: '/',
-  sameSite: 'lax' as const,
-  secure: process.env.NODE_ENV === 'production',
-};
-
-type SessionPayload = {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: number;
-};
+import { decryptToken, encryptToken } from './lib/token';
 
 type Session = {
   accessToken: string;
@@ -44,54 +32,6 @@ export const client = createClient({
   issuer: Resource.Auth.url,
 });
 
-// Encryption key derived from secret
-let encryptionKey: Uint8Array | null = null;
-async function getEncryptionKey(): Promise<Uint8Array> {
-  if (!encryptionKey) {
-    const secret = Resource.SessionSecret.value;
-    const encoder = new TextEncoder();
-    const keyMaterial = await crypto.subtle.importKey(
-      'raw',
-      encoder.encode(secret),
-      'PBKDF2',
-      false,
-      ['deriveBits'],
-    );
-    const bits = await crypto.subtle.deriveBits(
-      {
-        hash: 'SHA-256',
-        iterations: 100000,
-        name: 'PBKDF2',
-        salt: encoder.encode('tvseries-session'),
-      },
-      keyMaterial,
-      256,
-    );
-    encryptionKey = new Uint8Array(bits);
-  }
-  return encryptionKey;
-}
-
-async function encryptSession(payload: SessionPayload): Promise<string> {
-  const key = await getEncryptionKey();
-  const encoder = new TextEncoder();
-  const jwe = await new CompactEncrypt(encoder.encode(JSON.stringify(payload)))
-    .setProtectedHeader({ alg: 'dir', enc: 'A256GCM' })
-    .encrypt(key);
-  return jwe;
-}
-
-async function decryptSession(token: string): Promise<SessionPayload | null> {
-  try {
-    const key = await getEncryptionKey();
-    const { plaintext } = await compactDecrypt(token, key);
-    const decoder = new TextDecoder();
-    return JSON.parse(decoder.decode(plaintext)) as SessionPayload;
-  } catch {
-    return null;
-  }
-}
-
 // Create a new session (for callback route)
 export async function createSession(
   accessToken: string,
@@ -105,12 +45,12 @@ export async function createSession(
   );
   const cookieStore = await cookies();
   const expiresAt = Math.floor(Date.now() / 1000) + AUTH_TTL.access;
-  const encrypted = await encryptSession({
+  const encrypted = await encryptToken({
     accessToken,
     expiresAt,
     refreshToken,
   });
-  cookieStore.set(SESSION_COOKIE_NAME, encrypted, SESSION_COOKIE_NAME_OPTIONS);
+  cookieStore.set(SESSION_COOKIE_NAME, encrypted, SESSION_COOKIE_OPTIONS);
 }
 
 // Delete session (for logout)
@@ -149,7 +89,7 @@ async function verifySession(
     return EMPTY_SESSION;
   }
 
-  const payload = await decryptSession(sessionCookie);
+  const payload = await decryptToken(sessionCookie);
   if (!payload) {
     return EMPTY_SESSION;
   }
@@ -221,7 +161,7 @@ async function verifySession(
     expiresAt = Math.floor(Date.now() / 1000) + AUTH_TTL.access;
 
     // Persist refreshed tokens (no-op for RSC since cookieJar.set is a no-op)
-    const encrypted = await encryptSession({
+    const encrypted = await encryptToken({
       accessToken,
       expiresAt,
       refreshToken,
@@ -272,49 +212,15 @@ async function authRouteHandler(
       delete: () => cookieStore.delete(SESSION_COOKIE_NAME),
       get: () => req.cookies.get(SESSION_COOKIE_NAME)?.value,
       set: (value) =>
-        cookieStore.set(
-          SESSION_COOKIE_NAME,
-          value,
-          SESSION_COOKIE_NAME_OPTIONS,
-        ),
+        cookieStore.set(SESSION_COOKIE_NAME, value, SESSION_COOKIE_OPTIONS),
     },
     { context: 'RouteHandler' },
   );
 }
 
-async function authMiddleware(
-  req: NextRequest,
-  res: NextResponse,
-): Promise<Session | EmptySession> {
-  return verifySession(
-    {
-      delete: () => res.cookies.delete(SESSION_COOKIE_NAME),
-      get: () => req.cookies.get(SESSION_COOKIE_NAME)?.value,
-      set: (value) =>
-        res.cookies.set(
-          SESSION_COOKIE_NAME,
-          value,
-          SESSION_COOKIE_NAME_OPTIONS,
-        ),
-    },
-    { context: 'Middleware' },
-  );
-}
-
 // Overloaded auth function
 export function auth(): Promise<Session | EmptySession>;
-export function auth(req: NextRequest): Promise<Session | EmptySession>;
-export function auth(
-  req: NextRequest,
-  res: NextResponse,
-): Promise<Session | EmptySession>;
-export function auth(
-  req?: NextRequest,
-  res?: NextResponse,
-): Promise<Session | EmptySession> {
-  if (res && req) {
-    return authMiddleware(req, res);
-  }
+export function auth(req?: NextRequest): Promise<Session | EmptySession> {
   if (req) {
     return authRouteHandler(req);
   }

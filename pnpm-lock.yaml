@@ -16,9 +16,6 @@ catalogs:
       specifier: 5.9.3
       version: 5.9.3
 
-overrides:
-  '@pulumi/pulumi': 3.210.0
-
 importers:
 
   .:

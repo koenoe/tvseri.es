@@ -220,6 +220,7 @@ async function authRouteHandler(
 
 // Overloaded auth function
 export function auth(): Promise<Session | EmptySession>;
+export function auth(req: NextRequest): Promise<Session | EmptySession>;
 export function auth(req?: NextRequest): Promise<Session | EmptySession> {
   if (req) {
     return authRouteHandler(req);

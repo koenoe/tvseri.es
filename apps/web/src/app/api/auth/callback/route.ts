@@ -25,7 +25,7 @@ export async function GET(req: Request) {
     return Response.json(exchanged.err, { status: 400 });
   }
 
-  await createSession(exchanged.tokens.access, exchanged.tokens.refresh);
+  await createSession(exchanged.tokens);
 
   return Response.redirect(`${url.origin}/`);
 }

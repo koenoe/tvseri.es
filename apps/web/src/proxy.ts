@@ -1,4 +1,3 @@
-import { AUTH_TTL } from '@tvseri.es/constants';
 import { type NextRequest, NextResponse } from 'next/server';
 import { client } from './auth/client';
 import {
@@ -47,7 +46,7 @@ export async function proxy(req: NextRequest) {
   // Encrypt and set new session
   const encrypted = await encryptToken({
     accessToken: refreshed.tokens.access,
-    expiresAt: now + AUTH_TTL.access,
+    expiresAt: now + refreshed.tokens.expiresIn,
     refreshToken: refreshed.tokens.refresh,
   });
 

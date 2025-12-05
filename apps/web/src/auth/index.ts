@@ -1,4 +1,4 @@
-import { AUTH_TTL } from '@tvseri.es/constants';
+import type { Tokens } from '@openauthjs/openauth/client';
 import { subjects, type User } from '@tvseri.es/schemas';
 import { cookies } from 'next/headers';
 import type { NextRequest } from 'next/server';
@@ -27,22 +27,19 @@ const EMPTY_SESSION = {
 type EmptySession = typeof EMPTY_SESSION;
 
 // Create a new session (for callback route)
-export async function createSession(
-  accessToken: string,
-  refreshToken: string,
-): Promise<void> {
+export async function createSession(tokens: Tokens): Promise<void> {
+  const { access, refresh, expiresIn } = tokens;
   console.log(
     '[auth] createSession, AT:',
-    accessToken.slice(-5),
+    access.slice(-5),
     'RT:',
-    refreshToken.slice(-5),
+    refresh.slice(-5),
   );
   const cookieStore = await cookies();
-  const expiresAt = Math.floor(Date.now() / 1000) + AUTH_TTL.access;
   const encrypted = await encryptToken({
-    accessToken,
-    expiresAt,
-    refreshToken,
+    accessToken: access,
+    expiresAt: Math.floor(Date.now() / 1000) + expiresIn,
+    refreshToken: refresh,
   });
   cookieStore.set(SESSION_COOKIE_NAME, encrypted, SESSION_COOKIE_OPTIONS);
 }
@@ -152,7 +149,7 @@ async function verifySession(
 
     accessToken = refreshed.tokens.access;
     refreshToken = refreshed.tokens.refresh;
-    expiresAt = Math.floor(Date.now() / 1000) + AUTH_TTL.access;
+    expiresAt = now + refreshed.tokens.expiresIn;
 
     // Persist refreshed tokens (no-op for RSC since cookieJar.set is a no-op)
     const encrypted = await encryptToken({

@@ -1,7 +1,6 @@
 import { issuer } from '@openauthjs/openauth';
 import { CodeProvider } from '@openauthjs/openauth/provider/code';
 import { GoogleOidcProvider } from '@openauthjs/openauth/provider/google';
-import { AUTH_TTL } from '@tvseri.es/constants';
 import { subjects } from '@tvseri.es/schemas';
 import { handle } from 'hono/aws-lambda';
 import { Resource } from 'sst';
@@ -62,7 +61,18 @@ const app = issuer({
 
     throw new Error('Invalid provider');
   },
-  ttl: AUTH_TTL,
+  ttl:
+    process.env.NODE_ENV === 'development'
+      ? {
+          access: 60 * 10, // 10 minutes
+          refresh: 60 * 60 * 24 * 1, // 1 day
+          reuse: 60 * 5, // 5 minutes - window for concurrent refresh requests
+        }
+      : {
+          access: 60 * 60 * 24, // 1 day
+          refresh: 60 * 60 * 24 * 365, // 1 year
+          reuse: 60 * 5, // 5 minutes - window for concurrent refresh requests
+        },
 });
 
 export const handler = handle(app);

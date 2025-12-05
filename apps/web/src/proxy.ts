@@ -25,7 +25,7 @@ export async function proxy(req: NextRequest) {
 
   const payload = await decryptToken(sessionCookie);
   if (!payload) {
-    console.log('[proxy] invalid session, deleting cookie');
+    console.log('[auth] [proxy] invalid session, deleting cookie');
     res.cookies.delete(SESSION_COOKIE_NAME);
     return res;
   }
@@ -35,7 +35,7 @@ export async function proxy(req: NextRequest) {
   const needsRefresh = expiresIn <= SESSION_REFRESH_THRESHOLD;
 
   console.log(
-    '[proxy] session check, AT:',
+    '[auth] [proxy] session check, AT:',
     payload.accessToken.slice(-5),
     'RT:',
     payload.refreshToken.slice(-5),
@@ -49,7 +49,7 @@ export async function proxy(req: NextRequest) {
     const verified = await client.verify(subjects, payload.accessToken);
 
     if (verified.err) {
-      console.log(`[proxy] verify failed:`, verified.err);
+      console.log(`[auth] [proxy] verify failed:`, verified.err);
       res.cookies.delete(SESSION_COOKIE_NAME);
       return res;
     }
@@ -61,7 +61,7 @@ export async function proxy(req: NextRequest) {
 
   if (refreshed.err || !refreshed.tokens) {
     console.log(
-      '[proxy] refresh failed, RT:',
+      '[auth] [proxy] refresh failed, RT:',
       payload.refreshToken.slice(-5),
       refreshed.err ?? 'no tokens returned',
     );
@@ -70,7 +70,7 @@ export async function proxy(req: NextRequest) {
   }
 
   console.log(
-    '[proxy] tokens refreshed, old AT:',
+    '[auth] [proxy] tokens refreshed, old AT:',
     payload.accessToken.slice(-5),
     'new AT:',
     refreshed.tokens.access.slice(-5),

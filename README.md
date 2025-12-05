@@ -88,7 +88,7 @@ pnpm sst dev
     ├── scrobbleQueue.ts      # SQS + Lambda for Plex
     ├── watchedStatus.ts      # Daily cron for list updates
     ├── dominantColor.ts      # Image color extraction
-    ├── distribution-disabler.ts  # Cost protection
+    ├── distributionDisabler.ts   # Cost protection
     └── dynamo/
         ├── cache.ts          # Cache table (TTL)
         ├── follow.ts         # Follow relationships + stream subscriber

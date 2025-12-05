@@ -76,6 +76,6 @@ export default $config({
     await import('./infra/auth');
     await import('./infra/api');
     await import('./infra/web');
-    await import('./infra/distribution-disabler');
+    await import('./infra/distributionDisabler');
   },
 });

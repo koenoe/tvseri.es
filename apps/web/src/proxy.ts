@@ -1,4 +1,3 @@
-import { subjects } from '@tvseri.es/schemas/src/subject';
 import { type NextRequest, NextResponse } from 'next/server';
 import { client } from './auth/client';
 import { decryptToken, encryptToken } from './auth/crypto';
@@ -46,14 +45,8 @@ export async function proxy(req: NextRequest) {
   );
 
   if (!needsRefresh) {
-    const verified = await client.verify(subjects, payload.accessToken);
-
-    if (verified.err) {
-      console.log(`[auth] [proxy] verify failed:`, verified.err);
-      res.cookies.delete(SESSION_COOKIE_NAME);
-      return res;
-    }
-
+    // If we didn't refresh, we could verify the access token here to ensure it's still valid.
+    // However, this would require an additional round-trip on each request, so we skip it for now.
     return res;
   }
 

@@ -55,8 +55,8 @@ importers:
         specifier: ^3.946.0
         version: 3.946.0
       '@aws-sdk/util-dynamodb':
-        specifier: ^3.943.0
-        version: 3.943.0(@aws-sdk/client-dynamodb@3.946.0)
+        specifier: ^3.946.0
+        version: 3.946.0(@aws-sdk/client-dynamodb@3.946.0)
       '@better-fetch/fetch':
         specifier: ^1.1.19
         version: 1.1.19
@@ -122,8 +122,8 @@ importers:
         specifier: ^3.946.0
         version: 3.946.0
       '@aws-sdk/util-dynamodb':
-        specifier: ^3.943.0
-        version: 3.943.0(@aws-sdk/client-dynamodb@3.946.0)
+        specifier: ^3.946.0
+        version: 3.946.0(@aws-sdk/client-dynamodb@3.946.0)
       '@openauthjs/openauth':
         specifier: ^0.4.3
         version: 0.4.3(arctic@2.3.4)(hono@4.10.7)
@@ -769,11 +769,11 @@ packages:
     resolution: {integrity: sha512-u8H4f2Zsi19DGnwj5FSZzDMhytYF/bCh37vAtBsn3cNDL3YG578X5oc+wSX54pM3tOxS+NY7tvOAo52SW7koUA==}
     engines: {node: '>=18.0.0'}
 
-  '@aws-sdk/util-dynamodb@3.943.0':
-    resolution: {integrity: sha512-F2qVauKYoTleiv/Kv423P7zin93sSuwRkIKUKh+dR4oP7P9EP43/I3NHHeA3AlifIFGZG9jzuHi4MvhF4yC2yg==}
+  '@aws-sdk/util-dynamodb@3.946.0':
+    resolution: {integrity: sha512-L1i5w52Ue2R4hmvtrZQ/8hmXiGBLrv6YlWKZCU4nN45E16TDLcn0rNMR7DXbLM/vRU8/pvqrhIwJRxuR1sjy1A==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      '@aws-sdk/client-dynamodb': ^3.943.0
+      '@aws-sdk/client-dynamodb': ^3.946.0
 
   '@aws-sdk/util-endpoints@3.398.0':
     resolution: {integrity: sha512-Fy0gLYAei/Rd6BrXG4baspCnWTUSd0NdokU1pZh4KlfEAEN1i8SPPgfiO5hLk7+2inqtCmqxVJlfqbMVe9k4bw==}
@@ -4925,7 +4925,7 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@aws-sdk/util-dynamodb@3.943.0(@aws-sdk/client-dynamodb@3.946.0)':
+  '@aws-sdk/util-dynamodb@3.946.0(@aws-sdk/client-dynamodb@3.946.0)':
     dependencies:
       '@aws-sdk/client-dynamodb': 3.946.0
       tslib: 2.8.1

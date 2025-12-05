@@ -1,7 +1,6 @@
-import { createClient } from '@openauthjs/openauth/client';
 import { AUTH_TTL } from '@tvseri.es/constants';
 import { type NextRequest, NextResponse } from 'next/server';
-import { Resource } from 'sst';
+import { client } from './auth/client';
 import {
   SESSION_COOKIE_NAME,
   SESSION_COOKIE_OPTIONS,
@@ -36,12 +35,6 @@ export async function proxy(req: NextRequest) {
   if (!needsRefresh) {
     return res;
   }
-
-  // Refresh tokens using OpenAuth client
-  const client = createClient({
-    clientID: 'website',
-    issuer: Resource.Auth.url,
-  });
 
   const refreshed = await client.refresh(payload.refreshToken);
 

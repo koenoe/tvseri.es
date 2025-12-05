@@ -1,22 +1,21 @@
-import { createClient } from '@openauthjs/openauth/client';
 import { AUTH_TTL } from '@tvseri.es/constants';
 import { subjects, type User } from '@tvseri.es/schemas';
 import { cookies } from 'next/headers';
 import type { NextRequest } from 'next/server';
 import { cache } from 'react';
-import { Resource } from 'sst';
 import {
   SESSION_COOKIE_NAME,
   SESSION_COOKIE_OPTIONS,
   SESSION_REFRESH_THRESHOLD,
-} from './constants';
-import { me } from './lib/api';
-import { decryptToken, encryptToken } from './lib/token';
+} from '../constants';
+import { me } from '../lib/api';
+import { decryptToken, encryptToken } from '../lib/token';
+import { client } from './client';
 
 type Session = {
   accessToken: string;
-  user: User;
   expiresAt: number;
+  user: User;
 };
 
 const EMPTY_SESSION = {
@@ -26,11 +25,6 @@ const EMPTY_SESSION = {
 } as const;
 
 type EmptySession = typeof EMPTY_SESSION;
-
-export const client = createClient({
-  clientID: 'website',
-  issuer: Resource.Auth.url,
-});
 
 // Create a new session (for callback route)
 export async function createSession(

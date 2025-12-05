@@ -60,7 +60,7 @@ pnpm sst dev
 ### Highlights
 
 - **Single `auth()` function** for Next.js extending OpenAuth's client — overloaded for RSC, Route Handlers, and Middleware with a cookie jar abstraction to handle the RSC cookie limitation, paired with XState for client-side token refresh
-- **DynamoDB Streams** trigger Lambda to auto-update lists when episodes are marked watched
+- **DynamoDB Streams** trigger Lambdas to auto-update lists when episodes are marked watched and follower/following counts when users follow/unfollow
 - **Cost protection** via AWS Budget alerts + CloudWatch metrics that auto-disable CloudFront
 - **Dominant color extraction** from images with WCAG contrast correction
 - **Edge functions** for blocking malicious requests at CloudFront
@@ -91,10 +91,10 @@ pnpm sst dev
     ├── distribution-disabler.ts  # Cost protection
     └── dynamo/
         ├── cache.ts          # Cache table (TTL)
-        ├── follow.ts         # Follow relationships
+        ├── follow.ts         # Follow relationships + stream subscriber
         ├── lists.ts          # User lists
         ├── users.ts          # User accounts
-        ├── watched.ts        # Watched episodes + streams
+        ├── watched.ts        # Watched episodes + stream subscriber
         ├── preferredImages.ts    # Admin image overrides
         └── webhookTokens.ts  # Plex webhook tokens
 ```

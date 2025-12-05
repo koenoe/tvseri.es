@@ -1,3 +1,4 @@
+import { subjects } from '@tvseri.es/schemas/src/subject';
 import { type NextRequest, NextResponse } from 'next/server';
 import { client } from './auth/client';
 import { decryptToken, encryptToken } from './auth/crypto';
@@ -45,6 +46,14 @@ export async function proxy(req: NextRequest) {
   );
 
   if (!needsRefresh) {
+    const verified = await client.verify(subjects, payload.accessToken);
+
+    if (verified.err) {
+      console.log(`[proxy] verify failed:`, verified.err);
+      res.cookies.delete(SESSION_COOKIE_NAME);
+      return res;
+    }
+
     return res;
   }
 

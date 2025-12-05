@@ -30,12 +30,12 @@ export const WATCH_PROVIDER_PRIORITY: Record<string, number> = {
 export const AUTH_TTL =
   process.env.NODE_ENV === 'development'
     ? {
-        access: 60 * 15, // 15 minutes
+        access: 60 * 10, // 10 minutes
         refresh: 60 * 60 * 24 * 1, // 1 day
-        reuse: 60 * 5, // 5 minutes
+        reuse: 60 * 5, // 5 minutes - window for concurrent refresh requests
       }
     : {
         access: 60 * 60 * 24, // 1 day
         refresh: 60 * 60 * 24 * 365, // 1 year
-        reuse: 60 * 5, // 5 minutes
+        reuse: 60 * 5, // 5 minutes - window for concurrent refresh requests
       };

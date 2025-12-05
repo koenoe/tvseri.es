@@ -97,7 +97,12 @@ export async function createSession(
   accessToken: string,
   refreshToken: string,
 ): Promise<void> {
-  console.log('[auth] createSession, token:', accessToken.slice(-5));
+  console.log(
+    '[auth] createSession, AT:',
+    accessToken.slice(-5),
+    'RT:',
+    refreshToken.slice(-5),
+  );
   const cookieStore = await cookies();
   const expiresAt = Math.floor(Date.now() / 1000) + AUTH_TTL.access;
   const encrypted = await encryptSession({
@@ -133,7 +138,10 @@ type VerifyContext = 'RSC' | 'RouteHandler' | 'Middleware';
 
 async function verifySession(
   cookieJar: CookieJar,
-  options: { proactiveRefresh: boolean; context: VerifyContext },
+  options: {
+    context: VerifyContext;
+    readOnly?: boolean;
+  },
 ): Promise<Session | EmptySession> {
   const sessionCookie = cookieJar.get();
 
@@ -149,16 +157,31 @@ async function verifySession(
   const now = Math.floor(Date.now() / 1000);
   const expiresIn = payload.expiresAt - now;
   const isExpired = expiresIn <= 0;
-  // Refresh if: expired OR (within threshold AND proactive refresh enabled)
-  // RSC: only refresh if expired (can't persist, so no point refreshing early)
-  // RouteHandler/Middleware: refresh proactively within threshold and persist
-  const needsRefresh =
-    isExpired ||
-    (options.proactiveRefresh && expiresIn <= SESSION_REFRESH_THRESHOLD);
+
+  // RSC is read-only: if expired, return empty session immediately.
+  // Although we could technically refresh in RSC (just not persist the new cookie),
+  // OpenAuth always rotates refresh tokens on each refresh. If we refresh but can't
+  // persist the new RT, the old RT becomes invalid and the user gets logged out.
+  if (options.readOnly && isExpired) {
+    console.log(
+      `[auth] [${options.context}] session expired (readOnly), AT:`,
+      payload.accessToken.slice(-5),
+      'RT:',
+      payload.refreshToken.slice(-5),
+      'expiresIn:',
+      expiresIn,
+    );
+    return EMPTY_SESSION;
+  }
+
+  // Refresh if expired OR within threshold (proactive refresh)
+  const needsRefresh = isExpired || expiresIn <= SESSION_REFRESH_THRESHOLD;
 
   console.log(
-    `[auth] [${options.context}] verifySession, token:`,
+    `[auth] [${options.context}] verifySession, AT:`,
     payload.accessToken.slice(-5),
+    'RT:',
+    payload.refreshToken.slice(-5),
     'needsRefresh:',
     needsRefresh,
     'expiresIn:',
@@ -174,7 +197,8 @@ async function verifySession(
 
     if (refreshed.err || !refreshed.tokens) {
       console.log(
-        `[auth] [${options.context}] refresh failed:`,
+        `[auth] [${options.context}] refresh failed, RT:`,
+        payload.refreshToken.slice(-5),
         refreshed.err ?? 'no tokens returned',
       );
       cookieJar.delete();
@@ -182,10 +206,14 @@ async function verifySession(
     }
 
     console.log(
-      `[auth] [${options.context}] tokens refreshed, old:`,
+      `[auth] [${options.context}] tokens refreshed, old AT:`,
       payload.accessToken.slice(-5),
-      'new:',
+      'new AT:',
       refreshed.tokens.access.slice(-5),
+      'RT:',
+      payload.refreshToken.slice(-5),
+      '→',
+      refreshed.tokens.refresh.slice(-5),
     );
 
     accessToken = refreshed.tokens.access;
@@ -231,7 +259,7 @@ async function authRSC(): Promise<Session | EmptySession> {
       get: () => cookieStore.get(SESSION_COOKIE_NAME)?.value,
       set: () => {}, // No-op in RSC
     },
-    { context: 'RSC', proactiveRefresh: false },
+    { context: 'RSC', readOnly: true },
   );
 }
 
@@ -250,7 +278,7 @@ async function authRouteHandler(
           SESSION_COOKIE_NAME_OPTIONS,
         ),
     },
-    { context: 'RouteHandler', proactiveRefresh: true },
+    { context: 'RouteHandler' },
   );
 }
 
@@ -269,7 +297,7 @@ async function authMiddleware(
           SESSION_COOKIE_NAME_OPTIONS,
         ),
     },
-    { context: 'Middleware', proactiveRefresh: true },
+    { context: 'Middleware' },
   );
 }
 

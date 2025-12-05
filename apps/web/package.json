@@ -51,7 +51,7 @@
   "name": "@tvseri.es/web",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "next build --webpack",
     "build:analyze": "ANALYZE=true pnpm build",
     "check-types": "tsc",
     "dev": "next dev",

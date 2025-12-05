@@ -8,7 +8,11 @@ import type {
   StatsSpotlight,
   StatsSummary,
 } from '@tvseri.es/schemas';
-import { buildPosterImageUrl, buildStillImageUrl } from '@tvseri.es/utils';
+import {
+  buildBackdropImageUrl,
+  buildPosterImageUrl,
+  buildStillImageUrl,
+} from '@tvseri.es/utils';
 import { getISOWeek } from 'date-fns';
 import { Hono } from 'hono';
 
@@ -154,7 +158,7 @@ app.get('/:id/stats/:year/spotlight', user(), yearMiddleware(), async (c) => {
       },
       tvSeries: {
         backdropImage: tvSeries.backdropPath
-          ? `https://image.tmdb.org/t/p/w1280${tvSeries.backdropPath}`
+          ? buildBackdropImageUrl(tvSeries.backdropPath, 'w1280')
           : null,
         id: tvSeries.id,
         posterImage: tvSeries.posterPath
@@ -162,6 +166,7 @@ app.get('/:id/stats/:year/spotlight', user(), yearMiddleware(), async (c) => {
           : null,
         slug: tvSeries.slug,
         title: tvSeries.title,
+        titleTreatmentImage: tvSeries.titleTreatmentImage ?? null,
       },
       watchedAt: item.watchedAt,
       watchProviderLogo: item.watchProviderLogoImage ?? null,

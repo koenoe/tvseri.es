@@ -49,6 +49,7 @@ export const StatsSpotlightTvSeriesSchema = v.object({
   posterImage: v.nullable(v.string()),
   slug: v.string(),
   title: v.string(),
+  titleTreatmentImage: v.nullable(v.string()),
 });
 
 export type StatsSpotlightTvSeries = Readonly<

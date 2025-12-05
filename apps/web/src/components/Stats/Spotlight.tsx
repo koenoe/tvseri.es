@@ -39,6 +39,7 @@ export default function Spotlight({
         <SpotlightTitle
           item={{
             title: tvSeries.title,
+            titleTreatmentImage: tvSeries.titleTreatmentImage,
           }}
           size="small"
         />

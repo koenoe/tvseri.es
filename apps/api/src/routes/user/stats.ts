@@ -143,7 +143,9 @@ app.get('/:id/stats/:year/spotlight', user(), yearMiddleware(), async (c) => {
   ) => {
     if (!item) return null;
 
-    const tvSeries = await fetchTvSeries(item.seriesId);
+    const tvSeries = await fetchTvSeries(item.seriesId, {
+      includeImages: true,
+    });
     if (!tvSeries) return null;
 
     return {

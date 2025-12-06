@@ -1,16 +1,20 @@
 import type { User } from '@tvseri.es/schemas';
 import { Suspense } from 'react';
+import auth from '@/auth';
 import { getListItems } from '@/lib/api';
 import InProgressContainer from '../Tiles/InProgressContainer';
 
 export default async function InProgressGrid({
   user,
 }: Readonly<{ user: User }>) {
-  const { items } = await getListItems({
-    listId: 'IN_PROGRESS',
-    options: { limit: 10 },
-    userId: user.id,
-  });
+  const [{ items }, session] = await Promise.all([
+    getListItems({
+      listId: 'IN_PROGRESS',
+      options: { limit: 10 },
+      userId: user.id,
+    }),
+    auth(),
+  ]);
 
   return (
     <div className="relative grid w-full grid-cols-1 gap-6 md:gap-10 xl:grid-cols-2">
@@ -23,7 +27,12 @@ export default async function InProgressGrid({
           }
           key={item.id}
         >
-          <InProgressContainer item={item} key={item.id} user={user} />
+          <InProgressContainer
+            item={item}
+            key={item.id}
+            session={session}
+            user={user}
+          />
         </Suspense>
       ))}
     </div>

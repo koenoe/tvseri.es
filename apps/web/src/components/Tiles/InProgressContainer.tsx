@@ -1,7 +1,7 @@
 import type { ListItem, Season, User, WatchedItem } from '@tvseri.es/schemas';
 import { headers } from 'next/headers';
 import { cachedTvSeries } from '@/app/cached';
-import auth from '@/auth';
+import type { EmptySession, Session } from '@/auth';
 import {
   fetchTvSeriesSeason,
   fetchTvSeriesWatchProvider,
@@ -100,20 +100,20 @@ function extractCurrentSeasonFromWatchedItems(
 
 export default async function InProgressContainer({
   item,
+  session,
   user,
 }: Readonly<{
   item: ListItem;
+  session: Session | EmptySession;
   user: User;
 }>) {
-  const [{ user: authenticatedUser, accessToken }, tvSeries, watchedItems] =
-    await Promise.all([
-      auth(),
-      cachedTvSeries(item.id, { includeImages: true }),
-      getAllWatchedForTvSeries({
-        seriesId: item.id,
-        userId: user.id,
-      }),
-    ]);
+  const [tvSeries, watchedItems] = await Promise.all([
+    cachedTvSeries(item.id, { includeImages: true }),
+    getAllWatchedForTvSeries({
+      seriesId: item.id,
+      userId: user.id,
+    }),
+  ]);
 
   const { currentSeason, watchCount } = extractCurrentSeasonFromWatchedItems(
     watchedItems,
@@ -123,13 +123,13 @@ export default async function InProgressContainer({
   const removeAction = async () => {
     'use server';
 
-    if (authenticatedUser?.id !== user.id || !accessToken) {
+    if (session.user?.id !== user.id || !session.accessToken) {
       return;
     }
 
     try {
       await removeFromList({
-        accessToken,
+        accessToken: session.accessToken,
         id: tvSeries!.id,
         listId: 'IN_PROGRESS',
         userId: user.id,
@@ -143,7 +143,11 @@ export default async function InProgressContainer({
   const markNextAsWatchedAction = async () => {
     'use server';
 
-    if (authenticatedUser?.id !== user.id || !accessToken || !currentSeason) {
+    if (
+      session.user?.id !== user.id ||
+      !session.accessToken ||
+      !currentSeason
+    ) {
       return;
     }
 
@@ -174,18 +178,18 @@ export default async function InProgressContainer({
 
       const headerStore = await headers();
       const region =
-        authenticatedUser?.country ||
+        session.user?.country ||
         headerStore.get('cloudfront-viewer-country') ||
         'US';
       const watchProvider =
         (await fetchTvSeriesWatchProvider(
           tvSeries!.id,
           region,
-          authenticatedUser,
+          session.user,
         )) ?? null;
 
       await markWatched({
-        accessToken,
+        accessToken: session.accessToken,
         episodeNumber: nextUnwatchedEpisode.episodeNumber,
         seasonNumber: currentSeason.seasonNumber,
         seriesId: tvSeries!.id,
@@ -204,7 +208,7 @@ export default async function InProgressContainer({
       currentSeasonWatchCount={watchCount}
       markNextAsWatched={markNextAsWatchedAction}
       removeAction={removeAction}
-      removeIsAllowed={authenticatedUser?.id === user.id}
+      removeIsAllowed={session.user?.id === user.id}
       tvSeries={tvSeries!}
     />
   ) : null;

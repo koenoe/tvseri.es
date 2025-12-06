@@ -11,7 +11,7 @@ import { me } from '../lib/api';
 import { client } from './client';
 import { decryptToken, encryptToken } from './crypto';
 
-type Session = {
+export type Session = {
   accessToken: string;
   expiresAt: number;
   user: User;
@@ -23,7 +23,7 @@ const EMPTY_SESSION = {
   user: null,
 } as const;
 
-type EmptySession = typeof EMPTY_SESSION;
+export type EmptySession = typeof EMPTY_SESSION;
 
 async function fetchUser(accessToken: string): Promise<User | null> {
   try {

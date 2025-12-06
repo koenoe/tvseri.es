@@ -8,11 +8,7 @@ import type {
   StatsSpotlight,
   StatsSummary,
 } from '@tvseri.es/schemas';
-import {
-  buildBackdropImageUrl,
-  buildPosterImageUrl,
-  buildStillImageUrl,
-} from '@tvseri.es/utils';
+import { buildPosterImageUrl, buildStillImageUrl } from '@tvseri.es/utils';
 import { getISOWeek } from 'date-fns';
 import { Hono } from 'hono';
 
@@ -160,13 +156,9 @@ app.get('/:id/stats/:year/spotlight', user(), yearMiddleware(), async (c) => {
       },
       tvSeries: {
         backdropColor: tvSeries.backdropColor ?? null,
-        backdropImage: tvSeries.backdropPath
-          ? buildBackdropImageUrl(tvSeries.backdropPath, 'w1280')
-          : null,
+        backdropImage: tvSeries.backdropImage ?? null,
         id: tvSeries.id,
-        posterImage: tvSeries.posterPath
-          ? buildPosterImageUrl(tvSeries.posterPath)
-          : null,
+        posterImage: tvSeries.posterImage ?? null,
         slug: tvSeries.slug,
         title: tvSeries.title,
         titleTreatmentImage: tvSeries.titleTreatmentImage ?? null,

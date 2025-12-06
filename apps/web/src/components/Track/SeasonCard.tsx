@@ -67,6 +67,7 @@ function SeasonCard({
                       e.stopPropagation();
                       updateItems({
                         items: episodes.map((episode) => ({
+                          episodeAirDate: episode.airDate,
                           episodeNumber: episode.episodeNumber,
                           episodeStillPath: episode.stillPath,
                           episodeTitle: episode.title,
@@ -86,6 +87,7 @@ function SeasonCard({
                       e.stopPropagation();
                       updateItems({
                         items: episodes.map((episode) => ({
+                          episodeAirDate: episode.airDate,
                           episodeNumber: episode.episodeNumber,
                           episodeStillPath: episode.stillPath,
                           episodeTitle: episode.title,
@@ -109,6 +111,7 @@ function SeasonCard({
               onSelect={(value) => {
                 updateItems({
                   items: episodes.map((episode) => ({
+                    episodeAirDate: episode.airDate,
                     episodeNumber: episode.episodeNumber,
                     episodeStillPath: episode.stillPath,
                     episodeTitle: episode.title,

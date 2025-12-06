@@ -43,7 +43,7 @@ function EpisodeCard({
           </span>
         </div>
         <div className="mt-3 flex w-full gap-1.5 text-xs font-medium">
-          {episode.runtime && <div>{formatDate(episode.airDate)}</div>}
+          {episode.airDate && <div>{formatDate(episode.airDate)}</div>}
           <div className="opacity-60 before:mr-1 before:content-['—']">
             {formatRuntime(episode.runtime)}
           </div>
@@ -61,6 +61,7 @@ function EpisodeCard({
                   updateItems({
                     items: [
                       {
+                        episodeAirDate: episode.airDate,
                         episodeNumber: episode.episodeNumber,
                         episodeStillPath: episode.stillPath,
                         episodeTitle: episode.title,
@@ -85,6 +86,7 @@ function EpisodeCard({
                   updateItems({
                     items: [
                       {
+                        episodeAirDate: episode.airDate,
                         episodeNumber: episode.episodeNumber,
                         episodeStillPath: episode.stillPath,
                         episodeTitle: episode.title,
@@ -113,6 +115,7 @@ function EpisodeCard({
             updateItems({
               items: [
                 {
+                  episodeAirDate: episode.airDate,
                   episodeNumber: episode.episodeNumber,
                   episodeStillPath: episode.stillPath,
                   episodeTitle: episode.title,

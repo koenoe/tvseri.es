@@ -45,6 +45,7 @@ const app = issuer({
   success: async (ctx, value, req) => {
     let email: string | undefined;
     let name: string | undefined;
+    let username: string | undefined;
 
     if (value.provider === 'google') {
       if (!value.id.email_verified) {
@@ -64,6 +65,7 @@ const app = issuer({
           country: req.headers.get('cloudfront-viewer-country'),
           email,
           name,
+          username,
         });
       }
 

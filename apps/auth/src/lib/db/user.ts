@@ -71,6 +71,7 @@ export const findUser = async (
 export const createUser = async (
   input: Readonly<{
     email: string;
+    username?: string;
     name?: string;
     country?: string | null;
   }>,
@@ -80,10 +81,13 @@ export const createUser = async (
     throw new Error('UserAlreadyExists');
   }
 
-  let username = slugify(input.name ?? input.email.split('@')[0]!, {
-    lower: true,
-    strict: true,
-  });
+  let username = slugify(
+    input.username ?? input.name ?? input.email.split('@')[0]!,
+    {
+      lower: true,
+      strict: true,
+    },
+  );
   const userByUsername = await findUser({ username });
   if (userByUsername) {
     username = generateUsername();

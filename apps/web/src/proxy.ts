@@ -63,9 +63,9 @@ export async function proxy(req: NextRequest) {
   }
 
   console.log(
-    '[auth] [proxy] tokens refreshed, old AT:',
+    '[auth] [proxy] tokens refreshed, AT:',
     payload.accessToken.slice(-5),
-    'new AT:',
+    '→',
     refreshed.tokens.access.slice(-5),
     'RT:',
     payload.refreshToken.slice(-5),

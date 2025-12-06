@@ -112,9 +112,9 @@ async function verifySession(
     }
 
     console.log(
-      `[auth] [${options.context}] tokens refreshed, old AT:`,
+      `[auth] [${options.context}] tokens refreshed, AT:`,
       payload.accessToken.slice(-5),
-      'new AT:',
+      '→',
       refreshed.tokens.access.slice(-5),
       'RT:',
       payload.refreshToken.slice(-5),

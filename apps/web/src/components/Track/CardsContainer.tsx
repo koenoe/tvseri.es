@@ -85,6 +85,7 @@ export default async function CardsContainer({
         const hasWatchProvider = item.watchProviderName || watchProvider?.name;
         return {
           episode: {
+            airDate: item.episodeAirDate ?? '',
             episodeNumber: item.episodeNumber!,
             runtime: item.runtime!,
             seasonNumber: item.seasonNumber!,

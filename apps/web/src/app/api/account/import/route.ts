@@ -1,5 +1,6 @@
 import type {
   Episode,
+  EpisodeForWatched,
   Season,
   TvSeries,
   WatchProvider,
@@ -251,13 +252,7 @@ export async function POST(req: NextRequest) {
           let successCount = 0;
           const batch = body.slice(i, i + BATCH_SIZE);
           const watchedItems: Array<{
-            episode: {
-              episodeNumber: number;
-              runtime: number;
-              seasonNumber: number;
-              stillPath: string | null;
-              title: string;
-            };
+            episode: EpisodeForWatched;
             tvSeries: TvSeries;
             userId: string;
             watchedAt: number;
@@ -411,6 +406,7 @@ export async function POST(req: NextRequest) {
               // Add the successfully processed item
               watchedItems.push({
                 episode: {
+                  airDate: episode.airDate,
                   episodeNumber: episode.episodeNumber,
                   runtime: episode.runtime,
                   seasonNumber,

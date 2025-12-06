@@ -13,6 +13,7 @@ export type TvSeriesForWatched = v.InferOutput<typeof TvSeriesForWatchedSchema>;
 
 // Minimal episode schema for watched operations - only includes fields actually used
 export const EpisodeForWatchedSchema = v.object({
+  airDate: v.string(),
   episodeNumber: v.number(),
   runtime: v.number(),
   seasonNumber: v.number(),
@@ -23,6 +24,7 @@ export const EpisodeForWatchedSchema = v.object({
 export type EpisodeForWatched = v.InferOutput<typeof EpisodeForWatchedSchema>;
 
 export const WatchedItemSchema = v.object({
+  episodeAirDate: v.optional(v.string()),
   episodeNumber: v.number(),
   episodeStillImage: v.optional(v.nullable(v.string())),
   episodeStillPath: v.optional(v.nullable(v.string())),

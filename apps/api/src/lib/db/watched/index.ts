@@ -40,6 +40,7 @@ const createWatchedItem = ({
   watchProvider?: WatchProvider | null;
   watchedAt: number;
 }>): WatchedItem => ({
+  episodeAirDate: episode.airDate,
   episodeNumber: episode.episodeNumber,
   episodeStillPath: episode.stillPath,
   episodeTitle: episode.title,
@@ -298,6 +299,7 @@ export const markSeasonWatched = async ({
   const writeRequests = episodes.map((episode) => {
     const watchedItem = createWatchedItem({
       episode: {
+        airDate: episode.airDate,
         episodeNumber: episode.episodeNumber,
         runtime: episode.runtime,
         seasonNumber,

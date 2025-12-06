@@ -320,6 +320,7 @@ app.post(
     );
     const watchedItem = await markWatched({
       episode: {
+        airDate: episode!.airDate,
         episodeNumber: episode!.episodeNumber,
         runtime: episode!.runtime,
         seasonNumber: episode!.seasonNumber,

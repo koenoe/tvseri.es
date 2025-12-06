@@ -55,6 +55,18 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "MigrateWatchedDlq": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "MigrateWatchedEnqueue": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "MigrateWatchedQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
     "PreferredImages": {
       "name": string
       "type": "sst.aws.Dynamo"

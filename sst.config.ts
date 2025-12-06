@@ -77,6 +77,5 @@ export default $config({
     await import('./infra/api');
     await import('./infra/web');
     await import('./infra/distributionDisabler');
-    await import('./infra/migrateWatchedEpisodeData');
   },
 });

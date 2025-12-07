@@ -103,7 +103,8 @@ function TrackForm({
       {seasons.map((season) => (
         <SeasonCard
           isExpanded={
-            String(season.seasonNumber) === seasonNumberFromSearchParams
+            String(season.seasonNumber) === seasonNumberFromSearchParams ||
+            seasons.length === 1
           }
           key={season.id}
           season={season}

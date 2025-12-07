@@ -33,7 +33,7 @@ function EpisodeCard({
 
   return (
     <div className="relative flex flex-col gap-4 rounded-xl bg-black/10 p-4 md:flex-row md:items-center">
-      <div className="hidden aspect-video overflow-hidden rounded md:block md:w-28">
+      <div className="relative hidden aspect-video overflow-clip rounded md:block md:w-28 after:absolute after:inset-0 after:rounded-lg after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-['']">
         {episode.stillImage ? (
           <ImageWithFallback
             alt=""

@@ -32,6 +32,10 @@ export default async function UserPills({
       label: 'Favorites',
     },
     {
+      href: `/u/${username}/history`,
+      label: 'History',
+    },
+    {
       href: `/u/${username}/social`,
       label: 'Social',
     },

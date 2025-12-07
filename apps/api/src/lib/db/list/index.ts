@@ -9,6 +9,7 @@ import type { ListItem, PaginationOptions } from '@tvseri.es/schemas';
 import { buildPosterImageUrl } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 import client from '../client';
+import { decodeCursor, encodeCursor } from '../cursor';
 
 // const BATCH_SIZE = 25;
 
@@ -229,9 +230,7 @@ export const getListItems = async (
             IndexName: 'gsi2',
             ...condition,
           }),
-    ExclusiveStartKey: input.options?.cursor
-      ? JSON.parse(Buffer.from(input.options.cursor, 'base64url').toString())
-      : undefined,
+    ExclusiveStartKey: decodeCursor(input.options?.cursor),
     Limit: limit,
     ScanIndexForward: sortDirection === 'asc',
   });
@@ -255,11 +254,7 @@ export const getListItems = async (
           title: normalizedItem.title,
         } as ListItem;
       }) ?? [],
-    nextCursor: result.LastEvaluatedKey
-      ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString(
-          'base64url',
-        )
-      : null,
+    nextCursor: encodeCursor(result.LastEvaluatedKey),
   };
 };
 

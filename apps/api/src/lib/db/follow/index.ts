@@ -1,4 +1,3 @@
-import { Buffer } from 'node:buffer';
 import {
   BatchGetItemCommand,
   DeleteItemCommand,
@@ -11,6 +10,7 @@ import type { PaginationOptions, User } from '@tvseri.es/schemas';
 import { Resource } from 'sst';
 
 import client from '../client';
+import { decodeCursor, encodeCursor } from '../cursor';
 
 function userPk(userId: string) {
   return `USER#${userId}`;
@@ -30,15 +30,6 @@ function followingPk(userId: string) {
 
 function createSortKey(timestamp: number, userId: string) {
   return `${timestamp}#${userId}`;
-}
-
-function decodeCursor(cursor: string | null | undefined) {
-  if (!cursor) return undefined;
-  return JSON.parse(Buffer.from(cursor, 'base64url').toString());
-}
-
-function encodeCursor(key: unknown) {
-  return Buffer.from(JSON.stringify(key)).toString('base64url');
 }
 
 async function batchGetUsers(

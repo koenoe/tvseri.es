@@ -22,6 +22,7 @@ import {
 import { Resource } from 'sst';
 import { fetchTvSeriesSeason } from '@/lib/tmdb';
 import client from '../client';
+import { decodeCursor, encodeCursor } from '../cursor';
 
 const DYNAMO_DB_BATCH_LIMIT = 25;
 
@@ -479,9 +480,7 @@ export const getWatchedForTvSeries = async (
   const { limit = 20, cursor, sortDirection = 'desc' } = input.options ?? {};
 
   const command = new QueryCommand({
-    ExclusiveStartKey: cursor
-      ? JSON.parse(Buffer.from(cursor, 'base64url').toString())
-      : undefined,
+    ExclusiveStartKey: decodeCursor(cursor),
     ExpressionAttributeValues: marshall({
       ':pk': `USER#${input.userId}#SERIES#${input.tvSeriesId}`,
     }),
@@ -500,11 +499,7 @@ export const getWatchedForTvSeries = async (
         const unmarshalled = unmarshall(item) as WatchedItem;
         return normalizeWatchedItem(unmarshalled);
       }) ?? [],
-    nextCursor: result.LastEvaluatedKey
-      ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString(
-          'base64url',
-        )
-      : null,
+    nextCursor: encodeCursor(result.LastEvaluatedKey),
   };
 };
 
@@ -560,9 +555,7 @@ const getWatchedForSeason = async (
   const paddedSeason = paddedNumber(input.seasonNumber);
 
   const command = new QueryCommand({
-    ExclusiveStartKey: cursor
-      ? JSON.parse(Buffer.from(cursor, 'base64url').toString())
-      : undefined,
+    ExclusiveStartKey: decodeCursor(cursor),
     ExpressionAttributeValues: marshall({
       ':pk': `USER#${input.userId}#SERIES#${input.tvSeries.id}`,
       ':season': `S${paddedSeason}`,
@@ -577,11 +570,7 @@ const getWatchedForSeason = async (
 
   return {
     items: result.Items?.map((item) => unmarshall(item) as WatchedItem) ?? [],
-    nextCursor: result.LastEvaluatedKey
-      ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString(
-          'base64url',
-        )
-      : null,
+    nextCursor: encodeCursor(result.LastEvaluatedKey),
   };
 };
 
@@ -605,9 +594,7 @@ export const getWatched = async (
   }
 
   const command = new QueryCommand({
-    ExclusiveStartKey: cursor
-      ? JSON.parse(Buffer.from(cursor, 'base64url').toString())
-      : undefined,
+    ExclusiveStartKey: decodeCursor(cursor),
     ExpressionAttributeValues: marshall(ExpressionAttributeValues),
     IndexName: 'gsi2',
     KeyConditionExpression,
@@ -624,11 +611,7 @@ export const getWatched = async (
         const unmarshalled = unmarshall(item) as WatchedItem;
         return normalizeWatchedItem(unmarshalled);
       }) ?? [],
-    nextCursor: result.LastEvaluatedKey
-      ? Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString(
-          'base64url',
-        )
-      : null,
+    nextCursor: encodeCursor(result.LastEvaluatedKey),
   };
 };
 

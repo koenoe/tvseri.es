@@ -1,3 +1,4 @@
+import { cx } from 'class-variance-authority';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
@@ -297,7 +298,12 @@ export default async function TvSeriesDetailsPage({
             </div>
 
             {tvSeries.network && (
-              <div className="flex flex-col flex-nowrap gap-3 text-sm">
+              <div
+                className={cx(
+                  'flex flex-col flex-nowrap text-sm',
+                  tvSeries.network.logo ? 'gap-3' : 'gap-1',
+                )}
+              >
                 <div className="opacity-60">Network</div>
                 <Link
                   href={{
@@ -306,14 +312,18 @@ export default async function TvSeriesDetailsPage({
                   }}
                   prefetch={false}
                 >
-                  <Image
-                    alt={tvSeries.network.name}
-                    className="brightness-0 invert"
-                    height={96}
-                    src={tvSeries.network.logo}
-                    unoptimized
-                    width={96}
-                  />
+                  {tvSeries.network.logo ? (
+                    <Image
+                      alt={tvSeries.network.name}
+                      className="brightness-0 invert"
+                      height={96}
+                      src={tvSeries.network.logo}
+                      unoptimized
+                      width={96}
+                    />
+                  ) : (
+                    <span>{tvSeries.network.name}</span>
+                  )}
                 </Link>
               </div>
             )}

@@ -76,7 +76,9 @@ export async function getFollowers(
   const items = (data.Items || []).map((item) => unmarshall(item));
   const userIds = items.map((item) => item.followerId).filter(Boolean);
   const users = await batchGetUsers(userIds);
-  const followers = items.map((item) => users[item.followerId] as User);
+  const followers = items
+    .map((item) => users[item.followerId])
+    .filter((user): user is User => user !== null && user !== undefined);
 
   return {
     items: followers,
@@ -107,7 +109,9 @@ export async function getFollowing(
   const items = (data.Items || []).map((item) => unmarshall(item));
   const userIds = items.map((item) => item.followingId).filter(Boolean);
   const users = await batchGetUsers(userIds);
-  const following = items.map((item) => users[item.followingId] as User);
+  const following = items
+    .map((item) => users[item.followingId])
+    .filter((user): user is User => user !== null && user !== undefined);
 
   return {
     items: following,

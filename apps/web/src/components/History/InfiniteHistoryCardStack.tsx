@@ -5,7 +5,7 @@ import { memo, useCallback } from 'react';
 
 import createUseRestorableState from '@/hooks/createUseRestorableState';
 import InfiniteScroll from '../InfiniteScroll/InfiniteScroll';
-import { HistoryCard } from './HistoryCardStack';
+import HistoryCardStack from './HistoryCardStack';
 
 const useRestorableItems = createUseRestorableState<WatchedItem[]>();
 const useRestorableCursor = createUseRestorableState<
@@ -59,14 +59,7 @@ function InfiniteHistoryCardStack({
 
   return (
     <InfiniteScroll hasMoreData={!!nextCursor} loadMore={handleLoadMore}>
-      <div className="flex flex-col gap-4">
-        {items.map((item) => (
-          <HistoryCard
-            item={item}
-            key={`${item.seriesId}:${item.seasonNumber}:${item.episodeNumber}:${item.watchedAt}`}
-          />
-        ))}
-      </div>
+      <HistoryCardStack items={items} />
     </InfiniteScroll>
   );
 }

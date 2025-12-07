@@ -42,7 +42,7 @@ function SeasonCard({
   );
 
   return (
-    <div className="rounded-lg bg-white/5 p-6">
+    <div className="rounded-xl bg-neutral-800 p-6">
       <div
         className="relative w-full cursor-pointer"
         onClick={(e) => {

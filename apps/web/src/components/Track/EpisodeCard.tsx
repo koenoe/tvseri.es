@@ -32,7 +32,7 @@ function EpisodeCard({
     watchedItem?.watchProviderName || watchProvider?.name;
 
   return (
-    <div className="relative flex flex-col gap-4 rounded-lg bg-black/10 p-4 md:flex-row md:items-center">
+    <div className="relative flex flex-col gap-4 rounded-xl bg-black/10 p-4 md:flex-row md:items-center">
       <div className="hidden aspect-video overflow-hidden rounded md:block md:w-28">
         {episode.stillImage ? (
           <ImageWithFallback

@@ -29,7 +29,7 @@
 
 ## Code Style & Formatting
 
-## Biome Configuration
+### Biome Configuration
 
 This project uses **Biome** (not ESLint/Prettier):
 
@@ -48,6 +48,12 @@ This project uses **Biome** (not ESLint/Prettier):
 - **Feature-specific**: Shared file in the feature directory
 
 Before writing new code, check if similar logic exists that can be imported or generalised.
+
+### React Components
+
+- **No inline props**: Extract computed values to variables before passing to JSX
+- **`memo` with `displayName`**: Always set `displayName` before exporting with `memo()`
+- **Split large components**: Separate into dedicated files when component exceeds ~100 lines
 
 ## Commands
 

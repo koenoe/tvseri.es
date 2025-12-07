@@ -7,7 +7,10 @@ import { memo } from 'react';
 import formatDate from '@/utils/formatDate';
 import formatRuntime from '@/utils/formatRuntime';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
+import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 import Datepicker from '../Datepicker/DatepickerLazy';
+import ImageWithFallback from '../Image/ImageWithFallback';
+import StillPlaceholder from '../Image/StillPlaceholder';
 import type { WatchedAction } from './Cards';
 
 function EpisodeCard({
@@ -30,6 +33,23 @@ function EpisodeCard({
 
   return (
     <div className="relative flex flex-col gap-4 rounded-lg bg-black/10 p-4 md:flex-row md:items-center">
+      <div className="hidden aspect-video overflow-hidden rounded md:block md:w-28">
+        {episode.stillImage ? (
+          <ImageWithFallback
+            alt=""
+            className="aspect-video h-full w-full object-cover"
+            draggable={false}
+            fallback={() => <StillPlaceholder className="h-full w-full" />}
+            height={63}
+            placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(112, 63)}`}
+            src={episode.stillImage}
+            unoptimized
+            width={112}
+          />
+        ) : (
+          <StillPlaceholder className="h-full w-full" />
+        )}
+      </div>
       <div>
         <div className="flex flex-nowrap gap-3">
           <span className="flex h-6 w-14 flex-shrink-0 items-center justify-center rounded-md bg-white/10 text-center text-xs font-medium">

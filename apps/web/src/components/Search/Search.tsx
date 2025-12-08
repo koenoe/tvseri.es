@@ -159,6 +159,7 @@ function Search() {
               key="modal-container"
               layout
               layoutId="search"
+              layoutRoot
             >
               <motion.div
                 className="pointer-events-auto flex w-full max-w-screen-md flex-col bg-white shadow-xl md:overflow-hidden md:rounded-2xl"

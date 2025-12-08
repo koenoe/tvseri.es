@@ -67,13 +67,21 @@ function Logo({ priority = false }: Readonly<{ priority?: boolean }>) {
   const isMenuOpen = useHeaderStore((state) => state.menuOpen);
   const isMobile = useMatchMedia('(max-width: 768px)');
 
-  const isFloating = mode !== 'static';
-  const isDisabled = isMenuOpen && isMobile;
-  const layout = isFloating ? 'floating' : 'static';
+  const isFloating = useMemo(() => mode !== 'static', [mode]);
+  const isDisabled = useMemo(
+    () => isMenuOpen && isMobile,
+    [isMenuOpen, isMobile],
+  );
+  const layout = useMemo(
+    () => (isFloating ? 'floating' : 'static'),
+    [isFloating],
+  );
 
   // Skip animation when at scroll position 0 and in static mode (navigation just occurred)
-  const currentScrollY = scrollY.get();
-  const isNavigationReset = mode === 'static' && currentScrollY === 0;
+  const isNavigationReset = useMemo(
+    () => mode === 'static' && scrollY.get() === 0,
+    [mode, scrollY],
+  );
 
   const transition = useMemo(
     () => ({
@@ -83,8 +91,11 @@ function Logo({ priority = false }: Readonly<{ priority?: boolean }>) {
     [isNavigationReset],
   );
 
-  const state = isDisabled ? 'disabled' : 'enabled';
-  const opacity = isDisabled ? 0.1 : 1;
+  const state = useMemo(
+    () => (isDisabled ? 'disabled' : 'enabled'),
+    [isDisabled],
+  );
+  const opacity = useMemo(() => (isDisabled ? 0.1 : 1), [isDisabled]);
 
   return (
     <Link className={linkStyles({ state })} href="/" replace>

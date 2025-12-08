@@ -101,7 +101,7 @@ function Search() {
   }, [handleGlobalKeyDown]);
 
   return (
-    <LayoutGroup>
+    <>
       <motion.div
         className={searchIconStyles({ disabled: isDisabled })}
         key="search"
@@ -157,7 +157,6 @@ function Search() {
             <motion.div
               className="pointer-events-none fixed inset-0 z-50 flex md:mt-[8rem] md:items-start md:justify-center"
               key="modal-container"
-              layout
               layoutId="search"
             >
               <motion.div
@@ -175,26 +174,19 @@ function Search() {
                   onKeyDown={handleKeyDown}
                   ref={searchInputRef}
                 />
-                <AnimatePresence>
-                  {(results !== null || isPending) && (
-                    <motion.div
-                      className="relative h-full w-full overflow-y-auto overflow-x-hidden p-6 md:h-auto md:max-h-[calc(100vh-20rem)] md:border-t md:border-black/10"
-                      key="results"
-                    >
-                      <SearchResults
-                        isPending={isPending}
-                        itemClick={handleClose}
-                        results={results}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {(results !== null || isPending) && (
+                  <SearchResults
+                    isPending={isPending}
+                    itemClick={handleClose}
+                    results={results}
+                  />
+                )}
               </motion.div>
             </motion.div>
           </Modal>
         )}
       </AnimatePresence>
-    </LayoutGroup>
+    </>
   );
 }
 

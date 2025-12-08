@@ -33,7 +33,7 @@ function SearchResults({
   );
 
   return (
-    <>
+    <div className="relative h-full w-full overflow-y-auto overflow-x-hidden p-6 md:h-auto md:max-h-[calc(100vh-20rem)] md:border-t md:border-black/10">
       {isPending ? (
         <div className={mergedClassName}>
           {[...Array(8)].map((_, index) => (
@@ -76,7 +76,6 @@ function SearchResults({
               className="flex h-full w-full flex-col items-center justify-center gap-2"
               href={itemHref(series)}
               key={series.id}
-              layout
               onClick={itemClick}
               whileHover="active"
             >
@@ -102,7 +101,7 @@ function SearchResults({
           ))}
         </div>
       )}
-    </>
+    </div>
   );
 }
 

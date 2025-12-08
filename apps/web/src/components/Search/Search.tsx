@@ -1,7 +1,7 @@
 'use client';
 
 import { cva } from 'class-variance-authority';
-import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
@@ -58,6 +58,11 @@ function Search() {
     searchInputRef.current?.reset();
   }, [reset]);
 
+  const handleIconClick = useCallback(() => {
+    setBackgroundColor(getMainBackgroundColor());
+    setIsOpen((prev) => !prev);
+  }, []);
+
   const handleKeyDown = useDebouncedCallback((event: React.KeyboardEvent) => {
     if (!isPending && event.key === 'Enter') {
       const firstResult = results?.[0];
@@ -105,10 +110,7 @@ function Search() {
       <motion.div
         className={searchIconStyles({ disabled: isDisabled })}
         key="search"
-        onClick={() => {
-          setBackgroundColor(getMainBackgroundColor());
-          setIsOpen((prev) => !prev);
-        }}
+        onClick={handleIconClick}
       >
         <motion.div
           className="absolute size-[22px] md:size-[24px] md:rounded-2xl"

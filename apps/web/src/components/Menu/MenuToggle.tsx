@@ -2,16 +2,21 @@
 
 import { cva } from 'class-variance-authority';
 import { motion, useAnimation } from 'motion/react';
-import { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
+import { memo, useCallback, useEffect, useRef } from 'react';
 
-const firstPathVariants = {
+import useMatchMedia from '@/hooks/useMatchMedia';
+import getMousePosition from '@/utils/getMousePosition';
+
+import { useHeaderStore } from '../Header/HeaderStoreProvider';
+
+const topPathVariants = {
   closed: { d: 'M 0 9.5 L 24 9.5' },
   open: { d: 'M 3.06061 2.99999 L 21.0606 21' },
 };
 
-const secondPathVariants = {
+const bottomPathVariants = {
   closed: { d: 'M 0 15.5 L 15 15.5' },
-  moving: { d: 'M 0 15.5 L 24 15.5' },
+  extended: { d: 'M 0 15.5 L 24 15.5' },
   open: { d: 'M 3.00006 21.0607 L 21 3.06064' },
 };
 
@@ -27,79 +32,98 @@ const menuToggleStyles = cva('z-50 cursor-pointer md:z-10', {
   },
 });
 
-export type MenuToggleHandle = Readonly<{
-  close: () => void;
-}>;
+function MenuToggleComponent({
+  onClick,
+}: Readonly<{
+  onClick?: () => void;
+}>) {
+  const isOpen = useHeaderStore((state) => state.menuOpen);
+  const isMobile = useMatchMedia('(max-width: 768px)');
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const topPathControls = useAnimation();
+  const bottomPathControls = useAnimation();
+  const prevIsOpen = useRef(isOpen);
 
-const MenuToggle = forwardRef<
-  MenuToggleHandle,
-  Readonly<{
-    onClick?: (isOpen: boolean) => void;
-  }>
->(({ onClick }, ref) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const path01Controls = useAnimation();
-  const path02Controls = useAnimation();
+  useEffect(() => {
+    // Skip if state hasn't changed (including initial mount)
+    if (prevIsOpen.current === isOpen) return;
+    prevIsOpen.current = isOpen;
 
-  const animateSvg = useCallback(
-    async (open: boolean) => {
-      if (open) {
-        await path02Controls.start(secondPathVariants.moving);
-        path01Controls.start(firstPathVariants.open);
-        path02Controls.start(secondPathVariants.open);
+    const animate = async () => {
+      if (isOpen) {
+        // Opening: bottom extends first, then both morph to X
+        await bottomPathControls.start(bottomPathVariants.extended);
+        await Promise.all([
+          topPathControls.start(topPathVariants.open),
+          bottomPathControls.start(bottomPathVariants.open),
+        ]);
       } else {
-        path01Controls.start(firstPathVariants.closed);
-        await path02Controls.start(secondPathVariants.moving);
-        path02Controls.start(secondPathVariants.closed);
+        // Closing: both morph back, then bottom shrinks
+        await Promise.all([
+          topPathControls.start(topPathVariants.closed),
+          bottomPathControls.start(bottomPathVariants.extended),
+        ]);
+        await bottomPathControls.start(bottomPathVariants.closed);
       }
+    };
+
+    void animate();
+  }, [isOpen, topPathControls, bottomPathControls]);
+
+  // Reset position when menu closes (mobile only)
+  useEffect(() => {
+    if (!isOpen) {
+      buttonRef.current?.style.removeProperty('left');
+      buttonRef.current?.style.removeProperty('top');
+    }
+  }, [isOpen]);
+
+  const handleClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      // Only apply mouse positioning on mobile
+      if (!isOpen && isMobile) {
+        const { x, y } = getMousePosition(event);
+        buttonRef.current?.style.setProperty('left', `${x}px`);
+        buttonRef.current?.style.setProperty('top', `${y}px`);
+      }
+
+      onClick?.();
     },
-    [path01Controls, path02Controls],
+    [isOpen, isMobile, onClick],
   );
 
-  const handleClick = useCallback(() => {
-    onClick?.(!isOpen);
-    setIsOpen((prev) => {
-      void animateSvg(!prev);
-      return !prev;
-    });
-  }, [animateSvg, isOpen, onClick]);
-
-  useImperativeHandle(
-    ref,
-    () => ({
-      close: () => {
-        setIsOpen(false);
-        void animateSvg(false);
-      },
-    }),
-    [animateSvg],
-  );
+  const animationState = isOpen ? 'open' : 'closed';
 
   return (
     <button
-      className={menuToggleStyles({ state: isOpen ? 'open' : 'closed' })}
+      className={menuToggleStyles({ state: animationState })}
       onClick={handleClick}
+      ref={buttonRef}
     >
-      <svg height="24" viewBox="0 0 24 24" width="24">
-        <motion.path
-          {...firstPathVariants.closed}
-          animate={path01Controls}
-          stroke="#fff"
-          strokeWidth={2.5}
-          transition={{ duration: 0.2 }}
-        />
-        <motion.path
-          {...secondPathVariants.closed}
-          animate={path02Controls}
-          stroke="#fff"
-          strokeWidth={2.5}
-          transition={{ duration: 0.2 }}
-        />
-      </svg>
+      <div className="size-[22px] md:size-[24px]">
+        <svg className="h-full w-full" viewBox="0 0 24 24">
+          <motion.path
+            animate={topPathControls}
+            d={topPathVariants.closed.d}
+            stroke="#fff"
+            strokeWidth={2.5}
+            transition={{ duration: 0.2 }}
+          />
+          <motion.path
+            animate={bottomPathControls}
+            d={bottomPathVariants.closed.d}
+            stroke="#fff"
+            strokeWidth={2.5}
+            transition={{ duration: 0.2 }}
+          />
+        </svg>
+      </div>
     </button>
   );
-});
+}
 
-MenuToggle.displayName = 'MenuToggle';
+MenuToggleComponent.displayName = 'MenuToggle';
+
+const MenuToggle = memo(MenuToggleComponent);
 
 export default MenuToggle;

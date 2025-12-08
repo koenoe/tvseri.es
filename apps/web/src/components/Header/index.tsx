@@ -2,16 +2,18 @@ import { Suspense } from 'react';
 
 import auth from '@/auth';
 
-import Logo from './Logo';
-import Menu from './Menu/Menu';
-import Username from './Menu/Username';
+import Logo from '../Logo';
+import Menu from '../Menu/Menu';
+import Username from '../Menu/Username';
+import { HeaderStoreProvider } from './HeaderStoreProvider';
+import MorphingHeader from './MorphingHeader';
 
 export default function Header() {
   const authPromise = auth();
 
   return (
-    <div className="absolute h-[6rem] w-screen md:h-[8rem]">
-      <div className="container flex h-full w-full items-center justify-stretch">
+    <HeaderStoreProvider>
+      <MorphingHeader>
         <Logo priority />
         <Menu authPromise={authPromise}>
           <Suspense
@@ -22,7 +24,7 @@ export default function Header() {
             <Username authPromise={authPromise} />
           </Suspense>
         </Menu>
-      </div>
-    </div>
+      </MorphingHeader>
+    </HeaderStoreProvider>
   );
 }

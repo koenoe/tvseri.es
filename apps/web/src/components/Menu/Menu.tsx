@@ -3,14 +3,16 @@
 import type { User } from '@tvseri.es/schemas';
 import { AnimatePresence, motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
-import { Suspense, useCallback, useRef, useState } from 'react';
+import { Suspense, useCallback } from 'react';
 
 import useMatchMedia from '@/hooks/useMatchMedia';
 import getMainBackgroundColor from '@/utils/getMainBackgroundColor';
+
+import { useHeaderStore } from '../Header/HeaderStoreProvider';
 import Modal from '../Modal';
 import Search from '../Search/Search';
 import MenuItems, { MenuItemsSkeleton } from './MenuItems';
-import MenuToggle, { type MenuToggleHandle } from './MenuToggle';
+import MenuToggle from './MenuToggle';
 
 export default function Menu({
   children,
@@ -20,26 +22,24 @@ export default function Menu({
   authPromise: Promise<{ user: User | null }>;
 }>) {
   const router = useRouter();
-  const menuToggleRef = useRef<MenuToggleHandle>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [backgroundColor, setBackgroundColor] = useState<string>('#000');
+  const isOpen = useHeaderStore((state) => state.menuOpen);
+  const backgroundColor = useHeaderStore((state) => state.menuBackgroundColor);
+  const toggle = useHeaderStore((state) => state.toggleMenu);
+  const close = useHeaderStore((state) => state.closeMenu);
   const isMobile = useMatchMedia('(max-width: 768px)');
 
-  const handleMenuToggle = useCallback((open: boolean) => {
-    setBackgroundColor(getMainBackgroundColor());
-    setMenuOpen(open);
-  }, []);
+  const handleMenuToggle = useCallback(() => {
+    toggle(getMainBackgroundColor());
+  }, [toggle]);
 
   const handleLogout = useCallback(() => {
-    setMenuOpen(false);
-    menuToggleRef.current?.close();
+    close();
     router.refresh();
-  }, [router]);
+  }, [close, router]);
 
   const handleMenuItemClick = useCallback(() => {
-    setMenuOpen(false);
-    menuToggleRef.current?.close();
-  }, []);
+    close();
+  }, [close]);
 
   const renderMenu = useCallback(() => {
     return (
@@ -98,10 +98,9 @@ export default function Menu({
     <div className="ml-auto flex items-center gap-10">
       <div className="relative h-[18px] w-auto">
         <AnimatePresence initial={false}>
-          {menuOpen &&
-            (isMobile ? <Modal>{renderMenu()}</Modal> : renderMenu())}
+          {isOpen && (isMobile ? <Modal>{renderMenu()}</Modal> : renderMenu())}
 
-          {!menuOpen && (
+          {!isOpen && (
             <motion.div
               animate="visible"
               className="absolute right-0 top-0 z-10 hidden md:block"
@@ -125,7 +124,7 @@ export default function Menu({
 
       <div className="relative flex items-center">
         <Search />
-        <MenuToggle onClick={handleMenuToggle} ref={menuToggleRef} />
+        <MenuToggle onClick={handleMenuToggle} />
       </div>
     </div>
   );

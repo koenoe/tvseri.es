@@ -1,5 +1,6 @@
 'use client';
 
+import { cva } from 'class-variance-authority';
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -8,12 +9,35 @@ import { useDebouncedCallback } from 'use-debounce';
 
 import searchIcon from '@/assets/search.svg';
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
+import useMatchMedia from '@/hooks/useMatchMedia';
 import { useSearch } from '@/hooks/useSearch';
 import getMainBackgroundColor from '@/utils/getMainBackgroundColor';
 
+import { useHeaderStore } from '../Header/HeaderStoreProvider';
 import Modal from '../Modal';
 import SearchInput, { type SearchInputHandle } from './SearchInput';
 import SearchResults from './SearchResults';
+
+const searchIconStyles = cva(
+  'relative z-10 mr-[calc(22px+1rem)] cursor-pointer transition-opacity duration-[250ms] md:mr-[calc(24px+1rem)]',
+  {
+    compoundVariants: [
+      {
+        className: 'pointer-events-none opacity-10',
+        disabled: true,
+      },
+    ],
+    defaultVariants: {
+      disabled: false,
+    },
+    variants: {
+      disabled: {
+        false: '',
+        true: '',
+      },
+    },
+  },
+);
 
 function Search() {
   const searchInputRef = useRef<SearchInputHandle>(null);
@@ -22,6 +46,9 @@ function Search() {
     DEFAULT_BACKGROUND_COLOR,
   );
   const router = useRouter();
+  const isMenuOpen = useHeaderStore((state) => state.menuOpen);
+  const isMobile = useMatchMedia('(max-width: 768px)');
+  const isDisabled = isMenuOpen && isMobile;
 
   const { results, isPending, handleSearch, reset } = useSearch();
 
@@ -76,7 +103,7 @@ function Search() {
   return (
     <LayoutGroup>
       <motion.div
-        className="relative z-10 mr-[calc(24px+1.25rem)] cursor-pointer"
+        className={searchIconStyles({ disabled: isDisabled })}
         key="search"
         onClick={() => {
           setBackgroundColor(getMainBackgroundColor());
@@ -84,10 +111,19 @@ function Search() {
         }}
       >
         <motion.div
-          className="absolute h-[24px] w-[24px] md:rounded-2xl"
+          className="absolute size-[22px] md:size-[24px] md:rounded-2xl"
           layoutId="search"
         />
-        <Image alt="" height={24} priority src={searchIcon} width={24} />
+        <div className="size-[22px] md:size-[24px]">
+          <Image
+            alt=""
+            className="h-full w-full"
+            height={24}
+            priority
+            src={searchIcon}
+            width={24}
+          />
+        </div>
       </motion.div>
       <AnimatePresence>
         {isOpen && (

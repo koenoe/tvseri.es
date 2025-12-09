@@ -7,7 +7,7 @@ import { memo, useMemo, useRef } from 'react';
 import { useHeaderStore } from './HeaderStoreProvider';
 import type { HeaderMode } from './store';
 
-const SCROLL_THRESHOLD = 50;
+const SCROLL_THRESHOLD = 60;
 
 const EASE_CURVE = [0.25, 0.1, 0.25, 1] as const;
 
@@ -46,7 +46,8 @@ const containerStyles = cva('', {
   variants: {
     layout: {
       floating: 'mx-auto max-w-[1088px] px-4 pt-4 md:px-8 md:pt-6',
-      static: 'container',
+      static:
+        'mx-auto sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl w-full px-4 md:px-0',
     },
   },
 });
@@ -69,8 +70,8 @@ const contentStyles = cva('relative z-[4] flex items-center', {
   },
   variants: {
     layout: {
-      floating: 'justify-between gap-8 px-6 py-3 md:py-4',
-      static: 'h-[6rem] w-full justify-stretch md:h-[8rem]',
+      floating: 'justify-between gap-8 py-3 md:py-4 px-6',
+      static: 'h-[6rem] w-full justify-stretch md:h-[8rem] md:px-8 px-4',
     },
   },
 });
@@ -113,17 +114,13 @@ function MorphingHeader({
   const isHidden = mode === 'hidden';
   const layout = mode === 'static' ? 'static' : 'floating';
 
-  // Only animate when floating is involved, but skip when transitioning to static
-  // while at scroll position 0 (indicates navigation just occurred)
+  // Only animate when floating is involved, but skip when at scroll position 0
+  // and mode is static (indicates navigation just occurred or page load)
   const currentScrollY = scrollY.get();
-  const isNavigationReset =
-    previousMode.current === 'floating' &&
-    mode === 'static' &&
-    currentScrollY === 0;
+  const isAtTop = currentScrollY === 0 && mode === 'static';
 
   const shouldAnimate =
-    !isNavigationReset &&
-    (previousMode.current === 'floating' || mode === 'floating');
+    !isAtTop && (previousMode.current === 'floating' || mode === 'floating');
 
   const headerTransition = useMemo(
     () => ({
@@ -144,7 +141,7 @@ function MorphingHeader({
   );
 
   const opacityTransition = useMemo(
-    () => ({ duration: shouldAnimate ? 0.3 : 0 }),
+    () => ({ duration: shouldAnimate ? 0.2 : 0 }),
     [shouldAnimate],
   );
 

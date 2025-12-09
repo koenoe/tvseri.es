@@ -1,7 +1,6 @@
 'use client';
 
 import { cva } from 'class-variance-authority';
-import type { Variants } from 'motion/react';
 import { AnimatePresence, animate, motion, useMotionValue } from 'motion/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -24,16 +23,10 @@ const MODAL_TRANSITION = {
   ease: [0.32, 0.72, 0, 1],
 } as const;
 
-const backdropVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    transition: { duration: 0.16 },
-  },
-  visible: {
-    opacity: 0.7,
-    transition: { delay: 0.04, duration: 0.2 },
-  },
-};
+const BACKDROP_TRANSITION = {
+  duration: 0.2,
+  ease: [0.32, 0.72, 0, 1],
+} as const;
 
 const searchIconStyles = cva(
   'relative z-10 mr-[calc(22px+1rem)] cursor-pointer transition-opacity duration-300 md:mr-[calc(24px+1rem)]',
@@ -87,6 +80,7 @@ function SearchComponent() {
   const y = useMotionValue(0);
   const scale = useMotionValue(1);
   const opacity = useMotionValue(1);
+  const backdropOpacity = useMotionValue(0);
 
   const getIconOffset = useCallback(() => {
     if (!iconRef.current) {
@@ -122,18 +116,20 @@ function SearchComponent() {
 
   const animateToIcon = useCallback(() => {
     const offset = getIconOffset();
+    animate(backdropOpacity, 0, BACKDROP_TRANSITION);
+    animate(opacity, 0, MODAL_TRANSITION);
     animate(x, offset.x, MODAL_TRANSITION);
     animate(y, offset.y, MODAL_TRANSITION);
-    animate(scale, 0.03, MODAL_TRANSITION);
-    return animate(opacity, 0, MODAL_TRANSITION);
-  }, [getIconOffset, opacity, scale, x, y]);
+    return animate(scale, 0.03, MODAL_TRANSITION);
+  }, [backdropOpacity, getIconOffset, opacity, scale, x, y]);
 
   const animateToModal = useCallback(() => {
+    animate(backdropOpacity, 0.7, BACKDROP_TRANSITION);
+    animate(opacity, 1, MODAL_TRANSITION);
     animate(x, 0, MODAL_TRANSITION);
     animate(y, 0, MODAL_TRANSITION);
-    animate(scale, 1, MODAL_TRANSITION);
-    animate(opacity, 1, MODAL_TRANSITION);
-  }, [opacity, scale, x, y]);
+    return animate(scale, 1, MODAL_TRANSITION);
+  }, [backdropOpacity, opacity, scale, x, y]);
 
   const handleClose = useCallback(() => {
     animateToIcon().then(() => {
@@ -145,13 +141,16 @@ function SearchComponent() {
 
   const handleOpen = useCallback(() => {
     const offset = getIconOffset();
+
     x.set(offset.x);
     y.set(offset.y);
     scale.set(0);
     opacity.set(0);
+    backdropOpacity.set(0);
+
     setBackgroundColor(getMainBackgroundColor());
     setIsOpen(true);
-  }, [getIconOffset, opacity, scale, x, y]);
+  }, [backdropOpacity, getIconOffset, opacity, scale, x, y]);
 
   const handleIconClick = useCallback(() => {
     if (isOpen) {
@@ -239,14 +238,10 @@ function SearchComponent() {
         {isOpen && (
           <Modal>
             <motion.div
-              animate="visible"
               className="fixed inset-0 z-40"
-              exit="hidden"
-              initial="hidden"
               key="modal-backdrop"
               onClick={handleClose}
-              style={{ backgroundColor }}
-              variants={backdropVariants}
+              style={{ backgroundColor, opacity: backdropOpacity }}
             />
             <div className="pointer-events-none fixed inset-0 z-50">
               {/* We use motion values (x, y, scale, opacity) with manual animate() calls

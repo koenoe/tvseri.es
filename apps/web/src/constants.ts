@@ -8,6 +8,7 @@ export const DEFAULT_BACKGROUND_IMAGE =
 // No retries - API already handles retries to external services
 export const FETCH_RETRY_OPTIONS = {
   attempts: 1,
+  type: 'linear',
 } as RetryOptions;
 
 // 10 second timeout

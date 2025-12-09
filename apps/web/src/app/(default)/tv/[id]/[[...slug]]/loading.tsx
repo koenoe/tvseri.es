@@ -14,18 +14,18 @@ export default function Loading() {
             <div className="relative my-6 flex h-9 w-full rounded-3xl bg-white/5 lg:w-9/12" />
           </div>
         </div>
-        <div className="mb-6 flex w-full flex-col gap-1 xl:w-4/5 2xl:w-3/5">
-          <div className="h-7 w-11/12 bg-white/20" />
+        <div className="mb-8 flex w-full flex-col gap-1 xl:w-4/5 2xl:w-3/5">
           <div className="h-7 w-full bg-white/20" />
-          <div className="h-7 w-9/12 bg-white/20" />
+          <div className="h-7 w-full lg:w-7/12 bg-white/20" />
+          <div className="h-7 w-2/12 lg:hidden bg-white/20" />
         </div>
-        <SkeletonRating className="mb-6" />
+        <SkeletonRating className="mb-7 lg:mb-8" />
         <div className="flex flex-col gap-1">
           <div className="h-4 w-32 bg-white/10" />
           {/* <div className="h-4 w-36 bg-white/10" />
           <div className="h-4 w-48 bg-white/10" /> */}
         </div>
-        <SkeletonAvatars className="my-10 lg:mb-7 lg:mt-14" />
+        <SkeletonAvatars className="my-10 lg:mb-7 lg:mt-16" />
       </div>
       <SkeletonList className="mb-10 md:mb-16" variant="episode" />
       <SkeletonList />

@@ -104,14 +104,14 @@ function MenuToggleComponent({
         <svg className="h-full w-full" viewBox="0 0 24 24">
           <motion.path
             animate={topPathControls}
-            d={topPathVariants.closed.d}
+            initial={topPathVariants.closed}
             stroke="#fff"
             strokeWidth={2.5}
             transition={{ duration: 0.2 }}
           />
           <motion.path
             animate={bottomPathControls}
-            d={bottomPathVariants.closed.d}
+            initial={bottomPathVariants.closed}
             stroke="#fff"
             strokeWidth={2.5}
             transition={{ duration: 0.2 }}

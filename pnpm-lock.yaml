@@ -7,8 +7,8 @@ settings:
 catalogs:
   default:
     '@types/node':
-      specifier: 22.15.30
-      version: 22.15.30
+      specifier: 22.19.2
+      version: 22.19.2
     sst:
       specifier: 3.17.25
       version: 3.17.25
@@ -105,7 +105,7 @@ importers:
         version: 4.2.0
       '@types/node':
         specifier: 'catalog:'
-        version: 22.15.30
+        version: 22.19.2
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
@@ -154,7 +154,7 @@ importers:
         version: link:../../packages/typescript-config
       '@types/node':
         specifier: 'catalog:'
-        version: 22.15.30
+        version: 22.19.2
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -257,7 +257,7 @@ importers:
         version: 4.2.0
       '@types/node':
         specifier: 'catalog:'
-        version: 22.15.30
+        version: 22.19.2
       '@types/papaparse':
         specifier: ^5.5.1
         version: 5.5.1
@@ -303,7 +303,7 @@ importers:
         version: link:../typescript-config
       '@types/node':
         specifier: 'catalog:'
-        version: 22.15.30
+        version: 22.19.2
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -331,7 +331,7 @@ importers:
         version: 8.10.159
       '@types/node':
         specifier: 'catalog:'
-        version: 22.15.30
+        version: 22.19.2
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -371,7 +371,7 @@ importers:
         version: link:../typescript-config
       '@types/node':
         specifier: 'catalog:'
-        version: 22.15.30
+        version: 22.19.2
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -1795,8 +1795,8 @@ packages:
   '@types/d3-timer@3.0.2':
     resolution: {integrity: sha512-Ps3T8E8dZDam6fUyNiMkekK3XUsaUEik+idO9/YjPtfj2qruF8tFBXS7XhtE4iIXBLxhmLjP3SXpLhVf21I9Lw==}
 
-  '@types/node@22.15.30':
-    resolution: {integrity: sha512-6Q7lr06bEHdlfplU6YRbgG1SFBdlsfNC4/lX+SkhiTs0cpJkOElmWls8PxDFv4yY/xKb8Y6SO0OmSX4wgqTZbA==}
+  '@types/node@22.19.2':
+    resolution: {integrity: sha512-LPM2G3Syo1GLzXLGJAKdqoU35XvrWzGJ21/7sgZTUpbkBaOasTj8tjwn6w+hCkqaa1TfJ/w67rJSwYItlJ2mYw==}
 
   '@types/papaparse@5.5.1':
     resolution: {integrity: sha512-esEO+VISsLIyE+JZBmb89NzsYYbpwV8lmv2rPo6oX5y9KhBaIP7hhHgjuTut54qjdKVMufTEcrh5fUl9+58huw==}
@@ -6082,13 +6082,13 @@ snapshots:
 
   '@types/d3-timer@3.0.2': {}
 
-  '@types/node@22.15.30':
+  '@types/node@22.19.2':
     dependencies:
       undici-types: 6.21.0
 
   '@types/papaparse@5.5.1':
     dependencies:
-      '@types/node': 22.15.30
+      '@types/node': 22.19.2
 
   '@types/react-dom@19.2.3(@types/react@19.2.7)':
     dependencies:

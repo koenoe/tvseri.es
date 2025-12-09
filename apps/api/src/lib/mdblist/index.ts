@@ -1,9 +1,6 @@
 import { type BetterFetchOption, createFetch } from '@better-fetch/fetch';
-import {
-  DEFAULT_FETCH_RETRY_OPTIONS,
-  DEFAULT_FETCH_TIMEOUT,
-} from '@tvseri.es/constants';
 import { Resource } from 'sst';
+import { FETCH_RETRY_OPTIONS, FETCH_TIMEOUT } from '@/constants';
 
 type MediaType = 'movie' | 'show';
 
@@ -55,8 +52,8 @@ const $fetch = createFetch({
     apikey: apiKey,
     format: 'json',
   },
-  retry: DEFAULT_FETCH_RETRY_OPTIONS,
-  timeout: DEFAULT_FETCH_TIMEOUT,
+  retry: FETCH_RETRY_OPTIONS,
+  timeout: FETCH_TIMEOUT,
 });
 
 async function mdblistFetch(path: string, options?: BetterFetchOption) {

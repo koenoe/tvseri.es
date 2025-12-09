@@ -3,7 +3,6 @@
     "sst": "catalog:"
   },
   "devDependencies": {
-    "@better-fetch/fetch": "^1.1.19",
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:"

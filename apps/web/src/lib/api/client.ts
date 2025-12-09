@@ -1,11 +1,8 @@
 import type { BetterFetchOption } from '@better-fetch/fetch';
 import { createFetch } from '@better-fetch/fetch';
-import {
-  DEFAULT_FETCH_RETRY_OPTIONS,
-  DEFAULT_FETCH_TIMEOUT,
-} from '@tvseri.es/constants';
 import type { TvSeries, TvSeriesForWatched } from '@tvseri.es/schemas';
 import { Resource } from 'sst';
+import { FETCH_RETRY_OPTIONS, FETCH_TIMEOUT } from '@/constants';
 
 import nextPlugin from '../betterFetchNextPlugin';
 
@@ -31,8 +28,8 @@ export const $fetch = createFetch({
     'x-api-key': apiKey,
   },
   plugins: [nextPlugin],
-  retry: DEFAULT_FETCH_RETRY_OPTIONS,
-  timeout: DEFAULT_FETCH_TIMEOUT,
+  retry: FETCH_RETRY_OPTIONS,
+  timeout: FETCH_TIMEOUT,
 });
 
 export async function apiFetch(path: string, options?: BetterFetchOption) {

@@ -1,9 +1,5 @@
 import { type BetterFetchOption, createFetch } from '@better-fetch/fetch';
-import {
-  DEFAULT_FETCH_RETRY_OPTIONS,
-  DEFAULT_FETCH_TIMEOUT,
-  WATCH_PROVIDER_PRIORITY,
-} from '@tvseri.es/constants';
+import { WATCH_PROVIDER_PRIORITY } from '@tvseri.es/constants';
 import type {
   CountryOrLanguage,
   Episode,
@@ -49,6 +45,7 @@ import {
 } from '@tvseri.es/utils';
 import slugify from 'slugify';
 import { Resource } from 'sst';
+import { FETCH_RETRY_OPTIONS, FETCH_TIMEOUT } from '@/constants';
 import calculateAge from '@/utils/calculateAge';
 import { dedupe } from '@/utils/dedupe';
 import { findPreferredImages } from '../db/preferredImages';
@@ -80,8 +77,8 @@ if (!tmdbApiKey || !tmdbApiAccessToken) {
 
 const $fetch = createFetch({
   baseURL: 'https://api.themoviedb.org',
-  retry: DEFAULT_FETCH_RETRY_OPTIONS,
-  timeout: DEFAULT_FETCH_TIMEOUT,
+  retry: FETCH_RETRY_OPTIONS,
+  timeout: FETCH_TIMEOUT,
 });
 
 async function tmdbFetch(path: string, options?: BetterFetchOption) {

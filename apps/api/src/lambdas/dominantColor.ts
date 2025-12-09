@@ -1,8 +1,8 @@
 import { createFetch } from '@better-fetch/fetch';
-import { DEFAULT_FETCH_RETRY_OPTIONS } from '@tvseri.es/constants';
 import type { Handler } from 'aws-lambda';
 import Color, { type ColorInstance } from 'color';
 import sharp from 'sharp';
+import { FETCH_RETRY_OPTIONS } from '@/constants';
 
 const BLUR_SIGMA = 35;
 const CONTRAST_MINIMUM = 4.5;
@@ -17,7 +17,7 @@ type ProcessImageResult = Readonly<{
 }>;
 
 const $fetch = createFetch({
-  retry: DEFAULT_FETCH_RETRY_OPTIONS,
+  retry: FETCH_RETRY_OPTIONS,
 });
 
 const correctContrast = (input: ColorInstance): ColorInstance => {

@@ -9,7 +9,10 @@ export default async function HistoryContainer({
 }: Readonly<{
   user: User;
 }>) {
-  const { items, nextCursor } = await getWatched({ userId: user.id });
+  const { items, nextCursor } = await getWatched({
+    options: { limit: 100 },
+    userId: user.id,
+  });
 
   if (items.length === 0) {
     return null;

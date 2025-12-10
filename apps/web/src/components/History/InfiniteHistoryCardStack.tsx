@@ -5,7 +5,7 @@ import { memo, useCallback } from 'react';
 
 import createUseRestorableState from '@/hooks/createUseRestorableState';
 import InfiniteScroll from '../InfiniteScroll/InfiniteScroll';
-import HistoryCardStack from './HistoryCardStack';
+import HistoryTimeline from './HistoryTimeline';
 
 const useRestorableItems = createUseRestorableState<WatchedItem[]>();
 const useRestorableCursor = createUseRestorableState<
@@ -59,9 +59,11 @@ function InfiniteHistoryCardStack({
 
   return (
     <InfiniteScroll hasMoreData={!!nextCursor} loadMore={handleLoadMore}>
-      <HistoryCardStack items={items} />
+      <HistoryTimeline items={items} />
     </InfiniteScroll>
   );
 }
+
+InfiniteHistoryCardStack.displayName = 'InfiniteHistoryCardStack';
 
 export default memo(InfiniteHistoryCardStack);

@@ -19,31 +19,31 @@ const InfiniteScroll = ({
   const [isPending, startTransition] = useTransition();
   const isInView = useInView(sentinelRef, {
     amount: 'some',
+    margin: '0px 0px 2000px 0px',
   });
 
   useEffect(() => {
-    if (!sentinelRef.current || isPending) {
-      return;
-    }
-
-    if (isInView) {
+    if (isInView && hasMoreData && !isPending) {
       startTransition(async () => {
         await loadMore();
       });
     }
-  }, [isInView, isPending, loadMore]);
+  }, [isInView, hasMoreData, isPending, loadMore]);
 
   return (
     <div className={cx('relative', className)}>
       {children}
       {hasMoreData && (
         <div
-          className="pointer-events-none absolute bottom-0 left-0 block h-[25vh] w-full"
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-0 h-px w-full"
           ref={sentinelRef}
         />
       )}
     </div>
   );
 };
+
+InfiniteScroll.displayName = 'InfiniteScroll';
 
 export default memo(InfiniteScroll);

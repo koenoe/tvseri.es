@@ -1,7 +1,6 @@
 'use client';
 
 import type { WatchedItem } from '@tvseri.es/schemas';
-import { formatDistanceToNowStrict } from 'date-fns';
 import Image from 'next/image';
 import Link from 'next/link';
 import { memo } from 'react';
@@ -75,9 +74,7 @@ function HistoryCard({
         </div>
         <div className="mt-3 flex w-full items-center justify-between gap-1.5 text-xs font-medium">
           <div className="flex flex-shrink-0 gap-1.5">
-            <div className="text-nowrap">
-              {formatDistanceToNowStrict(item.watchedAt, { addSuffix: true })}
-            </div>
+            <div className="text-nowrap">{formatDate(item.watchedAt)}</div>
             <div className="text-nowrap opacity-60 before:mr-1 before:content-['—']">
               {formatRuntime(item.runtime)}
             </div>

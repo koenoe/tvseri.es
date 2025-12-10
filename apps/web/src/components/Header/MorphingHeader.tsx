@@ -84,10 +84,23 @@ function MorphingHeader({
   const { scrollY } = useScroll();
   const previousMode = useRef<HeaderMode>('static');
   const lastScrollY = useRef(0);
+  const lastPath = useRef<string | null>(null);
   const mode = useHeaderStore((state) => state.mode);
   const setMode = useHeaderStore((state) => state.setMode);
 
   useMotionValueEvent(scrollY, 'change', (current) => {
+    // Detect navigation by checking if path changed
+    const currentPath = window.location.pathname + window.location.search;
+    if (lastPath.current !== currentPath) {
+      lastPath.current = currentPath;
+      lastScrollY.current = current;
+      previousMode.current = 'static';
+      if (mode !== 'static') {
+        setMode('static');
+      }
+      return;
+    }
+
     const previous = lastScrollY.current;
     const scrollingUp = current < previous;
     const pastThreshold = current > SCROLL_THRESHOLD;
@@ -114,13 +127,9 @@ function MorphingHeader({
   const isHidden = mode === 'hidden';
   const layout = mode === 'static' ? 'static' : 'floating';
 
-  // Only animate when floating is involved, but skip when at scroll position 0
-  // and mode is static (indicates navigation just occurred or page load)
-  const currentScrollY = scrollY.get();
-  const isAtTop = currentScrollY === 0 && mode === 'static';
-
+  // Only animate when transitioning to/from floating state
   const shouldAnimate =
-    !isAtTop && (previousMode.current === 'floating' || mode === 'floating');
+    previousMode.current === 'floating' || mode === 'floating';
 
   const headerTransition = useMemo(
     () => ({

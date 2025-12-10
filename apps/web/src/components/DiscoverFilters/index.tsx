@@ -21,7 +21,7 @@ export default function DiscoverFilters({
   return (
     <div className={cx('flex flex-col gap-4', className)}>
       <button
-        className="flex h-11 w-32 cursor-pointer items-center justify-center gap-3 rounded-3xl bg-white/5 px-6 py-4 text-sm leading-none tracking-wide backdrop-blur-xl"
+        className="flex h-11 w-32 cursor-pointer items-center justify-center gap-3 rounded-3xl bg-neutral-800 px-6 py-4 text-sm leading-none tracking-wide backdrop-blur-xl"
         onClick={() => setIsOpen((prev) => !prev)}
       >
         <div className="flex h-[18px] w-[18px] items-center justify-center">
@@ -57,7 +57,7 @@ export default function DiscoverFilters({
             key="filters"
             layout
           >
-            <div className="relative grid grow grid-cols-1 items-start gap-7 rounded-3xl bg-white/5 p-5 md:p-7 lg:grid-cols-3">
+            <div className="relative grid grow grid-cols-1 items-start gap-7 rounded-3xl bg-neutral-800 p-5 md:p-7 lg:grid-cols-3">
               {children}
               {/* <ul>
                 <li>air date from/to</li>

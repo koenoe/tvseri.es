@@ -11,7 +11,8 @@ export const gridStyles = cva([
 ]);
 
 export default function Grid({
+  className,
   children,
-}: Readonly<{ children: React.ReactNode }>) {
-  return <div className={gridStyles()}>{children}</div>;
+}: Readonly<{ children: React.ReactNode; className?: string }>) {
+  return <div className={gridStyles({ className })}>{children}</div>;
 }

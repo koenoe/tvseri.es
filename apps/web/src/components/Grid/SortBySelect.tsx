@@ -55,7 +55,7 @@ function SortBySelect({
   return (
     <div className={className}>
       <div
-        className="flex h-11 w-36 cursor-pointer items-center justify-center gap-2 rounded-3xl bg-white/5 py-3 pl-5 pr-4 text-sm leading-none tracking-wide backdrop-blur-xl"
+        className="flex h-11 w-36 cursor-pointer items-center justify-center gap-2 rounded-3xl bg-neutral-800 py-3 pl-5 pr-4 text-sm leading-none tracking-wide backdrop-blur-xl"
         onClick={() => {
           setIsOpen((prev) => !prev);
         }}

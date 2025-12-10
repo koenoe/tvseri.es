@@ -39,7 +39,7 @@ export default async function DiscoverLayout({
         <div className="relative z-40">
           <Suspense
             fallback={
-              <div className="absolute left-0 top-0 z-10 h-11 w-36 animate-pulse rounded-3xl bg-white/5 backdrop-blur-xl" />
+              <div className="absolute left-0 top-0 z-10 h-11 w-36 animate-pulse rounded-3xl bg-neutral-800" />
             }
           >
             <SortBySelect
@@ -51,7 +51,7 @@ export default async function DiscoverLayout({
 
         <Suspense
           fallback={
-            <div className="relative mb-10 ml-auto h-11 w-32 animate-pulse rounded-3xl bg-white/5 backdrop-blur-xl" />
+            <div className="relative mb-10 ml-auto h-11 w-32 animate-pulse rounded-3xl bg-neutral-800" />
           }
         >
           <DiscoverFilters className="relative z-30 mb-10 items-end">

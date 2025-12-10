@@ -61,7 +61,7 @@ function Timeline({ data }: Props) {
 
             {/* Right column: content */}
             <div className="relative min-w-0 flex-1">
-              <h3 className="mb-4 block text-xl font-bold text-neutral-500 md:hidden">
+              <h3 className="mb-4 flex h-10 items-center text-xl font-bold text-neutral-500 md:hidden">
                 {item.title}
               </h3>
               {item.content}

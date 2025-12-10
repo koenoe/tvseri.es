@@ -24,7 +24,7 @@ export default function HistoryCardSkeleton({
             {/* Right column: content */}
             <div className="relative min-w-0 flex-1">
               {/* Title skeleton - mobile only */}
-              <div className="mb-4 block md:hidden">
+              <div className="mb-4 flex h-10 items-center md:hidden">
                 <div className="h-6 w-24 animate-pulse bg-white/10" />
               </div>
 

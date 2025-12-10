@@ -1,9 +1,10 @@
 'use client';
 
 import type { WatchedItem } from '@tvseri.es/schemas';
+import { intlFormatDistance } from 'date-fns';
 import Image from 'next/image';
 import Link from 'next/link';
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import formatDate from '@/utils/formatDate';
@@ -23,6 +24,20 @@ function HistoryCard({
   showShadow = false,
 }: Props) {
   const href = `/tv/${item.seriesId}/${item.slug}`;
+  const formattedWatchedAt = useMemo(() => {
+    const watchedDate = new Date(item.watchedAt);
+    const now = new Date();
+    const isCurrentMonth =
+      watchedDate.getMonth() === now.getMonth() &&
+      watchedDate.getFullYear() === now.getFullYear();
+    if (!isCurrentMonth) {
+      const isCurrentYear = watchedDate.getFullYear() === now.getFullYear();
+      return formatDate(item.watchedAt, {
+        year: isCurrentYear ? undefined : 'numeric',
+      });
+    }
+    return intlFormatDistance(watchedDate, now);
+  }, [item.watchedAt]);
 
   return (
     <Link
@@ -74,7 +89,7 @@ function HistoryCard({
         </div>
         <div className="mt-3 flex w-full items-center justify-between gap-1.5 text-xs font-medium">
           <div className="flex flex-shrink-0 gap-1.5">
-            <div className="text-nowrap">{formatDate(item.watchedAt)}</div>
+            <div className="text-nowrap">{formattedWatchedAt}</div>
             <div className="text-nowrap opacity-60 before:mr-1 before:content-['—']">
               {formatRuntime(item.runtime)}
             </div>

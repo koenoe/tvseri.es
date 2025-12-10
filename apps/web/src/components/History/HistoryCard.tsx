@@ -5,6 +5,7 @@ import { formatDistanceToNowStrict } from 'date-fns';
 import Image from 'next/image';
 import Link from 'next/link';
 import { memo } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 import formatDate from '@/utils/formatDate';
 import formatRuntime from '@/utils/formatRuntime';
@@ -23,16 +24,18 @@ function HistoryCard({
   showShadow = false,
 }: Props) {
   const href = `/tv/${item.seriesId}/${item.slug}`;
-  const shadowClass = showShadow ? ' shadow-[0_1px_4px_rgba(0,0,0,0.15)]' : '';
 
   return (
     <Link
-      className={`flex w-full flex-row items-center gap-4 rounded-xl bg-neutral-800 p-4${shadowClass}`}
+      className={twMerge(
+        'flex w-full flex-row items-center gap-4 rounded-xl bg-neutral-800 p-4',
+        showShadow && 'shadow-[0_1px_4px_rgba(0,0,0,0.15)]',
+      )}
       href={href}
       style={{ pointerEvents }}
     >
       {item.posterImage && (
-        <div className="relative w-12 flex-shrink-0 overflow-clip rounded-lg after:absolute after:inset-0 after:rounded-lg after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:w-16">
+        <div className="relative w-12 flex-shrink-0 overflow-clip rounded-xl after:absolute after:inset-0 after:rounded-xl after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:w-16">
           <Image
             alt={item.title}
             className="h-full w-full object-cover"

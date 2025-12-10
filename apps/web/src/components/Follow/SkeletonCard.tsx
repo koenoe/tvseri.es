@@ -4,7 +4,7 @@ export default function SkeletonCard({
   numberOfItems = 5,
 }: Readonly<{ numberOfItems?: number }>) {
   return (
-    <div className="rounded-lg bg-white/5 p-4 md:p-6">
+    <div className="rounded-xl bg-white/5 p-4 md:p-6">
       <div className="h-7 w-52 bg-white/20" />
       <div className="flex flex-col gap-2 pt-4 md:pt-6">
         {[...Array(numberOfItems)].map((_, index) => (

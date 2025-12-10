@@ -55,7 +55,7 @@ function Card({
   }, [fetchItems, nextCursor]);
 
   return (
-    <div className="rounded-lg bg-white/5 p-4 md:p-6">
+    <div className="rounded-xl bg-neutral-800 p-4 md:p-6">
       <div className="relative w-full">
         <h2 className="w-full text-lg font-medium">{title}</h2>
       </div>

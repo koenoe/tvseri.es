@@ -12,7 +12,7 @@ function Item({
   user: UserWithFollowInfo;
 }>) {
   return (
-    <div className="relative flex flex-row gap-3 rounded-lg bg-black/10 p-3 md:flex-row md:items-center md:gap-4 md:p-4">
+    <div className="relative flex flex-row gap-3 rounded-xl bg-black/10 p-3 md:flex-row md:items-center md:gap-4 md:p-4">
       <div>
         <div className="flex flex-nowrap gap-3">
           <Link

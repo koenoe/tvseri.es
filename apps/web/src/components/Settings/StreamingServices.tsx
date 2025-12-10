@@ -101,7 +101,7 @@ export default function StreamingServices({
   return (
     <div className="flex flex-col gap-6">
       <div className="bg-neutral-900">
-        <div className="rounded-lg bg-white/5 p-3">
+        <div className="rounded-xl bg-white/5 p-3">
           <div className="scrollbar-hide flex flex-nowrap space-x-4 h-16 overflow-x-auto items-center md:justify-center">
             {optimisticSelected.length > 0 ? (
               optimisticSelected.map((provider) => (
@@ -146,7 +146,7 @@ export default function StreamingServices({
         <SearchInput
           alwaysShowCloseButton={false}
           autoFocus={false}
-          className="rounded-lg bg-white/5"
+          className="rounded-xl bg-white/5"
           color="white"
           onChange={handleSearchChange}
           onClose={handleSearchReset}
@@ -154,7 +154,7 @@ export default function StreamingServices({
         />
       </div>
       <div className="bg-neutral-900">
-        <div className="rounded-lg bg-white/5 p-4 md:p-6">
+        <div className="rounded-xl bg-white/5 p-4 md:p-6">
           <div className="flex flex-col gap-2">
             {filteredProviders.length > 0 ? (
               filteredProviders.map((provider) => (

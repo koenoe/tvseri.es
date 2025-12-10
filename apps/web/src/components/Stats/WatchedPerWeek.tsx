@@ -138,7 +138,7 @@ export default function WatchedPerWeek({ data, year }: Props) {
         const dataPoint = payload[0]?.payload;
 
         return (
-          <div className="w-48 rounded-lg border-0 bg-neutral-900 px-4 py-2 text-xs">
+          <div className="w-48 rounded-lg shadow-lg border-0 bg-neutral-900 px-4 py-2 text-xs">
             <div className="mb-1 font-medium text-white">
               Week {actualWeek}
               {displayYear ? ` (${displayYear})` : ''}
@@ -194,14 +194,14 @@ export default function WatchedPerWeek({ data, year }: Props) {
           dataKey="episodes"
           fill="#D60073"
           minPointSize={1}
-          radius={[0, 0, 2, 2]}
+          radius={[0, 0, 4, 4]}
           stackId="watchedData"
         />
         <Bar
           dataKey="runtimeHours"
           fill="#9A0455"
           minPointSize={0}
-          radius={[2, 2, 0, 0]}
+          radius={[4, 4, 0, 0]}
           stackId="watchedData"
         />
       </BarChart>

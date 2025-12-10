@@ -12,7 +12,7 @@ import ImageWithFallback from '../Image/ImageWithFallback';
 import StillPlaceholder from '../Image/StillPlaceholder';
 
 export const episodeStyles = cva(
-  'relative flex-shrink-0 w-[300px] md:w-[350px] lg:w-[450px] overflow-clip rounded-lg shadow-lg bg-white/5 flex flex-col',
+  'relative flex-shrink-0 w-[300px] md:w-[350px] lg:w-[450px] overflow-clip rounded-xl shadow-lg bg-white/5 flex flex-col',
 );
 
 function EpisodeTile({

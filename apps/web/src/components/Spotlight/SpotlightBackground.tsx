@@ -1,7 +1,5 @@
-import { cx } from 'class-variance-authority';
-
+import { twMerge } from 'tailwind-merge';
 import useRgbString from '@/hooks/useRgbString';
-
 import BackgroundImage from '../Background/BackgroundImage';
 
 type SpotlightBackgroundItem = {
@@ -21,7 +19,7 @@ export default function SpotlightBackground({
   const rgbString = useRgbString(item.backdropColor ?? '#000000');
 
   return (
-    <div className={cx('absolute inset-0', className)}>
+    <div className={twMerge('absolute inset-0', className)}>
       {item.backdropImage && (
         <BackgroundImage priority={priority} src={item.backdropImage} />
       )}

@@ -27,7 +27,7 @@ export default function StreamingService({
 
   return (
     <div
-      className="relative flex flex-row gap-4 rounded-lg bg-black/10 p-4 items-center cursor-pointer"
+      className="relative flex flex-row gap-4 rounded-xl bg-black/10 p-4 items-center cursor-pointer"
       key={provider.id}
       onClick={handleRowClick}
     >

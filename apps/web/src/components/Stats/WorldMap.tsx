@@ -38,11 +38,11 @@ export default function WorldMapForStats({
   const renderTooltip = useCallback(
     // biome-ignore lint/suspicious/noExplicitAny: sort out later
     ({ country, content, hoverColor }: any) => (
-      <div className="w-40 rounded-lg border-0 bg-neutral-900 px-4 py-2 text-xs">
+      <div className="w-40 rounded-lg shadow-lg border-0 bg-neutral-900 px-4 py-2 text-xs">
         <div className="mb-1 font-medium text-white">{country}</div>
         <div className="flex items-center gap-1">
           <div
-            className="mr-1 h-3 w-3 rounded-sm"
+            className="mr-1 size-3 rounded-sm"
             style={{
               backgroundColor: hoverColor,
             }}

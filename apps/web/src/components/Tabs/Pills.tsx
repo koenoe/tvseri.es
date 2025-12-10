@@ -35,7 +35,7 @@ export default function Pills({
   return (
     <div
       className={twMerge(
-        'rounded-lg bg-neutral-800/50 px-4 py-3 text-white/40',
+        'rounded-xl bg-neutral-800/60 px-4 py-3 text-white/40',
         className,
       )}
     >

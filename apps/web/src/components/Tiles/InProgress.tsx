@@ -82,7 +82,7 @@ function InProgress({
     <AnimatePresence initial={false}>
       {!optimisticIsRemoved && (
         <motion.div
-          className="relative origin-top-right overflow-hidden rounded-lg shadow-lg after:absolute after:inset-0 after:rounded after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-['']"
+          className="relative origin-top-right overflow-hidden rounded-xl shadow-lg after:absolute after:inset-0 after:rounded-xl after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-['']"
           exit={{
             opacity: 0,
             scale: 0,
@@ -114,7 +114,7 @@ function InProgress({
                   <div>{tvSeries.genres[0]?.name}</div>
                 </div>
               </div>
-              <div className="relative flex cursor-default items-center gap-3 rounded-lg p-4 shadow-lg backdrop-blur md:flex-row md:items-center md:gap-10 md:p-6">
+              <div className="relative flex cursor-default items-center gap-3 rounded-xl p-4 shadow-glass backdrop-blur md:flex-row md:items-center md:gap-10 md:p-6">
                 <h2 className="flex-nowrap text-ellipsis text-nowrap text-sm font-medium md:w-auto md:text-lg">
                   <span className="hidden sm:inline-block">
                     {currentSeason.title}

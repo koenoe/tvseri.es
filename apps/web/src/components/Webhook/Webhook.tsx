@@ -31,7 +31,7 @@ export default function Webhook({
   return (
     <div
       className={twMerge(
-        'relative flex h-28 w-full items-center rounded-lg bg-gradient-to-br from-neutral-800 to-neutral-900 px-8 shadow-lg',
+        'relative flex h-28 w-full items-center rounded-xl bg-gradient-to-br from-neutral-800 to-neutral-900 px-8 shadow-lg',
         className,
       )}
     >

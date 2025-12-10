@@ -31,12 +31,12 @@ export default function MostWatchedGenres({ data }: Props) {
   const renderTooltip = useCallback(({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="w-40 rounded-lg border-0 bg-neutral-900 px-4 py-2 text-xs">
+        <div className="w-40 rounded-lg shadow-lg border-0 bg-neutral-900 px-4 py-2 text-xs">
           <div className="mb-1 font-medium text-white">
             {payload[0].payload.genre}
           </div>
           <div className="flex items-center gap-1">
-            <div className="mr-1 h-3 w-3 rounded-sm bg-[#00B8D4]" />
+            <div className="mr-1 size-3 rounded-sm bg-[#00B8D4]" />
             <span className="text-zinc-400">Series</span>
             <span className="ml-auto font-medium text-white">
               {payload[0].value}
@@ -105,7 +105,7 @@ export default function MostWatchedGenres({ data }: Props) {
         />
         <XAxis domain={[0, 'dataMax']} hide tickCount={12} type="number" />
         <Tooltip content={renderTooltip} cursor={false} />
-        <Bar dataKey="count" minPointSize={2} radius={[4, 4, 4, 4]}>
+        <Bar dataKey="count" minPointSize={2} radius={[8, 8, 8, 8]}>
           {data.map((_entry, index) => (
             <Cell
               fill={focusBar === index ? '#00B8D4' : '#333333'}

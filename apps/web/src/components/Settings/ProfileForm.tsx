@@ -40,7 +40,7 @@ export default function ProfileForm({
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      <div className="rounded-lg bg-neutral-800/50 p-8 lg:col-span-2">
+      <div className="rounded-xl bg-neutral-800/50 p-8 lg:col-span-2">
         <form action={formAction} className="flex w-full flex-col gap-y-6">
           <div className="space-y-3">
             <label

@@ -26,7 +26,7 @@ export const innerStylesWithModuleStyles = () => {
 
 export type HeaderVariantProps = VariantProps<typeof headerVariants>;
 export const headerVariants = cva(
-  'container relative flex items-center justify-between gap-8 md:gap-12',
+  'container relative flex items-center justify-between gap-8 md:gap-10',
   {
     defaultVariants: {
       titleAlignment: 'left',

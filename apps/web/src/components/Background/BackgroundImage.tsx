@@ -1,6 +1,6 @@
 /** biome-ignore-all assist/source/useSortedAttributes: src should be last */
-import { cx } from 'class-variance-authority';
 import { preload } from 'react-dom';
+import { twMerge } from 'tailwind-merge';
 
 // Track preloaded URLs to avoid duplicate preloads
 const preloadedUrls = new Set<string>();
@@ -61,7 +61,7 @@ export default function BackgroundImage({
     <img
       {...rest}
       alt=""
-      className={cx(
+      className={twMerge(
         'relative h-full w-full select-none object-cover object-top',
         className,
       )}

@@ -92,13 +92,7 @@ export default async function StatsByYearPage({ params }: Props) {
               <h2 className="text-md lg:text-lg">First watch</h2>
               <div className="h-[3px] flex-grow bg-white/10" />
             </div>
-            <Suspense
-              fallback={
-                <div className="bg-white/5">
-                  <SkeletonSpotlight />
-                </div>
-              }
-            >
+            <Suspense fallback={<SkeletonSpotlight />}>
               <SpotlightContainer
                 boundary="first"
                 userId={user.id}
@@ -111,13 +105,7 @@ export default async function StatsByYearPage({ params }: Props) {
               <h2 className="text-md lg:text-lg">Last watch</h2>
               <div className="h-[3px] flex-grow bg-white/10" />
             </div>
-            <Suspense
-              fallback={
-                <div className="bg-white/5">
-                  <SkeletonSpotlight />
-                </div>
-              }
-            >
+            <Suspense fallback={<SkeletonSpotlight />}>
               <SpotlightContainer
                 boundary="last"
                 userId={user.id}

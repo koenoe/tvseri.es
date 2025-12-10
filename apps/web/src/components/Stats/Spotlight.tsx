@@ -1,12 +1,11 @@
 import type { StatsSpotlightItem } from '@tvseri.es/schemas';
-import { cx } from 'class-variance-authority';
+
 import Image from 'next/image';
 import Link from 'next/link';
-
+import { twMerge } from 'tailwind-merge';
 import formatDate from '@/utils/formatDate';
 import formatRuntime from '@/utils/formatRuntime';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
-
 import SpotlightBackground from '../Spotlight/SpotlightBackground';
 import SpotlightTitle from '../Spotlight/SpotlightTitle';
 
@@ -21,8 +20,8 @@ export default function Spotlight({
 
   return (
     <Link
-      className={cx(
-        "relative flex aspect-[16/14] flex-shrink-0 items-end overflow-clip rounded shadow-lg after:absolute after:inset-0 after:rounded after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:aspect-[16/10] lg:aspect-[16/8] xl:aspect-[16/12] 2xl:aspect-[16/10]",
+      className={twMerge(
+        "relative flex aspect-[16/14] flex-shrink-0 items-end overflow-clip rounded-xl shadow-lg after:absolute after:inset-0 after:rounded-xl after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:aspect-[16/10] lg:aspect-[16/8] xl:aspect-[16/12] 2xl:aspect-[16/10]",
         className,
       )}
       href={{

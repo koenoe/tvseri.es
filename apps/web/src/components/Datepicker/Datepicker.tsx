@@ -73,7 +73,7 @@ function DatePicker({
           >
             <DayPicker
               captionLayout="dropdown-years"
-              className="rounded-md border border-white/10 p-3 shadow-lg"
+              className="rounded-xl border border-white/10 p-3 shadow-lg"
               classNames={{
                 [UI.Months]: 'relative',
                 [UI.Month]: 'space-y-4 ml-0',
@@ -87,10 +87,10 @@ function DatePicker({
                 [UI.MonthGrid]: 'w-full border-collapse space-y-1',
                 [UI.Weekdays]: 'flex',
                 [UI.Weekday]:
-                  'rounded-md w-9 font-normal text-[0.8rem] text-neutral-400',
+                  'rounded-lg w-9 font-normal text-[0.8rem] text-neutral-400',
                 [UI.Week]: 'flex w-full mt-2',
                 [UI.Day]:
-                  'size-9 text-center rounded-md text-sm p-0 relative hover:bg-white/10 hover:aria-selected:bg-white',
+                  'size-9 text-center rounded-lg text-sm p-0 relative hover:bg-white/10 hover:aria-selected:bg-white',
                 [UI.DayButton]: 'size-9 font-normal p-0 focus:outline-none',
                 [UI.Chevron]: 'size-4 fill-white',
                 [SelectionState.selected]:

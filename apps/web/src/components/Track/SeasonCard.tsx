@@ -58,11 +58,11 @@ function SeasonCard({
           <h2 className="w-full text-lg font-medium">{season.title}</h2>
           <div className="flex items-center gap-4 md:ml-auto">
             <Datepicker
-              className="flex h-9 w-full cursor-pointer items-center gap-1 text-nowrap rounded-md border border-white/10 bg-black/10 px-2.5 text-center text-sm text-white/75 md:w-auto"
+              className="flex h-9 w-full cursor-pointer items-center gap-1 text-nowrap rounded-lg border border-white/10 bg-black/10 px-2.5 text-center text-sm text-white/75 md:w-auto"
               footer={
                 <div className="mt-4 flex gap-3">
                   <button
-                    className="flex w-1/2 items-center justify-center text-nowrap rounded-lg bg-white/5 p-3 text-xs tracking-wide hover:bg-white/10"
+                    className="flex w-1/2 items-center justify-center text-nowrap rounded-xl bg-white/5 p-3 text-xs tracking-wide hover:bg-white/10"
                     onClick={(e) => {
                       e.stopPropagation();
                       updateItems({
@@ -82,7 +82,7 @@ function SeasonCard({
                     Just finished
                   </button>
                   <button
-                    className="flex w-1/2 items-center justify-center text-nowrap rounded-lg bg-white/5 p-3 text-xs tracking-wide hover:bg-white/10"
+                    className="flex w-1/2 items-center justify-center text-nowrap rounded-xl bg-white/5 p-3 text-xs tracking-wide hover:bg-white/10"
                     onClick={(e) => {
                       e.stopPropagation();
                       updateItems({

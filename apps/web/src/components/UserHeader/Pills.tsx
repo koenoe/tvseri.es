@@ -16,6 +16,10 @@ export default async function UserPills({
     //   href: `/u/${username}`,
     // },
     {
+      href: `/u/${username}/history`,
+      label: 'History',
+    },
+    {
       href: `/u/${username}/in-progress`,
       label: 'In progress',
     },
@@ -30,10 +34,6 @@ export default async function UserPills({
     {
       href: `/u/${username}/favorites`,
       label: 'Favorites',
-    },
-    {
-      href: `/u/${username}/history`,
-      label: 'History',
     },
     {
       href: `/u/${username}/social`,

@@ -1,0 +1,649 @@
+/**
+ * Metrics schemas and types for API and Web Vitals tracking.
+ */
+import * as v from 'valibot';
+
+// ============================================================================
+// Shared schemas
+// ============================================================================
+
+export const MetricClientSchema = v.object({
+  platform: v.string(),
+  userAgent: v.nullable(v.string()),
+  version: v.nullable(v.string()),
+});
+
+export const MetricDeviceSchema = v.object({
+  os: v.optional(v.nullable(v.string())),
+  osVersion: v.optional(v.nullable(v.string())),
+  type: v.string(),
+});
+
+export const DependencyMetricSchema = v.object({
+  duration: v.number(),
+  endpoint: v.string(),
+  error: v.optional(v.string()),
+  params: v.nullable(v.record(v.string(), v.string())),
+  source: v.string(),
+  status: v.number(),
+  timestamp: v.string(),
+});
+
+export const PercentileStatsSchema = v.object({
+  count: v.number(),
+  p75: v.number(),
+  p90: v.number(),
+  p95: v.number(),
+  p99: v.number(),
+});
+
+// ============================================================================
+// Raw metric schemas
+// ============================================================================
+
+export const WebVitalNameSchema = v.picklist([
+  'CLS',
+  'FCP',
+  'INP',
+  'LCP',
+  'TTFB',
+]);
+
+export const WebVitalRatingSchema = v.picklist([
+  'good',
+  'needs-improvement',
+  'poor',
+]);
+
+export const ApiMetricRecordSchema = v.object({
+  authenticated: v.boolean(),
+  client: MetricClientSchema,
+  country: v.string(),
+  dependencies: v.array(DependencyMetricSchema),
+  latency: v.number(),
+  method: v.string(),
+  path: v.string(),
+  query: v.nullable(v.record(v.string(), v.string())),
+  requestId: v.string(),
+  responseSize: v.number(),
+  route: v.string(),
+  statusCode: v.number(),
+  timestamp: v.string(),
+  type: v.literal('api'),
+});
+
+export const NavigationTypeSchema = v.picklist([
+  'navigate',
+  'reload',
+  'back-forward',
+  'back-forward-cache',
+  'prerender',
+  'restore',
+]);
+
+export const WebVitalRecordSchema = v.object({
+  client: MetricClientSchema,
+  country: v.string(),
+  /** Delta between current value and last-reported value (useful for CLS) */
+  delta: v.number(),
+  device: MetricDeviceSchema,
+  /** Unique ID for deduplication across multiple reports */
+  id: v.string(),
+  name: WebVitalNameSchema,
+  navigationType: NavigationTypeSchema,
+  path: v.string(),
+  rating: WebVitalRatingSchema,
+  route: v.string(),
+  timestamp: v.string(),
+  type: v.literal('web-vital'),
+  value: v.number(),
+});
+
+export const MetricRecordSchema = v.variant('type', [
+  ApiMetricRecordSchema,
+  WebVitalRecordSchema,
+]);
+
+/**
+ * Schema for batch web vitals submission from browser.
+ */
+export const WebVitalsBatchSchema = v.array(WebVitalRecordSchema);
+
+// ============================================================================
+// Aggregate schemas
+// ============================================================================
+
+/**
+ * HTTP method picklist for API metrics.
+ */
+export const HttpMethodSchema = v.picklist([
+  'GET',
+  'POST',
+  'PUT',
+  'PATCH',
+  'DELETE',
+]);
+
+/**
+ * Status code category breakdown.
+ */
+export const StatusCodeBreakdownSchema = v.object({
+  /** 4xx client errors */
+  clientError: v.number(),
+  /** 3xx redirect responses */
+  redirect: v.number(),
+  /** 5xx server errors */
+  serverError: v.number(),
+  /** 2xx success responses */
+  success: v.number(),
+});
+
+/**
+ * API metrics aggregate schema - stored in MetricsApi table
+ *
+ * ═══════════════════════════════════════════════════════════════════════════
+ * KEY DESIGN: Filters in pk, dimension in sk
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * pk patterns (date + optional platform filter):
+ *   "2025-12-11"               → No filter (all platforms)
+ *   "2025-12-11#P#ios"         → Platform filter
+ *
+ * sk patterns (what you're querying):
+ *   "SUMMARY"                  → Totals for this filter combo
+ *   "R#/tv/:id"                → Route metrics
+ *   "E#GET /tv/:id"            → Endpoint metrics (method + route)
+ *   "S#5xx"                    → Status category metrics
+ *   "P#ios"                    → Platform metrics (when no platform filter)
+ *
+ * GSIs for time-series:
+ *   RouteTimeIndex:    GSI1PK: "R#/tv/:id"      GSI1SK: "2025-12-11"
+ *   StatusTimeIndex:   GSI2PK: "S#5xx"          GSI2SK: "2025-12-11"
+ *   EndpointTimeIndex: GSI3PK: "E#GET /tv/:id"  GSI3SK: "2025-12-11"
+ *   PlatformTimeIndex: GSI4PK: "P#ios"          GSI4SK: "2025-12-11"
+ */
+export const ApiMetricAggregateSchema = v.object({
+  /**
+   * Method breakdown embedded in ROUTE items.
+   */
+  byMethod: v.optional(
+    v.record(
+      v.string(),
+      v.object({
+        count: v.number(),
+        errorRate: v.number(),
+        p75: v.number(),
+      }),
+    ),
+  ),
+  /**
+   * Status category breakdown embedded in ROUTE items.
+   */
+  byStatus: v.optional(StatusCodeBreakdownSchema),
+  /** Date in YYYY-MM-DD format */
+  date: v.string(),
+  /**
+   * Dependency latencies (TMDB, DynamoDB, etc.)
+   * Only populated for SUMMARY and ROUTE items.
+   */
+  dependencies: v.optional(v.record(v.string(), PercentileStatsSchema)),
+  /** Error rate (4xx + 5xx) / total */
+  errorRate: v.number(),
+  /** TTL for DynamoDB (30 days) */
+  expiresAt: v.number(),
+  /**
+   * GSI1 partition key - for route time-series queries.
+   * Only set on ROUTE and ROUTE+* items.
+   * Format: "API#R#/tv/[id]"
+   */
+  GSI1PK: v.optional(v.string()),
+  /** GSI1 sort key - date for time range queries */
+  GSI1SK: v.optional(v.string()),
+  /**
+   * GSI2 partition key - for status time-series queries.
+   * Only set on STATUS items.
+   * Format: "API#S#5xx"
+   */
+  GSI2PK: v.optional(v.string()),
+  /** GSI2 sort key - date for time range queries */
+  GSI2SK: v.optional(v.string()),
+  /**
+   * GSI3 partition key - for endpoint time-series queries.
+   * Only set on ENDPOINT items (method + route).
+   * Format: "E#GET /tv/:id"
+   */
+  GSI3PK: v.optional(v.string()),
+  /** GSI3 sort key - date for time range queries */
+  GSI3SK: v.optional(v.string()),
+  /**
+   * GSI4 partition key - for platform time-series queries.
+   * Only set on PLATFORM items.
+   * Format: "P#ios"
+   */
+  GSI4PK: v.optional(v.string()),
+  /** GSI4 sort key - date for time range queries */
+  GSI4SK: v.optional(v.string()),
+  /** Latency percentile statistics */
+  latency: PercentileStatsSchema,
+  /**
+   * Partition key: "<date>" or "<date>#P#<platform>"
+   * Examples: "2025-12-11", "2025-12-11#P#ios"
+   */
+  pk: v.string(),
+  /** Total request count */
+  requestCount: v.number(),
+  /**
+   * Sort key - dimension type:
+   * - "SUMMARY" (totals for this pk's filter)
+   * - "R#/tv/:id" (route)
+   * - "E#GET /tv/:id" (endpoint)
+   * - "S#5xx" (status category)
+   * - "P#ios" (platform, when pk has no platform filter)
+   */
+  sk: v.string(),
+  /** Status code breakdown */
+  statusCodes: StatusCodeBreakdownSchema,
+  /**
+   * Top endpoints embedded in SUMMARY items.
+   */
+  topEndpoints: v.optional(
+    v.array(
+      v.object({
+        count: v.number(),
+        endpoint: v.string(),
+        errorRate: v.number(),
+        p75: v.number(),
+      }),
+    ),
+  ),
+  /**
+   * Top routes by error rate embedded in SUMMARY items.
+   */
+  topErrors: v.optional(
+    v.array(
+      v.object({
+        count: v.number(),
+        errorRate: v.number(),
+        route: v.string(),
+      }),
+    ),
+  ),
+  /**
+   * Top routes embedded in SUMMARY items.
+   */
+  topRoutes: v.optional(
+    v.array(
+      v.object({
+        count: v.number(),
+        errorRate: v.number(),
+        p75: v.number(),
+        route: v.string(),
+      }),
+    ),
+  ),
+  /**
+   * Top slowest routes embedded in SUMMARY items.
+   */
+  topSlowest: v.optional(
+    v.array(
+      v.object({
+        count: v.number(),
+        p75: v.number(),
+        p99: v.number(),
+        route: v.string(),
+      }),
+    ),
+  ),
+  type: v.literal('api-aggregate'),
+});
+
+/**
+ * Ratings breakdown for a single web vital metric.
+ */
+export const WebVitalRatingsSchema = v.object({
+  good: v.number(),
+  needsImprovement: v.number(),
+  poor: v.number(),
+});
+
+/**
+ * Aggregated stats for a single web vital metric.
+ * Full percentile distribution + ratings breakdown.
+ */
+export const WebVitalMetricStatsSchema = v.object({
+  /** Sample count for this metric */
+  count: v.number(),
+  /** 75th percentile (Vercel's primary) */
+  p75: v.number(),
+  /** 90th percentile */
+  p90: v.number(),
+  /** 95th percentile */
+  p95: v.number(),
+  /** 99th percentile (tail latency) */
+  p99: v.number(),
+  /** Ratings breakdown */
+  ratings: WebVitalRatingsSchema,
+});
+
+/**
+ * Top item in a leaderboard (routes, countries, etc.)
+ */
+export const WebVitalTopItemSchema = v.object({
+  /** Number of page views */
+  pageviews: v.number(),
+  /** Real Experience Score (0-100) */
+  score: v.number(),
+  /** Dimension value (route pattern, country code, etc.) */
+  value: v.string(),
+});
+
+/**
+ * Web vitals aggregate schema - stored in MetricsWebVitals table
+ *
+ * ═══════════════════════════════════════════════════════════════════════════
+ * KEY DESIGN: Filters in pk, dimension in sk
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * pk patterns (date + optional device/country filters):
+ *   "2025-12-11"                   → No filters
+ *   "2025-12-11#D#mobile"          → Device filter
+ *   "2025-12-11#C#US"              → Country filter
+ *   "2025-12-11#D#mobile#C#US"     → Device + Country filter
+ *
+ * sk patterns (what you're querying):
+ *   "SUMMARY"                      → Totals for this filter combo
+ *   "R#/series/:id"                → Route metrics
+ *   "C#US"                         → Country metrics (when no country filter)
+ *   "D#mobile"                     → Device metrics (when no device filter)
+ *
+ * ═══════════════════════════════════════════════════════════════════════════
+ * QUERY EXAMPLES
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * "All routes (no filter)":
+ *   pk = "2025-12-11", sk begins_with "R#"
+ *
+ * "Routes on mobile in Algeria":
+ *   pk = "2025-12-11#D#mobile#C#DZ", sk begins_with "R#"
+ *
+ * GSIs for time-series:
+ *   RouteTimeIndex:   GSI1PK: "R#/series/:id"  GSI1SK: "2025-12-11"
+ *   CountryTimeIndex: GSI2PK: "C#US"           GSI2SK: "2025-12-11"
+ *   DeviceTimeIndex:  GSI3PK: "D#mobile"       GSI3SK: "2025-12-11"
+ */
+export const WebVitalAggregateSchema = v.object({
+  /**
+   * Device breakdown embedded in ROUTE items.
+   * Map of device type → stats for quick access without extra queries.
+   */
+  byDevice: v.optional(
+    v.record(
+      v.string(),
+      v.object({
+        pageviews: v.number(),
+        score: v.number(),
+      }),
+    ),
+  ),
+  /** All 5 web vitals metrics aggregated */
+  CLS: WebVitalMetricStatsSchema,
+  /** Date in YYYY-MM-DD format */
+  date: v.string(),
+  /** TTL for DynamoDB (30 days from creation) */
+  expiresAt: v.number(),
+  FCP: WebVitalMetricStatsSchema,
+  /**
+   * GSI1 partition key - for route time-series queries.
+   * Only set on ROUTE and ROUTE+* items (sparse index).
+   * Format: "R#/tv/[id]"
+   */
+  GSI1PK: v.optional(v.string()),
+  /**
+   * GSI1 sort key - date for time range queries.
+   * Format: "2025-12-11" or "2025-12-11#D#mobile" for cross-filter
+   */
+  GSI1SK: v.optional(v.string()),
+  /**
+   * GSI2 partition key - for country time-series queries.
+   * Only set on COUNTRY and COUNTRY+* items (sparse index).
+   * Format: "C#US"
+   */
+  GSI2PK: v.optional(v.string()),
+  /**
+   * GSI2 sort key - date for time range queries.
+   * Format: "2025-12-11"
+   */
+  GSI2SK: v.optional(v.string()),
+  /**
+   * GSI3 partition key - for device time-series queries.
+   * Only set on DEVICE items (sparse index).
+   * Format: "D#mobile"
+   */
+  GSI3PK: v.optional(v.string()),
+  /**
+   * GSI3 sort key - date for time range queries.
+   * Format: "2025-12-11"
+   */
+  GSI3SK: v.optional(v.string()),
+  INP: WebVitalMetricStatsSchema,
+  LCP: WebVitalMetricStatsSchema,
+  /** Number of page views (unique metric.id count) */
+  pageviews: v.number(),
+  /**
+   * Partition key: "<date>" or "<date>#D#<device>" or "<date>#C#<country>" or "<date>#D#<device>#C#<country>"
+   * Examples: "2025-12-11", "2025-12-11#D#mobile", "2025-12-11#D#mobile#C#DZ"
+   */
+  pk: v.string(),
+  /**
+   * Real Experience Score (0-100)
+   * Weighted average of good ratings across all metrics
+   */
+  score: v.number(),
+  /**
+   * Sort key - dimension type:
+   * - "SUMMARY" (totals for this pk's filter)
+   * - "R#/series/:id" (route)
+   * - "C#US" (country, when pk has no country filter)
+   * - "D#mobile" (device, when pk has no device filter)
+   */
+  sk: v.string(),
+  TTFB: WebVitalMetricStatsSchema,
+  /**
+   * Top countries embedded in SUMMARY items.
+   * Pre-computed leaderboard for dashboard.
+   */
+  topCountries: v.optional(v.array(WebVitalTopItemSchema)),
+  /**
+   * Top routes embedded in SUMMARY items.
+   * Pre-computed leaderboard for dashboard.
+   */
+  topRoutes: v.optional(v.array(WebVitalTopItemSchema)),
+  type: v.literal('web-vital-aggregate'),
+});
+
+// ============================================================================
+// API Query schemas
+// ============================================================================
+
+/**
+ * Query parameters for metrics summary endpoint.
+ */
+export const MetricsSummaryQuerySchema = v.object({
+  /** Country filter (ISO code) */
+  country: v.optional(v.string()),
+  /** Number of days to query (1, 7, or 30) */
+  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  /** Device filter (mobile, tablet, desktop) */
+  device: v.optional(v.string()),
+});
+
+/**
+ * Query parameters for metrics routes list endpoint.
+ */
+export const MetricsRoutesQuerySchema = v.object({
+  /** Country filter (ISO code) */
+  country: v.optional(v.string()),
+  /** Number of days to query (1, 7, or 30) */
+  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  /** Device filter (mobile, tablet, desktop) */
+  device: v.optional(v.string()),
+  /** Limit results */
+  limit: v.optional(v.pipe(v.string(), v.transform(Number))),
+  /** Sort by field */
+  sortBy: v.optional(v.picklist(['pageviews', 'score', 'LCP', 'INP', 'CLS'])),
+  /** Sort direction */
+  sortDir: v.optional(v.picklist(['asc', 'desc'])),
+});
+
+/**
+ * Path parameters for single route endpoint.
+ */
+export const MetricsRouteParamSchema = v.object({
+  route: v.string(),
+});
+
+/**
+ * Query parameters for single route endpoint (time-series only).
+ */
+export const MetricsRouteQuerySchema = v.object({
+  /** Number of days to query */
+  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+});
+
+/**
+ * Query parameters for metrics countries list endpoint.
+ */
+export const MetricsCountriesQuerySchema = v.object({
+  /** Number of days to query (1, 7, or 30) */
+  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  /** Device filter (mobile, tablet, desktop) */
+  device: v.optional(v.string()),
+  /** Limit results */
+  limit: v.optional(v.pipe(v.string(), v.transform(Number))),
+  /** Sort by field */
+  sortBy: v.optional(v.picklist(['pageviews', 'score', 'LCP', 'INP', 'CLS'])),
+  /** Sort direction */
+  sortDir: v.optional(v.picklist(['asc', 'desc'])),
+});
+
+/**
+ * Path parameters for single country endpoint.
+ */
+export const MetricsCountryParamSchema = v.object({
+  country: v.string(),
+});
+
+/**
+ * Query parameters for single country endpoint (time-series only).
+ */
+export const MetricsCountryQuerySchema = v.object({
+  /** Number of days to query */
+  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+});
+
+/**
+ * Query parameters for metrics devices endpoint.
+ */
+export const MetricsDevicesQuerySchema = v.object({
+  /** Number of days to query (1, 7, or 30) */
+  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  /** Sort by field */
+  sortBy: v.optional(v.picklist(['pageviews', 'score', 'LCP', 'INP', 'CLS'])),
+  /** Sort direction */
+  sortDir: v.optional(v.picklist(['asc', 'desc'])),
+});
+
+/**
+ * Path parameters for single device endpoint.
+ */
+export const MetricsDeviceParamSchema = v.object({
+  device: v.string(),
+});
+
+// ============================================================================
+// API Metrics Query schemas
+// ============================================================================
+
+/**
+ * Query parameters for API metrics summary endpoint.
+ */
+export const ApiMetricsSummaryQuerySchema = v.object({
+  /** Number of days to query (1, 7, or 30) */
+  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  /** Platform filter (ios, android, web) */
+  platform: v.optional(v.string()),
+});
+
+/**
+ * Query parameters for API metrics endpoints list.
+ */
+export const ApiMetricsEndpointsQuerySchema = v.object({
+  /** Number of days to query (1, 7, or 30) */
+  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  /** Limit results */
+  limit: v.optional(v.pipe(v.string(), v.transform(Number))),
+  /** Platform filter (ios, android, web) */
+  platform: v.optional(v.string()),
+  /** Sort by field */
+  sortBy: v.optional(v.picklist(['requests', 'errorRate', 'p75', 'p99'])),
+  /** Sort direction */
+  sortDir: v.optional(v.picklist(['asc', 'desc'])),
+});
+
+/**
+ * Path parameters for single endpoint.
+ */
+export const ApiMetricsEndpointParamSchema = v.object({
+  /** HTTP method */
+  method: v.string(),
+  /** Route pattern */
+  route: v.string(),
+});
+
+/**
+ * Query parameters for API metrics status codes endpoint.
+ */
+export const ApiMetricsStatusQuerySchema = v.object({
+  /** Number of days to query (1, 7, or 30) */
+  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  /** Platform filter (ios, android, web) */
+  platform: v.optional(v.string()),
+});
+
+/**
+ * Query parameters for API metrics platforms endpoint.
+ */
+export const ApiMetricsPlatformsQuerySchema = v.object({
+  /** Number of days to query (1, 7, or 30) */
+  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  /** Sort by field */
+  sortBy: v.optional(v.picklist(['requests', 'errorRate', 'p75', 'p99'])),
+  /** Sort direction */
+  sortDir: v.optional(v.picklist(['asc', 'desc'])),
+});
+
+// ============================================================================
+// Inferred types
+// ============================================================================
+
+export type MetricClient = v.InferOutput<typeof MetricClientSchema>;
+export type MetricDevice = v.InferOutput<typeof MetricDeviceSchema>;
+export type DependencyMetric = v.InferOutput<typeof DependencyMetricSchema>;
+export type PercentileStats = v.InferOutput<typeof PercentileStatsSchema>;
+export type StatusCodeBreakdown = v.InferOutput<
+  typeof StatusCodeBreakdownSchema
+>;
+export type HttpMethod = v.InferOutput<typeof HttpMethodSchema>;
+export type WebVitalName = v.InferOutput<typeof WebVitalNameSchema>;
+export type WebVitalRating = v.InferOutput<typeof WebVitalRatingSchema>;
+export type WebVitalRatings = v.InferOutput<typeof WebVitalRatingsSchema>;
+export type WebVitalMetricStats = v.InferOutput<
+  typeof WebVitalMetricStatsSchema
+>;
+export type WebVitalTopItem = v.InferOutput<typeof WebVitalTopItemSchema>;
+export type NavigationType = v.InferOutput<typeof NavigationTypeSchema>;
+export type ApiMetricRecord = v.InferOutput<typeof ApiMetricRecordSchema>;
+export type WebVitalRecord = v.InferOutput<typeof WebVitalRecordSchema>;
+export type MetricRecord = v.InferOutput<typeof MetricRecordSchema>;
+export type ApiMetricAggregate = v.InferOutput<typeof ApiMetricAggregateSchema>;
+export type WebVitalAggregate = v.InferOutput<typeof WebVitalAggregateSchema>;

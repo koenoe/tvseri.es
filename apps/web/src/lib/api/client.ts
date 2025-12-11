@@ -26,6 +26,7 @@ export const $fetch = createFetch({
   headers: {
     'content-type': 'application/json',
     'x-api-key': apiKey,
+    'x-client-platform': 'web',
   },
   plugins: [nextPlugin],
   retry: FETCH_RETRY_OPTIONS,

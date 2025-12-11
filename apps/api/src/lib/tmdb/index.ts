@@ -1,4 +1,4 @@
-import { type BetterFetchOption, createFetch } from '@better-fetch/fetch';
+import type { BetterFetchOption } from '@better-fetch/fetch';
 import { WATCH_PROVIDER_PRIORITY } from '@tvseri.es/constants';
 import type {
   CountryOrLanguage,
@@ -46,6 +46,7 @@ import {
 import slugify from 'slugify';
 import { Resource } from 'sst';
 import { FETCH_RETRY_OPTIONS, FETCH_TIMEOUT } from '@/constants';
+import { createInstrumentedFetch } from '@/lib/metrics';
 import calculateAge from '@/utils/calculateAge';
 import { dedupe } from '@/utils/dedupe';
 import { findPreferredImages } from '../db/preferredImages';
@@ -75,7 +76,7 @@ if (!tmdbApiKey || !tmdbApiAccessToken) {
   throw new Error('No "API_KEY" found for TMDb');
 }
 
-const $fetch = createFetch({
+const $fetch = createInstrumentedFetch('tmdb', {
   baseURL: 'https://api.themoviedb.org',
   retry: FETCH_RETRY_OPTIONS,
   timeout: FETCH_TIMEOUT,

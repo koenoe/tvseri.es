@@ -5,6 +5,7 @@ import { domain, zone } from './dns';
 import { dominantColor } from './dominantColor';
 import * as dynamo from './dynamo';
 import { email } from './email';
+import { metricsQueue } from './metricsQueue';
 import { scrobbleQueue } from './scrobbleQueue';
 import * as secrets from './secrets';
 
@@ -35,6 +36,18 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
       ),
     },
   },
+  transform: {
+    cdn: (args) => {
+      // Enable additional CloudWatch metrics (cache hit rate, origin latency, etc.)
+      // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/viewing-cloudfront-metrics.html
+      args.transform = {
+        distribution: (distArgs) => {
+          // biome-ignore lint/suspicious/noExplicitAny: not in type defs yet
+          (distArgs as any).enableAdditionalMetrics = true;
+        },
+      };
+    },
+  },
 });
 
 export const apiFunction = new sst.aws.Function('ApiFunction', {
@@ -42,17 +55,28 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
     CLOUDFRONT_DISTRIBUTION_ID: apiRouter.distributionID,
   },
   handler: 'apps/api/src/index.handler',
+  // https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versionsARM.html
+  layers:
+    $app.stage === 'production'
+      ? [
+          'arn:aws:lambda:eu-west-2:580247275435:layer:LambdaInsightsExtension-Arm64:21',
+        ]
+      : [],
   link: [
     auth,
     dominantColor,
     dynamo.cache,
     dynamo.follow,
     dynamo.lists,
+    dynamo.metricsApi,
+    dynamo.metricsRaw,
+    dynamo.metricsWebVitals,
     dynamo.preferredImages,
     dynamo.users,
     dynamo.watched,
     dynamo.webhookTokens,
     email,
+    metricsQueue,
     scrobbleQueue,
     secrets.apiKey,
     secrets.mdblistApiKey,

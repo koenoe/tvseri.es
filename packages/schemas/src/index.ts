@@ -4,6 +4,7 @@ export * from './country-language';
 export * from './genre';
 export * from './keyword';
 export * from './list';
+export * from './metrics';
 export * from './movie';
 export * from './pagination-sorting';
 export * from './person';

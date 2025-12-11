@@ -7,6 +7,7 @@ import { requestId } from 'hono/request-id';
 import { timeout } from 'hono/timeout';
 
 import type { Variables } from './middleware/auth';
+import { metrics as metricsMiddleware } from './middleware/metrics';
 import admin from './routes/admin';
 import collection from './routes/collection';
 import discover from './routes/discover';
@@ -14,6 +15,7 @@ import dominantColor from './routes/dominant-color';
 import genres from './routes/genres';
 import keyword from './routes/keyword';
 import me from './routes/me';
+import metrics from './routes/metrics';
 import person from './routes/person';
 import popular from './routes/popular';
 import scrobble from './routes/scrobble';
@@ -24,8 +26,8 @@ import webhook from './routes/webhook';
 
 const app = new Hono<{ Variables: Variables }>();
 
-// Observability middleware
-app.use(requestId());
+app.use(requestId({ headerName: 'x-amz-cf-id' }));
+app.use(metricsMiddleware());
 
 // Request timeout (Lambda timeout is 15s, use 14s to allow graceful response)
 app.use(timeout(14_000));
@@ -40,6 +42,7 @@ app.route('/dominant-color', dominantColor);
 app.route('/genres', genres);
 app.route('/keyword', keyword);
 app.route('/me', me);
+app.route('/metrics', metrics);
 app.route('/person', person);
 app.route('/popular', popular);
 app.route('/scrobble', scrobble);

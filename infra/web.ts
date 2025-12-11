@@ -80,6 +80,13 @@ new sst.aws.Nextjs('tvseries', {
       };
     },
     server: {
+      // https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versionsARM.html
+      layers:
+        $app.stage === 'production'
+          ? [
+              'arn:aws:lambda:eu-west-2:580247275435:layer:LambdaInsightsExtension-Arm64:21',
+            ]
+          : [],
       nodejs: {
         esbuild: {
           external: ['@opennextjs/aws'],

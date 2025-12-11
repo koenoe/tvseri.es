@@ -55,6 +55,22 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "MetricsApi": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "MetricsQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "MetricsRaw": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
+    "MetricsWebVitals": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
     "PreferredImages": {
       "name": string
       "type": "sst.aws.Dynamo"

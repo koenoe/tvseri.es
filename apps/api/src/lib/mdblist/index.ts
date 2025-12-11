@@ -1,6 +1,7 @@
-import { type BetterFetchOption, createFetch } from '@better-fetch/fetch';
+import type { BetterFetchOption } from '@better-fetch/fetch';
 import { Resource } from 'sst';
 import { FETCH_RETRY_OPTIONS, FETCH_TIMEOUT } from '@/constants';
+import { createInstrumentedFetch } from '@/lib/metrics';
 
 type MediaType = 'movie' | 'show';
 
@@ -42,7 +43,7 @@ if (!apiKey) {
   throw new Error('No "API_KEY" found for MDBList');
 }
 
-const $fetch = createFetch({
+const $fetch = createInstrumentedFetch('mdblist', {
   baseURL: 'https://api.mdblist.com',
   headers: {
     accept: 'application/json',

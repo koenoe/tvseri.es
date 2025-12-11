@@ -8,6 +8,7 @@ import { Toaster } from 'sonner';
 
 import EnsureHistoryKey from '@/components/EnsureHistoryKey';
 import WatchedStoreProvider from '@/components/Watched/WatchedStoreProvider';
+import WebVitals from '@/components/WebVitals';
 
 const inter = Inter({ display: 'swap', subsets: ['latin'] });
 
@@ -81,6 +82,9 @@ export default function RootLayout({
           }}
         />
         <WatchedStoreProvider>{children}</WatchedStoreProvider>
+        <Suspense fallback={null}>
+          <WebVitals />
+        </Suspense>
         <div id="modal-root" />
       </body>
     </html>

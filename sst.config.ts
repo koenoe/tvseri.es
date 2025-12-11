@@ -1,5 +1,7 @@
 /// <reference path="./.sst/platform/config.d.ts" />
 
+import { blockedCountries } from './infra/blockedCountries';
+
 export default $config({
   app(input) {
     return {
@@ -24,22 +26,7 @@ export default $config({
     $transform(aws.cloudfront.Distribution, (args) => {
       args.restrictions = {
         geoRestriction: {
-          locations: [
-            'BD', // Bangladesh - high bot traffic
-            'BY', // Belarus - sanctions/compliance
-            'CN', // China - bot traffic and compliance
-            'CU', // Cuba - sanctions/compliance
-            'ID', // Indonesia - high bot traffic
-            'IN', // India - high bot traffic
-            'IR', // Iran - sanctions/compliance
-            'KP', // North Korea - sanctions/compliance
-            'PK', // Pakistan - high bot traffic
-            'RU', // Russia - sanctions/compliance
-            'SG', // Singapore - bot traffic
-            'TR', // Turkey - problematic traffic
-            'UA', // Ukraine - current situation/mixed traffic
-            'VE', // Venezuela - sanctions/compliance
-          ],
+          locations: blockedCountries,
           restrictionType: 'blacklist',
         },
       };

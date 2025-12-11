@@ -1,5 +1,5 @@
 export default function HistoryCardSkeleton({
-  numberOfItems = 5,
+  numberOfItems = 2,
 }: Readonly<{ numberOfItems?: number }>) {
   return (
     <div className="relative -ml-4 w-[calc(100%+1rem)] md:ml-0 md:w-full">
@@ -28,32 +28,125 @@ export default function HistoryCardSkeleton({
                 <div className="h-6 w-24 animate-pulse bg-white/10" />
               </div>
 
-              {/* Card skeleton */}
-              <div className="relative flex w-full flex-row items-center gap-4 overflow-hidden rounded-xl bg-neutral-800 p-4">
-                {/* Poster skeleton */}
-                <div className="h-[72px] w-12 flex-shrink-0 animate-pulse rounded-lg bg-white/10 md:h-24 md:w-16" />
+              {/* Cards container with gap-4 like HistoryCardStack */}
+              <div className="flex flex-col gap-4">
+                {/* Card skeleton 1 */}
+                <div className="relative flex w-full flex-row items-center gap-4 overflow-hidden rounded-xl bg-neutral-800 p-4">
+                  {/* Poster skeleton */}
+                  <div className="h-[72px] w-12 flex-shrink-0 animate-pulse rounded-lg bg-white/10 md:h-24 md:w-16" />
 
-                {/* Content skeleton */}
-                <div className="min-w-0 flex-1">
-                  {/* Title row */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="h-5 w-32 animate-pulse bg-white/10 md:h-6 md:w-48" />
-                    <div className="size-6 flex-shrink-0 animate-pulse rounded bg-white/10 md:size-8" />
-                  </div>
-
-                  {/* Episode row */}
-                  <div className="mt-2 flex items-center gap-2">
-                    <div className="h-6 w-14 flex-shrink-0 animate-pulse rounded-md bg-white/10" />
-                    <div className="h-4 w-24 animate-pulse bg-white/5 md:w-40" />
-                  </div>
-
-                  {/* Bottom row */}
-                  <div className="mt-3 flex items-center justify-between">
-                    <div className="flex gap-1.5">
-                      <div className="h-4 w-16 animate-pulse bg-white/10" />
-                      <div className="h-4 w-10 animate-pulse bg-white/5" />
+                  {/* Content skeleton */}
+                  <div className="min-w-0 flex-1">
+                    {/* Title row */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="h-5 w-32 animate-pulse bg-white/10 md:h-6 md:w-48" />
+                      <div className="size-6 flex-shrink-0 animate-pulse rounded bg-white/10 md:size-8" />
                     </div>
-                    <div className="hidden h-5 w-28 animate-pulse rounded-md bg-white/5 md:block" />
+
+                    {/* Episode row */}
+                    <div className="mt-2 flex items-center gap-2">
+                      <div className="h-6 w-14 flex-shrink-0 animate-pulse rounded-md bg-white/10" />
+                      <div className="h-4 w-24 animate-pulse bg-white/5 md:w-40" />
+                    </div>
+
+                    {/* Bottom row */}
+                    <div className="mt-3 flex items-center justify-between">
+                      <div className="flex gap-1.5">
+                        <div className="h-4 w-16 animate-pulse bg-white/10" />
+                        <div className="h-4 w-10 animate-pulse bg-white/5" />
+                      </div>
+                      <div className="hidden h-5 w-28 animate-pulse rounded-md bg-white/5 md:block" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card skeleton 2 */}
+                <div className="relative flex w-full flex-row items-center gap-4 overflow-hidden rounded-xl bg-neutral-800 p-4">
+                  {/* Poster skeleton */}
+                  <div className="h-[72px] w-12 flex-shrink-0 animate-pulse rounded-lg bg-white/10 md:h-24 md:w-16" />
+
+                  {/* Content skeleton */}
+                  <div className="min-w-0 flex-1">
+                    {/* Title row */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="h-5 w-28 animate-pulse bg-white/10 md:h-6 md:w-40" />
+                      <div className="size-6 flex-shrink-0 animate-pulse rounded bg-white/10 md:size-8" />
+                    </div>
+
+                    {/* Episode row */}
+                    <div className="mt-2 flex items-center gap-2">
+                      <div className="h-6 w-14 flex-shrink-0 animate-pulse rounded-md bg-white/10" />
+                      <div className="h-4 w-20 animate-pulse bg-white/5 md:w-32" />
+                    </div>
+
+                    {/* Bottom row */}
+                    <div className="mt-3 flex items-center justify-between">
+                      <div className="flex gap-1.5">
+                        <div className="h-4 w-14 animate-pulse bg-white/10" />
+                        <div className="h-4 w-12 animate-pulse bg-white/5" />
+                      </div>
+                      <div className="hidden h-5 w-24 animate-pulse rounded-md bg-white/5 md:block" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card skeleton 3 */}
+                <div className="relative flex w-full flex-row items-center gap-4 overflow-hidden rounded-xl bg-neutral-800 p-4">
+                  {/* Poster skeleton */}
+                  <div className="h-[72px] w-12 flex-shrink-0 animate-pulse rounded-lg bg-white/10 md:h-24 md:w-16" />
+
+                  {/* Content skeleton */}
+                  <div className="min-w-0 flex-1">
+                    {/* Title row */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="h-5 w-36 animate-pulse bg-white/10 md:h-6 md:w-52" />
+                      <div className="size-6 flex-shrink-0 animate-pulse rounded bg-white/10 md:size-8" />
+                    </div>
+
+                    {/* Episode row */}
+                    <div className="mt-2 flex items-center gap-2">
+                      <div className="h-6 w-14 flex-shrink-0 animate-pulse rounded-md bg-white/10" />
+                      <div className="h-4 w-28 animate-pulse bg-white/5 md:w-36" />
+                    </div>
+
+                    {/* Bottom row */}
+                    <div className="mt-3 flex items-center justify-between">
+                      <div className="flex gap-1.5">
+                        <div className="h-4 w-12 animate-pulse bg-white/10" />
+                        <div className="h-4 w-10 animate-pulse bg-white/5" />
+                      </div>
+                      <div className="hidden h-5 w-32 animate-pulse rounded-md bg-white/5 md:block" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card skeleton 4 */}
+                <div className="relative flex w-full flex-row items-center gap-4 overflow-hidden rounded-xl bg-neutral-800 p-4">
+                  {/* Poster skeleton */}
+                  <div className="h-[72px] w-12 flex-shrink-0 animate-pulse rounded-lg bg-white/10 md:h-24 md:w-16" />
+
+                  {/* Content skeleton */}
+                  <div className="min-w-0 flex-1">
+                    {/* Title row */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="h-5 w-24 animate-pulse bg-white/10 md:h-6 md:w-36" />
+                      <div className="size-6 flex-shrink-0 animate-pulse rounded bg-white/10 md:size-8" />
+                    </div>
+
+                    {/* Episode row */}
+                    <div className="mt-2 flex items-center gap-2">
+                      <div className="h-6 w-14 flex-shrink-0 animate-pulse rounded-md bg-white/10" />
+                      <div className="h-4 w-16 animate-pulse bg-white/5 md:w-28" />
+                    </div>
+
+                    {/* Bottom row */}
+                    <div className="mt-3 flex items-center justify-between">
+                      <div className="flex gap-1.5">
+                        <div className="h-4 w-18 animate-pulse bg-white/10" />
+                        <div className="h-4 w-8 animate-pulse bg-white/5" />
+                      </div>
+                      <div className="hidden h-5 w-26 animate-pulse rounded-md bg-white/5 md:block" />
+                    </div>
                   </div>
                 </div>
               </div>

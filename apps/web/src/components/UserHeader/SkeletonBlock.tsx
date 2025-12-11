@@ -8,7 +8,7 @@ export default function SkeletonBlock({
   return (
     <div
       className={cx(
-        'flex flex-col justify-center gap-y-1.5 whitespace-nowrap rounded-xl bg-[#333] p-3 md:p-6',
+        'flex flex-col justify-center gap-y-1 whitespace-nowrap rounded-xl bg-[#333] p-3 md:gap-y-1.5 md:p-6',
         className,
       )}
     >

@@ -5,7 +5,7 @@ import { domain, zone } from './dns';
 import { dominantColor } from './dominantColor';
 import * as dynamo from './dynamo';
 import { email } from './email';
-import { metricsQueue } from './metricsQueue';
+import { metricsQueue } from './metrics';
 import { scrobbleQueue } from './scrobbleQueue';
 import * as secrets from './secrets';
 

@@ -72,7 +72,7 @@ export default $config({
     await import('./infra/dominantColor');
     await import('./infra/dynamo');
     await import('./infra/scrobbleQueue');
-    await import('./infra/metricsQueue');
+    await import('./infra/metrics');
     await import('./infra/watchedStatus');
     await import('./infra/auth');
     await import('./infra/api');

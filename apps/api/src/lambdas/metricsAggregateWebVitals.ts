@@ -447,15 +447,29 @@ const writeAggregates = async (items: WebVitalAggregate[]): Promise<void> => {
  * Web Vitals aggregation Lambda.
  * Runs daily to aggregate raw Web Vital metrics into pre-computed aggregates.
  *
- * Aggregates the PREVIOUS day's data to ensure all metrics are collected.
+ * By default, aggregates the PREVIOUS day's data to ensure all metrics are collected.
+ * Can also accept a specific date via event payload for manual runs:
+ *   { "date": "2025-12-11" }
  */
-export const handler: ScheduledHandler = async () => {
+export const handler: ScheduledHandler = async (event) => {
   const now = new Date();
 
-  // Calculate the previous day's date
-  const previousDay = new Date(now);
-  previousDay.setDate(previousDay.getDate() - 1);
-  const dateStr = previousDay.toISOString().split('T')[0] as string;
+  // Allow overriding date via event payload for manual runs/testing
+  const eventDate =
+    event && typeof event === 'object' && 'date' in event
+      ? (event as { date: string }).date
+      : null;
+
+  let dateStr: string;
+  if (eventDate) {
+    dateStr = eventDate;
+    console.log(`[web-vitals-aggregate] Using provided date: ${dateStr}`);
+  } else {
+    // Calculate the previous day's date
+    const previousDay = new Date(now);
+    previousDay.setDate(previousDay.getDate() - 1);
+    dateStr = previousDay.toISOString().split('T')[0] as string;
+  }
 
   // Time range for the full day
   const dayStart = `${dateStr}T00:00:00.000Z`;

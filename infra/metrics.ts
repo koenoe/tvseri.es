@@ -32,7 +32,7 @@ export const webVitalsAggregateCron = new sst.aws.Cron(
   'WebVitalsAggregateCron',
   {
     function: {
-      handler: 'apps/api/src/lambdas/metrics-aggregate-web-vitals.handler',
+      handler: 'apps/api/src/lambdas/metricsAggregateWebVitals.handler',
       link: [dynamo.metricsRaw, dynamo.metricsWebVitals],
       memory: '512 MB',
       nodejs: {
@@ -54,7 +54,7 @@ export const apiMetricsAggregateCron = new sst.aws.Cron(
   'ApiMetricsAggregateCron',
   {
     function: {
-      handler: 'apps/api/src/lambdas/metrics-aggregate-api.handler',
+      handler: 'apps/api/src/lambdas/metricsAggregateApi.handler',
       link: [dynamo.metricsRaw, dynamo.metricsApi],
       memory: '512 MB',
       nodejs: {

@@ -1,4 +1,4 @@
-import type { AttributeValue } from '@aws-sdk/client-dynamodb';
+import type { AttributeValue, WriteRequest } from '@aws-sdk/client-dynamodb';
 import {
   BatchWriteItemCommand,
   DynamoDBClient,
@@ -18,6 +18,10 @@ import { Resource } from 'sst';
 
 const DYNAMO_BATCH_LIMIT = 25;
 const AGGREGATE_TTL_DAYS = 30;
+const MAX_RETRIES = 5;
+const BASE_DELAY_MS = 100;
+/** Number of shards used for raw metrics (must match metrics.ts) */
+const SHARD_COUNT = 10;
 
 /** Weights for calculating Real Experience Score */
 const METRIC_WEIGHTS: Record<WebVitalName, number> = {
@@ -30,14 +34,20 @@ const METRIC_WEIGHTS: Record<WebVitalName, number> = {
 
 const dynamoClient = new DynamoDBClient({});
 
+/**
+ * Sleep for a given number of milliseconds.
+ */
+const sleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
 // ═══════════════════════════════════════════════════════════════════════════
 // UTILITIES
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Fetch all raw Web Vital metrics for a specific day.
+ * Fetch all raw Web Vital metrics for a specific day from a single shard.
  */
-const fetchRawMetrics = async (
+const fetchRawMetricsFromShard = async (
   pk: string,
   dayStart: string,
   dayEnd: string,
@@ -74,6 +84,23 @@ const fetchRawMetrics = async (
   } while (lastKey);
 
   return items;
+};
+
+/**
+ * Fetch all raw Web Vital metrics for a specific day from all shards.
+ */
+const fetchRawMetrics = async (
+  basePk: string,
+  dayStart: string,
+  dayEnd: string,
+): Promise<WebVitalRecord[]> => {
+  // Query all shards in parallel
+  const shardQueries = Array.from({ length: SHARD_COUNT }, (_, shard) =>
+    fetchRawMetricsFromShard(`${basePk}#${shard}`, dayStart, dayEnd),
+  );
+
+  const results = await Promise.all(shardQueries);
+  return results.flat();
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -412,30 +439,73 @@ const aggregateWebVitals = (
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
+ * Write a batch of items to DynamoDB with exponential backoff retry for UnprocessedItems.
+ */
+const batchWriteWithRetry = async (
+  tableName: string,
+  items: WriteRequest[],
+): Promise<void> => {
+  let unprocessed = items;
+  let attempt = 0;
+
+  while (unprocessed.length > 0 && attempt < MAX_RETRIES) {
+    if (attempt > 0) {
+      const delay = BASE_DELAY_MS * 2 ** attempt;
+      await sleep(delay);
+    }
+
+    const result = await dynamoClient.send(
+      new BatchWriteItemCommand({
+        RequestItems: {
+          [tableName]: unprocessed,
+        },
+      }),
+    );
+
+    const remaining = result.UnprocessedItems?.[tableName];
+    if (!remaining || remaining.length === 0) {
+      return;
+    }
+
+    unprocessed = remaining;
+    attempt++;
+    console.warn(
+      `[web-vitals-aggregate] ${unprocessed.length} unprocessed items, retry ${attempt}/${MAX_RETRIES}`,
+    );
+  }
+
+  if (unprocessed.length > 0) {
+    console.error(
+      `[web-vitals-aggregate] Failed to write ${unprocessed.length} items after ${MAX_RETRIES} retries`,
+    );
+    throw new Error(
+      `Failed to write ${unprocessed.length} items after ${MAX_RETRIES} retries`,
+    );
+  }
+};
+
+/**
  * Write Web Vitals aggregates to MetricsWebVitals table.
  */
 const writeAggregates = async (items: WebVitalAggregate[]): Promise<void> => {
   if (items.length === 0) return;
 
-  const batches: (typeof items)[] = [];
-  for (let i = 0; i < items.length; i += DYNAMO_BATCH_LIMIT) {
-    batches.push(items.slice(i, i + DYNAMO_BATCH_LIMIT));
+  const writeRequests: WriteRequest[] = items.map((item) => ({
+    PutRequest: {
+      Item: marshall(item, { removeUndefinedValues: true }),
+    },
+  }));
+
+  // Split into DynamoDB batch chunks (max 25 items per batch)
+  const batches: WriteRequest[][] = [];
+  for (let i = 0; i < writeRequests.length; i += DYNAMO_BATCH_LIMIT) {
+    batches.push(writeRequests.slice(i, i + DYNAMO_BATCH_LIMIT));
   }
 
   await Promise.all(
-    batches.map(async (batch) => {
-      await dynamoClient.send(
-        new BatchWriteItemCommand({
-          RequestItems: {
-            [Resource.MetricsWebVitals.name]: batch.map((item) => ({
-              PutRequest: {
-                Item: marshall(item, { removeUndefinedValues: true }),
-              },
-            })),
-          },
-        }),
-      );
-    }),
+    batches.map((batch) =>
+      batchWriteWithRetry(Resource.MetricsWebVitals.name, batch),
+    ),
   );
 };
 

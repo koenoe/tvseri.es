@@ -54,3 +54,7 @@ yarn-error.log*
 
 # aws
 .aws-sam
+
+# tanstack
+.tanstack
+

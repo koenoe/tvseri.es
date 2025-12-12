@@ -71,6 +71,7 @@ const app = issuer({
 
       return ctx.subject('user', {
         id: user.id,
+        role: user.role,
       });
     }
 

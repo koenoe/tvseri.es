@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "target": "ESNext"
+  },
+  "extends": "@tvseri.es/typescript-config/base.json",
+  "include": ["**/*.ts", "**/*.tsx"]
+}

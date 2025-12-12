@@ -18,6 +18,7 @@ try {
   openNextVersion = undefined;
 }
 
+// Note: ideally this was called 'web', but if I change it now everything will go bad shittttt
 new sst.aws.Nextjs('tvseries', {
   domain: {
     dns: sst.aws.dns({

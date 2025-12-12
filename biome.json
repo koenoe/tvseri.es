@@ -29,7 +29,8 @@
       "!**/public",
       "!**/sst-env.d.ts",
       "!**/*.module.css",
-      "!**/next-env.d.ts"
+      "!**/next-env.d.ts",
+      "!**/*.gen.ts"
     ],
     "maxSize": 1572864
   },

@@ -1,7 +1,5 @@
 /// <reference path="./.sst/platform/config.d.ts" />
 
-import { blockedCountries } from './infra/blockedCountries';
-
 export default $config({
   app(input) {
     return {
@@ -21,6 +19,7 @@ export default $config({
     };
   },
   async run() {
+    const { blockedCountries } = await import('./infra/blockedCountries');
     // Global transform to apply geographic restrictions to all CloudFront distributions
     // and enable origin shield
     $transform(aws.cloudfront.Distribution, (args) => {
@@ -54,16 +53,30 @@ export default $config({
       };
     });
 
+    // Base infrastructure with no dependencies
     await import('./infra/dns');
     await import('./infra/email');
     await import('./infra/dominantColor');
     await import('./infra/dynamo');
-    await import('./infra/scrobbleQueue');
-    await import('./infra/metrics');
-    await import('./infra/watchedStatus');
-    await import('./infra/auth');
-    await import('./infra/api');
-    await import('./infra/web');
+    await import('./infra/secrets');
     await import('./infra/distributionDisabler');
+
+    // Queue consumers that depend on base infrastructure
+    // scrobbleQueue: depends on dynamo, dominantColor
+    await import('./infra/scrobbleQueue');
+    // metrics: depends on dynamo
+    await import('./infra/metrics');
+    // watchedStatus: depends on dynamo, dominantColor
+    await import('./infra/watchedStatus');
+
+    // Auth service that depends on dns, dynamo, email
+    await import('./infra/auth');
+
+    // API router that depends on auth, dns, dynamo, email, dominantColor, metricsQueue, scrobbleQueue
+    await import('./infra/api');
+
+    // Frontend apps that depend on api, auth, dns
+    await import('./infra/web');
+    await import('./infra/dashboard');
   },
 });

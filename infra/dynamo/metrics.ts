@@ -29,7 +29,7 @@
 
 export const metricsRaw = new sst.aws.Dynamo('MetricsRaw', {
   fields: {
-    pk: 'string', // WEB#<date> | API#<date>
+    pk: 'string', // WEB#<date>#<shard> | API#<date>#<shard> (shard: 0-9)
     sk: 'string', // <timestamp>#<id>
   },
   primaryIndex: { hashKey: 'pk', rangeKey: 'sk' },

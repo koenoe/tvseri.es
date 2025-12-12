@@ -1,0 +1,44 @@
+{
+  "dependencies": {
+    "@openauthjs/openauth": "^0.4.3",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@tailwindcss/vite": "^4.0.6",
+    "@tanstack/react-devtools": "^0.8.4",
+    "@tanstack/react-router": "^1.132.0",
+    "@tanstack/react-router-devtools": "^1.132.0",
+    "@tanstack/router-plugin": "^1.132.0",
+    "@tvseri.es/constants": "workspace:*",
+    "@tvseri.es/schemas": "workspace:*",
+    "@tvseri.es/utils": "workspace:*",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.561.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "sst": "catalog:",
+    "tailwind-merge": "^3.0.2",
+    "tailwindcss": "^4.0.6",
+    "tw-animate-css": "^1.3.6"
+  },
+  "devDependencies": {
+    "@tanstack/devtools-vite": "^0.3.11",
+    "@tvseri.es/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "typescript": "catalog:",
+    "vite": "^7.1.7"
+  },
+  "name": "@tvseri.es/dashboard",
+  "private": true,
+  "scripts": {
+    "build": "vite build && tsc --noEmit",
+    "check-types": "tsc",
+    "dev": "vite",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "type": "module",
+  "version": "0.0.0"
+}

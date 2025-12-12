@@ -133,6 +133,10 @@ import { SomeSchema, type SomeType } from '@tvseri.es/schemas';
 import { someUtil } from '@tvseri.es/utils';
 ```
 
+## MCP Tools
+
+**Always use Context7** when code generation, setup/configuration steps, or library/API documentation is needed. Automatically use the Context7 MCP tools to resolve library IDs and fetch library docs without being explicitly asked.
+
 ## Agent Checklist
 
 Before submitting changes:

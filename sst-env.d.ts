@@ -30,6 +30,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "Dashboard": {
+      "type": "sst.aws.StaticSite"
+      "url": string
+    }
     "DominantColor": {
       "name": string
       "type": "sst.aws.Function"
@@ -58,6 +62,10 @@ declare module "sst" {
     "MetricsApi": {
       "name": string
       "type": "sst.aws.Dynamo"
+    }
+    "MetricsDLQ": {
+      "type": "sst.aws.Queue"
+      "url": string
     }
     "MetricsQueue": {
       "type": "sst.aws.Queue"

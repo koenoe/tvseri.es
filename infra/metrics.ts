@@ -2,7 +2,17 @@
 
 import * as dynamo from './dynamo';
 
-export const metricsQueue = new sst.aws.Queue('MetricsQueue');
+/**
+ * Dead Letter Queue for metrics that fail after all retries.
+ */
+export const metricsDlq = new sst.aws.Queue('MetricsDLQ');
+
+export const metricsQueue = new sst.aws.Queue('MetricsQueue', {
+  dlq: {
+    queue: metricsDlq.arn,
+    retry: 3, // Move to DLQ after 3 failed processing attempts
+  },
+});
 
 metricsQueue.subscribe(
   {
@@ -18,6 +28,7 @@ metricsQueue.subscribe(
   },
   {
     batch: {
+      partialResponses: true, // Enable partial batch failure reporting
       size: 500, // Max batch size - fewer Lambda invocations
       window: '60 seconds', // Wait longer to fill batches
     },

@@ -11,7 +11,7 @@
     "dice-coefficient": "^2.1.1",
     "jose": "^6.1.3",
     "motion": "^12.23.26",
-    "next": "16.0.8",
+    "next": "16.0.10",
     "papaparse": "^5.5.3",
     "react": "19.2.1",
     "react-day-picker": "^9.12.0",
@@ -29,8 +29,8 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^16.0.8",
-    "@opennextjs/aws": "^3.9.4",
+    "@next/bundle-analyzer": "^16.0.10",
+    "@opennextjs/aws": "^3.9.6",
     "@tailwindcss/typography": "^0.5.19",
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/color": "^4.2.0",

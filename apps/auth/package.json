@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.948.0",
-    "@aws-sdk/client-sesv2": "^3.948.0",
+    "@aws-sdk/client-sesv2": "^3.950.0",
     "@aws-sdk/util-dynamodb": "^3.948.0",
     "@openauthjs/openauth": "^0.4.3",
     "@tvseri.es/schemas": "workspace:*",

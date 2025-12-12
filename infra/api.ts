@@ -21,6 +21,13 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
       injection: $resolve([secrets.apiKeyRandom.result]).apply(
         ([resolvedApiKey]) =>
           `
+          const uri = event.request.uri;
+
+          // Exclude /metrics routes from API key requirement (for dashboard access)
+          if (uri.startsWith('/metrics')) {
+            return event.request;
+          }
+
           const apiKey = event.request.headers["x-api-key"] && event.request.headers["x-api-key"].value;
           if (!apiKey || apiKey !== "${resolvedApiKey}") {
             return {

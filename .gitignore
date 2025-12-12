@@ -58,3 +58,5 @@ yarn-error.log*
 # tanstack
 .tanstack
 
+# claude
+.claude

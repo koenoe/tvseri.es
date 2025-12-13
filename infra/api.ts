@@ -23,8 +23,9 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
           `
           const uri = event.request.uri;
           const isMetrics = uri.startsWith('/metrics');
-          const auth = isMetrics ? event.request.headers["authorization"]?.value : event.request.headers["x-api-key"]?.value;
-          const isValid = isMetrics ? auth?.startsWith("Bearer ") : auth === "${resolvedApiKey}";
+          const authHeader = isMetrics ? event.request.headers["authorization"] : event.request.headers["x-api-key"];
+          const auth = authHeader && authHeader.value;
+          const isValid = isMetrics ? (auth && auth.startsWith("Bearer ")) : auth === "${resolvedApiKey}";
           if (!isValid) {
             return {
               statusCode: 401,

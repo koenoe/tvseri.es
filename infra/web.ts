@@ -37,12 +37,6 @@ new sst.aws.Nextjs('tvseries', {
             return {
               statusCode: 403,
               statusDescription: 'Forbidden',
-              headers: {
-                'content-type': [{
-                  key: 'Content-Type',
-                  value: 'text/html'
-                }]
-              },
               body: {
                 encoding: "text",
                 data: '<html><head><title>403 Forbidden</title></head><body><center><h1>403 Forbidden</h1></center></body></html>'

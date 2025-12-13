@@ -1,5 +1,7 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
+import { CORS_CONFIG } from '../packages/constants/src';
+
 import { auth } from './auth';
 import { domain, zone } from './dns';
 import { dominantColor } from './dominantColor';
@@ -8,6 +10,15 @@ import { email } from './email';
 import { metricsQueue } from './metrics';
 import { scrobbleQueue } from './scrobbleQueue';
 import * as secrets from './secrets';
+
+// Build CORS values for edge function injection
+const corsOriginCheck = CORS_CONFIG.originPatterns
+  .map((pattern) => `/${pattern}/.test(origin)`)
+  .join(' || ');
+const corsMethods = CORS_CONFIG.allowMethods.join(', ');
+const corsHeaders = CORS_CONFIG.allowHeaders.join(', ');
+const corsCredentials = String(CORS_CONFIG.credentials);
+const corsMaxAge = String(CORS_CONFIG.maxAge);
 
 export const apiRouter = new sst.aws.Router('ApiRouter', {
   domain: {
@@ -21,7 +32,26 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
       injection: $resolve([secrets.apiKeyRandom.result]).apply(
         ([resolvedApiKey]) =>
           `
+          const method = event.request.method;
           const uri = event.request.uri;
+          const origin = event.request.headers["origin"]?.value || "";
+
+          // Handle CORS preflight requests at the edge
+          if (method === 'OPTIONS') {
+            const isAllowedOrigin = ${corsOriginCheck};
+            return {
+              statusCode: 204,
+              statusDescription: 'No Content',
+              headers: {
+                "access-control-allow-origin": { value: isAllowedOrigin ? origin : "" },
+                "access-control-allow-methods": { value: "${corsMethods}" },
+                "access-control-allow-headers": { value: "${corsHeaders}" },
+                "access-control-allow-credentials": { value: "${corsCredentials}" },
+                "access-control-max-age": { value: "${corsMaxAge}" },
+              },
+            };
+          }
+
           const isMetrics = uri.startsWith('/metrics');
           const authHeader = isMetrics ? event.request.headers["authorization"] : event.request.headers["x-api-key"];
           const auth = authHeader && authHeader.value;

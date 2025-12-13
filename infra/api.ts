@@ -1,7 +1,5 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
-import { CORS_CONFIG } from '../packages/constants/src';
-
 import { auth } from './auth';
 import { domain, zone } from './dns';
 import { dominantColor } from './dominantColor';
@@ -10,15 +8,6 @@ import { email } from './email';
 import { metricsQueue } from './metrics';
 import { scrobbleQueue } from './scrobbleQueue';
 import * as secrets from './secrets';
-
-// Build CORS values for edge function injection
-const corsOriginCheck = CORS_CONFIG.originPatterns
-  .map((pattern) => `/${pattern}/.test(origin)`)
-  .join(' || ');
-const corsMethods = CORS_CONFIG.allowMethods.join(', ');
-const corsHeaders = CORS_CONFIG.allowHeaders.join(', ');
-const corsCredentials = String(CORS_CONFIG.credentials);
-const corsMaxAge = String(CORS_CONFIG.maxAge);
 
 export const apiRouter = new sst.aws.Router('ApiRouter', {
   domain: {
@@ -30,42 +19,24 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
   edge: {
     viewerRequest: {
       injection: $resolve([secrets.apiKeyRandom.result]).apply(
-        ([resolvedApiKey]) =>
-          `
-          const method = event.request.method;
-          const uri = event.request.uri;
-          const origin = event.request.headers["origin"]?.value || "";
+        ([resolvedApiKey]) => `
+          const r = event.request;
+          const m = r.method;
+          const u = r.uri;
 
-          // Handle CORS preflight requests at the edge
-          if (method === 'OPTIONS') {
-            const isAllowedOrigin = ${corsOriginCheck};
-            return {
-              statusCode: 204,
-              statusDescription: 'No Content',
-              headers: {
-                "access-control-allow-origin": { value: isAllowedOrigin ? origin : "" },
-                "access-control-allow-methods": { value: "${corsMethods}" },
-                "access-control-allow-headers": { value: "${corsHeaders}" },
-                "access-control-allow-credentials": { value: "${corsCredentials}" },
-                "access-control-max-age": { value: "${corsMaxAge}" },
-              },
-            };
-          }
+          // Allow CORS preflight through to Lambda
+          if (m === 'OPTIONS') return r;
 
-          const isMetrics = uri.startsWith('/metrics');
-          const authHeader = isMetrics ? event.request.headers["authorization"] : event.request.headers["x-api-key"];
-          const auth = authHeader && authHeader.value;
-          const isValid = isMetrics ? (auth && auth.startsWith("Bearer ")) : auth === "${resolvedApiKey}";
-          if (!isValid) {
-            return {
-              statusCode: 401,
-              statusDescription: 'Unauthorized',
-              body: {
-                encoding: "text",
-                data: '<html><head><title>401 Unauthorized</title></head><body><center><h1>401 Unauthorized</h1></center></body></html>'
-              }
-            };
-          }
+          // Auth: /metrics uses Bearer token, others use x-api-key
+          const h = u.startsWith('/metrics') ? r.headers['authorization'] : r.headers['x-api-key'];
+          const a = h && h.value;
+          const ok = u.startsWith('/metrics') ? (a && a.startsWith('Bearer ')) : a === '${resolvedApiKey}';
+
+          if (!ok) return {
+            statusCode: 401,
+            statusDescription: 'Unauthorized',
+            body: { encoding: 'text', data: 'Unauthorized' }
+          };
         `,
       ),
     },

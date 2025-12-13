@@ -1,4 +1,3 @@
-import { CORS_CONFIG } from '@tvseri.es/constants';
 import { Hono } from 'hono';
 import { handle } from 'hono/aws-lambda';
 import { compress } from 'hono/compress';
@@ -37,18 +36,25 @@ app.use(timeout(14_000));
 app.use(compress());
 app.use(etag());
 
-// CORS for *.tvseri.es and *.dev.tvseri.es
-const ALLOWED_ORIGINS = CORS_CONFIG.originPatterns.map(
-  (pattern) => new RegExp(pattern),
-);
+// CORS for *.tvseri.es and *.*.dev.tvseri.es
+const ALLOWED_ORIGINS = [
+  /^https:\/\/[^.]+\.tvseri\.es$/,
+  /^https:\/\/[^.]+\.[^.]+\.dev\.tvseri\.es$/,
+];
 
 app.use(
   '*',
   cors({
-    allowHeaders: [...CORS_CONFIG.allowHeaders],
-    allowMethods: [...CORS_CONFIG.allowMethods],
-    credentials: CORS_CONFIG.credentials,
-    maxAge: CORS_CONFIG.maxAge,
+    allowHeaders: [
+      'Authorization',
+      'Content-Type',
+      'X-Api-Key',
+      'X-Client-Platform',
+      'X-Client-Version',
+    ],
+    allowMethods: ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
+    credentials: true,
+    maxAge: 86400,
     origin: (origin) =>
       ALLOWED_ORIGINS.some((pattern) => pattern.test(origin)) ? origin : '',
   }),

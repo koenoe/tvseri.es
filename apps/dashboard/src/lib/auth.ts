@@ -133,12 +133,17 @@ export async function init(): Promise<User | undefined> {
   return currentUser;
 }
 
-export async function login(): Promise<void> {
+export async function getLoginUrl(): Promise<string> {
   const { challenge, url } = await client.authorize(location.origin, 'code', {
     pkce: true,
   });
 
   sessionStorage.setItem('challenge', JSON.stringify(challenge));
+  return url;
+}
+
+export async function login(): Promise<void> {
+  const url = await getLoginUrl();
   location.href = url;
 }
 

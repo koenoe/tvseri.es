@@ -41,8 +41,8 @@ export const Route = createRootRoute({
     const user = await auth.init();
 
     if (!user) {
-      await auth.login();
-      return;
+      const loginUrl = await auth.getLoginUrl();
+      throw redirect({ href: loginUrl });
     }
 
     if (user.role !== 'admin') {
@@ -53,5 +53,4 @@ export const Route = createRootRoute({
   },
   component: RootComponent,
   pendingComponent: PendingComponent,
-  pendingMs: 0,
 });

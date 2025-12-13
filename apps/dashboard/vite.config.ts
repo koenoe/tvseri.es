@@ -13,11 +13,7 @@ import {
 
 function proxy() {
   const result: Record<string, ProxyOptions> = {};
-  const apiUrl = process.env.VITE_API_URL;
-
-  if (!apiUrl) {
-    return result;
-  }
+  const apiUrl = process.env.VITE_API_URL!;
 
   if (process.env.API_USE_MOCK_DATA === '1') {
     result[`${apiUrl}/metrics/web-vitals/summary`] = {
@@ -26,6 +22,7 @@ function proxy() {
         const device = url.searchParams.get('device') || 'desktop';
         res!.setHeader('Content-Type', 'application/json');
         res!.end(JSON.stringify(generateMockSummary(7, device)));
+        return false;
       },
     };
     result[`${apiUrl}/metrics/web-vitals/routes`] = {
@@ -34,6 +31,7 @@ function proxy() {
         const device = url.searchParams.get('device') || 'desktop';
         res!.setHeader('Content-Type', 'application/json');
         res!.end(JSON.stringify(generateMockRoutes(device)));
+        return false;
       },
     };
     result[`${apiUrl}/metrics/web-vitals/countries`] = {
@@ -42,6 +40,7 @@ function proxy() {
         const device = url.searchParams.get('device') || 'desktop';
         res!.setHeader('Content-Type', 'application/json');
         res!.end(JSON.stringify(generateMockCountries(device)));
+        return false;
       },
     };
   } else if (process.env.API_PROXY) {

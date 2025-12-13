@@ -22,14 +22,10 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
         ([resolvedApiKey]) =>
           `
           const uri = event.request.uri;
-
-          // Exclude /metrics routes from API key requirement (for dashboard access)
-          if (uri.startsWith('/metrics')) {
-            return event.request;
-          }
-
-          const apiKey = event.request.headers["x-api-key"] && event.request.headers["x-api-key"].value;
-          if (!apiKey || apiKey !== "${resolvedApiKey}") {
+          const isMetrics = uri.startsWith('/metrics');
+          const auth = isMetrics ? event.request.headers["authorization"]?.value : event.request.headers["x-api-key"]?.value;
+          const isValid = isMetrics ? auth?.startsWith("Bearer ") : auth === "${resolvedApiKey}";
+          if (!isValid) {
             return {
               statusCode: 401,
               statusDescription: 'Unauthorized',
@@ -37,7 +33,7 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
                 encoding: "text",
                 data: '<html><head><title>401 Unauthorized</title></head><body><center><h1>401 Unauthorized</h1></center></body></html>'
               }
-            }
+            };
           }
         `,
       ),

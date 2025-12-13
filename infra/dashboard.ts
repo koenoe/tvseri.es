@@ -19,7 +19,9 @@ new sst.aws.StaticSite('Dashboard', {
     name: `dashboard.${domain}`,
   },
   environment: {
-    VITE_API_URL: apiRouter.url,
+    API_PROXY: $app.stage === 'production' ? undefined : apiRouter.url,
+    API_USE_MOCK_DATA: '1',
+    VITE_API_URL: $app.stage === 'production' ? apiRouter.url : '/api',
     VITE_AUTH_URL: auth.url,
   },
   path: 'apps/dashboard',

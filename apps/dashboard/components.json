@@ -8,10 +8,13 @@
     "utils": "@/lib/utils"
   },
   "iconLibrary": "lucide",
+  "menuAccent": "subtle",
+  "menuColor": "default",
+  "registries": {},
   "rsc": false,
-  "style": "new-york",
+  "style": "radix-maia",
   "tailwind": {
-    "baseColor": "zinc",
+    "baseColor": "neutral",
     "config": "",
     "css": "src/styles.css",
     "cssVariables": true,

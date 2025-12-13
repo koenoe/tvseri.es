@@ -45,7 +45,12 @@ const ALLOWED_ORIGINS = [
 app.use(
   '*',
   cors({
-    allowHeaders: ['Authorization', 'Content-Type', 'X-Api-Key'],
+    allowHeaders: [
+      'Authorization',
+      'Content-Type',
+      'X-Api-Key',
+      'X-Client-Platform',
+    ],
     allowMethods: ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
     credentials: true,
     maxAge: 86400,

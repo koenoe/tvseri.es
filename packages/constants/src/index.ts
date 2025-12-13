@@ -5,6 +5,7 @@ export const CORS_CONFIG = {
     'Content-Type',
     'X-Api-Key',
     'X-Client-Platform',
+    'X-Client-Version',
   ],
   allowMethods: ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
   credentials: true,

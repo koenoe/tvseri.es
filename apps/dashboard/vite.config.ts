@@ -21,21 +21,27 @@ function proxy() {
 
   if (process.env.API_USE_MOCK_DATA === '1') {
     result[`${apiUrl}/metrics/web-vitals/summary`] = {
-      bypass: (_req, res) => {
+      bypass: (req, res) => {
+        const url = new URL(req.url!, `http://${req.headers.host}`);
+        const device = url.searchParams.get('device') || 'desktop';
         res!.setHeader('Content-Type', 'application/json');
-        res!.end(JSON.stringify(generateMockSummary(7)));
+        res!.end(JSON.stringify(generateMockSummary(7, device)));
       },
     };
     result[`${apiUrl}/metrics/web-vitals/routes`] = {
-      bypass: (_req, res) => {
+      bypass: (req, res) => {
+        const url = new URL(req.url!, `http://${req.headers.host}`);
+        const device = url.searchParams.get('device') || 'desktop';
         res!.setHeader('Content-Type', 'application/json');
-        res!.end(JSON.stringify(generateMockRoutes()));
+        res!.end(JSON.stringify(generateMockRoutes(device)));
       },
     };
     result[`${apiUrl}/metrics/web-vitals/countries`] = {
-      bypass: (_req, res) => {
+      bypass: (req, res) => {
+        const url = new URL(req.url!, `http://${req.headers.host}`);
+        const device = url.searchParams.get('device') || 'desktop';
         res!.setHeader('Content-Type', 'application/json');
-        res!.end(JSON.stringify(generateMockCountries()));
+        res!.end(JSON.stringify(generateMockCountries(device)));
       },
     };
   } else if (process.env.API_PROXY) {

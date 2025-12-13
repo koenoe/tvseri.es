@@ -1,6 +1,7 @@
 import { vValidator } from '@hono/valibot-validator';
 import {
   MetricsCountriesQuerySchema,
+  type MetricsCountriesResponse,
   MetricsCountryParamSchema,
   MetricsCountryQuerySchema,
   type WebVitalAggregate,
@@ -127,12 +128,14 @@ app.get('/', vValidator('query', MetricsCountriesQuerySchema), async (c) => {
   // Apply limit if provided
   const result = limit ? countries.slice(0, limit) : countries;
 
-  return c.json({
+  const response: MetricsCountriesResponse = {
     countries: result,
     endDate,
     startDate,
     total: countries.length,
-  });
+  };
+
+  return c.json(response);
 });
 
 /**

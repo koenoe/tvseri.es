@@ -91,8 +91,9 @@ const ROUTES = [
   '/track/[id]',
 ];
 
-// Generate route metrics with realistic distribution
-function generateRouteMetrics() {
+// Generate route metrics with varied distribution across all status groups
+function generateRouteMetrics(device = 'desktop') {
+  const isMobile = device === 'mobile';
   const highTrafficRoutes = ['/home', '/tv/[id]', '/discover', '/u/[username]'];
   const mediumTrafficRoutes = [
     '/tv/[id]/seasons',
@@ -100,29 +101,68 @@ function generateRouteMetrics() {
     '/u/[username]/watchlist',
     '/person/[id]',
   ];
+  // Routes that will have poor metrics (for testing)
+  const poorRoutes = isMobile
+    ? ['/settings/import', '/track/[id]', '/tv/[id]/seasons', '/person/[id]']
+    : ['/settings/import', '/track/[id]'];
+  // Routes that will have needs improvement metrics
+  const needsImprovementRoutes = isMobile
+    ? ['/u/[username]/stats', '/settings/webhooks', '/home', '/discover']
+    : ['/u/[username]/stats', '/settings/webhooks'];
 
   return ROUTES.map((route) => {
     const isHighTraffic = highTrafficRoutes.includes(route);
     const isMediumTraffic = mediumTrafficRoutes.includes(route);
+    const isPoor = poorRoutes.includes(route);
+    const isNeedsImprovement = needsImprovementRoutes.includes(route);
 
+    // Mobile has less traffic
+    const trafficMultiplier = isMobile ? 0.6 : 1;
     const basePageviews = isHighTraffic ? 8000 : isMediumTraffic ? 2000 : 500;
     const pageviews = Math.floor(
-      randomAround(basePageviews, basePageviews * 0.5),
+      randomAround(basePageviews * trafficMultiplier, basePageviews * 0.5),
     );
 
-    // Most routes should be "great", some "needs improvement", few "poor"
-    const scoreBase = Math.random() > 0.15 ? 94 : Math.random() > 0.3 ? 70 : 40;
-    const score = Math.round(randomAround(scoreBase, 8));
+    // Assign scores based on route category - mobile is generally worse
+    let scoreBase: number;
+    let lcpBase: number;
+    let inpBase: number;
+
+    if (isPoor) {
+      scoreBase = isMobile ? 28 : 35;
+      lcpBase = isMobile ? 5500 : 5000;
+      inpBase = isMobile ? 700 : 600;
+    } else if (isNeedsImprovement) {
+      scoreBase = isMobile ? 55 : 65;
+      lcpBase = isMobile ? 3800 : 3500;
+      inpBase = isMobile ? 420 : 350;
+    } else {
+      scoreBase = isMobile ? 85 : 94;
+      lcpBase = isMobile ? 2300 : 2000;
+      inpBase = isMobile ? 160 : 120;
+    }
+
+    const score = Math.round(randomAround(scoreBase, 5));
 
     return {
-      CLS: generateMetricStats(0.02, 0.04, true),
-      FCP: generateMetricStats(1600, 500),
-      INP: generateMetricStats(90, 50),
-      LCP: generateMetricStats(2500, 800),
+      CLS: generateMetricStats(
+        isPoor ? 0.3 : isNeedsImprovement ? 0.15 : 0.05,
+        0.02,
+        true,
+      ),
+      FCP: generateMetricStats(
+        isPoor ? 3500 : isNeedsImprovement ? 2200 : 1400,
+        200,
+      ),
+      INP: generateMetricStats(inpBase, 30),
+      LCP: generateMetricStats(lcpBase, 300),
       pageviews,
       route,
       score: Math.min(100, Math.max(0, score)),
-      TTFB: generateMetricStats(900, 400),
+      TTFB: generateMetricStats(
+        isPoor ? 2000 : isNeedsImprovement ? 1200 : 600,
+        100,
+      ),
     };
   }).sort((a, b) => b.pageviews - a.pageviews);
 }
@@ -151,56 +191,112 @@ const COUNTRIES = [
   { code: 'DK', name: 'Denmark' },
 ];
 
-function generateCountryMetrics() {
+function generateCountryMetrics(device = 'desktop') {
+  const isMobile = device === 'mobile';
   const highTrafficCountries = ['US', 'GB', 'DE', 'NL', 'CA'];
+  // Countries with poor metrics (distant/slower infrastructure) - more on mobile
+  const poorCountries = isMobile ? ['IN', 'BR', 'MX', 'PL'] : ['IN', 'BR'];
+  // Countries with needs improvement metrics - more on mobile
+  const needsImprovementCountries = isMobile
+    ? ['US', 'AU', 'JP', 'ES']
+    : ['MX', 'PL'];
 
   return COUNTRIES.map((country) => {
     const isHighTraffic = highTrafficCountries.includes(country.code);
+    const isPoor = poorCountries.includes(country.code);
+    const isNeedsImprovement = needsImprovementCountries.includes(country.code);
+
+    // Mobile has less traffic
+    const trafficMultiplier = isMobile ? 0.65 : 1;
     const basePageviews = isHighTraffic ? 5000 : 800;
     const pageviews = Math.floor(
-      randomAround(basePageviews, basePageviews * 0.6),
+      randomAround(basePageviews * trafficMultiplier, basePageviews * 0.6),
     );
 
-    // US tends to have slightly worse scores due to geographic distribution
-    const scoreBase =
-      country.code === 'US'
-        ? 68
-        : country.code === 'IN' || country.code === 'BR'
-          ? 72
-          : 92;
-    const score = Math.round(randomAround(scoreBase, 10));
+    let scoreBase: number;
+    let lcpBase: number;
+    let inpBase: number;
+    let clsBase: number;
+
+    if (isPoor) {
+      scoreBase = isMobile ? 32 : 38;
+      lcpBase = isMobile ? 6000 : 5500;
+      inpBase = isMobile ? 620 : 550;
+      clsBase = isMobile ? 0.32 : 0.28;
+    } else if (isNeedsImprovement) {
+      scoreBase = isMobile ? 56 : 62;
+      lcpBase = isMobile ? 3600 : 3200;
+      inpBase = isMobile ? 380 : 320;
+      clsBase = isMobile ? 0.2 : 0.18;
+    } else {
+      scoreBase = isMobile ? 82 : 92;
+      lcpBase = isMobile ? 2400 : 2000;
+      inpBase = isMobile ? 140 : 100;
+      clsBase = isMobile ? 0.06 : 0.04;
+    }
+
+    const score = Math.round(randomAround(scoreBase, 5));
 
     return {
-      CLS: generateMetricStats(0.02, 0.04, true),
+      CLS: generateMetricStats(clsBase, 0.02, true),
       country: country.name,
       countryCode: country.code,
-      FCP: generateMetricStats(1600, 600),
-      INP: generateMetricStats(90, 60),
-      LCP: generateMetricStats(2500, 1000),
+      FCP: generateMetricStats(
+        isPoor ? 3800 : isNeedsImprovement ? 2400 : 1400,
+        200,
+      ),
+      INP: generateMetricStats(inpBase, 30),
+      LCP: generateMetricStats(lcpBase, 300),
       pageviews,
       score: Math.min(100, Math.max(0, score)),
-      TTFB: generateMetricStats(900, 500),
+      TTFB: generateMetricStats(
+        isPoor ? 2200 : isNeedsImprovement ? 1300 : 600,
+        100,
+      ),
     };
   }).sort((a, b) => b.pageviews - a.pageviews);
 }
 
 // Generate aggregated metrics with full stats structure
-function generateAggregatedMetrics() {
+// Thresholds (in ms for time-based, converted to seconds in display):
+// - FCP: great ≤1800, poor >3000
+// - LCP: great ≤2500, poor >4000
+// - INP: great ≤200, poor >500
+// - CLS: great ≤0.1, poor >0.25
+// - TTFB: great ≤800, poor >1800
+// - RES: great >90, poor <50
+function generateAggregatedMetrics(device = 'desktop') {
+  const isMobile = device === 'mobile';
+
+  // Mobile typically has worse metrics due to slower networks and less powerful devices
+  if (isMobile) {
+    return {
+      CLS: generateMetricStats(0.18, 0.03, true), // needs improvement (0.1-0.25) - ORANGE
+      FCP: generateMetricStats(2400, 300), // needs improvement (1800-3000ms) - ORANGE
+      INP: generateMetricStats(550, 50), // poor (>500ms) - RED
+      LCP: generateMetricStats(3200, 400), // needs improvement (2500-4000ms) - ORANGE
+      pageviews: Math.floor(randomAround(18000, 4000)),
+      score: Math.round(randomAround(58, 5)), // needs improvement (50-90) - ORANGE
+      TTFB: generateMetricStats(1400, 200), // needs improvement (800-1800ms) - ORANGE
+    };
+  }
+
+  // Desktop - better performance overall
   return {
-    CLS: generateMetricStats(0.02, 0.03, true),
-    FCP: generateMetricStats(1600, 400),
-    INP: generateMetricStats(85, 40),
-    LCP: generateMetricStats(2400, 600),
+    CLS: generateMetricStats(0.05, 0.02, true), // great (≤0.1)
+    FCP: generateMetricStats(1500, 200), // great (≤1800ms)
+    INP: generateMetricStats(350, 50), // needs improvement (200-500ms) - ORANGE
+    LCP: generateMetricStats(4500, 300), // poor (>4000ms) - RED
     pageviews: Math.floor(randomAround(28000, 5000)),
-    score: Math.round(randomAround(92, 8)),
-    TTFB: generateMetricStats(900, 300),
+    score: Math.round(randomAround(94, 3)), // great (>90) - GREEN
+    TTFB: generateMetricStats(650, 100), // great (≤800ms)
   };
 }
 
 // Generate the full mock data set
-export function generateMockSummary(days = 7) {
+export function generateMockSummary(days = 7, device = 'desktop') {
   const series = generateDailyMetrics(days);
-  const aggregated = generateAggregatedMetrics();
+  const aggregated = generateAggregatedMetrics(device);
 
   return {
     aggregated,
@@ -210,14 +306,14 @@ export function generateMockSummary(days = 7) {
   };
 }
 
-export function generateMockRoutes() {
+export function generateMockRoutes(device = 'desktop') {
   return {
-    routes: generateRouteMetrics(),
+    routes: generateRouteMetrics(device),
   };
 }
 
-export function generateMockCountries() {
+export function generateMockCountries(device = 'desktop') {
   return {
-    countries: generateCountryMetrics(),
+    countries: generateCountryMetrics(device),
   };
 }

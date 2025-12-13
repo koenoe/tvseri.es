@@ -647,3 +647,133 @@ export type WebVitalRecord = v.InferOutput<typeof WebVitalRecordSchema>;
 export type MetricRecord = v.InferOutput<typeof MetricRecordSchema>;
 export type ApiMetricAggregate = v.InferOutput<typeof ApiMetricAggregateSchema>;
 export type WebVitalAggregate = v.InferOutput<typeof WebVitalAggregateSchema>;
+
+// ============================================================================
+// Response schemas
+// ============================================================================
+
+/**
+ * Reusable web vitals metrics object (all 5 metrics + pageviews/score)
+ */
+const WebVitalsMetricsObject = {
+  CLS: WebVitalMetricStatsSchema,
+  FCP: WebVitalMetricStatsSchema,
+  INP: WebVitalMetricStatsSchema,
+  LCP: WebVitalMetricStatsSchema,
+  pageviews: v.number(),
+  score: v.number(),
+  TTFB: WebVitalMetricStatsSchema,
+};
+
+/**
+ * Aggregated metrics for a time period (all 5 web vitals + pageviews/score)
+ */
+export const AggregatedMetricsSchema = v.object(WebVitalsMetricsObject);
+
+/**
+ * Daily data point for time series charts
+ */
+export const MetricSeriesItemSchema = v.object({
+  ...WebVitalsMetricsObject,
+  date: v.string(),
+});
+
+/**
+ * Response from /metrics/web-vitals/summary
+ */
+export const MetricsSummaryResponseSchema = v.object({
+  aggregated: v.nullable(AggregatedMetricsSchema),
+  endDate: v.string(),
+  series: v.array(MetricSeriesItemSchema),
+  startDate: v.string(),
+});
+
+/**
+ * Route metrics item
+ */
+export const RouteMetricsSchema = v.object({
+  ...WebVitalsMetricsObject,
+  route: v.string(),
+});
+
+/**
+ * Response from /metrics/web-vitals/routes
+ */
+export const MetricsRoutesResponseSchema = v.object({
+  endDate: v.string(),
+  routes: v.array(RouteMetricsSchema),
+  startDate: v.string(),
+  total: v.number(),
+});
+
+/**
+ * Country metrics item
+ */
+export const CountryMetricsSchema = v.object({
+  ...WebVitalsMetricsObject,
+  country: v.string(),
+});
+
+/**
+ * Response from /metrics/web-vitals/countries
+ */
+export const MetricsCountriesResponseSchema = v.object({
+  countries: v.array(CountryMetricsSchema),
+  endDate: v.string(),
+  startDate: v.string(),
+  total: v.number(),
+});
+
+/**
+ * Device metrics item
+ */
+export const DeviceMetricsSchema = v.object({
+  ...WebVitalsMetricsObject,
+  device: v.string(),
+});
+
+/**
+ * Response from /metrics/web-vitals/devices
+ */
+export const MetricsDevicesResponseSchema = v.object({
+  devices: v.array(DeviceMetricsSchema),
+  endDate: v.string(),
+  startDate: v.string(),
+  total: v.number(),
+});
+
+/**
+ * Response from /metrics/web-vitals/devices/:device
+ */
+export const MetricsDeviceTimeSeriesResponseSchema = v.object({
+  aggregated: v.nullable(AggregatedMetricsSchema),
+  device: v.string(),
+  endDate: v.string(),
+  series: v.array(MetricSeriesItemSchema),
+  startDate: v.string(),
+});
+
+// ============================================================================
+// Additional inferred types from response schemas
+// ============================================================================
+
+export type AggregatedMetrics = v.InferOutput<typeof AggregatedMetricsSchema>;
+export type MetricSeriesItem = v.InferOutput<typeof MetricSeriesItemSchema>;
+export type MetricsSummaryResponse = v.InferOutput<
+  typeof MetricsSummaryResponseSchema
+>;
+export type RouteMetrics = v.InferOutput<typeof RouteMetricsSchema>;
+export type MetricsRoutesResponse = v.InferOutput<
+  typeof MetricsRoutesResponseSchema
+>;
+export type CountryMetrics = v.InferOutput<typeof CountryMetricsSchema>;
+export type MetricsCountriesResponse = v.InferOutput<
+  typeof MetricsCountriesResponseSchema
+>;
+export type DeviceMetrics = v.InferOutput<typeof DeviceMetricsSchema>;
+export type MetricsDevicesResponse = v.InferOutput<
+  typeof MetricsDevicesResponseSchema
+>;
+export type MetricsDeviceTimeSeriesResponse = v.InferOutput<
+  typeof MetricsDeviceTimeSeriesResponseSchema
+>;

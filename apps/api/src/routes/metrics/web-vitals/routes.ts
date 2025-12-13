@@ -3,6 +3,7 @@ import {
   MetricsRouteParamSchema,
   MetricsRouteQuerySchema,
   MetricsRoutesQuerySchema,
+  type MetricsRoutesResponse,
   type WebVitalAggregate,
 } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
@@ -129,12 +130,14 @@ app.get('/', vValidator('query', MetricsRoutesQuerySchema), async (c) => {
   // Apply limit if provided
   const result = limit ? routes.slice(0, limit) : routes;
 
-  return c.json({
+  const response: MetricsRoutesResponse = {
     endDate,
     routes: result,
     startDate,
     total: routes.length,
-  });
+  };
+
+  return c.json(response);
 });
 
 /**

@@ -23,7 +23,7 @@ function Tabs({
 }
 
 const tabsListVariants = cva(
-  'group/tabs-list text-muted-foreground inline-flex w-fit items-center justify-center group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col max-md:!flex-row max-md:!items-stretch max-md:!justify-start',
+  'group/tabs-list text-muted-foreground inline-flex w-fit items-center justify-center group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col max-md:flex-row! max-md:items-stretch! max-md:justify-start!',
   {
     defaultVariants: {
       variant: 'default',

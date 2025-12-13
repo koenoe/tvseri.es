@@ -1,6 +1,7 @@
 import { vValidator } from '@hono/valibot-validator';
 import {
   MetricsSummaryQuerySchema,
+  type MetricsSummaryResponse,
   type WebVitalAggregate,
 } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
@@ -51,7 +52,7 @@ app.get('/', vValidator('query', MetricsSummaryQuerySchema), async (c) => {
   // Aggregate all summaries into period totals
   const aggregated = aggregateSummaries(summaries);
 
-  return c.json({
+  const response: MetricsSummaryResponse = {
     aggregated,
     endDate,
     series: summaries.map((s) => ({
@@ -65,7 +66,9 @@ app.get('/', vValidator('query', MetricsSummaryQuerySchema), async (c) => {
       TTFB: s.TTFB,
     })),
     startDate,
-  });
+  };
+
+  return c.json(response);
 });
 
 export default app;

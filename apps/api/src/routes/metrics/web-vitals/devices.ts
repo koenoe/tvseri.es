@@ -2,6 +2,8 @@ import { vValidator } from '@hono/valibot-validator';
 import {
   MetricsDeviceParamSchema,
   MetricsDevicesQuerySchema,
+  type MetricsDevicesResponse,
+  type MetricsDeviceTimeSeriesResponse,
   type WebVitalAggregate,
 } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
@@ -115,12 +117,14 @@ app.get('/', vValidator('query', MetricsDevicesQuerySchema), async (c) => {
     return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
   });
 
-  return c.json({
+  const response: MetricsDevicesResponse = {
     devices,
     endDate,
     startDate,
     total: devices.length,
-  });
+  };
+
+  return c.json(response);
 });
 
 /**
@@ -155,7 +159,7 @@ app.get(
     // Aggregate for period summary
     const aggregated = aggregateSummaries(items);
 
-    return c.json({
+    const response: MetricsDeviceTimeSeriesResponse = {
       aggregated,
       device,
       endDate,
@@ -170,7 +174,9 @@ app.get(
         TTFB: item.TTFB,
       })),
       startDate,
-    });
+    };
+
+    return c.json(response);
   },
 );
 

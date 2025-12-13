@@ -20,7 +20,7 @@ new sst.aws.StaticSite('Dashboard', {
   },
   environment: {
     API_PROXY: $app.stage === 'production' ? undefined : apiRouter.url,
-    API_USE_MOCK_DATA: '1',
+    API_USE_MOCK_DATA: '0',
     VITE_API_URL: $app.stage === 'production' ? apiRouter.url : '/api',
     VITE_AUTH_URL: auth.url,
     // API_PROXY: 'https://api.tvseri.es',

@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { handle } from 'hono/aws-lambda';
 import { compress } from 'hono/compress';
+import { cors } from 'hono/cors';
 import { etag } from 'hono/etag';
 import { HTTPException } from 'hono/http-exception';
 import { requestId } from 'hono/request-id';
@@ -34,6 +35,24 @@ app.use(timeout(14_000));
 
 app.use(compress());
 app.use(etag());
+
+// CORS for *.tvseri.es and *.dev.tvseri.es
+const ALLOWED_ORIGINS = [
+  /^https:\/\/[^.]+\.tvseri\.es$/,
+  /^https:\/\/[^.]+\.[^.]+\.dev\.tvseri\.es$/,
+];
+
+app.use(
+  '*',
+  cors({
+    allowHeaders: ['Authorization', 'Content-Type', 'X-Api-Key'],
+    allowMethods: ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
+    credentials: true,
+    maxAge: 86400,
+    origin: (origin) =>
+      ALLOWED_ORIGINS.some((pattern) => pattern.test(origin)) ? origin : '',
+  }),
+);
 
 app.route('/admin', admin);
 app.route('/collection', collection);

@@ -20,23 +20,25 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
     viewerRequest: {
       injection: $resolve([secrets.apiKeyRandom.result]).apply(
         ([resolvedApiKey]) => `
-          const r = event.request;
-          const m = r.method;
-          const u = r.uri;
+          const req = event.request;
+          const method = req.method;
+          const uri = req.uri;
 
           // Allow CORS preflight through to Lambda
-          if (m === 'OPTIONS') return r;
+          if (method !== 'OPTIONS') {
+            // Auth: /metrics uses Bearer token, others use x-api-key
+            const header = uri.startsWith('/metrics') ? req.headers['authorization'] : req.headers['x-api-key'];
+            const auth = header && header.value;
+            const ok = uri.startsWith('/metrics') ? (auth && auth.startsWith('Bearer ')) : auth === '${resolvedApiKey}';
 
-          // Auth: /metrics uses Bearer token, others use x-api-key
-          const h = u.startsWith('/metrics') ? r.headers['authorization'] : r.headers['x-api-key'];
-          const a = h && h.value;
-          const ok = u.startsWith('/metrics') ? (a && a.startsWith('Bearer ')) : a === '${resolvedApiKey}';
-
-          if (!ok) return {
-            statusCode: 401,
-            statusDescription: 'Unauthorized',
-            body: { encoding: 'text', data: 'Unauthorized' }
-          };
+            if (!ok) {
+              return {
+                statusCode: 401,
+                statusDescription: 'Unauthorized',
+                body: { encoding: 'text', data: 'Unauthorized' }
+              };
+            }
+          }
         `,
       ),
     },

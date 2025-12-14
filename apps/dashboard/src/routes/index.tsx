@@ -73,6 +73,13 @@ function getContextualMessage(
   metric: MetricType,
   status: RatingStatus,
 ): string {
+  if (metric === 'res') {
+    if (status === 'great') {
+      return 'More than 75% of visits had a great experience.';
+    }
+    return 'Less than 75% of visits had a great experience.';
+  }
+
   const metricName = METRICS_CONFIG[metric].name;
 
   if (status === 'great') {
@@ -166,10 +173,10 @@ function MetricTabContent({
           <p className="mb-2 font-semibold text-md">{currentStatus.label}</p>
           <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <CurrentStatusIcon className={`size-4 ${currentStatus.text}`} />
-            {currentStatus.threshold}
+            {currentStatus.thresholdLabel}
           </p>
           <p className="mt-4 text-muted-foreground">
-            {aggregated && metric !== 'res'
+            {aggregated
               ? getContextualMessage(metric, currentStatus.status)
               : 'No data available for this period.'}
           </p>

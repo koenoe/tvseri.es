@@ -64,7 +64,7 @@ type MetricConfig = Readonly<{
 export const METRICS_CONFIG: Record<MetricType, MetricConfig> = {
   cls: {
     description:
-      'Measures visual stability. To provide a good user experience, pages should have a CLS of 0.1 or less.',
+      'Measures visual stability. To provide a good user experience, pages should maintain a CLS of less than 0.1.',
     label: 'Cumulative Layout Shift',
     learnMoreUrl: 'https://web.dev/articles/cls',
     lowerIsBetter: true,
@@ -75,7 +75,7 @@ export const METRICS_CONFIG: Record<MetricType, MetricConfig> = {
   },
   fcp: {
     description:
-      'Measures loading performance. To provide a good user experience, pages should have an FCP of 1.8 seconds or less.',
+      'When the browser renders the first bit of content from the DOM, providing the first feedback to the user that the page is actually loading.',
     label: 'First Contentful Paint',
     learnMoreUrl: 'https://web.dev/articles/fcp',
     lowerIsBetter: true,
@@ -86,7 +86,7 @@ export const METRICS_CONFIG: Record<MetricType, MetricConfig> = {
   },
   inp: {
     description:
-      'Measures responsiveness. To provide a good user experience, pages should have an INP of 200 milliseconds or less.',
+      'Measures interactivity. To provide a good user experience, pages should have an input delay of less than 200ms.',
     label: 'Interaction to Next Paint',
     learnMoreUrl: 'https://web.dev/articles/inp',
     lowerIsBetter: true,
@@ -97,7 +97,7 @@ export const METRICS_CONFIG: Record<MetricType, MetricConfig> = {
   },
   lcp: {
     description:
-      'Measures loading performance. To provide a good user experience, pages should have an LCP of 2.5 seconds or less.',
+      'Measures loading performance. To provide a good user experience, LCP should occur within 2.5s of when the page first starts loading.',
     label: 'Largest Contentful Paint',
     learnMoreUrl: 'https://web.dev/articles/lcp',
     lowerIsBetter: true,
@@ -111,7 +111,7 @@ export const METRICS_CONFIG: Record<MetricType, MetricConfig> = {
       'Measures the overall user experience. To provide a good user experience, pages should have a RES of more than 90.',
     label: 'Real Experience Score',
     learnMoreUrl:
-      'https://developer.chrome.com/docs/crux/real-experience-score',
+      'https://vercel.com/docs/speed-insights/metrics#real-experience-score-res',
     lowerIsBetter: false,
     name: 'RES',
     thresholdGreat: 90,
@@ -120,7 +120,7 @@ export const METRICS_CONFIG: Record<MetricType, MetricConfig> = {
   },
   ttfb: {
     description:
-      'Measures server responsiveness. To provide a good user experience, pages should have a TTFB of 0.8 seconds or less.',
+      'Measures server latency. To provide a good user experience, TTFB should be less than 0.8s.',
     label: 'Time to First Byte',
     learnMoreUrl: 'https://web.dev/articles/ttfb',
     lowerIsBetter: true,
@@ -165,28 +165,63 @@ export const getMetricTextClass = (
   return STATUS_COLORS[status].text;
 };
 
+/**
+ * Format a threshold value with its unit for display.
+ */
+const formatThreshold = (value: number, unit: '' | 'ms' | 's'): string => {
+  return `${value}${unit}`;
+};
+
 export const getMetricThresholdLabels = (metric: MetricType) => {
   const config = METRICS_CONFIG[metric];
   const unit = config.unit;
+  const great = formatThreshold(config.thresholdGreat, unit);
+  const poor = formatThreshold(config.thresholdPoor, unit);
 
   if (config.lowerIsBetter) {
     return {
-      great: `≤${config.thresholdGreat}${unit}`,
-      needsImprovement: `${config.thresholdGreat}${unit} - ${config.thresholdPoor}${unit}`,
-      poor: `>${config.thresholdPoor}${unit}`,
+      great: `<${great}`,
+      needsImprovement: `${great} - ${poor}`,
+      poor: `>${poor}`,
     };
   }
   // Higher is better (RES)
   return {
-    great: `>${config.thresholdGreat}`,
-    needsImprovement: `${config.thresholdPoor} - ${config.thresholdGreat}`,
-    poor: `<${config.thresholdPoor}`,
+    great: `>${great}`,
+    needsImprovement: `${poor} - ${great}`,
+    poor: `<${poor}`,
+  };
+};
+
+/**
+ * Get human-readable threshold labels for display.
+ * e.g., "Below 100ms", "Above 200ms", "Above 3s"
+ */
+export const getMetricThresholdReadableLabels = (metric: MetricType) => {
+  const config = METRICS_CONFIG[metric];
+  const unit = config.unit;
+  const great = formatThreshold(config.thresholdGreat, unit);
+  const poor = formatThreshold(config.thresholdPoor, unit);
+
+  if (config.lowerIsBetter) {
+    return {
+      great: `Below ${great}`,
+      needsImprovement: `Above ${great}`,
+      poor: `Above ${poor}`,
+    };
+  }
+  // Higher is better (RES)
+  return {
+    great: `Above ${great}`,
+    needsImprovement: `Below ${great}`,
+    poor: `Below ${poor}`,
   };
 };
 
 export const getMetricStatusConfig = (metric: MetricType, value: number) => {
   const status = getMetricStatus(metric, value);
   const thresholds = getMetricThresholdLabels(metric);
+  const readableThresholds = getMetricThresholdReadableLabels(metric);
 
   return {
     ...STATUS_COLORS[status],
@@ -194,6 +229,7 @@ export const getMetricStatusConfig = (metric: MetricType, value: number) => {
     label: STATUS_LABELS[status],
     status,
     threshold: thresholds[status],
+    thresholdLabel: readableThresholds[status],
   };
 };
 
@@ -203,6 +239,7 @@ export const getMetricStatusConfig = (metric: MetricType, value: number) => {
  */
 export const getRatingStatusConfig = (metric: MetricType) => {
   const thresholds = getMetricThresholdLabels(metric);
+  const readableThresholds = getMetricThresholdReadableLabels(metric);
 
   return {
     great: {
@@ -210,18 +247,21 @@ export const getRatingStatusConfig = (metric: MetricType) => {
       Icon: STATUS_ICONS.great,
       label: STATUS_LABELS.great,
       threshold: thresholds.great,
+      thresholdLabel: readableThresholds.great,
     },
     needsImprovement: {
       ...STATUS_COLORS.needsImprovement,
       Icon: STATUS_ICONS.needsImprovement,
       label: STATUS_LABELS.needsImprovement,
       threshold: thresholds.needsImprovement,
+      thresholdLabel: readableThresholds.needsImprovement,
     },
     poor: {
       ...STATUS_COLORS.poor,
       Icon: STATUS_ICONS.poor,
       label: STATUS_LABELS.poor,
       threshold: thresholds.poor,
+      thresholdLabel: readableThresholds.poor,
     },
   } as const;
 };

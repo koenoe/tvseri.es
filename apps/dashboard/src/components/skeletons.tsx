@@ -82,13 +82,13 @@ function MetricHeaderSkeleton() {
       {/* Score ring */}
       <Skeleton className="my-4 size-16.25 rounded-full" />
       {/* Status label - white text */}
-      <Skeleton className="mb-2 h-5 w-14 rounded-none" />
+      <Skeleton className="mb-2.5 h-5 w-14 rounded-none" />
       {/* Threshold - muted text */}
       <Skeleton className="h-4 w-8 rounded-none bg-muted/50" />
       {/* Context message - muted text */}
       <Skeleton className="mt-4 h-4 w-9/12 rounded-none bg-muted/50" />
       {/* Divider */}
-      <div className="my-4 h-px w-full bg-border" />
+      <div className="my-5 h-px w-full bg-border" />
       {/* Description - muted text - 3 lines */}
       <Skeleton className="h-4 w-full rounded-none bg-muted/50" />
       <Skeleton className="mt-1 h-4 w-11/12 rounded-none bg-muted/50" />

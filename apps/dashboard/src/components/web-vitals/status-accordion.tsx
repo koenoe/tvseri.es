@@ -7,6 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import type { GroupedMetricData } from '@/lib/api/utils';
 import type { RatingStatus } from '@/lib/web-vitals';
 
 import { StatusHeader } from './status-header';
@@ -19,20 +20,9 @@ type StatusConfig = Readonly<{
   threshold: string;
 }>;
 
-type MetricItem = Readonly<{
-  label: string;
-  value: number | string;
-}>;
-
-type MetricData = Readonly<{
-  great: ReadonlyArray<MetricItem>;
-  needsImprovement: ReadonlyArray<MetricItem>;
-  poor: ReadonlyArray<MetricItem>;
-}>;
-
 type StatusAccordionProps = Readonly<{
   className?: string;
-  data: MetricData;
+  data: GroupedMetricData;
   defaultStatus?: RatingStatus;
   emptyMessages?: Readonly<Record<RatingStatus, string>>;
   onViewAll?: (status: RatingStatus) => void;

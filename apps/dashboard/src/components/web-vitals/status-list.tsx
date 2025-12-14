@@ -1,13 +1,10 @@
 import { CircleCheck } from 'lucide-react';
 import { memo } from 'react';
 
+import type { MetricItem } from '@/lib/api/utils';
+
 import { MetricListItem } from './metric-list-item';
 import { ViewAllOverlay } from './view-all-overlay';
-
-type MetricItem = Readonly<{
-  label: string;
-  value: number | string;
-}>;
 
 type StatusListProps = Readonly<{
   emptyMessage?: string;
@@ -33,11 +30,12 @@ function StatusListComponent({
 
   return (
     <>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2">
         {items.map((item) => (
           <MetricListItem
             key={item.label}
             label={item.label}
+            pageViews={item.pageViews}
             value={item.value}
             variant={variant}
           />

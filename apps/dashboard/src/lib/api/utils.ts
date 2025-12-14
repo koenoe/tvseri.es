@@ -16,12 +16,14 @@ import {
 
 type MetricItemWithRaw = {
   label: string;
+  pageViews: number;
   rawValue: number;
   value: number | string;
 };
 
 export type MetricItem = Readonly<{
   label: string;
+  pageViews: number;
   value: number | string;
 }>;
 
@@ -30,6 +32,22 @@ export type GroupedMetricData = Readonly<{
   needsImprovement: ReadonlyArray<MetricItem>;
   poor: ReadonlyArray<MetricItem>;
 }>;
+
+/**
+ * Format page views for display.
+ * >= 1000 shows as 1k, 1.5k, etc.
+ * < 1000 shows full number.
+ */
+export function formatPageViews(pageViews: number): string {
+  if (pageViews < 1000) {
+    return String(pageViews);
+  }
+  const thousands = pageViews / 1000;
+  // Show decimal only if not a whole number (e.g., 1.5k but not 2.0k)
+  const formatted =
+    thousands % 1 === 0 ? thousands.toFixed(0) : thousands.toFixed(1);
+  return `${formatted}k`;
+}
 
 /**
  * Get the display value for a metric.
@@ -123,7 +141,11 @@ function sortItemsByPerformance(
   });
 
   // Remove rawValue from result
-  return sorted.map(({ label, value }) => ({ label, value }));
+  return sorted.map(({ label, pageViews, value }) => ({
+    label,
+    pageViews,
+    value,
+  }));
 }
 
 /**
@@ -147,6 +169,7 @@ export function groupRoutesByStatus(
 
     groups[status].push({
       label: route.route,
+      pageViews: route.pageviews,
       rawValue,
       value: displayValue,
     });
@@ -189,6 +212,7 @@ export function groupCountriesByStatus(
 
     groups[status].push({
       label: countryName,
+      pageViews: country.pageviews,
       rawValue,
       value: displayValue,
     });

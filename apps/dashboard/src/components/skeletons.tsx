@@ -26,7 +26,12 @@ function TabTriggerValueSkeleton({
   if (isScoreRing) {
     return <Skeleton className="size-9 rounded-full" />;
   }
-  return <Skeleton className={`h-7 ${width} rounded-none`} />;
+  return (
+    <div className="flex w-full flex-col gap-2">
+      <Skeleton className={`h-6 ${width} rounded-none`} />
+      <Skeleton className="h-0.75 w-full rounded-full" />
+    </div>
+  );
 }
 TabTriggerValueSkeleton.displayName = 'TabTriggerValueSkeleton';
 
@@ -41,7 +46,7 @@ function TabTriggerSkeleton({ index }: Readonly<{ index: number }>) {
 
   return (
     <div
-      className={`flex ${height} shrink-0 flex-col items-start justify-center gap-2 border-b border-border px-5 last:border-b-0 max-md:h-auto max-md:border-b-0 max-md:border-r max-md:px-4 max-md:py-3 max-md:last:border-r-0`}
+      className={`flex ${height} shrink-0 flex-col items-stretch justify-center gap-2 border-b border-border px-5 text-left last:border-b-0 max-md:h-auto max-md:border-b-0 max-md:border-r max-md:px-4 max-md:py-3 max-md:last:border-r-0`}
     >
       <Skeleton className="h-6 w-36 rounded-none bg-muted/50 max-md:w-24" />
       <TabTriggerValueSkeleton isScoreRing={isFirst} width={valueWidth} />

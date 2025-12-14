@@ -20,34 +20,95 @@ function randomAround(base: number, variance: number): number {
   return Math.round((base + (Math.random() - 0.5) * variance) * 100) / 100;
 }
 
+// Metric thresholds for rating calculation
+const METRIC_THRESHOLDS = {
+  CLS: { good: 0.1, poor: 0.25 },
+  FCP: { good: 1800, poor: 3000 },
+  INP: { good: 200, poor: 500 },
+  LCP: { good: 2500, poor: 4000 },
+  TTFB: { good: 800, poor: 1800 },
+} as const;
+
+type MetricName = keyof typeof METRIC_THRESHOLDS;
+
+/**
+ * Generate ratings distribution that is consistent with the p75 value.
+ *
+ * Key insight: p75 means 75% of visits are at or below this value.
+ * - If p75 is "good": 75% are at or below a good value, so ~75%+ are good
+ * - If p75 is "needs improvement": the 75th percentile is in NI range,
+ *   so good% < 75%, and good% + NI% >= 75%
+ * - If p75 is "poor": the 75th percentile is poor,
+ *   so good% + NI% < 75%
+ */
+function generateConsistentRatings(
+  p75: number,
+  metricName: MetricName,
+  count: number,
+): { good: number; needsImprovement: number; poor: number } {
+  const thresholds = METRIC_THRESHOLDS[metricName];
+  let goodPct: number;
+  let needsImprovementPct: number;
+  let poorPct: number;
+
+  if (p75 <= thresholds.good) {
+    // p75 is good: at least 75% are good
+    goodPct = randomAround(0.82, 0.1); // 75-90%
+    needsImprovementPct = randomAround(0.12, 0.06); // ~10%
+    poorPct = 1 - goodPct - needsImprovementPct;
+  } else if (p75 <= thresholds.poor) {
+    // p75 is needs improvement: good < 75%, good + NI >= 75%
+    goodPct = randomAround(0.55, 0.15); // 40-70%
+    needsImprovementPct = randomAround(0.3, 0.1); // 20-40%
+    poorPct = 1 - goodPct - needsImprovementPct;
+  } else {
+    // p75 is poor: good + NI < 75%
+    goodPct = randomAround(0.35, 0.15); // 20-50%
+    needsImprovementPct = randomAround(0.25, 0.1); // 15-35%
+    poorPct = 1 - goodPct - needsImprovementPct; // 25%+
+  }
+
+  // Ensure percentages are valid
+  goodPct = Math.max(0, Math.min(1, goodPct));
+  needsImprovementPct = Math.max(0, Math.min(1, needsImprovementPct));
+  poorPct = Math.max(0, Math.min(1, poorPct));
+
+  // Normalize to ensure they sum to 1
+  const total = goodPct + needsImprovementPct + poorPct;
+  goodPct /= total;
+  needsImprovementPct /= total;
+  poorPct /= total;
+
+  return {
+    good: Math.round(count * goodPct),
+    needsImprovement: Math.round(count * needsImprovementPct),
+    poor: Math.round(count * poorPct),
+  };
+}
+
 // Generate metric stats with full percentile distribution
-function generateMetricStats(p75Base: number, variance: number, isCLS = false) {
+function generateMetricStats(
+  p75Base: number,
+  variance: number,
+  metricName: MetricName,
+) {
+  const isCLS = metricName === 'CLS';
   const p75 = randomAround(p75Base, variance);
   const p90 = randomAround(p75 * 1.3, variance * 0.5);
   const p95 = randomAround(p75 * 1.6, variance * 0.5);
   const p99 = randomAround(p75 * 2.2, variance * 0.5);
   const count = Math.floor(randomAround(4000, 1500));
 
-  // Generate realistic ratings distribution
-  const goodPct =
-    Math.random() > 0.2 ? randomAround(0.85, 0.15) : randomAround(0.6, 0.2);
-  const poorPct =
-    Math.random() > 0.8 ? randomAround(0.15, 0.1) : randomAround(0.05, 0.05);
-  const needsImprovementPct = 1 - goodPct - poorPct;
+  const finalP75 = isCLS ? Math.abs(p75) : Math.round(p75);
+  const ratings = generateConsistentRatings(finalP75, metricName, count);
 
   return {
     count,
-    p75: isCLS ? Math.abs(p75) : Math.round(p75),
+    p75: finalP75,
     p90: isCLS ? Math.abs(p90) : Math.round(p90),
     p95: isCLS ? Math.abs(p95) : Math.round(p95),
     p99: isCLS ? Math.abs(p99) : Math.round(p99),
-    ratings: {
-      good: Math.round(count * Math.max(0, Math.min(1, goodPct))),
-      needsImprovement: Math.round(
-        count * Math.max(0, Math.min(1, needsImprovementPct)),
-      ),
-      poor: Math.round(count * Math.max(0, Math.min(1, poorPct))),
-    },
+    ratings,
   };
 }
 
@@ -55,14 +116,14 @@ function generateMetricStats(p75Base: number, variance: number, isCLS = false) {
 function generateDailyMetrics(days: number) {
   const dates = generateDates(days);
   return dates.map((date) => ({
-    CLS: generateMetricStats(0.02, 0.03, true),
+    CLS: generateMetricStats(0.02, 0.03, 'CLS'),
     date,
-    FCP: generateMetricStats(1600, 400),
-    INP: generateMetricStats(85, 40),
-    LCP: generateMetricStats(2400, 600),
+    FCP: generateMetricStats(1600, 400, 'FCP'),
+    INP: generateMetricStats(85, 40, 'INP'),
+    LCP: generateMetricStats(2400, 600, 'LCP'),
     pageviews: Math.floor(randomAround(4000, 2000)),
     score: Math.round(randomAround(92, 10)),
-    TTFB: generateMetricStats(900, 300),
+    TTFB: generateMetricStats(900, 300, 'TTFB'),
   }));
 }
 
@@ -148,20 +209,22 @@ function generateRouteMetrics(device = 'desktop') {
       CLS: generateMetricStats(
         isPoor ? 0.3 : isNeedsImprovement ? 0.15 : 0.05,
         0.02,
-        true,
+        'CLS',
       ),
       FCP: generateMetricStats(
         isPoor ? 3500 : isNeedsImprovement ? 2200 : 1400,
         200,
+        'FCP',
       ),
-      INP: generateMetricStats(inpBase, 30),
-      LCP: generateMetricStats(lcpBase, 300),
+      INP: generateMetricStats(inpBase, 30, 'INP'),
+      LCP: generateMetricStats(lcpBase, 300, 'LCP'),
       pageviews,
       route,
       score: Math.min(100, Math.max(0, score)),
       TTFB: generateMetricStats(
         isPoor ? 2000 : isNeedsImprovement ? 1200 : 600,
         100,
+        'TTFB',
       ),
     };
   }).sort((a, b) => b.pageviews - a.pageviews);
@@ -238,20 +301,22 @@ function generateCountryMetrics(device = 'desktop') {
     const score = Math.round(randomAround(scoreBase, 5));
 
     return {
-      CLS: generateMetricStats(clsBase, 0.02, true),
+      CLS: generateMetricStats(clsBase, 0.02, 'CLS'),
       country: country.name,
       countryCode: country.code,
       FCP: generateMetricStats(
         isPoor ? 3800 : isNeedsImprovement ? 2400 : 1400,
         200,
+        'FCP',
       ),
-      INP: generateMetricStats(inpBase, 30),
-      LCP: generateMetricStats(lcpBase, 300),
+      INP: generateMetricStats(inpBase, 30, 'INP'),
+      LCP: generateMetricStats(lcpBase, 300, 'LCP'),
       pageviews,
       score: Math.min(100, Math.max(0, score)),
       TTFB: generateMetricStats(
         isPoor ? 2200 : isNeedsImprovement ? 1300 : 600,
         100,
+        'TTFB',
       ),
     };
   }).sort((a, b) => b.pageviews - a.pageviews);
@@ -271,25 +336,25 @@ function generateAggregatedMetrics(device = 'desktop') {
   // Mobile typically has worse metrics due to slower networks and less powerful devices
   if (isMobile) {
     return {
-      CLS: generateMetricStats(0.18, 0.03, true), // needs improvement (0.1-0.25) - ORANGE
-      FCP: generateMetricStats(2400, 300), // needs improvement (1800-3000ms) - ORANGE
-      INP: generateMetricStats(550, 50), // poor (>500ms) - RED
-      LCP: generateMetricStats(3200, 400), // needs improvement (2500-4000ms) - ORANGE
+      CLS: generateMetricStats(0.18, 0.03, 'CLS'), // needs improvement (0.1-0.25) - ORANGE
+      FCP: generateMetricStats(2400, 300, 'FCP'), // needs improvement (1800-3000ms) - ORANGE
+      INP: generateMetricStats(550, 50, 'INP'), // poor (>500ms) - RED
+      LCP: generateMetricStats(3200, 400, 'LCP'), // needs improvement (2500-4000ms) - ORANGE
       pageviews: Math.floor(randomAround(18000, 4000)),
       score: Math.round(randomAround(58, 5)), // needs improvement (50-90) - ORANGE
-      TTFB: generateMetricStats(1400, 200), // needs improvement (800-1800ms) - ORANGE
+      TTFB: generateMetricStats(1400, 200, 'TTFB'), // needs improvement (800-1800ms) - ORANGE
     };
   }
 
   // Desktop - better performance overall
   return {
-    CLS: generateMetricStats(0.05, 0.02, true), // great (≤0.1)
-    FCP: generateMetricStats(1500, 200), // great (≤1800ms)
-    INP: generateMetricStats(350, 50), // needs improvement (200-500ms) - ORANGE
-    LCP: generateMetricStats(4500, 300), // poor (>4000ms) - RED
+    CLS: generateMetricStats(0.05, 0.02, 'CLS'), // great (≤0.1)
+    FCP: generateMetricStats(1500, 200, 'FCP'), // great (≤1800ms)
+    INP: generateMetricStats(350, 50, 'INP'), // needs improvement (200-500ms) - ORANGE
+    LCP: generateMetricStats(4500, 300, 'LCP'), // poor (>4000ms) - RED
     pageviews: Math.floor(randomAround(28000, 5000)),
     score: Math.round(randomAround(94, 3)), // great (>90) - GREEN
-    TTFB: generateMetricStats(650, 100), // great (≤800ms)
+    TTFB: generateMetricStats(650, 100, 'TTFB'), // great (≤800ms)
   };
 }
 

@@ -102,7 +102,6 @@ function StackedHistoryGroup({ group }: StackedHistoryGroupProps) {
         const itemCount = displayedItems.length;
         const isTopCard = index === 0;
         const shouldBeAbsolute = isStacked && !isTopCard;
-        const pointerEvents = isExpanded ? 'auto' : 'none';
         const showShadow = isStacked && items.length > 1;
         const opacity = isExpanded || isTopCard ? 1 : 0.75;
         const scale = isExpanded ? 1 : STACK_SCALE ** stackIndex;
@@ -123,19 +122,25 @@ function StackedHistoryGroup({ group }: StackedHistoryGroupProps) {
           >
             <motion.div
               animate={{ opacity, scale }}
-              onTap={() => {
-                if (!isExpanded) {
-                  setIsExpanded(true);
-                }
-              }}
               style={{ transformOrigin: 'top center' }}
               transition={TRANSITION}
             >
-              <HistoryCard
-                item={item}
-                pointerEvents={pointerEvents}
-                showShadow={showShadow}
-              />
+              <div className="relative">
+                <HistoryCard item={item} showShadow={showShadow} />
+                {isStacked && (
+                  <div
+                    className="absolute inset-0 z-10"
+                    onClick={() => setIsExpanded(true)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        setIsExpanded(true);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                  />
+                )}
+              </div>
             </motion.div>
           </motion.div>
         );

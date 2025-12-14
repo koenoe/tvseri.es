@@ -14,15 +14,10 @@ import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 type Props = Readonly<{
   item: WatchedItem;
-  pointerEvents?: 'auto' | 'none';
   showShadow?: boolean;
 }>;
 
-function HistoryCard({
-  item,
-  pointerEvents = 'auto',
-  showShadow = false,
-}: Props) {
+function HistoryCard({ item, showShadow = false }: Props) {
   const href = `/tv/${item.seriesId}/${item.slug}`;
   const formattedWatchedAt = useMemo(() => {
     const watchedDate = new Date(item.watchedAt);
@@ -46,7 +41,6 @@ function HistoryCard({
         showShadow && 'shadow-[0_1px_4px_rgba(0,0,0,0.15)]',
       )}
       href={href}
-      style={{ pointerEvents }}
     >
       {item.posterImage && (
         <div className="relative w-12 flex-shrink-0 overflow-clip rounded-xl after:absolute after:inset-0 after:rounded-xl after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:w-16">

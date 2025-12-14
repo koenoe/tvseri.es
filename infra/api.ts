@@ -24,9 +24,7 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
           const method = req.method;
           const uri = req.uri;
 
-          // Allow CORS preflight through to Lambda
           if (method !== 'OPTIONS') {
-            // Auth: /metrics accepts either Bearer token or x-api-key
             const authHeader = req.headers['authorization'];
             const apiKeyHeader = req.headers['x-api-key'];
             const authValue = authHeader && authHeader.value;

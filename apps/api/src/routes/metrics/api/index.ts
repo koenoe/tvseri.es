@@ -9,7 +9,7 @@ import {
 } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
 
-import type { Variables } from '@/middleware/auth';
+import { requireAuthAdmin, type Variables } from '@/middleware/auth';
 
 import {
   aggregateSummaries,
@@ -22,6 +22,9 @@ import {
 } from './queries';
 
 const app = new Hono<{ Variables: Variables }>();
+
+// All API metrics routes require admin auth
+app.use('*', requireAuthAdmin());
 
 // ════════════════════════════════════════════════════════════════════════════
 // SUMMARY

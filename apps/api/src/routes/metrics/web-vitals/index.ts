@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 
-import type { Variables } from '@/middleware/auth';
+import { requireAuthAdmin, type Variables } from '@/middleware/auth';
 
 import countries from './countries';
 import devices from './devices';
@@ -10,10 +10,15 @@ import summary from './summary';
 
 const app = new Hono<{ Variables: Variables }>();
 
-// Ingestion endpoints (from browser)
+// Ingestion endpoints (from browser) - no auth required
 app.route('/', ingest);
 
-// Dashboard query endpoints
+// Dashboard query endpoints - require admin auth
+app.use('/summary/*', requireAuthAdmin());
+app.use('/routes/*', requireAuthAdmin());
+app.use('/countries/*', requireAuthAdmin());
+app.use('/devices/*', requireAuthAdmin());
+
 app.route('/summary', summary);
 app.route('/routes', routes);
 app.route('/countries', countries);

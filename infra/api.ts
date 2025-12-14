@@ -18,36 +18,35 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
   },
   edge: {
     viewerRequest: {
+      // Note: this is needed cause SST doesn't minify their code
+      // and we hit the size limit for CloudFront functions easily otherwise.
+
+      // Readable version of the minified injection below.
+      // To minify: wrap in `function _() { ... }`, minify at https://minify-js.com,
+      // then remove the `function _(){` prefix and `}` suffix.
+      //
+      // var h = event.request.headers;
+      // var m = event.request.method;
+      // var u = event.request.uri;
+
+      // if (m !== 'OPTIONS') {
+      //   var a = h['x-api-key'];
+      //   var b = h['authorization'];
+
+      //   var isApiKeyValid = a && a.value === '${k}';
+      //   var isBearerForMetrics = u.startsWith('/metrics') && b && b.value.startsWith('Bearer ');
+
+      //   if (!(isApiKeyValid || isBearerForMetrics)) {
+      //     return {
+      //       statusCode: 401,
+      //       statusDescription: 'Unauthorized',
+      //       body: { encoding: 'text', data: 'Unauthorized' }
+      //     };
+      //   }
+      // }
       injection: $resolve([secrets.apiKeyRandom.result]).apply(
-        ([resolvedApiKey]) => `
-          const req = event.request;
-          const method = req.method;
-          const uri = req.uri;
-
-          if (method !== 'OPTIONS') {
-            const authHeader = req.headers['authorization'];
-            const apiKeyHeader = req.headers['x-api-key'];
-            const authValue = authHeader && authHeader.value;
-            const apiKeyValue = apiKeyHeader && apiKeyHeader.value;
-
-            let ok = false;
-            if (uri.startsWith('/metrics')) {
-              // Metrics routes accept Bearer token OR x-api-key
-              ok = (authValue && authValue.startsWith('Bearer ')) || apiKeyValue === '${resolvedApiKey}';
-            } else {
-              // All other routes require x-api-key
-              ok = apiKeyValue === '${resolvedApiKey}';
-            }
-
-            if (!ok) {
-              return {
-                statusCode: 401,
-                statusDescription: 'Unauthorized',
-                body: { encoding: 'text', data: 'Unauthorized' }
-              };
-            }
-          }
-        `,
+        ([k]) =>
+          `var e=event.request.headers,t=event.request.method,r=event.request.uri;if("OPTIONS"!==t){var a=e["x-api-key"],i=e.authorization,s=a&&"${k}"===a.value,u=r.startsWith("/metrics")&&i&&i.value.startsWith("Bearer ");if(!s&&!u)return{statusCode:401,statusDescription:"Unauthorized",body:{encoding:"text",data:"Unauthorized"}}}`,
       ),
     },
   },

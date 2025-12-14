@@ -29,7 +29,7 @@ function MetricListItemComponent({
         >
           {label}
         </span>
-        <span className="text-muted-foreground text-xs flex items-center mt-0.5 gap-0.5">
+        <span className="text-muted-foreground text-xs flex items-center mt-0.5">
           {formattedPageViews}
           <svg
             className="size-4"

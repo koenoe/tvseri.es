@@ -26,10 +26,20 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
 
           // Allow CORS preflight through to Lambda
           if (method !== 'OPTIONS') {
-            // Auth: /metrics uses Bearer token, others use x-api-key
-            const header = uri.startsWith('/metrics') ? req.headers['authorization'] : req.headers['x-api-key'];
-            const auth = header && header.value;
-            const ok = uri.startsWith('/metrics') ? (auth && auth.startsWith('Bearer ')) : auth === '${resolvedApiKey}';
+            // Auth: /metrics accepts either Bearer token or x-api-key
+            const authHeader = req.headers['authorization'];
+            const apiKeyHeader = req.headers['x-api-key'];
+            const authValue = authHeader && authHeader.value;
+            const apiKeyValue = apiKeyHeader && apiKeyHeader.value;
+
+            let ok = false;
+            if (uri.startsWith('/metrics')) {
+              // Metrics routes accept Bearer token OR x-api-key
+              ok = (authValue && authValue.startsWith('Bearer ')) || apiKeyValue === '${resolvedApiKey}';
+            } else {
+              // All other routes require x-api-key
+              ok = apiKeyValue === '${resolvedApiKey}';
+            }
 
             if (!ok) {
               return {

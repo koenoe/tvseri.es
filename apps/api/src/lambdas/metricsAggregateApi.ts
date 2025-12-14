@@ -600,8 +600,10 @@ export const handler: ScheduledHandler = async (event) => {
   }
 
   // Time range for the full day
+  // Note: sk format is "{timestamp}#{requestId}", so we use ~ suffix to capture all records
+  // since ~ (ASCII 126) sorts after alphanumeric characters
   const dayStart = `${dateStr}T00:00:00.000Z`;
-  const dayEnd = `${dateStr}T23:59:59.999Z`;
+  const dayEnd = `${dateStr}T23:59:59.999Z~`;
 
   console.log(`[api-aggregate] Processing date ${dateStr}`);
 

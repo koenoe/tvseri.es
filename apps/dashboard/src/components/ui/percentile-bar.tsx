@@ -73,32 +73,45 @@ function PercentileBarComponent({
   const metricConfig = METRICS_CONFIG[metric];
   const totalRatings = ratings.good + ratings.needsImprovement + ratings.poor;
 
+  // Active zone is determined by the actual P75 value against metric thresholds
+  const p75Status = getMetricStatus(metric, p75Value);
+  const activeZone: RatingStatus = p75Status;
+
+  // If no ratings data, show 100% in the zone matching the p75 status
+  const hasRatingsData = totalRatings > 0;
+
   const zones: ZoneData[] = [
     {
       color: STATUS_COLORS.great.bg,
-      percentage: totalRatings > 0 ? (ratings.good / totalRatings) * 100 : 0,
+      percentage: hasRatingsData
+        ? (ratings.good / totalRatings) * 100
+        : activeZone === 'great'
+          ? 100
+          : 0,
       status: 'great',
       tooltipLabel: 'a great',
     },
     {
       color: STATUS_COLORS.needsImprovement.bg,
-      percentage:
-        totalRatings > 0 ? (ratings.needsImprovement / totalRatings) * 100 : 0,
+      percentage: hasRatingsData
+        ? (ratings.needsImprovement / totalRatings) * 100
+        : activeZone === 'needsImprovement'
+          ? 100
+          : 0,
       status: 'needsImprovement',
       tooltipLabel: '"needs improvement" on',
     },
     {
       color: STATUS_COLORS.poor.bg,
-      percentage: totalRatings > 0 ? (ratings.poor / totalRatings) * 100 : 0,
+      percentage: hasRatingsData
+        ? (ratings.poor / totalRatings) * 100
+        : activeZone === 'poor'
+          ? 100
+          : 0,
       status: 'poor',
       tooltipLabel: 'a poor',
     },
   ];
-
-  // Active zone is determined by the actual P75 value against metric thresholds
-  const p75Status = getMetricStatus(metric, p75Value);
-  // Map 'great' status to match zone status naming
-  const activeZone: RatingStatus = p75Status;
 
   // P75 is always at exactly 75%
   const p75Position = 75;

@@ -119,13 +119,7 @@ function PercentileBarComponent({
   const showTooltip = true;
   const showP75Label = variant === 'normal';
 
-  // Get the color for the P75 marker based on active zone
-  const markerColor =
-    activeZone === 'great'
-      ? STATUS_COLORS.great.bg
-      : activeZone === 'needsImprovement'
-        ? STATUS_COLORS.needsImprovement.bg
-        : STATUS_COLORS.poor.bg;
+  const markerColor = STATUS_COLORS[activeZone].bg;
 
   const visibleZones = zones.filter((zone) => zone.percentage > 0);
   const firstVisibleStatus = visibleZones[0]?.status;

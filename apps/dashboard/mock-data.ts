@@ -62,13 +62,17 @@ const computeRealExperienceScore = (metrics: {
   LCP: number;
 }): number => {
   let weightedSum = 0;
+  let totalWeight = 0;
   for (const metric of Object.keys(RES_WEIGHTS) as RESMetricName[]) {
     const value = metrics[metric];
+    if (value <= 0) continue;
     const weight = RES_WEIGHTS[metric];
     const score = computeMetricScore(value, metric);
     weightedSum += score * weight;
+    totalWeight += weight;
   }
-  return Math.round(weightedSum);
+  if (totalWeight === 0) return 0;
+  return Math.round(weightedSum / totalWeight);
 };
 
 // ============================================================================

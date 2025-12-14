@@ -76,11 +76,11 @@ function MetricHeaderSkeleton() {
   return (
     <div className="md:col-span-2">
       {/* Device label - muted text */}
-      <Skeleton className="mb-1.5 h-4 w-16 rounded-none bg-muted/50" />
+      <Skeleton className="mb-2.5 h-4 w-16 rounded-none bg-muted/50" />
       {/* Metric label - white text */}
       <Skeleton className="mb-4 h-7 w-52 rounded-none" />
       {/* Score ring */}
-      <Skeleton className="my-4 h-24 w-24 rounded-full" />
+      <Skeleton className="my-4 size-16.25 rounded-full" />
       {/* Status label - white text */}
       <Skeleton className="mb-2 h-5 w-14 rounded-none" />
       {/* Threshold - muted text */}

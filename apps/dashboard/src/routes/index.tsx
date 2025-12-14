@@ -143,7 +143,7 @@ function MetricTabContent({
           </p>
           <h3 className="text-2xl">{metricConfig.label}</h3>
           {metric === 'res' ? (
-            <ScoreRing className="my-4" score={metricValue} size={90} />
+            <ScoreRing className="my-4" score={metricValue} size={65} />
           ) : (
             <>
               <p className={`my-2 text-4xl ${currentStatus.text}`}>

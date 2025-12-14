@@ -215,15 +215,32 @@ export const computeRealExperienceScore = (metrics: {
   LCP: number;
 }): number => {
   let weightedSum = 0;
+  let totalWeight = 0;
 
   for (const metric of Object.keys(RES_WEIGHTS) as RESMetricName[]) {
     const value = metrics[metric];
+
+    // Skip metrics with no data (p75 = 0 means no measurements collected).
+    // These should be excluded from the weighted average rather than
+    // penalizing the score for missing data.
+    if (value <= 0) {
+      continue;
+    }
+
     const weight = RES_WEIGHTS[metric];
     const score = computeMetricScore(value, metric);
     weightedSum += score * weight;
+    totalWeight += weight;
   }
 
-  return Math.round(weightedSum);
+  // If no metrics have data, return 0 (cannot compute a score).
+  if (totalWeight === 0) {
+    return 0;
+  }
+
+  // Normalize by the total weight of metrics that have data.
+  // E.g., if only FCP (15%) has data, normalize to 100% of that metric.
+  return Math.round((weightedSum / totalWeight) * 100);
 };
 
 /**

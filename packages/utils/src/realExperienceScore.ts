@@ -239,8 +239,8 @@ export const computeRealExperienceScore = (metrics: {
   }
 
   // Normalize by the total weight of metrics that have data.
-  // E.g., if only FCP (15%) has data, normalize to 100% of that metric.
-  return Math.round((weightedSum / totalWeight) * 100);
+  // E.g., if only FCP (15%) has data, divide by 0.15 to scale back to 0-100.
+  return Math.round(weightedSum / totalWeight);
 };
 
 /**

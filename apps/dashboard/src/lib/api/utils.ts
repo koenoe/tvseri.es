@@ -169,6 +169,8 @@ export function groupRoutesByStatus(
  * Group countries by their status for a given metric.
  * Items within each group are sorted from best to worst.
  */
+const countryDisplayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+
 export function groupCountriesByStatus(
   countries: ReadonlyArray<CountryMetrics>,
   metric: MetricType,
@@ -183,9 +185,11 @@ export function groupCountriesByStatus(
     const rawValue = getMetricRawValue(metric, country);
     const status = getMetricStatus(metric, rawValue);
     const displayValue = getMetricDisplayValue(metric, country);
+    const countryName =
+      countryDisplayNames.of(country.country) ?? country.country;
 
     groups[status].push({
-      label: country.country,
+      label: countryName,
       rawValue,
       value: displayValue,
     });

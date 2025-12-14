@@ -302,8 +302,7 @@ function generateCountryMetrics(device = 'desktop') {
 
     return {
       CLS: generateMetricStats(clsBase, 0.02, 'CLS'),
-      country: country.name,
-      countryCode: country.code,
+      country: country.code,
       FCP: generateMetricStats(
         isPoor ? 3800 : isNeedsImprovement ? 2400 : 1400,
         200,

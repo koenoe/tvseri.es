@@ -149,6 +149,7 @@ function MetricTabContent({
               </p>
               <PercentileBar
                 metric={metric}
+                p75Value={metricValue}
                 ratings={
                   aggregated[
                     metric.toUpperCase() as
@@ -373,6 +374,7 @@ function Index() {
                   </span>
                   <PercentileBar
                     metric="fcp"
+                    p75Value={getMetricP75('fcp')}
                     ratings={metricRatings.fcp}
                     variant="compact"
                   />
@@ -400,6 +402,7 @@ function Index() {
                   </span>
                   <PercentileBar
                     metric="lcp"
+                    p75Value={getMetricP75('lcp')}
                     ratings={metricRatings.lcp}
                     variant="compact"
                   />
@@ -427,6 +430,7 @@ function Index() {
                   </span>
                   <PercentileBar
                     metric="inp"
+                    p75Value={getMetricP75('inp')}
                     ratings={metricRatings.inp}
                     variant="compact"
                   />
@@ -451,6 +455,7 @@ function Index() {
                   </span>
                   <PercentileBar
                     metric="cls"
+                    p75Value={getMetricP75('cls')}
                     ratings={metricRatings.cls}
                     variant="compact"
                   />
@@ -478,6 +483,7 @@ function Index() {
                   </span>
                   <PercentileBar
                     metric="ttfb"
+                    p75Value={getMetricP75('ttfb')}
                     ratings={metricRatings.ttfb}
                     variant="compact"
                   />

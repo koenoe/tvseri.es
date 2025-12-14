@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import {
+  getMetricStatus,
   METRICS_CONFIG,
   type MetricType,
   type RatingStatus,
@@ -16,6 +17,7 @@ import {
 
 type PercentileBarProps = Readonly<{
   metric: MetricType;
+  p75Value: number;
   ratings: WebVitalRatings;
   variant?: PercentileBarVariant;
 }>;
@@ -50,26 +52,6 @@ const markerVariants = cva('absolute w-0.5 -translate-x-1/2', {
 });
 
 /**
- * Determine which zone the P75 marker (at 75%) falls into.
- * The zones are laid out left-to-right as: good -> needsImprovement -> poor
- * based on their percentage widths.
- */
-function getActiveZoneAtP75(zones: ZoneData[]): RatingStatus {
-  const p75Position = 75;
-  let cumulativeWidth = 0;
-
-  for (const zone of zones) {
-    cumulativeWidth += zone.percentage;
-    if (p75Position <= cumulativeWidth) {
-      return zone.status;
-    }
-  }
-
-  // Fallback to poor if we somehow exceed 100%
-  return 'poor';
-}
-
-/**
  * Get grey shade based on zone status.
  * Poor = darkest, needs improvement = medium, good = lightest.
  * Subtle differences to match Vercel's design.
@@ -82,6 +64,7 @@ function getGreyShade(status: RatingStatus): string {
 
 function PercentileBarComponent({
   metric,
+  p75Value,
   ratings,
   variant = 'normal',
 }: PercentileBarProps) {
@@ -112,8 +95,10 @@ function PercentileBarComponent({
     },
   ];
 
-  // Active zone is whichever zone the P75 marker falls into
-  const activeZone = getActiveZoneAtP75(zones);
+  // Active zone is determined by the actual P75 value against metric thresholds
+  const p75Status = getMetricStatus(metric, p75Value);
+  // Map 'great' status to match zone status naming
+  const activeZone: RatingStatus = p75Status;
 
   // P75 is always at exactly 75%
   const p75Position = 75;

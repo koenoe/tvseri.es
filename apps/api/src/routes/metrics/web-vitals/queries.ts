@@ -2,6 +2,7 @@ import type { AttributeValue } from '@aws-sdk/client-dynamodb';
 import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import type { WebVitalAggregate } from '@tvseri.es/schemas';
+import { mergeHistograms, percentileFromHistogram } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 
 const dynamoClient = new DynamoDBClient({});
@@ -275,7 +276,8 @@ export const queryDeviceTimeSeries = async (
 
 /**
  * Aggregate multiple daily summaries into a single summary.
- * Uses weighted averages for percentiles and sums for ratings.
+ * Merges histograms to compute accurate percentiles.
+ * Falls back to weighted averages for data without histograms.
  */
 export const aggregateSummaries = (
   items: WebVitalAggregate[],
@@ -318,6 +320,38 @@ export const aggregateSummaries = (
       };
     }
 
+    // Sum ratings (always accurate)
+    const ratings = {
+      good: items.reduce((sum, item) => sum + item[metricName].ratings.good, 0),
+      needsImprovement: items.reduce(
+        (sum, item) => sum + item[metricName].ratings.needsImprovement,
+        0,
+      ),
+      poor: items.reduce((sum, item) => sum + item[metricName].ratings.poor, 0),
+    };
+
+    // Collect histograms from items that have them
+    const histograms = items
+      .map((item) => item[metricName].histogram?.bins)
+      .filter(
+        (bins): bins is number[] => bins !== undefined && bins.length > 0,
+      );
+
+    // If we have histograms, merge and compute accurate percentiles
+    if (histograms.length > 0) {
+      const mergedBins = mergeHistograms(histograms);
+
+      return {
+        count: totalCount,
+        p75: percentileFromHistogram(mergedBins, metricName, 75),
+        p90: percentileFromHistogram(mergedBins, metricName, 90),
+        p95: percentileFromHistogram(mergedBins, metricName, 95),
+        p99: percentileFromHistogram(mergedBins, metricName, 99),
+        ratings,
+      };
+    }
+
+    // Fallback: weighted averages for legacy data without histograms
     const weightedP75 =
       items.reduce(
         (sum, item) => sum + item[metricName].p75 * item[metricName].count,
@@ -338,15 +372,6 @@ export const aggregateSummaries = (
         (sum, item) => sum + item[metricName].p99 * item[metricName].count,
         0,
       ) / totalCount;
-
-    const ratings = {
-      good: items.reduce((sum, item) => sum + item[metricName].ratings.good, 0),
-      needsImprovement: items.reduce(
-        (sum, item) => sum + item[metricName].ratings.needsImprovement,
-        0,
-      ),
-      poor: items.reduce((sum, item) => sum + item[metricName].ratings.poor, 0),
-    };
 
     return {
       count: totalCount,

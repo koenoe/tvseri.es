@@ -13,6 +13,7 @@ import type {
   WebVitalRecord,
   WebVitalTopItem,
 } from '@tvseri.es/schemas';
+import { buildHistogramBins } from '@tvseri.es/utils';
 import type { ScheduledHandler } from 'aws-lambda';
 import { Resource } from 'sst';
 
@@ -161,6 +162,7 @@ const aggregateWebVitals = (
 
     return {
       count,
+      histogram: { bins: buildHistogramBins(values, metricName) },
       p75: percentile(75),
       p90: percentile(90),
       p95: percentile(95),

@@ -11,6 +11,7 @@ import type {
   PercentileStats,
   StatusCodeBreakdown,
 } from '@tvseri.es/schemas';
+import { buildLatencyHistogramBins } from '@tvseri.es/utils';
 import type { ScheduledHandler } from 'aws-lambda';
 import { Resource } from 'sst';
 
@@ -35,10 +36,18 @@ const sleep = (ms: number): Promise<void> =>
 
 /**
  * Calculate percentile statistics from an array of numbers.
+ * Includes histogram bins for accurate multi-day aggregation.
  */
 const calculatePercentiles = (values: number[]): PercentileStats => {
   if (values.length === 0) {
-    return { count: 0, p75: 0, p90: 0, p95: 0, p99: 0 };
+    return {
+      count: 0,
+      histogram: { bins: [] },
+      p75: 0,
+      p90: 0,
+      p95: 0,
+      p99: 0,
+    };
   }
 
   const sorted = [...values].sort((a, b) => a - b);
@@ -51,6 +60,7 @@ const calculatePercentiles = (values: number[]): PercentileStats => {
 
   return {
     count,
+    histogram: { bins: buildLatencyHistogramBins(values) },
     p75: percentile(75),
     p90: percentile(90),
     p95: percentile(95),

@@ -2,6 +2,10 @@ import type { AttributeValue } from '@aws-sdk/client-dynamodb';
 import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import type { ApiMetricAggregate, PercentileStats } from '@tvseri.es/schemas';
+import {
+  mergeLatencyHistograms,
+  percentileFromLatencyHistogram,
+} from '@tvseri.es/utils';
 import { Resource } from 'sst';
 
 const dynamoClient = new DynamoDBClient({});
@@ -264,6 +268,8 @@ export const queryPlatformTimeSeries = async (
 
 /**
  * Aggregate multiple daily summaries into a single summary.
+ * Uses histogram merging for accurate percentile calculation when histograms
+ * are available, falling back to weighted averages for legacy data.
  */
 export const aggregateSummaries = (
   items: ApiMetricAggregate[],
@@ -278,19 +284,54 @@ export const aggregateSummaries = (
   const totalRequests = items.reduce((sum, item) => sum + item.requestCount, 0);
   if (totalRequests === 0) return null;
 
-  // Weighted average for latency percentiles
-  const weightedP75 =
-    items.reduce((sum, item) => sum + item.latency.p75 * item.requestCount, 0) /
-    totalRequests;
-  const weightedP90 =
-    items.reduce((sum, item) => sum + item.latency.p90 * item.requestCount, 0) /
-    totalRequests;
-  const weightedP95 =
-    items.reduce((sum, item) => sum + item.latency.p95 * item.requestCount, 0) /
-    totalRequests;
-  const weightedP99 =
-    items.reduce((sum, item) => sum + item.latency.p99 * item.requestCount, 0) /
-    totalRequests;
+  // Collect histograms from items that have them
+  const histograms = items
+    .map((item) => item.latency.histogram?.bins)
+    .filter((bins): bins is number[] => bins !== undefined && bins.length > 0);
+
+  let latency: PercentileStats;
+
+  if (histograms.length > 0) {
+    // Merge histograms and calculate true percentiles
+    const mergedBins = mergeLatencyHistograms(histograms);
+    latency = {
+      count: totalRequests,
+      p75: Math.round(percentileFromLatencyHistogram(mergedBins, 75)),
+      p90: Math.round(percentileFromLatencyHistogram(mergedBins, 90)),
+      p95: Math.round(percentileFromLatencyHistogram(mergedBins, 95)),
+      p99: Math.round(percentileFromLatencyHistogram(mergedBins, 99)),
+    };
+  } else {
+    // Fallback: weighted average for legacy data without histograms
+    const weightedP75 =
+      items.reduce(
+        (sum, item) => sum + item.latency.p75 * item.requestCount,
+        0,
+      ) / totalRequests;
+    const weightedP90 =
+      items.reduce(
+        (sum, item) => sum + item.latency.p90 * item.requestCount,
+        0,
+      ) / totalRequests;
+    const weightedP95 =
+      items.reduce(
+        (sum, item) => sum + item.latency.p95 * item.requestCount,
+        0,
+      ) / totalRequests;
+    const weightedP99 =
+      items.reduce(
+        (sum, item) => sum + item.latency.p99 * item.requestCount,
+        0,
+      ) / totalRequests;
+
+    latency = {
+      count: totalRequests,
+      p75: Math.round(weightedP75),
+      p90: Math.round(weightedP90),
+      p95: Math.round(weightedP95),
+      p99: Math.round(weightedP99),
+    };
+  }
 
   // Sum status codes by category
   const statusCodes = {
@@ -314,13 +355,7 @@ export const aggregateSummaries = (
 
   return {
     errorRate,
-    latency: {
-      count: totalRequests,
-      p75: Math.round(weightedP75),
-      p90: Math.round(weightedP90),
-      p95: Math.round(weightedP95),
-      p99: Math.round(weightedP99),
-    },
+    latency,
     requestCount: totalRequests,
     statusCodes,
   };

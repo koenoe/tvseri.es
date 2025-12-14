@@ -29,8 +29,15 @@ export const DependencyMetricSchema = v.object({
   timestamp: v.string(),
 });
 
+export const HistogramSchema = v.object({
+  /** Count of values in each histogram bin */
+  bins: v.array(v.number()),
+});
+
 export const PercentileStatsSchema = v.object({
   count: v.number(),
+  /** Histogram for accurate multi-day percentile aggregation */
+  histogram: v.optional(HistogramSchema),
   p75: v.number(),
   p90: v.number(),
   p95: v.number(),
@@ -307,12 +314,36 @@ export const WebVitalRatingsSchema = v.object({
 });
 
 /**
+ * Histogram for storing value distributions.
+ * Uses fixed bin edges for each metric type to enable accurate percentile
+ * calculation when aggregating across multiple days.
+ *
+ * Bin edges per metric (values in native units - ms for INP, s for others, unitless for CLS):
+ * - LCP: [0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 8.0, ∞]
+ * - FCP: [0, 0.5, 1.0, 1.5, 1.8, 2.2, 2.6, 3.0, 4.0, 5.0, ∞]
+ * - INP: [0, 50, 100, 150, 200, 300, 400, 500, 750, 1000, ∞]
+ * - CLS: [0, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.35, 0.5, ∞]
+ * - TTFB: [0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.8, 2.5, 4.0, ∞]
+ *
+ * bins[i] = count of values in range [edges[i], edges[i+1])
+ */
+export const WebVitalHistogramSchema = v.object({
+  /** Array of counts per bin (length = number of edges - 1) */
+  bins: v.array(v.number()),
+});
+
+/**
  * Aggregated stats for a single web vital metric.
- * Full percentile distribution + ratings breakdown.
+ * Full percentile distribution + ratings breakdown + histogram for accurate aggregation.
  */
 export const WebVitalMetricStatsSchema = v.object({
   /** Sample count for this metric */
   count: v.number(),
+  /**
+   * Histogram for accurate percentile calculation across multiple days.
+   * Optional for backward compatibility with existing data.
+   */
+  histogram: v.optional(WebVitalHistogramSchema),
   /** 75th percentile (Vercel's primary) */
   p75: v.number(),
   /** 90th percentile */
@@ -637,6 +668,7 @@ export type HttpMethod = v.InferOutput<typeof HttpMethodSchema>;
 export type WebVitalName = v.InferOutput<typeof WebVitalNameSchema>;
 export type WebVitalRating = v.InferOutput<typeof WebVitalRatingSchema>;
 export type WebVitalRatings = v.InferOutput<typeof WebVitalRatingsSchema>;
+export type WebVitalHistogram = v.InferOutput<typeof WebVitalHistogramSchema>;
 export type WebVitalMetricStats = v.InferOutput<
   typeof WebVitalMetricStatsSchema
 >;

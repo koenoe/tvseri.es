@@ -27,7 +27,6 @@ import {
   METRICS_CONFIG,
   type MetricType,
   type RatingStatus,
-  STATUS_LABELS,
 } from '@/lib/web-vitals';
 
 export const Route = createFileRoute('/')({
@@ -70,13 +69,14 @@ function formatMetricDisplay(metric: MetricType, value: number): string {
 /**
  * Get contextual message based on metric status.
  */
-function getContextualMessage(metric: MetricType, value: number): string {
-  const status = getMetricStatus(metric, value);
+function getContextualMessage(
+  metric: MetricType,
+  status: RatingStatus,
+): string {
   const metricName = METRICS_CONFIG[metric].name;
-  const statusLabel = STATUS_LABELS[status].toLowerCase();
 
   if (status === 'great') {
-    return `More than 75% of visits scored a ${statusLabel} ${metricName}.`;
+    return `More than 75% of visits scored a great ${metricName}.`;
   }
   return `Less than 75% of visits scored a great ${metricName}.`;
 }
@@ -169,8 +169,8 @@ function MetricTabContent({
             {currentStatus.threshold}
           </p>
           <p className="mt-4 text-muted-foreground">
-            {aggregated
-              ? getContextualMessage(metric, metricValue)
+            {aggregated && metric !== 'res'
+              ? getContextualMessage(metric, currentStatus.status)
               : 'No data available for this period.'}
           </p>
           <hr className="my-4 border-border" />

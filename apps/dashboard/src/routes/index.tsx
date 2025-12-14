@@ -2,6 +2,10 @@ import { createFileRoute } from '@tanstack/react-router';
 import { ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 
+import {
+  MetricTabContentSkeleton,
+  TabTriggerValueSkeleton,
+} from '@/components/skeletons';
 import { ScoreRing } from '@/components/ui/score-ring';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -104,11 +108,7 @@ function MetricTabContent({
   const isLoading = routesLoading || countriesLoading || !aggregated;
 
   if (isLoading) {
-    return (
-      <div className="flex h-96 items-center justify-center">
-        <span className="text-muted-foreground">Loading...</span>
-      </div>
-    );
+    return <MetricTabContentSkeleton />;
   }
 
   const metricValue = getMetricValue(metric, aggregated);
@@ -175,7 +175,7 @@ function MetricTabContent({
       <div className="px-0 py-6 md:p-6">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="font-semibold">Routes</h3>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-muted-foreground leading-normal">
             {metricConfig.name}
           </span>
         </div>
@@ -233,11 +233,15 @@ function Index() {
   const [device, setDevice] = useState('desktop');
   const [activeMetric, setActiveMetric] = useState<MetricType>('res');
 
-  const { data: summaryData } = useMetricsSummary({
+  const { data: summaryData, isLoading } = useMetricsSummary({
     days: 7,
     device,
   });
   const aggregated = summaryData?.aggregated;
+
+  const noDataPlaceholder = (
+    <span className="text-xl text-muted-foreground">—</span>
+  );
 
   const getMetricP75 = (metric: MetricType): number => {
     return getMetricValue(metric, aggregated);
@@ -297,55 +301,91 @@ function Index() {
           value={activeMetric}
         >
           <TabsList variant="card">
-            <TabsTrigger value="res">
-              <span className="text-sm text-muted-foreground">
+            <TabsTrigger className="flex gap-2 flex-col" value="res">
+              <span className="text-sm text-muted-foreground leading-normal">
                 Real Experience Score
               </span>
-              <ScoreRing score={aggregated?.score ?? 0} size={36} />
+              {isLoading ? (
+                <TabTriggerValueSkeleton isScoreRing />
+              ) : aggregated ? (
+                <ScoreRing score={aggregated.score} size={36} />
+              ) : (
+                noDataPlaceholder
+              )}
             </TabsTrigger>
-            <TabsTrigger value="fcp">
-              <span className="text-sm text-muted-foreground">
+            <TabsTrigger className="flex gap-2 flex-col" value="fcp">
+              <span className="text-sm text-muted-foreground leading-normal">
                 First Contentful Paint
               </span>
-              <span className={`text-xl ${getMetricTextColor('fcp')}`}>
-                {formatMetricDisplay('fcp', getMetricP75('fcp'))}
-                <span className="text-base">s</span>
-              </span>
+              {isLoading ? (
+                <TabTriggerValueSkeleton width="w-14" />
+              ) : aggregated ? (
+                <span className={`text-xl h-7 ${getMetricTextColor('fcp')}`}>
+                  {formatMetricDisplay('fcp', getMetricP75('fcp'))}
+                  <span className="text-base">s</span>
+                </span>
+              ) : (
+                noDataPlaceholder
+              )}
             </TabsTrigger>
-            <TabsTrigger value="lcp">
-              <span className="text-sm text-muted-foreground">
+            <TabsTrigger className="flex gap-2 flex-col" value="lcp">
+              <span className="text-sm text-muted-foreground leading-normal">
                 Largest Contentful Paint
               </span>
-              <span className={`text-xl ${getMetricTextColor('lcp')}`}>
-                {formatMetricDisplay('lcp', getMetricP75('lcp'))}
-                <span className="text-base">s</span>
-              </span>
+              {isLoading ? (
+                <TabTriggerValueSkeleton width="w-16" />
+              ) : aggregated ? (
+                <span className={`text-xl h-7 ${getMetricTextColor('lcp')}`}>
+                  {formatMetricDisplay('lcp', getMetricP75('lcp'))}
+                  <span className="text-base">s</span>
+                </span>
+              ) : (
+                noDataPlaceholder
+              )}
             </TabsTrigger>
-            <TabsTrigger value="inp">
-              <span className="text-sm text-muted-foreground">
+            <TabsTrigger className="flex gap-2 flex-col" value="inp">
+              <span className="text-sm text-muted-foreground leading-normal">
                 Interaction to Next Paint
               </span>
-              <span className={`text-xl ${getMetricTextColor('inp')}`}>
-                {formatMetricDisplay('inp', getMetricP75('inp'))}
-                <span className="text-base">ms</span>
-              </span>
+              {isLoading ? (
+                <TabTriggerValueSkeleton width="w-20" />
+              ) : aggregated ? (
+                <span className={`text-xl h-7 ${getMetricTextColor('inp')}`}>
+                  {formatMetricDisplay('inp', getMetricP75('inp'))}
+                  <span className="text-base">ms</span>
+                </span>
+              ) : (
+                noDataPlaceholder
+              )}
             </TabsTrigger>
-            <TabsTrigger value="cls">
-              <span className="text-sm text-muted-foreground">
+            <TabsTrigger className="flex gap-2 flex-col" value="cls">
+              <span className="text-sm text-muted-foreground leading-normal">
                 Cumulative Layout Shift
               </span>
-              <span className={`text-xl ${getMetricTextColor('cls')}`}>
-                {formatMetricDisplay('cls', getMetricP75('cls'))}
-              </span>
+              {isLoading ? (
+                <TabTriggerValueSkeleton width="w-6" />
+              ) : aggregated ? (
+                <span className={`text-xl h-7 ${getMetricTextColor('cls')}`}>
+                  {formatMetricDisplay('cls', getMetricP75('cls'))}
+                </span>
+              ) : (
+                noDataPlaceholder
+              )}
             </TabsTrigger>
-            <TabsTrigger value="ttfb">
-              <span className="text-sm text-muted-foreground">
+            <TabsTrigger className="flex gap-2 flex-col" value="ttfb">
+              <span className="text-sm text-muted-foreground leading-normal">
                 Time to First Byte
               </span>
-              <span className={`text-xl ${getMetricTextColor('ttfb')}`}>
-                {formatMetricDisplay('ttfb', getMetricP75('ttfb'))}
-                <span className="text-base">s</span>
-              </span>
+              {isLoading ? (
+                <TabTriggerValueSkeleton width="w-14" />
+              ) : aggregated ? (
+                <span className={`text-xl h-7 ${getMetricTextColor('ttfb')}`}>
+                  {formatMetricDisplay('ttfb', getMetricP75('ttfb'))}
+                  <span className="text-base">s</span>
+                </span>
+              ) : (
+                noDataPlaceholder
+              )}
             </TabsTrigger>
           </TabsList>
           <div className="flex-1 overflow-hidden rounded-xl">

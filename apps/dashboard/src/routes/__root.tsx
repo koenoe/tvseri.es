@@ -1,16 +1,9 @@
 import { TanStackDevtools } from '@tanstack/react-devtools';
 import { createRootRoute, Outlet, redirect } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
-import * as auth from '@/lib/auth';
 
-function PendingComponent() {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="text-muted-foreground">Loading...</div>
-    </div>
-  );
-}
-PendingComponent.displayName = 'PendingComponent';
+import { PageSkeleton } from '@/components/skeletons';
+import * as auth from '@/lib/auth';
 
 function RootComponent() {
   return (
@@ -52,5 +45,5 @@ export const Route = createRootRoute({
     return { user };
   },
   component: RootComponent,
-  pendingComponent: PendingComponent,
+  pendingComponent: PageSkeleton,
 });

@@ -12,6 +12,8 @@ import { getAccessToken } from '@/lib/auth';
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 async function getAuthHeaders(): Promise<HeadersInit> {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
   const token = await getAccessToken();
   if (!token) {
     throw new Error('Not authenticated');

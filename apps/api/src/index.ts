@@ -36,6 +36,7 @@ app.use(timeout(14_000));
 app.use(compress());
 app.use(etag());
 
+// TODO: if we enable this here, we need to disable cors in infra (api.ts)
 // CORS for *.tvseri.es and *.*.dev.tvseri.es
 // const ALLOWED_ORIGINS = [
 //   /^https:\/\/[^.]+\.tvseri\.es$/,

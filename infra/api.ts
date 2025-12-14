@@ -112,6 +112,8 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
   ],
   timeout: '15 seconds',
   url: {
+    // TODO: if we want cors in Hono, set this to false and configure in Hono
+    // cors: false,
     router: {
       instance: apiRouter,
     },

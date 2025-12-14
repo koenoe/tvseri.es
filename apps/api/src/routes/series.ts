@@ -34,40 +34,32 @@ app.get('/:id', async (c) => {
 });
 
 app.get('/:id/season/:season', async (c) => {
-  const series = await fetchTvSeriesSeason(
+  const season = await fetchTvSeriesSeason(
     c.req.param('id'),
     c.req.param('season'),
   );
-
-  if (!series) {
-    return c.notFound();
-  }
 
   c.header(
     'Cache-Control',
     'public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600',
   ); // 24h, allow stale for 6h
 
-  return c.json(series);
+  return c.json(season);
 });
 
 app.get('/:id/season/:season/episode/:episode', async (c) => {
-  const series = await fetchTvSeriesEpisode(
+  const episode = await fetchTvSeriesEpisode(
     c.req.param('id'),
     c.req.param('season'),
     c.req.param('episode'),
   );
 
-  if (!series) {
-    return c.notFound();
-  }
-
   c.header(
     'Cache-Control',
     'public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600',
   ); // 24h, allow stale for 6h
 
-  return c.json(series);
+  return c.json(episode);
 });
 
 app.get('/:id/images', async (c) => {
@@ -75,10 +67,6 @@ app.get('/:id/images', async (c) => {
     c.req.param('id'),
     c.req.query('language'),
   );
-
-  if (!images) {
-    return c.notFound();
-  }
 
   c.header(
     'Cache-Control',
@@ -91,10 +79,6 @@ app.get('/:id/images', async (c) => {
 app.get('/:id/content-rating', async (c) => {
   const region = c.req.query('region') || 'US';
   const rating = await fetchTvSeriesContentRating(c.req.param('id'), region);
-
-  if (!rating) {
-    return c.notFound();
-  }
 
   c.header(
     'Cache-Control',
@@ -111,61 +95,45 @@ app.get('/:id/watch-providers', async (c) => {
     region,
   );
 
-  if (!providers) {
-    return c.notFound();
-  }
-
   c.header(
     'Cache-Control',
     'public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600',
   ); // 24h, allow stale for 6h
 
-  return c.json(providers);
+  return c.json(providers ?? []);
 });
 
 app.get('/:id/credits', async (c) => {
   const credits = await fetchTvSeriesCredits(c.req.param('id'));
-
-  if (!credits) {
-    return c.notFound();
-  }
 
   c.header(
     'Cache-Control',
     'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
   ); // 1w, allow stale for 24h
 
-  return c.json(credits);
+  return c.json(credits ?? { cast: [], crew: [] });
 });
 
 app.get('/:id/recommendations', async (c) => {
   const items = await fetchTvSeriesRecommendations(c.req.param('id'));
 
-  if (!items) {
-    return c.notFound();
-  }
-
   c.header(
     'Cache-Control',
     'public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600',
   ); // 24h, allow stale for 6h
 
-  return c.json(items);
+  return c.json(items ?? []);
 });
 
 app.get('/:id/similar', async (c) => {
   const items = await fetchTvSeriesSimilar(c.req.param('id'));
 
-  if (!items) {
-    return c.notFound();
-  }
-
   c.header(
     'Cache-Control',
     'public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600',
   ); // 24h, allow stale for 6h
 
-  return c.json(items);
+  return c.json(items ?? []);
 });
 
 app.get('/:id/keywords', async (c) => {
@@ -189,10 +157,6 @@ app.get('/:id/rating', async (c) => {
     'show',
     c.req.query('source') || 'imdb',
   );
-
-  if (!rating) {
-    return c.notFound();
-  }
 
   c.header(
     'Cache-Control',

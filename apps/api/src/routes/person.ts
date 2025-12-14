@@ -26,16 +26,17 @@ app.get('/:id', async (c) => {
 app.get('/:id/credits', async (c) => {
   const credits = await fetchPersonTvCredits(c.req.param('id'));
 
-  if (!credits) {
-    return c.notFound();
-  }
-
   c.header(
     'Cache-Control',
     'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
   ); // 1w, allow stale for 24h
 
-  return c.json(credits);
+  return c.json(
+    credits ?? {
+      cast: { previous: [], upcoming: [] },
+      crew: { previous: [], upcoming: [] },
+    },
+  );
 });
 
 app.get('/:id/known-for', async (c) => {

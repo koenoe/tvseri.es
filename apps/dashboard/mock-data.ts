@@ -3,6 +3,8 @@
  * Based on actual routes from apps/web
  */
 
+import { computeRealExperienceScore } from '@tvseri.es/utils';
+
 // Generate dates for the last N days
 function generateDates(days: number): string[] {
   const dates: string[] = [];
@@ -115,16 +117,32 @@ function generateMetricStats(
 // Generate daily metrics with full stats structure (for time series)
 function generateDailyMetrics(days: number) {
   const dates = generateDates(days);
-  return dates.map((date) => ({
-    CLS: generateMetricStats(0.02, 0.03, 'CLS'),
-    date,
-    FCP: generateMetricStats(1600, 400, 'FCP'),
-    INP: generateMetricStats(85, 40, 'INP'),
-    LCP: generateMetricStats(2400, 600, 'LCP'),
-    pageviews: Math.floor(randomAround(4000, 2000)),
-    score: Math.round(randomAround(92, 10)),
-    TTFB: generateMetricStats(900, 300, 'TTFB'),
-  }));
+  return dates.map((date) => {
+    const CLS = generateMetricStats(0.02, 0.03, 'CLS');
+    const FCP = generateMetricStats(1600, 400, 'FCP');
+    const INP = generateMetricStats(85, 40, 'INP');
+    const LCP = generateMetricStats(2400, 600, 'LCP');
+    const TTFB = generateMetricStats(900, 300, 'TTFB');
+
+    // Calculate RES from p75 values using Vercel's methodology
+    const score = computeRealExperienceScore({
+      CLS: CLS.p75,
+      FCP: FCP.p75,
+      INP: INP.p75,
+      LCP: LCP.p75,
+    });
+
+    return {
+      CLS,
+      date,
+      FCP,
+      INP,
+      LCP,
+      pageviews: Math.floor(randomAround(4000, 2000)),
+      score,
+      TTFB,
+    };
+  });
 }
 
 // Actual routes from apps/web
@@ -184,48 +202,56 @@ function generateRouteMetrics(device = 'desktop') {
       randomAround(basePageviews * trafficMultiplier, basePageviews * 0.5),
     );
 
-    // Assign scores based on route category - mobile is generally worse
-    let scoreBase: number;
+    // Assign metric bases based on route category - mobile is generally worse
     let lcpBase: number;
     let inpBase: number;
 
     if (isPoor) {
-      scoreBase = isMobile ? 28 : 35;
       lcpBase = isMobile ? 5500 : 5000;
       inpBase = isMobile ? 700 : 600;
     } else if (isNeedsImprovement) {
-      scoreBase = isMobile ? 55 : 65;
       lcpBase = isMobile ? 3800 : 3500;
       inpBase = isMobile ? 420 : 350;
     } else {
-      scoreBase = isMobile ? 85 : 94;
       lcpBase = isMobile ? 2300 : 2000;
       inpBase = isMobile ? 160 : 120;
     }
 
-    const score = Math.round(randomAround(scoreBase, 5));
+    const CLS = generateMetricStats(
+      isPoor ? 0.3 : isNeedsImprovement ? 0.15 : 0.05,
+      0.02,
+      'CLS',
+    );
+    const FCP = generateMetricStats(
+      isPoor ? 3500 : isNeedsImprovement ? 2200 : 1400,
+      200,
+      'FCP',
+    );
+    const INP = generateMetricStats(inpBase, 30, 'INP');
+    const LCP = generateMetricStats(lcpBase, 300, 'LCP');
+    const TTFB = generateMetricStats(
+      isPoor ? 2000 : isNeedsImprovement ? 1200 : 600,
+      100,
+      'TTFB',
+    );
+
+    // Calculate RES from p75 values using Vercel's methodology
+    const score = computeRealExperienceScore({
+      CLS: CLS.p75,
+      FCP: FCP.p75,
+      INP: INP.p75,
+      LCP: LCP.p75,
+    });
 
     return {
-      CLS: generateMetricStats(
-        isPoor ? 0.3 : isNeedsImprovement ? 0.15 : 0.05,
-        0.02,
-        'CLS',
-      ),
-      FCP: generateMetricStats(
-        isPoor ? 3500 : isNeedsImprovement ? 2200 : 1400,
-        200,
-        'FCP',
-      ),
-      INP: generateMetricStats(inpBase, 30, 'INP'),
-      LCP: generateMetricStats(lcpBase, 300, 'LCP'),
+      CLS,
+      FCP,
+      INP,
+      LCP,
       pageviews,
       route,
-      score: Math.min(100, Math.max(0, score)),
-      TTFB: generateMetricStats(
-        isPoor ? 2000 : isNeedsImprovement ? 1200 : 600,
-        100,
-        'TTFB',
-      ),
+      score,
+      TTFB,
     };
   }).sort((a, b) => b.pageviews - a.pageviews);
 }
@@ -276,47 +302,55 @@ function generateCountryMetrics(device = 'desktop') {
       randomAround(basePageviews * trafficMultiplier, basePageviews * 0.6),
     );
 
-    let scoreBase: number;
     let lcpBase: number;
     let inpBase: number;
     let clsBase: number;
 
     if (isPoor) {
-      scoreBase = isMobile ? 32 : 38;
       lcpBase = isMobile ? 6000 : 5500;
       inpBase = isMobile ? 620 : 550;
       clsBase = isMobile ? 0.32 : 0.28;
     } else if (isNeedsImprovement) {
-      scoreBase = isMobile ? 56 : 62;
       lcpBase = isMobile ? 3600 : 3200;
       inpBase = isMobile ? 380 : 320;
       clsBase = isMobile ? 0.2 : 0.18;
     } else {
-      scoreBase = isMobile ? 82 : 92;
       lcpBase = isMobile ? 2400 : 2000;
       inpBase = isMobile ? 140 : 100;
       clsBase = isMobile ? 0.06 : 0.04;
     }
 
-    const score = Math.round(randomAround(scoreBase, 5));
+    const CLS = generateMetricStats(clsBase, 0.02, 'CLS');
+    const FCP = generateMetricStats(
+      isPoor ? 3800 : isNeedsImprovement ? 2400 : 1400,
+      200,
+      'FCP',
+    );
+    const INP = generateMetricStats(inpBase, 30, 'INP');
+    const LCP = generateMetricStats(lcpBase, 300, 'LCP');
+    const TTFB = generateMetricStats(
+      isPoor ? 2200 : isNeedsImprovement ? 1300 : 600,
+      100,
+      'TTFB',
+    );
+
+    // Calculate RES from p75 values using Vercel's methodology
+    const score = computeRealExperienceScore({
+      CLS: CLS.p75,
+      FCP: FCP.p75,
+      INP: INP.p75,
+      LCP: LCP.p75,
+    });
 
     return {
-      CLS: generateMetricStats(clsBase, 0.02, 'CLS'),
+      CLS,
       country: country.code,
-      FCP: generateMetricStats(
-        isPoor ? 3800 : isNeedsImprovement ? 2400 : 1400,
-        200,
-        'FCP',
-      ),
-      INP: generateMetricStats(inpBase, 30, 'INP'),
-      LCP: generateMetricStats(lcpBase, 300, 'LCP'),
+      FCP,
+      INP,
+      LCP,
       pageviews,
-      score: Math.min(100, Math.max(0, score)),
-      TTFB: generateMetricStats(
-        isPoor ? 2200 : isNeedsImprovement ? 1300 : 600,
-        100,
-        'TTFB',
-      ),
+      score,
+      TTFB,
     };
   }).sort((a, b) => b.pageviews - a.pageviews);
 }
@@ -334,26 +368,54 @@ function generateAggregatedMetrics(device = 'desktop') {
 
   // Mobile typically has worse metrics due to slower networks and less powerful devices
   if (isMobile) {
+    const CLS = generateMetricStats(0.18, 0.03, 'CLS'); // needs improvement (0.1-0.25) - ORANGE
+    const FCP = generateMetricStats(2400, 300, 'FCP'); // needs improvement (1800-3000ms) - ORANGE
+    const INP = generateMetricStats(550, 50, 'INP'); // poor (>500ms) - RED
+    const LCP = generateMetricStats(3200, 400, 'LCP'); // needs improvement (2500-4000ms) - ORANGE
+    const TTFB = generateMetricStats(1400, 200, 'TTFB'); // needs improvement (800-1800ms) - ORANGE
+
+    // Calculate RES from p75 values using Vercel's methodology
+    const score = computeRealExperienceScore({
+      CLS: CLS.p75,
+      FCP: FCP.p75,
+      INP: INP.p75,
+      LCP: LCP.p75,
+    });
+
     return {
-      CLS: generateMetricStats(0.18, 0.03, 'CLS'), // needs improvement (0.1-0.25) - ORANGE
-      FCP: generateMetricStats(2400, 300, 'FCP'), // needs improvement (1800-3000ms) - ORANGE
-      INP: generateMetricStats(550, 50, 'INP'), // poor (>500ms) - RED
-      LCP: generateMetricStats(3200, 400, 'LCP'), // needs improvement (2500-4000ms) - ORANGE
+      CLS,
+      FCP,
+      INP,
+      LCP,
       pageviews: Math.floor(randomAround(18000, 4000)),
-      score: Math.round(randomAround(58, 5)), // needs improvement (50-90) - ORANGE
-      TTFB: generateMetricStats(1400, 200, 'TTFB'), // needs improvement (800-1800ms) - ORANGE
+      score,
+      TTFB,
     };
   }
 
   // Desktop - better performance overall
+  const CLS = generateMetricStats(0.05, 0.02, 'CLS'); // great (≤0.1)
+  const FCP = generateMetricStats(1500, 200, 'FCP'); // great (≤1800ms)
+  const INP = generateMetricStats(350, 50, 'INP'); // needs improvement (200-500ms) - ORANGE
+  const LCP = generateMetricStats(4500, 300, 'LCP'); // poor (>4000ms) - RED
+  const TTFB = generateMetricStats(650, 100, 'TTFB'); // great (≤800ms)
+
+  // Calculate RES from p75 values using Vercel's methodology
+  const score = computeRealExperienceScore({
+    CLS: CLS.p75,
+    FCP: FCP.p75,
+    INP: INP.p75,
+    LCP: LCP.p75,
+  });
+
   return {
-    CLS: generateMetricStats(0.05, 0.02, 'CLS'), // great (≤0.1)
-    FCP: generateMetricStats(1500, 200, 'FCP'), // great (≤1800ms)
-    INP: generateMetricStats(350, 50, 'INP'), // needs improvement (200-500ms) - ORANGE
-    LCP: generateMetricStats(4500, 300, 'LCP'), // poor (>4000ms) - RED
+    CLS,
+    FCP,
+    INP,
+    LCP,
     pageviews: Math.floor(randomAround(28000, 5000)),
-    score: Math.round(randomAround(94, 3)), // great (>90) - GREEN
-    TTFB: generateMetricStats(650, 100, 'TTFB'), // great (≤800ms)
+    score,
+    TTFB,
   };
 }
 

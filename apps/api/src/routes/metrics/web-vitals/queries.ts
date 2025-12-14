@@ -2,7 +2,11 @@ import type { AttributeValue } from '@aws-sdk/client-dynamodb';
 import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import type { WebVitalAggregate } from '@tvseri.es/schemas';
-import { mergeHistograms, percentileFromHistogram } from '@tvseri.es/utils';
+import {
+  computeRESFromStats,
+  mergeHistograms,
+  percentileFromHistogram,
+} from '@tvseri.es/utils';
 import { Resource } from 'sst';
 
 const dynamoClient = new DynamoDBClient({});
@@ -278,6 +282,9 @@ export const queryDeviceTimeSeries = async (
  * Aggregate multiple daily summaries into a single summary.
  * Merges histograms to compute accurate percentiles.
  * Falls back to weighted averages for data without histograms.
+ *
+ * RES is recalculated from the merged p75 values using Vercel's methodology
+ * (log-normal scoring with LCP 30%, INP 30%, CLS 25%, FCP 15%).
  */
 export const aggregateSummaries = (
   items: WebVitalAggregate[],
@@ -293,13 +300,6 @@ export const aggregateSummaries = (
   if (items.length === 0) return null;
 
   const totalPageviews = items.reduce((sum, item) => sum + item.pageviews, 0);
-
-  const weightedScoreSum = items.reduce(
-    (sum, item) => sum + item.score * item.pageviews,
-    0,
-  );
-  const avgScore =
-    totalPageviews > 0 ? Math.round(weightedScoreSum / totalPageviews) : 0;
 
   const aggregateMetric = (
     metricName: 'CLS' | 'FCP' | 'INP' | 'LCP' | 'TTFB',
@@ -337,8 +337,9 @@ export const aggregateSummaries = (
         (bins): bins is number[] => bins !== undefined && bins.length > 0,
       );
 
-    // If we have histograms, merge and compute accurate percentiles
-    if (histograms.length > 0) {
+    // Only use histograms if ALL items have them (avoid mixing histogram-based
+    // percentiles with a count that includes non-histogram items)
+    if (histograms.length === items.length && histograms.length > 0) {
       const mergedBins = mergeHistograms(histograms);
 
       return {
@@ -383,13 +384,26 @@ export const aggregateSummaries = (
     };
   };
 
+  // Aggregate each metric
+  const CLS = aggregateMetric('CLS');
+  const FCP = aggregateMetric('FCP');
+  const INP = aggregateMetric('INP');
+  const LCP = aggregateMetric('LCP');
+  const TTFB = aggregateMetric('TTFB');
+
+  // Recalculate RES from the merged p75 values using Vercel's methodology:
+  // - Uses Lighthouse 10 log-normal scoring curves
+  // - Weighted: LCP 30%, INP 30%, CLS 25%, FCP 15%
+  // - TTFB is intentionally excluded from RES
+  const score = computeRESFromStats({ CLS, FCP, INP, LCP });
+
   return {
-    CLS: aggregateMetric('CLS'),
-    FCP: aggregateMetric('FCP'),
-    INP: aggregateMetric('INP'),
-    LCP: aggregateMetric('LCP'),
+    CLS,
+    FCP,
+    INP,
+    LCP,
     pageviews: totalPageviews,
-    score: avgScore,
-    TTFB: aggregateMetric('TTFB'),
+    score,
+    TTFB,
   };
 };

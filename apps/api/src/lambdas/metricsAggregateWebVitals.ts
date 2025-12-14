@@ -13,7 +13,7 @@ import type {
   WebVitalRecord,
   WebVitalTopItem,
 } from '@tvseri.es/schemas';
-import { buildHistogramBins } from '@tvseri.es/utils';
+import { buildHistogramBins, computeRESFromStats } from '@tvseri.es/utils';
 import type { ScheduledHandler } from 'aws-lambda';
 import { Resource } from 'sst';
 
@@ -23,15 +23,6 @@ const MAX_RETRIES = 5;
 const BASE_DELAY_MS = 100;
 /** Number of shards used for raw metrics (must match metrics.ts) */
 const SHARD_COUNT = 10;
-
-/** Weights for calculating Real Experience Score */
-const METRIC_WEIGHTS: Record<WebVitalName, number> = {
-  CLS: 0.25,
-  FCP: 0.1,
-  INP: 0.3,
-  LCP: 0.25,
-  TTFB: 0.1,
-};
 
 const dynamoClient = new DynamoDBClient({});
 
@@ -171,28 +162,6 @@ const aggregateWebVitals = (
     };
   };
 
-  const calculateScore = (
-    stats: Record<WebVitalName, WebVitalMetricStats>,
-  ): number => {
-    let weightedSum = 0;
-    let totalWeight = 0;
-
-    for (const [name, weight] of Object.entries(METRIC_WEIGHTS)) {
-      const metricStats = stats[name as WebVitalName];
-      const total =
-        metricStats.ratings.good +
-        metricStats.ratings.needsImprovement +
-        metricStats.ratings.poor;
-      if (total > 0) {
-        const goodPct = metricStats.ratings.good / total;
-        weightedSum += goodPct * weight;
-        totalWeight += weight;
-      }
-    }
-
-    return totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 100) : 0;
-  };
-
   const countPageviews = (recs: WebVitalRecord[]): number => {
     const uniqueIds = new Set(recs.map((r) => r.id));
     return uniqueIds.size;
@@ -217,6 +186,13 @@ const aggregateWebVitals = (
     const TTFB = createMetricStats(recs, 'TTFB');
     const stats = { CLS, FCP, INP, LCP, TTFB };
 
+    // Calculate RES using Vercel's methodology:
+    // - Uses p75 values (not ratings) for each metric
+    // - Applies Lighthouse 10 log-normal scoring curves
+    // - Weighted: LCP 30%, INP 30%, CLS 25%, FCP 15%
+    // - TTFB is intentionally excluded from RES
+    const score = computeRESFromStats(stats);
+
     return {
       CLS,
       date,
@@ -226,7 +202,7 @@ const aggregateWebVitals = (
       LCP,
       pageviews: countPageviews(recs),
       pk,
-      score: calculateScore(stats),
+      score,
       sk,
       TTFB,
       type: 'web-vital-aggregate',

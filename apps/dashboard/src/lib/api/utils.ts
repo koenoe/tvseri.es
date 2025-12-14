@@ -66,8 +66,7 @@ function getMetricDisplayValue(
   if (unit === 'ms') {
     return `${Math.round(p75)}ms`;
   }
-  // CLS: values below 0.1 display as "0" per Core Web Vitals convention
-  if (metric === 'cls' && p75 < 0.1) return '0';
+  // CLS: unitless, show 2 decimal places
   return p75.toFixed(2);
 }
 

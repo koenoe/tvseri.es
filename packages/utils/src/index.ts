@@ -13,6 +13,12 @@ export {
   mergeLatencyHistograms,
   percentileFromLatencyHistogram,
 } from './latencyHistogram';
+export {
+  computeMetricScore,
+  computeRESFromStats,
+  computeRealExperienceScore,
+  type RESMetricName,
+} from './realExperienceScore';
 export { decodeFromBase64Url, encodeToBase64Url } from './stringBase64Url';
 export { default as toQueryString } from './toQueryString';
 export {

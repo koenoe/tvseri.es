@@ -3,7 +3,77 @@
  * Based on actual routes from apps/web
  */
 
-import { computeRealExperienceScore } from '@tvseri.es/utils';
+// ============================================================================
+// RES Calculation (inlined to avoid @tvseri.es/utils import issues in vite.config.ts)
+// This is a copy of the logic from packages/utils/src/realExperienceScore.ts
+// ============================================================================
+
+type RESMetricName = 'CLS' | 'FCP' | 'INP' | 'LCP';
+
+const LIGHTHOUSE_CONTROL_POINTS: Readonly<
+  Record<RESMetricName, { median: number; p10: number }>
+> = {
+  CLS: { median: 0.25, p10: 0.1 },
+  FCP: { median: 3000, p10: 1800 },
+  INP: { median: 500, p10: 200 },
+  LCP: { median: 4000, p10: 2500 },
+} as const;
+
+const RES_WEIGHTS: Readonly<Record<RESMetricName, number>> = {
+  CLS: 0.25,
+  FCP: 0.15,
+  INP: 0.3,
+  LCP: 0.3,
+} as const;
+
+const erf = (x: number): number => {
+  const a1 = 0.254829592;
+  const a2 = -0.284496736;
+  const a3 = 1.421413741;
+  const a4 = -1.453152027;
+  const a5 = 1.061405429;
+  const p = 0.3275911;
+  const sign = x < 0 ? -1 : 1;
+  const absX = Math.abs(x);
+  const t = 1.0 / (1.0 + p * absX);
+  const y =
+    1.0 -
+    ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-absX * absX);
+  return sign * y;
+};
+
+const PROBIT_0_9 = 1.2815515655446004;
+
+const computeMetricScore = (value: number, metric: RESMetricName): number => {
+  if (value <= 0 || !Number.isFinite(value)) return 0;
+  const { median, p10 } = LIGHTHOUSE_CONTROL_POINTS[metric];
+  const mu = Math.log(median);
+  const sigma = (Math.log(median) - Math.log(p10)) / PROBIT_0_9;
+  const z = (Math.log(value) - mu) / sigma;
+  const cdf = 0.5 * (1 + erf(z / Math.SQRT2));
+  const score = 100 * (1 - cdf);
+  return Math.max(0, Math.min(100, Math.round(score)));
+};
+
+const computeRealExperienceScore = (metrics: {
+  CLS: number;
+  FCP: number;
+  INP: number;
+  LCP: number;
+}): number => {
+  let weightedSum = 0;
+  for (const metric of Object.keys(RES_WEIGHTS) as RESMetricName[]) {
+    const value = metrics[metric];
+    const weight = RES_WEIGHTS[metric];
+    const score = computeMetricScore(value, metric);
+    weightedSum += score * weight;
+  }
+  return Math.round(weightedSum);
+};
+
+// ============================================================================
+// Mock Data Generation
+// ============================================================================
 
 // Generate dates for the last N days
 function generateDates(days: number): string[] {

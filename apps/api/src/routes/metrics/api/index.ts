@@ -3,7 +3,6 @@ import {
   type ApiMetricAggregate,
   ApiMetricsEndpointsQuerySchema,
   ApiMetricsPlatformsQuerySchema,
-  ApiMetricsStatusQuerySchema,
   ApiMetricsSummaryQuerySchema,
 } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
@@ -19,7 +18,6 @@ import {
   queryCountryTimeSeries,
   queryEndpointTimeSeries,
   queryPlatformTimeSeries,
-  queryStatusTimeSeries,
 } from './queries';
 
 const app = new Hono<{ Variables: Variables }>();
@@ -91,6 +89,7 @@ app.get('/', vValidator('query', ApiMetricsSummaryQuerySchema), async (c) => {
  * Query params:
  * - days: 1 | 7 | 30 (default: 7)
  * - platform: ios | android | web (optional filter)
+ * - country: ISO country code (optional filter)
  * - sortBy: requests | errorRate | p75 | p99 | apdex (default: requests)
  * - sortDir: asc | desc (default: desc)
  * - limit: number (optional, for top N)
@@ -100,6 +99,7 @@ app.get(
   vValidator('query', ApiMetricsEndpointsQuerySchema),
   async (c) => {
     const {
+      country,
       days,
       limit,
       platform,
@@ -110,11 +110,11 @@ app.get(
 
     const { dates, endDate, startDate } = getDateRange(numDays);
 
-    // Fetch endpoint items for each day with optional platform filter
+    // Fetch endpoint items for each day with optional filters
     const allEndpointItems: ApiMetricAggregate[] = [];
     await Promise.all(
       dates.map(async (date) => {
-        const pk = buildPk(date, { platform });
+        const pk = buildPk(date, { country, platform });
         const items = await queryByPkAndPrefix(pk, 'E#');
         allEndpointItems.push(...items);
       }),
@@ -303,124 +303,6 @@ app.get(
       endDate,
       startDate,
       total: dependencies.length,
-    });
-  },
-);
-
-// ════════════════════════════════════════════════════════════════════════════
-// STATUS CODES
-// ════════════════════════════════════════════════════════════════════════════
-
-/**
- * GET /metrics/api/status-codes
- *
- * List status code categories with their counts.
- *
- * Query params:
- * - days: 1 | 7 | 30 (default: 7)
- * - platform: ios | android | web (optional filter)
- */
-app.get(
-  '/status-codes',
-  vValidator('query', ApiMetricsStatusQuerySchema),
-  async (c) => {
-    const { days, platform } = c.req.valid('query');
-    const numDays = Math.min(Math.max(days, 1), 30);
-
-    const { dates, endDate, startDate } = getDateRange(numDays);
-
-    // Fetch status category items for each day
-    const allStatusItems: ApiMetricAggregate[] = [];
-    await Promise.all(
-      dates.map(async (date) => {
-        const pk = buildPk(date, { platform });
-        const items = await queryByPkAndPrefix(pk, 'S#');
-        allStatusItems.push(...items);
-      }),
-    );
-
-    // Group by status category and aggregate
-    const statusMap = new Map<string, ApiMetricAggregate[]>();
-    for (const item of allStatusItems) {
-      const status = item.sk.replace('S#', '');
-      const existing = statusMap.get(status);
-      if (existing) {
-        existing.push(item);
-      } else {
-        statusMap.set(status, [item]);
-      }
-    }
-
-    // Build response
-    const statusCodes: Array<{
-      category: string;
-      latency: ApiMetricAggregate['latency'];
-      requestCount: number;
-    }> = [];
-
-    for (const [category, items] of statusMap) {
-      const aggregated = aggregateSummaries(items);
-      if (aggregated) {
-        statusCodes.push({
-          category,
-          latency: aggregated.latency,
-          requestCount: aggregated.requestCount,
-        });
-      }
-    }
-
-    // Sort by request count descending
-    statusCodes.sort((a, b) => b.requestCount - a.requestCount);
-
-    return c.json({
-      endDate,
-      startDate,
-      statusCodes,
-    });
-  },
-);
-
-/**
- * GET /metrics/api/status-codes/:category
- *
- * Time-series for a specific status category (2xx, 4xx, 5xx).
- * Uses GSI2 (StatusTimeIndex) for efficient queries.
- *
- * Path params:
- * - category: 2xx | 4xx | 5xx
- *
- * Query params:
- * - days: 1 | 7 | 30 (default: 7)
- */
-app.get(
-  '/status-codes/:category',
-  vValidator('query', ApiMetricsSummaryQuerySchema),
-  async (c) => {
-    const category = c.req.param('category');
-    const { days } = c.req.valid('query');
-    const numDays = Math.min(Math.max(days, 1), 30);
-
-    const { endDate, startDate } = getDateRange(numDays);
-
-    // Use GSI for efficient time-series query
-    const items = await queryStatusTimeSeries(category, startDate, endDate);
-
-    // Sort by date for charting
-    items.sort((a, b) => a.date.localeCompare(b.date));
-
-    // Aggregate for period summary
-    const aggregated = aggregateSummaries(items);
-
-    return c.json({
-      aggregated,
-      category,
-      endDate,
-      series: items.map((item) => ({
-        date: item.date,
-        latency: item.latency,
-        requestCount: item.requestCount,
-      })),
-      startDate,
     });
   },
 );

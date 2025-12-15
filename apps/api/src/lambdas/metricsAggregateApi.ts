@@ -221,12 +221,17 @@ const aggregateApiMetrics = (
   ): StatusCodeBreakdown => {
     const breakdown: StatusCodeBreakdown = {
       clientError: 0,
+      codes: {},
       redirect: 0,
       serverError: 0,
       success: 0,
     };
     for (const rec of recs) {
+      // Category totals
       breakdown[classifyStatusCode(rec.statusCode)]++;
+      // Individual code counts
+      const codeKey = String(rec.statusCode);
+      breakdown.codes![codeKey] = (breakdown.codes![codeKey] ?? 0) + 1;
     }
     return breakdown;
   };
@@ -287,22 +292,10 @@ const aggregateApiMetrics = (
     gsiKeys?: Partial<
       Pick<
         ApiMetricAggregate,
-        | 'GSI1PK'
-        | 'GSI1SK'
-        | 'GSI2PK'
-        | 'GSI2SK'
-        | 'GSI3PK'
-        | 'GSI3SK'
-        | 'GSI4PK'
-        | 'GSI4SK'
+        'GSI1PK' | 'GSI1SK' | 'GSI2PK' | 'GSI2SK' | 'GSI3PK' | 'GSI3SK'
       >
     >,
-    extras?: Partial<
-      Pick<
-        ApiMetricAggregate,
-        'dependencies' | 'topEndpoints' | 'topErrors' | 'topSlowest'
-      >
-    >,
+    extras?: Partial<Pick<ApiMetricAggregate, 'dependencies' | 'topEndpoints'>>,
   ): ApiMetricAggregate => {
     const latencies = recs.map((r) => r.latency);
     const statusCodes = createStatusBreakdown(recs);
@@ -327,35 +320,27 @@ const aggregateApiMetrics = (
   // Group records by dimensions
   // ─────────────────────────────────────────────────────────────────────────
 
+  // Single dimensions
   const byEndpoint = new Map<string, ApiMetricRecord[]>();
-  const byStatusCategory = new Map<string, ApiMetricRecord[]>();
   const byPlatform = new Map<string, ApiMetricRecord[]>();
   const byCountry = new Map<string, ApiMetricRecord[]>();
 
-  // Cross-filters with platform
+  // 2-way combos
+  const byPlatformCountry = new Map<string, ApiMetricRecord[]>();
   const byPlatformEndpoint = new Map<string, ApiMetricRecord[]>();
-  const byPlatformStatus = new Map<string, ApiMetricRecord[]>();
+  const byCountryEndpoint = new Map<string, ApiMetricRecord[]>();
+
+  // 3-way combo
+  const byPlatformCountryEndpoint = new Map<string, ApiMetricRecord[]>();
 
   for (const rec of records) {
     const endpoint = `${rec.method} ${rec.route}`;
     const platform = rec.client.platform;
     const country = rec.country;
-    const statusCat =
-      rec.statusCode >= 500
-        ? '5xx'
-        : rec.statusCode >= 400
-          ? '4xx'
-          : rec.statusCode >= 300
-            ? '3xx'
-            : '2xx';
 
     // Single dimensions
     (
       byEndpoint.get(endpoint) ?? byEndpoint.set(endpoint, []).get(endpoint)
-    )?.push(rec);
-    (
-      byStatusCategory.get(statusCat) ??
-      byStatusCategory.set(statusCat, []).get(statusCat)
     )?.push(rec);
     (
       byPlatform.get(platform) ?? byPlatform.set(platform, []).get(platform)
@@ -364,16 +349,30 @@ const aggregateApiMetrics = (
       rec,
     );
 
-    // Platform cross-filters
+    // 2-way combos
+    const pcKey = `${platform}#${country}`;
+    (
+      byPlatformCountry.get(pcKey) ??
+      byPlatformCountry.set(pcKey, []).get(pcKey)
+    )?.push(rec);
+
     const peKey = `${platform}#${endpoint}`;
     (
       byPlatformEndpoint.get(peKey) ??
       byPlatformEndpoint.set(peKey, []).get(peKey)
     )?.push(rec);
 
-    const psKey = `${platform}#${statusCat}`;
+    const ceKey = `${country}#${endpoint}`;
     (
-      byPlatformStatus.get(psKey) ?? byPlatformStatus.set(psKey, []).get(psKey)
+      byCountryEndpoint.get(ceKey) ??
+      byCountryEndpoint.set(ceKey, []).get(ceKey)
+    )?.push(rec);
+
+    // 3-way combo
+    const pceKey = `${platform}#${country}#${endpoint}`;
+    (
+      byPlatformCountryEndpoint.get(pceKey) ??
+      byPlatformCountryEndpoint.set(pceKey, []).get(pceKey)
     )?.push(rec);
   }
 
@@ -383,60 +382,25 @@ const aggregateApiMetrics = (
   // pk: "<date>" (no filters)
   // ─────────────────────────────────────────────────────────────────────────
 
-  // Build leaderboards for SUMMARY
-  const endpointStats: Array<{
-    apdexScore: number;
-    count: number;
-    endpoint: string;
-    errorRate: number;
-    p75: number;
-    p99: number;
-  }> = [];
-  for (const [endpoint, recs] of byEndpoint) {
-    const agg = createAggregate(recs, '', '');
-    endpointStats.push({
-      apdexScore: agg.apdex.score,
-      count: agg.requestCount,
-      endpoint,
-      errorRate: agg.errorRate,
-      p75: agg.latency.p75,
-      p99: agg.latency.p99,
-    });
-  }
+  // Build top endpoints leaderboard (sorted by request count, like Web Vitals)
+  const topEndpoints = [...byEndpoint.entries()]
+    .map(([endpoint, recs]) => {
+      const latencies = recs.map((r) => r.latency);
+      const apdex = calculateApdex(latencies);
+      return {
+        apdexScore: apdex.score,
+        endpoint,
+        requestCount: recs.length,
+      };
+    })
+    .sort((a, b) => b.requestCount - a.requestCount)
+    .slice(0, 25);
 
-  // SUMMARY
+  // SUMMARY - overall stats for the day
   aggregates.push(
     createAggregate(records, date, 'SUMMARY', undefined, {
       dependencies: aggregateDependencies(records),
-      topEndpoints: endpointStats
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10)
-        .map((e) => ({
-          apdexScore: e.apdexScore,
-          count: e.count,
-          endpoint: e.endpoint,
-          errorRate: e.errorRate,
-          p75: e.p75,
-        })),
-      topErrors: endpointStats
-        .filter((e) => e.count >= 10)
-        .sort((a, b) => b.errorRate - a.errorRate)
-        .slice(0, 10)
-        .map((e) => ({
-          count: e.count,
-          endpoint: e.endpoint,
-          errorRate: e.errorRate,
-        })),
-      topSlowest: endpointStats
-        .filter((e) => e.count >= 10)
-        .sort((a, b) => b.p75 - a.p75)
-        .slice(0, 10)
-        .map((e) => ({
-          count: e.count,
-          endpoint: e.endpoint,
-          p75: e.p75,
-          p99: e.p99,
-        })),
+      topEndpoints,
     }),
   );
 
@@ -458,22 +422,12 @@ const aggregateApiMetrics = (
     );
   }
 
-  // Status categories (sk: S#<category>)
-  for (const [category, recs] of byStatusCategory) {
-    aggregates.push(
-      createAggregate(recs, date, `S#${category}`, {
-        GSI2PK: `S#${category}`,
-        GSI2SK: date,
-      }),
-    );
-  }
-
   // Platforms (sk: P#<platform>)
   for (const [platform, recs] of byPlatform) {
     aggregates.push(
       createAggregate(recs, date, `P#${platform}`, {
-        GSI3PK: `P#${platform}`,
-        GSI3SK: date,
+        GSI2PK: `P#${platform}`,
+        GSI2SK: date,
       }),
     );
   }
@@ -482,8 +436,8 @@ const aggregateApiMetrics = (
   for (const [country, recs] of byCountry) {
     aggregates.push(
       createAggregate(recs, date, `C#${country}`, {
-        GSI4PK: `C#${country}`,
-        GSI4SK: date,
+        GSI3PK: `C#${country}`,
+        GSI3SK: date,
       }),
     );
   }
@@ -504,17 +458,75 @@ const aggregateApiMetrics = (
 
     // Endpoints for this platform
     for (const [peKey, recs] of byPlatformEndpoint) {
-      const [keyPlatform, keyEndpoint] = peKey.split('#') as [string, string];
+      const [keyPlatform, ...rest] = peKey.split('#');
+      const keyEndpoint = rest.join('#');
       if (keyPlatform === platform) {
         aggregates.push(createAggregate(recs, pk, `E#${keyEndpoint}`));
       }
     }
 
-    // Status categories for this platform
-    for (const [psKey, recs] of byPlatformStatus) {
-      const [keyPlatform, keyCategory] = psKey.split('#') as [string, string];
+    // Countries for this platform
+    for (const [pcKey, recs] of byPlatformCountry) {
+      const [keyPlatform, keyCountry] = pcKey.split('#') as [string, string];
       if (keyPlatform === platform) {
-        aggregates.push(createAggregate(recs, pk, `S#${keyCategory}`));
+        aggregates.push(createAggregate(recs, pk, `C#${keyCountry}`));
+      }
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // pk: "<date>#C#<country>" (country filter)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  for (const [country, countryRecs] of byCountry) {
+    const pk = `${date}#C#${country}`;
+
+    // SUMMARY for this country
+    aggregates.push(
+      createAggregate(countryRecs, pk, 'SUMMARY', undefined, {
+        dependencies: aggregateDependencies(countryRecs),
+      }),
+    );
+
+    // Endpoints for this country
+    for (const [ceKey, recs] of byCountryEndpoint) {
+      const [keyCountry, ...rest] = ceKey.split('#');
+      const keyEndpoint = rest.join('#');
+      if (keyCountry === country) {
+        aggregates.push(createAggregate(recs, pk, `E#${keyEndpoint}`));
+      }
+    }
+
+    // Platforms for this country
+    for (const [pcKey, recs] of byPlatformCountry) {
+      const [keyPlatform, keyCountry] = pcKey.split('#') as [string, string];
+      if (keyCountry === country) {
+        aggregates.push(createAggregate(recs, pk, `P#${keyPlatform}`));
+      }
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // pk: "<date>#P#<platform>#C#<country>" (platform + country filter)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  for (const [pcKey, pcRecs] of byPlatformCountry) {
+    const [platform, country] = pcKey.split('#') as [string, string];
+    const pk = `${date}#P#${platform}#C#${country}`;
+
+    // SUMMARY for this platform + country combo
+    aggregates.push(
+      createAggregate(pcRecs, pk, 'SUMMARY', undefined, {
+        dependencies: aggregateDependencies(pcRecs),
+      }),
+    );
+
+    // Endpoints for this platform + country combo
+    for (const [pceKey, recs] of byPlatformCountryEndpoint) {
+      const [keyPlatform, keyCountry, ...rest] = pceKey.split('#');
+      const keyEndpoint = rest.join('#');
+      if (keyPlatform === platform && keyCountry === country) {
+        aggregates.push(createAggregate(recs, pk, `E#${keyEndpoint}`));
       }
     }
   }

@@ -196,6 +196,11 @@ export const HttpMethodSchema = v.picklist([
 export const StatusCodeBreakdownSchema = v.object({
   /** 4xx client errors */
   clientError: v.number(),
+  /**
+   * Individual status code counts for detailed analysis.
+   * Keys are status codes as strings (e.g., "200", "401", "500").
+   */
+  codes: v.optional(v.record(v.string(), v.number())),
   /** 3xx redirect responses */
   redirect: v.number(),
   /** 5xx server errors */
@@ -205,28 +210,41 @@ export const StatusCodeBreakdownSchema = v.object({
 });
 
 /**
+ * Top endpoint item for leaderboards in SUMMARY.
+ * Similar to WebVitalTopItemSchema but for API metrics.
+ */
+export const ApiTopEndpointSchema = v.object({
+  /** Apdex score (0-1) */
+  apdexScore: v.number(),
+  /** Endpoint identifier (e.g., "GET /tv/[id]") */
+  endpoint: v.string(),
+  /** Number of requests */
+  requestCount: v.number(),
+});
+
+/**
  * API metrics aggregate schema - stored in MetricsApi table
  *
  * ═══════════════════════════════════════════════════════════════════════════
  * KEY DESIGN: Filters in pk, dimension in sk
  * ═══════════════════════════════════════════════════════════════════════════
  *
- * pk patterns (date + optional platform filter):
- *   "2025-12-11"               → No filter (all platforms)
- *   "2025-12-11#P#ios"         → Platform filter
+ * pk patterns (date + optional filters):
+ *   "2025-12-11"                    → No filter
+ *   "2025-12-11#P#ios"              → Platform filter
+ *   "2025-12-11#C#US"               → Country filter
+ *   "2025-12-11#P#ios#C#US"         → Platform + Country filter
  *
  * sk patterns (what you're querying):
- *   "SUMMARY"                  → Totals for this filter combo
- *   "E#GET /tv/:id"            → Endpoint metrics (method + route)
- *   "S#5xx"                    → Status category metrics
- *   "P#ios"                    → Platform metrics (when no platform filter)
- *   "C#US"                     → Country metrics (when no country filter)
+ *   "SUMMARY"                       → Totals for this filter combo
+ *   "E#GET /tv/:id"                 → Endpoint metrics
+ *   "P#ios"                         → Platform metrics (when no platform filter)
+ *   "C#US"                          → Country metrics (when no country filter)
  *
  * GSIs for time-series:
  *   EndpointTimeIndex: GSI1PK: "E#GET /tv/:id"  GSI1SK: "2025-12-11"
- *   StatusTimeIndex:   GSI2PK: "S#5xx"          GSI2SK: "2025-12-11"
- *   PlatformTimeIndex: GSI3PK: "P#ios"          GSI3SK: "2025-12-11"
- *   CountryTimeIndex:  GSI4PK: "C#US"           GSI4SK: "2025-12-11"
+ *   PlatformTimeIndex: GSI2PK: "P#ios"          GSI2SK: "2025-12-11"
+ *   CountryTimeIndex:  GSI3PK: "C#US"           GSI3SK: "2025-12-11"
  */
 export const ApiMetricAggregateSchema = v.object({
   /**
@@ -254,29 +272,21 @@ export const ApiMetricAggregateSchema = v.object({
   /** GSI1 sort key - date for time range queries */
   GSI1SK: v.optional(v.string()),
   /**
-   * GSI2 partition key - for status time-series queries.
-   * Only set on STATUS items.
-   * Format: "S#5xx"
+   * GSI2 partition key - for platform time-series queries.
+   * Only set on PLATFORM items.
+   * Format: "P#ios"
    */
   GSI2PK: v.optional(v.string()),
   /** GSI2 sort key - date for time range queries */
   GSI2SK: v.optional(v.string()),
   /**
-   * GSI3 partition key - for platform time-series queries.
-   * Only set on PLATFORM items.
-   * Format: "P#ios"
+   * GSI3 partition key - for country time-series queries.
+   * Only set on COUNTRY items.
+   * Format: "C#US"
    */
   GSI3PK: v.optional(v.string()),
   /** GSI3 sort key - date for time range queries */
   GSI3SK: v.optional(v.string()),
-  /**
-   * GSI4 partition key - for country time-series queries.
-   * Only set on COUNTRY items.
-   * Format: "C#US"
-   */
-  GSI4PK: v.optional(v.string()),
-  /** GSI4 sort key - date for time range queries */
-  GSI4SK: v.optional(v.string()),
   /** Latency percentile statistics */
   latency: PercentileStatsSchema,
   /**
@@ -292,49 +302,16 @@ export const ApiMetricAggregateSchema = v.object({
    * - "E#GET /tv/:id" (endpoint)
    * - "S#5xx" (status category)
    * - "P#ios" (platform, when pk has no platform filter)
+   * - "C#US" (country)
    */
   sk: v.string(),
   /** Status code breakdown */
   statusCodes: StatusCodeBreakdownSchema,
   /**
    * Top endpoints by request count, embedded in SUMMARY items.
+   * Pre-computed leaderboard for dashboard.
    */
-  topEndpoints: v.optional(
-    v.array(
-      v.object({
-        apdexScore: v.number(),
-        count: v.number(),
-        endpoint: v.string(),
-        errorRate: v.number(),
-        p75: v.number(),
-      }),
-    ),
-  ),
-  /**
-   * Top endpoints by error rate, embedded in SUMMARY items.
-   */
-  topErrors: v.optional(
-    v.array(
-      v.object({
-        count: v.number(),
-        endpoint: v.string(),
-        errorRate: v.number(),
-      }),
-    ),
-  ),
-  /**
-   * Top slowest endpoints by p75 latency, embedded in SUMMARY items.
-   */
-  topSlowest: v.optional(
-    v.array(
-      v.object({
-        count: v.number(),
-        endpoint: v.string(),
-        p75: v.number(),
-        p99: v.number(),
-      }),
-    ),
-  ),
+  topEndpoints: v.optional(v.array(ApiTopEndpointSchema)),
   type: v.literal('api-aggregate'),
 });
 
@@ -661,6 +638,8 @@ export const ApiMetricsStatusQuerySchema = v.object({
  * Query parameters for API metrics endpoints list.
  */
 export const ApiMetricsEndpointsQuerySchema = v.object({
+  /** Country filter (ISO code) */
+  country: v.optional(v.string()),
   /** Number of days to query (1, 7, or 30) */
   days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
   /** Limit results */

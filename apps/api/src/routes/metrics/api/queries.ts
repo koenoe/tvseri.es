@@ -45,16 +45,21 @@ export const getDateRange = (
  * Build the pk for a given date and optional filters.
  *
  * Examples:
- *   buildPk("2025-12-11")                           → "2025-12-11"
- *   buildPk("2025-12-11", { platform: "ios" })      → "2025-12-11#P#ios"
+ *   buildPk("2025-12-11")                                      → "2025-12-11"
+ *   buildPk("2025-12-11", { platform: "ios" })                 → "2025-12-11#P#ios"
+ *   buildPk("2025-12-11", { country: "US" })                   → "2025-12-11#C#US"
+ *   buildPk("2025-12-11", { platform: "ios", country: "US" })  → "2025-12-11#P#ios#C#US"
  */
 export const buildPk = (
   date: string,
-  filters?: { platform?: string },
+  filters?: { country?: string; platform?: string },
 ): string => {
   let pk = date;
   if (filters?.platform) {
     pk += `#P#${filters.platform}`;
+  }
+  if (filters?.country) {
+    pk += `#C#${filters.country}`;
   }
   return pk;
 };
@@ -182,10 +187,10 @@ export const queryEndpointTimeSeries = async (
 };
 
 /**
- * Query status category time-series using GSI2 (StatusTimeIndex).
+ * Query platform time-series using GSI2 (PlatformTimeIndex).
  */
-export const queryStatusTimeSeries = async (
-  statusCategory: string,
+export const queryPlatformTimeSeries = async (
+  platform: string,
   startDate: string,
   endDate: string,
 ): Promise<ApiMetricAggregate[]> => {
@@ -201,11 +206,11 @@ export const queryStatusTimeSeries = async (
           '#gsi2sk': 'GSI2SK',
         },
         ExpressionAttributeValues: {
-          ':gsi2pk': { S: `S#${statusCategory}` },
+          ':gsi2pk': { S: `P#${platform}` },
           ':skEnd': { S: endDate },
           ':skStart': { S: startDate },
         },
-        IndexName: 'StatusTimeIndex',
+        IndexName: 'PlatformTimeIndex',
         KeyConditionExpression:
           '#gsi2pk = :gsi2pk AND #gsi2sk BETWEEN :skStart AND :skEnd',
         TableName: Resource.MetricsApi.name,
@@ -225,10 +230,10 @@ export const queryStatusTimeSeries = async (
 };
 
 /**
- * Query platform time-series using GSI3 (PlatformTimeIndex).
+ * Query country time-series using GSI3 (CountryTimeIndex).
  */
-export const queryPlatformTimeSeries = async (
-  platform: string,
+export const queryCountryTimeSeries = async (
+  country: string,
   startDate: string,
   endDate: string,
 ): Promise<ApiMetricAggregate[]> => {
@@ -244,56 +249,13 @@ export const queryPlatformTimeSeries = async (
           '#gsi3sk': 'GSI3SK',
         },
         ExpressionAttributeValues: {
-          ':gsi3pk': { S: `P#${platform}` },
-          ':skEnd': { S: endDate },
-          ':skStart': { S: startDate },
-        },
-        IndexName: 'PlatformTimeIndex',
-        KeyConditionExpression:
-          '#gsi3pk = :gsi3pk AND #gsi3sk BETWEEN :skStart AND :skEnd',
-        TableName: Resource.MetricsApi.name,
-      }),
-    );
-
-    if (result.Items) {
-      items.push(
-        ...result.Items.map((item) => unmarshall(item) as ApiMetricAggregate),
-      );
-    }
-
-    lastKey = result.LastEvaluatedKey;
-  } while (lastKey);
-
-  return items;
-};
-
-/**
- * Query country time-series using GSI4 (CountryTimeIndex).
- */
-export const queryCountryTimeSeries = async (
-  country: string,
-  startDate: string,
-  endDate: string,
-): Promise<ApiMetricAggregate[]> => {
-  const items: ApiMetricAggregate[] = [];
-  let lastKey: Record<string, AttributeValue> | undefined;
-
-  do {
-    const result = await dynamoClient.send(
-      new QueryCommand({
-        ExclusiveStartKey: lastKey,
-        ExpressionAttributeNames: {
-          '#gsi4pk': 'GSI4PK',
-          '#gsi4sk': 'GSI4SK',
-        },
-        ExpressionAttributeValues: {
-          ':gsi4pk': { S: `C#${country}` },
+          ':gsi3pk': { S: `C#${country}` },
           ':skEnd': { S: endDate },
           ':skStart': { S: startDate },
         },
         IndexName: 'CountryTimeIndex',
         KeyConditionExpression:
-          '#gsi4pk = :gsi4pk AND #gsi4sk BETWEEN :skStart AND :skEnd',
+          '#gsi3pk = :gsi3pk AND #gsi3sk BETWEEN :skStart AND :skEnd',
         TableName: Resource.MetricsApi.name,
       }),
     );
@@ -357,9 +319,16 @@ export const aggregateSummaries = (
     p99: Math.round(percentileFromLatencyHistogram(mergedBins, 99)),
   };
 
-  // Sum status codes by category
-  const statusCodes = {
+  // Sum status codes by category and individual codes
+  const statusCodes: {
+    clientError: number;
+    codes: Record<string, number>;
+    redirect: number;
+    serverError: number;
+    success: number;
+  } = {
     clientError: 0,
+    codes: {},
     redirect: 0,
     serverError: 0,
     success: 0,
@@ -370,6 +339,12 @@ export const aggregateSummaries = (
       statusCodes.redirect += item.statusCodes.redirect ?? 0;
       statusCodes.clientError += item.statusCodes.clientError ?? 0;
       statusCodes.serverError += item.statusCodes.serverError ?? 0;
+      // Merge individual codes
+      if (item.statusCodes.codes) {
+        for (const [code, count] of Object.entries(item.statusCodes.codes)) {
+          statusCodes.codes[code] = (statusCodes.codes[code] ?? 0) + count;
+        }
+      }
     }
   }
 

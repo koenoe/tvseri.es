@@ -254,6 +254,32 @@ export const formatErrorRate = (rate: number): string => {
 };
 
 // ════════════════════════════════════════════════════════════════════════════
+// REQUEST COUNT HELPERS
+// ════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Format request count for display.
+ * >= 1000000 shows as 1M, 1.5M, etc.
+ * >= 1000 shows as 1k, 1.5k, etc.
+ * < 1000 shows full number.
+ */
+export const formatRequestCount = (count: number): string => {
+  if (count < 1000) {
+    return String(count);
+  }
+  if (count < 1000000) {
+    const thousands = count / 1000;
+    const formatted =
+      thousands % 1 === 0 ? thousands.toFixed(0) : thousands.toFixed(1);
+    return `${formatted}k`;
+  }
+  const millions = count / 1000000;
+  const formatted =
+    millions % 1 === 0 ? millions.toFixed(0) : millions.toFixed(1);
+  return `${formatted}M`;
+};
+
+// ════════════════════════════════════════════════════════════════════════════
 // THROUGHPUT HELPERS
 // ════════════════════════════════════════════════════════════════════════════
 

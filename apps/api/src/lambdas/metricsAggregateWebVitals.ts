@@ -296,8 +296,8 @@ const aggregateWebVitals = (
   // SUMMARY
   aggregates.push(
     createAggregate(records, date, 'SUMMARY', undefined, {
-      topCountries: topCountries.slice(0, 10),
-      topRoutes: topRoutes.slice(0, 10),
+      topCountries: topCountries.slice(0, 25),
+      topRoutes: topRoutes.slice(0, 25),
     }),
   );
 

@@ -32,7 +32,7 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
     "typescript": "catalog:",
-    "vite": "^7.1.7"
+    "vite": "^7.3.0"
   },
   "name": "@tvseri.es/dashboard",
   "private": true,

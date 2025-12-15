@@ -482,7 +482,7 @@ const writeAggregates = async (items: WebVitalAggregate[]): Promise<void> => {
 
   await Promise.all(
     batches.map((batch) =>
-      batchWriteWithRetry(Resource.MetricsWebVitals.name, batch),
+      batchWriteWithRetry(Resource.MetricsWebVitalsAggregated.name, batch),
     ),
   );
 };

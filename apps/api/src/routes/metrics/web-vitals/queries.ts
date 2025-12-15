@@ -90,7 +90,7 @@ export const queryByPkAndPrefix = async (
           ':skPrefix': { S: skPrefix },
         },
         KeyConditionExpression: '#pk = :pk AND begins_with(#sk, :skPrefix)',
-        TableName: Resource.MetricsWebVitals.name,
+        TableName: Resource.MetricsWebVitalsAggregated.name,
       }),
     );
 
@@ -125,7 +125,7 @@ export const queryExact = async (
       },
       KeyConditionExpression: '#pk = :pk AND #sk = :sk',
       Limit: 1,
-      TableName: Resource.MetricsWebVitals.name,
+      TableName: Resource.MetricsWebVitalsAggregated.name,
     }),
   );
 
@@ -170,7 +170,7 @@ export const queryRouteTimeSeries = async (
         IndexName: 'RouteTimeIndex',
         KeyConditionExpression:
           '#gsi1pk = :gsi1pk AND #gsi1sk BETWEEN :skStart AND :skEnd',
-        TableName: Resource.MetricsWebVitals.name,
+        TableName: Resource.MetricsWebVitalsAggregated.name,
       }),
     );
 
@@ -214,7 +214,7 @@ export const queryCountryTimeSeries = async (
         IndexName: 'CountryTimeIndex',
         KeyConditionExpression:
           '#gsi2pk = :gsi2pk AND #gsi2sk BETWEEN :skStart AND :skEnd',
-        TableName: Resource.MetricsWebVitals.name,
+        TableName: Resource.MetricsWebVitalsAggregated.name,
       }),
     );
 
@@ -258,7 +258,7 @@ export const queryDeviceTimeSeries = async (
         IndexName: 'DeviceTimeIndex',
         KeyConditionExpression:
           '#gsi3pk = :gsi3pk AND #gsi3sk BETWEEN :skStart AND :skEnd',
-        TableName: Resource.MetricsWebVitals.name,
+        TableName: Resource.MetricsWebVitalsAggregated.name,
       }),
     );
 

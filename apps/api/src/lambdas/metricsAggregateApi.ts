@@ -605,7 +605,7 @@ const writeAggregates = async (items: ApiMetricAggregate[]): Promise<void> => {
 
   await Promise.all(
     batches.map((batch) =>
-      batchWriteWithRetry(Resource.MetricsApi.name, batch),
+      batchWriteWithRetry(Resource.MetricsApiAggregated.name, batch),
     ),
   );
 };

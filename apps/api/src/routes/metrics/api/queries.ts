@@ -91,7 +91,7 @@ export const queryByPkAndPrefix = async (
           ':skPrefix': { S: skPrefix },
         },
         KeyConditionExpression: '#pk = :pk AND begins_with(#sk, :skPrefix)',
-        TableName: Resource.MetricsApi.name,
+        TableName: Resource.MetricsApiAggregated.name,
       }),
     );
 
@@ -126,7 +126,7 @@ export const queryExact = async (
       },
       KeyConditionExpression: '#pk = :pk AND #sk = :sk',
       Limit: 1,
-      TableName: Resource.MetricsApi.name,
+      TableName: Resource.MetricsApiAggregated.name,
     }),
   );
 
@@ -170,7 +170,7 @@ export const queryEndpointTimeSeries = async (
         IndexName: 'EndpointTimeIndex',
         KeyConditionExpression:
           '#gsi1pk = :gsi1pk AND #gsi1sk BETWEEN :skStart AND :skEnd',
-        TableName: Resource.MetricsApi.name,
+        TableName: Resource.MetricsApiAggregated.name,
       }),
     );
 
@@ -213,7 +213,7 @@ export const queryPlatformTimeSeries = async (
         IndexName: 'PlatformTimeIndex',
         KeyConditionExpression:
           '#gsi2pk = :gsi2pk AND #gsi2sk BETWEEN :skStart AND :skEnd',
-        TableName: Resource.MetricsApi.name,
+        TableName: Resource.MetricsApiAggregated.name,
       }),
     );
 
@@ -256,7 +256,7 @@ export const queryCountryTimeSeries = async (
         IndexName: 'CountryTimeIndex',
         KeyConditionExpression:
           '#gsi3pk = :gsi3pk AND #gsi3sk BETWEEN :skStart AND :skEnd',
-        TableName: Resource.MetricsApi.name,
+        TableName: Resource.MetricsApiAggregated.name,
       }),
     );
 

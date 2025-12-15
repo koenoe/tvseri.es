@@ -1,7 +1,6 @@
 import { vValidator } from '@hono/valibot-validator';
 import {
   type ApiMetricAggregate,
-  ApiMetricsEndpointParamSchema,
   ApiMetricsEndpointsQuerySchema,
   ApiMetricsPlatformsQuerySchema,
   ApiMetricsStatusQuerySchema,
@@ -12,10 +11,12 @@ import { Hono } from 'hono';
 import { requireAuthAdmin, type Variables } from '@/middleware/auth';
 
 import {
+  type AggregatedApiMetrics,
   aggregateSummaries,
   buildPk,
   getDateRange,
   queryByPkAndPrefix,
+  queryCountryTimeSeries,
   queryEndpointTimeSeries,
   queryPlatformTimeSeries,
   queryStatusTimeSeries,
@@ -68,6 +69,7 @@ app.get('/', vValidator('query', ApiMetricsSummaryQuerySchema), async (c) => {
     aggregated,
     endDate,
     series: summaries.map((s) => ({
+      apdex: s.apdex,
       date: s.date,
       errorRate: s.errorRate,
       latency: s.latency,
@@ -84,13 +86,12 @@ app.get('/', vValidator('query', ApiMetricsSummaryQuerySchema), async (c) => {
 /**
  * GET /metrics/api/endpoints
  *
- * List all endpoints (method + route) with their API metrics.
- * Supports filtering by platform.
+ * List all endpoints with their API metrics (apdex, latency, error rate, throughput).
  *
  * Query params:
  * - days: 1 | 7 | 30 (default: 7)
  * - platform: ios | android | web (optional filter)
- * - sortBy: requests | errorRate | p75 | p99 (default: requests)
+ * - sortBy: requests | errorRate | p75 | p99 | apdex (default: requests)
  * - sortDir: asc | desc (default: desc)
  * - limit: number (optional, for top N)
  */
@@ -133,25 +134,26 @@ app.get(
 
     // Aggregate each endpoint's data
     const endpoints: Array<{
+      apdex: AggregatedApiMetrics['apdex'];
+      dependencies?: AggregatedApiMetrics['dependencies'];
       endpoint: string;
       errorRate: number;
-      latency: ApiMetricAggregate['latency'];
-      method: string;
+      latency: AggregatedApiMetrics['latency'];
       requestCount: number;
-      route: string;
+      throughput: number;
     }> = [];
 
     for (const [endpoint, items] of endpointMap) {
       const aggregated = aggregateSummaries(items);
       if (aggregated) {
-        const [method, ...routeParts] = endpoint.split(' ');
         endpoints.push({
+          apdex: aggregated.apdex,
+          dependencies: aggregated.dependencies,
           endpoint,
           errorRate: aggregated.errorRate,
           latency: aggregated.latency,
-          method: method as string,
           requestCount: aggregated.requestCount,
-          route: routeParts.join(' '),
+          throughput: aggregated.throughput,
         });
       }
     }
@@ -162,6 +164,10 @@ app.get(
       let bVal: number;
 
       switch (sortBy) {
+        case 'apdex':
+          aVal = a.apdex.score;
+          bVal = b.apdex.score;
+          break;
         case 'errorRate':
           aVal = a.errorRate;
           bVal = b.errorRate;
@@ -195,33 +201,34 @@ app.get(
 );
 
 /**
- * GET /metrics/api/endpoints/:method/:route
+ * GET /metrics/api/endpoints/:endpoint
  *
- * Time-series for a specific endpoint.
- * Uses GSI3 (EndpointTimeIndex) for efficient queries.
+ * Time-series and details for a specific endpoint.
+ * Uses GSI1 (EndpointTimeIndex) for efficient queries.
  *
  * Path params:
- * - method: GET | POST | PUT | DELETE | PATCH
- * - route: URL-encoded route pattern (e.g., /tv/[id])
+ * - endpoint: URL-encoded endpoint (e.g., GET%20/tv/[id])
  *
  * Query params:
  * - days: 1 | 7 | 30 (default: 7)
  */
 app.get(
-  '/endpoints/:method/:route',
-  vValidator('param', ApiMetricsEndpointParamSchema),
+  '/endpoints/:endpoint',
   vValidator('query', ApiMetricsSummaryQuerySchema),
   async (c) => {
-    const { method, route } = c.req.valid('param');
+    const endpointParam = c.req.param('endpoint');
     const { days } = c.req.valid('query');
     const numDays = Math.min(Math.max(days, 1), 30);
 
-    const decodedRoute = decodeURIComponent(route);
-    const endpoint = `${method.toUpperCase()} ${decodedRoute}`;
+    const decodedEndpoint = decodeURIComponent(endpointParam);
     const { endDate, startDate } = getDateRange(numDays);
 
     // Use GSI for efficient time-series query
-    const items = await queryEndpointTimeSeries(endpoint, startDate, endDate);
+    const items = await queryEndpointTimeSeries(
+      decodedEndpoint,
+      startDate,
+      endDate,
+    );
 
     // Sort by date for charting
     items.sort((a, b) => a.date.localeCompare(b.date));
@@ -232,16 +239,70 @@ app.get(
     return c.json({
       aggregated,
       endDate,
-      endpoint,
-      method: method.toUpperCase(),
-      route: decodedRoute,
+      endpoint: decodedEndpoint,
       series: items.map((item) => ({
+        apdex: item.apdex,
         date: item.date,
+        dependencies: item.dependencies,
         errorRate: item.errorRate,
         latency: item.latency,
         requestCount: item.requestCount,
       })),
       startDate,
+    });
+  },
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// DEPENDENCIES
+// ════════════════════════════════════════════════════════════════════════════
+
+/**
+ * GET /metrics/api/dependencies
+ *
+ * List all external dependencies (TMDB, DynamoDB, etc.) with their latency stats.
+ *
+ * Query params:
+ * - days: 1 | 7 | 30 (default: 7)
+ * - platform: ios | android | web (optional filter)
+ */
+app.get(
+  '/dependencies',
+  vValidator('query', ApiMetricsSummaryQuerySchema),
+  async (c) => {
+    const { days, platform } = c.req.valid('query');
+    const numDays = Math.min(Math.max(days, 1), 30);
+
+    const { dates, endDate, startDate } = getDateRange(numDays);
+
+    // Fetch SUMMARY items (which contain dependencies)
+    const summaries: ApiMetricAggregate[] = [];
+    await Promise.all(
+      dates.map(async (date) => {
+        const pk = buildPk(date, { platform });
+        const items = await queryByPkAndPrefix(pk, 'SUMMARY');
+        summaries.push(...items);
+      }),
+    );
+
+    // Aggregate to get combined dependency stats
+    const aggregated = aggregateSummaries(summaries);
+
+    // Transform dependencies into array format for easier consumption
+    const dependencies = aggregated?.dependencies
+      ? Object.entries(aggregated.dependencies)
+          .map(([source, stats]) => ({
+            ...stats,
+            source,
+          }))
+          .sort((a, b) => b.count - a.count)
+      : [];
+
+    return c.json({
+      dependencies,
+      endDate,
+      startDate,
+      total: dependencies.length,
     });
   },
 );
@@ -415,8 +476,9 @@ app.get(
 
     // Aggregate each platform's data
     const platforms: Array<{
+      apdex: AggregatedApiMetrics['apdex'];
       errorRate: number;
-      latency: ApiMetricAggregate['latency'];
+      latency: AggregatedApiMetrics['latency'];
       platform: string;
       requestCount: number;
     }> = [];
@@ -425,6 +487,7 @@ app.get(
       const aggregated = aggregateSummaries(items);
       if (aggregated) {
         platforms.push({
+          apdex: aggregated.apdex,
           errorRate: aggregated.errorRate,
           latency: aggregated.latency,
           platform,
@@ -472,7 +535,7 @@ app.get(
  * GET /metrics/api/platforms/:platform
  *
  * Time-series for a specific platform.
- * Uses GSI4 (PlatformTimeIndex) for efficient queries.
+ * Uses GSI3 (PlatformTimeIndex) for efficient queries.
  *
  * Path params:
  * - platform: ios | android | web
@@ -504,6 +567,161 @@ app.get(
       endDate,
       platform,
       series: items.map((item) => ({
+        apdex: item.apdex,
+        date: item.date,
+        errorRate: item.errorRate,
+        latency: item.latency,
+        requestCount: item.requestCount,
+      })),
+      startDate,
+    });
+  },
+);
+
+// ════════════════════════════════════════════════════════════════════════════
+// COUNTRIES
+// ════════════════════════════════════════════════════════════════════════════
+
+/**
+ * GET /metrics/api/countries
+ *
+ * List all countries with their API metrics.
+ *
+ * Query params:
+ * - days: 1 | 7 | 30 (default: 7)
+ * - platform: ios | android | web (optional filter)
+ * - sortBy: requests | errorRate | p75 | p99 (default: requests)
+ * - sortDir: asc | desc (default: desc)
+ */
+app.get(
+  '/countries',
+  vValidator('query', ApiMetricsPlatformsQuerySchema),
+  async (c) => {
+    const {
+      days,
+      sortBy = 'requests',
+      sortDir = 'desc',
+    } = c.req.valid('query');
+    const numDays = Math.min(Math.max(days, 1), 30);
+
+    const { dates, endDate, startDate } = getDateRange(numDays);
+
+    // Fetch country items for each day (no filter - base pk only)
+    const allCountryItems: ApiMetricAggregate[] = [];
+    await Promise.all(
+      dates.map(async (date) => {
+        const pk = buildPk(date);
+        const items = await queryByPkAndPrefix(pk, 'C#');
+        allCountryItems.push(...items);
+      }),
+    );
+
+    // Group by country and aggregate across days
+    const countryMap = new Map<string, ApiMetricAggregate[]>();
+    for (const item of allCountryItems) {
+      const country = item.sk.replace('C#', '');
+      const existing = countryMap.get(country);
+      if (existing) {
+        existing.push(item);
+      } else {
+        countryMap.set(country, [item]);
+      }
+    }
+
+    // Aggregate each country's data
+    const countries: Array<{
+      apdex: AggregatedApiMetrics['apdex'];
+      country: string;
+      errorRate: number;
+      latency: AggregatedApiMetrics['latency'];
+      requestCount: number;
+    }> = [];
+
+    for (const [country, items] of countryMap) {
+      const aggregated = aggregateSummaries(items);
+      if (aggregated) {
+        countries.push({
+          apdex: aggregated.apdex,
+          country,
+          errorRate: aggregated.errorRate,
+          latency: aggregated.latency,
+          requestCount: aggregated.requestCount,
+        });
+      }
+    }
+
+    // Sort
+    countries.sort((a, b) => {
+      let aVal: number;
+      let bVal: number;
+
+      switch (sortBy) {
+        case 'errorRate':
+          aVal = a.errorRate;
+          bVal = b.errorRate;
+          break;
+        case 'p75':
+          aVal = a.latency.p75;
+          bVal = b.latency.p75;
+          break;
+        case 'p99':
+          aVal = a.latency.p99;
+          bVal = b.latency.p99;
+          break;
+        default:
+          aVal = a.requestCount;
+          bVal = b.requestCount;
+      }
+
+      return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
+    });
+
+    return c.json({
+      countries,
+      endDate,
+      startDate,
+      total: countries.length,
+    });
+  },
+);
+
+/**
+ * GET /metrics/api/countries/:country
+ *
+ * Time-series for a specific country.
+ * Uses GSI4 (CountryTimeIndex) for efficient queries.
+ *
+ * Path params:
+ * - country: ISO country code (e.g., US, GB, NL)
+ *
+ * Query params:
+ * - days: 1 | 7 | 30 (default: 7)
+ */
+app.get(
+  '/countries/:country',
+  vValidator('query', ApiMetricsSummaryQuerySchema),
+  async (c) => {
+    const country = c.req.param('country');
+    const { days } = c.req.valid('query');
+    const numDays = Math.min(Math.max(days, 1), 30);
+
+    const { endDate, startDate } = getDateRange(numDays);
+
+    // Use GSI for efficient time-series query
+    const items = await queryCountryTimeSeries(country, startDate, endDate);
+
+    // Sort by date for charting
+    items.sort((a, b) => a.date.localeCompare(b.date));
+
+    // Aggregate for period summary
+    const aggregated = aggregateSummaries(items);
+
+    return c.json({
+      aggregated,
+      country,
+      endDate,
+      series: items.map((item) => ({
+        apdex: item.apdex,
         date: item.date,
         errorRate: item.errorRate,
         latency: item.latency,

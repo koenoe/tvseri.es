@@ -34,6 +34,45 @@ export const HistogramSchema = v.object({
   bins: v.array(v.number()),
 });
 
+// ============================================================================
+// Apdex schemas (Application Performance Index - open standard)
+// ============================================================================
+
+/**
+ * Apdex threshold T in milliseconds.
+ * - Satisfied: latency ≤ T
+ * - Tolerating: T < latency ≤ 4T
+ * - Frustrated: latency > 4T
+ *
+ * Default: 300ms (suitable for real-time APIs)
+ */
+export const APDEX_T = 300;
+
+/**
+ * Apdex statistics for API latency.
+ * Based on the open Apdex standard (apdex.org).
+ */
+export const ApdexSchema = v.object({
+  /** Count of requests > 4T (user is frustrated) */
+  frustrated: v.number(),
+  /** Count of requests ≤ T (user is satisfied) */
+  satisfied: v.number(),
+  /**
+   * Apdex score (0-1).
+   * Formula: (satisfied + tolerating × 0.5) / total
+   *
+   * Score interpretation:
+   * - 0.94-1.00: Excellent
+   * - 0.85-0.93: Good
+   * - 0.70-0.84: Fair
+   * - 0.50-0.69: Poor
+   * - 0.00-0.49: Unacceptable
+   */
+  score: v.number(),
+  /** Count of requests where T < latency ≤ 4T (user tolerates) */
+  tolerating: v.number(),
+});
+
 export const PercentileStatsSchema = v.object({
   count: v.number(),
   /** Histogram for accurate multi-day percentile aggregation */
@@ -42,6 +81,26 @@ export const PercentileStatsSchema = v.object({
   p90: v.number(),
   p95: v.number(),
   p99: v.number(),
+});
+
+/**
+ * Extended stats for dependency metrics.
+ * Includes error rate and throughput in addition to latency percentiles.
+ */
+export const DependencyStatsSchema = v.object({
+  count: v.number(),
+  /** Error count for multi-day aggregation */
+  errorCount: v.number(),
+  /** Error rate (failed calls / total calls) as percentage */
+  errorRate: v.number(),
+  /** Histogram for accurate multi-day percentile aggregation */
+  histogram: v.optional(HistogramSchema),
+  p75: v.number(),
+  p90: v.number(),
+  p95: v.number(),
+  p99: v.number(),
+  /** Throughput: calls per minute */
+  throughput: v.number(),
 });
 
 // ============================================================================
@@ -158,50 +217,38 @@ export const StatusCodeBreakdownSchema = v.object({
  *
  * sk patterns (what you're querying):
  *   "SUMMARY"                  → Totals for this filter combo
- *   "R#/tv/:id"                → Route metrics
  *   "E#GET /tv/:id"            → Endpoint metrics (method + route)
  *   "S#5xx"                    → Status category metrics
  *   "P#ios"                    → Platform metrics (when no platform filter)
+ *   "C#US"                     → Country metrics (when no country filter)
  *
  * GSIs for time-series:
- *   RouteTimeIndex:    GSI1PK: "R#/tv/:id"      GSI1SK: "2025-12-11"
+ *   EndpointTimeIndex: GSI1PK: "E#GET /tv/:id"  GSI1SK: "2025-12-11"
  *   StatusTimeIndex:   GSI2PK: "S#5xx"          GSI2SK: "2025-12-11"
- *   EndpointTimeIndex: GSI3PK: "E#GET /tv/:id"  GSI3SK: "2025-12-11"
- *   PlatformTimeIndex: GSI4PK: "P#ios"          GSI4SK: "2025-12-11"
+ *   PlatformTimeIndex: GSI3PK: "P#ios"          GSI3SK: "2025-12-11"
+ *   CountryTimeIndex:  GSI4PK: "C#US"           GSI4SK: "2025-12-11"
  */
 export const ApiMetricAggregateSchema = v.object({
   /**
-   * Method breakdown embedded in ROUTE items.
+   * Apdex (Application Performance Index) statistics.
+   * Measures user satisfaction with response times.
    */
-  byMethod: v.optional(
-    v.record(
-      v.string(),
-      v.object({
-        count: v.number(),
-        errorRate: v.number(),
-        p75: v.number(),
-      }),
-    ),
-  ),
-  /**
-   * Status category breakdown embedded in ROUTE items.
-   */
-  byStatus: v.optional(StatusCodeBreakdownSchema),
+  apdex: ApdexSchema,
   /** Date in YYYY-MM-DD format */
   date: v.string(),
   /**
    * Dependency latencies (TMDB, DynamoDB, etc.)
-   * Only populated for SUMMARY and ROUTE items.
+   * Only populated for SUMMARY and ENDPOINT items.
    */
-  dependencies: v.optional(v.record(v.string(), PercentileStatsSchema)),
+  dependencies: v.optional(v.record(v.string(), DependencyStatsSchema)),
   /** Error rate (4xx + 5xx) / total */
   errorRate: v.number(),
   /** TTL for DynamoDB (30 days) */
   expiresAt: v.number(),
   /**
-   * GSI1 partition key - for route time-series queries.
-   * Only set on ROUTE and ROUTE+* items.
-   * Format: "API#R#/tv/[id]"
+   * GSI1 partition key - for endpoint time-series queries.
+   * Only set on ENDPOINT items.
+   * Format: "E#GET /tv/:id"
    */
   GSI1PK: v.optional(v.string()),
   /** GSI1 sort key - date for time range queries */
@@ -209,23 +256,23 @@ export const ApiMetricAggregateSchema = v.object({
   /**
    * GSI2 partition key - for status time-series queries.
    * Only set on STATUS items.
-   * Format: "API#S#5xx"
+   * Format: "S#5xx"
    */
   GSI2PK: v.optional(v.string()),
   /** GSI2 sort key - date for time range queries */
   GSI2SK: v.optional(v.string()),
   /**
-   * GSI3 partition key - for endpoint time-series queries.
-   * Only set on ENDPOINT items (method + route).
-   * Format: "E#GET /tv/:id"
+   * GSI3 partition key - for platform time-series queries.
+   * Only set on PLATFORM items.
+   * Format: "P#ios"
    */
   GSI3PK: v.optional(v.string()),
   /** GSI3 sort key - date for time range queries */
   GSI3SK: v.optional(v.string()),
   /**
-   * GSI4 partition key - for platform time-series queries.
-   * Only set on PLATFORM items.
-   * Format: "P#ios"
+   * GSI4 partition key - for country time-series queries.
+   * Only set on COUNTRY items.
+   * Format: "C#US"
    */
   GSI4PK: v.optional(v.string()),
   /** GSI4 sort key - date for time range queries */
@@ -242,7 +289,6 @@ export const ApiMetricAggregateSchema = v.object({
   /**
    * Sort key - dimension type:
    * - "SUMMARY" (totals for this pk's filter)
-   * - "R#/tv/:id" (route)
    * - "E#GET /tv/:id" (endpoint)
    * - "S#5xx" (status category)
    * - "P#ios" (platform, when pk has no platform filter)
@@ -251,11 +297,12 @@ export const ApiMetricAggregateSchema = v.object({
   /** Status code breakdown */
   statusCodes: StatusCodeBreakdownSchema,
   /**
-   * Top endpoints embedded in SUMMARY items.
+   * Top endpoints by request count, embedded in SUMMARY items.
    */
   topEndpoints: v.optional(
     v.array(
       v.object({
+        apdexScore: v.number(),
         count: v.number(),
         endpoint: v.string(),
         errorRate: v.number(),
@@ -264,40 +311,27 @@ export const ApiMetricAggregateSchema = v.object({
     ),
   ),
   /**
-   * Top routes by error rate embedded in SUMMARY items.
+   * Top endpoints by error rate, embedded in SUMMARY items.
    */
   topErrors: v.optional(
     v.array(
       v.object({
         count: v.number(),
+        endpoint: v.string(),
         errorRate: v.number(),
-        route: v.string(),
       }),
     ),
   ),
   /**
-   * Top routes embedded in SUMMARY items.
-   */
-  topRoutes: v.optional(
-    v.array(
-      v.object({
-        count: v.number(),
-        errorRate: v.number(),
-        p75: v.number(),
-        route: v.string(),
-      }),
-    ),
-  ),
-  /**
-   * Top slowest routes embedded in SUMMARY items.
+   * Top slowest endpoints by p75 latency, embedded in SUMMARY items.
    */
   topSlowest: v.optional(
     v.array(
       v.object({
         count: v.number(),
+        endpoint: v.string(),
         p75: v.number(),
         p99: v.number(),
-        route: v.string(),
       }),
     ),
   ),
@@ -606,29 +640,11 @@ export const ApiMetricsSummaryQuerySchema = v.object({
 });
 
 /**
- * Query parameters for API metrics endpoints list.
- */
-export const ApiMetricsEndpointsQuerySchema = v.object({
-  /** Number of days to query (1, 7, or 30) */
-  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
-  /** Limit results */
-  limit: v.optional(v.pipe(v.string(), v.transform(Number))),
-  /** Platform filter (ios, android, web) */
-  platform: v.optional(v.string()),
-  /** Sort by field */
-  sortBy: v.optional(v.picklist(['requests', 'errorRate', 'p75', 'p99'])),
-  /** Sort direction */
-  sortDir: v.optional(v.picklist(['asc', 'desc'])),
-});
-
-/**
  * Path parameters for single endpoint.
  */
 export const ApiMetricsEndpointParamSchema = v.object({
-  /** HTTP method */
-  method: v.string(),
-  /** Route pattern */
-  route: v.string(),
+  /** URL-encoded endpoint (e.g., GET%20/tv/[id]) */
+  endpoint: v.string(),
 });
 
 /**
@@ -639,6 +655,24 @@ export const ApiMetricsStatusQuerySchema = v.object({
   days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
   /** Platform filter (ios, android, web) */
   platform: v.optional(v.string()),
+});
+
+/**
+ * Query parameters for API metrics endpoints list.
+ */
+export const ApiMetricsEndpointsQuerySchema = v.object({
+  /** Number of days to query (1, 7, or 30) */
+  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  /** Limit results */
+  limit: v.optional(v.pipe(v.string(), v.transform(Number))),
+  /** Platform filter (ios, android, web) */
+  platform: v.optional(v.string()),
+  /** Sort by field */
+  sortBy: v.optional(
+    v.picklist(['requests', 'errorRate', 'p75', 'p99', 'apdex']),
+  ),
+  /** Sort direction */
+  sortDir: v.optional(v.picklist(['asc', 'desc'])),
 });
 
 /**
@@ -660,7 +694,9 @@ export const ApiMetricsPlatformsQuerySchema = v.object({
 export type MetricClient = v.InferOutput<typeof MetricClientSchema>;
 export type MetricDevice = v.InferOutput<typeof MetricDeviceSchema>;
 export type DependencyMetric = v.InferOutput<typeof DependencyMetricSchema>;
+export type Apdex = v.InferOutput<typeof ApdexSchema>;
 export type PercentileStats = v.InferOutput<typeof PercentileStatsSchema>;
+export type DependencyStats = v.InferOutput<typeof DependencyStatsSchema>;
 export type StatusCodeBreakdown = v.InferOutput<
   typeof StatusCodeBreakdownSchema
 >;

@@ -5,11 +5,14 @@ import {
   QueryCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import type {
-  ApiMetricAggregate,
-  ApiMetricRecord,
-  PercentileStats,
-  StatusCodeBreakdown,
+import {
+  APDEX_T,
+  type Apdex,
+  type ApiMetricAggregate,
+  type ApiMetricRecord,
+  type DependencyStats,
+  type PercentileStats,
+  type StatusCodeBreakdown,
 } from '@tvseri.es/schemas';
 import { buildLatencyHistogramBins } from '@tvseri.es/utils';
 import type { ScheduledHandler } from 'aws-lambda';
@@ -139,6 +142,47 @@ const classifyStatusCode = (
   return 'serverError';
 };
 
+/**
+ * Calculate Apdex (Application Performance Index) from latency values.
+ *
+ * Apdex is an open standard that measures user satisfaction:
+ * - Satisfied: latency ≤ T
+ * - Tolerating: T < latency ≤ 4T
+ * - Frustrated: latency > 4T
+ *
+ * Score = (satisfied + tolerating × 0.5) / total
+ */
+const calculateApdex = (latencies: number[]): Apdex => {
+  if (latencies.length === 0) {
+    return { frustrated: 0, satisfied: 0, score: 1, tolerating: 0 };
+  }
+
+  const fourT = APDEX_T * 4;
+  let satisfied = 0;
+  let tolerating = 0;
+  let frustrated = 0;
+
+  for (const latency of latencies) {
+    if (latency <= APDEX_T) {
+      satisfied++;
+    } else if (latency <= fourT) {
+      tolerating++;
+    } else {
+      frustrated++;
+    }
+  }
+
+  const total = latencies.length;
+  const score = (satisfied + tolerating * 0.5) / total;
+
+  return {
+    frustrated,
+    satisfied,
+    score: Math.round(score * 100) / 100, // Round to 2 decimal places
+    tolerating,
+  };
+};
+
 // ═══════════════════════════════════════════════════════════════════════════
 // AGGREGATION
 // ═══════════════════════════════════════════════════════════════════════════
@@ -199,21 +243,39 @@ const aggregateApiMetrics = (
 
   const aggregateDependencies = (
     recs: ApiMetricRecord[],
-  ): Record<string, PercentileStats> => {
-    const depsBySource = new Map<string, number[]>();
+  ): Record<string, DependencyStats> => {
+    const depsBySource = new Map<
+      string,
+      { durations: number[]; errorCount: number }
+    >();
     for (const rec of recs) {
       for (const dep of rec.dependencies) {
         const existing = depsBySource.get(dep.source);
+        const isError = dep.status >= 400 || dep.error !== undefined;
         if (existing) {
-          existing.push(dep.duration);
+          existing.durations.push(dep.duration);
+          if (isError) existing.errorCount++;
         } else {
-          depsBySource.set(dep.source, [dep.duration]);
+          depsBySource.set(dep.source, {
+            durations: [dep.duration],
+            errorCount: isError ? 1 : 0,
+          });
         }
       }
     }
-    const result: Record<string, PercentileStats> = {};
-    for (const [source, durations] of depsBySource) {
-      result[source] = calculatePercentiles(durations);
+    const result: Record<string, DependencyStats> = {};
+    for (const [source, { durations, errorCount }] of depsBySource) {
+      const percentiles = calculatePercentiles(durations);
+      const count = durations.length;
+      // Throughput: calls per minute over 24 hours (1440 minutes)
+      const throughput = count > 0 ? Math.round((count / 1440) * 100) / 100 : 0;
+      result[source] = {
+        ...percentiles,
+        errorCount,
+        errorRate:
+          count > 0 ? Math.round((errorCount / count) * 10000) / 100 : 0,
+        throughput,
+      };
     }
     return result;
   };
@@ -238,11 +300,7 @@ const aggregateApiMetrics = (
     extras?: Partial<
       Pick<
         ApiMetricAggregate,
-        | 'dependencies'
-        | 'topEndpoints'
-        | 'topErrors'
-        | 'topRoutes'
-        | 'topSlowest'
+        'dependencies' | 'topEndpoints' | 'topErrors' | 'topSlowest'
       >
     >,
   ): ApiMetricAggregate => {
@@ -250,6 +308,7 @@ const aggregateApiMetrics = (
     const statusCodes = createStatusBreakdown(recs);
 
     return {
+      apdex: calculateApdex(latencies),
       date,
       errorRate: calculateErrorRate(statusCodes),
       expiresAt,
@@ -268,21 +327,19 @@ const aggregateApiMetrics = (
   // Group records by dimensions
   // ─────────────────────────────────────────────────────────────────────────
 
-  const byRoute = new Map<string, ApiMetricRecord[]>();
   const byEndpoint = new Map<string, ApiMetricRecord[]>();
   const byStatusCategory = new Map<string, ApiMetricRecord[]>();
   const byPlatform = new Map<string, ApiMetricRecord[]>();
+  const byCountry = new Map<string, ApiMetricRecord[]>();
 
   // Cross-filters with platform
-  const byPlatformRoute = new Map<string, ApiMetricRecord[]>();
   const byPlatformEndpoint = new Map<string, ApiMetricRecord[]>();
   const byPlatformStatus = new Map<string, ApiMetricRecord[]>();
 
   for (const rec of records) {
-    const route = rec.route;
-    const method = rec.method;
-    const endpoint = `${method} ${route}`;
+    const endpoint = `${rec.method} ${rec.route}`;
     const platform = rec.client.platform;
+    const country = rec.country;
     const statusCat =
       rec.statusCode >= 500
         ? '5xx'
@@ -293,7 +350,6 @@ const aggregateApiMetrics = (
             : '2xx';
 
     // Single dimensions
-    (byRoute.get(route) ?? byRoute.set(route, []).get(route))?.push(rec);
     (
       byEndpoint.get(endpoint) ?? byEndpoint.set(endpoint, []).get(endpoint)
     )?.push(rec);
@@ -304,13 +360,11 @@ const aggregateApiMetrics = (
     (
       byPlatform.get(platform) ?? byPlatform.set(platform, []).get(platform)
     )?.push(rec);
+    (byCountry.get(country) ?? byCountry.set(country, []).get(country))?.push(
+      rec,
+    );
 
     // Platform cross-filters
-    const prKey = `${platform}#${route}`;
-    (
-      byPlatformRoute.get(prKey) ?? byPlatformRoute.set(prKey, []).get(prKey)
-    )?.push(rec);
-
     const peKey = `${platform}#${endpoint}`;
     (
       byPlatformEndpoint.get(peKey) ??
@@ -330,37 +384,23 @@ const aggregateApiMetrics = (
   // ─────────────────────────────────────────────────────────────────────────
 
   // Build leaderboards for SUMMARY
-  const routeStats: Array<{
-    count: number;
-    errorRate: number;
-    p75: number;
-    p99: number;
-    route: string;
-  }> = [];
-  for (const [route, recs] of byRoute) {
-    const agg = createAggregate(recs, '', '');
-    routeStats.push({
-      count: agg.requestCount,
-      errorRate: agg.errorRate,
-      p75: agg.latency.p75,
-      p99: agg.latency.p99,
-      route,
-    });
-  }
-
   const endpointStats: Array<{
+    apdexScore: number;
     count: number;
     endpoint: string;
     errorRate: number;
     p75: number;
+    p99: number;
   }> = [];
   for (const [endpoint, recs] of byEndpoint) {
     const agg = createAggregate(recs, '', '');
     endpointStats.push({
+      apdexScore: agg.apdex.score,
       count: agg.requestCount,
       endpoint,
       errorRate: agg.errorRate,
       p75: agg.latency.p75,
+      p99: agg.latency.p99,
     });
   }
 
@@ -370,63 +410,51 @@ const aggregateApiMetrics = (
       dependencies: aggregateDependencies(records),
       topEndpoints: endpointStats
         .sort((a, b) => b.count - a.count)
-        .slice(0, 10),
-      topErrors: routeStats
-        .filter((r) => r.count >= 10)
+        .slice(0, 10)
+        .map((e) => ({
+          apdexScore: e.apdexScore,
+          count: e.count,
+          endpoint: e.endpoint,
+          errorRate: e.errorRate,
+          p75: e.p75,
+        })),
+      topErrors: endpointStats
+        .filter((e) => e.count >= 10)
         .sort((a, b) => b.errorRate - a.errorRate)
         .slice(0, 10)
-        .map((r) => ({
-          count: r.count,
-          errorRate: r.errorRate,
-          route: r.route,
+        .map((e) => ({
+          count: e.count,
+          endpoint: e.endpoint,
+          errorRate: e.errorRate,
         })),
-      topRoutes: [...routeStats]
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10)
-        .map((r) => ({
-          count: r.count,
-          errorRate: r.errorRate,
-          p75: r.p75,
-          route: r.route,
-        })),
-      topSlowest: routeStats
-        .filter((r) => r.count >= 10)
+      topSlowest: endpointStats
+        .filter((e) => e.count >= 10)
         .sort((a, b) => b.p75 - a.p75)
         .slice(0, 10)
-        .map((r) => ({
-          count: r.count,
-          p75: r.p75,
-          p99: r.p99,
-          route: r.route,
+        .map((e) => ({
+          count: e.count,
+          endpoint: e.endpoint,
+          p75: e.p75,
+          p99: e.p99,
         })),
     }),
   );
 
-  // Routes (sk: R#<route>)
-  for (const [route, recs] of byRoute) {
+  // Endpoints (sk: E#<endpoint>)
+  for (const [endpoint, recs] of byEndpoint) {
     aggregates.push(
       createAggregate(
         recs,
         date,
-        `R#${route}`,
+        `E#${endpoint}`,
         {
-          GSI1PK: `R#${route}`,
+          GSI1PK: `E#${endpoint}`,
           GSI1SK: date,
         },
         {
           dependencies: aggregateDependencies(recs),
         },
       ),
-    );
-  }
-
-  // Endpoints (sk: E#<method> <route>)
-  for (const [endpoint, recs] of byEndpoint) {
-    aggregates.push(
-      createAggregate(recs, date, `E#${endpoint}`, {
-        GSI3PK: `E#${endpoint}`,
-        GSI3SK: date,
-      }),
     );
   }
 
@@ -444,7 +472,17 @@ const aggregateApiMetrics = (
   for (const [platform, recs] of byPlatform) {
     aggregates.push(
       createAggregate(recs, date, `P#${platform}`, {
-        GSI4PK: `P#${platform}`,
+        GSI3PK: `P#${platform}`,
+        GSI3SK: date,
+      }),
+    );
+  }
+
+  // Countries (sk: C#<country>)
+  for (const [country, recs] of byCountry) {
+    aggregates.push(
+      createAggregate(recs, date, `C#${country}`, {
+        GSI4PK: `C#${country}`,
         GSI4SK: date,
       }),
     );
@@ -463,14 +501,6 @@ const aggregateApiMetrics = (
         dependencies: aggregateDependencies(platformRecs),
       }),
     );
-
-    // Routes for this platform
-    for (const [prKey, recs] of byPlatformRoute) {
-      const [keyPlatform, keyRoute] = prKey.split('#') as [string, string];
-      if (keyPlatform === platform) {
-        aggregates.push(createAggregate(recs, pk, `R#${keyRoute}`));
-      }
-    }
 
     // Endpoints for this platform
     for (const [peKey, recs] of byPlatformEndpoint) {

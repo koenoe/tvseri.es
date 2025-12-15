@@ -141,20 +141,20 @@ export const metricsWebVitals = new sst.aws.Dynamo('MetricsWebVitals', {
  *
  * sk patterns (what you're querying):
  *   "SUMMARY"                       → Totals for this filter combo
- *   "R#/tv/:id"                     → Route metrics
  *   "E#GET /tv/:id"                 → Endpoint metrics (method + route)
  *   "S#5xx"                         → Status category metrics
  *   "P#ios"                         → Platform metrics (when no platform filter)
+ *   "C#US"                          → Country metrics
  *
  * ═══════════════════════════════════════════════════════════════════════════
  * QUERY EXAMPLES
  * ═══════════════════════════════════════════════════════════════════════════
  *
- * "All routes (no filter)":
- *   pk = "2025-12-11", sk begins_with "R#"
+ * "All endpoints (no filter)":
+ *   pk = "2025-12-11", sk begins_with "E#"
  *
- * "Routes on iOS":
- *   pk = "2025-12-11#P#ios", sk begins_with "R#"
+ * "Endpoints on iOS":
+ *   pk = "2025-12-11#P#ios", sk begins_with "E#"
  *
  * "All errors":
  *   pk = "2025-12-11", sk begins_with "S#"
@@ -166,50 +166,50 @@ export const metricsWebVitals = new sst.aws.Dynamo('MetricsWebVitals', {
  * GSIs - Time-series queries for specific dimensions
  * ═══════════════════════════════════════════════════════════════════════════
  *
- * RouteTimeIndex:
- *   GSI1PK: "R#/tv/:id", GSI1SK: "2025-12-11"
- *   → "Show /tv/:id latency over 30 days"
+ * EndpointTimeIndex:
+ *   GSI1PK: "E#GET /tv/:id", GSI1SK: "2025-12-11"
+ *   → "Show GET /tv/:id latency over 30 days"
  *
  * StatusTimeIndex:
  *   GSI2PK: "S#5xx", GSI2SK: "2025-12-11"
  *   → "Show 5xx errors over 30 days"
  *
- * EndpointTimeIndex:
- *   GSI3PK: "E#GET /tv/:id", GSI3SK: "2025-12-11"
- *   → "Show GET /tv/:id latency over 30 days"
- *
  * PlatformTimeIndex:
- *   GSI4PK: "P#ios", GSI4SK: "2025-12-11"
+ *   GSI3PK: "P#ios", GSI3SK: "2025-12-11"
  *   → "Show iOS performance over 30 days"
+ *
+ * CountryTimeIndex:
+ *   GSI4PK: "C#US", GSI4SK: "2025-12-11"
+ *   → "Show US performance over 30 days"
  */
 export const metricsApi = new sst.aws.Dynamo('MetricsApi', {
   fields: {
-    GSI1PK: 'string', // R#<route>
+    GSI1PK: 'string', // E#<endpoint>
     GSI1SK: 'string', // date
     GSI2PK: 'string', // S#<status>
     GSI2SK: 'string', // date
-    GSI3PK: 'string', // E#<endpoint>
+    GSI3PK: 'string', // P#<platform>
     GSI3SK: 'string', // date
-    GSI4PK: 'string', // P#<platform>
+    GSI4PK: 'string', // C#<country>
     GSI4SK: 'string', // date
     pk: 'string', // <date> | <date>#P#<platform>
-    sk: 'string', // SUMMARY | R#<route> | E#<endpoint> | S#<status> | P#<platform>
+    sk: 'string', // SUMMARY | E#<endpoint> | S#<status> | P#<platform> | C#<country>
   },
   globalIndexes: {
-    EndpointTimeIndex: {
-      hashKey: 'GSI3PK',
-      projection: 'all',
-      rangeKey: 'GSI3SK',
-    },
-    PlatformTimeIndex: {
+    CountryTimeIndex: {
       hashKey: 'GSI4PK',
       projection: 'all',
       rangeKey: 'GSI4SK',
     },
-    RouteTimeIndex: {
+    EndpointTimeIndex: {
       hashKey: 'GSI1PK',
       projection: 'all',
       rangeKey: 'GSI1SK',
+    },
+    PlatformTimeIndex: {
+      hashKey: 'GSI3PK',
+      projection: 'all',
+      rangeKey: 'GSI3SK',
     },
     StatusTimeIndex: {
       hashKey: 'GSI2PK',

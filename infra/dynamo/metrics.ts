@@ -12,15 +12,15 @@
  *    - 7-day TTL, no GSIs (write-heavy, rarely read)
  *    - Used for drill-downs and complex filter queries
  *
- * 2. MetricsWebVitals (aggregated)
+ * 2. MetricsWebVitalsAggregated
  *    - Pre-computed Web Vitals aggregates
  *    - 30-day TTL, GSIs for time-series
  *    - Dimensions: Route, Device, Country (and combos)
  *
- * 3. MetricsApi (aggregated)
+ * 3. MetricsApiAggregated
  *    - Pre-computed API metrics aggregates
  *    - 30-day TTL, GSIs for time-series
- *    - Dimensions: Route, Status, Endpoint, Platform
+ *    - Dimensions: Endpoint, Platform, Country (and combos)
  */
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -93,37 +93,40 @@ export const metricsRaw = new sst.aws.Dynamo('MetricsRaw', {
  *   GSI3PK: "D#mobile", GSI3SK: "2025-12-11"
  *   → "Show mobile score over 30 days"
  */
-export const metricsWebVitals = new sst.aws.Dynamo('MetricsWebVitals', {
-  fields: {
-    GSI1PK: 'string', // R#<route>
-    GSI1SK: 'string', // date
-    GSI2PK: 'string', // C#<country>
-    GSI2SK: 'string', // date
-    GSI3PK: 'string', // D#<device>
-    GSI3SK: 'string', // date
-    pk: 'string', // <date> | <date>#D#<device> | <date>#C#<country> | <date>#D#<device>#C#<country>
-    sk: 'string', // SUMMARY | R#<route> | C#<country> | D#<device>
+export const metricsWebVitals = new sst.aws.Dynamo(
+  'MetricsWebVitalsAggregated',
+  {
+    fields: {
+      GSI1PK: 'string', // R#<route>
+      GSI1SK: 'string', // date
+      GSI2PK: 'string', // C#<country>
+      GSI2SK: 'string', // date
+      GSI3PK: 'string', // D#<device>
+      GSI3SK: 'string', // date
+      pk: 'string', // <date> | <date>#D#<device> | <date>#C#<country> | <date>#D#<device>#C#<country>
+      sk: 'string', // SUMMARY | R#<route> | C#<country> | D#<device>
+    },
+    globalIndexes: {
+      CountryTimeIndex: {
+        hashKey: 'GSI2PK',
+        projection: 'all',
+        rangeKey: 'GSI2SK',
+      },
+      DeviceTimeIndex: {
+        hashKey: 'GSI3PK',
+        projection: 'all',
+        rangeKey: 'GSI3SK',
+      },
+      RouteTimeIndex: {
+        hashKey: 'GSI1PK',
+        projection: 'all',
+        rangeKey: 'GSI1SK',
+      },
+    },
+    primaryIndex: { hashKey: 'pk', rangeKey: 'sk' },
+    ttl: 'expiresAt',
   },
-  globalIndexes: {
-    CountryTimeIndex: {
-      hashKey: 'GSI2PK',
-      projection: 'all',
-      rangeKey: 'GSI2SK',
-    },
-    DeviceTimeIndex: {
-      hashKey: 'GSI3PK',
-      projection: 'all',
-      rangeKey: 'GSI3SK',
-    },
-    RouteTimeIndex: {
-      hashKey: 'GSI1PK',
-      projection: 'all',
-      rangeKey: 'GSI1SK',
-    },
-  },
-  primaryIndex: { hashKey: 'pk', rangeKey: 'sk' },
-  ttl: 'expiresAt',
-});
+);
 
 // ════════════════════════════════════════════════════════════════════════════
 // API METRICS AGGREGATES
@@ -179,7 +182,7 @@ export const metricsWebVitals = new sst.aws.Dynamo('MetricsWebVitals', {
  *   GSI3PK: "C#US", GSI3SK: "2025-12-11"
  *   → "Show US performance over 30 days"
  */
-export const metricsApi = new sst.aws.Dynamo('MetricsApi', {
+export const metricsApi = new sst.aws.Dynamo('MetricsApiAggregated', {
   fields: {
     GSI1PK: 'string', // E#<endpoint>
     GSI1SK: 'string', // date

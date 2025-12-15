@@ -59,7 +59,7 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "MetricsApi": {
+    "MetricsApiAggregated": {
       "name": string
       "type": "sst.aws.Dynamo"
     }
@@ -75,7 +75,7 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
-    "MetricsWebVitals": {
+    "MetricsWebVitalsAggregated": {
       "name": string
       "type": "sst.aws.Dynamo"
     }

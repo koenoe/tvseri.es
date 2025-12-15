@@ -193,15 +193,16 @@ const calculateApdex = (latencies: number[]): Apdex => {
  * KEY DESIGN: Filters in pk, dimension in sk
  *
  * pk patterns:
- *   "<date>"              → No filters
- *   "<date>#P#<platform>" → Platform filter
+ *   "<date>"                    → No filters
+ *   "<date>#P#<platform>"       → Platform filter
+ *   "<date>#C#<country>"        → Country filter
+ *   "<date>#P#<platform>#C#<country>" → Platform + Country filter
  *
  * sk patterns:
  *   "SUMMARY"             → Totals for this filter combo
- *   "R#<route>"           → Route metrics
- *   "E#<method> <route>"  → Endpoint metrics (method + route)
- *   "S#<category>"        → Status category metrics (2xx, 4xx, 5xx)
+ *   "E#<method> <route>"  → Endpoint metrics (e.g., "E#GET /tv/:id")
  *   "P#<platform>"        → Platform metrics (when pk has no platform filter)
+ *   "C#<country>"         → Country metrics (when pk has no country filter)
  */
 const aggregateApiMetrics = (
   records: ApiMetricRecord[],

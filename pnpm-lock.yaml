@@ -61,11 +61,11 @@ importers:
         specifier: ^1.1.21
         version: 1.1.21
       '@hono/valibot-validator':
-        specifier: ^0.6.0
-        version: 0.6.0(hono@4.11.0)(valibot@1.2.0(typescript@5.9.3))
+        specifier: ^0.6.1
+        version: 0.6.1(hono@4.11.1)(valibot@1.2.0(typescript@5.9.3))
       '@openauthjs/openauth':
         specifier: ^0.4.3
-        version: 0.4.3(arctic@2.3.4)(hono@4.11.0)
+        version: 0.4.3(arctic@2.3.4)(hono@4.11.1)
       '@tvseri.es/constants':
         specifier: workspace:*
         version: link:../../packages/constants
@@ -82,8 +82,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       hono:
-        specifier: ^4.11.0
-        version: 4.11.0
+        specifier: ^4.11.1
+        version: 4.11.1
       slugify:
         specifier: ^1.6.6
         version: 1.6.6
@@ -126,7 +126,7 @@ importers:
         version: 3.948.0(@aws-sdk/client-dynamodb@3.948.0)
       '@openauthjs/openauth':
         specifier: ^0.4.3
-        version: 0.4.3(arctic@2.3.4)(hono@4.11.0)
+        version: 0.4.3(arctic@2.3.4)(hono@4.11.1)
       '@tvseri.es/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
@@ -134,8 +134,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils
       hono:
-        specifier: ^4.11.0
-        version: 4.11.0
+        specifier: ^4.11.1
+        version: 4.11.1
       slugify:
         specifier: ^1.6.6
         version: 1.6.6
@@ -166,7 +166,7 @@ importers:
         version: 5.2.8
       '@openauthjs/openauth':
         specifier: ^0.4.3
-        version: 0.4.3(arctic@2.3.4)(hono@4.11.0)
+        version: 0.4.3(arctic@2.3.4)(hono@4.11.1)
       '@tailwindcss/vite':
         specifier: ^4.1.17
         version: 4.1.18(vite@7.2.7(@types/node@22.15.30)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))
@@ -263,7 +263,7 @@ importers:
         version: 1.1.21
       '@openauthjs/openauth':
         specifier: ^0.4.3
-        version: 0.4.3(arctic@2.3.4)(hono@4.11.0)
+        version: 0.4.3(arctic@2.3.4)(hono@4.11.1)
       '@tvseri.es/constants':
         specifier: workspace:*
         version: link:../../packages/constants
@@ -440,7 +440,7 @@ importers:
     dependencies:
       '@openauthjs/openauth':
         specifier: ^0.4
-        version: 0.4.3(arctic@2.3.4)(hono@4.10.8)
+        version: 0.4.3(arctic@2.3.4)(hono@4.11.1)
       valibot:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
@@ -1406,8 +1406,8 @@ packages:
   '@fontsource-variable/inter@5.2.8':
     resolution: {integrity: sha512-kOfP2D+ykbcX/P3IFnokOhVRNoTozo5/JxhAIVYLpea/UBmCQ/YWPBfWIDuBImXX/15KH+eKh4xpEUyS2sQQGQ==}
 
-  '@hono/valibot-validator@0.6.0':
-    resolution: {integrity: sha512-p1kbfF9FiXX9+tjWZmDkfjs0GcZ+o6XGFMwCiXiTlUDl9C6Bu+qH5YMgxtokK6hAvMk4s3eScAFwKLC0qeN2Ow==}
+  '@hono/valibot-validator@0.6.1':
+    resolution: {integrity: sha512-rqKhQJI8IVR8gRRNHHf2wGtIT7sKEqV1KoGL5f2SocNytl+tBNn4EtRu4zfk/D6axgWSswnaxeiuJhM5yNFrCg==}
     peerDependencies:
       hono: '>=3.9.0'
       valibot: ^1.0.0 || ^1.0.0-beta.4 || ^1.0.0-rc
@@ -4098,12 +4098,8 @@ packages:
   headers-polyfill@4.0.3:
     resolution: {integrity: sha512-IScLbePpkvO846sIwOtOTDjutRMWdXdJmXdMvk6gCBHxFO8d+QKOQedyZSxFTTFYRSmlgSTDtXqqq4pcenBXLQ==}
 
-  hono@4.10.8:
-    resolution: {integrity: sha512-DDT0A0r6wzhe8zCGoYOmMeuGu3dyTAE40HHjwUsWFTEy5WxK1x2WDSsBPlEXgPbRIFY6miDualuUDbasPogIww==}
-    engines: {node: '>=16.9.0'}
-
-  hono@4.11.0:
-    resolution: {integrity: sha512-Jg8uZzN2ul8/qlyid5FO8O624F3AK0wKtkgoeEON1qBum1rM1itYBxoMKu/1SPJC7F1+xlIZsJMmc4HHhJ1AWg==}
+  hono@4.11.1:
+    resolution: {integrity: sha512-KsFcH0xxHes0J4zaQgWbYwmz3UPOOskdqZmItstUG93+Wk1ePBLkLGwbP9zlmh1BFUiL8Qp+Xfu9P7feJWpGNg==}
     engines: {node: '>=16.9.0'}
 
   hono@4.7.4:
@@ -7495,9 +7491,9 @@ snapshots:
 
   '@fontsource-variable/inter@5.2.8': {}
 
-  '@hono/valibot-validator@0.6.0(hono@4.11.0)(valibot@1.2.0(typescript@5.9.3))':
+  '@hono/valibot-validator@0.6.1(hono@4.11.1)(valibot@1.2.0(typescript@5.9.3))':
     dependencies:
-      hono: 4.11.0
+      hono: 4.11.1
       valibot: 1.2.0(typescript@5.9.3)
 
   '@img/colour@1.0.0': {}
@@ -7792,20 +7788,12 @@ snapshots:
 
   '@open-draft/until@2.1.0': {}
 
-  '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.10.8)':
+  '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.11.1)':
     dependencies:
       '@standard-schema/spec': 1.0.0-beta.3
       arctic: 2.3.4
       aws4fetch: 1.0.20
-      hono: 4.10.8
-      jose: 5.9.6
-
-  '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.11.0)':
-    dependencies:
-      '@standard-schema/spec': 1.0.0-beta.3
-      arctic: 2.3.4
-      aws4fetch: 1.0.20
-      hono: 4.11.0
+      hono: 4.11.1
       jose: 5.9.6
 
   '@opennextjs/aws@3.9.6(next@16.0.10(react-dom@19.2.3(react@19.2.3))(react@19.2.3))':
@@ -10471,9 +10459,7 @@ snapshots:
 
   headers-polyfill@4.0.3: {}
 
-  hono@4.10.8: {}
-
-  hono@4.11.0: {}
+  hono@4.11.1: {}
 
   hono@4.7.4: {}
 

@@ -8,7 +8,7 @@ const PROD_API_URL = 'https://api.tvseri.es';
 const PROD_AUTH_URL = 'https://auth.tvseri.es';
 
 const useProdApi = process.env.DASHBOARD_USE_PROD_API === '1';
-const useProxy = $app.stage !== 'prod' && !$app.stage.startsWith('pr-');
+const useProxy = $app.stage !== 'production' && !$app.stage.startsWith('pr-');
 
 const apiBaseUrl = useProdApi ? PROD_API_URL : apiRouter.url;
 const apiProxy = useProxy ? apiBaseUrl : undefined;

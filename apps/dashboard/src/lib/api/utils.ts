@@ -125,20 +125,12 @@ function getMetricRawValue(
 }
 
 /**
- * Sort items from best to worst within each group.
- * For "lower is better" metrics (time-based), lower values are better.
- * For RES (higher is better), higher values are better.
+ * Sort items by pageview count (highest first) within each group.
  */
-function sortItemsByPerformance(
+function sortItemsByPageViews(
   items: Array<MetricItemWithRaw>,
-  lowerIsBetter: boolean,
 ): Array<MetricItem> {
-  const sorted = [...items].sort((a, b) => {
-    // Sort best to worst
-    // For "lower is better": best = lowest, so sort ascending
-    // For "higher is better": best = highest, so sort descending
-    return lowerIsBetter ? a.rawValue - b.rawValue : b.rawValue - a.rawValue;
-  });
+  const sorted = [...items].sort((a, b) => b.pageViews - a.pageViews);
 
   // Remove rawValue from result
   return sorted.map(({ label, pageViews, value }) => ({
@@ -150,7 +142,7 @@ function sortItemsByPerformance(
 
 /**
  * Group routes by their status for a given metric.
- * Items within each group are sorted from best to worst.
+ * Items within each group are sorted by pageview count.
  */
 export function groupRoutesByStatus(
   routes: ReadonlyArray<RouteMetrics>,
@@ -175,21 +167,16 @@ export function groupRoutesByStatus(
     });
   }
 
-  const lowerIsBetter = METRICS_CONFIG[metric].lowerIsBetter;
-
   return {
-    great: sortItemsByPerformance(groups.great, lowerIsBetter),
-    needsImprovement: sortItemsByPerformance(
-      groups.needsImprovement,
-      lowerIsBetter,
-    ),
-    poor: sortItemsByPerformance(groups.poor, lowerIsBetter),
+    great: sortItemsByPageViews(groups.great),
+    needsImprovement: sortItemsByPageViews(groups.needsImprovement),
+    poor: sortItemsByPageViews(groups.poor),
   };
 }
 
 /**
  * Group countries by their status for a given metric.
- * Items within each group are sorted from best to worst.
+ * Items within each group are sorted by pageview count.
  */
 const countryDisplayNames = new Intl.DisplayNames(['en'], { type: 'region' });
 
@@ -218,14 +205,9 @@ export function groupCountriesByStatus(
     });
   }
 
-  const lowerIsBetter = METRICS_CONFIG[metric].lowerIsBetter;
-
   return {
-    great: sortItemsByPerformance(groups.great, lowerIsBetter),
-    needsImprovement: sortItemsByPerformance(
-      groups.needsImprovement,
-      lowerIsBetter,
-    ),
-    poor: sortItemsByPerformance(groups.poor, lowerIsBetter),
+    great: sortItemsByPageViews(groups.great),
+    needsImprovement: sortItemsByPageViews(groups.needsImprovement),
+    poor: sortItemsByPageViews(groups.poor),
   };
 }

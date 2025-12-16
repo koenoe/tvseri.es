@@ -4,7 +4,6 @@
 /// <reference types="vite/client" />
 interface ImportMetaEnv {
   readonly API_PROXY: string
-  readonly API_USE_MOCK_DATA: string
   readonly VITE_API_URL: string
   readonly VITE_AUTH_URL: string
 }

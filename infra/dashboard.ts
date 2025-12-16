@@ -4,6 +4,8 @@ import { apiRouter } from './api';
 import { auth } from './auth';
 import { domain, zone } from './dns';
 
+const useProdApi = process.env.DASHBOARD_USE_PROD_API === '1';
+
 new sst.aws.StaticSite('Dashboard', {
   build: {
     command: 'pnpm run build',
@@ -19,14 +21,9 @@ new sst.aws.StaticSite('Dashboard', {
     name: `dashboard.${domain}`,
   },
   environment: {
-    API_PROXY: $app.stage === 'production' ? undefined : apiRouter.url,
-    API_USE_MOCK_DATA: '1',
-    VITE_API_URL: $app.stage === 'production' ? apiRouter.url : '/api',
-    VITE_AUTH_URL: auth.url,
-    // API_PROXY: 'https://api.tvseri.es',
-    // API_USE_MOCK_DATA: '0',
-    // VITE_API_URL: '/api',
-    // VITE_AUTH_URL: 'https://auth.tvseri.es',
+    API_PROXY: useProdApi ? 'https://api.tvseri.es' : apiRouter.url,
+    VITE_API_URL: '/api',
+    VITE_AUTH_URL: useProdApi ? 'https://auth.tvseri.es' : auth.url,
   },
   path: 'apps/dashboard',
 });

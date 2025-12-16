@@ -18,7 +18,7 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useMediaQuery } from '@/hooks/use-media-query';
 import type { GroupedMetricData, MetricItem } from '@/lib/api/utils';
 import {
   type RatingStatus,
@@ -60,7 +60,7 @@ function ViewAllModalComponent({
   const [activeFilter, setActiveFilter] = useState<FilterValue>(
     initialFilter ?? 'all',
   );
-  const isMobile = useIsMobile();
+  const isNarrowViewport = useMediaQuery('(max-width: 1023px)');
 
   // Sync activeFilter when initialFilter changes (e.g., opening from different status)
   useEffect(() => {
@@ -157,7 +157,7 @@ function ViewAllModalComponent({
     </div>
   );
 
-  if (!isMobile) {
+  if (!isNarrowViewport) {
     return (
       <Dialog onOpenChange={handleOpenChange} open={open}>
         <DialogContent

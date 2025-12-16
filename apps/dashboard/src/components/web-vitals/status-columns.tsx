@@ -48,7 +48,7 @@ function StatusColumnsComponent({
   variant = 'route',
 }: StatusColumnsProps) {
   return (
-    <div className="hidden grid-cols-3 divide-x md:grid">
+    <div className="hidden grid-cols-3 divide-x lg:grid">
       {COLUMN_ORDER.map((status) => {
         const config = statusConfig[status];
         const items = data[status];

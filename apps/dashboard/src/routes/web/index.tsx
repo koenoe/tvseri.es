@@ -171,8 +171,8 @@ function MetricTabContent({
   return (
     <div className="flex flex-col gap-6">
       {/* Header Section */}
-      <div className="flex flex-col gap-6 md:pt-5 md:grid md:grid-cols-5 md:gap-16">
-        <div className="md:col-span-2">
+      <div className="flex flex-col gap-6 lg:pt-5 lg:grid lg:grid-cols-5 lg:gap-16">
+        <div className="lg:col-span-2">
           <p className="mb-2 text-sm text-muted-foreground/70">
             {device === 'mobile' ? 'Mobile' : 'Desktop'}
           </p>
@@ -227,7 +227,7 @@ function MetricTabContent({
             <ArrowUpRight className="size-3.5" />
           </a>
         </div>
-        <div className="flex aspect-video items-center justify-center rounded-lg bg-muted/50 md:col-span-3 md:aspect-auto">
+        <div className="flex aspect-video items-center justify-center rounded-lg bg-muted/50 lg:col-span-3 lg:aspect-auto">
           <span className="text-muted-foreground">Chart placeholder</span>
         </div>
       </div>
@@ -249,7 +249,7 @@ function MetricTabContent({
           variant="route"
         />
         <StatusAccordion
-          className="rounded-lg border md:hidden"
+          className="rounded-lg border lg:hidden"
           data={routesGrouped}
           defaultStatus={currentStatus.status}
           key={`routes-${metric}-${device}-${currentStatus.status}`}
@@ -262,24 +262,24 @@ function MetricTabContent({
       <hr className="border-border" />
 
       {/* Countries Section */}
-      <div className="grid md:grid-cols-5">
-        <div className="flex items-center justify-between md:col-span-3">
+      <div className="grid lg:grid-cols-5">
+        <div className="flex items-center justify-between lg:col-span-3">
           <h3 className="font-semibold">Countries</h3>
-          <span className="text-sm text-muted-foreground md:hidden">
+          <span className="text-sm text-muted-foreground lg:hidden">
             {metricConfig.name}
           </span>
         </div>
-        <div className="hidden items-center justify-end md:col-span-2 md:flex">
+        <div className="hidden items-center justify-end lg:col-span-2 lg:flex">
           <span className="mr-3 text-sm text-muted-foreground">
             {metricConfig.name}
           </span>
         </div>
       </div>
-      <div className="flex flex-col gap-6 md:grid md:grid-cols-5">
-        <div className="flex aspect-video items-center justify-center rounded-lg bg-muted/30 md:col-span-3">
+      <div className="flex flex-col gap-6 lg:grid lg:grid-cols-5">
+        <div className="flex aspect-video items-center justify-center rounded-lg bg-muted/30 lg:col-span-3">
           <p className="text-muted-foreground">Map placeholder</p>
         </div>
-        <div className="md:col-span-2">
+        <div className="lg:col-span-2">
           <StatusAccordion
             data={countriesGrouped}
             defaultStatus={currentStatus.status}

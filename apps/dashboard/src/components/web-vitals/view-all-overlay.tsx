@@ -9,7 +9,7 @@ type ViewAllOverlayProps = Readonly<{
 
 function ViewAllOverlayComponent({ onClick }: ViewAllOverlayProps) {
   return (
-    <div className="absolute inset-x-0 bottom-0 flex h-16 items-end justify-center bg-linear-to-t from-background to-transparent">
+    <div className="absolute inset-x-0 bottom-0 flex h-16 items-end justify-center bg-linear-to-t from-card to-transparent">
       <Button
         className="mb-4 cursor-pointer gap-1.5 rounded-full bg-black! px-8 py-3 text-xs"
         onClick={onClick}

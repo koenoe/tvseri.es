@@ -1,13 +1,14 @@
+import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 
 /**
- * Skeleton for the toggle group (Desktop/Mobile selector)
+ * Skeleton for the toggle group (Desktop/Mobile selector) - compact version for header
  */
 function ToggleGroupSkeleton() {
   return (
-    <div className="mr-5 flex w-fit gap-1 rounded-full border border-border p-1">
-      <Skeleton className="h-7 w-16 rounded-full max-md:h-8" />
-      <Skeleton className="h-7 w-14 rounded-full max-md:h-8" />
+    <div className="flex w-fit gap-0.5 rounded-full border border-border p-0.5">
+      <Skeleton className="h-6 w-14 rounded-full" />
+      <Skeleton className="h-6 w-12 rounded-full" />
     </div>
   );
 }
@@ -84,11 +85,11 @@ function MetricHeaderSkeleton() {
       {/* Status label - white text */}
       <Skeleton className="mb-2.5 h-5 w-14 rounded-none" />
       {/* Threshold - muted text */}
-      <Skeleton className="h-4 w-8 rounded-none bg-muted/50" />
+      <Skeleton className="h-4 w-32 rounded-none bg-muted/50" />
       {/* Context message - muted text */}
       <Skeleton className="mt-4 h-4 w-9/12 rounded-none bg-muted/50" />
       {/* Divider */}
-      <div className="my-5 h-px w-full bg-border" />
+      <hr className="my-5 border-border" />
       {/* Description - muted text - 3 lines */}
       <Skeleton className="h-4 w-full rounded-none bg-muted/50" />
       <Skeleton className="mt-1 h-4 w-11/12 rounded-none bg-muted/50" />
@@ -154,11 +155,10 @@ RouteColumnSkeleton.displayName = 'RouteColumnSkeleton';
 
 /**
  * Skeleton for the routes section
- * Actual height: ~290px
  */
 function RoutesSectionSkeleton() {
   return (
-    <div className="px-0 py-6 md:p-6 md:pb-10">
+    <div>
       <div className="mb-4 flex items-center justify-between">
         <Skeleton className="h-5 w-14 rounded-none" />
         <Skeleton className="h-4 w-8 rounded-none bg-muted/50" />
@@ -185,25 +185,25 @@ RoutesSectionSkeleton.displayName = 'RoutesSectionSkeleton';
  */
 function CountriesSectionSkeleton() {
   return (
-    <div className="px-0 py-6 md:py-6 md:pl-6 md:pr-1">
-      <div className="mb-4 grid md:grid-cols-5">
+    <>
+      <div className="grid md:grid-cols-5">
         <div className="flex items-center justify-between md:col-span-3">
           <Skeleton className="h-5 w-20 rounded-none" />
           <Skeleton className="h-4 w-8 rounded-none bg-muted/50 md:hidden" />
         </div>
-        <div className="hidden md:col-span-2 md:flex md:justify-end">
+        <div className="hidden items-center justify-end md:col-span-2 md:flex">
           <Skeleton className="mr-5 h-4 w-8 rounded-none bg-muted/50" />
         </div>
       </div>
       <div className="flex flex-col gap-6 md:grid md:grid-cols-5">
-        <Skeleton className="aspect-video rounded-lg md:col-span-3" />
+        <Skeleton className="aspect-video rounded-lg bg-muted/30 md:col-span-3" />
         <div className="space-y-2 md:col-span-2">
           <Skeleton className="h-11 w-full rounded-lg" />
           <Skeleton className="h-11 w-full rounded-lg" />
           <Skeleton className="h-11 w-full rounded-lg" />
         </div>
       </div>
-    </div>
+    </>
   );
 }
 CountriesSectionSkeleton.displayName = 'CountriesSectionSkeleton';
@@ -213,49 +213,61 @@ CountriesSectionSkeleton.displayName = 'CountriesSectionSkeleton';
  */
 function MetricTabContentSkeleton() {
   return (
-    <>
+    <div className="flex flex-col gap-6">
       {/* Header Section */}
-      <div className="flex flex-col gap-6 px-0 py-6 md:grid md:grid-cols-5 md:gap-16 md:p-6">
+      <div className="flex flex-col gap-6 md:pt-5 md:grid md:grid-cols-5 md:gap-16">
         <MetricHeaderSkeleton />
         <ChartSkeleton />
       </div>
-      <hr className="border-border md:mx-6" />
+      <hr className="border-border" />
 
       {/* Routes Section */}
       <RoutesSectionSkeleton />
-      <hr className="border-border md:mx-6" />
+      <hr className="border-border" />
 
       {/* Countries Section */}
       <CountriesSectionSkeleton />
-    </>
+    </div>
   );
 }
 MetricTabContentSkeleton.displayName = 'MetricTabContentSkeleton';
 
 /**
  * Full page skeleton shown during initial load/auth
+ * Matches the collapsed sidebar layout with site header
  */
 function PageSkeleton() {
   return (
-    <div className="flex min-h-screen justify-center p-8">
-      <div className="flex w-full max-w-7xl flex-col gap-4">
-        {/* Header */}
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-col gap-2">
-            <Skeleton className="h-9 w-28 rounded-none" />
-            <Skeleton className="h-4 w-32 rounded-none bg-muted/50" />
+    <div className="flex min-h-svh w-full bg-sidebar">
+      {/* Main content area - matches SidebarInset with inset variant */}
+      <main className="bg-card text-card-foreground relative flex w-full flex-1 flex-col md:m-2.5 md:ml-0 md:rounded-xl md:shadow-sm">
+        {/* Site header skeleton */}
+        <header className="relative flex h-[calc(var(--spacing)*12+1px)] shrink-0 items-center border-b">
+          {/* Sidebar trigger - positioned absolutely */}
+          <div className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-2 lg:left-6">
+            <Skeleton className="size-7 rounded-md" />
+            <Separator
+              className="data-[orientation=vertical]:h-4"
+              orientation="vertical"
+            />
           </div>
-          <ToggleGroupSkeleton />
-        </div>
-
-        {/* Tabs + Content */}
-        <div className="flex w-full flex-col gap-2 max-md:flex-col md:flex-row">
-          <TabListSkeleton />
-          <div className="flex-1">
-            <MetricTabContentSkeleton />
+          {/* Content - same padding as page content for alignment */}
+          <div className="mx-auto flex w-full max-w-7xl flex-1 items-center justify-between px-6 md:px-0">
+            <Skeleton className="h-5 w-24 rounded-none" />
+            <ToggleGroupSkeleton />
+          </div>
+        </header>
+        {/* Page content skeleton */}
+        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-6 py-6 md:px-0">
+          {/* Tabs + Content */}
+          <div className="flex w-full flex-col gap-2 max-md:flex-col md:flex-row">
+            <TabListSkeleton />
+            <div className="flex-1">
+              <MetricTabContentSkeleton />
+            </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

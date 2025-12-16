@@ -11,6 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WebIndexRouteImport } from './routes/web/index'
+import { Route as ApiIndexRouteImport } from './routes/api/index'
+import { Route as AwsLambdaRouteImport } from './routes/aws/lambda'
+import { Route as AwsCdnRouteImport } from './routes/aws/cdn'
 
 const UnauthorizedRoute = UnauthorizedRouteImport.update({
   id: '/unauthorized',
@@ -22,31 +26,80 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WebIndexRoute = WebIndexRouteImport.update({
+  id: '/web/',
+  path: '/web/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiIndexRoute = ApiIndexRouteImport.update({
+  id: '/api/',
+  path: '/api/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AwsLambdaRoute = AwsLambdaRouteImport.update({
+  id: '/aws/lambda',
+  path: '/aws/lambda',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AwsCdnRoute = AwsCdnRouteImport.update({
+  id: '/aws/cdn',
+  path: '/aws/cdn',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/unauthorized': typeof UnauthorizedRoute
+  '/aws/cdn': typeof AwsCdnRoute
+  '/aws/lambda': typeof AwsLambdaRoute
+  '/api': typeof ApiIndexRoute
+  '/web': typeof WebIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/unauthorized': typeof UnauthorizedRoute
+  '/aws/cdn': typeof AwsCdnRoute
+  '/aws/lambda': typeof AwsLambdaRoute
+  '/api': typeof ApiIndexRoute
+  '/web': typeof WebIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/unauthorized': typeof UnauthorizedRoute
+  '/aws/cdn': typeof AwsCdnRoute
+  '/aws/lambda': typeof AwsLambdaRoute
+  '/api/': typeof ApiIndexRoute
+  '/web/': typeof WebIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/unauthorized'
+  fullPaths:
+    | '/'
+    | '/unauthorized'
+    | '/aws/cdn'
+    | '/aws/lambda'
+    | '/api'
+    | '/web'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/unauthorized'
-  id: '__root__' | '/' | '/unauthorized'
+  to: '/' | '/unauthorized' | '/aws/cdn' | '/aws/lambda' | '/api' | '/web'
+  id:
+    | '__root__'
+    | '/'
+    | '/unauthorized'
+    | '/aws/cdn'
+    | '/aws/lambda'
+    | '/api/'
+    | '/web/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   UnauthorizedRoute: typeof UnauthorizedRoute
+  AwsCdnRoute: typeof AwsCdnRoute
+  AwsLambdaRoute: typeof AwsLambdaRoute
+  ApiIndexRoute: typeof ApiIndexRoute
+  WebIndexRoute: typeof WebIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +118,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/web/': {
+      id: '/web/'
+      path: '/web'
+      fullPath: '/web'
+      preLoaderRoute: typeof WebIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/': {
+      id: '/api/'
+      path: '/api'
+      fullPath: '/api'
+      preLoaderRoute: typeof ApiIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aws/lambda': {
+      id: '/aws/lambda'
+      path: '/aws/lambda'
+      fullPath: '/aws/lambda'
+      preLoaderRoute: typeof AwsLambdaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aws/cdn': {
+      id: '/aws/cdn'
+      path: '/aws/cdn'
+      fullPath: '/aws/cdn'
+      preLoaderRoute: typeof AwsCdnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   UnauthorizedRoute: UnauthorizedRoute,
+  AwsCdnRoute: AwsCdnRoute,
+  AwsLambdaRoute: AwsLambdaRoute,
+  ApiIndexRoute: ApiIndexRoute,
+  WebIndexRoute: WebIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

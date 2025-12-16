@@ -81,7 +81,7 @@ function StatusAccordionComponent({
         return (
           <AccordionItem className="border-b-0" key={value} value={value}>
             <AccordionTrigger className="py-3 hover:no-underline">
-              <div className="flex flex-1 items-center justify-between pr-2">
+              <div className="flex flex-1 items-center justify-between">
                 <StatusHeader
                   Icon={config.Icon}
                   label={config.label}
@@ -92,7 +92,7 @@ function StatusAccordionComponent({
               </div>
             </AccordionTrigger>
             <AccordionContent className="p-0!">
-              <div className="relative h-56 overflow-hidden px-4 pt-2">
+              <div className="relative h-56 overflow-hidden px-3">
                 <StatusList
                   emptyMessage={emptyMessage}
                   items={items}

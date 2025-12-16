@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Tabs as TabsPrimitive } from 'radix-ui';
-import type * as React from 'react';
+import { type ComponentProps, forwardRef } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -8,7 +8,7 @@ function Tabs({
   className,
   orientation = 'horizontal',
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.Root>) {
+}: ComponentProps<typeof TabsPrimitive.Root>) {
   return (
     <TabsPrimitive.Root
       className={cn(
@@ -39,26 +39,29 @@ const tabsListVariants = cva(
   },
 );
 
-function TabsList({
-  className,
-  variant = 'default',
-  ...props
-}: React.ComponentProps<typeof TabsPrimitive.List> &
-  VariantProps<typeof tabsListVariants>) {
-  return (
-    <TabsPrimitive.List
-      className={cn(tabsListVariants({ variant }), className)}
-      data-slot="tabs-list"
-      data-variant={variant}
-      {...props}
-    />
-  );
-}
+type TabsListProps = ComponentProps<typeof TabsPrimitive.List> &
+  VariantProps<typeof tabsListVariants>;
+
+const TabsList = forwardRef<HTMLDivElement, TabsListProps>(
+  ({ className, variant = 'default', ...props }, ref) => {
+    return (
+      <TabsPrimitive.List
+        className={cn(tabsListVariants({ variant }), className)}
+        data-slot="tabs-list"
+        data-variant={variant}
+        ref={ref}
+        {...props}
+      />
+    );
+  },
+);
+
+TabsList.displayName = 'TabsList';
 
 function TabsTrigger({
   className,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
+}: ComponentProps<typeof TabsPrimitive.Trigger>) {
   return (
     <TabsPrimitive.Trigger
       className={cn(
@@ -89,7 +92,7 @@ function TabsTrigger({
 function TabsContent({
   className,
   ...props
-}: React.ComponentProps<typeof TabsPrimitive.Content>) {
+}: ComponentProps<typeof TabsPrimitive.Content>) {
   return (
     <TabsPrimitive.Content
       className={cn('text-sm flex-1 outline-none', className)}

@@ -61,8 +61,8 @@ function AppSidebarComponent(props: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="hover:bg-transparent active:bg-transparent data-active:bg-transparent"
             >
-              <Link className="!gap-3" to="/">
-                <img alt="" className="size-5 mt-[-3px]" src={logo} />
+              <Link className="gap-3!" to="/">
+                <img alt="" className="size-5 -mt-0.75" src={logo} />
                 <span className="text-sm font-semibold uppercase tracking-widest">
                   tvseri.es
                 </span>
@@ -82,8 +82,8 @@ function AppSidebarComponent(props: React.ComponentProps<typeof Sidebar>) {
                     isActive={currentPath.startsWith(item.url)}
                     tooltip={item.title}
                   >
-                    <Link className="!gap-3" to={item.url}>
-                      <item.icon className="!size-[18px]" />
+                    <Link className="gap-3!" to={item.url}>
+                      <item.icon className="size-4.5!" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -103,8 +103,8 @@ function AppSidebarComponent(props: React.ComponentProps<typeof Sidebar>) {
                     isActive={currentPath.startsWith(item.url)}
                     tooltip={item.title}
                   >
-                    <Link className="!gap-3" to={item.url}>
-                      <item.icon className="!size-[18px]" />
+                    <Link className="gap-3!" to={item.url}>
+                      <item.icon className="size-4.5!" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>

@@ -3,6 +3,7 @@ import type { WebVitalRatings } from '@tvseri.es/schemas';
 import { ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 
+import { DeviceToggle } from '@/components/device-toggle';
 import {
   MetricTabContentSkeleton,
   TabTriggerValueSkeleton,
@@ -34,6 +35,10 @@ type WebSearchParams = {
 
 export const Route = createFileRoute('/web/')({
   component: WebVitals,
+  staticData: {
+    headerContent: DeviceToggle,
+    title: 'Web Vitals',
+  },
   validateSearch: (search: Record<string, unknown>): WebSearchParams => {
     const device = search.device;
     if (device === 'mobile' || device === 'desktop') {

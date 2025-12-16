@@ -4,7 +4,16 @@ import { apiRouter } from './api';
 import { auth } from './auth';
 import { domain, zone } from './dns';
 
+const PROD_API_URL = 'https://api.tvseri.es';
+const PROD_AUTH_URL = 'https://auth.tvseri.es';
+
 const useProdApi = process.env.DASHBOARD_USE_PROD_API === '1';
+const useProxy = $app.stage !== 'prod' && !$app.stage.startsWith('pr-');
+
+const apiBaseUrl = useProdApi ? PROD_API_URL : apiRouter.url;
+const apiProxy = useProxy ? apiBaseUrl : undefined;
+const apiUrl = useProxy ? '/api' : apiBaseUrl;
+const authUrl = useProdApi ? PROD_AUTH_URL : auth.url;
 
 new sst.aws.StaticSite('Dashboard', {
   build: {
@@ -21,9 +30,9 @@ new sst.aws.StaticSite('Dashboard', {
     name: `dashboard.${domain}`,
   },
   environment: {
-    API_PROXY: useProdApi ? 'https://api.tvseri.es' : apiRouter.url,
-    VITE_API_URL: '/api',
-    VITE_AUTH_URL: useProdApi ? 'https://auth.tvseri.es' : auth.url,
+    API_PROXY: apiProxy,
+    VITE_API_URL: apiUrl,
+    VITE_AUTH_URL: authUrl,
   },
   path: 'apps/dashboard',
 });

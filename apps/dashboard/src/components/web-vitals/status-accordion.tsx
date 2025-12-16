@@ -92,7 +92,7 @@ function StatusAccordionComponent({
               </div>
             </AccordionTrigger>
             <AccordionContent className="p-0!">
-              <div className="relative h-56 overflow-hidden px-3">
+              <div className="relative h-56 overflow-hidden pl-5 pr-3">
                 <StatusList
                   emptyMessage={emptyMessage}
                   items={items}

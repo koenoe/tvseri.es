@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import type { WebVitalRatings } from '@tvseri.es/schemas';
-import { ExternalLink } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { useState } from 'react';
 
 import { DeviceToggle } from '@/components/device-toggle';
@@ -11,7 +11,12 @@ import {
 import { PercentileBar } from '@/components/ui/percentile-bar';
 import { ScoreRing } from '@/components/ui/score-ring';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { StatusAccordion, StatusColumns } from '@/components/web-vitals';
+import {
+  StatusAccordion,
+  StatusColumns,
+  useViewAllModal,
+  ViewAllModal,
+} from '@/components/web-vitals';
 import {
   type AggregatedMetrics,
   groupCountriesByStatus,
@@ -116,6 +121,7 @@ function MetricTabContent({
 }: MetricTabContentProps) {
   const statusConfig = getRatingStatusConfig(metric);
   const metricConfig = METRICS_CONFIG[metric];
+  const { modalState, openModal, setOpen } = useViewAllModal();
 
   const { data: routesData, isLoading: routesLoading } = useMetricsRoutes({
     days: 7,
@@ -147,6 +153,20 @@ function MetricTabContent({
 
   const displayValue = formatMetricDisplay(metric, metricValue);
   const unit = metricConfig.unit;
+
+  const handleRoutesViewAll = (status: RatingStatus) => {
+    openModal(routesGrouped, 'Routes', metricConfig.name, 'route', status);
+  };
+
+  const handleCountriesViewAll = (status: RatingStatus) => {
+    openModal(
+      countriesGrouped,
+      'Countries',
+      metricConfig.name,
+      'country',
+      status,
+    );
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -204,7 +224,7 @@ function MetricTabContent({
             target="_blank"
           >
             Learn more about {metricConfig.name}
-            <ExternalLink className="size-3.5" />
+            <ArrowUpRight className="size-3.5" />
           </a>
         </div>
         <div className="flex aspect-video items-center justify-center rounded-lg bg-muted/50 md:col-span-3 md:aspect-auto">
@@ -224,6 +244,7 @@ function MetricTabContent({
         </div>
         <StatusColumns
           data={routesGrouped}
+          onViewAll={handleRoutesViewAll}
           statusConfig={statusConfig}
           variant="route"
         />
@@ -232,6 +253,7 @@ function MetricTabContent({
           data={routesGrouped}
           defaultStatus={currentStatus.status}
           key={`routes-${metric}-${device}-${currentStatus.status}`}
+          onViewAll={handleRoutesViewAll}
           statusConfig={statusConfig}
           variant="route"
         />
@@ -262,11 +284,22 @@ function MetricTabContent({
             data={countriesGrouped}
             defaultStatus={currentStatus.status}
             key={`countries-${metric}-${device}-${currentStatus.status}`}
+            onViewAll={handleCountriesViewAll}
             statusConfig={statusConfig}
             variant="country"
           />
         </div>
       </div>
+
+      <ViewAllModal
+        data={modalState.data}
+        initialFilter={modalState.initialFilter}
+        metricName={modalState.metricName}
+        onOpenChange={setOpen}
+        open={modalState.open}
+        title={modalState.title}
+        variant={modalState.variant}
+      />
     </div>
   );
 }

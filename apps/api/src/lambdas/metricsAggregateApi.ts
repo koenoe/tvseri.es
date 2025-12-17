@@ -25,6 +25,10 @@ const BASE_DELAY_MS = 100;
 /** Number of shards used for raw metrics (must match metrics.ts) */
 const SHARD_COUNT = 10;
 
+/** Latency thresholds for ratings (in ms) */
+const LATENCY_FAST_THRESHOLD = 200;
+const LATENCY_MODERATE_THRESHOLD = 500;
+
 const dynamoClient = new DynamoDBClient({});
 
 /**
@@ -50,6 +54,7 @@ const calculatePercentiles = (values: number[]): PercentileStats => {
       p90: 0,
       p95: 0,
       p99: 0,
+      ratings: { fast: 0, moderate: 0, slow: 0 },
     };
   }
 
@@ -61,6 +66,20 @@ const calculatePercentiles = (values: number[]): PercentileStats => {
     return sorted[Math.max(0, index)] as number;
   };
 
+  // Calculate latency ratings
+  let fast = 0;
+  let moderate = 0;
+  let slow = 0;
+  for (const value of values) {
+    if (value < LATENCY_FAST_THRESHOLD) {
+      fast++;
+    } else if (value < LATENCY_MODERATE_THRESHOLD) {
+      moderate++;
+    } else {
+      slow++;
+    }
+  }
+
   return {
     count,
     histogram: { bins: buildLatencyHistogramBins(values) },
@@ -68,6 +87,7 @@ const calculatePercentiles = (values: number[]): PercentileStats => {
     p90: percentile(90),
     p95: percentile(95),
     p99: percentile(99),
+    ratings: { fast, moderate, slow },
   };
 };
 

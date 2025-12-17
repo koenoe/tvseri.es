@@ -15,7 +15,6 @@ function RootComponent() {
       style={
         {
           '--header-height': 'calc(var(--spacing) * 12 + 1px)',
-          '--sidebar-width': 'calc(var(--spacing) * 72)',
         } as React.CSSProperties
       }
     >

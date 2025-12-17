@@ -1,12 +1,20 @@
 'use client';
 
 import { Link, useRouterState } from '@tanstack/react-router';
-import { BarChart3, Cloud, Globe, Layers, type LucideIcon } from 'lucide-react';
+import {
+  BarChart3,
+  Cloud,
+  Globe,
+  Layers,
+  LogOut,
+  type LucideIcon,
+} from 'lucide-react';
 
 import logo from '@/assets/logo.svg';
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -15,6 +23,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { logout } from '@/lib/auth';
 
 type NavItem = Readonly<{
   icon: LucideIcon;
@@ -114,6 +123,21 @@ function AppSidebarComponent(props: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className="cursor-pointer"
+              onClick={logout}
+              size="sm"
+              tooltip="Log out"
+            >
+              <LogOut className="size-4!" />
+              <span>Log out</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }

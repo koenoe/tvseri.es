@@ -26,7 +26,9 @@ function StatusHeaderComponent({
         <Icon className="size-4" />
         {label}
       </span>
-      <span className="text-sm text-muted-foreground">{threshold}</span>
+      <span className="whitespace-nowrap text-sm text-muted-foreground">
+        {threshold}
+      </span>
     </>
   );
 }

@@ -11,7 +11,7 @@ function DeviceToggleComponent() {
   const handleDeviceChange = (value: string) => {
     if (value === 'desktop' || value === 'mobile') {
       navigate({
-        search: { device: value },
+        search: (prev) => ({ ...prev, device: value }),
         to: '.',
       });
     }
@@ -19,7 +19,7 @@ function DeviceToggleComponent() {
 
   return (
     <ToggleGroup
-      className="w-fit gap-0.5 rounded-full border border-border p-0.5 ml-auto"
+      className="w-fit gap-0.5 rounded-full border border-border p-0.5"
       onValueChange={handleDeviceChange}
       type="single"
       value={device}

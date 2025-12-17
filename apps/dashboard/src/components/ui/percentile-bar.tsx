@@ -162,7 +162,7 @@ function PercentileBarComponent({
             }
 
             return (
-              <Tooltip key={zone.status}>
+              <Tooltip delayDuration={300} key={zone.status}>
                 <TooltipTrigger asChild>
                   <span
                     className={segmentClassName}

@@ -6,9 +6,9 @@ import { Skeleton } from '@/components/ui/skeleton';
  */
 function ToggleGroupSkeleton() {
   return (
-    <div className="flex w-fit gap-0.5 rounded-full border border-border p-0.5">
-      <Skeleton className="h-6 w-14 rounded-full" />
-      <Skeleton className="h-6 w-12 rounded-full" />
+    <div className="ml-auto flex w-fit gap-0.5 rounded-full border border-border p-0.5">
+      <Skeleton className="h-6 w-14 rounded-l-full rounded-r-none" />
+      <Skeleton className="h-6 w-12 rounded-l-none rounded-r-full" />
     </div>
   );
 }
@@ -239,28 +239,28 @@ MetricTabContentSkeleton.displayName = 'MetricTabContentSkeleton';
 function PageSkeleton() {
   return (
     <div className="flex min-h-svh w-full bg-sidebar">
-      {/* Main content area - matches SidebarInset with inset variant */}
-      <main className="bg-card text-card-foreground relative flex w-full flex-1 flex-col lg:m-2.5 lg:ml-0 lg:rounded-xl lg:shadow-sm">
+      {/* Main content area - matches SidebarInset with inset variant + collapsed state */}
+      <main className="bg-card text-card-foreground relative flex w-full flex-1 flex-col lg:m-2.5 lg:rounded-xl lg:shadow-sm">
         {/* Site header skeleton */}
         <header className="relative flex h-[calc(var(--spacing)*12+1px)] shrink-0 items-center border-b">
-          {/* Sidebar trigger - positioned absolutely */}
-          <div className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-2 lg:left-6">
+          {/* Sidebar trigger - matches SiteHeader positioning */}
+          <div className="flex h-full items-center gap-2 pl-4 2xl:absolute 2xl:left-4 2xl:top-1/2 2xl:-translate-y-1/2 2xl:pl-0">
             <Skeleton className="size-7 rounded-md" />
             <Separator
-              className="data-[orientation=vertical]:h-4"
+              className="data-[orientation=vertical]:h-4 self-center!"
               orientation="vertical"
             />
           </div>
           {/* Content - same padding as page content for alignment */}
-          <div className="mx-auto flex w-full max-w-7xl flex-1 items-center justify-between px-6 lg:px-0">
+          <div className="mx-auto flex w-full max-w-7xl flex-1 items-center px-6">
             <Skeleton className="h-5 w-24 rounded-none" />
             <ToggleGroupSkeleton />
           </div>
         </header>
         {/* Page content skeleton */}
-        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-6 py-6 lg:px-0">
+        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-6 py-6">
           {/* Tabs + Content */}
-          <div className="flex w-full flex-col gap-2 max-lg:flex-col lg:flex-row">
+          <div className="flex w-full flex-col gap-10 lg:flex-row">
             <TabListSkeleton />
             <div className="flex-1">
               <MetricTabContentSkeleton />

@@ -2,6 +2,36 @@ import type { LucideIcon } from 'lucide-react';
 import { memo } from 'react';
 import { formatPageViews } from '@/lib/api/utils';
 
+/**
+ * Renders a route path with dynamic segments styled differently.
+ * Dynamic segments like [id], [slug], :id, or * get mono font + muted bg.
+ * Static segments get normal white text.
+ */
+function RouteLabel({ route }: Readonly<{ route: string }>) {
+  // Match dynamic segments: [param], :param, or *
+  const parts = route.split(/(\[[^\]]+\]|:[^/]+|\*)/g).filter(Boolean);
+
+  return (
+    <span className="truncate max-w-56 text-sm py-0.5">
+      {parts.map((part, index) => {
+        const isDynamic =
+          part.startsWith('[') || part.startsWith(':') || part === '*';
+        return isDynamic ? (
+          <span
+            className="rounded bg-muted/50 p-0.5 font-mono text-xs text-muted-foreground inline-flex items-center"
+            key={index}
+          >
+            {part}
+          </span>
+        ) : (
+          <span key={index}>{part}</span>
+        );
+      })}
+    </span>
+  );
+}
+RouteLabel.displayName = 'RouteLabel';
+
 type MetricListItemProps = Readonly<{
   label: string;
   pageViews: number;
@@ -25,15 +55,11 @@ function MetricListItemComponent({
   return (
     <div className="flex items-center justify-center">
       <div className="flex gap-2.5 items-center justify-center">
-        <span
-          className={
-            isRoute
-              ? 'truncate max-w-56 rounded bg-muted/50 px-2 py-1 font-mono text-xs text-muted-foreground'
-              : 'truncate max-w-56 text-sm mr-1 py-1'
-          }
-        >
-          {label}
-        </span>
+        {isRoute ? (
+          <RouteLabel route={label} />
+        ) : (
+          <span className="truncate max-w-56 text-sm mr-1 py-0.5">{label}</span>
+        )}
         <span className="text-muted-foreground text-xs flex items-center mt-0.5">
           {formattedPageViews}
           <svg

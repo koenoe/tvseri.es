@@ -164,7 +164,7 @@ function ViewAllModalComponent({
           className="h-[70vh] max-w-xl overflow-hidden flex flex-col gap-0 p-0 bg-card"
           hideCloseButton
         >
-          <DialogHeader className="border-b p-4">
+          <DialogHeader className="border-b px-4 py-3">
             <DialogTitle className="flex items-center gap-6 leading-none">
               <span>{title}</span>
               <span className="ml-auto text-sm font-normal text-muted-foreground leading-none">
@@ -193,7 +193,7 @@ function ViewAllModalComponent({
   return (
     <Drawer onOpenChange={handleOpenChange} open={open}>
       <DrawerContent className="max-h-[85vh] bg-card">
-        <DrawerHeader className="border-b p-4 text-left">
+        <DrawerHeader className="border-b px-4 py-3 text-left">
           <DrawerTitle className="flex items-center gap-6 leading-none">
             <span>{title}</span>
             <span className="ml-auto text-sm font-normal text-muted-foreground leading-none">

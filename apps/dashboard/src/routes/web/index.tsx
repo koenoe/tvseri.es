@@ -2,8 +2,6 @@ import { createFileRoute } from '@tanstack/react-router';
 import type { WebVitalRatings } from '@tvseri.es/schemas';
 import { ArrowUpRight } from 'lucide-react';
 import { useState } from 'react';
-
-import { DeviceToggle } from '@/components/device-toggle';
 import {
   MetricTabContentSkeleton,
   TabTriggerValueSkeleton,
@@ -17,6 +15,7 @@ import {
   useViewAllModal,
   ViewAllModal,
 } from '@/components/web-vitals';
+import { WebVitalsHeader } from '@/components/web-vitals-header';
 import {
   type AggregatedMetrics,
   groupCountriesByStatus,
@@ -35,21 +34,30 @@ import {
 } from '@/lib/web-vitals';
 
 type WebSearchParams = {
+  days?: 7 | 30;
   device?: 'desktop' | 'mobile';
 };
 
 export const Route = createFileRoute('/web/')({
   component: WebVitals,
   staticData: {
-    headerContent: DeviceToggle,
+    headerContent: WebVitalsHeader,
     title: 'Web Vitals',
   },
   validateSearch: (search: Record<string, unknown>): WebSearchParams => {
+    const result: WebSearchParams = {};
+
     const device = search.device;
     if (device === 'mobile' || device === 'desktop') {
-      return { device };
+      result.device = device;
     }
-    return {};
+
+    const days = Number(search.days);
+    if (days === 7 || days === 30) {
+      result.days = days;
+    }
+
+    return result;
   },
 });
 
@@ -110,12 +118,14 @@ function getContextualMessage(
 
 type MetricTabContentProps = Readonly<{
   aggregated: AggregatedMetrics | null | undefined;
+  days: number;
   device: string;
   metric: MetricType;
 }>;
 
 function MetricTabContent({
   aggregated,
+  days,
   device,
   metric,
 }: MetricTabContentProps) {
@@ -124,12 +134,12 @@ function MetricTabContent({
   const { modalState, openModal, setOpen } = useViewAllModal();
 
   const { data: routesData, isLoading: routesLoading } = useMetricsRoutes({
-    days: 7,
+    days,
     device,
   });
   const { data: countriesData, isLoading: countriesLoading } =
     useMetricsCountries({
-      days: 7,
+      days,
       device,
     });
 
@@ -305,12 +315,13 @@ function MetricTabContent({
 }
 
 function WebVitals() {
-  const { device: deviceParam } = Route.useSearch();
-  const device = deviceParam || 'desktop';
+  const { days: daysParam, device: deviceParam } = Route.useSearch();
+  const days = daysParam ?? 7;
+  const device = deviceParam ?? 'desktop';
   const [activeMetric, setActiveMetric] = useState<MetricType>('res');
 
   const { data: summaryData, isLoading } = useMetricsSummary({
-    days: 7,
+    days,
     device,
   });
   const aggregated = summaryData?.aggregated;
@@ -518,6 +529,7 @@ function WebVitals() {
         <TabsContent value="res">
           <MetricTabContent
             aggregated={aggregated}
+            days={days}
             device={device}
             metric="res"
           />
@@ -525,6 +537,7 @@ function WebVitals() {
         <TabsContent value="fcp">
           <MetricTabContent
             aggregated={aggregated}
+            days={days}
             device={device}
             metric="fcp"
           />
@@ -532,6 +545,7 @@ function WebVitals() {
         <TabsContent value="lcp">
           <MetricTabContent
             aggregated={aggregated}
+            days={days}
             device={device}
             metric="lcp"
           />
@@ -539,6 +553,7 @@ function WebVitals() {
         <TabsContent value="inp">
           <MetricTabContent
             aggregated={aggregated}
+            days={days}
             device={device}
             metric="inp"
           />
@@ -546,6 +561,7 @@ function WebVitals() {
         <TabsContent value="cls">
           <MetricTabContent
             aggregated={aggregated}
+            days={days}
             device={device}
             metric="cls"
           />
@@ -553,6 +569,7 @@ function WebVitals() {
         <TabsContent value="ttfb">
           <MetricTabContent
             aggregated={aggregated}
+            days={days}
             device={device}
             metric="ttfb"
           />

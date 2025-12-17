@@ -25,8 +25,7 @@ import { cn } from '@/lib/utils';
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state';
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
-const SIDEBAR_WIDTH = '11rem';
-const SIDEBAR_WIDTH_MOBILE = '18rem';
+const SIDEBAR_WIDTH = '16rem';
 const SIDEBAR_WIDTH_ICON = '3rem';
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b';
 
@@ -183,14 +182,14 @@ function Sidebar({
     return (
       <Sheet onOpenChange={setOpenMobile} open={openMobile} {...props}>
         <SheetContent
-          className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
+          className="bg-sidebar text-sidebar-foreground w-(--sidebar-width)! max-w-none! border-r border-sidebar-border p-0 [&>button]:hidden"
           data-mobile="true"
           data-sidebar="sidebar"
           data-slot="sidebar"
           side={side}
           style={
             {
-              '--sidebar-width': SIDEBAR_WIDTH_MOBILE,
+              '--sidebar-width': SIDEBAR_WIDTH,
             } as React.CSSProperties
           }
         >
@@ -344,7 +343,7 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<'div'>) {
 function SidebarFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
-      className={cn('gap-2 p-2 flex flex-col', className)}
+      className={cn('gap-2 px-4 py-2 flex flex-col', className)}
       data-sidebar="footer"
       data-slot="sidebar-footer"
       {...props}

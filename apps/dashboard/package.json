@@ -8,7 +8,7 @@
     "@tanstack/react-query": "^5.90.12",
     "@tanstack/react-router": "^1.141.2",
     "@tanstack/react-router-devtools": "^1.141.2",
-    "@tanstack/router-plugin": "^1.141.2",
+    "@tanstack/router-plugin": "^1.141.5",
     "@tvseri.es/constants": "workspace:*",
     "@tvseri.es/schemas": "workspace:*",
     "@tvseri.es/utils": "workspace:*",

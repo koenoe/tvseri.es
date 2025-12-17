@@ -5,6 +5,7 @@ import type {
   Apdex,
   ApiMetricAggregate,
   DependencyStats,
+  LatencyRatings,
   PercentileStats,
 } from '@tvseri.es/schemas';
 import {
@@ -311,12 +312,28 @@ export const aggregateSummaries = (
   if (histograms.length === 0) return null;
 
   const mergedBins = mergeHistogramBins(histograms);
+
+  // Aggregate latency ratings if present
+  let ratings: LatencyRatings | undefined;
+  const itemsWithRatings = items.filter((item) => item.latency.ratings);
+  if (itemsWithRatings.length > 0) {
+    ratings = { fast: 0, moderate: 0, slow: 0 };
+    for (const item of itemsWithRatings) {
+      if (item.latency.ratings) {
+        ratings.fast += item.latency.ratings.fast;
+        ratings.moderate += item.latency.ratings.moderate;
+        ratings.slow += item.latency.ratings.slow;
+      }
+    }
+  }
+
   const latency: PercentileStats = {
     count: totalRequests,
     p75: Math.round(percentileFromLatencyHistogram(mergedBins, 75)),
     p90: Math.round(percentileFromLatencyHistogram(mergedBins, 90)),
     p95: Math.round(percentileFromLatencyHistogram(mergedBins, 95)),
     p99: Math.round(percentileFromLatencyHistogram(mergedBins, 99)),
+    ratings,
   };
 
   // Sum status codes by category and individual codes

@@ -73,6 +73,22 @@ export const ApdexSchema = v.object({
   tolerating: v.number(),
 });
 
+/**
+ * Latency ratings breakdown.
+ * Thresholds based on typical API expectations:
+ * - Fast: <200ms
+ * - Moderate: 200-500ms
+ * - Slow: >500ms
+ */
+export const LatencyRatingsSchema = v.object({
+  /** Count of requests with latency <200ms */
+  fast: v.number(),
+  /** Count of requests with latency 200-500ms */
+  moderate: v.number(),
+  /** Count of requests with latency >500ms */
+  slow: v.number(),
+});
+
 export const PercentileStatsSchema = v.object({
   count: v.number(),
   /** Histogram for accurate multi-day percentile aggregation */
@@ -81,6 +97,8 @@ export const PercentileStatsSchema = v.object({
   p90: v.number(),
   p95: v.number(),
   p99: v.number(),
+  /** Latency ratings breakdown for distribution visualization */
+  ratings: v.optional(LatencyRatingsSchema),
 });
 
 /**
@@ -674,6 +692,7 @@ export type MetricClient = v.InferOutput<typeof MetricClientSchema>;
 export type MetricDevice = v.InferOutput<typeof MetricDeviceSchema>;
 export type DependencyMetric = v.InferOutput<typeof DependencyMetricSchema>;
 export type Apdex = v.InferOutput<typeof ApdexSchema>;
+export type LatencyRatings = v.InferOutput<typeof LatencyRatingsSchema>;
 export type PercentileStats = v.InferOutput<typeof PercentileStatsSchema>;
 export type DependencyStats = v.InferOutput<typeof DependencyStatsSchema>;
 export type StatusCodeBreakdown = v.InferOutput<
@@ -801,6 +820,86 @@ export const MetricsDeviceTimeSeriesResponseSchema = v.object({
 });
 
 // ============================================================================
+// API Metrics Response schemas
+// ============================================================================
+
+/**
+ * Reusable API metrics object for aggregated data
+ */
+const ApiMetricsObject = {
+  apdex: ApdexSchema,
+  errorRate: v.number(),
+  latency: PercentileStatsSchema,
+  requestCount: v.number(),
+};
+
+/**
+ * Aggregated API metrics for a time period
+ */
+export const AggregatedApiMetricsSchema = v.object({
+  ...ApiMetricsObject,
+  dependencies: v.optional(v.record(v.string(), DependencyStatsSchema)),
+  statusCodes: StatusCodeBreakdownSchema,
+  throughput: v.number(),
+});
+
+/**
+ * Daily data point for API metrics time series charts
+ */
+export const ApiMetricSeriesItemSchema = v.object({
+  ...ApiMetricsObject,
+  date: v.string(),
+});
+
+/**
+ * Response from /metrics/api/summary
+ */
+export const ApiMetricsSummaryResponseSchema = v.object({
+  aggregated: v.nullable(AggregatedApiMetricsSchema),
+  endDate: v.string(),
+  series: v.array(ApiMetricSeriesItemSchema),
+  startDate: v.string(),
+});
+
+/**
+ * Endpoint metrics item
+ */
+export const EndpointMetricsSchema = v.object({
+  ...ApiMetricsObject,
+  dependencies: v.optional(v.record(v.string(), DependencyStatsSchema)),
+  endpoint: v.string(),
+  throughput: v.number(),
+});
+
+/**
+ * Response from /metrics/api/endpoints
+ */
+export const ApiMetricsEndpointsResponseSchema = v.object({
+  endDate: v.string(),
+  endpoints: v.array(EndpointMetricsSchema),
+  startDate: v.string(),
+  total: v.number(),
+});
+
+/**
+ * API country metrics item
+ */
+export const ApiCountryMetricsSchema = v.object({
+  ...ApiMetricsObject,
+  country: v.string(),
+});
+
+/**
+ * Response from /metrics/api/countries
+ */
+export const ApiMetricsCountriesResponseSchema = v.object({
+  countries: v.array(ApiCountryMetricsSchema),
+  endDate: v.string(),
+  startDate: v.string(),
+  total: v.number(),
+});
+
+// ============================================================================
 // Additional inferred types from response schemas
 // ============================================================================
 
@@ -823,4 +922,23 @@ export type MetricsDevicesResponse = v.InferOutput<
 >;
 export type MetricsDeviceTimeSeriesResponse = v.InferOutput<
   typeof MetricsDeviceTimeSeriesResponseSchema
+>;
+
+// API Metrics types
+export type AggregatedApiMetrics = v.InferOutput<
+  typeof AggregatedApiMetricsSchema
+>;
+export type ApiMetricSeriesItem = v.InferOutput<
+  typeof ApiMetricSeriesItemSchema
+>;
+export type ApiMetricsSummaryResponse = v.InferOutput<
+  typeof ApiMetricsSummaryResponseSchema
+>;
+export type EndpointMetrics = v.InferOutput<typeof EndpointMetricsSchema>;
+export type ApiMetricsEndpointsResponse = v.InferOutput<
+  typeof ApiMetricsEndpointsResponseSchema
+>;
+export type ApiCountryMetrics = v.InferOutput<typeof ApiCountryMetricsSchema>;
+export type ApiMetricsCountriesResponse = v.InferOutput<
+  typeof ApiMetricsCountriesResponseSchema
 >;

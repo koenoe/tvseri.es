@@ -260,7 +260,7 @@ function PageSkeleton() {
         {/* Page content skeleton */}
         <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-6 py-6">
           {/* Tabs + Content */}
-          <div className="flex w-full flex-col gap-10 lg:flex-row">
+          <div className="flex w-full flex-col gap-8 lg:flex-row">
             <TabListSkeleton />
             <div className="flex-1">
               <MetricTabContentSkeleton />

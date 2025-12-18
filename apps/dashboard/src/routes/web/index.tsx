@@ -366,7 +366,7 @@ function WebVitals() {
 
   return (
     <Tabs
-      className="w-full gap-10"
+      className="w-full gap-8"
       onValueChange={(value) => setActiveMetric(value as MetricType)}
       orientation="vertical"
       value={activeMetric}

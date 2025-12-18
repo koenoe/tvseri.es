@@ -51,6 +51,17 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
     },
   },
   transform: {
+    cachePolicy: (args) => {
+      args.parametersInCacheKeyAndForwardedToOrigin = {
+        ...args.parametersInCacheKeyAndForwardedToOrigin,
+        headersConfig: {
+          headerBehavior: 'whitelist',
+          headers: {
+            items: ['Origin'],
+          },
+        },
+      };
+    },
     cdn: (args) => {
       // Enable additional CloudWatch metrics (cache hit rate, origin latency, etc.)
       // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/viewing-cloudfront-metrics.html

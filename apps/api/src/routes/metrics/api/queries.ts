@@ -4,6 +4,9 @@ import { unmarshall } from '@aws-sdk/util-dynamodb';
 import type {
   Apdex,
   ApiMetricAggregate,
+  ApiTopCountry,
+  ApiTopEndpoint,
+  ApiTopPath,
   DependencyStats,
   LatencyRatings,
   PercentileStats,
@@ -472,4 +475,273 @@ export const aggregateSummaries = (
     statusCodes,
     throughput,
   };
+};
+
+/**
+ * Aggregate topPaths from multiple daily endpoint records.
+ * Merges histograms for accurate percentile calculation across days.
+ *
+ * @param items - Daily endpoint aggregates containing topPaths
+ * @param limit - Maximum number of paths to return (default 25)
+ * @returns Aggregated top paths sorted by request count
+ */
+export const aggregateTopPaths = (
+  items: ApiMetricAggregate[],
+  limit = 25,
+): ApiTopPath[] => {
+  // Collect all topPaths from all days
+  const allPaths = items.flatMap((item) => item.topPaths ?? []);
+  if (allPaths.length === 0) return [];
+
+  // Group by path
+  const byPath = new Map<
+    string,
+    {
+      codes: Record<string, number>;
+      errorCount: number;
+      histograms: number[][];
+      requestCount: number;
+    }
+  >();
+
+  for (const pathItem of allPaths) {
+    const existing = byPath.get(pathItem.path);
+    if (existing) {
+      existing.requestCount += pathItem.requestCount;
+      existing.errorCount += pathItem.errorCount;
+      if (pathItem.histogram?.bins?.length > 0) {
+        existing.histograms.push(pathItem.histogram.bins);
+      }
+      // Merge status codes
+      for (const [code, count] of Object.entries(pathItem.codes ?? {})) {
+        existing.codes[code] = (existing.codes[code] ?? 0) + count;
+      }
+    } else {
+      byPath.set(pathItem.path, {
+        codes: { ...(pathItem.codes ?? {}) },
+        errorCount: pathItem.errorCount,
+        histograms:
+          pathItem.histogram?.bins?.length > 0 ? [pathItem.histogram.bins] : [],
+        requestCount: pathItem.requestCount,
+      });
+    }
+  }
+
+  // Build aggregated paths
+  const aggregatedPaths: ApiTopPath[] = [];
+
+  for (const [
+    path,
+    { codes, errorCount, histograms, requestCount },
+  ] of byPath) {
+    if (histograms.length === 0) continue;
+
+    const mergedBins = mergeHistogramBins(histograms);
+    const errorRate =
+      requestCount > 0
+        ? Math.round((errorCount / requestCount) * 10000) / 100
+        : 0;
+
+    aggregatedPaths.push({
+      codes,
+      errorCount,
+      errorRate,
+      histogram: { bins: mergedBins },
+      p75: Math.round(percentileFromLatencyHistogram(mergedBins, 75)),
+      p90: Math.round(percentileFromLatencyHistogram(mergedBins, 90)),
+      p95: Math.round(percentileFromLatencyHistogram(mergedBins, 95)),
+      p99: Math.round(percentileFromLatencyHistogram(mergedBins, 99)),
+      path,
+      requestCount,
+    });
+  }
+
+  // Sort by request count and limit
+  return aggregatedPaths
+    .sort((a, b) => b.requestCount - a.requestCount)
+    .slice(0, limit);
+};
+
+/**
+ * Aggregate topEndpoints from multiple days into a single list.
+ * Merges histograms for accurate percentile calculation.
+ */
+export const aggregateTopEndpoints = (
+  items: ApiMetricAggregate[],
+  limit = 25,
+): ApiTopEndpoint[] => {
+  // Collect all topEndpoints from all days
+  const allEndpoints = items.flatMap((item) => item.topEndpoints ?? []);
+  if (allEndpoints.length === 0) return [];
+
+  // Group by endpoint
+  const byEndpoint = new Map<
+    string,
+    {
+      dependencyNames: Set<string>;
+      errorCount: number;
+      histograms: number[][];
+      requestCount: number;
+      satisfiedCount: number;
+      toleratingCount: number;
+    }
+  >();
+
+  for (const endpointItem of allEndpoints) {
+    const existing = byEndpoint.get(endpointItem.endpoint);
+    // Calculate satisfied/tolerating counts from apdex score for re-aggregation
+    // apdex = (satisfied + tolerating * 0.5) / total
+    // We approximate by assuming the ratio is preserved
+    const satisfied = Math.round(
+      endpointItem.apdexScore * endpointItem.requestCount,
+    );
+    const tolerating = 0; // Approximation - we can't perfectly reconstruct
+
+    if (existing) {
+      existing.requestCount += endpointItem.requestCount;
+      existing.errorCount += endpointItem.errorCount;
+      existing.satisfiedCount += satisfied;
+      existing.toleratingCount += tolerating;
+      if (endpointItem.histogram?.bins?.length > 0) {
+        existing.histograms.push(endpointItem.histogram.bins);
+      }
+      for (const dep of endpointItem.dependencyNames) {
+        existing.dependencyNames.add(dep);
+      }
+    } else {
+      byEndpoint.set(endpointItem.endpoint, {
+        dependencyNames: new Set(endpointItem.dependencyNames),
+        errorCount: endpointItem.errorCount,
+        histograms:
+          endpointItem.histogram?.bins?.length > 0
+            ? [endpointItem.histogram.bins]
+            : [],
+        requestCount: endpointItem.requestCount,
+        satisfiedCount: satisfied,
+        toleratingCount: tolerating,
+      });
+    }
+  }
+
+  // Build aggregated endpoints
+  const aggregatedEndpoints: ApiTopEndpoint[] = [];
+
+  for (const [
+    endpoint,
+    {
+      dependencyNames,
+      errorCount,
+      histograms,
+      requestCount,
+      satisfiedCount,
+      toleratingCount,
+    },
+  ] of byEndpoint) {
+    if (histograms.length === 0) continue;
+
+    const mergedBins = mergeHistogramBins(histograms);
+    const errorRate =
+      requestCount > 0
+        ? Math.round((errorCount / requestCount) * 10000) / 100
+        : 0;
+    // Recalculate apdex from aggregated counts
+    const apdexScore =
+      requestCount > 0
+        ? Math.round(
+            ((satisfiedCount + toleratingCount * 0.5) / requestCount) * 100,
+          ) / 100
+        : 0;
+
+    aggregatedEndpoints.push({
+      apdexScore,
+      dependencyNames: [...dependencyNames].sort(),
+      endpoint,
+      errorCount,
+      errorRate,
+      histogram: { bins: mergedBins },
+      p75: Math.round(percentileFromLatencyHistogram(mergedBins, 75)),
+      p90: Math.round(percentileFromLatencyHistogram(mergedBins, 90)),
+      p95: Math.round(percentileFromLatencyHistogram(mergedBins, 95)),
+      p99: Math.round(percentileFromLatencyHistogram(mergedBins, 99)),
+      requestCount,
+    });
+  }
+
+  // Sort by request count and limit
+  return aggregatedEndpoints
+    .sort((a, b) => b.requestCount - a.requestCount)
+    .slice(0, limit);
+};
+
+/**
+ * Aggregate topCountries from multiple days into a single list.
+ * Merges histograms for accurate percentile calculation.
+ */
+export const aggregateTopCountries = (
+  items: ApiMetricAggregate[],
+  limit = 25,
+): ApiTopCountry[] => {
+  // Collect all topCountries from all days
+  const allCountries = items.flatMap((item) => item.topCountries ?? []);
+  if (allCountries.length === 0) return [];
+
+  // Group by country
+  const byCountry = new Map<
+    string,
+    {
+      errorCount: number;
+      histograms: number[][];
+      requestCount: number;
+    }
+  >();
+
+  for (const countryItem of allCountries) {
+    const existing = byCountry.get(countryItem.country);
+    if (existing) {
+      existing.requestCount += countryItem.requestCount;
+      existing.errorCount += countryItem.errorCount;
+      if (countryItem.histogram?.bins?.length > 0) {
+        existing.histograms.push(countryItem.histogram.bins);
+      }
+    } else {
+      byCountry.set(countryItem.country, {
+        errorCount: countryItem.errorCount,
+        histograms:
+          countryItem.histogram?.bins?.length > 0
+            ? [countryItem.histogram.bins]
+            : [],
+        requestCount: countryItem.requestCount,
+      });
+    }
+  }
+
+  // Build aggregated countries
+  const aggregatedCountries: ApiTopCountry[] = [];
+
+  for (const [country, { errorCount, histograms, requestCount }] of byCountry) {
+    if (histograms.length === 0) continue;
+
+    const mergedBins = mergeHistogramBins(histograms);
+    const errorRate =
+      requestCount > 0
+        ? Math.round((errorCount / requestCount) * 10000) / 100
+        : 0;
+
+    aggregatedCountries.push({
+      country,
+      errorCount,
+      errorRate,
+      histogram: { bins: mergedBins },
+      p75: Math.round(percentileFromLatencyHistogram(mergedBins, 75)),
+      p90: Math.round(percentileFromLatencyHistogram(mergedBins, 90)),
+      p95: Math.round(percentileFromLatencyHistogram(mergedBins, 95)),
+      p99: Math.round(percentileFromLatencyHistogram(mergedBins, 99)),
+      requestCount,
+    });
+  }
+
+  // Sort by request count and limit
+  return aggregatedCountries
+    .sort((a, b) => b.requestCount - a.requestCount)
+    .slice(0, limit);
 };

@@ -10,6 +10,7 @@ import {
   type Apdex,
   type ApiMetricAggregate,
   type ApiMetricRecord,
+  type ApiTopPath,
   type DependencyStats,
   type PercentileStats,
   type StatusCodeBreakdown,
@@ -24,6 +25,8 @@ const MAX_RETRIES = 5;
 const BASE_DELAY_MS = 100;
 /** Number of shards used for raw metrics (must match metrics.ts) */
 const SHARD_COUNT = 10;
+/** Number of top items to store in leaderboards */
+const TOP_ITEMS_LIMIT = 25;
 
 /** Latency thresholds for ratings (in ms) */
 const LATENCY_FAST_THRESHOLD = 200;
@@ -306,6 +309,185 @@ const aggregateApiMetrics = (
     return result;
   };
 
+  /**
+   * Build top endpoints leaderboard from a map of endpoint -> records.
+   */
+  const buildTopEndpoints = (
+    endpointMap: Map<string, ApiMetricRecord[]>,
+  ): Array<{
+    apdexScore: number;
+    dependencyNames: string[];
+    endpoint: string;
+    errorCount: number;
+    errorRate: number;
+    histogram: { bins: number[] };
+    p75: number;
+    p90: number;
+    p95: number;
+    p99: number;
+    requestCount: number;
+  }> => {
+    return [...endpointMap.entries()]
+      .map(([endpoint, recs]) => {
+        const latencies = recs.map((r) => r.latency);
+        const sorted = [...latencies].sort((a, b) => a - b);
+        const count = sorted.length;
+
+        const percentile = (p: number): number => {
+          const index = Math.ceil((p / 100) * count) - 1;
+          return sorted[Math.max(0, index)] ?? 0;
+        };
+
+        const apdex = calculateApdex(latencies);
+        const errorCount = recs.filter((r) => r.statusCode >= 400).length;
+        const errorRate =
+          count > 0 ? Math.round((errorCount / count) * 10000) / 100 : 0;
+
+        // Collect unique dependency names
+        const depNames = new Set<string>();
+        for (const rec of recs) {
+          for (const dep of rec.dependencies) {
+            depNames.add(dep.source);
+          }
+        }
+
+        return {
+          apdexScore: apdex.score,
+          dependencyNames: [...depNames].sort(),
+          endpoint,
+          errorCount,
+          errorRate,
+          histogram: { bins: buildLatencyHistogramBins(latencies) },
+          p75: percentile(75),
+          p90: percentile(90),
+          p95: percentile(95),
+          p99: percentile(99),
+          requestCount: count,
+        };
+      })
+      .sort((a, b) => b.requestCount - a.requestCount)
+      .slice(0, TOP_ITEMS_LIMIT);
+  };
+
+  /**
+   * Calculate top paths for an endpoint.
+   * Groups records by concrete path and returns top N by request count.
+   * Includes histogram for accurate multi-day percentile aggregation.
+   */
+  const calculateTopPaths = (recs: ApiMetricRecord[]): ApiTopPath[] => {
+    const byPath = new Map<string, ApiMetricRecord[]>();
+
+    for (const rec of recs) {
+      const existing = byPath.get(rec.path);
+      if (existing) {
+        existing.push(rec);
+      } else {
+        byPath.set(rec.path, [rec]);
+      }
+    }
+
+    return [...byPath.entries()]
+      .map(([path, pathRecs]) => {
+        const latencies = pathRecs.map((r) => r.latency);
+        const sorted = [...latencies].sort((a, b) => a - b);
+        const count = sorted.length;
+
+        const percentile = (p: number): number => {
+          const index = Math.ceil((p / 100) * count) - 1;
+          return sorted[Math.max(0, index)] ?? 0;
+        };
+
+        const errorCount = pathRecs.filter((r) => r.statusCode >= 400).length;
+        const errorRate =
+          pathRecs.length > 0
+            ? Math.round((errorCount / pathRecs.length) * 10000) / 100
+            : 0;
+
+        // Count status codes
+        const codes: Record<string, number> = {};
+        for (const rec of pathRecs) {
+          const codeKey = String(rec.statusCode);
+          codes[codeKey] = (codes[codeKey] ?? 0) + 1;
+        }
+
+        return {
+          codes,
+          errorCount,
+          errorRate,
+          histogram: { bins: buildLatencyHistogramBins(latencies) },
+          p75: percentile(75),
+          p90: percentile(90),
+          p95: percentile(95),
+          p99: percentile(99),
+          path,
+          requestCount: pathRecs.length,
+        };
+      })
+      .sort((a, b) => b.requestCount - a.requestCount)
+      .slice(0, TOP_ITEMS_LIMIT);
+  };
+
+  /**
+   * Calculate top countries for an endpoint.
+   * Groups records by country and returns top N by request count.
+   */
+  const calculateTopCountries = (
+    recs: ApiMetricRecord[],
+  ): Array<{
+    country: string;
+    errorCount: number;
+    errorRate: number;
+    histogram: { bins: number[] };
+    p75: number;
+    p90: number;
+    p95: number;
+    p99: number;
+    requestCount: number;
+  }> => {
+    const byCountry = new Map<string, ApiMetricRecord[]>();
+
+    for (const rec of recs) {
+      const existing = byCountry.get(rec.country);
+      if (existing) {
+        existing.push(rec);
+      } else {
+        byCountry.set(rec.country, [rec]);
+      }
+    }
+
+    return [...byCountry.entries()]
+      .map(([country, countryRecs]) => {
+        const latencies = countryRecs.map((r) => r.latency);
+        const sorted = [...latencies].sort((a, b) => a - b);
+        const count = sorted.length;
+
+        const percentile = (p: number): number => {
+          const index = Math.ceil((p / 100) * count) - 1;
+          return sorted[Math.max(0, index)] ?? 0;
+        };
+
+        const errorCount = countryRecs.filter(
+          (r) => r.statusCode >= 400,
+        ).length;
+        const errorRate =
+          count > 0 ? Math.round((errorCount / count) * 10000) / 100 : 0;
+
+        return {
+          country,
+          errorCount,
+          errorRate,
+          histogram: { bins: buildLatencyHistogramBins(latencies) },
+          p75: percentile(75),
+          p90: percentile(90),
+          p95: percentile(95),
+          p99: percentile(99),
+          requestCount: count,
+        };
+      })
+      .sort((a, b) => b.requestCount - a.requestCount)
+      .slice(0, TOP_ITEMS_LIMIT);
+  };
+
   const createAggregate = (
     recs: ApiMetricRecord[],
     pk: string,
@@ -316,7 +498,12 @@ const aggregateApiMetrics = (
         'GSI1PK' | 'GSI1SK' | 'GSI2PK' | 'GSI2SK' | 'GSI3PK' | 'GSI3SK'
       >
     >,
-    extras?: Partial<Pick<ApiMetricAggregate, 'dependencies' | 'topEndpoints'>>,
+    extras?: Partial<
+      Pick<
+        ApiMetricAggregate,
+        'dependencies' | 'topCountries' | 'topEndpoints' | 'topPaths'
+      >
+    >,
   ): ApiMetricAggregate => {
     const latencies = recs.map((r) => r.latency);
     const statusCodes = createStatusBreakdown(recs);
@@ -403,19 +590,8 @@ const aggregateApiMetrics = (
   // pk: "<date>" (no filters)
   // ─────────────────────────────────────────────────────────────────────────
 
-  // Build top endpoints leaderboard (sorted by request count, like Web Vitals)
-  const topEndpoints = [...byEndpoint.entries()]
-    .map(([endpoint, recs]) => {
-      const latencies = recs.map((r) => r.latency);
-      const apdex = calculateApdex(latencies);
-      return {
-        apdexScore: apdex.score,
-        endpoint,
-        requestCount: recs.length,
-      };
-    })
-    .sort((a, b) => b.requestCount - a.requestCount)
-    .slice(0, 25);
+  // Build top endpoints leaderboard (sorted by request count)
+  const topEndpoints = buildTopEndpoints(byEndpoint);
 
   // SUMMARY - overall stats for the day
   aggregates.push(
@@ -438,6 +614,8 @@ const aggregateApiMetrics = (
         },
         {
           dependencies: aggregateDependencies(recs),
+          topCountries: calculateTopCountries(recs),
+          topPaths: calculateTopPaths(recs),
         },
       ),
     );
@@ -470,10 +648,21 @@ const aggregateApiMetrics = (
   for (const [platform, platformRecs] of byPlatform) {
     const pk = `${date}#P#${platform}`;
 
+    // Build top endpoints for this platform
+    const platformEndpointMap = new Map<string, ApiMetricRecord[]>();
+    for (const [key, recs] of byPlatformEndpoint) {
+      if (key.startsWith(`${platform}#`)) {
+        const endpoint = key.split('#').slice(1).join('#');
+        platformEndpointMap.set(endpoint, recs);
+      }
+    }
+    const platformEndpoints = buildTopEndpoints(platformEndpointMap);
+
     // SUMMARY for this platform
     aggregates.push(
       createAggregate(platformRecs, pk, 'SUMMARY', undefined, {
         dependencies: aggregateDependencies(platformRecs),
+        topEndpoints: platformEndpoints,
       }),
     );
 
@@ -482,7 +671,12 @@ const aggregateApiMetrics = (
       const [keyPlatform, ...rest] = peKey.split('#');
       const keyEndpoint = rest.join('#');
       if (keyPlatform === platform) {
-        aggregates.push(createAggregate(recs, pk, `E#${keyEndpoint}`));
+        aggregates.push(
+          createAggregate(recs, pk, `E#${keyEndpoint}`, undefined, {
+            dependencies: aggregateDependencies(recs),
+            topCountries: calculateTopCountries(recs),
+          }),
+        );
       }
     }
 
@@ -502,10 +696,21 @@ const aggregateApiMetrics = (
   for (const [country, countryRecs] of byCountry) {
     const pk = `${date}#C#${country}`;
 
+    // Build top endpoints for this country
+    const countryEndpointMap = new Map<string, ApiMetricRecord[]>();
+    for (const [key, recs] of byCountryEndpoint) {
+      if (key.startsWith(`${country}#`)) {
+        const endpoint = key.split('#').slice(1).join('#');
+        countryEndpointMap.set(endpoint, recs);
+      }
+    }
+    const countryEndpoints = buildTopEndpoints(countryEndpointMap);
+
     // SUMMARY for this country
     aggregates.push(
       createAggregate(countryRecs, pk, 'SUMMARY', undefined, {
         dependencies: aggregateDependencies(countryRecs),
+        topEndpoints: countryEndpoints,
       }),
     );
 
@@ -514,7 +719,11 @@ const aggregateApiMetrics = (
       const [keyCountry, ...rest] = ceKey.split('#');
       const keyEndpoint = rest.join('#');
       if (keyCountry === country) {
-        aggregates.push(createAggregate(recs, pk, `E#${keyEndpoint}`));
+        aggregates.push(
+          createAggregate(recs, pk, `E#${keyEndpoint}`, undefined, {
+            dependencies: aggregateDependencies(recs),
+          }),
+        );
       }
     }
 
@@ -535,10 +744,21 @@ const aggregateApiMetrics = (
     const [platform, country] = pcKey.split('#') as [string, string];
     const pk = `${date}#P#${platform}#C#${country}`;
 
+    // Build top endpoints for this platform + country combo
+    const pcEndpointMap = new Map<string, ApiMetricRecord[]>();
+    for (const [key, recs] of byPlatformCountryEndpoint) {
+      if (key.startsWith(`${platform}#${country}#`)) {
+        const endpoint = key.split('#').slice(2).join('#');
+        pcEndpointMap.set(endpoint, recs);
+      }
+    }
+    const pcEndpoints = buildTopEndpoints(pcEndpointMap);
+
     // SUMMARY for this platform + country combo
     aggregates.push(
       createAggregate(pcRecs, pk, 'SUMMARY', undefined, {
         dependencies: aggregateDependencies(pcRecs),
+        topEndpoints: pcEndpoints,
       }),
     );
 
@@ -547,7 +767,11 @@ const aggregateApiMetrics = (
       const [keyPlatform, keyCountry, ...rest] = pceKey.split('#');
       const keyEndpoint = rest.join('#');
       if (keyPlatform === platform && keyCountry === country) {
-        aggregates.push(createAggregate(recs, pk, `E#${keyEndpoint}`));
+        aggregates.push(
+          createAggregate(recs, pk, `E#${keyEndpoint}`, undefined, {
+            dependencies: aggregateDependencies(recs),
+          }),
+        );
       }
     }
   }

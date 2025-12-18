@@ -12,7 +12,7 @@ const useProxy = $app.stage !== 'production' && !$app.stage.startsWith('pr-');
 
 const apiBaseUrl = useProdApi ? PROD_API_URL : apiRouter.url;
 const apiProxy = useProxy ? apiBaseUrl : undefined;
-const apiUrl = useProxy ? '/api' : apiBaseUrl;
+const apiUrl = useProxy ? '/_api' : apiBaseUrl;
 const authUrl = useProdApi ? PROD_AUTH_URL : auth.url;
 
 new sst.aws.StaticSite('Dashboard', {

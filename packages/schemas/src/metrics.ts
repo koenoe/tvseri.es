@@ -34,6 +34,32 @@ export const HistogramSchema = v.object({
   bins: v.array(v.number()),
 });
 
+/**
+ * Base percentile fields (p75, p90, p95, p99).
+ * Reused across multiple schemas for latency distributions.
+ */
+const PercentileFields = {
+  /** 75th percentile */
+  p75: v.number(),
+  /** 90th percentile */
+  p90: v.number(),
+  /** 95th percentile */
+  p95: v.number(),
+  /** 99th percentile */
+  p99: v.number(),
+};
+
+/**
+ * Base error tracking fields.
+ * Reused across schemas that track error rates.
+ */
+const ErrorFields = {
+  /** Error count for multi-day aggregation */
+  errorCount: v.number(),
+  /** Error rate as percentage (0-100) */
+  errorRate: v.number(),
+};
+
 // ============================================================================
 // Apdex schemas (Application Performance Index - open standard)
 // ============================================================================
@@ -93,10 +119,7 @@ export const PercentileStatsSchema = v.object({
   count: v.number(),
   /** Histogram for accurate multi-day percentile aggregation */
   histogram: v.optional(HistogramSchema),
-  p75: v.number(),
-  p90: v.number(),
-  p95: v.number(),
-  p99: v.number(),
+  ...PercentileFields,
   /** Latency ratings breakdown for distribution visualization */
   ratings: v.optional(LatencyRatingsSchema),
 });
@@ -107,16 +130,10 @@ export const PercentileStatsSchema = v.object({
  */
 export const DependencyStatsSchema = v.object({
   count: v.number(),
-  /** Error count for multi-day aggregation */
-  errorCount: v.number(),
-  /** Error rate (failed calls / total calls) as percentage */
-  errorRate: v.number(),
+  ...ErrorFields,
   /** Histogram for accurate multi-day percentile aggregation */
   histogram: v.optional(HistogramSchema),
-  p75: v.number(),
-  p90: v.number(),
-  p95: v.number(),
-  p99: v.number(),
+  ...PercentileFields,
   /** Throughput: calls per minute */
   throughput: v.number(),
 });
@@ -228,15 +245,54 @@ export const StatusCodeBreakdownSchema = v.object({
 });
 
 /**
+ * Top country item for geographic breakdown on endpoint detail pages.
+ * Shows which countries are hitting an endpoint and their performance.
+ */
+export const ApiTopCountrySchema = v.object({
+  /** Country code (ISO 3166-1 alpha-2) */
+  country: v.string(),
+  ...ErrorFields,
+  /** Histogram for accurate multi-day percentile aggregation */
+  histogram: HistogramSchema,
+  ...PercentileFields,
+  /** Number of requests from this country */
+  requestCount: v.number(),
+});
+
+/**
  * Top endpoint item for leaderboards in SUMMARY.
  * Similar to WebVitalTopItemSchema but for API metrics.
  */
 export const ApiTopEndpointSchema = v.object({
   /** Apdex score (0-1) */
   apdexScore: v.number(),
+  /** Dependency names for this endpoint (e.g., ["TMDB", "MDBLIST"]) */
+  dependencyNames: v.array(v.string()),
   /** Endpoint identifier (e.g., "GET /tv/[id]") */
   endpoint: v.string(),
+  ...ErrorFields,
+  /** Histogram for accurate multi-day percentile aggregation */
+  histogram: HistogramSchema,
+  ...PercentileFields,
   /** Number of requests */
+  requestCount: v.number(),
+});
+
+/**
+ * Top path item for endpoint detail pages.
+ * Shows concrete paths (e.g., "/series/1396") with their metrics.
+ * Includes histogram for accurate multi-day percentile aggregation.
+ */
+export const ApiTopPathSchema = v.object({
+  /** Status code counts (e.g., {"200": 150, "404": 3}) */
+  codes: v.record(v.string(), v.number()),
+  ...ErrorFields,
+  /** Histogram for accurate multi-day percentile aggregation */
+  histogram: HistogramSchema,
+  ...PercentileFields,
+  /** Concrete path (e.g., "/series/1396") */
+  path: v.string(),
+  /** Number of requests to this path */
   requestCount: v.number(),
 });
 
@@ -326,10 +382,20 @@ export const ApiMetricAggregateSchema = v.object({
   /** Status code breakdown */
   statusCodes: StatusCodeBreakdownSchema,
   /**
+   * Top countries by request count, embedded in ENDPOINT items.
+   * Geographic breakdown for endpoint detail pages.
+   */
+  topCountries: v.optional(v.array(ApiTopCountrySchema)),
+  /**
    * Top endpoints by request count, embedded in SUMMARY items.
    * Pre-computed leaderboard for dashboard.
    */
   topEndpoints: v.optional(v.array(ApiTopEndpointSchema)),
+  /**
+   * Top paths by request count, embedded in ENDPOINT items.
+   * Shows concrete paths (e.g., "/series/1396") for endpoint detail pages.
+   */
+  topPaths: v.optional(v.array(ApiTopPathSchema)),
   type: v.literal('api-aggregate'),
 });
 
@@ -343,27 +409,15 @@ export const WebVitalRatingsSchema = v.object({
 });
 
 /**
- * Histogram for storing value distributions.
- * Uses fixed bin edges for each metric type to enable accurate percentile
- * calculation when aggregating across multiple days.
+ * Aggregated stats for a single web vital metric.
+ * Full percentile distribution + ratings breakdown + histogram for accurate aggregation.
  *
- * Bin edges per metric (values in native units - ms for INP, s for others, unitless for CLS):
+ * Histogram bin edges per metric (values in native units - ms for INP, s for others, unitless for CLS):
  * - LCP: [0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 8.0, ∞]
  * - FCP: [0, 0.5, 1.0, 1.5, 1.8, 2.2, 2.6, 3.0, 4.0, 5.0, ∞]
  * - INP: [0, 50, 100, 150, 200, 300, 400, 500, 750, 1000, ∞]
  * - CLS: [0, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.35, 0.5, ∞]
  * - TTFB: [0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.8, 2.5, 4.0, ∞]
- *
- * bins[i] = count of values in range [edges[i], edges[i+1])
- */
-export const WebVitalHistogramSchema = v.object({
-  /** Array of counts per bin (length = number of edges - 1) */
-  bins: v.array(v.number()),
-});
-
-/**
- * Aggregated stats for a single web vital metric.
- * Full percentile distribution + ratings breakdown + histogram for accurate aggregation.
  */
 export const WebVitalMetricStatsSchema = v.object({
   /** Sample count for this metric */
@@ -372,15 +426,8 @@ export const WebVitalMetricStatsSchema = v.object({
    * Histogram for accurate percentile calculation across multiple days.
    * Optional for backward compatibility with existing data.
    */
-  histogram: v.optional(WebVitalHistogramSchema),
-  /** 75th percentile (Vercel's primary) */
-  p75: v.number(),
-  /** 90th percentile */
-  p90: v.number(),
-  /** 95th percentile */
-  p95: v.number(),
-  /** 99th percentile (tail latency) */
-  p99: v.number(),
+  histogram: v.optional(HistogramSchema),
+  ...PercentileFields,
   /** Ratings breakdown */
   ratings: WebVitalRatingsSchema,
 });
@@ -698,11 +745,14 @@ export type DependencyStats = v.InferOutput<typeof DependencyStatsSchema>;
 export type StatusCodeBreakdown = v.InferOutput<
   typeof StatusCodeBreakdownSchema
 >;
+export type ApiTopCountry = v.InferOutput<typeof ApiTopCountrySchema>;
+export type ApiTopEndpoint = v.InferOutput<typeof ApiTopEndpointSchema>;
+export type ApiTopPath = v.InferOutput<typeof ApiTopPathSchema>;
 export type HttpMethod = v.InferOutput<typeof HttpMethodSchema>;
 export type WebVitalName = v.InferOutput<typeof WebVitalNameSchema>;
 export type WebVitalRating = v.InferOutput<typeof WebVitalRatingSchema>;
 export type WebVitalRatings = v.InferOutput<typeof WebVitalRatingsSchema>;
-export type WebVitalHistogram = v.InferOutput<typeof WebVitalHistogramSchema>;
+export type Histogram = v.InferOutput<typeof HistogramSchema>;
 export type WebVitalMetricStats = v.InferOutput<
   typeof WebVitalMetricStatsSchema
 >;

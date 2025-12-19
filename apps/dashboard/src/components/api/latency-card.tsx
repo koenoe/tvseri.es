@@ -75,6 +75,8 @@ const LatencyCard = memo(function LatencyCard({
   series,
 }: LatencyCardProps) {
   const status = getLatencyStatus(p75);
+  const colorKey =
+    status === 'fast' ? 'green' : status === 'moderate' ? 'amber' : 'red';
 
   const { linePath, areaPath, color } = useMemo(() => {
     const points = series.map((s) => s.latency.p75);
@@ -85,16 +87,14 @@ const LatencyCard = memo(function LatencyCard({
     const area =
       points.length > 0 ? `${line} L ${width},${height} L 0,${height} Z` : '';
 
-    const statusColor =
-      STATUS_COLORS[status as keyof typeof STATUS_COLORS] ||
-      STATUS_COLORS.green;
+    const statusColor = STATUS_COLORS[colorKey];
 
     return {
       areaPath: area,
       color: statusColor.hsl,
       linePath: line,
     };
-  }, [series, status]);
+  }, [series, colorKey]);
 
   return (
     <Card className="w-full border">
@@ -128,7 +128,7 @@ const LatencyCard = memo(function LatencyCard({
             >
               <defs>
                 <linearGradient
-                  id={`gradient-${status}`}
+                  id={`gradient-${colorKey}`}
                   x1="0"
                   x2="0"
                   y1="0"
@@ -138,7 +138,7 @@ const LatencyCard = memo(function LatencyCard({
                   <stop offset="100%" stopColor={color} stopOpacity="0" />
                 </linearGradient>
               </defs>
-              <path d={areaPath} fill={`url(#gradient-${status})`} />
+              <path d={areaPath} fill={`url(#gradient-${colorKey})`} />
               <path
                 d={linePath}
                 fill="none"

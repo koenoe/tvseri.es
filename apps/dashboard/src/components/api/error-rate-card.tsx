@@ -161,7 +161,7 @@ const ErrorRateCard = memo(function ErrorRateCard({
         </div>
 
         <div className="flex-1 min-w-0 flex justify-end">
-          <div className="w-full max-w-[200px] flex gap-0.5">
+          <div className="w-full max-w-50 flex gap-0.5">
             {Array.from({ length: BAR_COUNT }).map((_, i) => {
               const isFilled = i < filledBars;
               return (
@@ -203,7 +203,7 @@ function ErrorRateCardSkeleton() {
           </span>
         </Skeleton>
         <div className="flex-1 min-w-0 flex justify-end">
-          <div className="w-full max-w-[200px] flex gap-0.5">
+          <div className="w-full max-w-50 flex gap-0.5">
             {Array.from({ length: BAR_COUNT }).map((_, i) => (
               <div className="h-5 rounded-full flex-1 bg-muted/30" key={i} />
             ))}

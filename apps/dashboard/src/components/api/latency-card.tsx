@@ -119,7 +119,7 @@ const LatencyCard = memo(function LatencyCard({
         </div>
 
         <div className="flex-1 h-14 min-w-0 flex justify-end">
-          <div className="h-full w-full max-w-[200px] relative">
+          <div className="h-full w-full max-w-50 relative">
             <svg
               aria-hidden="true"
               className="w-full h-full overflow-visible"
@@ -180,7 +180,7 @@ function LatencyCardSkeleton() {
           </span>
         </Skeleton>
         <div className="flex-1 h-14 min-w-0 flex justify-end">
-          <Skeleton className="h-full w-full max-w-[200px] rounded-sm" />
+          <Skeleton className="h-full w-full max-w-50 rounded-sm" />
         </div>
       </CardContent>
     </Card>

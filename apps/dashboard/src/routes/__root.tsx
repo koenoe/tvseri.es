@@ -1,12 +1,24 @@
 import { TanStackDevtools } from '@tanstack/react-devtools';
 import { createRootRoute, Outlet, redirect } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+import { Loader2 } from 'lucide-react';
 
 import { AppSidebar } from '@/components/app-sidebar';
 import { SiteHeader } from '@/components/site-header';
-import { PageSkeleton } from '@/components/skeletons';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import * as auth from '@/lib/auth';
+
+function Preloader() {
+  return (
+    <div className="flex min-h-svh w-full bg-sidebar">
+      <main className="relative flex w-full flex-1 flex-col items-center justify-center bg-card text-card-foreground lg:m-2.5 lg:rounded-xl lg:shadow-sm">
+        <Loader2 className="size-8 animate-spin text-white" />
+        <p className="mt-4 text-sm text-white">Authenticating</p>
+      </main>
+    </div>
+  );
+}
+Preloader.displayName = 'Preloader';
 
 function RootComponent() {
   return (
@@ -54,5 +66,5 @@ export const Route = createRootRoute({
     return { user };
   },
   component: RootComponent,
-  pendingComponent: PageSkeleton,
+  pendingComponent: Preloader,
 });

@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { ApdexCard } from '@/components/api/apdex-card';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ApdexCard, ApdexCardSkeleton } from '@/components/api/apdex-card';
+import { ApiHeader } from '@/components/api-header';
 import { useApiMetricsSummary } from '@/lib/api';
 
 type ApiSearchParams = {
@@ -11,6 +10,7 @@ type ApiSearchParams = {
 export const Route = createFileRoute('/api/')({
   component: ApiMetrics,
   staticData: {
+    headerContent: ApiHeader,
     title: 'API',
   },
   validateSearch: (search: Record<string, unknown>): ApiSearchParams => {
@@ -26,29 +26,14 @@ function ApiMetrics() {
   const { days: daysParam } = Route.useSearch();
   const days = daysParam ?? 7;
 
-  const { data, isLoading, error } = useApiMetricsSummary({
+  const { data, isLoading } = useApiMetricsSummary({
     days,
   });
-
-  if (error) {
-    return (
-      <Card className="border-red-200 bg-red-50">
-        <CardHeader>
-          <CardTitle className="text-red-800">Error loading metrics</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-red-600">
-            {(error as Error).message || 'An unknown error occurred'}
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
       {isLoading ? (
-        <Skeleton className="h-[50] w-full rounded-xl" />
+        <ApdexCardSkeleton />
       ) : (
         <ApdexCard score={data?.aggregated?.apdex.score ?? 0} />
       )}

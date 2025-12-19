@@ -1,18 +1,15 @@
-import type { LucideIcon } from 'lucide-react';
 import { memo } from 'react';
 
 import type { GroupedMetricData } from '@/lib/api/utils';
-import type { RatingStatus } from '@/lib/web-vitals';
+import {
+  COLUMN_PADDING,
+  DEFAULT_EMPTY_MESSAGES,
+  type RatingStatus,
+  type StatusConfig,
+} from '@/lib/web-vitals';
 
 import { StatusHeader } from './status-header';
 import { StatusList } from './status-list';
-
-type StatusConfig = Readonly<{
-  Icon: LucideIcon;
-  label: string;
-  text: string;
-  threshold: string;
-}>;
 
 type StatusColumnsProps = Readonly<{
   data: GroupedMetricData;
@@ -27,18 +24,6 @@ const COLUMN_ORDER: ReadonlyArray<RatingStatus> = [
   'needsImprovement',
   'great',
 ];
-
-const COLUMN_PADDING: Record<RatingStatus, string> = {
-  great: 'pl-6',
-  needsImprovement: 'px-6',
-  poor: 'pr-6',
-};
-
-const DEFAULT_EMPTY_MESSAGES: Record<RatingStatus, string> = {
-  great: 'No great scores',
-  needsImprovement: 'No needs improvement scores',
-  poor: 'No poor scores',
-};
 
 function StatusColumnsComponent({
   data,

@@ -1,5 +1,3 @@
-'use client';
-
 import { Link, useRouterState } from '@tanstack/react-router';
 import {
   BarChart3,
@@ -9,6 +7,7 @@ import {
   LogOut,
   type LucideIcon,
 } from 'lucide-react';
+import { memo } from 'react';
 
 import logo from '@/assets/logo.svg';
 import {
@@ -144,4 +143,4 @@ function AppSidebarComponent(props: React.ComponentProps<typeof Sidebar>) {
 
 AppSidebarComponent.displayName = 'AppSidebar';
 
-export { AppSidebarComponent as AppSidebar };
+export const AppSidebar = memo(AppSidebarComponent);

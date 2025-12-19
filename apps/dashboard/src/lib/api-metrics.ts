@@ -1,86 +1,49 @@
-/**
- * API metrics utilities for Apdex-based status grouping
- * Similar to web-vitals.ts but for API performance metrics
- */
+import { countryDisplayNames, STATUS_COLORS } from './status-colors';
 
-// ════════════════════════════════════════════════════════════════════════════
-// APDEX STATUS TYPES AND THRESHOLDS
-// ════════════════════════════════════════════════════════════════════════════
-
-/**
- * Official Apdex status levels.
- * Based on the Apdex standard where:
- * - Satisfied: score ≥ 0.85 (most users happy)
- * - Tolerating: 0.50 ≤ score < 0.85 (users tolerating)
- * - Frustrated: score < 0.50 (users frustrated)
- */
 export type ApdexStatus = 'frustrated' | 'satisfied' | 'tolerating';
 
 type ApdexThreshold = Readonly<{
-  /** Background color class */
   bg: string;
-  /** HSL color for charts */
   hsl: string;
-  /** Human-readable label */
   label: string;
-  /** Minimum score for this status (inclusive) */
   min: number;
-  /** Text color class */
   text: string;
-  /** Threshold label for display */
   threshold: string;
 }>;
 
 export const APDEX_THRESHOLDS: Record<ApdexStatus, ApdexThreshold> = {
   frustrated: {
-    bg: 'bg-red-500',
-    hsl: 'hsl(0, 72%, 51%)',
+    ...STATUS_COLORS.red,
     label: 'Frustrated',
     min: 0,
-    text: 'text-red-500',
     threshold: '<0.50',
   },
   satisfied: {
-    bg: 'bg-green-500',
-    hsl: 'hsl(142, 71%, 45%)',
+    ...STATUS_COLORS.green,
     label: 'Satisfied',
     min: 0.85,
-    text: 'text-green-500',
     threshold: '≥0.85',
   },
   tolerating: {
-    bg: 'bg-amber-500',
-    hsl: 'hsl(38, 92%, 50%)',
+    ...STATUS_COLORS.amber,
     label: 'Tolerating',
     min: 0.5,
-    text: 'text-amber-500',
     threshold: '0.50–0.84',
   },
 } as const;
 
-/** Ordered from best to worst for display */
 export const APDEX_STATUS_ORDER: ReadonlyArray<ApdexStatus> = [
   'satisfied',
   'tolerating',
   'frustrated',
 ];
 
-// ════════════════════════════════════════════════════════════════════════════
-// STATUS HELPERS
-// ════════════════════════════════════════════════════════════════════════════
-
-/**
- * Get Apdex status from score (official thresholds).
- */
 export const getApdexStatus = (score: number): ApdexStatus => {
   if (score >= 0.85) return 'satisfied';
   if (score >= 0.5) return 'tolerating';
   return 'frustrated';
 };
 
-/**
- * Get full status config for an Apdex score.
- */
 export const getApdexStatusConfig = (score: number) => {
   const status = getApdexStatus(score);
   return {
@@ -89,16 +52,9 @@ export const getApdexStatusConfig = (score: number) => {
   };
 };
 
-/**
- * Format Apdex score for display (e.g., 0.94 → "0.94")
- */
 export const formatApdexScore = (score: number): string => {
   return score.toFixed(2);
 };
-
-// ════════════════════════════════════════════════════════════════════════════
-// LATENCY THRESHOLDS AND HELPERS
-// ════════════════════════════════════════════════════════════════════════════
 
 export type LatencyStatus = 'fast' | 'moderate' | 'slow';
 
@@ -111,41 +67,25 @@ type LatencyThreshold = Readonly<{
 
 export const LATENCY_THRESHOLDS: Record<LatencyStatus, LatencyThreshold> = {
   fast: {
-    bg: 'bg-green-500',
-    hsl: 'hsl(142, 71%, 45%)',
+    ...STATUS_COLORS.green,
     label: 'Fast',
-    text: 'text-green-500',
   },
   moderate: {
-    bg: 'bg-amber-500',
-    hsl: 'hsl(38, 92%, 50%)',
+    ...STATUS_COLORS.amber,
     label: 'Moderate',
-    text: 'text-amber-500',
   },
   slow: {
-    bg: 'bg-red-500',
-    hsl: 'hsl(0, 72%, 51%)',
+    ...STATUS_COLORS.red,
     label: 'Slow',
-    text: 'text-red-500',
   },
 } as const;
 
-/**
- * Get latency status based on p75 value.
- * Thresholds based on typical API expectations:
- * - Fast: <200ms
- * - Moderate: 200-500ms
- * - Slow: >500ms
- */
 export const getLatencyStatus = (p75Ms: number): LatencyStatus => {
   if (p75Ms < 200) return 'fast';
   if (p75Ms < 500) return 'moderate';
   return 'slow';
 };
 
-/**
- * Format latency for display.
- */
 export const formatLatency = (ms: number): string => {
   if (ms < 1000) return `${Math.round(ms)}ms`;
   return `${(ms / 1000).toFixed(2)}s`;
@@ -183,9 +123,6 @@ export type LatencyStats = Readonly<{
   p99: number;
 }>;
 
-/**
- * Format all percentiles for display.
- */
 export const formatLatencyStats = (
   stats: LatencyStats,
 ): Record<PercentileKey, string> => {
@@ -196,10 +133,6 @@ export const formatLatencyStats = (
     p99: formatLatency(stats.p99),
   };
 };
-
-// ════════════════════════════════════════════════════════════════════════════
-// ERROR RATE THRESHOLDS
-// ════════════════════════════════════════════════════════════════════════════
 
 export type ErrorRateStatus = 'critical' | 'healthy' | 'warning';
 
@@ -215,86 +148,34 @@ export const ERROR_RATE_THRESHOLDS: Record<
   ErrorRateThreshold
 > = {
   critical: {
-    bg: 'bg-red-500',
-    hsl: 'hsl(0, 72%, 51%)',
+    ...STATUS_COLORS.red,
     label: 'Critical',
-    text: 'text-red-500',
   },
   healthy: {
-    bg: 'bg-green-500',
-    hsl: 'hsl(142, 71%, 45%)',
+    ...STATUS_COLORS.green,
     label: 'Healthy',
-    text: 'text-green-500',
   },
   warning: {
-    bg: 'bg-amber-500',
-    hsl: 'hsl(38, 92%, 50%)',
+    ...STATUS_COLORS.amber,
     label: 'Warning',
-    text: 'text-amber-500',
   },
 } as const;
 
-/**
- * Get error rate status.
- * - Healthy: <1%
- * - Warning: 1-5%
- * - Critical: >5%
- */
 export const getErrorRateStatus = (errorRate: number): ErrorRateStatus => {
   if (errorRate < 1) return 'healthy';
   if (errorRate < 5) return 'warning';
   return 'critical';
 };
 
-/**
- * Format error rate for display.
- */
 export const formatErrorRate = (rate: number): string => {
   return `${rate.toFixed(2)}%`;
 };
 
-// ════════════════════════════════════════════════════════════════════════════
-// REQUEST COUNT HELPERS
-// ════════════════════════════════════════════════════════════════════════════
-
-/**
- * Format request count for display.
- * >= 1000000 shows as 1M, 1.5M, etc.
- * >= 1000 shows as 1k, 1.5k, etc.
- * < 1000 shows full number.
- */
-export const formatRequestCount = (count: number): string => {
-  if (count < 1000) {
-    return String(count);
-  }
-  if (count < 1000000) {
-    const thousands = count / 1000;
-    const formatted =
-      thousands % 1 === 0 ? thousands.toFixed(0) : thousands.toFixed(1);
-    return `${formatted}k`;
-  }
-  const millions = count / 1000000;
-  const formatted =
-    millions % 1 === 0 ? millions.toFixed(0) : millions.toFixed(1);
-  return `${formatted}M`;
-};
-
-// ════════════════════════════════════════════════════════════════════════════
-// THROUGHPUT HELPERS
-// ════════════════════════════════════════════════════════════════════════════
-
-/**
- * Format throughput (requests per minute) for display.
- */
 export const formatThroughput = (rpm: number): string => {
   if (rpm < 1) return `${(rpm * 60).toFixed(1)}/hr`;
   if (rpm < 1000) return `${rpm.toFixed(1)}/min`;
   return `${(rpm / 1000).toFixed(1)}k/min`;
 };
-
-// ════════════════════════════════════════════════════════════════════════════
-// GROUPING UTILITIES
-// ════════════════════════════════════════════════════════════════════════════
 
 export type EndpointMetricItem = Readonly<{
   apdexScore: number;
@@ -311,10 +192,6 @@ export type GroupedEndpointData = Readonly<{
   tolerating: ReadonlyArray<EndpointMetricItem>;
 }>;
 
-/**
- * Group endpoints by their Apdex status.
- * Items within each group are sorted by Apdex score (best to worst).
- */
 export const groupEndpointsByApdex = (
   endpoints: ReadonlyArray<{
     apdex: { score: number };
@@ -366,12 +243,6 @@ export type GroupedCountryData = Readonly<{
   tolerating: ReadonlyArray<CountryMetricItem>;
 }>;
 
-const countryDisplayNames = new Intl.DisplayNames(['en'], { type: 'region' });
-
-/**
- * Group countries by their Apdex status.
- * Items within each group are sorted by Apdex score (best to worst).
- */
 export const groupCountriesByApdex = (
   countries: ReadonlyArray<{
     apdex: { score: number };
@@ -422,10 +293,6 @@ export type GroupedPlatformData = Readonly<{
   tolerating: ReadonlyArray<PlatformMetricItem>;
 }>;
 
-/**
- * Group platforms by their Apdex status.
- * Items within each group are sorted by Apdex score (best to worst).
- */
 export const groupPlatformsByApdex = (
   platforms: ReadonlyArray<{
     apdex: { score: number };
@@ -460,10 +327,6 @@ export const groupPlatformsByApdex = (
   return groups;
 };
 
-// ════════════════════════════════════════════════════════════════════════════
-// DEPENDENCY HELPERS
-// ════════════════════════════════════════════════════════════════════════════
-
 export type DependencyMetricItem = Readonly<{
   errorRate: number;
   latency: LatencyStats;
@@ -478,16 +341,10 @@ const DEPENDENCY_NAMES: Record<string, string> = {
   tmdb: 'TMDB',
 };
 
-/**
- * Format dependency source name for display.
- */
 export const formatDependencyName = (source: string): string => {
   return DEPENDENCY_NAMES[source.toLowerCase()] ?? source;
 };
 
-/**
- * Transform raw dependency data into display format.
- */
 export const formatDependencies = (
   dependencies: Record<
     string,

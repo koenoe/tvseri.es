@@ -1,31 +1,37 @@
-import { CircleAlert, CircleCheck, CircleMinus } from 'lucide-react';
+import {
+  CircleAlert,
+  CircleCheck,
+  CircleMinus,
+  type LucideIcon,
+} from 'lucide-react';
 
-/**
- * Web Vitals metrics configuration
- * Each metric has different thresholds for good/needs-improvement/poor
- */
+import { STATUS_COLORS } from './status-colors';
 
 export type RatingStatus = 'great' | 'needsImprovement' | 'poor';
 
-export const STATUS_COLORS = {
-  great: {
-    bg: 'bg-green-500',
-    // Matches Tailwind green-500
-    hsl: 'hsl(142, 71%, 45%)',
-    text: 'text-green-500',
-  },
-  needsImprovement: {
-    bg: 'bg-amber-500',
-    // Matches Tailwind amber-500
-    hsl: 'hsl(38, 92%, 50%)',
-    text: 'text-amber-500',
-  },
-  poor: {
-    bg: 'bg-red-500',
-    // Matches Tailwind red-500
-    hsl: 'hsl(0, 72%, 51%)',
-    text: 'text-red-500',
-  },
+export type StatusConfig = Readonly<{
+  Icon: LucideIcon;
+  label: string;
+  text: string;
+  threshold: string;
+}>;
+
+export const DEFAULT_EMPTY_MESSAGES: Record<RatingStatus, string> = {
+  great: 'No great scores',
+  needsImprovement: 'No needs improvement scores',
+  poor: 'No poor scores',
+};
+
+export const COLUMN_PADDING: Record<RatingStatus, string> = {
+  great: 'pl-6',
+  needsImprovement: 'px-6',
+  poor: 'pr-6',
+};
+
+export const RATING_COLORS = {
+  great: STATUS_COLORS.green,
+  needsImprovement: STATUS_COLORS.amber,
+  poor: STATUS_COLORS.red,
 } as const;
 
 export const STATUS_ICONS = {
@@ -43,21 +49,13 @@ export const STATUS_LABELS = {
 export type MetricType = 'cls' | 'fcp' | 'inp' | 'lcp' | 'res' | 'ttfb';
 
 type MetricConfig = Readonly<{
-  // Description of what this metric measures
   description: string;
-  // Full name of the metric
   label: string;
-  // URL to learn more about this metric
   learnMoreUrl: string;
-  // Lower is better (like time-based metrics) or higher is better (like RES)
   lowerIsBetter: boolean;
-  // Short name/abbreviation
   name: string;
-  // Threshold between great and needs-improvement
   thresholdGreat: number;
-  // Threshold between needs-improvement and poor
   thresholdPoor: number;
-  // Unit for display (s, ms, or empty for unitless)
   unit: '' | 'ms' | 's';
 }>;
 
@@ -138,12 +136,10 @@ export const getMetricStatus = (
   const config = METRICS_CONFIG[metric];
 
   if (config.lowerIsBetter) {
-    // Lower is better (time-based metrics)
     if (value <= config.thresholdGreat) return 'great';
     if (value <= config.thresholdPoor) return 'needsImprovement';
     return 'poor';
   }
-  // Higher is better (RES)
   if (value > config.thresholdGreat) return 'great';
   if (value >= config.thresholdPoor) return 'needsImprovement';
   return 'poor';
@@ -154,7 +150,7 @@ export const getMetricHslColor = (
   value: number,
 ): string => {
   const status = getMetricStatus(metric, value);
-  return STATUS_COLORS[status].hsl;
+  return RATING_COLORS[status].hsl;
 };
 
 export const getMetricTextClass = (
@@ -162,12 +158,9 @@ export const getMetricTextClass = (
   value: number,
 ): string => {
   const status = getMetricStatus(metric, value);
-  return STATUS_COLORS[status].text;
+  return RATING_COLORS[status].text;
 };
 
-/**
- * Format a threshold value with its unit for display.
- */
 const formatThreshold = (value: number, unit: '' | 'ms' | 's'): string => {
   return `${value}${unit}`;
 };
@@ -185,7 +178,6 @@ export const getMetricThresholdLabels = (metric: MetricType) => {
       poor: `>${poor}`,
     };
   }
-  // Higher is better (RES)
   return {
     great: `>${great}`,
     needsImprovement: `${poor} - ${great}`,
@@ -193,10 +185,6 @@ export const getMetricThresholdLabels = (metric: MetricType) => {
   };
 };
 
-/**
- * Get human-readable threshold labels for display.
- * e.g., "Below 100ms", "Above 200ms", "Above 3s"
- */
 export const getMetricThresholdReadableLabels = (metric: MetricType) => {
   const config = METRICS_CONFIG[metric];
   const unit = config.unit;
@@ -210,7 +198,6 @@ export const getMetricThresholdReadableLabels = (metric: MetricType) => {
       poor: `Above ${poor}`,
     };
   }
-  // Higher is better (RES)
   return {
     great: `Above ${great}`,
     needsImprovement: `Below ${great}`,
@@ -224,7 +211,7 @@ export const getMetricStatusConfig = (metric: MetricType, value: number) => {
   const readableThresholds = getMetricThresholdReadableLabels(metric);
 
   return {
-    ...STATUS_COLORS[status],
+    ...RATING_COLORS[status],
     Icon: STATUS_ICONS[status],
     label: STATUS_LABELS[status],
     status,
@@ -233,31 +220,27 @@ export const getMetricStatusConfig = (metric: MetricType, value: number) => {
   };
 };
 
-/**
- * Static config for all three rating statuses
- * Useful for rendering all categories (poor/needs-improvement/great)
- */
 export const getRatingStatusConfig = (metric: MetricType) => {
   const thresholds = getMetricThresholdLabels(metric);
   const readableThresholds = getMetricThresholdReadableLabels(metric);
 
   return {
     great: {
-      ...STATUS_COLORS.great,
+      ...RATING_COLORS.great,
       Icon: STATUS_ICONS.great,
       label: STATUS_LABELS.great,
       threshold: thresholds.great,
       thresholdLabel: readableThresholds.great,
     },
     needsImprovement: {
-      ...STATUS_COLORS.needsImprovement,
+      ...RATING_COLORS.needsImprovement,
       Icon: STATUS_ICONS.needsImprovement,
       label: STATUS_LABELS.needsImprovement,
       threshold: thresholds.needsImprovement,
       thresholdLabel: readableThresholds.needsImprovement,
     },
     poor: {
-      ...STATUS_COLORS.poor,
+      ...RATING_COLORS.poor,
       Icon: STATUS_ICONS.poor,
       label: STATUS_LABELS.poor,
       threshold: thresholds.poor,

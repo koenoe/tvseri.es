@@ -1,4 +1,3 @@
-import type { LucideIcon } from 'lucide-react';
 import { memo } from 'react';
 
 import {
@@ -8,17 +7,14 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import type { GroupedMetricData } from '@/lib/api/utils';
-import type { RatingStatus } from '@/lib/web-vitals';
+import {
+  DEFAULT_EMPTY_MESSAGES,
+  type RatingStatus,
+  type StatusConfig,
+} from '@/lib/web-vitals';
 
 import { StatusHeader } from './status-header';
 import { StatusList } from './status-list';
-
-type StatusConfig = Readonly<{
-  Icon: LucideIcon;
-  label: string;
-  text: string;
-  threshold: string;
-}>;
 
 type StatusAccordionProps = Readonly<{
   className?: string;
@@ -43,12 +39,6 @@ const STATUS_TO_VALUE: Record<RatingStatus, string> = {
   great: 'great',
   needsImprovement: 'needs-improvement',
   poor: 'poor',
-};
-
-const DEFAULT_EMPTY_MESSAGES: Record<RatingStatus, string> = {
-  great: 'No great scores',
-  needsImprovement: 'No needs improvement scores',
-  poor: 'No poor scores',
 };
 
 function StatusAccordionComponent({

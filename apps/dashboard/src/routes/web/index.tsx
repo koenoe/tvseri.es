@@ -25,8 +25,8 @@ import {
   useMetricsSummary,
 } from '@/lib/api';
 import {
-  getMetricStatus,
   getMetricStatusConfig,
+  getMetricTextClass,
   getRatingStatusConfig,
   METRICS_CONFIG,
   type MetricType,
@@ -314,6 +314,23 @@ function MetricTabContent({
   );
 }
 
+const TAB_SKELETON_WIDTHS: Record<Exclude<MetricType, 'res'>, string> = {
+  cls: 'w-6',
+  fcp: 'w-14',
+  inp: 'w-20',
+  lcp: 'w-16',
+  ttfb: 'w-14',
+};
+
+const METRIC_ORDER: ReadonlyArray<MetricType> = [
+  'res',
+  'fcp',
+  'lcp',
+  'inp',
+  'cls',
+  'ttfb',
+];
+
 function WebVitals() {
   const { days: daysParam, device: deviceParam } = Route.useSearch();
   const days = daysParam ?? 7;
@@ -334,17 +351,6 @@ function WebVitals() {
     return getMetricValue(metric, aggregated);
   };
 
-  const getMetricTextColor = (metric: MetricType): string => {
-    const value = getMetricP75(metric);
-    const status = getMetricStatus(metric, value);
-    const colors: Record<RatingStatus, string> = {
-      great: 'text-green-500',
-      needsImprovement: 'text-amber-500',
-      poor: 'text-red-500',
-    };
-    return colors[status];
-  };
-
   const getMetricRatings = (
     metric: Exclude<MetricType, 'res'>,
   ): WebVitalRatings | null => {
@@ -353,15 +359,67 @@ function WebVitals() {
     return aggregated[key]?.ratings ?? null;
   };
 
-  const metricRatings: Record<
-    Exclude<MetricType, 'res'>,
-    WebVitalRatings | null
-  > = {
-    cls: getMetricRatings('cls'),
-    fcp: getMetricRatings('fcp'),
-    inp: getMetricRatings('inp'),
-    lcp: getMetricRatings('lcp'),
-    ttfb: getMetricRatings('ttfb'),
+  const renderMetricTrigger = (metric: MetricType) => {
+    const config = METRICS_CONFIG[metric];
+
+    if (metric === 'res') {
+      return (
+        <TabsTrigger
+          className="flex flex-col gap-2 items-stretch text-left"
+          key={metric}
+          value={metric}
+        >
+          <span className="text-sm text-muted-foreground leading-normal">
+            {config.label}
+          </span>
+          {isLoading ? (
+            <TabTriggerValueSkeleton isScoreRing />
+          ) : aggregated ? (
+            <ScoreRing score={aggregated.score} size={36} />
+          ) : (
+            noDataPlaceholder
+          )}
+        </TabsTrigger>
+      );
+    }
+
+    const ratings = getMetricRatings(metric);
+    const p75 = getMetricP75(metric);
+    const textColor = getMetricTextClass(metric, p75);
+
+    return (
+      <TabsTrigger
+        className="flex flex-col gap-2 items-stretch text-left"
+        key={metric}
+        value={metric}
+      >
+        <span className="text-sm text-muted-foreground leading-normal">
+          {config.label}
+        </span>
+        {isLoading ? (
+          <TabTriggerValueSkeleton width={TAB_SKELETON_WIDTHS[metric]} />
+        ) : ratings ? (
+          <div className="flex flex-col gap-1 w-full">
+            <span className={`text-xl h-7 ${textColor}`}>
+              {formatMetricDisplay(metric, p75)}
+              {config.unit && (
+                <span className="text-sm font-light ml-0.5 text-muted-foreground/60">
+                  {config.unit}
+                </span>
+              )}
+            </span>
+            <PercentileBar
+              metric={metric}
+              p75Value={p75}
+              ratings={ratings}
+              variant="compact"
+            />
+          </div>
+        ) : (
+          noDataPlaceholder
+        )}
+      </TabsTrigger>
+    );
   };
 
   return (
@@ -372,208 +430,19 @@ function WebVitals() {
       value={activeMetric}
     >
       <TabsList variant="card">
-        <TabsTrigger
-          className="flex flex-col gap-2 items-stretch text-left"
-          value="res"
-        >
-          <span className="text-sm text-muted-foreground leading-normal">
-            Real Experience Score
-          </span>
-          {isLoading ? (
-            <TabTriggerValueSkeleton isScoreRing />
-          ) : aggregated ? (
-            <ScoreRing score={aggregated.score} size={36} />
-          ) : (
-            noDataPlaceholder
-          )}
-        </TabsTrigger>
-        <TabsTrigger
-          className="flex flex-col gap-2 items-stretch text-left"
-          value="fcp"
-        >
-          <span className="text-sm text-muted-foreground leading-normal">
-            First Contentful Paint
-          </span>
-          {isLoading ? (
-            <TabTriggerValueSkeleton width="w-14" />
-          ) : metricRatings.fcp ? (
-            <div className="flex flex-col gap-1 w-full">
-              <span className={`text-xl h-7 ${getMetricTextColor('fcp')}`}>
-                {formatMetricDisplay('fcp', getMetricP75('fcp'))}
-                <span className="text-sm font-light ml-0.5 text-muted-foreground/60">
-                  s
-                </span>
-              </span>
-              <PercentileBar
-                metric="fcp"
-                p75Value={getMetricP75('fcp')}
-                ratings={metricRatings.fcp}
-                variant="compact"
-              />
-            </div>
-          ) : (
-            noDataPlaceholder
-          )}
-        </TabsTrigger>
-        <TabsTrigger
-          className="flex flex-col gap-2 items-stretch text-left"
-          value="lcp"
-        >
-          <span className="text-sm text-muted-foreground leading-normal">
-            Largest Contentful Paint
-          </span>
-          {isLoading ? (
-            <TabTriggerValueSkeleton width="w-16" />
-          ) : metricRatings.lcp ? (
-            <div className="flex flex-col gap-1 w-full">
-              <span className={`text-xl h-7 ${getMetricTextColor('lcp')}`}>
-                {formatMetricDisplay('lcp', getMetricP75('lcp'))}
-                <span className="text-sm font-light ml-0.5 text-muted-foreground/60">
-                  s
-                </span>
-              </span>
-              <PercentileBar
-                metric="lcp"
-                p75Value={getMetricP75('lcp')}
-                ratings={metricRatings.lcp}
-                variant="compact"
-              />
-            </div>
-          ) : (
-            noDataPlaceholder
-          )}
-        </TabsTrigger>
-        <TabsTrigger
-          className="flex flex-col gap-2 items-stretch text-left"
-          value="inp"
-        >
-          <span className="text-sm text-muted-foreground leading-normal">
-            Interaction to Next Paint
-          </span>
-          {isLoading ? (
-            <TabTriggerValueSkeleton width="w-20" />
-          ) : metricRatings.inp ? (
-            <div className="flex flex-col gap-1 w-full">
-              <span className={`text-xl h-7 ${getMetricTextColor('inp')}`}>
-                {formatMetricDisplay('inp', getMetricP75('inp'))}
-                <span className="text-sm font-light ml-0.5 text-muted-foreground/60">
-                  ms
-                </span>
-              </span>
-              <PercentileBar
-                metric="inp"
-                p75Value={getMetricP75('inp')}
-                ratings={metricRatings.inp}
-                variant="compact"
-              />
-            </div>
-          ) : (
-            noDataPlaceholder
-          )}
-        </TabsTrigger>
-        <TabsTrigger
-          className="flex flex-col gap-2 items-stretch text-left"
-          value="cls"
-        >
-          <span className="text-sm text-muted-foreground leading-normal">
-            Cumulative Layout Shift
-          </span>
-          {isLoading ? (
-            <TabTriggerValueSkeleton width="w-6" />
-          ) : metricRatings.cls ? (
-            <div className="flex flex-col gap-1 w-full">
-              <span className={`text-xl h-7 ${getMetricTextColor('cls')}`}>
-                {formatMetricDisplay('cls', getMetricP75('cls'))}
-              </span>
-              <PercentileBar
-                metric="cls"
-                p75Value={getMetricP75('cls')}
-                ratings={metricRatings.cls}
-                variant="compact"
-              />
-            </div>
-          ) : (
-            noDataPlaceholder
-          )}
-        </TabsTrigger>
-        <TabsTrigger
-          className="flex flex-col gap-2 items-stretch text-left"
-          value="ttfb"
-        >
-          <span className="text-sm text-muted-foreground leading-normal">
-            Time to First Byte
-          </span>
-          {isLoading ? (
-            <TabTriggerValueSkeleton width="w-14" />
-          ) : metricRatings.ttfb ? (
-            <div className="flex flex-col gap-1 w-full">
-              <span className={`text-xl h-7 ${getMetricTextColor('ttfb')}`}>
-                {formatMetricDisplay('ttfb', getMetricP75('ttfb'))}
-                <span className="text-sm font-light ml-0.5 text-muted-foreground/60">
-                  s
-                </span>
-              </span>
-              <PercentileBar
-                metric="ttfb"
-                p75Value={getMetricP75('ttfb')}
-                ratings={metricRatings.ttfb}
-                variant="compact"
-              />
-            </div>
-          ) : (
-            noDataPlaceholder
-          )}
-        </TabsTrigger>
+        {METRIC_ORDER.map(renderMetricTrigger)}
       </TabsList>
       <div className="flex-1">
-        <TabsContent value="res">
-          <MetricTabContent
-            aggregated={aggregated}
-            days={days}
-            device={device}
-            metric="res"
-          />
-        </TabsContent>
-        <TabsContent value="fcp">
-          <MetricTabContent
-            aggregated={aggregated}
-            days={days}
-            device={device}
-            metric="fcp"
-          />
-        </TabsContent>
-        <TabsContent value="lcp">
-          <MetricTabContent
-            aggregated={aggregated}
-            days={days}
-            device={device}
-            metric="lcp"
-          />
-        </TabsContent>
-        <TabsContent value="inp">
-          <MetricTabContent
-            aggregated={aggregated}
-            days={days}
-            device={device}
-            metric="inp"
-          />
-        </TabsContent>
-        <TabsContent value="cls">
-          <MetricTabContent
-            aggregated={aggregated}
-            days={days}
-            device={device}
-            metric="cls"
-          />
-        </TabsContent>
-        <TabsContent value="ttfb">
-          <MetricTabContent
-            aggregated={aggregated}
-            days={days}
-            device={device}
-            metric="ttfb"
-          />
-        </TabsContent>
+        {METRIC_ORDER.map((metric) => (
+          <TabsContent key={metric} value={metric}>
+            <MetricTabContent
+              aggregated={aggregated}
+              days={days}
+              device={device}
+              metric={metric}
+            />
+          </TabsContent>
+        ))}
       </div>
     </Tabs>
   );

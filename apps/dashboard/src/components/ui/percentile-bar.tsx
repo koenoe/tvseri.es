@@ -11,8 +11,8 @@ import {
   getMetricStatus,
   METRICS_CONFIG,
   type MetricType,
+  RATING_COLORS,
   type RatingStatus,
-  STATUS_COLORS,
 } from '@/lib/web-vitals';
 
 type PercentileBarProps = Readonly<{
@@ -86,7 +86,7 @@ function PercentileBarComponent({
 
   const zones: ZoneData[] = [
     {
-      color: STATUS_COLORS.great.bg,
+      color: RATING_COLORS.great.bg,
       percentage: hasRatingsData
         ? (ratings.good / totalRatings) * 100
         : activeZone === 'great'
@@ -96,7 +96,7 @@ function PercentileBarComponent({
       tooltipLabel: 'a great',
     },
     {
-      color: STATUS_COLORS.needsImprovement.bg,
+      color: RATING_COLORS.needsImprovement.bg,
       percentage: hasRatingsData
         ? (ratings.needsImprovement / totalRatings) * 100
         : activeZone === 'needsImprovement'
@@ -106,7 +106,7 @@ function PercentileBarComponent({
       tooltipLabel: '"needs improvement" on',
     },
     {
-      color: STATUS_COLORS.poor.bg,
+      color: RATING_COLORS.poor.bg,
       percentage: hasRatingsData
         ? (ratings.poor / totalRatings) * 100
         : activeZone === 'poor'
@@ -118,7 +118,7 @@ function PercentileBarComponent({
   ];
 
   const showP75Label = variant === 'normal';
-  const markerColor = STATUS_COLORS[activeZone].bg;
+  const markerColor = RATING_COLORS[activeZone].bg;
   const visibleZones = zones.filter((zone) => zone.percentage > 0);
   const firstVisibleStatus = visibleZones[0]?.status;
   const lastVisibleStatus = visibleZones.at(-1)?.status;

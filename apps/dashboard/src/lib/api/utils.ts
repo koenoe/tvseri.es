@@ -7,6 +7,7 @@ import type {
   WebVitalMetricStats,
 } from '@tvseri.es/schemas';
 
+import { countryDisplayNames } from '@/lib/status-colors';
 import {
   getMetricStatus,
   METRICS_CONFIG,
@@ -178,8 +179,6 @@ export function groupRoutesByStatus(
  * Group countries by their status for a given metric.
  * Items within each group are sorted by pageview count.
  */
-const countryDisplayNames = new Intl.DisplayNames(['en'], { type: 'region' });
-
 export function groupCountriesByStatus(
   countries: ReadonlyArray<CountryMetrics>,
   metric: MetricType,

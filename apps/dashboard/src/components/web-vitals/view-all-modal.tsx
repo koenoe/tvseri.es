@@ -21,8 +21,8 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import type { GroupedMetricData, MetricItem } from '@/lib/api/utils';
 import {
+  RATING_COLORS,
   type RatingStatus,
-  STATUS_COLORS,
   STATUS_ICONS,
 } from '@/lib/web-vitals';
 
@@ -125,7 +125,7 @@ function ViewAllModalComponent({
             title={`${status} (${count})`}
             value={status}
           >
-            <Icon className={`size-4 ${STATUS_COLORS[status].text}`} />
+            <Icon className={`size-4 ${RATING_COLORS[status].text}`} />
           </ToggleGroupItem>
         );
       })}
@@ -147,7 +147,7 @@ function ViewAllModalComponent({
               label={item.label}
               pageViews={item.pageViews}
               StatusIcon={STATUS_ICONS[item.status]}
-              statusColor={STATUS_COLORS[item.status].text}
+              statusColor={RATING_COLORS[item.status].text}
               value={item.value}
               variant={variant}
             />

@@ -10,7 +10,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatErrorRate } from '@/lib/api-metrics';
 import { Button } from '../ui/button';
 
 const BAR_COUNT = 32;
@@ -143,7 +142,7 @@ const ErrorRateCard = memo(function ErrorRateCard({
     <Card className="w-full border">
       <CardHeader>
         <CardTitle>Error Rate</CardTitle>
-        <CardDescription>Percentage of failed requests</CardDescription>
+        <CardDescription>Percentage of Failed Requests</CardDescription>
         <CardAction>
           <Button
             className="size-5 text-muted-foreground cursor-pointer"

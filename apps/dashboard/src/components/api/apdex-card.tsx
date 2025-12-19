@@ -51,7 +51,7 @@ const ApdexCard = memo(function ApdexCard({ score }: ApdexCardProps) {
     <Card className="w-full border">
       <CardHeader>
         <CardTitle>Apdex Score</CardTitle>
-        <CardDescription>Application performance index</CardDescription>
+        <CardDescription>Application Performance Index</CardDescription>
         <CardAction>
           <Button
             className="size-5 text-muted-foreground cursor-pointer"

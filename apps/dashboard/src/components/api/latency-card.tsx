@@ -1,4 +1,4 @@
-import { MoreHorizontal, MoreVertical } from 'lucide-react';
+import { MoreVertical } from 'lucide-react';
 import { memo, useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatLatency, getLatencyStatus } from '@/lib/api-metrics';
+import { getLatencyStatus } from '@/lib/api-metrics';
 import { STATUS_COLORS } from '@/lib/status-colors';
 
 type LatencyCardProps = Readonly<{
@@ -100,7 +100,7 @@ const LatencyCard = memo(function LatencyCard({
     <Card className="w-full border">
       <CardHeader>
         <CardTitle>Latency (p75)</CardTitle>
-        <CardDescription>75th percentile response time</CardDescription>
+        <CardDescription>75th Percentile Response Time</CardDescription>
         <CardAction>
           <Button
             className="size-5 text-muted-foreground cursor-pointer"

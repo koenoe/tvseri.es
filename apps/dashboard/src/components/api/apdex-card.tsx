@@ -1,6 +1,7 @@
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, MoreVertical } from 'lucide-react';
 import { memo } from 'react';
 
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardAction,
@@ -52,7 +53,12 @@ const ApdexCard = memo(function ApdexCard({ score }: ApdexCardProps) {
         <CardTitle>Apdex Score</CardTitle>
         <CardDescription>Application performance index</CardDescription>
         <CardAction>
-          <MoreHorizontal className="size-4" />
+          <Button
+            className="size-5 text-muted-foreground cursor-pointer"
+            variant="ghost"
+          >
+            <MoreVertical />
+          </Button>
         </CardAction>
       </CardHeader>
       <CardContent className="@container flex items-center justify-between gap-6 lg:gap-10">
@@ -87,7 +93,13 @@ function ApdexCardSkeleton() {
         <Skeleton className="h-4 w-24 rounded-none bg-white/40" />
         <Skeleton className="h-3.5 w-44 rounded-none" />
         <CardAction>
-          <MoreHorizontal className="size-4 text-muted" />
+          <Button
+            className="size-5 text-muted-foreground"
+            disabled
+            variant="ghost"
+          >
+            <MoreVertical />
+          </Button>
         </CardAction>
       </CardHeader>
       <CardContent className="@container flex items-center justify-between gap-6 lg:gap-10">

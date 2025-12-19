@@ -1,5 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { ApdexCard, ApdexCardSkeleton } from '@/components/api/apdex-card';
+import {
+  ErrorRateCard,
+  ErrorRateCardSkeleton,
+} from '@/components/api/error-rate-card';
+import {
+  LatencyCard,
+  LatencyCardSkeleton,
+} from '@/components/api/latency-card';
 import { ApiHeader } from '@/components/api-header';
 import { useApiMetricsSummary } from '@/lib/api';
 
@@ -36,6 +44,19 @@ function ApiMetrics() {
         <ApdexCardSkeleton />
       ) : (
         <ApdexCard score={data?.aggregated?.apdex.score ?? 0} />
+      )}
+      {isLoading ? (
+        <LatencyCardSkeleton />
+      ) : (
+        <LatencyCard
+          p75={data?.aggregated?.latency.p75 ?? 0}
+          series={data?.series ?? []}
+        />
+      )}
+      {isLoading ? (
+        <ErrorRateCardSkeleton />
+      ) : (
+        <ErrorRateCard errorRate={data?.aggregated?.errorRate ?? 0} />
       )}
     </div>
   );

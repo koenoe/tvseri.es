@@ -11,18 +11,16 @@ function SiteHeaderComponent() {
   const HeaderContent = currentMatch?.staticData?.headerContent;
 
   return (
-    <header className="relative flex h-(--header-height) shrink-0 items-center border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
-      {/* Sidebar trigger - positioned absolutely to not affect content centering */}
-      <div className="2xl:absolute 2xl:pl-0 2xl:left-4 2xl:top-1/2 flex 2xl:-translate-y-1/2 items-center gap-2 h-full pl-4">
+    <header className="grid h-(--header-height) shrink-0 grid-cols-[1fr_minmax(0,var(--content-max-width))_1fr] items-center border-b">
+      <div className="flex items-center gap-2 pl-4">
         <SidebarTrigger className="h-4" />
         <Separator
-          className="data-[orientation=vertical]:h-4 self-center!"
+          className="self-center! data-[orientation=vertical]:h-4"
           orientation="vertical"
         />
       </div>
-      {/* Content - same padding as page content for alignment */}
-      <div className="flex w-full flex-1 items-center max-w-7xl mx-auto px-6">
-        <h1 className="text-base font-medium">{title}</h1>
+      <div className="flex items-center justify-between px-(--content-padding)">
+        <h1 className="truncate text-base font-medium">{title}</h1>
         {HeaderContent && <HeaderContent />}
       </div>
     </header>

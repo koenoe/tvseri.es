@@ -4,6 +4,8 @@
 import { useQuery } from '@tanstack/react-query';
 
 import {
+  type ApiMetricsSummaryParams,
+  fetchApiMetricsSummary,
   fetchMetricsCountries,
   fetchMetricsRoutes,
   fetchMetricsSummary,
@@ -30,5 +32,12 @@ export function useMetricsCountries(params: MetricsCountriesParams) {
   return useQuery({
     queryFn: () => fetchMetricsCountries(params),
     queryKey: ['metrics', 'countries', params],
+  });
+}
+
+export function useApiMetricsSummary(params: ApiMetricsSummaryParams) {
+  return useQuery({
+    queryFn: () => fetchApiMetricsSummary(params),
+    queryKey: ['metrics', 'api', 'summary', params],
   });
 }

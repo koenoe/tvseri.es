@@ -62,6 +62,12 @@ function getGreyShade(status: RatingStatus): string {
   return 'bg-muted-foreground/40';
 }
 
+const HOVER_CLASSES = {
+  great: 'hover:bg-green-500',
+  needsImprovement: 'hover:bg-amber-500',
+  poor: 'hover:bg-red-500',
+} as const;
+
 function PercentileBarComponent({
   metric,
   p75Value,
@@ -128,7 +134,8 @@ function PercentileBarComponent({
             const isFirst = zone.status === firstVisibleStatus;
             const isLast = zone.status === lastVisibleStatus;
             const bgColor = isActive ? zone.color : getGreyShade(zone.status);
-            const segmentClassName = `hover:${zone.color} relative h-full ${isFirst ? 'rounded-l' : ''} ${isLast ? 'rounded-r' : ''} ${bgColor}`;
+            const hoverClass = HOVER_CLASSES[zone.status];
+            const segmentClassName = `${hoverClass} relative h-full ${isFirst ? 'rounded-l' : ''} ${isLast ? 'rounded-r' : ''} ${bgColor}`;
             const widthStyle = { width: `${zone.percentage}%` } as const;
 
             return (

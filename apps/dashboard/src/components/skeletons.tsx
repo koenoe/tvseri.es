@@ -240,25 +240,25 @@ function PageSkeleton() {
   return (
     <div className="flex min-h-svh w-full bg-sidebar">
       {/* Main content area - matches SidebarInset with inset variant + collapsed state */}
-      <main className="bg-card text-card-foreground relative flex w-full flex-1 flex-col lg:m-2.5 lg:rounded-xl lg:shadow-sm">
-        {/* Site header skeleton */}
-        <header className="relative flex h-[calc(var(--spacing)*12+1px)] shrink-0 items-center border-b">
-          {/* Sidebar trigger - matches SiteHeader positioning */}
-          <div className="flex h-full items-center gap-2 pl-4 2xl:absolute 2xl:left-4 2xl:top-1/2 2xl:-translate-y-1/2 2xl:pl-0">
+      <main className="relative flex w-full flex-1 flex-col bg-card text-card-foreground lg:m-2.5 lg:rounded-xl lg:shadow-sm">
+        {/* Site header skeleton - matches SiteHeader grid layout */}
+        <header className="grid h-(--header-height) shrink-0 grid-cols-[1fr_minmax(0,var(--content-max-width))_1fr] items-center border-b">
+          {/* Sidebar trigger */}
+          <div className="flex items-center gap-2 pl-4">
             <Skeleton className="size-7 rounded-md" />
             <Separator
-              className="data-[orientation=vertical]:h-4 self-center!"
+              className="self-center! data-[orientation=vertical]:h-4"
               orientation="vertical"
             />
           </div>
           {/* Content - same padding as page content for alignment */}
-          <div className="mx-auto flex w-full max-w-7xl flex-1 items-center px-6">
+          <div className="flex items-center justify-between px-(--content-padding)">
             <Skeleton className="h-5 w-24 rounded-none" />
             <ToggleGroupSkeleton />
           </div>
         </header>
         {/* Page content skeleton */}
-        <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-6 py-6">
+        <div className="mx-auto flex w-full max-w-(--content-max-width) flex-1 flex-col px-(--content-padding) py-6">
           {/* Tabs + Content */}
           <div className="flex w-full flex-col gap-8 lg:flex-row">
             <TabListSkeleton />

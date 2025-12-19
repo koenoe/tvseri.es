@@ -10,18 +10,11 @@ import * as auth from '@/lib/auth';
 
 function RootComponent() {
   return (
-    <SidebarProvider
-      defaultOpen={false}
-      style={
-        {
-          '--header-height': 'calc(var(--spacing) * 12 + 1px)',
-        } as React.CSSProperties
-      }
-    >
+    <SidebarProvider defaultOpen={false}>
       <AppSidebar />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col max-w-7xl mx-auto w-full py-6 px-6">
+        <div className="mx-auto flex w-full max-w-(--content-max-width) flex-1 flex-col px-(--content-padding) py-6">
           <Outlet />
         </div>
       </SidebarInset>

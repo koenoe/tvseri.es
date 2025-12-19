@@ -3,10 +3,12 @@
  */
 
 import type {
+  ApiMetricsSummaryResponse,
   MetricsCountriesResponse,
   MetricsRoutesResponse,
   MetricsSummaryResponse,
 } from '@tvseri.es/schemas';
+
 import { getAccessToken } from '@/lib/auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -106,4 +108,29 @@ export async function fetchMetricsCountries(
   }
 
   return response.json() as Promise<MetricsCountriesResponse>;
+}
+
+export type ApiMetricsSummaryParams = Readonly<{
+  days?: number;
+  platform?: string;
+}>;
+
+export async function fetchApiMetricsSummary(
+  params: ApiMetricsSummaryParams,
+): Promise<ApiMetricsSummaryResponse> {
+  const searchParams = new URLSearchParams();
+  if (params.days) searchParams.set('days', params.days.toString());
+  if (params.platform) searchParams.set('platform', params.platform);
+
+  const url = `${API_BASE_URL}/metrics/api?${searchParams.toString()}`;
+  const headers = await getAuthHeaders();
+  const response = await fetch(url, { headers });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch API metrics summary: ${response.statusText}`,
+    );
+  }
+
+  return response.json() as Promise<ApiMetricsSummaryResponse>;
 }

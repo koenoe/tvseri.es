@@ -1,4 +1,4 @@
-import { MoreHorizontal, MoreVertical } from 'lucide-react';
+import { MoreVertical } from 'lucide-react';
 import { memo } from 'react';
 
 import { Button } from '@/components/ui/button';

@@ -1,3 +1,5 @@
+import type { DependencyStats, TimeSeriesPoint } from '@tvseri.es/schemas';
+
 import { countryDisplayNames, STATUS_COLORS } from './status-colors';
 
 export type ApdexStatus = 'frustrated' | 'satisfied' | 'tolerating';
@@ -329,6 +331,7 @@ export const groupPlatformsByApdex = (
 
 export type DependencyMetricItem = Readonly<{
   errorRate: number;
+  history?: ReadonlyArray<TimeSeriesPoint>;
   latency: LatencyStats;
   source: string;
   sourceName: string;
@@ -345,24 +348,19 @@ export const formatDependencyName = (source: string): string => {
   return DEPENDENCY_NAMES[source.toLowerCase()] ?? source;
 };
 
+export const sortDependencyKeys = (keys: string[]): string[] => {
+  return [...keys].sort((a, b) => b.localeCompare(a));
+};
+
 export const formatDependencies = (
-  dependencies: Record<
-    string,
-    {
-      count: number;
-      errorCount: number;
-      errorRate: number;
-      p75: number;
-      p90: number;
-      p95: number;
-      p99: number;
-      throughput: number;
-    }
-  >,
+  dependencies: Record<string, DependencyStats>,
 ): DependencyMetricItem[] => {
-  return Object.entries(dependencies)
-    .map(([source, stats]) => ({
+  const sortedKeys = sortDependencyKeys(Object.keys(dependencies));
+  return sortedKeys.map((source) => {
+    const stats = dependencies[source]!;
+    return {
       errorRate: stats.errorRate,
+      history: stats.history,
       latency: {
         count: stats.count,
         p75: stats.p75,
@@ -373,6 +371,6 @@ export const formatDependencies = (
       source,
       sourceName: formatDependencyName(source),
       throughput: stats.throughput,
-    }))
-    .sort((a, b) => b.latency.count - a.latency.count);
+    };
+  });
 };

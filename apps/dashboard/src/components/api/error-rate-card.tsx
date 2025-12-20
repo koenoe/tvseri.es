@@ -10,130 +10,30 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import type { DependencyMetricItem } from '@/lib/api-metrics';
 import { Button } from '../ui/button';
+import { DependencyErrorPopover } from './dependency-error-popover';
+import { SegmentedBar, type StatusColor } from './segmented-bar';
 
 const BAR_COUNT = 32;
 const MAX_ERROR_RATE = 10;
 
 type ErrorRateCardProps = Readonly<{
+  dependencies?: ReadonlyArray<DependencyMetricItem>;
   errorRate: number;
 }>;
 
-const GREEN_SHADES = [
-  'bg-green-500',
-  'bg-green-500/97',
-  'bg-green-500/95',
-  'bg-green-500/92',
-  'bg-green-500/90',
-  'bg-green-500/87',
-  'bg-green-500/85',
-  'bg-green-500/82',
-  'bg-green-500/80',
-  'bg-green-500/77',
-  'bg-green-500/75',
-  'bg-green-500/72',
-  'bg-green-500/70',
-  'bg-green-500/67',
-  'bg-green-500/65',
-  'bg-green-500/62',
-  'bg-green-500/60',
-  'bg-green-500/57',
-  'bg-green-500/55',
-  'bg-green-500/52',
-  'bg-green-500/50',
-  'bg-green-500/47',
-  'bg-green-500/45',
-  'bg-green-500/42',
-  'bg-green-500/40',
-  'bg-green-500/37',
-  'bg-green-500/35',
-  'bg-green-500/32',
-  'bg-green-500/30',
-  'bg-green-500/28',
-  'bg-green-500/26',
-  'bg-green-500/25',
-];
-
-const AMBER_SHADES = [
-  'bg-amber-500',
-  'bg-amber-500/97',
-  'bg-amber-500/95',
-  'bg-amber-500/92',
-  'bg-amber-500/90',
-  'bg-amber-500/87',
-  'bg-amber-500/85',
-  'bg-amber-500/82',
-  'bg-amber-500/80',
-  'bg-amber-500/77',
-  'bg-amber-500/75',
-  'bg-amber-500/72',
-  'bg-amber-500/70',
-  'bg-amber-500/67',
-  'bg-amber-500/65',
-  'bg-amber-500/62',
-  'bg-amber-500/60',
-  'bg-amber-500/57',
-  'bg-amber-500/55',
-  'bg-amber-500/52',
-  'bg-amber-500/50',
-  'bg-amber-500/47',
-  'bg-amber-500/45',
-  'bg-amber-500/42',
-  'bg-amber-500/40',
-  'bg-amber-500/37',
-  'bg-amber-500/35',
-  'bg-amber-500/32',
-  'bg-amber-500/30',
-  'bg-amber-500/28',
-  'bg-amber-500/26',
-  'bg-amber-500/25',
-];
-
-const RED_SHADES = [
-  'bg-red-500',
-  'bg-red-500/97',
-  'bg-red-500/95',
-  'bg-red-500/92',
-  'bg-red-500/90',
-  'bg-red-500/87',
-  'bg-red-500/85',
-  'bg-red-500/82',
-  'bg-red-500/80',
-  'bg-red-500/77',
-  'bg-red-500/75',
-  'bg-red-500/72',
-  'bg-red-500/70',
-  'bg-red-500/67',
-  'bg-red-500/65',
-  'bg-red-500/62',
-  'bg-red-500/60',
-  'bg-red-500/57',
-  'bg-red-500/55',
-  'bg-red-500/52',
-  'bg-red-500/50',
-  'bg-red-500/47',
-  'bg-red-500/45',
-  'bg-red-500/42',
-  'bg-red-500/40',
-  'bg-red-500/37',
-  'bg-red-500/35',
-  'bg-red-500/32',
-  'bg-red-500/30',
-  'bg-red-500/28',
-  'bg-red-500/26',
-  'bg-red-500/25',
-];
-
-function getShades(errorRate: number) {
-  if (errorRate < 1) return GREEN_SHADES;
-  if (errorRate < 5) return AMBER_SHADES;
-  return RED_SHADES;
+function getErrorRateColor(errorRate: number): StatusColor {
+  if (errorRate < 1) return 'green';
+  if (errorRate < 5) return 'amber';
+  return 'red';
 }
 
 const ErrorRateCard = memo(function ErrorRateCard({
+  dependencies,
   errorRate,
 }: ErrorRateCardProps) {
-  const shades = getShades(errorRate);
+  const color = getErrorRateColor(errorRate);
   const filledBars = Math.round(
     (Math.min(errorRate, MAX_ERROR_RATE) / MAX_ERROR_RATE) * BAR_COUNT,
   );
@@ -144,13 +44,15 @@ const ErrorRateCard = memo(function ErrorRateCard({
         <CardTitle>Error Rate</CardTitle>
         <CardDescription>Percentage of Failed Requests</CardDescription>
         <CardAction>
-          <Button
-            className="text-muted-foreground cursor-pointer"
-            size="icon-sm"
-            variant="ghost"
-          >
-            <MoreVertical className="size-4" />
-          </Button>
+          <DependencyErrorPopover dependencies={dependencies}>
+            <Button
+              className="text-muted-foreground cursor-pointer data-[state=open]:bg-muted"
+              size="icon-sm"
+              variant="ghost"
+            >
+              <MoreVertical className="size-4" />
+            </Button>
+          </DependencyErrorPopover>
         </CardAction>
       </CardHeader>
       <CardContent className="@container flex items-center justify-between gap-6 lg:gap-10">
@@ -162,17 +64,11 @@ const ErrorRateCard = memo(function ErrorRateCard({
         </div>
 
         <div className="flex-1 min-w-0 flex justify-end">
-          <div className="w-full max-w-50 flex gap-0.5">
-            {Array.from({ length: BAR_COUNT }).map((_, i) => {
-              const isFilled = i < filledBars;
-              return (
-                <div
-                  className={`h-5 rounded-full flex-1 ${isFilled ? shades[i] : 'bg-muted/30'}`}
-                  key={i}
-                />
-              );
-            })}
-          </div>
+          <SegmentedBar
+            barCount={BAR_COUNT}
+            color={color}
+            filledBars={filledBars}
+          />
         </div>
       </CardContent>
     </Card>
@@ -205,11 +101,7 @@ function ErrorRateCardSkeleton() {
           </span>
         </Skeleton>
         <div className="flex-1 min-w-0 flex justify-end">
-          <div className="w-full max-w-50 flex gap-0.5">
-            {Array.from({ length: BAR_COUNT }).map((_, i) => (
-              <div className="h-5 rounded-full flex-1 bg-muted/30" key={i} />
-            ))}
-          </div>
+          <SegmentedBar barCount={BAR_COUNT} color="green" filledBars={0} />
         </div>
       </CardContent>
     </Card>

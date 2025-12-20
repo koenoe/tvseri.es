@@ -14,6 +14,7 @@ import {
 } from '@/components/api/latency-card';
 import { ApiHeader } from '@/components/api-header';
 import { useApiMetricsEndpoints, useApiMetricsSummary } from '@/lib/api';
+import { formatDependencies } from '@/lib/api-metrics';
 
 type ApiSearchParams = {
   days?: 7 | 30;
@@ -48,6 +49,10 @@ function ApiMetrics() {
       days,
     });
 
+  const dependencies = summaryData?.aggregated?.dependencies
+    ? formatDependencies(summaryData.aggregated.dependencies)
+    : [];
+
   return (
     <div className="space-y-4">
       <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
@@ -60,6 +65,7 @@ function ApiMetrics() {
           <LatencyCardSkeleton />
         ) : (
           <LatencyCard
+            dependencies={dependencies}
             p75={summaryData?.aggregated?.latency.p75 ?? 0}
             series={summaryData?.series ?? []}
           />
@@ -67,7 +73,10 @@ function ApiMetrics() {
         {isSummaryLoading ? (
           <ErrorRateCardSkeleton />
         ) : (
-          <ErrorRateCard errorRate={summaryData?.aggregated?.errorRate ?? 0} />
+          <ErrorRateCard
+            dependencies={dependencies}
+            errorRate={summaryData?.aggregated?.errorRate ?? 0}
+          />
         )}
       </div>
 

@@ -34,7 +34,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { formatPageViews } from '@/lib/api/utils';
-import { formatErrorRate, formatLatency } from '@/lib/api-metrics';
+import {
+  formatErrorRate,
+  formatLatency,
+  sortDependencyKeys,
+} from '@/lib/api-metrics';
 
 type EndpointsTableProps = Readonly<{
   endpoints: ReadonlyArray<EndpointMetrics>;
@@ -401,7 +405,9 @@ const columns: ColumnDef<EndpointMetrics>[] = [
   {
     accessorFn: (row) => row.dependencies,
     cell: ({ row }) => {
-      const dependencies = Object.keys(row.original.dependencies ?? {});
+      const dependencies = sortDependencyKeys(
+        Object.keys(row.original.dependencies ?? {}),
+      );
       if (dependencies.length === 0) return null;
       return (
         <div className="flex flex-wrap gap-1">

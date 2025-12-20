@@ -11,10 +11,12 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getLatencyStatus } from '@/lib/api-metrics';
+import { type DependencyMetricItem, getLatencyStatus } from '@/lib/api-metrics';
 import { STATUS_COLORS } from '@/lib/status-colors';
+import { DependencyLatencyPopover } from './dependency-latency-popover';
 
 type LatencyCardProps = Readonly<{
+  dependencies?: ReadonlyArray<DependencyMetricItem>;
   p75: number;
   series: ReadonlyArray<{
     date: string;
@@ -71,6 +73,7 @@ const getPath = (
 };
 
 const LatencyCard = memo(function LatencyCard({
+  dependencies,
   p75,
   series,
 }: LatencyCardProps) {
@@ -102,13 +105,15 @@ const LatencyCard = memo(function LatencyCard({
         <CardTitle>Latency</CardTitle>
         <CardDescription>75th Percentile Response Time</CardDescription>
         <CardAction>
-          <Button
-            className="text-muted-foreground cursor-pointer"
-            size="icon-sm"
-            variant="ghost"
-          >
-            <MoreVertical className="size-4" />
-          </Button>
+          <DependencyLatencyPopover dependencies={dependencies}>
+            <Button
+              className="text-muted-foreground cursor-pointer data-[state=open]:bg-input/50"
+              size="icon-sm"
+              variant="ghost"
+            >
+              <MoreVertical className="size-4" />
+            </Button>
+          </DependencyLatencyPopover>
         </CardAction>
       </CardHeader>
       <CardContent className="@container flex items-center justify-between gap-6 lg:gap-10">

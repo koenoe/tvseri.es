@@ -11,6 +11,7 @@ import {
   type ApiMetricAggregate,
   type ApiMetricRecord,
   type ApiTopPath,
+  type DependencyOperationStats,
   type DependencyStats,
   type PercentileStats,
   type StatusCodeBreakdown,
@@ -43,6 +44,56 @@ const sleep = (ms: number): Promise<void> =>
 // ═══════════════════════════════════════════════════════════════════════════
 // UTILITIES
 // ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Normalize dependency endpoint paths for aggregation.
+ *
+ * Different dependency sources have different URL patterns that need normalization:
+ * - TMDB: `/3/tv/12345` → `/3/tv/:id`, `/3/tv/12345/season/2` → `/3/tv/:id/season/:num`
+ * - MDBList: `/tmdb/show/12345` → `/tmdb/show/:id`, `/lists/user/list/items` → `/lists/:user/:list/items`
+ * - DynamoDB: Already normalized as `Operation:TableName` (e.g., `Query:tvseries-Cache`)
+ *
+ * @param source - Dependency source (e.g., "TMDB", "MDBLIST", "DynamoDB")
+ * @param endpoint - Raw endpoint path
+ * @returns Normalized endpoint path for grouping
+ */
+const normalizeDependencyEndpoint = (
+  source: string,
+  endpoint: string,
+): string => {
+  // DynamoDB endpoints are already normalized (e.g., "Query:tvseries-Cache")
+  if (source === 'DynamoDB') {
+    return endpoint;
+  }
+
+  // TMDB normalization
+  if (source === 'TMDB') {
+    return (
+      endpoint
+        // /3/find/{externalId} → /3/find/:id (handles tt123, Q123, tvdb ids, social handles)
+        .replace(/^(\/3\/find\/)[^?]+/, '$1:id')
+        // Normalize numeric IDs in paths
+        .replace(/\/(\d+)(?=\/|$)/g, '/:id')
+        // Normalize season/episode numbers (after the word "season" or "episode")
+        .replace(/\/(season|episode)\/:id/g, '/$1/:num')
+    );
+  }
+
+  // MDBList normalization
+  if (source === 'MDBLIST') {
+    return (
+      endpoint
+        // `/tmdb/show/12345` → `/tmdb/show/:id`
+        // `/tmdb/movie/12345` → `/tmdb/movie/:id`
+        .replace(/\/(show|movie)\/(\d+)(?=\/|$)/g, '/$1/:id')
+        // `/lists/username/listname/items` → `/lists/:user/:list/items`
+        .replace(/^\/lists\/([^/]+)\/([^/]+)/, '/lists/:user/:list')
+    );
+  }
+
+  // Default: return as-is for unknown sources
+  return endpoint;
+};
 
 /**
  * Calculate percentile statistics from an array of numbers.
@@ -275,35 +326,89 @@ const aggregateApiMetrics = (
   ): Record<string, DependencyStats> => {
     const depsBySource = new Map<
       string,
-      { durations: number[]; errorCount: number }
+      {
+        durations: number[];
+        errorCount: number;
+        byOperation: Map<string, { durations: number[]; errorCount: number }>;
+      }
     >();
+
     for (const rec of recs) {
       for (const dep of rec.dependencies) {
-        const existing = depsBySource.get(dep.source);
         const isError = dep.status >= 400 || dep.error !== undefined;
-        if (existing) {
-          existing.durations.push(dep.duration);
-          if (isError) existing.errorCount++;
-        } else {
-          depsBySource.set(dep.source, {
-            durations: [dep.duration],
-            errorCount: isError ? 1 : 0,
-          });
+        const normalizedOp = normalizeDependencyEndpoint(
+          dep.source,
+          dep.endpoint,
+        );
+
+        let sourceData = depsBySource.get(dep.source);
+        if (!sourceData) {
+          sourceData = {
+            byOperation: new Map(),
+            durations: [],
+            errorCount: 0,
+          };
+          depsBySource.set(dep.source, sourceData);
         }
+
+        sourceData.durations.push(dep.duration);
+        if (isError) sourceData.errorCount++;
+
+        let opData = sourceData.byOperation.get(normalizedOp);
+        if (!opData) {
+          opData = { durations: [], errorCount: 0 };
+          sourceData.byOperation.set(normalizedOp, opData);
+        }
+        opData.durations.push(dep.duration);
+        if (isError) opData.errorCount++;
       }
     }
+
     const result: Record<string, DependencyStats> = {};
-    for (const [source, { durations, errorCount }] of depsBySource) {
+    for (const [
+      source,
+      { durations, errorCount, byOperation },
+    ] of depsBySource) {
       const percentiles = calculatePercentiles(durations);
       const count = durations.length;
-      // Throughput: calls per minute over 24 hours (1440 minutes)
       const throughput = count > 0 ? Math.round((count / 1440) * 100) / 100 : 0;
+
+      const topOperations: DependencyOperationStats[] = [
+        ...byOperation.entries(),
+      ]
+        .map(([operation, opData]) => {
+          const opCount = opData.durations.length;
+          const sorted = [...opData.durations].sort((a, b) => a - b);
+          const percentile = (p: number): number => {
+            const index = Math.ceil((p / 100) * opCount) - 1;
+            return sorted[Math.max(0, index)] ?? 0;
+          };
+
+          return {
+            count: opCount,
+            errorCount: opData.errorCount,
+            errorRate:
+              opCount > 0
+                ? Math.round((opData.errorCount / opCount) * 10000) / 100
+                : 0,
+            histogram: { bins: buildLatencyHistogramBins(opData.durations) },
+            operation,
+            p75: percentile(75),
+            p90: percentile(90),
+            p95: percentile(95),
+            p99: percentile(99),
+          };
+        })
+        .sort((a, b) => b.count - a.count)
+        .slice(0, TOP_ITEMS_LIMIT);
+
       result[source] = {
         ...percentiles,
         errorCount,
         errorRate:
           count > 0 ? Math.round((errorCount / count) * 10000) / 100 : 0,
         throughput,
+        topOperations,
       };
     }
     return result;

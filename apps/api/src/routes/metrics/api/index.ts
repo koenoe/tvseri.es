@@ -11,6 +11,7 @@ import { requireAuthAdmin, type Variables } from '@/middleware/auth';
 
 import {
   type AggregatedApiMetrics,
+  aggregateDependencyOperationsWithSeries,
   aggregateSummaries,
   buildPk,
   getDateRange,
@@ -239,21 +240,50 @@ app.get(
     const decodedEndpoint = decodeURIComponent(endpointParam);
     const { endDate, startDate } = getDateRange(numDays);
 
-    // Use GSI for efficient time-series query
     const items = await queryEndpointTimeSeries(
       decodedEndpoint,
       startDate,
       endDate,
     );
 
-    // Sort by date for charting
     items.sort((a, b) => a.date.localeCompare(b.date));
 
-    // Aggregate for period summary
     const aggregated = aggregateSummaries(items);
 
+    let dependenciesWithSeries:
+      | Record<
+          string,
+          AggregatedApiMetrics['dependencies'] extends
+            | Record<string, infer T>
+            | undefined
+            ? T & {
+                topOperations?: ReturnType<
+                  typeof aggregateDependencyOperationsWithSeries
+                >;
+              }
+            : never
+        >
+      | undefined;
+
+    if (aggregated?.dependencies) {
+      dependenciesWithSeries = {};
+      for (const source of Object.keys(aggregated.dependencies)) {
+        const depStats = aggregated.dependencies[source]!;
+        const topOperations = aggregateDependencyOperationsWithSeries(
+          items,
+          source,
+        );
+        dependenciesWithSeries[source] = {
+          ...depStats,
+          topOperations: topOperations.length > 0 ? topOperations : undefined,
+        };
+      }
+    }
+
     return c.json({
-      aggregated,
+      aggregated: aggregated
+        ? { ...aggregated, dependencies: dependenciesWithSeries }
+        : null,
       endDate,
       endpoint: decodedEndpoint,
       series: items.map((item) => ({
@@ -304,13 +334,30 @@ app.get(
     // Aggregate to get combined dependency stats
     const aggregated = aggregateSummaries(summaries);
 
-    // Transform dependencies into array format for easier consumption
+    // Transform dependencies into array format with series data
     const dependencies = aggregated?.dependencies
       ? Object.entries(aggregated.dependencies)
-          .map(([source, stats]) => ({
-            ...stats,
-            source,
-          }))
+          .map(([source, stats]) => {
+            // Build series from daily summaries
+            const series = summaries
+              .filter((s) => s.dependencies?.[source])
+              .map((s) => {
+                const dep = s.dependencies![source]!;
+                return {
+                  count: dep.count,
+                  date: s.date,
+                  errorRate: dep.errorRate,
+                  p75: dep.p75,
+                };
+              })
+              .sort((a, b) => a.date.localeCompare(b.date));
+
+            return {
+              ...stats,
+              series,
+              source,
+            };
+          })
           .sort((a, b) => b.count - a.count)
       : [];
 
@@ -319,6 +366,61 @@ app.get(
       endDate,
       startDate,
       total: dependencies.length,
+    });
+  },
+);
+
+app.get(
+  '/dependencies/:source',
+  vValidator('query', ApiMetricsSummaryQuerySchema),
+  async (c) => {
+    const source = decodeURIComponent(c.req.param('source'));
+    const { days, platform } = c.req.valid('query');
+    const numDays = Math.min(Math.max(days, 1), 30);
+
+    const { dates, endDate, startDate } = getDateRange(numDays);
+
+    const summaries: ApiMetricAggregate[] = [];
+    await Promise.all(
+      dates.map(async (date) => {
+        const pk = buildPk(date, { platform });
+        const items = await queryByPkAndPrefix(pk, 'SUMMARY');
+        summaries.push(...items);
+      }),
+    );
+
+    const aggregated = aggregateSummaries(summaries);
+    const dependency = aggregated?.dependencies?.[source];
+
+    if (!dependency) {
+      return c.json({ error: 'Dependency not found' }, 404);
+    }
+
+    const series = summaries
+      .filter((s) => s.dependencies?.[source])
+      .map((s) => {
+        const dep = s.dependencies![source]!;
+        return {
+          count: dep.count,
+          date: s.date,
+          errorRate: dep.errorRate,
+          p75: dep.p75,
+          p99: dep.p99,
+        };
+      })
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    const topOperations = aggregateDependencyOperationsWithSeries(
+      summaries,
+      source,
+    );
+
+    return c.json({
+      aggregated: { ...dependency, topOperations },
+      endDate,
+      series,
+      source,
+      startDate,
     });
   },
 );

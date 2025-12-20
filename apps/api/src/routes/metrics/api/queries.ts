@@ -7,6 +7,7 @@ import type {
   ApiTopCountry,
   ApiTopEndpoint,
   ApiTopPath,
+  DependencyOperationStats,
   DependencyStats,
   LatencyRatings,
   PercentileStats,
@@ -422,7 +423,6 @@ export const aggregateSummaries = (
     }
 
     if (depData.size > 0) {
-      // Count unique dates for throughput calculation
       const depDaysWithData = new Set(depsWithData.map((item) => item.date))
         .size;
       const depMinutesInPeriod = depDaysWithData * 1440;
@@ -439,6 +439,9 @@ export const aggregateSummaries = (
           depMinutesInPeriod > 0
             ? Math.round((totalCount / depMinutesInPeriod) * 100) / 100
             : 0;
+
+        const topOperations = aggregateDependencyTopOperations(items, source);
+
         dependencies[source] = {
           count: totalCount,
           errorCount,
@@ -451,6 +454,7 @@ export const aggregateSummaries = (
           p95: Math.round(percentileFromLatencyHistogram(mergedBins, 95)),
           p99: Math.round(percentileFromLatencyHistogram(mergedBins, 99)),
           throughput,
+          topOperations: topOperations.length > 0 ? topOperations : undefined,
         };
       }
     }
@@ -744,4 +748,156 @@ export const aggregateTopCountries = (
   return aggregatedCountries
     .sort((a, b) => b.requestCount - a.requestCount)
     .slice(0, limit);
+};
+
+export const aggregateDependencyTopOperations = (
+  items: ApiMetricAggregate[],
+  source: string,
+  limit = 25,
+): DependencyOperationStats[] => {
+  const allOps = items.flatMap(
+    (item) => item.dependencies?.[source]?.topOperations ?? [],
+  );
+  if (allOps.length === 0) return [];
+
+  const byOperation = new Map<
+    string,
+    {
+      errorCount: number;
+      histograms: number[][];
+      totalCount: number;
+    }
+  >();
+
+  for (const op of allOps) {
+    const existing = byOperation.get(op.operation);
+    if (existing) {
+      existing.totalCount += op.count;
+      existing.errorCount += op.errorCount;
+      if (op.histogram?.bins?.length > 0) {
+        existing.histograms.push(op.histogram.bins);
+      }
+    } else {
+      byOperation.set(op.operation, {
+        errorCount: op.errorCount,
+        histograms: op.histogram?.bins?.length > 0 ? [op.histogram.bins] : [],
+        totalCount: op.count,
+      });
+    }
+  }
+
+  const aggregatedOps: DependencyOperationStats[] = [];
+
+  for (const [
+    operation,
+    { errorCount, histograms, totalCount },
+  ] of byOperation) {
+    if (histograms.length === 0) continue;
+
+    const mergedBins = mergeHistogramBins(histograms);
+    const errorRate =
+      totalCount > 0 ? Math.round((errorCount / totalCount) * 10000) / 100 : 0;
+
+    aggregatedOps.push({
+      count: totalCount,
+      errorCount,
+      errorRate,
+      histogram: { bins: mergedBins },
+      operation,
+      p75: Math.round(percentileFromLatencyHistogram(mergedBins, 75)),
+      p90: Math.round(percentileFromLatencyHistogram(mergedBins, 90)),
+      p95: Math.round(percentileFromLatencyHistogram(mergedBins, 95)),
+      p99: Math.round(percentileFromLatencyHistogram(mergedBins, 99)),
+    });
+  }
+
+  return aggregatedOps.sort((a, b) => b.count - a.count).slice(0, limit);
+};
+
+export type DependencyOperationWithSeries = DependencyOperationStats & {
+  series: Array<{ date: string; errorRate: number; p75: number }>;
+};
+
+export const aggregateDependencyOperationsWithSeries = (
+  items: ApiMetricAggregate[],
+  source: string,
+  limit = 25,
+): DependencyOperationWithSeries[] => {
+  const byOperation = new Map<
+    string,
+    {
+      dailyData: Map<string, { errorCount: number; histogram: number[] }>;
+      errorCount: number;
+      histograms: number[][];
+      totalCount: number;
+    }
+  >();
+
+  for (const item of items) {
+    const ops = item.dependencies?.[source]?.topOperations ?? [];
+    for (const op of ops) {
+      let opData = byOperation.get(op.operation);
+      if (!opData) {
+        opData = {
+          dailyData: new Map(),
+          errorCount: 0,
+          histograms: [],
+          totalCount: 0,
+        };
+        byOperation.set(op.operation, opData);
+      }
+
+      opData.totalCount += op.count;
+      opData.errorCount += op.errorCount;
+      if (op.histogram?.bins?.length > 0) {
+        opData.histograms.push(op.histogram.bins);
+        opData.dailyData.set(item.date, {
+          errorCount: op.errorCount,
+          histogram: op.histogram.bins,
+        });
+      }
+    }
+  }
+
+  const result: DependencyOperationWithSeries[] = [];
+
+  for (const [
+    operation,
+    { dailyData, errorCount, histograms, totalCount },
+  ] of byOperation) {
+    if (histograms.length === 0) continue;
+
+    const mergedBins = mergeHistogramBins(histograms);
+    const errorRate =
+      totalCount > 0 ? Math.round((errorCount / totalCount) * 10000) / 100 : 0;
+
+    const series = [...dailyData.entries()]
+      .map(([date, data]) => {
+        const dayCount = data.histogram.reduce((a, b) => a + b, 0);
+        return {
+          date,
+          errorRate:
+            dayCount > 0
+              ? Math.round((data.errorCount / dayCount) * 10000) / 100
+              : 0,
+          p75: Math.round(percentileFromLatencyHistogram(data.histogram, 75)),
+        };
+      })
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    result.push({
+      count: totalCount,
+      errorCount,
+      errorRate,
+      histogram: { bins: mergedBins },
+      operation,
+      p75: Math.round(percentileFromLatencyHistogram(mergedBins, 75)),
+      p90: Math.round(percentileFromLatencyHistogram(mergedBins, 90)),
+      p95: Math.round(percentileFromLatencyHistogram(mergedBins, 95)),
+      p99: Math.round(percentileFromLatencyHistogram(mergedBins, 99)),
+      series,
+    });
+  }
+
+  return result.sort((a, b) => b.count - a.count).slice(0, limit);
 };

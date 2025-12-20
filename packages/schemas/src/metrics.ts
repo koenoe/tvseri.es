@@ -124,18 +124,21 @@ export const PercentileStatsSchema = v.object({
   ratings: v.optional(LatencyRatingsSchema),
 });
 
-/**
- * Extended stats for dependency metrics.
- * Includes error rate and throughput in addition to latency percentiles.
- */
+export const DependencyOperationStatsSchema = v.object({
+  count: v.number(),
+  ...ErrorFields,
+  histogram: HistogramSchema,
+  operation: v.string(),
+  ...PercentileFields,
+});
+
 export const DependencyStatsSchema = v.object({
   count: v.number(),
   ...ErrorFields,
-  /** Histogram for accurate multi-day percentile aggregation */
   histogram: v.optional(HistogramSchema),
   ...PercentileFields,
-  /** Throughput: calls per minute */
   throughput: v.number(),
+  topOperations: v.optional(v.array(DependencyOperationStatsSchema)),
 });
 
 // ============================================================================
@@ -741,6 +744,9 @@ export type DependencyMetric = v.InferOutput<typeof DependencyMetricSchema>;
 export type Apdex = v.InferOutput<typeof ApdexSchema>;
 export type LatencyRatings = v.InferOutput<typeof LatencyRatingsSchema>;
 export type PercentileStats = v.InferOutput<typeof PercentileStatsSchema>;
+export type DependencyOperationStats = v.InferOutput<
+  typeof DependencyOperationStatsSchema
+>;
 export type DependencyStats = v.InferOutput<typeof DependencyStatsSchema>;
 export type StatusCodeBreakdown = v.InferOutput<
   typeof StatusCodeBreakdownSchema

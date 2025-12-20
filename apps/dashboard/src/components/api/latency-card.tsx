@@ -103,10 +103,11 @@ const LatencyCard = memo(function LatencyCard({
         <CardDescription>75th Percentile Response Time</CardDescription>
         <CardAction>
           <Button
-            className="size-5 text-muted-foreground cursor-pointer"
+            className="text-muted-foreground cursor-pointer"
+            size="icon-sm"
             variant="ghost"
           >
-            <MoreVertical />
+            <MoreVertical className="size-4" />
           </Button>
         </CardAction>
       </CardHeader>
@@ -165,11 +166,12 @@ function LatencyCardSkeleton() {
         <Skeleton className="h-3.5 w-48 rounded-none" />
         <CardAction>
           <Button
-            className="size-5 text-muted-foreground"
+            className="text-muted-foreground"
             disabled
+            size="icon-xs"
             variant="ghost"
           >
-            <MoreVertical />
+            <MoreVertical className="size-4" />
           </Button>
         </CardAction>
       </CardHeader>

@@ -3,6 +3,7 @@
  */
 
 import type {
+  ApiMetricsEndpointsResponse,
   ApiMetricsSummaryResponse,
   MetricsCountriesResponse,
   MetricsRoutesResponse,
@@ -133,4 +134,37 @@ export async function fetchApiMetricsSummary(
   }
 
   return response.json() as Promise<ApiMetricsSummaryResponse>;
+}
+
+export type ApiMetricsEndpointsParams = Readonly<{
+  country?: string;
+  days?: number;
+  limit?: number;
+  platform?: string;
+  sortBy?: 'apdex' | 'errorRate' | 'p75' | 'p99' | 'requests';
+  sortDir?: 'asc' | 'desc';
+}>;
+
+export async function fetchApiMetricsEndpoints(
+  params: ApiMetricsEndpointsParams,
+): Promise<ApiMetricsEndpointsResponse> {
+  const searchParams = new URLSearchParams();
+  if (params.days) searchParams.set('days', params.days.toString());
+  if (params.platform) searchParams.set('platform', params.platform);
+  if (params.country) searchParams.set('country', params.country);
+  if (params.sortBy) searchParams.set('sortBy', params.sortBy);
+  if (params.sortDir) searchParams.set('sortDir', params.sortDir);
+  if (params.limit) searchParams.set('limit', params.limit.toString());
+
+  const url = `${API_BASE_URL}/metrics/api/endpoints?${searchParams.toString()}`;
+  const headers = await getAuthHeaders();
+  const response = await fetch(url, { headers });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch API metrics endpoints: ${response.statusText}`,
+    );
+  }
+
+  return response.json() as Promise<ApiMetricsEndpointsResponse>;
 }

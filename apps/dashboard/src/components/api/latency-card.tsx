@@ -99,7 +99,7 @@ const LatencyCard = memo(function LatencyCard({
   return (
     <Card className="w-full border">
       <CardHeader>
-        <CardTitle>Latency (p75)</CardTitle>
+        <CardTitle>Latency</CardTitle>
         <CardDescription>75th Percentile Response Time</CardDescription>
         <CardAction>
           <Button

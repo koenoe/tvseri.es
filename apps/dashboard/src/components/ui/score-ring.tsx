@@ -5,6 +5,8 @@ import { getMetricHslColor } from '@/lib/web-vitals';
 
 type ScoreRingProps = Readonly<{
   className?: string;
+  /** Custom label to display inside the ring. If not provided, shows the score as integer. */
+  label?: string;
   score: number;
   showLabel?: boolean;
   size?: number;
@@ -20,6 +22,7 @@ const MIN_GAP = CIRCUMFERENCE * 0.05;
 
 function ScoreRingComponent({
   className,
+  label,
   score,
   showLabel = true,
   size = 64,
@@ -68,7 +71,6 @@ function ScoreRingComponent({
         strokeWidth={STROKE_WIDTH}
         style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
       />
-      {/* Score label */}
       {showLabel && (
         <text
           className="fill-foreground font-medium"
@@ -78,7 +80,7 @@ function ScoreRingComponent({
           x={CENTER}
           y={CENTER}
         >
-          {clampedScore}
+          {label ?? clampedScore}
         </text>
       )}
     </svg>

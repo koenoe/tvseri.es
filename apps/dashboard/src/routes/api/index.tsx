@@ -1,6 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { ApdexCard, ApdexCardSkeleton } from '@/components/api/apdex-card';
 import {
+  EndpointsTable,
+  EndpointsTableSkeleton,
+} from '@/components/api/endpoints-table';
+import {
   ErrorRateCard,
   ErrorRateCardSkeleton,
 } from '@/components/api/error-rate-card';
@@ -9,7 +13,7 @@ import {
   LatencyCardSkeleton,
 } from '@/components/api/latency-card';
 import { ApiHeader } from '@/components/api-header';
-import { useApiMetricsSummary } from '@/lib/api';
+import { useApiMetricsEndpoints, useApiMetricsSummary } from '@/lib/api';
 
 type ApiSearchParams = {
   days?: 7 | 30;
@@ -34,29 +38,43 @@ function ApiMetrics() {
   const { days: daysParam } = Route.useSearch();
   const days = daysParam ?? 7;
 
-  const { data, isLoading } = useApiMetricsSummary({
-    days,
-  });
+  const { data: summaryData, isLoading: isSummaryLoading } =
+    useApiMetricsSummary({
+      days,
+    });
+
+  const { data: endpointsData, isLoading: isEndpointsLoading } =
+    useApiMetricsEndpoints({
+      days,
+    });
 
   return (
-    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-      {isLoading ? (
-        <ApdexCardSkeleton />
+    <div className="space-y-4">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {isSummaryLoading ? (
+          <ApdexCardSkeleton />
+        ) : (
+          <ApdexCard score={summaryData?.aggregated?.apdex.score ?? 0} />
+        )}
+        {isSummaryLoading ? (
+          <LatencyCardSkeleton />
+        ) : (
+          <LatencyCard
+            p75={summaryData?.aggregated?.latency.p75 ?? 0}
+            series={summaryData?.series ?? []}
+          />
+        )}
+        {isSummaryLoading ? (
+          <ErrorRateCardSkeleton />
+        ) : (
+          <ErrorRateCard errorRate={summaryData?.aggregated?.errorRate ?? 0} />
+        )}
+      </div>
+
+      {isEndpointsLoading ? (
+        <EndpointsTableSkeleton />
       ) : (
-        <ApdexCard score={data?.aggregated?.apdex.score ?? 0} />
-      )}
-      {isLoading ? (
-        <LatencyCardSkeleton />
-      ) : (
-        <LatencyCard
-          p75={data?.aggregated?.latency.p75 ?? 0}
-          series={data?.series ?? []}
-        />
-      )}
-      {isLoading ? (
-        <ErrorRateCardSkeleton />
-      ) : (
-        <ErrorRateCard errorRate={data?.aggregated?.errorRate ?? 0} />
+        <EndpointsTable endpoints={endpointsData?.endpoints ?? []} />
       )}
     </div>
   );

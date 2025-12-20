@@ -48,6 +48,14 @@ function MethodBadge({ method }: Readonly<{ method: string }>) {
   );
 }
 
+function DependencyBadge({ name }: Readonly<{ name: string }>) {
+  return (
+    <span className="flex h-4 shrink-0 items-center justify-center rounded border border-border px-1 text-[10px] text-muted-foreground">
+      {name}
+    </span>
+  );
+}
+
 function RouteLabel({ route }: Readonly<{ route: string }>) {
   const parts = route.split(/(\[[^\]]+\]|:[^/]+|\*)/g).filter(Boolean);
 
@@ -391,6 +399,24 @@ const columns: ColumnDef<EndpointMetrics>[] = [
     size: 140,
   },
   {
+    accessorFn: (row) => row.dependencies,
+    cell: ({ row }) => {
+      const dependencies = Object.keys(row.original.dependencies ?? {});
+      if (dependencies.length === 0) return null;
+      return (
+        <div className="flex flex-wrap gap-1">
+          {dependencies.map((dep) => (
+            <DependencyBadge key={dep} name={dep} />
+          ))}
+        </div>
+      );
+    },
+    enableSorting: false,
+    header: () => <span className="text-muted-foreground">Dependencies</span>,
+    id: 'dependencies',
+    size: 200,
+  },
+  {
     cell: () => (
       <div className="flex justify-end">
         <RowChevron className="size-4 text-muted-foreground" />
@@ -571,6 +597,9 @@ function EndpointsTableSkeleton() {
             <TableHead className="px-3" style={{ width: 140 }}>
               Error Rate
             </TableHead>
+            <TableHead className="px-3" style={{ width: 200 }}>
+              Dependencies
+            </TableHead>
             <TableHead className="w-[1%] px-3" style={{ width: 32 }} />
           </TableRow>
         </TableHeader>
@@ -601,6 +630,12 @@ function EndpointsTableSkeleton() {
                   <Skeleton className="h-4 w-12" />
                 </div>
               </TableCell>
+              <TableCell className="px-3 py-2">
+                <div className="flex flex-wrap gap-1">
+                  <Skeleton className="h-4 w-12 rounded" />
+                  <Skeleton className="h-4 w-16 rounded" />
+                </div>
+              </TableCell>
               <TableCell className="w-[1%] px-3 py-2">
                 <div className="flex justify-end">
                   <Skeleton className="size-4" />
@@ -611,7 +646,7 @@ function EndpointsTableSkeleton() {
         </TableBody>
         <TableFooter className="bg-transparent">
           <TableRow className="hover:bg-transparent">
-            <TableCell className="px-3" colSpan={6}>
+            <TableCell className="px-3" colSpan={7}>
               <div className="flex items-center justify-between">
                 <Skeleton className="h-6 w-20" />
                 <div className="flex items-center gap-1">

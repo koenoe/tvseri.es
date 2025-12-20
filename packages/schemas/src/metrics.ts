@@ -912,12 +912,24 @@ export const ApiMetricsSummaryResponseSchema = v.object({
 });
 
 /**
+ * Daily series item for endpoint sparklines.
+ * Contains key metrics per day for trend visualization.
+ */
+export const EndpointDailySeriesItemSchema = v.object({
+  date: v.string(),
+  errorRate: v.number(),
+  p75: v.number(),
+});
+
+/**
  * Endpoint metrics item
  */
 export const EndpointMetricsSchema = v.object({
   ...ApiMetricsObject,
   dependencies: v.optional(v.record(v.string(), DependencyStatsSchema)),
   endpoint: v.string(),
+  /** Daily metrics for sparkline visualization */
+  series: v.optional(v.array(EndpointDailySeriesItemSchema)),
   throughput: v.number(),
 });
 
@@ -983,6 +995,9 @@ export type ApiMetricSeriesItem = v.InferOutput<
 >;
 export type ApiMetricsSummaryResponse = v.InferOutput<
   typeof ApiMetricsSummaryResponseSchema
+>;
+export type EndpointDailySeriesItem = v.InferOutput<
+  typeof EndpointDailySeriesItemSchema
 >;
 export type EndpointMetrics = v.InferOutput<typeof EndpointMetricsSchema>;
 export type ApiMetricsEndpointsResponse = v.InferOutput<

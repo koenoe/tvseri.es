@@ -146,12 +146,21 @@ app.get(
       errorRate: number;
       latency: AggregatedApiMetrics['latency'];
       requestCount: number;
+      series: Array<{ date: string; errorRate: number; p75: number }>;
       throughput: number;
     }> = [];
 
     for (const [endpoint, items] of endpointMap) {
       const aggregated = aggregateSummaries(items);
       if (aggregated) {
+        const series = items
+          .map((item) => ({
+            date: item.date,
+            errorRate: item.errorRate,
+            p75: item.latency.p75,
+          }))
+          .sort((a, b) => a.date.localeCompare(b.date));
+
         endpoints.push({
           apdex: aggregated.apdex,
           dependencies: aggregated.dependencies,
@@ -159,6 +168,7 @@ app.get(
           errorRate: aggregated.errorRate,
           latency: aggregated.latency,
           requestCount: aggregated.requestCount,
+          series,
           throughput: aggregated.throughput,
         });
       }

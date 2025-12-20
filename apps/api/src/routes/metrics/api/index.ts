@@ -1,5 +1,6 @@
 import { vValidator } from '@hono/valibot-validator';
 import {
+  type AggregatedApiMetrics,
   type ApiMetricAggregate,
   ApiMetricsEndpointsQuerySchema,
   ApiMetricsPlatformsQuerySchema,
@@ -10,7 +11,6 @@ import { Hono } from 'hono';
 import { requireAuthAdmin, type Variables } from '@/middleware/auth';
 
 import {
-  type AggregatedApiMetrics,
   aggregateDependencyOperationsWithSeries,
   aggregateSummaries,
   buildPk,

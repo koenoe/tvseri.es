@@ -2,6 +2,7 @@ import type { AttributeValue } from '@aws-sdk/client-dynamodb';
 import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import type {
+  AggregatedApiMetrics,
   Apdex,
   ApiMetricAggregate,
   ApiTopCountry,
@@ -282,20 +283,6 @@ export const queryCountryTimeSeries = async (
 // ════════════════════════════════════════════════════════════════════════════
 
 /**
- * Aggregated API metrics summary.
- */
-export type AggregatedApiMetrics = {
-  apdex: Apdex;
-  dependencies?: Record<string, DependencyStats>;
-  errorRate: number;
-  latency: PercentileStats;
-  requestCount: number;
-  statusCodes: ApiMetricAggregate['statusCodes'];
-  /** Throughput: requests per minute (rpm) */
-  throughput: number;
-};
-
-/**
  * Aggregate multiple daily summaries into a single summary.
  * Uses histogram merging for accurate percentile calculation when histograms
  * are available, falling back to weighted averages for legacy data.
@@ -396,12 +383,23 @@ export const aggregateSummaries = (
   }
 
   // Aggregate dependencies if present
-  let dependencies: Record<string, DependencyStats> | undefined;
+  let dependencies:
+    | Record<
+        string,
+        DependencyStats & {
+          history?: Array<{ timestamp: string; value: number }>;
+        }
+      >
+    | undefined;
   const depsWithData = items.filter((item) => item.dependencies);
   if (depsWithData.length > 0) {
     const depData = new Map<
       string,
-      { errorCount: number; histograms: number[][] }
+      {
+        dailyStats: Map<string, { errorCount: number; histogram: number[] }>;
+        errorCount: number;
+        histograms: number[][];
+      }
     >();
 
     for (const item of depsWithData) {
@@ -411,10 +409,25 @@ export const aggregateSummaries = (
         if (existing) {
           if (stats.histogram?.bins) {
             existing.histograms.push(stats.histogram.bins);
+            existing.dailyStats.set(item.date, {
+              errorCount: stats.errorCount ?? 0,
+              histogram: stats.histogram.bins,
+            });
           }
           existing.errorCount += stats.errorCount ?? 0;
         } else {
+          const dailyStats = new Map<
+            string,
+            { errorCount: number; histogram: number[] }
+          >();
+          if (stats.histogram?.bins) {
+            dailyStats.set(item.date, {
+              errorCount: stats.errorCount ?? 0,
+              histogram: stats.histogram.bins,
+            });
+          }
           depData.set(source, {
+            dailyStats,
             errorCount: stats.errorCount ?? 0,
             histograms: stats.histogram?.bins ? [stats.histogram.bins] : [],
           });
@@ -428,7 +441,7 @@ export const aggregateSummaries = (
       const depMinutesInPeriod = depDaysWithData * 1440;
 
       dependencies = {};
-      for (const [source, { errorCount, histograms }] of depData) {
+      for (const [source, { dailyStats, errorCount, histograms }] of depData) {
         if (histograms.length === 0) continue;
         const mergedBins = mergeHistogramBins(histograms);
         const totalCount = histograms.reduce(
@@ -442,6 +455,15 @@ export const aggregateSummaries = (
 
         const topOperations = aggregateDependencyTopOperations(items, source);
 
+        const history = [...dailyStats.entries()]
+          .map(([date, data]) => ({
+            timestamp: date,
+            value: Math.round(
+              percentileFromLatencyHistogram(data.histogram, 75),
+            ),
+          }))
+          .sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+
         dependencies[source] = {
           count: totalCount,
           errorCount,
@@ -449,6 +471,7 @@ export const aggregateSummaries = (
             totalCount > 0
               ? Math.round((errorCount / totalCount) * 10000) / 100
               : 0,
+          history: history.length > 1 ? history : undefined,
           p75: Math.round(percentileFromLatencyHistogram(mergedBins, 75)),
           p90: Math.round(percentileFromLatencyHistogram(mergedBins, 90)),
           p95: Math.round(percentileFromLatencyHistogram(mergedBins, 95)),

@@ -34,6 +34,11 @@ export const HistogramSchema = v.object({
   bins: v.array(v.number()),
 });
 
+export const TimeSeriesPointSchema = v.object({
+  timestamp: v.string(),
+  value: v.number(),
+});
+
 /**
  * Base percentile fields (p75, p90, p95, p99).
  * Reused across multiple schemas for latency distributions.
@@ -136,6 +141,7 @@ export const DependencyStatsSchema = v.object({
   count: v.number(),
   ...ErrorFields,
   histogram: v.optional(HistogramSchema),
+  history: v.optional(v.array(TimeSeriesPointSchema)),
   ...PercentileFields,
   throughput: v.number(),
   topOperations: v.optional(v.array(DependencyOperationStatsSchema)),
@@ -759,6 +765,7 @@ export type WebVitalName = v.InferOutput<typeof WebVitalNameSchema>;
 export type WebVitalRating = v.InferOutput<typeof WebVitalRatingSchema>;
 export type WebVitalRatings = v.InferOutput<typeof WebVitalRatingsSchema>;
 export type Histogram = v.InferOutput<typeof HistogramSchema>;
+export type TimeSeriesPoint = v.InferOutput<typeof TimeSeriesPointSchema>;
 export type WebVitalMetricStats = v.InferOutput<
   typeof WebVitalMetricStatsSchema
 >;

@@ -414,7 +414,7 @@ const columns: ColumnDef<EndpointMetrics>[] = [
     enableSorting: false,
     header: () => <span className="text-muted-foreground">Dependencies</span>,
     id: 'dependencies',
-    size: 200,
+    size: 120,
   },
   {
     cell: () => (
@@ -526,17 +526,16 @@ const EndpointsTable = memo(function EndpointsTable({
           <TableRow className="hover:bg-transparent">
             <TableCell className="px-3" colSpan={columns.length}>
               <div className="flex items-center justify-between">
-                <div className="flex items-center">
+                <div className="flex items-center gap-2">
                   <span className="text-muted-foreground">Show</span>
                   <NativeSelect
-                    className="[&_select]:cursor-pointer [&_select]:border-none [&_select]:bg-transparent! [&_select]:pl-2 [&_select]:pr-5 [&_select]:text-muted-foreground [&_svg]:right-1.5 [&_svg]:size-2.5 [&_svg]:text-muted-foreground"
+                    className="[&_select]:cursor-pointer [&_select]:h-6 [&_select]:py-0 [&_select]:rounded [&_select]:bg-transparent! [&_select]:pl-2 [&_select]:pr-5 [&_select]:text-muted-foreground [&_svg]:right-1.5 [&_svg]:size-2.5 [&_svg]:text-muted-foreground"
                     onChange={(e) => {
                       setPagination({
                         pageIndex: 0,
                         pageSize: Number(e.target.value),
                       });
                     }}
-                    size="sm"
                     value={pageSize}
                   >
                     <NativeSelectOption value={10}>10</NativeSelectOption>
@@ -597,7 +596,7 @@ function EndpointsTableSkeleton() {
             <TableHead className="px-3" style={{ width: 140 }}>
               Error Rate
             </TableHead>
-            <TableHead className="px-3" style={{ width: 200 }}>
+            <TableHead className="px-3" style={{ width: 120 }}>
               Dependencies
             </TableHead>
             <TableHead className="w-[1%] px-3" style={{ width: 32 }} />

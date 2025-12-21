@@ -22,6 +22,7 @@ import {
   sortDependencyKeys,
 } from '@/lib/api-metrics';
 import { STATUS_COLORS } from '@/lib/status-colors';
+import { RouteLabel } from './endpoint-label';
 
 type DependenciesSectionProps = Readonly<{
   dependencies: Record<string, DependencyStats> | undefined;
@@ -117,7 +118,7 @@ const SPARKLINE_HEIGHT = 16;
 const COLUMN_WIDTHS = {
   errorRate: 140,
   latency: 140,
-  name: 200,
+  name: 260,
   requests: 140,
 } as const;
 
@@ -417,15 +418,19 @@ function OperationRow({ maxRequestCount, operation }: OperationRowProps) {
     return operation.series;
   }, [operation.series]);
 
+  const isPath = operation.operation.startsWith('/');
+
   return (
     <TableRow className="hover:bg-transparent">
       <TableCell
-        className="px-3 py-2 pl-9"
+        className="truncate px-3 py-2 pl-9"
         style={{ width: COLUMN_WIDTHS.name }}
       >
-        <span className="font-mono text-xs text-muted-foreground">
-          {operation.operation}
-        </span>
+        {isPath ? (
+          <RouteLabel route={operation.operation} />
+        ) : (
+          operation.operation
+        )}
       </TableCell>
       <TableCell
         className="px-3 py-2"

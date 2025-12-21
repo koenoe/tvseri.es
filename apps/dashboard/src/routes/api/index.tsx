@@ -17,7 +17,7 @@ import { useApiMetricsEndpoints, useApiMetricsSummary } from '@/lib/api';
 import { formatDependencies } from '@/lib/api-metrics';
 
 type ApiSearchParams = {
-  days?: 7 | 30;
+  days?: 3 | 7 | 30;
 };
 
 export const Route = createFileRoute('/api/')({
@@ -28,7 +28,7 @@ export const Route = createFileRoute('/api/')({
   },
   validateSearch: (search: Record<string, unknown>): ApiSearchParams => {
     const days = Number(search.days);
-    if (days === 7 || days === 30) {
+    if (days === 3 || days === 7 || days === 30) {
       return { days };
     }
     return {};

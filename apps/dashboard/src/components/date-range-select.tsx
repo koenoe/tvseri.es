@@ -8,11 +8,12 @@ import {
 } from '@/components/ui/native-select';
 
 const DATE_RANGE_OPTIONS = [
+  { label: 'Last 3 days', value: 3 },
   { label: 'Last 7 days', value: 7 },
   { label: 'Last 30 days', value: 30 },
 ] as const;
 
-type DaysValue = 7 | 30;
+type DaysValue = 3 | 7 | 30;
 
 function DateRangeSelectComponent() {
   const navigate = useNavigate();

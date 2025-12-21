@@ -34,7 +34,7 @@ import {
 } from '@/lib/web-vitals';
 
 type WebSearchParams = {
-  days?: 7 | 30;
+  days?: 3 | 7 | 30;
   device?: 'desktop' | 'mobile';
 };
 
@@ -53,7 +53,7 @@ export const Route = createFileRoute('/web/')({
     }
 
     const days = Number(search.days);
-    if (days === 7 || days === 30) {
+    if (days === 3 || days === 7 || days === 30) {
       result.days = days;
     }
 

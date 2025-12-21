@@ -4,8 +4,10 @@
 import { useQuery } from '@tanstack/react-query';
 
 import {
+  type ApiMetricsEndpointDetailParams,
   type ApiMetricsEndpointsParams,
   type ApiMetricsSummaryParams,
+  fetchApiMetricsEndpointDetail,
   fetchApiMetricsEndpoints,
   fetchApiMetricsSummary,
   fetchMetricsCountries,
@@ -48,5 +50,15 @@ export function useApiMetricsEndpoints(params: ApiMetricsEndpointsParams) {
   return useQuery({
     queryFn: () => fetchApiMetricsEndpoints(params),
     queryKey: ['metrics', 'api', 'endpoints', params],
+  });
+}
+
+export function useApiMetricsEndpointDetail(
+  params: ApiMetricsEndpointDetailParams,
+) {
+  return useQuery({
+    enabled: Boolean(params.endpoint),
+    queryFn: () => fetchApiMetricsEndpointDetail(params),
+    queryKey: ['metrics', 'api', 'endpoint', params],
   });
 }

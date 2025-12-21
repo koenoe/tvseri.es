@@ -1,9 +1,12 @@
+import { useNavigate } from '@tanstack/react-router';
 import {
   type ColumnDef,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  type OnChangeFn,
+  type PaginationState,
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table';
@@ -16,7 +19,7 @@ import {
   ChevronUp,
   ChevronRight as RowChevron,
 } from 'lucide-react';
-import { memo, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 
 import {
   NativeSelect,
@@ -39,49 +42,16 @@ import {
   formatLatency,
   sortDependencyKeys,
 } from '@/lib/api-metrics';
+import { DependencyBadge } from './dependency-badge';
+import { MethodBadge, parseEndpoint, RouteLabel } from './endpoint-label';
 
 type EndpointsTableProps = Readonly<{
   endpoints: ReadonlyArray<EndpointMetrics>;
+  onPaginationChange: (pagination: PaginationState) => void;
+  onSortingChange: (sorting: SortingState) => void;
+  pagination: PaginationState;
+  sorting: SortingState;
 }>;
-
-function MethodBadge({ method }: Readonly<{ method: string }>) {
-  return (
-    <span className="flex h-4 shrink-0 items-center justify-center rounded bg-muted px-1 text-[10px] text-muted-foreground">
-      {method}
-    </span>
-  );
-}
-
-function DependencyBadge({ name }: Readonly<{ name: string }>) {
-  return (
-    <span className="flex h-4 shrink-0 items-center justify-center rounded border border-border px-1 text-[10px] text-muted-foreground">
-      {name}
-    </span>
-  );
-}
-
-function RouteLabel({ route }: Readonly<{ route: string }>) {
-  const parts = route.split(/(\[[^\]]+\]|:[^/]+|\*)/g).filter(Boolean);
-
-  return (
-    <span className="truncate">
-      {parts.map((part, index) => {
-        const isDynamic =
-          part.startsWith('[') || part.startsWith(':') || part === '*';
-        return isDynamic ? (
-          <span
-            className="rounded bg-muted/50 px-1 py-0.5 font-mono text-muted-foreground"
-            key={index}
-          >
-            {part}
-          </span>
-        ) : (
-          <span key={index}>{part}</span>
-        );
-      })}
-    </span>
-  );
-}
 
 function getSmoothSparklinePath(
   points: ReadonlyArray<number>,
@@ -272,14 +242,12 @@ const columns: ColumnDef<EndpointMetrics>[] = [
   {
     accessorFn: (row) => row.endpoint,
     cell: ({ row }) => {
-      const rawEndpoint = row.original.endpoint;
-      const [method = '', ...pathParts] = rawEndpoint.split(' ');
-      const route = pathParts.join(' ');
+      const { method, route } = parseEndpoint(row.original.endpoint);
 
       return (
         <div className="flex min-w-0 items-center gap-2 overflow-hidden">
           <MethodBadge method={method} />
-          <RouteLabel route={route || rawEndpoint} />
+          <RouteLabel route={route} />
         </div>
       );
     },
@@ -445,15 +413,38 @@ declare module '@tanstack/react-table' {
 
 const EndpointsTable = memo(function EndpointsTable({
   endpoints,
+  onPaginationChange,
+  onSortingChange,
+  pagination,
+  sorting,
 }: EndpointsTableProps) {
-  const [sorting, setSorting] = useState<SortingState>([
-    { desc: true, id: 'requests' },
-  ]);
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
+  const navigate = useNavigate();
 
   const maxRequestCount = useMemo(
     () => Math.max(...endpoints.map((e) => e.requestCount), 1),
     [endpoints],
+  );
+
+  const handleSortingChange: OnChangeFn<SortingState> = useCallback(
+    (updaterOrValue) => {
+      const newSorting =
+        typeof updaterOrValue === 'function'
+          ? updaterOrValue(sorting)
+          : updaterOrValue;
+      onSortingChange(newSorting);
+    },
+    [onSortingChange, sorting],
+  );
+
+  const handlePaginationChange: OnChangeFn<PaginationState> = useCallback(
+    (updaterOrValue) => {
+      const newPagination =
+        typeof updaterOrValue === 'function'
+          ? updaterOrValue(pagination)
+          : updaterOrValue;
+      onPaginationChange(newPagination);
+    },
+    [onPaginationChange, pagination],
   );
 
   const table = useReactTable({
@@ -463,15 +454,24 @@ const EndpointsTable = memo(function EndpointsTable({
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     meta: { maxRequestCount },
-    onPaginationChange: setPagination,
-    onSortingChange: setSorting,
+    onPaginationChange: handlePaginationChange,
+    onSortingChange: handleSortingChange,
     state: { pagination, sorting },
   });
 
-  const { pageIndex, pageSize } = pagination;
   const totalRows = table.getFilteredRowModel().rows.length;
-  const totalPages = Math.ceil(totalRows / pageSize);
-  const currentPage = pageIndex + 1;
+  const totalPages = Math.ceil(totalRows / pagination.pageSize);
+  const currentPage = pagination.pageIndex + 1;
+
+  const handleRowClick = useCallback(
+    (endpoint: string) => {
+      navigate({
+        search: { endpoint },
+        to: '/api/endpoints',
+      });
+    },
+    [navigate],
+  );
 
   return (
     <div className="overflow-hidden rounded-lg border border-border">
@@ -502,7 +502,11 @@ const EndpointsTable = memo(function EndpointsTable({
         <TableBody>
           {table.getRowModel().rows.length > 0 ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow className="cursor-pointer" key={row.id}>
+              <TableRow
+                className="cursor-pointer"
+                key={row.id}
+                onClick={() => handleRowClick(row.original.endpoint)}
+              >
                 {row.getVisibleCells().map((cell) => {
                   const isChevron = cell.column.id === 'chevron';
                   return (
@@ -537,12 +541,9 @@ const EndpointsTable = memo(function EndpointsTable({
                   <NativeSelect
                     className="[&_select]:cursor-pointer [&_select]:h-6 [&_select]:py-0 [&_select]:rounded [&_select]:bg-transparent! [&_select]:pl-2 [&_select]:pr-5 [&_select]:text-muted-foreground [&_svg]:right-1.5 [&_svg]:size-2.5 [&_svg]:text-muted-foreground"
                     onChange={(e) => {
-                      setPagination({
-                        pageIndex: 0,
-                        pageSize: Number(e.target.value),
-                      });
+                      table.setPageSize(Number(e.target.value));
                     }}
-                    value={pageSize}
+                    value={pagination.pageSize}
                   >
                     <NativeSelectOption value={10}>10</NativeSelectOption>
                     <NativeSelectOption value={25}>25</NativeSelectOption>

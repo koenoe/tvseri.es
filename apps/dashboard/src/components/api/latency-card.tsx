@@ -1,5 +1,5 @@
 import { MoreVertical } from 'lucide-react';
-import { memo, useMemo } from 'react';
+import { memo, type ReactNode, useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,6 +16,7 @@ import { STATUS_COLORS } from '@/lib/status-colors';
 import { DependencyLatencyPopover } from './dependency-latency-popover';
 
 type LatencyCardProps = Readonly<{
+  action?: ReactNode;
   dependencies?: ReadonlyArray<DependencyMetricItem>;
   p75: number;
   series: ReadonlyArray<{
@@ -73,6 +74,7 @@ const getPath = (
 };
 
 const LatencyCard = memo(function LatencyCard({
+  action,
   dependencies,
   p75,
   series,
@@ -105,15 +107,17 @@ const LatencyCard = memo(function LatencyCard({
         <CardTitle>Latency</CardTitle>
         <CardDescription>75th Percentile Response Time</CardDescription>
         <CardAction>
-          <DependencyLatencyPopover dependencies={dependencies}>
-            <Button
-              className="text-muted-foreground cursor-pointer data-[state=open]:bg-input/50"
-              size="icon-sm"
-              variant="ghost"
-            >
-              <MoreVertical className="size-4" />
-            </Button>
-          </DependencyLatencyPopover>
+          {action ?? (
+            <DependencyLatencyPopover dependencies={dependencies}>
+              <Button
+                className="text-muted-foreground cursor-pointer data-[state=open]:bg-input/50"
+                size="icon-sm"
+                variant="ghost"
+              >
+                <MoreVertical className="size-4" />
+              </Button>
+            </DependencyLatencyPopover>
+          )}
         </CardAction>
       </CardHeader>
       <CardContent className="@container flex items-center justify-between gap-6 lg:gap-10">

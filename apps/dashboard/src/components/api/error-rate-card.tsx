@@ -1,5 +1,5 @@
 import { MoreVertical } from 'lucide-react';
-import { memo } from 'react';
+import { memo, type ReactNode } from 'react';
 
 import {
   Card,
@@ -19,6 +19,7 @@ const BAR_COUNT = 32;
 const MAX_ERROR_RATE = 10;
 
 type ErrorRateCardProps = Readonly<{
+  action?: ReactNode;
   dependencies?: ReadonlyArray<DependencyMetricItem>;
   errorRate: number;
 }>;
@@ -30,6 +31,7 @@ function getErrorRateColor(errorRate: number): StatusColor {
 }
 
 const ErrorRateCard = memo(function ErrorRateCard({
+  action,
   dependencies,
   errorRate,
 }: ErrorRateCardProps) {
@@ -44,15 +46,17 @@ const ErrorRateCard = memo(function ErrorRateCard({
         <CardTitle>Error Rate</CardTitle>
         <CardDescription>Percentage of Failed Requests</CardDescription>
         <CardAction>
-          <DependencyErrorPopover dependencies={dependencies}>
-            <Button
-              className="text-muted-foreground cursor-pointer data-[state=open]:bg-muted"
-              size="icon-sm"
-              variant="ghost"
-            >
-              <MoreVertical className="size-4" />
-            </Button>
-          </DependencyErrorPopover>
+          {action ?? (
+            <DependencyErrorPopover dependencies={dependencies}>
+              <Button
+                className="text-muted-foreground cursor-pointer data-[state=open]:bg-muted"
+                size="icon-sm"
+                variant="ghost"
+              >
+                <MoreVertical className="size-4" />
+              </Button>
+            </DependencyErrorPopover>
+          )}
         </CardAction>
       </CardHeader>
       <CardContent className="@container flex items-center justify-between gap-6 lg:gap-10">

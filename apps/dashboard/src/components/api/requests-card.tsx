@@ -1,5 +1,5 @@
 import { MoreVertical } from 'lucide-react';
-import { memo, useMemo } from 'react';
+import { memo, type ReactNode, useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -20,6 +20,7 @@ const formatRpm = (rpm: number): string => {
 import { DependencyRequestsPopover } from './dependency-requests-popover';
 
 type RequestsCardProps = Readonly<{
+  action?: ReactNode;
   dependencies?: ReadonlyArray<DependencyMetricItem>;
   requestCount: number;
   series: ReadonlyArray<{
@@ -78,6 +79,7 @@ const getPath = (
 };
 
 const RequestsCard = memo(function RequestsCard({
+  action,
   dependencies,
   requestCount,
   series,
@@ -106,15 +108,17 @@ const RequestsCard = memo(function RequestsCard({
         <CardTitle>Requests</CardTitle>
         <CardDescription>{formatRpm(throughput)}</CardDescription>
         <CardAction>
-          <DependencyRequestsPopover dependencies={dependencies}>
-            <Button
-              className="text-muted-foreground cursor-pointer data-[state=open]:bg-input/50"
-              size="icon-sm"
-              variant="ghost"
-            >
-              <MoreVertical className="size-4" />
-            </Button>
-          </DependencyRequestsPopover>
+          {action ?? (
+            <DependencyRequestsPopover dependencies={dependencies}>
+              <Button
+                className="text-muted-foreground cursor-pointer data-[state=open]:bg-input/50"
+                size="icon-sm"
+                variant="ghost"
+              >
+                <MoreVertical className="size-4" />
+              </Button>
+            </DependencyRequestsPopover>
+          )}
         </CardAction>
       </CardHeader>
       <CardContent className="@container flex items-center justify-between gap-6 lg:gap-10">

@@ -1,4 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import type { SortingState } from '@tanstack/react-table';
+import { memo, useCallback } from 'react';
+
 import { ApdexCard, ApdexCardSkeleton } from '@/components/api/apdex-card';
 import {
   EndpointsTable,
@@ -22,6 +25,10 @@ import { formatDependencies } from '@/lib/api-metrics';
 
 type ApiSearchParams = {
   days?: 3 | 7 | 30;
+  pageIndex?: number;
+  pageSize?: number;
+  sortColumn?: string;
+  sortDirection?: 'asc' | 'desc';
 };
 
 export const Route = createFileRoute('/api/')({
@@ -31,25 +38,119 @@ export const Route = createFileRoute('/api/')({
     title: 'API',
   },
   validateSearch: (search: Record<string, unknown>): ApiSearchParams => {
+    const result: ApiSearchParams = {};
+
     const days = Number(search.days);
     if (days === 3 || days === 7 || days === 30) {
-      return { days };
+      result.days = days;
     }
-    return {};
+
+    if (typeof search.sortColumn === 'string' && search.sortColumn) {
+      result.sortColumn = search.sortColumn;
+    }
+
+    if (search.sortDirection === 'asc' || search.sortDirection === 'desc') {
+      result.sortDirection = search.sortDirection;
+    }
+
+    const pageIndex = Number(search.pageIndex);
+    if (Number.isInteger(pageIndex) && pageIndex >= 0) {
+      result.pageIndex = pageIndex;
+    }
+
+    const pageSize = Number(search.pageSize);
+    if (pageSize === 10 || pageSize === 25 || pageSize === 50) {
+      result.pageSize = pageSize;
+    }
+
+    return result;
   },
 });
 
+const DEFAULT_PAGE_SIZE = 10;
+
+const EndpointsTableWrapper = memo(function EndpointsTableWrapper({
+  days,
+}: Readonly<{ days: number }>) {
+  const navigate = useNavigate();
+  const { pageIndex, pageSize, sortColumn, sortDirection } = Route.useSearch({
+    select: (s) => ({
+      pageIndex: s.pageIndex,
+      pageSize: s.pageSize,
+      sortColumn: s.sortColumn,
+      sortDirection: s.sortDirection,
+    }),
+  });
+
+  const { data: endpointsData, isLoading } = useApiMetricsEndpoints({ days });
+
+  const sorting: SortingState = sortColumn
+    ? [{ desc: sortDirection === 'desc', id: sortColumn }]
+    : [{ desc: true, id: 'requests' }];
+
+  const pagination = {
+    pageIndex: pageIndex ?? 0,
+    pageSize: pageSize ?? DEFAULT_PAGE_SIZE,
+  };
+
+  const handleSortingChange = useCallback(
+    (newSorting: SortingState) => {
+      const firstSort = newSorting[0];
+      void navigate({
+        replace: true,
+        search: (prev) => ({
+          ...prev,
+          sortColumn: firstSort?.id,
+          sortDirection: firstSort?.desc ? 'desc' : 'asc',
+        }),
+        to: '.',
+      });
+    },
+    [navigate],
+  );
+
+  const handlePaginationChange = useCallback(
+    (newPagination: { pageIndex: number; pageSize: number }) => {
+      void navigate({
+        replace: true,
+        search: (prev) => ({
+          ...prev,
+          pageIndex: newPagination.pageIndex || undefined,
+          pageSize:
+            newPagination.pageSize !== DEFAULT_PAGE_SIZE
+              ? newPagination.pageSize
+              : undefined,
+        }),
+        to: '.',
+      });
+    },
+    [navigate],
+  );
+
+  if (isLoading) {
+    return <EndpointsTableSkeleton />;
+  }
+
+  return (
+    <EndpointsTable
+      endpoints={endpointsData?.endpoints ?? []}
+      onPaginationChange={handlePaginationChange}
+      onSortingChange={handleSortingChange}
+      pagination={pagination}
+      sorting={sorting}
+    />
+  );
+});
+
+EndpointsTableWrapper.displayName = 'EndpointsTableWrapper';
+
 function ApiMetrics() {
-  const { days: daysParam } = Route.useSearch();
-  const days = daysParam ?? 7;
+  const days = Route.useSearch({
+    select: (s) => s.days ?? 7,
+  });
 
   const { data: summaryData, isLoading: isSummaryLoading } =
     useApiMetricsSummary({
-      days,
-    });
-
-  const { data: endpointsData, isLoading: isEndpointsLoading } =
-    useApiMetricsEndpoints({
       days,
     });
 
@@ -94,11 +195,7 @@ function ApiMetrics() {
         )}
       </div>
 
-      {isEndpointsLoading ? (
-        <EndpointsTableSkeleton />
-      ) : (
-        <EndpointsTable endpoints={endpointsData?.endpoints ?? []} />
-      )}
+      <EndpointsTableWrapper days={days} />
     </div>
   );
 }

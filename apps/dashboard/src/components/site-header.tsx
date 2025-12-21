@@ -7,7 +7,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 function SiteHeaderComponent() {
   const matches = useMatches();
   const currentMatch = matches.at(-1);
-  const title = currentMatch?.staticData?.title ?? 'Dashboard';
+  const title = currentMatch?.staticData?.title;
   const HeaderContent = currentMatch?.staticData?.headerContent;
 
   return (
@@ -20,8 +20,16 @@ function SiteHeaderComponent() {
         />
       </div>
       <div className="flex items-center justify-between px-(--content-padding)">
-        <h1 className="truncate text-base font-medium">{title}</h1>
-        {HeaderContent && <HeaderContent />}
+        {title ? (
+          <>
+            <h1 className="truncate text-base font-medium">{title}</h1>
+            {HeaderContent && <HeaderContent />}
+          </>
+        ) : HeaderContent ? (
+          <HeaderContent />
+        ) : (
+          <h1 className="truncate text-base font-medium">Dashboard</h1>
+        )}
       </div>
     </header>
   );

@@ -1,4 +1,3 @@
-// Re-export types from schemas for convenience
 export type {
   AggregatedMetrics,
   CountryMetrics,
@@ -13,4 +12,5 @@ export type {
 } from '@tvseri.es/schemas';
 export * from './client';
 export * from './hooks';
+export * from './query-keys';
 export * from './utils';

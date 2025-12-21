@@ -17,8 +17,10 @@ type DaysValue = 3 | 7 | 30;
 
 function DateRangeSelectComponent() {
   const navigate = useNavigate();
-  const search = useSearch({ strict: false }) as { days?: number };
-  const days = (search.days ?? 7) as DaysValue;
+  const days = useSearch({
+    select: (search) => ((search as { days?: number }).days ?? 7) as DaysValue,
+    strict: false,
+  });
 
   const handleDaysChange = (e: ChangeEvent<HTMLSelectElement>) => {
     navigate({

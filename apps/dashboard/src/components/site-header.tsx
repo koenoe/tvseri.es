@@ -1,14 +1,23 @@
-import { useMatches } from '@tanstack/react-router';
+import { useRouterState } from '@tanstack/react-router';
+import type { ComponentType } from 'react';
 import { memo } from 'react';
 
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 
 function SiteHeaderComponent() {
-  const matches = useMatches();
-  const currentMatch = matches.at(-1);
-  const title = currentMatch?.staticData?.title;
-  const HeaderContent = currentMatch?.staticData?.headerContent;
+  const { HeaderContent, title } = useRouterState({
+    select: (state) => {
+      const currentMatch = state.matches.at(-1);
+      return {
+        HeaderContent: currentMatch?.staticData?.headerContent as
+          | ComponentType
+          | undefined,
+        title: currentMatch?.staticData?.title as string | undefined,
+      };
+    },
+    structuralSharing: false,
+  });
 
   return (
     <header className="grid h-(--header-height) shrink-0 grid-cols-[1fr_minmax(0,var(--content-max-width))_1fr] items-center border-b">

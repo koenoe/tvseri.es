@@ -57,8 +57,9 @@ const NAV_AWS: ReadonlyArray<NavItem> = [
 ];
 
 function AppSidebarComponent(props: React.ComponentProps<typeof Sidebar>) {
-  const router = useRouterState();
-  const currentPath = router.location.pathname;
+  const currentPath = useRouterState({
+    select: (state) => state.location.pathname,
+  });
 
   return (
     <Sidebar collapsible="offcanvas" variant="inset" {...props}>

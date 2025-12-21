@@ -98,6 +98,7 @@ const EndpointsTableWrapper = memo(function EndpointsTableWrapper({
       const firstSort = newSorting[0];
       void navigate({
         replace: true,
+        resetScroll: false,
         search: (prev) => ({
           ...prev,
           sortColumn: firstSort?.id,
@@ -113,6 +114,7 @@ const EndpointsTableWrapper = memo(function EndpointsTableWrapper({
     (newPagination: { pageIndex: number; pageSize: number }) => {
       void navigate({
         replace: true,
+        resetScroll: false,
         search: (prev) => ({
           ...prev,
           pageIndex: newPagination.pageIndex || undefined,

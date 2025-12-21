@@ -147,7 +147,15 @@ app.get(
       errorRate: number;
       latency: AggregatedApiMetrics['latency'];
       requestCount: number;
-      series: Array<{ date: string; errorRate: number; p75: number }>;
+      series: Array<{
+        date: string;
+        errorRate: number;
+        p75: number;
+        p90: number;
+        p95: number;
+        p99: number;
+        requestCount: number;
+      }>;
       throughput: number;
     }> = [];
 
@@ -159,6 +167,10 @@ app.get(
             date: item.date,
             errorRate: item.errorRate,
             p75: item.latency.p75,
+            p90: item.latency.p90,
+            p95: item.latency.p95,
+            p99: item.latency.p99,
+            requestCount: item.requestCount,
           }))
           .sort((a, b) => a.date.localeCompare(b.date));
 

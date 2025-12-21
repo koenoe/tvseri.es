@@ -174,9 +174,37 @@ export const formatErrorRate = (rate: number): string => {
 };
 
 export const formatThroughput = (rpm: number): string => {
-  if (rpm < 1) return `${(rpm * 60).toFixed(1)}/hr`;
-  if (rpm < 1000) return `${rpm.toFixed(1)}/min`;
-  return `${(rpm / 1000).toFixed(1)}k/min`;
+  const rps = rpm / 60;
+  if (rps < 1) {
+    return `${rps.toFixed(2)} req/s`;
+  }
+  if (rps < 10) {
+    return `${rps.toFixed(1)} req/s`;
+  }
+  return `${Math.round(rps)} req/s`;
+};
+
+export const formatCount = (count: number): { unit: string; value: string } => {
+  if (count < 1000) return { unit: '', value: count.toLocaleString() };
+  if (count < 1_000_000) {
+    const raw = count / 1000;
+    const rounded = Math.round(raw * 10) / 10;
+    return {
+      unit: 'k',
+      value: rounded % 1 === 0 ? String(rounded) : rounded.toFixed(1),
+    };
+  }
+  const raw = count / 1_000_000;
+  const rounded = Math.round(raw * 10) / 10;
+  return {
+    unit: 'M',
+    value: rounded % 1 === 0 ? String(rounded) : rounded.toFixed(1),
+  };
+};
+
+export const formatCountString = (count: number): string => {
+  const { unit, value } = formatCount(count);
+  return `${value}${unit}`;
 };
 
 export type EndpointMetricItem = Readonly<{

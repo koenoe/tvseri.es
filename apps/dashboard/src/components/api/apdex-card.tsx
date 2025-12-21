@@ -67,19 +67,21 @@ const ApdexCard = memo(function ApdexCard({ score }: ApdexCardProps) {
         <div className="text-[clamp(2.5rem,12cqw,4rem)] leading-none font-bold text-foreground shrink-0">
           {score.toFixed(2)}
         </div>
-        <div className="grid flex-1 grid-cols-8 gap-1 min-w-0">
-          {Array.from({ length: TOTAL_CELLS }).map((_, index) => {
-            const row = Math.floor(index / COLS);
-            const isFilled = index < filledCells;
-            const colorClass = isFilled ? palette[row] : 'bg-muted';
+        <div className="flex-1 h-14 min-w-0 flex justify-end">
+          <div className="grid grid-cols-8 gap-1 w-full max-w-60 content-center">
+            {Array.from({ length: TOTAL_CELLS }).map((_, index) => {
+              const row = Math.floor(index / COLS);
+              const isFilled = index < filledCells;
+              const colorClass = isFilled ? palette[row] : 'bg-muted';
 
-            return (
-              <div
-                className={cn('aspect-4/1 w-full rounded-full', colorClass)}
-                key={index}
-              />
-            );
-          })}
+              return (
+                <div
+                  className={cn('aspect-4/1 w-full rounded-full', colorClass)}
+                  key={index}
+                />
+              );
+            })}
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -109,13 +111,15 @@ function ApdexCardSkeleton() {
         <Skeleton className="text-[clamp(2.5rem,12cqw,4rem)] leading-none font-bold shrink-0 rounded-none bg-white/40">
           <span className="invisible">0.00</span>
         </Skeleton>
-        <div className="grid flex-1 grid-cols-8 gap-1 min-w-0">
-          {Array.from({ length: TOTAL_CELLS }).map((_, index) => (
-            <div
-              className={cn('aspect-4/1 w-full rounded-full', 'bg-muted')}
-              key={index}
-            />
-          ))}
+        <div className="flex-1 h-14 min-w-0 flex justify-end">
+          <div className="grid grid-cols-8 gap-1 w-full max-w-60 content-center">
+            {Array.from({ length: TOTAL_CELLS }).map((_, index) => (
+              <div
+                className={cn('aspect-4/1 w-full rounded-full', 'bg-muted')}
+                key={index}
+              />
+            ))}
+          </div>
         </div>
       </CardContent>
     </Card>

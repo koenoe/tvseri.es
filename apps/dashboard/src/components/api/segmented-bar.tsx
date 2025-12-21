@@ -41,8 +41,8 @@ const SegmentedBar = memo(function SegmentedBar({
   barCount,
   color,
   filledBars,
-  height = 'h-5',
-  width = 'w-full max-w-50',
+  height = 'h-8',
+  width = 'w-full max-w-60',
 }: SegmentedBarProps) {
   const opacities = getOpacities(barCount);
   const colorValue = COLOR_VALUES[color];

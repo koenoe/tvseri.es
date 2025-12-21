@@ -932,6 +932,10 @@ export const EndpointDailySeriesItemSchema = v.object({
   date: v.string(),
   errorRate: v.number(),
   p75: v.number(),
+  p90: v.number(),
+  p95: v.number(),
+  p99: v.number(),
+  requestCount: v.number(),
 });
 
 /**

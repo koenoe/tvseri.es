@@ -63,7 +63,7 @@ const ErrorRateCard = memo(function ErrorRateCard({
           </span>
         </div>
 
-        <div className="flex-1 min-w-0 flex justify-end">
+        <div className="flex-1 h-14 min-w-0 flex justify-end items-center">
           <SegmentedBar
             barCount={BAR_COUNT}
             color={color}
@@ -100,7 +100,7 @@ function ErrorRateCardSkeleton() {
             0.00<span className="text-[0.4em] font-light ml-1">%</span>
           </span>
         </Skeleton>
-        <div className="flex-1 min-w-0 flex justify-end">
+        <div className="flex-1 h-14 min-w-0 flex justify-end items-center">
           <SegmentedBar barCount={BAR_COUNT} color="green" filledBars={0} />
         </div>
       </CardContent>

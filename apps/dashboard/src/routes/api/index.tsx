@@ -12,6 +12,10 @@ import {
   LatencyCard,
   LatencyCardSkeleton,
 } from '@/components/api/latency-card';
+import {
+  RequestsCard,
+  RequestsCardSkeleton,
+} from '@/components/api/requests-card';
 import { ApiHeader } from '@/components/api-header';
 import { useApiMetricsEndpoints, useApiMetricsSummary } from '@/lib/api';
 import { formatDependencies } from '@/lib/api-metrics';
@@ -55,7 +59,7 @@ function ApiMetrics() {
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
         {isSummaryLoading ? (
           <ApdexCardSkeleton />
         ) : (
@@ -68,6 +72,16 @@ function ApiMetrics() {
             dependencies={dependencies}
             p75={summaryData?.aggregated?.latency.p75 ?? 0}
             series={summaryData?.series ?? []}
+          />
+        )}
+        {isSummaryLoading ? (
+          <RequestsCardSkeleton />
+        ) : (
+          <RequestsCard
+            dependencies={dependencies}
+            requestCount={summaryData?.aggregated?.requestCount ?? 0}
+            series={summaryData?.series ?? []}
+            throughput={summaryData?.aggregated?.throughput ?? 0}
           />
         )}
         {isSummaryLoading ? (

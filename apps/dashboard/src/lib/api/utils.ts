@@ -7,6 +7,7 @@ import type {
   WebVitalMetricStats,
 } from '@tvseri.es/schemas';
 
+import { formatCountString } from '@/lib/api-metrics';
 import { countryDisplayNames } from '@/lib/status-colors';
 import {
   getMetricStatus,
@@ -36,18 +37,10 @@ export type GroupedMetricData = Readonly<{
 
 /**
  * Format page views for display.
- * >= 1000 shows as 1k, 1.5k, etc.
- * < 1000 shows full number.
+ * @deprecated Use formatCountString from @/lib/api-metrics instead
  */
 export function formatPageViews(pageViews: number): string {
-  if (pageViews < 1000) {
-    return String(pageViews);
-  }
-  const thousands = pageViews / 1000;
-  // Show decimal only if not a whole number (e.g., 1.5k but not 2.0k)
-  const formatted =
-    thousands % 1 === 0 ? thousands.toFixed(0) : thousands.toFixed(1);
-  return `${formatted}k`;
+  return formatCountString(pageViews);
 }
 
 /**

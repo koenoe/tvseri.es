@@ -82,14 +82,33 @@ const normalizeDependencyEndpoint = (
   }
 
   // MDBList normalization
+  // Supports multiple ID providers: tmdb, imdb, trakt, tvdb, mal
+  // See: https://mdblist.docs.apiary.io/
   if (normalizedSource === 'mdblist') {
     return (
       endpoint
-        // `/tmdb/show/12345` → `/tmdb/show/:id`
-        // `/tmdb/movie/12345` → `/tmdb/movie/:id`
-        .replace(/^\/tmdb\/(show|movie)\/\d+/, '/tmdb/$1/:id')
-        // `/lists/username/listname/items` → `/lists/:user/:list/items`
+        // `/{provider}/{media_type}/{id}` → `/{provider}/{media_type}/:id`
+        // Providers: tmdb (numeric), imdb (tt*), trakt (numeric), tvdb (numeric), mal (numeric)
+        // Media types: movie, show, any
+        .replace(
+          /^\/(tmdb|imdb|trakt|tvdb|mal)\/(show|movie|any)\/[^/?]+/,
+          '/$1/$2/:id',
+        )
+        // `/lists/{listid}/items` → `/lists/:id/items` (numeric list ID)
+        // `/lists/{listid}/changes` → `/lists/:id/changes`
+        // `/lists/{listid}` → `/lists/:id`
+        .replace(/^\/lists\/(\d+)/, '/lists/:id')
+        // `/lists/user/{userid}` → `/lists/user/:id`
+        .replace(/^\/lists\/user\/(\d+)/, '/lists/user/:id')
+        // `/lists/user/{username}` → `/lists/user/:username` (non-numeric)
+        .replace(/^\/lists\/user\/([^/]+)/, '/lists/user/:username')
+        // `/lists/{username}/{listname}` → `/lists/:user/:list`
         .replace(/^\/lists\/([^/]+)\/([^/]+)/, '/lists/:user/:list')
+        // `/external/lists/{listid}/items` → `/external/lists/:id/items`
+        .replace(/^\/external\/lists\/(\d+)/, '/external/lists/:id')
+      // `/rating/{media_type}/{return_rating}` stays as-is (batch endpoint)
+      // `/search/{media_type}` stays as-is
+      // `/sync/*`, `/scrobble/*`, `/watchlist/*` stay as-is
     );
   }
 

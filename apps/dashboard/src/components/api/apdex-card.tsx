@@ -1,4 +1,10 @@
-import { MoreVertical } from 'lucide-react';
+import {
+  ArrowUpRight,
+  CircleAlert,
+  CircleCheck,
+  CircleMinus,
+  MoreVertical,
+} from 'lucide-react';
 import { memo } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -10,7 +16,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getApdexStatusConfig } from '@/lib/api-metrics';
 import { cn } from '@/lib/utils';
 
 type ApdexCardProps = Readonly<{
@@ -43,9 +55,24 @@ function getPalette(score: number) {
   return PALETTES.red;
 }
 
+const STATUS_ICONS = {
+  frustrated: CircleAlert,
+  satisfied: CircleCheck,
+  tolerating: CircleMinus,
+} as const;
+
+const READABLE_THRESHOLDS = {
+  frustrated: 'Below 0.50',
+  satisfied: 'Above 0.85',
+  tolerating: 'Between 0.50 and 0.85',
+} as const;
+
 const ApdexCard = memo(function ApdexCard({ score }: ApdexCardProps) {
   const palette = getPalette(score);
   const filledCells = Math.round(score * TOTAL_CELLS);
+  const statusConfig = getApdexStatusConfig(score);
+  const StatusIcon = STATUS_ICONS[statusConfig.status];
+  const readableThreshold = READABLE_THRESHOLDS[statusConfig.status];
 
   return (
     <Card className="w-full border">
@@ -53,14 +80,41 @@ const ApdexCard = memo(function ApdexCard({ score }: ApdexCardProps) {
         <CardTitle>Apdex Score</CardTitle>
         <CardDescription>Application Performance Index</CardDescription>
         <CardAction>
-          <Button
-            className="text-muted-foreground"
-            disabled
-            size="icon-sm"
-            variant="ghost"
-          >
-            <MoreVertical className="size-4" />
-          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                className="text-muted-foreground cursor-pointer data-[state=open]:bg-input/50"
+                size="icon-sm"
+                variant="ghost"
+              >
+                <MoreVertical className="size-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-80 p-4">
+              <div className="space-y-4">
+                <p className="font-semibold">{statusConfig.label}</p>
+                <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <StatusIcon className={cn('size-4', statusConfig.text)} />
+                  {readableThreshold}
+                </p>
+                <hr className="border-border" />
+                <p className="text-sm text-muted-foreground">
+                  Apdex (Application Performance Index) measures user
+                  satisfaction based on response times. Scores range from 0 to
+                  1, where 1 represents all users satisfied.
+                </p>
+                <a
+                  className="inline-flex items-center gap-1 text-blue-500 hover:text-blue-400 text-sm"
+                  href="https://en.wikipedia.org/wiki/Apdex"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Learn more about Apdex
+                  <ArrowUpRight className="size-3.5" />
+                </a>
+              </div>
+            </PopoverContent>
+          </Popover>
         </CardAction>
       </CardHeader>
       <CardContent className="@container flex items-center justify-between gap-6 lg:gap-10">
@@ -100,7 +154,7 @@ function ApdexCardSkeleton() {
           <Button
             className="text-muted-foreground"
             disabled
-            size="icon-xs"
+            size="icon-sm"
             variant="ghost"
           >
             <MoreVertical className="size-4" />

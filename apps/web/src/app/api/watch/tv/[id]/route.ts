@@ -7,6 +7,7 @@ import {
   markWatched,
   unmarkWatched,
 } from '@/lib/api';
+import isNumericId from '@/utils/isNumericId';
 
 type BodyPayload = Readonly<{
   watched: boolean;
@@ -21,7 +22,7 @@ export async function POST(
   const [params, json] = await Promise.all([_params, req.json()]);
   const body = json as BodyPayload;
 
-  if (!body || !params.id) {
+  if (!body || !params.id || !isNumericId(params.id)) {
     return Response.json({ error: 'No payload found' }, { status: 400 });
   }
 

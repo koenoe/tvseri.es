@@ -13,6 +13,7 @@ import Page from '@/components/Page/Page';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
 import formatDate from '@/utils/formatDate';
 import getBaseUrl from '@/utils/getBaseUrl';
+import isNumericId from '@/utils/isNumericId';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 type Props = Readonly<{
@@ -21,6 +22,11 @@ type Props = Readonly<{
 
 export async function generateMetadata({ params: paramsFromProps }: Props) {
   const params = await paramsFromProps;
+
+  if (!isNumericId(params.id)) {
+    return {};
+  }
+
   const person = await cachedPerson(params.id);
 
   if (!person || person.isAdult) {
@@ -66,6 +72,11 @@ export default async function PersonDetailsPage({
   params: paramsFromProps,
 }: Props) {
   const params = await paramsFromProps;
+
+  if (!isNumericId(params.id)) {
+    return notFound();
+  }
+
   const person = await cachedPerson(params.id);
 
   if (!person || person.isAdult) {

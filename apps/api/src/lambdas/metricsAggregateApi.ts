@@ -73,8 +73,11 @@ const normalizeDependencyEndpoint = (
     const path = `/${rest.join('/')}`;
     const normalized = path
       .replace(/^(\/find\/)[^?]+/, '$1:id')
-      .replace(/\/(\d+)/g, '/:id')
-      .replace(/\/(season|episode)\/:id/g, '/$1/:num');
+      .replace(
+        /^\/(tv|movie|person|keyword|collection|company|network|credit|review|list)\/[^/]+/,
+        '/$1/:id',
+      )
+      .replace(/\/(season|episode)\/[^/]+/g, '/$1/:num');
     return `/${apiVersion}${normalized}`;
   }
 
@@ -335,6 +338,15 @@ const aggregateApiMetrics = (
     for (const rec of recs) {
       for (const dep of rec.dependencies) {
         const isError = dep.status >= 400 || dep.error !== undefined;
+
+        // Skip TMDB endpoints with slug IDs (should be numeric)
+        if (
+          dep.source.toLowerCase() === 'tmdb' &&
+          /\/(tv|movie|person|keyword)\/[a-z]/i.test(dep.endpoint)
+        ) {
+          continue;
+        }
+
         const normalizedOp = normalizeDependencyEndpoint(
           dep.source,
           dep.endpoint,

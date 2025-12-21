@@ -25,6 +25,7 @@ import AddTvSeriesToStoreContainer from '@/components/Watched/AddTvSeriesToStore
 import WatchedProgress from '@/components/Watched/WatchedProgress';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
 import getBaseUrl from '@/utils/getBaseUrl';
+import isNumericId from '@/utils/isNumericId';
 
 type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
@@ -32,6 +33,11 @@ type Props = Readonly<{
 
 export async function generateMetadata({ params: paramsFromProps }: Props) {
   const params = await paramsFromProps;
+
+  if (!isNumericId(params.id)) {
+    return {};
+  }
+
   const tvSeries = await cachedTvSeries(params.id);
 
   if (!tvSeries || tvSeries.isAdult) {
@@ -77,6 +83,11 @@ export default async function TvSeriesDetailsPage({
   params: paramsFromProps,
 }: Props) {
   const params = await paramsFromProps;
+
+  if (!isNumericId(params.id)) {
+    return notFound();
+  }
+
   const tvSeries = await cachedTvSeries(params.id, {
     includeImages: true,
   });

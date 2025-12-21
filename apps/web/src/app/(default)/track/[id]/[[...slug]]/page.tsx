@@ -9,6 +9,7 @@ import InfoLine from '@/components/InfoLine/InfoLine';
 import SkeletonCircleButton from '@/components/Skeletons/SkeletonCircleButton';
 import Poster from '@/components/Tiles/Poster';
 import CardsContainer from '@/components/Track/CardsContainer';
+import isNumericId from '@/utils/isNumericId';
 
 type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
@@ -22,6 +23,11 @@ export default async function TrackPage({ params: paramsFromProps }: Props) {
   }
 
   const params = await paramsFromProps;
+
+  if (!isNumericId(params.id)) {
+    return notFound();
+  }
+
   const tvSeries = await cachedTvSeries(params.id);
 
   if (!tvSeries || tvSeries.isAdult) {

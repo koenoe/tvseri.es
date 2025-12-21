@@ -88,27 +88,20 @@ const normalizeDependencyEndpoint = (
     return (
       endpoint
         // `/{provider}/{media_type}/{id}` → `/{provider}/{media_type}/:id`
-        // Providers: tmdb (numeric), imdb (tt*), trakt (numeric), tvdb (numeric), mal (numeric)
-        // Media types: movie, show, any
         .replace(
           /^\/(tmdb|imdb|trakt|tvdb|mal)\/(show|movie|any)\/[^/?]+/,
           '/$1/$2/:id',
         )
-        // `/lists/{listid}/items` → `/lists/:id/items` (numeric list ID)
-        // `/lists/{listid}/changes` → `/lists/:id/changes`
-        // `/lists/{listid}` → `/lists/:id`
-        .replace(/^\/lists\/(\d+)/, '/lists/:id')
-        // `/lists/user/{userid}` → `/lists/user/:id`
-        .replace(/^\/lists\/user\/(\d+)/, '/lists/user/:id')
-        // `/lists/user/{username}` → `/lists/user/:username` (non-numeric)
-        .replace(/^\/lists\/user\/([^/]+)/, '/lists/user/:username')
-        // `/lists/{username}/{listname}` → `/lists/:user/:list`
-        .replace(/^\/lists\/([^/]+)\/([^/]+)/, '/lists/:user/:list')
-        // `/external/lists/{listid}/items` → `/external/lists/:id/items`
-        .replace(/^\/external\/lists\/(\d+)/, '/external/lists/:id')
-      // `/rating/{media_type}/{return_rating}` stays as-is (batch endpoint)
-      // `/search/{media_type}` stays as-is
-      // `/sync/*`, `/scrobble/*`, `/watchlist/*` stay as-is
+        // `/external/lists/{listid}` → `/external/lists/:id`
+        .replace(/^\/external\/lists\/\d+/, '/external/lists/:id')
+        // `/lists/user/{userid}` → `/lists/user/:id` (numeric user ID)
+        .replace(/^\/lists\/user\/\d+$/, '/lists/user/:id')
+        // `/lists/user/{username}` → `/lists/user/:username` (non-numeric, e.g. koenoe)
+        .replace(/^\/lists\/user\/(?!:)[^/]+$/, '/lists/user/:username')
+        // `/lists/{listid}` or `/lists/{listid}/...` → `/lists/:id` or `/lists/:id/...`
+        .replace(/^\/lists\/\d+(?=\/|$)/, '/lists/:id')
+        // `/lists/{username}/{listname}` → `/lists/:user/:list` (catch-all for non-numeric)
+        .replace(/^\/lists\/(?!:)[^/]+\/(?!:)[^/]+/, '/lists/:user/:list')
     );
   }
 

@@ -68,17 +68,14 @@ const normalizeDependencyEndpoint = (
     return endpoint;
   }
 
-  // TMDB normalization
   if (normalizedSource === 'tmdb') {
-    return (
-      endpoint
-        // /3/find/{externalId} → /3/find/:id (handles tt123, Q123, tvdb ids, social handles)
-        .replace(/^(\/3\/find\/)[^?]+/, '$1:id')
-        // Normalize numeric IDs in paths
-        .replace(/\/(\d+)(?=\/|$)/g, '/:id')
-        // Normalize season/episode numbers (after the word "season" or "episode")
-        .replace(/\/(season|episode)\/:id/g, '/$1/:num')
-    );
+    const [, apiVersion, ...rest] = endpoint.split('/');
+    const path = `/${rest.join('/')}`;
+    const normalized = path
+      .replace(/^(\/find\/)[^?]+/, '$1:id')
+      .replace(/\/(\d+)/g, '/:id')
+      .replace(/\/(season|episode)\/:id/g, '/$1/:num');
+    return `/${apiVersion}${normalized}`;
   }
 
   // MDBList normalization

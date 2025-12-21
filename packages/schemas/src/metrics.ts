@@ -129,12 +129,23 @@ export const PercentileStatsSchema = v.object({
   ratings: v.optional(LatencyRatingsSchema),
 });
 
+/**
+ * Daily series point for dependency operation sparklines.
+ */
+export const DependencyOperationSeriesPointSchema = v.object({
+  date: v.string(),
+  errorRate: v.number(),
+  p75: v.number(),
+});
+
 export const DependencyOperationStatsSchema = v.object({
   count: v.number(),
   ...ErrorFields,
   histogram: HistogramSchema,
   operation: v.string(),
   ...PercentileFields,
+  /** Daily series for sparkline visualization */
+  series: v.optional(v.array(DependencyOperationSeriesPointSchema)),
 });
 
 export const DependencyStatsSchema = v.object({

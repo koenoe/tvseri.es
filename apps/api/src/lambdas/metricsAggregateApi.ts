@@ -87,7 +87,7 @@ const normalizeDependencyEndpoint = (
       endpoint
         // `/tmdb/show/12345` → `/tmdb/show/:id`
         // `/tmdb/movie/12345` → `/tmdb/movie/:id`
-        .replace(/\/(show|movie)\/(\d+)(?=\/|$)/g, '/$1/:id')
+        .replace(/^\/tmdb\/(show|movie)\/\d+/, '/tmdb/$1/:id')
         // `/lists/username/listname/items` → `/lists/:user/:list/items`
         .replace(/^\/lists\/([^/]+)\/([^/]+)/, '/lists/:user/:list')
     );
@@ -342,7 +342,9 @@ const aggregateApiMetrics = (
         // Skip TMDB endpoints with slug IDs (should be numeric)
         if (
           dep.source.toLowerCase() === 'tmdb' &&
-          /\/(tv|movie|person|keyword)\/[a-z]/i.test(dep.endpoint)
+          /\/(tv|movie|person|keyword|collection|company|network|list|account)\/[a-z]/i.test(
+            dep.endpoint,
+          )
         ) {
           continue;
         }

@@ -18,6 +18,7 @@ import {
 } from '@tvseri.es/schemas';
 import { buildLatencyHistogramBins } from '@tvseri.es/utils';
 import type { ScheduledHandler } from 'aws-lambda';
+import { compile, match } from 'path-to-regexp';
 import { Resource } from 'sst';
 
 const DYNAMO_BATCH_LIMIT = 25;
@@ -33,79 +34,249 @@ const TOP_ITEMS_LIMIT = 25;
 const LATENCY_FAST_THRESHOLD = 200;
 const LATENCY_MODERATE_THRESHOLD = 500;
 
+/** TMDB sub-resource keywords that are valid (not IDs) */
+const TMDB_KEYWORDS = new Set([
+  'airing_today',
+  'changes',
+  'latest',
+  'now_playing',
+  'on_the_air',
+  'popular',
+  'top_rated',
+  'upcoming',
+]);
+
+/** TMDB resources that require numeric IDs */
+const TMDB_NUMERIC_ID_RESOURCES = new Set([
+  'account',
+  'collection',
+  'company',
+  'keyword',
+  'list',
+  'movie',
+  'network',
+  'person',
+  'tv',
+]);
+
+/** TMDB resources that should have IDs normalized */
+const TMDB_ID_RESOURCES = new Set([
+  'account',
+  'collection',
+  'company',
+  'credit',
+  'keyword',
+  'list',
+  'movie',
+  'network',
+  'person',
+  'review',
+  'tv',
+]);
+
+/** MDBList supported ID providers */
+const MDBLIST_PROVIDERS = new Set(['imdb', 'mal', 'tmdb', 'trakt', 'tvdb']);
+
+/** MDBList supported media types */
+const MDBLIST_MEDIA_TYPES = new Set(['any', 'movie', 'show']);
+
 const dynamoClient = new DynamoDBClient({});
 
-/**
- * Sleep for a given number of milliseconds.
- */
 const sleep = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 // ═══════════════════════════════════════════════════════════════════════════
-// UTILITIES
+// PATH-TO-REGEXP MATCHERS AND TEMPLATES
 // ═══════════════════════════════════════════════════════════════════════════
 
-/**
- * Normalize dependency endpoint paths for aggregation.
- *
- * Different dependency sources have different URL patterns that need normalization:
- * - TMDB: `/3/tv/12345` → `/3/tv/:id`, `/3/tv/12345/season/2` → `/3/tv/:id/season/:num`
- * - MDBList: `/tmdb/show/12345` → `/tmdb/show/:id`, `/lists/user/list/items` → `/lists/:user/:list/items`
- * - DynamoDB: Already normalized as `Operation:TableName` (e.g., `Query:tvseries-Cache`)
- *
- * @param source - Dependency source (e.g., "TMDB", "MDBLIST", "DynamoDB")
- * @param endpoint - Raw endpoint path
- * @returns Normalized endpoint path for grouping
- */
+const compileOpts = { encode: false } as const;
+
+const tmdbValidationMatcher = match<{
+  id: string;
+  path?: string[];
+  resource: string;
+}>('/3/:resource/:id{/*path}', { decode: decodeURIComponent });
+
+type PatternParams = Record<string, string | undefined>;
+type PatternTransform = (
+  params: PatternParams,
+) => Record<string, string> | null;
+
+type NormalizationPattern = {
+  matcher: ReturnType<typeof match>;
+  template: ReturnType<typeof compile>;
+  transform: PatternTransform;
+};
+
+const hasResource = (set: Set<string>, value: string | undefined): boolean =>
+  value !== undefined && set.has(value);
+
+const isNumeric = (value: string | undefined): boolean =>
+  value !== undefined && /^\d+$/.test(value);
+
+const tmdbNormalizationPatterns: NormalizationPattern[] = [
+  {
+    matcher: match('/3/:resource/:id/season/:season/episode/:episode/:sub'),
+    template: compile(
+      '/3/:resource/:id/season/:season/episode/:episode/:sub',
+      compileOpts,
+    ),
+    transform: (params) =>
+      hasResource(TMDB_ID_RESOURCES, params.resource)
+        ? { ...params, episode: ':num', id: ':id', season: ':num' }
+        : null,
+  },
+  {
+    matcher: match('/3/:resource/:id/season/:season/episode/:episode'),
+    template: compile(
+      '/3/:resource/:id/season/:season/episode/:episode',
+      compileOpts,
+    ),
+    transform: (params) =>
+      hasResource(TMDB_ID_RESOURCES, params.resource)
+        ? { ...params, episode: ':num', id: ':id', season: ':num' }
+        : null,
+  },
+  {
+    matcher: match('/3/:resource/:id/season/:season/:sub'),
+    template: compile('/3/:resource/:id/season/:season/:sub', compileOpts),
+    transform: (params) =>
+      hasResource(TMDB_ID_RESOURCES, params.resource)
+        ? { ...params, id: ':id', season: ':num' }
+        : null,
+  },
+  {
+    matcher: match('/3/:resource/:id/season/:season'),
+    template: compile('/3/:resource/:id/season/:season', compileOpts),
+    transform: (params) =>
+      hasResource(TMDB_ID_RESOURCES, params.resource)
+        ? { ...params, id: ':id', season: ':num' }
+        : null,
+  },
+  {
+    matcher: match('/3/:resource/:id/:sub/:subsub'),
+    template: compile('/3/:resource/:id/:sub/:subsub', compileOpts),
+    transform: (params) =>
+      hasResource(TMDB_ID_RESOURCES, params.resource)
+        ? { ...params, id: ':id' }
+        : null,
+  },
+  {
+    matcher: match('/3/:resource/:id/:sub'),
+    template: compile('/3/:resource/:id/:sub', compileOpts),
+    transform: (params) =>
+      hasResource(TMDB_ID_RESOURCES, params.resource)
+        ? { ...params, id: ':id' }
+        : null,
+  },
+  {
+    matcher: match('/3/find/:id'),
+    template: compile('/3/find/:id', compileOpts),
+    transform: () => ({ id: ':id' }),
+  },
+  {
+    matcher: match('/3/:resource/:id'),
+    template: compile('/3/:resource/:id', compileOpts),
+    transform: (params) =>
+      hasResource(TMDB_ID_RESOURCES, params.resource)
+        ? { ...params, id: ':id' }
+        : null,
+  },
+];
+
+const mdblistNormalizationPatterns: NormalizationPattern[] = [
+  {
+    matcher: match('/lists/:user/:list/items'),
+    template: compile('/lists/:user/:list/items', compileOpts),
+    transform: (params) =>
+      isNumeric(params.user) ? null : { list: ':list', user: ':user' },
+  },
+  {
+    matcher: match('/lists/:id/items'),
+    template: compile('/lists/:id/items', compileOpts),
+    transform: (params) => (isNumeric(params.id) ? { id: ':id' } : null),
+  },
+  {
+    matcher: match('/lists/user/:id'),
+    template: compile('/lists/user/:id', compileOpts),
+    transform: (params) =>
+      isNumeric(params.id) ? { id: ':id' } : { id: ':username' },
+  },
+  {
+    matcher: match('/lists/:user/:list'),
+    template: compile('/lists/:user/:list', compileOpts),
+    transform: (params) =>
+      isNumeric(params.user) ? null : { list: ':list', user: ':user' },
+  },
+  {
+    matcher: match('/lists/:id'),
+    template: compile('/lists/:id', compileOpts),
+    transform: (params) => (isNumeric(params.id) ? { id: ':id' } : null),
+  },
+  {
+    matcher: match('/external/lists/:id'),
+    template: compile('/external/lists/:id', compileOpts),
+    transform: (params) => (isNumeric(params.id) ? { id: ':id' } : null),
+  },
+  {
+    matcher: match('/:provider/:mediaType/:id'),
+    template: compile('/:provider/:mediaType/:id', compileOpts),
+    transform: (params) =>
+      hasResource(MDBLIST_PROVIDERS, params.provider) &&
+      hasResource(MDBLIST_MEDIA_TYPES, params.mediaType)
+        ? { ...params, id: ':id' }
+        : null,
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// VALIDATION AND NORMALIZATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+const isValidTmdbEndpoint = (endpoint: string): boolean => {
+  const result = tmdbValidationMatcher(endpoint);
+  if (!result) return true;
+
+  const { id, resource } = result.params;
+  if (!TMDB_NUMERIC_ID_RESOURCES.has(resource)) return true;
+  if (/^\d+$/.test(id)) return true;
+  if (TMDB_KEYWORDS.has(id.toLowerCase())) return true;
+
+  return false;
+};
+
+const normalizeTmdbEndpoint = (endpoint: string): string => {
+  for (const { matcher, template, transform } of tmdbNormalizationPatterns) {
+    const result = matcher(endpoint);
+    if (result) {
+      const params = transform(result.params as Record<string, string>);
+      if (params) return template(params);
+    }
+  }
+  return endpoint;
+};
+
+const normalizeMdblistEndpoint = (endpoint: string): string => {
+  for (const { matcher, template, transform } of mdblistNormalizationPatterns) {
+    const result = matcher(endpoint);
+    if (result) {
+      const params = transform(result.params as Record<string, string>);
+      if (params) return template(params);
+    }
+  }
+  return endpoint;
+};
+
 const normalizeDependencyEndpoint = (
   source: string,
   endpoint: string,
 ): string => {
   const normalizedSource = source.toLowerCase();
 
-  // DynamoDB endpoints are already normalized (e.g., "Query:tvseries-Cache")
-  if (normalizedSource === 'dynamodb') {
-    return endpoint;
-  }
+  if (normalizedSource === 'dynamodb') return endpoint;
+  if (normalizedSource === 'tmdb') return normalizeTmdbEndpoint(endpoint);
+  if (normalizedSource === 'mdblist') return normalizeMdblistEndpoint(endpoint);
 
-  if (normalizedSource === 'tmdb') {
-    const [, apiVersion, ...rest] = endpoint.split('/');
-    const path = `/${rest.join('/')}`;
-    const normalized = path
-      .replace(/^(\/find\/)[^?]+/, '$1:id')
-      .replace(
-        /^\/(tv|movie|person|keyword|collection|company|network|credit|review|list)\/[^/]+/,
-        '/$1/:id',
-      )
-      .replace(/\/(season|episode)\/[^/]+/g, '/$1/:num');
-    return `/${apiVersion}${normalized}`;
-  }
-
-  // MDBList normalization
-  // Supports multiple ID providers: tmdb, imdb, trakt, tvdb, mal
-  // See: https://mdblist.docs.apiary.io/
-  if (normalizedSource === 'mdblist') {
-    return (
-      endpoint
-        // `/{provider}/{media_type}/{id}` → `/{provider}/{media_type}/:id`
-        .replace(
-          /^\/(tmdb|imdb|trakt|tvdb|mal)\/(show|movie|any)\/[^/?]+/,
-          '/$1/$2/:id',
-        )
-        // `/external/lists/{listid}` → `/external/lists/:id`
-        .replace(/^\/external\/lists\/\d+/, '/external/lists/:id')
-        // `/lists/user/{userid}` → `/lists/user/:id` (numeric user ID)
-        .replace(/^\/lists\/user\/\d+$/, '/lists/user/:id')
-        // `/lists/user/{username}` → `/lists/user/:username` (non-numeric, e.g. koenoe)
-        .replace(/^\/lists\/user\/(?!:)[^/]+$/, '/lists/user/:username')
-        // `/lists/{listid}` or `/lists/{listid}/...` → `/lists/:id` or `/lists/:id/...`
-        .replace(/^\/lists\/\d+(?=\/|$)/, '/lists/:id')
-        // `/lists/{username}/{listname}` → `/lists/:user/:list` (catch-all for non-numeric)
-        .replace(/^\/lists\/(?!:)[^/]+\/(?!:)[^/]+/, '/lists/:user/:list')
-    );
-  }
-
-  // Default: return as-is for unknown sources
   return endpoint;
 };
 
@@ -351,12 +522,9 @@ const aggregateApiMetrics = (
       for (const dep of rec.dependencies) {
         const isError = dep.status >= 400 || dep.error !== undefined;
 
-        // Skip TMDB endpoints with slug IDs (should be numeric)
         if (
           dep.source.toLowerCase() === 'tmdb' &&
-          /\/(tv|movie|person|keyword|collection|company|network|list|account)\/[a-z]/i.test(
-            dep.endpoint,
-          )
+          !isValidTmdbEndpoint(dep.endpoint)
         ) {
           continue;
         }

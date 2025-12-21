@@ -2,6 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { memo } from 'react';
 
 import { ApdexCard, ApdexCardSkeleton } from '@/components/api/apdex-card';
+import { DependenciesSection } from '@/components/api/dependencies-section';
 import {
   MethodBadge,
   parseEndpoint,
@@ -100,42 +101,49 @@ function EndpointDetail() {
   const series = data?.series ?? [];
 
   return (
-    <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-      {isLoading ? (
-        <ApdexCardSkeleton />
-      ) : (
-        <ApdexCard score={data?.aggregated?.apdex.score ?? 0} />
-      )}
-      {isLoading ? (
-        <LatencyCardSkeleton />
-      ) : (
-        <LatencyCard
-          action={<PercentileLatencyPopover series={series} />}
-          p75={data?.aggregated?.latency.p75 ?? 0}
-          series={series}
-        />
-      )}
-      {isLoading ? (
-        <RequestsCardSkeleton />
-      ) : (
-        <RequestsCard
-          action={
-            <SuccessCodesPopover statusCodes={data?.aggregated?.statusCodes} />
-          }
-          requestCount={data?.aggregated?.requestCount ?? 0}
-          series={series}
-          throughput={data?.aggregated?.throughput ?? 0}
-        />
-      )}
-      {isLoading ? (
-        <ErrorRateCardSkeleton />
-      ) : (
-        <ErrorRateCard
-          action={
-            <StatusCodePopover statusCodes={data?.aggregated?.statusCodes} />
-          }
-          errorRate={data?.aggregated?.errorRate ?? 0}
-        />
+    <div className="flex flex-col gap-4">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+        {isLoading ? (
+          <ApdexCardSkeleton />
+        ) : (
+          <ApdexCard score={data?.aggregated?.apdex.score ?? 0} />
+        )}
+        {isLoading ? (
+          <LatencyCardSkeleton />
+        ) : (
+          <LatencyCard
+            action={<PercentileLatencyPopover series={series} />}
+            p75={data?.aggregated?.latency.p75 ?? 0}
+            series={series}
+          />
+        )}
+        {isLoading ? (
+          <RequestsCardSkeleton />
+        ) : (
+          <RequestsCard
+            action={
+              <SuccessCodesPopover
+                statusCodes={data?.aggregated?.statusCodes}
+              />
+            }
+            requestCount={data?.aggregated?.requestCount ?? 0}
+            series={series}
+            throughput={data?.aggregated?.throughput ?? 0}
+          />
+        )}
+        {isLoading ? (
+          <ErrorRateCardSkeleton />
+        ) : (
+          <ErrorRateCard
+            action={
+              <StatusCodePopover statusCodes={data?.aggregated?.statusCodes} />
+            }
+            errorRate={data?.aggregated?.errorRate ?? 0}
+          />
+        )}
+      </div>
+      {!isLoading && (
+        <DependenciesSection dependencies={data?.aggregated?.dependencies} />
       )}
     </div>
   );

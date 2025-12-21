@@ -61,13 +61,15 @@ const normalizeDependencyEndpoint = (
   source: string,
   endpoint: string,
 ): string => {
+  const normalizedSource = source.toLowerCase();
+
   // DynamoDB endpoints are already normalized (e.g., "Query:tvseries-Cache")
-  if (source === 'DynamoDB') {
+  if (normalizedSource === 'dynamodb') {
     return endpoint;
   }
 
   // TMDB normalization
-  if (source === 'TMDB') {
+  if (normalizedSource === 'tmdb') {
     return (
       endpoint
         // /3/find/{externalId} → /3/find/:id (handles tt123, Q123, tvdb ids, social handles)
@@ -80,7 +82,7 @@ const normalizeDependencyEndpoint = (
   }
 
   // MDBList normalization
-  if (source === 'MDBLIST') {
+  if (normalizedSource === 'mdblist') {
     return (
       endpoint
         // `/tmdb/show/12345` → `/tmdb/show/:id`

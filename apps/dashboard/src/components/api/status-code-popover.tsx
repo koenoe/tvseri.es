@@ -7,7 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { formatPageViews } from '@/lib/api/utils';
+import { formatCountString } from '@/lib/api-metrics';
 
 type StatusCodes = Readonly<{
   clientError: number;
@@ -95,7 +95,7 @@ function StatusCodePopoverComponent({ statusCodes }: StatusCodePopoverProps) {
                     style={{ width: `${Math.max(percentage, 15)}%` }}
                   >
                     <span className="tabular-nums text-white/80 text-sm whitespace-nowrap">
-                      {formatPageViews(count)}
+                      {formatCountString(count)}
                     </span>
                   </div>
                 </div>
@@ -181,7 +181,7 @@ function SuccessCodesPopoverComponent({ statusCodes }: StatusCodePopoverProps) {
                     style={{ width: `${Math.max(percentage, 15)}%` }}
                   >
                     <span className="tabular-nums text-white/80 text-sm whitespace-nowrap">
-                      {formatPageViews(count)}
+                      {formatCountString(count)}
                     </span>
                   </div>
                 </div>

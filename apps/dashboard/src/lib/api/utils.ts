@@ -7,7 +7,6 @@ import type {
   WebVitalMetricStats,
 } from '@tvseri.es/schemas';
 
-import { formatCountString } from '@/lib/api-metrics';
 import { countryDisplayNames } from '@/lib/status-colors';
 import {
   getMetricStatus,
@@ -34,14 +33,6 @@ export type GroupedMetricData = Readonly<{
   needsImprovement: ReadonlyArray<MetricItem>;
   poor: ReadonlyArray<MetricItem>;
 }>;
-
-/**
- * Format page views for display.
- * @deprecated Use formatCountString from @/lib/api-metrics instead
- */
-export function formatPageViews(pageViews: number): string {
-  return formatCountString(pageViews);
-}
 
 /**
  * Get the display value for a metric.

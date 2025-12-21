@@ -1,6 +1,6 @@
 import type { DependencyStats, TimeSeriesPoint } from '@tvseri.es/schemas';
 
-import { countryDisplayNames, STATUS_COLORS } from './status-colors';
+import { STATUS_COLORS } from './status-colors';
 
 export type ApdexStatus = 'frustrated' | 'satisfied' | 'tolerating';
 
@@ -54,10 +54,6 @@ export const getApdexStatusConfig = (score: number) => {
   };
 };
 
-export const formatApdexScore = (score: number): string => {
-  return score.toFixed(2);
-};
-
 export type LatencyStatus = 'fast' | 'moderate' | 'slow';
 
 type LatencyThreshold = Readonly<{
@@ -93,30 +89,6 @@ export const formatLatency = (ms: number): string => {
   return `${(ms / 1000).toFixed(2)}s`;
 };
 
-export type PercentileKey = 'p75' | 'p90' | 'p95' | 'p99';
-
-export const PERCENTILE_CONFIG: Record<
-  PercentileKey,
-  { description: string; label: string }
-> = {
-  p75: {
-    description: '75% of requests are faster than this',
-    label: 'p75',
-  },
-  p90: {
-    description: '90% of requests are faster than this',
-    label: 'p90',
-  },
-  p95: {
-    description: '95% of requests are faster than this',
-    label: 'p95',
-  },
-  p99: {
-    description: '99% of requests are faster than this (tail latency)',
-    label: 'p99',
-  },
-};
-
 export type LatencyStats = Readonly<{
   count: number;
   p75: number;
@@ -124,50 +96,6 @@ export type LatencyStats = Readonly<{
   p95: number;
   p99: number;
 }>;
-
-export const formatLatencyStats = (
-  stats: LatencyStats,
-): Record<PercentileKey, string> => {
-  return {
-    p75: formatLatency(stats.p75),
-    p90: formatLatency(stats.p90),
-    p95: formatLatency(stats.p95),
-    p99: formatLatency(stats.p99),
-  };
-};
-
-export type ErrorRateStatus = 'critical' | 'healthy' | 'warning';
-
-type ErrorRateThreshold = Readonly<{
-  bg: string;
-  hsl: string;
-  label: string;
-  text: string;
-}>;
-
-export const ERROR_RATE_THRESHOLDS: Record<
-  ErrorRateStatus,
-  ErrorRateThreshold
-> = {
-  critical: {
-    ...STATUS_COLORS.red,
-    label: 'Critical',
-  },
-  healthy: {
-    ...STATUS_COLORS.green,
-    label: 'Healthy',
-  },
-  warning: {
-    ...STATUS_COLORS.amber,
-    label: 'Warning',
-  },
-} as const;
-
-export const getErrorRateStatus = (errorRate: number): ErrorRateStatus => {
-  if (errorRate < 1) return 'healthy';
-  if (errorRate < 5) return 'warning';
-  return 'critical';
-};
 
 export const formatErrorRate = (rate: number): string => {
   return `${rate.toFixed(2)}%`;
@@ -205,156 +133,6 @@ export const formatCount = (count: number): { unit: string; value: string } => {
 export const formatCountString = (count: number): string => {
   const { unit, value } = formatCount(count);
   return `${value}${unit}`;
-};
-
-export type EndpointMetricItem = Readonly<{
-  apdexScore: number;
-  endpoint: string;
-  errorRate: number;
-  latency: LatencyStats;
-  requestCount: number;
-  throughput: number;
-}>;
-
-export type GroupedEndpointData = Readonly<{
-  frustrated: ReadonlyArray<EndpointMetricItem>;
-  satisfied: ReadonlyArray<EndpointMetricItem>;
-  tolerating: ReadonlyArray<EndpointMetricItem>;
-}>;
-
-export const groupEndpointsByApdex = (
-  endpoints: ReadonlyArray<{
-    apdex: { score: number };
-    endpoint: string;
-    errorRate: number;
-    latency: LatencyStats;
-    requestCount: number;
-    throughput: number;
-  }>,
-): GroupedEndpointData => {
-  const groups: Record<ApdexStatus, EndpointMetricItem[]> = {
-    frustrated: [],
-    satisfied: [],
-    tolerating: [],
-  };
-
-  for (const ep of endpoints) {
-    const status = getApdexStatus(ep.apdex.score);
-    groups[status].push({
-      apdexScore: ep.apdex.score,
-      endpoint: ep.endpoint,
-      errorRate: ep.errorRate,
-      latency: ep.latency,
-      requestCount: ep.requestCount,
-      throughput: ep.throughput,
-    });
-  }
-
-  // Sort each group by Apdex score descending (best first)
-  for (const status of APDEX_STATUS_ORDER) {
-    groups[status].sort((a, b) => b.apdexScore - a.apdexScore);
-  }
-
-  return groups;
-};
-
-export type CountryMetricItem = Readonly<{
-  apdexScore: number;
-  country: string;
-  countryName: string;
-  errorRate: number;
-  latency: LatencyStats;
-  requestCount: number;
-}>;
-
-export type GroupedCountryData = Readonly<{
-  frustrated: ReadonlyArray<CountryMetricItem>;
-  satisfied: ReadonlyArray<CountryMetricItem>;
-  tolerating: ReadonlyArray<CountryMetricItem>;
-}>;
-
-export const groupCountriesByApdex = (
-  countries: ReadonlyArray<{
-    apdex: { score: number };
-    country: string;
-    errorRate: number;
-    latency: LatencyStats;
-    requestCount: number;
-  }>,
-): GroupedCountryData => {
-  const groups: Record<ApdexStatus, CountryMetricItem[]> = {
-    frustrated: [],
-    satisfied: [],
-    tolerating: [],
-  };
-
-  for (const c of countries) {
-    const status = getApdexStatus(c.apdex.score);
-    const countryName = countryDisplayNames.of(c.country) ?? c.country;
-    groups[status].push({
-      apdexScore: c.apdex.score,
-      country: c.country,
-      countryName,
-      errorRate: c.errorRate,
-      latency: c.latency,
-      requestCount: c.requestCount,
-    });
-  }
-
-  // Sort each group by Apdex score descending (best first)
-  for (const status of APDEX_STATUS_ORDER) {
-    groups[status].sort((a, b) => b.apdexScore - a.apdexScore);
-  }
-
-  return groups;
-};
-
-export type PlatformMetricItem = Readonly<{
-  apdexScore: number;
-  errorRate: number;
-  latency: LatencyStats;
-  platform: string;
-  requestCount: number;
-}>;
-
-export type GroupedPlatformData = Readonly<{
-  frustrated: ReadonlyArray<PlatformMetricItem>;
-  satisfied: ReadonlyArray<PlatformMetricItem>;
-  tolerating: ReadonlyArray<PlatformMetricItem>;
-}>;
-
-export const groupPlatformsByApdex = (
-  platforms: ReadonlyArray<{
-    apdex: { score: number };
-    errorRate: number;
-    latency: LatencyStats;
-    platform: string;
-    requestCount: number;
-  }>,
-): GroupedPlatformData => {
-  const groups: Record<ApdexStatus, PlatformMetricItem[]> = {
-    frustrated: [],
-    satisfied: [],
-    tolerating: [],
-  };
-
-  for (const p of platforms) {
-    const status = getApdexStatus(p.apdex.score);
-    groups[status].push({
-      apdexScore: p.apdex.score,
-      errorRate: p.errorRate,
-      latency: p.latency,
-      platform: p.platform,
-      requestCount: p.requestCount,
-    });
-  }
-
-  // Sort each group by Apdex score descending (best first)
-  for (const status of APDEX_STATUS_ORDER) {
-    groups[status].sort((a, b) => b.apdexScore - a.apdexScore);
-  }
-
-  return groups;
 };
 
 export type DependencyMetricItem = Readonly<{

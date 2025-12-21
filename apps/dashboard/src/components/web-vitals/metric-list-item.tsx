@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import { memo } from 'react';
-import { formatPageViews } from '@/lib/api/utils';
+import { formatCountString } from '@/lib/api-metrics';
 
 /**
  * Renders a route path with dynamic segments styled differently.
@@ -50,7 +50,7 @@ function MetricListItemComponent({
   variant = 'route',
 }: MetricListItemProps) {
   const isRoute = variant === 'route';
-  const formattedPageViews = formatPageViews(pageViews);
+  const formattedPageViews = formatCountString(pageViews);
 
   return (
     <div className="flex items-center justify-center">

@@ -36,8 +36,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { formatPageViews } from '@/lib/api/utils';
 import {
+  formatCountString,
   formatErrorRate,
   formatLatency,
   sortDependencyKeys,
@@ -277,7 +277,7 @@ const columns: ColumnDef<EndpointMetrics>[] = [
           style={{ minWidth: 'fit-content', width: `${percentage}%` }}
         >
           <span className="tabular-nums text-white/80">
-            {formatPageViews(value)}
+            {formatCountString(value)}
           </span>
         </div>
       );

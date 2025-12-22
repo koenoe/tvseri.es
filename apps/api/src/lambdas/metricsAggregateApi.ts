@@ -514,7 +514,14 @@ const aggregateApiMetrics = (
       {
         durations: number[];
         errorCount: number;
-        byOperation: Map<string, { durations: number[]; errorCount: number }>;
+        byOperation: Map<
+          string,
+          {
+            codes: Map<number, number>;
+            durations: number[];
+            errorCount: number;
+          }
+        >;
       }
     >();
 
@@ -549,11 +556,12 @@ const aggregateApiMetrics = (
 
         let opData = sourceData.byOperation.get(normalizedOp);
         if (!opData) {
-          opData = { durations: [], errorCount: 0 };
+          opData = { codes: new Map(), durations: [], errorCount: 0 };
           sourceData.byOperation.set(normalizedOp, opData);
         }
         opData.durations.push(dep.duration);
         if (isError) opData.errorCount++;
+        opData.codes.set(dep.status, (opData.codes.get(dep.status) ?? 0) + 1);
       }
     }
 
@@ -577,7 +585,13 @@ const aggregateApiMetrics = (
             return sorted[Math.max(0, index)] ?? 0;
           };
 
+          const codes: Record<string, number> = {};
+          for (const [status, count] of opData.codes) {
+            codes[String(status)] = count;
+          }
+
           return {
+            codes,
             count: opCount,
             errorCount: opData.errorCount,
             errorRate:

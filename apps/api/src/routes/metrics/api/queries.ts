@@ -482,6 +482,7 @@ const aggregateDependencyTopOperations = (
   const byOperation = new Map<
     string,
     {
+      codes: Map<string, number>;
       errorCount: number;
       histograms: number[][];
       totalCount: number;
@@ -496,8 +497,20 @@ const aggregateDependencyTopOperations = (
       if (op.histogram?.bins?.length > 0) {
         existing.histograms.push(op.histogram.bins);
       }
+      if (op.codes) {
+        for (const [code, count] of Object.entries(op.codes)) {
+          existing.codes.set(code, (existing.codes.get(code) ?? 0) + count);
+        }
+      }
     } else {
+      const codes = new Map<string, number>();
+      if (op.codes) {
+        for (const [code, count] of Object.entries(op.codes)) {
+          codes.set(code, count);
+        }
+      }
       byOperation.set(op.operation, {
+        codes,
         errorCount: op.errorCount,
         histograms: op.histogram?.bins?.length > 0 ? [op.histogram.bins] : [],
         totalCount: op.count,
@@ -509,7 +522,7 @@ const aggregateDependencyTopOperations = (
 
   for (const [
     operation,
-    { errorCount, histograms, totalCount },
+    { codes, errorCount, histograms, totalCount },
   ] of byOperation) {
     if (histograms.length === 0) continue;
 
@@ -518,6 +531,7 @@ const aggregateDependencyTopOperations = (
       totalCount > 0 ? Math.round((errorCount / totalCount) * 10000) / 100 : 0;
 
     aggregatedOps.push({
+      codes: Object.fromEntries(codes),
       count: totalCount,
       errorCount,
       errorRate,
@@ -545,6 +559,7 @@ export const aggregateDependencyOperationsWithSeries = (
   const byOperation = new Map<
     string,
     {
+      codes: Map<string, number>;
       dailyData: Map<string, { errorCount: number; histogram: number[] }>;
       errorCount: number;
       histograms: number[][];
@@ -558,6 +573,7 @@ export const aggregateDependencyOperationsWithSeries = (
       let opData = byOperation.get(op.operation);
       if (!opData) {
         opData = {
+          codes: new Map(),
           dailyData: new Map(),
           errorCount: 0,
           histograms: [],
@@ -575,6 +591,11 @@ export const aggregateDependencyOperationsWithSeries = (
           histogram: op.histogram.bins,
         });
       }
+      if (op.codes) {
+        for (const [code, count] of Object.entries(op.codes)) {
+          opData.codes.set(code, (opData.codes.get(code) ?? 0) + count);
+        }
+      }
     }
   }
 
@@ -582,7 +603,7 @@ export const aggregateDependencyOperationsWithSeries = (
 
   for (const [
     operation,
-    { dailyData, errorCount, histograms, totalCount },
+    { codes, dailyData, errorCount, histograms, totalCount },
   ] of byOperation) {
     if (histograms.length === 0) continue;
 
@@ -605,6 +626,7 @@ export const aggregateDependencyOperationsWithSeries = (
       .sort((a, b) => a.date.localeCompare(b.date));
 
     result.push({
+      codes: Object.fromEntries(codes),
       count: totalCount,
       errorCount,
       errorRate,

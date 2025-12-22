@@ -139,6 +139,8 @@ export const DependencyOperationSeriesPointSchema = v.object({
 });
 
 export const DependencyOperationStatsSchema = v.object({
+  /** Status code counts (e.g., {"200": 150, "500": 3}) */
+  codes: v.optional(v.record(v.string(), v.number())),
   count: v.number(),
   ...ErrorFields,
   histogram: HistogramSchema,

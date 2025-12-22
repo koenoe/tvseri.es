@@ -13,6 +13,7 @@ import { requireAuthAdmin, type Variables } from '@/middleware/auth';
 import {
   aggregateDependencyOperationsWithSeries,
   aggregateSummaries,
+  aggregateTopPaths,
   buildPk,
   getDateRange,
   queryByPkAndPrefix,
@@ -292,6 +293,8 @@ app.get(
       }
     }
 
+    const topPaths = aggregateTopPaths(items);
+
     return c.json({
       aggregated: aggregated
         ? { ...aggregated, dependencies: dependenciesWithSeries }
@@ -307,6 +310,7 @@ app.get(
         requestCount: item.requestCount,
       })),
       startDate,
+      topPaths: topPaths.length > 0 ? topPaths : undefined,
     });
   },
 );

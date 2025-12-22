@@ -2,17 +2,16 @@
 
 import { cva, cx, type VariantProps } from 'class-variance-authority';
 import {
-  motion,
   useMotionValue,
   useMotionValueEvent,
   useScroll,
   useSpring,
 } from 'motion/react';
-import { memo, useCallback, useLayoutEffect, useRef } from 'react';
+import { memo, useLayoutEffect, useRef } from 'react';
 
 import getHistoryKey from '@/utils/getHistoryKey';
-import getMousePositionWithinElement from '@/utils/getMousePositionWithinElement';
 
+import ListScrollBar, { getScrollableWidth } from './ListScrollBar';
 // TODO: convert to Tailwind
 import styles from './styles.module.css';
 
@@ -45,27 +44,24 @@ type Props = Omit<React.AllHTMLAttributes<HTMLDivElement>, 'title'> &
   Readonly<{
     button?: React.ReactNode;
     children: React.ReactNode;
-    title?: React.ReactNode;
-    scrollRestoreKey: string;
     scrollBarClassName?: string;
+    scrollRestoreKey: string;
+    title?: React.ReactNode;
   }>;
 
 function List({
   button,
   children,
   className,
+  scrollBarClassName,
+  scrollRestoreKey,
+  style,
   title,
   titleAlignment,
-  style,
-  scrollRestoreKey,
-  scrollBarClassName,
 }: Props) {
   const innerRef = useRef<HTMLDivElement>(null);
-  const scrollBarRef = useRef<HTMLDivElement>(null);
-  const isDragging = useRef<boolean>(false);
   const scrollXProgress = useMotionValue(0);
-  const scrollLeft = useMotionValue(0);
-  const springScrollLeft = useSpring(scrollLeft, {
+  const springScrollLeft = useSpring(0, {
     bounce: 0,
     damping: 30,
     mass: 1,
@@ -77,78 +73,14 @@ function List({
     container: innerRef,
   });
 
-  useMotionValueEvent(springScrollLeft, 'change', (left) => {
-    innerRef.current?.scrollTo({
-      left,
-    });
-  });
-
   useMotionValueEvent(scrollX, 'change', (value) => {
-    const scrollWidth = innerRef.current?.scrollWidth ?? 0;
-    const clientWidth = innerRef.current?.clientWidth ?? 0;
-    const scrollableWidth = scrollWidth - clientWidth;
-    const x = value / scrollableWidth;
-
-    scrollXProgress.set(x);
+    const scrollableWidth = getScrollableWidth(innerRef.current);
+    if (scrollableWidth > 0) {
+      scrollXProgress.set(value / scrollableWidth);
+    }
   });
 
-  const handleDragging = useCallback(
-    (event: Event) => {
-      if (!isDragging.current) {
-        return;
-      }
-
-      const { x } = getMousePositionWithinElement(
-        event as MouseEvent,
-        scrollBarRef.current,
-      );
-      const scrollWidth = innerRef.current?.scrollWidth ?? 0;
-      const clientWidth = innerRef.current?.clientWidth ?? 0;
-      const scrollableWidth = scrollWidth - clientWidth;
-      const left = x * scrollableWidth;
-
-      scrollLeft.set(left);
-    },
-    [scrollLeft],
-  );
-
-  const handleStopDragging = useCallback(() => {
-    isDragging.current = false;
-
-    document.removeEventListener('mousemove', handleDragging);
-    document.removeEventListener('touchmove', handleDragging);
-  }, [handleDragging]);
-
-  const handleStartDragging = useCallback(() => {
-    isDragging.current = true;
-
-    document.addEventListener('mousemove', handleDragging);
-    document.addEventListener('touchmove', handleDragging);
-    document.addEventListener('mouseup', handleStopDragging, { once: true });
-    document.addEventListener('touchend', handleStopDragging, { once: true });
-  }, [handleDragging, handleStopDragging]);
-
-  const handleClick = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      if (isDragging.current) {
-        return;
-      }
-
-      const { x } = getMousePositionWithinElement(
-        event.nativeEvent,
-        scrollBarRef.current,
-      );
-      const scrollWidth = innerRef.current?.scrollWidth ?? 0;
-      const clientWidth = innerRef.current?.clientWidth ?? 0;
-      const scrollableWidth = scrollWidth - clientWidth;
-      const left = x * scrollableWidth;
-
-      scrollLeft.set(left);
-    },
-    [scrollLeft],
-  );
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: ExPlaNatIon
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only run on mount/unmount
   useLayoutEffect(() => {
     const cacheKey = `${scrollRestoreKey}:${getHistoryKey()}`;
     const scrollOffset = sessionStorage.getItem(cacheKey);
@@ -159,24 +91,17 @@ function List({
       container.scrollTo({ left });
       sessionStorage.removeItem(cacheKey);
 
-      scrollLeft.jump(left);
       springScrollLeft.jump(left);
 
-      const scrollWidth = container.scrollWidth;
-      const clientWidth = container.clientWidth;
-      const scrollableWidth = scrollWidth - clientWidth;
+      const scrollableWidth = getScrollableWidth(container);
       if (scrollableWidth > 0) {
-        const restoredProgress = left / scrollableWidth;
-        scrollXProgress.jump(restoredProgress);
+        scrollXProgress.jump(left / scrollableWidth);
       }
     }
 
     return () => {
-      if (container) {
-        const scrollLeft = container.scrollLeft;
-        if (scrollLeft > 0) {
-          sessionStorage.setItem(cacheKey, String(scrollLeft));
-        }
+      if (container && container.scrollLeft > 0) {
+        sessionStorage.setItem(cacheKey, String(container.scrollLeft));
       }
     };
   }, []);
@@ -189,30 +114,13 @@ function List({
         ) : (
           title
         )}
-        <div className="hidden flex-grow md:flex">
-          <div
-            className={cx(
-              'relative h-2 w-full cursor-pointer overflow-hidden rounded-2xl bg-white/10',
-              scrollBarClassName,
-            )}
-            onClick={handleClick}
-            onMouseDown={handleStartDragging}
-            onTouchStart={handleStartDragging}
-            ref={scrollBarRef}
-          >
-            <motion.div
-              className="h-full w-full bg-white/30"
-              style={{
-                left: 0,
-                position: 'absolute',
-                scaleX: scrollXProgress,
-                top: 0,
-                transformOrigin: 'left',
-              }}
-            />
-          </div>
-        </div>
-        {button && button}
+        <ListScrollBar
+          className={scrollBarClassName}
+          containerRef={innerRef}
+          scrollXProgress={scrollXProgress}
+          springScrollLeft={springScrollLeft}
+        />
+        {button}
       </div>
       <div className={innerStylesWithModuleStyles()} ref={innerRef}>
         {children}
@@ -220,5 +128,7 @@ function List({
     </div>
   );
 }
+
+List.displayName = 'List';
 
 export default memo(List);

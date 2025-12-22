@@ -616,7 +616,7 @@ export async function searchKeywords(query: string) {
   });
 }
 
-export async function searchPerson(query: string) {
+async function searchPerson(query: string) {
   const response =
     ((await tmdbFetch(
       `/3/search/person?query=${query}`,

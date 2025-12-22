@@ -71,7 +71,7 @@ async function mdblistFetch(path: string, options?: BetterFetchOption) {
   return data;
 }
 
-export async function fetchTvSeriesOrMovie(
+async function fetchTvSeriesOrMovie(
   id: number | string,
   mediaType: MediaType = 'show',
 ) {
@@ -167,15 +167,4 @@ export async function fetchBestBritishCrime() {
   }>;
 
   return response.shows?.map((item) => item.id);
-}
-
-export async function fetchMediaInfoInBatch(ids: string[]) {
-  const response = (await mdblistFetch('/tmdb/show', {
-    body: JSON.stringify({
-      ids,
-    }),
-    method: 'POST',
-  })) as MediaInfo[];
-
-  return response;
 }

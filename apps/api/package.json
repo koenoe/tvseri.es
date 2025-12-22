@@ -16,13 +16,11 @@
     "hono": "^4.11.1",
     "path-to-regexp": "^8.3.0",
     "slugify": "^1.6.6",
-    "sst": "catalog:",
-    "ulid": "^3.0.2"
+    "sst": "catalog:"
   },
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/aws-lambda": "^8.10.159",
-    "@types/color": "^4.2.0",
     "@types/node": "catalog:",
     "sharp": "^0.34.5",
     "typescript": "^5.9.3"

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { twMerge } from 'tailwind-merge';
 
-export const tabStyles = cva(
+const tabStyles = cva(
   'z-15 relative text-nowrap rounded-lg px-4 py-1.5 text-sm text-neutral-400 transition',
   {
     defaultVariants: {

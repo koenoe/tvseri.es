@@ -11,9 +11,6 @@
     "@types/node": "catalog:",
     "typescript": "catalog:"
   },
-  "exports": {
-    ".": "./index.mjs"
-  },
   "name": "@tvseri.es/kill-switch",
   "private": true,
   "scripts": {

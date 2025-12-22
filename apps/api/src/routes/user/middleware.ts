@@ -14,7 +14,7 @@ export type UserVariables = {
  * Middleware to load user from :id param.
  * Does NOT include auth - use auth() separately if needed.
  */
-export const userMiddleware = <T extends UserVariables>(): MiddlewareHandler<{
+const userMiddleware = <T extends UserVariables>(): MiddlewareHandler<{
   Variables: T;
 }> => {
   return async (c, next) => {
@@ -44,7 +44,7 @@ export const user = userMiddleware;
  * Middleware to check if current user is viewing their own profile.
  * Must be used after auth() middleware.
  */
-export const checkIsMe = <T extends UserVariables>(): MiddlewareHandler<{
+const checkIsMe = <T extends UserVariables>(): MiddlewareHandler<{
   Variables: T;
 }> => {
   return async (c, next) => {

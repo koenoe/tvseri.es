@@ -129,22 +129,3 @@ export async function isFollowing({
 
   return result.value;
 }
-
-export async function isFollower({
-  userId,
-  targetUserId,
-}: Readonly<{
-  userId: string;
-  targetUserId: string;
-}>) {
-  const result = (await apiFetch('/user/:id/followers/:target', {
-    params: {
-      id: userId,
-      target: targetUserId,
-    },
-  })) as Readonly<{
-    value: boolean;
-  }>;
-
-  return result.value;
-}

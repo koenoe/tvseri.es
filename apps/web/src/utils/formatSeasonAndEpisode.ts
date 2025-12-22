@@ -1,4 +1,4 @@
-export const formatSeasonAndEpisode = (
+const formatSeasonAndEpisode = (
   input: Readonly<{
     seasonNumber: number;
     episodeNumber: number;

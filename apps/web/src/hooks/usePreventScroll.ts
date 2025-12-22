@@ -3,10 +3,7 @@
 /** biome-ignore-all lint/suspicious/noImplicitAnyLet: external code */
 // @ts-nocheck
 
-import { useEffect, useLayoutEffect } from 'react';
-
-export const useIsomorphicLayoutEffect =
-  typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+import { useLayoutEffect } from 'react';
 
 function chain(...callbacks: any[]): (...args: any[]) => void {
   return (...args: any[]) => {

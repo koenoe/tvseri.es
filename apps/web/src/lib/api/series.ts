@@ -1,5 +1,4 @@
 import type {
-  Episode,
   Person,
   Rating,
   Season,
@@ -30,17 +29,6 @@ export async function fetchTvSeriesSeason(
     | Season
     | undefined;
   return season;
-}
-
-export async function fetchTvSeriesEpisode(
-  id: number | string,
-  seasonNumber: number | string,
-  episodeNumber: number | string,
-) {
-  const episode = (await apiFetch(
-    `/series/${id}/season/${seasonNumber}/episode/${episodeNumber}`,
-  )) as Episode | undefined;
-  return episode;
 }
 
 export async function fetchTvSeriesImages(
@@ -76,7 +64,7 @@ export async function fetchTvSeriesContentRating(
   return contentRating;
 }
 
-export async function fetchTvSeriesWatchProviders(
+async function fetchTvSeriesWatchProviders(
   id: number | string,
   region: string = 'US',
 ) {

@@ -9,7 +9,7 @@ import {
   markWatched,
   removeFromList,
 } from '@/lib/api';
-import { formatSeasonAndEpisode } from '@/utils/formatSeasonAndEpisode';
+import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 import InProgress from './InProgress';
 
 function extractCurrentSeasonFromWatchedItems(

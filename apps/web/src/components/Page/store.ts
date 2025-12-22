@@ -19,7 +19,7 @@ export type PageActions = {
 
 export type PageStore = PageState & PageActions;
 
-export const defaultInitState: PageState = {
+const defaultInitState: PageState = {
   backgroundColor: DEFAULT_BACKGROUND_COLOR,
   backgroundImage: DEFAULT_BACKGROUND_IMAGE,
 };

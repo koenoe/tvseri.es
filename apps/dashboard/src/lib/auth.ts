@@ -142,18 +142,9 @@ export async function getLoginUrl(): Promise<string> {
   return url;
 }
 
-export async function login(): Promise<void> {
-  const url = await getLoginUrl();
-  location.href = url;
-}
-
 export function logout(): void {
   clearTokens();
 
   currentUser = undefined;
   window.location.replace('/');
-}
-
-export function useAuth() {
-  return { getAccessToken, logout, user: currentUser };
 }

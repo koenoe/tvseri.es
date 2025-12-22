@@ -121,30 +121,6 @@ export async function getFollowing(
   };
 }
 
-export async function getFollowerCount(userId: string): Promise<number> {
-  const command = new QueryCommand({
-    ExpressionAttributeValues: marshall({ ':gsi1pk': followersPk(userId) }),
-    IndexName: 'gsi1',
-    KeyConditionExpression: 'gsi1pk = :gsi1pk',
-    Select: 'COUNT',
-    TableName: Resource.Follow.name,
-  });
-  const result = await client.send(command);
-  return result.Count ?? 0;
-}
-
-export async function getFollowingCount(userId: string): Promise<number> {
-  const command = new QueryCommand({
-    ExpressionAttributeValues: marshall({ ':gsi2pk': followingPk(userId) }),
-    IndexName: 'gsi2',
-    KeyConditionExpression: 'gsi2pk = :gsi2pk',
-    Select: 'COUNT',
-    TableName: Resource.Follow.name,
-  });
-  const result = await client.send(command);
-  return result.Count ?? 0;
-}
-
 export async function follow({
   userId,
   targetUserId,

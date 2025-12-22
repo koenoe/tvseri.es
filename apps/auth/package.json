@@ -9,8 +9,7 @@
     "hono": "^4.11.1",
     "slugify": "^1.6.6",
     "sst": "catalog:",
-    "ulid": "^3.0.2",
-    "valibot": "^1.2.0"
+    "ulid": "^3.0.2"
   },
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",

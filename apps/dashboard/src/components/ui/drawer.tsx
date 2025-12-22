@@ -16,8 +16,6 @@ const Drawer = ({
 );
 Drawer.displayName = 'Drawer';
 
-const DrawerTrigger = DrawerPrimitive.Trigger;
-
 const DrawerPortal = DrawerPrimitive.Portal;
 
 const DrawerClose = DrawerPrimitive.Close;
@@ -104,31 +102,11 @@ function DrawerTitleComponent({
 DrawerTitleComponent.displayName = DrawerPrimitive.Title.displayName;
 const DrawerTitle = memo(DrawerTitleComponent);
 
-function DrawerDescriptionComponent({
-  className,
-  ...props
-}: ComponentProps<typeof DrawerPrimitive.Description>) {
-  return (
-    <DrawerPrimitive.Description
-      className={cn('text-sm text-muted-foreground', className)}
-      {...props}
-    />
-  );
-}
-
-DrawerDescriptionComponent.displayName =
-  DrawerPrimitive.Description.displayName;
-const DrawerDescription = memo(DrawerDescriptionComponent);
-
 export {
   Drawer,
   DrawerClose,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
-  DrawerOverlay,
-  DrawerPortal,
   DrawerTitle,
-  DrawerTrigger,
 };

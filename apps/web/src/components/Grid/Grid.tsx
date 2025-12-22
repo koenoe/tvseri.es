@@ -1,6 +1,6 @@
 import { cva } from 'class-variance-authority';
 
-export const gridStyles = cva([
+const gridStyles = cva([
   'grid',
   'grid-cols-2',
   'gap-6',

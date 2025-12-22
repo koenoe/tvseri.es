@@ -40,7 +40,7 @@ export const STATUS_ICONS = {
   poor: CircleAlert,
 } as const;
 
-export const STATUS_LABELS = {
+const STATUS_LABELS = {
   great: 'Great',
   needsImprovement: 'Needs Improvement',
   poor: 'Poor',
@@ -165,7 +165,7 @@ const formatThreshold = (value: number, unit: '' | 'ms' | 's'): string => {
   return `${value}${unit}`;
 };
 
-export const getMetricThresholdLabels = (metric: MetricType) => {
+const getMetricThresholdLabels = (metric: MetricType) => {
   const config = METRICS_CONFIG[metric];
   const unit = config.unit;
   const great = formatThreshold(config.thresholdGreat, unit);
@@ -185,7 +185,7 @@ export const getMetricThresholdLabels = (metric: MetricType) => {
   };
 };
 
-export const getMetricThresholdReadableLabels = (metric: MetricType) => {
+const getMetricThresholdReadableLabels = (metric: MetricType) => {
   const config = METRICS_CONFIG[metric];
   const unit = config.unit;
   const great = formatThreshold(config.thresholdGreat, unit);

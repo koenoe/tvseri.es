@@ -14,7 +14,7 @@ export type MetricsStore = {
  * AsyncLocalStorage instance for metrics collection.
  * Allows tracking dependencies across the entire request lifecycle.
  */
-export const metricsContext = new AsyncLocalStorage<MetricsStore>();
+const metricsContext = new AsyncLocalStorage<MetricsStore>();
 
 /**
  * Get the current metrics store, or undefined if not in a metrics context.

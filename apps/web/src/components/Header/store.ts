@@ -17,7 +17,7 @@ export type HeaderActions = {
 
 export type HeaderStore = HeaderState & HeaderActions;
 
-export const defaultInitState: HeaderState = {
+const defaultInitState: HeaderState = {
   menuBackgroundColor: '#000',
   menuOpen: false,
   mode: 'static',

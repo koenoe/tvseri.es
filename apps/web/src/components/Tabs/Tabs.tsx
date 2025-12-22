@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { twMerge } from 'tailwind-merge';
 
-export const tabStyles = cva('relative inline-block p-4 text-nowrap', {
+const tabStyles = cva('relative inline-block p-4 text-nowrap', {
   defaultVariants: {
     state: 'inactive',
   },

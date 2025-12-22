@@ -17,7 +17,7 @@ import { createPageStore, type PageState, type PageStore } from './store';
 
 export type PageStoreApi = ReturnType<typeof createPageStore>;
 
-export const PageStoreContext = createContext<PageStoreApi | null>(null);
+const PageStoreContext = createContext<PageStoreApi | null>(null);
 
 export type PageStoreProviderProps = PageState & {
   children: ReactNode;

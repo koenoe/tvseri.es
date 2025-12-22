@@ -5,7 +5,7 @@ import { getWatchedCount } from '@/lib/api';
 
 import Block from './Block';
 
-export const cachedWatchedCount = cache(getWatchedCount);
+const cachedWatchedCount = cache(getWatchedCount);
 
 export default async function BlockEpisodesWatched({
   params,

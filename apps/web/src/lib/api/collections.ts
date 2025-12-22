@@ -52,15 +52,6 @@ export async function fetchApplePlusTvSeries(region?: string) {
   return series;
 }
 
-export async function fetchNetflixOriginals(region?: string) {
-  const series = (await apiFetch('/collection/netflix-originals', {
-    query: {
-      region,
-    },
-  })) as TvSeries[];
-  return series;
-}
-
 export async function fetchPopularTvSeriesByYear(year?: number | string) {
   const items = (await apiFetch('/popular/:year', {
     params: {

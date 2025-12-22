@@ -1,7 +1,6 @@
 import {
   BatchWriteItemCommand,
   DeleteItemCommand,
-  GetItemCommand,
   PutItemCommand,
   QueryCommand,
 } from '@aws-sdk/client-dynamodb';
@@ -670,27 +669,4 @@ export const getWatchedCount = async (
 
   const result = await client.send(command);
   return result.Count ?? 0;
-};
-
-export const isWatched = async (
-  input: Readonly<{
-    userId: string;
-    tvSeries: TvSeriesForWatched;
-    seasonNumber: number;
-    episodeNumber: number;
-  }>,
-) => {
-  const paddedSeason = paddedNumber(input.seasonNumber);
-  const paddedEpisode = paddedNumber(input.episodeNumber);
-
-  const command = new GetItemCommand({
-    Key: marshall({
-      pk: `USER#${input.userId}`,
-      sk: `SERIES#${input.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
-    }),
-    TableName: Resource.Watched.name,
-  });
-
-  const result = await client.send(command);
-  return !!result.Item;
 };

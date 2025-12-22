@@ -1,0 +1,50 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "exclude": ["duplicates"],
+  "ignoreBinaries": ["only-allow"],
+  "ignoreExportsUsedInFile": {
+    "interface": true,
+    "type": true
+  },
+  "ignoreWorkspaces": ["packages/typescript-config"],
+  "workspaces": {
+    ".": {
+      "entry": ["sst.config.ts", "infra/**/*.ts"]
+    },
+    "apps/api": {
+      "entry": ["src/index.ts", "src/lambdas/*.ts"]
+    },
+    "apps/auth": {
+      "entry": ["src/index.ts"]
+    },
+    "apps/dashboard": {
+      "entry": [
+        "src/main.tsx",
+        "src/routeTree.gen.ts",
+        "src/routes/**/*.tsx",
+        "vite.config.ts"
+      ],
+      "ignoreBinaries": ["vitest"]
+    },
+    "apps/web": {
+      "entry": ["open-next.config.ts"],
+      "ignoreDependencies": ["postcss-load-config"]
+    },
+    "packages/constants": {
+      "entry": ["src/index.ts"]
+    },
+    "packages/kill-switch": {
+      "entry": [
+        "disable-cloudfront-distributions/index.mjs!",
+        "metrics-monitor/index.ts!"
+      ],
+      "ignore": ["sst-env.d.ts"]
+    },
+    "packages/schemas": {
+      "entry": ["src/index.ts"]
+    },
+    "packages/utils": {
+      "entry": ["src/index.ts"]
+    }
+  }
+}

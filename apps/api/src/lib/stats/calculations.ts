@@ -9,7 +9,7 @@ import { addDays, isEqual, startOfDay } from 'date-fns';
 /**
  * Calculate the longest consecutive day streak from watched items.
  */
-export const calculateLongestStreak = (items: WatchedItem[]): number => {
+const calculateLongestStreak = (items: WatchedItem[]): number => {
   const uniqueDays = new Set(
     items.map((item) => startOfDay(item.watchedAt).getTime()),
   );

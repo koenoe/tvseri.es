@@ -4,9 +4,7 @@ import { cva } from 'class-variance-authority';
 import { motion } from 'motion/react';
 import { memo, useCallback } from 'react';
 
-export const carouselDotStyles = cva(
-  'size-2.5 cursor-pointer rounded-full bg-white',
-);
+const carouselDotStyles = cva('size-2.5 cursor-pointer rounded-full bg-white');
 
 function CarouselDot({
   isActive = false,

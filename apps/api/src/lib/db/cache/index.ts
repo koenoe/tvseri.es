@@ -1,8 +1,4 @@
-import {
-  DeleteItemCommand,
-  GetItemCommand,
-  PutItemCommand,
-} from '@aws-sdk/client-dynamodb';
+import { GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { CacheItem, CacheOptions } from '@tvseri.es/schemas';
 import { Resource } from 'sst';
@@ -74,21 +70,6 @@ export const getCacheItem = async <T>(
     }
   } catch (_error) {
     throw new Error(`Failed to get cache for key: ${key}`);
-  }
-};
-
-export const deleteCacheItem = async (key: string): Promise<void> => {
-  const command = new DeleteItemCommand({
-    Key: marshall({
-      pk: `CACHE#${key}`,
-    }),
-    TableName: Resource.Cache.name,
-  });
-
-  try {
-    await client.send(command);
-  } catch (_error) {
-    throw new Error(`Failed to delete cache for key: ${key}`);
   }
 };
 

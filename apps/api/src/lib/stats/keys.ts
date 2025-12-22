@@ -2,7 +2,7 @@
  * Stats cache key management - single source of truth for all stats cache keys.
  */
 
-export const STATS_CACHE_KEYS = [
+const STATS_CACHE_KEYS = [
   'summary',
   'favorites-count',
   'spotlight',

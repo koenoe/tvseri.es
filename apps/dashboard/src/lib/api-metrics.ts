@@ -13,7 +13,7 @@ type ApdexThreshold = Readonly<{
   threshold: string;
 }>;
 
-export const APDEX_THRESHOLDS: Record<ApdexStatus, ApdexThreshold> = {
+const APDEX_THRESHOLDS: Record<ApdexStatus, ApdexThreshold> = {
   frustrated: {
     ...STATUS_COLORS.red,
     label: 'Frustrated',
@@ -34,13 +34,7 @@ export const APDEX_THRESHOLDS: Record<ApdexStatus, ApdexThreshold> = {
   },
 } as const;
 
-export const APDEX_STATUS_ORDER: ReadonlyArray<ApdexStatus> = [
-  'satisfied',
-  'tolerating',
-  'frustrated',
-];
-
-export const getApdexStatus = (score: number): ApdexStatus => {
+const getApdexStatus = (score: number): ApdexStatus => {
   if (score >= 0.85) return 'satisfied';
   if (score >= 0.5) return 'tolerating';
   return 'frustrated';
@@ -55,28 +49,6 @@ export const getApdexStatusConfig = (score: number) => {
 };
 
 export type LatencyStatus = 'fast' | 'moderate' | 'slow';
-
-type LatencyThreshold = Readonly<{
-  bg: string;
-  hsl: string;
-  label: string;
-  text: string;
-}>;
-
-export const LATENCY_THRESHOLDS: Record<LatencyStatus, LatencyThreshold> = {
-  fast: {
-    ...STATUS_COLORS.green,
-    label: 'Fast',
-  },
-  moderate: {
-    ...STATUS_COLORS.amber,
-    label: 'Moderate',
-  },
-  slow: {
-    ...STATUS_COLORS.red,
-    label: 'Slow',
-  },
-} as const;
 
 export const getLatencyStatus = (p75Ms: number): LatencyStatus => {
   if (p75Ms < 200) return 'fast';
@@ -99,17 +71,6 @@ export type LatencyStats = Readonly<{
 
 export const formatErrorRate = (rate: number): string => {
   return `${rate.toFixed(2)}%`;
-};
-
-export const formatThroughput = (rpm: number): string => {
-  const rps = rpm / 60;
-  if (rps < 1) {
-    return `${rps.toFixed(2)} req/s`;
-  }
-  if (rps < 10) {
-    return `${rps.toFixed(1)} req/s`;
-  }
-  return `${Math.round(rps)} req/s`;
 };
 
 export const formatCount = (count: number): { unit: string; value: string } => {

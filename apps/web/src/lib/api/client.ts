@@ -21,7 +21,7 @@ export type AuthContext = Readonly<{
   accessToken?: string;
 }>;
 
-export const $fetch = createFetch({
+const $fetch = createFetch({
   baseURL: apiUrl,
   headers: {
     'content-type': 'application/json',

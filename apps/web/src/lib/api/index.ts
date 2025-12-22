@@ -13,7 +13,6 @@ export {
   fetchKoreasFinestTvSeries,
   fetchMostAnticipatedTvSeries,
   fetchMostPopularTvSeriesThisMonth,
-  fetchNetflixOriginals,
   fetchPopularTvSeriesByYear,
   fetchTopRatedTvSeries,
   fetchTrendingTvSeries,
@@ -39,12 +38,10 @@ export { fetchKeyword, searchKeywords } from './keywords';
 // Lists
 export {
   addToFavorites,
-  addToList,
   addToWatchlist,
   getListItems,
   getListItemsCount,
   isInFavorites,
-  isInList,
   isInWatchlist,
   removeFromFavorites,
   removeFromList,
@@ -69,14 +66,12 @@ export {
   fetchTvSeries,
   fetchTvSeriesContentRating,
   fetchTvSeriesCredits,
-  fetchTvSeriesEpisode,
   fetchTvSeriesImages,
   fetchTvSeriesKeywords,
   fetchTvSeriesRating,
   fetchTvSeriesRecommendations,
   fetchTvSeriesSeason,
   fetchTvSeriesWatchProvider,
-  fetchTvSeriesWatchProviders,
 } from './series';
 
 // Social (follow/unfollow)
@@ -86,7 +81,6 @@ export {
   getFollowers,
   getFollowing,
   getFollowingCount,
-  isFollower,
   isFollowing,
   unfollow,
 } from './social';

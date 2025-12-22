@@ -6,11 +6,7 @@ import { cn } from '@/lib/utils';
 
 const Dialog = DialogPrimitive.Root;
 
-const DialogTrigger = DialogPrimitive.Trigger;
-
 const DialogPortal = DialogPrimitive.Portal;
-
-const DialogClose = DialogPrimitive.Close;
 
 function DialogOverlayComponent({
   className,
@@ -111,31 +107,4 @@ function DialogTitleComponent({
 DialogTitleComponent.displayName = DialogPrimitive.Title.displayName;
 const DialogTitle = memo(DialogTitleComponent);
 
-function DialogDescriptionComponent({
-  className,
-  ...props
-}: ComponentProps<typeof DialogPrimitive.Description>) {
-  return (
-    <DialogPrimitive.Description
-      className={cn('text-sm text-muted-foreground', className)}
-      {...props}
-    />
-  );
-}
-
-DialogDescriptionComponent.displayName =
-  DialogPrimitive.Description.displayName;
-const DialogDescription = memo(DialogDescriptionComponent);
-
-export {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogOverlay,
-  DialogPortal,
-  DialogTitle,
-  DialogTrigger,
-};
+export { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle };

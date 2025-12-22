@@ -15,7 +15,7 @@ export type WatchedStoreApi = ReturnType<typeof createWatchedStore>;
 
 const WatchedStoreContext = createContext<WatchedStoreApi | null>(null);
 
-export const WatchedStoreProvider = ({ children }: PropsWithChildren) => {
+const WatchedStoreProvider = ({ children }: PropsWithChildren) => {
   const storeRef = useRef<WatchedStoreApi>(null);
   if (!storeRef.current) {
     storeRef.current = createWatchedStore();

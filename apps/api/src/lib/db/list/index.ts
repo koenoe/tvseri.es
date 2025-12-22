@@ -417,58 +417,6 @@ export const removeFromList = async (
   await client.send(command);
 };
 
-export const isInWatchlist = async (
-  input: Readonly<{
-    userId: string;
-    id: number;
-  }>,
-) => {
-  return isInList({
-    id: input.id,
-    listId: 'WATCHLIST',
-    userId: input.userId,
-  });
-};
-
-export const isInFavorites = async (
-  input: Readonly<{
-    userId: string;
-    id: number;
-  }>,
-) => {
-  return isInList({
-    id: input.id,
-    listId: 'FAVORITES',
-    userId: input.userId,
-  });
-};
-
-export const addToWatchlist = async (
-  input: Readonly<{
-    userId: string;
-    item: Omit<ListItem, 'createdAt' | 'posterImage'>;
-  }>,
-) => {
-  return addToList({
-    item: input.item,
-    listId: 'WATCHLIST',
-    userId: input.userId,
-  });
-};
-
-export const addToFavorites = async (
-  input: Readonly<{
-    userId: string;
-    item: Omit<ListItem, 'createdAt' | 'posterImage'>;
-  }>,
-) => {
-  return addToList({
-    item: input.item,
-    listId: 'FAVORITES',
-    userId: input.userId,
-  });
-};
-
 export const removeFromWatchlist = async (
   input: Readonly<{
     userId: string;
@@ -478,19 +426,6 @@ export const removeFromWatchlist = async (
   return removeFromList({
     id: input.id,
     listId: 'WATCHLIST',
-    userId: input.userId,
-  });
-};
-
-export const removeFromFavorites = async (
-  input: Readonly<{
-    userId: string;
-    id: number;
-  }>,
-) => {
-  return removeFromList({
-    id: input.id,
-    listId: 'FAVORITES',
     userId: input.userId,
   });
 };

@@ -18,7 +18,8 @@
 ├── apps/
 │   ├── web/        # Next.js 16 frontend (React 19)
 │   ├── api/        # Hono API (AWS Lambda)
-│   └── auth/       # OpenAuth authentication service
+│   ├── auth/       # OpenAuth authentication service
+│   └── dashboard/  # Internal admin dashboard (TanStack Router, Vite)
 ├── packages/
 │   ├── constants/  # Shared constants
 │   ├── schemas/    # Valibot schemas & shared types
@@ -26,6 +27,13 @@
 │   └── typescript-config/  # Shared TS configs
 └── infra/          # SST infrastructure definitions
 ```
+
+## Security
+
+**Never read or expose secrets or sensitive data:**
+
+- Never read `.env` files, API keys, certificates, or screenshots/devtools output
+- Always use `process.env.SECRET_NAME` — never hardcode secrets
 
 ## Code Style & Formatting
 
@@ -80,9 +88,18 @@ Never run `sst deploy` commands — deployments happen via CI.
 
 ### `apps/web` - Next.js Frontend
 
-Next.js 16 with App Router, React 19, Tailwind CSS. State: Zustand, XState. Animation: Motion.
+Next.js 16 with App Router, React 19, Tailwind CSS. State: Zustand. Animation: Motion.
 
 Deployed via OpenNext (`@opennextjs/aws`) through SST.
+
+- Prefer data fetching in React Server Components (RSC)
+- Be mindful of dynamic functions (`cookies()`, `headers()`) — avoid making routes dynamic unnecessarily
+- Mind serialised prop size when passing data from RSC to client components
+- Use `next/font` and `next/script` when applicable
+- `next/image` above the fold: use `loading="eager"`, use `priority` sparingly
+- Avoid `useEffect` unless absolutely needed
+- Colocate code that changes together
+- Compose smaller components, avoid massive JSX blocks
 
 ### `apps/api` - Hono API
 
@@ -126,14 +143,6 @@ Packages export raw TypeScript (not built/published). Apps transpile and bundle 
 3. Export from `src/index.ts`
 4. Add to consuming app: `"@tvseri.es/{name}": "workspace:*"`
 
-### Importing Shared Code
-
-```typescript
-import { someConstant } from '@tvseri.es/constants';
-import { SomeSchema, type SomeType } from '@tvseri.es/schemas';
-import { someUtil } from '@tvseri.es/utils';
-```
-
 ## MCP Tools
 
 **Always use Context7** when code generation, setup/configuration steps, or library/API documentation is needed. Automatically use the Context7 MCP tools to resolve library IDs and fetch library docs without being explicitly asked.
@@ -144,9 +153,9 @@ Before submitting changes:
 
 - [ ] Run `pnpm format-and-lint:fix`
 - [ ] Run `pnpm check-types`
+- [ ] Run `pnpm knip`
 - [ ] Ensure no `any` types are introduced
 - [ ] Use single quotes, 2-space indentation
 - [ ] Sort object keys alphabetically
 - [ ] Use template literals for string concatenation
 - [ ] Add types to `packages/schemas` if creating shared types
-- [ ] Test locally with `pnpm sst dev` if possible

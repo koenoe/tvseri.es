@@ -155,8 +155,20 @@ function List({
     const container = innerRef.current;
 
     if (scrollOffset && container) {
-      container.scrollTo({ left: parseInt(scrollOffset, 10) });
+      const left = parseInt(scrollOffset, 10);
+      container.scrollTo({ left });
       sessionStorage.removeItem(cacheKey);
+
+      scrollLeft.jump(left);
+      springScrollLeft.jump(left);
+
+      const scrollWidth = container.scrollWidth;
+      const clientWidth = container.clientWidth;
+      const scrollableWidth = scrollWidth - clientWidth;
+      if (scrollableWidth > 0) {
+        const restoredProgress = left / scrollableWidth;
+        scrollXProgress.jump(restoredProgress);
+      }
     }
 
     return () => {

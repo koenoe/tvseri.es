@@ -18,7 +18,7 @@ type Props = Readonly<{
 }>;
 
 function HistoryCard({ item, showShadow = false }: Props) {
-  const href = `/tv/${item.seriesId}/${item.slug}`;
+  const href = `/tv/${item.seriesId}/${item.slug}?season=${item.seasonNumber}`;
   const formattedWatchedAt = useMemo(() => {
     const watchedDate = new Date(item.watchedAt);
     const now = new Date();

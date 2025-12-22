@@ -10,7 +10,6 @@ import {
   type Apdex,
   type ApiMetricAggregate,
   type ApiMetricRecord,
-  type ApiTopPath,
   type DependencyOperationStats,
   type DependencyStats,
   type PercentileStats,
@@ -682,64 +681,6 @@ const aggregateApiMetrics = (
   };
 
   /**
-   * Calculate top paths for an endpoint.
-   * Groups records by concrete path and returns top N by request count.
-   * Includes histogram for accurate multi-day percentile aggregation.
-   */
-  const calculateTopPaths = (recs: ApiMetricRecord[]): ApiTopPath[] => {
-    const byPath = new Map<string, ApiMetricRecord[]>();
-
-    for (const rec of recs) {
-      const existing = byPath.get(rec.path);
-      if (existing) {
-        existing.push(rec);
-      } else {
-        byPath.set(rec.path, [rec]);
-      }
-    }
-
-    return [...byPath.entries()]
-      .map(([path, pathRecs]) => {
-        const latencies = pathRecs.map((r) => r.latency);
-        const sorted = [...latencies].sort((a, b) => a - b);
-        const count = sorted.length;
-
-        const percentile = (p: number): number => {
-          const index = Math.ceil((p / 100) * count) - 1;
-          return sorted[Math.max(0, index)] ?? 0;
-        };
-
-        const errorCount = pathRecs.filter((r) => r.statusCode >= 400).length;
-        const errorRate =
-          pathRecs.length > 0
-            ? Math.round((errorCount / pathRecs.length) * 10000) / 100
-            : 0;
-
-        // Count status codes
-        const codes: Record<string, number> = {};
-        for (const rec of pathRecs) {
-          const codeKey = String(rec.statusCode);
-          codes[codeKey] = (codes[codeKey] ?? 0) + 1;
-        }
-
-        return {
-          codes,
-          errorCount,
-          errorRate,
-          histogram: { bins: buildLatencyHistogramBins(latencies) },
-          p75: percentile(75),
-          p90: percentile(90),
-          p95: percentile(95),
-          p99: percentile(99),
-          path,
-          requestCount: pathRecs.length,
-        };
-      })
-      .sort((a, b) => b.requestCount - a.requestCount)
-      .slice(0, TOP_ITEMS_LIMIT);
-  };
-
-  /**
    * Calculate top countries for an endpoint.
    * Groups records by country and returns top N by request count.
    */
@@ -811,10 +752,7 @@ const aggregateApiMetrics = (
       >
     >,
     extras?: Partial<
-      Pick<
-        ApiMetricAggregate,
-        'dependencies' | 'topCountries' | 'topEndpoints' | 'topPaths'
-      >
+      Pick<ApiMetricAggregate, 'dependencies' | 'topCountries' | 'topEndpoints'>
     >,
   ): ApiMetricAggregate => {
     const latencies = recs.map((r) => r.latency);
@@ -927,7 +865,6 @@ const aggregateApiMetrics = (
         {
           dependencies: aggregateDependencies(recs),
           topCountries: calculateTopCountries(recs),
-          topPaths: calculateTopPaths(recs),
         },
       ),
     );

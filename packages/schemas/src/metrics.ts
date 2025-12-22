@@ -301,24 +301,6 @@ export const ApiTopEndpointSchema = v.object({
 });
 
 /**
- * Top path item for endpoint detail pages.
- * Shows concrete paths (e.g., "/series/1396") with their metrics.
- * Includes histogram for accurate multi-day percentile aggregation.
- */
-export const ApiTopPathSchema = v.object({
-  /** Status code counts (e.g., {"200": 150, "404": 3}) */
-  codes: v.record(v.string(), v.number()),
-  ...ErrorFields,
-  /** Histogram for accurate multi-day percentile aggregation */
-  histogram: HistogramSchema,
-  ...PercentileFields,
-  /** Concrete path (e.g., "/series/1396") */
-  path: v.string(),
-  /** Number of requests to this path */
-  requestCount: v.number(),
-});
-
-/**
  * API metrics aggregate schema - stored in MetricsApi table
  *
  * ═══════════════════════════════════════════════════════════════════════════
@@ -413,11 +395,6 @@ export const ApiMetricAggregateSchema = v.object({
    * Pre-computed leaderboard for dashboard.
    */
   topEndpoints: v.optional(v.array(ApiTopEndpointSchema)),
-  /**
-   * Top paths by request count, embedded in ENDPOINT items.
-   * Shows concrete paths (e.g., "/series/1396") for endpoint detail pages.
-   */
-  topPaths: v.optional(v.array(ApiTopPathSchema)),
   type: v.literal('api-aggregate'),
 });
 
@@ -772,7 +749,6 @@ export type StatusCodeBreakdown = v.InferOutput<
 >;
 export type ApiTopCountry = v.InferOutput<typeof ApiTopCountrySchema>;
 export type ApiTopEndpoint = v.InferOutput<typeof ApiTopEndpointSchema>;
-export type ApiTopPath = v.InferOutput<typeof ApiTopPathSchema>;
 export type HttpMethod = v.InferOutput<typeof HttpMethodSchema>;
 export type WebVitalName = v.InferOutput<typeof WebVitalNameSchema>;
 export type WebVitalRating = v.InferOutput<typeof WebVitalRatingSchema>;

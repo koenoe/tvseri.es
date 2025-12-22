@@ -16,7 +16,9 @@ const dynamoClient = new DynamoDBClient({});
 // ════════════════════════════════════════════════════════════════════════════
 
 /**
- * Generate date strings for a range of days ending today.
+ * Generate date strings for a range of days ending yesterday.
+ * We start from yesterday because the aggregation runs daily for the previous day,
+ * so today's data doesn't exist yet.
  */
 export const getDateRange = (
   days: number,
@@ -24,7 +26,7 @@ export const getDateRange = (
   const dates: string[] = [];
   const now = new Date();
 
-  for (let i = 0; i < days; i++) {
+  for (let i = 1; i <= days; i++) {
     const date = new Date(now);
     date.setDate(date.getDate() - i);
     dates.push(date.toISOString().split('T')[0] as string);

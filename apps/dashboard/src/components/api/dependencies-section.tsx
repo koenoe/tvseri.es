@@ -14,7 +14,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  formatCountString,
   formatDependencyName,
   formatErrorRate,
   formatLatency,
@@ -23,6 +22,8 @@ import {
 } from '@/lib/api-metrics';
 import { STATUS_COLORS } from '@/lib/status-colors';
 import { RouteLabel } from './endpoint-label';
+import { RequestBar } from './request-bar';
+import { StatusCodePopover } from './status-code-popover';
 
 type DependenciesSectionProps = Readonly<{
   dependencies: Record<string, DependencyStats> | undefined;
@@ -116,32 +117,12 @@ const SPARKLINE_WIDTH = 48;
 const SPARKLINE_HEIGHT = 16;
 
 const COLUMN_WIDTHS = {
+  actions: 48,
   errorRate: 140,
   latency: 140,
   name: 260,
   requests: 140,
 } as const;
-
-type RequestBarProps = Readonly<{
-  maxRequestCount: number;
-  requestCount: number;
-}>;
-
-function RequestBar({ maxRequestCount, requestCount }: RequestBarProps) {
-  const percentage =
-    maxRequestCount > 0 ? (requestCount / maxRequestCount) * 100 : 0;
-
-  return (
-    <div
-      className="relative flex h-6 max-w-24 items-center rounded-sm bg-muted/80 px-1.5"
-      style={{ minWidth: 'fit-content', width: `${percentage}%` }}
-    >
-      <span className="tabular-nums text-white/80">
-        {formatCountString(requestCount)}
-      </span>
-    </div>
-  );
-}
 
 type LatencySparklineProps = Readonly<{
   history: ReadonlyArray<{ p75: number }> | undefined;
@@ -403,6 +384,10 @@ function DependencyRow({
           <ErrorSparkline errorRate={stats.errorRate} history={errorHistory} />
         </div>
       </TableCell>
+      <TableCell
+        className="px-3 py-2"
+        style={{ width: COLUMN_WIDTHS.actions }}
+      ></TableCell>
     </TableRow>
   );
 }
@@ -419,6 +404,27 @@ function OperationRow({ maxRequestCount, operation }: OperationRowProps) {
   }, [operation.series]);
 
   const isPath = operation.operation.startsWith('/');
+
+  const statusCodes = useMemo(() => {
+    const codes = operation.codes ?? {};
+    const result = {
+      clientError: 0,
+      codes,
+      redirect: 0,
+      serverError: 0,
+      success: 0,
+    };
+
+    for (const [code, count] of Object.entries(codes)) {
+      const status = Number.parseInt(code, 10);
+      if (status >= 200 && status < 300) result.success += count;
+      else if (status >= 300 && status < 400) result.redirect += count;
+      else if (status >= 400 && status < 500) result.clientError += count;
+      else if (status >= 500) result.serverError += count;
+    }
+
+    return result;
+  }, [operation.codes]);
 
   return (
     <TableRow className="hover:bg-transparent">
@@ -461,6 +467,11 @@ function OperationRow({ maxRequestCount, operation }: OperationRowProps) {
             errorRate={operation.errorRate}
             series={series}
           />
+        </div>
+      </TableCell>
+      <TableCell className="px-3 py-2" style={{ width: COLUMN_WIDTHS.actions }}>
+        <div className="flex justify-end">
+          <StatusCodePopover statusCodes={statusCodes} />
         </div>
       </TableCell>
     </TableRow>
@@ -528,6 +539,10 @@ function DependenciesSectionComponent({
             >
               <span className="text-muted-foreground">Error Rate</span>
             </TableHead>
+            <TableHead
+              className="px-3"
+              style={{ width: COLUMN_WIDTHS.actions }}
+            />
           </TableRow>
         </TableHeader>
         <TableBody>

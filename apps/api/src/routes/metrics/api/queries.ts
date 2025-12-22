@@ -23,7 +23,9 @@ const dynamoClient = new DynamoDBClient({});
 // ════════════════════════════════════════════════════════════════════════════
 
 /**
- * Generate date strings for a range of days ending today.
+ * Generate date strings for a range of days ending yesterday.
+ * We start from yesterday because the aggregation runs daily for the previous day,
+ * so today's data doesn't exist yet.
  */
 export const getDateRange = (
   days: number,
@@ -31,7 +33,7 @@ export const getDateRange = (
   const dates: string[] = [];
   const now = new Date();
 
-  for (let i = 0; i < days; i++) {
+  for (let i = 1; i <= days; i++) {
     const date = new Date(now);
     date.setDate(date.getDate() - i);
     dates.push(date.toISOString().split('T')[0] as string);
@@ -641,78 +643,4 @@ export const aggregateDependencyOperationsWithSeries = (
   }
 
   return result.sort((a, b) => b.count - a.count).slice(0, limit);
-};
-
-export type AggregatedTopPath = Readonly<{
-  codes: Record<string, number>;
-  errorCount: number;
-  errorRate: number;
-  p75: number;
-  path: string;
-  requestCount: number;
-}>;
-
-export const aggregateTopPaths = (
-  items: ApiMetricAggregate[],
-  limit = 25,
-): AggregatedTopPath[] => {
-  const allPaths = items.flatMap((item) => item.topPaths ?? []);
-  if (allPaths.length === 0) return [];
-
-  const byPath = new Map<
-    string,
-    {
-      codes: Map<string, number>;
-      errorCount: number;
-      histograms: number[][];
-      totalCount: number;
-    }
-  >();
-
-  for (const pathItem of allPaths) {
-    const existing = byPath.get(pathItem.path);
-    if (existing) {
-      existing.totalCount += pathItem.requestCount;
-      existing.errorCount += pathItem.errorCount;
-      if (pathItem.histogram?.bins?.length > 0) {
-        existing.histograms.push(pathItem.histogram.bins);
-      }
-      for (const [code, count] of Object.entries(pathItem.codes)) {
-        existing.codes.set(code, (existing.codes.get(code) ?? 0) + count);
-      }
-    } else {
-      const codes = new Map<string, number>();
-      for (const [code, count] of Object.entries(pathItem.codes)) {
-        codes.set(code, count);
-      }
-      byPath.set(pathItem.path, {
-        codes,
-        errorCount: pathItem.errorCount,
-        histograms:
-          pathItem.histogram?.bins?.length > 0 ? [pathItem.histogram.bins] : [],
-        totalCount: pathItem.requestCount,
-      });
-    }
-  }
-
-  const result: AggregatedTopPath[] = [];
-
-  for (const [path, { codes, errorCount, histograms, totalCount }] of byPath) {
-    if (histograms.length === 0) continue;
-
-    const mergedBins = mergeHistogramBins(histograms);
-    const errorRate =
-      totalCount > 0 ? Math.round((errorCount / totalCount) * 10000) / 100 : 0;
-
-    result.push({
-      codes: Object.fromEntries(codes),
-      errorCount,
-      errorRate,
-      p75: Math.round(percentileFromLatencyHistogram(mergedBins, 75)),
-      path,
-      requestCount: totalCount,
-    });
-  }
-
-  return result.sort((a, b) => b.requestCount - a.requestCount).slice(0, limit);
 };

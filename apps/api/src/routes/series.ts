@@ -21,14 +21,14 @@ app.get('/:id', async (c) => {
     includeImages: c.req.query('include_images') === 'true',
   });
 
-  if (!series) {
-    return c.notFound();
-  }
-
   c.header(
     'Cache-Control',
     'public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600',
   ); // 24h, allow stale for 6h
+
+  if (!series) {
+    return c.notFound();
+  }
 
   return c.json(series);
 });
@@ -139,14 +139,14 @@ app.get('/:id/similar', async (c) => {
 app.get('/:id/keywords', async (c) => {
   const keywords = await fetchTvSeriesKeywords(c.req.param('id'));
 
-  if (!keywords) {
-    return c.notFound();
-  }
-
   c.header(
     'Cache-Control',
     'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
   ); // 1w, allow stale for 24h
+
+  if (!keywords) {
+    return c.notFound();
+  }
 
   return c.json(keywords);
 });

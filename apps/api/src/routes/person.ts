@@ -11,14 +11,14 @@ const app = new Hono();
 app.get('/:id', async (c) => {
   const person = await fetchPerson(c.req.param('id'));
 
-  if (!person) {
-    return c.notFound();
-  }
-
   c.header(
     'Cache-Control',
     'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
   ); // 1w, allow stale for 24h
+
+  if (!person) {
+    return c.notFound();
+  }
 
   return c.json(person);
 });
@@ -42,16 +42,16 @@ app.get('/:id/credits', async (c) => {
 app.get('/:id/known-for', async (c) => {
   const person = await fetchPerson(c.req.param('id'));
 
+  c.header(
+    'Cache-Control',
+    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
+  ); // 1w, allow stale for 24h
+
   if (!person) {
     return c.notFound();
   }
 
   const items = await fetchPersonKnownFor(person);
-
-  c.header(
-    'Cache-Control',
-    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
-  ); // 1w, allow stale for 24h
 
   return c.json(items);
 });

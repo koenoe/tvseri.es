@@ -33,27 +33,21 @@ const ROWS = 4;
 const COLS = 8;
 const TOTAL_CELLS = ROWS * COLS;
 
-const PALETTES = {
-  amber: [
-    'bg-amber-500',
-    'bg-amber-500/75',
-    'bg-amber-500/50',
-    'bg-amber-500/25',
-  ],
-  green: [
+const STATUS_PALETTES = {
+  frustrated: ['bg-red-500', 'bg-red-500/75', 'bg-red-500/50', 'bg-red-500/25'],
+  satisfied: [
     'bg-green-500',
     'bg-green-500/75',
     'bg-green-500/50',
     'bg-green-500/25',
   ],
-  red: ['bg-red-500', 'bg-red-500/75', 'bg-red-500/50', 'bg-red-500/25'],
-};
-
-function getPalette(score: number) {
-  if (score >= 0.85) return PALETTES.green;
-  if (score >= 0.7) return PALETTES.amber;
-  return PALETTES.red;
-}
+  tolerating: [
+    'bg-amber-500',
+    'bg-amber-500/75',
+    'bg-amber-500/50',
+    'bg-amber-500/25',
+  ],
+} as const;
 
 const STATUS_ICONS = {
   frustrated: CircleAlert,
@@ -68,9 +62,9 @@ const READABLE_THRESHOLDS = {
 } as const;
 
 const ApdexCard = memo(function ApdexCard({ score }: ApdexCardProps) {
-  const palette = getPalette(score);
   const filledCells = Math.round(score * TOTAL_CELLS);
   const statusConfig = getApdexStatusConfig(score);
+  const palette = STATUS_PALETTES[statusConfig.status];
   const StatusIcon = STATUS_ICONS[statusConfig.status];
   const readableThreshold = READABLE_THRESHOLDS[statusConfig.status];
 

@@ -23,7 +23,11 @@ function getErrorRateColor(errorRate: number): StatusColor {
   return 'red';
 }
 
-function ErrorRateBar({ errorRate }: Readonly<{ errorRate: number }>) {
+type ErrorRateVisualizationProps = Readonly<{
+  errorRate: number;
+}>;
+
+function ErrorRateVisualization({ errorRate }: ErrorRateVisualizationProps) {
   const color = getErrorRateColor(errorRate);
   const filledBars = Math.round(
     (Math.min(errorRate, MAX_ERROR_RATE) / MAX_ERROR_RATE) * BAR_COUNT,
@@ -67,7 +71,7 @@ const DependencyErrorPopover = memo(function DependencyErrorPopover({
                 <span className="text-sm tabular-nums text-muted-foreground">
                   {dep.errorRate.toFixed(2)}%
                 </span>
-                <ErrorRateBar errorRate={dep.errorRate} />
+                <ErrorRateVisualization errorRate={dep.errorRate} />
               </div>
             </div>
           ))}

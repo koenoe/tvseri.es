@@ -108,7 +108,18 @@ const RequestsCard = memo(function RequestsCard({
         <CardTitle>Requests</CardTitle>
         <CardDescription>{formatRpm(throughput)}</CardDescription>
         <CardAction>
-          {action ?? (
+          {action === null ? (
+            <Button
+              className="text-muted-foreground"
+              disabled
+              size="icon-sm"
+              variant="ghost"
+            >
+              <MoreVertical className="size-4" />
+            </Button>
+          ) : action !== undefined ? (
+            action
+          ) : (
             <DependencyRequestsPopover dependencies={dependencies}>
               <Button
                 className="text-muted-foreground cursor-pointer data-[state=open]:bg-input/50"

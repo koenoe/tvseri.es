@@ -101,7 +101,18 @@ const ErrorRateCard = memo(function ErrorRateCard({
         <CardTitle>Error Rate</CardTitle>
         <CardDescription>Percentage of Failed Requests</CardDescription>
         <CardAction>
-          {action ?? (
+          {action === null ? (
+            <Button
+              className="text-muted-foreground"
+              disabled
+              size="icon-sm"
+              variant="ghost"
+            >
+              <MoreVertical className="size-4" />
+            </Button>
+          ) : action !== undefined ? (
+            action
+          ) : (
             <DependencyErrorPopover dependencies={dependencies}>
               <Button
                 className="text-muted-foreground cursor-pointer data-[state=open]:bg-muted"

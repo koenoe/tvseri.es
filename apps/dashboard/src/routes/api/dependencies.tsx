@@ -140,6 +140,7 @@ function DependencyDetail() {
           <RequestsCardSkeleton />
         ) : (
           <RequestsCard
+            action={null}
             requestCount={aggregated?.count ?? 0}
             series={series}
             throughput={aggregated?.throughput ?? 0}
@@ -149,6 +150,7 @@ function DependencyDetail() {
           <ErrorRateCardSkeleton />
         ) : (
           <ErrorRateCard
+            action={null}
             errorRate={aggregated?.errorRate ?? 0}
             series={series}
           />

@@ -99,19 +99,36 @@ WorldMapSkeleton.displayName = 'WorldMapSkeleton';
 
 function StatusAccordionSkeleton() {
   return (
-    <div className="rounded-lg border">
-      {[0, 1, 2].map((i) => (
-        <div
-          className={`flex items-center justify-between px-4 py-3 ${i < 2 ? 'border-b' : ''}`}
-          key={i}
-        >
-          <div className="flex items-center gap-2">
-            <Skeleton className="size-4 rounded-full" />
-            <Skeleton className="h-4 w-28 rounded-none" />
+    <div className="flex h-full flex-col rounded-lg border">
+      {[0, 1, 2].map((i) => {
+        const isLast = i === 2;
+        return (
+          <div className={isLast ? 'flex flex-1 flex-col' : ''} key={i}>
+            <div
+              className={`flex items-center justify-between px-4 py-3 ${!isLast ? 'border-b' : ''}`}
+            >
+              <div className="flex items-center gap-2">
+                <Skeleton className="size-4 rounded-full" />
+                <Skeleton className="h-4 w-28 rounded-none" />
+              </div>
+              <Skeleton className="size-4 rounded-none bg-muted/50" />
+            </div>
+            {isLast && (
+              <div className="flex flex-1 flex-col gap-2 overflow-hidden py-2 pl-5 pr-3">
+                {[0, 1, 2, 3, 4].map((j) => (
+                  <div
+                    className="flex items-center justify-between py-1"
+                    key={j}
+                  >
+                    <Skeleton className="h-4 w-32 rounded-none" />
+                    <Skeleton className="h-4 w-12 rounded-none" />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-          <Skeleton className="size-4 rounded-none bg-muted/50" />
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

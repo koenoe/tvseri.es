@@ -81,9 +81,9 @@ function MetricListItemComponent({
         <span className="text-xs flex items-center gap-0.5 mt-0.5 text-muted-foreground">
           {formattedPageViews}
           <svg className="size-4" fill="currentColor" viewBox="0 0 16 16">
-            {dotsCount >= 1 && <circle cx="5" cy="8" r="2" />}
-            {dotsCount >= 2 && <circle cx="10" cy="11" r="2" />}
-            {dotsCount >= 3 && <circle cx="10" cy="5" r="2" />}
+            {dotsCount >= 1 && <circle cx="10" cy="8" r="2" />}
+            {dotsCount >= 2 && <circle cx="5" cy="11" r="2" />}
+            {dotsCount >= 3 && <circle cx="5" cy="5" r="2" />}
           </svg>
         </span>
       </div>

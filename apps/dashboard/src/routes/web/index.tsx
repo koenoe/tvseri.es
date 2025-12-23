@@ -291,6 +291,27 @@ function MetricTabContent({
         uniqueKey={`countries-${metric}-${device}-${currentStatus.status}`}
       />
 
+      {/* Data Points Footer */}
+      <div className="flex items-center justify-between border-t border-border pt-4">
+        <span className="text-sm text-muted-foreground/70">
+          This report is based on{' '}
+          <svg
+            aria-hidden="true"
+            className="inline size-3.5 text-muted-foreground/70"
+            fill="currentColor"
+            viewBox="0 0 16 16"
+          >
+            <circle cx="10" cy="8" r="2" />
+            <circle cx="5" cy="11" r="2" />
+            <circle cx="5" cy="5" r="2" />
+          </svg>{' '}
+          {aggregated.pageviews.toLocaleString()} data points
+        </span>
+        <span className="text-sm text-muted-foreground/70">
+          Updated once a day
+        </span>
+      </div>
+
       <ViewAllModal
         data={modalState.data}
         initialFilter={modalState.initialFilter}

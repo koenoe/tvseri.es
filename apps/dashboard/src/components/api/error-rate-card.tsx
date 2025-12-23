@@ -29,7 +29,6 @@ type ErrorRateCardProps = Readonly<{
   dependencies?: ReadonlyArray<DependencyMetricItem>;
   errorRate: number;
   series?: ReadonlyArray<ErrorRateSeriesItem>;
-  variant?: 'bar' | 'sparkline';
 }>;
 
 function getErrorRateColor(errorRate: number): StatusColor {
@@ -67,7 +66,6 @@ const ErrorRateCard = memo(function ErrorRateCard({
   dependencies,
   errorRate,
   series,
-  variant = 'sparkline',
 }: ErrorRateCardProps) {
   const color = getErrorRateColor(errorRate);
   const filledBars = Math.round(
@@ -75,7 +73,7 @@ const ErrorRateCard = memo(function ErrorRateCard({
   );
 
   const sparklineData = useMemo(() => {
-    if (variant === 'bar' || !series || series.length === 0) return null;
+    if (!series || series.length === 0) return null;
 
     const errorRates = series.map((s) => s.errorRate ?? 0);
     const hasVariation = errorRates.some((r) => r !== errorRates[0]);
@@ -95,7 +93,7 @@ const ErrorRateCard = memo(function ErrorRateCard({
     const strokeColor = STATUS_COLORS[color].hsl;
 
     return { areaPath, linePath, strokeColor };
-  }, [color, series, variant]);
+  }, [color, series]);
 
   return (
     <Card className="w-full border">

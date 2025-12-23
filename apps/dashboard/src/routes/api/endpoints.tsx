@@ -139,7 +139,7 @@ function EndpointDetail() {
               <StatusCodePopover statusCodes={data?.aggregated?.statusCodes} />
             }
             errorRate={data?.aggregated?.errorRate ?? 0}
-            variant="bar"
+            series={series}
           />
         )}
       </div>

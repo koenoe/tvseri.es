@@ -209,3 +209,71 @@ export async function fetchApiMetricsEndpointDetail(
 
   return response.json() as Promise<ApiMetricsEndpointDetailResponse>;
 }
+
+export type ApiMetricsDependencyDetailParams = Readonly<{
+  days?: number;
+  platform?: string;
+  source: string;
+}>;
+
+export type ApiMetricsDependencyDetailResponse = Readonly<{
+  aggregated: {
+    count: number;
+    errorCount: number;
+    errorRate: number;
+    p75: number;
+    p90: number;
+    p95: number;
+    p99: number;
+    throughput: number;
+    topOperations?: ReadonlyArray<{
+      codes?: Record<string, number>;
+      count: number;
+      errorCount: number;
+      errorRate: number;
+      operation: string;
+      p75: number;
+      p90: number;
+      p95: number;
+      p99: number;
+      series?: ReadonlyArray<{
+        date: string;
+        errorRate: number;
+        p75: number;
+      }>;
+    }>;
+  } | null;
+  endDate: string;
+  series: ReadonlyArray<{
+    count: number;
+    date: string;
+    errorRate: number;
+    p75: number;
+    p90: number;
+    p95: number;
+    p99: number;
+  }>;
+  source: string;
+  startDate: string;
+}>;
+
+export async function fetchApiMetricsDependencyDetail(
+  params: ApiMetricsDependencyDetailParams,
+): Promise<ApiMetricsDependencyDetailResponse> {
+  const searchParams = new URLSearchParams();
+  if (params.days) searchParams.set('days', params.days.toString());
+  if (params.platform) searchParams.set('platform', params.platform);
+
+  const encodedSource = encodeURIComponent(params.source);
+  const url = `${API_BASE_URL}/metrics/api/dependencies/${encodedSource}?${searchParams.toString()}`;
+  const headers = await getAuthHeaders();
+  const response = await fetch(url, { headers });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch API metrics dependency detail: ${response.statusText}`,
+    );
+  }
+
+  return response.json() as Promise<ApiMetricsDependencyDetailResponse>;
+}

@@ -16,6 +16,7 @@ import { Route as ApiIndexRouteImport } from './routes/api/index'
 import { Route as AwsLambdaRouteImport } from './routes/aws/lambda'
 import { Route as AwsCdnRouteImport } from './routes/aws/cdn'
 import { Route as ApiEndpointsRouteImport } from './routes/api/endpoints'
+import { Route as ApiDependenciesRouteImport } from './routes/api/dependencies'
 
 const UnauthorizedRoute = UnauthorizedRouteImport.update({
   id: '/unauthorized',
@@ -52,10 +53,16 @@ const ApiEndpointsRoute = ApiEndpointsRouteImport.update({
   path: '/api/endpoints',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDependenciesRoute = ApiDependenciesRouteImport.update({
+  id: '/api/dependencies',
+  path: '/api/dependencies',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/unauthorized': typeof UnauthorizedRoute
+  '/api/dependencies': typeof ApiDependenciesRoute
   '/api/endpoints': typeof ApiEndpointsRoute
   '/aws/cdn': typeof AwsCdnRoute
   '/aws/lambda': typeof AwsLambdaRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/unauthorized': typeof UnauthorizedRoute
+  '/api/dependencies': typeof ApiDependenciesRoute
   '/api/endpoints': typeof ApiEndpointsRoute
   '/aws/cdn': typeof AwsCdnRoute
   '/aws/lambda': typeof AwsLambdaRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/unauthorized': typeof UnauthorizedRoute
+  '/api/dependencies': typeof ApiDependenciesRoute
   '/api/endpoints': typeof ApiEndpointsRoute
   '/aws/cdn': typeof AwsCdnRoute
   '/aws/lambda': typeof AwsLambdaRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/unauthorized'
+    | '/api/dependencies'
     | '/api/endpoints'
     | '/aws/cdn'
     | '/aws/lambda'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/unauthorized'
+    | '/api/dependencies'
     | '/api/endpoints'
     | '/aws/cdn'
     | '/aws/lambda'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/unauthorized'
+    | '/api/dependencies'
     | '/api/endpoints'
     | '/aws/cdn'
     | '/aws/lambda'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   UnauthorizedRoute: typeof UnauthorizedRoute
+  ApiDependenciesRoute: typeof ApiDependenciesRoute
   ApiEndpointsRoute: typeof ApiEndpointsRoute
   AwsCdnRoute: typeof AwsCdnRoute
   AwsLambdaRoute: typeof AwsLambdaRoute
@@ -172,12 +185,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEndpointsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/dependencies': {
+      id: '/api/dependencies'
+      path: '/api/dependencies'
+      fullPath: '/api/dependencies'
+      preLoaderRoute: typeof ApiDependenciesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   UnauthorizedRoute: UnauthorizedRoute,
+  ApiDependenciesRoute: ApiDependenciesRoute,
   ApiEndpointsRoute: ApiEndpointsRoute,
   AwsCdnRoute: AwsCdnRoute,
   AwsLambdaRoute: AwsLambdaRoute,

@@ -1,4 +1,3 @@
-import { useNavigate } from '@tanstack/react-router';
 import {
   type ColumnDef,
   flexRender,
@@ -10,14 +9,12 @@ import {
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table';
-import type { EndpointMetrics } from '@tvseri.es/schemas';
 import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronsUpDown,
   ChevronUp,
-  ChevronRight as RowChevron,
 } from 'lucide-react';
 import { memo, useCallback, useMemo } from 'react';
 
@@ -25,7 +22,6 @@ import {
   NativeSelect,
   NativeSelectOption,
 } from '@/components/ui/native-select';
-import { ScoreRing } from '@/components/ui/score-ring';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -37,22 +33,42 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  formatCountString,
-  formatDependencyName,
   formatErrorRate,
   formatLatency,
-  sortDependencyKeys,
+  getLatencyStatus,
 } from '@/lib/api-metrics';
-import { DependencyBadge } from './dependency-badge';
-import { MethodBadge, parseEndpoint, RouteLabel } from './endpoint-label';
+import { STATUS_COLORS } from '@/lib/status-colors';
+import { RouteLabel } from './endpoint-label';
+import { RequestBar } from './request-bar';
+import { StatusCodePopover } from './status-code-popover';
 
-type EndpointsTableProps = Readonly<{
-  endpoints: ReadonlyArray<EndpointMetrics>;
+export type OperationStats = Readonly<{
+  codes?: Record<string, number>;
+  count: number;
+  errorCount: number;
+  errorRate: number;
+  operation: string;
+  p75: number;
+  p90: number;
+  p95: number;
+  p99: number;
+  series?: ReadonlyArray<{
+    date: string;
+    errorRate: number;
+    p75: number;
+  }>;
+}>;
+
+type OperationsTableProps = Readonly<{
   onPaginationChange: (pagination: PaginationState) => void;
   onSortingChange: (sorting: SortingState) => void;
+  operations: ReadonlyArray<OperationStats>;
   pagination: PaginationState;
   sorting: SortingState;
 }>;
+
+const SPARKLINE_WIDTH = 48;
+const SPARKLINE_HEIGHT = 16;
 
 function getSmoothSparklinePath(
   points: ReadonlyArray<number>,
@@ -124,22 +140,36 @@ function getSharpSparklinePath(
   return `M ${coords.join(' L ')}`;
 }
 
-const SPARKLINE_WIDTH = 48;
-const SPARKLINE_HEIGHT = 16;
+function getLatencyColor(p75: number): string {
+  const status = getLatencyStatus(p75);
+  if (status === 'fast') return STATUS_COLORS.green.hsl;
+  if (status === 'moderate') return STATUS_COLORS.amber.hsl;
+  return STATUS_COLORS.red.hsl;
+}
+
+function getErrorRateColor(errorRate: number): string {
+  if (errorRate < 1) return STATUS_COLORS.green.hsl;
+  if (errorRate < 5) return STATUS_COLORS.amber.hsl;
+  return STATUS_COLORS.red.hsl;
+}
 
 function LatencySparkline({
+  p75,
   series,
 }: Readonly<{
-  series: ReadonlyArray<{ date: string; p75: number }> | undefined;
+  p75: number;
+  series: ReadonlyArray<{ p75: number }> | undefined;
 }>) {
   const path = useMemo(() => {
-    if (!series || series.length === 0) return '';
+    if (!series || series.length <= 1) return '';
     return getSmoothSparklinePath(
       series.map((s) => s.p75),
       SPARKLINE_WIDTH,
       SPARKLINE_HEIGHT,
     );
   }, [series]);
+
+  const color = getLatencyColor(p75);
 
   if (!path) return <div className="h-4 w-12" />;
 
@@ -151,9 +181,9 @@ function LatencySparkline({
       viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
     >
       <path
-        className="stroke-muted-foreground/50"
         d={path}
         fill="none"
+        stroke={color}
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="1.5"
@@ -167,17 +197,17 @@ function ErrorRateSparkline({
   series,
 }: Readonly<{
   errorRate: number;
-  series:
-    | ReadonlyArray<{ date: string; errorRate?: number; p75: number }>
-    | undefined;
+  series: ReadonlyArray<{ errorRate: number }> | undefined;
 }>) {
   const path = useMemo(() => {
-    if (!series || series.length === 0) return '';
-    const errorRates = series.map((s) => s.errorRate ?? 0);
+    if (!series || series.length <= 1) return '';
+    const errorRates = series.map((s) => s.errorRate);
     const hasVariation = errorRates.some((r) => r !== errorRates[0]);
     if (!hasVariation) return '';
     return getSharpSparklinePath(errorRates, SPARKLINE_WIDTH, SPARKLINE_HEIGHT);
   }, [series]);
+
+  const color = getErrorRateColor(errorRate);
 
   if (!path) {
     const normalizedRate = Math.min(errorRate, 10) / 10;
@@ -194,7 +224,7 @@ function ErrorRateSparkline({
         viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
       >
         <line
-          className="stroke-muted-foreground/50"
+          stroke={color}
           strokeLinecap="round"
           strokeWidth="1.5"
           x1="0"
@@ -214,9 +244,9 @@ function ErrorRateSparkline({
       viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
     >
       <path
-        className="stroke-muted-foreground/50"
         d={path}
         fill="none"
+        stroke={color}
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="1.5"
@@ -239,17 +269,17 @@ function SortIndicator({
   );
 }
 
-const columns: ColumnDef<EndpointMetrics>[] = [
+const columns: ColumnDef<OperationStats>[] = [
   {
-    accessorFn: (row) => row.endpoint,
+    accessorFn: (row) => row.operation,
     cell: ({ row }) => {
-      const { method, route } = parseEndpoint(row.original.endpoint);
+      const operation = row.original.operation;
+      const isPath = operation.startsWith('/');
 
-      return (
-        <div className="flex min-w-0 items-center gap-2 overflow-hidden">
-          <MethodBadge method={method} />
-          <RouteLabel route={route} />
-        </div>
+      return isPath ? (
+        <RouteLabel route={operation} />
+      ) : (
+        <span className="font-medium">{operation}</span>
       );
     },
     header: ({ column }) => (
@@ -258,29 +288,20 @@ const columns: ColumnDef<EndpointMetrics>[] = [
         onClick={() => column.toggleSorting()}
         type="button"
       >
-        Route
+        Operation
         <SortIndicator isSorted={column.getIsSorted()} />
       </button>
     ),
-    id: 'endpoint',
-    size: 320,
+    id: 'operation',
+    size: 300,
   },
   {
-    accessorFn: (row) => row.requestCount,
+    accessorFn: (row) => row.count,
     cell: ({ row, table }) => {
-      const value = row.original.requestCount;
+      const value = row.original.count;
       const maxRequestCount = table.options.meta?.maxRequestCount ?? 1;
-      const percentage =
-        maxRequestCount > 0 ? (value / maxRequestCount) * 100 : 0;
       return (
-        <div
-          className="relative flex h-6 max-w-24 items-center rounded-sm bg-muted/80 px-1.5"
-          style={{ minWidth: 'fit-content', width: `${percentage}%` }}
-        >
-          <span className="tabular-nums text-white/80">
-            {formatCountString(value)}
-          </span>
-        </div>
+        <RequestBar maxRequestCount={maxRequestCount} requestCount={value} />
       );
     },
     header: ({ column }) => (
@@ -297,16 +318,16 @@ const columns: ColumnDef<EndpointMetrics>[] = [
     size: 140,
   },
   {
-    accessorFn: (row) => row.latency.p75,
+    accessorFn: (row) => row.p75,
     cell: ({ row }) => {
-      const p75 = row.original.latency.p75;
+      const p75 = row.original.p75;
       const series = row.original.series;
       return (
         <div className="flex items-center gap-3">
           <span className="w-14 tabular-nums text-muted-foreground">
             {formatLatency(p75)}
           </span>
-          <LatencySparkline series={series} />
+          <LatencySparkline p75={p75} series={series} />
         </div>
       );
     },
@@ -322,27 +343,6 @@ const columns: ColumnDef<EndpointMetrics>[] = [
     ),
     id: 'latency',
     size: 140,
-  },
-  {
-    accessorFn: (row) => row.apdex.score,
-    cell: ({ getValue }) => {
-      const score = getValue() as number;
-      return (
-        <ScoreRing label={score.toFixed(2)} score={score * 100} size={32} />
-      );
-    },
-    header: ({ column }) => (
-      <button
-        className="group/sort flex cursor-pointer items-center text-muted-foreground hover:text-foreground/80"
-        onClick={() => column.toggleSorting()}
-        type="button"
-      >
-        Apdex
-        <SortIndicator isSorted={column.getIsSorted()} />
-      </button>
-    ),
-    id: 'apdex',
-    size: 80,
   },
   {
     accessorFn: (row) => row.errorRate,
@@ -372,41 +372,35 @@ const columns: ColumnDef<EndpointMetrics>[] = [
     size: 140,
   },
   {
-    accessorFn: (row) => row.dependencies,
     cell: ({ row }) => {
-      const dependencies = sortDependencyKeys(
-        Object.keys(row.original.dependencies ?? {}),
-      );
-      if (dependencies.length === 0) return null;
+      const codes = row.original.codes ?? {};
+      const statusCodes = {
+        clientError: 0,
+        codes,
+        redirect: 0,
+        serverError: 0,
+        success: 0,
+      };
+
+      for (const [code, count] of Object.entries(codes)) {
+        const status = Number.parseInt(code, 10);
+        if (status >= 200 && status < 300) statusCodes.success += count;
+        else if (status >= 300 && status < 400) statusCodes.redirect += count;
+        else if (status >= 400 && status < 500)
+          statusCodes.clientError += count;
+        else if (status >= 500) statusCodes.serverError += count;
+      }
+
       return (
-        <div className="flex flex-wrap gap-1">
-          {dependencies.map((dep) => (
-            <DependencyBadge
-              key={dep}
-              linkable
-              name={formatDependencyName(dep)}
-              source={dep}
-            />
-          ))}
+        <div className="flex justify-end">
+          <StatusCodePopover statusCodes={statusCodes} />
         </div>
       );
     },
     enableSorting: false,
-    header: () => <span className="text-muted-foreground">Dependencies</span>,
-    id: 'dependencies',
-    size: 120,
-  },
-  {
-    cell: () => (
-      <div className="flex justify-end">
-        <RowChevron className="size-4 text-muted-foreground" />
-      </div>
-    ),
-    enableSorting: false,
     header: () => null,
-    id: 'chevron',
-    maxSize: 32,
-    size: 32,
+    id: 'actions',
+    size: 48,
   },
 ];
 
@@ -414,22 +408,19 @@ declare module '@tanstack/react-table' {
   // biome-ignore lint/correctness/noUnusedVariables: Required for module augmentation
   interface TableMeta<TData> {
     maxRequestCount?: number;
-    totalRequestCount?: number;
   }
 }
 
-const EndpointsTable = memo(function EndpointsTable({
-  endpoints,
+const OperationsTable = memo(function OperationsTable({
   onPaginationChange,
   onSortingChange,
+  operations,
   pagination,
   sorting,
-}: EndpointsTableProps) {
-  const navigate = useNavigate();
-
+}: OperationsTableProps) {
   const maxRequestCount = useMemo(
-    () => Math.max(...endpoints.map((e) => e.requestCount), 1),
-    [endpoints],
+    () => Math.max(...operations.map((op) => op.count), 1),
+    [operations],
   );
 
   const handleSortingChange: OnChangeFn<SortingState> = useCallback(
@@ -456,7 +447,7 @@ const EndpointsTable = memo(function EndpointsTable({
 
   const table = useReactTable({
     columns,
-    data: endpoints as EndpointMetrics[],
+    data: operations as OperationStats[],
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -470,71 +461,48 @@ const EndpointsTable = memo(function EndpointsTable({
   const totalPages = Math.ceil(totalRows / pagination.pageSize);
   const currentPage = pagination.pageIndex + 1;
 
-  const handleRowClick = useCallback(
-    (endpoint: string) => {
-      navigate({
-        search: { endpoint },
-        to: '/api/endpoints',
-      });
-    },
-    [navigate],
-  );
-
   return (
     <div className="overflow-hidden rounded-lg border border-border">
       <Table className="table-fixed text-sm [&_td]:py-2 [&_th]:h-10 [&_th]:py-2">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow className="hover:bg-transparent" key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                const isChevron = header.id === 'chevron';
-                return (
-                  <TableHead
-                    className={isChevron ? 'w-[1%] px-3' : 'px-3'}
-                    key={header.id}
-                    style={{ width: header.getSize() }}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </TableHead>
-                );
-              })}
+              {headerGroup.headers.map((header) => (
+                <TableHead
+                  className="px-3"
+                  key={header.id}
+                  style={{ width: header.getSize() }}
+                >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
+                </TableHead>
+              ))}
             </TableRow>
           ))}
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows.length > 0 ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow
-                className="cursor-pointer"
-                key={row.id}
-                onClick={() => handleRowClick(row.original.endpoint)}
-              >
-                {row.getVisibleCells().map((cell) => {
-                  const isChevron = cell.column.id === 'chevron';
-                  return (
-                    <TableCell
-                      className={isChevron ? 'w-[1%] px-3 py-2' : 'px-3 py-2'}
-                      key={cell.id}
-                      style={{ width: cell.column.getSize() }}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  );
-                })}
+              <TableRow className="hover:bg-muted/50" key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    className="px-3 py-2"
+                    key={cell.id}
+                    style={{ width: cell.column.getSize() }}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
               </TableRow>
             ))
           ) : (
             <TableRow>
               <TableCell className="h-24 text-center" colSpan={columns.length}>
-                No endpoints found.
+                No operations found.
               </TableCell>
             </TableRow>
           )}
@@ -587,16 +555,16 @@ const EndpointsTable = memo(function EndpointsTable({
   );
 });
 
-EndpointsTable.displayName = 'EndpointsTable';
+OperationsTable.displayName = 'OperationsTable';
 
-function EndpointsTableSkeleton() {
+function OperationsTableSkeleton() {
   return (
     <div className="overflow-hidden rounded-lg border border-border">
       <Table className="table-fixed text-sm [&_td]:py-2 [&_th]:h-10 [&_th]:py-2">
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead className="px-3" style={{ width: 320 }}>
-              Route
+            <TableHead className="px-3" style={{ width: 300 }}>
+              Operation
             </TableHead>
             <TableHead className="px-3" style={{ width: 140 }}>
               Requests
@@ -604,26 +572,17 @@ function EndpointsTableSkeleton() {
             <TableHead className="px-3" style={{ width: 140 }}>
               Latency
             </TableHead>
-            <TableHead className="px-3" style={{ width: 80 }}>
-              Apdex
-            </TableHead>
             <TableHead className="px-3" style={{ width: 140 }}>
               Error Rate
             </TableHead>
-            <TableHead className="px-3" style={{ width: 120 }}>
-              Dependencies
-            </TableHead>
-            <TableHead className="w-[1%] px-3" style={{ width: 32 }} />
+            <TableHead className="px-3" style={{ width: 48 }} />
           </TableRow>
         </TableHeader>
         <TableBody>
           {Array.from({ length: 10 }).map((_, i) => (
             <TableRow key={i}>
               <TableCell className="px-3 py-2">
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-4 w-10 rounded" />
-                  <Skeleton className="h-4 w-48" />
-                </div>
+                <Skeleton className="h-4 w-48" />
               </TableCell>
               <TableCell className="px-3 py-2">
                 <Skeleton className="h-6 w-16 rounded-sm" />
@@ -635,23 +594,14 @@ function EndpointsTableSkeleton() {
                 </div>
               </TableCell>
               <TableCell className="px-3 py-2">
-                <Skeleton className="size-8 rounded-full" />
-              </TableCell>
-              <TableCell className="px-3 py-2">
                 <div className="flex items-center gap-3">
                   <Skeleton className="h-4 w-14" />
                   <Skeleton className="h-4 w-12" />
                 </div>
               </TableCell>
               <TableCell className="px-3 py-2">
-                <div className="flex flex-wrap gap-1">
-                  <Skeleton className="h-4 w-12 rounded" />
-                  <Skeleton className="h-4 w-16 rounded" />
-                </div>
-              </TableCell>
-              <TableCell className="w-[1%] px-3 py-2">
                 <div className="flex justify-end">
-                  <Skeleton className="size-4" />
+                  <Skeleton className="size-6 rounded" />
                 </div>
               </TableCell>
             </TableRow>
@@ -659,7 +609,7 @@ function EndpointsTableSkeleton() {
         </TableBody>
         <TableFooter className="bg-transparent">
           <TableRow className="hover:bg-transparent">
-            <TableCell className="px-3" colSpan={7}>
+            <TableCell className="px-3" colSpan={5}>
               <div className="flex items-center justify-between">
                 <Skeleton className="h-6 w-20" />
                 <div className="flex items-center gap-1">
@@ -676,4 +626,4 @@ function EndpointsTableSkeleton() {
   );
 }
 
-export { EndpointsTable, EndpointsTableSkeleton };
+export { OperationsTable, OperationsTableSkeleton };

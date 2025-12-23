@@ -417,6 +417,8 @@ app.get(
           date: s.date,
           errorRate: dep.errorRate,
           p75: dep.p75,
+          p90: dep.p90,
+          p95: dep.p95,
           p99: dep.p99,
         };
       })

@@ -1,4 +1,5 @@
 import type {
+  ApiMetricsDependencyDetailParams,
   ApiMetricsEndpointDetailParams,
   ApiMetricsEndpointsParams,
   ApiMetricsSummaryParams,
@@ -11,6 +12,8 @@ export const metricsKeys = {
   all: ['metrics'] as const,
 
   api: () => [...metricsKeys.all, 'api'] as const,
+  apiDependencyDetail: (params: ApiMetricsDependencyDetailParams) =>
+    [...metricsKeys.api(), 'dependency', params.source, params] as const,
   apiEndpointDetail: (params: ApiMetricsEndpointDetailParams) =>
     [...metricsKeys.api(), 'endpoint', params.endpoint, params] as const,
   apiEndpoints: (params: ApiMetricsEndpointsParams) =>

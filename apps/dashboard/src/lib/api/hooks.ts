@@ -1,9 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 
 import {
+  type ApiMetricsDependencyDetailParams,
   type ApiMetricsEndpointDetailParams,
   type ApiMetricsEndpointsParams,
   type ApiMetricsSummaryParams,
+  fetchApiMetricsDependencyDetail,
   fetchApiMetricsEndpointDetail,
   fetchApiMetricsEndpoints,
   fetchApiMetricsSummary,
@@ -72,6 +74,18 @@ export function useApiMetricsEndpointDetail(
     gcTime: FIVE_MINUTES,
     queryFn: () => fetchApiMetricsEndpointDetail(params),
     queryKey: metricsKeys.apiEndpointDetail(params),
+    staleTime: ONE_MINUTE,
+  });
+}
+
+export function useApiMetricsDependencyDetail(
+  params: ApiMetricsDependencyDetailParams,
+) {
+  return useQuery({
+    enabled: Boolean(params.source),
+    gcTime: FIVE_MINUTES,
+    queryFn: () => fetchApiMetricsDependencyDetail(params),
+    queryKey: metricsKeys.apiDependencyDetail(params),
     staleTime: ONE_MINUTE,
   });
 }

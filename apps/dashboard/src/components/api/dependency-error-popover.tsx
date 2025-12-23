@@ -58,7 +58,11 @@ const DependencyErrorPopover = memo(function DependencyErrorPopover({
               className="flex items-center justify-between gap-4"
               key={dep.source}
             >
-              <DependencyBadge name={dep.sourceName} />
+              <DependencyBadge
+                linkable
+                name={dep.sourceName}
+                source={dep.source}
+              />
               <div className="flex items-center gap-4">
                 <span className="text-sm tabular-nums text-muted-foreground">
                   {dep.errorRate.toFixed(2)}%

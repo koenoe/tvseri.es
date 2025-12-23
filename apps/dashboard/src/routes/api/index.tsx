@@ -193,6 +193,7 @@ function ApiMetrics() {
           <ErrorRateCard
             dependencies={dependencies}
             errorRate={summaryData?.aggregated?.errorRate ?? 0}
+            series={summaryData?.series ?? []}
           />
         )}
       </div>

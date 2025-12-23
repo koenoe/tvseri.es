@@ -305,7 +305,13 @@ function MetricTabContent({
             <circle cx="5" cy="11" r="2" />
             <circle cx="5" cy="5" r="2" />
           </svg>{' '}
-          {aggregated.pageviews.toLocaleString()} data points
+          {(metric === 'res'
+            ? aggregated.pageviews
+            : aggregated[
+                metric.toUpperCase() as 'CLS' | 'FCP' | 'INP' | 'LCP' | 'TTFB'
+              ].count
+          ).toLocaleString()}{' '}
+          data points
         </span>
         <span className="text-sm text-muted-foreground/70">
           Updated once a day

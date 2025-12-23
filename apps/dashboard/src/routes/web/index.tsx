@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import type { WebVitalRatings } from '@tvseri.es/schemas';
 import { ArrowUpRight } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   MetricTabContentSkeleton,
   TabTriggerValueSkeleton,
@@ -10,6 +10,7 @@ import { PercentileBar } from '@/components/ui/percentile-bar';
 import { ScoreRing } from '@/components/ui/score-ring';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
+  CountriesSection,
   StatusAccordion,
   StatusColumns,
   useViewAllModal,
@@ -145,6 +146,22 @@ function MetricTabContent({
 
   const isLoading = routesLoading || countriesLoading || !aggregated;
 
+  const routesGrouped = useMemo(
+    () =>
+      routesData?.routes
+        ? groupRoutesByStatus(routesData.routes, metric)
+        : { great: [], needsImprovement: [], poor: [] },
+    [routesData?.routes, metric],
+  );
+
+  const countriesGrouped = useMemo(
+    () =>
+      countriesData?.countries
+        ? groupCountriesByStatus(countriesData.countries, metric)
+        : { great: [], needsImprovement: [], poor: [] },
+    [countriesData?.countries, metric],
+  );
+
   if (isLoading) {
     return <MetricTabContentSkeleton />;
   }
@@ -152,14 +169,6 @@ function MetricTabContent({
   const metricValue = getMetricValue(metric, aggregated);
   const currentStatus = getMetricStatusConfig(metric, metricValue);
   const CurrentStatusIcon = currentStatus.Icon;
-
-  const routesGrouped = routesData?.routes
-    ? groupRoutesByStatus(routesData.routes, metric)
-    : { great: [], needsImprovement: [], poor: [] };
-
-  const countriesGrouped = countriesData?.countries
-    ? groupCountriesByStatus(countriesData.countries, metric)
-    : { great: [], needsImprovement: [], poor: [] };
 
   const displayValue = formatMetricDisplay(metric, metricValue);
   const unit = metricConfig.unit;
@@ -272,34 +281,15 @@ function MetricTabContent({
       <hr className="border-border" />
 
       {/* Countries Section */}
-      <div className="grid lg:grid-cols-5">
-        <div className="flex items-center justify-between lg:col-span-3">
-          <h3 className="font-semibold">Countries</h3>
-          <span className="text-sm text-muted-foreground lg:hidden">
-            {metricConfig.name}
-          </span>
-        </div>
-        <div className="hidden items-center justify-end lg:col-span-2 lg:flex">
-          <span className="mr-3 text-sm text-muted-foreground">
-            {metricConfig.name}
-          </span>
-        </div>
-      </div>
-      <div className="flex flex-col gap-6 lg:grid lg:grid-cols-5">
-        <div className="flex aspect-video items-center justify-center rounded-lg bg-muted/30 lg:col-span-3">
-          <p className="text-muted-foreground">Map placeholder</p>
-        </div>
-        <div className="lg:col-span-2">
-          <StatusAccordion
-            data={countriesGrouped}
-            defaultStatus={currentStatus.status}
-            key={`countries-${metric}-${device}-${currentStatus.status}`}
-            onViewAll={handleCountriesViewAll}
-            statusConfig={statusConfig}
-            variant="country"
-          />
-        </div>
-      </div>
+      <CountriesSection
+        countriesGrouped={countriesGrouped}
+        currentStatus={currentStatus.status}
+        metricLabel={metricConfig.label}
+        metricName={metricConfig.name}
+        onViewAll={handleCountriesViewAll}
+        statusConfig={statusConfig}
+        uniqueKey={`countries-${metric}-${device}-${currentStatus.status}`}
+      />
 
       <ViewAllModal
         data={modalState.data}

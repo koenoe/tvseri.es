@@ -8,14 +8,18 @@ import { ViewAllOverlay } from './view-all-overlay';
 
 type StatusListProps = Readonly<{
   emptyMessage?: string;
+  highlightedItem?: string | null;
   items: ReadonlyArray<MetricItem>;
+  onItemHover?: (label: string | null) => void;
   onViewAll?: () => void;
   variant?: 'country' | 'route';
 }>;
 
 function StatusListComponent({
   emptyMessage = 'No scores',
+  highlightedItem,
   items,
+  onItemHover,
   onViewAll,
   variant = 'route',
 }: StatusListProps) {
@@ -33,8 +37,13 @@ function StatusListComponent({
       <div className="flex flex-col gap-2">
         {items.map((item) => (
           <MetricListItem
+            isHighlighted={highlightedItem === item.label}
             key={item.label}
             label={item.label}
+            onMouseEnter={
+              onItemHover ? () => onItemHover(item.label) : undefined
+            }
+            onMouseLeave={onItemHover ? () => onItemHover(null) : undefined}
             pageViews={item.pageViews}
             value={item.value}
             variant={variant}

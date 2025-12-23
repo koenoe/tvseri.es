@@ -92,6 +92,31 @@ function RoutesSectionSkeleton() {
 }
 RoutesSectionSkeleton.displayName = 'RoutesSectionSkeleton';
 
+function WorldMapSkeleton() {
+  return <Skeleton className="aspect-[1.6/1] w-full rounded-lg bg-muted/30" />;
+}
+WorldMapSkeleton.displayName = 'WorldMapSkeleton';
+
+function StatusAccordionSkeleton() {
+  return (
+    <div className="rounded-lg border">
+      {[0, 1, 2].map((i) => (
+        <div
+          className={`flex items-center justify-between px-4 py-3 ${i < 2 ? 'border-b' : ''}`}
+          key={i}
+        >
+          <div className="flex items-center gap-2">
+            <Skeleton className="size-4 rounded-full" />
+            <Skeleton className="h-4 w-28 rounded-none" />
+          </div>
+          <Skeleton className="size-4 rounded-none bg-muted/50" />
+        </div>
+      ))}
+    </div>
+  );
+}
+StatusAccordionSkeleton.displayName = 'StatusAccordionSkeleton';
+
 function CountriesSectionSkeleton() {
   return (
     <>
@@ -105,11 +130,11 @@ function CountriesSectionSkeleton() {
         </div>
       </div>
       <div className="flex flex-col gap-6 lg:grid lg:grid-cols-5">
-        <Skeleton className="aspect-video rounded-lg bg-muted/30 lg:col-span-3" />
-        <div className="space-y-2 lg:col-span-2">
-          <Skeleton className="h-11 w-full rounded-lg" />
-          <Skeleton className="h-11 w-full rounded-lg" />
-          <Skeleton className="h-11 w-full rounded-lg" />
+        <div className="lg:col-span-3">
+          <WorldMapSkeleton />
+        </div>
+        <div className="lg:col-span-2">
+          <StatusAccordionSkeleton />
         </div>
       </div>
     </>
@@ -133,4 +158,4 @@ function MetricTabContentSkeleton() {
 }
 MetricTabContentSkeleton.displayName = 'MetricTabContentSkeleton';
 
-export { MetricTabContentSkeleton, TabTriggerValueSkeleton };
+export { MetricTabContentSkeleton, TabTriggerValueSkeleton, WorldMapSkeleton };

@@ -5,7 +5,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.3.10",
     "husky": "^9.1.7",
-    "knip": "^5.76.3",
+    "knip": "^5.77.1",
     "lint-staged": "^16.2.7",
     "turbo": "^2.7.1",
     "typescript": "catalog:"

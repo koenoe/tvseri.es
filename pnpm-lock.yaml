@@ -191,6 +191,9 @@ importers:
       '@tvseri.es/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
+      '@tvseri.es/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -209,6 +212,9 @@ importers:
       react-dom:
         specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
+      recharts:
+        specifier: 2.15.4
+        version: 2.15.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       shadcn:
         specifier: ^3.6.2
         version: 3.6.2(@types/node@22.15.30)(hono@4.11.1)(typescript@5.9.3)

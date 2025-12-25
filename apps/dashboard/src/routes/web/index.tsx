@@ -11,6 +11,8 @@ import { ScoreRing } from '@/components/ui/score-ring';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   CountriesSection,
+  MetricLineChart,
+  type PercentileKey,
   StatusAccordion,
   StatusColumns,
   useViewAllModal,
@@ -118,17 +120,23 @@ function getContextualMessage(
 }
 
 type MetricTabContentProps = Readonly<{
+  activePercentiles: Set<PercentileKey>;
   aggregated: AggregatedMetrics | null | undefined;
   days: number;
   device: string;
   metric: MetricType;
+  onPercentilesChange: (percentiles: Set<PercentileKey>) => void;
+  series: ReadonlyArray<import('@tvseri.es/schemas').MetricSeriesItem>;
 }>;
 
 function MetricTabContent({
+  activePercentiles,
   aggregated,
   days,
   device,
   metric,
+  onPercentilesChange,
+  series,
 }: MetricTabContentProps) {
   const statusConfig = getRatingStatusConfig(metric);
   const metricConfig = METRICS_CONFIG[metric];
@@ -246,8 +254,14 @@ function MetricTabContent({
             <ArrowUpRight className="size-3.5" />
           </a>
         </div>
-        <div className="flex aspect-video items-center justify-center rounded-lg bg-muted/50 lg:col-span-3 lg:aspect-auto">
-          <span className="text-muted-foreground">Chart placeholder</span>
+        <div className="lg:col-span-3">
+          <MetricLineChart
+            activePercentiles={activePercentiles}
+            days={days}
+            metric={metric}
+            onPercentilesChange={onPercentilesChange}
+            series={series}
+          />
         </div>
       </div>
 
@@ -353,6 +367,9 @@ function WebVitals() {
   const days = daysParam ?? 7;
   const device = deviceParam ?? 'desktop';
   const [activeMetric, setActiveMetric] = useState<MetricType>('res');
+  const [activePercentiles, setActivePercentiles] = useState<
+    Set<PercentileKey>
+  >(() => new Set(['p75']));
 
   const { data: summaryData, isLoading } = useMetricsSummary({
     days,
@@ -453,10 +470,13 @@ function WebVitals() {
         {METRIC_ORDER.map((metric) => (
           <TabsContent key={metric} value={metric}>
             <MetricTabContent
+              activePercentiles={activePercentiles}
               aggregated={aggregated}
               days={days}
               device={device}
               metric={metric}
+              onPercentilesChange={setActivePercentiles}
+              series={summaryData?.series ?? []}
             />
           </TabsContent>
         ))}

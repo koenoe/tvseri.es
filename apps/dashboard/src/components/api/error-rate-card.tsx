@@ -215,7 +215,7 @@ function ErrorRateCardSkeleton() {
           </span>
         </Skeleton>
         <div className="flex-1 h-14 min-w-0 flex justify-end items-center">
-          <SegmentedBar barCount={BAR_COUNT} color="green" filledBars={0} />
+          <Skeleton className="h-full w-full max-w-60 rounded-none" />
         </div>
       </CardContent>
     </Card>

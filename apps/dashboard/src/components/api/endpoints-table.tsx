@@ -455,6 +455,7 @@ const EndpointsTable = memo(function EndpointsTable({
   );
 
   const table = useReactTable({
+    autoResetPageIndex: false,
     columns,
     data: endpoints as EndpointMetrics[],
     getCoreRowModel: getCoreRowModel(),

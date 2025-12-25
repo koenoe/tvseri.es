@@ -446,6 +446,7 @@ const OperationsTable = memo(function OperationsTable({
   );
 
   const table = useReactTable({
+    autoResetPageIndex: false,
     columns,
     data: operations as OperationStats[],
     getCoreRowModel: getCoreRowModel(),

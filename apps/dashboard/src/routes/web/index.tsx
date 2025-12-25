@@ -292,7 +292,7 @@ function MetricTabContent({
       />
 
       {/* Data Points Footer */}
-      <div className="flex items-center justify-between border-t border-border pt-4">
+      <div className="flex flex-col items-center gap-2 border-t border-border pt-4 text-center lg:flex-row lg:justify-between lg:text-left">
         <span className="text-sm text-muted-foreground/70">
           This report is based on{' '}
           <svg

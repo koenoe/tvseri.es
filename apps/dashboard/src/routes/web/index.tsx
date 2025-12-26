@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import type { WebVitalRatings } from '@tvseri.es/schemas';
 import { ArrowUpRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
@@ -37,6 +37,7 @@ import {
 } from '@/lib/web-vitals';
 
 type WebSearchParams = {
+  country?: string;
   days?: 3 | 7 | 30;
   device?: 'desktop' | 'mobile';
 };
@@ -49,6 +50,11 @@ export const Route = createFileRoute('/web/')({
   },
   validateSearch: (search: Record<string, unknown>): WebSearchParams => {
     const result: WebSearchParams = {};
+
+    const country = search.country;
+    if (typeof country === 'string' && country.length > 0) {
+      result.country = country;
+    }
 
     const device = search.device;
     if (device === 'mobile' || device === 'desktop') {
@@ -122,9 +128,12 @@ function getContextualMessage(
 type MetricTabContentProps = Readonly<{
   activePercentiles: Set<PercentileKey>;
   aggregated: AggregatedMetrics | null | undefined;
+  country: string | undefined;
   days: number;
   device: string;
   metric: MetricType;
+  onClearCountry: () => void;
+  onCountrySelect: (country: string) => void;
   onPercentilesChange: (percentiles: Set<PercentileKey>) => void;
   series: ReadonlyArray<import('@tvseri.es/schemas').MetricSeriesItem>;
 }>;
@@ -132,9 +141,12 @@ type MetricTabContentProps = Readonly<{
 function MetricTabContent({
   activePercentiles,
   aggregated,
+  country,
   days,
   device,
   metric,
+  onClearCountry,
+  onCountrySelect,
   onPercentilesChange,
   series,
 }: MetricTabContentProps) {
@@ -143,6 +155,7 @@ function MetricTabContent({
   const { modalState, openModal, setOpen } = useViewAllModal();
 
   const { data: routesData, isLoading: routesLoading } = useMetricsRoutes({
+    country,
     days,
     device,
   });
@@ -257,8 +270,10 @@ function MetricTabContent({
         <div className="lg:col-span-3">
           <MetricLineChart
             activePercentiles={activePercentiles}
+            country={country}
             days={days}
             metric={metric}
+            onClearCountry={onClearCountry}
             onPercentilesChange={onPercentilesChange}
             series={series}
           />
@@ -296,10 +311,12 @@ function MetricTabContent({
 
       {/* Countries Section */}
       <CountriesSection
+        activeCountry={country}
         countriesGrouped={countriesGrouped}
         currentStatus={currentStatus.status}
         metricLabel={metricConfig.label}
         metricName={metricConfig.name}
+        onCountrySelect={onCountrySelect}
         onViewAll={handleCountriesViewAll}
         statusConfig={statusConfig}
         uniqueKey={`countries-${metric}-${device}-${currentStatus.status}`}
@@ -363,7 +380,8 @@ const METRIC_ORDER: ReadonlyArray<MetricType> = [
 ];
 
 function WebVitals() {
-  const { days: daysParam, device: deviceParam } = Route.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
+  const { country, days: daysParam, device: deviceParam } = Route.useSearch();
   const days = daysParam ?? 7;
   const device = deviceParam ?? 'desktop';
   const [activeMetric, setActiveMetric] = useState<MetricType>('res');
@@ -371,7 +389,23 @@ function WebVitals() {
     Set<PercentileKey>
   >(() => new Set(['p75']));
 
+  const handleCountrySelect = (selectedCountry: string) => {
+    navigate({
+      search: (prev) => ({ ...prev, country: selectedCountry }),
+    });
+  };
+
+  const handleClearCountry = () => {
+    navigate({
+      search: (prev) => {
+        const { country: _, ...rest } = prev;
+        return rest;
+      },
+    });
+  };
+
   const { data: summaryData, isLoading } = useMetricsSummary({
+    country,
     days,
     device,
   });
@@ -472,9 +506,12 @@ function WebVitals() {
             <MetricTabContent
               activePercentiles={activePercentiles}
               aggregated={aggregated}
+              country={country}
               days={days}
               device={device}
               metric={metric}
+              onClearCountry={handleClearCountry}
+              onCountrySelect={handleCountrySelect}
               onPercentilesChange={setActivePercentiles}
               series={summaryData?.series ?? []}
             />

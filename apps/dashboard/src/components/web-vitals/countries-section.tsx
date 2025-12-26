@@ -9,27 +9,44 @@ const WorldMap = lazy(() =>
 );
 
 type CountriesSectionProps = Readonly<{
+  activeCountry?: string;
   countriesGrouped: GroupedMetricData;
   currentStatus: RatingStatus;
   metricLabel: string;
   metricName: string;
+  onCountrySelect: (country: string) => void;
   onViewAll: (status: RatingStatus) => void;
   statusConfig: Readonly<Record<RatingStatus, StatusConfig>>;
   uniqueKey: string;
 }>;
 
 function CountriesSectionComponent({
+  activeCountry,
   countriesGrouped,
   currentStatus,
   metricLabel,
   metricName,
+  onCountrySelect,
   onViewAll,
   statusConfig,
   uniqueKey,
 }: CountriesSectionProps) {
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
 
-  // Convert grouped data to WorldMap format
+  // Filter countries if there's an active filter
+  const filteredCountriesGrouped: GroupedMetricData = activeCountry
+    ? {
+        great: countriesGrouped.great.filter(
+          (item) => item.id === activeCountry,
+        ),
+        needsImprovement: countriesGrouped.needsImprovement.filter(
+          (item) => item.id === activeCountry,
+        ),
+        poor: countriesGrouped.poor.filter((item) => item.id === activeCountry),
+      }
+    : countriesGrouped;
+
+  // Convert grouped data to WorldMap format (use filtered data when filter is active)
   const worldMapData: Record<
     string,
     { pageViews: number; status: RatingStatus; value: number | string }
@@ -41,8 +58,11 @@ function CountriesSectionComponent({
     'poor',
   ];
 
+  const dataForMap = activeCountry
+    ? filteredCountriesGrouped
+    : countriesGrouped;
   for (const status of statuses) {
-    for (const item of countriesGrouped[status]) {
+    for (const item of dataForMap[status]) {
       worldMapData[item.label] = {
         pageViews: item.pageViews,
         status,
@@ -83,12 +103,14 @@ function CountriesSectionComponent({
         </div>
         <div className="lg:col-span-2">
           <StatusAccordion
-            data={countriesGrouped}
+            data={filteredCountriesGrouped}
             defaultStatus={currentStatus}
+            hasActiveFilter={Boolean(activeCountry)}
             highlightedItem={hoveredCountry}
             key={uniqueKey}
+            onItemClick={activeCountry ? undefined : onCountrySelect}
             onItemHover={setHoveredCountry}
-            onViewAll={onViewAll}
+            onViewAll={activeCountry ? undefined : onViewAll}
             statusConfig={statusConfig}
             variant="country"
           />

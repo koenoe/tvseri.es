@@ -21,7 +21,9 @@ type StatusAccordionProps = Readonly<{
   data: GroupedMetricData;
   defaultStatus?: RatingStatus;
   emptyMessages?: Readonly<Record<RatingStatus, string>>;
+  hasActiveFilter?: boolean;
   highlightedItem?: string | null;
+  onItemClick?: (label: string) => void;
   onItemHover?: (label: string | null) => void;
   onViewAll?: (status: RatingStatus) => void;
   statusConfig: Readonly<Record<RatingStatus, StatusConfig>>;
@@ -48,7 +50,9 @@ function StatusAccordionComponent({
   data,
   defaultStatus,
   emptyMessages,
+  hasActiveFilter,
   highlightedItem,
+  onItemClick,
   onItemHover,
   onViewAll,
   statusConfig,
@@ -89,8 +93,10 @@ function StatusAccordionComponent({
               <div className="relative h-56 overflow-hidden pl-5 pr-3">
                 <StatusList
                   emptyMessage={emptyMessage}
+                  hasActiveFilter={hasActiveFilter}
                   highlightedItem={highlightedItem}
                   items={items}
+                  onItemClick={onItemClick}
                   onItemHover={onItemHover}
                   onViewAll={handleViewAll}
                   variant={variant}

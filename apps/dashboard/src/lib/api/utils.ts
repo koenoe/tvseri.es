@@ -16,6 +16,7 @@ import {
 } from '@/lib/web-vitals';
 
 type MetricItemWithRaw = {
+  id?: string;
   label: string;
   pageViews: number;
   rawValue: number;
@@ -23,6 +24,7 @@ type MetricItemWithRaw = {
 };
 
 export type MetricItem = Readonly<{
+  id?: string;
   label: string;
   pageViews: number;
   value: number | string;
@@ -118,7 +120,8 @@ function sortItemsByPageViews(
   const sorted = [...items].sort((a, b) => b.pageViews - a.pageViews);
 
   // Remove rawValue from result
-  return sorted.map(({ label, pageViews, value }) => ({
+  return sorted.map(({ id, label, pageViews, value }) => ({
+    id,
     label,
     pageViews,
     value,
@@ -181,6 +184,7 @@ export function groupCountriesByStatus(
       countryDisplayNames.of(country.country) ?? country.country;
 
     groups[status].push({
+      id: country.country,
       label: countryName,
       pageViews: country.pageviews,
       rawValue,

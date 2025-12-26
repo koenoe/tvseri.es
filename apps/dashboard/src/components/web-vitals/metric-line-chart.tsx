@@ -1,5 +1,6 @@
 import type { MetricSeriesItem } from '@tvseri.es/schemas';
 import { computeRealExperienceScore } from '@tvseri.es/utils';
+import { X } from 'lucide-react';
 import { memo, useMemo } from 'react';
 import {
   CartesianGrid,
@@ -17,6 +18,7 @@ import {
   ChartTooltip,
 } from '@/components/ui/chart';
 import { formatCountString } from '@/lib/api-metrics';
+import { countryDisplayNames } from '@/lib/status-colors';
 import {
   getMetricStatus,
   METRICS_CONFIG,
@@ -290,16 +292,20 @@ PercentileRow.displayName = 'PercentileRow';
 
 type MetricLineChartProps = Readonly<{
   activePercentiles: Set<PercentileKey>;
+  country: string | undefined;
   days: number;
   metric: MetricType;
+  onClearCountry: () => void;
   onPercentilesChange: (percentiles: Set<PercentileKey>) => void;
   series: ReadonlyArray<MetricSeriesItem>;
 }>;
 
 function MetricLineChartComponent({
   activePercentiles,
+  country,
   days,
   metric,
+  onClearCountry,
   onPercentilesChange,
   series,
 }: MetricLineChartProps) {
@@ -541,9 +547,23 @@ function MetricLineChartComponent({
     };
   };
 
+  const countryDisplayName = country
+    ? (countryDisplayNames.of(country) ?? country)
+    : null;
+
   return (
     <div className="flex flex-col">
-      <div className="mb-4 flex items-center justify-end">
+      <div className="mb-4 flex items-center justify-end gap-6">
+        {countryDisplayName && (
+          <button
+            className="flex cursor-pointer items-center gap-1 rounded-2xl border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted/50"
+            onClick={onClearCountry}
+            type="button"
+          >
+            {countryDisplayName}
+            <X className="size-3" />
+          </button>
+        )}
         <PercentileToggle
           activePercentiles={activePercentiles}
           onToggle={handleToggle}

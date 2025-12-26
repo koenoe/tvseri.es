@@ -1,4 +1,4 @@
-import { CircleCheck } from 'lucide-react';
+import { CircleCheck, Filter } from 'lucide-react';
 import { memo } from 'react';
 
 import type { MetricItem } from '@/lib/api/utils';
@@ -8,8 +8,10 @@ import { ViewAllOverlay } from './view-all-overlay';
 
 type StatusListProps = Readonly<{
   emptyMessage?: string;
+  hasActiveFilter?: boolean;
   highlightedItem?: string | null;
   items: ReadonlyArray<MetricItem>;
+  onItemClick?: (label: string) => void;
   onItemHover?: (label: string | null) => void;
   onViewAll?: () => void;
   variant?: 'country' | 'route';
@@ -17,17 +19,24 @@ type StatusListProps = Readonly<{
 
 function StatusListComponent({
   emptyMessage = 'No scores',
+  hasActiveFilter,
   highlightedItem,
   items,
+  onItemClick,
   onItemHover,
   onViewAll,
   variant = 'route',
 }: StatusListProps) {
   if (items.length === 0) {
+    const EmptyIcon = hasActiveFilter ? Filter : CircleCheck;
+    const message = hasActiveFilter
+      ? 'No results for active filter'
+      : emptyMessage;
+
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3">
-        <CircleCheck className="size-8 text-muted-foreground" />
-        <p className="text-muted-foreground">{emptyMessage}</p>
+        <EmptyIcon className="size-8 text-muted-foreground" />
+        <p className="text-muted-foreground">{message}</p>
       </div>
     );
   }
@@ -38,8 +47,11 @@ function StatusListComponent({
         {items.map((item) => (
           <MetricListItem
             isHighlighted={highlightedItem === item.label}
-            key={item.label}
+            key={item.id ?? item.label}
             label={item.label}
+            onClick={
+              onItemClick ? () => onItemClick(item.id ?? item.label) : undefined
+            }
             onMouseEnter={
               onItemHover ? () => onItemHover(item.label) : undefined
             }

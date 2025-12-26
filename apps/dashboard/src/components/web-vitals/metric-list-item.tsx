@@ -42,6 +42,7 @@ RouteLabel.displayName = 'RouteLabel';
 type MetricListItemProps = Readonly<{
   isHighlighted?: boolean;
   label: string;
+  onClick?: () => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
   pageViews: number;
@@ -54,6 +55,7 @@ type MetricListItemProps = Readonly<{
 function MetricListItemComponent({
   isHighlighted,
   label,
+  onClick,
   onMouseEnter,
   onMouseLeave,
   pageViews,
@@ -65,12 +67,17 @@ function MetricListItemComponent({
   const isRoute = variant === 'route';
   const formattedPageViews = formatCountString(pageViews);
   const dotsCount = getDotsCount(pageViews);
+  const isClickable = Boolean(onClick);
 
   return (
     <div
-      className={`flex items-center justify-center rounded-sm px-1 -mx-1 transition-colors duration-150 ${isHighlighted ? 'bg-muted/50' : ''}`}
+      className={`flex items-center justify-center rounded-sm px-1 -mx-1 transition-colors duration-150 ${isHighlighted ? 'bg-muted/50' : ''} ${isClickable ? 'cursor-pointer hover:bg-muted/30' : ''}`}
+      onClick={onClick}
+      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      role={isClickable ? 'button' : undefined}
+      tabIndex={isClickable ? 0 : undefined}
     >
       <div className="flex gap-2.5 items-center justify-center">
         {isRoute ? (

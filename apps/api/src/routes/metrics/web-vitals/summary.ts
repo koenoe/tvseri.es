@@ -37,6 +37,7 @@ app.get('/', vValidator('query', MetricsSummaryQuerySchema), async (c) => {
   const { dates, endDate, startDate } = getDateRange(numDays);
 
   // Fetch SUMMARY items for each day with filters
+  // Data is stored with combined dimension keys: <date>#D#<device>#C#<country>
   const summaries: WebVitalAggregate[] = [];
   await Promise.all(
     dates.map(async (date) => {

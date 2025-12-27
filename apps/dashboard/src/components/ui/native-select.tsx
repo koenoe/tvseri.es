@@ -37,7 +37,13 @@ function NativeSelect({
 }
 
 function NativeSelectOption({ ...props }: React.ComponentProps<'option'>) {
-  return <option data-slot="native-select-option" {...props} />;
+  return (
+    <option
+      className="bg-popover text-popover-foreground"
+      data-slot="native-select-option"
+      {...props}
+    />
+  );
 }
 
 export { NativeSelect, NativeSelectOption };

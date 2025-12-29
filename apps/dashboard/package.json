@@ -27,7 +27,7 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
-    "@tanstack/devtools-vite": "^0.3.11",
+    "@tanstack/devtools-vite": "^0.4.0",
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "^19.2.0",

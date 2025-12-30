@@ -5,7 +5,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.3.10",
     "husky": "^9.1.7",
-    "knip": "^5.77.1",
+    "knip": "^5.78.0",
     "lint-staged": "^16.2.7",
     "turbo": "^2.7.2",
     "typescript": "catalog:"
@@ -14,7 +14,7 @@
     "node": "22.x"
   },
   "name": "tvseri.es",
-  "packageManager": "pnpm@10.25.0",
+  "packageManager": "pnpm@10.26.2",
   "scripts": {
     "check-types": "turbo run check-types",
     "format-and-lint": "biome check .",

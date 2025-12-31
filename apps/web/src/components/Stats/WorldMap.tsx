@@ -9,7 +9,12 @@ const WorldMap = dynamic(() => import('../WorldMap/WorldMap'), {
 });
 
 function generateCountryData(data: Record<string, number>) {
-  const maxViews = Math.max(...Object.values(data));
+  const values = Object.values(data);
+  if (values.length === 0) {
+    return {};
+  }
+
+  const maxViews = Math.max(...values);
   const countryData: Record<
     string,
     { color: string; hoverColor: string; content: { views: number } }

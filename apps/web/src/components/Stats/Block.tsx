@@ -9,6 +9,11 @@ type ComparisonData = {
   type: 'percentage' | 'absolute';
 };
 
+function formatDelta(delta: number, type: 'percentage' | 'absolute') {
+  const absoluteValue = Math.abs(delta);
+  return type === 'percentage' ? `${absoluteValue}%` : absoluteValue;
+}
+
 export default function Block({
   className,
   label,
@@ -27,11 +32,6 @@ export default function Block({
       }>
     >();
   const isPositiveDelta = comparison.delta > 0;
-
-  const formatDelta = (delta: number, type: 'percentage' | 'absolute') => {
-    const absoluteValue = Math.abs(delta);
-    return type === 'percentage' ? `${absoluteValue}%` : absoluteValue;
-  };
 
   const year = params.year
     ? parseInt(params.year, 10)

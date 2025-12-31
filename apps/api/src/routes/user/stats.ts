@@ -9,7 +9,7 @@ import type {
   StatsSummary,
 } from '@tvseri.es/schemas';
 import { buildPosterImageUrl, buildStillImageUrl } from '@tvseri.es/utils';
-import { getISOWeek } from 'date-fns';
+import { getISOWeek, getISOWeekYear } from 'date-fns';
 import { Hono } from 'hono';
 
 import { getListItemsCount } from '@/lib/db/list';
@@ -203,11 +203,25 @@ app.get('/:id/stats/:year/weekly', user(), yearMiddleware(), async (c) => {
 
   items.forEach((item) => {
     const date = new Date(item.watchedAt);
-    const weekNumber = getISOWeek(date);
+    const isoWeekYear = getISOWeekYear(date);
+    let weekIndex: number;
 
-    if (weekNumber <= 53) {
-      weekCounts[weekNumber - 1]!.episodes += 1;
-      weekCounts[weekNumber - 1]!.totalRuntime += item.runtime || 0;
+    if (isoWeekYear < year) {
+      // Date is in last ISO week of previous year (e.g., Jan 1-2 might be week 52 of prev year)
+      // Put in visual week 1
+      weekIndex = 0;
+    } else if (isoWeekYear > year) {
+      // Date is in first ISO week of next year (e.g., Dec 29-31 might be week 1 of next year)
+      // Put in visual week 53
+      weekIndex = 52;
+    } else {
+      // Normal case: ISO week year matches display year
+      weekIndex = getISOWeek(date) - 1;
+    }
+
+    if (weekIndex >= 0 && weekIndex < 53) {
+      weekCounts[weekIndex]!.episodes += 1;
+      weekCounts[weekIndex]!.totalRuntime += item.runtime || 0;
     }
   });
 

@@ -8,7 +8,7 @@ import {
   getISOWeekYear,
   isSameMonth,
   setISOWeek,
-  setYear,
+  setISOWeekYear,
   startOfWeek,
   startOfYear,
 } from 'date-fns';
@@ -60,8 +60,10 @@ function getWeekInfo(
   const isoWeekYear = getISOWeekYear(date);
 
   // Get the start/end dates for this ISO week
-  let weekDate = setYear(new Date(), year);
-  weekDate = setISOWeek(weekDate, actualWeek);
+  const weekDate = setISOWeek(
+    setISOWeekYear(new Date(), isoWeekYear),
+    actualWeek,
+  );
   let startDate = startOfWeek(weekDate, { weekStartsOn: 1 });
   let endDate = endOfWeek(weekDate, { weekStartsOn: 1 });
 
@@ -86,9 +88,14 @@ function getWeekInfo(
     displayYear = year - 1; // Show previous year in the tooltip
   } else if (visualWeek >= 52 && actualWeek === 1) {
     // We're showing the last visual week but it's actually week 1 of next year
-    startDate = new Date(year, 11, 30); // Show Dec 30-31
+    // Find when week 1 starts (the Monday after week 52 ends)
+    const week1Start = startOfWeek(
+      setISOWeek(setISOWeekYear(new Date(), year + 1), 1),
+      { weekStartsOn: 1 },
+    );
+    startDate = week1Start;
     endDate = yearEnd;
-    displayYear = year + 1; // Show next year in the tooltip
+    displayYear = year + 1;
   } else {
     // Normal case - just cap the dates to our year if needed
     if (startDate < yearStart) startDate = yearStart;

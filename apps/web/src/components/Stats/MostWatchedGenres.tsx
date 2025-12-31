@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 
 import {
   Bar,
@@ -24,8 +24,8 @@ export type Props = Readonly<{
   }[];
 }>;
 
-export default function MostWatchedGenres({ data }: Props) {
-  const [focusBar, setFocusBar] = useState(null);
+function MostWatchedGenres({ data }: Props) {
+  const [focusBar, setFocusBar] = useState<number | null>(null);
 
   // biome-ignore lint/suspicious/noExplicitAny: sort out later
   const renderTooltip = useCallback(({ active, payload }: any) => {
@@ -69,6 +69,19 @@ export default function MostWatchedGenres({ data }: Props) {
     [focusBar],
   );
 
+  const handleMouseLeave = useCallback(() => {
+    setFocusBar(null);
+  }, []);
+
+  // biome-ignore lint/suspicious/noExplicitAny: sort out later
+  const handleMouseMove = useCallback((state: any) => {
+    if (state?.isTooltipActive) {
+      setFocusBar(state.activeTooltipIndex);
+    } else {
+      setFocusBar(null);
+    }
+  }, []);
+
   return (
     <ResponsiveContainer
       height={data.length * (BAR_SIZE + BAR_GAP)}
@@ -80,15 +93,8 @@ export default function MostWatchedGenres({ data }: Props) {
         data={data}
         layout="vertical"
         margin={{ bottom: 0, left: 0, right: 0, top: 0 }}
-        onMouseLeave={() => setFocusBar(null)}
-        // biome-ignore lint/suspicious/noExplicitAny: sort out later
-        onMouseMove={(state: any) => {
-          if (state?.isTooltipActive) {
-            setFocusBar(state.activeTooltipIndex);
-          } else {
-            setFocusBar(null);
-          }
-        }}
+        onMouseLeave={handleMouseLeave}
+        onMouseMove={handleMouseMove}
       >
         <CartesianGrid
           horizontal={false}
@@ -118,3 +124,7 @@ export default function MostWatchedGenres({ data }: Props) {
     </ResponsiveContainer>
   );
 }
+
+MostWatchedGenres.displayName = 'MostWatchedGenres';
+
+export default memo(MostWatchedGenres);

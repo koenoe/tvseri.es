@@ -99,14 +99,12 @@ export const aggregateCountries = (
   seriesList: (TvSeries | null | undefined)[],
 ): Record<string, number> => {
   const countryStats: Record<string, number> = {};
+  const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
 
   seriesList
     .filter((series): series is TvSeries => !!series && !!series.countries)
     .forEach((series) => {
       series.countries.forEach((country) => {
-        const displayNames = new Intl.DisplayNames(['en'], {
-          type: 'region',
-        });
         const countryName = displayNames.of(country.code) ?? country.name;
         countryStats[countryName] = (countryStats[countryName] || 0) + 1;
       });

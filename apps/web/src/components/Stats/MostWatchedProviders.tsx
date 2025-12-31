@@ -27,7 +27,7 @@ export type Props = Readonly<{
 }>;
 
 function MostWatchedProviders({ data }: Props) {
-  const [focusBar, setFocusBar] = useState(null);
+  const [focusBar, setFocusBar] = useState<number | null>(null);
   const renderContent = useCallback(
     // biome-ignore lint/suspicious/noExplicitAny: sort out later
     (props: any) => {
@@ -162,5 +162,7 @@ function MostWatchedProviders({ data }: Props) {
     </ResponsiveContainer>
   );
 }
+
+MostWatchedProviders.displayName = 'MostWatchedProviders';
 
 export default memo(MostWatchedProviders);

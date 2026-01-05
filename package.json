@@ -3,7 +3,7 @@
     "sst": "catalog:"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.10",
+    "@biomejs/biome": "2.3.11",
     "husky": "^9.1.7",
     "knip": "^5.78.0",
     "lint-staged": "^16.2.7",

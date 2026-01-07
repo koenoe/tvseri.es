@@ -469,7 +469,7 @@ export const unmarkTvSeriesWatched = async (
   await Promise.all(batchPromises);
 };
 
-export const getWatchedForTvSeries = async (
+const getWatchedForTvSeries = async (
   input: Readonly<{
     userId: string;
     tvSeriesId: number | string;

@@ -19,7 +19,7 @@
   "ignoreWorkspaces": ["packages/typescript-config"],
   "workspaces": {
     ".": {
-      "entry": ["sst.config.ts", "infra/**/*.ts"]
+      "entry": ["infra/**/*.ts"]
     },
     "apps/api": {
       "entry": ["src/index.ts", "src/lambdas/*.ts"]
@@ -28,20 +28,12 @@
       "entry": ["src/index.ts"]
     },
     "apps/dashboard": {
-      "entry": [
-        "src/main.tsx",
-        "src/routeTree.gen.ts",
-        "src/routes/**/*.tsx",
-        "vite.config.ts"
-      ],
+      "entry": ["src/main.tsx", "src/routes/**/*.tsx"],
       "ignoreBinaries": ["vitest"]
     },
     "apps/web": {
       "entry": ["open-next.config.ts"],
       "ignoreDependencies": ["postcss-load-config"]
-    },
-    "packages/constants": {
-      "entry": ["src/index.ts"]
     },
     "packages/kill-switch": {
       "entry": [
@@ -49,12 +41,6 @@
         "metrics-monitor/index.ts!"
       ],
       "ignore": ["sst-env.d.ts"]
-    },
-    "packages/schemas": {
-      "entry": ["src/index.ts"]
-    },
-    "packages/utils": {
-      "entry": ["src/index.ts"]
     }
   }
 }

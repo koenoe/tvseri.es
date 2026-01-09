@@ -180,8 +180,8 @@ importers:
         specifier: ^1.145.7
         version: 1.145.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tanstack/react-router-devtools':
-        specifier: ^1.145.7
-        version: 1.145.7(@tanstack/react-router@1.145.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@tanstack/router-core@1.145.7)(csstype@3.2.3)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(solid-js@1.9.10)
+        specifier: ^1.146.2
+        version: 1.146.2(@tanstack/react-router@1.145.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@tanstack/router-core@1.145.7)(csstype@3.2.3)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(solid-js@1.9.10)
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -428,7 +428,7 @@ importers:
     dependencies:
       '@openauthjs/openauth':
         specifier: ^0.4
-        version: 0.4.3(arctic@2.3.4)(hono@4.11.1)
+        version: 0.4.3(arctic@2.3.4)(hono@4.11.3)
       valibot:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
@@ -3362,12 +3362,12 @@ packages:
     peerDependencies:
       react: ^18 || ^19
 
-  '@tanstack/react-router-devtools@1.145.7':
-    resolution: {integrity: sha512-crzHSQ/rcGX7RfuYsmm1XG5quurNMDTIApU7jfwDx5J9HnUxCOSJrbFX0L3w0o0VRCw5xhrL2EdCnW78Ic86hg==}
+  '@tanstack/react-router-devtools@1.146.2':
+    resolution: {integrity: sha512-svUw0KM9e4SjpFtsNfYsFO5y9KqfZIc7r5cTdsfletx/gOb7cF3bekPPx/JUiAu2RU7vME9R8Rs1hlJ9kraJXA==}
     engines: {node: '>=12'}
     peerDependencies:
-      '@tanstack/react-router': ^1.145.7
-      '@tanstack/router-core': ^1.145.7
+      '@tanstack/react-router': ^1.146.2
+      '@tanstack/router-core': ^1.146.2
       react: '>=18.0.0 || >=19.0.0'
       react-dom: '>=18.0.0 || >=19.0.0'
     peerDependenciesMeta:
@@ -3398,11 +3398,11 @@ packages:
     resolution: {integrity: sha512-v6jx6JqVUBM0/FcBq1tX22xiPq8Ufc0PDEP582/4deYoq2/RYd+bZstANp3mGSsqdxE/luhoLYuuSQiwi/j1wA==}
     engines: {node: '>=12'}
 
-  '@tanstack/router-devtools-core@1.145.7':
-    resolution: {integrity: sha512-oKeq/6QvN49THCh++FJyPv1X65i20qGS4aJHQTNsl4cu1piW1zWUhab2L3DZVr3G8C40FW3xb6hVw92N/fzZbQ==}
+  '@tanstack/router-devtools-core@1.146.2':
+    resolution: {integrity: sha512-rIo5TEyM6uex1Zr0kHtBZu9Mwo0Aj2A84hk+UaLIBLCRpqaen6tuzjxmgNDSZ4YrgZOmixfowLObdlsuMyXTsQ==}
     engines: {node: '>=12'}
     peerDependencies:
-      '@tanstack/router-core': ^1.145.7
+      '@tanstack/router-core': ^1.146.2
       csstype: ^3.0.10
       solid-js: '>=1.9.5'
     peerDependenciesMeta:
@@ -4338,10 +4338,6 @@ packages:
 
   headers-polyfill@4.0.3:
     resolution: {integrity: sha512-IScLbePpkvO846sIwOtOTDjutRMWdXdJmXdMvk6gCBHxFO8d+QKOQedyZSxFTTFYRSmlgSTDtXqqq4pcenBXLQ==}
-
-  hono@4.11.1:
-    resolution: {integrity: sha512-KsFcH0xxHes0J4zaQgWbYwmz3UPOOskdqZmItstUG93+Wk1ePBLkLGwbP9zlmh1BFUiL8Qp+Xfu9P7feJWpGNg==}
-    engines: {node: '>=16.9.0'}
 
   hono@4.11.3:
     resolution: {integrity: sha512-PmQi306+M/ct/m5s66Hrg+adPnkD5jiO6IjA7WhWw0gSBSo1EcRegwuI1deZ+wd5pzCGynCcn2DprnE4/yEV4w==}
@@ -8426,14 +8422,6 @@ snapshots:
 
   '@open-draft/until@2.1.0': {}
 
-  '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.11.1)':
-    dependencies:
-      '@standard-schema/spec': 1.0.0-beta.3
-      arctic: 2.3.4
-      aws4fetch: 1.0.20
-      hono: 4.11.1
-      jose: 5.9.6
-
   '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.11.3)':
     dependencies:
       '@standard-schema/spec': 1.0.0-beta.3
@@ -10174,10 +10162,10 @@ snapshots:
       '@tanstack/query-core': 5.90.16
       react: 19.2.3
 
-  '@tanstack/react-router-devtools@1.145.7(@tanstack/react-router@1.145.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@tanstack/router-core@1.145.7)(csstype@3.2.3)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(solid-js@1.9.10)':
+  '@tanstack/react-router-devtools@1.146.2(@tanstack/react-router@1.145.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@tanstack/router-core@1.145.7)(csstype@3.2.3)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(solid-js@1.9.10)':
     dependencies:
       '@tanstack/react-router': 1.145.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@tanstack/router-devtools-core': 1.145.7(@tanstack/router-core@1.145.7)(csstype@3.2.3)(solid-js@1.9.10)
+      '@tanstack/router-devtools-core': 1.146.2(@tanstack/router-core@1.145.7)(csstype@3.2.3)(solid-js@1.9.10)
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
     optionalDependencies:
@@ -10220,7 +10208,7 @@ snapshots:
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
 
-  '@tanstack/router-devtools-core@1.145.7(@tanstack/router-core@1.145.7)(csstype@3.2.3)(solid-js@1.9.10)':
+  '@tanstack/router-devtools-core@1.146.2(@tanstack/router-core@1.145.7)(csstype@3.2.3)(solid-js@1.9.10)':
     dependencies:
       '@tanstack/router-core': 1.145.7
       clsx: 2.1.1
@@ -11184,8 +11172,6 @@ snapshots:
       function-bind: 1.1.2
 
   headers-polyfill@4.0.3: {}
-
-  hono@4.11.1: {}
 
   hono@4.11.3: {}
 

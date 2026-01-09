@@ -31,8 +31,8 @@ importers:
         specifier: ^9.1.7
         version: 9.1.7
       knip:
-        specifier: ^5.80.0
-        version: 5.80.0(@types/node@25.0.3)(typescript@5.9.3)
+        specifier: ^5.80.2
+        version: 5.80.2(@types/node@25.0.3)(typescript@5.9.3)
       lint-staged:
         specifier: ^16.2.7
         version: 16.2.7
@@ -428,7 +428,7 @@ importers:
     dependencies:
       '@openauthjs/openauth':
         specifier: ^0.4
-        version: 0.4.3(arctic@2.3.4)(hono@4.11.1)
+        version: 0.4.3(arctic@2.3.4)(hono@4.11.3)
       valibot:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
@@ -4339,10 +4339,6 @@ packages:
   headers-polyfill@4.0.3:
     resolution: {integrity: sha512-IScLbePpkvO846sIwOtOTDjutRMWdXdJmXdMvk6gCBHxFO8d+QKOQedyZSxFTTFYRSmlgSTDtXqqq4pcenBXLQ==}
 
-  hono@4.11.1:
-    resolution: {integrity: sha512-KsFcH0xxHes0J4zaQgWbYwmz3UPOOskdqZmItstUG93+Wk1ePBLkLGwbP9zlmh1BFUiL8Qp+Xfu9P7feJWpGNg==}
-    engines: {node: '>=16.9.0'}
-
   hono@4.11.3:
     resolution: {integrity: sha512-PmQi306+M/ct/m5s66Hrg+adPnkD5jiO6IjA7WhWw0gSBSo1EcRegwuI1deZ+wd5pzCGynCcn2DprnE4/yEV4w==}
     engines: {node: '>=16.9.0'}
@@ -4609,8 +4605,8 @@ packages:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
 
-  knip@5.80.0:
-    resolution: {integrity: sha512-K/Ga2f/SHEUXXriVdaw2GfeIUJ5muwdqusHGkCtaG/1qeMmQJiuwZj9KnPxaDbnYPAu8RWjYYh8Nyb+qlJ3d8A==}
+  knip@5.80.2:
+    resolution: {integrity: sha512-Yt7iF8Uzl7pp3mGA6yvum6PZBcbGhjasZYuqIwcIAX1jsIhGRUAK0icP0qrB6FSPBI3BpIeMHl7n9meCLO6ovg==}
     engines: {node: '>=18.18.0'}
     hasBin: true
     peerDependencies:
@@ -8328,8 +8324,8 @@ snapshots:
       express-rate-limit: 7.5.1(express@5.2.1)
       pkce-challenge: 4.1.0
       raw-body: 3.0.2
-      zod: 3.24.2
-      zod-to-json-schema: 3.24.3(zod@3.24.2)
+      zod: 3.25.76
+      zod-to-json-schema: 3.24.3(zod@3.25.76)
     transitivePeerDependencies:
       - supports-color
 
@@ -8425,14 +8421,6 @@ snapshots:
       outvariant: 1.4.3
 
   '@open-draft/until@2.1.0': {}
-
-  '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.11.1)':
-    dependencies:
-      '@standard-schema/spec': 1.0.0-beta.3
-      arctic: 2.3.4
-      aws4fetch: 1.0.20
-      hono: 4.11.1
-      jose: 5.9.6
 
   '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.11.3)':
     dependencies:
@@ -11185,8 +11173,6 @@ snapshots:
 
   headers-polyfill@4.0.3: {}
 
-  hono@4.11.1: {}
-
   hono@4.11.3: {}
 
   hono@4.7.4: {}
@@ -11388,7 +11374,7 @@ snapshots:
 
   kleur@4.1.5: {}
 
-  knip@5.80.0(@types/node@25.0.3)(typescript@5.9.3):
+  knip@5.80.2(@types/node@25.0.3)(typescript@5.9.3):
     dependencies:
       '@nodelib/fs.walk': 1.2.8
       '@types/node': 25.0.3
@@ -12933,6 +12919,10 @@ snapshots:
   zod-to-json-schema@3.24.3(zod@3.24.2):
     dependencies:
       zod: 3.24.2
+
+  zod-to-json-schema@3.24.3(zod@3.25.76):
+    dependencies:
+      zod: 3.25.76
 
   zod-to-json-schema@3.25.1(zod@3.25.76):
     dependencies:

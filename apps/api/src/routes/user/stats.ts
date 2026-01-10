@@ -54,8 +54,8 @@ app.get('/:id/stats/:year/summary', user(), yearMiddleware(), async (c) => {
   ]);
 
   const result = {
-    current: calculateMetrics(currentItems),
-    previous: calculateMetrics(previousItems),
+    current: calculateMetrics(currentItems, year),
+    previous: calculateMetrics(previousItems, year - 1),
   };
 
   await setStatsCache(userId, year, 'summary', result);

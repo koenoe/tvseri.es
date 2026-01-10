@@ -4,7 +4,13 @@
  */
 
 import type { StatsMetrics, WatchedItem } from '@tvseri.es/schemas';
-import { addDays, isEqual, startOfDay } from 'date-fns';
+import {
+  addDays,
+  differenceInDays,
+  isEqual,
+  isLeapYear,
+  startOfDay,
+} from 'date-fns';
 
 /**
  * Calculate the longest consecutive day streak from watched items.
@@ -33,10 +39,25 @@ const calculateLongestStreak = (items: WatchedItem[]): number => {
   return longestStreak;
 };
 
+const getDaysInPeriod = (year: number): number => {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+
+  if (year === currentYear) {
+    const startOfYear = new Date(year, 0, 1);
+    return Math.max(1, differenceInDays(now, startOfYear) + 1);
+  }
+
+  return isLeapYear(new Date(year, 0, 1)) ? 366 : 365;
+};
+
 /**
  * Calculate all stats metrics from watched items.
  */
-export const calculateMetrics = (items: WatchedItem[]): StatsMetrics => {
+export const calculateMetrics = (
+  items: WatchedItem[],
+  year: number,
+): StatsMetrics => {
   const totalRuntime = items.reduce(
     (sum, item) => sum + (item.runtime || 0),
     0,
@@ -44,8 +65,9 @@ export const calculateMetrics = (items: WatchedItem[]): StatsMetrics => {
   const episodeCount = items.length;
   const seriesCount = new Set(items.map((i) => i.seriesId)).size;
   const longestStreak = calculateLongestStreak(items);
+  const daysInPeriod = getDaysInPeriod(year);
   const avgPerDay =
-    episodeCount > 0 ? Math.round((episodeCount / 365) * 10) / 10 : 0;
+    episodeCount > 0 ? Math.round((episodeCount / daysInPeriod) * 10) / 10 : 0;
 
   return { avgPerDay, episodeCount, longestStreak, seriesCount, totalRuntime };
 };

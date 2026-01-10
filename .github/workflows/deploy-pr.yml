@@ -61,6 +61,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Add SST bin to PATH (workaround for SST issue #6314)
+        run: echo "$HOME/.config/sst/bin" >> $GITHUB_PATH
+
       - name: Setup SST secrets
         run: |
           pnpm sst secret set MdblistApiKey "${{ secrets.MDBLIST_API_KEY }}" --stage pr-${{ github.event.pull_request.number }}

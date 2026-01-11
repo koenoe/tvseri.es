@@ -43,7 +43,10 @@ app.get('/:id/stats/:year/summary', user(), yearMiddleware(), async (c) => {
   const year = c.get('year');
 
   const cached = await getStatsCache<StatsSummary>(userId, year, 'summary');
-  if (cached) {
+  const hasStaleTotalRuntime =
+    cached?.current.totalRuntime === 0 && cached?.current.episodeCount > 0;
+
+  if (cached && !hasStaleTotalRuntime) {
     c.header('Cache-Control', CACHE_HEADER);
     return c.json(cached);
   }

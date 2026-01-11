@@ -215,13 +215,15 @@ app.get('/:id/watched/runtime', user(), async (c) => {
   const cacheKey = `profile:${user.id}:watched-runtime`;
   const cached = await getCacheItem<number>(cacheKey);
 
-  if (typeof cached === 'number') {
-    c.header('Cache-Control', cacheHeader);
+  const shouldRecompute =
+    typeof cached !== 'number' ||
+    (cached === 0 && (await getWatchedCount({ userId: user.id })) > 0);
 
+  if (!shouldRecompute) {
+    c.header('Cache-Control', cacheHeader);
     return c.json({ runtime: cached });
   }
 
-  // Compute for existing users who don't have cache yet (or have corrupted null)
   const items = await getAllWatched({ userId: user.id });
   const runtime = items.reduce((sum, item) => sum + (item.runtime || 0), 0);
 

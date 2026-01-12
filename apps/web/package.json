@@ -23,7 +23,7 @@
     "use-debounce": "^10.1.0",
     "web-vitals": "^5.1.0",
     "words-to-numbers": "^1.5.1",
-    "zustand": "^5.0.9"
+    "zustand": "^5.0.10"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.1.1",

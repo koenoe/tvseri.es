@@ -286,8 +286,8 @@ importers:
         specifier: ^6.1.3
         version: 6.1.3
       motion:
-        specifier: ^12.25.0
-        version: 12.25.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        specifier: ^12.26.1
+        version: 12.26.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       next:
         specifier: 16.1.1
         version: 16.1.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -428,7 +428,7 @@ importers:
     dependencies:
       '@openauthjs/openauth':
         specifier: ^0.4
-        version: 0.4.3(arctic@2.3.4)(hono@4.11.1)
+        version: 0.4.3(arctic@2.3.4)(hono@4.11.3)
       valibot:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
@@ -4203,8 +4203,8 @@ packages:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
     engines: {node: '>= 0.6'}
 
-  framer-motion@12.25.0:
-    resolution: {integrity: sha512-mlWqd0rApIjeyhTCSNCqPYsUAEhkcUukZxH3ke6KbstBRPcxhEpuIjmiUQvB+1E9xkEm5SpNHBgHCapH/QHTWg==}
+  framer-motion@12.26.1:
+    resolution: {integrity: sha512-Uzc8wGldU4FpmGotthjjcj0SZhigcODjqvKT7lzVZHsmYkzQMFfMIv0vHQoXCeoe/Ahxqp4by4A6QbzFA/lblw==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -4338,10 +4338,6 @@ packages:
 
   headers-polyfill@4.0.3:
     resolution: {integrity: sha512-IScLbePpkvO846sIwOtOTDjutRMWdXdJmXdMvk6gCBHxFO8d+QKOQedyZSxFTTFYRSmlgSTDtXqqq4pcenBXLQ==}
-
-  hono@4.11.1:
-    resolution: {integrity: sha512-KsFcH0xxHes0J4zaQgWbYwmz3UPOOskdqZmItstUG93+Wk1ePBLkLGwbP9zlmh1BFUiL8Qp+Xfu9P7feJWpGNg==}
-    engines: {node: '>=16.9.0'}
 
   hono@4.11.3:
     resolution: {integrity: sha512-PmQi306+M/ct/m5s66Hrg+adPnkD5jiO6IjA7WhWw0gSBSo1EcRegwuI1deZ+wd5pzCGynCcn2DprnE4/yEV4w==}
@@ -4827,8 +4823,8 @@ packages:
   motion-utils@12.24.10:
     resolution: {integrity: sha512-x5TFgkCIP4pPsRLpKoI86jv/q8t8FQOiM/0E8QKBzfMozWHfkKap2gA1hOki+B5g3IsBNpxbUnfOum1+dgvYww==}
 
-  motion@12.25.0:
-    resolution: {integrity: sha512-jBFohEYklpZ+TL64zv03sHdqr1Tsc8/yDy7u68hVzi7hTJYtv53AduchqCiY3aWi4vY1hweS8DWtgCuckusYdQ==}
+  motion@12.26.1:
+    resolution: {integrity: sha512-IVhzx9HOQTiJ9ykthMOlZPnLwrkXziN5Q/yebsqBYlFJb2rHP8yhmKc8O/YUT9byPJlxOeqkzfNYCrVKZx8vqg==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -8426,14 +8422,6 @@ snapshots:
 
   '@open-draft/until@2.1.0': {}
 
-  '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.11.1)':
-    dependencies:
-      '@standard-schema/spec': 1.0.0-beta.3
-      arctic: 2.3.4
-      aws4fetch: 1.0.20
-      hono: 4.11.1
-      jose: 5.9.6
-
   '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.11.3)':
     dependencies:
       '@standard-schema/spec': 1.0.0-beta.3
@@ -11062,7 +11050,7 @@ snapshots:
 
   forwarded@0.2.0: {}
 
-  framer-motion@12.25.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+  framer-motion@12.26.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
       motion-dom: 12.24.11
       motion-utils: 12.24.10
@@ -11184,8 +11172,6 @@ snapshots:
       function-bind: 1.1.2
 
   headers-polyfill@4.0.3: {}
-
-  hono@4.11.1: {}
 
   hono@4.11.3: {}
 
@@ -11582,9 +11568,9 @@ snapshots:
 
   motion-utils@12.24.10: {}
 
-  motion@12.25.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+  motion@12.26.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
-      framer-motion: 12.25.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      framer-motion: 12.26.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       tslib: 2.8.1
     optionalDependencies:
       react: 19.2.3

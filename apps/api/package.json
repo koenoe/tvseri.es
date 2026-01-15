@@ -1,10 +1,10 @@
 {
   "dependencies": {
-    "@aws-sdk/client-cloudfront": "^3.966.0",
-    "@aws-sdk/client-dynamodb": "^3.966.0",
-    "@aws-sdk/client-lambda": "^3.966.0",
-    "@aws-sdk/client-sqs": "^3.966.0",
-    "@aws-sdk/util-dynamodb": "^3.966.0",
+    "@aws-sdk/client-cloudfront": "^3.969.0",
+    "@aws-sdk/client-dynamodb": "^3.969.0",
+    "@aws-sdk/client-lambda": "^3.969.0",
+    "@aws-sdk/client-sqs": "^3.969.0",
+    "@aws-sdk/util-dynamodb": "^3.969.0",
     "@better-fetch/fetch": "^1.1.21",
     "@hono/valibot-validator": "^0.6.1",
     "@openauthjs/openauth": "^0.4.3",
@@ -13,7 +13,7 @@
     "@tvseri.es/utils": "workspace:*",
     "color": "^5.0.3",
     "date-fns": "^4.1.0",
-    "hono": "^4.11.3",
+    "hono": "^4.11.4",
     "path-to-regexp": "^8.3.0",
     "slugify": "^1.6.6",
     "sst": "catalog:"

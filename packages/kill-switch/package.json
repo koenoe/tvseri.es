@@ -1,13 +1,13 @@
 {
   "dependencies": {
-    "@aws-sdk/client-cloudfront": "^3.969.0",
-    "@aws-sdk/client-cloudwatch": "^3.969.0",
-    "@aws-sdk/client-sns": "^3.969.0",
+    "@aws-sdk/client-cloudfront": "^3.971.0",
+    "@aws-sdk/client-cloudwatch": "^3.971.0",
+    "@aws-sdk/client-sns": "^3.971.0",
     "sst": "catalog:"
   },
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",
-    "@types/aws-lambda": "^8.10.159",
+    "@types/aws-lambda": "^8.10.160",
     "@types/node": "catalog:",
     "typescript": "catalog:"
   },

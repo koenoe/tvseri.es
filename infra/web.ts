@@ -6,7 +6,7 @@ import { domain, zone } from './dns';
 import * as secrets from './secrets';
 
 // Note: flag to easily enable or disable WAF
-const ENABLE_WAF = true;
+const ENABLE_WAF = false;
 
 let openNextVersion: string | undefined;
 try {
@@ -56,13 +56,6 @@ new sst.aws.Nextjs('tvseries', {
       };
     },
     server: {
-      // https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versionsARM.html
-      layers:
-        $app.stage === 'production'
-          ? [
-              'arn:aws:lambda:eu-west-2:580247275435:layer:LambdaInsightsExtension-Arm64:21',
-            ]
-          : [],
       nodejs: {
         esbuild: {
           external: ['@opennextjs/aws'],

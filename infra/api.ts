@@ -80,13 +80,6 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
     CLOUDFRONT_DISTRIBUTION_ID: apiRouter.distributionID,
   },
   handler: 'apps/api/src/index.handler',
-  // https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Lambda-Insights-extension-versionsARM.html
-  layers:
-    $app.stage === 'production'
-      ? [
-          'arn:aws:lambda:eu-west-2:580247275435:layer:LambdaInsightsExtension-Arm64:21',
-        ]
-      : [],
   link: [
     auth,
     dominantColor,

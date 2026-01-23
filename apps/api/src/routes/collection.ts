@@ -30,8 +30,8 @@ app.get('/top-rated', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
-  ); // 1w, allow stale for 24h
+    'public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=86400',
+  ); // 1 month, allow stale for 24h
 
   return c.json(items);
 });
@@ -41,8 +41,8 @@ app.get('/most-popular-this-month', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600',
-  ); // 24h, allow stale for 6h
+    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
+  ); // 1w, allow stale for 24h
 
   return c.json(items);
 });
@@ -74,8 +74,8 @@ app.get('/must-watch-on-apple-tv', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
-  ); // 1w, allow stale for 24h
+    'public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=86400',
+  ); // 1 month, allow stale for 24h
 
   return c.json(items);
 });
@@ -85,8 +85,8 @@ app.get('/netflix-originals', async (c) => {
 
   c.header(
     'Cache-Control',
-    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
-  ); // 1w, allow stale for 24h
+    'public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=86400',
+  ); // 1 month, allow stale for 24h
 
   return c.json(items);
 });

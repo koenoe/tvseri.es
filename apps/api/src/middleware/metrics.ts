@@ -27,6 +27,12 @@ const sendMetric = (record: ApiMetricRecord): void => {
 };
 
 /**
+ * Sampling rate for API metrics (0.0 to 1.0).
+ * Set to 0.1 to record 10% of requests, reducing SQS costs by ~90%.
+ */
+const METRICS_SAMPLE_RATE = 0.1;
+
+/**
  * Metrics middleware for collecting API performance data.
  *
  * Captures:
@@ -37,6 +43,7 @@ const sendMetric = (record: ApiMetricRecord): void => {
  * - All dependency metrics (TMDB, MDBList, DynamoDB, etc.)
  *
  * Sends metrics to SQS for async batch processing to DynamoDB.
+ * Only samples a percentage of requests to reduce SQS costs.
  *
  * Note: Uses Hono's c.error pattern to capture error status codes.
  * When an error occurs, Hono's error handler runs and populates c.error,
@@ -44,6 +51,13 @@ const sendMetric = (record: ApiMetricRecord): void => {
  */
 export const metrics = (): MiddlewareHandler<{ Variables: Variables }> => {
   return async (c, next) => {
+    // Skip metrics collection for non-sampled requests
+    const shouldSample = Math.random() < METRICS_SAMPLE_RATE;
+    if (!shouldSample) {
+      await next();
+      return;
+    }
+
     const start = performance.now();
 
     // Run the request within a metrics context to collect dependencies

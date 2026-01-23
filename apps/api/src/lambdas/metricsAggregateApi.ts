@@ -28,6 +28,12 @@ const BASE_DELAY_MS = 100;
 const SHARD_COUNT = 10;
 /** Number of top items to store in leaderboards */
 const TOP_ITEMS_LIMIT = 25;
+/**
+ * Sample rate multiplier to extrapolate counts from sampled data.
+ * If metrics are sampled at 10% (0.1), this should be 10 to get accurate totals.
+ * Set to 1 if no sampling is applied.
+ */
+const SAMPLE_RATE_MULTIPLIER = 10;
 
 /** Latency thresholds for ratings (in ms) */
 const LATENCY_FAST_THRESHOLD = 200;
@@ -282,6 +288,7 @@ const normalizeDependencyEndpoint = (
 /**
  * Calculate percentile statistics from an array of numbers.
  * Includes histogram bins for accurate multi-day aggregation.
+ * Counts are extrapolated based on SAMPLE_RATE_MULTIPLIER.
  */
 const calculatePercentiles = (values: number[]): PercentileStats => {
   if (values.length === 0) {
@@ -318,14 +325,22 @@ const calculatePercentiles = (values: number[]): PercentileStats => {
     }
   }
 
+  // Build histogram and extrapolate bin counts from sample
+  const rawBins = buildLatencyHistogramBins(values);
+  const extrapolatedBins = rawBins.map((bin) => bin * SAMPLE_RATE_MULTIPLIER);
+
   return {
-    count,
-    histogram: { bins: buildLatencyHistogramBins(values) },
+    count: count * SAMPLE_RATE_MULTIPLIER,
+    histogram: { bins: extrapolatedBins },
     p75: percentile(75),
     p90: percentile(90),
     p95: percentile(95),
     p99: percentile(99),
-    ratings: { fast, moderate, slow },
+    ratings: {
+      fast: fast * SAMPLE_RATE_MULTIPLIER,
+      moderate: moderate * SAMPLE_RATE_MULTIPLIER,
+      slow: slow * SAMPLE_RATE_MULTIPLIER,
+    },
   };
 };
 
@@ -433,11 +448,12 @@ const calculateApdex = (latencies: number[]): Apdex => {
   const total = latencies.length;
   const score = (satisfied + tolerating * 0.5) / total;
 
+  // Extrapolate counts from sample, score stays the same (it's a ratio)
   return {
-    frustrated,
-    satisfied,
-    score: Math.round(score * 100) / 100, // Round to 2 decimal places
-    tolerating,
+    frustrated: frustrated * SAMPLE_RATE_MULTIPLIER,
+    satisfied: satisfied * SAMPLE_RATE_MULTIPLIER,
+    score: Math.round(score * 100) / 100,
+    tolerating: tolerating * SAMPLE_RATE_MULTIPLIER,
   };
 };
 
@@ -486,11 +502,12 @@ const aggregateApiMetrics = (
       success: 0,
     };
     for (const rec of recs) {
-      // Category totals
-      breakdown[classifyStatusCode(rec.statusCode)]++;
-      // Individual code counts
+      // Category totals (extrapolated from sample)
+      breakdown[classifyStatusCode(rec.statusCode)] += SAMPLE_RATE_MULTIPLIER;
+      // Individual code counts (extrapolated from sample)
       const codeKey = String(rec.statusCode);
-      breakdown.codes![codeKey] = (breakdown.codes![codeKey] ?? 0) + 1;
+      breakdown.codes![codeKey] =
+        (breakdown.codes![codeKey] ?? 0) + SAMPLE_RATE_MULTIPLIER;
     }
     return breakdown;
   };
@@ -570,7 +587,8 @@ const aggregateApiMetrics = (
       { durations, errorCount, byOperation },
     ] of depsBySource) {
       const percentiles = calculatePercentiles(durations);
-      const count = durations.length;
+      // Extrapolate count from sample
+      const count = durations.length * SAMPLE_RATE_MULTIPLIER;
       const throughput = count > 0 ? Math.round((count / 1440) * 100) / 100 : 0;
 
       const topOperations: DependencyOperationStats[] = [
@@ -662,18 +680,21 @@ const aggregateApiMetrics = (
           }
         }
 
+        // Extrapolate counts and histogram bins from sample
+        const rawBins = buildLatencyHistogramBins(latencies);
+
         return {
           apdexScore: apdex.score,
           dependencyNames: [...depNames].sort(),
           endpoint,
-          errorCount,
+          errorCount: errorCount * SAMPLE_RATE_MULTIPLIER,
           errorRate,
-          histogram: { bins: buildLatencyHistogramBins(latencies) },
+          histogram: { bins: rawBins.map((b) => b * SAMPLE_RATE_MULTIPLIER) },
           p75: percentile(75),
           p90: percentile(90),
           p95: percentile(95),
           p99: percentile(99),
-          requestCount: count,
+          requestCount: count * SAMPLE_RATE_MULTIPLIER,
         };
       })
       .sort((a, b) => b.requestCount - a.requestCount)
@@ -725,16 +746,19 @@ const aggregateApiMetrics = (
         const errorRate =
           count > 0 ? Math.round((errorCount / count) * 10000) / 100 : 0;
 
+        // Extrapolate counts and histogram bins from sample
+        const rawBins = buildLatencyHistogramBins(latencies);
+
         return {
           country,
-          errorCount,
+          errorCount: errorCount * SAMPLE_RATE_MULTIPLIER,
           errorRate,
-          histogram: { bins: buildLatencyHistogramBins(latencies) },
+          histogram: { bins: rawBins.map((b) => b * SAMPLE_RATE_MULTIPLIER) },
           p75: percentile(75),
           p90: percentile(90),
           p95: percentile(95),
           p99: percentile(99),
-          requestCount: count,
+          requestCount: count * SAMPLE_RATE_MULTIPLIER,
         };
       })
       .sort((a, b) => b.requestCount - a.requestCount)
@@ -765,7 +789,7 @@ const aggregateApiMetrics = (
       expiresAt,
       latency: calculatePercentiles(latencies),
       pk,
-      requestCount: recs.length,
+      requestCount: recs.length * SAMPLE_RATE_MULTIPLIER,
       sk,
       statusCodes,
       type: 'api-aggregate',

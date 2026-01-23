@@ -10,8 +10,8 @@ catalogs:
       specifier: 22.15.30
       version: 22.15.30
     sst:
-      specifier: 3.17.37
-      version: 3.17.37
+      specifier: 3.17.35
+      version: 3.17.35
     typescript:
       specifier: 5.9.3
       version: 5.9.3
@@ -22,7 +22,7 @@ importers:
     dependencies:
       sst:
         specifier: 'catalog:'
-        version: 3.17.37
+        version: 3.17.35
     devDependencies:
       '@biomejs/biome':
         specifier: 2.3.12
@@ -95,7 +95,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.17.37
+        version: 3.17.35
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -141,7 +141,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.17.37
+        version: 3.17.35
       ulid:
         specifier: ^3.0.2
         version: 3.0.2
@@ -220,7 +220,7 @@ importers:
         version: 3.7.0(@types/node@22.15.30)(hono@4.11.5)(typescript@5.9.3)
       sst:
         specifier: 'catalog:'
-        version: 3.17.37
+        version: 3.17.35
       tailwind-merge:
         specifier: ^3.4.0
         version: 3.4.0
@@ -320,7 +320,7 @@ importers:
         version: 2.0.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       sst:
         specifier: 'catalog:'
-        version: 3.17.37
+        version: 3.17.35
       use-debounce:
         specifier: ^10.1.0
         version: 10.1.0(react@19.2.3)
@@ -384,7 +384,7 @@ importers:
     dependencies:
       sst:
         specifier: 'catalog:'
-        version: 3.17.37
+        version: 3.17.35
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -409,7 +409,7 @@ importers:
         version: 3.974.0
       sst:
         specifier: 'catalog:'
-        version: 3.17.37
+        version: 3.17.35
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -428,7 +428,7 @@ importers:
     dependencies:
       '@openauthjs/openauth':
         specifier: ^0.4
-        version: 0.4.3(arctic@2.3.4)(hono@4.11.1)
+        version: 0.4.3(arctic@2.3.4)(hono@4.11.5)
       valibot:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
@@ -452,7 +452,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.17.37
+        version: 3.17.35
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -4317,10 +4317,6 @@ packages:
   headers-polyfill@4.0.3:
     resolution: {integrity: sha512-IScLbePpkvO846sIwOtOTDjutRMWdXdJmXdMvk6gCBHxFO8d+QKOQedyZSxFTTFYRSmlgSTDtXqqq4pcenBXLQ==}
 
-  hono@4.11.1:
-    resolution: {integrity: sha512-KsFcH0xxHes0J4zaQgWbYwmz3UPOOskdqZmItstUG93+Wk1ePBLkLGwbP9zlmh1BFUiL8Qp+Xfu9P7feJWpGNg==}
-    engines: {node: '>=16.9.0'}
-
   hono@4.11.5:
     resolution: {integrity: sha512-WemPi9/WfyMwZs+ZUXdiwcCh9Y+m7L+8vki9MzDw3jJ+W9Lc+12HGsd368Qc1vZi1xwW8BWMMsnK5efYKPdt4g==}
     engines: {node: '>=16.9.0'}
@@ -5479,48 +5475,48 @@ packages:
     resolution: {integrity: sha512-i5uvt8C3ikiWeNZSVZNWcfZPItFQOsYTUAOkcUPGd8DqDy1uOUikjt5dG+uRlwyvR108Fb9DOd4GvXfT0N2/uQ==}
     engines: {node: '>= 12'}
 
-  sst-darwin-arm64@3.17.37:
-    resolution: {integrity: sha512-Rp/vqVggpRgUECSYpMy9WgAOxu2ztni/lxBflJG8+z/KXNBvRpfOwtIcHWHMVV/W9dG8020H5VTr9gBxl6e2SQ==}
+  sst-darwin-arm64@3.17.35:
+    resolution: {integrity: sha512-5Nu80FcTZwjRsbD/F/yNEB6842spD2yL69UJ9lbFCA8Fo6dlt61hiKrgFCuQ+Lu58r4ExzJ4+ZSrWTx1TvrQVQ==}
     cpu: [arm64]
     os: [darwin]
 
-  sst-darwin-x64@3.17.37:
-    resolution: {integrity: sha512-a6/Ob2atAmcwFRIFk/W79/qibF5wdvNtI0WlfQqb6p1F2GwZghma2nrmdq4L1/isjuJGWpqVJqrvpjIR3bABOg==}
+  sst-darwin-x64@3.17.35:
+    resolution: {integrity: sha512-FbApo03Hgm2KLt7chENmifU4y7cT6k9YsF+fzADi+QS4XHZ1LIMVWFsdxDdEKW2XuWqWuVxkCZMX/Nfd31OQOA==}
     cpu: [x64]
     os: [darwin]
 
-  sst-linux-arm64@3.17.37:
-    resolution: {integrity: sha512-Ha6bFgUg+7BM7ToZ5BCMB0SfC7aYj5/zNWzTShJNClKYT8Apes5mNGFD2+OSuKWAHDwjokmVyC3ulbv3SwcDfQ==}
+  sst-linux-arm64@3.17.35:
+    resolution: {integrity: sha512-DLZ7ovOViZ7SQ+t0WqJGEtHRLweuEyzpnBLRB4b80YiXEXGXZjdMvWjqE/Uv32EUoZjG2dthZw0JY/glS74dhQ==}
     cpu: [arm64]
     os: [linux]
 
-  sst-linux-x64@3.17.37:
-    resolution: {integrity: sha512-xkR5vRl4K0ZpRwuzRUIOe2YAL4MEmQJPj4GTHTpuj2X2TwA8lm6hP2hs41PdwQwQ+doTE+ZIZq4LZvW4b+Of1A==}
+  sst-linux-x64@3.17.35:
+    resolution: {integrity: sha512-G7jBGpUD3B1+hvxKNnrIF9ZPzKYaW5PE8F1WvNFVa1yVG9i0x/Ayuxk5ZtOX+ZbP3LuLGm1mF3IqX+Qidrhu6g==}
     cpu: [x64]
     os: [linux]
 
-  sst-linux-x86@3.17.37:
-    resolution: {integrity: sha512-HXnG1A25QQ7apBP6IEHAFOmj2vu9g/LdscV7lDWQXpmaSU7KQax7uaGMDTBYVtNw5UPOiSkLQDSaVCFbyh5lGw==}
+  sst-linux-x86@3.17.35:
+    resolution: {integrity: sha512-fDtj4l+/fz8P6qf3t56ZxMWSjRH+oe/4XNM/QtixUS+aqXTh5aeat4unITcAt1RpajjwqAyumB+6NENcuWxznA==}
     cpu: [x86]
     os: [linux]
 
-  sst-win32-arm64@3.17.37:
-    resolution: {integrity: sha512-URAxb0l9KSUtO/qPcEOQIu/6yBrc4J6rVAHUJ/i8l/cOfOkBiWzL9kW5edp5CtQllZQ2WDGUPY+SB7Cqdt4yyg==}
+  sst-win32-arm64@3.17.35:
+    resolution: {integrity: sha512-KwKLXDhKxxdwz+wvP6j5rp7I/8mpeallYH/k04w7Oo0Ih+tD4JkymCTs4TVAP3LM2d8zboV4HII5EDQUCh0eUQ==}
     cpu: [arm64]
     os: [win32]
 
-  sst-win32-x64@3.17.37:
-    resolution: {integrity: sha512-Ctgy6jIbekE59rnG1YuKaRCS3m2HDf0j/C5HwAsy7BxvhVZhQXRug2aYG/qe3KUcL/TWVvrc6gsyYuyzyjFqMw==}
+  sst-win32-x64@3.17.35:
+    resolution: {integrity: sha512-HMnAVHVz9AB8/bMeqWdTVMpcAbPcqP3yHbALO3uNAy8wIXvtXHITAkx2qC8lMcbMFmp/XFwU2UHE0Zw33KE6Ng==}
     cpu: [x64]
     os: [win32]
 
-  sst-win32-x86@3.17.37:
-    resolution: {integrity: sha512-SFNnQbPMiVf47/Ho9XbQ+5Pg/YbI4YOhSL6/U9VGQ6rhjqwTBsOd6uMja8/6mc0FWcqXBMUZk9xHhVC+L+CDzA==}
+  sst-win32-x86@3.17.35:
+    resolution: {integrity: sha512-SZvWs8+JKOaCvoexuFOnuixl07ys0tOMZd4C+Dkro2ZryO+UQlA3NLix7pZoCs2H/F/OfXcTG5ho9k/dE9MEkw==}
     cpu: [x86]
     os: [win32]
 
-  sst@3.17.37:
-    resolution: {integrity: sha512-tB2miMmbIRB2v5wtNk18TrjCH6Wv4Yhu0IChKvDXp8+WvDbzPoIC7Yhn/lzFZ8fnDyBIXA9U89HxDVeJAYaavw==}
+  sst@3.17.35:
+    resolution: {integrity: sha512-xfkbaUedTB3qIQxfjE8ihY/ogUCvLHg4sZLJTNyJoO6lKATDxvi2j9YeYmeQtqKIV+LhxfrP3N2pPiELk3rQlg==}
     hasBin: true
 
   statuses@2.0.2:
@@ -8133,8 +8129,8 @@ snapshots:
       express-rate-limit: 7.5.1(express@5.2.1)
       pkce-challenge: 4.1.0
       raw-body: 3.0.2
-      zod: 3.24.2
-      zod-to-json-schema: 3.24.3(zod@3.24.2)
+      zod: 3.25.76
+      zod-to-json-schema: 3.25.1(zod@3.25.76)
     transitivePeerDependencies:
       - supports-color
 
@@ -8230,14 +8226,6 @@ snapshots:
       outvariant: 1.4.3
 
   '@open-draft/until@2.1.0': {}
-
-  '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.11.1)':
-    dependencies:
-      '@standard-schema/spec': 1.0.0-beta.3
-      arctic: 2.3.4
-      aws4fetch: 1.0.20
-      hono: 4.11.1
-      jose: 5.9.6
 
   '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.11.5)':
     dependencies:
@@ -10993,8 +10981,6 @@ snapshots:
 
   headers-polyfill@4.0.3: {}
 
-  hono@4.11.1: {}
-
   hono@4.11.5: {}
 
   hono@4.7.4: {}
@@ -12216,31 +12202,31 @@ snapshots:
 
   source-map@0.7.6: {}
 
-  sst-darwin-arm64@3.17.37:
+  sst-darwin-arm64@3.17.35:
     optional: true
 
-  sst-darwin-x64@3.17.37:
+  sst-darwin-x64@3.17.35:
     optional: true
 
-  sst-linux-arm64@3.17.37:
+  sst-linux-arm64@3.17.35:
     optional: true
 
-  sst-linux-x64@3.17.37:
+  sst-linux-x64@3.17.35:
     optional: true
 
-  sst-linux-x86@3.17.37:
+  sst-linux-x86@3.17.35:
     optional: true
 
-  sst-win32-arm64@3.17.37:
+  sst-win32-arm64@3.17.35:
     optional: true
 
-  sst-win32-x64@3.17.37:
+  sst-win32-x64@3.17.35:
     optional: true
 
-  sst-win32-x86@3.17.37:
+  sst-win32-x86@3.17.35:
     optional: true
 
-  sst@3.17.37:
+  sst@3.17.35:
     dependencies:
       aws-sdk: 2.1692.0
       aws4fetch: 1.0.18
@@ -12248,14 +12234,14 @@ snapshots:
       opencontrol: 0.0.6
       openid-client: 5.6.4
     optionalDependencies:
-      sst-darwin-arm64: 3.17.37
-      sst-darwin-x64: 3.17.37
-      sst-linux-arm64: 3.17.37
-      sst-linux-x64: 3.17.37
-      sst-linux-x86: 3.17.37
-      sst-win32-arm64: 3.17.37
-      sst-win32-x64: 3.17.37
-      sst-win32-x86: 3.17.37
+      sst-darwin-arm64: 3.17.35
+      sst-darwin-x64: 3.17.35
+      sst-linux-arm64: 3.17.35
+      sst-linux-x64: 3.17.35
+      sst-linux-x86: 3.17.35
+      sst-win32-arm64: 3.17.35
+      sst-win32-x64: 3.17.35
+      sst-win32-x86: 3.17.35
     transitivePeerDependencies:
       - supports-color
 

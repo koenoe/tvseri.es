@@ -405,7 +405,6 @@ const columns: ColumnDef<OperationStats>[] = [
 ];
 
 declare module '@tanstack/react-table' {
-  // biome-ignore lint/correctness/noUnusedVariables: Required for module augmentation
   interface TableMeta<TData> {
     maxRequestCount?: number;
   }

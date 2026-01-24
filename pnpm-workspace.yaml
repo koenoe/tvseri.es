@@ -2,6 +2,13 @@ packages:
   - apps/*
   - packages/*
 
+publicHoistPattern:
+  - '*expo*'
+  - '@expo/*'
+  - 'react-native*'
+  - '@react-native/*'
+  - '@react-navigation/*'
+
 catalog:
   '@types/node': 22.15.30
   sst: 3.17.35

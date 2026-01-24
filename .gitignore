@@ -60,3 +60,16 @@ yarn-error.log*
 
 # claude
 .claude
+
+# expo
+.expo/
+web-build/
+expo-env.d.ts
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+.metro-health-check*
+dist
+android
+ios

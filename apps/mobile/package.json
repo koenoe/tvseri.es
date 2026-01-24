@@ -1,0 +1,41 @@
+{
+  "dependencies": {
+    "@expo/vector-icons": "^15.0.2",
+    "@react-navigation/native": "^7.1.28",
+    "expo": "~55.0.0-preview.4",
+    "expo-constants": "~55.0.1",
+    "expo-font": "~55.0.1",
+    "expo-image": "~55.0.1",
+    "expo-linking": "~55.0.1",
+    "expo-router": "~55.0.0-beta.1",
+    "expo-splash-screen": "~55.0.1",
+    "expo-symbols": "~55.0.1",
+    "expo-system-ui": "~55.0.1",
+    "expo-web-browser": "~55.0.1",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-native": "0.83.1",
+    "react-native-gesture-handler": "~2.30.0",
+    "react-native-reanimated": "~4.2.1",
+    "react-native-safe-area-context": "~5.6.2",
+    "react-native-screens": "~4.20.0",
+    "react-native-web": "~0.21.0",
+    "react-native-worklets": "0.7.1"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "typescript": "catalog:"
+  },
+  "main": "expo-router/entry",
+  "name": "@tvseri.es/mobile",
+  "private": true,
+  "scripts": {
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "prebuild": "expo prebuild --clean",
+    "reset-project": "node ./scripts/reset-project.js",
+    "start": "expo start",
+    "web": "expo start --web"
+  },
+  "version": "0.0.0"
+}

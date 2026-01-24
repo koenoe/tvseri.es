@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "tvseri.es.android",
+      "predictiveBackGestureEnabled": false
+    },
+    "experiments": {
+      "reactCompiler": true,
+      "typedRoutes": true
+    },
+    "icon": "./assets/images/icon.png",
+    "ios": {
+      "bundleIdentifier": "tvseri.es.ios",
+      "icon": "./assets/expo.icon"
+    },
+    "name": "tvseri.es",
+    "orientation": "portrait",
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "android": {
+            "image": "./assets/images/splash-icon.png",
+            "imageWidth": 76
+          },
+          "backgroundColor": "#208AEF"
+        }
+      ]
+    ],
+    "scheme": "tvseri.es",
+    "slug": "tvseri.es",
+    "userInterfaceStyle": "automatic",
+    "version": "1.0.0",
+    "web": {
+      "favicon": "./assets/images/favicon.png",
+      "output": "static"
+    }
+  }
+}

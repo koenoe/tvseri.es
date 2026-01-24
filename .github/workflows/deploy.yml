@@ -3,6 +3,8 @@ name: Deploy Production
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'apps/mobile/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

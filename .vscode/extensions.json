@@ -1,3 +1,7 @@
 {
-  "recommendations": ["biomejs.biome", "webpro.vscode-knip"]
+  "recommendations": [
+    "biomejs.biome",
+    "expo.vscode-expo-tools",
+    "webpro.vscode-knip"
+  ]
 }

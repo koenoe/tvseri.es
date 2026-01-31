@@ -92,19 +92,9 @@ export const web = $dev
           },
         );
 
-        // Debug: check if .vercel/output exists
-        const outputPath = path.join(webAppPath, '.vercel/output');
-        console.log(`|  Checking for output at: ${outputPath}`);
-        console.log(`|  Output exists: ${fs.existsSync(outputPath)}`);
-        if (fs.existsSync(outputPath)) {
-          console.log(
-            `|  Output contents: ${fs.readdirSync(outputPath).join(', ')}`,
-          );
-        }
-
-        // Get prebuilt output
+        // Get prebuilt output from apps/web
         const prebuilt = vercel.getPrebuiltProjectOutput({
-          path: 'apps/web',
+          path: webAppPath,
         });
 
         // Create deployment from prebuilt files

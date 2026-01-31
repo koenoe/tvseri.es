@@ -74,7 +74,7 @@ export const web = $dev
           },
         );
 
-        // Run vercel build from monorepo root with --cwd pointing to apps/web
+        // Run vercel build from apps/web
         console.log('|  Building Next.js app with Vercel CLI...');
         execSync(
           `npx vercel build${isProduction ? ' --prod' : ''} --token=${token}`,
@@ -91,6 +91,16 @@ export const web = $dev
             stdio: 'inherit',
           },
         );
+
+        // Debug: check if .vercel/output exists
+        const outputPath = path.join(webAppPath, '.vercel/output');
+        console.log(`|  Checking for output at: ${outputPath}`);
+        console.log(`|  Output exists: ${fs.existsSync(outputPath)}`);
+        if (fs.existsSync(outputPath)) {
+          console.log(
+            `|  Output contents: ${fs.readdirSync(outputPath).join(', ')}`,
+          );
+        }
 
         // Get prebuilt output
         const prebuilt = vercel.getPrebuiltProjectOutput({

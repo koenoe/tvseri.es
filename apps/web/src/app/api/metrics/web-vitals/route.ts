@@ -1,8 +1,7 @@
 import type { NextRequest } from 'next/server';
-import { Resource } from 'sst';
 
-const apiKey = Resource.ApiKey.value;
-const apiUrl = Resource.ApiRouter.url ?? process.env.API_URL;
+const apiKey = process.env.API_KEY!;
+const apiUrl = process.env.API_URL!;
 
 /**
  * POST /api/metrics/web-vitals

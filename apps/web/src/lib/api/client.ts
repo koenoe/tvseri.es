@@ -1,13 +1,12 @@
 import type { BetterFetchOption } from '@better-fetch/fetch';
 import { createFetch } from '@better-fetch/fetch';
 import type { TvSeries, TvSeriesForWatched } from '@tvseri.es/schemas';
-import { Resource } from 'sst';
 import { FETCH_RETRY_OPTIONS, FETCH_TIMEOUT } from '@/constants';
 
 import nextPlugin from '../betterFetchNextPlugin';
 
-const apiKey = Resource.ApiKey.value;
-const apiUrl = Resource.ApiRouter.url ?? process.env.API_URL;
+const apiKey = process.env.API_KEY!;
+const apiUrl = process.env.API_URL!;
 
 if (!apiKey) {
   throw new Error('No "API_KEY" found');

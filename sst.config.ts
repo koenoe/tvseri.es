@@ -14,6 +14,10 @@ export default $config({
               : 'tvseries-dev',
         },
         random: true,
+        vercel: {
+          apiToken: process.env.VERCEL_API_TOKEN,
+          team: process.env.VERCEL_TEAM_ID,
+        },
       },
       removal: input?.stage === 'production' ? 'retain' : 'remove',
     };

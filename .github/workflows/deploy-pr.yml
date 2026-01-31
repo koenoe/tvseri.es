@@ -18,7 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: Preview
-      url: https://pr-${{ github.event.pull_request.number }}.dev.tvseri.es
 
     if: github.actor != 'dependabot[bot]'
 
@@ -50,14 +49,6 @@ jobs:
           node-version-file: '.node-version'
           cache: 'pnpm'
 
-      - name: Setup cache for Next.js
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/apps/web/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('./pnpm-lock.yaml') }}-${{ hashFiles('apps/web/src/**/*.{js,jsx,ts,tsx}') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('./pnpm-lock.yaml') }}-
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -73,17 +64,25 @@ jobs:
           pnpm sst secret set SessionSecret "${{ secrets.SESSION_SECRET }}" --stage pr-${{ github.event.pull_request.number }}
 
       - name: Deploy PR
+        id: deploy
         env:
           AWS_HOSTED_ZONE_ID_DEV: ${{ secrets.AWS_HOSTED_ZONE_ID_DEV }}
-
-        run: pnpm sst deploy --stage pr-${{ github.event.pull_request.number }}
+          VERCEL_API_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
+          VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
+        run: |
+          OUTPUT=$(pnpm sst deploy --stage pr-${{ github.event.pull_request.number }} 2>&1 | tee /dev/stderr)
+          # Extract the web URL from SST output
+          WEB_URL=$(echo "$OUTPUT" | grep -oP 'web:\s*\K(https://[^\s]+)' || echo "")
+          echo "web_url=$WEB_URL" >> $GITHUB_OUTPUT
 
       - name: Update PR with Preview URL
         uses: actions/github-script@v7
         with:
           script: |
-            const previewUrl = `https://pr-${context.issue.number}.dev.tvseri.es`;
-            const commentBody = `## 🚀 Your preview environment is ready!
+            const webUrl = '${{ steps.deploy.outputs.web_url }}';
+            const previewUrl = webUrl || 'Deployment in progress...';
+
+            const commentBody = `## Preview environment is ready!
 
             ${previewUrl}
 
@@ -97,7 +96,7 @@ jobs:
 
             const existingComment = comments.find(comment =>
               comment.user.login === 'github-actions[bot]' &&
-              comment.body.includes('preview environment')
+              comment.body.includes('Preview environment')
             );
 
             if (existingComment) {

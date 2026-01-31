@@ -1,5 +1,4 @@
 import { CompactEncrypt, compactDecrypt } from 'jose';
-import { Resource } from 'sst';
 
 type TokenPayload = Readonly<{
   accessToken: string;
@@ -11,7 +10,7 @@ type TokenPayload = Readonly<{
 let encryptionKey: Uint8Array | null = null;
 async function getEncryptionKey(): Promise<Uint8Array> {
   if (!encryptionKey) {
-    const secret = Resource.SessionSecret.value;
+    const secret = process.env.SECRET_KEY!;
     const encoder = new TextEncoder();
     const keyMaterial = await crypto.subtle.importKey(
       'raw',

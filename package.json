@@ -17,6 +17,7 @@
   "packageManager": "pnpm@10.28.2",
   "scripts": {
     "check-types": "turbo run check-types",
+    "dev": "sst dev",
     "format-and-lint": "biome check .",
     "format-and-lint:fix": "biome check . --write",
     "knip": "knip",

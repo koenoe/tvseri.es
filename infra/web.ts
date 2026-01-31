@@ -60,10 +60,15 @@ export const web = $dev
         const siteUrl = `https://${domain}`;
         const webAppPath = path.join(process.cwd(), 'apps/web');
         const prodFlag = $app.stage === 'production' ? ' --prod' : '';
+        const token = process.env.VERCEL_API_TOKEN;
+
+        if (!token) {
+          throw new Error('VERCEL_API_TOKEN environment variable is required');
+        }
 
         // Run vercel build with environment variables
         console.log('|  Building Next.js app with Vercel CLI...');
-        execSync(`npx vercel build --yes${prodFlag}`, {
+        execSync(`npx vercel build --yes${prodFlag} --token=${token}`, {
           cwd: webAppPath,
           env: {
             ...process.env,

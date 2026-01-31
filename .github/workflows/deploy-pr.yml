@@ -21,6 +21,7 @@ jobs:
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_TEAM_ID }}
       VERCEL_TELEMETRY_DISABLED: 1
+      NEXT_TELEMETRY_DISABLED: 1
 
     if: github.actor != 'dependabot[bot]'
 
@@ -74,8 +75,8 @@ jobs:
           VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
         run: |
           OUTPUT=$(pnpm sst deploy --stage pr-${{ github.event.pull_request.number }} 2>&1 | tee /dev/stderr)
-          # Extract the web URL from SST output
-          WEB_URL=$(echo "$OUTPUT" | grep -oP 'web:\s*\K(https://[^\s]+)' || echo "")
+          # Extract the web URL from SST output (format: "web: https://...")
+          WEB_URL=$(echo "$OUTPUT" | grep -E '^\s*web:' | sed -E 's/.*web:\s*(https:\/\/[^ ]+).*/\1/' || echo "")
           echo "web_url=$WEB_URL" >> $GITHUB_OUTPUT
 
       - name: Update PR with Preview URL

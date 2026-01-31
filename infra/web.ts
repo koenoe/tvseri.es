@@ -156,5 +156,7 @@ export const web = $dev
         }
       }
 
-      return deployment;
+      return {
+        url: $interpolate`https://${deployment.url}`,
+      };
     })();

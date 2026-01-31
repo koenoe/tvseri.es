@@ -58,7 +58,9 @@ export const web = $dev
         project.id,
       ]).apply(([apiUrl, authUrl, apiKey, secretKey, projectId]) => {
         const siteUrl = `https://${domain}`;
-        const webAppPath = path.join(process.cwd(), 'apps/web');
+        // Use relative path for Pulumi - absolute for execSync cwd
+        const webAppRelative = 'apps/web';
+        const webAppPath = path.join(process.cwd(), webAppRelative);
         const isProduction = $app.stage === 'production';
         const environment = isProduction ? 'production' : 'preview';
         const token = process.env.VERCEL_API_TOKEN!;
@@ -93,8 +95,9 @@ export const web = $dev
         );
 
         // Get prebuilt output from apps/web
+        // Note: path must be relative for Pulumi provider to resolve paths correctly
         const prebuilt = vercel.getPrebuiltProjectOutput({
-          path: webAppPath,
+          path: webAppRelative,
         });
 
         // Create deployment from prebuilt files

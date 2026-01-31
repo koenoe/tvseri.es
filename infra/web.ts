@@ -59,7 +59,7 @@ export const web = $dev
       const projectSettings = {
         buildCommand: 'pnpm run build',
         framework: 'nextjs',
-        installCommand: 'pnpm install --frozen-lockfile',
+        installCommand: 'pnpm install --frozen-lockfile --ignore-scripts',
         outputDirectory: '.next',
         rootDirectory: 'apps/web',
       };

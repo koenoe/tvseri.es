@@ -32,7 +32,6 @@
       "ignoreBinaries": ["vitest"]
     },
     "apps/web": {
-      "entry": ["open-next.config.ts"],
       "ignoreDependencies": ["postcss-load-config"]
     },
     "packages/kill-switch": {

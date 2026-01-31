@@ -58,11 +58,13 @@ export const web = $dev
         project.id,
       ]).apply(([apiUrl, authUrl, apiKey, secretKey, projectId]) => {
         const siteUrl = `https://${domain}`;
+        const webAppPath = path.join(process.cwd(), 'apps/web');
+        const prodFlag = $app.stage === 'production' ? ' --prod' : '';
 
         // Run vercel build with environment variables
         console.log('|  Building Next.js app with Vercel CLI...');
-        execSync('npx vercel build', {
-          cwd: path.join(process.cwd(), 'apps/web'),
+        execSync(`npx vercel build --yes${prodFlag}`, {
+          cwd: webAppPath,
           env: {
             ...process.env,
             API_KEY: apiKey,

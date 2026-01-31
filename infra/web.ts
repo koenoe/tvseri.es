@@ -108,8 +108,15 @@ export const web = $dev
         // Deploy using CLI with --archive=tgz for proper monorepo support
         // This handles node_modules bundling better than the Pulumi resource
         console.log('|  Deploying to Vercel...');
+        const envFlags = [
+          `-e API_KEY=${apiKey}`,
+          `-e API_URL=${apiUrl}`,
+          `-e AUTH_URL=${authUrl}`,
+          `-e SECRET_KEY=${secretKey}`,
+          `-e SITE_URL=${siteUrl}`,
+        ].join(' ');
         const deployOutput = execSync(
-          `npx vercel deploy --prebuilt${isProduction ? ' --prod' : ''} --archive=tgz --token=${token}`,
+          `npx vercel deploy --prebuilt${isProduction ? ' --prod' : ''} --archive=tgz ${envFlags} --token=${token}`,
           {
             cwd: monorepoRoot,
             encoding: 'utf-8',

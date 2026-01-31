@@ -57,7 +57,7 @@ export const web = $dev
       });
 
       // Build the app with env vars from SST resources, then deploy
-      const deployment = $resolve([
+      const deploymentUrl = $resolve([
         apiRouter.url,
         auth.url,
         secrets.apiKeyRandom.result,
@@ -105,25 +105,25 @@ export const web = $dev
           },
         );
 
-        // Get prebuilt output from monorepo root
-        const prebuilt = vercel.getPrebuiltProjectOutput({
-          path: monorepoRoot,
-        });
-
-        // Create deployment from prebuilt files
-        return new vercel.Deployment('WebDeployment', {
-          environment: {
-            API_KEY: apiKey,
-            API_URL: apiUrl,
-            AUTH_URL: authUrl,
-            SECRET_KEY: secretKey,
-            SITE_URL: siteUrl,
+        // Deploy using CLI with --archive=tgz for proper monorepo support
+        // This handles node_modules bundling better than the Pulumi resource
+        console.log('|  Deploying to Vercel...');
+        const deployOutput = execSync(
+          `npx vercel deploy --prebuilt${isProduction ? ' --prod' : ''} --archive=tgz --token=${token}`,
+          {
+            cwd: monorepoRoot,
+            encoding: 'utf-8',
+            env: {
+              ...process.env,
+              VERCEL_PROJECT_ID: projectId,
+            },
           },
-          files: prebuilt.output,
-          pathPrefix: prebuilt.path,
-          production: $app.stage === 'production',
-          projectId,
-        });
+        );
+
+        // vercel deploy outputs the deployment URL to stdout
+        const url = deployOutput.trim();
+        console.log(`|  Deployed to ${url}`);
+        return url;
       });
 
       // Custom domains - enable after testing basic Vercel deployment
@@ -143,20 +143,11 @@ export const web = $dev
         }
 
         // Preview domain alias (e.g., pr-123.dev.tvseri.es)
-        if ($app.stage !== 'production' && $app.stage !== 'dev') {
-          new vercel.ProjectDomain('WebPreviewDomain', {
-            domain: `${$app.stage}.dev.tvseri.es`,
-            projectId: project.id,
-          });
-
-          new vercel.Alias('WebPreviewAlias', {
-            alias: `${$app.stage}.dev.tvseri.es`,
-            deploymentId: deployment.id,
-          });
-        }
+        // Note: Can't use vercel.Alias here since we don't have a Pulumi deployment resource
+        // The CLI deployment already creates the URL we need
       }
 
       return {
-        url: $interpolate`https://${deployment.url}`,
+        url: deploymentUrl,
       };
     })();

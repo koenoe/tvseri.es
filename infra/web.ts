@@ -50,10 +50,6 @@ export const web = $dev
       // Create the Vercel project - Pulumi manages this resource
       const project = new vercel.Project('WebProject', {
         framework: 'nextjs',
-        gitRepository: {
-          repo: 'koenoe/tvseri.es',
-          type: 'github',
-        },
         name: PROJECT_NAME,
         // rootDirectory is critical for monorepo prebuilt deployments
         // See: https://github.com/vercel/vercel/issues/8794

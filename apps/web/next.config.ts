@@ -1,4 +1,3 @@
-import path from 'node:path';
 import bundleAnalyzer from '@next/bundle-analyzer';
 import type { NextConfig } from 'next';
 
@@ -66,9 +65,7 @@ const nextConfig = {
         : []),
     ];
   },
-  // Required for monorepo - traces dependencies from root node_modules
   output: 'standalone',
-  outputFileTracingRoot: path.join(__dirname, '../../'),
   async redirects() {
     return [
       {

@@ -60,46 +60,62 @@ export const web = $dev
       const vercelTarget = isProduction ? 'production' : 'preview';
 
       // Set runtime environment variables on the Vercel project
-      new vercel.ProjectEnvironmentVariable('WebEnvApiKey', {
+      // Store references so we can wait for them before deploying
+      const envApiKey = new vercel.ProjectEnvironmentVariable('WebEnvApiKey', {
         key: 'API_KEY',
         projectId: project.id,
         sensitive: true,
         targets: [vercelTarget],
         value: secrets.apiKeyRandom.result,
       });
-      new vercel.ProjectEnvironmentVariable('WebEnvApiUrl', {
+      const envApiUrl = new vercel.ProjectEnvironmentVariable('WebEnvApiUrl', {
         key: 'API_URL',
         projectId: project.id,
         targets: [vercelTarget],
         value: apiRouter.url,
       });
-      new vercel.ProjectEnvironmentVariable('WebEnvAuthUrl', {
-        key: 'AUTH_URL',
-        projectId: project.id,
-        targets: [vercelTarget],
-        value: auth.url,
-      });
-      new vercel.ProjectEnvironmentVariable('WebEnvSecretKey', {
-        key: 'SECRET_KEY',
-        projectId: project.id,
-        sensitive: true,
-        targets: [vercelTarget],
-        value: secrets.sessionSecret.value,
-      });
-      new vercel.ProjectEnvironmentVariable('WebEnvSiteUrl', {
-        key: 'SITE_URL',
-        projectId: project.id,
-        targets: [vercelTarget],
-        value: `https://${domain}`,
-      });
+      const envAuthUrl = new vercel.ProjectEnvironmentVariable(
+        'WebEnvAuthUrl',
+        {
+          key: 'AUTH_URL',
+          projectId: project.id,
+          targets: [vercelTarget],
+          value: auth.url,
+        },
+      );
+      const envSecretKey = new vercel.ProjectEnvironmentVariable(
+        'WebEnvSecretKey',
+        {
+          key: 'SECRET_KEY',
+          projectId: project.id,
+          sensitive: true,
+          targets: [vercelTarget],
+          value: secrets.sessionSecret.value,
+        },
+      );
+      const envSiteUrl = new vercel.ProjectEnvironmentVariable(
+        'WebEnvSiteUrl',
+        {
+          key: 'SITE_URL',
+          projectId: project.id,
+          targets: [vercelTarget],
+          value: `https://${domain}`,
+        },
+      );
 
       // Build the app with env vars, then deploy
+      // Include env var resources in $resolve to ensure they're created before deployment
       const deploymentUrl = $resolve([
         apiRouter.url,
         auth.url,
         secrets.apiKeyRandom.result,
         secrets.sessionSecret.value,
         project.id,
+        envApiKey.id,
+        envApiUrl.id,
+        envAuthUrl.id,
+        envSecretKey.id,
+        envSiteUrl.id,
       ]).apply(([apiUrl, authUrl, apiKey, secretKey, projectId]) => {
         const siteUrl = `https://${domain}`;
         // Vercel CLI must run from monorepo root with rootDirectory set to apps/web

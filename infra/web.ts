@@ -56,7 +56,44 @@ export const web = $dev
         rootDirectory: 'apps/web',
       });
 
-      // Build the app with env vars from SST resources, then deploy
+      const isProduction = $app.stage === 'production';
+      const vercelTarget = isProduction ? 'production' : 'preview';
+
+      // Set runtime environment variables on the Vercel project
+      new vercel.ProjectEnvironmentVariable('WebEnvApiKey', {
+        key: 'API_KEY',
+        projectId: project.id,
+        sensitive: true,
+        targets: [vercelTarget],
+        value: secrets.apiKeyRandom.result,
+      });
+      new vercel.ProjectEnvironmentVariable('WebEnvApiUrl', {
+        key: 'API_URL',
+        projectId: project.id,
+        targets: [vercelTarget],
+        value: apiRouter.url,
+      });
+      new vercel.ProjectEnvironmentVariable('WebEnvAuthUrl', {
+        key: 'AUTH_URL',
+        projectId: project.id,
+        targets: [vercelTarget],
+        value: auth.url,
+      });
+      new vercel.ProjectEnvironmentVariable('WebEnvSecretKey', {
+        key: 'SECRET_KEY',
+        projectId: project.id,
+        sensitive: true,
+        targets: [vercelTarget],
+        value: secrets.sessionSecret.value,
+      });
+      new vercel.ProjectEnvironmentVariable('WebEnvSiteUrl', {
+        key: 'SITE_URL',
+        projectId: project.id,
+        targets: [vercelTarget],
+        value: `https://${domain}`,
+      });
+
+      // Build the app with env vars, then deploy
       const deploymentUrl = $resolve([
         apiRouter.url,
         auth.url,
@@ -106,17 +143,10 @@ export const web = $dev
         );
 
         // Deploy using CLI with --archive=tgz for proper monorepo support
-        // This handles node_modules bundling better than the Pulumi resource
+        // Runtime env vars are set via ProjectEnvironmentVariable above
         console.log('|  Deploying to Vercel...');
-        const envFlags = [
-          `-e API_KEY=${apiKey}`,
-          `-e API_URL=${apiUrl}`,
-          `-e AUTH_URL=${authUrl}`,
-          `-e SECRET_KEY=${secretKey}`,
-          `-e SITE_URL=${siteUrl}`,
-        ].join(' ');
         const deployOutput = execSync(
-          `npx vercel deploy --prebuilt${isProduction ? ' --prod' : ''} --archive=tgz ${envFlags} --token=${token}`,
+          `npx vercel deploy --prebuilt${isProduction ? ' --prod' : ''} --archive=tgz --token=${token}`,
           {
             cwd: monorepoRoot,
             encoding: 'utf-8',

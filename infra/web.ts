@@ -59,6 +59,9 @@ export const web = $dev
       const projectSettings = {
         buildCommand: 'pnpm run build',
         framework: 'nextjs',
+        // Skip build if only non-web files changed
+        ignoreCommand:
+          'git diff --quiet $VERCEL_GIT_PREVIOUS_SHA HEAD -- . :!apps/dashboard :!docs :!.github',
         installCommand: 'pnpm install --frozen-lockfile --ignore-scripts',
         outputDirectory: '.next',
         rootDirectory: 'apps/web',
@@ -73,6 +76,7 @@ export const web = $dev
           repo: 'koenoe/tvseri.es',
           type: 'github',
         },
+        ignoreCommand: projectSettings.ignoreCommand,
         installCommand: projectSettings.installCommand,
         name: PROJECT_NAME,
         outputDirectory: projectSettings.outputDirectory,

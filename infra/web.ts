@@ -87,13 +87,16 @@ export const web = $dev
           JSON.stringify(projectJson, null, 2),
         );
 
-        // Pull Vercel project settings (uses project.json we just wrote)
+        // Pull Vercel project settings
         console.log('|  Pulling Vercel project settings...');
         execSync(
           `npx vercel pull --yes --environment=${environment} --token=${token}`,
           {
             cwd: monorepoRoot,
-            env: process.env,
+            env: {
+              ...process.env,
+              VERCEL_PROJECT_ID: projectId,
+            },
             stdio: 'inherit',
           },
         );
@@ -111,6 +114,7 @@ export const web = $dev
               AUTH_URL: authUrl,
               SECRET_KEY: secretKey,
               SITE_URL: siteUrl,
+              VERCEL_PROJECT_ID: projectId,
             },
             stdio: 'inherit',
           },

@@ -1,5 +1,6 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
+import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { apiRouter } from './api';
@@ -46,27 +47,52 @@ SITE_URL=http://localhost:3000
 export const web = $dev
   ? { url: 'http://localhost:3000' }
   : (() => {
-      // Reference existing Vercel project (created via `vercel link`)
       const project = vercel.getProjectOutput({ name: PROJECT_NAME });
 
-      // Get prebuilt output from `vercel build`
-      const prebuilt = vercel.getPrebuiltProjectOutput({
-        path: 'apps/web',
-      });
+      // Build the app with env vars from SST resources, then deploy
+      const deployment = $resolve([
+        apiRouter.url,
+        auth.url,
+        secrets.apiKeyRandom.result,
+        secrets.sessionSecret.value,
+        project.id,
+      ]).apply(([apiUrl, authUrl, apiKey, secretKey, projectId]) => {
+        const siteUrl = `https://${domain}`;
 
-      // Create deployment from prebuilt files
-      const deployment = new vercel.Deployment('WebDeployment', {
-        environment: {
-          API_KEY: secrets.apiKeyRandom.result,
-          API_URL: apiRouter.url,
-          AUTH_URL: auth.url,
-          SECRET_KEY: secrets.sessionSecret.value,
-          SITE_URL: `https://${domain}`,
-        },
-        files: prebuilt.output,
-        pathPrefix: prebuilt.path,
-        production: $app.stage === 'production',
-        projectId: project.id,
+        // Run vercel build with environment variables
+        console.log('|  Building Next.js app with Vercel CLI...');
+        execSync('npx vercel build', {
+          cwd: path.join(process.cwd(), 'apps/web'),
+          env: {
+            ...process.env,
+            API_KEY: apiKey,
+            API_URL: apiUrl,
+            AUTH_URL: authUrl,
+            SECRET_KEY: secretKey,
+            SITE_URL: siteUrl,
+          },
+          stdio: 'inherit',
+        });
+
+        // Get prebuilt output
+        const prebuilt = vercel.getPrebuiltProjectOutput({
+          path: 'apps/web',
+        });
+
+        // Create deployment from prebuilt files
+        return new vercel.Deployment('WebDeployment', {
+          environment: {
+            API_KEY: apiKey,
+            API_URL: apiUrl,
+            AUTH_URL: authUrl,
+            SECRET_KEY: secretKey,
+            SITE_URL: siteUrl,
+          },
+          files: prebuilt.output,
+          pathPrefix: prebuilt.path,
+          production: $app.stage === 'production',
+          projectId,
+        });
       });
 
       // Custom domains - enable after testing basic Vercel deployment
@@ -87,13 +113,11 @@ export const web = $dev
 
         // Preview domain alias (e.g., pr-123.dev.tvseri.es)
         if ($app.stage !== 'production' && $app.stage !== 'dev') {
-          // Add the subdomain to the project
           new vercel.ProjectDomain('WebPreviewDomain', {
             domain: `${$app.stage}.dev.tvseri.es`,
             projectId: project.id,
           });
 
-          // Alias the deployment to the custom domain
           new vercel.Alias('WebPreviewAlias', {
             alias: `${$app.stage}.dev.tvseri.es`,
             deploymentId: deployment.id,

@@ -72,7 +72,22 @@ export const web = $dev
         const environment = isProduction ? 'production' : 'preview';
         const token = process.env.VERCEL_API_TOKEN!;
 
-        // Pull Vercel project settings
+        // Write .vercel/project.json with the correct project ID from Pulumi
+        // This ensures vercel build uses the right project, not a stale cached one
+        const vercelDir = path.join(monorepoRoot, '.vercel');
+        if (!fs.existsSync(vercelDir)) {
+          fs.mkdirSync(vercelDir, { recursive: true });
+        }
+        const projectJson = {
+          orgId: process.env.VERCEL_ORG_ID,
+          projectId,
+        };
+        fs.writeFileSync(
+          path.join(vercelDir, 'project.json'),
+          JSON.stringify(projectJson, null, 2),
+        );
+
+        // Pull Vercel project settings (uses project.json we just wrote)
         console.log('|  Pulling Vercel project settings...');
         execSync(
           `npx vercel pull --yes --environment=${environment} --token=${token}`,

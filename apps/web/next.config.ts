@@ -1,3 +1,4 @@
+import path from 'node:path';
 import bundleAnalyzer from '@next/bundle-analyzer';
 import type { NextConfig } from 'next';
 
@@ -65,9 +66,8 @@ const nextConfig = {
         : []),
     ];
   },
-  // Note: outputFileTracingRoot is intentionally NOT set here.
-  // When using Vercel's prebuilt deployment, the paths need to be relative
-  // to the app directory, not the monorepo root.
+  // Required for monorepo - traces dependencies from root node_modules
+  outputFileTracingRoot: path.join(__dirname, '../../'),
   async redirects() {
     return [
       {

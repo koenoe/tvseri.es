@@ -1,3 +1,5 @@
+import path from 'node:path';
+
 import bundleAnalyzer from '@next/bundle-analyzer';
 import type { NextConfig } from 'next';
 
@@ -6,6 +8,8 @@ import getBaseUrl from './src/utils/getBaseUrl';
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });
+
+const monorepoRoot = path.join(__dirname, '../..');
 
 const nextConfig = {
   cleanDistDir: true,
@@ -65,6 +69,7 @@ const nextConfig = {
         : []),
     ];
   },
+  outputFileTracingRoot: monorepoRoot,
   async redirects() {
     return [
       {
@@ -97,6 +102,9 @@ const nextConfig = {
     '@tvseri.es/schemas',
     '@tvseri.es/utils',
   ],
+  turbopack: {
+    root: monorepoRoot,
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

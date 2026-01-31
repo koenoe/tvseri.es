@@ -67,6 +67,7 @@ const nextConfig = {
     ];
   },
   // Required for monorepo - traces dependencies from root node_modules
+  output: 'standalone',
   outputFileTracingRoot: path.join(__dirname, '../../'),
   async redirects() {
     return [

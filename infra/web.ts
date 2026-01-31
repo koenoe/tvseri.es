@@ -95,8 +95,8 @@ export const web = $dev
         );
 
         // Get prebuilt output from apps/web
-        // Use absolute path - the outputFileTracingRoot in next.config.ts ensures
-        // filePathMap paths are correctly prefixed with the monorepo root
+        // The filePathMap in .vc-config.json contains relative paths (e.g., ../../node_modules/...)
+        // which the provider resolves relative to webAppPath
         const prebuilt = vercel.getPrebuiltProjectOutput({
           path: webAppPath,
         });

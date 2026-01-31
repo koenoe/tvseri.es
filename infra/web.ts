@@ -58,7 +58,6 @@ export const web = $dev
         project.id,
       ]).apply(([apiUrl, authUrl, apiKey, secretKey, projectId]) => {
         const siteUrl = `https://${domain}`;
-        const webAppPath = path.join(process.cwd(), 'apps/web');
         const prodFlag = $app.stage === 'production' ? ' --prod' : '';
         const token = process.env.VERCEL_API_TOKEN;
 
@@ -66,20 +65,24 @@ export const web = $dev
           throw new Error('VERCEL_API_TOKEN environment variable is required');
         }
 
-        // Run vercel build with environment variables
+        // Run vercel build with --cwd to specify project location
+        // Running from monorepo root helps with path resolution
         console.log('|  Building Next.js app with Vercel CLI...');
-        execSync(`npx vercel build --yes${prodFlag} --token=${token}`, {
-          cwd: webAppPath,
-          env: {
-            ...process.env,
-            API_KEY: apiKey,
-            API_URL: apiUrl,
-            AUTH_URL: authUrl,
-            SECRET_KEY: secretKey,
-            SITE_URL: siteUrl,
+        execSync(
+          `npx vercel build --yes${prodFlag} --cwd=apps/web --token=${token}`,
+          {
+            cwd: process.cwd(),
+            env: {
+              ...process.env,
+              API_KEY: apiKey,
+              API_URL: apiUrl,
+              AUTH_URL: authUrl,
+              SECRET_KEY: secretKey,
+              SITE_URL: siteUrl,
+            },
+            stdio: 'inherit',
           },
-          stdio: 'inherit',
-        });
+        );
 
         // Get prebuilt output
         const prebuilt = vercel.getPrebuiltProjectOutput({

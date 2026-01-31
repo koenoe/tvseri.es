@@ -95,9 +95,10 @@ export const web = $dev
         );
 
         // Get prebuilt output from apps/web
-        // Note: path must be relative for Pulumi provider to resolve paths correctly
+        // Use absolute path - the outputFileTracingRoot in next.config.ts ensures
+        // filePathMap paths are correctly prefixed with the monorepo root
         const prebuilt = vercel.getPrebuiltProjectOutput({
-          path: webAppRelative,
+          path: webAppPath,
         });
 
         // Create deployment from prebuilt files

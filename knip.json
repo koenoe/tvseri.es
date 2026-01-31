@@ -11,7 +11,7 @@
     "node_modules/**",
     "pnpm-workspace.yaml"
   ],
-  "ignoreBinaries": ["only-allow"],
+  "ignoreBinaries": ["only-allow", "vercel"],
   "ignoreExportsUsedInFile": {
     "interface": true,
     "type": true

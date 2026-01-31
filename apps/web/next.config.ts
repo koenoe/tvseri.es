@@ -1,3 +1,5 @@
+import path from 'node:path';
+
 import bundleAnalyzer from '@next/bundle-analyzer';
 import type { NextConfig } from 'next';
 
@@ -97,6 +99,9 @@ const nextConfig = {
     '@tvseri.es/schemas',
     '@tvseri.es/utils',
   ],
+  turbopack: {
+    root: path.join(__dirname, '../..'),
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

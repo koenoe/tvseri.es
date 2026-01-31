@@ -47,7 +47,18 @@ SITE_URL=http://localhost:3000
 export const web = $dev
   ? { url: 'http://localhost:3000' }
   : (() => {
-      const project = vercel.getProjectOutput({ name: PROJECT_NAME });
+      // Create the Vercel project - Pulumi manages this resource
+      const project = new vercel.Project('WebProject', {
+        framework: 'nextjs',
+        gitRepository: {
+          repo: 'koenoe/tvseri.es',
+          type: 'github',
+        },
+        name: PROJECT_NAME,
+        // rootDirectory is critical for monorepo prebuilt deployments
+        // See: https://github.com/vercel/vercel/issues/8794
+        rootDirectory: 'apps/web',
+      });
 
       // Build the app with env vars from SST resources, then deploy
       const deployment = $resolve([
@@ -65,7 +76,7 @@ export const web = $dev
         const environment = isProduction ? 'production' : 'preview';
         const token = process.env.VERCEL_API_TOKEN!;
 
-        // Pull Vercel project settings (rootDirectory must be set to apps/web in Vercel dashboard)
+        // Pull Vercel project settings
         console.log('|  Pulling Vercel project settings...');
         execSync(
           `npx vercel pull --yes --environment=${environment} --token=${token}`,
@@ -94,7 +105,7 @@ export const web = $dev
           },
         );
 
-        // Get prebuilt output - now at monorepo root since we build from there
+        // Get prebuilt output from monorepo root
         const prebuilt = vercel.getPrebuiltProjectOutput({
           path: monorepoRoot,
         });

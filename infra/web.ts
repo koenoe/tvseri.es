@@ -1,6 +1,5 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
-import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { apiRouter } from './api';
@@ -47,43 +46,15 @@ SITE_URL=http://localhost:3000
 export const web = $dev
   ? { url: 'http://localhost:3000' }
   : (() => {
-      const gitHash =
-        process.env.GITHUB_SHA ||
-        execSync('git rev-parse --short HEAD').toString().trim();
+      // Reference existing Vercel project (created via `vercel link`)
+      const project = vercel.getProjectOutput({ name: PROJECT_NAME });
 
-      const gitBranch =
-        process.env.GITHUB_HEAD_REF ||
-        process.env.GITHUB_REF_NAME ||
-        execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
-
-      const projectSettings = {
-        buildCommand: 'pnpm run build',
-        framework: 'nextjs',
-        // Skip build if only non-web files changed
-        ignoreCommand:
-          'git diff --quiet $VERCEL_GIT_PREVIOUS_SHA HEAD -- . :!apps/dashboard :!docs :!.github',
-        installCommand: 'pnpm install --frozen-lockfile --ignore-scripts',
-        outputDirectory: '.next',
-        rootDirectory: 'apps/web',
-      };
-
-      // Create the Vercel project
-      // Pulumi state tracks this resource - subsequent deploys won't recreate it
-      const project = new vercel.Project('WebProject', {
-        buildCommand: projectSettings.buildCommand,
-        framework: 'nextjs',
-        gitRepository: {
-          repo: 'koenoe/tvseri.es',
-          type: 'github',
-        },
-        ignoreCommand: projectSettings.ignoreCommand,
-        installCommand: projectSettings.installCommand,
-        name: PROJECT_NAME,
-        outputDirectory: projectSettings.outputDirectory,
-        rootDirectory: projectSettings.rootDirectory,
+      // Get prebuilt output from `vercel build`
+      const prebuilt = vercel.getPrebuiltProjectOutput({
+        path: 'apps/web',
       });
 
-      // Create deployment
+      // Create deployment from prebuilt files
       const deployment = new vercel.Deployment('WebDeployment', {
         environment: {
           API_KEY: secrets.apiKeyRandom.result,
@@ -92,10 +63,10 @@ export const web = $dev
           SECRET_KEY: secrets.sessionSecret.value,
           SITE_URL: `https://${domain}`,
         },
+        files: prebuilt.output,
+        pathPrefix: prebuilt.path,
         production: $app.stage === 'production',
         projectId: project.id,
-        projectSettings,
-        ref: $app.stage === 'production' ? gitHash : gitBranch,
       });
 
       // Custom domains - enable after testing basic Vercel deployment

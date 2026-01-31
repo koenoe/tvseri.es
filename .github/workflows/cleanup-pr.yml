@@ -74,14 +74,10 @@ jobs:
             );
 
             if (existingComment) {
-              const commentBody = `## Preview environment cleaned up!
-
-              Environment has been removed.`;
-
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 comment_id: existingComment.id,
-                body: commentBody
+                body: `## Preview environment\n\nEnvironment has been removed.`
               });
             }

@@ -69,6 +69,13 @@ jobs:
           pnpm sst secret set GoogleClientId "${{ secrets.GOOGLE_CLIENT_ID }}" --stage production
           pnpm sst secret set SessionSecret "${{ secrets.SESSION_SECRET }}" --stage production
 
+      - name: Build Web App
+        run: cd apps/web && npx vercel build --prod
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_TEAM_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
+
       - name: Deploy Production
         env:
           AWS_HOSTED_ZONE_ID_PROD: ${{ secrets.AWS_HOSTED_ZONE_ID_PROD }}

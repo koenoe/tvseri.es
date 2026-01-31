@@ -58,30 +58,30 @@ export const web = $dev
         project.id,
       ]).apply(([apiUrl, authUrl, apiKey, secretKey, projectId]) => {
         const siteUrl = `https://${domain}`;
-        // Use relative path for Pulumi - absolute for execSync cwd
-        const webAppRelative = 'apps/web';
-        const webAppPath = path.join(process.cwd(), webAppRelative);
+        // Vercel CLI must run from monorepo root with rootDirectory set to apps/web
+        // See: https://github.com/vercel/vercel/issues/8794
+        const monorepoRoot = process.cwd();
         const isProduction = $app.stage === 'production';
         const environment = isProduction ? 'production' : 'preview';
         const token = process.env.VERCEL_API_TOKEN!;
 
-        // Pull Vercel project settings to apps/web (creates .vercel/project.json)
+        // Pull Vercel project settings (rootDirectory must be set to apps/web in Vercel dashboard)
         console.log('|  Pulling Vercel project settings...');
         execSync(
           `npx vercel pull --yes --environment=${environment} --token=${token}`,
           {
-            cwd: webAppPath,
+            cwd: monorepoRoot,
             env: process.env,
             stdio: 'inherit',
           },
         );
 
-        // Run vercel build from apps/web
+        // Run vercel build from monorepo root (uses rootDirectory from project settings)
         console.log('|  Building Next.js app with Vercel CLI...');
         execSync(
           `npx vercel build${isProduction ? ' --prod' : ''} --token=${token}`,
           {
-            cwd: webAppPath,
+            cwd: monorepoRoot,
             env: {
               ...process.env,
               API_KEY: apiKey,
@@ -94,11 +94,9 @@ export const web = $dev
           },
         );
 
-        // Get prebuilt output from apps/web
-        // The filePathMap in .vc-config.json contains relative paths (e.g., ../../node_modules/...)
-        // which the provider resolves relative to webAppPath
+        // Get prebuilt output - now at monorepo root since we build from there
         const prebuilt = vercel.getPrebuiltProjectOutput({
-          path: webAppPath,
+          path: monorepoRoot,
         });
 
         // Create deployment from prebuilt files

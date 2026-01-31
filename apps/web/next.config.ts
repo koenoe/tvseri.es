@@ -9,6 +9,8 @@ const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });
 
+const monorepoRoot = path.join(__dirname, '../..');
+
 const nextConfig = {
   cleanDistDir: true,
   experimental: {
@@ -67,6 +69,7 @@ const nextConfig = {
         : []),
     ];
   },
+  outputFileTracingRoot: monorepoRoot,
   async redirects() {
     return [
       {
@@ -100,7 +103,7 @@ const nextConfig = {
     '@tvseri.es/utils',
   ],
   turbopack: {
-    root: path.join(__dirname, '../..'),
+    root: monorepoRoot,
   },
   typescript: {
     ignoreBuildErrors: true,

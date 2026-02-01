@@ -6,6 +6,7 @@ import { Inter } from 'next/font/google';
 import { type ReactNode, Suspense } from 'react';
 import { Toaster } from 'sonner';
 
+import BackgroundColorManager from '@/components/BackgroundColorManager';
 import EnsureHistoryKey from '@/components/EnsureHistoryKey';
 import WatchedStoreProvider from '@/components/Watched/WatchedStoreProvider';
 import WebVitals from '@/components/WebVitals';
@@ -81,6 +82,8 @@ export default function RootLayout({
             },
           }}
         />
+        {/* Singleton that manages --main-background-color CSS variable */}
+        <BackgroundColorManager />
         <WatchedStoreProvider>{children}</WatchedStoreProvider>
         <Suspense fallback={null}>
           <WebVitals />

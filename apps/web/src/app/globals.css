@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/**
+ * Main background color CSS variable
+ *
+ * This variable is updated dynamically by BackgroundColorManager when pages
+ * declare their background color via BackgroundGlobalBase. The default value
+ * matches DEFAULT_BACKGROUND_COLOR in constants.ts.
+ *
+ * @see BackgroundColorManager - Updates this variable via JS
+ * @see BackgroundGlobalBase - Pages use this to declare their color
+ * @see backgroundColorStore - Zustand store that holds the current color
+ */
+:root {
+  --main-background-color: #171717;
+}
+
+/* Disable default view transition animations - instant swap */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
 body.scrollbar-is-visible::-webkit-scrollbar-corner,
 body.scrollbar-is-visible::-webkit-scrollbar-track {
   background: theme("colors.neutral.900");
@@ -15,4 +36,27 @@ body.scrollbar-is-visible::-webkit-scrollbar-thumb {
 body.scrollbar-is-visible::-webkit-scrollbar {
   width: 10px;
   height: 10px;
+}
+
+/* Apply background color to main layout elements */
+body,
+main,
+main + div,
+footer {
+  background-color: var(--main-background-color);
+}
+
+/**
+ * Background color transitions
+ *
+ * When .bg-transitions is added to documentElement (by BackgroundGlobalBase
+ * with enableTransitions=true), background colors animate smoothly.
+ */
+.bg-transitions body,
+.bg-transitions main,
+.bg-transitions main + div,
+.bg-transitions footer {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 500ms;
+  transition-property: background-color;
 }

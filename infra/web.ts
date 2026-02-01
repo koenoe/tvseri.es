@@ -10,9 +10,6 @@ import * as secrets from './secrets';
 
 const PROJECT_NAME = 'tvseries-web';
 
-// Feature flag - enable after verifying Vercel deployment works
-const ENABLE_CUSTOM_DOMAINS = true;
-
 // In dev mode, skip Vercel deployment - run Next.js dev server locally
 if ($dev) {
   // Generate .env.local with the API/Auth URLs
@@ -232,30 +229,29 @@ export const web = $dev
         return `https://${customDomain}`;
       });
 
-      // Custom domains - enable after testing basic Vercel deployment
-      if (ENABLE_CUSTOM_DOMAINS) {
-        if (isProduction) {
-          // Production: www.tvseri.es served by Vercel, apex redirects to www via AWS
-          new vercel.ProjectDomain('WebDomainWww', {
-            domain: 'www.tvseri.es',
-            projectId: project.id,
-          });
+      // Custom domains
+      if (isProduction) {
+        // Production: www.tvseri.es served by Vercel, apex redirects to www via AWS
+        new vercel.ProjectDomain('WebDomainWww', {
+          domain: 'www.tvseri.es',
+          projectId: project.id,
+        });
 
-          // Route 53 CNAME pointing www to Vercel
-          new aws.route53.Record('WwwVercelRecord', {
-            name: 'www.tvseri.es',
-            records: ['cname.vercel-dns.com'],
-            ttl: 300,
-            type: 'CNAME',
-            zoneId: zone,
-          });
+        // Route 53 CNAME pointing www to Vercel
+        new aws.route53.Record('WwwVercelRecord', {
+          name: 'www.tvseri.es',
+          records: ['cname.vercel-dns.com'],
+          ttl: 300,
+          type: 'CNAME',
+          zoneId: zone,
+        });
 
-          // Apex redirect using CloudFront Function (faster than S3 redirect)
-          // Redirects tvseri.es -> www.tvseri.es at the edge
-          const redirectFunction = new aws.cloudfront.Function(
-            'ApexRedirectFunction',
-            {
-              code: `function handler(event) {
+        // Apex redirect using CloudFront Function (faster than S3 redirect)
+        // Redirects tvseri.es -> www.tvseri.es at the edge
+        const redirectFunction = new aws.cloudfront.Function(
+          'ApexRedirectFunction',
+          {
+            code: `function handler(event) {
   var request = event.request;
   return {
     statusCode: 301,
@@ -265,101 +261,100 @@ export const web = $dev
     }
   };
 }`,
-              name: 'tvseries-apex-redirect-to-www',
-              runtime: 'cloudfront-js-2.0',
-            },
-          );
+            name: 'tvseries-apex-redirect-to-www',
+            runtime: 'cloudfront-js-2.0',
+          },
+        );
 
-          // Look up existing ACM certificate for apex domain
-          const apexCert = aws.acm.getCertificateOutput({
-            domain: 'tvseri.es',
-            statuses: ['ISSUED'],
-          });
+        // Look up existing ACM certificate for apex domain
+        const apexCert = aws.acm.getCertificateOutput({
+          domain: 'tvseri.es',
+          statuses: ['ISSUED'],
+        });
 
-          // CloudFront distribution for apex redirect
-          // Origin is required but never hit - function handles all requests
-          const apexRedirectDistribution = new aws.cloudfront.Distribution(
-            'ApexRedirect',
-            {
-              aliases: ['tvseri.es'],
-              defaultCacheBehavior: {
-                allowedMethods: ['GET', 'HEAD'],
-                cachedMethods: ['GET', 'HEAD'],
-                forwardedValues: {
-                  cookies: { forward: 'none' },
-                  queryString: false,
-                },
-                functionAssociations: [
-                  {
-                    eventType: 'viewer-request',
-                    functionArn: redirectFunction.arn,
-                  },
-                ],
-                targetOriginId: 'dummy',
-                viewerProtocolPolicy: 'redirect-to-https',
+        // CloudFront distribution for apex redirect
+        // Origin is required but never hit - function handles all requests
+        const apexRedirectDistribution = new aws.cloudfront.Distribution(
+          'ApexRedirect',
+          {
+            aliases: ['tvseri.es'],
+            defaultCacheBehavior: {
+              allowedMethods: ['GET', 'HEAD'],
+              cachedMethods: ['GET', 'HEAD'],
+              forwardedValues: {
+                cookies: { forward: 'none' },
+                queryString: false,
               },
-              enabled: true,
-              origins: [
+              functionAssociations: [
                 {
-                  // Dummy origin - never hit because function returns redirect
-                  customOriginConfig: {
-                    httpPort: 80,
-                    httpsPort: 443,
-                    originProtocolPolicy: 'https-only',
-                    originSslProtocols: ['TLSv1.2'],
-                  },
-                  domainName: 'www.tvseri.es',
-                  originId: 'dummy',
+                  eventType: 'viewer-request',
+                  functionArn: redirectFunction.arn,
                 },
               ],
-              restrictions: { geoRestriction: { restrictionType: 'none' } },
-              viewerCertificate: {
-                acmCertificateArn: apexCert.arn,
-                minimumProtocolVersion: 'TLSv1.2_2021',
-                sslSupportMethod: 'sni-only',
-              },
+              targetOriginId: 'dummy',
+              viewerProtocolPolicy: 'redirect-to-https',
             },
-          );
-
-          // Route 53 A record for apex pointing to CloudFront redirect
-          new aws.route53.Record('ApexRedirectRecord', {
-            aliases: [
+            enabled: true,
+            origins: [
               {
-                evaluateTargetHealth: false,
-                name: apexRedirectDistribution.domainName,
-                zoneId: apexRedirectDistribution.hostedZoneId,
+                // Dummy origin - never hit because function returns redirect
+                customOriginConfig: {
+                  httpPort: 80,
+                  httpsPort: 443,
+                  originProtocolPolicy: 'https-only',
+                  originSslProtocols: ['TLSv1.2'],
+                },
+                domainName: 'www.tvseri.es',
+                originId: 'dummy',
               },
             ],
-            name: 'tvseri.es',
-            type: 'A',
-            zoneId: zone,
-          });
+            restrictions: { geoRestriction: { restrictionType: 'none' } },
+            viewerCertificate: {
+              acmCertificateArn: apexCert.arn,
+              minimumProtocolVersion: 'TLSv1.2_2021',
+              sslSupportMethod: 'sni-only',
+            },
+          },
+        );
 
-          // IPv6 AAAA record for apex
-          new aws.route53.Record('ApexRedirectRecordAAAA', {
-            aliases: [
-              {
-                evaluateTargetHealth: false,
-                name: apexRedirectDistribution.domainName,
-                zoneId: apexRedirectDistribution.hostedZoneId,
-              },
-            ],
-            name: 'tvseri.es',
-            type: 'AAAA',
-            zoneId: zone,
-          });
-        } else if (!$dev) {
-          // Preview environments: pr-{n}.dev.tvseri.es
-          // Domain added via CLI in deploy step above
-          // Route 53 CNAME pointing to Vercel
-          new aws.route53.Record('PreviewWebRecord', {
-            name: domain,
-            records: ['cname.vercel-dns.com'],
-            ttl: 300,
-            type: 'CNAME',
-            zoneId: zone,
-          });
-        }
+        // Route 53 A record for apex pointing to CloudFront redirect
+        new aws.route53.Record('ApexRedirectRecord', {
+          aliases: [
+            {
+              evaluateTargetHealth: false,
+              name: apexRedirectDistribution.domainName,
+              zoneId: apexRedirectDistribution.hostedZoneId,
+            },
+          ],
+          name: 'tvseri.es',
+          type: 'A',
+          zoneId: zone,
+        });
+
+        // IPv6 AAAA record for apex
+        new aws.route53.Record('ApexRedirectRecordAAAA', {
+          aliases: [
+            {
+              evaluateTargetHealth: false,
+              name: apexRedirectDistribution.domainName,
+              zoneId: apexRedirectDistribution.hostedZoneId,
+            },
+          ],
+          name: 'tvseri.es',
+          type: 'AAAA',
+          zoneId: zone,
+        });
+      } else if (!$dev) {
+        // Preview environments: pr-{n}.dev.tvseri.es
+        // Domain added via CLI in deploy step above
+        // Route 53 CNAME pointing to Vercel
+        new aws.route53.Record('PreviewWebRecord', {
+          name: domain,
+          records: ['cname.vercel-dns.com'],
+          ttl: 300,
+          type: 'CNAME',
+          zoneId: zone,
+        });
       }
 
       return {

@@ -79,7 +79,7 @@ jobs:
           OUTPUT=$(pnpm sst deploy --stage pr-${{ github.event.pull_request.number }} 2>&1 | tee /dev/stderr)
           # Extract the web URL from SST output
           # Try custom domain first, fall back to Vercel URL
-          WEB_URL=$(echo "$OUTPUT" | grep -oE 'https://pr-[0-9]+\.dev\.tvseri\.es' | head -1 || \
+          WEB_URL=$(echo "$OUTPUT" | grep -oE 'https://www.pr-[0-9]+\.dev\.tvseri\.es' | head -1 || \
                     echo "$OUTPUT" | grep -oE 'https://[a-z0-9-]+\.vercel\.app' | head -1 || \
                     echo "")
           echo "web_url=$WEB_URL" >> $GITHUB_OUTPUT

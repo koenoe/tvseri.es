@@ -22,9 +22,7 @@ if (!$dev && !VERCEL_TEAM_ID) {
 const isProduction = $app.stage === 'production';
 const customDomain = isProduction ? 'www.tvseri.es' : domain;
 const siteUrl = `https://${customDomain}`;
-const projectName = isProduction
-  ? 'tvseries-web'
-  : `tvseries-web-${$app.stage}`;
+const projectName = isProduction ? 'tvseries' : `tvseries-${$app.stage}`;
 
 // Helper to run Vercel CLI commands
 function runVercel(

@@ -183,7 +183,6 @@ export const web = $dev
         return siteUrl;
       });
 
-      // DNS configuration
       if (isProduction) {
         // www.tvseri.es -> Vercel
         new vercel.ProjectDomain('WebDomainWww', {

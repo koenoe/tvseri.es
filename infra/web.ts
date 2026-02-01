@@ -20,7 +20,7 @@ if (!$dev && !VERCEL_TEAM_ID) {
 }
 
 const isProduction = $app.stage === 'production';
-const customDomain = isProduction ? 'www.tvseri.es' : domain;
+const customDomain = isProduction ? 'www.tvseri.es' : `www.${domain}`;
 const siteUrl = `https://${customDomain}`;
 const projectName = isProduction ? 'tvseries' : `tvseries-${$app.stage}`;
 
@@ -251,10 +251,10 @@ export const web = $dev
           ],
         });
       } else {
-        // Preview: pr-{n}.dev.tvseri.es -> Vercel
+        // Preview: www.pr-{n}.dev.tvseri.es -> Vercel
         new aws.route53.Record('PreviewWebRecord', {
           allowOverwrite: true,
-          name: domain,
+          name: customDomain,
           records: ['cname.vercel-dns.com'],
           ttl: 300,
           type: 'CNAME',

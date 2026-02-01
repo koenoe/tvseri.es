@@ -8,8 +8,6 @@ import { auth } from './auth';
 import { domain, zone } from './dns';
 import * as secrets from './secrets';
 
-const PROJECT_NAME = 'tvseries-web';
-
 // Validate Vercel credentials upfront for clearer error messages
 const VERCEL_TOKEN = process.env.VERCEL_API_TOKEN;
 const VERCEL_TEAM_ID = process.env.VERCEL_TEAM_ID;
@@ -55,7 +53,6 @@ API_KEY=${apiKey}
 API_URL=${apiUrl}
 AUTH_URL=${authUrl}
 SECRET_KEY=${secretKey}
-SITE_URL=http://localhost:3000
 `;
     const envPath = path.join(process.cwd(), 'apps/web/.env.local');
     fs.writeFileSync(envPath, envContent);
@@ -77,7 +74,10 @@ export const web = $dev
   : (() => {
       const project = new vercel.Project('WebProject', {
         framework: 'nextjs',
-        name: PROJECT_NAME,
+        name: 'tvseries-web',
+        resourceConfig: {
+          functionDefaultRegions: ['iad1', 'lhr1'],
+        },
         rootDirectory: 'apps/web',
       });
 

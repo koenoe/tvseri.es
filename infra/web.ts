@@ -9,10 +9,36 @@ import { domain, zone } from './dns';
 import * as secrets from './secrets';
 
 const PROJECT_NAME = 'tvseries-web';
+const VERCEL_TOKEN = process.env.VERCEL_API_TOKEN!;
+const VERCEL_TEAM_ID = process.env.VERCEL_TEAM_ID;
 
-// In dev mode, skip Vercel deployment - run Next.js dev server locally
+const isProduction = $app.stage === 'production';
+const customDomain = isProduction ? 'www.tvseri.es' : domain;
+const siteUrl = `https://${customDomain}`;
+
+// Helper to run Vercel CLI commands
+function vercel(
+  command: string,
+  projectId: string,
+  options: { env?: Record<string, string>; capture?: boolean } = {},
+) {
+  const scopeFlag = VERCEL_TEAM_ID ? ` --scope=${VERCEL_TEAM_ID}` : '';
+  const fullCommand = `npx vercel ${command}${scopeFlag} --token=${VERCEL_TOKEN}`;
+
+  return execSync(fullCommand, {
+    cwd: process.cwd(),
+    encoding: 'utf-8',
+    env: {
+      ...process.env,
+      ...options.env,
+      VERCEL_PROJECT_ID: projectId,
+    },
+    stdio: options.capture ? 'pipe' : 'inherit',
+  });
+}
+
+// Dev mode: run Next.js locally
 if ($dev) {
-  // Generate .env.local with the API/Auth URLs
   $resolve([
     apiRouter.url,
     auth.url,
@@ -28,10 +54,9 @@ SITE_URL=http://localhost:3000
 `;
     const envPath = path.join(process.cwd(), 'apps/web/.env.local');
     fs.writeFileSync(envPath, envContent);
-    console.log(`|  Generated ${envPath} with dev environment variables`);
+    console.log(`|  Generated ${envPath}`);
   });
 
-  // Run Next.js dev server with custom title
   new sst.x.DevCommand('Website', {
     dev: {
       command: 'next dev',
@@ -41,203 +66,110 @@ SITE_URL=http://localhost:3000
   });
 }
 
+// Deployed environments: Vercel
 export const web = $dev
   ? { url: 'http://localhost:3000' }
   : (() => {
-      // Create the Vercel project - Pulumi manages this resource
       const project = new vercel.Project('WebProject', {
         framework: 'nextjs',
         name: PROJECT_NAME,
-        // rootDirectory is critical for monorepo prebuilt deployments
-        // See: https://github.com/vercel/vercel/issues/8794
         rootDirectory: 'apps/web',
       });
 
-      const isProduction = $app.stage === 'production';
       const vercelTarget = isProduction ? 'production' : 'preview';
 
-      // For production: www.tvseri.es is the primary domain
-      // For preview: pr-{n}.dev.tvseri.es
-      const siteUrlValue = isProduction
-        ? 'https://www.tvseri.es'
-        : `https://${domain}`;
-
-      // Set runtime environment variables on the Vercel project
-      // Store references so we can wait for them before deploying
-      const envApiKey = new vercel.ProjectEnvironmentVariable('WebEnvApiKey', {
-        key: 'API_KEY',
-        projectId: project.id,
-        sensitive: true,
-        targets: [vercelTarget],
-        value: secrets.apiKeyRandom.result,
-      });
-      const envApiUrl = new vercel.ProjectEnvironmentVariable('WebEnvApiUrl', {
-        key: 'API_URL',
-        projectId: project.id,
-        targets: [vercelTarget],
-        value: apiRouter.url,
-      });
-      const envAuthUrl = new vercel.ProjectEnvironmentVariable(
-        'WebEnvAuthUrl',
-        {
+      // Environment variables for Vercel project
+      const envVars = [
+        new vercel.ProjectEnvironmentVariable('WebEnvApiKey', {
+          key: 'API_KEY',
+          projectId: project.id,
+          sensitive: true,
+          targets: [vercelTarget],
+          value: secrets.apiKeyRandom.result,
+        }),
+        new vercel.ProjectEnvironmentVariable('WebEnvApiUrl', {
+          key: 'API_URL',
+          projectId: project.id,
+          targets: [vercelTarget],
+          value: apiRouter.url,
+        }),
+        new vercel.ProjectEnvironmentVariable('WebEnvAuthUrl', {
           key: 'AUTH_URL',
           projectId: project.id,
           targets: [vercelTarget],
           value: auth.url,
-        },
-      );
-      const envSecretKey = new vercel.ProjectEnvironmentVariable(
-        'WebEnvSecretKey',
-        {
+        }),
+        new vercel.ProjectEnvironmentVariable('WebEnvSecretKey', {
           key: 'SECRET_KEY',
           projectId: project.id,
           sensitive: true,
           targets: [vercelTarget],
           value: secrets.sessionSecret.value,
-        },
-      );
-
-      const envSiteUrl = new vercel.ProjectEnvironmentVariable(
-        'WebEnvSiteUrl',
-        {
+        }),
+        new vercel.ProjectEnvironmentVariable('WebEnvSiteUrl', {
           key: 'SITE_URL',
           projectId: project.id,
           targets: [vercelTarget],
-          value: siteUrlValue,
-        },
-      );
+          value: siteUrl,
+        }),
+      ];
 
-      // Build the app with env vars, then deploy
-      // Include env var resources in $resolve to ensure they're created before deployment
-      const deploymentUrl = $resolve([
+      // Build and deploy
+      const deployedUrl = $resolve([
         apiRouter.url,
         auth.url,
         secrets.apiKeyRandom.result,
         secrets.sessionSecret.value,
         project.id,
-        envApiKey.id,
-        envApiUrl.id,
-        envAuthUrl.id,
-        envSecretKey.id,
-        envSiteUrl.id,
+        ...envVars.map((e) => e.id),
       ]).apply(([apiUrl, authUrl, apiKey, secretKey, projectId]) => {
-        // For production: www.tvseri.es, for preview: pr-{n}.dev.tvseri.es
-        const siteUrl =
-          $app.stage === 'production'
-            ? 'https://www.tvseri.es'
-            : `https://${domain}`;
-        // Vercel CLI must run from monorepo root with rootDirectory set to apps/web
-        // See: https://github.com/vercel/vercel/issues/8794
-        const monorepoRoot = process.cwd();
-        const isProd = $app.stage === 'production';
-        const environment = isProd ? 'production' : 'preview';
-        const token = process.env.VERCEL_API_TOKEN!;
+        const prodFlag = isProduction ? ' --prod' : '';
+        const environment = isProduction ? 'production' : 'preview';
 
-        // Pull Vercel project settings
         console.log('|  Pulling Vercel project settings...');
-        execSync(
-          `npx vercel pull --yes --environment=${environment} --token=${token}`,
-          {
-            cwd: monorepoRoot,
-            env: {
-              ...process.env,
-              VERCEL_PROJECT_ID: projectId,
-            },
-            stdio: 'inherit',
-          },
-        );
+        vercel(`pull --yes --environment=${environment}`, projectId);
 
-        // Run vercel build from monorepo root (uses rootDirectory from project settings)
-        console.log('|  Building Next.js app with Vercel CLI...');
-        execSync(
-          `npx vercel build${isProd ? ' --prod' : ''} --token=${token}`,
-          {
-            cwd: monorepoRoot,
-            env: {
-              ...process.env,
-              API_KEY: apiKey,
-              API_URL: apiUrl,
-              AUTH_URL: authUrl,
-              SECRET_KEY: secretKey,
-              SITE_URL: siteUrl,
-              VERCEL_PROJECT_ID: projectId,
-            },
-            stdio: 'inherit',
+        console.log('|  Building Next.js app...');
+        vercel(`build${prodFlag}`, projectId, {
+          env: {
+            API_KEY: apiKey,
+            API_URL: apiUrl,
+            AUTH_URL: authUrl,
+            SECRET_KEY: secretKey,
+            SITE_URL: siteUrl,
           },
-        );
+        });
 
-        // Deploy using CLI with --archive=tgz for proper monorepo support
-        // Runtime env vars are set via ProjectEnvironmentVariable above
         console.log('|  Deploying to Vercel...');
-        const deployOutput = execSync(
-          `npx vercel deploy --prebuilt${isProd ? ' --prod' : ''} --archive=tgz --token=${token}`,
-          {
-            cwd: monorepoRoot,
-            encoding: 'utf-8',
-            env: {
-              ...process.env,
-              VERCEL_PROJECT_ID: projectId,
-            },
-          },
-        );
-
-        // vercel deploy outputs the deployment URL to stdout
-        const deploymentUrl = deployOutput.trim();
+        const deploymentUrl = vercel(
+          `deploy --prebuilt${prodFlag} --archive=tgz`,
+          projectId,
+          { capture: true },
+        ).trim();
         console.log(`|  Deployed to ${deploymentUrl}`);
 
-        // Alias the deployment to the custom domain
-        // Production: www.tvseri.es, Preview: pr-{n}.dev.tvseri.es
-        const customDomain = isProd ? 'www.tvseri.es' : domain;
-        const scope = process.env.VERCEL_TEAM_ID;
-        const scopeFlag = scope ? ` --scope=${scope}` : '';
-
-        // Add domain to project first (required before aliasing)
-        console.log(`|  Adding domain ${customDomain} to project...`);
+        // Add domain and set alias
+        console.log(`|  Configuring domain ${customDomain}...`);
         try {
-          execSync(
-            `npx vercel domains add ${customDomain}${scopeFlag} --token=${token}`,
-            {
-              cwd: monorepoRoot,
-              env: {
-                ...process.env,
-                VERCEL_PROJECT_ID: projectId,
-              },
-              stdio: 'inherit',
-            },
-          );
+          vercel(`domains add ${customDomain}`, projectId);
         } catch {
-          // Domain might already exist, continue with alias
-          console.log(
-            `|  Domain ${customDomain} may already exist, continuing...`,
-          );
+          // Domain may already exist
         }
 
-        console.log(`|  Setting alias ${customDomain} -> ${deploymentUrl}`);
-        execSync(
-          `npx vercel alias set ${deploymentUrl} ${customDomain}${scopeFlag} --token=${token}`,
-          {
-            cwd: monorepoRoot,
-            env: {
-              ...process.env,
-              VERCEL_PROJECT_ID: projectId,
-            },
-            stdio: 'inherit',
-          },
-        );
-        console.log(`|  Alias set: https://${customDomain}`);
+        vercel(`alias set ${deploymentUrl} ${customDomain}`, projectId);
+        console.log(`|  Live at ${siteUrl}`);
 
-        return `https://${customDomain}`;
+        return siteUrl;
       });
 
-      // Custom domains
+      // DNS configuration
       if (isProduction) {
-        // Production: www.tvseri.es served by Vercel, apex redirects to www via AWS
+        // www.tvseri.es -> Vercel
         new vercel.ProjectDomain('WebDomainWww', {
           domain: 'www.tvseri.es',
           projectId: project.id,
         });
 
-        // Route 53 CNAME pointing www to Vercel
         new aws.route53.Record('WwwVercelRecord', {
           name: 'www.tvseri.es',
           records: ['cname.vercel-dns.com'],
@@ -246,19 +178,15 @@ export const web = $dev
           zoneId: zone,
         });
 
-        // Apex redirect using CloudFront Function (faster than S3 redirect)
-        // Redirects tvseri.es -> www.tvseri.es at the edge
+        // tvseri.es -> redirect to www via CloudFront Function
         const redirectFunction = new aws.cloudfront.Function(
           'ApexRedirectFunction',
           {
             code: `function handler(event) {
-  var request = event.request;
   return {
     statusCode: 301,
     statusDescription: 'Moved Permanently',
-    headers: {
-      location: { value: 'https://www.tvseri.es' + request.uri }
-    }
+    headers: { location: { value: 'https://www.tvseri.es' + event.request.uri } }
   };
 }`,
             name: 'tvseries-apex-redirect-to-www',
@@ -266,64 +194,57 @@ export const web = $dev
           },
         );
 
-        // Look up existing ACM certificate for apex domain
         const apexCert = aws.acm.getCertificateOutput({
           domain: 'tvseri.es',
           statuses: ['ISSUED'],
         });
 
-        // CloudFront distribution for apex redirect
-        // Origin is required but never hit - function handles all requests
-        const apexRedirectDistribution = new aws.cloudfront.Distribution(
-          'ApexRedirect',
-          {
-            aliases: ['tvseri.es'],
-            defaultCacheBehavior: {
-              allowedMethods: ['GET', 'HEAD'],
-              cachedMethods: ['GET', 'HEAD'],
-              forwardedValues: {
-                cookies: { forward: 'none' },
-                queryString: false,
-              },
-              functionAssociations: [
-                {
-                  eventType: 'viewer-request',
-                  functionArn: redirectFunction.arn,
-                },
-              ],
-              targetOriginId: 'dummy',
-              viewerProtocolPolicy: 'redirect-to-https',
+        const apexRedirect = new aws.cloudfront.Distribution('ApexRedirect', {
+          aliases: ['tvseri.es'],
+          defaultCacheBehavior: {
+            allowedMethods: ['GET', 'HEAD'],
+            cachedMethods: ['GET', 'HEAD'],
+            forwardedValues: {
+              cookies: { forward: 'none' },
+              queryString: false,
             },
-            enabled: true,
-            origins: [
+            functionAssociations: [
               {
-                // Dummy origin - never hit because function returns redirect
-                customOriginConfig: {
-                  httpPort: 80,
-                  httpsPort: 443,
-                  originProtocolPolicy: 'https-only',
-                  originSslProtocols: ['TLSv1.2'],
-                },
-                domainName: 'www.tvseri.es',
-                originId: 'dummy',
+                eventType: 'viewer-request',
+                functionArn: redirectFunction.arn,
               },
             ],
-            restrictions: { geoRestriction: { restrictionType: 'none' } },
-            viewerCertificate: {
-              acmCertificateArn: apexCert.arn,
-              minimumProtocolVersion: 'TLSv1.2_2021',
-              sslSupportMethod: 'sni-only',
-            },
+            targetOriginId: 'dummy',
+            viewerProtocolPolicy: 'redirect-to-https',
           },
-        );
+          enabled: true,
+          origins: [
+            {
+              customOriginConfig: {
+                httpPort: 80,
+                httpsPort: 443,
+                originProtocolPolicy: 'https-only',
+                originSslProtocols: ['TLSv1.2'],
+              },
+              domainName: 'www.tvseri.es',
+              originId: 'dummy',
+            },
+          ],
+          restrictions: { geoRestriction: { restrictionType: 'none' } },
+          viewerCertificate: {
+            acmCertificateArn: apexCert.arn,
+            minimumProtocolVersion: 'TLSv1.2_2021',
+            sslSupportMethod: 'sni-only',
+          },
+        });
 
-        // Route 53 A record for apex pointing to CloudFront redirect
+        // A and AAAA records for apex
         new aws.route53.Record('ApexRedirectRecord', {
           aliases: [
             {
               evaluateTargetHealth: false,
-              name: apexRedirectDistribution.domainName,
-              zoneId: apexRedirectDistribution.hostedZoneId,
+              name: apexRedirect.domainName,
+              zoneId: apexRedirect.hostedZoneId,
             },
           ],
           name: 'tvseri.es',
@@ -331,23 +252,20 @@ export const web = $dev
           zoneId: zone,
         });
 
-        // IPv6 AAAA record for apex
         new aws.route53.Record('ApexRedirectRecordAAAA', {
           aliases: [
             {
               evaluateTargetHealth: false,
-              name: apexRedirectDistribution.domainName,
-              zoneId: apexRedirectDistribution.hostedZoneId,
+              name: apexRedirect.domainName,
+              zoneId: apexRedirect.hostedZoneId,
             },
           ],
           name: 'tvseri.es',
           type: 'AAAA',
           zoneId: zone,
         });
-      } else if (!$dev) {
-        // Preview environments: pr-{n}.dev.tvseri.es
-        // Domain added via CLI in deploy step above
-        // Route 53 CNAME pointing to Vercel
+      } else {
+        // Preview: pr-{n}.dev.tvseri.es -> Vercel
         new aws.route53.Record('PreviewWebRecord', {
           name: domain,
           records: ['cname.vercel-dns.com'],
@@ -357,7 +275,5 @@ export const web = $dev
         });
       }
 
-      return {
-        url: deploymentUrl,
-      };
+      return { url: deployedUrl };
     })();

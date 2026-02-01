@@ -22,7 +22,7 @@ const customDomain = isProduction ? 'www.tvseri.es' : domain;
 const siteUrl = `https://${customDomain}`;
 
 // Helper to run Vercel CLI commands
-function vercel(
+function runVercel(
   command: string,
   projectId: string,
   options: { env?: Record<string, string>; capture?: boolean } = {},
@@ -132,10 +132,10 @@ export const web = $dev
         const environment = isProduction ? 'production' : 'preview';
 
         console.log('|  Pulling Vercel project settings...');
-        vercel(`pull --yes --environment=${environment}`, projectId);
+        runVercel(`pull --yes --environment=${environment}`, projectId);
 
         console.log('|  Building Next.js app...');
-        vercel(`build${prodFlag}`, projectId, {
+        runVercel(`build${prodFlag}`, projectId, {
           env: {
             API_KEY: apiKey,
             API_URL: apiUrl,
@@ -146,7 +146,7 @@ export const web = $dev
         });
 
         console.log('|  Deploying to Vercel...');
-        const deploymentUrl = vercel(
+        const deploymentUrl = runVercel(
           `deploy --prebuilt${prodFlag} --archive=tgz`,
           projectId,
           { capture: true },
@@ -156,12 +156,12 @@ export const web = $dev
         // Add domain and set alias
         console.log(`|  Configuring domain ${customDomain}...`);
         try {
-          vercel(`domains add ${customDomain}`, projectId);
+          runVercel(`domains add ${customDomain}`, projectId);
         } catch {
           // Domain may already exist
         }
 
-        vercel(`alias set ${deploymentUrl} ${customDomain}`, projectId);
+        runVercel(`alias set ${deploymentUrl} ${customDomain}`, projectId);
         console.log(`|  Live at ${siteUrl}`);
 
         return siteUrl;

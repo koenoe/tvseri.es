@@ -1,10 +1,9 @@
-import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
 import { cachedUser } from '@/app/cached';
 import Grid from '@/components/Grid/Grid';
-import ListGrid from '@/components/Grid/ListGrid';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
+import FavoritesContainer from '@/components/User/FavoritesContainer';
 
 type Props = Readonly<{
   params: Promise<{ username: string }>;
@@ -22,13 +21,7 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default async function FavoritesPage({ params }: Props) {
-  const { username } = await params;
-  const user = await cachedUser({ username });
-  if (!user) {
-    return notFound();
-  }
-
+export default function FavoritesPage({ params }: Props) {
   return (
     <Suspense
       fallback={
@@ -39,7 +32,7 @@ export default async function FavoritesPage({ params }: Props) {
         </Grid>
       }
     >
-      <ListGrid listId="FAVORITES" user={user} />
+      <FavoritesContainer params={params} />
     </Suspense>
   );
 }

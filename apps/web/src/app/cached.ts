@@ -30,6 +30,13 @@ async function fetchCachedPerson(...args: Parameters<typeof fetchPerson>) {
 }
 export const cachedPerson = cache(fetchCachedPerson);
 
+// User: 'use cache' for PPR + cache() for request deduplication
+async function fetchCachedUser(...args: Parameters<typeof findUser>) {
+  'use cache';
+  cacheLife('short');
+  return findUser(...args);
+}
+export const cachedUser = cache(fetchCachedUser);
+
 // Request deduplication only (no PPR needed)
 export const cachedTvSeriesSeason = cache(fetchTvSeriesSeason);
-export const cachedUser = cache(findUser);

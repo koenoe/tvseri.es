@@ -1,9 +1,8 @@
-import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
 import { cachedUser } from '@/app/cached';
 import HistoryCardSkeleton from '@/components/History/HistoryCardSkeleton';
-import HistoryContainer from '@/components/History/HistoryContainer';
+import HistoryPageContainer from '@/components/User/HistoryPageContainer';
 
 type Props = Readonly<{
   params: Promise<{ username: string }>;
@@ -21,16 +20,10 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default async function HistoryPage({ params }: Props) {
-  const { username } = await params;
-  const user = await cachedUser({ username });
-  if (!user) {
-    return notFound();
-  }
-
+export default function HistoryPage({ params }: Props) {
   return (
     <Suspense fallback={<HistoryCardSkeleton />}>
-      <HistoryContainer user={user} />
+      <HistoryPageContainer params={params} />
     </Suspense>
   );
 }

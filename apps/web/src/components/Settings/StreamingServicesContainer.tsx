@@ -1,5 +1,6 @@
 import type { WatchProvider } from '@tvseri.es/schemas';
 import { headers } from 'next/headers';
+import { unauthorized } from 'next/navigation';
 import auth from '@/auth';
 import { fetchWatchProviders, updateWatchProviders } from '@/lib/api';
 import StreamingServices from './StreamingServices';
@@ -11,7 +12,7 @@ export default async function StreamingServicesContainer() {
   ]);
 
   if (!user || !accessToken) {
-    return null;
+    return unauthorized();
   }
 
   const region =

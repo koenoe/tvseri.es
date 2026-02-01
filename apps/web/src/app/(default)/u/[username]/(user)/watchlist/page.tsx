@@ -1,10 +1,9 @@
-import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
 import { cachedUser } from '@/app/cached';
 import Grid from '@/components/Grid/Grid';
-import ListGrid from '@/components/Grid/ListGrid';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
+import WatchlistContainer from '@/components/User/WatchlistContainer';
 
 type Props = Readonly<{
   params: Promise<{ username: string }>;
@@ -22,13 +21,7 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default async function WatchlistPage({ params }: Props) {
-  const { username } = await params;
-  const user = await cachedUser({ username });
-  if (!user) {
-    return notFound();
-  }
-
+export default function WatchlistPage({ params }: Props) {
   return (
     <Suspense
       fallback={
@@ -39,7 +32,7 @@ export default async function WatchlistPage({ params }: Props) {
         </Grid>
       }
     >
-      <ListGrid listId="WATCHLIST" user={user} />
+      <WatchlistContainer params={params} />
     </Suspense>
   );
 }

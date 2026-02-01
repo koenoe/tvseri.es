@@ -1,15 +1,7 @@
-import { unauthorized } from 'next/navigation';
 import { Suspense } from 'react';
-import auth from '@/auth';
 import StreamingServicesContainer from '@/components/Settings/StreamingServicesContainer';
 
-export default async function SettingsStreamingServicesPage() {
-  const { accessToken } = await auth();
-
-  if (!accessToken) {
-    return unauthorized();
-  }
-
+export default function SettingsStreamingServicesPage() {
   return (
     <Suspense
       fallback={

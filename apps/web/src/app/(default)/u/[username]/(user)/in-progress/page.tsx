@@ -1,8 +1,7 @@
-import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
 import { cachedUser } from '@/app/cached';
-import InProgressGrid from '@/components/Grid/InProgressGrid';
+import InProgressPageContainer from '@/components/User/InProgressPageContainer';
 
 type Props = Readonly<{
   params: Promise<{ username: string }>;
@@ -20,13 +19,7 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default async function InProgressPage({ params }: Props) {
-  const { username } = await params;
-  const user = await cachedUser({ username });
-  if (!user) {
-    return notFound();
-  }
-
+export default function InProgressPage({ params }: Props) {
   return (
     <Suspense
       fallback={
@@ -42,7 +35,7 @@ export default async function InProgressPage({ params }: Props) {
         </div>
       }
     >
-      <InProgressGrid user={user} />
+      <InProgressPageContainer params={params} />
     </Suspense>
   );
 }

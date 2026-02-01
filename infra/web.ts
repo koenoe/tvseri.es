@@ -76,7 +76,8 @@ export const web = $dev
         framework: 'nextjs',
         name: 'tvseries-web',
         resourceConfig: {
-          functionDefaultRegions: ['iad1', 'lhr1'],
+          // Note: is a pro feature
+          // functionDefaultRegions: ['iad1', 'lhr1'],
         },
         rootDirectory: 'apps/web',
       });

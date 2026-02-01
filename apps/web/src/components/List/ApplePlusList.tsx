@@ -1,8 +1,16 @@
+import { cacheLife } from 'next/cache';
 import { headers } from 'next/headers';
+
 import auth from '@/auth';
 import { fetchApplePlusTvSeries } from '@/lib/api';
 import Poster from '../Tiles/Poster';
 import List, { type HeaderVariantProps } from './List';
+
+async function cachedApplePlusTvSeries(region: string) {
+  'use cache';
+  cacheLife('long');
+  return fetchApplePlusTvSeries(region);
+}
 
 export default async function ApplePlusList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,
@@ -10,7 +18,7 @@ export default async function ApplePlusList(
   const [headerStore, { user }] = await Promise.all([headers(), auth()]);
   const region =
     user?.country || headerStore.get('cloudfront-viewer-country') || 'US';
-  const tvSeries = await fetchApplePlusTvSeries(region);
+  const tvSeries = await cachedApplePlusTvSeries(region);
 
   return (
     <List

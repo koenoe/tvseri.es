@@ -1,3 +1,5 @@
+import { cacheLife } from 'next/cache';
+
 import { fetchGenresForTvSeries } from '@/lib/api';
 import GenreTile from '../Tiles/Genre';
 import List from './List';
@@ -7,10 +9,16 @@ export const gapStyleOverride = {
   '--gap-override': '1rem',
 } as React.CSSProperties;
 
+async function cachedGenresForTvSeries() {
+  'use cache';
+  cacheLife('long');
+  return fetchGenresForTvSeries();
+}
+
 export default async function GenresList(
   props: React.AllHTMLAttributes<HTMLDivElement>,
 ) {
-  const genres = await fetchGenresForTvSeries();
+  const genres = await cachedGenresForTvSeries();
 
   const pairedGenres = [];
   for (let i = 0; i < genres.length; i += 2) {

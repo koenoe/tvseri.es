@@ -39,6 +39,7 @@ function runVercel(
     env: {
       ...process.env,
       ...options.env,
+      VERCEL_ORG_ID: VERCEL_TEAM_ID,
       VERCEL_PROJECT_ID: projectId,
     },
     stdio: options.capture ? 'pipe' : 'inherit',

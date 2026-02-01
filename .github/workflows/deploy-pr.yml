@@ -74,6 +74,7 @@ jobs:
           VERCEL_API_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
           VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
         run: |
+          set -o pipefail
           OUTPUT=$(pnpm sst deploy --stage pr-${{ github.event.pull_request.number }} 2>&1 | tee /dev/stderr)
           # Extract the web URL from SST output
           # Try custom domain first, fall back to Vercel URL

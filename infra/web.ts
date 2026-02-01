@@ -254,7 +254,7 @@ export const web = $dev
         // Preview: www.pr-{n}.dev.tvseri.es -> Vercel
         new aws.route53.Record('PreviewWebRecord', {
           allowOverwrite: true,
-          name: `www.${domain}`,
+          name: customDomain,
           records: ['cname.vercel-dns.com'],
           ttl: 300,
           type: 'CNAME',

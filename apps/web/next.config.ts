@@ -28,10 +28,24 @@ const nextConfig = {
   },
   async headers() {
     const baseUrl = getBaseUrl();
-    const shouldAddNoIndexHeader =
-      baseUrl.includes('dev') ||
-      baseUrl.includes('vercel') ||
-      baseUrl.includes('localhost');
+    const hostNoIndexHeaders = [
+      '.*\\.vercel\\.app',
+      '.*\\.dev\\.tvseri\\.es',
+    ].map((value) => ({
+      has: [
+        {
+          type: 'host' as const,
+          value,
+        },
+      ],
+      headers: [
+        {
+          key: 'X-Robots-Tag',
+          value: 'noindex, nofollow',
+        },
+      ],
+      source: '/:path*',
+    }));
 
     return [
       {
@@ -51,19 +65,7 @@ const nextConfig = {
         ],
         source: '/api/:path*',
       },
-      ...(shouldAddNoIndexHeader
-        ? [
-            {
-              headers: [
-                {
-                  key: 'X-Robots-Tag',
-                  value: 'noindex, nofollow',
-                },
-              ],
-              source: '/:path*',
-            },
-          ]
-        : []),
+      ...hostNoIndexHeaders,
     ];
   },
   async redirects() {

@@ -169,14 +169,7 @@ export const web = $dev
         ).trim();
         console.log(`|  Deployed to ${deploymentUrl}`);
 
-        // Add domain and set alias
-        console.log(`|  Configuring domain ${customDomain}...`);
-        try {
-          runVercel(`domains add ${customDomain}`, projectId);
-        } catch {
-          // Domain may already exist
-        }
-
+        // Set alias for deployment
         runVercel(`alias set ${deploymentUrl} ${customDomain}`, projectId);
         console.log(`|  Live at ${siteUrl}`);
 

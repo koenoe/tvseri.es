@@ -95,6 +95,7 @@ export const web = $dev
           },
         },
         projectId: project.id,
+        teamId: VERCEL_TEAM_ID,
       });
 
       const vercelTarget = isProduction ? 'production' : 'preview';

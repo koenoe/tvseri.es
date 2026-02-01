@@ -32,6 +32,7 @@ const nextConfig = {
       baseUrl.includes('dev') ||
       baseUrl.includes('vercel') ||
       baseUrl.includes('localhost');
+
     return [
       {
         headers: [

@@ -46,7 +46,6 @@ const nextConfig = {
       ],
       source: '/:path*',
     }));
-
     return [
       {
         headers: [

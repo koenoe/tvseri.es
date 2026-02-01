@@ -199,112 +199,107 @@ export const web = $dev
           zoneId: zone,
         });
 
-        // tvseri.es -> redirect to www via CloudFront Function
-        const redirectFunction = new aws.cloudfront.Function(
-          'ApexRedirectFunction',
-          {
-            code: `function handler(event) {
-  return {
-    statusCode: 301,
-    statusDescription: 'Moved Permanently',
-    headers: { location: { value: 'https://www.tvseri.es' + event.request.uri } }
-  };
-}`,
-            name: 'tvseries-apex-redirect-to-www',
-            runtime: 'cloudfront-js-2.0',
-          },
-        );
+        //         // tvseri.es -> redirect to www via CloudFront Function
+        //         const redirectFunction = new aws.cloudfront.Function(
+        //           'ApexRedirectFunction',
+        //           {
+        //             code: `function handler(event) {
+        //   return {
+        //     statusCode: 301,
+        //     statusDescription: 'Moved Permanently',
+        //     headers: { location: { value: 'https://www.tvseri.es' + event.request.uri } }
+        //   };
+        // }`,
+        //             name: 'tvseries-apex-redirect-to-www',
+        //             runtime: 'cloudfront-js-2.0',
+        //           },
+        //         );
 
-        const usEast1 = new aws.Provider('UsEast1', {
-          region: 'us-east-1',
-        });
+        //         const usEast1 = new aws.Provider('UsEast1', {
+        //           region: 'us-east-1',
+        //         });
 
-        const apexCert = new aws.acm.Certificate(
-          'ApexRedirectCert',
-          {
-            domainName: 'tvseri.es',
-            validationMethod: 'DNS',
-          },
-          {
-            import:
-              'arn:aws:acm:us-east-1:867344460030:certificate/f66ccef8-cbe6-4182-a960-a8849ec94ce4',
-            provider: usEast1,
-            retainOnDelete: true,
-          },
-        );
+        //         const apexCert = aws.acm.getCertificateOutput(
+        //           {
+        //             domain: 'tvseri.es',
+        //             mostRecent: true,
+        //             statuses: ['ISSUED'],
+        //           },
+        //           { provider: usEast1 },
+        //         );
 
-        const apexRedirect = new aws.cloudfront.Distribution('ApexRedirect', {
-          aliases: ['tvseri.es'],
-          defaultCacheBehavior: {
-            allowedMethods: ['GET', 'HEAD'],
-            cachedMethods: ['GET', 'HEAD'],
-            forwardedValues: {
-              cookies: { forward: 'none' },
-              queryString: false,
-            },
-            functionAssociations: [
-              {
-                eventType: 'viewer-request',
-                functionArn: redirectFunction.arn,
-              },
-            ],
-            targetOriginId: 'dummy',
-            viewerProtocolPolicy: 'redirect-to-https',
-          },
-          enabled: true,
-          origins: [
-            {
-              customOriginConfig: {
-                httpPort: 80,
-                httpsPort: 443,
-                originProtocolPolicy: 'https-only',
-                originSslProtocols: ['TLSv1.2'],
-              },
-              domainName: 'www.tvseri.es',
-              originId: 'dummy',
-            },
-          ],
-          restrictions: {
-            geoRestriction: {
-              locations: [],
-              restrictionType: 'none',
-            },
-          },
-          viewerCertificate: {
-            acmCertificateArn: apexCert.arn,
-            minimumProtocolVersion: 'TLSv1.2_2021',
-            sslSupportMethod: 'sni-only',
-          },
-        });
+        //         const apexRedirect = new aws.cloudfront.Distribution('ApexRedirect', {
+        //           aliases: ['tvseri.es'],
+        //           defaultCacheBehavior: {
+        //             allowedMethods: ['GET', 'HEAD'],
+        //             cachedMethods: ['GET', 'HEAD'],
+        //             forwardedValues: {
+        //               cookies: { forward: 'none' },
+        //               queryString: false,
+        //             },
+        //             functionAssociations: [
+        //               {
+        //                 eventType: 'viewer-request',
+        //                 functionArn: redirectFunction.arn,
+        //               },
+        //             ],
+        //             targetOriginId: 'dummy',
+        //             viewerProtocolPolicy: 'redirect-to-https',
+        //           },
+        //           enabled: true,
+        //           origins: [
+        //             {
+        //               customOriginConfig: {
+        //                 httpPort: 80,
+        //                 httpsPort: 443,
+        //                 originProtocolPolicy: 'https-only',
+        //                 originSslProtocols: ['TLSv1.2'],
+        //               },
+        //               domainName: 'www.tvseri.es',
+        //               originId: 'dummy',
+        //             },
+        //           ],
+        //           restrictions: {
+        //             geoRestriction: {
+        //               locations: [],
+        //               restrictionType: 'none',
+        //             },
+        //           },
+        //           viewerCertificate: {
+        //             acmCertificateArn: apexCert.arn,
+        //             minimumProtocolVersion: 'TLSv1.2_2021',
+        //             sslSupportMethod: 'sni-only',
+        //           },
+        //         });
 
-        // A and AAAA records for apex
-        new aws.route53.Record('ApexRedirectRecord', {
-          aliases: [
-            {
-              evaluateTargetHealth: false,
-              name: apexRedirect.domainName,
-              zoneId: apexRedirect.hostedZoneId,
-            },
-          ],
-          allowOverwrite: true,
-          name: 'tvseri.es',
-          type: 'A',
-          zoneId: zone,
-        });
+        //         // A and AAAA records for apex
+        //         new aws.route53.Record('ApexRedirectRecord', {
+        //           aliases: [
+        //             {
+        //               evaluateTargetHealth: false,
+        //               name: apexRedirect.domainName,
+        //               zoneId: apexRedirect.hostedZoneId,
+        //             },
+        //           ],
+        //           allowOverwrite: true,
+        //           name: 'tvseri.es',
+        //           type: 'A',
+        //           zoneId: zone,
+        //         });
 
-        new aws.route53.Record('ApexRedirectRecordAAAA', {
-          aliases: [
-            {
-              evaluateTargetHealth: false,
-              name: apexRedirect.domainName,
-              zoneId: apexRedirect.hostedZoneId,
-            },
-          ],
-          allowOverwrite: true,
-          name: 'tvseri.es',
-          type: 'AAAA',
-          zoneId: zone,
-        });
+        //         new aws.route53.Record('ApexRedirectRecordAAAA', {
+        //           aliases: [
+        //             {
+        //               evaluateTargetHealth: false,
+        //               name: apexRedirect.domainName,
+        //               zoneId: apexRedirect.hostedZoneId,
+        //             },
+        //           ],
+        //           allowOverwrite: true,
+        //           name: 'tvseri.es',
+        //           type: 'AAAA',
+        //           zoneId: zone,
+        //         });
       } else {
         // Preview: pr-{n}.dev.tvseri.es -> Vercel
         new aws.route53.Record('PreviewWebRecord', {

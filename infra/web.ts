@@ -221,12 +221,18 @@ export const web = $dev
           region: 'us-east-1',
         });
 
-        const apexCert = aws.acm.getCertificateOutput(
+        const apexCert = new aws.acm.Certificate(
+          'ApexRedirectCert',
           {
-            domain: 'tvseri.es',
-            statuses: ['ISSUED'],
+            domainName: 'tvseri.es',
+            validationMethod: 'DNS',
           },
-          { provider: usEast1 },
+          {
+            import:
+              'arn:aws:acm:us-east-1:867344460030:certificate/f66ccef8-cbe6-4182-a960-a8849ec94ce4',
+            provider: usEast1,
+            retainOnDelete: true,
+          },
         );
 
         const apexRedirect = new aws.cloudfront.Distribution('ApexRedirect', {

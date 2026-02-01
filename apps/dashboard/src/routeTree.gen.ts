@@ -66,8 +66,8 @@ export interface FileRoutesByFullPath {
   '/api/endpoints': typeof ApiEndpointsRoute
   '/aws/cdn': typeof AwsCdnRoute
   '/aws/lambda': typeof AwsLambdaRoute
-  '/api': typeof ApiIndexRoute
-  '/web': typeof WebIndexRoute
+  '/api/': typeof ApiIndexRoute
+  '/web/': typeof WebIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -99,8 +99,8 @@ export interface FileRouteTypes {
     | '/api/endpoints'
     | '/aws/cdn'
     | '/aws/lambda'
-    | '/api'
-    | '/web'
+    | '/api/'
+    | '/web/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -153,14 +153,14 @@ declare module '@tanstack/react-router' {
     '/web/': {
       id: '/web/'
       path: '/web'
-      fullPath: '/web'
+      fullPath: '/web/'
       preLoaderRoute: typeof WebIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/': {
       id: '/api/'
       path: '/api'
-      fullPath: '/api'
+      fullPath: '/api/'
       preLoaderRoute: typeof ApiIndexRouteImport
       parentRoute: typeof rootRouteImport
     }

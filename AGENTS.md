@@ -90,7 +90,7 @@ Never run `sst deploy` commands — deployments happen via CI.
 
 Next.js 16 with App Router, React 19, Tailwind CSS. State: Zustand. Animation: Motion.
 
-Deployed via OpenNext (`@opennextjs/aws`) through SST.
+Deployed to **Vercel** via SST (using Vercel CLI for build/deploy, `vercel alias` for custom domains).
 
 - Prefer data fetching in React Server Components (RSC)
 - Be mindful of dynamic functions (`cookies()`, `headers()`) — avoid making routes dynamic unnecessarily
@@ -127,6 +127,12 @@ Deployments happen via CI only. Never run `sst deploy` manually.
 ## CI/CD
 
 Located in `.github/workflows/`. Runs `format-and-lint` and `check-types` on PRs, deploys to production on push to main, and creates preview environments (`pr-{n}.dev.tvseri.es`) for PRs.
+
+### Domain Configuration
+
+- **Production**: `www.tvseri.es` (primary, served by Vercel), `tvseri.es` (redirects to www via CloudFront)
+- **Preview**: `pr-{n}.dev.tvseri.es` (Vercel via Route 53 CNAME)
+- **API/Auth**: Remain on AWS (api.tvseri.es, auth.tvseri.es)
 
 ## Testing
 

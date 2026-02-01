@@ -45,7 +45,7 @@ pnpm sst dev
 ## Tech Stack
 
 - **Next.js 16** (App Router, Server Components) – React 19 frontend
-- **OpenNext** – Deploy Next.js to AWS Lambda + CloudFront
+- **Vercel** – Hosting for Next.js frontend
 - **Hono** – API on AWS Lambda
 - **OpenAuth** – Authentication (Google, Email OTP)
 - **DynamoDB** – Database with Streams for real-time list updates
@@ -80,10 +80,9 @@ pnpm sst dev
 └── infra/
     ├── api.ts                # API Gateway + Lambda
     ├── auth.ts               # Auth service
-    ├── web.ts                # Next.js via OpenNext
+    ├── web.ts                # Next.js on Vercel + apex redirect
     ├── dns.ts                # Route 53 config
     ├── email.ts              # SES email
-    ├── waf.ts                # WAF rules
     ├── secrets.ts            # SST Secrets
     ├── scrobbleQueue.ts      # SQS + Lambda for Plex
     ├── watchedStatus.ts      # Daily cron for list updates
@@ -110,5 +109,7 @@ pnpm sst dev
 
 Deployed via GitHub Actions:
 
-- Push to `main` → Production (`tvseri.es`)
+- Push to `main` → Production (`www.tvseri.es`, apex redirects to www)
 - PR to `main` → Preview (`pr-{n}.dev.tvseri.es`)
+
+Frontend (`apps/web`) deploys to **Vercel**. API, Auth, and Dashboard remain on **AWS**.

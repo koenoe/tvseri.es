@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 /* deno-fmt-ignore-file */
+/* biome-ignore-all lint: auto-generated */
 
 declare module "sst" {
   export interface Resource {
@@ -114,10 +115,6 @@ declare module "sst" {
     "WebhookTokens": {
       "name": string
       "type": "sst.aws.Dynamo"
-    }
-    "tvseries": {
-      "type": "sst.aws.Nextjs"
-      "url": string
     }
   }
 }

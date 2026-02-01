@@ -65,47 +65,6 @@ const nextConfig = {
         : []),
     ];
   },
-  output: 'standalone',
-  // Note: to keep the Lambda size small
-  outputFileTracingExcludes: {
-    '*': [
-      // Source maps (not needed in production)
-      './**/*.cjs.map',
-      './**/*.js.map',
-      './**/*.mjs.map',
-      './**/*.d.ts',
-      './**/*.d.ts.map',
-      // Build tools (not needed at runtime)
-      './@babel*',
-      './@esbuild*',
-      './@node-rs/argon2-linux-x64-gnu',
-      './@node-rs/argon2-linux-x64-musl',
-      './@node-rs/bcrypt-linux-x64-gnu',
-      './@node-rs/bcrypt-linux-x64-musl',
-      './@swc/core-linux-x64-gnu*',
-      './@swc/core-linux-x64-musl*',
-      './rollup*',
-      './sharp*',
-      './terser*',
-      './typescript*',
-      './webpack*',
-      '**/amphtml-validator/*',
-      // Debug tools (not needed in production)
-      './source-map@*',
-      './source-map-support@*',
-      './source-map-js*',
-      // Version checking (not needed at runtime)
-      './semver*',
-      // Duplicate/unused packages
-      './detect-libc*',
-      './buffer-from*',
-      './styled-jsx*',
-      // Next.js build artifacts not needed at runtime
-      './**/next/dist/compiled/webpack/*',
-      './**/next/dist/compiled/@babel/*',
-      './**/next/dist/compiled/terser/*',
-    ],
-  },
   async redirects() {
     return [
       {
@@ -133,7 +92,6 @@ const nextConfig = {
       },
     ];
   },
-  serverExternalPackages: ['@opennextjs/aws', 'crypto', 'sst'],
   transpilePackages: [
     '@tvseri.es/constants',
     '@tvseri.es/schemas',

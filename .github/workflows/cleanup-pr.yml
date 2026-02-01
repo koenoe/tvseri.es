@@ -58,10 +58,6 @@ jobs:
           VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
         run: pnpm sst remove --stage pr-${{ github.event.pull_request.number }}
 
-      - name: Remove Vercel Domain
-        run: |
-          npx vercel domains rm pr-${{ github.event.pull_request.number }}.dev.tvseri.es --yes --scope=${{ secrets.VERCEL_TEAM_ID }} --token=${{ secrets.VERCEL_API_TOKEN }} || true
-
       - name: Update PR Comment
         uses: actions/github-script@v7
         with:

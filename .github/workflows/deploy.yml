@@ -22,6 +22,8 @@ jobs:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_TEAM_ID }}
       VERCEL_TELEMETRY_DISABLED: 1
       NEXT_TELEMETRY_DISABLED: 1
+      PULUMI_LOG_LEVEL: debug
+      PULUMI_LOG_TO_STDERR: 1
 
     steps:
       - name: Checkout
@@ -72,7 +74,7 @@ jobs:
           VERCEL_API_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
           VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
         run: pnpm sst deploy --stage production --verbose
-        timeout-minutes: 30
+        timeout-minutes: 10
 
       - name: Unlock SST on failure
         if: ${{ failure() || cancelled() }}

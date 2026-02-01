@@ -5,13 +5,13 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { apiRouter } from './api';
 import { auth } from './auth';
-import { domain } from './dns';
+import { domain, zone } from './dns';
 import * as secrets from './secrets';
 
 const PROJECT_NAME = 'tvseries-web';
 
 // Feature flag - enable after verifying Vercel deployment works
-const ENABLE_CUSTOM_DOMAINS = false;
+const ENABLE_CUSTOM_DOMAINS = true;
 
 // In dev mode, skip Vercel deployment - run Next.js dev server locally
 if ($dev) {
@@ -59,6 +59,12 @@ export const web = $dev
       const isProduction = $app.stage === 'production';
       const vercelTarget = isProduction ? 'production' : 'preview';
 
+      // For production: www.tvseri.es is the primary domain
+      // For preview: pr-{n}.dev.tvseri.es
+      const siteUrlValue = isProduction
+        ? 'https://www.tvseri.es'
+        : `https://${domain}`;
+
       // Set runtime environment variables on the Vercel project
       // Store references so we can wait for them before deploying
       const envApiKey = new vercel.ProjectEnvironmentVariable('WebEnvApiKey', {
@@ -93,13 +99,14 @@ export const web = $dev
           value: secrets.sessionSecret.value,
         },
       );
+
       const envSiteUrl = new vercel.ProjectEnvironmentVariable(
         'WebEnvSiteUrl',
         {
           key: 'SITE_URL',
           projectId: project.id,
           targets: [vercelTarget],
-          value: `https://${domain}`,
+          value: siteUrlValue,
         },
       );
 
@@ -117,12 +124,16 @@ export const web = $dev
         envSecretKey.id,
         envSiteUrl.id,
       ]).apply(([apiUrl, authUrl, apiKey, secretKey, projectId]) => {
-        const siteUrl = `https://${domain}`;
+        // For production: www.tvseri.es, for preview: pr-{n}.dev.tvseri.es
+        const siteUrl =
+          $app.stage === 'production'
+            ? 'https://www.tvseri.es'
+            : `https://${domain}`;
         // Vercel CLI must run from monorepo root with rootDirectory set to apps/web
         // See: https://github.com/vercel/vercel/issues/8794
         const monorepoRoot = process.cwd();
-        const isProduction = $app.stage === 'production';
-        const environment = isProduction ? 'production' : 'preview';
+        const isProd = $app.stage === 'production';
+        const environment = isProd ? 'production' : 'preview';
         const token = process.env.VERCEL_API_TOKEN!;
 
         // Pull Vercel project settings
@@ -142,7 +153,7 @@ export const web = $dev
         // Run vercel build from monorepo root (uses rootDirectory from project settings)
         console.log('|  Building Next.js app with Vercel CLI...');
         execSync(
-          `npx vercel build${isProduction ? ' --prod' : ''} --token=${token}`,
+          `npx vercel build${isProd ? ' --prod' : ''} --token=${token}`,
           {
             cwd: monorepoRoot,
             env: {
@@ -162,7 +173,7 @@ export const web = $dev
         // Runtime env vars are set via ProjectEnvironmentVariable above
         console.log('|  Deploying to Vercel...');
         const deployOutput = execSync(
-          `npx vercel deploy --prebuilt${isProduction ? ' --prod' : ''} --archive=tgz --token=${token}`,
+          `npx vercel deploy --prebuilt${isProd ? ' --prod' : ''} --archive=tgz --token=${token}`,
           {
             cwd: monorepoRoot,
             encoding: 'utf-8',
@@ -174,30 +185,159 @@ export const web = $dev
         );
 
         // vercel deploy outputs the deployment URL to stdout
-        const url = deployOutput.trim();
-        console.log(`|  Deployed to ${url}`);
-        return url;
+        const deploymentUrl = deployOutput.trim();
+        console.log(`|  Deployed to ${deploymentUrl}`);
+
+        // Alias the deployment to the custom domain
+        // Production: www.tvseri.es, Preview: pr-{n}.dev.tvseri.es
+        const customDomain = isProd ? 'www.tvseri.es' : domain;
+        const scope = process.env.VERCEL_TEAM_ID;
+        const scopeFlag = scope ? ` --scope=${scope}` : '';
+        console.log(`|  Setting alias ${customDomain} -> ${deploymentUrl}`);
+        execSync(
+          `npx vercel alias set ${deploymentUrl} ${customDomain}${scopeFlag} --token=${token}`,
+          {
+            cwd: monorepoRoot,
+            env: {
+              ...process.env,
+              VERCEL_PROJECT_ID: projectId,
+            },
+            stdio: 'inherit',
+          },
+        );
+        console.log(`|  Alias set: https://${customDomain}`);
+
+        return `https://${customDomain}`;
       });
 
       // Custom domains - enable after testing basic Vercel deployment
       if (ENABLE_CUSTOM_DOMAINS) {
-        // Production domain
-        if ($app.stage === 'production') {
-          new vercel.ProjectDomain('WebDomain', {
-            domain: 'tvseri.es',
-            projectId: project.id,
-          });
-
+        if (isProduction) {
+          // Production: www.tvseri.es served by Vercel, apex redirects to www via AWS
           new vercel.ProjectDomain('WebDomainWww', {
             domain: 'www.tvseri.es',
             projectId: project.id,
-            redirect: 'tvseri.es',
+          });
+
+          // Route 53 CNAME pointing www to Vercel
+          new aws.route53.Record('WwwVercelRecord', {
+            name: 'www.tvseri.es',
+            records: ['cname.vercel-dns.com'],
+            ttl: 300,
+            type: 'CNAME',
+            zoneId: zone,
+          });
+
+          // Apex redirect using CloudFront Function (faster than S3 redirect)
+          // Redirects tvseri.es -> www.tvseri.es at the edge
+          const redirectFunction = new aws.cloudfront.Function(
+            'ApexRedirectFunction',
+            {
+              code: `function handler(event) {
+  var request = event.request;
+  return {
+    statusCode: 301,
+    statusDescription: 'Moved Permanently',
+    headers: {
+      location: { value: 'https://www.tvseri.es' + request.uri }
+    }
+  };
+}`,
+              name: 'tvseries-apex-redirect-to-www',
+              runtime: 'cloudfront-js-2.0',
+            },
+          );
+
+          // Look up existing ACM certificate for apex domain
+          const apexCert = aws.acm.getCertificateOutput({
+            domain: 'tvseri.es',
+            statuses: ['ISSUED'],
+          });
+
+          // CloudFront distribution for apex redirect
+          // Origin is required but never hit - function handles all requests
+          const apexRedirectDistribution = new aws.cloudfront.Distribution(
+            'ApexRedirect',
+            {
+              aliases: ['tvseri.es'],
+              defaultCacheBehavior: {
+                allowedMethods: ['GET', 'HEAD'],
+                cachedMethods: ['GET', 'HEAD'],
+                forwardedValues: {
+                  cookies: { forward: 'none' },
+                  queryString: false,
+                },
+                functionAssociations: [
+                  {
+                    eventType: 'viewer-request',
+                    functionArn: redirectFunction.arn,
+                  },
+                ],
+                targetOriginId: 'dummy',
+                viewerProtocolPolicy: 'redirect-to-https',
+              },
+              enabled: true,
+              origins: [
+                {
+                  // Dummy origin - never hit because function returns redirect
+                  customOriginConfig: {
+                    httpPort: 80,
+                    httpsPort: 443,
+                    originProtocolPolicy: 'https-only',
+                    originSslProtocols: ['TLSv1.2'],
+                  },
+                  domainName: 'www.tvseri.es',
+                  originId: 'dummy',
+                },
+              ],
+              restrictions: { geoRestriction: { restrictionType: 'none' } },
+              viewerCertificate: {
+                acmCertificateArn: apexCert.arn,
+                minimumProtocolVersion: 'TLSv1.2_2021',
+                sslSupportMethod: 'sni-only',
+              },
+            },
+          );
+
+          // Route 53 A record for apex pointing to CloudFront redirect
+          new aws.route53.Record('ApexRedirectRecord', {
+            aliases: [
+              {
+                evaluateTargetHealth: false,
+                name: apexRedirectDistribution.domainName,
+                zoneId: apexRedirectDistribution.hostedZoneId,
+              },
+            ],
+            name: 'tvseri.es',
+            type: 'A',
+            zoneId: zone,
+          });
+
+          // IPv6 AAAA record for apex
+          new aws.route53.Record('ApexRedirectRecordAAAA', {
+            aliases: [
+              {
+                evaluateTargetHealth: false,
+                name: apexRedirectDistribution.domainName,
+                zoneId: apexRedirectDistribution.hostedZoneId,
+              },
+            ],
+            name: 'tvseri.es',
+            type: 'AAAA',
+            zoneId: zone,
+          });
+        } else if (!$dev) {
+          // Preview environments: pr-{n}.dev.tvseri.es
+          // Domain is auto-added to Vercel project by `vercel alias set`
+          // We just need DNS to point to Vercel
+          new aws.route53.Record('PreviewWebRecord', {
+            name: domain,
+            records: ['cname.vercel-dns.com'],
+            ttl: 300,
+            type: 'CNAME',
+            zoneId: zone,
           });
         }
-
-        // Preview domain alias (e.g., pr-123.dev.tvseri.es)
-        // Note: Can't use vercel.Alias here since we don't have a Pulumi deployment resource
-        // The CLI deployment already creates the URL we need
       }
 
       return {

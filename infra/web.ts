@@ -213,10 +213,17 @@ export const web = $dev
           },
         );
 
-        const apexCert = aws.acm.getCertificateOutput({
-          domain: 'tvseri.es',
-          statuses: ['ISSUED'],
+        const usEast1 = new aws.Provider('UsEast1', {
+          region: 'us-east-1',
         });
+
+        const apexCert = aws.acm.getCertificateOutput(
+          {
+            domain: 'tvseri.es',
+            statuses: ['ISSUED'],
+          },
+          { provider: usEast1 },
+        );
 
         const apexRedirect = new aws.cloudfront.Distribution('ApexRedirect', {
           aliases: ['tvseri.es'],

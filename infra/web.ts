@@ -9,8 +9,13 @@ import { domain, zone } from './dns';
 import * as secrets from './secrets';
 
 const PROJECT_NAME = 'tvseries-web';
-const VERCEL_TOKEN = process.env.VERCEL_API_TOKEN!;
+
+// Validate Vercel credentials upfront for clearer error messages
+const VERCEL_TOKEN = process.env.VERCEL_API_TOKEN;
 const VERCEL_TEAM_ID = process.env.VERCEL_TEAM_ID;
+if (!$dev && !VERCEL_TOKEN) {
+  throw new Error('VERCEL_API_TOKEN environment variable is required');
+}
 
 const isProduction = $app.stage === 'production';
 const customDomain = isProduction ? 'www.tvseri.es' : domain;

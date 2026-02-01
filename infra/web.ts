@@ -11,8 +11,12 @@ import * as secrets from './secrets';
 // Validate Vercel credentials upfront for clearer error messages
 const VERCEL_TOKEN = process.env.VERCEL_API_TOKEN;
 const VERCEL_TEAM_ID = process.env.VERCEL_TEAM_ID;
+
 if (!$dev && !VERCEL_TOKEN) {
   throw new Error('VERCEL_API_TOKEN environment variable is required');
+}
+if (!$dev && !VERCEL_TEAM_ID) {
+  throw new Error('VERCEL_TEAM_ID environment variable is required');
 }
 
 const isProduction = $app.stage === 'production';
@@ -256,7 +260,12 @@ export const web = $dev
               originId: 'dummy',
             },
           ],
-          restrictions: { geoRestriction: { restrictionType: 'none' } },
+          restrictions: {
+            geoRestriction: {
+              locations: [],
+              restrictionType: 'none',
+            },
+          },
           viewerCertificate: {
             acmCertificateArn: apexCert.arn,
             minimumProtocolVersion: 'TLSv1.2_2021',

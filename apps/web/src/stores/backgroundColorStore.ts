@@ -48,11 +48,3 @@ export function useBackgroundColor() {
 export function setBackgroundColor(color: string) {
   backgroundColorStore.getState().setColor(color);
 }
-
-/**
- * Get the current background color synchronously.
- * Useful for SSR or when you need the value outside of React.
- */
-export function getBackgroundColor() {
-  return backgroundColorStore.getState().color;
-}

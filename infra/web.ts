@@ -81,6 +81,21 @@ export const web = $dev
         rootDirectory: 'apps/web',
       });
 
+      new vercel.FirewallConfig('WebFirewallConfig', {
+        enabled: true,
+        managedRulesets: {
+          aiBots: {
+            action: 'deny',
+            active: true,
+          },
+          botProtection: {
+            action: 'challenge',
+            active: true,
+          },
+        },
+        projectId: project.id,
+      });
+
       const vercelTarget = isProduction ? 'production' : 'preview';
 
       // Environment variables for Vercel project

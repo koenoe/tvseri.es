@@ -193,6 +193,28 @@ export const web = $dev
         const customDomain = isProd ? 'www.tvseri.es' : domain;
         const scope = process.env.VERCEL_TEAM_ID;
         const scopeFlag = scope ? ` --scope=${scope}` : '';
+
+        // Add domain to project first (required before aliasing)
+        console.log(`|  Adding domain ${customDomain} to project...`);
+        try {
+          execSync(
+            `npx vercel domains add ${customDomain}${scopeFlag} --token=${token}`,
+            {
+              cwd: monorepoRoot,
+              env: {
+                ...process.env,
+                VERCEL_PROJECT_ID: projectId,
+              },
+              stdio: 'inherit',
+            },
+          );
+        } catch {
+          // Domain might already exist, continue with alias
+          console.log(
+            `|  Domain ${customDomain} may already exist, continuing...`,
+          );
+        }
+
         console.log(`|  Setting alias ${customDomain} -> ${deploymentUrl}`);
         execSync(
           `npx vercel alias set ${deploymentUrl} ${customDomain}${scopeFlag} --token=${token}`,
@@ -328,8 +350,8 @@ export const web = $dev
           });
         } else if (!$dev) {
           // Preview environments: pr-{n}.dev.tvseri.es
-          // Domain is auto-added to Vercel project by `vercel alias set`
-          // We just need DNS to point to Vercel
+          // Domain added via CLI in deploy step above
+          // Route 53 CNAME pointing to Vercel
           new aws.route53.Record('PreviewWebRecord', {
             name: domain,
             records: ['cname.vercel-dns.com'],

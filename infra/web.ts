@@ -82,21 +82,21 @@ export const web = $dev
         rootDirectory: 'apps/web',
       });
 
-      new vercel.FirewallConfig('WebFirewallConfig', {
-        enabled: true,
-        managedRulesets: {
-          aiBots: {
-            action: 'deny',
-            active: true,
-          },
-          botProtection: {
-            action: 'challenge',
-            active: true,
-          },
-        },
-        projectId: project.id,
-        teamId: VERCEL_TEAM_ID,
-      });
+      // TODO: enable when it works in Pulumi, currently is broken
+      // new vercel.FirewallConfig('WebFirewallConfig', {
+      //   enabled: true,
+      //   managedRulesets: {
+      //     aiBots: {
+      //       action: 'deny',
+      //       active: true,
+      //     },
+      //     botProtection: {
+      //       action: 'challenge',
+      //       active: true,
+      //     },
+      //   },
+      //   projectId: project.id,
+      // });
 
       const vercelTarget = isProduction ? 'production' : 'preview';
 

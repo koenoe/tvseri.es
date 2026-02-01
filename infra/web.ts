@@ -18,6 +18,9 @@ if (!$dev && !VERCEL_TOKEN) {
 const isProduction = $app.stage === 'production';
 const customDomain = isProduction ? 'www.tvseri.es' : domain;
 const siteUrl = `https://${customDomain}`;
+const projectName = isProduction
+  ? 'tvseries-web'
+  : `tvseries-web-${$app.stage}`;
 
 // Helper to run Vercel CLI commands
 function runVercel(
@@ -74,7 +77,7 @@ export const web = $dev
   : (() => {
       const project = new vercel.Project('WebProject', {
         framework: 'nextjs',
-        name: 'tvseries-web',
+        name: projectName,
         resourceConfig: {
           // Note: is a pro feature
           // functionDefaultRegions: ['iad1', 'lhr1'],
@@ -186,6 +189,7 @@ export const web = $dev
         });
 
         new aws.route53.Record('WwwVercelRecord', {
+          allowOverwrite: true,
           name: 'www.tvseri.es',
           records: ['cname.vercel-dns.com'],
           ttl: 300,
@@ -262,6 +266,7 @@ export const web = $dev
               zoneId: apexRedirect.hostedZoneId,
             },
           ],
+          allowOverwrite: true,
           name: 'tvseri.es',
           type: 'A',
           zoneId: zone,
@@ -275,6 +280,7 @@ export const web = $dev
               zoneId: apexRedirect.hostedZoneId,
             },
           ],
+          allowOverwrite: true,
           name: 'tvseri.es',
           type: 'AAAA',
           zoneId: zone,
@@ -282,6 +288,7 @@ export const web = $dev
       } else {
         // Preview: pr-{n}.dev.tvseri.es -> Vercel
         new aws.route53.Record('PreviewWebRecord', {
+          allowOverwrite: true,
           name: domain,
           records: ['cname.vercel-dns.com'],
           ttl: 300,

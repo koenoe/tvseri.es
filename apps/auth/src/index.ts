@@ -22,16 +22,6 @@ const ttl =
       };
 
 const app = issuer({
-  allow: async ({ redirectURI }) => {
-    const url = new URL(redirectURI);
-    if (url.hostname === 'localhost') return true;
-    // TODO: remove vercel.app once custom domain is set up
-    if (url.hostname === 'vercel.app' || url.hostname.endsWith('.vercel.app'))
-      return true;
-    if (url.hostname === 'tvseri.es' || url.hostname.endsWith('.tvseri.es'))
-      return true;
-    return false;
-  },
   providers: {
     code: CodeProvider(
       CodeUI({

@@ -3,6 +3,6 @@ packages:
   - packages/*
 
 catalog:
-  '@types/node': 25.1.0
-  sst: 3.17.38
+  '@types/node': 22.13.14
+  sst: 3.17.35
   typescript: 5.9.3

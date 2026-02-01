@@ -7,11 +7,11 @@ settings:
 catalogs:
   default:
     '@types/node':
-      specifier: 25.1.0
-      version: 25.1.0
+      specifier: 22.13.14
+      version: 22.13.14
     sst:
-      specifier: 3.17.38
-      version: 3.17.38
+      specifier: 3.17.35
+      version: 3.17.35
     typescript:
       specifier: 5.9.3
       version: 5.9.3
@@ -22,7 +22,7 @@ importers:
     dependencies:
       sst:
         specifier: 'catalog:'
-        version: 3.17.38
+        version: 3.17.35
     devDependencies:
       '@biomejs/biome':
         specifier: 2.3.13
@@ -95,7 +95,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.17.38
+        version: 3.17.35
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -105,7 +105,7 @@ importers:
         version: 8.10.160
       '@types/node':
         specifier: 'catalog:'
-        version: 25.1.0
+        version: 22.13.14
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
@@ -141,7 +141,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.17.38
+        version: 3.17.35
       ulid:
         specifier: ^3.0.2
         version: 3.0.2
@@ -151,7 +151,7 @@ importers:
         version: link:../../packages/typescript-config
       '@types/node':
         specifier: 'catalog:'
-        version: 25.1.0
+        version: 22.13.14
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -169,7 +169,7 @@ importers:
         version: 1.1.15(@types/react-dom@19.2.3(@types/react@19.2.10))(@types/react@19.2.10)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@tailwindcss/vite':
         specifier: ^4.1.17
-        version: 4.1.18(vite@7.3.1(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))
+        version: 4.1.18(vite@7.3.1(@types/node@22.13.14)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))
       '@tanstack/react-devtools':
         specifier: ^0.9.4
         version: 0.9.4(@types/react-dom@19.2.3(@types/react@19.2.10))(@types/react@19.2.10)(csstype@3.2.3)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(solid-js@1.9.10)
@@ -187,7 +187,7 @@ importers:
         version: 8.21.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@tanstack/router-plugin':
         specifier: ^1.157.17
-        version: 1.157.17(@tanstack/react-router@1.157.17(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))
+        version: 1.157.17(@tanstack/react-router@1.157.17(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@22.13.14)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))
       '@tvseri.es/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
@@ -217,10 +217,10 @@ importers:
         version: 2.15.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       shadcn:
         specifier: ^3.8.1
-        version: 3.8.1(@types/node@25.1.0)(hono@4.11.7)(typescript@5.9.3)
+        version: 3.8.1(@types/node@22.13.14)(hono@4.11.7)(typescript@5.9.3)
       sst:
         specifier: 'catalog:'
-        version: 3.17.38
+        version: 3.17.35
       tailwind-merge:
         specifier: ^3.4.0
         version: 3.4.0
@@ -236,13 +236,13 @@ importers:
     devDependencies:
       '@tanstack/devtools-vite':
         specifier: ^0.5.0
-        version: 0.5.0(vite@7.3.1(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))
+        version: 0.5.0(vite@7.3.1(@types/node@22.13.14)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))
       '@tvseri.es/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
       '@types/node':
         specifier: 'catalog:'
-        version: 25.1.0
+        version: 22.13.14
       '@types/react':
         specifier: ^19.2.10
         version: 19.2.10
@@ -251,13 +251,13 @@ importers:
         version: 19.2.3(@types/react@19.2.10)
       '@vitejs/plugin-react':
         specifier: ^5.0.4
-        version: 5.1.2(vite@7.3.1(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))
+        version: 5.1.2(vite@7.3.1(@types/node@22.13.14)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
       vite:
         specifier: ^7.3.1
-        version: 7.3.1(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)
+        version: 7.3.1(@types/node@22.13.14)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)
 
   apps/web:
     dependencies:
@@ -342,7 +342,7 @@ importers:
         version: link:../../packages/typescript-config
       '@types/node':
         specifier: 'catalog:'
-        version: 25.1.0
+        version: 22.13.14
       '@types/papaparse':
         specifier: ^5.5.2
         version: 5.5.2
@@ -378,14 +378,14 @@ importers:
     dependencies:
       sst:
         specifier: 'catalog:'
-        version: 3.17.38
+        version: 3.17.35
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
       '@types/node':
         specifier: 'catalog:'
-        version: 25.1.0
+        version: 22.13.14
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -403,7 +403,7 @@ importers:
         version: 3.980.0
       sst:
         specifier: 'catalog:'
-        version: 3.17.38
+        version: 3.17.35
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -413,7 +413,7 @@ importers:
         version: 8.10.160
       '@types/node':
         specifier: 'catalog:'
-        version: 25.1.0
+        version: 22.13.14
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -446,14 +446,14 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.17.38
+        version: 3.17.35
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
       '@types/node':
         specifier: 'catalog:'
-        version: 25.1.0
+        version: 22.13.14
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -2978,6 +2978,9 @@ packages:
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
+  '@types/node@22.13.14':
+    resolution: {integrity: sha512-Zs/Ollc1SJ8nKUAgc7ivOEdIBM8JAKgrqqUYi2J997JuKO7/tpQC+WCetQ1sypiKCQWHdvdg9wBNpUPEWZae7w==}
+
   '@types/node@25.1.0':
     resolution: {integrity: sha512-t7frlewr6+cbx+9Ohpl0NOTKXZNV9xHRmNOvql47BFJKcEG1CxtxlPEEe+gR9uhVWM4DwhnvTF110mIL4yP9RA==}
 
@@ -4941,48 +4944,48 @@ packages:
     resolution: {integrity: sha512-i5uvt8C3ikiWeNZSVZNWcfZPItFQOsYTUAOkcUPGd8DqDy1uOUikjt5dG+uRlwyvR108Fb9DOd4GvXfT0N2/uQ==}
     engines: {node: '>= 12'}
 
-  sst-darwin-arm64@3.17.38:
-    resolution: {integrity: sha512-2qEu/jRRBGQbMzkJKy4cypX+LdjInKtn1VrPHeggHD0/DsXLUBVdj/WyYb9ZxbsZEUcA9xZDR2+FBZ7lQzaDcw==}
+  sst-darwin-arm64@3.17.35:
+    resolution: {integrity: sha512-5Nu80FcTZwjRsbD/F/yNEB6842spD2yL69UJ9lbFCA8Fo6dlt61hiKrgFCuQ+Lu58r4ExzJ4+ZSrWTx1TvrQVQ==}
     cpu: [arm64]
     os: [darwin]
 
-  sst-darwin-x64@3.17.38:
-    resolution: {integrity: sha512-um13cWbRK5rfsYuLxS97gaSkFVd6jCzI+k6wlpJaOcJ5IZiH5UdFIz+ZE/7iCfNTEiwDT+RMw2nGL9a+07Vtww==}
+  sst-darwin-x64@3.17.35:
+    resolution: {integrity: sha512-FbApo03Hgm2KLt7chENmifU4y7cT6k9YsF+fzADi+QS4XHZ1LIMVWFsdxDdEKW2XuWqWuVxkCZMX/Nfd31OQOA==}
     cpu: [x64]
     os: [darwin]
 
-  sst-linux-arm64@3.17.38:
-    resolution: {integrity: sha512-gMxYJmpytntqZOf9SZfMnj+v6E0vZ8dAT5XnaKQhETSwuN6WH/OWHgx4bnp7bMQfdvm1uYNB+p7GRopIRRPePQ==}
+  sst-linux-arm64@3.17.35:
+    resolution: {integrity: sha512-DLZ7ovOViZ7SQ+t0WqJGEtHRLweuEyzpnBLRB4b80YiXEXGXZjdMvWjqE/Uv32EUoZjG2dthZw0JY/glS74dhQ==}
     cpu: [arm64]
     os: [linux]
 
-  sst-linux-x64@3.17.38:
-    resolution: {integrity: sha512-vwzfHhCugRTWevoA2qcl339yQhc8+vVdAqA11Qcats7LvaM6KxN9SqY00SfHPZxmm2odnefDg8z4b3Qvdo2NAw==}
+  sst-linux-x64@3.17.35:
+    resolution: {integrity: sha512-G7jBGpUD3B1+hvxKNnrIF9ZPzKYaW5PE8F1WvNFVa1yVG9i0x/Ayuxk5ZtOX+ZbP3LuLGm1mF3IqX+Qidrhu6g==}
     cpu: [x64]
     os: [linux]
 
-  sst-linux-x86@3.17.38:
-    resolution: {integrity: sha512-rxG2YsN2XnykCvJ1ZquZIXbEOWIdLdcJ1ir9hcqb31cLrH0z2EN5F/IsioH9mLRVJnbmY3JewNk+C9mMB2a8zA==}
+  sst-linux-x86@3.17.35:
+    resolution: {integrity: sha512-fDtj4l+/fz8P6qf3t56ZxMWSjRH+oe/4XNM/QtixUS+aqXTh5aeat4unITcAt1RpajjwqAyumB+6NENcuWxznA==}
     cpu: [x86]
     os: [linux]
 
-  sst-win32-arm64@3.17.38:
-    resolution: {integrity: sha512-aPTaLqJ4bEEfQwaxnteFXHAePw4Po1Be0tsdTuNUPDhhyv1CV5xSl4nppb4q/Qn1dGxaU6L4zCzZkshWskGIOg==}
+  sst-win32-arm64@3.17.35:
+    resolution: {integrity: sha512-KwKLXDhKxxdwz+wvP6j5rp7I/8mpeallYH/k04w7Oo0Ih+tD4JkymCTs4TVAP3LM2d8zboV4HII5EDQUCh0eUQ==}
     cpu: [arm64]
     os: [win32]
 
-  sst-win32-x64@3.17.38:
-    resolution: {integrity: sha512-X2kx6MOK1tZ0JhMqDisB60fJCOSxot5q7NPFMna5hj7cgJaQfj0NAgQqGJkLEB8iVWyxi6e5o1oJLg+vH452HQ==}
+  sst-win32-x64@3.17.35:
+    resolution: {integrity: sha512-HMnAVHVz9AB8/bMeqWdTVMpcAbPcqP3yHbALO3uNAy8wIXvtXHITAkx2qC8lMcbMFmp/XFwU2UHE0Zw33KE6Ng==}
     cpu: [x64]
     os: [win32]
 
-  sst-win32-x86@3.17.38:
-    resolution: {integrity: sha512-W5PxA4uhpXMzWNT0/sMrmU27fn1DCaReGwVwJGEZapu9GKTix41uaP+pyd9fwjiAHVILIdxqe7+BkZfH+mvzbg==}
+  sst-win32-x86@3.17.35:
+    resolution: {integrity: sha512-SZvWs8+JKOaCvoexuFOnuixl07ys0tOMZd4C+Dkro2ZryO+UQlA3NLix7pZoCs2H/F/OfXcTG5ho9k/dE9MEkw==}
     cpu: [x86]
     os: [win32]
 
-  sst@3.17.38:
-    resolution: {integrity: sha512-AshCCzogYVVTgLV7SBQ2hkmctAI0QV4pJmHwsyrX1ruSCvH18ccGgX/kux6/AFfaKrT7GmuVuQ2Zsz25GPXEiA==}
+  sst@3.17.35:
+    resolution: {integrity: sha512-xfkbaUedTB3qIQxfjE8ihY/ogUCvLHg4sZLJTNyJoO6lKATDxvi2j9YeYmeQtqKIV+LhxfrP3N2pPiELk3rQlg==}
     hasBin: true
 
   statuses@2.0.2:
@@ -5229,6 +5232,9 @@ packages:
   ulid@3.0.2:
     resolution: {integrity: sha512-yu26mwteFYzBAot7KVMqFGCVpsF6g8wXfJzQUHvu1no3+rRRSFcSV2nKeYvNPLD2J4b08jYBDhHUjeH0ygIl9w==}
     hasBin: true
+
+  undici-types@6.20.0:
+    resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
 
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
@@ -6847,31 +6853,31 @@ snapshots:
 
   '@inquirer/ansi@1.0.2': {}
 
-  '@inquirer/confirm@5.1.21(@types/node@25.1.0)':
+  '@inquirer/confirm@5.1.21(@types/node@22.13.14)':
     dependencies:
-      '@inquirer/core': 10.3.2(@types/node@25.1.0)
-      '@inquirer/type': 3.0.10(@types/node@25.1.0)
+      '@inquirer/core': 10.3.2(@types/node@22.13.14)
+      '@inquirer/type': 3.0.10(@types/node@22.13.14)
     optionalDependencies:
-      '@types/node': 25.1.0
+      '@types/node': 22.13.14
 
-  '@inquirer/core@10.3.2(@types/node@25.1.0)':
+  '@inquirer/core@10.3.2(@types/node@22.13.14)':
     dependencies:
       '@inquirer/ansi': 1.0.2
       '@inquirer/figures': 1.0.15
-      '@inquirer/type': 3.0.10(@types/node@25.1.0)
+      '@inquirer/type': 3.0.10(@types/node@22.13.14)
       cli-width: 4.1.0
       mute-stream: 2.0.0
       signal-exit: 4.1.0
       wrap-ansi: 6.2.0
       yoctocolors-cjs: 2.1.3
     optionalDependencies:
-      '@types/node': 25.1.0
+      '@types/node': 22.13.14
 
   '@inquirer/figures@1.0.15': {}
 
-  '@inquirer/type@3.0.10(@types/node@25.1.0)':
+  '@inquirer/type@3.0.10(@types/node@22.13.14)':
     optionalDependencies:
-      '@types/node': 25.1.0
+      '@types/node': 22.13.14
 
   '@isaacs/balanced-match@4.0.1': {}
 
@@ -6954,8 +6960,8 @@ snapshots:
       express-rate-limit: 7.5.1(express@5.2.1)
       pkce-challenge: 4.1.0
       raw-body: 3.0.2
-      zod: 3.24.2
-      zod-to-json-schema: 3.24.3(zod@3.24.2)
+      zod: 3.25.76
+      zod-to-json-schema: 3.25.1(zod@3.25.76)
     transitivePeerDependencies:
       - supports-color
 
@@ -8417,12 +8423,12 @@ snapshots:
       postcss-selector-parser: 6.0.10
       tailwindcss: 3.4.17
 
-  '@tailwindcss/vite@4.1.18(vite@7.3.1(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))':
+  '@tailwindcss/vite@4.1.18(vite@7.3.1(@types/node@22.13.14)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
       '@tailwindcss/node': 4.1.18
       '@tailwindcss/oxide': 4.1.18
       tailwindcss: 4.1.18
-      vite: 7.3.1(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 7.3.1(@types/node@22.13.14)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)
 
   '@tanstack/devtools-client@0.0.5':
     dependencies:
@@ -8445,7 +8451,7 @@ snapshots:
     transitivePeerDependencies:
       - csstype
 
-  '@tanstack/devtools-vite@0.5.0(vite@7.3.1(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))':
+  '@tanstack/devtools-vite@0.5.0(vite@7.3.1(@types/node@22.13.14)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/generator': 7.28.6
@@ -8457,7 +8463,7 @@ snapshots:
       chalk: 5.6.2
       launch-editor: 2.12.0
       picomatch: 4.0.3
-      vite: 7.3.1(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 7.3.1(@types/node@22.13.14)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -8568,7 +8574,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@tanstack/router-plugin@1.157.17(@tanstack/react-router@1.157.17(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))':
+  '@tanstack/router-plugin@1.157.17(@tanstack/react-router@1.157.17(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@22.13.14)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/plugin-syntax-jsx': 7.28.6(@babel/core@7.28.6)
@@ -8586,7 +8592,7 @@ snapshots:
       zod: 3.25.76
     optionalDependencies:
       '@tanstack/react-router': 1.157.17(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      vite: 7.3.1(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 7.3.1(@types/node@22.13.14)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -8670,13 +8676,17 @@ snapshots:
 
   '@types/estree@1.0.8': {}
 
+  '@types/node@22.13.14':
+    dependencies:
+      undici-types: 6.20.0
+
   '@types/node@25.1.0':
     dependencies:
       undici-types: 7.16.0
 
   '@types/papaparse@5.5.2':
     dependencies:
-      '@types/node': 25.1.0
+      '@types/node': 22.13.14
 
   '@types/react-dom@19.2.3(@types/react@19.2.10)':
     dependencies:
@@ -8690,7 +8700,7 @@ snapshots:
 
   '@types/validate-npm-package-name@4.0.2': {}
 
-  '@vitejs/plugin-react@5.1.2(vite@7.3.1(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))':
+  '@vitejs/plugin-react@5.1.2(vite@7.3.1(@types/node@22.13.14)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
       '@babel/core': 7.28.5
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.5)
@@ -8698,7 +8708,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-beta.53
       '@types/babel__core': 7.20.5
       react-refresh: 0.18.0
-      vite: 7.3.1(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 7.3.1(@types/node@22.13.14)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -9862,9 +9872,9 @@ snapshots:
 
   ms@2.1.3: {}
 
-  msw@2.12.7(@types/node@25.1.0)(typescript@5.9.3):
+  msw@2.12.7(@types/node@22.13.14)(typescript@5.9.3):
     dependencies:
-      '@inquirer/confirm': 5.1.21(@types/node@25.1.0)
+      '@inquirer/confirm': 5.1.21(@types/node@22.13.14)
       '@mswjs/interceptors': 0.40.0
       '@open-draft/deferred-promise': 2.2.0
       '@types/statuses': 2.0.6
@@ -10522,7 +10532,7 @@ snapshots:
 
   setprototypeof@1.2.0: {}
 
-  shadcn@3.8.1(@types/node@25.1.0)(hono@4.11.7)(typescript@5.9.3):
+  shadcn@3.8.1(@types/node@22.13.14)(hono@4.11.7)(typescript@5.9.3):
     dependencies:
       '@antfu/ni': 25.0.0
       '@babel/core': 7.28.6
@@ -10544,7 +10554,7 @@ snapshots:
       fuzzysort: 3.1.0
       https-proxy-agent: 7.0.6(supports-color@10.2.2)
       kleur: 4.1.5
-      msw: 2.12.7(@types/node@25.1.0)(typescript@5.9.3)
+      msw: 2.12.7(@types/node@22.13.14)(typescript@5.9.3)
       node-fetch: 3.3.2
       open: 11.0.0
       ora: 8.2.0
@@ -10677,31 +10687,31 @@ snapshots:
 
   source-map@0.7.6: {}
 
-  sst-darwin-arm64@3.17.38:
+  sst-darwin-arm64@3.17.35:
     optional: true
 
-  sst-darwin-x64@3.17.38:
+  sst-darwin-x64@3.17.35:
     optional: true
 
-  sst-linux-arm64@3.17.38:
+  sst-linux-arm64@3.17.35:
     optional: true
 
-  sst-linux-x64@3.17.38:
+  sst-linux-x64@3.17.35:
     optional: true
 
-  sst-linux-x86@3.17.38:
+  sst-linux-x86@3.17.35:
     optional: true
 
-  sst-win32-arm64@3.17.38:
+  sst-win32-arm64@3.17.35:
     optional: true
 
-  sst-win32-x64@3.17.38:
+  sst-win32-x64@3.17.35:
     optional: true
 
-  sst-win32-x86@3.17.38:
+  sst-win32-x86@3.17.35:
     optional: true
 
-  sst@3.17.38:
+  sst@3.17.35:
     dependencies:
       aws-sdk: 2.1692.0
       aws4fetch: 1.0.18
@@ -10709,14 +10719,14 @@ snapshots:
       opencontrol: 0.0.6
       openid-client: 5.6.4
     optionalDependencies:
-      sst-darwin-arm64: 3.17.38
-      sst-darwin-x64: 3.17.38
-      sst-linux-arm64: 3.17.38
-      sst-linux-x64: 3.17.38
-      sst-linux-x86: 3.17.38
-      sst-win32-arm64: 3.17.38
-      sst-win32-x64: 3.17.38
-      sst-win32-x86: 3.17.38
+      sst-darwin-arm64: 3.17.35
+      sst-darwin-x64: 3.17.35
+      sst-linux-arm64: 3.17.35
+      sst-linux-x64: 3.17.35
+      sst-linux-x86: 3.17.35
+      sst-win32-arm64: 3.17.35
+      sst-win32-x64: 3.17.35
+      sst-win32-x86: 3.17.35
     transitivePeerDependencies:
       - supports-color
 
@@ -10951,6 +10961,8 @@ snapshots:
 
   ulid@3.0.2: {}
 
+  undici-types@6.20.0: {}
+
   undici-types@7.16.0: {}
 
   unicorn-magic@0.3.0: {}
@@ -11050,7 +11062,7 @@ snapshots:
       d3-time: 3.1.0
       d3-timer: 3.0.1
 
-  vite@7.3.1(@types/node@25.1.0)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2):
+  vite@7.3.1(@types/node@22.13.14)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.16.9)(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
       esbuild: 0.27.2
       fdir: 6.5.0(picomatch@4.0.3)
@@ -11059,7 +11071,7 @@ snapshots:
       rollup: 4.55.1
       tinyglobby: 0.2.15
     optionalDependencies:
-      '@types/node': 25.1.0
+      '@types/node': 22.13.14
       fsevents: 2.3.3
       jiti: 2.6.1
       lightningcss: 1.30.2

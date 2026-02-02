@@ -1,19 +1,10 @@
 'use client';
 
-import {
-  useEffect,
-  useInsertionEffect,
-  useRef,
-  useSyncExternalStore,
-} from 'react';
+import { useInsertionEffect, useRef, useSyncExternalStore } from 'react';
 
 import getHistoryKey from '@/utils/getHistoryKey';
 
 import { usePageStore } from '../Page/PageStoreProvider';
-
-// Module-level registry of all mounted BackgroundGlobalDynamic instances
-// Maps historyKey → color, updated on every render
-const colorRegistry = new Map<string, string>();
 
 // Subscribe to history changes via popstate
 const historySubscribe = (callback: () => void) => {
@@ -21,43 +12,21 @@ const historySubscribe = (callback: () => void) => {
   return () => window.removeEventListener('popstate', callback);
 };
 
-// Global popstate handler that syncs CSS variable from registry
-// This runs even when Activity components don't re-render
-if (typeof window !== 'undefined') {
-  window.addEventListener('popstate', () => {
-    // RAF to let Activity visibility update
-    requestAnimationFrame(() => {
-      const currentKey = getHistoryKey();
-      const color = colorRegistry.get(currentKey);
-      console.log('[BG-REGISTRY] popstate:', {
-        color,
-        currentKey,
-        registryKeys: Array.from(colorRegistry.keys()),
-        registrySize: colorRegistry.size,
-      });
-      if (color) {
-        document.documentElement.style.setProperty(
-          '--main-background-color',
-          color,
-        );
-      }
-    });
-  });
-}
-
 /**
  * Dynamic background that reads from PageStore and handles transitions.
  *
  * Architecture:
  * - SSR: Inline script sets CSS variable immediately (no flash)
- * - Client: useInsertionEffect updates CSS variable
- * - Activity: Global popstate handler syncs from registry when Activity reveals
+ * - Client: useInsertionEffect updates CSS variable when this is the active page
+ * - Activity: BackgroundSync handles popstate globally (separate component)
  *
- * Activity handling (TanStack Router pattern):
- * With cacheComponents, components in hidden Activity don't re-render on external
- * store changes. We maintain a module-level registry (historyKey → color) that gets
- * updated on every render. A global popstate handler reads from this registry to
- * sync the CSS variable when navigating back/forward.
+ * Why useSyncExternalStore?
+ * With cacheComponents, multiple BackgroundGlobalDynamic instances exist.
+ * We compare storeHistoryKey with currentHistoryKey to determine which is active.
+ * Only the active page should update the CSS variable.
+ *
+ * Note: Activity components may not re-render on popstate. BackgroundSync handles
+ * that case by reading directly from the page store cache.
  */
 export default function BackgroundGlobalDynamic() {
   const color = usePageStore((state) => state.backgroundColor);
@@ -65,30 +34,21 @@ export default function BackgroundGlobalDynamic() {
   const enableTransitions = usePageStore((state) => state.enableTransitions);
   const transitionStyleRef = useRef<HTMLStyleElement | null>(null);
 
-  // Subscribe to history changes to trigger re-render on Activity reveal.
+  // Subscribe to history changes to trigger re-render when possible
   const currentHistoryKey = useSyncExternalStore(
     historySubscribe,
     getHistoryKey,
-    () => 'index',
+    () => 'index', // Server snapshot
   );
 
-  // Register this page's color in the module-level registry
-  // This happens on every render, keeping the registry up-to-date
-  colorRegistry.set(storeHistoryKey, color);
-
-  // Cleanup: remove from registry on unmount
-  useEffect(() => {
-    return () => {
-      colorRegistry.delete(storeHistoryKey);
-    };
-  }, [storeHistoryKey]);
-
   // Determine if this is the active page
+  // During hydration, currentHistoryKey might be 'index' while storeHistoryKey
+  // has the real browser key - in that case we're the only mounted page
   const isHydrating =
     currentHistoryKey === 'index' && typeof window !== 'undefined';
   const isActivePage = isHydrating || storeHistoryKey === currentHistoryKey;
 
-  // Update CSS variable - only when this is the active page
+  // Update CSS variable when this is the active page
   useInsertionEffect(() => {
     if (isActivePage) {
       document.documentElement.style.setProperty(

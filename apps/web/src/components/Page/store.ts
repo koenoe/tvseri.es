@@ -100,3 +100,16 @@ export const createPageStore = (
 
   return store;
 };
+
+/**
+ * Get cached background color for a history key.
+ *
+ * Used by BackgroundSync to restore colors on back/forward navigation
+ * when Activity components don't re-render.
+ */
+export const getCachedBackgroundColor = (
+  historyKey: string,
+): string | undefined => {
+  const cacheKey = `page:${historyKey}`;
+  return cache.get(cacheKey)?.backgroundColor;
+};

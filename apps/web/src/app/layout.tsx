@@ -6,6 +6,7 @@ import { Inter } from 'next/font/google';
 import { type ReactNode, Suspense } from 'react';
 import { Toaster } from 'sonner';
 
+import BackgroundSync from '@/components/Background/BackgroundSync';
 import NavigationTracker from '@/components/NavigationTracker';
 import WatchedStoreProvider from '@/components/Watched/WatchedStoreProvider';
 import WebVitals from '@/components/WebVitals';
@@ -69,6 +70,7 @@ export default function RootLayout({
           }}
         />
         <NavigationTracker />
+        <BackgroundSync />
         <Toaster
           toastOptions={{
             classNames: {

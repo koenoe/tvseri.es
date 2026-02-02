@@ -1,16 +1,8 @@
 'use client';
 
-import { useInsertionEffect, useRef, useSyncExternalStore } from 'react';
-
-import getHistoryKey from '@/utils/getHistoryKey';
+import { useEffect, useInsertionEffect, useRef } from 'react';
 
 import { usePageStore } from '../Page/PageStoreProvider';
-
-// Subscribe to history changes via popstate
-const historySubscribe = (callback: () => void) => {
-  window.addEventListener('popstate', callback);
-  return () => window.removeEventListener('popstate', callback);
-};
 
 /**
  * Dynamic background that reads from PageStore and handles transitions.
@@ -20,15 +12,10 @@ const historySubscribe = (callback: () => void) => {
  * - Client: This component takes over, updating the CSS variable via useInsertionEffect
  * - Transitions: Added temporarily during carousel swipes, then removed
  *
- * Activity reveal handling:
- * With cacheComponents, multiple pages stay mounted but hidden. When a page
- * reveals (becomes active again), we need to update the global CSS variable
- * to this page's background color.
- *
- * The challenge: when Activity reveals, React doesn't automatically re-render
- * children that haven't changed. We use useSyncExternalStore to subscribe to
- * history changes (popstate), which triggers a re-render when navigating back/forward.
- * This ensures the useInsertionEffect runs and sets the correct CSS variable.
+ * Activity visibility detection:
+ * With cacheComponents, multiple pages stay mounted but hidden. We detect visibility
+ * by checking if our closest <main> element has offsetParent (visible elements have it,
+ * hidden Activity elements don't). Only the visible page updates the CSS variable.
  *
  * Transitions are controlled by the store's enableTransitions flag:
  * - User swipes carousel → setBackground({ ..., enableTransitions: true }) → animate
@@ -37,39 +24,22 @@ const historySubscribe = (callback: () => void) => {
  */
 export default function BackgroundGlobalDynamic() {
   const color = usePageStore((state) => state.backgroundColor);
-  const storeHistoryKey = usePageStore((state) => state.historyKey);
   const enableTransitions = usePageStore((state) => state.enableTransitions);
   const transitionStyleRef = useRef<HTMLStyleElement | null>(null);
+  const scriptRef = useRef<HTMLScriptElement>(null);
 
-  // Subscribe to history changes to trigger re-render on Activity reveal.
-  // When user navigates back/forward, popstate fires, this returns a new value,
-  // and the component re-renders - allowing useInsertionEffect to set the CSS var.
-  const currentHistoryKey = useSyncExternalStore(
-    historySubscribe,
-    getHistoryKey,
-    () => 'index', // Server snapshot
-  );
+  // Check if this component's page is visible (Activity not hidden)
+  const isPageVisible = () => {
+    const main = scriptRef.current?.closest('main');
+    // If no main found, assume visible (SSR or not yet mounted)
+    if (!main) return true;
+    // offsetParent is null for hidden elements (display:none, visibility:hidden, or hidden ancestor)
+    return main.offsetParent !== null;
+  };
 
-  // Only update CSS variable if this store is for the currently active page.
-  // With Activity caching, multiple BackgroundGlobalDynamic components are mounted.
-  // Only the one matching the current history entry should update the global CSS var.
-  const isActivePage = storeHistoryKey === currentHistoryKey;
-
-  // Debug logging
-  console.log('[BG] render:', {
-    color,
-    currentHistoryKey,
-    isActivePage,
-    storeHistoryKey,
-  });
-
-  // Update CSS variable - useInsertionEffect fires synchronously before DOM mutations
-  // Only runs when this is the active page, preventing hidden Activity pages from
-  // overwriting the visible page's background color.
+  // Update CSS variable - only when this page is visible
   useInsertionEffect(() => {
-    console.log('[BG] useInsertionEffect:', { color, isActivePage });
-    if (isActivePage) {
-      console.log('[BG] Setting CSS var to:', color);
+    if (isPageVisible()) {
       document.documentElement.style.setProperty(
         '--main-background-color',
         color,
@@ -77,9 +47,35 @@ export default function BackgroundGlobalDynamic() {
     }
   });
 
-  // Handle transitions for carousel swipes - only for active page
+  // Handle Activity reveal on popstate (back/forward navigation)
+  // When Activity reveals, we need to sync the background color
+  useEffect(() => {
+    const syncBackground = () => {
+      // Use RAF to let Activity visibility update before we check
+      requestAnimationFrame(() => {
+        // Check visibility inline to avoid stale closure
+        const main = scriptRef.current?.closest('main');
+        const isVisible = main ? main.offsetParent !== null : true;
+        if (isVisible) {
+          document.documentElement.style.setProperty(
+            '--main-background-color',
+            color,
+          );
+        }
+      });
+    };
+
+    window.addEventListener('popstate', syncBackground);
+    return () => window.removeEventListener('popstate', syncBackground);
+  }, [color]);
+
+  // Handle transitions for carousel swipes - only for visible page
   useInsertionEffect(() => {
-    if (isActivePage && enableTransitions) {
+    // Check visibility inline to avoid stale closure
+    const main = scriptRef.current?.closest('main');
+    const isVisible = main ? main.offsetParent !== null : true;
+
+    if (isVisible && enableTransitions) {
       // Add transition styles temporarily for smooth animation
       const style = document.createElement('style');
       style.textContent = `
@@ -111,16 +107,18 @@ export default function BackgroundGlobalDynamic() {
         }
       };
     }
-  }, [isActivePage, enableTransitions]);
+  }, [enableTransitions]);
 
   // Render inline script for SSR - ensures correct color before hydration
   // After hydration, useInsertionEffect takes over for updates
+  // The ref is used to find our parent <main> element for visibility detection
   return (
     <script
-      // biome-ignore lint/security/noDangerouslySetInnerHtml: required for synchronous execution
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: required for synchronous SSR execution
       dangerouslySetInnerHTML={{
         __html: `(function(){document.documentElement.style.setProperty('--main-background-color','${color}')})()`,
       }}
+      ref={scriptRef}
     />
   );
 }

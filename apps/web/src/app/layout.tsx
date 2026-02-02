@@ -83,7 +83,9 @@ export default function RootLayout({
           }}
         />
         {/* Singleton that manages --main-background-color CSS variable */}
-        <BackgroundColorManager />
+        <Suspense fallback={null}>
+          <BackgroundColorManager />
+        </Suspense>
         <WatchedStoreProvider>{children}</WatchedStoreProvider>
         <Suspense fallback={null}>
           <WebVitals />

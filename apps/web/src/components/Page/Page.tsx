@@ -4,21 +4,17 @@ import {
   DEFAULT_BACKGROUND_COLOR,
   DEFAULT_BACKGROUND_IMAGE,
 } from '@/constants';
-import Background, {
-  type BackgroundContext,
-  type BackgroundVariant,
-} from '../Background/Background';
-import BackgroundGlobal from '../Background/BackgroundGlobal';
-import { PageStoreProvider } from './PageStoreProvider';
+import Background, { type BackgroundContext } from '../Background/Background';
+import { BackgroundProvider } from '../Background/BackgroundProvider';
+import BackgroundStyle from '../Background/BackgroundStyle';
 
 export type Props = Readonly<{
   backgroundColor?: string;
   backgroundImage?: string;
-  backgroundVariant?: BackgroundVariant;
+  animateBackground?: boolean;
   backgroundContext?: BackgroundContext;
   backgroundPriority?: boolean;
   children: React.ReactNode;
-  usePersistentStore?: boolean;
 }>;
 
 const dotsAndGridStyles = cva(
@@ -49,58 +45,47 @@ const dotsAndGridStyles = cva(
 export default function Page({
   backgroundColor = DEFAULT_BACKGROUND_COLOR,
   backgroundImage = DEFAULT_BACKGROUND_IMAGE,
-  backgroundVariant = 'static',
+  animateBackground = false,
   backgroundContext = 'page',
   backgroundPriority = false,
   children,
-  usePersistentStore,
 }: Props) {
-  const background = () => {
-    if (backgroundContext === 'dots' || backgroundContext === 'grid') {
-      return (
-        <div className={dotsAndGridStyles({ context: backgroundContext })} />
-      );
-    }
-
-    return (
+  const backgroundElement =
+    backgroundContext === 'dots' || backgroundContext === 'grid' ? (
+      <div className={dotsAndGridStyles({ context: backgroundContext })} />
+    ) : (
       <Background
+        animated={animateBackground}
         color={backgroundColor}
         context={backgroundContext}
         image={backgroundImage}
         priority={backgroundPriority}
-        variant={backgroundVariant}
       />
     );
-  };
 
-  const content = () => {
-    return (
-      <>
-        <BackgroundGlobal color={backgroundColor} variant={backgroundVariant} />
-        <main
-          className="grow scroll-mt-[6rem] pb-10 pt-[6rem] md:scroll-mt-[8rem] md:pb-16 md:pt-[8rem]"
-          style={{
-            backgroundColor,
-          }}
-        >
-          {background()}
-          <div className="relative z-10">{children}</div>
-        </main>
-      </>
-    );
-  };
+  const content = (
+    <>
+      <BackgroundStyle color={backgroundColor} />
+      <main
+        className="grow scroll-mt-[6rem] pb-10 pt-[6rem] md:scroll-mt-[8rem] md:pb-16 md:pt-[8rem]"
+        style={{
+          backgroundColor,
+        }}
+      >
+        {backgroundElement}
+        <div className="relative z-10">{children}</div>
+      </main>
+    </>
+  );
 
-  if (backgroundVariant === 'static') {
-    return content();
-  }
-
+  // Always wrap in BackgroundProvider - it handles SPA navigation color sync
+  // for both static and dynamic pages
   return (
-    <PageStoreProvider
-      backgroundColor={backgroundColor}
-      backgroundImage={backgroundImage}
-      persistent={usePersistentStore}
+    <BackgroundProvider
+      initialColor={backgroundColor}
+      initialImage={backgroundImage}
     >
-      {content()}
-    </PageStoreProvider>
+      {content}
+    </BackgroundProvider>
   );
 }

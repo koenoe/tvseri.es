@@ -105,12 +105,11 @@ export default async function TvSeriesDetailsPage({
   return (
     <>
       <Page
+        animateBackground
         backgroundColor={tvSeries.backdropColor}
         backgroundContext="page"
         backgroundImage={tvSeries.backdropImage}
         backgroundPriority
-        backgroundVariant="dynamic"
-        usePersistentStore={false}
       >
         <div className="container">
           <div className="relative flex h-[calc(85vh-16rem)] items-end md:h-[calc(65vh-8rem)]">

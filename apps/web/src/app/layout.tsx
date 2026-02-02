@@ -6,7 +6,7 @@ import { Inter } from 'next/font/google';
 import { type ReactNode, Suspense } from 'react';
 import { Toaster } from 'sonner';
 
-import EnsureHistoryKey from '@/components/EnsureHistoryKey';
+import NavigationTracker from '@/components/NavigationTracker';
 import WatchedStoreProvider from '@/components/Watched/WatchedStoreProvider';
 import WebVitals from '@/components/WebVitals';
 
@@ -68,9 +68,7 @@ export default function RootLayout({
             `,
           }}
         />
-        <Suspense fallback={null}>
-          <EnsureHistoryKey />
-        </Suspense>
+        <NavigationTracker />
         <Toaster
           toastOptions={{
             classNames: {

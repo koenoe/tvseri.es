@@ -1,10 +1,16 @@
 'use client';
 
+import { useInsertionEffect, useRef } from 'react';
+
 import { usePageStore } from '../Page/PageStoreProvider';
-import BackgroundGlobalBase from './BackgroundGlobalBase';
 
 /**
- * Dynamic background that reads from PageStore.
+ * Dynamic background that reads from PageStore and handles transitions.
+ *
+ * Architecture:
+ * - SSR: Parent renders BackgroundGlobalBase with inline script for immediate color
+ * - Client: This component takes over, updating the CSS variable via useInsertionEffect
+ * - Transitions: Added temporarily during carousel swipes, then removed
  *
  * Transitions are controlled by the store's enableTransitions flag:
  * - User swipes carousel → setBackground({ ..., enableTransitions: true }) → animate
@@ -14,8 +20,60 @@ import BackgroundGlobalBase from './BackgroundGlobalBase';
 export default function BackgroundGlobalDynamic() {
   const color = usePageStore((state) => state.backgroundColor);
   const enableTransitions = usePageStore((state) => state.enableTransitions);
+  const transitionStyleRef = useRef<HTMLStyleElement | null>(null);
 
+  // Update CSS variable - useInsertionEffect fires synchronously before DOM mutations
+  useInsertionEffect(() => {
+    document.documentElement.style.setProperty(
+      '--main-background-color',
+      color,
+    );
+  }, [color]);
+
+  // Handle transitions for carousel swipes
+  useInsertionEffect(() => {
+    if (enableTransitions) {
+      // Add transition styles temporarily for smooth animation
+      const style = document.createElement('style');
+      style.textContent = `
+        body,
+        main,
+        main + div,
+        footer {
+          transition-property: background-color;
+          transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+          transition-duration: 500ms;
+        }
+      `;
+      document.head.appendChild(style);
+      transitionStyleRef.current = style;
+
+      // Remove transition styles after animation completes
+      const cleanup = setTimeout(() => {
+        if (transitionStyleRef.current) {
+          transitionStyleRef.current.remove();
+          transitionStyleRef.current = null;
+        }
+      }, 600); // Slightly longer than transition duration
+
+      return () => {
+        clearTimeout(cleanup);
+        if (transitionStyleRef.current) {
+          transitionStyleRef.current.remove();
+          transitionStyleRef.current = null;
+        }
+      };
+    }
+  }, [enableTransitions]);
+
+  // Render inline script for SSR - ensures correct color before hydration
+  // After hydration, useInsertionEffect takes over for updates
   return (
-    <BackgroundGlobalBase color={color} enableTransitions={enableTransitions} />
+    <script
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: required for synchronous execution
+      dangerouslySetInnerHTML={{
+        __html: `(function(){document.documentElement.style.setProperty('--main-background-color','${color}')})()`,
+      }}
+    />
   );
 }

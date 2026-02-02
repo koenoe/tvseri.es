@@ -42,7 +42,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cx(
-          'overflow-x-hidden overscroll-y-none bg-neutral-900 text-white subpixel-antialiased',
+          'overflow-x-hidden overscroll-y-none text-white subpixel-antialiased',
           inter.className,
         )}
         suppressHydrationWarning

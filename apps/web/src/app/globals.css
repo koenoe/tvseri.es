@@ -2,6 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Background Color System
+ * 
+ * Single source of truth: --main-background-color CSS variable on :root
+ * 
+ * How it works:
+ * 1. SSR: Page component sets inline style on <main> for immediate correct color
+ * 2. Client: BackgroundGlobalBase updates the CSS variable via document.documentElement.style.setProperty()
+ * 3. Navigation: Variable update propagates to all elements reading from it
+ * 
+ * This avoids the style tag accumulation problem that occurred with PPR navigation.
+ */
+:root {
+  --main-background-color: #171717;
+}
+
+body,
+main,
+main + div,
+footer {
+  background-color: var(--main-background-color);
+}
+
 body.scrollbar-is-visible::-webkit-scrollbar-corner,
 body.scrollbar-is-visible::-webkit-scrollbar-track {
   background: theme("colors.neutral.900");

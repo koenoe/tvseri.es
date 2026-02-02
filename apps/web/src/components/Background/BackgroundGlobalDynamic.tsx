@@ -1,8 +1,16 @@
 'use client';
 
-import { useInsertionEffect, useRef } from 'react';
+import { useInsertionEffect, useRef, useSyncExternalStore } from 'react';
+
+import getHistoryKey from '@/utils/getHistoryKey';
 
 import { usePageStore } from '../Page/PageStoreProvider';
+
+// Subscribe to history changes via popstate
+const historySubscribe = (callback: () => void) => {
+  window.addEventListener('popstate', callback);
+  return () => window.removeEventListener('popstate', callback);
+};
 
 /**
  * Dynamic background that reads from PageStore and handles transitions.
@@ -15,11 +23,12 @@ import { usePageStore } from '../Page/PageStoreProvider';
  * Activity reveal handling:
  * With cacheComponents, multiple pages stay mounted but hidden. When a page
  * reveals (becomes active again), we need to update the global CSS variable
- * to this page's background color. We run the effect on EVERY render (no deps)
- * because:
- * 1. setProperty is cheap - just a DOM attribute update
- * 2. The component only re-renders on store change or Activity reveal
- * 3. We WANT it to run on Activity reveal to set the correct color
+ * to this page's background color.
+ *
+ * The challenge: when Activity reveals, React doesn't automatically re-render
+ * children that haven't changed. We use useSyncExternalStore to subscribe to
+ * history changes (popstate), which triggers a re-render when navigating back/forward.
+ * This ensures the useInsertionEffect runs and sets the correct CSS variable.
  *
  * Transitions are controlled by the store's enableTransitions flag:
  * - User swipes carousel → setBackground({ ..., enableTransitions: true }) → animate
@@ -31,9 +40,18 @@ export default function BackgroundGlobalDynamic() {
   const enableTransitions = usePageStore((state) => state.enableTransitions);
   const transitionStyleRef = useRef<HTMLStyleElement | null>(null);
 
+  // Subscribe to history changes to trigger re-render on Activity reveal.
+  // When user navigates back/forward, popstate fires, this returns a new value,
+  // and the component re-renders - allowing useInsertionEffect to set the CSS var.
+  useSyncExternalStore(
+    historySubscribe,
+    getHistoryKey,
+    () => 'index', // Server snapshot
+  );
+
   // Update CSS variable - useInsertionEffect fires synchronously before DOM mutations
-  // No dependency array: runs on every render to handle Activity reveals
-  // This is intentional and cheap (setProperty is just a DOM attribute update)
+  // This runs on every render, which now includes Activity reveals thanks to
+  // useSyncExternalStore above. setProperty is cheap (just a DOM attribute update).
   useInsertionEffect(() => {
     document.documentElement.style.setProperty(
       '--main-background-color',

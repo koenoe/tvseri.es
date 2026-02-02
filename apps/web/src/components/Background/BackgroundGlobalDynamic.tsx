@@ -1,45 +1,65 @@
 'use client';
 
-import { useEffect, useInsertionEffect, useRef } from 'react';
+import { useInsertionEffect, useRef, useSyncExternalStore } from 'react';
+
+import getHistoryKey from '@/utils/getHistoryKey';
 
 import { usePageStore } from '../Page/PageStoreProvider';
+
+// Subscribe to history changes via popstate
+const historySubscribe = (callback: () => void) => {
+  window.addEventListener('popstate', callback);
+  return () => window.removeEventListener('popstate', callback);
+};
 
 /**
  * Dynamic background that reads from PageStore and handles transitions.
  *
  * Architecture:
- * - SSR: Parent renders BackgroundGlobalBase with inline script for immediate color
- * - Client: This component takes over, updating the CSS variable via useInsertionEffect
- * - Transitions: Added temporarily during carousel swipes, then removed
+ * - SSR: Inline script sets CSS variable immediately (no flash)
+ * - Client: useInsertionEffect updates CSS variable
+ * - Activity: useSyncExternalStore triggers re-render on popstate
  *
- * Activity visibility detection:
- * With cacheComponents, multiple pages stay mounted but hidden. We detect visibility
- * by checking if our closest <main> element has offsetParent (visible elements have it,
- * hidden Activity elements don't). Only the visible page updates the CSS variable.
+ * Activity reveal handling (TanStack Router pattern):
+ * With cacheComponents, multiple pages stay mounted. We use historyKey comparison
+ * to determine which page is active. The page whose store historyKey matches the
+ * current browser historyKey is the active page and should set the CSS variable.
  *
- * Transitions are controlled by the store's enableTransitions flag:
- * - User swipes carousel → setBackground({ ..., enableTransitions: true }) → animate
- * - Back navigation restore → cached state has enableTransitions: false → no animate
- * - Initial SSR hydration → initial state has enableTransitions: false → no animate
+ * Hydration edge case:
+ * During first client render, useSyncExternalStore may return 'index' (server snapshot)
+ * while the store has the browser key. We detect this by checking if currentHistoryKey
+ * is 'index' on client - if so, we're in hydration and should update the CSS variable
+ * (since there's only one page mounted during initial hydration).
+ *
+ * Transitions are controlled by enableTransitions flag:
+ * - Carousel swipe → enableTransitions: true → animate
+ * - Back nav → enableTransitions: false → no animate
+ * - Initial render → enableTransitions: false → no animate
  */
 export default function BackgroundGlobalDynamic() {
   const color = usePageStore((state) => state.backgroundColor);
+  const storeHistoryKey = usePageStore((state) => state.historyKey);
   const enableTransitions = usePageStore((state) => state.enableTransitions);
   const transitionStyleRef = useRef<HTMLStyleElement | null>(null);
-  const scriptRef = useRef<HTMLScriptElement>(null);
 
-  // Check if this component's page is visible (Activity not hidden)
-  const isPageVisible = () => {
-    const main = scriptRef.current?.closest('main');
-    // If no main found, assume visible (SSR or not yet mounted)
-    if (!main) return true;
-    // offsetParent is null for hidden elements (display:none, visibility:hidden, or hidden ancestor)
-    return main.offsetParent !== null;
-  };
+  // Subscribe to history changes to trigger re-render on Activity reveal.
+  const currentHistoryKey = useSyncExternalStore(
+    historySubscribe,
+    getHistoryKey,
+    () => 'index', // Server snapshot
+  );
 
-  // Update CSS variable - only when this page is visible
+  // Determine if this is the active page.
+  // During hydration, currentHistoryKey might be 'index' (server snapshot) while
+  // storeHistoryKey has the real browser key. In this case, we're the only page
+  // mounted, so we should be active.
+  const isHydrating =
+    currentHistoryKey === 'index' && typeof window !== 'undefined';
+  const isActivePage = isHydrating || storeHistoryKey === currentHistoryKey;
+
+  // Update CSS variable - only when this is the active page
   useInsertionEffect(() => {
-    if (isPageVisible()) {
+    if (isActivePage) {
       document.documentElement.style.setProperty(
         '--main-background-color',
         color,
@@ -47,36 +67,9 @@ export default function BackgroundGlobalDynamic() {
     }
   });
 
-  // Handle Activity reveal on popstate (back/forward navigation)
-  // When Activity reveals, we need to sync the background color
-  useEffect(() => {
-    const syncBackground = () => {
-      // Use RAF to let Activity visibility update before we check
-      requestAnimationFrame(() => {
-        // Check visibility inline to avoid stale closure
-        const main = scriptRef.current?.closest('main');
-        const isVisible = main ? main.offsetParent !== null : true;
-        if (isVisible) {
-          document.documentElement.style.setProperty(
-            '--main-background-color',
-            color,
-          );
-        }
-      });
-    };
-
-    window.addEventListener('popstate', syncBackground);
-    return () => window.removeEventListener('popstate', syncBackground);
-  }, [color]);
-
-  // Handle transitions for carousel swipes - only for visible page
+  // Handle transitions for carousel swipes - only for active page
   useInsertionEffect(() => {
-    // Check visibility inline to avoid stale closure
-    const main = scriptRef.current?.closest('main');
-    const isVisible = main ? main.offsetParent !== null : true;
-
-    if (isVisible && enableTransitions) {
-      // Add transition styles temporarily for smooth animation
+    if (isActivePage && enableTransitions) {
       const style = document.createElement('style');
       style.textContent = `
         body,
@@ -91,13 +84,12 @@ export default function BackgroundGlobalDynamic() {
       document.head.appendChild(style);
       transitionStyleRef.current = style;
 
-      // Remove transition styles after animation completes
       const cleanup = setTimeout(() => {
         if (transitionStyleRef.current) {
           transitionStyleRef.current.remove();
           transitionStyleRef.current = null;
         }
-      }, 600); // Slightly longer than transition duration
+      }, 600);
 
       return () => {
         clearTimeout(cleanup);
@@ -107,18 +99,15 @@ export default function BackgroundGlobalDynamic() {
         }
       };
     }
-  }, [enableTransitions]);
+  }, [isActivePage, enableTransitions]);
 
-  // Render inline script for SSR - ensures correct color before hydration
-  // After hydration, useInsertionEffect takes over for updates
-  // The ref is used to find our parent <main> element for visibility detection
+  // Inline script for SSR - ensures correct color before hydration
   return (
     <script
-      // biome-ignore lint/security/noDangerouslySetInnerHtml: required for synchronous SSR execution
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: required for synchronous execution
       dangerouslySetInnerHTML={{
         __html: `(function(){document.documentElement.style.setProperty('--main-background-color','${color}')})()`,
       }}
-      ref={scriptRef}
     />
   );
 }

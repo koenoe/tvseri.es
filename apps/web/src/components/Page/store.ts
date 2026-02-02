@@ -16,6 +16,7 @@ export type PageState = {
   backgroundColor: string;
   backgroundImage: string;
   enableTransitions: boolean;
+  historyKey: string;
 };
 
 export type PageActions = {
@@ -28,7 +29,7 @@ export type PageActions = {
 
 export type PageStore = PageState & PageActions;
 
-const defaultInitState: PageState = {
+const defaultInitState: Omit<PageState, 'historyKey'> = {
   backgroundColor: DEFAULT_BACKGROUND_COLOR,
   backgroundImage: DEFAULT_BACKGROUND_IMAGE,
   enableTransitions: false,
@@ -45,28 +46,33 @@ const defaultInitState: PageState = {
  * - Back navigation: Same historyKey → cache hit → instant restore
  * - Forward navigation: New historyKey → cache miss → SSR color
  */
-const cache = new Map<string, Omit<PageState, 'enableTransitions'>>();
+const cache = new Map<
+  string,
+  Omit<PageState, 'enableTransitions' | 'historyKey'>
+>();
 
 /**
  * Creates a page store for background state management.
  *
  * @param initState - Initial state from SSR props
- * @param cacheKey - Unique key for this history entry (e.g., "page:abc123")
+ * @param historyKey - The history key this store belongs to
  * @param shouldRestoreFromCache - Whether to restore from cache (true for back nav, false for forward)
  */
 export const createPageStore = (
-  initState: PageState = defaultInitState,
-  cacheKey: string,
+  initState: Omit<PageState, 'historyKey'> = defaultInitState,
+  historyKey: string,
   shouldRestoreFromCache: boolean = false,
 ) => {
+  const cacheKey = `page:${historyKey}`;
+
   // Only restore from cache on back navigation
   const cachedState = shouldRestoreFromCache ? cache.get(cacheKey) : undefined;
 
   // On restore: use cached colors but always disable transitions (no animation on back nav)
   // On forward: use SSR props with transitions disabled (no animation on initial render)
-  const initialState = cachedState
-    ? { ...cachedState, enableTransitions: false }
-    : initState;
+  const initialState: PageState = cachedState
+    ? { ...cachedState, enableTransitions: false, historyKey }
+    : { ...initState, historyKey };
 
   const store = createStore<PageStore>((set) => ({
     ...initialState,

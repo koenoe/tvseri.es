@@ -37,31 +37,39 @@ const historySubscribe = (callback: () => void) => {
  */
 export default function BackgroundGlobalDynamic() {
   const color = usePageStore((state) => state.backgroundColor);
+  const storeHistoryKey = usePageStore((state) => state.historyKey);
   const enableTransitions = usePageStore((state) => state.enableTransitions);
   const transitionStyleRef = useRef<HTMLStyleElement | null>(null);
 
   // Subscribe to history changes to trigger re-render on Activity reveal.
   // When user navigates back/forward, popstate fires, this returns a new value,
   // and the component re-renders - allowing useInsertionEffect to set the CSS var.
-  useSyncExternalStore(
+  const currentHistoryKey = useSyncExternalStore(
     historySubscribe,
     getHistoryKey,
     () => 'index', // Server snapshot
   );
 
+  // Only update CSS variable if this store is for the currently active page.
+  // With Activity caching, multiple BackgroundGlobalDynamic components are mounted.
+  // Only the one matching the current history entry should update the global CSS var.
+  const isActivePage = storeHistoryKey === currentHistoryKey;
+
   // Update CSS variable - useInsertionEffect fires synchronously before DOM mutations
-  // This runs on every render, which now includes Activity reveals thanks to
-  // useSyncExternalStore above. setProperty is cheap (just a DOM attribute update).
+  // Only runs when this is the active page, preventing hidden Activity pages from
+  // overwriting the visible page's background color.
   useInsertionEffect(() => {
-    document.documentElement.style.setProperty(
-      '--main-background-color',
-      color,
-    );
+    if (isActivePage) {
+      document.documentElement.style.setProperty(
+        '--main-background-color',
+        color,
+      );
+    }
   });
 
-  // Handle transitions for carousel swipes
+  // Handle transitions for carousel swipes - only for active page
   useInsertionEffect(() => {
-    if (enableTransitions) {
+    if (isActivePage && enableTransitions) {
       // Add transition styles temporarily for smooth animation
       const style = document.createElement('style');
       style.textContent = `
@@ -93,7 +101,7 @@ export default function BackgroundGlobalDynamic() {
         }
       };
     }
-  }, [enableTransitions]);
+  }, [isActivePage, enableTransitions]);
 
   // Render inline script for SSR - ensures correct color before hydration
   // After hydration, useInsertionEffect takes over for updates

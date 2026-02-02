@@ -61,7 +61,7 @@ export const PageStoreProvider = ({
     const shouldRestore = wasBackNavigation();
     storeRef.current = createPageStore(
       { backgroundColor, backgroundImage, enableTransitions: false },
-      `page:${currentHistoryKey}`,
+      currentHistoryKey,
       shouldRestore,
     );
   }

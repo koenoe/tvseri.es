@@ -30,13 +30,3 @@ declare global {
 export function wasBackNavigation(): boolean {
   return typeof window !== 'undefined' && window.__navIsBack === true;
 }
-
-/**
- * Returns the current navigation index.
- *
- * The index increments on each forward navigation (pushState) and is
- * stored in history.state.__navIndex, allowing comparison on popstate.
- */
-export function getNavigationIndex(): number {
-  return typeof window !== 'undefined' ? (window.__navIndex ?? 0) : 0;
-}

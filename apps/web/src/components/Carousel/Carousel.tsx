@@ -185,11 +185,15 @@ function Carousel({
     currentIndexRef.current = currentIndex;
   }, [currentIndex]);
 
-  // Sync x position on mount before paint (restored index may be non-zero)
+  // Sync x position when currentIndex changes (mount, Activity reveal, or state update)
+  // This ensures carousel position matches the current index after:
+  // - Initial mount
+  // - Activity reveal (historyKey changes)
+  // - State restoration from cache
   useLayoutEffect(() => {
     const width = containerRef.current?.clientWidth || 0;
-    x.set(-currentIndexRef.current * width);
-  }, [containerRef, x]);
+    x.set(-currentIndex * width);
+  }, [containerRef, x, currentIndex]);
 
   // Notify parent of restored index (after mount, non-blocking)
   useEffect(() => {

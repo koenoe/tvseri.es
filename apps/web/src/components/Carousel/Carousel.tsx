@@ -15,13 +15,11 @@ import {
   useCallback,
   useEffect,
   useEffectEvent,
-  useLayoutEffect,
   useRef,
-  useState,
 } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
-import getHistoryKey from '@/utils/getHistoryKey';
+import createUseRestorableState from '@/hooks/createUseRestorableState';
 
 import CarouselDot from './CarouselDot';
 import CarouselItem from './CarouselItem';
@@ -69,6 +67,19 @@ function getVisibleRange(
   );
 }
 
+/**
+ * In-memory cache for carousel index state.
+ *
+ * Following js-cache-function-results pattern: module-level Map provides
+ * O(1) lookups for back-navigation restoration.
+ *
+ * Why in-memory (not sessionStorage)?
+ * - Refresh: Map clears → carousel starts at index 0 (correct behavior)
+ * - Back navigation: Same historyKey → cache hit → instant restore
+ * - Forward navigation: New historyKey → cache miss → index 0
+ */
+const useRestorableIndex = createUseRestorableState<number>();
+
 function Carousel({
   className,
   itemCount,
@@ -82,11 +93,13 @@ function Carousel({
   onChange?: (index: number, isUserInteraction: boolean) => void;
   restoreKey: string;
 }>) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [targetIndex, setTargetIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useRestorableIndex(restoreKey, 0);
+  const [targetIndex, setTargetIndex] = useRestorableIndex(
+    `${restoreKey}:target`,
+    0,
+  );
   const currentIndexRef = useRef(currentIndex);
-  const hasRestoredRef = useRef(false);
-  const cacheKeyRef = useRef(`${restoreKey}:${getHistoryKey()}`);
+  const hasCalledOnChangeRef = useRef(false);
   const [containerRef, animate] = useAnimate();
   const x = useMotionValue(0);
 
@@ -109,7 +122,15 @@ function Carousel({
       });
       onChange?.(getItemIndex(index), true);
     },
-    [animate, calculateNewX, getItemIndex, onChange, x],
+    [
+      animate,
+      calculateNewX,
+      getItemIndex,
+      onChange,
+      setCurrentIndex,
+      setTargetIndex,
+      x,
+    ],
   );
 
   const handleDotClick = useCallback(
@@ -159,38 +180,22 @@ function Carousel({
     currentIndexRef.current = currentIndex;
   }, [currentIndex]);
 
-  const onRestore = useEffectEvent((index: number) => {
-    setCurrentIndex(index);
-    setTargetIndex(index);
-    x.set(calculateNewX(index));
-    onChange?.(getItemIndex(index), false);
+  // Following advanced-event-handler-refs: useEffectEvent creates stable function
+  // that always accesses latest values without requiring dependencies
+  const onMountRestore = useEffectEvent(() => {
+    // Sync x position to restored index
+    x.set(calculateNewX(currentIndex));
+
+    // Only call onChange once on mount if we restored a non-zero index
+    if (!hasCalledOnChangeRef.current && currentIndex !== 0) {
+      hasCalledOnChangeRef.current = true;
+      onChange?.(getItemIndex(currentIndex), false);
+    }
   });
 
-  // Restore index from sessionStorage before paint
-  useLayoutEffect(() => {
-    if (hasRestoredRef.current) return;
-    hasRestoredRef.current = true;
-
-    const cached = sessionStorage.getItem(cacheKeyRef.current);
-    if (cached) {
-      sessionStorage.removeItem(cacheKeyRef.current);
-      const restored = parseInt(cached, 10);
-      if (restored !== 0) {
-        onRestore(restored);
-      }
-    }
-  }, []);
-
-  // Save state on unmount only (not on refresh)
+  // On mount: sync x position and notify parent of restored index
   useEffect(() => {
-    return () => {
-      if (currentIndexRef.current !== 0) {
-        sessionStorage.setItem(
-          cacheKeyRef.current,
-          currentIndexRef.current.toString(),
-        );
-      }
-    };
+    onMountRestore();
   }, []);
 
   const visibleRange = getVisibleRange(currentIndex, targetIndex, itemCount);

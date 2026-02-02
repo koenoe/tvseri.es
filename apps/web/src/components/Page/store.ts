@@ -58,7 +58,7 @@ export const createPageStore = (
     ? { ...cachedState, enableTransitions: false }
     : initState;
 
-  const store = createStore<PageStore>((set, get) => ({
+  const store = createStore<PageStore>((set, _get) => ({
     ...initialState,
     setBackground: (backgroundColor, backgroundImage, options = {}) => {
       // enableTransitions defaults to true when called (user interaction)

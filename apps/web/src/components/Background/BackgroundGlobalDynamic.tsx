@@ -57,6 +57,15 @@ export default function BackgroundGlobalDynamic() {
     currentHistoryKey === 'index' && typeof window !== 'undefined';
   const isActivePage = isHydrating || storeHistoryKey === currentHistoryKey;
 
+  // Debug logging
+  console.log('[BG] render:', {
+    color,
+    currentHistoryKey,
+    isActivePage,
+    isHydrating,
+    storeHistoryKey,
+  });
+
   // Update CSS variable - only when this is the active page
   useInsertionEffect(() => {
     if (isActivePage) {

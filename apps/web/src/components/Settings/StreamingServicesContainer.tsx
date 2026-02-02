@@ -1,12 +1,12 @@
 import type { WatchProvider } from '@tvseri.es/schemas';
-import { headers } from 'next/headers';
 import auth from '@/auth';
 import { fetchWatchProviders, updateWatchProviders } from '@/lib/api';
+import { getRegion } from '@/lib/geo';
 import StreamingServices from './StreamingServices';
 
 export default async function StreamingServicesContainer() {
-  const [headerStore, { user, accessToken }] = await Promise.all([
-    headers(),
+  const [region, { user, accessToken }] = await Promise.all([
+    getRegion(),
     auth(),
   ]);
 
@@ -14,9 +14,7 @@ export default async function StreamingServicesContainer() {
     return null;
   }
 
-  const region =
-    user.country || headerStore.get('cloudfront-viewer-country') || 'US';
-  const providers = await fetchWatchProviders(region, {
+  const providers = await fetchWatchProviders(user.country || region, {
     includeColors: true,
   });
 

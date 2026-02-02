@@ -1,7 +1,7 @@
 import type { TmdbDiscoverQuery } from '@tvseri.es/schemas';
-import { headers } from 'next/headers';
 
 import { fetchDiscoverTvSeries } from '@/lib/api';
+import { getRegion } from '@/lib/geo';
 
 import InfiniteGrid from './InfiniteGrid';
 
@@ -10,8 +10,7 @@ export default async function DiscoverGrid({
 }: Readonly<{
   searchParams: Promise<TmdbDiscoverQuery>;
 }>) {
-  const [headerStore, query] = await Promise.all([headers(), searchParams]);
-  const region = headerStore.get('cloudfront-viewer-country') || 'US';
+  const [region, query] = await Promise.all([getRegion(), searchParams]);
   const { items, totalNumberOfItems, queryString } =
     await fetchDiscoverTvSeries({
       ...query,

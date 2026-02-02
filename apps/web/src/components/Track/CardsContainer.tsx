@@ -5,7 +5,6 @@ import type {
   WatchedItem,
   WatchProvider,
 } from '@tvseri.es/schemas';
-import { headers } from 'next/headers';
 
 import { cachedTvSeriesSeason } from '@/app/cached';
 import auth from '@/auth';
@@ -15,6 +14,7 @@ import {
   markWatchedInBatch,
   unmarkWatchedInBatch,
 } from '@/lib/api';
+import { getRegion } from '@/lib/geo';
 import Cards from './Cards';
 
 async function fetchAllSeasons(tvSeries: TvSeries) {
@@ -36,13 +36,10 @@ export default async function CardsContainer({
   tvSeries: TvSeries;
   user: User;
 }>) {
-  const [headerStore, { accessToken, user: authenticatedUser }] =
-    await Promise.all([headers(), auth()]);
-
-  const region =
-    authenticatedUser?.country ||
-    headerStore.get('cloudfront-viewer-country') ||
-    'US';
+  const [region, { accessToken, user: authenticatedUser }] = await Promise.all([
+    getRegion(),
+    auth(),
+  ]);
 
   const [watchedItems, seasons, watchProvider] = await Promise.all([
     getAllWatchedForTvSeries({
@@ -50,7 +47,11 @@ export default async function CardsContainer({
       userId: user.id,
     }),
     fetchAllSeasons(tvSeries),
-    fetchTvSeriesWatchProvider(tvSeries.id, region, authenticatedUser),
+    fetchTvSeriesWatchProvider(
+      tvSeries.id,
+      authenticatedUser?.country || region,
+      authenticatedUser,
+    ),
   ]);
 
   async function deleteWatchedItems(items: Partial<WatchedItem>[]) {

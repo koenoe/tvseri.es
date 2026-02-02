@@ -7,7 +7,6 @@ import type {
 } from '@tvseri.es/schemas';
 import { isValid, parse } from 'date-fns';
 import { diceCoefficient } from 'dice-coefficient';
-import { headers } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
 import slugify from 'slugify';
 
@@ -18,6 +17,7 @@ import {
   markWatchedInBatch,
   searchTvSeries,
 } from '@/lib/api';
+import { getRegionFromHeaders } from '@/lib/geo';
 
 type CsvItem = Readonly<{
   title: string;
@@ -237,7 +237,7 @@ export async function POST(req: NextRequest) {
   }
 
   const signal = req.signal;
-  const region = (await headers()).get('cloudfront-viewer-country') || 'US';
+  const region = getRegionFromHeaders(req.headers);
   const providers = await fetchWatchProviders(user.country ?? region);
   const encoder = new TextEncoder();
   const stream = new ReadableStream({

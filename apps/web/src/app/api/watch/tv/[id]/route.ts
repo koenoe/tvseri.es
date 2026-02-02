@@ -1,4 +1,3 @@
-import { headers } from 'next/headers';
 import type { NextRequest } from 'next/server';
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
@@ -7,6 +6,7 @@ import {
   markWatched,
   unmarkWatched,
 } from '@/lib/api';
+import { getRegionFromHeaders } from '@/lib/geo';
 import isNumericId from '@/utils/isNumericId';
 
 type BodyPayload = Readonly<{
@@ -35,9 +35,7 @@ export async function POST(
   if (!user || !accessToken) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  const headerStore = await headers();
-  const region =
-    user.country || headerStore.get('cloudfront-viewer-country') || 'US';
+  const region = user.country || getRegionFromHeaders(req.headers);
   const watchProvider =
     (await fetchTvSeriesWatchProvider(tvSeries.id, region, user)) ?? null;
 

@@ -1,5 +1,4 @@
 import type { ListItem, Season, User, WatchedItem } from '@tvseri.es/schemas';
-import { headers } from 'next/headers';
 import { cachedTvSeries } from '@/app/cached';
 import type { EmptySession, Session } from '@/auth';
 import {
@@ -9,6 +8,7 @@ import {
   markWatched,
   removeFromList,
 } from '@/lib/api';
+import { getRegion } from '@/lib/geo';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 import InProgress from './InProgress';
 
@@ -176,11 +176,7 @@ export default async function InProgressContainer({
         return;
       }
 
-      const headerStore = await headers();
-      const region =
-        session.user?.country ||
-        headerStore.get('cloudfront-viewer-country') ||
-        'US';
+      const region = session.user?.country || (await getRegion());
       const watchProvider =
         (await fetchTvSeriesWatchProvider(
           tvSeries!.id,

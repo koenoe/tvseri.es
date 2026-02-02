@@ -1,16 +1,14 @@
-import { headers } from 'next/headers';
 import auth from '@/auth';
 import { fetchApplePlusTvSeries } from '@/lib/api';
+import { getRegion } from '@/lib/geo';
 import Poster from '../Tiles/Poster';
 import List, { type HeaderVariantProps } from './List';
 
 export default async function ApplePlusList(
   props: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps,
 ) {
-  const [headerStore, { user }] = await Promise.all([headers(), auth()]);
-  const region =
-    user?.country || headerStore.get('cloudfront-viewer-country') || 'US';
-  const tvSeries = await fetchApplePlusTvSeries(region);
+  const [region, { user }] = await Promise.all([getRegion(), auth()]);
+  const tvSeries = await fetchApplePlusTvSeries(user?.country || region);
 
   return (
     <List

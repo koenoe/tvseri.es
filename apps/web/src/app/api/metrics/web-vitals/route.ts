@@ -1,4 +1,5 @@
 import type { NextRequest } from 'next/server';
+import { getRegionFromHeaders } from '@/lib/geo';
 
 const apiKey = process.env.API_KEY!;
 const apiUrl = process.env.API_URL!;
@@ -7,15 +8,14 @@ const apiUrl = process.env.API_URL!;
  * POST /api/metrics/web-vitals
  *
  * Proxies web vitals metrics from the browser to the Hono API.
- * Adds CloudFront-derived headers for country detection.
+ * Adds geo headers for country detection.
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Get country from CloudFront header (set by CDN)
-    const country =
-      request.headers.get('cloudfront-viewer-country') ?? 'unknown';
+    // Get country from geo headers
+    const country = getRegionFromHeaders(request.headers) || 'unknown';
 
     // Add country to each metric record in the batch
     const enrichedBody = Array.isArray(body)

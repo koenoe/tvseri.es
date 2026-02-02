@@ -1,7 +1,7 @@
 import { cx } from 'class-variance-authority';
-import { headers } from 'next/headers';
 import auth from '@/auth';
 import { fetchTvSeriesContentRating } from '@/lib/api';
+import { getRegion } from '@/lib/geo';
 
 export default async function ContentRating({
   className,
@@ -10,10 +10,11 @@ export default async function ContentRating({
   className?: string;
   id: number;
 }) {
-  const [headerStore, { user }] = await Promise.all([headers(), auth()]);
-  const region =
-    user?.country || headerStore.get('cloudfront-viewer-country') || 'US';
-  const contentRating = await fetchTvSeriesContentRating(id, region);
+  const [region, { user }] = await Promise.all([getRegion(), auth()]);
+  const contentRating = await fetchTvSeriesContentRating(
+    id,
+    user?.country || region,
+  );
 
   return contentRating ? (
     <div

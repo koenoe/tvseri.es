@@ -1,10 +1,19 @@
 'use client';
 
-import { useInsertionEffect, useRef, useSyncExternalStore } from 'react';
+import {
+  useEffect,
+  useInsertionEffect,
+  useRef,
+  useSyncExternalStore,
+} from 'react';
 
 import getHistoryKey from '@/utils/getHistoryKey';
 
 import { usePageStore } from '../Page/PageStoreProvider';
+
+// Module-level registry of all mounted BackgroundGlobalDynamic instances
+// Maps historyKey → color, updated on every render
+const colorRegistry = new Map<string, string>();
 
 // Subscribe to history changes via popstate
 const historySubscribe = (callback: () => void) => {
@@ -12,29 +21,37 @@ const historySubscribe = (callback: () => void) => {
   return () => window.removeEventListener('popstate', callback);
 };
 
+// Global popstate handler that syncs CSS variable from registry
+// This runs even when Activity components don't re-render
+if (typeof window !== 'undefined') {
+  window.addEventListener('popstate', () => {
+    // RAF to let Activity visibility update
+    requestAnimationFrame(() => {
+      const currentKey = getHistoryKey();
+      const color = colorRegistry.get(currentKey);
+      if (color) {
+        document.documentElement.style.setProperty(
+          '--main-background-color',
+          color,
+        );
+      }
+    });
+  });
+}
+
 /**
  * Dynamic background that reads from PageStore and handles transitions.
  *
  * Architecture:
  * - SSR: Inline script sets CSS variable immediately (no flash)
  * - Client: useInsertionEffect updates CSS variable
- * - Activity: useSyncExternalStore triggers re-render on popstate
+ * - Activity: Global popstate handler syncs from registry when Activity reveals
  *
- * Activity reveal handling (TanStack Router pattern):
- * With cacheComponents, multiple pages stay mounted. We use historyKey comparison
- * to determine which page is active. The page whose store historyKey matches the
- * current browser historyKey is the active page and should set the CSS variable.
- *
- * Hydration edge case:
- * During first client render, useSyncExternalStore may return 'index' (server snapshot)
- * while the store has the browser key. We detect this by checking if currentHistoryKey
- * is 'index' on client - if so, we're in hydration and should update the CSS variable
- * (since there's only one page mounted during initial hydration).
- *
- * Transitions are controlled by enableTransitions flag:
- * - Carousel swipe → enableTransitions: true → animate
- * - Back nav → enableTransitions: false → no animate
- * - Initial render → enableTransitions: false → no animate
+ * Activity handling (TanStack Router pattern):
+ * With cacheComponents, components in hidden Activity don't re-render on external
+ * store changes. We maintain a module-level registry (historyKey → color) that gets
+ * updated on every render. A global popstate handler reads from this registry to
+ * sync the CSS variable when navigating back/forward.
  */
 export default function BackgroundGlobalDynamic() {
   const color = usePageStore((state) => state.backgroundColor);
@@ -46,25 +63,24 @@ export default function BackgroundGlobalDynamic() {
   const currentHistoryKey = useSyncExternalStore(
     historySubscribe,
     getHistoryKey,
-    () => 'index', // Server snapshot
+    () => 'index',
   );
 
-  // Determine if this is the active page.
-  // During hydration, currentHistoryKey might be 'index' (server snapshot) while
-  // storeHistoryKey has the real browser key. In this case, we're the only page
-  // mounted, so we should be active.
+  // Register this page's color in the module-level registry
+  // This happens on every render, keeping the registry up-to-date
+  colorRegistry.set(storeHistoryKey, color);
+
+  // Cleanup: remove from registry on unmount
+  useEffect(() => {
+    return () => {
+      colorRegistry.delete(storeHistoryKey);
+    };
+  }, [storeHistoryKey]);
+
+  // Determine if this is the active page
   const isHydrating =
     currentHistoryKey === 'index' && typeof window !== 'undefined';
   const isActivePage = isHydrating || storeHistoryKey === currentHistoryKey;
-
-  // Debug logging
-  console.log('[BG] render:', {
-    color,
-    currentHistoryKey,
-    isActivePage,
-    isHydrating,
-    storeHistoryKey,
-  });
 
   // Update CSS variable - only when this is the active page
   useInsertionEffect(() => {

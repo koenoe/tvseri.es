@@ -29,6 +29,12 @@ if (typeof window !== 'undefined') {
     requestAnimationFrame(() => {
       const currentKey = getHistoryKey();
       const color = colorRegistry.get(currentKey);
+      console.log('[BG-REGISTRY] popstate:', {
+        color,
+        currentKey,
+        registryKeys: Array.from(colorRegistry.keys()),
+        registrySize: colorRegistry.size,
+      });
       if (color) {
         document.documentElement.style.setProperty(
           '--main-background-color',

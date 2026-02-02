@@ -55,11 +55,21 @@ export default function BackgroundGlobalDynamic() {
   // Only the one matching the current history entry should update the global CSS var.
   const isActivePage = storeHistoryKey === currentHistoryKey;
 
+  // Debug logging
+  console.log('[BG] render:', {
+    color,
+    currentHistoryKey,
+    isActivePage,
+    storeHistoryKey,
+  });
+
   // Update CSS variable - useInsertionEffect fires synchronously before DOM mutations
   // Only runs when this is the active page, preventing hidden Activity pages from
   // overwriting the visible page's background color.
   useInsertionEffect(() => {
+    console.log('[BG] useInsertionEffect:', { color, isActivePage });
     if (isActivePage) {
+      console.log('[BG] Setting CSS var to:', color);
       document.documentElement.style.setProperty(
         '--main-background-color',
         color,

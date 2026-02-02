@@ -52,15 +52,6 @@ export const PageStoreProvider = ({
 
   const currentHistoryKey = getHistoryKey();
 
-  // Detect Activity reveal with different historyKey
-  // When historyKey changes but component didn't remount (Activity reveal),
-  // we need to reset the store to handle the new navigation context
-  if (
-    historyKeyRef.current !== null &&
-    historyKeyRef.current !== currentHistoryKey
-  ) {
-    storeRef.current = null;
-  }
   historyKeyRef.current = currentHistoryKey;
 
   if (!storeRef.current) {

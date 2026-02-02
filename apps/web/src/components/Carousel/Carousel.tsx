@@ -14,7 +14,7 @@ import {
   type ReactElement,
   useCallback,
   useEffect,
-  useEffectEvent,
+  useLayoutEffect,
   useRef,
 } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
@@ -99,9 +99,14 @@ function Carousel({
     0,
   );
   const currentIndexRef = useRef(currentIndex);
-  const hasCalledOnChangeRef = useRef(false);
   const [containerRef, animate] = useAnimate();
   const x = useMotionValue(0);
+
+  // Refs for mount effect - following advanced-use-latest pattern
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+  const itemCountRef = useRef(itemCount);
+  itemCountRef.current = itemCount;
 
   // Stable item index calculation
   const getItemIndex = useCallback(
@@ -180,22 +185,21 @@ function Carousel({
     currentIndexRef.current = currentIndex;
   }, [currentIndex]);
 
-  // Following advanced-event-handler-refs: useEffectEvent creates stable function
-  // that always accesses latest values without requiring dependencies
-  const onMountRestore = useEffectEvent(() => {
-    // Sync x position to restored index
-    x.set(calculateNewX(currentIndex));
+  // Sync x position on mount before paint (restored index may be non-zero)
+  useLayoutEffect(() => {
+    const width = containerRef.current?.clientWidth || 0;
+    x.set(-currentIndexRef.current * width);
+  }, [containerRef, x]);
 
-    // Only call onChange once on mount if we restored a non-zero index
-    if (!hasCalledOnChangeRef.current && currentIndex !== 0) {
-      hasCalledOnChangeRef.current = true;
-      onChange?.(getItemIndex(currentIndex), false);
-    }
-  });
-
-  // On mount: sync x position and notify parent of restored index
+  // Notify parent of restored index (after mount, non-blocking)
   useEffect(() => {
-    onMountRestore();
+    const index = currentIndexRef.current;
+    if (index !== 0) {
+      const itemIndex =
+        ((index % itemCountRef.current) + itemCountRef.current) %
+        itemCountRef.current;
+      onChangeRef.current?.(itemIndex, false);
+    }
   }, []);
 
   const visibleRange = getVisibleRange(currentIndex, targetIndex, itemCount);

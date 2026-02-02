@@ -29,15 +29,14 @@ export default function Spotlight({
   );
 
   const handleChange = useCallback(
-    (index: number) => {
+    (index: number, isUserInteraction: boolean) => {
       const item = items[index]!;
       const backgroundColor = item.backdropColor;
       const backgroundImage = item.backdropImage as string;
 
       preloadImage(backgroundImage).finally(() => {
-        updateBackground({
-          backgroundColor,
-          backgroundImage,
+        updateBackground(backgroundColor, backgroundImage, {
+          enableTransitions: isUserInteraction,
         });
       });
     },

@@ -49,7 +49,6 @@ const nextConfig = {
       'xstate',
       'zustand',
     ],
-    viewTransition: true,
   },
   async headers() {
     const baseUrl = getBaseUrl();

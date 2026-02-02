@@ -79,7 +79,7 @@ function Carousel({
   className?: string;
   itemCount: number;
   itemRenderer: (index: number) => ReactElement;
-  onChange?: (index: number) => void;
+  onChange?: (index: number, isUserInteraction: boolean) => void;
   restoreKey: string;
 }>) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -107,7 +107,7 @@ function Carousel({
       animate(x, calculateNewX(index), transition).then(() => {
         setCurrentIndex(index);
       });
-      onChange?.(getItemIndex(index));
+      onChange?.(getItemIndex(index), true);
     },
     [animate, calculateNewX, getItemIndex, onChange, x],
   );
@@ -163,7 +163,7 @@ function Carousel({
     setCurrentIndex(index);
     setTargetIndex(index);
     x.set(calculateNewX(index));
-    onChange?.(getItemIndex(index));
+    onChange?.(getItemIndex(index), false);
   });
 
   // Restore index from sessionStorage before paint

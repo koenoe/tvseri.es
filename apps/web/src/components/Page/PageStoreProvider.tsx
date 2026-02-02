@@ -1,84 +1,48 @@
 'use client';
 
-import {
-  createContext,
-  type ReactNode,
-  useContext,
-  useEffect,
-  useEffectEvent,
-  useRef,
-} from 'react';
+import { createContext, type ReactNode, useContext, useRef } from 'react';
 
 import { useStore } from 'zustand';
 
 import getHistoryKey from '@/utils/getHistoryKey';
 
-import { createPageStore, type PageState, type PageStore } from './store';
+import { createPageStore, type PageStore } from './store';
 
 export type PageStoreApi = ReturnType<typeof createPageStore>;
 
 const PageStoreContext = createContext<PageStoreApi | null>(null);
 
-export type PageStoreProviderProps = PageState & {
+export type PageStoreProviderProps = {
+  backgroundColor: string;
+  backgroundImage: string;
   children: ReactNode;
-  persistent?: boolean;
 };
 
+/**
+ * Provides page-level background state to children.
+ *
+ * Following state-decouple-implementation pattern: this provider is the only
+ * place that knows how state is managed. UI components consume the context
+ * interface—they don't know if state comes from useState, Zustand, or cache.
+ *
+ * Uses in-memory caching (js-cache-function-results pattern) keyed by historyKey:
+ * - Refresh: Cache clears → SSR values are used (correct!)
+ * - Back navigation: Same historyKey → cache hit → instant restore
+ * - Forward navigation: New historyKey → cache miss → SSR values
+ */
 export const PageStoreProvider = ({
   backgroundColor,
   backgroundImage,
   children,
-  persistent = true,
 }: PageStoreProviderProps) => {
   const storeRef = useRef<PageStoreApi>(null);
 
   if (!storeRef.current) {
     storeRef.current = createPageStore(
-      { backgroundColor, backgroundImage },
+      { backgroundColor, backgroundImage, enableTransitions: false },
       `page:${getHistoryKey()}`,
-      persistent,
     );
   }
-
-  // Clear sessionStorage on refresh to start fresh
-  useEffect(() => {
-    const name = storeRef.current?.persist?.getOptions()?.name;
-    if (!name) return;
-
-    const handleBeforeUnload = () => {
-      sessionStorage.removeItem(name);
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, []);
-
-  const onSaveState = useEffectEvent(() => {
-    const store = storeRef.current;
-    if (!store || !persistent) return;
-
-    const name = store.persist?.getOptions()?.name ?? '';
-    const version = store.persist?.getOptions()?.version ?? 0;
-    const currentState = store.getState();
-
-    if (currentState && name) {
-      sessionStorage.setItem(
-        name,
-        JSON.stringify({
-          state: {
-            backgroundColor: currentState.backgroundColor,
-            backgroundImage: currentState.backgroundImage,
-          },
-          version,
-        }),
-      );
-    }
-  });
-
-  // Save state on unmount (navigation, not refresh)
-  useEffect(() => {
-    return () => onSaveState();
-  }, []);
 
   return (
     <PageStoreContext.Provider value={storeRef.current}>

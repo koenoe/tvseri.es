@@ -18,7 +18,6 @@ export type Props = Readonly<{
   backgroundContext?: BackgroundContext;
   backgroundPriority?: boolean;
   children: React.ReactNode;
-  usePersistentStore?: boolean;
 }>;
 
 const dotsAndGridStyles = cva(
@@ -53,7 +52,6 @@ export default function Page({
   backgroundContext = 'page',
   backgroundPriority = false,
   children,
-  usePersistentStore,
 }: Props) {
   const background = () => {
     if (backgroundContext === 'dots' || backgroundContext === 'grid') {
@@ -98,7 +96,6 @@ export default function Page({
     <PageStoreProvider
       backgroundColor={backgroundColor}
       backgroundImage={backgroundImage}
-      persistent={usePersistentStore}
     >
       {content()}
     </PageStoreProvider>

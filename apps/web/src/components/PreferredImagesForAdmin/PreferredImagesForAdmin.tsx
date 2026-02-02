@@ -110,10 +110,7 @@ export default function PreferredImagesForAdmin({
             url: preloadedImage,
           });
 
-          updateBackground({
-            backgroundColor: color,
-            backgroundImage: newBackdrop.url,
-          });
+          updateBackground(color, newBackdrop.url);
         } catch (error) {
           console.error('Loading backdrop failed', {
             error,

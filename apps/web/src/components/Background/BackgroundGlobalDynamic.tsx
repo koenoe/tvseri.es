@@ -12,6 +12,15 @@ import { usePageStore } from '../Page/PageStoreProvider';
  * - Client: This component takes over, updating the CSS variable via useInsertionEffect
  * - Transitions: Added temporarily during carousel swipes, then removed
  *
+ * Activity reveal handling:
+ * With cacheComponents, multiple pages stay mounted but hidden. When a page
+ * reveals (becomes active again), we need to update the global CSS variable
+ * to this page's background color. We run the effect on EVERY render (no deps)
+ * because:
+ * 1. setProperty is cheap - just a DOM attribute update
+ * 2. The component only re-renders on store change or Activity reveal
+ * 3. We WANT it to run on Activity reveal to set the correct color
+ *
  * Transitions are controlled by the store's enableTransitions flag:
  * - User swipes carousel → setBackground({ ..., enableTransitions: true }) → animate
  * - Back navigation restore → cached state has enableTransitions: false → no animate
@@ -23,12 +32,14 @@ export default function BackgroundGlobalDynamic() {
   const transitionStyleRef = useRef<HTMLStyleElement | null>(null);
 
   // Update CSS variable - useInsertionEffect fires synchronously before DOM mutations
+  // No dependency array: runs on every render to handle Activity reveals
+  // This is intentional and cheap (setProperty is just a DOM attribute update)
   useInsertionEffect(() => {
     document.documentElement.style.setProperty(
       '--main-background-color',
       color,
     );
-  }, [color]);
+  });
 
   // Handle transitions for carousel swipes
   useInsertionEffect(() => {

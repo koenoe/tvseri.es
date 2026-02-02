@@ -25,6 +25,7 @@ export type PageActions = {
     backgroundImage: string,
     options?: { enableTransitions?: boolean },
   ) => void;
+  setHistoryKey: (historyKey: string) => void;
 };
 
 export type PageStore = PageState & PageActions;
@@ -83,6 +84,9 @@ export const createPageStore = (
 
       // Always update cache for future back-navigation
       cache.set(cacheKey, { backgroundColor, backgroundImage });
+    },
+    setHistoryKey: (newHistoryKey) => {
+      set({ historyKey: newHistoryKey });
     },
   }));
 

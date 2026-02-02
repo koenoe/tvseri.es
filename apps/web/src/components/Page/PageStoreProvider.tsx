@@ -1,6 +1,12 @@
 'use client';
 
-import { createContext, type ReactNode, useContext, useRef } from 'react';
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react';
 
 import { useStore } from 'zustand';
 
@@ -65,6 +71,18 @@ export const PageStoreProvider = ({
       shouldRestore,
     );
   }
+
+  // Sync historyKey after hydration.
+  // During SSR, getHistoryKey() returns 'index' (no window.history).
+  // After hydration, we need to update the store with the real browser historyKey
+  // so BackgroundGlobalDynamic can correctly determine if it's the active page.
+  useEffect(() => {
+    const browserHistoryKey = getHistoryKey();
+    const store = storeRef.current;
+    if (store && store.getState().historyKey !== browserHistoryKey) {
+      store.getState().setHistoryKey(browserHistoryKey);
+    }
+  }, []);
 
   return (
     <PageStoreContext.Provider value={storeRef.current}>

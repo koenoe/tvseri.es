@@ -5,6 +5,7 @@ import { createContext, type ReactNode, useContext, useRef } from 'react';
 import { useStore } from 'zustand';
 
 import getHistoryKey from '@/utils/getHistoryKey';
+import { wasBackNavigation } from '@/utils/navigationState';
 
 import { createPageStore, type PageStore } from './store';
 
@@ -27,8 +28,13 @@ export type PageStoreProviderProps = {
  *
  * Uses in-memory caching (js-cache-function-results pattern) keyed by historyKey:
  * - Refresh: Cache clears → SSR values are used (correct!)
- * - Back navigation: Same historyKey → cache hit → instant restore
- * - Forward navigation: New historyKey → cache miss → SSR values
+ * - Back navigation: Same historyKey + wasBackNavigation() → cache hit → instant restore
+ * - Forward navigation: New historyKey or !wasBackNavigation() → SSR values
+ *
+ * Activity reveal detection:
+ * With cacheComponents, components hide/reveal instead of unmount/remount.
+ * We track historyKeyRef to detect when the component reveals with a different
+ * history entry and reset the store accordingly.
  */
 export const PageStoreProvider = ({
   backgroundColor,
@@ -36,11 +42,27 @@ export const PageStoreProvider = ({
   children,
 }: PageStoreProviderProps) => {
   const storeRef = useRef<PageStoreApi>(null);
+  const historyKeyRef = useRef<string | null>(null);
+
+  const currentHistoryKey = getHistoryKey();
+
+  // Detect Activity reveal with different historyKey
+  // When historyKey changes but component didn't remount (Activity reveal),
+  // we need to reset the store to handle the new navigation context
+  if (
+    historyKeyRef.current !== null &&
+    historyKeyRef.current !== currentHistoryKey
+  ) {
+    storeRef.current = null;
+  }
+  historyKeyRef.current = currentHistoryKey;
 
   if (!storeRef.current) {
+    const shouldRestore = wasBackNavigation();
     storeRef.current = createPageStore(
       { backgroundColor, backgroundImage, enableTransitions: false },
-      `page:${getHistoryKey()}`,
+      `page:${currentHistoryKey}`,
+      shouldRestore,
     );
   }
 

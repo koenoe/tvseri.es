@@ -47,30 +47,40 @@ const defaultInitState: PageState = {
  */
 const cache = new Map<string, Omit<PageState, 'enableTransitions'>>();
 
+/**
+ * Creates a page store for background state management.
+ *
+ * @param initState - Initial state from SSR props
+ * @param cacheKey - Unique key for this history entry (e.g., "page:abc123")
+ * @param shouldRestoreFromCache - Whether to restore from cache (true for back nav, false for forward)
+ */
 export const createPageStore = (
   initState: PageState = defaultInitState,
   cacheKey: string,
+  shouldRestoreFromCache: boolean = false,
 ) => {
-  // Check cache for back-navigation restoration
-  const cachedState = cache.get(cacheKey);
+  // Only restore from cache on back navigation
+  const cachedState = shouldRestoreFromCache ? cache.get(cacheKey) : undefined;
+
   // On restore: use cached colors but always disable transitions (no animation on back nav)
+  // On forward: use SSR props with transitions disabled (no animation on initial render)
   const initialState = cachedState
     ? { ...cachedState, enableTransitions: false }
     : initState;
 
-  const store = createStore<PageStore>((set, _get) => ({
+  const store = createStore<PageStore>((set) => ({
     ...initialState,
     setBackground: (backgroundColor, backgroundImage, options = {}) => {
       // enableTransitions defaults to true when called (user interaction)
       const enableTransitions = options.enableTransitions ?? true;
       set({ backgroundColor, backgroundImage, enableTransitions });
 
-      // Update cache (without enableTransitions - always restore without animation)
+      // Always update cache for future back-navigation
       cache.set(cacheKey, { backgroundColor, backgroundImage });
     },
   }));
 
-  // If we used initState (not cached), save it to cache for future back-navigation
+  // Always save initial state to cache for future back-navigation
   if (!cachedState) {
     cache.set(cacheKey, {
       backgroundColor: initState.backgroundColor,

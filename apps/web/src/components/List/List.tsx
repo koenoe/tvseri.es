@@ -10,10 +10,18 @@ import {
 import { memo, useLayoutEffect, useRef } from 'react';
 
 import getHistoryKey from '@/utils/getHistoryKey';
+import { wasBackNavigation } from '@/utils/navigationState';
 
 import ListScrollBar, { getScrollableWidth } from './ListScrollBar';
 // TODO: convert to Tailwind
 import styles from './styles.module.css';
+
+// In-memory cache for scroll positions, keyed by `${scrollRestoreKey}:${historyKey}`
+// Using Map instead of sessionStorage because:
+// 1. Faster (no serialization)
+// 2. Automatically cleared on refresh (desired behavior)
+// 3. Works with Activity-based caching where components don't unmount
+const scrollCache = new Map<string, number>();
 
 const innerStyles = cva(
   'relative flex w-full flex-nowrap overflow-x-scroll pt-6 pb-6 md:pb-6 md:pt-6 lg:pb-10 lg:pt-7 scrollbar-hide',
@@ -68,6 +76,9 @@ function List({
     stiffness: 300,
   });
 
+  // Track historyKey to detect Activity reveal (when route is revealed but component didn't remount)
+  const historyKeyRef = useRef<string | null>(null);
+
   const { scrollX } = useScroll({
     axis: 'x',
     container: innerRef,
@@ -80,31 +91,47 @@ function List({
     }
   });
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: only run on mount/unmount
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only run on mount/unmount and historyKey changes
   useLayoutEffect(() => {
-    const cacheKey = `${scrollRestoreKey}:${getHistoryKey()}`;
-    const scrollOffset = sessionStorage.getItem(cacheKey);
+    const currentHistoryKey = getHistoryKey();
+    const previousHistoryKey = historyKeyRef.current;
+    const isActivityReveal =
+      previousHistoryKey !== null && previousHistoryKey !== currentHistoryKey;
+
+    // Update ref for next render
+    historyKeyRef.current = currentHistoryKey;
+
+    const cacheKey = `${scrollRestoreKey}:${currentHistoryKey}`;
     const container = innerRef.current;
 
-    if (scrollOffset && container) {
-      const left = parseInt(scrollOffset, 10);
-      container.scrollTo({ left });
-      sessionStorage.removeItem(cacheKey);
+    // Only restore scroll position on back navigation
+    // For Activity reveals on forward navigation, start fresh at scroll 0
+    const shouldRestore = wasBackNavigation();
+    const cachedScrollOffset = scrollCache.get(cacheKey);
 
-      springScrollLeft.jump(left);
+    if (shouldRestore && cachedScrollOffset !== undefined && container) {
+      // Back navigation - restore scroll position instantly
+      container.scrollTo({ left: cachedScrollOffset });
+      springScrollLeft.jump(cachedScrollOffset);
 
       const scrollableWidth = getScrollableWidth(container);
       if (scrollableWidth > 0) {
-        scrollXProgress.jump(left / scrollableWidth);
+        scrollXProgress.jump(cachedScrollOffset / scrollableWidth);
       }
+    } else if (isActivityReveal && container) {
+      // Activity reveal on forward navigation - reset to start
+      container.scrollTo({ left: 0 });
+      springScrollLeft.jump(0);
+      scrollXProgress.jump(0);
     }
 
+    // Save scroll position on cleanup (navigating away from this route)
     return () => {
       if (container && container.scrollLeft > 0) {
-        sessionStorage.setItem(cacheKey, String(container.scrollLeft));
+        scrollCache.set(cacheKey, container.scrollLeft);
       }
     };
-  }, []);
+  }, [getHistoryKey()]);
 
   return (
     <div className={cx('relative w-full select-none', className)} style={style}>

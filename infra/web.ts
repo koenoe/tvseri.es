@@ -108,21 +108,27 @@ export const web = $dev
 
       // Environment variables for Vercel project
       const vercelVariables = [
-        { key: 'API_KEY', sensitive: true, value: secrets.apiKeyRandom.result },
-        { key: 'API_URL', value: apiRouter.url },
-        { key: 'AUTH_URL', value: auth.url },
+        {
+          key: 'API_KEY',
+          name: 'ApiKey',
+          sensitive: true,
+          value: secrets.apiKeyRandom.result,
+        },
+        { key: 'API_URL', name: 'ApiUrl', value: apiRouter.url },
+        { key: 'AUTH_URL', name: 'AuthUrl', value: auth.url },
         {
           key: 'SECRET_KEY',
+          name: 'SecretKey',
           sensitive: true,
           value: secrets.sessionSecret.value,
         },
-        { key: 'SITE_URL', value: siteUrl },
+        { key: 'SITE_URL', name: 'SiteUrl', value: siteUrl },
       ];
 
       const envVars = vercelVariables.map(
         (v) =>
           new vercel.ProjectEnvironmentVariable(
-            `WebEnv${v.key}`,
+            `WebVercelEnv${v.name}`,
             {
               comment:
                 'This var is being managed by SST, do not edit or delete it via the Vercel dashboard',

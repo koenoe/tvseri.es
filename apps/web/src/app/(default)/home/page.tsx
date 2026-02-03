@@ -1,6 +1,6 @@
+import { cacheLife } from 'next/cache';
 import { notFound } from 'next/navigation';
-import { cache, Suspense } from 'react';
-
+import { Suspense } from 'react';
 import ApplePlusList from '@/components/List/ApplePlusList';
 import BestBritishCrimeList from '@/components/List/BestBritishCrimeList';
 import BestSportsDocumentariesList from '@/components/List/BestSportsDocumentariesList';
@@ -14,7 +14,11 @@ import SkeletonList from '@/components/Skeletons/SkeletonList';
 import Spotlight from '@/components/Spotlight/Spotlight';
 import { fetchTrendingTvSeries } from '@/lib/api';
 
-const cachedTrendingTvSeries = cache(fetchTrendingTvSeries);
+async function cachedTrendingTvSeries() {
+  'use cache';
+  cacheLife('short');
+  return fetchTrendingTvSeries();
+}
 
 export default async function HomePage() {
   const trendingTvSeries = await cachedTrendingTvSeries();

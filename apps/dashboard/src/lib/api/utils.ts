@@ -7,7 +7,7 @@ import type {
   WebVitalMetricStats,
 } from '@tvseri.es/schemas';
 
-import { getCountryDisplayName } from '@/lib/status-colors';
+import { getCountryDisplayName } from '@/lib/utils';
 import {
   getMetricStatus,
   METRICS_CONFIG,

@@ -1,12 +1,9 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import type { SortingState } from '@tanstack/react-table';
-import { memo, useCallback } from 'react';
+import { lazy, memo, Suspense, useCallback } from 'react';
 
 import { ApdexCard, ApdexCardSkeleton } from '@/components/api/apdex-card';
-import {
-  EndpointsTable,
-  EndpointsTableSkeleton,
-} from '@/components/api/endpoints-table';
+import { EndpointsTableSkeleton } from '@/components/api/endpoints-table';
 import {
   ErrorRateCard,
   ErrorRateCardSkeleton,
@@ -20,8 +17,14 @@ import {
   RequestsCardSkeleton,
 } from '@/components/api/requests-card';
 import { ApiHeader } from '@/components/api-header';
-import { useApiMetricsEndpoints, useApiMetricsSummary } from '@/lib/api';
+import { useApiMetricsEndpoints, useApiMetricsSummary } from '@/lib/api/hooks';
 import { formatDependencies } from '@/lib/api-metrics';
+
+const EndpointsTable = lazy(() =>
+  import('@/components/api/endpoints-table').then((mod) => ({
+    default: mod.EndpointsTable,
+  })),
+);
 
 type ApiSearchParams = {
   days?: 3 | 7 | 30;
@@ -134,13 +137,15 @@ const EndpointsTableWrapper = memo(function EndpointsTableWrapper({
   }
 
   return (
-    <EndpointsTable
-      endpoints={endpointsData?.endpoints ?? []}
-      onPaginationChange={handlePaginationChange}
-      onSortingChange={handleSortingChange}
-      pagination={pagination}
-      sorting={sorting}
-    />
+    <Suspense fallback={<EndpointsTableSkeleton />}>
+      <EndpointsTable
+        endpoints={endpointsData?.endpoints ?? []}
+        onPaginationChange={handlePaginationChange}
+        onSortingChange={handleSortingChange}
+        pagination={pagination}
+        sorting={sorting}
+      />
+    </Suspense>
   );
 });
 

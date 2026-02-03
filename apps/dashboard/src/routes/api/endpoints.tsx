@@ -34,7 +34,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { useApiMetricsEndpointDetail } from '@/lib/api';
+import { useApiMetricsEndpointDetail } from '@/lib/api/hooks';
 
 type EndpointDetailSearchParams = {
   days?: 3 | 7 | 30;

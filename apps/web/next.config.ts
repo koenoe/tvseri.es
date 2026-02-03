@@ -8,7 +8,8 @@ const withBundleAnalyzer = bundleAnalyzer({
 });
 
 const nextConfig = {
-  cacheComponents: true,
+  // TODO: enable once we've ironed out background issues
+  cacheComponents: false,
   cacheLife: {
     // Matches API: public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=86400
     // Used for: collections, genres, countries, languages (reference data)

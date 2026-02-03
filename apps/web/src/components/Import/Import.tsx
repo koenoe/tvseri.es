@@ -9,8 +9,10 @@ import slugify from 'slugify';
 import type { Field } from '@/hooks/useCsvParser';
 
 import Ripple from './Ripple';
+import SkeletonImport from './SkeletonImport';
 
 const CsvImporter = dynamic(() => import('../CsvImporter/CsvImporter'), {
+  loading: () => <SkeletonImport />,
   ssr: false,
 });
 

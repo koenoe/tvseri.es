@@ -1,6 +1,6 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-
 import { cachedUser } from '@/app/cached';
 import Page from '@/components/Page/Page';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
@@ -27,7 +27,7 @@ type Props = Readonly<{
   params: Promise<{ username: string; year: number }>;
 }>;
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params;
   const user = await cachedUser({ username });
   if (!user) {

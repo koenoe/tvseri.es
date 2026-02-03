@@ -216,8 +216,8 @@ importers:
         specifier: 2.15.4
         version: 2.15.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       shadcn:
-        specifier: ^3.8.1
-        version: 3.8.1(@types/node@22.13.14)(hono@4.11.7)(typescript@5.9.3)
+        specifier: ^3.8.2
+        version: 3.8.2(@types/node@22.13.14)(hono@4.11.7)(typescript@5.9.3)
       sst:
         specifier: 'catalog:'
         version: 3.17.25
@@ -3100,6 +3100,9 @@ packages:
   caniuse-lite@1.0.30001766:
     resolution: {integrity: sha512-4C0lfJ0/YPjJQHagaE9x2Elb69CIqEPZeG0anQt9SIvIoOH4a4uaRl73IavyO+0qZh6MDLH//DrXThEYKHkmYA==}
 
+  caniuse-lite@1.0.30001767:
+    resolution: {integrity: sha512-34+zUAMhSH+r+9eKmYG+k2Rpt8XttfE4yXAjoZvkAPs15xcYQhyBYdalJ65BzivAvGRMViEjy6oKr/S91loekQ==}
+
   chalk@5.6.2:
     resolution: {integrity: sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
@@ -3333,8 +3336,8 @@ packages:
     resolution: {integrity: sha512-x1VCxdX4t+8wVfd1so/9w+vQ4vx7lKd2Qp5tDRutErwmR85OgmfX7RlLRMWafRMY7hbEiXIbudNrjOAPa/hL8Q==}
     engines: {node: '>=18'}
 
-  default-browser@5.4.0:
-    resolution: {integrity: sha512-XDuvSq38Hr1MdN47EDvYtx3U0MTqpCEn+F6ft8z2vYDzMrvQhVp0ui9oQdqW3MvK3vqUETglt1tVGgjLuJ5izg==}
+  default-browser@5.5.0:
+    resolution: {integrity: sha512-H9LMLr5zwIbSxrmvikGuI/5KGhZ8E2zH3stkMgM5LpOWDutGM2JZaj460Udnf1a+946zc7YBgrqEWwbk7zHvGw==}
     engines: {node: '>=18'}
 
   define-data-property@1.1.4:
@@ -4720,8 +4723,8 @@ packages:
   setprototypeof@1.2.0:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
 
-  shadcn@3.8.1:
-    resolution: {integrity: sha512-3bu1gxtBvFrFnf55WzLX9QQuM6qik1sv0nXum1bhwgAfcJHDAENBPq2AYDaJaRlskETBqLH/8iacVhpPyyTr3A==}
+  shadcn@3.8.2:
+    resolution: {integrity: sha512-4iqRkfmDmChg4lC7qBImi0KWrCKJbb0rNSs8QuocHmKAlX9U3s0ZcYUbth+2sv1ueferzfjD2hswCOm9Ng4ceA==}
     hasBin: true
 
   sharp@0.34.5:
@@ -6666,8 +6669,8 @@ snapshots:
       express-rate-limit: 7.5.1(express@5.2.1)
       pkce-challenge: 4.1.0
       raw-body: 3.0.2
-      zod: 3.24.2
-      zod-to-json-schema: 3.24.3(zod@3.24.2)
+      zod: 3.25.76
+      zod-to-json-schema: 3.25.1(zod@3.25.76)
     transitivePeerDependencies:
       - supports-color
 
@@ -8550,7 +8553,7 @@ snapshots:
   browserslist@4.28.1:
     dependencies:
       baseline-browser-mapping: 2.9.19
-      caniuse-lite: 1.0.30001766
+      caniuse-lite: 1.0.30001767
       electron-to-chromium: 1.5.283
       node-releases: 2.0.27
       update-browserslist-db: 1.2.3(browserslist@4.28.1)
@@ -8589,6 +8592,8 @@ snapshots:
   camelcase-css@2.0.1: {}
 
   caniuse-lite@1.0.30001766: {}
+
+  caniuse-lite@1.0.30001767: {}
 
   chalk@5.6.2: {}
 
@@ -8770,7 +8775,7 @@ snapshots:
 
   default-browser-id@5.0.1: {}
 
-  default-browser@5.4.0:
+  default-browser@5.5.0:
     dependencies:
       bundle-name: 4.1.0
       default-browser-id: 5.0.1
@@ -9641,7 +9646,7 @@ snapshots:
 
   open@11.0.0:
     dependencies:
-      default-browser: 5.4.0
+      default-browser: 5.5.0
       define-lazy-prop: 3.0.0
       is-in-ssh: 1.0.0
       is-inside-container: 1.0.0
@@ -10172,7 +10177,7 @@ snapshots:
 
   setprototypeof@1.2.0: {}
 
-  shadcn@3.8.1(@types/node@22.13.14)(hono@4.11.7)(typescript@5.9.3):
+  shadcn@3.8.2(@types/node@22.13.14)(hono@4.11.7)(typescript@5.9.3):
     dependencies:
       '@antfu/ni': 25.0.0
       '@babel/core': 7.29.0

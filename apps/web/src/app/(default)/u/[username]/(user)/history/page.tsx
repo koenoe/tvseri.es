@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
@@ -9,7 +10,7 @@ type Props = Readonly<{
   params: Promise<{ username: string }>;
 }>;
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params;
   const user = await cachedUser({ username });
   if (!user) {

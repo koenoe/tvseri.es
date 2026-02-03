@@ -2,9 +2,8 @@ import { unauthorized } from 'next/navigation';
 import { Suspense } from 'react';
 
 import auth from '@/auth';
-import WebhookForPlex, {
-  plexStyles,
-} from '@/components/Webhook/WebhookForPlex';
+import SkeletonWebhookForPlex from '@/components/Webhook/SkeletonWebhookForPlex';
+import WebhookForPlex from '@/components/Webhook/WebhookForPlex';
 
 export default async function SettingsWebhooksPage() {
   const { accessToken } = await auth();
@@ -17,18 +16,7 @@ export default async function SettingsWebhooksPage() {
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
       <div className="relative w-full">
         <h2 className="text-md mb-4 lg:text-lg">Plex</h2>
-        <Suspense
-          fallback={
-            <div
-              className={plexStyles({
-                className:
-                  'flex h-28 w-full items-center justify-center rounded-lg px-8 shadow-lg',
-              })}
-            >
-              <div className="h-12 w-full animate-pulse rounded-lg bg-black/20" />
-            </div>
-          }
-        >
+        <Suspense fallback={<SkeletonWebhookForPlex />}>
           <WebhookForPlex accessToken={accessToken} />
         </Suspense>
       </div>

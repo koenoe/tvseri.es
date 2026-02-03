@@ -1,4 +1,5 @@
 import { cx } from 'class-variance-authority';
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
@@ -20,7 +21,9 @@ type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
 
-export async function generateMetadata({ params: paramsFromProps }: Props) {
+export async function generateMetadata({
+  params: paramsFromProps,
+}: Props): Promise<Metadata> {
   const params = await paramsFromProps;
 
   if (!isNumericId(params.id)) {

@@ -2,8 +2,7 @@ import type { TmdbDiscoverQuery } from '@tvseri.es/schemas';
 import { Suspense } from 'react';
 
 import DiscoverGrid from '@/components/Grid/DiscoverGrid';
-import Grid from '@/components/Grid/Grid';
-import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
+import SkeletonGrid from '@/components/Skeletons/SkeletonGrid';
 
 export default async function DiscoverPage({
   searchParams,
@@ -11,15 +10,7 @@ export default async function DiscoverPage({
   searchParams: Promise<TmdbDiscoverQuery>;
 }>) {
   return (
-    <Suspense
-      fallback={
-        <Grid>
-          {[...Array(18)].map((_, index) => (
-            <SkeletonPoster key={index} />
-          ))}
-        </Grid>
-      }
-    >
+    <Suspense fallback={<SkeletonGrid />}>
       <DiscoverGrid searchParams={searchParams} />
     </Suspense>
   );

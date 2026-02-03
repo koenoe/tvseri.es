@@ -171,7 +171,7 @@ function MetricTabContentComponent({
     | 'INP'
     | 'LCP'
     | 'TTFB';
-  const ratings = aggregated[metricKey].ratings;
+  const ratings = metric === 'res' ? null : aggregated[metricKey].ratings;
   const dataPointCount =
     metric === 'res' ? aggregated.pageviews : aggregated[metricKey].count;
 
@@ -199,7 +199,7 @@ function MetricTabContentComponent({
               <PercentileBar
                 metric={metric}
                 p75Value={metricValue}
-                ratings={ratings}
+                ratings={ratings!}
               />
             </>
           )}

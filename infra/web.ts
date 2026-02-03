@@ -107,40 +107,34 @@ export const web = $dev
       const vercelTarget = isProduction ? 'production' : 'preview';
 
       // Environment variables for Vercel project
-      const envVars = [
-        new vercel.ProjectEnvironmentVariable('WebEnvApiKey', {
-          key: 'API_KEY',
-          projectId: project.id,
-          sensitive: true,
-          targets: [vercelTarget],
-          value: secrets.apiKeyRandom.result,
-        }),
-        new vercel.ProjectEnvironmentVariable('WebEnvApiUrl', {
-          key: 'API_URL',
-          projectId: project.id,
-          targets: [vercelTarget],
-          value: apiRouter.url,
-        }),
-        new vercel.ProjectEnvironmentVariable('WebEnvAuthUrl', {
-          key: 'AUTH_URL',
-          projectId: project.id,
-          targets: [vercelTarget],
-          value: auth.url,
-        }),
-        new vercel.ProjectEnvironmentVariable('WebEnvSecretKey', {
+      const vercelVariables = [
+        { key: 'API_KEY', sensitive: true, value: secrets.apiKeyRandom.result },
+        { key: 'API_URL', value: apiRouter.url },
+        { key: 'AUTH_URL', value: auth.url },
+        {
           key: 'SECRET_KEY',
-          projectId: project.id,
           sensitive: true,
-          targets: [vercelTarget],
           value: secrets.sessionSecret.value,
-        }),
-        new vercel.ProjectEnvironmentVariable('WebEnvSiteUrl', {
-          key: 'SITE_URL',
-          projectId: project.id,
-          targets: [vercelTarget],
-          value: siteUrl,
-        }),
+        },
+        { key: 'SITE_URL', value: siteUrl },
       ];
+
+      const envVars = vercelVariables.map(
+        (v) =>
+          new vercel.ProjectEnvironmentVariable(
+            `WebEnv${v.key}`,
+            {
+              comment:
+                'This var is being managed by SST, do not edit or delete it via the Vercel dashboard',
+              key: v.key,
+              projectId: project.id,
+              sensitive: v.sensitive,
+              targets: [vercelTarget],
+              value: v.value,
+            },
+            { deleteBeforeReplace: true },
+          ),
+      );
 
       // Build and deploy
       const deployedUrl = $resolve([

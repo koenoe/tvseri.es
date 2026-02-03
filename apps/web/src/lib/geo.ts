@@ -1,4 +1,5 @@
 import { headers } from 'next/headers';
+import { connection } from 'next/server';
 
 const DEFAULT_REGION = 'US';
 
@@ -41,5 +42,6 @@ export function getRegionFromHeaders(
  * @returns ISO 3166-1 alpha-2 country code (e.g., 'US', 'GB', 'NL')
  */
 export async function getRegion(): Promise<string> {
+  await connection();
   return getRegionFromHeaders(await headers());
 }

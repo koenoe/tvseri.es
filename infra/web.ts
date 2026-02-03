@@ -128,7 +128,7 @@ export const web = $dev
       const envVars = vercelVariables.map(
         (v) =>
           new vercel.ProjectEnvironmentVariable(
-            `WebVercelEnv${v.name}`,
+            `WebEnv${v.name}`,
             {
               comment:
                 'This var is being managed by SST, do not edit or delete it via the Vercel dashboard',

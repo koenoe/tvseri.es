@@ -26,10 +26,10 @@ export default async function HomePage() {
 
   return (
     <Page
+      animateBackground
       backgroundColor={spotlight.backdropColor}
       backgroundContext="spotlight"
       backgroundImage={spotlight.backdropImage}
-      backgroundVariant="dynamic"
     >
       <Spotlight className="mb-10 md:mb-20" items={trendingTvSeries} />
 

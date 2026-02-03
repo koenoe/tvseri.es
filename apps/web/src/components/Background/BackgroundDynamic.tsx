@@ -2,9 +2,11 @@
 
 import { AnimatePresence, motion } from 'motion/react';
 import { memo } from 'react';
-import { usePageStore } from '../Page/PageStoreProvider';
+import { useShallow } from 'zustand/shallow';
+
 import type { Props } from './Background';
 import BackgroundBase, { backgroundBaseStyles } from './BackgroundBase';
+import { useBackground } from './BackgroundProvider';
 
 const variants = {
   animate: { opacity: 1 },
@@ -22,8 +24,12 @@ function BackgroundDynamic({
   context = 'page',
   priority = false,
 }: Pick<Props, 'context'> & { priority?: boolean }) {
-  const color = usePageStore((state) => state.backgroundColor);
-  const image = usePageStore((state) => state.backgroundImage);
+  const { backgroundColor, backgroundImage } = useBackground(
+    useShallow((state) => ({
+      backgroundColor: state.backgroundColor,
+      backgroundImage: state.backgroundImage,
+    })),
+  );
 
   return (
     <AnimatePresence initial={false}>
@@ -32,19 +38,21 @@ function BackgroundDynamic({
         className={backgroundBaseStyles()}
         exit="exit"
         initial="initial"
-        key={image}
+        key={backgroundImage}
         transition={transition}
         variants={variants}
       >
         <BackgroundBase
-          color={color}
+          color={backgroundColor}
           context={context}
-          image={image}
+          image={backgroundImage}
           priority={priority}
         />
       </motion.div>
     </AnimatePresence>
   );
 }
+
+BackgroundDynamic.displayName = 'BackgroundDynamic';
 
 export default memo(BackgroundDynamic);

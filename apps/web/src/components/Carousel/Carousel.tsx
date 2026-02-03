@@ -22,9 +22,9 @@ import {
 import { useDebouncedCallback } from 'use-debounce';
 
 import getHistoryKey from '@/utils/getHistoryKey';
-
 import CarouselDot from './CarouselDot';
 import CarouselItem from './CarouselItem';
+import { getCarouselIndex, isBackNavigation, setCarouselIndex } from './cache';
 
 const transition = {
   duration: 0.5,
@@ -69,6 +69,18 @@ function getVisibleRange(
   );
 }
 
+/**
+ * Read cached index synchronously during render.
+ * Only restores on back navigation, returns 0 for forward navigation.
+ *
+ * @see rerender-lazy-state-init - Lazy initialization for expensive reads
+ */
+function getInitialIndex(cacheKey: string): number {
+  if (typeof window === 'undefined') return 0;
+  if (!isBackNavigation()) return 0;
+  return getCarouselIndex(cacheKey) ?? 0;
+}
+
 function Carousel({
   className,
   itemCount,
@@ -82,11 +94,19 @@ function Carousel({
   onChange?: (index: number) => void;
   restoreKey: string;
 }>) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [targetIndex, setTargetIndex] = useState(0);
-  const currentIndexRef = useRef(currentIndex);
-  const hasRestoredRef = useRef(false);
   const cacheKeyRef = useRef(`${restoreKey}:${getHistoryKey()}`);
+  /**
+   * Initialize from cache synchronously using lazy initialization.
+   * This may cause a hydration mismatch (server=0, client=cached), which is intentional:
+   * we suppress the warning because the cached position is the correct user-facing state.
+   *
+   * @see rerender-lazy-state-init - Pass function to useState for expensive values
+   */
+  const [currentIndex, setCurrentIndex] = useState(() =>
+    getInitialIndex(cacheKeyRef.current),
+  );
+  const [targetIndex, setTargetIndex] = useState(currentIndex);
+  const currentIndexRef = useRef(currentIndex);
   const [containerRef, animate] = useAnimate();
   const x = useMotionValue(0);
 
@@ -159,36 +179,31 @@ function Carousel({
     currentIndexRef.current = currentIndex;
   }, [currentIndex]);
 
-  const onRestore = useEffectEvent((index: number) => {
-    setCurrentIndex(index);
-    setTargetIndex(index);
-    x.set(calculateNewX(index));
-    onChange?.(getItemIndex(index));
+  /**
+   * Set initial x position and call onChange for restored index.
+   * useEffectEvent provides stable callback that always accesses latest values.
+   *
+   * @see react19-no-forwardref - React 19 APIs including useEffectEvent
+   */
+  const onInitialize = useEffectEvent((restoredIndex: number) => {
+    x.set(calculateNewX(restoredIndex));
+    onChange?.(getItemIndex(restoredIndex));
   });
 
-  // Restore index from sessionStorage before paint
+  const initialIndexRef = useRef(currentIndex);
   useLayoutEffect(() => {
-    if (hasRestoredRef.current) return;
-    hasRestoredRef.current = true;
-
-    const cached = sessionStorage.getItem(cacheKeyRef.current);
-    if (cached) {
-      sessionStorage.removeItem(cacheKeyRef.current);
-      const restored = parseInt(cached, 10);
-      if (restored !== 0) {
-        onRestore(restored);
-      }
+    const restoredIndex = initialIndexRef.current;
+    if (restoredIndex !== 0) {
+      onInitialize(restoredIndex);
     }
   }, []);
 
-  // Save state on unmount only (not on refresh)
+  // Save state on unmount only (for back-nav restoration)
   useEffect(() => {
+    const cacheKey = cacheKeyRef.current;
     return () => {
       if (currentIndexRef.current !== 0) {
-        sessionStorage.setItem(
-          cacheKeyRef.current,
-          currentIndexRef.current.toString(),
-        );
+        setCarouselIndex(cacheKey, currentIndexRef.current);
       }
     };
   }, []);

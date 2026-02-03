@@ -1,13 +1,12 @@
 import BackgroundDynamic from './BackgroundDynamic';
 import BackgroundStatic from './BackgroundStatic';
 
-export type BackgroundVariant = 'static' | 'dynamic';
 // TODO: find a better name for this as it's confusing
 // with React Context, lol
 export type BackgroundContext = 'page' | 'spotlight' | 'dots' | 'grid';
 
 export type Props = Readonly<{
-  variant: BackgroundVariant;
+  animated?: boolean;
   context: BackgroundContext;
   color: string;
   image?: string;
@@ -15,21 +14,21 @@ export type Props = Readonly<{
 }>;
 
 function Background({
-  variant = 'static',
+  animated = false,
   context,
   color,
   image,
   priority = false,
 }: Props) {
-  return variant === 'static' ? (
+  return animated ? (
+    <BackgroundDynamic context={context} priority={priority} />
+  ) : (
     <BackgroundStatic
       color={color}
       context={context}
       image={image}
       priority={priority}
     />
-  ) : (
-    <BackgroundDynamic context={context} priority={priority} />
   );
 }
 

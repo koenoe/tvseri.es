@@ -4,8 +4,8 @@ import type { TvSeries } from '@tvseri.es/schemas';
 import { useCallback } from 'react';
 
 import preloadImage from '@/utils/preloadImage';
+import { useBackground } from '../Background/BackgroundProvider';
 import Carousel from '../Carousel/Carousel';
-import { usePageStore } from '../Page/PageStoreProvider';
 import SpotlightItem from './SpotlightItem';
 
 export default function Spotlight({
@@ -15,7 +15,7 @@ export default function Spotlight({
   className?: string;
   items: TvSeries[];
 }>) {
-  const updateBackground = usePageStore((state) => state.setBackground);
+  const updateBackground = useBackground((state) => state.setBackground);
 
   const itemRenderer = useCallback(
     (index: number) => (

@@ -1,3 +1,5 @@
+/// <reference path="../.sst/platform/config.d.ts" />
+
 export const googleClientId = new sst.Secret('GoogleClientId');
 export const mdblistApiKey = new sst.Secret('MdblistApiKey');
 export const sessionSecret = new sst.Secret('SessionSecret');
@@ -11,9 +13,10 @@ const apiKeyRotation = new time.Rotating('ApiKeyRotation', {
 export const apiKeyRandom = new random.RandomPassword('ApiKeyRandom', {
   keepers: {
     rotation: apiKeyRotation.id,
+    version: '2',
   },
-  length: 32,
-  special: true,
+  length: 24,
+  special: false,
 });
 
 export const apiKey = new sst.Linkable('ApiKey', {

@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { DependencyMetricItem } from '@/lib/api-metrics';
+import { getSharpSparklinePath } from '@/lib/sparkline';
 import { STATUS_COLORS } from '@/lib/status-colors';
 import { Button } from '../ui/button';
 import { DependencyErrorPopover } from './dependency-error-popover';
@@ -35,30 +36,6 @@ function getErrorRateColor(errorRate: number): StatusColor {
   if (errorRate < 1) return 'green';
   if (errorRate < 5) return 'amber';
   return 'red';
-}
-
-function getSharpSparklinePath(
-  points: ReadonlyArray<number>,
-  width: number,
-  height: number,
-): string {
-  if (points.length === 0) return '';
-  if (points.length === 1) {
-    return `M 0,${height / 2} L ${width},${height / 2}`;
-  }
-
-  const min = Math.min(...points);
-  const max = Math.max(...points);
-  const range = max - min || 1;
-
-  const coords = points.map((val, i) => {
-    const x = (i / (points.length - 1)) * width;
-    const normalizedVal = (val - min) / range;
-    const y = height - (normalizedVal * (height * 0.8) + height * 0.1);
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  });
-
-  return `M ${coords.join(' L ')}`;
 }
 
 const ErrorRateCard = memo(function ErrorRateCard({

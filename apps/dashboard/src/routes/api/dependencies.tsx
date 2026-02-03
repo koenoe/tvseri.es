@@ -28,7 +28,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { useApiMetricsDependencyDetail } from '@/lib/api';
+import { useApiMetricsDependencyDetail } from '@/lib/api/hooks';
 import { formatDependencyName } from '@/lib/api-metrics';
 
 type DependencyDetailSearchParams = {

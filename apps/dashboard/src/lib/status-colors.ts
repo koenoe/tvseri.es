@@ -15,7 +15,3 @@ export const STATUS_COLORS = {
     text: 'text-red-500',
   },
 } as const;
-
-export const countryDisplayNames = new Intl.DisplayNames(['en'], {
-  type: 'region',
-});

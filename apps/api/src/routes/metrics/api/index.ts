@@ -7,8 +7,8 @@ import {
   ApiMetricsSummaryQuerySchema,
 } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
+
 import { requireAuthAdmin, type Variables } from '@/middleware/auth';
-import { cache } from '@/middleware/cache';
 
 import {
   aggregateDependencyOperationsWithSeries,
@@ -23,9 +23,14 @@ import {
 
 const app = new Hono<{ Variables: Variables }>();
 
-// All API metrics routes require admin auth and 24h cache
+// All API metrics routes require admin auth
 app.use('*', requireAuthAdmin());
-app.use('*', cache('admin'));
+
+// Cache for 24 hours since data is aggregated once per day
+app.use('*', async (c, next) => {
+  c.header('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+  await next();
+});
 
 // ════════════════════════════════════════════════════════════════════════════
 // SUMMARY

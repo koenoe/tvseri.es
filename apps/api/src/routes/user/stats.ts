@@ -11,6 +11,7 @@ import type {
 import { buildPosterImageUrl, buildStillImageUrl } from '@tvseri.es/utils';
 import { getISOWeek, getISOWeekYear } from 'date-fns';
 import { Hono } from 'hono';
+
 import { getListItemsCount } from '@/lib/db/list';
 import { getWatched } from '@/lib/db/watched';
 import {
@@ -24,7 +25,6 @@ import {
   setStatsCache,
 } from '@/lib/stats';
 import { fetchTvSeries } from '@/lib/tmdb';
-import { cache } from '@/middleware/cache';
 
 import { type UserVariables, user, yearMiddleware } from './middleware';
 
@@ -32,10 +32,10 @@ type Variables = {
   year: number;
 } & UserVariables;
 
-const app = new Hono<{ Variables: Variables }>();
+const CACHE_HEADER =
+  'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800';
 
-// All stats routes use the same cache profile
-app.use('*', cache('stats'));
+const app = new Hono<{ Variables: Variables }>();
 
 // Summary endpoint: totalRuntime, episodeCount, seriesCount, longestStreak, avgPerDay
 app.get('/:id/stats/:year/summary', user(), yearMiddleware(), async (c) => {
@@ -47,6 +47,7 @@ app.get('/:id/stats/:year/summary', user(), yearMiddleware(), async (c) => {
     cached?.current.totalRuntime === 0 && cached?.current.episodeCount > 0;
 
   if (cached && !hasStaleTotalRuntime) {
+    c.header('Cache-Control', CACHE_HEADER);
     return c.json(cached);
   }
 
@@ -61,6 +62,7 @@ app.get('/:id/stats/:year/summary', user(), yearMiddleware(), async (c) => {
   };
 
   await setStatsCache(userId, year, 'summary', result);
+  c.header('Cache-Control', CACHE_HEADER);
   return c.json(result);
 });
 
@@ -79,6 +81,7 @@ app.get(
       'favorites-count',
     );
     if (cached) {
+      c.header('Cache-Control', CACHE_HEADER);
       return c.json(cached);
     }
 
@@ -100,6 +103,7 @@ app.get(
     const result = { current, previous };
 
     await setStatsCache(userId, year, 'favorites-count', result);
+    c.header('Cache-Control', CACHE_HEADER);
     return c.json(result);
   },
 );
@@ -111,6 +115,7 @@ app.get('/:id/stats/:year/spotlight', user(), yearMiddleware(), async (c) => {
 
   const cached = await getStatsCache<StatsSpotlight>(userId, year, 'spotlight');
   if (cached) {
+    c.header('Cache-Control', CACHE_HEADER);
     return c.json(cached);
   }
 
@@ -174,6 +179,7 @@ app.get('/:id/stats/:year/spotlight', user(), yearMiddleware(), async (c) => {
   const result = { first, last };
 
   await setStatsCache(userId, year, 'spotlight', result);
+  c.header('Cache-Control', CACHE_HEADER);
   return c.json(result);
 });
 
@@ -184,6 +190,7 @@ app.get('/:id/stats/:year/weekly', user(), yearMiddleware(), async (c) => {
 
   const cached = await getStatsCache(userId, year, 'weekly');
   if (cached) {
+    c.header('Cache-Control', CACHE_HEADER);
     return c.json(cached);
   }
 
@@ -227,6 +234,7 @@ app.get('/:id/stats/:year/weekly', user(), yearMiddleware(), async (c) => {
   });
 
   await setStatsCache(userId, year, 'weekly', weekCounts);
+  c.header('Cache-Control', CACHE_HEADER);
   return c.json(weekCounts);
 });
 
@@ -237,6 +245,7 @@ app.get('/:id/stats/:year/genres', user(), yearMiddleware(), async (c) => {
 
   const cached = await getStatsCache(userId, year, 'genres');
   if (cached) {
+    c.header('Cache-Control', CACHE_HEADER);
     return c.json(cached);
   }
 
@@ -244,6 +253,7 @@ app.get('/:id/stats/:year/genres', user(), yearMiddleware(), async (c) => {
   const uniqueSeriesIds = getUniqueSeriesIds(items);
 
   if (uniqueSeriesIds.length === 0) {
+    c.header('Cache-Control', CACHE_HEADER);
     return c.json([]);
   }
 
@@ -254,6 +264,7 @@ app.get('/:id/stats/:year/genres', user(), yearMiddleware(), async (c) => {
   const result = aggregateGenres(seriesWithGenres);
 
   await setStatsCache(userId, year, 'genres', result);
+  c.header('Cache-Control', CACHE_HEADER);
   return c.json(result);
 });
 
@@ -264,6 +275,7 @@ app.get('/:id/stats/:year/providers', user(), yearMiddleware(), async (c) => {
 
   const cached = await getStatsCache(userId, year, 'providers');
   if (cached) {
+    c.header('Cache-Control', CACHE_HEADER);
     return c.json(cached);
   }
 
@@ -271,6 +283,7 @@ app.get('/:id/stats/:year/providers', user(), yearMiddleware(), async (c) => {
   const result = await aggregateProviders(items);
 
   await setStatsCache(userId, year, 'providers', result);
+  c.header('Cache-Control', CACHE_HEADER);
   return c.json(result);
 });
 
@@ -281,6 +294,7 @@ app.get('/:id/stats/:year/countries', user(), yearMiddleware(), async (c) => {
 
   const cached = await getStatsCache(userId, year, 'countries');
   if (cached) {
+    c.header('Cache-Control', CACHE_HEADER);
     return c.json(cached);
   }
 
@@ -288,6 +302,7 @@ app.get('/:id/stats/:year/countries', user(), yearMiddleware(), async (c) => {
   const uniqueSeriesIds = getUniqueSeriesIds(items);
 
   if (uniqueSeriesIds.length === 0) {
+    c.header('Cache-Control', CACHE_HEADER);
     return c.json({});
   }
 
@@ -298,6 +313,7 @@ app.get('/:id/stats/:year/countries', user(), yearMiddleware(), async (c) => {
   const result = aggregateCountries(seriesList);
 
   await setStatsCache(userId, year, 'countries', result);
+  c.header('Cache-Control', CACHE_HEADER);
   return c.json(result);
 });
 
@@ -327,6 +343,7 @@ app.get(
       title: item.title,
     }));
 
+    c.header('Cache-Control', CACHE_HEADER);
     return c.json(result);
   },
 );

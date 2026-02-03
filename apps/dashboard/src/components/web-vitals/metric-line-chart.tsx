@@ -18,7 +18,7 @@ import {
   ChartTooltip,
 } from '@/components/ui/chart';
 import { formatCountString } from '@/lib/api-metrics';
-import { countryDisplayNames } from '@/lib/status-colors';
+import { getCountryDisplayName } from '@/lib/status-colors';
 import {
   getMetricStatus,
   METRICS_CONFIG,
@@ -547,9 +547,7 @@ function MetricLineChartComponent({
     };
   };
 
-  const countryDisplayName = country
-    ? (countryDisplayNames.of(country) ?? country)
-    : null;
+  const countryDisplayName = country ? getCountryDisplayName(country) : null;
 
   return (
     <div className="flex flex-col">

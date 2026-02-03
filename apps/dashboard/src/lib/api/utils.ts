@@ -7,7 +7,7 @@ import type {
   WebVitalMetricStats,
 } from '@tvseri.es/schemas';
 
-import { countryDisplayNames } from '@/lib/status-colors';
+import { getCountryDisplayName } from '@/lib/status-colors';
 import {
   getMetricStatus,
   METRICS_CONFIG,
@@ -180,8 +180,7 @@ export function groupCountriesByStatus(
     const rawValue = getMetricRawValue(metric, country);
     const status = getMetricStatus(metric, rawValue);
     const displayValue = getMetricDisplayValue(metric, country);
-    const countryName =
-      countryDisplayNames.of(country.country) ?? country.country;
+    const countryName = getCountryDisplayName(country.country);
 
     groups[status].push({
       id: country.country,

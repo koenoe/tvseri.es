@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
-
 import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
+import { cache } from '@/middleware/cache';
 
 const app = new Hono();
 
-app.get('/', async (c) => {
+app.get('/', cache('immutable'), async (c) => {
   const url = c.req.query('url');
   if (!url) {
     return c.json({ error: 'No url provided' }, 400);
@@ -15,11 +15,6 @@ app.get('/', async (c) => {
     cacheKey,
     url,
   });
-
-  c.header(
-    'Cache-Control',
-    'public, max-age=31536000, s-maxage=31536000, immutable',
-  );
 
   return c.json({
     hex: dominantColor,

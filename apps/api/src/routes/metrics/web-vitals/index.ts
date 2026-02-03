@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
-
 import { requireAuthAdmin, type Variables } from '@/middleware/auth';
+import { cache } from '@/middleware/cache';
 
 import countries from './countries';
 import devices from './devices';
@@ -13,32 +13,11 @@ const app = new Hono<{ Variables: Variables }>();
 // Ingestion endpoints (from browser) - no auth required
 app.route('/', ingest);
 
-// Dashboard query endpoints - require admin auth
-// Cache for 24 hours since data is aggregated once per day
-const CACHE_HEADER = 'public, max-age=86400, s-maxage=86400';
-
-app.use('/summary/*', requireAuthAdmin());
-app.use('/routes/*', requireAuthAdmin());
-app.use('/countries/*', requireAuthAdmin());
-app.use('/devices/*', requireAuthAdmin());
-
-// // Set cache headers for all dashboard endpoints
-app.use('/summary/*', async (c, next) => {
-  c.header('Cache-Control', CACHE_HEADER);
-  await next();
-});
-app.use('/routes/*', async (c, next) => {
-  c.header('Cache-Control', CACHE_HEADER);
-  await next();
-});
-app.use('/countries/*', async (c, next) => {
-  c.header('Cache-Control', CACHE_HEADER);
-  await next();
-});
-app.use('/devices/*', async (c, next) => {
-  c.header('Cache-Control', CACHE_HEADER);
-  await next();
-});
+// Dashboard query endpoints - require admin auth with 24h cache
+app.use('/summary/*', requireAuthAdmin(), cache('admin'));
+app.use('/routes/*', requireAuthAdmin(), cache('admin'));
+app.use('/countries/*', requireAuthAdmin(), cache('admin'));
+app.use('/devices/*', requireAuthAdmin(), cache('admin'));
 
 app.route('/summary', summary);
 app.route('/routes', routes);

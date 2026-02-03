@@ -8,6 +8,7 @@ import {
   fetchLanguages,
   fetchWatchProviders,
 } from '@/lib/tmdb';
+import { cache } from '@/middleware/cache';
 
 const app = new Hono();
 
@@ -32,7 +33,7 @@ const enrichWatchProvidersWithColors = async (
   return enrichedProviders;
 };
 
-app.get('/', async (c) => {
+app.get('/', cache('medium'), async (c) => {
   const searchParams = c.req.query();
   const pageFromSearchParams = searchParams.pageOrCursor;
   const page = pageFromSearchParams ? parseInt(pageFromSearchParams, 10) : 1;
@@ -43,45 +44,24 @@ app.get('/', async (c) => {
 
   const result = await fetchDiscoverTvSeries(query);
 
-  c.header(
-    'Cache-Control',
-    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
-  ); // 1 week, allow stale for 24h
-
   return c.json(result);
 });
 
-app.get('/countries', async (c) => {
+app.get('/countries', cache('long'), async (c) => {
   const countries = await fetchCountries();
-
-  c.header(
-    'Cache-Control',
-    'public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=86400',
-  ); // 1 month, allow stale for 24h
 
   return c.json(countries);
 });
 
-app.get('/languages', async (c) => {
+app.get('/languages', cache('long'), async (c) => {
   const languages = await fetchLanguages();
-
-  c.header(
-    'Cache-Control',
-    'public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=86400',
-  ); // 1 month, allow stale for 24h
 
   return c.json(languages);
 });
 
-app.get('/watch-providers', async (c) => {
+app.get('/watch-providers', cache('medium'), async (c) => {
   const region = c.req.query('region') || 'US';
   const watchProviders = await fetchWatchProviders(region);
-
-  // Region is a query param, not header, so CDN will cache by URL including ?region=
-  c.header(
-    'Cache-Control',
-    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
-  ); // 1w, allow stale for 24h
 
   if (c.req.query('include_colors') === 'true') {
     const enrichedWatchProviders =

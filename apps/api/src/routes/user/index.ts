@@ -14,7 +14,6 @@ import {
 } from '@tvseri.es/schemas';
 import { Hono, type MiddlewareHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-
 import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 import {
   follow,
@@ -52,6 +51,7 @@ import {
   fetchTvSeriesWatchProvider,
 } from '@/lib/tmdb';
 import { auth, requireAuth } from '@/middleware/auth';
+import { cache } from '@/middleware/cache';
 
 import { requireIsMe, type UserVariables, user } from './middleware';
 import stats from './stats';
@@ -208,9 +208,7 @@ app.get('/:id/watched/count', user(), async (c) => {
 });
 
 // All-time runtime - stored permanently in cache, updated incrementally by watched subscriber
-app.get('/:id/watched/runtime', user(), async (c) => {
-  const cacheHeader =
-    'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800';
+app.get('/:id/watched/runtime', user(), cache('stats'), async (c) => {
   const user = c.get('user');
   const cacheKey = `profile:${user.id}:watched-runtime`;
   const cached = await getCacheItem<number>(cacheKey);
@@ -220,7 +218,6 @@ app.get('/:id/watched/runtime', user(), async (c) => {
     (cached === 0 && (await getWatchedCount({ userId: user.id })) > 0);
 
   if (!shouldRecompute) {
-    c.header('Cache-Control', cacheHeader);
     return c.json({ runtime: cached });
   }
 
@@ -228,8 +225,6 @@ app.get('/:id/watched/runtime', user(), async (c) => {
   const runtime = items.reduce((sum, item) => sum + (item.runtime || 0), 0);
 
   await setCacheItem(cacheKey, runtime, { ttl: null });
-
-  c.header('Cache-Control', cacheHeader);
 
   return c.json({ runtime });
 });

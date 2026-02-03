@@ -1,10 +1,10 @@
 {
   "dependencies": {
-    "@aws-sdk/client-cloudfront": "^3.980.0",
-    "@aws-sdk/client-dynamodb": "^3.980.0",
-    "@aws-sdk/client-lambda": "^3.980.0",
-    "@aws-sdk/client-sqs": "^3.980.0",
-    "@aws-sdk/util-dynamodb": "^3.980.0",
+    "@aws-sdk/client-cloudfront": "^3.981.0",
+    "@aws-sdk/client-dynamodb": "^3.981.0",
+    "@aws-sdk/client-lambda": "^3.981.0",
+    "@aws-sdk/client-sqs": "^3.981.0",
+    "@aws-sdk/util-dynamodb": "^3.981.0",
     "@better-fetch/fetch": "^1.1.21",
     "@hono/valibot-validator": "^0.6.1",
     "@openauthjs/openauth": "^0.4.3",

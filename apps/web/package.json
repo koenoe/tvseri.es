@@ -30,7 +30,7 @@
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "@types/papaparse": "^5.5.2",
-    "@types/react": "^19.2.10",
+    "@types/react": "^19.2.11",
     "@types/react-dom": "^19.2.3",
     "mini-svg-data-uri": "^1.4.4",
     "postcss": "^8.5.6",

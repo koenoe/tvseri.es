@@ -1,16 +1,13 @@
 import { Hono } from 'hono';
-
 import { fetchGenresForTvSeries } from '@/lib/tmdb';
+import { cacheHeader } from '@/utils/cacheHeader';
 
 const app = new Hono();
 
 app.get('/', async (c) => {
   const genres = await fetchGenresForTvSeries();
 
-  c.header(
-    'Cache-Control',
-    'public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=86400',
-  ); // 1 month, allow stale for 24h
+  c.header('Cache-Control', cacheHeader('long'));
 
   return c.json(genres);
 });

@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
-
 import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
+import { cacheHeader } from '@/utils/cacheHeader';
 
 const app = new Hono();
 
@@ -16,10 +16,7 @@ app.get('/', async (c) => {
     url,
   });
 
-  c.header(
-    'Cache-Control',
-    'public, max-age=31536000, s-maxage=31536000, immutable',
-  );
+  c.header('Cache-Control', cacheHeader('immutable'));
 
   return c.json({
     hex: dominantColor,

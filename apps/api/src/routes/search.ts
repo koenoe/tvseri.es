@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
-
 import { searchKeywords, searchTvSeries } from '@/lib/tmdb';
+import { cacheHeader } from '@/utils/cacheHeader';
 
 const app = new Hono();
 
@@ -14,10 +14,7 @@ app.get('/series', async (c) => {
     year: c.req.query('year'),
   });
 
-  c.header(
-    'Cache-Control',
-    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
-  ); // 1 week, allow stale for 24h
+  c.header('Cache-Control', cacheHeader('medium'));
 
   return c.json(series);
 });
@@ -30,10 +27,7 @@ app.get('/keyword', async (c) => {
 
   const keywords = await searchKeywords(q);
 
-  c.header(
-    'Cache-Control',
-    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
-  ); // 1 week, allow stale for 24h
+  c.header('Cache-Control', cacheHeader('medium'));
 
   return c.json(keywords);
 });

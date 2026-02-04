@@ -1,6 +1,7 @@
 import { WATCH_PROVIDER_PREDEFINED_COLOR } from '@tvseri.es/constants';
 import type { WatchProvider } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
+
 import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
 import {
   fetchCountries,
@@ -8,6 +9,7 @@ import {
   fetchLanguages,
   fetchWatchProviders,
 } from '@/lib/tmdb';
+import { cacheHeader } from '@/utils/cacheHeader';
 
 const app = new Hono();
 
@@ -43,10 +45,7 @@ app.get('/', async (c) => {
 
   const result = await fetchDiscoverTvSeries(query);
 
-  c.header(
-    'Cache-Control',
-    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
-  ); // 1 week, allow stale for 24h
+  c.header('Cache-Control', cacheHeader('medium'));
 
   return c.json(result);
 });
@@ -54,10 +53,7 @@ app.get('/', async (c) => {
 app.get('/countries', async (c) => {
   const countries = await fetchCountries();
 
-  c.header(
-    'Cache-Control',
-    'public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=86400',
-  ); // 1 month, allow stale for 24h
+  c.header('Cache-Control', cacheHeader('long'));
 
   return c.json(countries);
 });
@@ -65,10 +61,7 @@ app.get('/countries', async (c) => {
 app.get('/languages', async (c) => {
   const languages = await fetchLanguages();
 
-  c.header(
-    'Cache-Control',
-    'public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=86400',
-  ); // 1 month, allow stale for 24h
+  c.header('Cache-Control', cacheHeader('long'));
 
   return c.json(languages);
 });
@@ -77,11 +70,7 @@ app.get('/watch-providers', async (c) => {
   const region = c.req.query('region') || 'US';
   const watchProviders = await fetchWatchProviders(region);
 
-  // Region is a query param, not header, so CDN will cache by URL including ?region=
-  c.header(
-    'Cache-Control',
-    'public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400',
-  ); // 1w, allow stale for 24h
+  c.header('Cache-Control', cacheHeader('medium'));
 
   if (c.req.query('include_colors') === 'true') {
     const enrichedWatchProviders =

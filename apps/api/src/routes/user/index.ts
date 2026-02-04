@@ -52,6 +52,7 @@ import {
   fetchTvSeriesWatchProvider,
 } from '@/lib/tmdb';
 import { auth, requireAuth } from '@/middleware/auth';
+import { cacheHeader } from '@/utils/cacheHeader';
 
 import { requireIsMe, type UserVariables, user } from './middleware';
 import stats from './stats';
@@ -209,8 +210,7 @@ app.get('/:id/watched/count', user(), async (c) => {
 
 // All-time runtime - stored permanently in cache, updated incrementally by watched subscriber
 app.get('/:id/watched/runtime', user(), async (c) => {
-  const cacheHeader =
-    'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800';
+  const statsCacheHeader = cacheHeader('stats');
   const user = c.get('user');
   const cacheKey = `profile:${user.id}:watched-runtime`;
   const cached = await getCacheItem<number>(cacheKey);
@@ -220,7 +220,7 @@ app.get('/:id/watched/runtime', user(), async (c) => {
     (cached === 0 && (await getWatchedCount({ userId: user.id })) > 0);
 
   if (!shouldRecompute) {
-    c.header('Cache-Control', cacheHeader);
+    c.header('Cache-Control', statsCacheHeader);
     return c.json({ runtime: cached });
   }
 
@@ -229,7 +229,7 @@ app.get('/:id/watched/runtime', user(), async (c) => {
 
   await setCacheItem(cacheKey, runtime, { ttl: null });
 
-  c.header('Cache-Control', cacheHeader);
+  c.header('Cache-Control', statsCacheHeader);
 
   return c.json({ runtime });
 });

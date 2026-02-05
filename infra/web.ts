@@ -82,8 +82,7 @@ export const web = $dev
         framework: 'nextjs',
         name: projectName,
         resourceConfig: {
-          // Note: is a pro feature
-          // functionDefaultRegions: ['iad1', 'lhr1'],
+          functionDefaultRegions: ['iad1', 'lhr1'],
         },
         rootDirectory: 'apps/web',
       });

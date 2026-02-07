@@ -153,15 +153,17 @@ Packages export raw TypeScript (not built/published). Apps transpile and bundle 
 
 **Always use Context7** when code generation, setup/configuration steps, or library/API documentation is needed. Automatically use the Context7 MCP tools to resolve library IDs and fetch library docs without being explicitly asked.
 
-## Agent Checklist
+**Use Exa** for web searches when you need to find current information, news, or answers to general questions.
 
-Before submitting changes:
+**Use Grep (grep.app)** for searching real-world code examples across public GitHub repositories when you need to see how libraries or APIs are used in practice.
 
-- [ ] Run `pnpm format-and-lint:fix`
-- [ ] Run `pnpm check-types`
-- [ ] Run `pnpm knip`
-- [ ] Ensure no `any` types are introduced
-- [ ] Use single quotes, 2-space indentation
-- [ ] Sort object keys alphabetically
-- [ ] Use template literals for string concatenation
-- [ ] Add types to `packages/schemas` if creating shared types
+## Skills
+
+Always load and apply the following skills when working on React components or frontend code:
+
+- **vercel-react-best-practices** — React and Next.js performance optimization guidelines. Load this skill when writing, reviewing, or refactoring React/Next.js code.
+- **vercel-composition-patterns** — React composition patterns that scale. Load this skill when building or refactoring components, designing reusable APIs, or working with compound components, render props, and context providers.
+
+## Browser Verification
+
+When you need to verify something in a browser, always use the **agent-browser** CLI. Never use DevTools MCP or Playwright MCP for browser interactions.

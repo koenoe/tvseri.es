@@ -69,30 +69,11 @@ async function verifySession(
   // OpenAuth always rotates refresh tokens on each refresh. If we refresh but can't
   // persist the new RT, the old RT becomes invalid and the user gets logged out.
   if (options.readOnly && isExpired) {
-    console.log(
-      `[auth] [${options.context}] session expired (readOnly), AT:`,
-      payload.accessToken.slice(-5),
-      'RT:',
-      payload.refreshToken.slice(-5),
-      'expiresIn:',
-      expiresIn,
-    );
     return EMPTY_SESSION;
   }
 
   // Refresh if expired OR within threshold (proactive refresh)
   const needsRefresh = isExpired || expiresIn <= SESSION_REFRESH_THRESHOLD;
-
-  console.log(
-    `[auth] [${options.context}] verifySession, AT:`,
-    payload.accessToken.slice(-5),
-    'RT:',
-    payload.refreshToken.slice(-5),
-    'needsRefresh:',
-    needsRefresh,
-    'expiresIn:',
-    expiresIn,
-  );
 
   let accessToken = payload.accessToken;
   let refreshToken = payload.refreshToken;
@@ -110,17 +91,6 @@ async function verifySession(
       cookieJar.delete();
       return EMPTY_SESSION;
     }
-
-    console.log(
-      `[auth] [${options.context}] tokens refreshed, AT:`,
-      payload.accessToken.slice(-5),
-      '→',
-      refreshed.tokens.access.slice(-5),
-      'RT:',
-      payload.refreshToken.slice(-5),
-      '→',
-      refreshed.tokens.refresh.slice(-5),
-    );
 
     accessToken = refreshed.tokens.access;
     refreshToken = refreshed.tokens.refresh;

@@ -6,12 +6,6 @@ import { encryptToken } from './crypto';
 // Create a new session (for callback route)
 export async function createSession(tokens: Tokens): Promise<void> {
   const { access, refresh, expiresIn } = tokens;
-  console.log(
-    '[auth] createSession, AT:',
-    access.slice(-5),
-    'RT:',
-    refresh.slice(-5),
-  );
   const cookieStore = await cookies();
   const encrypted = await encryptToken({
     accessToken: access,

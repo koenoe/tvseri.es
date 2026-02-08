@@ -4,6 +4,7 @@ import { frame, MotionGlobalConfig } from 'motion/react';
 import {
   createContext,
   type ReactNode,
+  type RefObject,
   use,
   useLayoutEffect,
   useRef,
@@ -21,6 +22,19 @@ import { type BackgroundStore, createBackgroundStore } from './store';
 type BackgroundStoreApi = ReturnType<typeof createBackgroundStore>;
 
 const BackgroundContext = createContext<BackgroundStoreApi | null>(null);
+
+/**
+ * Context for BackgroundStyleTag to register its <style> element ref.
+ * This allows BackgroundProvider to toggle the style tag's media attribute
+ * in the SAME useLayoutEffect that sets the CSS variable, eliminating
+ * the parent-child effect ordering window that caused stale backgrounds
+ * during Activity re-show.
+ */
+const StyleTagRefContext = createContext<RefObject<HTMLStyleElement | null>>({
+  current: null,
+});
+
+export { StyleTagRefContext };
 
 type BackgroundProviderProps = Readonly<{
   children: ReactNode;
@@ -45,6 +59,11 @@ type BackgroundProviderProps = Readonly<{
  * back-nav (sets CSS var from __bgCache before React hydrates), so there's
  * no flash even though we defer cache restoration to useLayoutEffect.
  *
+ * This provider also owns the <style> tag media toggle (via StyleTagRefContext)
+ * to ensure the CSS variable and style tag activation happen atomically in
+ * the same synchronous effect — preventing the stale-background bug caused
+ * by Activity's bottom-up effect ordering (child setup before parent setup).
+ *
  * @see state-lift-state - Move state into provider for sibling access
  * @see js-cache-function-results - Module-level Map for caching
  */
@@ -55,6 +74,7 @@ export function BackgroundProvider({
 }: BackgroundProviderProps) {
   const storeRef = useRef<BackgroundStoreApi>(null);
   const hasMountedRef = useRef(false);
+  const styleTagRef = useRef<HTMLStyleElement>(null);
 
   // Always initialize from server props. Cache restoration happens in
   // useLayoutEffect where history.state is reliable.
@@ -68,11 +88,12 @@ export function BackgroundProvider({
   // On mount / Activity show:
   // 1. Check if this is a back-nav and restore from cache if so
   // 2. Capture historyKey for cache save on cleanup
-  // 3. Sync CSS variable and subscribe to store changes
+  // 3. Sync CSS variable and enable <style> tag atomically
+  // 4. Subscribe to store changes
   //
   // On unmount / Activity hide:
   // 1. Save current store state to cache
-  // 2. Remove CSS variable
+  // 2. Disable <style> tag and remove CSS variable atomically
   useLayoutEffect(() => {
     const store = storeRef.current;
     if (!store) return;
@@ -80,6 +101,7 @@ export function BackgroundProvider({
     const historyKey = getHistoryKey();
     const isReshow = hasMountedRef.current;
     hasMountedRef.current = true;
+    const isBack = isBackNavigation();
 
     // Restore from cache on back navigation, reset to server props on forward.
     // Back-nav: user expects to see the page as they left it (e.g. carousel position).
@@ -97,7 +119,7 @@ export function BackgroundProvider({
       MotionGlobalConfig.instantAnimations = true;
     }
 
-    if (isBackNavigation()) {
+    if (isBack) {
       const cached = getBackground(historyKey);
       if (cached) {
         store.setState(cached);
@@ -117,7 +139,14 @@ export function BackgroundProvider({
       );
     }
 
-    // Sync CSS variable from current store state
+    // Atomically enable <style> tag AND set CSS variable.
+    // Both happen in the same synchronous effect to prevent any window
+    // where the style tag is active but the CSS var hasn't been set yet.
+    const styleTag = styleTagRef.current;
+    if (styleTag) {
+      styleTag.media = '';
+    }
+
     const currentState = store.getState();
     document.documentElement.style.setProperty(
       '--main-background-color',
@@ -141,13 +170,18 @@ export function BackgroundProvider({
       });
 
       unsubscribe();
+
+      // Atomically disable <style> tag AND remove CSS variable.
       document.documentElement.style.removeProperty('--main-background-color');
+      if (styleTag) {
+        styleTag.media = 'not all';
+      }
     };
   }, [initialColor, initialImage]);
 
   return (
     <BackgroundContext.Provider value={storeRef.current}>
-      {children}
+      <StyleTagRefContext value={styleTagRef}>{children}</StyleTagRefContext>
     </BackgroundContext.Provider>
   );
 }

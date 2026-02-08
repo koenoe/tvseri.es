@@ -98,7 +98,7 @@ function Logo({ priority = false }: Readonly<{ priority?: boolean }>) {
   const opacity = useMemo(() => (isDisabled ? 0.1 : 1), [isDisabled]);
 
   return (
-    <Link className={linkStyles({ state })} href="/" replace>
+    <Link className={linkStyles({ state })} href="/">
       <motion.div
         animate={{ opacity }}
         className={containerStyles({ layout })}

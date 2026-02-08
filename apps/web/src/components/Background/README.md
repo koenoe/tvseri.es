@@ -43,7 +43,7 @@ When Next.js hides a route via Activity (`display: none`), effects clean up:
 When Activity re-shows the route, effects re-run:
 
 1. `BackgroundStyleTag` sets `media=""` to re-enable styles
-2. `BackgroundProvider` detects re-show via `hasSetupRef`, restores from cache (back-nav) or resets to server props (forward-nav)
+2. `BackgroundProvider` detects re-show via `hasMountedRef`, restores from cache (back-nav) or resets to server props (forward-nav)
 3. `MotionGlobalConfig.instantAnimations` suppresses the AnimatePresence crossfade during the re-show state sync
 
 ## File Responsibilities

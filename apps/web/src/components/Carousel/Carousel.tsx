@@ -114,6 +114,7 @@ function Carousel({
   );
   const [targetIndex, setTargetIndex] = useState(currentIndex);
   const currentIndexRef = useRef(currentIndex);
+  currentIndexRef.current = currentIndex;
   const [containerRef, animate] = useAnimate();
   const x = useMotionValue(0);
 
@@ -181,10 +182,6 @@ function Carousel({
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [handleResize]);
-
-  useEffect(() => {
-    currentIndexRef.current = currentIndex;
-  }, [currentIndex]);
 
   /**
    * Set initial x position and call onChange for restored index.

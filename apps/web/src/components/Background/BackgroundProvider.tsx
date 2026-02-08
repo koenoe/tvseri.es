@@ -54,7 +54,7 @@ export function BackgroundProvider({
   initialImage,
 }: BackgroundProviderProps) {
   const storeRef = useRef<BackgroundStoreApi>(null);
-  const hasSetupRef = useRef(false);
+  const hasMountedRef = useRef(false);
 
   // Always initialize from server props. Cache restoration happens in
   // useLayoutEffect where history.state is reliable.
@@ -78,8 +78,8 @@ export function BackgroundProvider({
     if (!store) return;
 
     const historyKey = getHistoryKey();
-    const isReshow = hasSetupRef.current;
-    hasSetupRef.current = true;
+    const isReshow = hasMountedRef.current;
+    hasMountedRef.current = true;
 
     // Restore from cache on back navigation, reset to server props on forward.
     // Back-nav: user expects to see the page as they left it (e.g. carousel position).

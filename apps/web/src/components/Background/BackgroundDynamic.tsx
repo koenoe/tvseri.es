@@ -20,6 +20,13 @@ const transition = {
   type: 'tween',
 } as const;
 
+/**
+ * Animated background variant. Crossfades between images via AnimatePresence
+ * when the Zustand store updates (e.g. carousel slide change in Spotlight).
+ *
+ * On Activity re-show, BackgroundProvider sets MotionGlobalConfig.instantAnimations
+ * before updating the store, which makes the crossfade instant (duration: 0).
+ */
 function BackgroundDynamic({
   context = 'page',
   priority = false,

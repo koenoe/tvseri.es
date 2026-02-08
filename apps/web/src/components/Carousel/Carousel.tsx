@@ -142,31 +142,34 @@ function Carousel({
 
   const handleDotClick = useCallback(
     (itemIndex: number) => {
-      const baseIndex = Math.floor(currentIndex / itemCount) * itemCount;
+      const current = currentIndexRef.current;
+      const baseIndex = Math.floor(current / itemCount) * itemCount;
       updateCurrentIndex(baseIndex + itemIndex);
     },
-    [currentIndex, itemCount, updateCurrentIndex],
+    [itemCount, updateCurrentIndex],
   );
 
   const handleDragEnd = useCallback(
     (_event: Event, { offset, velocity }: PanInfo) => {
+      const current = currentIndexRef.current;
+
       // Ignore if vertical swipe
       if (Math.abs(velocity.y) > Math.abs(velocity.x)) {
-        animate(x, calculateNewX(currentIndex), transition);
+        animate(x, calculateNewX(current), transition);
         return;
       }
 
       const threshold = (containerRef.current?.clientWidth || 0) / 4;
 
       if (offset.x > threshold) {
-        updateCurrentIndex(currentIndex - 1);
+        updateCurrentIndex(current - 1);
       } else if (offset.x < -threshold) {
-        updateCurrentIndex(currentIndex + 1);
+        updateCurrentIndex(current + 1);
       } else {
-        animate(x, calculateNewX(currentIndex), transition);
+        animate(x, calculateNewX(current), transition);
       }
     },
-    [animate, calculateNewX, containerRef, currentIndex, updateCurrentIndex, x],
+    [animate, calculateNewX, containerRef, updateCurrentIndex, x],
   );
 
   const handleItemRenderer = useCallback(
@@ -175,7 +178,7 @@ function Carousel({
   );
 
   const handleResize = useDebouncedCallback(() => {
-    animate(x, calculateNewX(currentIndex), transition);
+    animate(x, calculateNewX(currentIndexRef.current), transition);
   }, 100);
 
   useEffect(() => {

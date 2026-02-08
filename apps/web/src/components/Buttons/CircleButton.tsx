@@ -1,8 +1,8 @@
 'use client';
 
 import { cva, cx, type VariantProps } from 'class-variance-authority';
-import { motion } from 'motion/react';
-import { useCallback } from 'react';
+import { animate, motion } from 'motion/react';
+import { memo, useCallback, useLayoutEffect, useRef } from 'react';
 
 export const circleButtonStyles = cva(
   'relative flex aspect-square items-center justify-center rounded-full border-2 focus:outline-none',
@@ -21,7 +21,7 @@ export const circleButtonStyles = cva(
 
 export type ButtonVariantProps = VariantProps<typeof circleButtonStyles>;
 
-export default function CircleButton({
+function CircleButton({
   className,
   children,
   onClick,
@@ -52,13 +52,33 @@ export default function CircleButton({
     [isActive, onClick],
   );
 
+  // Imperatively animate the circle burst on false→true transitions.
+  // The circle element stays at its final state (opacity: 0, scale: 2)
+  // in the DOM. On Activity re-show, nothing triggers because
+  // prevActiveRef tracks isActive — when both are true, no animation.
+  const circleRef = useRef<SVGCircleElement>(null);
+  const prevActiveRef = useRef(isActive);
+
+  useLayoutEffect(() => {
+    const wasActive = prevActiveRef.current;
+    prevActiveRef.current = isActive;
+
+    if (isActive && !wasActive && circleRef.current) {
+      const controls = animate(
+        circleRef.current,
+        { opacity: [1, 0], scale: [0, 2] },
+        { duration: 0.6 },
+      );
+      return () => controls.stop();
+    }
+  }, [isActive]);
+
   return (
     <motion.button
       animate={isActive ? 'active' : 'inactive'}
       className={cx(circleButtonStyles({ className, size }))}
       disabled={isDisabled}
       initial={initial ?? false}
-      layout
       onClick={handleClick}
       ref={ref}
       title={title}
@@ -93,6 +113,7 @@ export default function CircleButton({
       </motion.div>
       {isActive && (
         <svg
+          aria-hidden
           fill="#fff"
           height="44"
           style={{
@@ -106,24 +127,21 @@ export default function CircleButton({
           width="44"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <motion.circle
-            animate={{
-              opacity: isActive ? [1, 0] : 0,
-              scale: isActive ? [0, 2] : 0,
-            }}
+          <circle
             cx="13"
             cy="13"
             fill="#fff"
-            initial={false}
-            key="answer-like-circle"
-            opacity="1"
+            opacity="0"
             r="13"
-            transition={{
-              duration: 0.6,
-            }}
+            ref={circleRef}
+            style={{ transform: 'scale(2)' }}
           />
         </svg>
       )}
     </motion.button>
   );
 }
+
+CircleButton.displayName = 'CircleButton';
+
+export default memo(CircleButton);

@@ -25,34 +25,12 @@ import SkeletonRating from '@/components/Skeletons/SkeletonRating';
 import AddTvSeriesToStoreContainer from '@/components/Watched/AddTvSeriesToStoreContainer';
 import WatchedProgress from '@/components/Watched/WatchedProgress';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
-import {
-  fetchMostPopularTvSeriesThisMonth,
-  fetchTrendingTvSeries,
-} from '@/lib/api';
 import getBaseUrl from '@/utils/getBaseUrl';
 import isNumericId from '@/utils/isNumericId';
 
 type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
-
-export async function generateStaticParams() {
-  const [trending, popular] = await Promise.all([
-    fetchTrendingTvSeries(),
-    fetchMostPopularTvSeriesThisMonth(),
-  ]);
-
-  const seen = new Set<number>();
-  const params: Array<{ id: string; slug: string[] }> = [];
-
-  for (const item of [...trending, ...popular]) {
-    if (seen.has(item.id)) continue;
-    seen.add(item.id);
-    params.push({ id: String(item.id), slug: [item.slug] });
-  }
-
-  return params;
-}
 
 export async function generateMetadata({
   params: paramsFromProps,

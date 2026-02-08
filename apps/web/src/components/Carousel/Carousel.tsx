@@ -73,6 +73,11 @@ function getVisibleRange(
  * Read cached index synchronously during render.
  * Only restores on back navigation, returns 0 for forward navigation.
  *
+ * NOTE: isBackNavigation() reads window.__navIsBack which may be stale
+ * during render. The authoritative restore happens in useLayoutEffect.
+ * This synchronous read is a best-effort optimization to avoid a flash
+ * when it IS accurate (e.g. on initial hydration after back-nav).
+ *
  * @see rerender-lazy-state-init - Lazy initialization for expensive reads
  */
 function getInitialIndex(cacheKey: string): number {
@@ -94,19 +99,22 @@ function Carousel({
   onChange?: (index: number) => void;
   restoreKey: string;
 }>) {
-  const cacheKeyRef = useRef(`${restoreKey}:${getHistoryKey()}`);
   /**
    * Initialize from cache synchronously using lazy initialization.
    * This may cause a hydration mismatch (server=0, client=cached), which is intentional:
    * we suppress the warning because the cached position is the correct user-facing state.
    *
+   * NOTE: isBackNavigation() may be stale during render. The authoritative
+   * restore happens in useLayoutEffect. This is a best-effort optimization.
+   *
    * @see rerender-lazy-state-init - Pass function to useState for expensive values
    */
   const [currentIndex, setCurrentIndex] = useState(() =>
-    getInitialIndex(cacheKeyRef.current),
+    getInitialIndex(`${restoreKey}:${getHistoryKey()}`),
   );
   const [targetIndex, setTargetIndex] = useState(currentIndex);
   const currentIndexRef = useRef(currentIndex);
+  currentIndexRef.current = currentIndex;
   const [containerRef, animate] = useAnimate();
   const x = useMotionValue(0);
 
@@ -134,31 +142,34 @@ function Carousel({
 
   const handleDotClick = useCallback(
     (itemIndex: number) => {
-      const baseIndex = Math.floor(currentIndex / itemCount) * itemCount;
+      const current = currentIndexRef.current;
+      const baseIndex = Math.floor(current / itemCount) * itemCount;
       updateCurrentIndex(baseIndex + itemIndex);
     },
-    [currentIndex, itemCount, updateCurrentIndex],
+    [itemCount, updateCurrentIndex],
   );
 
   const handleDragEnd = useCallback(
     (_event: Event, { offset, velocity }: PanInfo) => {
+      const current = currentIndexRef.current;
+
       // Ignore if vertical swipe
       if (Math.abs(velocity.y) > Math.abs(velocity.x)) {
-        animate(x, calculateNewX(currentIndex), transition);
+        animate(x, calculateNewX(current), transition);
         return;
       }
 
       const threshold = (containerRef.current?.clientWidth || 0) / 4;
 
       if (offset.x > threshold) {
-        updateCurrentIndex(currentIndex - 1);
+        updateCurrentIndex(current - 1);
       } else if (offset.x < -threshold) {
-        updateCurrentIndex(currentIndex + 1);
+        updateCurrentIndex(current + 1);
       } else {
-        animate(x, calculateNewX(currentIndex), transition);
+        animate(x, calculateNewX(current), transition);
       }
     },
-    [animate, calculateNewX, containerRef, currentIndex, updateCurrentIndex, x],
+    [animate, calculateNewX, containerRef, updateCurrentIndex, x],
   );
 
   const handleItemRenderer = useCallback(
@@ -167,17 +178,13 @@ function Carousel({
   );
 
   const handleResize = useDebouncedCallback(() => {
-    animate(x, calculateNewX(currentIndex), transition);
+    animate(x, calculateNewX(currentIndexRef.current), transition);
   }, 100);
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [handleResize]);
-
-  useEffect(() => {
-    currentIndexRef.current = currentIndex;
-  }, [currentIndex]);
 
   /**
    * Set initial x position and call onChange for restored index.
@@ -190,23 +197,37 @@ function Carousel({
     onChange?.(getItemIndex(restoredIndex));
   });
 
-  const initialIndexRef = useRef(currentIndex);
+  // On mount / Activity show:
+  // - Back-nav: restore cached index (carousel position user left it at)
+  // - Forward-nav (including Activity re-show): reset to 0
+  // On unmount / Activity hide:
+  // - Save current index to cache for future back-nav
+  //
+  // History state is read here (not during render) because it's external
+  // mutable state that may not yet reflect the current navigation at render time.
   useLayoutEffect(() => {
-    const restoredIndex = initialIndexRef.current;
-    if (restoredIndex !== 0) {
-      onInitialize(restoredIndex);
-    }
-  }, []);
+    const historyKey = getHistoryKey();
+    const cacheKey = `${restoreKey}:${historyKey}`;
 
-  // Save state on unmount only (for back-nav restoration)
-  useEffect(() => {
-    const cacheKey = cacheKeyRef.current;
-    return () => {
-      if (currentIndexRef.current !== 0) {
-        setCarouselIndex(cacheKey, currentIndexRef.current);
+    if (isBackNavigation()) {
+      const cached = getCarouselIndex(cacheKey) ?? 0;
+      if (cached !== 0) {
+        setCurrentIndex(cached);
+        setTargetIndex(cached);
+        onInitialize(cached);
       }
+    } else {
+      // Reset on forward nav — handles Activity re-show (e.g. logo click)
+      // On fresh mount this is a no-op (already 0).
+      setCurrentIndex(0);
+      setTargetIndex(0);
+      onInitialize(0);
+    }
+
+    return () => {
+      setCarouselIndex(cacheKey, currentIndexRef.current);
     };
-  }, []);
+  }, [restoreKey]);
 
   const visibleRange = getVisibleRange(currentIndex, targetIndex, itemCount);
 
@@ -236,5 +257,7 @@ function Carousel({
     </div>
   );
 }
+
+Carousel.displayName = 'Carousel';
 
 export default memo(Carousel);

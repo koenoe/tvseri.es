@@ -10,6 +10,12 @@ const lists = [
   'watchlist',
 ] as const;
 
+type List = (typeof lists)[number];
+
+function isValidList(value: string): value is List {
+  return (lists as ReadonlyArray<string>).includes(value);
+}
+
 export async function GET(
   request: NextRequest,
   {
@@ -17,13 +23,13 @@ export async function GET(
   }: {
     params: Promise<{
       username: string;
-      list: (typeof lists)[number];
+      list: string;
     }>;
   },
 ) {
   const { list, username } = await params;
 
-  if (!lists.includes(list)) {
+  if (!isValidList(list)) {
     return Response.json({ error: 'Invalid list' }, { status: 400 });
   }
 

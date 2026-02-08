@@ -38,4 +38,6 @@ function CarouselItem({
   );
 }
 
+CarouselItem.displayName = 'CarouselItem';
+
 export default memo(CarouselItem);

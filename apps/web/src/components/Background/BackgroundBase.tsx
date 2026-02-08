@@ -101,4 +101,6 @@ function BackgroundBase({
   );
 }
 
+BackgroundBase.displayName = 'BackgroundBase';
+
 export default memo(BackgroundBase);

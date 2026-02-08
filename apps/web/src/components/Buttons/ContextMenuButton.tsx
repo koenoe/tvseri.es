@@ -7,6 +7,7 @@ import {
   type Ref,
   useCallback,
   useImperativeHandle,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -51,6 +52,21 @@ export default function ContextMenuButton({
   }>) {
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const hasMountedRef = useRef(false);
+
+  // Close the menu when this route's Activity re-shows. On first mount
+  // isOpen is already false so this is a no-op. On Activity re-show
+  // (hasMountedRef is true), we force the menu closed — the user doesn't
+  // expect it to still be open after navigating back.
+  //
+  // We use the setup function (not cleanup) because React may discard
+  // state updates made during Activity deactivation.
+  useLayoutEffect(() => {
+    if (hasMountedRef.current) {
+      setIsOpen(false);
+    }
+    hasMountedRef.current = true;
+  }, []);
 
   const handleOnClick = useCallback(() => {
     setIsOpen((prev) => !prev);

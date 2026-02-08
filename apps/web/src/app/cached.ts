@@ -4,7 +4,7 @@
  * during server-side rendering cycle.
  */
 
-// import { cacheLife } from 'next/cache';
+import { cacheLife } from 'next/cache';
 import { cache } from 'react';
 import {
   fetchPerson,
@@ -13,27 +13,27 @@ import {
   findUser,
 } from '@/lib/api';
 
-// async function fetchCachedTvSeries(...args: Parameters<typeof fetchTvSeries>) {
-//   'use cache';
-//   cacheLife('short');
-//   return fetchTvSeries(...args);
-// }
+async function fetchCachedTvSeries(...args: Parameters<typeof fetchTvSeries>) {
+  'use cache';
+  cacheLife('short');
+  return fetchTvSeries(...args);
+}
 
-// async function fetchCachedTvSeriesSeason(
-//   ...args: Parameters<typeof fetchTvSeriesSeason>
-// ) {
-//   'use cache';
-//   cacheLife('short');
-//   return fetchTvSeriesSeason(...args);
-// }
+async function fetchCachedTvSeriesSeason(
+  ...args: Parameters<typeof fetchTvSeriesSeason>
+) {
+  'use cache';
+  cacheLife('short');
+  return fetchTvSeriesSeason(...args);
+}
 
-// async function fetchCachedPerson(...args: Parameters<typeof fetchPerson>) {
-//   'use cache';
-//   cacheLife('medium');
-//   return fetchPerson(...args);
-// }
+async function fetchCachedPerson(...args: Parameters<typeof fetchPerson>) {
+  'use cache';
+  cacheLife('medium');
+  return fetchPerson(...args);
+}
 
-export const cachedPerson = cache(fetchPerson);
-export const cachedTvSeries = cache(fetchTvSeries);
-export const cachedTvSeriesSeason = cache(fetchTvSeriesSeason);
+export const cachedPerson = cache(fetchCachedPerson);
+export const cachedTvSeries = cache(fetchCachedTvSeries);
+export const cachedTvSeriesSeason = cache(fetchCachedTvSeriesSeason);
 export const cachedUser = cache(findUser);

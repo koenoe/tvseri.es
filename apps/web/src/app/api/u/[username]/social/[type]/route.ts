@@ -5,6 +5,12 @@ import { findUser, getFollowers, getFollowing } from '@/lib/api';
 
 const types = ['followers', 'following'] as const;
 
+type SocialType = (typeof types)[number];
+
+function isValidType(value: string): value is SocialType {
+  return (types as ReadonlyArray<string>).includes(value);
+}
+
 export async function GET(
   req: NextRequest,
   {
@@ -12,13 +18,13 @@ export async function GET(
   }: {
     params: Promise<{
       username: string;
-      type: (typeof types)[number];
+      type: string;
     }>;
   },
 ) {
   const { type, username } = await params;
 
-  if (!types.includes(type)) {
+  if (!isValidType(type)) {
     return Response.json({ error: 'Invalid type' }, { status: 400 });
   }
 

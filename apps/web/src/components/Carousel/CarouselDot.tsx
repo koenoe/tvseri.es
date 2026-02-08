@@ -32,4 +32,6 @@ function CarouselDot({
   );
 }
 
+CarouselDot.displayName = 'CarouselDot';
+
 export default memo(CarouselDot);

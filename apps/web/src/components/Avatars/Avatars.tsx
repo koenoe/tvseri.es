@@ -24,6 +24,10 @@ function Avatar({
   item,
   priority = false,
 }: Readonly<{ item: Person; priority?: boolean }>) {
+  // Children use object `initial` (not string variant labels) so Motion's
+  // VisualElement populates `initialValues` for Activity re-show value reset,
+  // without breaking whileHover variant propagation from the parent.
+  // Keep `initial` values in sync with the `inactive` variant.
   return (
     <MotionLink
       className={avatarStyles()}
@@ -32,7 +36,6 @@ function Avatar({
       }}
       initial="inactive"
       key={item.id}
-      layout
       variants={{
         active: { zIndex: 10 },
         inactive: { zIndex: 0 },
@@ -43,6 +46,7 @@ function Avatar({
         alt={item.name}
         className="mx-auto aspect-square h-auto w-full rounded-full border-2 border-white object-cover lg:h-24"
         height={200}
+        initial={{ scale: 1 }}
         placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(200, 200)}`}
         priority={priority}
         src={item.image}
@@ -56,6 +60,7 @@ function Avatar({
 
       <motion.div
         className="mt-4 hidden w-full flex-col items-center gap-1 text-nowrap text-center lg:flex"
+        initial={{ opacity: 0, y: -15 }}
         variants={{
           active: { opacity: 1, y: 0 },
           inactive: { opacity: 0, y: -15 },
@@ -85,5 +90,7 @@ function Avatars({
     </div>
   );
 }
+
+Avatars.displayName = 'Avatars';
 
 export default memo(Avatars);

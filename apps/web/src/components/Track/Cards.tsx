@@ -11,6 +11,7 @@ import {
 } from 'react';
 import { toast } from 'sonner';
 
+import { useWatchedStore } from '@/components/Watched/WatchedStoreProvider';
 import SeasonCard from './SeasonCard';
 
 export type WatchedAction = Readonly<{
@@ -62,12 +63,14 @@ const reducer = (
 
 function TrackForm({
   seasons,
+  tvSeriesId,
   watchProvider,
   watchedItems: watchedItemsFromProps,
   deleteAction,
   saveAction,
 }: Readonly<{
   seasons: Season[];
+  tvSeriesId: number;
   watchProvider?: WatchProvider | null;
   watchedItems: WatchedItem[];
   deleteAction: (items: Partial<WatchedItem>[]) => void;
@@ -81,6 +84,8 @@ function TrackForm({
     reducer,
   );
   const seasonNumberFromSearchParams = searchParams.get('season');
+  const markAsWatched = useWatchedStore((s) => s.markAsWatched);
+  const unmarkAsWatched = useWatchedStore((s) => s.unmarkAsWatched);
 
   const updateItems = useCallback(
     ({ type, items }: WatchedAction) => {
@@ -90,12 +95,48 @@ function TrackForm({
         try {
           await (type === 'delete' ? deleteAction(items) : saveAction(items));
           dispatch({ items, type });
+
+          if (type === 'delete') {
+            for (const item of items) {
+              unmarkAsWatched(tvSeriesId, {
+                episodeNumber: item.episodeNumber,
+                seasonNumber: item.seasonNumber,
+              });
+            }
+          } else {
+            const storeItems = items
+              .filter(
+                (
+                  item,
+                ): item is Partial<WatchedItem> &
+                  Pick<
+                    WatchedItem,
+                    'seasonNumber' | 'episodeNumber' | 'runtime'
+                  > =>
+                  item.seasonNumber !== undefined &&
+                  item.episodeNumber !== undefined &&
+                  item.runtime !== undefined,
+              )
+              .map((item) => ({
+                episodeNumber: item.episodeNumber,
+                runtime: item.runtime,
+                seasonNumber: item.seasonNumber,
+              }));
+            markAsWatched(tvSeriesId, storeItems);
+          }
         } catch (_) {
           toast.error('Something went wrong. Please try again.');
         }
       });
     },
-    [deleteAction, saveAction, optimisticDispatch],
+    [
+      deleteAction,
+      saveAction,
+      optimisticDispatch,
+      tvSeriesId,
+      markAsWatched,
+      unmarkAsWatched,
+    ],
   );
 
   return (

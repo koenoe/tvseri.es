@@ -8,7 +8,11 @@ import type { BackgroundState } from './store';
  */
 const cache = new Map<string, BackgroundState>();
 
-// Expose to window for pre-hydration inline script access
+// Expose to window so the pre-hydration inline script in BackgroundStyle.tsx
+// can read cached background colors before React hydrates. The script runs as
+// a synchronous <script> tag in the SSR HTML — it can't import ES modules,
+// so it reads from window.__bgCache directly. This is what prevents the
+// background color flash on back-navigation.
 if (typeof window !== 'undefined') {
   (window as unknown as { __bgCache: typeof cache }).__bgCache = cache;
 }

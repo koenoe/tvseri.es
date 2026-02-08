@@ -1,19 +1,19 @@
+import BackgroundStyleTag from './BackgroundStyleTag';
+
 type BackgroundStyleProps = Readonly<{
   color: string;
   enableTransitions?: boolean;
 }>;
 
 /**
- * BackgroundStyle renders an inline script and style that:
- * 1. Runs BEFORE React hydration (synchronous)
+ * BackgroundStyle renders a pre-hydration script and an Activity-proof style tag:
+ * 1. Script runs BEFORE React hydration (synchronous, SSR only)
  * 2. Checks if this is a back navigation (window.__navIsBack)
  * 3. If back-nav: reads cached color from window.__bgCache and sets it
  * 4. If forward-nav: removes any inline style so the <style> tag takes effect
  *
- * This prevents any flash on back navigation because the correct
- * color is set before React even starts hydrating.
- *
- * For client-side SPA navigation, BackgroundProvider handles the color sync.
+ * The <style> tag uses BackgroundStyleTag which toggles media="not all"
+ * when hidden by Activity, preventing stale CSS from leaking across routes.
  *
  * @see rendering-hydration-no-flicker - Inline script prevents hydration mismatch flicker
  */
@@ -47,26 +47,22 @@ footer {
 }`
     : '';
 
-  return (
-    <>
-      <script
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: required for synchronous pre-hydration execution
-        dangerouslySetInnerHTML={{ __html: inlineScript }}
-      />
-      <style
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: required for inline CSS
-        dangerouslySetInnerHTML={{
-          __html: `
-:root { --main-background-color: ${color}; }
+  const css = `:root { --main-background-color: ${color}; }
 body,
 main,
 main + div,
 footer {
   background-color: var(--main-background-color) !important;
 }
-${transitionStyles}`,
-        }}
+${transitionStyles}`;
+
+  return (
+    <>
+      <script
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: required for synchronous pre-hydration execution
+        dangerouslySetInnerHTML={{ __html: inlineScript }}
       />
+      <BackgroundStyleTag css={css} />
     </>
   );
 }

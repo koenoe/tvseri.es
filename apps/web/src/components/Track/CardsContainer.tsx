@@ -123,6 +123,7 @@ export default async function CardsContainer({
       deleteAction={deleteWatchedItems}
       saveAction={saveWatchedItems}
       seasons={seasons}
+      tvSeriesId={tvSeries.id}
       watchedItems={watchedItems}
       watchProvider={watchProvider}
     />

@@ -225,9 +225,7 @@ function Carousel({
     }
 
     return () => {
-      if (currentIndexRef.current !== 0) {
-        setCarouselIndex(cacheKey, currentIndexRef.current);
-      }
+      setCarouselIndex(cacheKey, currentIndexRef.current);
     };
   }, [restoreKey]);
 

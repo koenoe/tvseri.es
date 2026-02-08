@@ -11,9 +11,9 @@
  * /tv/123 -> /tv/456 -> back -> /tv/123 creates two distinct /tv/123
  * history entries, each with its own key and cached state).
  *
- * Must be called in useLayoutEffect, not during render — history.state
- * is external mutable state that may not yet reflect the current
- * navigation when React's render function runs.
+ * Prefer calling this from useLayoutEffect rather than during render,
+ * since history.state is external mutable state and may not yet reflect
+ * the current navigation when React's render function runs.
  *
  * @see NavigationTracker - Sets history.state.key
  * @see BackgroundProvider - Caches background color/image per key

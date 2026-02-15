@@ -1,8 +1,8 @@
 {
   "dependencies": {
-    "@aws-sdk/client-cloudfront": "^3.989.0",
-    "@aws-sdk/client-cloudwatch": "^3.989.0",
-    "@aws-sdk/client-sns": "^3.989.0",
+    "@aws-sdk/client-cloudfront": "^3.990.0",
+    "@aws-sdk/client-cloudwatch": "^3.990.0",
+    "@aws-sdk/client-sns": "^3.990.0",
     "sst": "catalog:"
   },
   "devDependencies": {

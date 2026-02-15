@@ -4,5 +4,5 @@ packages:
 
 catalog:
   '@types/node': 22.13.14
-  sst: 3.17.25
+  sst: 3.18.1
   typescript: 5.9.3

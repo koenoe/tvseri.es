@@ -201,8 +201,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       lucide-react:
-        specifier: ^0.564.0
-        version: 0.564.0(react@19.2.4)
+        specifier: ^0.568.0
+        version: 0.568.0(react@19.2.4)
       radix-ui:
         specifier: ^1.4.3
         version: 1.4.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -422,7 +422,7 @@ importers:
     dependencies:
       '@openauthjs/openauth':
         specifier: ^0.4
-        version: 0.4.3(arctic@2.3.4)(hono@4.11.7)
+        version: 0.4.3(arctic@2.3.4)(hono@4.11.9)
       valibot:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
@@ -3862,10 +3862,6 @@ packages:
   headers-polyfill@4.0.3:
     resolution: {integrity: sha512-IScLbePpkvO846sIwOtOTDjutRMWdXdJmXdMvk6gCBHxFO8d+QKOQedyZSxFTTFYRSmlgSTDtXqqq4pcenBXLQ==}
 
-  hono@4.11.7:
-    resolution: {integrity: sha512-l7qMiNee7t82bH3SeyUCt9UF15EVmaBvsppY2zQtrbIhl/yzBTny+YUxsVjSjQ6gaqaeVtZmGocom8TzBlA4Yw==}
-    engines: {node: '>=16.9.0'}
-
   hono@4.11.9:
     resolution: {integrity: sha512-Eaw2YTGM6WOxA6CXbckaEvslr2Ne4NFsKrvc0v97JD5awbmeBLO5w9Ho9L9kmKonrwF9RJlW6BxT1PVv/agBHQ==}
     engines: {node: '>=16.9.0'}
@@ -4252,8 +4248,8 @@ packages:
     resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
     engines: {node: '>=10'}
 
-  lucide-react@0.564.0:
-    resolution: {integrity: sha512-JJ8GVTQqFwuliifD48U6+h7DXEHdkhJ/E87kksGByII3qHxtPciVb8T8woQONHBQgHVOl7rSMrrip3SeVNy7Fg==}
+  lucide-react@0.568.0:
+    resolution: {integrity: sha512-uiPQfBwb8uiNUFFbVolgtnX9yjZPs4I7fM/RboKHSVfiN7d/59sx3FfKvE9i+2yCJCBs5Sx1+pfVmKcTM5Og1Q==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -7017,14 +7013,6 @@ snapshots:
 
   '@open-draft/until@2.1.0': {}
 
-  '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.11.7)':
-    dependencies:
-      '@standard-schema/spec': 1.0.0-beta.3
-      arctic: 2.3.4
-      aws4fetch: 1.0.20
-      hono: 4.11.7
-      jose: 5.9.6
-
   '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.11.9)':
     dependencies:
       '@standard-schema/spec': 1.0.0-beta.3
@@ -9461,8 +9449,6 @@ snapshots:
 
   headers-polyfill@4.0.3: {}
 
-  hono@4.11.7: {}
-
   hono@4.11.9: {}
 
   hono@4.7.4: {}
@@ -9775,7 +9761,7 @@ snapshots:
     dependencies:
       yallist: 4.0.0
 
-  lucide-react@0.564.0(react@19.2.4):
+  lucide-react@0.568.0(react@19.2.4):
     dependencies:
       react: 19.2.4
 

@@ -10,8 +10,8 @@ catalogs:
       specifier: 22.13.14
       version: 22.13.14
     sst:
-      specifier: 3.18.1
-      version: 3.18.1
+      specifier: 3.18.6
+      version: 3.18.6
     typescript:
       specifier: 5.9.3
       version: 5.9.3
@@ -22,7 +22,7 @@ importers:
     dependencies:
       sst:
         specifier: 'catalog:'
-        version: 3.18.1
+        version: 3.18.6
     devDependencies:
       '@biomejs/biome':
         specifier: 2.4.0
@@ -95,7 +95,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.18.1
+        version: 3.18.6
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -141,7 +141,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.18.1
+        version: 3.18.6
       ulid:
         specifier: ^3.0.2
         version: 3.0.2
@@ -220,7 +220,7 @@ importers:
         version: 3.8.4(@types/node@22.13.14)(typescript@5.9.3)
       sst:
         specifier: 'catalog:'
-        version: 3.18.1
+        version: 3.18.6
       tailwind-merge:
         specifier: ^3.4.0
         version: 3.4.0
@@ -378,7 +378,7 @@ importers:
     dependencies:
       sst:
         specifier: 'catalog:'
-        version: 3.18.1
+        version: 3.18.6
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -403,7 +403,7 @@ importers:
         version: 3.990.0
       sst:
         specifier: 'catalog:'
-        version: 3.18.1
+        version: 3.18.6
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -422,7 +422,7 @@ importers:
     dependencies:
       '@openauthjs/openauth':
         specifier: ^0.4
-        version: 0.4.3(arctic@2.3.4)(hono@4.11.7)
+        version: 0.4.3(arctic@2.3.4)(hono@4.11.9)
       valibot:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
@@ -446,7 +446,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.18.1
+        version: 3.18.6
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -3181,6 +3181,7 @@ packages:
   aws-sdk@2.1692.0:
     resolution: {integrity: sha512-x511uiJ/57FIsbgUe5csJ13k3uzu25uWQE+XqfBis/sB0SFoiElJWXRkgEAUh0U6n40eT3ay5Ue4oPkRMu1LYw==}
     engines: {node: '>= 10.0.0'}
+    deprecated: The AWS SDK for JavaScript (v2) has reached end-of-support, and no longer receives updates. Please migrate your code to use AWS SDK for JavaScript (v3). More info https://a.co/cUPnyil
 
   aws4fetch@1.0.18:
     resolution: {integrity: sha512-3Cf+YaUl07p24MoQ46rFwulAmiyCwH2+1zw1ZyPAX5OtJ34Hh185DwB8y/qRLb6cYYYtSFJ9pthyLc0MD4e8sQ==}
@@ -3861,10 +3862,6 @@ packages:
 
   headers-polyfill@4.0.3:
     resolution: {integrity: sha512-IScLbePpkvO846sIwOtOTDjutRMWdXdJmXdMvk6gCBHxFO8d+QKOQedyZSxFTTFYRSmlgSTDtXqqq4pcenBXLQ==}
-
-  hono@4.11.7:
-    resolution: {integrity: sha512-l7qMiNee7t82bH3SeyUCt9UF15EVmaBvsppY2zQtrbIhl/yzBTny+YUxsVjSjQ6gaqaeVtZmGocom8TzBlA4Yw==}
-    engines: {node: '>=16.9.0'}
 
   hono@4.11.9:
     resolution: {integrity: sha512-Eaw2YTGM6WOxA6CXbckaEvslr2Ne4NFsKrvc0v97JD5awbmeBLO5w9Ho9L9kmKonrwF9RJlW6BxT1PVv/agBHQ==}
@@ -4983,48 +4980,48 @@ packages:
     resolution: {integrity: sha512-i5uvt8C3ikiWeNZSVZNWcfZPItFQOsYTUAOkcUPGd8DqDy1uOUikjt5dG+uRlwyvR108Fb9DOd4GvXfT0N2/uQ==}
     engines: {node: '>= 12'}
 
-  sst-darwin-arm64@3.18.1:
-    resolution: {integrity: sha512-D9MNSiJTQ8dLNCBcHvw5Ii3w1T53+SeFZjYs4i8qK4XQP3krERpIYYMQ8QPMbynhlFY6Y+hhuJb9n/AMVlLivw==}
+  sst-darwin-arm64@3.18.6:
+    resolution: {integrity: sha512-cbSBzLvH2ijW7vQpt0wLPEZhg1Del4+KwY+79g5OQsB6p7PSced9pM5kGtGEe+xoAUV4xWrd3UTHIm4CZWcP/w==}
     cpu: [arm64]
     os: [darwin]
 
-  sst-darwin-x64@3.18.1:
-    resolution: {integrity: sha512-TNwpk4ePW/UHa97sn+fjaRCk/LEYC4rsFQHjNnTYc3BnImBSjmxTKUgR7El1x2myKIucRIWvPd21ZZC2HWpwuA==}
+  sst-darwin-x64@3.18.6:
+    resolution: {integrity: sha512-wBN5pD0t8LPJ2UG2l1DZKSXg4KfwatPJL13aFFotE/Uo1YxQ1VKzVpr0SPpndsR0rMkPMHdpVaIIwVk1hiLWGA==}
     cpu: [x64]
     os: [darwin]
 
-  sst-linux-arm64@3.18.1:
-    resolution: {integrity: sha512-tzp7EbpYg4juYlIPg69wf3oOpxnmNIFcUKmx8d76NVNS9fMCHsxyOAMaB0HFbDmr1v7OKFAU9bHz5yEeFwFkMA==}
+  sst-linux-arm64@3.18.6:
+    resolution: {integrity: sha512-tYVeu65VLuhANCdq2KRvkAevJc9Nc6xuApwquTBjFgL4mImEw3HbyjEH3cgrGb75hPDqZ/NXomQntoHGy6PmTw==}
     cpu: [arm64]
     os: [linux]
 
-  sst-linux-x64@3.18.1:
-    resolution: {integrity: sha512-GGyDJijKiBaAqL+S5BZ+KDjJ3IaaPlTjWJqX5uyKaE5/TDX+tLYzQXUk82akTTv1d3QkYrWmEYQrKcL0GeoMOQ==}
+  sst-linux-x64@3.18.6:
+    resolution: {integrity: sha512-IC9fpxCIt5dEhbGUXeZL0hRd4p+7Mbp5gDvgK8wY08/f3MJP07XqvD2HT+qBHGXdS8RgnBT6uIPUIF1L5tc+Og==}
     cpu: [x64]
     os: [linux]
 
-  sst-linux-x86@3.18.1:
-    resolution: {integrity: sha512-JQ3CwLIsWXPWfl4KdYv+JkaCu5Y3Hqu72j/SIfMjImNmUtwJ+qK5nwjA20CAUVK/2nu3n2lolrmbfyvUBu43fw==}
+  sst-linux-x86@3.18.6:
+    resolution: {integrity: sha512-zFbJa5OCc0+Sa5GJBkWefzCu5jOk5rVOiZ1vpk23jCx6KrhlLfSlYqB3WLsynFV1nZ/Js6o5hQ4sdLNMXYJLew==}
     cpu: [x86]
     os: [linux]
 
-  sst-win32-arm64@3.18.1:
-    resolution: {integrity: sha512-TgdsGdPw26vZCnq4/xsCr9boBzFcJWzH3yHA/RspuYHRcHwCh2+pZJR9GkAUMwUjWNRaHuBKUKUiIQJkHlzXiA==}
+  sst-win32-arm64@3.18.6:
+    resolution: {integrity: sha512-fx8axzIY7CY6i6v9AhGpGfwHSQimtfT+g0ntMgVYSt5Hbb5xvX6wJ8g0JXUSCMR/unDDgBFZEqg/H75Iz2gk5w==}
     cpu: [arm64]
     os: [win32]
 
-  sst-win32-x64@3.18.1:
-    resolution: {integrity: sha512-c7+0nbXzbjcrZxxWJGePXSBLqIJN4+E+jCmDmCTdfnpA+bEhdxFyX5aDtT27ldr/mi3kVGkD3P9kdHpGNz2V4A==}
+  sst-win32-x64@3.18.6:
+    resolution: {integrity: sha512-BbLC4g9X/kQR2rZ+EiC7+gVTGH9S8gro/75xqE495TlKWj9Oia9OXqFwZLBODg4SJRJfvbLDyiHtWesnW9aUZg==}
     cpu: [x64]
     os: [win32]
 
-  sst-win32-x86@3.18.1:
-    resolution: {integrity: sha512-/8jyHod8n3YN5ZXkRR5/WFmPXBdrV9GgepRyg95Cm0GQbeyr3XzT45IkMmhAsPEPjXXSJM7p6Dg5aHWeXfBdOA==}
+  sst-win32-x86@3.18.6:
+    resolution: {integrity: sha512-lOhIED80p/7qnHSzZhaCL9jjaCvM4YIqR5d1OxQXF74pKeAhgL/Wi39/bX6z+0C0Ck2S78AuAhHrVJbfktN43g==}
     cpu: [x86]
     os: [win32]
 
-  sst@3.18.1:
-    resolution: {integrity: sha512-UUyRq5WVR5Cd73TeGgcgI4BDhaIvyGfA/PpCr+qA0yly6r29r5qHJlUEGaKzmIPOpJUALSoG0blYpWhoZ9xowA==}
+  sst@3.18.6:
+    resolution: {integrity: sha512-EAyhEGWw1w16ARJbNNQtUlMHcvVkMXCft2+4+w5k0jiM3BrYBlX0H5btgLITI3gMbKe3hSh3xrf3jRX2mzvc0A==}
     hasBin: true
 
   statuses@2.0.2:
@@ -6934,8 +6931,8 @@ snapshots:
       express-rate-limit: 7.5.1(express@5.2.1)
       pkce-challenge: 4.1.0
       raw-body: 3.0.2
-      zod: 3.24.2
-      zod-to-json-schema: 3.24.3(zod@3.24.2)
+      zod: 3.25.76
+      zod-to-json-schema: 3.25.1(zod@3.25.76)
     transitivePeerDependencies:
       - supports-color
 
@@ -7016,14 +7013,6 @@ snapshots:
       outvariant: 1.4.3
 
   '@open-draft/until@2.1.0': {}
-
-  '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.11.7)':
-    dependencies:
-      '@standard-schema/spec': 1.0.0-beta.3
-      arctic: 2.3.4
-      aws4fetch: 1.0.20
-      hono: 4.11.7
-      jose: 5.9.6
 
   '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.11.9)':
     dependencies:
@@ -9461,8 +9450,6 @@ snapshots:
 
   headers-polyfill@4.0.3: {}
 
-  hono@4.11.7: {}
-
   hono@4.11.9: {}
 
   hono@4.7.4: {}
@@ -10640,31 +10627,31 @@ snapshots:
 
   source-map@0.7.6: {}
 
-  sst-darwin-arm64@3.18.1:
+  sst-darwin-arm64@3.18.6:
     optional: true
 
-  sst-darwin-x64@3.18.1:
+  sst-darwin-x64@3.18.6:
     optional: true
 
-  sst-linux-arm64@3.18.1:
+  sst-linux-arm64@3.18.6:
     optional: true
 
-  sst-linux-x64@3.18.1:
+  sst-linux-x64@3.18.6:
     optional: true
 
-  sst-linux-x86@3.18.1:
+  sst-linux-x86@3.18.6:
     optional: true
 
-  sst-win32-arm64@3.18.1:
+  sst-win32-arm64@3.18.6:
     optional: true
 
-  sst-win32-x64@3.18.1:
+  sst-win32-x64@3.18.6:
     optional: true
 
-  sst-win32-x86@3.18.1:
+  sst-win32-x86@3.18.6:
     optional: true
 
-  sst@3.18.1:
+  sst@3.18.6:
     dependencies:
       aws-sdk: 2.1692.0
       aws4fetch: 1.0.18
@@ -10672,14 +10659,14 @@ snapshots:
       opencontrol: 0.0.6
       openid-client: 5.6.4
     optionalDependencies:
-      sst-darwin-arm64: 3.18.1
-      sst-darwin-x64: 3.18.1
-      sst-linux-arm64: 3.18.1
-      sst-linux-x64: 3.18.1
-      sst-linux-x86: 3.18.1
-      sst-win32-arm64: 3.18.1
-      sst-win32-x64: 3.18.1
-      sst-win32-x86: 3.18.1
+      sst-darwin-arm64: 3.18.6
+      sst-darwin-x64: 3.18.6
+      sst-linux-arm64: 3.18.6
+      sst-linux-x64: 3.18.6
+      sst-linux-x86: 3.18.6
+      sst-win32-arm64: 3.18.6
+      sst-win32-x64: 3.18.6
+      sst-win32-x86: 3.18.6
     transitivePeerDependencies:
       - supports-color
 

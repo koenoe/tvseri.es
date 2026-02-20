@@ -9,7 +9,7 @@
     "@tanstack/react-router": "^1.160.0",
     "@tanstack/react-router-devtools": "^1.160.0",
     "@tanstack/react-table": "^8.21.3",
-    "@tanstack/router-plugin": "^1.160.0",
+    "@tanstack/router-plugin": "^1.161.3",
     "@tvseri.es/schemas": "workspace:*",
     "@tvseri.es/utils": "workspace:*",
     "class-variance-authority": "^0.7.1",

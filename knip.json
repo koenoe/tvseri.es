@@ -1,16 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "exclude": ["duplicates"],
-  "ignore": [
-    ".next/**",
-    ".open-next/**",
-    ".sst/**",
-    ".tanstack/**",
-    ".turbo/**",
-    "dist/**",
-    "node_modules/**",
-    "pnpm-workspace.yaml"
-  ],
   "ignoreBinaries": ["only-allow"],
   "ignoreExportsUsedInFile": {
     "interface": true,
@@ -28,7 +18,7 @@
       "entry": ["src/index.ts"]
     },
     "apps/dashboard": {
-      "entry": ["src/main.tsx", "src/routes/**/*.tsx"],
+      "entry": ["src/routes/**/*.tsx"],
       "ignoreBinaries": ["vitest"]
     },
     "apps/web": {
@@ -38,8 +28,7 @@
       "entry": [
         "disable-cloudfront-distributions/index.mjs!",
         "metrics-monitor/index.ts!"
-      ],
-      "ignore": ["sst-env.d.ts"]
+      ]
     }
   }
 }

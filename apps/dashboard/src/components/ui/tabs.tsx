@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Tabs as TabsPrimitive } from 'radix-ui';
-import { type ComponentProps, forwardRef } from 'react';
+import type { ComponentProps } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -42,21 +42,16 @@ const tabsListVariants = cva(
 type TabsListProps = ComponentProps<typeof TabsPrimitive.List> &
   VariantProps<typeof tabsListVariants>;
 
-const TabsList = forwardRef<HTMLDivElement, TabsListProps>(
-  ({ className, variant = 'default', ...props }, ref) => {
-    return (
-      <TabsPrimitive.List
-        className={cn(tabsListVariants({ variant }), className)}
-        data-slot="tabs-list"
-        data-variant={variant}
-        ref={ref}
-        {...props}
-      />
-    );
-  },
-);
-
-TabsList.displayName = 'TabsList';
+function TabsList({ className, variant = 'default', ...props }: TabsListProps) {
+  return (
+    <TabsPrimitive.List
+      className={cn(tabsListVariants({ variant }), className)}
+      data-slot="tabs-list"
+      data-variant={variant}
+      {...props}
+    />
+  );
+}
 
 function TabsTrigger({
   className,

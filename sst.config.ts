@@ -51,7 +51,7 @@ export default $config({
     // Global transform to standardize all Lambda functions
     $transform(sst.aws.Function, (args) => {
       args.architecture = 'arm64';
-      args.runtime = 'nodejs22.x';
+      args.runtime = 'nodejs24.x';
       args.nodejs = {
         ...args.nodejs,
         minify: true,

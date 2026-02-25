@@ -53,7 +53,7 @@ follow.subscribe(
         external: ['@aws-sdk/client-dynamodb', '@aws-sdk/util-dynamodb'],
       },
     },
-    runtime: 'nodejs22.x',
+    runtime: 'nodejs24.x',
     timeout: '10 seconds',
   },
   {

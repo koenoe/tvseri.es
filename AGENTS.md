@@ -7,7 +7,7 @@
 **tvseri.es** is a TV series tracking application built as a monorepo using:
 
 - **Package Manager**: pnpm (v10.x) - enforced via `preinstall` script
-- **Node.js**: v22.x (see `.node-version`)
+- **Node.js**: v24.x (see `.node-version`)
 - **Build Orchestration**: Turborepo
 - **Infrastructure**: SST (Serverless Stack) v3 on AWS
 - **Language**: TypeScript (strict mode, no `any`)

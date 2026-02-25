@@ -9,7 +9,7 @@
 - **Package Manager**: pnpm (v10.x) - enforced via `preinstall` script
 - **Node.js**: v24.x (see `.node-version`)
 - **Build Orchestration**: Turborepo
-- **Infrastructure**: SST (Serverless Stack) v3 on AWS
+- **Infrastructure**: SST (Serverless Stack) v4 on AWS
 - **Language**: TypeScript (strict mode, no `any`)
 
 ## Monorepo Structure

@@ -10,8 +10,8 @@ catalogs:
       specifier: 22.13.14
       version: 22.13.14
     sst:
-      specifier: 3.19.0
-      version: 3.19.0
+      specifier: 4.0.2
+      version: 4.0.2
     typescript:
       specifier: 5.9.3
       version: 5.9.3
@@ -22,7 +22,7 @@ importers:
     dependencies:
       sst:
         specifier: 'catalog:'
-        version: 3.19.0
+        version: 4.0.2
     devDependencies:
       '@biomejs/biome':
         specifier: 2.4.4
@@ -95,7 +95,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.19.0
+        version: 4.0.2
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -141,7 +141,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.19.0
+        version: 4.0.2
       ulid:
         specifier: ^3.0.2
         version: 3.0.2
@@ -220,7 +220,7 @@ importers:
         version: 3.8.5(@types/node@22.13.14)(typescript@5.9.3)
       sst:
         specifier: 'catalog:'
-        version: 3.19.0
+        version: 4.0.2
       tailwind-merge:
         specifier: ^3.4.0
         version: 3.4.0
@@ -378,7 +378,7 @@ importers:
     dependencies:
       sst:
         specifier: 'catalog:'
-        version: 3.19.0
+        version: 4.0.2
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -403,7 +403,7 @@ importers:
         version: 3.995.0
       sst:
         specifier: 'catalog:'
-        version: 3.19.0
+        version: 4.0.2
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -422,7 +422,7 @@ importers:
     dependencies:
       '@openauthjs/openauth':
         specifier: ^0.4
-        version: 0.4.3(arctic@2.3.4)(hono@4.11.9)
+        version: 0.4.3(arctic@2.3.4)(hono@4.12.1)
       valibot:
         specifier: ^1.2.0
         version: 1.2.0(typescript@5.9.3)
@@ -446,7 +446,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 3.19.0
+        version: 4.0.2
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -3872,10 +3872,6 @@ packages:
   headers-polyfill@4.0.3:
     resolution: {integrity: sha512-IScLbePpkvO846sIwOtOTDjutRMWdXdJmXdMvk6gCBHxFO8d+QKOQedyZSxFTTFYRSmlgSTDtXqqq4pcenBXLQ==}
 
-  hono@4.11.9:
-    resolution: {integrity: sha512-Eaw2YTGM6WOxA6CXbckaEvslr2Ne4NFsKrvc0v97JD5awbmeBLO5w9Ho9L9kmKonrwF9RJlW6BxT1PVv/agBHQ==}
-    engines: {node: '>=16.9.0'}
-
   hono@4.12.1:
     resolution: {integrity: sha512-hi9afu8g0lfJVLolxElAZGANCTTl6bewIdsRNhaywfP9K8BPf++F2z6OLrYGIinUwpRKzbZHMhPwvc0ZEpAwGw==}
     engines: {node: '>=16.9.0'}
@@ -4993,48 +4989,48 @@ packages:
     resolution: {integrity: sha512-i5uvt8C3ikiWeNZSVZNWcfZPItFQOsYTUAOkcUPGd8DqDy1uOUikjt5dG+uRlwyvR108Fb9DOd4GvXfT0N2/uQ==}
     engines: {node: '>= 12'}
 
-  sst-darwin-arm64@3.19.0:
-    resolution: {integrity: sha512-laGXUsxoUsK/6XZZs+zpVwSTktAfM4jmJ+SfE7a5uqu+K60XmOXCE7Zu0ulE6YQML99ptuOhaIh24sGrRNs7/g==}
+  sst-darwin-arm64@4.0.2:
+    resolution: {integrity: sha512-vUI6e9PGrQItieR0RnogU2pVpwM9yw+qJNsu7Yvn15kAztUwQ7gNmNQ1Mfdhe1GsSD+nv64eV99LKx5bLDg9wA==}
     cpu: [arm64]
     os: [darwin]
 
-  sst-darwin-x64@3.19.0:
-    resolution: {integrity: sha512-xMDjXNfi7FCWrFM1nUl6pM70V0DtKT+J0mKLI9IIL1u1aTYOaFRXfNy2xEOCqT1ZeEWKg1pQQnlAMIKZdNXarQ==}
+  sst-darwin-x64@4.0.2:
+    resolution: {integrity: sha512-CSxDCOBN753ItJYp2x0nbAIjLWRclJ0+mjj4a6iq9wmQwJhV45PVvCDVrKkGxt7Yo0VoAhY6Tj5OlYc/7xrFHg==}
     cpu: [x64]
     os: [darwin]
 
-  sst-linux-arm64@3.19.0:
-    resolution: {integrity: sha512-ktx9+Nknm2PpCRcydOCf+qD5/C+4GHe9WQ3E/HPDk0cWHNiLgSveYmfAWSF1qHjlESex18BfqIut5GmsY3LtRw==}
+  sst-linux-arm64@4.0.2:
+    resolution: {integrity: sha512-AbHoFEBvdNSkprz4ftv+TI/3ts8f+igLOhX4p+hvl6M75W3ZZRzcYjYzOYdousZjC6q+uuZG3tkRRwY/YhChDA==}
     cpu: [arm64]
     os: [linux]
 
-  sst-linux-x64@3.19.0:
-    resolution: {integrity: sha512-CIrVGJ26iE2FpZ/tzoUIYD0riFAThICPdlvA8EPGdoBNddB+AZ/Q7cQ0AJtPFWBpyC84mWdGJwUw4jpFecD+hQ==}
+  sst-linux-x64@4.0.2:
+    resolution: {integrity: sha512-btrb0M8pF38uj7B0nQxWI2o1CLlt8ucrhkuh1y3XLCKfUtRniBrIg4XJqC1gRjOY2nv1o8TgABqVHrQrj4rJXA==}
     cpu: [x64]
     os: [linux]
 
-  sst-linux-x86@3.19.0:
-    resolution: {integrity: sha512-QnALQzzH9IHdxH/X9tHYe6AzxuNHyOEbz9K6Hym4eORCheBtr4BtDTxVxsms1OQI34S3hbzOPLh40EWqinv0Rw==}
+  sst-linux-x86@4.0.2:
+    resolution: {integrity: sha512-VRaMCN/PG4iHRVH7C45j3oi5c1Mf6GYOCwAfjOJ5Vb/w0nJT6dm/9+po8hfhttzCeTNIEmCoxGjAD/M4BsJMBg==}
     cpu: [x86]
     os: [linux]
 
-  sst-win32-arm64@3.19.0:
-    resolution: {integrity: sha512-PgLF+YOV7ObU9pd0fTp1qHSVZ+adZudOrFp6mcSaoQDLfzobzpGUTtz1SCZjVl2yL1lf1VsiYa3HfrRgKzvUJg==}
+  sst-win32-arm64@4.0.2:
+    resolution: {integrity: sha512-RLUXuXDKfL5XTWNPjhQosbf60+lPKsdh0c1IFHJTLLwmb4PdU+852FpwD3bB5uq77Z8H030mHDmEezh9JpOvwg==}
     cpu: [arm64]
     os: [win32]
 
-  sst-win32-x64@3.19.0:
-    resolution: {integrity: sha512-tC8yyKXln/yt0mZIW+/clspviJ6U5I3EklolBD5V7YSfAAWxImD1p+xbGu/Q5AhterMIeoRwSXSTXDqphZxHBQ==}
+  sst-win32-x64@4.0.2:
+    resolution: {integrity: sha512-J1BPVEjwjwpn3dZrKiBzMzSzdZQeKaXJ7xRutZx4jR4e0vwwOSscp7Lt0ni9jM5RZKEJdlila9Rz+jemkWEhEw==}
     cpu: [x64]
     os: [win32]
 
-  sst-win32-x86@3.19.0:
-    resolution: {integrity: sha512-rfgfIQwEY1PVGUtX3XoNMySxoRxEC0n2Op6YY/zj7PnC+dSem/4ghKvonJLNOe8S1g8kDRZvddQ97cu+UKWT6Q==}
+  sst-win32-x86@4.0.2:
+    resolution: {integrity: sha512-PurFbuGXlWld1aVtdTp2VB3U016Vk9IbcAYfyle5s3XZIfeU0AKbVU7sonvw90FW5eNFFVeNUk/7spQIBtwAWQ==}
     cpu: [x86]
     os: [win32]
 
-  sst@3.19.0:
-    resolution: {integrity: sha512-PX0fzzFby5vOCez+cievpGYwJvKS8ElAtOMVG1YWLJZxpdnVfCTEeIUytC4hVV6Wkf6ak+Rf36I6M2nCYbiBQQ==}
+  sst@4.0.2:
+    resolution: {integrity: sha512-B4IDieBXd97kh9q/ycFswMEO3c8FuE5GUD5zPh8SKUjxg2Z+yHEmj3nXql9Csz6WbhXr7jSnR+dpH3e4h8t2Ng==}
     hasBin: true
 
   statuses@2.0.2:
@@ -6949,8 +6945,8 @@ snapshots:
       express-rate-limit: 7.5.1(express@5.2.1)
       pkce-challenge: 4.1.0
       raw-body: 3.0.2
-      zod: 3.24.2
-      zod-to-json-schema: 3.24.3(zod@3.24.2)
+      zod: 3.25.76
+      zod-to-json-schema: 3.25.1(zod@3.25.76)
     transitivePeerDependencies:
       - supports-color
 
@@ -7031,14 +7027,6 @@ snapshots:
       outvariant: 1.4.3
 
   '@open-draft/until@2.1.0': {}
-
-  '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.11.9)':
-    dependencies:
-      '@standard-schema/spec': 1.0.0-beta.3
-      arctic: 2.3.4
-      aws4fetch: 1.0.20
-      hono: 4.11.9
-      jose: 5.9.6
 
   '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.12.1)':
     dependencies:
@@ -9484,8 +9472,6 @@ snapshots:
 
   headers-polyfill@4.0.3: {}
 
-  hono@4.11.9: {}
-
   hono@4.12.1: {}
 
   hono@4.7.4: {}
@@ -10663,31 +10649,31 @@ snapshots:
 
   source-map@0.7.6: {}
 
-  sst-darwin-arm64@3.19.0:
+  sst-darwin-arm64@4.0.2:
     optional: true
 
-  sst-darwin-x64@3.19.0:
+  sst-darwin-x64@4.0.2:
     optional: true
 
-  sst-linux-arm64@3.19.0:
+  sst-linux-arm64@4.0.2:
     optional: true
 
-  sst-linux-x64@3.19.0:
+  sst-linux-x64@4.0.2:
     optional: true
 
-  sst-linux-x86@3.19.0:
+  sst-linux-x86@4.0.2:
     optional: true
 
-  sst-win32-arm64@3.19.0:
+  sst-win32-arm64@4.0.2:
     optional: true
 
-  sst-win32-x64@3.19.0:
+  sst-win32-x64@4.0.2:
     optional: true
 
-  sst-win32-x86@3.19.0:
+  sst-win32-x86@4.0.2:
     optional: true
 
-  sst@3.19.0:
+  sst@4.0.2:
     dependencies:
       aws-sdk: 2.1692.0
       aws4fetch: 1.0.18
@@ -10695,14 +10681,14 @@ snapshots:
       opencontrol: 0.0.6
       openid-client: 5.6.4
     optionalDependencies:
-      sst-darwin-arm64: 3.19.0
-      sst-darwin-x64: 3.19.0
-      sst-linux-arm64: 3.19.0
-      sst-linux-x64: 3.19.0
-      sst-linux-x86: 3.19.0
-      sst-win32-arm64: 3.19.0
-      sst-win32-x64: 3.19.0
-      sst-win32-x86: 3.19.0
+      sst-darwin-arm64: 4.0.2
+      sst-darwin-x64: 4.0.2
+      sst-linux-arm64: 4.0.2
+      sst-linux-x64: 4.0.2
+      sst-linux-x86: 4.0.2
+      sst-win32-arm64: 4.0.2
+      sst-win32-x64: 4.0.2
+      sst-win32-x86: 4.0.2
     transitivePeerDependencies:
       - supports-color
 

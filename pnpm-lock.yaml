@@ -10,8 +10,8 @@ catalogs:
       specifier: 24.10.13
       version: 24.10.13
     sst:
-      specifier: 4.1.1
-      version: 4.1.1
+      specifier: 4.2.7
+      version: 4.2.7
     typescript:
       specifier: 5.9.3
       version: 5.9.3
@@ -22,7 +22,7 @@ importers:
     dependencies:
       sst:
         specifier: 'catalog:'
-        version: 4.1.1
+        version: 4.2.7
     devDependencies:
       '@biomejs/biome':
         specifier: 2.4.4
@@ -95,7 +95,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 4.1.1
+        version: 4.2.7
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -141,7 +141,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 4.1.1
+        version: 4.2.7
       ulid:
         specifier: ^3.0.2
         version: 3.0.2
@@ -220,7 +220,7 @@ importers:
         version: 3.8.5(@types/node@24.10.13)(typescript@5.9.3)
       sst:
         specifier: 'catalog:'
-        version: 4.1.1
+        version: 4.2.7
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.5.0
@@ -378,7 +378,7 @@ importers:
     dependencies:
       sst:
         specifier: 'catalog:'
-        version: 4.1.1
+        version: 4.2.7
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -403,7 +403,7 @@ importers:
         version: 3.997.0
       sst:
         specifier: 'catalog:'
-        version: 4.1.1
+        version: 4.2.7
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -446,7 +446,7 @@ importers:
         version: 1.6.6
       sst:
         specifier: 'catalog:'
-        version: 4.1.1
+        version: 4.2.7
     devDependencies:
       '@tvseri.es/typescript-config':
         specifier: workspace:*
@@ -4861,48 +4861,48 @@ packages:
     resolution: {integrity: sha512-i5uvt8C3ikiWeNZSVZNWcfZPItFQOsYTUAOkcUPGd8DqDy1uOUikjt5dG+uRlwyvR108Fb9DOd4GvXfT0N2/uQ==}
     engines: {node: '>= 12'}
 
-  sst-darwin-arm64@4.1.1:
-    resolution: {integrity: sha512-gnsJV9KKZOguBgtdjg8uL26yejDw/Tr7V2rue2vm8dgoziyaxd96W1rAOM8GoPA/v9DH+mMrPwhnLP8vAGcUaw==}
+  sst-darwin-arm64@4.2.7:
+    resolution: {integrity: sha512-EdQc//yBdo5ITW/wfpeX/D1J72ZPE4ztqcpwm1TWEc1Qnj/1HSwyCW11jmD9Yd4kxRXn/UiR1td3e+06uNtlTA==}
     cpu: [arm64]
     os: [darwin]
 
-  sst-darwin-x64@4.1.1:
-    resolution: {integrity: sha512-oudDkGAIal3QXJDusLgg6kUsbpl2/2rUw/c5SSoEccuW/Bljikh9UsNdWy7OkaA0vfk+Hvl07qPbU07rabFOdg==}
+  sst-darwin-x64@4.2.7:
+    resolution: {integrity: sha512-mhVlaWwch+E9Z9kfdm8orU/nXwmk/0FgrZXGgTr6GPA9dQiZviEBxJTjWCQalCYmfcKpdhheJURPnaK+BVgA6g==}
     cpu: [x64]
     os: [darwin]
 
-  sst-linux-arm64@4.1.1:
-    resolution: {integrity: sha512-1QTWF57zxD7V8PkR0TSn7sfbsnjM267pr+gtOeugBUwCKOoIC7yOVcVS87vWOpiZBRZmMSGbnCSJ0TzUzAsPaQ==}
+  sst-linux-arm64@4.2.7:
+    resolution: {integrity: sha512-cETF60sUi68J2OGQ5KNsGlpCUEjc43sQa4i+FYGh5lDIVpuAkX1Tf806JJQuYLNsPP/FmWw1gq82juFaFOm16w==}
     cpu: [arm64]
     os: [linux]
 
-  sst-linux-x64@4.1.1:
-    resolution: {integrity: sha512-SNmCYZwKdVunureWgYiTFqLrTT5reDEymLYHoPQxTg3mzjndTioYbCmWjB675QFOHZXgbVapsLguWqX5687xwg==}
+  sst-linux-x64@4.2.7:
+    resolution: {integrity: sha512-snjEqskoNRXx2MY4vpXqxpNjMpzCRBdD8W/r+fqVXb6qPDrFbuI0S79VwFb75zzsyWUJ3lg0P84D5DDPcsglDQ==}
     cpu: [x64]
     os: [linux]
 
-  sst-linux-x86@4.1.1:
-    resolution: {integrity: sha512-ZBxVEovmvUFbTdpR0SLFVATYAw3KoLOduPwhQMuNgItGdG2I2cmMOH2v2jsmroIR+5Kes0MWP3YqJwjHkjnUvw==}
+  sst-linux-x86@4.2.7:
+    resolution: {integrity: sha512-DPGfi7cj4wBF6tvkRHhNvC6UFn5ZIw+dI2eVbXBGVNmrr4O8Q/vSVk7N7rh7+zV1Ldg71f5VaZdYe2dn7DpHMA==}
     cpu: [x86]
     os: [linux]
 
-  sst-win32-arm64@4.1.1:
-    resolution: {integrity: sha512-mMlO8iACMtEQFIQvJOy3o11md3BuCehEgSQL/zlFLzf4LEQt8o5/tInTrAMxLvUftlAqvMZB8oULJ/WfJRCoIw==}
+  sst-win32-arm64@4.2.7:
+    resolution: {integrity: sha512-RcWeggiFLjqNnnNQlM9J8TK3jTQe89/2xMPYyNcNoDy7nVGEgPHAI35+Kz1sbTWJkLYq2d24GYAoEPIHoE0ZIQ==}
     cpu: [arm64]
     os: [win32]
 
-  sst-win32-x64@4.1.1:
-    resolution: {integrity: sha512-zk4SpeuIH8yyL2xTqZbZBFA6CXSFhXLThwYU3xX9AWKl756009roLZCbWP33iTURW4ukiSKchDObcoH15oQJTQ==}
+  sst-win32-x64@4.2.7:
+    resolution: {integrity: sha512-qIydmnEePqDjMbECPir475JSTInBnO7vAVNROj1wD1jmiFCljr/1meelFYO6OSMWpzz3dlLUQnwKSpTsEA5Lxg==}
     cpu: [x64]
     os: [win32]
 
-  sst-win32-x86@4.1.1:
-    resolution: {integrity: sha512-KjOpLGL3z01jwWW/Uc6U5JOOodnTjJ5sfcVE0UZhHJ8sLqpbvWBoPQ6JU1dgGxoozm1LgtqwzdP0eGoAkKkypQ==}
+  sst-win32-x86@4.2.7:
+    resolution: {integrity: sha512-TTpv1xT6UQp+cj54RRm/vEGc1Z23YAagMj2o0Nrm2gnujej71BN4tPRmKZnk3AYqv//aBuy4lrdN39ekVVa+Mw==}
     cpu: [x86]
     os: [win32]
 
-  sst@4.1.1:
-    resolution: {integrity: sha512-4tq+/pMQYlx6XqCgEvKESprNRlxv9Tb0eh2IUZx0grlvOxfQvYPe63EjDI/F51nev8qKpFNEc5ntp1hwarMj4A==}
+  sst@4.2.7:
+    resolution: {integrity: sha512-shWYd4uFAVoMYnw6zsKg2/m7oRnOg1KB+FBac3Vc43fFZLCe67umTjvDaVfegMFlEg/TD8vqnsdZgp+fzXirEA==}
     hasBin: true
 
   statuses@2.0.2:
@@ -10291,44 +10291,44 @@ snapshots:
 
   source-map@0.7.6: {}
 
-  sst-darwin-arm64@4.1.1:
+  sst-darwin-arm64@4.2.7:
     optional: true
 
-  sst-darwin-x64@4.1.1:
+  sst-darwin-x64@4.2.7:
     optional: true
 
-  sst-linux-arm64@4.1.1:
+  sst-linux-arm64@4.2.7:
     optional: true
 
-  sst-linux-x64@4.1.1:
+  sst-linux-x64@4.2.7:
     optional: true
 
-  sst-linux-x86@4.1.1:
+  sst-linux-x86@4.2.7:
     optional: true
 
-  sst-win32-arm64@4.1.1:
+  sst-win32-arm64@4.2.7:
     optional: true
 
-  sst-win32-x64@4.1.1:
+  sst-win32-x64@4.2.7:
     optional: true
 
-  sst-win32-x86@4.1.1:
+  sst-win32-x86@4.2.7:
     optional: true
 
-  sst@4.1.1:
+  sst@4.2.7:
     dependencies:
       aws4fetch: 1.0.18
       jose: 5.2.3
       openid-client: 5.6.4
     optionalDependencies:
-      sst-darwin-arm64: 4.1.1
-      sst-darwin-x64: 4.1.1
-      sst-linux-arm64: 4.1.1
-      sst-linux-x64: 4.1.1
-      sst-linux-x86: 4.1.1
-      sst-win32-arm64: 4.1.1
-      sst-win32-x64: 4.1.1
-      sst-win32-x86: 4.1.1
+      sst-darwin-arm64: 4.2.7
+      sst-darwin-x64: 4.2.7
+      sst-linux-arm64: 4.2.7
+      sst-linux-x64: 4.2.7
+      sst-linux-x86: 4.2.7
+      sst-win32-arm64: 4.2.7
+      sst-win32-x64: 4.2.7
+      sst-win32-x86: 4.2.7
 
   statuses@2.0.2: {}
 

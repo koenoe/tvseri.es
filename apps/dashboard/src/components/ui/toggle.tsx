@@ -21,5 +21,5 @@ const toggleVariants = cva(
   },
 );
 
-export { toggleVariants };
 export type { VariantProps };
+export { toggleVariants };

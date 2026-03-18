@@ -73,9 +73,9 @@ function CardContent({ className, ...props }: React.ComponentProps<'div'>) {
 
 export {
   Card,
+  CardAction,
+  CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardAction,
-  CardDescription,
-  CardContent,
 };

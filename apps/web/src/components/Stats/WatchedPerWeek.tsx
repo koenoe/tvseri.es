@@ -131,7 +131,7 @@ export default function WatchedPerWeek({ data, year }: Props) {
   const renderTooltip = useCallback(
     // biome-ignore lint/suspicious/noExplicitAny: sort out one day
     ({ active, payload, label }: any) => {
-      if (active && payload && payload.length) {
+      if (active && payload?.length) {
         const { actualWeek, dateRange, displayYear } = getWeekInfo(
           year,
           parseInt(label, 10),

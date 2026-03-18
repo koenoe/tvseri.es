@@ -88,10 +88,10 @@ function TableCell({ className, ...props }: React.ComponentProps<'td'>) {
 
 export {
   Table,
-  TableHeader,
   TableBody,
+  TableCell,
   TableFooter,
   TableHead,
+  TableHeader,
   TableRow,
-  TableCell,
 };

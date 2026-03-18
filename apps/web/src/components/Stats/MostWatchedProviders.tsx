@@ -86,7 +86,7 @@ function MostWatchedProviders({ data }: Props) {
 
   // biome-ignore lint/suspicious/noExplicitAny: sort out later
   const renderTooltip = useCallback(({ active, payload }: any) => {
-    if (active && payload && payload.length) {
+    if (active && payload?.length) {
       const { name, defaultColor } = payload[0].payload;
       return (
         <div className="w-48 rounded-lg shadow-lg border-0 bg-neutral-900 px-4 py-2 text-xs">

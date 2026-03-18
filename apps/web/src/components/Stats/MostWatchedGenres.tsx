@@ -29,7 +29,7 @@ function MostWatchedGenres({ data }: Props) {
 
   // biome-ignore lint/suspicious/noExplicitAny: sort out later
   const renderTooltip = useCallback(({ active, payload }: any) => {
-    if (active && payload && payload.length) {
+    if (active && payload?.length) {
       return (
         <div className="w-40 rounded-lg shadow-lg border-0 bg-neutral-900 px-4 py-2 text-xs">
           <div className="mb-1 font-medium text-white">

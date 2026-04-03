@@ -266,8 +266,7 @@ export const markSeasonWatched = async ({
   const season = await fetchTvSeriesSeason(tvSeries.id, seasonNumber);
 
   if (
-    !season ||
-    !season.numberOfAiredEpisodes ||
+    !season?.numberOfAiredEpisodes ||
     !season.airDate ||
     new Date(season.airDate) >= new Date()
   ) {

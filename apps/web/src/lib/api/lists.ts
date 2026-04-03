@@ -51,7 +51,7 @@ export async function getListItemsCount(
   return result.count;
 }
 
-export async function isInList(
+async function isInList(
   input: Readonly<{
     userId: string;
     listId: string;
@@ -91,7 +91,7 @@ export async function isInFavorites(
   });
 }
 
-export async function addToList(
+async function addToList(
   input: Readonly<{
     userId: string;
     listId: string;

@@ -6,7 +6,8 @@
     "noEmit": true,
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["node"]
   },
   "exclude": ["node_modules"],
   "extends": "@tvseri.es/typescript-config/base.json",

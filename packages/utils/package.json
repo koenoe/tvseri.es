@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "slugify": "^1.6.8",
+    "slugify": "^1.6.9",
     "sst": "catalog:"
   },
   "devDependencies": {

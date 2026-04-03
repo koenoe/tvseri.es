@@ -95,7 +95,7 @@ const series = (): MiddlewareHandler<{ Variables: Variables }> => {
 
     const tvSeries = await fetchTvSeries(id);
 
-    if (!tvSeries || !tvSeries.firstAirDate || !tvSeries.hasAired) {
+    if (!tvSeries?.firstAirDate || !tvSeries.hasAired) {
       return c.notFound();
     }
 

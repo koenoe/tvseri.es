@@ -36,7 +36,7 @@ export const handler: Handler<ProcessImageEvent, ProcessImageResult> = async (
   event,
 ) => {
   try {
-    if (!event.url || !event.url.startsWith('http')) {
+    if (!event.url?.startsWith('http')) {
       throw new Error('Invalid URL provided');
     }
 

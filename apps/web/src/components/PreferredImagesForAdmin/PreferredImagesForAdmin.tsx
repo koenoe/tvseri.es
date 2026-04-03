@@ -212,11 +212,7 @@ export default function PreferredImagesForAdmin({
   }, []);
 
   useEffect(() => {
-    if (
-      !images?.backdrops ||
-      !images.backdrops.length ||
-      imagesPreloaded.current
-    ) {
+    if (!images?.backdrops?.length || imagesPreloaded.current) {
       return;
     }
 

@@ -6,14 +6,14 @@ export default $config({
       home: 'aws',
       name: 'tvseries',
       providers: {
-        '@pulumiverse/time': true,
+        '@pulumiverse/time': '0.1.1',
         aws: {
           profile:
             input.stage === 'production'
               ? 'tvseries-production'
               : 'tvseries-dev',
         },
-        random: true,
+        random: '4.19.2',
         vercel: {
           apiToken: process.env.VERCEL_API_TOKEN,
           team: process.env.VERCEL_TEAM_ID,

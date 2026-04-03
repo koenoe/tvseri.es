@@ -36,7 +36,6 @@ const nextConfig = {
   experimental: {
     authInterrupts: true,
     inlineCss: true,
-    isolatedDevBuild: true,
     // Note: don't think this does much, but alas
     optimizePackageImports: [
       'date-fns',

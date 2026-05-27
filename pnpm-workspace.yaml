@@ -2,7 +2,13 @@ packages:
   - apps/*
   - packages/*
 
+allowBuilds:
+  core-js: true
+  esbuild: true
+  msw: true
+  sharp: true
+
 catalog:
   '@types/node': 24.10.13
-  sst: 4.6.11
-  typescript: 6.0.2
+  sst: 4.14.3
+  typescript: 6.0.3

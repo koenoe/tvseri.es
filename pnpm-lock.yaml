@@ -46,20 +46,20 @@ importers:
   apps/api:
     dependencies:
       '@aws-sdk/client-cloudfront':
-        specifier: ^3.1054.0
-        version: 3.1054.0
+        specifier: ^3.1055.0
+        version: 3.1055.0
       '@aws-sdk/client-dynamodb':
-        specifier: ^3.1054.0
-        version: 3.1054.0
+        specifier: ^3.1055.0
+        version: 3.1055.0
       '@aws-sdk/client-lambda':
-        specifier: ^3.1054.0
-        version: 3.1054.0
+        specifier: ^3.1055.0
+        version: 3.1055.0
       '@aws-sdk/client-sqs':
-        specifier: ^3.1054.0
-        version: 3.1054.0
+        specifier: ^3.1055.0
+        version: 3.1055.0
       '@aws-sdk/util-dynamodb':
         specifier: ^3.996.2
-        version: 3.996.2(@aws-sdk/client-dynamodb@3.1054.0)
+        version: 3.996.2(@aws-sdk/client-dynamodb@3.1055.0)
       '@better-fetch/fetch':
         specifier: ^1.1.21
         version: 1.1.21
@@ -116,14 +116,14 @@ importers:
   apps/auth:
     dependencies:
       '@aws-sdk/client-dynamodb':
-        specifier: ^3.1054.0
-        version: 3.1054.0
+        specifier: ^3.1055.0
+        version: 3.1055.0
       '@aws-sdk/client-sesv2':
-        specifier: ^3.1054.0
-        version: 3.1054.0
+        specifier: ^3.1055.0
+        version: 3.1055.0
       '@aws-sdk/util-dynamodb':
         specifier: ^3.996.2
-        version: 3.996.2(@aws-sdk/client-dynamodb@3.1054.0)
+        version: 3.996.2(@aws-sdk/client-dynamodb@3.1055.0)
       '@openauthjs/openauth':
         specifier: ^0.4.3
         version: 0.4.3(arctic@2.3.4)(hono@4.12.23)
@@ -393,14 +393,14 @@ importers:
   packages/kill-switch:
     dependencies:
       '@aws-sdk/client-cloudfront':
-        specifier: ^3.1054.0
-        version: 3.1054.0
+        specifier: ^3.1055.0
+        version: 3.1055.0
       '@aws-sdk/client-cloudwatch':
-        specifier: ^3.1054.0
-        version: 3.1054.0
+        specifier: ^3.1055.0
+        version: 3.1055.0
       '@aws-sdk/client-sns':
-        specifier: ^3.1054.0
-        version: 3.1054.0
+        specifier: ^3.1055.0
+        version: 3.1055.0
       sst:
         specifier: 'catalog:'
         version: 4.14.3
@@ -422,7 +422,7 @@ importers:
     dependencies:
       '@openauthjs/openauth':
         specifier: ^0.4
-        version: 0.4.3(arctic@2.3.4)(hono@4.12.2)
+        version: 0.4.3(arctic@2.3.4)(hono@4.12.23)
       valibot:
         specifier: ^1.4.1
         version: 1.4.1(typescript@6.0.3)
@@ -485,32 +485,36 @@ packages:
   '@aws-crypto/util@5.2.0':
     resolution: {integrity: sha512-4RkU9EsI6ZpBve5fseQlGNUWKMa1RLPQ1dnjnQoe07ldfIzcsGb5hC5W0Dm7u423KWzawlrpbjXBrXCEv9zazQ==}
 
-  '@aws-sdk/client-cloudfront@3.1054.0':
-    resolution: {integrity: sha512-j52olniPherxqMCK8W0fe3NPbv1iQtalP72mW/Nne+3ZMOwom0xOTMwA+a35QVFbnhMeK8mjT0emRK/w11l/Ew==}
+  '@aws-sdk/client-cloudfront@3.1055.0':
+    resolution: {integrity: sha512-JqEeKH3Zh0TyLTG83+aliXlg2pJLy1TP86F7bXIOy9/rv4CAK2mjMtFUCAeArzZHyOoKj5C8msj+xdGht6YHfg==}
     engines: {node: '>=20.0.0'}
 
-  '@aws-sdk/client-cloudwatch@3.1054.0':
-    resolution: {integrity: sha512-GCToOomcJErTY/Qk10krj4PEShjzEoY7BbiEs7HZnxz/K1SxwgwPJCZRUEnELp0khQE9fR6s2Lo42u6xA0UbzQ==}
+  '@aws-sdk/client-cloudwatch@3.1055.0':
+    resolution: {integrity: sha512-5zGzh43O0tfXFI7tkaESKzRMVaQapWis82P0fCQ663AXYmqT/l2yM8EkjtYrcjkv9t01LKk87ATin9ZmnXUxDg==}
     engines: {node: '>=20.0.0'}
 
-  '@aws-sdk/client-dynamodb@3.1054.0':
-    resolution: {integrity: sha512-IupfYBXKKe7k7QaYr6EHDK25xxUq+hCSuDI+pdDxlYjGlZ50RBPEVSc9YScS7aONB4OYVv+dx85EWJoOUfaVcA==}
+  '@aws-sdk/client-dynamodb@3.1055.0':
+    resolution: {integrity: sha512-L0qsAnN2G9W08ZHfRopz3FfluAJ0FH1xQ1SBiQvbX65v2N5gHIHW5s1FFY1Oel8mpaidPDtdPwF27ZniZkvyZw==}
     engines: {node: '>=20.0.0'}
 
   '@aws-sdk/client-lambda@3.1054.0':
     resolution: {integrity: sha512-AzyQfEBmkEcQc454eKLqm7+AtEedqkEW/rO9ZYrMF9SBYbiNaKXkCG+Z1MTgYa1BArrQlQkGVgDcsFzydEfAPw==}
     engines: {node: '>=20.0.0'}
 
-  '@aws-sdk/client-sesv2@3.1054.0':
-    resolution: {integrity: sha512-PwuHg2QNE6e35e1baTa0JbXbnuJkTjGvCWKHaB1UF8WqkHvW486cRpr3dENr21VBVVJd0tY8wMK6HTkl3ov1/A==}
+  '@aws-sdk/client-lambda@3.1055.0':
+    resolution: {integrity: sha512-6eq3TEpqeS2bosFLE+GjBx4mF3E2Z59ekys/dgJfTOmEoujHxGkkSmrGuhxqy4n4ycrz5BbGLRppG/m84kh1oQ==}
     engines: {node: '>=20.0.0'}
 
-  '@aws-sdk/client-sns@3.1054.0':
-    resolution: {integrity: sha512-8Befe/r+dyKneJkqLBcO9dEwSNsrf1FRPUHGaVN535gq8jGTSv45ybNT4SWSWU76mxR8oGTbvNGWoJGvlMGjcQ==}
+  '@aws-sdk/client-sesv2@3.1055.0':
+    resolution: {integrity: sha512-bwmNU61zgPijegkzuctJURdzyckLiOa4BXXJptO3j4tlA3Rg3P9dPo1oPqdK0OCB2gh8HmkcbD7gIYe0Qdfdtg==}
     engines: {node: '>=20.0.0'}
 
-  '@aws-sdk/client-sqs@3.1054.0':
-    resolution: {integrity: sha512-IWdqcOOpYSNbOcDTsICqaJvCehu2JNP3ZtMzVeb38IH7LcxVrzIUFO8m3OCbUvqVm/Uj78IgiXthvVEPQhdn2w==}
+  '@aws-sdk/client-sns@3.1055.0':
+    resolution: {integrity: sha512-Hu57uXpvdoqTh5FQVePfw/YT+pDMtOQ1t8BX7zf2GXRJ0HIzyEhJFkf5WOyH1YzxTUHPNmJRScjOQ7jnhX2BRw==}
+    engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/client-sqs@3.1055.0':
+    resolution: {integrity: sha512-19ChQIWhWTJrRGIOH0oLgQ8JRy3/RrznPJSqaR0KvhlyemYaYVMVZRRDegLQ2hSJrW+097XMK/Y/ixzIh7H/eg==}
     engines: {node: '>=20.0.0'}
 
   '@aws-sdk/core@3.974.14':
@@ -3600,10 +3604,6 @@ packages:
   headers-polyfill@4.0.3:
     resolution: {integrity: sha512-IScLbePpkvO846sIwOtOTDjutRMWdXdJmXdMvk6gCBHxFO8d+QKOQedyZSxFTTFYRSmlgSTDtXqqq4pcenBXLQ==}
 
-  hono@4.12.2:
-    resolution: {integrity: sha512-gJnaDHXKDayjt8ue0n8Gs0A007yKXj4Xzb8+cNjZeYsSzzwKc0Lr+OZgYwVfB0pHfUs17EPoLvrOsEaJ9mj+Tg==}
-    engines: {node: '>=16.9.0'}
-
   hono@4.12.23:
     resolution: {integrity: sha512-eIaZ9qDgu7XV0pxOCrg7/WhnQ6Ivm22UcxhXx/A3dcbqbbYgBEkc6e/J/s7j2tS96zoB0S9VBdLwQNCWwUo4LA==}
     engines: {node: '>=16.9.0'}
@@ -5242,7 +5242,7 @@ snapshots:
       '@smithy/util-utf8': 2.3.0
       tslib: 2.8.1
 
-  '@aws-sdk/client-cloudfront@3.1054.0':
+  '@aws-sdk/client-cloudfront@3.1055.0':
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
       '@aws-crypto/sha256-js': 5.2.0
@@ -5255,7 +5255,7 @@ snapshots:
       '@smithy/types': 4.14.2
       tslib: 2.8.1
 
-  '@aws-sdk/client-cloudwatch@3.1054.0':
+  '@aws-sdk/client-cloudwatch@3.1055.0':
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
       '@aws-crypto/sha256-js': 5.2.0
@@ -5269,7 +5269,7 @@ snapshots:
       '@smithy/types': 4.14.2
       tslib: 2.8.1
 
-  '@aws-sdk/client-dynamodb@3.1054.0':
+  '@aws-sdk/client-dynamodb@3.1055.0':
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
       '@aws-crypto/sha256-js': 5.2.0
@@ -5297,7 +5297,20 @@ snapshots:
       '@smithy/types': 4.14.2
       tslib: 2.8.1
 
-  '@aws-sdk/client-sesv2@3.1054.0':
+  '@aws-sdk/client-lambda@3.1055.0':
+    dependencies:
+      '@aws-crypto/sha256-browser': 5.2.0
+      '@aws-crypto/sha256-js': 5.2.0
+      '@aws-sdk/core': 3.974.14
+      '@aws-sdk/credential-provider-node': 3.972.45
+      '@aws-sdk/types': 3.973.9
+      '@smithy/core': 3.24.4
+      '@smithy/fetch-http-handler': 5.4.4
+      '@smithy/node-http-handler': 4.7.4
+      '@smithy/types': 4.14.2
+      tslib: 2.8.1
+
+  '@aws-sdk/client-sesv2@3.1055.0':
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
       '@aws-crypto/sha256-js': 5.2.0
@@ -5311,7 +5324,7 @@ snapshots:
       '@smithy/types': 4.14.2
       tslib: 2.8.1
 
-  '@aws-sdk/client-sns@3.1054.0':
+  '@aws-sdk/client-sns@3.1055.0':
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
       '@aws-crypto/sha256-js': 5.2.0
@@ -5324,7 +5337,7 @@ snapshots:
       '@smithy/types': 4.14.2
       tslib: 2.8.1
 
-  '@aws-sdk/client-sqs@3.1054.0':
+  '@aws-sdk/client-sqs@3.1055.0':
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
       '@aws-crypto/sha256-js': 5.2.0
@@ -5494,9 +5507,9 @@ snapshots:
       '@smithy/types': 4.14.2
       tslib: 2.8.1
 
-  '@aws-sdk/util-dynamodb@3.996.2(@aws-sdk/client-dynamodb@3.1054.0)':
+  '@aws-sdk/util-dynamodb@3.996.2(@aws-sdk/client-dynamodb@3.1055.0)':
     dependencies:
-      '@aws-sdk/client-dynamodb': 3.1054.0
+      '@aws-sdk/client-dynamodb': 3.1055.0
       tslib: 2.8.1
 
   '@aws-sdk/util-locate-window@3.965.5':
@@ -6145,14 +6158,6 @@ snapshots:
       outvariant: 1.4.3
 
   '@open-draft/until@2.1.0': {}
-
-  '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.12.2)':
-    dependencies:
-      '@standard-schema/spec': 1.0.0-beta.3
-      arctic: 2.3.4
-      aws4fetch: 1.0.20
-      hono: 4.12.2
-      jose: 5.9.6
 
   '@openauthjs/openauth@0.4.3(arctic@2.3.4)(hono@4.12.23)':
     dependencies:
@@ -8326,8 +8331,6 @@ snapshots:
       function-bind: 1.1.2
 
   headers-polyfill@4.0.3: {}
-
-  hono@4.12.2: {}
 
   hono@4.12.23: {}
 

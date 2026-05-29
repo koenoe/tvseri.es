@@ -22,7 +22,7 @@
     "use-debounce": "^10.1.1",
     "web-vitals": "^5.2.0",
     "words-to-numbers": "^1.5.1",
-    "zustand": "^5.0.13"
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.2.6",
@@ -34,9 +34,9 @@
     "@types/react-dom": "^19.2.3",
     "mini-svg-data-uri": "^1.4.4",
     "postcss": "^8.5.15",
-    "tailwind-merge": "^2.6.0",
+    "tailwind-merge": "^3.6.0",
     "tailwind-scrollbar-hide": "^2.0.0",
-    "tailwindcss": "^3.4.17",
+    "tailwindcss": "^4.3.0",
     "tailwindcss-content-visibility": "^1.0.2",
     "typescript": "catalog:"
   },

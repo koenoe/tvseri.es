@@ -23,10 +23,6 @@ declare module "sst" {
       "type": "sst.aws.Auth"
       "url": string
     }
-    "BudgetAlertSNS": {
-      "arn": string
-      "type": "sst.aws.SnsTopic"
-    }
     "Cache": {
       "name": string
       "type": "sst.aws.Dynamo"
@@ -118,7 +114,6 @@ declare module "sst" {
     }
   }
 }
-/// <reference path="sst-env.d.ts" />
 
 import "sst"
 export {}

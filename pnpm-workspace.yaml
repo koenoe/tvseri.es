@@ -10,5 +10,5 @@ allowBuilds:
 
 catalog:
   '@types/node': 24.10.13
-  sst: 4.14.3
+  sst: 4.15.2
   typescript: 6.0.3

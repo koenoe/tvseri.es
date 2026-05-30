@@ -64,9 +64,7 @@ export default $config({
     await import('./infra/dominantColor');
     await import('./infra/dynamo');
     await import('./infra/secrets');
-    if (!$dev) {
-      await import('./infra/distributionDisabler');
-    }
+    await import('./infra/distributionDisabler');
 
     // Queue consumers that depend on base infrastructure
     // scrobbleQueue: depends on dynamo, dominantColor

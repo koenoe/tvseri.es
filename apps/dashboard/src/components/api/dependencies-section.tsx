@@ -259,7 +259,7 @@ type DependencyRowProps = Readonly<{
   latencyHistory: ReadonlyArray<{ p75: number }> | undefined;
   maxRequestCount: number;
   name: string;
-  onToggle: () => void;
+  onToggle: (name: string) => void;
   stats: DependencyStats;
 }>;
 
@@ -274,8 +274,13 @@ function DependencyRow({
 }: DependencyRowProps) {
   const displayName = formatDependencyName(name);
 
+  const handleToggle = useCallback(() => onToggle(name), [onToggle, name]);
+
   return (
-    <TableRow className="cursor-pointer hover:bg-muted/50" onClick={onToggle}>
+    <TableRow
+      className="cursor-pointer hover:bg-muted/50"
+      onClick={handleToggle}
+    >
       <TableCell
         className="px-3 py-2 font-medium"
         style={{ width: COLUMN_WIDTHS.name }}
@@ -503,7 +508,7 @@ function DependenciesSectionComponent({
                   latencyHistory={latencyHistory}
                   maxRequestCount={maxRequestCount}
                   name={key}
-                  onToggle={() => toggle(key)}
+                  onToggle={toggle}
                   stats={stats}
                 />
                 {isExpanded &&

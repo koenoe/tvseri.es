@@ -43,6 +43,18 @@ export default function ContextMenuButtonTvSeries({
     [action, setState],
   );
 
+  const handleEditClick = useCallback(() => {
+    contextMenuButtonRef.current?.close();
+  }, []);
+
+  const handleFavoriteClick = useCallback(() => {
+    handleActionClick(!isFavorited, 'favorites');
+  }, [handleActionClick, isFavorited]);
+
+  const handleWatchlistClick = useCallback(() => {
+    handleActionClick(!isWatchlisted, 'watchlist');
+  }, [handleActionClick, isWatchlisted]);
+
   return (
     <ContextMenuButton className={className} isDisabled={isPending}>
       <Link
@@ -50,7 +62,7 @@ export default function ContextMenuButtonTvSeries({
         href={{
           pathname: `/track/${tvSeries.id}/${tvSeries.slug}`,
         }}
-        onClick={() => contextMenuButtonRef.current?.close()}
+        onClick={handleEditClick}
       >
         <svg
           className="size-5"
@@ -65,7 +77,7 @@ export default function ContextMenuButtonTvSeries({
       </Link>
       <button
         className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap border-b-2 border-neutral-200 pb-3 text-sm font-medium hover:text-neutral-800"
-        onClick={() => handleActionClick(!isFavorited, 'favorites')}
+        onClick={handleFavoriteClick}
       >
         <svg
           className="size-5 shrink-0"
@@ -81,7 +93,7 @@ export default function ContextMenuButtonTvSeries({
       </button>
       <button
         className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap text-sm font-medium hover:text-neutral-800"
-        onClick={() => handleActionClick(!isWatchlisted, 'watchlist')}
+        onClick={handleWatchlistClick}
       >
         <svg
           className="size-5 shrink-0"

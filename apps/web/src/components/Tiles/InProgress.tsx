@@ -78,6 +78,10 @@ function InProgress({
     });
   }, [markNextAsWatched, router]);
 
+  const handleCloseMenu = useCallback(() => {
+    contextMenuButtonRef.current?.close();
+  }, []);
+
   return (
     <AnimatePresence initial={false}>
       {!optimisticIsRemoved && (
@@ -97,7 +101,9 @@ function InProgress({
               query: { season: currentSeason.seasonNumber },
             }}
           >
-            {tvSeries.backdropImage && <SpotlightBackground item={tvSeries} />}
+            {tvSeries.backdropImage ? (
+              <SpotlightBackground item={tvSeries} />
+            ) : null}
 
             <div className="flex w-full flex-col gap-5 p-6 md:gap-6 md:p-9">
               <SpotlightTitle item={tvSeries} size="small" />
@@ -134,16 +140,16 @@ function InProgress({
                 />
               </div>
             </div>
-            {removeIsAllowed && (
+            {removeIsAllowed ? (
               <div
                 className="absolute inset-0"
                 style={{
                   backgroundImage: `linear-gradient(225deg, rgba(${backdropColorRgbString}, 1) 0%, rgba(${backdropColorRgbString}, 0) 30%)`,
                 }}
               />
-            )}
+            ) : null}
           </Link>
-          {removeIsAllowed && (
+          {removeIsAllowed ? (
             <ContextMenuButton
               className="!absolute !right-4 !top-4 !z-20"
               ref={contextMenuButtonRef}
@@ -175,7 +181,7 @@ function InProgress({
               <Link
                 className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap border-b-2 border-neutral-200 pb-3 text-sm font-medium hover:text-neutral-800"
                 href={`/track/${tvSeries.id}/${tvSeries.slug}?season=${currentSeason.seasonNumber}`}
-                onClick={() => contextMenuButtonRef.current?.close()}
+                onClick={handleCloseMenu}
               >
                 <svg
                   className="size-5"
@@ -208,7 +214,7 @@ function InProgress({
                 <span>Hide from in progress</span>
               </button>
             </ContextMenuButton>
-          )}
+          ) : null}
         </motion.div>
       )}
     </AnimatePresence>

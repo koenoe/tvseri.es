@@ -2,7 +2,7 @@
 
 import type { Episode, WatchedItem, WatchProvider } from '@tvseri.es/schemas';
 import Image from 'next/image';
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 
 import formatDate from '@/utils/formatDate';
 import formatRuntime from '@/utils/formatRuntime';
@@ -12,6 +12,14 @@ import Datepicker from '../Datepicker/DatepickerLazy';
 import ImageWithFallback from '../Image/ImageWithFallback';
 import StillPlaceholder from '../Image/StillPlaceholder';
 import type { WatchedAction } from './Cards';
+
+const renderStillPlaceholder = () => (
+  <StillPlaceholder className="h-full w-full" />
+);
+
+const stopPropagation = (event: React.MouseEvent) => {
+  event.stopPropagation();
+};
 
 function EpisodeCard({
   episode,
@@ -31,6 +39,109 @@ function EpisodeCard({
   const watchProviderName =
     watchedItem?.watchProviderName || watchProvider?.name;
 
+  const handleJustFinished = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+      updateItems({
+        items: [
+          {
+            episodeAirDate: episode.airDate,
+            episodeNumber: episode.episodeNumber,
+            episodeStillPath: episode.stillPath,
+            episodeTitle: episode.title,
+            runtime: episode.runtime,
+            seasonNumber: episode.seasonNumber,
+            watchedAt: Date.now(),
+            watchProviderLogoImage,
+            watchProviderLogoPath,
+            watchProviderName,
+          },
+        ],
+        type: 'update',
+      });
+    },
+    [
+      episode,
+      updateItems,
+      watchProviderLogoImage,
+      watchProviderLogoPath,
+      watchProviderName,
+    ],
+  );
+
+  const handleReleaseDate = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+      updateItems({
+        items: [
+          {
+            episodeAirDate: episode.airDate,
+            episodeNumber: episode.episodeNumber,
+            episodeStillPath: episode.stillPath,
+            episodeTitle: episode.title,
+            runtime: episode.runtime,
+            seasonNumber: episode.seasonNumber,
+            watchedAt: new Date(episode.airDate).getTime(),
+            watchProviderLogoImage,
+            watchProviderLogoPath,
+            watchProviderName,
+          },
+        ],
+        type: 'update',
+      });
+    },
+    [
+      episode,
+      updateItems,
+      watchProviderLogoImage,
+      watchProviderLogoPath,
+      watchProviderName,
+    ],
+  );
+
+  const handleSelectDate = useCallback(
+    (value: string) => {
+      updateItems({
+        items: [
+          {
+            episodeAirDate: episode.airDate,
+            episodeNumber: episode.episodeNumber,
+            episodeStillPath: episode.stillPath,
+            episodeTitle: episode.title,
+            runtime: episode.runtime,
+            seasonNumber: episode.seasonNumber,
+            watchedAt: new Date(value).getTime(),
+            watchProviderLogoImage,
+            watchProviderLogoPath,
+            watchProviderName,
+          },
+        ],
+        type: 'update',
+      });
+    },
+    [
+      episode,
+      updateItems,
+      watchProviderLogoImage,
+      watchProviderLogoPath,
+      watchProviderName,
+    ],
+  );
+
+  const handleDelete = useCallback(
+    (event: React.MouseEvent<SVGSVGElement>) => {
+      event.stopPropagation();
+      if (!watchedItem) {
+        return;
+      }
+      updateItems({
+        items: [watchedItem],
+        type: 'delete',
+      });
+    },
+    [updateItems, watchedItem],
+  );
+
   return (
     <div className="relative flex flex-col gap-4 rounded-xl bg-black/10 p-4 md:flex-row md:items-center">
       <div className="relative hidden aspect-video overflow-clip rounded-lg md:block md:w-28 after:absolute after:inset-0 after:rounded-lg after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-['']">
@@ -39,7 +150,7 @@ function EpisodeCard({
             alt=""
             className="aspect-video h-full w-full object-cover"
             draggable={false}
-            fallback={() => <StillPlaceholder className="h-full w-full" />}
+            fallback={renderStillPlaceholder}
             height={63}
             placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(112, 63)}`}
             src={episode.stillImage}
@@ -63,7 +174,7 @@ function EpisodeCard({
           </span>
         </div>
         <div className="mt-3 flex w-full gap-1.5 text-xs font-medium">
-          {episode.airDate && <div>{formatDate(episode.airDate)}</div>}
+          {episode.airDate ? <div>{formatDate(episode.airDate)}</div> : null}
           <div className="opacity-60 before:mr-1 before:content-['—']">
             {formatRuntime(episode.runtime)}
           </div>
@@ -76,51 +187,13 @@ function EpisodeCard({
             <div className="mt-4 flex gap-3">
               <button
                 className="flex w-1/2 items-center justify-center text-nowrap rounded-xl bg-white/5 p-3 text-xs tracking-wide hover:bg-white/10"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  updateItems({
-                    items: [
-                      {
-                        episodeAirDate: episode.airDate,
-                        episodeNumber: episode.episodeNumber,
-                        episodeStillPath: episode.stillPath,
-                        episodeTitle: episode.title,
-                        runtime: episode.runtime,
-                        seasonNumber: episode.seasonNumber,
-                        watchedAt: Date.now(),
-                        watchProviderLogoImage,
-                        watchProviderLogoPath,
-                        watchProviderName,
-                      },
-                    ],
-                    type: 'update',
-                  });
-                }}
+                onClick={handleJustFinished}
               >
                 Just finished
               </button>
               <button
                 className="flex w-1/2 items-center justify-center text-nowrap rounded-xl bg-white/5 p-3 text-xs tracking-wide hover:bg-white/10"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  updateItems({
-                    items: [
-                      {
-                        episodeAirDate: episode.airDate,
-                        episodeNumber: episode.episodeNumber,
-                        episodeStillPath: episode.stillPath,
-                        episodeTitle: episode.title,
-                        runtime: episode.runtime,
-                        seasonNumber: episode.seasonNumber,
-                        watchedAt: new Date(episode.airDate).getTime(),
-                        watchProviderLogoImage,
-                        watchProviderLogoPath,
-                        watchProviderName,
-                      },
-                    ],
-                    type: 'update',
-                  });
-                }}
+                onClick={handleReleaseDate}
               >
                 Release date
               </button>
@@ -130,26 +203,8 @@ function EpisodeCard({
             x: 0,
             y: 30,
           }}
-          onClick={(e) => e.stopPropagation()}
-          onSelect={(value) => {
-            updateItems({
-              items: [
-                {
-                  episodeAirDate: episode.airDate,
-                  episodeNumber: episode.episodeNumber,
-                  episodeStillPath: episode.stillPath,
-                  episodeTitle: episode.title,
-                  runtime: episode.runtime,
-                  seasonNumber: episode.seasonNumber,
-                  watchedAt: new Date(value).getTime(),
-                  watchProviderLogoImage,
-                  watchProviderLogoPath,
-                  watchProviderName,
-                },
-              ],
-              type: 'update',
-            });
-          }}
+          onClick={stopPropagation}
+          onSelect={handleSelectDate}
           selected={watchedItem ? new Date(watchedItem.watchedAt!) : undefined}
         >
           {watchedItem ? (
@@ -161,14 +216,7 @@ function EpisodeCard({
               <svg
                 className="ml-auto size-4 md:ml-0.5"
                 fill="currentColor"
-                onClick={(e) => {
-                  e.stopPropagation();
-
-                  updateItems({
-                    items: [watchedItem],
-                    type: 'delete',
-                  });
-                }}
+                onClick={handleDelete}
                 viewBox="0 0 32 32"
                 xmlns="http://www.w3.org/2000/svg"
               >
@@ -194,7 +242,7 @@ function EpisodeCard({
             </>
           )}
         </Datepicker>
-        {watchProviderLogoImage && watchProviderName && (
+        {watchProviderLogoImage && watchProviderName ? (
           <Image
             alt={watchProviderName}
             className="absolute right-4 top-4 rounded md:relative md:right-auto md:top-auto"
@@ -203,7 +251,7 @@ function EpisodeCard({
             unoptimized
             width={28}
           />
-        )}
+        ) : null}
       </div>
     </div>
   );

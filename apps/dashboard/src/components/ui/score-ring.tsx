@@ -71,7 +71,7 @@ function ScoreRingComponent({
         strokeWidth={STROKE_WIDTH}
         style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
       />
-      {showLabel && (
+      {showLabel ? (
         <text
           className="fill-foreground font-medium"
           dominantBaseline="central"
@@ -82,7 +82,7 @@ function ScoreRingComponent({
         >
           {label ?? clampedScore}
         </text>
-      )}
+      ) : null}
     </svg>
   );
 }

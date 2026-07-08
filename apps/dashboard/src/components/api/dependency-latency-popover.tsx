@@ -76,12 +76,12 @@ const DependencyLatencyPopover = memo(function DependencyLatencyPopover({
                   <span className="text-sm tabular-nums text-muted-foreground">
                     {formatLatency(dep.latency.p75)}
                   </span>
-                  {hasHistory && (
+                  {hasHistory ? (
                     <LatencySparkline
                       history={dep.history}
                       p75={dep.latency.p75}
                     />
-                  )}
+                  ) : null}
                 </div>
               </div>
             );

@@ -118,9 +118,10 @@ export function WorldMap({
   }, [instanceId]);
 
   const handleMouseEnter = useCallback(
-    (country: string) => {
+    (event: React.MouseEvent<SVGPathElement>) => {
+      const country = event.currentTarget.dataset.name;
       // Only allow hover on countries with data
-      if (!data[country]) return;
+      if (!country || !data[country]) return;
 
       setInternalHoveredCountry(country);
       onCountryHover?.(country);
@@ -129,16 +130,17 @@ export function WorldMap({
   );
 
   const handleMouseMove = useCallback(
-    (e: React.MouseEvent, country: string) => {
-      if (!data[country]) return;
+    (event: React.MouseEvent<SVGPathElement>) => {
+      const country = event.currentTarget.dataset.name;
+      if (!country || !data[country]) return;
 
-      const container = e.currentTarget.closest('.world-map-container');
+      const container = event.currentTarget.closest('.world-map-container');
       if (!container) return;
 
       const rect = container.getBoundingClientRect();
       setTooltipPos({
-        x: e.clientX - rect.left + 12,
-        y: e.clientY - rect.top + 12,
+        x: event.clientX - rect.left + 12,
+        y: event.clientY - rect.top + 12,
       });
     },
     [data],
@@ -169,11 +171,12 @@ export function WorldMap({
           return (
             <path
               d={paths[name as keyof typeof paths]}
+              data-name={name}
               fill={fill}
               key={name}
-              onMouseEnter={() => handleMouseEnter(name)}
+              onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
-              onMouseMove={(e) => handleMouseMove(e, name)}
+              onMouseMove={handleMouseMove}
               style={{
                 cursor: hasData ? 'pointer' : 'default',
                 stroke: '#0a0a0a',
@@ -186,7 +189,7 @@ export function WorldMap({
       </svg>
 
       {/* Custom tooltip that follows mouse */}
-      {tooltipData && tooltipCountry && (
+      {tooltipData && tooltipCountry ? (
         <div
           className="pointer-events-none absolute z-50 flex min-w-56 flex-col gap-1.5 text-sm"
           style={{
@@ -215,7 +218,7 @@ export function WorldMap({
             <DataPointsIndicator pageViews={tooltipData.pageViews} />
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

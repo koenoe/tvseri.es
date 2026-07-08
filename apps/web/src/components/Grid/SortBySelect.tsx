@@ -52,13 +52,19 @@ function SortBySelect({
     [router, searchParams],
   );
 
+  const handleToggle = useCallback(() => {
+    setIsOpen((prev) => !prev);
+  }, []);
+
+  const handleOutsideClick = useCallback(() => {
+    setIsOpen(false);
+  }, []);
+
   return (
     <div className={className}>
       <div
         className="flex h-11 w-36 cursor-pointer items-center justify-center gap-2 rounded-3xl bg-neutral-800 py-3 pl-5 pr-4 text-sm leading-none tracking-wide backdrop-blur-xl"
-        onClick={() => {
-          setIsOpen((prev) => !prev);
-        }}
+        onClick={handleToggle}
         ref={ref}
       >
         <span>{label}</span>
@@ -78,10 +84,10 @@ function SortBySelect({
         </motion.svg>
       </div>
       <AnimatePresence>
-        {isOpen && (
+        {isOpen ? (
           <DropdownContainer
             key="select-season"
-            onOutsideClick={() => setIsOpen(false)}
+            onOutsideClick={handleOutsideClick}
             position={{ x: 'center', y: 'end' }}
             triggerRef={ref}
           >
@@ -95,7 +101,7 @@ function SortBySelect({
               ))}
             </div>
           </DropdownContainer>
-        )}
+        ) : null}
       </AnimatePresence>
     </div>
   );

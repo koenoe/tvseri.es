@@ -26,6 +26,8 @@ import formatRuntime from '@/utils/formatRuntime';
 const BAR_SIZE = 32;
 const BAR_GAP = 6;
 
+const formatWeekTick = (value: number) => (value === 1 ? 'Jan' : 'Dec');
+
 /**
  * Gets the week information for a given visual week position in the chart
  *
@@ -187,7 +189,7 @@ export default function WatchedPerWeek({ data, year }: Props) {
           className="text-[0.55rem] text-white/60 md:text-[0.65rem] xl:text-sm"
           dataKey="week"
           strokeWidth={0}
-          tickFormatter={(value) => (value === 1 ? 'Jan' : 'Dec')}
+          tickFormatter={formatWeekTick}
           tickLine={false}
           tickMargin={10}
           ticks={[1, 53]}

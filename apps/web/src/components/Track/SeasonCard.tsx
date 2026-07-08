@@ -2,12 +2,16 @@
 
 import type { Season, WatchedItem, WatchProvider } from '@tvseri.es/schemas';
 import { AnimatePresence, motion } from 'motion/react';
-import { memo, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 
 import formatDate from '@/utils/formatDate';
 import Datepicker from '../Datepicker/DatepickerLazy';
 import type { WatchedAction } from './Cards';
 import EpisodeCard from './EpisodeCard';
+
+const stopPropagation = (event: React.MouseEvent) => {
+  event.stopPropagation();
+};
 
 function SeasonCard({
   isExpanded: isExpandedFromProps = false,
@@ -41,17 +45,90 @@ function SeasonCard({
     [season.episodes],
   );
 
+  const handleContainerClick = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      const fromWithin =
+        ref.current?.contains(event.target as Node) &&
+        event.target !== ref.current;
+      if (fromWithin) {
+        setIsExpanded((prev) => !prev);
+      }
+    },
+    [],
+  );
+
+  const handleJustFinished = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+      updateItems({
+        items: episodes.map((episode) => ({
+          episodeAirDate: episode.airDate,
+          episodeNumber: episode.episodeNumber,
+          episodeStillPath: episode.stillPath,
+          episodeTitle: episode.title,
+          runtime: episode.runtime,
+          seasonNumber: episode.seasonNumber,
+          watchedAt: Date.now(),
+        })),
+        type: 'update',
+      });
+    },
+    [episodes, updateItems],
+  );
+
+  const handleReleaseDate = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+      updateItems({
+        items: episodes.map((episode) => ({
+          episodeAirDate: episode.airDate,
+          episodeNumber: episode.episodeNumber,
+          episodeStillPath: episode.stillPath,
+          episodeTitle: episode.title,
+          runtime: episode.runtime,
+          seasonNumber: episode.seasonNumber,
+          watchedAt: new Date(episode.airDate).getTime(),
+        })),
+        type: 'update',
+      });
+    },
+    [episodes, updateItems],
+  );
+
+  const handleSelectDate = useCallback(
+    (value: string) => {
+      updateItems({
+        items: episodes.map((episode) => ({
+          episodeAirDate: episode.airDate,
+          episodeNumber: episode.episodeNumber,
+          episodeStillPath: episode.stillPath,
+          episodeTitle: episode.title,
+          runtime: episode.runtime,
+          seasonNumber: episode.seasonNumber,
+          watchedAt: new Date(value).getTime(),
+        })),
+        type: 'update',
+      });
+    },
+    [episodes, updateItems],
+  );
+
+  const handleDelete = useCallback(
+    (event: React.MouseEvent<SVGSVGElement>) => {
+      event.stopPropagation();
+      updateItems({
+        items: watchedForSeason,
+        type: 'delete',
+      });
+    },
+    [updateItems, watchedForSeason],
+  );
+
   return (
     <div className="rounded-xl bg-neutral-800 p-6">
       <div
         className="relative w-full cursor-pointer"
-        onClick={(e) => {
-          const fromWithin =
-            ref.current?.contains(e.target as Node) && e.target !== ref.current;
-          if (fromWithin) {
-            setIsExpanded((prev) => !prev);
-          }
-        }}
+        onClick={handleContainerClick}
         ref={ref}
       >
         <div className="flex flex-col gap-2 md:flex-row md:items-center">
@@ -63,41 +140,13 @@ function SeasonCard({
                 <div className="mt-4 flex gap-3">
                   <button
                     className="flex w-1/2 items-center justify-center text-nowrap rounded-xl bg-white/5 p-3 text-xs tracking-wide hover:bg-white/10"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      updateItems({
-                        items: episodes.map((episode) => ({
-                          episodeAirDate: episode.airDate,
-                          episodeNumber: episode.episodeNumber,
-                          episodeStillPath: episode.stillPath,
-                          episodeTitle: episode.title,
-                          runtime: episode.runtime,
-                          seasonNumber: episode.seasonNumber,
-                          watchedAt: Date.now(),
-                        })),
-                        type: 'update',
-                      });
-                    }}
+                    onClick={handleJustFinished}
                   >
                     Just finished
                   </button>
                   <button
                     className="flex w-1/2 items-center justify-center text-nowrap rounded-xl bg-white/5 p-3 text-xs tracking-wide hover:bg-white/10"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      updateItems({
-                        items: episodes.map((episode) => ({
-                          episodeAirDate: episode.airDate,
-                          episodeNumber: episode.episodeNumber,
-                          episodeStillPath: episode.stillPath,
-                          episodeTitle: episode.title,
-                          runtime: episode.runtime,
-                          seasonNumber: episode.seasonNumber,
-                          watchedAt: new Date(episode.airDate).getTime(),
-                        })),
-                        type: 'update',
-                      });
-                    }}
+                    onClick={handleReleaseDate}
                   >
                     Release date
                   </button>
@@ -107,21 +156,8 @@ function SeasonCard({
                 x: 0,
                 y: 30,
               }}
-              onClick={(e) => e.stopPropagation()}
-              onSelect={(value) => {
-                updateItems({
-                  items: episodes.map((episode) => ({
-                    episodeAirDate: episode.airDate,
-                    episodeNumber: episode.episodeNumber,
-                    episodeStillPath: episode.stillPath,
-                    episodeTitle: episode.title,
-                    runtime: episode.runtime,
-                    seasonNumber: episode.seasonNumber,
-                    watchedAt: new Date(value).getTime(),
-                  })),
-                  type: 'update',
-                });
-              }}
+              onClick={stopPropagation}
+              onSelect={handleSelectDate}
               selected={
                 lastWatched ? new Date(lastWatched.watchedAt!) : undefined
               }
@@ -135,14 +171,7 @@ function SeasonCard({
                   <svg
                     className="ml-auto size-4 md:ml-1"
                     fill="currentColor"
-                    onClick={(e) => {
-                      e.stopPropagation();
-
-                      updateItems({
-                        items: watchedForSeason,
-                        type: 'delete',
-                      });
-                    }}
+                    onClick={handleDelete}
                     viewBox="0 0 32 32"
                     xmlns="http://www.w3.org/2000/svg"
                   >
@@ -186,7 +215,7 @@ function SeasonCard({
         </div>
       </div>
       <AnimatePresence initial={false}>
-        {isExpanded && (
+        {isExpanded ? (
           <motion.div
             animate="open"
             exit="collapsed"
@@ -212,7 +241,7 @@ function SeasonCard({
               ))}
             </div>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </div>
   );

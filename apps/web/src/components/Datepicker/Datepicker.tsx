@@ -47,27 +47,37 @@ function DatePicker({
     [onSelect],
   );
 
+  const handleTriggerClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      setBackgroundColor(getMainBackgroundColor());
+      setIsOpen((prev) => !prev);
+      onClick?.(event);
+    },
+    [onClick],
+  );
+
+  const handleOutsideClick = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      event.stopPropagation();
+      setIsOpen(false);
+    },
+    [],
+  );
+
   return (
     <>
       <button
         className={className}
-        onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-          setBackgroundColor(getMainBackgroundColor());
-          setIsOpen((prev) => !prev);
-          onClick?.(event);
-        }}
+        onClick={handleTriggerClick}
         ref={triggerRef}
       >
         {children}
       </button>
       <AnimatePresence>
-        {isOpen && (
+        {isOpen ? (
           <DropdownContainer
             key="dropdown-datepicker"
-            onOutsideClick={(event: React.MouseEvent<HTMLDivElement>) => {
-              event.stopPropagation();
-              setIsOpen(false);
-            }}
+            onOutsideClick={handleOutsideClick}
             position={{ x: 'center', y: 'end' }}
             triggerRef={triggerRef}
           >
@@ -111,7 +121,7 @@ function DatePicker({
               style={{ backgroundColor }}
             />
           </DropdownContainer>
-        )}
+        ) : null}
       </AnimatePresence>
     </>
   );

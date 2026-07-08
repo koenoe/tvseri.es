@@ -139,6 +139,19 @@ function SearchComponent() {
     });
   }, [animateToIcon, reset]);
 
+  const transformModalTemplate = useCallback(
+    (latest: {
+      x?: string | number;
+      y?: string | number;
+      scale?: string | number;
+    }) => {
+      return isMobile
+        ? `translate(${latest.x}, ${latest.y}) scale(${latest.scale})`
+        : `translate(calc(-50% + ${latest.x}), ${latest.y}) scale(${latest.scale})`;
+    },
+    [isMobile],
+  );
+
   const handleOpen = useCallback(() => {
     const offset = getIconOffset();
 
@@ -235,7 +248,7 @@ function SearchComponent() {
         </div>
       </motion.div>
       <AnimatePresence>
-        {isOpen && (
+        {isOpen ? (
           <Modal>
             <motion.div
               className="fixed inset-0 z-40"
@@ -251,11 +264,7 @@ function SearchComponent() {
                 className={modalStyles({ state: 'visible' })}
                 key="modal-content"
                 style={{ color: backgroundColor, opacity, scale, x, y }}
-                transformTemplate={({ x, y, scale }) =>
-                  isMobile
-                    ? `translate(${x}, ${y}) scale(${scale})`
-                    : `translate(calc(-50% + ${x}), ${y}) scale(${scale})`
-                }
+                transformTemplate={transformModalTemplate}
               >
                 <SearchInput
                   className="border-b border-black/5 md:border-none"
@@ -275,7 +284,7 @@ function SearchComponent() {
               </motion.div>
             </div>
           </Modal>
-        )}
+        ) : null}
       </AnimatePresence>
     </>
   );

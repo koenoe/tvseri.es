@@ -20,9 +20,9 @@ export default function SpotlightBackground({
 
   return (
     <div className={twMerge('absolute inset-0', className)}>
-      {item.backdropImage && (
+      {item.backdropImage ? (
         <BackgroundImage priority={priority} src={item.backdropImage} />
-      )}
+      ) : null}
       <div
         className="absolute inset-0 opacity-70"
         style={{

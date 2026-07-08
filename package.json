@@ -3,18 +3,18 @@
     "sst": "catalog:"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.16",
+    "@biomejs/biome": "2.5.2",
     "husky": "^9.1.7",
-    "knip": "^6.14.2",
-    "lint-staged": "^17.0.5",
-    "turbo": "^2.9.16",
+    "knip": "^6.25.0",
+    "lint-staged": "^17.0.8",
+    "turbo": "^2.10.4",
     "typescript": "catalog:"
   },
   "engines": {
     "node": "24.x"
   },
   "name": "tvseri.es",
-  "packageManager": "pnpm@11.5.0",
+  "packageManager": "pnpm@11.10.0",
   "scripts": {
     "check-types": "turbo run check-types",
     "dev": "sst dev",

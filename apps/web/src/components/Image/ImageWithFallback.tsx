@@ -1,7 +1,7 @@
 'use client';
 
 import Image, { type ImageProps } from 'next/image';
-import { memo, type ReactNode, useState } from 'react';
+import { memo, type ReactNode, useCallback, useState } from 'react';
 
 function ImageWithFallback({
   fallback,
@@ -15,23 +15,19 @@ function ImageWithFallback({
   const [FallbackComponent, setFallbackComponent] =
     useState<ReactNode | null>();
 
+  const handleError = useCallback(() => {
+    if (typeof fallback === 'string') {
+      setImgSrc(fallback);
+    } else {
+      setFallbackComponent(fallback());
+    }
+  }, [fallback]);
+
   if (FallbackComponent) {
     return FallbackComponent;
   }
 
-  return (
-    <Image
-      {...rest}
-      onError={() => {
-        if (typeof fallback === 'string') {
-          setImgSrc(fallback);
-        } else {
-          setFallbackComponent(fallback());
-        }
-      }}
-      src={imgSrc}
-    />
-  );
+  return <Image {...rest} onError={handleError} src={imgSrc} />;
 }
 
 export default memo(ImageWithFallback);

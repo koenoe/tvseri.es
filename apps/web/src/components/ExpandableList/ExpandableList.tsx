@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 export default function ExpandableList({
@@ -24,6 +24,10 @@ export default function ExpandableList({
   const [showAll, setShowAll] = useState(false);
   const displayedItems = showAll ? items : items.slice(0, initialDisplayCount);
 
+  const handleShowAll = useCallback(() => {
+    setShowAll(true);
+  }, []);
+
   return (
     <p
       className={twMerge(
@@ -43,7 +47,7 @@ export default function ExpandableList({
         </Link>
       ))}
       {!showAll && items.length > initialDisplayCount && (
-        <button className="hover:underline" onClick={() => setShowAll(true)}>
+        <button className="hover:underline" onClick={handleShowAll}>
           + {items.length - initialDisplayCount} more
         </button>
       )}

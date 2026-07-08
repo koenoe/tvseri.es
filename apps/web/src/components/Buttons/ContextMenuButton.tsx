@@ -72,6 +72,10 @@ export default function ContextMenuButton({
     setIsOpen((prev) => !prev);
   }, []);
 
+  const handleOutsideClick = useCallback(() => {
+    setIsOpen(false);
+  }, []);
+
   useImperativeHandle(
     ref,
     () => ({
@@ -106,13 +110,13 @@ export default function ContextMenuButton({
         </svg>
       </CircleButton>
       <AnimatePresence>
-        {isOpen && (
+        {isOpen ? (
           <DropdownContainer
             offset={{
               x: 0,
               y: 0,
             }}
-            onOutsideClick={() => setIsOpen(false)}
+            onOutsideClick={handleOutsideClick}
             position={{
               x: 'center',
               y: 'center',
@@ -156,7 +160,7 @@ export default function ContextMenuButton({
               {children}
             </motion.div>
           </DropdownContainer>
-        )}
+        ) : null}
       </AnimatePresence>
     </>
   );

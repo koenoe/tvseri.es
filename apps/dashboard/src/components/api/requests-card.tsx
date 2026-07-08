@@ -89,11 +89,11 @@ const RequestsCard = memo(function RequestsCard({
       <CardContent className="@container flex items-center justify-between gap-6 lg:gap-10">
         <div className="text-[clamp(2.5rem,12cqw,4rem)] leading-none font-bold text-foreground shrink-0">
           {value}
-          {unit && (
+          {unit ? (
             <span className="text-[0.4em] font-light ml-1 text-muted-foreground/60">
               {unit}
             </span>
-          )}
+          ) : null}
         </div>
 
         <div className="flex-1 h-14 min-w-0 flex justify-end">

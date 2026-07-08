@@ -69,7 +69,9 @@ const DependencyRequestsPopover = memo(function DependencyRequestsPopover({
                   <span className="text-sm tabular-nums text-muted-foreground">
                     {formatCountString(dep.latency.count)}
                   </span>
-                  {hasHistory && <RequestsSparkline history={dep.history} />}
+                  {hasHistory ? (
+                    <RequestsSparkline history={dep.history} />
+                  ) : null}
                 </div>
               </div>
             );

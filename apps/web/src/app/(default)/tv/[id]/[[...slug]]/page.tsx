@@ -249,30 +249,30 @@ export default async function TvSeriesDetailsPage({
           <h3 className="mb-6 text-2xl font-medium">Information</h3>
           <div className="grid grid-cols-1 gap-x-10 gap-y-6 lg:grid-cols-3">
             <div className="flex flex-col gap-6">
-              {tvSeries.originalTitle && (
+              {tvSeries.originalTitle ? (
                 <div className="flex flex-col flex-nowrap gap-1 text-sm">
                   <div className="opacity-60">Original title</div>
                   <div>{tvSeries.originalTitle}</div>
                 </div>
-              )}
+              ) : null}
 
-              {tvSeries.status && (
+              {tvSeries.status ? (
                 <div className="flex flex-col flex-nowrap gap-1 text-sm">
                   <div className="opacity-60">Status</div>
                   <div>{tvSeries.status}</div>
                 </div>
-              )}
+              ) : null}
 
-              {tvSeries.type && (
+              {tvSeries.type ? (
                 <div className="flex flex-col flex-nowrap gap-1 text-sm">
                   <div className="opacity-60">Type</div>
                   <div>{tvSeries.type}</div>
                 </div>
-              )}
+              ) : null}
             </div>
 
             <div className="flex flex-col gap-6">
-              {tvSeries.originCountry && (
+              {tvSeries.originCountry ? (
                 <div className="flex flex-col flex-nowrap gap-1 text-sm">
                   <div className="opacity-60">Country of origin</div>
                   <Link
@@ -288,7 +288,7 @@ export default async function TvSeriesDetailsPage({
                     {tvSeries.originCountry.name}
                   </Link>
                 </div>
-              )}
+              ) : null}
 
               <div className="flex flex-col flex-nowrap gap-1 text-sm">
                 <div className="opacity-60">Spoken languages</div>
@@ -310,7 +310,7 @@ export default async function TvSeriesDetailsPage({
               </div>
             </div>
 
-            {tvSeries.network && (
+            {tvSeries.network ? (
               <div
                 className={cx(
                   'flex flex-col flex-nowrap text-sm',
@@ -339,7 +339,7 @@ export default async function TvSeriesDetailsPage({
                   )}
                 </Link>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
         <div className="pointer-events-none absolute inset-0 h-full w-full bg-black/10" />

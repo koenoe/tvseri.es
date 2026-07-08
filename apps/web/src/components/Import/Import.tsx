@@ -285,7 +285,7 @@ export default function Import({
       ) : (
         <div className="flex flex-col items-center">
           <AnimatePresence>
-            {isImporting && (
+            {isImporting ? (
               <MotionRipple
                 animate={{
                   opacity: 1,
@@ -303,7 +303,7 @@ export default function Import({
                   type: 'tween',
                 }}
               />
-            )}
+            ) : null}
           </AnimatePresence>
 
           <div className="mt-24 inline-flex flex-nowrap items-center text-lg text-white/55 md:text-2xl">

@@ -32,7 +32,7 @@ export const columns: ColumnDef<EndpointMetrics>[] = [
     header: ({ column }) => (
       <button
         className="group/sort flex cursor-pointer items-center text-muted-foreground hover:text-foreground/80"
-        onClick={() => column.toggleSorting()}
+        onClick={column.getToggleSortingHandler()}
         type="button"
       >
         Route
@@ -63,7 +63,7 @@ export const columns: ColumnDef<EndpointMetrics>[] = [
     header: ({ column }) => (
       <button
         className="group/sort flex cursor-pointer items-center text-muted-foreground hover:text-foreground/80"
-        onClick={() => column.toggleSorting()}
+        onClick={column.getToggleSortingHandler()}
         type="button"
       >
         Requests
@@ -90,7 +90,7 @@ export const columns: ColumnDef<EndpointMetrics>[] = [
     header: ({ column }) => (
       <button
         className="group/sort flex cursor-pointer items-center text-muted-foreground hover:text-foreground/80"
-        onClick={() => column.toggleSorting()}
+        onClick={column.getToggleSortingHandler()}
         type="button"
       >
         Latency
@@ -111,7 +111,7 @@ export const columns: ColumnDef<EndpointMetrics>[] = [
     header: ({ column }) => (
       <button
         className="group/sort flex cursor-pointer items-center text-muted-foreground hover:text-foreground/80"
-        onClick={() => column.toggleSorting()}
+        onClick={column.getToggleSortingHandler()}
         type="button"
       >
         Apdex
@@ -138,7 +138,7 @@ export const columns: ColumnDef<EndpointMetrics>[] = [
     header: ({ column }) => (
       <button
         className="group/sort flex cursor-pointer items-center text-muted-foreground hover:text-foreground/80"
-        onClick={() => column.toggleSorting()}
+        onClick={column.getToggleSortingHandler()}
         type="button"
       >
         Error Rate

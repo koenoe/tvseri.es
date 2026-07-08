@@ -39,6 +39,45 @@ const reducer = (
   }
 };
 
+function SelectedProviderChip({
+  onRemove,
+  provider,
+}: Readonly<{
+  onRemove: (provider: WatchProvider) => void;
+  provider: WatchProvider;
+}>) {
+  const handleClick = useCallback(() => {
+    onRemove(provider);
+  }, [onRemove, provider]);
+
+  return (
+    <button className="relative size-12 shrink-0" onClick={handleClick}>
+      <Image
+        alt={provider.name}
+        className="overflow-hidden rounded-md aspect-square w-full h-full"
+        height={128}
+        src={provider.logo}
+        unoptimized
+        width={128}
+      />
+      <div className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-neutral-500">
+        <svg
+          className="size-3"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M5 12h14"
+            stroke="white"
+            strokeLinecap="round"
+            strokeWidth="2"
+          />
+        </svg>
+      </div>
+    </button>
+  );
+}
+
 export default function StreamingServices({
   action,
   providers,
@@ -98,6 +137,13 @@ export default function StreamingServices({
     setSearchTerm('');
   }, []);
 
+  const handleRemove = useCallback(
+    (provider: WatchProvider) => {
+      handleSelect(provider, false);
+    },
+    [handleSelect],
+  );
+
   return (
     <div className="flex flex-col gap-6">
       <div className="bg-neutral-900">
@@ -105,34 +151,11 @@ export default function StreamingServices({
           <div className="scrollbar-hide flex flex-nowrap space-x-4 h-16 overflow-x-auto items-center md:justify-center">
             {optimisticSelected.length > 0 ? (
               optimisticSelected.map((provider) => (
-                <button
-                  className="relative size-12 shrink-0"
+                <SelectedProviderChip
                   key={provider.id}
-                  onClick={() => handleSelect(provider, false)}
-                >
-                  <Image
-                    alt={provider.name}
-                    className="overflow-hidden rounded-md aspect-square w-full h-full"
-                    height={128}
-                    src={provider.logo}
-                    unoptimized
-                    width={128}
-                  />
-                  <div className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-neutral-500">
-                    <svg
-                      className="size-3"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M5 12h14"
-                        stroke="white"
-                        strokeLinecap="round"
-                        strokeWidth="2"
-                      />
-                    </svg>
-                  </div>
-                </button>
+                  onRemove={handleRemove}
+                  provider={provider}
+                />
               ))
             ) : (
               <p className="text-center text-neutral-400 text-sm w-full">

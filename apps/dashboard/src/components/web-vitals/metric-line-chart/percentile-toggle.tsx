@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 import { PERCENTILES, type PercentileKey } from './constants';
 
 type PercentileToggleProps = Readonly<{
@@ -9,6 +11,13 @@ export function PercentileToggle({
   activePercentiles,
   onToggle,
 }: PercentileToggleProps) {
+  const handleClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      onToggle(event.currentTarget.dataset.key as PercentileKey);
+    },
+    [onToggle],
+  );
+
   return (
     <div className="flex items-center gap-4">
       {PERCENTILES.map(({ key, label }) => {
@@ -20,8 +29,9 @@ export function PercentileToggle({
                 ? 'text-blue-500'
                 : 'text-muted-foreground opacity-40 hover:opacity-60'
             }`}
+            data-key={key}
             key={key}
-            onClick={() => onToggle(key)}
+            onClick={handleClick}
             type="button"
           >
             <span

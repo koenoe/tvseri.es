@@ -61,7 +61,11 @@ export default function WorldMap({
   }, [instanceId]);
 
   const handleMouseMove = useCallback(
-    (e: React.MouseEvent, country: string) => {
+    (event: React.MouseEvent<SVGPathElement>) => {
+      const country = event.currentTarget.dataset.name;
+      if (!country) {
+        return;
+      }
       const countryData = data[country];
 
       const svgElement = document.getElementById(`svg2-${instanceId}`);
@@ -76,8 +80,8 @@ export default function WorldMap({
         country,
         hoverColor: countryData?.hoverColor ?? defaultHoverColor,
         strokeColor: countryData?.strokeColor ?? defaultStrokeColor,
-        x: e.clientX - rect.left + 10, // little offset
-        y: e.clientY - rect.top + 10, // little offset
+        x: event.clientX - rect.left + 10, // little offset
+        y: event.clientY - rect.top + 10, // little offset
       });
     },
     [data, defaultColor, defaultHoverColor, defaultStrokeColor, instanceId],
@@ -99,11 +103,12 @@ export default function WorldMap({
         {countries?.map((name, index) => (
           <motion.path
             d={paths[name as keyof typeof paths]}
+            data-name={name}
             id={`${name}-${instanceId}`}
             initial={{ fill: data[name]?.color ?? defaultColor }}
             key={index}
             onMouseLeave={handleMouseLeave}
-            onMouseMove={(e) => handleMouseMove(e, name)}
+            onMouseMove={handleMouseMove}
             style={{
               cursor: 'pointer',
               stroke: data[name]?.strokeColor ?? defaultStrokeColor,
@@ -114,7 +119,7 @@ export default function WorldMap({
         ))}
       </svg>
 
-      {renderTooltip && tooltipData && (
+      {renderTooltip && tooltipData ? (
         <AnimatePresence>
           <motion.div
             animate={{
@@ -140,7 +145,7 @@ export default function WorldMap({
             })}
           </motion.div>
         </AnimatePresence>
-      )}
+      ) : null}
     </div>
   );
 }

@@ -5,6 +5,10 @@ import Image from 'next/image';
 import { useCallback } from 'react';
 import SwitchButton from '../Buttons/SwitchButton';
 
+const stopPropagation = (event: React.MouseEvent) => {
+  event.stopPropagation();
+};
+
 export default function StreamingService({
   isSelected = false,
   provider,
@@ -41,7 +45,7 @@ export default function StreamingService({
         />
       </div>
       <span className="text-sm leading-relaxed">{provider.name}</span>
-      <div className="ml-auto" onClick={(e) => e.stopPropagation()}>
+      <div className="ml-auto" onClick={stopPropagation}>
         <SwitchButton isChecked={isSelected} onChange={handleOnChange} />
       </div>
     </div>

@@ -1,6 +1,6 @@
 import type { MetricSeriesItem } from '@tvseri.es/schemas';
 import { X } from 'lucide-react';
-import { memo, useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import {
   CartesianGrid,
   LabelList,
@@ -146,18 +146,21 @@ function MetricLineChartComponent({
     return [0, yAxisMax];
   }, [yAxisMax]);
 
-  const handleToggle = (key: PercentileKey) => {
-    const next = new Set(activePercentiles);
-    if (next.has(key)) {
-      // Don't allow deselecting the last active percentile
-      if (next.size > 1) {
-        next.delete(key);
+  const handleToggle = useCallback(
+    (key: PercentileKey) => {
+      const next = new Set(activePercentiles);
+      if (next.has(key)) {
+        // Don't allow deselecting the last active percentile
+        if (next.size > 1) {
+          next.delete(key);
+        }
+      } else {
+        next.add(key);
       }
-    } else {
-      next.add(key);
-    }
-    onPercentilesChange(next);
-  };
+      onPercentilesChange(next);
+    },
+    [activePercentiles, onPercentilesChange],
+  );
 
   // Reference lines for thresholds (green for great, orange for poor)
   const referenceLines = isRES
@@ -199,43 +202,46 @@ function MetricLineChartComponent({
   }, [isRES, metricConfig, yAxisMax]);
 
   // Custom Y-axis tick renderer
-  // biome-ignore lint/suspicious/noExplicitAny: Recharts tick props type
-  const renderYAxisTick = (props: any) => {
-    const { x, y, payload } = props;
-    const value = payload.value as number;
-    const { color, indicator } = getTickConfig(value, metric);
-    const formattedValue = isRES
-      ? value.toString()
-      : `${formatValueForDisplay(metric, value)}${metricConfig.unit}`;
+  const renderYAxisTick = useCallback(
+    // biome-ignore lint/suspicious/noExplicitAny: Recharts tick props type
+    (props: any) => {
+      const { x, y, payload } = props;
+      const value = payload.value as number;
+      const { color, indicator } = getTickConfig(value, metric);
+      const formattedValue = isRES
+        ? value.toString()
+        : `${formatValueForDisplay(metric, value)}${metricConfig.unit}`;
 
-    // Right-align text, then position indicator after it
-    const textX = x - 4; // Small margin from axis line
-    const indicatorX = textX + 6; // Small gap after text end
+      // Right-align text, then position indicator after it
+      const textX = x - 4; // Small margin from axis line
+      const indicatorX = textX + 6; // Small gap after text end
 
-    return (
-      <g>
-        <text
-          dy={4}
-          fontSize={12}
-          style={{ fill: color }}
-          textAnchor="end"
-          x={textX}
-          y={y}
-        >
-          {formattedValue}
-        </text>
-        {indicator === 'dot' && (
-          <circle cx={indicatorX} cy={y} fill={color} r={3} />
-        )}
-        {indicator === 'triangle' && (
-          <path
-            d={`M${indicatorX - 3} ${y + 3} L${indicatorX} ${y - 3} L${indicatorX + 3} ${y + 3} Z`}
-            fill={color}
-          />
-        )}
-      </g>
-    );
-  };
+      return (
+        <g>
+          <text
+            dy={4}
+            fontSize={12}
+            style={{ fill: color }}
+            textAnchor="end"
+            x={textX}
+            y={y}
+          >
+            {formattedValue}
+          </text>
+          {indicator === 'dot' && (
+            <circle cx={indicatorX} cy={y} fill={color} r={3} />
+          )}
+          {indicator === 'triangle' && (
+            <path
+              d={`M${indicatorX - 3} ${y + 3} L${indicatorX} ${y - 3} L${indicatorX + 3} ${y + 3} Z`}
+              fill={color}
+            />
+          )}
+        </g>
+      );
+    },
+    [isRES, metric, metricConfig],
+  );
 
   // Find the last index with actual data
   const lastDataIndex = useMemo(() => {
@@ -278,7 +284,7 @@ function MetricLineChartComponent({
   return (
     <div className="flex flex-col">
       <div className="mb-4 flex items-center justify-end gap-6">
-        {countryDisplayName && (
+        {countryDisplayName ? (
           <button
             className="flex cursor-pointer items-center gap-1 rounded-2xl border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted/50"
             onClick={onClearCountry}
@@ -287,7 +293,7 @@ function MetricLineChartComponent({
             {countryDisplayName}
             <X className="size-3" />
           </button>
-        )}
+        ) : null}
         <PercentileToggle
           activePercentiles={activePercentiles}
           onToggle={handleToggle}

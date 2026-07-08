@@ -32,7 +32,7 @@ function SiteHeaderComponent() {
         {title ? (
           <>
             <h1 className="truncate text-base font-medium">{title}</h1>
-            {HeaderContent && <HeaderContent />}
+            {HeaderContent ? <HeaderContent /> : null}
           </>
         ) : HeaderContent ? (
           <HeaderContent />

@@ -47,7 +47,7 @@ export default function SkeletonList({
 
   return (
     <div className={cx('relative w-full', className)} style={style}>
-      {hasTitle && (
+      {hasTitle ? (
         <div className={headerVariants({ titleAlignment })}>
           <div
             className={cx('h-9 w-80 bg-white/20', {
@@ -61,7 +61,7 @@ export default function SkeletonList({
             )}
           />
         </div>
-      )}
+      ) : null}
       <div className={innerStylesWithModuleStyles()}>
         {[...Array(numberOfItems)].map((_, index) => renderVariant(index))}
       </div>

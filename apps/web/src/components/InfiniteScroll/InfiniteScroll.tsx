@@ -33,13 +33,13 @@ const InfiniteScroll = ({
   return (
     <div className={cx('relative', className)}>
       {children}
-      {hasMoreData && (
+      {hasMoreData ? (
         <div
           aria-hidden="true"
           className="pointer-events-none absolute bottom-0 h-px w-full"
           ref={sentinelRef}
         />
-      )}
+      ) : null}
     </div>
   );
 };

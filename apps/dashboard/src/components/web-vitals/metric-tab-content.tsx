@@ -1,6 +1,6 @@
 import type { AggregatedMetrics, MetricSeriesItem } from '@tvseri.es/schemas';
 import { ArrowUpRight } from 'lucide-react';
-import { memo, useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 
 import { MetricTabContentSkeleton } from '@/components/skeletons';
 import { PercentileBar } from '@/components/ui/percentile-bar';
@@ -135,6 +135,26 @@ function MetricTabContentComponent({
     [countriesData?.countries, metric],
   );
 
+  const handleRoutesViewAll = useCallback(
+    (status: RatingStatus) => {
+      openModal(routesGrouped, 'Routes', metricConfig.name, 'route', status);
+    },
+    [openModal, routesGrouped, metricConfig],
+  );
+
+  const handleCountriesViewAll = useCallback(
+    (status: RatingStatus) => {
+      openModal(
+        countriesGrouped,
+        'Countries',
+        metricConfig.name,
+        'country',
+        status,
+      );
+    },
+    [openModal, countriesGrouped, metricConfig],
+  );
+
   if (isLoading) {
     return <MetricTabContentSkeleton />;
   }
@@ -150,20 +170,6 @@ function MetricTabContentComponent({
 
   const displayValue = formatMetricDisplay(metric, metricValue);
   const unit = metricConfig.unit;
-
-  const handleRoutesViewAll = (status: RatingStatus) => {
-    openModal(routesGrouped, 'Routes', metricConfig.name, 'route', status);
-  };
-
-  const handleCountriesViewAll = (status: RatingStatus) => {
-    openModal(
-      countriesGrouped,
-      'Countries',
-      metricConfig.name,
-      'country',
-      status,
-    );
-  };
 
   const metricKey = metric.toUpperCase() as
     | 'CLS'
@@ -190,11 +196,11 @@ function MetricTabContentComponent({
             <>
               <p className={`my-2 text-4xl ${currentStatus.text}`}>
                 {displayValue}
-                {unit && (
+                {unit ? (
                   <span className="text-lg font-normal ml-1 text-muted-foreground/60">
                     {unit}
                   </span>
-                )}
+                ) : null}
               </p>
               <PercentileBar
                 metric={metric}

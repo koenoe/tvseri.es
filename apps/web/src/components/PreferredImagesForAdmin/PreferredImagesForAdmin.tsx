@@ -159,6 +159,42 @@ export default function PreferredImagesForAdmin({
     [images, currentTitleIndex],
   );
 
+  const handleBackdropPrev = useCallback(() => {
+    handleBackdropNavigation('prev');
+  }, [handleBackdropNavigation]);
+
+  const handleBackdropNext = useCallback(() => {
+    handleBackdropNavigation('next');
+  }, [handleBackdropNavigation]);
+
+  const handleTitlePrev = useCallback(() => {
+    handleTitleNavigation('prev');
+  }, [handleTitleNavigation]);
+
+  const handleTitleNext = useCallback(() => {
+    handleTitleNavigation('next');
+  }, [handleTitleNavigation]);
+
+  const handleSave = useCallback(() => {
+    startTransition(async () => {
+      try {
+        const currentTitle = images?.titleTreatment[currentTitleIndex];
+        if (currentBackdrop?.path) {
+          await storePreferredImages(id, {
+            backdropColor: currentBackdrop.color,
+            backdropImagePath: currentBackdrop.path,
+            ...(currentTitle && {
+              titleTreatmentImagePath: currentTitle.path,
+            }),
+          });
+          toast.success('Preferred images successfully stored.');
+        }
+      } catch (_error) {
+        toast.error('Failed to store preferred images.');
+      }
+    });
+  }, [id, images, currentTitleIndex, currentBackdrop, storePreferredImages]);
+
   const canNavigateBackdrops = images?.backdrops && images.backdrops.length > 1;
 
   const canNavigateTitles =
@@ -231,7 +267,7 @@ export default function PreferredImagesForAdmin({
             !canNavigateBackdrops || isFirstBackdrop,
         })}
         disabled={!canNavigateBackdrops || isFirstBackdrop || !!preloading}
-        onClick={() => handleBackdropNavigation('prev')}
+        onClick={handleBackdropPrev}
         title="Previous background"
       >
         {preloading === 'prev' ? spinner : '⬅️'}
@@ -241,7 +277,7 @@ export default function PreferredImagesForAdmin({
           'cursor-not-allowed opacity-30': !canNavigateTitles || isFirstTitle,
         })}
         disabled={!canNavigateTitles || isFirstTitle}
-        onClick={() => handleTitleNavigation('prev')}
+        onClick={handleTitlePrev}
         title="Previous title treatment"
       >
         «
@@ -251,7 +287,7 @@ export default function PreferredImagesForAdmin({
           'cursor-not-allowed opacity-30': !canNavigateTitles || isLastTitle,
         })}
         disabled={!canNavigateTitles || isLastTitle}
-        onClick={() => handleTitleNavigation('next')}
+        onClick={handleTitleNext}
         title="Next title treatment"
       >
         »
@@ -262,7 +298,7 @@ export default function PreferredImagesForAdmin({
             !canNavigateBackdrops || isLastBackdrop,
         })}
         disabled={!canNavigateBackdrops || isLastBackdrop || !!preloading}
-        onClick={() => handleBackdropNavigation('next')}
+        onClick={handleBackdropNext}
         title="Next background"
       >
         {preloading === 'next' ? spinner : '➡️'}
@@ -272,25 +308,7 @@ export default function PreferredImagesForAdmin({
           'cursor-progress': isPending,
         })}
         disabled={isPending}
-        onClick={() => {
-          startTransition(async () => {
-            try {
-              const currentTitle = images?.titleTreatment[currentTitleIndex];
-              if (currentBackdrop?.path) {
-                await storePreferredImages(id, {
-                  backdropColor: currentBackdrop.color,
-                  backdropImagePath: currentBackdrop.path,
-                  ...(currentTitle && {
-                    titleTreatmentImagePath: currentTitle.path,
-                  }),
-                });
-                toast.success('Preferred images successfully stored.');
-              }
-            } catch (_error) {
-              toast.error('Failed to store preferred images.');
-            }
-          });
-        }}
+        onClick={handleSave}
         title="Save changes"
       >
         💾

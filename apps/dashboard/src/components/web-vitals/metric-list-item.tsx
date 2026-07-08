@@ -95,9 +95,9 @@ function MetricListItemComponent({
         </span>
       </div>
       <span className="text-sm font-medium ml-auto">{value}</span>
-      {StatusIcon && (
+      {StatusIcon ? (
         <StatusIcon className={`size-4 shrink-0 ml-2 ${statusColor ?? ''}`} />
-      )}
+      ) : null}
     </div>
   );
 }

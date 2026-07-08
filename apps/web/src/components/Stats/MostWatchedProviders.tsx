@@ -57,7 +57,7 @@ function MostWatchedProviders({ data }: Props) {
               <rect height="24" rx="4" width="24" x={x + 16} y={centerY - 12} />
             </clipPath>
           </defs>
-          {logo && (
+          {logo ? (
             <image
               clipPath={`url(#roundedImage-${index})`}
               height="24"
@@ -67,7 +67,7 @@ function MostWatchedProviders({ data }: Props) {
               x={x + 16}
               y={centerY - 12}
             />
-          )}
+          ) : null}
           <text
             dominantBaseline="middle"
             fill={isActive ? '#fff' : '#999'}

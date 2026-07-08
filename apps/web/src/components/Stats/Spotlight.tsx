@@ -61,7 +61,7 @@ export default function Spotlight({
           </div>
         </div>
       </div>
-      {watchProviderLogo && (
+      {watchProviderLogo ? (
         <Image
           alt=""
           className="absolute right-4 top-4 z-10 h-8 w-8 rounded-md"
@@ -70,7 +70,7 @@ export default function Spotlight({
           unoptimized
           width={92}
         />
-      )}
+      ) : null}
     </Link>
   );
 }

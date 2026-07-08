@@ -3,7 +3,7 @@
 import { cx } from 'class-variance-authority';
 import { AnimatePresence, motion } from 'motion/react';
 import { useSearchParams } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 export default function DiscoverFilters({
   className,
@@ -18,11 +18,15 @@ export default function DiscoverFilters({
     return [...searchParams.keys()].filter((key) => key !== 'sort_by').length;
   }, [searchParams]);
 
+  const handleToggle = useCallback(() => {
+    setIsOpen((prev) => !prev);
+  }, []);
+
   return (
     <div className={cx('flex flex-col gap-4', className)}>
       <button
         className="flex h-11 w-32 cursor-pointer items-center justify-center gap-3 rounded-3xl bg-neutral-800 px-6 py-4 text-sm leading-none tracking-wide backdrop-blur-xl"
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={handleToggle}
       >
         <div className="flex h-[18px] w-[18px] items-center justify-center">
           {filterCount > 0 ? (
@@ -48,7 +52,7 @@ export default function DiscoverFilters({
         <div>Filters</div>
       </button>
       <AnimatePresence mode="wait">
-        {isOpen && (
+        {isOpen ? (
           <motion.div
             animate={{ height: 'fit-content', opacity: 1 }}
             className="flex w-full"
@@ -64,7 +68,7 @@ export default function DiscoverFilters({
               </ul> */}
             </div>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </div>
   );

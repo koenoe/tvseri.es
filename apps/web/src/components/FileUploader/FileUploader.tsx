@@ -71,11 +71,14 @@ export default function FileUploader(props: FileUploaderProps) {
     [files, maxFileCount, multiple, onUpload],
   );
 
-  function onRemove(index: number) {
-    if (!files) return;
-    const newFiles = files.filter((_, i) => i !== index);
-    setFiles(newFiles);
-  }
+  const onRemove = useCallback(
+    (index: number) => {
+      if (!files) return;
+      const newFiles = files.filter((_, i) => i !== index);
+      setFiles(newFiles);
+    },
+    [files],
+  );
 
   const isDisabled = disabled || (files?.length ?? 0) >= maxFileCount;
 
@@ -145,8 +148,9 @@ export default function FileUploader(props: FileUploaderProps) {
             {files?.map((file, index) => (
               <FileCard
                 file={file}
+                index={index}
                 key={index}
-                onRemove={() => onRemove(index)}
+                onRemove={onRemove}
               />
             ))}
           </div>
@@ -158,11 +162,17 @@ export default function FileUploader(props: FileUploaderProps) {
 
 function FileCard({
   file,
+  index,
   onRemove,
 }: Readonly<{
   file: File;
-  onRemove: () => void;
+  index: number;
+  onRemove: (index: number) => void;
 }>) {
+  const handleRemove = useCallback(() => {
+    onRemove(index);
+  }, [onRemove, index]);
+
   return (
     <div className="relative flex items-center gap-4">
       <div className="flex flex-1 gap-4">
@@ -186,7 +196,7 @@ function FileCard({
       </div>
       <button
         className="size-8 rounded-md border border-white p-1 text-white"
-        onClick={onRemove}
+        onClick={handleRemove}
         type="button"
       >
         <svg

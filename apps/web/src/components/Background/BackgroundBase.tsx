@@ -81,14 +81,14 @@ function BackgroundBase({
 
   return (
     <>
-      {image && (
+      {image ? (
         <BackgroundImage
           className={className}
           priority={priority}
           src={image}
           style={imageStyles}
         />
-      )}
+      ) : null}
       {context === 'page' && (
         <div className="absolute inset-0 opacity-70" style={overlayStyles} />
       )}

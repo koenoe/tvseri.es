@@ -69,7 +69,8 @@
       },
       "suspicious": {
         "noArrayIndexKey": "off",
-        "noExplicitAny": "error"
+        "noExplicitAny": "error",
+        "noUndeclaredEnvVars": "off"
       }
     }
   },

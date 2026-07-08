@@ -1,6 +1,6 @@
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import type { ChangeEvent } from 'react';
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 
 import {
   NativeSelect,
@@ -22,15 +22,18 @@ function DateRangeSelectComponent() {
     strict: false,
   });
 
-  const handleDaysChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        days: Number(e.target.value) as DaysValue,
-      }),
-      to: '.',
-    });
-  };
+  const handleDaysChange = useCallback(
+    (e: ChangeEvent<HTMLSelectElement>) => {
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          days: Number(e.target.value) as DaysValue,
+        }),
+        to: '.',
+      });
+    },
+    [navigate],
+  );
 
   return (
     <NativeSelect

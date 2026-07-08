@@ -1,5 +1,5 @@
 import { CircleCheck } from 'lucide-react';
-import { memo, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -83,20 +83,28 @@ function ViewAllModalComponent({
       ? allItems
       : allItems.filter((item) => item.status === activeFilter);
 
-  const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen) {
-      // Reset filter when closing
-      setActiveFilter(initialFilter ?? 'all');
-    }
-    onOpenChange(newOpen);
-  };
+  const handleOpenChange = useCallback(
+    (newOpen: boolean) => {
+      if (!newOpen) {
+        // Reset filter when closing
+        setActiveFilter(initialFilter ?? 'all');
+      }
+      onOpenChange(newOpen);
+    },
+    [initialFilter, onOpenChange],
+  );
 
-  const handleFilterChange = (value: string) => {
+  const handleClose = useCallback(
+    () => handleOpenChange(false),
+    [handleOpenChange],
+  );
+
+  const handleFilterChange = useCallback((value: string) => {
     // ToggleGroup returns empty string when deselecting, keep current value
     if (value) {
       setActiveFilter(value as FilterValue);
     }
-  };
+  }, []);
 
   const filterToggle = (
     <ToggleGroup
@@ -179,7 +187,7 @@ function ViewAllModalComponent({
           <DialogFooter className="px-4 py-4 border-t">
             <Button
               className="w-full cursor-pointer rounded-lg"
-              onClick={() => handleOpenChange(false)}
+              onClick={handleClose}
               variant="outline"
             >
               Close

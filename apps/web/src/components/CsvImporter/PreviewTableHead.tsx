@@ -7,7 +7,7 @@ import { TableHead } from '../Table';
 
 interface PreviewTableHeadProps extends ThHTMLAttributes<HTMLTableCellElement> {
   field: Field;
-  onFieldChange: (props: { value: string }) => void;
+  onFieldChange: (props: { newValue: string; oldValue: string }) => void;
   currentFieldMapping: string | undefined;
   originalFieldMappings: Record<string, string | undefined>;
 }
@@ -25,9 +25,16 @@ export default function PreviewTableHead({
   const handleModeToggle = useCallback(() => {
     if (field.predefined) {
       setMode(mode === 'map' ? 'select' : 'map');
-      onFieldChange({ value: '' });
+      onFieldChange({ newValue: field.value, oldValue: '' });
     }
-  }, [field.predefined, mode, onFieldChange]);
+  }, [field.predefined, field.value, mode, onFieldChange]);
+
+  const handleSelectChange = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      onFieldChange({ newValue: field.value, oldValue: event.target.value });
+    },
+    [field.value, onFieldChange],
+  );
 
   return (
     <TableHead className={cx('w-48', className)} {...props}>
@@ -69,11 +76,7 @@ export default function PreviewTableHead({
         )}
         <select
           className="block w-full min-w-32 appearance-none rounded-md border border-neutral-800 bg-neutral-900 py-2 pl-2 pr-6 font-light text-white/60 outline-none"
-          onChange={(e) => {
-            onFieldChange({
-              value: e.target.value,
-            });
-          }}
+          onChange={handleSelectChange}
           value={currentFieldMapping ?? ''}
         >
           <option value="">

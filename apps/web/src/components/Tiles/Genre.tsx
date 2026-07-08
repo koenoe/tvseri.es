@@ -5,7 +5,7 @@ import { cva } from 'class-variance-authority';
 import { motion, useMotionTemplate, useMotionValue } from 'motion/react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 
 const Noise = dynamic(() => import('./Noise'), {
   ssr: false,
@@ -30,14 +30,17 @@ function GenreTile({
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  const handleMouseMove = (event: React.MouseEvent) => {
-    const { left, top } = event.currentTarget.getBoundingClientRect();
-    const x = event.clientX - left;
-    const y = event.clientY - top;
+  const handleMouseMove = useCallback(
+    (event: React.MouseEvent) => {
+      const { left, top } = event.currentTarget.getBoundingClientRect();
+      const x = event.clientX - left;
+      const y = event.clientY - top;
 
-    mouseX.set(x);
-    mouseY.set(y);
-  };
+      mouseX.set(x);
+      mouseY.set(y);
+    },
+    [mouseX, mouseY],
+  );
 
   const backgroundStyle = useMotionTemplate`radial-gradient(circle at ${mouseX}px ${mouseY}px, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 75%)`;
 

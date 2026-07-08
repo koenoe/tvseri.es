@@ -127,29 +127,29 @@ export default async function PersonDetailsPage({
                 </h1>
                 <div className="mb-4 flex w-full items-center gap-[0.2rem] text-nowrap text-[0.65rem] leading-relaxed lg:gap-2 lg:text-xs xl:text-sm">
                   <div className="opacity-75">{person.placeOfBirth}</div>
-                  {person.birthdate && (
+                  {person.birthdate ? (
                     <div className="opacity-75 before:mr-1 before:content-['·'] lg:before:mr-2">
                       {formatDate(person.birthdate)}
-                      {person.deathdate && (
+                      {person.deathdate ? (
                         <>
                           <span className="mx-1">–</span>
                           {formatDate(person.deathdate)}
                         </>
-                      )}
+                      ) : null}
                     </div>
-                  )}
-                  {person.age && (
+                  ) : null}
+                  {person.age ? (
                     <div className="opacity-75 md:before:mr-1 md:before:content-['·'] lg:before:mr-2">
                       <span className="hidden md:inline-block">
                         {person.age} years
                       </span>
-                      {person.deathdate && (
+                      {person.deathdate ? (
                         <span className="ml-1 align-middle text-base leading-none">
                           †
                         </span>
-                      )}
+                      ) : null}
                     </div>
-                  )}
+                  ) : null}
                 </div>
                 <ExpandableText className="mb-10">
                   {person.biography

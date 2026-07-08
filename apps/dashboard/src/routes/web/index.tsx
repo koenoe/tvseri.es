@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import type { WebVitalRatings } from '@tvseri.es/schemas';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { TabTriggerValueSkeleton } from '@/components/skeletons';
 import { PercentileBar } from '@/components/ui/percentile-bar';
@@ -81,20 +81,27 @@ function WebVitals() {
     Set<PercentileKey>
   >(() => new Set(['p75']));
 
-  const handleCountrySelect = (selectedCountry: string) => {
-    navigate({
-      search: (prev) => ({ ...prev, country: selectedCountry }),
-    });
-  };
+  const handleCountrySelect = useCallback(
+    (selectedCountry: string) => {
+      navigate({
+        search: (prev) => ({ ...prev, country: selectedCountry }),
+      });
+    },
+    [navigate],
+  );
 
-  const handleClearCountry = () => {
+  const handleClearCountry = useCallback(() => {
     navigate({
       search: (prev) => {
         const { country: _, ...rest } = prev;
         return rest;
       },
     });
-  };
+  }, [navigate]);
+
+  const handleMetricChange = useCallback((value: string) => {
+    setActiveMetric(value as MetricType);
+  }, []);
 
   const { data: summaryData, isLoading } = useMetricsSummary({
     country,
@@ -163,11 +170,11 @@ function WebVitals() {
           <div className="flex flex-col gap-1 w-full">
             <span className={`text-xl h-7 ${textColor}`}>
               {formatMetricDisplay(metric, p75)}
-              {config.unit && (
+              {config.unit ? (
                 <span className="text-sm font-light ml-0.5 text-muted-foreground/60">
                   {config.unit}
                 </span>
-              )}
+              ) : null}
             </span>
             <PercentileBar
               metric={metric}
@@ -186,7 +193,7 @@ function WebVitals() {
   return (
     <Tabs
       className="w-full gap-8"
-      onValueChange={(value) => setActiveMetric(value as MetricType)}
+      onValueChange={handleMetricChange}
       orientation="vertical"
       value={activeMetric}
     >

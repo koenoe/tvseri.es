@@ -50,6 +50,14 @@ export default function CsvImporter({
     });
   }, [fields, fieldMappings]);
 
+  const handleBack = useCallback(() => {
+    setFile(null);
+  }, []);
+
+  const handleImport = useCallback(() => {
+    onImport(getSanitizedData({ data }));
+  }, [onImport, getSanitizedData, data]);
+
   if (!file) {
     return (
       <FileUploader
@@ -143,12 +151,7 @@ export default function CsvImporter({
                 currentFieldMapping={fieldMappings.current[field.value]}
                 field={field}
                 key={field.value}
-                onFieldChange={(f) => {
-                  onFieldChange({
-                    newValue: field.value,
-                    oldValue: f.value,
-                  });
-                }}
+                onFieldChange={onFieldChange}
                 originalFieldMappings={fieldMappings.original}
               />
             ))}
@@ -177,7 +180,7 @@ export default function CsvImporter({
         </div>
         <button
           className="ml-auto flex h-11 min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-white/5 px-5 text-sm leading-none tracking-wide hover:bg-white/10"
-          onClick={() => setFile(null)}
+          onClick={handleBack}
         >
           <span>Back</span>
         </button>
@@ -189,7 +192,7 @@ export default function CsvImporter({
             },
           )}
           disabled={!areAllFieldsMapped}
-          onClick={() => onImport(getSanitizedData({ data }))}
+          onClick={handleImport}
         >
           <span>Import</span>
         </button>

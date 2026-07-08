@@ -3,7 +3,7 @@
 // Note: heavily inspired by https://www.aceternity.com/components/framer-motion-switch
 
 import { motion } from 'motion/react';
-import { memo, useId } from 'react';
+import { memo, useCallback, useId } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 const SwitchButton = ({
@@ -16,6 +16,13 @@ const SwitchButton = ({
   onChange: (isChecked: boolean) => void;
 }) => {
   const id = useId();
+
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      onChange(event.target.checked);
+    },
+    [onChange],
+  );
 
   return (
     <form
@@ -50,7 +57,7 @@ const SwitchButton = ({
           checked={isChecked}
           className="hidden"
           id={`checkbox-${id}`}
-          onChange={(e) => onChange(e.target.checked)}
+          onChange={handleChange}
           type="checkbox"
         />
       </label>

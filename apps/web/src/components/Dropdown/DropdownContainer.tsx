@@ -219,13 +219,13 @@ export default function DropdownContainer({
   const renderContent = useCallback(() => {
     return (
       <>
-        {shouldRenderOverlay && (
+        {shouldRenderOverlay ? (
           <motion.div
             className="fixed inset-0 z-[99] bg-transparent"
             key="overlay"
             onClick={onOutsideClick}
           />
-        )}
+        ) : null}
         <motion.div
           animate={isVisible ? 'visible' : 'hidden'}
           className="fixed z-[100]"

@@ -111,7 +111,7 @@ function CircleButton({
       >
         {children}
       </motion.div>
-      {isActive && (
+      {isActive ? (
         <svg
           aria-hidden
           fill="#fff"
@@ -137,7 +137,7 @@ function CircleButton({
             style={{ transform: 'scale(2)' }}
           />
         </svg>
-      )}
+      ) : null}
     </motion.button>
   );
 }

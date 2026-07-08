@@ -91,7 +91,11 @@ function EndpointsTableComponent({
   const currentPage = pagination.pageIndex + 1;
 
   const handleRowClick = useCallback(
-    (endpoint: string) => {
+    (event: React.MouseEvent<HTMLTableRowElement>) => {
+      const endpoint = event.currentTarget.dataset.endpoint;
+      if (!endpoint) {
+        return;
+      }
       navigate({
         search: { endpoint },
         to: '/api/endpoints',
@@ -99,6 +103,14 @@ function EndpointsTableComponent({
     },
     [navigate],
   );
+  const handlePageSizeChange = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      table.setPageSize(Number(event.target.value));
+    },
+    [table],
+  );
+  const handlePreviousPage = useCallback(() => table.previousPage(), [table]);
+  const handleNextPage = useCallback(() => table.nextPage(), [table]);
 
   return (
     <div className="overflow-hidden rounded-lg border border-border">
@@ -131,8 +143,9 @@ function EndpointsTableComponent({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 className="cursor-pointer"
+                data-endpoint={row.original.endpoint}
                 key={row.id}
-                onClick={() => handleRowClick(row.original.endpoint)}
+                onClick={handleRowClick}
               >
                 {row.getVisibleCells().map((cell) => {
                   const isChevron = cell.column.id === 'chevron';
@@ -167,9 +180,7 @@ function EndpointsTableComponent({
                   <span className="text-muted-foreground">Show</span>
                   <NativeSelect
                     className="[&_select]:cursor-pointer [&_select]:h-6 [&_select]:py-0 [&_select]:rounded [&_select]:bg-transparent! [&_select]:pl-2 [&_select]:pr-5 [&_select]:text-muted-foreground [&_svg]:right-1.5 [&_svg]:size-2.5 [&_svg]:text-muted-foreground"
-                    onChange={(e) => {
-                      table.setPageSize(Number(e.target.value));
-                    }}
+                    onChange={handlePageSizeChange}
                     value={pagination.pageSize}
                   >
                     <NativeSelectOption value={10}>10</NativeSelectOption>
@@ -184,7 +195,7 @@ function EndpointsTableComponent({
                   <button
                     className="cursor-pointer rounded border border-border p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
                     disabled={!table.getCanPreviousPage()}
-                    onClick={() => table.previousPage()}
+                    onClick={handlePreviousPage}
                     type="button"
                   >
                     <ChevronLeft className="size-4" />
@@ -192,7 +203,7 @@ function EndpointsTableComponent({
                   <button
                     className="cursor-pointer rounded border border-border p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
                     disabled={!table.getCanNextPage()}
-                    onClick={() => table.nextPage()}
+                    onClick={handleNextPage}
                     type="button"
                   >
                     <ChevronRight className="size-4" />

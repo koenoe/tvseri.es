@@ -8,6 +8,10 @@ import svgSimplePlaceholder from '@/utils/svgSimplePlaceholder';
 
 import MultiSelect, { type Result } from './MultiSelect';
 
+const handleImageError = (event: React.SyntheticEvent<HTMLImageElement>) => {
+  event.currentTarget.src = `data:image/svg+xml;base64,${svgSimplePlaceholder(30, 20)}`;
+};
+
 export default function DiscoverCountries({
   className,
   countries,
@@ -32,9 +36,7 @@ export default function DiscoverCountries({
             alt={item.label}
             className="object-contain"
             fill
-            onError={(e) => {
-              e.currentTarget.src = `data:image/svg+xml;base64,${svgSimplePlaceholder(30, 20)}`;
-            }}
+            onError={handleImageError}
             placeholder={`data:image/svg+xml;base64,${svgSimplePlaceholder(30, 20)}`}
             src={`https://flagcdn.com/h20/${String(item.value).toLocaleLowerCase()}.webp`}
             unoptimized

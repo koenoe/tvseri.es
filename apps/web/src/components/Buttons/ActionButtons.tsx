@@ -27,7 +27,7 @@ export default async function ActionButtons({
   showContextMenuButton?: boolean;
 }>) {
   const tvSeries = (await cachedTvSeries(id)) as TvSeries;
-  const shouldShowWatchButton = showWatchButton && tvSeries.hasAired;
+  const shouldShowWatchButton = Boolean(showWatchButton && tvSeries.hasAired);
 
   async function addToOrRemoveAction(
     value: boolean,
@@ -95,12 +95,12 @@ export default async function ActionButtons({
         {shouldShowWatchButton && <WatchButton tvSeriesId={Number(id)} />}
         <LikeButton action={addToOrRemoveAction} />
         <WatchlistButton action={addToOrRemoveAction} />
-        {showContextMenuButton && (
+        {showContextMenuButton ? (
           <ContextMenuButtonTvSeries
             action={addToOrRemoveAction}
             tvSeries={tvSeries}
           />
-        )}
+        ) : null}
       </ActionButtonsProvider>
     );
   }
@@ -110,12 +110,12 @@ export default async function ActionButtons({
       {shouldShowWatchButton && <WatchButton tvSeriesId={Number(id)} />}
       <LikeButton action={addToOrRemoveAction} />
       <WatchlistButton action={addToOrRemoveAction} />
-      {showContextMenuButton && (
+      {showContextMenuButton ? (
         <ContextMenuButtonTvSeries
           action={addToOrRemoveAction}
           tvSeries={tvSeries}
         />
-      )}
+      ) : null}
     </ActionButtonsProvider>
   );
 }

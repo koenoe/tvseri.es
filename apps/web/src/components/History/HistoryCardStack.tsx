@@ -2,7 +2,7 @@
 
 import type { WatchedItem } from '@tvseri.es/schemas';
 import { LayoutGroup, motion } from 'motion/react';
-import { memo, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 
 import HistoryCard from './HistoryCard';
 
@@ -70,6 +70,19 @@ function StackedHistoryGroup({ group }: StackedHistoryGroupProps) {
   const { items } = group;
   const firstItem = items[0];
 
+  const handleExpand = useCallback(() => {
+    setIsExpanded(true);
+  }, []);
+
+  const handleExpandKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        setIsExpanded(true);
+      }
+    },
+    [],
+  );
+
   if (!firstItem) {
     return null;
   }
@@ -130,12 +143,8 @@ function StackedHistoryGroup({ group }: StackedHistoryGroupProps) {
                 {isStacked && (
                   <div
                     className="absolute inset-0 z-10"
-                    onClick={() => setIsExpanded(true)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        setIsExpanded(true);
-                      }
-                    }}
+                    onClick={handleExpand}
+                    onKeyDown={handleExpandKeyDown}
                     role="button"
                     tabIndex={0}
                   />

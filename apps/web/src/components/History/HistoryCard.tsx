@@ -42,7 +42,7 @@ function HistoryCard({ item, showShadow = false }: Props) {
       )}
       href={href}
     >
-      {item.posterImage && (
+      {item.posterImage ? (
         <div className="relative w-12 flex-shrink-0 overflow-clip rounded-xl after:absolute after:inset-0 after:rounded-xl after:shadow-[inset_0_0_0_1px_rgba(221,238,255,0.08)] after:content-[''] md:w-16">
           <Image
             alt={item.title}
@@ -55,13 +55,13 @@ function HistoryCard({ item, showShadow = false }: Props) {
             width={64}
           />
         </div>
-      )}
+      ) : null}
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">
           <span className="truncate text-base font-semibold md:text-lg">
             {item.title}
           </span>
-          {item.watchProviderLogoImage && item.watchProviderName && (
+          {item.watchProviderLogoImage && item.watchProviderName ? (
             <Image
               alt={item.watchProviderName}
               className="size-6 flex-shrink-0 rounded md:size-8"
@@ -70,7 +70,7 @@ function HistoryCard({ item, showShadow = false }: Props) {
               unoptimized
               width={32}
             />
-          )}
+          ) : null}
         </div>
         <div className="mt-2 flex min-w-0 flex-nowrap items-center gap-2">
           <span className="flex h-6 w-14 flex-shrink-0 items-center justify-center rounded-md bg-white/10 text-center text-xs font-medium">
@@ -88,11 +88,11 @@ function HistoryCard({ item, showShadow = false }: Props) {
               {formatRuntime(item.runtime)}
             </div>
           </div>
-          {item.episodeAirDate && (
+          {item.episodeAirDate ? (
             <span className="hidden flex-shrink-0 text-nowrap rounded-md bg-black/10 px-2 py-0.5 text-white/30 md:inline">
               Aired {formatDate(item.episodeAirDate)}
             </span>
-          )}
+          ) : null}
         </div>
       </div>
     </Link>

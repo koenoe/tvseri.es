@@ -1,5 +1,5 @@
 import { useNavigate, useSearch } from '@tanstack/react-router';
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
@@ -8,14 +8,17 @@ function DeviceToggleComponent() {
   const search = useSearch({ strict: false }) as { device?: string };
   const device = search.device || 'desktop';
 
-  const handleDeviceChange = (value: string) => {
-    if (value === 'desktop' || value === 'mobile') {
-      navigate({
-        search: (prev) => ({ ...prev, device: value }),
-        to: '.',
-      });
-    }
-  };
+  const handleDeviceChange = useCallback(
+    (value: string) => {
+      if (value === 'desktop' || value === 'mobile') {
+        navigate({
+          search: (prev) => ({ ...prev, device: value }),
+          to: '.',
+        });
+      }
+    },
+    [navigate],
+  );
 
   return (
     <ToggleGroup

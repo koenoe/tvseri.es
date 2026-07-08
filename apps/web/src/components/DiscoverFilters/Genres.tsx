@@ -29,10 +29,14 @@ function GenreButton({
   isActive: boolean;
   onClick?: (genre: Genre) => void;
 }>) {
+  const handleClick = useCallback(() => {
+    onClick?.(genre);
+  }, [onClick, genre]);
+
   return (
     <button
       className={buttonStyles({ state: isActive ? 'active' : 'inactive' })}
-      onClick={() => onClick?.(genre)}
+      onClick={handleClick}
     >
       {genre.name}
     </button>

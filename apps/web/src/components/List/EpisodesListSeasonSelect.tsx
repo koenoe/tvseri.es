@@ -3,7 +3,7 @@
 import type { TvSeries } from '@tvseri.es/schemas';
 import { AnimatePresence, motion } from 'motion/react';
 import { useSearchParams } from 'next/navigation';
-import { memo, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 
 import DropdownContainer from '../Dropdown/DropdownContainer';
 
@@ -21,13 +21,33 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
     [item.seasons, searchParams],
   );
 
+  const handleToggle = useCallback(() => {
+    setIsOpen((prev) => !prev);
+  }, []);
+
+  const handleOutsideClick = useCallback(() => {
+    setIsOpen(false);
+  }, []);
+
+  const handleSeasonSelect = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      const season = event.currentTarget.dataset.season;
+      if (!season) {
+        return;
+      }
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('season', season);
+      window.history.replaceState(null, '', `?${params.toString()}`);
+      setIsOpen(false);
+    },
+    [searchParams],
+  );
+
   return (
     <div className="relative z-10">
       <div
         className="flex cursor-pointer items-center gap-3 text-2xl font-medium"
-        onClick={() => {
-          setIsOpen((prev) => !prev);
-        }}
+        onClick={handleToggle}
         ref={ref}
       >
         <span>{selectedSeason?.title}</span>
@@ -47,13 +67,11 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
         </motion.svg>
       </div>
       <AnimatePresence>
-        {isOpen && (
+        {isOpen ? (
           <DropdownContainer
             key="select-season"
             offset={{ x: 0, y: 16 }}
-            onOutsideClick={() => {
-              setIsOpen(false);
-            }}
+            onOutsideClick={handleOutsideClick}
             position={{ x: 'start', y: 'end' }}
             triggerRef={ref}
           >
@@ -61,24 +79,16 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
               {item.seasons?.map((item) => (
                 <button
                   className="text-nowrap p-2 text-left text-sm hover:underline"
+                  data-season={item.seasonNumber}
                   key={item.id}
-                  onClick={() => {
-                    const params = new URLSearchParams(searchParams.toString());
-                    params.set('season', item.seasonNumber.toString());
-                    window.history.replaceState(
-                      null,
-                      '',
-                      `?${params.toString()}`,
-                    );
-                    setIsOpen(false);
-                  }}
+                  onClick={handleSeasonSelect}
                 >
                   <span className="drop-shadow-lg">{item.title}</span>
                 </button>
               ))}
             </div>
           </DropdownContainer>
-        )}
+        ) : null}
       </AnimatePresence>
     </div>
   );

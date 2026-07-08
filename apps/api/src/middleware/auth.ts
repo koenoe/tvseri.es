@@ -78,7 +78,7 @@ const checkAuthAdmin = (): MiddlewareHandler<{ Variables: Variables }> => {
   return async (c, next) => {
     const auth = c.get('auth');
 
-    if (!auth?.user || auth.user.role !== 'admin') {
+    if (auth?.user?.role !== 'admin') {
       throw new HTTPException(401, {
         message: 'Unauthorized',
       });

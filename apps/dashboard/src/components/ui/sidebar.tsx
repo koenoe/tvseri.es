@@ -242,15 +242,20 @@ function SidebarTrigger({
 }: React.ComponentProps<typeof Button>) {
   const { toggleSidebar } = useSidebar();
 
+  const handleClick = React.useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      onClick?.(event);
+      toggleSidebar();
+    },
+    [onClick, toggleSidebar],
+  );
+
   return (
     <Button
       className={cn('cursor-pointer hover:bg-transparent', className)}
       data-sidebar="trigger"
       data-slot="sidebar-trigger"
-      onClick={(event) => {
-        onClick?.(event);
-        toggleSidebar();
-      }}
+      onClick={handleClick}
       size="icon-sm"
       variant="ghost"
       {...props}

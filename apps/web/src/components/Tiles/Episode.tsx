@@ -15,6 +15,10 @@ export const episodeStyles = cva(
   'relative flex-shrink-0 w-[300px] md:w-[350px] lg:w-[450px] overflow-clip rounded-xl shadow-lg bg-white/5 flex flex-col',
 );
 
+const renderStillPlaceholder = () => (
+  <StillPlaceholder className="h-full w-full" />
+);
+
 function EpisodeTile({
   className,
   item,
@@ -40,7 +44,7 @@ function EpisodeTile({
               alt={item.title}
               className="aspect-video h-full w-full object-cover"
               draggable={false}
-              fallback={() => <StillPlaceholder className="h-full w-full" />}
+              fallback={renderStillPlaceholder}
               height={608}
               placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(489, 275)}`}
               priority={priority}

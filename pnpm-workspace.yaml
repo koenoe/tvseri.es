@@ -9,6 +9,6 @@ allowBuilds:
   sharp: true
 
 catalog:
-  '@types/node': 24.10.13
+  '@types/node': 24.13.3
   sst: 4.17.0
   typescript: 6.0.3

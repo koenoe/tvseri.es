@@ -1,15 +1,13 @@
 import type { MetadataRoute } from 'next';
-
-export const dynamic = 'force-static';
-export const revalidate = 86400;
+import { cacheLife } from 'next/cache';
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
+  'use cache';
+  cacheLife('long');
+
   try {
     const response = await fetch(
       'https://raw.githubusercontent.com/ai-robots-txt/ai.robots.txt/refs/heads/main/robots.json',
-      {
-        next: { revalidate: 86400 },
-      },
     );
 
     if (!response.ok) {

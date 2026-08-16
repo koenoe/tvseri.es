@@ -2,7 +2,6 @@
 
 // Admin
 export { updatePreferredImages } from './admin';
-export type { AuthContext } from './client';
 export { proxy } from './client';
 
 // Collections

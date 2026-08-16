@@ -104,7 +104,7 @@ const nextConfig = {
         source: '/settings',
       },
       {
-        destination: '/u/:username/history',
+        destination: '/u/:username/in-progress',
         permanent: false,
         source: '/u/:username',
       },

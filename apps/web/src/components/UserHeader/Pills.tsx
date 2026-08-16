@@ -16,12 +16,12 @@ export default async function UserPills({
     //   href: `/u/${username}`,
     // },
     {
-      href: `/u/${username}/history`,
-      label: 'History',
-    },
-    {
       href: `/u/${username}/in-progress`,
       label: 'In progress',
+    },
+    {
+      href: `/u/${username}/history`,
+      label: 'History',
     },
     {
       href: `/u/${username}/finished`,

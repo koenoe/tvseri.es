@@ -9,28 +9,23 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as WebIndexRouteImport } from './routes/web/index'
+import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
 import { Route as ApiIndexRouteImport } from './routes/api/index'
-import { Route as AwsLambdaRouteImport } from './routes/aws/lambda'
-import { Route as AwsCdnRouteImport } from './routes/aws/cdn'
-import { Route as ApiEndpointsRouteImport } from './routes/api/endpoints'
 import { Route as ApiDependenciesRouteImport } from './routes/api/dependencies'
+import { Route as ApiEndpointsRouteImport } from './routes/api/endpoints'
+import { Route as AwsCdnRouteImport } from './routes/aws/cdn'
+import { Route as AwsLambdaRouteImport } from './routes/aws/lambda'
+import { Route as WebIndexRouteImport } from './routes/web/index'
 
-const UnauthorizedRoute = UnauthorizedRouteImport.update({
-  id: '/unauthorized',
-  path: '/unauthorized',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WebIndexRoute = WebIndexRouteImport.update({
-  id: '/web/',
-  path: '/web/',
+const UnauthorizedRoute = UnauthorizedRouteImport.update({
+  id: '/unauthorized',
+  path: '/unauthorized',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiIndexRoute = ApiIndexRouteImport.update({
@@ -38,14 +33,9 @@ const ApiIndexRoute = ApiIndexRouteImport.update({
   path: '/api/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AwsLambdaRoute = AwsLambdaRouteImport.update({
-  id: '/aws/lambda',
-  path: '/aws/lambda',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AwsCdnRoute = AwsCdnRouteImport.update({
-  id: '/aws/cdn',
-  path: '/aws/cdn',
+const ApiDependenciesRoute = ApiDependenciesRouteImport.update({
+  id: '/api/dependencies',
+  path: '/api/dependencies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiEndpointsRoute = ApiEndpointsRouteImport.update({
@@ -53,9 +43,19 @@ const ApiEndpointsRoute = ApiEndpointsRouteImport.update({
   path: '/api/endpoints',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiDependenciesRoute = ApiDependenciesRouteImport.update({
-  id: '/api/dependencies',
-  path: '/api/dependencies',
+const AwsCdnRoute = AwsCdnRouteImport.update({
+  id: '/aws/cdn',
+  path: '/aws/cdn',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AwsLambdaRoute = AwsLambdaRouteImport.update({
+  id: '/aws/lambda',
+  path: '/aws/lambda',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WebIndexRoute = WebIndexRouteImport.update({
+  id: '/web/',
+  path: '/web/',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -136,13 +136,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/unauthorized': {
-      id: '/unauthorized'
-      path: '/unauthorized'
-      fullPath: '/unauthorized'
-      preLoaderRoute: typeof UnauthorizedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -150,11 +143,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/web/': {
-      id: '/web/'
-      path: '/web'
-      fullPath: '/web/'
-      preLoaderRoute: typeof WebIndexRouteImport
+    '/unauthorized': {
+      id: '/unauthorized'
+      path: '/unauthorized'
+      fullPath: '/unauthorized'
+      preLoaderRoute: typeof UnauthorizedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/': {
@@ -164,18 +157,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/aws/lambda': {
-      id: '/aws/lambda'
-      path: '/aws/lambda'
-      fullPath: '/aws/lambda'
-      preLoaderRoute: typeof AwsLambdaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/aws/cdn': {
-      id: '/aws/cdn'
-      path: '/aws/cdn'
-      fullPath: '/aws/cdn'
-      preLoaderRoute: typeof AwsCdnRouteImport
+    '/api/dependencies': {
+      id: '/api/dependencies'
+      path: '/api/dependencies'
+      fullPath: '/api/dependencies'
+      preLoaderRoute: typeof ApiDependenciesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/endpoints': {
@@ -185,11 +171,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEndpointsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/dependencies': {
-      id: '/api/dependencies'
-      path: '/api/dependencies'
-      fullPath: '/api/dependencies'
-      preLoaderRoute: typeof ApiDependenciesRouteImport
+    '/aws/cdn': {
+      id: '/aws/cdn'
+      path: '/aws/cdn'
+      fullPath: '/aws/cdn'
+      preLoaderRoute: typeof AwsCdnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aws/lambda': {
+      id: '/aws/lambda'
+      path: '/aws/lambda'
+      fullPath: '/aws/lambda'
+      preLoaderRoute: typeof AwsLambdaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/web/': {
+      id: '/web/'
+      path: '/web'
+      fullPath: '/web/'
+      preLoaderRoute: typeof WebIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

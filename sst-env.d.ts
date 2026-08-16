@@ -23,10 +23,6 @@ declare module "sst" {
       "type": "sst.aws.Auth"
       "url": string
     }
-    "BudgetAlertSNS": {
-      "arn": string
-      "type": "sst.aws.SnsTopic"
-    }
     "Cache": {
       "name": string
       "type": "sst.aws.Dynamo"

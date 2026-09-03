@@ -91,6 +91,7 @@ const nextConfig = {
       ...hostNoIndexHeaders,
     ];
   },
+  partialPrefetching: true,
   async redirects() {
     return [
       {

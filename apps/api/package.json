@@ -23,7 +23,7 @@
     "@types/aws-lambda": "^8.10.162",
     "@types/node": "catalog:",
     "sharp": "^0.35.3",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "name": "@tvseri.es/api",
   "private": true,

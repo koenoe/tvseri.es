@@ -1,11 +1,10 @@
 'use client';
 
-import type { User } from '@tvseri.es/schemas';
 import { motion } from 'motion/react';
-import { use } from 'react';
 
 import AuthButton from '../Buttons/AuthButton';
 import MenuItem from './MenuItem';
+import useMenuUsername from './useMenuUsername';
 
 const buttonVariants = {
   hidden: (i: number) => ({
@@ -26,7 +25,7 @@ const buttonVariants = {
   }),
 };
 
-export function MenuItemsSkeleton() {
+function MenuItemsSkeleton() {
   return (
     <>
       {Array.from({ length: 4 }).map((_, index, array) => (
@@ -47,21 +46,24 @@ export function MenuItemsSkeleton() {
 }
 
 export default function MenuItems({
-  authPromise,
   isMobile,
   onLogout,
   onItemClick,
 }: Readonly<{
-  authPromise: Promise<{ user: User | null }>;
   isMobile: boolean;
   onLogout: () => void;
   onItemClick: () => void;
 }>) {
-  const { user: account } = use(authPromise);
+  const username = useMenuUsername();
 
-  const showAuthButton = account || isMobile;
-  const showProfileItem = account && isMobile;
-  const isAuthenticated = !!account;
+  // Only before hydration; the menu opens after it.
+  if (username === undefined) {
+    return <MenuItemsSkeleton />;
+  }
+
+  const showAuthButton = username || isMobile;
+  const showProfileItem = username && isMobile;
+  const isAuthenticated = !!username;
 
   const items = [
     { component: null, href: '/', label: 'Home' },
@@ -70,12 +72,12 @@ export default function MenuItems({
       ? [
           {
             component: null,
-            href: `/u/${account.username}`,
+            href: `/u/${username}`,
             label: 'Profile',
           },
         ]
       : []),
-    ...(account
+    ...(username
       ? [
           {
             component: null,

@@ -1,9 +1,8 @@
 'use client';
 
-import type { User } from '@tvseri.es/schemas';
 import { AnimatePresence, motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
-import { Suspense, useCallback } from 'react';
+import { useCallback } from 'react';
 
 import useMatchMedia from '@/hooks/useMatchMedia';
 import getMainBackgroundColor from '@/utils/getMainBackgroundColor';
@@ -11,15 +10,13 @@ import getMainBackgroundColor from '@/utils/getMainBackgroundColor';
 import { useHeaderStore } from '../Header/HeaderStoreProvider';
 import Modal from '../Modal';
 import Search from '../Search/Search';
-import MenuItems, { MenuItemsSkeleton } from './MenuItems';
+import MenuItems from './MenuItems';
 import MenuToggle from './MenuToggle';
 
 export default function Menu({
   children,
-  authPromise,
 }: Readonly<{
   children: React.ReactNode;
-  authPromise: Promise<{ user: User | null }>;
 }>) {
   const router = useRouter();
   const isOpen = useHeaderStore((state) => state.menuOpen);
@@ -74,25 +71,16 @@ export default function Menu({
             className="absolute inset-0 flex flex-col items-center justify-center gap-8 md:inset-auto md:right-0 md:top-0 md:flex-row md:justify-normal"
             key="menu"
           >
-            <Suspense fallback={<MenuItemsSkeleton />}>
-              <MenuItems
-                authPromise={authPromise}
-                isMobile={isMobile}
-                onItemClick={handleMenuItemClick}
-                onLogout={handleLogout}
-              />
-            </Suspense>
+            <MenuItems
+              isMobile={isMobile}
+              onItemClick={handleMenuItemClick}
+              onLogout={handleLogout}
+            />
           </motion.div>
         </div>
       </>
     );
-  }, [
-    backgroundColor,
-    authPromise,
-    isMobile,
-    handleLogout,
-    handleMenuItemClick,
-  ]);
+  }, [backgroundColor, isMobile, handleLogout, handleMenuItemClick]);
 
   return (
     <div className="ml-auto flex items-center gap-10">

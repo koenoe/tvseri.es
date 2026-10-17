@@ -28,6 +28,8 @@ export default function ProfileForm({
     initialState,
   );
 
+  const emailClassName = `p-3 text-sm ${user.email ? 'text-neutral-400' : 'text-neutral-600'}`;
+
   useEffect(() => {
     if (state?.message) {
       if (state.success) {
@@ -80,22 +82,10 @@ export default function ProfileForm({
           </div>
 
           <div className="space-y-3">
-            <label
-              className="block text-sm font-medium text-neutral-200"
-              htmlFor="email"
-            >
+            <span className="block text-sm font-medium text-neutral-200">
               Email
-            </label>
-            <input
-              className="block w-full rounded-lg border border-neutral-700 bg-neutral-800 p-3 text-sm text-neutral-400 placeholder-neutral-600 focus:border-neutral-500 focus:outline-none"
-              data-1p-ignore
-              defaultValue={user.email ?? ''}
-              id="email"
-              name="email"
-              placeholder="Email"
-              required={!!user.email}
-              type="email"
-            />
+            </span>
+            <p className={emailClassName}>{user.email ?? '—'}</p>
           </div>
 
           <button

@@ -2,20 +2,21 @@ import { subjects, type User } from '@tvseri.es/schemas';
 import { cookies } from 'next/headers';
 import type { NextRequest } from 'next/server';
 import { cache } from 'react';
-import {
-  SESSION_COOKIE_NAME,
-  SESSION_COOKIE_OPTIONS,
-  SESSION_REFRESH_THRESHOLD,
-} from '../constants';
+import { SESSION_COOKIE_NAME } from '../constants';
 import { me } from '../lib/api';
 import { client } from './client';
-import { decryptToken, encryptToken } from './crypto';
+import {
+  persistSessionState,
+  resolveSession,
+  type SessionContext,
+  type SessionState,
+} from './session';
 
-export type Session = {
+export type Session = Readonly<{
   accessToken: string;
   expiresAt: number;
   user: User;
-};
+}>;
 
 const EMPTY_SESSION = {
   accessToken: null,
@@ -33,89 +34,52 @@ async function fetchUser(accessToken: string): Promise<User | null> {
   }
 }
 
-// Cookie jar abstraction for different contexts
-type CookieJar = {
-  get: () => string | undefined;
-  set: (value: string) => void;
-  delete: () => void;
-};
-
-type VerifyContext = 'RSC' | 'RouteHandler' | 'Middleware';
-
-async function verifySession(
-  cookieJar: CookieJar,
-  options: Readonly<{
-    context: VerifyContext;
-    readOnly?: boolean;
-  }>,
-): Promise<Session | EmptySession> {
-  const sessionCookie = cookieJar.get();
-
-  if (!sessionCookie) {
-    return EMPTY_SESSION;
-  }
-
-  const payload = await decryptToken(sessionCookie);
-  if (!payload) {
-    return EMPTY_SESSION;
-  }
-
-  const now = Math.floor(Date.now() / 1000);
-  const expiresIn = payload.expiresAt - now;
-  const isExpired = expiresIn <= 0;
-
-  // RSC is read-only: if expired, return empty session immediately.
-  // Although we could technically refresh in RSC (just not persist the new cookie),
-  // OpenAuth always rotates refresh tokens on each refresh. If we refresh but can't
-  // persist the new RT, the old RT becomes invalid and the user gets logged out.
-  if (options.readOnly && isExpired) {
-    return EMPTY_SESSION;
-  }
-
-  // Refresh if expired OR within threshold (proactive refresh)
-  const needsRefresh = isExpired || expiresIn <= SESSION_REFRESH_THRESHOLD;
-
-  let accessToken = payload.accessToken;
-  let refreshToken = payload.refreshToken;
-  let expiresAt = payload.expiresAt;
-
-  if (needsRefresh) {
-    const refreshed = await client.refresh(payload.refreshToken);
-
-    if (refreshed.err || !refreshed.tokens) {
-      console.log(
-        `[auth] [${options.context}] refresh failed, RT:`,
-        payload.refreshToken.slice(-5),
-        refreshed.err ?? 'no tokens returned',
-      );
-      cookieJar.delete();
-      return EMPTY_SESSION;
-    }
-
-    accessToken = refreshed.tokens.access;
-    refreshToken = refreshed.tokens.refresh;
-    expiresAt = now + refreshed.tokens.expiresIn;
-
-    const encrypted = await encryptToken({
-      accessToken,
-      expiresAt,
-      refreshToken,
-    });
-    cookieJar.set(encrypted);
-  } else {
-    const verified = await client.verify(subjects, payload.accessToken);
-
+async function verifyAccessToken(
+  accessToken: string,
+  context: SessionContext,
+): Promise<boolean> {
+  try {
+    const verified = await client.verify(subjects, accessToken);
     if (verified.err) {
-      console.log(`[auth] [${options.context}] verify failed:`, verified.err);
-      cookieJar.delete();
-      return EMPTY_SESSION;
+      console.log(`[auth] [${context}] verify failed:`, verified.err);
+      return false;
     }
+    return true;
+  } catch (error) {
+    console.log(`[auth] [${context}] verify unavailable:`, error);
+    return false;
+  }
+}
+
+/**
+ * Turns a resolved session into a user session. Failures here (bad access
+ * token, `/me` unavailable) only yield an empty session for this request;
+ * they never delete the cookie; only a rejected refresh does that.
+ */
+async function loadSession(
+  state: SessionState,
+  context: SessionContext,
+): Promise<Session | EmptySession> {
+  if (state.status !== 'valid' && state.status !== 'refreshed') {
+    return EMPTY_SESSION;
   }
 
-  const user = await fetchUser(accessToken);
+  const { accessToken, expiresAt } = state.tokens;
+
+  // Verification and `/me` are independent; run them together and discard the
+  // user if verification fails. Freshly refreshed tokens were just issued by
+  // the auth server, so they don't need verifying.
+  const [verified, user] = await Promise.all([
+    state.status === 'refreshed' || verifyAccessToken(accessToken, context),
+    fetchUser(accessToken),
+  ]);
+
+  if (!verified) {
+    return EMPTY_SESSION;
+  }
+
   if (!user) {
-    console.log(`[auth] [${options.context}] fetchUser failed`);
-    cookieJar.delete();
+    console.log(`[auth] [${context}] fetchUser failed`);
     return EMPTY_SESSION;
   }
 
@@ -126,31 +90,33 @@ async function verifySession(
   };
 }
 
-async function authRSC(): Promise<Session | EmptySession> {
+/**
+ * RSC and server actions: read-only. The proxy runs before every request that
+ * carries a session cookie and owns refreshing it, so the token is fresh here.
+ * Deduped per request with `cache()`.
+ */
+const authRSC = cache(async (): Promise<Session | EmptySession> => {
   const cookieStore = await cookies();
-  return verifySession(
-    {
-      delete: () => {}, // No-op in RSC
-      get: () => cookieStore.get(SESSION_COOKIE_NAME)?.value,
-      set: () => {}, // No-op in RSC
-    },
-    { context: 'RSC', readOnly: true },
+  const state = await resolveSession(
+    cookieStore.get(SESSION_COOKIE_NAME)?.value,
+    { context: 'RSC', mode: 'read-only' },
   );
-}
+  return loadSession(state, 'RSC');
+});
 
+/**
+ * Route handlers can write cookies, and most `/api` routes are outside the
+ * proxy matcher, so they refresh (and persist) the session themselves.
+ */
 async function authRouteHandler(
   req: NextRequest,
 ): Promise<Session | EmptySession> {
-  const cookieStore = await cookies();
-  return verifySession(
-    {
-      delete: () => cookieStore.delete(SESSION_COOKIE_NAME),
-      get: () => req.cookies.get(SESSION_COOKIE_NAME)?.value,
-      set: (value) =>
-        cookieStore.set(SESSION_COOKIE_NAME, value, SESSION_COOKIE_OPTIONS),
-    },
-    { context: 'RouteHandler' },
+  const state = await resolveSession(
+    req.cookies.get(SESSION_COOKIE_NAME)?.value,
+    { context: 'RouteHandler', mode: 'refresh' },
   );
+  await persistSessionState(state);
+  return loadSession(state, 'RouteHandler');
 }
 
 // Overloaded auth function
@@ -160,9 +126,7 @@ function auth(req?: NextRequest): Promise<Session | EmptySession> {
   if (req) {
     return authRouteHandler(req);
   }
-  return cachedAuth();
+  return authRSC();
 }
-
-const cachedAuth = cache(authRSC);
 
 export default auth;

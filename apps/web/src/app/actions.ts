@@ -5,25 +5,27 @@ import { redirect, unauthorized } from 'next/navigation';
 import isEqual from 'react-fast-compare';
 import slugify from 'slugify';
 import auth from '@/auth';
-import { client } from '@/auth/client';
-import { deleteSession } from '@/auth/session';
-import { follow, unfollow, updateUser } from '@/lib/api';
+import { startLogin, toSafeReturnTo } from '@/auth/login';
+import { deleteSession, setUserDisplayCookie } from '@/auth/session';
+import { ApiError, follow, unfollow, updateUser } from '@/lib/api';
+import { ACTION_OK, type ActionResult, actionError } from './actionResult';
 import { cachedUser } from './cached';
 
-export async function login() {
+/**
+ * `returnTo` is the path to return to after logging in. It comes from the
+ * client, so it is validated (same-origin paths only) before it is used.
+ */
+export async function login(returnTo?: string) {
   const { accessToken } = await auth();
 
   if (accessToken) {
-    redirect('/');
+    redirect(toSafeReturnTo(returnTo));
   }
 
   const headerStore = await headers();
   const host = headerStore.get('host');
   const protocol = host?.includes('localhost') ? 'http' : 'https';
-  const { url } = await client.authorize(
-    `${protocol}://${host}/api/auth/callback`,
-    'code',
-  );
+  const url = await startLogin(`${protocol}://${host}`, returnTo);
 
   redirect(url);
 }
@@ -40,13 +42,11 @@ export async function updateProfile(_: unknown, formData: FormData) {
   }
 
   const currentUser = {
-    email: user.email ?? '',
     name: user.name ?? '',
     username: user.username ?? '',
   };
 
   const rawFormData = {
-    email: formData.get('email')?.toString() ?? '',
     name: formData.get('name')?.toString() ?? '',
     username: formData.get('username')?.toString() ?? '',
   };
@@ -74,22 +74,23 @@ export async function updateProfile(_: unknown, formData: FormData) {
   try {
     await updateUser({
       accessToken,
-      email: rawFormData.email,
       name: rawFormData.name,
       username: slugifiedUsername,
     });
-  } catch (err) {
-    const error = err as Error;
-    let message = error.message;
-    if (error.cause === 'EmailAlreadyTaken') {
-      message = 'Email is already taken';
-    } else if (error.cause === 'UsernameAlreadyTaken') {
-      message = 'Username is already taken';
-    }
+  } catch (error) {
+    const message =
+      error instanceof ApiError && error.code === 'UsernameAlreadyTaken'
+        ? 'Username is already taken'
+        : (error as Error).message;
     return {
       message,
       success: false,
     };
+  }
+
+  // Keep the header's display-only username in step with the rename.
+  if (slugifiedUsername !== currentUser.username) {
+    await setUserDisplayCookie(slugifiedUsername);
   }
 
   return {
@@ -98,16 +99,29 @@ export async function updateProfile(_: unknown, formData: FormData) {
   };
 }
 
-export async function toggleFollow(value: boolean, username: string) {
-  const { user: userFromSession, accessToken } = await auth();
-
-  if (!userFromSession || !accessToken) {
-    return;
+export async function toggleFollow(
+  value: boolean,
+  username: string,
+): Promise<ActionResult> {
+  if (typeof value !== 'boolean' || typeof username !== 'string') {
+    return actionError('invalid');
   }
 
-  const user = await cachedUser({ username });
-  if (!user || user.id === userFromSession.id) {
-    return;
+  const [{ user: userFromSession, accessToken }, user] = await Promise.all([
+    auth(),
+    cachedUser({ username }),
+  ]);
+
+  if (!userFromSession || !accessToken) {
+    return actionError('unauthenticated');
+  }
+
+  if (!user) {
+    return actionError('not-found');
+  }
+
+  if (user.id === userFromSession.id) {
+    return actionError('invalid');
   }
 
   const payload = {
@@ -115,9 +129,11 @@ export async function toggleFollow(value: boolean, username: string) {
     userId: user.id,
   };
 
-  if (value) {
-    await follow(payload);
-  } else {
-    await unfollow(payload);
+  try {
+    await (value ? follow(payload) : unfollow(payload));
+    return ACTION_OK;
+  } catch (error) {
+    console.error('[toggleFollow]', error);
+    return actionError('failed');
   }
 }

@@ -1,6 +1,8 @@
+import 'server-only';
+
 import { CompactEncrypt, compactDecrypt } from 'jose';
 
-type TokenPayload = Readonly<{
+export type TokenPayload = Readonly<{
   accessToken: string;
   expiresAt: number;
   refreshToken: string;

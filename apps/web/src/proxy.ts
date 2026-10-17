@@ -1,16 +1,45 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { client } from './auth/client';
-import { decryptToken, encryptToken } from './auth/crypto';
+import { LOGIN_REQUIRED_PATH } from './auth/login';
+import { resolveSession } from './auth/session';
 import {
   SESSION_COOKIE_NAME,
   SESSION_COOKIE_OPTIONS,
-  SESSION_REFRESH_THRESHOLD,
+  USER_DISPLAY_COOKIE_NAME,
+  USER_DISPLAY_COOKIE_OPTIONS,
 } from './constants';
+import { me } from './lib/api/me';
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+    // Protected user routes run unconditionally, so logged-out visitors get
+    // the login prompt (pages) or a 401 (API). The public stats pages are
+    // left out here (most anonymous `/u` traffic); with a session cookie the
+    // catch-all below still matches them. `/u/:username` itself is redirected
+    // in next.config before the proxy runs.
+    '/u/:username/((?!stats(?:/|$)).*)',
     '/api/u/:path*',
+    // Everywhere else the proxy only refreshes the session, so skip requests
+    // without a session cookie (crawlers, anonymous visitors): each proxy run
+    // is a billed function invocation.
+    {
+      has: [
+        // Must equal SESSION_COOKIE_NAME; matchers have to be static literals.
+        { key: '__tvseries_session', type: 'cookie' },
+      ],
+      source:
+        '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+    },
+    // A display cookie without a session cookie (e.g. one deleted by hand)
+    // would show a logged-in header; this lets the proxy drop it. Rare, so
+    // it costs anonymous visitors nothing.
+    {
+      has: [
+        // Must equal USER_DISPLAY_COOKIE_NAME.
+        { key: '__tvseries_user', type: 'cookie' },
+      ],
+      source:
+        '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+    },
   ],
 };
 
@@ -18,89 +47,98 @@ export const config = {
 // Matches /u/:username(/...) and /api/u/:username(/...), but not .../stats(/...).
 const PROTECTED_ROUTE = /^(?:\/api)?\/u\/[^/]+(?!\/stats(?:\/|$))(?:\/|$)/;
 
-type SessionResult = Readonly<
-  | { status: 'none' }
-  | { status: 'invalid' }
-  | { status: 'valid' }
-  | { status: 'refreshed'; encrypted: string }
->;
-
-async function resolveSession(req: NextRequest): Promise<SessionResult> {
-  const sessionCookie = req.cookies.get(SESSION_COOKIE_NAME)?.value;
-  if (!sessionCookie) {
-    return { status: 'none' };
-  }
-
-  const payload = await decryptToken(sessionCookie);
-  if (!payload) {
-    console.log('[auth] [proxy] invalid session, deleting cookie');
-    return { status: 'invalid' };
-  }
-
-  const now = Math.floor(Date.now() / 1000);
-  const expiresIn = payload.expiresAt - now;
-  const needsRefresh = expiresIn <= SESSION_REFRESH_THRESHOLD;
-
-  if (!needsRefresh) {
-    // If we didn't refresh, we could verify the access token here to ensure it's still valid.
-    // However, this would require an additional round-trip on each request, so we skip it for now.
-    return { status: 'valid' };
-  }
-
-  const refreshed = await client.refresh(payload.refreshToken);
-
-  if (refreshed.err || !refreshed.tokens) {
-    console.log(
-      '[auth] [proxy] refresh failed, RT:',
-      payload.refreshToken.slice(-5),
-      refreshed.err ?? 'no tokens returned',
-    );
-    return { status: 'invalid' };
-  }
-
-  const encrypted = await encryptToken({
-    accessToken: refreshed.tokens.access,
-    expiresAt: now + refreshed.tokens.expiresIn,
-    refreshToken: refreshed.tokens.refresh,
-  });
-
-  return { encrypted, status: 'refreshed' };
+// Forwards the (possibly updated) request cookies, so `cookies()` and
+// `req.cookies` downstream see the same session as the browser will.
+function nextWithRequestCookies(req: NextRequest): NextResponse {
+  return NextResponse.next({ request: { headers: req.headers } });
 }
 
-function unauthenticatedResponse(req: NextRequest): NextResponse {
+// Response for a request without a usable session, or null when the route
+// doesn't require one.
+function unauthenticatedResponse(req: NextRequest): NextResponse | null {
   const { pathname } = req.nextUrl;
 
   if (!PROTECTED_ROUTE.test(pathname)) {
-    return NextResponse.next();
+    return null;
   }
 
   if (pathname.startsWith('/api/')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  return NextResponse.redirect(new URL('/', req.url));
+  // Keep the URL, so the login prompt can return here after logging in.
+  return NextResponse.rewrite(new URL(LOGIN_REQUIRED_PATH, req.url));
+}
+
+/**
+ * Keeps the display-only username cookie (see `USER_DISPLAY_COOKIE_NAME`)
+ * next to the session cookie: the current value is re-set with the session's
+ * lifetime, and a missing one (right after login, or a session from before
+ * the cookie existed) is filled in from `/me`. Never overwritten from the
+ * session itself: tokens don't carry the username, and a rename updates the
+ * cookie in `updateProfile`.
+ */
+async function setUserDisplayCookie(
+  req: NextRequest,
+  res: NextResponse,
+  accessToken: string,
+): Promise<void> {
+  const username =
+    req.cookies.get(USER_DISPLAY_COOKIE_NAME)?.value ??
+    (await me({ accessToken })
+      .then((user) => user?.username)
+      .catch(() => undefined));
+
+  if (username) {
+    res.cookies.set(
+      USER_DISPLAY_COOKIE_NAME,
+      username,
+      USER_DISPLAY_COOKIE_OPTIONS,
+    );
+  }
 }
 
 export async function proxy(req: NextRequest) {
-  const session = await resolveSession(req);
+  const session = await resolveSession(
+    req.cookies.get(SESSION_COOKIE_NAME)?.value,
+    { context: 'Proxy', mode: 'refresh' },
+  );
 
   switch (session.status) {
-    case 'none':
-      return unauthenticatedResponse(req);
-    case 'invalid': {
-      const res = unauthenticatedResponse(req);
-      res.cookies.delete(SESSION_COOKIE_NAME);
+    case 'none': {
+      const res = unauthenticatedResponse(req) ?? NextResponse.next();
+      if (req.cookies.has(USER_DISPLAY_COOKIE_NAME)) {
+        res.cookies.delete(USER_DISPLAY_COOKIE_NAME);
+      }
       return res;
     }
-    case 'valid':
+    case 'invalid': {
+      req.cookies.delete(SESSION_COOKIE_NAME);
+      const res = unauthenticatedResponse(req) ?? nextWithRequestCookies(req);
+      res.cookies.delete(SESSION_COOKIE_NAME);
+      res.cookies.delete(USER_DISPLAY_COOKIE_NAME);
+      return res;
+    }
+    // A stale session (auth server unreachable while the token is expired) is
+    // still a session: keep the cookies and let the next request retry.
+    case 'stale':
       return NextResponse.next();
-    case 'refreshed': {
+    case 'valid': {
       const res = NextResponse.next();
+      if (!req.cookies.has(USER_DISPLAY_COOKIE_NAME)) {
+        await setUserDisplayCookie(req, res, session.tokens.accessToken);
+      }
+      return res;
+    }
+    case 'refreshed': {
+      req.cookies.set(SESSION_COOKIE_NAME, session.cookie);
+      const res = nextWithRequestCookies(req);
       res.cookies.set(
         SESSION_COOKIE_NAME,
-        session.encrypted,
+        session.cookie,
         SESSION_COOKIE_OPTIONS,
       );
+      await setUserDisplayCookie(req, res, session.tokens.accessToken);
       return res;
     }
   }

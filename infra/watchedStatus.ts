@@ -44,18 +44,6 @@ watchedStatusQueue.subscribe(
       secrets.tmdbApiAccessToken,
       secrets.tmdbApiKey,
     ],
-    nodejs: {
-      esbuild: {
-        external: [
-          '@aws-sdk/client-cloudfront',
-          '@aws-sdk/client-dynamodb',
-          '@aws-sdk/client-lambda',
-          '@aws-sdk/client-sesv2',
-          '@aws-sdk/client-sqs',
-          '@aws-sdk/util-dynamodb',
-        ],
-      },
-    },
     timeout: '60 seconds',
   },
   {
@@ -73,18 +61,6 @@ export const watchedStatusCron = new sst.aws.Cron('ValidateWatchedStatus', {
     handler: 'apps/api/src/lambdas/validateWatchedStatusCron.handler',
     link: [dynamo.users, watchedStatusQueue],
     memory: '512 MB',
-    nodejs: {
-      esbuild: {
-        external: [
-          '@aws-sdk/client-cloudfront',
-          '@aws-sdk/client-dynamodb',
-          '@aws-sdk/client-lambda',
-          '@aws-sdk/client-sesv2',
-          '@aws-sdk/client-sqs',
-          '@aws-sdk/util-dynamodb',
-        ],
-      },
-    },
     // Scans all users and queues them; 10s stopped scaling at a few thousand users
     timeout: '60 seconds',
   }, // 03:00 UTC, daily

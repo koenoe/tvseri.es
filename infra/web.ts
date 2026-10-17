@@ -142,6 +142,9 @@ export const web = $dev
         project.id,
         ...envVars.map((e) => e.id),
       ]).apply(([apiUrl, authUrl, apiKey, secretKey, projectId]) => {
+        // Pulumi runs apply callbacks during previews (`sst diff`) too: never build/deploy/alias there.
+        if ($util.runtime.isDryRun()) return siteUrl;
+
         const prodFlag = isProduction ? ' --prod' : '';
         const environment = isProduction ? 'production' : 'preview';
 

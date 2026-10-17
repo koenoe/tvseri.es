@@ -42,18 +42,6 @@ scrobbleQueue.subscribe(
       secrets.tmdbApiKey,
     ],
     memory: '512 MB',
-    nodejs: {
-      esbuild: {
-        external: [
-          '@aws-sdk/client-cloudfront',
-          '@aws-sdk/client-dynamodb',
-          '@aws-sdk/client-lambda',
-          '@aws-sdk/client-sesv2',
-          '@aws-sdk/client-sqs',
-          '@aws-sdk/util-dynamodb',
-        ],
-      },
-    },
     timeout: '30 seconds',
   },
   {

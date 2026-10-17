@@ -89,16 +89,6 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
         },
       };
     },
-    cdn: (args) => {
-      // Enable additional CloudWatch metrics (cache hit rate, origin latency, etc.)
-      // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/viewing-cloudfront-metrics.html
-      args.transform = {
-        distribution: (distArgs) => {
-          // biome-ignore lint/suspicious/noExplicitAny: not in type defs yet
-          (distArgs as any).enableAdditionalMetrics = true;
-        },
-      };
-    },
   },
 });
 
@@ -129,17 +119,6 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
     secrets.tmdbApiKey,
   ],
   memory: '1024 MB',
-  nodejs: {
-    esbuild: {
-      external: [
-        '@aws-sdk/client-cloudfront',
-        '@aws-sdk/client-dynamodb',
-        '@aws-sdk/client-lambda',
-        '@aws-sdk/client-sqs',
-        '@aws-sdk/util-dynamodb',
-      ],
-    },
-  },
   permissions: [
     {
       actions: ['cloudfront:CreateInvalidation'],

@@ -2,18 +2,11 @@
 
 export const dominantColor = new sst.aws.Function('DominantColor', {
   handler: 'apps/api/src/lambdas/dominantColor.handler',
-  memory: '512 MB',
+  // sharp decode/resize is CPU-bound; 1024 MB gets ~2x the CPU of 512 MB.
+  memory: '1024 MB',
   nodejs: {
     esbuild: {
-      external: [
-        '@aws-sdk/client-cloudfront',
-        '@aws-sdk/client-dynamodb',
-        '@aws-sdk/client-lambda',
-        '@aws-sdk/client-sesv2',
-        '@aws-sdk/client-sqs',
-        '@aws-sdk/util-dynamodb',
-        'sharp',
-      ],
+      external: ['sharp'],
     },
     install: ['sharp'],
   },

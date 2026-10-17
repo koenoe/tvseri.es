@@ -27,13 +27,6 @@ export const auth = new sst.aws.Auth('Auth', {
     link: [dynamo.users, email, secrets.googleClientId],
     memory: '1024 MB',
     nodejs: {
-      esbuild: {
-        external: [
-          '@aws-sdk/client-dynamodb',
-          '@aws-sdk/client-sesv2',
-          '@aws-sdk/util-dynamodb',
-        ],
-      },
       loader: {
         '.css': 'text',
       },

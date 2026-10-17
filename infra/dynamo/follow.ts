@@ -61,11 +61,6 @@ follow.subscribe(
     handler: 'apps/api/src/lambdas/follow.handler',
     link: [followSubscriberDlq, users],
     memory: '256 MB',
-    nodejs: {
-      esbuild: {
-        external: ['@aws-sdk/client-dynamodb', '@aws-sdk/util-dynamodb'],
-      },
-    },
     runtime: 'nodejs24.x',
     timeout: '10 seconds',
   },

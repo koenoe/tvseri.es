@@ -22,11 +22,6 @@ metricsQueue.subscribe(
     handler: 'apps/api/src/lambdas/metrics.handler',
     link: [dynamo.metricsRaw],
     memory: '256 MB',
-    nodejs: {
-      esbuild: {
-        external: ['@aws-sdk/client-dynamodb', '@aws-sdk/util-dynamodb'],
-      },
-    },
     timeout: '30 seconds',
   },
   {
@@ -49,11 +44,6 @@ export const webVitalsAggregateCron = new sst.aws.Cron(
       handler: 'apps/api/src/lambdas/metricsAggregateWebVitals.handler',
       link: [dynamo.metricsRaw, dynamo.metricsWebVitals],
       memory: '512 MB',
-      nodejs: {
-        esbuild: {
-          external: ['@aws-sdk/client-dynamodb', '@aws-sdk/util-dynamodb'],
-        },
-      },
       timeout: '5 minutes',
     },
     schedule: 'cron(5 0 * * ? *)', // Daily at 00:05 UTC
@@ -71,11 +61,6 @@ export const apiMetricsAggregateCron = new sst.aws.Cron(
       handler: 'apps/api/src/lambdas/metricsAggregateApi.handler',
       link: [dynamo.metricsRaw, dynamo.metricsApi],
       memory: '512 MB',
-      nodejs: {
-        esbuild: {
-          external: ['@aws-sdk/client-dynamodb', '@aws-sdk/util-dynamodb'],
-        },
-      },
       timeout: '5 minutes',
     },
     schedule: 'cron(10 0 * * ? *)', // Daily at 00:10 UTC

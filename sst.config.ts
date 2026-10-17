@@ -5,6 +5,7 @@ export default $config({
     return {
       home: 'aws',
       name: 'tvseries',
+      protect: input?.stage === 'production',
       providers: {
         '@pulumiverse/time': '0.1.1',
         aws: {
@@ -25,6 +26,8 @@ export default $config({
   },
   async run() {
     const { blockedCountries } = await import('./infra/blockedCountries');
+    const isProduction = $app.stage === 'production';
+
     // Global transform to apply geographic restrictions to all CloudFront distributions
     // and enable origin shield
     $transform(aws.cloudfront.Distribution, (args) => {
@@ -46,12 +49,16 @@ export default $config({
       }));
 
       args.priceClass = 'PriceClass_100';
+      args.httpVersion = 'http2and3';
+      args.isIpv6Enabled = true;
     });
 
     // Global transform to standardize all Lambda functions
     $transform(sst.aws.Function, (args) => {
       args.architecture = 'arm64';
       args.runtime = 'nodejs24.x';
+      // No @aws-sdk/* esbuild externals anywhere: a bundled SDK cold-starts faster than the
+      // runtime-provided one (AWS guidance). Compare REPORT "Init Duration" before/after.
       args.nodejs = {
         ...args.nodejs,
         minify: true,
@@ -64,7 +71,8 @@ export default $config({
     await import('./infra/dominantColor');
     await import('./infra/dynamo');
     await import('./infra/secrets');
-    if (!$dev) {
+    // One account-wide kill switch is enough; PR stages would each add a budget + cron.
+    if (isProduction) {
       await import('./infra/distributionDisabler');
     }
 

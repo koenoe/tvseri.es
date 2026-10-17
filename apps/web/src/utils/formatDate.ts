@@ -16,3 +16,8 @@ export default function formatDate(
 
   return year ? `${month} ${day}, ${year}` : `${month} ${day}`;
 }
+
+/** Formats a date-only value (e.g. an `airDate` stored as UTC midnight) without shifting the day. */
+export function formatDateOnly(input: string | number): string {
+  return formatDate(input, { timeZone: 'UTC' });
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import type { Season, WatchedItem, WatchProvider } from '@tvseri.es/schemas';
+import type { Season, WatchProvider } from '@tvseri.es/schemas';
 import { useSearchParams } from 'next/navigation';
 import {
   memo,
@@ -11,18 +11,13 @@ import {
 } from 'react';
 import { toast } from 'sonner';
 
+import { actionError, getActionErrorMessage } from '@/app/actionResult';
+import { markWatchedEpisodes, unmarkWatchedEpisodes } from '@/app/watchActions';
 import { useWatchedStore } from '@/components/Watched/WatchedStoreProvider';
 import SeasonCard from './SeasonCard';
+import type { TrackedEpisode, WatchedAction } from './types';
 
-export type WatchedAction = Readonly<{
-  type: 'delete' | 'update';
-  items: Partial<WatchedItem>[];
-}>;
-
-const reducer = (
-  state: Partial<WatchedItem>[],
-  { type, items }: WatchedAction,
-) => {
+const reducer = (state: TrackedEpisode[], { type, items }: WatchedAction) => {
   switch (type) {
     case 'delete': {
       const updatedState = state.filter(
@@ -66,15 +61,11 @@ function TrackForm({
   tvSeriesId,
   watchProvider,
   watchedItems: watchedItemsFromProps,
-  deleteAction,
-  saveAction,
 }: Readonly<{
   seasons: Season[];
   tvSeriesId: number;
   watchProvider?: WatchProvider | null;
-  watchedItems: WatchedItem[];
-  deleteAction: (items: Partial<WatchedItem>[]) => void;
-  saveAction: (items: Partial<WatchedItem>[]) => void;
+  watchedItems: TrackedEpisode[];
 }>) {
   const searchParams = useSearchParams();
   const [, startTransition] = useTransition();
@@ -83,7 +74,13 @@ function TrackForm({
     watchedItems,
     reducer,
   );
-  const seasonNumberFromSearchParams = searchParams.get('season');
+  const seasonFromSearchParams = searchParams.get('season');
+  const expandedSeasonNumber =
+    seasons.length === 1
+      ? (seasons[0]?.seasonNumber ?? null)
+      : seasonFromSearchParams
+        ? Number(seasonFromSearchParams)
+        : null;
   const markAsWatched = useWatchedStore((s) => s.markAsWatched);
   const unmarkAsWatched = useWatchedStore((s) => s.unmarkAsWatched);
 
@@ -92,72 +89,63 @@ function TrackForm({
       startTransition(async () => {
         optimisticDispatch({ items, type });
 
-        try {
-          await (type === 'delete' ? deleteAction(items) : saveAction(items));
-          dispatch({ items, type });
+        // Update items are built by toTrackedEpisode; delete only needs keys.
+        const result = await (type === 'delete'
+          ? unmarkWatchedEpisodes(
+              tvSeriesId,
+              items.map(({ episodeNumber, seasonNumber }) => ({
+                episodeNumber,
+                seasonNumber,
+              })),
+            )
+          : markWatchedEpisodes(tvSeriesId, items)
+        ).catch(() => actionError('failed'));
 
-          if (type === 'delete') {
-            for (const item of items) {
-              unmarkAsWatched(tvSeriesId, {
-                episodeNumber: item.episodeNumber,
-                seasonNumber: item.seasonNumber,
-              });
-            }
-          } else {
-            const storeItems = items
-              .filter(
-                (
-                  item,
-                ): item is Partial<WatchedItem> &
-                  Pick<
-                    WatchedItem,
-                    'seasonNumber' | 'episodeNumber' | 'runtime'
-                  > =>
-                  item.seasonNumber !== undefined &&
-                  item.episodeNumber !== undefined &&
-                  item.runtime !== undefined,
-              )
-              .map((item) => ({
-                episodeNumber: item.episodeNumber,
-                runtime: item.runtime,
-                seasonNumber: item.seasonNumber,
-              }));
-            markAsWatched(tvSeriesId, storeItems);
+        if (!result.ok) {
+          toast.error(getActionErrorMessage(result.error));
+          return;
+        }
+
+        dispatch({ items, type });
+
+        if (type === 'delete') {
+          for (const item of items) {
+            unmarkAsWatched(tvSeriesId, {
+              episodeNumber: item.episodeNumber,
+              seasonNumber: item.seasonNumber,
+            });
           }
-        } catch (_) {
-          toast.error('Something went wrong. Please try again.');
+        } else {
+          markAsWatched(
+            tvSeriesId,
+            items.map((item) => ({
+              episodeNumber: item.episodeNumber,
+              runtime: item.runtime,
+              seasonNumber: item.seasonNumber,
+            })),
+          );
         }
       });
     },
-    [
-      deleteAction,
-      saveAction,
-      optimisticDispatch,
-      tvSeriesId,
-      markAsWatched,
-      unmarkAsWatched,
-    ],
+    [optimisticDispatch, tvSeriesId, markAsWatched, unmarkAsWatched],
   );
 
   return (
     <div className="flex flex-col gap-4">
       {seasons.map((season) => (
         <SeasonCard
-          isExpanded={
-            String(season.seasonNumber) === seasonNumberFromSearchParams ||
-            seasons.length === 1
-          }
+          expandedSeasonNumber={expandedSeasonNumber}
           key={season.id}
           season={season}
           updateItems={updateItems}
-          watchedItems={optimisticWatchedItems.filter(
-            (item) => item.seasonNumber === season.seasonNumber,
-          )}
+          watchedItems={optimisticWatchedItems}
           watchProvider={watchProvider}
         />
       ))}
     </div>
   );
 }
+
+TrackForm.displayName = 'TrackForm';
 
 export default memo(TrackForm);

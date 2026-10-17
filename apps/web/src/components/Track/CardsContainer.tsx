@@ -1,21 +1,17 @@
-import type {
-  Season,
-  TvSeries,
-  User,
-  WatchedItem,
-  WatchProvider,
-} from '@tvseri.es/schemas';
+import type { Season, TvSeries, User } from '@tvseri.es/schemas';
+import { headers } from 'next/headers';
 
 import { cachedTvSeriesSeason } from '@/app/cached';
-import auth from '@/auth';
-import {
-  fetchTvSeriesWatchProvider,
-  getAllWatchedForTvSeries,
-  markWatchedInBatch,
-  unmarkWatchedInBatch,
-} from '@/lib/api';
-import { getRegion } from '@/lib/geo';
+import { resolveWatchProvider } from '@/app/watchedService';
+import { getAllWatchedForTvSeries } from '@/lib/api';
 import Cards from './Cards';
+
+/** The track cards never show descriptions; don't serialise them to the client. */
+const withoutDescriptions = (season: Season): Season => ({
+  ...season,
+  description: '',
+  episodes: season.episodes.map((episode) => ({ ...episode, description: '' })),
+});
 
 async function fetchAllSeasons(tvSeries: TvSeries) {
   const seasonPromises =
@@ -25,10 +21,16 @@ async function fetchAllSeasons(tvSeries: TvSeries) {
 
   const seasons = await Promise.all(seasonPromises);
   return seasons
-    .filter((season): season is Season => season !== undefined)
-    .filter((season) => season.hasAired);
+    .filter((season): season is Season => season != null)
+    .filter((season) => season.hasAired)
+    .map(withoutDescriptions);
 }
 
+/**
+ * `user` is the authenticated viewer (the track page requires a session).
+ * Mutations go through the server actions in `@/app/watchActions`, which
+ * re-authenticate on every call.
+ */
 export default async function CardsContainer({
   tvSeries,
   user,
@@ -36,92 +38,23 @@ export default async function CardsContainer({
   tvSeries: TvSeries;
   user: User;
 }>) {
-  const [region, { accessToken, user: authenticatedUser }] = await Promise.all([
-    getRegion(),
-    auth(),
-  ]);
-
-  const [watchedItems, seasons, watchProvider] = await Promise.all([
+  const [watchedItems, seasons, { watchProvider }] = await Promise.all([
     getAllWatchedForTvSeries({
       seriesId: tvSeries.id,
       userId: user.id,
     }),
     fetchAllSeasons(tvSeries),
-    fetchTvSeriesWatchProvider(
-      tvSeries.id,
-      authenticatedUser?.country || region,
-      authenticatedUser,
+    headers().then((headerStore) =>
+      resolveWatchProvider({
+        headers: headerStore,
+        seriesId: tvSeries.id,
+        user,
+      }),
     ),
   ]);
 
-  async function deleteWatchedItems(items: Partial<WatchedItem>[]) {
-    'use server';
-
-    try {
-      const itemsToRemove = items.map((item) => ({
-        episode: {
-          episodeNumber: item.episodeNumber!,
-          seasonNumber: item.seasonNumber!,
-        },
-        tvSeries,
-        userId: user.id,
-      }));
-
-      await unmarkWatchedInBatch({
-        accessToken: accessToken!,
-        items: itemsToRemove,
-        userId: user.id,
-      });
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  }
-
-  async function saveWatchedItems(items: Partial<WatchedItem>[]) {
-    'use server';
-
-    try {
-      const itemsToUpdate = items.map((item) => {
-        const hasWatchProvider = item.watchProviderName || watchProvider?.name;
-        return {
-          episode: {
-            airDate: item.episodeAirDate ?? '',
-            episodeNumber: item.episodeNumber!,
-            runtime: item.runtime!,
-            seasonNumber: item.seasonNumber!,
-            stillPath: item.episodeStillPath ?? null,
-            title: item.episodeTitle ?? '',
-          },
-          tvSeries,
-          userId: user.id,
-          watchedAt: item.watchedAt!,
-          watchProvider: hasWatchProvider
-            ? ({
-                id: 0,
-                logo: item.watchProviderLogoImage || watchProvider?.logo,
-                logoPath: item.watchProviderLogoPath || watchProvider?.logoPath,
-                name: item.watchProviderName || watchProvider?.name,
-              } as WatchProvider)
-            : null,
-        };
-      });
-
-      await markWatchedInBatch({
-        accessToken: accessToken!,
-        items: itemsToUpdate,
-        userId: user.id,
-      });
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  }
-
   return (
     <Cards
-      deleteAction={deleteWatchedItems}
-      saveAction={saveWatchedItems}
       seasons={seasons}
       tvSeriesId={tvSeries.id}
       watchedItems={watchedItems}

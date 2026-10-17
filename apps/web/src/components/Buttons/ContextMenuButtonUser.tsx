@@ -3,10 +3,10 @@
 import type { User } from '@tvseri.es/schemas';
 import { useRef } from 'react';
 import { toast } from 'sonner';
-
 import ContextMenuButton, {
   type ContextMenuButtonHandle,
 } from './ContextMenuButton';
+import { ContextMenuItem } from './ContextMenuItem';
 
 export default function ContextMenuButtonUser({
   className,
@@ -22,21 +22,18 @@ export default function ContextMenuButtonUser({
       contextMenuButtonRef.current?.close();
 
       await navigator.clipboard.writeText(
-        `https://tvseri.es/u/${user.username}`,
+        `${window.location.origin}/u/${user.username}/stats/${new Date().getFullYear()}`,
       );
-      toast.success('Profile link copied to clipboard!');
+      toast.success('Stats link copied to clipboard!');
     } catch (err) {
       const error = err as Error;
-      toast.error(`Failed to copy profile link: ${error.message}`);
+      toast.error(`Failed to copy stats link: ${error.message}`);
     }
   };
 
   return (
     <ContextMenuButton className={className} ref={contextMenuButtonRef}>
-      <button
-        className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap text-sm font-medium hover:text-neutral-800"
-        onClick={handleCopy}
-      >
+      <ContextMenuItem onClick={handleCopy}>
         <svg className="size-3 shrink-0" fill="none" viewBox="0 0 16 16">
           <path
             d="M7.05025 1.53553C8.03344 0.552348 9.36692 0 10.7574 0C13.6528 0 16 2.34721 16 5.24264C16 6.63308 15.4477 7.96656 14.4645 8.94975L12.4142 11L11 9.58579L13.0503 7.53553C13.6584 6.92742 14 6.10264 14 5.24264C14 3.45178 12.5482 2 10.7574 2C9.89736 2 9.07258 2.34163 8.46447 2.94975L6.41421 5L5 3.58579L7.05025 1.53553Z"
@@ -51,8 +48,8 @@ export default function ContextMenuButtonUser({
             fill="currentColor"
           />
         </svg>
-        <span>Copy profile link</span>
-      </button>
+        <span>Copy stats link</span>
+      </ContextMenuItem>
     </ContextMenuButton>
   );
 }

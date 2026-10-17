@@ -1,69 +1,48 @@
 'use client';
 
 import type { TvSeries } from '@tvseri.es/schemas';
-import Link from 'next/link';
-import { useCallback, useRef, useTransition } from 'react';
+import { useCallback, useRef } from 'react';
 
 import { useActionButtons } from './ActionButtonsProvider';
 import ContextMenuButton, {
   type ContextMenuButtonHandle,
 } from './ContextMenuButton';
+import { ContextMenuItem, ContextMenuLink } from './ContextMenuItem';
 
 export default function ContextMenuButtonTvSeries({
-  action,
   className,
   tvSeries,
 }: Readonly<{
-  action: (value: boolean, listType: 'favorites' | 'watchlist') => void;
   className?: string;
-  isOpen?: boolean;
-  tvSeries: TvSeries;
+  tvSeries: Pick<TvSeries, 'id' | 'slug'>;
 }>) {
-  const [{ isFavorited, isWatchlisted }, setState] = useActionButtons();
-  const [isPending, startTransition] = useTransition();
+  const {
+    isPending,
+    state: { isFavorited, isWatchlisted },
+    toggle,
+  } = useActionButtons();
   const contextMenuButtonRef = useRef<ContextMenuButtonHandle>(null);
-
-  const handleActionClick = useCallback(
-    (value: boolean, listType: 'favorites' | 'watchlist') => {
-      setState((prevState) => ({
-        ...prevState,
-        isFavorited: listType === 'favorites' ? value : prevState.isFavorited,
-        isWatchlisted:
-          listType === 'watchlist' ? value : prevState.isWatchlisted,
-      }));
-
-      startTransition(async () => {
-        try {
-          await action(value, listType);
-        } catch (error) {
-          console.error(error);
-        }
-      });
-    },
-    [action, setState],
-  );
+  const trackHref = `/track/${tvSeries.id}/${tvSeries.slug}`;
 
   const handleEditClick = useCallback(() => {
     contextMenuButtonRef.current?.close();
   }, []);
 
   const handleFavoriteClick = useCallback(() => {
-    handleActionClick(!isFavorited, 'favorites');
-  }, [handleActionClick, isFavorited]);
+    toggle('favorites');
+  }, [toggle]);
 
   const handleWatchlistClick = useCallback(() => {
-    handleActionClick(!isWatchlisted, 'watchlist');
-  }, [handleActionClick, isWatchlisted]);
+    toggle('watchlist');
+  }, [toggle]);
 
   return (
-    <ContextMenuButton className={className} isDisabled={isPending}>
-      <Link
-        className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap border-b-2 border-neutral-200 pb-3 text-sm font-medium hover:text-neutral-800"
-        href={{
-          pathname: `/track/${tvSeries.id}/${tvSeries.slug}`,
-        }}
-        onClick={handleEditClick}
-      >
+    <ContextMenuButton
+      className={className}
+      isDisabled={isPending}
+      ref={contextMenuButtonRef}
+    >
+      <ContextMenuLink href={trackHref} onClick={handleEditClick}>
         <svg
           className="size-5"
           fill="currentColor"
@@ -74,11 +53,8 @@ export default function ContextMenuButtonTvSeries({
           <path d="M394.82,141.18C351.1,111.2,304.31,96,255.76,96c-43.69,0-86.28,13-126.59,38.48C88.52,160.23,48.67,207,16,256c26.42,44,62.56,89.24,100.2,115.18C159.38,400.92,206.33,416,255.76,416c49,0,95.85-15.07,139.3-44.79C433.31,345,469.71,299.82,496,256,469.62,212.57,433.1,167.44,394.82,141.18ZM256,352a96,96,0,1,1,96-96A96.11,96.11,0,0,1,256,352Z" />
         </svg>
         <span>Edit watch history</span>
-      </Link>
-      <button
-        className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap border-b-2 border-neutral-200 pb-3 text-sm font-medium hover:text-neutral-800"
-        onClick={handleFavoriteClick}
-      >
+      </ContextMenuLink>
+      <ContextMenuItem onClick={handleFavoriteClick}>
         <svg
           className="size-5 shrink-0"
           fill="currentColor"
@@ -90,11 +66,8 @@ export default function ContextMenuButtonTvSeries({
         <span>
           {isFavorited ? 'Remove from favorites' : 'Add to favorites'}
         </span>
-      </button>
-      <button
-        className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap text-sm font-medium hover:text-neutral-800"
-        onClick={handleWatchlistClick}
-      >
+      </ContextMenuItem>
+      <ContextMenuItem onClick={handleWatchlistClick}>
         <svg
           className="size-5 shrink-0"
           viewBox="0 0 512 512"
@@ -109,7 +82,7 @@ export default function ContextMenuButtonTvSeries({
         <span>
           {isWatchlisted ? 'Remove from watchlist' : 'Add to watchlist'}
         </span>
-      </button>
+      </ContextMenuItem>
     </ContextMenuButton>
   );
 }

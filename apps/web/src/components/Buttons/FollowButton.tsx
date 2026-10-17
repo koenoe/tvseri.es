@@ -1,7 +1,9 @@
 'use client';
 
 import { useCallback, useOptimistic, useState, useTransition } from 'react';
+import { toast } from 'sonner';
 
+import { actionError, getActionErrorMessage } from '@/app/actionResult';
 import { toggleFollow } from '@/app/actions';
 
 import AddButton from './AddButton';
@@ -27,13 +29,16 @@ export default function FollowButton({
       startTransition(async () => {
         setOptimisticIsFollowing(value);
 
-        try {
-          await toggleFollow(value, username);
+        const result = await toggleFollow(value, username).catch(() =>
+          actionError('failed'),
+        );
 
-          setIsFollowing(value);
-        } catch (error) {
-          console.error(error);
+        if (!result.ok) {
+          toast.error(getActionErrorMessage(result.error));
+          return;
         }
+
+        setIsFollowing(value);
       });
     },
     [setOptimisticIsFollowing, username],

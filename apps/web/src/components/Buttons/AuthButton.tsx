@@ -2,9 +2,11 @@
 
 import { cva } from 'class-variance-authority';
 import { memo, useTransition } from 'react';
+import { toast } from 'sonner';
 
-import { login, logout } from '@/app/actions';
+import { logout } from '@/app/actions';
 
+import { loginFromHere } from '../Auth/loginFromHere';
 import LoadingDots from '../LoadingDots/LoadingDots';
 
 const loginButtonStyles = cva(
@@ -31,15 +33,17 @@ const AuthButton = ({
 }>) => {
   const [isPending, startTransition] = useTransition();
   const handleClick = () => {
+    if (!isAuthenticated) {
+      startTransition(loginFromHere);
+      return;
+    }
     startTransition(async () => {
       try {
-        if (isAuthenticated) {
-          await logout();
-          onLogout?.();
-        } else {
-          await login();
-        }
-      } catch (_error) {}
+        await logout();
+        onLogout?.();
+      } catch {
+        toast.error('Something went wrong. Please try again.');
+      }
     });
   };
 
@@ -58,5 +62,7 @@ const AuthButton = ({
     </button>
   );
 };
+
+AuthButton.displayName = 'AuthButton';
 
 export default memo(AuthButton);

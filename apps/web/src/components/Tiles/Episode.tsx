@@ -3,7 +3,7 @@ import { cva, cx } from 'class-variance-authority';
 import { memo, useMemo } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-import formatDate from '@/utils/formatDate';
+import { formatDateOnly } from '@/utils/formatDate';
 import formatRuntime from '@/utils/formatRuntime';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
@@ -81,7 +81,7 @@ function EpisodeTile({
                 !item.runtime && 'before:mr-0 before:content-none',
               )}
             >
-              {formatDate(item.airDate)}
+              {formatDateOnly(item.airDate)}
             </div>
           ) : null}
         </div>
@@ -92,5 +92,7 @@ function EpisodeTile({
     </div>
   );
 }
+
+EpisodeTile.displayName = 'EpisodeTile';
 
 export default memo(EpisodeTile);

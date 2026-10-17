@@ -9,14 +9,11 @@ import { DayFlag, DayPicker, SelectionState, UI } from 'react-day-picker';
 import { DEFAULT_BACKGROUND_COLOR } from '@/constants';
 import getMainBackgroundColor from '@/utils/getMainBackgroundColor';
 
-import DropdownContainer, {
-  type Position,
-} from '../Dropdown/DropdownContainer';
+import DropdownContainer from '../Dropdown/DropdownContainer';
 
 export type Props = Readonly<{
   className?: string;
   children: ReactNode;
-  offset?: Position;
   selected?: Date;
   onSelect: (value: string) => void;
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -126,5 +123,7 @@ function DatePicker({
     </>
   );
 }
+
+DatePicker.displayName = 'DatePicker';
 
 export default memo(DatePicker);

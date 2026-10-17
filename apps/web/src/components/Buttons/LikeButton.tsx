@@ -1,34 +1,19 @@
 'use client';
 
-import { useCallback, useTransition } from 'react';
+import { useCallback } from 'react';
 
 import { useActionButtons } from './ActionButtonsProvider';
 import CircleButton from './CircleButton';
 
-export default function LikeButton({
-  action,
-}: Readonly<{
-  action: (value: boolean, listType: 'favorites' | 'watchlist') => void;
-}>) {
-  const [{ isFavorited }, setState] = useActionButtons();
-  const [isPending, startTransition] = useTransition();
-  const handleOnClick = useCallback(
-    (value: boolean) => {
-      setState((prevState) => ({
-        ...prevState,
-        isFavorited: value,
-      }));
-
-      startTransition(async () => {
-        try {
-          await action(value, 'favorites');
-        } catch (error) {
-          console.error(error);
-        }
-      });
-    },
-    [action, setState],
-  );
+export default function LikeButton() {
+  const {
+    isPending,
+    state: { isFavorited },
+    toggle,
+  } = useActionButtons();
+  const handleOnClick = useCallback(() => {
+    toggle('favorites');
+  }, [toggle]);
 
   return (
     <CircleButton

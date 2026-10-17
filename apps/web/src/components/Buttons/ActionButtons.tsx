@@ -1,21 +1,27 @@
-import type { TvSeries } from '@tvseri.es/schemas';
-
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
-import {
-  addToFavorites,
-  addToWatchlist,
-  isInFavorites,
-  isInWatchlist,
-  removeFromFavorites,
-  removeFromWatchlist,
-} from '@/lib/api';
+import { isInFavorites, isInWatchlist } from '@/lib/api';
 
 import ActionButtonsProvider from './ActionButtonsProvider';
 import ContextMenuButtonTvSeries from './ContextMenuButtonTvSeries';
 import LikeButton from './LikeButton';
 import WatchButton from './WatchButton';
 import WatchlistButton from './WatchlistButton';
+
+async function fetchListState(tvSeriesId: number) {
+  const { user } = await auth();
+  if (!user) {
+    return { isFavorited: false, isWatchlisted: false };
+  }
+
+  const payload = { id: tvSeriesId, userId: user.id };
+  const [isFavorited, isWatchlisted] = await Promise.all([
+    isInFavorites(payload),
+    isInWatchlist(payload),
+  ]);
+
+  return { isFavorited, isWatchlisted };
+}
 
 export default async function ActionButtons({
   id,
@@ -26,95 +32,30 @@ export default async function ActionButtons({
   showWatchButton?: boolean;
   showContextMenuButton?: boolean;
 }>) {
-  const tvSeries = (await cachedTvSeries(id)) as TvSeries;
+  const tvSeriesId = Number(id);
+  const [tvSeries, { isFavorited, isWatchlisted }] = await Promise.all([
+    cachedTvSeries(id),
+    fetchListState(tvSeriesId),
+  ]);
+
+  if (!tvSeries) {
+    return null;
+  }
+
   const shouldShowWatchButton = Boolean(showWatchButton && tvSeries.hasAired);
-
-  async function addToOrRemoveAction(
-    value: boolean,
-    listType: 'favorites' | 'watchlist',
-  ) {
-    'use server';
-
-    const { user, accessToken } = await auth();
-    if (!user || !accessToken) {
-      return;
-    }
-
-    const payload = {
-      accessToken,
-      item: {
-        id: tvSeries.id,
-        posterPath: tvSeries.posterPath,
-        slug: tvSeries.slug,
-        status: tvSeries.status,
-        title: tvSeries.title,
-      },
-      userId: user.id,
-    };
-
-    if (listType === 'watchlist') {
-      if (value) {
-        await addToWatchlist(payload);
-      } else {
-        await removeFromWatchlist({
-          accessToken,
-          id: tvSeries.id,
-          userId: user.id,
-        });
-      }
-    } else if (listType === 'favorites') {
-      if (value) {
-        await addToFavorites(payload);
-      } else {
-        await removeFromFavorites({
-          accessToken,
-          id: tvSeries.id,
-          userId: user.id,
-        });
-      }
-    }
-  }
-
-  const { user } = await auth();
-  if (user) {
-    const payload = {
-      id: Number(id),
-      userId: user.id,
-    };
-
-    const [isFavorited, isWatchlisted] = await Promise.all([
-      isInFavorites(payload),
-      isInWatchlist(payload),
-    ]);
-
-    return (
-      <ActionButtonsProvider
-        isFavorited={isFavorited}
-        isWatchlisted={isWatchlisted}
-      >
-        {shouldShowWatchButton && <WatchButton tvSeriesId={Number(id)} />}
-        <LikeButton action={addToOrRemoveAction} />
-        <WatchlistButton action={addToOrRemoveAction} />
-        {showContextMenuButton ? (
-          <ContextMenuButtonTvSeries
-            action={addToOrRemoveAction}
-            tvSeries={tvSeries}
-          />
-        ) : null}
-      </ActionButtonsProvider>
-    );
-  }
+  const contextMenuTvSeries = { id: tvSeries.id, slug: tvSeries.slug };
 
   return (
-    <ActionButtonsProvider isFavorited={false} isWatchlisted={false}>
-      {shouldShowWatchButton && <WatchButton tvSeriesId={Number(id)} />}
-      <LikeButton action={addToOrRemoveAction} />
-      <WatchlistButton action={addToOrRemoveAction} />
+    <ActionButtonsProvider
+      isFavorited={isFavorited}
+      isWatchlisted={isWatchlisted}
+      tvSeriesId={tvSeriesId}
+    >
+      {shouldShowWatchButton ? <WatchButton tvSeriesId={tvSeriesId} /> : null}
+      <LikeButton />
+      <WatchlistButton />
       {showContextMenuButton ? (
-        <ContextMenuButtonTvSeries
-          action={addToOrRemoveAction}
-          tvSeries={tvSeries}
-        />
+        <ContextMenuButtonTvSeries tvSeries={contextMenuTvSeries} />
       ) : null}
     </ActionButtonsProvider>
   );

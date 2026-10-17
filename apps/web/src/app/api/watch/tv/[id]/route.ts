@@ -1,12 +1,8 @@
 import type { NextRequest } from 'next/server';
 import { cachedTvSeries } from '@/app/cached';
+import { markEpisodesWatched } from '@/app/watchedService';
 import auth from '@/auth';
-import {
-  fetchTvSeriesWatchProvider,
-  markWatched,
-  unmarkWatched,
-} from '@/lib/api';
-import { getRegionFromHeaders } from '@/lib/geo';
+import { unmarkWatched } from '@/lib/api';
 import isNumericId from '@/utils/isNumericId';
 
 type BodyPayload = Readonly<{
@@ -26,28 +22,25 @@ export async function POST(
     return Response.json({ error: 'No payload found' }, { status: 400 });
   }
 
-  const tvSeries = await cachedTvSeries(params.id);
+  const [tvSeries, { user, accessToken }] = await Promise.all([
+    cachedTvSeries(params.id),
+    auth(req),
+  ]);
+  if (!user || !accessToken) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   if (!tvSeries?.firstAirDate || !tvSeries.hasAired) {
     return Response.json({ error: 'Not found' }, { status: 404 });
   }
 
-  const { user, accessToken } = await auth(req);
-  if (!user || !accessToken) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  const region = user.country || getRegionFromHeaders(req.headers);
-  const watchProvider =
-    (await fetchTvSeriesWatchProvider(tvSeries.id, region, user)) ?? null;
-
   if (body.watched) {
-    const watchedItems = await markWatched({
+    const watchedItems = await markEpisodesWatched({
       accessToken,
       episodeNumber: body.episodeNumber,
-      region,
+      headers: req.headers,
       seasonNumber: body.seasonNumber,
       seriesId: tvSeries.id,
-      userId: user.id,
-      watchProvider,
+      user,
     });
     return Response.json(watchedItems);
   } else {

@@ -66,13 +66,11 @@ export default function EpisodesList({
     startTransition(async () => {
       try {
         const response = await fetch(`/api/${fetchKey}`);
-        const json = (await response.json()) as Season;
-        if (json) {
-          setEpisodes(json.episodes);
-        } else {
-          setEpisodes([]);
-        }
-      } catch (_error) {}
+        const json = response.ok ? ((await response.json()) as Season) : null;
+        setEpisodes(json?.episodes ?? []);
+      } catch (_error) {
+        setEpisodes([]);
+      }
 
       setIsInitialFetch(false);
     });

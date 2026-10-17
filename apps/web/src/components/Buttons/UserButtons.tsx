@@ -6,6 +6,10 @@ import ContextMenuButtonUser from './ContextMenuButtonUser';
 import EditProfileButton from './EditProfileButton';
 import FollowButton from './FollowButton';
 
+/**
+ * Rendered in the /u/[username] (user) layout, which requires a session
+ * (see proxy.ts), so there is no logged-out variant.
+ */
 export default async function UserButtons({
   params,
 }: Readonly<{
@@ -14,33 +18,30 @@ export default async function UserButtons({
   }>;
 }>) {
   const { username } = await params;
-  const user = await cachedUser({ username });
-  if (!user) {
+  const [user, { user: userFromSession }] = await Promise.all([
+    cachedUser({ username }),
+    auth(),
+  ]);
+
+  if (!user || !userFromSession) {
     return null;
   }
 
-  const { user: userFromSession } = await auth();
-  if (userFromSession) {
-    const isFollowing = await isFollowingResult({
-      targetUserId: user.id,
-      userId: userFromSession?.id,
-    });
-
-    return (
-      <>
-        {userFromSession.id === user.id ? (
-          <EditProfileButton />
-        ) : (
-          <FollowButton isFollowing={isFollowing} username={username} />
-        )}
-        <ContextMenuButtonUser user={user} />
-      </>
-    );
-  }
+  const isMe = userFromSession.id === user.id;
+  const isFollowing = isMe
+    ? false
+    : await isFollowingResult({
+        targetUserId: user.id,
+        userId: userFromSession.id,
+      });
 
   return (
     <>
-      <FollowButton isFollowing={false} username={username} />
+      {isMe ? (
+        <EditProfileButton />
+      ) : (
+        <FollowButton isFollowing={isFollowing} username={username} />
+      )}
       <ContextMenuButtonUser user={user} />
     </>
   );

@@ -45,7 +45,6 @@ export default function ContextMenuButton({
   Readonly<{
     className?: string;
     classNameContainer?: string;
-    isOpen?: boolean;
     isDisabled?: boolean;
     children: ReactNode;
     ref?: Ref<ContextMenuButtonHandle>;

@@ -3,7 +3,6 @@
 import type { Season, TvSeries } from '@tvseri.es/schemas';
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import {
   memo,
   useCallback,
@@ -13,10 +12,16 @@ import {
   useTransition,
 } from 'react';
 import { toast } from 'sonner';
+import { getActionErrorMessage } from '@/app/actionResult';
+import {
+  markNextEpisodeWatched,
+  removeFromInProgress,
+} from '@/app/watchActions';
 import useRgbString from '@/hooks/useRgbString';
 import ContextMenuButton, {
   type ContextMenuButtonHandle,
 } from '../Buttons/ContextMenuButton';
+import { ContextMenuItem, ContextMenuLink } from '../Buttons/ContextMenuItem';
 import Progress from '../Progress/Progress';
 import SpotlightBackground from '../Spotlight/SpotlightBackground';
 import SpotlightTitle from '../Spotlight/SpotlightTitle';
@@ -25,18 +30,13 @@ function InProgress({
   currentSeason,
   currentSeasonWatchCount,
   tvSeries,
-  markNextAsWatched,
-  removeAction,
   removeIsAllowed = false,
 }: Readonly<{
   currentSeason: Season;
   currentSeasonWatchCount: number;
   tvSeries: TvSeries;
-  markNextAsWatched: () => void;
-  removeAction: () => void;
   removeIsAllowed?: boolean;
 }>) {
-  const router = useRouter();
   const contextMenuButtonRef = useRef<ContextMenuButtonHandle>(null);
   const backdropColorRgbString = useRgbString(tvSeries.backdropColor);
   const [isRemoved, setIsRemoved] = useState(false);
@@ -51,32 +51,51 @@ function InProgress({
     contextMenuButtonRef.current?.close();
 
     startRemove(async () => {
-      try {
-        setIsOptimisticRemoved(true);
-        await removeAction();
+      setIsOptimisticRemoved(true);
+      const result = await removeFromInProgress(tvSeries.id).catch(() => null);
+      if (result?.ok) {
         setIsRemoved(true);
-      } catch (_error) {
-        toast.error(`Failed to remove item from 'In Progress'`);
+        return;
       }
+      toast.error(
+        getActionErrorMessage(
+          result?.error ?? 'failed',
+          `Failed to remove item from 'In Progress'`,
+        ),
+      );
     });
-  }, [removeAction, setIsOptimisticRemoved]);
+  }, [setIsOptimisticRemoved, tvSeries.id]);
 
   const handleMarkNextAsWatched = useCallback(() => {
     contextMenuButtonRef.current?.close();
 
     startMarkingNextAsWatched(async () => {
-      const promise = (async () => {
-        await markNextAsWatched();
-        router.refresh();
-      })();
+      // The action calls refresh(), so progress updates in the same round-trip.
+      const promise = markNextEpisodeWatched(
+        tvSeries.id,
+        currentSeason.seasonNumber,
+      ).then((result) => {
+        if (!result.ok) {
+          throw new Error(
+            getActionErrorMessage(
+              result.error,
+              'Failed to mark next episode as watched',
+            ),
+          );
+        }
+      });
 
       toast.promise(promise, {
-        error: 'Failed to mark next episode as watched',
+        error: (error: Error) => error.message,
         loading: 'Marking next episode as watched...',
         success: 'Next episode marked as watched',
       });
+
+      await promise.catch(() => {});
     });
-  }, [markNextAsWatched, router]);
+  }, [currentSeason.seasonNumber, tvSeries.id]);
+
+  const trackHref = `/track/${tvSeries.id}/${tvSeries.slug}?season=${currentSeason.seasonNumber}`;
 
   const handleCloseMenu = useCallback(() => {
     contextMenuButtonRef.current?.close();
@@ -155,8 +174,7 @@ function InProgress({
               ref={contextMenuButtonRef}
               size="small"
             >
-              <button
-                className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap border-b-2 border-neutral-200 pb-3 text-sm font-medium hover:text-neutral-800"
+              <ContextMenuItem
                 disabled={isMarkingNextAsWatched}
                 onClick={handleMarkNextAsWatched}
               >
@@ -177,12 +195,8 @@ function InProgress({
                   />
                 </svg>
                 <span>Watched next episode</span>
-              </button>
-              <Link
-                className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap border-b-2 border-neutral-200 pb-3 text-sm font-medium hover:text-neutral-800"
-                href={`/track/${tvSeries.id}/${tvSeries.slug}?season=${currentSeason.seasonNumber}`}
-                onClick={handleCloseMenu}
-              >
+              </ContextMenuItem>
+              <ContextMenuLink href={trackHref} onClick={handleCloseMenu}>
                 <svg
                   className="size-5"
                   fill="currentColor"
@@ -193,12 +207,8 @@ function InProgress({
                   <path d="M394.82,141.18C351.1,111.2,304.31,96,255.76,96c-43.69,0-86.28,13-126.59,38.48C88.52,160.23,48.67,207,16,256c26.42,44,62.56,89.24,100.2,115.18C159.38,400.92,206.33,416,255.76,416c49,0,95.85-15.07,139.3-44.79C433.31,345,469.71,299.82,496,256,469.62,212.57,433.1,167.44,394.82,141.18ZM256,352a96,96,0,1,1,96-96A96.11,96.11,0,0,1,256,352Z" />
                 </svg>
                 <span>Edit watch history</span>
-              </Link>
-              <button
-                className="flex w-full flex-nowrap items-center gap-x-2 text-nowrap text-sm font-medium hover:text-neutral-800"
-                disabled={isRemoving}
-                onClick={handleRemove}
-              >
+              </ContextMenuLink>
+              <ContextMenuItem disabled={isRemoving} onClick={handleRemove}>
                 <svg
                   className="size-5"
                   fill="currentColor"
@@ -212,7 +222,7 @@ function InProgress({
                   />
                 </svg>
                 <span>Hide from in progress</span>
-              </button>
+              </ContextMenuItem>
             </ContextMenuButton>
           ) : null}
         </motion.div>
@@ -220,5 +230,7 @@ function InProgress({
     </AnimatePresence>
   );
 }
+
+InProgress.displayName = 'InProgress';
 
 export default memo(InProgress);

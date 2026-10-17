@@ -3,6 +3,7 @@ import { OauthError } from '@openauthjs/openauth/error';
 import { CodeProvider } from '@openauthjs/openauth/provider/code';
 import { GoogleOidcProvider } from '@openauthjs/openauth/provider/google';
 import { subjects } from '@tvseri.es/schemas';
+import { Hono } from 'hono';
 import { handle } from 'hono/aws-lambda';
 import { Resource } from 'sst';
 import { allowClient } from './lib/clients';
@@ -46,7 +47,7 @@ const findOrCreateUser = async (
   }
 };
 
-const app = issuer({
+const issuerApp = issuer({
   allow: allowClient,
   providers: {
     code: CodeProvider(
@@ -104,5 +105,20 @@ const app = issuer({
   },
   ttl,
 });
+
+// The JWKS and the discovery document only change when keys are added (old
+// keys stay valid), so let CloudFront cache them: token verifiers (cold API
+// containers, new Vercel instances) then get them from the edge instead of a
+// possibly cold issuer. OpenAuth registers its routes itself, so wrap it to
+// add the header. `mount` (not `route`) keeps the issuer's own error handling
+// exactly as before.
+const app = new Hono()
+  .use('/.well-known/*', async (c, next) => {
+    await next();
+    if (c.req.method === 'GET' && c.res.ok) {
+      c.header('Cache-Control', 'public, max-age=3600');
+    }
+  })
+  .mount('/', issuerApp.fetch);
 
 export const handler = handle(app);

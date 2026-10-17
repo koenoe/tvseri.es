@@ -2,9 +2,6 @@
 import { preload } from 'react-dom';
 import { twMerge } from 'tailwind-merge';
 
-// Track preloaded URLs to avoid duplicate preloads
-const preloadedUrls = new Set<string>();
-
 const createImageUrl = (src: string, width: number): string => {
   if (src.includes('w1920_and_h1080_multi_faces') && width === 1280) {
     const resizedSrc = src.replace(
@@ -33,27 +30,16 @@ export default function BackgroundImage({
   const fetchPriority = priority ? 'high' : 'auto';
 
   if (priority) {
-    // Preload both sizes - browser will use the appropriate one based on viewport
-    // Use Set to avoid duplicate preloads when same image is rendered multiple times
-    if (!preloadedUrls.has(SD)) {
-      preloadedUrls.add(SD);
-      preload(SD, {
-        as: 'image',
-        fetchPriority: 'high',
-        imageSizes,
-        imageSrcSet,
-      });
-    }
-
-    if (!preloadedUrls.has(HD)) {
-      preloadedUrls.add(HD);
-      preload(HD, {
-        as: 'image',
-        fetchPriority: 'high',
-        imageSizes,
-        imageSrcSet,
-      });
-    }
+    // `preload` dedupes within a request on its own (React keys image preloads
+    // by `imageSrcSet` + `imageSizes`). Never track URLs in module state: it is
+    // shared across requests on the server and suppresses the preload for every
+    // visitor after the first. The browser picks the right size from the srcset.
+    preload(SD, {
+      as: 'image',
+      fetchPriority: 'high',
+      imageSizes,
+      imageSrcSet,
+    });
   }
 
   return (

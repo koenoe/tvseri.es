@@ -7,7 +7,9 @@ import { HTTPException } from 'hono/http-exception';
 import { requestId } from 'hono/request-id';
 import { timeout } from 'hono/timeout';
 
+import { requireApiKey } from './middleware/apiKey';
 import type { Variables } from './middleware/auth';
+import { errorCacheControl } from './middleware/cacheControl';
 import { metrics as metricsMiddleware } from './middleware/metrics';
 import admin from './routes/admin';
 import collection from './routes/collection';
@@ -28,7 +30,12 @@ import webhook from './routes/webhook';
 const app = new Hono<{ Variables: Variables }>();
 
 app.use(requestId({ headerName: 'x-amz-cf-id' }));
+// Before metrics: requests rejected at the edge were never recorded either
+app.use(requireApiKey());
 app.use(metricsMiddleware());
+
+// Must wrap timeout() so 504s are covered too
+app.use(errorCacheControl());
 
 // Request timeout (Lambda timeout is 15s, use 14s to allow graceful response)
 app.use(timeout(14_000));
@@ -76,6 +83,19 @@ app.route('/series', series);
 app.route('/webhook', webhook);
 app.route('/user', user);
 
+// AWS SDK errors that mean "try again later" rather than "we have a bug"
+const THROTTLING_ERRORS = new Set([
+  'ProvisionedThroughputExceededException',
+  'RequestLimitExceeded',
+  'ThrottlingException',
+  'TooManyRequestsException',
+]);
+
+// Libraries may wrap AWS SDK errors (e.g. the cache), keeping them as `cause`
+const isThrottlingError = (error: Error) =>
+  THROTTLING_ERRORS.has(error.name) ||
+  (error.cause instanceof Error && THROTTLING_ERRORS.has(error.cause.name));
+
 app.onError((error, c) => {
   const reqId = c.get('requestId') ?? 'unknown';
   const path = c.req.path;
@@ -94,6 +114,7 @@ app.onError((error, c) => {
   // Log server errors - no stack traces or sensitive details
   console.error(
     JSON.stringify({
+      cause: error.cause instanceof Error ? error.cause.name : undefined,
       error: error.name,
       level: 'error',
       message: error.message,
@@ -103,7 +124,28 @@ app.onError((error, c) => {
     }),
   );
 
-  return c.json({ message: 'Internal server error' }, 500);
+  // Never leak internal (e.g. AWS) error messages to clients
+  if (error.name === 'ConditionalCheckFailedException') {
+    return c.json({ message: 'Conflict', status: 409 }, 409);
+  }
+
+  // A client cursor for another index/sort order (see decodeCursor)
+  if (
+    error.name === 'ValidationException' &&
+    /start(ing)? key/i.test(error.message)
+  ) {
+    return c.json({ message: 'Invalid cursor', status: 400 }, 400);
+  }
+
+  if (isThrottlingError(error)) {
+    c.header('Retry-After', '1');
+    return c.json(
+      { message: 'Service temporarily unavailable', status: 503 },
+      503,
+    );
+  }
+
+  return c.json({ message: 'Internal server error', status: 500 }, 500);
 });
 
 export const handler = handle(app);

@@ -6,6 +6,8 @@ import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
 import { findUser } from '@/lib/db/user';
 
+import { enforcePrivateCache } from './cacheControl';
+
 export type Auth = Readonly<{
   user: User;
 }> | null;
@@ -21,7 +23,13 @@ const client = createClient({
 
 /**
  * Auth middleware - populates auth context if token is present.
- * Sets Vary: Authorization for CDN caching.
+ *
+ * Every response that passes through this middleware is forced to
+ * `private` caching. `Authorization` is part of the CloudFront cache key, but
+ * user data must never sit in a shared cache (belt and braces).
+ * Routes may still opt into browser caching with
+ * `cacheHeader(profile, { scope: 'private' })`.
+ *
  * Only use on routes that need auth data.
  */
 export const auth = (): MiddlewareHandler<{ Variables: Variables }> => {
@@ -57,6 +65,7 @@ export const auth = (): MiddlewareHandler<{ Variables: Variables }> => {
 
     c.header('Vary', 'Authorization');
     await next();
+    enforcePrivateCache(c);
   };
 };
 

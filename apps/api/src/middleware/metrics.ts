@@ -32,6 +32,16 @@ const sendMetric = (record: ApiMetricRecord): void => {
  */
 const METRICS_SAMPLE_RATE = 0.1;
 
+// Webhook/scrobble tokens are long-lived credentials: never store them
+const REDACTED = '[redacted]';
+const WEBHOOK_TOKEN_PATH = /^\/webhook\/token\/[^/]+/;
+
+const redactPath = (path: string) =>
+  path.replace(WEBHOOK_TOKEN_PATH, `/webhook/token/${REDACTED}`);
+
+const redactQuery = (query: Record<string, string>) =>
+  'token' in query ? { ...query, token: REDACTED } : query;
+
 /**
  * Metrics middleware for collecting API performance data.
  *
@@ -83,9 +93,9 @@ export const metrics = (): MiddlewareHandler<{ Variables: Variables }> => {
     const authenticated = !!c.get('auth')?.user;
 
     // Get query params (if any)
-    const queryEntries = Object.entries(c.req.query());
+    const queryParams = c.req.query();
     const query =
-      queryEntries.length > 0 ? Object.fromEntries(queryEntries) : null;
+      Object.keys(queryParams).length > 0 ? redactQuery(queryParams) : null;
 
     // Get response size (may be 0 on errors)
     const contentLength = c.res.headers.get('content-length');
@@ -114,7 +124,7 @@ export const metrics = (): MiddlewareHandler<{ Variables: Variables }> => {
       dependencies: store?.dependencies ?? [],
       latency,
       method: c.req.method,
-      path: c.req.path,
+      path: redactPath(c.req.path),
       query,
       requestId,
       responseSize,

@@ -1,12 +1,22 @@
 'use client';
 
 import type { WatchProvider } from '@tvseri.es/schemas';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, type Transition } from 'motion/react';
 import dynamic from 'next/dynamic';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import slugify from 'slugify';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { Field } from '@/hooks/useCsvParser';
+import { readNdjson } from '@/lib/import/ndjson';
+import { splitEntry } from '@/lib/import/parseEntry';
+import { prepareRows } from '@/lib/import/prepareRows';
+import {
+  IMPORT_CHUNK_SIZE,
+  IMPORT_ENDPOINT,
+  type ImportError,
+  type ImportEvent,
+  type ImportRow,
+  isImportEvent,
+} from '@/lib/import/types';
 
 import Ripple from './Ripple';
 import SkeletonImport from './SkeletonImport';
@@ -16,135 +26,69 @@ const CsvImporter = dynamic(() => import('../CsvImporter/CsvImporter'), {
   ssr: false,
 });
 
-type Part = 'title' | 'season' | 'episode';
-
-type ImportError = {
-  item: {
-    title: string;
-    date: string;
-    season: string;
-    episode: string;
-  };
-  error: string;
-};
-
 const MotionRipple = motion.create(Ripple);
 
-const getDelimiter = (value: string): string => {
-  const colonCount = (value.match(/:\s/g) || []).length;
-  const dashCount = (value.match(/-\s/g) || []).length;
-  const emDashCount = (value.match(/–\s/g) || []).length;
-
-  return colonCount >= dashCount && colonCount >= emDashCount
-    ? ': '
-    : dashCount >= emDashCount
-      ? '- '
-      : '– ';
-};
-
-const formatPart = (value: string, part: Part): string => {
-  const seasonMatch = value.match(
-    /(?:Season|Seizoen|Deel|Hoofdstuk|Boek|Series|Part|Volume|Tiger King|Stranger Things)\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)|Limited Series|Miniserie|(?:The\s+Complete\s+)?[A-Z][a-z]+(?:st|nd|rd|th)\s+(Season|Series)/i,
-  );
-
-  if (seasonMatch) {
-    if (part === 'title') {
-      return value
-        .substring(0, seasonMatch.index)
-        .trim()
-        .replace(/[:\\—–-]\s*$/, '');
-    }
-    if (part === 'season') {
-      return seasonMatch[0];
-    }
-    if (part === 'episode') {
-      return value
-        .substring(seasonMatch.index! + seasonMatch[0].length)
-        .trim()
-        .replace(/^[:\\—–-]\s*/, '');
-    }
-  }
-
-  const episodeMatch = value.match(
-    /(Chapter|Episode|Aflevering)\s+\d+(?:(?:[:\\—–-]\s*|\s+).*)?/i,
-  );
-
-  if (episodeMatch) {
-    if (part === 'title') {
-      return value
-        .substring(0, episodeMatch.index)
-        .trim()
-        .replace(/[:\\—–-]\s*$/, '');
-    }
-    if (part === 'season') return '';
-    if (part === 'episode') return episodeMatch[0];
-  }
-
-  const delimiter = getDelimiter(value);
-  const parts = value.split(delimiter);
-
-  if (parts.length > 2) {
-    const chapterMatch = parts[1]!.match(
-      /Chapter\s+(?:\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten)/i,
-    );
-
-    if (chapterMatch) {
-      if (part === 'title') return parts[0]!;
-      if (part === 'season') return '';
-      if (part === 'episode') return parts.slice(1).join(delimiter);
-    } else {
-      if (part === 'title') return parts.slice(0, -1).join(delimiter);
-      if (part === 'season') return '';
-      if (part === 'episode') return parts[parts.length - 1]!;
-    }
-  }
-
-  if (parts.length > 1) {
-    if (part === 'title') return parts[0]!;
-    if (part === 'season') return '';
-    if (part === 'episode') return parts.slice(1).join(delimiter);
-  }
-
-  if (part === 'title') return value;
-  return '';
-};
-
-const CHUNK_SIZE = 50;
-
-const processChunk = async (
-  chunk: Record<string, unknown>[],
+async function* postChunk(
+  rows: ReadonlyArray<ImportRow>,
   signal: AbortSignal,
-  cb: (successCount: number, errors: ImportError[]) => void,
-) => {
-  const response = await fetch('/api/account/import', {
-    body: JSON.stringify(chunk),
+): AsyncGenerator<ImportEvent> {
+  const response = await fetch(IMPORT_ENDPOINT, {
+    body: JSON.stringify(rows),
+    headers: { 'Content-Type': 'application/json' },
     method: 'POST',
     signal,
   });
 
-  const reader = response.body?.getReader();
-  if (!reader) {
-    throw new Error('No reader available');
+  if (response.status === 401) {
+    throw new Error('your session has expired, please sign in again');
+  }
+  if (!response.ok || !response.body) {
+    throw new Error(`the server responded with ${response.status}`);
   }
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-      break;
+  for await (const value of readNdjson(response.body)) {
+    if (!isImportEvent(value)) {
+      throw new Error('unexpected response from the server');
     }
-
-    const chunk = new TextDecoder().decode(value);
-    const lines = chunk.split('\n').filter(Boolean);
-
-    for (const line of lines) {
-      try {
-        const data = JSON.parse(line);
-        cb(data.successCount, data.errors);
-      } catch (_) {
-        console.error('Failed to parse line:', line);
-      }
-    }
+    yield value;
   }
+}
+
+const createFields = (
+  watchProviders: ReadonlyArray<WatchProvider>,
+): Field[] => [
+  {
+    format: (value) => splitEntry(value).title,
+    label: 'Title',
+    value: 'title',
+  },
+  {
+    label: 'Date',
+    value: 'date',
+  },
+  {
+    format: (value) => splitEntry(value).season,
+    label: 'Season',
+    value: 'season',
+  },
+  {
+    format: (value) => splitEntry(value).episode,
+    label: 'Episode',
+    value: 'episode',
+  },
+  {
+    label: 'Streaming service',
+    predefined: watchProviders.map((provider) => provider.name),
+    value: 'watchProvider',
+  },
+];
+
+const rippleAnimate = { opacity: 1, scale: 1 };
+const rippleInitial = { opacity: 0, scale: 0 };
+const rippleTransition: Transition = {
+  duration: 0.25,
+  ease: [0.4, 0, 0.2, 1],
+  type: 'tween',
 };
 
 export default function Import({
@@ -157,93 +101,49 @@ export default function Import({
   const [successCount, setSuccessCount] = useState(0);
   const [totalNumberOfItems, setTotalNumberOfItems] = useState(0);
   const [errors, setErrors] = useState<ImportError[]>([]);
+  const [hasAssumedDates, setHasAssumedDates] = useState(false);
+  const [failure, setFailure] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const handleImport = useCallback<(data: Record<string, unknown>[]) => void>(
-    (data) => {
-      abortControllerRef.current?.abort();
-      const controller = new AbortController();
-      abortControllerRef.current = controller;
+  const handleImport = useCallback((data: Record<string, unknown>[]) => {
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
-      // Note: filter out duplicates
-      const uniqueItemKeys = new Set();
-      const uniqueItems = data.filter((item) => {
-        const uniqueItemKey = slugify(
-          `${item.title}${item.season}${item.episode}`,
-          { lower: true, strict: true, trim: true },
-        );
-        if (uniqueItemKeys.has(uniqueItemKey)) {
-          return false;
+    const prepared = prepareRows(data);
+    const { rows, errors: rowErrors } = prepared;
+
+    setHideCsvImporter(true);
+    setIsImporting(true);
+    setFailure(null);
+    setHasAssumedDates(prepared.hasAssumedDates);
+    setSuccessCount(0);
+    setErrors(rowErrors);
+    setTotalNumberOfItems(rows.length + rowErrors.length);
+
+    (async () => {
+      try {
+        for (let i = 0; i < rows.length; i += IMPORT_CHUNK_SIZE) {
+          const chunk = rows.slice(i, i + IMPORT_CHUNK_SIZE);
+          for await (const event of postChunk(chunk, controller.signal)) {
+            if (event.status === 'error') {
+              throw new Error(event.error);
+            }
+            setSuccessCount((prev) => prev + event.successCount);
+            setErrors((prev) => [...prev, ...event.errors]);
+          }
         }
-        uniqueItemKeys.add(uniqueItemKey);
-        return true;
-      });
-
-      // Note: filter out items that are probably films and not episodes of tv series
-      const filteredItems = uniqueItems.filter((item) => {
-        const normalizedTitle = (item?.title ?? '')
-          .toString()
-          .toLowerCase()
-          .trim();
-        const normalizedEpisode = (item?.episode ?? '')
-          .toString()
-          .toLowerCase()
-          .trim();
-        const normalizedSeason = (item?.season ?? '')
-          .toString()
-          .toLowerCase()
-          .trim();
-        const isMovie = 'Type' in item && String(item.Type) === 'Movie';
-        const isTrailer = normalizedEpisode.includes('trailer');
-
-        return (
-          normalizedTitle.length > 0 &&
-          normalizedEpisode.length > 0 &&
-          normalizedTitle !== normalizedSeason &&
-          !isMovie &&
-          !isTrailer
-        );
-      });
-
-      setHideCsvImporter(true);
-      setIsImporting(true);
-      setTotalNumberOfItems(filteredItems.length);
-
-      (async () => {
-        try {
-          const chunks = Array.from(
-            { length: Math.ceil(filteredItems.length / CHUNK_SIZE) },
-            (_, i) => filteredItems.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE),
+      } catch (error) {
+        if (!(error instanceof Error && error.name === 'AbortError')) {
+          setFailure(
+            `Import failed: ${error instanceof Error ? error.message : 'unknown error'}`,
           );
-
-          for (const chunk of chunks) {
-            await processChunk(
-              chunk,
-              controller.signal,
-              (chunkSuccessCount, chunkErrors) => {
-                setSuccessCount((prev) => prev + chunkSuccessCount);
-                setErrors((prev) => [...prev, ...chunkErrors]);
-              },
-            );
-          }
-        } catch (err) {
-          const error = err as Error;
-          if (error.name !== 'AbortError') {
-            setErrors((prev) => [
-              ...prev,
-              {
-                error: `Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-                item: { date: '', episode: '', season: '', title: '' },
-              },
-            ]);
-          }
         }
+      }
 
-        setIsImporting(false);
-      })();
-    },
-    [],
-  );
+      setIsImporting(false);
+    })();
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -251,32 +151,7 @@ export default function Import({
     };
   }, []);
 
-  const fields: Field[] = [
-    {
-      format: (value) => formatPart(value, 'title'),
-      label: 'Title',
-      value: 'title',
-    },
-    {
-      label: 'Date',
-      value: 'date',
-    },
-    {
-      format: (value) => formatPart(value, 'season'),
-      label: 'Season',
-      value: 'season',
-    },
-    {
-      format: (value) => formatPart(value, 'episode'),
-      label: 'Episode',
-      value: 'episode',
-    },
-    {
-      label: 'Streaming service',
-      predefined: watchProviders.map((provider) => provider.name),
-      value: 'watchProvider',
-    },
-  ];
+  const fields = useMemo(() => createFields(watchProviders), [watchProviders]);
 
   return (
     <div className="space-y-4">
@@ -287,26 +162,20 @@ export default function Import({
           <AnimatePresence>
             {isImporting ? (
               <MotionRipple
-                animate={{
-                  opacity: 1,
-                  scale: 1,
-                }}
+                animate={rippleAnimate}
                 className="!fixed -top-[15rem] left-0 md:-top-[20rem]"
-                initial={{
-                  opacity: 0,
-                  scale: 0,
-                }}
+                initial={rippleInitial}
                 key="ripple"
-                transition={{
-                  duration: 0.25,
-                  ease: [0.4, 0, 0.2, 1],
-                  type: 'tween',
-                }}
+                transition={rippleTransition}
               />
             ) : null}
           </AnimatePresence>
 
-          <div className="mt-24 inline-flex flex-nowrap items-center text-lg text-white/55 md:text-2xl">
+          <div
+            aria-live="polite"
+            className="mt-24 inline-flex flex-nowrap items-center text-lg text-white/55 md:text-2xl"
+            role="status"
+          >
             <span className="mr-4 rounded bg-[#666] px-4 py-1 font-semibold text-white">
               {successCount.toLocaleString()}
             </span>
@@ -316,6 +185,19 @@ export default function Import({
             </span>{' '}
             .
           </div>
+
+          {hasAssumedDates ? (
+            <p className="mt-6 text-sm text-white/55">
+              Some dates were ambiguous: 05/06/24 was read as month/day,
+              05.06.2024 and 05-06-2024 as day/month.
+            </p>
+          ) : null}
+
+          {failure ? (
+            <p className="mt-6 text-sm text-red-400" role="alert">
+              {failure}
+            </p>
+          ) : null}
 
           {errors.length > 0 && (
             <div className="relative w-full pt-10">

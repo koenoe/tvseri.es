@@ -5,12 +5,13 @@ import type { Field } from '@/hooks/useCsvParser';
 
 import { TableHead } from '../Table';
 
-interface PreviewTableHeadProps extends ThHTMLAttributes<HTMLTableCellElement> {
-  field: Field;
-  onFieldChange: (props: { newValue: string; oldValue: string }) => void;
-  currentFieldMapping: string | undefined;
-  originalFieldMappings: Record<string, string | undefined>;
-}
+type PreviewTableHeadProps = ThHTMLAttributes<HTMLTableCellElement> &
+  Readonly<{
+    field: Field;
+    onFieldChange: (props: { newValue: string; oldValue: string }) => void;
+    currentFieldMapping: string | undefined;
+    originalFieldMappings: Record<string, string | undefined>;
+  }>;
 
 export default function PreviewTableHead({
   field,
@@ -36,12 +37,26 @@ export default function PreviewTableHead({
     [field.value, onFieldChange],
   );
 
+  const selectLabel =
+    mode === 'map'
+      ? `CSV column for ${field.label}`
+      : `Value for ${field.label}`;
+  const toggleLabel =
+    mode === 'map'
+      ? `Pick one value for ${field.label}`
+      : `Map ${field.label} to a CSV column`;
+
   return (
     <TableHead className={cx('w-48', className)} {...props}>
       <div className="relative flex flex-nowrap items-center justify-start gap-x-3">
         <span>{field.label}</span>
         {field.predefined ? (
-          <button className="flex items-center" onClick={handleModeToggle}>
+          <button
+            aria-label={toggleLabel}
+            className="flex items-center"
+            onClick={handleModeToggle}
+            type="button"
+          >
             <svg
               className={cx(
                 'size-5 shrink-0 opacity-60 transition-transform',
@@ -75,7 +90,8 @@ export default function PreviewTableHead({
           </svg>
         )}
         <select
-          className="block w-full min-w-32 appearance-none rounded-md border border-neutral-800 bg-neutral-900 py-2 pl-2 pr-6 font-light text-white/60 outline-none"
+          aria-label={selectLabel}
+          className="block w-full min-w-32 appearance-none rounded-md border border-neutral-800 bg-neutral-900 py-2 pl-2 pr-6 font-light text-white/60 outline-none focus-visible:ring-2 focus-visible:ring-white/60"
           onChange={handleSelectChange}
           value={currentFieldMapping ?? ''}
         >

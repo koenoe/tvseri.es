@@ -21,11 +21,11 @@ type CsvState = Readonly<{
   error: string | null;
 }>;
 
-type UseCsvParserProps = {
+type UseCsvParserProps = Readonly<{
   fields: Field[];
   onSuccess?: (data: Record<string, unknown>[]) => void;
   onError?: (message: string) => void;
-} & Papa.ParseConfig;
+}>;
 
 const formatValue = (
   value: unknown,
@@ -44,7 +44,6 @@ export default function useCsvParser({
   fields,
   onSuccess,
   onError,
-  ...props
 }: UseCsvParserProps) {
   const [csvState, setCsvState] = useState<CsvState>({
     data: {
@@ -65,7 +64,6 @@ export default function useCsvParser({
       const allResults: Record<string, unknown>[] = [];
 
       Papa.parse<Record<string, unknown>>(file, {
-        ...props,
         beforeFirstChunk: (chunk) => {
           const parsedChunk = Papa.parse<string[]>(chunk, {
             header: false,
@@ -115,13 +113,8 @@ export default function useCsvParser({
         step: (results, parser) => {
           try {
             if (count === 0) {
-              const mappings = (results.meta.fields ?? [])?.reduce(
-                (acc, field) => ({
-                  // biome-ignore lint/performance/noAccumulatingSpread: blablabla
-                  ...acc,
-                  [field]: field,
-                }),
-                {},
+              const mappings = Object.fromEntries(
+                (results.meta.fields ?? []).map((field) => [field, field]),
               );
 
               setCsvState((prevState) => ({
@@ -151,8 +144,7 @@ export default function useCsvParser({
         },
       });
     },
-    // biome-ignore lint/correctness/useExhaustiveDependencies: blablabla
-    [onError, onSuccess, props],
+    [onError, onSuccess],
   );
 
   const onFieldChange = useCallback(
@@ -212,13 +204,11 @@ export default function useCsvParser({
   const getSanitizedData = useCallback(
     ({ data }: { data: Record<string, unknown>[] }) =>
       data.map((row) =>
-        Object.keys(row).reduce(
-          (acc, key) => ({
-            // biome-ignore lint/performance/noAccumulatingSpread: blablabla
-            ...acc,
-            [key]: row[key] === null ? '' : row[key],
-          }),
-          {},
+        Object.fromEntries(
+          Object.entries(row).map(([key, value]) => [
+            key,
+            value === null ? '' : value,
+          ]),
         ),
       ),
     [],

@@ -139,6 +139,7 @@ export default function CsvImporter({
         <button
           className="ml-auto flex h-11 min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-white/5 px-5 text-sm leading-none tracking-wide hover:bg-white/10"
           onClick={onFieldsReset}
+          type="button"
         >
           <span>Reset</span>
         </button>
@@ -181,6 +182,7 @@ export default function CsvImporter({
         <button
           className="ml-auto flex h-11 min-w-24 cursor-pointer items-center justify-center rounded-3xl bg-white/5 px-5 text-sm leading-none tracking-wide hover:bg-white/10"
           onClick={handleBack}
+          type="button"
         >
           <span>Back</span>
         </button>
@@ -193,6 +195,7 @@ export default function CsvImporter({
           )}
           disabled={!areAllFieldsMapped}
           onClick={handleImport}
+          type="button"
         >
           <span>Import</span>
         </button>

@@ -25,8 +25,9 @@ const client = createClient({
  * Auth middleware - populates auth context if token is present.
  *
  * Every response that passes through this middleware is forced to
- * `private` caching. `Authorization` is part of the CloudFront cache key, but
- * user data must never sit in a shared cache (belt and braces).
+ * `private` caching. `Authorization` is deliberately NOT part of the
+ * CloudFront cache key (infra/api.ts), so this is what keeps user data out of
+ * the shared cache.
  * Routes may still opt into browser caching with
  * `cacheHeader(profile, { scope: 'private' })`.
  *

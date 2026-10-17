@@ -7,6 +7,7 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type {
   EpisodeForWatched,
   PaginationOptions,
+  Season,
   TvSeries,
   TvSeriesForWatched,
   WatchedItem,
@@ -19,7 +20,8 @@ import {
 } from '@tvseri.es/utils';
 import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
-import { fetchTvSeriesSeason } from '@/lib/tmdb';
+import { fetchTvSeriesSeason, TMDB_CONCURRENCY } from '@/lib/tmdb';
+import { createLimiter } from '@/utils/limit';
 import { batchWrite } from '../batch';
 import client from '../client';
 import { countQuery } from '../count';
@@ -230,18 +232,12 @@ export const unmarkWatched = async (
   await client.send(command);
 };
 
-export const markSeasonWatched = async ({
-  userId,
-  seasonNumber,
-  tvSeries,
-  watchProvider,
-}: Readonly<{
-  userId: string;
-  tvSeries: TvSeries;
-  seasonNumber: number;
-  watchProvider?: WatchProvider | null;
-}>) => {
-  const season = await fetchTvSeriesSeason(tvSeries.id, seasonNumber);
+// Fetches a season from TMDB; 400 when it hasn't started airing yet
+const fetchAiredSeason = async (
+  tvSeriesId: number,
+  seasonNumber: number,
+): Promise<Season> => {
+  const season = await fetchTvSeriesSeason(tvSeriesId, seasonNumber);
 
   if (
     !season?.numberOfAiredEpisodes ||
@@ -249,17 +245,32 @@ export const markSeasonWatched = async ({
     new Date(season.airDate) >= new Date()
   ) {
     throw new HTTPException(400, {
-      message: `Invalid season for ${tvSeries.id}`,
+      message: `Invalid season for ${tvSeriesId}`,
     });
   }
 
-  // Get already watched episodes
-  const { items: existingWatched } = await getWatchedForSeason({
-    seasonNumber,
-    tvSeries,
-    userId,
-  });
+  return season;
+};
 
+// Builds the watched items (and their put requests) for a season's aired
+// episodes that aren't watched yet
+const buildSeasonWrites = ({
+  existingWatched,
+  now,
+  season,
+  seasonNumber,
+  tvSeries,
+  userId,
+  watchProvider,
+}: Readonly<{
+  existingWatched: ReadonlyArray<WatchedItem>;
+  now: number;
+  season: Season;
+  seasonNumber: number;
+  tvSeries: TvSeries;
+  userId: string;
+  watchProvider?: WatchProvider | null;
+}>) => {
   const existingEpisodeNumbers = new Set(
     existingWatched.map((item) => item.episodeNumber),
   );
@@ -271,7 +282,6 @@ export const markSeasonWatched = async ({
       !existingEpisodeNumbers.has(episode.episodeNumber),
   );
 
-  const now = Date.now();
   const paddedSeason = paddedNumber(seasonNumber);
   const watchedItems: WatchedItem[] = [];
 
@@ -306,6 +316,39 @@ export const markSeasonWatched = async ({
         }),
       },
     };
+  });
+
+  return { watchedItems, writeRequests };
+};
+
+export const markSeasonWatched = async ({
+  userId,
+  seasonNumber,
+  tvSeries,
+  watchProvider,
+}: Readonly<{
+  userId: string;
+  tvSeries: TvSeries;
+  seasonNumber: number;
+  watchProvider?: WatchProvider | null;
+}>) => {
+  const season = await fetchAiredSeason(tvSeries.id, seasonNumber);
+
+  // Get already watched episodes
+  const { items: existingWatched } = await getWatchedForSeason({
+    seasonNumber,
+    tvSeries,
+    userId,
+  });
+
+  const { watchedItems, writeRequests } = buildSeasonWrites({
+    existingWatched,
+    now: Date.now(),
+    season,
+    seasonNumber,
+    tvSeries,
+    userId,
+    watchProvider,
   });
 
   if (writeRequests.length === 0) {
@@ -370,18 +413,50 @@ export const markTvSeriesWatched = async ({
       new Date(season.airDate) <= new Date(),
   );
 
-  const watchedItems = await Promise.all(
-    seasons.map((season) =>
-      markSeasonWatched({
-        seasonNumber: season.seasonNumber,
+  // Fetch and validate every season before writing anything, so an invalid
+  // season fails the whole request without a partial write
+  const limit = createLimiter(TMDB_CONCURRENCY);
+  const [airedSeasons, existingWatched] = await Promise.all([
+    Promise.all(
+      seasons.map(({ seasonNumber }) =>
+        limit(async () => ({
+          season: await fetchAiredSeason(tvSeries.id, seasonNumber),
+          seasonNumber,
+        })),
+      ),
+    ),
+    getAllWatchedForTvSeries({ tvSeriesId: tvSeries.id, userId }),
+  ]);
+
+  const now = Date.now();
+  const perSeason = airedSeasons.map(({ season, seasonNumber }) => {
+    const existingForSeason = existingWatched.filter(
+      (item) => item.seasonNumber === seasonNumber,
+    );
+
+    return {
+      existingForSeason,
+      ...buildSeasonWrites({
+        existingWatched: existingForSeason,
+        now,
+        season,
+        seasonNumber,
         tvSeries,
         userId,
         watchProvider,
       }),
-    ),
+    };
+  });
+
+  await batchWrite(
+    Resource.Watched.name,
+    perSeason.flatMap(({ writeRequests }) => writeRequests),
   );
 
-  return watchedItems.flat();
+  return perSeason.flatMap(({ existingForSeason, watchedItems }) => [
+    ...existingForSeason,
+    ...watchedItems,
+  ]);
 };
 
 export const unmarkTvSeriesWatched = async (

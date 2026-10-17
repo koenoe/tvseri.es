@@ -249,18 +249,14 @@ app.get(
   '/endpoints/:endpoint',
   vValidator('query', ApiMetricsSummaryQuerySchema),
   async (c) => {
-    const endpointParam = c.req.param('endpoint');
+    // Hono already URL-decodes path params (decoding twice breaks on '%')
+    const endpoint = c.req.param('endpoint');
     const { days } = c.req.valid('query');
     const numDays = Math.min(Math.max(days, 1), 30);
 
-    const decodedEndpoint = decodeURIComponent(endpointParam);
     const { endDate, startDate } = getDateRange(numDays);
 
-    const items = await queryEndpointTimeSeries(
-      decodedEndpoint,
-      startDate,
-      endDate,
-    );
+    const items = await queryEndpointTimeSeries(endpoint, startDate, endDate);
 
     items.sort((a, b) => a.date.localeCompare(b.date));
 
@@ -301,7 +297,7 @@ app.get(
         ? { ...aggregated, dependencies: dependenciesWithSeries }
         : null,
       endDate,
-      endpoint: decodedEndpoint,
+      endpoint,
       series: items.map((item) => ({
         apdex: item.apdex,
         date: item.date,
@@ -390,7 +386,8 @@ app.get(
   '/dependencies/:source',
   vValidator('query', ApiMetricsSummaryQuerySchema),
   async (c) => {
-    const source = decodeURIComponent(c.req.param('source'));
+    // Hono already URL-decodes path params (decoding twice breaks on '%')
+    const source = c.req.param('source');
     const { days, platform } = c.req.valid('query');
     const numDays = Math.min(Math.max(days, 1), 30);
 

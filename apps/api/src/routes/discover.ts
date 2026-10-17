@@ -7,7 +7,7 @@ import {
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
-import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
+import { detectDominantColorsFromImages } from '@/lib/detectDominantColorFromImage';
 import {
   fetchCountries,
   fetchDiscoverTvSeries,
@@ -21,23 +21,23 @@ const app = new Hono();
 const enrichWatchProvidersWithColors = async (
   watchProviders: WatchProvider[],
 ) => {
-  const enrichedProviders = await Promise.all(
-    watchProviders.map(async (provider) => {
-      return {
-        ...provider,
-        color:
-          WATCH_PROVIDER_PREDEFINED_COLOR[provider.name] ||
-          (provider.logoPath
-            ? await detectDominantColorFromImage({
-                path: provider.logoPath,
-                size: 'w92',
-              })
-            : undefined) ||
-          '#000000',
-      };
-    }),
-  );
-  return enrichedProviders;
+  // Only providers without a predefined colour need a (cached) detection
+  const detectedColors = await detectDominantColorsFromImages({
+    paths: watchProviders.flatMap((provider) =>
+      !WATCH_PROVIDER_PREDEFINED_COLOR[provider.name] && provider.logoPath
+        ? [provider.logoPath]
+        : [],
+    ),
+    size: 'w92',
+  });
+
+  return watchProviders.map((provider) => ({
+    ...provider,
+    color:
+      WATCH_PROVIDER_PREDEFINED_COLOR[provider.name] ||
+      (provider.logoPath ? detectedColors.get(provider.logoPath) : undefined) ||
+      '#000000',
+  }));
 };
 
 app.get('/', async (c) => {

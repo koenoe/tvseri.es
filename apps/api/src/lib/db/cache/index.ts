@@ -3,10 +3,19 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { CacheItem, CacheOptions } from '@tvseri.es/schemas';
 import { Resource } from 'sst';
 
-import { batchWrite } from '../batch';
+import { batchGet, batchWrite } from '../batch';
 import client from '../client';
 
 const DEFAULT_TTL = 86400; // 24 hours in seconds
+const KEY_PREFIX = 'CACHE#';
+
+const parseValue = <T>(item: CacheItem): T => {
+  try {
+    return JSON.parse(item.value) as T;
+  } catch {
+    return item.value as T;
+  }
+};
 
 export const setCacheItem = async <T>(
   key: string,
@@ -15,7 +24,7 @@ export const setCacheItem = async <T>(
 ): Promise<void> => {
   const baseItem = {
     createdAt: new Date().toISOString(),
-    pk: `CACHE#${key}`,
+    pk: `${KEY_PREFIX}${key}`,
     value:
       value == null
         ? null
@@ -50,7 +59,7 @@ export const getCacheItem = async <T>(
 ): Promise<T | null | undefined> => {
   const command = new GetItemCommand({
     Key: marshall({
-      pk: `CACHE#${key}`,
+      pk: `${KEY_PREFIX}${key}`,
     }),
     TableName: Resource.Cache.name,
   });
@@ -62,16 +71,30 @@ export const getCacheItem = async <T>(
       return undefined;
     }
 
-    const item = unmarshall(result.Item) as CacheItem;
-
-    try {
-      return JSON.parse(item.value) as T;
-    } catch {
-      return item.value as T;
-    }
+    return parseValue<T>(unmarshall(result.Item) as CacheItem);
   } catch (error) {
     throw new Error(`Failed to get cache for key: ${key}`, { cause: error });
   }
+};
+
+/**
+ * Batch version of `getCacheItem` (one BatchGetItem per 100 keys). Returns the
+ * found values by key; missing keys are absent from the map.
+ */
+export const getCacheItems = async <T>(
+  keys: ReadonlyArray<string>,
+): Promise<Map<string, T>> => {
+  const items = await batchGet(
+    Resource.Cache.name,
+    keys.map((key) => marshall({ pk: `${KEY_PREFIX}${key}` })),
+  );
+
+  return new Map(
+    items.map((rawItem) => {
+      const item = unmarshall(rawItem) as CacheItem & Readonly<{ pk: string }>;
+      return [item.pk.slice(KEY_PREFIX.length), parseValue<T>(item)];
+    }),
+  );
 };
 
 /**
@@ -83,7 +106,7 @@ export const deleteCacheItems = async (keys: string[]): Promise<void> => {
     Resource.Cache.name,
     keys.map((key) => ({
       DeleteRequest: {
-        Key: marshall({ pk: `CACHE#${key}` }),
+        Key: marshall({ pk: `${KEY_PREFIX}${key}` }),
       },
     })),
   );

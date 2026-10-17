@@ -1,7 +1,6 @@
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import type { ApiMetricRecord } from '@tvseri.es/schemas';
 import type { MiddlewareHandler } from 'hono';
-import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
 
 import { getMetricsStore, runWithMetrics } from '@/lib/metrics';
@@ -36,7 +35,7 @@ const METRICS_SAMPLE_RATE = 0.1;
 const REDACTED = '[redacted]';
 const WEBHOOK_TOKEN_PATH = /^\/webhook\/token\/[^/]+/;
 
-const redactPath = (path: string) =>
+export const redactPath = (path: string) =>
   path.replace(WEBHOOK_TOKEN_PATH, `/webhook/token/${REDACTED}`);
 
 const redactQuery = (query: Record<string, string>) =>
@@ -47,7 +46,7 @@ const redactQuery = (query: Record<string, string>) =>
  *
  * Captures:
  * - Request latency
- * - Status codes (including errors via c.error)
+ * - Status codes (including errors, see below)
  * - Cache status (from CloudFront header)
  * - Client context (platform, device, country)
  * - All dependency metrics (TMDB, MDBList, DynamoDB, etc.)
@@ -55,9 +54,9 @@ const redactQuery = (query: Record<string, string>) =>
  * Sends metrics to SQS for async batch processing to DynamoDB.
  * Only samples a percentage of requests to reduce SQS costs.
  *
- * Note: Uses Hono's c.error pattern to capture error status codes.
- * When an error occurs, Hono's error handler runs and populates c.error,
- * then control returns here so we can record the metric.
+ * Note: when a handler throws, Hono runs app.onError and sets its response on
+ * `c.res` before control returns here, so `c.res.status` is the status the
+ * client actually got (e.g. 409/503 mapped by onError, 504 from timeout()).
  */
 export const metrics = (): MiddlewareHandler<{ Variables: Variables }> => {
   return async (c, next) => {
@@ -101,17 +100,8 @@ export const metrics = (): MiddlewareHandler<{ Variables: Variables }> => {
     const contentLength = c.res.headers.get('content-length');
     const responseSize = contentLength ? parseInt(contentLength, 10) : 0;
 
-    // Determine status code - check c.error for error cases
-    let statusCode = c.res.status;
-    if (c.error) {
-      if (c.error instanceof HTTPException) {
-        statusCode = c.error.status;
-      } else if (c.error.name === 'TimeoutError') {
-        statusCode = 504;
-      } else {
-        statusCode = 500;
-      }
-    }
+    // Already the onError response when the request failed (see above)
+    const statusCode = c.res.status;
 
     const record: ApiMetricRecord = {
       authenticated,

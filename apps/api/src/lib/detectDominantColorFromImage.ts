@@ -2,7 +2,9 @@ import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
 import { generateTmdbImageUrl } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 
-import { getCacheItem, setCacheItem } from './db/cache';
+import { createLimiter } from '@/utils/limit';
+
+import { getCacheItem, getCacheItems, setCacheItem } from './db/cache';
 
 const CACHE_PREFIX = 'detectDominantColorFromImage:v1:';
 
@@ -53,6 +55,33 @@ async function invokeDominantColorLambda(url: string) {
   return result.color;
 }
 
+const isValidImage = (path: string, size: string) =>
+  TMDB_IMAGE_PATH_REGEX.test(path) && TMDB_IMAGE_SIZE_REGEX.test(size);
+
+const isHexColor = (value: unknown): value is string =>
+  typeof value === 'string' && HEX_COLOR_REGEX.test(value);
+
+const cacheKey = (path: string) => `${CACHE_PREFIX}${path}`;
+
+// Runs the detection and caches the colour permanently. Returns `undefined`
+// when detection fails; failures are never cached.
+const detectAndCache = async (path: string, size: string) => {
+  try {
+    const dominantColor = await invokeDominantColorLambda(
+      generateTmdbImageUrl(path, size),
+    );
+    await setCacheItem<string>(cacheKey(path), dominantColor, {
+      ttl: null,
+    }).catch((error: unknown) => {
+      console.warn('[dominant-color] cache write failed', error);
+    });
+    return dominantColor;
+  } catch (error) {
+    console.warn('[dominant-color] detection failed', error);
+    return undefined;
+  }
+};
+
 /**
  * Detects the dominant colour of a TMDB image (cached permanently per path).
  *
@@ -69,15 +98,13 @@ const detectDominantColorFromImage = async ({
   path: string;
   size?: string;
 }>): Promise<string | undefined> => {
-  if (!TMDB_IMAGE_PATH_REGEX.test(path) || !TMDB_IMAGE_SIZE_REGEX.test(size)) {
+  if (!isValidImage(path, size)) {
     return undefined;
   }
 
-  const key = `${CACHE_PREFIX}${path}`;
-
   try {
-    const cachedValue = await getCacheItem<string>(key);
-    if (typeof cachedValue === 'string' && HEX_COLOR_REGEX.test(cachedValue)) {
+    const cachedValue = await getCacheItem<string>(cacheKey(path));
+    if (isHexColor(cachedValue)) {
       return cachedValue;
     }
   } catch (error) {
@@ -85,20 +112,54 @@ const detectDominantColorFromImage = async ({
     console.warn('[dominant-color] cache read failed', error);
   }
 
+  return detectAndCache(path, size);
+};
+
+// Parallel DominantColor Lambda invocations per request
+const DETECT_CONCURRENCY = 8;
+
+/**
+ * `detectDominantColorFromImage` for many images at once (e.g. every watch
+ * provider in a region): one batched cache read, then bounded concurrency for
+ * the detections that are still missing. Returns the colours by path; paths
+ * that are invalid or failed detection are absent.
+ */
+export const detectDominantColorsFromImages = async ({
+  paths,
+  size = 'w780',
+}: Readonly<{
+  paths: ReadonlyArray<string>;
+  size?: string;
+}>): Promise<Map<string, string>> => {
+  const validPaths = [...new Set(paths)].filter((path) =>
+    isValidImage(path, size),
+  );
+
+  let cachedValues = new Map<string, unknown>();
   try {
-    const dominantColor = await invokeDominantColorLambda(
-      generateTmdbImageUrl(path, size),
-    );
-    await setCacheItem<string>(key, dominantColor, { ttl: null }).catch(
-      (error: unknown) => {
-        console.warn('[dominant-color] cache write failed', error);
-      },
-    );
-    return dominantColor;
+    cachedValues = await getCacheItems<unknown>(validPaths.map(cacheKey));
   } catch (error) {
-    console.warn('[dominant-color] detection failed', error);
-    return undefined;
+    // Cache is best-effort: fall through to detection
+    console.warn('[dominant-color] cache read failed', error);
   }
+
+  const colors = new Map<string, string>();
+  const limit = createLimiter(DETECT_CONCURRENCY);
+
+  await Promise.all(
+    validPaths.map(async (path) => {
+      const cachedValue = cachedValues.get(cacheKey(path));
+      const color = isHexColor(cachedValue)
+        ? cachedValue
+        : await limit(() => detectAndCache(path, size));
+
+      if (color) {
+        colors.set(path, color);
+      }
+    }),
+  );
+
+  return colors;
 };
 
 export default detectDominantColorFromImage;

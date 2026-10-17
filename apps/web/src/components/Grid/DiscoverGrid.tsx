@@ -1,27 +1,31 @@
-import type { TmdbDiscoverQuery } from '@tvseri.es/schemas';
+import { normalizeDiscoverQuery } from '@tvseri.es/schemas';
 
 import { fetchDiscoverTvSeries } from '@/lib/api';
-import { getRegion } from '@/lib/geo';
-
+import getWatchRegion from '../DiscoverFilters/getWatchRegion';
 import InfiniteGrid from './InfiniteGrid';
 
 export default async function DiscoverGrid({
   searchParams,
 }: Readonly<{
-  searchParams: Promise<TmdbDiscoverQuery>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }>) {
-  const [region, query] = await Promise.all([getRegion(), searchParams]);
-  const { items, totalNumberOfItems, queryString } =
-    await fetchDiscoverTvSeries({
-      ...query,
-      watch_region: region,
-    });
+  const rawQuery = await searchParams;
+  // Note: the region only matters (and is only added) when filtering on watch providers
+  const region = rawQuery.with_watch_providers
+    ? await getWatchRegion()
+    : undefined;
+  const { query, queryString } = normalizeDiscoverQuery(rawQuery, { region });
+  const { items, totalNumberOfPages } = await fetchDiscoverTvSeries(query);
+  const endpoint = `/api/tv/discover${queryString}`;
+  const nextCursor = totalNumberOfPages > 1 ? '2' : null;
 
   return (
+    // Note: keyed by query so changing filters resets the loaded pages
     <InfiniteGrid
-      endpoint={`/api/tv/discover${queryString}`}
+      endpoint={endpoint}
       items={items}
-      nextPageOrCursor={totalNumberOfItems === items.length ? null : '2'}
+      key={queryString}
+      nextCursor={nextCursor}
     />
   );
 }

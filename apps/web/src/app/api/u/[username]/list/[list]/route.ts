@@ -1,23 +1,11 @@
+import { type ListItem, type Page, parseListIdParam } from '@tvseri.es/schemas';
 import type { NextRequest } from 'next/server';
 
 import { findUser, getListItems } from '@/lib/api';
-
-const lists = [
-  'favorites',
-  'in_progress',
-  'resuming_soon',
-  'watched',
-  'watchlist',
-] as const;
-
-type List = (typeof lists)[number];
-
-function isValidList(value: string): value is List {
-  return (lists as ReadonlyArray<string>).includes(value);
-}
+import requireSession from '../../../requireSession';
 
 export async function GET(
-  request: NextRequest,
+  req: NextRequest,
   {
     params,
   }: {
@@ -28,30 +16,32 @@ export async function GET(
   },
 ) {
   const { list, username } = await params;
+  const [session, user] = await Promise.all([
+    requireSession(),
+    findUser({ username }),
+  ]);
 
-  if (!isValidList(list)) {
-    return Response.json({ error: 'Invalid list' }, { status: 400 });
+  if (session instanceof Response) {
+    return session;
   }
 
-  const user = await findUser({ username });
+  const listId = parseListIdParam(list);
+
+  if (!listId) {
+    return Response.json({ error: 'Invalid list' }, { status: 400 });
+  }
 
   if (!user) {
     return Response.json({ error: 'User not found' }, { status: 404 });
   }
 
-  const searchParams = request.nextUrl.searchParams;
-  const cursorFromSearchParams = searchParams.get('pageOrCursor') ?? '';
-
-  const response = await getListItems({
-    listId: list.toUpperCase(),
+  const { items, nextCursor } = await getListItems({
+    listId,
     options: {
-      cursor: cursorFromSearchParams,
+      cursor: req.nextUrl.searchParams.get('cursor') ?? '',
     },
     userId: user.id,
   });
 
-  return Response.json({
-    items: response.items,
-    nextPageOrCursor: response.nextCursor,
-  });
+  return Response.json({ items, nextCursor } satisfies Page<ListItem>);
 }

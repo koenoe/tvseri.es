@@ -1,20 +1,16 @@
 'use client';
 
 import type { WatchedItem } from '@tvseri.es/schemas';
-import { memo, useCallback } from 'react';
+import { memo } from 'react';
 
-import createUseRestorableState from '@/hooks/createUseRestorableState';
+import usePaginated from '@/hooks/usePaginated';
+import PaginationNotice from '../Grid/PaginationNotice';
 import InfiniteScroll from '../InfiniteScroll/InfiniteScroll';
 import HistoryTimeline from './HistoryTimeline';
 
-const useRestorableItems = createUseRestorableState<WatchedItem[]>();
-const useRestorableCursor = createUseRestorableState<
-  string | null | undefined
->();
-
 function InfiniteHistoryCardStack({
-  items: itemsFromProps,
-  nextCursor: nextCursorFromProps,
+  items: initialItems,
+  nextCursor: initialCursor = null,
   username,
 }: Readonly<{
   items: ReadonlyArray<WatchedItem>;
@@ -22,45 +18,20 @@ function InfiniteHistoryCardStack({
   username: string;
 }>) {
   const endpoint = `/api/u/${username}/watched`;
-  const [items, setItems] = useRestorableItems(endpoint, [...itemsFromProps]);
-  const [nextCursor, setNextCursor] = useRestorableCursor(
+  const { items, canLoadMore, loadMore, status } = usePaginated({
     endpoint,
-    nextCursorFromProps,
-  );
-
-  const fetchItems = useCallback(
-    async (cursor: string) => {
-      const response = await fetch(`${endpoint}?cursor=${cursor}`);
-      const result = (await response.json()) as Readonly<{
-        items: WatchedItem[];
-        nextCursor: string | null;
-      }>;
-      return result;
-    },
-    [endpoint],
-  );
-
-  const handleLoadMore = useCallback(async () => {
-    if (!nextCursor) {
-      return;
-    }
-
-    const result = await fetchItems(nextCursor);
-    const { items: newItems, nextCursor: nextCursorFromResult } = result;
-
-    if (newItems.length === 0) {
-      setNextCursor(null);
-      return;
-    }
-
-    setNextCursor(nextCursorFromResult);
-    setItems((prevItems) => [...prevItems, ...newItems]);
-  }, [fetchItems, nextCursor, setItems, setNextCursor]);
+    initialCursor,
+    initialItems,
+    restoreKey: endpoint,
+  });
 
   return (
-    <InfiniteScroll hasMoreData={!!nextCursor} loadMore={handleLoadMore}>
-      <HistoryTimeline items={items} />
-    </InfiniteScroll>
+    <>
+      <InfiniteScroll hasMoreData={canLoadMore} loadMore={loadMore}>
+        <HistoryTimeline items={items} />
+      </InfiniteScroll>
+      <PaginationNotice onRetry={loadMore} status={status} />
+    </>
   );
 }
 

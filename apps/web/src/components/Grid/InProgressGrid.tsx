@@ -16,6 +16,8 @@ export default async function InProgressGrid({
     auth(),
   ]);
 
+  const isOwner = session.user?.id === user.id;
+
   return (
     <div className="relative grid w-full grid-cols-1 gap-6 md:gap-10 xl:grid-cols-2">
       {items.map((item) => (
@@ -28,9 +30,9 @@ export default async function InProgressGrid({
           key={item.id}
         >
           <InProgressContainer
+            isOwner={isOwner}
             item={item}
             key={item.id}
-            session={session}
             user={user}
           />
         </Suspense>

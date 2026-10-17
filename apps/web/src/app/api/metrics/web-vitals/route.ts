@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Get country from geo headers
-    const country = getRegionFromHeaders(request.headers) || 'unknown';
+    const country = getRegionFromHeaders(request.headers, 'unknown');
 
     // Add country to each metric record in the batch
     const enrichedBody = Array.isArray(body)

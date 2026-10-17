@@ -1,7 +1,8 @@
+import type { Page, UserWithFollowInfo } from '@tvseri.es/schemas';
 import type { NextRequest } from 'next/server';
 
-import auth from '@/auth';
 import { findUser, getFollowers, getFollowing } from '@/lib/api';
+import requireSession from '../../../requireSession';
 
 const types = ['followers', 'following'] as const;
 
@@ -23,24 +24,27 @@ export async function GET(
   },
 ) {
   const { type, username } = await params;
+  const [session, user] = await Promise.all([
+    requireSession(),
+    findUser({ username }),
+  ]);
+
+  if (session instanceof Response) {
+    return session;
+  }
 
   if (!isValidType(type)) {
     return Response.json({ error: 'Invalid type' }, { status: 400 });
   }
 
-  const user = await findUser({ username });
-
   if (!user) {
     return Response.json({ error: 'User not found' }, { status: 404 });
   }
 
-  const { accessToken } = await auth(req);
-  const searchParams = req.nextUrl.searchParams;
-  const cursorFromSearchParams = searchParams.get('cursor') ?? '';
   const payload = {
-    accessToken: accessToken ?? undefined,
+    accessToken: session.accessToken,
     options: {
-      cursor: cursorFromSearchParams,
+      cursor: req.nextUrl.searchParams.get('cursor') ?? '',
     },
     userId: user.id,
   };
@@ -52,5 +56,5 @@ export async function GET(
   return Response.json({
     items,
     nextCursor,
-  });
+  } satisfies Page<UserWithFollowInfo>);
 }

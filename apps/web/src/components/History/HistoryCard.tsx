@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { memo, useMemo } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-import formatDate from '@/utils/formatDate';
+import formatDate, { formatDateOnly } from '@/utils/formatDate';
 import formatRuntime from '@/utils/formatRuntime';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
@@ -90,7 +90,7 @@ function HistoryCard({ item, showShadow = false }: Props) {
           </div>
           {item.episodeAirDate ? (
             <span className="hidden flex-shrink-0 text-nowrap rounded-md bg-black/10 px-2 py-0.5 text-white/30 md:inline">
-              Aired {formatDate(item.episodeAirDate)}
+              Aired {formatDateOnly(item.episodeAirDate)}
             </span>
           ) : null}
         </div>

@@ -9,7 +9,7 @@ export const IMPORT_ENDPOINT = '/api/account/import';
 /** Rows per POST request sent by the client. */
 export const IMPORT_CHUNK_SIZE = 50;
 /** Hard cap enforced by the route. */
-export const IMPORT_MAX_ROWS_PER_REQUEST = 100;
+const IMPORT_MAX_ROWS_PER_REQUEST = 100;
 
 /** Season/episode cells can be numbers when the CSV has numeric columns. */
 export type ImportCell = string | number;

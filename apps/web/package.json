@@ -18,6 +18,7 @@
     "react-dropzone": "^14.4.1",
     "react-fast-compare": "^3.2.2",
     "recharts": "^2.15.4",
+    "server-only": "^0.0.1",
     "slugify": "^1.6.9",
     "sonner": "^2.0.8",
     "use-debounce": "^10.1.1",

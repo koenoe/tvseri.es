@@ -12,6 +12,9 @@ export const metricsQueue = new sst.aws.Queue('MetricsQueue', {
     queue: metricsDlq.arn,
     retry: 3, // Move to DLQ after 3 failed processing attempts
   },
+  // AWS recommends >= 6x the function timeout plus the batching window
+  // (6 x 30s + 60s), so a message never becomes visible again mid-processing.
+  visibilityTimeout: '240 seconds',
 });
 
 metricsQueue.subscribe(

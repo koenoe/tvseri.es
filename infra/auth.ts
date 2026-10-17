@@ -14,6 +14,15 @@ export const auth = new sst.aws.Auth('Auth', {
   },
   forceUpgrade: 'v2',
   issuer: {
+    // Caps the public issuer (logins + token refreshes) against abuse; 20 is
+    // ample for current traffic.
+    concurrency: {
+      reserved: 20,
+    },
+    // The issuer can't derive the stage's base domain itself; infra/dns.ts is the source of truth.
+    environment: {
+      BASE_DOMAIN: domain,
+    },
     handler: 'apps/auth/src/index.handler',
     link: [dynamo.users, email, secrets.googleClientId],
     memory: '1024 MB',

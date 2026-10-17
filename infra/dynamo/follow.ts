@@ -41,12 +41,25 @@ export const follow = new sst.aws.Dynamo('Follow', {
   stream: 'new-and-old-images',
 });
 
+/**
+ * Receives metadata (shard + sequence range) of stream batches that still fail
+ * after all retries, so they can be inspected and replayed instead of being
+ * dropped silently.
+ */
+const followSubscriberDlq = new sst.aws.Queue('FollowSubscriberDLQ', {
+  transform: {
+    queue: {
+      messageRetentionSeconds: 1_209_600, // 14 days (max)
+    },
+  },
+});
+
 follow.subscribe(
   'FollowSubscriber',
   {
     architecture: 'arm64',
     handler: 'apps/api/src/lambdas/follow.handler',
-    link: [users],
+    link: [followSubscriberDlq, users],
     memory: '256 MB',
     nodejs: {
       esbuild: {
@@ -60,6 +73,14 @@ follow.subscribe(
     transform: {
       eventSourceMapping: {
         batchSize: 10,
+        // Deltas are aggregated per user, so a failure fails the whole batch:
+        // split it in half on each retry, then send it to the DLQ.
+        bisectBatchOnFunctionError: true,
+        destinationConfig: {
+          onFailure: {
+            destinationArn: followSubscriberDlq.arn,
+          },
+        },
         maximumBatchingWindowInSeconds: 1,
         maximumRetryAttempts: 5,
       },

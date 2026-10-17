@@ -44,6 +44,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "FollowSubscriberDLQ": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
     "GoogleClientId": {
       "type": "sst.sst.Secret"
       "value": string
@@ -80,6 +84,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "ScrobbleDLQ": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
     "ScrobbleQueue": {
       "type": "sst.aws.Queue"
       "url": string
@@ -100,6 +108,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "ValidateWatchedStatusDLQ": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
     "ValidateWatchedStatusQueue": {
       "type": "sst.aws.Queue"
       "url": string
@@ -107,6 +119,10 @@ declare module "sst" {
     "Watched": {
       "name": string
       "type": "sst.aws.Dynamo"
+    }
+    "WatchedSubscriberDLQ": {
+      "type": "sst.aws.Queue"
+      "url": string
     }
     "WebhookTokens": {
       "name": string

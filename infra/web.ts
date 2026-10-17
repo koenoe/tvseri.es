@@ -31,9 +31,10 @@ function runVercel(
   options: { env?: Record<string, string>; capture?: boolean } = {},
 ) {
   const scopeFlag = VERCEL_TEAM_ID ? ` --scope=${VERCEL_TEAM_ID}` : '';
-  const fullCommand = `npx vercel ${command}${scopeFlag} --token=${VERCEL_TOKEN}`;
 
-  return execSync(fullCommand, {
+  // The token goes through the environment, never the command line, because a
+  // failed execSync puts the full command in the error and the CI log.
+  return execSync(`npx vercel ${command}${scopeFlag}`, {
     cwd: process.cwd(),
     encoding: 'utf-8',
     env: {
@@ -41,6 +42,7 @@ function runVercel(
       ...options.env,
       VERCEL_ORG_ID: VERCEL_TEAM_ID,
       VERCEL_PROJECT_ID: projectId,
+      VERCEL_TOKEN,
     },
     stdio: options.capture ? 'pipe' : 'inherit',
   });
@@ -82,26 +84,16 @@ export const web = $dev
         framework: 'nextjs',
         name: projectName,
         resourceConfig: {
-          functionDefaultRegions: ['iad1', 'lhr1'],
+          // Cost: API is in AWS eu-west-2 (London), so run only in lhr1. Measure US TTFB after deploy.
+          functionDefaultCpuType: 'standard',
+          functionDefaultRegions: ['lhr1'],
         },
         rootDirectory: 'apps/web',
       });
 
-      // TODO: enable when it works in Pulumi, currently is broken
-      // new vercel.FirewallConfig('WebFirewallConfig', {
-      //   enabled: true,
-      //   managedRulesets: {
-      //     aiBots: {
-      //       action: 'deny',
-      //       active: true,
-      //     },
-      //     botProtection: {
-      //       action: 'challenge',
-      //       active: true,
-      //     },
-      //   },
-      //   projectId: project.id,
-      // });
+      // Firewall/bot protection (BotID, JA3/JA4, OWASP sqli/xss/rce/gen, AI bots, custom "Scrobble" allow rule for
+      // /api/webhooks/scrobble/plex) is managed in the Vercel dashboard. Don't manage it from code (vercel.FirewallConfig)
+      // without importing those rules first, or applying it would wipe them and break Plex scrobbles.
 
       const vercelTarget = isProduction ? 'production' : 'preview';
 

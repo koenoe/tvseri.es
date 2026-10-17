@@ -35,12 +35,26 @@ export const watched = new sst.aws.Dynamo('Watched', {
   stream: 'new-and-old-images',
 });
 
+/**
+ * Receives metadata (shard + sequence range) of stream batches that still fail
+ * after all retries, so they can be inspected and replayed instead of being
+ * dropped silently.
+ */
+const watchedSubscriberDlq = new sst.aws.Queue('WatchedSubscriberDLQ', {
+  transform: {
+    queue: {
+      messageRetentionSeconds: 1_209_600, // 14 days (max)
+    },
+  },
+});
+
 watched.subscribe(
   'WatchedSubscriber',
   {
     architecture: 'arm64',
+    // Caps parallel TMDB/DynamoDB fan-out from stream shards (owner decision).
     concurrency: {
-      reserved: 100,
+      reserved: 10,
     },
     handler: 'apps/api/src/lambdas/watched.handler',
     link: [
@@ -49,6 +63,7 @@ watched.subscribe(
       lists,
       preferredImages,
       watched,
+      watchedSubscriberDlq,
       secrets.mdblistApiKey,
       secrets.tmdbApiAccessToken,
       secrets.tmdbApiKey,
@@ -73,6 +88,13 @@ watched.subscribe(
     transform: {
       eventSourceMapping: {
         batchSize: 25,
+        // Split a failing batch in half on each retry to isolate a poison record.
+        bisectBatchOnFunctionError: true,
+        destinationConfig: {
+          onFailure: {
+            destinationArn: watchedSubscriberDlq.arn,
+          },
+        },
         maximumBatchingWindowInSeconds: 2,
         maximumRetryAttempts: 10,
       },

@@ -45,7 +45,6 @@
 // CloudFront is global, so some thing's need to be deployed to US-EAST-1.
 const useast1 = new aws.Provider('useast1', { region: 'us-east-1' });
 // This let's us get our Account info dynamically.
-// @ts-expect-error
 const current = await aws.getCallerIdentity({});
 
 /*

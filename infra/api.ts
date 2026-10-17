@@ -1,5 +1,6 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
+import { DASHBOARD_READ } from '../packages/constants/src/dashboardRead';
 import { auth } from './auth';
 import { domain, zone } from './dns';
 import { dominantColor } from './dominantColor';
@@ -25,6 +26,12 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
       // To minify: wrap in `function _() { ... }`, minify at https://minify-js.com,
       // then remove the `function _(){` prefix and `}` suffix.
       //
+      // Every request needs the API key, except the dashboard's read-only admin
+      // calls, which send a Bearer token instead. Those routes verify the token
+      // themselves (requireAuthAdmin), so the edge only narrows what can get
+      // through without the key: GET/HEAD on the dashboard metrics routes.
+      // Anything else under /metrics (e.g. web-vitals ingest) needs the key.
+      //
       // var h = event.request.headers;
       // var m = event.request.method;
       // var u = event.request.uri;
@@ -34,9 +41,13 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
       //   var b = h['authorization'];
 
       //   var isApiKeyValid = a && a.value === '${k}';
-      //   var isBearerForMetrics = u.startsWith('/metrics') && b && b.value.startsWith('Bearer ');
+      //   var isDashboardRead =
+      //     (m === 'GET' || m === 'HEAD') &&
+      //     b && b.value.startsWith('Bearer ') &&
+      //     /^\/metrics\/(api|web-vitals\/(summary|routes|countries|devices))(\/|$)/.test(u) &&
+      //     !/\.\.|%2e/i.test(u); // no dot segments
 
-      //   if (!(isApiKeyValid || isBearerForMetrics)) {
+      //   if (!(isApiKeyValid || isDashboardRead)) {
       //     return {
       //       statusCode: 401,
       //       statusDescription: 'Unauthorized',
@@ -44,19 +55,35 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
       //     };
       //   }
       // }
-      injection: $resolve([secrets.apiKeyRandom.result]).apply(
-        ([k]) =>
-          `var e=event.request.headers,t=event.request.method,r=event.request.uri;if("OPTIONS"!==t){var a=e["x-api-key"],i=e.authorization,s=a&&"${k}"===a.value,u=r.startsWith("/metrics")&&i&&i.value.startsWith("Bearer ");if(!s&&!u)return{statusCode:401,statusDescription:"Unauthorized",body:{encoding:"text",data:"Unauthorized"}}}`,
-      ),
+      //
+      injection: $resolve([secrets.apiKeyRandom.result]).apply(([k]) => {
+        // Regex and method list come from @tvseri.es/constants (shared with the
+        // Lambda middleware); the regex sources are inlined as JS regex literals.
+        const methods = DASHBOARD_READ.methods
+          .map((method) => `${JSON.stringify(method)}===t`)
+          .join('||');
+        const path = `/${DASHBOARD_READ.pathSource}/.test(r)`;
+        const dots = `!/${DASHBOARD_READ.dotSegmentSource}/i.test(r)`;
+        return `var e=event.request.headers,t=event.request.method,r=event.request.uri;if("OPTIONS"!==t){var a=e["x-api-key"],i=e.authorization,s=a&&"${k}"===a.value,u=(${methods})&&i&&i.value.startsWith("Bearer ")&&${path}&&${dots};if(!s&&!u)return{statusCode:401,statusDescription:"Unauthorized",body:{encoding:"text",data:"Unauthorized"}}}`;
+      }),
     },
   },
   transform: {
     cachePolicy: (args) => {
+      // Only cache what the origin explicitly allows: with minTtl 0, CloudFront
+      // honours `Cache-Control: private` / `no-store` / `no-cache` and won't store
+      // the response. Pinned here so an SST default change can't alter it.
+      args.minTtl = 0;
+      args.defaultTtl = 0;
       args.parametersInCacheKeyAndForwardedToOrigin = {
         ...args.parametersInCacheKeyAndForwardedToOrigin,
         headersConfig: {
           headerBehavior: 'whitelist',
           headers: {
+            // Authorization is deliberately NOT part of the cache key: that would
+            // fragment the CDN cache per user for public data (e.g. series).
+            // Authenticated responses are `private, no-store` (middleware/auth.ts),
+            // so CloudFront never stores them in the first place.
             items: ['Origin'],
           },
         },

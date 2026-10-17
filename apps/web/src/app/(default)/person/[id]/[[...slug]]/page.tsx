@@ -12,7 +12,7 @@ import PersonGrid from '@/components/Grid/PersonGrid';
 import KnownFor from '@/components/KnownFor/KnownFor';
 import Page from '@/components/Page/Page';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
-import formatDate from '@/utils/formatDate';
+import { formatDateOnly } from '@/utils/formatDate';
 import getBaseUrl from '@/utils/getBaseUrl';
 import isNumericId from '@/utils/isNumericId';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
@@ -20,6 +20,27 @@ import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
+
+// Bryan Cranston: a long-lived id, so the build always renders a real page.
+const SEED_PERSON_ID = '17419';
+
+/**
+ * Seed only. With at least one `{ id, slug }` here, every other URL is
+ * upgraded to its own ISR entry after its first visit; without it all
+ * visits share one shell and render on demand. Unknown ids still render
+ * (no `dynamicParams = false`). The slug comes from the API so the seed
+ * is the canonical URL, not a redirect.
+ */
+export async function generateStaticParams() {
+  const person = await cachedPerson(SEED_PERSON_ID);
+
+  return [
+    {
+      id: SEED_PERSON_ID,
+      slug: person?.slug ? [person.slug] : [],
+    },
+  ];
+}
 
 export async function generateMetadata({
   params: paramsFromProps,
@@ -42,7 +63,7 @@ export async function generateMetadata({
     return {};
   }
 
-  const canonicalUrl = `${getBaseUrl()}/tv/${params.id}/${person.slug}`;
+  const canonicalUrl = `${getBaseUrl()}/person/${params.id}/${person.slug}`;
 
   return {
     alternates: {
@@ -129,11 +150,11 @@ export default async function PersonDetailsPage({
                   <div className="opacity-75">{person.placeOfBirth}</div>
                   {person.birthdate ? (
                     <div className="opacity-75 before:mr-1 before:content-['·'] lg:before:mr-2">
-                      {formatDate(person.birthdate)}
+                      {formatDateOnly(person.birthdate)}
                       {person.deathdate ? (
                         <>
                           <span className="mx-1">–</span>
-                          {formatDate(person.deathdate)}
+                          {formatDateOnly(person.deathdate)}
                         </>
                       ) : null}
                     </div>

@@ -32,6 +32,30 @@ type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
 }>;
 
+// Same options in metadata and page, so both read one cache entry.
+const TV_SERIES_OPTIONS = { includeImages: true } as const;
+
+// Breaking Bad: a long-lived id, so the build always renders a real page.
+const SEED_TV_SERIES_ID = '1396';
+
+/**
+ * Seed only. With at least one `{ id, slug }` here, every other URL is
+ * upgraded to its own ISR entry after its first visit; without it all
+ * visits share one shell and render on demand. Unknown ids still render
+ * (no `dynamicParams = false`). The slug comes from the API so the seed
+ * is the canonical URL, not a redirect.
+ */
+export async function generateStaticParams() {
+  const tvSeries = await cachedTvSeries(SEED_TV_SERIES_ID, TV_SERIES_OPTIONS);
+
+  return [
+    {
+      id: SEED_TV_SERIES_ID,
+      slug: tvSeries?.slug ? [tvSeries.slug] : [],
+    },
+  ];
+}
+
 export async function generateMetadata({
   params: paramsFromProps,
 }: Props): Promise<Metadata> {
@@ -41,7 +65,7 @@ export async function generateMetadata({
     return {};
   }
 
-  const tvSeries = await cachedTvSeries(params.id);
+  const tvSeries = await cachedTvSeries(params.id, TV_SERIES_OPTIONS);
 
   if (!tvSeries || tvSeries.isAdult) {
     return {};
@@ -91,9 +115,7 @@ export default async function TvSeriesDetailsPage({
     return notFound();
   }
 
-  const tvSeries = await cachedTvSeries(params.id, {
-    includeImages: true,
-  });
+  const tvSeries = await cachedTvSeries(params.id, TV_SERIES_OPTIONS);
 
   if (!tvSeries || tvSeries.isAdult) {
     return notFound();

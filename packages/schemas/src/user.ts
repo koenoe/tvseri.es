@@ -32,20 +32,10 @@ export const UserWithFollowInfoSchema = v.object({
   isMe: v.boolean(),
 });
 
-export const UpdateUserSchema = v.intersect([
-  v.union([
-    v.object({
-      email: v.optional(v.pipe(v.string(), v.email())),
-      name: v.optional(v.string()),
-      username: UsernameSchema,
-    }),
-    v.object({
-      email: v.pipe(v.string(), v.email()),
-      name: v.optional(v.string()),
-      username: v.optional(UsernameSchema),
-    }),
-  ]),
-]);
+export const UpdateUserSchema = v.object({
+  name: v.optional(v.string()),
+  username: UsernameSchema,
+});
 
 export const UpdateWatchProvidersForUserSchema = v.object({
   watchProviders: v.array(WatchProviderSchema),

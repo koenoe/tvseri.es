@@ -1,4 +1,5 @@
 export { CACHE_LIFE, type CacheLifeProfile } from './cacheLife';
+export { DASHBOARD_READ } from './dashboardRead';
 
 export const WATCH_PROVIDER_PREDEFINED_COLOR: Record<string, string> = {
   'Amazon Prime Video': '#00A8E1',

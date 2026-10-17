@@ -229,8 +229,13 @@ export const MetricRecordSchema = v.variant('type', [
 
 /**
  * Schema for batch web vitals submission from browser.
+ * Capped so one request can't enqueue an unbounded number of SQS messages
+ * (the browser flushes a handful of metrics per page).
  */
-export const WebVitalsBatchSchema = v.array(WebVitalRecordSchema);
+export const WebVitalsBatchSchema = v.pipe(
+  v.array(WebVitalRecordSchema),
+  v.maxLength(50, 'Batch size too large. Maximum 50 items per request.'),
+);
 
 // ============================================================================
 // Aggregate schemas

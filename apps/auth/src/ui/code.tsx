@@ -4,10 +4,18 @@ import type {
   CodeProviderOptions,
   CodeProviderState,
 } from '@openauthjs/openauth/provider/code';
-import type { CodeUICopy } from '@openauthjs/openauth/ui/code';
+import type { CodeUICopy as OpenAuthCodeUICopy } from '@openauthjs/openauth/ui/code';
 import { html } from 'hono/html';
 import { Layout } from './layout';
 import { LoadingDots } from './loading-dots';
+
+// The extra keys are for the errors added by our OpenAuth patch.
+type CodeUICopy = OpenAuthCodeUICopy &
+  Readonly<{
+    code_expired: string;
+    rate_limited: string;
+    send_failed: string;
+  }>;
 
 /**
  * Default copy for the Code UI.
@@ -16,6 +24,7 @@ import { LoadingDots } from './loading-dots';
 const DEFAULT_COPY: CodeUICopy = {
   button_continue: 'Continue',
   code_didnt_get: "Didn't get code?",
+  code_expired: 'This code is no longer valid. Please request a new one.',
   code_info: "We'll send a pin code to your email.",
   code_invalid: 'Invalid code',
   code_placeholder: 'Code',
@@ -24,7 +33,12 @@ const DEFAULT_COPY: CodeUICopy = {
   code_sent: 'Code sent to ',
   email_invalid: 'Email address is not valid',
   email_placeholder: 'Email',
+  rate_limited: 'Too many codes requested. Please try again later.',
+  send_failed: "We couldn't send the email. Please try again later.",
 };
+
+// Server-side sanity check only; the real proof is receiving the code.
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export interface CodeUIOptions {
   sendCode: (claims: Record<string, string>, code: string) => Promise<void>;
@@ -37,13 +51,26 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
     ...options.copy,
   };
 
+  const errorMessages: Readonly<Record<CodeProviderError['type'], string>> = {
+    code_expired: copy.code_expired,
+    invalid_claim: copy.email_invalid,
+    invalid_code: copy.code_invalid,
+    rate_limited: copy.rate_limited,
+    send_failed: copy.send_failed,
+  };
+
   return {
     request: async (
       _req: Request,
       state: CodeProviderState,
       form?: FormData,
-      _error?: CodeProviderError,
+      error?: CodeProviderError,
     ): Promise<Response> => {
+      const errorMessage = error ? errorMessages[error.type] : undefined;
+      const alert = errorMessage ? (
+        <div data-component="form-alert">{errorMessage}</div>
+      ) : null;
+
       // Honeypot: bots fill hidden fields, humans don't see them
       if (form?.get('verify_email')) {
         return new Response(null, {
@@ -53,6 +80,10 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
       }
 
       if (state.type === 'start') {
+        // Set again after a failed first step (invalid email, rate limited,
+        // send failed) so the user doesn't have to retype it.
+        const submittedEmail = form?.get('email');
+        const email = typeof submittedEmail === 'string' ? submittedEmail : '';
         const jsx = (
           <Layout>
             {html`
@@ -74,6 +105,7 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
               method="post"
               onsubmit="disableSubmitButton(event)"
             >
+              {alert}
               <input name="action" type="hidden" value="request" />
               <div aria-hidden="true" data-component="form-verify">
                 <input
@@ -93,6 +125,7 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
                 placeholder={copy.email_placeholder}
                 required
                 type="email"
+                value={email}
               />
               <button data-component="button" type="submit">
                 <span data-slot="text">{copy.button_continue}</span>
@@ -246,6 +279,7 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
               method="post"
               onsubmit="handleCodeFormSubmit()"
             >
+              {alert}
               <input name="action" type="hidden" value="verify" />
               <input name="code" type="hidden" value="" />
               <div data-component="code-inputs">
@@ -301,13 +335,29 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
         status: 302,
       });
     },
+    // Returning an error means nothing was sent: the provider then records
+    // nothing, so the honeypot and failures don't use up anyone's limit.
     sendCode: async (claims, code) => {
-      // Honeypot: bots fill hidden fields, humans don't see them
+      // Honeypot: bots fill hidden fields, humans don't see them. `request`
+      // redirects these back to the start.
       if (claims.verify_email) {
         console.log('Honeypot triggered, hihi');
-        return;
+        return { key: 'verify_email', type: 'invalid_claim', value: '' };
       }
-      await options.sendCode(claims, code);
+
+      // Not normalised here: the provider's storage key and the user lookup do that.
+      const email = claims.email ?? '';
+      if (!EMAIL_PATTERN.test(email)) {
+        return { key: 'email', type: 'invalid_claim', value: email };
+      }
+
+      try {
+        await options.sendCode(claims, code);
+      } catch (error) {
+        // Don't surface raw SES errors; no PII in the log
+        console.error('Failed to send code', error);
+        return { type: 'send_failed' };
+      }
     },
   };
 }

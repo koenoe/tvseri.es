@@ -1,9 +1,11 @@
 import { issuer } from '@openauthjs/openauth';
+import { OauthError } from '@openauthjs/openauth/error';
 import { CodeProvider } from '@openauthjs/openauth/provider/code';
 import { GoogleOidcProvider } from '@openauthjs/openauth/provider/google';
 import { subjects } from '@tvseri.es/schemas';
 import { handle } from 'hono/aws-lambda';
 import { Resource } from 'sst';
+import { allowClient } from './lib/clients';
 import { createUser, findUser } from './lib/db/user';
 import { sendEmail } from './lib/email';
 import { CodeUI, SelectUI } from './ui';
@@ -21,7 +23,31 @@ const ttl =
         reuse: 60 * 5, // 5 minutes - window for concurrent refresh requests
       };
 
+const findOrCreateUser = async (
+  input: Readonly<{ email: string; name?: string; country: string | null }>,
+) => {
+  const user = await findUser({ email: input.email });
+  if (user) {
+    return user;
+  }
+
+  try {
+    return await createUser(input);
+  } catch (error) {
+    // A parallel sign-in created the user in the meantime
+    const existing =
+      error instanceof Error && error.message === 'UserAlreadyExists'
+        ? await findUser({ email: input.email })
+        : null;
+    if (existing) {
+      return existing;
+    }
+    throw error;
+  }
+};
+
 const app = issuer({
+  allow: allowClient,
   providers: {
     code: CodeProvider(
       CodeUI({
@@ -45,29 +71,28 @@ const app = issuer({
   success: async (ctx, value, req) => {
     let email: string | undefined;
     let name: string | undefined;
-    let username: string | undefined;
 
+    // Emails are normalised by the user lookup (lib/db/user.ts)
     if (value.provider === 'google') {
-      if (!value.id.email_verified) {
-        throw new Error('Google email not verified');
+      if (!value.id.email_verified || typeof value.id.email !== 'string') {
+        throw new OauthError(
+          'access_denied',
+          'Your Google account has no verified email address',
+        );
       }
 
-      email = value.id.email as string;
-      name = value.id.name as string;
+      email = value.id.email;
+      name = typeof value.id.name === 'string' ? value.id.name : undefined;
     } else if (value.provider === 'code') {
       email = value.claims.email;
     }
 
     if (email) {
-      let user = await findUser({ email });
-      if (!user) {
-        user = await createUser({
-          country: req.headers.get('cloudfront-viewer-country'),
-          email,
-          name,
-          username,
-        });
-      }
+      const user = await findOrCreateUser({
+        country: req.headers.get('cloudfront-viewer-country'),
+        email,
+        name,
+      });
 
       return ctx.subject('user', {
         id: user.id,

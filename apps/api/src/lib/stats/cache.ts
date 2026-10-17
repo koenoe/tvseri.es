@@ -13,28 +13,51 @@ import {
 
 const CACHE_TTL = 86400; // 24 hours
 
+const logCacheError = (operation: string, error: unknown) => {
+  console.warn(
+    JSON.stringify({
+      level: 'warn',
+      message: `Stats cache ${operation} failed, continuing without cache`,
+      reason: error instanceof Error ? error.message : String(error),
+    }),
+  );
+};
+
 /**
  * Get a cached stats value.
+ * Best-effort: a cache failure is treated as a miss.
  */
-export const getStatsCache = <T>(
+export const getStatsCache = async <T>(
   userId: string,
   year: number,
   key: StatsCacheKey,
-): Promise<T | null | undefined> =>
-  getCacheItem<T>(buildStatsCacheKey(userId, year, key));
+): Promise<T | null | undefined> => {
+  try {
+    return await getCacheItem<T>(buildStatsCacheKey(userId, year, key));
+  } catch (error) {
+    logCacheError('get', error);
+    return undefined;
+  }
+};
 
 /**
  * Set a stats cache value with default TTL.
+ * Best-effort: a cache failure doesn't fail the request.
  */
-export const setStatsCache = <T>(
+export const setStatsCache = async <T>(
   userId: string,
   year: number,
   key: StatsCacheKey,
   value: T,
-): Promise<void> =>
-  setCacheItem(buildStatsCacheKey(userId, year, key), value, {
-    ttl: CACHE_TTL,
-  });
+): Promise<void> => {
+  try {
+    await setCacheItem(buildStatsCacheKey(userId, year, key), value, {
+      ttl: CACHE_TTL,
+    });
+  } catch (error) {
+    logCacheError('set', error);
+  }
+};
 
 /**
  * Invalidate all stats cache entries for a user and year.

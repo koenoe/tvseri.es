@@ -27,9 +27,12 @@ const app = new Hono<{ Variables: Variables }>();
 // All API metrics routes require admin auth
 app.use('*', requireAuthAdmin());
 
-// Cache for 24 hours since data is aggregated once per day
+// Cache for 24 hours since data is aggregated once per day.
+// Browser-only (private): admin data must never be stored at the CDN.
+const METRICS_CACHE_HEADER = cacheHeader('metrics', { scope: 'private' });
+
 app.use('*', async (c, next) => {
-  c.header('Cache-Control', cacheHeader('metrics'));
+  c.header('Cache-Control', METRICS_CACHE_HEADER);
   await next();
 });
 

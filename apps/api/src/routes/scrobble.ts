@@ -43,13 +43,8 @@ app.post('/provider/:provider', async (c) => {
           event: string;
           Metadata: PlexMetadata;
         }>;
-      } catch (error) {
-        console.error('Failed to parse payload:', {
-          error,
-          payload: payloadJson.toString(),
-        });
-
-        throw new HTTPException(500, {
+      } catch {
+        throw new HTTPException(400, {
           message: 'Failed to parse payload',
         });
       }
@@ -74,13 +69,21 @@ app.post('/provider/:provider', async (c) => {
         }),
       );
 
+      // Don't log the full payload: it contains Plex account/server details
       console.log(
         `[SUCCESS] Scrobble queued | User: ${webhookToken.userId}`,
-        JSON.stringify(payload),
+        JSON.stringify({
+          event: payload.event,
+          guid: payload.Metadata.guid,
+        }),
       );
 
       return c.json({ message: 'OK' });
     } catch (error) {
+      if (error instanceof HTTPException) {
+        throw error;
+      }
+
       console.error('Failed to process Plex scrobble:', error);
 
       throw new HTTPException(500, {

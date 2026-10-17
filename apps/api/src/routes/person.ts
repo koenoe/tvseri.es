@@ -4,11 +4,12 @@ import {
   fetchPersonKnownFor,
   fetchPersonTvCredits,
 } from '@/lib/tmdb';
+import { cachedNotFound } from '@/middleware/cacheControl';
 import { cacheHeader } from '@/utils/cacheHeader';
 
 const app = new Hono();
 
-app.get('/:id', async (c) => {
+app.get('/:id{[0-9]+}', async (c) => {
   const person = await fetchPerson(c.req.param('id'));
 
   c.header('Cache-Control', cacheHeader('medium'));
@@ -20,7 +21,7 @@ app.get('/:id', async (c) => {
   return c.json(person);
 });
 
-app.get('/:id/credits', async (c) => {
+app.get('/:id{[0-9]+}/credits', async (c) => {
   const credits = await fetchPersonTvCredits(c.req.param('id'));
 
   c.header('Cache-Control', cacheHeader('medium'));
@@ -33,7 +34,7 @@ app.get('/:id/credits', async (c) => {
   );
 });
 
-app.get('/:id/known-for', async (c) => {
+app.get('/:id{[0-9]+}/known-for', async (c) => {
   const person = await fetchPerson(c.req.param('id'));
 
   c.header('Cache-Control', cacheHeader('medium'));
@@ -46,5 +47,8 @@ app.get('/:id/known-for', async (c) => {
 
   return c.json(items);
 });
+
+// Non-matching paths (e.g. non-numeric ids): cacheable 404, like the real route
+app.get('*', cachedNotFound('medium'));
 
 export default app;

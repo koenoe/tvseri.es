@@ -1,6 +1,11 @@
 import { WATCH_PROVIDER_PREDEFINED_COLOR } from '@tvseri.es/constants';
-import type { WatchProvider } from '@tvseri.es/schemas';
+import {
+  normalizeDiscoverQuery,
+  parseDiscoverPage,
+  type WatchProvider,
+} from '@tvseri.es/schemas';
 import { Hono } from 'hono';
+import { HTTPException } from 'hono/http-exception';
 
 import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
 import {
@@ -22,12 +27,13 @@ const enrichWatchProvidersWithColors = async (
         ...provider,
         color:
           WATCH_PROVIDER_PREDEFINED_COLOR[provider.name] ||
-          (provider.logo
+          (provider.logoPath
             ? await detectDominantColorFromImage({
-                cacheKey: provider.logoPath,
-                url: provider.logo,
+                path: provider.logoPath,
+                size: 'w92',
               })
-            : '#000000'),
+            : undefined) ||
+          '#000000',
       };
     }),
   );
@@ -35,15 +41,19 @@ const enrichWatchProvidersWithColors = async (
 };
 
 app.get('/', async (c) => {
-  const searchParams = c.req.query();
-  const pageFromSearchParams = searchParams.pageOrCursor;
-  const page = pageFromSearchParams ? parseInt(pageFromSearchParams, 10) : 1;
-  const query = {
-    ...searchParams,
-    page,
-  };
+  // `pageOrCursor` is the legacy name for `page` (older web deploys). Remove the
+  // alias once every web deploy sends `page`.
+  const page = parseDiscoverPage(
+    c.req.query('page') ?? c.req.query('pageOrCursor'),
+  );
 
-  const result = await fetchDiscoverTvSeries(query);
+  if (page === null) {
+    throw new HTTPException(400, { message: 'Invalid page' });
+  }
+
+  // Only known, validated filters are forwarded to TMDB
+  const { query } = normalizeDiscoverQuery(c.req.query());
+  const result = await fetchDiscoverTvSeries({ ...query, page });
 
   c.header('Cache-Control', cacheHeader('medium'));
 

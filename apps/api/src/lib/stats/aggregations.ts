@@ -13,6 +13,8 @@ import { buildLogoImageUrl } from '@tvseri.es/utils';
 
 import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
 
+const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+
 /**
  * Aggregate genre counts from a list of TV series.
  */
@@ -69,15 +71,11 @@ export const aggregateProviders = async (
           name as keyof typeof WATCH_PROVIDER_PREDEFINED_COLOR
         ];
 
-      if (!defaultColor && logoImage && logoPath) {
-        try {
-          defaultColor = await detectDominantColorFromImage({
-            cacheKey: logoPath,
-            url: logoImage,
-          });
-        } catch {
-          defaultColor = '#000000';
-        }
+      if (!defaultColor && logoPath) {
+        defaultColor = await detectDominantColorFromImage({
+          path: logoPath,
+          size: 'w92',
+        });
       }
 
       return {
@@ -99,7 +97,6 @@ export const aggregateCountries = (
   seriesList: (TvSeries | null | undefined)[],
 ): Record<string, number> => {
   const countryStats: Record<string, number> = {};
-  const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
 
   seriesList
     .filter((series): series is TvSeries => !!series && !!series.countries)

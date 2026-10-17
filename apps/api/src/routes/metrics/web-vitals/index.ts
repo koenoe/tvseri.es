@@ -15,8 +15,9 @@ const app = new Hono<{ Variables: Variables }>();
 app.route('/', ingest);
 
 // Dashboard query endpoints - require admin auth
-// Cache for 24 hours since data is aggregated once per day
-const METRICS_CACHE_HEADER = cacheHeader('metrics');
+// Cache for 24 hours since data is aggregated once per day.
+// Browser-only (private): admin data must never be stored at the CDN.
+const METRICS_CACHE_HEADER = cacheHeader('metrics', { scope: 'private' });
 
 app.use('/summary/*', requireAuthAdmin());
 app.use('/routes/*', requireAuthAdmin());

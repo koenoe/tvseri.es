@@ -27,11 +27,7 @@ app.put('/', vValidator('json', UpdateUserSchema), async (c) => {
     return c.json(updatedUser);
   } catch (err) {
     const error = err as Error;
-    if (error.message === 'EmailAlreadyTaken') {
-      throw new HTTPException(409, {
-        message: 'EmailAlreadyTaken',
-      });
-    } else if (error.message === 'UsernameAlreadyTaken') {
+    if (error.message === 'UsernameAlreadyTaken') {
       throw new HTTPException(409, {
         message: 'UsernameAlreadyTaken',
       });

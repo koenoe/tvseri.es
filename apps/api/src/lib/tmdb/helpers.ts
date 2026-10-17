@@ -18,6 +18,9 @@ import {
 } from '@tvseri.es/utils';
 import slugify from 'slugify';
 
+// Hoisted: constructing Intl.DisplayNames per series is relatively expensive
+const countryDisplayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+
 export const GLOBAL_GENRES_TO_IGNORE = [10763, 10767, 10766, 10762];
 
 export function buildDiscoverQuery(
@@ -231,7 +234,6 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     0,
   );
 
-  const countryDisplayNames = new Intl.DisplayNames(['en'], { type: 'region' });
   const originCountry = series.origin_country?.[0]
     ? {
         code: series.origin_country[0],

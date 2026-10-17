@@ -49,6 +49,7 @@ import { FETCH_RETRY_OPTIONS, FETCH_TIMEOUT } from '@/constants';
 import { createInstrumentedFetch } from '@/lib/metrics';
 import calculateAge from '@/utils/calculateAge';
 import { dedupe } from '@/utils/dedupe';
+import { mapSettled } from '@/utils/limit';
 import { findPreferredImages } from '../db/preferredImages';
 import detectDominantColorFromImage from '../detectDominantColorFromImage';
 import {
@@ -101,6 +102,7 @@ async function tmdbFetch(path: string, options?: BetterFetchOption) {
         ...options?.headers,
       },
       query: {
+        ...options?.query,
         ...(path.startsWith('/3/') && {
           api_key: tmdbApiKey,
         }),
@@ -119,28 +121,48 @@ async function tmdbFetch(path: string, options?: BetterFetchOption) {
   });
 }
 
+const fetchRawTvSeries = async (
+  id: number | string,
+  includeImages = false,
+): Promise<TmdbTvSeries | undefined> => {
+  const series = (await tmdbFetch(`/3/tv/${id}`)) as TmdbTvSeries | undefined;
+
+  if (!series || !includeImages) {
+    return series;
+  }
+
+  const images = (await tmdbFetch(`/3/tv/${series.id}/images`, {
+    query: {
+      include_image_language: `en,null,${series.original_language ?? ''}`,
+    },
+  })) as TmdbTvSeriesImages | undefined;
+
+  return images ? { ...series, images } : series;
+};
+
+/**
+ * TMDB data only: no preferred images and no dominant colour lookups.
+ * Use it where `backdropColor`/preferred images aren't rendered (e.g. stats,
+ * mutations), it saves 1-2 DynamoDB reads and possibly a Lambda invoke.
+ */
+export async function fetchTvSeriesBase(
+  id: number | string,
+): Promise<TvSeries | undefined> {
+  const series = await fetchRawTvSeries(id);
+  return series ? normalizeTvSeries(series) : undefined;
+}
+
 export async function fetchTvSeries(
   id: number | string,
   options: Readonly<{ includeImages?: boolean }> = { includeImages: false },
 ): Promise<TvSeries | undefined> {
-  const series = (await tmdbFetch(`/3/tv/${id}`)) as TmdbTvSeries;
+  const [series, preferredImages] = await Promise.all([
+    fetchRawTvSeries(id, options.includeImages),
+    findPreferredImages(Number(id)),
+  ]);
 
   if (!series) {
     return undefined;
-  }
-
-  const [preferredImages, images] = await Promise.all([
-    findPreferredImages(series.id),
-    options.includeImages
-      ? (tmdbFetch(
-          `/3/tv/${series.id}/images?include_image_language=en,null,${series.original_language}`,
-        ) as Promise<TmdbTvSeriesImages>)
-      : Promise.resolve(undefined),
-  ]);
-
-  // Note: ewwwww, (ಥ﹏ಥ)
-  if (images) {
-    series.images = images;
   }
 
   const normalizedTvSeries = normalizeTvSeries(series);
@@ -158,31 +180,42 @@ export async function fetchTvSeries(
     };
   }
 
-  if (normalizedTvSeries.backdropImage) {
+  if (normalizedTvSeries.backdropPath) {
     const backdropColor = await detectDominantColorFromImage({
-      cacheKey: normalizedTvSeries.backdropPath!,
-      url: normalizedTvSeries.backdropImage.replace(
-        'w1920_and_h1080_multi_faces',
-        'w780',
-      ),
+      path: normalizedTvSeries.backdropPath,
+      size: 'w780',
     });
 
     return {
       ...normalizedTvSeries,
-      backdropColor,
+      backdropColor: backdropColor ?? normalizedTvSeries.backdropColor,
     };
   }
 
   return normalizedTvSeries;
 }
 
+// Parallel TMDB requests per API call (TMDB tolerates ~40-50 req/s)
+export const TMDB_CONCURRENCY = 20;
+
+/**
+ * Fetches a poster list with bounded concurrency. Series that don't exist (or
+ * an odd failure) are dropped; more than 10% failures throw (see mapSettled).
+ * Posters don't need
+ * preferred images or the dominant colour, so this skips both lookups.
+ */
+const fetchTvSeriesPosterList = (ids: ReadonlyArray<number>) =>
+  mapSettled(ids, (id) => fetchTvSeriesBase(id), TMDB_CONCURRENCY);
+
 export async function fetchTvSeriesImages(
   id: number | string,
   originalLanguage?: string,
 ) {
-  const response = (await tmdbFetch(
-    `/3/tv/${id}/images?include_image_language=en,null,${originalLanguage}`,
-  )) as TmdbTvSeriesImages;
+  const response = (await tmdbFetch(`/3/tv/${id}/images`, {
+    query: {
+      include_image_language: `en,null,${originalLanguage ?? ''}`,
+    },
+  })) as TmdbTvSeriesImages | undefined;
 
   if (!response) {
     return undefined;
@@ -220,12 +253,12 @@ export async function fetchTvSeriesContentRating(
   id: number | string,
   region = 'US',
 ): Promise<string | undefined | null> {
-  const contentRatings = (await tmdbFetch(
-    `/3/tv/${id}/content_ratings`,
-  )) as TmdbTvSeriesContentRatings;
+  const contentRatings = (await tmdbFetch(`/3/tv/${id}/content_ratings`)) as
+    | TmdbTvSeriesContentRatings
+    | undefined;
 
   const contentRating =
-    contentRatings.results?.find((rating) => rating.iso_3166_1 === region)
+    contentRatings?.results?.find((rating) => rating.iso_3166_1 === region)
       ?.rating ?? null;
 
   return contentRating;
@@ -235,12 +268,14 @@ export async function fetchTvSeriesWatchProviders(
   id: number | string,
   region = 'US',
 ): Promise<WatchProvider[]> {
-  const watchProviders = (await tmdbFetch(
-    `/3/tv/${id}/watch/providers`,
-  )) as TmdbTvSeriesWatchProviders;
+  const watchProviders = (await tmdbFetch(`/3/tv/${id}/watch/providers`)) as
+    | TmdbTvSeriesWatchProviders
+    | undefined;
 
   const regionProviders =
-    watchProviders.results?.[region as keyof typeof watchProviders.results];
+    watchProviders?.results?.[
+      region as keyof NonNullable<TmdbTvSeriesWatchProviders['results']>
+    ];
   const flatrate = regionProviders?.flatrate ?? [];
   const free =
     (regionProviders &&
@@ -280,11 +315,11 @@ export async function fetchTvSeriesWatchProvider(
 export async function fetchTvSeriesCredits(
   id: number | string,
 ): Promise<Readonly<{ cast: Person[]; crew: Person[] }>> {
-  const credits = (await tmdbFetch(
-    `/3/tv/${id}/aggregate_credits`,
-  )) as TmdbTvSeriesCredits;
+  const credits = (await tmdbFetch(`/3/tv/${id}/aggregate_credits`)) as
+    | TmdbTvSeriesCredits
+    | undefined;
 
-  if (!credits.cast) {
+  if (!credits?.cast) {
     return {
       cast: [],
       crew: [],
@@ -305,11 +340,11 @@ export async function fetchTvSeriesCredits(
 export async function fetchTvSeriesRecommendations(
   id: number | string,
 ): Promise<TvSeries[]> {
-  const response = (await tmdbFetch(
-    `/3/tv/${id}/recommendations`,
-  )) as TmdbTvSeriesRecommendations;
+  const response = (await tmdbFetch(`/3/tv/${id}/recommendations`)) as
+    | TmdbTvSeriesRecommendations
+    | undefined;
 
-  return (response.results ?? [])
+  return (response?.results ?? [])
     .filter((series) => !!series.poster_path)
     .map((series) => {
       return normalizeTvSeries(series as TmdbTvSeries);
@@ -319,12 +354,11 @@ export async function fetchTvSeriesRecommendations(
 export async function fetchTvSeriesSimilar(
   id: number | string,
 ): Promise<TvSeries[]> {
-  const response = (await tmdbFetch(
-    `/3/tv/${id}/similar`,
-    {},
-  )) as TmdbTvSeriesSimilar;
+  const response = (await tmdbFetch(`/3/tv/${id}/similar`)) as
+    | TmdbTvSeriesSimilar
+    | undefined;
 
-  return (response.results ?? [])
+  return (response?.results ?? [])
     .filter((series) => !!series.poster_path)
     .map((series) => {
       return normalizeTvSeries(series as TmdbTvSeries);
@@ -334,11 +368,11 @@ export async function fetchTvSeriesSimilar(
 export async function fetchTvSeriesKeywords(
   id: number | string,
 ): Promise<Keyword[] | undefined> {
-  const { results } = (await tmdbFetch(
-    `/3/tv/${id}/keywords`,
-  )) as TmdbTvSeriesKeywords;
+  const response = (await tmdbFetch(`/3/tv/${id}/keywords`)) as
+    | TmdbTvSeriesKeywords
+    | undefined;
 
-  return results?.map((keyword) => ({
+  return response?.results?.map((keyword) => ({
     id: keyword.id,
     name: String(keyword.name),
   }));
@@ -399,12 +433,12 @@ export async function fetchTvSeriesEpisode(
   id: number | string,
   season: number | string,
   episode: number | string,
-): Promise<Episode> {
+): Promise<Episode | undefined> {
   const response = (await tmdbFetch(
     `/3/tv/${id}/season/${season}/episode/${episode}`,
-  )) as TmdbTvSeriesEpisode;
+  )) as TmdbTvSeriesEpisode | undefined;
 
-  return normalizeTvSeriesEpisode(response);
+  return response ? normalizeTvSeriesEpisode(response) : undefined;
 }
 
 export async function fetchDiscoverTvSeries(query?: TmdbDiscoverTvSeriesQuery) {
@@ -543,13 +577,13 @@ export async function searchTvSeries(
 export async function fetchWatchProviders(
   region = 'US',
 ): Promise<WatchProvider[]> {
-  const watchProviders = (await tmdbFetch(
-    `/3/watch/providers/tv?watch_region=${region}`,
-  )) as TmdbWatchProviders;
+  const watchProviders = (await tmdbFetch('/3/watch/providers/tv', {
+    query: { watch_region: region },
+  })) as TmdbWatchProviders | undefined;
 
-  return (watchProviders.results ?? [])
+  return (watchProviders?.results ?? [])
     .sort((a, b) => {
-      const sortKey = region as keyof typeof watchProviders.results;
+      const sortKey = region as keyof TmdbWatchProviders['results'];
       const priorityA = a.display_priorities?.[sortKey] ?? a.display_priority;
       const priorityB = b.display_priorities?.[sortKey] ?? b.display_priority;
       return priorityA - priorityB;
@@ -604,11 +638,11 @@ export async function fetchKeyword(id: number | string) {
 }
 
 export async function searchKeywords(query: string) {
-  const response =
-    ((await tmdbFetch(`/3/search/keyword?query=${query}`)) as TmdbKeywords) ??
-    [];
+  const response = (await tmdbFetch('/3/search/keyword', {
+    query: { query },
+  })) as TmdbKeywords | undefined;
 
-  return (response.results ?? []).map((keyword) => {
+  return (response?.results ?? []).map((keyword) => {
     return {
       id: keyword.id,
       name: keyword.name,
@@ -617,12 +651,11 @@ export async function searchKeywords(query: string) {
 }
 
 async function searchPerson(query: string) {
-  const response =
-    ((await tmdbFetch(
-      `/3/search/person?query=${query}`,
-    )) as TmdbSearchPerson) ?? [];
+  const response = (await tmdbFetch('/3/search/person', {
+    query: { query },
+  })) as TmdbSearchPerson | undefined;
 
-  return (response.results ?? []).map((person) => {
+  return (response?.results ?? []).map((person) => {
     return {
       id: person.id,
       image: person.profile_path
@@ -681,9 +714,13 @@ export async function fetchPersonKnownFor(
 }
 
 export async function fetchPersonTvCredits(id: number | string) {
-  const credits = (await tmdbFetch(
-    `/3/person/${id}/tv_credits`,
-  )) as TmdbPersonTvCredits;
+  const credits = (await tmdbFetch(`/3/person/${id}/tv_credits`)) as
+    | TmdbPersonTvCredits
+    | undefined;
+
+  if (!credits) {
+    return undefined;
+  }
 
   const sortAndGroup = (
     results: TmdbPersonTvCredits['cast'] | TmdbPersonTvCredits['crew'] = [],
@@ -739,20 +776,21 @@ export async function findByExternalId({
   externalSource: TmdbExternalSource;
 }>) {
   const response = (await tmdbFetch(
-    `/3/find/${externalId}?external_source=${externalSource}`,
-  )) as TmdbFindByIdResults;
+    `/3/find/${encodeURIComponent(externalId)}`,
+    { query: { external_source: externalSource } },
+  )) as TmdbFindByIdResults | undefined;
 
-  const tvSeries = (response.tv_results ?? []).map((series) => {
+  const tvSeries = (response?.tv_results ?? []).map((series) => {
     return normalizeTvSeries(series as TmdbTvSeries);
   });
-  const episodes = (response.tv_episode_results ?? []).map((episode) => {
+  const episodes = (response?.tv_episode_results ?? []).map((episode) => {
     return {
       ...normalizeTvSeriesEpisode(episode as TmdbTvSeriesEpisode),
       // biome-ignore lint/suspicious/noExplicitAny: sort out one day
       tvSeriesId: (episode as any).show_id,
     };
   });
-  const seasons = (response.tv_season_results ?? []).map((_season) => {
+  const seasons = (response?.tv_season_results ?? []).map((_season) => {
     const season = _season as TmdbTvSeriesSeason;
     return {
       airDate: season.air_date ? new Date(season.air_date).toISOString() : '',
@@ -773,14 +811,11 @@ export async function findByExternalId({
 }
 
 export async function fetchTrendingTvSeries() {
-  const trendingIds = await fetchTrending();
-  const series = await Promise.all(
-    trendingIds.map(async (id) => {
-      const serie = await fetchTvSeries(id, {
-        includeImages: true,
-      });
-      return serie as TvSeries;
-    }),
+  // The spotlight needs preferred backdrops and their dominant colour
+  const series = await mapSettled(
+    await fetchTrending(),
+    (id) => fetchTvSeries(id, { includeImages: true }),
+    TMDB_CONCURRENCY,
   );
   return series.filter((item) =>
     Boolean(item.posterImage && item.backdropImage),
@@ -788,56 +823,30 @@ export async function fetchTrendingTvSeries() {
 }
 
 export async function fetchTopRatedTvSeries() {
-  const topRatedIds = await fetchImdbTopRatedTvSeries();
-  const series = await Promise.all(
-    topRatedIds.map(async (id) => {
-      const serie = await fetchTvSeries(id);
-      return serie as TvSeries;
-    }),
+  const series = await fetchTvSeriesPosterList(
+    await fetchImdbTopRatedTvSeries(),
   );
   return series.filter((serie) => !!serie.posterImage);
 }
 
 export async function fetchKoreasFinestTvSeries() {
-  const ids = await fetchKoreasFinest();
-  const series = await Promise.all(
-    ids.map(async (id) => {
-      const serie = await fetchTvSeries(id);
-      return serie as TvSeries;
-    }),
-  );
+  const series = await fetchTvSeriesPosterList(await fetchKoreasFinest());
   return series.filter((serie) => !!serie.posterImage);
 }
 
 export async function fetchMostPopularTvSeriesThisMonth() {
-  const ids = await fetchMostPopularThisMonth();
-  const series = await Promise.all(
-    ids.map(async (id) => {
-      const serie = await fetchTvSeries(id);
-      return serie as TvSeries;
-    }),
+  const series = await fetchTvSeriesPosterList(
+    await fetchMostPopularThisMonth(),
   );
   return series.filter((serie) => !!serie.posterImage);
 }
 
 export async function fetchMostAnticipatedTvSeries() {
-  const ids = await fetchMostAnticipated();
-  const series = await Promise.all(
-    ids.map(async (id) => {
-      const serie = await fetchTvSeries(id);
-      return serie as TvSeries;
-    }),
-  );
+  const series = await fetchTvSeriesPosterList(await fetchMostAnticipated());
   return series.filter((serie) => !!serie.posterImage);
 }
 
 export async function fetchBestBritishCrimeTvSeries() {
-  const ids = await fetchBestBritishCrime();
-  const series = await Promise.all(
-    ids.map(async (id) => {
-      const serie = await fetchTvSeries(id);
-      return serie as TvSeries;
-    }),
-  );
+  const series = await fetchTvSeriesPosterList(await fetchBestBritishCrime());
   return series.filter((serie) => !!serie.posterImage);
 }

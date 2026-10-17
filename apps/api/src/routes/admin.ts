@@ -11,7 +11,7 @@ const app = new Hono();
 app.use(requireAuthAdmin());
 
 app.put(
-  '/preferred-images/series/:id',
+  '/preferred-images/series/:id{[0-9]+}',
   vValidator('json', PreferredImagesSchema),
   async (c) => {
     const body = c.req.valid('json');

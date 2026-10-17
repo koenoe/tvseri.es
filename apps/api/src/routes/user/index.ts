@@ -17,9 +17,11 @@ import { HTTPException } from 'hono/http-exception';
 
 import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 import {
+  type FollowUser,
   follow,
   getFollowers,
   getFollowing,
+  getFollowStatuses,
   isFollower,
   isFollowing,
   unfollow,
@@ -47,12 +49,13 @@ import {
   unmarkWatchedInBatch,
 } from '@/lib/db/watched';
 import {
-  fetchTvSeries,
+  fetchTvSeriesBase,
   fetchTvSeriesEpisode,
   fetchTvSeriesWatchProvider,
 } from '@/lib/tmdb';
 import { auth, requireAuth } from '@/middleware/auth';
 import { cacheHeader } from '@/utils/cacheHeader';
+import { parseDate, parseLimit } from '@/utils/query';
 
 import { requireIsMe, type UserVariables, user } from './middleware';
 import stats from './stats';
@@ -79,7 +82,11 @@ const parseWatchProviderFromBody = async (
   return null;
 };
 
-const toMinimalUser = ({ id, username, createdAt }: User): Partial<User> => ({
+const toMinimalUser = ({
+  id,
+  username,
+  createdAt,
+}: Pick<User, 'createdAt' | 'id' | 'username'>): Partial<User> => ({
   createdAt,
   id,
   username,
@@ -93,7 +100,7 @@ const series = (): MiddlewareHandler<{ Variables: Variables }> => {
       return c.notFound();
     }
 
-    const tvSeries = await fetchTvSeries(id);
+    const tvSeries = await fetchTvSeriesBase(id);
 
     if (!tvSeries?.firstAirDate || !tvSeries.hasAired) {
       return c.notFound();
@@ -120,57 +127,28 @@ const validateBatchWatchedItemsOwnership = (
 };
 
 const enrichUsersWithFollowInfo = async (
-  users: User[],
+  users: FollowUser[],
   userFromSession?: User,
-  options?: Readonly<{
-    targetUserId: string;
-    type: 'following' | 'followers';
-  }>,
+  // On your own followers list everyone follows you, so don't flag it
+  { hideIsFollower = false }: Readonly<{ hideIsFollower?: boolean }> = {},
 ) => {
-  if (!userFromSession) {
-    // If no authenticated user, just return stored counts
-    return users.map((user) => ({
-      ...toMinimalUser(user),
-      followerCount: user.followerCount ?? 0,
-      followingCount: user.followingCount ?? 0,
-      isFollower: false,
-      isFollowing: false,
-      isMe: false,
-    }));
-  }
+  const statuses = userFromSession
+    ? await getFollowStatuses({
+        targetUserIds: users
+          .map((user) => user.id)
+          .filter((id) => id !== userFromSession.id),
+        viewerId: userFromSession.id,
+      })
+    : undefined;
 
-  const { targetUserId, type = 'followers' } = options || {};
-  const isMeAndFollowers =
-    userFromSession?.id === targetUserId && type === 'followers';
-
-  return await Promise.all(
-    users.map(async (user) => {
-      // Only query isFollower/isFollowing - counts come from user record
-      const [isFollowerResult, isFollowingResult] = await Promise.all([
-        userFromSession.id !== user.id && !isMeAndFollowers
-          ? isFollower({
-              targetUserId: user.id,
-              userId: userFromSession.id,
-            })
-          : Promise.resolve(false),
-        userFromSession.id !== user.id
-          ? isFollowing({
-              targetUserId: user.id,
-              userId: userFromSession.id,
-            })
-          : Promise.resolve(false),
-      ]);
-
-      return {
-        ...toMinimalUser(user),
-        followerCount: user.followerCount ?? 0,
-        followingCount: user.followingCount ?? 0,
-        isFollower: isFollowerResult,
-        isFollowing: isFollowingResult,
-        isMe: userFromSession.id === user.id,
-      };
-    }),
-  );
+  return users.map((user) => ({
+    ...toMinimalUser(user),
+    followerCount: user.followerCount ?? 0,
+    followingCount: user.followingCount ?? 0,
+    isFollower: !hideIsFollower && (statuses?.followers.has(user.id) ?? false),
+    isFollowing: statuses?.following.has(user.id) ?? false,
+    isMe: userFromSession?.id === user.id,
+  }));
 };
 
 app.get('/:id', user(), (c) => {
@@ -192,12 +170,8 @@ app.get('/by-username/:username', async (c) => {
 
 app.get('/:id/watched/count', user(), async (c) => {
   const user = c.get('user');
-  const startDate = c.req.query('start_date')
-    ? new Date(c.req.query('start_date')!)
-    : undefined;
-  const endDate = c.req.query('end_date')
-    ? new Date(c.req.query('end_date')!)
-    : undefined;
+  const startDate = parseDate(c.req.query('start_date'));
+  const endDate = parseDate(c.req.query('end_date'));
 
   const count = await getWatchedCount({
     endDate,
@@ -234,7 +208,7 @@ app.get('/:id/watched/runtime', user(), async (c) => {
   return c.json({ runtime });
 });
 
-app.get('/:id/watched/series/:series-id', user(), async (c) => {
+app.get('/:id/watched/series/:series-id{[0-9]+}', user(), async (c) => {
   const user = c.get('user');
   const items = await getAllWatchedForTvSeries({
     tvSeriesId: c.req.param('series-id'),
@@ -245,7 +219,7 @@ app.get('/:id/watched/series/:series-id', user(), async (c) => {
 });
 
 app.post(
-  '/:id/watched/series/:series-id',
+  '/:id/watched/series/:series-id{[0-9]+}',
   user(),
   requireIsMe(),
   series(),
@@ -266,7 +240,7 @@ app.post(
 );
 
 app.post(
-  '/:id/watched/series/:series-id/season/:season',
+  '/:id/watched/series/:series-id{[0-9]+}/season/:season{[0-9]+}',
   user(),
   requireIsMe(),
   series(),
@@ -296,7 +270,7 @@ app.post(
 );
 
 app.post(
-  '/:id/watched/series/:series-id/season/:season/episode/:episode',
+  '/:id/watched/series/:series-id{[0-9]+}/season/:season{[0-9]+}/episode/:episode{[0-9]+}',
   user(),
   requireIsMe(),
   series(),
@@ -320,14 +294,19 @@ app.post(
       seasonNumber,
       episodeNumber,
     );
+
+    if (!episode) {
+      return c.notFound();
+    }
+
     const watchedItem = await markWatched({
       episode: {
-        airDate: episode!.airDate,
-        episodeNumber: episode!.episodeNumber,
-        runtime: episode!.runtime,
-        seasonNumber: episode!.seasonNumber,
-        stillPath: episode!.stillPath,
-        title: episode!.title,
+        airDate: episode.airDate,
+        episodeNumber: episode.episodeNumber,
+        runtime: episode.runtime,
+        seasonNumber: episode.seasonNumber,
+        stillPath: episode.stillPath,
+        title: episode.title,
       },
       tvSeries,
       userId: user.id,
@@ -339,7 +318,7 @@ app.post(
 );
 
 app.delete(
-  '/:id/watched/series/:series-id',
+  '/:id/watched/series/:series-id{[0-9]+}',
   user(),
   requireIsMe(),
   series(),
@@ -357,7 +336,7 @@ app.delete(
 );
 
 app.delete(
-  '/:id/watched/series/:series-id/season/:season',
+  '/:id/watched/series/:series-id{[0-9]+}/season/:season{[0-9]+}',
   user(),
   requireIsMe(),
   series(),
@@ -383,7 +362,7 @@ app.delete(
 );
 
 app.delete(
-  '/:id/watched/series/:series-id/season/:season/episode/:episode',
+  '/:id/watched/series/:series-id{[0-9]+}/season/:season{[0-9]+}/episode/:episode{[0-9]+}',
   user(),
   requireIsMe(),
   series(),
@@ -412,15 +391,9 @@ app.delete(
 
 app.get('/:id/watched', user(), async (c) => {
   const user = c.get('user');
-  const startDate = c.req.query('start_date')
-    ? new Date(c.req.query('start_date')!)
-    : undefined;
-  const endDate = c.req.query('end_date')
-    ? new Date(c.req.query('end_date')!)
-    : undefined;
-  const limit = c.req.query('limit')
-    ? parseInt(c.req.query('limit')!, 10)
-    : undefined;
+  const startDate = parseDate(c.req.query('start_date'));
+  const endDate = parseDate(c.req.query('end_date'));
+  const limit = parseLimit(c.req.query('limit'), { max: 100 });
   const result = await getWatched({
     endDate,
     options: {
@@ -475,12 +448,8 @@ app.get(
   async (c) => {
     const user = c.get('user');
     const listId = c.req.param('list').toUpperCase();
-    const startDate = c.req.query('start_date')
-      ? new Date(c.req.query('start_date')!)
-      : undefined;
-    const endDate = c.req.query('end_date')
-      ? new Date(c.req.query('end_date')!)
-      : undefined;
+    const startDate = parseDate(c.req.query('start_date'));
+    const endDate = parseDate(c.req.query('end_date'));
 
     const count = await getListItemsCount({
       endDate,
@@ -494,18 +463,12 @@ app.get(
 );
 
 app.get(
-  '/:id/list/:list{favorites|in_progress|watched|watchlist}/:item-id',
+  '/:id/list/:list{favorites|in_progress|watched|watchlist}/:item-id{[0-9]+}',
   user(),
   async (c) => {
     const user = c.get('user');
     const listId = c.req.param('list').toUpperCase();
     const itemId = parseInt(c.req.param('item-id'), 10);
-
-    if (Number.isNaN(itemId)) {
-      throw new HTTPException(400, {
-        message: 'Invalid item ID',
-      });
-    }
 
     const value = await isInList({
       id: itemId,
@@ -523,15 +486,9 @@ app.get(
   async (c) => {
     const user = c.get('user');
     const listId = c.req.param('list').toUpperCase();
-    const startDate = c.req.query('start_date')
-      ? new Date(c.req.query('start_date')!)
-      : undefined;
-    const endDate = c.req.query('end_date')
-      ? new Date(c.req.query('end_date')!)
-      : undefined;
-    const limit = c.req.query('limit')
-      ? parseInt(c.req.query('limit')!, 10)
-      : undefined;
+    const startDate = parseDate(c.req.query('start_date'));
+    const endDate = parseDate(c.req.query('end_date'));
+    const limit = parseLimit(c.req.query('limit'), { max: 100 });
     const result = await getListItems({
       endDate,
       listId,
@@ -561,27 +518,18 @@ app.post(
     const listId = c.req.param('list').toUpperCase();
     const body = c.req.valid('json');
 
-    try {
-      await addToList({
-        item: body,
-        listId,
-        userId: user.id,
-      });
+    await addToList({
+      item: body,
+      listId,
+      userId: user.id,
+    });
 
-      return c.json({ message: 'OK' }, 201);
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new HTTPException(400, {
-          message: error.message,
-        });
-      }
-      throw error;
-    }
+    return c.json({ message: 'OK' }, 201);
   },
 );
 
 app.delete(
-  '/:id/list/:list{favorites|in_progress|watchlist}/:itemId',
+  '/:id/list/:list{favorites|in_progress|watchlist}/:itemId{[0-9]+}',
   user(),
   requireIsMe(),
   async (c) => {
@@ -589,28 +537,13 @@ app.delete(
     const listId = c.req.param('list').toUpperCase();
     const itemId = parseInt(c.req.param('itemId'), 10);
 
-    if (Number.isNaN(itemId)) {
-      throw new HTTPException(400, {
-        message: 'Invalid item ID',
-      });
-    }
+    await removeFromList({
+      id: itemId,
+      listId,
+      userId: user.id,
+    });
 
-    try {
-      await removeFromList({
-        id: itemId,
-        listId,
-        userId: user.id,
-      });
-
-      return c.json({ message: 'OK' }, 200);
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new HTTPException(400, {
-          message: error.message,
-        });
-      }
-      throw error;
-    }
+    return c.json({ message: 'OK' }, 200);
   },
 );
 
@@ -685,9 +618,7 @@ app.get('/:id/followers', user(), auth(), async (c) => {
   const userFromSession = auth?.user;
 
   const user = c.get('user');
-  const limit = c.req.query('limit')
-    ? parseInt(c.req.query('limit')!, 10)
-    : undefined;
+  const limit = parseLimit(c.req.query('limit'), { max: 100 });
   const { items, nextCursor } = await getFollowers({
     options: {
       cursor: c.req.query('cursor'),
@@ -700,10 +631,7 @@ app.get('/:id/followers', user(), auth(), async (c) => {
   const enrichedUsers = await enrichUsersWithFollowInfo(
     items,
     userFromSession,
-    {
-      targetUserId: user.id,
-      type: 'followers',
-    },
+    { hideIsFollower: userFromSession?.id === user.id },
   );
 
   return c.json({
@@ -717,9 +645,7 @@ app.get('/:id/following', user(), auth(), async (c) => {
   const userFromSession = auth?.user;
 
   const user = c.get('user');
-  const limit = c.req.query('limit')
-    ? parseInt(c.req.query('limit')!, 10)
-    : undefined;
+  const limit = parseLimit(c.req.query('limit'), { max: 100 });
   const { items, nextCursor } = await getFollowing({
     options: {
       cursor: c.req.query('cursor'),
@@ -729,14 +655,7 @@ app.get('/:id/following', user(), auth(), async (c) => {
     userId: user.id,
   });
 
-  const enrichedUsers = await enrichUsersWithFollowInfo(
-    items,
-    userFromSession,
-    {
-      targetUserId: user.id,
-      type: 'following',
-    },
-  );
+  const enrichedUsers = await enrichUsersWithFollowInfo(items, userFromSession);
 
   return c.json({
     items: enrichedUsers,

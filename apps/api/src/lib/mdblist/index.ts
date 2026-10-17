@@ -37,6 +37,11 @@ type Item = Readonly<{
   mediaType: MediaType;
 }>;
 
+type ListResponse = Readonly<{
+  movies: Item[];
+  shows: Item[];
+}>;
+
 const apiKey = Resource.MdblistApiKey.value;
 
 if (!apiKey) {
@@ -106,65 +111,47 @@ export async function fetchRating(
 export async function fetchImdbTopRatedTvSeries() {
   const response = (await mdblistFetch(
     '/lists/koenoe/imdb-top-rated-by-koen/items',
-  )) as Readonly<{
-    movies: Item[];
-    shows: Item[];
-  }>;
+  )) as ListResponse | undefined;
 
-  return response.shows?.map((item) => item.id);
+  return response?.shows?.map((item) => item.id) ?? [];
 }
 
 export async function fetchKoreasFinest() {
   const response = (await mdblistFetch(
     '/lists/koenoe/top-rated-korean-shows-on-netflix/items',
-  )) as Readonly<{
-    movies: Item[];
-    shows: Item[];
-  }>;
+  )) as ListResponse | undefined;
 
-  return response.shows?.map((item) => item.id);
+  return response?.shows?.map((item) => item.id) ?? [];
 }
 
 export async function fetchMostPopularThisMonth() {
   const response = (await mdblistFetch(
     '/lists/koenoe/most-popular-this-month/items',
-  )) as Readonly<{
-    movies: Item[];
-    shows: Item[];
-  }>;
+  )) as ListResponse | undefined;
 
-  return response.shows?.map((item) => item.id);
+  return response?.shows?.map((item) => item.id) ?? [];
 }
 
 export async function fetchTrending() {
   const response = (await mdblistFetch(
     '/lists/koenoe/trending-trakttv/items',
-  )) as Readonly<{
-    movies: Item[];
-    shows: Item[];
-  }>;
+  )) as ListResponse | undefined;
 
-  return response.shows?.map((item) => item.id);
+  return response?.shows?.map((item) => item.id) ?? [];
 }
 
 export async function fetchMostAnticipated() {
   const response = (await mdblistFetch(
     '/lists/koenoe/most-anticipated/items',
-  )) as Readonly<{
-    movies: Item[];
-    shows: Item[];
-  }>;
+  )) as ListResponse | undefined;
 
-  return response.shows?.map((item) => item.id);
+  return response?.shows?.map((item) => item.id) ?? [];
 }
 
 export async function fetchBestBritishCrime() {
-  const response = (await mdblistFetch(
-    '/lists/koenoe/british-crime/items',
-  )) as Readonly<{
-    movies: Item[];
-    shows: Item[];
-  }>;
+  const response = (await mdblistFetch('/lists/koenoe/british-crime/items')) as
+    | ListResponse
+    | undefined;
 
-  return response.shows?.map((item) => item.id);
+  return response?.shows?.map((item) => item.id) ?? [];
 }

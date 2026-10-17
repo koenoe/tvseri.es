@@ -23,8 +23,9 @@ import {
   getWatchedItemsForYear,
   setStatsCache,
 } from '@/lib/stats';
-import { fetchTvSeries } from '@/lib/tmdb';
+import { fetchTvSeries, fetchTvSeriesBase, TMDB_CONCURRENCY } from '@/lib/tmdb';
 import { cacheHeader } from '@/utils/cacheHeader';
+import { createLimiter } from '@/utils/limit';
 
 import { type UserVariables, user, yearMiddleware } from './middleware';
 
@@ -33,6 +34,14 @@ type Variables = {
 } & UserVariables;
 
 const STATS_CACHE_HEADER = cacheHeader('stats');
+
+// Slim TMDB fetch with bounded concurrency. Missing series resolve to
+// `undefined` and are skipped by the aggregations; other failures reject so a
+// partial result never gets cached.
+const fetchTvSeriesForStats = (ids: ReadonlyArray<number>) => {
+  const limit = createLimiter(TMDB_CONCURRENCY);
+  return Promise.all(ids.map((id) => limit(() => fetchTvSeriesBase(id))));
+};
 
 const app = new Hono<{ Variables: Variables }>();
 
@@ -256,9 +265,7 @@ app.get('/:id/stats/:year/genres', user(), yearMiddleware(), async (c) => {
     return c.json([]);
   }
 
-  const seriesWithGenres = await Promise.all(
-    uniqueSeriesIds.map((id) => fetchTvSeries(id)),
-  );
+  const seriesWithGenres = await fetchTvSeriesForStats(uniqueSeriesIds);
 
   const result = aggregateGenres(seriesWithGenres);
 
@@ -305,9 +312,7 @@ app.get('/:id/stats/:year/countries', user(), yearMiddleware(), async (c) => {
     return c.json({});
   }
 
-  const seriesList = await Promise.all(
-    uniqueSeriesIds.map((id) => fetchTvSeries(id)),
-  );
+  const seriesList = await fetchTvSeriesForStats(uniqueSeriesIds);
 
   const result = aggregateCountries(seriesList);
 

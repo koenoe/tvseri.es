@@ -2,6 +2,7 @@ import type { TvSeries } from '@tvseri.es/schemas';
 
 import { apiFetch } from './client';
 
+// Free-text search: high cardinality, so not cached in-process.
 export async function searchTvSeries(
   query: string,
   {
@@ -10,11 +11,10 @@ export async function searchTvSeries(
     year?: number | string;
   }> = {},
 ) {
-  const series = (await apiFetch('/search/series', {
+  return apiFetch<TvSeries[]>('/search/series', {
     query: {
       q: query,
       year,
     },
-  })) as TvSeries[];
-  return series;
+  });
 }

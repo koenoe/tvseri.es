@@ -2,7 +2,7 @@
 
 // Admin
 export { updatePreferredImages } from './admin';
-export { proxy } from './client';
+export { ApiError, proxy } from './client';
 
 // Collections
 export {

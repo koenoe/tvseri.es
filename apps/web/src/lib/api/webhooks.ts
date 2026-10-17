@@ -8,31 +8,29 @@ export async function fetchTokenForWebhookByType(
   }> &
     AuthContext,
 ) {
-  const token = (await apiFetch('/webhook/type/:type', {
-    auth: {
-      token: input.accessToken,
-      type: 'Bearer',
+  const token = await apiFetch<Readonly<{ token: string }>>(
+    '/webhook/type/:type',
+    {
+      accessToken: input.accessToken,
+      params: {
+        type: input.type,
+      },
     },
-    params: {
-      type: input.type,
-    },
-  })) as Readonly<{
-    token: string;
-  }>;
+  );
 
   return token.token;
 }
 
+/** Returns null when the token doesn't exist. */
 export async function fetchTokenForWebhook(
   input: Readonly<{
     token: string;
   }>,
 ) {
-  const token = (await apiFetch('/webhook/token/:token', {
+  return apiFetch<WebhookToken>('/webhook/token/:token', {
+    notFound: 'null',
     params: {
       token: input.token,
     },
-  })) as WebhookToken;
-
-  return token;
+  });
 }

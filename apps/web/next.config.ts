@@ -1,37 +1,27 @@
-import bundleAnalyzer from '@next/bundle-analyzer';
+import { CACHE_LIFE } from '@tvseri.es/constants';
 import type { NextConfig } from 'next';
 
 import getBaseUrl from './src/utils/getBaseUrl';
 
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-});
+/**
+ * `use cache` profiles mirror the API's Cache-Control (`CACHE_LIFE`):
+ * fresh for `s-maxage`, then served stale for `stale-while-revalidate`.
+ */
+const cacheLife = Object.fromEntries(
+  Object.entries(CACHE_LIFE).map(([profile, life]) => [
+    profile,
+    {
+      expire: life.sMaxAge + life.staleWhileRevalidate,
+      revalidate: life.sMaxAge,
+      stale: life.maxAge,
+    },
+  ]),
+);
 
 const nextConfig = {
+  agentRules: false,
   cacheComponents: true,
-  cacheLife: {
-    // Matches API: public, max-age=2629800, s-maxage=2629800, stale-while-revalidate=86400
-    // Used for: collections, genres, countries, languages (reference data)
-    long: {
-      expire: 2629800 + 86400, // 1 month + 1 day SWR
-      revalidate: 2629800, // 1 month
-      stale: 2629800, // 1 month
-    },
-    // Matches API: public, max-age=604800, s-maxage=604800, stale-while-revalidate=86400
-    // Used for: discover, search, person, keywords, credits (semi-static content)
-    medium: {
-      expire: 604800 + 86400, // 1 week + 1 day SWR
-      revalidate: 604800, // 1 week
-      stale: 604800, // 1 week
-    },
-    // Matches API: public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600
-    // Used for: series details, trending, ratings (daily updates)
-    short: {
-      expire: 86400 + 21600, // 24h + 6h SWR
-      revalidate: 86400, // 24 hours
-      stale: 86400, // 24 hours
-    },
-  },
+  cacheLife,
   cleanDistDir: true,
   experimental: {
     authInterrupts: true,
@@ -46,7 +36,6 @@ const nextConfig = {
       'recharts',
       'sonner',
       'use-debounce',
-      'xstate',
       'zustand',
     ],
   },
@@ -112,12 +101,20 @@ const nextConfig = {
     ];
   },
   async rewrites() {
-    return [
-      {
-        destination: '/home',
-        source: '/',
-      },
-    ];
+    return {
+      // Non-numeric ids can never exist: serve the static, prerendered 404
+      // (an unmatched path) instead of invoking a function / ISR entry per URL.
+      beforeFiles: [
+        {
+          destination: '/_not-found-static',
+          source: '/:section(tv|person)/:id((?!\\d+(?:/|$))[^/]+)/:rest*',
+        },
+        {
+          destination: '/home',
+          source: '/',
+        },
+      ],
+    };
   },
   transpilePackages: [
     '@tvseri.es/constants',
@@ -129,4 +126,4 @@ const nextConfig = {
   },
 } satisfies NextConfig;
 
-export default withBundleAnalyzer(nextConfig);
+export default nextConfig;

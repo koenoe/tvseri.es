@@ -6,82 +6,100 @@ import type {
   User,
   WatchProvider,
 } from '@tvseri.es/schemas';
+import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from './client';
+import { withStringId } from './withStringId';
 
+// Uncached on purpose: `@/app/cached` wraps these two with `use cache`.
 export async function fetchTvSeries(
   id: number | string,
   options: Readonly<{ includeImages?: boolean }> = { includeImages: false },
 ) {
-  const series = (await apiFetch(`/series/${id}`, {
+  return apiFetch<TvSeries>(`/series/${id}`, {
+    notFound: 'null',
     query: {
       include_images: options.includeImages,
     },
-  })) as TvSeries | undefined;
-  return series;
+  });
 }
 
 export async function fetchTvSeriesSeason(
   id: number | string,
   seasonNumber: number | string,
 ) {
-  const season = (await apiFetch(`/series/${id}/season/${seasonNumber}`)) as
-    | Season
-    | undefined;
-  return season;
+  return apiFetch<Season>(`/series/${id}/season/${seasonNumber}`, {
+    notFound: 'null',
+  });
 }
 
+// Admin-only, so not cached. Null when TMDB has no images for the series.
 export async function fetchTvSeriesImages(
   id: number | string,
   language?: string,
 ) {
-  const images = (await apiFetch(`/series/${id}/images`, {
+  return apiFetch<
+    Readonly<{
+      backdrops: Readonly<{
+        url: string;
+        path: string;
+      }>[];
+      titleTreatment: Readonly<{
+        url: string;
+        path: string;
+      }>[];
+    }>
+  >(`/series/${id}/images`, {
+    notFound: 'null',
     query: {
       language,
     },
-  })) as Readonly<{
-    backdrops: Readonly<{
-      url: string;
-      path: string;
-    }>[];
-    titleTreatment: Readonly<{
-      url: string;
-      path: string;
-    }>[];
-  }>;
-  return images;
+  });
 }
 
-export async function fetchTvSeriesContentRating(
-  id: number | string,
+// Public per-series data below: cacheLife mirrors the API's Cache-Control and
+// everything is tagged `series:${id}`. Region is always an explicit argument.
+
+async function fetchCachedTvSeriesContentRating(
+  id: string,
   region: string = 'US',
 ) {
-  const contentRating = (await apiFetch(`/series/${id}/content-rating`, {
+  'use cache';
+  cacheLife('medium');
+  cacheTag(`series:${id}`);
+  return apiFetch<string>(`/series/${id}/content-rating`, {
+    notFound: 'null',
     query: {
       region,
     },
-  })) as string | undefined;
-  return contentRating;
+  });
 }
 
-async function fetchTvSeriesWatchProviders(
-  id: number | string,
-  region: string = 'US',
-) {
-  const watchProviders = (await apiFetch(`/series/${id}/watch-providers`, {
+export const fetchTvSeriesContentRating = withStringId(
+  fetchCachedTvSeriesContentRating,
+);
+
+async function fetchTvSeriesWatchProviders(id: string, region: string) {
+  'use cache';
+  cacheLife('short');
+  cacheTag(`series:${id}`);
+  return apiFetch<WatchProvider[]>(`/series/${id}/watch-providers`, {
     query: {
       region,
     },
-  })) as WatchProvider[];
-  return watchProviders;
+  });
 }
 
+/**
+ * The provider list is cached per (id, region); picking the user's preferred
+ * provider happens outside the cache so `user` never becomes part of a key.
+ */
 export async function fetchTvSeriesWatchProvider(
   id: number | string,
   region: string,
   user?: Pick<User, 'watchProviders'> | null,
 ) {
-  const providers = await fetchTvSeriesWatchProviders(id, region);
+  const providers = await fetchTvSeriesWatchProviders(String(id), region);
 
   if (providers.length === 0) {
     return undefined;
@@ -101,37 +119,56 @@ export async function fetchTvSeriesWatchProvider(
   return providers[0];
 }
 
-export async function fetchTvSeriesRating(
-  id: number | string,
-  source: string = 'imdb',
-) {
-  const rating = (await apiFetch(`/series/${id}/rating`, {
+async function fetchCachedTvSeriesRating(id: string, source: string = 'imdb') {
+  'use cache';
+  cacheLife('short');
+  cacheTag(`series:${id}`);
+  return apiFetch<Rating>(`/series/${id}/rating`, {
+    notFound: 'null',
     query: {
       source,
     },
-  })) as Rating | null;
-  return rating;
+  });
 }
 
-export async function fetchTvSeriesCredits(id: number | string) {
-  const credits = (await apiFetch(`/series/${id}/credits`)) as Readonly<{
-    cast: Person[];
-    crew: Person[];
-  }>;
-  return credits;
+export const fetchTvSeriesRating = withStringId(fetchCachedTvSeriesRating);
+
+async function fetchCachedTvSeriesCredits(id: string) {
+  'use cache';
+  cacheLife('medium');
+  cacheTag(`series:${id}`);
+  return apiFetch<
+    Readonly<{
+      cast: Person[];
+      crew: Person[];
+    }>
+  >(`/series/${id}/credits`);
 }
 
-export async function fetchTvSeriesRecommendations(id: number | string) {
-  const recommendations = (await apiFetch(
-    `/series/${id}/recommendations`,
-  )) as TvSeries[];
-  return recommendations;
+export const fetchTvSeriesCredits = withStringId(fetchCachedTvSeriesCredits);
+
+async function fetchCachedTvSeriesRecommendations(id: string) {
+  'use cache';
+  cacheLife('short');
+  cacheTag(`series:${id}`);
+  return apiFetch<TvSeries[]>(`/series/${id}/recommendations`);
 }
 
-export async function fetchTvSeriesKeywords(id: number | string) {
-  const keywords = (await apiFetch(`/series/${id}/keywords`)) as Readonly<{
-    id: number;
-    name: string;
-  }>[];
-  return keywords;
+export const fetchTvSeriesRecommendations = withStringId(
+  fetchCachedTvSeriesRecommendations,
+);
+
+async function fetchCachedTvSeriesKeywords(id: string) {
+  'use cache';
+  cacheLife('medium');
+  cacheTag(`series:${id}`);
+  const keywords = await apiFetch<
+    Readonly<{
+      id: number;
+      name: string;
+    }>[]
+  >(`/series/${id}/keywords`, { notFound: 'null' });
+  return keywords ?? [];
 }
+
+export const fetchTvSeriesKeywords = withStringId(fetchCachedTvSeriesKeywords);

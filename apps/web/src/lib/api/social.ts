@@ -10,10 +10,7 @@ export async function follow({
 }> &
   AuthContext) {
   await apiFetch('/user/:id/follow', {
-    auth: {
-      token: accessToken,
-      type: 'Bearer',
-    },
+    accessToken,
     method: 'POST',
     params: {
       id: userId,
@@ -26,10 +23,7 @@ export async function unfollow({
   accessToken,
 }: Parameters<typeof follow>[0]) {
   await apiFetch('/user/:id/unfollow', {
-    auth: {
-      token: accessToken,
-      type: 'Bearer',
-    },
+    accessToken,
     method: 'DELETE',
     params: {
       id: userId,
@@ -38,27 +32,33 @@ export async function unfollow({
 }
 
 export async function getFollowerCount(userId: string) {
-  const result = (await apiFetch('/user/:id/followers/count', {
+  const result = await apiFetch<
+    Readonly<{
+      count: number;
+    }>
+  >('/user/:id/followers/count', {
+    notFound: 'null',
     params: {
       id: userId,
     },
-  })) as Readonly<{
-    count: number;
-  }>;
+  });
 
-  return result.count;
+  return result?.count ?? 0;
 }
 
 export async function getFollowingCount(userId: string) {
-  const result = (await apiFetch('/user/:id/following/count', {
+  const result = await apiFetch<
+    Readonly<{
+      count: number;
+    }>
+  >('/user/:id/following/count', {
+    notFound: 'null',
     params: {
       id: userId,
     },
-  })) as Readonly<{
-    count: number;
-  }>;
+  });
 
-  return result.count;
+  return result?.count ?? 0;
 }
 
 export async function getFollowers(
@@ -68,11 +68,14 @@ export async function getFollowers(
   }> &
     AuthContext,
 ) {
-  const result = (await apiFetch('/user/:id/followers', {
-    auth: {
-      token: input.accessToken,
-      type: 'Bearer',
-    },
+  const result = await apiFetch<
+    Readonly<{
+      items: UserWithFollowInfo[];
+      nextCursor: string | null;
+    }>
+  >('/user/:id/followers', {
+    accessToken: input.accessToken,
+    notFound: 'null',
     params: {
       id: input.userId,
     },
@@ -81,20 +84,20 @@ export async function getFollowers(
       limit: input.options?.limit,
       sort_direction: input.options?.sortDirection,
     },
-  })) as Readonly<{
-    items: UserWithFollowInfo[];
-    nextCursor: string | null;
-  }>;
+  });
 
-  return result;
+  return result ?? { items: [], nextCursor: null };
 }
 
 export async function getFollowing(input: Parameters<typeof getFollowers>[0]) {
-  const result = (await apiFetch('/user/:id/following', {
-    auth: {
-      token: input.accessToken,
-      type: 'Bearer',
-    },
+  const result = await apiFetch<
+    Readonly<{
+      items: UserWithFollowInfo[];
+      nextCursor: string | null;
+    }>
+  >('/user/:id/following', {
+    accessToken: input.accessToken,
+    notFound: 'null',
     params: {
       id: input.userId,
     },
@@ -103,12 +106,9 @@ export async function getFollowing(input: Parameters<typeof getFollowers>[0]) {
       limit: input.options?.limit,
       sort_direction: input.options?.sortDirection,
     },
-  })) as Readonly<{
-    items: UserWithFollowInfo[];
-    nextCursor: string | null;
-  }>;
+  });
 
-  return result;
+  return result ?? { items: [], nextCursor: null };
 }
 
 export async function isFollowing({
@@ -118,14 +118,17 @@ export async function isFollowing({
   userId: string;
   targetUserId: string;
 }>) {
-  const result = (await apiFetch('/user/:id/following/:target', {
+  const result = await apiFetch<
+    Readonly<{
+      value: boolean;
+    }>
+  >('/user/:id/following/:target', {
+    notFound: 'null',
     params: {
       id: userId,
       target: targetUserId,
     },
-  })) as Readonly<{
-    value: boolean;
-  }>;
+  });
 
-  return result.value;
+  return result?.value ?? false;
 }

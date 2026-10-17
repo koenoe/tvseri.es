@@ -1,30 +1,43 @@
 import type { Movie, Person, TvSeries } from '@tvseri.es/schemas';
+import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from './client';
+import { withStringId } from './withStringId';
 
+// Uncached on purpose: `@/app/cached` wraps this with `use cache`.
 export async function fetchPerson(id: number | string) {
-  const person = (await apiFetch(`/person/${id}`)) as Person | undefined;
-  return person;
+  return apiFetch<Person>(`/person/${id}`, { notFound: 'null' });
 }
 
-export async function fetchPersonTvCredits(id: number | string) {
-  const credits = (await apiFetch(`/person/${id}/credits`)) as Readonly<{
-    cast: {
-      upcoming: TvSeries[];
-      previous: TvSeries[];
-    };
-    crew: {
-      upcoming: TvSeries[];
-      previous: TvSeries[];
-    };
-  }>;
-  return credits;
+async function fetchCachedPersonTvCredits(id: string) {
+  'use cache';
+  cacheLife('medium');
+  cacheTag(`person:${id}`);
+  return apiFetch<
+    Readonly<{
+      cast: {
+        upcoming: TvSeries[];
+        previous: TvSeries[];
+      };
+      crew: {
+        upcoming: TvSeries[];
+        previous: TvSeries[];
+      };
+    }>
+  >(`/person/${id}/credits`);
 }
 
-export async function fetchPersonKnownFor(id: number | string) {
-  const items = (await apiFetch(`/person/${id}/known-for`)) as (
-    | TvSeries
-    | Movie
-  )[];
-  return items;
+export const fetchPersonTvCredits = withStringId(fetchCachedPersonTvCredits);
+
+async function fetchCachedPersonKnownFor(id: string) {
+  'use cache';
+  cacheLife('medium');
+  cacheTag(`person:${id}`);
+  const items = await apiFetch<(TvSeries | Movie)[]>(
+    `/person/${id}/known-for`,
+    { notFound: 'null' },
+  );
+  return items ?? [];
 }
+
+export const fetchPersonKnownFor = withStringId(fetchCachedPersonKnownFor);

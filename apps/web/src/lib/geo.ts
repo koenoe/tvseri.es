@@ -1,7 +1,5 @@
 import { headers } from 'next/headers';
 
-// import { connection } from 'next/server';
-
 const DEFAULT_REGION = 'US';
 
 /**
@@ -21,11 +19,21 @@ type ReadonlyHeaders = Awaited<ReturnType<typeof headers>>;
  * Useful in API routes where you already have the headers.
  *
  * @param headerStore - Headers object from request
+ * @param fallback - Returned when no geo header is present (default 'US').
+ *   Pass `null` where a guessed region would be wrong, e.g. RUM metrics.
  * @returns ISO 3166-1 alpha-2 country code (e.g., 'US', 'GB', 'NL')
  */
 export function getRegionFromHeaders(
   headerStore: Headers | ReadonlyHeaders,
-): string {
+): string;
+export function getRegionFromHeaders<T>(
+  headerStore: Headers | ReadonlyHeaders,
+  fallback: T,
+): string | T;
+export function getRegionFromHeaders(
+  headerStore: Headers | ReadonlyHeaders,
+  fallback: unknown = DEFAULT_REGION,
+) {
   for (const header of GEO_HEADERS) {
     const value = headerStore.get(header);
     if (value) {
@@ -33,7 +41,7 @@ export function getRegionFromHeaders(
     }
   }
 
-  return DEFAULT_REGION;
+  return fallback;
 }
 
 /**
@@ -43,6 +51,5 @@ export function getRegionFromHeaders(
  * @returns ISO 3166-1 alpha-2 country code (e.g., 'US', 'GB', 'NL')
  */
 export async function getRegion(): Promise<string> {
-  // await connection();
   return getRegionFromHeaders(await headers());
 }

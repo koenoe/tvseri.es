@@ -12,10 +12,7 @@ export async function updatePreferredImages({
 }> &
   AuthContext) {
   await apiFetch('/admin/preferred-images/series/:id', {
-    auth: {
-      token: accessToken,
-      type: 'Bearer',
-    },
+    accessToken,
     body: JSON.stringify(preferredImages),
     method: 'PUT',
     params: {

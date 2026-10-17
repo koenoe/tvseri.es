@@ -1,17 +1,23 @@
-import type { ListItem, PaginationOptions } from '@tvseri.es/schemas';
+import type { ListId, ListItem, PaginationOptions } from '@tvseri.es/schemas';
 
 import { apiFetch } from './client';
 
 export async function getListItems(
   input: Readonly<{
     userId: string;
-    listId: string;
+    listId: ListId;
     startDate?: Date;
     endDate?: Date;
     options?: PaginationOptions;
   }>,
 ) {
-  const result = (await apiFetch('/user/:id/list/:list', {
+  const result = await apiFetch<
+    Readonly<{
+      items: ListItem[];
+      nextCursor: string | null;
+    }>
+  >('/user/:id/list/:list', {
+    notFound: 'null',
     params: {
       id: input.userId,
       list: input.listId.toLowerCase(),
@@ -24,18 +30,20 @@ export async function getListItems(
       sort_direction: input.options?.sortDirection,
       start_date: input.startDate?.toISOString(),
     },
-  })) as Readonly<{
-    items: ListItem[];
-    nextCursor: string | null;
-  }>;
+  });
 
-  return result;
+  return result ?? { items: [], nextCursor: null };
 }
 
 export async function getListItemsCount(
   input: Omit<Parameters<typeof getListItems>[0], 'options'>,
 ) {
-  const result = (await apiFetch('/user/:id/list/:list/count', {
+  const result = await apiFetch<
+    Readonly<{
+      count: number;
+    }>
+  >('/user/:id/list/:list/count', {
+    notFound: 'null',
     params: {
       id: input.userId,
       list: input.listId.toLowerCase(),
@@ -44,31 +52,32 @@ export async function getListItemsCount(
       end_date: input.endDate?.toISOString(),
       start_date: input.startDate?.toISOString(),
     },
-  })) as Readonly<{
-    count: number;
-  }>;
+  });
 
-  return result.count;
+  return result?.count ?? 0;
 }
 
 async function isInList(
   input: Readonly<{
     userId: string;
-    listId: string;
+    listId: ListId;
     id: number;
   }>,
 ) {
-  const result = (await apiFetch('/user/:id/list/:list/:itemId', {
+  const result = await apiFetch<
+    Readonly<{
+      value: boolean;
+    }>
+  >('/user/:id/list/:list/:itemId', {
+    notFound: 'null',
     params: {
       id: input.userId,
       itemId: input.id,
       list: input.listId.toLowerCase(),
     },
-  })) as Readonly<{
-    value: boolean;
-  }>;
+  });
 
-  return result.value;
+  return result?.value ?? false;
 }
 
 export async function isInWatchlist(
@@ -94,7 +103,7 @@ export async function isInFavorites(
 async function addToList(
   input: Readonly<{
     userId: string;
-    listId: string;
+    listId: ListId;
     item: Omit<ListItem, 'createdAt' | 'posterImage'> &
       Readonly<{
         createdAt?: number;
@@ -103,10 +112,7 @@ async function addToList(
   }>,
 ) {
   await apiFetch('/user/:id/list/:list', {
-    auth: {
-      token: input.accessToken,
-      type: 'Bearer',
-    },
+    accessToken: input.accessToken,
     body: JSON.stringify(input.item),
     method: 'POST',
     params: {
@@ -141,16 +147,13 @@ export async function addToWatchlist(
 export async function removeFromList(
   input: Readonly<{
     userId: string;
-    listId: string;
+    listId: ListId;
     id: number;
     accessToken: string;
   }>,
 ) {
   await apiFetch('/user/:id/list/:list/:itemId', {
-    auth: {
-      token: input.accessToken,
-      type: 'Bearer',
-    },
+    accessToken: input.accessToken,
     method: 'DELETE',
     params: {
       id: input.userId,

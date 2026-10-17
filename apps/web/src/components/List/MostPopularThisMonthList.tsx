@@ -8,15 +8,12 @@ export default async function MostPopularThisMonthList({
 }: React.AllHTMLAttributes<HTMLDivElement> &
   HeaderVariantProps &
   Readonly<{ priority?: boolean }>) {
-  const items = await fetchMostPopularTvSeriesThisMonth();
-  const currentMonth = new Date().toLocaleString('default', { month: 'long' });
+  const { items, month } = await fetchMostPopularTvSeriesThisMonth();
+
+  const title = `Top Picks for ${month}`;
 
   return (
-    <List
-      scrollRestoreKey="most-popular-this-month"
-      title={`Top Picks for ${currentMonth}`}
-      {...rest}
-    >
+    <List scrollRestoreKey="most-popular-this-month" title={title} {...rest}>
       {items.map((item) => (
         <Poster item={item} key={item.id} priority={priority} />
       ))}

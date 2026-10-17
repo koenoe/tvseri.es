@@ -1,4 +1,6 @@
 import type { PreferredImages } from '@tvseri.es/schemas';
+import { updateTag } from 'next/cache';
+import { unauthorized } from 'next/navigation';
 
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
@@ -10,16 +12,18 @@ import {
 
 import PreferredImagesForAdmin from './PreferredImagesForAdmin';
 
+const TMDB_IMAGE_URL_PREFIX = 'https://image.tmdb.org/t/p/';
+
 async function storePreferredImages(
   id: number,
   preferredImages: PreferredImages,
 ) {
   'use server';
 
-  const { accessToken } = await auth();
+  const { accessToken, user } = await auth();
 
-  if (!accessToken) {
-    return;
+  if (user?.role !== 'admin' || !accessToken) {
+    unauthorized();
   }
 
   await updatePreferredImages({
@@ -27,23 +31,30 @@ async function storePreferredImages(
     id,
     preferredImages,
   });
+
+  // Mirrors the API's CDN purge (series + trending) for the web caches.
+  updateTag(`series:${id}`);
+  updateTag('collection:trending');
 }
 
-async function getDominantColor({
-  url,
-  path,
-}: Readonly<{
-  url: string;
-  path: string;
-}>) {
+async function getDominantColor(url: string) {
   'use server';
 
-  const color = await detectDominantColorFromImage({
-    cacheKey: path,
+  const { user } = await auth();
+
+  if (user?.role !== 'admin') {
+    unauthorized();
+  }
+
+  // Server actions are public endpoints: only accept TMDB image URLs.
+  // The API derives the cache key from the URL path.
+  if (!url.startsWith(TMDB_IMAGE_URL_PREFIX)) {
+    throw new Error('Only TMDB image URLs are supported');
+  }
+
+  return detectDominantColorFromImage({
     url: url.replace('w1920_and_h1080_multi_faces', 'w780'),
   });
-
-  return color;
 }
 
 export default async function PreferredImagesForAdminContainer({
@@ -51,15 +62,14 @@ export default async function PreferredImagesForAdminContainer({
 }: Readonly<{
   id: number;
 }>) {
-  const [tvSeriesFromCache, { user }] = await Promise.all([
+  const [tvSeries, { user }] = await Promise.all([
     cachedTvSeries(id, {
       includeImages: true,
     }),
     auth(),
   ]);
-  const tvSeries = tvSeriesFromCache!;
 
-  if (user?.role !== 'admin') {
+  if (!tvSeries || user?.role !== 'admin') {
     return null;
   }
 

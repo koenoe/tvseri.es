@@ -1,62 +1,90 @@
 import type { TvSeries } from '@tvseri.es/schemas';
+import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from './client';
+import { withStringId } from './withStringId';
+
+// Public catalogue data: cacheLife profiles mirror the API's Cache-Control.
 
 export async function fetchTrendingTvSeries() {
-  const series = (await apiFetch('/collection/trending')) as TvSeries[];
-  return series;
+  'use cache';
+  cacheLife('short');
+  cacheTag('collection:trending');
+  return apiFetch<TvSeries[]>('/collection/trending');
 }
 
 export async function fetchTopRatedTvSeries() {
-  const series = (await apiFetch('/collection/top-rated')) as TvSeries[];
-  return series;
+  'use cache';
+  cacheLife('long');
+  cacheTag('collection:top-rated');
+  return apiFetch<TvSeries[]>('/collection/top-rated');
 }
 
+/**
+ * Returns the month (computed inside the cache scope, so it never needs
+ * `new Date()` during a prerender) together with its items.
+ */
 export async function fetchMostPopularTvSeriesThisMonth() {
-  const series = (await apiFetch(
+  'use cache';
+  cacheLife('short');
+  cacheTag('collection:most-popular-this-month');
+  const items = await apiFetch<TvSeries[]>(
     '/collection/most-popular-this-month',
-  )) as TvSeries[];
-  return series;
+  );
+  const month = new Date().toLocaleString('default', { month: 'long' });
+  return { items, month };
 }
 
 export async function fetchMostAnticipatedTvSeries() {
-  const series = (await apiFetch('/collection/most-anticipated')) as TvSeries[];
-  return series;
+  'use cache';
+  cacheLife('short');
+  cacheTag('collection:most-anticipated');
+  return apiFetch<TvSeries[]>('/collection/most-anticipated');
 }
 
 export async function fetchKoreasFinestTvSeries() {
-  const series = (await apiFetch('/collection/koreas-finest')) as TvSeries[];
-  return series;
+  'use cache';
+  cacheLife('long');
+  cacheTag('collection:koreas-finest');
+  return apiFetch<TvSeries[]>('/collection/koreas-finest');
 }
 
 export async function fetchBestBritishCrimeTvSeries() {
-  const series = (await apiFetch(
-    '/collection/best-british-crime',
-  )) as TvSeries[];
-  return series;
+  'use cache';
+  cacheLife('long');
+  cacheTag('collection:best-british-crime');
+  return apiFetch<TvSeries[]>('/collection/best-british-crime');
 }
 
 export async function fetchBestSportsDocumentariesTvSeries() {
-  const series = (await apiFetch(
-    '/collection/best-sports-documentaries',
-  )) as TvSeries[];
-  return series;
+  'use cache';
+  cacheLife('long');
+  cacheTag('collection:best-sports-documentaries');
+  return apiFetch<TvSeries[]>('/collection/best-sports-documentaries');
 }
 
 export async function fetchApplePlusTvSeries(region?: string) {
-  const series = (await apiFetch('/collection/must-watch-on-apple-tv', {
+  'use cache';
+  cacheLife('long');
+  cacheTag('collection:apple-tv');
+  return apiFetch<TvSeries[]>('/collection/must-watch-on-apple-tv', {
     query: {
       region,
     },
-  })) as TvSeries[];
-  return series;
+  });
 }
 
-export async function fetchPopularTvSeriesByYear(year?: number | string) {
-  const items = (await apiFetch('/popular/:year', {
+async function fetchCachedPopularTvSeriesByYear(year: string) {
+  'use cache';
+  cacheLife('medium');
+  cacheTag(`popular:${year}`);
+  return apiFetch<TvSeries[]>('/popular/:year', {
     params: {
       year,
     },
-  })) as TvSeries[];
-  return items;
+  });
 }
+
+export const fetchPopularTvSeriesByYear = withStringId(
+  fetchCachedPopularTvSeriesByYear,
+);

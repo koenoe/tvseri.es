@@ -17,7 +17,13 @@ export async function getWatched(
     options?: Omit<PaginationOptions, 'sortBy'>;
   }>,
 ) {
-  const result = (await apiFetch('/user/:id/watched', {
+  const result = await apiFetch<
+    Readonly<{
+      items: WatchedItem[];
+      nextCursor: string | null;
+    }>
+  >('/user/:id/watched', {
+    notFound: 'null',
     params: {
       id: input.userId,
     },
@@ -28,18 +34,20 @@ export async function getWatched(
       sort_direction: input.options?.sortDirection,
       start_date: input.startDate?.toISOString(),
     },
-  })) as Readonly<{
-    items: WatchedItem[];
-    nextCursor: string | null;
-  }>;
+  });
 
-  return result;
+  return result ?? { items: [], nextCursor: null };
 }
 
 export async function getWatchedCount(
   input: Omit<Parameters<typeof getWatched>[0], 'options'>,
 ) {
-  const result = (await apiFetch('/user/:id/watched/count', {
+  const result = await apiFetch<
+    Readonly<{
+      count: number;
+    }>
+  >('/user/:id/watched/count', {
+    notFound: 'null',
     params: {
       id: input.userId,
     },
@@ -47,23 +55,24 @@ export async function getWatchedCount(
       end_date: input.endDate?.toISOString(),
       start_date: input.startDate?.toISOString(),
     },
-  })) as Readonly<{
-    count: number;
-  }>;
+  });
 
-  return result.count;
+  return result?.count ?? 0;
 }
 
 export async function getWatchedRuntime(input: Readonly<{ userId: string }>) {
-  const result = (await apiFetch('/user/:id/watched/runtime', {
+  const result = await apiFetch<
+    Readonly<{
+      runtime: number;
+    }>
+  >('/user/:id/watched/runtime', {
+    notFound: 'null',
     params: {
       id: input.userId,
     },
-  })) as Readonly<{
-    runtime: number;
-  }>;
+  });
 
-  return result.runtime;
+  return result?.runtime ?? 0;
 }
 
 export const getAllWatchedForTvSeries = async (
@@ -72,121 +81,73 @@ export const getAllWatchedForTvSeries = async (
     seriesId: number | string;
   }>,
 ): Promise<WatchedItem[]> => {
-  const result = (await apiFetch('/user/:id/watched/series/:seriesId', {
-    params: {
-      id: input.userId,
-      seriesId: input.seriesId,
-    },
-  })) as WatchedItem[];
-
-  return result;
-};
-
-export async function markWatched(
-  input: Readonly<{
-    episodeNumber?: number;
-    seasonNumber?: number;
-    seriesId: number;
-    userId: string;
-    watchProvider: WatchProvider | null;
-    accessToken: string;
-    region?: string;
-  }>,
-) {
-  const auth = {
-    token: input.accessToken,
-    type: 'Bearer' as const,
-  };
-  const body = JSON.stringify({
-    region: input.region,
-    watchProvider: input.watchProvider,
-  });
-
-  if (input.seasonNumber && input.episodeNumber) {
-    return apiFetch(
-      '/user/:id/watched/series/:seriesId/season/:season/episode/:episode',
-      {
-        auth,
-        body,
-        method: 'POST',
-        params: {
-          episode: input.episodeNumber,
-          id: input.userId,
-          season: input.seasonNumber,
-          seriesId: input.seriesId,
-        },
-      },
-    ) as Promise<WatchedItem[]>;
-  }
-
-  if (input.seasonNumber) {
-    return apiFetch('/user/:id/watched/series/:seriesId/season/:season', {
-      auth,
-      body,
-      method: 'POST',
+  const result = await apiFetch<WatchedItem[]>(
+    '/user/:id/watched/series/:seriesId',
+    {
+      notFound: 'null',
       params: {
         id: input.userId,
-        season: input.seasonNumber,
         seriesId: input.seriesId,
       },
-    }) as Promise<WatchedItem[]>;
-  }
-
-  return apiFetch('/user/:id/watched/series/:seriesId', {
-    auth,
-    body,
-    method: 'POST',
-    params: {
-      id: input.userId,
-      seriesId: input.seriesId,
     },
-  }) as Promise<WatchedItem[]>;
+  );
+
+  return result ?? [];
+};
+
+type WatchedTarget = Readonly<{
+  episodeNumber?: number;
+  seasonNumber?: number;
+  seriesId: number;
+  userId: string;
+}>;
+
+// Most specific endpoint for the given target: episode, season or whole series.
+// Explicit null checks: season 0 (Specials) and episode 0 are valid.
+function watchedPath({ episodeNumber, seasonNumber }: WatchedTarget) {
+  if (seasonNumber != null && episodeNumber != null) {
+    return '/user/:id/watched/series/:seriesId/season/:season/episode/:episode';
+  }
+  if (seasonNumber != null) {
+    return '/user/:id/watched/series/:seriesId/season/:season';
+  }
+  return '/user/:id/watched/series/:seriesId';
+}
+
+const watchedParams = (input: WatchedTarget) => ({
+  episode: input.episodeNumber ?? '',
+  id: input.userId,
+  season: input.seasonNumber ?? '',
+  seriesId: input.seriesId,
+});
+
+export async function markWatched(
+  input: WatchedTarget &
+    Readonly<{
+      watchProvider: WatchProvider | null;
+      accessToken: string;
+      region?: string;
+    }>,
+) {
+  return apiFetch<WatchedItem[]>(watchedPath(input), {
+    accessToken: input.accessToken,
+    body: JSON.stringify({
+      region: input.region,
+      watchProvider: input.watchProvider,
+    }),
+    method: 'POST',
+    params: watchedParams(input),
+  });
 }
 
 export async function unmarkWatched(
   input: Omit<Parameters<typeof markWatched>[0], 'watchProvider'>,
 ) {
-  const auth = {
-    token: input.accessToken,
-    type: 'Bearer' as const,
-  };
-
-  if (input.seasonNumber && input.episodeNumber) {
-    return apiFetch(
-      '/user/:id/watched/series/:seriesId/season/:season/episode/:episode',
-      {
-        auth,
-        method: 'DELETE',
-        params: {
-          episode: input.episodeNumber,
-          id: input.userId,
-          season: input.seasonNumber,
-          seriesId: input.seriesId,
-        },
-      },
-    ) as Promise<{ message: string }>;
-  }
-
-  if (input.seasonNumber) {
-    return apiFetch('/user/:id/watched/series/:seriesId/season/:season', {
-      auth,
-      method: 'DELETE',
-      params: {
-        id: input.userId,
-        season: input.seasonNumber,
-        seriesId: input.seriesId,
-      },
-    }) as Promise<{ message: string }>;
-  }
-
-  return apiFetch('/user/:id/watched/series/:seriesId', {
-    auth,
+  return apiFetch<{ message: string }>(watchedPath(input), {
+    accessToken: input.accessToken,
     method: 'DELETE',
-    params: {
-      id: input.userId,
-      seriesId: input.seriesId,
-    },
-  }) as Promise<{ message: string }>;
+    params: watchedParams(input),
+  });
 }
 
 export async function markWatchedInBatch(
@@ -220,17 +181,14 @@ export async function markWatchedInBatch(
       watchProvider: item.watchProvider,
     }));
 
-    return apiFetch('/user/:id/watched/batch', {
-      auth: {
-        token: input.accessToken,
-        type: 'Bearer',
-      },
+    return apiFetch<WatchedItem[]>('/user/:id/watched/batch', {
+      accessToken: input.accessToken,
       body: JSON.stringify(minimalChunk),
       method: 'POST',
       params: {
         id: input.userId,
       },
-    }) as Promise<WatchedItem[]>;
+    });
   });
 
   const batchResults = await Promise.all(batchPromises);
@@ -266,10 +224,7 @@ export async function unmarkWatchedInBatch(
     }));
 
     return apiFetch('/user/:id/watched/batch/delete', {
-      auth: {
-        token: input.accessToken,
-        type: 'Bearer',
-      },
+      accessToken: input.accessToken,
       body: JSON.stringify(minimalChunk),
       method: 'POST',
       params: {

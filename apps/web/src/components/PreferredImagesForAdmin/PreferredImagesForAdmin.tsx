@@ -38,12 +38,7 @@ export default function PreferredImagesForAdmin({
 }: Readonly<{
   id: number;
   images: Awaited<ReturnType<typeof fetchTvSeriesImages>>;
-  getDominantColor: (
-    args: Readonly<{
-      url: string;
-      path: string;
-    }>,
-  ) => Promise<string>;
+  getDominantColor: (url: string) => Promise<string>;
   storePreferredImages: (
     id: number,
     preferredImages: PreferredImages,
@@ -105,7 +100,7 @@ export default function PreferredImagesForAdmin({
       startTransition(async () => {
         try {
           const [dominantColor, preloadedImage] = await Promise.all([
-            getDominantColor(newBackdrop),
+            getDominantColor(newBackdrop.url),
             preloadImage(newBackdrop.url),
           ]);
 

@@ -16,106 +16,38 @@ type StatsInput = Readonly<{
   year: number | string;
 }>;
 
-export async function getStatsSummary(
-  input: StatsInput,
-): Promise<StatsSummary> {
-  const result = (await apiFetch('/user/:id/stats/:year/summary', {
+// Stats are intentionally stale (24h at the API) and not cached here. Repeated
+// calls within one render (e.g. summary ×5) are deduped by apiFetch; `year` is
+// stringified so `2024` and `'2024'` hit the same dedupe key.
+function getStats<T>(segment: string, { userId, year }: StatsInput) {
+  return apiFetch<T>(`/user/:id/stats/:year/${segment}`, {
     params: {
-      id: input.userId,
-      year: input.year,
+      id: userId,
+      year: String(year),
     },
-  })) as StatsSummary;
-
-  return result;
+  });
 }
 
-export async function getStatsFavoritesCount(
-  input: StatsInput,
-): Promise<StatsFavoritesCount> {
-  const result = (await apiFetch('/user/:id/stats/:year/favorites-count', {
-    params: {
-      id: input.userId,
-      year: input.year,
-    },
-  })) as StatsFavoritesCount;
+export const getStatsSummary = (input: StatsInput) =>
+  getStats<StatsSummary>('summary', input);
 
-  return result;
-}
+export const getStatsFavoritesCount = (input: StatsInput) =>
+  getStats<StatsFavoritesCount>('favorites-count', input);
 
-export async function getStatsSpotlight(
-  input: StatsInput,
-): Promise<StatsSpotlight> {
-  const result = (await apiFetch('/user/:id/stats/:year/spotlight', {
-    params: {
-      id: input.userId,
-      year: input.year,
-    },
-  })) as StatsSpotlight;
+export const getStatsSpotlight = (input: StatsInput) =>
+  getStats<StatsSpotlight>('spotlight', input);
 
-  return result;
-}
+export const getStatsWeekly = (input: StatsInput) =>
+  getStats<StatsWeeklyItem[]>('weekly', input);
 
-export async function getStatsWeekly(
-  input: StatsInput,
-): Promise<StatsWeeklyItem[]> {
-  const result = (await apiFetch('/user/:id/stats/:year/weekly', {
-    params: {
-      id: input.userId,
-      year: input.year,
-    },
-  })) as StatsWeeklyItem[];
+export const getStatsGenres = (input: StatsInput) =>
+  getStats<StatsGenreItem[]>('genres', input);
 
-  return result;
-}
+export const getStatsProviders = (input: StatsInput) =>
+  getStats<StatsProviderItem[]>('providers', input);
 
-export async function getStatsGenres(
-  input: StatsInput,
-): Promise<StatsGenreItem[]> {
-  const result = (await apiFetch('/user/:id/stats/:year/genres', {
-    params: {
-      id: input.userId,
-      year: input.year,
-    },
-  })) as StatsGenreItem[];
+export const getStatsCountries = (input: StatsInput) =>
+  getStats<StatsCountries>('countries', input);
 
-  return result;
-}
-
-export async function getStatsProviders(
-  input: StatsInput,
-): Promise<StatsProviderItem[]> {
-  const result = (await apiFetch('/user/:id/stats/:year/providers', {
-    params: {
-      id: input.userId,
-      year: input.year,
-    },
-  })) as StatsProviderItem[];
-
-  return result;
-}
-
-export async function getStatsCountries(
-  input: StatsInput,
-): Promise<StatsCountries> {
-  const result = (await apiFetch('/user/:id/stats/:year/countries', {
-    params: {
-      id: input.userId,
-      year: input.year,
-    },
-  })) as StatsCountries;
-
-  return result;
-}
-
-export async function getStatsWatchedSeries(
-  input: StatsInput,
-): Promise<StatsWatchedSeriesItem[]> {
-  const result = (await apiFetch('/user/:id/stats/:year/watched-series', {
-    params: {
-      id: input.userId,
-      year: input.year,
-    },
-  })) as StatsWatchedSeriesItem[];
-
-  return result;
-}
+export const getStatsWatchedSeries = (input: StatsInput) =>
+  getStats<StatsWatchedSeriesItem[]>('watched-series', input);

@@ -3,10 +3,6 @@ import { client } from './client';
 
 export const LOGIN_CALLBACK_PATH = '/api/auth/callback';
 
-// Renders the login prompt; the proxy rewrites protected pages to it for
-// logged-out visitors (see app/login/page.tsx).
-export const LOGIN_REQUIRED_PATH = '/login';
-
 // Holds the OAuth `state`, PKCE verifier and return-to path between
 // `startLogin` and the callback. Scoped to the callback path and short-lived.
 const LOGIN_COOKIE_NAME = '__tvseries_login';
@@ -42,9 +38,7 @@ export function toSafeReturnTo(value: unknown): string {
     if (
       url.origin !== DUMMY_ORIGIN ||
       // A normalised `/./\/evil.com` is `//evil.com`, which is protocol-relative.
-      url.pathname.startsWith('//') ||
-      // Returning to the login prompt itself would show it again after login.
-      url.pathname === LOGIN_REQUIRED_PATH
+      url.pathname.startsWith('//')
     ) {
       return '/';
     }

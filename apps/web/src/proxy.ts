@@ -1,5 +1,4 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { LOGIN_REQUIRED_PATH } from './auth/login';
 import { resolveSession } from './auth/session';
 import {
   SESSION_COOKIE_NAME,
@@ -11,12 +10,8 @@ import { me } from './lib/api/me';
 
 export const config = {
   matcher: [
-    // Protected user routes run unconditionally, so logged-out visitors get
-    // the login prompt (pages) or a 401 (API). The public stats pages are
-    // left out here (most anonymous `/u` traffic); with a session cookie the
-    // catch-all below still matches them. `/u/:username` itself is redirected
-    // in next.config before the proxy runs.
-    '/u/:username/((?!stats(?:/|$)).*)',
+    // Protected user API routes run unconditionally, so logged-out callers
+    // get a 401. User pages check the session themselves (`unauthorized()`).
     '/api/u/:path*',
     // Everywhere else the proxy only refreshes the session, so skip requests
     // without a session cookie (crawlers, anonymous visitors): each proxy run
@@ -43,9 +38,9 @@ export const config = {
   ],
 };
 
-// User pages and user API routes require a session, except stats.
-// Matches /u/:username(/...) and /api/u/:username(/...), but not .../stats(/...).
-const PROTECTED_ROUTE = /^(?:\/api)?\/u\/[^/]+(?!\/stats(?:\/|$))(?:\/|$)/;
+// User API routes require a session. Matches /api/u/:username(/...), but not
+// the public stats routes.
+const PROTECTED_ROUTE = /^\/api\/u\/[^/]+(?!\/stats(?:\/|$))(?:\/|$)/;
 
 // Forwards the (possibly updated) request cookies, so `cookies()` and
 // `req.cookies` downstream see the same session as the browser will.
@@ -62,12 +57,7 @@ function unauthenticatedResponse(req: NextRequest): NextResponse | null {
     return null;
   }
 
-  if (pathname.startsWith('/api/')) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  // Keep the URL, so the login prompt can return here after logging in.
-  return NextResponse.rewrite(new URL(LOGIN_REQUIRED_PATH, req.url));
+  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 }
 
 /**

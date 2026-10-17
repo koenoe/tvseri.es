@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, unauthorized } from 'next/navigation';
 import { Suspense } from 'react';
-
 import { cachedUser } from '@/app/cached';
+import auth from '@/auth';
 import Grid from '@/components/Grid/Grid';
 import ListGrid from '@/components/Grid/ListGrid';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
@@ -24,6 +24,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function WatchlistPage({ params }: Props) {
+  const { user: viewer } = await auth();
+  if (!viewer) {
+    unauthorized();
+  }
+
   const { username } = await params;
   const user = await cachedUser({ username });
   if (!user) {

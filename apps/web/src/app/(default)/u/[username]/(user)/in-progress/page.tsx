@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, unauthorized } from 'next/navigation';
 import { Suspense } from 'react';
-
 import { cachedUser } from '@/app/cached';
+import auth from '@/auth';
 import InProgressGrid from '@/components/Grid/InProgressGrid';
 
 type Props = Readonly<{
@@ -22,6 +22,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function InProgressPage({ params }: Props) {
+  const { user: viewer } = await auth();
+  if (!viewer) {
+    unauthorized();
+  }
+
   const { username } = await params;
   const user = await cachedUser({ username });
   if (!user) {

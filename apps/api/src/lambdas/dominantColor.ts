@@ -2,7 +2,6 @@ import { createFetch } from '@better-fetch/fetch';
 import type { Handler } from 'aws-lambda';
 import Color, { type ColorInstance } from 'color';
 import sharp from 'sharp';
-import { FETCH_RETRY_OPTIONS } from '@/constants';
 
 const BLUR_SIGMA = 35;
 const CONTRAST_MINIMUM = 4.5;
@@ -16,8 +15,12 @@ type ProcessImageResult = Readonly<{
   color: string;
 }>;
 
+// The API stops waiting for this Lambda after 4s, so one attempt that leaves
+// time for image processing (no retries)
+const IMAGE_FETCH_TIMEOUT = 2500;
+
 const $fetch = createFetch({
-  retry: FETCH_RETRY_OPTIONS,
+  timeout: IMAGE_FETCH_TIMEOUT,
 });
 
 const correctContrast = (input: ColorInstance): ColorInstance => {

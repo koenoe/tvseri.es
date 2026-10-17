@@ -48,6 +48,10 @@ const updateUserCount = async (
  * When a follow relationship is removed (REMOVE):
  * - Decrement followerCount for the followed user
  * - Decrement followingCount for the follower
+ *
+ * A failing batch throws; the event source mapping bisects it and retries,
+ * then sends it to the DLQ. Deltas that were already applied before the
+ * failure are applied again on retry (rare, accepted for the batching).
  */
 export const handler = async (event: DynamoDBStreamEvent) => {
   // Batch updates by user to minimize DynamoDB calls
@@ -69,6 +73,12 @@ export const handler = async (event: DynamoDBStreamEvent) => {
     const followItem = unmarshall(
       image as Record<string, AttributeValue>,
     ) as FollowItem;
+
+    // Legacy self-follow records (the route blocks new ones) don't count
+    if (followItem.followerId === followItem.followingId) {
+      console.warn(`[SKIP] Self-follow record for ${followItem.followerId}`);
+      continue;
+    }
 
     const delta = record.eventName === 'INSERT' ? 1 : -1;
 

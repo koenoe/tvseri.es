@@ -5,8 +5,10 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { SendMessageBatchCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
-import type { User } from '@tvseri.es/schemas';
 import { Resource } from 'sst';
+
+import { chunk } from '@/lib/db/batch';
+import type { ValidateWatchedStatusMessage } from './shared/validateWatchedStatusMessage';
 
 const dynamo = new DynamoDBClient({});
 const sqs = new SQSClient({});
@@ -20,35 +22,43 @@ export const handler = async () => {
       const command = new ScanCommand({
         ExclusiveStartKey: lastEvaluatedKey,
         ExpressionAttributeNames: {
-          '#email': 'email',
           '#id': 'id',
-          '#name': 'name',
-          '#username': 'username',
         },
         Limit: 1000,
-        ProjectionExpression: '#id, #email, #name, #username',
+        // The consumer only needs the id: keep PII (email, name) out of SQS
+        ProjectionExpression: '#id',
         TableName: Resource.Users.name,
       });
 
       const result = await dynamo.send(command);
 
-      if (result.Items?.length) {
-        for (let i = 0; i < result.Items.length; i += 10) {
-          const batch = result.Items.slice(i, i + 10);
+      const items = result.Items ?? [];
+      // SendMessageBatch takes at most 10 entries
+      const batches = chunk(items, 10);
 
-          await sqs.send(
+      // Send a page's batches in parallel (at most 100 per page)
+      const failedCounts = await Promise.all(
+        batches.map(async (batch) => {
+          const response = await sqs.send(
             new SendMessageBatchCommand({
               Entries: batch.map((item, index) => ({
                 Id: `${index}`,
-                MessageBody: JSON.stringify(unmarshall(item) as User),
+                MessageBody: JSON.stringify(
+                  unmarshall(item) as ValidateWatchedStatusMessage,
+                ),
               })),
               QueueUrl: Resource.ValidateWatchedStatusQueue.url,
             }),
           );
+          return response.Failed?.length ?? 0;
+        }),
+      );
 
-          queuedCount += batch.length;
-        }
+      const failedCount = failedCounts.reduce((sum, count) => sum + count, 0);
+      if (failedCount > 0) {
+        console.error(`[ERROR] ${failedCount} users failed to queue`);
       }
+      queuedCount += items.length - failedCount;
 
       lastEvaluatedKey = result.LastEvaluatedKey;
     } while (lastEvaluatedKey);

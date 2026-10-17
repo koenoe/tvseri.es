@@ -1,54 +1,100 @@
 import type { AttributeValue } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
-import type { TvSeries, WatchedItem } from '@tvseri.es/schemas';
+import type { WatchedItem } from '@tvseri.es/schemas';
 import type { DynamoDBStreamEvent } from 'aws-lambda';
 
 import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 import { addToList, removeFromList, removeFromWatchlist } from '@/lib/db/list';
 import { getWatchedCountForTvSeries } from '@/lib/db/watched';
 import { invalidateStatsCache } from '@/lib/stats';
-import { fetchTvSeries } from '@/lib/tmdb';
-import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
+import { cachedTvSeries } from './shared/cachedTvSeries';
+
+type SeriesGroup = Readonly<{
+  userId: string;
+  seriesId: number;
+  /** watchedAt of the last record in the batch for this user+series */
+  watchedAt: number;
+}>;
 
 /**
- * Module-level cache for TV series data that persists between Lambda invocations.
- * TV series data is the same for all users, so we can safely cache it at module level.
- */
-const tvSeriesCache = new Map<string, TvSeries | null>();
-
-const cachedTvSeries = async (id: number) => {
-  const cacheKey = `watched-queue:${id}`;
-
-  if (tvSeriesCache.has(cacheKey)) {
-    return tvSeriesCache.get(cacheKey);
-  }
-
-  const tvSeries = await fetchTvSeries(id);
-  tvSeriesCache.set(cacheKey, tvSeries ?? null);
-
-  return tvSeries;
-};
-
-/**
- * DynamoDB Stream handler for managing watched/in-progress lists based on episode watch events.
- *
- * Key features:
- * - Minimizes TV series fetches using module-level cache
- * - Minimizes watched count queries by tracking count for sequential records
- * - Handles batch operations efficiently (marking seasons/series as watched)
- * - Eventually consistent by using count-based approach
+ * Brings the WATCHED / IN_PROGRESS / WATCHLIST lists in line with the current
+ * watched count for one user+series. Writes the final state only, so it's safe
+ * to run again on a retried batch.
  *
  * List management rules:
  * - If count equals total episodes -> WATCHED list only (remove from IN_PROGRESS)
  * - If count > 0 but not complete -> IN_PROGRESS list only (remove from WATCHED)
  * - If count = 0 -> Remove from both lists
  */
-export const handler = async (event: DynamoDBStreamEvent) => {
-  // Track current user+series to minimize count operations
-  let lastUserId: string | null = null;
-  let lastSeriesId: number | null = null;
-  let lastCount = 0;
+const syncLists = async ({ userId, seriesId, watchedAt }: SeriesGroup) => {
+  const tvSeries = await cachedTvSeries(seriesId);
+  if (!tvSeries) {
+    console.error(
+      `[ERROR] No TV series found for ID "${seriesId}" | User: ${userId}`,
+    );
+    return;
+  }
 
+  const count = await getWatchedCountForTvSeries({
+    tvSeriesId: seriesId,
+    userId,
+  });
+
+  console.log(
+    `[SYNC] ${tvSeries.title} | User: ${userId} | Count: ${count}/${tvSeries.numberOfAiredEpisodes}`,
+  );
+
+  const hasWatchedEpisodes = count > 0;
+  const hasAiredEpisodes = tvSeries.numberOfAiredEpisodes > 0;
+  const hasWatchedAllEpisodes = count >= tvSeries.numberOfAiredEpisodes;
+
+  const listItem = {
+    id: tvSeries.id,
+    posterPath: tvSeries.posterPath,
+    slug: tvSeries.slug,
+    status: tvSeries.status,
+    title: tvSeries.title,
+  };
+
+  if (hasWatchedEpisodes && hasAiredEpisodes && hasWatchedAllEpisodes) {
+    // Series is fully watched
+    await Promise.all([
+      addToList({
+        item: { ...listItem, createdAt: watchedAt },
+        listId: 'WATCHED',
+        userId,
+      }),
+      removeFromList({ id: tvSeries.id, listId: 'IN_PROGRESS', userId }),
+      removeFromWatchlist({ id: tvSeries.id, userId }),
+    ]);
+  } else if (hasWatchedEpisodes && hasAiredEpisodes) {
+    // Series is partially watched
+    await Promise.all([
+      addToList({ item: listItem, listId: 'IN_PROGRESS', userId }),
+      removeFromList({ id: tvSeries.id, listId: 'WATCHED', userId }),
+      removeFromWatchlist({ id: tvSeries.id, userId }),
+    ]);
+  } else {
+    // No episodes watched or no episodes aired
+    await Promise.all([
+      removeFromList({ id: tvSeries.id, listId: 'WATCHED', userId }),
+      removeFromList({ id: tvSeries.id, listId: 'IN_PROGRESS', userId }),
+    ]);
+  }
+};
+
+/**
+ * DynamoDB Stream handler for managing watched/in-progress lists based on episode watch events.
+ *
+ * - Records are grouped per user+series and each group is synced once, from
+ *   the current watched count (marking a 100-episode series watched gives one
+ *   count query and 3 list writes, not 300 writes).
+ * - List syncs and stats invalidation are idempotent, so a retried or bisected
+ *   batch gives the same result. The all-time runtime delta is not: a retry
+ *   after it was applied applies it again (rare, accepted).
+ */
+export const handler = async (event: DynamoDBStreamEvent) => {
+  const groups = new Map<string, SeriesGroup>();
   // Track user+year combinations for stats cache invalidation
   const statsToInvalidate = new Set<string>();
   // Track runtime changes per user for incremental updates
@@ -73,7 +119,6 @@ export const handler = async (event: DynamoDBStreamEvent) => {
 
     const watchedItem = newImage ?? oldImage!;
 
-    // Track stats cache invalidation
     if (record.eventName === 'MODIFY' && oldImage && newImage) {
       // For modifications, invalidate both old and new year (in case date changed)
       const oldYear = new Date(oldImage.watchedAt).getUTCFullYear();
@@ -88,113 +133,23 @@ export const handler = async (event: DynamoDBStreamEvent) => {
 
     // Track runtime change for this user (only for INSERT/REMOVE, not MODIFY)
     const runtime = watchedItem.runtime || 0;
-    if (record.eventName === 'INSERT') {
+    if (record.eventName === 'INSERT' || record.eventName === 'REMOVE') {
+      const delta = record.eventName === 'INSERT' ? runtime : -runtime;
       runtimeChanges.set(
         watchedItem.userId,
-        (runtimeChanges.get(watchedItem.userId) || 0) + runtime,
-      );
-    } else if (record.eventName === 'REMOVE') {
-      runtimeChanges.set(
-        watchedItem.userId,
-        (runtimeChanges.get(watchedItem.userId) || 0) - runtime,
+        (runtimeChanges.get(watchedItem.userId) || 0) + delta,
       );
     }
 
-    // Get cached TV series data (from memory or DynamoDB)
-    const tvSeries = await cachedTvSeries(watchedItem.seriesId);
-    if (!tvSeries) {
-      console.error(
-        `[ERROR] No TV series found for ID "${watchedItem.seriesId}" | User: ${watchedItem.userId}`,
-      );
-      continue;
-    }
-
-    // Only query count when switching to different user+series combination
-    if (
-      watchedItem.userId !== lastUserId ||
-      watchedItem.seriesId !== lastSeriesId
-    ) {
-      lastCount = await getWatchedCountForTvSeries({
-        tvSeriesId: watchedItem.seriesId,
-        userId: watchedItem.userId,
-      });
-      lastUserId = watchedItem.userId;
-      lastSeriesId = watchedItem.seriesId;
-    }
-
-    // FIXME: We probably should remove this in future with more users lol
-    console.log(
-      `[${record.eventName}] ${tvSeries.title} - ${formatSeasonAndEpisode({ episodeNumber: watchedItem.episodeNumber, seasonNumber: watchedItem.seasonNumber })} | User: ${watchedItem.userId} | Count: ${lastCount}/${tvSeries.numberOfAiredEpisodes}`,
-    );
-
-    const hasWatchedEpisodes = lastCount > 0;
-    const hasAiredEpisodes = tvSeries.numberOfAiredEpisodes > 0;
-    const hasWatchedAllEpisodes = lastCount >= tvSeries.numberOfAiredEpisodes;
-
-    const listItem = {
-      id: tvSeries.id,
-      posterPath: tvSeries.posterPath,
-      slug: tvSeries.slug,
-      status: tvSeries.status,
-      title: tvSeries.title,
-    };
-
-    // Update lists based on watch status
-    if (hasWatchedEpisodes && hasAiredEpisodes && hasWatchedAllEpisodes) {
-      // Series is fully watched
-      await Promise.all([
-        addToList({
-          item: {
-            ...listItem,
-            createdAt: watchedItem.watchedAt,
-          },
-          listId: 'WATCHED',
-          userId: watchedItem.userId,
-        }),
-        removeFromList({
-          id: tvSeries.id,
-          listId: 'IN_PROGRESS',
-          userId: watchedItem.userId,
-        }),
-        removeFromWatchlist({
-          id: tvSeries.id,
-          userId: watchedItem.userId,
-        }),
-      ]);
-    } else if (hasWatchedEpisodes && hasAiredEpisodes) {
-      // Series is partially watched
-      await Promise.all([
-        addToList({
-          item: listItem,
-          listId: 'IN_PROGRESS',
-          userId: watchedItem.userId,
-        }),
-        removeFromList({
-          id: tvSeries.id,
-          listId: 'WATCHED',
-          userId: watchedItem.userId,
-        }),
-        removeFromWatchlist({
-          id: tvSeries.id,
-          userId: watchedItem.userId,
-        }),
-      ]);
-    } else {
-      // No episodes watched or no episodes aired
-      await Promise.all([
-        removeFromList({
-          id: tvSeries.id,
-          listId: 'WATCHED',
-          userId: watchedItem.userId,
-        }),
-        removeFromList({
-          id: tvSeries.id,
-          listId: 'IN_PROGRESS',
-          userId: watchedItem.userId,
-        }),
-      ]);
-    }
+    // Last record wins, like the per-record writes did before grouping
+    groups.set(`${watchedItem.userId}#${watchedItem.seriesId}`, {
+      seriesId: watchedItem.seriesId,
+      userId: watchedItem.userId,
+      watchedAt: watchedItem.watchedAt,
+    });
   }
+
+  await Promise.all(Array.from(groups.values()).map(syncLists));
 
   // Invalidate stats cache for all affected user+year combinations
   if (statsToInvalidate.size > 0) {

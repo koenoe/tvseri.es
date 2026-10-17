@@ -1,8 +1,4 @@
 import type { WriteRequest } from '@aws-sdk/client-dynamodb';
-import {
-  BatchWriteItemCommand,
-  DynamoDBClient,
-} from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import type {
   ApiMetricRecord,
@@ -16,14 +12,12 @@ import type {
 } from 'aws-lambda';
 import { Resource } from 'sst';
 
+import { chunk, writeBatch } from '@/lib/db/batch';
+
 const DYNAMO_BATCH_LIMIT = 25;
 const RAW_TTL_DAYS = 7;
-const MAX_RETRIES = 3;
-const BASE_DELAY_MS = 100;
 /** Number of shards to distribute writes across (prevents hot partitions) */
 const SHARD_COUNT = 10;
-
-const dynamoClient = new DynamoDBClient({});
 
 /**
  * Get a random shard number for partition key distribution.
@@ -71,85 +65,27 @@ const toDynamoItem = (record: MetricRecord) => {
 };
 
 /**
- * Sleep for a given number of milliseconds.
- */
-const sleep = (ms: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
-
-/**
- * Write items to DynamoDB with exponential backoff retry for UnprocessedItems.
- * Returns the sk values of items that failed after all retries.
- */
-const batchWriteWithRetry = async (
-  items: WriteRequest[],
-): Promise<Set<string>> => {
-  let unprocessed = items;
-  let attempt = 0;
-
-  while (unprocessed.length > 0 && attempt < MAX_RETRIES) {
-    if (attempt > 0) {
-      const delay = BASE_DELAY_MS * 2 ** attempt;
-      await sleep(delay);
-    }
-
-    const result = await dynamoClient.send(
-      new BatchWriteItemCommand({
-        RequestItems: {
-          [Resource.MetricsRaw.name]: unprocessed,
-        },
-      }),
-    );
-
-    const remaining = result.UnprocessedItems?.[Resource.MetricsRaw.name];
-    if (!remaining || remaining.length === 0) {
-      return new Set();
-    }
-
-    unprocessed = remaining;
-    attempt++;
-    console.warn(
-      `[metrics] ${unprocessed.length} unprocessed items, retry ${attempt}/${MAX_RETRIES}`,
-    );
-  }
-
-  // Return sk values of items that failed after all retries
-  const failedSks = new Set<string>();
-  for (const item of unprocessed) {
-    const sk = item.PutRequest?.Item?.sk?.S;
-    if (sk) {
-      failedSks.add(sk);
-    }
-  }
-  return failedSks;
-};
-
-/**
  * Metrics processor Lambda.
  * Receives batched metrics from SQS and writes them to DynamoDB.
  *
- * Returns partial batch failures to avoid reprocessing successful messages.
- * Handles DynamoDB UnprocessedItems with exponential backoff.
+ * Returns partial batch failures to avoid reprocessing successful messages
+ * (pk uses a random shard, so a re-processed message becomes a duplicate row).
+ * DynamoDB UnprocessedItems are retried with backoff by writeBatch; only
+ * messages whose items remain unprocessed are reported as failures.
  */
 export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   const batchItemFailures: SQSBatchItemFailure[] = [];
 
-  // Map SQS message ID to the sk we'll use in DynamoDB (for failure tracking)
-  const messageIdToSk = new Map<string, string>();
+  // Map the DynamoDB sk back to its SQS message ID (for failure tracking)
   const skToMessageId = new Map<string, string>();
-
-  // Transform SQS records to DynamoDB items
-  const allWriteRequests: WriteRequest[] = [];
+  const writeRequests: WriteRequest[] = [];
 
   for (const sqsRecord of event.Records) {
     try {
       const metric: MetricRecord = JSON.parse(sqsRecord.body);
       const item = toDynamoItem(metric);
-      const sk = item.sk;
-
-      messageIdToSk.set(sqsRecord.messageId, sk);
-      skToMessageId.set(sk, sqsRecord.messageId);
-
-      allWriteRequests.push({
+      skToMessageId.set(item.sk, sqsRecord.messageId);
+      writeRequests.push({
         PutRequest: {
           Item: marshall(item, { removeUndefinedValues: true }),
         },
@@ -164,39 +100,21 @@ export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
     }
   }
 
-  // Split into DynamoDB batch chunks (max 25 items per batch)
-  const batches: WriteRequest[][] = [];
-  for (let i = 0; i < allWriteRequests.length; i += DYNAMO_BATCH_LIMIT) {
-    batches.push(allWriteRequests.slice(i, i + DYNAMO_BATCH_LIMIT));
-  }
-
-  // Process batches in parallel
-  const results = await Promise.all(
-    batches.map(async (batch) => {
+  const failedRequests = await Promise.all(
+    chunk(writeRequests, DYNAMO_BATCH_LIMIT).map(async (batch) => {
       try {
-        return await batchWriteWithRetry(batch);
+        return await writeBatch(Resource.MetricsRaw.name, batch);
       } catch (error) {
         console.error('[metrics] Batch write failed:', error);
-        // Return all sks in this batch as failed
-        const failedSks = new Set<string>();
-        for (const item of batch) {
-          const sk = item.PutRequest?.Item?.sk?.S;
-          if (sk) {
-            failedSks.add(sk);
-          }
-        }
-        return failedSks;
+        return batch;
       }
     }),
   );
 
-  // Collect all failed sks and map back to SQS message IDs
-  for (const failedSks of results) {
-    for (const sk of failedSks) {
-      const messageId = skToMessageId.get(sk);
-      if (messageId) {
-        batchItemFailures.push({ itemIdentifier: messageId });
-      }
+  for (const request of failedRequests.flat()) {
+    const messageId = skToMessageId.get(request.PutRequest?.Item?.sk?.S ?? '');
+    if (messageId) {
+      batchItemFailures.push({ itemIdentifier: messageId });
     }
   }
 

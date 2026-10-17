@@ -1,0 +1,338 @@
+diff --git a/dist/esm/issuer.js b/dist/esm/issuer.js
+index 1b18009bfeaa09f2222e9df760dde0e4eb1d4326..d76f942e565094d9f7b17853019f8a91aa24686b 100644
+--- a/dist/esm/issuer.js
++++ b/dist/esm/issuer.js
+@@ -381,6 +381,32 @@ function issuer(input) {
+     }
+     throw new Error("Invalid grant_type");
+   });
++  // tvseri.es patch: RFC 7009-style revocation of a refresh token. The token
++  // itself is the credential; unknown tokens are ignored. CORS like /token, so
++  // browser clients (dashboard) can call it. Errors are answered here (400/503):
++  // onError expects an authorization flow and would turn them into a 500.
++  app.post("/revoke", cors({
++    origin: "*",
++    allowHeaders: ["*"],
++    allowMethods: ["POST"],
++    credentials: false
++  }), async (c) => {
++    const token = (await c.req.parseBody().catch(() => undefined))?.token;
++    if (typeof token !== "string")
++      return c.body(null, 400);
++    const splits = token.split(":");
++    const value = splits.pop();
++    const subject = splits.join(":");
++    if (subject && value) {
++      try {
++        await Storage.remove(storage, ["oauth:refresh", subject, value]);
++      } catch (err) {
++        console.error(err);
++        return c.body(null, 503);
++      }
++    }
++    return c.body(null, 200);
++  });
+   app.get("/authorize", async (c) => {
+     const provider = c.req.query("provider");
+     const response_type = c.req.query("response_type");
+@@ -401,25 +427,25 @@ function issuer(input) {
+         method: code_challenge_method
+       } : undefined
+     };
+-    c.set("authorization", authorization);
+     if (!redirect_uri) {
+       return c.text("Missing redirect_uri", { status: 400 });
+     }
++    // tvseri.es patch (upstream #299): check the client before storing the
++    // authorization, because onError redirects to its redirect_uri. A rejected
++    // client gets a plain 400 instead of a redirect to an unvetted URL.
++    if (!client_id || !await Promise.resolve(allow()({
++      clientID: client_id,
++      redirectURI: redirect_uri,
++      audience
++    }, c.req.raw)).catch(() => false))
++      return c.text("Unauthorized client", { status: 400 });
++    c.set("authorization", authorization);
+     if (!response_type) {
+       throw new MissingParameterError("response_type");
+     }
+-    if (!client_id) {
+-      throw new MissingParameterError("client_id");
+-    }
+     if (input.start) {
+       await input.start(c.req.raw);
+     }
+-    if (!await allow()({
+-      clientID: client_id,
+-      redirectURI: redirect_uri,
+-      audience
+-    }, c.req.raw))
+-      throw new UnauthorizedClientError(client_id, redirect_uri);
+     await auth.set(c, "authorization", 60 * 60 * 24, authorization);
+     if (provider)
+       return c.redirect(`/${provider}/authorize`);
+@@ -438,7 +464,10 @@ function issuer(input) {
+     }
+     const authorization = await getAuthorization(c);
+     const url = new URL(authorization.redirect_uri);
+-    const oauth = err instanceof OauthError ? err : new OauthError("server_error", err.message);
++    // tvseri.es patch: the description ends up in the redirect URL, so only
++    // OauthErrors (written to be shown) keep theirs; internal messages (AWS
++    // errors etc.) stay in the log above.
++    const oauth = err instanceof OauthError ? err : new OauthError("server_error", "Something went wrong, please try again");
+     url.searchParams.set("error", oauth.error);
+     url.searchParams.set("error_description", oauth.description);
+     return c.redirect(url.toString());
+diff --git a/dist/esm/provider/code.js b/dist/esm/provider/code.js
+index 7cee307550b3d50b49bd3054b517da0d9bd037f8..e833f516b14cc3d40f8f4e5e9e7fd7640d46dbaa 100644
+--- a/dist/esm/provider/code.js
++++ b/dist/esm/provider/code.js
+@@ -1,5 +1,23 @@
+ // src/provider/code.ts
++// tvseri.es patch: every sent code is an item in the issuer storage,
++// ["oauth:otp", claim, nonce] = { code, issuedAt } plus an attempt counter;
++// only the nonce is in the encrypted state cookie. Upstream kept the code itself
++// in the cookie, so it never expired, stayed reusable and could be guessed
++// without limit. Each request gets its own nonce, so requesting a new code
++// (other device, attacker) never invalidates a code that was already sent;
++// only a successful login deletes the claim's other pending codes.
++// The items are kept for the send window (a code is only valid for CODE_TTL,
++// so SEND_WINDOW must stay >= CODE_TTL) and are only written after a
++// successful send, so they also count the sends: MAX_SENDS per SEND_WINDOW.
++import { Storage } from "../storage/storage.js";
+ import { generateUnbiasedDigits, timingSafeCompare } from "../random.js";
++var CODE_TTL = 60 * 10;
++var SEND_WINDOW = 60 * 15;
++var MAX_SENDS = 5;
++var MAX_ATTEMPTS = 5;
++function claimKey(claims) {
++  return (claims.email ?? claims.phone ?? "").trim().toLowerCase();
++}
+ function CodeProvider(config) {
+   const length = config.length || 6;
+   function generate() {
+@@ -8,6 +26,7 @@ function CodeProvider(config) {
+   return {
+     type: "code",
+     init(routes, ctx) {
++      const storage = ctx.storage;
+       async function transition(c, next, fd, err) {
+         await ctx.set(c, "provider", 60 * 60 * 24, next);
+         const resp = ctx.forward(c, await config.request(c.req.raw, next, fd, err));
+@@ -27,25 +46,53 @@ function CodeProvider(config) {
+         if (action === "request" || action === "resend") {
+           const claims = Object.fromEntries(fd);
+           delete claims.action;
++          const id = claimKey(claims);
++          // A failed resend keeps the user on the code form.
++          const fallback = action === "resend" && state?.type === "code" ? state : { type: "start" };
++          // Checked before anything is written, so over the cap (or for the
++          // honeypot, an invalid claim or a failed send) nothing is written.
++          // Parallel requests can overshoot the cap a little (accepted).
++          const sent = await Array.fromAsync(Storage.scan(storage, ["oauth:otp", id]));
++          if (sent.length >= MAX_SENDS)
++            return transition(c, fallback, fd, { type: "rate_limited" });
+           const err = await config.sendCode(claims, code);
+           if (err)
+-            return transition(c, { type: "start" }, fd, err);
++            return transition(c, fallback, fd, err);
++          const nonce = crypto.randomUUID();
++          await Storage.set(storage, ["oauth:otp", id, nonce], { code, issuedAt: Date.now() }, SEND_WINDOW);
+           return transition(c, {
+             type: "code",
+             resend: action === "resend",
+             claims,
+-            code
++            nonce
+           }, fd);
+         }
+-        if (fd.get("action")?.toString() === "verify" && state.type === "code") {
+-          const fd2 = await c.req.formData();
+-          const compare = fd2.get("code")?.toString();
+-          if (!state.code || !compare || !timingSafeCompare(state.code, compare)) {
+-            return transition(c, {
+-              ...state,
+-              resend: false
+-            }, fd2, { type: "invalid_code" });
+-          }
++        if (action === "verify" && state?.type === "code") {
++          const id = claimKey(state.claims);
++          const key = ["oauth:otp", id, state.nonce];
++          const fail = (type) => transition(c, {
++            ...state,
++            resend: false
++          }, fd, { type });
++          // Missing, used or expired (or a pre-patch state without a nonce):
++          // not counted as an attempt.
++          const stored = state.nonce ? await Storage.get(storage, key) : undefined;
++          if (!stored || Date.now() - stored.issuedAt >= CODE_TTL * 1e3)
++            return fail("code_expired");
++          // Atomic attempt counter per code; at the limit the code is dead.
++          if (await Storage.incr(storage, key, MAX_ATTEMPTS) === undefined)
++            return fail("code_expired");
++          const compare = fd.get("code")?.toString();
++          if (!compare || !timingSafeCompare(stored.code, compare))
++            return fail("invalid_code");
++          // Single use: only the request that deletes the code logs in.
++          if (!await Storage.remove(storage, key))
++            return fail("code_expired");
++          // Resets the send count (this also drops other pending codes for the
++          // claim). Scanned keys are already joined, so they go to the adapter
++          // directly (Storage.remove would strip the separator).
++          for (const [sentKey] of await Array.fromAsync(Storage.scan(storage, ["oauth:otp", id])))
++            await storage.remove(sentKey);
+           await ctx.unset(c, "provider");
+           return ctx.forward(c, await ctx.success(c, { claims: state.claims }));
+         }
+diff --git a/dist/esm/storage/dynamo.js b/dist/esm/storage/dynamo.js
+index 3b7a2bbf3f248780743949c1535e43ac2c05b63f..f34b11e88e3640fe9e3f87d94ff876912141222b 100644
+--- a/dist/esm/storage/dynamo.js
++++ b/dist/esm/storage/dynamo.js
+@@ -1,4 +1,6 @@
+ // src/storage/dynamo.ts
++// tvseri.es patch note: ConsistentRead on ALL reads (get and scan) is
++// deliberate: OTP send counting and refresh-token rotation need read-after-write.
+ import { client } from "./aws.js";
+ import { joinKey } from "./storage.js";
+ function DynamoStorage(options) {
+@@ -30,6 +32,10 @@ function DynamoStorage(options) {
+       body: JSON.stringify(payload)
+     });
+     if (!response.ok) {
++      // tvseri.es patch: a failed condition is an expected outcome (incr).
++      const error = await response.json().catch(() => undefined);
++      if (error?.__type?.endsWith("#ConditionalCheckFailedException"))
++        return null;
+       throw new Error(`DynamoDB request failed: ${response.statusText}`);
+     }
+     return response.json();
+@@ -39,6 +45,9 @@ function DynamoStorage(options) {
+       const { pk: keyPk, sk: keySk } = parseKey(key);
+       const params = {
+         TableName: tableName,
++        // tvseri.es patch: strongly consistent, so an OTP is readable right
++        // after it was sent.
++        ConsistentRead: true,
+         Key: {
+           [pk]: { S: keyPk },
+           [sk]: { S: keySk }
+@@ -74,9 +83,32 @@ function DynamoStorage(options) {
+         Key: {
+           [pk]: { S: keyPk },
+           [sk]: { S: keySk }
+-        }
++        },
++        // tvseri.es patch: report whether this call deleted the item, so a
++        // remove can claim it (single-use OTPs).
++        ReturnValues: "ALL_OLD"
+       };
+-      await dynamo("DeleteItem", params);
++      const result = await dynamo("DeleteItem", params);
++      return !!result.Attributes;
++    },
++    // tvseri.es patch: atomically increments the numeric attribute `n` of an
++    // existing item while it's below `max`. Returns the new count, or undefined
++    // (nothing written) when the item is missing or at the limit.
++    async incr(key, max) {
++      const parsed = parseKey(key);
++      const result = await dynamo("UpdateItem", {
++        TableName: tableName,
++        Key: {
++          [pk]: { S: parsed.pk },
++          [sk]: { S: parsed.sk }
++        },
++        UpdateExpression: "ADD #n :one",
++        ConditionExpression: "attribute_exists(#pk) AND (attribute_not_exists(#n) OR #n < :max)",
++        ExpressionAttributeNames: { "#n": "n", "#pk": pk },
++        ExpressionAttributeValues: { ":one": { N: "1" }, ":max": { N: String(max) } },
++        ReturnValues: "UPDATED_NEW"
++      });
++      return result ? Number(result.Attributes.n.N) : undefined;
+     },
+     async* scan(prefix) {
+       const prefixPk = prefix.length >= 2 ? joinKey(prefix.slice(0, 2)) : prefix[0];
+@@ -87,6 +119,8 @@ function DynamoStorage(options) {
+         const params = {
+           TableName: tableName,
+           ExclusiveStartKey: lastEvaluatedKey,
++          // tvseri.es patch: strongly consistent, so the OTP send count is exact.
++          ConsistentRead: true,
+           KeyConditionExpression: prefixSk ? `#pk = :pk AND begins_with(#sk, :sk)` : `#pk = :pk`,
+           ExpressionAttributeNames: {
+             "#pk": pk,
+diff --git a/dist/esm/storage/memory.js b/dist/esm/storage/memory.js
+index 4017390a80ddfd2868337ef51a72e6df136452ca..0dc232ac9cd4ca2195c648840e608b0ab2c2ed47 100644
+--- a/dist/esm/storage/memory.js
++++ b/dist/esm/storage/memory.js
+@@ -69,6 +69,18 @@ function MemoryStorage(input) {
+         store.splice(match.index, 1);
+         await save();
+       }
++      // tvseri.es patch: see DynamoStorage
++      return match.found;
++    },
++    // tvseri.es patch: see DynamoStorage.incr
++    async incr(key, max) {
++      const match = search(joinKey(key));
++      const entry = match.found ? store[match.index][1] : undefined;
++      if (!entry || (entry.n ?? 0) >= max)
++        return;
++      entry.n = (entry.n ?? 0) + 1;
++      await save();
++      return entry.n;
+     },
+     async* scan(prefix) {
+       const now = Date.now();
+diff --git a/dist/esm/storage/storage.js b/dist/esm/storage/storage.js
+index 84f125dcad424beaf271142a53e313469a591e4e..6320fc62bcbf9fca322f758f7d961ce1897cf9e0 100644
+--- a/dist/esm/storage/storage.js
++++ b/dist/esm/storage/storage.js
+@@ -28,6 +28,11 @@ var Storage;
+     return adapter.scan(encode(key));
+   }
+   Storage.scan = scan;
++  // tvseri.es patch: atomic counter, see DynamoStorage.incr.
++  function incr(adapter, key, max) {
++    return adapter.incr(encode(key), max);
++  }
++  Storage.incr = incr;
+ })(Storage ||= {});
+ export {
+   splitKey,
+diff --git a/dist/types/provider/code.d.ts b/dist/types/provider/code.d.ts
+index 3aa567060b27f491ac5a51f38bc02b08ac67bb81..c464f68f84e806b28152491031ad31b6d4c8cc24 100644
+--- a/dist/types/provider/code.d.ts
++++ b/dist/types/provider/code.d.ts
+@@ -46,7 +46,8 @@ export type CodeProviderState = {
+ } | {
+     type: "code";
+     resend?: boolean;
+-    code: string;
++    /** tvseri.es patch: the code itself is stored server-side under this nonce. */
++    nonce: string;
+     claims: Record<string, string>;
+ };
+ /**
+@@ -56,6 +57,9 @@ export type CodeProviderState = {
+  * | ----- | ----------- |
+  * | `invalid_code` | The code is invalid. |
+  * | `invalid_claim` | The _claim_, email or phone number, is invalid. |
++ * | `rate_limited` | Too many codes sent for this claim (tvseri.es patch). |
++ * | `code_expired` | The code expired, was used, or had too many wrong attempts (tvseri.es patch). |
++ * | `send_failed` | The code couldn't be sent (tvseri.es patch). |
+  */
+ export type CodeProviderError = {
+     type: "invalid_code";
+@@ -63,6 +67,12 @@ export type CodeProviderError = {
+     type: "invalid_claim";
+     key: string;
+     value: string;
++} | {
++    type: "rate_limited";
++} | {
++    type: "code_expired";
++} | {
++    type: "send_failed";
+ };
+ export declare function CodeProvider<Claims extends Record<string, string> = Record<string, string>>(config: CodeProviderConfig<Claims>): Provider<{
+     claims: Claims;

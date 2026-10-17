@@ -12,3 +12,6 @@ catalog:
   '@types/node': 24.19.2
   sst: 4.17.2
   typescript: 6.0.3
+
+patchedDependencies:
+  '@openauthjs/openauth@0.4.3': patches/@openauthjs__openauth@0.4.3.patch

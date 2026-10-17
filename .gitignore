@@ -25,6 +25,10 @@ dist
 # misc
 .DS_Store
 *.pem
+*.key
+*.p12
+*.pfx
+*.log
 
 # debug
 npm-debug.log*
@@ -47,6 +51,10 @@ yarn-error.log*
 # sst
 .sst
 
+# pulumi / terraform state
+.pulumi
+*.tfstate*
+
 # open-next
 .open-next
 
@@ -61,3 +69,6 @@ yarn-error.log*
 
 # claude
 .claude
+
+# opencode
+.opencode/

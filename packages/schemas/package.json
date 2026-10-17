@@ -10,7 +10,7 @@
   "main": "./src/index.ts",
   "name": "@tvseri.es/schemas",
   "peerDependencies": {
-    "@openauthjs/openauth": "^0.4"
+    "@openauthjs/openauth": "0.4.3"
   },
   "private": true,
   "scripts": {

@@ -1,8 +1,6 @@
 import { Hono } from 'hono';
 import { handle } from 'hono/aws-lambda';
-import { compress } from 'hono/compress';
 // import { cors } from 'hono/cors';
-import { etag } from 'hono/etag';
 import { HTTPException } from 'hono/http-exception';
 import { requestId } from 'hono/request-id';
 import { timeout } from 'hono/timeout';
@@ -10,7 +8,7 @@ import { timeout } from 'hono/timeout';
 import { requireApiKey } from './middleware/apiKey';
 import type { Variables } from './middleware/auth';
 import { errorCacheControl } from './middleware/cacheControl';
-import { metrics as metricsMiddleware } from './middleware/metrics';
+import { metrics as metricsMiddleware, redactPath } from './middleware/metrics';
 import admin from './routes/admin';
 import collection from './routes/collection';
 import discover from './routes/discover';
@@ -39,9 +37,6 @@ app.use(errorCacheControl());
 
 // Request timeout (Lambda timeout is 15s, use 14s to allow graceful response)
 app.use(timeout(14_000));
-
-app.use(compress());
-app.use(etag());
 
 // TODO: if we enable this here, we need to disable cors in infra (api.ts)
 // CORS for *.tvseri.es and *.*.dev.tvseri.es
@@ -97,11 +92,26 @@ const isThrottlingError = (error: Error) =>
   (error.cause instanceof Error && THROTTLING_ERRORS.has(error.cause.name));
 
 app.onError((error, c) => {
-  const reqId = c.get('requestId') ?? 'unknown';
-  const path = c.req.path;
-  const method = c.req.method;
+  const isHttpException = error instanceof HTTPException;
 
-  if (error instanceof HTTPException) {
+  // Log server errors (incl. 5xx HTTPExceptions such as timeout()'s 504) - no
+  // stack traces or sensitive details (webhook tokens are redacted from the path)
+  if (!isHttpException || error.status >= 500) {
+    console.error(
+      JSON.stringify({
+        cause: error.cause instanceof Error ? error.cause.name : undefined,
+        error: error.name,
+        level: 'error',
+        message: error.message,
+        method: c.req.method,
+        path: redactPath(c.req.path),
+        requestId: c.get('requestId') ?? 'unknown',
+        status: isHttpException ? error.status : undefined,
+      }),
+    );
+  }
+
+  if (isHttpException) {
     return c.json(
       {
         message: error.message || 'HTTP Error',
@@ -110,19 +120,6 @@ app.onError((error, c) => {
       error.status,
     );
   }
-
-  // Log server errors - no stack traces or sensitive details
-  console.error(
-    JSON.stringify({
-      cause: error.cause instanceof Error ? error.cause.name : undefined,
-      error: error.name,
-      level: 'error',
-      message: error.message,
-      method,
-      path,
-      requestId: reqId,
-    }),
-  );
 
   // Never leak internal (e.g. AWS) error messages to clients
   if (error.name === 'ConditionalCheckFailedException') {

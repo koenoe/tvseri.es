@@ -3,6 +3,7 @@ import 'server-only';
 import type { BetterFetchOption } from '@better-fetch/fetch';
 import { createFetch } from '@better-fetch/fetch';
 import type { TvSeries, TvSeriesForWatched } from '@tvseri.es/schemas';
+import { unstable_rethrow } from 'next/navigation';
 import { cache } from 'react';
 import { FETCH_TIMEOUT } from '@/constants';
 
@@ -58,6 +59,8 @@ async function send(path: string, { accessToken, ...options }: FetchOptions) {
     ...options,
     auth: accessToken ? { token: accessToken, type: 'Bearer' } : undefined,
   }).catch((cause: unknown) => {
+    // Next's control-flow errors (e.g. prerender finished) are not API failures.
+    unstable_rethrow(cause);
     // Network failure or timeout: there is no HTTP status.
     console.error('API Fetch Error:', { cause, path });
     const isTimeout = cause instanceof Error && cause.name === 'AbortError';

@@ -143,6 +143,19 @@ export async function getLoginUrl(): Promise<string> {
 }
 
 export function logout(): void {
+  const refreshToken =
+    tokens?.refreshToken ?? parseTokensFromLocalStorage()?.refreshToken;
+
+  // Best-effort server-side revoke; never block logout on it.
+  if (refreshToken) {
+    fetch(`${import.meta.env.VITE_AUTH_URL}/revoke`, {
+      body: new URLSearchParams({ token: refreshToken }),
+      keepalive: true,
+      method: 'POST',
+      signal: AbortSignal.timeout(3000),
+    }).catch(() => undefined);
+  }
+
   clearTokens();
 
   currentUser = undefined;

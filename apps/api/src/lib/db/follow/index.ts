@@ -1,5 +1,4 @@
 import {
-  BatchGetItemCommand,
   DeleteItemCommand,
   GetItemCommand,
   PutItemCommand,
@@ -9,6 +8,7 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { PaginationOptions, User } from '@tvseri.es/schemas';
 import { Resource } from 'sst';
 
+import { batchGet } from '../batch';
 import client from '../client';
 import { decodeCursor, encodeCursor } from '../cursor';
 
@@ -32,26 +32,37 @@ function createSortKey(timestamp: number, userId: string) {
   return `${timestamp}#${userId}`;
 }
 
+export type FollowUser = Pick<
+  User,
+  'createdAt' | 'followerCount' | 'followingCount' | 'id' | 'username'
+>;
+
 async function batchGetUsers(
   userIds: string[],
-): Promise<Record<string, User | null>> {
-  if (userIds.length === 0) return {};
-  const keys = userIds.map((id) => marshall({ pk: userPk(id) }));
-  const command = new BatchGetItemCommand({
-    RequestItems: {
-      [Resource.Users.name]: {
-        Keys: keys,
+): Promise<Record<string, FollowUser>> {
+  const items = await batchGet(
+    Resource.Users.name,
+    userIds.map((id) => marshall({ pk: userPk(id) })),
+    {
+      // Only what the follow lists render (full items include email)
+      ExpressionAttributeNames: {
+        '#createdAt': 'createdAt',
+        '#followerCount': 'followerCount',
+        '#followingCount': 'followingCount',
+        '#id': 'id',
+        '#username': 'username',
       },
+      ProjectionExpression:
+        '#id, #username, #createdAt, #followerCount, #followingCount',
     },
-  });
-  const data = await client.send(command);
-  const users: Record<string, User | null> = {};
-  (data.Responses?.[Resource.Users.name] || []).forEach((item) => {
-    const user = unmarshall(item) as User;
+  );
+  const users: Record<string, FollowUser> = {};
+  for (const item of items) {
+    const user = unmarshall(item) as FollowUser;
     if (user?.id) {
       users[user.id] = user;
     }
-  });
+  }
   return users;
 }
 
@@ -78,7 +89,7 @@ export async function getFollowers(
   const users = await batchGetUsers(userIds);
   const followers = items
     .map((item) => users[item.followerId])
-    .filter((user): user is User => user !== null && user !== undefined);
+    .filter((user): user is FollowUser => !!user);
 
   return {
     items: followers,
@@ -111,7 +122,7 @@ export async function getFollowing(
   const users = await batchGetUsers(userIds);
   const following = items
     .map((item) => users[item.followingId])
-    .filter((user): user is User => user !== null && user !== undefined);
+    .filter((user): user is FollowUser => !!user);
 
   return {
     items: following,
@@ -197,4 +208,48 @@ export async function isFollower({
   targetUserId: string;
 }) {
   return isFollowing({ targetUserId: userId, userId: targetUserId });
+}
+
+/**
+ * Resolves which of `targetUserIds` the viewer follows and is followed by,
+ * in a single BatchGetItem (instead of 2 GetItems per user).
+ */
+export async function getFollowStatuses({
+  viewerId,
+  targetUserIds,
+}: Readonly<{
+  viewerId: string;
+  targetUserIds: ReadonlyArray<string>;
+}>) {
+  const keys = targetUserIds.flatMap((targetUserId) => [
+    followPk(viewerId, targetUserId),
+    followPk(targetUserId, viewerId),
+  ]);
+  const items = await batchGet(
+    Resource.Follow.name,
+    keys.map((key) => marshall({ pk: key, sk: key })),
+    {
+      ExpressionAttributeNames: {
+        '#followerId': 'followerId',
+        '#followingId': 'followingId',
+      },
+      ProjectionExpression: '#followerId, #followingId',
+    },
+  );
+
+  const following = new Set<string>();
+  const followers = new Set<string>();
+  for (const item of items) {
+    const { followerId, followingId } = unmarshall(item) as Readonly<{
+      followerId: string;
+      followingId: string;
+    }>;
+    if (followerId === viewerId) {
+      following.add(followingId);
+    } else if (followingId === viewerId) {
+      followers.add(followerId);
+    }
+  }
+
+  return { followers, following };
 }

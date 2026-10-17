@@ -6,6 +6,7 @@ import {
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { User, WatchProvider } from '@tvseri.es/schemas';
 import { encodeToBase64Url } from '@tvseri.es/utils';
+import { HTTPException } from 'hono/http-exception';
 import slugify from 'slugify';
 import { Resource } from 'sst';
 import client from '../client';
@@ -82,25 +83,16 @@ export const findUser = async (
 export const updateUser = async (
   user: User,
   updates: Readonly<{
-    email?: string;
     username?: string;
     name?: string;
     watchProviders?: WatchProvider[];
   }> &
     (
-      | { email: string }
       | { username: string }
       | { name: string }
       | { watchProviders: WatchProvider[] }
     ),
 ): Promise<User> => {
-  if (updates.email) {
-    const existingUser = await findUser({ email: updates.email });
-    if (existingUser && existingUser.id !== user.id) {
-      throw new Error('EmailAlreadyTaken');
-    }
-  }
-
   if (updates.username) {
     const existingUser = await findUser({ username: updates.username });
     if (existingUser && existingUser.id !== user.id) {
@@ -116,13 +108,6 @@ export const updateUser = async (
   values[':updatedAt'] = now;
   values[':lastUpdatedAt'] = user.updatedAt || user.createdAt;
   updateExpressions.push('updatedAt = :updatedAt');
-
-  if (updates.email) {
-    values[':email'] = updates.email;
-    values[':newEmailIndex'] = `EMAIL#${encodeToBase64Url(updates.email)}`;
-    updateExpressions.push('email = :email');
-    updateExpressions.push('gsi1pk = :newEmailIndex');
-  }
 
   if (updates.username) {
     values[':username'] = updates.username;
@@ -168,9 +153,10 @@ export const updateUser = async (
     return updatedUser;
   } catch (error) {
     if (error instanceof ConditionalCheckFailedException) {
-      throw new Error(
-        "Looks like you're updating your profile on another device. Please try again.",
-      );
+      throw new HTTPException(409, {
+        message:
+          "Looks like you're updating your profile on another device. Please try again.",
+      });
     }
     throw error;
   }

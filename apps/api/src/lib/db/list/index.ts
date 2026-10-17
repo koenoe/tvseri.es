@@ -9,6 +9,7 @@ import type { ListItem, PaginationOptions } from '@tvseri.es/schemas';
 import { buildPosterImageUrl } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 import client from '../client';
+import { countQuery } from '../count';
 import { decodeCursor, encodeCursor } from '../cursor';
 
 // const BATCH_SIZE = 25;
@@ -284,15 +285,11 @@ export const getListItemsCount = async (
         KeyConditionExpression: 'gsi2pk = :pk',
       };
 
-  const command = new QueryCommand({
-    IndexName: 'gsi2',
-    TableName: Resource.Lists.name, // Always use gsi2 for count since we don't need sorting
+  return countQuery({
+    IndexName: 'gsi2', // Always use gsi2 for count since we don't need sorting
+    TableName: Resource.Lists.name,
     ...condition,
-    Select: 'COUNT',
   });
-
-  const result = await client.send(command);
-  return result.Count ?? 0;
 };
 
 export const getAllListItems = async (

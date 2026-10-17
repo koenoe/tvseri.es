@@ -3,6 +3,7 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { CacheItem, CacheOptions } from '@tvseri.es/schemas';
 import { Resource } from 'sst';
 
+import { batchWrite } from '../batch';
 import client from '../client';
 
 const DEFAULT_TTL = 86400; // 24 hours in seconds
@@ -39,8 +40,8 @@ export const setCacheItem = async <T>(
 
   try {
     await client.send(command);
-  } catch (_error) {
-    throw new Error(`Failed to set cache for key: ${key}`);
+  } catch (error) {
+    throw new Error(`Failed to set cache for key: ${key}`, { cause: error });
   }
 };
 
@@ -68,41 +69,22 @@ export const getCacheItem = async <T>(
     } catch {
       return item.value as T;
     }
-  } catch (_error) {
-    throw new Error(`Failed to get cache for key: ${key}`);
+  } catch (error) {
+    throw new Error(`Failed to get cache for key: ${key}`, { cause: error });
   }
 };
 
 /**
  * Deletes multiple cache items by their keys.
- * Uses BatchWriteItem for efficiency (max 25 items per batch).
+ * Uses BatchWriteItem (retrying unprocessed items).
  */
 export const deleteCacheItems = async (keys: string[]): Promise<void> => {
-  if (keys.length === 0) return;
-
-  // BatchWriteItem allows max 25 items per request
-  const batches: string[][] = [];
-  for (let i = 0; i < keys.length; i += 25) {
-    batches.push(keys.slice(i, i + 25));
-  }
-
-  const { BatchWriteItemCommand } = await import('@aws-sdk/client-dynamodb');
-
-  for (const batch of batches) {
-    const command = new BatchWriteItemCommand({
-      RequestItems: {
-        [Resource.Cache.name]: batch.map((key) => ({
-          DeleteRequest: {
-            Key: marshall({ pk: `CACHE#${key}` }),
-          },
-        })),
+  await batchWrite(
+    Resource.Cache.name,
+    keys.map((key) => ({
+      DeleteRequest: {
+        Key: marshall({ pk: `CACHE#${key}` }),
       },
-    });
-
-    try {
-      await client.send(command);
-    } catch (_error) {
-      throw new Error(`Failed to delete cache items: ${batch.join(', ')}`);
-    }
-  }
+    })),
+  );
 };

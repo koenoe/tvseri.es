@@ -1,5 +1,4 @@
 import {
-  BatchWriteItemCommand,
   DeleteItemCommand,
   PutItemCommand,
   QueryCommand,
@@ -18,12 +17,13 @@ import {
   buildPosterImageUrl,
   buildStillImageUrl,
 } from '@tvseri.es/utils';
+import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
 import { fetchTvSeriesSeason } from '@/lib/tmdb';
+import { batchWrite } from '../batch';
 import client from '../client';
+import { countQuery } from '../count';
 import { decodeCursor, encodeCursor } from '../cursor';
-
-const DYNAMO_DB_BATCH_LIMIT = 25;
 
 const paddedNumber = (value: number) => value.toString().padStart(3, '0');
 
@@ -121,18 +121,7 @@ export const markWatchedInBatch = async (
     };
   });
 
-  const batchPromises = [];
-  for (let i = 0; i < writeRequests.length; i += DYNAMO_DB_BATCH_LIMIT) {
-    const batch = writeRequests.slice(i, i + DYNAMO_DB_BATCH_LIMIT);
-    const command = new BatchWriteItemCommand({
-      RequestItems: {
-        [Resource.Watched.name]: batch,
-      },
-    });
-    batchPromises.push(client.send(command));
-  }
-
-  await Promise.all(batchPromises);
+  await batchWrite(Resource.Watched.name, writeRequests);
 
   return watchedItems;
 };
@@ -215,18 +204,7 @@ export const unmarkWatchedInBatch = async (
     };
   });
 
-  const batchPromises = [];
-  for (let i = 0; i < deleteRequests.length; i += DYNAMO_DB_BATCH_LIMIT) {
-    const batch = deleteRequests.slice(i, i + DYNAMO_DB_BATCH_LIMIT);
-    const command = new BatchWriteItemCommand({
-      RequestItems: {
-        [Resource.Watched.name]: batch,
-      },
-    });
-    batchPromises.push(client.send(command));
-  }
-
-  await Promise.all(batchPromises);
+  await batchWrite(Resource.Watched.name, deleteRequests);
 };
 
 export const unmarkWatched = async (
@@ -270,7 +248,9 @@ export const markSeasonWatched = async ({
     !season.airDate ||
     new Date(season.airDate) >= new Date()
   ) {
-    throw new Error(`Invalid season for ${tvSeries.id}`);
+    throw new HTTPException(400, {
+      message: `Invalid season for ${tvSeries.id}`,
+    });
   }
 
   // Get already watched episodes
@@ -332,20 +312,7 @@ export const markSeasonWatched = async ({
     return existingWatched;
   }
 
-  const batchPromises = [];
-  for (let i = 0; i < writeRequests.length; i += DYNAMO_DB_BATCH_LIMIT) {
-    const batch = writeRequests.slice(i, i + DYNAMO_DB_BATCH_LIMIT);
-
-    const command = new BatchWriteItemCommand({
-      RequestItems: {
-        [Resource.Watched.name]: batch,
-      },
-    });
-
-    batchPromises.push(client.send(command));
-  }
-
-  await Promise.all(batchPromises);
+  await batchWrite(Resource.Watched.name, writeRequests);
 
   return [...existingWatched, ...watchedItems];
 };
@@ -378,20 +345,7 @@ export const unmarkSeasonWatched = async (
     },
   }));
 
-  const batchPromises = [];
-  for (let i = 0; i < deleteRequests.length; i += DYNAMO_DB_BATCH_LIMIT) {
-    const batch = deleteRequests.slice(i, i + DYNAMO_DB_BATCH_LIMIT);
-
-    const command = new BatchWriteItemCommand({
-      RequestItems: {
-        [Resource.Watched.name]: batch,
-      },
-    });
-
-    batchPromises.push(client.send(command));
-  }
-
-  await Promise.all(batchPromises);
+  await batchWrite(Resource.Watched.name, deleteRequests);
 };
 
 export const markTvSeriesWatched = async ({
@@ -404,7 +358,9 @@ export const markTvSeriesWatched = async ({
   watchProvider?: WatchProvider | null;
 }>) => {
   if (!tvSeries.seasons) {
-    throw new Error(`No seasons found for ${tvSeries.id}`);
+    throw new HTTPException(400, {
+      message: `No seasons found for ${tvSeries.id}`,
+    });
   }
 
   const seasons = tvSeries.seasons.filter(
@@ -452,20 +408,7 @@ export const unmarkTvSeriesWatched = async (
     },
   }));
 
-  const batchPromises = [];
-  for (let i = 0; i < deleteRequests.length; i += DYNAMO_DB_BATCH_LIMIT) {
-    const batch = deleteRequests.slice(i, i + DYNAMO_DB_BATCH_LIMIT);
-
-    const command = new BatchWriteItemCommand({
-      RequestItems: {
-        [Resource.Watched.name]: batch,
-      },
-    });
-
-    batchPromises.push(client.send(command));
-  }
-
-  await Promise.all(batchPromises);
+  await batchWrite(Resource.Watched.name, deleteRequests);
 };
 
 const getWatchedForTvSeries = async (
@@ -527,18 +470,14 @@ export const getAllWatchedForTvSeries = async (
 export const getWatchedCountForTvSeries = async (
   input: Omit<Parameters<typeof getWatchedForTvSeries>[0], 'options'>,
 ) => {
-  const command = new QueryCommand({
+  return countQuery({
     ExpressionAttributeValues: marshall({
       ':pk': `USER#${input.userId}#SERIES#${input.tvSeriesId}`,
     }),
     IndexName: 'gsi1',
     KeyConditionExpression: 'gsi1pk = :pk',
-    Select: 'COUNT',
     TableName: Resource.Watched.name,
   });
-
-  const result = await client.send(command);
-  return result.Count ?? 0;
 };
 
 const getWatchedForSeason = async (
@@ -658,14 +597,10 @@ export const getWatchedCount = async (
     ExpressionAttributeValues[':end'] = input.endDate.getTime();
   }
 
-  const command = new QueryCommand({
+  return countQuery({
     ExpressionAttributeValues: marshall(ExpressionAttributeValues),
     IndexName: 'gsi2',
     KeyConditionExpression,
-    Select: 'COUNT',
     TableName: Resource.Watched.name,
   });
-
-  const result = await client.send(command);
-  return result.Count ?? 0;
 };

@@ -22,7 +22,7 @@
     "slugify": "^1.6.9",
     "sonner": "^2.0.8",
     "use-debounce": "^10.1.1",
-    "web-vitals": "^5.3.0",
+    "web-vitals": "^6.2.3",
     "zustand": "^5.0.15"
   },
   "devDependencies": {

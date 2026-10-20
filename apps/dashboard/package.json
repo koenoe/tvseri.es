@@ -19,7 +19,7 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "recharts": "2.15.4",
-    "shadcn": "^3.8.5",
+    "shadcn": "^4.22.0",
     "sst": "catalog:",
     "tailwind-merge": "^3.7.0",
     "tailwindcss": "^4.3.3",

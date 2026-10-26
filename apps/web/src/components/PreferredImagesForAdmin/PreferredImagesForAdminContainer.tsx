@@ -106,11 +106,16 @@ export default async function PreferredImagesForAdminContainer({
     return null;
   }
 
+  // Remount when the served images change (e.g. after a reset), so the
+  // panel's backdrop/title position matches what's on screen again.
+  const panelKey = `${tvSeries.backdropImage}|${tvSeries.titleTreatmentImage}`;
+
   return (
     <PreferredImagesForAdmin
       getDominantColor={getDominantColor}
       id={tvSeries.id}
       images={images}
+      key={panelKey}
       resetPreferredImages={resetPreferredImages}
       storePreferredImages={storePreferredImages}
     />

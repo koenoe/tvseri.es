@@ -204,10 +204,7 @@ export default function PreferredImagesForAdmin({
     startTransition(async () => {
       try {
         await resetPreferredImages(id);
-        // Title arrows swap the <img> src in the DOM and the background store
-        // caches per history entry, so a soft refresh can keep showing the
-        // old images. A full reload shows the defaults for sure.
-        window.location.reload();
+        toast.success('Preferred images reset.');
       } catch (_error) {
         toast.error('Failed to reset preferred images.');
       }

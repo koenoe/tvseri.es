@@ -1,4 +1,8 @@
-import { GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
+import {
+  DeleteItemCommand,
+  GetItemCommand,
+  PutItemCommand,
+} from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { PreferredImages } from '@tvseri.es/schemas';
 import { Resource } from 'sst';
@@ -45,5 +49,22 @@ export const putPreferredImages = async (
     await client.send(command);
   } catch (_error) {
     throw new Error('Failed to update preferred images');
+  }
+};
+
+export const deletePreferredImages = async (
+  id: number | string,
+): Promise<void> => {
+  const command = new DeleteItemCommand({
+    Key: marshall({
+      pk: `SERIES#${id}`,
+    }),
+    TableName: Resource.PreferredImages.name,
+  });
+
+  try {
+    await client.send(command);
+  } catch (_error) {
+    throw new Error('Failed to delete preferred images');
   }
 };

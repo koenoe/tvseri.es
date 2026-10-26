@@ -5,6 +5,7 @@ import { unauthorized } from 'next/navigation';
 import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
 import {
+  deletePreferredImages,
   detectDominantColorFromImage,
   fetchTvSeriesImages,
   updatePreferredImages,
@@ -14,17 +15,29 @@ import PreferredImagesForAdmin from './PreferredImagesForAdmin';
 
 const TMDB_IMAGE_URL_PREFIX = 'https://image.tmdb.org/t/p/';
 
+async function requireAdminAccessToken() {
+  const { accessToken, user } = await auth();
+
+  if (user?.role !== 'admin' || !accessToken) {
+    unauthorized();
+  }
+
+  return accessToken;
+}
+
+// Mirrors the API's CDN purge (series + trending) for the web caches.
+function updatePreferredImagesTags(id: number) {
+  updateTag(`series:${id}`);
+  updateTag('collection:trending');
+}
+
 async function storePreferredImages(
   id: number,
   preferredImages: PreferredImages,
 ) {
   'use server';
 
-  const { accessToken, user } = await auth();
-
-  if (user?.role !== 'admin' || !accessToken) {
-    unauthorized();
-  }
+  const accessToken = await requireAdminAccessToken();
 
   await updatePreferredImages({
     accessToken,
@@ -32,9 +45,20 @@ async function storePreferredImages(
     preferredImages,
   });
 
-  // Mirrors the API's CDN purge (series + trending) for the web caches.
-  updateTag(`series:${id}`);
-  updateTag('collection:trending');
+  updatePreferredImagesTags(id);
+}
+
+async function resetPreferredImages(id: number) {
+  'use server';
+
+  const accessToken = await requireAdminAccessToken();
+
+  await deletePreferredImages({
+    accessToken,
+    id,
+  });
+
+  updatePreferredImagesTags(id);
 }
 
 async function getDominantColor(url: string) {
@@ -87,6 +111,7 @@ export default async function PreferredImagesForAdminContainer({
       getDominantColor={getDominantColor}
       id={tvSeries.id}
       images={images}
+      resetPreferredImages={resetPreferredImages}
       storePreferredImages={storePreferredImages}
     />
   );

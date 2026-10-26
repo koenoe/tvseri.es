@@ -1,7 +1,7 @@
 // Barrel file - re-exports all API functions from domain modules
 
 // Admin
-export { updatePreferredImages } from './admin';
+export { deletePreferredImages, updatePreferredImages } from './admin';
 export { ApiError, proxy } from './client';
 
 // Collections

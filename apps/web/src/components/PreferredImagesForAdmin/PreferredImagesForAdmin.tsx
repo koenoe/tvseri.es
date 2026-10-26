@@ -34,11 +34,13 @@ export default function PreferredImagesForAdmin({
   id,
   images,
   getDominantColor,
+  resetPreferredImages,
   storePreferredImages,
 }: Readonly<{
   id: number;
   images: Awaited<ReturnType<typeof fetchTvSeriesImages>>;
   getDominantColor: (url: string) => Promise<string>;
+  resetPreferredImages: (id: number) => Promise<void>;
   storePreferredImages: (
     id: number,
     preferredImages: PreferredImages,
@@ -190,6 +192,28 @@ export default function PreferredImagesForAdmin({
     });
   }, [id, images, currentTitleIndex, currentBackdrop, storePreferredImages]);
 
+  const handleReset = useCallback(() => {
+    if (
+      !window.confirm(
+        'Reset to the default background and title treatment for this series?',
+      )
+    ) {
+      return;
+    }
+
+    startTransition(async () => {
+      try {
+        await resetPreferredImages(id);
+        // Title arrows swap the <img> src in the DOM and the background store
+        // caches per history entry, so a soft refresh can keep showing the
+        // old images. A full reload shows the defaults for sure.
+        window.location.reload();
+      } catch (_error) {
+        toast.error('Failed to reset preferred images.');
+      }
+    });
+  }, [id, resetPreferredImages]);
+
   const canNavigateBackdrops = images?.backdrops && images.backdrops.length > 1;
 
   const canNavigateTitles =
@@ -307,6 +331,16 @@ export default function PreferredImagesForAdmin({
         title="Save changes"
       >
         💾
+      </button>
+      <button
+        className={cx('aspect-square w-8 rounded bg-white/40', {
+          'cursor-progress': isPending,
+        })}
+        disabled={isPending}
+        onClick={handleReset}
+        title="Reset to default images"
+      >
+        🔄
       </button>
     </div>
   );

@@ -20,3 +20,19 @@ export async function updatePreferredImages({
     },
   });
 }
+
+export async function deletePreferredImages({
+  id,
+  accessToken,
+}: Readonly<{
+  id: number;
+}> &
+  AuthContext) {
+  await apiFetch('/admin/preferred-images/series/:id', {
+    accessToken,
+    method: 'DELETE',
+    params: {
+      id,
+    },
+  });
+}

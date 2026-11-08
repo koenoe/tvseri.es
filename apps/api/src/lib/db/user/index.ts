@@ -11,6 +11,27 @@ import slugify from 'slugify';
 import { Resource } from 'sst';
 import client from '../client';
 
+/**
+ * Internal activity fields on the user item, used to decide whose watched
+ * status gets re-checked. Never part of a public user response.
+ */
+export type UserActivity = Readonly<{
+  /** ISO date of the last watch activity, written at most once a day */
+  lastActiveAt?: string;
+  /** ISO date of the last on-visit watched-status re-check */
+  lastRecheckAt?: string;
+}>;
+
+/** A user as stored, including the internal activity fields */
+export type UserRecord = Readonly<User & UserActivity>;
+
+/** Constant hash key of the sparse `active` index (activePk) */
+export const ACTIVE_PK = 'ACTIVE';
+export const ACTIVE_INDEX = 'active';
+export const USER_PK_PREFIX = 'USER#';
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 export const findUser = async (
   input:
     | { userId: string; email?: never; username?: never }
@@ -21,9 +42,9 @@ export const findUser = async (
         email?: never;
         username?: never;
       },
-): Promise<User | null> => {
+): Promise<UserRecord | null> => {
   const [indexName, prefix, value] = input.userId
-    ? [undefined, 'USER#', input.userId]
+    ? [undefined, USER_PK_PREFIX, input.userId]
     : input.email
       ? ['gsi1', 'EMAIL#', encodeToBase64Url(input.email)]
       : [
@@ -50,7 +71,7 @@ export const findUser = async (
     return null;
   }
 
-  const user = unmarshall(result.Items[0]) as User;
+  const user = unmarshall(result.Items[0]) as UserRecord;
   const {
     id,
     createdAt,
@@ -58,6 +79,8 @@ export const findUser = async (
     email,
     followerCount,
     followingCount,
+    lastActiveAt,
+    lastRecheckAt,
     name,
     role,
     username,
@@ -71,6 +94,8 @@ export const findUser = async (
     followerCount,
     followingCount,
     id,
+    lastActiveAt,
+    lastRecheckAt,
     name,
     role,
     updatedAt,
@@ -78,6 +103,89 @@ export const findUser = async (
     version,
     watchProviders,
   };
+};
+
+/**
+ * Splits the internal activity fields off a stored user, so the user can be
+ * returned in a response.
+ */
+export const splitUserRecord = ({
+  lastActiveAt,
+  lastRecheckAt,
+  ...user
+}: UserRecord): Readonly<{ user: User; activity: UserActivity }> => ({
+  activity: { lastActiveAt, lastRecheckAt },
+  user,
+});
+
+/**
+ * Records watch activity: sets `lastActiveAt` (and the sparse `active` index
+ * key), at most once a day per user. Leaves `updatedAt` alone: that's the
+ * optimistic lock for profile updates (`updateUser`).
+ *
+ * Returns false when the user was already marked within the last day, or
+ * doesn't exist.
+ */
+export const markUserActive = async (userId: string): Promise<boolean> => {
+  const now = Date.now();
+
+  try {
+    await client.send(
+      new UpdateItemCommand({
+        ConditionExpression:
+          'attribute_exists(pk) AND (attribute_not_exists(lastActiveAt) OR lastActiveAt < :dayAgo)',
+        ExpressionAttributeValues: marshall({
+          ':active': ACTIVE_PK,
+          ':dayAgo': new Date(now - DAY_MS).toISOString(),
+          ':now': new Date(now).toISOString(),
+        }),
+        Key: marshall({ pk: `${USER_PK_PREFIX}${userId}` }),
+        TableName: Resource.Users.name,
+        UpdateExpression: 'SET lastActiveAt = :now, activePk = :active',
+      }),
+    );
+    return true;
+  } catch (error) {
+    if (error instanceof ConditionalCheckFailedException) {
+      return false;
+    }
+    throw error;
+  }
+};
+
+/**
+ * Claims the on-visit watched-status re-check for a user who hasn't watched
+ * anything since `since` and wasn't re-checked since then either. The
+ * condition repeats the staleness check, so concurrent requests can't both
+ * claim it.
+ *
+ * Returns true when this caller claimed it (and should queue the re-check).
+ */
+export const claimWatchedStatusRecheck = async (
+  userId: string,
+  since: Date,
+): Promise<boolean> => {
+  try {
+    await client.send(
+      new UpdateItemCommand({
+        ConditionExpression:
+          'attribute_exists(pk) AND (attribute_not_exists(lastActiveAt) OR lastActiveAt < :since) AND (attribute_not_exists(lastRecheckAt) OR lastRecheckAt < :since)',
+        ExpressionAttributeValues: marshall({
+          ':now': new Date().toISOString(),
+          ':since': since.toISOString(),
+        }),
+        Key: marshall({ pk: `${USER_PK_PREFIX}${userId}` }),
+        TableName: Resource.Users.name,
+        UpdateExpression: 'SET lastRecheckAt = :now',
+      }),
+    );
+    return true;
+  } catch (error) {
+    if (error instanceof ConditionalCheckFailedException) {
+      return false;
+    }
+    throw error;
+  }
 };
 
 export const updateUser = async (

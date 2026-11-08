@@ -3,9 +3,10 @@ import { unmarshall } from '@aws-sdk/util-dynamodb';
 import type { WatchedItem } from '@tvseri.es/schemas';
 import type { DynamoDBStreamEvent } from 'aws-lambda';
 
-import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 import { addToList, removeFromList, removeFromWatchlist } from '@/lib/db/list';
+import { markUserActive } from '@/lib/db/user';
 import { getWatchedCountForTvSeries } from '@/lib/db/watched';
+import { applyWatchedCounterDeltas } from '@/lib/profileCounters';
 import { invalidateStatsCache } from '@/lib/stats';
 import { cachedTvSeries } from './shared/cachedTvSeries';
 
@@ -84,21 +85,42 @@ const syncLists = async ({ userId, seriesId, watchedAt }: SeriesGroup) => {
 };
 
 /**
+ * Records watch activity (manual marks and Plex scrobbles alike) for the
+ * nightly watched-status job. Best effort: a failure is logged and never fails
+ * the stream batch.
+ */
+const markUsersActive = async (userIds: ReadonlySet<string>) => {
+  await Promise.all(
+    Array.from(userIds).map(async (userId) => {
+      try {
+        await markUserActive(userId);
+      } catch (error) {
+        console.error(`[ERROR] Failed to mark user active: ${userId}`, error);
+      }
+    }),
+  );
+};
+
+/**
  * DynamoDB Stream handler for managing watched/in-progress lists based on episode watch events.
  *
  * - Records are grouped per user+series and each group is synced once, from
  *   the current watched count (marking a 100-episode series watched gives one
  *   count query and 3 list writes, not 300 writes).
  * - List syncs and stats invalidation are idempotent, so a retried or bisected
- *   batch gives the same result. The all-time runtime delta is not: a retry
- *   after it was applied applies it again (rare, accepted).
+ *   batch gives the same result. The all-time runtime and count deltas are
+ *   not: a retry after they were applied applies them again (rare, accepted;
+ *   the count counter re-seeds daily, so its drift is temporary).
  */
 export const handler = async (event: DynamoDBStreamEvent) => {
   const groups = new Map<string, SeriesGroup>();
   // Track user+year combinations for stats cache invalidation
   const statsToInvalidate = new Set<string>();
-  // Track runtime changes per user for incremental updates
+  // Track runtime and episode count changes per user for incremental updates
   const runtimeChanges = new Map<string, number>();
+  const countChanges = new Map<string, number>();
+  // Users who watched something in this batch
+  const activeUserIds = new Set<string>();
 
   for (const record of event.Records) {
     if (!record.dynamodb?.NewImage && !record.dynamodb?.OldImage) {
@@ -131,14 +153,22 @@ export const handler = async (event: DynamoDBStreamEvent) => {
       statsToInvalidate.add(`${watchedItem.userId}:${watchedYear}`);
     }
 
-    // Track runtime change for this user (only for INSERT/REMOVE, not MODIFY)
+    // Track runtime and count change for this user (only for INSERT/REMOVE, not MODIFY)
     const runtime = watchedItem.runtime || 0;
     if (record.eventName === 'INSERT' || record.eventName === 'REMOVE') {
-      const delta = record.eventName === 'INSERT' ? runtime : -runtime;
+      const sign = record.eventName === 'INSERT' ? 1 : -1;
       runtimeChanges.set(
         watchedItem.userId,
-        (runtimeChanges.get(watchedItem.userId) || 0) + delta,
+        (runtimeChanges.get(watchedItem.userId) || 0) + sign * runtime,
       );
+      countChanges.set(
+        watchedItem.userId,
+        (countChanges.get(watchedItem.userId) || 0) + sign,
+      );
+    }
+
+    if (record.eventName === 'INSERT') {
+      activeUserIds.add(watchedItem.userId);
     }
 
     // Last record wins, like the per-record writes did before grouping
@@ -149,7 +179,10 @@ export const handler = async (event: DynamoDBStreamEvent) => {
     });
   }
 
-  await Promise.all(Array.from(groups.values()).map(syncLists));
+  await Promise.all([
+    ...Array.from(groups.values()).map(syncLists),
+    markUsersActive(activeUserIds),
+  ]);
 
   // Invalidate stats cache for all affected user+year combinations
   if (statsToInvalidate.size > 0) {
@@ -164,21 +197,9 @@ export const handler = async (event: DynamoDBStreamEvent) => {
     );
   }
 
-  // Update profile runtime cache incrementally for affected users
-  for (const [userId, runtimeDelta] of runtimeChanges) {
-    if (runtimeDelta === 0) continue;
-
-    const cacheKey = `profile:${userId}:watched-runtime`;
-    const currentRuntime = await getCacheItem<number>(cacheKey);
-
-    if (typeof currentRuntime === 'number') {
-      // Update existing cache with delta (no TTL - permanent)
-      const newRuntime = Math.max(0, currentRuntime + runtimeDelta);
-      await setCacheItem(cacheKey, newRuntime, { ttl: null });
-      console.log(
-        `[CACHE] Updated runtime for ${userId}: ${currentRuntime} -> ${newRuntime} (delta: ${runtimeDelta})`,
-      );
-    }
-    // If no cache exists, the API will compute it fresh on next request
-  }
+  // Update the all-time runtime and count counters for affected users
+  await applyWatchedCounterDeltas({
+    countDeltas: countChanges,
+    runtimeDeltas: runtimeChanges,
+  });
 };

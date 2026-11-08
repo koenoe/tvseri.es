@@ -5,6 +5,7 @@ import * as secrets from '../secrets';
 import { cache } from './cache';
 import { lists } from './lists';
 import { preferredImages } from './preferredImages';
+import { users } from './users';
 
 export const watched = new sst.aws.Dynamo('Watched', {
   fields: {
@@ -62,6 +63,7 @@ watched.subscribe(
       dominantColor,
       lists,
       preferredImages,
+      users, // lastActiveAt (markUserActive)
       watched,
       watchedSubscriberDlq,
       secrets.mdblistApiKey,

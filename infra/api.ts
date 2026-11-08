@@ -9,6 +9,7 @@ import { email } from './email';
 import { metricsQueue } from './metrics';
 import { scrobbleQueue } from './scrobbleQueue';
 import * as secrets from './secrets';
+import { watchedStatusQueue } from './watchedStatus';
 
 export const apiRouter = new sst.aws.Router('ApiRouter', {
   domain: {
@@ -117,6 +118,7 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
     secrets.mdblistApiKey,
     secrets.tmdbApiAccessToken,
     secrets.tmdbApiKey,
+    watchedStatusQueue, // on-visit re-check for inactive users (middleware/auth.ts)
   ],
   memory: '1024 MB',
   permissions: [

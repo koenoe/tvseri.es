@@ -4,7 +4,8 @@ import type { MiddlewareHandler } from 'hono';
 import { every } from 'hono/combine';
 import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
-import { findUser } from '@/lib/db/user';
+import { findUser, splitUserRecord, type UserRecord } from '@/lib/db/user';
+import { recheckWatchedStatusIfInactive } from '@/lib/watchedStatus';
 
 import { enforcePrivateCache } from './cacheControl';
 
@@ -15,6 +16,15 @@ export type Auth = Readonly<{
 export type Variables = Readonly<{
   auth: Auth;
 }>;
+
+/**
+ * `user` is set by routes/user/middleware.ts on /user/:id routes, which run it
+ * before auth(). When it's the authenticated user, it's reused.
+ */
+type AuthMiddlewareVariables = Variables &
+  Readonly<{
+    user?: UserRecord;
+  }>;
 
 const client = createClient({
   clientID: 'api',
@@ -33,12 +43,14 @@ const client = createClient({
  *
  * Only use on routes that need auth data.
  */
-export const auth = (): MiddlewareHandler<{ Variables: Variables }> => {
+export const auth = (): MiddlewareHandler<{
+  Variables: AuthMiddlewareVariables;
+}> => {
   return async (c, next) => {
     const authHeader = c.req.header('Authorization') ?? '';
     const bearerToken = authHeader.split(' ')[1];
 
-    let user: User | null = null;
+    let recheck: Promise<void> | undefined;
 
     if (bearerToken) {
       const verified = await client.verify(subjects, bearerToken);
@@ -49,24 +61,35 @@ export const auth = (): MiddlewareHandler<{ Variables: Variables }> => {
         });
       }
 
-      user = await findUser({
-        userId: verified.subject.properties.id,
-      });
+      const userId = verified.subject.properties.id;
+      // Don't fetch the same user twice when /user/:id already loaded it
+      const loadedUser = c.get('user');
+      const userRecord =
+        loadedUser?.id === userId ? loadedUser : await findUser({ userId });
 
-      if (!user) {
+      if (!userRecord) {
         throw new HTTPException(401, {
           message: 'Unauthorized',
         });
       }
 
+      // Activity fields are internal: keep them out of `auth.user`, which
+      // routes return as is (e.g. GET /me)
+      const { user, activity } = splitUserRecord(userRecord);
+
       c.set('auth', {
         user,
       });
+
+      // Started before next() so it doesn't delay the handler, and awaited
+      // after it so a frozen Lambda can't drop it. Never rejects.
+      recheck = recheckWatchedStatusIfInactive(user.id, activity);
     }
 
     c.header('Vary', 'Authorization');
     await next();
     enforcePrivateCache(c);
+    await recheck;
   };
 };
 

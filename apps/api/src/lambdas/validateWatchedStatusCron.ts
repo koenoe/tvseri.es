@@ -1,70 +1,62 @@
 import {
   type AttributeValue,
   DynamoDBClient,
-  ScanCommand,
+  QueryCommand,
 } from '@aws-sdk/client-dynamodb';
-import { SendMessageBatchCommand, SQSClient } from '@aws-sdk/client-sqs';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Resource } from 'sst';
 
-import { chunk } from '@/lib/db/batch';
-import type { ValidateWatchedStatusMessage } from './shared/validateWatchedStatusMessage';
+import { ACTIVE_USER_WINDOW_MS } from '@/constants';
+import { ACTIVE_INDEX, ACTIVE_PK, USER_PK_PREFIX } from '@/lib/db/user';
+import { queueWatchedStatusValidation } from '@/lib/watchedStatus';
 
 const dynamo = new DynamoDBClient({});
-const sqs = new SQSClient({});
 
+/**
+ * Queues every user who watched something within ACTIVE_USER_WINDOW_MS (the
+ * sparse `active` index, kept up to date by lambdas/watched.ts). Users who
+ * come back after that are re-checked on their first request instead
+ * (middleware/auth.ts).
+ */
 export const handler = async () => {
   let lastEvaluatedKey: Record<string, AttributeValue> | undefined;
   let queuedCount = 0;
+  const since = new Date(Date.now() - ACTIVE_USER_WINDOW_MS).toISOString();
 
   try {
     do {
-      const command = new ScanCommand({
+      const command = new QueryCommand({
         ExclusiveStartKey: lastEvaluatedKey,
-        ExpressionAttributeNames: {
-          '#id': 'id',
-        },
+        ExpressionAttributeValues: marshall({
+          ':active': ACTIVE_PK,
+          ':since': since,
+        }),
+        IndexName: ACTIVE_INDEX,
+        KeyConditionExpression: 'activePk = :active AND lastActiveAt >= :since',
         Limit: 1000,
-        // The consumer only needs the id: keep PII (email, name) out of SQS
-        ProjectionExpression: '#id',
         TableName: Resource.Users.name,
       });
 
       const result = await dynamo.send(command);
 
-      const items = result.Items ?? [];
-      // SendMessageBatch takes at most 10 entries
-      const batches = chunk(items, 10);
-
-      // Send a page's batches in parallel (at most 100 per page)
-      const failedCounts = await Promise.all(
-        batches.map(async (batch) => {
-          const response = await sqs.send(
-            new SendMessageBatchCommand({
-              Entries: batch.map((item, index) => ({
-                Id: `${index}`,
-                MessageBody: JSON.stringify(
-                  unmarshall(item) as ValidateWatchedStatusMessage,
-                ),
-              })),
-              QueueUrl: Resource.ValidateWatchedStatusQueue.url,
-            }),
-          );
-          return response.Failed?.length ?? 0;
-        }),
+      // Keys-only index: pk is USER#<id>
+      const userIds = (result.Items ?? []).map((item) =>
+        (unmarshall(item) as Readonly<{ pk: string }>).pk.slice(
+          USER_PK_PREFIX.length,
+        ),
       );
 
-      const failedCount = failedCounts.reduce((sum, count) => sum + count, 0);
+      const failedCount = await queueWatchedStatusValidation(userIds);
       if (failedCount > 0) {
         console.error(`[ERROR] ${failedCount} users failed to queue`);
       }
-      queuedCount += items.length - failedCount;
+      queuedCount += userIds.length - failedCount;
 
       lastEvaluatedKey = result.LastEvaluatedKey;
     } while (lastEvaluatedKey);
 
     console.log(
-      `[SUCCESS] ${queuedCount} users queued to validate their watched items`,
+      `[SUCCESS] ${queuedCount} active users queued to validate their watched items`,
     );
 
     return {

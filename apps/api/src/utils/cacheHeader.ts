@@ -14,7 +14,7 @@ export const PRIVATE_NO_STORE = 'private, no-store';
  *
  * @example
  * cacheHeader('short')
- * // => 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600'
+ * // => 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=21600, stale-if-error=21600'
  *
  * @example
  * cacheHeader('immutable')
@@ -41,6 +41,8 @@ export const cacheHeader = (
 
   if (config.staleWhileRevalidate > 0) {
     parts.push(`stale-while-revalidate=${config.staleWhileRevalidate}`);
+    // Same window: keep serving the stale copy if the origin errors meanwhile
+    parts.push(`stale-if-error=${config.staleWhileRevalidate}`);
   }
 
   // Add immutable directive for the immutable profile

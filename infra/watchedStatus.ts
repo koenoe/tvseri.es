@@ -44,6 +44,7 @@ watchedStatusQueue.subscribe(
       secrets.tmdbApiAccessToken,
       secrets.tmdbApiKey,
     ],
+    memory: '512 MB',
     timeout: '60 seconds',
   },
   {
@@ -61,7 +62,8 @@ export const watchedStatusCron = new sst.aws.Cron('ValidateWatchedStatus', {
     handler: 'apps/api/src/lambdas/validateWatchedStatusCron.handler',
     link: [dynamo.users, watchedStatusQueue],
     memory: '512 MB',
-    // Scans all users and queues them; 10s stopped scaling at a few thousand users
+    // Queries the users active in the last 30 days (sparse `active` index) and
+    // queues them; 10s stopped scaling at a few thousand users
     timeout: '60 seconds',
   }, // 03:00 UTC, daily
   schedule: 'cron(0 3 * * ? *)',

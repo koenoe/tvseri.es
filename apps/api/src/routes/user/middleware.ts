@@ -1,13 +1,13 @@
-import type { User } from '@tvseri.es/schemas';
 import type { MiddlewareHandler } from 'hono';
 import { every } from 'hono/combine';
 import { HTTPException } from 'hono/http-exception';
 
-import { findUser } from '@/lib/db/user';
+import { findUser, type UserRecord } from '@/lib/db/user';
 import { type Variables as AuthVariables, auth } from '@/middleware/auth';
 
 export type UserVariables = {
-  user: User;
+  /** Includes the internal activity fields: never return it as is */
+  user: UserRecord;
 } & AuthVariables;
 
 /**

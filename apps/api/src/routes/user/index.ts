@@ -15,7 +15,6 @@ import {
 import { Hono, type MiddlewareHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
-import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 import {
   type FollowUser,
   follow,
@@ -35,7 +34,6 @@ import {
 } from '@/lib/db/list';
 import { findUser } from '@/lib/db/user';
 import {
-  getAllWatched,
   getAllWatchedForTvSeries,
   getWatched,
   getWatchedCount,
@@ -48,6 +46,10 @@ import {
   unmarkWatched,
   unmarkWatchedInBatch,
 } from '@/lib/db/watched';
+import {
+  getAllTimeWatchedCount,
+  getAllTimeWatchedRuntime,
+} from '@/lib/profileCounters';
 import {
   fetchTvSeriesBase,
   fetchTvSeriesEpisode,
@@ -173,37 +175,22 @@ app.get('/:id/watched/count', user(), async (c) => {
   const startDate = parseDate(c.req.query('start_date'));
   const endDate = parseDate(c.req.query('end_date'));
 
-  const count = await getWatchedCount({
-    endDate,
-    startDate,
-    userId: user.id,
-  });
+  // Date-ranged counts query the range; all-time reads the running counter
+  // (getWatchedCount only applies a range when both dates are set)
+  const count =
+    startDate && endDate
+      ? await getWatchedCount({ endDate, startDate, userId: user.id })
+      : await getAllTimeWatchedCount(user.id);
 
   return c.json({ count });
 });
 
-// All-time runtime - stored permanently in cache, updated incrementally by watched subscriber
+// All-time runtime: a permanent counter, updated incrementally by the watched subscriber
 app.get('/:id/watched/runtime', user(), async (c) => {
-  const statsCacheHeader = cacheHeader('stats');
   const user = c.get('user');
-  const cacheKey = `profile:${user.id}:watched-runtime`;
-  const cached = await getCacheItem<number>(cacheKey);
+  const runtime = await getAllTimeWatchedRuntime(user.id);
 
-  const shouldRecompute =
-    typeof cached !== 'number' ||
-    (cached === 0 && (await getWatchedCount({ userId: user.id })) > 0);
-
-  if (!shouldRecompute) {
-    c.header('Cache-Control', statsCacheHeader);
-    return c.json({ runtime: cached });
-  }
-
-  const items = await getAllWatched({ userId: user.id });
-  const runtime = items.reduce((sum, item) => sum + (item.runtime || 0), 0);
-
-  await setCacheItem(cacheKey, runtime, { ttl: null });
-
-  c.header('Cache-Control', statsCacheHeader);
+  c.header('Cache-Control', cacheHeader('stats'));
 
   return c.json({ runtime });
 });
@@ -288,12 +275,11 @@ app.post(
       });
     }
 
-    const watchProvider = await parseWatchProviderFromBody(body, tvSeries.id);
-    const episode = await fetchTvSeriesEpisode(
-      tvSeries.id,
-      seasonNumber,
-      episodeNumber,
-    );
+    // Independent TMDB calls: both only need the series id
+    const [watchProvider, episode] = await Promise.all([
+      parseWatchProviderFromBody(body, tvSeries.id),
+      fetchTvSeriesEpisode(tvSeries.id, seasonNumber, episodeNumber),
+    ]);
 
     if (!episode) {
       return c.notFound();

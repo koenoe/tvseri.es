@@ -13,8 +13,8 @@ export const metricsQueue = new sst.aws.Queue('MetricsQueue', {
     retry: 3, // Move to DLQ after 3 failed processing attempts
   },
   // AWS recommends >= 6x the function timeout plus the batching window
-  // (6 x 30s + 60s), so a message never becomes visible again mid-processing.
-  visibilityTimeout: '240 seconds',
+  // (6 x 30s + 300s), so a message never becomes visible again mid-processing.
+  visibilityTimeout: '480 seconds',
 });
 
 metricsQueue.subscribe(
@@ -28,7 +28,9 @@ metricsQueue.subscribe(
     batch: {
       partialResponses: true, // Enable partial batch failure reporting
       size: 500, // Max batch size - fewer Lambda invocations
-      window: '60 seconds', // Wait longer to fill batches
+      // Max allowed: metrics are fire-and-forget, so fuller batches (fewer
+      // invocations) beat lower latency. Keep visibilityTimeout in sync.
+      window: '300 seconds',
     },
   },
 );

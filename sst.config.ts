@@ -28,9 +28,17 @@ export default $config({
     const { blockedCountries } = await import('./infra/blockedCountries');
     const isProduction = $app.stage === 'production';
 
+    // Distributions that skip Origin Shield. The dashboard is an internal,
+    // low-traffic static site: Origin Shield only adds per-request cost there.
+    // SST names a StaticSite's distribution `${name}CdnDistribution`
+    // (infra/dashboard.ts creates the `Dashboard` StaticSite).
+    const originShieldExcluded = new Set(['DashboardCdnDistribution']);
+
     // Global transform to apply geographic restrictions to all CloudFront distributions
-    // and enable origin shield
-    $transform(aws.cloudfront.Distribution, (args) => {
+    // and enable origin shield (except for the distributions above).
+    // Note: this runs after component-level transforms, so the exclusion has to
+    // live here; a `transform.cdn` on the StaticSite would be overwritten.
+    $transform(aws.cloudfront.Distribution, (args, _opts, name) => {
       args.restrictions = {
         geoRestriction: {
           locations: blockedCountries,
@@ -38,15 +46,17 @@ export default $config({
         },
       };
 
-      // biome-ignore lint/suspicious/noExplicitAny: sort out later
-      const origins = (args.origins || []) as any[];
-      args.origins = origins.map((origin) => ({
-        ...origin,
-        originShield: {
-          enabled: true,
-          originShieldRegion: $app.providers?.aws.region ?? 'eu-west-2',
-        },
-      }));
+      if (!originShieldExcluded.has(name)) {
+        // biome-ignore lint/suspicious/noExplicitAny: sort out later
+        const origins = (args.origins || []) as any[];
+        args.origins = origins.map((origin) => ({
+          ...origin,
+          originShield: {
+            enabled: true,
+            originShieldRegion: $app.providers?.aws.region ?? 'eu-west-2',
+          },
+        }));
+      }
 
       args.priceClass = 'PriceClass_100';
       args.httpVersion = 'http2and3';
@@ -87,7 +97,7 @@ export default $config({
     // Auth service that depends on dns, dynamo, email
     await import('./infra/auth');
 
-    // API router that depends on auth, dns, dynamo, email, dominantColor, metricsQueue, scrobbleQueue
+    // API router that depends on auth, dns, dynamo, email, dominantColor, metricsQueue, scrobbleQueue, watchedStatusQueue
     await import('./infra/api');
 
     // Frontend apps that depend on api, auth, dns

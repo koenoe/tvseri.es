@@ -188,7 +188,8 @@ export const web = $dev
           allowOverwrite: true,
           name: 'www.tvseri.es',
           records: ['cname.vercel-dns.com'],
-          ttl: 300,
+          // The target never changes; a longer TTL means fewer Route 53 queries
+          ttl: 3600,
           type: 'CNAME',
           zoneId: zone,
         });

@@ -1,8 +1,12 @@
 import type { ReactNode } from 'react';
 
-/** `sizes` for an item stretched to one column of this grid */
+/**
+ * `sizes` for an item stretched to one column of this grid: the container's
+ * width (breakpoint minus 2rem padding per side) minus the gaps, per column
+ * count
+ */
 export const statsGridItemSizes =
-  '(min-width: 1536px) 10vw, (min-width: 1024px) 13vw, (min-width: 768px) 17vw, 25vw';
+  '(min-width: 1536px) 126px, (min-width: 1280px) 131px, (min-width: 1024px) 106px, (min-width: 768px) 104px, calc(25vw - 28px)';
 
 export default function Grid({ children }: Readonly<{ children: ReactNode }>) {
   return (

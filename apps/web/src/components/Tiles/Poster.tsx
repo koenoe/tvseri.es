@@ -72,18 +72,22 @@ type PosterProps = {
   className?: string;
   item: PosterItem;
   mediaType?: 'tv' | 'movie';
+  /** Above the fold (e.g. a grid's first row): load right away, not lazily */
+  eager?: boolean;
   /** Overrides the `size` widths, e.g. when a grid stretches the poster */
   sizes?: string;
 };
 
 function Poster({
   className,
+  eager = false,
   item,
   mediaType = 'tv',
   sizes,
   size,
 }: Readonly<PosterProps> & PosterVariantProps) {
   const imageSizes = sizes ?? posterSizes[size ?? 'large'];
+  const loading = eager ? 'eager' : undefined;
 
   const poster = useCallback(() => {
     return (
@@ -93,6 +97,7 @@ function Poster({
           className="rounded-lg object-contain"
           draggable={false}
           fill
+          loading={loading}
           placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(300, 450)}`}
           sizes={imageSizes}
           src={item.posterImage}
@@ -100,7 +105,7 @@ function Poster({
         <span className="sr-only">{item.title}</span>
       </div>
     );
-  }, [imageSizes, item.posterImage, item.title]);
+  }, [imageSizes, item.posterImage, item.title, loading]);
 
   if (mediaType === 'movie') {
     return (

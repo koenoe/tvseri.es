@@ -82,7 +82,11 @@ function HistoryCard({ item, showShadow = false }: Props) {
         </div>
         <div className="mt-3 flex w-full items-center justify-between gap-1.5 text-xs font-medium">
           <div className="flex flex-shrink-0 gap-1.5">
-            <div className="text-nowrap">{formattedWatchedAt}</div>
+            {/* Relative to now ("2 hours ago"), so the server's and the
+                browser's text can differ; the browser's wins */}
+            <div className="text-nowrap" suppressHydrationWarning>
+              {formattedWatchedAt}
+            </div>
             <div className="text-nowrap opacity-60 before:mr-1 before:content-['—']">
               {formatRuntime(item.runtime)}
             </div>

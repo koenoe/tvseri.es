@@ -142,7 +142,9 @@ export default async function PersonDetailsPage({
                     fill
                     loading="eager"
                     placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(300, 450)}`}
-                    sizes="(min-width: 768px) 25vw, 100vw"
+                    // First of 4 columns in the container (minus xl:px-4);
+                    // full width minus px-[2rem] below md
+                    sizes="(min-width: 1536px) 336px, (min-width: 1280px) 272px, (min-width: 1024px) 240px, (min-width: 768px) 176px, calc(100vw - 64px)"
                     src={person.image}
                   />
                 ) : (

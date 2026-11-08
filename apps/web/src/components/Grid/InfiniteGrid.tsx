@@ -6,7 +6,7 @@ import usePaginated from '@/hooks/usePaginated';
 import type { PosterItem } from '@/utils/toPosterItem';
 import InfiniteScroll from '../InfiniteScroll/InfiniteScroll';
 import Poster from '../Tiles/Poster';
-import Grid, { gridItemSizes } from './Grid';
+import Grid, { GRID_FIRST_ROW, gridItemSizes } from './Grid';
 import PaginationNotice from './PaginationNotice';
 
 // Note: TMDb can return the same items on different pages
@@ -39,9 +39,17 @@ function InfiniteGrid({
     <>
       <InfiniteScroll hasMoreData={canLoadMore} loadMore={loadMore}>
         <Grid>
-          {itemsWithPoster.map((item) => (
-            <Poster item={item} key={item.id} sizes={gridItemSizes} />
-          ))}
+          {itemsWithPoster.map((item, index) => {
+            const isFirstRow = index < GRID_FIRST_ROW;
+            return (
+              <Poster
+                eager={isFirstRow}
+                item={item}
+                key={item.id}
+                sizes={gridItemSizes}
+              />
+            );
+          })}
         </Grid>
       </InfiniteScroll>
       <PaginationNotice onRetry={loadMore} status={status} />

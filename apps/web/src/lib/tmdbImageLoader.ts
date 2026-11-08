@@ -13,13 +13,12 @@ import type { ImageLoaderProps } from 'next/image';
  * width. Anything else (other hosts, other sizes like the cast face crops) is
  * returned unchanged.
  *
- * Every kind is capped at today's default and `original` is never used.
- * Measured for one backdrop: `w1920_and_h1080_multi_faces` 370 KB (today),
- * `w1280` 168 KB, `w780` 65 KB, `w300` 12 KB, but `original` 1,480 KB. Poster:
- * `w300_and_h450_bestv2` 33 KB (today), `w342` 14 KB, `w185` 5 KB. High-DPR
- * desktops request ~3,500px, so falling back to `original` would make them ~4x
- * heavier than today. With the caps, phones get much smaller images and
- * desktops are never worse off.
+ * Every kind is capped at today's default and `original` is never used, so no
+ * image is ever heavier than before. Measured as the WebP browsers get: one
+ * backdrop `w1920_and_h1080_multi_faces` ~250 KB (today), `w1280` ~110 KB,
+ * `original` ~1,480 KB (JPEG); posters average `w300_and_h450_bestv2` 23 KB
+ * (today), `w342` 28 KB (heavier, so not used), `w185` ~10 KB. High-DPR
+ * desktops request ~3,500px, so without caps they'd get `original`.
  *
  * Keep this pure (no request-time reads): it runs during prerendering (Cache
  * Components) and in `getImageProps` on the server, which is also why there's
@@ -46,9 +45,11 @@ const SIZES_BY_DEFAULT_SEGMENT: ReadonlyMap<
       { segment: 'w1920_and_h1080_multi_faces', width: 1920 },
     ],
   ],
-  // Poster: capped at `w342` (sharper than today's `w300_and_h450_bestv2`
-  // but under half its bytes); `w500` would make DPR 3 phones heavier
-  ['w300_and_h450_bestv2', widths(92, 154, 185, 342)],
+  // Poster: capped at today's `w300_and_h450_bestv2` (`w342` is heavier)
+  [
+    'w300_and_h450_bestv2',
+    [...widths(92, 154, 185), { segment: 'w300_and_h450_bestv2', width: 300 }],
+  ],
   // Title treatment and network logo
   ['w500', LOGO_SIZES],
   // Watch provider logo

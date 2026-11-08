@@ -1,5 +1,9 @@
 'use server';
 
+import {
+  SCROBBLE_PROVIDERS,
+  type ScrobbleProvider,
+} from '@tvseri.es/constants';
 import { updateTag } from 'next/cache';
 import { headers } from 'next/headers';
 import { redirect, unauthorized } from 'next/navigation';
@@ -10,13 +14,19 @@ import { startLogin, toSafeReturnTo } from '@/auth/login';
 import { deleteSession, setUserDisplayCookie } from '@/auth/session';
 import {
   ApiError,
+  createWebhookToken,
   findUser,
   follow,
   unfollow,
   updateUser,
   usernameCacheTag,
 } from '@/lib/api';
-import { ACTION_OK, type ActionResult, actionError } from './actionResult';
+import {
+  ACTION_OK,
+  type ActionError,
+  type ActionResult,
+  actionError,
+} from './actionResult';
 
 /**
  * `returnTo` is the path to return to after logging in. It comes from the
@@ -148,5 +158,34 @@ export async function toggleFollow(
   } catch (error) {
     console.error('[toggleFollow]', error);
     return actionError('failed');
+  }
+}
+
+export type WebhookTokenResult = Readonly<
+  { ok: true; token: string } | { ok: false; error: ActionError }
+>;
+
+const isScrobbleProvider = (value: unknown): value is ScrobbleProvider =>
+  SCROBBLE_PROVIDERS.some((provider) => provider === value);
+
+/** Generates (or regenerates) the user's webhook token for a provider */
+export async function generateWebhookToken(
+  type: ScrobbleProvider,
+): Promise<WebhookTokenResult> {
+  if (!isScrobbleProvider(type)) {
+    return { error: 'invalid', ok: false };
+  }
+
+  const { accessToken } = await auth();
+  if (!accessToken) {
+    return { error: 'unauthenticated', ok: false };
+  }
+
+  try {
+    const token = await createWebhookToken({ accessToken, type });
+    return { ok: true, token };
+  } catch (error) {
+    console.error('[generateWebhookToken]', error);
+    return { error: 'failed', ok: false };
   }
 }

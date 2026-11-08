@@ -1,5 +1,13 @@
 export { CACHE_LIFE, type CacheLifeProfile } from './cacheLife';
 export { DASHBOARD_READ } from './dashboardRead';
+export {
+  PLEX_SCROBBLE_EVENT,
+  SCROBBLE_PROVIDERS,
+  SCROBBLE_WEBHOOK_PATH_SOURCE,
+  type ScrobbleProvider,
+  WEBHOOK_TOKEN_KV_PREFIX,
+  WEBHOOK_TOKEN_PATTERN_SOURCE,
+} from './scrobble';
 export { WEB_VITALS_SAMPLE_RATE } from './webVitals';
 
 export const WATCH_PROVIDER_PREDEFINED_COLOR: Record<string, string> = {

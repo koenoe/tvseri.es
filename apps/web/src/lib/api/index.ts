@@ -2,7 +2,7 @@
 
 // Admin
 export { deletePreferredImages, updatePreferredImages } from './admin';
-export { ApiError, proxy } from './client';
+export { ApiError } from './client';
 
 // Collections
 export {
@@ -112,4 +112,4 @@ export {
 } from './watched';
 
 // Webhooks
-export { fetchTokenForWebhookByType } from './webhooks';
+export { createWebhookToken, fetchWebhookToken } from './webhooks';

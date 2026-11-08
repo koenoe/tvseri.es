@@ -140,6 +140,14 @@ const nextConfig = {
       // (an unmatched path) instead of invoking a function / ISR entry per URL.
       beforeFiles: [
         {
+          // Scrobble webhooks keep the URL users pasted into their media
+          // server, but go straight to the API: an external rewrite is proxied
+          // by Vercel's CDN, so no function runs. The API's edge function
+          // checks the token (infra/apiEdgeInjection.ts).
+          destination: `${process.env.API_URL}/scrobble/provider/:provider`,
+          source: '/api/webhooks/scrobble/:provider',
+        },
+        {
           destination: '/_not-found-static',
           source: '/:section(tv|person)/:id((?!\\d+(?:/|$))[^/]+)/:rest*',
         },

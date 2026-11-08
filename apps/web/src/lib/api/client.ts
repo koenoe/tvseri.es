@@ -133,20 +133,6 @@ export async function apiFetch<T>(
   }
 }
 
-/**
- * Forwards a request to the API as-is (e.g. webhooks). The API key always wins
- * over an incoming `x-api-key` header.
- */
-export async function proxy(path: string, options?: BetterFetchOption) {
-  return send(path, {
-    ...options,
-    headers: {
-      ...options?.headers,
-      'x-api-key': apiKey,
-    },
-  });
-}
-
 // Helper function to convert full TvSeries to minimal TvSeriesForWatched
 export const toMinimalTvSeries = (tvSeries: TvSeries): TvSeriesForWatched => ({
   id: tvSeries.id,

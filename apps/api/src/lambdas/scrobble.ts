@@ -80,24 +80,28 @@ const processScrobble = async (record: SQSRecord) => {
   let tvSeries: TvSeries | undefined;
 
   if (metadata.externalIds) {
-    const searches = (['imdb_id', 'tvdb_id'] as const).map((source) => {
-      const id = metadata.externalIds?.[source];
-      return id
-        ? findByExternalId({
-            externalId: id,
-            externalSource: source,
-          })
-        : Promise.resolve(undefined);
-    });
+    // imdb first, tvdb only when imdb has no match: most scrobbles resolve
+    // with one TMDB call
+    for (const source of ['imdb_id', 'tvdb_id'] as const) {
+      const id = metadata.externalIds[source];
+      if (!id) {
+        continue;
+      }
 
-    const externalEpisode = (await Promise.all(searches)).find(
-      (r) => r?.episodes.length,
-    )?.episodes[0] as EpisodeWithTvSeriesId | undefined;
+      const result = await findByExternalId({
+        externalId: id,
+        externalSource: source,
+      });
+      const externalEpisode = result?.episodes[0] as
+        | EpisodeWithTvSeriesId
+        | undefined;
 
-    if (externalEpisode) {
-      episode = externalEpisode;
-      // List fields only: no preferred images / dominant colour needed
-      tvSeries = await fetchTvSeriesBase(externalEpisode.tvSeriesId);
+      if (externalEpisode) {
+        episode = externalEpisode;
+        // List fields only: no preferred images / dominant colour needed
+        tvSeries = await fetchTvSeriesBase(externalEpisode.tvSeriesId);
+        break;
+      }
     }
   }
 

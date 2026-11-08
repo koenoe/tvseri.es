@@ -1,30 +1,32 @@
 import { cva } from 'class-variance-authority';
 
-import { fetchTokenForWebhookByType } from '@/lib/api';
+import { fetchWebhookToken } from '@/lib/api';
 
-import generateWebhookUrl from './generateWebhookUrl';
 import Webhook from './Webhook';
+import webhookUrlPrefix from './webhookUrlPrefix';
 
 export const plexStyles = cva('bg-gradient-to-br from-[#e5a00d] to-[#b17a0a]');
+
+const className = plexStyles();
+const urlPrefix = webhookUrlPrefix('plex');
 
 export default async function WebhookForPlex({
   accessToken,
 }: Readonly<{
   accessToken: string;
 }>) {
-  const type = 'plex';
-  const token = await fetchTokenForWebhookByType({
+  const token = await fetchWebhookToken({
     accessToken,
-    type,
+    type: 'plex',
   });
 
   return (
     <Webhook
-      className={plexStyles()}
-      url={generateWebhookUrl({
-        token,
-        type,
-      })}
+      className={className}
+      initialToken={token}
+      placeholder="Generate a webhook URL to start scrobbling from Plex"
+      type="plex"
+      urlPrefix={urlPrefix}
     />
   );
 }

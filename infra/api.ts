@@ -1,6 +1,6 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
-import { DASHBOARD_READ } from '../packages/constants/src/dashboardRead';
+import { buildApiEdgeInjection } from './apiEdgeInjection';
 import { auth } from './auth';
 import { domain, zone } from './dns';
 import { dominantColor } from './dominantColor';
@@ -20,53 +20,11 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
   },
   edge: {
     viewerRequest: {
-      // Note: this is needed cause SST doesn't minify their code
-      // and we hit the size limit for CloudFront functions easily otherwise.
-
-      // Readable version of the minified injection below.
-      // To minify: wrap in `function _() { ... }`, minify at https://minify-js.com,
-      // then remove the `function _(){` prefix and `}` suffix.
-      //
-      // Every request needs the API key, except the dashboard's read-only admin
-      // calls, which send a Bearer token instead. Those routes verify the token
-      // themselves (requireAuthAdmin), so the edge only narrows what can get
-      // through without the key: GET/HEAD on the dashboard metrics routes.
-      // Anything else under /metrics (e.g. web-vitals ingest) needs the key.
-      //
-      // var h = event.request.headers;
-      // var m = event.request.method;
-      // var u = event.request.uri;
-
-      // if (m !== 'OPTIONS') {
-      //   var a = h['x-api-key'];
-      //   var b = h['authorization'];
-
-      //   var isApiKeyValid = a && a.value === '${k}';
-      //   var isDashboardRead =
-      //     (m === 'GET' || m === 'HEAD') &&
-      //     b && b.value.startsWith('Bearer ') &&
-      //     /^\/metrics\/(api|web-vitals\/(summary|routes|countries|devices))(\/|$)/.test(u) &&
-      //     !/\.\.|%2e/i.test(u); // no dot segments
-
-      //   if (!(isApiKeyValid || isDashboardRead)) {
-      //     return {
-      //       statusCode: 401,
-      //       statusDescription: 'Unauthorized',
-      //       body: { encoding: 'text', data: 'Unauthorized' }
-      //     };
-      //   }
-      // }
-      //
-      injection: $resolve([secrets.apiKeyRandom.result]).apply(([k]) => {
-        // Regex and method list come from @tvseri.es/constants (shared with the
-        // Lambda middleware); the regex sources are inlined as JS regex literals.
-        const methods = DASHBOARD_READ.methods
-          .map((method) => `${JSON.stringify(method)}===t`)
-          .join('||');
-        const path = `/${DASHBOARD_READ.pathSource}/.test(r)`;
-        const dots = `!/${DASHBOARD_READ.dotSegmentSource}/i.test(r)`;
-        return `var e=event.request.headers,t=event.request.method,r=event.request.uri;if("OPTIONS"!==t){var a=e["x-api-key"],i=e.authorization,s=a&&"${k}"===a.value,u=(${methods})&&i&&i.value.startsWith("Bearer ")&&${path}&&${dots};if(!s&&!u)return{statusCode:401,statusDescription:"Unauthorized",body:{encoding:"text",data:"Unauthorized"}}}`;
-      }),
+      // API key check, plus the dashboard-read and scrobble-webhook
+      // exceptions: see apiEdgeInjection.ts
+      injection: $resolve([secrets.apiKeyRandom.result]).apply(([apiKey]) =>
+        buildApiEdgeInjection(apiKey),
+      ),
     },
   },
   transform: {
@@ -90,6 +48,32 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
         },
       };
     },
+  },
+});
+
+/**
+ * The Router's KeyValueStore also holds the scrobble webhook tokens
+ * (`wh:<token>` → provider), which the edge function checks
+ * (apiEdgeInjection.ts). The API writes them when a token is generated.
+ * `_kvStoreArn` is SST-internal: recheck it after SST upgrades.
+ */
+const routerKvStoreArn = apiRouter._kvStoreArn;
+if (!routerKvStoreArn) {
+  throw new Error('ApiRouter has no KeyValueStore (inline routes?)');
+}
+
+export const webhookTokensKvs = new sst.Linkable('WebhookTokensKvs', {
+  include: [
+    sst.aws.permission({
+      actions: [
+        'cloudfront-keyvaluestore:DescribeKeyValueStore',
+        'cloudfront-keyvaluestore:UpdateKeys',
+      ],
+      resources: [routerKvStoreArn],
+    }),
+  ],
+  properties: {
+    arn: routerKvStoreArn,
   },
 });
 
@@ -124,6 +108,7 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
     secrets.tmdbApiAccessToken,
     secrets.tmdbApiKey,
     watchedStatusQueue, // on-visit re-check for inactive users (middleware/auth.ts)
+    webhookTokensKvs,
   ],
   memory: '1024 MB',
   permissions: [

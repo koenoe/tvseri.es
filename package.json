@@ -4,6 +4,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
+    "esbuild": "^0.25.12",
     "husky": "^9.1.7",
     "knip": "^6.44.2",
     "lint-staged": "^17.6.0",

@@ -128,6 +128,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "WebhookTokensKvs": {
+      "arn": string
+      "type": "sst.sst.Linkable"
+    }
   }
 }
 

@@ -63,6 +63,28 @@ export default $config({
       args.isIpv6Enabled = true;
     });
 
+    // The API Router's viewer-request function: SST ships its own part of the
+    // code unminified, which leaves little room under CloudFront's 10 KB
+    // function limit. Whitespace and syntax are minified at deploy; names are
+    // kept, because CloudFront calls the top-level `handler` by name. es2017
+    // keeps esbuild from introducing syntax the CloudFront runtime may lack.
+    $transform(aws.cloudfront.Function, (args, _opts, name) => {
+      if (name !== 'ApiRouterCloudfrontFunctionRequest') {
+        return;
+      }
+
+      args.code = $resolve([args.code]).apply(async ([code]) => {
+        const { transform } = await import('esbuild');
+        const result = await transform(code, {
+          loader: 'js',
+          minifySyntax: true,
+          minifyWhitespace: true,
+          target: 'es2017',
+        });
+        return result.code;
+      });
+    });
+
     // Global transform to standardize all Lambda functions
     $transform(sst.aws.Function, (args) => {
       args.architecture = 'arm64';

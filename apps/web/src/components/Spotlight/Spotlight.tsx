@@ -1,9 +1,9 @@
 'use client';
 
-import type { TvSeries } from '@tvseri.es/schemas';
 import { useCallback } from 'react';
 
 import preloadImage from '@/utils/preloadImage';
+import type { SpotlightTvSeries } from '@/utils/toSpotlightTvSeries';
 import { useBackground } from '../Background/BackgroundProvider';
 import Carousel from '../Carousel/Carousel';
 import SpotlightItem from './SpotlightItem';
@@ -13,7 +13,7 @@ export default function Spotlight({
   items,
 }: Readonly<{
   className?: string;
-  items: TvSeries[];
+  items: ReadonlyArray<SpotlightTvSeries>;
 }>) {
   const updateBackground = useBackground((state) => state.setBackground);
 

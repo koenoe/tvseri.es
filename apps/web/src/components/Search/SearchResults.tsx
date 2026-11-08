@@ -1,6 +1,5 @@
 'use client';
 
-import type { TvSeries } from '@tvseri.es/schemas';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,6 +7,7 @@ import { type MouseEvent, memo } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
+import type { PosterItem } from '@/utils/toPosterItem';
 
 const MotionLink = motion.create(Link);
 const MotionImage = motion.create(Image);
@@ -21,9 +21,9 @@ function SearchResults({
   mode = 'light',
 }: Readonly<{
   className?: string;
-  results: TvSeries[] | null;
+  results: PosterItem[] | null;
   isPending: boolean;
-  itemHref?: (series: TvSeries) => string;
+  itemHref?: (series: PosterItem) => string;
   itemClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
   mode?: 'light' | 'dark';
 }>) {

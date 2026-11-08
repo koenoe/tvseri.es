@@ -9,23 +9,38 @@ import type {
   StatsWeeklyItem,
 } from '@tvseri.es/schemas';
 
+import { cacheLife, cacheTag } from 'next/cache';
+
 import { apiFetch } from './client';
+import { userCacheTag } from './users';
 
 type StatsInput = Readonly<{
   userId: string;
   year: number | string;
 }>;
 
-// Stats are intentionally stale (24h at the API) and not cached here. Repeated
-// calls within one render (e.g. summary ×5) are deduped by apiFetch; `year` is
-// stringified so `2024` and `'2024'` hit the same dedupe key.
-function getStats<T>(segment: string, { userId, year }: StatsInput) {
-  return apiFetch<T>(`/user/:id/stats/:year/${segment}`, {
+/**
+ * Public stats: cached per user, year and segment with the `stats` profile
+ * (24h fresh, then served stale while revalidating), so the stats page can be
+ * an ISR entry per URL. Concurrent identical calls (e.g. summary ×5) share
+ * one entry. `year` is stringified so `2024` and `'2024'` share a key.
+ * The `user:<id>` tag is only invalidated on a username change; new watches
+ * show up when the entry goes stale (stats are intentionally up to 24h old).
+ */
+async function fetchCachedStats(segment: string, userId: string, year: string) {
+  'use cache';
+  cacheLife('stats');
+  cacheTag(userCacheTag(userId));
+  return apiFetch<unknown>(`/user/:id/stats/:year/${segment}`, {
     params: {
       id: userId,
-      year: String(year),
+      year,
     },
   });
+}
+
+function getStats<T>(segment: string, { userId, year }: StatsInput) {
+  return fetchCachedStats(segment, userId, String(year)) as Promise<T>;
 }
 
 export const getStatsSummary = (input: StatsInput) =>

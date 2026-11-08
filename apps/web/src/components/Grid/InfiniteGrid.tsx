@@ -1,9 +1,9 @@
 'use client';
 
-import type { ListItem } from '@tvseri.es/schemas';
 import { memo, useMemo } from 'react';
 
 import usePaginated from '@/hooks/usePaginated';
+import type { PosterItem } from '@/utils/toPosterItem';
 import InfiniteScroll from '../InfiniteScroll/InfiniteScroll';
 import Poster from '../Tiles/Poster';
 import Grid from './Grid';
@@ -11,7 +11,7 @@ import PaginationNotice from './PaginationNotice';
 
 // Note: TMDb can return the same items on different pages
 // see: https://www.themoviedb.org/talk/5ee3abd1590086001f50b3c1#667b0702a8ad7d3577f69f20
-const getId = (item: ListItem) => item.id;
+const getId = (item: PosterItem) => item.id;
 
 function InfiniteGrid({
   endpoint,
@@ -19,7 +19,7 @@ function InfiniteGrid({
   nextCursor: initialCursor = null,
 }: Readonly<{
   endpoint: string;
-  items: ReadonlyArray<ListItem>;
+  items: ReadonlyArray<PosterItem>;
   nextCursor?: string | null;
 }>) {
   const { items, canLoadMore, loadMore, status } = usePaginated({

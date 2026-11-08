@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { cachedUser } from '@/app/cached';
 import Page from '@/components/Page/Page';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
@@ -22,14 +21,28 @@ import SvgGlowAnimatePattern from '@/components/Stats/SvgGlowAnimatePattern';
 import WatchedByYear from '@/components/Stats/Watched';
 import WatchedPerWeekContainer from '@/components/Stats/WatchedPerWeekContainer';
 import WorldMapContainer from '@/components/Stats/WorldMapContainer';
+import { findPublicUser } from '@/lib/api';
 
 type Props = Readonly<{
   params: Promise<{ username: string; year: number }>;
 }>;
 
+// Like the /tv seed: one real, long-lived user so the build prerenders a URL.
+const SEED_USERNAME = 'koen';
+
+/**
+ * Seed only: with at least one params object, every other stats URL becomes
+ * its own ISR entry after its first visit (data is cached with the `stats`
+ * profile; the username tag is invalidated on rename). Without it, every
+ * visit renders on demand. The year is the build's current year.
+ */
+export function generateStaticParams() {
+  return [{ username: SEED_USERNAME, year: String(new Date().getFullYear()) }];
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params;
-  const user = await cachedUser({ username });
+  const user = await findPublicUser(username);
   if (!user) {
     return {};
   }
@@ -41,7 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function StatsByYearPage({ params }: Props) {
   const { username, year } = await params;
-  const user = await cachedUser({ username });
+  const user = await findPublicUser(username);
   if (!user) {
     return notFound();
   }

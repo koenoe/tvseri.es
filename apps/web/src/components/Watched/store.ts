@@ -1,18 +1,35 @@
-import type { TvSeries, WatchedItem } from '@tvseri.es/schemas';
+import type { WatchedItem } from '@tvseri.es/schemas';
 import { createStore, type StateCreator } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
 import calculateProgress from '@/utils/calculateProgress';
-import getCurrentSeason from '@/utils/getCurrentSeason';
+import getCurrentSeason, { type CurrentSeason } from '@/utils/getCurrentSeason';
 import getNextEpisode, { type EpisodeRef } from '@/utils/getNextEpisode';
+
+import type {
+  WatchedStoreSeason,
+  WatchedStoreTvSeries,
+} from './toWatchedStoreTvSeries';
 
 export type WatchedItemForStore = Pick<
   WatchedItem,
   'seasonNumber' | 'episodeNumber' | 'runtime' | 'watchedAt'
 >;
 
+export const toWatchedItemForStore = ({
+  episodeNumber,
+  runtime,
+  seasonNumber,
+  watchedAt,
+}: WatchedItemForStore): WatchedItemForStore => ({
+  episodeNumber,
+  runtime,
+  seasonNumber,
+  watchedAt,
+});
+
 type WatchedStateItem = {
-  tvSeries: TvSeries;
+  tvSeries: WatchedStoreTvSeries;
   watched: Record<number, Record<number, WatchedItemForStore>>;
 };
 
@@ -21,10 +38,10 @@ type WatchedState = Record<number, WatchedStateItem>;
 type WatchedActions = {
   isReady: (tvSeriesId: number) => boolean;
   addTvSeries: (
-    tvSeries: TvSeries,
+    tvSeries: WatchedStoreTvSeries,
     watched: ReadonlyArray<WatchedItemForStore>,
   ) => void;
-  getCurrentSeason: (tvSeriesId: number) => ReturnType<typeof getCurrentSeason>;
+  getCurrentSeason: (tvSeriesId: number) => CurrentSeason<WatchedStoreSeason>;
   getNextEpisode: (tvSeriesId: number) => EpisodeRef | undefined;
   markAsWatched: (
     tvSeriesId: number,

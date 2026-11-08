@@ -1,5 +1,6 @@
 'use server';
 
+import { updateTag } from 'next/cache';
 import { headers } from 'next/headers';
 import { redirect, unauthorized } from 'next/navigation';
 import isEqual from 'react-fast-compare';
@@ -7,7 +8,13 @@ import slugify from 'slugify';
 import auth from '@/auth';
 import { startLogin, toSafeReturnTo } from '@/auth/login';
 import { deleteSession, setUserDisplayCookie } from '@/auth/session';
-import { ApiError, follow, unfollow, updateUser } from '@/lib/api';
+import {
+  ApiError,
+  follow,
+  unfollow,
+  updateUser,
+  usernameCacheTag,
+} from '@/lib/api';
 import { ACTION_OK, type ActionResult, actionError } from './actionResult';
 import { cachedUser } from './cached';
 
@@ -88,9 +95,15 @@ export async function updateProfile(_: unknown, formData: FormData) {
     };
   }
 
-  // Keep the header's display-only username in step with the rename.
   if (slugifiedUsername !== currentUser.username) {
+    // Keep the header's display-only username in step with the rename.
     await setUserDisplayCookie(slugifiedUsername);
+    // The public stats pages are cached per URL: drop the old username's
+    // entries (so they 404) and any cached miss for the new one.
+    if (currentUser.username) {
+      updateTag(usernameCacheTag(currentUser.username));
+    }
+    updateTag(usernameCacheTag(slugifiedUsername));
   }
 
   return {

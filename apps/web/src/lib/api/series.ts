@@ -7,6 +7,7 @@ import type {
   WatchProvider,
 } from '@tvseri.es/schemas';
 import { cacheLife, cacheTag } from 'next/cache';
+import { toPosterItem } from '@/utils/toPosterItem';
 
 import { apiFetch } from './client';
 import { withStringId } from './withStringId';
@@ -151,7 +152,8 @@ async function fetchCachedTvSeriesRecommendations(id: string) {
   'use cache';
   cacheLife('short');
   cacheTag(`series:${id}`);
-  return apiFetch<TvSeries[]>(`/series/${id}/recommendations`);
+  const items = await apiFetch<TvSeries[]>(`/series/${id}/recommendations`);
+  return items.map(toPosterItem);
 }
 
 export const fetchTvSeriesRecommendations = withStringId(

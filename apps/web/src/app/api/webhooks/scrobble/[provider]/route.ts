@@ -1,4 +1,4 @@
-import { ApiError, fetchTokenForWebhook, proxy } from '@/lib/api';
+import { ApiError, proxy } from '@/lib/api';
 
 const DEFAULT_CONTENT_TYPE = 'application/x-www-form-urlencoded';
 
@@ -16,21 +16,11 @@ export async function POST(
   const { provider } = await params;
   const url = new URL(request.url);
 
-  const token = url.searchParams.get('token');
-  if (!token) {
+  // Note: the API validates the token (and its provider) itself and answers
+  // 401 for an invalid one, which is passed on below. Checking it here too
+  // would cost an extra API call per webhook.
+  if (!url.searchParams.get('token')) {
     return jsonResponse({ error: 'Missing token' }, 400);
-  }
-
-  let webhookToken: Awaited<ReturnType<typeof fetchTokenForWebhook>>;
-  try {
-    webhookToken = await fetchTokenForWebhook({ token });
-  } catch (error: unknown) {
-    console.error('Failed to validate webhook token:', error);
-    return jsonResponse({ error: 'Token validation unavailable' }, 502);
-  }
-
-  if (!webhookToken || webhookToken.type !== provider) {
-    return jsonResponse({ error: 'Invalid token' }, 401);
   }
 
   try {

@@ -3,6 +3,8 @@ import { cachedTvSeries } from '@/app/cached';
 import { getAllWatchedForTvSeries } from '@/lib/api';
 import getCurrentSeason from '@/utils/getCurrentSeason';
 import AddTvSeriesToStore from '../Watched/AddTvSeriesToStore';
+import { toWatchedItemForStore } from '../Watched/store';
+import { toWatchedStoreTvSeries } from '../Watched/toWatchedStoreTvSeries';
 import InProgress from './InProgress';
 
 export default async function InProgressContainer({
@@ -38,20 +40,16 @@ export default async function InProgressContainer({
   // Only the owner's own data goes into the watched store, so their marks
   // update the tile live (and other people's profiles never pollute it).
   const watchedForStore = isOwner
-    ? watchedItems.map(
-        ({ episodeNumber, runtime, seasonNumber, watchedAt }) => ({
-          episodeNumber,
-          runtime,
-          seasonNumber,
-          watchedAt,
-        }),
-      )
+    ? watchedItems.map(toWatchedItemForStore)
     : null;
 
   return (
     <>
       {watchedForStore ? (
-        <AddTvSeriesToStore tvSeries={tvSeries} watched={watchedForStore} />
+        <AddTvSeriesToStore
+          tvSeries={toWatchedStoreTvSeries(tvSeries)}
+          watched={watchedForStore}
+        />
       ) : null}
       <InProgress
         currentSeason={currentSeason}

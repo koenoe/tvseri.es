@@ -1,16 +1,16 @@
 'use client';
 
-import type { TvSeries } from '@tvseri.es/schemas';
 import { useEffect, useRef } from 'react';
 
 import type { WatchedItemForStore } from './store';
+import type { WatchedStoreTvSeries } from './toWatchedStoreTvSeries';
 import { useWatchedStore } from './WatchedStoreProvider';
 
 export default function AddTvSeriesToStore({
   tvSeries,
   watched,
 }: Readonly<{
-  tvSeries: TvSeries;
+  tvSeries: WatchedStoreTvSeries;
   watched: ReadonlyArray<WatchedItemForStore>;
 }>) {
   const lastAddedTvSeriesId = useRef<number | null>(null);

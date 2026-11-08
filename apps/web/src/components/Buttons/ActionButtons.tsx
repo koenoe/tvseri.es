@@ -1,4 +1,5 @@
-import { cachedTvSeries } from '@/app/cached';
+import type { TvSeries } from '@tvseri.es/schemas';
+
 import auth from '@/auth';
 import { isInFavorites, isInWatchlist } from '@/lib/api';
 
@@ -23,24 +24,21 @@ async function fetchListState(tvSeriesId: number) {
   return { isFavorited, isWatchlisted };
 }
 
+/**
+ * The page passes the series it already has, so this doesn't read it again
+ * (under a different cache key) just for these fields.
+ */
 export default async function ActionButtons({
-  id,
+  tvSeries,
   showWatchButton = true,
   showContextMenuButton = true,
 }: Readonly<{
-  id: number | string;
+  tvSeries: Readonly<Pick<TvSeries, 'hasAired' | 'id' | 'slug'>>;
   showWatchButton?: boolean;
   showContextMenuButton?: boolean;
 }>) {
-  const tvSeriesId = Number(id);
-  const [tvSeries, { isFavorited, isWatchlisted }] = await Promise.all([
-    cachedTvSeries(id),
-    fetchListState(tvSeriesId),
-  ]);
-
-  if (!tvSeries) {
-    return null;
-  }
+  const tvSeriesId = tvSeries.id;
+  const { isFavorited, isWatchlisted } = await fetchListState(tvSeriesId);
 
   const shouldShowWatchButton = Boolean(showWatchButton && tvSeries.hasAired);
   const contextMenuTvSeries = {

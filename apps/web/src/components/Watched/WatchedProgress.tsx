@@ -7,7 +7,9 @@ import { useWatchedStore } from './WatchedStoreProvider';
 export default function WatchedProgress({
   tvSeries,
 }: Readonly<{
-  tvSeries: TvSeries;
+  tvSeries: Readonly<
+    Pick<TvSeries, 'id' | 'numberOfAiredEpisodes' | 'numberOfEpisodes'>
+  >;
 }>) {
   const totalRuntime = useWatchedStore(
     (store) => store.getWatchedProgress(tvSeries.id).totalRuntime,

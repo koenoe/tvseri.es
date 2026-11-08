@@ -1,7 +1,6 @@
-import type { ListItem } from '@tvseri.es/schemas';
-
 import { getStatsWatchedSeries } from '@/lib/api';
 
+import type { PosterItem } from '@/utils/toPosterItem';
 import Poster from '../Tiles/Poster';
 
 export default async function WatchedByYear({
@@ -15,7 +14,7 @@ export default async function WatchedByYear({
     <>
       {items.map((item) => (
         <Poster
-          item={item as ListItem}
+          item={item as PosterItem}
           key={item.id}
           priority={priority}
           size="small"

@@ -10,7 +10,7 @@ export default function DiscoverSpokenLanguages({
   languages,
 }: Readonly<{
   className?: string;
-  languages: CountryOrLanguage[];
+  languages: ReadonlyArray<Pick<CountryOrLanguage, 'code' | 'englishName'>>;
 }>) {
   const multiSelectValues = useMemo(
     () =>

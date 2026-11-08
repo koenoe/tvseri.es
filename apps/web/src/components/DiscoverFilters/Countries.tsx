@@ -17,7 +17,7 @@ export default function DiscoverCountries({
   countries,
 }: Readonly<{
   className?: string;
-  countries: CountryOrLanguage[];
+  countries: ReadonlyArray<Pick<CountryOrLanguage, 'code' | 'englishName'>>;
 }>) {
   const multiSelectValues = useMemo(
     () =>

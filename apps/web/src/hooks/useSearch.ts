@@ -1,12 +1,13 @@
 'use client';
 
-import type { TvSeries } from '@tvseri.es/schemas';
 import { useCallback, useEffect, useRef, useTransition } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
+import normalizeSearchQuery from '@/utils/normalizeSearchQuery';
+import type { PosterItem } from '@/utils/toPosterItem';
 import createUseRestorableState from './createUseRestorableState';
 
-const useResults = createUseRestorableState<TvSeries[] | null>();
+const useResults = createUseRestorableState<PosterItem[] | null>();
 
 export function useSearch() {
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -21,7 +22,8 @@ export function useSearch() {
       const signal = controller.signal;
       abortControllerRef.current = controller;
 
-      const value = event.target.value;
+      // Note: normalised so every spelling of a query shares one CDN cache key
+      const value = normalizeSearchQuery(event.target.value);
 
       if (value) {
         startTransition(async () => {
@@ -32,7 +34,7 @@ export function useSearch() {
                 signal,
               },
             );
-            const json = (await response.json()) as TvSeries[];
+            const json = (await response.json()) as PosterItem[];
             if (json) {
               setResults(json);
             } else {

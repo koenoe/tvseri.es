@@ -3,11 +3,11 @@ import {
   normalizeDiscoverQuery,
   type Page,
   parseDiscoverPage,
-  type TvSeries,
 } from '@tvseri.es/schemas';
 import type { NextRequest } from 'next/server';
 
 import { fetchDiscoverTvSeries } from '@/lib/api';
+import type { PosterItem } from '@/utils/toPosterItem';
 import { CACHE_HEADERS } from '../../cacheHeaders';
 
 export async function GET(request: NextRequest) {
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
   const nextCursor =
     items.length === 0 || page >= lastPage ? null : String(page + 1);
 
-  return Response.json({ items, nextCursor } satisfies Page<TvSeries>, {
+  return Response.json({ items, nextCursor } satisfies Page<PosterItem>, {
     headers: { 'Cache-Control': CACHE_HEADERS.medium },
   });
 }

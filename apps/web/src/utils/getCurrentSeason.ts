@@ -2,17 +2,22 @@ import type { Season, WatchedItem } from '@tvseri.es/schemas';
 
 import formatSeasonAndEpisode from './formatSeasonAndEpisode';
 
-type CurrentSeason = Readonly<{
-  currentSeason: Season | undefined;
+/** The season fields progress is computed from. */
+export type SeasonProgress = Readonly<
+  Pick<Season, 'numberOfAiredEpisodes' | 'numberOfEpisodes' | 'seasonNumber'>
+>;
+
+export type CurrentSeason<S extends SeasonProgress = Season> = Readonly<{
+  currentSeason: S | undefined;
   watchCount: number;
 }>;
 
-const NO_CURRENT_SEASON: CurrentSeason = {
+const NO_CURRENT_SEASON = {
   currentSeason: undefined,
   watchCount: 0,
-};
+} as const;
 
-const getEpisodeTotal = (season: Season) =>
+const getEpisodeTotal = (season: SeasonProgress) =>
   season.numberOfAiredEpisodes || season.numberOfEpisodes || 0;
 
 /**
@@ -20,12 +25,12 @@ const getEpisodeTotal = (season: Season) =>
  * next season once that one is finished, or else the first unfinished season.
  * Undefined when nothing is watched yet or everything aired is watched.
  */
-export default function getCurrentSeason(
+export default function getCurrentSeason<S extends SeasonProgress>(
   watchedItems: ReadonlyArray<
     Pick<WatchedItem, 'episodeNumber' | 'seasonNumber'>
   >,
-  seasons: ReadonlyArray<Season>,
-): CurrentSeason {
+  seasons: ReadonlyArray<S>,
+): CurrentSeason<S> {
   if (watchedItems.length === 0 || seasons.length === 0) {
     return NO_CURRENT_SEASON;
   }

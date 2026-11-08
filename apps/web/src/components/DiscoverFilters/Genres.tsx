@@ -5,6 +5,8 @@ import { cva } from 'class-variance-authority';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
 
+type GenreOption = Readonly<Pick<Genre, 'id' | 'name'>>;
+
 const buttonStyles = cva(
   'text-nowrap rounded-3xl px-5 py-4 leading-none tracking-wide font-medium text-xs',
   {
@@ -25,9 +27,9 @@ function GenreButton({
   isActive = false,
   onClick,
 }: Readonly<{
-  genre: Genre;
+  genre: GenreOption;
   isActive: boolean;
-  onClick?: (genre: Genre) => void;
+  onClick?: (genre: GenreOption) => void;
 }>) {
   const handleClick = useCallback(() => {
     onClick?.(genre);
@@ -46,7 +48,7 @@ function GenreButton({
 export default function DiscoverGenres({
   genres,
 }: Readonly<{
-  genres: Genre[];
+  genres: ReadonlyArray<GenreOption>;
 }>) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -58,7 +60,7 @@ export default function DiscoverGenres({
   }, [searchParams]);
 
   const handleOnClick = useCallback(
-    (genre: Genre) => {
+    (genre: GenreOption) => {
       const isActive = selectedGenreIds.includes(genre.id);
       const updatedGenreIds = isActive
         ? selectedGenreIds.filter((id) => id !== genre.id)

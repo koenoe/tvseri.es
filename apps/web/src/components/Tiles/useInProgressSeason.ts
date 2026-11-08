@@ -1,9 +1,8 @@
-import type { Season } from '@tvseri.es/schemas';
-
+import type { WatchedStoreSeason } from '../Watched/toWatchedStoreTvSeries';
 import { useWatchedStore } from '../Watched/WatchedStoreProvider';
 
 type InProgressSeason = Readonly<{
-  currentSeason: Season;
+  currentSeason: WatchedStoreSeason;
   watchCount: number;
 }>;
 

@@ -1,6 +1,5 @@
 'use client';
 
-import type { ListItem } from '@tvseri.es/schemas';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { motion } from 'motion/react';
 import Image from 'next/image';
@@ -8,6 +7,7 @@ import Link from 'next/link';
 import { memo, useCallback } from 'react';
 import { twMerge } from 'tailwind-merge';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
+import type { PosterItem } from '@/utils/toPosterItem';
 
 const MotionLink = motion.create(Link);
 
@@ -63,7 +63,7 @@ export type PosterVariantProps = VariantProps<typeof posterStyles>;
 
 type PosterProps = {
   className?: string;
-  item: ListItem;
+  item: PosterItem;
   mediaType?: 'tv' | 'movie';
   priority?: boolean;
 };
@@ -128,5 +128,7 @@ function Poster({
     </MotionLink>
   );
 }
+
+Poster.displayName = 'Poster';
 
 export default memo(Poster);

@@ -15,11 +15,17 @@ export const config = {
     '/api/u/:path*',
     // Everywhere else the proxy only refreshes the session, so skip requests
     // without a session cookie (crawlers, anonymous visitors): each proxy run
-    // is a billed function invocation.
+    // is a billed function invocation. Prefetches are skipped too: they only
+    // fetch the static/cached parts, and the navigation that follows still
+    // runs the proxy (and refreshes the session).
     {
       has: [
         // Must equal SESSION_COOKIE_NAME; matchers have to be static literals.
         { key: '__tvseries_session', type: 'cookie' },
+      ],
+      missing: [
+        { key: 'next-router-prefetch', type: 'header' },
+        { key: 'purpose', type: 'header', value: 'prefetch' },
       ],
       source:
         '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
@@ -31,6 +37,10 @@ export const config = {
       has: [
         // Must equal USER_DISPLAY_COOKIE_NAME.
         { key: '__tvseries_user', type: 'cookie' },
+      ],
+      missing: [
+        { key: 'next-router-prefetch', type: 'header' },
+        { key: 'purpose', type: 'header', value: 'prefetch' },
       ],
       source:
         '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',

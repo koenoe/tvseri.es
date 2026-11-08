@@ -1,12 +1,13 @@
-import type { Season, WatchedItem } from '@tvseri.es/schemas';
+import type { WatchedItem } from '@tvseri.es/schemas';
 
-import getCurrentSeason from './getCurrentSeason';
+import getCurrentSeason, { type SeasonProgress } from './getCurrentSeason';
 
 export type EpisodeRef = Readonly<
   Pick<WatchedItem, 'episodeNumber' | 'seasonNumber'>
 >;
 
-const byNumber = (a: Season, b: Season) => a.seasonNumber - b.seasonNumber;
+const byNumber = (a: SeasonProgress, b: SeasonProgress) =>
+  a.seasonNumber - b.seasonNumber;
 
 /**
  * The episode "Watched next episode" marks: the first unwatched aired episode
@@ -16,7 +17,7 @@ const byNumber = (a: Season, b: Season) => a.seasonNumber - b.seasonNumber;
  */
 export default function getNextEpisode(
   watchedItems: ReadonlyArray<EpisodeRef>,
-  seasons: ReadonlyArray<Season>,
+  seasons: ReadonlyArray<SeasonProgress>,
 ): EpisodeRef | undefined {
   const { currentSeason } = getCurrentSeason(watchedItems, seasons);
   const season =

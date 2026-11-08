@@ -11,7 +11,7 @@ export default function DiscoverWatchProviders({
   providers,
 }: Readonly<{
   className?: string;
-  providers: WatchProvider[];
+  providers: ReadonlyArray<Pick<WatchProvider, 'id' | 'logo' | 'name'>>;
 }>) {
   const multiSelectValues = useMemo(
     () =>

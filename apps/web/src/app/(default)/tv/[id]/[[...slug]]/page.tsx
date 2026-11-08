@@ -23,6 +23,7 @@ import SkeletonCircleButton from '@/components/Skeletons/SkeletonCircleButton';
 import SkeletonList from '@/components/Skeletons/SkeletonList';
 import SkeletonRating from '@/components/Skeletons/SkeletonRating';
 import AddTvSeriesToStoreContainer from '@/components/Watched/AddTvSeriesToStoreContainer';
+import { toWatchedStoreTvSeries } from '@/components/Watched/toWatchedStoreTvSeries';
 import WatchedProgress from '@/components/Watched/WatchedProgress';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
 import getBaseUrl from '@/utils/getBaseUrl';
@@ -127,6 +128,10 @@ export default async function TvSeriesDetailsPage({
     return permanentRedirect(`/tv/${params.id}/${tvSeries.slug}`);
   }
 
+  // Note: the progress bar and the watched store only need episode totals, so
+  // they get this trimmed copy instead of a second full series
+  const storeTvSeries = toWatchedStoreTvSeries(tvSeries);
+
   return (
     <>
       <Page
@@ -184,8 +189,7 @@ export default async function TvSeriesDetailsPage({
                   </div>
                 </InfoLine>
               </div>
-              {/* Note: we need to pass `tvSeries` here, because client component */}
-              <WatchedProgress tvSeries={tvSeries} />
+              <WatchedProgress tvSeries={storeTvSeries} />
             </div>
           </div>
           <div className="w-full xl:w-4/5 2xl:w-3/5">
@@ -210,7 +214,7 @@ export default async function TvSeriesDetailsPage({
                     </>
                   }
                 >
-                  <ActionButtons id={tvSeries.id} />
+                  <ActionButtons tvSeries={tvSeries} />
                 </Suspense>
               </div>
             </div>
@@ -246,7 +250,7 @@ export default async function TvSeriesDetailsPage({
           <RecommendationsList id={tvSeries.id} />
         </Suspense>
         <Suspense fallback={null}>
-          <AddTvSeriesToStoreContainer id={tvSeries.id} />
+          <AddTvSeriesToStoreContainer tvSeries={storeTvSeries} />
           <PreferredImagesForAdminContainer id={tvSeries.id} />
         </Suspense>
       </Page>

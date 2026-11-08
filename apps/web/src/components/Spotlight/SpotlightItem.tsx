@@ -1,14 +1,15 @@
 'use client';
 
-import type { TvSeries } from '@tvseri.es/schemas';
 import Link from 'next/link';
 import { memo } from 'react';
+
+import type { SpotlightTvSeries } from '@/utils/toSpotlightTvSeries';
 
 import SpotlightBackground from './SpotlightBackground';
 import SpotlightTitle from './SpotlightTitle';
 
 type Props = Readonly<{
-  item: TvSeries;
+  item: SpotlightTvSeries;
   index: number;
   priority?: boolean;
 }>;

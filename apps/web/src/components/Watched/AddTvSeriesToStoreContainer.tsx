@@ -1,28 +1,27 @@
-import { cachedTvSeries } from '@/app/cached';
 import auth from '@/auth';
 import { getAllWatchedForTvSeries } from '@/lib/api';
 
 import AddTvSeriesToStore from './AddTvSeriesToStore';
+import { toWatchedItemForStore } from './store';
+import type { WatchedStoreTvSeries } from './toWatchedStoreTvSeries';
 
 export default async function AddTvSeriesToStoreContainer({
-  id,
+  tvSeries,
 }: Readonly<{
-  id: number;
+  tvSeries: WatchedStoreTvSeries;
 }>) {
-  const [tvSeriesFromCache, { user }] = await Promise.all([
-    cachedTvSeries(id),
-    auth(),
-  ]);
-  const tvSeries = tvSeriesFromCache!;
+  const { user } = await auth();
 
   if (!user) {
     return <AddTvSeriesToStore tvSeries={tvSeries} watched={[]} />;
   }
 
-  const watched = await getAllWatchedForTvSeries({
+  const watchedItems = await getAllWatchedForTvSeries({
     seriesId: tvSeries.id,
     userId: user.id,
   });
+  // Note: only send the fields the store keeps
+  const watched = watchedItems.map(toWatchedItemForStore);
 
   return <AddTvSeriesToStore tvSeries={tvSeries} watched={watched} />;
 }

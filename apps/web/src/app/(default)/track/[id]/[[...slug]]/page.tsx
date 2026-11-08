@@ -11,6 +11,7 @@ import SkeletonCircleButton from '@/components/Skeletons/SkeletonCircleButton';
 import Poster from '@/components/Tiles/Poster';
 import CardsContainer from '@/components/Track/CardsContainer';
 import isNumericId from '@/utils/isNumericId';
+import { toPosterItem } from '@/utils/toPosterItem';
 
 type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
@@ -41,13 +42,15 @@ export default async function TrackPage({ params: paramsFromProps }: Props) {
     return permanentRedirect(`/track/${params.id}/${tvSeries.slug}`);
   }
 
+  const posterItem = toPosterItem(tvSeries);
+
   return (
     <Page backgroundContext="dots">
       <div className="container">
         <div className="flex gap-6 md:gap-10">
           <Poster
             className="flex-shrink-0 w-[75px] h-[113px]"
-            item={tvSeries}
+            item={posterItem}
             size="small"
           />
           <div className="relative w-full">
@@ -68,9 +71,9 @@ export default async function TrackPage({ params: paramsFromProps }: Props) {
                 }
               >
                 <ActionButtons
-                  id={tvSeries.id}
                   showContextMenuButton={false}
                   showWatchButton={false}
+                  tvSeries={tvSeries}
                 />
               </Suspense>
             </div>

@@ -97,7 +97,11 @@ export {
 } from './stats';
 
 // Users
-export { findUser } from './users';
+export {
+  findPublicUser,
+  findUser,
+  usernameCacheTag,
+} from './users';
 
 // Watched
 export {
@@ -112,4 +116,4 @@ export {
 } from './watched';
 
 // Webhooks
-export { fetchTokenForWebhook, fetchTokenForWebhookByType } from './webhooks';
+export { fetchTokenForWebhookByType } from './webhooks';

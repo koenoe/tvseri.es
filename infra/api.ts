@@ -94,6 +94,11 @@ export const apiRouter = new sst.aws.Router('ApiRouter', {
 });
 
 export const apiFunction = new sst.aws.Function('ApiFunction', {
+  // Caps the API's concurrent executions (and so its cost under a traffic
+  // spike or abuse); requests past it are throttled
+  concurrency: {
+    reserved: 100,
+  },
   environment: {
     CLOUDFRONT_DISTRIBUTION_ID: apiRouter.distributionID,
   },

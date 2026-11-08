@@ -54,6 +54,15 @@ watchedStatusQueue.subscribe(
       size: 25,
       window: '1 minute',
     },
+    transform: {
+      eventSourceMapping: (args) => {
+        // At most 5 concurrent invocations: the nightly burst spreads out
+        // instead of fanning out to TMDB and DynamoDB all at once. Messages
+        // wait in the queue meanwhile (no throttling, so no retries burned).
+        // Stays below the reserved concurrency above.
+        args.scalingConfig = { maximumConcurrency: 5 };
+      },
+    },
   },
 );
 

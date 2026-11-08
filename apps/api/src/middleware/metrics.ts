@@ -41,6 +41,13 @@ export const redactPath = (path: string) =>
 const redactQuery = (query: Record<string, string>) =>
   'token' in query ? { ...query, token: REDACTED } : query;
 
+// Hono's routePath keeps param constraints (`/series/:id{[0-9]+}`); the
+// dashboard groups by route, so record the plain pattern (`/series/:id`)
+const PARAM_CONSTRAINT = /\{[^}]*\}/g;
+
+const toRouteLabel = (routePath: string) =>
+  routePath.replace(PARAM_CONSTRAINT, '');
+
 /**
  * Metrics middleware for collecting API performance data.
  *
@@ -118,7 +125,7 @@ export const metrics = (): MiddlewareHandler<{ Variables: Variables }> => {
       query,
       requestId,
       responseSize,
-      route: c.req.routePath,
+      route: toRouteLabel(c.req.routePath),
       statusCode,
       timestamp,
       type: 'api',

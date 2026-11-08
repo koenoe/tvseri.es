@@ -89,6 +89,8 @@ export async function handler(event: Event, context: Context) {
         metricsToTrack.distribution.forEach((metric) => {
           metricDataQueries.push({
             Id: `distribution_${i + 1}_metric_${metric.toLowerCase()}`,
+            // Without an explicit Label, CloudWatch returns the bare metric name.
+            Label: metric,
             MetricStat: {
               Metric: {
                 Dimensions: [
@@ -111,6 +113,7 @@ export async function handler(event: Event, context: Context) {
       metricsToTrack.function.forEach((metric) => {
         metricDataQueries.push({
           Id: `function_${i + 1}_metric_${metric.toLowerCase()}`,
+          Label: metric,
           MetricStat: {
             Metric: {
               Dimensions: [
@@ -201,7 +204,7 @@ async function fetchCloudWatchMetrics(
 
     // Process the responses for each metric
     metricDataResponse.MetricDataResults?.forEach((metricData) => {
-      const metricType = metricData.Label?.split(' ')[1];
+      const metricType = metricData.Label;
       if (metricType && metricData.Values) {
         const sum = metricData.Values.reduce(
           (accumulator, currentValue) => accumulator + currentValue,

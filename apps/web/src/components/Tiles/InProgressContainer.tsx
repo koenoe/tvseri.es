@@ -1,94 +1,8 @@
-import type { ListItem, Season, User, WatchedItem } from '@tvseri.es/schemas';
+import type { ListItem, User } from '@tvseri.es/schemas';
 import { cachedTvSeries } from '@/app/cached';
 import { getAllWatchedForTvSeries } from '@/lib/api';
-import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
+import getCurrentSeason from '@/utils/getCurrentSeason';
 import InProgress from './InProgress';
-
-function extractCurrentSeasonFromWatchedItems(
-  watchedItems: WatchedItem[],
-  seasons: Season[],
-) {
-  if (watchedItems.length === 0 || seasons.length === 0) {
-    return { currentSeason: undefined, watchCount: 0 };
-  }
-
-  const watchCounts = watchedItems.reduce(
-    (acc, item) => {
-      acc[item.seasonNumber] = (acc[item.seasonNumber] || 0) + 1;
-      return acc;
-    },
-    {} as Record<number, number>,
-  );
-
-  const sortedSeasons = [...seasons].sort(
-    (a, b) => a.seasonNumber - b.seasonNumber,
-  );
-
-  const lastWatched = [...watchedItems].sort((a, b) => {
-    return formatSeasonAndEpisode({
-      episodeNumber: b.episodeNumber ?? 0,
-      seasonNumber: b.seasonNumber ?? 0,
-    }).localeCompare(
-      formatSeasonAndEpisode({
-        episodeNumber: a.episodeNumber ?? 0,
-        seasonNumber: a.seasonNumber ?? 0,
-      }),
-    );
-  })[0];
-
-  const lastWatchedSeason = sortedSeasons.find(
-    (season) => season.seasonNumber === lastWatched?.seasonNumber,
-  );
-
-  if (lastWatchedSeason) {
-    const watchCount = watchCounts[lastWatchedSeason.seasonNumber] || 0;
-    const isSeasonFinished =
-      watchCount >=
-      (lastWatchedSeason.numberOfAiredEpisodes ||
-        lastWatchedSeason.numberOfEpisodes ||
-        0);
-
-    if (!isSeasonFinished) {
-      return {
-        currentSeason: lastWatchedSeason,
-        watchCount,
-      };
-    }
-
-    const nextSeasonIndex =
-      sortedSeasons.findIndex(
-        (season) => season.seasonNumber === lastWatchedSeason.seasonNumber,
-      ) + 1;
-
-    if (nextSeasonIndex < sortedSeasons.length) {
-      const nextSeason = sortedSeasons[nextSeasonIndex];
-
-      if (nextSeason?.numberOfAiredEpisodes) {
-        return {
-          currentSeason: nextSeason,
-          watchCount: watchCounts[nextSeason.seasonNumber] || 0,
-        };
-      }
-    }
-  }
-
-  const firstUnfinishedSeason = sortedSeasons.find((season) => {
-    if (season.numberOfAiredEpisodes === 0) {
-      return false;
-    }
-    const count = watchCounts[season.seasonNumber] || 0;
-    return (
-      count < (season.numberOfAiredEpisodes || season.numberOfEpisodes || 0)
-    );
-  });
-
-  return {
-    currentSeason: firstUnfinishedSeason,
-    watchCount: firstUnfinishedSeason
-      ? watchCounts[firstUnfinishedSeason.seasonNumber] || 0
-      : 0,
-  };
-}
 
 export default async function InProgressContainer({
   isOwner,
@@ -111,7 +25,7 @@ export default async function InProgressContainer({
     return null;
   }
 
-  const { currentSeason, watchCount } = extractCurrentSeasonFromWatchedItems(
+  const { currentSeason, watchCount } = getCurrentSeason(
     watchedItems,
     tvSeries.seasons ?? [],
   );

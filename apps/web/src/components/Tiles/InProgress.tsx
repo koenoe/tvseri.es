@@ -13,15 +13,13 @@ import {
 } from 'react';
 import { toast } from 'sonner';
 import { getActionErrorMessage } from '@/app/actionResult';
-import {
-  markNextEpisodeWatched,
-  removeFromInProgress,
-} from '@/app/watchActions';
+import { removeFromInProgress } from '@/app/watchActions';
 import useRgbString from '@/hooks/useRgbString';
 import ContextMenuButton, {
   type ContextMenuButtonHandle,
 } from '../Buttons/ContextMenuButton';
 import { ContextMenuItem, ContextMenuLink } from '../Buttons/ContextMenuItem';
+import MarkNextEpisodeMenuItem from '../Buttons/MarkNextEpisodeMenuItem';
 import Progress from '../Progress/Progress';
 import SpotlightBackground from '../Spotlight/SpotlightBackground';
 import SpotlightTitle from '../Spotlight/SpotlightTitle';
@@ -45,7 +43,6 @@ function InProgress({
     (_, optimisticValue: boolean) => optimisticValue,
   );
   const [isRemoving, startRemove] = useTransition();
-  const [isMarkingNextAsWatched, startMarkingNextAsWatched] = useTransition();
 
   const handleRemove = useCallback(() => {
     contextMenuButtonRef.current?.close();
@@ -65,35 +62,6 @@ function InProgress({
       );
     });
   }, [setIsOptimisticRemoved, tvSeries.id]);
-
-  const handleMarkNextAsWatched = useCallback(() => {
-    contextMenuButtonRef.current?.close();
-
-    startMarkingNextAsWatched(async () => {
-      // The action calls refresh(), so progress updates in the same round-trip.
-      const promise = markNextEpisodeWatched(
-        tvSeries.id,
-        currentSeason.seasonNumber,
-      ).then((result) => {
-        if (!result.ok) {
-          throw new Error(
-            getActionErrorMessage(
-              result.error,
-              'Failed to mark next episode as watched',
-            ),
-          );
-        }
-      });
-
-      toast.promise(promise, {
-        error: (error: Error) => error.message,
-        loading: 'Marking next episode as watched...',
-        success: 'Next episode marked as watched',
-      });
-
-      await promise.catch(() => {});
-    });
-  }, [currentSeason.seasonNumber, tvSeries.id]);
 
   const trackHref = `/track/${tvSeries.id}/${tvSeries.slug}?season=${currentSeason.seasonNumber}`;
 
@@ -174,28 +142,10 @@ function InProgress({
               ref={contextMenuButtonRef}
               size="small"
             >
-              <ContextMenuItem
-                disabled={isMarkingNextAsWatched}
-                onClick={handleMarkNextAsWatched}
-              >
-                <svg
-                  className="size-5"
-                  viewBox="0 0 512 512"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <polyline
-                    points="416 128 192 384 96 288"
-                    style={{
-                      fill: 'none',
-                      stroke: 'currentColor',
-                      strokeLinecap: 'square',
-                      strokeMiterlimit: 10,
-                      strokeWidth: '44px',
-                    }}
-                  />
-                </svg>
-                <span>Watched next episode</span>
-              </ContextMenuItem>
+              <MarkNextEpisodeMenuItem
+                onSelect={handleCloseMenu}
+                tvSeriesId={tvSeries.id}
+              />
               <ContextMenuLink href={trackHref} onClick={handleCloseMenu}>
                 <svg
                   className="size-5"

@@ -16,6 +16,7 @@ import {
   removeFromWatchlist,
   unmarkWatchedInBatch,
 } from '@/lib/api';
+import getCurrentSeason from '@/utils/getCurrentSeason';
 import isRecord from '@/utils/isRecord';
 import { ACTION_OK, type ActionResult, actionError } from './actionResult';
 import { cachedTvSeries } from './cached';
@@ -228,14 +229,15 @@ export async function unmarkWatchedEpisodes(
 }
 
 /**
- * Marks the first aired, unwatched episode of `seasonNumber` as watched and
- * refreshes the current route so progress UI reflects the change.
+ * Marks the next episode as watched: the first aired, unwatched episode of the
+ * user's current season (same rule as the in-progress tile), or S1E1 when the
+ * show isn't started yet. Returns `not-found` when everything aired is
+ * watched. Refreshes the current route so progress UI reflects the change.
  */
 export async function markNextEpisodeWatched(
   tvSeriesId: number,
-  seasonNumber: number,
 ): Promise<ActionResult> {
-  if (!isSeriesId(tvSeriesId) || !isNonNegativeInteger(seasonNumber)) {
+  if (!isSeriesId(tvSeriesId)) {
     return actionError('invalid');
   }
 
@@ -245,13 +247,32 @@ export async function markNextEpisodeWatched(
   }
 
   try {
-    const [season, watchedItems] = await Promise.all([
-      fetchTvSeriesSeason(tvSeriesId, seasonNumber),
+    const [tvSeries, watchedItems] = await Promise.all([
+      cachedTvSeries(tvSeriesId),
       getAllWatchedForTvSeries({
         seriesId: tvSeriesId,
         userId: session.user.id,
       }),
     ]);
+
+    if (!tvSeries) {
+      return actionError('not-found');
+    }
+
+    const seasons = tvSeries.seasons ?? [];
+    const { currentSeason } = getCurrentSeason(watchedItems, seasons);
+    const seasonNumber =
+      currentSeason?.seasonNumber ??
+      (watchedItems.length === 0
+        ? seasons.find((item) => (item.numberOfAiredEpisodes ?? 0) > 0)
+            ?.seasonNumber
+        : undefined);
+
+    if (seasonNumber === undefined) {
+      return actionError('not-found');
+    }
+
+    const season = await fetchTvSeriesSeason(tvSeriesId, seasonNumber);
 
     if (!season) {
       return actionError('not-found');

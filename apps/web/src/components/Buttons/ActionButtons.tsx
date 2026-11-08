@@ -43,7 +43,11 @@ export default async function ActionButtons({
   }
 
   const shouldShowWatchButton = Boolean(showWatchButton && tvSeries.hasAired);
-  const contextMenuTvSeries = { id: tvSeries.id, slug: tvSeries.slug };
+  const contextMenuTvSeries = {
+    hasAired: tvSeries.hasAired,
+    id: tvSeries.id,
+    slug: tvSeries.slug,
+  };
 
   return (
     <ActionButtonsProvider

@@ -8,13 +8,14 @@ import ContextMenuButton, {
   type ContextMenuButtonHandle,
 } from './ContextMenuButton';
 import { ContextMenuItem, ContextMenuLink } from './ContextMenuItem';
+import MarkNextEpisodeMenuItem from './MarkNextEpisodeMenuItem';
 
 export default function ContextMenuButtonTvSeries({
   className,
   tvSeries,
 }: Readonly<{
   className?: string;
-  tvSeries: Pick<TvSeries, 'id' | 'slug'>;
+  tvSeries: Pick<TvSeries, 'hasAired' | 'id' | 'slug'>;
 }>) {
   const {
     isPending,
@@ -24,7 +25,7 @@ export default function ContextMenuButtonTvSeries({
   const contextMenuButtonRef = useRef<ContextMenuButtonHandle>(null);
   const trackHref = `/track/${tvSeries.id}/${tvSeries.slug}`;
 
-  const handleEditClick = useCallback(() => {
+  const handleCloseMenu = useCallback(() => {
     contextMenuButtonRef.current?.close();
   }, []);
 
@@ -42,7 +43,13 @@ export default function ContextMenuButtonTvSeries({
       isDisabled={isPending}
       ref={contextMenuButtonRef}
     >
-      <ContextMenuLink href={trackHref} onClick={handleEditClick}>
+      {tvSeries.hasAired ? (
+        <MarkNextEpisodeMenuItem
+          onSelect={handleCloseMenu}
+          tvSeriesId={tvSeries.id}
+        />
+      ) : null}
+      <ContextMenuLink href={trackHref} onClick={handleCloseMenu}>
         <svg
           className="size-5"
           fill="currentColor"

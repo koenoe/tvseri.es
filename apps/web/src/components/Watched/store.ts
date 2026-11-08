@@ -3,8 +3,10 @@ import { createStore, type StateCreator } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
 import calculateProgress from '@/utils/calculateProgress';
+import getCurrentSeason from '@/utils/getCurrentSeason';
+import getNextEpisode, { type EpisodeRef } from '@/utils/getNextEpisode';
 
-type WatchedItemForStore = Pick<
+export type WatchedItemForStore = Pick<
   WatchedItem,
   'seasonNumber' | 'episodeNumber' | 'runtime' | 'watchedAt'
 >;
@@ -18,7 +20,12 @@ type WatchedState = Record<number, WatchedStateItem>;
 
 type WatchedActions = {
   isReady: (tvSeriesId: number) => boolean;
-  addTvSeries: (tvSeries: TvSeries, watched: WatchedItem[]) => void;
+  addTvSeries: (
+    tvSeries: TvSeries,
+    watched: ReadonlyArray<WatchedItemForStore>,
+  ) => void;
+  getCurrentSeason: (tvSeriesId: number) => ReturnType<typeof getCurrentSeason>;
+  getNextEpisode: (tvSeriesId: number) => EpisodeRef | undefined;
   markAsWatched: (
     tvSeriesId: number,
     items: Omit<WatchedItemForStore, 'watchedAt'>[],
@@ -45,6 +52,9 @@ type WatchedActions = {
 };
 
 export type WatchedStore = WatchedState & WatchedActions;
+
+const toWatchedItems = (series: WatchedStateItem) =>
+  Object.values(series.watched).flatMap((season) => Object.values(season));
 
 export const createWatchedStore = () => {
   const storeCreator: StateCreator<WatchedStore> = (set, get) => ({
@@ -75,6 +85,21 @@ export const createWatchedStore = () => {
           },
         };
       }),
+
+    getCurrentSeason: (tvSeriesId) => {
+      const series = get()[tvSeriesId];
+      return getCurrentSeason(
+        series ? toWatchedItems(series) : [],
+        series?.tvSeries.seasons ?? [],
+      );
+    },
+
+    getNextEpisode: (tvSeriesId) => {
+      const series = get()[tvSeriesId];
+      return series
+        ? getNextEpisode(toWatchedItems(series), series.tvSeries.seasons ?? [])
+        : undefined;
+    },
 
     getWatchedProgress: (tvSeriesId) => {
       const state = get();

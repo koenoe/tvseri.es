@@ -10,6 +10,7 @@ import {
   useTransition,
 } from 'react';
 import SkeletonCircleButton from '../Skeletons/SkeletonCircleButton';
+import requestWatch from '../Watched/requestWatch';
 import { useWatchedStore } from '../Watched/WatchedStoreProvider';
 import CircleButton from './CircleButton';
 
@@ -67,16 +68,10 @@ export default function WatchButton({
         }
 
         try {
-          const response = await fetch(`/api/watch/tv/${tvSeriesId}`, {
-            body: JSON.stringify({
-              episodeNumber,
-              seasonNumber,
-              watched: value,
-            }),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            method: 'POST',
+          const response = await requestWatch(tvSeriesId, {
+            episodeNumber,
+            seasonNumber,
+            watched: value,
           });
 
           if (!response.ok) {

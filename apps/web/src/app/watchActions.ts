@@ -1,26 +1,22 @@
 'use server';
 
 import type { WatchedItem, WatchProvider } from '@tvseri.es/schemas';
-import { refresh } from 'next/cache';
 import { headers } from 'next/headers';
 
 import auth from '@/auth';
 import {
   addToFavorites,
   addToWatchlist,
-  fetchTvSeriesSeason,
-  getAllWatchedForTvSeries,
   markWatchedInBatch,
   removeFromFavorites,
   removeFromList,
   removeFromWatchlist,
   unmarkWatchedInBatch,
 } from '@/lib/api';
-import getCurrentSeason from '@/utils/getCurrentSeason';
 import isRecord from '@/utils/isRecord';
 import { ACTION_OK, type ActionResult, actionError } from './actionResult';
 import { cachedTvSeries } from './cached';
-import { markEpisodesWatched, resolveWatchProvider } from './watchedService';
+import { resolveWatchProvider } from './watchedService';
 
 /**
  * Watch-tracking server actions. Every action takes only ids/primitives,
@@ -226,89 +222,6 @@ export async function unmarkWatchedEpisodes(
     console.error(error);
     return actionError('failed');
   }
-}
-
-/**
- * Marks the next episode as watched: the first aired, unwatched episode of the
- * user's current season (same rule as the in-progress tile), or S1E1 when the
- * show isn't started yet. Returns `not-found` when everything aired is
- * watched. Refreshes the current route so progress UI reflects the change.
- */
-export async function markNextEpisodeWatched(
-  tvSeriesId: number,
-): Promise<ActionResult> {
-  if (!isSeriesId(tvSeriesId)) {
-    return actionError('invalid');
-  }
-
-  const session = await getSession();
-  if (!session) {
-    return actionError('unauthenticated');
-  }
-
-  try {
-    const [tvSeries, watchedItems] = await Promise.all([
-      cachedTvSeries(tvSeriesId),
-      getAllWatchedForTvSeries({
-        seriesId: tvSeriesId,
-        userId: session.user.id,
-      }),
-    ]);
-
-    if (!tvSeries) {
-      return actionError('not-found');
-    }
-
-    const seasons = tvSeries.seasons ?? [];
-    const { currentSeason } = getCurrentSeason(watchedItems, seasons);
-    const seasonNumber =
-      currentSeason?.seasonNumber ??
-      (watchedItems.length === 0
-        ? seasons.find((item) => (item.numberOfAiredEpisodes ?? 0) > 0)
-            ?.seasonNumber
-        : undefined);
-
-    if (seasonNumber === undefined) {
-      return actionError('not-found');
-    }
-
-    const season = await fetchTvSeriesSeason(tvSeriesId, seasonNumber);
-
-    if (!season) {
-      return actionError('not-found');
-    }
-
-    const watchedEpisodeNumbers = new Set(
-      watchedItems
-        .filter((item) => item.seasonNumber === seasonNumber)
-        .map((item) => item.episodeNumber),
-    );
-
-    const nextUnwatchedEpisode = season.episodes
-      .filter((episode) => episode.hasAired)
-      .sort((a, b) => a.episodeNumber - b.episodeNumber)
-      .find((episode) => !watchedEpisodeNumbers.has(episode.episodeNumber));
-
-    if (!nextUnwatchedEpisode) {
-      return actionError('not-found');
-    }
-
-    await markEpisodesWatched({
-      accessToken: session.accessToken,
-      episodeNumber: nextUnwatchedEpisode.episodeNumber,
-      headers: await headers(),
-      seasonNumber,
-      seriesId: tvSeriesId,
-      user: session.user,
-    });
-  } catch (error) {
-    console.error(error);
-    return actionError('failed');
-  }
-
-  refresh();
-
-  return ACTION_OK;
 }
 
 export async function removeFromInProgress(

@@ -2,6 +2,7 @@ import type { ListItem, User } from '@tvseri.es/schemas';
 import { cachedTvSeries } from '@/app/cached';
 import { getAllWatchedForTvSeries } from '@/lib/api';
 import getCurrentSeason from '@/utils/getCurrentSeason';
+import AddTvSeriesToStore from '../Watched/AddTvSeriesToStore';
 import InProgress from './InProgress';
 
 export default async function InProgressContainer({
@@ -30,12 +31,34 @@ export default async function InProgressContainer({
     tvSeries.seasons ?? [],
   );
 
-  return currentSeason ? (
-    <InProgress
-      currentSeason={currentSeason}
-      currentSeasonWatchCount={watchCount}
-      removeIsAllowed={isOwner}
-      tvSeries={tvSeries}
-    />
-  ) : null;
+  if (!currentSeason) {
+    return null;
+  }
+
+  // Only the owner's own data goes into the watched store, so their marks
+  // update the tile live (and other people's profiles never pollute it).
+  const watchedForStore = isOwner
+    ? watchedItems.map(
+        ({ episodeNumber, runtime, seasonNumber, watchedAt }) => ({
+          episodeNumber,
+          runtime,
+          seasonNumber,
+          watchedAt,
+        }),
+      )
+    : null;
+
+  return (
+    <>
+      {watchedForStore ? (
+        <AddTvSeriesToStore tvSeries={tvSeries} watched={watchedForStore} />
+      ) : null}
+      <InProgress
+        currentSeason={currentSeason}
+        currentSeasonWatchCount={watchCount}
+        removeIsAllowed={isOwner}
+        tvSeries={tvSeries}
+      />
+    </>
+  );
 }

@@ -23,9 +23,10 @@ import MarkNextEpisodeMenuItem from '../Buttons/MarkNextEpisodeMenuItem';
 import Progress from '../Progress/Progress';
 import SpotlightBackground from '../Spotlight/SpotlightBackground';
 import SpotlightTitle from '../Spotlight/SpotlightTitle';
+import useInProgressSeason from './useInProgressSeason';
 
 function InProgress({
-  currentSeason,
+  currentSeason: serverCurrentSeason,
   currentSeasonWatchCount,
   tvSeries,
   removeIsAllowed = false,
@@ -35,6 +36,11 @@ function InProgress({
   tvSeries: TvSeries;
   removeIsAllowed?: boolean;
 }>) {
+  const { currentSeason, watchCount } = useInProgressSeason(
+    tvSeries.id,
+    { currentSeason: serverCurrentSeason, watchCount: currentSeasonWatchCount },
+    removeIsAllowed,
+  );
   const contextMenuButtonRef = useRef<ContextMenuButtonHandle>(null);
   const backdropColorRgbString = useRgbString(tvSeries.backdropColor);
   const [isRemoved, setIsRemoved] = useState(false);
@@ -123,7 +129,7 @@ function InProgress({
                     currentSeason.numberOfEpisodes ||
                     0
                   }
-                  numberOfWatched={currentSeasonWatchCount}
+                  numberOfWatched={watchCount}
                 />
               </div>
             </div>

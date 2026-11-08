@@ -1,14 +1,13 @@
 'use client';
 
+import type { WatchedItem } from '@tvseri.es/schemas';
 import { useCallback, useTransition } from 'react';
 import { toast } from 'sonner';
 
-import {
-  type ActionError,
-  actionError,
-  getActionErrorMessage,
-} from '@/app/actionResult';
-import { markNextEpisodeWatched } from '@/app/watchActions';
+import { getActionErrorMessage } from '@/app/actionResult';
+import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
+import requestWatch from '../Watched/requestWatch';
+import { useWatchedStore } from '../Watched/WatchedStoreProvider';
 import { ContextMenuItem } from './ContextMenuItem';
 
 const checkIcon = (
@@ -30,15 +29,10 @@ const checkIcon = (
   </svg>
 );
 
-function getErrorMessage(error: ActionError) {
-  return error === 'not-found'
-    ? "You've already watched every aired episode"
-    : getActionErrorMessage(error, 'Failed to mark next episode as watched');
-}
-
 /**
- * "Watched next episode" for a show's context menu. The server action picks
- * the episode, so every menu that renders this behaves the same.
+ * "Watched next episode" for a show's context menu. The next episode comes
+ * from the watched store (same rule everywhere), is marked optimistically,
+ * and is rolled back if the request fails.
  */
 export default function MarkNextEpisodeMenuItem({
   onSelect,
@@ -48,29 +42,44 @@ export default function MarkNextEpisodeMenuItem({
   tvSeriesId: number;
 }>) {
   const [isPending, startTransition] = useTransition();
+  const getNextEpisode = useWatchedStore((store) => store.getNextEpisode);
+  const markAsWatched = useWatchedStore((store) => store.markAsWatched);
+  const unmarkAsWatched = useWatchedStore((store) => store.unmarkAsWatched);
 
   const handleClick = useCallback(() => {
     onSelect?.();
 
+    const episode = getNextEpisode(tvSeriesId);
+    if (!episode) {
+      toast.error("You've already watched every aired episode");
+      return;
+    }
+
+    // Runtime is filled in from the response.
+    markAsWatched(tvSeriesId, [{ ...episode, runtime: 0 }]);
+
     startTransition(async () => {
-      // The action calls refresh(), so progress updates in the same round-trip.
-      const promise = markNextEpisodeWatched(tvSeriesId)
-        .catch(() => actionError('failed'))
-        .then((result) => {
-          if (!result.ok) {
-            throw new Error(getErrorMessage(result.error));
-          }
-        });
+      const response = await requestWatch(tvSeriesId, {
+        ...episode,
+        watched: true,
+      }).catch(() => null);
 
-      toast.promise(promise, {
-        error: (error: Error) => error.message,
-        loading: 'Marking next episode as watched...',
-        success: 'Next episode marked as watched',
-      });
+      if (!response?.ok) {
+        unmarkAsWatched(tvSeriesId, episode);
+        toast.error(
+          getActionErrorMessage(
+            response?.status === 401 ? 'unauthenticated' : 'failed',
+            'Failed to mark next episode as watched',
+          ),
+        );
+        return;
+      }
 
-      await promise.catch(() => {});
+      const watchedItems = (await response.json()) as WatchedItem[];
+      markAsWatched(tvSeriesId, watchedItems);
+      toast.success(`${formatSeasonAndEpisode(episode)} marked as watched`);
     });
-  }, [onSelect, tvSeriesId]);
+  }, [getNextEpisode, markAsWatched, onSelect, tvSeriesId, unmarkAsWatched]);
 
   return (
     <ContextMenuItem disabled={isPending} onClick={handleClick}>

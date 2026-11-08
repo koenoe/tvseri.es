@@ -21,7 +21,9 @@ const getEpisodeTotal = (season: Season) =>
  * Undefined when nothing is watched yet or everything aired is watched.
  */
 export default function getCurrentSeason(
-  watchedItems: ReadonlyArray<WatchedItem>,
+  watchedItems: ReadonlyArray<
+    Pick<WatchedItem, 'episodeNumber' | 'seasonNumber'>
+  >,
   seasons: ReadonlyArray<Season>,
 ): CurrentSeason {
   if (watchedItems.length === 0 || seasons.length === 0) {

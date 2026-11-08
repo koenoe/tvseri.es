@@ -2,6 +2,7 @@ import {
   type AttributeValue,
   BatchGetItemCommand,
   BatchWriteItemCommand,
+  type DynamoDBClient,
   type KeysAndAttributes,
   type WriteRequest,
 } from '@aws-sdk/client-dynamodb';
@@ -12,19 +13,44 @@ import client from './client';
 
 const BATCH_WRITE_LIMIT = 25;
 const BATCH_GET_LIMIT = 100;
-const MAX_ATTEMPTS = 6;
-const BASE_DELAY_MS = 50;
-const MAX_DELAY_MS = 1000;
 const BATCH_CONCURRENCY = 4;
 
 type Key = Record<string, AttributeValue>;
 
+/** How unprocessed items/keys are retried: exponential backoff, capped */
+type BatchRetry = Readonly<{
+  baseDelayMs: number;
+  /** Full jitter (random delay up to the backoff) instead of a fixed delay */
+  jitter: boolean;
+  maxAttempts: number;
+  maxDelayMs: number;
+}>;
+
+const DEFAULT_RETRY: BatchRetry = {
+  baseDelayMs: 50,
+  jitter: true,
+  maxAttempts: 6,
+  maxDelayMs: 1000,
+};
+
+/**
+ * For the daily metrics aggregation crons: fixed 200, 400, 800, 1600 ms delays
+ * over 5 attempts, to ride out throttling instead of failing the run.
+ */
+export const AGGREGATE_RETRY: BatchRetry = {
+  baseDelayMs: 100,
+  jitter: false,
+  maxAttempts: 5,
+  maxDelayMs: 1600,
+};
+
 const sleep = (ms: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, ms));
 
-// Exponential backoff with full jitter
-const backoff = (attempt: number) =>
-  sleep(Math.random() * Math.min(MAX_DELAY_MS, BASE_DELAY_MS * 2 ** attempt));
+const backoff = (attempt: number, retry: BatchRetry) => {
+  const delay = Math.min(retry.maxDelayMs, retry.baseDelayMs * 2 ** attempt);
+  return sleep(retry.jitter ? Math.random() * delay : delay);
+};
 
 export const chunk = <T>(items: ReadonlyArray<T>, size: number): T[][] => {
   const chunks: T[][] = [];
@@ -38,9 +64,10 @@ const unprocessedError = (
   operation: string,
   tableName: string,
   count: number,
+  attempts: number,
 ) =>
   new Error(
-    `${operation}: ${count} item(s) still unprocessed for ${tableName} after ${MAX_ATTEMPTS} attempts`,
+    `${operation}: ${count} item(s) still unprocessed for ${tableName} after ${attempts} attempts`,
   );
 
 /**
@@ -51,12 +78,13 @@ const unprocessedError = (
 export const writeBatch = async (
   tableName: string,
   requests: WriteRequest[],
+  retry: BatchRetry = DEFAULT_RETRY,
 ): Promise<WriteRequest[]> => {
   let pending = requests;
 
-  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+  for (let attempt = 0; attempt < retry.maxAttempts; attempt++) {
     if (attempt > 0) {
-      await backoff(attempt);
+      await backoff(attempt, retry);
     }
 
     const result = await client.send(
@@ -75,10 +103,19 @@ export const writeBatch = async (
   return pending;
 };
 
-const writeChunk = async (tableName: string, requests: WriteRequest[]) => {
-  const unprocessed = await writeBatch(tableName, requests);
+const writeChunk = async (
+  tableName: string,
+  requests: WriteRequest[],
+  retry: BatchRetry,
+) => {
+  const unprocessed = await writeBatch(tableName, requests, retry);
   if (unprocessed.length > 0) {
-    throw unprocessedError('BatchWriteItem', tableName, unprocessed.length);
+    throw unprocessedError(
+      'BatchWriteItem',
+      tableName,
+      unprocessed.length,
+      retry.maxAttempts,
+    );
   }
 };
 
@@ -88,10 +125,12 @@ const writeChunk = async (tableName: string, requests: WriteRequest[]) => {
  * Splits into 25-item batches (bounded concurrency) and retries
  * `UnprocessedItems` with exponential backoff. Throws if anything is still
  * unprocessed, so callers never report success for writes that didn't happen.
+ * `retry` overrides the backoff (e.g. AGGREGATE_RETRY).
  */
 export const batchWrite = async (
   tableName: string,
   requests: ReadonlyArray<WriteRequest>,
+  retry: BatchRetry = DEFAULT_RETRY,
 ): Promise<void> => {
   if (requests.length === 0) {
     return;
@@ -101,7 +140,7 @@ export const batchWrite = async (
 
   await Promise.all(
     chunk(requests, BATCH_WRITE_LIMIT).map((batch) =>
-      limit(() => writeChunk(tableName, batch)),
+      limit(() => writeChunk(tableName, batch, retry)),
     ),
   );
 };
@@ -110,16 +149,17 @@ const getChunk = async (
   tableName: string,
   keys: Key[],
   options: Omit<KeysAndAttributes, 'Keys'>,
+  dynamo: DynamoDBClient,
 ): Promise<Key[]> => {
   const items: Key[] = [];
   let pending = keys;
 
-  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+  for (let attempt = 0; attempt < DEFAULT_RETRY.maxAttempts; attempt++) {
     if (attempt > 0) {
-      await backoff(attempt);
+      await backoff(attempt, DEFAULT_RETRY);
     }
 
-    const result = await client.send(
+    const result = await dynamo.send(
       new BatchGetItemCommand({
         RequestItems: { [tableName]: { ...options, Keys: pending } },
       }),
@@ -134,7 +174,12 @@ const getChunk = async (
     pending = unprocessed;
   }
 
-  throw unprocessedError('BatchGetItem', tableName, pending.length);
+  throw unprocessedError(
+    'BatchGetItem',
+    tableName,
+    pending.length,
+    DEFAULT_RETRY.maxAttempts,
+  );
 };
 
 /**
@@ -144,11 +189,15 @@ const getChunk = async (
  * `UnprocessedKeys` with exponential backoff. Missing items are simply absent
  * from the result; order is not guaranteed. Duplicate keys are removed
  * (BatchGetItem rejects them).
+ *
+ * `dynamo` defaults to the instrumented client; pass another one where calls
+ * shouldn't be recorded as dependency metrics (e.g. the metrics routes).
  */
 export const batchGet = async (
   tableName: string,
   keys: ReadonlyArray<Key>,
   options: Omit<KeysAndAttributes, 'Keys'> = {},
+  dynamo: DynamoDBClient = client,
 ): Promise<Key[]> => {
   if (keys.length === 0) {
     return [];
@@ -161,7 +210,7 @@ export const batchGet = async (
 
   const results = await Promise.all(
     chunk(uniqueKeys, BATCH_GET_LIMIT).map((batch) =>
-      limit(() => getChunk(tableName, batch, options)),
+      limit(() => getChunk(tableName, batch, options, dynamo)),
     ),
   );
 

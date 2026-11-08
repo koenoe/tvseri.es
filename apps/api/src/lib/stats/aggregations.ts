@@ -11,21 +11,33 @@ import type {
 } from '@tvseri.es/schemas';
 import { buildLogoImageUrl } from '@tvseri.es/utils';
 
-import detectDominantColorFromImage from '@/lib/detectDominantColorFromImage';
+import { detectDominantColorsFromImages } from '@/lib/detectDominantColorFromImage';
 
 const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+
+/** The series fields the genre and country stats read */
+export type StatsSeriesMeta = Readonly<{
+  countries: ReadonlyArray<
+    Pick<TvSeries['countries'][number], 'code' | 'name'>
+  >;
+  genres: ReadonlyArray<Pick<TvSeries['genres'][number], 'name'>>;
+}>;
+
+type ProviderItem = Readonly<
+  Pick<WatchedItem, 'seriesId' | 'watchProviderLogoPath' | 'watchProviderName'>
+>;
 
 /**
  * Aggregate genre counts from a list of TV series.
  */
 export const aggregateGenres = (
-  seriesList: (TvSeries | null | undefined)[],
+  seriesList: ReadonlyArray<StatsSeriesMeta | null | undefined>,
   limit = 10,
 ): StatsGenreItem[] => {
   const genreCounts = new Map<string, number>();
 
   seriesList
-    .filter((series): series is TvSeries => !!series)
+    .filter((series): series is StatsSeriesMeta => !!series)
     .forEach((series) => {
       series.genres.forEach((genre) => {
         genreCounts.set(genre.name, (genreCounts.get(genre.name) || 0) + 1);
@@ -38,11 +50,16 @@ export const aggregateGenres = (
     .slice(0, limit);
 };
 
+const getPredefinedColor = (name: string): string | undefined =>
+  WATCH_PROVIDER_PREDEFINED_COLOR[
+    name as keyof typeof WATCH_PROVIDER_PREDEFINED_COLOR
+  ];
+
 /**
  * Aggregate streaming provider stats from watched items.
  */
 export const aggregateProviders = async (
-  items: WatchedItem[],
+  items: ReadonlyArray<ProviderItem>,
   limit = 10,
 ): Promise<StatsProviderItem[]> => {
   const providerMap = items.reduce((map, item) => {
@@ -62,30 +79,31 @@ export const aggregateProviders = async (
   }, new Map<string, { series: Set<number>; logoPath?: string | null }>());
 
   const entries = [...providerMap.entries()];
-  const stats = await Promise.all(
-    entries.map(async ([name, { series, logoPath }]) => {
-      const logoImage = logoPath ? buildLogoImageUrl(logoPath) : null;
 
-      let defaultColor =
-        WATCH_PROVIDER_PREDEFINED_COLOR[
-          name as keyof typeof WATCH_PROVIDER_PREDEFINED_COLOR
-        ];
-
-      if (!defaultColor && logoPath) {
-        defaultColor = await detectDominantColorFromImage({
-          path: logoPath,
-          size: 'w92',
-        });
-      }
-
-      return {
-        count: series.size,
-        defaultColor: defaultColor || '#000000',
-        logo: logoImage,
-        name,
-      };
-    }),
+  // Logos without a predefined colour: one batched cache read for all of them
+  const logoPathsToDetect = entries.flatMap(([name, { logoPath }]) =>
+    !getPredefinedColor(name) && logoPath ? [logoPath] : [],
   );
+  const detectedColors =
+    logoPathsToDetect.length > 0
+      ? await detectDominantColorsFromImages({
+          paths: logoPathsToDetect,
+          size: 'w92',
+        })
+      : new Map<string, string>();
+
+  const stats = entries.map(([name, { series, logoPath }]) => {
+    const defaultColor =
+      getPredefinedColor(name) ||
+      (logoPath ? detectedColors.get(logoPath) : undefined);
+
+    return {
+      count: series.size,
+      defaultColor: defaultColor || '#000000',
+      logo: logoPath ? buildLogoImageUrl(logoPath) : null,
+      name,
+    };
+  });
 
   return stats.sort((a, b) => b.count - a.count).slice(0, limit);
 };
@@ -94,12 +112,12 @@ export const aggregateProviders = async (
  * Aggregate country stats from a list of TV series.
  */
 export const aggregateCountries = (
-  seriesList: (TvSeries | null | undefined)[],
+  seriesList: ReadonlyArray<StatsSeriesMeta | null | undefined>,
 ): Record<string, number> => {
   const countryStats: Record<string, number> = {};
 
   seriesList
-    .filter((series): series is TvSeries => !!series && !!series.countries)
+    .filter((series): series is StatsSeriesMeta => !!series?.countries)
     .forEach((series) => {
       series.countries.forEach((country) => {
         const countryName = displayNames.of(country.code) ?? country.name;

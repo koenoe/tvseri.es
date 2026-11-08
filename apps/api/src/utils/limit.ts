@@ -1,3 +1,5 @@
+import { logWarn } from './logWarn';
+
 /**
  * Minimal promise concurrency limiter (p-limit style).
  *
@@ -78,15 +80,9 @@ export const mapSettled = async <T, R>(
   }
 
   if (rejectedCount > 0) {
-    console.warn(
-      JSON.stringify({
-        level: 'warn',
-        message: `mapSettled: ${rejectedCount}/${items.length} items failed`,
-        reason:
-          firstReason instanceof Error
-            ? firstReason.message
-            : String(firstReason),
-      }),
+    logWarn(
+      `mapSettled: ${rejectedCount}/${items.length} items failed`,
+      firstReason,
     );
   }
 

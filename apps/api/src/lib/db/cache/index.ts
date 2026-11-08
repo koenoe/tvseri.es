@@ -31,33 +31,35 @@ const parseValue = <T>(item: CacheItem): T => {
   }
 };
 
+const serializeValue = <T>(value: T) =>
+  value == null
+    ? null
+    : typeof value === 'string'
+      ? value
+      : JSON.stringify(value);
+
+const buildCacheItem = <T>(key: string, value: T, options: CacheOptions) => {
+  const baseItem = {
+    createdAt: new Date().toISOString(),
+    pk: `${KEY_PREFIX}${key}`,
+    value: serializeValue(value),
+  };
+
+  return options.ttl === null
+    ? baseItem
+    : {
+        ...baseItem,
+        expiresAt: Math.floor(Date.now() / 1000) + (options.ttl ?? DEFAULT_TTL),
+      };
+};
+
 export const setCacheItem = async <T>(
   key: string,
   value: T,
   options: CacheOptions = {},
 ): Promise<void> => {
-  const baseItem = {
-    createdAt: new Date().toISOString(),
-    pk: `${KEY_PREFIX}${key}`,
-    value:
-      value == null
-        ? null
-        : typeof value === 'string'
-          ? value
-          : JSON.stringify(value),
-  };
-
-  const item =
-    options.ttl === null
-      ? baseItem
-      : {
-          ...baseItem,
-          expiresAt:
-            Math.floor(Date.now() / 1000) + (options.ttl ?? DEFAULT_TTL),
-        };
-
   const command = new PutItemCommand({
-    Item: marshall(item),
+    Item: marshall(buildCacheItem(key, value, options)),
     TableName: Resource.Cache.name,
   });
 
@@ -65,6 +67,41 @@ export const setCacheItem = async <T>(
     await client.send(command);
   } catch (error) {
     throw new Error(`Failed to set cache for key: ${key}`, { cause: error });
+  }
+};
+
+// DynamoDB items max out at 400 KB (409,600 bytes), counting attribute names
+// and the other attributes (pk, createdAt, expiresAt) too. Larger values are
+// skipped: one oversized put would fail the whole BatchWriteItem it's in.
+const MAX_VALUE_BYTES = 380_000;
+
+/**
+ * Batch version of `setCacheItem` (BatchWriteItem, 25 per batch, retrying
+ * unprocessed items). Values too large for one item are skipped (logged).
+ * Duplicate keys are written once, with the last value (BatchWriteItem
+ * rejects duplicates).
+ */
+export const setCacheItems = async (
+  entries: ReadonlyArray<readonly [key: string, value: unknown]>,
+  options: CacheOptions = {},
+): Promise<void> => {
+  const uniqueEntries = new Map(entries);
+
+  const requests = [...uniqueEntries].flatMap(([key, value]) => {
+    const item = buildCacheItem(key, value, options);
+    if (item.value && Buffer.byteLength(item.value, 'utf8') > MAX_VALUE_BYTES) {
+      console.warn(`[cache] Skipped oversized value for key: ${key}`);
+      return [];
+    }
+    return [{ PutRequest: { Item: marshall(item) } }];
+  });
+
+  try {
+    await batchWrite(Resource.Cache.name, requests);
+  } catch (error) {
+    throw new Error(`Failed to set ${requests.length} cache items`, {
+      cause: error,
+    });
   }
 };
 
@@ -112,17 +149,24 @@ export const getCacheItems = async <T>(
 };
 
 /**
- * Deletes multiple cache items by their keys.
- * Uses BatchWriteItem (retrying unprocessed items).
+ * Deletes cache items by key, for keys that are mostly absent (e.g. stats
+ * nobody viewed): reads which exist first and only deletes those. A delete
+ * costs a write unit even when there's nothing to delete; a strongly
+ * consistent read of a missing key costs a read unit, which is ~5x cheaper.
+ * Strongly consistent, so an item written just before is never missed.
  */
-export const deleteCacheItems = async (keys: string[]): Promise<void> => {
+export const deleteExistingCacheItems = async (
+  keys: ReadonlyArray<string>,
+): Promise<void> => {
+  const existing = await batchGet(
+    Resource.Cache.name,
+    keys.map((key) => marshall({ pk: `${KEY_PREFIX}${key}` })),
+    { ConsistentRead: true, ProjectionExpression: 'pk' },
+  );
+
   await batchWrite(
     Resource.Cache.name,
-    keys.map((key) => ({
-      DeleteRequest: {
-        Key: marshall({ pk: `${KEY_PREFIX}${key}` }),
-      },
-    })),
+    existing.map((Key) => ({ DeleteRequest: { Key } })),
   );
 };
 

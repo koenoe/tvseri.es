@@ -7,6 +7,7 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { PreferredImages } from '@tvseri.es/schemas';
 import { Resource } from 'sst';
 
+import { batchGet } from '../batch';
 import client from '../client';
 
 export const findPreferredImages = async (
@@ -30,6 +31,27 @@ export const findPreferredImages = async (
   } catch (_error) {
     throw new Error('Failed to find preferred images');
   }
+};
+
+/**
+ * Batch version of `findPreferredImages` (one BatchGetItem per 100 ids).
+ * Returns the preferred images by series id; ids without any are absent.
+ */
+export const findPreferredImagesForMany = async (
+  ids: ReadonlyArray<number>,
+): Promise<Map<number, PreferredImages>> => {
+  const items = await batchGet(
+    Resource.PreferredImages.name,
+    ids.map((id) => marshall({ pk: `SERIES#${id}` })),
+  );
+
+  return new Map(
+    items.map((item) => {
+      const { pk, ...preferredImages } = unmarshall(item) as PreferredImages &
+        Readonly<{ pk: string }>;
+      return [Number(pk.slice('SERIES#'.length)), preferredImages];
+    }),
+  );
 };
 
 export const putPreferredImages = async (

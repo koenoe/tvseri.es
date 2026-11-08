@@ -12,10 +12,14 @@ import {
   startOfDay,
 } from 'date-fns';
 
+type MetricsItem = Readonly<
+  Pick<WatchedItem, 'runtime' | 'seriesId' | 'watchedAt'>
+>;
+
 /**
  * Calculate the longest consecutive day streak from watched items.
  */
-const calculateLongestStreak = (items: WatchedItem[]): number => {
+const calculateLongestStreak = (items: ReadonlyArray<MetricsItem>): number => {
   const uniqueDays = new Set(
     items.map((item) => startOfDay(item.watchedAt).getTime()),
   );
@@ -55,7 +59,7 @@ const getDaysInPeriod = (year: number): number => {
  * Calculate all stats metrics from watched items.
  */
 export const calculateMetrics = (
-  items: WatchedItem[],
+  items: ReadonlyArray<MetricsItem>,
   year: number,
 ): StatsMetrics => {
   const totalRuntime = items.reduce(
@@ -75,6 +79,6 @@ export const calculateMetrics = (
 /**
  * Get unique series IDs from watched items.
  */
-export const getUniqueSeriesIds = (items: WatchedItem[]): number[] => [
-  ...new Set(items.map((item) => item.seriesId)),
-];
+export const getUniqueSeriesIds = (
+  items: ReadonlyArray<Readonly<Pick<WatchedItem, 'seriesId'>>>,
+): number[] => [...new Set(items.map((item) => item.seriesId))];

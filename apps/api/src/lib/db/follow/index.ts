@@ -38,7 +38,7 @@ export type FollowUser = Pick<
 >;
 
 async function batchGetUsers(
-  userIds: string[],
+  userIds: ReadonlyArray<string>,
 ): Promise<Record<string, FollowUser>> {
   const items = await batchGet(
     Resource.Users.name,
@@ -66,13 +66,52 @@ async function batchGetUsers(
   return users;
 }
 
-export async function getFollowers(
-  input: Readonly<{
-    userId: string;
-    options?: Omit<PaginationOptions, 'sortBy'>;
-  }>,
-) {
-  const { userId, options = {} } = input;
+export type FollowStatuses = Readonly<{
+  followers: ReadonlySet<string>;
+  following: ReadonlySet<string>;
+}>;
+
+/**
+ * Loads the users of one follow-list page and, when a viewer is given, the
+ * viewer's follow statuses for them. Both only need the user ids, so they run
+ * in parallel.
+ */
+async function resolveFollowPage(
+  userIds: ReadonlyArray<string>,
+  viewerId: string | undefined,
+): Promise<
+  Readonly<{
+    users: ReadonlyArray<FollowUser>;
+    statuses?: FollowStatuses;
+  }>
+> {
+  const [usersById, statuses] = await Promise.all([
+    batchGetUsers(userIds),
+    viewerId
+      ? getFollowStatuses({
+          targetUserIds: userIds.filter((id) => id !== viewerId),
+          viewerId,
+        })
+      : undefined,
+  ]);
+
+  return {
+    statuses,
+    users: userIds
+      .map((id) => usersById[id])
+      .filter((user): user is FollowUser => !!user),
+  };
+}
+
+type FollowListInput = Readonly<{
+  userId: string;
+  options?: Omit<PaginationOptions, 'sortBy'>;
+  /** Also resolve this user's follow statuses for the page (`statuses`) */
+  viewerId?: string;
+}>;
+
+export async function getFollowers(input: FollowListInput) {
+  const { userId, options = {}, viewerId } = input;
   const { limit = 20, cursor, sortDirection = 'desc' } = options;
   const params = {
     ExclusiveStartKey: decodeCursor(cursor),
@@ -85,27 +124,22 @@ export async function getFollowers(
   };
   const data = await client.send(new QueryCommand(params));
   const items = (data.Items || []).map((item) => unmarshall(item));
-  const userIds = items.map((item) => item.followerId).filter(Boolean);
-  const users = await batchGetUsers(userIds);
-  const followers = items
-    .map((item) => users[item.followerId])
-    .filter((user): user is FollowUser => !!user);
+  const userIds: string[] = items
+    .map((item) => item.followerId)
+    .filter(Boolean);
+  const { users, statuses } = await resolveFollowPage(userIds, viewerId);
 
   return {
-    items: followers,
+    items: users,
     nextCursor: data.LastEvaluatedKey
       ? encodeCursor(data.LastEvaluatedKey)
       : null,
+    statuses,
   };
 }
 
-export async function getFollowing(
-  input: Readonly<{
-    userId: string;
-    options?: Omit<PaginationOptions, 'sortBy'>;
-  }>,
-) {
-  const { userId, options = {} } = input;
+export async function getFollowing(input: FollowListInput) {
+  const { userId, options = {}, viewerId } = input;
   const { limit = 20, cursor, sortDirection = 'desc' } = options;
   const params = {
     ExclusiveStartKey: decodeCursor(cursor),
@@ -118,17 +152,17 @@ export async function getFollowing(
   };
   const data = await client.send(new QueryCommand(params));
   const items = (data.Items || []).map((item) => unmarshall(item));
-  const userIds = items.map((item) => item.followingId).filter(Boolean);
-  const users = await batchGetUsers(userIds);
-  const following = items
-    .map((item) => users[item.followingId])
-    .filter((user): user is FollowUser => !!user);
+  const userIds: string[] = items
+    .map((item) => item.followingId)
+    .filter(Boolean);
+  const { users, statuses } = await resolveFollowPage(userIds, viewerId);
 
   return {
-    items: following,
+    items: users,
     nextCursor: data.LastEvaluatedKey
       ? encodeCursor(data.LastEvaluatedKey)
       : null,
+    statuses,
   };
 }
 
@@ -214,7 +248,7 @@ export async function isFollower({
  * Resolves which of `targetUserIds` the viewer follows and is followed by,
  * in a single BatchGetItem (instead of 2 GetItems per user).
  */
-export async function getFollowStatuses({
+async function getFollowStatuses({
   viewerId,
   targetUserIds,
 }: Readonly<{

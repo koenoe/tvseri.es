@@ -1,4 +1,8 @@
-import { PutItemCommand, QueryCommand } from '@aws-sdk/client-dynamodb';
+import {
+  GetItemCommand,
+  PutItemCommand,
+  QueryCommand,
+} from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { type User, UsernameSchema } from '@tvseri.es/schemas';
 import { encodeToBase64Url, generateUsername } from '@tvseri.es/utils';
@@ -9,8 +13,30 @@ import client from './client';
 
 const VERSION = 1;
 
+const toUser = ({
+  id,
+  createdAt,
+  updatedAt,
+  email,
+  name,
+  role,
+  username,
+  version,
+  watchProviders,
+}: User): User => ({
+  createdAt,
+  email,
+  id,
+  name,
+  role,
+  updatedAt,
+  username,
+  version,
+  watchProviders,
+});
+
 const queryUser = async (
-  indexName: 'gsi1' | 'gsi2' | undefined,
+  indexName: 'gsi1' | 'gsi2',
   key: string,
 ): Promise<User | null> => {
   const result = await client.send(
@@ -19,38 +45,25 @@ const queryUser = async (
         ':value': key,
       }),
       IndexName: indexName,
-      KeyConditionExpression: `${indexName ? `${indexName}pk` : 'pk'} = :value`,
+      KeyConditionExpression: `${indexName}pk = :value`,
       TableName: Resource.Users.name,
     }),
   );
 
-  if (!result.Items?.[0]) {
-    return null;
-  }
+  const item = result.Items?.[0];
+  return item ? toUser(unmarshall(item) as User) : null;
+};
 
-  const {
-    id,
-    createdAt,
-    updatedAt,
-    email,
-    name,
-    role,
-    username,
-    version,
-    watchProviders,
-  } = unmarshall(result.Items[0]) as User;
+// The user id is the table's hash key: a GetItem, not a Query
+const getUserById = async (userId: string): Promise<User | null> => {
+  const result = await client.send(
+    new GetItemCommand({
+      Key: marshall({ pk: `USER#${userId}` }),
+      TableName: Resource.Users.name,
+    }),
+  );
 
-  return {
-    createdAt,
-    email,
-    id,
-    name,
-    role,
-    updatedAt,
-    username,
-    version,
-    watchProviders,
-  };
+  return result.Item ? toUser(unmarshall(result.Item) as User) : null;
 };
 
 const normaliseEmail = (email: string): string => email.trim().toLowerCase();
@@ -64,7 +77,7 @@ export const findUser = async (
     | { userId?: never; email?: never; username: string },
 ): Promise<User | null> => {
   if (input.userId !== undefined) {
-    return queryUser(undefined, `USER#${input.userId}`);
+    return getUserById(input.userId);
   }
 
   if (input.email !== undefined) {

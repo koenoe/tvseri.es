@@ -16,6 +16,8 @@ import {
 } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 
+import { batchGet } from '@/lib/db/batch';
+
 const dynamoClient = new DynamoDBClient({});
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -110,6 +112,30 @@ export const queryByPkAndPrefix = async (
   } while (lastKey);
 
   return items;
+};
+
+/**
+ * The SUMMARY aggregate of each date (with optional filters), in one
+ * BatchGetItem: the keys are exact, so no Query per date is needed. Days
+ * without data are absent. Sorted by date.
+ */
+export const getSummaries = async (
+  dates: ReadonlyArray<string>,
+  filters?: Readonly<{ country?: string; platform?: string }>,
+): Promise<ApiMetricAggregate[]> => {
+  const items = await batchGet(
+    Resource.MetricsApiAggregated.name,
+    dates.map((date) => ({
+      pk: { S: buildPk(date, filters) },
+      sk: { S: 'SUMMARY' },
+    })),
+    {},
+    dynamoClient,
+  );
+
+  return items
+    .map((item) => unmarshall(item) as ApiMetricAggregate)
+    .sort((a, b) => a.date.localeCompare(b.date));
 };
 
 // ════════════════════════════════════════════════════════════════════════════

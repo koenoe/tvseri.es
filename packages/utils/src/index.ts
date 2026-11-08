@@ -13,6 +13,7 @@ export {
   mergeLatencyHistograms,
   percentileFromLatencyHistogram,
 } from './latencyHistogram';
+export { default as pick } from './pick';
 export {
   computeMetricScore,
   computeRESFromStats,

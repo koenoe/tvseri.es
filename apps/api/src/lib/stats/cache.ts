@@ -3,25 +3,21 @@
  * Uses the generic cache module with stats-specific key patterns.
  */
 
-import { deleteCacheItems, getCacheItem, setCacheItem } from '@/lib/db/cache';
+import {
+  deleteExistingCacheItems,
+  getCacheItem,
+  getCacheItems,
+  setCacheItem,
+} from '@/lib/db/cache';
+import { logWarn } from '@/utils/logWarn';
 
 import {
   buildStatsCacheKey,
-  getAllStatsCacheKeys,
+  getStatsInvalidationKeys,
   type StatsCacheKey,
 } from './keys';
 
 const CACHE_TTL = 86400; // 24 hours
-
-const logCacheError = (operation: string, error: unknown) => {
-  console.warn(
-    JSON.stringify({
-      level: 'warn',
-      message: `Stats cache ${operation} failed, continuing without cache`,
-      reason: error instanceof Error ? error.message : String(error),
-    }),
-  );
-};
 
 /**
  * Get a cached stats value.
@@ -35,8 +31,29 @@ export const getStatsCache = async <T>(
   try {
     return await getCacheItem<T>(buildStatsCacheKey(userId, year, key));
   } catch (error) {
-    logCacheError('get', error);
+    logWarn('Stats cache get failed, continuing without cache', error);
     return undefined;
+  }
+};
+
+/**
+ * Reads several stats values (of any user/year) in one BatchGetItem. Returns
+ * them in the order asked; misses are `undefined`.
+ * Best-effort: a cache failure is treated as all misses.
+ */
+export const getStatsCaches = async <T>(
+  entries: ReadonlyArray<readonly [year: number, key: StatsCacheKey]>,
+  userId: string,
+): Promise<Array<T | undefined>> => {
+  const keys = entries.map(([year, key]) =>
+    buildStatsCacheKey(userId, year, key),
+  );
+  try {
+    const values = await getCacheItems<T>(keys);
+    return keys.map((key) => values.get(key));
+  } catch (error) {
+    logWarn('Stats cache get failed, continuing without cache', error);
+    return keys.map(() => undefined);
   }
 };
 
@@ -55,14 +72,22 @@ export const setStatsCache = async <T>(
       ttl: CACHE_TTL,
     });
   } catch (error) {
-    logCacheError('set', error);
+    logWarn('Stats cache set failed, continuing without cache', error);
   }
 };
 
 /**
- * Invalidate all stats cache entries for a user and year.
+ * Invalidate the stats cache entries for the given user+year pairs: whatever
+ * depends on that year's watched items (see getStatsInvalidationKeys). One
+ * consistent BatchGetItem for all of them, then deletes only what's cached.
  */
 export const invalidateStatsCache = (
-  userId: string,
-  year: number,
-): Promise<void> => deleteCacheItems(getAllStatsCacheKeys(userId, year));
+  entries: ReadonlyArray<Readonly<{ userId: string; year: number }>>,
+): Promise<void> =>
+  deleteExistingCacheItems([
+    ...new Set(
+      entries.flatMap(({ userId, year }) =>
+        getStatsInvalidationKeys(userId, year),
+      ),
+    ),
+  ]);

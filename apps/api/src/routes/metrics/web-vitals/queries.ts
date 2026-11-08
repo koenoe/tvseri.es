@@ -9,6 +9,8 @@ import {
 } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 
+import { batchGet } from '@/lib/db/batch';
+
 const dynamoClient = new DynamoDBClient({});
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -109,35 +111,20 @@ export const queryByPkAndPrefix = async (
 };
 
 /**
- * Query a single item by exact pk and sk.
+ * Several exact pk + sk reads in one BatchGetItem (instead of a Query each).
+ * Missing items are absent; the order is not guaranteed.
  */
-export const queryExact = async (
-  pk: string,
-  sk: string,
-): Promise<WebVitalAggregate | null> => {
-  const result = await dynamoClient.send(
-    new QueryCommand({
-      ExpressionAttributeNames: {
-        '#pk': 'pk',
-        '#sk': 'sk',
-      },
-      ExpressionAttributeValues: {
-        ':pk': { S: pk },
-        ':sk': { S: sk },
-      },
-      KeyConditionExpression: '#pk = :pk AND #sk = :sk',
-      Limit: 1,
-      TableName: Resource.MetricsWebVitalsAggregated.name,
-    }),
+export const getExact = async (
+  keys: ReadonlyArray<Readonly<{ pk: string; sk: string }>>,
+): Promise<WebVitalAggregate[]> => {
+  const items = await batchGet(
+    Resource.MetricsWebVitalsAggregated.name,
+    keys.map(({ pk, sk }) => ({ pk: { S: pk }, sk: { S: sk } })),
+    {},
+    dynamoClient,
   );
 
-  if (result.Items && result.Items.length > 0) {
-    return unmarshall(
-      result.Items[0] as Record<string, AttributeValue>,
-    ) as WebVitalAggregate;
-  }
-
-  return null;
+  return items.map((item) => unmarshall(item) as WebVitalAggregate);
 };
 
 // ════════════════════════════════════════════════════════════════════════════

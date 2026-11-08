@@ -92,7 +92,8 @@ export const getAllTimeWatchedRuntime = async (userId: string) => {
     return 0;
   }
 
-  const items = await getAllWatched({ userId });
+  // Only the runtimes are needed (ProjectionExpression)
+  const items = await getAllWatched({ attributes: ['runtime'], userId });
   const runtime = items.reduce((sum, item) => sum + (item.runtime || 0), 0);
   await setCounter(key, runtime, { ttl: null });
 

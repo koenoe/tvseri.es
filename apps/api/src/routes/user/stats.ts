@@ -3,29 +3,20 @@
  * All business logic is delegated to lib/stats modules.
  */
 
-import type {
-  StatsFavoritesCount,
-  StatsSpotlight,
-  StatsSummary,
-} from '@tvseri.es/schemas';
-import { buildPosterImageUrl, buildStillImageUrl } from '@tvseri.es/utils';
-import { getISOWeek, getISOWeekYear } from 'date-fns';
-import { Hono } from 'hono';
+import type { StatsFavoritesCount, StatsSpotlight } from '@tvseri.es/schemas';
+import { buildStillImageUrl } from '@tvseri.es/utils';
+import { type Context, Hono } from 'hono';
 import { getListItemsCount } from '@/lib/db/list';
 import { getWatched } from '@/lib/db/watched';
 import {
-  aggregateCountries,
-  aggregateGenres,
-  aggregateProviders,
-  calculateMetrics,
+  computeYearSegment,
   getStatsCache,
-  getUniqueSeriesIds,
-  getWatchedItemsForYear,
+  getSummaryMetrics,
   setStatsCache,
+  type YearSegment,
 } from '@/lib/stats';
-import { fetchTvSeries, fetchTvSeriesBase, TMDB_CONCURRENCY } from '@/lib/tmdb';
+import { fetchTvSeries } from '@/lib/tmdb';
 import { cacheHeader } from '@/utils/cacheHeader';
-import { createLimiter } from '@/utils/limit';
 
 import { type UserVariables, user, yearMiddleware } from './middleware';
 
@@ -35,43 +26,19 @@ type Variables = {
 
 const STATS_CACHE_HEADER = cacheHeader('stats');
 
-// Slim TMDB fetch with bounded concurrency. Missing series resolve to
-// `undefined` and are skipped by the aggregations; other failures reject so a
-// partial result never gets cached.
-const fetchTvSeriesForStats = (ids: ReadonlyArray<number>) => {
-  const limit = createLimiter(TMDB_CONCURRENCY);
-  return Promise.all(ids.map((id) => limit(() => fetchTvSeriesBase(id))));
-};
-
 const app = new Hono<{ Variables: Variables }>();
+
+const statsJson = (c: Context, value: unknown) => {
+  c.header('Cache-Control', STATS_CACHE_HEADER);
+  return c.json(value);
+};
 
 // Summary endpoint: totalRuntime, episodeCount, seriesCount, longestStreak, avgPerDay
 app.get('/:id/stats/:year/summary', user(), yearMiddleware(), async (c) => {
   const { id: userId } = c.get('user');
-  const year = c.get('year');
 
-  const cached = await getStatsCache<StatsSummary>(userId, year, 'summary');
-  const hasStaleTotalRuntime =
-    cached?.current.totalRuntime === 0 && cached?.current.episodeCount > 0;
-
-  if (cached && !hasStaleTotalRuntime) {
-    c.header('Cache-Control', STATS_CACHE_HEADER);
-    return c.json(cached);
-  }
-
-  const [currentItems, previousItems] = await Promise.all([
-    getWatchedItemsForYear(userId, year),
-    getWatchedItemsForYear(userId, year - 1),
-  ]);
-
-  const result = {
-    current: calculateMetrics(currentItems, year),
-    previous: calculateMetrics(previousItems, year - 1),
-  };
-
-  await setStatsCache(userId, year, 'summary', result);
-  c.header('Cache-Control', STATS_CACHE_HEADER);
-  return c.json(result);
+  // Read from the per-year `metrics` cache (see getSummaryMetrics)
+  return statsJson(c, await getSummaryMetrics(userId, c.get('year')));
 });
 
 // Favorites count endpoint
@@ -191,165 +158,61 @@ app.get('/:id/stats/:year/spotlight', user(), yearMiddleware(), async (c) => {
   return c.json(result);
 });
 
+/**
+ * A segment derived from the year's watched items. On a miss it computes and
+ * caches only itself (see computeYearSegment).
+ */
+const yearSegment =
+  (segment: YearSegment) => async (c: Context<{ Variables: Variables }>) => {
+    const { id: userId } = c.get('user');
+    const year = c.get('year');
+
+    const cached = await getStatsCache(userId, year, segment);
+    if (cached) {
+      return statsJson(c, cached);
+    }
+
+    return statsJson(c, await computeYearSegment(userId, year, segment));
+  };
+
 // Weekly watch data
-app.get('/:id/stats/:year/weekly', user(), yearMiddleware(), async (c) => {
-  const { id: userId } = c.get('user');
-  const year = c.get('year');
-
-  const cached = await getStatsCache(userId, year, 'weekly');
-  if (cached) {
-    c.header('Cache-Control', STATS_CACHE_HEADER);
-    return c.json(cached);
-  }
-
-  const items = await getWatchedItemsForYear(userId, year);
-
-  // Create 53 weeks of data
-  const weekCounts = Array.from({ length: 53 }, (_, i) => ({
-    episodes: 0,
-    runtimeHours: 0,
-    totalRuntime: 0,
-    week: i + 1,
-  }));
-
-  items.forEach((item) => {
-    const date = new Date(item.watchedAt);
-    const isoWeekYear = getISOWeekYear(date);
-    let weekIndex: number;
-
-    if (isoWeekYear < year) {
-      // Date is in last ISO week of previous year (e.g., Jan 1-2 might be week 52 of prev year)
-      // Put in visual week 1
-      weekIndex = 0;
-    } else if (isoWeekYear > year) {
-      // Date is in first ISO week of next year (e.g., Dec 29-31 might be week 1 of next year)
-      // Put in visual week 53
-      weekIndex = 52;
-    } else {
-      // Normal case: ISO week year matches display year
-      weekIndex = getISOWeek(date) - 1;
-    }
-
-    if (weekIndex >= 0 && weekIndex < 53) {
-      weekCounts[weekIndex]!.episodes += 1;
-      weekCounts[weekIndex]!.totalRuntime += item.runtime || 0;
-    }
-  });
-
-  // Convert runtime to hours
-  weekCounts.forEach((week) => {
-    week.runtimeHours = Math.round((week.totalRuntime / 60) * 10) / 10;
-  });
-
-  await setStatsCache(userId, year, 'weekly', weekCounts);
-  c.header('Cache-Control', STATS_CACHE_HEADER);
-  return c.json(weekCounts);
-});
+app.get(
+  '/:id/stats/:year/weekly',
+  user(),
+  yearMiddleware(),
+  yearSegment('weekly'),
+);
 
 // Genre stats
-app.get('/:id/stats/:year/genres', user(), yearMiddleware(), async (c) => {
-  const { id: userId } = c.get('user');
-  const year = c.get('year');
-
-  const cached = await getStatsCache(userId, year, 'genres');
-  if (cached) {
-    c.header('Cache-Control', STATS_CACHE_HEADER);
-    return c.json(cached);
-  }
-
-  const items = await getWatchedItemsForYear(userId, year);
-  const uniqueSeriesIds = getUniqueSeriesIds(items);
-
-  if (uniqueSeriesIds.length === 0) {
-    c.header('Cache-Control', STATS_CACHE_HEADER);
-    return c.json([]);
-  }
-
-  const seriesWithGenres = await fetchTvSeriesForStats(uniqueSeriesIds);
-
-  const result = aggregateGenres(seriesWithGenres);
-
-  await setStatsCache(userId, year, 'genres', result);
-  c.header('Cache-Control', STATS_CACHE_HEADER);
-  return c.json(result);
-});
+app.get(
+  '/:id/stats/:year/genres',
+  user(),
+  yearMiddleware(),
+  yearSegment('genres'),
+);
 
 // Provider/streaming service stats
-app.get('/:id/stats/:year/providers', user(), yearMiddleware(), async (c) => {
-  const { id: userId } = c.get('user');
-  const year = c.get('year');
-
-  const cached = await getStatsCache(userId, year, 'providers');
-  if (cached) {
-    c.header('Cache-Control', STATS_CACHE_HEADER);
-    return c.json(cached);
-  }
-
-  const items = await getWatchedItemsForYear(userId, year);
-  const result = await aggregateProviders(items);
-
-  await setStatsCache(userId, year, 'providers', result);
-  c.header('Cache-Control', STATS_CACHE_HEADER);
-  return c.json(result);
-});
+app.get(
+  '/:id/stats/:year/providers',
+  user(),
+  yearMiddleware(),
+  yearSegment('providers'),
+);
 
 // Country stats
-app.get('/:id/stats/:year/countries', user(), yearMiddleware(), async (c) => {
-  const { id: userId } = c.get('user');
-  const year = c.get('year');
-
-  const cached = await getStatsCache(userId, year, 'countries');
-  if (cached) {
-    c.header('Cache-Control', STATS_CACHE_HEADER);
-    return c.json(cached);
-  }
-
-  const items = await getWatchedItemsForYear(userId, year);
-  const uniqueSeriesIds = getUniqueSeriesIds(items);
-
-  if (uniqueSeriesIds.length === 0) {
-    c.header('Cache-Control', STATS_CACHE_HEADER);
-    return c.json({});
-  }
-
-  const seriesList = await fetchTvSeriesForStats(uniqueSeriesIds);
-
-  const result = aggregateCountries(seriesList);
-
-  await setStatsCache(userId, year, 'countries', result);
-  c.header('Cache-Control', STATS_CACHE_HEADER);
-  return c.json(result);
-});
+app.get(
+  '/:id/stats/:year/countries',
+  user(),
+  yearMiddleware(),
+  yearSegment('countries'),
+);
 
 // Watched series list (unique series with poster info)
-// Note: Not cached in DynamoDB as the list can be large and we already fetch watched items fresh
 app.get(
   '/:id/stats/:year/watched-series',
   user(),
   yearMiddleware(),
-  async (c) => {
-    const { id: userId } = c.get('user');
-    const year = c.get('year');
-
-    const items = await getWatchedItemsForYear(userId, year);
-
-    // Get unique series, keeping the first occurrence (most recent watch)
-    const uniqueItems = [
-      ...new Map(items.map((item) => [item.seriesId, item])).values(),
-    ];
-
-    const result = uniqueItems.map((item) => ({
-      id: item.seriesId,
-      posterImage: item.posterPath
-        ? buildPosterImageUrl(item.posterPath)
-        : null,
-      slug: item.slug,
-      title: item.title,
-    }));
-
-    c.header('Cache-Control', STATS_CACHE_HEADER);
-    return c.json(result);
-  },
+  yearSegment('watched-series'),
 );
 
 export default app;

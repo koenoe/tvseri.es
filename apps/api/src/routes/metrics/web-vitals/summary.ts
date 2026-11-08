@@ -2,18 +2,12 @@ import { vValidator } from '@hono/valibot-validator';
 import {
   MetricsSummaryQuerySchema,
   type MetricsSummaryResponse,
-  type WebVitalAggregate,
 } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
 
 import type { Variables } from '@/middleware/auth';
 
-import {
-  aggregateSummaries,
-  buildPk,
-  getDateRange,
-  queryExact,
-} from './queries';
+import { aggregateSummaries, buildPk, getDateRange, getExact } from './queries';
 
 const app = new Hono<{ Variables: Variables }>();
 
@@ -38,13 +32,11 @@ app.get('/', vValidator('query', MetricsSummaryQuerySchema), async (c) => {
 
   // Fetch SUMMARY items for each day with filters
   // Data is stored with combined dimension keys: <date>#D#<device>#C#<country>
-  const summaries: WebVitalAggregate[] = [];
-  await Promise.all(
-    dates.map(async (date) => {
-      const pk = buildPk(date, { country, device });
-      const item = await queryExact(pk, 'SUMMARY');
-      if (item) summaries.push(item);
-    }),
+  const summaries = await getExact(
+    dates.map((date) => ({
+      pk: buildPk(date, { country, device }),
+      sk: 'SUMMARY',
+    })),
   );
 
   // Sort by date ascending for chart

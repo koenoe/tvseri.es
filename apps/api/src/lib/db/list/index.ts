@@ -8,6 +8,7 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { ListItem, PaginationOptions } from '@tvseri.es/schemas';
 import { buildPosterImageUrl } from '@tvseri.es/utils';
 import { Resource } from 'sst';
+import { batchGet } from '../batch';
 import client from '../client';
 import { countQuery } from '../count';
 import { decodeCursor, encodeCursor } from '../cursor';
@@ -347,6 +348,34 @@ export const isInList = async (
 
   const result = await client.send(command);
   return !!result.Item;
+};
+
+/**
+ * Whether one item is in the user's FAVORITES and WATCHLIST lists, in a single
+ * BatchGetItem (keys only) instead of a GetItem per list.
+ */
+export const getListStatuses = async (
+  input: Readonly<{
+    userId: string;
+    id: number;
+  }>,
+) => {
+  const favoritesSk = `LIST#FAVORITES#ITEM#${input.id}`;
+  const watchlistSk = `LIST#WATCHLIST#ITEM#${input.id}`;
+
+  const items = await batchGet(
+    Resource.Lists.name,
+    [favoritesSk, watchlistSk].map((sk) =>
+      marshall({ pk: `USER#${input.userId}`, sk }),
+    ),
+    { ProjectionExpression: 'sk' },
+  );
+  const found = new Set(items.map((item) => item.sk?.S));
+
+  return {
+    isFavorited: found.has(favoritesSk),
+    isWatchlisted: found.has(watchlistSk),
+  };
 };
 
 export const addToList = async (

@@ -28,18 +28,21 @@ type SeriesGroup = Readonly<{
  * - If count = 0 -> Remove from both lists
  */
 const syncLists = async ({ userId, seriesId, watchedAt }: SeriesGroup) => {
-  const tvSeries = await cachedTvSeries(seriesId);
+  // Independent reads: TMDB series and the watched COUNT
+  const [tvSeries, count] = await Promise.all([
+    cachedTvSeries(seriesId),
+    getWatchedCountForTvSeries({
+      tvSeriesId: seriesId,
+      userId,
+    }),
+  ]);
+
   if (!tvSeries) {
     console.error(
       `[ERROR] No TV series found for ID "${seriesId}" | User: ${userId}`,
     );
     return;
   }
-
-  const count = await getWatchedCountForTvSeries({
-    tvSeriesId: seriesId,
-    userId,
-  });
 
   console.log(
     `[SYNC] ${tvSeries.title} | User: ${userId} | Count: ${count}/${tvSeries.numberOfAiredEpisodes}`,
@@ -179,25 +182,28 @@ export const handler = async (event: DynamoDBStreamEvent) => {
     });
   }
 
+  const statsEntries = Array.from(statsToInvalidate, (key) => {
+    const [userId, year] = key.split(':');
+    return { userId: userId!, year: Number.parseInt(year!, 10) };
+  });
+
+  // The idempotent steps run in parallel; any failure fails the batch, which
+  // is retried as a whole (safe, they write final state only)
   await Promise.all([
     ...Array.from(groups.values()).map(syncLists),
     markUsersActive(activeUserIds),
+    statsEntries.length > 0
+      ? invalidateStatsCache(statsEntries).then(() => {
+          console.log(
+            `[CACHE] Invalidated stats cache for: ${Array.from(statsToInvalidate).join(', ')}`,
+          );
+        })
+      : undefined,
   ]);
 
-  // Invalidate stats cache for all affected user+year combinations
-  if (statsToInvalidate.size > 0) {
-    await Promise.all(
-      Array.from(statsToInvalidate).map((key) => {
-        const [userId, year] = key.split(':');
-        return invalidateStatsCache(userId!, Number.parseInt(year!, 10));
-      }),
-    );
-    console.log(
-      `[CACHE] Invalidated stats cache for: ${Array.from(statsToInvalidate).join(', ')}`,
-    );
-  }
-
-  // Update the all-time runtime and count counters for affected users
+  // Last, and only once everything above succeeded: the counter deltas are
+  // not idempotent, so a batch retried after a failure above must not have
+  // applied them already
   await applyWatchedCounterDeltas({
     countDeltas: countChanges,
     runtimeDeltas: runtimeChanges,

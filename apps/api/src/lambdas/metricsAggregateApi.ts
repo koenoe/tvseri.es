@@ -1,9 +1,5 @@
 import type { AttributeValue, WriteRequest } from '@aws-sdk/client-dynamodb';
-import {
-  BatchWriteItemCommand,
-  DynamoDBClient,
-  QueryCommand,
-} from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
   APDEX_T,
@@ -20,10 +16,9 @@ import type { ScheduledHandler } from 'aws-lambda';
 import { compile, match } from 'path-to-regexp';
 import { Resource } from 'sst';
 
-const DYNAMO_BATCH_LIMIT = 25;
+import { AGGREGATE_RETRY, batchWrite } from '@/lib/db/batch';
+
 const AGGREGATE_TTL_DAYS = 30;
-const MAX_RETRIES = 5;
-const BASE_DELAY_MS = 100;
 /** Number of shards used for raw metrics (must match metrics.ts) */
 const SHARD_COUNT = 10;
 /** Number of top items to store in leaderboards */
@@ -86,9 +81,6 @@ const MDBLIST_PROVIDERS = new Set(['imdb', 'mal', 'tmdb', 'trakt', 'tvdb']);
 const MDBLIST_MEDIA_TYPES = new Set(['any', 'movie', 'show']);
 
 const dynamoClient = new DynamoDBClient({});
-
-const sleep = (ms: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PATH-TO-REGEXP MATCHERS AND TEMPLATES
@@ -1057,52 +1049,6 @@ const aggregateApiMetrics = (
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Write a batch of items to DynamoDB with exponential backoff retry for UnprocessedItems.
- */
-const batchWriteWithRetry = async (
-  tableName: string,
-  items: WriteRequest[],
-): Promise<void> => {
-  let unprocessed = items;
-  let attempt = 0;
-
-  while (unprocessed.length > 0 && attempt < MAX_RETRIES) {
-    if (attempt > 0) {
-      const delay = BASE_DELAY_MS * 2 ** attempt;
-      await sleep(delay);
-    }
-
-    const result = await dynamoClient.send(
-      new BatchWriteItemCommand({
-        RequestItems: {
-          [tableName]: unprocessed,
-        },
-      }),
-    );
-
-    const remaining = result.UnprocessedItems?.[tableName];
-    if (!remaining || remaining.length === 0) {
-      return;
-    }
-
-    unprocessed = remaining;
-    attempt++;
-    console.warn(
-      `[api-aggregate] ${unprocessed.length} unprocessed items, retry ${attempt}/${MAX_RETRIES}`,
-    );
-  }
-
-  if (unprocessed.length > 0) {
-    console.error(
-      `[api-aggregate] Failed to write ${unprocessed.length} items after ${MAX_RETRIES} retries`,
-    );
-    throw new Error(
-      `Failed to write ${unprocessed.length} items after ${MAX_RETRIES} retries`,
-    );
-  }
-};
-
-/**
  * Write API aggregates to MetricsApi table.
  */
 const writeAggregates = async (items: ApiMetricAggregate[]): Promise<void> => {
@@ -1114,16 +1060,12 @@ const writeAggregates = async (items: ApiMetricAggregate[]): Promise<void> => {
     },
   }));
 
-  // Split into DynamoDB batch chunks (max 25 items per batch)
-  const batches: WriteRequest[][] = [];
-  for (let i = 0; i < writeRequests.length; i += DYNAMO_BATCH_LIMIT) {
-    batches.push(writeRequests.slice(i, i + DYNAMO_BATCH_LIMIT));
-  }
-
-  await Promise.all(
-    batches.map((batch) =>
-      batchWriteWithRetry(Resource.MetricsApiAggregated.name, batch),
-    ),
+  // 25-item batches, retrying UnprocessedItems (cron backoff); throws if any
+  // are left
+  await batchWrite(
+    Resource.MetricsApiAggregated.name,
+    writeRequests,
+    AGGREGATE_RETRY,
   );
 };
 

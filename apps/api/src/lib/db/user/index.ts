@@ -1,5 +1,6 @@
 import {
   ConditionalCheckFailedException,
+  GetItemCommand,
   QueryCommand,
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
@@ -32,6 +33,29 @@ export const USER_PK_PREFIX = 'USER#';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+// The user id is the table's hash key: a GetItem, not a Query
+const getUserItem = async (userId: string) => {
+  const result = await client.send(
+    new GetItemCommand({
+      Key: marshall({ pk: `${USER_PK_PREFIX}${userId}` }),
+      TableName: Resource.Users.name,
+    }),
+  );
+  return result.Item;
+};
+
+const queryUserItem = async (indexName: 'gsi1' | 'gsi2', value: string) => {
+  const result = await client.send(
+    new QueryCommand({
+      ExpressionAttributeValues: marshall({ ':value': value }),
+      IndexName: indexName,
+      KeyConditionExpression: `${indexName}pk = :value`,
+      TableName: Resource.Users.name,
+    }),
+  );
+  return result.Items?.[0];
+};
+
 export const findUser = async (
   input:
     | { userId: string; email?: never; username?: never }
@@ -43,35 +67,20 @@ export const findUser = async (
         username?: never;
       },
 ): Promise<UserRecord | null> => {
-  const [indexName, prefix, value] = input.userId
-    ? [undefined, USER_PK_PREFIX, input.userId]
+  const item = input.userId
+    ? await getUserItem(input.userId)
     : input.email
-      ? ['gsi1', 'EMAIL#', encodeToBase64Url(input.email)]
-      : [
+      ? await queryUserItem('gsi1', `EMAIL#${encodeToBase64Url(input.email)}`)
+      : await queryUserItem(
           'gsi2',
-          'USERNAME#',
-          slugify(input.username!, {
-            lower: true,
-            strict: true,
-          }),
-        ];
+          `USERNAME#${slugify(input.username!, { lower: true, strict: true })}`,
+        );
 
-  const result = await client.send(
-    new QueryCommand({
-      ExpressionAttributeValues: marshall({
-        ':value': `${prefix}${value}`,
-      }),
-      IndexName: indexName,
-      KeyConditionExpression: `${indexName ? `${indexName}pk` : 'pk'} = :value`,
-      TableName: Resource.Users.name,
-    }),
-  );
-
-  if (!result.Items?.[0]) {
+  if (!item) {
     return null;
   }
 
-  const user = unmarshall(result.Items[0]) as UserRecord;
+  const user = unmarshall(item) as UserRecord;
   const {
     id,
     createdAt,

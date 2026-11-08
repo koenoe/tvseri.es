@@ -17,6 +17,7 @@ import {
   buildLogoImageUrl,
   buildPosterImageUrl,
   buildStillImageUrl,
+  pick,
 } from '@tvseri.es/utils';
 import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
@@ -28,6 +29,56 @@ import { countQuery } from '../count';
 import { decodeCursor, encodeCursor } from '../cursor';
 
 const paddedNumber = (value: number) => value.toString().padStart(3, '0');
+
+/** Table and index keys stored on every watched item */
+const KEY_ATTRIBUTES: ReadonlySet<string> = new Set([
+  'gsi1pk',
+  'gsi1sk',
+  'gsi2pk',
+  'gsi2sk',
+  'pk',
+  'sk',
+]);
+
+/**
+ * Drops the table/index keys from a stored watched item: they're storage
+ * details, not part of the WatchedItem contract. Every read that returns
+ * watched items in a response goes through this.
+ */
+const toWatchedItemResponse = <T extends Partial<WatchedItem>>(item: T): T =>
+  Object.fromEntries(
+    Object.entries(item).filter(([key]) => !KEY_ATTRIBUTES.has(key)),
+  ) as T;
+
+/**
+ * The fields progress UI reads (`?view=progress`): season, episode, runtime
+ * and watchedAt.
+ */
+export const PROGRESS_ATTRIBUTES = [
+  'episodeNumber',
+  'runtime',
+  'seasonNumber',
+  'watchedAt',
+] as const satisfies ReadonlyArray<keyof WatchedItem>;
+
+export type WatchedProgressItem = Readonly<
+  Pick<WatchedItem, (typeof PROGRESS_ATTRIBUTES)[number]>
+>;
+
+export const toWatchedProgressItem = (
+  item: WatchedProgressItem,
+): WatchedProgressItem => pick(item, PROGRESS_ATTRIBUTES);
+
+/**
+ * A ProjectionExpression (with attribute name placeholders, so reserved words
+ * are never an issue) for reads that only need a few attributes.
+ */
+const projection = (attributes: ReadonlyArray<keyof WatchedItem>) => ({
+  ExpressionAttributeNames: Object.fromEntries(
+    attributes.map((attribute, index) => [`#p${index}`, attribute]),
+  ),
+  ProjectionExpression: attributes.map((_, index) => `#p${index}`).join(', '),
+});
 
 const createWatchedItem = ({
   episode,
@@ -58,8 +109,25 @@ const createWatchedItem = ({
   watchProviderName: watchProvider?.name ?? null,
 });
 
-const normalizeWatchedItem = (item: WatchedItem) => ({
-  ...item,
+/** The image URLs normalizeWatchedItem adds */
+type WatchedItemImages = Pick<
+  WatchedItem,
+  'episodeStillImage' | 'posterImage' | 'watchProviderLogoImage'
+>;
+
+/** A watched item as read: the projected attributes plus the image URLs */
+type ReadWatchedItem<K extends keyof WatchedItem> = Pick<WatchedItem, K> &
+  WatchedItemImages;
+
+type WatchedPage<K extends keyof WatchedItem> = Readonly<{
+  items: ReadWatchedItem<K>[];
+  nextCursor: string | null;
+}>;
+
+const normalizeWatchedItem = <T extends Partial<WatchedItem>>(
+  item: T,
+): T & WatchedItemImages => ({
+  ...toWatchedItemResponse(item),
   episodeStillImage: item.episodeStillPath
     ? buildStillImageUrl(item.episodeStillPath)
     : undefined,
@@ -234,7 +302,7 @@ export const unmarkWatched = async (
 
 // Fetches a season from TMDB; 400 when it hasn't started airing yet
 const fetchAiredSeason = async (
-  tvSeriesId: number,
+  tvSeriesId: number | string,
   seasonNumber: number,
 ): Promise<Season> => {
   const season = await fetchTvSeriesSeason(tvSeriesId, seasonNumber);
@@ -321,25 +389,25 @@ const buildSeasonWrites = ({
   return { watchedItems, writeRequests };
 };
 
+/**
+ * Marks a season's aired, not yet watched episodes as watched. 400 when the
+ * season hasn't started airing yet.
+ */
 export const markSeasonWatched = async ({
-  userId,
   seasonNumber,
   tvSeries,
+  userId,
   watchProvider,
 }: Readonly<{
-  userId: string;
-  tvSeries: TvSeries;
   seasonNumber: number;
+  tvSeries: TvSeries;
+  userId: string;
   watchProvider?: WatchProvider | null;
 }>) => {
-  const season = await fetchAiredSeason(tvSeries.id, seasonNumber);
-
-  // Get already watched episodes
-  const { items: existingWatched } = await getWatchedForSeason({
-    seasonNumber,
-    tvSeries,
-    userId,
-  });
+  const [season, existingWatched] = await Promise.all([
+    fetchAiredSeason(tvSeries.id, seasonNumber),
+    getWatchedForSeason({ seasonNumber, tvSeriesId: tvSeries.id, userId }),
+  ]);
 
   const { watchedItems, writeRequests } = buildSeasonWrites({
     existingWatched,
@@ -367,9 +435,10 @@ export const unmarkSeasonWatched = async (
     seasonNumber: number;
   }>,
 ) => {
-  const { items } = await getWatchedForSeason({
+  const items = await getWatchedForSeason({
+    attributes: ['episodeNumber'],
     seasonNumber: input.seasonNumber,
-    tvSeries: input.tvSeries,
+    tvSeriesId: input.tvSeries.id,
     userId: input.userId,
   });
 
@@ -391,6 +460,7 @@ export const unmarkSeasonWatched = async (
   await batchWrite(Resource.Watched.name, deleteRequests);
 };
 
+/** Marks every aired episode of every aired season as watched. */
 export const markTvSeriesWatched = async ({
   userId,
   tvSeries,
@@ -466,6 +536,7 @@ export const unmarkTvSeriesWatched = async (
   }>,
 ) => {
   const items = await getAllWatchedForTvSeries({
+    attributes: ['episodeNumber', 'seasonNumber'],
     tvSeriesId: input.tvSeries.id,
     userId: input.userId,
   });
@@ -486,22 +557,44 @@ export const unmarkTvSeriesWatched = async (
   await batchWrite(Resource.Watched.name, deleteRequests);
 };
 
-const getWatchedForTvSeries = async (
-  input: Readonly<{
-    userId: string;
-    tvSeriesId: number | string;
-    options?: PaginationOptions;
-  }>,
-) => {
+type SeriesInput = Readonly<{
+  userId: string;
+  tvSeriesId: number | string;
+}>;
+
+/**
+ * Only these attributes are read (ProjectionExpression); the items then only
+ * hold them. Leave out for full items.
+ */
+type AttributesOption<K extends keyof WatchedItem> = Readonly<{
+  attributes?: ReadonlyArray<K>;
+}>;
+
+// A series' episodes are on gsi1 under `USER#<userId>#SERIES#<seriesId>`,
+// sorted by `S<season>#E<episode>`
+const seriesKeyCondition = (input: SeriesInput) => ({
+  ExpressionAttributeValues: marshall({
+    ':pk': `USER#${input.userId}#SERIES#${input.tvSeriesId}`,
+  }),
+  IndexName: 'gsi1',
+  KeyConditionExpression: 'gsi1pk = :pk',
+});
+
+const getWatchedForTvSeries = async <
+  K extends keyof WatchedItem = keyof WatchedItem,
+>(
+  input: SeriesInput &
+    AttributesOption<K> &
+    Readonly<{
+      options?: PaginationOptions;
+    }>,
+): Promise<WatchedPage<K>> => {
   const { limit = 20, cursor, sortDirection = 'desc' } = input.options ?? {};
 
   const command = new QueryCommand({
+    ...seriesKeyCondition(input),
+    ...(input.attributes && projection(input.attributes)),
     ExclusiveStartKey: decodeCursor(cursor),
-    ExpressionAttributeValues: marshall({
-      ':pk': `USER#${input.userId}#SERIES#${input.tvSeriesId}`,
-    }),
-    IndexName: 'gsi1',
-    KeyConditionExpression: 'gsi1pk = :pk',
     Limit: limit,
     ScanIndexForward: sortDirection === 'asc',
     TableName: Resource.Watched.name,
@@ -511,22 +604,24 @@ const getWatchedForTvSeries = async (
 
   return {
     items:
-      result.Items?.map((item) => {
-        const unmarshalled = unmarshall(item) as WatchedItem;
-        return normalizeWatchedItem(unmarshalled);
-      }) ?? [],
+      result.Items?.map((item) =>
+        normalizeWatchedItem(unmarshall(item) as Pick<WatchedItem, K>),
+      ) ?? [],
     nextCursor: encodeCursor(result.LastEvaluatedKey),
   };
 };
 
-export const getAllWatchedForTvSeries = async (
-  input: Omit<Parameters<typeof getWatchedForTvSeries>[0], 'options'>,
-): Promise<WatchedItem[]> => {
-  const allItems: WatchedItem[] = [];
+export const getAllWatchedForTvSeries = async <
+  K extends keyof WatchedItem = keyof WatchedItem,
+>(
+  input: SeriesInput & AttributesOption<K>,
+) => {
+  const allItems: ReadWatchedItem<K>[] = [];
   let cursor: string | null = null;
 
   do {
-    const result = await getWatchedForTvSeries({
+    const result: WatchedPage<K> = await getWatchedForTvSeries({
+      attributes: input.attributes,
       options: {
         cursor, // Dynamo DB limit
         limit: 1000,
@@ -542,58 +637,59 @@ export const getAllWatchedForTvSeries = async (
   return allItems;
 };
 
-export const getWatchedCountForTvSeries = async (
-  input: Omit<Parameters<typeof getWatchedForTvSeries>[0], 'options'>,
-) => {
+export const getWatchedCountForTvSeries = async (input: SeriesInput) => {
   return countQuery({
-    ExpressionAttributeValues: marshall({
-      ':pk': `USER#${input.userId}#SERIES#${input.tvSeriesId}`,
-    }),
-    IndexName: 'gsi1',
-    KeyConditionExpression: 'gsi1pk = :pk',
+    ...seriesKeyCondition(input),
     TableName: Resource.Watched.name,
   });
 };
 
-const getWatchedForSeason = async (
-  input: Readonly<{
-    userId: string;
-    tvSeries: TvSeriesForWatched;
-    seasonNumber: number;
-    options?: PaginationOptions;
-  }>,
+/**
+ * The watched episodes of one season (first 1000), as stored minus the keys.
+ */
+const getWatchedForSeason = async <
+  K extends keyof WatchedItem = keyof WatchedItem,
+>(
+  input: SeriesInput &
+    AttributesOption<K> &
+    Readonly<{
+      seasonNumber: number;
+    }>,
 ) => {
-  const { limit = 1000, cursor } = input.options ?? {};
   const paddedSeason = paddedNumber(input.seasonNumber);
 
   const command = new QueryCommand({
-    ExclusiveStartKey: decodeCursor(cursor),
+    ...(input.attributes && projection(input.attributes)),
     ExpressionAttributeValues: marshall({
-      ':pk': `USER#${input.userId}#SERIES#${input.tvSeries.id}`,
+      ':pk': `USER#${input.userId}#SERIES#${input.tvSeriesId}`,
       ':season': `S${paddedSeason}`,
     }),
     IndexName: 'gsi1',
     KeyConditionExpression: 'gsi1pk = :pk AND begins_with(gsi1sk, :season)',
-    Limit: limit,
+    Limit: 1000,
     TableName: Resource.Watched.name,
   });
 
   const result = await client.send(command);
 
-  return {
-    items: result.Items?.map((item) => unmarshall(item) as WatchedItem) ?? [],
-    nextCursor: encodeCursor(result.LastEvaluatedKey),
-  };
+  return (
+    result.Items?.map((item) =>
+      toWatchedItemResponse(unmarshall(item) as Pick<WatchedItem, K>),
+    ) ?? []
+  );
 };
 
-export const getWatched = async (
-  input: Readonly<{
-    userId: string;
-    startDate?: Date;
-    endDate?: Date;
-    options?: Omit<PaginationOptions, 'sortBy'>;
-  }>,
-) => {
+export const getWatched = async <
+  K extends keyof WatchedItem = keyof WatchedItem,
+>(
+  input: AttributesOption<K> &
+    Readonly<{
+      userId: string;
+      startDate?: Date;
+      endDate?: Date;
+      options?: Omit<PaginationOptions, 'sortBy'>;
+    }>,
+): Promise<WatchedPage<K>> => {
   const { limit = 20, cursor, sortDirection = 'desc' } = input.options ?? {};
   let KeyConditionExpression = 'gsi2pk = :pk';
   const ExpressionAttributeValues: Record<string, string | number> = {
@@ -606,6 +702,7 @@ export const getWatched = async (
   }
 
   const command = new QueryCommand({
+    ...(input.attributes && projection(input.attributes)),
     ExclusiveStartKey: decodeCursor(cursor),
     ExpressionAttributeValues: marshall(ExpressionAttributeValues),
     IndexName: 'gsi2',
@@ -619,26 +716,29 @@ export const getWatched = async (
 
   return {
     items:
-      result.Items?.map((item) => {
-        const unmarshalled = unmarshall(item) as WatchedItem;
-        return normalizeWatchedItem(unmarshalled);
-      }) ?? [],
+      result.Items?.map((item) =>
+        normalizeWatchedItem(unmarshall(item) as Pick<WatchedItem, K>),
+      ) ?? [],
     nextCursor: encodeCursor(result.LastEvaluatedKey),
   };
 };
 
-export const getAllWatched = async (
-  input: Readonly<{
-    userId: string;
-    startDate?: Date;
-    endDate?: Date;
-  }>,
-): Promise<WatchedItem[]> => {
-  const allItems: WatchedItem[] = [];
+export const getAllWatched = async <
+  K extends keyof WatchedItem = keyof WatchedItem,
+>(
+  input: AttributesOption<K> &
+    Readonly<{
+      userId: string;
+      startDate?: Date;
+      endDate?: Date;
+    }>,
+) => {
+  const allItems: ReadWatchedItem<K>[] = [];
   let cursor: string | null = null;
 
   do {
-    const result = await getWatched({
+    const result: WatchedPage<K> = await getWatched({
+      attributes: input.attributes,
       endDate: input.endDate,
       options: {
         cursor, // Dynamo DB limit

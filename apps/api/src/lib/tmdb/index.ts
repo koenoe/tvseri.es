@@ -7,6 +7,7 @@ import type {
   Keyword,
   Movie,
   Person,
+  PreferredImages,
   Season,
   TmdbCountries,
   TmdbDiscoverTvSeries,
@@ -50,8 +51,14 @@ import { createInstrumentedFetch } from '@/lib/metrics';
 import calculateAge from '@/utils/calculateAge';
 import { dedupe } from '@/utils/dedupe';
 import { mapSettled } from '@/utils/limit';
-import { findPreferredImages } from '../db/preferredImages';
-import detectDominantColorFromImage from '../detectDominantColorFromImage';
+import { logWarn } from '@/utils/logWarn';
+import {
+  findPreferredImages,
+  findPreferredImagesForMany,
+} from '../db/preferredImages';
+import detectDominantColorFromImage, {
+  detectDominantColorsFromImages,
+} from '../detectDominantColorFromImage';
 import {
   fetchBestBritishCrime,
   fetchImdbTopRatedTvSeries,
@@ -152,6 +159,44 @@ export async function fetchTvSeriesBase(
   return series ? normalizeTvSeries(series) : undefined;
 }
 
+/**
+ * Applies the preferred backdrop (and title treatment) when the series has
+ * one; otherwise the backdrop's dominant colour, when it was detected.
+ */
+const withPreferredImages = (
+  tvSeries: TvSeries,
+  preferredImages: PreferredImages | null | undefined,
+  backdropColor: string | undefined,
+): TvSeries => {
+  if (preferredImages?.backdropImagePath) {
+    return {
+      ...tvSeries,
+      backdropColor: preferredImages.backdropColor,
+      backdropImage: buildBackdropImageUrl(preferredImages.backdropImagePath),
+      ...(preferredImages.titleTreatmentImagePath && {
+        titleTreatmentImage: buildTitleTreatmentImageUrl(
+          preferredImages.titleTreatmentImagePath,
+        ),
+      }),
+    };
+  }
+
+  if (tvSeries.backdropPath) {
+    return {
+      ...tvSeries,
+      backdropColor: backdropColor ?? tvSeries.backdropColor,
+    };
+  }
+
+  return tvSeries;
+};
+
+// The dominant colour is only detected for a backdrop without a preferred one
+const needsBackdropColor = (
+  tvSeries: TvSeries,
+  preferredImages: PreferredImages | null | undefined,
+) => !preferredImages?.backdropImagePath && !!tvSeries.backdropPath;
+
 export async function fetchTvSeries(
   id: number | string,
   options: Readonly<{ includeImages?: boolean }> = { includeImages: false },
@@ -167,32 +212,70 @@ export async function fetchTvSeries(
 
   const normalizedTvSeries = normalizeTvSeries(series);
 
-  if (preferredImages?.backdropImagePath) {
-    return {
-      ...normalizedTvSeries,
-      backdropColor: preferredImages.backdropColor,
-      backdropImage: buildBackdropImageUrl(preferredImages.backdropImagePath),
-      ...(preferredImages.titleTreatmentImagePath && {
-        titleTreatmentImage: buildTitleTreatmentImageUrl(
-          preferredImages.titleTreatmentImagePath,
-        ),
-      }),
-    };
-  }
+  const backdropColor = needsBackdropColor(normalizedTvSeries, preferredImages)
+    ? await detectDominantColorFromImage({
+        path: normalizedTvSeries.backdropPath!,
+        size: 'w780',
+      })
+    : undefined;
 
-  if (normalizedTvSeries.backdropPath) {
-    const backdropColor = await detectDominantColorFromImage({
-      path: normalizedTvSeries.backdropPath,
-      size: 'w780',
-    });
+  return withPreferredImages(
+    normalizedTvSeries,
+    preferredImages,
+    backdropColor,
+  );
+}
 
-    return {
-      ...normalizedTvSeries,
-      backdropColor: backdropColor ?? normalizedTvSeries.backdropColor,
-    };
-  }
+/**
+ * `fetchTvSeries` (with images) for a list: the preferred images and the
+ * dominant colours are read in one batch each instead of per series. Series
+ * that don't exist are dropped; see mapSettled for failures.
+ */
+async function fetchTvSeriesListWithImages(ids: ReadonlyArray<number>) {
+  const [seriesList, preferredImagesById] = await Promise.all([
+    mapSettled(
+      ids,
+      async (id) => {
+        const series = await fetchRawTvSeries(id, true);
+        return series ? normalizeTvSeries(series) : undefined;
+      },
+      TMDB_CONCURRENCY,
+    ),
+    // Best-effort: without them the series keep their TMDB backdrops
+    findPreferredImagesForMany(ids).catch((error: unknown) => {
+      logWarn(
+        'Batched preferred images read failed, continuing without them',
+        error,
+      );
+      return new Map<number, PreferredImages>();
+    }),
+  ]);
 
-  return normalizedTvSeries;
+  // Best-effort: without them the series keep their default backdrop colour
+  const backdropColors = await detectDominantColorsFromImages({
+    paths: seriesList
+      .filter((tvSeries) =>
+        needsBackdropColor(tvSeries, preferredImagesById.get(tvSeries.id)),
+      )
+      .map((tvSeries) => tvSeries.backdropPath!),
+    size: 'w780',
+  }).catch((error: unknown) => {
+    logWarn(
+      'Batched dominant colours read failed, continuing without them',
+      error,
+    );
+    return new Map<string, string>();
+  });
+
+  return seriesList.map((tvSeries) =>
+    withPreferredImages(
+      tvSeries,
+      preferredImagesById.get(tvSeries.id),
+      tvSeries.backdropPath
+        ? backdropColors.get(tvSeries.backdropPath)
+        : undefined,
+    ),
+  );
 }
 
 // Parallel TMDB requests per API call (TMDB tolerates ~40-50 req/s)
@@ -512,23 +595,23 @@ export async function fetchPopularTvSeriesByYear(year: number | string) {
     without_genres: withoutGenres.join(','),
   } as const;
 
-  const firstPage = await fetchDiscoverTvSeries({
-    ...query,
-    page: 1,
-  });
-
-  const numberOfPagesToFetch = Math.min(firstPage.totalNumberOfPages - 1, 4);
-  const additionalPages =
-    numberOfPagesToFetch > 0
-      ? await Promise.all(
-          Array.from({ length: numberOfPagesToFetch }, (_, i) =>
-            fetchDiscoverTvSeries({
-              ...query,
-              page: i + 2, // Pages 2, 3, 4, 5
-            }),
-          ),
-        )
-      : [];
+  // Pages 1-5 in parallel; pages past the last one are dropped, so the result
+  // is the same as fetching page 1 first and then only the pages that exist.
+  // Only page 1 failing fails the response: a failed page 2-5 is skipped
+  // (logged), and an empty one adds nothing
+  const [firstPage, ...otherPages] = await Promise.all([
+    fetchDiscoverTvSeries({ ...query, page: 1 }),
+    ...[2, 3, 4, 5].map((page) =>
+      fetchDiscoverTvSeries({ ...query, page }).catch((error: unknown) => {
+        logWarn(`Popular ${year}: page ${page} failed, skipping it`, error);
+        return null;
+      }),
+    ),
+  ]);
+  const additionalPages = otherPages.flatMap((page, i) =>
+    // Past the last page (or no page count at all)
+    page && i + 2 <= firstPage.totalNumberOfPages ? [page] : [],
+  );
 
   return deduplicateDiscoverItems([firstPage, ...additionalPages]).filter(
     (item) =>
@@ -812,11 +895,7 @@ export async function findByExternalId({
 
 export async function fetchTrendingTvSeries() {
   // The spotlight needs preferred backdrops and their dominant colour
-  const series = await mapSettled(
-    await fetchTrending(),
-    (id) => fetchTvSeries(id, { includeImages: true }),
-    TMDB_CONCURRENCY,
-  );
+  const series = await fetchTvSeriesListWithImages(await fetchTrending());
   return series.filter((item) =>
     Boolean(item.posterImage && item.backdropImage),
   );

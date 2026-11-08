@@ -3,13 +3,15 @@
  */
 
 const STATS_CACHE_KEYS = [
-  'summary',
   'favorites-count',
   'spotlight',
   'weekly',
   'genres',
   'providers',
   'countries',
+  'watched-series',
+  /** One year's StatsMetrics: the summary combines this year's and last year's */
+  'metrics',
 ] as const;
 
 export type StatsCacheKey = (typeof STATS_CACHE_KEYS)[number];
@@ -24,7 +26,12 @@ export const buildStatsCacheKey = (
 ): string => `stats:${userId}:${year}:${key}`;
 
 /**
- * Get all cache keys for a user+year combination (for invalidation).
+ * Every cache key that can change when the user's watched items of `year`
+ * change: all of that year's keys (next year's summary reads this year's
+ * `metrics`).
  */
-export const getAllStatsCacheKeys = (userId: string, year: number): string[] =>
+export const getStatsInvalidationKeys = (
+  userId: string,
+  year: number,
+): string[] =>
   STATS_CACHE_KEYS.map((key) => buildStatsCacheKey(userId, year, key));

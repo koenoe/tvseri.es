@@ -16,6 +16,7 @@ import {
   aggregateSummaries,
   buildPk,
   getDateRange,
+  getSummaries,
   queryByPkAndPrefix,
   queryCountryTimeSeries,
   queryEndpointTimeSeries,
@@ -58,18 +59,9 @@ app.get('/', vValidator('query', ApiMetricsSummaryQuerySchema), async (c) => {
 
   const { dates, endDate, startDate } = getDateRange(numDays);
 
-  // Fetch SUMMARY items for each day with optional platform filter
-  const summaries: ApiMetricAggregate[] = [];
-  await Promise.all(
-    dates.map(async (date) => {
-      const pk = buildPk(date, { platform });
-      const items = await queryByPkAndPrefix(pk, 'SUMMARY');
-      summaries.push(...items);
-    }),
-  );
-
-  // Sort by date ascending for chart
-  summaries.sort((a, b) => a.date.localeCompare(b.date));
+  // SUMMARY item of each day with optional platform filter, sorted by date
+  // ascending for the chart
+  const summaries = await getSummaries(dates, { platform });
 
   // Aggregate all summaries into period totals
   const aggregated = aggregateSummaries(summaries);
@@ -333,15 +325,8 @@ app.get(
 
     const { dates, endDate, startDate } = getDateRange(numDays);
 
-    // Fetch SUMMARY items (which contain dependencies)
-    const summaries: ApiMetricAggregate[] = [];
-    await Promise.all(
-      dates.map(async (date) => {
-        const pk = buildPk(date, { platform });
-        const items = await queryByPkAndPrefix(pk, 'SUMMARY');
-        summaries.push(...items);
-      }),
-    );
+    // SUMMARY items (which contain dependencies)
+    const summaries = await getSummaries(dates, { platform });
 
     // Aggregate to get combined dependency stats
     const aggregated = aggregateSummaries(summaries);
@@ -393,14 +378,7 @@ app.get(
 
     const { dates, endDate, startDate } = getDateRange(numDays);
 
-    const summaries: ApiMetricAggregate[] = [];
-    await Promise.all(
-      dates.map(async (date) => {
-        const pk = buildPk(date, { platform });
-        const items = await queryByPkAndPrefix(pk, 'SUMMARY');
-        summaries.push(...items);
-      }),
-    );
+    const summaries = await getSummaries(dates, { platform });
 
     const aggregated = aggregateSummaries(summaries);
     const dependency = aggregated?.dependencies?.[source];

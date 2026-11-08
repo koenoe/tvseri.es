@@ -42,10 +42,28 @@ const hasNothingAiredSince = (
 };
 
 /**
+ * The ids in the user's RESUMING_SOON list, queried once per user (and only
+ * when a series turns out to be resuming soon) instead of a read per series.
+ */
+const createResumingSoonIds = (userId: string) => {
+  let ids: Promise<ReadonlySet<number>> | undefined;
+  return () => {
+    ids ??= getAllListItems({ listId: 'RESUMING_SOON', userId }).then(
+      (items) => new Set(items.map((item) => item.id)),
+    );
+    return ids;
+  };
+};
+
+/**
  * Adds a fully watched series to RESUMING_SOON when new episodes air within
  * two weeks.
  */
-const syncResumingSoon = async (userId: string, tvSeries: TvSeries) => {
+const syncResumingSoon = async (
+  userId: string,
+  tvSeries: TvSeries,
+  getResumingSoonIds: () => Promise<ReadonlySet<number>>,
+) => {
   const twoWeeksFromNow = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
   const tvSeriesIsResumingSoon =
     tvSeries.nextEpisodeToAir &&
@@ -55,11 +73,9 @@ const syncResumingSoon = async (userId: string, tvSeries: TvSeries) => {
     return;
   }
 
-  const isCurrentlyInResumingSoon = await isInList({
-    id: tvSeries.id,
-    listId: 'RESUMING_SOON',
-    userId,
-  });
+  const isCurrentlyInResumingSoon = (await getResumingSoonIds()).has(
+    tvSeries.id,
+  );
 
   if (!isCurrentlyInResumingSoon) {
     console.log(
@@ -103,6 +119,7 @@ const validateUser = async (
   }
 
   const limit = createLimiter(TMDB_CONCURRENCY);
+  const getResumingSoonIds = createResumingSoonIds(user.id);
 
   await Promise.all(
     filteredWatchedListItems.map((item) =>
@@ -119,7 +136,7 @@ const validateUser = async (
 
         // Nothing aired since it was completed: still watched, skip the COUNT
         if (!isFullCheck && hasNothingAiredSince(tvSeries, item.createdAt)) {
-          await syncResumingSoon(user.id, tvSeries);
+          await syncResumingSoon(user.id, tvSeries, getResumingSoonIds);
           return;
         }
 
@@ -135,7 +152,7 @@ const validateUser = async (
         const tvSeriesIsNotWatchedAtAll = watchedCount === 0;
 
         if (tvSeriesIsWatched) {
-          await syncResumingSoon(user.id, tvSeries);
+          await syncResumingSoon(user.id, tvSeries, getResumingSoonIds);
           return;
         }
 

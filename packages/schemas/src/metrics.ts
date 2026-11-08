@@ -577,13 +577,29 @@ export const WebVitalAggregateSchema = v.object({
 // ============================================================================
 
 /**
+ * `days` query param: a whole number of days. The dashboard sends 3, 7 or 30;
+ * other values are clamped to 1-30 like before (defaults to 7). Anything that
+ * isn't a whole number is a 400 instead of silently turning into NaN.
+ */
+const MetricsDaysSchema = v.optional(
+  v.pipe(
+    v.string(),
+    v.regex(/^\d{1,4}$/, 'days must be a whole number'),
+    v.transform(Number),
+    v.toMinValue(1),
+    v.toMaxValue(30),
+  ),
+  '7',
+);
+
+/**
  * Query parameters for metrics summary endpoint.
  */
 export const MetricsSummaryQuerySchema = v.object({
   /** Country filter (ISO code) */
   country: v.optional(v.string()),
   /** Number of days to query (1, 7, or 30) */
-  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  days: MetricsDaysSchema,
   /** Device filter (mobile, tablet, desktop) */
   device: v.optional(v.string()),
 });
@@ -595,7 +611,7 @@ export const MetricsRoutesQuerySchema = v.object({
   /** Country filter (ISO code) */
   country: v.optional(v.string()),
   /** Number of days to query (1, 7, or 30) */
-  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  days: MetricsDaysSchema,
   /** Device filter (mobile, tablet, desktop) */
   device: v.optional(v.string()),
   /** Limit results */
@@ -618,7 +634,7 @@ export const MetricsRouteParamSchema = v.object({
  */
 export const MetricsRouteQuerySchema = v.object({
   /** Number of days to query */
-  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  days: MetricsDaysSchema,
 });
 
 /**
@@ -626,7 +642,7 @@ export const MetricsRouteQuerySchema = v.object({
  */
 export const MetricsCountriesQuerySchema = v.object({
   /** Number of days to query (1, 7, or 30) */
-  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  days: MetricsDaysSchema,
   /** Device filter (mobile, tablet, desktop) */
   device: v.optional(v.string()),
   /** Limit results */
@@ -649,7 +665,7 @@ export const MetricsCountryParamSchema = v.object({
  */
 export const MetricsCountryQuerySchema = v.object({
   /** Number of days to query */
-  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  days: MetricsDaysSchema,
 });
 
 /**
@@ -657,7 +673,7 @@ export const MetricsCountryQuerySchema = v.object({
  */
 export const MetricsDevicesQuerySchema = v.object({
   /** Number of days to query (1, 7, or 30) */
-  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  days: MetricsDaysSchema,
   /** Sort by field */
   sortBy: v.optional(v.picklist(['pageviews', 'score', 'LCP', 'INP', 'CLS'])),
   /** Sort direction */
@@ -680,7 +696,7 @@ export const MetricsDeviceParamSchema = v.object({
  */
 export const ApiMetricsSummaryQuerySchema = v.object({
   /** Number of days to query (1, 7, or 30) */
-  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  days: MetricsDaysSchema,
   /** Platform filter (ios, android, web) */
   platform: v.optional(v.string()),
 });
@@ -698,7 +714,7 @@ export const ApiMetricsEndpointParamSchema = v.object({
  */
 export const ApiMetricsStatusQuerySchema = v.object({
   /** Number of days to query (1, 7, or 30) */
-  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  days: MetricsDaysSchema,
   /** Platform filter (ios, android, web) */
   platform: v.optional(v.string()),
 });
@@ -710,7 +726,7 @@ export const ApiMetricsEndpointsQuerySchema = v.object({
   /** Country filter (ISO code) */
   country: v.optional(v.string()),
   /** Number of days to query (1, 7, or 30) */
-  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  days: MetricsDaysSchema,
   /** Limit results */
   limit: v.optional(v.pipe(v.string(), v.transform(Number))),
   /** Platform filter (ios, android, web) */
@@ -728,7 +744,7 @@ export const ApiMetricsEndpointsQuerySchema = v.object({
  */
 export const ApiMetricsPlatformsQuerySchema = v.object({
   /** Number of days to query (1, 7, or 30) */
-  days: v.optional(v.pipe(v.string(), v.transform(Number)), '7'),
+  days: MetricsDaysSchema,
   /** Sort by field */
   sortBy: v.optional(v.picklist(['requests', 'errorRate', 'p75', 'p99'])),
   /** Sort direction */

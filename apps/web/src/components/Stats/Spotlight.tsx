@@ -34,6 +34,7 @@ export default function Spotlight({
           backdropColor: tvSeries.backdropColor,
           backdropImage: tvSeries.backdropImage,
         }}
+        sizes="(min-width: 1280px) 50vw, 100vw"
       />
       <div className="w-full p-9 xl:p-12">
         <SpotlightTitle
@@ -65,10 +66,9 @@ export default function Spotlight({
         <Image
           alt=""
           className="absolute right-4 top-4 z-10 h-8 w-8 rounded-md"
-          height={92}
+          height={32}
           src={watchProviderLogo}
-          unoptimized
-          width={92}
+          width={32}
         />
       ) : null}
     </Link>

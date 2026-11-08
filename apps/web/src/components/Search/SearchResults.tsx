@@ -85,9 +85,9 @@ function SearchResults({
                   className="rounded-lg object-contain shadow-lg"
                   fill
                   placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(100, 150)}`}
-                  priority
+                  // 2 columns full-screen on mobile, 4 in a 768px modal
+                  sizes="(min-width: 768px) 168px, 50vw"
                   src={series.posterImage}
-                  unoptimized
                   variants={{
                     active: { scale: 1.04 },
                     inactive: { scale: 1 },

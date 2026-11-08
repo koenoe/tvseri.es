@@ -30,6 +30,12 @@ const textStyles = cva(
 
 type TitleVariantProps = VariantProps<typeof imageStyles | typeof textStyles>;
 
+// Matches `imageStyles`: full width on mobile, fixed width from `md`
+const imageSizes = {
+  medium: '(min-width: 768px) 500px, 100vw',
+  small: '(min-width: 768px) 425px, 100vw',
+} as const;
+
 type SpotlightTitleItem = {
   title: string;
   titleTreatmentImage?: string | null;
@@ -46,6 +52,8 @@ export default function SpotlightTitle({
     item: SpotlightTitleItem;
     priority?: boolean;
   }>) {
+  const sizes = imageSizes[size ?? 'medium'];
+
   return (
     <>
       {item.titleTreatmentImage ? (
@@ -54,12 +62,12 @@ export default function SpotlightTitle({
             alt={item.title}
             className="object-contain object-bottom md:object-left-bottom"
             draggable={false}
-            fetchPriority={priority ? 'high' : 'auto'}
             fill
+            // Above the fold, but the backdrop is the LCP and gets the
+            // high priority, so this stays at the default priority
             loading={priority ? 'eager' : 'lazy'}
-            priority={priority}
+            sizes={sizes}
             src={item.titleTreatmentImage}
-            unoptimized
           />
           <span className="hidden">{item.title}</span>
         </h1>

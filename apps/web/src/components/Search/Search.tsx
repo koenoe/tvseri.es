@@ -241,8 +241,9 @@ function SearchComponent() {
             alt=""
             className="h-full w-full"
             height={24}
-            priority
+            loading="eager"
             src={searchIcon}
+            unoptimized
             width={24}
           />
         </div>

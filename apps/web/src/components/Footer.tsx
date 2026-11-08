@@ -21,7 +21,7 @@ export default function Footer() {
               prefetch={false}
               target="_blank"
             >
-              <Image alt="TMDb" height={10} src={Tmdb} width={66} />
+              <Image alt="TMDb" height={10} src={Tmdb} unoptimized width={66} />
             </Link>
             and streaming availability from
             <Link
@@ -30,7 +30,13 @@ export default function Footer() {
               prefetch={false}
               target="_blank"
             >
-              <Image alt="JustWatch" height={10} src={JustWatch} width={66} />
+              <Image
+                alt="JustWatch"
+                height={10}
+                src={JustWatch}
+                unoptimized
+                width={66}
+              />
             </Link>
             but is neither certified nor endorsed by them.
           </p>
@@ -41,7 +47,7 @@ export default function Footer() {
           prefetch={false}
           target="_blank"
         >
-          <Image alt="Github" height={20} src={Github} width={20} />
+          <Image alt="Github" height={20} src={Github} unoptimized width={20} />
         </Link>
       </div>
       <div className="z-5 pointer-events-none absolute inset-0 h-full w-full bg-black/5" />

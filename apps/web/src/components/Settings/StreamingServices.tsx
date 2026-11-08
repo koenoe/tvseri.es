@@ -55,10 +55,9 @@ function SelectedProviderChip({
       <Image
         alt={provider.name}
         className="overflow-hidden rounded-md aspect-square w-full h-full"
-        height={128}
+        height={48}
         src={provider.logo}
-        unoptimized
-        width={128}
+        width={48}
       />
       <div className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-neutral-500">
         <svg

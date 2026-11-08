@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 
 import preloadImage from '@/utils/preloadImage';
 import type { SpotlightTvSeries } from '@/utils/toSpotlightTvSeries';
+import { getBackgroundImageProps } from '../Background/BackgroundImage';
 import { useBackground } from '../Background/BackgroundProvider';
 import Carousel from '../Carousel/Carousel';
 import SpotlightItem from './SpotlightItem';
@@ -33,8 +34,9 @@ export default function Spotlight({
       const item = items[index]!;
       const backgroundColor = item.backdropColor;
       const backgroundImage = item.backdropImage as string;
+      const { src, ...responsive } = getBackgroundImageProps(backgroundImage);
 
-      preloadImage(backgroundImage).finally(() => {
+      preloadImage(src, responsive).finally(() => {
         updateBackground({
           backgroundColor,
           backgroundImage,

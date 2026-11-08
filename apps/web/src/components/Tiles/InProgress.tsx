@@ -96,7 +96,10 @@ function InProgress({
             }}
           >
             {tvSeries.backdropImage ? (
-              <SpotlightBackground item={tvSeries} />
+              <SpotlightBackground
+                item={tvSeries}
+                sizes="(min-width: 1280px) 50vw, 100vw"
+              />
             ) : null}
 
             <div className="flex w-full flex-col gap-5 p-6 md:gap-6 md:p-9">

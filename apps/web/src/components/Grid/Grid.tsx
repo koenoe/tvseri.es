@@ -10,6 +10,10 @@ const gridStyles = cva([
   '[&>*]:!w-full',
 ]);
 
+/** `sizes` for an item stretched to one column of this grid */
+export const gridItemSizes =
+  '(min-width: 1280px) 17vw, (min-width: 768px) 25vw, 50vw';
+
 export default function Grid({
   className,
   children,

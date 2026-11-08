@@ -25,7 +25,17 @@ const nextConfig = {
   cleanDistDir: true,
   experimental: {
     authInterrupts: true,
-    inlineCss: true,
+    /**
+     * Seeds the client router cache from real navigations (static stage +
+     * runtime prefetch), so revisits are instant. Next 16.4 already turns it
+     * on with `cacheComponents`; it's explicit here so the choice is visible.
+     * Only cached (`use cache`) and static output is reused: uncached,
+     * user-specific API reads stay dynamic holes and refetch per navigation.
+     */
+    cachedNavigations: true,
+    // No `inlineCss`: it put the full Tailwind CSS in every page 3–4× (<style>
+    // plus 2–3 copies in the RSC payload), ~150–200 KB uncompressed per page.
+    // One cached stylesheet is cheaper for ISR units, prefetches and parsing.
     // Note: don't think this does much, but alas
     optimizePackageImports: [
       'date-fns',
@@ -38,6 +48,14 @@ const nextConfig = {
       'use-debounce',
       'zustand',
     ],
+    /**
+     * Reuse prefetched static pages/shells in the browser for 30 min instead
+     * of 5, so fewer prefetch requests. Static output holds no user data;
+     * `dynamic` stays 0, so user-specific parts still refetch per navigation.
+     */
+    staleTimes: {
+      static: 1800,
+    },
   },
   async headers() {
     const baseUrl = getBaseUrl();
@@ -79,6 +97,22 @@ const nextConfig = {
       },
       ...hostNoIndexHeaders,
     ];
+  },
+  /**
+   * Every `next/image` goes through `tmdbImageLoader`, which picks a TMDB CDN
+   * size per srcset width. Never the default loader: Vercel Image Optimization
+   * would raise Vercel costs massively. Non-TMDB images (local SVGs, flags,
+   * cast face crops) set `unoptimized`.
+   *
+   * The widths are TMDB's standard sizes, so srcset descriptors match the
+   * files they point to. A `vw`-based `sizes` only gets widths from
+   * `deviceSizes[0] × ratio` up (e.g. `100vw` → 780, 1280, 1920).
+   */
+  images: {
+    deviceSizes: [780, 1280, 1920],
+    imageSizes: [92, 154, 185, 300, 342, 454, 500],
+    loader: 'custom',
+    loaderFile: './src/lib/tmdbImageLoader.ts',
   },
   partialPrefetching: true,
   async redirects() {

@@ -11,17 +11,24 @@ export default function SpotlightBackground({
   className,
   item,
   priority = false,
+  sizes,
 }: Readonly<{
   className?: string;
   item: SpotlightBackgroundItem;
   priority?: boolean;
+  /** Rendered width of the card; defaults to the viewport (see BackgroundImage) */
+  sizes?: string;
 }>) {
   const rgbString = useRgbString(item.backdropColor ?? '#000000');
 
   return (
     <div className={twMerge('absolute inset-0', className)}>
       {item.backdropImage ? (
-        <BackgroundImage priority={priority} src={item.backdropImage} />
+        <BackgroundImage
+          priority={priority}
+          sizes={sizes}
+          src={item.backdropImage}
+        />
       ) : null}
       <div
         className="absolute inset-0 opacity-70"

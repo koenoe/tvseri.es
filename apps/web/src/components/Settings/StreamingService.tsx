@@ -36,13 +36,7 @@ export default function StreamingService({
       onClick={handleRowClick}
     >
       <div className="relative aspect-square size-8 md:size-10 overflow-hidden rounded-md shrink-0">
-        <Image
-          alt={provider.name}
-          height={56}
-          src={provider.logo}
-          unoptimized
-          width={56}
-        />
+        <Image alt={provider.name} height={40} src={provider.logo} width={40} />
       </div>
       <span className="text-sm leading-relaxed">{provider.name}</span>
       <div className="ml-auto" onClick={stopPropagation}>

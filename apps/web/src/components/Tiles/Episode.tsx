@@ -22,12 +22,10 @@ const renderStillPlaceholder = () => (
 function EpisodeTile({
   className,
   item,
-  priority,
   tvSeriesId,
 }: Readonly<{
   className?: string;
   item: Episode;
-  priority?: boolean;
   tvSeriesId: number;
 }>) {
   const showWatchButton = useMemo(
@@ -47,9 +45,9 @@ function EpisodeTile({
               fallback={renderStillPlaceholder}
               height={608}
               placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(489, 275)}`}
-              priority={priority}
+              // Matches the `episodeStyles` widths per breakpoint
+              sizes="(min-width: 1024px) 450px, (min-width: 768px) 350px, 300px"
               src={item.stillImage}
-              unoptimized
               width={1080}
             />
             <div className="absolute -bottom-1 left-0 h-2/5 w-full bg-gradient-to-t from-black/60 to-transparent" />

@@ -61,20 +61,30 @@ export const posterStyles = cva(
 
 export type PosterVariantProps = VariantProps<typeof posterStyles>;
 
+// Matches the `posterStyles` widths per breakpoint
+const posterSizes = {
+  large: '(min-width: 1280px) 250px, (min-width: 1024px) 200px, 183px',
+  medium: '(min-width: 1280px) 217px, (min-width: 1024px) 183px, 167px',
+  small: '(min-width: 1024px) 150px, (min-width: 768px) 126px, 150px',
+} as const;
+
 type PosterProps = {
   className?: string;
   item: PosterItem;
   mediaType?: 'tv' | 'movie';
-  priority?: boolean;
+  /** Overrides the `size` widths, e.g. when a grid stretches the poster */
+  sizes?: string;
 };
 
 function Poster({
   className,
   item,
   mediaType = 'tv',
-  priority,
+  sizes,
   size,
 }: Readonly<PosterProps> & PosterVariantProps) {
+  const imageSizes = sizes ?? posterSizes[size ?? 'large'];
+
   const poster = useCallback(() => {
     return (
       <div className="relative w-full pt-[150%]">
@@ -84,14 +94,13 @@ function Poster({
           draggable={false}
           fill
           placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(300, 450)}`}
-          priority={priority}
+          sizes={imageSizes}
           src={item.posterImage}
-          unoptimized
         />
         <span className="sr-only">{item.title}</span>
       </div>
     );
-  }, [item.posterImage, item.title, priority]);
+  }, [imageSizes, item.posterImage, item.title]);
 
   if (mediaType === 'movie') {
     return (

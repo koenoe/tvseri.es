@@ -32,10 +32,9 @@ export default function DiscoverWatchProviders({
         <Image
           alt={item.label}
           className="h-8 w-8 object-contain"
-          height={56}
+          height={32}
           src={logo as string}
-          unoptimized
-          width={56}
+          width={32}
         />
       );
     },

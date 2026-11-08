@@ -20,6 +20,7 @@
       "entry": ["src/routes/**/*.tsx"]
     },
     "apps/web": {
+      "entry": ["src/lib/tmdbImageLoader.ts"],
       "ignoreDependencies": ["postcss-load-config"]
     },
     "packages/kill-switch": {

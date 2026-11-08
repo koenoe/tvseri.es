@@ -110,8 +110,9 @@ function Logo({ priority = false }: Readonly<{ priority?: boolean }>) {
             alt=""
             className="h-full w-full"
             height={24}
-            priority={priority}
+            loading={priority ? 'eager' : 'lazy'}
             src={logo}
+            unoptimized
             width={24}
           />
         </div>

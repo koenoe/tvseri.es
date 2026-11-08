@@ -18,6 +18,12 @@
       "source": "aws/agent-toolkit-for-aws",
       "sourceType": "github"
     },
+    "core-web-vitals": {
+      "computedHash": "601b2cbb920fb0ea9814a3f11232d7883e1eb0923865218502ab1d73e9fc5172",
+      "skillPath": "skills/core-web-vitals/SKILL.md",
+      "source": "addyosmani/web-quality-skills",
+      "sourceType": "github"
+    },
     "grill-with-docs": {
       "computedHash": "35e62aa423aaeab6a414bcac273f56dfb17802ef2334b41b6a3b00f28196c8cf",
       "skillPath": "skills/engineering/grill-with-docs/SKILL.md",
@@ -58,6 +64,12 @@
       "computedHash": "6fb1757aee3491689ec704b397f4b7ff9e276f500a66403867e77a16b2038594",
       "skillPath": "skills/next-partial-prefetching-adoption/SKILL.md",
       "source": "vercel/next.js",
+      "sourceType": "github"
+    },
+    "performance": {
+      "computedHash": "ce9d36f139a1b2a6a8ac2cb222698963b8076d2dd8b41685e8e8ae589cdcf1e4",
+      "skillPath": "skills/performance/SKILL.md",
+      "source": "addyosmani/web-quality-skills",
       "sourceType": "github"
     },
     "turborepo": {

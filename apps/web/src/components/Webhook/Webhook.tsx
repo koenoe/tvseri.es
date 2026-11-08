@@ -7,10 +7,13 @@ import { twMerge } from 'tailwind-merge';
 
 import { getActionErrorMessage } from '@/app/actionResult';
 import { generateWebhookToken } from '@/app/actions';
+import { EyeIcon } from '@/components/Icons/EyeIcon';
+import { EyeOffIcon } from '@/components/Icons/EyeOffIcon';
+import { PlusIcon } from '@/components/Icons/PlusIcon';
+import { RegenerateIcon } from '@/components/Icons/RegenerateIcon';
 import LoadingDots from '@/components/LoadingDots/LoadingDots';
 
 import CopyButton from './CopyButton';
-import { EyeIcon, EyeOffIcon, PlusIcon, RegenerateIcon } from './WebhookIcons';
 
 const MASK = '*'.repeat(16);
 

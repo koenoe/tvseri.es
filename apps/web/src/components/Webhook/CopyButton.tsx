@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { CheckIcon, CopyIcon } from './WebhookIcons';
+import { CheckIcon } from '@/components/Icons/CheckIcon';
+import { CopyIcon } from '@/components/Icons/CopyIcon';
 
 /** Copies `value`, then shows "Copied" for a second */
 export default function CopyButton({

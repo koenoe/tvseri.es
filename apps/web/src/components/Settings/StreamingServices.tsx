@@ -11,6 +11,7 @@ import {
   useTransition,
 } from 'react';
 import { toast } from 'sonner';
+import { MinusIcon } from '@/components/Icons/MinusIcon';
 import SearchInput from '../Search/SearchInput';
 import StreamingService from './StreamingService';
 
@@ -60,18 +61,7 @@ function SelectedProviderChip({
         width={48}
       />
       <div className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-neutral-500">
-        <svg
-          className="size-3"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M5 12h14"
-            stroke="white"
-            strokeLinecap="round"
-            strokeWidth="2"
-          />
-        </svg>
+        <MinusIcon className="size-3" />
       </div>
     </button>
   );

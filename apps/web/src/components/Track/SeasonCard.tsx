@@ -4,6 +4,7 @@ import type { WatchProvider } from '@tvseri.es/schemas';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
 
+import { ChevronToggleIcon } from '@/components/Icons/ChevronToggleIcon';
 import EpisodeCard from './EpisodeCard';
 import toTrackedEpisode from './toTrackedEpisode';
 import type {
@@ -115,20 +116,10 @@ function SeasonCard({
               onDelete={handleDelete}
               watchedAt={lastWatched?.watchedAt}
             />
-            <motion.svg
-              animate={{
-                rotate: isExpanded ? 180 : 0,
-              }}
+            <ChevronToggleIcon
               className="absolute right-0 top-0 size-6 md:relative md:right-auto md:top-auto"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                clipRule="evenodd"
-                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                fillRule="evenodd"
-              />
-            </motion.svg>
+              isOpen={isExpanded}
+            />
           </div>
         </div>
       </div>

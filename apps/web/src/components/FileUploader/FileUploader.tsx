@@ -8,6 +8,9 @@ import Dropzone, {
 } from 'react-dropzone';
 import { toast } from 'sonner';
 
+import { CloseAltIcon } from '@/components/Icons/CloseAltIcon';
+import { FileIcon } from '@/components/Icons/FileIcon';
+import { UploadIcon } from '@/components/Icons/UploadIcon';
 import formatBytes from '@/utils/formatBytes';
 
 interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -107,22 +110,11 @@ export default function FileUploader(props: FileUploaderProps) {
           >
             <input {...getInputProps()} />
             <div className="flex flex-col items-center justify-center pb-6 pt-5">
-              <svg
+              <UploadIcon
                 className={cx('mb-4 size-8 text-white/60', {
                   '!text-white': isDragActive,
                 })}
-                fill="none"
-                viewBox="0 0 20 16"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                />
-              </svg>
+              />
               <p
                 className={cx('mb-2 text-base text-white/60', {
                   '!text-white': isDragActive,
@@ -176,15 +168,7 @@ function FileCard({
   return (
     <div className="relative flex items-center gap-4">
       <div className="flex flex-1 gap-4">
-        <svg
-          className="size-10"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M6 10h12v1H6zM3 1h12.29L21 6.709V23H3zm12 6h5v-.2L15.2 2H15zM4 22h16V8h-6V2H4zm2-7h12v-1H6zm0 4h9v-1H6z" />
-          <path d="M0 0h24v24H0z" fill="none" />
-        </svg>
+        <FileIcon className="size-10" />
         <div className="flex w-full flex-col gap-1">
           <p className="text-foreground/80 line-clamp-1 text-sm font-medium">
             {file.name}
@@ -199,13 +183,7 @@ function FileCard({
         onClick={handleRemove}
         type="button"
       >
-        <svg
-          fill="currentColor"
-          viewBox="0 0 1024 1024"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M697.4 759.2l61.8-61.8L573.8 512l185.4-185.4-61.8-61.8L512 450.2 326.6 264.8l-61.8 61.8L450.2 512 264.8 697.4l61.8 61.8L512 573.8z" />
-        </svg>
+        <CloseAltIcon />
       </button>
     </div>
   );

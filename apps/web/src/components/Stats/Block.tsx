@@ -3,6 +3,8 @@
 import { cx } from 'class-variance-authority';
 import { useParams } from 'next/navigation';
 
+import { ArrowUpIcon } from '@/components/Icons/ArrowUpIcon';
+
 type ComparisonData = {
   previousValue: string | number;
   delta: number;
@@ -54,17 +56,12 @@ export default function Block({
               isPositiveDelta ? 'text-[#00FFFF]' : 'text-[#FF0080]',
             )}
           >
-            <svg
+            <ArrowUpIcon
               className={cx(
                 'size-3 shrink-0',
                 isPositiveDelta ? 'rotate-[0deg]' : '-rotate-[180deg]',
               )}
-              fill="currentColor"
-              viewBox="0 0 32 32"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M17.504 26.025l.001-14.287 6.366 6.367L26 15.979 15.997 5.975 6 15.971 8.129 18.1l6.366-6.368v14.291z" />
-            </svg>
+            />
             {formatDelta(comparison.delta, comparison.type)}
           </span>
         )}

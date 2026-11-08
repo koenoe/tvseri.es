@@ -1,5 +1,6 @@
 import { twMerge } from 'tailwind-merge';
 
+import { CalendarIcon } from '@/components/Icons/CalendarIcon';
 import { findUser } from '@/lib/api';
 import formatDate from '@/utils/formatDate';
 
@@ -26,18 +27,7 @@ export default async function UserInfo({
           {user.username}
         </span>
         <div className="flex items-center space-x-2 text-xs text-white/50 md:text-sm">
-          <svg
-            className="size-5"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <g fill="none">
-              <path d="M0 0h24v24H0z"></path>
-              <path d="M0 0h24v24H0z"></path>
-            </g>
-            <path d="M17 2c-.55 0-1 .45-1 1v1H8V3c0-.55-.45-1-1-1s-1 .45-1 1v1H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 002 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-1V3c0-.55-.45-1-1-1zm2 18H5V10h14v10zm-8-7c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1-1-.45-1-1zm-4 0c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1-1-.45-1-1zm8 0c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1-1-.45-1-1zm-4 4c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1-1-.45-1-1zm-4 0c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1-1-.45-1-1zm8 0c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1-1-.45-1-1z"></path>
-          </svg>
+          <CalendarIcon className="size-5" />
           <span>Joined {formatDate(user.createdAt)}</span>
         </div>
       </div>

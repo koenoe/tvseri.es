@@ -5,29 +5,13 @@ import { useCallback, useTransition } from 'react';
 import { toast } from 'sonner';
 
 import { getActionErrorMessage } from '@/app/actionResult';
+import { CheckSharpIcon } from '@/components/Icons/CheckSharpIcon';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 import requestWatch from '../Watched/requestWatch';
 import { useWatchedStore } from '../Watched/WatchedStoreProvider';
 import { ContextMenuItem } from './ContextMenuItem';
 
-const checkIcon = (
-  <svg
-    className="size-5"
-    viewBox="0 0 512 512"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <polyline
-      points="416 128 192 384 96 288"
-      style={{
-        fill: 'none',
-        stroke: 'currentColor',
-        strokeLinecap: 'square',
-        strokeMiterlimit: 10,
-        strokeWidth: '44px',
-      }}
-    />
-  </svg>
-);
+const checkIcon = <CheckSharpIcon className="size-5" />;
 
 /**
  * "Watched next episode" for a show's context menu. The next episode comes

@@ -17,8 +17,7 @@
       "entry": ["src/index.ts"]
     },
     "apps/dashboard": {
-      "entry": ["src/routes/**/*.tsx"],
-      "ignoreBinaries": ["vitest"]
+      "entry": ["src/routes/**/*.tsx"]
     },
     "apps/web": {
       "ignoreDependencies": ["postcss-load-config"]

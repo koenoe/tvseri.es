@@ -3,6 +3,10 @@ name: Deploy Production
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - '.claude/**'
+      - 'skills-lock.json'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,10 +29,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
-
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN_PROD }}
           aws-region: eu-west-2
@@ -41,12 +44,12 @@ jobs:
           aws configure set aws_session_token ${{ env.AWS_SESSION_TOKEN }} --profile tvseries-production
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
         with:
           run_install: false
 
       - name: Install Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: '.node-version'
           cache: 'pnpm'

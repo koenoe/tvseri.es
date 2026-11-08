@@ -4,9 +4,15 @@ on:
   pull_request:
     types: [closed]
     branches: [main]
+    # Same as deploy-pr.yml: docs-only PRs never get a stage to remove.
+    paths-ignore:
+      - '**/*.md'
+      - '.claude/**'
+      - 'skills-lock.json'
 
+# Shared with deploy-pr.yml (see there).
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: pr-stage-${{ github.event.pull_request.number }}
   cancel-in-progress: false
 
 permissions:
@@ -22,10 +28,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
-
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN_DEV }}
           aws-region: eu-west-2
@@ -38,12 +43,12 @@ jobs:
           aws configure set aws_session_token ${{ env.AWS_SESSION_TOKEN }} --profile tvseries-dev
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
         with:
           run_install: false
 
       - name: Install Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: '.node-version'
           cache: 'pnpm'
@@ -56,10 +61,13 @@ jobs:
           AWS_HOSTED_ZONE_ID_DEV: ${{ secrets.AWS_HOSTED_ZONE_ID_DEV }}
           VERCEL_API_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
           VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
-        run: pnpm sst remove --stage pr-${{ github.event.pull_request.number }}
+        # A cancelled deploy can leave the stage locked.
+        run: |
+          pnpm sst unlock --stage pr-${{ github.event.pull_request.number }}
+          pnpm sst remove --stage pr-${{ github.event.pull_request.number }}
 
       - name: Update PR Comment
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const { data: comments } = await github.rest.issues.listComments({

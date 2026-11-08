@@ -1,5 +1,6 @@
 'use client';
 
+import { WEB_VITALS_SAMPLE_RATE } from '@tvseri.es/constants';
 import type { NavigationType, WebVitalRecord } from '@tvseri.es/schemas';
 import { useParams, usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
@@ -164,6 +165,10 @@ function queueMetric(metric: Metric): void {
 function initWebVitals(): void {
   if (isInitialized) return;
   isInitialized = true;
+
+  // Sampled per page load: unsampled loads don't even load web-vitals, so they
+  // send nothing (no Vercel function run). The aggregation scales counts up.
+  if (Math.random() >= WEB_VITALS_SAMPLE_RATE) return;
 
   import('web-vitals').then(({ onCLS, onFCP, onINP, onLCP, onTTFB }) => {
     // Register metric handlers

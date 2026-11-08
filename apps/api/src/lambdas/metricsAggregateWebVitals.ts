@@ -5,6 +5,7 @@ import {
   QueryCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { WEB_VITALS_SAMPLE_RATE } from '@tvseri.es/constants';
 import type {
   WebVitalAggregate,
   WebVitalMetricStats,
@@ -18,6 +19,13 @@ import type { ScheduledHandler } from 'aws-lambda';
 import { Resource } from 'sst';
 
 const DYNAMO_BATCH_LIMIT = 25;
+
+/**
+ * Web Vitals are sampled per page load (see WEB_VITALS_SAMPLE_RATE), so counts
+ * (pageviews, per-metric counts, ratings, histogram bins) are extrapolated.
+ * Percentiles and the score are ratios and stay as measured.
+ */
+const SAMPLE_RATE_MULTIPLIER = Math.round(1 / WEB_VITALS_SAMPLE_RATE);
 const AGGREGATE_TTL_DAYS = 30;
 const MAX_RETRIES = 5;
 const BASE_DELAY_MS = 100;
@@ -146,14 +154,19 @@ const aggregateWebVitals = (
 
     const ratings: WebVitalRatings = { good: 0, needsImprovement: 0, poor: 0 };
     for (const rec of filtered) {
-      if (rec.rating === 'good') ratings.good++;
-      else if (rec.rating === 'needs-improvement') ratings.needsImprovement++;
-      else ratings.poor++;
+      if (rec.rating === 'good') ratings.good += SAMPLE_RATE_MULTIPLIER;
+      else if (rec.rating === 'needs-improvement')
+        ratings.needsImprovement += SAMPLE_RATE_MULTIPLIER;
+      else ratings.poor += SAMPLE_RATE_MULTIPLIER;
     }
 
     return {
-      count,
-      histogram: { bins: buildHistogramBins(values, metricName) },
+      count: count * SAMPLE_RATE_MULTIPLIER,
+      histogram: {
+        bins: buildHistogramBins(values, metricName).map(
+          (bin) => bin * SAMPLE_RATE_MULTIPLIER,
+        ),
+      },
       p75: percentile(75),
       p90: percentile(90),
       p95: percentile(95),
@@ -164,7 +177,7 @@ const aggregateWebVitals = (
 
   const countPageviews = (recs: WebVitalRecord[]): number => {
     const uniqueIds = new Set(recs.map((r) => r.id));
-    return uniqueIds.size;
+    return uniqueIds.size * SAMPLE_RATE_MULTIPLIER;
   };
 
   const createAggregate = (

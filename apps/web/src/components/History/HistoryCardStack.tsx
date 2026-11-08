@@ -1,10 +1,10 @@
 'use client';
 
-import type { WatchedItem } from '@tvseri.es/schemas';
 import { LayoutGroup, motion } from 'motion/react';
 import { memo, useCallback, useMemo, useState } from 'react';
 
 import HistoryCard from './HistoryCard';
+import type { HistoryItem } from './toHistoryItem';
 
 // Stack visual configuration
 const STACK_OFFSET = 12;
@@ -19,7 +19,7 @@ const TRANSITION = { duration: 0.25, ease: [0.4, 0, 0.2, 1] } as const;
 // -----------------------------------------------------------------------------
 
 type GroupedItems = ReadonlyArray<{
-  items: WatchedItem[];
+  items: HistoryItem[];
   seriesId: number;
 }>;
 
@@ -32,12 +32,12 @@ type GroupedItems = ReadonlyArray<{
  * e.g. [A, A, B, A] -> [[A, A], [B], [A]]
  */
 function groupConsecutiveItems(
-  items: ReadonlyArray<WatchedItem>,
+  items: ReadonlyArray<HistoryItem>,
 ): GroupedItems {
   if (items.length === 0) return [];
 
-  const groups: { items: WatchedItem[]; seriesId: number }[] = [];
-  let currentGroup: { items: WatchedItem[]; seriesId: number } | null = null;
+  const groups: { items: HistoryItem[]; seriesId: number }[] = [];
+  let currentGroup: { items: HistoryItem[]; seriesId: number } | null = null;
 
   for (const item of items) {
     if (currentGroup && currentGroup.seriesId === item.seriesId) {
@@ -167,7 +167,7 @@ const MemoizedStackedHistoryGroup = memo(StackedHistoryGroup);
 // -----------------------------------------------------------------------------
 
 type HistoryCardStackProps = Readonly<{
-  items: ReadonlyArray<WatchedItem>;
+  items: ReadonlyArray<HistoryItem>;
 }>;
 
 function HistoryCardStack({ items }: HistoryCardStackProps) {

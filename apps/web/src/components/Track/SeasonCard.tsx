@@ -1,12 +1,17 @@
 'use client';
 
-import type { Season, WatchProvider } from '@tvseri.es/schemas';
+import type { WatchProvider } from '@tvseri.es/schemas';
 import { AnimatePresence, motion } from 'motion/react';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
 
 import EpisodeCard from './EpisodeCard';
 import toTrackedEpisode from './toTrackedEpisode';
-import type { TrackedEpisode, WatchedAction, WatchedAtChoice } from './types';
+import type {
+  TrackedEpisode,
+  TrackSeason,
+  WatchedAction,
+  WatchedAtChoice,
+} from './types';
 import WatchDatePicker from './WatchDatePicker';
 
 function SeasonCard({
@@ -17,7 +22,7 @@ function SeasonCard({
   updateItems,
 }: Readonly<{
   expandedSeasonNumber: number | null;
-  season: Season;
+  season: TrackSeason;
   watchProvider?: WatchProvider | null;
   watchedItems: TrackedEpisode[];
   updateItems: (action: WatchedAction) => void;

@@ -1,3 +1,4 @@
+import type { User } from '@tvseri.es/schemas';
 import { headers } from 'next/headers';
 
 const DEFAULT_REGION = 'US';
@@ -45,11 +46,21 @@ export function getRegionFromHeaders(
 }
 
 /**
- * Gets the user's country/region code from request headers.
- * Checks Vercel headers first, falls back to CloudFront, then defaults to 'US'.
- *
- * @returns ISO 3166-1 alpha-2 country code (e.g., 'US', 'GB', 'NL')
+ * The region for watch providers, content ratings etc.: the user's saved
+ * country, else the visitor's geo country, else 'US'. Uses `||` so an empty
+ * saved country falls through too. Every region resolution goes through here
+ * (or `resolveRegionFromHeaders` where the headers are at hand), so all
+ * callers, and so all cache keys, agree.
  */
-export async function getRegion(): Promise<string> {
-  return getRegionFromHeaders(await headers());
+export function resolveRegionFromHeaders(
+  user: Readonly<Pick<User, 'country'>> | null | undefined,
+  headerStore: Headers | ReadonlyHeaders,
+): string {
+  return user?.country || getRegionFromHeaders(headerStore);
+}
+
+export async function resolveRegion(
+  user?: Readonly<Pick<User, 'country'>> | null,
+): Promise<string> {
+  return resolveRegionFromHeaders(user, await headers());
 }

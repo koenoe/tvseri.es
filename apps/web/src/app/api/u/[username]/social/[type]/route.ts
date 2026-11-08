@@ -1,6 +1,10 @@
-import type { Page, UserWithFollowInfo } from '@tvseri.es/schemas';
+import type { Page } from '@tvseri.es/schemas';
 import type { NextRequest } from 'next/server';
 
+import {
+  type FollowItem,
+  toFollowItem,
+} from '@/components/Follow/toFollowItem';
 import { findUser, getFollowers, getFollowing } from '@/lib/api';
 import requireSession from '../../../requireSession';
 
@@ -54,7 +58,7 @@ export async function GET(
     : getFollowers(payload));
 
   return Response.json({
-    items,
+    items: items.map(toFollowItem),
     nextCursor,
-  } satisfies Page<UserWithFollowInfo>);
+  } satisfies Page<FollowItem>);
 }

@@ -1,25 +1,22 @@
-import { cachedUser } from '@/app/cached';
 import auth from '@/auth';
 import { getFollowers, getFollowing } from '@/lib/api';
 
 import Card from './Card';
+import { toFollowItem } from './toFollowItem';
 
 export default async function CardContainer({
+  userId,
   username,
   type,
 }: Readonly<{
+  userId: string;
   username: string;
   type: 'following' | 'followers';
 }>) {
-  const user = await cachedUser({ username });
-  if (!user) {
-    return null;
-  }
-
   const { accessToken } = await auth();
   const payload = {
     accessToken: accessToken ?? undefined,
-    userId: user.id,
+    userId,
   };
 
   const { items, nextCursor } = await (type === 'following'
@@ -30,9 +27,12 @@ export default async function CardContainer({
     return null;
   }
 
+  // Note: only send what the card reads
+  const followItems = items.map(toFollowItem);
+
   return (
     <Card
-      items={items}
+      items={followItems}
       loadMoreUrl={`/api/u/${username}/social/${type}`}
       nextCursor={nextCursor}
       title={type === 'following' ? 'Following' : 'Followers'}

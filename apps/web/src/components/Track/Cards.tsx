@@ -1,6 +1,6 @@
 'use client';
 
-import type { Season, WatchProvider } from '@tvseri.es/schemas';
+import type { WatchProvider } from '@tvseri.es/schemas';
 import { useSearchParams } from 'next/navigation';
 import {
   memo,
@@ -15,7 +15,7 @@ import { actionError, getActionErrorMessage } from '@/app/actionResult';
 import { markWatchedEpisodes, unmarkWatchedEpisodes } from '@/app/watchActions';
 import { useWatchedStore } from '@/components/Watched/WatchedStoreProvider';
 import SeasonCard from './SeasonCard';
-import type { TrackedEpisode, WatchedAction } from './types';
+import type { TrackedEpisode, TrackSeason, WatchedAction } from './types';
 
 const reducer = (state: TrackedEpisode[], { type, items }: WatchedAction) => {
   switch (type) {
@@ -62,7 +62,7 @@ function TrackForm({
   watchProvider,
   watchedItems: watchedItemsFromProps,
 }: Readonly<{
-  seasons: Season[];
+  seasons: TrackSeason[];
   tvSeriesId: number;
   watchProvider?: WatchProvider | null;
   watchedItems: TrackedEpisode[];

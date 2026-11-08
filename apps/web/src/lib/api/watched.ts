@@ -39,42 +39,6 @@ export async function getWatched(
   return result ?? { items: [], nextCursor: null };
 }
 
-export async function getWatchedCount(
-  input: Omit<Parameters<typeof getWatched>[0], 'options'>,
-) {
-  const result = await apiFetch<
-    Readonly<{
-      count: number;
-    }>
-  >('/user/:id/watched/count', {
-    notFound: 'null',
-    params: {
-      id: input.userId,
-    },
-    query: {
-      end_date: input.endDate?.toISOString(),
-      start_date: input.startDate?.toISOString(),
-    },
-  });
-
-  return result?.count ?? 0;
-}
-
-export async function getWatchedRuntime(input: Readonly<{ userId: string }>) {
-  const result = await apiFetch<
-    Readonly<{
-      runtime: number;
-    }>
-  >('/user/:id/watched/runtime', {
-    notFound: 'null',
-    params: {
-      id: input.userId,
-    },
-  });
-
-  return result?.runtime ?? 0;
-}
-
 type WatchedForTvSeriesInput = Readonly<{
   userId: string;
   seriesId: number | string;
@@ -85,9 +49,18 @@ export type WatchedProgressItem = Readonly<
   Pick<WatchedItem, 'episodeNumber' | 'runtime' | 'seasonNumber' | 'watchedAt'>
 >;
 
+/** The fields the /track page reads per watched episode. */
+export type WatchedTrackItem = WatchedProgressItem &
+  Readonly<
+    Pick<
+      WatchedItem,
+      'watchProviderLogoImage' | 'watchProviderLogoPath' | 'watchProviderName'
+    >
+  >;
+
 const fetchWatchedForTvSeries = async <T>(
   input: WatchedForTvSeriesInput,
-  view?: 'progress',
+  view: 'progress' | 'track',
 ): Promise<T[]> => {
   const result = await apiFetch<T[]>('/user/:id/watched/series/:seriesId', {
     notFound: 'null',
@@ -95,18 +68,19 @@ const fetchWatchedForTvSeries = async <T>(
       id: input.userId,
       seriesId: input.seriesId,
     },
-    ...(view ? { query: { view } } : {}),
+    query: { view },
   });
 
   return result ?? [];
 };
 
-export const getAllWatchedForTvSeries = (input: WatchedForTvSeriesInput) =>
-  fetchWatchedForTvSeries<WatchedItem>(input);
-
 /** Lean variant: only season, episode, runtime and watchedAt per episode. */
 export const getWatchedProgressForTvSeries = (input: WatchedForTvSeriesInput) =>
   fetchWatchedForTvSeries<WatchedProgressItem>(input, 'progress');
+
+/** Progress plus the watch provider: what the /track page reads. */
+export const getWatchedTrackForTvSeries = (input: WatchedForTvSeriesInput) =>
+  fetchWatchedForTvSeries<WatchedTrackItem>(input, 'track');
 
 type WatchedTarget = Readonly<{
   episodeNumber?: number;
@@ -134,6 +108,10 @@ const watchedParams = (input: WatchedTarget) => ({
   seriesId: input.seriesId,
 });
 
+/**
+ * Marks the target as watched. Requests `?view=progress`: callers only read
+ * season, episode, runtime and watchedAt of the stored items.
+ */
 export async function markWatched(
   input: WatchedTarget &
     Readonly<{
@@ -142,7 +120,7 @@ export async function markWatched(
       region?: string;
     }>,
 ) {
-  return apiFetch<WatchedItem[]>(watchedPath(input), {
+  return apiFetch<WatchedProgressItem[]>(watchedPath(input), {
     accessToken: input.accessToken,
     body: JSON.stringify({
       region: input.region,
@@ -150,6 +128,7 @@ export async function markWatched(
     }),
     method: 'POST',
     params: watchedParams(input),
+    query: { view: 'progress' },
   });
 }
 

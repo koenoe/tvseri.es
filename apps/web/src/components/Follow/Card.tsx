@@ -1,14 +1,14 @@
 'use client';
 
-import type { UserWithFollowInfo } from '@tvseri.es/schemas';
 import { memo } from 'react';
 
 import usePaginated from '@/hooks/usePaginated';
 import PaginationNotice from '../Grid/PaginationNotice';
 import LoadingDots from '../LoadingDots/LoadingDots';
 import Item from './Item';
+import type { FollowItem } from './toFollowItem';
 
-const getId = (user: UserWithFollowInfo) => user.id;
+const getId = (user: FollowItem) => user.id;
 
 function Card({
   items: initialItems,
@@ -16,7 +16,7 @@ function Card({
   title,
   loadMoreUrl,
 }: Readonly<{
-  items: ReadonlyArray<UserWithFollowInfo>;
+  items: ReadonlyArray<FollowItem>;
   nextCursor?: string | null;
   title: string;
   loadMoreUrl: string;

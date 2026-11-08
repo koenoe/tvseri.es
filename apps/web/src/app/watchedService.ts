@@ -1,7 +1,7 @@
 import type { User } from '@tvseri.es/schemas';
 
 import { fetchTvSeriesWatchProvider, markWatched } from '@/lib/api';
-import { getRegionFromHeaders } from '@/lib/geo';
+import { resolveRegionFromHeaders } from '@/lib/geo';
 
 /**
  * Server-only domain helpers for watch tracking. Deliberately NOT a
@@ -9,7 +9,7 @@ import { getRegionFromHeaders } from '@/lib/geo';
  * must never be exposed as callable server actions.
  */
 
-type HeaderStore = Parameters<typeof getRegionFromHeaders>[0];
+type HeaderStore = Parameters<typeof resolveRegionFromHeaders>[1];
 
 export async function resolveWatchProvider(
   input: Readonly<{
@@ -18,7 +18,7 @@ export async function resolveWatchProvider(
     user: User;
   }>,
 ) {
-  const region = input.user.country || getRegionFromHeaders(input.headers);
+  const region = resolveRegionFromHeaders(input.user, input.headers);
   const watchProvider =
     (await fetchTvSeriesWatchProvider(input.seriesId, region, input.user)) ??
     null;
@@ -29,6 +29,7 @@ export async function resolveWatchProvider(
 /**
  * Marks a series, season or single episode as watched for `user`, resolving
  * the region and preferred watch provider the same way for every caller.
+ * Returns the progress fields (season, episode, runtime, watchedAt) only.
  */
 export async function markEpisodesWatched(
   input: Readonly<{

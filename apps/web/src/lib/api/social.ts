@@ -31,36 +31,6 @@ export async function unfollow({
   });
 }
 
-export async function getFollowerCount(userId: string) {
-  const result = await apiFetch<
-    Readonly<{
-      count: number;
-    }>
-  >('/user/:id/followers/count', {
-    notFound: 'null',
-    params: {
-      id: userId,
-    },
-  });
-
-  return result?.count ?? 0;
-}
-
-export async function getFollowingCount(userId: string) {
-  const result = await apiFetch<
-    Readonly<{
-      count: number;
-    }>
-  >('/user/:id/following/count', {
-    notFound: 'null',
-    params: {
-      id: userId,
-    },
-  });
-
-  return result?.count ?? 0;
-}
-
 export async function getFollowers(
   input: Readonly<{
     userId: string;

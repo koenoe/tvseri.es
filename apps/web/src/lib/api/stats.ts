@@ -24,8 +24,10 @@ type StatsInput = Readonly<{
  * (24h fresh, then served stale while revalidating), so the stats page can be
  * an ISR entry per URL. Concurrent identical calls (e.g. summary ×5) share
  * one entry. `year` is stringified so `2024` and `'2024'` share a key.
- * The `user:<id>` tag is only invalidated on a username change; new watches
- * show up when the entry goes stale (stats are intentionally up to 24h old).
+ * Nothing in the app invalidates these: new watches show up when the entry
+ * goes stale (stats are intentionally up to 24h old), and a rename drops the
+ * username lookup, not the stats (they're keyed on the user id). The
+ * `user:<id>` tag is only there for manual invalidation.
  */
 async function fetchCachedStats(segment: string, userId: string, year: string) {
   'use cache';

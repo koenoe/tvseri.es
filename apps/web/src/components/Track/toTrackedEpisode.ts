@@ -1,6 +1,6 @@
-import type { Episode, WatchedItem } from '@tvseri.es/schemas';
+import type { WatchedItem } from '@tvseri.es/schemas';
 
-import type { TrackedEpisode, WatchedAtChoice } from './types';
+import type { TrackEpisode, TrackedEpisode, WatchedAtChoice } from './types';
 
 type WatchProviderFields = Pick<
   WatchedItem,
@@ -28,7 +28,7 @@ function airDateToWatchedAt(airDate: string) {
 }
 
 export default function toTrackedEpisode(
-  episode: Episode,
+  episode: TrackEpisode,
   watchedAt: WatchedAtChoice,
   watchProvider?: WatchProviderFields,
 ): TrackedEpisode {

@@ -14,7 +14,7 @@ export default async function InProgressContainer({
 }: Readonly<{
   isOwner: boolean;
   item: ListItem;
-  user: User;
+  user: Pick<User, 'id' | 'username'>;
 }>) {
   const [tvSeries, watchedItems] = await Promise.all([
     cachedTvSeries(item.id, { includeImages: true }),

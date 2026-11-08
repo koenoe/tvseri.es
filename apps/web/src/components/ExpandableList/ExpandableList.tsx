@@ -14,7 +14,7 @@ export default function ExpandableList({
   itemHref,
 }: Readonly<{
   className?: string;
-  items: unknown[];
+  items: ReadonlyArray<unknown>;
   label: string;
   initialDisplayCount: number;
   itemKey: (index: number) => string | number;

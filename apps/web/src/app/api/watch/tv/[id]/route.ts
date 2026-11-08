@@ -42,6 +42,7 @@ export async function POST(
       seriesId: tvSeries.id,
       user,
     });
+    // The API's progress view: only what the watched store reads
     return Response.json(watchedItems);
   } else {
     await unmarkWatched({

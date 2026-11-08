@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
 
+import normalizeSearchQuery from '@/utils/normalizeSearchQuery';
 import MultiSelect, { type Result } from './MultiSelect';
 
 const fetchInitialResults = async (ids: string[]) => {
   const response = await fetch(
-    `/api/keywords?id=${encodeURIComponent(ids.join(','))}`,
+    `/api/keywords?id=${encodeURIComponent([...ids].sort().join(','))}`,
   );
   const keywords = (await response.json()) as Array<{
     id: number;
@@ -47,7 +48,7 @@ export default function DiscoverKeywords({
       signal: AbortSignal;
     }>) => {
       const response = await fetch(
-        `/api/keywords?q=${encodeURIComponent(query)}`,
+        `/api/keywords?q=${encodeURIComponent(normalizeSearchQuery(query))}`,
         { signal },
       );
       const keywords = (await response.json()) as Array<{

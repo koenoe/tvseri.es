@@ -1,7 +1,7 @@
-import type { WatchedItem } from '@tvseri.es/schemas';
+import type { HistoryItem } from './toHistoryItem';
 
 type TimePeriodGroup = Readonly<{
-  items: ReadonlyArray<WatchedItem>;
+  items: ReadonlyArray<HistoryItem>;
   title: string;
 }>;
 
@@ -26,7 +26,7 @@ const getMonthName = (month: number): string => {
  * @returns Array of time period groups with title and items
  */
 export function groupItemsByTimePeriod(
-  items: ReadonlyArray<WatchedItem>,
+  items: ReadonlyArray<HistoryItem>,
 ): TimePeriodGroup[] {
   if (items.length === 0) return [];
 
@@ -35,9 +35,9 @@ export function groupItemsByTimePeriod(
   const previousYear = currentYear - 1;
 
   // Group items into buckets
-  const monthBuckets = new Map<MonthKey, WatchedItem[]>();
-  const yearPeriodBuckets = new Map<YearPeriodKey, WatchedItem[]>();
-  const yearBuckets = new Map<YearKey, WatchedItem[]>();
+  const monthBuckets = new Map<MonthKey, HistoryItem[]>();
+  const yearPeriodBuckets = new Map<YearPeriodKey, HistoryItem[]>();
+  const yearBuckets = new Map<YearKey, HistoryItem[]>();
 
   for (const item of items) {
     const date = new Date(item.watchedAt);

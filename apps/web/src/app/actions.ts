@@ -10,13 +10,13 @@ import { startLogin, toSafeReturnTo } from '@/auth/login';
 import { deleteSession, setUserDisplayCookie } from '@/auth/session';
 import {
   ApiError,
+  findUser,
   follow,
   unfollow,
   updateUser,
   usernameCacheTag,
 } from '@/lib/api';
 import { ACTION_OK, type ActionResult, actionError } from './actionResult';
-import { cachedUser } from './cached';
 
 /**
  * `returnTo` is the path to return to after logging in. It comes from the
@@ -122,7 +122,7 @@ export async function toggleFollow(
 
   const [{ user: userFromSession, accessToken }, user] = await Promise.all([
     auth(),
-    cachedUser({ username }),
+    findUser({ username }),
   ]);
 
   if (!userFromSession || !accessToken) {

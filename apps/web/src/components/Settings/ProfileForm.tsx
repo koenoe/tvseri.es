@@ -16,7 +16,7 @@ const initialState = {
 export default function ProfileForm({
   user,
 }: Readonly<{
-  user: User;
+  user: Pick<User, 'email' | 'name' | 'username'>;
 }>) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState(

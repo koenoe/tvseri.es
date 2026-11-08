@@ -13,7 +13,7 @@ export default function ContextMenuButtonUser({
   user,
 }: Readonly<{
   className?: string;
-  user: User;
+  user: Pick<User, 'username'>;
 }>) {
   const contextMenuButtonRef = useRef<ContextMenuButtonHandle>(null);
 

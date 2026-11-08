@@ -1,14 +1,14 @@
 'use client';
 
-import type { WatchedItem } from '@tvseri.es/schemas';
 import { memo, useMemo } from 'react';
 
 import { groupItemsByTimePeriod } from './groupItemsByTimePeriod';
 import HistoryCardStack from './HistoryCardStack';
 import Timeline, { type TimelineEntry } from './Timeline';
+import type { HistoryItem } from './toHistoryItem';
 
 type Props = Readonly<{
-  items: ReadonlyArray<WatchedItem>;
+  items: ReadonlyArray<HistoryItem>;
 }>;
 
 function HistoryTimeline({ items }: Props) {

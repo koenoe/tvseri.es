@@ -1,7 +1,7 @@
 import { cx } from 'class-variance-authority';
 import auth from '@/auth';
 import { fetchTvSeriesContentRating } from '@/lib/api';
-import { getRegion } from '@/lib/geo';
+import { resolveRegion } from '@/lib/geo';
 
 export default async function ContentRating({
   className,
@@ -10,10 +10,10 @@ export default async function ContentRating({
   className?: string;
   id: number;
 }) {
-  const [region, { user }] = await Promise.all([getRegion(), auth()]);
+  const { user } = await auth();
   const contentRating = await fetchTvSeriesContentRating(
     id,
-    user?.country || region,
+    await resolveRegion(user),
   );
 
   return contentRating ? (

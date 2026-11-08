@@ -33,15 +33,12 @@ export { fetchGenresForTvSeries } from './genres';
 
 // Keywords
 export { fetchKeyword, searchKeywords } from './keywords';
-
 // Lists
 export {
   addToFavorites,
   addToWatchlist,
   getListItems,
-  getListItemsCount,
-  isInFavorites,
-  isInWatchlist,
+  getListStatus,
   removeFromFavorites,
   removeFromList,
   removeFromWatchlist,
@@ -63,8 +60,8 @@ export { searchTvSeries } from './search';
 // Series
 export {
   fetchTvSeries,
+  fetchTvSeriesCast,
   fetchTvSeriesContentRating,
-  fetchTvSeriesCredits,
   fetchTvSeriesImages,
   fetchTvSeriesKeywords,
   fetchTvSeriesRating,
@@ -76,10 +73,8 @@ export {
 // Social (follow/unfollow)
 export {
   follow,
-  getFollowerCount,
   getFollowers,
   getFollowing,
-  getFollowingCount,
   isFollowing,
   unfollow,
 } from './social';
@@ -100,16 +95,16 @@ export {
 export {
   findPublicUser,
   findUser,
+  getProfileCount,
+  type ProfileCount,
   usernameCacheTag,
 } from './users';
 
 // Watched
 export {
-  getAllWatchedForTvSeries,
   getWatched,
-  getWatchedCount,
   getWatchedProgressForTvSeries,
-  getWatchedRuntime,
+  getWatchedTrackForTvSeries,
   markWatched,
   markWatchedInBatch,
   unmarkWatched,

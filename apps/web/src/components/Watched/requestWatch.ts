@@ -6,7 +6,8 @@ type WatchRequest = Readonly<{
 
 /**
  * Marks or unmarks a series, season or episode as watched via the shared
- * route handler. Marking responds with the stored WatchedItem[].
+ * route handler. Marking responds with the marked episodes (progress fields:
+ * season, episode, runtime, watchedAt).
  */
 export default function requestWatch(tvSeriesId: number, body: WatchRequest) {
   return fetch(`/api/watch/tv/${tvSeriesId}`, {

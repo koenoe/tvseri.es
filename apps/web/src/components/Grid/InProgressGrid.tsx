@@ -6,7 +6,7 @@ import InProgressContainer from '../Tiles/InProgressContainer';
 
 export default async function InProgressGrid({
   user,
-}: Readonly<{ user: User }>) {
+}: Readonly<{ user: Pick<User, 'id' | 'username'> }>) {
   const [{ items }, session] = await Promise.all([
     getListItems({
       listId: 'IN_PROGRESS',

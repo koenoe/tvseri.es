@@ -12,10 +12,11 @@ import PersonGrid from '@/components/Grid/PersonGrid';
 import KnownFor from '@/components/KnownFor/KnownFor';
 import Page from '@/components/Page/Page';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
+import canonicalPath from '@/utils/canonicalPath';
 import { formatDateOnly } from '@/utils/formatDate';
 import getBaseUrl from '@/utils/getBaseUrl';
-import isNumericId from '@/utils/isNumericId';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
+import toCanonicalId from '@/utils/toCanonicalId';
 
 type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
@@ -46,24 +47,24 @@ export async function generateMetadata({
   params: paramsFromProps,
 }: Props): Promise<Metadata> {
   const params = await paramsFromProps;
+  const id = toCanonicalId(params.id);
 
-  if (!isNumericId(params.id)) {
+  if (!id) {
     return {};
   }
 
-  const person = await cachedPerson(params.id);
+  const person = await cachedPerson(id);
 
-  if (!person || person.isAdult) {
+  // Non-canonical URLs redirect (see the page), so they get no metadata
+  if (
+    !person ||
+    person.isAdult ||
+    canonicalPath({ id, params, segment: 'person', slug: person.slug })
+  ) {
     return {};
   }
 
-  const slug = params.slug?.join('');
-
-  if (person.slug && person.slug !== slug) {
-    return {};
-  }
-
-  const canonicalUrl = `${getBaseUrl()}/person/${params.id}/${person.slug}`;
+  const canonicalUrl = `${getBaseUrl()}/person/${id}/${person.slug}`;
 
   return {
     alternates: {
@@ -96,21 +97,29 @@ export default async function PersonDetailsPage({
   params: paramsFromProps,
 }: Props) {
   const params = await paramsFromProps;
+  const id = toCanonicalId(params.id);
 
-  if (!isNumericId(params.id)) {
+  if (!id) {
     return notFound();
   }
 
-  const person = await cachedPerson(params.id);
+  // Fetched with the canonical id, so `/person/0123` shares the `123` entry
+  const person = await cachedPerson(id);
 
   if (!person || person.isAdult) {
     return notFound();
   }
 
-  const slug = params.slug?.join('');
+  // One redirect for both a non-canonical id (leading zeros) and a stale slug
+  const redirectPath = canonicalPath({
+    id,
+    params,
+    segment: 'person',
+    slug: person.slug,
+  });
 
-  if (person.slug && person.slug !== slug) {
-    return permanentRedirect(`/person/${params.id}/${person.slug}`);
+  if (redirectPath) {
+    return permanentRedirect(redirectPath);
   }
 
   return (
@@ -128,11 +137,13 @@ export default async function PersonDetailsPage({
                     alt={person.name}
                     className="rounded-lg object-cover"
                     draggable={false}
+                    // The page's LCP: there's no backdrop on person pages
+                    fetchPriority="high"
                     fill
+                    loading="eager"
                     placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(300, 450)}`}
-                    priority
+                    sizes="(min-width: 768px) 25vw, 100vw"
                     src={person.image}
-                    unoptimized
                   />
                 ) : (
                   <div className="absolute inset-0 h-full w-full overflow-hidden rounded-lg bg-white/5" />

@@ -1,8 +1,8 @@
 import type { Keyword } from '@tvseri.es/schemas';
 import type { NextRequest } from 'next/server';
-
 import { fetchKeyword, searchKeywords } from '@/lib/api';
 import isNumericId from '@/utils/isNumericId';
+import normalizeSearchQuery from '@/utils/normalizeSearchQuery';
 import { CACHE_HEADERS } from '../cacheHeaders';
 
 // Same cap as discover's list filters (`MAX_DISCOVER_LIST_VALUES`), which is
@@ -16,7 +16,7 @@ async function fetchKeywords(ids: ReadonlyArray<string>) {
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const query = searchParams.get('q');
+  const query = normalizeSearchQuery(searchParams.get('q') ?? '');
   const idParam = searchParams.get('id');
   const ids = idParam
     ? [...new Set(idParam.split(','))].filter(isNumericId)

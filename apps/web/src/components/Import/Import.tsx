@@ -1,6 +1,5 @@
 'use client';
 
-import type { WatchProvider } from '@tvseri.es/schemas';
 import { AnimatePresence, motion, type Transition } from 'motion/react';
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -54,9 +53,7 @@ async function* postChunk(
   }
 }
 
-const createFields = (
-  watchProviders: ReadonlyArray<WatchProvider>,
-): Field[] => [
+const createFields = (watchProviders: ReadonlyArray<string>): Field[] => [
   {
     format: (value) => splitEntry(value).title,
     label: 'Title',
@@ -78,7 +75,7 @@ const createFields = (
   },
   {
     label: 'Streaming service',
-    predefined: watchProviders.map((provider) => provider.name),
+    predefined: [...watchProviders],
     value: 'watchProvider',
   },
 ];
@@ -94,7 +91,8 @@ const rippleTransition: Transition = {
 export default function Import({
   watchProviders,
 }: Readonly<{
-  watchProviders: WatchProvider[];
+  /** Provider names, offered as predefined values for the column */
+  watchProviders: ReadonlyArray<string>;
 }>) {
   const [isImporting, setIsImporting] = useState(false);
   const [hideCsvImporter, setHideCsvImporter] = useState(false);

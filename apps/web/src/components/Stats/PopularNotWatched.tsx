@@ -4,13 +4,12 @@ import { fetchPopularTvSeriesByYear, getStatsWatchedSeries } from '@/lib/api';
 import Poster from '../Tiles/Poster';
 
 export default async function PopularNotWatched({
-  priority,
   year,
   userId,
   ...rest
 }: React.AllHTMLAttributes<HTMLDivElement> &
   HeaderVariantProps &
-  Readonly<{ priority?: boolean; year: number | string; userId: string }>) {
+  Readonly<{ year: number | string; userId: string }>) {
   const [tvSeries, watchedSeries] = await Promise.all([
     fetchPopularTvSeriesByYear(year),
     getStatsWatchedSeries({ userId, year }),
@@ -32,7 +31,7 @@ export default async function PopularNotWatched({
       {...rest}
     >
       {unwatchedSeries.map((item) => (
-        <Poster item={item} key={item.id} priority={priority} size="medium" />
+        <Poster item={item} key={item.id} size="medium" />
       ))}
     </List>
   );

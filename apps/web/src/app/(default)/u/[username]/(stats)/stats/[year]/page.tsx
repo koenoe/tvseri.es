@@ -24,8 +24,26 @@ import WorldMapContainer from '@/components/Stats/WorldMapContainer';
 import { findPublicUser } from '@/lib/api';
 
 type Props = Readonly<{
-  params: Promise<{ username: string; year: number }>;
+  params: Promise<{ username: string; year: string }>;
 }>;
+
+// Earliest plausible watch history (imports can backdate watches). Next year
+// is allowed for time zones ahead of the server's. Computed at module load,
+// not during render: Cache Components rejects `new Date()` in a prerender.
+const FIRST_YEAR = 2000;
+const LAST_YEAR = new Date().getFullYear() + 1;
+
+/**
+ * Only four-digit years in a sane range, so arbitrary values don't each
+ * become their own ISR entry and stats API calls.
+ */
+const isValidYear = (year: string) => {
+  if (!/^\d{4}$/.test(year)) {
+    return false;
+  }
+  const value = Number(year);
+  return value >= FIRST_YEAR && value <= LAST_YEAR;
+};
 
 // Like the /tv seed: one real, long-lived user so the build prerenders a URL.
 const SEED_USERNAME = 'koen';
@@ -41,7 +59,11 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { username } = await params;
+  const { username, year } = await params;
+  if (!isValidYear(year)) {
+    return {};
+  }
+
   const user = await findPublicUser(username);
   if (!user) {
     return {};
@@ -53,7 +75,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function StatsByYearPage({ params }: Props) {
-  const { username, year } = await params;
+  const { username, year: yearParam } = await params;
+  if (!isValidYear(yearParam)) {
+    return notFound();
+  }
+
+  const year = Number(yearParam);
+
   const user = await findPublicUser(username);
   if (!user) {
     return notFound();

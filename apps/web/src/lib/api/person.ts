@@ -10,7 +10,16 @@ export async function fetchPerson(id: number | string) {
   return apiFetch<Person>(`/person/${id}`, { notFound: 'null' });
 }
 
-async function fetchCachedPersonTvCredits(id: string) {
+type CreditsDepartment = 'cast' | 'crew';
+
+/**
+ * Only one side is rendered (cast for actors, crew for everyone else), so the
+ * department is part of the key and the entry keeps just that side.
+ */
+async function fetchCachedPersonTvCredits(
+  id: string,
+  department: CreditsDepartment,
+) {
   'use cache';
   cacheLife('medium');
   cacheTag(`person:${id}`);
@@ -26,16 +35,11 @@ async function fetchCachedPersonTvCredits(id: string) {
       };
     }>
   >(`/person/${id}/credits`);
+  const credits = department === 'cast' ? cast : crew;
   // Credits are only shown as posters
   return {
-    cast: {
-      previous: cast.previous.map(toPosterItem),
-      upcoming: cast.upcoming.map(toPosterItem),
-    },
-    crew: {
-      previous: crew.previous.map(toPosterItem),
-      upcoming: crew.upcoming.map(toPosterItem),
-    },
+    previous: credits.previous.map(toPosterItem),
+    upcoming: credits.upcoming.map(toPosterItem),
   };
 }
 

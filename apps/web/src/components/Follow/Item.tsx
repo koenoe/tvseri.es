@@ -1,15 +1,15 @@
 'use client';
 
-import type { UserWithFollowInfo } from '@tvseri.es/schemas';
 import Link from 'next/link';
 import { memo } from 'react';
 
 import FollowButton from '../Buttons/FollowButton';
+import type { FollowItem } from './toFollowItem';
 
 function Item({
   user,
 }: Readonly<{
-  user: UserWithFollowInfo;
+  user: FollowItem;
 }>) {
   return (
     <div className="relative flex flex-row gap-3 rounded-xl bg-black/10 p-3 md:flex-row md:items-center md:gap-4 md:p-4">

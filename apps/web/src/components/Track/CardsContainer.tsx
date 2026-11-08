@@ -1,16 +1,43 @@
-import type { Season, TvSeries, User } from '@tvseri.es/schemas';
+import type { Episode, Season, TvSeries, User } from '@tvseri.es/schemas';
+import { pick } from '@tvseri.es/utils';
 import { headers } from 'next/headers';
 
 import { cachedTvSeriesSeason } from '@/app/cached';
 import { resolveWatchProvider } from '@/app/watchedService';
-import { getAllWatchedForTvSeries } from '@/lib/api';
+import { getWatchedTrackForTvSeries } from '@/lib/api';
 import Cards from './Cards';
+import type { TrackEpisode, TrackSeason } from './types';
 
-/** The track cards never show descriptions; don't serialise them to the client. */
-const withoutDescriptions = (season: Season): Season => ({
-  ...season,
-  description: '',
-  episodes: season.episodes.map((episode) => ({ ...episode, description: '' })),
+/** Only the episode fields the track cards read go to the client */
+const TRACK_EPISODE_KEYS = [
+  'airDate',
+  'episodeNumber',
+  'hasAired',
+  'id',
+  'runtime',
+  'seasonNumber',
+  'stillImage',
+  'stillPath',
+  'title',
+] as const satisfies ReadonlyArray<keyof TrackEpisode>;
+
+/**
+ * Only the season fields the track cards read go to the client (hasAired was
+ * already checked here).
+ */
+const TRACK_SEASON_KEYS = [
+  'id',
+  'numberOfAiredEpisodes',
+  'seasonNumber',
+  'title',
+] as const satisfies ReadonlyArray<keyof TrackSeason>;
+
+const toTrackEpisode = (episode: Episode): TrackEpisode =>
+  pick(episode, TRACK_EPISODE_KEYS);
+
+const toTrackSeason = (season: Season): TrackSeason => ({
+  ...pick(season, TRACK_SEASON_KEYS),
+  episodes: season.episodes.map(toTrackEpisode),
 });
 
 async function fetchAllSeasons(tvSeries: TvSeries) {
@@ -23,7 +50,7 @@ async function fetchAllSeasons(tvSeries: TvSeries) {
   return seasons
     .filter((season): season is Season => season != null)
     .filter((season) => season.hasAired)
-    .map(withoutDescriptions);
+    .map(toTrackSeason);
 }
 
 /**
@@ -39,7 +66,8 @@ export default async function CardsContainer({
   user: User;
 }>) {
   const [watchedItems, seasons, { watchProvider }] = await Promise.all([
-    getAllWatchedForTvSeries({
+    // `?view=track`: only the fields the track cards read per episode
+    getWatchedTrackForTvSeries({
       seriesId: tvSeries.id,
       userId: user.id,
     }),

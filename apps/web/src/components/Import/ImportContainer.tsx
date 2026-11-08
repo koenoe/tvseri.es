@@ -1,11 +1,13 @@
 import auth from '@/auth';
 import { fetchWatchProviders } from '@/lib/api';
-import { getRegion } from '@/lib/geo';
+import { resolveRegion } from '@/lib/geo';
 import Import from './Import';
 
 export default async function ImportContainer() {
-  const [{ user }, region] = await Promise.all([auth(), getRegion()]);
-  const providers = await fetchWatchProviders(user?.country ?? region);
+  const { user } = await auth();
+  const providers = await fetchWatchProviders(await resolveRegion(user));
+  // Note: the importer only offers the provider names
+  const providerNames = providers.map((provider) => provider.name);
 
-  return <Import watchProviders={providers} />;
+  return <Import watchProviders={providerNames} />;
 }

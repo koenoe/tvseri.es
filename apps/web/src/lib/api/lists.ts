@@ -35,71 +35,6 @@ export async function getListItems(
   return result ?? { items: [], nextCursor: null };
 }
 
-export async function getListItemsCount(
-  input: Omit<Parameters<typeof getListItems>[0], 'options'>,
-) {
-  const result = await apiFetch<
-    Readonly<{
-      count: number;
-    }>
-  >('/user/:id/list/:list/count', {
-    notFound: 'null',
-    params: {
-      id: input.userId,
-      list: input.listId.toLowerCase(),
-    },
-    query: {
-      end_date: input.endDate?.toISOString(),
-      start_date: input.startDate?.toISOString(),
-    },
-  });
-
-  return result?.count ?? 0;
-}
-
-async function isInList(
-  input: Readonly<{
-    userId: string;
-    listId: ListId;
-    id: number;
-  }>,
-) {
-  const result = await apiFetch<
-    Readonly<{
-      value: boolean;
-    }>
-  >('/user/:id/list/:list/:itemId', {
-    notFound: 'null',
-    params: {
-      id: input.userId,
-      itemId: input.id,
-      list: input.listId.toLowerCase(),
-    },
-  });
-
-  return result?.value ?? false;
-}
-
-export async function isInWatchlist(
-  input: Omit<Parameters<typeof isInList>[0], 'listId'>,
-) {
-  return isInList({
-    id: input.id,
-    listId: 'WATCHLIST',
-    userId: input.userId,
-  });
-}
-
-export async function isInFavorites(
-  input: Parameters<typeof isInWatchlist>[0],
-) {
-  return isInList({
-    id: input.id,
-    listId: 'FAVORITES',
-    userId: input.userId,
-  });
-}
-
 async function addToList(
   input: Readonly<{
     userId: string;
@@ -183,4 +118,27 @@ export async function removeFromWatchlist(
     listId: 'WATCHLIST',
     userId: input.userId,
   });
+}
+
+type ListStatus = Readonly<{
+  isFavorited: boolean;
+  isWatchlisted: boolean;
+}>;
+
+/**
+ * Whether a series is in the user's favorites and watchlist, in one API call
+ * (one DynamoDB BatchGetItem).
+ */
+export async function getListStatus(
+  input: Readonly<{ id: number; userId: string }>,
+): Promise<ListStatus> {
+  const result = await apiFetch<ListStatus>('/user/:id/list-status/:seriesId', {
+    notFound: 'null',
+    params: {
+      id: input.userId,
+      seriesId: input.id,
+    },
+  });
+
+  return result ?? { isFavorited: false, isWatchlisted: false };
 }

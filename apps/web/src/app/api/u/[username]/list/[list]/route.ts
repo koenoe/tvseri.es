@@ -1,7 +1,8 @@
-import { type ListItem, type Page, parseListIdParam } from '@tvseri.es/schemas';
+import { type Page, parseListIdParam } from '@tvseri.es/schemas';
 import type { NextRequest } from 'next/server';
 
 import { findUser, getListItems } from '@/lib/api';
+import { type PosterItem, toPosterItem } from '@/utils/toPosterItem';
 import requireSession from '../../../requireSession';
 
 export async function GET(
@@ -43,5 +44,8 @@ export async function GET(
     userId: user.id,
   });
 
-  return Response.json({ items, nextCursor } satisfies Page<ListItem>);
+  return Response.json({
+    items: items.map(toPosterItem),
+    nextCursor,
+  } satisfies Page<PosterItem>);
 }

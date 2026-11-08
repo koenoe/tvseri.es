@@ -1,6 +1,5 @@
-import { cachedUser } from '@/app/cached';
 import auth from '@/auth';
-import { isFollowing as isFollowingResult } from '@/lib/api';
+import { findUser, isFollowing as isFollowingResult } from '@/lib/api';
 
 import ContextMenuButtonUser from './ContextMenuButtonUser';
 import EditProfileButton from './EditProfileButton';
@@ -19,7 +18,7 @@ export default async function UserButtons({
 }>) {
   const { username } = await params;
   const [user, { user: userFromSession }] = await Promise.all([
-    cachedUser({ username }),
+    findUser({ username }),
     auth(),
   ]);
 

@@ -1,22 +1,17 @@
 import type { WatchProvider } from '@tvseri.es/schemas';
 import auth from '@/auth';
 import { fetchWatchProviders, updateWatchProviders } from '@/lib/api';
-import { getRegion } from '@/lib/geo';
+import { resolveRegion } from '@/lib/geo';
 import StreamingServices from './StreamingServices';
 
 export default async function StreamingServicesContainer() {
-  const [region, { user, accessToken }] = await Promise.all([
-    getRegion(),
-    auth(),
-  ]);
+  const { user, accessToken } = await auth();
 
   if (!user || !accessToken) {
     return null;
   }
 
-  const providers = await fetchWatchProviders(user.country || region, {
-    includeColors: true,
-  });
+  const providers = await fetchWatchProviders(await resolveRegion(user));
 
   async function updateAction(watchProviders: WatchProvider[]) {
     'use server';

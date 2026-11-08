@@ -1,19 +1,19 @@
 'use client';
 
-import type { WatchedItem } from '@tvseri.es/schemas';
 import { memo } from 'react';
 
 import usePaginated from '@/hooks/usePaginated';
 import PaginationNotice from '../Grid/PaginationNotice';
 import InfiniteScroll from '../InfiniteScroll/InfiniteScroll';
 import HistoryTimeline from './HistoryTimeline';
+import type { HistoryItem } from './toHistoryItem';
 
 function InfiniteHistoryCardStack({
   items: initialItems,
   nextCursor: initialCursor = null,
   username,
 }: Readonly<{
-  items: ReadonlyArray<WatchedItem>;
+  items: ReadonlyArray<HistoryItem>;
   nextCursor?: string | null;
   username: string;
 }>) {

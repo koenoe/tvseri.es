@@ -1,7 +1,7 @@
 import type { TvSeries } from '@tvseri.es/schemas';
 
 import auth from '@/auth';
-import { isInFavorites, isInWatchlist } from '@/lib/api';
+import { getListStatus } from '@/lib/api';
 
 import ActionButtonsProvider from './ActionButtonsProvider';
 import ContextMenuButtonTvSeries from './ContextMenuButtonTvSeries';
@@ -15,13 +15,8 @@ async function fetchListState(tvSeriesId: number) {
     return { isFavorited: false, isWatchlisted: false };
   }
 
-  const payload = { id: tvSeriesId, userId: user.id };
-  const [isFavorited, isWatchlisted] = await Promise.all([
-    isInFavorites(payload),
-    isInWatchlist(payload),
-  ]);
-
-  return { isFavorited, isWatchlisted };
+  // Both lists in one call (one BatchGetItem in the API)
+  return getListStatus({ id: tvSeriesId, userId: user.id });
 }
 
 /**

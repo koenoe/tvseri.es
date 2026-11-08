@@ -1,6 +1,10 @@
-import type { Page, WatchedItem } from '@tvseri.es/schemas';
+import type { Page } from '@tvseri.es/schemas';
 import type { NextRequest } from 'next/server';
 
+import {
+  type HistoryItem,
+  toHistoryItem,
+} from '@/components/History/toHistoryItem';
 import { findUser, getWatched } from '@/lib/api';
 import requireSession from '../../requireSession';
 
@@ -36,5 +40,8 @@ export async function GET(
     userId: user.id,
   });
 
-  return Response.json({ items, nextCursor } satisfies Page<WatchedItem>);
+  return Response.json({
+    items: items.map(toHistoryItem),
+    nextCursor,
+  } satisfies Page<HistoryItem>);
 }

@@ -6,6 +6,7 @@ import type {
   User,
   WatchProvider,
 } from '@tvseri.es/schemas';
+import { pick } from '@tvseri.es/utils';
 import { cacheLife, cacheTag } from 'next/cache';
 import { toPosterItem } from '@/utils/toPosterItem';
 
@@ -17,11 +18,11 @@ export async function fetchTvSeries(
   id: number | string,
   options: Readonly<{ includeImages?: boolean }> = { includeImages: false },
 ) {
+  // Canonical query: `include_images=false` is the API default, so it's left
+  // out instead of splitting the CDN cache key.
   return apiFetch<TvSeries>(`/series/${id}`, {
     notFound: 'null',
-    query: {
-      include_images: options.includeImages,
-    },
+    query: options.includeImages ? { include_images: true } : undefined,
   });
 }
 
@@ -59,12 +60,11 @@ export async function fetchTvSeriesImages(
 }
 
 // Public per-series data below: cacheLife mirrors the API's Cache-Control and
-// everything is tagged `series:${id}`. Region is always an explicit argument.
+// everything is tagged `series:${id}`. Region is always an explicit argument
+// (resolve it with `resolveRegion`), so the API's CDN key never splits on a
+// missing vs. defaulted region.
 
-async function fetchCachedTvSeriesContentRating(
-  id: string,
-  region: string = 'US',
-) {
+async function fetchCachedTvSeriesContentRating(id: string, region: string) {
   'use cache';
   cacheLife('medium');
   cacheTag(`series:${id}`);
@@ -134,19 +134,41 @@ async function fetchCachedTvSeriesRating(id: string, source: string = 'imdb') {
 
 export const fetchTvSeriesRating = withStringId(fetchCachedTvSeriesRating);
 
-async function fetchCachedTvSeriesCredits(id: string) {
+const MAX_CAST = 10;
+
+const CAST_MEMBER_KEYS = [
+  'character',
+  'id',
+  'image',
+  'job',
+  'name',
+  'slug',
+] as const satisfies ReadonlyArray<keyof Person>;
+
+/** The fields `Avatars` reads. */
+export type CastMember = Readonly<
+  Pick<Person, (typeof CAST_MEMBER_KEYS)[number]>
+>;
+
+/**
+ * Only the top-billed cast is rendered (`Cast`), so the entry keeps just
+ * those, with the fields `Avatars` reads. Crew isn't shown anywhere.
+ */
+async function fetchCachedTvSeriesCast(id: string) {
   'use cache';
   cacheLife('medium');
   cacheTag(`series:${id}`);
-  return apiFetch<
+  const { cast } = await apiFetch<
     Readonly<{
       cast: Person[];
-      crew: Person[];
     }>
   >(`/series/${id}/credits`);
+  return cast
+    .slice(0, MAX_CAST)
+    .map((member) => pick(member, CAST_MEMBER_KEYS));
 }
 
-export const fetchTvSeriesCredits = withStringId(fetchCachedTvSeriesCredits);
+export const fetchTvSeriesCast = withStringId(fetchCachedTvSeriesCast);
 
 async function fetchCachedTvSeriesRecommendations(id: string) {
   'use cache';

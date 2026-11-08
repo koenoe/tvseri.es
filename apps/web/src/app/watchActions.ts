@@ -18,6 +18,10 @@ import { ACTION_OK, type ActionResult, actionError } from './actionResult';
 import { cachedTvSeries } from './cached';
 import { resolveWatchProvider } from './watchedService';
 
+// Same options as the /tv page, so actions read its warm cache entry instead
+// of filling a second (images-less) one.
+const SERIES_OPTIONS = { includeImages: true } as const;
+
 /**
  * Watch-tracking server actions. Every action takes only ids/primitives,
  * re-authenticates on invocation and acts on the caller's own account.
@@ -147,7 +151,7 @@ export async function markWatchedEpisodes(
 
   try {
     const [tvSeries, { watchProvider }] = await Promise.all([
-      cachedTvSeries(tvSeriesId),
+      cachedTvSeries(tvSeriesId, SERIES_OPTIONS),
       resolveWatchProvider({
         headers: await headers(),
         seriesId: tvSeriesId,
@@ -199,7 +203,7 @@ export async function unmarkWatchedEpisodes(
   }
 
   try {
-    const tvSeries = await cachedTvSeries(tvSeriesId);
+    const tvSeries = await cachedTvSeries(tvSeriesId, SERIES_OPTIONS);
     if (!tvSeries) {
       return actionError('not-found');
     }
@@ -283,7 +287,7 @@ export async function setInList(
       return ACTION_OK;
     }
 
-    const tvSeries = await cachedTvSeries(tvSeriesId);
+    const tvSeries = await cachedTvSeries(tvSeriesId, SERIES_OPTIONS);
     if (!tvSeries) {
       return actionError('not-found');
     }

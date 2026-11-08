@@ -1,3 +1,4 @@
+import { pick } from '@tvseri.es/utils';
 import { cx } from 'class-variance-authority';
 import type { Metadata } from 'next';
 import Image from 'next/image';
@@ -15,6 +16,7 @@ import InfoLine from '@/components/InfoLine/InfoLine';
 import KeywordsContainer from '@/components/Keywords/KeywordsContainer';
 import EpisodesList from '@/components/List/EpisodesList';
 import RecommendationsList from '@/components/List/RecommendationsList';
+import { toEpisodesListSeries } from '@/components/List/toEpisodesListSeries';
 import Page from '@/components/Page/Page';
 import PreferredImagesForAdminContainer from '@/components/PreferredImagesForAdmin/PreferredImagesForAdminContainer';
 import ImdbRating from '@/components/Rating/ImdbRating';
@@ -26,8 +28,12 @@ import AddTvSeriesToStoreContainer from '@/components/Watched/AddTvSeriesToStore
 import { toWatchedStoreTvSeries } from '@/components/Watched/toWatchedStoreTvSeries';
 import WatchedProgress from '@/components/Watched/WatchedProgress';
 import WatchProvider from '@/components/WatchProvider/WatchProvider';
+import canonicalPath from '@/utils/canonicalPath';
 import getBaseUrl from '@/utils/getBaseUrl';
-import isNumericId from '@/utils/isNumericId';
+import toCanonicalId from '@/utils/toCanonicalId';
+
+// Only what ExpandableCreators reads
+const CREATOR_KEYS = ['id', 'name', 'slug'] as const;
 
 type Props = Readonly<{
   params: Promise<{ id: string; slug: string[] }>;
@@ -61,24 +67,24 @@ export async function generateMetadata({
   params: paramsFromProps,
 }: Props): Promise<Metadata> {
   const params = await paramsFromProps;
+  const id = toCanonicalId(params.id);
 
-  if (!isNumericId(params.id)) {
+  if (!id) {
     return {};
   }
 
-  const tvSeries = await cachedTvSeries(params.id, TV_SERIES_OPTIONS);
+  const tvSeries = await cachedTvSeries(id, TV_SERIES_OPTIONS);
 
-  if (!tvSeries || tvSeries.isAdult) {
+  // Non-canonical URLs redirect (see the page), so they get no metadata
+  if (
+    !tvSeries ||
+    tvSeries.isAdult ||
+    canonicalPath({ id, params, segment: 'tv', slug: tvSeries.slug })
+  ) {
     return {};
   }
 
-  const slug = params.slug?.join('');
-
-  if (tvSeries.slug && tvSeries.slug !== slug) {
-    return {};
-  }
-
-  const canonicalUrl = `${getBaseUrl()}/tv/${params.id}/${tvSeries.slug}`;
+  const canonicalUrl = `${getBaseUrl()}/tv/${id}/${tvSeries.slug}`;
 
   return {
     alternates: {
@@ -111,22 +117,36 @@ export default async function TvSeriesDetailsPage({
   params: paramsFromProps,
 }: Props) {
   const params = await paramsFromProps;
+  const id = toCanonicalId(params.id);
 
-  if (!isNumericId(params.id)) {
+  if (!id) {
     return notFound();
   }
 
-  const tvSeries = await cachedTvSeries(params.id, TV_SERIES_OPTIONS);
+  // Fetched with the canonical id, so `/tv/0123` shares the `123` entry
+  const tvSeries = await cachedTvSeries(id, TV_SERIES_OPTIONS);
 
   if (!tvSeries || tvSeries.isAdult) {
     return notFound();
   }
 
-  const slug = params.slug?.join('');
+  // One redirect for both a non-canonical id (leading zeros) and a stale slug
+  const redirectPath = canonicalPath({
+    id,
+    params,
+    segment: 'tv',
+    slug: tvSeries.slug,
+  });
 
-  if (tvSeries.slug && tvSeries.slug !== slug) {
-    return permanentRedirect(`/tv/${params.id}/${tvSeries.slug}`);
+  if (redirectPath) {
+    return permanentRedirect(redirectPath);
   }
+
+  // Note: only send what the client components read
+  const creators = tvSeries.createdBy.map((creator) =>
+    pick(creator, CREATOR_KEYS),
+  );
+  const episodesListSeries = toEpisodesListSeries(tvSeries);
 
   // Note: the progress bar and the watched store only need episode totals, so
   // they get this trimmed copy instead of a second full series
@@ -150,13 +170,13 @@ export default async function TvSeriesDetailsPage({
                     alt={tvSeries.title}
                     className="max-w-[500px] object-contain object-bottom md:object-left-bottom"
                     draggable={false}
-                    fetchPriority="high"
                     fill
                     id="title-treatment"
+                    // Above the fold, but the backdrop is the LCP and gets
+                    // the high priority, so this stays at the default one
                     loading="eager"
-                    priority
+                    sizes="(min-width: 768px) 500px, 100vw"
                     src={tvSeries.titleTreatmentImage}
-                    unoptimized
                   />
                   <span className="hidden">{tvSeries.title}</span>
                 </h1>
@@ -220,8 +240,8 @@ export default async function TvSeriesDetailsPage({
             </div>
 
             <div className="flex flex-wrap items-start gap-x-6 text-nowrap text-sm font-medium">
-              {tvSeries.createdBy.length > 0 && (
-                <ExpandableCreators creators={tvSeries.createdBy} />
+              {creators.length > 0 && (
+                <ExpandableCreators creators={creators} />
               )}
             </div>
           </div>
@@ -243,7 +263,10 @@ export default async function TvSeriesDetailsPage({
               <SkeletonList className="mb-10 md:mb-16" variant="episode" />
             }
           >
-            <EpisodesList className="mb-10 md:mb-16" item={tvSeries} />
+            <EpisodesList
+              className="mb-10 md:mb-16"
+              item={episodesListSeries}
+            />
           </Suspense>
         )}
         <Suspense fallback={<SkeletonList />}>
@@ -357,7 +380,6 @@ export default async function TvSeriesDetailsPage({
                       className="brightness-0 invert"
                       height={96}
                       src={tvSeries.network.logo}
-                      unoptimized
                       width={96}
                     />
                   ) : (

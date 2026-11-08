@@ -1,6 +1,6 @@
 'use client';
 
-import type { Episode, WatchProvider } from '@tvseri.es/schemas';
+import type { WatchProvider } from '@tvseri.es/schemas';
 import Image from 'next/image';
 import { memo, useCallback, useMemo } from 'react';
 
@@ -11,7 +11,12 @@ import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 import ImageWithFallback from '../Image/ImageWithFallback';
 import StillPlaceholder from '../Image/StillPlaceholder';
 import toTrackedEpisode from './toTrackedEpisode';
-import type { TrackedEpisode, WatchedAction, WatchedAtChoice } from './types';
+import type {
+  TrackEpisode,
+  TrackedEpisode,
+  WatchedAction,
+  WatchedAtChoice,
+} from './types';
 import WatchDatePicker from './WatchDatePicker';
 
 const renderStillPlaceholder = () => (
@@ -24,7 +29,7 @@ function EpisodeCard({
   watchedItem,
   updateItems,
 }: Readonly<{
-  episode: Episode;
+  episode: TrackEpisode;
   watchProvider?: WatchProvider | null;
   watchedItem?: TrackedEpisode;
   updateItems: (action: WatchedAction) => void;
@@ -77,7 +82,6 @@ function EpisodeCard({
             height={63}
             placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(112, 63)}`}
             src={episode.stillImage}
-            unoptimized
             width={112}
           />
         ) : (
@@ -119,7 +123,6 @@ function EpisodeCard({
             className="absolute right-4 top-4 rounded md:relative md:right-auto md:top-auto"
             height={28}
             src={watchProviderLogoImage}
-            unoptimized
             width={28}
           />
         ) : null}

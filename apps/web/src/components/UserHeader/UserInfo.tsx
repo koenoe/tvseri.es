@@ -1,6 +1,6 @@
 import { twMerge } from 'tailwind-merge';
 
-import { cachedUser } from '@/app/cached';
+import { findUser } from '@/lib/api';
 import formatDate from '@/utils/formatDate';
 
 export default async function UserInfo({
@@ -13,7 +13,7 @@ export default async function UserInfo({
   className?: string;
 }>) {
   const { username } = await params;
-  const user = await cachedUser({ username });
+  const user = await findUser({ username });
 
   if (!user) {
     return null;

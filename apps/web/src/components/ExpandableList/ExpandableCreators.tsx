@@ -1,13 +1,15 @@
 'use client';
 
-import type { TvSeries } from '@tvseri.es/schemas';
+import type { Person } from '@tvseri.es/schemas';
 import { useCallback } from 'react';
 
 import ExpandableList from './ExpandableList';
 
 export default function ExpandableCreators({
   creators,
-}: Readonly<{ creators: TvSeries['createdBy'] }>) {
+}: Readonly<{
+  creators: ReadonlyArray<Readonly<Pick<Person, 'id' | 'name' | 'slug'>>>;
+}>) {
   const itemHref = useCallback(
     (index: number) =>
       `/person/${creators[index]?.id}/${creators[index]?.slug}`,

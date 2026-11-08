@@ -1,19 +1,19 @@
-import { fetchTvSeriesCredits } from '@/lib/api';
+import { fetchTvSeriesCast } from '@/lib/api';
 
 import Avatars from '../Avatars/Avatars';
 
 export default async function Cast({
   className,
   id,
-}: {
+}: Readonly<{
   className?: string;
   id: number;
-}) {
-  const { cast } = await fetchTvSeriesCredits(id);
-  const items = cast.slice(0, 10);
+}>) {
+  // Already trimmed to the top-billed cast inside the cache entry
+  const cast = await fetchTvSeriesCast(id);
 
-  return items.length > 0 ? (
-    <Avatars className={className} items={items} />
+  return cast.length > 0 ? (
+    <Avatars className={className} items={cast} />
   ) : (
     <div className={className} />
   );

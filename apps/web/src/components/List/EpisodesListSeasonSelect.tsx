@@ -1,24 +1,26 @@
 'use client';
 
-import type { TvSeries } from '@tvseri.es/schemas';
 import { AnimatePresence, motion } from 'motion/react';
 import { useSearchParams } from 'next/navigation';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
 
 import DropdownContainer from '../Dropdown/DropdownContainer';
+import type { EpisodesListSeries } from './toEpisodesListSeries';
 
-function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
+function SelectSeason({
+  seasons,
+}: Readonly<{ seasons: EpisodesListSeries['seasons'] }>) {
   const ref = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const searchParams = useSearchParams();
   const selectedSeason = useMemo(
     () =>
-      item.seasons?.find(
+      seasons.find(
         (season) =>
           season.seasonNumber.toString() ===
           (searchParams.get('season') ?? '1'),
       ),
-    [item.seasons, searchParams],
+    [seasons, searchParams],
   );
 
   const handleToggle = useCallback(() => {
@@ -76,14 +78,14 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
             triggerRef={ref}
           >
             <div className="relative flex w-full flex-col gap-2 rounded-lg bg-white p-4 text-black shadow-lg max-h-[500px] overflow-y-auto">
-              {item.seasons?.map((item) => (
+              {seasons.map((season) => (
                 <button
                   className="text-nowrap p-2 text-left text-sm hover:underline"
-                  data-season={item.seasonNumber}
-                  key={item.id}
+                  data-season={season.seasonNumber}
+                  key={season.id}
                   onClick={handleSeasonSelect}
                 >
-                  <span className="drop-shadow-lg">{item.title}</span>
+                  <span className="drop-shadow-lg">{season.title}</span>
                 </button>
               ))}
             </div>
@@ -93,5 +95,7 @@ function SelectSeason({ item }: Readonly<{ item: TvSeries }>) {
     </div>
   );
 }
+
+SelectSeason.displayName = 'SelectSeason';
 
 export default memo(SelectSeason);

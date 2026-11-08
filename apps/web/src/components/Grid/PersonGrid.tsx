@@ -2,17 +2,18 @@ import type { Person } from '@tvseri.es/schemas';
 
 import { fetchPersonTvCredits } from '@/lib/api';
 import Poster from '../Tiles/Poster';
-import Grid from './Grid';
+import Grid, { gridItemSizes } from './Grid';
 
 export default async function PersonGrid({
   person,
 }: Readonly<{
   person: Person;
 }>) {
-  const { cast, crew } = await fetchPersonTvCredits(person.id);
   const isActor = person.knownForDepartment === 'Acting';
-  const upcoming = isActor ? cast.upcoming : crew.upcoming;
-  const previous = isActor ? cast.previous : crew.previous;
+  const { upcoming, previous } = await fetchPersonTvCredits(
+    person.id,
+    isActor ? 'cast' : 'crew',
+  );
 
   return (
     <>
@@ -21,7 +22,7 @@ export default async function PersonGrid({
           <h3 className="mb-6 text-2xl font-medium lg:text-3xl">Upcoming</h3>
           <Grid>
             {upcoming.map((item) => (
-              <Poster item={item} key={item.id} />
+              <Poster item={item} key={item.id} sizes={gridItemSizes} />
             ))}
           </Grid>
         </div>
@@ -31,7 +32,7 @@ export default async function PersonGrid({
           <h3 className="mb-6 text-2xl font-medium lg:text-3xl">Previous</h3>
           <Grid>
             {previous.map((item) => (
-              <Poster item={item} key={item.id} />
+              <Poster item={item} key={item.id} sizes={gridItemSizes} />
             ))}
           </Grid>
         </div>

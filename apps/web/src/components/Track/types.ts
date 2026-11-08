@@ -1,4 +1,27 @@
-import type { WatchedItem } from '@tvseri.es/schemas';
+import type { Episode, Season, WatchedItem } from '@tvseri.es/schemas';
+
+/** The episode fields the track cards read (sent from the server) */
+export type TrackEpisode = Readonly<
+  Pick<
+    Episode,
+    | 'airDate'
+    | 'episodeNumber'
+    | 'hasAired'
+    | 'id'
+    | 'runtime'
+    | 'seasonNumber'
+    | 'stillImage'
+    | 'stillPath'
+    | 'title'
+  >
+>;
+
+/** The season fields the track cards read (sent from the server) */
+export type TrackSeason = Readonly<
+  Pick<Season, 'id' | 'numberOfAiredEpisodes' | 'seasonNumber' | 'title'> & {
+    episodes: ReadonlyArray<TrackEpisode>;
+  }
+>;
 
 /** A (possibly optimistic) watched episode as tracked on the /track page. */
 export type TrackedEpisode = Partial<WatchedItem> &

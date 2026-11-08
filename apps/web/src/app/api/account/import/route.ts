@@ -8,7 +8,7 @@ import type { NextRequest } from 'next/server';
 import { cachedTvSeries, cachedTvSeriesSeason } from '@/app/cached';
 import auth from '@/auth';
 import { fetchWatchProviders, markWatchedInBatch } from '@/lib/api';
-import { getRegionFromHeaders } from '@/lib/geo';
+import { resolveRegionFromHeaders } from '@/lib/geo';
 import { createEpisodeMatcher } from '@/lib/import/matcher';
 import { toNdjsonLine } from '@/lib/import/ndjson';
 import { cachedSearchTvSeries } from '@/lib/import/searchSeries';
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
 
   const { signal } = req;
   const providers = await fetchWatchProviders(
-    user.country ?? getRegionFromHeaders(req.headers),
+    resolveRegionFromHeaders(user, req.headers),
   );
   const matcher = createEpisodeMatcher({
     getSeason: cachedTvSeriesSeason,

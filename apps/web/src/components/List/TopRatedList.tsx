@@ -3,11 +3,8 @@ import Poster from '../Tiles/Poster';
 import List, { type HeaderVariantProps } from './List';
 
 export default async function TopRatedList({
-  priority,
   ...rest
-}: React.AllHTMLAttributes<HTMLDivElement> &
-  HeaderVariantProps &
-  Readonly<{ priority?: boolean }>) {
+}: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps) {
   const items = await fetchTopRatedTvSeries();
 
   return (
@@ -17,7 +14,7 @@ export default async function TopRatedList({
       {...rest}
     >
       {items.map((item) => (
-        <Poster item={item} key={item.id} priority={priority} />
+        <Poster item={item} key={item.id} />
       ))}
     </List>
   );

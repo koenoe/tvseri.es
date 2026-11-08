@@ -3,11 +3,8 @@ import Poster from '../Tiles/Poster';
 import List, { type HeaderVariantProps } from './List';
 
 export default async function MostPopularThisMonthList({
-  priority,
   ...rest
-}: React.AllHTMLAttributes<HTMLDivElement> &
-  HeaderVariantProps &
-  Readonly<{ priority?: boolean }>) {
+}: React.AllHTMLAttributes<HTMLDivElement> & HeaderVariantProps) {
   const { items, month } = await fetchMostPopularTvSeriesThisMonth();
 
   const title = `Top Picks for ${month}`;
@@ -15,7 +12,7 @@ export default async function MostPopularThisMonthList({
   return (
     <List scrollRestoreKey="most-popular-this-month" title={title} {...rest}>
       {items.map((item) => (
-        <Poster item={item} key={item.id} priority={priority} />
+        <Poster item={item} key={item.id} />
       ))}
     </List>
   );

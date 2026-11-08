@@ -31,7 +31,7 @@ export default async function HomePage() {
       <Spotlight className="mb-10 md:mb-20" items={trendingTvSeries} />
 
       <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>
-        <MostPopularThisMonthList className="mb-10 md:mb-16" priority />
+        <MostPopularThisMonthList className="mb-10 md:mb-16" />
       </Suspense>
 
       <Suspense fallback={<SkeletonList className="mb-10 md:mb-16" />}>

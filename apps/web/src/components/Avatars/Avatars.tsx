@@ -1,12 +1,12 @@
 'use client';
 
-import type { Person } from '@tvseri.es/schemas';
 import { cva, cx } from 'class-variance-authority';
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { memo } from 'react';
 
+import type { CastMember } from '@/lib/api/series';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 const MotionImage = motion.create(Image);
@@ -20,10 +20,7 @@ export const avatarStyles = cva(
   'relative w-full flex lg:pt-0 lg:w-24 transform-gpu cursor-pointer flex-col lg:-mr-4 lg:-mt-4',
 );
 
-function Avatar({
-  item,
-  priority = false,
-}: Readonly<{ item: Person; priority?: boolean }>) {
+function Avatar({ item }: Readonly<{ item: CastMember }>) {
   // Children use object `initial` (not string variant labels) so Motion's
   // VisualElement populates `initialValues` for Activity re-show value reset,
   // without breaking whileHover variant propagation from the parent.
@@ -48,8 +45,9 @@ function Avatar({
         height={200}
         initial={{ scale: 1 }}
         placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(200, 200)}`}
-        priority={priority}
         src={item.image}
+        // TMDB face crop (`w138_and_h175_face`): no standard size ladder for
+        // the loader to pick from, so it's used as-is
         unoptimized
         variants={{
           active: { scale: 1.15 },
@@ -81,11 +79,11 @@ function Avatar({
 function Avatars({
   className,
   items,
-}: Readonly<{ className?: string; items: Person[] }>) {
+}: Readonly<{ className?: string; items: ReadonlyArray<CastMember> }>) {
   return (
     <div className={cx(avatarsStyles(), className)}>
-      {items.map((item, index) => (
-        <Avatar item={item} key={item.id} priority={index < 6} />
+      {items.map((item) => (
+        <Avatar item={item} key={item.id} />
       ))}
     </div>
   );

@@ -10,7 +10,8 @@ import Page from '@/components/Page/Page';
 import SkeletonCircleButton from '@/components/Skeletons/SkeletonCircleButton';
 import Poster from '@/components/Tiles/Poster';
 import CardsContainer from '@/components/Track/CardsContainer';
-import isNumericId from '@/utils/isNumericId';
+import canonicalPath from '@/utils/canonicalPath';
+import toCanonicalId from '@/utils/toCanonicalId';
 import { toPosterItem } from '@/utils/toPosterItem';
 
 type Props = Readonly<{
@@ -18,28 +19,44 @@ type Props = Readonly<{
 }>;
 
 export default async function TrackPage({ params: paramsFromProps }: Props) {
-  const { user } = await auth();
+  // Session and params resolve in parallel, and the (cached) series fetch
+  // starts before the session check, so neither waits on the other.
+  const authPromise = auth();
+  const params = await paramsFromProps;
+  const id = toCanonicalId(params.id);
+  // Same options as /tv, so both read one warm cache entry
+  const tvSeriesPromise = id
+    ? cachedTvSeries(id, { includeImages: true })
+    : Promise.resolve(null);
+  // Not awaited when unauthorized: don't surface a rejection as unhandled
+  tvSeriesPromise.catch(() => null);
+
+  const { user } = await authPromise;
 
   if (!user) {
     return unauthorized();
   }
 
-  const params = await paramsFromProps;
-
-  if (!isNumericId(params.id)) {
+  if (!id) {
     return notFound();
   }
 
-  const tvSeries = await cachedTvSeries(params.id);
+  const tvSeries = await tvSeriesPromise;
 
   if (!tvSeries || tvSeries.isAdult) {
     return notFound();
   }
 
-  const slug = params.slug?.join('');
+  // One redirect for both a non-canonical id (leading zeros) and a stale slug
+  const redirectPath = canonicalPath({
+    id,
+    params,
+    segment: 'track',
+    slug: tvSeries.slug,
+  });
 
-  if (tvSeries.slug && tvSeries.slug !== slug) {
-    return permanentRedirect(`/track/${params.id}/${tvSeries.slug}`);
+  if (redirectPath) {
+    return permanentRedirect(redirectPath);
   }
 
   const posterItem = toPosterItem(tvSeries);

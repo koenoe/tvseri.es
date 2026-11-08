@@ -2,7 +2,7 @@ import { cx } from 'class-variance-authority';
 import Image from 'next/image';
 import auth from '@/auth';
 import { fetchTvSeriesWatchProvider } from '@/lib/api';
-import { getRegion } from '@/lib/geo';
+import { resolveRegion } from '@/lib/geo';
 
 export default async function WatchProvider({
   className,
@@ -11,10 +11,10 @@ export default async function WatchProvider({
   className?: string;
   id: number;
 }) {
-  const [region, { user }] = await Promise.all([getRegion(), auth()]);
+  const { user } = await auth();
   const provider = await fetchTvSeriesWatchProvider(
     id,
-    user?.country || region,
+    await resolveRegion(user),
     user,
   );
 
@@ -25,13 +25,7 @@ export default async function WatchProvider({
         className,
       )}
     >
-      <Image
-        alt={provider.name}
-        height={56}
-        src={provider.logo}
-        unoptimized
-        width={56}
-      />
+      <Image alt={provider.name} height={28} src={provider.logo} width={28} />
     </div>
   ) : null;
 }

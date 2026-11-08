@@ -3,15 +3,13 @@ import { type ReactNode, Suspense } from 'react';
 import UserButtons from '@/components/Buttons/UserButtons';
 import Page from '@/components/Page/Page';
 import SkeletonCircleButton from '@/components/Skeletons/SkeletonCircleButton';
-import BlockEpisodesWatched from '@/components/UserHeader/BlockEpisodesWatched';
-import BlockFavorites from '@/components/UserHeader/BlockFavorites';
-import BlockFollowers from '@/components/UserHeader/BlockFollowers';
-import BlockFollowing from '@/components/UserHeader/BlockFollowing';
-import BlockSeriesFinished from '@/components/UserHeader/BlockSeriesFinished';
-import BlockTotalRuntime from '@/components/UserHeader/BlockTotalRuntime';
+import CountBlock from '@/components/UserHeader/CountBlock';
 import UserPills from '@/components/UserHeader/Pills';
 import SkeletonBlock from '@/components/UserHeader/SkeletonBlock';
 import UserInfo from '@/components/UserHeader/UserInfo';
+import formatRuntime from '@/utils/formatRuntime';
+
+const formatTotalRuntime = (minutes: number) => formatRuntime(minutes, false);
 
 export default function Layout({
   children,
@@ -50,22 +48,35 @@ export default function Layout({
 
         <div className="mb-10 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
           <Suspense fallback={<SkeletonBlock />}>
-            <BlockTotalRuntime params={params} />
+            <CountBlock
+              count="totalRuntime"
+              format={formatTotalRuntime}
+              label="Total runtime"
+              params={params}
+            />
           </Suspense>
           <Suspense fallback={<SkeletonBlock />}>
-            <BlockEpisodesWatched params={params} />
+            <CountBlock
+              count="episodesWatched"
+              label="Episodes watched"
+              params={params}
+            />
           </Suspense>
           <Suspense fallback={<SkeletonBlock />}>
-            <BlockSeriesFinished params={params} />
+            <CountBlock
+              count="seriesFinished"
+              label="Series finished"
+              params={params}
+            />
           </Suspense>
           <Suspense fallback={<SkeletonBlock />}>
-            <BlockFavorites params={params} />
+            <CountBlock count="favorites" label="Favorites" params={params} />
           </Suspense>
           <Suspense fallback={<SkeletonBlock />}>
-            <BlockFollowing params={params} />
+            <CountBlock count="following" label="Following" params={params} />
           </Suspense>
           <Suspense fallback={<SkeletonBlock />}>
-            <BlockFollowers params={params} />
+            <CountBlock count="followers" label="Followers" params={params} />
           </Suspense>
         </div>
         <div className="relative mb-10 w-full bg-neutral-900">

@@ -2,7 +2,7 @@ import type { PreferredImages } from '@tvseri.es/schemas';
 import { updateTag } from 'next/cache';
 import { unauthorized } from 'next/navigation';
 
-import { cachedTvSeries } from '@/app/cached';
+import { cachedTvSeries, seriesImagesCacheTag } from '@/app/cached';
 import auth from '@/auth';
 import {
   deletePreferredImages,
@@ -25,9 +25,11 @@ async function requireAdminAccessToken() {
   return accessToken;
 }
 
-// Mirrors the API's CDN purge (series + trending) for the web caches.
+// Mirrors the API's CDN purge (series + trending) for the web caches. Preferred
+// images only change the series object (backdrop, colour, title treatment), so
+// the narrow tag is enough: credits, ratings, seasons etc. stay cached.
 function updatePreferredImagesTags(id: number) {
-  updateTag(`series:${id}`);
+  updateTag(seriesImagesCacheTag(id));
   updateTag('collection:trending');
 }
 

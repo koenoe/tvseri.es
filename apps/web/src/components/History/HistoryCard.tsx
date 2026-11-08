@@ -1,6 +1,5 @@
 'use client';
 
-import type { WatchedItem } from '@tvseri.es/schemas';
 import { intlFormatDistance } from 'date-fns';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -11,9 +10,10 @@ import formatDate, { formatDateOnly } from '@/utils/formatDate';
 import formatRuntime from '@/utils/formatRuntime';
 import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
+import type { HistoryItem } from './toHistoryItem';
 
 type Props = Readonly<{
-  item: WatchedItem;
+  item: HistoryItem;
   showShadow?: boolean;
 }>;
 
@@ -50,8 +50,8 @@ function HistoryCard({ item, showShadow = false }: Props) {
             draggable={false}
             height={96}
             placeholder={`data:image/svg+xml;base64,${svgBase64Shimmer(64, 96)}`}
+            sizes="(min-width: 768px) 64px, 48px"
             src={item.posterImage}
-            unoptimized
             width={64}
           />
         </div>
@@ -67,7 +67,6 @@ function HistoryCard({ item, showShadow = false }: Props) {
               className="size-6 flex-shrink-0 rounded md:size-8"
               height={32}
               src={item.watchProviderLogoImage}
-              unoptimized
               width={32}
             />
           ) : null}

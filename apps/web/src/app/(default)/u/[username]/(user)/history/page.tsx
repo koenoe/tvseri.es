@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound, unauthorized } from 'next/navigation';
 import { Suspense } from 'react';
-import { cachedUser } from '@/app/cached';
 import auth from '@/auth';
 import HistoryCardSkeleton from '@/components/History/HistoryCardSkeleton';
 import HistoryContainer from '@/components/History/HistoryContainer';
+import { findUser } from '@/lib/api';
 
 type Props = Readonly<{
   params: Promise<{ username: string }>;
@@ -12,7 +12,7 @@ type Props = Readonly<{
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params;
-  const user = await cachedUser({ username });
+  const user = await findUser({ username });
   if (!user) {
     return {};
   }
@@ -23,13 +23,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function HistoryPage({ params }: Props) {
-  const { user: viewer } = await auth();
+  const [{ user: viewer }, { username }] = await Promise.all([auth(), params]);
   if (!viewer) {
     unauthorized();
   }
 
-  const { username } = await params;
-  const user = await cachedUser({ username });
+  const user = await findUser({ username });
   if (!user) {
     return notFound();
   }

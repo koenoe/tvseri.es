@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import { notFound, unauthorized } from 'next/navigation';
 import { Suspense } from 'react';
-import { cachedUser } from '@/app/cached';
 import auth from '@/auth';
 import Grid from '@/components/Grid/Grid';
 import ListGrid from '@/components/Grid/ListGrid';
 import SkeletonPoster from '@/components/Skeletons/SkeletonPoster';
+import { findUser } from '@/lib/api';
 
 type Props = Readonly<{
   params: Promise<{ username: string }>;
@@ -13,7 +13,7 @@ type Props = Readonly<{
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params;
-  const user = await cachedUser({ username });
+  const user = await findUser({ username });
   if (!user) {
     return {};
   }
@@ -24,13 +24,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function WatchedPage({ params }: Props) {
-  const { user: viewer } = await auth();
+  const [{ user: viewer }, { username }] = await Promise.all([auth(), params]);
   if (!viewer) {
     unauthorized();
   }
 
-  const { username } = await params;
-  const user = await cachedUser({ username });
+  const user = await findUser({ username });
   if (!user) {
     return notFound();
   }

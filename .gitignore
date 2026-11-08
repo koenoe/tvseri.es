@@ -67,8 +67,9 @@ yarn-error.log*
 # tanstack
 .tanstack
 
-# claude
-.claude
+# claude (skills are shared, local settings are not)
+.claude/*
+!.claude/skills/
 
 # opencode
 .opencode/

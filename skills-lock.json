@@ -1,0 +1,77 @@
+{
+  "skills": {
+    "amazon-dynamodb": {
+      "computedHash": "86906ac60226d861da6aad9d0f00854783bd064d57bd31b3caa39faabaa2882c",
+      "skillPath": "skills/specialized-skills/database-skills/amazon-dynamodb/SKILL.md",
+      "source": "aws/agent-toolkit-for-aws",
+      "sourceType": "github"
+    },
+    "aws-sdk-js-v3-usage": {
+      "computedHash": "b6944c40e3d119568febb5391a5cde7b469888bc7a617c041bdb3ade98f12cbc",
+      "skillPath": "skills/core-skills/aws-sdk-js-v3-usage/SKILL.md",
+      "source": "aws/agent-toolkit-for-aws",
+      "sourceType": "github"
+    },
+    "aws-serverless": {
+      "computedHash": "6b231e69cce0f8387caa50ede27305ce448dd7dac8e56fddff75988a79aea023",
+      "skillPath": "skills/core-skills/aws-serverless/SKILL.md",
+      "source": "aws/agent-toolkit-for-aws",
+      "sourceType": "github"
+    },
+    "grill-with-docs": {
+      "computedHash": "35e62aa423aaeab6a414bcac273f56dfb17802ef2334b41b6a3b00f28196c8cf",
+      "skillPath": "skills/engineering/grill-with-docs/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceType": "github"
+    },
+    "hono": {
+      "computedHash": "f469bac28a53d010bb47bd61109d0cfebe9a4f3fd407310746114549886b5870",
+      "skillPath": "skills/hono/SKILL.md",
+      "source": "honojs/skills",
+      "sourceType": "github"
+    },
+    "improve-codebase-architecture": {
+      "computedHash": "f768cb44209e0d30e3449b8f95ea3dc8293093f73cfe02127d530db43412cf76",
+      "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceType": "github"
+    },
+    "next-bundle-optimizer": {
+      "computedHash": "7c37f80887cf574e146b88d42cf7d8e847a96ac4cbd1a499672213a30a5ba8f5",
+      "skillPath": "skills/next-bundle-optimizer/SKILL.md",
+      "source": "vercel/next.js",
+      "sourceType": "github"
+    },
+    "next-cache-components-optimizer": {
+      "computedHash": "4e0f4d73209a4c89e503eb374d63631a9146681304f15d64929e47196e7f6a45",
+      "skillPath": "skills/next-cache-components-optimizer/SKILL.md",
+      "source": "vercel/next.js",
+      "sourceType": "github"
+    },
+    "next-dev-loop": {
+      "computedHash": "68e70a9270eb02cc9c63cb19ce5106772ce4c140242199f4d90c77f6acb56355",
+      "skillPath": "skills/next-dev-loop/SKILL.md",
+      "source": "vercel/next.js",
+      "sourceType": "github"
+    },
+    "next-partial-prefetching-adoption": {
+      "computedHash": "6fb1757aee3491689ec704b397f4b7ff9e276f500a66403867e77a16b2038594",
+      "skillPath": "skills/next-partial-prefetching-adoption/SKILL.md",
+      "source": "vercel/next.js",
+      "sourceType": "github"
+    },
+    "turborepo": {
+      "computedHash": "c83a6ff75c62092f71da91408164ed3426f11749b032fd23ecc855e27c2fb538",
+      "skillPath": "skills/turborepo/SKILL.md",
+      "source": "vercel/turborepo",
+      "sourceType": "github"
+    },
+    "valibot": {
+      "computedHash": "dc7ad7dc09548808d26aef0bc58786a4ee3559e153a1e83c9c4574f3a294ea1b",
+      "skillPath": "skills/valibot/SKILL.md",
+      "source": "open-circle/agent-skills",
+      "sourceType": "github"
+    }
+  },
+  "version": 1
+}

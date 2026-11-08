@@ -202,6 +202,19 @@ app.get('/:id/watched/series/:series-id{[0-9]+}', user(), async (c) => {
     userId: user.id,
   });
 
+  // `?view=progress`: only what progress UI needs (in-progress tiles, the
+  // watched store), instead of full items with titles, stills and providers
+  if (c.req.query('view') === 'progress') {
+    return c.json(
+      items.map(({ episodeNumber, runtime, seasonNumber, watchedAt }) => ({
+        episodeNumber,
+        runtime,
+        seasonNumber,
+        watchedAt,
+      })),
+    );
+  }
+
   return c.json(items);
 });
 

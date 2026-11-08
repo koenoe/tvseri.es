@@ -75,25 +75,38 @@ export async function getWatchedRuntime(input: Readonly<{ userId: string }>) {
   return result?.runtime ?? 0;
 }
 
-export const getAllWatchedForTvSeries = async (
-  input: Readonly<{
-    userId: string;
-    seriesId: number | string;
-  }>,
-): Promise<WatchedItem[]> => {
-  const result = await apiFetch<WatchedItem[]>(
-    '/user/:id/watched/series/:seriesId',
-    {
-      notFound: 'null',
-      params: {
-        id: input.userId,
-        seriesId: input.seriesId,
-      },
+type WatchedForTvSeriesInput = Readonly<{
+  userId: string;
+  seriesId: number | string;
+}>;
+
+/** The fields progress UI reads (in-progress tiles, the watched store). */
+export type WatchedProgressItem = Readonly<
+  Pick<WatchedItem, 'episodeNumber' | 'runtime' | 'seasonNumber' | 'watchedAt'>
+>;
+
+const fetchWatchedForTvSeries = async <T>(
+  input: WatchedForTvSeriesInput,
+  view?: 'progress',
+): Promise<T[]> => {
+  const result = await apiFetch<T[]>('/user/:id/watched/series/:seriesId', {
+    notFound: 'null',
+    params: {
+      id: input.userId,
+      seriesId: input.seriesId,
     },
-  );
+    ...(view ? { query: { view } } : {}),
+  });
 
   return result ?? [];
 };
+
+export const getAllWatchedForTvSeries = (input: WatchedForTvSeriesInput) =>
+  fetchWatchedForTvSeries<WatchedItem>(input);
+
+/** Lean variant: only season, episode, runtime and watchedAt per episode. */
+export const getWatchedProgressForTvSeries = (input: WatchedForTvSeriesInput) =>
+  fetchWatchedForTvSeries<WatchedProgressItem>(input, 'progress');
 
 type WatchedTarget = Readonly<{
   episodeNumber?: number;

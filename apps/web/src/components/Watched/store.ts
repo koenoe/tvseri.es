@@ -16,18 +16,6 @@ export type WatchedItemForStore = Pick<
   'seasonNumber' | 'episodeNumber' | 'runtime' | 'watchedAt'
 >;
 
-export const toWatchedItemForStore = ({
-  episodeNumber,
-  runtime,
-  seasonNumber,
-  watchedAt,
-}: WatchedItemForStore): WatchedItemForStore => ({
-  episodeNumber,
-  runtime,
-  seasonNumber,
-  watchedAt,
-});
-
 type WatchedStateItem = {
   tvSeries: WatchedStoreTvSeries;
   watched: Record<number, Record<number, WatchedItemForStore>>;

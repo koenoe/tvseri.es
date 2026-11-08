@@ -1,6 +1,5 @@
 'use client';
 
-import type { Season, TvSeries } from '@tvseri.es/schemas';
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
 import {
@@ -15,6 +14,7 @@ import { toast } from 'sonner';
 import { getActionErrorMessage } from '@/app/actionResult';
 import { removeFromInProgress } from '@/app/watchActions';
 import useRgbString from '@/hooks/useRgbString';
+import type { SpotlightTvSeries } from '@/utils/toSpotlightTvSeries';
 import ContextMenuButton, {
   type ContextMenuButtonHandle,
 } from '../Buttons/ContextMenuButton';
@@ -23,6 +23,7 @@ import MarkNextEpisodeMenuItem from '../Buttons/MarkNextEpisodeMenuItem';
 import Progress from '../Progress/Progress';
 import SpotlightBackground from '../Spotlight/SpotlightBackground';
 import SpotlightTitle from '../Spotlight/SpotlightTitle';
+import type { WatchedStoreSeason } from '../Watched/toWatchedStoreTvSeries';
 import useInProgressSeason from './useInProgressSeason';
 
 function InProgress({
@@ -31,9 +32,9 @@ function InProgress({
   tvSeries,
   removeIsAllowed = false,
 }: Readonly<{
-  currentSeason: Season;
+  currentSeason: WatchedStoreSeason;
   currentSeasonWatchCount: number;
-  tvSeries: TvSeries;
+  tvSeries: SpotlightTvSeries;
   removeIsAllowed?: boolean;
 }>) {
   const { currentSeason, watchCount } = useInProgressSeason(

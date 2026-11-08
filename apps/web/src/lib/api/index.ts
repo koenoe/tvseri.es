@@ -108,6 +108,7 @@ export {
   getAllWatchedForTvSeries,
   getWatched,
   getWatchedCount,
+  getWatchedProgressForTvSeries,
   getWatchedRuntime,
   markWatched,
   markWatchedInBatch,

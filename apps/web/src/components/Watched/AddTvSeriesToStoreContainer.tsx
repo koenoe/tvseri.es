@@ -1,8 +1,7 @@
 import auth from '@/auth';
-import { getAllWatchedForTvSeries } from '@/lib/api';
+import { getWatchedProgressForTvSeries } from '@/lib/api';
 
 import AddTvSeriesToStore from './AddTvSeriesToStore';
-import { toWatchedItemForStore } from './store';
 import type { WatchedStoreTvSeries } from './toWatchedStoreTvSeries';
 
 export default async function AddTvSeriesToStoreContainer({
@@ -16,12 +15,11 @@ export default async function AddTvSeriesToStoreContainer({
     return <AddTvSeriesToStore tvSeries={tvSeries} watched={[]} />;
   }
 
-  const watchedItems = await getAllWatchedForTvSeries({
+  // Lean response: exactly the fields the store keeps
+  const watched = await getWatchedProgressForTvSeries({
     seriesId: tvSeries.id,
     userId: user.id,
   });
-  // Note: only send the fields the store keeps
-  const watched = watchedItems.map(toWatchedItemForStore);
 
   return <AddTvSeriesToStore tvSeries={tvSeries} watched={watched} />;
 }

@@ -6,8 +6,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { twMerge } from 'tailwind-merge';
 
+import type { TabItem } from './types';
+
 const tabStyles = cva(
-  'z-15 relative text-nowrap rounded-lg px-4 py-1.5 text-sm text-neutral-400 transition',
+  'z-15 relative flex items-center gap-2 text-nowrap rounded-lg px-4 py-1.5 text-sm text-neutral-400 transition',
   {
     defaultVariants: {
       state: 'inactive',
@@ -27,7 +29,7 @@ export default function Pills({
   layoutId = 'pill',
 }: Readonly<{
   className?: string;
-  items: readonly { label: string; href: string }[];
+  items: readonly TabItem[];
   layoutId?: string;
 }>) {
   const pathname = usePathname();
@@ -55,6 +57,7 @@ export default function Pills({
                 transition={{ bounce: 0.2, duration: 0.6, type: 'spring' }}
               />
             )}
+            {item.icon}
             {item.label}
           </Link>
         ))}

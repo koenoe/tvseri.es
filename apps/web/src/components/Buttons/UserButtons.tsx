@@ -1,7 +1,6 @@
 import auth from '@/auth';
 import { findUser, isFollowing as isFollowingResult } from '@/lib/api';
 
-import ContextMenuButtonUser from './ContextMenuButtonUser';
 import EditProfileButton from './EditProfileButton';
 import FollowButton from './FollowButton';
 
@@ -34,14 +33,9 @@ export default async function UserButtons({
         userId: userFromSession.id,
       });
 
-  return (
-    <>
-      {isMe ? (
-        <EditProfileButton />
-      ) : (
-        <FollowButton isFollowing={isFollowing} username={username} />
-      )}
-      <ContextMenuButtonUser user={user} />
-    </>
+  return isMe ? (
+    <EditProfileButton />
+  ) : (
+    <FollowButton isFollowing={isFollowing} username={username} />
   );
 }

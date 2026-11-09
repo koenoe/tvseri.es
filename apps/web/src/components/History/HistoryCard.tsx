@@ -5,10 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { memo, useMemo } from 'react';
 import { twMerge } from 'tailwind-merge';
-
+import SeasonEpisodeBadge from '@/components/EpisodeMeta/SeasonEpisodeBadge';
+import WatchedMeta from '@/components/EpisodeMeta/WatchedMeta';
+import { CalendarOutlineIcon } from '@/components/Icons/CalendarOutlineIcon';
 import formatDate, { formatDateOnly } from '@/utils/formatDate';
-import formatRuntime from '@/utils/formatRuntime';
-import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 import type { HistoryItem } from './toHistoryItem';
 
@@ -72,27 +72,23 @@ function HistoryCard({ item, showShadow = false }: Props) {
           ) : null}
         </div>
         <div className="mt-2 flex min-w-0 flex-nowrap items-center gap-2">
-          <span className="flex h-6 w-14 flex-shrink-0 items-center justify-center rounded-md bg-white/10 text-center text-xs font-medium">
-            {formatSeasonAndEpisode({
-              episodeNumber: item.episodeNumber,
-              seasonNumber: item.seasonNumber,
-            })}
-          </span>
+          <SeasonEpisodeBadge
+            episodeNumber={item.episodeNumber}
+            seasonNumber={item.seasonNumber}
+          />
           <span className="truncate text-sm">{item.episodeTitle}</span>
         </div>
         <div className="mt-3 flex w-full items-center justify-between gap-1.5 text-xs font-medium">
-          <div className="flex flex-shrink-0 gap-1.5">
+          <WatchedMeta className="flex-shrink-0" runtime={item.runtime}>
             {/* Relative to now ("2 hours ago"), so the server's and the
                 browser's text can differ; the browser's wins */}
             <div className="text-nowrap" suppressHydrationWarning>
               {formattedWatchedAt}
             </div>
-            <div className="text-nowrap opacity-60 before:mr-1 before:content-['—']">
-              {formatRuntime(item.runtime)}
-            </div>
-          </div>
+          </WatchedMeta>
           {item.episodeAirDate ? (
-            <span className="hidden flex-shrink-0 text-nowrap rounded-md bg-black/10 px-2 py-0.5 text-white/30 md:inline">
+            <span className="hidden flex-shrink-0 items-center gap-1.5 text-nowrap rounded-md bg-black/10 px-2.5 py-1 text-white/30 md:flex">
+              <CalendarOutlineIcon className="size-3 flex-shrink-0" />
               Aired {formatDateOnly(item.episodeAirDate)}
             </span>
           ) : null}

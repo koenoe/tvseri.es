@@ -3,9 +3,9 @@ import type { StatsSpotlightItem } from '@tvseri.es/schemas';
 import Image from 'next/image';
 import Link from 'next/link';
 import { twMerge } from 'tailwind-merge';
+import SeasonEpisodeBadge from '@/components/EpisodeMeta/SeasonEpisodeBadge';
+import WatchedMeta from '@/components/EpisodeMeta/WatchedMeta';
 import formatDate from '@/utils/formatDate';
-import formatRuntime from '@/utils/formatRuntime';
-import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 import SpotlightBackground from '../Spotlight/SpotlightBackground';
 import SpotlightTitle from '../Spotlight/SpotlightTitle';
 
@@ -44,22 +44,20 @@ export default function Spotlight({
           }}
           size="small"
         />
-        <div className="mt-6 flex gap-4 whitespace-nowrap text-white/60 md:gap-12">
-          <div className="relative flex w-full justify-center gap-2 text-xs md:justify-start md:text-[0.8rem]">
-            <div className="after:ml-2 after:content-['·']">
-              {formatDate(watchedAt)}
-            </div>
-            <div className="after:ml-2 after:content-['·']">
-              {formatSeasonAndEpisode({
-                episodeNumber: episode.episodeNumber,
-                seasonNumber: episode.seasonNumber,
-              })}
-            </div>
-            <div className="after:ml-2 after:content-['·']">
-              {episode.title}
-            </div>
-            <div>{formatRuntime(episode.runtime)}</div>
+        <div className="relative mt-6 flex flex-col items-center gap-3 whitespace-nowrap md:items-start">
+          <div className="flex min-w-0 max-w-full items-center gap-2">
+            <SeasonEpisodeBadge
+              episodeNumber={episode.episodeNumber}
+              seasonNumber={episode.seasonNumber}
+            />
+            <span className="truncate text-sm">{episode.title}</span>
           </div>
+          <WatchedMeta
+            className="text-xs font-medium"
+            runtime={episode.runtime}
+          >
+            <span>{formatDate(watchedAt)}</span>
+          </WatchedMeta>
         </div>
       </div>
       {watchProviderLogo ? (

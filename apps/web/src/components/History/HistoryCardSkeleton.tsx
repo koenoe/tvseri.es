@@ -55,7 +55,7 @@ export default function HistoryCardSkeleton({
                         <div className="h-4 w-16 animate-pulse bg-white/10" />
                         <div className="h-4 w-10 animate-pulse bg-white/5" />
                       </div>
-                      <div className="hidden h-5 w-28 animate-pulse rounded-md bg-white/5 md:block" />
+                      <div className="hidden h-6 w-32 animate-pulse rounded-md bg-white/5 md:block" />
                     </div>
                   </div>
                 </div>
@@ -85,7 +85,7 @@ export default function HistoryCardSkeleton({
                         <div className="h-4 w-14 animate-pulse bg-white/10" />
                         <div className="h-4 w-12 animate-pulse bg-white/5" />
                       </div>
-                      <div className="hidden h-5 w-24 animate-pulse rounded-md bg-white/5 md:block" />
+                      <div className="hidden h-6 w-28 animate-pulse rounded-md bg-white/5 md:block" />
                     </div>
                   </div>
                 </div>
@@ -115,7 +115,7 @@ export default function HistoryCardSkeleton({
                         <div className="h-4 w-12 animate-pulse bg-white/10" />
                         <div className="h-4 w-10 animate-pulse bg-white/5" />
                       </div>
-                      <div className="hidden h-5 w-32 animate-pulse rounded-md bg-white/5 md:block" />
+                      <div className="hidden h-6 w-36 animate-pulse rounded-md bg-white/5 md:block" />
                     </div>
                   </div>
                 </div>
@@ -145,7 +145,7 @@ export default function HistoryCardSkeleton({
                         <div className="h-4 w-18 animate-pulse bg-white/10" />
                         <div className="h-4 w-8 animate-pulse bg-white/5" />
                       </div>
-                      <div className="hidden h-5 w-26 animate-pulse rounded-md bg-white/5 md:block" />
+                      <div className="hidden h-6 w-[7.5rem] animate-pulse rounded-md bg-white/5 md:block" />
                     </div>
                   </div>
                 </div>

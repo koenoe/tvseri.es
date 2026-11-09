@@ -1,13 +1,11 @@
 import type { Episode } from '@tvseri.es/schemas';
 import { cva, cx } from 'class-variance-authority';
 import { memo, useMemo } from 'react';
-import { twMerge } from 'tailwind-merge';
 
-import { formatDateOnly } from '@/utils/formatDate';
-import formatRuntime from '@/utils/formatRuntime';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
 
 import WatchButton from '../Buttons/WatchButton';
+import EpisodeMeta from '../EpisodeMeta/EpisodeMeta';
 import ImageWithFallback from '../Image/ImageWithFallback';
 import StillPlaceholder from '../Image/StillPlaceholder';
 
@@ -70,19 +68,11 @@ function EpisodeTile({
         <p className="line-clamp-3 text-sm leading-normal md:leading-relaxed">
           {item.description}
         </p>
-        <div className="mt-1 flex w-full gap-2 text-xs opacity-60 md:text-[0.8rem]">
-          {item.runtime ? <div>{formatRuntime(item.runtime)}</div> : null}
-          {item.airDate ? (
-            <div
-              className={twMerge(
-                'before:mr-2 before:content-["·"]',
-                !item.runtime && 'before:mr-0 before:content-none',
-              )}
-            >
-              {formatDateOnly(item.airDate)}
-            </div>
-          ) : null}
-        </div>
+        <EpisodeMeta
+          airDate={item.airDate}
+          className="mt-1"
+          runtime={item.runtime}
+        />
       </div>
       <div className="absolute bottom-[-1.5rem] right-[-1rem] text-[10rem] font-bold leading-none opacity-[0.075] md:bottom-[-1.75rem] md:right-[-1rem] md:text-[12.5rem]">
         {item.episodeNumber}

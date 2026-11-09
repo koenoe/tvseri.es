@@ -32,17 +32,8 @@ export default function Layout({
           >
             <UserInfo params={params} />
           </Suspense>
-          <Suspense
-            fallback={
-              <div className="flex space-x-2">
-                <SkeletonCircleButton />
-                <SkeletonCircleButton />
-              </div>
-            }
-          >
-            <div className="flex space-x-2">
-              <UserButtons params={params} />
-            </div>
+          <Suspense fallback={<SkeletonCircleButton />}>
+            <UserButtons params={params} />
           </Suspense>
         </div>
 

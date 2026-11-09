@@ -1,4 +1,5 @@
 import BackgroundStyleTag from './BackgroundStyleTag';
+import PreHydrationScript from './PreHydrationScript';
 
 type BackgroundStyleProps = Readonly<{
   color: string;
@@ -58,10 +59,7 @@ ${transitionStyles}`;
 
   return (
     <>
-      <script
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: required for synchronous pre-hydration execution
-        dangerouslySetInnerHTML={{ __html: inlineScript }}
-      />
+      <PreHydrationScript html={inlineScript} />
       <BackgroundStyleTag css={css} />
     </>
   );

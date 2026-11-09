@@ -6,17 +6,22 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { twMerge } from 'tailwind-merge';
 
-const tabStyles = cva('relative inline-block p-4 text-nowrap', {
-  defaultVariants: {
-    state: 'inactive',
-  },
-  variants: {
-    state: {
-      active: ['text-white'],
-      inactive: ['hover:text-white/60'],
+import type { TabItem } from './types';
+
+const tabStyles = cva(
+  'relative inline-flex items-center gap-2 p-4 text-nowrap',
+  {
+    defaultVariants: {
+      state: 'inactive',
+    },
+    variants: {
+      state: {
+        active: ['text-white'],
+        inactive: ['hover:text-white/60'],
+      },
     },
   },
-});
+);
 
 export default function Tabs({
   className,
@@ -24,7 +29,7 @@ export default function Tabs({
   layoutId = 'line',
 }: Readonly<{
   className?: string;
-  items: readonly { label: string; href: string }[];
+  items: readonly TabItem[];
   layoutId?: string;
 }>) {
   const pathname = usePathname();
@@ -45,6 +50,7 @@ export default function Tabs({
               })}
               href={item.href}
             >
+              {item.icon}
               {item.label}
               {pathname === item.href && (
                 <motion.span

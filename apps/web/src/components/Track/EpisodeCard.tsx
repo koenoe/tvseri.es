@@ -4,10 +4,9 @@ import type { WatchProvider } from '@tvseri.es/schemas';
 import Image from 'next/image';
 import { memo, useCallback, useMemo } from 'react';
 
-import { formatDateOnly } from '@/utils/formatDate';
-import formatRuntime from '@/utils/formatRuntime';
-import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 import svgBase64Shimmer from '@/utils/svgBase64Shimmer';
+import EpisodeMeta from '../EpisodeMeta/EpisodeMeta';
+import SeasonEpisodeBadge from '../EpisodeMeta/SeasonEpisodeBadge';
 import ImageWithFallback from '../Image/ImageWithFallback';
 import StillPlaceholder from '../Image/StillPlaceholder';
 import toTrackedEpisode from './toTrackedEpisode';
@@ -90,24 +89,19 @@ function EpisodeCard({
       </div>
       <div>
         <div className="flex flex-nowrap gap-3">
-          <span className="flex h-6 w-14 flex-shrink-0 items-center justify-center rounded-md bg-white/10 text-center text-xs font-medium">
-            {formatSeasonAndEpisode({
-              episodeNumber: episode.episodeNumber,
-              seasonNumber: episode.seasonNumber,
-            })}
-          </span>
+          <SeasonEpisodeBadge
+            episodeNumber={episode.episodeNumber}
+            seasonNumber={episode.seasonNumber}
+          />
           <span className="w-[calc(100%-6.5rem)] truncate md:w-full">
             {episode.title}
           </span>
         </div>
-        <div className="mt-3 flex w-full gap-1.5 text-xs font-medium">
-          {episode.airDate ? (
-            <div>{formatDateOnly(episode.airDate)}</div>
-          ) : null}
-          <div className="opacity-60 before:mr-1 before:content-['—']">
-            {formatRuntime(episode.runtime)}
-          </div>
-        </div>
+        <EpisodeMeta
+          airDate={episode.airDate}
+          className="mt-3"
+          runtime={episode.runtime}
+        />
       </div>
       <div className="flex items-center gap-4 md:ml-auto">
         <WatchDatePicker

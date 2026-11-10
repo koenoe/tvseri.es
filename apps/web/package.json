@@ -10,7 +10,7 @@
     "date-fns": "^4.4.0",
     "dice-coefficient": "^2.1.1",
     "jose": "^6.2.15",
-    "motion": "^12.43.0",
+    "motion": "^14.10.1",
     "next": "16.4.5",
     "papaparse": "^5.7.0",
     "react": "19.3.1",

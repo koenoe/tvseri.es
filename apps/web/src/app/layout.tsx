@@ -6,6 +6,7 @@ import { Inter } from 'next/font/google';
 import { type ReactNode, Suspense } from 'react';
 import { Toaster } from 'sonner';
 
+import MetaYearScript from '@/components/MetaDate/MetaYearScript';
 import NavigationTracker from '@/components/NavigationTracker';
 import WatchedStoreProvider from '@/components/Watched/WatchedStoreProvider';
 import WebVitals from '@/components/WebVitals';
@@ -68,6 +69,7 @@ export default function RootLayout({
             `,
           }}
         />
+        <MetaYearScript />
         <NavigationTracker />
         <Toaster
           toastOptions={{

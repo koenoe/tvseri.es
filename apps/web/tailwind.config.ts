@@ -50,6 +50,9 @@ const config: Config = {
         glass:
           'inset 0 7px 14px 0 rgba(255, 255, 255, 0.03), inset 0 0.5px 0.5px 0 rgba(255, 255, 255, 0.06), inset 0 0.25px 0.25px 0 rgba(255, 255, 255, 0.12), 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
       },
+      colors: {
+        meta: 'rgb(255 255 255 / 0.6)',
+      },
       keyframes: {
         ripple: {
           '0%, 100%': {

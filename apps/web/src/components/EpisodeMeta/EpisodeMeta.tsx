@@ -1,14 +1,15 @@
-import { twMerge } from 'tailwind-merge';
-
 import { CalendarOutlineIcon } from '@/components/Icons/CalendarOutlineIcon';
-import { formatDateOnly } from '@/utils/formatDate';
+import MetaDate from '@/components/MetaDate/MetaDate';
+import MetaItem from '@/components/MetaRow/MetaItem';
+import MetaRow from '@/components/MetaRow/MetaRow';
+import { formatMetaDateParts } from '@/utils/formatDate';
 
-import Runtime from './Runtime';
+import RuntimeMetaItem from './RuntimeMetaItem';
 
 /**
- * Runtime and air date of an episode, as shown on the episode tiles and the
- * per-show watch history. Runtime first; the air date always gets the
- * calendar icon.
+ * Air date and runtime of an episode, as shown on the episode tiles and the
+ * per-show watch history: when, then how much. A missing or invalid air date
+ * and a runtime of 0 are skipped.
  */
 export default function EpisodeMeta({
   airDate,
@@ -19,20 +20,16 @@ export default function EpisodeMeta({
   className?: string;
   runtime?: number | null;
 }>) {
-  const classes = twMerge(
-    'flex w-full items-center gap-4 text-xs opacity-60 md:text-[0.8rem]',
-    className,
-  );
+  // Date-only (UTC midnight), so it formats in UTC and is safe on the server
+  const dateParts = airDate ? formatMetaDateParts(airDate, 'date') : null;
+  const date = dateParts ? (
+    <MetaDate monthDay={dateParts.monthDay} year={dateParts.year} />
+  ) : null;
 
   return (
-    <div className={classes}>
-      {runtime ? <Runtime minutes={runtime} /> : null}
-      {airDate ? (
-        <span className="flex items-center gap-1.5 text-nowrap">
-          <CalendarOutlineIcon className="size-3.5 flex-shrink-0" />
-          {formatDateOnly(airDate)}
-        </span>
-      ) : null}
-    </div>
+    <MetaRow className={className}>
+      <MetaItem icon={CalendarOutlineIcon}>{date}</MetaItem>
+      <RuntimeMetaItem minutes={runtime} />
+    </MetaRow>
   );
 }

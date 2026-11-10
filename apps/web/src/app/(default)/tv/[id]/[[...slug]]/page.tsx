@@ -187,10 +187,7 @@ export default async function TvSeriesDetailsPage({
               )}
 
               <div className="mb-4 flex w-full gap-4 md:gap-12">
-                <InfoLine
-                  className="md:gap-2 md:text-[0.8rem]"
-                  tvSeries={tvSeries}
-                >
+                <InfoLine tvSeries={tvSeries}>
                   <div className="ml-auto flex h-7 gap-2 md:ml-10">
                     <Suspense
                       fallback={

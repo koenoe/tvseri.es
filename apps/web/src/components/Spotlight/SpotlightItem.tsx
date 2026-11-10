@@ -6,6 +6,7 @@ import { memo } from 'react';
 import type { SpotlightTvSeries } from '@/utils/toSpotlightTvSeries';
 
 import SpotlightBackground from './SpotlightBackground';
+import SpotlightShowMeta from './SpotlightShowMeta';
 import SpotlightTitle from './SpotlightTitle';
 
 type Props = Readonly<{
@@ -30,18 +31,7 @@ const SpotlightItem = ({ item, index, priority = false }: Props) => {
       <div className="lg:p-18 relative w-full p-8 md:w-4/5 md:p-14">
         <SpotlightTitle className="mb-6" item={item} priority={priority} />
 
-        <div className="flex gap-4 md:gap-12">
-          <div className="flex w-full justify-center gap-2 text-xs opacity-60 md:justify-start md:text-[0.8rem]">
-            <div className="after:ml-2 after:content-['·']">
-              {item.releaseYear}
-            </div>
-            <div className="after:ml-2 after:content-['·']">
-              {item.numberOfSeasons}{' '}
-              {item.numberOfSeasons === 1 ? 'Season' : 'Seasons'}
-            </div>
-            <div>{item.genres[0]?.name}</div>
-          </div>
-        </div>
+        <SpotlightShowMeta item={item} />
         {item.tagline ? (
           <div className="mt-4 text-center text-sm md:mt-6 md:text-left md:text-base">
             {item.tagline}

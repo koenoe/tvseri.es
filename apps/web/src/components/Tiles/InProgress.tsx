@@ -24,6 +24,7 @@ import { ContextMenuItem, ContextMenuLink } from '../Buttons/ContextMenuItem';
 import MarkNextEpisodeMenuItem from '../Buttons/MarkNextEpisodeMenuItem';
 import Progress from '../Progress/Progress';
 import SpotlightBackground from '../Spotlight/SpotlightBackground';
+import SpotlightShowMeta from '../Spotlight/SpotlightShowMeta';
 import SpotlightTitle from '../Spotlight/SpotlightTitle';
 import type { WatchedStoreSeason } from '../Watched/toWatchedStoreTvSeries';
 import useInProgressSeason from './useInProgressSeason';
@@ -107,18 +108,7 @@ function InProgress({
             <div className="flex w-full flex-col gap-5 p-6 md:gap-6 md:p-9">
               <SpotlightTitle item={tvSeries} size="small" />
 
-              <div className="flex gap-4 whitespace-nowrap md:gap-12">
-                <div className="flex w-full justify-center gap-2 text-xs opacity-60 md:justify-start md:text-[0.8rem]">
-                  <div className="after:ml-2 after:content-['·']">
-                    {tvSeries.releaseYear}
-                  </div>
-                  <div className="after:ml-2 after:content-['·']">
-                    {tvSeries.numberOfSeasons}{' '}
-                    {tvSeries.numberOfSeasons === 1 ? 'Season' : 'Seasons'}
-                  </div>
-                  <div>{tvSeries.genres[0]?.name}</div>
-                </div>
-              </div>
+              <SpotlightShowMeta item={tvSeries} />
               <div className="relative flex cursor-default items-center gap-3 rounded-xl p-4 shadow-glass backdrop-blur md:flex-row md:items-center md:gap-10 md:p-6">
                 <h2 className="flex-nowrap text-ellipsis text-nowrap text-sm font-medium md:w-auto md:text-lg">
                   <span className="hidden sm:inline-block">

@@ -5,8 +5,8 @@ import { twMerge } from 'tailwind-merge';
 
 import { CaretSortIcon } from '@/components/Icons/CaretSortIcon';
 import { CloseIcon } from '@/components/Icons/CloseIcon';
-import formatDate from '@/utils/formatDate';
 import Datepicker from '../Datepicker/DatepickerLazy';
+import MetaInstant from '../MetaDate/MetaInstant';
 import type { WatchedAtChoice } from './types';
 
 const sizes = {
@@ -97,12 +97,17 @@ function WatchDatePicker({
       onSelect={handleSelect}
       selected={selected}
     >
-      {/* Datepicker is client-only, so formatting the watchedAt instant in the
-          viewer's local time zone can't cause a hydration mismatch. */}
+      {/* Datepicker is ssr:false, so this only renders in the browser and
+          MetaInstant formats watchedAt in the viewer's time zone straight
+          away. MetaInstant renders nothing on the server and during
+          hydration, so it never mismatches, but outside a client-only
+          subtree the date would pop in after hydration: keep it there. */}
       {watchedAt ? (
         <>
           <span>{label}</span>
-          <span className="font-semibold">{formatDate(watchedAt)}</span>
+          <span className="font-semibold">
+            <MetaInstant value={watchedAt} />
+          </span>
           <CloseIcon className={iconClassName} onClick={handleDelete} />
         </>
       ) : (

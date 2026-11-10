@@ -13,7 +13,7 @@ export default function SkeletonEpisode() {
           <div className="h-4 w-full bg-white/20" />
           <div className="h-4 w-10/12 bg-white/20" />
         </div>
-        <div className="mt-3 flex h-3 w-2/6 bg-white/10" />
+        <div className="mt-1 flex h-[--meta-row-height] w-2/6 bg-white/10" />
       </div>
     </div>
   );

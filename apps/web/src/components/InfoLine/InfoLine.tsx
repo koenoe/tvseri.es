@@ -1,61 +1,53 @@
 import type { TvSeries } from '@tvseri.es/schemas';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { twMerge } from 'tailwind-merge';
 
+import GenreMetaItem from '@/components/ShowMeta/GenreMetaItem';
+import ShowMeta from '@/components/ShowMeta/ShowMeta';
+
+/**
+ * The show line on the show hero and the track header: year → seasons → all
+ * genres as links to /discover. Below md the genres drop, so the row always
+ * fits next to `children` (content rating and provider), which follow it.
+ */
 export default function InfoLine({
   children,
-  className,
   tvSeries,
 }: Readonly<{
   children?: ReactNode;
-  className?: string;
   tvSeries: TvSeries;
 }>) {
+  const genreLinks = tvSeries.genres.map((genre, index) => {
+    const href = { pathname: '/discover', query: { with_genres: genre.id } };
+    const label =
+      index < tvSeries.genres.length - 1 ? `${genre.name}, ` : genre.name;
+
+    return (
+      <Link
+        className="hover:underline"
+        href={href}
+        key={genre.id}
+        prefetch={false}
+      >
+        {label}
+      </Link>
+    );
+  });
+  const genres =
+    genreLinks.length > 0 ? (
+      <GenreMetaItem className="hidden md:inline-flex">
+        {genreLinks}
+      </GenreMetaItem>
+    ) : null;
+
   return (
-    <div
-      className={twMerge(
-        'flex w-full items-center gap-1 whitespace-nowrap text-xs',
-        className,
-      )}
-    >
-      <div className="opacity-60">{tvSeries.releaseYear}</div>
-      <div className="opacity-60 before:mr-1 before:content-['·'] md:before:mr-2">
-        {tvSeries.numberOfSeasons}{' '}
-        {tvSeries.numberOfSeasons === 1 ? 'Season' : 'Seasons'}
-      </div>
-      {tvSeries.genres.length > 0 && (
-        <>
-          <div className="hidden opacity-60 before:mr-1 before:content-['·'] md:block md:before:mr-2">
-            {tvSeries.genres.map((genre, index) => (
-              <Link
-                className="hover:underline"
-                href={{
-                  pathname: '/discover',
-                  query: { with_genres: genre.id },
-                }}
-                key={genre.id}
-                prefetch={false}
-              >
-                {genre.name}
-                {index < tvSeries.genres.length - 1 ? ', ' : ''}
-              </Link>
-            ))}
-          </div>
-          <div className="opacity-60 before:mr-1 before:content-['·'] md:hidden md:before:mr-2">
-            <Link
-              className="hover:underline"
-              href={{
-                pathname: '/discover',
-                query: { with_genres: tvSeries.genres?.[0]?.id },
-              }}
-              prefetch={false}
-            >
-              {tvSeries.genres?.[0]?.name}
-            </Link>
-          </div>
-        </>
-      )}
+    <div className="flex w-full items-center">
+      <ShowMeta
+        numberOfSeasons={tvSeries.numberOfSeasons}
+        releaseYear={tvSeries.releaseYear}
+      >
+        {genres}
+      </ShowMeta>
       {children}
     </div>
   );

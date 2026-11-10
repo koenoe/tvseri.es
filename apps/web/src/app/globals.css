@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* A meta row's line height, shared with its skeleton bars (MetaRow, SkeletonEpisode) */
+  --meta-row-height: 18px;
+}
+
 body.scrollbar-is-visible::-webkit-scrollbar-corner,
 body.scrollbar-is-visible::-webkit-scrollbar-track {
   background: theme("colors.neutral.900");

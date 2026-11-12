@@ -10,7 +10,8 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Never cancel a running production deploy: it would leave SST state locked.
+  cancel-in-progress: false
 
 permissions:
   id-token: write
@@ -19,6 +20,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     environment:
       name: Production
       url: https://www.tvseri.es
@@ -56,6 +58,18 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # Gate: nothing below runs (no secrets, no deploy) unless these pass.
+      - name: Format and lint
+        run: pnpm format-and-lint
+
+      - name: Check for unused code
+        run: pnpm knip
+
+      - name: Check types
+        run: pnpm check-types
+
+      # TODO(tests): add `- name: Test` / `run: pnpm test` here once Vitest lands.
 
       - name: Add SST bin to PATH (workaround for SST issue #6314)
         run: echo "$HOME/.config/sst/bin" >> $GITHUB_PATH

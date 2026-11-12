@@ -1,6 +1,14 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
+    "//#check-types:infra": {
+      "inputs": [
+        "sst.config.ts",
+        "sst-env.d.ts",
+        "infra/**",
+        "tsconfig.infra.json"
+      ]
+    },
     "//#format-and-lint": {},
     "//#format-and-lint:fix": {
       "cache": false

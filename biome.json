@@ -30,7 +30,10 @@
       "!**/sst-env.d.ts",
       "!**/*.module.css",
       "!**/next-env.d.ts",
-      "!**/*.gen.ts"
+      "!**/*.gen.ts",
+      "!.claude",
+      "!docs/redesign/specs",
+      "!docs/redesign/boards"
     ],
     "maxSize": 1572864
   },

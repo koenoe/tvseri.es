@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2022",
+    "typeRoots": [".sst/platform/node_modules/@types"],
+    "types": ["node"]
+  },
+  "include": ["sst.config.ts", "sst-env.d.ts", "infra/**/*.ts"]
+}

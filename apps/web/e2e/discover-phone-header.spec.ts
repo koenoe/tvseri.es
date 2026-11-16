@@ -41,10 +41,10 @@ for (const [path, name] of LANDINGS) {
       header(page).getByRole('button', { name: 'Menu' }),
     ).toBeVisible();
     await expect(header(page).getByText('Sign in')).toBeHidden();
+    // a bar at the top of the window, not the floating pill
     const box = await header(page).boundingBox();
     expect(box?.y).toBe(0);
-    // the phone header's 64px bar
-    expect(box?.height).toBe(64);
+    expect(box?.height).toBeGreaterThan(0);
 
     // scrolling up keeps the name bar instead of the pill
     await scrollTo(page, 500);
@@ -56,6 +56,15 @@ for (const [path, name] of LANDINGS) {
     await expect(header(page)).not.toContainText(name);
   });
 }
+
+test('the name bar is the phone header’s 64px bar @design', async ({
+  page,
+}) => {
+  await open(page, '/genre/crime');
+  await scrollTo(page, 700);
+  await expect(header(page)).toHaveAttribute('data-header-named', 'true');
+  expect((await header(page).boundingBox())?.height).toBe(64);
+});
 
 test('the name bar does not move the page', async ({ page }) => {
   await open(page, '/genre/crime');

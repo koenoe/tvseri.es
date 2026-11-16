@@ -3,6 +3,7 @@ import { expect, type Page, test } from '@playwright/test';
 import { open } from './helpers';
 import { SHIFT_OBSERVER } from './helpers/parity';
 import { signInAs } from './helpers/session';
+import { untilStable } from './helpers/viewport';
 
 /**
  * The header is in the static shell and the same for everyone: the pre-paint
@@ -32,6 +33,15 @@ const headerShifts = (page: Page) =>
       );
   });
 
+/** Shifts are reported after the frame they happen in: read them once quiet */
+const settledHeaderShifts = async (page: Page) => {
+  await untilStable(() => headerShifts(page), {
+    message: 'the header stops reporting shifts',
+    quietMs: 300,
+  });
+  return headerShifts(page);
+};
+
 /** The username slot's box before and after hydration */
 const slotBox = (page: Page, name: string) =>
   page.getByRole('banner').getByRole('link', { name }).boundingBox();
@@ -48,8 +58,7 @@ for (const width of [390, 1440] as const) {
       await expect(
         page.getByRole('banner').getByRole('link', { name: 'Sign in' }),
       ).toBeVisible();
-      await page.waitForTimeout(300);
-      expect(await headerShifts(page)).toEqual([]);
+      expect(await settledHeaderShifts(page)).toEqual([]);
     });
 
     test('signed in: the username is drawn before hydration where the link ends up', async ({
@@ -77,8 +86,7 @@ for (const width of [390, 1440] as const) {
           key,
         ).toBeLessThanOrEqual(1);
       }
-      await page.waitForTimeout(300);
-      expect(await headerShifts(page)).toEqual([]);
+      expect(await settledHeaderShifts(page)).toEqual([]);
     });
   });
 }

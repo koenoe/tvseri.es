@@ -2,6 +2,12 @@ import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 import { open } from './helpers';
+import {
+  clientSize,
+  nextFrames,
+  pageLine,
+  untilStable,
+} from './helpers/viewport';
 
 /**
  * Header, menu, footer and page colour parity.
@@ -9,8 +15,11 @@ import { open } from './helpers';
 
 const header = (page: Page) => page.locator('header[data-header-mode]');
 const glass = (page: Page) => header(page).locator('[data-header-glass]');
-const viewportWidth = (page: Page) =>
-  page.evaluate(() => document.documentElement.clientWidth);
+const logo = (page: Page) =>
+  page
+    .getByRole('link', { name: 'tvseri.es home' })
+    .getByRole('img')
+    .filter({ visible: true });
 
 // The display-only username cookie (auth/cookies.ts) gives the signed-in
 // look. A production server's proxy drops it on every request without a
@@ -54,9 +63,24 @@ const showPill = async (page: Page) => {
   await expect(header(page)).toHaveAttribute('data-header-mode', 'floating');
   // settled: the slide-in and the glass fade are done
   await expect(glass(page)).toHaveCSS('opacity', '1');
-  await expect
-    .poll(async () => (await glass(page).boundingBox())?.y)
-    .toBe(page.viewportSize()?.width === 390 ? 12 : 24);
+  await untilStable(() => glass(page).boundingBox(), {
+    message: 'the pill slides in and stops',
+  });
+};
+
+/** The pill's gaps to the room's edges (the window less its scrollbar) */
+const pillGaps = async (page: Page) => {
+  const [box, room] = await Promise.all([
+    glass(page).boundingBox(),
+    clientSize(page),
+  ]);
+  if (!box) throw new Error('no pill');
+  return {
+    box,
+    left: box.x,
+    right: room.width - box.x - box.width,
+    top: box.y,
+  };
 };
 
 test.describe('static shell', () => {
@@ -119,22 +143,21 @@ test.describe('header', () => {
     await expect(page.getByRole('link', { name: 'Sign in' })).toHaveCount(0);
   });
 
-  test('the pill geometry: 24px logo, 32px from the top in the 1280px container', async ({
-    page,
-  }) => {
+  test('the header logo starts on the page line', async ({ page }) => {
     await page.setViewportSize({ height: 900, width: 1440 });
     await open(page, '/discover');
-    const logo = page
-      .getByRole('link', { name: 'tvseri.es home' })
-      .getByRole('img')
-      .filter({ visible: true });
-    const box = await logo.boundingBox();
-    const width = await page.evaluate(
-      () => document.documentElement.clientWidth,
-    );
+    const box = await logo(page).boundingBox();
+    expect(
+      Math.abs((box?.x ?? -1) - (await pageLine(page))),
+    ).toBeLessThanOrEqual(0.5);
+  });
+
+  test('the logo is 24px tall, 32px from the top @design', async ({ page }) => {
+    await page.setViewportSize({ height: 900, width: 1440 });
+    await open(page, '/discover');
+    const box = await logo(page).boundingBox();
     expect(box?.height).toBe(24);
     expect(box?.width).toBeCloseTo(124.1, 0);
-    expect(box?.x).toBeCloseTo((width - 1280) / 2 + 32, 0);
     expect(box?.y).toBe(32);
   });
 });
@@ -169,24 +192,32 @@ test.describe('header modes', () => {
     await expect(header(page)).toHaveAttribute('data-header-mode', 'static');
   });
 
-  test('the pill is 1024px wide, 24px from the top, 56px tall, 20px logo', async ({
+  test('the pill is centred in the room, its logo smaller than the header’s', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ height: 900, width: 1440 });
+    await open(page, '/discover');
+    const resting = (await logo(page).boundingBox())?.height ?? 0;
+    await showPill(page);
+
+    const gaps = await pillGaps(page);
+    expect(Math.abs(gaps.left - gaps.right)).toBeLessThanOrEqual(1);
+    expect(gaps.top).toBeGreaterThan(0);
+    expect((await logo(page).boundingBox())?.height).toBeLessThan(resting);
+  });
+
+  test('the pill is 1024px wide, 24px from the top, 56px tall, 20px logo @design', async ({
     page,
   }) => {
     await page.setViewportSize({ height: 900, width: 1440 });
     await open(page, '/discover');
     await showPill(page);
 
-    await expect(glass(page)).toHaveCSS('opacity', '1');
-    const box = await glass(page).boundingBox();
-    expect(box?.height).toBe(56);
-    expect(box?.width).toBe(1024);
-    expect(box?.x).toBeCloseTo(((await viewportWidth(page)) - 1024) / 2, 0);
-    expect(box?.y).toBe(24);
-    const logo = page
-      .getByRole('link', { name: 'tvseri.es home' })
-      .getByRole('img')
-      .filter({ visible: true });
-    expect((await logo.boundingBox())?.height).toBe(20);
+    const { box } = await pillGaps(page);
+    expect(box.height).toBe(56);
+    expect(box.width).toBe(1024);
+    expect(box.y).toBe(24);
+    expect((await logo(page).boundingBox())?.height).toBe(20);
   });
 
   test('the pill’s glass is production’s, layer for layer, with no tint', async ({
@@ -265,16 +296,30 @@ test.describe('header modes', () => {
     await expect(header(page)).toHaveAttribute('data-header-mode', 'floating');
   });
 
-  test('a phone gets the pill 12px from the edges with the 20px logo', async ({
+  test('a phone gets the pill inset evenly from the room’s edges', async ({
     page,
   }) => {
     await page.setViewportSize({ height: 844, width: 390 });
     await open(page, '/discover');
     await showPill(page);
 
-    const box = await glass(page).boundingBox();
-    expect(box).toMatchObject({ height: 56, x: 12, y: 12 });
-    expect(box?.width).toBe((await viewportWidth(page)) - 24);
+    const gaps = await pillGaps(page);
+    expect(Math.abs(gaps.left - gaps.right)).toBeLessThanOrEqual(1);
+    expect(Math.abs(gaps.left - gaps.top)).toBeLessThanOrEqual(1);
+    expect(gaps.left).toBeGreaterThan(0);
+  });
+
+  test('a phone gets the pill 12px from the edges, 56px tall, with the 20px logo @design', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ height: 844, width: 390 });
+    await open(page, '/discover');
+    await showPill(page);
+
+    const gaps = await pillGaps(page);
+    expect(gaps.box).toMatchObject({ height: 56, x: 12, y: 12 });
+    expect(gaps.right).toBe(12);
+    expect((await logo(page).boundingBox())?.height).toBe(20);
   });
 });
 
@@ -319,14 +364,15 @@ test.describe('performance (lenient: catches regressions, not tuning) @perf', ()
     const wheel = async (dy: number, times: number) => {
       for (let i = 0; i < times; i += 1) {
         await page.mouse.wheel(0, dy);
-        await page.waitForTimeout(16);
+        await nextFrames(page, 1);
       }
     };
     await wheel(40, 30);
     await wheel(-30, 15);
     await wheel(40, 15);
     await wheel(-40, 40);
-    await page.waitForTimeout(400);
+    // the last wheel's scroll and the header's slide play out
+    await nextFrames(page, 24);
 
     const frames = await page.evaluate(() => {
       const w = window as unknown as { __frames: number[]; __run: boolean };
@@ -353,7 +399,8 @@ test.describe('performance (lenient: catches regressions, not tuning) @perf', ()
       await page.getByRole('button', { name: 'Menu' }).click();
       await page.getByRole('button', { name: 'Close menu' }).click();
     }
-    await page.waitForTimeout(300);
+    // event timing entries are reported after the next paints
+    await nextFrames(page, 18);
     const durations = await page.evaluate(
       () => (window as unknown as { __events: number[] }).__events,
     );
@@ -420,7 +467,18 @@ test.describe('page colour', () => {
     });
     await page.goBack();
     await page.waitForURL((url) => url.pathname === SHOW);
-    await page.waitForTimeout(300);
+    // a run of frames on the show page, not only its first
+    await expect
+      .poll(() =>
+        page.evaluate(
+          (show) =>
+            (
+              window as unknown as { __back: Array<readonly [string, string]> }
+            ).__back.filter(([path]) => path === show).length,
+          SHOW,
+        ),
+      )
+      .toBeGreaterThanOrEqual(20);
     const back = await page.evaluate(
       () =>
         (window as unknown as { __back: Array<readonly [string, string]> })

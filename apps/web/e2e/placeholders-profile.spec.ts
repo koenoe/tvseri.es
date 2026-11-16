@@ -54,8 +54,30 @@ const SIDEBAR = ['profile-identity', 'profile-blocks'];
  * overview, so the blocks are compared after its difference in height (the
  * bottom of its last part, the blocks).
  */
+/** Below md: the phone frames */
+const isPhone = (viewport: ViewportName) => VIEWPORTS[viewport].width < 768;
+
 const sidebarAbove = (viewport: ViewportName) =>
   VIEWPORTS[viewport].width < 1024;
+
+/**
+ * Someone else's Circle with its rows measured from the header's bottom: the
+ * header's line wraps by the name's width, which its ghost can't know.
+ */
+function belowTheHead(parity: Parity): Parity {
+  const placeholder = parity.placeholders['circle-head'];
+  const slot = parity.slots['circle-head'];
+  const dy = placeholder && slot ? slot.height - placeholder.height : 0;
+  return {
+    ...parity,
+    slots: Object.fromEntries(
+      Object.entries(parity.slots).map(([name, box]) => [
+        name,
+        { ...box, y: box.y - dy },
+      ]),
+    ),
+  };
+}
 
 function belowTheSidebar(parity: Parity, viewport: ViewportName): Parity {
   const placeholder = parity.placeholders['profile-blocks'];
@@ -233,15 +255,21 @@ for (const viewport of SIZES) {
       expectParity(measured, { maxShift: 0.02, names: ['circle-row'] });
     });
 
-    // Someone else's: the frame and a row are exact at every width. The
-    // header's line wraps by their name's length: its ghost is the line with
-    // a name of a usual length (a generated handle's), as this profile's is
-    // (`out-500-heron512` reads like juno's, and juno is no visitor's name)
+    // Someone else's: the frame, the header's place and a row are exact at
+    // every width. The header's line wraps by their name's width: its ghost
+    // is the line with a name of a usual length (a generated handle's), which
+    // can wrap a word earlier or later than this profile's
+    // (`out-500-heron512`) where the room is near the break (1100 less a
+    // classic scrollbar), so the row is exact below the header's last line.
     test('someone else’s Circle keeps its frame; a row is exact', async ({
       browser,
     }) => {
+      // a phone's Circle draws no header (the profile's own head is above)
+      const heads = isPhone(viewport)
+        ? ['circle', 'circle-row']
+        : ['circle', 'circle-head', 'circle-row'];
       const measured = await measureNoScriptParity(browser, {
-        names: ['circle', 'circle-row'],
+        names: heads,
         path: '/u/out-500-heron512/circle',
         viewer: 'alex',
         viewport,
@@ -252,9 +280,12 @@ for (const viewport of SIZES) {
       expectParity(measured, {
         heightTolerance: Number.POSITIVE_INFINITY,
         ignoreShift: true,
-        names: ['circle'],
+        names: heads.filter((name) => name !== 'circle-row'),
       });
-      expectParity(measured, { ignoreShift: true, names: ['circle-row'] });
+      expectParity(belowTheHead(measured), {
+        ignoreShift: true,
+        names: ['circle-row'],
+      });
     });
   });
 }

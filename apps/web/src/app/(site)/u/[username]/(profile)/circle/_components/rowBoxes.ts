@@ -31,5 +31,8 @@ export const LIST = 'm-0 flex list-none flex-col gap-3 p-0';
 /** The page under the tabs: the header, then the lists 24px down (8px more on a phone, 24 in all) */
 export const PAGE = 'flex flex-col gap-6 max-md:pt-2';
 
+/** The parity marker on someone else's header and its ghost (its line wraps by their name) */
+export const VISITOR_HEAD = 'circle-head';
+
 /** The parity marker on the first row and the first ghost row */
 export const FIRST_ROW = 'circle-row';

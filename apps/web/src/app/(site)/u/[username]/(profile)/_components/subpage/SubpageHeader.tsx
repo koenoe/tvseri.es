@@ -17,11 +17,14 @@ export default function SubpageHeader({
   className,
   count,
   description,
+  slot,
   title,
 }: Readonly<{
   className?: string;
   count?: ReactNode;
   description?: ReactNode;
+  /** The placeholder-parity name (`data-slot`), where the page's ghost header has one */
+  slot?: string;
   title: string;
 }>) {
   const link =
@@ -32,7 +35,7 @@ export default function SubpageHeader({
     );
   const classes = cn('flex flex-col gap-2', className);
   return (
-    <header className={classes}>
+    <header className={classes} data-slot={slot}>
       <SectionHead id={SUBPAGE_TITLE_ID} link={link} title={title} />
       {description === undefined ? null : (
         <div className="text-meta text-white/60 max-md:hidden">

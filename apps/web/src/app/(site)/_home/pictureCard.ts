@@ -29,13 +29,13 @@ const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 const UNKNOWN_COLOR = '#000000';
 
 /**
- * How much of the picture's colour the shade keeps (the rest is black). The
- * API serves the colour as a page ground (white at 60% reads on it at
- * 4.5:1); at 35% even the brightest of those is as dark as the default
- * near-black, so white text keeps 4.5:1 wherever the shade is 60% or more,
- * over a white picture too, while a saturated colour stays visible.
+ * How much of the picture's colour the shade keeps (the rest is black), so
+ * the shade reads as the picture rather than black. The API serves the
+ * colour as a page ground (white at 60% reads on it at 4.5:1); at half of
+ * even the brightest of those, white text keeps 4.5:1 wherever the shade is
+ * 65% or more, over a white picture too.
  */
-export const PICTURE_SHADE_SHARE = 0.35;
+export const PICTURE_SHADE_SHARE = 0.5;
 
 /**
  * The shade's colour for a picture card whose shade follows its picture

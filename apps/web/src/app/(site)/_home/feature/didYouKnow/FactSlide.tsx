@@ -1,15 +1,16 @@
 import type { DidYouKnowFact } from '@tvseri.es/schemas';
 import Image from 'next/image';
+import type { CSSProperties } from 'react';
 
 import ButtonLink from '@/components/ui/button/ButtonLink';
 import { arrowRightGlyph } from '@/components/ui/icon/glyphs';
-import { FOOT_SHADE } from '@/components/ui/tile/footShade';
 import cn from '@/lib/cn';
 import showPath from '@/lib/routing/showPath';
 
 import { PICTURE_BLEED, pictureShade } from '../../pictureCard';
 import ShowMeta from '../ShowMeta';
 import type { FactCopy } from './facts';
+import { factFade } from './fade';
 import {
   FACT_BODY,
   FACT_NUMBER,
@@ -22,23 +23,32 @@ import {
 } from './layout';
 
 /**
- * The fade from the left (from the foot below lg) in the picture's colour,
- * darkened (`pictureShade`), near-black without one
+ * The fade from the foot below lg (the text stacks over the whole card), from
+ * the left from lg (`factFade`: dark under the text only), in the picture's
+ * colour, darkened (`pictureShade`), near-black without one
  */
 const SHADE =
-  'absolute inset-0 bg-linear-to-t from-[color:var(--picture-shade,rgb(14_16_17))]/97 via-[color:var(--picture-shade,rgb(14_16_17))]/86 via-70% to-[color:var(--picture-shade,rgb(14_16_17))]/45 lg:bg-linear-to-r lg:from-0% lg:via-42% lg:to-[color:var(--picture-shade,rgb(14_16_17))]/15 lg:to-80%';
+  'absolute inset-0 bg-linear-to-t from-[color:var(--picture-shade,rgb(14_16_17))]/97 via-[color:var(--picture-shade,rgb(14_16_17))]/86 via-70% to-[color:var(--picture-shade,rgb(14_16_17))]/45 lg:bg-(image:--fact-fade)';
 
 /**
- * From lg the deck's controls sit bottom right on the picture: the shared
- * foot shade reaches under them (below lg the fade already rises from the
- * foot)
+ * Below lg the card's label sits at the top, where the fade from the foot is
+ * at its lightest: a band under it, clear by the number
  */
-const FOOT = cn(FOOT_SHADE, 'max-lg:hidden');
+const TOP =
+  'absolute inset-0 bg-[linear-gradient(180deg,color-mix(in_srgb,var(--picture-shade,rgb(14_16_17))_75%,transparent)_0px,color-mix(in_srgb,var(--picture-shade,rgb(14_16_17))_70%,transparent)_44px,transparent_104px)] lg:hidden';
 
 /**
- * One fact: the show's backdrop under a fade from the left
- * and a shade from the foot, in the picture's colour (both a pixel past the
- * deck), the big number with its unit, the sentence, the facts and a link.
+ * From lg the deck's controls sit bottom right on the picture, where the
+ * fade has cleared: a shade in that corner only, as big as the pips and
+ * "Another" need (below lg the fade already rises from the foot)
+ */
+const FOOT =
+  'absolute inset-0 bg-[radial-gradient(440px_150px_at_100%_100%,color-mix(in_srgb,var(--picture-shade,rgb(14_16_17))_84%,transparent)_0%,color-mix(in_srgb,var(--picture-shade,rgb(14_16_17))_70%,transparent)_50%,transparent_100%)] max-lg:hidden';
+
+/**
+ * One fact: the show's backdrop under its shades, in the picture's colour (a
+ * pixel past the deck), the big number with its unit, the sentence, the
+ * facts and a link.
  */
 export default function FactSlide({
   copy,
@@ -48,6 +58,7 @@ export default function FactSlide({
   const sentence = cn(FACT_SENTENCE, FACT_SENTENCE_ROOM);
   const open = `Open ${series.title}`;
   const shade = pictureShade(series.backdropColor);
+  const fade = { '--fact-fade': factFade(copy.value) } as CSSProperties;
   return (
     <div className="relative h-full">
       <span className={PICTURE_BLEED} style={shade}>
@@ -60,7 +71,8 @@ export default function FactSlide({
             src={series.backdropImage}
           />
         ) : null}
-        <span className={SHADE} />
+        <span className={SHADE} style={fade} />
+        <span className={TOP} />
         <span className={FOOT} />
       </span>
       <div className={FACT_BODY}>

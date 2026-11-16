@@ -100,7 +100,7 @@ describe('Countdown', () => {
     );
 
     expect(colored).toContain(
-      '--picture-shade:color-mix(in srgb, #79251d 35%, black)',
+      '--picture-shade:color-mix(in srgb, #79251d 50%, black)',
     );
     expect(plain).not.toContain('--picture-shade:');
   });

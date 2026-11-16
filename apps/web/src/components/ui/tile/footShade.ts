@@ -1,8 +1,8 @@
 /**
  * The shade that rises from a picture's foot so what sits there reads on any
  * picture: the
- * Discover landing's spotlight tile, the Countdown's foot from md and Did
- * you know's controls from lg. Near-black, or `--picture-shade` where the
+ * Discover landing's spotlight tile and the Countdown's foot from md.
+ * Near-black, or `--picture-shade` where the
  * card sets one (its picture's colour, darkened: `_home/pictureCard.ts`).
  */
 export const FOOT_SHADE =

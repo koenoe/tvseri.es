@@ -21,7 +21,7 @@ const overWhite = (shade: ReadonlyArray<number>, alpha: number) =>
 describe('pictureShade', () => {
   it('shades in the picture’s colour, darkened, through a CSS variable', () => {
     expect(pictureShade('#2A4949')).toEqual({
-      '--picture-shade': 'color-mix(in srgb, #2a4949 35%, black)',
+      '--picture-shade': 'color-mix(in srgb, #2a4949 50%, black)',
     });
   });
 
@@ -38,16 +38,16 @@ describe('pictureShade', () => {
     expect(pictureShade('red;}body{background:url(x)}')).toBeUndefined();
   });
 
-  it('white text keeps 4.5:1 where the shade is 60% or more, as on today’s near-black, over a white picture', () => {
+  it('white text keeps 4.5:1 where the shade is 65% or more, as on the default near-black, over a white picture', () => {
     // The brightest grounds the API serves (white/60 at 4.5:1 on them): a
     // white picture's grey and bright hues, darkened by its rule
     const brightest = ['#474747', '#524600', '#3d474e', '#57420d', '#1d3a9e'];
     for (const color of brightest) {
       const shade = mixWithBlack(color);
-      expect(contrast('#ffffff', overWhite(shade, 0.6))).toBeGreaterThan(4.5);
+      expect(contrast('#ffffff', overWhite(shade, 0.65))).toBeGreaterThan(4.5);
     }
-    // today's near-black at the same strength, for comparison
-    expect(contrast('#ffffff', overWhite([14, 16, 17], 0.6))).toBeGreaterThan(
+    // the default near-black at the same strength, for comparison
+    expect(contrast('#ffffff', overWhite([14, 16, 17], 0.65))).toBeGreaterThan(
       4.5,
     );
   });

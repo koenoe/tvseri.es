@@ -175,7 +175,7 @@ async function rotatingRefresh(token: string) {
   });
 }
 
-createServer(async (request, response) => {
+const server = createServer(async (request, response) => {
   const url = new URL(request.url ?? '/', issuer);
   const send = (result: ReturnType<typeof json>) => {
     response.writeHead(result.status, {
@@ -342,6 +342,12 @@ createServer(async (request, response) => {
   }
 
   send(json({ message: 'Not found (stub auth)' }, 404));
-}).listen(port, '127.0.0.1', () => {
+});
+// Longer than the web's keep-alive (undici: 4s, or the server's hint), so
+// the client always closes an idle socket first. With Node's 5s default, a
+// request sent on a socket the server was about to drop was reset
+// (ECONNRESET), above all while this one thread was busy.
+server.keepAliveTimeout = 60_000;
+server.listen(port, '127.0.0.1', () => {
   console.log(`stub auth on ${issuer} (images: ${imgDir || 'none'})`);
 });

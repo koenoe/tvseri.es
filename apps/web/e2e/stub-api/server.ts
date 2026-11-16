@@ -195,7 +195,7 @@ async function idOfUsername(username: string): Promise<string | null> {
   return personByUsername(username)?.user.id ?? null;
 }
 
-createServer(async (request, response) => {
+const server = createServer(async (request, response) => {
   const url = new URL(request.url ?? '/', `http://localhost:${port}`);
   const method = request.method ?? 'GET';
   const atUser = /^\/user\/(?:@|%40)([^/]+)(\/.*)?$/.exec(url.pathname);
@@ -304,6 +304,12 @@ createServer(async (request, response) => {
 
   response.writeHead(404, { 'content-type': 'application/json' });
   response.end(JSON.stringify({ message: 'Not found (stub API)' }));
-}).listen(port, '127.0.0.1', () => {
+});
+// Longer than the web's keep-alive (undici: 4s, or the server's hint), so
+// the client always closes an idle socket first. With Node's 5s default, a
+// request sent on a socket the server was about to drop was reset
+// (ECONNRESET), above all while this one thread was busy.
+server.keepAliveTimeout = 60_000;
+server.listen(port, '127.0.0.1', () => {
   console.log(`stub API on http://localhost:${port} (${routes.length} routes)`);
 });

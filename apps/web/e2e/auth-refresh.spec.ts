@@ -202,12 +202,10 @@ test.describe('session refresh', () => {
     page,
   }) => {
     const show = '/136315/the-bear';
-    // 65 s left: no refresh while the page loads; within a few seconds the
-    // token falls under the 60 s refresh threshold.
+    // Ten minutes left: no refresh while the page loads, however slowly
     const session = await signInRotating(context, 'alex', baseURL ?? '', {
-      accessSeconds: 65,
+      accessSeconds: 600,
     });
-    const refreshDueAt = Date.now() + 6000;
     await page.goto(show);
     const progress = page
       .getByRole('button', { name: /open watch history/ })
@@ -215,12 +213,13 @@ test.describe('session refresh', () => {
     await expect(progress).toContainText('21 of 47');
     expect((await session.stats()).calls).toBe(0);
 
+    // Mid-use the session runs out: the browser's cookie now holds a token
+    // of the same session (its namespace) that has expired, so the next
+    // request must refresh, and the session is revoked, so that fails. (It
+    // waited out a 65 s token's last seconds by the clock: a load slower
+    // than five seconds refreshed it early.)
+    await signInRotating(context, 'alex', baseURL ?? '', { accessSeconds: 0 });
     await session.revoke();
-    // The token's own clock: 65 s of life minus the 60 s refresh threshold,
-    // and a second of margin
-    await expect
-      .poll(() => refreshDueAt - Date.now(), { timeout: 10_000 })
-      .toBeLessThanOrEqual(0);
     await page
       .getByRole('button', { name: 'More actions for The Bear' })
       .first()

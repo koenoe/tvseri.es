@@ -15,7 +15,7 @@ import {
   PHONE_GLASS,
 } from './menuLook';
 import { phoneGlassVariants, phoneWordVariants } from './menuMotion';
-import useSwipeToClose from './useSwipeToClose';
+import useMenuSwipe from './useMenuSwipe';
 
 /* sizes at 390; the dimmed text at white/80 over the lighter glass */
 const PHONE_LOOK: MenuLook = {
@@ -44,7 +44,7 @@ export default function MobileMenu({
   onClose,
 }: Readonly<{ model: MenuModel; onClose: () => void }>) {
   const nav = useRef<HTMLElement>(null);
-  const swipe = useSwipeToClose(nav, onClose);
+  const swipe = useMenuSwipe(nav, onClose);
 
   return (
     <div className="fixed inset-0 touch-none" {...swipe}>

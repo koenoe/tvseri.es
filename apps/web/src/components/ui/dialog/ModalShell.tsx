@@ -4,6 +4,7 @@ import { AnimatePresence } from 'motion/react';
 import * as m from 'motion/react-m';
 import {
   type MouseEvent,
+  type PointerEvent,
   type ReactNode,
   type SyntheticEvent,
   useCallback,
@@ -30,6 +31,7 @@ import EdgeTint, { tintEdges, untintEdges } from './EdgeTint';
 import { openedFromKeyboard, returnFocus } from './focusReturn';
 import { dialogOpener } from './lastInvoker';
 import { lockScroll, unlockScroll } from './scrollLock';
+import useSheetSwipe from './useSheetSwipe';
 
 /**
  * `overflow: clip`, not `hidden`: a hidden (or the UA's `auto`) dialog is a
@@ -99,7 +101,7 @@ export default function ModalShell({
     ...(phone ? BACKDROP_MOTION : desktopBackdrop),
     exit: { opacity: 0, transition: panelMotion.exit.transition },
   };
-  const close = () => onOpenChange(false);
+  const close = useCallback(() => onOpenChange(false), [onOpenChange]);
   const context = { close };
 
   const restoreRef = useRef(restoreFocus);
@@ -118,6 +120,9 @@ export default function ModalShell({
       release?.();
     };
   }, []);
+  // Phones: a swipe down closes the sheet (Vaul's feel)
+  const swipe = useSheetSwipe(panelNode, close);
+  const panelSwipe = phone ? swipe : undefined;
   useLayoutEffect(() => {
     if (!open && panelNode.current) {
       releaseToastSheet(panelNode.current);
@@ -177,6 +182,12 @@ export default function ModalShell({
     close();
   };
 
+  // Nor does a press inside reach what the dialog sits in: a Library tile
+  // around the ⋯ sheet took a long press (or a slow swipe) in the sheet for
+  // its own and entered selection.
+  const keepPress = (event: PointerEvent<HTMLDialogElement>) =>
+    event.stopPropagation();
+
   const handleClick = (event: MouseEvent<HTMLDialogElement>) => {
     if (
       event.target instanceof HTMLElement &&
@@ -206,6 +217,7 @@ export default function ModalShell({
           key="dialog"
           onCancel={handleCancel}
           onClick={handleClick}
+          onPointerDown={keepPress}
           ref={attach}
           tabIndex={-1}
         >
@@ -224,6 +236,7 @@ export default function ModalShell({
               onAnimationComplete={opened}
               ref={panelRef}
               style={panelMotion.style}
+              {...panelSwipe}
             >
               {desktopMotion.contentStyle ? (
                 <m.div

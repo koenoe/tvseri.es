@@ -92,7 +92,8 @@ function ChipGrid({
   const classes = cn(GRID, run ? 'touch-none' : 'touch-pan-y');
 
   return (
-    <div className={classes} {...handlers}>
+    // the chips' own drag (a run), never the sheet's swipe
+    <div className={classes} data-no-sheet-swipe="" {...handlers}>
       {chips.map((chip, index) => {
         const painted =
           span !== null &&

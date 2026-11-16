@@ -8,7 +8,7 @@ import useSwipeToClose, {
 import { REDUCED_MOTION } from '@/lib/media/breakpoints';
 import { matchesNow } from '@/lib/media/useMediaQuery';
 
-import { untintEdges } from './EdgeTint';
+import { fillsScreen, untintEdges } from './EdgeTint';
 import {
   closesSheet,
   dimAt,
@@ -20,7 +20,7 @@ import {
 const SETTLE = `${SHEET_SETTLE.duration}s cubic-bezier(${SHEET_SETTLE.ease.join(',')})`;
 
 /**
- * Swipe down to close a phone bottom sheet (`sheetSwipe.ts` for the rules
+ * Swipe down to close a phone bottom sheet, never a full-screen panel (`sheetSwipe.ts` for the rules
  * and numbers). The drag moves the panel with `translate` and fades the dim
  * with `filter: opacity()`: both compose with the `transform` and `opacity`
  * Motion animates, so Motion's entry and exit never fight the finger, and a
@@ -55,9 +55,13 @@ export default function useSheetSwipe(
     [panel],
   );
 
+  // Only a bottom sheet: a full-screen panel (Watch history) has no edge
+  // to pull down, so a swipe there only scrolls
   const canStart = useCallback(
     (target: EventTarget | null) =>
-      panel.current ? swipeMovesSheet(target, panel.current) : false,
+      panel.current && !fillsScreen(panel.current)
+        ? swipeMovesSheet(target, panel.current)
+        : false,
     [panel],
   );
 

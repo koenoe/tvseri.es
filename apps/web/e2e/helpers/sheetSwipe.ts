@@ -183,28 +183,19 @@ export function sheetSwipeSuite() {
       expect(box?.y ?? 0).toBeLessThan(844);
     });
 
-    test('the watch history: a scrolled list scrolls back, the header closes', async ({
+    test('the full-screen watch history: a swipe on its header leaves it open', async ({
       page,
     }) => {
       await page.goto('/136315/the-bear?history');
       const sheet = page.getByRole('dialog', { name: 'Watch history' });
       await expect(sheet).toBeVisible();
       await entered(page);
-      const body = sheet.locator('.overflow-y-auto').first();
-      await body.evaluate((node) => {
-        node.scrollTop = 200;
-      });
-      await swipe(sheet.getByRole('region', { name: 'Season 2' }), {
+      await swipe(sheet.getByRole('heading', { name: 'Watch history' }), {
         dy: 300,
         ms: 300,
       });
       await expect(sheet).toBeVisible();
       expect(await panelTranslate(page)).toBe('');
-      await swipe(sheet.getByRole('heading', { name: 'Watch history' }), {
-        dy: 300,
-        ms: 300,
-      });
-      await expect(page.getByRole('dialog')).toHaveCount(0);
     });
   });
 

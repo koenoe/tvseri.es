@@ -40,6 +40,12 @@ export default function EdgeTint({
 }
 
 /**
+ * A panel that reaches the top of the screen: full screen, not a bottom
+ * sheet (`offsetTop` ignores the entry's transform).
+ */
+export const fillsScreen = (panel: HTMLElement) => panel.offsetTop <= 0;
+
+/**
  * Gives the strips of the panel's dialog its ground, read once as it
  * opens: the bottom edge always, the top only when the panel reaches it
  * (full screen; `offsetTop` ignores the entry's transform).
@@ -51,7 +57,7 @@ export function tintEdges(panel: HTMLElement) {
   }
   const ground = getComputedStyle(panel).backgroundColor;
   dialog.style.setProperty('--edge-tint-bottom', ground);
-  if (panel.offsetTop <= 0) {
+  if (fillsScreen(panel)) {
     dialog.style.setProperty('--edge-tint-top', ground);
   }
 }

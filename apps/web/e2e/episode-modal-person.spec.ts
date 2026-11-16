@@ -115,13 +115,16 @@ async function openFromTile(page: Page) {
   await expect(modal(page)).toBeVisible();
   // measured once the panel has grown in (`data-opening`, ModalShell)
   await expect(modal(page).locator('[data-opening]')).toHaveCount(0);
-  // its full size and place: 1232 × 672 centred, 24px clear of a 1280 × 720
-  // window (LargeDialog)
-  const opened = { height: 672, width: 1232, x: 24, y: 24 };
+  // grown to its full width (24px clear of each side, LargeDialog; a classic
+  // scroll bar takes some), not resting on the tile
+  const full = 0.95 * ((await page.evaluate(() => window.innerWidth)) - 48);
   await expect
-    .poll(() => panelBox(page), { message: 'the panel has grown in' })
-    .toEqual(opened);
-  return { opened, tile };
+    .poll(async () => (await panelBox(page))?.width ?? 0, {
+      message: 'the panel has grown in',
+    })
+    .toBeGreaterThanOrEqual(full);
+  await untilStable(() => panelBox(page), { message: 'the panel has settled' });
+  return { opened: await panelBox(page), tile };
 }
 
 type Slow = Readonly<{ cpu: number; ms: number }>;

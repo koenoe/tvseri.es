@@ -87,7 +87,7 @@ function DiaryRow({
   return (
     <m.div className={classes} data-diary-row {...layout}>
       <div className={gridClasses}>
-        <DiaryPoster src={row.poster} stacked={!single} />
+        <DiaryPoster src={row.poster} />
         <span className={DIARY_ROW_TEXT}>
           <span className={titleClasses}>
             {href ? (

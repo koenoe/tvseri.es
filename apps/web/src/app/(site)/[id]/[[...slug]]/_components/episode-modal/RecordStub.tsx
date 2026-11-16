@@ -4,6 +4,7 @@ import type { EpisodeRef } from '@tvseri.es/schemas';
 import { type MouseEvent, memo, useCallback, useMemo } from 'react';
 
 import CircleButton from '@/components/ui/button/CircleButton';
+import { ghostCircle, PULSE, TextLine } from '@/components/ui/ghost/ghosts';
 import { eyeGlyph } from '@/components/ui/icon/glyphs';
 import { clearToastOver } from '@/components/ui/toast/clearToast';
 import { episodeLabel } from '@/lib/marking/copy';
@@ -28,6 +29,19 @@ type Props = Readonly<{
   hasNext: boolean;
   onStep: (direction: -1 | 1) => void;
 }>;
+
+/**
+ * The eye and its line until the viewer's marks have seeded the show (its
+ * hole streams in after the sheet can open): a pulsing flat circle in the
+ * eye's 40px box and a bar in the line's box, never an eye that looks ready
+ * but can't mark yet
+ */
+const EYE_GHOST = <span className={ghostCircle(`size-10 ${PULSE}`)} />;
+const LINE_GHOST = (
+  <span className={PULSE}>
+    <TextLine className="" width="w-28" />
+  </span>
+);
 
 const LINK =
   'cursor-pointer text-caption font-medium text-white/80 underline underline-offset-2 hover:text-white max-sm:font-normal max-sm:text-white/60 max-sm:no-underline';
@@ -79,6 +93,7 @@ function RecordStub({
     openHistory(episode.seasonNumber);
   }, [episode.seasonNumber]);
 
+  const seeded = eye.state !== undefined;
   const eyeLabel = `${what} · ${
     stub.pressed ? 'Watched · tap to unmark' : 'Mark watched (just now)'
   }`;
@@ -90,18 +105,28 @@ function RecordStub({
       data-record-stub=""
       ref={clearToastOver}
     >
-      <CircleButton
-        className="bg-white/5 text-white/60"
-        icon={eyeGlyph}
-        label={eyeLabel}
-        onClick={toggleEye}
-        pressed={stub.pressed}
-        size={40}
-      />
+      {seeded ? (
+        <CircleButton
+          className="bg-white/5 text-white/60"
+          icon={eyeGlyph}
+          label={eyeLabel}
+          onClick={toggleEye}
+          pressed={stub.pressed}
+          size={40}
+        />
+      ) : (
+        EYE_GHOST
+      )}
       <span className="flex min-w-0 flex-col gap-0.5 text-body-sm sm:text-[13px] sm:leading-5">
         <b className="truncate font-semibold text-white sm:font-bold">
-          <span className="max-sm:hidden">{stub.desktop.line}</span>
-          <span className="sm:hidden">{stub.phone.line}</span>
+          {seeded ? (
+            <>
+              <span className="max-sm:hidden">{stub.desktop.line}</span>
+              <span className="sm:hidden">{stub.phone.line}</span>
+            </>
+          ) : (
+            LINE_GHOST
+          )}
         </b>
         <span className="text-caption text-white/60">
           {stub.desktop.sub ? (

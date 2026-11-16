@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 
+import { expectHydrated } from './helpers';
 import { failRead, signInAs } from './helpers/session';
 
 /**
@@ -75,13 +76,13 @@ test.describe('Connected by', () => {
 
   test('signed out: Watchlist asks to sign in', async ({ page }) => {
     await page.goto(DAY);
-    // a click before the page hydrates does nothing: press until it answers
-    await expect(async () => {
-      await watchlist(page, 'Better Call Saul').click();
-      await expect(
-        page.getByText('Please sign in to use this feature'),
-      ).toBeVisible({ timeout: 1000 });
-    }).toPass({ timeout: 10_000 });
+    // a click before the button hydrates does nothing
+    const button = watchlist(page, 'Better Call Saul');
+    await expectHydrated(button);
+    await button.click();
+    await expect(
+      page.getByText('Please sign in to use this feature'),
+    ).toBeVisible();
   });
 
   test('signed in: from a show the viewer finished, ends in none of their lists; Watchlist adds', async ({

@@ -3,6 +3,7 @@ import { expect, type Page, test } from '@playwright/test';
 import { open } from './helpers';
 import { signInAs } from './helpers/session';
 import { episodes, seasonLine, seasonSelect } from './helpers/showPage';
+import { nextFrames } from './helpers/viewport';
 
 /**
  * The show page's episodes section on a
@@ -326,7 +327,8 @@ test('the open season popover holds the page still; closing frees it', async ({
   await page.mouse.move(100, 450);
   await page.mouse.wheel(0, -300);
   await page.keyboard.press('PageDown');
-  await page.waitForTimeout(300);
+  // a window where nothing may happen: the scroll stays locked
+  await nextFrames(page);
   expect(await scrollY()).toBe(at);
 
   await page.keyboard.press('Escape');

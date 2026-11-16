@@ -190,18 +190,19 @@ test.describe('Select on a phone', () => {
     await signInAs(page.context(), 'alex');
     await page.goto('/u/alex/library/watchlist');
     await expect(tiles(page).nth(1)).toBeVisible();
-    // a press of 600ms: pointerdown, wait, pointerup
-    await tiles(page).nth(0).locator('a').dispatchEvent('pointerdown', {
-      pointerType: 'touch',
-    });
-    await page.waitForTimeout(600);
+    // a press: pointerdown starts the long-press timer, which selects on its
+    // own; the release comes after Select has started
+    await tiles(page)
+      .nth(0)
+      .locator('a')
+      .dispatchEvent('pointerdown', { pointerType: 'touch' });
+    await expect(page.getByText('1 selected')).toBeVisible();
+    // in Select the tile's link is a button
     await tiles(page)
       .nth(0)
       .locator('a, button')
       .first()
-      .dispatchEvent('pointerup', {
-        pointerType: 'touch',
-      });
+      .dispatchEvent('pointerup', { pointerType: 'touch' });
     await expect(page.getByText('1 selected')).toBeVisible();
     await tiles(page).nth(1).getByRole('button').tap();
     await expect(page.getByText('2 selected')).toBeVisible();

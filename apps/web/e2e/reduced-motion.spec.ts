@@ -1,6 +1,7 @@
 import { expect, type Page, test } from '@playwright/test';
 
 import { open } from './helpers';
+import { nextFrames } from './helpers/viewport';
 
 /**
  * A visitor who asks for reduced motion (`prefers-reduced-motion: reduce`)
@@ -62,7 +63,8 @@ test('the desktop menu panel jumps into place, with no slide', async ({
   });
   await page.getByRole('button', { name: 'Menu' }).click();
   await expect(page.locator('[data-menu-panel]')).toBeVisible();
-  await page.waitForTimeout(400);
+  // a slide would show in the frames that follow
+  await nextFrames(page, 24);
   const transforms = (await stop()) as string[];
   const atPlace = (value: string) =>
     value === 'none' || value === 'matrix(1, 0, 0, 1, 0, 0)';
@@ -107,7 +109,16 @@ test('a row’s Next arrow jumps, with no smooth scroll in between', async ({
   expect(railId).not.toBe('');
   const stop = await sampleFrames(page, { id: railId, kind: 'scrollLeft' });
   await next.click();
-  await page.waitForTimeout(600);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        (id) => document.getElementById(id)?.scrollLeft ?? 0,
+        railId,
+      ),
+    )
+    .toBeGreaterThan(0);
+  // a smooth scroll would show in the frames that follow
+  await nextFrames(page, 24);
   const offsets = (await stop()) as number[];
   const moving = [...new Set(offsets)];
   // the start and the end, nothing between

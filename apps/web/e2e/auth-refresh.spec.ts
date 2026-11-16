@@ -207,7 +207,7 @@ test.describe('session refresh', () => {
     const session = await signInRotating(context, 'alex', baseURL ?? '', {
       accessSeconds: 65,
     });
-    const startedAt = Date.now();
+    const refreshDueAt = Date.now() + 6000;
     await page.goto(show);
     const progress = page
       .getByRole('button', { name: /open watch history/ })
@@ -216,7 +216,11 @@ test.describe('session refresh', () => {
     expect((await session.stats()).calls).toBe(0);
 
     await session.revoke();
-    await page.waitForTimeout(Math.max(0, startedAt + 6000 - Date.now()));
+    // The token's own clock: 65 s of life minus the 60 s refresh threshold,
+    // and a second of margin
+    await expect
+      .poll(() => refreshDueAt - Date.now(), { timeout: 10_000 })
+      .toBeLessThanOrEqual(0);
     await page
       .getByRole('button', { name: 'More actions for The Bear' })
       .first()

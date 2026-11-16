@@ -1,6 +1,7 @@
 import { expect, type Locator, type Page, test } from '@playwright/test';
 
 import { routeImages } from './helpers/pickRoll';
+import { nextFrames } from './helpers/viewport';
 
 /**
  * The Countdown on `/dev/home`'s
@@ -78,7 +79,7 @@ test('a pill crossfades: both layers stacked, opacity in transition', async ({
   await expect(backdrop(page, 1)).toBeAttached();
   // the incoming image is decoded before the switch
   await decoded(page, 1);
-  await page.waitForTimeout(50);
+  await nextFrames(page, 3);
 
   // mid-fade, read in the page two frames after the press (a round trip
   // from the test could land after the 300ms fade): both backdrops and both
@@ -151,7 +152,8 @@ test('a backdrop that is not ready holds the old one until it is', async ({
   await open(page);
   await pills(page).nth(2).click();
   await expect(pills(page).nth(2)).toHaveAttribute('aria-pressed', 'true');
-  await page.waitForTimeout(500);
+  // a window where nothing may happen: the layer must stay put
+  await nextFrames(page, 30);
   // still The White Lotus: no fade to an empty layer
   expect(await opacity(body(page, 0))).toBe(1);
   expect(await opacity(body(page, 2))).toBe(0);
@@ -164,7 +166,7 @@ test('quick switching settles on the last choice', async ({ page }) => {
   await pills(page).nth(0).hover();
   await decoded(page, 1);
   await decoded(page, 2);
-  await page.waitForTimeout(50);
+  await nextFrames(page, 3);
   await pills(page).nth(1).click();
   await pills(page).nth(2).click();
   await pills(page).nth(0).click();

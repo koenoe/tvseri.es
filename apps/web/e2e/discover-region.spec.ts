@@ -1,5 +1,7 @@
 import { expect, type Page, test } from '@playwright/test';
 
+import { nextFrames } from './helpers/viewport';
+
 /**
  * Discover's "Streaming in …" line (first in its meta row,
  * then "Updated"). The page is static for everyone; the line is the
@@ -101,7 +103,7 @@ test('a stored region is drawn at first paint: nothing moves, no request', async
   const line = page.getByText('Streaming in the Netherlands', { exact: true });
   await expect(line).toBeVisible();
   // a few frames after React's own line replaced the hint
-  await page.waitForTimeout(500);
+  await nextFrames(page, 30);
   const frames = await framesOf(page);
   expect(new Set(frames.map((frame) => frame.updatedX)).size).toBe(1);
   expect(frames[0]?.line).toBe('Streaming in the Netherlands');

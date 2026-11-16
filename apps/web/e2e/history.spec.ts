@@ -2,6 +2,7 @@ import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 import { signInAs } from './helpers/session';
+import { untilStable } from './helpers/viewport';
 
 /**
  * The watch-history sheet, the date picker and "I'm up to…" on a production
@@ -86,7 +87,15 @@ for (const [name, viewport, axis] of [
     await samplePanel(page, axis);
     await trigger.click();
     await expect(sheet(page)).toBeVisible();
-    await page.waitForTimeout(600);
+    // the slide has come to rest
+    await untilStable(
+      () =>
+        page.evaluate(() => {
+          const w = window as unknown as { __panel: number[] };
+          return w.__panel.at(-1);
+        }),
+      { message: 'the sheet stops sliding', quietMs: 300 },
+    );
     const positions = await stopSampling(page);
     const final = positions.at(-1) ?? 0;
     // it starts away from its place and passes through it in steps
@@ -109,7 +118,9 @@ test.describe('Back closes the sheet, like the episode modal', () => {
       .first();
     await trigger.scrollIntoViewIfNeeded();
     await page.mouse.wheel(0, 120);
-    await page.waitForTimeout(100);
+    await untilStable(() => page.evaluate(() => window.scrollY), {
+      message: 'the wheel scroll has landed',
+    });
     const scrollY = await page.evaluate(() => window.scrollY);
     const length = await page.evaluate(() => window.history.length);
     await trigger.click();

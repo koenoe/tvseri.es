@@ -3,6 +3,7 @@ import { expect, type Page, test } from '@playwright/test';
 
 import { loadRows, wheelFor5s } from './helpers/diary';
 import { signInAs } from './helpers/session';
+import { untilStable } from './helpers/viewport';
 
 /**
  * History, the diary on a
@@ -159,7 +160,11 @@ test.describe('History on a desktop', () => {
     await expect
       .poll(async () =>
         Math.round(
-          (await month(page, 'March 2024').locator('h3').boundingBox())?.y ?? 0,
+          (
+            await month(page, 'March 2024')
+              .getByRole('heading', { level: 3 })
+              .boundingBox()
+          )?.y ?? 0,
         ),
       )
       .toBeLessThan(-1000);
@@ -171,10 +176,14 @@ test.describe('History on a desktop', () => {
     await newer.click();
     await page.waitForURL(`**${PATH}?month=2024-04`);
     await expect(month(page, 'April 2024')).toBeAttached();
-    const after = await page.evaluate((key) => {
-      const time = document.querySelector(`time[datetime="${key}"]`);
-      return time?.closest('[data-diary-day]')?.getBoundingClientRect().top;
-    }, before?.key ?? '');
+    const topOfDay = () =>
+      page.evaluate((key) => {
+        const time = document.querySelector(`time[datetime="${key}"]`);
+        return time?.closest('[data-diary-day]')?.getBoundingClientRect().top;
+      }, before?.key ?? '');
+    // the anchor is held once the month above has been added and laid out
+    await untilStable(topOfDay, { message: 'the day stops moving' });
+    const after = await topOfDay();
     expect(Math.abs((after ?? 0) - (before?.top ?? 0))).toBeLessThanOrEqual(2);
     await expect(
       page.getByRole('button', { name: 'Newer: May 2024' }),

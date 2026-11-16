@@ -11,6 +11,7 @@ import {
   type StateName,
 } from './helpers/seriesStates';
 import { signInAs } from './helpers/session';
+import { untilStable } from './helpers/viewport';
 
 /**
  * The Watchlist + Seen it control and the watchlist-only toggle
@@ -119,7 +120,9 @@ async function ghostThenState(
       ),
     scope,
   );
-  await page.waitForTimeout(300);
+  await untilStable(() => boxOf(page, `${scope} [data-mark-control]`), {
+    message: 'the loading control stops moving',
+  });
   await expect(loading).toBeVisible();
   const ghost = await boxOf(page, `${scope} [data-mark-control]`);
   // from here on only the control's arrival can move anything
@@ -128,7 +131,9 @@ async function ghostThenState(
   });
   const row = page.locator(`${scope} [data-mark-control="${kind}"]`).last();
   await expect(row).toBeVisible({ timeout: 15_000 });
-  await page.waitForTimeout(300);
+  await untilStable(() => boxOf(page, `${scope} [data-mark-control]`), {
+    message: 'the control stops moving',
+  });
   expect(await boxOf(page, `${scope} [data-mark-control]`)).toEqual(ghost);
   expect(await shownText(row)).toMatch(DRAWN[kind]);
   const { cls, shifts } = await readShifts(page);

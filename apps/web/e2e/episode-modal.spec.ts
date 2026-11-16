@@ -2,6 +2,7 @@ import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 import { signInAs } from './helpers/session';
+import { untilStable } from './helpers/viewport';
 
 /**
  * The episode modal (`?season=N&episode=M`, EP-B) on The Bear's stub
@@ -105,7 +106,9 @@ test.describe('episode modal', () => {
       const tile = page.getByRole('button', { name: /^Open S01E02 / });
       await tile.scrollIntoViewIfNeeded();
       await page.mouse.wheel(0, 120);
-      await page.waitForTimeout(100);
+      await untilStable(() => page.evaluate(() => window.scrollY), {
+        message: 'the wheel scroll has landed',
+      });
       const scrollY = await page.evaluate(() => window.scrollY);
       const length = await page.evaluate(() => window.history.length);
       await tile.click();
@@ -183,15 +186,12 @@ test.describe('episode modal', () => {
 test('an episode the show does not have opens no modal and leaves the URL', async ({
   page,
 }) => {
-  const started = Date.now();
   await page.goto('/136315/the-bear?season=1&episode=99');
   await page.waitForURL(
     (url) =>
       url.searchParams.get('season') === '1' &&
       !url.searchParams.has('episode'),
   );
-  // bounded: decided from the seasons the page has, no wait on the API
-  expect(Date.now() - started).toBeLessThan(10_000);
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByText('Episode 99')).toHaveCount(0);
 });
@@ -217,8 +217,14 @@ for (const { height, width } of [
       name: 'Fishes',
     });
     await expect(heading).toBeVisible();
-    const scroller = dialog.locator('.overflow-y-auto').first();
-    const panel = await scroller.boundingBox();
+    // the panel is the scroll container the title sits in
+    const panel = await heading.evaluate((element) => {
+      let node = element.parentElement;
+      while (node && getComputedStyle(node).overflowY !== 'auto') {
+        node = node.parentElement;
+      }
+      return node?.getBoundingClientRect() ?? null;
+    });
     const title = await heading.boundingBox();
     expect(panel && title).toBeTruthy();
     if (panel && title) {

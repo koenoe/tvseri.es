@@ -255,7 +255,10 @@ test.describe('each landing on its own ground', () => {
       requestAnimationFrame(record);
     });
     await page.goto('/genre/crime');
-    await page.waitForTimeout(1500);
+    await page.waitForFunction(
+      () =>
+        (window as unknown as { __grounds: string[] }).__grounds.length >= 60,
+    );
     const frames = await page.evaluate(
       () => (window as unknown as { __grounds: string[] }).__grounds,
     );

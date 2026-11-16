@@ -1,5 +1,6 @@
 import type { Profile } from '../../_data/profile';
 import Hole from '../blocks/Hole';
+import { NOT_ON_PHONE } from '../shell/overviewLayout';
 import { MATCH_RULE_CLASS } from '../shell/SidebarBlocksSkeleton';
 import MatchCard, { MatchCardSkeleton } from '../visitor/MatchCard';
 import StartSomethingNew, {
@@ -11,34 +12,44 @@ import YearSoFar, { YearSoFarSkeleton } from './YearSoFar';
 const MATCH_RULE = `h-0.5 rounded-2 bg-white/8 ${MATCH_RULE_CLASS}`;
 
 /**
- * The sidebar under the identity. Owner: Watchlist, Start something
- * new, 2026 so far. Visitor: the match card, a rule, Watchlist, then
- * their year; no Start something new. Each block streams in its own hole.
+ * The sidebar under the identity (`@aside`): someone else's match card and
+ * a rule; nothing of your own. Streams in its own hole.
  */
-export default function SidebarBlocks({
-  profile,
-}: Readonly<{ profile: Profile }>) {
-  const owner = profile.viewer === 'owner';
+export function SidebarHead({ profile }: Readonly<{ profile: Profile }>) {
+  if (profile.viewer === 'owner') {
+    return null;
+  }
   return (
     <>
-      {owner ? null : (
-        <>
-          <Hole fallback={<MatchCardSkeleton />} title="Your match">
-            <MatchCard profile={profile} />
-          </Hole>
-          <span aria-hidden="true" className={MATCH_RULE} />
-        </>
-      )}
+      <Hole fallback={<MatchCardSkeleton />} title="Your match">
+        <MatchCard profile={profile} />
+      </Hole>
+      <span aria-hidden="true" className={MATCH_RULE} />
+    </>
+  );
+}
+
+/**
+ * The sidebar's last blocks (`@tail`), after the page in the DOM
+ * (`overviewLayout.ts`). Owner: Watchlist, Start something new (not on a
+ * phone: Home has its own pick), 2026 so far. Visitor: Watchlist, their
+ * year. Each block streams in its own hole.
+ */
+export function SidebarTail({ profile }: Readonly<{ profile: Profile }>) {
+  return (
+    <>
       <Hole fallback={<WatchlistBlockSkeleton />} title="Watchlist">
         <WatchlistBlock profile={profile} />
       </Hole>
-      {owner ? (
-        <Hole
-          fallback={<StartSomethingNewSkeleton />}
-          title="Start something new"
-        >
-          <StartSomethingNew profile={profile} />
-        </Hole>
+      {profile.viewer === 'owner' ? (
+        <div className={NOT_ON_PHONE}>
+          <Hole
+            fallback={<StartSomethingNewSkeleton />}
+            title="Start something new"
+          >
+            <StartSomethingNew profile={profile} />
+          </Hole>
+        </div>
       ) : null}
       <Hole fallback={<YearSoFarSkeleton />} title="This year so far">
         <YearSoFar profile={profile} />

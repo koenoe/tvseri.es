@@ -279,27 +279,77 @@ test.describe('profile signed in', () => {
       ).toBeVisible();
     });
 
-    // the identity, then the tabs, as on a sub-page: no sidebar blocks
-    for (const user of ['alex', 'juno']) {
-      test(`the overview shows no sidebar blocks (/u/${user})`, async ({
-        page,
-      }) => {
-        await page.goto(`/u/${user}`);
-        const sidebar = page.getByRole('complementary', {
-          name: `About ${user}`,
-        });
+    /** The blocks' tops once each has streamed in */
+    const tops = async (page: Page, names: ReadonlyArray<string>) => {
+      for (const name of names) {
         await expect(
-          sidebar.getByRole('region', { name: 'Identity' }),
+          page.locator(`[data-slot="${name}"]`).first(),
         ).toBeVisible();
-        await expect(
-          page.getByRole('heading', { name: 'Watchlist' }),
-        ).toBeHidden();
-        await expect(page.locator('[data-slot="profile-blocks"]')).toBeHidden();
-        await expect(
-          page.locator('[data-placeholder="profile-blocks"]'),
-        ).toBeHidden();
-      });
-    }
+      }
+      await fontsSettled(page);
+      return Promise.all(
+        names.map(
+          async (name) =>
+            (await page.locator(`[data-slot="${name}"]`).first().boundingBox())
+              ?.y ?? 0,
+        ),
+      );
+    };
+    const isAscending = (ys: ReadonlyArray<number>) =>
+      ys.every((y, index) => index === 0 || y > (ys[index - 1] ?? 0));
+    const tabsTop = async (page: Page) =>
+      (await page.getByRole('navigation', { name: 'Profile' }).boundingBox())
+        ?.y ?? 0;
+
+    // one scroll in the DOM's order: identity, tabs, the page, then the
+    // sidebar's last blocks
+    test('your own overview reads top to bottom in its DOM order', async ({
+      page,
+    }) => {
+      await page.goto('/u/alex');
+      const ys = await tops(page, [
+        'profile-identity',
+        'up-next',
+        'almost-done',
+        'season-ledger',
+        'paused',
+        'out-now',
+        'catching-up',
+        'coming-up',
+        'waiting-for',
+        'from-your-circle',
+        'favourites',
+        'recently-watched',
+        'watchlist',
+        'this-year-so-far',
+      ]);
+      expect(isAscending(ys)).toBe(true);
+      const tabs = await tabsTop(page);
+      expect(tabs).toBeGreaterThan(ys[0] ?? 0);
+      expect(tabs).toBeLessThan(ys[1] ?? 0);
+      // Home has its own pick
+      await expect(
+        page.getByRole('heading', { name: 'Start something new' }),
+      ).toBeHidden();
+    });
+
+    test('someone else’s overview has the match card above the tabs', async ({
+      page,
+    }) => {
+      await page.goto('/u/juno');
+      const ys = await tops(page, [
+        'profile-identity',
+        'your-match',
+        'watching-now',
+        'favourites',
+        'watchlist',
+        'this-year-so-far',
+      ]);
+      expect(isAscending(ys)).toBe(true);
+      const tabs = await tabsTop(page);
+      expect(tabs).toBeGreaterThan(ys[1] ?? 0);
+      expect(tabs).toBeLessThan(ys[2] ?? 0);
+    });
   });
 
   test('a tablet keeps the overview’s sidebar blocks', async ({ page }) => {

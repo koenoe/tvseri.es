@@ -30,6 +30,7 @@ const OWNER_BLOCKS = [
   'from-your-circle',
   'favourites',
   'recently-watched',
+  'profile-tail',
 ] as const;
 
 const VISITOR_BLOCKS = [
@@ -40,29 +41,49 @@ const VISITOR_BLOCKS = [
   'also-watching',
   'where-your-tastes-split',
   'favourites',
+  'profile-tail',
 ] as const;
 
 const SIZES = Object.keys(VIEWPORTS) as ViewportName[];
 
-/** The sidebar: the identity (the layout's) and the overview's blocks under it (its `@aside`) */
-const SIDEBAR = ['profile-identity', 'profile-blocks'];
+/**
+ * The sidebar: the identity (the layout's), the overview's blocks under it
+ * (its `@aside`; on a phone someone else's match card) and its last blocks
+ * (`@tail`, the page's end below lg)
+ */
+const SIDEBAR = [
+  'profile-identity',
+  'profile-blocks',
+  'your-match',
+  'profile-tail',
+];
 
 /**
  * The overview's blocks without the sidebar: its height follows the data
  * (a long handle is smaller, a long year sentence wraps, the match card's
- * proof names long titles). On a tablet (md to lg) it is above the
- * overview, so the blocks are compared after its difference in height (the
- * bottom of its last part, the blocks); a phone shows no blocks.
+ * proof names long titles). Below lg its top part is above the overview,
+ * so the blocks are compared after its difference in height: the bottom of
+ * the `@aside` blocks on a tablet, of the identity or someone else's match
+ * card on a phone (where the `@aside` frame has no box).
  */
 /** Below md: the phone frames */
 const isPhone = (viewport: ViewportName) => VIEWPORTS[viewport].width < 768;
 
-/** A phone shows no sidebar blocks: identity, then the tabs (`@aside/page.tsx`) */
-const onScreen = <T extends string>(
-  names: ReadonlyArray<T>,
+/** On a phone the `@aside` frame has no box: someone else's match card is measured instead */
+const onScreen = (
+  names: ReadonlyArray<string>,
   viewport: ViewportName,
-): ReadonlyArray<T> =>
-  isPhone(viewport) ? names.filter((name) => name !== 'profile-blocks') : names;
+  viewer: 'owner' | 'visitor',
+): ReadonlyArray<string> =>
+  isPhone(viewport)
+    ? names.flatMap((name) =>
+        name !== 'profile-blocks'
+          ? [name]
+          : viewer === 'visitor'
+            ? ['your-match']
+            : [],
+      )
+    : names;
 
 const sidebarAbove = (viewport: ViewportName) =>
   VIEWPORTS[viewport].width < 1024;
@@ -87,8 +108,13 @@ function belowTheHead(parity: Parity): Parity {
 }
 
 function belowTheSidebar(parity: Parity, viewport: ViewportName): Parity {
-  const placeholder = parity.placeholders['profile-blocks'];
-  const slot = parity.slots['profile-blocks'];
+  const last = !isPhone(viewport)
+    ? 'profile-blocks'
+    : 'your-match' in parity.placeholders
+      ? 'your-match'
+      : 'profile-identity';
+  const placeholder = parity.placeholders[last];
+  const slot = parity.slots[last];
   const dy =
     sidebarAbove(viewport) && placeholder && slot
       ? slot.y + slot.height - (placeholder.y + placeholder.height)
@@ -121,7 +147,7 @@ for (const viewport of SIZES) {
     // lanes' own rows, so they wrap with them at every width.
     test('your own overview, a busy library', async ({ browser }) => {
       const measured = await measureNoScriptParity(browser, {
-        names: onScreen(OWNER_BLOCKS, viewport),
+        names: onScreen(OWNER_BLOCKS, viewport, 'owner'),
         path: '/u/marathonwatcher-2026',
         viewer: 'marathonwatcher-2026',
         viewport,
@@ -133,7 +159,7 @@ for (const viewport of SIZES) {
     // (below the fold), the frame above the lanes is exact
     test('your own overview, as the board draws it', async ({ browser }) => {
       const measured = await measureNoScriptParity(browser, {
-        names: onScreen(OWNER_BLOCKS, viewport),
+        names: onScreen(OWNER_BLOCKS, viewport, 'owner'),
         path: '/u/alex',
         viewer: 'alex',
         viewport,
@@ -143,29 +169,31 @@ for (const viewport of SIZES) {
         names: onScreen(
           ['profile-identity', 'profile-blocks', 'up-next'],
           viewport,
+          'owner',
         ),
       });
     });
 
     test('someone else’s overview, a busy library', async ({ browser }) => {
       const measured = await measureNoScriptParity(browser, {
-        names: onScreen(VISITOR_BLOCKS, viewport),
+        names: onScreen(VISITOR_BLOCKS, viewport, 'visitor'),
         path: '/u/marathonwatcher-2026',
         viewer: 'alex',
         viewport,
         visitor: true,
       });
       // The match card's proof and picks name this library's long titles,
-      // so it lands taller than its ghost. On a phone the page it pushes
-      // is below the fold; a tablet's 1000px window shows it move (0.021
-      // measured): the usual-length case below is exact at every width.
+      // so it lands taller than its ghost (above the tabs on a phone); the
+      // page it pushes is measured from its bottom. A tablet's 1000px
+      // window shows it move (0.021 measured): the usual-length case below
+      // is exact at every width.
       const maxShift = viewport === 'tablet' ? 0.03 : 0.02;
       expectParity(belowTheSidebar(measured, viewport), { maxShift });
     });
 
     test('someone else’s overview', async ({ browser }) => {
       const measured = await measureNoScriptParity(browser, {
-        names: onScreen(VISITOR_BLOCKS, viewport),
+        names: onScreen(VISITOR_BLOCKS, viewport, 'visitor'),
         path: '/u/juno',
         viewer: 'alex',
         viewport,

@@ -171,4 +171,21 @@ test.describe('Pick one for me deals new shows', () => {
     await expect(page.locator('[data-placeholder="pick-one"]')).toHaveCount(0);
     await expect(page.locator(PICK)).toHaveCount(0);
   });
+
+  test('a library read that fails deals the day’s seven, not a placeholder', async ({
+    context,
+    page,
+  }) => {
+    const seven = await daySeven(page);
+    await signInAs(context, 'alex');
+    await page.route('**/api/me/library-ids', (route) =>
+      route.fulfill({ status: 500 }),
+    );
+    await page.goto('/');
+    await page.getByTestId('route-home').waitFor();
+    await expect(page.locator('[data-placeholder="pick-one"]')).toHaveCount(0);
+    await page.locator(PICK).scrollIntoViewIfNeeded();
+    await expect(page.locator(PICK)).toBeVisible();
+    expect(await deckIds(page)).toEqual(seven);
+  });
 });

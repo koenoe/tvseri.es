@@ -22,14 +22,14 @@ const VERSUS_DAY = '/dev/home?day=2026-11-15';
 /** Tue 10 Nov 2026: If you liked X signed in, Where are they set? signed out */
 const IF_YOU_LIKED_DAY = '/dev/home?day=2026-11-10';
 
-/** The visible placeholders other than `except`, by name */
-const visiblePlaceholders = (page: Page, except: string) =>
+/** The visible placeholders other than those named in `except` */
+const visiblePlaceholders = (page: Page, except: ReadonlyArray<string>) =>
   page.evaluate(
-    (name) =>
+    (names) =>
       [...document.querySelectorAll('[data-placeholder]')]
         .filter((element) => element.getClientRects().length > 0)
         .map((element) => element.getAttribute('data-placeholder'))
-        .filter((placeholder) => placeholder !== name),
+        .filter((placeholder) => !names.includes(placeholder ?? '')),
     except,
   );
 
@@ -73,9 +73,12 @@ test.describe('home: nothing moves for a signed-in viewer', () => {
     });
     await page.addInitScript(SHIFT_OBSERVER);
     await page.goto(VERSUS_DAY);
-    // every other section has arrived
+    // every other section has arrived; Pick one for me waits on the library
+    // too (it deals only shows new to the viewer)
     await expect
-      .poll(() => visiblePlaceholders(page, 'toy'), { timeout: 30_000 })
+      .poll(() => visiblePlaceholders(page, ['toy', 'pick-one']), {
+        timeout: 30_000,
+      })
       .toEqual([]);
     await fontsSettled(page);
 
@@ -108,6 +111,8 @@ test.describe('home: nothing moves for a signed-in viewer', () => {
         page.evaluate(() => document.documentElement.scrollHeight),
       ]);
     await untilStable(readLoaded, { message: 'Versus kept moving' });
+    // the library's other reader has resolved too
+    await expect.poll(() => visiblePlaceholders(page, [])).toEqual([]);
 
     const loaded = await visibleBox(page, '[data-slot="toy"]', 'data-slot');
     const { cls, shifts } = await readShifts(page);

@@ -73,6 +73,18 @@ export function nextEpisode(series: SeriesBase): EpisodeRef | null {
 }
 
 /**
+ * "Has this episode a mark?" for one show: watched (with or without a date)
+ * or skipped, so done either way. Build it once per view, ask it per code.
+ */
+export function markedIn(
+  series: Pick<SeriesBase, 'skipped' | 'watched'>,
+): (code: string) => boolean {
+  const skipped = new Set<string>(series.skipped);
+  return (code) =>
+    Boolean(series.watched[code as EpisodeCode]) || skipped.has(code);
+}
+
+/**
  * What's left of the show: the aired regular episodes with no mark (neither
  * watched nor skipped), in order. Every "left" and "to watch" on the show
  * page counts these.
@@ -80,11 +92,8 @@ export function nextEpisode(series: SeriesBase): EpisodeRef | null {
 export function openEpisodes(
   series: Pick<SeriesBase, 'seasons' | 'skipped' | 'watched'>,
 ): ReadonlyArray<EpisodeRef> {
-  const skipped = new Set(series.skipped);
-  return airedRegularEpisodes(series).filter((ref) => {
-    const code = codeOf(ref);
-    return !series.watched[code] && !skipped.has(code);
-  });
+  const isMarked = markedIn(series);
+  return airedRegularEpisodes(series).filter((ref) => !isMarked(codeOf(ref)));
 }
 
 export type SeasonProgress = Readonly<{

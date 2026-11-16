@@ -39,6 +39,7 @@ export {
 } from './landings';
 export { LOGO_PATH, LOGO_VIEWBOX } from './logo';
 export { NETWORKS } from './networks';
+export { CATCHING_UP_MIN } from './overview';
 export { PAGE_COLOR_VERSION } from './pageColor';
 export {
   PLEX_SCROBBLE_EVENT,

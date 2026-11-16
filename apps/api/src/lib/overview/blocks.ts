@@ -1,3 +1,4 @@
+import { CATCHING_UP_MIN } from '@tvseri.es/constants';
 import type {
   AlmostDoneItem,
   CatchingUpItem,
@@ -21,7 +22,6 @@ import { codeOf, type EpisodeRef, type ShowState } from './analyze';
 
 const PAUSED_AFTER = 90 * DAY_MS;
 const ALMOST_DONE_MAX = 2;
-const CATCHING_UP_MIN = 3;
 const SEASON_COMPLETE_DAYS = 14;
 const WINDOW_DAYS = 30;
 

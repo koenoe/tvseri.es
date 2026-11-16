@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { type MouseEvent, useCallback, useState } from 'react';
 import cn from '@/lib/cn';
 import { codeRange } from '@/lib/marking/copy';
-import { useEpisodeState, useSeriesView } from '@/lib/marking/hooks';
 import { nextKey, pressMark } from '@/lib/marking/pressGate';
 import useIntentSeed from '@/lib/marking/useIntentSeed';
 import useMarking from '@/lib/marking/useMarking';
@@ -16,6 +15,8 @@ type Props = Readonly<{
   href: string;
   /** "S05E05 The Last Supper, Part 1" */
   nextUp: string;
+  /** After a mark's write settled (saved or rolled back) */
+  onMarked: () => void;
   plan: RunPlan;
   runway: Readonly<{
     chip: string;
@@ -58,15 +59,16 @@ function moreTiers(counts: ReadonlyArray<number>) {
 
 /**
  * The waiting episodes as chips, one row that never wraps: the
- * current season's next few (`runPlan`), "+N" to the rest of the season on
- * the show page, then the tick and one season chip. Hovering a chip lights
- * the run up to it and says what's left; a click marks the waiting chips up
- * to it (Just now), never anything else. Watched chips leave as the store
- * updates (and come back on a rollback).
+ * current season's next few (`runPlan` of the live item, so marked
+ * episodes are never chips), "+N" to the rest of the season on the show
+ * page, then the tick and one season chip. Hovering a chip lights the run
+ * up to it and says what's left; a click marks the waiting chips up to it
+ * (Just now), never anything else.
  */
 export default function CatchUpRun({
   href,
   nextUp,
+  onMarked,
   plan,
   runway,
   seriesId,
@@ -83,15 +85,18 @@ export default function CatchUpRun({
     index < small ? undefined : TIER_CLASS[index < narrow ? '12' : '22'];
   const mores = moreTiers([more.small, more.narrow, more.wide]);
 
-  const view = useSeriesView(seriesId);
-  // marked chips leave and the next slides into the spot: one press, one mark
+  // marked chips leave and the next slides into the spot: one press, one
+  // mark. The tapped chip's hint goes with it (no pointerleave follows).
   const markUpTo = (chip: RunChip, event: MouseEvent<HTMLButtonElement>) => {
-    const refs = refsUpTo(chips, chip, view?.watched ?? {});
-    pressMark(nextKey(seriesId), event, () =>
-      run(() =>
+    const refs = refsUpTo(chips, chip);
+    setHint(null);
+    pressMark(nextKey(seriesId), event, () => {
+      const write = run(() =>
         marking.markEpisodes(seriesId, refs, { kind: 'now' }, codeRange(refs)),
-      ),
-    );
+      );
+      void write.then(onMarked);
+      return write;
+    });
   };
   const seasonHref = `${href}?season=${more.season}`;
   const clearHint = () => setHint(null);
@@ -113,14 +118,15 @@ export default function CatchUpRun({
           role="group"
         >
           {chips.map((chip, index) => (
+            // keyed by spot: the chip that slides in keeps the pressed
+            // one's focus
             <Chip
               chip={chip}
               className={chipClass(index)}
               first={index === 0}
-              key={chip.code}
+              key={index}
               onHint={setHint}
               onMark={markUpTo}
-              seriesId={seriesId}
             />
           ))}
         </div>
@@ -217,28 +223,19 @@ function Chip({
   first,
   onHint,
   onMark,
-  seriesId,
 }: Readonly<{
   chip: RunChip;
   className?: string;
   first: boolean;
   onHint: (hint: string | null) => void;
   onMark: (chip: RunChip, event: MouseEvent<HTMLButtonElement>) => void;
-  seriesId: number;
 }>) {
-  const state = useEpisodeState(seriesId, {
-    episodeNumber: chip.episode,
-    seasonNumber: chip.season,
-  });
   const leave = useCallback(() => onHint(null), [onHint]);
   const show = useCallback(() => onHint(chip.hint), [chip.hint, onHint]);
   const mark = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => onMark(chip, event),
     [chip, onMark],
   );
-  if (state === 'watched' || state === 'unknown') {
-    return null;
-  }
   const className = cn(
     CHIP,
     'cursor-pointer transition-colors duration-150',

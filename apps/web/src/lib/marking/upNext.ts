@@ -5,6 +5,7 @@ import {
   airedInSeason,
   airedRegularEpisodes,
   codeOf,
+  markedIn,
   parseCode,
 } from './progress';
 import type { SeriesBase } from './types';
@@ -54,11 +55,11 @@ export function liveUpNext(
   item: UpNextItem,
   view: SeriesBase | undefined,
 ): UpNextItem | null {
-  const skipped = new Set(view?.skipped ?? []);
-  const isMarked = (code: string) =>
-    Boolean(view?.watched[code as keyof SeriesBase['watched']]) ||
-    skipped.has(code as SeriesBase['skipped'][number]);
-  if (!view || !isMarked(item.code)) {
+  if (!view) {
+    return item;
+  }
+  const isMarked = markedIn(view);
+  if (!isMarked(item.code)) {
     return item;
   }
   const aired = airedRegularEpisodes(view);

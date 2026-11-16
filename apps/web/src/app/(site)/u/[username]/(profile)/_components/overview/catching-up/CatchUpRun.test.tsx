@@ -10,16 +10,12 @@ const marking = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/marking/useMarking', () => ({ default: () => marking }));
-vi.mock('@/lib/marking/hooks', () => ({
-  useEpisodeState: () => 'none',
-  useSeriesView: () => undefined,
-}));
 vi.mock('@/lib/marking/useIntentSeed', () => ({
   default: () => ({
     intent: () => {},
     isSeeded: true,
     pending: false,
-    run: (action: () => void) => action(),
+    run: (action: () => unknown) => Promise.resolve(action()),
   }),
 }));
 
@@ -47,14 +43,16 @@ const plan = (
 });
 
 const HREF = '/9/the-chosen';
+const onMarked = vi.fn();
 
 describe('CatchUpRun', () => {
-  it('marks only the waiting chips up to the tapped one, one way', () => {
+  it('marks only the waiting chips up to the tapped one, one way', async () => {
     const chips = [chip(5), chip(6), chip(7), chip(8)];
     render(
       <CatchUpRun
         href={HREF}
         nextUp="S05E05"
+        onMarked={onMarked}
         plan={plan(chips)}
         runway={null}
         seriesId={9}
@@ -72,6 +70,8 @@ describe('CatchUpRun', () => {
       expect.any(String),
     );
     expect(marking.markUpTo).not.toHaveBeenCalled();
+    // the row is asked whether it needs the overview again once it settled
+    await vi.waitFor(() => expect(onMarked).toHaveBeenCalledOnce());
     expect(marking.setWhen).not.toHaveBeenCalled();
     expect(marking.toggleScope).not.toHaveBeenCalled();
   });
@@ -82,6 +82,7 @@ describe('CatchUpRun', () => {
       <CatchUpRun
         href={HREF}
         nextUp="S05E03"
+        onMarked={onMarked}
         plan={plan(chips, {
           more: { narrow: 9, season: 5, small: 9, wide: 8 },
           narrow: 3,

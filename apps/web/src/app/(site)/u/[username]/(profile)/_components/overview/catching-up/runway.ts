@@ -39,17 +39,21 @@ const MORE_GAP = 8;
 const TICK_WIDTH = 8 + 2 + 8;
 
 /**
- * The minutes left once the first `count` episodes sent are watched: every
- * waiting episode's time (`runtimeMinutes`) less each watched one's own
- * runtime (`episodeRuntimes`, the one rule of `minutesFor`), never one
- * runtime × the count. Null when a runtime it needs is unknown.
+ * The minutes left once the episodes sent at `watched` (indices into
+ * `episodes`) are watched: every waiting episode's time (`runtimeMinutes`)
+ * less each watched one's own runtime (`episodeRuntimes`, the one rule of
+ * `minutesFor`), never one runtime × the count. Null when a runtime it needs
+ * is unknown.
  */
-function minutesLeftAfter(item: CatchingUpItem, count: number): number | null {
+export function minutesLeftWithout(
+  item: CatchingUpItem,
+  watched: ReadonlyArray<number>,
+): number | null {
   if (item.runtimeMinutes === null) {
     return null;
   }
   let left = item.runtimeMinutes;
-  for (let index = 0; index < count; index += 1) {
+  for (const index of watched) {
     const minutes = item.episodeRuntimes[index] ?? 0;
     if (minutes <= 0) {
       return null;
@@ -58,6 +62,13 @@ function minutesLeftAfter(item: CatchingUpItem, count: number): number | null {
   }
   return Math.max(0, left);
 }
+
+/** The minutes left once the first `count` episodes sent are watched */
+const minutesLeftAfter = (item: CatchingUpItem, count: number) =>
+  minutesLeftWithout(
+    item,
+    Array.from({ length: count }, (_, index) => index),
+  );
 
 /**
  * The chips of a Catching up row and what each one's hover says:
@@ -241,24 +252,21 @@ export function runwayView(item: CatchingUpItem): RunwayView | null {
 }
 
 /**
- * What tapping a chip marks: the waiting chips up to and including it, in
- * order, and nothing else (no unmarking, no other episode). Chips the
- * viewer already has as watched are left alone, so their dates stay.
+ * What tapping a chip marks: the chips up to and including it, in order,
+ * and nothing else (no unmarking, no other episode). The chips are the
+ * live run's (`liveCatchingUp`), so none is marked already and no date is
+ * overwritten.
  */
 export function refsUpTo(
   chips: ReadonlyArray<RunChip>,
   tapped: RunChip,
-  watched: Readonly<Record<string, unknown>>,
 ): Array<Readonly<{ episodeNumber: number; seasonNumber: number }>> {
   const end = chips.findIndex((chip) => chip.code === tapped.code);
   if (end === -1) {
     return [];
   }
-  return chips
-    .slice(0, end + 1)
-    .filter((chip) => !(chip.code in watched))
-    .map((chip) => ({
-      episodeNumber: chip.episode,
-      seasonNumber: chip.season,
-    }));
+  return chips.slice(0, end + 1).map((chip) => ({
+    episodeNumber: chip.episode,
+    seasonNumber: chip.season,
+  }));
 }

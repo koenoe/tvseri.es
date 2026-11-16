@@ -18,14 +18,17 @@ import EmptyState from '../blocks/EmptyState';
 import Lane from '../blocks/Lane';
 import LaneGhost, { GhostRows, ShowAllGhost } from '../blocks/LaneGhost';
 import { LANE_CAPS } from '../blocks/laneCaps';
-import { CHIP, RUN_CLASS, RUN_LINE_CLASS } from './catching-up/runLayout';
-import CatchingUpRow, {
+import {
   CATCHING_UP_HEAD,
   CATCHING_UP_POSTER,
   CATCHING_UP_ROW,
   CATCHING_UP_TEXT,
   CATCHING_UP_TITLE,
-} from './lane-rows/CatchingUpRow';
+  CHIP,
+  RUN_CLASS,
+  RUN_LINE_CLASS,
+} from './catching-up/runLayout';
+import CatchingUpRow from './lane-rows/CatchingUpRow';
 
 /**
  * Catching up: shows with several aired episodes waiting, marked

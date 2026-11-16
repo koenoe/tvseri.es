@@ -114,15 +114,41 @@ export const raeOverview = (): Overview => {
   };
 };
 
+/** "S07E07": a code of The Long Run's 200-episode season */
+const longRunCode = (episode: number) =>
+  `S07E${String(episode).padStart(2, '0')}`;
+
+/**
+ * kit's Catching up: The Long Run (the show stub's 900002, so its chips mark
+ * through the marking routes) with the owner's real-data shape, 84 episodes
+ * waiting in one long season and the API's eight codes from S07E07. The
+ * show stub has none of them watched for kit.
+ */
+const kitCatchingUp = (): CatchingUpItem => ({
+  episodeRuntimes: Array.from({ length: 8 }, () => 44),
+  episodes: Array.from({ length: 8 }, (_, index) => longRunCode(7 + index)),
+  nextUp: longRunCode(7),
+  posterImage: img('ds_wire_p.jpg'),
+  runtime: 44,
+  runtimeMinutes: 84 * 44,
+  runway: null,
+  seriesId: 900002,
+  slug: 'the-long-run',
+  title: 'The Long Run',
+  waiting: 84,
+});
+
 /**
  * kit's tracker: The Bear as the show stub seeds it (season 1, season 2 with
  * E05 skipped, season 3 to E04), so Next up is S03E05 "Children" both here
- * and in the marking store; then Dexter from alex's.
+ * and in the marking store; then Dexter from alex's. Catching up has The
+ * Long Run (`kitCatchingUp`).
  */
 export const kitOverview = (): Overview => {
   const [dexter] = alexOverview().upNext;
   return {
     ...emptyOverview(),
+    catchingUp: [kitCatchingUp()],
     upNext: [
       {
         airDate: '2024-06-26',

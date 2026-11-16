@@ -1,5 +1,8 @@
+'use client';
+
 import type { CatchingUpItem } from '@tvseri.es/schemas';
 import Image from 'next/image';
+import { useMemo } from 'react';
 import RowRemote from '@/components/remote/RowRemote';
 import {
   calendarGlyph,
@@ -14,14 +17,16 @@ import cn from '@/lib/cn';
 import { formatRuntime } from '@/lib/format/duration';
 import showPath from '@/lib/routing/showPath';
 import CatchUpRun from '../catching-up/CatchUpRun';
-import { runPlan, runwayView } from '../catching-up/runway';
-
-/** The row, the poster's box, the text column and its head (the ghost row takes the same) */
-export const CATCHING_UP_ROW = 'flex gap-4 px-1 pt-1 pb-0.5';
-export const CATCHING_UP_POSTER = 'h-[108px] w-[72px] rounded-8';
-export const CATCHING_UP_TEXT = 'flex min-w-0 flex-1 flex-col gap-3';
-export const CATCHING_UP_HEAD = 'flex items-start justify-between gap-2.5';
-export const CATCHING_UP_TITLE = 'flex min-w-0 flex-1 flex-col gap-2';
+import {
+  CATCHING_UP_HEAD,
+  CATCHING_UP_POSTER,
+  CATCHING_UP_ROW,
+  CATCHING_UP_TEXT,
+  CATCHING_UP_TITLE,
+} from '../catching-up/runLayout';
+import { type RunwayView, runPlan, runwayView } from '../catching-up/runway';
+import useLiveCatchingUp from '../catching-up/useLiveCatchingUp';
+import useNextUpLabel from '../catching-up/useNextUpLabel';
 
 /** One Catching up show: the run of waiting episodes and the premiere runway */
 const POSTER_IMAGE = cn(
@@ -30,12 +35,28 @@ const POSTER_IMAGE = cn(
 );
 const POSTER_EMPTY = cn('block bg-white/6', CATCHING_UP_POSTER);
 
+/**
+ * The row follows the viewer's marks in this tab (`useLiveCatchingUp`): the
+ * count, the time left, the run and Next up move on together, and the row
+ * leaves once nothing is waiting.
+ */
 export default function CatchingUpRow({
   item,
   nextUp,
 }: Readonly<{ item: CatchingUpItem; nextUp: string }>) {
+  const { live, onMarked } = useLiveCatchingUp(item);
+  const current = live ?? item;
+  const plan = useMemo(() => runPlan(current), [current]);
+  const serverNextUp = { code: item.nextUp, label: nextUp };
+  const nextUpLabel = useNextUpLabel(
+    item.seriesId,
+    current.nextUp,
+    serverNextUp,
+  );
+  if (!live) {
+    return null;
+  }
   const href = showPath(item.seriesId, item.slug);
-  const plan = runPlan(item);
   const runway = runwayView(item);
   const runwayChip = runway
     ? {
@@ -45,8 +66,8 @@ export default function CatchingUpRow({
         out: runway.kind === 'out',
       }
     : null;
-  const waiting = `${item.waiting} ${item.waiting === 1 ? 'episode' : 'episodes'} waiting`;
-  const season = Number(/^S(\d+)/.exec(item.nextUp)?.[1] ?? 0) || undefined;
+  const waiting = `${live.waiting} ${live.waiting === 1 ? 'episode' : 'episodes'} waiting`;
+  const season = Number(/^S(\d+)/.exec(live.nextUp)?.[1] ?? 0) || undefined;
   return (
     <li className={CATCHING_UP_ROW}>
       <TileLink
@@ -80,7 +101,7 @@ export default function CatchingUpRow({
             <MetaRow fit="drop">
               <MetaItem icon={seasonGlyph}>{waiting}</MetaItem>
               <MetaItem icon={clockGlyph}>
-                {formatRuntime(item.runtimeMinutes)}
+                {formatRuntime(live.runtimeMinutes)}
               </MetaItem>
             </MetaRow>
           </div>
@@ -93,36 +114,40 @@ export default function CatchingUpRow({
         </div>
         <CatchUpRun
           href={href}
-          nextUp={nextUp}
+          nextUp={nextUpLabel}
+          onMarked={onMarked}
           plan={plan}
           runway={runwayChip}
           seriesId={item.seriesId}
         />
-        {runway ? (
-          <MetaRow className="gap-2.5 [&_svg]:size-3" fit="drop">
-            {runway.kind === 'out' ? (
-              <>
-                <span className="shrink-0 font-medium text-cyan">
-                  {runway.chip} out now
-                </span>
-                <MetaItem icon={calendarGlyph}>{runway.date}</MetaItem>
-              </>
-            ) : (
-              <>
-                <MetaItem
-                  icon={calendarGlyph}
-                  tone={runway.tight ? 'pink' : 'default'}
-                >
-                  {runway.date}
-                </MetaItem>
-                <MetaItem icon={variantHourglassGlyph}>
-                  {runway.countdown}
-                </MetaItem>
-              </>
-            )}
-          </MetaRow>
-        ) : null}
+        {runway ? <RunwayLine runway={runway} /> : null}
       </div>
     </li>
+  );
+}
+
+/** "S06 out now · Premiered Sun 15 Nov", or the date and the countdown */
+function RunwayLine({ runway }: Readonly<{ runway: RunwayView }>) {
+  return (
+    <MetaRow className="gap-2.5 [&_svg]:size-3" fit="drop">
+      {runway.kind === 'out' ? (
+        <>
+          <span className="shrink-0 font-medium text-cyan">
+            {runway.chip} out now
+          </span>
+          <MetaItem icon={calendarGlyph}>{runway.date}</MetaItem>
+        </>
+      ) : (
+        <>
+          <MetaItem
+            icon={calendarGlyph}
+            tone={runway.tight ? 'pink' : 'default'}
+          >
+            {runway.date}
+          </MetaItem>
+          <MetaItem icon={variantHourglassGlyph}>{runway.countdown}</MetaItem>
+        </>
+      )}
+    </MetaRow>
   );
 }

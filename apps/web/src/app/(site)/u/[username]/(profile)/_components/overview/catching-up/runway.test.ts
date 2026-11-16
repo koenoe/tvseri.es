@@ -146,19 +146,12 @@ describe('refsUpTo', () => {
   });
   const chips = [chip(5), chip(6), chip(7)];
 
-  it('is the chips up to and including the tapped one', () => {
-    expect(refsUpTo(chips, chip(6), {})).toEqual([
+  it('is the chips up to and including the tapped one, nothing later', () => {
+    expect(refsUpTo(chips, chip(6))).toEqual([
       { episodeNumber: 5, seasonNumber: 5 },
       { episodeNumber: 6, seasonNumber: 5 },
     ]);
-  });
-
-  it('leaves watched chips and later episodes alone', () => {
-    expect(refsUpTo(chips, chip(7), { S05E06: {} })).toEqual([
-      { episodeNumber: 5, seasonNumber: 5 },
-      { episodeNumber: 7, seasonNumber: 5 },
-    ]);
-    expect(refsUpTo(chips, chip(9), {})).toEqual([]);
+    expect(refsUpTo(chips, chip(9))).toEqual([]);
   });
 });
 

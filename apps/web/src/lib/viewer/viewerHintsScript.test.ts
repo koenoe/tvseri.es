@@ -45,7 +45,7 @@ afterEach(() => {
 });
 
 describe('the pre-paint script (inlined in every document)', () => {
-  it('stays small: 2,779 bytes minified (SWC, as a production build)', async () => {
+  it('stays small: 2,805 bytes minified (SWC, as a production build)', async () => {
     const swc = await import('next/dist/build/swc');
     await swc.loadBindings();
     const { code } = await swc.minify(viewerHintsScript, {
@@ -59,7 +59,7 @@ describe('the pre-paint script (inlined in every document)', () => {
     // retired MetaYearScript and SignedInScript were 1,116 bytes served
     // beside this one), the wrapper (keys, storage, the stylesheet helpers,
     // the header's handle and flat-glass flag) about 430.
-    expect(code.length).toBeLessThanOrEqual(2790);
+    expect(code.length).toBeLessThanOrEqual(2816);
     // self-contained: no import of a module the embedded source would need
     // (`!important` in its CSS is fine)
     expect(viewerHintsScript).not.toMatch(/\bimport\b|__vite_ssr_import/);
@@ -80,6 +80,9 @@ describe('the pre-paint script (inlined in every document)', () => {
 
   it('flags a device with 4 cores or fewer for the flat glass', () => {
     const cores = vi.spyOn(navigator, 'hardwareConcurrency', 'get');
+    // jsdom reports Apple's vendor string, as Safari does
+    const vendor = vi.spyOn(navigator, 'vendor', 'get');
+    vendor.mockReturnValue('Google Inc.');
     cores.mockReturnValue(4);
     run();
     expect(document.documentElement.hasAttribute('data-flat-glass')).toBe(true);
@@ -89,6 +92,21 @@ describe('the pre-paint script (inlined in every document)', () => {
     expect(document.documentElement.hasAttribute('data-flat-glass')).toBe(
       false,
     );
+    cores.mockRestore();
+    vendor.mockRestore();
+  });
+
+  it('keeps the blur on Apple WebKit, whose core count is capped', () => {
+    const cores = vi.spyOn(navigator, 'hardwareConcurrency', 'get');
+    const vendor = vi.spyOn(navigator, 'vendor', 'get');
+    cores.mockReturnValue(2);
+    vendor.mockReturnValue('Apple Computer, Inc.');
+    run();
+    expect(document.documentElement.hasAttribute('data-flat-glass')).toBe(
+      false,
+    );
+    cores.mockRestore();
+    vendor.mockRestore();
   });
 
   it('shows the signed-in-only space for a signed-in viewer, from the one cookie read', () => {

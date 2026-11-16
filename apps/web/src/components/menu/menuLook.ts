@@ -23,12 +23,12 @@ export const GROUP_LABEL = 'truncate text-overline text-white/60 uppercase';
 
 /*
  * The open menu's glass, not the pill's: blur 20 and saturate 1.2 over a
- * tint with a white 5% wash. The blur goes, the tint stays, on a slow device
- * (`data-flat-glass`, set before the first paint), with reduced transparency,
- * or where backdrop-filter isn't supported.
+ * tint with a white 5% wash. On a slow device (`data-flat-glass`, set
+ * before the first paint) and with reduced transparency the blur goes and
+ * the tint thickens to 94%, so the page behind can't compete with the words.
  */
 const GLASS_BLUR =
-  'backdrop-blur-[20px] backdrop-saturate-120 [html[data-flat-glass]_&]:backdrop-filter-none [@media(prefers-reduced-transparency:reduce)]:backdrop-filter-none';
+  'backdrop-blur-[20px] backdrop-saturate-120 [html[data-flat-glass]_&]:backdrop-filter-none [@media(prefers-reduced-transparency:reduce)]:backdrop-filter-none [html[data-flat-glass]_&]:bg-[linear-gradient(rgb(255_255_255/0.05),rgb(255_255_255/0.05)),linear-gradient(rgb(17_19_20/0.94),rgb(17_19_20/0.94))] [@media(prefers-reduced-transparency:reduce)]:bg-[linear-gradient(rgb(255_255_255/0.05),rgb(255_255_255/0.05)),linear-gradient(rgb(17_19_20/0.94),rgb(17_19_20/0.94))]';
 
 /** The desktop panel's glass: an 84% tint. */
 export const MENU_GLASS = `bg-[linear-gradient(rgb(255_255_255/0.05),rgb(255_255_255/0.05)),linear-gradient(rgb(17_19_20/0.84),rgb(17_19_20/0.84))] ${GLASS_BLUR}`;

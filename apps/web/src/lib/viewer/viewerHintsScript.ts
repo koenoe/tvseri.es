@@ -44,7 +44,9 @@ const json = JSON.stringify;
  *   hydration. `JSON.stringify` gives a CSS string a value can't
  *   leave (quotes and backslashes escaped, no raw newline);
  * - `data-flat-glass` on 4 cores or fewer: the open menu's glass without
- *   the blur, the pill without its distortion.
+ *   the blur, the pill without its distortion. Not on Apple's WebKit
+ *   (every iOS browser): it caps the reported count, so every iPhone
+ *   would lose the blur.
  *
  * Small on purpose (every HTML response carries it): the functions are
  * embedded by `.toString()` (minified in a production build) and share one
@@ -53,4 +55,4 @@ const json = JSON.stringify;
  * first, in their own `try`, so a failing hint can't leave signed-in space
  * hidden. The size is pinned in `viewerHintsScript.test.ts`.
  */
-export const viewerHintsScript = `(function(){var d=document,r=d.documentElement,n=navigator,l=location,s=null,u=(${readCookieUser})(d.cookie,${json(USER_DISPLAY_COOKIE_NAME)}),b=function(c){var t=new CSSStyleSheet;t.replaceSync(c);d.adoptedStyleSheets=[...d.adoptedStyleSheets,t];return t},a=function(c){b(":root{"+c+"}")};try{u&&b(${json(SIGNED_IN_RULE)});(${applyOwnerVisitor})(l.pathname,u,b,${json(VISITOR_RULE)},${json(OWNER_VISITOR_SHEET)},window)}catch(e){}try{s=localStorage}catch(e){}(${applyHtmlHints})(r,l.pathname,u,s,new Date().getUTCFullYear(),${json(LIBRARY_HINT_KEY)},${LIBRARY_HINT_VERSION},${json(PLEX_HINT_KEY)},${PLEX_HINT_VERSION},${json(PROMPT_HINT_KEY)},${PROMPT_HINT_VERSION});(${applyRegionHint})(r,a,s,u,Date.now(),n.language||"",${json(REGION_HINT_KEY)},${REGION_HINT_VERSION},${REGION_HINT_MAX_AGE_MS},${readRegionHint},${regionLine});n.hardwareConcurrency<=4&&r.setAttribute("data-flat-glass","");try{u&&a("--viewer-handle:"+JSON.stringify(u))}catch(e){}})();`;
+export const viewerHintsScript = `(function(){var d=document,r=d.documentElement,n=navigator,l=location,s=null,u=(${readCookieUser})(d.cookie,${json(USER_DISPLAY_COOKIE_NAME)}),b=function(c){var t=new CSSStyleSheet;t.replaceSync(c);d.adoptedStyleSheets=[...d.adoptedStyleSheets,t];return t},a=function(c){b(":root{"+c+"}")};try{u&&b(${json(SIGNED_IN_RULE)});(${applyOwnerVisitor})(l.pathname,u,b,${json(VISITOR_RULE)},${json(OWNER_VISITOR_SHEET)},window)}catch(e){}try{s=localStorage}catch(e){}(${applyHtmlHints})(r,l.pathname,u,s,new Date().getUTCFullYear(),${json(LIBRARY_HINT_KEY)},${LIBRARY_HINT_VERSION},${json(PLEX_HINT_KEY)},${PLEX_HINT_VERSION},${json(PROMPT_HINT_KEY)},${PROMPT_HINT_VERSION});(${applyRegionHint})(r,a,s,u,Date.now(),n.language||"",${json(REGION_HINT_KEY)},${REGION_HINT_VERSION},${REGION_HINT_MAX_AGE_MS},${readRegionHint},${regionLine});n.hardwareConcurrency<=4&&!/^Apple/.test(n.vendor)&&r.setAttribute("data-flat-glass","");try{u&&a("--viewer-handle:"+JSON.stringify(u))}catch(e){}})();`;

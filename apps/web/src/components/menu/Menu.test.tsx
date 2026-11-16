@@ -212,6 +212,9 @@ describe('the menu', () => {
     expect(panel?.className).toContain(
       '[html[data-flat-glass]_&]:backdrop-filter-none',
     );
+    expect(panel?.className).toContain(
+      '[html[data-flat-glass]_&]:bg-[linear-gradient(rgb(255_255_255/0.05),rgb(255_255_255/0.05)),linear-gradient(rgb(17_19_20/0.94)',
+    );
   });
 });
 

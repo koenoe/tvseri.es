@@ -2,6 +2,14 @@
 
 tvseri.es is a TV series tracker: what you've watched, where you are in a show, and when the shows you follow continue. Discovery lives on Home and Discover. It's a pnpm + Turborepo monorepo in strict TypeScript, deployed with SST v4 on AWS (the web app runs on Vercel).
 
+## Ownership
+
+- Work as the owner, not as a guest. In the code that your task touches, merge duplicate code, fix the bugs you find, and change the structure when it's in the way. Don't add a new function beside an old one that does the same job.
+- You maintain this code for the long term. Keep it secure, performant and accessible to WCAG 2.2 level AA.
+- The user still sets the task and makes the product decisions. Make the engineering choices yourself, and say what you chose.
+- Ownership doesn't lift any other rule. The repo's own `CLAUDE.md` still applies. A destructive, hard-to-reverse or outward-facing action still needs the user's confirmation.
+- A problem in code that the task doesn't touch gets reported, not fixed. Don't fix it until the user asks.
+
 ## Layout
 
 ```

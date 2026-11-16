@@ -50,6 +50,7 @@ describe('RecordStub', () => {
     renderStub();
     expect(screen.queryByRole('button', { name: /Mark watched/ })).toBeNull();
     expect(screen.queryByText('Not watched yet')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Add a date' })).toBeNull();
   });
 
   it('draws the eye and the status once seeded', () => {
@@ -59,5 +60,6 @@ describe('RecordStub', () => {
       screen.getByRole('button', { name: /Mark watched \(just now\)/ }),
     ).toBeTruthy();
     expect(screen.getAllByText('Not watched yet').length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: 'Add a date' })).toBeTruthy();
   });
 });

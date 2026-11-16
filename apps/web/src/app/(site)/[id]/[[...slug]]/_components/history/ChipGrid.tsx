@@ -2,6 +2,7 @@
 
 import { memo } from 'react';
 
+import { FLAT, PULSE } from '@/components/ui/ghost/ghosts';
 import cn from '@/lib/cn';
 
 import { chipLabel, isPressedChip, type SheetChip } from './chips';
@@ -24,6 +25,10 @@ type ChipProps = Readonly<{
 
 const CHIP_LAYOUT =
   'w-full min-w-14 max-sm:w-auto max-sm:min-w-12 max-sm:px-1.5';
+
+/** The grid's layout, the same for its ghost so nothing shifts */
+const GRID =
+  'grid select-none grid-cols-[repeat(auto-fill,minmax(64px,1fr))] gap-2 max-sm:flex max-sm:flex-wrap max-sm:gap-[5px]';
 
 function GridChip({ chip, index, overlay, title }: ChipProps) {
   const classes = markChipClass(chip.state, overlay, CHIP_LAYOUT);
@@ -84,10 +89,7 @@ function ChipGrid({
 
   const span = run ? runSpan(mode, run) : null;
   const unmarking = run?.direction === 'unmark' && mode !== 'upto';
-  const classes = cn(
-    'grid select-none grid-cols-[repeat(auto-fill,minmax(64px,1fr))] gap-2 max-sm:flex max-sm:flex-wrap max-sm:gap-[5px]',
-    run ? 'touch-none' : 'touch-pan-y',
-  );
+  const classes = cn(GRID, run ? 'touch-none' : 'touch-pan-y');
 
   return (
     <div className={classes} {...handlers}>
@@ -112,6 +114,28 @@ function ChipGrid({
           />
         );
       })}
+    </div>
+  );
+}
+
+const GHOST_GRID = cn(GRID, PULSE);
+const GHOST_CHIP = markChipClass('', undefined, cn(CHIP_LAYOUT, FLAT));
+
+/**
+ * The grid until the viewer's marks have seeded the show: one flat chip per
+ * episode in the chip's box (its label sizes it, unseen), nothing pressable
+ */
+export function ChipGridGhost({
+  count,
+  seasonNumber,
+}: Readonly<{ count: number; seasonNumber: number }>) {
+  return (
+    <div aria-hidden="true" className={GHOST_GRID} data-chip-ghost="">
+      {Array.from({ length: count }, (_, index) => (
+        <span className={GHOST_CHIP} key={index}>
+          {chipLabel({ episodeNumber: index + 1, seasonNumber })}
+        </span>
+      ))}
     </div>
   );
 }

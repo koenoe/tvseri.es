@@ -64,9 +64,9 @@ describe('SeasonSection', () => {
     vi.restoreAllMocks();
   });
 
-  function setup() {
+  function setup(beforeSeed?: (view: ReturnType<typeof render>) => void) {
     renders.chips = 0;
-    render(
+    const view = render(
       <MarkingProvider>
         <GrabStore />
         <ShowProvider show={show}>
@@ -82,6 +82,7 @@ describe('SeasonSection', () => {
         </ShowProvider>
       </MarkingProvider>,
     );
+    beforeSeed?.(view);
     act(() => {
       store!.getState().seed(
         {
@@ -114,6 +115,19 @@ describe('SeasonSection', () => {
         records: { [code]: { runtime: 0, watchedAt: 2 } },
       });
     });
+
+  it('draws chip ghosts, nothing to press, until the viewer’s marks seed the show', () => {
+    setup(({ container }) => {
+      expect(
+        container.querySelectorAll('[data-chip-ghost] > span'),
+      ).toHaveLength(30);
+      expect(screen.queryAllByRole('button', { name: /^S0\dE\d/ })).toEqual([]);
+      expect(screen.queryByText(/ of 10$/)).toBeNull();
+    });
+    expect(document.querySelector('[data-chip-ghost]')).toBeNull();
+    expect(screen.getAllByRole('button', { name: /^S01E\d/ })).toHaveLength(10);
+    expect(screen.getByText('1 of 10')).toBeTruthy();
+  });
 
   it('a mark re-renders only the chip it changed, in no other season', () => {
     setup();

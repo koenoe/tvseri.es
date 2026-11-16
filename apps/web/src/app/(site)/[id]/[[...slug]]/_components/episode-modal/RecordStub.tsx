@@ -4,7 +4,12 @@ import type { EpisodeRef } from '@tvseri.es/schemas';
 import { type MouseEvent, memo, useCallback, useMemo } from 'react';
 
 import CircleButton from '@/components/ui/button/CircleButton';
-import { ghostCircle, PULSE, TextLine } from '@/components/ui/ghost/ghosts';
+import {
+  FLAT,
+  ghostCircle,
+  PULSE,
+  TextLine,
+} from '@/components/ui/ghost/ghosts';
 import { eyeGlyph } from '@/components/ui/icon/glyphs';
 import { clearToastOver } from '@/components/ui/toast/clearToast';
 import { episodeLabel } from '@/lib/marking/copy';
@@ -41,6 +46,11 @@ const LINE_GHOST = (
   <span className={PULSE}>
     <TextLine className="" width="w-28" />
   </span>
+);
+
+/** The date action's text in a flat bar: the link's box, nothing to press */
+const DATE_GHOST = (
+  <span className={`rounded-4 text-caption ${FLAT} ${PULSE}`}>Add a date</span>
 );
 
 const LINK =
@@ -132,15 +142,19 @@ function RecordStub({
           {stub.desktop.sub ? (
             <span className="max-sm:hidden">{stub.desktop.sub} · </span>
           ) : null}
-          <button
-            className={LINK}
-            onClick={changeDate}
-            onFocus={preloadPicker}
-            onPointerEnter={preloadPicker}
-            type="button"
-          >
-            {stub.dateAction}
-          </button>
+          {seeded ? (
+            <button
+              className={LINK}
+              onClick={changeDate}
+              onFocus={preloadPicker}
+              onPointerEnter={preloadPicker}
+              type="button"
+            >
+              {stub.dateAction}
+            </button>
+          ) : (
+            DATE_GHOST
+          )}
           {' · '}
           <button
             className={LINK}

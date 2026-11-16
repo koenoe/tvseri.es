@@ -2,6 +2,7 @@
 
 import { type MouseEvent, memo, useCallback, useMemo, useState } from 'react';
 
+import { PULSE, TextLine } from '@/components/ui/ghost/ghosts';
 import { calendarGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import { episodeLabel } from '@/lib/marking/copy';
@@ -21,7 +22,7 @@ import type { ShowEpisode } from '../../_lib/seasonEpisodes';
 import type { ShowSeason } from '../../_lib/show';
 import useSeasonEpisodes from '../../_lib/useSeasonEpisodes';
 import BeforeAsk from './BeforeAsk';
-import ChipGrid from './ChipGrid';
+import ChipGrid, { ChipGridGhost } from './ChipGrid';
 import { airedRefs, isWatchedChip, type SheetChip, tally } from './chips';
 import DetailLine from './DetailLine';
 import type { RunCommit } from './paint';
@@ -37,6 +38,8 @@ import { chipStatus, chipTitle } from './status';
  * sheet slides in.
  */
 const NO_CHIPS: ReadonlyArray<SheetChip> = [];
+
+const COUNT_GHOST = `mr-auto ${PULSE}`;
 
 const scrollToSection = (node: HTMLElement | null) => {
   let scroller = node?.parentElement ?? null;
@@ -82,6 +85,9 @@ function SeasonSection({
   const loaded = useSeasonEpisodes(seriesId, seasonNumber);
   const [now] = useState(Date.now);
 
+  // The viewer's marks seed the show as they stream in: until then the
+  // count and the chips are ghosts, nothing to press
+  const seeded = marks !== undefined;
   const chips = marks?.chips ?? NO_CHIPS;
   const records = marks?.records;
   const episodes = useMemo(
@@ -206,9 +212,15 @@ function SeasonSection({
     >
       <div className="flex items-center gap-3.5 max-sm:gap-2.5">
         <b className="min-w-18 text-body-sm font-semibold">{label}</b>
-        <span className="mr-auto text-meta text-white/60 tabular-nums">
-          {`${count.watched} of ${count.aired}`}
-        </span>
+        {seeded ? (
+          <span className="mr-auto text-meta text-white/60 tabular-nums">
+            {`${count.watched} of ${count.aired}`}
+          </span>
+        ) : (
+          <span className={COUNT_GHOST}>
+            <TextLine className="text-meta" width="w-12" />
+          </span>
+        )}
         <button
           aria-label={calendarLabel}
           className="flex h-7.5 min-w-7.5 cursor-pointer items-center justify-center rounded-8 px-1.5 text-white/70 transition-colors hover:bg-white/8 hover:text-white"
@@ -225,13 +237,20 @@ function SeasonSection({
           state={count.state}
         />
       </div>
-      <ChipGrid
-        chips={chips}
-        onCommit={handleCommit}
-        onTap={handleTap}
-        seasonNumber={seasonNumber}
-        titles={titles}
-      />
+      {seeded ? (
+        <ChipGrid
+          chips={chips}
+          onCommit={handleCommit}
+          onTap={handleTap}
+          seasonNumber={seasonNumber}
+          titles={titles}
+        />
+      ) : (
+        <ChipGridGhost
+          count={season.episodeCount}
+          seasonNumber={seasonNumber}
+        />
+      )}
       <RunLabel
         chips={chips}
         minutesOf={minutesOf}

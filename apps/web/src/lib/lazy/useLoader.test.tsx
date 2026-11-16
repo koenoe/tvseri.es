@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 import { act, render } from '@testing-library/react';
+import { useLayoutEffect } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { createLoader } from './createLoader';
+import { createLoader, type Loader } from './createLoader';
 import { useLoader } from './useLoader';
 
 const settle = () => act(() => new Promise((resolve) => setTimeout(resolve)));
@@ -28,6 +29,31 @@ describe('useLoader', () => {
     rerender(<Probe wanted="2" />);
     await settle();
     expect(importer).toHaveBeenCalledTimes(2);
+    expect(seen).toBe('chunk');
+  });
+
+  // the progress line's hover preloads the sheet: its chunk can land after
+  // the click's render and before that render's effect
+  it('renders the value when the chunk lands between the render and its effect', async () => {
+    let value: string | null = null;
+    const loader: Loader<string> = {
+      get: () => value,
+      load: () => Promise.resolve('chunk'),
+      preload: () => {},
+    };
+    let seen: string | null = 'unset';
+    function Land() {
+      useLayoutEffect(() => {
+        value = 'chunk';
+      }, []);
+      return null;
+    }
+    function Probe() {
+      [seen] = useLoader(loader, true);
+      return <Land />;
+    }
+    render(<Probe />);
+    await settle();
     expect(seen).toBe('chunk');
   });
 

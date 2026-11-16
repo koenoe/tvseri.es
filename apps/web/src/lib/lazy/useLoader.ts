@@ -22,15 +22,18 @@ export function useLoader<T>(
   const load = useCallback(() => {
     loader.load().then(loaded, () => undefined);
   }, [loader]);
+  const value = loader.get();
+  // Against the value this render drew, not the loader's now: a preload can
+  // land between the render and this effect, and `load` then renders it
   useEffect(() => {
     if (
       wanted !== undefined &&
       wanted !== null &&
       wanted !== false &&
-      !loader.get()
+      value === null
     ) {
       load();
     }
-  }, [load, loader, wanted]);
-  return [loader.get(), load];
+  }, [load, value, wanted]);
+  return [value, load];
 }

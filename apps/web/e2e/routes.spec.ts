@@ -18,7 +18,12 @@ for (const [url, testId] of OWN_ROUTES) {
   test(`${url} renders its own route`, async ({ page }) => {
     const response = await page.goto(url);
     expect(response?.status()).toBe(200);
-    await expect(page.getByTestId(testId)).toBeVisible();
+    // While the page streams in, the suspended fallback and the real
+    // content are in the DOM together: count 1 is the settled page
+    // (and a duplicate that stayed would fail here).
+    const route = page.getByTestId(testId);
+    await expect(route).toHaveCount(1);
+    await expect(route).toBeVisible();
   });
 }
 

@@ -278,6 +278,36 @@ test.describe('profile signed in', () => {
         page.getByRole('link', { name: 'Edit profile' }),
       ).toBeVisible();
     });
+
+    // the identity, then the tabs, as on a sub-page: no sidebar blocks
+    for (const user of ['alex', 'juno']) {
+      test(`the overview shows no sidebar blocks (/u/${user})`, async ({
+        page,
+      }) => {
+        await page.goto(`/u/${user}`);
+        const sidebar = page.getByRole('complementary', {
+          name: `About ${user}`,
+        });
+        await expect(
+          sidebar.getByRole('region', { name: 'Identity' }),
+        ).toBeVisible();
+        await expect(
+          page.getByRole('heading', { name: 'Watchlist' }),
+        ).toBeHidden();
+        await expect(page.locator('[data-slot="profile-blocks"]')).toBeHidden();
+        await expect(
+          page.locator('[data-placeholder="profile-blocks"]'),
+        ).toBeHidden();
+      });
+    }
+  });
+
+  test('a tablet keeps the overview’s sidebar blocks', async ({ page }) => {
+    await page.setViewportSize({ height: 1024, width: 800 });
+    await page.goto('/u/alex');
+    await expect(
+      page.getByRole('heading', { name: 'Watchlist' }),
+    ).toBeVisible();
   });
 
   test("someone else's profile is read as a match", async ({ page }) => {

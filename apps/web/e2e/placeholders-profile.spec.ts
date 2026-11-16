@@ -50,12 +50,19 @@ const SIDEBAR = ['profile-identity', 'profile-blocks'];
 /**
  * The overview's blocks without the sidebar: its height follows the data
  * (a long handle is smaller, a long year sentence wraps, the match card's
- * proof names long titles). Below lg (a phone, a tablet) it is above the
+ * proof names long titles). On a tablet (md to lg) it is above the
  * overview, so the blocks are compared after its difference in height (the
- * bottom of its last part, the blocks).
+ * bottom of its last part, the blocks); a phone shows no blocks.
  */
 /** Below md: the phone frames */
 const isPhone = (viewport: ViewportName) => VIEWPORTS[viewport].width < 768;
+
+/** A phone shows no sidebar blocks: identity, then the tabs (`@aside/page.tsx`) */
+const onScreen = <T extends string>(
+  names: ReadonlyArray<T>,
+  viewport: ViewportName,
+): ReadonlyArray<T> =>
+  isPhone(viewport) ? names.filter((name) => name !== 'profile-blocks') : names;
 
 const sidebarAbove = (viewport: ViewportName) =>
   VIEWPORTS[viewport].width < 1024;
@@ -114,7 +121,7 @@ for (const viewport of SIZES) {
     // lanes' own rows, so they wrap with them at every width.
     test('your own overview, a busy library', async ({ browser }) => {
       const measured = await measureNoScriptParity(browser, {
-        names: OWNER_BLOCKS,
+        names: onScreen(OWNER_BLOCKS, viewport),
         path: '/u/marathonwatcher-2026',
         viewer: 'marathonwatcher-2026',
         viewport,
@@ -126,20 +133,23 @@ for (const viewport of SIZES) {
     // (below the fold), the frame above the lanes is exact
     test('your own overview, as the board draws it', async ({ browser }) => {
       const measured = await measureNoScriptParity(browser, {
-        names: OWNER_BLOCKS,
+        names: onScreen(OWNER_BLOCKS, viewport),
         path: '/u/alex',
         viewer: 'alex',
         viewport,
       });
       expectParity(measured, {
         maxShift: 0.02,
-        names: ['profile-identity', 'profile-blocks', 'up-next'],
+        names: onScreen(
+          ['profile-identity', 'profile-blocks', 'up-next'],
+          viewport,
+        ),
       });
     });
 
     test('someone else’s overview, a busy library', async ({ browser }) => {
       const measured = await measureNoScriptParity(browser, {
-        names: VISITOR_BLOCKS,
+        names: onScreen(VISITOR_BLOCKS, viewport),
         path: '/u/marathonwatcher-2026',
         viewer: 'alex',
         viewport,
@@ -155,7 +165,7 @@ for (const viewport of SIZES) {
 
     test('someone else’s overview', async ({ browser }) => {
       const measured = await measureNoScriptParity(browser, {
-        names: VISITOR_BLOCKS,
+        names: onScreen(VISITOR_BLOCKS, viewport),
         path: '/u/juno',
         viewer: 'alex',
         viewport,

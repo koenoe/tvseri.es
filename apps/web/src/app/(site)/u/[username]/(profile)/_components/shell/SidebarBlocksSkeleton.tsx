@@ -23,9 +23,9 @@ export const MATCH_RULE_CLASS = 'md:max-lg:hidden';
 
 /**
  * The overview's sidebar blocks before the profile resolves, at their real
- * size. On a phone they sit above the page, so they hold all of it or the
- * page jumps when they land. Both variants are in the shell and one shows
- * before the first paint (`OwnerVisitor`): yours (Watchlist, Start
+ * size. On a tablet they sit above the page, so they hold all of it or the
+ * page jumps when they land (a phone shows none: `@aside/page.tsx`). Both
+ * variants are in the shell and one shows before the first paint (`OwnerVisitor`): yours (Watchlist, Start
  * something new, this year) or someone else's (the match card and its
  * rule, Watchlist, this year).
  */

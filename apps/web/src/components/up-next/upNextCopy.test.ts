@@ -10,7 +10,7 @@ import {
   watchedPercent,
 } from './upNextCopy';
 
-// Thu Nov 12, 2026, 15:00 UTC
+// Nov 12, 2026, 15:00 UTC
 const NOW = Date.UTC(2026, 10, 12, 15);
 
 const base: UpNextItem = {
@@ -113,7 +113,7 @@ describe('lastWatchedLabel', () => {
         expect(
           ownerFacts(newYear, Date.UTC(2026, 11, 31, 23.5)).at(-1)?.text,
           tz,
-        ).toBe('Next Fri Jan 1, 2027');
+        ).toBe('Next Jan 1, 2027');
       }
     } finally {
       process.env.TZ = zone;
@@ -140,11 +140,7 @@ describe('ownerFacts: the facts line on Home and the profile', () => {
       ...base,
       nextToAir: { airDate: '2027-01-08', episode: 3, season: 2 },
     };
-    expect(texts(item)).toEqual([
-      '58m',
-      'Latest episode',
-      'Next Fri Jan 8, 2027',
-    ]);
+    expect(texts(item)).toEqual(['58m', 'Latest episode', 'Next Jan 8, 2027']);
   });
 
   it('a show that finished airing: Aired month, runtime, N left · time', () => {

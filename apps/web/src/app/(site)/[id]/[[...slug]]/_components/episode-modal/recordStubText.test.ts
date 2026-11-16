@@ -63,9 +63,9 @@ describe('toRecordStub (phone lines)', () => {
 
 describe('toRecordStub (desktop air dates)', () => {
   it('reads the air date of an unwatched episode, future ones as "Airs"', () => {
-    expect(toRecordStub(base).desktop.sub).toBe('Aired Wed Jun 26, 2024');
+    expect(toRecordStub(base).desktop.sub).toBe('Aired Jun 26, 2024');
     expect(toRecordStub({ ...base, airDate: '2027-01-08' }).desktop.sub).toBe(
-      'Airs Fri Jan 8, 2027',
+      'Airs Jan 8, 2027',
     );
     expect(toRecordStub({ ...base, airDate: '' }).desktop.sub).toBeNull();
   });
@@ -116,7 +116,7 @@ describe('toRecordStub per layout', () => {
     });
     expect(toRecordStub({ ...base, state: 'skipped' }).desktop).toEqual({
       line: 'Skipped',
-      sub: 'Aired Wed Jun 26, 2024',
+      sub: 'Aired Jun 26, 2024',
     });
   });
 });

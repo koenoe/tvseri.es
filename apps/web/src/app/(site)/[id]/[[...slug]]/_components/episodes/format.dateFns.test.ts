@@ -27,11 +27,11 @@ describe('the date-fns replacements', () => {
     }
   });
 
-  it('air dates: "EEE MMM d", with the year when it is not this one', () => {
+  it('air dates: "EEE MMM d" this year, "MMM d, yyyy" in another', () => {
     for (const day of DAYS) {
-      const year = day.startsWith('2026') ? '' : `, ${day.slice(0, 4)}`;
+      const pattern = day.startsWith('2026') ? 'EEE MMM d' : 'MMM d, yyyy';
       expect(formatAirWeekdayDate(day, NOW)).toBe(
-        `${format(parseISO(day), 'EEE MMM d')}${year}`,
+        format(parseISO(day), pattern),
       );
     }
   });

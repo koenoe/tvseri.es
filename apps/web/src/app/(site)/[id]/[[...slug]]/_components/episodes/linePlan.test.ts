@@ -119,7 +119,7 @@ describe('segmentTip', () => {
     expect(segmentTip(marked[4]!, utc).detail).toBe('Mark watched');
     expect(segmentTip(marked[6]!, utc).detail).toBe('Skipped · Mark watched');
     expect(segmentTip(marked[8]!, utc)).toEqual({
-      detail: 'Airs Sun Jun 9, 2024',
+      detail: 'Airs Jun 9, 2024',
       title: 'S03E09 Episode 9',
     });
   });

@@ -11,8 +11,8 @@ describe('formatAirWeekdayDate (the one air-date wording)', () => {
   });
 
   it('another year: with the year', () => {
-    expect(formatAirWeekdayDate('2027-01-08', NOW)).toBe('Fri Jan 8, 2027');
-    expect(formatAirWeekdayDate('2025-09-15', NOW)).toBe('Mon Sep 15, 2025');
+    expect(formatAirWeekdayDate('2027-01-08', NOW)).toBe('Jan 8, 2027');
+    expect(formatAirWeekdayDate('2025-09-15', NOW)).toBe('Sep 15, 2025');
   });
 
   it('is empty for no date or one that does not exist', () => {

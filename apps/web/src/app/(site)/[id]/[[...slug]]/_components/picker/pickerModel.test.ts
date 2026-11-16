@@ -49,7 +49,7 @@ describe('pickerModel: one episode', () => {
       ['Just now', 'Today, 21:40'],
       ['Yesterday', 'Mon Nov 9'],
       ['Last weekend', 'Sat Nov 7'],
-      ['On release day', 'Thu Jun 22, 2023'],
+      ['On release day', 'Jun 22, 2023'],
     ]);
   });
 

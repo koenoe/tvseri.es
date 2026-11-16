@@ -28,7 +28,7 @@ describe('spotlightKicker', () => {
         },
         today,
       ),
-    ).toBe('Returning Mon Apr 12, 2027');
+    ).toBe('Returning Apr 12, 2027');
   });
 
   it('writes September as "Sep", never "Sept"', () => {
@@ -41,7 +41,7 @@ describe('spotlightKicker', () => {
         },
         today,
       ),
-    ).toBe('Returning Tue Sep 14, 2027');
+    ).toBe('Returning Sep 14, 2027');
   });
 
   it('calls a mid-season date a new episode', () => {

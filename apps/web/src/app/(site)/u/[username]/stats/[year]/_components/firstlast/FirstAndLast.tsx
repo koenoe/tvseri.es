@@ -29,14 +29,15 @@ const GLASS =
 /**
  * One backdrop card (`First watch` / `Last watch`): the backdrop under a fade,
  * the title treatment, the episode badge and title, "Sat Jan 4" and the
- * runtime. The whole card links to the show.
+ * runtime. The whole card links to the show. 300 tall, also on a phone,
+ * where it is full width (as the landing's Start here tile).
  */
 function SpotlightArticle({
   card,
   label,
 }: Readonly<{ card: SpotlightCard; label: string }>) {
   return (
-    <article className="relative h-[210px] overflow-hidden rounded-12 shadow-[0_10px_15px_-3px_rgb(0_0_0/0.1),0_4px_6px_-4px_rgb(0_0_0/0.1)] md:h-[300px]">
+    <article className="relative h-75 overflow-hidden rounded-12 shadow-[0_10px_15px_-3px_rgb(0_0_0/0.1),0_4px_6px_-4px_rgb(0_0_0/0.1)]">
       <TileLink
         aria-label={card.label}
         className="absolute inset-0 flex items-end"
@@ -120,7 +121,7 @@ export default async function FirstAndLast({ user, year }: SectionProps) {
   );
 }
 
-/** Two cards of 300px side by side; on a phone two of 210px, 24px apart */
+/** Two cards of 300px: side by side from md, stacked 24px apart on a phone */
 /** One card while it streams: the flat panel, the chip, the logo's box, the episode and date lines */
 function FirstLastCardGhost() {
   return (
@@ -136,7 +137,7 @@ function FirstLastCardGhost() {
 }
 
 const CARD_GHOST = cn(
-  'flex h-[210px] flex-col justify-between rounded-12 bg-black/22 p-5 md:h-[300px]',
+  'flex h-75 flex-col justify-between rounded-12 bg-black/22 p-5',
   PULSE,
 );
 

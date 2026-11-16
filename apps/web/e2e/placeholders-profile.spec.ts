@@ -63,19 +63,22 @@ const SIDEBAR = [
  * (a long handle is smaller, a long year sentence wraps, the match card's
  * proof names long titles). Below lg its top part is above the overview,
  * so the blocks are compared after its difference in height: the bottom of
- * the `@aside` blocks on a tablet, of the identity or someone else's match
- * card on a phone (where the `@aside` frame has no box).
+ * the identity, or of someone else's match card (the `@aside` frame has no
+ * box there).
  */
 /** Below md: the phone frames */
 const isPhone = (viewport: ViewportName) => VIEWPORTS[viewport].width < 768;
 
-/** On a phone the `@aside` frame has no box: someone else's match card is measured instead */
+const sidebarAbove = (viewport: ViewportName) =>
+  VIEWPORTS[viewport].width < 1024;
+
+/** Below lg the `@aside` frame has no box: someone else's match card is measured instead */
 const onScreen = (
   names: ReadonlyArray<string>,
   viewport: ViewportName,
   viewer: 'owner' | 'visitor',
 ): ReadonlyArray<string> =>
-  isPhone(viewport)
+  sidebarAbove(viewport)
     ? names.flatMap((name) =>
         name !== 'profile-blocks'
           ? [name]
@@ -84,9 +87,6 @@ const onScreen = (
             : [],
       )
     : names;
-
-const sidebarAbove = (viewport: ViewportName) =>
-  VIEWPORTS[viewport].width < 1024;
 
 /**
  * Someone else's Circle with its rows measured from the header's bottom: the
@@ -108,7 +108,7 @@ function belowTheHead(parity: Parity): Parity {
 }
 
 function belowTheSidebar(parity: Parity, viewport: ViewportName): Parity {
-  const last = !isPhone(viewport)
+  const last = !sidebarAbove(viewport)
     ? 'profile-blocks'
     : 'your-match' in parity.placeholders
       ? 'your-match'

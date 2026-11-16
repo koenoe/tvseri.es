@@ -1,7 +1,10 @@
 import type { Profile } from '../../_data/profile';
 import Hole from '../blocks/Hole';
 import { NOT_ON_PHONE } from '../shell/overviewLayout';
-import { MATCH_RULE_CLASS } from '../shell/SidebarBlocksSkeleton';
+import {
+  MATCH_BOX_CLASS,
+  MATCH_RULE_CLASS,
+} from '../shell/SidebarBlocksSkeleton';
 import MatchCard, { MatchCardSkeleton } from '../visitor/MatchCard';
 import StartSomethingNew, {
   StartSomethingNewSkeleton,
@@ -21,9 +24,11 @@ export function SidebarHead({ profile }: Readonly<{ profile: Profile }>) {
   }
   return (
     <>
-      <Hole fallback={<MatchCardSkeleton />} title="Your match">
-        <MatchCard profile={profile} />
-      </Hole>
+      <div className={MATCH_BOX_CLASS}>
+        <Hole fallback={<MatchCardSkeleton />} title="Your match">
+          <MatchCard profile={profile} />
+        </Hole>
+      </div>
       <span aria-hidden="true" className={MATCH_RULE} />
     </>
   );

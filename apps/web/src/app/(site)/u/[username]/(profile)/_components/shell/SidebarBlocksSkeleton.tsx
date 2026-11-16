@@ -7,17 +7,18 @@ export { SidebarRule };
 
 /**
  * The overview's sidebar under the identity, a column 40px apart, after the
- * rule. On a tablet (md to lg) it sits above the page at full width, so its
- * blocks flow into two columns of about the sidebar's width (the rule across
- * both). On a phone it has no box and no rules: someone else's match card
- * sits between the identity and the tabs, 20px from each. The placeholder's
- * blocks sit in `OwnerVisitor`'s `contents` wrappers, hence the second pair
- * of rules.
+ * rule. Below lg it has no box and no rules: someone else's match card
+ * sits between the identity and the tabs (half the page's width on a
+ * tablet, as wide as a block of the tail's two columns), and on your own
+ * there is nothing.
  */
 export const SIDEBAR_BLOCKS_CLASS =
-  'flex flex-col gap-10 md:max-lg:block md:max-lg:columns-2 md:max-lg:gap-x-10 md:max-lg:*:mb-10 md:max-lg:*:break-inside-avoid md:max-lg:[&>:first-child]:block md:max-lg:[&>:first-child]:[column-span:all] md:max-lg:[&>:is(.ph-owner,.ph-visitor)>*]:mb-10 md:max-lg:[&>:is(.ph-owner,.ph-visitor)>*]:break-inside-avoid max-md:contents max-md:[&>:first-child]:hidden';
+  'flex flex-col gap-10 max-lg:contents max-lg:[&>:first-child]:hidden';
 
-/** The rule under the match card: gone on a tablet, where the blocks sit in two columns, and on a phone */
+/** The match card's box: half the page's width on a tablet */
+export const MATCH_BOX_CLASS = 'md:max-lg:w-[calc(50%-20px)]';
+
+/** The rule under the match card: below lg the tabs follow it */
 export const MATCH_RULE_CLASS = 'max-lg:hidden';
 
 /**
@@ -34,8 +35,10 @@ export default function SidebarBlocksSkeleton() {
         owner={null}
         visitor={
           <>
-            <div data-placeholder="your-match">
-              <MatchCardSkeleton />
+            <div className={MATCH_BOX_CLASS}>
+              <div data-placeholder="your-match">
+                <MatchCardSkeleton />
+              </div>
             </div>
             <span className={`contents ${MATCH_RULE_CLASS}`}>
               <SidebarRule />

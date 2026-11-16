@@ -6,11 +6,17 @@ import cn from '@/lib/cn';
 
 import { CastSkeleton } from './cast/Cast';
 import EpisodesSkeleton from './episodes/EpisodesSkeleton';
-import { CAST_FRAME, EPISODES_SECTION, RECOMMENDATIONS_FRAME } from './frames';
+import {
+  CAST_FRAME,
+  CREATED_BY_LINE,
+  EPISODES_SECTION,
+  RECOMMENDATIONS_FRAME,
+} from './frames';
 import HeroSkeleton from './hero/HeroSkeleton';
 import StorylineSkeleton from './info/StorylineSkeleton';
 
 const CAST_TITLE_GHOST = cn('h-3 w-48 rounded-4', GHOST_FILL, PULSE);
+const CREATED_BY_GHOST = cn('flex h-6 items-center', CREATED_BY_LINE);
 
 /**
  * The show page in the App Shell: what a default `<Link>` prefetch carries
@@ -32,7 +38,7 @@ export default function ShowSkeleton() {
         <div data-placeholder="show">
           <HeroSkeleton />
           <div className={CAST_FRAME} data-placeholder="cast-block">
-            <p aria-hidden="true" className="flex h-6 items-center">
+            <p aria-hidden="true" className={CREATED_BY_GHOST}>
               <span className={CAST_TITLE_GHOST} />
             </p>
             <CastSkeleton />

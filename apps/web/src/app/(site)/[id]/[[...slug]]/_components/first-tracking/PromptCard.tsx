@@ -23,9 +23,14 @@ const TITLE =
 /** The three answers: one row on desktop, wrapping on phones. */
 const ANSWERS = 'flex flex-wrap gap-2 md:flex-1 md:flex-nowrap';
 
-/** The card's box and layout, shared by the card and its placeholder. */
+/**
+ * The card's box and layout, shared by the card and its placeholder. On
+ * phones it ends the hero and takes its whole height: "Created by" or the
+ * cast keeps its own space below it (it once tucked 24px into the episodes
+ * section's margin, when phones drew no cast).
+ */
 const CARD_BOX =
-  'relative z-[5] flex flex-col items-start gap-2.5 rounded-16 border py-3 pr-3 pl-5 max-md:mt-4 max-md:-mb-6 md:mb-5 md:-ml-2.5 md:w-[730px] md:max-w-[calc(100%+20px)] md:flex-row md:items-center md:gap-4';
+  'relative z-[5] flex flex-col items-start gap-2.5 rounded-16 border py-3 pr-3 pl-5 max-md:mt-4 md:mb-5 md:-ml-2.5 md:w-[730px] md:max-w-[calc(100%+20px)] md:flex-row md:items-center md:gap-4';
 
 /** The card's glass: only the real card has it. */
 const CARD = cn(

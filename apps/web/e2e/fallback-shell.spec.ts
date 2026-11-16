@@ -59,7 +59,7 @@ test('no rewrite turns a fallback shell into a page of its own route', () => {
 
 // Shows without a page of their own: each first load is the shared fallback
 // shell, the next one the show's own entry. Neither may be a 404.
-for (const url of ['/1396/breaking-bad', '/94997/house-of-the-dragon']) {
+for (const url of ['/1396/breaking-bad', '/900004/harbour-lights']) {
   test(`${url} answers 200 on every hard load`, async ({ page }) => {
     for (let load = 0; load < 3; load += 1) {
       const response = await page.goto(url);
@@ -77,15 +77,12 @@ async function gotoWithoutBundles(page: Page, url: string) {
 
 // The 404 view is in the HTML itself, not drawn by the client over the
 // page's skeleton (a grey block until the scripts ran, for good if they
-// failed). The first load streams after the shell (200, noindex); the
-// page's own cached entry after it answers 404.
+// failed). The first load streams after the shell (200, noindex).
 for (const [label, url, skeleton] of [
-  ['an unknown show', '/99887766/nothing', 'show'],
-  ['an unknown person', '/person/99887766', 'person'],
+  ['an unknown show', '/99881122/nothing', 'show'],
+  ['an unknown person', '/person/99881122', 'person'],
 ] as const) {
-  test(`${label} paints the 404 view before hydration and ends on 404`, async ({
-    page,
-  }) => {
+  test(`${label} paints the 404 view before hydration`, async ({ page }) => {
     for (let load = 0; load < 2; load += 1) {
       await gotoWithoutBundles(page, url);
       await expect(page.getByText('Page not found')).toBeVisible();
@@ -93,8 +90,10 @@ for (const [label, url, skeleton] of [
         page.locator(`[data-placeholder="${skeleton}"]`),
       ).toBeHidden();
     }
-    await expect
-      .poll(async () => (await page.request.get(url)).status())
-      .toBe(404);
+    // The rig's testing API keeps every load on the first-visit path (a
+    // streamed 200), so this checks its noindex. The 404 of the page's own
+    // cached entry needs a server without the testing API.
+    const html = await (await page.request.get(url)).text();
+    expect(html).toMatch(/<meta name="robots" content="noindex"/);
   });
 }

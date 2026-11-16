@@ -2,6 +2,7 @@ import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 import { open } from './helpers';
+import { fontsSettled, phoneScrollbars } from './helpers/viewport';
 
 /**
  * The Discover hub (`/discover`): its prerendered shell (title, lens tabs,
@@ -181,10 +182,11 @@ test.describe('discover hub (/discover)', () => {
       page,
     }) => {
       await page.setViewportSize({ height: 900, width });
+      await phoneScrollbars(page, width);
       await open(page, '/discover');
       const row = page.getByRole('region', { name: 'All-time favourites' });
       await row.scrollIntoViewIfNeeded();
-      await page.evaluate(() => document.fonts.ready);
+      await fontsSettled(page);
       const hidden = await row.locator('ol').evaluate((list) => {
         const canvas = document.createElement('canvas').getContext('2d')!;
         return [...list.children].map((item) => {
@@ -224,6 +226,7 @@ test.describe('Essentials title (row titles with a logo)', () => {
       page,
     }) => {
       await page.setViewportSize({ height: 900, width });
+      await phoneScrollbars(page, width);
       await page.goto('/discover');
       const heading = page
         .getByRole('region', { name: /Essentials/ })
@@ -254,15 +257,31 @@ test.describe('Essentials title (row titles with a logo)', () => {
         return {
           baseline,
           bottom: img.getBoundingClientRect().bottom,
-          height: img.getBoundingClientRect().height,
           left: img.getBoundingClientRect().left,
           posterLeft: firstPoster.getBoundingClientRect().left,
         };
       });
-      // 20px (17 on a phone), bottom on the baseline
-      expect(m.height).toBeCloseTo(width === 390 ? 17 : 20, 0);
+      // bottom on the baseline
       expect(Math.abs(m.bottom - m.baseline)).toBeLessThanOrEqual(1);
       expect(Math.abs(m.left - m.posterLeft)).toBeLessThanOrEqual(1);
+    });
+
+    test(`the logo is 20px tall (17 on a phone) at ${width}`, {
+      tag: '@design',
+    }, async ({ page }) => {
+      await page.setViewportSize({ height: 900, width });
+      await phoneScrollbars(page, width);
+      await page.goto('/discover');
+      const logo = page
+        .getByRole('region', { name: /Essentials/ })
+        .getByRole('heading', { level: 2 })
+        .getByRole('img');
+      await logo.scrollIntoViewIfNeeded();
+      await expect
+        .poll(() => logo.evaluate((img) => (img as HTMLImageElement).complete))
+        .toBe(true);
+      const box = await logo.boundingBox();
+      expect(box?.height ?? 0).toBeCloseTo(width === 390 ? 17 : 20, 0);
     });
   }
 });

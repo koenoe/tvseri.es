@@ -81,8 +81,10 @@ export default async function Cast({
       />
     );
   }
+  // Nothing is reserved for an empty cast: the episodes section's own top
+  // margin is then the whole gap below the hero (or "Created by").
   if (cast.length === 0) {
-    return <div className={`${CAST_SPACE} lg:min-h-24`} />;
+    return null;
   }
   return (
     <div className={listStyles} data-slot="cast">

@@ -30,6 +30,8 @@ export const SHOW_IDS = {
   bear: 136315,
   huge: 900003,
   long: 900002,
+  /** No cast and no creators: the show page keeps no space for them. */
+  noCast: 900007,
   /** Two seasons and three specials (season 0), the last not out yet. */
   specials: 900006,
   /** A typical show for the placeholder checks: real-length text everywhere. */
@@ -872,6 +874,18 @@ const buildTypical = (): StubShow => {
   };
 };
 
+/** The typical show without a cast list or creators. */
+const buildNoCast = (): StubShow => ({
+  ...buildTypical(),
+  cast: [],
+  creators: [],
+  id: SHOW_IDS.noCast,
+  imdbId: 'tt9000007',
+  originalTitle: 'Quiet Street',
+  slug: 'quiet-street',
+  title: 'Quiet Street',
+});
+
 /** Six episodes from Sun 15 Nov 2026 (after "today"), none with a still. */
 const buildUnreleased = (): StubShow => {
   const episodes = syntheticEpisodes(
@@ -1167,6 +1181,7 @@ const SHOWS = [
   buildTypical(),
   buildUnreleased(),
   buildSpecials(),
+  buildNoCast(),
   ...buildWallLab(),
   ...buildHeroLab(),
 ];

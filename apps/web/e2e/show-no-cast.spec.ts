@@ -8,7 +8,8 @@ import { fontsSettled } from './helpers/viewport';
  * section's own top margin, with nothing reserved for faces. Measured
  * against a show with a cast on the same page, and against the section's own
  * margin, so no pixel constant is involved. Quiet Street (900007) has no
- * cast and no creators; Harbour Lights (900004) has ten faces.
+ * cast and no creators; Harbour Lights (900004) has ten faces (six on
+ * phones).
  */
 
 const NO_CAST = '/900007/quiet-street';
@@ -60,8 +61,13 @@ for (const viewport of [
         // the faces' row is real space on a show that has them
         expect(full.gap).toBeGreaterThan(quiet.gap + 96);
       } else {
-        // phones draw no cast at all: both are the same
-        expect(full.gap).toBeCloseTo(quiet.gap, 0);
+        // below lg the faces and their names sit in a grid (two rows of
+        // three on phones) that takes its whole height in the page
+        const cast = await page
+          .locator('[data-slot="cast"]')
+          .evaluate((node) => node.getBoundingClientRect().height);
+        expect(cast).toBeGreaterThan(0);
+        expect(full.gap).toBeGreaterThan(quiet.gap + cast);
       }
     });
   });

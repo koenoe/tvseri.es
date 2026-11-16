@@ -13,10 +13,10 @@ import { signInAs } from './helpers/session';
 const footer = (page: Page) => page.locator('[data-site-footer]');
 
 /**
- * The measured heights (the safe-area inset is 0 here). The credits
- * sentence names OMDb and its licence: two lines at 1440 (one before), three
- * at 768 (two before), four at 390 in the 326px column the 32px gutters
- * leave (three at 24px).
+ * The measured heights on the developer's Mac (the safe-area inset is 0
+ * here). The credits sentence names OMDb and its licence: two lines at 1440
+ * (one before), three at 768 (two before), four at 390 in the 326px column
+ * the 32px gutters leave (three at 24px).
  */
 const HEIGHTS = [
   [1440, 188],
@@ -27,17 +27,52 @@ const HEIGHTS = [
 const footerHeight = async (page: Page) =>
   Math.round((await footer(page).boundingBox())?.height ?? 0);
 
+/** The footer's band and everything in it, within the room the page has */
+const footerFits = (page: Page) =>
+  footer(page).evaluate((element) => {
+    const room = document.documentElement.clientWidth;
+    const band = element.getBoundingClientRect();
+    const outside = [...element.querySelectorAll('a, p, svg, img')]
+      .map((child) => child.getBoundingClientRect())
+      .filter(
+        (box) =>
+          box.width > 0 &&
+          (box.left < band.left - 0.5 || box.right > band.right + 0.5),
+      ).length;
+    return {
+      full: Math.abs(band.left) <= 0.5 && Math.abs(band.width - room) <= 0.5,
+      outside,
+    };
+  });
+
 test.describe('the footer', () => {
-  for (const [width, height] of HEIGHTS) {
-    test(`is ${height}px tall at ${width} on Home and a show page`, async ({
+  for (const [width] of HEIGHTS) {
+    test(`is full width, holds its content and is the same on Home and a show page at ${width}`, async ({
       page,
     }) => {
       await page.setViewportSize({ height: 900, width });
+      const heights: number[] = [];
       for (const path of ['/', '/136315/the-bear']) {
-        await page.goto(path);
+        await open(page, path);
         await expect(footer(page)).toBeVisible();
-        expect(await footerHeight(page)).toBe(height);
+        expect(await footerFits(page), path).toEqual({
+          full: true,
+          outside: 0,
+        });
+        heights.push(await footerHeight(page));
       }
+      expect(heights[1]).toBe(heights[0]);
+    });
+  }
+
+  for (const [width, height] of HEIGHTS) {
+    test(`is ${height}px tall at ${width} on Home @design`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ height: 900, width });
+      await open(page, '/');
+      await expect(footer(page)).toBeVisible();
+      expect(await footerHeight(page)).toBe(height);
     });
   }
 
@@ -109,14 +144,20 @@ test.describe('the footer', () => {
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
   });
 
-  test('is under Settings, signed in', async ({ context, page }) => {
+  test('is under Settings, signed in, the same footer as Home’s', async ({
+    context,
+    page,
+  }) => {
+    await page.setViewportSize({ height: 900, width: 1440 });
+    await open(page, '/');
+    const home = await footerHeight(page);
     await signInAs(context, 'alex');
-    await page.goto('/settings/profile');
+    await open(page, '/settings/profile');
     await expect(
       page.getByRole('heading', { level: 2, name: 'Profile' }),
     ).toBeVisible();
     await expect(footer(page)).toBeVisible();
-    expect(await footerHeight(page)).toBe(188);
+    expect(await footerHeight(page)).toBe(home);
   });
 });
 

@@ -1,16 +1,22 @@
 import { expect, type Page, test } from '@playwright/test';
 
 import { type StubViewer, signInAs } from './helpers/session';
+import { untilStable } from './helpers/viewport';
 
 /**
  * The air above the footer's band ("content now sits against
  * footer block"): every page kind ends the same distance above the band,
- * 64px at 768 and up, 48px on a phone, from one rule in the
- * footer, never doubled by a page's own bottom padding. A page that ends in
+ * the footer's own air (`[data-footer-air]`: 64px at 768 and up, 48px on a
+ * phone), never doubled by a page's own bottom padding. A page that ends in
  * a full-width band (a series) has none: its band meets the footer's.
  */
 
 const GAP = { 390: 48, 1440: 64 } as const;
+
+const airHeight = (page: Page) =>
+  page
+    .locator('[data-footer-air]')
+    .evaluate((air) => air.getBoundingClientRect().height);
 
 const PAGES: ReadonlyArray<
   Readonly<{
@@ -133,10 +139,43 @@ const gapAbove = (page: Page) =>
     return { gap: Math.round(band - last), last: lastName };
   });
 
+/** Loaded, every lazy and on-scroll section in, and nothing moving */
+const settle = async (page: Page) => {
+  await page.waitForLoadState('load');
+  await expect(page.locator('[data-placeholder]')).toHaveCount(0, {
+    timeout: 15_000,
+  });
+  // sections that reveal on scroll are in, and nothing lazy is left
+  await untilStable(
+    async () => {
+      await page.evaluate(() =>
+        window.scrollTo(0, document.documentElement.scrollHeight),
+      );
+      return page.evaluate(() => document.documentElement.scrollHeight);
+    },
+    { message: 'the page stops growing', quietMs: 400 },
+  );
+  await expect(page.locator('[data-placeholder]')).toHaveCount(0);
+  await untilStable(() => gapAbove(page), {
+    message: 'the gap above the footer settles',
+  });
+};
+
+for (const width of [1440, 390] as const) {
+  test(`the footer's air is ${GAP[width]}px at ${width} @design`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ height: 500, width });
+    await page.goto('/privacy');
+    expect(await airHeight(page)).toBe(GAP[width]);
+  });
+}
+
 for (const width of [1440, 390] as const) {
   for (const entry of PAGES) {
-    const gap = entry.gap ?? GAP[width];
-    test(`${entry.name} ends ${gap}px above the footer (${width})`, async ({
+    const ends =
+      entry.gap === undefined ? 'the footer’s air' : `${entry.gap}px`;
+    test(`${entry.name} ends ${ends} above the footer (${width})`, async ({
       context,
       page,
     }) => {
@@ -146,18 +185,11 @@ for (const width of [1440, 390] as const) {
         await signInAs(context, entry.viewer);
       }
       await page.goto(entry.path);
-      await page.waitForLoadState('load');
-      await expect(page.locator('[data-placeholder]')).toHaveCount(0, {
-        timeout: 15_000,
-      });
-      // sections that reveal on scroll are in, and nothing lazy is left
-      await page.evaluate(() =>
-        window.scrollTo(0, document.documentElement.scrollHeight),
-      );
-      await page.waitForTimeout(800);
-      await expect(page.locator('[data-placeholder]')).toHaveCount(0);
+      await settle(page);
+      const air = Math.round(await airHeight(page));
+      expect(air, 'the footer has its air').toBeGreaterThan(0);
       const measured = await gapAbove(page);
-      expect(measured?.gap, measured?.last).toBe(gap);
+      expect(measured?.gap, measured?.last).toBe(entry.gap ?? air);
     });
   }
 }

@@ -1,6 +1,6 @@
-import { QueryCommand, type QueryCommandInput } from '@aws-sdk/client-dynamodb';
+import type { QueryCommandInput } from '@aws-sdk/client-dynamodb';
 
-import client from './client';
+import { queryPages } from './query';
 
 /**
  * Counts all items matching a Query.
@@ -12,19 +12,8 @@ export const countQuery = async (
   input: Omit<QueryCommandInput, 'ExclusiveStartKey' | 'Limit' | 'Select'>,
 ): Promise<number> => {
   let count = 0;
-  let exclusiveStartKey: QueryCommandInput['ExclusiveStartKey'];
-
-  do {
-    const result = await client.send(
-      new QueryCommand({
-        ...input,
-        ExclusiveStartKey: exclusiveStartKey,
-        Select: 'COUNT',
-      }),
-    );
-    count += result.Count ?? 0;
-    exclusiveStartKey = result.LastEvaluatedKey;
-  } while (exclusiveStartKey);
-
+  for await (const page of queryPages({ ...input, Select: 'COUNT' })) {
+    count += page.Count ?? 0;
+  }
   return count;
 };

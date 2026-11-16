@@ -1,23 +1,447 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+/* `focus-visible:` utilities follow the global ring's rule: no ring on a
+   trigger an overlay gave focus back to quietly (focusReturn.ts) */
+@custom-variant focus-visible (&:focus-visible:not([data-quiet-focus]));
+
+/*
+ * Design tokens from the approved boards. Tailwind's default palette, type scale and radii are cleared on
+ * purpose: only the approved values exist, so a raw value can't slip in.
+ *
+ * Type: `text-<token>` sets size, line height, weight and tracking. Colour is a separate
+ * class (`text-white/80` body, `text-white/60` meta/caption/overline). The display token
+ * also needs `font-display`; the overline needs `uppercase`; numbers that stack need
+ * `tabular-nums`. Weight variants: `font-medium` (500), `font-semibold` (600).
+ */
+
+/* Reset Tailwind's defaults first, in a block of its own (order matters). */
+@theme {
+  --color-*: initial;
+  --font-*: initial;
+  --radius-*: initial;
+  --text-*: initial;
+}
+
+@theme {
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-white: #fff;
+  --color-black: #000;
+  /* page ground (home, error pages, the default page colour) */
+  --color-ground: #1c2223;
+  /* accents: cyan = next up, progress, positive delta; pink = upcoming, premieres */
+  --color-cyan: #00ffff;
+  --color-pink: #ff0080;
+  /* the IMDb star */
+  --color-imdb: #f5c518;
+  --text-display: var(--t-display-size);
+  --text-display--line-height: var(--t-display-lh);
+  --text-display--font-weight: 800;
+  --text-display--letter-spacing: -0.03em;
+  --text-title-1: var(--t-title-1-size);
+  --text-title-1--line-height: var(--t-title-1-lh);
+  --text-title-1--font-weight: 600;
+  --text-title-2: var(--t-title-2-size);
+  --text-title-2--line-height: var(--t-title-2-lh);
+  --text-title-2--font-weight: 600;
+  --text-title-3: 18px;
+  --text-title-3--line-height: 24px;
+  --text-title-3--font-weight: 600;
+  --text-body: 16px;
+  --text-body--line-height: 28px;
+  --text-body--font-weight: 400;
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 24px;
+  --text-body-sm--font-weight: 400;
+  --text-meta: 13px;
+  --text-meta--line-height: var(--meta-row-height);
+  --text-meta--font-weight: 400;
+  --text-caption: 12px;
+  --text-caption--line-height: 20px;
+  --text-caption--font-weight: 400;
+  --text-overline: 11px;
+  --text-overline--line-height: 20px;
+  --text-overline--font-weight: 600;
+  --text-overline--letter-spacing: 0.08em;
+  --text-numeral: var(--t-numeral-size);
+  --text-numeral--line-height: var(--t-numeral-lh);
+  --text-numeral--font-weight: 700;
+  --text-numeral-xl: var(--t-numeral-xl-size);
+  --text-numeral-xl--line-height: var(--t-numeral-xl-lh);
+  --text-numeral-xl--font-weight: 700;
+  --text-numeral-xl--letter-spacing: -0.01em;
+  /* Radii as the boards draw them, named by their pixel value: rounded-12 = 12px */
+  --radius-2: 2px;
+  --radius-4: 4px;
+  --radius-6: 6px;
+  --radius-8: 8px;
+  --radius-10: 10px;
+  --radius-12: 12px;
+  --radius-14: 14px;
+  --radius-16: 16px;
+  --radius-18: 18px;
+
+  /* the page container every final board draws (header, rows, footer): max-w-page */
+  --container-page: 1280px;
+
+  /* the white "remote" surface (specs/remote_style.md §3) */
+  --shadow-remote:
+    0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1), 0 0 0 1px rgb(0 0 0 / 0.04);
+}
+
+@theme inline {
+  /*
+   * The page gutter (`px-gutter`, `-mx-gutter`, `scroll-px-gutter`,
+   * `inset-x-gutter`): the one left and right edge every page, row, the
+   * header, the footer and edge-to-edge sheets share. Set in `--gutter`.
+   */
+  --spacing-gutter: var(--page-gutter);
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-jakarta), var(--font-inter), system-ui, sans-serif;
+  /* the page colour from the background system (BackgroundStyle), ground by default */
+  --color-page: var(--main-background-color, #1c2223);
+  /*
+   * The white "remote" family (specs/remote_style.md §2): light steps mixed
+   * from the ink (the page colour). Only defined inside `remote-surface`.
+   */
+  --color-rk-ink: var(--rk-ink);
+  --color-rk-w80: var(--rk-w80);
+  --color-rk-w64: var(--rk-w64);
+  --color-rk-meta: var(--rk-meta);
+  --color-rk-w40: var(--rk-w40);
+  --color-rk-key: var(--rk-key);
+  --color-rk-key-hover: var(--rk-key-hover);
+  --color-rk-line: var(--rk-line);
+  --color-rk-mark: var(--rk-mark);
+  --color-rk-chip: var(--rk-chip);
+}
 
 :root {
-  /* A meta row's line height, shared with its skeleton bars (MetaRow, SkeletonEpisode) */
-  --meta-row-height: 18px;
+  /* phone sizes first; the five tokens that change grow at md (768px) */
+  --t-display-size: 40px;
+  --t-display-lh: 48px;
+  --t-title-1-size: 24px;
+  --t-title-1-lh: 32px;
+  --t-title-2-size: 20px;
+  --t-title-2-lh: 28px;
+  --t-numeral-size: 24px;
+  --t-numeral-lh: 32px;
+  --t-numeral-xl-size: 48px;
+  --t-numeral-xl-lh: 60px;
+  /* a meta row's line height, shared with its skeleton bars */
+  --meta-row-height: 20px;
+  --main-background-color: #1c2223;
+  /* the page gutter: 32px at every width; change it here only */
+  --gutter: 32px;
+  /* kept clear of a landscape notch (env() is 0 unless viewport-fit=cover) */
+  --page-gutter: max(
+    var(--gutter),
+    env(safe-area-inset-left, 0px),
+    env(safe-area-inset-right, 0px)
+  );
+
+  @media (width >= 48rem) {
+    --t-display-size: 56px;
+    --t-display-lh: 64px;
+    --t-title-1-size: 32px;
+    --t-title-1-lh: 40px;
+    --t-title-2-size: 24px;
+    --t-title-2-lh: 32px;
+    --t-numeral-size: 32px;
+    --t-numeral-lh: 40px;
+    --t-numeral-xl-size: 64px;
+    --t-numeral-xl-lh: 76px;
+  }
 }
 
-body.scrollbar-is-visible::-webkit-scrollbar-corner,
-body.scrollbar-is-visible::-webkit-scrollbar-track {
-  background: theme("colors.neutral.900");
+@layer base {
+  html {
+    scrollbar-gutter: stable;
+    color-scheme: dark;
+  }
+
+  body {
+    /* `clip`, not `hidden`: `hidden` makes the other axis `auto`, and once
+       the scroll lock sets `overflow: hidden` on <html> the body would stop
+       handing its overflow to the window and become the scroller itself,
+       which sends every sticky element (the profile sidebar) back to its
+       place in the flow */
+    overflow-x: clip;
+    overscroll-behavior-y: none;
+    font-optical-sizing: auto;
+    @apply bg-page font-sans text-white antialiased;
+  }
+
+  /* 16px so iOS doesn't zoom on focus; pinch zoom stays allowed */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-white);
+    outline-offset: 2px;
+  }
+
+  /* Focus put back on a trigger by an overlay that was not opened from the
+     keyboard: no ring (also not the browser's own) until Tab or an arrow
+     (focusReturn.ts) */
+  [data-quiet-focus]:focus-visible {
+    outline: none;
+  }
 }
 
-body.scrollbar-is-visible::-webkit-scrollbar-thumb {
-  background: theme("colors.neutral.700");
-  border-radius: 10px;
+/*
+ * No site footer under an error view. A `notFound()`
+ * or a thrown error inside a page is caught below the `(site)` layout, so the
+ * layout's footer stays in the tree beside the error view; the views mark
+ * their root `data-error-view` (ErrorState) and this hides the footer in the
+ * same frame, with no client code. The root 404/401/403/500 pages that
+ * replace the layout never render one.
+ */
+body:has([data-error-view]) [data-site-footer],
+body:has([data-error-view]) [data-footer-air] {
+  display: none;
 }
 
-body.scrollbar-is-visible::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+/* Signing out (SignOutForm): nothing of the private page stays readable
+   while the next page loads; the page colour stays. */
+html[data-signing-out] body > * {
+  visibility: hidden;
+}
+
+/*
+ * Toasts arrive in .3s on the boards' curve (t1-in `.3s cubic-bezier(.2,.8,.2,1)`);
+ * sonner's own transition is 400ms. Unlayered and two attributes deep, so it
+ * wins over the stylesheet sonner injects.
+ */
+[data-sonner-toaster] [data-sonner-toast] {
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.2s;
+}
+
+/* The host is moving between <body> and a dialog: no replayed rise (toastHost.ts). */
+[data-toast-moving] [data-sonner-toaster] [data-sonner-toast] {
+  transition: none;
+}
+
+/*
+ * t1-in rises 8px, not sonner's full
+ * height; leaving, the front toast sinks the same 8px as it fades. Three
+ * attributes deep, so it wins over sonner's two-attribute `--y` rules.
+ */
+[data-sonner-toaster]
+  [data-sonner-toast][data-y-position="bottom"]:not([data-mounted="true"]),
+[data-sonner-toaster]
+  [data-sonner-toast][data-removed="true"][data-front="true"][data-swipe-out="false"] {
+  --y: translateY(8px);
+}
+
+/*
+ * Loading placeholders: every ghost shape of a section that is still loading pulses the
+ * same way, the error pulse (`erPulse 1.2s ease-in-out infinite alternate`,
+ * white/2 to white/6) as an opacity pulse on the ghost's own fill, so it runs
+ * on the compositor. A failed or unavailable section stays static
+ * (`GHOST_LOOK.failed`); a retrying one pulses with the same timing.
+ */
+/*
+ * Holds a sticky element where it belongs for its first moments on screen,
+ * over its move for the floating header (belowFloatingHeader.ts)
+ */
+@keyframes sticky-settle {
+  from,
+  to {
+    translate: 0 0;
+  }
+}
+
+@keyframes ghost-pulse {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.4;
+  }
+}
+
+@utility animate-ghost {
+  animation: ghost-pulse 1.2s ease-in-out infinite alternate;
+}
+
+/*
+ * Reduced motion (`prefers-reduced-motion: reduce`): every CSS transition and
+ * animation reaches its end state at once (a tile's grow, a fade-in, the
+ * placeholders' pulse, which then rests at full fill). 0.01ms rather than
+ * none, so `transitionend` and `animationend` still fire for code that waits
+ * on them. A busy spinner keeps turning: a still one would read as an icon.
+ * Unlayered and `!important`, so it wins over every utility. Motion's
+ * animations follow the same setting in `MotionProvider`.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-spin {
+    animation-duration: 1s !important;
+    animation-iteration-count: infinite !important;
+  }
+}
+
+/* rails: native scroll, no visible scroll bar (the arrows page the row) */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/*
+ * The "remote" white family (specs/remote_style.md), shared by search and the
+ * Remote menu. `remote-surface` is the white sheet and defines the --rk-*
+ * steps from its ink. Search and the Remote set --rk-ink inline on the
+ * surface to `remoteInk(colour)` (lib/remote/ink), which darkens a light page
+ * or tile colour until every step passes WCAG AA;
+ * `remote-key` is a pressable key; `remote-chip` the letter / ↵ chip (white,
+ * for a chip on a key; add `bg-rk-chip` for one on the white sheet).
+ * Key states: hover, :active (pressed), [aria-checked=true] or [data-latched]
+ * (latched), :focus-visible or [data-active] (keyboard marker),
+ * [aria-disabled=true] (disabled).
+ */
+@utility remote-surface {
+  --rk-ink: var(--main-background-color, #1c2223);
+  --rk-key: color-mix(in srgb, var(--rk-ink) 6%, #fff);
+  --rk-key-hover: color-mix(in srgb, var(--rk-ink) 10%, #fff);
+  --rk-edge: color-mix(in srgb, var(--rk-ink) 14%, transparent);
+  --rk-line: color-mix(in srgb, var(--rk-ink) 7%, transparent);
+  --rk-mark: color-mix(in srgb, var(--rk-ink) 52%, #fff);
+  --rk-chip: color-mix(in srgb, var(--rk-ink) 9%, #fff);
+  --rk-w80: color-mix(in srgb, var(--rk-ink) 80%, #fff);
+  --rk-w64: color-mix(in srgb, var(--rk-ink) 64%, #fff);
+  --rk-meta: color-mix(in srgb, var(--rk-ink) 72%, #fff);
+  --rk-w40: color-mix(in srgb, var(--rk-ink) 40%, #fff);
+  box-sizing: border-box;
+  background: #fff;
+  color: var(--rk-ink);
+  box-shadow: var(--shadow-remote);
+}
+
+@utility remote-key {
+  position: relative;
+  box-sizing: border-box;
+  border: 0;
+  background: var(--rk-key);
+  color: var(--rk-ink);
+  cursor: pointer;
+  box-shadow:
+    inset 0 -2px 0 var(--rk-edge),
+    inset 0 0 0 1px var(--rk-line);
+  transition:
+    transform 80ms,
+    box-shadow 80ms,
+    background-color 120ms,
+    color 120ms;
+  &:hover {
+    background: var(--rk-key-hover);
+  }
+  &:active {
+    transform: translateY(1px);
+    box-shadow:
+      inset 0 -1px 0 var(--rk-edge),
+      inset 0 0 0 1px var(--rk-line);
+  }
+  &:focus-visible,
+  &[data-active] {
+    outline: none;
+    box-shadow:
+      inset 0 -2px 0 var(--rk-edge),
+      0 0 0 2px #fff,
+      0 0 0 4px var(--rk-mark);
+  }
+  &[aria-checked='true'],
+  &[data-latched] {
+    background: var(--rk-ink);
+    color: #fff;
+    box-shadow: inset 0 2px 0 rgb(0 0 0 / 0.35);
+  }
+  &[aria-checked='true']:focus-visible,
+  &[data-latched]:focus-visible,
+  &[aria-checked='true'][data-active],
+  &[data-latched][data-active] {
+    box-shadow:
+      inset 0 2px 0 rgb(0 0 0 / 0.35),
+      0 0 0 2px #fff,
+      0 0 0 4px var(--rk-mark);
+  }
+  &[aria-disabled='true'] {
+    background: transparent;
+    color: var(--rk-w40);
+    cursor: default;
+    transform: none;
+    box-shadow: inset 0 0 0 1px var(--rk-line);
+  }
+}
+
+@utility remote-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--rk-w64);
+  font-size: 12px;
+  line-height: 20px;
+  font-weight: 500;
+  :where([aria-checked='true'], [data-latched]) > & {
+    background: rgb(255 255 255 / 0.16);
+    color: rgb(255 255 255 / 0.76);
+  }
+}
+
+/*
+ * The Stats year switch (STD_Recommended "cross-fades the numbers"): the
+ * year, its sentence and the six numbers fade into the next year's over the
+ * same box (`ViewTransition name="stats-glance"`), whose size follows. The
+ * rest of the page, the document root, changes at once: this is the only
+ * view transition in the app. Browser-run, so it stays off the main thread.
+ */
+::view-transition-old(root) {
+  display: none;
+}
+
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-group(stats-glance),
+::view-transition-old(stats-glance),
+::view-transition-new(stats-glance) {
+  animation-duration: 200ms;
+  animation-timing-function: ease-out;
+}
+
+/*
+ * A sideways scroller never scrolls up and down: `overflow-x: auto` alone
+ * makes the other axis `auto` too, so a rail whose content is a few px
+ * taller than its box (a numbered row's numerals, a tile's shadow) could be
+ * dragged vertically. In the components layer, so a utility that makes the
+ * rail visible again at a breakpoint still wins.
+ */
+@layer components {
+  .overflow-x-auto {
+    overflow-y: hidden;
+  }
 }

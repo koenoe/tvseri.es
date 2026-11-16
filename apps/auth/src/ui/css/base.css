@@ -1,0 +1,66 @@
+/* The sign-in pages: the design's values, laid out in document flow
+   instead of fixed desktop and phone frames. Inlined and hashed for the CSP (assets.ts). */
+@font-face{font-family:Inter;font-style:normal;font-weight:400 700;font-display:swap;src:url(__FONT_URL__) format('woff2');}
+:root{--w80:rgba(255,255,255,.8);--w60:rgba(255,255,255,.6);--w40:rgba(255,255,255,.4);--cyan:#0ff;--err:#ff6b6b;--t1:32px;--t1lh:40px;--num:32px;--numlh:40px;color-scheme:dark;}
+*,*::before,*::after{box-sizing:border-box;}
+html{background:#1c2223;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+body{margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-optical-sizing:auto;-webkit-font-smoothing:antialiased;color:#fff;}
+h1,p{margin:0;}
+button,input{margin:0;font:inherit;color:inherit;}
+button{padding:0;cursor:pointer;background:none;border:0;}
+a{color:inherit;text-decoration:none;}
+[hidden]{display:none!important;}
+:focus-visible{outline:2px solid #fff;outline-offset:2px;}
+.ico{display:block;flex-shrink:0;}
+.sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;white-space:nowrap;clip-path:inset(50%);}
+.t-title-1{font-size:var(--t1);font-weight:600;line-height:var(--t1lh);}
+.t-body{font-size:16px;line-height:28px;color:var(--w80);}
+.t-body-sm{font-size:14px;line-height:24px;color:var(--w80);}
+.t-caption{font-size:12px;line-height:20px;color:var(--w60);}
+.t-overline{font-size:11px;font-weight:600;line-height:20px;color:var(--w60);text-transform:uppercase;letter-spacing:.08em;}
+.t-w60{color:var(--w60);}.t-white{color:#fff;}.t-600{font-weight:600;}
+.t-gap-8{margin-top:8px;}.t-gap-12{margin-top:12px;}.t-gap-24{margin-top:24px;}.t-gap-32{margin-top:32px;}
+.a-pg{position:relative;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;background:radial-gradient(ellipse 80% 70% at 30% 20%,#25302f 0%,#1c2223 60%);isolation:isolate;}
+.a-hd{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;width:100%;max-width:1344px;padding:32px 32px 0;margin:0 auto;}
+.a-logo{display:flex;align-items:center;color:#fff;}
+.a-logo svg{display:block;width:auto;height:18px;}
+.a-nn{display:inline-flex;gap:6px;align-items:center;height:36px;padding:0 12px;margin-right:-12px;font-size:14px;font-weight:500;line-height:24px;color:var(--w80);border-radius:999px;}
+.a-nn:hover{color:#fff;background:rgba(255,255,255,.07);}
+.a-main{display:flex;flex:1;align-items:center;justify-content:center;padding:20px 0;}
+.a-col{display:flex;flex-direction:column;width:360px;}
+.a-btn{position:relative;display:flex;gap:10px;align-items:center;justify-content:center;width:100%;height:48px;padding:0 20px;font-size:14px;font-weight:500;line-height:24px;color:#fff;white-space:nowrap;background:rgba(255,255,255,.08);border-radius:999px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);transition:background-color .15s,transform .1s,opacity .15s;}
+.a-btn:hover{background:rgba(255,255,255,.14);}
+.a-btn:active{transform:scale(.98);}
+.a-btn.w{font-weight:600;color:#171717;background:#fff;box-shadow:none;}
+.a-btn.w:hover{background:#e8e8e8;}
+.a-btn .ico{width:16px;height:16px;}
+.a-btn .g{width:18px;height:18px;}
+.a-btn[aria-busy=true]{cursor:progress;}
+/* signing in or signed in: the script already ignores another press; the button says so too */
+.a-btn[data-v=ok]{cursor:default;}
+.a-btn.w[data-v]:hover{background:#fff;}
+.a-btn.dim[data-v=busy]{opacity:.72;}
+.a-btn>span{display:contents;}
+.a-btn>.v-bz,.a-btn>.v-ok,.a-btn[data-v]>.v-id{display:none;}
+.a-btn[data-v=busy]>.v-bz,.a-btn[data-v=ok]>.v-ok{display:contents;}
+.a-lbl{display:block;margin-bottom:8px;font-size:12px;line-height:20px;color:var(--w60);}
+.a-msg{display:flex;gap:8px;align-items:flex-start;margin-top:8px;font-size:14px;line-height:24px;color:var(--w80);}
+.a-msg .ico{width:16px;height:16px;margin-top:4px;color:var(--err);}
+.a-note{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;margin-top:24px;font-size:14px;line-height:24px;color:var(--w80);background:rgba(255,255,255,.06);border-radius:14px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);animation:aIn .2s cubic-bezier(.2,.8,.2,1) both;}
+.a-note b{font-weight:600;color:#fff;}
+.a-note .ico{width:16px;height:16px;margin-top:4px;}
+.a-note.warn .ico{color:var(--err);}
+.a-note.ok .ico{color:var(--cyan);}
+@keyframes aIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+.a-foot{display:flex;gap:6px;align-items:center;justify-content:center;padding:0 0 32px;font-size:12px;line-height:20px;color:var(--w60);}
+.a-foot .ico{width:13px;height:13px;}
+.a-spin{width:16px;height:16px;animation:aSpin .9s linear infinite;}
+@keyframes aSpin{to{transform:rotate(360deg);}}
+/* phones: the board's 390 frames (t-mobile tokens, column top-aligned) */
+@media (max-width:767px){
+:root{--t1:24px;--t1lh:32px;--num:24px;--numlh:32px;}
+.a-hd{height:48px;padding:0 16px;}
+.a-main{display:block;padding:40px 16px 0;}
+.a-col{width:100%;}
+.a-foot{padding:24px 16px 40px;}
+}

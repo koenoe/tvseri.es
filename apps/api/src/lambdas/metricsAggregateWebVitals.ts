@@ -1,6 +1,6 @@
-import type { AttributeValue, WriteRequest } from '@aws-sdk/client-dynamodb';
-import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
-import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import type { WriteRequest } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { marshall } from '@aws-sdk/util-dynamodb';
 import { WEB_VITALS_SAMPLE_RATE } from '@tvseri.es/constants';
 import type {
   WebVitalAggregate,
@@ -13,8 +13,8 @@ import type {
 import { buildHistogramBins, computeRESFromStats } from '@tvseri.es/utils';
 import type { ScheduledHandler } from 'aws-lambda';
 import { Resource } from 'sst';
-
 import { AGGREGATE_RETRY, batchWrite } from '@/lib/db/batch';
+import { fetchRawMetrics } from '@/lib/metrics/rawShards';
 
 /**
  * Web Vitals are sampled per page load (see WEB_VITALS_SAMPLE_RATE), so counts
@@ -23,77 +23,8 @@ import { AGGREGATE_RETRY, batchWrite } from '@/lib/db/batch';
  */
 const SAMPLE_RATE_MULTIPLIER = Math.round(1 / WEB_VITALS_SAMPLE_RATE);
 const AGGREGATE_TTL_DAYS = 30;
-/** Number of shards used for raw metrics (must match metrics.ts) */
-const SHARD_COUNT = 10;
 
 const dynamoClient = new DynamoDBClient({});
-
-// ═══════════════════════════════════════════════════════════════════════════
-// UTILITIES
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Fetch all raw Web Vital metrics for a specific day from a single shard.
- */
-const fetchRawMetricsFromShard = async (
-  pk: string,
-  dayStart: string,
-  dayEnd: string,
-): Promise<WebVitalRecord[]> => {
-  const items: WebVitalRecord[] = [];
-  let lastKey: Record<string, AttributeValue> | undefined;
-
-  do {
-    const result = await dynamoClient.send(
-      new QueryCommand({
-        ExclusiveStartKey: lastKey,
-        ExpressionAttributeNames: {
-          '#pk': 'pk',
-          '#sk': 'sk',
-        },
-        ExpressionAttributeValues: marshall({
-          ':dayEnd': dayEnd,
-          ':dayStart': dayStart,
-          ':pk': pk,
-        }),
-        KeyConditionExpression:
-          '#pk = :pk AND #sk BETWEEN :dayStart AND :dayEnd',
-        TableName: Resource.MetricsRaw.name,
-      }),
-    );
-
-    if (result.Items) {
-      items.push(
-        ...result.Items.map((item) => unmarshall(item) as WebVitalRecord),
-      );
-    }
-
-    lastKey = result.LastEvaluatedKey;
-  } while (lastKey);
-
-  return items;
-};
-
-/**
- * Fetch all raw Web Vital metrics for a specific day from all shards.
- */
-const fetchRawMetrics = async (
-  basePk: string,
-  dayStart: string,
-  dayEnd: string,
-): Promise<WebVitalRecord[]> => {
-  // Query all shards in parallel
-  const shardQueries = Array.from({ length: SHARD_COUNT }, (_, shard) =>
-    fetchRawMetricsFromShard(`${basePk}#${shard}`, dayStart, dayEnd),
-  );
-
-  const results = await Promise.all(shardQueries);
-  return results.flat();
-};
-
-// ═══════════════════════════════════════════════════════════════════════════
-// AGGREGATION
-// ═══════════════════════════════════════════════════════════════════════════
 
 /**
  * Aggregate Web Vital metrics into MetricsWebVitals table.
@@ -120,10 +51,6 @@ const aggregateWebVitals = (
 
   const expiresAt =
     Math.floor(Date.now() / 1000) + AGGREGATE_TTL_DAYS * 24 * 60 * 60;
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Helper functions
-  // ─────────────────────────────────────────────────────────────────────────
 
   const createMetricStats = (
     recs: WebVitalRecord[],
@@ -212,10 +139,6 @@ const aggregateWebVitals = (
     };
   };
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Group records by all dimension combinations
-  // ─────────────────────────────────────────────────────────────────────────
-
   // Single dimensions
   const byRoute = new Map<string, WebVitalRecord[]>();
   const byCountry = new Map<string, WebVitalRecord[]>();
@@ -266,10 +189,6 @@ const aggregateWebVitals = (
   }
 
   const aggregates: WebVitalAggregate[] = [];
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // pk: "<date>" (no filters)
-  // ─────────────────────────────────────────────────────────────────────────
 
   // Build topRoutes and topCountries for SUMMARY
   const topRoutes: WebVitalTopItem[] = [];
@@ -332,10 +251,6 @@ const aggregateWebVitals = (
     );
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // pk: "<date>#D#<device>" (device filter)
-  // ─────────────────────────────────────────────────────────────────────────
-
   for (const [device, deviceRecs] of byDevice) {
     const pk = `${date}#D#${device}`;
 
@@ -358,10 +273,6 @@ const aggregateWebVitals = (
       }
     }
   }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // pk: "<date>#C#<country>" (country filter)
-  // ─────────────────────────────────────────────────────────────────────────
 
   for (const [country, countryRecs] of byCountry) {
     const pk = `${date}#C#${country}`;
@@ -386,10 +297,6 @@ const aggregateWebVitals = (
     }
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // pk: "<date>#D#<device>#C#<country>" (device + country filter)
-  // ─────────────────────────────────────────────────────────────────────────
-
   for (const [dcKey, dcRecs] of byDeviceCountry) {
     const [device, country] = dcKey.split('#') as [string, string];
     const pk = `${date}#D#${device}#C#${country}`;
@@ -413,10 +320,6 @@ const aggregateWebVitals = (
   return aggregates;
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// WRITE TO DYNAMODB
-// ═══════════════════════════════════════════════════════════════════════════
-
 /**
  * Write Web Vitals aggregates to MetricsWebVitals table.
  */
@@ -437,10 +340,6 @@ const writeAggregates = async (items: WebVitalAggregate[]): Promise<void> => {
     AGGREGATE_RETRY,
   );
 };
-
-// ═══════════════════════════════════════════════════════════════════════════
-// LAMBDA HANDLER
-// ═══════════════════════════════════════════════════════════════════════════
 
 /**
  * Web Vitals aggregation Lambda.
@@ -471,7 +370,7 @@ export const handler: ScheduledHandler = async (event) => {
   }
 
   // Time range for the full day
-  // Note: sk format is "{timestamp}#{id}", so we use ~ suffix to capture all records
+  // sk is "{timestamp}#{id}": the ~ suffix captures every record of the last timestamp
   // since ~ (ASCII 126) sorts after alphanumeric characters
   const dayStart = `${dateStr}T00:00:00.000Z`;
   const dayEnd = `${dateStr}T23:59:59.999Z~`;
@@ -479,7 +378,12 @@ export const handler: ScheduledHandler = async (event) => {
   console.log(`[web-vitals-aggregate] Processing date ${dateStr}`);
 
   // Fetch raw Web Vital metrics
-  const rawMetrics = await fetchRawMetrics(`WEB#${dateStr}`, dayStart, dayEnd);
+  const rawMetrics = await fetchRawMetrics<WebVitalRecord>(
+    dynamoClient,
+    `WEB#${dateStr}`,
+    dayStart,
+    dayEnd,
+  );
   console.log(`[web-vitals-aggregate] Found ${rawMetrics.length} raw metrics`);
 
   if (rawMetrics.length === 0) {

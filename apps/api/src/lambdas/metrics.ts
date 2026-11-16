@@ -5,6 +5,7 @@ import type {
   MetricRecord,
   WebVitalRecord,
 } from '@tvseri.es/schemas';
+import { chunk } from '@tvseri.es/utils';
 import type {
   SQSBatchItemFailure,
   SQSBatchResponse,
@@ -12,24 +13,18 @@ import type {
 } from 'aws-lambda';
 import { Resource } from 'sst';
 
-import { chunk, writeBatch } from '@/lib/db/batch';
+import { writeBatch } from '@/lib/db/batch';
+import { randomRawShard } from '@/lib/metrics/rawShards';
 
 const DYNAMO_BATCH_LIMIT = 25;
 const RAW_TTL_DAYS = 7;
-/** Number of shards to distribute writes across (prevents hot partitions) */
-const SHARD_COUNT = 10;
-
-/**
- * Get a random shard number for partition key distribution.
- */
-const getRandomShard = (): number => Math.floor(Math.random() * SHARD_COUNT);
 
 /**
  * Transform an API metric record into a DynamoDB item.
  */
 const apiMetricToDynamo = (record: ApiMetricRecord) => {
   const dateStr = record.timestamp.split('T')[0];
-  const shard = getRandomShard();
+  const shard = randomRawShard();
 
   return {
     ...record,
@@ -44,7 +39,7 @@ const apiMetricToDynamo = (record: ApiMetricRecord) => {
  */
 const webVitalToDynamo = (record: WebVitalRecord) => {
   const dateStr = record.timestamp.split('T')[0];
-  const shard = getRandomShard();
+  const shard = randomRawShard();
 
   return {
     ...record,

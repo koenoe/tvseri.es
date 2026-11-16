@@ -1,0 +1,18 @@
+import { describe, expect, it } from 'vitest';
+
+import { deleteDialogText, deleteErrorText } from './deleteCopy';
+
+describe('delete account copy', () => {
+  it('names the history in the board’s words', () => {
+    expect(deleteDialogText(4812)).toBe(
+      'Your history (4,812 episodes), watchlist, favourites, Plex link and profile are deleted for good. Download your data first if you want a copy.',
+    );
+    expect(deleteDialogText(null)).toMatch(/^Your history, watchlist/);
+  });
+
+  it('says why when it is switched off', () => {
+    expect(deleteErrorText('not-enabled')).toBe(
+      'Deleting accounts isn’t switched on yet.',
+    );
+  });
+});

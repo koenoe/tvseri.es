@@ -61,7 +61,7 @@ const toRouteLabel = (routePath: string) =>
  * Sends metrics to SQS for async batch processing to DynamoDB.
  * Only samples a percentage of requests to reduce SQS costs.
  *
- * Note: when a handler throws, Hono runs app.onError and sets its response on
+ * When a handler throws, Hono runs app.onError and sets its response on
  * `c.res` before control returns here, so `c.res.status` is the status the
  * client actually got (e.g. 409/503 mapped by onError, 504 from timeout()).
  */

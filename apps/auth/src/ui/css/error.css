@@ -1,0 +1,25 @@
+/* the lost-state page: a CSS test card + kicker */
+.e-pg{background:#121718;}
+.e-bars{position:absolute;inset:0;z-index:-2;display:flex;flex-direction:column;filter:brightness(.42) saturate(.8);}
+.e-bars i{display:block;width:100%;}
+.e-b1{flex:67 0 0;background:linear-gradient(90deg,#c0c0c0 0 14.28%,#c0c000 0 28.57%,#00c0c0 0 42.85%,#00c000 0 57.14%,#c000c0 0 71.42%,#c00000 0 85.71%,#0000c0 0);}
+.e-b2{flex:8 0 0;background:linear-gradient(90deg,#0000c0 0 14.28%,#131313 0 28.57%,#c000c0 0 42.85%,#131313 0 57.14%,#00c0c0 0 71.42%,#131313 0 85.71%,#c0c0c0 0);}
+.e-b3{flex:25 0 0;background:linear-gradient(90deg,#00214c 0 17.85%,#fff 0 35.7%,#32006a 0 53.55%,#131313 0 71.4%,#090909 0 76.2%,#131313 0 80.95%,#1d1d1d 0 85.71%,#131313 0);}
+.e-scr{position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(10,13,14,.92) 0%,rgba(10,13,14,.6) 45%,rgba(10,13,14,0) 75%),linear-gradient(0deg,rgba(10,13,14,.95) 0%,rgba(10,13,14,0) 55%);}
+.e-main{display:flex;flex-direction:column;align-items:flex-start;width:560px;padding:48px 0 96px;margin:auto 0 0 112px;}
+.e-main h1{text-wrap:balance;}
+.e-kick{display:flex;gap:12px;align-items:center;}
+.e-code{display:inline-flex;align-items:center;height:24px;padding:0 8px;font-size:12px;font-weight:500;line-height:20px;color:#fff;white-space:nowrap;background:rgba(255,255,255,.16);border-radius:6px;}
+.e-ov{color:var(--w80);}
+.e-acts{display:flex;gap:12px;margin-top:24px;}
+.e-btn{display:inline-flex;gap:8px;align-items:center;justify-content:center;height:40px;padding:0 16px 0 14px;font-size:14px;font-weight:500;line-height:24px;color:#fff;white-space:nowrap;background:rgba(255,255,255,.08);border-radius:999px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.2);}
+.e-btn:hover{box-shadow:inset 0 0 0 2px rgba(255,255,255,.5);}
+.e-btn.w{color:#171717;background:#fff;box-shadow:none;}
+.e-btn .ico{width:16px;height:16px;}
+@media (max-width:767px){
+.e-bars{bottom:auto;height:470px;}
+.e-scr{bottom:auto;height:471px;background:linear-gradient(0deg,#121718 0%,rgba(18,23,24,0) 60%);}
+.e-main{align-items:stretch;width:auto;padding:48px 0;margin:auto 16px 0;}
+.e-acts{gap:8px;}
+.e-btn{flex:1 1 0;height:44px;}
+}

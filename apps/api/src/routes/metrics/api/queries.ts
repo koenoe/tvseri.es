@@ -1,5 +1,3 @@
-import type { AttributeValue } from '@aws-sdk/client-dynamodb';
-import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import type {
   AggregatedApiMetrics,
@@ -18,35 +16,11 @@ import { Resource } from 'sst';
 
 import { batchGet } from '@/lib/db/batch';
 
-const dynamoClient = new DynamoDBClient({});
-
-// ════════════════════════════════════════════════════════════════════════════
-// UTILITIES
-// ════════════════════════════════════════════════════════════════════════════
-
-/**
- * Generate date strings for a range of days ending yesterday.
- * We start from yesterday because the aggregation runs daily for the previous day,
- * so today's data doesn't exist yet.
- */
-export const getDateRange = (
-  days: number,
-): { dates: string[]; endDate: string; startDate: string } => {
-  const dates: string[] = [];
-  const now = new Date();
-
-  for (let i = 1; i <= days; i++) {
-    const date = new Date(now);
-    date.setDate(date.getDate() - i);
-    dates.push(date.toISOString().split('T')[0] as string);
-  }
-
-  return {
-    dates,
-    endDate: dates[0] as string,
-    startDate: dates[dates.length - 1] as string,
-  };
-};
+import {
+  metricsDynamo,
+  queryByPkAndPrefix as queryItemsByPrefix,
+  queryTimeSeries,
+} from '../reads';
 
 /**
  * Build the pk for a given date and optional filters.
@@ -71,48 +45,13 @@ export const buildPk = (
   return pk;
 };
 
-// ════════════════════════════════════════════════════════════════════════════
-// PRIMARY INDEX QUERIES
-// ════════════════════════════════════════════════════════════════════════════
-
-/**
- * Query by pk and sk prefix.
- */
-export const queryByPkAndPrefix = async (
-  pk: string,
-  skPrefix: string,
-): Promise<ApiMetricAggregate[]> => {
-  const items: ApiMetricAggregate[] = [];
-  let lastKey: Record<string, AttributeValue> | undefined;
-
-  do {
-    const result = await dynamoClient.send(
-      new QueryCommand({
-        ExclusiveStartKey: lastKey,
-        ExpressionAttributeNames: {
-          '#pk': 'pk',
-          '#sk': 'sk',
-        },
-        ExpressionAttributeValues: {
-          ':pk': { S: pk },
-          ':skPrefix': { S: skPrefix },
-        },
-        KeyConditionExpression: '#pk = :pk AND begins_with(#sk, :skPrefix)',
-        TableName: Resource.MetricsApiAggregated.name,
-      }),
-    );
-
-    if (result.Items) {
-      items.push(
-        ...result.Items.map((item) => unmarshall(item) as ApiMetricAggregate),
-      );
-    }
-
-    lastKey = result.LastEvaluatedKey;
-  } while (lastKey);
-
-  return items;
-};
+/** Query by pk and sk prefix. */
+export const queryByPkAndPrefix = (pk: string, skPrefix: string) =>
+  queryItemsByPrefix<ApiMetricAggregate>(
+    Resource.MetricsApiAggregated.name,
+    pk,
+    skPrefix,
+  );
 
 /**
  * The SUMMARY aggregate of each date (with optional filters), in one
@@ -130,7 +69,7 @@ export const getSummaries = async (
       sk: { S: 'SUMMARY' },
     })),
     {},
-    dynamoClient,
+    metricsDynamo,
   );
 
   return items
@@ -138,142 +77,50 @@ export const getSummaries = async (
     .sort((a, b) => a.date.localeCompare(b.date));
 };
 
-// ════════════════════════════════════════════════════════════════════════════
-// GSI TIME-SERIES QUERIES
-// ════════════════════════════════════════════════════════════════════════════
-
-/**
- * Query endpoint time-series using GSI1 (EndpointTimeIndex).
- */
-export const queryEndpointTimeSeries = async (
+/** Query endpoint time-series using GSI1 (EndpointTimeIndex). */
+export const queryEndpointTimeSeries = (
   endpoint: string,
   startDate: string,
   endDate: string,
-): Promise<ApiMetricAggregate[]> => {
-  const items: ApiMetricAggregate[] = [];
-  let lastKey: Record<string, AttributeValue> | undefined;
+) =>
+  queryTimeSeries<ApiMetricAggregate>({
+    endDate,
+    gsi: 'GSI1',
+    index: 'EndpointTimeIndex',
+    pk: `E#${endpoint}`,
+    startDate,
+    table: Resource.MetricsApiAggregated.name,
+  });
 
-  do {
-    const result = await dynamoClient.send(
-      new QueryCommand({
-        ExclusiveStartKey: lastKey,
-        ExpressionAttributeNames: {
-          '#gsi1pk': 'GSI1PK',
-          '#gsi1sk': 'GSI1SK',
-        },
-        ExpressionAttributeValues: {
-          ':gsi1pk': { S: `E#${endpoint}` },
-          ':skEnd': { S: endDate },
-          ':skStart': { S: startDate },
-        },
-        IndexName: 'EndpointTimeIndex',
-        KeyConditionExpression:
-          '#gsi1pk = :gsi1pk AND #gsi1sk BETWEEN :skStart AND :skEnd',
-        TableName: Resource.MetricsApiAggregated.name,
-      }),
-    );
-
-    if (result.Items) {
-      items.push(
-        ...result.Items.map((item) => unmarshall(item) as ApiMetricAggregate),
-      );
-    }
-
-    lastKey = result.LastEvaluatedKey;
-  } while (lastKey);
-
-  return items;
-};
-
-/**
- * Query platform time-series using GSI2 (PlatformTimeIndex).
- */
-export const queryPlatformTimeSeries = async (
+/** Query platform time-series using GSI2 (PlatformTimeIndex). */
+export const queryPlatformTimeSeries = (
   platform: string,
   startDate: string,
   endDate: string,
-): Promise<ApiMetricAggregate[]> => {
-  const items: ApiMetricAggregate[] = [];
-  let lastKey: Record<string, AttributeValue> | undefined;
+) =>
+  queryTimeSeries<ApiMetricAggregate>({
+    endDate,
+    gsi: 'GSI2',
+    index: 'PlatformTimeIndex',
+    pk: `P#${platform}`,
+    startDate,
+    table: Resource.MetricsApiAggregated.name,
+  });
 
-  do {
-    const result = await dynamoClient.send(
-      new QueryCommand({
-        ExclusiveStartKey: lastKey,
-        ExpressionAttributeNames: {
-          '#gsi2pk': 'GSI2PK',
-          '#gsi2sk': 'GSI2SK',
-        },
-        ExpressionAttributeValues: {
-          ':gsi2pk': { S: `P#${platform}` },
-          ':skEnd': { S: endDate },
-          ':skStart': { S: startDate },
-        },
-        IndexName: 'PlatformTimeIndex',
-        KeyConditionExpression:
-          '#gsi2pk = :gsi2pk AND #gsi2sk BETWEEN :skStart AND :skEnd',
-        TableName: Resource.MetricsApiAggregated.name,
-      }),
-    );
-
-    if (result.Items) {
-      items.push(
-        ...result.Items.map((item) => unmarshall(item) as ApiMetricAggregate),
-      );
-    }
-
-    lastKey = result.LastEvaluatedKey;
-  } while (lastKey);
-
-  return items;
-};
-
-/**
- * Query country time-series using GSI3 (CountryTimeIndex).
- */
-export const queryCountryTimeSeries = async (
+/** Query country time-series using GSI3 (CountryTimeIndex). */
+export const queryCountryTimeSeries = (
   country: string,
   startDate: string,
   endDate: string,
-): Promise<ApiMetricAggregate[]> => {
-  const items: ApiMetricAggregate[] = [];
-  let lastKey: Record<string, AttributeValue> | undefined;
-
-  do {
-    const result = await dynamoClient.send(
-      new QueryCommand({
-        ExclusiveStartKey: lastKey,
-        ExpressionAttributeNames: {
-          '#gsi3pk': 'GSI3PK',
-          '#gsi3sk': 'GSI3SK',
-        },
-        ExpressionAttributeValues: {
-          ':gsi3pk': { S: `C#${country}` },
-          ':skEnd': { S: endDate },
-          ':skStart': { S: startDate },
-        },
-        IndexName: 'CountryTimeIndex',
-        KeyConditionExpression:
-          '#gsi3pk = :gsi3pk AND #gsi3sk BETWEEN :skStart AND :skEnd',
-        TableName: Resource.MetricsApiAggregated.name,
-      }),
-    );
-
-    if (result.Items) {
-      items.push(
-        ...result.Items.map((item) => unmarshall(item) as ApiMetricAggregate),
-      );
-    }
-
-    lastKey = result.LastEvaluatedKey;
-  } while (lastKey);
-
-  return items;
-};
-
-// ════════════════════════════════════════════════════════════════════════════
-// AGGREGATION UTILITIES
-// ════════════════════════════════════════════════════════════════════════════
+) =>
+  queryTimeSeries<ApiMetricAggregate>({
+    endDate,
+    gsi: 'GSI3',
+    index: 'CountryTimeIndex',
+    pk: `C#${country}`,
+    startDate,
+    table: Resource.MetricsApiAggregated.name,
+  });
 
 /**
  * Aggregate multiple daily summaries into a single summary.
@@ -670,3 +517,39 @@ export const aggregateDependencyOperationsWithSeries = (
 
   return result.sort((a, b) => b.count - a.count).slice(0, limit);
 };
+
+type ApiSort = 'requests' | 'errorRate' | 'p75' | 'p99' | 'apdex';
+
+type ApiSortable = Readonly<{
+  apdex?: Readonly<{ score: number }>;
+  errorRate: number;
+  latency: Readonly<{ p75: number; p99: number }>;
+  requestCount: number;
+}>;
+
+const apiSortValue = (row: ApiSortable, sortBy: ApiSort) => {
+  switch (sortBy) {
+    case 'apdex':
+      return row.apdex?.score ?? 0;
+    case 'errorRate':
+      return row.errorRate;
+    case 'p75':
+      return row.latency.p75;
+    case 'p99':
+      return row.latency.p99;
+    default:
+      return row.requestCount;
+  }
+};
+
+/** Sorts endpoint, platform or country rows in place by one of their numbers */
+export const sortApiRows = <T extends ApiSortable>(
+  rows: T[],
+  sortBy: ApiSort,
+  sortDir: 'asc' | 'desc',
+) =>
+  rows.sort((a, b) => {
+    const aVal = apiSortValue(a, sortBy);
+    const bVal = apiSortValue(b, sortBy);
+    return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
+  });

@@ -1,2 +1,2 @@
 export { CodeUI } from './code';
-export { SelectUI } from './select';
+export { changeAddressPage, SelectUI } from './select';

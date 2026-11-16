@@ -1,3 +1,5 @@
+import 'server-only';
+
 import type { User } from '@tvseri.es/schemas';
 import { headers } from 'next/headers';
 
@@ -59,6 +61,11 @@ export function resolveRegionFromHeaders(
   return user?.country || getRegionFromHeaders(headerStore);
 }
 
+/**
+ * `resolveRegionFromHeaders` with the request's headers. Reads `headers()`:
+ * only inside a Suspense boundary, never in a cached scope.
+ * @public
+ */
 export async function resolveRegion(
   user?: Readonly<Pick<User, 'country'>> | null,
 ): Promise<string> {

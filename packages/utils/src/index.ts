@@ -1,4 +1,9 @@
+export { createAuthServerFetch } from './authServerFetch';
 export * from './buildImageUrl';
+export { chunk } from './chunk';
+export { createLimiter } from './createLimiter';
+export { formatDuration, formatRuntime } from './duration/formatDuration';
+export { episodeCode, shortCode } from './episode/episodeCode';
 export { default as generateTmdbImageUrl } from './generateTmdbImageUrl';
 export { default as generateUsername } from './generateUsername';
 export {
@@ -6,6 +11,14 @@ export {
   mergeHistogramBins,
   percentileFromBins,
 } from './histogram';
+export { leadFirst } from './home/leadFirst';
+export {
+  addIsoWeeks,
+  firstMondayOf,
+  isoWeekOf,
+  mondayOfIsoWeek,
+  yearWeekIndex,
+} from './isoWeek';
 export {
   buildLatencyHistogramBins,
   findLatencyBinIndex,
@@ -13,6 +26,8 @@ export {
   mergeLatencyHistograms,
   percentileFromLatencyHistogram,
 } from './latencyHistogram';
+export * from './library/index';
+export { normalizeSearchQuery } from './normalizeSearchQuery';
 export { default as pick } from './pick';
 export {
   computeMetricScore,
@@ -20,8 +35,30 @@ export {
   computeRealExperienceScore,
   type RESMetricName,
 } from './realExperienceScore';
+export {
+  FEATURE_KINDS,
+  type FeatureKind,
+  fallThroughOrder,
+  featureKindOfDay,
+  isIfYouLikedDay,
+  rotationIndex,
+  TOY_KINDS,
+  type ToyKind,
+  toyKindOfDay,
+} from './rotation';
+export {
+  type EpisodeNumbers,
+  episodeMinutes,
+  minutesFor,
+  type RuntimesBySeason,
+  resolveSeasonMinutes,
+} from './runtime/minutesFor';
+export { isOver } from './series/isOver';
+export { formatSeriesYears } from './series/seriesYears';
 export { decodeFromBase64Url, encodeToBase64Url } from './stringBase64Url';
+export { upperFirst } from './text/upperFirst';
 export { default as toQueryString } from './toQueryString';
+export { default as toUsernameSlug } from './toUsernameSlug';
 export {
   buildHistogramBins,
   findBinIndex,

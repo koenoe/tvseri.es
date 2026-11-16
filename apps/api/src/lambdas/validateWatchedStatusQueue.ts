@@ -1,238 +1,28 @@
-import type { ListItem, TvSeries } from '@tvseri.es/schemas';
 import type { SQSBatchResponse, SQSEvent } from 'aws-lambda';
 
-import {
-  addToList,
-  getAllListItems,
-  isInList,
-  removeFromList,
-} from '@/lib/db/list';
-import { getWatchedCountForTvSeries } from '@/lib/db/watched';
-import { TMDB_CONCURRENCY } from '@/lib/tmdb';
+import { createChangeBudget, validateUserLists } from '@/lib/listSync';
 import type { ValidateWatchedStatusMessage } from '@/lib/watchedStatus';
-import { createLimiter } from '@/utils/limit';
-import { cachedTvSeries } from './shared/cachedTvSeries';
 
-/**
- * TMDB air dates are dates in the network's local time zone, stored as
- * midnight UTC. An episode dated D can come out as late as the early hours of
- * D+1 UTC, so only trust "aired before you watched" with this much margin.
- */
-const AIR_DATE_MARGIN_MS = 2 * 24 * 60 * 60 * 1000;
-
-// Monday (UTC getDay): always COUNT, as TMDB can backfill an older episode without changing lastEpisodeToAir
+// Monday (UTC getDay): always count, as TMDB can backfill an older episode without changing lastEpisodeToAir
 const FULL_CHECK_WEEKDAY = 1;
 
 /**
- * A WATCHED list item's createdAt is the watchedAt of the episode that
- * completed the series (lambdas/watched.ts). If the last aired episode is
- * older than that, nothing new aired since and the series is still fully
- * watched, so the COUNT query can be skipped.
+ * The nightly list check for each queued user (`validateUserLists`). Each
+ * message is handled on its own and reported back as a batch item failure if
+ * it throws, so one failing user is retried (and eventually sent to the DLQ)
+ * without re-running the others. One change budget per invocation caps how
+ * much the run may move.
  */
-const hasNothingAiredSince = (
-  tvSeries: TvSeries,
-  watchedAt: ListItem['createdAt'],
-) => {
-  const airDate = tvSeries.lastEpisodeToAir?.airDate;
-  if (!airDate || !watchedAt) {
-    return false;
-  }
-  const airedAt = new Date(airDate).getTime();
-  return !Number.isNaN(airedAt) && airedAt + AIR_DATE_MARGIN_MS <= watchedAt;
-};
-
-/**
- * The ids in the user's RESUMING_SOON list, queried once per user (and only
- * when a series turns out to be resuming soon) instead of a read per series.
- */
-const createResumingSoonIds = (userId: string) => {
-  let ids: Promise<ReadonlySet<number>> | undefined;
-  return () => {
-    ids ??= getAllListItems({ listId: 'RESUMING_SOON', userId }).then(
-      (items) => new Set(items.map((item) => item.id)),
-    );
-    return ids;
-  };
-};
-
-/**
- * Adds a fully watched series to RESUMING_SOON when new episodes air within
- * two weeks.
- */
-const syncResumingSoon = async (
-  userId: string,
-  tvSeries: TvSeries,
-  getResumingSoonIds: () => Promise<ReadonlySet<number>>,
-) => {
-  const twoWeeksFromNow = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
-  const tvSeriesIsResumingSoon =
-    tvSeries.nextEpisodeToAir &&
-    new Date(tvSeries.nextEpisodeToAir.airDate) <= twoWeeksFromNow;
-
-  if (!tvSeriesIsResumingSoon) {
-    return;
-  }
-
-  const isCurrentlyInResumingSoon = (await getResumingSoonIds()).has(
-    tvSeries.id,
-  );
-
-  if (!isCurrentlyInResumingSoon) {
-    console.log(
-      `[UPDATE] | ${userId} | ${tvSeries.title} | Added to RESUMING_SOON (new episodes within 2 weeks)`,
-    );
-    await addToList({
-      item: {
-        createdAt: Date.now(),
-        id: tvSeries.id,
-        posterPath: tvSeries.posterPath,
-        slug: tvSeries.slug,
-        status: tvSeries.status,
-        title: tvSeries.title,
-      },
-      listId: 'RESUMING_SOON',
-      userId,
-    });
-  }
-};
-
-/**
- * Validates one user's watched lists. Each message is handled on its own and
- * reported back as a batch item failure if it throws, so one failing user is
- * retried (and eventually sent to the DLQ) without re-running the others.
- */
-const validateUser = async (
-  user: ValidateWatchedStatusMessage,
-  isFullCheck: boolean,
-) => {
-  const watchedListItems = await getAllListItems({
-    listId: 'WATCHED',
-    userId: user.id,
-  });
-
-  const filteredWatchedListItems = watchedListItems.filter(
-    (item) => item.status === 'Returning Series',
-  );
-
-  if (filteredWatchedListItems.length === 0) {
-    return;
-  }
-
-  const limit = createLimiter(TMDB_CONCURRENCY);
-  const getResumingSoonIds = createResumingSoonIds(user.id);
-
-  await Promise.all(
-    filteredWatchedListItems.map((item) =>
-      limit(async () => {
-        const tvSeries = await cachedTvSeries(item.id);
-
-        // Series no longer exists on TMDB: nothing to validate against
-        if (!tvSeries) {
-          console.warn(
-            `[SKIP] | ${user.id} | No TV series found for ID "${item.id}"`,
-          );
-          return;
-        }
-
-        // Nothing aired since it was completed: still watched, skip the COUNT
-        if (!isFullCheck && hasNothingAiredSince(tvSeries, item.createdAt)) {
-          await syncResumingSoon(user.id, tvSeries, getResumingSoonIds);
-          return;
-        }
-
-        const watchedCount = await getWatchedCountForTvSeries({
-          tvSeriesId: item.id,
-          userId: user.id,
-        });
-
-        // Note: constants to make the code more readable
-        const tvSeriesIsWatched =
-          watchedCount > 0 && watchedCount >= tvSeries.numberOfAiredEpisodes;
-        const tvSeriesIsInProgress = watchedCount > 0 && !tvSeriesIsWatched;
-        const tvSeriesIsNotWatchedAtAll = watchedCount === 0;
-
-        if (tvSeriesIsWatched) {
-          await syncResumingSoon(user.id, tvSeries, getResumingSoonIds);
-          return;
-        }
-
-        if (tvSeriesIsInProgress) {
-          const isCurrentlyInWatched = await isInList({
-            id: tvSeries.id,
-            listId: 'WATCHED',
-            userId: user.id,
-          });
-
-          if (isCurrentlyInWatched) {
-            console.log(
-              `[UPDATE] | ${user.id} | ${tvSeries.title} | Moved from WATCHED to IN_PROGRESS | ${watchedCount}/${tvSeries.numberOfAiredEpisodes}`,
-            );
-            await Promise.all([
-              addToList({
-                item: {
-                  createdAt: Date.now(),
-                  id: tvSeries.id,
-                  posterPath: tvSeries.posterPath,
-                  slug: tvSeries.slug,
-                  status: tvSeries.status,
-                  title: tvSeries.title,
-                },
-                listId: 'IN_PROGRESS',
-                userId: user.id,
-              }),
-              removeFromList({
-                id: tvSeries.id,
-                listId: 'WATCHED',
-                userId: user.id,
-              }),
-              removeFromList({
-                id: tvSeries.id,
-                listId: 'RESUMING_SOON',
-                userId: user.id,
-              }),
-            ]);
-          }
-        }
-
-        // Note: should never happen, but just in case
-        if (tvSeriesIsNotWatchedAtAll) {
-          console.log(
-            `[UPDATE] | ${user.id} | ${tvSeries.title} | Removing from all lists (no episodes watched) | ${watchedCount}/${tvSeries.numberOfAiredEpisodes}`,
-          );
-          await Promise.all([
-            removeFromList({
-              id: tvSeries.id,
-              listId: 'IN_PROGRESS',
-              userId: user.id,
-            }),
-            removeFromList({
-              id: tvSeries.id,
-              listId: 'WATCHED',
-              userId: user.id,
-            }),
-            removeFromList({
-              id: tvSeries.id,
-              listId: 'RESUMING_SOON',
-              userId: user.id,
-            }),
-          ]);
-        }
-      }),
-    ),
-  );
-};
-
 export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
   const batchItemFailures: SQSBatchResponse['batchItemFailures'] = [];
   const isFullCheck = new Date().getUTCDay() === FULL_CHECK_WEEKDAY;
+  const budget = createChangeBudget();
 
   // Sequential on purpose: each user already fans out over their series
   for (const record of event.Records) {
     try {
-      await validateUser(
-        JSON.parse(record.body) as ValidateWatchedStatusMessage,
-        isFullCheck,
-      );
+      const user = JSON.parse(record.body) as ValidateWatchedStatusMessage;
+      await validateUserLists({ budget, isFullCheck, userId: user.id });
     } catch (error) {
       console.error(
         `Error processing validate watched status event ${record.messageId}:`,

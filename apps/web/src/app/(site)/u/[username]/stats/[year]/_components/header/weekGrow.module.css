@@ -1,0 +1,20 @@
+/*
+ * The week lines grow from the baseline when the year changes (STD_Recommended
+ * production note: "the week lines grow from 0 with an 8ms stagger"). Only
+ * `transform` is animated; each line's delay is set inline (`--stagger`).
+ * `.grow` sits on the year that arrives after a switch, never on a page load.
+ */
+.line {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.grow .line {
+  animation: grow 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+
+@keyframes grow {
+  from {
+    transform: scaleY(0);
+  }
+}

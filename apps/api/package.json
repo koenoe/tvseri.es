@@ -13,24 +13,26 @@
     "@tvseri.es/constants": "workspace:*",
     "@tvseri.es/schemas": "workspace:*",
     "@tvseri.es/utils": "workspace:*",
-    "color": "^5.0.3",
     "date-fns": "^4.4.0",
     "hono": "^4.13.17",
-    "path-to-regexp": "^8.4.2",
+    "path-to-regexp": "^9.0.0",
     "slugify": "^1.6.9",
-    "sst": "catalog:"
+    "sst": "catalog:",
+    "valibot": "^1.5.0"
   },
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/aws-lambda": "^8.10.164",
     "@types/node": "catalog:",
     "sharp": "^0.35.5",
-    "typescript": "^6.0.3"
+    "typescript": "catalog:",
+    "vitest": "5.1.0"
   },
   "name": "@tvseri.es/api",
   "private": true,
   "scripts": {
-    "check-types": "tsc"
+    "check-types": "tsc",
+    "test": "vitest run"
   },
   "type": "module",
   "version": "0.0.0"

@@ -7,14 +7,15 @@
   },
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",
-    "@types/aws-lambda": "^8.10.164",
     "@types/node": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "5.1.0"
   },
   "name": "@tvseri.es/kill-switch",
   "private": true,
   "scripts": {
-    "check-types": "tsc"
+    "check-types": "tsc",
+    "test": "vitest run"
   },
   "type": "module",
   "version": "0.0.0"

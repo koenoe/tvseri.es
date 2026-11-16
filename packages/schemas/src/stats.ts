@@ -109,6 +109,11 @@ export const StatsProviderItemSchema = v.object({
   defaultColor: v.string(),
   logo: v.nullable(v.string()),
   name: v.string(),
+  /**
+   * The provider's top series by episodes (at most 3), for "Billions, Barry,
+   * The Pitt and 30 more". Optional: absent from answers cached before it.
+   */
+  series: v.optional(v.array(v.object({ id: v.number(), title: v.string() }))),
 });
 
 export type StatsProviderItem = Readonly<

@@ -1,64 +1,29 @@
-import type { Page } from '@tvseri.es/schemas';
-import type { NextRequest } from 'next/server';
+import { loadFollowPage } from '@/lib/profile/pages';
 
-import {
-  type FollowItem,
-  toFollowItem,
-} from '@/components/Follow/toFollowItem';
-import { findUser, getFollowers, getFollowing } from '@/lib/api';
-import requireSession from '../../../requireSession';
+import { privateJson, viewerRoute } from '../../../../handlers';
+import requireProfile from '../../../requireProfile';
 
-const types = ['followers', 'following'] as const;
+type Context = Readonly<{
+  params: Promise<{ type: string; username: string }>;
+}>;
 
-type SocialType = (typeof types)[number];
+const isType = (value: string): value is 'followers' | 'following' =>
+  value === 'followers' || value === 'following';
 
-function isValidType(value: string): value is SocialType {
-  return (types as ReadonlyArray<string>).includes(value);
-}
-
-export async function GET(
-  req: NextRequest,
-  {
-    params,
-  }: {
-    params: Promise<{
-      username: string;
-      type: string;
-    }>;
-  },
-) {
+/**
+ * The next pages of someone else's Circle: who they follow and who follows
+ * them, each row with what that person is watching (24 a page, the API's
+ * cap for that read).
+ */
+export const GET = viewerRoute(async (viewer, req, { params }: Context) => {
   const { type, username } = await params;
-  const [session, user] = await Promise.all([
-    requireSession(),
-    findUser({ username }),
-  ]);
-
-  if (session instanceof Response) {
-    return session;
+  if (!isType(type)) {
+    return privateJson({ error: 'Invalid type' }, 400);
   }
-
-  if (!isValidType(type)) {
-    return Response.json({ error: 'Invalid type' }, { status: 400 });
+  const gate = await requireProfile(req, viewer, username);
+  if (gate instanceof Response) {
+    return gate;
   }
-
-  if (!user) {
-    return Response.json({ error: 'User not found' }, { status: 404 });
-  }
-
-  const payload = {
-    accessToken: session.accessToken,
-    options: {
-      cursor: req.nextUrl.searchParams.get('cursor') ?? '',
-    },
-    userId: user.id,
-  };
-
-  const { items, nextCursor } = await (type === 'following'
-    ? getFollowing(payload)
-    : getFollowers(payload));
-
-  return Response.json({
-    items: items.map(toFollowItem),
-    nextCursor,
-  } satisfies Page<FollowItem>);
-}
+  const read = { ...gate, cursor: req.nextUrl.searchParams.get('cursor') };
+  return Response.json(await loadFollowPage(type, read));
+});

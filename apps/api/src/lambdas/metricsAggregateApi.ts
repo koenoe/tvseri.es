@@ -1,6 +1,6 @@
-import type { AttributeValue, WriteRequest } from '@aws-sdk/client-dynamodb';
-import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
-import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import type { WriteRequest } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { marshall } from '@aws-sdk/util-dynamodb';
 import {
   APDEX_T,
   type Apdex,
@@ -13,14 +13,15 @@ import {
 } from '@tvseri.es/schemas';
 import { buildLatencyHistogramBins } from '@tvseri.es/utils';
 import type { ScheduledHandler } from 'aws-lambda';
-import { compile, match } from 'path-to-regexp';
 import { Resource } from 'sst';
-
 import { AGGREGATE_RETRY, batchWrite } from '@/lib/db/batch';
+import {
+  isValidTmdbEndpoint,
+  normalizeDependencyEndpoint,
+} from '@/lib/metrics/dependencyEndpoint';
+import { fetchRawMetrics } from '@/lib/metrics/rawShards';
 
 const AGGREGATE_TTL_DAYS = 30;
-/** Number of shards used for raw metrics (must match metrics.ts) */
-const SHARD_COUNT = 10;
 /** Number of top items to store in leaderboards */
 const TOP_ITEMS_LIMIT = 25;
 /**
@@ -34,248 +35,7 @@ const SAMPLE_RATE_MULTIPLIER = 10;
 const LATENCY_FAST_THRESHOLD = 200;
 const LATENCY_MODERATE_THRESHOLD = 500;
 
-/** TMDB sub-resource keywords that are valid (not IDs) */
-const TMDB_KEYWORDS = new Set([
-  'airing_today',
-  'changes',
-  'latest',
-  'now_playing',
-  'on_the_air',
-  'popular',
-  'top_rated',
-  'upcoming',
-]);
-
-/** TMDB resources that require numeric IDs */
-const TMDB_NUMERIC_ID_RESOURCES = new Set([
-  'account',
-  'collection',
-  'company',
-  'keyword',
-  'list',
-  'movie',
-  'network',
-  'person',
-  'tv',
-]);
-
-/** TMDB resources that should have IDs normalized */
-const TMDB_ID_RESOURCES = new Set([
-  'account',
-  'collection',
-  'company',
-  'credit',
-  'keyword',
-  'list',
-  'movie',
-  'network',
-  'person',
-  'review',
-  'tv',
-]);
-
-/** MDBList supported ID providers */
-const MDBLIST_PROVIDERS = new Set(['imdb', 'mal', 'tmdb', 'trakt', 'tvdb']);
-
-/** MDBList supported media types */
-const MDBLIST_MEDIA_TYPES = new Set(['any', 'movie', 'show']);
-
 const dynamoClient = new DynamoDBClient({});
-
-// ═══════════════════════════════════════════════════════════════════════════
-// PATH-TO-REGEXP MATCHERS AND TEMPLATES
-// ═══════════════════════════════════════════════════════════════════════════
-
-const compileOpts = { encode: false } as const;
-
-const tmdbValidationMatcher = match<{
-  id: string;
-  path?: string[];
-  resource: string;
-}>('/3/:resource/:id{/*path}', { decode: decodeURIComponent });
-
-type PatternParams = Record<string, string | undefined>;
-type PatternTransform = (
-  params: PatternParams,
-) => Record<string, string> | null;
-
-type NormalizationPattern = {
-  matcher: ReturnType<typeof match>;
-  template: ReturnType<typeof compile>;
-  transform: PatternTransform;
-};
-
-const hasResource = (set: Set<string>, value: string | undefined): boolean =>
-  value !== undefined && set.has(value);
-
-const isNumeric = (value: string | undefined): boolean =>
-  value !== undefined && /^\d+$/.test(value);
-
-const tmdbNormalizationPatterns: NormalizationPattern[] = [
-  {
-    matcher: match('/3/:resource/:id/season/:season/episode/:episode/:sub'),
-    template: compile(
-      '/3/:resource/:id/season/:season/episode/:episode/:sub',
-      compileOpts,
-    ),
-    transform: (params) =>
-      hasResource(TMDB_ID_RESOURCES, params.resource)
-        ? { ...params, episode: ':num', id: ':id', season: ':num' }
-        : null,
-  },
-  {
-    matcher: match('/3/:resource/:id/season/:season/episode/:episode'),
-    template: compile(
-      '/3/:resource/:id/season/:season/episode/:episode',
-      compileOpts,
-    ),
-    transform: (params) =>
-      hasResource(TMDB_ID_RESOURCES, params.resource)
-        ? { ...params, episode: ':num', id: ':id', season: ':num' }
-        : null,
-  },
-  {
-    matcher: match('/3/:resource/:id/season/:season/:sub'),
-    template: compile('/3/:resource/:id/season/:season/:sub', compileOpts),
-    transform: (params) =>
-      hasResource(TMDB_ID_RESOURCES, params.resource)
-        ? { ...params, id: ':id', season: ':num' }
-        : null,
-  },
-  {
-    matcher: match('/3/:resource/:id/season/:season'),
-    template: compile('/3/:resource/:id/season/:season', compileOpts),
-    transform: (params) =>
-      hasResource(TMDB_ID_RESOURCES, params.resource)
-        ? { ...params, id: ':id', season: ':num' }
-        : null,
-  },
-  {
-    matcher: match('/3/:resource/:id/:sub/:subsub'),
-    template: compile('/3/:resource/:id/:sub/:subsub', compileOpts),
-    transform: (params) =>
-      hasResource(TMDB_ID_RESOURCES, params.resource)
-        ? { ...params, id: ':id' }
-        : null,
-  },
-  {
-    matcher: match('/3/:resource/:id/:sub'),
-    template: compile('/3/:resource/:id/:sub', compileOpts),
-    transform: (params) =>
-      hasResource(TMDB_ID_RESOURCES, params.resource)
-        ? { ...params, id: ':id' }
-        : null,
-  },
-  {
-    matcher: match('/3/find/:id'),
-    template: compile('/3/find/:id', compileOpts),
-    transform: () => ({ id: ':id' }),
-  },
-  {
-    matcher: match('/3/:resource/:id'),
-    template: compile('/3/:resource/:id', compileOpts),
-    transform: (params) =>
-      hasResource(TMDB_ID_RESOURCES, params.resource)
-        ? { ...params, id: ':id' }
-        : null,
-  },
-];
-
-const mdblistNormalizationPatterns: NormalizationPattern[] = [
-  {
-    matcher: match('/lists/:user/:list/items'),
-    template: compile('/lists/:user/:list/items', compileOpts),
-    transform: (params) =>
-      isNumeric(params.user) ? null : { list: ':list', user: ':user' },
-  },
-  {
-    matcher: match('/lists/:id/items'),
-    template: compile('/lists/:id/items', compileOpts),
-    transform: (params) => (isNumeric(params.id) ? { id: ':id' } : null),
-  },
-  {
-    matcher: match('/lists/user/:id'),
-    template: compile('/lists/user/:id', compileOpts),
-    transform: (params) =>
-      isNumeric(params.id) ? { id: ':id' } : { id: ':username' },
-  },
-  {
-    matcher: match('/lists/:user/:list'),
-    template: compile('/lists/:user/:list', compileOpts),
-    transform: (params) =>
-      isNumeric(params.user) ? null : { list: ':list', user: ':user' },
-  },
-  {
-    matcher: match('/lists/:id'),
-    template: compile('/lists/:id', compileOpts),
-    transform: (params) => (isNumeric(params.id) ? { id: ':id' } : null),
-  },
-  {
-    matcher: match('/external/lists/:id'),
-    template: compile('/external/lists/:id', compileOpts),
-    transform: (params) => (isNumeric(params.id) ? { id: ':id' } : null),
-  },
-  {
-    matcher: match('/:provider/:mediaType/:id'),
-    template: compile('/:provider/:mediaType/:id', compileOpts),
-    transform: (params) =>
-      hasResource(MDBLIST_PROVIDERS, params.provider) &&
-      hasResource(MDBLIST_MEDIA_TYPES, params.mediaType)
-        ? { ...params, id: ':id' }
-        : null,
-  },
-];
-
-// ═══════════════════════════════════════════════════════════════════════════
-// VALIDATION AND NORMALIZATION
-// ═══════════════════════════════════════════════════════════════════════════
-
-const isValidTmdbEndpoint = (endpoint: string): boolean => {
-  const result = tmdbValidationMatcher(endpoint);
-  if (!result) return true;
-
-  const { id, resource } = result.params;
-  if (!TMDB_NUMERIC_ID_RESOURCES.has(resource)) return true;
-  if (/^\d+$/.test(id)) return true;
-  if (TMDB_KEYWORDS.has(id.toLowerCase())) return true;
-
-  return false;
-};
-
-const normalizeTmdbEndpoint = (endpoint: string): string => {
-  for (const { matcher, template, transform } of tmdbNormalizationPatterns) {
-    const result = matcher(endpoint);
-    if (result) {
-      const params = transform(result.params as Record<string, string>);
-      if (params) return template(params);
-    }
-  }
-  return endpoint;
-};
-
-const normalizeMdblistEndpoint = (endpoint: string): string => {
-  for (const { matcher, template, transform } of mdblistNormalizationPatterns) {
-    const result = matcher(endpoint);
-    if (result) {
-      const params = transform(result.params as Record<string, string>);
-      if (params) return template(params);
-    }
-  }
-  return endpoint;
-};
-
-const normalizeDependencyEndpoint = (
-  source: string,
-  endpoint: string,
-): string => {
-  const normalizedSource = source.toLowerCase();
-
-  if (normalizedSource === 'dynamodb') return endpoint;
-  if (normalizedSource === 'tmdb') return normalizeTmdbEndpoint(endpoint);
-  if (normalizedSource === 'mdblist') return normalizeMdblistEndpoint(endpoint);
-
-  return endpoint;
-};
 
 /**
  * Calculate percentile statistics from an array of numbers.
@@ -337,65 +97,6 @@ const calculatePercentiles = (values: number[]): PercentileStats => {
 };
 
 /**
- * Fetch all raw API metrics for a specific day from a single shard.
- */
-const fetchRawMetricsFromShard = async (
-  pk: string,
-  dayStart: string,
-  dayEnd: string,
-): Promise<ApiMetricRecord[]> => {
-  const items: ApiMetricRecord[] = [];
-  let lastKey: Record<string, AttributeValue> | undefined;
-
-  do {
-    const result = await dynamoClient.send(
-      new QueryCommand({
-        ExclusiveStartKey: lastKey,
-        ExpressionAttributeNames: {
-          '#pk': 'pk',
-          '#sk': 'sk',
-        },
-        ExpressionAttributeValues: marshall({
-          ':dayEnd': dayEnd,
-          ':dayStart': dayStart,
-          ':pk': pk,
-        }),
-        KeyConditionExpression:
-          '#pk = :pk AND #sk BETWEEN :dayStart AND :dayEnd',
-        TableName: Resource.MetricsRaw.name,
-      }),
-    );
-
-    if (result.Items) {
-      items.push(
-        ...result.Items.map((item) => unmarshall(item) as ApiMetricRecord),
-      );
-    }
-
-    lastKey = result.LastEvaluatedKey;
-  } while (lastKey);
-
-  return items;
-};
-
-/**
- * Fetch all raw API metrics for a specific day from all shards.
- */
-const fetchRawMetrics = async (
-  basePk: string,
-  dayStart: string,
-  dayEnd: string,
-): Promise<ApiMetricRecord[]> => {
-  // Query all shards in parallel
-  const shardQueries = Array.from({ length: SHARD_COUNT }, (_, shard) =>
-    fetchRawMetricsFromShard(`${basePk}#${shard}`, dayStart, dayEnd),
-  );
-
-  const results = await Promise.all(shardQueries);
-  return results.flat();
-};
-
-/**
  * Classify status code into category.
  */
 const classifyStatusCode = (
@@ -449,10 +150,6 @@ const calculateApdex = (latencies: number[]): Apdex => {
   };
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// AGGREGATION
-// ═══════════════════════════════════════════════════════════════════════════
-
 /**
  * Aggregate API metrics into MetricsApi table.
  *
@@ -478,10 +175,6 @@ const aggregateApiMetrics = (
 
   const expiresAt =
     Math.floor(Date.now() / 1000) + AGGREGATE_TTL_DAYS * 24 * 60 * 60;
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Helper functions
-  // ─────────────────────────────────────────────────────────────────────────
 
   const createStatusBreakdown = (
     recs: ApiMetricRecord[],
@@ -790,10 +483,6 @@ const aggregateApiMetrics = (
     };
   };
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Group records by dimensions
-  // ─────────────────────────────────────────────────────────────────────────
-
   // Single dimensions
   const byEndpoint = new Map<string, ApiMetricRecord[]>();
   const byPlatform = new Map<string, ApiMetricRecord[]>();
@@ -852,10 +541,6 @@ const aggregateApiMetrics = (
 
   const aggregates: ApiMetricAggregate[] = [];
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // pk: "<date>" (no filters)
-  // ─────────────────────────────────────────────────────────────────────────
-
   // Build top endpoints leaderboard (sorted by request count)
   const topEndpoints = buildTopEndpoints(byEndpoint);
 
@@ -906,10 +591,6 @@ const aggregateApiMetrics = (
     );
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // pk: "<date>#P#<platform>" (platform filter)
-  // ─────────────────────────────────────────────────────────────────────────
-
   for (const [platform, platformRecs] of byPlatform) {
     const pk = `${date}#P#${platform}`;
 
@@ -954,10 +635,6 @@ const aggregateApiMetrics = (
     }
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // pk: "<date>#C#<country>" (country filter)
-  // ─────────────────────────────────────────────────────────────────────────
-
   for (const [country, countryRecs] of byCountry) {
     const pk = `${date}#C#${country}`;
 
@@ -1001,10 +678,6 @@ const aggregateApiMetrics = (
     }
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // pk: "<date>#P#<platform>#C#<country>" (platform + country filter)
-  // ─────────────────────────────────────────────────────────────────────────
-
   for (const [pcKey, pcRecs] of byPlatformCountry) {
     const [platform, country] = pcKey.split('#') as [string, string];
     const pk = `${date}#P#${platform}#C#${country}`;
@@ -1044,10 +717,6 @@ const aggregateApiMetrics = (
   return aggregates;
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// WRITE TO DYNAMODB
-// ═══════════════════════════════════════════════════════════════════════════
-
 /**
  * Write API aggregates to MetricsApi table.
  */
@@ -1068,10 +737,6 @@ const writeAggregates = async (items: ApiMetricAggregate[]): Promise<void> => {
     AGGREGATE_RETRY,
   );
 };
-
-// ═══════════════════════════════════════════════════════════════════════════
-// LAMBDA HANDLER
-// ═══════════════════════════════════════════════════════════════════════════
 
 /**
  * API metrics aggregation Lambda.
@@ -1102,7 +767,7 @@ export const handler: ScheduledHandler = async (event) => {
   }
 
   // Time range for the full day
-  // Note: sk format is "{timestamp}#{requestId}", so we use ~ suffix to capture all records
+  // sk is "{timestamp}#{requestId}": the ~ suffix captures every record of the last timestamp
   // since ~ (ASCII 126) sorts after alphanumeric characters
   const dayStart = `${dateStr}T00:00:00.000Z`;
   const dayEnd = `${dateStr}T23:59:59.999Z~`;
@@ -1110,7 +775,12 @@ export const handler: ScheduledHandler = async (event) => {
   console.log(`[api-aggregate] Processing date ${dateStr}`);
 
   // Fetch raw API metrics
-  const rawMetrics = await fetchRawMetrics(`API#${dateStr}`, dayStart, dayEnd);
+  const rawMetrics = await fetchRawMetrics<ApiMetricRecord>(
+    dynamoClient,
+    `API#${dateStr}`,
+    dayStart,
+    dayEnd,
+  );
   console.log(`[api-aggregate] Found ${rawMetrics.length} raw metrics`);
 
   if (rawMetrics.length === 0) {

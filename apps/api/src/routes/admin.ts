@@ -1,5 +1,8 @@
 import { vValidator } from '@hono/valibot-validator';
-import { PreferredImagesSchema } from '@tvseri.es/schemas';
+import {
+  type AdminWriteResult,
+  PreferredImagesSchema,
+} from '@tvseri.es/schemas';
 import { Hono } from 'hono';
 
 import { invalidatePaths } from '@/lib/cdn';
@@ -13,39 +16,38 @@ const app = new Hono();
 
 app.use(requireAuthAdmin());
 
-// Preferred images show on the series pages and in the trending collection.
-const invalidatePreferredImagesPaths = (id: string) =>
-  invalidatePaths([`/series/${id}*`, '/collection/trending']);
+/**
+ * Writes the preferred images and starts a purge of the paths that show them
+ * (the series pages and the trending collection, with any query such as the
+ * web's `?colour=` version), answering without waiting for the purge. A purge
+ * CloudFront refuses is logged by `invalidatePaths` and doesn't fail the
+ * write.
+ */
+async function writeAndPurge(
+  id: string,
+  write: Promise<unknown>,
+): Promise<AdminWriteResult> {
+  await Promise.all([
+    write,
+    invalidatePaths([`/series/${id}*`, '/collection/trending*']),
+  ]);
+  return { message: 'OK' };
+}
 
 app.put(
   '/preferred-images/series/:id{[0-9]+}',
   vValidator('json', PreferredImagesSchema),
   async (c) => {
-    const body = c.req.valid('json');
     const id = c.req.param('id');
-
-    await Promise.all([
-      putPreferredImages(id, body),
-      invalidatePreferredImagesPaths(id),
-    ]);
-
-    return c.json({
-      message: 'OK',
-    });
+    return c.json(
+      await writeAndPurge(id, putPreferredImages(id, c.req.valid('json'))),
+    );
   },
 );
 
 app.delete('/preferred-images/series/:id{[0-9]+}', async (c) => {
   const id = c.req.param('id');
-
-  await Promise.all([
-    deletePreferredImages(id),
-    invalidatePreferredImagesPaths(id),
-  ]);
-
-  return c.json({
-    message: 'OK',
-  });
+  return c.json(await writeAndPurge(id, deletePreferredImages(id)));
 });
 
 export default app;

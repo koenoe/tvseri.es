@@ -1,0 +1,16 @@
+{
+  "devDependencies": {
+    "@aws-sdk/client-lambda": "^3.1164.0",
+    "@aws-sdk/client-sqs": "^3.1164.0",
+    "@openauthjs/openauth": "0.4.3",
+    "@tvseri.es/utils": "workspace:*",
+    "vitest": "5.1.0"
+  },
+  "name": "@tvseri.es/load-rig",
+  "private": true,
+  "scripts": {
+    "load": "vitest run --config vitest.config.ts"
+  },
+  "type": "module",
+  "version": "0.0.0"
+}

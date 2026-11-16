@@ -4,8 +4,9 @@
   },
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",
+    "@typescript/native": "catalog:",
     "openapi-typescript": "^7.13.0",
-    "typescript": "catalog:"
+    "typescript": "npm:@typescript/typescript6@6.0.2"
   },
   "main": "./src/index.ts",
   "name": "@tvseri.es/schemas",
@@ -15,8 +16,9 @@
   "private": true,
   "scripts": {
     "check-types": "tsc --noEmit",
-    "extract-tmdb-types": "openapi-typescript --path-params-as-types"
+    "extract-tmdb-types": "openapi-typescript --path-params-as-types && biome format --write tmdb-v3.d.ts tmdb-v4.d.ts"
   },
+  "sideEffects": false,
   "types": "./src/index.ts",
   "version": "0.0.0"
 }

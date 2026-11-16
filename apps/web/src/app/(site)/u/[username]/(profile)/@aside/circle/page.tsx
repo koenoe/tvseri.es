@@ -1,0 +1,29 @@
+import OwnerVisitor from '@/components/ui/viewer/OwnerVisitor';
+import SidebarRule from '../../_components/shell/SidebarRule';
+import SubpageMarker from '../../_components/shell/SubpageMarker';
+import MatchKey from '../../circle/_components/MatchKey';
+
+/**
+ * Circle's sidebar under the identity: a rule, then "How a
+ * match is made" on your own Circle; nothing on someone else's (a ring is
+ * your match with that person, and lives on their profile). Static copy,
+ * so the owner's key is in the shell; desktop only. Following nobody, the
+ * page says so (`data-follows-nobody`) and the key goes.
+ * With the sidebar only (`lg`).
+ */
+export default function CircleAside() {
+  return (
+    <>
+      <SubpageMarker />
+      <OwnerVisitor
+        owner={
+          <div className="-mt-2 flex flex-col gap-7 max-lg:hidden group-has-[[data-follows-nobody]]/profile:hidden">
+            <SidebarRule />
+            <MatchKey />
+          </div>
+        }
+        visitor={null}
+      />
+    </>
+  );
+}

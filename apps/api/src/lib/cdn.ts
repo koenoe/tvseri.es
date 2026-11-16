@@ -5,7 +5,8 @@ import {
 
 const client = new CloudFrontClient();
 
-export async function invalidatePaths(paths: string[]) {
+/** Starts a purge of `paths`; a refused purge is logged, never thrown. */
+export async function invalidatePaths(paths: string[]): Promise<void> {
   const command = new CreateInvalidationCommand({
     DistributionId: process.env.CLOUDFRONT_DISTRIBUTION_ID,
     InvalidationBatch: {

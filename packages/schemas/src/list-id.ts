@@ -3,7 +3,7 @@ import * as v from 'valibot';
 /**
  * Lists that can be read through the API (`GET /user/:id/list/:list`).
  *
- * Note: `RESUMING_SOON` exists in the database but the API doesn't expose it for reading,
+ * `RESUMING_SOON` exists in the database but the API doesn't expose it for reading,
  * so it is deliberately not part of this list.
  */
 export const LIST_IDS = [

@@ -4,18 +4,17 @@ import {
   MetricsDevicesQuerySchema,
   type MetricsDevicesResponse,
   type MetricsDeviceTimeSeriesResponse,
-  type WebVitalAggregate,
 } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
 
 import type { Variables } from '@/middleware/auth';
 
+import { getDateRange } from '../reads';
 import {
+  aggregateBreakdown,
   aggregateSummaries,
-  buildPk,
-  getDateRange,
-  queryByPkAndPrefix,
   queryDeviceTimeSeries,
+  sortBreakdown,
 } from './queries';
 
 const app = new Hono<{ Variables: Variables }>();
@@ -37,85 +36,14 @@ app.get('/', vValidator('query', MetricsDevicesQuerySchema), async (c) => {
 
   const { dates, endDate, startDate } = getDateRange(numDays);
 
-  // Fetch device items for each day (no filters - base pk only)
-  const allDeviceItems: WebVitalAggregate[] = [];
-  await Promise.all(
-    dates.map(async (date) => {
-      const pk = buildPk(date);
-      const items = await queryByPkAndPrefix(pk, 'D#');
-      allDeviceItems.push(...items);
-    }),
+  const devices = sortBreakdown(
+    (await aggregateBreakdown(dates, 'D#')).map(([device, metrics]) => ({
+      ...metrics,
+      device,
+    })),
+    sortBy,
+    sortDir,
   );
-
-  // Group by device type and aggregate across days
-  const deviceMap = new Map<string, WebVitalAggregate[]>();
-  for (const item of allDeviceItems) {
-    const device = item.sk.replace('D#', '');
-    const existing = deviceMap.get(device);
-    if (existing) {
-      existing.push(item);
-    } else {
-      deviceMap.set(device, [item]);
-    }
-  }
-
-  // Aggregate each device's data
-  const devices: Array<{
-    CLS: WebVitalAggregate['CLS'];
-    device: string;
-    FCP: WebVitalAggregate['FCP'];
-    INP: WebVitalAggregate['INP'];
-    LCP: WebVitalAggregate['LCP'];
-    pageviews: number;
-    score: number;
-    TTFB: WebVitalAggregate['TTFB'];
-  }> = [];
-
-  for (const [device, items] of deviceMap) {
-    const aggregated = aggregateSummaries(items);
-    if (aggregated) {
-      devices.push({
-        CLS: aggregated.CLS,
-        device,
-        FCP: aggregated.FCP,
-        INP: aggregated.INP,
-        LCP: aggregated.LCP,
-        pageviews: aggregated.pageviews,
-        score: aggregated.score,
-        TTFB: aggregated.TTFB,
-      });
-    }
-  }
-
-  // Sort
-  devices.sort((a, b) => {
-    let aVal: number;
-    let bVal: number;
-
-    switch (sortBy) {
-      case 'score':
-        aVal = a.score;
-        bVal = b.score;
-        break;
-      case 'LCP':
-        aVal = a.LCP.p75;
-        bVal = b.LCP.p75;
-        break;
-      case 'INP':
-        aVal = a.INP.p75;
-        bVal = b.INP.p75;
-        break;
-      case 'CLS':
-        aVal = a.CLS.p75;
-        bVal = b.CLS.p75;
-        break;
-      default:
-        aVal = a.pageviews;
-        bVal = b.pageviews;
-    }
-
-    return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
-  });
 
   const response: MetricsDevicesResponse = {
     devices,

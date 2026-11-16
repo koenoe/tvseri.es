@@ -1,5 +1,8 @@
 import type { AttributeValue } from '@aws-sdk/client-dynamodb';
-import { UpdateItemCommand } from '@aws-sdk/client-dynamodb';
+import {
+  ConditionalCheckFailedException,
+  UpdateItemCommand,
+} from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import type { DynamoDBStreamEvent } from 'aws-lambda';
 import { Resource } from 'sst';
@@ -20,6 +23,8 @@ const updateUserCount = async (
   delta: number,
 ) => {
   const command = new UpdateItemCommand({
+    // Never create a Users item: a deleted account stays deleted
+    ConditionExpression: 'attribute_exists(pk)',
     ExpressionAttributeNames: {
       '#field': field,
     },
@@ -35,7 +40,13 @@ const updateUserCount = async (
     UpdateExpression: 'SET #field = if_not_exists(#field, :zero) + :delta',
   });
 
-  await client.send(command);
+  try {
+    await client.send(command);
+  } catch (error) {
+    if (!(error instanceof ConditionalCheckFailedException)) {
+      throw error;
+    }
+  }
 };
 
 /**

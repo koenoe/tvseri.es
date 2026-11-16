@@ -1,8 +1,46 @@
 diff --git a/dist/esm/issuer.js b/dist/esm/issuer.js
-index 1b18009bfeaa09f2222e9df760dde0e4eb1d4326..d76f942e565094d9f7b17853019f8a91aa24686b 100644
+index 1b18009bfeaa09f2222e9df760dde0e4eb1d4326..3d58daef39c716cfbce3b98ec84626aa07dadabb 100644
 --- a/dist/esm/issuer.js
 +++ b/dist/esm/issuer.js
-@@ -381,6 +381,32 @@ function issuer(input) {
+@@ -257,13 +257,15 @@ function issuer(input) {
+         }, 400);
+       const key = ["oauth:code", code.toString()];
+       const payload = await Storage.get(storage, key);
+-      if (!payload) {
++      // tvseri.es patch: the code is claimed by the request whose remove
++      // deletes it (patched storage remove reports that), so two exchanges
++      // racing with one code can't both get tokens (RFC 6749 §4.1.2).
++      if (!payload || !await Storage.remove(storage, key)) {
+         return c.json({
+           error: "invalid_grant",
+           error_description: "Authorization code has been used or expired"
+         }, 400);
+       }
+-      await Storage.remove(storage, key);
+       if (payload.redirectURI !== form.get("redirect_uri")) {
+         return c.json({
+           error: "invalid_redirect_uri",
+@@ -328,6 +330,19 @@ function issuer(input) {
+           error_description: "Refresh token has been used or expired"
+         }, 400);
+       }
++      // tvseri.es patch: the app may re-read the subject's properties on a
++      // refresh (a role changed in the database since sign-in); the new
++      // access token and the next refresh token carry what it returns.
++      // Upstream copies the sign-in properties for the refresh token's life.
++      if (input.refresh) {
++        const properties = await input.refresh({
++          type: payload.type,
++          properties: payload.properties,
++          clientID: payload.clientID
++        });
++        if (properties)
++          payload.properties = properties;
++      }
+       const tokens = await generateTokens(c, payload, {
+         generateRefreshToken
+       });
+@@ -381,6 +396,43 @@ function issuer(input) {
      }
      throw new Error("Invalid grant_type");
    });
@@ -24,7 +62,18 @@ index 1b18009bfeaa09f2222e9df760dde0e4eb1d4326..d76f942e565094d9f7b17853019f8a91
 +    const subject = splits.join(":");
 +    if (subject && value) {
 +      try {
-+        await Storage.remove(storage, ["oauth:refresh", subject, value]);
++        // tvseri.es patch: a token that was already rotated (still kept for
++        // the reuse window) also takes what it was rotated into, so a
++        // sign-out with a cookie that missed a rotation, or after someone
++        // else used the token, leaves no working successor. Only this
++        // sign-in's chain: other sign-ins of the subject are untouched.
++        let next = value;
++        for (let hop = 0; next && hop < 10; hop++) {
++          const key = ["oauth:refresh", subject, next];
++          const payload = await Storage.get(storage, key);
++          await Storage.remove(storage, key);
++          next = payload?.timeUsed ? payload.nextToken : undefined;
++        }
 +      } catch (err) {
 +        console.error(err);
 +        return c.body(null, 503);
@@ -35,7 +84,7 @@ index 1b18009bfeaa09f2222e9df760dde0e4eb1d4326..d76f942e565094d9f7b17853019f8a91
    app.get("/authorize", async (c) => {
      const provider = c.req.query("provider");
      const response_type = c.req.query("response_type");
-@@ -401,25 +427,25 @@ function issuer(input) {
+@@ -401,25 +453,30 @@ function issuer(input) {
          method: code_challenge_method
        } : undefined
      };
@@ -52,6 +101,11 @@ index 1b18009bfeaa09f2222e9df760dde0e4eb1d4326..d76f942e565094d9f7b17853019f8a91
 +      audience
 +    }, c.req.raw)).catch(() => false))
 +      return c.text("Unauthorized client", { status: 400 });
++    // tvseri.es patch: `provider` becomes the redirect `/${provider}/authorize`,
++    // so `provider=/evil.example` sent the browser to `//evil.example/…` (an
++    // open redirect on the auth domain). Only the issuer's providers pass.
++    if (provider && !Object.hasOwn(input.providers, provider))
++      return c.text("Unknown provider", { status: 400 });
 +    c.set("authorization", authorization);
      if (!response_type) {
        throw new MissingParameterError("response_type");
@@ -71,7 +125,7 @@ index 1b18009bfeaa09f2222e9df760dde0e4eb1d4326..d76f942e565094d9f7b17853019f8a91
      await auth.set(c, "authorization", 60 * 60 * 24, authorization);
      if (provider)
        return c.redirect(`/${provider}/authorize`);
-@@ -438,7 +464,10 @@ function issuer(input) {
+@@ -438,7 +495,10 @@ function issuer(input) {
      }
      const authorization = await getAuthorization(c);
      const url = new URL(authorization.redirect_uri);
@@ -84,10 +138,10 @@ index 1b18009bfeaa09f2222e9df760dde0e4eb1d4326..d76f942e565094d9f7b17853019f8a91
      url.searchParams.set("error_description", oauth.description);
      return c.redirect(url.toString());
 diff --git a/dist/esm/provider/code.js b/dist/esm/provider/code.js
-index 7cee307550b3d50b49bd3054b517da0d9bd037f8..e833f516b14cc3d40f8f4e5e9e7fd7640d46dbaa 100644
+index 7cee307550b3d50b49bd3054b517da0d9bd037f8..f33198a656f6721f1a0ac26cf223d42830fb87c8 100644
 --- a/dist/esm/provider/code.js
 +++ b/dist/esm/provider/code.js
-@@ -1,5 +1,23 @@
+@@ -1,13 +1,54 @@
  // src/provider/code.ts
 +// tvseri.es patch: every sent code is an item in the issuer storage,
 +// ["oauth:otp", claim, nonce] = { code, issuedAt } plus an attempt counter;
@@ -96,22 +150,45 @@ index 7cee307550b3d50b49bd3054b517da0d9bd037f8..e833f516b14cc3d40f8f4e5e9e7fd764
 +// without limit. Each request gets its own nonce, so requesting a new code
 +// (other device, attacker) never invalidates a code that was already sent;
 +// only a successful login deletes the claim's other pending codes.
-+// The items are kept for the send window (a code is only valid for CODE_TTL,
-+// so SEND_WINDOW must stay >= CODE_TTL) and are only written after a
-+// successful send, so they also count the sends: MAX_SENDS per SEND_WINDOW.
++// The items are kept for the send window (a code is only valid for its TTL,
++// so the window is never shorter than the TTL) and are only written after a
++// successful send, so they also count the sends: MAX_SENDS per window.
++// The code's lifetime is `config.ttl` (seconds; CODE_TTL by default), so the
++// app can say it in its copy from the same value.
 +import { Storage } from "../storage/storage.js";
  import { generateUnbiasedDigits, timingSafeCompare } from "../random.js";
 +var CODE_TTL = 60 * 10;
 +var SEND_WINDOW = 60 * 15;
 +var MAX_SENDS = 5;
 +var MAX_ATTEMPTS = 5;
++// tvseri.es patch: one counter for every claim together per UTC hour
++// (["oauth:otp-hour", "2026-11-13T10"], kept 2 hours), so code emails stay
++// bounded whatever addresses are asked for. Claimed before the send, after
++// the app's `checkClaims` (honeypot, address shape), so only a failed send of
++// a valid claim still counts.
++var MAX_CODES_PER_HOUR = 400;
++async function claimHourlySend(storage, max) {
++  const key = ["oauth:otp-hour", new Date().toISOString().slice(0, 13)];
++  let count = await Storage.incr(storage, key, max);
++  if (count === undefined && !await Storage.get(storage, key)) {
++    // The hour's first send. Two first sends at once may each create the
++    // item, losing a count (accepted, like the per-claim cap's overshoot).
++    await Storage.set(storage, key, {}, 2 * 60 * 60);
++    count = await Storage.incr(storage, key, max);
++  }
++  return count !== undefined;
++}
 +function claimKey(claims) {
 +  return (claims.email ?? claims.phone ?? "").trim().toLowerCase();
 +}
  function CodeProvider(config) {
    const length = config.length || 6;
++  const codeTtl = config.ttl ?? CODE_TTL;
++  const sendWindow = Math.max(SEND_WINDOW, codeTtl);
++  const maxPerHour = config.maxSendsPerHour ?? MAX_CODES_PER_HOUR;
    function generate() {
-@@ -8,6 +26,7 @@ function CodeProvider(config) {
+     return generateUnbiasedDigits(length);
+   }
    return {
      type: "code",
      init(routes, ctx) {
@@ -119,7 +196,7 @@ index 7cee307550b3d50b49bd3054b517da0d9bd037f8..e833f516b14cc3d40f8f4e5e9e7fd764
        async function transition(c, next, fd, err) {
          await ctx.set(c, "provider", 60 * 60 * 24, next);
          const resp = ctx.forward(c, await config.request(c.req.raw, next, fd, err));
-@@ -27,25 +46,53 @@ function CodeProvider(config) {
+@@ -27,25 +68,68 @@ function CodeProvider(config) {
          if (action === "request" || action === "resend") {
            const claims = Object.fromEntries(fd);
            delete claims.action;
@@ -132,12 +209,23 @@ index 7cee307550b3d50b49bd3054b517da0d9bd037f8..e833f516b14cc3d40f8f4e5e9e7fd764
 +          const sent = await Array.fromAsync(Storage.scan(storage, ["oauth:otp", id]));
 +          if (sent.length >= MAX_SENDS)
 +            return transition(c, fallback, fd, { type: "rate_limited" });
++          // tvseri.es patch: a claim the app refuses (honeypot, not an
++          // address) is answered before any slot of the hourly cap is taken
++          const invalid = await config.checkClaims?.(claims);
++          if (invalid)
++            return transition(c, fallback, fd, invalid);
++          // tvseri.es patch: the hourly cap for all claims; the person sees
++          // the "email codes are unavailable, continue with Google" note.
++          if (!await claimHourlySend(storage, maxPerHour)) {
++            console.error(`[CAP] Sign-in code emails reached ${maxPerHour} this hour`);
++            return transition(c, fallback, fd, { type: "send_failed" });
++          }
            const err = await config.sendCode(claims, code);
            if (err)
 -            return transition(c, { type: "start" }, fd, err);
 +            return transition(c, fallback, fd, err);
 +          const nonce = crypto.randomUUID();
-+          await Storage.set(storage, ["oauth:otp", id, nonce], { code, issuedAt: Date.now() }, SEND_WINDOW);
++          await Storage.set(storage, ["oauth:otp", id, nonce], { code, issuedAt: Date.now() }, sendWindow);
            return transition(c, {
              type: "code",
              resend: action === "resend",
@@ -165,14 +253,18 @@ index 7cee307550b3d50b49bd3054b517da0d9bd037f8..e833f516b14cc3d40f8f4e5e9e7fd764
 +          // Missing, used or expired (or a pre-patch state without a nonce):
 +          // not counted as an attempt.
 +          const stored = state.nonce ? await Storage.get(storage, key) : undefined;
-+          if (!stored || Date.now() - stored.issuedAt >= CODE_TTL * 1e3)
++          if (!stored || Date.now() - stored.issuedAt >= codeTtl * 1e3)
 +            return fail("code_expired");
 +          // Atomic attempt counter per code; at the limit the code is dead.
-+          if (await Storage.incr(storage, key, MAX_ATTEMPTS) === undefined)
++          const attempts = await Storage.incr(storage, key, MAX_ATTEMPTS);
++          if (attempts === undefined)
 +            return fail("code_expired");
-+          const compare = fd.get("code")?.toString();
++          // tvseri.es patch: a pasted code may carry spaces, dashes or text.
++          const compare = fd.get("code")?.toString().replace(/\D/g, "");
++          // The last allowed try was wrong: the code is used up now, so say
++          // so now instead of inviting a try that can't work.
 +          if (!compare || !timingSafeCompare(stored.code, compare))
-+            return fail("invalid_code");
++            return fail(attempts >= MAX_ATTEMPTS ? "code_expired" : "invalid_code");
 +          // Single use: only the request that deletes the code logs in.
 +          if (!await Storage.remove(storage, key))
 +            return fail("code_expired");
@@ -184,6 +276,35 @@ index 7cee307550b3d50b49bd3054b517da0d9bd037f8..e833f516b14cc3d40f8f4e5e9e7fd764
            await ctx.unset(c, "provider");
            return ctx.forward(c, await ctx.success(c, { claims: state.claims }));
          }
+diff --git a/dist/esm/provider/oidc.js b/dist/esm/provider/oidc.js
+index 1ae89f6ae3050c194cefd4667cf9d58c892144bd..0a84ef549f5056df994ef4d85862f7e51b1aac10 100644
+--- a/dist/esm/provider/oidc.js
++++ b/dist/esm/provider/oidc.js
+@@ -1,5 +1,5 @@
+ // src/provider/oidc.ts
+-import { createLocalJWKSet, jwtVerify } from "jose";
++import { createRemoteJWKSet, jwtVerify } from "jose";
+ import { OauthError } from "../error.js";
+ import { getRelativeUrl, lazy } from "../util.js";
+ function OidcProvider(config) {
+@@ -10,12 +10,11 @@ function OidcProvider(config) {
+       throw new Error(await r.text());
+     return r.json();
+   }));
+-  const jwks = lazy(() => wk().then((r) => r.jwks_uri).then(async (uri) => {
+-    const r = await fetch(uri);
+-    if (!r.ok)
+-      throw new Error(await r.text());
+-    return createLocalJWKSet(await r.json());
+-  }));
++  // tvseri.es patch: a remote key set (jose) instead of one read kept for
++  // the container's life: it is re-read after 10 minutes and when a token
++  // names a key it doesn't have (at most every 30 s), so Google's key
++  // rotation never breaks sign-in on a warm container.
++  const jwks = lazy(() => wk().then((r) => createRemoteJWKSet(new URL(r.jwks_uri))));
+   return {
+     type: config.type || "oidc",
+     init(routes, ctx) {
 diff --git a/dist/esm/storage/dynamo.js b/dist/esm/storage/dynamo.js
 index 3b7a2bbf3f248780743949c1535e43ac2c05b63f..f34b11e88e3640fe9e3f87d94ff876912141222b 100644
 --- a/dist/esm/storage/dynamo.js
@@ -299,11 +420,75 @@ index 84f125dcad424beaf271142a53e313469a591e4e..6320fc62bcbf9fca322f758f7d961ce1
  })(Storage ||= {});
  export {
    splitKey,
+diff --git a/dist/esm/util.js b/dist/esm/util.js
+index 4c1fd36915356459bf16732bbb0b2080e558242f..e9123790f0f38c0e7c3f7be1a3c4fdc0db947c93 100644
+--- a/dist/esm/util.js
++++ b/dist/esm/util.js
+@@ -43,6 +43,17 @@ function lazy(fn) {
+   return () => {
+     if (value === undefined) {
+       value = fn();
++      // tvseri.es patch: forget a promise that failed, so the next call
++      // tries again. Upstream kept the rejection for the container's life:
++      // one failed key read (storage) or Google discovery/JWKS fetch broke
++      // every later request on that Lambda container.
++      if (value instanceof Promise) {
++        const failed = value;
++        failed.catch(() => {
++          if (value === failed)
++            value = undefined;
++        });
++      }
+     }
+     return value;
+   };
+diff --git a/dist/types/issuer.d.ts b/dist/types/issuer.d.ts
+index 904bb5a4c84e7ebd410cdcfd2fb43bb30aa93549..78db474a43f96d0c5eec94457fdf52b41f2dd356 100644
+--- a/dist/types/issuer.d.ts
++++ b/dist/types/issuer.d.ts
+@@ -369,6 +369,16 @@ export interface IssuerInput<Providers extends Record<string, Provider<any>>, Su
+      * ```
+      */
+     success(response: OnSuccessResponder<SubjectPayload<Subjects>>, input: Result, req: Request): Promise<Response>;
++    /**
++     * tvseri.es patch: called on every refresh_token grant with the subject's
++     * stored properties; what it returns (if anything) replaces them in the new
++     * access token and the next refresh token.
++     */
++    refresh?(input: {
++        type: string;
++        properties: Record<string, unknown>;
++        clientID: string;
++    }): Promise<Record<string, unknown> | undefined>;
+     /**
+      * @internal
+      */
 diff --git a/dist/types/provider/code.d.ts b/dist/types/provider/code.d.ts
-index 3aa567060b27f491ac5a51f38bc02b08ac67bb81..c464f68f84e806b28152491031ad31b6d4c8cc24 100644
+index 3aa567060b27f491ac5a51f38bc02b08ac67bb81..42367a60bcd1402f7285a066ae49e5f6d3136bcd 100644
 --- a/dist/types/provider/code.d.ts
 +++ b/dist/types/provider/code.d.ts
-@@ -46,7 +46,8 @@ export type CodeProviderState = {
+@@ -6,6 +6,20 @@ export interface CodeProviderConfig<Claims extends Record<string, string> = Reco
+      * @default 6
+      */
+     length?: number;
++    /**
++     * tvseri.es patch: how long a sent code works, in seconds (default 600).
++     */
++    ttl?: number;
++    /**
++     * tvseri.es patch: codes sent to all claims together per UTC hour
++     * (default 400); past it a request gets `send_failed`.
++     */
++    maxSendsPerHour?: number;
++    /**
++     * tvseri.es patch: checks a claim before anything is counted or sent; an
++     * error is answered like one from `sendCode`.
++     */
++    checkClaims?: (claims: Claims) => Promise<CodeProviderError | undefined>;
+     /**
+      * The request handler to generate the UI for the code flow.
+      *
+@@ -46,7 +60,8 @@ export type CodeProviderState = {
  } | {
      type: "code";
      resend?: boolean;
@@ -313,7 +498,7 @@ index 3aa567060b27f491ac5a51f38bc02b08ac67bb81..c464f68f84e806b28152491031ad31b6
      claims: Record<string, string>;
  };
  /**
-@@ -56,6 +57,9 @@ export type CodeProviderState = {
+@@ -56,6 +71,9 @@ export type CodeProviderState = {
   * | ----- | ----------- |
   * | `invalid_code` | The code is invalid. |
   * | `invalid_claim` | The _claim_, email or phone number, is invalid. |
@@ -323,7 +508,7 @@ index 3aa567060b27f491ac5a51f38bc02b08ac67bb81..c464f68f84e806b28152491031ad31b6
   */
  export type CodeProviderError = {
      type: "invalid_code";
-@@ -63,6 +67,12 @@ export type CodeProviderError = {
+@@ -63,6 +81,12 @@ export type CodeProviderError = {
      type: "invalid_claim";
      key: string;
      value: string;

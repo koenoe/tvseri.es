@@ -54,7 +54,7 @@ const current = await aws.getCallerIdentity({});
  * which will invoke our distribution
  * disabler function.
  */
-export const killSwitchSnsTopic = new sst.aws.SnsTopic(
+const killSwitchSnsTopic = new sst.aws.SnsTopic(
   'BudgetAlertSNS',
   {
     transform: {
@@ -122,7 +122,7 @@ killSwitchSnsTopic.subscribe('KillSwitchSubscription', {
  * to the "kill switch" SNS, once it's beyond
  * 95% of the "hard" budget threshold.
  */
-export const hardBudget = new aws.budgets.Budget('hard_budget', {
+new aws.budgets.Budget('hard_budget', {
   budgetType: 'COST',
   limitAmount: '50.00',
   limitUnit: 'USD',
@@ -148,7 +148,7 @@ export const hardBudget = new aws.budgets.Budget('hard_budget', {
  * SNS Topic, which will invoke the distribution disabler
  * lambda function.
  */
-export const monitorCloudFrontMetricsCron = new sst.aws.Cron(
+new sst.aws.Cron(
   'MonitorCloudFrontMetrics',
   {
     function: {
@@ -171,3 +171,6 @@ export const monitorCloudFrontMetricsCron = new sst.aws.Cron(
   },
   { provider: useast1 },
 );
+
+// A module (it has no imports or exports), for its top-level await
+export {};

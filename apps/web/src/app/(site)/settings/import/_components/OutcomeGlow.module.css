@@ -1,0 +1,39 @@
+/* The page tint, a different one on phones */
+.glow {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 0;
+  height: 1700px;
+  max-height: 100%;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 46% 50% at 56% 0%,
+    rgb(var(--rc) / 0.24) 0%,
+    rgb(var(--rc) / 0.12) 38%,
+    rgb(var(--rc) / 0.04) 70%,
+    rgb(var(--rc) / 0) 100%
+  );
+  mask-image: linear-gradient(180deg, transparent 0, #000 96px);
+  animation: glow-in 1.2s ease both;
+}
+
+@media (width < 48rem) {
+  .glow {
+    height: 900px;
+    background: radial-gradient(
+      ellipse 80% 55% at 50% 0%,
+      rgb(var(--rc) / 0.24) 0%,
+      rgb(var(--rc) / 0.1) 45%,
+      rgb(var(--rc) / 0) 100%
+    );
+  }
+}
+
+@keyframes glow-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

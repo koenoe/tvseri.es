@@ -1,5 +1,7 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
+import { alarmOnDeadLetters } from './alerts';
+import { productionReserved } from './concurrency';
 import { dominantColor } from './dominantColor';
 import * as dynamo from './dynamo';
 import * as secrets from './secrets';
@@ -14,6 +16,7 @@ const watchedStatusDlq = new sst.aws.Queue('ValidateWatchedStatusDLQ', {
     },
   },
 });
+alarmOnDeadLetters('ValidateWatchedStatusDLQ', watchedStatusDlq);
 
 export const watchedStatusQueue = new sst.aws.Queue(
   'ValidateWatchedStatusQueue',
@@ -30,7 +33,7 @@ export const watchedStatusQueue = new sst.aws.Queue(
 watchedStatusQueue.subscribe(
   {
     concurrency: {
-      reserved: 25,
+      reserved: productionReserved($app.stage, 25),
     },
     handler: 'apps/api/src/lambdas/validateWatchedStatusQueue.handler',
     link: [
@@ -40,7 +43,6 @@ watchedStatusQueue.subscribe(
       dynamo.preferredImages,
       dynamo.users,
       dynamo.watched,
-      secrets.mdblistApiKey,
       secrets.tmdbApiAccessToken,
       secrets.tmdbApiKey,
     ],
@@ -51,7 +53,10 @@ watchedStatusQueue.subscribe(
     // Default = {size: 10, window: “20 seconds”, partialResponses: false}
     batch: {
       partialResponses: true, // handler returns batchItemFailures per message
-      size: 25,
+      // Users run one after another in a 60 s Lambda: 10 keeps a batch with
+      // heavy users on a Monday's full check inside it (SQS BatchSize, an
+      // in-place UpdateEventSourceMapping change)
+      size: 10,
       window: '1 minute',
     },
     transform: {
@@ -59,14 +64,14 @@ watchedStatusQueue.subscribe(
         // At most 5 concurrent invocations: the nightly burst spreads out
         // instead of fanning out to TMDB and DynamoDB all at once. Messages
         // wait in the queue meanwhile (no throttling, so no retries burned).
-        // Stays below the reserved concurrency above.
+        // Stays below the reserved concurrency above (production).
         args.scalingConfig = { maximumConcurrency: 5 };
       },
     },
   },
 );
 
-export const watchedStatusCron = new sst.aws.Cron('ValidateWatchedStatus', {
+new sst.aws.Cron('ValidateWatchedStatus', {
   function: {
     handler: 'apps/api/src/lambdas/validateWatchedStatusCron.handler',
     link: [dynamo.users, watchedStatusQueue],

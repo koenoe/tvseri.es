@@ -1,11 +1,19 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
+import { alarmOnDeadLetters } from './alerts';
 import * as dynamo from './dynamo';
 
 /**
  * Dead Letter Queue for metrics that fail after all retries.
  */
-export const metricsDlq = new sst.aws.Queue('MetricsDLQ');
+const metricsDlq = new sst.aws.Queue('MetricsDLQ', {
+  transform: {
+    queue: {
+      messageRetentionSeconds: 1_209_600, // 14 days (max), like the other DLQs
+    },
+  },
+});
+alarmOnDeadLetters('MetricsDLQ', metricsDlq);
 
 export const metricsQueue = new sst.aws.Queue('MetricsQueue', {
   dlq: {
@@ -39,32 +47,26 @@ metricsQueue.subscribe(
  * Daily Web Vitals aggregation cron job.
  * Runs at 00:05 UTC to aggregate the previous day's Web Vitals data.
  */
-export const webVitalsAggregateCron = new sst.aws.Cron(
-  'WebVitalsAggregateCron',
-  {
-    function: {
-      handler: 'apps/api/src/lambdas/metricsAggregateWebVitals.handler',
-      link: [dynamo.metricsRaw, dynamo.metricsWebVitals],
-      memory: '512 MB',
-      timeout: '5 minutes',
-    },
-    schedule: 'cron(5 0 * * ? *)', // Daily at 00:05 UTC
+new sst.aws.Cron('WebVitalsAggregateCron', {
+  function: {
+    handler: 'apps/api/src/lambdas/metricsAggregateWebVitals.handler',
+    link: [dynamo.metricsRaw, dynamo.metricsWebVitals],
+    memory: '512 MB',
+    timeout: '5 minutes',
   },
-);
+  schedule: 'cron(5 0 * * ? *)', // Daily at 00:05 UTC
+});
 
 /**
  * Daily API metrics aggregation cron job.
  * Runs at 00:10 UTC to aggregate the previous day's API metrics data.
  */
-export const apiMetricsAggregateCron = new sst.aws.Cron(
-  'ApiMetricsAggregateCron',
-  {
-    function: {
-      handler: 'apps/api/src/lambdas/metricsAggregateApi.handler',
-      link: [dynamo.metricsRaw, dynamo.metricsApi],
-      memory: '512 MB',
-      timeout: '5 minutes',
-    },
-    schedule: 'cron(10 0 * * ? *)', // Daily at 00:10 UTC
+new sst.aws.Cron('ApiMetricsAggregateCron', {
+  function: {
+    handler: 'apps/api/src/lambdas/metricsAggregateApi.handler',
+    link: [dynamo.metricsRaw, dynamo.metricsApi],
+    memory: '512 MB',
+    timeout: '5 minutes',
   },
-);
+  schedule: 'cron(10 0 * * ? *)', // Daily at 00:10 UTC
+});

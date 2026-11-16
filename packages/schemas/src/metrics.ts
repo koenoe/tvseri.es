@@ -3,10 +3,6 @@
  */
 import * as v from 'valibot';
 
-// ============================================================================
-// Shared schemas
-// ============================================================================
-
 export const MetricClientSchema = v.object({
   platform: v.string(),
   userAgent: v.nullable(v.string()),
@@ -64,10 +60,6 @@ const ErrorFields = {
   /** Error rate as percentage (0-100) */
   errorRate: v.number(),
 };
-
-// ============================================================================
-// Apdex schemas (Application Performance Index - open standard)
-// ============================================================================
 
 /**
  * Apdex threshold T in milliseconds.
@@ -160,10 +152,6 @@ export const DependencyStatsSchema = v.object({
   topOperations: v.optional(v.array(DependencyOperationStatsSchema)),
 });
 
-// ============================================================================
-// Raw metric schemas
-// ============================================================================
-
 export const WebVitalNameSchema = v.picklist([
   'CLS',
   'FCP',
@@ -195,6 +183,7 @@ export const ApiMetricRecordSchema = v.object({
   type: v.literal('api'),
 });
 
+/** web-vitals' `Metric['navigationType']` ('soft-navigation' since v6). */
 export const NavigationTypeSchema = v.picklist([
   'navigate',
   'reload',
@@ -202,6 +191,7 @@ export const NavigationTypeSchema = v.picklist([
   'back-forward-cache',
   'prerender',
   'restore',
+  'soft-navigation',
 ]);
 
 export const WebVitalRecordSchema = v.object({
@@ -236,10 +226,6 @@ export const WebVitalsBatchSchema = v.pipe(
   v.array(WebVitalRecordSchema),
   v.maxLength(50, 'Batch size too large. Maximum 50 items per request.'),
 );
-
-// ============================================================================
-// Aggregate schemas
-// ============================================================================
 
 /**
  * HTTP method picklist for API metrics.
@@ -572,10 +558,6 @@ export const WebVitalAggregateSchema = v.object({
   type: v.literal('web-vital-aggregate'),
 });
 
-// ============================================================================
-// API Query schemas
-// ============================================================================
-
 /**
  * `days` query param: a whole number of days. The dashboard sends 3, 7 or 30;
  * other values are clamped to 1-30 like before (defaults to 7). Anything that
@@ -687,10 +669,6 @@ export const MetricsDeviceParamSchema = v.object({
   device: v.string(),
 });
 
-// ============================================================================
-// API Metrics Query schemas
-// ============================================================================
-
 /**
  * Query parameters for API metrics summary endpoint.
  */
@@ -751,10 +729,6 @@ export const ApiMetricsPlatformsQuerySchema = v.object({
   sortDir: v.optional(v.picklist(['asc', 'desc'])),
 });
 
-// ============================================================================
-// Inferred types
-// ============================================================================
-
 export type MetricClient = v.InferOutput<typeof MetricClientSchema>;
 export type MetricDevice = v.InferOutput<typeof MetricDeviceSchema>;
 export type DependencyMetric = v.InferOutput<typeof DependencyMetricSchema>;
@@ -786,10 +760,6 @@ export type WebVitalRecord = v.InferOutput<typeof WebVitalRecordSchema>;
 export type MetricRecord = v.InferOutput<typeof MetricRecordSchema>;
 export type ApiMetricAggregate = v.InferOutput<typeof ApiMetricAggregateSchema>;
 export type WebVitalAggregate = v.InferOutput<typeof WebVitalAggregateSchema>;
-
-// ============================================================================
-// Response schemas
-// ============================================================================
 
 /**
  * Reusable web vitals metrics object (all 5 metrics + pageviews/score)
@@ -892,10 +862,6 @@ export const MetricsDeviceTimeSeriesResponseSchema = v.object({
   startDate: v.string(),
 });
 
-// ============================================================================
-// API Metrics Response schemas
-// ============================================================================
-
 /**
  * Reusable API metrics object for aggregated data
  */
@@ -987,10 +953,6 @@ export const ApiMetricsCountriesResponseSchema = v.object({
   startDate: v.string(),
   total: v.number(),
 });
-
-// ============================================================================
-// Additional inferred types from response schemas
-// ============================================================================
 
 export type AggregatedMetrics = v.InferOutput<typeof AggregatedMetricsSchema>;
 export type MetricSeriesItem = v.InferOutput<typeof MetricSeriesItemSchema>;

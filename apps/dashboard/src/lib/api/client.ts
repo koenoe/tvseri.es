@@ -11,19 +11,9 @@ import type {
   MetricsSummaryResponse,
 } from '@tvseri.es/schemas';
 
-import { getAccessToken } from '@/lib/auth';
+import { authorizedFetch } from '@/lib/auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
-
-async function getAuthHeaders(): Promise<HeadersInit> {
-  const token = await getAccessToken();
-  if (!token) {
-    throw new Error('Not authenticated');
-  }
-  return {
-    Authorization: `Bearer ${token}`,
-  };
-}
 
 export type MetricsSummaryParams = Readonly<{
   country?: string;
@@ -40,8 +30,7 @@ export async function fetchMetricsSummary(
   if (params.country) searchParams.set('country', params.country);
 
   const url = `${API_BASE_URL}/metrics/web-vitals/summary?${searchParams.toString()}`;
-  const headers = await getAuthHeaders();
-  const response = await fetch(url, { headers });
+  const response = await authorizedFetch(url);
 
   if (!response.ok) {
     throw new Error(`Failed to fetch metrics summary: ${response.statusText}`);
@@ -71,8 +60,7 @@ export async function fetchMetricsRoutes(
   if (params.limit) searchParams.set('limit', params.limit.toString());
 
   const url = `${API_BASE_URL}/metrics/web-vitals/routes?${searchParams.toString()}`;
-  const headers = await getAuthHeaders();
-  const response = await fetch(url, { headers });
+  const response = await authorizedFetch(url);
 
   if (!response.ok) {
     throw new Error(`Failed to fetch metrics routes: ${response.statusText}`);
@@ -100,8 +88,7 @@ export async function fetchMetricsCountries(
   if (params.limit) searchParams.set('limit', params.limit.toString());
 
   const url = `${API_BASE_URL}/metrics/web-vitals/countries?${searchParams.toString()}`;
-  const headers = await getAuthHeaders();
-  const response = await fetch(url, { headers });
+  const response = await authorizedFetch(url);
 
   if (!response.ok) {
     throw new Error(
@@ -125,8 +112,7 @@ export async function fetchApiMetricsSummary(
   if (params.platform) searchParams.set('platform', params.platform);
 
   const url = `${API_BASE_URL}/metrics/api?${searchParams.toString()}`;
-  const headers = await getAuthHeaders();
-  const response = await fetch(url, { headers });
+  const response = await authorizedFetch(url);
 
   if (!response.ok) {
     throw new Error(
@@ -158,8 +144,7 @@ export async function fetchApiMetricsEndpoints(
   if (params.limit) searchParams.set('limit', params.limit.toString());
 
   const url = `${API_BASE_URL}/metrics/api/endpoints?${searchParams.toString()}`;
-  const headers = await getAuthHeaders();
-  const response = await fetch(url, { headers });
+  const response = await authorizedFetch(url);
 
   if (!response.ok) {
     throw new Error(
@@ -198,8 +183,7 @@ export async function fetchApiMetricsEndpointDetail(
 
   const encodedEndpoint = encodeURIComponent(params.endpoint);
   const url = `${API_BASE_URL}/metrics/api/endpoints/${encodedEndpoint}?${searchParams.toString()}`;
-  const headers = await getAuthHeaders();
-  const response = await fetch(url, { headers });
+  const response = await authorizedFetch(url);
 
   if (!response.ok) {
     throw new Error(
@@ -266,8 +250,7 @@ export async function fetchApiMetricsDependencyDetail(
 
   const encodedSource = encodeURIComponent(params.source);
   const url = `${API_BASE_URL}/metrics/api/dependencies/${encodedSource}?${searchParams.toString()}`;
-  const headers = await getAuthHeaders();
-  const response = await fetch(url, { headers });
+  const response = await authorizedFetch(url);
 
   if (!response.ok) {
     throw new Error(

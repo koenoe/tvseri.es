@@ -1,0 +1,76 @@
+import { CACHE_LIFE } from '@tvseri.es/constants';
+import { describe, expect, it } from 'vitest';
+
+import { ApiError } from '@/lib/api/client';
+
+import { allAvailable, isUnavailable, tryApi } from './unavailable';
+
+const failWith = (error: unknown) => () => Promise.reject(error);
+
+describe('tryApi', () => {
+  it('passes a successful read through', async () => {
+    await expect(tryApi(async () => ({ id: 1 }))).resolves.toEqual({ id: 1 });
+  });
+
+  it.each([
+    ['not configured', new ApiError(0, 'ApiNotConfigured')],
+    ['a timeout', new ApiError(0, 'ApiTimeout')],
+    ['no response', new ApiError(0, 'ApiNetworkError')],
+    ['a 500', new ApiError(500)],
+    ['a 503', new ApiError(503)],
+  ])('turns an upstream failure (%s) into Unavailable', async (_, error) => {
+    expect(isUnavailable(await tryApi(failWith(error)))).toBe(true);
+  });
+
+  it.each([
+    ['a 404 (the caller forgot notFound)', new ApiError(404)],
+    ['a 400 (a request the API refuses)', new ApiError(400)],
+    ['an invalid body', new ApiError(200, 'ApiInvalidResponse')],
+  ])('rethrows %s, so the row error boundary shows it', async (_, error) => {
+    await expect(tryApi(failWith(error))).rejects.toBe(error);
+  });
+
+  it('rethrows anything that is not an API error', async () => {
+    await expect(tryApi(failWith(new TypeError('bug')))).rejects.toThrow('bug');
+  });
+});
+
+describe('isUnavailable', () => {
+  it('tells the placeholder from data', () => {
+    expect(isUnavailable({ unavailable: true })).toBe(true);
+    expect(isUnavailable({ items: [] })).toBe(false);
+    expect(isUnavailable(null)).toBe(false);
+    expect(isUnavailable('unavailable')).toBe(false);
+  });
+
+  it('does not mistake an API body with an `unavailable` field for it', () => {
+    expect(isUnavailable({ unavailable: false })).toBe(false);
+    expect(isUnavailable({ id: 1, unavailable: 'soon' })).toBe(false);
+  });
+});
+
+describe('allAvailable', () => {
+  it('gives the values when every read worked', () => {
+    expect(allAvailable([1, 2])).toEqual([1, 2]);
+  });
+
+  it('gives Unavailable when one read failed', () => {
+    expect(isUnavailable(allAvailable([1, { unavailable: true }]))).toBe(true);
+  });
+});
+
+describe('the unavailable cache life', () => {
+  // next.config.ts maps a profile to { stale: maxAge, revalidate: sMaxAge,
+  // expire: sMaxAge + staleWhileRevalidate }. Next drops an entry from the
+  // prerender when expire < 300 s and from the static shell when stale < 300 s.
+  const { maxAge, sMaxAge, staleWhileRevalidate } = CACHE_LIFE.unavailable;
+
+  it('regenerates a failed section on a visit within a minute', () => {
+    expect(sMaxAge).toBeLessThanOrEqual(60);
+  });
+
+  it('stays in the prerender and the static shell', () => {
+    expect(sMaxAge + staleWhileRevalidate).toBeGreaterThanOrEqual(300);
+    expect(maxAge).toBeGreaterThanOrEqual(300);
+  });
+});

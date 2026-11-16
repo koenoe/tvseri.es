@@ -10,17 +10,31 @@ import type {
   StatsWatchedSeriesItem,
   StatsWeeklyItem,
 } from '@tvseri.es/schemas';
-import { buildPosterImageUrl } from '@tvseri.es/utils';
-import { getISOWeek, getISOWeekYear } from 'date-fns';
+import { buildPosterImageUrl, yearWeekIndex } from '@tvseri.es/utils';
+
+import { getAllListItems } from '@/lib/db/list';
 
 import {
   aggregateCountries,
   aggregateGenres,
   aggregateProviders,
 } from './aggregations';
+import { getAllTimeStats } from './allTime';
 import { getStatsCaches, setStatsCache } from './cache';
 import { calculateMetrics, getUniqueSeriesIds } from './calculations';
-import { getWatchedItemsForYear, type StatsWatchedItem } from './data';
+import {
+  getWatchedItemsForLocalYear,
+  getWatchedItemsForYear,
+  type StatsWatchedItem,
+  utcYear,
+} from './data';
+import {
+  calculateDaily,
+  calculateFinished,
+  calculateNewOrBack,
+  calculateShows,
+  calculateWhen,
+} from './segments';
 import { fetchStatsSeriesMeta } from './seriesMeta';
 
 const calculateWeekly = (
@@ -36,22 +50,7 @@ const calculateWeekly = (
   }));
 
   items.forEach((item) => {
-    const date = new Date(item.watchedAt);
-    const isoWeekYear = getISOWeekYear(date);
-    let weekIndex: number;
-
-    if (isoWeekYear < year) {
-      // Date is in last ISO week of previous year (e.g., Jan 1-2 might be week 52 of prev year)
-      // Put in visual week 1
-      weekIndex = 0;
-    } else if (isoWeekYear > year) {
-      // Date is in first ISO week of next year (e.g., Dec 29-31 might be week 1 of next year)
-      // Put in visual week 53
-      weekIndex = 52;
-    } else {
-      // Normal case: ISO week year matches display year
-      weekIndex = getISOWeek(date) - 1;
-    }
+    const weekIndex = yearWeekIndex(item.watchedAt, year);
 
     if (weekIndex >= 0 && weekIndex < 53) {
       weekCounts[weekIndex]!.episodes += 1;
@@ -83,32 +82,74 @@ const calculateWatchedSeries = (
   }));
 };
 
+/** What a segment is computed from */
+type SegmentInput = Readonly<{
+  /** The year's watches (UTC year), read only by the segments that use them */
+  load: () => Promise<StatsWatchedItem[]>;
+  /** The user's zone (from their country): `when` and the days of `daily` */
+  timeZone: string;
+  userId: string;
+  year: number;
+}>;
+
 const SEGMENTS = {
-  countries: async (items: ReadonlyArray<StatsWatchedItem>) =>
-    aggregateCountries(await fetchStatsSeriesMeta(getUniqueSeriesIds(items))),
-  genres: async (items: ReadonlyArray<StatsWatchedItem>) =>
-    aggregateGenres(await fetchStatsSeriesMeta(getUniqueSeriesIds(items))),
-  providers: (items: ReadonlyArray<StatsWatchedItem>) =>
-    aggregateProviders(items),
-  'watched-series': (items: ReadonlyArray<StatsWatchedItem>) =>
-    calculateWatchedSeries(items),
-  weekly: (items: ReadonlyArray<StatsWatchedItem>, year: number) =>
-    calculateWeekly(items, year),
+  countries: async ({ load }: SegmentInput) =>
+    aggregateCountries(
+      await fetchStatsSeriesMeta(getUniqueSeriesIds(await load())),
+    ),
+  // Its own read: the year's days are local days (getWatchedItemsForLocalYear)
+  daily: async ({ timeZone, userId, year }: SegmentInput) =>
+    calculateDaily(
+      await getWatchedItemsForLocalYear(userId, year, timeZone),
+      timeZone,
+    ),
+  finished: async ({ load, userId, year }: SegmentInput) => {
+    const [items, finishedItems] = await Promise.all([
+      load(),
+      getAllListItems({ ...utcYear(year), listId: 'WATCHED', userId }),
+    ]);
+    return calculateFinished(items, finishedItems);
+  },
+  genres: async ({ load }: SegmentInput) =>
+    aggregateGenres(
+      await fetchStatsSeriesMeta(getUniqueSeriesIds(await load())),
+    ),
+  'new-or-back': async ({ load, timeZone, userId, year }: SegmentInput) => {
+    const [items, allTime] = await Promise.all([
+      load(),
+      getAllTimeStats(userId, timeZone),
+    ]);
+    return calculateNewOrBack(items, new Map(allTime.firstWatch), year);
+  },
+  providers: async ({ load }: SegmentInput) => aggregateProviders(await load()),
+  shows: async ({ load, year }: SegmentInput) =>
+    calculateShows(await load(), year),
+  'watched-series': async ({ load }: SegmentInput) =>
+    calculateWatchedSeries(await load()),
+  weekly: async ({ load, year }: SegmentInput) =>
+    calculateWeekly(await load(), year),
+  when: async ({ load, timeZone }: SegmentInput) =>
+    calculateWhen(await load(), timeZone),
 };
 
 export type YearSegment = keyof typeof SEGMENTS;
 
 /**
  * Computes one segment from the year's watched items and caches it
- * (best-effort).
+ * (best-effort). `timeZone`: the user's (`timeZoneForCountry`), which the
+ * route already knows from the user it read.
  */
 export const computeYearSegment = async (
-  userId: string,
+  { timeZone, userId }: Readonly<{ timeZone: string; userId: string }>,
   year: number,
   segment: YearSegment,
 ) => {
-  const items = await getWatchedItemsForYear(userId, year);
-  const result = await SEGMENTS[segment](items, year);
+  const result = await SEGMENTS[segment]({
+    load: () => getWatchedItemsForYear(userId, year),
+    timeZone,
+    userId,
+    year,
+  });
 
   await setStatsCache(userId, year, segment, result);
   return result;

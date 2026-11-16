@@ -16,6 +16,13 @@ const KEY_PREFIX = 'CACHE#';
 
 const nowInSeconds = () => Math.floor(Date.now() / 1000);
 
+/**
+ * DynamoDB deletes expired items only eventually (up to about 48 h late), so
+ * reads treat an item past its `expiresAt` (epoch seconds) as a miss.
+ */
+const isExpired = (item: Readonly<{ expiresAt?: number }>) =>
+  typeof item.expiresAt === 'number' && item.expiresAt <= nowInSeconds();
+
 const toKey = (key: string) => marshall({ pk: `${KEY_PREFIX}${key}` });
 
 const parseValue = <T>(item: CacheItem): T => {
@@ -70,6 +77,57 @@ export const setCacheItem = async <T>(
   }
 };
 
+/**
+ * `setCacheItem` for a value built from a read that started at `asOf` (epoch
+ * ms): stored only if the item holds nothing newer, the guard the per-show
+ * summaries use (lib/rollups). A read that started before an invalidation
+ * (`invalidateCacheItemsAsOf`) or before a newer stored read writes nothing.
+ * Returns whether it was stored.
+ */
+export const setCacheItemAsOf = async <T>(
+  key: string,
+  value: T,
+  asOf: number,
+  options: CacheOptions = {},
+): Promise<boolean> => {
+  try {
+    await client.send(
+      new PutItemCommand({
+        ConditionExpression: 'attribute_not_exists(asOf) OR asOf < :asOf',
+        ExpressionAttributeValues: marshall({ ':asOf': asOf }),
+        Item: marshall({ ...buildCacheItem(key, value, options), asOf }),
+        TableName: Resource.Cache.name,
+      }),
+    );
+    return true;
+  } catch (error) {
+    if (error instanceof ConditionalCheckFailedException) {
+      return false;
+    }
+    throw new Error(`Failed to set cache for key: ${key}`, { cause: error });
+  }
+};
+
+/**
+ * Clears `keys` as of `asOf` (epoch ms): each becomes an empty item carrying
+ * `asOf` (a read of it is a miss), so a read that started earlier can't store
+ * its value afterwards (`setCacheItemAsOf`). One write per key.
+ */
+export const invalidateCacheItemsAsOf = async (
+  keys: ReadonlyArray<string>,
+  asOf: number,
+  options: CacheOptions = {},
+): Promise<void> => {
+  await batchWrite(
+    Resource.Cache.name,
+    [...new Set(keys)].map((key) => ({
+      PutRequest: {
+        Item: marshall({ ...buildCacheItem(key, null, options), asOf }),
+      },
+    })),
+  );
+};
+
 // DynamoDB items max out at 400 KB (409,600 bytes), counting attribute names
 // and the other attributes (pk, createdAt, expiresAt) too. Larger values are
 // skipped: one oversized put would fail the whole BatchWriteItem it's in.
@@ -105,9 +163,15 @@ export const setCacheItems = async (
   }
 };
 
-export const getCacheItem = async <T>(
+/**
+ * The stored item for a key, also when it is past its `expiresAt` (DynamoDB
+ * keeps it up to about 48 h longer): `expired` says which. Undefined when
+ * there is none. For callers that can fall back on an expired value when a
+ * fresh one can't be had (see readThrough).
+ */
+export const getCacheEntry = async <T>(
   key: string,
-): Promise<T | null | undefined> => {
+): Promise<Readonly<{ expired: boolean; value: T | null }> | undefined> => {
   const command = new GetItemCommand({
     Key: marshall({
       pk: `${KEY_PREFIX}${key}`,
@@ -118,14 +182,24 @@ export const getCacheItem = async <T>(
   try {
     const result = await client.send(command);
 
-    if (!result.Item) {
+    const item = result.Item
+      ? (unmarshall(result.Item) as CacheItem)
+      : undefined;
+    if (!item) {
       return undefined;
     }
 
-    return parseValue<T>(unmarshall(result.Item) as CacheItem);
+    return { expired: isExpired(item), value: parseValue<T>(item) };
   } catch (error) {
     throw new Error(`Failed to get cache for key: ${key}`, { cause: error });
   }
+};
+
+export const getCacheItem = async <T>(
+  key: string,
+): Promise<T | null | undefined> => {
+  const entry = await getCacheEntry<T>(key);
+  return entry && !entry.expired ? entry.value : undefined;
 };
 
 /**
@@ -135,16 +209,35 @@ export const getCacheItem = async <T>(
 export const getCacheItems = async <T>(
   keys: ReadonlyArray<string>,
 ): Promise<Map<string, T>> => {
+  const entries = await getCacheEntries<T>(keys);
+  return new Map(
+    [...entries]
+      .filter(([, entry]) => !entry.expired)
+      .map(([key, entry]) => [key, entry.value as T]),
+  );
+};
+
+/**
+ * Batch version of `getCacheEntry`: expired items are included, flagged.
+ */
+export const getCacheEntries = async <T>(
+  keys: ReadonlyArray<string>,
+): Promise<Map<string, Readonly<{ expired: boolean; value: T | null }>>> => {
   const items = await batchGet(
     Resource.Cache.name,
     keys.map((key) => marshall({ pk: `${KEY_PREFIX}${key}` })),
   );
 
   return new Map(
-    items.map((rawItem) => {
-      const item = unmarshall(rawItem) as CacheItem & Readonly<{ pk: string }>;
-      return [item.pk.slice(KEY_PREFIX.length), parseValue<T>(item)];
-    }),
+    items
+      .map(
+        (rawItem) =>
+          unmarshall(rawItem) as CacheItem & Readonly<{ pk: string }>,
+      )
+      .map((item) => [
+        item.pk.slice(KEY_PREFIX.length),
+        { expired: isExpired(item), value: parseValue<T>(item) },
+      ]),
   );
 };
 
@@ -235,25 +328,19 @@ export const setCounter = async (
 /**
  * Atomically adds `delta` to an existing counter (UpdateItem ADD), so
  * concurrent writers can't lose each other's updates. A missing counter is
- * left alone (ADD would create it holding just the delta), and so is an
- * expired one when `requireUnexpired` is set. Returns whether it applied.
+ * left alone (ADD would create it holding just the delta). Returns whether
+ * it applied.
  */
 export const addToCounter = async (
   key: string,
   delta: number,
-  { requireUnexpired = false }: Readonly<{ requireUnexpired?: boolean }> = {},
 ): Promise<boolean> => {
   try {
     await client.send(
       new UpdateItemCommand({
-        ConditionExpression: requireUnexpired
-          ? 'attribute_exists(pk) AND expiresAt > :now'
-          : 'attribute_exists(pk)',
+        ConditionExpression: 'attribute_exists(pk)',
         ExpressionAttributeNames: { '#value': 'value' },
-        ExpressionAttributeValues: marshall({
-          ':delta': delta,
-          ...(requireUnexpired ? { ':now': nowInSeconds() } : {}),
-        }),
+        ExpressionAttributeValues: marshall({ ':delta': delta }),
         Key: toKey(key),
         TableName: Resource.Cache.name,
         UpdateExpression: 'ADD #value :delta',
@@ -267,5 +354,80 @@ export const addToCounter = async (
     throw new Error(`Failed to update counter for key: ${key}`, {
       cause: error,
     });
+  }
+};
+
+/**
+ * Replaces a counter's value only if it still holds `expected` (a delta that
+ * landed since it was read wins), and makes it permanent (no `expiresAt`).
+ * Returns whether it applied.
+ */
+export const replaceCounter = async (
+  key: string,
+  expected: number,
+  value: number,
+): Promise<boolean> => {
+  try {
+    await client.send(
+      new UpdateItemCommand({
+        ConditionExpression: '#value = :expected',
+        ExpressionAttributeNames: {
+          '#expiresAt': 'expiresAt',
+          '#value': 'value',
+        },
+        ExpressionAttributeValues: marshall({
+          ':expected': expected,
+          ':value': value,
+        }),
+        Key: toKey(key),
+        TableName: Resource.Cache.name,
+        UpdateExpression: 'SET #value = :value REMOVE #expiresAt',
+      }),
+    );
+    return true;
+  } catch (error) {
+    if (error instanceof ConditionalCheckFailedException) {
+      return false;
+    }
+    throw new Error(`Failed to replace counter for key: ${key}`, {
+      cause: error,
+    });
+  }
+};
+
+/**
+ * Takes one from a daily-style allowance: atomically adds 1 to the counter
+ * at `key` while it is below `cap` (one conditional UpdateItem; a missing
+ * counter starts at 1 and expires after `ttl` seconds). Returns whether the
+ * one was taken: false once the counter has reached `cap`. Used to keep an
+ * external service under its quota across every Lambda (lib/mdblist).
+ */
+export const takeFromAllowance = async (
+  key: string,
+  cap: number,
+  ttl: number,
+): Promise<boolean> => {
+  try {
+    await client.send(
+      new UpdateItemCommand({
+        ConditionExpression: 'attribute_not_exists(pk) OR #value < :cap',
+        ExpressionAttributeNames: { '#value': 'value' },
+        ExpressionAttributeValues: marshall({
+          ':cap': cap,
+          ':expiresAt': nowInSeconds() + ttl,
+          ':one': 1,
+        }),
+        Key: toKey(key),
+        TableName: Resource.Cache.name,
+        UpdateExpression:
+          'ADD #value :one SET expiresAt = if_not_exists(expiresAt, :expiresAt)',
+      }),
+    );
+    return true;
+  } catch (error) {
+    if (error instanceof ConditionalCheckFailedException) {
+      return false;
+    }
+    throw new Error(`Failed to take from allowance ${key}`, { cause: error });
   }
 };

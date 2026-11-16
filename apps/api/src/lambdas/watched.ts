@@ -3,89 +3,23 @@ import { unmarshall } from '@aws-sdk/util-dynamodb';
 import type { WatchedItem } from '@tvseri.es/schemas';
 import type { DynamoDBStreamEvent } from 'aws-lambda';
 
-import { addToList, removeFromList, removeFromWatchlist } from '@/lib/db/list';
 import { markUserActive } from '@/lib/db/user';
-import { getWatchedCountForTvSeries } from '@/lib/db/watched';
+import { resyncShow } from '@/lib/listSync';
 import { applyWatchedCounterDeltas } from '@/lib/profileCounters';
-import { invalidateStatsCache } from '@/lib/stats';
-import { cachedTvSeries } from './shared/cachedTvSeries';
+import { countsInStats, invalidateAllTimeStats } from '@/lib/stats';
 
 type SeriesGroup = Readonly<{
   userId: string;
   seriesId: number;
-  /** watchedAt of the last record in the batch for this user+series */
-  watchedAt: number;
 }>;
 
 /**
- * Brings the WATCHED / IN_PROGRESS / WATCHLIST lists in line with the current
- * watched count for one user+series. Writes the final state only, so it's safe
- * to run again on a retried batch.
- *
- * List management rules:
- * - If count equals total episodes -> WATCHED list only (remove from IN_PROGRESS)
- * - If count > 0 but not complete -> IN_PROGRESS list only (remove from WATCHED)
- * - If count = 0 -> Remove from both lists
+ * One user+series of the batch: one consistent read of the show's watched
+ * items places it in the lists and rewrites its summary (whole, so a retried
+ * or replayed batch writes the same again): `resyncShow`, unconditional.
  */
-const syncLists = async ({ userId, seriesId, watchedAt }: SeriesGroup) => {
-  // Independent reads: TMDB series and the watched COUNT
-  const [tvSeries, count] = await Promise.all([
-    cachedTvSeries(seriesId),
-    getWatchedCountForTvSeries({
-      tvSeriesId: seriesId,
-      userId,
-    }),
-  ]);
-
-  if (!tvSeries) {
-    console.error(
-      `[ERROR] No TV series found for ID "${seriesId}" | User: ${userId}`,
-    );
-    return;
-  }
-
-  console.log(
-    `[SYNC] ${tvSeries.title} | User: ${userId} | Count: ${count}/${tvSeries.numberOfAiredEpisodes}`,
-  );
-
-  const hasWatchedEpisodes = count > 0;
-  const hasAiredEpisodes = tvSeries.numberOfAiredEpisodes > 0;
-  const hasWatchedAllEpisodes = count >= tvSeries.numberOfAiredEpisodes;
-
-  const listItem = {
-    id: tvSeries.id,
-    posterPath: tvSeries.posterPath,
-    slug: tvSeries.slug,
-    status: tvSeries.status,
-    title: tvSeries.title,
-  };
-
-  if (hasWatchedEpisodes && hasAiredEpisodes && hasWatchedAllEpisodes) {
-    // Series is fully watched
-    await Promise.all([
-      addToList({
-        item: { ...listItem, createdAt: watchedAt },
-        listId: 'WATCHED',
-        userId,
-      }),
-      removeFromList({ id: tvSeries.id, listId: 'IN_PROGRESS', userId }),
-      removeFromWatchlist({ id: tvSeries.id, userId }),
-    ]);
-  } else if (hasWatchedEpisodes && hasAiredEpisodes) {
-    // Series is partially watched
-    await Promise.all([
-      addToList({ item: listItem, listId: 'IN_PROGRESS', userId }),
-      removeFromList({ id: tvSeries.id, listId: 'WATCHED', userId }),
-      removeFromWatchlist({ id: tvSeries.id, userId }),
-    ]);
-  } else {
-    // No episodes watched or no episodes aired
-    await Promise.all([
-      removeFromList({ id: tvSeries.id, listId: 'WATCHED', userId }),
-      removeFromList({ id: tvSeries.id, listId: 'IN_PROGRESS', userId }),
-    ]);
-  }
-};
+const syncSeries = ({ seriesId, userId }: SeriesGroup) =>
+  resyncShow({ seriesId, userId });
 
 /**
  * Records watch activity (manual marks and Plex scrobbles alike) for the
@@ -108,17 +42,19 @@ const markUsersActive = async (userIds: ReadonlySet<string>) => {
  * DynamoDB Stream handler for managing watched/in-progress lists based on episode watch events.
  *
  * - Records are grouped per user+series and each group is synced once, from
- *   the current watched count (marking a 100-episode series watched gives one
- *   count query and 3 list writes, not 300 writes).
- * - List syncs and stats invalidation are idempotent, so a retried or bisected
- *   batch gives the same result. The all-time runtime and count deltas are
- *   not: a retry after they were applied applies them again (rare, accepted;
- *   the count counter re-seeds daily, so its drift is temporary).
+ *   the show's current watched items (marking a 100-episode series watched
+ *   gives one Query, one watchlist read and 2 list writes, not 300 writes).
+ * - List syncs and clearing a user's all-time stats (their years list) are
+ *   idempotent, so a retried or bisected batch gives the same result. The
+ *   year sections are not cleared: they follow the stats profile (fresh a
+ *   day). The all-time runtime and count deltas are not idempotent: a retry
+ *   after they were applied applies them again (rare, accepted; the count
+ *   counter re-seeds daily, so its drift is temporary).
  */
 export const handler = async (event: DynamoDBStreamEvent) => {
   const groups = new Map<string, SeriesGroup>();
-  // Track user+year combinations for stats cache invalidation
-  const statsToInvalidate = new Set<string>();
+  // Users whose years list (the all-time segment) is cleared
+  const allTimeToInvalidate = new Set<string>();
   // Track runtime and episode count changes per user for incremental updates
   const runtimeChanges = new Map<string, number>();
   const countChanges = new Map<string, number>();
@@ -144,21 +80,17 @@ export const handler = async (event: DynamoDBStreamEvent) => {
 
     const watchedItem = newImage ?? oldImage!;
 
-    if (record.eventName === 'MODIFY' && oldImage && newImage) {
-      // For modifications, invalidate both old and new year (in case date changed)
-      const oldYear = new Date(oldImage.watchedAt).getUTCFullYear();
-      const newYear = new Date(newImage.watchedAt).getUTCFullYear();
-      statsToInvalidate.add(`${watchedItem.userId}:${oldYear}`);
-      statsToInvalidate.add(`${watchedItem.userId}:${newYear}`);
-    } else {
-      // For INSERT/REMOVE, just invalidate the relevant year
-      const watchedYear = new Date(watchedItem.watchedAt).getUTCFullYear();
-      statsToInvalidate.add(`${watchedItem.userId}:${watchedYear}`);
-    }
+    // The years list reads every watch: it is cleared for the user. The
+    // year sections are not (the stats profile: fresh a day)
+    allTimeToInvalidate.add(watchedItem.userId);
 
-    // Track runtime and count change for this user (only for INSERT/REMOVE, not MODIFY)
+    // Track runtime and count change for this user (only for INSERT/REMOVE, not MODIFY;
+    // specials never count in stats)
     const runtime = watchedItem.runtime || 0;
-    if (record.eventName === 'INSERT' || record.eventName === 'REMOVE') {
+    if (
+      (record.eventName === 'INSERT' || record.eventName === 'REMOVE') &&
+      countsInStats(watchedItem)
+    ) {
       const sign = record.eventName === 'INSERT' ? 1 : -1;
       runtimeChanges.set(
         watchedItem.userId,
@@ -174,32 +106,23 @@ export const handler = async (event: DynamoDBStreamEvent) => {
       activeUserIds.add(watchedItem.userId);
     }
 
-    // Last record wins, like the per-record writes did before grouping
+    // One sync per user+series; it reads the show's current state
     groups.set(`${watchedItem.userId}#${watchedItem.seriesId}`, {
       seriesId: watchedItem.seriesId,
       userId: watchedItem.userId,
-      watchedAt: watchedItem.watchedAt,
     });
   }
 
-  const statsEntries = Array.from(statsToInvalidate, (key) => {
-    const [userId, year] = key.split(':');
-    return { userId: userId!, year: Number.parseInt(year!, 10) };
-  });
-
-  // The idempotent steps run in parallel; any failure fails the batch, which
-  // is retried as a whole (safe, they write final state only)
+  // The idempotent steps; any failure fails the batch, which is retried as a
+  // whole (safe, they write final state only): the lists, then the years
+  // list's cache. The year sections keep their day (the stats profile).
   await Promise.all([
-    ...Array.from(groups.values()).map(syncLists),
+    ...Array.from(groups.values()).map(syncSeries),
     markUsersActive(activeUserIds),
-    statsEntries.length > 0
-      ? invalidateStatsCache(statsEntries).then(() => {
-          console.log(
-            `[CACHE] Invalidated stats cache for: ${Array.from(statsToInvalidate).join(', ')}`,
-          );
-        })
-      : undefined,
   ]);
+  if (allTimeToInvalidate.size > 0) {
+    await invalidateAllTimeStats([...allTimeToInvalidate]);
+  }
 
   // Last, and only once everything above succeeded: the counter deltas are
   // not idempotent, so a batch retried after a failure above must not have

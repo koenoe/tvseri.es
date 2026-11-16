@@ -7,8 +7,6 @@ import {
   CreateWatchedItemSchema,
   type DeleteWatchedItemBatch,
   DeleteWatchedItemBatchSchema,
-  type SortBy,
-  type SortDirection,
   type TvSeries,
   type User,
   type WatchedItem,
@@ -16,6 +14,7 @@ import {
 import { pick } from '@tvseri.es/utils';
 import { type Context, Hono, type MiddlewareHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import * as v from 'valibot';
 
 import {
   type FollowStatuses,
@@ -29,12 +28,14 @@ import {
 } from '@/lib/db/follow';
 import {
   addToList,
+  forgetParkedWatchlistItem,
   getListItems,
   getListItemsCount,
   getListStatuses,
   isInList,
   removeFromList,
 } from '@/lib/db/list';
+import { clearSkipped } from '@/lib/db/prefs';
 import { findUser } from '@/lib/db/user';
 import {
   getAllWatchedForTvSeries,
@@ -51,19 +52,35 @@ import {
   unmarkWatched,
   unmarkWatchedInBatch,
 } from '@/lib/db/watched';
+import { readWatchingNowMany } from '@/lib/library';
+import { withListFacts } from '@/lib/listFacts';
+import { syncListsForMark } from '@/lib/listSync';
+import { seriesForMark } from '@/lib/marking/catalog';
 import {
   getAllTimeWatchedCount,
   getAllTimeWatchedRuntime,
 } from '@/lib/profileCounters';
+import { fetchTvSeriesEpisode, fetchTvSeriesWatchProvider } from '@/lib/tmdb';
+import { requireAuth } from '@/middleware/auth';
+import { cacheHeader } from '@/utils/cacheHeader';
 import {
-  fetchTvSeriesBase,
-  fetchTvSeriesEpisode,
-  fetchTvSeriesWatchProvider,
-} from '@/lib/tmdb';
-import { auth, requireAuth } from '@/middleware/auth';
+  MarkEpisodeParamSchema,
+  MarkSeasonParamSchema,
+  MarkSeriesParamSchema,
+} from '@/utils/params';
 import { parseDate, parseLimit } from '@/utils/query';
-
+import library from './library';
+import match from './match';
 import { requireIsMe, type UserVariables, user } from './middleware';
+import overview from './overview';
+import {
+  DateRangeQuerySchema,
+  FollowListQuerySchema,
+  HistoryQuerySchema,
+  ListQuerySchema,
+  MarkQuerySchema,
+  WatchedSeriesQuerySchema,
+} from './query';
 import stats from './stats';
 
 type Variables = {
@@ -74,6 +91,9 @@ type Variables = {
 const app = new Hono();
 
 app.route('/', stats);
+app.route('/', match);
+app.route('/', library);
+app.route('/', overview);
 
 const parseWatchProviderFromBody = async (
   body: CreateWatchedItem,
@@ -88,15 +108,28 @@ const parseWatchProviderFromBody = async (
   return null;
 };
 
+/** "Just now" unless the body picks a date or "I don't remember" */
+const whenFromBody = (body: CreateWatchedItem) =>
+  body.dateUnknown
+    ? { dateUnknown: true as const, watchedAt: Date.now() }
+    : { watchedAt: body.watchedAt ?? Date.now() };
+
 const MINIMAL_USER_KEYS = ['createdAt', 'id', 'username'] as const;
 
 const toMinimalUser = (
   user: Pick<User, (typeof MINIMAL_USER_KEYS)[number]>,
 ): Partial<User> => pick(user, MINIMAL_USER_KEYS);
 
+/** The public identity (the Stats page's sidebar draws "Watches on" too) */
+const PUBLIC_USER_KEYS = [...MINIMAL_USER_KEYS, 'watchProviders'] as const;
+
+const toPublicUser = (
+  user: Pick<User, (typeof PUBLIC_USER_KEYS)[number]>,
+): Partial<User> => pick(user, PUBLIC_USER_KEYS);
+
 // The series, when it exists and has started airing
 const fetchAiredSeries = async (id: number | string) => {
-  const tvSeries = await fetchTvSeriesBase(id);
+  const tvSeries = await seriesForMark(id);
   return tvSeries?.firstAirDate && tvSeries.hasAired ? tvSeries : undefined;
 };
 
@@ -151,37 +184,61 @@ const enrichUsersWithFollowInfo = (
     isMe: userFromSession?.id === user.id,
   }));
 
+/** `?include=watching` on the follow lists: each row gains `watching` */
+const withWatching = async <T extends Readonly<{ id?: string }>>(
+  include: 'watching' | undefined,
+  rows: ReadonlyArray<T>,
+) => {
+  if (include !== 'watching') {
+    return rows;
+  }
+  const watching = await readWatchingNowMany(
+    rows.flatMap((row) => (row.id ? [row.id] : [])),
+  );
+  return rows.map((row) => ({
+    ...row,
+    watching: (row.id && watching.get(row.id)) || null,
+  }));
+};
+
 app.get('/:id', user(), (c) => {
   const user = c.get('user');
-  return c.json(toMinimalUser(user));
+  return c.json(toPublicUser(user));
 });
 
 app.get('/by-username/:username', async (c) => {
+  // Public identity only: kept by the CDN a minute, a 404 too
+  c.header('Cache-Control', cacheHeader('profileLookup'));
   const user = await findUser({
     username: c.req.param('username'),
   });
 
-  if (!user) {
+  if (!user || user.deletionRequestedAt) {
     return c.notFound();
   }
 
-  return c.json(toMinimalUser(user));
+  return c.json(toPublicUser(user));
 });
 
-app.get('/:id/watched/count', user(), async (c) => {
-  const user = c.get('user');
-  const startDate = parseDate(c.req.query('start_date'));
-  const endDate = parseDate(c.req.query('end_date'));
+app.get(
+  '/:id/watched/count',
+  user(),
+  vValidator('query', DateRangeQuerySchema),
+  async (c) => {
+    const user = c.get('user');
+    const startDate = parseDate(c.req.valid('query').start_date);
+    const endDate = parseDate(c.req.valid('query').end_date);
 
-  // Date-ranged counts query the range; all-time reads the running counter
-  // (getWatchedCount only applies a range when both dates are set)
-  const count =
-    startDate && endDate
-      ? await getWatchedCount({ endDate, startDate, userId: user.id })
-      : await getAllTimeWatchedCount(user.id);
+    // Date-ranged counts query the range; all-time reads the running counter
+    // (getWatchedCount only applies a range when both dates are set)
+    const count =
+      startDate && endDate
+        ? await getWatchedCount({ endDate, startDate, userId: user.id })
+        : await getAllTimeWatchedCount(user.id);
 
-  return c.json({ count });
-});
+    return c.json({ count });
+  },
+);
 
 // All-time runtime: a permanent counter, updated incrementally by the watched
 // subscriber. Not CDN-cached (no Cache-Control), like /watched/count, so a
@@ -210,19 +267,23 @@ const VIEW_ATTRIBUTES = {
   track: TRACK_ATTRIBUTES,
 } as const;
 
-app.get('/:id/watched/series/:series-id{[0-9]+}', user(), async (c) => {
-  const user = c.get('user');
-  const view = c.req.query('view') ?? '';
-  const items = await getAllWatchedForTvSeries({
-    attributes: Object.hasOwn(VIEW_ATTRIBUTES, view)
-      ? VIEW_ATTRIBUTES[view as keyof typeof VIEW_ATTRIBUTES]
-      : undefined,
-    tvSeriesId: c.req.param('series-id'),
-    userId: user.id,
-  });
+app.get(
+  '/:id/watched/series/:series-id{[0-9]+}',
+  user(),
+  requireAuth(),
+  vValidator('query', WatchedSeriesQuerySchema),
+  async (c) => {
+    const user = c.get('user');
+    const { view } = c.req.valid('query');
+    const items = await getAllWatchedForTvSeries({
+      attributes: view ? VIEW_ATTRIBUTES[view] : undefined,
+      tvSeriesId: c.req.param('series-id'),
+      userId: user.id,
+    });
 
-  return c.json(items);
-});
+    return c.json(items);
+  },
+);
 
 // The mark-watched POSTs look the series up after validating the body, in
 // parallel with the reads that don't need it
@@ -230,11 +291,13 @@ app.post(
   '/:id/watched/series/:series-id{[0-9]+}',
   user(),
   requireIsMe(),
+  vValidator('param', MarkSeriesParamSchema),
+  vValidator('query', MarkQuerySchema),
   vValidator('json', CreateWatchedItemSchema),
   async (c) => {
     const body = c.req.valid('json');
     const user = c.get('user');
-    const tvSeriesId = Number(c.req.param('series-id'));
+    const { 'series-id': tvSeriesId } = c.req.valid('param');
     const [tvSeries, watchProvider] = await Promise.all([
       fetchAiredSeries(tvSeriesId),
       parseWatchProviderFromBody(body, tvSeriesId),
@@ -248,7 +311,10 @@ app.post(
       tvSeries,
       userId: user.id,
       watchProvider,
+      when: whenFromBody(body),
     });
+    await clearSkipped(watchedItems);
+    await syncListsForMark(user.id, [tvSeries.id], tvSeries);
 
     return markWatchedResponse(c, watchedItems);
   },
@@ -258,18 +324,14 @@ app.post(
   '/:id/watched/series/:series-id{[0-9]+}/season/:season{[0-9]+}',
   user(),
   requireIsMe(),
+  vValidator('param', MarkSeasonParamSchema),
+  vValidator('query', MarkQuerySchema),
   vValidator('json', CreateWatchedItemSchema),
   async (c) => {
     const body = c.req.valid('json');
     const user = c.get('user');
-    const tvSeriesId = Number(c.req.param('series-id'));
-    const seasonNumber = parseInt(c.req.param('season'), 10);
-
-    if (Number.isNaN(seasonNumber)) {
-      throw new HTTPException(400, {
-        message: 'Invalid season number',
-      });
-    }
+    const { 'series-id': tvSeriesId, season: seasonNumber } =
+      c.req.valid('param');
 
     const [tvSeries, watchProvider] = await Promise.all([
       fetchAiredSeries(tvSeriesId),
@@ -285,7 +347,10 @@ app.post(
       tvSeries,
       userId: user.id,
       watchProvider,
+      when: whenFromBody(body),
     });
+    await clearSkipped(watchedItems);
+    await syncListsForMark(user.id, [tvSeries.id], tvSeries);
 
     return markWatchedResponse(c, watchedItems);
   },
@@ -295,19 +360,17 @@ app.post(
   '/:id/watched/series/:series-id{[0-9]+}/season/:season{[0-9]+}/episode/:episode{[0-9]+}',
   user(),
   requireIsMe(),
+  vValidator('param', MarkEpisodeParamSchema),
+  vValidator('query', MarkQuerySchema),
   vValidator('json', CreateWatchedItemSchema),
   async (c) => {
     const body = c.req.valid('json');
     const user = c.get('user');
-    const tvSeriesId = Number(c.req.param('series-id'));
-    const seasonNumber = parseInt(c.req.param('season'), 10);
-    const episodeNumber = parseInt(c.req.param('episode'), 10);
-
-    if (Number.isNaN(seasonNumber) || Number.isNaN(episodeNumber)) {
-      throw new HTTPException(400, {
-        message: 'Invalid season or episode number',
-      });
-    }
+    const {
+      'series-id': tvSeriesId,
+      season: seasonNumber,
+      episode: episodeNumber,
+    } = c.req.valid('param');
 
     const [tvSeries, watchProvider, episode] = await Promise.all([
       fetchAiredSeries(tvSeriesId),
@@ -331,7 +394,10 @@ app.post(
       tvSeries,
       userId: user.id,
       watchProvider,
+      ...whenFromBody(body),
     });
+    await clearSkipped([watchedItem]);
+    await syncListsForMark(user.id, [tvSeries.id], tvSeries);
 
     return markWatchedResponse(c, [watchedItem]);
   },
@@ -341,6 +407,7 @@ app.delete(
   '/:id/watched/series/:series-id{[0-9]+}',
   user(),
   requireIsMe(),
+  vValidator('param', MarkSeriesParamSchema),
   series(),
   async (c) => {
     const tvSeries = c.get('series');
@@ -350,6 +417,7 @@ app.delete(
       tvSeries,
       userId: user.id,
     });
+    await syncListsForMark(user.id, [tvSeries.id], tvSeries);
 
     return c.json({ message: 'OK' });
   },
@@ -359,23 +427,19 @@ app.delete(
   '/:id/watched/series/:series-id{[0-9]+}/season/:season{[0-9]+}',
   user(),
   requireIsMe(),
+  vValidator('param', MarkSeasonParamSchema),
   series(),
   async (c) => {
     const tvSeries = c.get('series');
     const user = c.get('user');
-    const seasonNumber = parseInt(c.req.param('season'), 10);
-
-    if (Number.isNaN(seasonNumber)) {
-      throw new HTTPException(400, {
-        message: 'Invalid season number',
-      });
-    }
+    const { season: seasonNumber } = c.req.valid('param');
 
     await unmarkSeasonWatched({
       seasonNumber,
       tvSeries,
       userId: user.id,
     });
+    await syncListsForMark(user.id, [tvSeries.id], tvSeries);
 
     return c.json({ message: 'OK' });
   },
@@ -385,18 +449,13 @@ app.delete(
   '/:id/watched/series/:series-id{[0-9]+}/season/:season{[0-9]+}/episode/:episode{[0-9]+}',
   user(),
   requireIsMe(),
+  vValidator('param', MarkEpisodeParamSchema),
   series(),
   async (c) => {
     const tvSeries = c.get('series');
     const user = c.get('user');
-    const seasonNumber = parseInt(c.req.param('season'), 10);
-    const episodeNumber = parseInt(c.req.param('episode'), 10);
-
-    if (Number.isNaN(seasonNumber) || Number.isNaN(episodeNumber)) {
-      throw new HTTPException(400, {
-        message: 'Invalid season or episode number',
-      });
-    }
+    const { season: seasonNumber, episode: episodeNumber } =
+      c.req.valid('param');
 
     await unmarkWatched({
       episodeNumber,
@@ -404,28 +463,35 @@ app.delete(
       tvSeries,
       userId: user.id,
     });
+    await syncListsForMark(user.id, [tvSeries.id], tvSeries);
 
     return c.json({ message: 'OK' });
   },
 );
 
-app.get('/:id/watched', user(), async (c) => {
-  const user = c.get('user');
-  const startDate = parseDate(c.req.query('start_date'));
-  const endDate = parseDate(c.req.query('end_date'));
-  const limit = parseLimit(c.req.query('limit'), { max: 100 });
-  const result = await getWatched({
-    endDate,
-    options: {
-      cursor: c.req.query('cursor'),
-      limit,
-      sortDirection: c.req.query('sort_direction') as SortDirection | undefined,
-    },
-    startDate,
-    userId: user.id,
-  });
-  return c.json(result);
-});
+app.get(
+  '/:id/watched',
+  user(),
+  requireAuth(),
+  vValidator('query', HistoryQuerySchema),
+  async (c) => {
+    const user = c.get('user');
+    const startDate = parseDate(c.req.valid('query').start_date);
+    const endDate = parseDate(c.req.valid('query').end_date);
+    const limit = parseLimit(c.req.valid('query').limit, { max: 100 });
+    const result = await getWatched({
+      endDate,
+      options: {
+        cursor: c.req.valid('query').cursor,
+        limit,
+        sortDirection: c.req.valid('query').sort_direction,
+      },
+      startDate,
+      userId: user.id,
+    });
+    return c.json(result);
+  },
+);
 
 app.post(
   '/:id/watched/batch',
@@ -439,6 +505,11 @@ app.post(
     validateBatchWatchedItemsOwnership(body, user.id);
 
     const watchedItems = await markWatchedInBatch(body);
+    await clearSkipped(watchedItems);
+    await syncListsForMark(
+      user.id,
+      body.map((item) => item.tvSeries.id),
+    );
     return c.json(watchedItems, 201);
   },
 );
@@ -458,18 +529,23 @@ app.post(
     validateBatchWatchedItemsOwnership(body, user.id);
 
     await unmarkWatchedInBatch(body);
+    await syncListsForMark(
+      user.id,
+      body.map((item) => item.tvSeries.id),
+    );
     return c.json({ message: 'OK' }, 201);
   },
 );
 
 app.get(
-  '/:id/list/:list{favorites|in_progress|watched|watchlist}/count',
+  '/:id/list/:list{favorites|in_progress|resuming_soon|watched|watchlist}/count',
   user(),
+  vValidator('query', DateRangeQuerySchema),
   async (c) => {
     const user = c.get('user');
     const listId = c.req.param('list').toUpperCase();
-    const startDate = parseDate(c.req.query('start_date'));
-    const endDate = parseDate(c.req.query('end_date'));
+    const startDate = parseDate(c.req.valid('query').start_date);
+    const endDate = parseDate(c.req.valid('query').end_date);
 
     const count = await getListItemsCount({
       endDate,
@@ -483,8 +559,9 @@ app.get(
 );
 
 app.get(
-  '/:id/list/:list{favorites|in_progress|watched|watchlist}/:item-id{[0-9]+}',
+  '/:id/list/:list{favorites|in_progress|resuming_soon|watched|watchlist}/:item-id{[0-9]+}',
   user(),
+  requireAuth(),
   async (c) => {
     const user = c.get('user');
     const listId = c.req.param('list').toUpperCase();
@@ -501,30 +578,37 @@ app.get(
 );
 
 app.get(
-  '/:id/list/:list{favorites|in_progress|watched|watchlist}',
+  '/:id/list/:list{favorites|in_progress|resuming_soon|watched|watchlist}',
   user(),
+  requireAuth(),
+  vValidator('query', ListQuerySchema),
   async (c) => {
     const user = c.get('user');
     const listId = c.req.param('list').toUpperCase();
-    const startDate = parseDate(c.req.query('start_date'));
-    const endDate = parseDate(c.req.query('end_date'));
-    const limit = parseLimit(c.req.query('limit'), { max: 100 });
+    const query = c.req.valid('query');
+    const startDate = parseDate(query.start_date);
+    const endDate = parseDate(query.end_date);
+    const limit = parseLimit(query.limit, { max: 100 });
     const result = await getListItems({
       endDate,
       listId,
       options: {
-        cursor: c.req.query('cursor'),
+        cursor: query.cursor,
         limit,
-        sortBy: c.req.query('sort_by') as SortBy | undefined,
-        sortDirection: c.req.query('sort_direction') as
-          | SortDirection
-          | undefined,
+        sortBy: query.sort_by,
+        sortDirection: query.sort_direction,
       },
       startDate,
       userId: user.id,
     });
 
-    return c.json(result);
+    if (query.include !== 'facts') {
+      return c.json(result);
+    }
+    return c.json({
+      ...result,
+      items: await withListFacts(user.id, result.items, Date.now()),
+    });
   },
 );
 
@@ -557,11 +641,16 @@ app.delete(
     const listId = c.req.param('list').toUpperCase();
     const itemId = parseInt(c.req.param('itemId'), 10);
 
-    await removeFromList({
-      id: itemId,
-      listId,
-      userId: user.id,
-    });
+    await Promise.all([
+      removeFromList({
+        id: itemId,
+        listId,
+        userId: user.id,
+      }),
+      // Taken off by hand: a parked entry must not come back on an unmark
+      listId === 'WATCHLIST' &&
+        forgetParkedWatchlistItem({ id: itemId, userId: user.id }),
+    ]);
 
     return c.json({ message: 'OK' }, 200);
   },
@@ -569,15 +658,20 @@ app.delete(
 
 // Whether a series is in the user's favorites and watchlist, in one read.
 // Same (public) rules as the per-list `/:id/list/:list/:item-id` routes.
-app.get('/:id/list-status/:series-id{[0-9]+}', user(), async (c) => {
-  const user = c.get('user');
-  const statuses = await getListStatuses({
-    id: parseInt(c.req.param('series-id'), 10),
-    userId: user.id,
-  });
+app.get(
+  '/:id/list-status/:series-id{[0-9]+}',
+  user(),
+  requireAuth(),
+  async (c) => {
+    const user = c.get('user');
+    const statuses = await getListStatuses({
+      id: parseInt(c.req.param('series-id'), 10),
+      userId: user.id,
+    });
 
-  return c.json(statuses);
-});
+    return c.json(statuses);
+  },
+);
 
 app.post('/:id/follow', user(), requireAuth(), async (c) => {
   const { user: userFromSession } = c.get('auth')!;
@@ -625,83 +719,112 @@ app.get('/:id/following/count', user(), (c) => {
   return c.json({ count: user.followingCount ?? 0 });
 });
 
-app.get('/:id/follower/:follower-id', user(), async (c) => {
-  const user = c.get('user');
-  const followerId = c.req.param('follower-id');
-  const isFollowerResult = await isFollower({
-    targetUserId: followerId,
-    userId: user.id,
-  });
-  return c.json({ value: isFollowerResult });
+// A user id (a ULID; bounded so it can't be anything as a key)
+const OtherUserParamSchema = v.object({
+  other: v.pipe(v.string(), v.regex(/^[0-9A-Za-z_-]{1,64}$/)),
 });
 
-app.get('/:id/following/:following-id', user(), async (c) => {
-  const user = c.get('user');
-  const followingId = c.req.param('following-id');
-  const isFollowingResult = await isFollowing({
-    targetUserId: followingId,
-    userId: user.id,
-  });
-  return c.json({ value: isFollowingResult });
-});
+app.get(
+  '/:id/follower/:other',
+  user(),
+  requireAuth(),
+  vValidator('param', OtherUserParamSchema),
+  async (c) => {
+    const user = c.get('user');
+    const followerId = c.req.valid('param').other;
+    const isFollowerResult = await isFollower({
+      targetUserId: followerId,
+      userId: user.id,
+    });
+    return c.json({ value: isFollowerResult });
+  },
+);
 
-app.get('/:id/followers', user(), auth(), async (c) => {
-  const auth = c.get('auth');
-  const userFromSession = auth?.user;
+app.get(
+  '/:id/following/:other',
+  user(),
+  requireAuth(),
+  vValidator('param', OtherUserParamSchema),
+  async (c) => {
+    const user = c.get('user');
+    const followingId = c.req.valid('param').other;
+    const isFollowingResult = await isFollowing({
+      targetUserId: followingId,
+      userId: user.id,
+    });
+    return c.json({ value: isFollowingResult });
+  },
+);
 
-  const user = c.get('user');
-  const limit = parseLimit(c.req.query('limit'), { max: 100 });
-  // The viewer's follow statuses are read in parallel with the users
-  const { items, nextCursor, statuses } = await getFollowers({
-    options: {
-      cursor: c.req.query('cursor'),
-      limit,
-      sortDirection: c.req.query('sort_direction') as SortDirection | undefined,
-    },
-    userId: user.id,
-    viewerId: userFromSession?.id,
-  });
+app.get(
+  '/:id/followers',
+  user(),
+  requireAuth(),
+  vValidator('query', FollowListQuerySchema),
+  async (c) => {
+    const auth = c.get('auth');
+    const userFromSession = auth?.user;
 
-  const enrichedUsers = enrichUsersWithFollowInfo(
-    items,
-    statuses,
-    userFromSession,
-    { hideIsFollower: userFromSession?.id === user.id },
-  );
+    const user = c.get('user');
+    const limit = parseLimit(c.req.valid('query').limit, { max: 100 });
+    // The viewer's follow statuses are read in parallel with the users
+    const { items, nextCursor, statuses } = await getFollowers({
+      options: {
+        cursor: c.req.valid('query').cursor,
+        limit,
+        sortDirection: c.req.valid('query').sort_direction,
+      },
+      userId: user.id,
+      viewerId: userFromSession?.id,
+    });
 
-  return c.json({
-    items: enrichedUsers,
-    nextCursor,
-  });
-});
+    const enrichedUsers = enrichUsersWithFollowInfo(
+      items,
+      statuses,
+      userFromSession,
+      { hideIsFollower: userFromSession?.id === user.id },
+    );
 
-app.get('/:id/following', user(), auth(), async (c) => {
-  const auth = c.get('auth');
-  const userFromSession = auth?.user;
+    return c.json({
+      items: await withWatching(c.req.valid('query').include, enrichedUsers),
+      nextCursor,
+    });
+  },
+);
 
-  const user = c.get('user');
-  const limit = parseLimit(c.req.query('limit'), { max: 100 });
-  // The viewer's follow statuses are read in parallel with the users
-  const { items, nextCursor, statuses } = await getFollowing({
-    options: {
-      cursor: c.req.query('cursor'),
-      limit,
-      sortDirection: c.req.query('sort_direction') as SortDirection | undefined,
-    },
-    userId: user.id,
-    viewerId: userFromSession?.id,
-  });
+app.get(
+  '/:id/following',
+  user(),
+  requireAuth(),
+  vValidator('query', FollowListQuerySchema),
+  async (c) => {
+    const auth = c.get('auth');
+    const userFromSession = auth?.user;
 
-  const enrichedUsers = enrichUsersWithFollowInfo(
-    items,
-    statuses,
-    userFromSession,
-  );
+    const user = c.get('user');
+    const limit = parseLimit(c.req.valid('query').limit, { max: 100 });
+    // The viewer's follow statuses are read in parallel with the users
+    const { items, nextCursor, statuses } = await getFollowing({
+      options: {
+        cursor: c.req.valid('query').cursor,
+        limit,
+        sortDirection: c.req.valid('query').sort_direction,
+      },
+      userId: user.id,
+      viewerId: userFromSession?.id,
+    });
 
-  return c.json({
-    items: enrichedUsers,
-    nextCursor,
-  });
-});
+    const enrichedUsers = enrichUsersWithFollowInfo(
+      items,
+      statuses,
+      userFromSession,
+    );
+
+    return c.json({
+      items: await withWatching(c.req.valid('query').include, enrichedUsers),
+      nextCursor,
+    });
+  },
+);
 
 export default app;

@@ -7,8 +7,25 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { PreferredImages } from '@tvseri.es/schemas';
 import { Resource } from 'sst';
 
+import { groundColorOr } from '../../groundColor';
 import { batchGet } from '../batch';
 import client from '../client';
+
+/** A pick's colour when it isn't a six-digit hex: the API's unknown colour */
+const UNKNOWN_COLOR = '#000000';
+
+/**
+ * A saved pick as served: its colour through the page colour rule
+ * (`groundColor`). Picks saved before the rule keep their stored colour;
+ * only what is read is corrected, nothing is rewritten.
+ */
+const served = (item: Record<string, unknown>): PreferredImages => {
+  const preferredImages = item as PreferredImages;
+  return {
+    ...preferredImages,
+    backdropColor: groundColorOr(preferredImages.backdropColor, UNKNOWN_COLOR),
+  };
+};
 
 export const findPreferredImages = async (
   id: number,
@@ -27,7 +44,7 @@ export const findPreferredImages = async (
       return null;
     }
 
-    return unmarshall(result.Item) as PreferredImages;
+    return served(unmarshall(result.Item));
   } catch (_error) {
     throw new Error('Failed to find preferred images');
   }
@@ -47,9 +64,10 @@ export const findPreferredImagesForMany = async (
 
   return new Map(
     items.map((item) => {
-      const { pk, ...preferredImages } = unmarshall(item) as PreferredImages &
-        Readonly<{ pk: string }>;
-      return [Number(pk.slice('SERIES#'.length)), preferredImages];
+      const { pk, ...preferredImages } = unmarshall(item) as Readonly<{
+        pk: string;
+      }>;
+      return [Number(pk.slice('SERIES#'.length)), served(preferredImages)];
     }),
   );
 };
@@ -62,7 +80,7 @@ export const putPreferredImages = async (
     Item: marshall({
       pk: `SERIES#${id}`,
       updatedAt: Date.now(),
-      ...preferred,
+      ...served(preferred),
     }),
     TableName: Resource.PreferredImages.name,
   });

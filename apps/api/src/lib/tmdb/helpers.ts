@@ -1,8 +1,11 @@
+import { networkById } from '@tvseri.es/constants';
 import type {
   Movie,
+  Network,
   TmdbDiscoverMovieQuery,
   TmdbDiscoverTvSeriesQuery,
   TmdbMovie,
+  TmdbNetwork,
   TmdbTvSeries,
   TmdbTvSeriesCredits,
   TmdbTvSeriesEpisode,
@@ -14,9 +17,12 @@ import {
   buildProfileImageUrl,
   buildStillImageUrl,
   buildTitleTreatmentImageUrl,
+  formatSeriesYears,
   generateTmdbImageUrl,
 } from '@tvseri.es/utils';
 import slugify from 'slugify';
+
+import { airedBySeason } from '@/lib/seriesFacts/aired';
 
 // Hoisted: constructing Intl.DisplayNames per series is relatively expensive
 const countryDisplayNames = new Intl.DisplayNames(['en'], { type: 'region' });
@@ -31,7 +37,7 @@ export function buildDiscoverQuery(
     sort_by: 'popularity.desc',
     'vote_count.gte': 1,
     ...query,
-    // Note: always exclude adult content
+    // Always exclude adult content
     include_adult: false,
     include_null_first_air_dates: false,
   };
@@ -49,35 +55,86 @@ export function deduplicateDiscoverItems(
   return deduplicated;
 }
 
+type RawImages = Readonly<{
+  backdrops?: ReadonlyArray<
+    Readonly<{ file_path?: string | null; iso_639_1?: unknown }>
+  >;
+  logos?: ReadonlyArray<
+    Readonly<{
+      aspect_ratio?: number;
+      file_path?: string | null;
+      iso_639_1?: unknown;
+    }>
+  >;
+}>;
+
+/**
+ * A logo's width over its height, as TMDB's images response gives it, so a
+ * page can reserve the logo's box before it loads; undefined when the logo
+ * isn't in the response or has no usable ratio
+ */
+export function logoAspectRatio(
+  images: RawImages | undefined,
+  path: string,
+): number | undefined {
+  const ratio = images?.logos?.find(
+    (logo) => logo.file_path === path,
+  )?.aspect_ratio;
+  return typeof ratio === 'number' && Number.isFinite(ratio) && ratio > 0
+    ? ratio
+    : undefined;
+}
+
+const isPngOrSvg = (path: string | null | undefined) =>
+  !!path &&
+  (path.toLowerCase().includes('png') || path.toLowerCase().includes('svg'));
+
+/**
+ * The images a show uses when no admin pick is saved ("Automatic"), from
+ * TMDB's own image order: the first text-free backdrop and the first English
+ * PNG/SVG logo (else one without a language; never one in another language,
+ * which an English page can't read: the title is drawn as text
+ * instead). Shared by the series object and the admin picker's "Auto"
+ * badges.
+ */
+export function pickAutomaticImages(images: RawImages) {
+  const titleTreatmentPath =
+    images.logos?.find(
+      (logo) => isPngOrSvg(logo.file_path) && logo.iso_639_1 === 'en',
+    )?.file_path ??
+    images.logos?.find(
+      (logo) => isPngOrSvg(logo.file_path) && logo.iso_639_1 == null,
+    )?.file_path;
+
+  return {
+    backdropPath:
+      images.backdrops?.find((backdrop) => backdrop.iso_639_1 === null)
+        ?.file_path || null,
+    titleTreatmentPath: titleTreatmentPath || null,
+  };
+}
+
 function extractImages(item: TmdbTvSeries | TmdbMovie) {
   const images = item.images ?? {};
-  const backdrop =
-    images.backdrops?.filter((path) => path.iso_639_1 === null)[0]?.file_path ??
-    item.backdrop_path;
+  const automatic = pickAutomaticImages(images);
+  const backdrop = automatic.backdropPath ?? item.backdrop_path;
   const poster = item.poster_path ?? images.posters?.[0]?.file_path;
-
-  let titleTreatment = images.logos?.find(
-    (path) =>
-      (path.file_path?.toLowerCase().includes('png') ||
-        path.file_path?.toLowerCase().includes('svg')) &&
-      path.iso_639_1 === 'en',
-  )?.file_path;
-  if (!titleTreatment) {
-    titleTreatment = images.logos?.find(
-      (path) =>
-        path.file_path?.toLowerCase().includes('png') ||
-        path.file_path?.toLowerCase().includes('svg'),
-    )?.file_path;
-  }
+  const titleTreatment = automatic.titleTreatmentPath;
+  const titleTreatmentAspectRatio = titleTreatment
+    ? logoAspectRatio(images, titleTreatment)
+    : undefined;
 
   return {
     backdropImage: backdrop ? buildBackdropImageUrl(backdrop) : undefined,
     backdropPath: backdrop,
     posterImage: poster ? buildPosterImageUrl(poster) : '',
-    posterPath: poster!,
+    // TMDB sends null for a show without a poster: '' like posterImage, so
+    // the list and watched writes (posterPath is a string) still accept it
+    posterPath: poster ?? '',
     titleTreatmentImage: titleTreatment
       ? buildTitleTreatmentImageUrl(titleTreatment)
       : undefined,
+    ...(titleTreatmentAspectRatio && { titleTreatmentAspectRatio }),
   };
 }
 
@@ -127,41 +184,12 @@ export function normalizePersons(
   });
 }
 
-function formatReleaseYearForTvSeries(
+/** `releaseYear`: the shared year format ("2014–", "2016–2025"), "TBA" without a year */
+const formatReleaseYearForTvSeries = (
   firstAirDate: string | undefined,
   lastAirDate: string | undefined,
   status: TvSeries['status'],
-) {
-  const firstAirYear = firstAirDate
-    ? new Date(firstAirDate).getUTCFullYear()
-    : undefined;
-  const lastAirYear = lastAirDate
-    ? new Date(lastAirDate).getUTCFullYear()
-    : undefined;
-
-  switch (status) {
-    case 'Ended':
-    case 'Canceled': {
-      if (!firstAirYear) {
-        return lastAirYear ? `${lastAirYear}` : 'TBA';
-      }
-      if (lastAirYear && lastAirYear !== firstAirYear) {
-        return `${firstAirYear}–${lastAirYear}`;
-      }
-      return `${firstAirYear}`;
-    }
-
-    case 'Returning Series':
-    case 'In Production':
-    case 'Planned':
-    case 'Pilot': {
-      if (!firstAirYear) {
-        return 'TBA';
-      }
-      return `${firstAirYear}–`;
-    }
-  }
-}
+) => formatSeriesYears({ firstAirDate, lastAirDate, status }) || 'TBA';
 
 export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
   const images = extractImages(series);
@@ -185,49 +213,84 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     strict: true,
   });
 
-  const seasons = (series.seasons ?? [])
-    ?.filter((season) => season.episode_count > 0 && season.season_number > 0)
-    .map((season) => {
-      let numberOfAiredEpisodesForSeason = 0;
+  const lastEpisodeToAir = series.last_episode_to_air;
+  const nextEpisodeToAir =
+    series.next_episode_to_air as typeof lastEpisodeToAir;
+  const nextHasAired = (seasonNumber: number) =>
+    !!nextEpisodeToAir?.air_date &&
+    nextEpisodeToAir.season_number === seasonNumber &&
+    new Date(nextEpisodeToAir.air_date).getTime() <= Date.now();
 
-      const airDate = season.air_date
-        ? new Date(season.air_date).toISOString()
-        : '';
-      const lastEpisodeToAir = series.last_episode_to_air;
-      const nextEpisodeToAir =
-        series.next_episode_to_air as typeof lastEpisodeToAir;
+  type TmdbSeason = NonNullable<TmdbTvSeries['seasons']>[number];
+  const toSeason = (season: TmdbSeason, airedCount: number) => {
+    const airDate = season.air_date
+      ? new Date(season.air_date).toISOString()
+      : '';
+    return {
+      airDate,
+      description: season.overview ?? '',
+      episodes: [],
+      hasAired: new Date(airDate) <= new Date(),
+      id: season.id,
+      numberOfAiredEpisodes: Math.min(airedCount, season.episode_count),
+      numberOfEpisodes: season.episode_count,
+      seasonNumber: season.season_number,
+      title: season.name as string,
+    };
+  };
 
-      if (lastEpisodeToAir) {
-        if (season.season_number < lastEpisodeToAir.season_number) {
-          numberOfAiredEpisodesForSeason = season.episode_count;
-        } else if (season.season_number === lastEpisodeToAir.season_number) {
-          numberOfAiredEpisodesForSeason = lastEpisodeToAir.episode_number;
+  const regularSeasons = (series.seasons ?? []).filter(
+    (season) => season.episode_count > 0 && season.season_number > 0,
+  );
+  const toEpisode = (
+    episode: Readonly<{ season_number: number; episode_number: number }> | null,
+  ) =>
+    episode
+      ? {
+          episodeNumber: episode.episode_number,
+          seasonNumber: episode.season_number,
         }
-      }
+      : null;
+  // The one aired rule for regular seasons (lib/seriesFacts/aired.ts): a
+  // special as TMDB's last aired episode doesn't count them as 0. The
+  // next episode counts from the start of its air date here.
+  const airedPerSeason = airedBySeason({
+    last: toEpisode(lastEpisodeToAir ?? null),
+    next: toEpisode(nextEpisodeToAir ?? null),
+    nextHasAired: Boolean(
+      nextEpisodeToAir?.air_date &&
+        new Date(nextEpisodeToAir.air_date).getTime() <= Date.now(),
+    ),
+    now: Date.now(),
+    seasons: regularSeasons.map((season) => ({
+      airDate: season.air_date ?? '',
+      episodeCount: season.episode_count,
+      seasonNumber: season.season_number,
+    })),
+    status,
+  });
 
-      if (
-        nextEpisodeToAir?.air_date &&
-        nextEpisodeToAir.season_number === season.season_number &&
-        new Date(nextEpisodeToAir.air_date).getTime() <= Date.now()
-      ) {
-        numberOfAiredEpisodesForSeason += 1;
-      }
+  const seasons = regularSeasons.map((season) =>
+    toSeason(season, airedPerSeason[season.season_number] ?? 0),
+  );
 
-      return {
-        airDate: season.air_date ? new Date(season.air_date).toISOString() : '',
-        description: season.overview ?? '',
-        episodes: [],
-        hasAired: new Date(airDate) <= new Date(),
-        id: season.id,
-        numberOfAiredEpisodes: Math.min(
-          numberOfAiredEpisodesForSeason,
-          season.episode_count,
-        ),
-        numberOfEpisodes: season.episode_count,
-        seasonNumber: season.season_number,
-        title: season.name as string,
-      };
-    });
+  // Specials: TMDB's last/next episode follow the regular seasons, so the
+  // aired count is all of them once the first aired, or those before the
+  // next one to air when that is a special (TvSeries.specials)
+  const specialsSeason = series.seasons?.find(
+    (season) => season.season_number === 0 && season.episode_count > 0,
+  );
+  const specials = specialsSeason
+    ? toSeason(
+        specialsSeason,
+        nextEpisodeToAir?.season_number === 0 && !nextHasAired(0)
+          ? nextEpisodeToAir.episode_number - 1
+          : specialsSeason.air_date &&
+              new Date(specialsSeason.air_date).getTime() <= Date.now()
+            ? specialsSeason.episode_count
+            : 0,
+      )
+    : undefined;
 
   const numberOfAiredEpisodes = seasons.reduce(
     (sum, season) => sum + season.numberOfAiredEpisodes,
@@ -272,6 +335,10 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     })),
     createdBy: normalizePersons(series.created_by),
     description: series.overview ?? '',
+    // Only on the show's own details call (append_to_response), not on list items
+    ...(series.external_ids && {
+      externalIds: { imdbId: series.external_ids.imdb_id || null },
+    }),
     firstAirDate,
     // @ts-expect-error genre_ids is not defined in the type
     genres: normalizeGenres(series.genres ?? series.genre_ids),
@@ -301,6 +368,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     releaseYear,
     seasons,
     slug,
+    ...(specials && { specials }),
     status,
     tagline: series.tagline ?? '',
     title: series.name ?? '',
@@ -358,6 +426,7 @@ export function normalizeMovie(movie: TmdbMovie): Movie {
     originalLanguage: movie.original_language ?? '',
     originalTitle: movie.original_title ?? '',
     popularity: movie.popularity,
+    ...(movie.release_date && { releaseDate: movie.release_date }),
     slug,
     tagline: movie.tagline ?? '',
     title: movie.title ?? '',
@@ -365,4 +434,92 @@ export function normalizeMovie(movie: TmdbMovie): Movie {
     voteCount: movie.vote_count,
     ...images,
   };
+}
+
+export function normalizeNetwork(network: TmdbNetwork): Network {
+  const known = networkById(network.id);
+  const country = network.origin_country;
+  return {
+    description: known?.description ?? null,
+    homepage: network.homepage || null,
+    id: network.id,
+    logo: network.logo_path
+      ? generateTmdbImageUrl(network.logo_path, 'w500')
+      : null,
+    name: network.name ?? '',
+    originCountry: country
+      ? { code: country, name: countryDisplayNames.of(country) ?? country }
+      : null,
+    slug: known?.slug ?? null,
+  };
+}
+
+/** The cast part of `append_to_response=credits` on `/tv/:id` */
+export type TmdbCastCredits = Readonly<{
+  cast?: ReadonlyArray<Readonly<{ name?: string; order?: number }>>;
+}>;
+
+/** The hook line names at most three of the cast */
+const TOP_CAST = 3;
+
+/** The top-billed cast's names, in billing order */
+export function topCastNames(credits: TmdbCastCredits | undefined): string[] {
+  return [...(credits?.cast ?? [])]
+    .filter((member) => !!member.name)
+    .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity))
+    .slice(0, TOP_CAST)
+    .map((member) => member.name as string);
+}
+
+/** A show a person created, as cached per person */
+export type CreatedShow = Readonly<{
+  id: number;
+  title: string;
+  voteCount: number;
+}>;
+
+/**
+ * Enough of a person's created shows to always have one besides the show
+ * asked about: the most voted on TMDB, first.
+ */
+const CREATED_SHOWS_KEPT = 3;
+
+/** The shows a person created (crew job "Creator"), most voted first */
+export function createdShowsOf(
+  crew: ReadonlyArray<
+    Readonly<{ id?: number; job?: string; name?: string; vote_count?: number }>
+  >,
+): CreatedShow[] {
+  const shows = new Map<number, CreatedShow>();
+  for (const credit of crew) {
+    if (credit.job === 'Creator' && credit.id && credit.name) {
+      shows.set(credit.id, {
+        id: credit.id,
+        title: credit.name,
+        voteCount: credit.vote_count ?? 0,
+      });
+    }
+  }
+  return [...shows.values()]
+    .sort((a, b) => b.voteCount - a.voteCount)
+    .slice(0, CREATED_SHOWS_KEPT);
+}
+
+/**
+ * The hook line's "From the creator of {X}": the creators' most voted other
+ * show, only when it has more TMDB votes than this one; null otherwise.
+ */
+export function pickCreatorOf(
+  series: Pick<TvSeries, 'id' | 'voteCount'>,
+  createdShows: ReadonlyArray<CreatedShow>,
+): Readonly<{ title: string }> | null {
+  const best = createdShows
+    .filter((show) => show.id !== series.id)
+    .reduce<CreatedShow | null>(
+      (top, show) => (!top || show.voteCount > top.voteCount ? show : top),
+      null,
+    );
+  return best && best.voteCount > series.voteCount
+    ? { title: best.title }
+    : null;
 }

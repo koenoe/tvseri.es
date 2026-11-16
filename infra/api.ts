@@ -1,11 +1,14 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
 import { buildApiEdgeInjection } from './apiEdgeInjection';
+import { API_CONCURRENCY, API_WRITE_ROUTES } from './apiWriteRoutes';
 import { auth } from './auth';
+import { productionReserved } from './concurrency';
+import { deleteAccountQueue } from './deleteAccount';
 import { domain, zone } from './dns';
 import { dominantColor } from './dominantColor';
 import * as dynamo from './dynamo';
-import { email } from './email';
+import { undoImportQueue } from './imports';
 import { metricsQueue } from './metrics';
 import { scrobbleQueue } from './scrobbleQueue';
 import * as secrets from './secrets';
@@ -77,36 +80,45 @@ export const webhookTokensKvs = new sst.Linkable('WebhookTokensKvs', {
   },
 });
 
-export const apiFunction = new sst.aws.Function('ApiFunction', {
-  // Caps the API's concurrent executions (and so its cost under a traffic
-  // spike or abuse); requests past it are throttled
-  concurrency: {
-    reserved: 100,
-  },
+/**
+ * The API runs as two functions with the same code, links, environment and
+ * permissions (a bulkhead, apiWriteRoutes.ts): the catalogue function is the
+ * Router's default route, and the edge sends the viewer's own writes to the
+ * write function. In production each has its own reserved concurrency,
+ * which caps its concurrent executions (and so its cost under a spike or
+ * abuse); requests past it are throttled. Both together reserve 200; reserved
+ * totals must leave 100 of the account's quota unreserved.
+ */
+const apiFunctionArgs = {
   environment: {
     CLOUDFRONT_DISTRIBUTION_ID: apiRouter.distributionID,
+    // Delete account stays off in production until the dev-stage rehearsal
+    // (incl. a point-in-time restore of a test user) has passed: the owner
+    // flips this to 'true' then
+    DELETE_ACCOUNT_ENABLED: $app.stage === 'production' ? 'false' : 'true',
   },
   handler: 'apps/api/src/index.handler',
   link: [
     auth,
+    deleteAccountQueue, // Delete account (routes/me/index.ts)
     dominantColor,
     dynamo.cache,
     dynamo.follow,
     dynamo.lists,
     dynamo.metricsApi,
-    dynamo.metricsRaw,
     dynamo.metricsWebVitals,
     dynamo.preferredImages,
     dynamo.users,
     dynamo.watched,
     dynamo.webhookTokens,
-    email,
     metricsQueue,
     scrobbleQueue,
     secrets.apiKey,
     secrets.mdblistApiKey,
+    secrets.omdbApiKey,
     secrets.tmdbApiAccessToken,
     secrets.tmdbApiKey,
+    undoImportQueue, // Undo import (routes/me/imports.ts)
     watchedStatusQueue, // on-visit re-check for inactive users (middleware/auth.ts)
     webhookTokensKvs,
   ],
@@ -120,11 +132,78 @@ export const apiFunction = new sst.aws.Function('ApiFunction', {
     },
   ],
   timeout: '15 seconds',
+} satisfies sst.aws.FunctionArgs;
+
+new sst.aws.Function('ApiFunction', {
+  ...apiFunctionArgs,
+  concurrency: {
+    reserved: productionReserved($app.stage, API_CONCURRENCY.catalogue),
+  },
   url: {
-    // TODO: if we want cors in Hono, set this to false and configure in Hono
-    // cors: false,
     router: {
       instance: apiRouter,
     },
   },
 });
+
+// Not routed by SST: the edge picks it per request (apiEdgeInjection.ts).
+// Its URL is made below rather than with `url: true`, so the edge's key can
+// wait for it and its permissions (SST doesn't expose them).
+const apiWriteFunction = new sst.aws.Function('ApiWriteFunction', {
+  ...apiFunctionArgs,
+  concurrency: {
+    reserved: productionReserved($app.stage, API_CONCURRENCY.write),
+  },
+});
+
+// What SST's `url: true` creates (Function, SST 4.17.2): a public URL with
+// the same auth (none) and CORS defaults as ApiFunction's, and the two
+// permissions a public function URL needs. The aliases keep the ones stages
+// already have from `url: true` (same names, then under the function).
+const writeFunctionName = apiWriteFunction.nodes.function.name;
+const writeAliases = [{ parent: apiWriteFunction }];
+const apiWriteUrl = new aws.lambda.FunctionUrl(
+  'ApiWriteFunctionUrl',
+  {
+    authorizationType: 'NONE',
+    cors: { allowHeaders: ['*'], allowMethods: ['*'], allowOrigins: ['*'] },
+    functionName: writeFunctionName,
+    invokeMode: 'BUFFERED',
+  },
+  { aliases: writeAliases },
+);
+const apiWriteUrlPermissions = [
+  new aws.lambda.Permission(
+    'ApiWriteFunctionPublicFunctionUrlAccess',
+    {
+      action: 'lambda:InvokeFunctionUrl',
+      function: writeFunctionName,
+      functionUrlAuthType: 'NONE',
+      principal: '*',
+    },
+    { aliases: writeAliases },
+  ),
+  new aws.lambda.Permission(
+    'ApiWriteFunctionInvokeFunction',
+    {
+      action: 'lambda:InvokeFunction',
+      function: writeFunctionName,
+      invokedViaFunctionUrl: true,
+      principal: '*',
+    },
+    { aliases: writeAliases },
+  ),
+];
+
+// Where the edge finds the write function. Written only once the URL and
+// both permissions exist, so routing flips when the target is callable;
+// until then the edge keeps every request on ApiFunction.
+new aws.cloudfront.KeyvaluestoreKey(
+  'ApiWriteOrigin',
+  {
+    key: API_WRITE_ROUTES.kvKey,
+    keyValueStoreArn: routerKvStoreArn,
+    value: apiWriteUrl.functionUrl.apply((url) => new URL(url).host),
+  },
+  { dependsOn: [apiWriteUrl, ...apiWriteUrlPermissions] },
+);

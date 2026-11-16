@@ -1,0 +1,70 @@
+'use client';
+
+import SignedInOnly from '@/components/ui/viewer/SignedInOnly';
+import cn from '@/lib/cn';
+
+import { useHasWatched } from '../watched/store';
+
+const SAMPLE = 'block h-1.5 w-4 rounded-[3px]';
+const OUTLINE = 'shadow-[inset_0_0_0_1px_rgb(255_255_255/0.42)]';
+const THICK = ['h-0.5 rounded-[1px]', 'h-1 rounded-2', 'h-1.5 rounded-[3px]'];
+
+const KEY = 'flex items-center gap-4 text-meta whitespace-nowrap text-white/60';
+
+/**
+ * The Career key: only marks on screen, each a real
+ * bar. Watched and Not watched only once the viewer's marks are drawn; then
+ * "Thicker = more episodes" in the bars' own fill (outlined with marks).
+ * A stale display cookie (marks never come) keeps the signed-out key.
+ */
+function Key({
+  className,
+  marks,
+}: Readonly<{ className?: string; marks: boolean }>) {
+  const thick = marks ? OUTLINE : 'bg-white/26';
+  return (
+    <span className={cn(KEY, className)}>
+      {marks ? (
+        <>
+          <span className="inline-flex items-center gap-1.5">
+            <i className={cn(SAMPLE, 'bg-white/92')} />
+            Watched
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <i className={cn(SAMPLE, OUTLINE)} />
+            Not watched
+          </span>
+        </>
+      ) : null}
+      <span className="inline-flex items-center gap-1.5">
+        <span aria-hidden="true" className="inline-flex items-center gap-0.75">
+          {THICK.map((size) => (
+            <i className={cn('block w-2.5', size, thick)} key={size} />
+          ))}
+        </span>
+        Thicker = more episodes
+      </span>
+    </span>
+  );
+}
+
+/** Desktop: in the header row (the rule gives way, nothing moves). */
+export function CareerKeyInline({ personId }: Readonly<{ personId: number }>) {
+  const marks = useHasWatched(personId);
+  return <Key className="max-lg:hidden" marks={marks} />;
+}
+
+/**
+ * Phones: under the title. With marks the key wraps to
+ * two lines; a signed-in viewer gets that second line reserved before the
+ * first paint, so the marks arriving never push the chart down.
+ */
+export function CareerKeyBlock({ personId }: Readonly<{ personId: number }>) {
+  const marks = useHasWatched(personId);
+  return (
+    <span className="flex flex-col lg:hidden">
+      <Key className="flex-wrap gap-y-1.5" marks={marks} />
+      {marks ? null : <SignedInOnly className="h-6.5" />}
+    </span>
+  );
+}

@@ -1,9 +1,11 @@
 import {
   GetItemCommand,
-  PutItemCommand,
   QueryCommand,
+  TransactionCanceledException,
+  TransactWriteItemsCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { handleClaimKey } from '@tvseri.es/constants';
 import { type User, UsernameSchema } from '@tvseri.es/schemas';
 import { encodeToBase64Url, generateUsername } from '@tvseri.es/utils';
 import slugify from 'slugify';
@@ -90,9 +92,11 @@ export const findUser = async (
   );
 };
 
-// UsernameSchema's max length
-const MAX_USERNAME_LENGTH = 128;
 const MAX_USERNAME_TRIES = 5;
+
+// A new user's generated handle is claimed (`handleClaimKey`, with the
+// user's id) in the user's own transaction, on condition that the claim
+// doesn't exist yet: two sign-ups can never both get the same handle.
 
 const isValidUsername = (username: string): boolean => {
   // Standard Schema API, so apps/auth doesn't need valibot itself
@@ -100,27 +104,22 @@ const isValidUsername = (username: string): boolean => {
   return !(result instanceof Promise) && !result.issues;
 };
 
-/**
- * Returns the candidate if it's valid and free, otherwise a free generated
- * one. Slugs can come out empty or too short (e.g. CJK names), and generated
- * names can collide too, so every candidate is checked. Two signups racing for
- * the same name can still both get it (accepted: very unlikely).
- */
-const pickUsername = async (candidate: string): Promise<string> => {
-  let username = candidate;
-  for (let i = 0; i < MAX_USERNAME_TRIES; i++) {
-    if (isValidUsername(username) && !(await findUser({ username }))) {
-      return username;
-    }
-    username = generateUsername();
-  }
-  throw new Error('UserCreationFailed');
-};
+/** The handle's claim lost the race (its condition failed). */
+const isHandleTaken = (error: unknown): boolean =>
+  error instanceof TransactionCanceledException &&
+  error.CancellationReasons?.[0]?.Code === 'ConditionalCheckFailed';
 
+/**
+ * Creates the user on first sign-in. The public handle is generated, never
+ * derived from the email or the name (`generateUsername`: two words and a
+ * number, "calm-otter-412"); the person picks their own in Settings. A
+ * handle another user has (looked up first, as renames are) or another
+ * sign-up claims at the same moment (the conditional write) is replaced by a
+ * new one, a few times.
+ */
 export const createUser = async (
   input: Readonly<{
     email: string;
-    username?: string;
     name?: string;
     country?: string | null;
   }>,
@@ -131,21 +130,16 @@ export const createUser = async (
     throw new Error('UserAlreadyExists');
   }
 
-  const username = await pickUsername(
-    slugify(input.username ?? input.name ?? email.split('@')[0]!, {
-      lower: true,
-      strict: true,
-    })
-      .slice(0, MAX_USERNAME_LENGTH)
-      .replace(/-+$/, ''),
-  );
-
   const role = 'user';
   const userId = ulid();
   const now = new Date().toISOString();
 
-  const command = new PutItemCommand({
-    Item: marshall(
+  for (let i = 0; i < MAX_USERNAME_TRIES; i++) {
+    const username = generateUsername();
+    if (!isValidUsername(username) || (await findUser({ username }))) {
+      continue;
+    }
+    const user = marshall(
       {
         createdAt: now,
         id: userId,
@@ -166,26 +160,48 @@ export const createUser = async (
       {
         removeUndefinedValues: true,
       },
-    ),
-    TableName: Resource.Users.name,
-  });
+    );
 
-  try {
-    await client.send(command);
+    try {
+      await client.send(
+        new TransactWriteItemsCommand({
+          TransactItems: [
+            {
+              Put: {
+                ConditionExpression: 'attribute_not_exists(pk)',
+                Item: marshall({ pk: handleClaimKey(username), userId }),
+                TableName: Resource.Users.name,
+              },
+            },
+            {
+              Put: {
+                ConditionExpression: 'attribute_not_exists(pk)',
+                Item: user,
+                TableName: Resource.Users.name,
+              },
+            },
+          ],
+        }),
+      );
 
-    return {
-      createdAt: now,
-      email,
-      id: userId,
-      name: input.name,
-      role,
-      username,
-      version: VERSION,
-    };
-  } catch (error) {
-    // No input here: it holds PII (email, name)
-    console.error('Failed to create user', error);
-
-    throw new Error('UserCreationFailed');
+      return {
+        createdAt: now,
+        email,
+        id: userId,
+        name: input.name,
+        role,
+        username,
+        version: VERSION,
+      };
+    } catch (error) {
+      if (isHandleTaken(error)) {
+        continue;
+      }
+      // No input here: it holds PII (email, name)
+      console.error('Failed to create user', error);
+      throw new Error('UserCreationFailed');
+    }
   }
+
+  throw new Error('UserCreationFailed');
 };

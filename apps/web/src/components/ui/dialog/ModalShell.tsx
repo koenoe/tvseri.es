@@ -1,0 +1,226 @@
+'use client';
+
+import { AnimatePresence } from 'motion/react';
+import * as m from 'motion/react-m';
+import {
+  type MouseEvent,
+  type ReactNode,
+  type SyntheticEvent,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from 'react';
+
+import { popLayer, pushLayer } from '@/components/ui/layer/topLayer';
+import {
+  clearToastOverSheet,
+  releaseToastSheet,
+} from '@/components/ui/toast/clearToast';
+import cn from '@/lib/cn';
+import { SMALL_PHONE } from '@/lib/media/breakpoints';
+import useMediaQuery from '@/lib/media/useMediaQuery';
+import { DialogContext } from './DialogContext';
+import {
+  BACKDROP_MOTION,
+  type PanelMotion,
+  PHONE_MOTION,
+} from './dialogMotion';
+import { openedFromKeyboard, returnFocus } from './focusReturn';
+import { dialogOpener } from './lastInvoker';
+import { lockScroll, unlockScroll } from './scrollLock';
+
+/**
+ * `overflow: clip`, not `hidden`: a hidden (or the UA's `auto`) dialog is a
+ * scroll container, and Chrome scrolls it to show the control it focuses
+ * on `showModal()`, while the panel still sits at its entry offset. The
+ * scroll then follows the slide-in and cancels it out: the sheet appeared
+ * in place with no motion. A clipped box can't scroll.
+ *
+ * One `minmax(0, 1fr)` column (`grid-cols-1`): the screen sizes the panel,
+ * never its content (an implicit `auto` column took the ⋯ sheet's nowrap
+ * label as its minimum and pushed the sheet past a 360px screen).
+ */
+const DIALOG =
+  'fixed inset-0 m-0 grid h-dvh max-h-none w-full max-w-none grid-cols-1 overflow-clip bg-transparent p-0 text-white outline-none backdrop:bg-transparent';
+
+type Props = Readonly<{
+  backdropClassName: string;
+  /** Desktop motion of the dim (default: fade in .3s, out with the panel). */
+  backdropMotion?: PanelMotion;
+  children: ReactNode;
+  describedBy?: string;
+  labelledBy: string;
+  /** Desktop motion; phones use the shared slide-up. */
+  motion: PanelMotion;
+  onOpenChange: (open: boolean) => void;
+  open: boolean;
+  panelClassName: string;
+  /**
+   * Where focus goes on close when the element that opened the dialog is
+   * gone (a tile the page re-rendered while the dialog was open).
+   */
+  restoreFocus?: () => HTMLElement | null;
+}>;
+
+/**
+ * The native modal `<dialog>` every dialog variant is built on.
+ *
+ * - `showModal()` gives the top layer, the focus trap, inert page content and
+ *   Escape. The element only exists while open (or animating out), so
+ *   opening is mounting: the ref callback opens it, its cleanup closes it.
+ * - Escape (`cancel`) and a click on the backdrop ask the owner to close via
+ *   `onOpenChange(false)`; the owner flips `open` and Motion plays the exit
+ *   before the element unmounts.
+ * - Focus returns to whatever had it before opening, or to the control that
+ *   was clicked (Safari doesn't focus buttons on click); the page scroll is
+ *   locked natively while open.
+ * - While the panel is a bottom sheet (phones) the toast rises above it
+ *   (`clearToastOverSheet`), never over the sheet's own controls.
+ */
+export default function ModalShell({
+  backdropClassName,
+  backdropMotion: desktopBackdrop = BACKDROP_MOTION,
+  children,
+  describedBy,
+  labelledBy,
+  motion: desktopMotion,
+  onOpenChange,
+  open,
+  panelClassName,
+  restoreFocus,
+}: Props) {
+  const phone = useMediaQuery(SMALL_PHONE);
+  const panelMotion = phone ? PHONE_MOTION : desktopMotion;
+  // The dim leaves with the panel, not after it (the longer exit decides when
+  // the element unmounts).
+  const backdropMotion = {
+    ...(phone ? BACKDROP_MOTION : desktopBackdrop),
+    exit: { opacity: 0, transition: panelMotion.exit.transition },
+  };
+  const close = () => onOpenChange(false);
+  const context = { close };
+
+  const restoreRef = useRef(restoreFocus);
+  useEffect(() => {
+    restoreRef.current = restoreFocus;
+  }, [restoreFocus]);
+
+  // The panel, for the toast: it rises above a bottom sheet while the sheet
+  // is open and goes back in the commit that starts the sheet's exit.
+  const panelNode = useRef<HTMLDivElement | null>(null);
+  const panelRef = useCallback((node: HTMLDivElement | null) => {
+    panelNode.current = node;
+    const release = clearToastOverSheet(node);
+    return () => {
+      panelNode.current = null;
+      release?.();
+    };
+  }, []);
+  useLayoutEffect(() => {
+    if (!open && panelNode.current) {
+      releaseToastSheet(panelNode.current);
+    }
+  }, [open]);
+
+  // Stable on purpose: a new callback would close and reopen the dialog.
+  const attach = useCallback((node: HTMLDialogElement) => {
+    const opener = dialogOpener();
+    const ring = openedFromKeyboard(opener);
+    lockScroll();
+    if (!node.open) {
+      node.showModal();
+      // The dialog takes the first focus itself, so the ✕ shows no ring on
+      // open; Tab then reaches the controls as usual.
+      node.focus({ preventScroll: true });
+    }
+    pushLayer(node);
+    return () => {
+      popLayer(node);
+      if (node.open) {
+        node.close();
+      }
+      unlockScroll();
+      const target =
+        opener && opener !== document.body && opener.isConnected
+          ? opener
+          : restoreRef.current?.();
+      returnFocus(target, ring);
+    };
+  }, []);
+
+  // React bubbles `cancel` and clicks through the component tree, so a
+  // dialog opened inside another (a picker over the sheet) would close both:
+  // handle only the events of this dialog.
+  const handleCancel = (event: SyntheticEvent<HTMLDialogElement>) => {
+    if (event.target !== event.currentTarget) {
+      return;
+    }
+    // Stay open for the exit animation; the owner closes us.
+    event.preventDefault();
+    close();
+  };
+
+  const handleClick = (event: MouseEvent<HTMLDialogElement>) => {
+    if (
+      event.target instanceof HTMLElement &&
+      event.target.dataset.dialogBackdrop !== undefined &&
+      event.target.parentElement === event.currentTarget
+    ) {
+      close();
+    }
+  };
+
+  const panelClasses = cn('relative', panelClassName);
+  // A panel whose content has its own motion keeps the wrapper at every
+  // width (`contents` where the phone's slide has none): crossing the phone
+  // breakpoint never swaps the tree and remounts what the dialog holds
+  const contentClasses = panelMotion.contentStyle
+    ? 'relative size-full'
+    : 'contents';
+  const backdropClasses = cn('absolute inset-0', backdropClassName);
+
+  return (
+    <AnimatePresence>
+      {open ? (
+        <dialog
+          aria-describedby={describedBy}
+          aria-labelledby={labelledBy}
+          className={DIALOG}
+          key="dialog"
+          onCancel={handleCancel}
+          onClick={handleClick}
+          ref={attach}
+          tabIndex={-1}
+        >
+          <DialogContext value={context}>
+            <m.div
+              {...backdropMotion}
+              className={backdropClasses}
+              data-dialog-backdrop=""
+            />
+            <m.div
+              animate={panelMotion.animate}
+              className={panelClasses}
+              exit={panelMotion.exit}
+              initial={panelMotion.initial}
+              ref={panelRef}
+              style={panelMotion.style}
+            >
+              {desktopMotion.contentStyle ? (
+                <m.div
+                  className={contentClasses}
+                  style={panelMotion.contentStyle}
+                >
+                  {children}
+                </m.div>
+              ) : (
+                children
+              )}
+            </m.div>
+          </DialogContext>
+        </dialog>
+      ) : null}
+    </AnimatePresence>
+  );
+}

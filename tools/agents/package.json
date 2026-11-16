@@ -1,0 +1,16 @@
+{
+  "devDependencies": {
+    "@tvseri.es/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "5.1.0"
+  },
+  "name": "@tvseri.es/agents-tools",
+  "private": true,
+  "scripts": {
+    "check-types": "tsc",
+    "test": "vitest run"
+  },
+  "type": "module",
+  "version": "0.0.0"
+}

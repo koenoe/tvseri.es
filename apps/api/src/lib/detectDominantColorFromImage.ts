@@ -1,54 +1,38 @@
-import { InvokeCommand, LambdaClient } from '@aws-sdk/client-lambda';
+import { PAGE_COLOR_VERSION } from '@tvseri.es/constants';
+import { TMDB_IMAGE_PATH_REGEX } from '@tvseri.es/schemas';
 import { generateTmdbImageUrl } from '@tvseri.es/utils';
-import { Resource } from 'sst';
 
 import { createLimiter } from '@/utils/limit';
 
-import { getCacheItem, getCacheItems, setCacheItem } from './db/cache';
+import { getCacheItems, setCacheItem } from './db/cache';
+import { groundColor } from './groundColor';
+import { invokeImageLambda } from './imageLambda';
 
-const CACHE_PREFIX = 'detectDominantColorFromImage:v1:';
+/**
+ * Colours stored under the current rule (`groundColor`, PAGE_COLOR_VERSION).
+ * `v1` holds colours from before it (the Lambda's old rule: full white at
+ * 4.5:1). They are read, never rewritten or deleted: a `v1` colour is put
+ * through `groundColor` on its way out, which gives what a fresh detection
+ * of the same image would within one 4% step, without a Lambda call.
+ */
+const CACHE_PREFIX = `detectDominantColorFromImage:v${PAGE_COLOR_VERSION}:`;
+const LEGACY_CACHE_PREFIX = 'detectDominantColorFromImage:v1:';
 
 const HEX_COLOR_REGEX = /^#[0-9a-f]{6}$/i;
 
-// TMDB image path, e.g. `/abc123.jpg`
-const TMDB_IMAGE_PATH_REGEX = /^\/[A-Za-z0-9_-]+\.(?:jpe?g|png|svg|webp)$/;
 // TMDB image size, e.g. `w780`, `original`, `w1920_and_h1080_multi_faces`
 const TMDB_IMAGE_SIZE_REGEX =
   /^(?:original|w\d{2,4}(?:_and_h\d{2,4}_[a-z_]+)?)$/;
 
-// Bound the time the request path waits for the DominantColor Lambda: one
-// attempt (a timeout would otherwise be retried as transient), and make
-// requestTimeout throw instead of only logging a warning. 8s leaves room for a
-// cold start (sharp + image fetch) and stays under the API's 14s timeout.
-const lambda = new LambdaClient({
-  maxAttempts: 1,
-  requestHandler: {
-    connectionTimeout: 1000,
-    requestTimeout: 8000,
-    throwOnRequestTimeout: true,
-  },
-});
-
 async function invokeDominantColorLambda(url: string) {
-  const response = await lambda.send(
-    new InvokeCommand({
-      FunctionName: Resource.DominantColor.name,
-      Payload: JSON.stringify({ url }),
-    }),
-  );
+  const result = (await invokeImageLambda({ url })) as Readonly<{
+    color?: unknown;
+  }> | null;
 
-  // Invoke doesn't throw when the function itself errors
-  if (response.FunctionError || !response.Payload) {
-    throw new Error(
-      `DominantColor Lambda failed: ${response.FunctionError ?? 'empty payload'}`,
-    );
-  }
-
-  const result = JSON.parse(
-    Buffer.from(response.Payload).toString(),
-  ) as Readonly<{ color?: unknown }>;
-
-  if (typeof result.color !== 'string' || !HEX_COLOR_REGEX.test(result.color)) {
+  if (
+    typeof result?.color !== 'string' ||
+    !HEX_COLOR_REGEX.test(result.color)
+  ) {
     throw new Error('DominantColor Lambda returned an invalid color');
   }
 
@@ -58,18 +42,51 @@ async function invokeDominantColorLambda(url: string) {
 const isValidImage = (path: string, size: string) =>
   TMDB_IMAGE_PATH_REGEX.test(path) && TMDB_IMAGE_SIZE_REGEX.test(size);
 
-const isHexColor = (value: unknown): value is string =>
-  typeof value === 'string' && HEX_COLOR_REGEX.test(value);
-
 const cacheKey = (path: string) => `${CACHE_PREFIX}${path}`;
+const legacyCacheKey = (path: string) => `${LEGACY_CACHE_PREFIX}${path}`;
+
+/**
+ * The stored colour of each path, as served: the current key's, else the
+ * legacy key's through `groundColor` (both in one BatchGetItem). Paths with
+ * neither are absent.
+ */
+const readStoredColors = async (paths: ReadonlyArray<string>) => {
+  const colors = new Map<string, string>();
+  if (paths.length === 0) {
+    return colors;
+  }
+  try {
+    const values = await getCacheItems<unknown>([
+      ...paths.map(cacheKey),
+      ...paths.map(legacyCacheKey),
+    ]);
+    for (const path of paths) {
+      const color =
+        groundColor(values.get(cacheKey(path))) ??
+        groundColor(values.get(legacyCacheKey(path)));
+      if (color) {
+        colors.set(path, color);
+      }
+    }
+  } catch (error) {
+    // Cache is best-effort: fall through to detection
+    console.warn('[dominant-color] cache read failed', error);
+  }
+  return colors;
+};
 
 // Runs the detection and caches the colour permanently. Returns `undefined`
 // when detection fails; failures are never cached.
 const detectAndCache = async (path: string, size: string) => {
   try {
-    const dominantColor = await invokeDominantColorLambda(
-      generateTmdbImageUrl(path, size),
+    // The Lambda applies the rule itself; applied again (a no-op) so a
+    // Lambda from before the rule can't store an older colour under v2
+    const dominantColor = groundColor(
+      await invokeDominantColorLambda(generateTmdbImageUrl(path, size)),
     );
+    if (!dominantColor) {
+      throw new Error('DominantColor Lambda returned an invalid color');
+    }
     await setCacheItem<string>(cacheKey(path), dominantColor, {
       ttl: null,
     }).catch((error: unknown) => {
@@ -89,7 +106,9 @@ const detectAndCache = async (path: string, size: string) => {
  * and the cache key is the path, so callers can't make the DominantColor
  * Lambda fetch arbitrary URLs or overwrite another image's colour.
  *
- * Returns `undefined` when detection fails. Failures are never cached.
+ * The colour follows the page colour rule (`groundColor`), whichever rule it
+ * was stored under. Returns `undefined` when detection fails. Failures are
+ * never cached.
  */
 const detectDominantColorFromImage = async ({
   path,
@@ -102,17 +121,9 @@ const detectDominantColorFromImage = async ({
     return undefined;
   }
 
-  try {
-    const cachedValue = await getCacheItem<string>(cacheKey(path));
-    if (isHexColor(cachedValue)) {
-      return cachedValue;
-    }
-  } catch (error) {
-    // Cache is best-effort: fall through to detection
-    console.warn('[dominant-color] cache read failed', error);
-  }
-
-  return detectAndCache(path, size);
+  return (
+    (await readStoredColors([path])).get(path) ?? detectAndCache(path, size)
+  );
 };
 
 // Parallel DominantColor Lambda invocations per request
@@ -135,23 +146,15 @@ export const detectDominantColorsFromImages = async ({
     isValidImage(path, size),
   );
 
-  let cachedValues = new Map<string, unknown>();
-  try {
-    cachedValues = await getCacheItems<unknown>(validPaths.map(cacheKey));
-  } catch (error) {
-    // Cache is best-effort: fall through to detection
-    console.warn('[dominant-color] cache read failed', error);
-  }
+  const stored = await readStoredColors(validPaths);
 
   const colors = new Map<string, string>();
   const limit = createLimiter(DETECT_CONCURRENCY);
 
   await Promise.all(
     validPaths.map(async (path) => {
-      const cachedValue = cachedValues.get(cacheKey(path));
-      const color = isHexColor(cachedValue)
-        ? cachedValue
-        : await limit(() => detectAndCache(path, size));
+      const color =
+        stored.get(path) ?? (await limit(() => detectAndCache(path, size)));
 
       if (color) {
         colors.set(path, color);

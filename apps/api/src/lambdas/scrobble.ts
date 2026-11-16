@@ -1,12 +1,15 @@
-import type {
-  Episode,
-  PlexMetadata,
-  ScrobbleEvent,
-  TmdbExternalSource,
-  TvSeries,
-  WatchProvider,
+import {
+  type Episode,
+  type PlexMetadata,
+  PlexMetadataSchema,
+  type ScrobbleEvent,
+  type TmdbExternalSource,
+  type TvSeries,
+  type WatchProvider,
 } from '@tvseri.es/schemas';
+import { episodeCode } from '@tvseri.es/utils';
 import type { SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
+import * as v from 'valibot';
 
 import { markWatched } from '@/lib/db/watched';
 import {
@@ -15,18 +18,15 @@ import {
   findByExternalId,
   searchTvSeries,
 } from '@/lib/tmdb';
-import formatSeasonAndEpisode from '@/utils/formatSeasonAndEpisode';
 
 type EpisodeWithTvSeriesId = Episode & { tvSeriesId: number };
 
 type ExternalIds = Record<Partial<TmdbExternalSource>, string | undefined>;
 
 type Metadata = Readonly<{
-  episodeTitle: string;
-  seasonTitle: string;
-  seriesTitle: string;
-  episodeNumber: number;
-  seasonNumber: number;
+  seriesTitle?: string;
+  episodeNumber?: number;
+  seasonNumber?: number;
   year?: number;
   externalIds?: ExternalIds;
 }>;
@@ -46,12 +46,10 @@ function normalizePlexMetadata(metadata: PlexMetadata): Metadata {
 
   return {
     episodeNumber: metadata.index,
-    episodeTitle: metadata.title,
     externalIds: Object.values(externalIds).some(Boolean)
       ? externalIds
       : undefined,
     seasonNumber: metadata.parentIndex,
-    seasonTitle: metadata.parentTitle,
     seriesTitle: metadata.grandparentTitle,
     year: metadata.year,
   };
@@ -60,9 +58,18 @@ function normalizePlexMetadata(metadata: PlexMetadata): Metadata {
 const processScrobble = async (record: SQSRecord) => {
   const payload = JSON.parse(record.body) as ScrobbleEvent;
 
-  // Note: skipping non-Plex scrobbles for now
-  // even though it should never happen as we filter them out in the webhook already
+  // Only Plex is handled; the webhook route already refuses other providers
   if (!payload.metadata.plex) {
+    return;
+  }
+
+  // The route validated it; a message it didn't (from before the check, or
+  // a redrive) is dropped: retrying can't make it valid
+  const plex = v.safeParse(PlexMetadataSchema, payload.metadata.plex);
+  if (!plex.success) {
+    console.error(
+      `Invalid Plex metadata in ${record.messageId}, skipping | User: ${payload.userId}`,
+    );
     return;
   }
 
@@ -73,7 +80,7 @@ const processScrobble = async (record: SQSRecord) => {
     name: 'Plex',
   } as WatchProvider;
 
-  const metadata = normalizePlexMetadata(payload.metadata.plex);
+  const metadata = normalizePlexMetadata(plex.output);
 
   // Try to find episode by external IDs first
   let episode: Episode | undefined;
@@ -105,9 +112,16 @@ const processScrobble = async (record: SQSRecord) => {
     }
   }
 
-  // If no episode found via external IDs or no external IDs, try fuzzy search
-  if (!episode) {
-    const fuzzyResult = await searchTvSeries(metadata.seriesTitle, {
+  // If no episode found via external IDs or no external IDs, try fuzzy
+  // search (it needs the title and both numbers)
+  const { episodeNumber, seasonNumber, seriesTitle } = metadata;
+  if (
+    !episode &&
+    seriesTitle &&
+    seasonNumber !== undefined &&
+    episodeNumber !== undefined
+  ) {
+    const fuzzyResult = await searchTvSeries(seriesTitle, {
       year: metadata.year,
     });
 
@@ -115,8 +129,8 @@ const processScrobble = async (record: SQSRecord) => {
       const tvSeriesFromResult = fuzzyResult[0]!;
       const episodeFromResult = await fetchTvSeriesEpisode(
         tvSeriesFromResult.id,
-        metadata.seasonNumber,
-        metadata.episodeNumber,
+        seasonNumber,
+        episodeNumber,
       );
 
       if (episodeFromResult) {
@@ -131,7 +145,12 @@ const processScrobble = async (record: SQSRecord) => {
     const reason = !metadata.externalIds
       ? 'No external IDs found in payload, and no fuzzy result'
       : 'No episode found via external IDs or fuzzy search';
-    console.error(`${reason}, skipping`, JSON.stringify(payload));
+    // The validated fields only: a message from before the route checked it
+    // holds everything the media server sent
+    console.error(
+      `${reason}, skipping`,
+      JSON.stringify({ plex: plex.output, userId: payload.userId }),
+    );
     return;
   }
 
@@ -154,7 +173,7 @@ const processScrobble = async (record: SQSRecord) => {
   });
 
   console.log(
-    `[SUCCESS] Plex | ${tvSeries.title} - ${formatSeasonAndEpisode({ episodeNumber: episode.episodeNumber, seasonNumber: episode.seasonNumber })} "${episode.title}" | User: ${payload.userId}`,
+    `[SUCCESS] Plex | ${tvSeries.title} - ${episodeCode(episode)} "${episode.title}" | User: ${payload.userId}`,
   );
 };
 

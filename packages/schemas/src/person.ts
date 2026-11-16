@@ -6,6 +6,7 @@ export const PersonSchema = v.object({
   birthdate: v.optional(v.string()),
   character: v.string(),
   deathdate: v.optional(v.string()),
+  gender: v.optional(v.picklist(['female', 'male', 'non-binary'])),
   id: v.number(),
   image: v.string(),
   imdbId: v.optional(v.string()),

@@ -1,15 +1,44 @@
+import type { PersonFamily } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
+import { toPersonLinks } from '@/lib/person/links';
+import {
+  fetchPersonCareer,
+  fetchPersonCollaborators,
+  fetchPersonShows,
+} from '@/lib/person/load';
 import {
   fetchPerson,
+  fetchPersonExternalIds,
   fetchPersonKnownFor,
   fetchPersonTvCredits,
 } from '@/lib/tmdb';
+import { fetchPersonFamilyAndAwards } from '@/lib/wikidata';
 import { cachedNotFound } from '@/middleware/cacheControl';
 import { cacheHeader } from '@/utils/cacheHeader';
 
+/**
+ * A child links to their person page with TMDB's own slug (the page's
+ * canonical one), so the link never costs a redirect; a child TMDB doesn't
+ * know is plain text.
+ */
+const withTmdbSlugs = async (
+  family: PersonFamily | null,
+): Promise<PersonFamily | null> => {
+  if (!family) {
+    return family;
+  }
+  const children = await Promise.all(
+    family.children.map(async ({ slug: _, tmdbId, ...child }) => {
+      const found = tmdbId ? await fetchPerson(tmdbId) : undefined;
+      return found ? { ...child, slug: found.slug, tmdbId } : child;
+    }),
+  );
+  return { ...family, children };
+};
+
 const app = new Hono();
 
-app.get('/:id{[0-9]+}', async (c) => {
+app.get('/:id{[0-9]{1,10}}', async (c) => {
   const person = await fetchPerson(c.req.param('id'));
 
   c.header('Cache-Control', cacheHeader('medium'));
@@ -21,7 +50,7 @@ app.get('/:id{[0-9]+}', async (c) => {
   return c.json(person);
 });
 
-app.get('/:id{[0-9]+}/credits', async (c) => {
+app.get('/:id{[0-9]{1,10}}/credits', async (c) => {
   const credits = await fetchPersonTvCredits(c.req.param('id'));
 
   c.header('Cache-Control', cacheHeader('medium'));
@@ -34,7 +63,80 @@ app.get('/:id{[0-9]+}/credits', async (c) => {
   );
 });
 
-app.get('/:id{[0-9]+}/known-for', async (c) => {
+// Socials row: IMDb, Instagram, X, TikTok...
+app.get('/:id{[0-9]{1,10}}/external-ids', async (c) => {
+  const ids = await fetchPersonExternalIds(c.req.param('id'));
+
+  c.header('Cache-Control', cacheHeader('long'));
+
+  if (!ids) {
+    return c.notFound();
+  }
+
+  return c.json({ links: toPersonLinks(ids) });
+});
+
+// Shows list: cast + crew merged, "Self" split out
+app.get('/:id{[0-9]{1,10}}/shows', async (c) => {
+  const shows = await fetchPersonShows(c.req.param('id'));
+
+  c.header('Cache-Control', cacheHeader('medium'));
+
+  if (!shows) {
+    return c.notFound();
+  }
+
+  return c.json(shows);
+});
+
+// Career chart: a row per series, years across
+app.get('/:id{[0-9]{1,10}}/career', async (c) => {
+  const career = await fetchPersonCareer(c.req.param('id'));
+
+  c.header('Cache-Control', cacheHeader('medium'));
+
+  if (!career) {
+    return c.notFound();
+  }
+
+  return c.json(career);
+});
+
+// Frequent collaborators: people in 2+ of his shows
+app.get('/:id{[0-9]{1,10}}/collaborators', async (c) => {
+  const collaborators = await fetchPersonCollaborators(c.req.param('id'));
+
+  c.header('Cache-Control', cacheHeader('medium'));
+
+  if (!collaborators) {
+    return c.notFound();
+  }
+
+  return c.json(collaborators);
+});
+
+// Spouse, children, awards from Wikidata; never fails when it is down
+app.get('/:id{[0-9]{1,10}}/family-and-awards', async (c) => {
+  const person = await fetchPerson(c.req.param('id'));
+
+  if (!person) {
+    c.header('Cache-Control', cacheHeader('medium'));
+    return c.notFound();
+  }
+
+  const { ok, value } = await fetchPersonFamilyAndAwards(person.imdbId);
+
+  // A Wikidata outage must not be pinned at the CDN
+  c.header('Cache-Control', ok ? cacheHeader('medium') : 'no-store');
+
+  if (!ok) {
+    return c.json({ ...value, degraded: true });
+  }
+
+  return c.json({ ...value, family: await withTmdbSlugs(value.family) });
+});
+
+app.get('/:id{[0-9]{1,10}}/known-for', async (c) => {
   const person = await fetchPerson(c.req.param('id'));
 
   c.header('Cache-Control', cacheHeader('medium'));

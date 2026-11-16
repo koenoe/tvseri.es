@@ -1,0 +1,122 @@
+'use client';
+
+import { memo } from 'react';
+
+import cn from '@/lib/cn';
+
+import { chipLabel, isPressedChip, type SheetChip } from './chips';
+import {
+  ChipGlyph,
+  type ChipOverlay,
+  ChipText,
+  markChipClass,
+} from './MarkChip';
+import { type RunCommit, runSpan } from './paint';
+import { useSheetUi, useSheetUiStore } from './sheetUi';
+import usePaintGesture from './usePaintGesture';
+
+type ChipProps = Readonly<{
+  index: number;
+  chip: SheetChip;
+  overlay: ChipOverlay | undefined;
+  title: string;
+}>;
+
+const CHIP_LAYOUT =
+  'w-full min-w-14 max-sm:w-auto max-sm:min-w-12 max-sm:px-1.5';
+
+function GridChip({ chip, index, overlay, title }: ChipProps) {
+  const classes = markChipClass(chip.state, overlay, CHIP_LAYOUT);
+  const na = chip.state === 'na';
+  return (
+    <button
+      aria-disabled={na || undefined}
+      aria-label={title}
+      aria-pressed={isPressedChip(chip.state)}
+      className={classes}
+      data-chip={index}
+      tabIndex={na ? -1 : undefined}
+      title={title}
+      type="button"
+    >
+      <ChipGlyph overlay={overlay} state={chip.state} />
+      <ChipText struck={chip.state === 'sk'}>{chipLabel(chip.ref)}</ChipText>
+    </button>
+  );
+}
+
+const GridChipMemo = memo(GridChip);
+GridChipMemo.displayName = 'GridChip';
+
+/**
+ * One season's `.mk-chip` grid and its paint gesture: a tap is a click (`onTap`); a drag paints a
+ * consecutive run, the first chip deciding, and the release applies it per
+ * mode (`onCommit`). Touch starts a run with a 350ms press or a sideways
+ * 6px move; vertical moves scroll. Chip boxes are measured once per drag,
+ * so a move is a lookup, not a layout read; the highlight is a class.
+ */
+function ChipGrid({
+  chips,
+  onCommit,
+  onTap,
+  seasonNumber,
+  titles,
+}: Readonly<{
+  seasonNumber: number;
+  chips: ReadonlyArray<SheetChip>;
+  /** Tooltip / accessible name per chip, same order. */
+  titles: ReadonlyArray<string>;
+  onTap: (chip: SheetChip) => void;
+  onCommit: (commit: RunCommit) => void;
+}>) {
+  const store = useSheetUiStore();
+  const run = useSheetUi((state) =>
+    state.run?.seasonNumber === seasonNumber ? state.run : null,
+  );
+  const mode = useSheetUi((state) => state.mode);
+  const handlers = usePaintGesture({
+    chips,
+    onCommit,
+    onTap,
+    seasonNumber,
+    store,
+  });
+
+  const span = run ? runSpan(mode, run) : null;
+  const unmarking = run?.direction === 'unmark' && mode !== 'upto';
+  const classes = cn(
+    'grid select-none grid-cols-[repeat(auto-fill,minmax(64px,1fr))] gap-2 max-sm:flex max-sm:flex-wrap max-sm:gap-[5px]',
+    run ? 'touch-none' : 'touch-pan-y',
+  );
+
+  return (
+    <div className={classes} {...handlers}>
+      {chips.map((chip, index) => {
+        const painted =
+          span !== null &&
+          index >= span[0] &&
+          index <= span[1] &&
+          chip.state !== 'na';
+        const overlay: ChipOverlay | undefined = painted
+          ? unmarking
+            ? 'unrun'
+            : 'run'
+          : undefined;
+        return (
+          <GridChipMemo
+            chip={chip}
+            index={index}
+            key={chip.ref.episodeNumber}
+            overlay={overlay}
+            title={titles[index] ?? ''}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+const ChipGridMemo = memo(ChipGrid);
+ChipGridMemo.displayName = 'ChipGrid';
+
+export default ChipGridMemo;

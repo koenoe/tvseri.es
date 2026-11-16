@@ -11,16 +11,17 @@ import { Hono } from 'hono';
 import { requireAuthAdmin, type Variables } from '@/middleware/auth';
 import { cacheHeader } from '@/utils/cacheHeader';
 
+import { getDateRange } from '../reads';
 import {
   aggregateDependencyOperationsWithSeries,
   aggregateSummaries,
   buildPk,
-  getDateRange,
   getSummaries,
   queryByPkAndPrefix,
   queryCountryTimeSeries,
   queryEndpointTimeSeries,
   queryPlatformTimeSeries,
+  sortApiRows,
 } from './queries';
 
 const app = new Hono<{ Variables: Variables }>();
@@ -36,10 +37,6 @@ app.use('*', async (c, next) => {
   c.header('Cache-Control', METRICS_CACHE_HEADER);
   await next();
 });
-
-// ════════════════════════════════════════════════════════════════════════════
-// SUMMARY
-// ════════════════════════════════════════════════════════════════════════════
 
 /**
  * GET /metrics/api/summary
@@ -79,10 +76,6 @@ app.get('/', vValidator('query', ApiMetricsSummaryQuerySchema), async (c) => {
     startDate,
   });
 });
-
-// ════════════════════════════════════════════════════════════════════════════
-// ENDPOINTS
-// ════════════════════════════════════════════════════════════════════════════
 
 /**
  * GET /metrics/api/endpoints
@@ -183,35 +176,7 @@ app.get(
       }
     }
 
-    // Sort
-    endpoints.sort((a, b) => {
-      let aVal: number;
-      let bVal: number;
-
-      switch (sortBy) {
-        case 'apdex':
-          aVal = a.apdex.score;
-          bVal = b.apdex.score;
-          break;
-        case 'errorRate':
-          aVal = a.errorRate;
-          bVal = b.errorRate;
-          break;
-        case 'p75':
-          aVal = a.latency.p75;
-          bVal = b.latency.p75;
-          break;
-        case 'p99':
-          aVal = a.latency.p99;
-          bVal = b.latency.p99;
-          break;
-        default:
-          aVal = a.requestCount;
-          bVal = b.requestCount;
-      }
-
-      return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
-    });
+    sortApiRows(endpoints, sortBy, sortDir);
 
     // Apply limit if provided
     const result = limit ? endpoints.slice(0, limit) : endpoints;
@@ -302,10 +267,6 @@ app.get(
     });
   },
 );
-
-// ════════════════════════════════════════════════════════════════════════════
-// DEPENDENCIES
-// ════════════════════════════════════════════════════════════════════════════
 
 /**
  * GET /metrics/api/dependencies
@@ -418,10 +379,6 @@ app.get(
   },
 );
 
-// ════════════════════════════════════════════════════════════════════════════
-// PLATFORMS
-// ════════════════════════════════════════════════════════════════════════════
-
 /**
  * GET /metrics/api/platforms
  *
@@ -489,31 +446,7 @@ app.get(
       }
     }
 
-    // Sort
-    platforms.sort((a, b) => {
-      let aVal: number;
-      let bVal: number;
-
-      switch (sortBy) {
-        case 'errorRate':
-          aVal = a.errorRate;
-          bVal = b.errorRate;
-          break;
-        case 'p75':
-          aVal = a.latency.p75;
-          bVal = b.latency.p75;
-          break;
-        case 'p99':
-          aVal = a.latency.p99;
-          bVal = b.latency.p99;
-          break;
-        default:
-          aVal = a.requestCount;
-          bVal = b.requestCount;
-      }
-
-      return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
-    });
+    sortApiRows(platforms, sortBy, sortDir);
 
     return c.json({
       endDate,
@@ -570,10 +503,6 @@ app.get(
     });
   },
 );
-
-// ════════════════════════════════════════════════════════════════════════════
-// COUNTRIES
-// ════════════════════════════════════════════════════════════════════════════
 
 /**
  * GET /metrics/api/countries
@@ -643,31 +572,7 @@ app.get(
       }
     }
 
-    // Sort
-    countries.sort((a, b) => {
-      let aVal: number;
-      let bVal: number;
-
-      switch (sortBy) {
-        case 'errorRate':
-          aVal = a.errorRate;
-          bVal = b.errorRate;
-          break;
-        case 'p75':
-          aVal = a.latency.p75;
-          bVal = b.latency.p75;
-          break;
-        case 'p99':
-          aVal = a.latency.p99;
-          bVal = b.latency.p99;
-          break;
-        default:
-          aVal = a.requestCount;
-          bVal = b.requestCount;
-      }
-
-      return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
-    });
+    sortApiRows(countries, sortBy, sortDir);
 
     return c.json({
       countries,

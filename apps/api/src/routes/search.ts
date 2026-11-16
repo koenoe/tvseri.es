@@ -1,37 +1,76 @@
+import { vValidator } from '@hono/valibot-validator';
+import type { SearchPerson, SearchResults } from '@tvseri.es/schemas';
+import { normalizeSearchQuery } from '@tvseri.es/utils';
 import { Hono } from 'hono';
-import { searchKeywords, searchTvSeries } from '@/lib/tmdb';
+import { bestBlock, rankByTier } from '@/lib/search/ranking';
+import { searchKeywords, searchPerson, searchTvSeries } from '@/lib/tmdb';
 import { cacheHeader } from '@/utils/cacheHeader';
+import { SearchQuerySchema, SeriesSearchQuerySchema } from '@/utils/params';
+
+const MAX_SERIES = 8;
+const MAX_PEOPLE = 4;
 
 const app = new Hono();
 
-app.get('/series', async (c) => {
-  const q = c.req.query('q');
-  if (!q) {
-    return c.json({ error: 'No search query provided' }, 400);
-  }
+// Shows and people in one request, each best match first
+app.get('/', vValidator('query', SearchQuerySchema), async (c) => {
+  const q = normalizeSearchQuery(c.req.valid('query').q);
 
-  const series = await searchTvSeries(q, {
-    year: c.req.query('year'),
-  });
+  const [seriesResults, peopleResults] = await Promise.all([
+    searchTvSeries(q),
+    searchPerson(q),
+  ]);
+
+  const series = rankByTier(seriesResults, q, (item) => item.title).slice(
+    0,
+    MAX_SERIES,
+  );
+  // The board drops people without a photo: they'd be a blank face
+  const people = rankByTier(
+    peopleResults.filter((person) => !!person.image),
+    q,
+    (person) => person.name,
+  ).slice(0, MAX_PEOPLE);
+
+  const results: SearchResults = {
+    best: bestBlock(
+      series[0] && { name: series[0].title, popularity: series[0].popularity },
+      people[0],
+      q,
+    ),
+    people: people.map(
+      (person): SearchPerson => ({
+        id: person.id,
+        image: person.image,
+        knownFor: person.knownFor.slice(0, 2).map((item) => item.title),
+        knownForDepartment: person.knownForDepartment,
+        name: person.name,
+        slug: person.slug,
+      }),
+    ),
+    series,
+  };
+
+  c.header('Cache-Control', cacheHeader('medium'));
+
+  return c.json(results);
+});
+
+app.get('/series', vValidator('query', SeriesSearchQuerySchema), async (c) => {
+  const { q, year } = c.req.valid('query');
+  const series = await searchTvSeries(q, { year });
 
   c.header('Cache-Control', cacheHeader('medium'));
 
   return c.json(series);
 });
 
-app.get('/keyword', async (c) => {
-  const q = c.req.query('q');
-  if (!q) {
-    return c.json({ error: 'No search query provided' }, 400);
-  }
-
-  const keywords = await searchKeywords(q);
+app.get('/keyword', vValidator('query', SearchQuerySchema), async (c) => {
+  const keywords = await searchKeywords(c.req.valid('query').q);
 
   c.header('Cache-Control', cacheHeader('medium'));
 
   return c.json(keywords);
 });
-
-// TODO: person search
 
 export default app;

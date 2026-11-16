@@ -5,7 +5,7 @@
  * within a single Lambda invocation. Multiple callers requesting the
  * same resource will share the same Promise.
  *
- * Note: This is request-scoped (not cross-invocation) since Lambda
+ * This is request-scoped (not cross-invocation) since Lambda
  * instances don't share memory. For cross-invocation caching, use
  * the DynamoDB cache layer.
  */

@@ -1,5 +1,6 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
+import { productionReserved } from './concurrency';
 import { domain, zone } from './dns';
 import * as dynamo from './dynamo';
 import { email } from './email';
@@ -17,7 +18,7 @@ export const auth = new sst.aws.Auth('Auth', {
     // Caps the public issuer (logins + token refreshes) against abuse; 20 is
     // ample for current traffic.
     concurrency: {
-      reserved: 20,
+      reserved: productionReserved($app.stage, 20),
     },
     // The issuer can't derive the stage's base domain itself; infra/dns.ts is the source of truth.
     environment: {
@@ -29,6 +30,8 @@ export const auth = new sst.aws.Auth('Auth', {
     nodejs: {
       loader: {
         '.css': 'text',
+        // The self-hosted Inter for the sign-in pages (apps/auth/src/ui/assets.ts)
+        '.woff2': 'binary',
       },
     },
     timeout: '15 seconds',

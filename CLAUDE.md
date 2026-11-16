@@ -30,6 +30,8 @@ pnpm format-and-lint      # biome check .
 pnpm format-and-lint:fix
 pnpm check-types          # turbo run check-types
 pnpm knip                 # unused files/exports/deps (runs in CI)
+pnpm test                 # turbo run test: Vitest in every package that has a `test` script
+pnpm --filter @tvseri.es/web e2e   # Playwright on a production build (port 3100): instant() navigation + redirects
 ```
 
 The pre-commit hook runs `biome check --write` through lint-staged.
@@ -63,15 +65,18 @@ Biome, not ESLint/Prettier: single quotes, semicolons, trailing commas, `(x) => 
 - Fetch data in Server Components. Avoid `cookies()`/`headers()` where they'd make a route dynamic for no reason.
 - Watch the size of props serialised from RSC to client components.
 - Request interception lives in `src/proxy.ts` (Next 16), not `middleware.ts`.
-- **Auth**: use `auth()` from `src/auth`. It resolves the OpenAuth session per context (`RSC`, `RouteHandler`, `Proxy`). RSC is read-only and never refreshes tokens: OpenAuth rotates refresh tokens and RSC can't write the new cookie, so refreshing there would log the user out.
-- Client state: Zustand. Animation: Motion. Styling: **Tailwind v3** (the dashboard uses v4, so don't mix syntax).
+- **Auth**: use `auth()` from `src/auth`. It resolves the OpenAuth session per context (`RSC`, `RouteHandler`, `Proxy`). Only the proxy refreshes tokens (one refresh per refresh token per instance, `src/auth/refresh.ts`); RSC and route handlers are read-only and read the cookie it forwards. OpenAuth rotates refresh tokens and RSC can't write the new cookie, so refreshing there would log the user out. A route handler that reads the session must be in the proxy's matcher (`src/proxyMatcher.test.ts` checks). Only an `invalid_grant` from the auth server ends a session; any other refresh failure keeps it for the next request. The `__tvseries_user` display cookie is cosmetic (the pre-paint script reads it to hold signed-in space); never trust it for anything else. Sign-in is `apps/auth`: Google OIDC or an email code.
+- Client state: Zustand. Animation: Motion. Styling: **Tailwind v4**, CSS-first: the tokens live in `src/app/globals.css` (`@theme`) and Tailwind's default palette, type scale and radii are cleared. Use the type tokens (`text-title-2`, `text-meta`…), the colour steps (`text-white/80`, `/60`, `/40`, `text-cyan`, `text-pink`) and `rounded-{px}`; merge classes with `cn()` from `@/lib/cn`.
+- UI primitives live in `src/components/ui` (no primitives library: native `<dialog>`, the Popover API and Motion). `/dev/style-guide` shows them in `next dev`.
 - Use `next/font`/`next/script`. For above-the-fold `next/image`, use `loading="eager"`; use `priority` sparingly.
 
 ## apps/api
 
-Hono on Lambda behind an SST Router (CloudFront). Validate with Valibot via `@hono/valibot-validator`. A CloudFront viewer-request function requires `x-api-key` on every request. The only exception is GET/HEAD on the dashboard's metrics routes, which check an admin Bearer token in the handler (`requireAuthAdmin`).
+Hono on Lambda behind an SST Router (CloudFront), deployed as two functions with the same code and links: the edge sends the viewer's own writes to a write function (`infra/apiWriteRoutes.ts`; a new route needs a row in `test/apiBulkhead.test.ts`). Validate with Valibot via `@hono/valibot-validator`. A CloudFront viewer-request function requires `x-api-key` on every request (`infra/apiEdgeInjection.ts`, mirrored by `src/middleware/apiKey.ts`). The exceptions: OPTIONS; GET/HEAD on the dashboard's metrics routes, which check an admin Bearer token in the handler (`requireAuthAdmin`); and POST on the scrobble webhook route with a `token` the edge finds in its KeyValueStore (media servers can't send the key; the route checks the token again).
 
-`src/lambdas/` holds the non-HTTP handlers: DynamoDB stream subscribers (`watched`, `follow`), Plex scrobble and metrics queues, dominant-color extraction, and daily crons (watched-status validation, metrics aggregation).
+Upstreams: TMDB (series data, watch providers via JustWatch), OMDb (IMDb ratings), MDBList (our curated lists only). Each has a circuit breaker and a per-instance budget (`src/lib/upstream`); answers are cached and served stale while they refresh.
+
+`src/lambdas/` holds the non-HTTP handlers: DynamoDB stream subscribers (`watched`: lists and per-show summaries; `follow`), the Plex scrobble, metrics, account-deletion and import-undo queues, dominant-color extraction, and daily crons (watched-status validation and summary repair, metrics aggregation).
 
 ## Infrastructure
 
@@ -84,22 +89,26 @@ Hono on Lambda behind an SST Router (CloudFront). Validate with Valibot via `@ho
 
 `.github/workflows/`:
 
-- `lint.yml`: format-and-lint, check-types and knip on PRs.
-- `deploy.yml`: production on push to `main`.
+- `ci.yml`: format-and-lint, knip, check-types and unit tests on PRs and `main`; the web's Playwright suite (stub API, four shards) on PRs.
+- `deploy.yml`: production on push to `main`, gated on the same checks.
 - `deploy-pr.yml` / `cleanup-pr.yml`: preview stage per PR.
 
 Domains: `www.tvseri.es` (Vercel, primary); `tvseri.es` redirects to www via CloudFront; previews at `pr-{n}.dev.tvseri.es`. `api.`, `auth.` and `dashboard.tvseri.es` are on AWS.
 
 ## Testing
 
-There are no tests yet. When added, they'll use Vitest.
+Vitest, test-first (the `tdd` skill): each package's `vitest.config.ts`, run by `pnpm test` (turbo). Tests sit next to the code as `*.test.ts(x)` (`apps/api` keeps its route tests in `test/`, with an in-memory DynamoDB double); Node by default, `// @vitest-environment jsdom` for a test that renders React. Async Server Components are not unit-tested.
+
+`apps/web/e2e` holds Playwright specs that run on `next build && next start` with Next's testing API (`EXPOSE_TESTING_API=1`) against a stub API and auth server (`e2e/stub-api`, `e2e/stub-auth`): one `instant()` test per route and entry point, placeholder parity, plus redirects as real no-follow requests. Never run `instant()` on `next dev`.
+
+Several agents share one machine through `pnpm agents:*` (`tools/agents/README.md`): `agents:serve`/`agents:stop` for servers on their own ports (`--stub` wires the stub API), `agents:e2e [-- e2e/<spec>.ts]` and `agents:heavy` queue builds and Playwright, `agents:checks` runs lint, types, knip, tests and the web build in one slot.
 
 ## Tools
 
 - **Context7**: use it for library/API docs, setup and configuration, without being asked.
 - **Exa**: web search for current information.
 - **grep.app**: real-world usage examples from public GitHub code.
-- **Browser checks**: always use the `agent-browser` CLI, never DevTools MCP or Playwright MCP.
+- **Browser checks**: the Claude Chrome plugin against `http://localhost:3000` (`sst dev`). Never agent-browser, DevTools MCP or Playwright MCP.
 
 ## Skills
 
@@ -110,7 +119,7 @@ Always load these when working on React/frontend code:
 
 Load these when the task touches their area (installed in `.claude/skills`, pinned in `skills-lock.json`):
 
-- **next-dev-loop**: verify a web change in the running app.
+- **next-dev-loop**: verify a web change in the running app (its `/_next/mcp` half; browser checks use the Chrome plugin).
 - **next-cache-components-optimizer**, **next-partial-prefetching-adoption**, **next-bundle-optimizer**: caching, prefetching and bundle work in `apps/web`.
 - **hono**: `apps/api` routes and middleware.
 - **valibot**: schemas in `packages/schemas` and validation.

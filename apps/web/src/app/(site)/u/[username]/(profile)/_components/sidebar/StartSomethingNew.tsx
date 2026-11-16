@@ -1,0 +1,136 @@
+import { circleButtonStyles } from '@/components/ui/button/buttonStyles';
+import {
+  ButtonFace,
+  FLAT,
+  Ghost,
+  PULSE,
+  TextLine,
+} from '@/components/ui/ghost/ghosts';
+import {
+  shuffleGlyph,
+  trendingGlyph,
+  usersGlyph,
+} from '@/components/ui/icon/glyphs';
+import Icon from '@/components/ui/icon/Icon';
+import type { Glyph } from '@/components/ui/icon/types';
+import MetaRow from '@/components/ui/meta/MetaRow';
+import SectionHead from '@/components/ui/section/SectionHead';
+import cn from '@/lib/cn';
+import type { Profile } from '../../_data/profile';
+import EmptyState from '../blocks/EmptyState';
+
+import {
+  DECK_BUTTONS,
+  DECK_CARD,
+  DECK_FACE,
+  DECK_FAN,
+  DECK_FRAME,
+  DECK_PICK,
+  DECK_TOP,
+} from './start/deckLayout';
+import { loadStartDeck, type StartSource } from './start/loadStart';
+import StartDeck from './start/StartDeck';
+import { slotAt } from './start/startCards';
+
+/** Keeps the block's 408px when there is no deck, so nothing below it moves */
+const NOT_NOW = circleButtonStyles({ className: FLAT, size: 44 });
+
+const CALM = 'h-[368px] rounded-16 bg-black/22';
+
+/** The pill above a borrowed deck */
+const BADGES: Readonly<
+  Record<Exclude<StartSource, 'watchlist'>, { glyph: Glyph; text: string }>
+> = {
+  circle: { glyph: usersGlyph, text: 'Finished by people you follow' },
+  trending: { glyph: trendingGlyph, text: 'Popular this week' },
+};
+
+function Badge({
+  source,
+}: Readonly<{ source: Exclude<StartSource, 'watchlist'> }>) {
+  const { glyph, text } = BADGES[source];
+  return (
+    <span className="relative flex h-6 items-center gap-1.5 self-center rounded-full bg-white/6 px-2.5 text-caption font-medium text-white/80">
+      <Icon glyph={glyph} size={13} />
+      {text}
+    </span>
+  );
+}
+
+/**
+ * Start something new: one show from your watchlist, with the rest
+ * fanned behind it. Owner only; with fewer than three saved shows the deck is shows
+ * your circle finished, else Popular this week (and the middle button saves
+ * the show instead of dealing).
+ */
+export default async function StartSomethingNew({
+  profile,
+}: Readonly<{ profile: Profile }>) {
+  if (profile.viewer !== 'owner') {
+    return null;
+  }
+  const deck = await loadStartDeck(profile);
+  if (deck.cards.length === 0) {
+    return (
+      <section aria-labelledby="s-start" className="flex flex-col gap-4">
+        <SectionHead id="s-start" size="side" title="Start something new" />
+        <EmptyState
+          className={CALM}
+          glyph={trendingGlyph}
+          sub="Nothing to suggest right now."
+          title="No picks yet"
+        />
+      </section>
+    );
+  }
+  const mode = deck.source === 'trending' ? 'add' : 'pick';
+  const badge =
+    deck.source === 'watchlist' ? null : <Badge source={deck.source} />;
+  return (
+    <section aria-labelledby="s-start" className="flex flex-col gap-4">
+      <SectionHead id="s-start" size="side" title="Start something new" />
+      <StartDeck badge={badge} cards={deck.cards} mode={mode} />
+    </section>
+  );
+}
+
+/** The fan's five cards, back to front */
+const FAN = [4, 3, 2, 1, 0].map(slotAt);
+
+const GHOST_DECK = cn(DECK_FRAME, DECK_TOP, PULSE);
+
+/**
+ * The block while it streams: the real title, the card as a flat panel with
+ * the fan's five cards in their places, the face's two lines and the three
+ * buttons as flat shapes (the watchlist deck: no source badge).
+ */
+export function StartSomethingNewSkeleton() {
+  return (
+    <div aria-hidden="true" className="flex flex-col gap-4">
+      <SectionHead id="s-start-sk" size="side" title="Start something new" />
+      <div className={GHOST_DECK}>
+        <div className={DECK_FAN}>
+          {FAN.map((slot) => {
+            const style = {
+              transform: `translate(${slot.x}px, ${slot.y}px) rotate(${slot.rotate}deg)`,
+            };
+            return <Ghost className={DECK_CARD} key={slot.x} style={style} />;
+          })}
+        </div>
+        <div className={DECK_FACE}>
+          <TextLine className="text-body" width="w-28" />
+          <MetaRow className="justify-center" fit="drop">
+            <TextLine className="text-meta" width="w-40" />
+          </MetaRow>
+        </div>
+        <div className={DECK_BUTTONS}>
+          <span className={NOT_NOW} />
+          <ButtonFace className={DECK_PICK} icon={shuffleGlyph} size="lg">
+            Pick one
+          </ButtonFace>
+          <span className={NOT_NOW} />
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -2,6 +2,8 @@ import type { paths } from '../tmdb-v3';
 
 export type TmdbTvSeries =
   paths[`/3/tv/${number}`]['get']['responses']['200']['content']['application/json'] & {
+    /** Present when requested with `append_to_response=external_ids` */
+    external_ids?: { imdb_id?: string | null };
     images: paths[`/3/tv/${number}/images`]['get']['responses']['200']['content']['application/json'];
   };
 
@@ -109,3 +111,6 @@ export type TmdbExternalSource =
 
 export type TmdbFindByIdResults =
   paths[`/3/find/${string}`]['get']['responses']['200']['content']['application/json'];
+
+export type TmdbNetwork =
+  paths[`/3/network/${number}`]['get']['responses']['200']['content']['application/json'];

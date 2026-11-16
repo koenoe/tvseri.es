@@ -1,0 +1,63 @@
+/*
+ * The import's Ripple: seven rings, 150px + 90px each.
+ * Finite: three slow breaths while importing, one settle on success.
+ * Only transform and opacity animate.
+ */
+.ripple {
+  position: absolute;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(150px + var(--i) * 90px);
+  height: calc(150px + var(--i) * 90px);
+  border-radius: 50%;
+  border: 1px solid rgb(255 255 255 / calc(0.05 + var(--i) * 0.04));
+  background: rgb(255 255 255 / calc(0.06 - var(--i) * 0.007));
+  transform: translate(-50%, -50%);
+}
+
+.toned .ring {
+  border-color: rgb(var(--rc) / calc(0.1 + var(--i) * 0.035));
+  background: rgb(var(--rc) / calc(0.06 - var(--i) * 0.008));
+}
+
+.breathe .ring {
+  animation: breathe 2.4s ease-in-out 3;
+  animation-delay: calc(var(--i) * 0.06s);
+}
+
+.settle .ring {
+  animation: settle 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i) * 0.07s);
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
+
+@keyframes settle {
+  from {
+    transform: translate(-50%, -50%) scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.7;
+  }
+}

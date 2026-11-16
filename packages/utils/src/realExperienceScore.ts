@@ -39,7 +39,7 @@
  *
  *   RES = (FCP_score × 0.15) + (LCP_score × 0.30) + (INP_score × 0.30) + (CLS_score × 0.25)
  *
- * Note: TTFB is NOT included in Vercel's RES calculation.
+ * TTFB is NOT included in Vercel's RES calculation.
  *
  * The weights reflect Google's Core Web Vitals priorities:
  * - LCP (30%): Largest Contentful Paint - loading performance
@@ -68,7 +68,7 @@
 
 /**
  * Metric names included in Vercel's RES calculation.
- * Note: TTFB is intentionally excluded.
+ * TTFB is intentionally excluded.
  */
 export type RESMetricName = 'CLS' | 'FCP' | 'INP' | 'LCP';
 

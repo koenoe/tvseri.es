@@ -1,5 +1,4 @@
-// sourced from: https://blog.burakcankus.com/2024/03/31/disable-aws-cloudfront-distributions-if-budget-is-exceeded.html
-
+// Based on https://blog.burakcankus.com/2024/03/31/disable-aws-cloudfront-distributions-if-budget-is-exceeded.html
 import {
   CloudFrontClient,
   GetDistributionConfigCommand,
@@ -7,74 +6,36 @@ import {
   UpdateDistributionCommand,
 } from '@aws-sdk/client-cloudfront';
 
+import { disableAll } from './disableAll.mjs';
+
 const cloudFrontClient = new CloudFrontClient();
 
-export async function handler(event, context) {
-  console.log(`Event: ${JSON.stringify(event)}`);
-  console.log(`Context: ${JSON.stringify(context)}`);
+/** The kill switch: invoked by the budget or usage alert (SNS) */
+export async function handler() {
   try {
-    // Get a list of all CloudFront distributions
-    const distributionsResponse = await cloudFrontClient.send(
-      new ListDistributionsCommand({}),
-    );
-
-    // Disable each distribution
-    const disablePromises = distributionsResponse.DistributionList.Items.map(
-      async (item) => {
-        const distributionId = item.Id;
-        await disableDistribution(distributionId);
+    await disableAll({
+      getConfig: async (id) => {
+        const response = await cloudFrontClient.send(
+          new GetDistributionConfigCommand({ Id: id }),
+        );
+        return { config: response.DistributionConfig, etag: response.ETag };
       },
-    );
-
-    await Promise.all(disablePromises);
-
-    return {
-      body: 'All CloudFront distributions disabled successfully.',
-      statusCode: 200,
-    };
+      listDistributionIds: async () =>
+        (
+          (await cloudFrontClient.send(new ListDistributionsCommand({})))
+            .DistributionList?.Items ?? []
+        ).map((item) => item.Id),
+      updateConfig: (id, config, etag) =>
+        cloudFrontClient.send(
+          new UpdateDistributionCommand({
+            DistributionConfig: config,
+            Id: id,
+            IfMatch: etag,
+          }),
+        ),
+    });
   } catch (error) {
-    console.error('Error:', error);
-    return {
-      body: 'An error occurred while disabling CloudFront distributions.',
-      statusCode: 500,
-    };
-  }
-}
-
-async function disableDistribution(distributionId) {
-  try {
-    // Get distribution configuration
-    const configResponse = await cloudFrontClient.send(
-      new GetDistributionConfigCommand({ Id: distributionId }),
-    );
-    const config = configResponse.DistributionConfig;
-
-    // Check if distribution is already disabled
-    if (!config.Enabled) {
-      console.log(`Distribution ${distributionId} is already disabled.`);
-      return; // Skip updating
-    }
-
-    const disabledConfig = {
-      ...config,
-      Enabled: false,
-    };
-
-    // Update distribution with modified configuration
-    await cloudFrontClient.send(
-      new UpdateDistributionCommand({
-        DistributionConfig: disabledConfig,
-        Id: distributionId,
-        IfMatch: configResponse.ETag,
-      }),
-    );
-
-    console.log(`Disabled CloudFront distribution: ${distributionId}`);
-  } catch (error) {
-    console.error(
-      `Error disabling CloudFront distribution ${distributionId}:`,
-      error,
-    );
+    console.error('[KILL SWITCH] Disabling distributions failed', error);
     throw error;
   }
 }

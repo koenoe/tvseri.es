@@ -65,24 +65,44 @@ export default $config({
 
     // The API Router's viewer-request function: SST ships its own part of the
     // code unminified, which leaves little room under CloudFront's 10 KB
-    // function limit. Whitespace and syntax are minified at deploy; names are
-    // kept, because CloudFront calls the top-level `handler` by name. es2017
-    // keeps esbuild from introducing syntax the CloudFront runtime may lack.
+    // function limit, so it's minified at deploy (infra/edgeFunctionMinify.ts).
     $transform(aws.cloudfront.Function, (args, _opts, name) => {
       if (name !== 'ApiRouterCloudfrontFunctionRequest') {
         return;
       }
 
       args.code = $resolve([args.code]).apply(async ([code]) => {
-        const { transform } = await import('esbuild');
-        const result = await transform(code, {
-          loader: 'js',
-          minifySyntax: true,
-          minifyWhitespace: true,
-          target: 'es2017',
-        });
-        return result.code;
+        const { minifyEdgeFunction } = await import(
+          './infra/edgeFunctionMinify'
+        );
+        return minifyEdgeFunction(code);
       });
+    });
+
+    // Every table (the app's and the auth service's) keeps point-in-time
+    // recovery explicitly, not only through SST's default, and production
+    // tables can't be deleted (in place, no data change). PR stages are
+    // removed when the PR closes, so they stay deletable.
+    $transform(sst.aws.Dynamo, (args) => {
+      args.deletionProtection ??= isProduction;
+      const table = args.transform?.table;
+      args.transform = {
+        ...args.transform,
+        table: (tableArgs, opts, name) => {
+          tableArgs.pointInTimeRecovery = { enabled: true };
+          // Pulumi's protect (engine-side, never sent to AWS, so no change
+          // on the tables): a deploy that would delete or replace a
+          // production table fails instead. With removal `retain` a replace
+          // would otherwise orphan the old table and point the app at a new
+          // empty one; deletion protection alone never sees that delete.
+          opts.protect = isProduction;
+          if (typeof table === 'function') {
+            table(tableArgs, opts, name);
+          } else if (table) {
+            Object.assign(tableArgs, table);
+          }
+        },
+      };
     });
 
     // Global transform to standardize all Lambda functions
@@ -115,11 +135,15 @@ export default $config({
     await import('./infra/metrics');
     // watchedStatus: depends on dynamo, dominantColor
     await import('./infra/watchedStatus');
+    // imports: depends on dynamo
+    await import('./infra/imports');
+    // deleteAccount: depends on dynamo
+    await import('./infra/deleteAccount');
 
     // Auth service that depends on dns, dynamo, email
     await import('./infra/auth');
 
-    // API router that depends on auth, dns, dynamo, email, dominantColor, metricsQueue, scrobbleQueue, watchedStatusQueue
+    // API router that depends on auth, dns, dynamo, email, dominantColor, metricsQueue, scrobbleQueue, watchedStatusQueue, undoImportQueue, deleteAccountQueue
     await import('./infra/api');
 
     // Frontend apps that depend on api, auth, dns

@@ -8,7 +8,7 @@ import { createInstrumentedDynamoClient } from '@/lib/metrics/instrumented-dynam
  * All operations are automatically tracked for performance monitoring,
  * recording duration, table name, and operation type.
  *
- * Note: AWS SDK v3 enables HTTP keep-alive by default, so connection
+ * AWS SDK v3 enables HTTP keep-alive by default, so connection
  * reuse is automatic. No custom configuration needed.
  */
 const client = createInstrumentedDynamoClient(new DynamoDBClient({}));

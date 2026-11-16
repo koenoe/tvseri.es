@@ -1,19 +1,22 @@
 /// <reference path="../../.sst/platform/config.d.ts" />
 
+import { alarmOnDeadLetters } from '../alerts';
 import { users } from './users';
 
 export const follow = new sst.aws.Dynamo('Follow', {
   fields: {
-    // GSI1: Query followers of a user (sorted by creation date)
-    gsi1pk: 'string', // FOLLOW#{followerId}#{followingId}
-    gsi1sk: 'string', // FOLLOW#{followerId}#{followingId} (same as pk for single-table design)
+    // As apps/api/src/lib/db/follow writes them. Never change these fields or
+    // the indexes to "match" anything: that rebuilds a GSI or replaces the table.
+    // GSI1: the followers of a user, by when they followed
+    gsi1pk: 'string', // USER#{followingId}#FOLLOWERS
+    gsi1sk: 'string', // {createdAt}#{followerId}
 
-    // GSI2: Query users that someone is following (sorted by creation date)
-    gsi2pk: 'string', // USER#{followingId}#FOLLOWERS
-    gsi2sk: 'string', // {createdAt}#{followerId}
-    // Primary key: enables direct follow/unfollow operations
-    pk: 'string', // USER#{followerId}#FOLLOWING
-    sk: 'string', // {createdAt}#{followingId}
+    // GSI2: the users someone follows, by when they followed them
+    gsi2pk: 'string', // USER#{followerId}#FOLLOWING
+    gsi2sk: 'string', // {createdAt}#{followingId}
+    // Primary key: one item per follow, for direct follow/unfollow
+    pk: 'string', // FOLLOW#{followerId}#{followingId}
+    sk: 'string', // FOLLOW#{followerId}#{followingId} (same as pk)
 
     // Data fields
     // followerId: 'string',
@@ -53,6 +56,7 @@ const followSubscriberDlq = new sst.aws.Queue('FollowSubscriberDLQ', {
     },
   },
 });
+alarmOnDeadLetters('FollowSubscriberDLQ', followSubscriberDlq);
 
 follow.subscribe(
   'FollowSubscriber',

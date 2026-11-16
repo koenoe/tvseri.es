@@ -1,32 +1,34 @@
-import { createClient } from '@openauthjs/openauth/client';
-import { FETCH_TIMEOUT } from '@/constants';
+import 'server-only';
+
+import { type Client, createClient } from '@openauthjs/openauth/client';
+import { createAuthServerFetch } from '@tvseri.es/utils';
+
+import { FETCH_TIMEOUT } from '@/lib/constants';
 
 /**
- * The OpenAuth client turns every non-2xx token response into an "invalid
- * token" error, so a 5xx from the auth server would look like a rejected
- * refresh token and log the user out. Throwing instead makes server errors,
- * rate limiting and timeouts surface as exceptions, which callers treat as
- * transient (see `resolveSession`). A 4xx still comes back as a definitive
- * `err` result.
+ * Only an OAuth `invalid_grant` from the token endpoint reaches OpenAuth as a
+ * refusal; server errors, rate limiting, timeouts and any other 4xx throw, so
+ * callers keep the session (`auth/refresh.ts`).
  */
-async function authServerFetch(
-  input: RequestInfo | URL,
-  init?: RequestInit,
-): Promise<Response> {
-  const response = await fetch(input, {
-    ...init,
-    signal: AbortSignal.timeout(FETCH_TIMEOUT),
-  });
+const authServerFetch = createAuthServerFetch(FETCH_TIMEOUT);
 
-  if (response.status >= 500 || response.status === 429) {
-    throw new Error(`Auth server responded with ${response.status}`);
+let client: Client | null = null;
+
+/**
+ * The OpenAuth client for the website. Created on first use, so importing
+ * auth modules (and building the app) needs no `AUTH_URL`.
+ */
+export function getAuthClient(): Client {
+  if (!client) {
+    const issuer = process.env.AUTH_URL;
+    if (!issuer) {
+      throw new Error('AUTH_URL is not set');
+    }
+    client = createClient({
+      clientID: 'website',
+      fetch: authServerFetch,
+      issuer,
+    });
   }
-
-  return response;
+  return client;
 }
-
-export const client = createClient({
-  clientID: 'website',
-  fetch: authServerFetch,
-  issuer: process.env.AUTH_URL!,
-});

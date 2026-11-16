@@ -4,18 +4,17 @@ import {
   type MetricsCountriesResponse,
   MetricsCountryParamSchema,
   MetricsCountryQuerySchema,
-  type WebVitalAggregate,
 } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
 
 import type { Variables } from '@/middleware/auth';
 
+import { getDateRange } from '../reads';
 import {
+  aggregateBreakdown,
   aggregateSummaries,
-  buildPk,
-  getDateRange,
-  queryByPkAndPrefix,
   queryCountryTimeSeries,
+  sortBreakdown,
 } from './queries';
 
 const app = new Hono<{ Variables: Variables }>();
@@ -45,85 +44,13 @@ app.get('/', vValidator('query', MetricsCountriesQuerySchema), async (c) => {
 
   const { dates, endDate, startDate } = getDateRange(numDays);
 
-  // Fetch country items for each day with device filter in pk
-  const allCountryItems: WebVitalAggregate[] = [];
-  await Promise.all(
-    dates.map(async (date) => {
-      const pk = buildPk(date, { device });
-      const items = await queryByPkAndPrefix(pk, 'C#');
-      allCountryItems.push(...items);
-    }),
+  const countries = sortBreakdown(
+    (await aggregateBreakdown(dates, 'C#', { device })).map(
+      ([country, metrics]) => ({ ...metrics, country }),
+    ),
+    sortBy,
+    sortDir,
   );
-
-  // Group by country and aggregate across days
-  const countryMap = new Map<string, WebVitalAggregate[]>();
-  for (const item of allCountryItems) {
-    const country = item.sk.replace('C#', '');
-    const existing = countryMap.get(country);
-    if (existing) {
-      existing.push(item);
-    } else {
-      countryMap.set(country, [item]);
-    }
-  }
-
-  // Aggregate each country's data
-  const countries: Array<{
-    CLS: WebVitalAggregate['CLS'];
-    country: string;
-    FCP: WebVitalAggregate['FCP'];
-    INP: WebVitalAggregate['INP'];
-    LCP: WebVitalAggregate['LCP'];
-    pageviews: number;
-    score: number;
-    TTFB: WebVitalAggregate['TTFB'];
-  }> = [];
-
-  for (const [country, items] of countryMap) {
-    const aggregated = aggregateSummaries(items);
-    if (aggregated) {
-      countries.push({
-        CLS: aggregated.CLS,
-        country,
-        FCP: aggregated.FCP,
-        INP: aggregated.INP,
-        LCP: aggregated.LCP,
-        pageviews: aggregated.pageviews,
-        score: aggregated.score,
-        TTFB: aggregated.TTFB,
-      });
-    }
-  }
-
-  // Sort
-  countries.sort((a, b) => {
-    let aVal: number;
-    let bVal: number;
-
-    switch (sortBy) {
-      case 'score':
-        aVal = a.score;
-        bVal = b.score;
-        break;
-      case 'LCP':
-        aVal = a.LCP.p75;
-        bVal = b.LCP.p75;
-        break;
-      case 'INP':
-        aVal = a.INP.p75;
-        bVal = b.INP.p75;
-        break;
-      case 'CLS':
-        aVal = a.CLS.p75;
-        bVal = b.CLS.p75;
-        break;
-      default:
-        aVal = a.pageviews;
-        bVal = b.pageviews;
-    }
-
-    return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
-  });
 
   // Apply limit if provided
   const result = limit ? countries.slice(0, limit) : countries;

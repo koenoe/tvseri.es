@@ -11,7 +11,7 @@ export type UserVariables = {
 } & AuthVariables;
 
 /**
- * Middleware to load user from :id param.
+ * Middleware to load user from :id param (an id, or `@username`).
  * Does NOT include auth - use auth() separately if needed.
  */
 const userMiddleware = <T extends UserVariables>(): MiddlewareHandler<{
@@ -24,9 +24,14 @@ const userMiddleware = <T extends UserVariables>(): MiddlewareHandler<{
       throw new HTTPException(400, { message: 'Missing user ID' });
     }
 
-    const user = await findUser({ userId: userId.toUpperCase() });
+    // `@username` in the id's place: a page that knows only the URL's
+    // username reads in parallel with the profile read (the web's Library)
+    const user = userId.startsWith('@')
+      ? await findUser({ username: userId.slice(1) })
+      : await findUser({ userId: userId.toUpperCase() });
 
-    if (!user) {
+    // A profile whose account is being deleted is gone already
+    if (!user || user.deletionRequestedAt) {
       return c.notFound();
     }
 

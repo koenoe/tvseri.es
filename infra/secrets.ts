@@ -2,6 +2,8 @@
 
 export const googleClientId = new sst.Secret('GoogleClientId');
 export const mdblistApiKey = new sst.Secret('MdblistApiKey');
+// Empty placeholder: until the owner sets it, episode IMDb ratings are just empty
+export const omdbApiKey = new sst.Secret('OmdbApiKey', '');
 export const sessionSecret = new sst.Secret('SessionSecret');
 export const tmdbApiAccessToken = new sst.Secret('TmdbApiAccessToken');
 export const tmdbApiKey = new sst.Secret('TmdbApiKey');

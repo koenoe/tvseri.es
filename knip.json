@@ -8,27 +8,33 @@
   },
   "ignoreWorkspaces": ["packages/typescript-config"],
   "workspaces": {
-    ".": {
-      "entry": ["infra/**/*.ts"]
-    },
     "apps/api": {
       "entry": ["src/index.ts", "src/lambdas/*.ts"]
     },
     "apps/auth": {
-      "entry": ["src/index.ts"]
+      "entry": ["src/index.ts", "e2e/harness/*.ts"]
     },
     "apps/dashboard": {
       "entry": ["src/routes/**/*.tsx"]
     },
     "apps/web": {
-      "entry": ["src/lib/tmdbImageLoader.ts"],
-      "ignoreDependencies": ["postcss-load-config"]
+      "entry": [
+        "src/lib/tmdbImageLoader.ts",
+        "test/empty.ts",
+        "scripts/*.mjs",
+        "e2e/stub-api/fixtures/**/*.ts",
+        "e2e/helpers/*.ts"
+      ]
     },
     "packages/kill-switch": {
       "entry": [
         "disable-cloudfront-distributions/index.mjs!",
         "metrics-monitor/index.ts!"
       ]
+    },
+    "tools/load": {
+      "entry": ["src/*.load.ts", "src/setup.ts"],
+      "ignoreDependencies": ["@openauthjs/openauth"]
     }
   }
 }

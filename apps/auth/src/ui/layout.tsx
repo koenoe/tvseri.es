@@ -1,38 +1,79 @@
 /** @jsxImportSource hono/jsx */
-import type { PropsWithChildren } from 'hono/jsx';
+import type { Child } from 'hono/jsx';
 
-import css from './ui.css';
+import { CSS, FAVICON, FONT, type PageKind, SCRIPT } from './assets';
+import { CloseIcon, LockIcon, Logo } from './icons';
 
-export function Layout({ children }: PropsWithChildren) {
+type Props = Readonly<{
+  children: Child;
+  /** Classes on `.a-pg` beyond the ground: `e-pg` for the error pages */
+  className?: string;
+  /** Which page's CSS to inline; the error page has no lock line */
+  kind: PageKind;
+  /** Where the logo and Not now go: the website on this stage */
+  site: string;
+  /** The code page's state, for the CSS and the script */
+  state?: string;
+  /** The page's name; an error after a post prefixes `Error:` (GOV.UK) */
+  title: string;
+}>;
+
+/**
+ * Every page on the auth origin: the logo (back to the site) and
+ * “Not now” on top (the error pages: the logo only), the column, and the
+ * lock line. The CSS and the one script are inline (allowed by hash in the
+ * CSP), the font is preloaded from this origin and the favicon is a data
+ * URI, so a page is one request plus the font, cached for a year.
+ */
+export function Layout({
+  children,
+  className,
+  kind,
+  site,
+  state,
+  title,
+}: Props) {
+  const pageClass = className ? `a-pg ${className}` : 'a-pg';
   return (
     <html lang="en">
       <head>
         <meta charset="utf-8" />
         <meta content="width=device-width, initial-scale=1" name="viewport" />
-        <title>tvseri.es</title>
-        <style dangerouslySetInnerHTML={{ __html: css }} />
+        <meta content="#1c2223" name="theme-color" />
+        <title>{`${title} · tvseri.es`}</title>
+        <link href={FAVICON} rel="icon" />
+        <link
+          as="font"
+          crossorigin=""
+          href={FONT.path}
+          rel="preload"
+          type="font/woff2"
+        />
+        <style dangerouslySetInnerHTML={{ __html: CSS[kind] }} />
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT }} />
       </head>
       <body>
-        <div data-component="root">
-          <div data-component="center">
-            <a data-component="logo" href="/">
-              <svg
-                fill="none"
-                viewBox="4 4 16 16.88"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  clip-rule="evenodd"
-                  d="M8 6.11861L9.4131 4.70551L11.5371 6.82954L14.3667 4L15.7782 5.41151L13.3137 7.87598H18C19.1046 7.87598 20 8.77141 20 9.87598V16.876C20 17.9805 19.1046 18.876 18 18.876H6C4.89543 18.876 4 17.9805 4 16.876V9.87598C4 8.77141 4.89543 7.87598 6 7.87598H9.75736L8 6.11861ZM18 9.87598H6V16.876H18V9.87598Z"
-                  fill="#fff"
-                  fill-rule="evenodd"
-                ></path>
-                <path d="M8 19.876H16V20.876H8V19.876Z" fill="#fff"></path>
-              </svg>
-              <span>tvseri.es</span>
+        <div class={pageClass} data-state={state}>
+          <header class="a-hd">
+            <a aria-label="tvseri.es home" class="a-logo" href={site}>
+              <Logo />
             </a>
-            {children}
-          </div>
+            {/* The error pages' way out is their own Home button */}
+            {kind === 'error' ? null : (
+              <a class="a-nn" href={site}>
+                <CloseIcon />
+                <span>Not now</span>
+              </a>
+            )}
+          </header>
+          {children}
+          {kind === 'error' ? null : (
+            <p class="a-foot">
+              <LockIcon />
+              <span>We use your email only to sign you in.</span>
+            </p>
+          )}
+          <p aria-live="polite" class="sr" id="live" />
         </div>
       </body>
     </html>

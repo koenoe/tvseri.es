@@ -4,18 +4,17 @@ import {
   MetricsRouteQuerySchema,
   MetricsRoutesQuerySchema,
   type MetricsRoutesResponse,
-  type WebVitalAggregate,
 } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
 
 import type { Variables } from '@/middleware/auth';
 
+import { getDateRange } from '../reads';
 import {
+  aggregateBreakdown,
   aggregateSummaries,
-  buildPk,
-  getDateRange,
-  queryByPkAndPrefix,
   queryRouteTimeSeries,
+  sortBreakdown,
 } from './queries';
 
 const app = new Hono<{ Variables: Variables }>();
@@ -47,85 +46,13 @@ app.get('/', vValidator('query', MetricsRoutesQuerySchema), async (c) => {
 
   const { dates, endDate, startDate } = getDateRange(numDays);
 
-  // Fetch route items for each day with filters baked into pk
-  const allRouteItems: WebVitalAggregate[] = [];
-  await Promise.all(
-    dates.map(async (date) => {
-      const pk = buildPk(date, { country, device });
-      const items = await queryByPkAndPrefix(pk, 'R#');
-      allRouteItems.push(...items);
-    }),
+  const routes = sortBreakdown(
+    (await aggregateBreakdown(dates, 'R#', { country, device })).map(
+      ([route, metrics]) => ({ ...metrics, route }),
+    ),
+    sortBy,
+    sortDir,
   );
-
-  // Group by route and aggregate across days
-  const routeMap = new Map<string, WebVitalAggregate[]>();
-  for (const item of allRouteItems) {
-    const route = item.sk.replace('R#', '');
-    const existing = routeMap.get(route);
-    if (existing) {
-      existing.push(item);
-    } else {
-      routeMap.set(route, [item]);
-    }
-  }
-
-  // Aggregate each route's data
-  const routes: Array<{
-    CLS: WebVitalAggregate['CLS'];
-    FCP: WebVitalAggregate['FCP'];
-    INP: WebVitalAggregate['INP'];
-    LCP: WebVitalAggregate['LCP'];
-    pageviews: number;
-    route: string;
-    score: number;
-    TTFB: WebVitalAggregate['TTFB'];
-  }> = [];
-
-  for (const [route, items] of routeMap) {
-    const aggregated = aggregateSummaries(items);
-    if (aggregated) {
-      routes.push({
-        CLS: aggregated.CLS,
-        FCP: aggregated.FCP,
-        INP: aggregated.INP,
-        LCP: aggregated.LCP,
-        pageviews: aggregated.pageviews,
-        route,
-        score: aggregated.score,
-        TTFB: aggregated.TTFB,
-      });
-    }
-  }
-
-  // Sort
-  routes.sort((a, b) => {
-    let aVal: number;
-    let bVal: number;
-
-    switch (sortBy) {
-      case 'score':
-        aVal = a.score;
-        bVal = b.score;
-        break;
-      case 'LCP':
-        aVal = a.LCP.p75;
-        bVal = b.LCP.p75;
-        break;
-      case 'INP':
-        aVal = a.INP.p75;
-        bVal = b.INP.p75;
-        break;
-      case 'CLS':
-        aVal = a.CLS.p75;
-        bVal = b.CLS.p75;
-        break;
-      default:
-        aVal = a.pageviews;
-        bVal = b.pageviews;
-    }
-
-    return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
-  });
 
   // Apply limit if provided
   const result = limit ? routes.slice(0, limit) : routes;

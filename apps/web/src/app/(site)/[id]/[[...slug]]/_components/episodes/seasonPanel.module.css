@@ -1,0 +1,31 @@
+/* The popover drops in (.16s ease-out, opacity + 4px). */
+.pop {
+  animation: pop-in 0.16s ease-out both;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Specials sit after a hairline (`.ssp-r.sp`). */
+.specials {
+  margin-top: 13px;
+}
+
+.specials::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  right: 16px;
+  left: 16px;
+  height: 1px;
+  background: rgb(255 255 255 / 0.09);
+}

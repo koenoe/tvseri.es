@@ -67,9 +67,12 @@ export const auth = (): MiddlewareHandler<{
       const userRecord =
         loadedUser?.id === userId ? loadedUser : await findUser({ userId });
 
-      if (!userRecord) {
+      // A user whose account is being deleted (or is gone) is signed out
+      // everywhere. Its own code tells the web "this user is gone" apart from
+      // a token that couldn't be verified (which may be an auth outage).
+      if (!userRecord || userRecord.deletionRequestedAt) {
         throw new HTTPException(401, {
-          message: 'Unauthorized',
+          message: 'AccountGone',
         });
       }
 

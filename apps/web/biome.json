@@ -1,10 +1,45 @@
 {
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
   "extends": "//",
   "linter": {
     "domains": {
       "next": "all",
       "react": "all"
+    },
+    "rules": {
+      "style": {
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "paths": {
+              "framer-motion": "Import from 'motion/react' (framer-motion is Motion's legacy package name); `m` comes from 'motion/react-m'.",
+              "motion": "Import from 'motion/react' (Motion for React).",
+              "motion/react": {
+                "importNames": ["m", "motion"],
+                "message": "Use `import * as m from 'motion/react-m'`: LazyMotion is set up once (components/motion/MotionProvider). `motion` ships the whole library and throws under the strict provider."
+              },
+              "motion/react-client": "Use `import * as m from 'motion/react-m'`: `motion` ships the whole library and throws under the strict provider."
+            }
+          }
+        }
+      }
     }
   },
+  "overrides": [
+    {
+      "assist": {
+        "actions": {
+          "source": {
+            "useSortedProperties": "off"
+          }
+        }
+      },
+      "includes": ["**/*.css"]
+    }
+  ],
   "root": false
 }

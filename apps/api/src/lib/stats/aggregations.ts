@@ -24,8 +24,26 @@ export type StatsSeriesMeta = Readonly<{
 }>;
 
 type ProviderItem = Readonly<
-  Pick<WatchedItem, 'seriesId' | 'watchProviderLogoPath' | 'watchProviderName'>
+  Pick<
+    WatchedItem,
+    'seriesId' | 'title' | 'watchProviderLogoPath' | 'watchProviderName'
+  >
 >;
+
+/** How many series a provider row names ("Billions, Barry, The Pitt and 30 more") */
+const PROVIDER_SERIES_NAMED = 3;
+
+type ProviderEntry = {
+  /** Episodes per series, in the order first seen */
+  episodes: Map<number, { count: number; title: string }>;
+  logoPath?: string | null;
+};
+
+const topSeries = (episodes: ProviderEntry['episodes']) =>
+  [...episodes]
+    .sort(([, a], [, b]) => b.count - a.count)
+    .slice(0, PROVIDER_SERIES_NAMED)
+    .map(([id, { title }]) => ({ id, title }));
 
 /**
  * Aggregate genre counts from a list of TV series.
@@ -62,21 +80,21 @@ export const aggregateProviders = async (
   items: ReadonlyArray<ProviderItem>,
   limit = 10,
 ): Promise<StatsProviderItem[]> => {
-  const providerMap = items.reduce((map, item) => {
-    if (!item.watchProviderName) return map;
-
-    const existing = map.get(item.watchProviderName);
-    if (existing) {
-      existing.series.add(item.seriesId);
-      existing.logoPath ||= item.watchProviderLogoPath;
-    } else {
-      map.set(item.watchProviderName, {
-        logoPath: item.watchProviderLogoPath,
-        series: new Set([item.seriesId]),
-      });
-    }
-    return map;
-  }, new Map<string, { series: Set<number>; logoPath?: string | null }>());
+  const providerMap = new Map<string, ProviderEntry>();
+  for (const item of items) {
+    if (!item.watchProviderName) continue;
+    const entry = providerMap.get(item.watchProviderName) ?? {
+      episodes: new Map(),
+      logoPath: item.watchProviderLogoPath,
+    };
+    entry.logoPath ||= item.watchProviderLogoPath;
+    const series = entry.episodes.get(item.seriesId);
+    entry.episodes.set(item.seriesId, {
+      count: (series?.count ?? 0) + 1,
+      title: series?.title ?? item.title,
+    });
+    providerMap.set(item.watchProviderName, entry);
+  }
 
   const entries = [...providerMap.entries()];
 
@@ -92,16 +110,17 @@ export const aggregateProviders = async (
         })
       : new Map<string, string>();
 
-  const stats = entries.map(([name, { series, logoPath }]) => {
+  const stats = entries.map(([name, { episodes, logoPath }]) => {
     const defaultColor =
       getPredefinedColor(name) ||
       (logoPath ? detectedColors.get(logoPath) : undefined);
 
     return {
-      count: series.size,
+      count: episodes.size,
       defaultColor: defaultColor || '#000000',
       logo: logoPath ? buildLogoImageUrl(logoPath) : null,
       name,
+      series: topSeries(episodes),
     };
   });
 

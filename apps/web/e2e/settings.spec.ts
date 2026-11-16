@@ -3,6 +3,7 @@ import { devices, expect, test } from '@playwright/test';
 
 import { findOverflow, formatProblems } from './helpers/overflow';
 import { signInAs } from './helpers/session';
+import { fontsSettled, phoneScrollbars } from './helpers/viewport';
 
 /**
  * Settings: per user, so the frame (header, section
@@ -236,11 +237,17 @@ for (const width of [360, 390, 800, 1024, 1280] as const) {
     page,
   }) => {
     await page.setViewportSize({ height: 900, width });
+    await phoneScrollbars(page, width);
     await signInAs(context, 'nina');
     await page.goto('/settings/plex');
+    await fontsSettled(page);
     const statuses = page.getByText('Not available yet', { exact: true });
     await expect(statuses).toHaveCount(2);
     const pills = page.getByText('Coming next', { exact: true });
+    // one line of the status's own type, whatever its font
+    const lineHeight = await statuses
+      .first()
+      .evaluate((node) => Number.parseFloat(getComputedStyle(node).lineHeight));
     for (let index = 0; index < 2; index += 1) {
       const status = await statuses.nth(index).boundingBox();
       const pill = await pills.nth(index).boundingBox();
@@ -253,7 +260,7 @@ for (const width of [360, 390, 800, 1024, 1280] as const) {
           pill.y + pill.height <= status.y;
         expect(apart).toBe(true);
         // the status reads on one line
-        expect(status.height).toBeLessThan(30);
+        expect(status.height).toBeLessThan(lineHeight * 1.5);
       }
     }
     const problems = await findOverflow(page);
@@ -274,11 +281,12 @@ for (const width of [360, 390] as const) {
     page,
   }) => {
     await page.setViewportSize({ height: 844, width });
+    await phoneScrollbars(page, width);
     await signInAs(context, 'nina');
     await page.goto('/settings/import');
     const list = page.getByRole('tablist', { name: 'Where to get your file' });
     await expect(list).toBeVisible();
-    await page.evaluate(() => document.fonts.ready);
+    await fontsSettled(page);
     const outside = await list.evaluate((node) => {
       const box = node.getBoundingClientRect();
       return Array.from(node.querySelectorAll('[role="tab"]')).flatMap(
@@ -304,10 +312,11 @@ for (const width of [360, 390] as const) {
       page,
     }) => {
       await page.setViewportSize({ height: 844, width });
+      await phoneScrollbars(page, width);
       await signInAs(context, viewer);
       await page.goto(path);
       await page.waitForLoadState('networkidle');
-      await page.evaluate(() => document.fonts.ready);
+      await fontsSettled(page);
       const problems = await findOverflow(page);
       expect(problems, formatProblems(problems)).toEqual([]);
     });
@@ -322,6 +331,7 @@ test('Plex week: pressing a day filters the list, and it fits at 390px', async (
   page,
 }) => {
   await page.setViewportSize({ height: 844, width: 390 });
+  await phoneScrollbars(page, 390);
   await signInAs(context, 'rae');
   await page.goto('/settings/plex');
   const week = page.getByRole('group', { name: 'Your week on Plex' });
@@ -344,7 +354,7 @@ test('Plex week: pressing a day filters the list, and it fits at 390px', async (
   await expect(binge).toHaveAttribute('aria-pressed', 'false');
   await expect(latest.getByRole('listitem')).toHaveCount(5);
 
-  await page.evaluate(() => document.fonts.ready);
+  await fontsSettled(page);
   const problems = await findOverflow(page);
   expect(problems, formatProblems(problems)).toEqual([]);
 });

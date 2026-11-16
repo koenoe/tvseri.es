@@ -1,6 +1,7 @@
 import { expect, type Page, test } from '@playwright/test';
 
 import { markWatched, signInAs } from './helpers/session';
+import { fontsSettled, phoneScrollbars } from './helpers/viewport';
 
 /**
  * The Focus wall's composition on awkward seasons, measured in the browser: no hole taller than
@@ -138,6 +139,7 @@ async function openWall(
   if (watched.length) {
     await expect(wall.locator('[data-wall-group="watched"]')).toBeVisible();
   }
+  await fontsSettled(page);
 }
 
 const CASES = [
@@ -174,6 +176,9 @@ test.describe('the episode wall holds together on small and odd seasons', () => 
   for (const width of [1440, 390]) {
     test.describe(`${width}px`, () => {
       test.use({ viewport: { height: 1000, width } });
+      test.beforeEach(async ({ page }) => {
+        await phoneScrollbars(page, width);
+      });
       for (const wallCase of CASES) {
         test(wallCase.name, async ({ context, page }) => {
           await signInAs(context, 'nina');
@@ -204,6 +209,7 @@ test.describe('the episode wall holds together on small and odd seasons', () => 
       page,
     }) => {
       await page.setViewportSize({ height: 1000, width });
+      await phoneScrollbars(page, width);
       await signInAs(context, 'nina');
       await markWatched('nina', 920_013, 1, [13]);
       await openWall(page, 920_013, [13]);
@@ -493,6 +499,7 @@ for (const width of [1440, 390]) {
     page,
   }) => {
     await page.setViewportSize({ height: 1000, width });
+    await phoneScrollbars(page, width);
     await signInAs(context, 'nina');
     await openWall(page, 136_315, []);
     const overhangs = await page
@@ -522,6 +529,9 @@ test.describe('every tile keeps its bottom padding under its last line', () => {
   for (const width of [1440, 1024, 800, 390]) {
     test.describe(`${width}px`, () => {
       test.use({ viewport: { height: 1000, width } });
+      test.beforeEach(async ({ page }) => {
+        await phoneScrollbars(page, width);
+      });
       for (const wallCase of PADDING_CASES) {
         test(wallCase.name, async ({ context, page }) => {
           await signInAs(context, 'nina');
@@ -567,6 +577,7 @@ for (const inset of PILL_INSETS) {
     page,
   }) => {
     await page.setViewportSize({ height: 1000, width: inset.width });
+    await phoneScrollbars(page, inset.width);
     await signInAs(context, 'nina');
     // the no-stills lab: E2 has no synopsis, E3 a one-line one
     await markWatched('nina', 920_102, 1, [1]);
@@ -600,8 +611,33 @@ for (const inset of PILL_INSETS) {
     // within a pixel (sub-pixel rounding of the settled tile)
     expect(Math.abs(after.x - before.x)).toBeLessThanOrEqual(1);
     expect(Math.abs(after.y - before.y)).toBeLessThanOrEqual(1);
-    // and that spot is the still's bottom left, at the layout's inset
-    const spot = await pill('S01E03').evaluate((node) => {
+    if (inset.underLabel) {
+      const pillBox = await pill('S01E03').boundingBox();
+      const labelBox = await page.getByText('Next up · S01E03').boundingBox();
+      expect(
+        Math.abs((pillBox?.x ?? 0) - (labelBox?.x ?? -9)),
+      ).toBeLessThanOrEqual(1);
+    }
+  });
+
+  // the spot itself: the still's bottom left, at the layout's inset (the
+  // pill stays there, above)
+  test(`Next up's pill sits at the still's inset (${inset.width}px)`, {
+    tag: '@design',
+  }, async ({ context, page }) => {
+    await page.setViewportSize({ height: 1000, width: inset.width });
+    await phoneScrollbars(page, inset.width);
+    await signInAs(context, 'nina');
+    await markWatched('nina', 920_102, 1, [1]);
+    await openWall(page, 920_102, [1]);
+    const pill = page.getByRole('button', { name: /^Mark S01E02 watched/ });
+    await expect(pill).toBeVisible();
+    await page.waitForFunction(() =>
+      document
+        .getAnimations()
+        .every((animation) => animation.playState !== 'running'),
+    );
+    const spot = await pill.evaluate((node) => {
       const still = node.parentElement?.getBoundingClientRect();
       const box = node.getBoundingClientRect();
       return {
@@ -611,12 +647,5 @@ for (const inset of PILL_INSETS) {
     });
     expect(Math.abs(spot.bottom - inset.bottom)).toBeLessThanOrEqual(1);
     expect(Math.abs(spot.left - inset.left)).toBeLessThanOrEqual(1);
-    if (inset.underLabel) {
-      const pillBox = await pill('S01E03').boundingBox();
-      const labelBox = await page.getByText('Next up · S01E03').boundingBox();
-      expect(
-        Math.abs((pillBox?.x ?? 0) - (labelBox?.x ?? -9)),
-      ).toBeLessThanOrEqual(1);
-    }
   });
 }

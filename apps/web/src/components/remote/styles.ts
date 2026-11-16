@@ -50,7 +50,8 @@ const HIT_AREA: Readonly<Record<CircleButtonSize, string>> = {
 
 /**
  * The ⋯ that opens a Remote: the shared outline circle (white/20 ring, no
- * fill), white once open, like the icon buttons beside it (no
+ * fill), white once open (and while a first press waits for the Remote's
+ * code, `aria-busy`), like the icon buttons beside it (no
  * dark fill). A soft shadow under the glyph keeps it readable on a bright
  * still; on the page colour it doesn't show.
  */
@@ -60,7 +61,7 @@ export function remoteTriggerStyles(
 ) {
   return circleButtonStyles({
     className: cn(
-      'aria-expanded:border-white aria-expanded:text-white [&>svg]:drop-shadow-[0_1px_2px_rgb(0_0_0/0.55)]',
+      'aria-expanded:border-white aria-expanded:text-white aria-busy:border-white aria-busy:text-white [&>svg]:drop-shadow-[0_1px_2px_rgb(0_0_0/0.55)]',
       HIT_AREA[size],
       className,
     ),

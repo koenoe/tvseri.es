@@ -5,6 +5,8 @@ import {
   type KeyboardEvent,
   type PointerEvent,
   useCallback,
+  useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -47,7 +49,8 @@ type Look = Readonly<{
  * popover or sheet, no media-query subscription, no marking hooks. The
  * first pointer-enter, focus or press loads the Remote (once for the page)
  * and swaps it in, in one commit; a click or key that started it then opens
- * it as it would have, and focus stays on the ⋯. A list of hundreds of rows
+ * it as it would have (the ⋯ reads busy until then), and focus stays on
+ * the ⋯. One press is always enough. A list of hundreds of rows
  * mounts hundreds of buttons, not hundreds of Remotes. A mouse
  * preloads it on enter; a touch loads it on press and swaps it in only
  * with its click, whatever order the browser sends `pointerleave` in.
@@ -62,7 +65,10 @@ function LazyRemote<P extends object>({
   remote: Loader<ComponentType<P>>;
 }>) {
   const [Remote, setRemote] = useState<ComponentType<P> | null>(null);
+  // A press is waiting for the code: the ⋯ reads busy (and looks open)
+  const [busy, setBusy] = useState(false);
   const button = useRef<HTMLButtonElement>(null);
+  const slot = useRef<HTMLSpanElement>(null);
   const opening = useRef<Opening | null>(null);
   const keepFocus = useRef(false);
   // A press in progress: the Remote waits for its click, or the click
@@ -83,46 +89,60 @@ function LazyRemote<P extends object>({
   }, []);
   const load = useCallback(
     (by?: Opening) => {
-      if (by) {
-        opening.current = by;
-      }
       const ready = remote.get();
       if (ready) {
+        if (by) {
+          opening.current = by;
+        }
         swap(ready);
         return;
       }
-      // a failed chunk does nothing now; the next press loads it again
-      remote.load().then(swap, () => undefined);
+      if (by) {
+        opening.current = by;
+        setBusy(true);
+      }
+      // A failed chunk forgets the press (a later hover's load must not
+      // open a menu nobody asked for); the next press loads it again.
+      remote.load().then(swap, () => {
+        opening.current = null;
+        setBusy(false);
+      });
     },
     [remote, swap],
   );
-  // Runs once the real ⋯ is in the page: put focus back, then open it as
-  // the activation that started the load would have.
-  const arrived = useCallback((node: HTMLSpanElement | null) => {
-    const trigger = node?.querySelector('button');
-    if (!trigger) {
+  // The real ⋯ is in the page: focus goes back to it before paint
+  useLayoutEffect(() => {
+    if (Remote && keepFocus.current) {
+      keepFocus.current = false;
+      slot.current?.querySelector('button')?.focus({ preventScroll: true });
+    }
+  }, [Remote]);
+  // Then the press that started the load opens it, once its mount has
+  // settled: StrictMode re-runs a new Remote's effects (as a re-shown
+  // Activity would), and the Remote closes its menu on that re-run, so an
+  // open sent from the commit itself was undone and needed a second press.
+  // The effect runs in the same flush as that re-run, the microtask after it.
+  useEffect(() => {
+    const by = opening.current;
+    const trigger = slot.current?.querySelector('button');
+    if (!Remote || !by || !trigger) {
       return;
     }
-    if (keepFocus.current) {
-      keepFocus.current = false;
-      trigger.focus({ preventScroll: true });
-    }
-    const by = opening.current;
     opening.current = null;
-    if (by === 'keyboard') {
-      queueMicrotask(() =>
+    queueMicrotask(() => {
+      if (by === 'keyboard') {
         trigger.dispatchEvent(
           new globalThis.KeyboardEvent('keydown', {
             bubbles: true,
             cancelable: true,
             key: 'ArrowDown',
           }),
-        ),
-      );
-    } else if (by === 'pointer') {
-      queueMicrotask(() => trigger.click());
-    }
-  }, []);
+        );
+      } else {
+        trigger.click();
+      }
+    });
+  }, [Remote]);
 
   const label = remoteLabels(look.seriesName).trigger;
   const release = useCallback(() => {
@@ -181,15 +201,18 @@ function LazyRemote<P extends object>({
     },
     [load],
   );
+  // absent unless busy: the ⋯ stays identical to the Remote's own
+  const busyAttribute = busy || undefined;
   if (Remote) {
     return (
-      <span className="contents" ref={arrived}>
+      <span className="contents" ref={slot}>
         <Remote {...props} />
       </span>
     );
   }
   return (
     <RemoteTrigger
+      aria-busy={busyAttribute}
       aria-expanded={false}
       className={look.className}
       iconSize={look.iconSize ?? 20}

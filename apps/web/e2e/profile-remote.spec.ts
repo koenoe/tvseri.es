@@ -32,6 +32,12 @@ function watchForCrashes(page: Page) {
   return errors;
 }
 
+/** The library grid's tiles: the list items that carry a ⋯ Remote */
+const libraryTiles = (page: Page) =>
+  page.getByRole('listitem').filter({
+    has: page.getByRole('button', { name: /^More actions for/ }),
+  });
+
 async function expectNoCrash(page: Page, errors: ReadonlyArray<string>) {
   await expect(page.getByText('Something broke')).toHaveCount(0);
   await expect(page.getByText(/didn.t load/)).toHaveCount(0);
@@ -43,11 +49,11 @@ test.describe('the ⋯ Remote on the profile', () => {
     await signInAs(page.context(), 'alex');
   });
 
-  for (const [name, id] of SURFACES) {
+  for (const [name] of SURFACES) {
     test(`opens from ${name}`, async ({ page }) => {
       const errors = watchForCrashes(page);
       await page.goto('/u/alex');
-      const block = page.locator(`section[aria-labelledby="${id}"]`);
+      const block = page.getByRole('region', { name });
       await block.scrollIntoViewIfNeeded();
       // Favourites show the ⋯ on the open slice only
       const more = block
@@ -71,8 +77,7 @@ test.describe('the ⋯ Remote on the profile', () => {
   }) => {
     const errors = watchForCrashes(page);
     await page.goto('/u/alex/library/watching');
-    const grid = page.locator('[data-slot="library-grid"]');
-    const tiles = grid.locator('ul > li');
+    const tiles = libraryTiles(page);
     await expect(tiles.first()).toBeVisible();
     const before = await tiles.count();
     const first = tiles.first();
@@ -122,13 +127,14 @@ test.describe('the ⋯ Remote on the profile', () => {
   }) => {
     const errors = watchForCrashes(page);
     await page.goto('/u/alex/library/watchlist');
-    const tiles = page.locator('[data-slot="library-grid"] ul > li');
+    const tiles = libraryTiles(page);
     await expect(tiles.first()).toBeVisible();
-    const title = await tiles
-      .first()
-      .locator('span.truncate')
-      .first()
-      .textContent();
+    const title = (
+      await tiles
+        .first()
+        .getByRole('button', { name: /^More actions for/ })
+        .getAttribute('aria-label')
+    )?.replace(/^More actions for /, '');
     await tiles.first().hover();
     await tiles
       .first()
@@ -148,9 +154,9 @@ test.describe('the ⋯ Remote on the profile', () => {
   }) => {
     const errors = watchForCrashes(page);
     await page.goto('/u/alex/library/watching');
-    const tile = page
-      .locator('[data-slot="library-grid"] ul > li')
-      .filter({ hasText: 'Dexter: Resurrection' });
+    const tile = libraryTiles(page).filter({
+      hasText: 'Dexter: Resurrection',
+    });
     // the code badge is the next episode
     await expect(tile.getByText('S01E08', { exact: true })).toBeVisible();
     await tile.hover();
@@ -171,7 +177,7 @@ test.describe('the ⋯ Remote on the profile', () => {
   }) => {
     const errors = watchForCrashes(page);
     await page.goto('/u/alex/library/hidden');
-    const tiles = page.locator('[data-slot="library-grid"] ul > li');
+    const tiles = libraryTiles(page);
     await expect(tiles.first()).toBeVisible();
     const before = await tiles.count();
     await tiles.first().hover();
@@ -193,7 +199,7 @@ test.describe('the ⋯ Remote on the profile', () => {
   }) => {
     const errors = watchForCrashes(page);
     await page.goto('/u/alex');
-    const paused = page.locator('section[aria-labelledby="paused"]');
+    const paused = page.getByRole('region', { name: 'Paused' });
     await paused.scrollIntoViewIfNeeded();
     const keeps = paused.getByRole('button', { name: /^Keep / });
     await expect(keeps.first()).toBeVisible();
@@ -213,7 +219,7 @@ test.describe('the ⋯ Remote on the profile', () => {
     page,
   }) => {
     await page.goto('/u/alex');
-    const paused = page.locator('section[aria-labelledby="paused"]');
+    const paused = page.getByRole('region', { name: 'Paused' });
     await paused.scrollIntoViewIfNeeded();
     const hides = paused.getByRole('button', { name: /^Hide (?!all$)/ });
     await expect(hides.first()).toBeVisible();

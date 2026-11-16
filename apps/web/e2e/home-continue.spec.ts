@@ -27,11 +27,13 @@ const PAGE_LOAD = 15_000;
 const placeholder = (page: Page) =>
   page.locator('[data-placeholder="continue"]');
 const row = (page: Page) => page.locator('[data-slot="continue"]');
+const topPicks = (page: Page) =>
+  page.getByRole('heading', { name: /^Top Picks/ });
 const failed = (page: Page, title = 'Continue watching') =>
   page.getByRole('alert').filter({ hasText: `${title} didn’t load.` });
 /** Top Picks' title: where the page below the row starts (once the stream has swapped it in: one title) */
 const below = async (page: Page) => {
-  const title = page.locator('#top-picks-title');
+  const title = topPicks(page);
   await expect(title).toHaveCount(1);
   return (await title.boundingBox())?.y ?? Number.NaN;
 };
@@ -101,8 +103,8 @@ for (const viewport of [
         mode: 'answer',
       });
       await page.goto('/');
-      await expect(page.locator('#top-picks-title')).toHaveCount(1);
-      await expect(page.locator('#top-picks-title')).toBeVisible();
+      await expect(topPicks(page)).toHaveCount(1);
+      await expect(topPicks(page)).toBeVisible();
       await expect(row(page)).toHaveCount(0);
       await expect(placeholder(page)).toHaveCount(0);
       await expect(failed(page)).toHaveCount(0);
@@ -161,7 +163,7 @@ test('a broken Get started answer is the slot’s failed state', async ({
   await page.goto('/');
   await expect(failed(page)).toBeVisible({ timeout: PAGE_LOAD });
   await expect(page.locator('[data-slot="get-started"]')).toHaveCount(0);
-  await expect(page.locator('#top-picks-title')).toBeVisible();
+  await expect(topPicks(page)).toBeVisible();
 });
 
 /**

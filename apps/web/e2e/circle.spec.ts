@@ -13,8 +13,14 @@ import { signInAs, stubApiAs } from './helpers/session';
 const rowNames = (page: Page, section: string) =>
   page
     .getByRole('region', { name: section })
-    .locator('[data-person]')
+    .getByRole('listitem')
     .getByRole('link');
+
+/** A person's row: the list item holding the link named with their username */
+const person = (page: Page, username: string, section?: string) =>
+  (section ? page.getByRole('region', { name: section }) : page)
+    .getByRole('listitem')
+    .filter({ has: page.getByRole('link', { exact: true, name: username }) });
 
 test.describe('your own Circle', () => {
   test.beforeEach(async ({ page }) => {
@@ -72,7 +78,7 @@ test.describe('your own Circle', () => {
       'ivo',
       'wren',
     ]);
-    const juno = page.locator('[data-person="juno"]');
+    const juno = person(page, 'juno');
     await expect(
       juno.getByRole('img', {
         name: /^Compatibility: Super, \d+ shared series$/,
@@ -87,9 +93,7 @@ test.describe('your own Circle', () => {
     await expect(page.getByText('New to you')).toHaveCount(0);
     // a row with nothing in progress says so
     await expect(
-      page
-        .locator('[data-person="rumi"]')
-        .getByText('Not watching anything right now'),
+      person(page, 'rumi').getByText('Not watching anything right now'),
     ).toBeVisible();
 
     await expect(rowNames(page, 'Follows you')).toHaveText(['sam', 'noor']);
@@ -97,15 +101,13 @@ test.describe('your own Circle', () => {
 
   test('a row opens their profile', async ({ page }) => {
     await page.goto('/u/alex/circle');
-    await page.locator('[data-person="tamsin"]').getByRole('link').click();
+    await person(page, 'tamsin').getByRole('link').click();
     await page.waitForURL('**/u/tamsin');
   });
 
   test('Follow back is instant and the count follows', async ({ page }) => {
     await page.goto('/u/alex/circle');
-    const sam = page
-      .getByRole('region', { name: 'Follows you' })
-      .locator('[data-person="sam"]');
+    const sam = person(page, 'sam', 'Follows you');
     await sam.getByRole('button', { name: 'Follow back' }).click();
     await expect(sam.getByRole('button', { name: 'Following' })).toBeVisible();
     await expect(page.getByText('9 following · 6 followers')).toBeVisible();
@@ -167,16 +169,16 @@ test.describe('someone else’s Circle', () => {
     ).toBeVisible();
     await expect(rowNames(page, 'juno follows')).toHaveText(['alex']);
     await expect(rowNames(page, 'Follows juno')).toContainText(['alex', 'ivo']);
-    const you = page
-      .getByRole('region', { name: 'juno follows' })
-      .locator('[data-person="alex"]');
+    const you = person(page, 'alex', 'juno follows');
     await expect(
       you.getByText('It’s you').filter({ visible: true }),
     ).toBeVisible();
     await expect(you.getByText('Dexter: Resurrection')).toBeVisible();
     await expect(you.getByRole('button')).toHaveCount(0);
     // a ring is your match with that person: on their profile, not here
-    await expect(page.locator('[data-person] [role="img"]')).toHaveCount(0);
+    await expect(page.getByRole('img', { name: /^Compatibility/ })).toHaveCount(
+      0,
+    );
     // no match key in someone else's sidebar
     await expect(
       page.getByRole('heading', { name: 'How a match is made' }),

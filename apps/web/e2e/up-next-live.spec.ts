@@ -32,8 +32,8 @@ test('Continue watching moves on after the eye, and back on Undo', async ({
 }) => {
   const errors = consoleErrors(page);
   await page.goto('/');
-  const section = page.locator('[data-slot="continue"]');
-  const tile = section.locator('article').first();
+  const section = page.getByRole('region', { name: 'Continue watching' });
+  const tile = section.getByRole('article').first();
   await expect(tile.getByText('S03E05', { exact: true })).toBeVisible();
   await expect(tile.getByText('Children', { exact: true })).toBeVisible();
 
@@ -75,14 +75,14 @@ test('the profile’s Up next moves on after the Remote marks the next episode',
 }) => {
   const errors = consoleErrors(page);
   await page.goto('/u/kit');
-  const block = page.locator('section[aria-labelledby="up-next"]');
+  const block = page.getByRole('region', { name: 'Up next' });
   await expect(block.getByText('S03E05', { exact: true })).toBeVisible();
 
   await block.getByRole('button', { name: /^More actions for/ }).click();
   await page.getByRole('menuitem', { name: /Watched next episode/ }).click();
   // The card itself (the open Remote names the next episode too); its
   // link is named after the episode it opens
-  const hero = block.locator('article').first();
+  const hero = block.getByRole('article').first();
   // The Remote fetches the show's marks when it opens: time on a loaded machine
   // the card's own badge: the Remote's menu, still closing on a slow run,
   // names the episode too ("Watched next episode S03E06")

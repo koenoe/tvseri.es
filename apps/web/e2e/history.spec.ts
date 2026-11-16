@@ -98,12 +98,14 @@ for (const [name, viewport, axis] of [
     );
     const positions = await stopSampling(page);
     const final = positions.at(-1) ?? 0;
-    // it starts away from its place and passes through it in steps
+    // it starts away from its place and passes through a step on the way: a
+    // sheet that jumps has none. How many frames a slide paints depends on
+    // the machine (a CI runner painted two of a phone's), so one is the rule.
     expect(positions[0]).not.toBe(final);
     const between = new Set(
       positions.filter((value) => value !== final && value !== positions[0]),
     );
-    expect(between.size).toBeGreaterThanOrEqual(3);
+    expect(between.size).toBeGreaterThanOrEqual(1);
   });
 }
 

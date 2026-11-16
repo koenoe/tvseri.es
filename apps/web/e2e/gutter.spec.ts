@@ -2,7 +2,7 @@ import { expect, type Page, test } from '@playwright/test';
 
 import { leftEdges, offEdge } from './helpers/leftEdges';
 import { type StubViewer, setLibraryHint, signInAs } from './helpers/session';
-import { pageLine, phoneScrollbars } from './helpers/viewport';
+import { pageLine } from './helpers/viewport';
 
 /**
  * One page gutter (`--gutter`, inside the 1280 container: 112 at 1440 with
@@ -84,7 +84,6 @@ for (const kind of KINDS) {
     page,
   }) => {
     test.setTimeout(120_000);
-    await phoneScrollbars(page, PHONE_WIDTHS[0]);
     await signIn(page, kind);
     for (const width of PHONE_WIDTHS) {
       await page.setViewportSize({ height: 844, width });
@@ -119,7 +118,6 @@ for (const width of [360, 390]) {
     page,
   }) => {
     await page.setViewportSize({ height: 844, width });
-    await phoneScrollbars(page, width);
     await arrive(page, '/136315/the-bear');
     const line = await pageLine(page);
     const prompt = await page

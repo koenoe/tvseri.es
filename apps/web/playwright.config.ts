@@ -65,7 +65,8 @@ export default defineConfig({
       ? [
           {
             grep: /@design/,
-            grepInvert: process.env.E2E_PERF ? undefined : /@perf/,
+            // `undefined` would fall back to the top-level one (`@design`)
+            grepInvert: process.env.E2E_PERF ? /$^/ : /@perf/,
             name: 'design',
             testIgnore: /admin-images\.spec\.ts|\.webkit\.spec\.ts/,
             use: chromium,

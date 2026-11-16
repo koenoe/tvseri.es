@@ -1,7 +1,7 @@
 import { expect, type Page, test } from '@playwright/test';
 
 import { type StubViewer, setLibraryHint, signInAs } from './helpers/session';
-import { clientSize, phoneScrollbars } from './helpers/viewport';
+import { clientSize } from './helpers/viewport';
 
 /**
  * The toast's one place (Toaster.tsx) from every
@@ -126,7 +126,6 @@ for (const trigger of TRIGGERS) {
       page,
     }) => {
       await page.setViewportSize({ height: HEIGHT, width });
-      await phoneScrollbars(page, width);
       await signInAs(context, trigger.viewer);
       if (trigger.viewer === 'kit') {
         await setLibraryHint(context, 'kit', [136315]);
@@ -275,7 +274,6 @@ test('on a phone the toast rises above the open ⋯ sheet', async ({
   page,
 }) => {
   await page.setViewportSize({ height: 844, width: 390 });
-  await phoneScrollbars(page, 390);
   await signInAs(context, 'alex');
   await page.goto('/136315/the-bear');
   await page

@@ -15,7 +15,8 @@ import { type CastMember, loadCast } from '../../_data/loaders';
  * episodes section's 40px (plus the header's 5px inset). A face that is left
  * stays above its neighbours until it has shrunk back. md to lg 40px: the names sit under
  * the faces; the -8px margin collapses with the section's 40px to 32 (plus
- * the 8px inset of the role line and the header). Phones draw no cast.
+ * the 8px inset of the role line and the header); phones the same, in three
+ * columns of two rows.
  */
 const CAST_SPACE = 'mt-9 -mb-2 lg:mt-13 lg:mb-[67px]';
 

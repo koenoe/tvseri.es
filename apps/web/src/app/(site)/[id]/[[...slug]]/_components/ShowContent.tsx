@@ -46,7 +46,6 @@ export default function ShowContent({
       >
         <div data-slot="show" data-testid="route-show">
           <Hero series={series} />
-          {/* Phones draw neither "Created by" nor the cast: desktop only. */}
           <div className={CAST_FRAME} data-slot="cast-block">
             <CreatedBy creators={series.createdBy} />
             <Suspense fallback={<CastSkeleton />}>

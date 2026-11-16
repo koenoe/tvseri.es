@@ -3,8 +3,8 @@
  * (`ShowSkeleton`), so both draw the same boxes.
  */
 
-/** "Created by" and the cast: desktop only (draws neither). */
-export const CAST_FRAME = 'mx-auto max-w-page px-gutter max-md:hidden';
+/** "Created by" and the cast, at every width (phones: the six-face grid) */
+export const CAST_FRAME = 'mx-auto max-w-page px-gutter';
 
 export const EPISODES_SECTION =
   'relative z-26 mx-auto mt-10 mb-16 w-full max-w-page px-gutter md:mb-22';

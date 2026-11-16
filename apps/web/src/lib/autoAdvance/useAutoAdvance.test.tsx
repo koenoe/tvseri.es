@@ -60,6 +60,15 @@ describe('useAutoAdvance', () => {
     expect(onBackInView).toHaveBeenCalledOnce();
   });
 
+  it('paused by the reader, back in view it keeps its place (no call back)', () => {
+    render(<Probe />);
+    act(() => state.pause('user', true));
+    act(() => report(0.25));
+    act(() => report(0.5));
+    expect(onBackInView).not.toHaveBeenCalled();
+    expect(state.running).toBe(false);
+  });
+
   it('holds while the tab is hidden', () => {
     render(<Probe />);
     act(() => setHidden(true));

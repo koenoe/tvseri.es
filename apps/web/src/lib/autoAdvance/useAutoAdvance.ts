@@ -63,7 +63,7 @@ const isCovered = (element: HTMLElement) =>
   getTopLayer() !== null || element.closest('[inert]') !== null;
 
 type Options = Readonly<{
-  /** back in view after being off screen (the countdown restarts); keep it stable */
+  /** back in view after being off screen, unless the reader paused it (the countdown restarts); keep it stable */
   onBackInView?: () => void;
   /** never runs (a preview) */
   still?: boolean;
@@ -111,6 +111,8 @@ export default function useAutoAdvance({
   }, []);
 
   const cleanupRef = useRef<(() => void) | null>(null);
+  // the observer reads the reader's pause when the element comes back
+  const userPausedRef = useRef(false);
 
   // A callback ref that also cleans up on `null` (Motion's ref composition
   // drops React 19's ref cleanup functions)
@@ -134,7 +136,8 @@ export default function useAutoAdvance({
           }
           offscreen = next;
           pause('offscreen', next);
-          if (!next) {
+          // paused by the reader, it keeps its place until they press play
+          if (!next && !userPausedRef.current) {
             onBackInView?.();
           }
         },
@@ -181,6 +184,7 @@ export default function useAutoAdvance({
   };
 
   const pauses: Pauses = { ...holds, user: userChoice ?? reduceMotion };
+  userPausedRef.current = pauses.user;
   const paused = Object.values(pauses).some(Boolean);
   return {
     handlers,

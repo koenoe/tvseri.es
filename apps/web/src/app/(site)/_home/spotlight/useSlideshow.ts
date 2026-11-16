@@ -45,7 +45,8 @@ type Options = Readonly<{
  * slide), the pause button (pressed from the start for a reader who asked
  * for reduced motion), the menu, search or a dialog over the page, a hidden
  * tab, or less than half of the spotlight on screen (back in view, the
- * current line restarts from zero). The countdown element's `animationend`
+ * current line restarts from zero; paused by the reader, it keeps its
+ * place). The countdown element's `animationend`
  * advances (one finite CSS animation per slide, no timers to drift; paused,
  * it freezes, so the page colour stays put).
  */
@@ -67,7 +68,8 @@ export default function useSlideshow({
   // is decoded (in the same frame when it was preloaded)
   const [target, setTarget] = useState(startAt);
   const requestRef = useRef(0);
-  // back in view: the current line restarts from zero
+  // back in view: the current line restarts from zero (not while the reader
+  // has paused it: `useAutoAdvance` skips the call back)
   const restart = useCallback(
     () => setSlide((current) => ({ ...current, run: current.run + 1 })),
     [],

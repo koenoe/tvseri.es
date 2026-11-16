@@ -39,14 +39,22 @@ const OPEN = { duration: 0.5, ease: [0.2, 0.8, 0.2, 1] } as const;
  * back. The widths change at once and Motion's layout (FLIP) animation
  * plays them as transforms, with the content only translating, so no layout
  * or paint runs per frame. Each slice arrives rendered; this tracks which is
- * open (`data-open`). On a touch screen the first tap on a closed slice
- * opens it; the second follows the link.
+ * open (`data-open`). On a touch screen (no hover) the first tap on a
+ * closed slice opens it; the second follows the link. A mouse has opened
+ * the slice by hovering it, so its click always follows the link, and so
+ * does Enter on a focused one.
  */
 export default function SliceAccordion({
   slices,
 }: Readonly<{ slices: ReadonlyArray<AccordionSlice> }>) {
   const [open, setOpen] = useState(0);
-  const reset = useCallback(() => setOpen(0), []);
+  // a finger leaves when it lifts: only a hovering pointer leaving puts the
+  // first back
+  const reset = useCallback((event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== 'touch') {
+      setOpen(0);
+    }
+  }, []);
   const resetOnBlur = useCallback((event: FocusEvent<HTMLDivElement>) => {
     if (!event.currentTarget.contains(event.relatedTarget)) {
       setOpen(0);
@@ -90,14 +98,28 @@ function Slice({
   );
   const ref = useRef<HTMLDivElement>(null);
   const focus = useCallback(() => onOpen(index), [index, onOpen]);
+  // Whether the slice was closed when a finger came down (a mouse or a pen
+  // has opened it by hovering). Read at the press, not at the click: a tap
+  // focuses the link before its click, and focusing opens the slice, so by
+  // the click it is already open.
+  const tapOnClosed = useRef(false);
+  const press = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      tapOnClosed.current = event.pointerType === 'touch' && !isOpen;
+    },
+    [isOpen],
+  );
   const tapOpens = useCallback(
     (event: MouseEvent<HTMLDivElement>) => {
-      if (!isOpen) {
+      const opening = tapOnClosed.current;
+      tapOnClosed.current = false;
+      // `detail` 0: a click from the keyboard (Enter), never a tap
+      if (opening && event.detail > 0) {
         event.preventDefault();
         onOpen(index);
       }
     },
-    [index, isOpen, onOpen],
+    [index, onOpen],
   );
   // While its size animates the slice is `data-moving`: the resting hairline
   // (`SliceRing`, in the content layer that keeps its size) would sit at the
@@ -122,6 +144,7 @@ function Slice({
       onFocus={focus}
       onLayoutAnimationComplete={settled}
       onLayoutAnimationStart={moving}
+      onPointerDownCapture={press}
       onPointerEnter={hover}
       ref={ref}
       style={RADIUS}

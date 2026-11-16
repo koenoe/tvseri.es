@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
 import { isUnavailable } from '@/lib/cache/unavailable';
@@ -38,7 +39,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolved = await params;
   const id = toCanonicalId(resolved.id);
   const result = id ? await loadPerson(Number(id)) : null;
-  if (!result || isUnavailable(result) || result.status !== 'ok') {
+  // The 404 status (the view itself is PersonRoute's)
+  if (!result || (!isUnavailable(result) && result.status === 'not-found')) {
+    notFound();
+  }
+  if (isUnavailable(result)) {
     return {};
   }
   const { person } = result;

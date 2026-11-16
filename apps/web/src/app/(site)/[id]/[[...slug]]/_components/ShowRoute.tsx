@@ -1,6 +1,6 @@
-import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
+import NotFoundContent from '@/app/_not-found/NotFoundContent';
 import DataDownView from '@/components/ui/error/DataDownView';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import { canonicalPath, toCanonicalId } from '@/lib/routing/canonical';
@@ -14,8 +14,8 @@ type Params = Promise<{ id: string; slug?: string[] }>;
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 /**
- * Resolves the URL to a show: 404 for a non-numeric id (`/discover/x` reaches
- * this route), an unknown or adult show; the data-down page while the
+ * Resolves the URL to a show: the 404 view for a non-numeric id
+ * (`/discover/x` reaches this route), an unknown or adult show; the data-down page while the
  * API is unavailable (no response, a timeout, a 5xx: cached for the
  * short `unavailable` life, as the person page does); the canonical URL for a
  * missing or stale slug; else the page. Leading zeros never get here: a config redirect
@@ -26,6 +26,14 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
  * (`?season`, already request time), so it stays a cached shell. The (site) App Shell is static (`ensureStatic`), so this is a
  * client-side redirect in the stream that keeps the query; the URL also
  * carries canonical + noindex metadata (`generateMetadata`).
+ *
+ * The 404 view renders here as content, not as `notFound()`: thrown inside
+ * this Suspense boundary, React renders the boundary on the client, so the
+ * HTML holds the show skeleton (grey ghosts) until the scripts swap in the
+ * 404. The status comes from `generateMetadata`'s `notFound()`: a 404
+ * wherever metadata is decided before the body (crawlers, the page's own
+ * cached entry); a first visit streams after the shell, so it stays 200 with
+ * `noindex`, as Next documents for streamed not-found.
  */
 export default async function ShowRoute({
   params,
@@ -34,14 +42,14 @@ export default async function ShowRoute({
   const resolved = await params;
   const id = toCanonicalId(resolved.id);
   if (!id) {
-    notFound();
+    return <NotFoundContent />;
   }
   const show = await loadShow(Number(id));
   if (isUnavailable(show)) {
     return <DataDownView />;
   }
   if (show.status === 'not-found') {
-    notFound();
+    return <NotFoundContent />;
   }
   const { series } = show;
   const redirectPath = canonicalPath(resolved, series, showPath);

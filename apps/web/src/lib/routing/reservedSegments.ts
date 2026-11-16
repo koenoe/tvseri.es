@@ -31,11 +31,16 @@ const reserved = RESERVED_SEGMENTS.join('|');
 
 /**
  * Matches a first segment that is not all digits, not reserved, has no dot
- * (files like `robots.txt`) and doesn't start with `_` (Next internals).
+ * (files like `robots.txt`) and doesn't start with `_` (Next internals) or
+ * `[`. The `[` is the show route's own fallback path, `/[id]/[[...slug]]`:
+ * Vercel regenerates the one fallback shell all unvisited shows share by
+ * requesting that path, placeholders in place of the params. Rewritten, the
+ * function matches `/_not-found` as show id `_not-found`, renders a 404 and
+ * stores it as the shell of every show.
  */
 export const NOT_FOUND_REWRITE = {
   destination: '/_not-found',
-  source: `/:first((?!(?:\\d+|${reserved})(?:/|$))[^/._][^/.]*)/:rest*`,
+  source: `/:first((?!(?:\\d+|${reserved})(?:/|$))[^/._\\[][^/.]*)/:rest*`,
 } as const;
 
 /**

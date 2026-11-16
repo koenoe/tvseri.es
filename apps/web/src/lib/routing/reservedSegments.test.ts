@@ -85,6 +85,16 @@ describe('the static 404 rewrite', () => {
   ])('leaves %s to the router', (url) => {
     expect(matchesNotFound(url)).toBe(false);
   });
+
+  // Vercel regenerates the shared fallback shell at the route's own path,
+  // placeholders in place of the params. Rewritten, the show route matches
+  // `/_not-found` as an id and caches a 404 for every unvisited show.
+  it.each(['/[id]/[[...slug]]', '/[id]'])(
+    'leaves the show fallback path %s to the router',
+    (url) => {
+      expect(matchesNotFound(url)).toBe(false);
+    },
+  );
 });
 
 describe('the static 404 for person ids', () => {

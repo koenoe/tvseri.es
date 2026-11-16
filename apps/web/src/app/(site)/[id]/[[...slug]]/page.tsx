@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
+import { isUnavailable } from '@/lib/cache/unavailable';
 import getBaseUrl from '@/lib/getBaseUrl';
 import { canonicalPath, toCanonicalId } from '@/lib/routing/canonical';
 import showPath from '@/lib/routing/showPath';
@@ -38,7 +40,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolved = await params;
   const id = toCanonicalId(resolved.id);
   const show = id ? await loadShow(Number(id)) : null;
-  if (!show || !('status' in show) || show.status !== 'ok') {
+  // The 404 status (the view itself is ShowRoute's: see there why)
+  if (!show || (!isUnavailable(show) && show.status === 'not-found')) {
+    notFound();
+  }
+  if (isUnavailable(show)) {
     return {};
   }
   const { series } = show;

@@ -5,9 +5,12 @@ import {
   DIARY_DAY,
   DIARY_MONTH,
   DIARY_MONTH_HEADER,
+  DIARY_POSTER,
   DIARY_ROW_END_CELL,
   DIARY_ROW_GRID,
   DIARY_ROW_META_CELL,
+  DIARY_ROW_RADIUS,
+  DIARY_ROW_TEXT,
   DIARY_ROW_TITLE_CELL,
   DIARY_ROWS,
 } from './diaryStyles';
@@ -17,25 +20,39 @@ const DAYS = [1, 1, 2, 1, 1, 1] as const;
 
 /** The diary pulses as one layer; the shapes carry the fill only */
 const GHOST = cn('block rounded-6', GHOST_FILL);
-const ROW_GHOST = cn(DIARY_ROW_GRID, 'rounded-12', GHOST_FILL);
-const POSTER_GHOST = cn(
-  'h-[60px] w-10 rounded-6 max-md:h-12 max-md:w-8',
-  GHOST_FILL,
+const ROW_GHOST = cn(DIARY_ROW_GRID, DIARY_ROW_RADIUS, GHOST_FILL);
+const POSTER_GHOST = cn(DIARY_POSTER, 'block', GHOST_FILL);
+/** The card's lines at their own heights (28 and 24; 24 and 24 on a phone) */
+const TITLE_LINE = cn('flex h-7 items-center max-md:h-6', DIARY_ROW_TITLE_CELL);
+const META_LINE = cn('flex h-6 items-center gap-2', DIARY_ROW_META_CELL);
+const TITLE_BAR = cn(GHOST, 'h-4 w-2/5 max-md:h-3.5 max-md:w-3/5');
+const BADGE_BAR = cn(GHOST, 'h-[22px] w-[54px]');
+const META_BAR = cn(GHOST, 'h-3 w-[22%] max-md:w-2/5');
+const RUNTIME_BAR = cn(
+  GHOST,
+  'h-5 w-14 max-md:h-3.5 max-md:w-10',
+  DIARY_ROW_END_CELL,
 );
 const JUMP_GHOST = cn(
   'ml-auto h-[30px] w-[74px] rounded-full lg:hidden',
   GHOST_FILL,
 );
 
+/** A card: poster, the show's and the code's lines, the runtime (the slot stays empty) */
 function GhostRow() {
   return (
     <span className={ROW_GHOST}>
       <span className={POSTER_GHOST} />
-      <span className="flex min-w-0 flex-col gap-2 max-md:contents">
-        <span className={cn(GHOST, 'h-3.5 w-2/5', DIARY_ROW_TITLE_CELL)} />
-        <span className={cn(GHOST, 'h-3 w-[26%]', DIARY_ROW_META_CELL)} />
+      <span className={DIARY_ROW_TEXT}>
+        <span className={TITLE_LINE}>
+          <span className={TITLE_BAR} />
+        </span>
+        <span className={META_LINE}>
+          <span className={BADGE_BAR} />
+          <span className={META_BAR} />
+        </span>
       </span>
-      <span className={cn(GHOST, 'h-3 w-12', DIARY_ROW_END_CELL)} />
+      <span className={RUNTIME_BAR} />
     </span>
   );
 }

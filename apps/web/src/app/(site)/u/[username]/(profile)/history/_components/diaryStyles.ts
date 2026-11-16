@@ -10,10 +10,10 @@ export const DIARY_MONTH = 'flex flex-col [&+&]:mt-5';
 /**
  * A month off screen is skipped at its height: the header (48px; 72px on a
  * phone, Jump beside the title and the line under it), then its days (see
- * `DIARY_DAY_SKIPPED`), from `--days`, `--rows` and `--runs`.
+ * `DIARY_DAY_SKIPPED`), from `--days` and `--rows`.
  */
 export const DIARY_MONTH_SKIPPED =
-  '[content-visibility:auto] [contain-intrinsic-size:auto_calc(48px_+_var(--days)*19px_+_var(--rows)*86px)] max-md:[contain-intrinsic-size:auto_calc(72px_+_var(--days)*15px_+_var(--rows)*74px_+_var(--runs)*4px)]';
+  '[content-visibility:auto] [contain-intrinsic-size:auto_calc(48px_+_var(--days)*19px_+_var(--rows)*122px)] max-md:[contain-intrinsic-size:auto_calc(72px_+_var(--days)*15px_+_var(--rows)*94px)]';
 
 /** `.mhd`: title, rule, line (and the phone's Jump) */
 export const DIARY_MONTH_HEADER =
@@ -24,50 +24,69 @@ export const DIARY_DAY =
   'grid grid-cols-[72px_minmax(0,1fr)] gap-4 border-t border-white/6 py-3.5 max-md:grid-cols-[44px_minmax(0,1fr)] max-md:gap-2.5 max-md:py-3';
 
 /**
- * A day off screen is skipped at its height: `--rows` rows of 76px 10px
- * apart; on a phone 64px, and 68px for the `--runs` (a run's "N episodes"
- * toggle is 28px, a runtime 24px). The intrinsic size is the content box:
- * the day's rule and padding (29px, 25px on a phone) come on top, as they
- * do when it renders, so the month's estimate (`19px`/`15px` a day) holds
- * both ways. `auto` keeps the real height once it has rendered, so a day
- * above the reader never changes size.
+ * A day off screen is skipped at its height: `--rows` rows of 112px 10px
+ * apart; on a phone 84px (a run's toggle fits its 24px line, so every row
+ * is that height). The intrinsic size is the content box: the day's rule
+ * and padding (29px, 25px on a phone) come on top, as they do when it
+ * renders, so the month's estimate (`19px`/`15px` a day) holds both ways.
+ * `auto` keeps the real height once it has rendered, so a day above the
+ * reader never changes size.
  */
 export const DIARY_DAY_SKIPPED =
-  '[content-visibility:auto] [contain-intrinsic-size:auto_calc(var(--rows)*86px_-_10px)] max-md:[contain-intrinsic-size:auto_calc(var(--rows)*74px_+_var(--runs)*4px_-_10px)]';
+  '[content-visibility:auto] [contain-intrinsic-size:auto_calc(var(--rows)*122px_-_10px)] max-md:[contain-intrinsic-size:auto_calc(var(--rows)*94px_-_10px)]';
 
 /** `.ents`: 10px between a day's rows */
 export const DIARY_ROWS = 'flex min-w-0 flex-col gap-2.5';
 
-/** `.e2`: one show on one day */
-export const DIARY_ROW = 'group/row relative rounded-12 bg-white/4';
+/** The card's corners (the placeholder's ghost card shares them) */
+export const DIARY_ROW_RADIUS = 'rounded-14 max-md:rounded-12';
 
 /**
- * `.erow`: poster, text, right side. On a phone the row has two lines on
- * four tracks (12px gaps), so nothing shares a line it can't hold: the show
- * (and a visitor's +) on the first, the code and facts with "N episodes" or
- * the runtime on the second; the poster spans both. In one line at 390,
- * "N episodes" and the + left the text ~70px: the code ran under the
- * toggle. The cells' placement is below (`DIARY_ROW_*_CELL`).
+ * `.c-card`: one show on one day, lit by its own poster (`DiaryGlow`) under
+ * a dark gradient (`::before`) that keeps white text at 4.5:1 over a bright
+ * poster, with a 1px inner ring (`::after`). `isolate` keeps the glow and
+ * the gradient (negative z) inside the card; `contain: paint` keeps the
+ * blur's raster to the card.
+ */
+export const DIARY_ROW = `group/row relative isolate overflow-hidden bg-[#20272a] [contain:paint] ${DIARY_ROW_RADIUS} before:absolute before:inset-0 before:-z-1 before:bg-[linear-gradient(90deg,rgb(28_34_35/0.35)_0%,rgb(28_34_35/0.65)_45%,rgb(28_34_35/0.82)_100%)] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.06)]`;
+
+/**
+ * `.c-row`: poster, text, runtime, then a 32px slot (the ⋯ on hover, a
+ * run's chevron, or nothing, so every runtime lines up): 112px, 14px in,
+ * 20px apart. On a phone (84px, 12px in and apart) the text's two 24px
+ * lines are grid cells: the show with the runtime at its end, then the code
+ * line under them; a visitor's + takes a fourth column
+ * (`DIARY_ROW_GRID_PLUS`). The 60px poster spans both lines (56px with
+ * their gap) and stands out 2px over and under them.
  */
 export const DIARY_ROW_GRID =
-  'relative grid min-h-[60px] grid-cols-[40px_minmax(0,1fr)_auto] items-center gap-4 py-2 pr-2.5 pl-2 max-md:min-h-[52px] max-md:grid-cols-[32px_minmax(0,1fr)_auto_auto] max-md:gap-x-3 max-md:gap-y-1 max-md:p-2 max-md:[&>:first-child]:row-span-2';
+  'relative grid grid-cols-[56px_minmax(0,1fr)_auto_32px] items-center gap-5 py-3.5 pr-4 pl-3.5 max-md:min-h-[84px] max-md:grid-cols-[40px_minmax(0,1fr)_auto] max-md:grid-rows-[24px_24px] max-md:content-center max-md:gap-x-3 max-md:gap-y-2 max-md:p-3 max-md:[&>:first-child]:row-span-2';
 
-/** The show and its code line; on a phone its two lines are grid cells */
-export const DIARY_ROW_TEXT = 'flex min-w-0 flex-col gap-1 max-md:contents';
+/** On a phone: the row's grid with a fourth column, for a visitor's + */
+export const DIARY_ROW_GRID_PLUS =
+  'max-md:grid-cols-[40px_minmax(0,1fr)_auto_auto]';
 
-/** On a phone: the show's line, over the code line and the toggle */
-export const DIARY_ROW_TITLE_CELL =
-  'max-md:col-span-2 max-md:col-start-2 max-md:row-start-1';
+/** The show and its code line, 8px apart; on a phone the lines are grid cells */
+export const DIARY_ROW_TEXT = 'flex min-w-0 flex-col gap-2 max-md:contents';
 
-/** On a phone: the code and facts line */
-export const DIARY_ROW_META_CELL = 'max-md:col-start-2 max-md:row-start-2';
+/** On a phone: the show's line, the runtime at its end */
+export const DIARY_ROW_TITLE_CELL = 'max-md:col-start-2 max-md:row-start-1';
 
-/** On a phone: "N episodes" or the runtime, at the code line's end */
+/** On a phone: the code line, under the show, the runtime (and the +) */
+export const DIARY_ROW_META_CELL =
+  'max-md:col-start-2 max-md:col-end-[-1] max-md:row-start-2';
+
+/** On a phone: the runtime at the show line's end */
 export const DIARY_ROW_END_CELL =
-  'max-md:col-span-2 max-md:col-start-3 max-md:row-start-2 max-md:justify-self-end';
+  'max-md:col-start-3 max-md:row-start-1 max-md:justify-self-end';
 
-/** On a phone: the visitor's + at the show line's end */
+/**
+ * On a phone: the visitor's + after the runtime; its 32px circle stands
+ * 4px out of the 24px line, so the row keeps its 84px and the code line
+ * its full width
+ */
 export const DIARY_ROW_ACTION_CELL = 'max-md:col-start-4 max-md:row-start-1';
 
-/** `.pp`: the 2:3 poster */
-export const DIARY_POSTER = 'h-[60px] w-10 rounded-6 max-md:h-12 max-md:w-8';
+/** `.c-pw`: the 2:3 poster, 56 × 84 (a phone's 40 × 60) */
+export const DIARY_POSTER =
+  'h-[84px] w-14 rounded-10 max-md:h-[60px] max-md:w-10 max-md:rounded-8';

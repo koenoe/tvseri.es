@@ -29,7 +29,7 @@ export default function DiaryEpisodes({
   return (
     <m.ul
       animate={SHOWN}
-      className="flex flex-col pr-2.5 pb-2 pl-16 max-md:pr-2 max-md:pl-[52px]"
+      className="relative flex flex-col pr-4 pb-2 pl-[90px] max-md:pr-3 max-md:pb-1.5 max-md:pl-16"
       id={id}
       initial={initial}
       transition={TRANSITION}
@@ -37,15 +37,13 @@ export default function DiaryEpisodes({
       {row.episodes.map((episode) => (
         <li key={episode.key}>
           <TileLink
-            className="grid h-9 grid-cols-[72px_minmax(0,1fr)_auto] items-center gap-3 border-t border-white/6 text-meta text-white/80 max-md:grid-cols-[64px_minmax(0,1fr)_auto]"
+            className="flex h-9 items-center gap-2 border-t border-white/8 text-[14px] leading-5 text-white/85 max-md:text-[13px] max-md:leading-[18px]"
             href={episodeHref(row, episode.season, episode.episode)}
             prefetchOn="intent"
           >
-            <span className="justify-self-start">
-              <CodeBadge code={episode.code} size="meta" />
-            </span>
-            <span className="truncate">{episode.title}</span>
-            <span className="text-caption tabular-nums text-white/60">
+            <CodeBadge code={episode.code} size="meta" />
+            <span className="min-w-0 truncate">{episode.title}</span>
+            <span className="ml-auto shrink-0 whitespace-nowrap text-[13px] leading-[18px] tabular-nums text-white/60">
               {formatRuntime(episode.runtime)}
             </span>
           </TileLink>

@@ -5,7 +5,6 @@ import type { DiaryItem } from '@/lib/profile/views';
 
 import {
   buildDiary,
-  countRuns,
   createDiary,
   jumpRange,
   monthIndex,
@@ -312,21 +311,6 @@ describe('monthIndex: Jump to', () => {
       },
       { episodes: 7, months: [], year: 2025 },
     ]);
-  });
-});
-
-describe('countRuns: the rows with an "N episodes" toggle', () => {
-  it('counts the rows of two or more episodes', () => {
-    const [month] = buildDiary(
-      [
-        item(1, 1, 1, '2026-03-02T20:00:00Z'),
-        item(2, 1, 1, '2026-03-02T21:00:00Z'),
-        item(2, 1, 2, '2026-03-02T22:00:00Z'),
-      ],
-      undefined,
-    );
-    expect(countRuns(month?.days[0]?.rows ?? [])).toBe(1);
-    expect(countRuns([])).toBe(0);
   });
 });
 

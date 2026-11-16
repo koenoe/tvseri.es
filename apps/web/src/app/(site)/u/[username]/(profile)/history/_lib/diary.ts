@@ -56,10 +56,6 @@ export type DiaryRow = Readonly<{
   bulk: boolean;
 }>;
 
-/** Rows of two or more episodes ("N episodes" toggles): a skipped day's height counts them */
-export const countRuns = (rows: ReadonlyArray<DiaryRow>): number =>
-  rows.reduce((sum, row) => sum + (row.episodes.length > 1 ? 1 : 0), 0);
-
 export type DiaryDay = Readonly<{
   /** `YYYY-MM-DD` */
   key: string;

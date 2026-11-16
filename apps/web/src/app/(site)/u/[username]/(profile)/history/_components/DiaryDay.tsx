@@ -5,7 +5,7 @@ import type { CSSProperties, ReactNode } from 'react';
 
 import cn from '@/lib/cn';
 
-import { countRuns, type DiaryDay as Day } from '../_lib/diary';
+import type { DiaryDay as Day } from '../_lib/diary';
 import { useDiaryLayout } from './diaryMotion';
 import { DIARY_DAY, DIARY_DAY_SKIPPED, DIARY_ROWS } from './diaryStyles';
 
@@ -24,10 +24,7 @@ export default function DiaryDay({
 }: Readonly<{ children: ReactNode; day: Day; skippable?: boolean }>) {
   const layout = useDiaryLayout();
   const style = skippable
-    ? ({
-        '--rows': day.rows.length,
-        '--runs': countRuns(day.rows),
-      } as CSSProperties)
+    ? ({ '--rows': day.rows.length } as CSSProperties)
     : undefined;
   return (
     <m.div

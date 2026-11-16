@@ -5,11 +5,7 @@ import { type CSSProperties, memo, type ReactNode, useId } from 'react';
 import ArmedMaxMotion from '@/components/motion/ArmedMaxMotion';
 import cn from '@/lib/cn';
 
-import {
-  countRuns,
-  type DiaryMonth as Month,
-  type DiaryRow as Row,
-} from '../_lib/diary';
+import type { DiaryMonth as Month, DiaryRow as Row } from '../_lib/diary';
 import DiaryDay from './DiaryDay';
 import DiaryRow from './DiaryRow';
 import { DiaryLayoutProvider, useMonthLayout } from './diaryMotion';
@@ -54,11 +50,9 @@ function DiaryMonth({
   const layout = useMonthLayout();
   const titleId = useId();
   const rows = month.days.reduce((sum, day) => sum + day.rows.length, 0);
-  const runs = month.days.reduce((sum, day) => sum + countRuns(day.rows), 0);
   const style = {
     '--days': month.days.length,
     '--rows': rows,
-    '--runs': runs,
   } as CSSProperties;
   const classes = cn(DIARY_MONTH, skippable && DIARY_MONTH_SKIPPED);
   return (

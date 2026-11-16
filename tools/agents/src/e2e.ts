@@ -1,5 +1,6 @@
 import type { Context } from './context.ts';
 import { STUB_API_OFFSET, STUB_AUTH_OFFSET } from './context.ts';
+import { playwrightArgs } from './e2eArgs.ts';
 import { removeIfUnchanged } from './fsx.ts';
 import { runCommand, withHeavySlot } from './heavy.ts';
 import { procInfo, tcpListeners } from './proc.ts';
@@ -13,9 +14,13 @@ import { liveness } from './serve.ts';
  * other's servers. The claim lasts as long as this process.
  */
 export const e2e = async (ctx: Context, argv: readonly string[]) => {
-  const dash = argv.indexOf('--');
-  const extra = dash === -1 ? argv : argv.slice(dash + 1);
-  const command = ['pnpm', '--filter', '@tvseri.es/web', 'e2e', ...extra];
+  const { args, dropped } = playwrightArgs(argv);
+  if (dropped) {
+    console.error(
+      `[e2e] ignoring "${dropped}": the suite is the web's (a bare "${dropped}" would match every spec)`,
+    );
+  }
+  const command = ['pnpm', '--filter', '@tvseri.es/web', 'e2e', ...args];
   return withHeavySlot(
     ctx,
     { label: command.join(' ') },

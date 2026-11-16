@@ -11,7 +11,8 @@
  * test. The dataset is one run-length world grid per window variant (a grid
  * value per cell: sea, land of no ISO country, or a country), brotli-packed,
  * plus each country's window: its top-left cell in that grid, or, for a
- * country too small to show at world scale, its own zoomed-in window.
+ * country too small or too big to show at world scale, its own zoomed-in or
+ * zoomed-out window (`ZOOM`).
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -101,6 +102,10 @@ const variant = (name) => {
     `${name}: world grid in ${Math.round((Date.now() - started) / 1000)}s`,
   );
 
+  const limits = {
+    ...ZOOM,
+    maxDots: Math.floor(ZOOM.maxShare * spec.cols * spec.rows),
+  };
   const windows = {};
   for (const code of codes) {
     const value = gridValue.get(code);
@@ -114,7 +119,7 @@ const variant = (name) => {
           ? extractWindow(grid, world, originAt(1), size)
           : rasterise(own, zoomedGrid(zoom), originAt(zoom), size);
       return cells.filter((cell) => cell === value).length;
-    }, ZOOM);
+    }, limits);
     if (zoom === 1) {
       const { col, row } = originAt(1);
       windows[code] = [col, row];

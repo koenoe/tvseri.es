@@ -66,13 +66,25 @@ type VariantData = Readonly<{
   rows: number;
   /**
    * Per code: the window's top-left cell in the world grid, or (zoomed in for a
-   * tiny country) base64 brotli of the window's own runs of CELL values
+   * tiny country, out for a big one) base64 brotli of the window's own runs of
+   * CELL values
    */
   windows: Readonly<Record<string, readonly [number, number] | string>>;
 }>;
 
-/** Below this many dots the window zooms in (below ~40 dots) */
-export const ZOOM = { maxZoom: 32, minDots: 40 } as const;
+/**
+ * Below `minDots` dots the window zooms in (doubling, up to `maxZoom`); a
+ * country with more than `maxShare` of the window's cells zooms out (halving,
+ * down to `minZoom`). At world scale a big country (the US, Russia, Canada)
+ * fills the whole window, which the radial fade turns into a plain disc with
+ * no outline; zoomed out, the country keeps its shape with sea around it.
+ */
+export const ZOOM = {
+  maxShare: 0.25,
+  maxZoom: 32,
+  minDots: 40,
+  minZoom: 1 / 8,
+} as const;
 
 type Cell = Readonly<{ col: number; row: number }>;
 type Size = Readonly<{ cols: number; rows: number }>;
@@ -86,14 +98,34 @@ export const windowOrigin = (label: Cell, spec: WindowSpec): Cell => ({
   row: Math.round(label.row - spec.anchor.y / spec.pitch),
 });
 
-/** The first zoom (1, 2, 4...) at which the country has `minDots` dots */
+/**
+ * The world scale (1) unless the country is too small or too big for it: the
+ * first zoom in (2, 4...) at which it has `minDots` dots, or the first zoom
+ * out (1/2, 1/4...) at which it has no more than `maxDots`.
+ */
 export const pickZoom = (
   dotsAt: (zoom: number) => number,
-  { maxZoom, minDots }: Readonly<{ maxZoom: number; minDots: number }>,
+  {
+    maxDots,
+    maxZoom,
+    minDots,
+    minZoom,
+  }: Readonly<{
+    maxDots: number;
+    maxZoom: number;
+    minDots: number;
+    minZoom: number;
+  }>,
 ) => {
   let zoom = 1;
   while (zoom < maxZoom && dotsAt(zoom) < minDots) {
     zoom *= 2;
+  }
+  if (zoom > 1) {
+    return zoom;
+  }
+  while (zoom > minZoom && dotsAt(zoom) > maxDots) {
+    zoom /= 2;
   }
   return zoom;
 };

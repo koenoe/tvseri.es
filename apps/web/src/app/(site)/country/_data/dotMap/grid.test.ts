@@ -64,19 +64,29 @@ describe('windowOrigin', () => {
 });
 
 describe('pickZoom', () => {
+  const LIMITS = { maxDots: 600, maxZoom: 32, minDots: 40, minZoom: 1 / 8 };
+
   it('keeps the world scale when the country has enough dots', () => {
-    expect(pickZoom(() => 40, { maxZoom: 32, minDots: 40 })).toBe(1);
+    expect(pickZoom(() => 40, LIMITS)).toBe(1);
   });
 
   it('doubles the zoom until the country has enough dots', () => {
     const dots: Record<number, number> = { 1: 3, 2: 12, 4: 45, 8: 180 };
-    expect(
-      pickZoom((zoom) => dots[zoom] ?? 0, { maxZoom: 32, minDots: 40 }),
-    ).toBe(4);
+    expect(pickZoom((zoom) => dots[zoom] ?? 0, LIMITS)).toBe(4);
   });
 
   it('stops at the largest zoom for the tiniest countries', () => {
-    expect(pickZoom(() => 0, { maxZoom: 16, minDots: 40 })).toBe(16);
+    expect(pickZoom(() => 0, { ...LIMITS, maxZoom: 16 })).toBe(16);
+  });
+
+  it('halves the zoom until a big country no longer fills the window', () => {
+    // a country bigger than the window fills it at every zoom it overflows
+    const dots: Record<number, number> = { 0.5: 1500, 0.25: 400, 1: 2380 };
+    expect(pickZoom((zoom) => dots[zoom] ?? 0, LIMITS)).toBe(0.25);
+  });
+
+  it('stops at the smallest zoom for a country that fills any window', () => {
+    expect(pickZoom(() => 2548, LIMITS)).toBe(1 / 8);
   });
 });
 

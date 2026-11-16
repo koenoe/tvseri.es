@@ -58,7 +58,7 @@ async function artOf(seriesId: number | undefined): Promise<SeriesArt | null> {
  * "Biggest night": the evening with the most
  * episodes as a backdrop card linking to the show (badge, how much of the
  * show it was, date, episodes, runtime), then "Also big" and the year's
- * longest binge. The phone shows the card alone, with the show's name.
+ * longest binge. The phone shows the card alone.
  */
 export default async function BiggestNight({ user, year }: SectionProps) {
   const [when, shows] = await Promise.all([
@@ -119,8 +119,8 @@ export default async function BiggestNight({ user, year }: SectionProps) {
 
 /**
  * The backdrop card: the show's backdrop at 70% brightness under a fade, the
- * title treatment (desktop), the episode badge with the line (desktop) or the
- * show's name (phone), and the date, episodes and runtime.
+ * title treatment, the episode badge with the line, and the date, episodes
+ * and runtime, the same at every width.
  */
 function NightCard({
   art,
@@ -143,7 +143,7 @@ function NightCard({
   return (
     <Link
       aria-label={label}
-      className="relative block h-[190px] overflow-hidden rounded-12 md:h-auto md:min-h-[230px] md:flex-1"
+      className="relative block h-[230px] overflow-hidden rounded-12 md:h-auto md:min-h-[230px] md:flex-1"
       href={href}
     >
       {/* the card's colour, the backdrop and its fade: one layer, clipped
@@ -174,8 +174,7 @@ function NightCard({
               {code}
             </span>
             <span className="min-w-0 truncate font-semibold text-[16px] leading-7">
-              <span className="md:hidden">{series.title}</span>
-              <span className="max-md:hidden">{line}</span>
+              {line}
             </span>
           </span>
           <MetaRow>
@@ -196,24 +195,24 @@ function NightCard({
   );
 }
 
-/** The title treatment, 180 by 28 at the bottom left (desktop); else the name */
+/** The title treatment, 180 by 28 at the bottom left; the name without one */
 // Each place keeps its own look on purpose; don't unify them.
 const NIGHT_TITLE: TitleTreatmentLook = {
   height: 28,
-  logo: 'h-7 w-[180px] object-contain object-left-bottom max-md:hidden',
-  text: 'truncate font-semibold text-title-2 max-md:hidden',
+  logo: 'h-7 w-[180px] object-contain object-left-bottom',
+  text: 'truncate font-semibold text-title-2',
   width: 180,
 };
 
 /**
  * The lane's height: padding 36, head 24, the card (at least 230), the two
  * lines (4 + 20 + 10 + 20) and the 16px gaps: 376px. On a phone 32, 24, 16
- * and the 190px card: 262px.
+ * and the 230px card: 302px.
  */
 export function BiggestNightSkeleton() {
   return (
     <LaneGhost
-      className="h-[370px] max-md:h-[256px] max-md:p-4"
+      className="h-[370px] max-md:h-[296px] max-md:p-4"
       title="Biggest night"
     >
       <Ghost className="min-h-0 flex-1 rounded-12" />

@@ -6,6 +6,7 @@ import {
   openCappedLists,
 } from './helpers/overflow';
 import { type StubViewer, signInAs } from './helpers/session';
+import { fontsSettled, phoneScrollbars } from './helpers/viewport';
 
 /**
  * The profile overview holds real, heavy data: no sideways scroll, no text outside its card, no
@@ -38,12 +39,15 @@ async function arrived(page: Page) {
     page.getByRole('heading', { name: 'Recently watched' }),
   ).toBeVisible();
   await page.waitForLoadState('networkidle');
-  await page.evaluate(() => document.fonts.ready);
+  await fontsSettled(page);
 }
 
 for (const width of OVERVIEW_WIDTHS) {
   test.describe(`profile overflow at ${width}px`, () => {
     test.use({ viewport: { height: width < 500 ? 844 : 900, width } });
+    test.beforeEach(async ({ page }) => {
+      await phoneScrollbars(page, width);
+    });
 
     for (const { name, open, path, viewer } of CASES) {
       test(name, async ({ context, page }) => {
@@ -70,24 +74,28 @@ test('a busy profile stays short: lanes list what the board draws', async ({
   await signInAs(context, 'marathonwatcher-2026');
   await page.goto('/u/marathonwatcher-2026');
   await arrived(page);
-  const height = await page.evaluate(
-    () => document.documentElement.scrollHeight,
-  );
-  // 11,540px before the caps; the two lanes now stay near that
-  expect(height).toBeLessThan(4600);
+  const pageHeight = () =>
+    page.evaluate(() => document.documentElement.scrollHeight);
+  const capped = await pageHeight();
   // 22 shows catching up, 28 paused: one and three listed, the rest in place
   const catching = page.getByRole('region', { name: 'Catching up' });
   await expect(catching.getByRole('listitem')).toHaveCount(1);
   await expect(
     catching.getByRole('button', { name: 'Show all 22' }),
   ).toBeVisible();
-  await catching.getByRole('button', { name: 'Show all 22' }).click();
-  await expect(catching.getByRole('listitem')).toHaveCount(22);
   await expect(
     page.getByRole('region', { name: 'Paused' }).getByRole('button', {
       name: 'Show all 28',
     }),
   ).toBeVisible();
+  // 11,540px with every lane open, under 4,600 capped: the caps keep the
+  // page under 40% of its open height
+  await openCappedLists(page);
+  await expect(catching.getByRole('listitem')).toHaveCount(22);
+  const opened = await pageHeight();
+  expect(capped, `${capped}px capped, ${opened}px open`).toBeLessThan(
+    opened * 0.4,
+  );
 });
 
 // Beside the sidebar at tablet width the Recently watched
@@ -101,6 +109,7 @@ for (const width of [800, 1024] as const) {
     page,
   }) => {
     await page.setViewportSize({ height: 900, width });
+    await phoneScrollbars(page, width);
     await signInAs(context, 'marathonwatcher-2026');
     await page.goto('/u/marathonwatcher-2026');
     await arrived(page);
@@ -143,13 +152,14 @@ for (const width of WIDTHS) {
       page,
     }) => {
       await page.setViewportSize({ height: width < 500 ? 844 : 900, width });
+      await phoneScrollbars(page, width);
       await signInAs(context, viewer);
       await page.goto('/u/marathonwatcher-2026/history');
       await expect(
         page.locator('[data-diary] section[data-month]').first(),
       ).toBeVisible();
       await page.waitForLoadState('networkidle');
-      await page.evaluate(() => document.fonts.ready);
+      await fontsSettled(page);
       const problems = await findOverflow(page);
       expect(problems, formatProblems(problems)).toEqual([]);
     });
@@ -165,18 +175,21 @@ test('History at 800px leaves every row title room', async ({
   await page.setViewportSize({ height: 900, width: 800 });
   await signInAs(context, 'marathonwatcher-2026');
   await page.goto('/u/marathonwatcher-2026/history');
+  await fontsSettled(page);
   const rows = page.locator('[data-diary-row]');
   await expect(rows.first()).toBeVisible();
-  const widths = await rows.evaluateAll((nodes) =>
-    nodes
-      .slice(0, 20)
-      .map(
-        (row) =>
-          row.querySelector('.truncate')?.parentElement?.getBoundingClientRect()
-            .width ?? 0,
-      ),
+  // its title column keeps a share of the row (100px of ~736 at 800),
+  // whatever the scrollbar takes
+  const shares = await rows.evaluateAll((nodes) =>
+    nodes.slice(0, 20).map((row) => {
+      const title = row.querySelector('.truncate')?.parentElement;
+      return (
+        (title?.getBoundingClientRect().width ?? 0) /
+        row.getBoundingClientRect().width
+      );
+    }),
   );
-  expect(Math.min(...widths)).toBeGreaterThanOrEqual(100);
+  expect(Math.min(...shares), shares.join(', ')).toBeGreaterThanOrEqual(0.135);
 });
 
 // A run's "N episodes" toggle and a visitor's + once
@@ -190,12 +203,13 @@ for (const width of [360, 390, 800, 1023, 1024, 1440] as const) {
       page,
     }) => {
       await page.setViewportSize({ height: width < 500 ? 844 : 900, width });
+      await phoneScrollbars(page, width);
       await signInAs(context, viewer);
       await page.goto('/u/marathonwatcher-2026/history');
       const rows = page.locator('[data-diary-row]');
       await expect(rows.first()).toBeVisible();
       await page.waitForLoadState('networkidle');
-      await page.evaluate(() => document.fonts.ready);
+      await fontsSettled(page);
       const clashes = await rows.evaluateAll((nodes) =>
         nodes.slice(0, 30).flatMap((row) => {
           const grid = row.firstElementChild;
@@ -269,6 +283,9 @@ const CIRCLE_CASES: ReadonlyArray<
 for (const width of WIDTHS) {
   test.describe(`Circle overflow at ${width}px`, () => {
     test.use({ viewport: { height: width < 500 ? 844 : 900, width } });
+    test.beforeEach(async ({ page }) => {
+      await phoneScrollbars(page, width);
+    });
 
     for (const { name, path, viewer } of CIRCLE_CASES) {
       test(name, async ({ context, page }) => {
@@ -276,7 +293,7 @@ for (const width of WIDTHS) {
         await page.goto(path);
         await expect(page.locator('[data-person]').first()).toBeVisible();
         await page.waitForLoadState('networkidle');
-        await page.evaluate(() => document.fonts.ready);
+        await fontsSettled(page);
         const problems = await findOverflow(page);
         expect(problems, formatProblems(problems)).toEqual([]);
       });
@@ -296,6 +313,7 @@ for (const width of [360, 390] as const) {
     page,
   }) => {
     await page.setViewportSize({ height: 844, width });
+    await phoneScrollbars(page, width);
     await signInAs(context, 'marathonwatcher-2026');
     await page.goto('/u/marathonwatcher-2026');
     await arrived(page);
@@ -399,13 +417,14 @@ for (const width of [360, 390] as const) {
       page,
     }) => {
       await page.setViewportSize({ height: 844, width });
+      await phoneScrollbars(page, width);
       await signInAs(context, 'marathonwatcher-2026');
       await page.goto(`/u/marathonwatcher-2026/library/${shelf}`);
       await expect(
         page.locator('[data-slot="library-tile"]').first(),
       ).toBeVisible();
       await page.waitForLoadState('networkidle');
-      await page.evaluate(() => document.fonts.ready);
+      await fontsSettled(page);
       const problems = await findOverflow(page);
       expect(problems, formatProblems(problems)).toEqual([]);
       // a shown fact is whole or ends in an ellipsis after a readable stretch

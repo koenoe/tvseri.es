@@ -2,6 +2,12 @@ import { expect, type Page, test } from '@playwright/test';
 
 import { findOverflow, formatProblems } from './helpers/overflow';
 import { signInAs } from './helpers/session';
+import {
+  clientSize,
+  fontsSettled,
+  pageLine,
+  phoneScrollbars,
+} from './helpers/viewport';
 
 /**
  * The series page holds its text on a phone (`helpers/overflow.ts`): no sideways scroll, no text outside its card, no
@@ -28,12 +34,15 @@ async function arrived(page: Page) {
   ).toBeVisible();
   await expect(page.locator('[data-placeholder]:visible')).toHaveCount(0);
   await page.waitForLoadState('networkidle');
-  await page.evaluate(() => document.fonts.ready);
+  await fontsSettled(page);
 }
 
 for (const width of WIDTHS) {
   test.describe(`series page overflow at ${width}px`, () => {
     test.use({ viewport: { height: 844, width } });
+    test.beforeEach(async ({ page }) => {
+      await phoneScrollbars(page, width);
+    });
 
     for (const { name, path } of PAGES) {
       test(name, async ({ context, page }) => {
@@ -59,15 +68,19 @@ for (const width of WIDTHS) {
       );
       // two runs of watched episodes and the skipped E05 between them
       await expect(rows).toHaveCount(3);
-      const widths = await rows.evaluateAll((elements) =>
-        elements.map(
-          (row) =>
-            row.querySelector('b')?.parentElement?.getBoundingClientRect()
-              .width ?? 0,
-        ),
+      // the text keeps at least a third of its row (100px of a 360
+      // phone's ~296px row), whatever the fonts
+      const shares = await rows.evaluateAll((elements) =>
+        elements.map((row) => {
+          const text = row.querySelector('b')?.parentElement;
+          return (
+            (text?.getBoundingClientRect().width ?? 0) /
+            row.getBoundingClientRect().width
+          );
+        }),
       );
-      for (const textWidth of widths) {
-        expect(textWidth).toBeGreaterThanOrEqual(100);
+      for (const share of shares) {
+        expect(share, 'text width / row width').toBeGreaterThanOrEqual(1 / 3);
       }
     });
   });
@@ -75,13 +88,15 @@ for (const width of WIDTHS) {
 
 // At 360 the ⋯ sheet's keys ran past the gutter to 353px: the dialog's
 // grid took the big key's nowrap label as its column's minimum. The sheet
-// pads with the page gutter (`px-gutter`, 32px)
+// pads with the page gutter (`px-gutter`): its keys start on the page
+// line and end as far from the right edge
 for (const width of WIDTHS) {
   test(`the ⋯ sheet keeps the page gutters at ${width}px`, async ({
     context,
     page,
   }) => {
     await page.setViewportSize({ height: 844, width });
+    await phoneScrollbars(page, width);
     await signInAs(context, 'alex');
     await page.goto('/136315/the-bear');
     await page
@@ -98,7 +113,10 @@ for (const width of WIDTHS) {
         right: Math.max(...boxes.map((box) => box.right)),
       };
     });
-    expect(Math.round(edges.left)).toBe(32);
-    expect(Math.round(edges.right)).toBe(width - 32);
+    const [room, line] = await Promise.all([clientSize(page), pageLine(page)]);
+    expect(Math.abs(edges.left - line)).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(edges.right - (room.width - line))).toBeLessThanOrEqual(
+      0.5,
+    );
   });
 }

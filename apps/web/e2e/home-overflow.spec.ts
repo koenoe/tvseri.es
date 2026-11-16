@@ -2,7 +2,7 @@ import { expect, type Page, test } from '@playwright/test';
 
 import { findOverflow, formatProblems } from './helpers/overflow';
 import { setLibraryHint, signInAs } from './helpers/session';
-import { clientSize, phoneScrollbars } from './helpers/viewport';
+import { clientSize, fontsSettled, phoneScrollbars } from './helpers/viewport';
 
 /**
  * Home holds its text from a small phone to 1440
@@ -81,7 +81,7 @@ const LONG_TITLE_DAYS = [
 async function arrived(page: Page) {
   await expect(page.locator('[data-placeholder]:visible')).toHaveCount(0);
   await page.waitForLoadState('networkidle');
-  await page.evaluate(() => document.fonts.ready);
+  await fontsSettled(page);
 }
 
 const heading = (page: Page, name: string | RegExp) =>

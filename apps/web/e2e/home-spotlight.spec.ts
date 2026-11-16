@@ -256,6 +256,27 @@ const nearTheEnd = (page: Page) =>
     );
   });
 
+/**
+ * The page has hydrated: the pager's current line carries its countdown
+ * (before that it is a static line). `load` can come first on a slow
+ * machine, and a check made before it finds no countdown to seek.
+ */
+const countdownReady = (page: Page) =>
+  expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          document
+            .getAnimations()
+            .filter(
+              (animation) =>
+                animation instanceof CSSAnimation &&
+                animation.animationName.includes('spotlight-countdown'),
+            ).length,
+      ),
+    )
+    .toBe(1);
+
 /** The slideshow is held: its countdown is seeked to the end and nothing moves */
 async function expectHolds(page: Page) {
   const before = await shown(page);
@@ -271,6 +292,7 @@ test.describe('the spotlight holds when the reader is elsewhere', () => {
     await page.setViewportSize({ height: 900, width: 1440 });
     await page.goto('/');
     await page.waitForLoadState('load');
+    await countdownReady(page);
     // the mouse away from the spotlight (hover holds it too)
     await page.mouse.move(4, 896);
   });
@@ -359,6 +381,7 @@ test.describe('auto-advance and reduced motion', () => {
     await page.setViewportSize({ height: 900, width: 1440 });
     await page.goto('/');
     await page.waitForLoadState('load');
+    await countdownReady(page);
     // the mouse away from the spotlight (hover holds it too)
     await page.mouse.move(4, 896);
   };

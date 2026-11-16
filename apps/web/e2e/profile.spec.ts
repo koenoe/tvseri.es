@@ -2,7 +2,12 @@ import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 import { signInAs, stubFault } from './helpers/session';
-import { fontsSettled, phoneScrollbars, untilStable } from './helpers/viewport';
+import {
+  fontsSettled,
+  pageSettled,
+  phoneScrollbars,
+  untilStable,
+} from './helpers/viewport';
 
 /**
  * The profile (`/u/{username}`). Signed out it is the 401 page
@@ -224,10 +229,14 @@ test.describe('profile signed in', () => {
       await page.goto('/u/alex/library');
       const tabs = page.getByRole('navigation', { name: 'Profile' });
       await expect(tabs).toBeVisible();
+      // the identity above the tabs has streamed in: measured before it, the
+      // tabs sat at the page's top and the target was -8 (CI)
+      await pageSettled(page);
       // scrolled until the tabs reach the top of the screen
       const top = await tabs.evaluate(
         (nav) => nav.getBoundingClientRect().top + window.scrollY - 8,
       );
+      expect(top).toBeGreaterThan(0);
       await page.evaluate((y) => window.scrollTo(0, y), top);
       await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(top);
       await tabs.getByRole('link', { name: 'Overview' }).click();

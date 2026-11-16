@@ -1,4 +1,4 @@
-import { expect, type Page, test } from '@playwright/test';
+import { expect, type Page, type Request, test } from '@playwright/test';
 
 import { open } from './helpers';
 import { signInAs } from './helpers/session';
@@ -16,6 +16,9 @@ const TILE = '[data-slot="landing-hero"] article';
 const tile = (page: Page) => page.locator(TILE);
 
 const row = (page: Page) => tile(page).locator('[data-mark-control]').last();
+
+const isAction = (request: Request) =>
+  request.method() === 'POST' && Boolean(request.headers()['next-action']);
 
 const rowBox = (page: Page) =>
   row(page).evaluate((node) => {
@@ -36,7 +39,11 @@ test('Seen it marks the show seen on the Start here tile, with Undo, and the til
   await expect(row(page)).toHaveAttribute('data-mark-control', 'new');
   const box = await rowBox(page);
 
+  // the mark's own server action: its id tells it from Undo's, whose answer
+  // can land after the second press and would stand in for the save
+  const firstPress = page.waitForRequest(isAction);
   await seen.click();
+  const markAction = (await firstPress).headers()['next-action'];
   await expect(page.getByText(/^Marked .+ as seen$/)).toBeVisible();
   await expect(row(page)).toHaveAttribute('data-mark-control', 'finished');
   await expect(
@@ -45,14 +52,20 @@ test('Seen it marks the show seen on the Start here tile, with Undo, and the til
   expect(await rowBox(page)).toEqual(box);
 
   // Undo takes back exactly that press: the pair again
+  // (the tile shows the pair at once; the second press waits until Undo is
+  // stored, or the server could see the two out of order)
+  const undone = page.waitForResponse((response) =>
+    isAction(response.request()),
+  );
   await page.getByRole('button', { name: 'Undo' }).click();
   await expect(row(page)).toHaveAttribute('data-mark-control', 'new');
+  await undone;
 
   // marked again, then a reload streams the tile in as Finished
   const saved = page.waitForResponse(
     (response) =>
-      response.request().method() === 'POST' &&
-      Boolean(response.request().headers()['next-action']),
+      isAction(response.request()) &&
+      response.request().headers()['next-action'] === markAction,
   );
   await seen.click();
   await expect(row(page)).toHaveAttribute('data-mark-control', 'finished');

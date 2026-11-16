@@ -2,18 +2,20 @@ import { describe, expect, it } from 'vitest';
 
 import { contrast, mixWithWhite, remoteInk } from './ink';
 
-/** The steps of the remote ink scale that must stay readable. */
+/** What the ink of the remote fills must keep readable. */
 function ratios(ink: string) {
   const key = mixWithWhite(ink, 0.06);
   return {
-    // key labels on a key
+    // ink on a key: the key fill stays light under the text
     inkOnKey: contrast(ink, key),
     // the keyboard focus ring against white (non-text, 3:1)
     markOnWhite: contrast(mixWithWhite(ink, 0.52), '#ffffff'),
-    // big-key meta and reasons on a key
+    // the darkening yardstick the fills were signed off with
     metaOnKey: contrast(mixWithWhite(ink, 0.72), key),
-    // chip letters, hints and meta on the white sheet
+    // (the text no longer uses these steps)
     w64OnWhite: contrast(mixWithWhite(ink, 0.64), '#ffffff'),
+    // a latched key's white label on the full ink
+    whiteOnInk: contrast('#ffffff', ink),
   };
 }
 
@@ -33,6 +35,7 @@ describe('remoteInk: the ink of the white remote surface', () => {
     expect(steps.metaOnKey).toBeGreaterThanOrEqual(4.5);
     expect(steps.markOnWhite).toBeGreaterThanOrEqual(3);
     expect(steps.inkOnKey).toBeGreaterThanOrEqual(7);
+    expect(steps.whiteOnInk).toBeGreaterThanOrEqual(4.5);
   });
 
   it('keeps a dark page colour as it is', () => {

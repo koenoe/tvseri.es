@@ -52,7 +52,7 @@ export default function SearchField(props: Props) {
     props.ruled && 'border-b border-black/10',
   );
   const crossClasses = cn(
-    'flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-6 text-rk-ink hover:bg-black/5 focus-visible:shadow-[0_0_0_2px_var(--rk-mark)] focus-visible:outline-none',
+    'flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-6 text-rk-text hover:bg-black/5 focus-visible:shadow-[0_0_0_2px_var(--rk-mark)] focus-visible:outline-none',
     !query && 'md:hidden',
   );
 
@@ -68,7 +68,7 @@ export default function SearchField(props: Props) {
         autoCapitalize="none"
         autoComplete="off"
         autoCorrect="off"
-        className="h-10 min-w-0 flex-1 bg-transparent text-body text-rk-ink caret-rk-ink outline-none [font-feature-settings:'calt'_0] placeholder:text-rk-w40 focus-visible:outline-none"
+        className="h-10 min-w-0 flex-1 bg-transparent text-body text-rk-text caret-rk-text outline-none [font-feature-settings:'calt'_0] placeholder:text-rk-w40 focus-visible:outline-none"
         data-1p-ignore=""
         enterKeyHint="search"
         maxLength={MAX_QUERY_LENGTH}

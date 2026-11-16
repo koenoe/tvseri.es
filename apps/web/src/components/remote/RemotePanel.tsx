@@ -58,8 +58,9 @@ export default function RemotePanel({
   openedBy: OpenedBy;
 }>) {
   const { close, ink, layout } = useRemote();
-  // The tile's colour or the page colour, darkened until every step passes
-  // AA on white (lib/remote/ink); read once, when the panel opens.
+  // The tile's colour or the page colour, darkened (lib/remote/ink): it tints
+  // the fills only, the text keeps its fixed colours; read once, when the
+  // panel opens.
   const [inkStyle] = useState(
     () =>
       ({

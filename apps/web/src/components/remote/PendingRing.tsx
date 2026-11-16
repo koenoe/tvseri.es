@@ -12,7 +12,7 @@ const FULL = { strokeDashoffset: 6 };
 
 /**
  * The pending ring (remote_style.md §5): 20px, fills once over the request
- * (900 ms, search's curve). Ink on a key, white on a latched one.
+ * (900 ms, search's curve). The text colour on a key, white on a latched one.
  */
 export default function PendingRing() {
   return (
@@ -23,14 +23,14 @@ export default function PendingRing() {
       viewBox="0 0 20 20"
     >
       <circle
-        className="stroke-[color-mix(in_srgb,var(--rk-ink)_14%,transparent)] in-aria-checked:stroke-white/25"
+        className="stroke-[color-mix(in_srgb,var(--rk-text)_14%,transparent)] in-aria-checked:stroke-white/25"
         cx="10"
         cy="10"
         r="7"
       />
       <m.circle
         animate={FULL}
-        className="stroke-rk-ink in-aria-checked:stroke-white"
+        className="stroke-rk-text in-aria-checked:stroke-white"
         cx="10"
         cy="10"
         initial={EMPTY}

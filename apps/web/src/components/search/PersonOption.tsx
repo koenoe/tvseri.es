@@ -18,7 +18,7 @@ export default function PersonOption({ cell, marked, onChoose }: OptionProps) {
   const classes = cn('group', PERSON.tile, OPTION_PRESS);
   const nameClasses = cn(
     PERSON.name,
-    'truncate font-semibold text-rk-ink max-md:line-clamp-2 max-md:whitespace-normal',
+    'truncate font-semibold text-rk-text max-md:line-clamp-2 max-md:whitespace-normal',
   );
   const roleClasses = cn(PERSON.role, 'text-rk-w64');
   const knownForClasses = cn(PERSON.knownFor, 'text-rk-w64');

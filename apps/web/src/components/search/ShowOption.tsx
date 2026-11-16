@@ -20,7 +20,7 @@ export default function ShowOption({ cell, marked, onChoose }: OptionProps) {
     'bg-black/5 transition-shadow duration-120',
     marked ? MARKED_RING : HOVER_RING,
   );
-  const titleClasses = cn(SHOW.title, 'truncate font-semibold text-rk-ink');
+  const titleClasses = cn(SHOW.title, 'truncate font-semibold text-rk-text');
   const yearClasses = cn(SHOW.year, 'text-rk-w64');
 
   return (

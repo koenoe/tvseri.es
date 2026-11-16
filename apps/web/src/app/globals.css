@@ -101,10 +101,11 @@
   /* the page colour from the background system (BackgroundStyle), ground by default */
   --color-page: var(--main-background-color, #1c2223);
   /*
-   * The white "remote" family: light steps mixed
-   * from the ink (the page colour). Only defined inside `remote-surface`.
+   * The white "remote" family. Text and icons: the fixed `rk-text` (the
+   * ground) and its light steps; fills: steps mixed from the ink (the page
+   * colour). Only defined inside `remote-surface`.
    */
-  --color-rk-ink: var(--rk-ink);
+  --color-rk-text: var(--rk-text);
   --color-rk-w80: var(--rk-w80);
   --color-rk-w64: var(--rk-w64);
   --color-rk-meta: var(--rk-meta);
@@ -113,7 +114,6 @@
   --color-rk-key-hover: var(--rk-key-hover);
   --color-rk-line: var(--rk-line);
   --color-rk-mark: var(--rk-mark);
-  --color-rk-chip: var(--rk-chip);
 }
 
 :root {
@@ -318,11 +318,17 @@ html[data-signing-out] body > * {
 /*
  * The "remote" white family, shared by search and the
  * Remote menu. `remote-surface` is the white sheet and defines the --rk-*
- * steps from its ink. Search and the Remote set --rk-ink inline on the
- * surface to `remoteInk(colour)` (lib/remote/ink), which darkens a light page
- * or tile colour until every step passes WCAG AA;
- * `remote-key` is a pressable key; `remote-chip` the letter / ↵ chip (white,
- * for a chip on a key; add `bg-rk-chip` for one on the white sheet).
+ * steps. Text and icons use the fixed --rk-text (the ground) and its steps,
+ * whatever the page colour: the same dark text on white on every page. Only
+ * the fills (keys, lines, the latched key, the focus ring) are mixed from the
+ * ink: search and the Remote set --rk-ink inline on the surface to
+ * `remoteInk(colour)` (lib/remote/ink), which darkens a light page or tile
+ * colour until the ring and a latched key's white label pass WCAG AA.
+ * Contrast of the text steps (ground mixed with white): --rk-text 14:1 on
+ * any key, --rk-w80 7.4:1 and --rk-meta 5.1:1 on any key (hover included),
+ * --rk-w64 4.9:1 on white only; --rk-w40 is for disabled text and the
+ * placeholder.
+ * `remote-key` is a pressable key; `remote-chip` the white letter / ↵ chip.
  * Key states: hover, :active (pressed), [aria-checked=true] or [data-latched]
  * (latched), :focus-visible or [data-active] (keyboard marker),
  * [aria-disabled=true] (disabled).
@@ -334,14 +340,14 @@ html[data-signing-out] body > * {
   --rk-edge: color-mix(in srgb, var(--rk-ink) 14%, transparent);
   --rk-line: color-mix(in srgb, var(--rk-ink) 7%, transparent);
   --rk-mark: color-mix(in srgb, var(--rk-ink) 52%, #fff);
-  --rk-chip: color-mix(in srgb, var(--rk-ink) 9%, #fff);
-  --rk-w80: color-mix(in srgb, var(--rk-ink) 80%, #fff);
-  --rk-w64: color-mix(in srgb, var(--rk-ink) 64%, #fff);
-  --rk-meta: color-mix(in srgb, var(--rk-ink) 72%, #fff);
-  --rk-w40: color-mix(in srgb, var(--rk-ink) 40%, #fff);
+  --rk-text: var(--color-ground);
+  --rk-w80: color-mix(in srgb, var(--rk-text) 80%, #fff);
+  --rk-w64: color-mix(in srgb, var(--rk-text) 64%, #fff);
+  --rk-meta: color-mix(in srgb, var(--rk-text) 72%, #fff);
+  --rk-w40: color-mix(in srgb, var(--rk-text) 40%, #fff);
   box-sizing: border-box;
   background: #fff;
-  color: var(--rk-ink);
+  color: var(--rk-text);
   box-shadow: var(--shadow-remote);
 }
 
@@ -350,7 +356,7 @@ html[data-signing-out] body > * {
   box-sizing: border-box;
   border: 0;
   background: var(--rk-key);
-  color: var(--rk-ink);
+  color: var(--rk-text);
   cursor: pointer;
   box-shadow:
     inset 0 -2px 0 var(--rk-edge),

@@ -16,7 +16,7 @@ import { MARKED_RING, OPTION_PRESS } from './optionStyles';
 export default function RecentOption({ cell, marked, onChoose }: OptionProps) {
   const isShow = cell.kind === 'show';
   const classes = cn(
-    'relative inline-flex h-12 items-center gap-3 rounded-12 bg-black/5 pr-4 pl-2 text-rk-ink hover:bg-black/8',
+    'relative inline-flex h-12 items-center gap-3 rounded-12 bg-black/5 pr-4 pl-2 text-rk-text hover:bg-black/8',
     OPTION_PRESS,
     marked && MARKED_RING,
   );

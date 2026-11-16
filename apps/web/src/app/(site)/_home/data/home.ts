@@ -60,6 +60,8 @@ const TAG = 'home';
 const SPOTLIGHT_COUNT = 10;
 const ROW_LIMIT = 20;
 const PICK_DECK_SIZE = 7;
+/** The deck and its reserve, for a viewer who has seen some of the seven */
+const PICK_POOL_SIZE = 21;
 
 /**
  * Today (UTC, `YYYY-MM-DD`): the entry turns over at midnight
@@ -136,9 +138,22 @@ export async function getTopPicks(
 /**
  * "Can't decide? Let us pick": seven of the all-time top rated, a different
  * seven each day (date-pure), minus Top Picks. Roll again picks among them
- * on the client.
+ * on the client. The neighbours below give way to these seven.
  */
 export async function getPickDeck(
+  day: string,
+): Promise<ReadonlyArray<TvSeries> | Unavailable> {
+  const pool = await getPickPool(day);
+  return isUnavailable(pool) ? pool : pool.slice(0, PICK_DECK_SIZE);
+}
+
+/**
+ * The deck's pool: the day's seven first, then the rest of the rotation as
+ * a reserve. Signed out the deck is the seven; a signed-in viewer is dealt
+ * the first seven new to them (`pick/deck.ts`, on the client), so the
+ * cached read stays the same for everyone.
+ */
+export async function getPickPool(
   day: string,
 ): Promise<ReadonlyArray<TvSeries> | Unavailable> {
   'use cache';
@@ -165,7 +180,7 @@ export async function getPickDeck(
   }
   const start = rotationIndex(day, candidates.length, 'home-pick-one');
   return Array.from(
-    { length: PICK_DECK_SIZE },
+    { length: Math.min(PICK_POOL_SIZE, candidates.length) },
     (_, index) => candidates[(start + index) % candidates.length]!,
   );
 }

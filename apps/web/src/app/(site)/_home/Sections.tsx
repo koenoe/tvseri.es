@@ -9,7 +9,7 @@ import {
   getFeature,
   getHiddenGems,
   getNewThisWeek,
-  getPickDeck,
+  getPickPool,
   getPremieres,
   getSpotlight,
   getTopPicks,
@@ -83,8 +83,8 @@ export async function TopPicksSection({ day }: DayProps) {
 }
 
 export async function PickOneSection({ day, placeholder }: PlacedProps) {
-  const deck = await getPickDeck(day);
-  if (isUnavailable(deck)) {
+  const pool = await getPickPool(day);
+  if (isUnavailable(pool)) {
     return (
       <SectionUnavailable
         id="pick-one"
@@ -93,8 +93,8 @@ export async function PickOneSection({ day, placeholder }: PlacedProps) {
       />
     );
   }
-  return deck.length > 0 ? (
-    <PickOneForMe day={day} deck={deck} states={getHomeControlStates(day)} />
+  return pool.length > 0 ? (
+    <PickOneForMe day={day} pool={pool} states={getHomeControlStates(day)} />
   ) : null;
 }
 

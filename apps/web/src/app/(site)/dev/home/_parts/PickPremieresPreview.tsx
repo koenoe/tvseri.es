@@ -22,7 +22,7 @@ export default function PickPremieresPreview() {
   return (
     <>
       <div id="pick-rest">
-        <PickOneForMe day={BOARD_TODAY} deck={PICK_DECK} />
+        <PickOneForMe day={BOARD_TODAY} pool={PICK_DECK} />
       </div>
       <div id="pick-ghost">
         <PickGhost />

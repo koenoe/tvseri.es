@@ -7,6 +7,34 @@
  * - settle (.72s): a spring back to the rest of the new pick.
  */
 
+import type { LibraryIds } from '@tvseri.es/schemas';
+
+import { librarySets } from '@/lib/marking/librarySets';
+
+/** The cards dealt: the day's seven, or the first seven new to the viewer */
+export const DEAL_SIZE = 7;
+
+/**
+ * The cards a viewer is dealt from the day's pool (the day's seven first,
+ * then the reserve, in order): only shows new to them, never one they have
+ * started, finished or are up to date with (`inProgress`, `watched`). A
+ * show on their watchlist they haven't started stays. `null` (signed out,
+ * the library still unknown): the day's seven. Fewer, or none, when the
+ * pool runs out of new shows.
+ */
+export function dealPick<T extends Readonly<{ id: number }>>(
+  pool: ReadonlyArray<T>,
+  ids: LibraryIds | null,
+): ReadonlyArray<T> {
+  if (!ids) {
+    return pool.slice(0, DEAL_SIZE);
+  }
+  const { inProgress, watched } = librarySets(ids);
+  return pool
+    .filter((card) => !inProgress.has(card.id) && !watched.has(card.id))
+    .slice(0, DEAL_SIZE);
+}
+
 export type CardPose = Readonly<{
   brightness: number;
   transform: string;

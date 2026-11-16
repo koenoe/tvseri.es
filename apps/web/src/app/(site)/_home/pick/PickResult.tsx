@@ -25,7 +25,8 @@ import type { PickCardItem } from './PickDeck';
 
 type Props = Readonly<{
   card: PickCardItem;
-  onRoll: () => void;
+  /** none when only one card was dealt: nothing to roll to */
+  onRoll?: () => void;
   /**
    * The viewer's states (the page's one read, the deck included): a roll
    * lands after it, so the result draws its Watchlist at once
@@ -36,7 +37,7 @@ type Props = Readonly<{
 /**
  * The pick's title (it opens the show), its meta line,
  * the why line (desktop; the phone drops it), then + Watchlist and
- * Roll again. Announced politely when a roll lands.
+ * Roll again (when there is another card). Announced politely when a roll lands.
  */
 export default function PickResult({ card, onRoll, states }: Props) {
   const href = showPath(card.id, card.slug);
@@ -65,14 +66,16 @@ export default function PickResult({ card, onRoll, states }: Props) {
       </MetaRow>
       <div className={RESULT_ACTIONS}>
         <WatchlistToggle id={card.id} states={states} title={card.title} />
-        <Button
-          icon={variantDiceGlyph}
-          onClick={onRoll}
-          size="sm"
-          variant="outline"
-        >
-          {ROLL_LABEL}
-        </Button>
+        {onRoll ? (
+          <Button
+            icon={variantDiceGlyph}
+            onClick={onRoll}
+            size="sm"
+            variant="outline"
+          >
+            {ROLL_LABEL}
+          </Button>
+        ) : null}
       </div>
     </div>
   );

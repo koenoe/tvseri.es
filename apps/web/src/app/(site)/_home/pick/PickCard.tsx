@@ -1,13 +1,23 @@
 'use client';
 
+import { SIGNED_IN_ONLY, SIGNED_OUT_ONLY } from '@/components/ui/viewer/reveal';
 import type { ControlStatesRead } from '@/lib/marking/controlState';
 
 import { PAGE_COLUMN } from '../frame';
 import { PICK_TITLE } from '../moments';
 import { DECK_FRAME, PICK_BODY, PICK_PANEL } from './layout';
 import PickDeck, { type PickCardItem } from './PickDeck';
+import PickGhost from './PickGhost';
 import PickResult from './PickResult';
+import usePickDeal from './usePickDeal';
 import { usePickRoll } from './usePickRoll';
+
+/**
+ * While a signed-in viewer's library is on its way the card stays out of
+ * sight and its placeholder holds its box (the pre-paint hint picks which)
+ */
+const UNTIL_KNOWN = { [SIGNED_OUT_ONLY]: '' };
+const GHOST_UNTIL_KNOWN = { [SIGNED_IN_ONLY]: '' };
 
 /**
  * The Pick one moment, with no title or label. Desktop: a 400px
@@ -17,33 +27,53 @@ import { usePickRoll } from './usePickRoll';
  * needs the 688px column the page has from 1280 (it may reach into the
  * 48px gap); below 1280 it ran over the result's title and Watchlist (at
  * 1100), so the stacked layout holds until then.
+ *
+ * The pool is the same for everyone; a signed-in viewer is dealt only shows
+ * new to them (`dealPick`), decided once their library has loaded. Until
+ * then the cached HTML shows the card signed out and, signed in, the card's
+ * placeholder in its place. One new show left: no Roll again; none: the
+ * block is not drawn.
  */
 export default function PickCard({
-  cards,
+  pool,
   states,
 }: Readonly<{
-  cards: ReadonlyArray<PickCardItem>;
+  pool: ReadonlyArray<PickCardItem>;
   states?: ControlStatesRead;
 }>) {
+  const { cards, known } = usePickDeal(pool);
   const { phase, pick, roll, seed } = usePickRoll(cards.length);
-  const card = cards[pick];
+  // a roll that began before the deal landed may point past the dealt cards
+  const shown = cards.length > 0 ? pick % cards.length : 0;
+  const card = cards[shown];
   if (!card) {
     return null;
   }
+  const hide = known ? undefined : UNTIL_KNOWN;
+  const onRoll = cards.length > 1 ? roll : undefined;
+  // the placeholder is the card's sibling, so the card is never remounted
   return (
-    <section
-      aria-label={PICK_TITLE}
-      className={PAGE_COLUMN}
-      data-slot="pick-one"
-    >
-      <div className={PICK_PANEL}>
-        <div className={PICK_BODY}>
-          <div className={DECK_FRAME}>
-            <PickDeck cards={cards} phase={phase} pick={pick} seed={seed} />
+    <>
+      <section
+        aria-label={PICK_TITLE}
+        className={PAGE_COLUMN}
+        data-slot="pick-one"
+        {...hide}
+      >
+        <div className={PICK_PANEL}>
+          <div className={PICK_BODY}>
+            <div className={DECK_FRAME}>
+              <PickDeck cards={cards} phase={phase} pick={shown} seed={seed} />
+            </div>
+            <PickResult card={card} onRoll={onRoll} states={states} />
           </div>
-          <PickResult card={card} onRoll={roll} states={states} />
         </div>
-      </div>
-    </section>
+      </section>
+      {known ? null : (
+        <div {...GHOST_UNTIL_KNOWN} className="hidden">
+          <PickGhost />
+        </div>
+      )}
+    </>
   );
 }

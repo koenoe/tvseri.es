@@ -7,8 +7,11 @@ import type { PickCardItem } from './PickDeck';
 import { pickMeta, pickWhy } from './pickWhy';
 
 type Props = Readonly<{
-  /** the day's seven (cached, the same for everyone) */
-  deck: ReadonlyArray<TvSeries>;
+  /**
+   * the day's seven, then a reserve (cached, the same for everyone): the
+   * viewer is dealt from it on the client (`dealPick`)
+   */
+  pool: ReadonlyArray<TvSeries>;
   /** `YYYY-MM-DD` the why lines are written for (the page's day) */
   day: string;
   /** the viewer's states (the page's one read): the result's Watchlist */
@@ -19,10 +22,10 @@ type Props = Readonly<{
  * "Can't decide? Let us pick":
  * the pinned moment after Top Picks. The lines are written here on the
  * server, so the client island only gets the few fields it draws and the
- * first pick (the deck's first card) renders the same on both sides.
+ * first pick (the pool's first card) renders the same on both sides.
  */
-export default function PickOneForMe({ day, deck, states }: Props) {
-  const cards: ReadonlyArray<PickCardItem> = deck.map((series) => ({
+export default function PickOneForMe({ day, pool, states }: Props) {
+  const cards: ReadonlyArray<PickCardItem> = pool.map((series) => ({
     ...pickMeta(series),
     id: series.id,
     poster: series.posterImage,
@@ -30,5 +33,5 @@ export default function PickOneForMe({ day, deck, states }: Props) {
     title: series.title,
     why: pickWhy(series, day),
   }));
-  return <PickCard cards={cards} states={states} />;
+  return <PickCard pool={cards} states={states} />;
 }

@@ -1,6 +1,14 @@
+import type { LibraryIds } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
-import { deckOffset, nextPick, restPose, shufflePose } from './deck';
+import {
+  DEAL_SIZE,
+  dealPick,
+  deckOffset,
+  nextPick,
+  restPose,
+  shufflePose,
+} from './deck';
 
 describe('deckOffset', () => {
   it('fans seven cards three to each side of the pick', () => {
@@ -73,5 +81,41 @@ describe('nextPick', () => {
 
   it('keeps a lone card', () => {
     expect(nextPick(0, 1, 0.5)).toBe(0);
+  });
+});
+
+describe('dealPick', () => {
+  const pool = Array.from({ length: 12 }, (_, k) => ({ id: k + 1 }));
+  const ids = (lists: Partial<LibraryIds>): LibraryIds => ({
+    favorites: [],
+    inProgress: [],
+    watched: [],
+    watchlist: [],
+    ...lists,
+  });
+  const idsOf = (cards: ReadonlyArray<Readonly<{ id: number }>>) =>
+    cards.map((card) => card.id);
+
+  it('deals the day’s seven while the viewer is unknown (signed out)', () => {
+    expect(idsOf(dealPick(pool, null))).toEqual([1, 2, 3, 4, 5, 6, 7]);
+    expect(DEAL_SIZE).toBe(7);
+  });
+
+  it('never deals a show the viewer started, finished or is up to date with', () => {
+    const dealt = dealPick(pool, ids({ inProgress: [1, 4], watched: [2, 9] }));
+    expect(idsOf(dealt)).toEqual([3, 5, 6, 7, 8, 10, 11]);
+  });
+
+  it('keeps shows on the watchlist (and favourites) that are not started', () => {
+    const dealt = dealPick(pool, ids({ favorites: [2], watchlist: [1, 3] }));
+    expect(idsOf(dealt)).toEqual([1, 2, 3, 4, 5, 6, 7]);
+  });
+
+  it('deals fewer when the reserve runs short, none when nothing is new', () => {
+    const started = idsOf(pool).filter((id) => id !== 12 && id !== 5);
+    expect(idsOf(dealPick(pool, ids({ inProgress: started })))).toEqual([
+      5, 12,
+    ]);
+    expect(dealPick(pool, ids({ watched: idsOf(pool) }))).toEqual([]);
   });
 });

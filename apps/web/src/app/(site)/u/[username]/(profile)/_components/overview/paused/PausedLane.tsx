@@ -24,17 +24,13 @@ export default function PausedLane({
   emptyLine,
   rows,
 }: Readonly<{ emptyLine: string; rows: ReadonlyArray<PausedRowView> }>) {
-  const { answer, answered } = usePausedAnswers();
+  const { answer, answered, hideAll: hideShows } = usePausedAnswers();
   const hidden = useHiddenShows();
   // a show hidden from in progress anywhere in the tab leaves at once
   const left = withoutAnswered(rows, answered).filter(
     (row) => hidden[row.seriesId] !== true,
   );
-  const hideAll = () =>
-    answer(
-      left.map((row) => row.seriesId),
-      'hide',
-    );
+  const hideAll = () => hideShows(left.map((row) => row.seriesId));
   const link =
     left.length > 0 ? (
       <button className={HIDE_ALL} onClick={hideAll} type="button">

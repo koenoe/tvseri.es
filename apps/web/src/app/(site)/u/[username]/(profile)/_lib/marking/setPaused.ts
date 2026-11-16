@@ -16,7 +16,7 @@ import type { ActionResult } from '@/lib/marking/result';
 
 export type PausedChoice = 'keep' | 'hide';
 
-/** The most shows the lane can hold (the API's overview caps the list) */
+/** The most shows one answer sends (a row answers one; Hide all is the bulk hide) */
 export const MAX_PAUSED = 20;
 
 const PausedIdsSchema = v.pipe(

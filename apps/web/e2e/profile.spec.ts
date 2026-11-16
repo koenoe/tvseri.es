@@ -385,6 +385,28 @@ test('day 0: with all three steps done Get started is gone, no gap left', async 
   ).toBe(true);
 });
 
+/**
+ * Paused's Hide all with more shows than one answer took (28 here; it once
+ * sent nothing past 20 and showed the error toast): every row leaves, the
+ * toast says so with Undo, and Undo brings them back.
+ */
+test('Paused: Hide all hides every show at once, with Undo', async ({
+  page,
+}) => {
+  await signInAs(page.context(), 'marathonwatcher-2026');
+  await page.goto('/u/marathonwatcher-2026');
+  const paused = page.getByRole('region', { name: 'Paused' });
+  await paused.scrollIntoViewIfNeeded();
+  await paused.getByRole('button', { name: 'Hide all' }).click();
+  await expect(paused.getByText('Nothing paused')).toBeVisible();
+  await expect(page.getByText('Hid 28 series from in progress')).toBeVisible();
+  await expect(page.getByText(/^Couldn’t save that/)).toHaveCount(0);
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect(
+    paused.getByRole('button', { name: 'Show all 28' }),
+  ).toBeVisible();
+});
+
 test.describe('a profile that doesn’t exist', () => {
   test('its 404 doesn’t name the user in the tab title', async ({ page }) => {
     await signInAs(page.context(), 'alex');

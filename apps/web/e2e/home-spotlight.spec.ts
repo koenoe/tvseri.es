@@ -307,6 +307,52 @@ test.describe('the spotlight holds when the reader is elsewhere', () => {
   });
 });
 
+test.describe('a paused slideshow stays paused', () => {
+  test('pressing another pager line keeps it paused until play is pressed', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ height: 900, width: 1440 });
+    await page.goto('/');
+    await page.waitForLoadState('load');
+    await page.getByRole('button', { name: 'Pause the slideshow' }).click();
+    await pagerLine(page, 3).click();
+    await expect(slide(page, 3)).toBeVisible();
+    await page.mouse.move(4, 896);
+    // the new countdown is paused in fact: its animation does not progress
+    const countdown = () =>
+      page.evaluate(() =>
+        document
+          .getAnimations()
+          .filter(
+            (animation) =>
+              animation instanceof CSSAnimation &&
+              animation.animationName.includes('spotlight-countdown'),
+          )
+          .map((animation) => ({
+            state: animation.playState,
+            time: Number(animation.currentTime),
+          })),
+      );
+    const [first] = await countdown();
+    expect(first?.state).toBe('paused');
+    await nextFrames(page, 30);
+    expect(await countdown()).toEqual([first]);
+    // seeked to its end, a paused slideshow still does not advance
+    await expectHolds(page);
+    await expect(pagerLine(page, 3)).toHaveAttribute('aria-current', 'true');
+
+    // play resumes it: the end advances
+    await page.getByRole('button', { name: 'Play the slideshow' }).click();
+    await page.mouse.move(4, 896);
+    await expect
+      .poll(async () => {
+        await nearTheEnd(page);
+        return (await shown(page)).slide;
+      })
+      .toMatch(/^4 of 10: /);
+  });
+});
+
 test.describe('auto-advance and reduced motion', () => {
   test.setTimeout(60_000);
   const open = async (page: Page) => {

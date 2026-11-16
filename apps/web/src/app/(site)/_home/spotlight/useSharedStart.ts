@@ -38,7 +38,14 @@ export default function useSharedStart(
       const ours =
         target === ground ||
         (target instanceof Node && section.contains(target));
-      if (ours && animation.startTime === null && animation.pending) {
+      // A paused one stays so: setting a start time would run it (the
+      // countdown mounts paused while the reader has paused the slideshow)
+      if (
+        ours &&
+        animation.playState === 'running' &&
+        animation.startTime === null &&
+        animation.pending
+      ) {
         animation.startTime = now;
       }
     }

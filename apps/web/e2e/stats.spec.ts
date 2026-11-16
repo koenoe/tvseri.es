@@ -211,9 +211,10 @@ test.describe('stats', () => {
     for (const label of ['Most hours', 'In order watched']) {
       const frames = sample();
       await page.getByRole('radio', { name: label }).first().click();
-      // a jump moves the rows in one frame; the spring takes many
+      // a jump moves the rows in one frame; the spring in several (how
+      // many the machine paints: a CI runner painted six of 1.2s)
       const framesWithMotion = (await frames).filter((count) => count > 0);
-      expect(framesWithMotion.length, label).toBeGreaterThan(8);
+      expect(framesWithMotion.length, label).toBeGreaterThan(1);
     }
   });
 

@@ -73,6 +73,11 @@ test.describe('home: nothing moves for a signed-in viewer', () => {
     });
     await page.addInitScript(SHIFT_OBSERVER);
     await page.goto(VERSUS_DAY);
+    // the page has streamed in (before that every placeholder sits in a
+    // hidden segment, and "none visible" below would hold at once)
+    await expect(
+      page.locator('[data-placeholder="toy"]').filter({ visible: true }),
+    ).toHaveCount(1);
     // every other section has arrived; Pick one for me waits on the library
     // too (it deals only shows new to the viewer)
     await expect

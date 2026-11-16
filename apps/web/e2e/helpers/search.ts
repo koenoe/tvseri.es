@@ -175,8 +175,13 @@ export async function firstQueryOnSlow(page: Page, slow: number) {
   await expect(option(page, /^The Bear/).first()).toBeVisible({
     timeout: slow + 2000,
   });
-  // past the 150 ms fade-in
-  await page.waitForTimeout(200);
+  // past the 150 ms fade-in: nothing in the panel is still animating
+  await page.waitForFunction(
+    () =>
+      document
+        .querySelector('dialog .remote-surface')
+        ?.getAnimations({ subtree: true }).length === 0,
+  );
   const landed = {
     overline: await secondOverline(page),
     panel: await panel(page).boundingBox(),

@@ -1,6 +1,7 @@
 import { expect, type Page, test } from '@playwright/test';
 
 import { png } from './helpers/png';
+import { nextFrames, phoneScrollbars } from './helpers/viewport';
 
 /**
  * Home's spotlight on a production build, signed out: the slide opens its
@@ -74,8 +75,6 @@ test('a switch starts the page colour, the artwork and the text together', async
 }) => {
   await page.setViewportSize({ height: 900, width: 1440 });
   await page.goto('/');
-  // let the next slide's backdrop decode (the countdown preloads it)
-  await page.waitForTimeout(1000);
   await page.evaluate(() => {
     const w = window as unknown as {
       __starts: Record<string, number>;
@@ -118,7 +117,18 @@ test('a switch starts the page colour, the artwork and the text together', async
   });
   await pagerLine(page, 2).click();
   await expect(slide(page, 2)).toBeVisible();
-  await page.waitForTimeout(300);
+  // the three have started once the switch has played its first frames
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          Object.keys(
+            (window as unknown as { __starts: Record<string, number> })
+              .__starts,
+          ).length,
+      ),
+    )
+    .toBe(3);
   const starts = await page.evaluate(() => {
     const w = window as unknown as {
       __starts: Record<string, number>;
@@ -144,65 +154,115 @@ const shown = (page: Page) =>
       ?.getAttribute('aria-label'),
   }));
 
-/** One slide is 8s: wait longer than that */
-const LONGER_THAN_A_SLIDE = 9_500;
-
 /**
  * Pluribus's logo is 2.5 : 1 in the fixture (`titleTreatmentAspectRatio`),
  * answered here as a 500 × 200 file (TMDB's w500): its box is held at the
  * size it loads at, so the lines above it (the text stands on the stage's
  * foot) don't move when it arrives.
  */
-for (const viewport of [
+const LOGO_VIEWPORTS = [
   { box: { height: 150, width: 375 }, height: 900, width: 1440 },
   { box: { height: 70, width: 175 }, height: 844, width: 390 },
-] as const) {
+] as const;
+
+async function logoBeforeAndAfter(
+  page: Page,
+  viewport: (typeof LOGO_VIEWPORTS)[number],
+) {
+  await page.setViewportSize(viewport);
+  await phoneScrollbars(page, viewport.width);
+  let release: () => void = () => undefined;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route(
+    'https://image.tmdb.org/**/ds_pluribus_logo.png',
+    async (route) => {
+      await gate;
+      await route.fulfill({ body: png(500, 200), contentType: 'image/png' });
+    },
+  );
+  // not the load event: it waits for the logo
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  const logo = slide(page, 1).getByRole('img', { name: 'Pluribus' });
+  const rank = slide(page, 1).getByText('#1 trending this week');
+  await expect(logo).toBeVisible();
+  const held = await logo.boundingBox();
+  const rankHeld = await rank.boundingBox();
+
+  release();
+  await expect
+    .poll(() =>
+      logo.evaluate(
+        (image: HTMLImageElement) =>
+          image.complete &&
+          image.naturalWidth === 500 &&
+          image.style.getPropertyValue('--logo-ratio') === '',
+      ),
+    )
+    .toBe(true);
+  const loaded = await logo.boundingBox();
+  const rankLoaded = await rank.boundingBox();
+  return { held, loaded, rankHeld, rankLoaded };
+}
+
+for (const viewport of LOGO_VIEWPORTS) {
   test(`the logo holds its box until it loads, at ${viewport.width}`, async ({
     page,
   }) => {
-    await page.setViewportSize(viewport);
-    let release: () => void = () => undefined;
-    const gate = new Promise<void>((resolve) => {
-      release = resolve;
-    });
-    await page.route(
-      'https://image.tmdb.org/**/ds_pluribus_logo.png',
-      async (route) => {
-        await gate;
-        await route.fulfill({ body: png(500, 200), contentType: 'image/png' });
-      },
+    const { held, loaded, rankHeld, rankLoaded } = await logoBeforeAndAfter(
+      page,
+      viewport,
     );
-    // not the load event: it waits for the logo
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    const logo = slide(page, 1).getByRole('img', { name: 'Pluribus' });
-    const rank = slide(page, 1).getByText('#1 trending this week');
-    await expect(logo).toBeVisible();
-    const held = await logo.boundingBox();
-    const rankHeld = await rank.boundingBox();
-
-    release();
-    await expect
-      .poll(() =>
-        logo.evaluate(
-          (image: HTMLImageElement) =>
-            image.complete &&
-            image.naturalWidth === 500 &&
-            image.style.getPropertyValue('--logo-ratio') === '',
-        ),
-      )
-      .toBe(true);
-    const loaded = await logo.boundingBox();
-    const rankLoaded = await rank.boundingBox();
-
-    // the file's natural size inside the cap, as without the ratio
-    expect(loaded?.width).toBeCloseTo(viewport.box.width, 0);
-    expect(loaded?.height).toBeCloseTo(viewport.box.height, 0);
-    // and the box it held before
+    // the box it held before is the box it loads at, in the file's 2.5 : 1
     expect(held?.width).toBeCloseTo(loaded?.width ?? 0, 0);
     expect(held?.height).toBeCloseTo(loaded?.height ?? 0, 0);
+    expect((loaded?.width ?? 0) / (loaded?.height ?? 1)).toBeCloseTo(2.5, 1);
     // the text stands on the stage's foot: the rank line above the logo stays
     expect(rankHeld?.y).toBeCloseTo(rankLoaded?.y ?? 0, 0);
   });
+
+  test(`@design the logo loads at ${viewport.box.width} x ${viewport.box.height} at ${viewport.width}`, async ({
+    page,
+  }) => {
+    const { loaded } = await logoBeforeAndAfter(page, viewport);
+    expect(loaded?.width).toBeCloseTo(viewport.box.width, 0);
+    expect(loaded?.height).toBeCloseTo(viewport.box.height, 0);
+  });
+}
+
+/**
+ * The active pager line's countdown (one finite animation per slide, its end
+ * advances the slide; paused, it freezes). Seeks it to 100ms before its end
+ * and returns how many there were: a slideshow that is held does not advance
+ * from there, one that runs does within a frame or two, without waiting out
+ * the slide's 8s. Its length is the duration the animation reports.
+ */
+const nearTheEnd = (page: Page) =>
+  page.evaluate(() => {
+    const running = document
+      .getAnimations()
+      .filter(
+        (animation) =>
+          animation instanceof CSSAnimation &&
+          animation.animationName.includes('spotlight-countdown'),
+      );
+    for (const animation of running) {
+      const duration = Number(animation.effect?.getComputedTiming().duration);
+      animation.currentTime = duration - 100;
+    }
+    return running.map((animation) =>
+      Number(animation.effect?.getComputedTiming().duration),
+    );
+  });
+
+/** The slideshow is held: its countdown is seeked to the end and nothing moves */
+async function expectHolds(page: Page) {
+  const before = await shown(page);
+  expect(await nearTheEnd(page)).toHaveLength(1);
+  await nextFrames(page, 5);
+  expect(await shown(page)).toEqual(before);
+  return before;
 }
 
 test.describe('the spotlight holds when the reader is elsewhere', () => {
@@ -219,27 +279,30 @@ test.describe('the spotlight holds when the reader is elsewhere', () => {
     page,
   }) => {
     await page.evaluate(() => window.scrollTo(0, 1800));
-    const before = await shown(page);
-    await page.waitForTimeout(LONGER_THAN_A_SLIDE);
-    expect(await shown(page)).toEqual(before);
+    const before = await expectHolds(page);
 
     await page.evaluate(() => window.scrollTo(0, 0));
+    // back in view the line restarts: it runs, so its end advances
     await expect
-      .poll(async () => (await shown(page)).slide, { timeout: 11_000 })
+      .poll(async () => {
+        await nearTheEnd(page);
+        return (await shown(page)).slide;
+      })
       .not.toBe(before.slide);
   });
 
   test('under search: it holds; closed, it runs', async ({ page }) => {
     await page.getByRole('button', { name: 'Search' }).first().click();
     await expect(page.getByRole('dialog')).toBeVisible();
-    const before = await shown(page);
-    await page.waitForTimeout(LONGER_THAN_A_SLIDE);
-    expect(await shown(page)).toEqual(before);
+    const before = await expectHolds(page);
 
     await page.keyboard.press('Escape');
     await expect(page.getByRole('dialog')).toHaveCount(0);
     await expect
-      .poll(async () => (await shown(page)).slide, { timeout: 11_000 })
+      .poll(async () => {
+        await nearTheEnd(page);
+        return (await shown(page)).slide;
+      })
       .not.toBe(before.slide);
   });
 });
@@ -274,13 +337,9 @@ test.describe('auto-advance and reduced motion', () => {
       await open(page);
       const button = toggle(page, 'Play');
       await expect(button).toBeVisible();
-      // the same 32px button in the same place as the pause it replaces
-      const box = await button.boundingBox();
-      expect(box?.width).toBe(32);
-      expect(box?.height).toBe(32);
-      const before = await shown(page);
-      await page.waitForTimeout(LONGER_THAN_A_SLIDE);
-      expect(await shown(page)).toEqual(before);
+      // the same button in the same place as the pause it replaces
+      const play = await button.boundingBox();
+      await expectHolds(page);
 
       // the pager still switches
       await pagerLine(page, 3).click();
@@ -291,11 +350,18 @@ test.describe('auto-advance and reduced motion', () => {
       await button.click();
       await expect(toggle(page, 'Pause')).toBeVisible();
       await page.mouse.move(4, 896);
-      await page.waitForTimeout(2_000);
+      const pause = await toggle(page, 'Pause').boundingBox();
+      expect(pause).toEqual(play);
       await expect(pagerLine(page, 3)).toHaveAttribute('aria-current', 'true');
-      await expect(pagerLine(page, 4)).toHaveAttribute('aria-current', 'true', {
-        timeout: 11_000,
-      });
+      expect(await nearTheEnd(page)).toEqual([8000]);
+      await expect(pagerLine(page, 4)).toHaveAttribute('aria-current', 'true');
+    });
+
+    test('@design the play button is 32px square', async ({ page }) => {
+      await open(page);
+      const box = await toggle(page, 'Play').boundingBox();
+      expect(box?.width).toBe(32);
+      expect(box?.height).toBe(32);
     });
   });
 });

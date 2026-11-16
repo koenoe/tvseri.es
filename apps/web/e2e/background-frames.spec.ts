@@ -3,10 +3,12 @@ import { expect, type Page, test } from '@playwright/test';
 import {
   type Frame,
   framesAfter,
+  readFrames,
   recordFrames,
   rgb,
   withRoute,
 } from './helpers/frames';
+import { phoneScrollbars } from './helpers/viewport';
 
 /**
  * The page colour frame by frame, on a production build: every frame on
@@ -24,14 +26,35 @@ const PIXEL = Buffer.from(
 );
 
 const SHOW = '/1396/breaking-bad';
-/** One recording window and a little: every frame of it is in */
-const WINDOW = 1700;
+/** How long the recorder samples after each navigation event */
+const WINDOW = 1500;
+
+/**
+ * The last event's recording window has closed: every frame of it is in (the
+ * recorder samples in the page's own time, so this waits for its end, not for
+ * a guess of it).
+ */
+const windowClosed = (page: Page) =>
+  expect
+    .poll(
+      async () => {
+        const { events, frames } = await readFrames(page);
+        const last = frames.at(-1);
+        return (
+          last !== undefined &&
+          last.event === events.length - 1 &&
+          last.t >= WINDOW
+        );
+      },
+      { message: 'the recording window closes' },
+    )
+    .toBe(true);
 
 test.beforeEach(async ({ context, page }) => {
   await context.route('https://image.tmdb.org/**', (route) =>
     route.fulfill({ body: PIXEL, contentType: 'image/png' }),
   );
-  await recordFrames(context);
+  await recordFrames(context, WINDOW);
   await page.setViewportSize({ height: 900, width: 1440 });
 });
 
@@ -101,8 +124,26 @@ async function homeOnSlide3(page: Page) {
   await expect
     .poll(async () => (await settled(page)).slide)
     .toMatch(/^3 of 10: /);
-  // the switch's 600ms
-  await page.waitForTimeout(900);
+  // the slide has switched (the pager follows a press at once, the slide
+  // once its backdrop is decoded), and the switch's transitions and fades
+  // have ended
+  await expect(
+    page
+      .getByRole('region', { name: 'Trending spotlight' })
+      .getByRole('group', { name: /^3 of 10: / }),
+  ).toBeVisible();
+  await page.waitForFunction(() =>
+    document.getAnimations().every(
+      (animation) =>
+        animation.playState !== 'running' ||
+        // the slideshow's own countdown is the timer, not part of the switch
+        (animation as CSSAnimation).animationName?.includes(
+          'spotlight-countdown',
+        ) ||
+        animation.effect?.getComputedTiming().iterations ===
+          Number.POSITIVE_INFINITY,
+    ),
+  );
   return settled(page);
 }
 
@@ -114,13 +155,13 @@ const onScreen = (page: Page, route: string) =>
 async function follow(page: Page, href: string, route: string) {
   await page.locator(`a[href^="${href}"]`).first().dispatchEvent('click');
   await expect(onScreen(page, route)).toBeVisible();
-  await page.waitForTimeout(WINDOW);
+  await windowClosed(page);
 }
 
 async function back(page: Page) {
   await page.goBack();
   await expect(onScreen(page, 'route-home')).toBeVisible();
-  await page.waitForTimeout(WINDOW);
+  await windowClosed(page);
 }
 
 for (const viewport of [
@@ -131,8 +172,9 @@ for (const viewport of [
     page,
   }) => {
     await page.setViewportSize(viewport);
+    await phoneScrollbars(page, viewport.width);
     await page.goto('/');
-    await page.waitForTimeout(WINDOW);
+    await windowClosed(page);
     const home = await settled(page);
     // the first slide's colour, from the server HTML on
     const frames = withRoute(await framesAfter(page, 'load'), 'route-home');
@@ -151,7 +193,7 @@ test('a hard load of a show page paints its colour with the page, still', async 
   page,
 }) => {
   await page.goto(SHOW);
-  await page.waitForTimeout(WINDOW);
+  await windowClosed(page);
   const show = await settled(page);
   expect(show.color).toBe('#632a6f');
   const frames = withRoute(await framesAfter(page, 'load'), 'route-show');
@@ -163,7 +205,7 @@ test('forward, each page is on screen in its own colour only', async ({
   page,
 }) => {
   await page.goto('/');
-  await page.waitForTimeout(WINDOW);
+  await windowClosed(page);
   const home = await settled(page);
   await follow(page, SHOW, 'route-show');
   const show = await settled(page);
@@ -195,7 +237,7 @@ for (const [how, open] of [
     const home = await homeOnSlide3(page);
     await open(page);
     await expect(page).not.toHaveURL(/\/$/);
-    await page.waitForTimeout(WINDOW);
+    await windowClosed(page);
     await back(page);
     const frames = withRoute(await framesAfter(page, 'pop'), 'route-home');
     expectColour(frames, home.color);
@@ -227,14 +269,14 @@ test('forward to Home kept alive (the logo): slide 1 at once, still', async ({
   page,
 }) => {
   await page.goto('/');
-  await page.waitForTimeout(WINDOW);
+  await windowClosed(page);
   const first = await settled(page);
   expect(first.slide).toMatch(/^1 of 10: /);
   await homeOnSlide3(page);
   await follow(page, SHOW, 'route-show');
   await page.getByRole('link', { name: 'tvseri.es home' }).first().click();
   await expect(onScreen(page, 'route-home')).toBeVisible();
-  await page.waitForTimeout(WINDOW);
+  await windowClosed(page);
   const frames = withRoute(await framesAfter(page, 'push'), 'route-home');
   expectColour(frames, first.color);
   expectStill(frames);

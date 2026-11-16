@@ -2,6 +2,12 @@ import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 import { signInAs, signInShownAs } from './helpers/session';
+import {
+  fontsSettled,
+  nextFrames,
+  phoneScrollbars,
+  untilStable,
+} from './helpers/viewport';
 
 /**
  * `/u/{username}/stats/{year}`: public, one cached entry
@@ -46,7 +52,6 @@ async function warm(page: Page, url: string, baseURL?: string) {
       if (cached) {
         return;
       }
-      await tab.waitForTimeout(500);
     }
     throw new Error(`${url} never reached the static shell`);
   } finally {
@@ -54,19 +59,26 @@ async function warm(page: Page, url: string, baseURL?: string) {
   }
 }
 
+/** The page has hydrated: its controls take input */
+const hydrated = (page: Page) =>
+  expect(page.locator('html')).toHaveAttribute('data-search-ready', '');
+
 test.describe('stats', () => {
   for (const width of [390, 1440]) {
     test(`never scrolls sideways at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ height: 900, width });
+      await phoneScrollbars(page, width);
       await page.goto(PAGE);
       await expect(
         page.getByRole('heading', { name: 'The year in series' }),
       ).toBeVisible();
-      await page.waitForLoadState('networkidle');
-      const { clientWidth, scrollWidth } = await page.evaluate(() => ({
-        clientWidth: document.documentElement.clientWidth,
-        scrollWidth: document.documentElement.scrollWidth,
-      }));
+      const widths = () =>
+        page.evaluate(() => ({
+          clientWidth: document.documentElement.clientWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+        }));
+      await untilStable(widths, { message: 'the page stops changing width' });
+      const { clientWidth, scrollWidth } = await widths();
       expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
     });
   }
@@ -161,7 +173,7 @@ test.describe('stats', () => {
     await page.goto(PAGE);
     const rows = page.locator('#year-in-shows-rows [role="img"]');
     await rows.first().scrollIntoViewIfNeeded();
-    await page.waitForLoadState('networkidle');
+    await hydrated(page);
     // Per animation frame, how many rows moved since the frame before
     const sample = () =>
       page.evaluate(
@@ -203,10 +215,11 @@ test.describe('stats', () => {
     }
   });
 
-  test('a year switch grows the week lines 8ms apart, a page load does not', async ({
-    baseURL,
-    page,
-  }) => {
+  /**
+   * Loads a year (nothing grows), switches to the year before, and returns
+   * the delays of the first three week lines to grow.
+   */
+  async function growDelays(page: Page, baseURL: string | undefined) {
     await page.setViewportSize({ height: 900, width: 1440 });
     await warm(page, `/u/lena/stats/${YEAR_BEFORE}`, baseURL);
     await warm(page, PAGE, baseURL);
@@ -237,11 +250,13 @@ test.describe('stats', () => {
     const grown = () =>
       page.evaluate(() => (window as unknown as { grown: number[] }).grown);
     await page.goto(PAGE);
-    await page.waitForLoadState('networkidle');
     await expect(
       page.getByRole('heading', { level: 1, name: String(LAST_YEAR) }),
     ).toBeVisible();
-    // a page load: nothing grows
+    await hydrated(page);
+    // a page load: nothing grows (the grow starts with the page's first
+    // frames, so a few of them are the window)
+    await nextFrames(page, 10);
     expect(await grown()).toEqual([]);
 
     const sidebar = page.getByRole('complementary');
@@ -251,12 +266,23 @@ test.describe('stats', () => {
     await page.waitForURL(
       (url) => url.pathname === `/u/lena/stats/${YEAR_BEFORE}`,
     );
-    // the lines start 8ms apart: the first three to start
-    await expect
-      .poll(async () => (await grown()).slice(0, 3).sort((a, b) => a - b), {
-        timeout: 10_000,
-      })
-      .toEqual([0, 8, 16]);
+    // the first three lines to start
+    await expect.poll(async () => (await grown()).length).toBeGreaterThan(2);
+    return (await grown()).slice(0, 3).sort((a, b) => a - b);
+  }
+
+  test('a year switch grows the week lines one after the other, a page load does not', async ({
+    baseURL,
+    page,
+  }) => {
+    const [first = 0, second = 0, third = 0] = await growDelays(page, baseURL);
+    expect(first).toBe(0);
+    expect(second).toBeGreaterThan(first);
+    expect(third - second).toBeCloseTo(second - first, 5);
+  });
+
+  test('@design the week lines start 8ms apart', async ({ baseURL, page }) => {
+    expect(await growDelays(page, baseURL)).toEqual([0, 8, 16]);
   });
 
   test('sends another spelling of the username to the canonical URL', async ({
@@ -318,7 +344,6 @@ test.describe('stats', () => {
     await expect(
       popular.getByRole('button', { name: /to watchlist$/ }).first(),
     ).toHaveAttribute('aria-pressed', 'false');
-    await popular.screenshot({ path: test.info().outputPath('popular.png') });
   });
 
   test('signed in, the ⋯ on a Finished tile opens the viewer’s Remote', async ({
@@ -338,7 +363,6 @@ test.describe('stats', () => {
     await expect(
       page.getByRole('menu', { name: /^Actions for/ }),
     ).toBeVisible();
-    await page.screenshot({ path: test.info().outputPath('remote-open.png') });
   });
 });
 
@@ -351,13 +375,13 @@ for (const width of [360, 390, 800, 1024] as const) {
     page,
   }) => {
     await page.setViewportSize({ height: 900, width });
+    await phoneScrollbars(page, width);
     await page.goto(PAGE);
     const tiles = page.locator(
       '[data-slot="stats-tiles"] [role="group"] > div',
     );
     await expect(tiles.first()).toBeVisible();
-    await page.waitForLoadState('networkidle');
-    await page.evaluate(() => document.fonts.ready);
+    await fontsSettled(page);
     const spills = await tiles.evaluateAll((nodes) =>
       nodes.flatMap((tile) => {
         const box = tile.getBoundingClientRect();

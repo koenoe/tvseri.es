@@ -1,4 +1,4 @@
-import { expect, type Page, test } from '@playwright/test';
+import { expect, type Page, type Request, test } from '@playwright/test';
 
 import { namedViewports } from './helpers/placeholders';
 import {
@@ -12,6 +12,7 @@ import {
   option,
   sampleSearch,
 } from './helpers/search';
+import { nextFrames, phoneScrollbars } from './helpers/viewport';
 
 /**
  * Search while loading: no loading line; a
@@ -68,7 +69,11 @@ test('fast (150 ms): nothing shows: no ghost, no dim, never busy', async ({
   // a refine, also fast
   await field(page).fill('bre');
   await expect(option(page, /^Breaking Bad/)).toBeVisible();
-  await page.waitForTimeout(300);
+  // nothing is out any more, so nothing can still dim or ghost
+  await expect(dialog(page).getByRole('listbox')).toHaveAttribute(
+    'aria-busy',
+    'false',
+  );
 
   const { samples } = await recorder.read();
   expect(samples.length).toBeGreaterThan(10);
@@ -77,25 +82,37 @@ test('fast (150 ms): nothing shows: no ghost, no dim, never busy', async ({
   expect(samples.filter((sample) => sample.opacity < 1)).toEqual([]);
 });
 
+async function slowFirstQuery(
+  page: Page,
+  viewport: (typeof VIEWPORTS)[number],
+) {
+  await page.setViewportSize(viewport);
+  await phoneScrollbars(page, viewport.width);
+  const control = await controlSearch(page);
+  control.ms = SLOW;
+  await open(page);
+  await openFromHeader(page);
+  return firstQueryOnSlow(page, SLOW);
+}
+
 for (const viewport of VIEWPORTS) {
+  test(`@perf first query, slow (${viewport.name}): the ghosts are there in time, 150 ms debounce + 250 ms`, async ({
+    page,
+  }) => {
+    const run = await slowFirstQuery(page, viewport);
+    expect(run.ghostsAfter).toBeLessThan(400 + 250);
+  });
+
   test(`first query, slow (${viewport.name}): ghosts 400 ms after the key, then the results in the same boxes`, async ({
     page,
   }) => {
-    await page.setViewportSize(viewport);
-    const control = await controlSearch(page);
-    control.ms = SLOW;
-    await open(page);
-    await openFromHeader(page);
-
-    const run = await firstQueryOnSlow(page, SLOW);
+    const run = await slowFirstQuery(page, viewport);
 
     expect(run.landed.poster).toEqual(run.ghosts.poster);
     expect(run.landed.overline).toEqual(run.ghosts.overline);
     expect(run.landed.panel?.height).toBe(run.ghosts.panel?.height);
-    // 150 ms debounce + 250 ms: not before, and on time (a frame of slack,
-    // more under a loaded machine)
+    // 150 ms debounce + 250 ms: not before (a frame of slack)
     expect(run.ghostsAfter).toBeGreaterThanOrEqual(380);
-    expect(run.ghostsAfter).toBeLessThan(400 + 250);
     expect(run.busy).toEqual(['true', 'false']);
     // ghosts once, then results: no flash of the recents or an empty body
     expect(run.shown).toEqual(['ghosts', 'results']);
@@ -128,7 +145,10 @@ test('refine, slow: the results fade to 50% and the answer swaps in place', asyn
   await expect(dialog(page).getByRole('group', { name: 'People' })).toBeVisible(
     { timeout: SLOW + 2000 },
   );
-  await page.waitForTimeout(250);
+  await expect(dialog(page).getByRole('listbox').locator('..')).toHaveCSS(
+    'opacity',
+    '1',
+  );
 
   const { samples } = await recorder.read();
   const opacities = samples.map((sample) => sample.opacity);
@@ -284,6 +304,13 @@ test('emptying the field brings the recents back at once, at full strength, and 
   await openFromHeader(page);
   const recents = await panel(page).boundingBox();
   control.ms = SLOW;
+  const settled = new Promise<void>((resolve) => {
+    const done = (request: Request) => {
+      if (request.url().includes('/api/search?q=bre')) resolve();
+    };
+    page.on('requestfinished', done);
+    page.on('requestfailed', done);
+  });
 
   await field(page).fill('bre');
   await expect(dialog(page).locator('[data-ghost]').first()).toBeVisible();
@@ -300,8 +327,10 @@ test('emptying the field brings the recents back at once, at full strength, and 
     'false',
   );
   expect((await panel(page).boundingBox())?.height).toBe(recents?.height);
-  // the request that was out never lands on the recents
-  await page.waitForTimeout(SLOW);
+  // the request that was out never lands on the recents: once it has ended,
+  // give its handlers a few frames
+  await settled;
+  await nextFrames(page, 5);
   await expect(
     dialog(page).getByRole('group', { name: 'Recent' }),
   ).toBeVisible();

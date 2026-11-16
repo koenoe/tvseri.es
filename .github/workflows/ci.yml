@@ -60,7 +60,9 @@ jobs:
   # The web's Playwright suite against its stub API and auth server, on pull
   # requests only: no secrets, no AWS
   e2e:
-    runs-on: ubuntu-latest
+    # macOS: the layout specs measure rendered text to the pixel, and Linux
+    # Chromium's font rendering differs from the Macs they were written on
+    runs-on: macos-latest
 
     if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
 
@@ -91,7 +93,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install browsers
-        run: pnpm --filter @tvseri.es/web exec playwright install --with-deps chromium webkit
+        run: pnpm --filter @tvseri.es/web exec playwright install chromium webkit
 
       - name: E2E (shard ${{ matrix.shard }} of 4)
         run: pnpm --filter @tvseri.es/web e2e --shard=${{ matrix.shard }}/4

@@ -16,9 +16,11 @@ import { type CastMember, loadCast } from '../../_data/loaders';
  * stays above its neighbours until it has shrunk back. md to lg 40px: the names sit under
  * the faces; the -8px margin collapses with the section's 40px to 32 (plus
  * the 8px inset of the role line and the header); phones the same, in three
- * columns of two rows.
+ * columns of two rows. With no "Created by" (no creators) the faces are the
+ * block's first line and take its place, 24px under the hero, instead of
+ * keeping the gap meant for the line above them.
  */
-const CAST_SPACE = 'mt-9 -mb-2 lg:mt-13 lg:mb-[67px]';
+const CAST_SPACE = 'mt-9 -mb-2 first:mt-6 lg:mt-13 lg:mb-[67px] lg:first:mt-6';
 
 const listStyles = `${CAST_SPACE} grid grid-cols-3 gap-4 md:grid-cols-6 lg:flex lg:w-[973px] lg:max-w-full lg:flex-wrap lg:gap-0 lg:pt-4`;
 

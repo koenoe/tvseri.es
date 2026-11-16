@@ -51,7 +51,7 @@ const SPOTLIGHT_LOGO: TitleLogoLook = {
  * meta line, the reason
  * and the Watchlist + Seen it control (one button in the viewer's state
  * once they have the show). The whole tile opens the show. Never the show page's rating or
- * circles. 440 tall in the hero's 640 column, 220 at full width on a phone.
+ * circles. 440 tall in the hero's 640 column, 300 at full width on a phone (the backdrop shows above the text).
  */
 export default function Spotlight({
   kicker,
@@ -66,7 +66,7 @@ export default function Spotlight({
   return (
     <article
       aria-label={show.title}
-      className="relative flex h-55 flex-col justify-end overflow-hidden rounded-16 bg-[#1b2122] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(221_238_255/0.08)] md:h-110"
+      className="relative flex h-75 flex-col justify-end overflow-hidden rounded-16 bg-[#1b2122] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(221_238_255/0.08)] md:h-110"
       data-hairline
     >
       {/* the backdrop and its shade: one layer, clipped once by the corners */}

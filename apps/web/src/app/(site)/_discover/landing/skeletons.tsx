@@ -128,7 +128,7 @@ function SpotlightGhost() {
     <span
       aria-hidden
       className={cn(
-        'flex h-55 flex-col justify-end rounded-16 md:h-110',
+        'flex h-75 flex-col justify-end rounded-16 md:h-110',
         GHOST_LOOK.loading,
       )}
     >
@@ -196,7 +196,7 @@ export function SpotlightSkeleton({
   /** failed: what the card says didn't load */
   title?: string;
 }>) {
-  const classes = cn('block h-55 rounded-16 md:h-110', GHOST_LOOK[look]);
+  const classes = cn('block h-75 rounded-16 md:h-110', GHOST_LOOK[look]);
   const tile = <span aria-hidden className={classes} />;
   if (look === 'loading') {
     return <SpotlightGhost />;

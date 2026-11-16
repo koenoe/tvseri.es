@@ -227,6 +227,84 @@ test.describe('stats', () => {
     });
   }
 
+  // One Share for every width, beside the year's title: the icon circle on
+  // a phone (on the title's row at 360), the pill on desktop; it opens the
+  // phone's sheet or the desktop dialog.
+  for (const width of [360, 390, 1440]) {
+    test(`Share sits beside the year and opens its panel at ${width}px`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ height: 900, width });
+      await phoneScrollbars(page, width);
+      await page.goto(PAGE);
+      await hydrated(page);
+      const title = page.getByRole('heading', {
+        level: 1,
+        name: String(LAST_YEAR),
+      });
+      const share = page.getByRole('button', { name: `Share ${LAST_YEAR}` });
+      await expect(share).toHaveCount(1);
+      await fontsSettled(page);
+      const [titleBox, shareBox] = await Promise.all([
+        title.boundingBox(),
+        share.boundingBox(),
+      ]);
+      const middle = (shareBox?.y ?? 0) + (shareBox?.height ?? 0) / 2;
+      expect(middle).toBeGreaterThan(titleBox?.y ?? 0);
+      expect(middle).toBeLessThan((titleBox?.y ?? 0) + (titleBox?.height ?? 0));
+      expect(shareBox?.width).toBe(width < 768 ? 32 : shareBox?.width);
+      await share.click();
+      const panel = page.getByRole('dialog', {
+        name: `lena’s ${LAST_YEAR}, as a card`,
+      });
+      await expect(panel).toBeVisible();
+      // the dialog's overline; the sheet has none
+      await expect(panel.getByText('Share', { exact: true })).toHaveCount(
+        width < 768 ? 0 : 1,
+      );
+    });
+  }
+
+  test('no Share for a year in progress', async ({ page }) => {
+    await page.goto(`/u/lena/stats/${THIS_YEAR}`);
+    await expect(
+      page.getByRole('heading', { level: 1, name: String(THIS_YEAR) }),
+    ).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Share / })).toHaveCount(0);
+  });
+
+  // The user lookup unavailable: the data-down page has the whole width,
+  // with no sidebar or phone head beside it (the layout's grid steps aside)
+  for (const width of [390, 1440]) {
+    test(`a failed user lookup is the whole data-down page at ${width}px`, async ({
+      page,
+    }) => {
+      test.setTimeout(60_000);
+      await page.setViewportSize({ height: 900, width });
+      await page.goto(`/u/out-500-user/stats/${LAST_YEAR}`);
+      await expect(
+        page.getByText('Our series data is on a break.'),
+      ).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByRole('complementary')).toBeHidden();
+      await expect(
+        page.locator(
+          '[data-slot="stats-aside"], [data-slot="stats-phone-head"], [data-placeholder="stats-aside"], [data-placeholder="stats-phone-head"]',
+        ),
+      ).toHaveCount(0);
+      // the grid is out of the way: no gutter or column around the page
+      const display = await page
+        .locator('[data-stats-down]')
+        .evaluate((node) => {
+          let grid = node.parentElement;
+          while (grid && !grid.classList.contains('group/stats')) {
+            grid = grid.parentElement;
+          }
+          return grid ? getComputedStyle(grid).display : 'no grid';
+        });
+      expect(display).toBe('contents');
+    });
+  }
+
   test('serves the static 404 for malformed usernames and years, with no function', async ({
     request,
   }) => {

@@ -152,7 +152,7 @@ export function YearHeaderSkeleton() {
           {/* A finished year's Share (`data-stats-year` on <html>, set
               before the first paint): the circle, or the pill from md */}
           <div
-            className={`hidden size-8 rounded-full md:h-9 md:w-[92px] [html[data-stats-year=finished]_&]:block ${GHOST_FILL}`}
+            className={`hidden size-8 rounded-full md:h-9 md:w-[97px] [html[data-stats-year=finished]_&]:block ${GHOST_FILL}`}
           />
         </div>
         {/* the sentence: two lines from lg, four below (three for a current

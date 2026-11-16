@@ -2,6 +2,7 @@ import { expect, type Page, test } from '@playwright/test';
 
 import { signInAs } from './helpers/session';
 import { progress } from './helpers/showPage';
+import { phoneScrollbars, untilStable } from './helpers/viewport';
 
 /**
  * The signed-in show page end to end: no console or
@@ -84,18 +85,17 @@ test('a mark survives going Home and pressing Back', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-// Vertically cramped on mobile otherwise: on a phone the hero's rows
-// sit 16px (title to facts), 20px (facts to the progress text) and 20px
-// (progress text to the rating and actions) apart, and the progress line is
-// a 44px tap target. Measured between boxes, the way the board draws them.
-for (const width of [390, 360]) {
-  test(`the phone hero's rhythm and the progress line's tap target at ${width}`, async ({
-    page,
-  }) => {
-    await page.setViewportSize({ height: 844, width });
-    await page.goto(SHOW);
-    await expect(progress(page)).toContainText('21 of 47');
-    const boxes = await progress(page).evaluate((line) => {
+// Vertically cramped on mobile otherwise: on a phone the hero's rows sit
+// close (title to facts, facts to the progress text, progress text to the
+// rating and actions) and the progress line is a 44px tap target. Measured
+// between boxes, the way the board draws them.
+const heroGaps = async (page: Page, width: number) => {
+  await page.setViewportSize({ height: 844, width });
+  await phoneScrollbars(page, width);
+  await page.goto(SHOW);
+  await expect(progress(page)).toContainText('21 of 47');
+  const read = () =>
+    progress(page).evaluate((line) => {
       const box = (node: Element | null | undefined) => {
         const rect = node?.getBoundingClientRect();
         return {
@@ -104,19 +104,45 @@ for (const width of [390, 360]) {
         };
       };
       const title = line.parentElement?.querySelector('h1');
-      return {
+      const rows = {
         actionsRow: box(
           document.querySelector('[data-slot="actions"]')?.parentElement,
         ),
-        line: line.getBoundingClientRect().height,
         meta: box(title?.nextElementSibling),
         text: box(line.firstElementChild),
         title: box(title),
       };
+      return {
+        actionsGap: rows.actionsRow.top - rows.text.bottom,
+        line: line.getBoundingClientRect().height,
+        metaGap: rows.meta.top - rows.title.bottom,
+        textGap: rows.text.top - rows.meta.bottom,
+      };
     });
-    expect(boxes.line).toBeGreaterThanOrEqual(44);
-    expect(boxes.meta.top - boxes.title.bottom).toBeCloseTo(16, 0);
-    expect(boxes.text.top - boxes.meta.bottom).toBeCloseTo(20, 0);
-    expect(boxes.actionsRow.top - boxes.text.bottom).toBeCloseTo(20, 0);
+  // the viewer's rows have streamed in and the hero has stopped moving
+  await untilStable(read, { message: 'the hero stops moving' });
+  return read();
+};
+
+for (const width of [390, 360]) {
+  test(`the phone hero's rows stack in order and the progress line is a tap target at ${width}`, async ({
+    page,
+  }) => {
+    const gaps = await heroGaps(page, width);
+    expect(gaps.line).toBeGreaterThanOrEqual(44);
+    // in order, never overlapping, the two rows around the progress text
+    // spaced alike and no tighter than the facts under the title
+    expect(gaps.metaGap).toBeGreaterThanOrEqual(0);
+    expect(gaps.textGap).toBeGreaterThanOrEqual(gaps.metaGap);
+    expect(gaps.actionsGap).toBeCloseTo(gaps.textGap, 0);
+  });
+
+  test(`@design the phone hero's rows sit 16, 20 and 20px apart at ${width}`, async ({
+    page,
+  }) => {
+    const gaps = await heroGaps(page, width);
+    expect(gaps.metaGap).toBeCloseTo(16, 0);
+    expect(gaps.textGap).toBeCloseTo(20, 0);
+    expect(gaps.actionsGap).toBeCloseTo(20, 0);
   });
 }

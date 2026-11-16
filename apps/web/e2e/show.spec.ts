@@ -1,6 +1,7 @@
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 import { signInAs } from './helpers/session';
+import { phoneScrollbars } from './helpers/viewport';
 
 /**
  * The show page: the canonical slug redirect, 404s and the
@@ -73,6 +74,7 @@ test.describe('hero without a rating', () => {
       page,
     }) => {
       await page.setViewportSize({ height: 900, width });
+      await phoneScrollbars(page, width);
       const boxes = async (path: string) => {
         await page.goto(path);
         const imdb = page.locator('[data-slot="imdb"]');
@@ -129,25 +131,38 @@ test('a keyword of a theme’s set links to its theme, other keywords stay plain
 });
 
 // After the first tightening the vote count sat too close against the IMDb
-// rating on desktop: 4px more there (about 8px from
-// the value's digits to the votes'), phones unchanged.
+// rating on desktop: more room there (about 8px from the value's digits to
+// the votes'), phones unchanged.
+const votesGap = async (page: Page, width: number) => {
+  await page.setViewportSize({ height: 900, width });
+  await phoneScrollbars(page, width);
+  await page.goto('/136315/the-bear');
+  const imdb = page.locator('[data-slot="imdb"]');
+  await expect(imdb).toBeVisible();
+  return imdb.evaluate((node) => {
+    const value = node.querySelector('b')?.getBoundingClientRect();
+    const votes = node.querySelector('small')?.getBoundingClientRect();
+    return (votes?.top ?? 0) - (value?.bottom ?? 0);
+  });
+};
+
+test('the IMDb votes sit under the value, with more room on desktop than on a phone', async ({
+  page,
+}) => {
+  const desktop = await votesGap(page, 1440);
+  const phone = await votesGap(page, 390);
+  expect(phone).toBeGreaterThanOrEqual(0);
+  expect(desktop).toBeGreaterThan(phone);
+});
+
 for (const [width, gap] of [
   [1440, 4],
   [390, 0],
 ] as const) {
-  test(`the IMDb votes sit ${gap}px under the value's line at ${width}`, async ({
+  test(`@design the IMDb votes sit ${gap}px under the value's line at ${width}`, async ({
     page,
   }) => {
-    await page.setViewportSize({ height: 900, width });
-    await page.goto('/136315/the-bear');
-    const imdb = page.locator('[data-slot="imdb"]');
-    await expect(imdb).toBeVisible();
-    const boxes = await imdb.evaluate((node) => {
-      const value = node.querySelector('b')?.getBoundingClientRect();
-      const votes = node.querySelector('small')?.getBoundingClientRect();
-      return { value: value?.bottom ?? 0, votes: votes?.top ?? 0 };
-    });
-    expect(boxes.votes - boxes.value).toBeCloseTo(gap, 0);
+    expect(await votesGap(page, width)).toBeCloseTo(gap, 0);
   });
 }
 
@@ -297,6 +312,7 @@ test.describe('viewer', () => {
   }) => {
     for (const width of [1440, 390]) {
       await page.setViewportSize({ height: width < 500 ? 844 : 900, width });
+      await phoneScrollbars(page, width);
       await page.goto('/136315/the-bear');
       const line = page.getByRole('button', { name: /^Watch history: / });
       await expect(line).toHaveText('47 episodes · 26h 51m in all');

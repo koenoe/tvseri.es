@@ -1,6 +1,7 @@
 import { expect, type Locator, type Page, test } from '@playwright/test';
 
 import { open } from './helpers';
+import { untilStable } from './helpers/viewport';
 
 /**
  * One tile hover (TLHover variant A): a poster grows 4%
@@ -16,10 +17,8 @@ test.use({ viewport: { height: 900, width: 1440 } });
  * writes `scale-*` and `translate-*` to the CSS `scale` and `translate`
  * properties, not `transform`.
  */
-const settledScale = async (target: Locator) => {
-  // past the transition (250ms; an episode still's 400ms)
-  await target.page().waitForTimeout(450);
-  return target.evaluate((el) => {
+const readScale = (target: Locator) =>
+  target.evaluate((el) => {
     const style = getComputedStyle(el);
     const scale = style.scale === 'none' ? 1 : Number.parseFloat(style.scale);
     const y =
@@ -28,6 +27,22 @@ const settledScale = async (target: Locator) => {
         : Number.parseFloat(style.translate.split(' ')[1] ?? '0');
     return { scale: Number(scale.toFixed(3)), y: Math.round(y) };
   });
+
+/**
+ * Read once the transition (250ms; an episode still's 400ms) has ended.
+ * `grows`: the target has to start growing first, so the quiet before the
+ * hover took hold is not read as the end.
+ */
+const settledScale = async (target: Locator, { grows = false } = {}) => {
+  if (grows) {
+    await expect
+      .poll(async () => (await readScale(target)).scale)
+      .toBeGreaterThan(1);
+  }
+  await untilStable(() => readScale(target), {
+    message: 'the hover transition ends',
+  });
+  return readScale(target);
 };
 
 const firstPosterLink = (page: Page, region: RegExp) =>
@@ -38,14 +53,16 @@ const firstPosterLink = (page: Page, region: RegExp) =>
     .getByRole('link')
     .first();
 
-test('a Discover hub poster grows 4%, no lift, no ring, and its row does not cut it', async ({
+test('a Discover hub poster grows, no lift, no ring, and its row does not cut it', async ({
   page,
 }) => {
   await page.goto('/discover');
   const link = firstPosterLink(page, /Essentials/);
   await link.scrollIntoViewIfNeeded();
   await link.hover();
-  expect(await settledScale(link)).toEqual({ scale: 1.04, y: 0 });
+  const grown = await settledScale(link, { grows: true });
+  expect(grown.scale).toBeGreaterThan(1);
+  expect(grown.y).toBe(0);
   const ring = await link.evaluate(
     (el) =>
       getComputedStyle(el.querySelector('span') as Element, '::after')
@@ -62,9 +79,15 @@ test('a Discover hub poster grows 4%, no lift, no ring, and its row does not cut
   expect(fits).toBe(true);
 });
 
-test('a landing poster and Home’s posters grow the same 4%', async ({
+test('a landing poster and Home’s posters grow the same as a hub poster', async ({
   page,
 }) => {
+  const scales: number[] = [];
+  await page.goto('/discover');
+  const hub = firstPosterLink(page, /Essentials/);
+  await hub.scrollIntoViewIfNeeded();
+  await hub.hover();
+  scales.push((await settledScale(hub, { grows: true })).scale);
   for (const path of ['/genre/crime', '/']) {
     await page.goto(path);
     const link = page
@@ -73,11 +96,24 @@ test('a landing poster and Home’s posters grow the same 4%', async ({
       .first();
     await link.scrollIntoViewIfNeeded();
     await link.hover();
-    expect((await settledScale(link)).scale).toBe(1.04);
+    scales.push((await settledScale(link, { grows: true })).scale);
   }
+  expect(scales[0]).toBeGreaterThan(1);
+  expect(new Set(scales).size).toBe(1);
 });
 
-test('an episode tile does not grow or draw a ring; its still zooms 3%', async ({
+test('@design a poster grows 4%', async ({ page }) => {
+  await page.goto('/discover');
+  const link = firstPosterLink(page, /Essentials/);
+  await link.scrollIntoViewIfNeeded();
+  await link.hover();
+  expect(await settledScale(link, { grows: true })).toEqual({
+    scale: 1.04,
+    y: 0,
+  });
+});
+
+test('an episode tile does not grow or draw a ring; its still zooms', async ({
   page,
 }) => {
   await open(page, '/136315/the-bear');
@@ -88,5 +124,13 @@ test('an episode tile does not grow or draw a ring; its still zooms 3%', async (
   const shadow = await tile.evaluate((el) => getComputedStyle(el).boxShadow);
   expect(shadow).not.toContain('inset');
   const still = tile.locator('img').first();
-  expect((await settledScale(still)).scale).toBe(1.03);
+  expect((await settledScale(still, { grows: true })).scale).toBeGreaterThan(1);
+});
+
+test('@design an episode still zooms 3%', async ({ page }) => {
+  await open(page, '/136315/the-bear');
+  const tile = page.locator('[data-episode-tile]').first();
+  await tile.hover();
+  const still = tile.locator('img').first();
+  expect((await settledScale(still, { grows: true })).scale).toBe(1.03);
 });

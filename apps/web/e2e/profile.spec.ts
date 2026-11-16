@@ -1,7 +1,8 @@
 import { instant } from '@next/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 import { signInAs, stubFault } from './helpers/session';
+import { fontsSettled, phoneScrollbars, untilStable } from './helpers/viewport';
 
 /**
  * The profile (`/u/{username}`). Signed out it is the 401 page
@@ -195,36 +196,49 @@ test.describe('profile signed in', () => {
 
   test.describe('on a phone', () => {
     test.use({ viewport: { height: 844, width: 390 } });
+    test.beforeEach(async ({ page }) => {
+      await phoneScrollbars(page, 390);
+    });
+
+    const tabBoxes = async (page: Page) => {
+      await page.goto('/u/alex');
+      const nav = page.getByRole('navigation', { name: 'Profile' });
+      const tabs = nav.getByRole('link');
+      await expect(tabs).toHaveCount(5);
+      await fontsSettled(page);
+      const boxes = await tabs.evaluateAll((links) =>
+        links.map((link) => link.getBoundingClientRect()),
+      );
+      return { boxes, nav: await nav.boundingBox() };
+    };
 
     test('the five tabs fit without scrolling, in equal columns', async ({
       page,
     }) => {
-      await page.goto('/u/alex');
-      const tabs = page
-        .getByRole('navigation', { name: 'Profile' })
-        .getByRole('link');
-      await expect(tabs).toHaveCount(5);
-      const boxes = await tabs.evaluateAll((links) =>
-        links.map((link) => link.getBoundingClientRect()),
-      );
-      const nav = await page
-        .getByRole('navigation', { name: 'Profile' })
-        .boundingBox();
+      const { boxes, nav } = await tabBoxes(page);
       const widths = boxes.map((box) => Math.round(box.width));
       expect(new Set(widths).size).toBe(1);
-      expect(boxes.map((box) => Math.round(box.height))).toEqual(
-        Array(5).fill(50),
-      );
-      expect(nav?.height).toBe(58);
+      const heights = boxes.map((box) => Math.round(box.height));
+      expect(new Set(heights).size).toBe(1);
+      // the bar holds its tabs
+      expect(nav?.height ?? 0).toBeGreaterThanOrEqual(heights[0] ?? 0);
       const last = boxes.at(-1);
       expect((last?.right ?? 0) <= (nav?.x ?? 0) + (nav?.width ?? 0)).toBe(
         true,
       );
     });
 
-    test('a sub-page shows the compact identity above the tabs', async ({
+    test('@design the five tabs are 50px tall in a 58px bar', async ({
       page,
     }) => {
+      const { boxes, nav } = await tabBoxes(page);
+      expect(boxes.map((box) => Math.round(box.height))).toEqual(
+        Array(5).fill(50),
+      );
+      expect(nav?.height).toBe(58);
+    });
+
+    const identityGap = async (page: Page) => {
       await page.goto('/u/alex/history');
       const sidebar = page.getByRole('complementary', { name: 'About alex' });
       await expect(sidebar.getByRole('link', { name: 'Edit' })).toBeVisible();
@@ -234,18 +248,28 @@ test.describe('profile signed in', () => {
       await expect(
         sidebar.getByRole('link', { name: 'Edit profile' }),
       ).toBeHidden();
-      // 16px from the identity to the tabs
+      await fontsSettled(page);
       const identity = await sidebar
         .getByRole('region', { name: 'Identity' })
         .boundingBox();
       const tabs = await page
         .getByRole('navigation', { name: 'Profile' })
         .boundingBox();
-      expect(
-        Math.round(
-          (tabs?.y ?? 0) - (identity?.y ?? 0) - (identity?.height ?? 0),
-        ),
-      ).toBe(16);
+      return Math.round(
+        (tabs?.y ?? 0) - (identity?.y ?? 0) - (identity?.height ?? 0),
+      );
+    };
+
+    test('a sub-page shows the compact identity above the tabs', async ({
+      page,
+    }) => {
+      expect(await identityGap(page)).toBeGreaterThanOrEqual(0);
+    });
+
+    test('@design the compact identity sits 16px above the tabs', async ({
+      page,
+    }) => {
+      expect(await identityGap(page)).toBe(16);
     });
 
     test('the overview keeps the full identity', async ({ page }) => {
@@ -290,13 +314,20 @@ test.describe('profile with real-data shapes', () => {
   for (const width of [390, 1440]) {
     test(`never scrolls sideways at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ height: 900, width });
-      for (const path of PATHS) {
-        await page.goto(path);
-        await page.waitForLoadState('networkidle');
-        const { clientWidth, scrollWidth } = await page.evaluate(() => ({
+      await phoneScrollbars(page, width);
+      const widths = () =>
+        page.evaluate(() => ({
           clientWidth: document.documentElement.clientWidth,
           scrollWidth: document.documentElement.scrollWidth,
         }));
+      for (const path of PATHS) {
+        await page.goto(path);
+        await expect(
+          page.getByRole('navigation', { name: 'Profile' }),
+        ).toBeVisible();
+        // the streamed blocks have arrived and the page has stopped growing
+        await untilStable(widths, { message: `${path} stops changing width` });
+        const { clientWidth, scrollWidth } = await widths();
         expect(scrollWidth, path).toBeLessThanOrEqual(clientWidth);
       }
     });

@@ -1,7 +1,14 @@
 'use client';
 
 import type { LibraryShelf, LibrarySort } from '@tvseri.es/schemas';
-import { type KeyboardEvent, useEffect, useId, useRef, useState } from 'react';
+import {
+  type KeyboardEvent,
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from 'react';
 
 import {
   checkGlyph,
@@ -85,6 +92,14 @@ export default function SortMenu({
     }
   };
 
+  const toggle = useCallback(() => setOpen((was) => !was), []);
+  const onPillKey = useCallback((event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setOpen(true);
+    }
+  }, []);
+
   const label = sortLabel(shelf, sort);
   return (
     <div className="relative">
@@ -94,13 +109,8 @@ export default function SortMenu({
         aria-haspopup="menu"
         aria-label={`Sort: ${label}`}
         className={PILL}
-        onClick={() => setOpen((was) => !was)}
-        onKeyDown={(event) => {
-          if (event.key === 'ArrowDown') {
-            event.preventDefault();
-            setOpen(true);
-          }
-        }}
+        onClick={toggle}
+        onKeyDown={onPillKey}
         ref={pill}
         type="button"
       >
@@ -117,30 +127,50 @@ export default function SortMenu({
           ref={menu}
           role="menu"
         >
-          {sorts.map((each) => {
-            const on = each === sort;
-            return (
-              <button
-                aria-checked={on}
-                className={cn(
-                  'flex h-9 items-center gap-2.5 rounded-8 px-3 text-left text-[13px] leading-5 font-medium outline-offset-[-2px] transition-colors',
-                  on ? 'text-white' : 'text-white/80 hover:bg-white/8',
-                )}
-                key={each}
-                onClick={() => pick(each)}
-                role="menuitemradio"
-                tabIndex={-1}
-                type="button"
-              >
-                <span className="flex size-4 items-center justify-center">
-                  {on ? <Icon glyph={checkGlyph} size={16} /> : null}
-                </span>
-                {sortLabel(shelf, each)}
-              </button>
-            );
-          })}
+          {sorts.map((each) => (
+            <SortItem
+              key={each}
+              on={each === sort}
+              onPick={pick}
+              sort={each}
+              text={sortLabel(shelf, each)}
+            />
+          ))}
         </div>
       ) : null}
     </div>
+  );
+}
+
+/** One sort in the menu: picks its own value */
+function SortItem({
+  on,
+  onPick,
+  sort,
+  text,
+}: Readonly<{
+  on: boolean;
+  onPick: (sort: LibrarySort) => void;
+  sort: LibrarySort;
+  text: string;
+}>) {
+  const pick = useCallback(() => onPick(sort), [onPick, sort]);
+  return (
+    <button
+      aria-checked={on}
+      className={cn(
+        'flex h-9 items-center gap-2.5 rounded-8 px-3 text-left text-[13px] leading-5 font-medium outline-offset-[-2px] transition-colors',
+        on ? 'text-white' : 'text-white/80 hover:bg-white/8',
+      )}
+      onClick={pick}
+      role="menuitemradio"
+      tabIndex={-1}
+      type="button"
+    >
+      <span className="flex size-4 items-center justify-center">
+        {on ? <Icon glyph={checkGlyph} size={16} /> : null}
+      </span>
+      {text}
+    </button>
   );
 }

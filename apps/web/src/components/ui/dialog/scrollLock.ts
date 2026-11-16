@@ -51,7 +51,7 @@ export function unlockScroll() {
  * popover), and every way the layer closes, or its owner unmounts, lets go.
  * React 19: the returned function is the ref's cleanup.
  */
-export function holdScrollLock(node: Element | null): (() => void) | void {
+export function holdScrollLock(node: Element | null): (() => void) | undefined {
   if (!node) {
     return;
   }

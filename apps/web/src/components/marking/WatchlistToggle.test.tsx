@@ -7,7 +7,7 @@ import type { ControlState, ControlStates } from '@/lib/marking/controlState';
 import { SIGN_IN_MESSAGE } from '@/lib/marking/copy';
 import MarkingProvider from '@/lib/marking/MarkingProvider';
 import { viewerFetch } from '@/lib/marking/testing/viewerFetch';
-
+import { setCookie } from '@/test/setCookie';
 import WatchlistToggle from './WatchlistToggle';
 
 const showToast = vi.fn();
@@ -100,7 +100,7 @@ describe('WatchlistToggle: outlined, two states, one box', () => {
   });
 
   it('a press adds; Undo puts it back', async () => {
-    document.cookie = '__tvseries_user=nina; Path=/';
+    setCookie('__tvseries_user=nina; Path=/');
     vi.stubGlobal('fetch', viewerFetch());
     await renderToggle({ state: { kind: 'new', onWatchlist: false } });
     fireEvent.click(toggle());
@@ -117,7 +117,7 @@ describe('WatchlistToggle: outlined, two states, one box', () => {
   });
 
   it('no read (Binge): its own label, and "+" until the tab knows the series', async () => {
-    document.cookie = '__tvseries_user=nina; Path=/';
+    setCookie('__tvseries_user=nina; Path=/');
     const fetch = viewerFetch({ watchlist: [ID] });
     vi.stubGlobal('fetch', fetch);
     await renderToggle({ label: 'Add to watchlist', withRead: false });

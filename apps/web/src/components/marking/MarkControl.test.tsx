@@ -7,7 +7,7 @@ import type { ControlState, ControlStates } from '@/lib/marking/controlState';
 import { SIGN_IN_MESSAGE } from '@/lib/marking/copy';
 import MarkingProvider from '@/lib/marking/MarkingProvider';
 import { viewerFetch } from '@/lib/marking/testing/viewerFetch';
-
+import { setCookie } from '@/test/setCookie';
 import MarkControl from './MarkControl';
 import type { MarkLook } from './markControlStyles';
 
@@ -59,7 +59,7 @@ const shown = (element: HTMLElement | null) =>
   element !== null && !element.className.includes('invisible');
 
 const signIn = () => {
-  document.cookie = '__tvseries_user=nina; Path=/';
+  setCookie('__tvseries_user=nina; Path=/');
 };
 
 beforeEach(() => {

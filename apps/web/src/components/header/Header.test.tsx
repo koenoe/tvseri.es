@@ -3,17 +3,15 @@ import { renderToString } from 'react-dom/server';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { USER_DISPLAY_COOKIE_NAME as COOKIE } from '@/auth/cookies';
-
+import { setCookie } from '@/test/setCookie';
 import Header from './Header';
 
 const signIn = (username: string) => {
-  // biome-ignore lint/suspicious/noDocumentCookie: jsdom has no Cookie Store API; the hook reads document.cookie
-  document.cookie = `${COOKIE}=${encodeURIComponent(username)}; path=/`;
+  setCookie(`${COOKIE}=${encodeURIComponent(username)}; path=/`);
 };
 
 afterEach(() => {
-  // biome-ignore lint/suspicious/noDocumentCookie: as above
-  document.cookie = `${COOKIE}=; path=/; max-age=0`;
+  setCookie(`${COOKIE}=; path=/; max-age=0`);
 });
 
 describe('Header (static shell)', () => {

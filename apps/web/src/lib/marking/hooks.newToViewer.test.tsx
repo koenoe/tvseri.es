@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-
+import { setCookie } from '@/test/setCookie';
 import { useNewToViewer } from './hooks';
 import MarkingProvider from './MarkingProvider';
 
@@ -15,13 +15,13 @@ function Ids() {
 }
 
 afterEach(() => {
-  document.cookie = '__tvseries_user=; Max-Age=0; Path=/';
+  setCookie('__tvseries_user=; Max-Age=0; Path=/');
   vi.unstubAllGlobals();
 });
 
 describe('useNewToViewer: "start something new" offers nothing you have', () => {
   it('all until the library is known, then only the series in none of its lists', async () => {
-    document.cookie = '__tvseries_user=nina; Path=/';
+    setCookie('__tvseries_user=nina; Path=/');
     vi.stubGlobal(
       'fetch',
       vi.fn(() =>

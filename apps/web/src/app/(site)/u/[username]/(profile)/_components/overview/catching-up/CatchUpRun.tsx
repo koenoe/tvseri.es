@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { type MouseEvent, useState } from 'react';
+import { type MouseEvent, useCallback, useState } from 'react';
 import cn from '@/lib/cn';
 import { codeRange } from '@/lib/marking/copy';
 import { useEpisodeState, useSeriesView } from '@/lib/marking/hooks';
@@ -230,6 +230,12 @@ function Chip({
     episodeNumber: chip.episode,
     seasonNumber: chip.season,
   });
+  const leave = useCallback(() => onHint(null), [onHint]);
+  const show = useCallback(() => onHint(chip.hint), [chip.hint, onHint]);
+  const mark = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => onMark(chip, event),
+    [chip, onMark],
+  );
   if (state === 'watched' || state === 'unknown') {
     return null;
   }
@@ -241,16 +247,14 @@ function Chip({
     first ? 'bg-white text-[#171717]' : 'bg-white/6 text-white/80',
     extra,
   );
-  const leave = () => onHint(null);
-  const mark = (event: MouseEvent<HTMLButtonElement>) => onMark(chip, event);
   return (
     <button
       aria-label={`Mark up to ${chip.code} as watched`}
       className={className}
       onBlur={leave}
       onClick={mark}
-      onFocus={() => onHint(chip.hint)}
-      onPointerEnter={() => onHint(chip.hint)}
+      onFocus={show}
+      onPointerEnter={show}
       onPointerLeave={leave}
       type="button"
     >

@@ -18,7 +18,9 @@ const GAP = 8;
  * the viewport changes size (a breakpoint can undock it); cleared when the
  * bar goes. React 19: the returned function is the ref's cleanup.
  */
-export function clearToastOver(node: HTMLElement | null): (() => void) | void {
+export function clearToastOver(
+  node: HTMLElement | null,
+): (() => void) | undefined {
   if (!node) {
     return;
   }
@@ -58,7 +60,7 @@ export function clearToastOver(node: HTMLElement | null): (() => void) | void {
  */
 export function clearToastOverFooter(
   node: HTMLElement | null,
-): (() => void) | void {
+): (() => void) | undefined {
   const footer = node?.closest('footer');
   if (!footer) {
     return;
@@ -142,7 +144,7 @@ const applySheetLift = () => {
  */
 export function clearToastOverSheet(
   node: HTMLElement | null,
-): (() => void) | void {
+): (() => void) | undefined {
   if (!node) {
     return;
   }

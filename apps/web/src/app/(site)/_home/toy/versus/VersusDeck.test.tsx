@@ -9,7 +9,7 @@ import { SIGNED_IN_ONLY, SIGNED_OUT_ONLY } from '@/components/ui/viewer/reveal';
 import { SIGN_IN_MESSAGE } from '@/lib/marking/copy';
 import MarkingProvider from '@/lib/marking/MarkingProvider';
 import { viewerFetch } from '@/lib/marking/testing/viewerFetch';
-
+import { setCookie } from '@/test/setCookie';
 import VersusDeck from './VersusDeck';
 
 const showToast = vi.fn();
@@ -52,7 +52,7 @@ const library = (watched: ReadonlyArray<number>) =>
   );
 
 const signIn = () => {
-  document.cookie = '__tvseries_user=nina; Path=/';
+  setCookie('__tvseries_user=nina; Path=/');
 };
 
 const renderDeck = () =>

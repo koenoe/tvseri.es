@@ -5,7 +5,14 @@ import type {
   LibraryShelf,
   LibrarySort,
 } from '@tvseri.es/schemas';
-import { useEffect, useRef, useState } from 'react';
+import {
+  type ChangeEvent,
+  type KeyboardEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import {
   checkGlyph,
@@ -81,6 +88,19 @@ function FindField({
       onFind(value.trim());
     }
   });
+  const change = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => setText(event.target.value),
+    [],
+  );
+  const keyDown = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Escape' && text) {
+        event.stopPropagation();
+        setText('');
+      }
+    },
+    [text],
+  );
   return (
     <label className={cn(FIELD, className)}>
       {/* contrast-exempt: the search icon */}
@@ -89,13 +109,8 @@ function FindField({
         aria-label={label}
         className="min-w-0 flex-1 bg-transparent text-[13px] text-white outline-none max-md:text-[16px] placeholder:text-white/60 [&::-webkit-search-cancel-button]:hidden"
         maxLength={100}
-        onChange={(event) => setText(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === 'Escape' && text) {
-            event.stopPropagation();
-            setText('');
-          }
-        }}
+        onChange={change}
+        onKeyDown={keyDown}
         placeholder={label}
         type="search"
         value={text}
@@ -117,6 +132,10 @@ function FilterChip({
   onFilter: (filter: LibraryFilter | null) => void;
 }>) {
   const fresh = filter === 'new';
+  const toggle = useCallback(
+    () => onFilter(on ? null : filter),
+    [filter, on, onFilter],
+  );
   const className = cn(
     CHIP,
     fresh
@@ -136,7 +155,7 @@ function FilterChip({
     <button
       aria-pressed={on}
       className={className}
-      onClick={() => onFilter(on ? null : filter)}
+      onClick={toggle}
       type="button"
     >
       <Icon glyph={fresh ? sparkleGlyph : heartGlyph} size={13} />
@@ -168,6 +187,7 @@ export default function ShelfToolbar({
 }: ToolbarProps) {
   const [finding, setFinding] = useState(q !== '');
   const findLabel = `Find in ${SHELVES[shelf].label}`;
+  const toggleFinding = useCallback(() => setFinding((was) => !was), []);
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2.5">
@@ -199,7 +219,7 @@ export default function ShelfToolbar({
           aria-expanded={finding}
           aria-label={findLabel}
           className={cn(PILL, 'px-2.5 md:hidden', finding && PILL_ON)}
-          onClick={() => setFinding((was) => !was)}
+          onClick={toggleFinding}
           type="button"
         >
           <Icon glyph={finding ? closeGlyph : searchGlyph} size={16} />

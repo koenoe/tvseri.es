@@ -42,7 +42,6 @@ export default function Segments({
       {segments.map((seen, index) => (
         <span
           className={seen ? SEGMENT_ON_CLASS : SEGMENT_OFF_CLASS}
-          // biome-ignore lint/suspicious/noArrayIndexKey: one fixed segment per episode
           key={index}
         />
       ))}

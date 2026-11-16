@@ -16,7 +16,7 @@ import {
 import { USER_DISPLAY_COOKIE_NAME as COOKIE } from '@/auth/cookies';
 import { HeaderStoreProvider } from '@/components/header/HeaderStoreProvider';
 import { OPEN_SEARCH_EVENT } from '@/lib/search/openSearch';
-
+import { setCookie } from '@/test/setCookie';
 import Menu from './Menu';
 
 vi.mock('next/navigation', () => ({
@@ -79,10 +79,8 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  // biome-ignore lint/suspicious/noDocumentCookie: jsdom has no Cookie Store API; the hook reads document.cookie
-  document.cookie = `${COOKIE}=; path=/; max-age=0`;
-  // biome-ignore lint/suspicious/noDocumentCookie: as above
-  document.cookie = `${LEFTOVER_ADMIN}=; path=/; max-age=0`;
+  setCookie(`${COOKIE}=; path=/; max-age=0`);
+  setCookie(`${LEFTOVER_ADMIN}=; path=/; max-age=0`);
   document.documentElement.style.overflow = '';
 });
 
@@ -90,11 +88,9 @@ afterEach(() => {
 const LEFTOVER_ADMIN = '__tvseries_admin';
 
 const signIn = (username: string, leftoverAdmin = false) => {
-  // biome-ignore lint/suspicious/noDocumentCookie: as above
-  document.cookie = `${COOKIE}=${encodeURIComponent(username)}; path=/`;
+  setCookie(`${COOKIE}=${encodeURIComponent(username)}; path=/`);
   if (leftoverAdmin) {
-    // biome-ignore lint/suspicious/noDocumentCookie: as above
-    document.cookie = `${LEFTOVER_ADMIN}=1; path=/`;
+    setCookie(`${LEFTOVER_ADMIN}=1; path=/`);
   }
 };
 

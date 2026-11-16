@@ -426,11 +426,13 @@ test.describe('the page itself', () => {
     const order: string[] = [];
     for (let i = 0; i < 5; i++) {
       await page.keyboard.press('Tab');
+      const focused = page.locator(':focus');
+      // the visible text, as a user reads it (textContent also holds hidden text)
+      const [visible = ''] = await focused.allInnerTexts();
       order.push(
-        await page.evaluate(() => {
-          const el = document.activeElement as HTMLElement;
-          return el.getAttribute('aria-label') || el.id || el.innerText.trim();
-        }),
+        (await focused.getAttribute('aria-label')) ||
+          (await focused.getAttribute('id')) ||
+          visible.trim(),
       );
     }
     expect(order).toEqual([

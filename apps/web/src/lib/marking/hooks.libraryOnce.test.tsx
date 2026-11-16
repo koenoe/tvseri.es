@@ -4,7 +4,7 @@ import { act, type ReactElement } from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-
+import { setCookie } from '@/test/setCookie';
 import type { MarkingStoreApi } from './store';
 
 const IDS: LibraryIds = {
@@ -46,14 +46,14 @@ async function loadDeck(): Promise<ReactElement> {
 }
 
 afterEach(() => {
-  document.cookie = '__tvseries_user=; Max-Age=0; Path=/';
+  setCookie('__tvseries_user=; Max-Age=0; Path=/');
   vi.unstubAllGlobals();
   store = null;
 });
 
 describe('useLibraryOnce', () => {
   it('hydrates as idle, takes the answer once the ids arrive, and keeps it through later marks', async () => {
-    document.cookie = '__tvseries_user=nina; Path=/';
+    setCookie('__tvseries_user=nina; Path=/');
     vi.stubGlobal(
       'fetch',
       vi.fn(() =>

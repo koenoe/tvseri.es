@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, render } from '@testing-library/react';
 import { MotionGlobalConfig } from 'motion/react';
-import { Profiler, type ReactNode, useLayoutEffect } from 'react';
+import { Profiler, type ReactNode, useCallback, useLayoutEffect } from 'react';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { VisitorOverlay } from '@/app/(site)/u/[username]/(profile)/library/_components/TileOverlays';
@@ -37,11 +37,26 @@ function Grab() {
   return null;
 }
 
+function Counted({
+  children,
+  id,
+  rendered,
+}: Readonly<{ children: ReactNode; id: string; rendered: Set<string> }>) {
+  const onRender = useCallback(() => {
+    rendered.add(id);
+  }, [id, rendered]);
+  return (
+    <Profiler id={id} onRender={onRender}>
+      {children}
+    </Profiler>
+  );
+}
+
 function counted(rendered: Set<string>, id: string, node: ReactNode) {
   return (
-    <Profiler id={id} key={id} onRender={() => rendered.add(id)}>
+    <Counted id={id} key={id} rendered={rendered}>
       {node}
-    </Profiler>
+    </Counted>
   );
 }
 

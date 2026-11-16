@@ -6,7 +6,7 @@ import {
   VISITOR_RULE,
 } from '@/components/ui/viewer/ownerVisitorRule';
 import { SIGNED_IN_RULE } from '@/components/ui/viewer/reveal';
-
+import { setCookie } from '@/test/setCookie';
 import { viewerHintsScript } from './viewerHintsScript';
 
 /** Stand-in for adopted sheets (jsdom has none) */
@@ -25,8 +25,7 @@ const sheets = () =>
 const run = () => new Function(viewerHintsScript)();
 
 const signIn = (value: string) => {
-  // biome-ignore lint/suspicious/noDocumentCookie: the test plays the auth callback
-  document.cookie = `__tvseries_user=${value}; path=/`;
+  setCookie(`__tvseries_user=${value}; path=/`);
 };
 
 beforeEach(() => {
@@ -40,8 +39,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  // biome-ignore lint/suspicious/noDocumentCookie: the test plays the auth callback
-  document.cookie = '__tvseries_user=; path=/; max-age=0';
+  setCookie('__tvseries_user=; path=/; max-age=0');
   window.history.replaceState(null, '', '/');
   delete (window as unknown as Record<string, unknown>)[OWNER_VISITOR_SHEET];
 });
@@ -68,8 +66,7 @@ describe('the pre-paint script (inlined in every document)', () => {
   });
 
   it('puts the signed-in handle in --viewer-handle as a closed CSS string', () => {
-    // biome-ignore lint/suspicious/noDocumentCookie: as above
-    document.cookie = `__tvseries_user=${encodeURIComponent('a"}b\\c')}; path=/`;
+    setCookie(`__tvseries_user=${encodeURIComponent('a"}b\\c')}; path=/`);
     run();
     expect(sheets()).toContain(':root{--viewer-handle:"a\\"}b\\\\c"}');
   });
@@ -129,7 +126,7 @@ describe('the pre-paint script (inlined in every document)', () => {
     window.history.replaceState(null, '', '/u/Alex');
     run();
     expect(sheets()).not.toContain(VISITOR_RULE);
-    document.cookie = '__tvseries_user=; path=/; max-age=0';
+    setCookie('__tvseries_user=; path=/; max-age=0');
     document.adoptedStyleSheets = [];
     delete (window as unknown as Record<string, unknown>)[OWNER_VISITOR_SHEET];
     run();

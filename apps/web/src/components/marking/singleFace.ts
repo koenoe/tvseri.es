@@ -6,7 +6,6 @@ import {
 } from '@/components/ui/icon/glyphs';
 import type { Glyph } from '@/components/ui/icon/types';
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
-import { formatWeekdayDate } from '@/lib/format/date';
 import type { ControlState } from '@/lib/marking/controlState';
 import episodePath from '@/lib/routing/episodePath';
 

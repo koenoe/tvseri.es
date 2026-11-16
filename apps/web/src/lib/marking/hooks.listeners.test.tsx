@@ -3,7 +3,7 @@ import { render } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import WatchedOverlay from '@/components/ui/tile/WatchedOverlay';
-
+import { setCookie } from '@/test/setCookie';
 import { useIsSignedIn } from './hooks';
 import MarkingProvider from './MarkingProvider';
 
@@ -15,13 +15,13 @@ function SignedInBadge() {
 }
 
 afterEach(() => {
-  document.cookie = '__tvseries_user=; Max-Age=0; Path=/';
+  setCookie('__tvseries_user=; Max-Age=0; Path=/');
 });
 
 describe('300 tiles asking the library', () => {
   // before: 301 listeners (and as many on `cookieStore`), 903 cookie reads
   it('add one pair of window listeners and read the cookie once, not per tile', () => {
-    document.cookie = '__tvseries_user=nina; Path=/';
+    setCookie('__tvseries_user=nina; Path=/');
     vi.stubGlobal(
       'fetch',
       vi.fn(() => new Promise(() => {})),

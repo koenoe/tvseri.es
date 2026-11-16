@@ -128,7 +128,7 @@ test.describe('the ⋯ Remote on the profile', () => {
       .first()
       .locator('span.truncate')
       .first()
-      .innerText();
+      .textContent();
     await tiles.first().hover();
     await tiles
       .first()
@@ -137,9 +137,9 @@ test.describe('the ⋯ Remote on the profile', () => {
     const menu = page.getByRole('menu', { name: /^Actions for/ });
     await menu.getByRole('menuitemcheckbox', { name: /watchlist/ }).click();
     // still there under the pointer while the Remote is open
-    await expect(tiles.filter({ hasText: title })).toHaveCount(1);
+    await expect(tiles.filter({ hasText: title ?? '' })).toHaveCount(1);
     await page.keyboard.press('Escape');
-    await expect(tiles.filter({ hasText: title })).toHaveCount(0);
+    await expect(tiles.filter({ hasText: title ?? '' })).toHaveCount(0);
     await expectNoCrash(page, errors);
   });
 

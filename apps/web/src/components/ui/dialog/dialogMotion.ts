@@ -1,9 +1,4 @@
-import type {
-  MotionStyle,
-  TargetAndTransition,
-  Transition,
-  Variants,
-} from 'motion/react';
+import type { MotionStyle, TargetAndTransition, Variants } from 'motion/react';
 
 import { SHEET_EASE, STANDARD_EASE } from '@/components/motion/ease';
 

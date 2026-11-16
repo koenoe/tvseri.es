@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { LIBRARY_HINT_KEY } from '@/lib/viewer/htmlHints';
-
+import { setCookie } from '@/test/setCookie';
 import { persistLibraryHint, toLibraryHint } from './libraryHint';
 import { createMarkingStore } from './store';
 
@@ -15,7 +15,7 @@ const IDS = {
 
 afterEach(() => {
   window.localStorage.clear();
-  document.cookie = '__tvseries_user=; Max-Age=0; path=/';
+  setCookie('__tvseries_user=; Max-Age=0; path=/');
 });
 
 describe('toLibraryHint', () => {
@@ -30,7 +30,7 @@ describe('toLibraryHint', () => {
 
 describe('persistLibraryHint', () => {
   it('writes when the library is ready and again after a mark', () => {
-    document.cookie = '__tvseries_user=kit; path=/';
+    setCookie('__tvseries_user=kit; path=/');
     const store = createMarkingStore();
     const stop = persistLibraryHint(store);
     store.getState().setLibrary({ ids: IDS, status: 'ready' });

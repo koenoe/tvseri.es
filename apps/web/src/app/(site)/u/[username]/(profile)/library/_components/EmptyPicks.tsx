@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { LIBRARY_POSTER_CIRCLE } from '@/components/ui/button/posterCircleLooks';
 
@@ -92,7 +92,10 @@ export function SeenPicks({
   shows,
 }: Readonly<{ shows: ReadonlyArray<SeenShow> }>) {
   const [seen, setSeen] = useState<ReadonlySet<number>>(() => new Set());
-  const onSeen = (id: number) => setSeen((was) => new Set([...was, id]));
+  const onSeen = useCallback(
+    (id: number) => setSeen((was) => new Set([...was, id])),
+    [],
+  );
   return (
     <ul className={LIBRARY_GRID}>
       {shows.slice(0, SEEN_PICKS).map((show) => (

@@ -85,6 +85,8 @@ export function TryAgain({
 }>) {
   const classes = cn(look.className, PENDING);
   const glyph = pending ? 'animate-spin' : undefined;
+  const shown = pending ? RETRYING : IDLE;
+  const hidden = pending ? IDLE : RETRYING;
   return (
     <button
       aria-busy={pending || undefined}
@@ -95,11 +97,9 @@ export function TryAgain({
     >
       <Icon className={glyph} glyph={refreshGlyph} size={look.glyph} />
       <span className="grid justify-items-center">
-        <span className="col-start-1 row-start-1">
-          {pending ? RETRYING : IDLE}
-        </span>
+        <span className="col-start-1 row-start-1">{shown}</span>
         <span aria-hidden className="invisible col-start-1 row-start-1">
-          {pending ? IDLE : RETRYING}
+          {hidden}
         </span>
       </span>
     </button>

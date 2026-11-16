@@ -5,7 +5,7 @@ import { MotionGlobalConfig } from 'motion/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import Toaster from '@/components/ui/toast/Toaster';
-
+import { setCookie } from '@/test/setCookie';
 import WelcomeToast from './WelcomeToast';
 
 const router = vi.hoisted(() => ({ push: vi.fn() }));
@@ -17,8 +17,7 @@ beforeAll(() => {
 });
 
 afterEach(() => {
-  // biome-ignore lint/suspicious/noDocumentCookie: jsdom has no Cookie Store API; the component reads document.cookie
-  document.cookie = '__tvseries_welcome=; Max-Age=0; Path=/';
+  setCookie('__tvseries_welcome=; Max-Age=0; Path=/');
   router.push.mockReset();
 });
 
@@ -32,8 +31,7 @@ const page = () =>
 
 describe('WelcomeToast', () => {
   it('welcomes a first sign-in once, with Pick a username → Settings → Profile', async () => {
-    // biome-ignore lint/suspicious/noDocumentCookie: as above
-    document.cookie = '__tvseries_welcome=1; Path=/';
+    setCookie('__tvseries_welcome=1; Path=/');
     page();
 
     expect(await screen.findByText('Welcome')).toBeTruthy();
@@ -47,8 +45,7 @@ describe('WelcomeToast', () => {
   });
 
   it('waits for the page to finish loading, and keeps the cookie until then', async () => {
-    // biome-ignore lint/suspicious/noDocumentCookie: as above
-    document.cookie = '__tvseries_welcome=1; Path=/';
+    setCookie('__tvseries_welcome=1; Path=/');
     const readyState = vi
       .spyOn(document, 'readyState', 'get')
       .mockReturnValue('interactive');

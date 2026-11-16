@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  type MouseEvent,
   memo,
   type PointerEvent,
   type ReactNode,
@@ -107,14 +108,18 @@ function OwnerRemote({ tile }: Readonly<{ tile: TileView }>) {
   const { leave, shelf } = useTileContext();
   const stillOn = useStillOn();
   const historyHref = `${showPath(tile.id, tile.slug)}?season=${tile.historySeason}&history`;
+  const hidden = shelf === 'hidden';
+  const onHide = useCallback(
+    () => leave(tile.id, hidden ? 'unhide' : 'hide'),
+    [hidden, leave, tile.id],
+  );
   if (shelf === 'watching' || shelf === 'hidden') {
-    const hidden = shelf === 'hidden';
     return (
       <LazyTileRemote
         className={MENU}
         hidden={hidden}
         historyHref={historyHref}
-        onHide={() => leave(tile.id, hidden ? 'unhide' : 'hide')}
+        onHide={onHide}
         placement="below-start"
         seriesId={tile.id}
         seriesName={tile.title}
@@ -218,6 +223,22 @@ function LibraryTile({ eager, sizes, tile: served }: Props) {
       longPress(tile.id);
     }, LONG_PRESS_MS);
   };
+  const toggle = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => {
+      if (pressedLong.current) {
+        pressedLong.current = false;
+        return;
+      }
+      pick(tile.id, event.shiftKey);
+    },
+    [pick, tile.id],
+  );
+  const follow = useCallback((event: MouseEvent) => {
+    if (pressedLong.current) {
+      event.preventDefault();
+      pressedLong.current = false;
+    }
+  }, []);
   const touch = {
     onContextMenu: (event: { preventDefault: () => void }) => {
       if (owner && pressedLong.current) {
@@ -238,13 +259,7 @@ function LibraryTile({ eager, sizes, tile: served }: Props) {
         aria-pressed={picked}
         className="group/lt flex w-full min-w-0 cursor-pointer flex-col gap-2.5 text-left"
         data-slot="library-tile"
-        onClick={(event) => {
-          if (pressedLong.current) {
-            pressedLong.current = false;
-            return;
-          }
-          pick(tile.id, event.shiftKey);
-        }}
+        onClick={toggle}
         type="button"
       >
         <span
@@ -273,12 +288,7 @@ function LibraryTile({ eager, sizes, tile: served }: Props) {
       <TileLink
         className="flex min-w-0 flex-col gap-2.5 rounded-10 focus-visible:outline-offset-4"
         href={showPath(tile.id, tile.slug)}
-        onClick={(event) => {
-          if (pressedLong.current) {
-            event.preventDefault();
-            pressedLong.current = false;
-          }
-        }}
+        onClick={follow}
       >
         <Poster eager={eager} sizes={sizes} tile={tile} />
         <TileText tile={tile} />

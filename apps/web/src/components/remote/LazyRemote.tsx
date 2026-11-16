@@ -4,6 +4,7 @@ import {
   type ComponentType,
   type KeyboardEvent,
   type PointerEvent,
+  useCallback,
   useRef,
   useState,
 } from 'react';
@@ -72,29 +73,32 @@ function LazyRemote<P extends object>({
   const waiting = useRef<ComponentType<P> | null>(null);
   const liftTimer = useRef(0);
 
-  const swap = (component: ComponentType<P>) => {
+  const swap = useCallback((component: ComponentType<P>) => {
     if (pressing.current) {
       waiting.current = component;
       return;
     }
     keepFocus.current = document.activeElement === button.current;
     setRemote(() => component);
-  };
-  const load = (by?: Opening) => {
-    if (by) {
-      opening.current = by;
-    }
-    const ready = remote.get();
-    if (ready) {
-      swap(ready);
-      return;
-    }
-    // a failed chunk does nothing now; the next press loads it again
-    remote.load().then(swap, () => undefined);
-  };
+  }, []);
+  const load = useCallback(
+    (by?: Opening) => {
+      if (by) {
+        opening.current = by;
+      }
+      const ready = remote.get();
+      if (ready) {
+        swap(ready);
+        return;
+      }
+      // a failed chunk does nothing now; the next press loads it again
+      remote.load().then(swap, () => undefined);
+    },
+    [remote, swap],
+  );
   // Runs once the real ⋯ is in the page: put focus back, then open it as
   // the activation that started the load would have.
-  const arrived = (node: HTMLSpanElement | null) => {
+  const arrived = useCallback((node: HTMLSpanElement | null) => {
     const trigger = node?.querySelector('button');
     if (!trigger) {
       return;
@@ -118,40 +122,10 @@ function LazyRemote<P extends object>({
     } else if (by === 'pointer') {
       queueMicrotask(() => trigger.click());
     }
-  };
+  }, []);
 
-  if (Remote) {
-    return (
-      <span className="contents" ref={arrived}>
-        <Remote {...props} />
-      </span>
-    );
-  }
   const label = remoteLabels(look.seriesName).trigger;
-  const preload = () => load();
-  // A touch enters right before it presses: only a mouse preloads on enter
-  const enter = (event: PointerEvent) => {
-    if (event.pointerType === 'mouse') {
-      load();
-    }
-  };
-  const press = () => {
-    window.clearTimeout(liftTimer.current);
-    pressing.current = true;
-    load();
-  };
-  const lift = (event: PointerEvent) => {
-    if (event.pointerType !== 'mouse') {
-      window.clearTimeout(liftTimer.current);
-      liftTimer.current = window.setTimeout(release, CLICK_AFTER_LIFT_MS);
-    }
-  };
-  const leave = (event: PointerEvent) => {
-    if (event.pointerType === 'mouse') {
-      release();
-    }
-  };
-  const release = () => {
+  const release = useCallback(() => {
     window.clearTimeout(liftTimer.current);
     pressing.current = false;
     const ready = waiting.current;
@@ -159,19 +133,61 @@ function LazyRemote<P extends object>({
     if (ready) {
       swap(ready);
     }
-  };
-  const click = () => {
+  }, [swap]);
+  const preload = useCallback(() => load(), [load]);
+  // A touch enters right before it presses: only a mouse preloads on enter
+  const enter = useCallback(
+    (event: PointerEvent) => {
+      if (event.pointerType === 'mouse') {
+        load();
+      }
+    },
+    [load],
+  );
+  const press = useCallback(() => {
+    window.clearTimeout(liftTimer.current);
+    pressing.current = true;
+    load();
+  }, [load]);
+  const lift = useCallback(
+    (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') {
+        window.clearTimeout(liftTimer.current);
+        liftTimer.current = window.setTimeout(release, CLICK_AFTER_LIFT_MS);
+      }
+    },
+    [release],
+  );
+  const leave = useCallback(
+    (event: PointerEvent) => {
+      if (event.pointerType === 'mouse') {
+        release();
+      }
+    },
+    [release],
+  );
+  const click = useCallback(() => {
     window.clearTimeout(liftTimer.current);
     pressing.current = false;
     waiting.current = null;
     load('pointer');
-  };
-  const openByKey = (event: KeyboardEvent<HTMLButtonElement>) => {
-    if (OPEN_KEYS.has(event.key)) {
-      event.preventDefault();
-      load('keyboard');
-    }
-  };
+  }, [load]);
+  const openByKey = useCallback(
+    (event: KeyboardEvent<HTMLButtonElement>) => {
+      if (OPEN_KEYS.has(event.key)) {
+        event.preventDefault();
+        load('keyboard');
+      }
+    },
+    [load],
+  );
+  if (Remote) {
+    return (
+      <span className="contents" ref={arrived}>
+        <Remote {...props} />
+      </span>
+    );
+  }
   return (
     <RemoteTrigger
       aria-expanded={false}

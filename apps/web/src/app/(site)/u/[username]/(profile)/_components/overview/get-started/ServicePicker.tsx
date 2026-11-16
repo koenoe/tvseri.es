@@ -2,6 +2,7 @@
 
 import type { WatchProvider } from '@tvseri.es/schemas';
 import Link from 'next/link';
+import { useCallback } from 'react';
 import { checkGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import ServiceIcon, {
@@ -67,7 +68,10 @@ function Chip({
       ? 'border-white bg-white/8 text-white'
       : 'border-white/20 text-white/80 hover:border-white/40',
   );
-  const toggle = () => onToggle(provider, !on);
+  const toggle = useCallback(
+    () => onToggle(provider, !on),
+    [on, onToggle, provider],
+  );
   return (
     <button
       aria-pressed={on}

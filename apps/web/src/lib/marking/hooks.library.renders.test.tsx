@@ -4,6 +4,7 @@ import { act, type ReactElement } from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { setCookie } from '@/test/setCookie';
 
 const TILES = Array.from({ length: 50 }, (_, index) => index + 1);
 
@@ -32,7 +33,7 @@ async function loadPage(): Promise<ReactElement> {
 }
 
 afterEach(() => {
-  document.cookie = '__tvseries_user=; Max-Age=0; Path=/';
+  setCookie('__tvseries_user=; Max-Age=0; Path=/');
   vi.unstubAllGlobals();
 });
 
@@ -44,7 +45,7 @@ describe('tiles asking the library while a page hydrates', () => {
     'render once each (%s) and ask for the library at most once',
     async (_, user) => {
       if (user) {
-        document.cookie = `__tvseries_user=${user}; Path=/`;
+        setCookie(`__tvseries_user=${user}; Path=/`);
       }
       const fetch = vi.fn(() => new Promise<Response>(() => {}));
       vi.stubGlobal('fetch', fetch);

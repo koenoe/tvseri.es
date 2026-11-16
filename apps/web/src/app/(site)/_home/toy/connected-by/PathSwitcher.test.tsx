@@ -13,7 +13,7 @@ import { forgetViewer } from '@/components/menu/displayCookie';
 import { SIGN_IN_MESSAGE } from '@/lib/marking/copy';
 import MarkingProvider from '@/lib/marking/MarkingProvider';
 import { viewerFetch } from '@/lib/marking/testing/viewerFetch';
-
+import { setCookie } from '@/test/setCookie';
 import PathSwitcher from './PathSwitcher';
 
 const showToast = vi.fn();
@@ -107,7 +107,7 @@ describe('Connected by: the end’s Watchlist', () => {
   });
 
   it('signed in: adds the end and shows it added, pressed', async () => {
-    document.cookie = '__tvseries_user=nina; Path=/';
+    setCookie('__tvseries_user=nina; Path=/');
     const fetch = viewerFetch();
     vi.stubGlobal('fetch', fetch);
     renderSwitcher();
@@ -131,7 +131,7 @@ describe('Connected by: the end’s Watchlist', () => {
   });
 
   it('signed in: no read of its own, so only its press changes it (an end is never on the viewer’s lists)', async () => {
-    document.cookie = '__tvseries_user=nina; Path=/';
+    setCookie('__tvseries_user=nina; Path=/');
     const fetch = viewerFetch({ watchlist: [101] });
     vi.stubGlobal('fetch', fetch);
     renderSwitcher();

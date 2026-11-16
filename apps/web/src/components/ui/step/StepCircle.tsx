@@ -30,9 +30,14 @@ type Props = Omit<ComponentProps<'span'>, 'children' | 'className'> &
  */
 export default function StepCircle({ done, layout, number, ...rest }: Props) {
   const classes = `${layout.base} ${done ? layout.done : layout.todo}`;
+  const content = done ? (
+    <Icon glyph={checkGlyph} size={layout.check} />
+  ) : (
+    number
+  );
   return (
     <span className={classes} {...rest}>
-      {done ? <Icon glyph={checkGlyph} size={layout.check} /> : number}
+      {content}
     </span>
   );
 }

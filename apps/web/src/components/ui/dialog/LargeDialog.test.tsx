@@ -2,7 +2,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MotionGlobalConfig } from 'motion/react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import LargeDialog from './LargeDialog';
@@ -23,26 +23,25 @@ afterAll(() => {
 });
 
 /** A tile that is replaced (a new element) while its dialog is open */
+const tile = () => document.querySelector<HTMLElement>('[data-tile]');
+
 function Harness() {
   const [open, setOpen] = useState(false);
   const [generation, setGeneration] = useState(0);
+  const openDialog = useCallback(() => setOpen(true), []);
+  const rerender = useCallback(() => setGeneration((value) => value + 1), []);
   return (
     <>
-      <button
-        data-tile
-        key={generation}
-        onClick={() => setOpen(true)}
-        type="button"
-      >
+      <button data-tile key={generation} onClick={openDialog} type="button">
         Open tile {generation}
       </button>
-      <button onClick={() => setGeneration((value) => value + 1)} type="button">
+      <button onClick={rerender} type="button">
         Re-render the wall
       </button>
       <LargeDialog
         onOpenChange={setOpen}
         open={open}
-        restoreFocus={() => document.querySelector<HTMLElement>('[data-tile]')}
+        restoreFocus={tile}
         title="S01E02 Pilot"
       >
         <p>Credits</p>

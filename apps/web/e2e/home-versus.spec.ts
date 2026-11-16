@@ -17,7 +17,10 @@ const poster = (page: Page, name: string) =>
   card(page).getByRole('button', { exact: true, name });
 /** The left poster's name: which pair is on screen */
 const leftTitle = async (page: Page) =>
-  (await card(page).locator('button[aria-pressed]').first().innerText()).trim();
+  (
+    (await card(page).locator('button[aria-pressed]').first().textContent()) ??
+    ''
+  ).trim();
 const hint = (page: Page) =>
   card(page).getByText('Tap the one you would start');
 

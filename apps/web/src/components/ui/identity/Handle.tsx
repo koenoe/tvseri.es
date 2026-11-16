@@ -60,9 +60,10 @@ export default function Handle({
       {username}
     </>
   );
+  const content = href ? <Link href={href}>{mark}</Link> : mark;
   return (
     <Tag className={line} style={style} title={`@${username}`}>
-      {href ? <Link href={href}>{mark}</Link> : mark}
+      {content}
     </Tag>
   );
 }

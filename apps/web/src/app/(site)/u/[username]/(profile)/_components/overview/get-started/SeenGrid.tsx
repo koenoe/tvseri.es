@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { checkGlyph, eyeGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
@@ -60,7 +60,7 @@ export function SeenTile({
   const [marked, setMarked] = useState(false);
   const isSeen = seen || marked || progress?.isFinished === true;
 
-  const markSeen = () => {
+  const markSeen = useCallback(() => {
     if (isSeen) {
       return;
     }
@@ -74,7 +74,7 @@ export function SeenTile({
         marking.markSeen(show.id, show.title);
       }
     });
-  };
+  }, [isSeen, marking, onSeen, run, show.id, show.title, store]);
 
   const imageClass = cn(
     'object-cover transition-[filter]',

@@ -2,7 +2,7 @@
 import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-
+import { setCookie } from '@/test/setCookie';
 import { useOwnEpisodeCount } from './hooks';
 import MarkingProvider, { useMarkingStoreApi } from './MarkingProvider';
 
@@ -11,13 +11,13 @@ const wrapper = ({ children }: Readonly<{ children: ReactNode }>) => (
 );
 
 afterEach(() => {
-  document.cookie = '__tvseries_user=; Max-Age=0; Path=/';
+  setCookie('__tvseries_user=; Max-Age=0; Path=/');
   vi.unstubAllGlobals();
 });
 
 describe('useOwnEpisodeCount: your own "N episodes" moves with a mark', () => {
   it('adds what this tab saved since the count arrived, on your own profile only, and starts over with a new count', () => {
-    document.cookie = '__tvseries_user=nina; Path=/';
+    setCookie('__tvseries_user=nina; Path=/');
     vi.stubGlobal(
       'fetch',
       vi.fn(() => new Promise(() => {})),

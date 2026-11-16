@@ -136,17 +136,34 @@ export const web = $dev
       // Build and deploy
       const deployedUrl = $resolve([
         apiRouter.url,
+        // resolves once the API's distribution is deployed (see the wait below)
+        apiRouter.distributionID,
         auth.url,
         secrets.apiKeyRandom.result,
         secrets.sessionSecret.value,
         project.id,
         ...envVars.map((e) => e.id),
-      ]).apply(([apiUrl, authUrl, apiKey, secretKey, projectId]) => {
+      ]).apply(([apiUrl, , authUrl, apiKey, secretKey, projectId]) => {
         // Pulumi runs apply callbacks during previews (`sst diff`) too: never build/deploy/alias there.
         if ($util.runtime.isDryRun()) return siteUrl;
 
         const prodFlag = isProduction ? ' --prod' : '';
         const environment = isProduction ? 'production' : 'preview';
+
+        // The build prerenders against the API. On a new stage its domain,
+        // distribution and routes are created in this same deploy, so wait
+        // until the API itself answers (an unauthenticated /me is its 401)
+        // before building: a prerender against a missing API holds only
+        // placeholders until the pages regenerate.
+        console.log('|  Waiting for the API to answer...');
+        execSync(
+          'for i in $(seq 1 60); do code=$(curl -s -o /dev/null -w "%{http_code}" -H "x-api-key: $API_KEY" "$API_URL/me"); [ "$code" = "401" ] && exit 0; sleep 5; done; echo "API not answering after 5 minutes (last: $code)"; exit 1',
+          {
+            env: { ...process.env, API_KEY: apiKey, API_URL: apiUrl },
+            shell: '/bin/bash',
+            stdio: 'inherit',
+          },
+        );
 
         console.log('|  Pulling Vercel project settings...');
         runVercel(`pull --yes --environment=${environment}`, projectId);

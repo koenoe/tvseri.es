@@ -134,7 +134,7 @@ const apiFunctionArgs = {
   timeout: '15 seconds',
 } satisfies sst.aws.FunctionArgs;
 
-new sst.aws.Function('ApiFunction', {
+const apiFunction = new sst.aws.Function('ApiFunction', {
   ...apiFunctionArgs,
   concurrency: {
     reserved: productionReserved($app.stage, API_CONCURRENCY.catalogue),
@@ -197,7 +197,9 @@ const apiWriteUrlPermissions = [
 
 // Where the edge finds the write function. Written only once the URL and
 // both permissions exist, so routing flips when the target is callable;
-// until then the edge keeps every request on ApiFunction.
+// until then the edge keeps every request on ApiFunction. It also waits for
+// the Router and ApiFunction (whose route SST writes to the same
+// KeyValueStore): two writers at once fail with "Pre-Condition failed".
 new aws.cloudfront.KeyvaluestoreKey(
   'ApiWriteOrigin',
   {
@@ -205,5 +207,7 @@ new aws.cloudfront.KeyvaluestoreKey(
     keyValueStoreArn: routerKvStoreArn,
     value: apiWriteUrl.functionUrl.apply((url) => new URL(url).host),
   },
-  { dependsOn: [apiWriteUrl, ...apiWriteUrlPermissions] },
+  {
+    dependsOn: [apiWriteUrl, ...apiWriteUrlPermissions, apiRouter, apiFunction],
+  },
 );

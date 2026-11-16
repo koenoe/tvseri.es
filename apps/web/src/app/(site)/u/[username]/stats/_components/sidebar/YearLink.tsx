@@ -4,8 +4,6 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import type { ReactNode } from 'react';
 
-import toTopOnPress from '@/lib/routing/toTopOnPress';
-
 /** The year in the URL (`[year]` under this layout), or null */
 export function useSelectedYear(): number | null {
   const { year } = useParams<{ year?: string }>();
@@ -18,7 +16,7 @@ export function useSelectedYear(): number | null {
  * island follows the URL: the year in it is the highlighted one, from the
  * moment the switch starts. The server draws both looks (`className`,
  * `selectedClassName`) and the content. A switch opens the new year at the
- * top of the page (the sidebar is sticky, the pills sit at the top).
+ * top of the page, as every new page does (`NavigationTracker`).
  */
 export default function YearLink({
   children,
@@ -39,8 +37,6 @@ export default function YearLink({
       aria-current={selected ? 'page' : undefined}
       className={selected ? selectedClassName : className}
       href={href}
-      onClick={toTopOnPress}
-      scroll={false}
     >
       {children}
     </Link>

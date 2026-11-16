@@ -2,17 +2,18 @@
 
 import Link from 'next/link';
 import { useSelectedLayoutSegment } from 'next/navigation';
+
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
 import profilePath from '@/lib/routing/profilePath';
-import toTopOnPress from '@/lib/routing/toTopOnPress';
 
 import { PROFILE_TABS, TAB } from './tabs';
 
 /**
  * The tab pills; the active one follows the URL (a soft navigation keeps
  * the layout, so only this island re-renders). `segments` are the tabs this
- * profile shows (`visibleTabs`).
+ * profile shows (`visibleTabs`). A tab opens at the top of the page, as every
+ * new page does (`NavigationTracker`).
  */
 export default function TabLinks({
   segments,
@@ -27,9 +28,6 @@ export default function TabLinks({
   // The overview is the layout's own page (null, or `__PAGE__` in some versions)
   const segment = !selected || selected.startsWith('__') ? '' : selected;
   const tabs = PROFILE_TABS.filter((tab) => segments.includes(tab.segment));
-  // A tab opens at the top of the page. Next's own scroll is off: it scrolls
-  // the first changed segment into view, and on a phone that is the
-  // overview's last blocks (`@tail`) at the very bottom
   return (
     <>
       {tabs.map((tab) => {
@@ -50,8 +48,6 @@ export default function TabLinks({
             className={className}
             href={href}
             key={tab.label}
-            onClick={toTopOnPress}
-            scroll={false}
           >
             <Icon glyph={tab.glyph} size={16} />
             {tab.label}

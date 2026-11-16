@@ -1,5 +1,7 @@
 import { expect, type Page, test } from '@playwright/test';
 
+import { untilStable } from './viewport';
+
 /**
  * The spotlight's pause button holds in real time, shared by the Chromium
  * and WebKit specs, on a desktop and on a phone with touch: paused, the
@@ -34,6 +36,19 @@ const countdown = (page: Page) =>
     };
   });
 
+/**
+ * The countdown once the pause has taken: the button turned to Play and the
+ * countdown held still. Read at once after the press, it can be a frame
+ * before the pause lands (183ms, then 200 for good).
+ */
+const pausedCountdown = async (page: Page) => {
+  await expect(toggle(page, 'Play')).toBeVisible();
+  await untilStable(() => countdown(page), {
+    message: 'the countdown stops',
+  });
+  return countdown(page);
+};
+
 const scrollAwayAndBack = async (page: Page) => {
   await page.evaluate(() => window.scrollTo(0, 1800));
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1800);
@@ -56,7 +71,7 @@ export function spotlightPauseSuite() {
       await toggle(page, 'Pause').click();
       // the mouse away from the spotlight (hover holds it too)
       await page.mouse.move(4, 896);
-      const paused = await countdown(page);
+      const paused = await pausedCountdown(page);
       expect(paused.time).toBeGreaterThanOrEqual(0);
 
       await page.waitForTimeout(PAST_A_SLIDE_MS);
@@ -82,7 +97,7 @@ export function spotlightPauseSuite() {
         await page.goto('/');
         await page.waitForLoadState('load');
         await toggle(page, 'Pause').tap();
-        const paused = await countdown(page);
+        const paused = await pausedCountdown(page);
         expect(paused.time).toBeGreaterThanOrEqual(0);
 
         await page.waitForTimeout(PAST_A_SLIDE_MS);

@@ -5,6 +5,7 @@ import { useStore } from 'zustand';
 
 import { infoGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import cn from '@/lib/cn';
 
 import type { ShelfMeta } from '../_lib/shelves';
 import { useTileContext } from './tileContext';
@@ -45,8 +46,14 @@ export default function ActionBar({
   const count = useStore(selection, (state) => state.selected.size);
   const desktopCount = `${count} series selected`;
   const phoneCount = `${count} selected`;
+  // A phone shows no bar before the first pick: then the bar takes no space
+  // either (its margin and the column's gap moved the footer down)
+  const wrapper = cn(
+    'pointer-events-none sticky bottom-8 z-20 mt-6 max-md:-mx-1 max-md:bottom-7',
+    count === 0 && 'max-md:hidden',
+  );
   return (
-    <div className="pointer-events-none sticky bottom-8 z-20 mt-6 max-md:-mx-1 max-md:bottom-7">
+    <div className={wrapper}>
       <m.div
         aria-label="Selected series"
         className="pointer-events-auto"

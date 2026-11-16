@@ -176,7 +176,8 @@ test.describe('discover hub (/discover)', () => {
 
   // a numeral may run behind its poster only as far as the tuck: 36
   // of a 290 tile for one digit, 40 for two (under a third of the last
-  // digit), so no digit can be lost
+  // digit), so no digit can be lost; on a phone the poster is bigger
+  // (72% of the tile, not 62%) and covers that much more of the numeral
   for (const width of [1440, 390]) {
     test(`keeps every numeral's digits in view at ${width}`, async ({
       page,
@@ -191,7 +192,12 @@ test.describe('discover hub (/discover)', () => {
         const canvas = document.createElement('canvas').getContext('2d')!;
         return [...list.children].map((item) => {
           const numeral = item.querySelector('[aria-hidden="true"]')!;
-          const poster = item.querySelector('a')!.getBoundingClientRect();
+          const link = item.querySelector('a')!;
+          const poster = link.getBoundingClientRect();
+          const share =
+            Number.parseFloat(
+              getComputedStyle(link).getPropertyValue('--ranked-poster'),
+            ) || 180 / 290;
           const box = numeral.getBoundingClientRect();
           const text = numeral.textContent ?? '';
           const style = getComputedStyle(numeral);
@@ -206,9 +212,11 @@ test.describe('discover hub (/discover)', () => {
               box.right -
               (metrics.width - metrics.actualBoundingBoxRight) * scale;
           }
-          // the poster is 180 of the row's 290 tile (a two-digit tile is wider)
-          const rowTile = (poster.width * 290) / 180;
-          const allowed = ((text.length > 1 ? 40 : 36) / 290) * rowTile + 2;
+          // the poster is its share of the row's tile (a two-digit tile is wider)
+          const rowTile = poster.width / share;
+          const grown = (share - 180 / 290) * rowTile;
+          const allowed =
+            ((text.length > 1 ? 40 : 36) / 290) * rowTile + grown + 2;
           return { allowed, behind: inkEnd - poster.left, text };
         });
       });

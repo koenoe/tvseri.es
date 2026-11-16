@@ -78,7 +78,7 @@ export default function RankedTile({
       <span aria-hidden className={numeral} style={numeralStyle}>
         {rank}
       </span>
-      <div className="relative z-1 ml-auto w-[calc(var(--row-tile)*0.62069)]">
+      <div className="relative z-1 ml-auto w-[calc(var(--row-tile)*var(--ranked-poster,0.62069))]">
         <PosterTile
           alt={`${rank}. ${title}`}
           id={id}

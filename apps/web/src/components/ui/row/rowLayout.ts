@@ -54,11 +54,13 @@ export const ROW_TILES: Readonly<Record<RowTiles, string>> = {
    * numeral's room and the poster, 290 = 110 + 180 at 1024 and up, 18 apart
    * (the frame's 308 pitch); below that numeral and poster scale together
    * with the tile (`RankedTile`), 2 + 45% on phones like the poster rows, 3
-   * + 45% from 640. The ghost draws the poster only, at its place
-   * (`--tile-ghost-inset`: the numeral's 110 of 290).
+   * + 45% from 640. The poster is 62% of the tile (180 of 290), 72% on
+   * phones, where it is bigger and covers more of the numeral
+   * (`--ranked-poster`). The ghost draws the poster only, at its place
+   * (`--tile-ghost-inset`: what the numeral keeps).
    */
   ranked:
-    '[--row-n:2] [--row-peek:0.45] [--row-gap:12px] [--tile-radius:10px] [--tile-aspect:2/3] [--tile-ghost-inset:37.931%] @min-[640px]:[--row-n:3] @min-[768px]:[--row-gap:16px] @min-[1024px]:[--row-tile:290px] @min-[1024px]:[--row-gap:18px]',
+    '[--row-n:2] [--row-peek:0.45] [--row-gap:12px] [--tile-radius:10px] [--tile-aspect:2/3] [--ranked-poster:0.72] [--tile-ghost-inset:28%] @min-[640px]:[--ranked-poster:0.62069] @min-[640px]:[--tile-ghost-inset:37.931%] @min-[640px]:[--row-n:3] @min-[768px]:[--row-gap:16px] @min-[1024px]:[--row-tile:290px] @min-[1024px]:[--row-gap:18px]',
 };
 
 /**
@@ -71,9 +73,9 @@ export const ROW_IMAGE_SIZES: Readonly<Record<RowTiles, string>> = {
   poster:
     '(min-width: 768px) 242px, (min-width: 640px) 207px, calc((100vw - 48px) / 2.45)',
   posterCompact: '(min-width: 768px) 205px, calc((100vw - 48px) / 2.45)',
-  /** the poster is 62% of the tile (180 of 290) */
+  /** the poster is 62% of the tile (180 of 290), 72% on phones */
   ranked:
-    '(min-width: 1024px) 180px, (min-width: 640px) calc((100vw - 80px) * 0.18), calc((100vw - 48px) * 0.26)',
+    '(min-width: 1024px) 180px, (min-width: 640px) calc((100vw - 80px) * 0.18), calc((100vw - 48px) * 0.3)',
 };
 
 /**

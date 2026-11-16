@@ -26,7 +26,8 @@ describe('restPose', () => {
   it('puts the pick in front, upright and bright', () => {
     expect(restPose(0, 0, 7)).toEqual({
       brightness: 1,
-      transform: 'translateX(0px) rotate(0deg) scale(1)',
+      transform:
+        'translateX(calc(0px * var(--fan-spread, 1))) rotate(0deg) scale(1)',
       zIndex: 10,
     });
   });
@@ -34,17 +35,20 @@ describe('restPose', () => {
   it('fans the others out, smaller and darker the further back', () => {
     expect(restPose(0, 1, 7)).toEqual({
       brightness: 0.6,
-      transform: 'translateX(110px) rotate(5deg) scale(0.9)',
+      transform:
+        'translateX(calc(110px * var(--fan-spread, 1))) rotate(5deg) scale(0.9)',
       zIndex: 9,
     });
     expect(restPose(0, 5, 7)).toEqual({
       brightness: 0.525,
-      transform: 'translateX(-204px) rotate(-10deg) scale(0.8)',
+      transform:
+        'translateX(calc(-204px * var(--fan-spread, 1))) rotate(-10deg) scale(0.8)',
       zIndex: 8,
     });
     expect(restPose(0, 3, 7)).toEqual({
       brightness: 0.45,
-      transform: 'translateX(282px) rotate(15deg) scale(0.7)',
+      transform:
+        'translateX(calc(282px * var(--fan-spread, 1))) rotate(15deg) scale(0.7)',
       zIndex: 7,
     });
   });

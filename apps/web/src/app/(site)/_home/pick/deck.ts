@@ -59,7 +59,8 @@ export function restPose(pick: number, k: number, size: number): CardPose {
   const brightness = away === 0 ? 1 : Math.max(0.45, 0.6 - (away - 1) * 0.075);
   return {
     brightness: round(brightness),
-    transform: `translateX(${x}px) rotate(${offset * 5}deg) scale(${round(scale)})`,
+    // `--fan-spread` (DECK_BOX) pulls the fan in on a phone
+    transform: `translateX(calc(${x}px * var(--fan-spread, 1))) rotate(${offset * 5}deg) scale(${round(scale)})`,
     zIndex: 10 - away,
   };
 }

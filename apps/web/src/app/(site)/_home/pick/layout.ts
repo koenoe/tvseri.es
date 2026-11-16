@@ -17,18 +17,18 @@ export const PICK_BODY =
   'flex flex-col gap-6 xl:grid xl:h-[400px] xl:grid-cols-[minmax(0,1fr)_300px] xl:items-center xl:gap-12 xl:overflow-hidden xl:rounded-16 xl:bg-black/25 xl:py-8 xl:pr-10 xl:pl-12';
 
 /**
- * The fan at every width: its 336px box drawn at half size on a phone (a
- * little under half below 375, so no more than about 20px of the outer
- * posters is under the card's edge), at
- * four fifths from 640 and whole from 1024 (it is 734px wide at rest), from
- * its top centre, in a frame as tall as the scaled box. On a phone the outer
- * posters run a few px under the card's edge, as a deck in a hand does.
+ * The fan at every width: its 336px box drawn at 0.64 on a phone (0.58
+ * below 375) with the cards pulled in to 70% of their spread
+ * (`--fan-spread`), so the posters are bigger and the fan stays about as
+ * wide; at four fifths from 640 and whole from 1024 (734px wide at rest),
+ * from its top centre, in a frame as tall as the scaled box. On a phone the
+ * outer posters run a few px under the card's edge, as a deck in a hand does.
  */
 export const DECK_FRAME =
-  'h-[148px] min-[375px]:h-[168px] sm:h-[269px] lg:h-[336px]';
+  'h-[195px] min-[375px]:h-[215px] sm:h-[269px] lg:h-[336px]';
 
 export const DECK_BOX =
-  'relative h-[336px] origin-top scale-[0.44] min-[375px]:scale-50 sm:scale-[0.8] lg:scale-100';
+  'relative h-[336px] origin-top scale-[0.58] [--fan-spread:0.7] min-[375px]:scale-[0.64] sm:scale-[0.8] sm:[--fan-spread:1] lg:scale-100';
 
 /** One card of the fan (180 × 270), placed by its pose */
 export const DECK_CARD =

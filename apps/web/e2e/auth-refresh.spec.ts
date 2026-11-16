@@ -206,19 +206,28 @@ test.describe('session refresh', () => {
     const session = await signInRotating(context, 'alex', baseURL ?? '', {
       accessSeconds: 600,
     });
+    // the page's own background read of the viewer's library: done before
+    // the session runs low, or it is the request that meets the end
+    const libraryRead = page.waitForResponse((response) =>
+      response.url().includes('/api/me/library-ids'),
+    );
     await page.goto(show);
     const progress = page
       .getByRole('button', { name: /open watch history/ })
       .first();
     await expect(progress).toContainText('21 of 47');
+    await libraryRead;
     expect((await session.stats()).calls).toBe(0);
 
-    // Mid-use the session runs out: the browser's cookie now holds a token
-    // of the same session (its namespace) that has expired, so the next
-    // request must refresh, and the session is revoked, so that fails. (It
-    // waited out a 65 s token's last seconds by the clock: a load slower
-    // than five seconds refreshed it early.)
-    await signInRotating(context, 'alex', baseURL ?? '', { accessSeconds: 0 });
+    // Mid-use the session runs low: the browser's cookie now holds a token
+    // of the same session (its namespace) with 30 s left, under the 60 s
+    // refresh threshold but still valid, so the next request refreshes, and
+    // the session is revoked, so that fails. (It waited out a 65 s token's
+    // last seconds by the clock: a load slower than five seconds refreshed
+    // it early.)
+    await signInRotating(context, 'alex', baseURL ?? '', {
+      accessSeconds: 30,
+    });
     await session.revoke();
     await page
       .getByRole('button', { name: 'More actions for The Bear' })

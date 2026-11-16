@@ -1,4 +1,4 @@
-import { expect, type Page, test } from '@playwright/test';
+import { expect, type Page, type Request, test } from '@playwright/test';
 
 import { signInAs } from './helpers/session';
 
@@ -23,6 +23,21 @@ function consoleErrors(page: Page) {
   return errors;
 }
 
+/** The server actions (the marks' writes) still out */
+function serverActionsOut(page: Page) {
+  const out = new Set<Request>();
+  const isAction = (request: Request) =>
+    request.method() === 'POST' && Boolean(request.headers()['next-action']);
+  page.on('request', (request) => {
+    if (isAction(request)) {
+      out.add(request);
+    }
+  });
+  page.on('requestfinished', (request) => out.delete(request));
+  page.on('requestfailed', (request) => out.delete(request));
+  return out;
+}
+
 test.beforeEach(async ({ page }) => {
   await signInAs(page.context(), 'kit');
 });
@@ -31,6 +46,7 @@ test('Continue watching moves on after the eye, and back on Undo', async ({
   page,
 }) => {
   const errors = consoleErrors(page);
+  const writes = serverActionsOut(page);
   await page.goto('/');
   const section = page.getByRole('region', { name: 'Continue watching' });
   const tile = section.getByRole('article').first();
@@ -54,7 +70,10 @@ test('Continue watching moves on after the eye, and back on Undo', async ({
   await expect(tile.getByText('S03E05', { exact: true })).toBeVisible();
   await expect(tile.getByText('Children', { exact: true })).toBeVisible();
 
-  // Marked again: the following episode, its title, counts and eye
+  // Marked again once the writes are in: the eye is back on the spot it was
+  // pressed, and a press there while that press's write is out is refused
+  // on purpose (`pressGate`: a double-tap never marks what slid in)
+  await expect.poll(() => writes.size, { timeout: 15_000 }).toBe(0);
   await markShown();
   await expect(tile.getByText('S03E06', { exact: true })).toBeVisible();
   await expect(tile.getByText('Napkins', { exact: true })).toBeVisible();

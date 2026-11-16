@@ -64,7 +64,7 @@ export type SkipRequest = Readonly<{
  * Nothing here stops when the component's effects are cleaned up: Next
  * keeps a page in `<Activity>` across a server action's refresh and Back,
  * so the import carries on and its state is there on return. Leaving the
- * site (unload) is what stops it, as the board says ("Keep this page open").
+ * site (unload) is what stops it ("Keep this page open").
  *
  * The importer's behaviour around the pure state machine: reading the file,
  * the dry run (restarted whenever the columns change), the chunked import

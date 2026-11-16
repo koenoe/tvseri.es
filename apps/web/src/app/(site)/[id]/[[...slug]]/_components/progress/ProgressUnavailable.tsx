@@ -9,7 +9,7 @@ import { PROGRESS_LINE_SPACE } from '../frames';
 
 /**
  * The progress line when the viewer's marks didn't load: the same
- * box, an empty dashed track (ERFinal's failed look) and "Your progress
+ * box, an empty dashed track (the failed look) and "Your progress
  * didn't load · Try again", never "0 of 47 watched". It tries once by
  * itself when it appears (a slow first read usually answers the second
  * time); the store's real seed then replaces it with the line.

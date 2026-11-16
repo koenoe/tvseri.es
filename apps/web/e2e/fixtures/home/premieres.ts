@@ -5,8 +5,8 @@ import { PICK_POOL } from './core.ts';
 import { ok, type StubRoute } from './routes.ts';
 
 /**
- * HMFinal's Premieres row (`hx-h-tk3`, Wed 11 Nov) and the Countdown
- * (`e3-cdj`, Sat 14 Nov), with the boards' shows, images and services.
+ * The Premieres row (Wed 11 Nov) and the Countdown
+ * (Sat 14 Nov), with the sample shows, images and services.
  */
 
 const HBO_MAX = { id: 3186, logo: 'set_prov_hbomax.png', name: 'HBO Max' };
@@ -118,7 +118,7 @@ const COUNTDOWN_EDGES: Readonly<Record<string, Partial<TvSeries>>> = {
 
 /**
  * The Countdown's shows carry their backdrop's colour (the API's detection
- * on the board images; `GET /premieres` sends none)
+ * on the sample images; `GET /premieres` sends none)
  */
 const COUNTDOWN_COLORS: Readonly<Record<string, string>> = {
   Barry: '#080808',
@@ -139,9 +139,9 @@ export const COUNTDOWN_PREMIERES: ReadonlyArray<Premiere> = BIG_FROM_WED.map(
 );
 
 /**
- * The deck as the board writes its lines (HMFinal `DECK[].why`): the pick
+ * The deck, with its lines written out: the pick
  * pool plus the fields `pickWhy` reads. The Studio's first air date sits
- * inside the board's last twelve months so it reads "New this year".
+ * inside the last twelve months so it reads "New this year".
  */
 const DECK_FIELDS: Readonly<Record<string, Partial<TvSeries>>> = {
   Fleabag: { voteAverage: 8.6 },

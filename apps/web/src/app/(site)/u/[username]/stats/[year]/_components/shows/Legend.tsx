@@ -20,7 +20,7 @@ function Item({
 }
 
 /**
- * What the marks mean (`.st-tlleg`). The phone board keeps the last two,
+ * What the marks mean. The phone keeps the last two,
  * "Finished" and "Still watching", and puts the "All 71" link on the same
  * line (`children`).
  */

@@ -9,7 +9,7 @@ import { firstGenre } from '../genres';
 import { seasonsLabel, showSeasons } from '../showFacts';
 
 /**
- * The "why" line under a pick (HMFinal `DECK[].why`), derived from the
+ * The "why" line under a pick, derived from the
  * show's own fields so any deck gets a line. First rule that matches wins:
  *
  * 1. A new season starts within a week (the next episode is an episode 1):

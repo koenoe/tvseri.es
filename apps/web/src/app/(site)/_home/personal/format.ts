@@ -1,7 +1,7 @@
 import type { PickReason } from '@tvseri.es/schemas';
 
 /**
- * The words on home's signed-in touches (HMFinal, HMFinalMobile): the In
+ * The words on home's signed-in touches: the In
  * progress lane's time to finish, the Because-you-watched reasons and More
  * {genre}'s watchlist line. The Up next tile's words are the shared card's
  * (`components/up-next/upNextCopy.ts`).

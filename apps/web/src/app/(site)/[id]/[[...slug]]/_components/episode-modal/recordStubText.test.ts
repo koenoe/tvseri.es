@@ -81,7 +81,7 @@ describe('toRecordStub (desktop air dates)', () => {
   });
 });
 
-describe('toRecordStub per board', () => {
+describe('toRecordStub per layout', () => {
   it('desktop draws the date and time, and never the source', () => {
     const stub = toRecordStub({
       ...base,

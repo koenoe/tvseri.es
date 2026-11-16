@@ -31,7 +31,7 @@ const TONE: Readonly<Record<Relation, string>> = {
     'bg-white/5 text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.06)]',
 };
 
-/** Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval. */
+/** Each place keeps its own look on purpose; don't unify them. */
 const PILL: RelationPillLayout = {
   icon: 13,
   pill: 'flex h-8 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-caption font-medium backdrop-blur-[12px]',

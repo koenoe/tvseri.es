@@ -8,12 +8,12 @@ export const TILE = {
   em: 240 / 290,
   /** two digits' em (200 of 290) */
   em2: 200 / 290,
-  /** one digit: the box's right edge at 146 of 290 (the board's 132 box and −0.06em) */
+  /** one digit: the box's right edge at 146 of 290 (a 132 box and −0.06em) */
   oneDigitRight: 0.49655,
   /** the poster's width (180 of 290) */
   poster: 180 / 290,
   /**
-   * two digits' tracking, in 1/1000 em (−0.05em): the board's −0.1em made a 1
+   * two digits' tracking, in 1/1000 em (−0.05em): −0.1em made a 1
    * overlap the digit after it, and where two outlined glyphs overlap the
    * second one's fill cuts the first one's line
    */

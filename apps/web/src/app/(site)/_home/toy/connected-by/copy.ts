@@ -1,4 +1,4 @@
-/** "Malcolm in the Middle to Better Call Saul, in 2 steps" (HMFinal `e2-grh`): every path is two */
+/** "Malcolm in the Middle to Better Call Saul, in 2 steps": every path is two */
 export const pathTitle = (from: string, to: string) =>
   `${from} to ${to}, in 2 steps`;
 

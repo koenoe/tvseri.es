@@ -4,15 +4,15 @@ import cn from '@/lib/cn';
 
 /**
  * A labelled group of primitives in the style guide: what it is and which
- * design it comes from, so it can be compared with the design at real size.
+ * part of the UI it covers, to compare at real size.
  */
 export function Specimen({
-  board,
+  note,
   children,
   className,
   label,
 }: Readonly<{
-  board: string;
+  note: string;
   children: ReactNode;
   className?: string;
   label: string;
@@ -21,7 +21,7 @@ export function Specimen({
   return (
     <div className="mt-10">
       <p className="text-body-sm font-medium">{label}</p>
-      <p className="text-caption text-white/60">{board}</p>
+      <p className="text-caption text-white/60">{note}</p>
       <div className={classes}>{children}</div>
     </div>
   );

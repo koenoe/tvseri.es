@@ -11,7 +11,7 @@ import { headline } from '../_lib/sentence';
 import { WEEKS } from '../_lib/weeks';
 
 /**
- * What the share card says (STShare V2b), derived from the page's own reads:
+ * What the share card says, derived from the page's own reads:
  * only what the public page shows. Pure, so the route, the og:image and the
  * tests share it.
  */
@@ -196,7 +196,7 @@ const listOf = (names: ReadonlyArray<string>, more: boolean) => {
 };
 
 /**
- * The card in words (STShare's `aria-label`): the share UI's image
+ * The card in words (its `aria-label`): the share UI's image
  * description, so the card reads the same without seeing it.
  */
 export function cardDescription(model: CardModel): string {

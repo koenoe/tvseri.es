@@ -2,8 +2,6 @@
  * The decade card's kicker and reason line, built from
  * the data only: the show's place by TMDB votes, its length and whether it
  * ended. Plain template sentences, never an invented fact.
- *
- * DRAFT: owner approves (the sentences' wording).
  */
 
 import { isOver } from '@tvseri.es/utils';

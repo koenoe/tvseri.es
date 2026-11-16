@@ -11,7 +11,7 @@ import ServiceIcon, {
 import cn from '@/lib/cn';
 import { PILL_ROW } from './layout';
 
-/** Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval. */
+/** Each place keeps its own look on purpose; don't unify them. */
 const LOGO: ServiceIconLayout = { className: 'rounded-[5px]', size: 20 };
 
 /** The services chips (`ue-gs-pv`): a logo, the name, a check while picked */

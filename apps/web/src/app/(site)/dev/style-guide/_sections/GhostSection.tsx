@@ -30,7 +30,7 @@ export default function GhostSection() {
       source="the skeleton checklist (skeletons mirror the components)"
       title="Ghosts"
     >
-      <Specimen board="ghosts.tsx" label="Shapes">
+      <Specimen label="Shapes" note="ghosts.tsx">
         <State name="Ghost (a box)">
           <Ghost className="h-24 w-16 rounded-8" />
         </State>
@@ -47,7 +47,7 @@ export default function GhostSection() {
           <TextLine className="text-title-2" width="w-40" />
         </State>
       </Specimen>
-      <Specimen board="ghosts.tsx" label="Buttons and chips">
+      <Specimen label="Buttons and chips" note="ghosts.tsx">
         <State name="ButtonFace (static label sizes it)">
           <ButtonFace icon={linkGlyph} size="md" variant="primary">
             Create my Plex URL
@@ -65,7 +65,7 @@ export default function GhostSection() {
           <span className={CHIP}>Built in</span>
         </State>
       </Specimen>
-      <Specimen board="ghosts.tsx" label="One pulsing layer per card">
+      <Specimen label="One pulsing layer per card" note="ghosts.tsx">
         <div className={CARD}>
           <Ghost className="h-32 w-full rounded-12" />
           <TextLine className="text-body-sm" width="w-3/4" />

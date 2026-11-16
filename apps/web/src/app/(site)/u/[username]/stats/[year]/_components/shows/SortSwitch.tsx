@@ -8,7 +8,7 @@ const OPTIONS: ReadonlyArray<Readonly<{ label: string; value: SortOrder }>> = [
 ];
 
 /**
- * "In order watched / Most hours" (`.st-sortseg`): a radio group of two,
+ * "In order watched / Most hours": a radio group of two,
  * 3px padding, radius 10; the chosen one `white/15`.
  */
 export default function SortSwitch({

@@ -151,7 +151,7 @@ export type ImportEvent =
 export type ErrorEvent = Readonly<{
   status: 'error';
   /**
-   * `unauthenticated`: the session ended (the board's "Stopped (session)":
+   * `unauthenticated`: the session ended ("Stopped (session)":
    * sign in and Continue from the last chunk). `conflict`: the import is no
    * longer the user's last one, or it is being undone. `failed`: anything else.
    */

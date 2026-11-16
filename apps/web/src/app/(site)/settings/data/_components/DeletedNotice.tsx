@@ -2,8 +2,8 @@ import ButtonLink from '@/components/ui/button/ButtonLink';
 import { arrowRightGlyph } from '@/components/ui/icon/glyphs';
 
 /**
- * After the API accepted the deletion. The board's
- * copy says "(Demo: nothing was deleted)"; this one says what is true: you
+ * After the API accepted the deletion. The copy
+ * says what is true: you
  * are signed out and the rest goes within about half an hour.
  */
 export default function DeletedNotice() {

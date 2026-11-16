@@ -3,7 +3,7 @@ import { expect, type Page, test } from '@playwright/test';
 import { failRead, signInAs } from './helpers/session';
 
 /**
- * Connected by, the toy of the day (HMFinal "E · Connected by"). Tue 17 Nov
+ * Connected by, the toy of the day. Tue 17 Nov
  * 2026 plans it for everyone (not an If you liked X day), so the page is
  * pinned there through `/dev/home?day=` (served in the e2e build only).
  * The stub (`fixtures/home/toy.ts`): signed out, three paths from Malcolm

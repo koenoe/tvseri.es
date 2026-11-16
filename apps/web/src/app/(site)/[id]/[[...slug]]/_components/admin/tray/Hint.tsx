@@ -2,7 +2,7 @@
  * "← → steps through a row · Esc cancels". The app's
  * Inter subset (latin) has no ← and →, so the browser would draw them from
  * another font, wider; these are Inter's arrows at 12px (10.875 wide, the
- * same ink box), so the line matches the board (219.3 wide).
+ * same ink box), so the line is 219.3 wide.
  */
 
 const LEFT = 'M1.72 4.25h7.43M4.69 1.3 1.72 4.25 4.69 7.2';

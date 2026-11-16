@@ -36,7 +36,6 @@ type IndexCopy = Readonly<{
   title: string;
 }>;
 
-// DRAFT: owner approves (descriptions and end titles)
 const COPY: Readonly<Record<IndexKind, IndexCopy>> = {
   country: {
     description:

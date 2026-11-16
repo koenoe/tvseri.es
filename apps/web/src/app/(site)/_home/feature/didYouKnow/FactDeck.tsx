@@ -19,7 +19,7 @@ import {
 } from './layout';
 
 /**
- * Did you know's deck (HMFinal `e2-dk`, `dk.next`), its label top left: the
+ * Did you know's deck, its label top left: the
  * facts stacked in one place, one shown, cross-fading (opacity, 0.5s) to the next on "Another";
  * the pips say which. Hidden facts are inert (out of the tab order). The
  * slides are rendered on the server; this island only holds the index.

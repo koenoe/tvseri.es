@@ -52,8 +52,7 @@ const dayNumber = ({ day, month, year }: DayParts) =>
 
 /**
  * The one "when" ladder for a day in the past: "Today", "Yesterday", the
- * weekday within the last week ("Wed"), "Jan 8" this year (owner, 16 Nov
- * 2026: no weekday), "Jan 8, 2025" before. Pure: `now` is an argument.
+ * weekday within the last week ("Wed"), "Jan 8" this year (no weekday), "Jan 8, 2025" before. Pure: `now` is an argument.
  */
 export function formatWhen(
   at: string | number | Date,

@@ -26,7 +26,7 @@ const TOKENS = [
 
 export default function TypeSection() {
   return (
-    <Section id="type" source="TYFinal, specs/typography_spec.md" title="Type">
+    <Section id="type" source="the type scale" title="Type">
       <dl className="grid gap-6">
         {TOKENS.map(([name, className, sample]) => (
           <div className="grid gap-1 md:grid-cols-[160px_1fr]" key={name}>

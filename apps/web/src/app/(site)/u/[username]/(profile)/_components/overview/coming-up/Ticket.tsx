@@ -29,7 +29,7 @@ const TICKET_LOOK =
 
 const TICKET_CLASS = cn(TICKET_GRID, TICKET_LOOK);
 
-/** Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval. */
+/** Each place keeps its own look on purpose; don't unify them. */
 const PROVIDER: ServiceIconLayout = {
   className: 'absolute top-3 right-4 size-5 rounded-6 max-md:hidden',
   size: 20,

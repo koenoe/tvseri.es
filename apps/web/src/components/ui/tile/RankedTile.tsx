@@ -30,9 +30,9 @@ const NUMERAL =
   'pointer-events-none absolute bottom-0 font-sans font-[800] leading-[0.8] text-page select-none [paint-order:stroke_fill] [-webkit-text-stroke:max(3px,calc(var(--row-tile)*0.0138))_rgb(255_255_255/0.32)]';
 
 /**
- * One digit: tabular, its box's right edge at 146 of 290 (the board's 132
+ * One digit: tabular, its box's right edge at 146 of 290 (a 132
  * box with its −0.06em tracking), so a wide digit keeps the frame's 17px
- * from the poster before. Two digits (10 to 20, half the row): the board's
+ * from the poster before. Two digits (10 to 20, half the row): a
  * smaller size, −0.05em (the digits never overlap), proportional figures in their natural shape,
  * the last digit partly behind the poster (`numeralFit`).
  */

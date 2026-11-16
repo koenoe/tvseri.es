@@ -1,7 +1,7 @@
 import { formatCodeLifetime } from './codeLifetime';
 
 /**
- * The sign-in code email (EMCode2, variant “A · Margin rule”): the site's
+ * The sign-in code email : the site's
  * dark ground edge to edge, “tvseri.es” as plain text, a thin rule down the
  * left of the column with a white segment beside the code, and the code as
  * the headline. Two short lines, nothing to click, no image, nothing hosted.
@@ -34,7 +34,7 @@ const WORDMARK =
 // the body text.
 const PREVIEW_FILLER = '&#847;&zwnj;&nbsp;'.repeat(40);
 
-// Phones (the board's phone frame): less ground around the column, a 40px code
+// Phones: less ground around the column, a 40px code
 const PHONE = `@media (max-width:480px){.em-pad{padding:40px 20px 48px!important}.em-code{font-size:40px!important;line-height:48px!important}}`;
 const DETECTORS =
   'a[x-apple-data-detectors],.x-gmail-data-detectors,.x-gmail-data-detectors *{color:inherit!important;text-decoration:none!important;font:inherit!important;border:0!important}';

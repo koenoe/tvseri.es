@@ -34,7 +34,7 @@ Open `http://localhost:3116/136315/the-bear`. Without images (`STUB_IMG_DIR` uns
 
 | Id | Show | Demonstrates |
 | --- | --- | --- |
-| 136315 | The Bear (`the-bear`) | 5 seasons, 47 episodes (8, 10, 10, 10, 9), all aired, ended; the board's default |
+| 136315 | The Bear (`the-bear`) | 5 seasons, 47 episodes (8, 10, 10, 10, 9), all aired, ended; the default show |
 | 900001 | The Bear, airing | Season 5 weekly: 41 of 47 out, next episode Fri 13 Nov 2026 (S05E04) |
 | 900002 | The Long Run | 14 seasons, Season 7 has 200 episodes (Show all, "Go to season") |
 | 900003 | Evening Edition | 1,200 aired episodes in 24 seasons: the show mark answers 413, season marks work |

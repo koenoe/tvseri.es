@@ -37,8 +37,8 @@ type Tile = Readonly<{ art: SeriesArt | null; tile: FinishedTile }>;
 /**
  * A finished show as a slice of the profile's accordion (one component,
  * `SliceAccordion`): the backdrop, and while open the logo, its three facts
- * and the viewer's Remote (CMFinal); no vertical title (STD, as the
- * profile's signed-off favourites)
+ * and the viewer's Remote; no vertical title, as in the
+ * profile's favourites
  */
 function finishedSlice({ art, tile }: Tile): AccordionSlice {
   const facts = [

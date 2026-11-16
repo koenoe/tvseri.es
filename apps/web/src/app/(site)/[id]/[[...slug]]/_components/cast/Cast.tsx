@@ -29,7 +29,7 @@ const listStyles = `${CAST_SPACE} grid grid-cols-3 gap-4 md:grid-cols-6 lg:flex 
  * the density (the 138 crop or its 2× 276); the intrinsic size is the 96px
  * box at 2×.
  */
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 const CAST_FACE: FaceLook = {
   blank:
     'mx-auto aspect-square w-full rounded-full border-2 border-white bg-white/10 lg:size-24',

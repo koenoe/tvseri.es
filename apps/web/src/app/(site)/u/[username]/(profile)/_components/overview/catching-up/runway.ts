@@ -18,11 +18,11 @@ const parse = (code: string) => {
   return ref ? { episode: ref.episodeNumber, season: ref.seasonNumber } : null;
 };
 
-/** The board draws four chips */
+/** Four chips at most */
 const MAX_RUN_CHIPS = 4;
 
 /**
- * The widths the run is planned for: the board's lane (416px, so 284px
+ * The widths the run is planned for: a lane (416px, so 284px
  * beside the poster), a 390 phone's (226px) and a 360 phone's (196px). A
  * container query on the run shows the plan for its width.
  */
@@ -33,7 +33,7 @@ const RUN_SMALL = 196;
 /** A chip's width: 46px at least, 10px padding, 12px tabular digits */
 const chipWidth = (label: string) => Math.max(46, 20 + label.length * 7.5);
 const CHIP_GAP = 6;
-/** "+N" sits beside the chips' group, 8px off (`.pr-run`) */
+/** "+N" sits beside the chips' group, 8px off */
 const MORE_GAP = 8;
 /** `.pr-run`: 8px either side of the 2px tick */
 const TICK_WIDTH = 8 + 2 + 8;
@@ -121,7 +121,7 @@ export type RunPlan = Readonly<{
  * One row of chips, never wrapping: the current season's next
  * episodes, "+N" for the rest of it, then the tick and one season chip (the
  * next waiting season, else the premiere runway). As many chips as fit
- * beside the poster, up to the board's four; a narrow card shows fewer.
+ * beside the poster, up to four; a narrow card shows fewer.
  */
 export function runPlan(item: CatchingUpItem): RunPlan {
   const chips = runChips(item);

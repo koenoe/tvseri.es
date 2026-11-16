@@ -22,7 +22,7 @@ import ProblemGroup, { ProblemItemFrame } from './ProblemGroup';
 import RestItem from './RestItem';
 import { CARD_COUNT, CARD_HEAD, CARD_TITLE } from './styles';
 
-/** Items shown one by one before the rest is summed up (the board draws 2). */
+/** Items shown one by one before the rest is summed up (2). */
 const VISIBLE = 2;
 
 const rowsIn = (items: ReadonlyArray<ProblemItem>) =>

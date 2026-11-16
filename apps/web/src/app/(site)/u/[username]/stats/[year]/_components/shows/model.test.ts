@@ -121,7 +121,7 @@ describe('buildTimeline', () => {
     expect(rows.map((row) => row.rank)).toEqual([1, 0, 2]);
   });
 
-  it('counts what the board leaves out', () => {
+  it('counts what the list leaves out', () => {
     const shows = Array.from({ length: 25 }, (_, index) =>
       show(index + 1, { episodes: 10, runtimeMinutes: 1000 - index }),
     );

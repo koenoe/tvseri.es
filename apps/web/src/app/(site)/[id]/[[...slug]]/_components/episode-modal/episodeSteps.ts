@@ -42,7 +42,7 @@ export function stepEpisode(
   };
 }
 
-/** "Episode 5 of 10" (the board's `posLine`). */
+/** "Episode 5 of 10". */
 export function positionLabel(
   seasons: ReadonlyArray<StepSeason>,
   ref: EpisodeRef,

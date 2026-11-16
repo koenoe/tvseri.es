@@ -8,7 +8,7 @@ import Toy from '../../../_home/toy/Toy';
 const KINDS = ['whats-on', 'where-set', 'connected-by', 'versus'] as const;
 
 /**
- * The toy of the day, every kind with the boards' data (Mon 9 What's on,
+ * The toy of the day, every kind with the sample data (Mon 9 What's on,
  * Tue 10 Where are they set?, Wed 11 Connected by, Thu 12 Versus), then the signed-in
  * If you liked The Bear (signed in, Tue 10), then each kind's placeholder:
  * on Home it only shows when the API is slow, so its boxes are compared

@@ -32,7 +32,7 @@ describe('finishedTile', () => {
     title: 'The Pitt',
   };
 
-  it('writes the lines the board draws', () => {
+  it('writes the tile lines', () => {
     expect(finishedTile(show, 2025)).toEqual({
       duration: '13h 45m',
       episodes: 'S01, 15 episodes',

@@ -2,8 +2,8 @@ import type { TitleTreatmentLook } from '@/components/ui/title/TitleTreatment';
 import cn from '@/lib/cn';
 
 /**
- * A Stats board's title treatment: bottom left in its box, with the board's
- * soft shadow; without one, the title written in two lines at most. `size`
+ * A Stats block's title treatment: bottom left in its box, with a soft
+ * shadow; without one, the title written in two lines at most. `size`
  * sizes the box; `width` and `height` are the logo's intrinsic size.
  */
 function statsTitle(
@@ -26,7 +26,7 @@ function statsTitle(
   };
 }
 
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 
 /** First and last: 160 × 54 on a phone, 230 × 78 from md */
 export const FIRST_LAST_TITLE = statsTitle(

@@ -24,7 +24,7 @@ const YEARS_CLASSES = '-mx-gutter mt-3 overflow-hidden px-gutter pt-3.5 pb-2.5';
 const FIT = 3;
 
 /**
- * The phone's identity and years (STMobile): a short header (the handle, one
+ * The phone's identity and years: a short header (the handle, one
  * meta line) and the Years pill row, the page's year
  * filled white. "More" opens the full list in a bottom sheet (more than one
  * year).

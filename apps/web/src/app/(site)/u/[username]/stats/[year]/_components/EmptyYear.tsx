@@ -8,7 +8,7 @@ import { isUnavailable } from '../_data/loaders';
 import type { SectionProps } from './types';
 
 /**
- * A year without dated episodes (no board draws one): the header and tiles
+ * A year without dated episodes: the header and tiles
  * stay (zeros against last year), the blocks give way to one quiet line and
  * a link to the newest year that has stats, in the lanes' style.
  */

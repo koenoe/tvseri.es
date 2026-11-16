@@ -13,7 +13,7 @@ const BEAR: ReadonlyArray<RemoteEpisode> = [
 const E5 = { episodeNumber: 5, seasonNumber: 3 };
 
 describe('bigKey', () => {
-  it('shows the episode it will mark: still, code and title (CMFinal 1)', () => {
+  it('shows the episode it will mark: still, code and title', () => {
     expect(bigKey({ episodes: BEAR, hasAired: true, nextEpisode: E5 })).toEqual(
       {
         disabled: false,
@@ -171,7 +171,7 @@ describe('smallKeys', () => {
     ]);
   });
 
-  it('latches and flips the label when on (CMFinal 2: F latched)', () => {
+  it('latches and flips the label when on (F latched)', () => {
     const [, favorites, watchlist] = smallKeys('show', {
       isFavorited: true,
       isWatchlisted: true,

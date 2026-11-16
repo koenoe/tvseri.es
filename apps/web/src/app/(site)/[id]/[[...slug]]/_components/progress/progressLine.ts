@@ -5,7 +5,7 @@ import { codeOf, openEpisodes, toPercentage } from '@/lib/marking/progress';
 import type { SeriesBase } from '@/lib/marking/types';
 
 /**
- * The hero's progress line (EPShowFinal §2.9): a 4px bar of the whole show,
+ * The hero's progress line: a 4px bar of the whole show,
  * white = watched; while it airs, a soft run over aired-but-unwatched and a
  * tick where airing stops. Pure: the client island feeds it the store's view.
  */

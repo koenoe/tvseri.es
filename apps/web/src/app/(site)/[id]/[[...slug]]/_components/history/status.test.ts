@@ -29,7 +29,7 @@ describe('chipStatus', () => {
 });
 
 describe('chipTitle', () => {
-  it('reads like the board', () => {
+  it('reads like the status line', () => {
     expect(chipTitle('S02E05 Pop', 'sk', 'Skipped', false)).toBe(
       'S02E05 Pop · Skipped',
     );

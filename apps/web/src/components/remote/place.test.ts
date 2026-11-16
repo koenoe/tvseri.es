@@ -14,8 +14,8 @@ const trigger = (x: number, y: number, size = 40) => ({
 });
 
 describe('placeRemote', () => {
-  it('show page: grows sideways, 12px right of the ⋯, its first key level with it (CMFinal at-s)', () => {
-    // the board's frame: ⋯ at (196, 152), the remote at (248, 144)
+  it('show page: grows sideways, 12px right of the ⋯, its first key level with it', () => {
+    // frame: ⋯ at (196, 152), the remote at (248, 144)
     expect(
       placeRemote({
         panel: PANEL,
@@ -87,7 +87,7 @@ describe('placeRemote', () => {
     expect(place.left).toBe(16);
   });
 
-  it('Library tile: under the ⋯, growing right from its left edge (PGFinalStates E)', () => {
+  it('Library tile: under the ⋯, growing right from its left edge', () => {
     const place = placeRemote({
       panel: PANEL,
       placement: 'below-start',

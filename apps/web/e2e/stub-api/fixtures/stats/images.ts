@@ -37,7 +37,7 @@ export const logoOf = (art: string | undefined) =>
 /**
  * Page colours (`backdropColor`) of the shows with board art, as TMDB-like
  * picks from their backdrops, so the share card's Colour theme draws a real
- * colour (The Traitors' is the board's #1a74b6).
+ * colour (The Traitors' is #1a74b6).
  */
 const BACKDROP_COLORS: Readonly<Record<string, string>> = {
   barry: '#5b6f7c',

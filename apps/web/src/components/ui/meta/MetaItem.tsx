@@ -47,7 +47,7 @@ export default function MetaItem({
   children?: ReactNode;
   className?: string;
   icon: Glyph | ToggleGlyph;
-  /** 13 by default; a board's denser line may draw 12 */
+  /** 13 by default; a denser line may draw 12 */
   iconSize?: IconSize;
   /** This item truncates first when the line is too narrow. */
   shrink?: boolean;

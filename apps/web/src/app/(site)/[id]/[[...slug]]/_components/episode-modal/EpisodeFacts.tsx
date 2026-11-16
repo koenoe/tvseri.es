@@ -65,7 +65,7 @@ const TITLE_GHOST = cn(
 
 /** A quiet bar where a fact will be (the season is still loading). */
 /** The show's logo above the facts, 180 × 29 on its left (desktop only) */
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 const EPISODE_LOGO: TitleLogoLook = {
   height: 29,
   logo: 'h-[29px] w-[180px] object-contain object-left opacity-90 max-lg:hidden',
@@ -78,7 +78,7 @@ function FactBar() {
 }
 
 /**
- * The left column's facts (EP-B): the show's logo, "Season 3 · Episode 5 of
+ * The left column's facts: the show's logo, "Season 3 · Episode 5 of
  * 10", the title at 104px, then air date · runtime · the episode's IMDb
  * rating (the only place it shows; "No rating" with a greyed-out star when
  * IMDb has none), the star

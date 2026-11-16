@@ -9,7 +9,7 @@ const DAY_MS = 86_400_000;
 
 /**
  * The stub's invented signed-in people: a member of long standing (the
- * board's signed-in demo) and a new user (Get started).
+ * the signed-in demo) and a new user (Get started).
  */
 export const VIEWERS: ReadonlyArray<Viewer> = [
   {

@@ -37,8 +37,7 @@ export default function EmptyState({
         {sub ? <span className="text-caption text-white/60">{sub}</span> : null}
       </span>
       {action ? (
-        // Below md the action sits under the text, aligned with it (no
-        // board draws the phone card): beside it, the title would wrap
+        // Below md the action sits under the text, aligned with it: beside it, the title would wrap
         <span className="shrink-0 max-md:basis-full max-md:pl-[50px]">
           {action}
         </span>

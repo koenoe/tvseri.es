@@ -10,7 +10,7 @@ import { day, daysAgo } from './time.ts';
 
 /**
  * alex's tracker and calendar, dated relative to today:
- * the board's Mon 9 Nov is today, so Wed 11 Nov is `day(2)`.
+ * Mon 9 Nov is today, so Wed 11 Nov is `day(2)`.
  */
 const alexCore = (): Overview => ({
   almostDone: {

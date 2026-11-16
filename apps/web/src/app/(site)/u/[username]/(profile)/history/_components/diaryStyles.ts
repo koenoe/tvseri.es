@@ -1,7 +1,7 @@
 /**
- * The diary's boxes (`hist.py` CSS), shared by the diary and its
+ * The diary's boxes, shared by the diary and its
  * placeholder so both measure the same. Desktop first; `max-md:` is the
- * board's phone frame (`.ph`).
+ * phone.
  */
 
 /** A month: 20px between months (`section + section`) */

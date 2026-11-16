@@ -25,12 +25,12 @@ import {
 
 const SIZES = '(min-width: 768px) 170px, 30vw';
 
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 /** The poster's link: no hover of its own (10px corners from the tile) */
 const POPULAR_POSTER: PosterLinkLook = { link: 'block' };
 
 /**
- * "Popular unwatched" (STD_Recommended, STMobile): the year's popular shows
+ * "Popular unwatched": the year's popular shows
  * the profile owner didn't watch. Everything is cached for every visitor;
  * only the `+` reads the viewer, on the client.
  */

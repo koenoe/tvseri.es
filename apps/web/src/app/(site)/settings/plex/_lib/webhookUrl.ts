@@ -9,7 +9,7 @@ import type { ScrobbleProvider } from '@tvseri.es/constants';
 export const webhookUrlPrefix = (origin: string, provider: ScrobbleProvider) =>
   `${origin}/api/webhooks/scrobble/${provider}?token=`;
 
-/** The dots standing in for a hidden token (the board draws 24). */
+/** The dots standing in for a hidden token (24). */
 export const TOKEN_MASK = '•'.repeat(24);
 
 export const webhookUrl = (

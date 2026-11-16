@@ -22,7 +22,7 @@ type Props = Readonly<{
 }>;
 
 /**
- * The eye on Continue watching (HMFinal `hx-cb`, the shared `EyeButton` in
+ * The eye on Continue watching (the shared `EyeButton` in
  * the tile's transparent look): marks this episode watched, Just now,
  * through the marking core (its toast and Undo). It only marks: no pressed
  * state, no burst. Hover and focus fetch the show's marking state ahead of

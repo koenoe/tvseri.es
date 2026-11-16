@@ -16,8 +16,7 @@ let lastYear: number | null = null;
 /**
  * The year, its sentence, the week lines and the six numbers. When this
  * block arrives from another year's page, its week lines grow from the
- * baseline (`weekGrow.module.css`, STD_Recommended "the week lines grow from
- * 0 with an 8ms stagger"); the numbers cross-fade through the view
+ * baseline (`weekGrow.module.css`: from 0 with an 8ms stagger); the numbers cross-fade through the view
  * transition around it (StatsBody).
  */
 export default function YearGlance({

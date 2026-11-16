@@ -4,7 +4,7 @@ import { PICTURE_LAYER } from '@/components/ui/picture/pictureSurface';
 import TileLink from '@/components/ui/tile/TileLink';
 import cn from '@/lib/cn';
 
-/** A phone's fade from the foot (HMFinalMobile `hx-mung`) */
+/** A phone's fade from the foot */
 const PHONE_SHADE =
   'absolute inset-0 bg-[linear-gradient(0deg,rgb(22_27_29)_0%,rgb(22_27_29/0.5)_45%,rgb(22_27_29/0)_100%)] md:hidden';
 

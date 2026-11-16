@@ -7,7 +7,7 @@ import cn from '@/lib/cn';
 
 import { type TimelineRow, weekPercent } from './model';
 
-/** Board `spring 400 / 40` for the "Most hours" re-sort */
+/** Spring 400 / 40 for the "Most hours" re-sort */
 const SPRING = { damping: 40, stiffness: 400, type: 'spring' } as const;
 
 const WEEK_WIDTH = weekPercent(1);
@@ -54,7 +54,7 @@ function Track({ row }: Readonly<{ row: TimelineRow }>) {
  * One show: title, the track (span between first and last watch, a segment
  * per week watched, the end marker) and its hours. On a phone the title sits
  * above its line, with the hours on its right. Hovering dims the other rows
- * (CSS, from the board's `group/tl`); reordering animates the position only.
+ * (CSS, `group/tl`); reordering animates the position only.
  * Not `memo`: Motion takes its layout snapshot when the row renders, so a
  * reorder that skips the rows would jump.
  */

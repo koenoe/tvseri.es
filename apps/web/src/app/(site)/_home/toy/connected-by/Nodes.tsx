@@ -15,7 +15,7 @@ export const NAME =
   'text-body-sm font-semibold text-white group-hover:underline';
 
 /**
- * The card is 272px from md (HMFinal `e2-gr`), room for one line of name and
+ * The card is 272px from md, room for one line of name and
  * one of roles under the images: longer ones clamp there, two lines each on
  * a phone (112px nodes, where the card grows), with the full text in the
  * hover title and the link's name (names went past the card).

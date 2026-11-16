@@ -5,7 +5,7 @@ import { seasonCode } from '@/lib/marking/copy';
 import showPath from '@/lib/routing/showPath';
 import { monthDay } from '../../_lib/weeks';
 
-/** Tiles the board draws: the first one wide, the rest narrow */
+/** Tiles shown: the first one wide, the rest narrow */
 export const FINISHED_TILES = 6;
 
 /** "S01", "S01–S03" for a run, "S01, S03" otherwise */

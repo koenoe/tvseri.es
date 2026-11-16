@@ -13,9 +13,9 @@ import { COUNTDOWN_PREMIERES } from './premieres.ts';
 import { notFound, ok, type StubRoute } from './routes.ts';
 
 /**
- * The feature of the day as HMFinal draws it, one per kind (Mon 9 = binge,
+ * The feature of the day, one per kind (Mon 9 = binge,
  * Tue 10 = stills, Wed 11 = archive, Sat 14 = countdown; Did you know is on
- * no demo day: its four facts are the board's `e2-dk` markup).
+ * no demo day: its four facts are fixed markup).
  */
 
 const lastEpisode = (runtime: number) => ({ runtime }) as Episode;
@@ -47,7 +47,6 @@ const bingeShow = (
   };
 };
 
-/** The board's BPOOL and BSEAS */
 const BINGE_SHOWS: ReadonlyArray<BingeShow> = [
   bingeShow({
     id: 70523,
@@ -123,8 +122,7 @@ const STILLS_FEATURE: Feature = {
 
 /**
  * The block's other shape: twelve stills, the most the API sends (the
- * board's "shape test", HMStillsVariants A: the season's ten, then the
- * first two again), on the long-title days with their long titles
+ * season's ten, then the first two again), on the long-title days with their long titles
  */
 const STILLS_TWELVE: Feature = {
   ...STILLS_FEATURE,
@@ -159,7 +157,7 @@ const fact = (
   show: TvSeries,
 ): DidYouKnowFact => ({ series: show, type, value });
 
-/** Each show's `backdropColor`: the API's detection on the board image */
+/** Each show's `backdropColor`: the API's detection on the sample image */
 const DID_YOU_KNOW_FEATURE: Feature = {
   facts: [
     fact('hours', 48, {
@@ -242,7 +240,7 @@ export const FEATURES: Readonly<Record<string, Feature>> = {
 /**
  * Days the Countdown takes the feature slot (the API's rule, a big premiere
  * 3 days away or less), for `/dev/home?day=` and home-overflow: Thu 31
- * Dec with the boards' titles, Sat 9 Jan 2027 with the long ones
+ * Dec with the sample titles, Sat 9 Jan 2027 with the long ones
  */
 const COUNTDOWN_DAYS: ReadonlySet<string> = new Set([
   '2026-12-31',

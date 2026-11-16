@@ -13,7 +13,7 @@ const entries = Object.entries(glyphs).map(([key, glyph]) => ({
 
 export default function IconSection() {
   return (
-    <Section id="icons" source="ICFinal, specs/icons_final.md" title="Icons">
+    <Section id="icons" source="the icon set" title="Icons">
       <ul className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-4">
         {entries.map(({ glyph, name }) => (
           <li className="flex items-center gap-3" key={name}>

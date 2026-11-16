@@ -5,7 +5,7 @@ import cn from '@/lib/cn';
 import { SWITCH_BOX_CLASS } from './layout';
 
 /**
- * The board's switch: 44 × 26, a white thumb that slides
+ * The switch: 44 × 26, a white thumb that slides
  * 18px (transform only). The page owns the state.
  */
 export default function Switch({

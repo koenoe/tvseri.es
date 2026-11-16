@@ -107,8 +107,7 @@ function TextLayers({
 }
 
 /**
- * The trending spotlight's client island (HMFinal `hx-sp`, HMFinalMobile
- * phone 1): the stage (the slide's artwork, plus the one it replaces while
+ * The trending spotlight's client island: the stage (the slide's artwork, plus the one it replaces while
  * it fades in), its text and the pager. A switch is one timeline: the
  * artwork, the text and the page colour (the ground's 600ms) start in the
  * same frame and end together, once the next backdrop is decoded (it is
@@ -162,7 +161,7 @@ export default function SpotlightCarousel({
       <m.section
         aria-label="Trending spotlight"
         aria-roledescription="carousel"
-        // phone: the stage (HMFinalMobile draws 560px from the phone top, its 47px status bar included: 513 of page) and the 23px pager under it (hx-mpg)
+        // phone: the stage (513px of page) and the 23px pager under it
         className={SPOTLIGHT_STAGE}
         data-slot="spotlight"
         ref={attach}

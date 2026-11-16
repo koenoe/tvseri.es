@@ -45,7 +45,7 @@ describe('headline', () => {
 });
 
 describe('yearSentence', () => {
-  it('writes the board’s 2025 sentence', () => {
+  it('writes the 2025 sentence', () => {
     const parts = yearSentence({
       ...base,
       state: 'finished',

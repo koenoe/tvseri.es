@@ -41,7 +41,7 @@ const names = (list: HTMLElement) =>
     .getAllByRole('link')
     .map((link) => link.textContent);
 
-describe('your own Circle (PGFinal 5)', () => {
+describe('your own Circle', () => {
   it('lists who you follow in the API’s order, then who to follow back', () => {
     render(
       <OwnerCircle
@@ -61,7 +61,7 @@ describe('your own Circle (PGFinal 5)', () => {
     );
   });
 
-  it('following nobody: one calm card, then the two who follow you (PGFinalStates A)', () => {
+  it('following nobody: one calm card, then the two who follow you', () => {
     render(
       <OwnerCircle
         people={people({
@@ -140,7 +140,7 @@ const person = (
   ...overrides,
 });
 
-describe('someone else’s Circle (PGFinalStates B)', () => {
+describe('someone else’s Circle', () => {
   it('lists who they follow and who follows them, with their counts', () => {
     render(
       <VisitorCircle
@@ -187,7 +187,7 @@ describe('someone else’s Circle (PGFinalStates B)', () => {
   });
 });
 
-describe('the Circle while it loads (PGFinalStates C)', () => {
+describe('the Circle while it loads', () => {
   const bars = (row: Element) => row.querySelectorAll('.rounded-6').length;
 
   it('is five ghost rows, hidden from assistive tech', () => {

@@ -10,7 +10,7 @@ import { type BrowserContext, expect, type Page, test } from '@playwright/test';
  * each frame took.
  *
  * Images: TMDB URLs are answered from `PICK_ROLL_IMG_DIR` by file name when
- * it is set (the boards' canvas images, never committed), else a pixel.
+ * it is set (the sample images, never committed), else a pixel.
  * `PICK_ROLL_OUT` (a folder) receives the samples as JSON and a filmstrip.
  */
 

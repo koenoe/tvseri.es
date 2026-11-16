@@ -11,7 +11,7 @@ import { getStatsUser, isUnavailable } from './_data/loaders';
 import { LAST_STATS_YEAR, parseStatsYear } from './_lib/year';
 
 /**
- * `/u/{username}/stats/{year}` (STD_Recommended, STMobile): the one public
+ * `/u/{username}/stats/{year}`: the one public
  * profile page. Everything on it is about the profile owner, so the page is
  * one cached entry per URL (ISR, regenerated 5 minutes after its last render:
  * the shortest life of its reads, `statsCurrent`; tags `user:{id}` and

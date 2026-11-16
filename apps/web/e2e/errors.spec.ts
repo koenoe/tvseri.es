@@ -2,7 +2,7 @@ import { instant } from '@next/playwright';
 import { expect, test } from '@playwright/test';
 
 /**
- * The static 404 (ERFinal): its own shell, the search prefilled from the
+ * The static 404: its own shell, the search prefilled from the
  * URL, five trending posters (stub `/collection/trending`) and Pick one for
  * me; plus the favicon set and the manifest.
  */

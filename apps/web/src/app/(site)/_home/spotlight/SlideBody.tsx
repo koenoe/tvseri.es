@@ -52,7 +52,7 @@ const TITLE_LINK =
   'pointer-events-auto block rounded-4 transition-opacity duration-200 hover:opacity-85 active:opacity-70';
 
 /**
- * One slide's text (HMFinal `hx-spb`, HMFinalMobile `hx-mspc`): the rank
+ * One slide's text: the rank
  * line, the logo (or the title when there is none), the meta row, the hook
  * line and the actions. Desktop: bottom left on the page container, left
  * aligned. Phone: centred, 12px apart. The logo links to the show; the rest
@@ -139,7 +139,7 @@ function SlideBody({
               onLoad={slide.logoRatio ? releaseLogoBox : undefined}
               src={slide.logo}
               style={logoStyle}
-              // Natural size, capped (the board's auto width/height): a
+              // Natural size, capped (auto width/height): a
               // srcset's width descriptors would shrink it. The API's w500 is
               // the loader's cap for logos anyway.
               unoptimized

@@ -8,8 +8,8 @@ import { getShareCard } from './shareInfo';
 
 /**
  * "Share" (finished years only): the outlined 36px pill beside the year on
- * desktop (STD_Recommended), the full-width 40px button under the tiles on a
- * phone (STMobile). Desktop opens the share dialog, the phone the sheet.
+ * desktop, the full-width 40px button under the tiles on a
+ * phone. Desktop opens the share dialog, the phone the sheet.
  */
 const LOOK = {
   header: buttonStyles({

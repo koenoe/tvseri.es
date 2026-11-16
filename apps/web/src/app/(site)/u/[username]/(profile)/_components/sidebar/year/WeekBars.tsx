@@ -6,7 +6,7 @@ import type { YearBar } from './yearBars';
 /** Tooltips on the first and last bars hang inward so they never leave the viewport */
 const EDGE = 3;
 
-/** Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval. */
+/** Each place keeps its own look on purpose; don't unify them. */
 const TIP_START: BarTipLayout = { place: 'left-0 z-5' };
 const TIP_END: BarTipLayout = { place: 'right-0 z-5' };
 const TIP_MIDDLE: BarTipLayout = { place: 'left-1/2 z-5 -translate-x-1/2' };

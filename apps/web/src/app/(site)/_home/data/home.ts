@@ -38,10 +38,9 @@ import { idsOf, withoutNeighbours } from './neighbours';
 import { onDay } from './premiereDays';
 
 /**
- * The shared half of the home page (HMFinal "cached shell"): the same for
+ * The shared half of the home page: the same for
  * everyone, prerendered into the static shell and served from the CDN; each
- * loader revalidates on its CACHE_LIFE profile (CONTRACTS "Data at build
- * time"). A loader never throws: a failed API read is `Unavailable` with
+ * loader revalidates on its CACHE_LIFE profile. A loader never throws: a failed API read is `Unavailable` with
  * `cacheLife('unavailable')` (revalidated after 30 s): the section's failed-row
  * state is baked into the page, which regenerates on a visit 30 s on until the API
  * answers.
@@ -172,7 +171,7 @@ export async function getPickDeck(
 }
 
 /**
- * HMFinal "Hidden gems": rated 8 or more by 50 to 1,000 voters, first aired
+ * "Hidden gems": rated 8 or more by 50 to 1,000 voters, first aired
  * in the last ten years. A different set each ISO week (UTC),
  * never last week's; the API picks it from its cached pool and keeps it in
  * its Cache table under the week, so the URL (one CDN key) changes weekly.

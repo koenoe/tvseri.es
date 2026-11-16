@@ -65,11 +65,7 @@ export default function ToastSection() {
   }, []);
 
   return (
-    <Section
-      id="toasts"
-      source="EPShowFinal / marking_spec .t1 (the dark MarkToast)"
-      title="Toast"
-    >
+    <Section id="toasts" source="the dark MarkToast" title="Toast">
       <p className="text-body-sm text-white/60">
         One at a time, bottom right of the viewport, 24px in, as wide as its
         message: 280px at least, 560px at most, where a long message takes a
@@ -77,7 +73,7 @@ export default function ToastSection() {
         closes 6s after you leave it. On a phone a toast with two actions puts
         them on a second line under the message.
       </p>
-      <Specimen board="EPShowFinal .t1" label="Fire one">
+      <Specimen label="Fire one" note="Mark toast">
         <Button onClick={markNext}>Mark the next episode (merges)</Button>
         <Button onClick={markSeason}>Mark a season (two actions)</Button>
         <Button onClick={long}>A long message (two lines)</Button>

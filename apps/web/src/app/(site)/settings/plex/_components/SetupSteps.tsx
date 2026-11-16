@@ -2,7 +2,7 @@ import NumberedSteps, {
   type NumberedStepsLayout,
 } from '../../_components/NumberedSteps';
 
-/** Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval. */
+/** Each place keeps its own look on purpose; don't unify them. */
 const LAYOUT: NumberedStepsLayout = {
   item: 'grid grid-cols-[24px_minmax(0,1fr)] items-start gap-x-3.5',
   list: 'flex flex-col gap-3',

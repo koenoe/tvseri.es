@@ -11,7 +11,7 @@ const mapRgb = (rgb: Rgb, map: (value: number) => number): Rgb => [
 
 /**
  * `color-mix(in srgb, <ink> <share>, #fff)`: how the remote steps are made
- * (globals.css `remote-surface`, specs/remote_style.md §2).
+ * (globals.css `remote-surface`).
  */
 export function mixWithWhite(ink: string, share: number): string {
   return channelsToHex(

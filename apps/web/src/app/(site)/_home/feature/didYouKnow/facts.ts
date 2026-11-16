@@ -252,7 +252,7 @@ export type FactCopy = Readonly<{
   text: string;
 }>;
 
-/** What each fact in the deck says (HMFinal `e2-dk`) */
+/** What each fact in the deck says */
 export function deckCopy(
   facts: ReadonlyArray<DidYouKnowFact>,
 ): ReadonlyArray<FactCopy> {

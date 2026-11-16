@@ -311,7 +311,7 @@ test('I’m up to… previews what it would change before anything is written', 
     upTo.getByText(/^Up to S01E03 .* · marks 3 \(S01E01–S01E03\)/),
   ).toBeVisible();
   await expect(
-    // a first answer is dated "I don’t remember" (CMFinal)
+    // a first answer is dated "I don’t remember"
     upTo.getByRole('button', { name: /^Mark 3 episodes · / }),
   ).toBeEnabled();
   await upTo.getByRole('button', { name: 'Close' }).click();

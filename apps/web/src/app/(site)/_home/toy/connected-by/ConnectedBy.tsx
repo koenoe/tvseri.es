@@ -25,7 +25,7 @@ const endRefOf = (path: ConnectedPath) => {
 };
 
 /**
- * Connected by (HMFinal `e2-card e2-gr`): a start show linked through two
+ * Connected by: a start show linked through two
  * people and a show in between to a show to discover, "{A} to {B}, in 2
  * steps", with the end's Watchlist and "Another path" cycling through the
  * paths. No title above the block: the card's head starts with its label

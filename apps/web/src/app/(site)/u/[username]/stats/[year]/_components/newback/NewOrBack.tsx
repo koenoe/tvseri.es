@@ -18,7 +18,7 @@ import StatsUnavailable from '../ui/StatsUnavailable';
 import { newBackSummary, type Side, splitLabel } from './model';
 
 /**
- * "New, or back for more" (STD_Recommended; the phone board leaves it out):
+ * "New, or back for more" (the phone leaves it out):
  * shows watched for the first time this year against shows seen before, as
  * two counts, a split bar and a stack of five posters under each with the
  * first three titles.
@@ -62,7 +62,7 @@ export default async function NewOrBack({ user, year }: SectionProps) {
   );
 }
 
-/** A big number over its icon and label (`.st-big` + `.st-mrow`) */
+/** A big number over its icon and label */
 function Count({
   count,
   dim,
@@ -101,7 +101,7 @@ function Split({
   );
 }
 
-/** Up to five overlapping posters (`.st-pstack`) and the first three titles */
+/** Up to five overlapping posters and the first three titles */
 function Stack({ side }: Readonly<{ side: Side }>) {
   return (
     <div className="flex flex-col gap-2.5">

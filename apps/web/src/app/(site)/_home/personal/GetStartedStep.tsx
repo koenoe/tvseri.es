@@ -12,13 +12,13 @@ export type Step = Readonly<{
   title: string;
 }>;
 
-/** A step card (HMFinal `hx-gsi`), shared with the placeholder */
+/** A step card, shared with the placeholder */
 export const STEP_CARD = 'flex flex-col gap-3 rounded-16 bg-black/22 p-6';
 
 /** The numbered circle's box (the placeholder's ghost) */
 export const STEP_CIRCLE = 'size-8 rounded-full';
 
-/** Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval. */
+/** Each place keeps its own look on purpose; don't unify them. */
 const CIRCLE: StepCircleLayout = {
   base: 'flex size-8 items-center justify-center rounded-full',
   check: 13,
@@ -40,7 +40,7 @@ export function StepText({
 }
 
 /**
- * One Get started card (HMFinal `hx-gsi`): the numbered circle (2px
+ * One Get started card: the numbered circle (2px
  * white/20 ring; done, white with a dark check), the title
  * and one line of why. The whole card links to where the step is done.
  */

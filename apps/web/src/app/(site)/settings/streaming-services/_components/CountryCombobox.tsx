@@ -58,7 +58,7 @@ export default function CountryCombobox({
   const listId = useId();
   const [query, setQuery] = useState('');
   const matches = useMemo(() => filterCountries(COUNTRIES, query), [query]);
-  // Opens at the top of the list, as the board draws it; the saved country
+  // Opens at the top of the list; the saved country
   // carries the check.
   const [cursor, setCursor] = useState(0);
   const active = matches[Math.min(cursor, matches.length - 1)];
@@ -171,7 +171,7 @@ const CountryOption = memo(function CountryOption({
   const classes = cn(
     'grid h-10 shrink-0 cursor-pointer grid-cols-[28px_minmax(0,1fr)_30px_18px] items-center gap-3 rounded-10 px-3 text-left text-body [contain-intrinsic-size:auto_40px] [content-visibility:auto] hover:bg-white/7',
     isSelected && 'bg-white/10',
-    // The keyboard row takes the board's hover/focus 7%; on the saved country
+    // The keyboard row takes the hover/focus 7%; on the saved country
     // (10%) it needs a step more to stay visible.
     isActive && (isSelected ? 'bg-white/14' : 'bg-white/7'),
   );

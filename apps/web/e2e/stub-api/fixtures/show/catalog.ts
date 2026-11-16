@@ -531,7 +531,7 @@ const LOGO_CHOICES: ReadonlyArray<
   ['ad_logo_A9Yi.png', 3939, 609],
 ];
 
-/** The board's page colour for a backdrop name, if it is one of the choices. */
+/** The page colour for a backdrop name, if it is one of the choices. */
 export const boardColourFor = (name: string): string | undefined =>
   BACKDROP_CHOICES.find(([choice]) => choice === name)?.[1];
 

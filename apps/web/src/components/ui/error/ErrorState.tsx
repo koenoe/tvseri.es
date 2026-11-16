@@ -61,7 +61,7 @@ export default function ErrorState({
     >
       <ErrorScene backdrop={still} />
       {header}
-      {/* The page container, as the header: at 1440 the board's 112px */}
+      {/* The page container, as the header: at 1440 it is 112px */}
       <main className="relative mx-auto mt-auto w-full max-w-page px-gutter pt-12 pb-10 md:pb-16">
         <div className="flex flex-col items-start md:w-140">
           <div className="flex items-center gap-3">

@@ -2,14 +2,14 @@
 
 import TileRemote from '@/components/remote/TileRemote';
 
-/** HMFinal `hx-cb`: white glyph, a 2px white/20 ring, hover brightens only the ring */
+/** White glyph, a 2px white/20 ring, hover brightens only the ring */
 export const TILE_CIRCLE =
   'bg-transparent text-white hover:bg-transparent aria-expanded:bg-transparent';
 
 /**
- * The ··· on Continue watching's Up next tile: the Remote menu (CMFinal, the
+ * The ··· on Continue watching's Up next tile: the Remote menu (the
  * global stream's `TileRemote`): Watched next episode, Edit watch history,
- * Hide from in progress. HMFinal draws its dots at 22px.
+ * Hide from in progress.
  */
 export default function RemoteMenuButton({
   historyHref,

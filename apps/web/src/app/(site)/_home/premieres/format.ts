@@ -5,8 +5,7 @@ import { formatDay } from '@/lib/format/datePattern';
 import { plural } from '@/lib/format/text';
 
 /**
- * Labels for the Premieres tickets and the Countdown (HMFinal `hx-h-tk3`,
- * `e3-cdj`). Dates are `YYYY-MM-DD` calendar days (written the same in
+ * Labels for the Premieres tickets and the Countdown. Dates are `YYYY-MM-DD` calendar days (written the same in
  * every time zone), and
  * `daysAway` is the API's count from the day the list was built, so the
  * server and the browser always agree.
@@ -104,6 +103,6 @@ export function countdownChip(daysAway: number): string {
   return `In ${plural(daysAway, 'day')}`;
 }
 
-/** The progress line over the last 30 days, never under 4% (board `cjVals`) */
+/** The progress line over the last 30 days, never under 4% */
 export const countdownFill = (daysAway: number) =>
   Math.max(4, Math.min(100, Math.round(100 - (daysAway / 30) * 100)));

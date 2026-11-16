@@ -1,6 +1,6 @@
 import type { PopularItem } from '../../_data/loaders';
 
-/** How many posters the board draws in a row */
+/** How many posters sit in a row */
 export const POPULAR_SLOTS = 5;
 
 /**

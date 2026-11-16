@@ -15,8 +15,7 @@ import { showSeasons, showYears } from '../showFacts';
  * The show's facts as the moments draw them: its years, seasons and the
  * first genre ("2002–2008 · 5 seasons · Crime"). The years are the shared
  * format (`formatSeriesYears`): "2014–" while it runs, as the picker,
- * the spotlight and the show page write them (the boards' sample The Wire
- * read "2002").
+ * the spotlight and the show page write them.
  */
 export default function ShowMeta({
   className,

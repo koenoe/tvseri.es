@@ -26,8 +26,7 @@ type Props = Readonly<{
 }>;
 
 /**
- * The spotlight's ten countdown lines and the quiet pause/play (HMFinal
- * `hx-pager`, HMFinalMobile `hx-mpg`). Desktop: 28px lines 8px apart, 18px
+ * The spotlight's ten countdown lines and the quiet pause/play. Desktop: 28px lines 8px apart, 18px
  * before the 32px pause button, bottom right on the buttons' line. Phone:
  * 18px lines 6px apart under the spotlight, each in a 44px-tall target that
  * reaches its neighbours, so a tap lands on the nearest line. The current

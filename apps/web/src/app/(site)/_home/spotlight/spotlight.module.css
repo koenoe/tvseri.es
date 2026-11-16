@@ -1,9 +1,9 @@
 /*
- * The active pager line's 8s countdown (HMFinal "Timing + pausing"): one
+ * The active pager line's 8s countdown: one
  * finite animation per slide, restarted per slide (a new element), never
  * infinite. Pausing freezes it at the elapsed share (animation-play-state);
  * resuming runs the remaining time. Its end advances the slide. A transform,
- * so it runs on the compositor (the board animates width; same look).
+ * so it runs on the compositor.
  */
 @keyframes spotlight-countdown {
   from {
@@ -32,9 +32,8 @@
 }
 
 /*
- * One switch, one timeline. HMFinal: the ground animates to the slide's
- * colour over 600ms (`.hx-site { transition: background-color .6s }`, CSS's
- * `ease`). The backdrop (its shade in the slide's colour included) and the
+ * One switch, one timeline: the ground animates to the slide's
+ * colour over 600ms (CSS's `ease`). The backdrop (its shade in the slide's colour included) and the
  * new text fade in over the same 600ms on the same curve, and the old text
  * fades out over the first 300ms. All of them start in the frame the slide
  * switches (one React commit: the classes and the ground's colour together)

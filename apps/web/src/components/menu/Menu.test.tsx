@@ -123,7 +123,7 @@ const open = async () => {
   return dialog();
 };
 
-describe('the menu (MNFinal)', () => {
+describe('the menu', () => {
   it('signed in: Watch, You · @handle with four pages, the account line; no Circle, no icons', async () => {
     signIn('margaux');
     renderMenu();

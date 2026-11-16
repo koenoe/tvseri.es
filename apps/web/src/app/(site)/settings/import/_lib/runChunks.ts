@@ -9,7 +9,7 @@ import {
 } from './contract';
 import { readNdjson } from './ndjson';
 
-/** Why a run stopped before its last chunk (the board's "Stopped" banner). */
+/** Why a run stopped before its last chunk (the "Stopped" banner). */
 export type StopReason = ErrorEvent['error'];
 
 export type RunOutcome =

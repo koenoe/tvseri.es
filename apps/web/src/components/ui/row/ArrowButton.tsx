@@ -20,7 +20,7 @@ type Props = Readonly<{
  */
 // the shared 40px circle plus a 44×44 hit target
 const HIT_TARGET = 'before:absolute before:-inset-1 before:rounded-full';
-// the chevron's ink and stroke are row tokens (`ROW_LOOKS`); 1.8 until a board's look sets 2
+// the chevron's ink and stroke are row tokens (`ROW_LOOKS`); 1.8 until a look sets 2
 const ARROW_INK = 'text-[color:var(--row-arrow-ink,rgb(255_255_255/0.8))]';
 
 export default function ArrowButton({

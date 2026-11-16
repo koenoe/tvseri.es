@@ -4,7 +4,7 @@ import { expect, type Page, test } from '@playwright/test';
 import { signInAs, signInShownAs } from './helpers/session';
 
 /**
- * `/u/{username}/stats/{year}` (STD_Recommended): public, one cached entry
+ * `/u/{username}/stats/{year}`: public, one cached entry
  * per URL. A user and year render on their first visit and stay in the ISR
  * cache, so each test warms its URL first and then asserts that the year,
  * the sentence and the first section are in the static shell.

@@ -40,7 +40,7 @@ async function otherStreaks(
 }
 
 /**
- * "2025 at a glance" (STD_Recommended, STMobile): the year, its Share button
+ * "2025 at a glance": the year, its Share button
  * (finished years, desktop), the sentence, the 53 week lines with the month
  * axis and the longest streak bracketed under them.
  */

@@ -12,7 +12,7 @@ import { prefetchCard, readyCard, saveCard, shareCard } from './cardFiles';
 import type { ShareCard } from './shareCard';
 
 /**
- * The share UI's state (STD_Recommended's DC script): format and theme,
+ * The share UI's state format and theme,
  * "Link copied" until the format changes, and the actions. The phone sheet
  * also fetches each card it may share (`prefetch`).
  */

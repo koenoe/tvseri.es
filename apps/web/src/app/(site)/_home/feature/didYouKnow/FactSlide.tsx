@@ -36,7 +36,7 @@ const SHADE =
 const FOOT = cn(FOOT_SHADE, 'max-lg:hidden');
 
 /**
- * One fact (HMFinal `e2-dl`): the show's backdrop under a fade from the left
+ * One fact: the show's backdrop under a fade from the left
  * and a shade from the foot, in the picture's colour (both a pixel past the
  * deck), the big number with its unit, the sentence, the facts and a link.
  */

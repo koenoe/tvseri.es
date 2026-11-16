@@ -39,7 +39,7 @@ type Options = Readonly<{
 }>;
 
 /**
- * The spotlight's slideshow (HMFinal "Timing + pausing"): the slide and its
+ * The spotlight's slideshow: the slide and its
  * countdown. When it holds is the site's one auto-advance rule
  * (`useAutoAdvance`): hover, keyboard focus, a touch (a swipe moves one
  * slide), the pause button (pressed from the start for a reader who asked
@@ -67,7 +67,7 @@ export default function useSlideshow({
   // is decoded (in the same frame when it was preloaded)
   const [target, setTarget] = useState(startAt);
   const requestRef = useRef(0);
-  // back in view: the current line restarts from zero (HMFinal)
+  // back in view: the current line restarts from zero
   const restart = useCallback(
     () => setSlide((current) => ({ ...current, run: current.run + 1 })),
     [],

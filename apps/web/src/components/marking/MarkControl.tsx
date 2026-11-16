@@ -20,7 +20,7 @@ type Props = Readonly<{
 }>;
 
 /**
- * The Watchlist + Seen it control (MKPairStreamed): new to you, the pair;
+ * The Watchlist + Seen it control: new to you, the pair;
  * on the watchlist, watching, up to date or finished, one outlined button
  * exactly the pair's width. The state streams from the server in its own
  * Suspense boundary; until it lands a signed-in viewer sees two ghost pills

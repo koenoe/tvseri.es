@@ -6,9 +6,7 @@ const ROWS = [
 
 /**
  * Kodi, Infuse and others: no webhooks.
- * "Later" is quiet: the title at 60%, the line 16px under it (the board's
- * `.sg-via .sg-ch` 16px lost to `.sg-card > .sg-ch` -8px, so the line ran
- * into the title; the board is fixed too).
+ * "Later" is quiet: the title at 60%, the line 16px under it.
  * On a phone the chip wraps onto its own right-aligned line.
  */
 export default function ViaTraktCard() {

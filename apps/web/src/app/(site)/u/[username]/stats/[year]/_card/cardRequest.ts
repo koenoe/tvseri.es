@@ -129,7 +129,7 @@ export function cardPath(
 export const CARD_CONTENT_TYPE = 'image/jpeg';
 
 /**
- * "nina-2025-square.jpg", "nina-2025-story-colour.jpg": the board's pattern
+ * "nina-2025-square.jpg", "nina-2025-story-colour.jpg": the pattern
  * (`{username}-{year}-{format}[-colour]`), with the JPEG's extension
  */
 export const cardFileName = (

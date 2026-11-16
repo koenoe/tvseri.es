@@ -16,7 +16,7 @@ type Props = Readonly<{
   'aria-busy'?: boolean;
   children: ReactNode;
   inset: RowInset;
-  /** a board's own tokens (`ROW_LOOKS`) */
+  /** a page's own tokens (`ROW_LOOKS`) */
   look?: RowLook;
   /** the parity checks' name: `data-placeholder` while busy, else `data-slot` */
   name?: string;

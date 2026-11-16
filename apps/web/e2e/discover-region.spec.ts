@@ -1,7 +1,7 @@
 import { expect, type Page, test } from '@playwright/test';
 
 /**
- * Discover's "Streaming in …" line (DSFinalGeneric: first in its meta row,
+ * Discover's "Streaming in …" line (first in its meta row,
  * then "Updated"). The page is static for everyone; the line is the
  * viewer's. From the second visit on the pre-paint hint draws it before the
  * first paint (`lib/region/regionHint`), so nothing in the row moves; on a

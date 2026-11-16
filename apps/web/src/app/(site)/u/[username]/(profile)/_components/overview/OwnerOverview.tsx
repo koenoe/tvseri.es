@@ -41,7 +41,7 @@ export default function OwnerOverview({
         </BlockError>
         <UpNext profile={profile} />
       </Hole>
-      {/* two lanes from 1280px, where each is the board's 416px; below that
+      {/* two lanes from 1280px, where each is 416px; below that
           they stack, so a lane is never narrower than a phone's */}
       <div className="grid items-start gap-5 xl:grid-cols-2">
         <div className="flex min-w-0 flex-col gap-5">

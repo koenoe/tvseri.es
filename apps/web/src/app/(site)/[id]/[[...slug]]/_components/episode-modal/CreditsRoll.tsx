@@ -10,7 +10,7 @@ import type { RollBlock } from './episodeCredits';
 const PX_PER_SECOND = 30;
 
 /**
- * Masks the roll's top and bottom 14% (EP-B `ep-b-cred`); below `lg` (phones
+ * Masks the roll's top and bottom 14%; below `lg` (phones
  * and tablets, where the modal stacks) the credits are a plain list (no
  * roll, no mask).
  */
@@ -18,7 +18,7 @@ const ROLL_CLASSES =
   'absolute top-16 right-12 bottom-16 w-[min(420px,calc(100%-820px))] min-w-[300px] overflow-hidden max-lg:static max-lg:w-auto max-lg:min-w-0 max-lg:overflow-visible max-lg:px-5 max-lg:pt-4 lg:[mask-image:linear-gradient(180deg,transparent_0%,#000_14%,#000_86%,transparent_100%)]';
 
 /**
- * The end credits (EP-B): role over name, name | character, rolling up the
+ * The end credits: role over name, name | character, rolling up the
  * right side at 30px/s for two passes, then still. Hover or focus pauses it.
  * Transform only, on the compositor (WAAPI); still on phones, where it's a
  * plain list under the faces.

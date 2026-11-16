@@ -43,8 +43,7 @@ export const API_WRITE_ROUTES = {
 } as const;
 
 /**
- * Reserved concurrency per function in production: 200 in all. The model
- * behind the split is in the decisions doc.
+ * Reserved concurrency per function in production: 200 in all.
  */
 export const API_CONCURRENCY = {
   catalogue: 150,

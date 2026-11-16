@@ -251,7 +251,7 @@ export type CollaboratorView = Readonly<{
   aria: string;
 }>;
 
-/** The board draws six faces */
+/** Faces shown */
 const COLLABORATORS = 6;
 
 export async function loadCollaborators(

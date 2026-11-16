@@ -143,7 +143,7 @@ export const UserWithFollowInfoSchema = v.object({
 
 /**
  * `PUT /me`: only the fields sent change (at least one). `country` is the
- * region that decides services and release dates (SETFinal).
+ * region that decides services and release dates.
  */
 export const UpdateUserSchema = v.pipe(
   v.object({

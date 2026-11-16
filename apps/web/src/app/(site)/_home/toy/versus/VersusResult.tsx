@@ -44,7 +44,7 @@ function Actions({ series }: Readonly<{ series: VersusSide }>) {
 }
 
 /**
- * Under the comparison (HMFinal `e2-vres`): "Tap the one you would start",
+ * Under the comparison: "Tap the one you would start",
  * then the chosen series' actions in the same 48px row, so the swap moves
  * nothing.
  */

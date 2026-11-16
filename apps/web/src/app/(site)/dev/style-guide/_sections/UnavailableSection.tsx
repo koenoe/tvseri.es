@@ -18,20 +18,20 @@ export default function UnavailableSection() {
   return (
     <Section
       id="unavailable"
-      source="ERFinal (part 3, a section that didn't load), V60, SETFinal"
+      source="a section that didn't load"
       title="Didn’t load"
     >
       <Specimen
-        board="SectionUnavailable (a row)"
         className="block"
         label="A row on Home or Discover"
+        note="SectionUnavailable (a row)"
       >
         <SectionUnavailable id="sg-row-down" title="Top Picks for November" />
       </Specimen>
       <Specimen
-        board="BlockUnavailable (profile blocks)"
         className="block max-w-80"
         label="A profile block, centred in its card"
+        note="BlockUnavailable (profile blocks)"
       >
         <BlockUnavailable
           className="h-[160px] rounded-16"
@@ -40,9 +40,9 @@ export default function UnavailableSection() {
         />
       </Specimen>
       <Specimen
-        board="SectionError (SectionErrorBoundary)"
         className="block max-w-180"
         label="A Settings section"
+        note="SectionError (SectionErrorBoundary)"
       >
         <SectionError
           placeholder={<div className="h-40" />}

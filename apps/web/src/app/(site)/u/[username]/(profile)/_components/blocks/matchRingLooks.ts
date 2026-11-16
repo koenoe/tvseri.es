@@ -30,8 +30,7 @@ export type CountedRingLook = RingLook &
 const HALO = 'opacity-60 blur-[5px]';
 
 /*
- * Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with
- * his approval.
+ * Each place keeps its own look on purpose; don't unify them.
  */
 
 /** The visitor's match card: 72px, a 6px stroke, Super's blurred halo */

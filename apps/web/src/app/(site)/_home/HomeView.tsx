@@ -46,10 +46,10 @@ const GROUND = cn(
 );
 
 /**
- * Home's page for a day (HMFinal, HMFinalMobile); `/` passes today
+ * Home's page for a day; `/` passes today
  * (`getHomeDay`), the dev preview any day.
  *
- * Home (HMFinal, HMFinalMobile): discovery for everyone. The spotlight, the
+ * Home: discovery for everyone. The spotlight, the
  * rows and the day's moments are the same for everyone: `use cache` content
  * prerendered into the static shell and served from the CDN, revalidating on
  * its CACHE_LIFE profile (a section whose API read failed is a streamed hole

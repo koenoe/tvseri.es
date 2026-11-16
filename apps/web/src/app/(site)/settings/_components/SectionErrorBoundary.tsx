@@ -27,8 +27,7 @@ type Props = Readonly<{
 /**
  * A Settings section's card, over its section's skeleton (hidden, holding
  * the space); its content centred down a tall section on a phone.
- * Each place keeps its signed-off look (owner, 15 Nov 2026); unify only
- * with his approval.
+ * Each place keeps its own look on purpose; don't unify them.
  */
 const SETTINGS_FAILED: FailedLook = {
   body: 'text-meta text-white/60',

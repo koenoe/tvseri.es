@@ -1,5 +1,5 @@
 /**
- * HMFinal "Neighbours never repeat": two sections next to each other never
+ * "Neighbours never repeat": two sections next to each other never
  * show the same show. The section that gives way drops the overlap and takes
  * the next shows in its own list. Personal sections give way to the cached
  * ones around them; between two cached sections the lower one does.

@@ -4,7 +4,7 @@ type FactType = DidYouKnowFact['type'];
 
 const DEFAULT_RUNTIME = 45;
 
-/** First in the deck on a tie: the board's order */
+/** First in the deck on a tie: the deck order */
 const ORDER: ReadonlyArray<FactType> = ['hours', 'episodes', 'years'];
 
 /** An episode's length in minutes: the last aired one's, else 45 */

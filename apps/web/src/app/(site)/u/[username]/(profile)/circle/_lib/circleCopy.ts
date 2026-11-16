@@ -11,7 +11,7 @@ import { LEVELS } from '../../_components/visitor/match/levels';
 /** How many shows the one-line reason names: the row has room for two */
 const NAMED = 2;
 
-/** "four more": small counts in words, as the board writes them */
+/** "four more": small counts in words */
 const WORDS = [
   'zero',
   'one',

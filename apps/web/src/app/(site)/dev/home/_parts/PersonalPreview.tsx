@@ -11,14 +11,14 @@ import ContinueWatching from '../../../_home/personal/ContinueWatching';
 import GetStarted from '../../../_home/personal/GetStarted';
 import MoreGenreRow from '../../../_home/personal/MoreGenreRow';
 
-/** The boards' clock: Wed 11 Nov 2026, midday UTC */
+/** The sample clock: Wed 11 Nov 2026, midday UTC */
 const NOW = Date.UTC(2026, 10, 11, 12);
 const USERNAME = 'nina';
 
 const ITEMS = upNext(NOW);
 
 /**
- * The signed-in touches (HMFinal, HMFinalMobile phone 2) with the boards'
+ * The signed-in touches with the sample
  * data: Continue watching, Get started (0 of 3, partly done, all set),
  * Because you watched and More {genre}, each in its own `id`.
  */

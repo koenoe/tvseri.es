@@ -15,7 +15,7 @@
 export const WHATS_ON_GRID =
   'grid gap-4 lg:h-[380px] lg:grid-cols-[600px_minmax(0,1fr)] lg:gap-10';
 
-/** The remote (HMFinal `e3-tv .e2-rem`): the label row, 16px, the channels */
+/** The remote: the label row, 16px, the channels */
 export const REMOTE = 'flex min-w-0 flex-col gap-4';
 
 /**
@@ -59,7 +59,7 @@ export const CAPTION_WORDMARK = 'h-[15px] w-auto max-w-28';
 export const CAPTION_FOOT =
   'absolute inset-x-5 bottom-5 z-3 flex flex-col items-start md:inset-x-8 md:bottom-8';
 
-/** The logo's box (the board's 240 × 60 limit) */
+/** The logo's box (240 × 60 limit) */
 export const CAPTION_LOGO =
   'relative mb-4 block h-12 w-[200px] md:mb-4.5 md:h-15 md:w-[240px]';
 

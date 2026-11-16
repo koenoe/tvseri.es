@@ -10,8 +10,8 @@ import { renderCardImage } from '../_card/renderCard';
 import { getStatsClock } from '../_data/clock';
 
 /**
- * `GET /u/{username}/stats/{year}/card?format=story|square&theme=dark|colour`
- * (STShare): the share card as a JPEG, 1080 × 1080 (default) or 1080 × 1920;
+ * `GET /u/{username}/stats/{year}/card?format=story|square&theme=dark|colour`:
+ * the share card as a JPEG, 1080 × 1080 (default) or 1080 × 1920;
  * `&size=thumb` is the sidebar's 128px thumbnail. The bytes are cached per
  * user + year + variant (`renderCardImage`); the CDN keeps them a day
  * (`cardCacheControl`), a card with a failed poster only minutes.

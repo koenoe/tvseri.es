@@ -10,7 +10,7 @@ import { byKey, imageUrl, networkId, SHOWS } from './discover/shows';
 
 /**
  * The network landing: `GET /discover/landing/network/:slug/facts`
- * and `GET /network/:id`. HBO, Apple TV and Netflix carry the board's numbers
+ * and `GET /network/:id`. HBO, Apple TV and Netflix carry fixed numbers
  * (381, 244 and 2,939 shows; "about 340 of its 381"); every other network
  * gets facts counted from the stub catalogue.
  */

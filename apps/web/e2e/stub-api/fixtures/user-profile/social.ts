@@ -32,7 +32,7 @@ const FOLLOWS: ReadonlyArray<readonly [PersonName, PersonName]> = [
  * so alex's eight follows cover every match level (PEOPLE.alex.following is
  * 8). Only the Circle routes read these (`/me/circle/people`, the follow
  * lists with `include=watching`); the overview's From your circle, the
- * follow state and the signed-off V60–V62 fixtures keep the six above.
+ * follow state and the fixed profile fixtures keep the six above.
  */
 const CIRCLE_FOLLOWS: ReadonlyArray<readonly [PersonName, PersonName]> = [
   ...FOLLOWS,

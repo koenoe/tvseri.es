@@ -173,7 +173,7 @@ test.describe('discover hub (/discover)', () => {
       .toBe(true);
   });
 
-  // a numeral may run behind its poster only as far as the board's tuck: 36
+  // a numeral may run behind its poster only as far as the tuck: 36
   // of a 290 tile for one digit, 40 for two (under a third of the last
   // digit), so no digit can be lost
   for (const width of [1440, 390]) {
@@ -259,7 +259,7 @@ test.describe('Essentials title (row titles with a logo)', () => {
           posterLeft: firstPoster.getBoundingClientRect().left,
         };
       });
-      // DSFinalGeneric / DSFinalMobile: 20px (17 on a phone), bottom on the baseline
+      // 20px (17 on a phone), bottom on the baseline
       expect(m.height).toBeCloseTo(width === 390 ? 17 : 20, 0);
       expect(Math.abs(m.bottom - m.baseline)).toBeLessThanOrEqual(1);
       expect(Math.abs(m.left - m.posterLeft)).toBeLessThanOrEqual(1);

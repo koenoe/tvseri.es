@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 import { findOverflow, formatProblems } from './helpers/overflow';
 import { signInAs } from './helpers/session';
 
-/** Safari's text metrics: the heavy profile at a phone and the board's width */
+/** Safari's text metrics: the heavy profile at a phone and 1440 wide */
 for (const width of [390, 1440] as const) {
   test(`heavy profile holds its text in WebKit at ${width}px`, async ({
     context,

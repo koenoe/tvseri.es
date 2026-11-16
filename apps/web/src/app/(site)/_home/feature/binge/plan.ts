@@ -13,7 +13,7 @@ import { plural } from '@/lib/format/text';
 import { episodeCode } from '@/lib/marking/copy';
 
 /**
- * The Binge calculator's plan (HMFinal `calVals`, `epAt`): from tonight,
+ * The Binge calculator's plan: from tonight,
  * `perNight` episodes on every viewing night until the show is done, and the
  * night strip from tonight to the last night. Pure: "today" is injected.
  */
@@ -31,11 +31,11 @@ export const NIGHTS_OPTIONS: ReadonlyArray<
   { label: 'Weekends', mode: 'weekends' },
 ];
 
-/** The strip's width on the board (1440 − 2 × 112 − 2 × 40) */
+/** The strip's width at 1440 (1440 − 2 × 112 − 2 × 40) */
 export const BOARD_STRIP_WIDTH = 1136;
 /** Up to this many days the strip is one line; past it, it wraps */
 const ONE_LINE_DAYS = 120;
-/** A guard against a runaway plan (the board's 400 nights) */
+/** A guard against a runaway plan */
 const MAX_NIGHTS = 400;
 
 export type EpisodeCode = Readonly<{ episode: number; season: number }>;

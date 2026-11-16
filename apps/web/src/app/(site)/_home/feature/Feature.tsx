@@ -7,7 +7,7 @@ import DidYouKnow from './didYouKnow/DidYouKnow';
 import SeasonInStills from './stills/SeasonInStills';
 
 /**
- * The feature of the day after Hidden gems (HMFinal "Moment rotation"): the
+ * The feature of the day after Hidden gems: the
  * Binge calculator, Season in stills, From the archive or Did you know, or
  * the Countdown when the next big premiere is 3 days away or less. None has
  * a title above it: each is headed by its label (`MomentLabel`), inside its

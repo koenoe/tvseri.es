@@ -44,7 +44,7 @@ export default function EdgeSection() {
       source="the header read (gutter, contrast)"
       title="Shade, gutter and contrast"
     >
-      <Specimen board="heroShade(color) over the artwork" label="Hero shade">
+      <Specimen label="Hero shade" note="heroShade(color) over the artwork">
         <State name="bright backdrop">
           <div className={HERO} style={bright}>
             The Studio
@@ -57,9 +57,9 @@ export default function EdgeSection() {
         </State>
       </Specimen>
       <Specimen
-        board="--gutter: 32px (globals.css); px-gutter"
         className="block"
         label="The gutter and the left edge"
+        note="--gutter: 32px (globals.css); px-gutter"
       >
         <div className="-mx-gutter border-white/20 border-y border-dashed">
           <div className="relative px-gutter py-4">
@@ -78,7 +78,7 @@ export default function EdgeSection() {
           it.
         </p>
       </Specimen>
-      <Specimen board="lib/a11y/textContrast.test.ts" label="Contrast floor">
+      <Specimen label="Contrast floor" note="lib/a11y/textContrast.test.ts">
         {STEPS.map(([step, use]) => (
           <State key={step} name={step}>
             <span className={`text-body-sm ${step}`}>{use}</span>

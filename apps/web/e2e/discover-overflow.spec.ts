@@ -4,7 +4,7 @@ import { findOverflow, formatProblems } from './helpers/overflow';
 import { failSharedRead } from './helpers/session';
 
 /**
- * Discover holds its text from a small phone to the board's 1440, where its
+ * Discover holds its text from a small phone to 1440, where its
  * layouts switch (`helpers/overflow.ts`): no sideways scroll, no text outside
  * its card, no value cut without an ellipsis. The hub and one landing of
  * each kind (the hub was 850px wide in an 800px window, and

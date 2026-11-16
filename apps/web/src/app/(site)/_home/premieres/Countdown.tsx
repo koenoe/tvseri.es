@@ -20,7 +20,7 @@ import { countdownChip } from './format';
 export const COUNTDOWN_TITLE = 'Next big premiere';
 
 /**
- * "Next big premiere" (HMFinal `e3-cdj`): takes the
+ * "Next big premiere": takes the
  * feature slot when the nearest big premiere is 3 days away or less (the
  * API's rule). One wide card, no title above it: the label
  * top left, the count, line, logo, date and season bottom left,

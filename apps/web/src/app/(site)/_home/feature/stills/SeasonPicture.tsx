@@ -34,7 +34,7 @@ const TEXT_ALONE = cn(STILLS_PICTURE_TEXT, 'left-5 max-md:left-3');
 const TITLE_TEXT = 'line-clamp-2 text-title-3 text-white';
 
 /** The show's logo in the picture's box, else its title written */
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 const STILLS_TITLE_LOOK: TitleTreatmentLook = {
   box: STILLS_LOGO,
   logo: TITLE_LOGO_FIT,
@@ -43,7 +43,7 @@ const STILLS_TITLE_LOOK: TitleTreatmentLook = {
 };
 
 /**
- * The season picture (HMStillsVariants `.sv-big`): the series' backdrop,
+ * The season picture: the series' backdrop,
  * the season's poster on its bottom left, then the series' logo (or title)
  * and its facts (years, seasons, genre; the season's own facts are in the
  * headline). It opens the season.

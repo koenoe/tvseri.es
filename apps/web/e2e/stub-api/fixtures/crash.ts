@@ -1,7 +1,7 @@
 /**
  * A show whose read answers 200 with a body the page can't render (lists
  * that aren't lists), so the page throws a plain error and the root error
- * boundary draws ERFinal's 500 (`footer.spec.ts`: no site footer under it).
+ * boundary draws its 500 (`footer.spec.ts`: no site footer under it).
  * Used by that spec only.
  */
 import type { StubRoute } from '../types.ts';

@@ -5,8 +5,7 @@ import type {
 
 /**
  * A row's or a section's card, over its slots or placeholder (`RowError`).
- * Each place keeps its signed-off look (owner, 15 Nov 2026); unify only
- * with his approval.
+ * Each place keeps its own look on purpose; don't unify them.
  */
 export const ROW_FAILED: FailedLook = {
   body: 'mt-1 text-body-sm text-white/80',

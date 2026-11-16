@@ -22,7 +22,7 @@ type Props = Readonly<{
 }>;
 
 /**
- * Continue watching's Up next card (HMFinal `hx-un`, phone `hx-mun`): the
+ * Continue watching's Up next card (phone `hx-mun`): the
  * shared card with Home's controls, the eye and ··· top right from md, the
  * eye at the end of the bar's episode line on a phone. The whole card opens
  * the episode. Memoised: Continue watching re-renders whenever any show in

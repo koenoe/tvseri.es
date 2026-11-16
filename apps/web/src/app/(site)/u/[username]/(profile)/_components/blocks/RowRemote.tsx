@@ -4,7 +4,7 @@ import { LazyTileRemote } from '@/components/remote/LazyRemote';
 import showPath from '@/lib/routing/showPath';
 
 /**
- * The ⋯ on a profile row or card: the tile Remote (CMFinal; N mark next,
+ * The ⋯ on a profile row or card: the tile Remote (N mark next,
  * E edit watch history, H hide from in progress), loaded on first intent.
  */
 export default function RowRemote({

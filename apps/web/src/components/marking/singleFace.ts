@@ -34,8 +34,8 @@ export type LinkFace = Readonly<{
 }>;
 
 /**
- * The one button for a series the viewer has (MKPairStreamed "What a press
- * does"): Continue opens the next episode on the series page, with the
+ * The one button for a series the viewer has (what a press
+ * does): Continue opens the next episode on the series page, with the
  * season's progress at its end; Up to date and Finished open the series page
  * (nothing is marked), with the next air date or the tile's seasons at the end.
  */

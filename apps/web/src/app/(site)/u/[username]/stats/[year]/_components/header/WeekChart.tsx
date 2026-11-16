@@ -16,7 +16,7 @@ type Props = Readonly<{
 }>;
 
 /**
- * The 53 week lines (STD_Recommended header, STMobile at 2px): the fluid
+ * The 53 week lines (the header, 2px on the phone): the fluid
  * drawing, a hover area per week with its tooltip and highlight (mouse only,
  * the bars are hidden from assistive tech; a visually hidden table stands in
  * for them), the month axis and the streak bracket under it.

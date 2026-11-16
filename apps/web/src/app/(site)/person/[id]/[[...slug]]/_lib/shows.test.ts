@@ -192,7 +192,7 @@ describe('the order', () => {
 });
 
 describe('crewWork', () => {
-  it('writes the work as the boards do', () => {
+  it('writes the work as sentences', () => {
     expect(crewWork([{ episodeCount: 2, job: 'Director' }], ['Director'])).toBe(
       'Directed 2 episodes',
     );

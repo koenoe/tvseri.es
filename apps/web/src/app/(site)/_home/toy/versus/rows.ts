@@ -30,7 +30,7 @@ const higher = (left: number, right: number): Side | null =>
 const score = (side: VersusSide) => formatScore(side.voteAverage) || NO_SCORE;
 
 /**
- * The comparison rows between the posters (HMFinal `e2-vr`): Score (out of
+ * The comparison rows between the posters: Score (out of
  * ten, `lib/format/rating`), Seasons, Episodes and On air, each side's value
  * with the higher one emphasised. A missing score has no winner, nor does
  * On air: neither run is better.

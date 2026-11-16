@@ -35,7 +35,7 @@ describe('csvRowCount', () => {
 });
 
 describe('copy', () => {
-  it('names the file and the episodes, in the board’s words', () => {
+  it('names the file and the episodes', () => {
     expect(downloadedToast('tvseries-history.csv', 4812)).toBe(
       'Downloaded tvseries-history.csv · 4,812 episodes',
     );

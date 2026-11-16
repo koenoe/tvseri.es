@@ -1,7 +1,6 @@
 /**
- * The stub catalogue: the shows the discover boards draw (DSLGenre `CAT`,
- * DSFinalGeneric `RAW`), with their numbers. Generated once from the boards;
- * edit freely. `votesK` is TMDB votes in thousands, `vote` TMDB % (0-100).
+ * The stub catalogue: the shows the discover pages use, with their numbers.
+ * Generated once; edit freely. `votesK` is TMDB votes in thousands, `vote` TMDB % (0-100).
  */
 export type CatalogueShow = Readonly<{
   key: string;

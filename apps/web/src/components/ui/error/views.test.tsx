@@ -160,16 +160,13 @@ describe('the site footer under an error view', () => {
       'data down',
       () => <AppErrorView error={new DataDownError()} retry={vi.fn()} />,
     ],
-  ])(
-    'the %s marks its root, so globals.css hides the footer (FTFinal)',
-    (_, view) => {
-      setOnline(true);
-      const { container } = render(view());
-      expect(container.firstElementChild?.hasAttribute('data-error-view')).toBe(
-        true,
-      );
-    },
-  );
+  ])('the %s marks its root, so globals.css hides the footer', (_, view) => {
+    setOnline(true);
+    const { container } = render(view());
+    expect(container.firstElementChild?.hasAttribute('data-error-view')).toBe(
+      true,
+    );
+  });
 
   it('the offline view marks its root too', () => {
     setOnline(false);

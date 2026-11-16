@@ -16,9 +16,9 @@ import { type PlacedProps, ToySection } from './Sections';
 import IfYouLiked from './toy/IfYouLiked';
 
 /**
- * The signed-in touches (HMFinal "streamed"): Suspense children that read
+ * The signed-in touches: Suspense children that read
  * `auth()`. Signed out they render nothing. They don't use `'use cache:
- * private'` (the board's caching panel names it): in production it keeps
+ * private'`: in production it keeps
  * nothing across requests, only within one request (which `apiFetch`
  * already dedupes) and in the browser's router memory; the API answers these
  * routes with `private, max-age=86400` itself.

@@ -22,7 +22,7 @@ const ACTIONS = cn(ACTION_PAIR, PATH_SWITCH);
 const HEAD_END = cn(ACTION_PAIR_BUTTON, HEAD_WATCHLIST);
 
 /**
- * The card's header (HMFinal `e2-grh`: the label, the path's title, the
+ * The card's header (the label, the path's title, the
  * actions) and the chain it names. The end's Watchlist sits beside
  * "Another path" from md and under the path on a phone. "Another path"
  * steps to the next path, wrapping around; it's left out when the day has

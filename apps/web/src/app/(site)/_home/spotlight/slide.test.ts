@@ -52,7 +52,7 @@ describe('toSlide', () => {
     }
   });
 
-  it('writes the board’s hook line for every trending show', () => {
+  it('writes the hook line for every trending show', () => {
     expect(
       TRENDING.map(
         (series, index) => toSlide(series, index, '2026-11-11').hook,

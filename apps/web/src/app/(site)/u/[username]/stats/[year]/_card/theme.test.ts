@@ -21,14 +21,14 @@ describe('cardColour', () => {
     expect(cardColour('#fff')).toBe('#ffffff');
   });
 
-  it("falls back to the board's blue without a colour", () => {
+  it('falls back to the default blue without a colour', () => {
     expect(cardColour(null)).toBe('#1a74b6');
     expect(cardColour('not a colour')).toBe('#1a74b6');
   });
 });
 
 describe('themeStyle', () => {
-  it("draws Colour as the board's gradient for the board's blue", () => {
+  it('draws Colour as a gradient for the default blue', () => {
     expect(themeStyle('colour', '#1a74b6')).toEqual({
       backgroundColor: '#0b2f4b',
       backgroundImage:

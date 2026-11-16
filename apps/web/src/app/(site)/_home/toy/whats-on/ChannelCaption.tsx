@@ -32,8 +32,8 @@ import {
 const WORDMARK_HEIGHT_2X = 30;
 const WORDMARK_WIDTH_2X = 120;
 
-/** The show's logo in the board's 240 × 60 limit, else its title written */
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+/** The show's logo in a 240 × 60 limit, else its title written */
+// Each place keeps its own look on purpose; don't unify them.
 const CAPTION_TITLE_LOOK: TitleTreatmentLook = {
   box: CAPTION_LOGO,
   logo: TITLE_LOGO_FIT,
@@ -42,7 +42,7 @@ const CAPTION_TITLE_LOOK: TitleTreatmentLook = {
 };
 
 /**
- * What's on the screen for one channel (HMFinal `e2-osd`, `e2-scc`): "CH 01"
+ * What's on the screen for one channel: "CH 01"
  * top left and the service top right (the network's wordmark, white, else
  * its name), the show's logo (or its title), its facts and
  * the two actions bottom left.
@@ -86,7 +86,7 @@ export default function ChannelCaption({
           prefetch={false}
           tabIndex={-1}
         >
-          {/* the board's 240 × 60 limit, the logo on its bottom left */}
+          {/* 240 × 60 limit, the logo on its bottom left */}
           <TitleTreatment
             look={CAPTION_TITLE_LOOK}
             src={series.titleTreatmentImage}

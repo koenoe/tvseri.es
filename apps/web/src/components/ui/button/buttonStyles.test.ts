@@ -153,7 +153,7 @@ describe('circleButtonStyles', () => {
 });
 
 describe('chipStyles', () => {
-  it('draws the keyword chip, white when selected (DSFinalGeneric ds-chip)', () => {
+  it('draws the keyword chip, white when selected', () => {
     const list = classes(chipStyles({}));
     expect(list).toEqual(
       expect.arrayContaining([
@@ -206,7 +206,7 @@ describe('badgeStyles', () => {
 });
 
 describe('segmentedItemStyles', () => {
-  it('fills the pressed item white/15 (DSFinalGeneric ds-tab, row switch)', () => {
+  it('fills the pressed item white/15', () => {
     expect(classes(segmentedItemStyles())).toEqual(
       expect.arrayContaining([
         'h-7.5',

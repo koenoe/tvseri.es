@@ -13,7 +13,7 @@ import PremieresRow, {
 
 /**
  * Pick one for me (at rest, Wed 11) and its placeholder, the Premieres row
- * and its placeholder, and the Countdown (Sat 14) with the boards' data, each in its own `id`.
+ * and its placeholder, and the Countdown (Sat 14) with the sample data, each in its own `id`.
  * A ticket's Watchlist pill is pressed when the viewer's library has the
  * series: sign in (or answer `/api/me/library-ids` in the screenshot
  * script) to see it.

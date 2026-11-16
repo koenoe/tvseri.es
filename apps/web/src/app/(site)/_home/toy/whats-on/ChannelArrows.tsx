@@ -6,8 +6,7 @@ import CircleButton from '@/components/ui/button/CircleButton';
 import { chevronDownGlyph } from '@/components/ui/icon/glyphs';
 
 /**
- * Channel up and down, at the right end of the remote's label row (HMFinal
- * `e2-remh`), level with the screen's top.
+ * Channel up and down, at the right end of the remote's label row, level with the screen's top.
  */
 export default function ChannelArrows({
   current,

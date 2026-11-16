@@ -7,7 +7,7 @@ import { DIARY_MONTH_HEADER } from './diaryStyles';
  * sticky bars under the sticky glass header; Jump to in the sidebar says
  * which month you're in). Below `lg` (no sidebar) it carries the Jump
  * button (`action`); on a phone beside the title, with the line under them
- * (the board's one row cuts Jump off at 390).
+ * (one row would cut Jump off at 390).
  */
 export default function MonthHeader({
   action,

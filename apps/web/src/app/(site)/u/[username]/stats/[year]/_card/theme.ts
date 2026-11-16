@@ -1,8 +1,8 @@
 /**
- * The share card's two themes (STShare `.st-sh-dark` / `.st-sh-colour`).
+ * The share card's two themes.
  * Dark is the page's ground with a faint blue glow top right. Colour is the
  * year's #1 show's `backdropColor` (the API serves it readable under white
- * text), running down to darker steps of itself as the board's gradient does
+ * text), running down to darker steps of itself as a gradient
  * (#1a74b6 → #145b8f → #0b2f4b: 78.5% and 40.94% of the top colour, the
  * factors that give exactly those steps).
  */
@@ -11,10 +11,10 @@ export type CardTheme = 'dark' | 'colour';
 
 export const CARD_THEMES: ReadonlyArray<CardTheme> = ['dark', 'colour'];
 
-/** The board's Colour ground, when the #1 show has no colour of its own */
+/** The Colour ground, when the #1 show has no colour of its own */
 const FALLBACK_COLOUR = '#1a74b6';
 
-/** The Dark ground (`.st-sh-dark`), also the Dark swatch */
+/** The Dark ground, also the Dark swatch */
 export const DARK_GROUND = '#161b1c';
 
 /** The gradient's 45% and 100% steps, as fractions of the top colour */
@@ -45,7 +45,7 @@ const toHex = (rgb: Rgb) =>
 const scale = (rgb: Rgb, factor: number): Rgb =>
   rgb.map((channel) => Math.round(channel * factor)) as unknown as Rgb;
 
-/** The #1 show's colour, or the board's blue when there is none */
+/** The #1 show's colour, or the default blue when there is none */
 export function cardColour(value: string | null | undefined): string {
   return toHex(parseHex(value) ?? parseHex(FALLBACK_COLOUR)!);
 }
@@ -54,9 +54,9 @@ export function cardColour(value: string | null | undefined): string {
 export type ThemeStyle = Readonly<{
   backgroundColor: string;
   backgroundImage: string;
-  /** `.st-sh-soft`: labels and the streak line */
+  /** Labels and the streak line */
   soft: string;
-  /** `.st-ss-brk`: the streak bracket */
+  /** The streak bracket */
   bracket: string;
 }>;
 

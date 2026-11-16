@@ -21,7 +21,7 @@ const IMAGE =
   'object-cover transition-transform duration-250 ease-[cubic-bezier(.2,.8,.2,1)] group-hover/still:scale-103';
 
 /**
- * One episode still (HMStillsVariants `.sv-still`): dimmed to 82%, full and
+ * One episode still: dimmed to 82%, full and
  * a little closer on hover, "E01" on its foot shade. The dimming is a black
  * layer whose opacity animates (not a filter), so the hover stays on the
  * compositor. The still, the dimming and the foot shade are one picture

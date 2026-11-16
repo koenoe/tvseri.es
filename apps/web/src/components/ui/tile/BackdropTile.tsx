@@ -74,7 +74,7 @@ type Props = Readonly<{
 }>;
 
 /** The show's logo, up to 180 × 56 at the bottom left; else its title */
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 const BACKDROP_TITLE: TitleTreatmentLook = {
   height: 56,
   logo: 'h-auto max-h-14 w-auto max-w-45 object-contain object-left-bottom',

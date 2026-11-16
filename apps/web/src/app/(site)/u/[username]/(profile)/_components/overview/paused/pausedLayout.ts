@@ -15,7 +15,7 @@ export const PAUSED_POSTER = 'aspect-2/3 w-10 rounded-6';
 export const PAUSED_TITLE =
   'col-start-2 row-start-1 min-w-0 truncate text-body-sm font-semibold max-md:col-end-4';
 /**
- * The board's row height (35px line); one line, the day drops whole. On a
+ * The row height (35px line); one line, the day drops whole. On a
  * phone the title and this line have the row's width and Keep and Hide get
  * a third line under them (beside the title they cut it to a dozen
  * letters; beside this line, the code).

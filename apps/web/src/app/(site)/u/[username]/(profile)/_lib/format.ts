@@ -21,9 +21,9 @@ export function memberSince(createdAt: DateInput, now: number): string {
 }
 
 /**
- * Time watched as the profile boards write it: days and hours ("5d 1h",
+ * Time watched as the profile writes it: days and hours ("5d 1h",
  * "22d 9h"), minutes only under a day ("3h 50m"). No weeks: the
- * Stats page follows its own board ("2w 6d 20h") with its own formatter.
+ * Stats page has its own format ("2w 6d 20h") with its own formatter.
  */
 export function formatWatchTime(minutes: number): string {
   const total = Math.max(0, Math.round(minutes));

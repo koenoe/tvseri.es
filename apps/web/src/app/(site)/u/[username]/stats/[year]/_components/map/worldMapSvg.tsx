@@ -6,7 +6,7 @@ const DOT = { strokeLinecap: 'round', strokeWidth: 2.6 } as const;
 
 /**
  * The dotted world map with the year's countries lit by how many series came
- * from each (STD_Recommended): pure, data in, `<svg>` out. Each country path
+ * from each: pure, data in, `<svg>` out. Each country path
  * carries a `<title>` ("United Kingdom: 13 shows") and `hoverClassName`.
  */
 export function worldMapSvg({

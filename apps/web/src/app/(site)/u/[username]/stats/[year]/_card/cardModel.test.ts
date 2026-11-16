@@ -152,7 +152,7 @@ describe('buildCardModel', () => {
     show(3, 'Barry', 960),
   ];
 
-  it("says the board's card for 2025", () => {
+  it('says the card for 2025', () => {
     const model = buildCardModel({
       otherShowCounts: [69, 34],
       shows,
@@ -217,7 +217,7 @@ describe('cardDescription', () => {
     year: 2025,
   });
 
-  it('says the card in words, as the board labels it', () => {
+  it('says the card in words', () => {
     expect(cardDescription(base)).toBe(
       'nina’s 2025 on tvseri.es. Fewer hours, more series. A wall of the year’s top series, sized by hours: The Traitors (36h), Billions, Barry, The Pitt, Mocro Maffia, The Morning Show and more. Episodes per week across the year. 42 days in a row. Blame The Traitors. 2w 6d 20h of TV, 615 episodes, 71 series.',
     );

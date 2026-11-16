@@ -15,7 +15,7 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 /**
  * Resolves the URL to a show: 404 for a non-numeric id (`/discover/x` reaches
- * this route), an unknown or adult show; ERFinal's data-down page while the
+ * this route), an unknown or adult show; the data-down page while the
  * API is unavailable (no response, a timeout, a 5xx: cached for the
  * short `unavailable` life, as the person page does); the canonical URL for a
  * missing or stale slug; else the page. Leading zeros never get here: a config redirect

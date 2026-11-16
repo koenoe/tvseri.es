@@ -10,7 +10,7 @@ const idOf = (
 const sorted = (ids: ReadonlyArray<number>) => [...ids].sort((a, b) => a - b);
 
 /**
- * The member's library as the signed-in board draws it: Watched labels on
+ * The member's library for the signed-in demo: Watched labels on
  * Severance, Adolescence and The Penguin (Top Picks); in the spotlight The
  * Pitt and MobLand watched, Task, Black Mirror, The White Lotus and Dexter:
  * Resurrection in progress; Dept. Q on the watchlist; Severance a favourite.
@@ -31,7 +31,7 @@ export const MEMBER_LIBRARY: LibraryIds = {
   watchlist: sorted([idOf(TRENDING, 'Dept. Q')]),
 };
 
-/** The member's personal spotlight lines, as the signed-in board draws them */
+/** The member's personal spotlight lines, for the signed-in demo */
 const MEMBER_LINES: Readonly<Record<string, SpotlightLine>> = {
   Barry: { kind: 'finished', title: 'The Bear' },
   'Dept. Q': { kind: 'up-to-date', title: 'Slow Horses' },

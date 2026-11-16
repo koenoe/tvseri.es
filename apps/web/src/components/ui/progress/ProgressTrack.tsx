@@ -13,8 +13,7 @@ import cn from '@/lib/cn';
 const TRACK = 'relative h-1 rounded-2';
 
 /*
- * The ground and length per place. Each place keeps its signed-off look
- * (owner, 15 Nov 2026); unify only with his approval.
+ * The ground and length per place. Each place keeps its own look on purpose; don't unify them.
  */
 export const TRACK_LOOK = {
   /** A line beside its caption (Up next, Season complete, the show page): grows, at least 80px */

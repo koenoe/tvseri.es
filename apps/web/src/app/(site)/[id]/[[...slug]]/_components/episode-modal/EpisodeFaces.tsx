@@ -41,7 +41,7 @@ const EPISODE_CAPTION: Omit<FaceLook, 'photo' | 'sizes'> = {
   size: 88,
 };
 
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 
 /** Guest starring: 88px faces */
 const GUEST_FACE: FaceLook = {
@@ -91,7 +91,7 @@ function EpisodeFace({
 }
 
 /**
- * The cast faces (EP-B `ep-b-faces`): overlapping circles with a 2px white
+ * The cast faces: overlapping circles with a 2px white
  * ring; hover or focus brings one forward (scale 1.15) and fades its name and
  * character in below, like the show page's cast. On touch the first tap
  * reveals the name and the second opens the person.

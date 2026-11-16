@@ -8,8 +8,7 @@ const at = (y: number, m: number, d: number, h = 21, min = 40) =>
 
 describe('lastWeekend', () => {
   it('is the Saturday of the weekend that is over', () => {
-    // Thu 12 Nov 2026 → Sat 7 Nov (the board's demo)
-    expect(lastWeekend(at(2026, 11, 12))).toEqual(new Date(2026, 10, 7));
+    // Thu 12 Nov 2026 → Sat 7 Nov    expect(lastWeekend(at(2026, 11, 12))).toEqual(new Date(2026, 10, 7));
     // Sun 15 Nov: this weekend isn't over yet → Sat 7 Nov
     expect(lastWeekend(at(2026, 11, 15))).toEqual(new Date(2026, 10, 7));
     // Mon 16 Nov → Sat 14 Nov

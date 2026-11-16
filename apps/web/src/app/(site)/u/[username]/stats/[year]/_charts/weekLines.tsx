@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 
 /**
- * The week lines (STD_Recommended header, the sidebar sparklines, the share
+ * The week lines (the header, the sidebar sparklines, the share
  * card): one rounded line per week, its height that week's episodes,
  * bottom-aligned. Pure: data in, `<svg>` out, attributes only (no classes, no
  * CSS), so the same drawing renders in a Server Component and in `next/og`.
@@ -34,7 +34,7 @@ type LayoutInput = Readonly<{
   currentWeek?: number;
   /** Stub height for future and empty weeks */
   stub?: number;
-  /** Stub height for weeks still to come (the board: 3px; empty past weeks 2px). Defaults to `stub` */
+  /** Stub height for weeks still to come (3px; empty past weeks 2px). Defaults to `stub` */
   futureStub?: number;
   /** Colour of an ordinary week (sparklines may be dimmer) */
   weekColor?: string;
@@ -44,7 +44,7 @@ type LayoutInput = Readonly<{
 
 /**
  * Where each line sits and how tall it is. Lines share the width equally
- * (the board's `flex: 1` slots), so a line's centre is `(i + .5) / n`.
+ * (`flex: 1` slots), so a line's centre is `(i + .5) / n`.
  */
 export function weekLinesLayout({
   values,
@@ -87,7 +87,7 @@ type SvgInput = LayoutInput &
      */
     width?: number;
     /**
-     * Px between the lines' slots (the board's flex `gap`: 13 on the
+     * Px between the lines' slots (like a flex `gap`: 13 on the
      * header, 4 on the phone). Slots share what's left equally.
      */
     gap?: number;

@@ -24,7 +24,7 @@ describe('spotlightCard', () => {
     watchProviderLogo: null,
   };
 
-  it('writes the card the board draws', () => {
+  it('writes the card', () => {
     expect(spotlightCard(item)).toEqual({
       backdrop: 'backdrop.jpg',
       code: 'S01E01',

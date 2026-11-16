@@ -63,7 +63,7 @@ const steps = (
 export const GET_STARTED_SECTION = cn(PAGE_COLUMN, 'flex flex-col gap-5');
 export const GET_STARTED_GRID = 'grid gap-4 md:grid-cols-3';
 
-/** Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval. */
+/** Each place keeps its own look on purpose; don't unify them. */
 const HEAD: SectionHeadLayout = {
   row: 'flex items-center gap-3',
   rule: 'h-0.5 flex-1 rounded-2 bg-white/8',
@@ -90,7 +90,7 @@ export function GetStartedHead({ count }: Readonly<{ count: ReactNode }>) {
 }
 
 /**
- * Get started (HMFinal `hx-h-gs`, new users): a dotted heading with "0 of
+ * Get started (new users): a dotted heading with "0 of
  * 3" and a hairline, then three step cards. With all three done it is not
  * drawn: the slot is Continue watching's again (`getGetStarted`).
  */

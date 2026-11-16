@@ -2,16 +2,16 @@
  * Generates the Stats page's dotted world map ("Where the series are from"): a 136 × 84 grid of dots over a 580 × 358 box, each cell
  * sea, land or a country (ISO 3166-1 alpha-2). Run when the map data changes:
  *
- *   node scripts/generate-stats-world-dots.mjs [<design file with the dots>]
+ *   node scripts/generate-stats-world-dots.mjs [<reference file with the dots>]
  *
- * With the design file, its own dots are the land mask (which cells have a
- * dot), so the map matches the design dot for dot; Natural
+ * With the reference file, its dots are the land mask (which cells have a
+ * dot), so the map matches it dot for dot; Natural
  * Earth only says which country a cell belongs to (a board dot Natural Earth
  * puts in the sea is land without a country).
  *
  * Natural Earth 1:110m (world-atlas) in Web Mercator, sampled at cell
- * centres. Scale and translate were fitted to the board's own dots (93% of
- * cells agree). Antarctica is left out, as on the board. Alpha-2 codes come
+ * centres. Scale and translate were fitted to the reference dots (93% of
+ * cells agree). Antarctica is left out, as in the reference. Alpha-2 codes come
  * from the feature's English name matched to Intl's region names (the names
  * the API's country stats use), plus a few aliases where they differ.
  */
@@ -78,7 +78,7 @@ const countries = feature(world, world.objects.countries).features.filter(
 );
 const projection = geoMercator().scale(91.5).translate([269.5, 263.5]);
 
-/** The board's dots as `col,row` cells, or null to use Natural Earth's land */
+/** The reference dots as `col,row` cells, or null to use Natural Earth's land */
 const boardLand = (() => {
   const file = process.argv[2];
   if (!file) {

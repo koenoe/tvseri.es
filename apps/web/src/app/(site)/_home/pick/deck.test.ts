@@ -23,7 +23,7 @@ describe('restPose', () => {
     });
   });
 
-  it('fans the others out, smaller and darker the further back (board p3Rest)', () => {
+  it('fans the others out, smaller and darker the further back', () => {
     expect(restPose(0, 1, 7)).toEqual({
       brightness: 0.6,
       transform: 'translateX(110px) rotate(5deg) scale(0.9)',
@@ -43,7 +43,7 @@ describe('restPose', () => {
 });
 
 describe('shufflePose', () => {
-  it('gathers the cards into a loose pile (board p3Vals shuf)', () => {
+  it('gathers the cards into a loose pile', () => {
     expect(shufflePose(0, 2)).toEqual({
       brightness: 0.71,
       transform: 'translate(36px, -4px) rotate(12deg) scale(0.86)',

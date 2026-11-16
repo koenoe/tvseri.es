@@ -19,7 +19,7 @@ type Props = Readonly<{
 }>;
 
 /**
- * The heatmap (`.st-hmgrid`, `.st-mm`): one rounded square per day, `col`
+ * The heatmap: one rounded square per day, `col`
  * across and `row` down, filled by its step, with the day's tooltip as the
  * square's `<title>`. Blank days have no square. Pure: data in, `<svg>` out,
  * attributes only (no classes needed, no CSS), so it also renders in

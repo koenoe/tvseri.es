@@ -224,7 +224,7 @@ export function textLinkStyles({ className }: WithClassName = {}) {
 /**
  * The pill switch on a picture (From your circle; the
  * Countdown's premieres): one dark rounded ground holding the choices, the
- * chosen one filled. Its ground is 75% dark, not the board's 42%: the least
+ * chosen one filled. Its ground is 75% dark, not 42%: the least
  * that keeps the unchosen names (white at 60%) at 4.5:1 over a white
  * picture (4.52:1; 1.98:1 at 42%). A row too long for its place scrolls
  * sideways inside it.

@@ -40,7 +40,7 @@ describe('the caption never ends mid-phrase', () => {
       title,
     }));
 
-  it('keeps the board’s three titles when they fit', () => {
+  it('keeps the three titles when they fit', () => {
     const summary = newBackSummary({
       back: [],
       new: named('The Pitt', 'Adolescence', 'Billions'),

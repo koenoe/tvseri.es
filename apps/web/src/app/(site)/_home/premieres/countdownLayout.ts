@@ -1,5 +1,5 @@
 /**
- * The Countdown's layout (HMFinal `e3-cdj`), shared by
+ * The Countdown's layout, shared by
  * the card (`Countdown`, `CountdownBody`, `CountdownSwitch`) and its
  * placeholder (`CountdownGhost`). A plain module: the switch is a client
  * island, the rest renders on the server.
@@ -26,7 +26,7 @@ export const COUNTDOWN_CARD = cn(
 );
 
 /**
- * The label, top left (HMFinal `e2-cdc .e2-k`), with a soft shadow: it sits
+ * The label, top left, with a soft shadow: it sits
  * on the picture
  */
 export const COUNTDOWN_LABEL =

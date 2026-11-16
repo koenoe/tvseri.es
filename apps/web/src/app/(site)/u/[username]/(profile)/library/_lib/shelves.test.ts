@@ -10,7 +10,7 @@ describe('shelf copy', () => {
     expect(sortLabel('watchlist', 'oldest')).toBe('Oldest added');
   });
 
-  it('says where day 0’s Finished came from (PGFinalStates A)', () => {
+  it('says where day 0’s Finished came from', () => {
     expect(seenOnlyLine(2)).toBe(
       'Series you’ve watched to the end. You marked these two as seen in Get started.',
     );

@@ -12,7 +12,7 @@ const row = cva(
         /**
          * One line that never cuts a value: an item that doesn't fit wraps
          * to a second line the row clips away, so whole facts drop from the
-         * end (the board's order is what → when → how much, so how much goes
+         * end (the order is what → when → how much, so how much goes
          * first). An item wider than the whole line ends with an ellipsis.
          * The row is one line tall (`h-5`; pass `h-[22px]` when it holds a
          * code badge).

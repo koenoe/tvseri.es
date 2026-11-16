@@ -204,7 +204,6 @@ export const COUNTRY_TILES: ReadonlyArray<LinkTileEntry> = [
   {
     dress: { kind: 'calm' },
     href: '/country',
-    // DRAFT: owner approves
     line: 'By where a series is made',
     name: 'All 60 countries',
   },
@@ -246,7 +245,6 @@ export const LANGUAGE_TILES: ReadonlyArray<LinkTileEntry> = [
   {
     dress: { kind: 'calm' },
     href: '/language',
-    // DRAFT: owner approves
     line: 'By the language it was made in',
     name: 'All languages',
   },
@@ -283,7 +281,6 @@ export const NETWORK_TILES: ReadonlyArray<LinkTileEntry> = [
   {
     dress: { kind: 'calm' },
     href: '/network',
-    // DRAFT: owner approves
     line: 'From AMC to ZDF',
     name: 'All networks',
   },
@@ -348,7 +345,6 @@ export const DECADE_TILES: ReadonlyArray<DecadeTileEntry> = [
       'first_air_date.gte': '2020-01-01',
       'first_air_date.lte': '2029-12-31',
     },
-    // DRAFT: owner approves
     line: 'This decade',
     name: '2020s',
     slug: '2020s',
@@ -363,7 +359,6 @@ export const DECADE_TILES: ReadonlyArray<DecadeTileEntry> = [
       'first_air_date.gte': '2010-01-01',
       'first_air_date.lte': '2019-12-31',
     },
-    // DRAFT: owner approves
     line: 'Peak TV',
     name: '2010s',
     slug: '2010s',
@@ -374,7 +369,6 @@ export const DECADE_TILES: ReadonlyArray<DecadeTileEntry> = [
       'first_air_date.gte': '2000-01-01',
       'first_air_date.lte': '2009-12-31',
     },
-    // DRAFT: owner approves
     line: 'The HBO decade',
     name: '2000s',
     slug: '2000s',
@@ -385,7 +379,6 @@ export const DECADE_TILES: ReadonlyArray<DecadeTileEntry> = [
       'first_air_date.gte': '1990-01-01',
       'first_air_date.lte': '1999-12-31',
     },
-    // DRAFT: owner approves
     line: 'Where it started',
     name: '1990s',
     slug: '1990s',
@@ -420,26 +413,22 @@ export const DURATION_TILES: Readonly<
 > = {
   'complete-stories': {
     dress: 'deck',
-    // DRAFT: owner approves
     line: 'Ended series',
     name: 'Complete stories',
   },
   'long-haul': {
     dress: 'backdrop',
-    // DRAFT: owner approves
     line: '5+ seasons',
     name: 'The long haul',
     position: 'center 25%',
   },
   'one-season': {
     dress: 'deck',
-    // DRAFT: owner approves
     line: 'About 10 episodes',
     name: 'One season',
   },
   'one-weekend': {
     dress: 'deck',
-    // DRAFT: owner approves
     line: '6 to 10 hours',
     name: 'One weekend',
   },

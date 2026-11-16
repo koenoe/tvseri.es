@@ -13,7 +13,7 @@ import {
  * The Focus wall's slotting: what you haven't
  * seen first. Next up is the Focus tile; the open and upcoming episodes
  * follow (Focus + 6, then "Show all N episodes", which shows every one of
- * them at once, never pages, not the board's windows of 9; it folds only when that hides more than 3, one row, or more than 2 on
+ * them at once, never pages; it folds only when that hides more than 3, one row, or more than 2 on
  * a phone, so a short season shows whole); then the "N watched" heading with runs of 3+ watched folded into
  * stacks and the rest as compact tiles.
  */
@@ -86,7 +86,7 @@ export type WallSlot = Readonly<
 >;
 
 /**
- * How the Focus tile sits on a desktop row of three: `tall` is the board's
+ * How the Focus tile sits on a desktop row of three: `tall` is a
  * 2 × 2 tile with the next two episodes stacked beside it (two 364px tiles
  * and a gap are exactly its 752px); `wide` spans the row, the still over two
  * columns and the text in the third, when fewer than two tiles could stand

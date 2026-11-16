@@ -5,7 +5,7 @@ import { open } from './helpers';
 import { signInAs } from './helpers/session';
 
 /**
- * The site footer (FTFinal, signed off): its height per width, its links,
+ * The site footer (signed off): its height per width, its links,
  * and that no error view has it under it ("on the error
  * pages we dont want the footer to render below").
  */
@@ -13,7 +13,7 @@ import { signInAs } from './helpers/session';
 const footer = (page: Page) => page.locator('[data-site-footer]');
 
 /**
- * FTFinal's measured heights (the safe-area inset is 0 here). The credits
+ * The measured heights (the safe-area inset is 0 here). The credits
  * sentence names OMDb and its licence: two lines at 1440 (one before), three
  * at 768 (two before), four at 390 in the 326px column the 32px gutters
  * leave (three at 24px).

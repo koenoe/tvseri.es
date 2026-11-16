@@ -26,7 +26,7 @@ describe('visiblePills', () => {
     });
   });
 
-  it('shows them all, still with More (the full list with counts), as STMobile draws three years', () => {
+  it('shows them all, still with More (the full list with counts)', () => {
     expect(visiblePills([2026, 2025, 2024], 2025, 3)).toEqual({
       more: true,
       years: [2026, 2025, 2024],

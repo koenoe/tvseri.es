@@ -13,7 +13,7 @@ import ServiceIcon, {
  */
 const MAX_LOGOS = 8;
 
-/** Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval. */
+/** Each place keeps its own look on purpose; don't unify them. */
 const LOGO: ServiceIconLayout = {
   className: 'size-[22px] shrink-0 rounded-[5px]',
   size: 22,

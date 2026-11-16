@@ -29,7 +29,7 @@ const RADIUS = { borderRadius: 12 } as const;
 
 const SLICE_CLASS = `${SLICE} bg-[#161b1c]`;
 
-/** The board's `flex-grow .5s cubic-bezier(.2,.8,.2,1)`: a fast start, a long settle */
+/** The `flex-grow .5s cubic-bezier(.2,.8,.2,1)`: a fast start, a long settle */
 const OPEN = { duration: 0.5, ease: [0.2, 0.8, 0.2, 1] } as const;
 
 /**

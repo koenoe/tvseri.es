@@ -16,7 +16,7 @@ type Props = Readonly<{
 }>;
 
 /**
- * "Can't decide? Let us pick" (HMFinal `e3-pk`, HMFinalMobile `hx-mpk2`):
+ * "Can't decide? Let us pick":
  * the pinned moment after Top Picks. The lines are written here on the
  * server, so the client island only gets the few fields it draws and the
  * first pick (the deck's first card) renders the same on both sides.

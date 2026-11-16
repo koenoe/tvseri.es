@@ -4,7 +4,7 @@ import { formatGrouped } from '@/lib/formatCount';
 import { formatStatsRuntime } from './format';
 import type { YearState } from './year';
 
-/** A run of the sentence; `strong` runs are drawn white and 600 (`.st-n`) */
+/** A run of the sentence; `strong` runs are drawn white and 600 */
 export type SentencePart = Readonly<{ text: string; strong?: boolean }>;
 
 const more = (current: number, previous: number, word: string) =>
@@ -119,7 +119,7 @@ const comparison = (
 };
 
 /**
- * The header sentence (STD_Recommended): totals, then the joining year's
+ * The header sentence: totals, then the joining year's
  * line, or the genres and provider and, for a finished year, the comparison
  * with the year before. Owner-neutral: it names the user, never "you".
  */

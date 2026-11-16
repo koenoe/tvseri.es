@@ -3,8 +3,7 @@ import cn from '@/lib/cn';
 import type { PosterCircleLook } from './PosterCircle';
 
 /*
- * Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with
- * his approval.
+ * Each place keeps its own look on purpose; don't unify them.
  */
 
 /** A round action in a Library poster's top right corner (`.tadd`): an inset ring; on, only the glyph changes */

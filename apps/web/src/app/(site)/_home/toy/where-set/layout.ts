@@ -5,8 +5,7 @@
  */
 
 /**
- * The card: the map beside the place's show from lg (HMFinal), stacked as
- * HMFinalMobile draws it below that: the 680px map and its 28px gap need a
+ * The card: the map beside the place's show from lg, stacked below that: the 680px map and its 28px gap need a
  * card over 1,000px wide before the show beside it has room (at 800 the
  * side-by-side card ran 164px past the page).
  */
@@ -33,7 +32,7 @@ export const DETAIL_SHADE =
 export const DETAIL_TITLE =
   'absolute inset-x-4 bottom-4 z-2 flex md:inset-x-5 md:bottom-5';
 
-/** The title written, when the show has no logo (HMFinal `e2-ml`) */
+/** The title written, when the show has no logo */
 export const DETAIL_TITLE_TEXT = 'text-title-3 text-white';
 
 /** The logo's limit (200 × 48, never past the image's inset): it sits on its bottom left */

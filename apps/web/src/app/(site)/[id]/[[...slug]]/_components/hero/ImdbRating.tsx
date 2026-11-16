@@ -11,7 +11,7 @@ const votesFormat = new Intl.NumberFormat('en', {
   notation: 'compact',
 });
 
-/** "330K": the vote count as the board writes it. */
+/** "330K": the vote count, abbreviated. */
 const formatVotes = (votes: number) => votesFormat.format(votes);
 
 const IMDB_URL = 'https://www.imdb.com/title/';
@@ -21,8 +21,8 @@ const IMDB_URL = 'https://www.imdb.com/title/';
  * on desktop "way too close"): line boxes as tall as the type (22px under a
  * 24px value, so its baseline is the box's bottom; 18px on phones). On
  * phones no margin, so the vote count starts about 4px under the value's
- * digits; on desktop a 4px margin puts it about 8px under them (the board's
- * 17px was the first "too much").
+ * digits; on desktop a 4px margin puts it about 8px under them (17px was
+ * too much).
  */
 const VALUE =
   'block font-semibold text-[18px] leading-[18px] tabular-nums md:text-[24px] md:leading-[22px]';

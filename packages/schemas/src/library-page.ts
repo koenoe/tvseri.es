@@ -23,7 +23,7 @@ export const LibraryShelfSchema = v.picklist(LIBRARY_SHELVES);
 export type LibraryShelf = v.InferOutput<typeof LibraryShelfSchema>;
 
 /**
- * Each shelf's sorts, the default first (the board's `META.sorts`):
+ * Each shelf's sorts, the default first:
  * - `last` "Last watched", `left` "Most left", `az` "A–Z" (The/A/An ignored)
  * - `newest` / `oldest` "Newest / Oldest added"
  * - `recent`: "Recently finished" / "Recently added" / "Recently hidden"
@@ -73,7 +73,7 @@ export const LIBRARY_LETTERS = [
   ...'abcdefghijklmnopqrstuvwxyz'.split(''),
 ] as const;
 
-/** Tiles per read (the board's 24) and the most a read may ask for */
+/** Tiles per read (24) and the most a read may ask for */
 export const LIBRARY_PAGE_SIZE = 24;
 
 /** `q` after trimming */

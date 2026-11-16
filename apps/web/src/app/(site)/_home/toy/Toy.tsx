@@ -7,7 +7,7 @@ import WhatsOn from './whats-on/WhatsOn';
 import WhereSet from './where-set/WhereSet';
 
 /**
- * The toy of the day after Premieres (HMFinal "Moment rotation"): What's on,
+ * The toy of the day after Premieres: What's on,
  * Where are they set?, Connected by or Versus. Signed in, "If you liked X" takes the
  * slot on alternate days (`IfYouLiked`, chosen in page.tsx). With the
  * page's `day`, Connected by starts from the signed-in viewer's own shows

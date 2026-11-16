@@ -22,13 +22,13 @@ export default function PanelSection() {
   return (
     <Section
       id="panels"
-      source="boards README “Side panels”, MNFinal, CMFinal"
+      source="the side panels, the menu and the Remote"
       title="Side panels and the ⋯"
     >
       <Specimen
-        board="dialogStyles BACKDROP.side, SURFACE.sheet, SHADOW.sheet (static, 50%)"
         className="block"
         label="A side panel: the page behind dimmed and inactive"
+        note="dialogStyles BACKDROP.side, SURFACE.sheet, SHADOW.sheet (static, 50%)"
       >
         <div className={FRAME}>
           <div className="flex flex-col gap-4 p-8">
@@ -44,8 +44,8 @@ export default function PanelSection() {
         </div>
       </Specimen>
       <Specimen
-        board="LazyRemote: the ⋯ first, the Remote's code on first intent"
         label="The lazy ⋯ trigger (no dark fill)"
+        note="LazyRemote: the ⋯ first, the Remote's code on first intent"
       >
         <OnStill>
           <State name="on a tile (32)">

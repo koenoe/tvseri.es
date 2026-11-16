@@ -13,7 +13,7 @@ import {
 export const BINGE_OPTION =
   'h-9 cursor-pointer rounded-8 px-1.5 text-center min-[390px]:min-w-18 min-[390px]:px-3.5 text-body-sm font-medium whitespace-nowrap text-white/60 tabular-nums transition-[background-color,color] duration-150 hover:text-white aria-pressed:bg-white/16 aria-pressed:text-white';
 
-/** One labelled switch (HMFinal `e3-row`): label, the segmented group, a hint */
+/** One labelled switch: label, the segmented group, a hint */
 export function ControlRow({
   children,
   hint,

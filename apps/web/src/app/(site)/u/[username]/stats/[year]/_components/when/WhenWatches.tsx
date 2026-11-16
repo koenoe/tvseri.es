@@ -29,7 +29,7 @@ const CAPTION = 'text-caption text-white/60';
  * "When {name} watches": the busiest weekday and hour as a headline, the
  * share after 8 pm and where the daytime watching falls, the 24 hour bars and
  * the 7 weekday bars (the peak white), and a note on bulk marks left out.
- * STMobile keeps the headline and the hour bars only.
+ * The phone keeps the headline and the hour bars only.
  */
 export default async function WhenWatches({ user, year }: SectionProps) {
   const when = await getWhen(user.id, year);
@@ -95,7 +95,7 @@ export default async function WhenWatches({ user, year }: SectionProps) {
 const weekdayTip = (day: number) => WEEKDAY_NAMES[day] ?? '';
 
 /**
- * A row of bars (`.st-bar`): each as tall as its share of the highest, at
+ * A row of bars: each as tall as its share of the highest, at
  * least 2px, the peak white, hovering one whitens it and shows its tooltip
  * (mouse only: the bars are hidden from assistive tech and a visually hidden
  * table stands in for them). The height is `--bar-h` (set per breakpoint by

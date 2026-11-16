@@ -10,8 +10,8 @@ import { PICTURE_CARD } from '../../pictureCard';
 
 /**
  * The deck: the facts stacked in one place. From lg a 240px band, the
- * number beside the text and the controls bottom right (HMFinal); below lg
- * the phone's stack (HMFinalMobile), whatever the width: at 800 the
+ * number beside the text and the controls bottom right; below lg
+ * the phone's stack, whatever the width: at 800 the
  * band's text column ran under the pager. A picture card (`PICTURE_CARD`),
  * its edge in the shade's colour.
  */

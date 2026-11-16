@@ -6,7 +6,7 @@ import { SHOWS } from './discover/shows';
 
 /**
  * The country landing: `GET /discover/landing/country/:code/facts`.
- * The board's three states keep its numbers (7,240, 4,860 and 1,120 shows)
+ * The three states keep fixed numbers (7,240, 4,860 and 1,120 shows)
  * and broadcasters (Denmark has fewer than 3, so its `madeFor` is empty);
  * every other country is counted from the stub catalogue.
  */

@@ -65,7 +65,7 @@ const chipFor = (status: ServiceStatus | 'unused', username: string): Chip => {
   }
 };
 
-/** Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval. */
+/** Each place keeps its own look on purpose; don't unify them. */
 const LOGO: ServiceIconLayout = {
   className: 'block size-[26px] shrink-0 rounded-6',
   size: 26,
@@ -114,7 +114,7 @@ function NamesLine({
   );
 }
 
-/** The right-hand pill: filled `white/8` or outlined (`.st-yours` / `.st-notyours`) */
+/** The right-hand pill: filled `white/8` or outlined */
 function ChipView({ chip, dim }: Readonly<{ chip: Chip; dim: boolean }>) {
   const classes = cn(
     'inline-flex h-[22px] items-center gap-[5px] whitespace-nowrap rounded-full px-2 font-medium text-caption',
@@ -290,7 +290,7 @@ export default async function Services({ user, year }: SectionProps) {
       id="services-title"
       title="Services"
     >
-      {/* Phone rows are the lane's own children on STMobile: 16px apart */}
+      {/* Phone rows are the lane's own children: 16px apart */}
       <div className="flex flex-col max-md:gap-4">
         {used.map((service) => (
           <UsedRow
@@ -311,7 +311,7 @@ export default async function Services({ user, year }: SectionProps) {
   );
 }
 
-/** The lane with the board's nine rows: 56px each (67px plus 16 apart on a phone) */
+/** The lane with nine rows: 56px each (67px plus 16 apart on a phone) */
 /** A typical year's services rows */
 const SERVICE_GHOSTS = Array.from({ length: 9 }, (_, n) => n);
 

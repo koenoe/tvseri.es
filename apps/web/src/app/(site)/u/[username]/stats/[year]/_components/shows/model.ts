@@ -7,9 +7,9 @@ import type { YearState } from '../../_lib/year';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** Rows the board draws before "All 71 shows" (the top 20 by hours) */
+/** Rows listed before "All 71 shows" (the top 20 by hours) */
 export const BOARD_ROWS = 20;
-/** The phone board draws the first 16 of those */
+/** The phone shows the first 16 of those */
 export const PHONE_ROWS = 16;
 /**
  * An unfinished show was "still watching" when its last episode fell in the
@@ -44,7 +44,7 @@ export type Timeline = Readonly<{
   /** Every show, in the order watched */
   rows: ReadonlyArray<TimelineRow>;
   total: number;
-  /** What the board leaves out: shows past the top 20 and their episodes */
+  /** What the list leaves out: shows past the top 20 and their episodes */
   moreShows: number;
   moreEpisodes: number;
 }>;

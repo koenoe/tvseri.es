@@ -1,6 +1,6 @@
 /**
  * Number and time formats of the Stats page and its share card. Their own
- * names: the Stats board writes time its own way ("2w 6d 20h", "36h"),
+ * names: the Stats page writes time its own way ("2w 6d 20h", "36h"),
  * unlike `formatDuration` and the landings' `formatHours`.
  */
 

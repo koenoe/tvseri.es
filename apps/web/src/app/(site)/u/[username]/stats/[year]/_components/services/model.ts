@@ -62,7 +62,7 @@ export function isStoreProvider(name: string): boolean {
   );
 }
 
-/** The desktop column the line sits in (STD_Recommended: 230px) */
+/** The desktop column the line sits in (230px) */
 const SERIES_LINE_PX = 230;
 
 /**

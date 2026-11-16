@@ -10,7 +10,7 @@ import Icon from '@/components/ui/icon/Icon';
 import { useListToggle } from '@/lib/marking/toggles';
 
 /**
- * The `+` on a Popular unwatched poster (`.st-add`): the viewer's own
+ * The `+` on a Popular unwatched poster: the viewer's own
  * watchlist through the marking core (optimistic, toast with Undo, the
  * sign-in toast when signed out). The cached page ships it neutral; the
  * viewer's state arrives with the library ids after hydration.

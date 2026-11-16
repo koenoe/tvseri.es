@@ -30,7 +30,7 @@ import YearsList from './YearsList';
 import { loadYearRows } from './years';
 
 /**
- * The desktop sidebar (STD_Recommended `.st-side`, sticky): the profile
+ * The desktop sidebar (sticky): the profile
  * block with the way back to the profile, the Years submenu and, for a
  * finished year, the Share entry.
  */

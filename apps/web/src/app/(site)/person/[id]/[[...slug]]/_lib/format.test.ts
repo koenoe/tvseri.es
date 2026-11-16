@@ -44,7 +44,7 @@ describe('summary', () => {
 });
 
 describe('allSeriesLabel (the Career card’s link to Shows › Series)', () => {
-  it('says "All 26 series" as the board does, never "All 1 series"', () => {
+  it('says "All 26 series", never "All 1 series"', () => {
     expect(allSeriesLabel(26, 'long')).toBe('All 26 series');
     expect(allSeriesLabel(26, 'short')).toBe('All 26');
     expect(allSeriesLabel(1, 'long')).toBe('1 series');

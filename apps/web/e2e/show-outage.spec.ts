@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 /**
- * The show page while the API is unavailable (ERFinal), with the stub's
+ * The show page while the API is unavailable, with the stub's
  * outage ids (`stub-api/fixtures/show-outage.ts`): a core read that fails
  * shows the data-down page as the person page does, bounded by one fetch
  * timeout; a section whose read fails shows its static unavailable state in

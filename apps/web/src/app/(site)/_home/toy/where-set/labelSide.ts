@@ -1,5 +1,5 @@
 /**
- * Where a pin's label goes (HMFinal `e2-pl`: 14px right of the pin, its
+ * Where a pin's label goes (14px right of the pin, its
  * bottom 2px above the pin's centre), and the other three corners when that
  * one would cover another pin or leave the map. Decided on the server from
  * the pins' map points, once for phones and once from md, each for its
@@ -10,7 +10,7 @@
 
 export type LabelSide = 'left-down' | 'left-up' | 'right-down' | 'right-up';
 
-/** In order of preference: the board's side first, then its mirror, then below */
+/** In order of preference: the right-up side first, then its mirror, then below */
 const SIDES: ReadonlyArray<LabelSide> = [
   'right-up',
   'left-up',
@@ -59,7 +59,7 @@ const covers = (rect: Rect, pin: Point) =>
  * `points` are in the map's own units (`mapWidth` × `mapHeight`). A side
  * must stay inside the map and
  * cover no other pin; when none is free, the inside side covering the
- * fewest pins wins (the board's side on a tie).
+ * fewest pins wins (the preferred side on a tie).
  */
 export function labelSides(
   places: ReadonlyArray<Readonly<{ name: string; point: Point }>>,

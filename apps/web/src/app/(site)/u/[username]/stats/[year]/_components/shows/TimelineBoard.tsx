@@ -21,7 +21,7 @@ import {
 import SortSwitch from './SortSwitch';
 import TimelineRowView from './TimelineRowView';
 
-/** The link that opens the rest of the shows in place (`.st-colink`) */
+/** The link that opens the rest of the shows in place */
 function MoreLink({
   className,
   expanded,
@@ -55,7 +55,7 @@ function MoreLink({
 }
 
 /**
- * The year in shows (STD_Recommended `stb-yis`, STMobile `stm-yis`): the
+ * The year in shows: the
  * sort control, the lane with the months, one row per show, the legend and
  * the rest of the shows behind "All 71 shows". Gets only the trimmed row
  * models; the server did the rules.

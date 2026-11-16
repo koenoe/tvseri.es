@@ -1,5 +1,5 @@
 /**
- * "21:14 today", "Yesterday, 22:40", "Wed, 21:05", "Nov 8, 21:05", "Jan 8, 2025, 21:05": the boards' wording (the one ladder)
+ * "21:14 today", "Yesterday, 22:40", "Wed, 21:05", "Nov 8, 21:05", "Jan 8, 2025, 21:05": the one ladder
  * for a recent moment, in the viewer's own time zone. Pure (the clock and the
  * zone are arguments) so it is tested without a browser.
  */

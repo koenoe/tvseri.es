@@ -9,7 +9,7 @@ const signedIn = { [SIGNED_IN_ONLY]: '' };
 const signedOut = { [SIGNED_OUT_ONLY]: '' };
 
 /**
- * Versus's heading, the line over the comparison (HMFinal `e2-vh`): the
+ * Versus's heading, the line over the comparison: the
  * swap icon and "Similar, and you haven't seen either. Which first?" for a
  * signed-in viewer, "Similar. Which first?" signed out. The cached HTML is
  * the same for everyone: both lines are in it and the pre-paint viewer hint

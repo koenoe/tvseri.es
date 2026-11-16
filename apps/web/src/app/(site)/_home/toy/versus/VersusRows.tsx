@@ -8,7 +8,7 @@ import { type CompareRow, compareRows, type Side } from './rows';
 
 const FADE = 'transition-opacity duration-[250ms] ease-[ease]';
 
-/** HMFinal `e2-w` / `e2-l`: the higher value white and bold, the other at 60% (the site's contrast floor; the board's 50%); the side not chosen at 40% */
+/** The higher value white and bold, the other at 60% (the site's contrast floor); the side not chosen at 40% */
 const valueClass = (row: CompareRow, side: Side, chosen: Side | null) =>
   cn(
     VERSUS_VALUE[side],
@@ -38,7 +38,7 @@ function Row({
 }
 
 /**
- * The comparison (HMFinal `e2-vr`): Score, Seasons, Episodes, On air, the
+ * The comparison: Score, Seasons, Episodes, On air, the
  * left series' value right-aligned, the label, the right one's value; the
  * side not chosen dims with its poster. A table to assistive tech, each
  * label its row's header.

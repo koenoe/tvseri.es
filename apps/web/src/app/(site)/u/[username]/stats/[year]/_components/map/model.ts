@@ -48,7 +48,7 @@ export function rankCountries(
 
 /**
  * A country's dot opacity: .45 for one series up to 1 for the most, eased
- * (fitted to the board: 44 → 1, 13 → .70, 4 → .55, 2 → .49, 1 → .45).
+ * (fitted: 44 → 1, 13 → .70, 4 → .55, 2 → .49, 1 → .45).
  */
 export function countryAlpha(count: number, max: number): number {
   if (max <= 1) {
@@ -71,7 +71,7 @@ const at = (index: number) => {
 
 /**
  * Each dot as a zero-length segment (`M211.1 2.1h0`, drawn by a round cap),
- * as the board's map: the land without a highlighted country in one path,
+ * as the map: the land without a highlighted country in one path,
  * one path per highlighted country.
  */
 export function dotPaths(highlighted: ReadonlySet<string>): Readonly<{

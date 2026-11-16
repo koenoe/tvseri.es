@@ -117,7 +117,7 @@ export default function PickCard({
 }
 
 /** The pick's logo in a 300 × 72 box, else its title in two lines at most */
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 const PICK_TITLE: TitleTreatmentLook = {
   box: 'relative m-0 block h-[72px] w-[300px] max-w-full',
   logo: `${TITLE_LOGO_FIT} drop-shadow-[0_2px_14px_rgb(0_0_0/0.5)]`,

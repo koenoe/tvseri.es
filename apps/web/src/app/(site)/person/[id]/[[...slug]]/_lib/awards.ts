@@ -32,7 +32,7 @@ const LONG: Readonly<Record<string, string>> = {
 };
 
 /**
- * Which families the boards name. The sidebar line names the headline
+ * Which families are named. The sidebar line names the headline
  * awards ("7 Emmys, 2 Tonys, 1 Golden Globe", passing over 5
  * Actor Awards); the lane adds the guild and national ones (Actor Award,
  * BAFTA, Olivier) and leaves the rest (Critics' Choice, Gold Derby…) to the
@@ -124,7 +124,7 @@ export type AwardCard = Readonly<{
   detail: string;
 }>;
 
-/** One card per family, most wins first; the board draws four at most. */
+/** One card per family, most wins first, four at most. */
 export function awardCards(
   awards: PersonAwards | null,
   limit = 4,

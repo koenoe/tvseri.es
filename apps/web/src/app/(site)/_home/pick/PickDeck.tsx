@@ -31,7 +31,7 @@ type Props = Readonly<{
 }>;
 
 /**
- * HMFinal's per-card `filter: brightness()` transitions, as a black shade
+ * Per-card `filter: brightness()` transitions are done as a black shade
  * over each poster whose opacity is `1 - brightness` (the same pixels for
  * brightness up to 1): opacity runs on the compositor in every engine, where
  * a filter transition repaints the poster each frame in WebKit.
@@ -65,7 +65,7 @@ const shadeStyle = (pose: CardPose, transition: string): CSSProperties => ({
 });
 
 /**
- * HMFinal `e3-deck`: seven posters fanned around the pick (`deck.ts`). The
+ * Seven posters fanned around the pick (`deck.ts`). The
  * pick's poster opens its show for a pointer; the deck is hidden from assistive
  * tech and out of the tab order (the result names the pick and its title
  * opens the show).

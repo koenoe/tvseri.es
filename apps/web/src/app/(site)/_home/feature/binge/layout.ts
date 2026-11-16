@@ -17,7 +17,7 @@ export const DEFAULT_MODE: NightsMode = 'every';
 /** The card */
 export const BINGE_CARD = cn(MOMENT_CARD, 'flex flex-col gap-6 md:gap-8');
 
-/** The label over the headline (HMFinal `e3-bch`: 16px apart, 8 on a phone) */
+/** The label over the headline (16px apart, 8 on a phone) */
 export const BINGE_HEAD = 'flex flex-col gap-2 md:gap-4';
 
 /** "Severance in 10 nights · 19 episodes, 15h 12m" (also One season in stills') */

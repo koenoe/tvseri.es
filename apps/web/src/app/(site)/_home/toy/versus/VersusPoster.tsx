@@ -8,10 +8,10 @@ import { VERSUS_NAME, VERSUS_POSTER, VERSUS_POSTER_STACK } from './layout';
 export type PosterState = 'chosen' | 'idle' | 'out';
 
 const SHADOW = 'shadow-[0_10px_18px_rgb(0_0_0/0.35)]';
-/** HMFinal `e2-vp:hover img`: a 2px ring at 40% */
+/** A 2px ring at 40% */
 const HOVER =
   'group-hover/vp:shadow-[0_10px_18px_rgb(0_0_0/0.35),0_0_0_2px_rgb(255_255_255/0.4)]';
-/** HMFinal `e2-vp.e2-on img`: a 3px white ring */
+/** A 3px white ring */
 const CHOSEN = 'shadow-[0_10px_18px_rgb(0_0_0/0.35),0_0_0_3px_#fff]';
 
 const IMAGE =
@@ -24,7 +24,7 @@ function Poster({ shown, src }: Readonly<{ shown: boolean; src: string }>) {
 }
 
 /**
- * One side of the pair (HMFinal `e2-vp`): the poster over its name, a real
+ * One side of the pair: the poster over its name, a real
  * button (`aria-pressed`): pressed, it carries the white ring; while the
  * other side is chosen it dims to 40%. Every pair the viewer has looked at
  * (or is about to) keeps its image mounted, cross-faded, so going back and

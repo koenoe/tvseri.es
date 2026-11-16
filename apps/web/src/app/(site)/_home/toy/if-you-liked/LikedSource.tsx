@@ -19,7 +19,7 @@ export const LIKED_SOURCE =
 const LIKED_SOURCE_META = 'gap-3';
 
 /**
- * The show the card starts from (HMFinal `e3-brs`): its poster (10px
+ * The show the card starts from: its poster (10px
  * corners) with the Watched label, then year and seasons. A finished show is
  * watched by definition; a favourite gets the label from the library.
  */

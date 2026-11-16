@@ -21,7 +21,7 @@ type Props = Readonly<{
  * A streaming service's square logo (where to watch, Watches on, the
  * pickers, the channel rows). Presentational: a service without a logo is
  * each place's own call (nothing, an empty slot, a grey square). Each place
- * keeps its signed-off size and corners through its layout.
+ * keeps its own size and corners through its layout.
  */
 export default function ServiceIcon({
   alt,

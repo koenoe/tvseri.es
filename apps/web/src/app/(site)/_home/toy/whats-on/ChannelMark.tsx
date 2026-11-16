@@ -3,14 +3,14 @@ import ServiceIcon, {
   type ServiceIconLayout,
 } from '@/components/ui/service/ServiceIcon';
 
-/** Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval. */
+/** Each place keeps its own look on purpose; don't unify them. */
 const MARK: ServiceIconLayout = {
   className: 'block size-7 rounded-6 object-contain',
   size: 28,
 };
 
 /**
- * The service on a channel row (HMFinal `e2-chr img`): its square icon
+ * The service on a channel row: its square icon
  * (28px, 6px corners), always; the wordmark is the screen's caption's only.
  * Without a square icon the 28px slot stays empty, so the rows line up (as
  * elsewhere a service without its logo is left out).

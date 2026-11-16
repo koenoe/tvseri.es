@@ -3,7 +3,7 @@ import { devices, expect, test } from '@playwright/test';
 import { signInAs } from './helpers/session';
 
 /**
- * Phones (EPFinalMobile): a mark from the episode sheet's record stub, which
+ * Phones: a mark from the episode sheet's record stub, which
  * is docked at the bottom, raises the toast above the stub instead of
  * covering its controls; the first-tracking prompt's answers are 44px touch
  * targets though drawn at 32–34px.

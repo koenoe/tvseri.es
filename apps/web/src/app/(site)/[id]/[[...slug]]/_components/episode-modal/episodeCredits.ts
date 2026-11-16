@@ -19,7 +19,7 @@ export type CrewBlock = Readonly<{
 /**
  * What `GET /api/series/:id/season/:s/episode/:e` sends the modal: the
  * episode's guest stars, the show's regulars ("Starring") and the crew the
- * board's roll names, nothing else.
+ * credits roll names, nothing else.
  */
 export type EpisodeModalCredits = Readonly<{
   guestStars: ReadonlyArray<CreditPerson>;
@@ -40,7 +40,7 @@ const CREW_ROLES: ReadonlyArray<
   { jobs: ['Editor'], role: 'Edited by' },
 ];
 
-/** The board draws the show's main cast (seven regulars on The Bear). */
+/** The show's main cast (seven regulars on The Bear). */
 const MAX_STARRING = 8;
 
 const toPerson = (
@@ -109,7 +109,7 @@ export function toRollBlocks(credits: EpisodeModalCredits): RollBlock[] {
   return [...lead.map(names), ...pairs, ...rest.map(names)];
 }
 
-/** The board's big faces: up to ten guest stars with a photo. */
+/** The big faces: up to ten guest stars with a photo. */
 export const guestFaces = (credits: EpisodeModalCredits) =>
   credits.guestStars.filter((person) => person.image).slice(0, 10);
 

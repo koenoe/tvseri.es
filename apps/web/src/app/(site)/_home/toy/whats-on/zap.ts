@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * The static flash between channels (HMFinal `e2-zp`, `e2zapa`): scan lines
+ * The static flash between channels: scan lines
  * from 85% to 0 in 300ms, ease-out, opacity only.
  */
 export function zap(element: HTMLElement | null) {

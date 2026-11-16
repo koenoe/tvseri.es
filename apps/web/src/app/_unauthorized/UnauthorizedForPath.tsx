@@ -10,7 +10,7 @@ import profileFromPath from './profileFromPath';
 
 /**
  * `unauthorized.tsx` gets no params, so the variant comes from the URL: on
- * someone's profile the way out is their public stats (ERFinal 401 profile).
+ * someone's profile the way out is their public stats.
  * A browser that still shows a viewer here checks again (`useRecheckViewer`).
  */
 export default function UnauthorizedForPath({

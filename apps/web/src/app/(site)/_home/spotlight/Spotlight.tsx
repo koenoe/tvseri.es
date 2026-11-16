@@ -7,7 +7,7 @@ import SpotlightCarousel from './SpotlightCarousel';
 import { toSlide } from './slide';
 
 /**
- * HMFinal's trending spotlight, the page header of `/`: the API's trending
+ * The trending spotlight, the page header of `/`: the API's trending
  * top 10 as slides. The server keeps the client island small: each show is
  * reduced to what a slide draws (hook line, labels, safe colour) here.
  */

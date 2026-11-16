@@ -12,7 +12,7 @@ import {
   STEP_TITLE,
 } from './layout';
 
-/** Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval. */
+/** Each place keeps its own look on purpose; don't unify them. */
 const CIRCLE: StepCircleLayout = {
   base: `${STEP_CIRCLE} flex items-center justify-center border-2 text-body-sm font-medium tabular-nums transition-colors`,
   check: 16,

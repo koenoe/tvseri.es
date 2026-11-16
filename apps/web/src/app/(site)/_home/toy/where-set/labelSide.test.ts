@@ -40,7 +40,7 @@ describe('labelSides', () => {
   });
 
   it('moves off a neighbouring pin to the free side', () => {
-    // a pin just right of and above Madrid: the board's side covers it
+    // a pin just right of and above Madrid: the preferred side covers it
     const sides = labelSides(
       [
         { name: 'Madrid', point: { x: 330, y: 100 } },

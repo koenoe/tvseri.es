@@ -23,9 +23,8 @@ function takeWelcome(): boolean {
 const CHECK = <Icon className="text-cyan" glyph={checkGlyph} size={16} />;
 
 /**
- * The one-time welcome after a sign-in that created the account (AU Final
- * states, “3 · first sign-in”): the site's toast, “Welcome” with “Pick a
- * username” (Settings → Profile; the board's wording). The
+ * The one-time welcome after a sign-in that created the account: the site's toast, “Welcome” with “Pick a
+ * username” (Settings → Profile). The
  * title is the short one so it never truncates beside the button and ✕ at
  * 360 (no wrapping). The callback sets the cookie; nothing is fetched.
  * Returning sign-ins get no toast: the header changing is the confirmation.

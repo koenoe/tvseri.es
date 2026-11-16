@@ -86,7 +86,7 @@ for (const viewport of SIZES) {
     // (overflow and caps): every lane full to
     // what its board draws, with its Show all foot. The sidebar follows the
     // handle's length and the year's sentence, so it is asserted on the
-    // board's page below; below lg it sits above the overview, and the
+    // page below; below lg it sits above the overview, and the
     // blocks are compared after its difference. Between md and xl a block's
     // height steps with the width its rows wrap at; the placeholders are the
     // lanes' own rows, so they wrap with them at every width.
@@ -100,7 +100,7 @@ for (const viewport of SIZES) {
       expectParity(belowTheSidebar(measured, viewport), { maxShift: 0.02 });
     });
 
-    // alex is the board's page: a lane with no Show all arrives shorter
+    // alex has the full page: a lane with no Show all arrives shorter
     // (below the fold), the frame above the lanes is exact
     test('your own overview, as the board draws it', async ({ browser }) => {
       const measured = await measureNoScriptParity(browser, {

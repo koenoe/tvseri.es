@@ -5,13 +5,13 @@ import { join } from 'node:path';
 
 /**
  * The card's fonts for satori (WOFF: satori reads TTF, OTF and WOFF, never
- * WOFF2). The board's Inter sets its optical size from the font size (axis
+ * WOFF2). Inter sets its optical size from the font size (axis
  * 14–32): Inter Display (32) for every size past 32 and the story's 32px
  * labels; the 400 at optical size 28 for the square's 28px labels (an
  * instance of Inter's variable font), so the light labels set as wide as
- * the board's (the story's streak line 506px). Tabular figures are frozen
+ * intended (the story's streak line 506px). Tabular figures are frozen
  * into 700 and 800 (satori can't switch OpenType features); the 400s keep
- * their kerning, as the board's text does. Plus Jakarta Sans 800 draws the
+ * their kerning. Plus Jakarta Sans 800 draws the
  * handle. Latin subsets, ~90 KB in all, OFL (fonts/OFL.txt).
  *
  * Each path is a literal under `process.cwd()`, as Next's docs read fonts

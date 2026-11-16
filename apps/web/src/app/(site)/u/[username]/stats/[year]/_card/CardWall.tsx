@@ -7,7 +7,7 @@ import { type WallCell, wallLayout } from './wall';
  * styles only). `posters` are data URLs by rank; null draws the title tile.
  */
 
-/** `.st-ss-wp`'s shadow and hairline, at the layout's scale */
+/** The poster's shadow and hairline, at the layout's scale */
 const shadow = (unit: number) =>
   `0 ${20 * unit}px ${40 * unit}px ${-16 * unit}px rgba(0,0,0,0.75), 0 0 0 ${2 * unit}px rgba(221,238,255,0.06)`;
 
@@ -72,7 +72,7 @@ export default function CardWall({
   );
 }
 
-/** "36h" on the #1 poster (`.st-ss-chip`) */
+/** "36h" on the #1 poster */
 function HoursChip({
   cell,
   hours,

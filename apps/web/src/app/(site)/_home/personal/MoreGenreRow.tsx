@@ -12,7 +12,7 @@ import { watchlistShareLine } from './format';
 const WATCHLIST_GLYPH: Glyph = { outline: bookmarkGlyph.outline };
 
 /**
- * "More Sci-Fi & Fantasy" (HMFinal `hx-h-wl`): the 16:9 backdrop row of the
+ * "More Sci-Fi & Fantasy": the 16:9 backdrop row of the
  * genre the viewer's watchlist leans to, "Half of your watchlist is …"
  * beside the title, and the moments' year · seasons · genre line under
  * each tile.

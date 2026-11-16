@@ -13,7 +13,7 @@ export const TICKET_STUB =
   'flex flex-col items-center justify-center gap-1 border-r-2 border-dashed border-white/14';
 
 /**
- * The ticket's stub (HMFinal `e3-tks`): the countdown in the moment's
+ * The ticket's stub: the countdown in the moment's
  * colour on a faint wash of it, cut off from the body by a dashed tear.
  * Tonight is a pink dot over the word.
  */

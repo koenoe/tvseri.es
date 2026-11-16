@@ -25,7 +25,7 @@ const signedOutOnly = { [SIGNED_OUT_ONLY]: '' };
 const signedInOnly = { [SIGNED_IN_ONLY]: '' };
 
 /**
- * The watchlist-only control (MKPairStreamed part 3): Premieres' tickets,
+ * The watchlist-only control: Premieres' tickets,
  * Pick one for me, Connected by, Versus and Binge. With the page's read it
  * streams in its own Suspense boundary: a ghost of its box for a signed-in
  * viewer until the state lands, "+ Watchlist" for everyone else. A state

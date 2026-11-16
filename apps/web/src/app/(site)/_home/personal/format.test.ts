@@ -48,7 +48,7 @@ describe('becauseSubtitle', () => {
 describe('watchlistShareLine', () => {
   const genre = 'Sci-Fi & Fantasy';
 
-  it('reads the board’s line for half', () => {
+  it('reads the line for half', () => {
     expect(watchlistShareLine({ matching: 4, sampled: 8 }, genre)).toBe(
       'Half of your watchlist is Sci-Fi & Fantasy',
     );

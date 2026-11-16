@@ -8,7 +8,7 @@ import type { ChannelRow } from './ChannelList';
 import { CHANNEL, CHANNEL_ON } from './layout';
 
 /**
- * One channel on the remote (HMFinal `e2-chr`): number, service mark,
+ * One channel on the remote: number, service mark,
  * service and show. 48px tall, 10px corners; white/6 on hover, white/12 and
  * white text when it's on. Memoised: a change of channel re-renders only the
  * two buttons whose state changed.

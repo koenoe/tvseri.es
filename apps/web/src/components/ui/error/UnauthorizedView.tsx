@@ -20,7 +20,7 @@ type Props = Readonly<{ header?: ReactNode }> &
          * the link goes there. `null`: they have nothing to show yet, so no
          * link and the copy says so. `'unknown'`: no such user, or the check
          * failed: nothing is claimed about them. `undefined` while
-         * it is being checked: the board's sentence and button hold their
+         * it is being checked: the sentence and button hold their
          * space, hidden.
          */
         statsYear: number | null | 'unknown' | undefined;

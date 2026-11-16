@@ -22,7 +22,6 @@ export async function generateMetadata({
   }
   const { name } = countryNames(slug);
   return {
-    // DRAFT: owner approves
     description: `Series from ${name}: where to start, who makes them and what’s new.`,
     title: name,
   };

@@ -107,7 +107,7 @@ describe('cardPath', () => {
 });
 
 describe('cardFileName', () => {
-  it('names the download in the board’s pattern, as a JPEG', () => {
+  it('names the download by user, year and format, as a JPEG', () => {
     expect(cardFileName('nina', 2025, 'square', 'dark')).toBe(
       'nina-2025-square.jpg',
     );

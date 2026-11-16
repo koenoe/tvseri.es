@@ -25,7 +25,7 @@ const GHOST_RAIL = cn(RAIL, 'overflow-hidden', PULSE);
 const GHOST_TICKETS = [0, 1, 2, 3];
 
 /**
- * HMFinal `hx-h-tk3`: new shows and new seasons as tickets. Built from the
+ * New shows and new seasons as tickets. Built from the
  * shared row parts (header, arrows, Back restore) as `Row` does, because the
  * tickets have a fixed width (460, 328 on phones) and a 16px gap (12 on
  * phones) that none of `Row`'s tile geometries give. A server component;

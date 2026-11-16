@@ -29,7 +29,7 @@ const BASE =
   'group/pill z-3 inline-flex items-center whitespace-nowrap rounded-full border-2 font-medium transition-[border-color,color,background-color] duration-200';
 
 const PLACE: Readonly<Record<PillVariant, string>> = {
-  // On the tile's flat surface the board's blur shows nothing: skipped, it
+  // On the tile's flat surface the blur shows nothing: skipped, it
   // saves a backdrop pass per compact tile while scrolling.
   compact: 'relative flex-none h-8 gap-2 pr-3.5 pl-2.5 text-caption',
   // Inset by the Focus text's padding (16px on phones, 32 × 28 from md), so

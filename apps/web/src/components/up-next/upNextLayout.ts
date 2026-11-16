@@ -1,9 +1,9 @@
 /**
  * The Up next card's boxes, shared by the card (`UpNextCard`) and its
  * placeholder (`UpNextCardGhost`), so the ghosts sit where the content lands
- * and the two cannot drift. From md the profile's V60 hero; on a phone
- * HMFinalMobile's `hx-mun` (the one phone drawing of the card). A plain
- * module: server-rendered placeholders read these as strings.
+ * and the two cannot drift. From md the profile's hero layout; one
+ * drawing on a phone. A plain module: server-rendered placeholders
+ * read these as strings.
  */
 
 /** The card's size: 360px on a phone, at least 420px from md (it grows with a row beside it) */

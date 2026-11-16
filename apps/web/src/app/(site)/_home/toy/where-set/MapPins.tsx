@@ -7,7 +7,7 @@ import Pin, { PinLabel } from './Pin';
 import type { MapPlace } from './types';
 
 /**
- * The map (HMFinal `e2-map`, 680 × 293 at desktop, the column's width on a
+ * The map (680 × 293 at desktop, the column's width on a
  * phone at the same ratio) with a pin and a label per place; only the picked
  * place's label shows. The labels sit in their own layer clipped to the map,
  * so none (shown or not) can reach past it and widen the page; the pins

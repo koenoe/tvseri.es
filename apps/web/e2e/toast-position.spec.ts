@@ -3,7 +3,7 @@ import { expect, type Page, test } from '@playwright/test';
 import { type StubViewer, setLibraryHint, signInAs } from './helpers/session';
 
 /**
- * The toast's one place (Toaster.tsx, CMFinal `.t1`, `.mp .t1`) from every
+ * The toast's one place (Toaster.tsx) from every
  * trigger, also while a layer is open (the Remote's popover or sheet): at
  * 1440 bottom right of the viewport, 24px in from the right and the bottom,
  * as wide as its content (280 to 720px); full width 16px in, 40px up at 390.

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { contrast, mixWithWhite, remoteInk } from './ink';
 
-/** The steps of specs/remote_style.md §2 that must stay readable. */
+/** The steps of the remote ink scale that must stay readable. */
 function ratios(ink: string) {
   const key = mixWithWhite(ink, 0.06);
   return {

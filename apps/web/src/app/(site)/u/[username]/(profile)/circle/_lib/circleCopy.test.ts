@@ -22,7 +22,7 @@ const match = (overrides: Partial<CircleMatch>): CircleMatch => ({
   ...overrides,
 });
 
-describe('proofLine (PGFinal 5: the one-line reason beside the level)', () => {
+describe('proofLine (the one-line reason beside the level)', () => {
   it('names what you both love before what you both watch', () => {
     expect(
       proofLine(
@@ -169,7 +169,7 @@ describe('relationTags (a visitor’s rows)', () => {
   });
 });
 
-describe('followNobodyLine (PGFinalStates A: you follow nobody)', () => {
+describe('followNobodyLine (you follow nobody)', () => {
   it('points at the people below who already follow you', () => {
     expect(followNobodyLine(2)).toBe(
       'Follow someone from their profile; the two people below already follow you.',

@@ -12,9 +12,9 @@ const DOT = (
 const GHOST_DOT = <Ghost className="size-2 shrink-0 rounded-full" />;
 
 /**
- * A block on a dark card (`.st-lane`): the shared lane panel in Stats' look
+ * A block on a dark card: the shared lane panel in Stats' look
  * (`STATS_LANE`), headed by a white dot, the 18px name and an optional count
- * badge (`.st-lanehead`, the plain number), with something on the right.
+ * badge (the plain number), with something on the right.
  */
 export default function Lane({
   aside,

@@ -142,7 +142,7 @@ export function SliceFull({
 }
 
 /** The open slice's title treatment (240 × 80), or its name when it has none */
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 export const SLICE_TITLE: TitleTreatmentLook = {
   box: 'relative block h-20 w-60 max-w-full',
   logo: `${TITLE_LOGO_FIT} drop-shadow-[0_2px_12px_rgb(0_0_0/0.45)]`,

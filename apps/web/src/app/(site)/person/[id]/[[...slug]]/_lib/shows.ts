@@ -63,7 +63,7 @@ export type ShowsView = Readonly<{
 /** A voice or narration credit: the mic instead of the person */
 export const VOICE_ROLE = /\bvoice\b|narrator/i;
 
-/** "Director, executive producer": one sentence, as the boards write it */
+/** "Director, executive producer": one sentence */
 const crewLine = (jobs: ReadonlyArray<string>) => sentenceCase(jobs.join(', '));
 
 const VERBS: ReadonlyArray<readonly [RegExp, string, boolean]> = [
@@ -74,7 +74,7 @@ const VERBS: ReadonlyArray<readonly [RegExp, string, boolean]> = [
 ];
 
 /**
- * His work behind the camera as the boards write it: "Created, wrote 2
+ * His work behind the camera: "Created, wrote 2
  * episodes", "Directed 7 episodes". Producing is left out next to that
  * work; a producer only ("Executive producer") keeps the job titles.
  */

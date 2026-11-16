@@ -5,7 +5,7 @@ import { TRENDING } from './core.ts';
 import { ok, type StubRoute } from './routes.ts';
 
 /**
- * "New this week" (`GET /home/new-this-week`) on the boards' Wed 11 Nov: the
+ * "New this week" (`GET /home/new-this-week`) on the sample Wed 11 Nov: the
  * week's premieres, most popular first, the lead (the first with a backdrop)
  * first. It holds the cases the row draws: a new series that leads (logo),
  * a new season ("Season 3"), one with a backdrop but no logo, one without a

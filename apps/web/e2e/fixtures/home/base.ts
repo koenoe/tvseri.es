@@ -1,11 +1,11 @@
 import type { Episode, Genre, TvSeries } from '@tvseri.es/schemas';
 
 /**
- * Fixture plumbing for the home page (HMFinal). The stub API (e2e/stub-api)
- * and the dev preview (/dev/home) render the boards' own shows. Images are
+ * Fixture plumbing for the home page. The stub API (e2e/stub-api)
+ * and the dev preview (/dev/home) render the sample shows. Images are
  * TMDB-shaped URLs named after the canvas images (`__IMG__<name>__`), so the
  * page's CSP and the TMDB loader treat them like the real thing; a local
- * screenshot tool can answer them from the canvas image folder (a board and
+ * screenshot tool can answer them from the canvas image folder (an image and
  * a page screenshot then show the same artwork). In tests they don't load.
  *
  * Every fixture file only imports from other fixture files with a `.ts`
@@ -13,7 +13,7 @@ import type { Episode, Genre, TvSeries } from '@tvseri.es/schemas';
  */
 const TMDB = 'https://image.tmdb.org/t/p';
 
-/** The API's default size segment for the kind of image a board name is */
+/** The API's default size segment for the kind of image a name is */
 function segmentFor(name: string): string {
   if (name.includes('_bd')) {
     return 'w1920_and_h1080_multi_faces';
@@ -30,10 +30,10 @@ function segmentFor(name: string): string {
   return 'original';
 }
 
-/** A board image (`__IMG__<name>__` on the canvas) as a TMDB image URL */
+/** A sample image (`__IMG__<name>__`) as a TMDB image URL */
 export const img = (name: string) => `${TMDB}/${segmentFor(name)}/${name}`;
 
-/** Today on the boards: Wed 11 Nov 2026 (the demo days are Mon 9 to Sat 14) */
+/** Today in the demo: Wed 11 Nov 2026 (the demo days are Mon 9 to Sat 14) */
 export const BOARD_TODAY = '2026-11-11';
 
 const GENRES: Readonly<Record<string, Genre>> = {
@@ -67,7 +67,7 @@ export type SeriesInput = Readonly<{
   backdrop?: string;
   color?: string;
   description?: string;
-  /** board genre name, e.g. 'Sci-Fi & Fantasy' */
+  /** genre name, e.g. 'Sci-Fi & Fantasy' */
   genre?: string;
   id: number;
   logo?: string;
@@ -110,7 +110,7 @@ const episode = (
   title: '',
 });
 
-/** A full `TvSeries` as the API sends it, from the few fields a board shows */
+/** A full `TvSeries` as the API sends it, from the few fields the sample shows */
 export function series(input: SeriesInput): TvSeries {
   const genre = input.genre ? GENRES[input.genre] : undefined;
   return {

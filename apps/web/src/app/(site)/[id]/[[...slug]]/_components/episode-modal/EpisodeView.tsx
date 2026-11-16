@@ -15,7 +15,7 @@ import EpisodeFacts from './EpisodeFacts';
 import { stepEpisode } from './episodeSteps';
 import RecordStub from './RecordStub';
 
-/** The still's darkening, tinted by the page (EP-B ep-b-dim + ep-b-dim2). */
+/** The still's darkening, tinted by the page. */
 const DIM = 'color-mix(in srgb, var(--color-page) 60%, black)';
 const dim = (alpha: number) =>
   `color-mix(in srgb, ${DIM} ${alpha}%, transparent)`;
@@ -59,7 +59,7 @@ type Props = Readonly<{
 }>;
 
 /**
- * EP-B's face: the still fills the modal, the title lands at 104px over the
+ * The face: the still fills the modal, the title lands at 104px over the
  * faces and the record stub on the left, the credits roll on the right.
  * Phones stack it: still, title, faces, credits, then the stub. Below `lg`
  * the side-by-side face doesn't fit (the roll keeps 300px, the title column

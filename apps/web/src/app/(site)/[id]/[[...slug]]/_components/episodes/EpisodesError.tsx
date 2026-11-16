@@ -7,7 +7,7 @@ import { WallSkeleton } from './EpisodesSkeleton';
 import { seasonName } from './panelRows';
 
 /**
- * A season that didn't load: ERFinal's per-section error in the wall's own
+ * A season that didn't load: the per-section error in the wall's own
  * space (the dashed slots keep the loading wall's size, so nothing jumps),
  * one card saying only this failed, with Try again.
  */

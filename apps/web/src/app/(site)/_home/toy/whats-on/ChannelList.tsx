@@ -25,7 +25,7 @@ const STEP: Readonly<
 };
 
 /**
- * The remote's channels (HMFinal `e2-rem`; up/down sit in its label row,
+ * The remote's channels (up/down sit in its label row,
  * `ChannelArrows`). The list is a radio group: one tab stop on the channel
  * that's on; arrows, Home and End change channel and move focus with it.
  */

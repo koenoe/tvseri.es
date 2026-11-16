@@ -2,7 +2,7 @@ import type { StatsGenreItem } from '@tvseri.es/schemas';
 
 import { plural } from '@/lib/format/text';
 
-/** STMobile draws the top six genres; STD_Recommended all (up to ten) */
+/** The phone shows the top six genres; desktop all (up to ten) */
 export const PHONE_ROWS = 6;
 
 export type GenreRow = Readonly<{

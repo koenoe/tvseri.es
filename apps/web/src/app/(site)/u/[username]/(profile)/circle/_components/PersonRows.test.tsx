@@ -46,7 +46,7 @@ const renderRow = (row: CircleRow) =>
     </ul>,
   );
 
-describe('a row on your own Circle (PGFinal 5)', () => {
+describe('a row on your own Circle', () => {
   it('shows the ring, the name, Follows you, the level with its reason, what they watch and Following', () => {
     renderRow(edw1n);
     const row = screen.getByRole('listitem');
@@ -67,7 +67,7 @@ describe('a row on your own Circle (PGFinal 5)', () => {
     expect(within(row).getByRole('button').textContent).toBe('Following');
   });
 
-  it('leaves out posters and New to you (after the board)', () => {
+  it('leaves out posters and New to you', () => {
     renderRow(edw1n);
     const row = screen.getByRole('listitem');
     expect(row.querySelector('img')).toBeNull();
@@ -118,7 +118,7 @@ const person = (overrides: Partial<FollowItem>): FollowItem => ({
   ...overrides,
 });
 
-describe('a row on someone else’s Circle (PGFinalStates B)', () => {
+describe('a row on someone else’s Circle', () => {
   it('shows your relation, what they watch and Follow, with no ring', () => {
     render(
       <ul>

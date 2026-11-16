@@ -27,12 +27,12 @@ import { idsOf, withoutNeighbours } from './neighbours';
 /**
  * The streamed half of the home page: only ever called inside a Suspense
  * hole, after `auth()`. Signed out, every one of these is null and its hole
- * renders nothing (HMFinal: no skeleton). Token routes are private: never in
+ * renders nothing (no skeleton). Token routes are private: never in
  * a shared cache.
  */
 
 const ROW_LIMIT = 20;
-/** HMFinal: Continue watching holds at most 8 shows */
+/** Continue watching holds at most 8 shows */
 const CONTINUE_LIMIT = 8;
 
 /**

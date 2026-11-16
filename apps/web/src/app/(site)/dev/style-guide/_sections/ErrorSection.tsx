@@ -44,36 +44,32 @@ const TRENDING: ReadonlyArray<NotFoundShow> = [
 
 export default function ErrorSection() {
   return (
-    <Section
-      id="errors"
-      source="ERFinal (part 2, the final)"
-      title="Error pages"
-    >
+    <Section id="errors" source="the error pages" title="Error pages">
       <p className="text-body-sm text-white/60">
-        Frames are at 50% of ERFinal’s 1440 × 810 desktop frame; the phone
-        layout shows below 768px. The real 404 is any unknown URL in a
-        production build (/breaking-bad fills the search with “breaking bad”).
-        Each headline takes focus on load, as on the real page.
+        Frames are at 50% of a 1440 × 810 desktop frame; the phone layout shows
+        below 768px. The real 404 is any unknown URL in a production build
+        (/breaking-bad fills the search with “breaking bad”). Each headline
+        takes focus on load, as on the real page.
       </p>
       {NOT_FOUND_STILLS.map((still) => (
         <Specimen
-          board={`ERFinal 404 · ${still.id} (app/not-found.tsx, static)`}
           key={still.id}
           label={`404 · ${still.credit}`}
+          note={`404 · ${still.id} (app/not-found.tsx, static)`}
         >
           <Frame>
             <NotFoundView shows={TRENDING} still={still} />
           </Frame>
         </Specimen>
       ))}
-      <Specimen board="ERFinal 401 · settings (unauthorized())" label="401">
+      <Specimen label="401" note="401 · settings (unauthorized())">
         <Frame>
           <UnauthorizedView variant="default" />
         </Frame>
       </Specimen>
       <Specimen
-        board="ERFinal 401 · someone's profile, signed out"
         label="401 · profile"
+        note="401 · someone's profile, signed out"
       >
         <Frame>
           <UnauthorizedView
@@ -83,27 +79,27 @@ export default function ErrorSection() {
           />
         </Frame>
       </Specimen>
-      <Specimen board="ERFinal 403 · admin only (forbidden())" label="403">
+      <Specimen label="403" note="403 · admin only (forbidden())">
         <Frame>
           <ForbiddenView />
         </Frame>
       </Specimen>
-      <Specimen board="ERFinal 500 (app/error.tsx)" label="500">
+      <Specimen label="500" note="500 (app/error.tsx)">
         <Frame>
           <ServerErrorView errorId="7f3a91c2" retry={<RefreshButton />} />
         </Frame>
       </Specimen>
       <Specimen
-        board="ERFinal data down (a DataDownError in app/error.tsx)"
         label="Data down"
+        note="Data down (a DataDownError in app/error.tsx)"
       >
         <Frame>
           <DataDownView />
         </Frame>
       </Specimen>
       <Specimen
-        board="ERFinal offline (navigator.onLine false in app/error.tsx)"
         label="Offline · test card"
+        note="Offline (navigator.onLine false in app/error.tsx)"
       >
         <Frame>
           <OfflineView retry={<RefreshButton />} />

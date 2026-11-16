@@ -9,7 +9,7 @@ import type { ShareCard } from './shareCard';
 /**
  * The share UI's props, from the card's own (cached) data: the Colour
  * swatch is the top of the card's Colour ground, the description the card
- * in words. Without the data the swatch is the board's blue.
+ * in words. Without the data the swatch is the default blue.
  */
 export async function getShareCard(
   user: StatsUser,

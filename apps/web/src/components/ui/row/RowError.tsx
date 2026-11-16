@@ -98,7 +98,7 @@ export default function RowError({
       <RowHeader {...heading} switcher={switcher} titleId={titleId} />
       {/*
         the slots start where the row's cards did (its look's rail offset,
-        as Row and RowSkeleton), not the board's 28/16: a row that fails after
+        as Row and RowSkeleton), not 28/16: a row that fails after
         its skeleton was on screen then moves nothing below it
       */}
       <div className="relative pt-[var(--row-rail-pt,24px)] pb-6">

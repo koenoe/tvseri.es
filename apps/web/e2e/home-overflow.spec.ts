@@ -4,7 +4,7 @@ import { findOverflow, formatProblems } from './helpers/overflow';
 import { setLibraryHint, signInAs } from './helpers/session';
 
 /**
- * Home holds its text from a small phone to the board's 1440
+ * Home holds its text from a small phone to 1440
  * (`helpers/overflow.ts`): no sideways scroll, no text outside its card, no
  * value cut without an ellipsis, no control under something else. Signed out (the shared page) and signed in
  * (`kit`: Continue watching and the personal rows).

@@ -10,7 +10,7 @@ import { type StubViewer, signInAs } from './helpers/session';
 /**
  * The profile overview holds real, heavy data: no sideways scroll, no text outside its card, no
  * value cut without an ellipsis, equal rows where the board draws them, at
- * a phone, a tablet, the board's 1440 and a big screen. The heavy profile
+ * a phone, a tablet, 1440 and a big screen. The heavy profile
  * (`marathonwatcher-2026`) is checked with every capped lane open too.
  */
 
@@ -73,7 +73,7 @@ test('a busy profile stays short: lanes list what the board draws', async ({
   const height = await page.evaluate(
     () => document.documentElement.scrollHeight,
   );
-  // 11,540px before the caps; the two lanes now stay near the board's
+  // 11,540px before the caps; the two lanes now stay near that
   expect(height).toBeLessThan(4600);
   // 22 shows catching up, 28 paused: one and three listed, the rest in place
   const catching = page.getByRole('region', { name: 'Catching up' });

@@ -91,8 +91,8 @@ export function summary(text?: string): string | undefined {
 }
 
 /**
- * The Career card's link to Shows filtered to Series: "All 26 series" (the
- * board; "All 26" on a phone). One is just "1 series": "All 1" reads like a
+ * The Career card's link to Shows filtered to Series: "All 26 series" (
+ * "All 26" on a phone). One is just "1 series": "All 1" reads like a
  * template beside the Shows header's bigger "All" count.
  */
 export const allSeriesLabel = (count: number, size: 'long' | 'short') =>

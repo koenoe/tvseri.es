@@ -6,7 +6,7 @@
  * - The quietest text drawn straight on a ground is the meta line, white at
  *   60%. White at 60% over the colour must read against the colour at
  *   4.5:1 or more (WCAG 2.x contrast, AA for body text).
- * - A colour that passes is served as it is. Every board's ground passes
+ * - A colour that passes is served as it is. Every shipped ground passes
  *   (The Bear's `#29251f` is 6.5:1), so colours that were fine never change.
  * - A brighter colour is mixed with black in 4% steps (each channel times
  *   0.96, 0.92, …), so the hue and the saturation stay: a grey stays a

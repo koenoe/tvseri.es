@@ -15,11 +15,11 @@ import { VOICE_ROLE } from './shows';
  * track. A linear year scale is all it needs.
  */
 
-/** The board draws nine series and links "All N series" for the rest */
+/** Nine series are shown, with a link "All N series" for the rest */
 const CAREER_ROWS = 9;
 const UPCOMING_ROWS = 2;
 
-/** Track widths the boards draw (1440 desktop, 390 phone), for text fits */
+/** Track widths (1440 desktop, 390 phone), for text fits */
 export const TRACK = { desktop: 620, phone: 210 } as const;
 /** Inter 12px, about this wide per character */
 const CHAR = { desktop: 6.6, phone: 5.6 } as const;
@@ -350,7 +350,7 @@ function guestView(
   if (guest.count === 0 || guest.ticks.length === 0) {
     return null;
   }
-  // Several roles in one year spread across that year, as the board draws
+  // Several roles in one year spread across that year
   const perYear = new Map<number, number>();
   const ticks = guest.ticks.map(({ year }) => {
     const index = perYear.get(year) ?? 0;

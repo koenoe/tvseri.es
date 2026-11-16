@@ -16,7 +16,7 @@ type Props = Omit<ComponentProps<'button'>, 'aria-label' | 'children'> &
   CircleButtonVariantProps &
   Readonly<{
     icon: Glyph | ToggleGlyph;
-    /** Overrides the glyph size the circle's size gives (a board's 14px ✕). */
+    /** Overrides the glyph size the circle's size gives (e.g. a 14px ✕). */
     iconSize?: IconSize;
     /** Required: the button has no visible text. */
     label: string;

@@ -6,7 +6,7 @@ import { BINGE_HEADLINE } from '../binge/layout';
 import { stillsGrid } from './stillsLayout';
 
 /**
- * One season in stills' layout (HMStillsVariants A, "The card, tidied"),
+ * One season in stills' layout,
  * shared by the block (`SeasonInStills`, `SeasonPicture`, `StillTile`) and
  * its placeholder (`StillsGhost`).
  */

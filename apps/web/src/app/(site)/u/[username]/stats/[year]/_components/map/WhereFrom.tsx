@@ -12,7 +12,7 @@ const MAP_ROW = 'grid grid-cols-[minmax(0,1fr)_176px] items-center gap-6';
 const LISTED = 6;
 
 /**
- * "Where the series are from" (STD_Recommended; the phone board leaves it
+ * "Where the series are from" (the phone leaves it
  * out): the dotted world map with the year's countries lit by how many
  * series came from each, and the top six beside it.
  */

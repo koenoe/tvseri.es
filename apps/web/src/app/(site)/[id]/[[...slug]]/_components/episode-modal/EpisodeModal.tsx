@@ -41,7 +41,7 @@ const tileControl = (ref: EpisodeRef | null): HTMLElement | null =>
     : null;
 
 /**
- * EP-B "End credits" (fm-modal): the
+ * The episode modal: the
  * card grows into a 1320 × 880 modal (full screen on phones). ‹ › and ←/→
  * step through the show's episodes, Esc closes and focus returns to the tile.
  * `episode` is null while closed; the last one stays drawn (`shown`), so
@@ -146,7 +146,7 @@ export default function EpisodeModal({
     }
   }, [missing]);
 
-  // Names the dialog as the board does: "S02E06 Fishes".
+  // Names the dialog like "S02E06 Fishes".
   const title = current ? episodeLabel(current, episodeTitle) : 'Episode';
 
   return (

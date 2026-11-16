@@ -26,7 +26,7 @@ const SIZES = {
 } as const;
 
 /**
- * A year's weeks as tiny bars (`.st-spark`, `.st-ysp`): heights from
+ * A year's weeks as tiny bars: heights from
  * `weekLinesLayout`, one colour for every week so far and a faint stub for
  * each week still to come. Flex slots, so the 53 lines share any width.
  */

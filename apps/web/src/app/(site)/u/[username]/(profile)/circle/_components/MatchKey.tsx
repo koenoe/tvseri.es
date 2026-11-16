@@ -3,7 +3,7 @@ import type { TasteLevel } from '@tvseri.es/schemas';
 import { LEVELS } from '../../_components/visitor/match/levels';
 import { CIRCLE_COPY } from '../_lib/circleCopy';
 
-/** Strongest first, as the board lists them */
+/** Strongest first */
 const ORDER: ReadonlyArray<TasteLevel> = [
   'super',
   'very-high',

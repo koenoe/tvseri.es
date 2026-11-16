@@ -4,7 +4,7 @@ import cn from '@/lib/cn';
 
 /**
  * Where a paired control stands, and so how its buttons are drawn
- * (MKPairStreamed "In context"): Home's spotlight slide (40 tall, 0 16 0 14;
+ *: Home's spotlight slide (40 tall, 0 16 0 14;
  * a phone's 38, 0 14), the Discover landing's Start here tile and the
  * decade card (40 tall, 16 on both sides, a 15px icon).
  */

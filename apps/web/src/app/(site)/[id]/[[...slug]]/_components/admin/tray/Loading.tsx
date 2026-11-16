@@ -63,7 +63,7 @@ export const LoadingLine = memo(function LoadingLine({
 
 LoadingLine.displayName = 'LoadingLine';
 
-/** Not drawn on the board: TMDB didn't answer. */
+/** Shown when TMDB did not answer. */
 export const LoadError = memo(function LoadError({
   onRetry,
 }: Readonly<{ onRetry: () => void }>) {

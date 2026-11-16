@@ -201,11 +201,7 @@ export default function RowSection() {
   const short = SHOWS.slice(0, 3);
   const reversed = [...SHOWS].reverse();
   return (
-    <Section
-      id="rows"
-      source="HLFinal, HLFinalMobile, HMFinal, ERFinal (resize to 390 and 1440)"
-      title="Rows"
-    >
+    <Section id="rows" source="rows (resize to 390 and 1440)" title="Rows">
       <p className="text-body text-white/80">
         Arrows only with a fine pointer and only when the row overflows. Back
         after scrolling a row restores it.

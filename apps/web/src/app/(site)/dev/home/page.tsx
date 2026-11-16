@@ -32,7 +32,7 @@ const DAY = /^\d{4}-\d{2}-\d{2}$/;
  * - `/dev/home`: every rotating kind (the four features, the Countdown, the
  *   three toys, If you liked X) with the API's real data and images, each
  *   labelled with when it next appears and whether the API falls through
- *   then; below, the boards' fixtures for side-by-side checks with HMFinal.
+ *   then; below, the sample fixtures for side-by-side checks.
  * - `/dev/home?day=YYYY-MM-DD`: the whole Home page as it will be that day
  *   (the e2e specs pin each moment kind with it: `home-overflow.spec.ts`).
  */
@@ -96,7 +96,7 @@ async function Preview({
         </header>
         <RealKinds today={today} />
         <h2 className="mx-auto w-full max-w-page px-gutter text-title-1 text-white">
-          The boards&apos; fixtures
+          Sample fixtures
         </h2>
         <SpotlightPreview />
         <PersonalPreview />

@@ -3,7 +3,7 @@ import { MAP_DOTS, MAP_HEIGHT, MAP_WIDTH } from './worldMap';
 const VIEW_BOX = `0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`;
 
 /**
- * The board's dot grid (HMFinal `e2-map svg`, white at 20%): one static
+ * The dot grid (white at 20%): one static
  * path, rendered on the server, scaled with the map.
  */
 export default function DottedMap() {

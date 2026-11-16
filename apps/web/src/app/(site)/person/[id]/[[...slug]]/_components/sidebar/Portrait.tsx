@@ -8,7 +8,7 @@ const FRAME =
 
 /**
  * The person's photo, the page's LCP: eager and high priority. Without one,
- * the boards' quiet placeholder (`.pr-ph`).
+ * a quiet placeholder.
  */
 export default function Portrait({
   image,

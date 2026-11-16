@@ -37,7 +37,7 @@ export default function HistorySection() {
   return (
     <Section
       id="history"
-      source="PGFinal 4 · How History works 1–4"
+      source="How History works, steps 1–4"
       title="History diary"
     >
       <div className="grid items-start gap-12 md:grid-cols-[300px_minmax(0,1fr)] md:gap-16">

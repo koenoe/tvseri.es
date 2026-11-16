@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react';
 
 /**
  * The Library's grid, shared by the tiles and their
- * ghosts so both lay out the same cells: about the board's 158px tile
+ * ghosts so both lay out the same cells: about a 158px tile
  * wherever the column allows. 5 columns in the 852px main column and in a
  * tablet's full-width one from 900 (836px and up), 4 below (704px at 768)
  * and in the 596px column beside the sidebar at 1024, 3 on a phone; 28 × 16

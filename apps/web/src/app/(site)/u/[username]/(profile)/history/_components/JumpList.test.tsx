@@ -44,7 +44,7 @@ const INDEX: ReadonlyArray<JumpYear> = monthIndex([
 
 const BASE = '/u/alex/history';
 
-describe('JumpList (PGFinal 4, Jump to)', () => {
+describe('JumpList (Jump to)', () => {
   it('opens the active month’s year; the active month is current and white', () => {
     render(
       <JumpList active="2024-03" basePath={BASE} index={INDEX} week={null} />,

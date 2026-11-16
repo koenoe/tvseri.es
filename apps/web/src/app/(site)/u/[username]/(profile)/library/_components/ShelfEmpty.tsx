@@ -30,7 +30,7 @@ function Suggestions({
 
 /**
  * An empty shelf: one calm line, and its own first step
- * where the board draws one: an emptied Watchlist gets Popular this week
+ * where one fits: an emptied Watchlist gets Popular this week
  * with +, an empty Finished the Seen grid. Someone else's shelf only says
  * it is empty: it's their page.
  */

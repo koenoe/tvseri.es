@@ -8,7 +8,7 @@ import StatsUnavailable from '../ui/StatsUnavailable';
 import { type GenreRow, genreRows, PHONE_ROWS } from './model';
 
 /**
- * "Genres" (STD_Recommended, STMobile): one row per genre with a bar against
+ * "Genres": one row per genre with a bar against
  * the top genre (white; the others white/40) and its show count. The phone
  * keeps the top six with narrower columns.
  */
@@ -38,7 +38,7 @@ export default async function Genres({ user, year }: SectionProps) {
   );
 }
 
-/** A genre's row (`.st-rkr`): name, bar, count; hover lifts the row and whitens the bar */
+/** A genre's row: name, bar, count; hover lifts the row and whitens the bar */
 function Row({
   hiddenOnPhone,
   row,

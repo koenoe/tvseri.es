@@ -258,7 +258,7 @@ const seedFor = (name: ViewerName): SettingsState => {
               : '7c2e9b4d1a6f3e8c5b0d2a94',
         },
         // alex is the profile stream's viewer too: their services stay as the
-        // profile fixtures have them; rae (who writes) has the board's six.
+        // profile fixtures have them; rae (who writes) has six.
         user:
           name === 'alex'
             ? base

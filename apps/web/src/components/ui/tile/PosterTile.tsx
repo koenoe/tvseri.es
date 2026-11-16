@@ -75,6 +75,6 @@ export default function PosterTile({
   );
 }
 
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 /** A tile's: the one tile hover, the focus ring 4px out */
 const TILE_LINK: PosterLinkLook = { link: LINK };

@@ -43,7 +43,7 @@ const REDIRECTS: ReadonlyArray<readonly [from: string, to: string]> = [
   ['/discover?with_genres=80&utm_source=newsletter&fbclid=x', '/genre/crime'],
   ['/discover?with_genres=80,18', '/discover'],
   ['/discover?with_watch_providers=8&watch_region=GB', '/discover'],
-  // The profile's list pages became Library shelves (PGFinal 6), query kept
+  // The profile's list pages became Library shelves, query kept
   ['/u/alex/in-progress', '/u/alex/library/watching'],
   ['/u/alex/watchlist', '/u/alex/library/watchlist'],
   ['/u/alex/watchlist?sort=oldest', '/u/alex/library/watchlist?sort=oldest'],

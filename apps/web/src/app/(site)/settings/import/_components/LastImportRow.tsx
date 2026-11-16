@@ -15,7 +15,7 @@ import { META_ITEM, META_ROW } from './styles';
 /**
  * "Your last import · 1,834 episodes added · Imported today at 21:14 ·
  * Undo import" for an import that isn't on screen as a result (it stopped,
- * was left, or ran before a reload). No board draws it: built from the
+ * was left, or ran before a reload). Built from the
  * result's quiet "Undo import" and the undone card's surface.
  */
 export default function LastImportRow({

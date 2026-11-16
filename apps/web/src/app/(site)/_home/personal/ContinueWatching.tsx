@@ -32,7 +32,7 @@ type Props = Readonly<{
 }>;
 
 /**
- * Continue watching (HMFinal "Continue watching (signed in)", phone 2): a
+ * Continue watching (phone 2): a
  * one-click resume right under the spotlight. Title + a 36px "Your
  * profile" button, then the Up next tile beside the In progress lane
  * (stacked below 1024; on the phone one lane row and the profile button

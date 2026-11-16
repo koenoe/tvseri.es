@@ -17,11 +17,11 @@ import type { SectionProps } from './types';
 const SIDEBAR_CLASSES = `sticky top-8 hidden lg:flex lg:flex-col lg:gap-10 ${BELOW_FLOATING_HEADER_LG}`;
 
 /**
- * The page under the site header (STD_Recommended `.st-main`): the sticky
- * 300px sidebar and the main column from `lg`; below it (STMobile's shell)
+ * The page under the site header: the sticky
+ * 300px sidebar and the main column from `lg`; below it
  * a short identity header with the Years pills, then
  * the same column. A phone also leaves out "New, or back for more" and the
- * map, as its board does. A year without episodes keeps the header and
+ * map. A year without episodes keeps the header and
  * tiles and says so.
  */
 

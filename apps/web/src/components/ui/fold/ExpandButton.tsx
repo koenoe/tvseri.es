@@ -26,7 +26,7 @@ type Props = Omit<
  * The "Show all 22" / "Show fewer" button every fold uses: the frame, the
  * `aria-expanded` and the shared label with its turning chevron. What the
  * press does is the caller's `onClick`; how it looks is the caller's layout
- * (each place keeps its signed-off look).
+ * (each place keeps its own look).
  */
 export default function ExpandButton({
   className,

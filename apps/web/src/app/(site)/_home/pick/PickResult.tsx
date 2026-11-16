@@ -34,8 +34,8 @@ type Props = Readonly<{
 }>;
 
 /**
- * HMFinal `e3-pkr`: the pick's title (it opens the show), its meta line,
- * the why line (desktop; the phone board drops it), then + Watchlist and
+ * The pick's title (it opens the show), its meta line,
+ * the why line (desktop; the phone drops it), then + Watchlist and
  * Roll again. Announced politely when a roll lands.
  */
 export default function PickResult({ card, onRoll, states }: Props) {

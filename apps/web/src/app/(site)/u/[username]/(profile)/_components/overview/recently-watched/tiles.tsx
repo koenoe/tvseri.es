@@ -19,7 +19,7 @@ export type TileData = Readonly<{
   title: string;
 }>;
 
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 /** A recently watched poster's link: no hover of its own */
 export const RECENT_POSTER: PosterLinkLook = { link: 'block' };
 

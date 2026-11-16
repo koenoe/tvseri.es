@@ -16,7 +16,7 @@ import { finishLine } from './format';
 import MarkEye from './MarkEye';
 
 /**
- * A compact In progress row (HMFinal `hx-lrow`) on the shared lane row:
+ * A compact In progress row on the shared lane row:
  * poster, title and "2 to go", one segment per episode of the season (one
  * line past 30), the episode pill and the time to finish the season ("2h to
  * finish" on the phone), Home's one-way eye. As drawn, the row itself isn't

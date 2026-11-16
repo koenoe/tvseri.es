@@ -18,7 +18,7 @@ import InProgressRow from './InProgressRow';
 const DOT = <span aria-hidden="true" className={LANE_DOT} />;
 
 /**
- * The In progress lane beside the Up next tile (HMFinal `hx-lane`): a cyan
+ * The In progress lane beside the Up next tile: a cyan
  * dot, "In progress" and the count, then the shows after the first. On the
  * phone (`hx-mlane`) it is one bare row and a "Your profile · 5 in
  * progress" button instead.

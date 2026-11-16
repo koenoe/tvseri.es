@@ -131,7 +131,7 @@ export const listPage = (
   };
 };
 
-/** The sidebar's Watchlist count (the board's 42) */
+/** The sidebar's Watchlist count (42) */
 export const listCount = (name: PersonName, list: string): number => {
   const shown = (libraryOf(name)[list as ListName] ?? []).length;
   if (name === 'alex' && list === 'watchlist') return 42;
@@ -261,7 +261,7 @@ export const historyOf = (name: PersonName): WatchedItem[] =>
 const WEEKS = [
   2, 4, 6, 3, 0, 5, 8, 2, 1, 3, 6, 9, 4, 2, 0, 1, 3, 5, 2, 4, 7, 3, 1, 0, 2, 3,
   5, 6, 2, 1, 4, 3, 2, 6, 8, 3, 2, 1, 4, 2, 3, 5, 2, 4, 3,
-  // this week (ISO week 46 on the board's date): the cyan bar
+  // this week (ISO week 46 on the sample date): the cyan bar
   6,
 ];
 

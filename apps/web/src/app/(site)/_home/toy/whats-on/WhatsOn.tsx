@@ -10,7 +10,7 @@ import { channelNumber } from './layout';
 import WhatsOnRemote from './WhatsOnRemote';
 
 /**
- * What's on (HMFinal `e2-tv e3-tv`): one show airing now per service, as a
+ * What's on: one show airing now per service, as a
  * TV you zap through. The screen on the left (backdrop, CH 01 and the
  * service, the show's logo, facts and actions), the six numbered channels on
  * the right under the remote's label row (the block's heading, with up/down).

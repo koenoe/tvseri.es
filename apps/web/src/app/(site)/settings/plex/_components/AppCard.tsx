@@ -12,7 +12,7 @@ const AVAILABLE: Readonly<Record<AppBrand, string>> = {
   plex: 'shadow-[inset_0_2px_0_#e5a00d,inset_0_0_0_1px_rgb(255_255_255/0.07)]',
 };
 
-/** Connected: a brand-tinted panel (`.sg-app.live`). Plex is the only one. */
+/** Connected: a brand-tinted panel. Plex is the only one. */
 const CONNECTED =
   'bg-[#1f2425] bg-[linear-gradient(180deg,rgb(229_160_13/0.24)_0%,rgb(229_160_13/0.14)_28%,rgb(229_160_13/0.12)_100%)] shadow-[inset_0_0_0_1px_rgb(229_160_13/0.35)]';
 

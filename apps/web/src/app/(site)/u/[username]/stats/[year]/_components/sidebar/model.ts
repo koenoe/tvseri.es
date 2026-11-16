@@ -6,7 +6,7 @@ export const yearLabel = (year: number, state: YearState) =>
 
 /**
  * The phone's pill row: the newest years that fit, then "More" (the full
- * list with counts and sparklines, as STMobile draws it beside three years)
+ * list with counts and sparklines)
  * whenever there is more than one year. The page's year always has its pill (it replaces the last
  * one), so the filled pill is never hidden in the sheet.
  */

@@ -79,7 +79,7 @@ export type WhatsOnNetwork = Readonly<{
 
 /**
  * "What's on": the six channels on the remote (TMDB network ids, checked on
- * themoviedb.org), in the board's order
+ * themoviedb.org), in display order
  */
 export const WHATS_ON_NETWORKS: ReadonlyArray<WhatsOnNetwork> = [
   { id: 213, name: 'Netflix' },

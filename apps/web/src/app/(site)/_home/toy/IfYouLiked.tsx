@@ -11,7 +11,7 @@ import LikedSource from './if-you-liked/LikedSource';
 
 const LABEL_ID = 'if-you-liked-label';
 
-/** HMFinal draws four shows */
+/** Four shows */
 export const IF_YOU_LIKED_SHOWN = 4;
 
 /** The label's words before the show's title (the placeholder draws them too) */
@@ -34,8 +34,7 @@ export const IF_YOU_LIKED_ROW =
 export const IF_YOU_LIKED_PICKS = 'flex gap-3 md:gap-6';
 
 /**
- * Signed in, "If you liked X" in the toy slot on alternate days (HMFinal
- * `e2-card`), no title above the card: its label names the show, then
+ * Signed in, "If you liked X" in the toy slot on alternate days, no title above the card: its label names the show, then
  * the line about the picks, the finished show's poster with its Watched label, an
  * arrow, and four shows like it with the reason each one is here. Streamed
  * per viewer; nothing when there's no show to start from.
@@ -76,7 +75,7 @@ export default function IfYouLiked({
 }
 
 /**
- * The board's arrow between the source and the picks: a 150 × 225 box with
+ * The arrow between the source and the picks: a 150 × 225 box with
  * the line at mid-poster; a shorter one at the phone's poster height.
  */
 export function Arrow() {

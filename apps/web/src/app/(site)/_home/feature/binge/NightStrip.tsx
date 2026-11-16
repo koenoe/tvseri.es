@@ -5,10 +5,10 @@ import cn from '@/lib/cn';
 import { BINGE_STRIP, BINGE_STRIP_CELL } from './layout';
 import { type BingePlan, type StripCell, stripLabel } from './plan';
 
-/** The board's pitch: min(20, ⌊width / days⌋), or ⌊width / 120⌋ when it wraps */
+/** The pitch: min(20, ⌊width / days⌋), or ⌊width / 120⌋ when it wraps */
 export const STRIP_PITCH = 'round(down, min(20px, 100cqw / var(--days)), 1px)';
 
-/** 10px dots, 6px when the pitch is under 16px (the board's `e3-sm`) */
+/** 10px dots, 6px when the pitch is under 16px */
 export const DOT_SIZE = 'size-[clamp(6px,(var(--p)_-_15.5px)_*_1000,10px)]';
 /** The last night: 16px, 12px on a small pitch, with a soft ring */
 const FINISH =
@@ -49,7 +49,7 @@ function Dot({ cell, dated }: Readonly<{ cell: StripCell; dated: boolean }>) {
 }
 
 /**
- * Tonight to the last night, one dot per day (HMFinal `e3-strip`): filled on
+ * Tonight to the last night, one dot per day: filled on
  * a viewing night, a ring on a night off, the big dot on the last one. Its
  * height is the same before and after the viewer's day is known.
  */

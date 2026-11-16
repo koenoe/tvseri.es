@@ -10,7 +10,7 @@ import PickResult from './PickResult';
 import { usePickRoll } from './usePickRoll';
 
 /**
- * The Pick one moment, with no title or label. Desktop (HMFinal): a 400px
+ * The Pick one moment, with no title or label. Desktop: a 400px
  * dark card, the fanned deck left and the result right. Below 1280: one
  * dark card holding the fan, scaled down (`DECK_BOX`) and clipped by the
  * card, and the result centred under it. The fan is about 730px wide and

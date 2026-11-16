@@ -11,7 +11,7 @@ import type { RemoteMarking, UseRemoteMarking } from './marking';
 import type { EpisodeRef, ListStatus, MarkingList } from './types';
 
 type FakeConfig = Readonly<{
-  /** Milliseconds each request takes (the board's Fast / Slow 900 ms). */
+  /** Milliseconds each request takes. */
   delayMs?: () => number;
   /** The last aired episode of `nextEpisode`'s season: marking it ends the run. */
   lastEpisode: number;

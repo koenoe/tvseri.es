@@ -24,7 +24,7 @@ type Props = Omit<ComponentProps<'span'>, 'children' | 'className'> &
 
 /**
  * A step's numbered circle (Get started on Home and the profile): the
- * number, or a check once the step is done. Each place keeps its signed-off
+ * number, or a check once the step is done. Each place keeps its own
  * look through its layout; any `span` prop (an `aria-hidden`) is the
  * place's own.
  */

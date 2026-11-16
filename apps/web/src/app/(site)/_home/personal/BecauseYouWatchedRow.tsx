@@ -14,7 +14,7 @@ import PosterTile from '@/components/ui/tile/PosterTile';
 import WatchedOverlay from '@/components/ui/tile/WatchedOverlay';
 import { becauseSubtitle, reasonLine } from './format';
 
-/** The icon per reason (icons_final: network, tag, sparkle) */
+/** The icon per reason: network, tag, sparkle */
 const REASON_GLYPH: Readonly<Record<PickReason['kind'], Glyph>> = {
   keyword: tagGlyph,
   network: networkGlyph,
@@ -22,7 +22,7 @@ const REASON_GLYPH: Readonly<Record<PickReason['kind'], Glyph>> = {
 };
 
 /**
- * "Because you watched Severance" (HMFinal `hx-h-bec`): the shared poster
+ * "Because you watched Severance": the shared poster
  * row, "Your favourite, minus what you've seen" beside the title, and under
  * each poster why it is here ("Apple TV, like Severance").
  */

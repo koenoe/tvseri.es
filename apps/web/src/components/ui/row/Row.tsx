@@ -13,7 +13,7 @@ type Props = RowHeading &
     /** unique on the page: the DOM ids and the Back restore key derive from it */
     id: string;
     inset?: RowInset;
-    /** a board's own tokens on the shared row (`ROW_LOOKS`) */
+    /** a page's own tokens on the shared row (`ROW_LOOKS`) */
     look?: RowLook;
     /** the parity checks' name for this row (`data-slot`, `RowFrame`) */
     name?: string;

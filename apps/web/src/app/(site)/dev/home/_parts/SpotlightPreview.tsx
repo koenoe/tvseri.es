@@ -15,12 +15,12 @@ const PERSONAL: PreviewState = {
 };
 
 /**
- * The Pitt (the board's signed-in demo show, watched there): the same two
+ * The Pitt (the signed-in demo show, watched there): the same two
  * buttons as any show, whatever the viewer did with it
  */
 const WATCHED: PreviewState = { startAt: 3, still: true };
 
-/** Task (in progress on the board): the same two buttons too */
+/** Task (in progress): the same two buttons too */
 const IN_PROGRESS: PreviewState = { startAt: 1, still: true };
 
 /** Stranger Things: no logo, the title as the heading */
@@ -45,7 +45,7 @@ function Variant({
 }
 
 /**
- * The spotlight (HMFinal `hx-sp`, HMFinalMobile phone 1), each state held
+ * The spotlight, each state held
  * still for screenshots; the last one runs as on the page.
  */
 export default function SpotlightPreview() {

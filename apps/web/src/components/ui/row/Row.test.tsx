@@ -95,7 +95,7 @@ describe('Row (server markup)', () => {
     expect(root.querySelectorAll('button')).toHaveLength(2);
   });
 
-  it('takes a board’s look as tokens on its own wrapper, not a fork', () => {
+  it('takes a custom look as tokens on its own wrapper, not a fork', () => {
     const root = serverRender(
       renderToStaticMarkup(
         <Row id="essentials" look="hubPoster" title="Essentials">

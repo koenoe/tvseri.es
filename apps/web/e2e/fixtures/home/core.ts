@@ -30,7 +30,7 @@ const withCredits = (
   topCast: [...credits.topCast],
 });
 
-/** The spotlight's ten (HMFinal `SP`): trending this week, in rank order */
+/** The spotlight's ten: trending this week, in rank order */
 export const TRENDING: ReadonlyArray<TvSeries> = [
   series({
     backdrop: 'ds_pluribus_bd.jpg',
@@ -194,7 +194,7 @@ export const TRENDING: ReadonlyArray<TvSeries> = [
   }),
 ];
 
-/** "Top Picks for November" (most popular this month), HMFinal `hx-h-picks` */
+/** "Top Picks for November" (most popular this month) */
 export const TOP_PICKS: ReadonlyArray<TvSeries> = [
   series({
     genre: 'Drama',
@@ -294,7 +294,7 @@ export const TOP_PICKS: ReadonlyArray<TvSeries> = [
   }),
 ];
 
-/** "Pick one for me" (HMFinal `DECK`): the pool the deck fans out */
+/** "Pick one for me": the pool the deck fans out */
 export const PICK_POOL: ReadonlyArray<TvSeries> = [
   series({
     genre: 'Comedy',
@@ -370,7 +370,7 @@ export const PICK_POOL: ReadonlyArray<TvSeries> = [
   }),
 ];
 
-/** "Hidden gems" (HMFinal `hx-h-gems`): high rating, few votes */
+/** "Hidden gems": high rating, few votes */
 export const HIDDEN_GEMS: ReadonlyArray<TvSeries> = [
   series({ id: 241554, poster: 'ds_eric_p.jpg', title: 'Eric', year: '2024' }),
   series({ id: 81349, poster: 'ds_devs_p.jpg', title: 'Devs', year: '2020' }),

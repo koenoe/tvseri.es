@@ -55,7 +55,7 @@ describe('lifeFacts', () => {
 });
 
 describe('occupationLabel', () => {
-  it("puts acting first, then crew work in the board's order", () => {
+  it('puts acting first, then crew work in a fixed order', () => {
     expect(
       occupationLabel([
         { isCast: true, jobs: ['Director', 'Executive Producer'] },

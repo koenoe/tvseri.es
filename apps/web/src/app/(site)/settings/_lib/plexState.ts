@@ -1,7 +1,7 @@
 import type { WebhookStatus } from '@tvseri.es/schemas';
 
 /**
- * The board's four states, plus `broken`: connected, but the edge refuses the
+ * The four states, plus `broken`: connected, but the edge refuses the
  * URL (its key is missing and couldn't be written), so nothing can arrive.
  */
 export type PlexState = 'none' | 'wait' | 'on' | 'paused' | 'broken';
@@ -25,7 +25,7 @@ export function plexStateFrom(
   return receivedBefore ? 'on' : 'wait';
 }
 
-/** The board's four Plex states. Pure: client code uses it too. */
+/** The four Plex states. Pure: client code uses it too. */
 export function plexStateOf(status: WebhookStatus): PlexState {
   return status.connected
     ? plexStateFrom(

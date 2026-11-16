@@ -66,23 +66,19 @@ const ADMIN: ExtraSection = {
 
 export default function RemoteSection() {
   return (
-    <Section
-      id="remote"
-      source="CMFinal “Remote · refined”, specs/remote_style.md"
-      title="Remote"
-    >
+    <Section id="remote" source="the Remote" title="Remote">
       <p className="text-body-sm text-white/60">
         Click ⋯ (or Enter on it), a key, a letter, the arrows, Esc. Fakes, not
         the marking core: marks and lists live in memory. Narrow the window
         below 768px for the phone sheet. Slow shows the pending rings.
       </p>
-      <Specimen board="CMFinal demo controls" label="Network">
+      <Specimen label="Network" note="Demo controls">
         <Network />
       </Specimen>
       <Specimen
-        board="CMFinal 1–4 (672 × 460 frames, The Bear #29251f, Severance #1d2a33)"
         className="items-start gap-8"
         label="Show page"
+        note="Frames 1–4 (672 × 460, The Bear #29251f, Severance #1d2a33)"
       >
         <State name="1 · Open (E05 next, nothing latched)">
           <ShowFrame fake="open" name="open" />
@@ -103,14 +99,14 @@ export default function RemoteSection() {
         </State>
       </Specimen>
       <Specimen
-        board="CMFinal 5 (448 × 440 tile)"
         className="items-start gap-8"
         label="In progress tile"
+        note="Frame 5 (448 × 440 tile)"
       >
         <State name="5 · N, E and H">
           <TileFrame name="tile" />
         </State>
-        <State name="Admin row (ADFinal, extraSection)">
+        <State name="Admin row (extraSection)">
           <ShowFrame extraSection={ADMIN} fake="phone" name="admin" />
         </State>
       </Specimen>

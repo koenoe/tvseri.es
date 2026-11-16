@@ -3,7 +3,7 @@ import { expect, type Locator, type Page, test } from '@playwright/test';
 import { routeImages } from './helpers/pickRoll';
 
 /**
- * The Countdown (HMFinal `e3-cdj`, the owner's design) on `/dev/home`'s
+ * The Countdown on `/dev/home`'s
  * fixture (`#feature-countdown`: The White Lotus in 3 days, Barry without a
  * logo in 5, a long title in 18): the label inside the card, three pills,
  * and a crossfade between the premieres that never lands on an empty layer.

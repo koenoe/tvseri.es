@@ -5,7 +5,7 @@ import { useCallback, useSyncExternalStore } from 'react';
 
 import { useIsSignedIn } from '@/lib/marking/hooks';
 
-/** The sentence for a signed-in spotlight line (HMFinal's personal hook) */
+/** The sentence for a signed-in spotlight line */
 export function spotlightLineText(line: SpotlightLine): string {
   switch (line.kind) {
     case 'favorite':

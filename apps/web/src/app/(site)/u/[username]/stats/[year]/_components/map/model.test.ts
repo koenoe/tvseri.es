@@ -28,7 +28,7 @@ describe('rankCountries', () => {
 });
 
 describe('countryAlpha', () => {
-  it('fits the board’s steps', () => {
+  it('fits the steps', () => {
     expect(countryAlpha(44, 44)).toBe(1);
     expect(countryAlpha(13, 44)).toBe(0.69);
     expect(countryAlpha(4, 44)).toBe(0.55);

@@ -91,7 +91,7 @@ function TileGhost({ phoneHidden }: Readonly<{ phoneHidden: boolean }>) {
 }
 
 /**
- * The wall's slots: ghosted tiles while loading, ERFinal's dashed outlines
+ * The wall's slots: ghosted tiles while loading, dashed outlines
  * of the same slots when the season failed (`EpisodesError` lays its card
  * over them).
  */

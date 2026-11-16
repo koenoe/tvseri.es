@@ -15,7 +15,7 @@ import { HERO_TITLE_SPACE } from './heroLayout';
  * honours the width (the API's w500 is what a 500px box loads at 1×), and
  * srcset still follows `sizes`.
  */
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 const HERO_TITLE: TitleTreatmentLook = {
   box: cn(HERO_TITLE_SPACE, 'relative h-10 w-[240px] md:h-40 md:w-[500px]'),
   height: 320,

@@ -6,8 +6,8 @@ import type { SeriesBase, WatchRecord } from '@/lib/marking/types';
 import type { ShowEpisode } from '../../_lib/seasonEpisodes';
 
 /**
- * One episode's state as the wall, the season line and the facts draw it
- * (the board's `mkState`): not aired (and not watched), skipped, watched
+ * One episode's state as the wall, the season line and the facts draw it:
+ * not aired (and not watched), skipped, watched
  * without a date, watched, Next up, or open.
  */
 export type EpisodeMark =

@@ -3,7 +3,7 @@ import Icon from '@/components/ui/icon/Icon';
 
 /**
  * "3 episodes ▾" (`.cntb`): the row's disclosure. Its hit area covers the
- * whole row (the board opens the row on a click anywhere); the ⋯ and a tag
+ * whole row (a click anywhere opens the row); the ⋯ and a tag
  * sit above it.
  */
 export default function CountToggle({

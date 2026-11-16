@@ -3,11 +3,10 @@ import cn from '@/lib/cn';
 import Badge from './Badge';
 
 /**
- * The episode code badge's box per place. Each place keeps its signed-off
- * look (owner, 15 Nov 2026); unify only with his approval.
+ * The episode code badge's box per place. Each place keeps its own look on purpose; don't unify them.
  */
 const CODE_BADGE_SIZE = {
-  /** Home's In progress rows (HMFinal `hx-d`: 20 × 50, 7px in) */
+  /** Home's In progress rows (20 × 50, 7px in) */
   home: 'h-5 min-w-12.5',
   /** The profile's Coming up tickets, the season ledger, Settings' Plex card and its list of marks: 20 × 50 */
   lane: 'h-5 min-w-[50px] shrink-0',

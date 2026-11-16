@@ -8,7 +8,7 @@ import cn from '@/lib/cn';
 import { SCREEN } from './layout';
 
 /**
- * The TV (HMFinal `e2-scr`): the backdrops stacked and cross-faded (220ms),
+ * The TV: the backdrops stacked and cross-faded (220ms),
  * the shade, the zap layer and the current channel's caption. Only the
  * `warm` backdrops are mounted.
  */

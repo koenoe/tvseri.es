@@ -4,7 +4,7 @@ import Icon from '@/components/ui/icon/Icon';
 import type { Fix } from '../_lib/importState';
 import { LINK } from './styles';
 
-/** A dash: "Skipped" (the board's minus; no shared glyph draws it). */
+/** A dash: "Skipped" (no shared glyph draws it). */
 function Minus() {
   return (
     <svg

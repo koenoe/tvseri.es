@@ -1,10 +1,6 @@
 /*
- * The deck's motion blur during a roll (HMFinal `.e3-deck`: "the deck itself
- * softens for a moment", blur(1px) brightness(.9)). The board holds it for
- * the whole roll (360ms pile + 760ms spring) and drops it at the end
- * ("everything is blurred until the animation is fully finished").
- * Now it follows the posters' speed (measured on a production build, per
- * frame): it comes in as the pile forms (fastest ~120ms), stays through the
+ * The deck's motion blur during a roll (blur(1px) brightness(.9)). It follows the posters' speed
+ * (measured on a production build, per frame): it comes in as the pile forms (fastest ~120ms), stays through the
  * spring's fast start (360 to 400ms), and clears as the spring decelerates,
  * gone by 580ms (52% of the roll), so the pick is sharp as soon as it lands
  * and the last 540ms of settle frames are crisp. One finite animation per

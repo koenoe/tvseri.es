@@ -7,7 +7,7 @@ import { deckCopy } from './facts';
 
 type DidYouKnowFeature = Extract<Feature, Readonly<{ kind: 'did-you-know' }>>;
 
-/** "Did you know" (HMFinal `e2-dk`): up to four facts, one at a time */
+/** "Did you know": up to four facts, one at a time */
 export default function DidYouKnow({
   feature,
 }: Readonly<{ feature: DidYouKnowFeature }>) {

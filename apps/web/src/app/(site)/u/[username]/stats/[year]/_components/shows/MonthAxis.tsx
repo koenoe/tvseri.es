@@ -1,10 +1,10 @@
 import { monthStarts } from '../../_lib/weeks';
 
-/** Desktop only (`.st-tlgrid`): 170px title + 10px padding + 16px gap in, 56px hours + 26px out */
+/** Desktop only: 170px title + 10px padding + 16px gap in, 56px hours + 26px out */
 const GRID_INSET = 'left-[196px] right-[82px]';
 
 /**
- * The month header over the rows (`.st-tlhead` / `.st-mtlm`): month names on
+ * The month header over the rows: month names on
  * desktop beside a "Hours" column title, initials across the full width on a
  * phone. Months sit where they start along the 53 weeks.
  */

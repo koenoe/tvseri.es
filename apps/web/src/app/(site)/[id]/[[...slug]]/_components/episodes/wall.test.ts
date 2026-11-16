@@ -13,7 +13,7 @@ import {
 
 const JUL_2025 = Date.UTC(2025, 6, 2, 20);
 
-/** S3 of The Bear on the board: E1–E4 watched, E5 next, E6–E10 open. */
+/** S3 of The Bear: E1–E4 watched, E5 next, E6–E10 open. */
 function bear(count = 10, aired = count) {
   const episodes = season(3, count, [37, 30, 28, 32, 36, 33, 30, 29, 34, 42]);
   const marks = view({

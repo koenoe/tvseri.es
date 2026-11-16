@@ -27,7 +27,7 @@ import { MAP_HEIGHT, MAP_WIDTH, projectToMap } from './worldMap';
 const HEADING_ID = 'where-set-heading';
 
 /** A show's logo in the detail's 200 × 48 box, else its title written */
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 const DETAIL_TITLE_LOOK: TitleTreatmentLook = {
   box: DETAIL_LOGO,
   logo: TITLE_LOGO_FIT,
@@ -36,7 +36,7 @@ const DETAIL_TITLE_LOOK: TitleTreatmentLook = {
 };
 
 /**
- * Where are they set? (HMFinal `e2-card e2-mp`): the board's dotted world
+ * Where are they set?: the dotted world
  * map with a white pin per place, and the place's show on the right. The map
  * and every show's image, title (its logo when it has one) and facts are
  * rendered here; the explorer island only picks the pin and, with "More set

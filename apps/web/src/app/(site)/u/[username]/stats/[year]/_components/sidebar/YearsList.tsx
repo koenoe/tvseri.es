@@ -6,7 +6,7 @@ import Sparkline from './Sparkline';
 import type { YearRow } from './years';
 
 /**
- * The Years submenu (`.st-yrow`): one link per year, newest first, with its
+ * The Years submenu: one link per year, newest first, with its
  * sparkline and episode count; the page's year is highlighted. The sidebar
  * and the phone's "More" sheet draw the same list.
  */

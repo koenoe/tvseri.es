@@ -265,7 +265,7 @@ export const deletePreferred = (seriesId: number): void => {
 // --- Seeds -------------------------------------------------------------
 
 /**
- * Alex's history on The Bear, as the board's default state: Seasons 1 and 2
+ * Alex's history on The Bear, as the default state: Seasons 1 and 2
  * watched (S2E3 without a date, S2E5 skipped), Season 3 E1 to E4 watched (E3
  * without a date), E5 is Next up.
  */

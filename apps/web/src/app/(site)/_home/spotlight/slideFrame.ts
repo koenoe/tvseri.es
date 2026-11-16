@@ -1,5 +1,5 @@
 /**
- * Where a slide's text sits (HMFinal `hx-spb`, HMFinalMobile `hx-mspc`),
+ * Where a slide's text sits,
  * shared by the slide and the spotlight's placeholder so the ghost stands
  * exactly where the text will: bottom left on the page container (desktop),
  * centred 18px above the stage's foot (phone).

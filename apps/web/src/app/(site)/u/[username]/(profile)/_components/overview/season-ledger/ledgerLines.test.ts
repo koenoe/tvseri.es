@@ -22,7 +22,7 @@ describe('seasonRuns', () => {
     ]);
   });
 
-  it('leaves an open hole as a gap (the board: ep 5 of 8)', () => {
+  it('leaves an open hole as a gap (ep 5 of 8)', () => {
     expect(seasonRuns(8, [{ episode: 5, state: 'open' }])).toEqual([
       { left: 0, tone: 'watched', width: 50 },
       { left: 62.5, tone: 'watched', width: 37.5 },

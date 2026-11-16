@@ -48,7 +48,7 @@ export const continueGrid = (hasLane: boolean) =>
     hasLane && 'lg:grid-cols-[minmax(0,1fr)_440px] lg:items-stretch',
   );
 
-/** HMFinal: the lane shows three compact rows under its head; the phone one */
+/** The lane shows three compact rows under its head; the phone one */
 export const LANE_ROWS = 3;
 
 /** The In progress lane's cyan dot (the panel and head: `HOME_LANE`) */
@@ -69,14 +69,12 @@ export const LANE_POSTER = cn(
 /** A row without a poster: the poster's place, empty */
 export const LANE_POSTER_EMPTY = cn(LANE_POSTER_BOX, 'bg-white/8');
 
-/** A compact lane row (HMFinal `hx-lrow`) */
+/** A compact lane row */
 const LANE_ROW =
   'relative flex items-center gap-4 rounded-12 bg-white/4 p-3 md:p-3.5';
 
 /**
- * In progress's rows on the shared lane row (`components/lane-row`). Each
- * place keeps its signed-off look (owner, 15 Nov 2026); unify only with his
- * approval.
+ * In progress's rows on the shared lane row (`components/lane-row`). Each place keeps its own look on purpose; don't unify them.
  */
 export const IN_PROGRESS_ROW: LaneRowLayout = {
   code: 'home',

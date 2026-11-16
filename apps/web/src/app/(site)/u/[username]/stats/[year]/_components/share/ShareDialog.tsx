@@ -24,7 +24,7 @@ import {
 import { displayLink, type ShareCard, sizeLabel } from './shareCard';
 import useShareCard, { type ShareState } from './useShareCard';
 
-/** `st-sh-in .22s ease-out`: a 12px rise and fade */
+/** A 12px rise and fade (.22s ease-out) */
 const MOTION: PanelMotion = {
   animate: {
     opacity: 1,
@@ -36,7 +36,7 @@ const MOTION: PanelMotion = {
 };
 
 /**
- * Pinned 132px from the top as the board draws it (`.st-sh-dlg`) wherever
+ * Pinned 132px from the top wherever
  * the 640px panel fits under that (132 + 640 + 16); centred on shorter
  * viewports, clamped to the viewport.
  */
@@ -52,7 +52,7 @@ const PREVIEW = {
 const FORMATS = ['square', 'story'] as const;
 
 /**
- * The desktop share dialog (STD_Recommended `.st-sh-dlg`): the card on the
+ * The desktop share dialog: the card on the
  * left, Format and Theme, Download image and Copy link on the right.
  */
 export default function ShareDialog({
@@ -127,14 +127,14 @@ function FormatGroup({ share }: Readonly<{ share: ShareState }>) {
   );
 }
 
-/** Download image, Copy link and the link itself (`.st-sh-field`) */
+/** Download image, Copy link and the link itself */
 function Actions({ share }: Readonly<{ share: ShareState }>) {
   const link = displayLink(window.location.host, share.pagePath);
   return (
     <>
       <div className="flex flex-wrap gap-2.5">
         <Button
-          // the board's `.st-btn-w` has no edge: 4px narrower than the shared primary
+          // no edge here: 4px narrower than the shared primary
           className="border-0 has-[>svg:first-child]:pl-4"
           icon={downloadGlyph}
           iconSize={14}

@@ -64,7 +64,7 @@ function Legend({ perNight }: Readonly<{ perNight: number }>) {
 }
 
 /**
- * The Binge calculator (HMFinal `e3-bc`): pick a show, episodes a night and
+ * The Binge calculator: pick a show, episodes a night and
  * which nights; the headline, the night strip and the finish date follow.
  * Headed by its label inside the card (`e3-bch`), no title above. The only
  * client island of the feature of the day.

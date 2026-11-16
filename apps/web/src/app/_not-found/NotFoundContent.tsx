@@ -8,7 +8,7 @@ import { loadTrending } from './trending';
 
 /**
  * One of the three 404 stills, picked inside the cache so it rotates without
- * a request or a client-side swap (ERFinal: “Which 404 still: cached”).
+ * a request or a client-side swap (“Which 404 still: cached”).
  */
 async function pickStillIndex() {
   'use cache';
@@ -17,7 +17,7 @@ async function pickStillIndex() {
 }
 
 /**
- * The static 404 (ERFinal part 2): no cookies, no params, no request data.
+ * The static 404: no cookies, no params, no request data.
  * The still and the trending shows are both cached, so it stays
  * prerendered. `header` only where no site layout draws one (the root).
  */

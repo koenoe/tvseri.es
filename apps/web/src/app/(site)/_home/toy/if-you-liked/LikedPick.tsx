@@ -17,8 +17,8 @@ export const LIKED_PICK = 'w-[140px] shrink-0 md:w-[150px]';
 export const LIKED_REASON = 'flex items-start gap-1.5 text-meta text-white/60';
 
 /**
- * One show like it (HMFinal `e2-bri`): the poster and why it's here, with
- * the board's icon per reason (building for the network, tag for a theme or
+ * One show like it: the poster and why it's here, with
+ * an icon per reason (building for the network, tag for a theme or
  * genres). The reason may wrap to a second line instead of being cut.
  */
 export default function LikedPick({ item }: Readonly<{ item: PickItem }>) {

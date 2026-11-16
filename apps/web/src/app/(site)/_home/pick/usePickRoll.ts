@@ -6,7 +6,7 @@ import { nextPick } from './deck';
 
 export type RollPhase = 'rest' | 'settle' | 'shuffle';
 
-/** HMFinal `p3Vals.roll`: the pile forms in .34s, the spring lands in .72s */
+/** The pile forms in .34s, the spring lands in .72s */
 const SHUFFLE_MS = 360;
 const SETTLE_MS = 760;
 

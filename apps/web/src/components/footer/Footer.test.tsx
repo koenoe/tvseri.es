@@ -16,7 +16,7 @@ const readSentence = (element: HTMLElement) => {
   return copy.textContent;
 };
 
-describe('Footer (FTFinal)', () => {
+describe('Footer', () => {
   it('draws the 18px logo over production’s credits sentence, verbatim', () => {
     render(<Footer />);
 

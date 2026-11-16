@@ -415,7 +415,7 @@ for (const viewport of [
   });
 }
 
-// Timing-based: opt-in (`E2E_PERF=1`). Plan §5.3: the click timings with
+// Timing-based: opt-in (`E2E_PERF=1`). The click timings with
 // `STUB_API_DELAY_MS=500` (`--grep "@perf @timing"`), the scroll without a
 // delay (`--grep "@perf @scroll"`), one worker so nothing else loads the machine.
 test.describe('History performance (§5.3) @perf', () => {

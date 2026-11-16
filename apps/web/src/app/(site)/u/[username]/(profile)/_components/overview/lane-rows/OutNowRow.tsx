@@ -18,9 +18,7 @@ import SeasonCompleteLine from './SeasonCompleteLine';
 type Item = Overview['outNow'][number];
 
 /*
- * Out now's rows on the shared lane row (the ghost row takes the same). Each
- * place keeps its signed-off look (owner, 15 Nov 2026); unify only with his
- * approval.
+ * Out now's rows on the shared lane row (the ghost row takes the same). Each place keeps its own look on purpose; don't unify them.
  */
 export const OUT_NOW_ROW: LaneRowLayout = {
   code: 'meta',

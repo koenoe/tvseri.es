@@ -39,7 +39,7 @@ export default function ButtonSection() {
   return (
     <Section
       id="buttons"
-      source="HMFinal, EPShowFinal, DSLSystem, ERFinal"
+      source="the shared button styles"
       title="Buttons, chips and badges"
     >
       <p className="text-body-sm text-white/60">
@@ -57,8 +57,8 @@ function PillSpecimens() {
   return (
     <>
       <Specimen
-        board="HMFinal hx-btn / hx-solid, ERFinal er-glass, EPShowFinal v2-btn and dlg-c"
         label="Pill variants · md 40px · default, pressed, disabled, pending"
+        note="primary, outline, glass and sheet buttons"
       >
         <div className="grid gap-4">
           {VARIANTS.map((variant) => (
@@ -81,8 +81,8 @@ function PillSpecimens() {
         </div>
       </Specimen>
       <Specimen
-        board="xs EPShowFinal epc-pill · sm HMFinal hx-b36 · md HMFinal hx-btn · lg ERFinal phones, EPShowFinal fw-pp"
         label="Sizes · 32 / 36 / 40 / 44"
+        note="sizes xs, sm, md and lg"
       >
         {SIZES.map((size) => (
           <State key={size} name={size}>
@@ -92,16 +92,13 @@ function PillSpecimens() {
           </State>
         ))}
       </Specimen>
-      <Specimen board="DSLSystem · Actions (from HMFinal)" label="Show actions">
+      <Specimen label="Show actions" note="Actions">
         <Button icon={plusGlyph} variant="primary">
           Watchlist
         </Button>
         <Button icon={eyeGlyph}>Seen it</Button>
       </Specimen>
-      <Specimen
-        board="DSLSystem · Text buttons (from HMFinal)"
-        label="Text buttons (links)"
-      >
+      <Specimen label="Text buttons (links)" note="Text buttons">
         <ButtonLink href="/genre/crime" icon={arrowRightGlyph}>
           Search crime
         </ButtonLink>
@@ -112,10 +109,7 @@ function PillSpecimens() {
           See full history
         </Link>
       </Specimen>
-      <Specimen
-        board="EPShowFinal dlg-f (Cancel + primary)"
-        label="Dialog footer"
-      >
+      <Specimen label="Dialog footer" note="Cancel + primary">
         <Button variant="quiet">Cancel</Button>
         <Button variant="primary">Mark 3 episodes · just now</Button>
         <Button aria-disabled variant="primary">
@@ -130,8 +124,8 @@ function StillSpecimens() {
   return (
     <>
       <Specimen
-        board="EPShowFinal epc-pill (eye pill on a still): mark, watched, next up, skipped"
         label="Eye pill · xs on a still (static look; the WatchButton owns the logic)"
+        note="Eye pill on a still: mark, watched, next up, skipped"
       >
         <OnStill>
           <Button icon={eyeGlyph} size="xs" variant="scrim">
@@ -154,8 +148,8 @@ function StillSpecimens() {
         </OnStill>
       </Specimen>
       <Specimen
-        board="EPShowFinal epc-pill.nx.nuf (40) and fw-pp (44): Next up first"
         label="Cyan Next up pill"
+        note="Next up pill (40 and 44): Next up first"
       >
         <OnStill>
           <Button icon={eyeGlyph} variant="accent">
@@ -166,10 +160,7 @@ function StillSpecimens() {
           </Button>
         </OnStill>
       </Specimen>
-      <Specimen
-        board="ERFinal er-solid + er-glass over a still"
-        label="Error page actions"
-      >
+      <Specimen label="Error page actions" note="Solid and glass over a still">
         <OnStill>
           <Button icon={userGlyph} variant="primary">
             Sign in
@@ -190,8 +181,8 @@ function CircleSpecimens() {
   return (
     <>
       <Specimen
-        board="EPShowFinal ep-circ (32, 48), epf-arw (36), HLFinal row arrows (40), HMFinal hx-cb.hx-lg (44)"
         label="Circle buttons · sizes"
+        note="Circle buttons: 32, 36, 40, 44, 48"
       >
         {CIRCLE_SIZES.map((size) => (
           <State key={size} name={String(size)}>
@@ -200,8 +191,8 @@ function CircleSpecimens() {
         ))}
       </Specimen>
       <Specimen
-        board="HLFinal row arrows, EPShowFinal ep-circ.ep-on and ep-tools"
         label="Circle states · default, pressed, disabled, on a still"
+        note="Row arrows, pressed circles and tools on a still"
       >
         <State name="default">
           <CircleButton icon={chevronRightGlyph} label="Next" size={40} />
@@ -230,10 +221,7 @@ function CircleSpecimens() {
 function ChipSpecimens() {
   return (
     <>
-      <Specimen
-        board="DSFinalGeneric ds-chip (DSLSystem · Row switch + chips)"
-        label="Row switch + keyword chips"
-      >
+      <Specimen label="Row switch + keyword chips" note="Row switch and chips">
         <Segmented label="Kind of crime">
           <SegmentedItem pressed>Detectives</SegmentedItem>
           <SegmentedItem pressed={false}>Serial killers</SegmentedItem>
@@ -246,8 +234,8 @@ function ChipSpecimens() {
         </button>
       </Specimen>
       <Specimen
-        board="V60 ns-pill (From your circle), HMFinal e3-steps (the Countdown)"
         label="Pill switch on a picture: From your circle's picks, the Countdown's premieres"
+        note="Pills: From your circle, the Countdown steps"
       >
         <OnStill>
           <PillSwitch label="Picks">
@@ -257,10 +245,7 @@ function ChipSpecimens() {
           </PillSwitch>
         </OnStill>
       </Specimen>
-      <Specimen
-        board="EPShowFinal hu-chip, hu-chip.pri, ga-chip.q"
-        label="Sheet chips · 30px"
-      >
+      <Specimen label="Sheet chips · 30px" note="Sheet chips">
         <button className={CHIP_TONAL} type="button">
           Just now
         </button>
@@ -271,10 +256,7 @@ function ChipSpecimens() {
           Not now
         </button>
       </Specimen>
-      <Specimen
-        board="EPShowFinal mk-new and ep-badge, HMFinal hx-count"
-        label="Badges"
-      >
+      <Specimen label="Badges" note="New badge, episode code badge and count">
         <span className="inline-flex items-center gap-2 text-body-sm">
           I don’t remember <Badge>New</Badge>
         </span>

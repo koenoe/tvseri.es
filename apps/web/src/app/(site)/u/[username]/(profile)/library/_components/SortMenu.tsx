@@ -24,8 +24,7 @@ import { PILL } from './toolbarStyles';
 /**
  * The sort pill and its menu of the shelf's sorts:
  * `menuitemradio`s, arrow keys move, Enter or Space picks, Escape closes and
- * returns to the pill. Nothing is drawn for the menu on the board: a dark
- * panel in the toolbar's language.
+ * returns to the pill. A dark panel in the toolbar's language.
  */
 export default function SortMenu({
   onSort,

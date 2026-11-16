@@ -32,7 +32,7 @@ function LegendItem({ item }: Readonly<{ item: Item }>) {
   return (
     <span className="flex items-center gap-2">
       <span aria-hidden="true" className={chipClass}>
-        {/* The board's legend draws Next up as the cyan ring alone. */}
+        {/* Next up is drawn as the cyan ring alone. */}
         {item.state === 'nx' ? null : <ChipGlyph state={item.state} />}
         <ChipText struck={item.state === 'sk'}>{item.chip}</ChipText>
       </span>

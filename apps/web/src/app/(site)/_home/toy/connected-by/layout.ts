@@ -15,7 +15,7 @@ export const CONNECTED_CARD =
   'flex flex-col gap-4 rounded-16 bg-black/25 p-4 md:h-[372px] md:px-7 md:pt-6 md:pb-6.5 lg:h-[336px]';
 
 /**
- * The card's head (HMFinal `e2-grh`): the "Connected by" label, "{A} to
+ * The card's head: the "Connected by" label, "{A} to
  * {B}, in 2 steps" and the actions (the end's Watchlist and "Another
  * path"); one row from lg, the label on its own row below that; on a phone
  * the three are stacked and centred, with the Watchlist under the path

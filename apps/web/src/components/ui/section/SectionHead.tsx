@@ -41,7 +41,7 @@ export default function SectionHead({
   /** the count right after the title (PRA "Series 67"): a number is drawn as the pill, a node as given */
   count?: ReactNode;
   id: string;
-  /** a place's own spacing and title (each keeps its signed-off look) */
+  /** a place's own spacing and title (each keeps its own look) */
   layout?: SectionHeadLayout;
   /** before the title: the profile's block dot */
   leading?: ReactNode;

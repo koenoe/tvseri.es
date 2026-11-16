@@ -17,9 +17,9 @@ import { LONG_TITLES_FROM, withLongTitles } from './longTitles.ts';
 import { notFound, ok, type StubRoute } from './routes.ts';
 
 /**
- * The toy of the day as HMFinal draws it: What's on (Mon 9), Where are they
+ * The toy of the day: What's on (Mon 9), Where are they
  * set? (Tue 10), Connected by (Wed 11), Versus (Thu 12, Sun 15) and, signed
- * in, If you liked The Bear (Tue 10). The boards' own shows, copy and images.
+ * in, If you liked The Bear (Tue 10). The sample shows, copy and images.
  */
 
 const channel = (
@@ -27,7 +27,7 @@ const channel = (
   show: Parameters<typeof series>[0],
 ): WhatsOnChannel => ({ network, series: series(show) });
 
-/** HMFinal `CH`: the six channels and what's on them */
+/** The six channels and what's on them */
 const WHATS_ON: Toy = {
   channels: [
     channel(
@@ -156,7 +156,7 @@ const place = (
   slug: input.slug,
 });
 
-/** HMFinal `PINS`: five places, Baltimore first (Tue 10) */
+/** Five places, Baltimore first (Tue 10) */
 const WHERE_SET: Toy = {
   featured: 'baltimore',
   kind: 'where-set',
@@ -165,7 +165,7 @@ const WHERE_SET: Toy = {
       lat: 39.2904,
       lng: -76.6122,
       name: 'Baltimore',
-      // board art stands in for these two (fixture only)
+      // sample art stands in for these two (fixture only)
       others: [
         {
           backdrop: 'ds_bridge_bd.jpg',
@@ -320,7 +320,7 @@ const pathVia = (
 });
 
 /**
- * HMFinal `gp`: Malcolm to Better Call Saul through Breaking Bad, then two
+ * Malcolm to Better Call Saul through Breaking Bad, then two
  * more paths from Malcolm through Breaking Bad to other shows
  */
 const PATHS: ReadonlyArray<ConnectedPath> = [
@@ -384,7 +384,7 @@ const side = (
 });
 
 /**
- * Versus (HMFinal "H · Versus"): the board's Dark and Devs first, then five
+ * Versus: Dark and Devs first, then five
  * more pairs. Severance is in the member's library (`nina`, watched), so
  * signed in as her that pair is left out; `e2e/home-versus.spec.ts` answers
  * the viewer's library with The Bear in progress for the same check.
@@ -488,7 +488,7 @@ export const TOYS: Readonly<Record<string, Toy>> = {
   'where-set': WHERE_SET,
 };
 
-/** HMFinal (signed in, Tue 10): If you liked The Bear */
+/** Signed in, Tue 10: If you liked The Bear */
 export const IF_YOU_LIKED: BecauseYouWatched = {
   items: [
     {

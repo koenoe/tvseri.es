@@ -23,7 +23,7 @@ const HOVER =
 const WEEKDAY_LABELS = ['Mon', '', 'Wed', '', 'Fri', '', 'Sun'] as const;
 
 /**
- * "Every day" (`.st-lane`, STD_Recommended and STMobile): the active-days
+ * "Every day": the active-days
  * count and a Less/More legend over a heatmap of the year, then the streak,
  * the busiest day and the busiest week. Desktop draws the year as 53 week
  * columns with month labels; the phone draws twelve small months.
@@ -75,7 +75,7 @@ export default async function EveryDay({ user, year }: SectionProps) {
   );
 }
 
-/** "Less ▢▢▢▢▢ More" (`.st-hmleg`), desktop only */
+/** "Less ▢▢▢▢▢ More", desktop only */
 function Legend() {
   return (
     <span className="ml-auto inline-flex items-center gap-[3px] text-caption text-white/60 max-md:hidden">
@@ -156,7 +156,7 @@ function MonthLabel({
   );
 }
 
-/** STMobile: twelve small months, three across */
+/** Twelve small months, three across */
 function PhoneMonths({
   days,
   year,

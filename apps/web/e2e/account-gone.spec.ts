@@ -7,7 +7,7 @@ import {
 import { signInAs } from './helpers/session';
 
 /**
- * Delete account (SETFinal) with the account signed in on two browsers. The
+ * Delete account with the account signed in on two browsers. The
  * one that deletes keeps "Account deleted" until the person leaves; the
  * other, whose token the issuer still refreshes, ends signed out cleanly:
  * the header says Sign in, the proxy drops the session, and Sign in starts

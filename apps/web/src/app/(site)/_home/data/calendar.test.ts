@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { nextDay, planOf } from './plan';
 
 describe('the day plan', () => {
-  it('plans the board demo days (HMFinal moment rotation) as the API does', () => {
+  it('plans the demo days of the moment rotation as the API does', () => {
     expect(planOf('2026-11-09')).toEqual({
       day: '2026-11-09',
       feature: 'binge',

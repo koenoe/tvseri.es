@@ -16,7 +16,7 @@ export type LifeFacts = Readonly<{
 
 /**
  * TMDB's place of birth without the region and country: "Hollywood, Los
- * Angeles, California, USA" → "Hollywood, Los Angeles" (the boards' form).
+ * Angeles, California, USA" → "Hollywood, Los Angeles".
  */
 export function placeLabel(place?: string): string | undefined {
   const parts = (place ?? '')

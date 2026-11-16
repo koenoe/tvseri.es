@@ -12,7 +12,7 @@ import {
 
 const DARK = [10, 8, 8];
 const THE_WIRE = [13, 12, 12, 13, 10];
-// HMFinal's today: Wed 11 Nov 2026
+// Today: Wed 11 Nov 2026
 const TODAY = '2026-11-11';
 
 const plan = (overrides: Partial<Parameters<typeof planBinge>[0]> = {}) =>

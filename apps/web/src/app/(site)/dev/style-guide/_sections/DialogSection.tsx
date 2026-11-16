@@ -52,7 +52,7 @@ export default function DialogSection() {
   return (
     <Section
       id="dialogs"
-      source="EPShowFinal (.dlg, the watch-history sheet, the episode modal), EPFinalMobile"
+      source="the dialogs: the watch-history sheet and the episode modal"
       title="Dialogs and sheets"
     >
       <p className="text-body-sm text-white/60">
@@ -61,8 +61,8 @@ export default function DialogSection() {
         640px for the phone sheets.
       </p>
       <Specimen
-        board="EPShowFinal .dlg (560, radius 18) · EPShowFinal .ga sheet (600, right) · EPShowFinal v2-shell (1320 × 880)"
         label="Open one"
+        note="Dialog (560, radius 18) · side sheet (600, right) · episode shell (1320 × 880)"
       >
         <Button onClick={show('dialog')}>Centred dialog</Button>
         <Button onClick={show('sheet')}>Side sheet</Button>

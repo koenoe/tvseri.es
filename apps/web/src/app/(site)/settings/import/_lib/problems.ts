@@ -9,7 +9,7 @@ import type {
 } from './contract';
 
 /**
- * Per-record problems, grouped the way the boards draw them: the Check
+ * Per-record problems, grouped the way the page shows them: the Check
  * step's "Show" list (one line per group) and the import's collapsible
  * groups (one item per show or row, each fixable or skippable).
  */

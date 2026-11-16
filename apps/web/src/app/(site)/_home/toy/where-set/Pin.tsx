@@ -24,7 +24,7 @@ const WIDE_SIDE: Readonly<Record<LabelSide, string>> = {
 };
 
 /**
- * A place's name by its pin (HMFinal `e2-pl`), shown while the place is
+ * A place's name by its pin, shown while the place is
  * picked. By default 14px right of the pin and 22px above; on the free side
  * when that corner would cover another pin or leave the map.
  */
@@ -44,7 +44,7 @@ function PinLabel({ on, place }: Readonly<{ on: boolean; place: MapPlace }>) {
 }
 
 /**
- * One place on the map (HMFinal `e2-pin`): a 28px target with a 10px white
+ * One place on the map: a 28px target with a 10px white
  * dot; a 2px ring on hover (white/35) and when picked (white, the dot 1.3×).
  * Its label is `PinLabel`, in the map's label layer. Pins and labels are
  * memoised: a pick re-renders only the two whose `on` changed.

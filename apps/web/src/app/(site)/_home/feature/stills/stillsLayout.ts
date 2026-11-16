@@ -4,13 +4,13 @@
  * one). Rows of equal-width tiles, so there is never a hole; a longer row
  * goes last.
  *
- * From lg the stills sit beside the season picture (HMStillsVariants A):
+ * From lg the stills sit beside the season picture:
  * two rows up to eight (3 + 3, 3 + 4, 4 + 4), three from nine (3 + 3 + 3 …
  * 4 + 4 + 4), sharing the picture's 320px, so the tiles grow to fill the
  * column and its bottom edge is level with the picture's.
  *
  * Below lg they sit under the picture as 16:9 tiles, at most three across
- * (the board's phone: 3 + 3 for six, 3 + 3 + 3 + 3 for twelve; 2 + 2 + 3
+ * (on a phone: 3 + 3 for six, 3 + 3 + 3 + 3 for twelve; 2 + 2 + 3
  * for seven).
  */
 export const STILLS_MIN = 6;

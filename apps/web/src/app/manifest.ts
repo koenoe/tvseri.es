@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 
 /**
- * The web app manifest basics (specs/logo_final.md favicon set): name, the
+ * The web app manifest basics: name, the
  * page ground as theme and background, the “tv.” tile. `display: browser`:
  * no install prompt and no service worker, it only names and colours a
  * shortcut someone saves to a home screen.

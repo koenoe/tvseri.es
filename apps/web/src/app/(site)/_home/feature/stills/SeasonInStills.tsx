@@ -35,7 +35,7 @@ const LABEL_ID = 'stills-label';
 const FACTS = `${BINGE_HEADLINE_FACTS} ${STILLS_FACTS_LINE}`;
 
 /**
- * One season in stills (HMStillsVariants A, "The card, tidied"): the
+ * One season in stills: the
  * breaker card with its label, a headline as the Binge calculator's ("The
  * Bear, season 2 in stills · 10 episodes, June 2023") with "Open {series}"
  * at its right end, then the season picture beside six to twelve episode

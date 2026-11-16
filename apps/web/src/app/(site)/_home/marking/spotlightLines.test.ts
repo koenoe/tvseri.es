@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { spotlightLineText } from './spotlightLines';
 
 describe('spotlightLineText', () => {
-  it('writes the board’s personal lines', () => {
+  it('writes the personal lines', () => {
     expect(spotlightLineText({ kind: 'favorite', title: 'Severance' })).toBe(
       'Like Severance, which you favourited',
     );

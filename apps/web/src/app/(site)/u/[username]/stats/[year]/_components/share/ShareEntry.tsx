@@ -12,7 +12,7 @@ const ENTRY =
   '-mx-3 grid w-[calc(100%+24px)] cursor-pointer grid-cols-[64px_minmax(0,1fr)_20px] items-center gap-3.5 rounded-12 px-3 py-2.5 text-left text-white transition-colors duration-150 hover:bg-white/5';
 
 /**
- * The sidebar's share entry (STD_Recommended `.st-sh-entry`, finished years
+ * The sidebar's share entry (finished years
  * only): the card's thumbnail, "nina’s 2025, as a card" / "Square or story"
  * and the share icon. Opens the share dialog.
  */

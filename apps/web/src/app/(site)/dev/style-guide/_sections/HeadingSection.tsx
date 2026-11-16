@@ -18,13 +18,13 @@ export default function HeadingSection() {
   return (
     <Section
       id="headings"
-      source="PRA_Calm .pr-sec, V60 .sec, STD .st-sec, EPShowFinal .fw-more"
+      source="the section headings across pages"
       title="Section heading and fold"
     >
       <Specimen
-        board="SectionHead"
         className="flex-col items-stretch gap-6"
         label="Heading with a rule"
+        note="SectionHead"
       >
         <State name="title only">
           <div className="w-full max-w-180">
@@ -52,7 +52,7 @@ export default function HeadingSection() {
           </div>
         </State>
       </Specimen>
-      <Specimen board="FoldLabel (one label cell, both states)" label="Fold">
+      <Specimen label="Fold" note="FoldLabel (one label cell, both states)">
         <State name="folded">
           <button aria-expanded={false} className={FOLD} type="button">
             <FoldLabel label="Show all 67 series" open={false} size={15} />

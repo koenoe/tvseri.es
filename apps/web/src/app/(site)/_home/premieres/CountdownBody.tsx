@@ -31,7 +31,7 @@ import {
 } from './format';
 
 /** The show's logo in the countdown's 260 × 48 box, else its title written */
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 const COUNTDOWN_TITLE_LOOK: TitleTreatmentLook = {
   box: COUNTDOWN_LOGO,
   logo: TITLE_LOGO_FIT,
@@ -40,7 +40,7 @@ const COUNTDOWN_TITLE_LOOK: TitleTreatmentLook = {
 };
 
 /**
- * One premiere's foreground (HMFinal `e2-cdbody`): the count with "days to
+ * One premiere's foreground: the count with "days to
  * go" on its baseline, the line that fills over the last 30 days with the
  * pink dot, the logo (or the written title; it opens the show), then the
  * pink date and the season. The same with one

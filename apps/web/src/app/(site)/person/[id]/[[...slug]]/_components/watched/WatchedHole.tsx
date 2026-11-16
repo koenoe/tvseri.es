@@ -12,7 +12,7 @@ import Fact, { FACTS } from '../sidebar/Fact';
 import SeedWatched from './SeedWatched';
 
 /**
- * The line's frame (+ `.pr-mine`):
+ * The line's frame:
  * a 2px rule, 28px (16 on phones) above one 24px line. The placeholder and
  * the line share it, so the line lands in the space already there.
  */
@@ -60,7 +60,7 @@ export default async function WatchedHole({
     return <WatchedPlaceholder />;
   }
   if (watched.episodes === 0) {
-    // Nothing watched yet: no line (no board draws one), the space kept
+    // Nothing watched yet: no line, the space kept
     return (
       <span
         aria-hidden="true"

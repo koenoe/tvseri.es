@@ -63,7 +63,7 @@ export default async function RatingAndProvider({
   );
 }
 
-/** Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval. */
+/** Each place keeps its own look on purpose; don't unify them. */
 const OWNED: ServiceIconLayout = {
   className: 'block size-7 rounded-4',
   size: 28,

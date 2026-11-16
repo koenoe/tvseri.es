@@ -7,7 +7,7 @@ import { useHiddenShows } from '@/lib/marking/hooks';
 import { SHOW_ALL } from './laneCaps';
 
 /**
- * A lane's rows, capped at what its board draws (`cap`); the rest open in
+ * A lane's rows, capped at `cap`; the rest open in
  * place with "Show all N" at the lane's foot, so a busy profile keeps its
  * two lanes comparable in length and nothing is a dead end. The rows are
  * rendered on the server and passed in; the hidden ones stay out of the
@@ -24,7 +24,7 @@ export default function CappedRows({
   as?: 'div' | 'ul';
   cap: number;
   className?: string;
-  /** The board draws these rows at one height (`data-equal-rows`, checked by the overflow spec) */
+  /** These rows are drawn at one height (`data-equal-rows`, checked by the overflow spec) */
   equalRows?: boolean;
   rows: ReadonlyArray<ReactNode>;
   /** Each row's show: a show hidden from in progress in this tab leaves at once */

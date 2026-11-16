@@ -5,7 +5,7 @@ import type { Glyph } from '@/components/ui/icon/types';
 import cn from '@/lib/cn';
 
 /**
- * The label's look (HMFinal `.e2-k`), the same in every block: the overline
+ * The label's look, the same in every block: the overline
  * in capitals, grey like its icon, the icon 8px before it. `className` is
  * the label's place in its block, never another look
  */
@@ -13,8 +13,8 @@ const MOMENT_LABEL =
   'flex min-w-0 items-center gap-2 text-overline text-white/60 uppercase';
 
 /**
- * A moment's heading inside its block (HMFinal `e2-k`): an icon and the
- * moment's name, where the board draws it (Connected by's head row, the
+ * A moment's heading inside its block: an icon and the
+ * moment's name, where each block puts it (Connected by's head row, the
  * Binge calculator's and the Countdown's top left, What's on's remote, the
  * first line of One season in stills) instead of a title above the block.
  * It is the block's only heading, so it is an h2 like the rows' titles.

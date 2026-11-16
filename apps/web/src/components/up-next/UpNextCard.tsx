@@ -23,7 +23,7 @@ import {
  * The show's title treatment in the logo box, or its title in up to two
  * lines on a phone, three in the 144px box from md
  */
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 const UP_NEXT_TITLE: TitleTreatmentLook = {
   box: UP_NEXT_LOGO,
   lines: 'line-clamp-2 min-w-0 [overflow-wrap:anywhere] md:line-clamp-3',

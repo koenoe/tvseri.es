@@ -15,7 +15,7 @@ const side = (overrides: Partial<VersusSide>): VersusSide => ({
   ...overrides,
 });
 
-describe('compareRows (HMFinal Versus)', () => {
+describe('compareRows', () => {
   it('draws Score, Seasons, Episodes and On air, the higher value emphasised', () => {
     const rows = compareRows({
       left: side({}),

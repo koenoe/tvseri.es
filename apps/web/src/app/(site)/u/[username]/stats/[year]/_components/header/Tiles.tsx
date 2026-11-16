@@ -39,8 +39,7 @@ const GLYPHS: Readonly<Record<TileIcon, Glyph | ToggleGlyph>> = {
 };
 
 /**
- * The six tiles under the header (STD_Recommended `.st-facts`, STMobile
- * `.st-mfacts`): 3 × 2 on desktop, 2 × 3 on a phone, each with the cyan ↑ /
+ * The six tiles under the header: 3 × 2 on desktop, 2 × 3 on a phone, each with the cyan ↑ /
  * pink ↓ change and "vs. …". On a phone the outlined Share button follows
  * (finished years).
  */

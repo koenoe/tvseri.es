@@ -18,7 +18,7 @@ const days = [
 ];
 
 describe('intensityStep', () => {
-  it('reads the board’s five steps', () => {
+  it('reads the five steps', () => {
     expect([0, 1, 2, 3, 4, 5, 6, 9].map(intensityStep)).toEqual([
       0, 1, 2, 3, 3, 4, 4, 4,
     ]);
@@ -35,7 +35,7 @@ describe('yearGrid', () => {
     expect(grid.cells[364]).toMatchObject({ col: 52, row: 2, step: 0 });
   });
 
-  it('places days by weekday and week and labels them as the board does', () => {
+  it('places days by weekday and week and labels them', () => {
     expect(grid.cells[0]?.label).toBe('Wed Jan 1 · nothing');
     expect(grid.cells[3]).toMatchObject({ col: 0, row: 5, step: 3 });
     expect(grid.cells[3]?.label).toBe('Sat Jan 4 · 4 episodes');

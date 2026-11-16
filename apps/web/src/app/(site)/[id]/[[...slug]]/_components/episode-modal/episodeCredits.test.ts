@@ -50,7 +50,7 @@ const EPISODE = {
 };
 
 describe('toEpisodeModalCredits', () => {
-  it('groups the board’s crew jobs, in its order, without duplicates', () => {
+  it('groups the crew jobs, in their order, without duplicates', () => {
     expect(toEpisodeModalCredits(EPISODE, []).crew).toEqual([
       { people: [{ id: 1, name: 'Dee Director' }], role: 'Directed by' },
       {

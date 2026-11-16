@@ -3,9 +3,9 @@
  * its placeholder (`VersusGhost`, on the server). A plain module so both can
  * read it.
  *
- * From lg, HMFinal `e2-vs`: the two 150 × 225 posters left and right, the
- * comparison column between them (36px gaps, 24 40 26 padding). Below lg
- * (no board): the line on top, the two posters face to face under it (each
+ * From lg: the two 150 × 225 posters left and right, the
+ * comparison column between them (36px gaps, 24 40 26 padding). Below lg:
+ * the line on top, the two posters face to face under it (each
  * half the card, at most 150px, meeting at the middle), then the rows, the
  * hint or the actions, and "Another pair", across the card. Grid areas
  * place the comparison column's parts on a phone; from lg it is one column.
@@ -22,7 +22,7 @@ export const VERSUS_SIDE = {
     '[grid-area:right] mt-4 w-full max-w-[150px] justify-self-start lg:mt-0',
 } as const;
 
-/** The poster and its name, 10px apart (HMFinal `e2-vp`) */
+/** The poster and its name, 10px apart */
 export const VERSUS_POSTER_STACK = 'flex w-full flex-col gap-2.5';
 
 /** The poster's box: 2:3, 12px corners */
@@ -37,7 +37,7 @@ export const VERSUS_MIDDLE =
   'contents lg:flex lg:min-w-0 lg:flex-col lg:[grid-area:middle]';
 
 /**
- * The heading line (HMFinal `e2-vh`), in the in-card label's look
+ * The heading line, in the in-card label's look
  * (`MomentLabel`: 13px semibold at 85%, a 15px icon 8px before the words),
  * centred. The icon is inline with the words, so a wrapped line (signed in,
  * on a phone) keeps it beside them and balances its two halves
@@ -48,7 +48,7 @@ export const VERSUS_HEAD =
 /** The icon before the words */
 export const VERSUS_HEAD_ICON = 'mr-2 inline-block size-[15px] align-[-2px]';
 
-/** The rows' block (HMFinal `e2-vr`) */
+/** The rows' block */
 export const VERSUS_ROWS = '[grid-area:rows] mt-4 flex flex-col lg:mt-0';
 
 /** One row: left value, label, right value; tabular figures */
@@ -64,7 +64,7 @@ export const VERSUS_LABEL =
   'flex items-center justify-center gap-1 text-caption text-white/60';
 
 /**
- * The hint, or the chosen series' actions (HMFinal `e2-vres`): 48px with
+ * The hint, or the chosen series' actions: 48px with
  * 12 on top, so swapping one for the other moves nothing
  */
 export const VERSUS_RESULT =

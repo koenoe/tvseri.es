@@ -11,7 +11,7 @@ import { GENRE_TILES } from '../_data/hubTiles';
 
 /**
  * The genre tiles (`Genres`): one 96px tile per `GENRE_TILES`, in full rows at every
- * width (owner, 15 Nov 2026: no short last row). Fifteen tiles: five across on
+ * width (no short last row). Fifteen tiles: five across on
  * desktop, three on a tablet, two on a phone 10 apart (like the lens grid) with the
  * first tile across both columns. A change to the number of tiles needs a new split.
  */

@@ -5,7 +5,7 @@ import { type StubViewer, signInAs } from './helpers/session';
 /**
  * The air above the footer's band ("content now sits against
  * footer block"): every page kind ends the same distance above the band,
- * FTFinal's 64px at 768 and up, 48px on a phone, from one rule in the
+ * 64px at 768 and up, 48px on a phone, from one rule in the
  * footer, never doubled by a page's own bottom padding. A page that ends in
  * a full-width band (a series) has none: its band meets the footer's.
  */

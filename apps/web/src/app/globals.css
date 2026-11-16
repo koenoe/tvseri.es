@@ -84,7 +84,7 @@
   /* the page container every final board draws (header, rows, footer): max-w-page */
   --container-page: 1280px;
 
-  /* the white "remote" surface (specs/remote_style.md §3) */
+  /* the white "remote" surface */
   --shadow-remote:
     0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1), 0 0 0 1px rgb(0 0 0 / 0.04);
 }
@@ -101,7 +101,7 @@
   /* the page colour from the background system (BackgroundStyle), ground by default */
   --color-page: var(--main-background-color, #1c2223);
   /*
-   * The white "remote" family (specs/remote_style.md §2): light steps mixed
+   * The white "remote" family: light steps mixed
    * from the ink (the page colour). Only defined inside `remote-surface`.
    */
   --color-rk-ink: var(--rk-ink);
@@ -308,7 +308,7 @@ html[data-signing-out] body > * {
 }
 
 /*
- * The "remote" white family (specs/remote_style.md), shared by search and the
+ * The "remote" white family, shared by search and the
  * Remote menu. `remote-surface` is the white sheet and defines the --rk-*
  * steps from its ink. Search and the Remote set --rk-ink inline on the
  * surface to `remoteInk(colour)` (lib/remote/ink), which darkens a light page
@@ -412,7 +412,7 @@ html[data-signing-out] body > * {
 }
 
 /*
- * The Stats year switch (STD_Recommended "cross-fades the numbers"): the
+ * The Stats year switch: the
  * year, its sentence and the six numbers fade into the next year's over the
  * same box (`ViewTransition name="stats-glance"`), whose size follows. The
  * rest of the page, the document root, changes at once: this is the only

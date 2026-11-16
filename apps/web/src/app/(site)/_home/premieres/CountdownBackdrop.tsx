@@ -9,7 +9,7 @@ import { PICTURE_BLEED, pictureShade } from '../pictureCard';
 import { COUNTDOWN_FADE } from './countdownLayout';
 
 /**
- * The board's left-to-right shade from md; from the foot up on a phone. In
+ * A left-to-right shade from md; from the foot up on a phone. In
  * the picture's colour, darkened (`pictureShade`), near-black without one
  */
 const SHADE =

@@ -55,8 +55,8 @@ pnpm agents:serve web --real --stage <name>   # another deployed dev stage (or A
 
 - The web reads `API_URL`, `API_KEY`, `AUTH_URL` and `SECRET_KEY` from `process.env` (`sst dev` writes them into `apps/web/.env.local` for the main checkout only). They are not links of the web, but the stage links `ApiRouter`, `Auth`, `ApiKey` and `SessionSecret`.
 - `--real` runs the server as `sst shell --config <worktree>/sst.config.ts [--stage …] -- agents real-exec -- <command>`. `sst shell` reads the deployed stage's state and injects every linked resource as `SST_RESOURCE_*` (plus AWS credentials). It deploys nothing. `real-exec` turns the four resources into the four variables, drops all other `SST_RESOURCE_*` and the AWS credentials, and starts the command. No value is printed; a missing resource is reported by name.
-- Without `--stage`, sst uses the checkout's personal stage (`.sst/stage`, else the OS username). The stage must already be deployed (`sst dev` or `sst deploy --dev` by the owner). `production` is refused.
-- Sessions: cookies on `localhost` are shared across ports, and the web uses the stage's real `SECRET_KEY`, so a session from the owner's `localhost:3000` works on every `--real` server.
+- Without `--stage`, sst uses the checkout's personal stage (`.sst/stage`, else the OS username). The stage must already be deployed (`sst dev` or `sst deploy --dev` by the developer). `production` is refused.
+- Sessions: cookies on `localhost` are shared across ports, and the web uses the stage's real `SECRET_KEY`, so a session from your `localhost:3000` works on every `--real` server.
 - Limits: the values do sit in the server processes' environment, which any process of the same user can read (`ps -E`). Agents must not inspect it. A local server also talks to the real dev API, so its writes are real (dev stage only).
 
 ## Playwright

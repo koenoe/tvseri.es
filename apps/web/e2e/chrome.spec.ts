@@ -119,7 +119,7 @@ test.describe('header', () => {
     await expect(page.getByRole('link', { name: 'Sign in' })).toHaveCount(0);
   });
 
-  test('the boards’ geometry: 24px logo, 32px from the top in the 1280px container', async ({
+  test('the pill geometry: 24px logo, 32px from the top in the 1280px container', async ({
     page,
   }) => {
     await page.setViewportSize({ height: 900, width: 1440 });
@@ -169,7 +169,7 @@ test.describe('header modes', () => {
     await expect(header(page)).toHaveAttribute('data-header-mode', 'static');
   });
 
-  test('the pill is LGPick’s: 1024px wide, 24px from the top, 56px tall, 20px logo', async ({
+  test('the pill is 1024px wide, 24px from the top, 56px tall, 20px logo', async ({
     page,
   }) => {
     await page.setViewportSize({ height: 900, width: 1440 });
@@ -279,7 +279,7 @@ test.describe('header modes', () => {
 });
 
 test.describe('menu', () => {
-  // The menu itself (MNFinal) is covered at 390, 1024 and 1440 in menu.spec.ts
+  // The menu itself is covered at 390, 1024 and 1440 in menu.spec.ts
   test('phone: following a word closes the menu', async ({ page }) => {
     await page.setViewportSize({ height: 844, width: 390 });
     await open(page, '/');
@@ -363,7 +363,7 @@ test.describe('performance (lenient: catches regressions, not tuning) @perf', ()
 
 test.describe('page colour', () => {
   const SHOW = '/136315/the-bear';
-  // The stub's The Bear: backdropColor #29251f (the board's)
+  // The stub's The Bear: backdropColor #29251f
   const COLOUR = 'rgb(41, 37, 31)';
   const GROUND = 'rgb(28, 34, 35)';
   const bodyColour = (page: Page) =>

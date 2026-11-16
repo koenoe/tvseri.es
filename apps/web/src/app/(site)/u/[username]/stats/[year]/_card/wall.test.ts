@@ -26,7 +26,7 @@ describe('wallCapacity', () => {
 });
 
 describe('wallLayout', () => {
-  it('places the story wall as the board draws it (STShare)', () => {
+  it('places the story wall', () => {
     const cells = wallLayout(STORY, 10);
     expect(cells.map(box)).toEqual([
       [90, 760, 331, 487],

@@ -80,7 +80,7 @@ function DiaryRow({
   const gridClasses = cn(
     DIARY_ROW_GRID,
     // no transition: a background fading under a scrolling pointer repaints
-    // every frame (the board's hover is instant too)
+    // every frame (the hover is instant too)
     !single && 'rounded-12 hover:bg-white/3',
   );
 

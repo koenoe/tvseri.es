@@ -42,7 +42,7 @@ export const TICKET_WIDTH =
 export const TICKET_ART =
   'relative aspect-video overflow-hidden bg-white/4 before:absolute before:inset-0 before:z-1 before:bg-[linear-gradient(20deg,rgb(0_0_0/0.72)_0%,rgb(0_0_0/0.3)_38%,rgb(0_0_0/0)_62%)]';
 
-/** Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval. */
+/** Each place keeps its own look on purpose; don't unify them. */
 const NETWORK: ServiceIconLayout = {
   className:
     'absolute top-2.5 right-2.5 z-1 size-6 rounded-6 object-cover md:top-3 md:right-3 md:size-7 md:rounded-[7px]',
@@ -71,7 +71,7 @@ const TICKET_ACTION = 'relative z-3';
 const TICKET = `group/ticket relative ${TICKET_FRAME} bg-white/5 after:pointer-events-none after:absolute after:inset-0 after:z-4 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.08)] ${TILE_HOVER_WIDE}`;
 
 /** The show's logo in the ticket's logo box (140 × 32, 200 × 44 from md); else its title */
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 const TICKET_TITLE: TitleTreatmentLook = {
   height: 44,
   logo: `${TICKET_LOGO_BOX} ${TITLE_LOGO_FIT}`,
@@ -83,7 +83,7 @@ const TICKET_TITLE: TitleTreatmentLook = {
 const BACKDROP_SIZES = '(min-width: 768px) 382px, 260px';
 
 /**
- * One Premieres ticket (HMFinal `e3-tk`, the profile's Coming up ticket):
+ * One Premieres ticket (the profile's Coming up ticket):
  * the countdown stub, a dashed tear, the backdrop with the logo under a
  * scrim and the service icon (when known), then what happens, the date and
  * the release, and the Watchlist pill. The whole ticket opens the show.

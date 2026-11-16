@@ -11,7 +11,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 describe('RowError', () => {
-  it('keeps the row header and says only this row failed (ERFinal)', () => {
+  it('keeps the row header and says only this row failed', () => {
     const onRetry = vi.fn();
     render(
       <RowError

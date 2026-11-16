@@ -19,12 +19,12 @@ import type { CardFormat } from '../../_card/cardRequest';
 import { DARK_GROUND } from '../../_card/theme';
 import type { ShareState } from './useShareCard';
 
-/** The parts the desktop dialog and the phone sheet share (`.st-sh-*`) */
+/** The parts the desktop dialog and the phone sheet share */
 
 type Size = Readonly<{ width: number; height: number }>;
 
 /**
- * `.st-sh-pv`: the card image, sized to the stage. One `<img>` per card
+ * The card image, sized to the stage. One `<img>` per card
  * (`key`): a changed `src` on the same element keeps drawing the old card,
  * scaled into the new format's frame, until the new one arrives. A new element
  * shows the frame (the target aspect, on the card's own ground) instead.
@@ -49,7 +49,7 @@ export function CardPreview({
   );
 }
 
-/** `.st-sh-seg`: the board's 3px-padded switch; items 34px (dialog) or 32px */
+/** The 3px-padded switch; items 34px (dialog) or 32px */
 const SEG = 'gap-0.5 self-start bg-black/25 p-[3px]';
 const ITEM = {
   dialog: 'h-[34px] px-4',
@@ -144,7 +144,7 @@ function Choice<T extends string>({
   );
 }
 
-/** Copy link → "Link copied" with the cyan check (`.st-sh-done`) */
+/** Copy link → "Link copied" with the cyan check */
 export function CopyLinkButton({
   className,
   share,

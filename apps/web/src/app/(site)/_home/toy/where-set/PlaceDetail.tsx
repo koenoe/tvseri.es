@@ -25,7 +25,7 @@ const fade = (on: boolean) =>
 import type { MapPlace } from './types';
 
 /**
- * The place's show (HMFinal `e2-md`): its backdrop (220px, 12px corners)
+ * The place's show: its backdrop (220px, 12px corners)
  * with its logo, or its written title, on it (both cross-faded over 300ms,
  * together, so a logo never shows over another show's image), its facts,
  * "Open {show}" and "More set in {place}" (the place's next show; hidden

@@ -31,7 +31,7 @@ const stateOf = (side: Side, chosen: Side | null): PosterState =>
   chosen === null ? 'idle' : chosen === side ? 'chosen' : 'out';
 
 /**
- * Versus (HMFinal "H · Versus"): two similar series face to face. Tapping a
+ * Versus: two similar series face to face. Tapping a
  * poster chooses it (the other side dims and the actions replace the hint);
  * tapping the other switches, tapping it again clears. "Another pair" steps
  * through the day's deck.

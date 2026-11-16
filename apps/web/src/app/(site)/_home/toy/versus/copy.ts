@@ -1,7 +1,7 @@
 import type { Side } from './rows';
 
 /**
- * The card's heading line (HMFinal Versus): signed in, the deck has only
+ * The card's heading line: signed in, the deck has only
  * series the viewer has in none of their lists, so the line can say so;
  * signed out it can't.
  */

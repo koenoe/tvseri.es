@@ -25,7 +25,7 @@ describe('loginHref', () => {
   });
 });
 
-describe('menuModel: content per viewer (MNFinal)', () => {
+describe('menuModel: content per viewer', () => {
   it('signed out: Watch (Home, Discover), then Sign in', () => {
     const model = menuModel({
       handle: null,

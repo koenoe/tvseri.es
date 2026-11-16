@@ -4,7 +4,7 @@ import { dateMs, dayRange, monthName, shortDay } from '../../_lib/weeks';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** The board's five fills (`.st-l0` to `.st-l4`) */
+/** The five fills */
 export const STEP_FILLS = [
   'rgba(255,255,255,0.045)',
   'rgba(255,255,255,0.14)',
@@ -16,8 +16,8 @@ export const STEP_FILLS = [
 export type Step = 0 | 1 | 2 | 3 | 4;
 
 /**
- * Episodes in a day → one of the board's steps: none, 1, 2, 3 to 4, 5 or more
- * (the board draws 1 to 4 and one 6; 5 is the first count past its "3 or 4").
+ * Episodes in a day → one of the steps: none, 1, 2, 3 to 4, 5 or more
+ * (5 is the first count past "3 or 4").
  */
 export function intensityStep(episodes: number): Step {
   if (episodes <= 0) {
@@ -67,7 +67,7 @@ const episodesByDate = (days: Days) =>
   new Map(days.map(({ date, episodes }) => [date, episodes]));
 
 /**
- * The year as the board's heatmap: one cell per day, a column per week
+ * The year as a heatmap: one cell per day, a column per week
  * starting on the Monday on or before 1 January, Monday at the top. Days
  * outside the year are blank (no cell).
  */

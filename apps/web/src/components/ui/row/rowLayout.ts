@@ -6,15 +6,15 @@
  *   `--row-start` (the page's text edge); the rail bleeds past `--row-end`.
  * - `--row-n` + `--row-peek`: cards fully visible + the share of the next one
  *   cut at the right edge ("5 full + 49% of the 6th" at 1440).
- * - `--row-gap`, `--tile-radius`, `--tile-aspect`: as the boards draw them.
+ * - `--row-gap`, `--tile-radius`, `--tile-aspect`.
  * - `--row-tile`: the card width that follows from those, so the peek holds
  *   at every width.
  *
  * The frame is an inline-size container, so `cqw` is the row's own width and
  * the counts follow the space the row gets (full bleed or a column), not the
- * window. The boards' values: a full row (220 + 24, gutter 112 at 1440), the
+ * window. Example values: a full row (220 + 24, gutter 112 at 1440), the
  * profile column (160 + 16, 5 + 52%), a phone (140 + 12, 2.45 at 390; the
- * phone gutter is 24, the board draws 16), Home's 16:9 tile (384 + 24,
+ * phone gutter is 24), Home's 16:9 tile (384 + 24,
  * 3 + 27% at 1440).
  */
 
@@ -43,7 +43,7 @@ export const ROW_INSET: Readonly<Record<RowInset, string>> = {
 export const ROW_TILES: Readonly<Record<RowTiles, string>> = {
   backdrop:
     '[--row-n:1] [--row-peek:0.25] [--row-gap:12px] [--tile-radius:12px] [--tile-aspect:16/9] @min-[640px]:[--row-n:2] @min-[768px]:[--row-peek:0.27] @min-[768px]:[--row-gap:16px] @min-[1024px]:[--row-n:3] @min-[1024px]:[--row-gap:24px] @min-[1680px]:[--row-n:4]',
-  /** The Discover hub's Go deeper card: one at a time on phones inside both page gutters (342 at 390; the board drew 358 in 16px gutters), 960 + 40% of the next at 1440; between them (768 to 1279) the phone's stacked card at 560px with the next one peeking, because the desktop card squeezes its posters below about 900px (29px posters at 800); the ghost is the card's height (303 on phones, 404 stacked at 560, 310 with a two-line "why" on desktop, measured on the loaded card) */
+  /** The Discover hub's Go deeper card: one at a time on phones inside both page gutters (342 at 390), 960 + 40% of the next at 1440; between them (768 to 1279) the phone's stacked card at 560px with the next one peeking, because the desktop card squeezes its posters below about 900px (29px posters at 800); the ghost is the card's height (303 on phones, 404 stacked at 560, 310 with a two-line "why" on desktop, measured on the loaded card) */
   card: '[--row-n:1] [--row-peek:0] [--row-gap:12px] [--tile-radius:16px] [--tile-aspect:auto] [--tile-ghost-h:303px] @max-[767px]:[--row-tile:calc(100cqw_-_2_*_var(--page-gutter))] @min-[768px]:@max-[1280px]:[--row-tile:560px] @min-[768px]:[--tile-ghost-h:404px] @min-[768px]:[--row-gap:24px] @min-[1280px]:[--tile-ghost-h:310px] @min-[1280px]:[--row-peek:0.36]',
   poster:
     '[--row-n:2] [--row-peek:0.45] [--row-gap:12px] [--tile-radius:10px] [--tile-aspect:2/3] @max-[639px]:[--row-tile:140px] @min-[640px]:[--row-n:3] @min-[768px]:[--row-n:4] @min-[768px]:[--row-peek:0.49] @min-[768px]:[--row-gap:16px] @min-[768px]:[--tile-radius:12px] @min-[1024px]:[--row-n:5] @min-[1024px]:[--row-gap:24px] @min-[1680px]:[--row-n:6] @min-[2200px]:[--row-n:7]',
@@ -77,15 +77,15 @@ export const ROW_IMAGE_SIZES: Readonly<Record<RowTiles, string>> = {
 };
 
 /**
- * A board's own look for the shared row and tile, as tokens (no fork): set
+ * A page's own look for the shared row and tile, as tokens (no fork): set
  * on a wrapper inside the frame, so they win over the tile grid's values.
- * The tokens and their defaults (Home's boards):
+ * The tokens and their defaults:
  *
  * - `--row-head-h` (none), `--row-head-gap` (20px), `--row-rail-pt` (24px):
  *   the header line's height and gap, and header → cards.
  * - `--row-meta-icon` (13px): the header's subtitle icon.
  * - `--row-arrow-stroke` (1.8), `--row-arrow-ink` (white/80): the arrows.
- *   Every board draws stroke 2, so Home and Discover set it (`home`, the hub looks).
+ *   Home and Discover use stroke 2 (`home`, the hub looks).
  * - `--tile-shadow` (the soft drop shadow), `--tile-focus-offset` (4px): the
  *   poster tile.
  */
@@ -97,11 +97,11 @@ export type RowLook =
   | 'hubRanked'
   | 'landing';
 
-// The boards draw the arrows' chevron at stroke 2
+// The arrows' chevron at stroke 2
 const BOARD_ARROWS = '[--row-arrow-stroke:2]';
 
 // a 44px header line with 14px gaps, the track's 6px below
-// the cards; white chevrons (`.ds-b button`)
+// the cards; white chevrons
 const HUB_LINE = `${BOARD_ARROWS} [--row-arrow-ink:#fff] md:[--row-head-h:44px] md:[--row-head-gap:14px] md:pb-1.5`;
 
 /** The Discover hub's poster shadow, for hub posters outside a row too */
@@ -112,11 +112,11 @@ export const HUB_TILE_SHADOW =
 const HUB_POSTERS = `${HUB_TILE_SHADOW} [--tile-radius:10px] @max-[639px]:[--row-tile:132px]`;
 
 export const ROW_LOOKS: Readonly<Record<RowLook, string>> = {
-  /** Home: the arrows' chevron at stroke 2, as every board draws it */
+  /** Home: the arrows' chevron at stroke 2 */
   home: BOARD_ARROWS,
-  /** a hub section (df-col): 24 + the track's 4px from the header to the cards */
+  /** a hub section: 24 + the track's 4px from the header to the cards */
   hub: `${HUB_LINE} md:[--row-rail-pt:28px]`,
-  /** a lens tile's row opened in place (df-exp): 16 + 4 */
+  /** a lens tile's row opened in place: 16 + 4 */
   hubOpen: `${HUB_LINE} md:[--row-rail-pt:20px] ${HUB_POSTERS}`,
   hubPoster: `${HUB_LINE} md:[--row-rail-pt:28px] ${HUB_POSTERS}`,
   /** the hub's numbered row: its posters' shadow, the tile sizes its own (`ranked`) */

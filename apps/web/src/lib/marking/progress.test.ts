@@ -47,7 +47,7 @@ describe('nextEpisode', () => {
     expect(nextEpisode(series)).toEqual({ episodeNumber: 3, seasonNumber: 1 });
   });
 
-  it('is the first aired episode with no mark, even before the last watched one (EPShowFinal)', () => {
+  it('is the first aired episode with no mark, even before the last watched one', () => {
     const series = base({
       watched: { S01E01: at(1), S02E01: at(1), S02E02: at(1) },
     });

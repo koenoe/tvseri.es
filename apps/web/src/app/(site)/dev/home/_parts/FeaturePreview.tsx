@@ -28,9 +28,9 @@ const ghostCount = (kind: (typeof GHOST_KINDS)[number]) => {
 };
 
 /**
- * The feature of the day, every kind with the boards' data (Mon 9 binge,
+ * The feature of the day, every kind with the sample data (Mon 9 binge,
  * Tue 10 stills, Wed 11 archive, Did you know, Sat 14 countdown). The Binge
- * calculator plans from the board's today (Wed 11 Nov) so its strip matches.
+ * calculator plans from the sample today (Wed 11 Nov) so its strip matches.
  * Then the placeholders of the kinds that carry their label inside or keep
  * room for their longest text: on Home they only show when the API is slow,
  * so their boxes are compared with the loaded card's here

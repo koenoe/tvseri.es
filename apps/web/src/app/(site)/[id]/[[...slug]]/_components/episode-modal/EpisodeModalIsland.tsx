@@ -37,7 +37,7 @@ export function preloadEpisodeModal() {
 }
 
 /**
- * The episode modal (`?season=N&episode=M`, EP-B). Reads the URL only; the
+ * The episode modal (`?season=N&episode=M`). Reads the URL only; the
  * modal loads on the first open and then stays mounted, so closing can play
  * its exit.
  */

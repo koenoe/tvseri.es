@@ -17,9 +17,9 @@ import { orNull } from '../../../_lib/orNull';
 import { loadStartDeck } from '../../sidebar/start/loadStart';
 import { borrowedUpNextIds } from '../up-next/loadUpNext';
 
-/** Providers shown as chips, like the board's six */
+/** Providers shown as chips, six of them */
 const PROVIDERS = 6;
-/** Posters in Already seen: the board's eight, a row on desktop */
+/** Posters in Already seen: eight, a row on desktop */
 const SHOWS = 8;
 /** Trending shows read, so eight remain after leaving out the viewer's own */
 const CANDIDATES = 20;

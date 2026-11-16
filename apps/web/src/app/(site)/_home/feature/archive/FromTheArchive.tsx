@@ -48,7 +48,7 @@ export const ARCHIVE_LABEL =
 const LABEL_ID = 'archive-label';
 
 /**
- * "From the archive" (HMFinal `hx-arch`): a 320px banner of an old, top
+ * "From the archive": a 320px banner of an old, top
  * rated show nobody is watching this week; the backdrop under a dark fade
  * from the left, the label, the title, two sentences, the facts and why it
  * is here.

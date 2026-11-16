@@ -11,8 +11,8 @@ import { img, series } from './base.ts';
 import { ok, type StubRoute } from './routes.ts';
 
 /**
- * The signed-in touches of home (HMFinal, HMFinalMobile phone 2), with the
- * boards' shows and copy: Continue watching (`/me/overview` + the first
+ * The signed-in touches of home, with the
+ * sample shows and copy: Continue watching (`/me/overview` + the first
  * show's `/series/:id`), Get started, "Because you watched Severance" and
  * "More Sci-Fi & Fantasy". The demo member is the invented "nina".
  */
@@ -60,7 +60,7 @@ const upNextItem = ({ poster, ...input }: UpNextInput): UpNextItem => ({
 });
 
 /**
- * The board's Continue watching for a clock `now`: Dexter: Resurrection
+ * The Continue watching row for a clock `now`: Dexter: Resurrection
  * last watched yesterday, then Task, The White Lotus and Black Mirror in the
  * lane, and a fifth show so the count reads 5.
  */
@@ -158,7 +158,7 @@ const overview = (items: ReadonlyArray<UpNextItem>): Overview => ({
   upNext: items,
 });
 
-/** A new user's Get started, nothing done yet (HMFinal: "0 of 3") */
+/** A new user's Get started, nothing done yet ("0 of 3") */
 export const GET_STARTED_NEW: GetStartedStatus = {
   doneAt: null,
   doneCount: 0,
@@ -181,7 +181,7 @@ const GET_STARTED_HIDDEN: GetStartedStatus = {
   steps: { alreadySeen: true, history: true, services: true },
 };
 
-/** "Because you watched Severance" (HMFinal `hx-h-bec`), reasons as the API builds them */
+/** "Because you watched Severance", reasons as the API builds them */
 export const BECAUSE_YOU_WATCHED: BecauseYouWatched = {
   items: [
     {
@@ -277,7 +277,7 @@ export const BECAUSE_YOU_WATCHED: BecauseYouWatched = {
   },
 };
 
-/** "More Sci-Fi & Fantasy" (HMFinal `hx-h-wl`): half of a sample of 8 */
+/** "More Sci-Fi & Fantasy": half of a sample of 8 */
 export const MORE_GENRE: MoreGenre = {
   genre: { id: 10765, name: 'Sci-Fi & Fantasy' },
   items: [
@@ -326,7 +326,7 @@ export const MORE_GENRE: MoreGenre = {
   share: { matching: 4, sampled: 8 },
 };
 
-/** Stub routes: the member gets the board's personal home, the new user Get started */
+/** Stub routes: the member gets the personal home, the new user Get started */
 export const PERSONAL_ROUTES: Readonly<Record<string, StubRoute>> = {
   '/me/get-started': (_url, _state, viewer) =>
     ok(viewer === 'new' ? GET_STARTED_NEW : GET_STARTED_HIDDEN),

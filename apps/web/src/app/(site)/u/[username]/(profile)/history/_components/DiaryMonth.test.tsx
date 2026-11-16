@@ -56,7 +56,7 @@ const [MARCH] = buildDiary([
   watched(2, 'Fleabag', 4, '2024-03-14T21:00:00.000Z'),
 ]);
 
-describe('DiaryMonth (PGFinal 4: month header, days, rows)', () => {
+describe('DiaryMonth (month header, days, rows)', () => {
   it('a month section named by its header, its days and rows newest first', () => {
     if (!MARCH) {
       throw new Error('no month');

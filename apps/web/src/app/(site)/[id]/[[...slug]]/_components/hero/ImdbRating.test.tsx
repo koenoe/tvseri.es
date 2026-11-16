@@ -27,7 +27,7 @@ describe('ImdbRating', () => {
     const value = screen.getByText('8.1');
     const votes = screen.getByText('321.4K');
     // 18px value in an 18px line (24 in 22 from md), the votes 12 in 12:
-    // about 4px of air between the digits, not the board's 17.
+    // about 4px of air between the digits.
     expect(value.className).toContain('leading-[18px]');
     expect(value.className).toContain('md:leading-[22px]');
     expect(votes.className).toContain('text-caption/none');

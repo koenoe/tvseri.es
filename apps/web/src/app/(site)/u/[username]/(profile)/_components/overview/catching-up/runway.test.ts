@@ -170,7 +170,7 @@ describe('runPlan', () => {
         `S${String(season).padStart(2, '0')}E${String(from + index).padStart(2, '0')}`,
     );
 
-  it('draws the board run as it is: four chips and the premiere', () => {
+  it('draws the run as it is: four chips and the premiere', () => {
     const plan = runPlan(item());
     expect(plan.chips.map((chip) => chip.label)).toEqual([
       'E05',
@@ -214,7 +214,7 @@ describe('runPlan', () => {
 
   it('leaves room for the premiere chip', () => {
     const plan = runPlan(item({ episodes: codes(5, 1, 8), waiting: 12 }));
-    // four chips, +8 and the premiere do not fit the board's 284px
+    // four chips, +8 and the premiere do not fit 284px
     expect(plan.chips).toHaveLength(3);
     expect(plan.more.wide).toBe(9);
     expect(plan.narrow).toBe(2);

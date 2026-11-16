@@ -10,7 +10,7 @@ import NumberedSteps, {
 import { HELP, HELP_TABS } from '../_lib/copy';
 import type { HelpTab } from '../_lib/importState';
 
-/** Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval. */
+/** Each place keeps its own look on purpose; don't unify them. */
 const HELP_STEPS: NumberedStepsLayout = {
   item: 'grid grid-cols-[24px_minmax(0,1fr)] gap-x-3.5',
   list: 'flex flex-col gap-3',

@@ -19,8 +19,8 @@ import {
 
 /**
  * "Finished Mon Nov 23 · 2 episodes a night", then Start watching (opens the
- * show) and the watchlist toggle, "Add to watchlist" (HMFinal `e3-bce`;
- * no read: only its own press changes it).
+ * show) and the watchlist toggle, "Add to watchlist"
+ * (no read: only its own press changes it).
  */
 export default function BingeFooter({
   choice,

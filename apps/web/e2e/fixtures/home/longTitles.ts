@@ -3,7 +3,7 @@
  * checks ("Open Avatar: The Last Airbender" ran under Did you
  * know's pager at 800, where "Open Breaking Bad" fitted). From
  * `LONG_TITLES_FROM` on, the feature and the toy of the day carry these
- * titles instead of the boards' (`/dev/home?day=2027-01-04` and on, in the
+ * titles instead of the sample ones (`/dev/home?day=2027-01-04` and on, in the
  * e2e build; on `next dev`, which asks for today's moments, `POST
  * /__stub/state` `{ "longTitles": true }`).
  */

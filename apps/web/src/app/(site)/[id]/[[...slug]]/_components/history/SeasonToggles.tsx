@@ -6,8 +6,8 @@ import SheetToggle from './SheetToggle';
 
 /**
  * The phone "Season" chip as it renders: plain and outlined, white
- * text, no progress fill (its `.mk-part` gradient has no share set, so the
- * board draws none) and no eye; `aria-pressed` carries complete.
+ * text, no progress fill (its `.mk-part` gradient has no share set, so it
+ * draws none) and no eye; `aria-pressed` carries complete.
  */
 const PHONE = 'bg-transparent text-white sm:hidden';
 

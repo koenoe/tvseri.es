@@ -20,7 +20,7 @@ export type StatsBlock = Readonly<{
   title: (props: SectionProps) => string;
   Component: ComponentType<SectionProps>;
   fallback: ReactNode;
-  /** STMobile leaves it out */
+  /** The phone leaves it out */
   phoneHidden?: boolean;
 }>;
 
@@ -39,8 +39,8 @@ const block = (
 });
 
 /**
- * The main column under the header, in STD_Recommended's order: one block
- * per row, or two side by side on desktop (`.st-two`).
+ * The main column under the header, one block
+ * per row, or two side by side on desktop.
  */
 export const STATS_ROWS: ReadonlyArray<ReadonlyArray<StatsBlock>> = [
   [

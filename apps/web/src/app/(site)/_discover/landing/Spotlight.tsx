@@ -36,7 +36,7 @@ type Props = Readonly<{
 }>;
 
 /** The show's logo: 44 tall, up to 300 wide (phones 32 / 200), at its own width */
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 const SPOTLIGHT_LOGO: TitleLogoLook = {
   height: 0,
   logo: 'block h-8 w-auto max-w-[200px] object-contain object-left-bottom md:h-11 md:max-w-[300px]',

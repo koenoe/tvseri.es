@@ -4,10 +4,10 @@ import Icon from '@/components/ui/icon/Icon';
 import type { Glyph, ToggleGlyph } from '@/components/ui/icon/types';
 import cn from '@/lib/cn';
 
-/** A sidebar fact list (`.pr-facts`): 14/24 white/80, 12px apart (8 on phones) */
+/** A sidebar fact list: 14/24 white/80, 12px apart (8 on phones) */
 export const FACTS = 'flex flex-col gap-2 text-body-sm text-white/80 lg:gap-3';
 
-/** One fact (`.pr-fact`): a 15px line icon (13 on phones), 10px (8) from its text */
+/** One fact: a 15px line icon (13 on phones), 10px (8) from its text */
 export default function Fact({
   children,
   className,

@@ -108,7 +108,7 @@ describe('Up next', () => {
     expect(buildUpNext([hole])[0]?.code).toBe('S01E04');
   });
 
-  it('is the first aired episode with no mark, even before the last watched one (EPShowFinal)', () => {
+  it('is the first aired episode with no mark, even before the last watched one', () => {
     // S1 complete, S2 E1–E5 watched, then S2 E2 unmarked: Next up is S2 E2.
     const unmarked = state({
       watched: watched([...range(1, 1, 8), [2, 1], ...range(2, 3, 5)]),

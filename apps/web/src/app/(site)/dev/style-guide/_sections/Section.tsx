@@ -8,7 +8,7 @@ export default function Section({
 }: Readonly<{
   children: ReactNode;
   id: string;
-  /** the design or spec this section is checked against */
+  /** what this section is checked against */
   source: string;
   title: string;
 }>) {

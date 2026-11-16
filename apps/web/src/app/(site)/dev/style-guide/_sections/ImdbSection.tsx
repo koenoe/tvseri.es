@@ -9,12 +9,8 @@ import { OnStill, Specimen, State } from './Specimen';
 /** The show page's IMDb badge, rated and unrated (phone sizes below 768px). */
 export default function ImdbSection() {
   return (
-    <Section
-      id="imdb"
-      source="EPShowFinal ep-imdb, EPFinalMobile"
-      title="IMDb badge"
-    >
-      <Specimen board="ImdbRating: RatedBadge, UnratedBadge" label="On a hero">
+    <Section id="imdb" source="the IMDb rating badge" title="IMDb badge">
+      <Specimen label="On a hero" note="ImdbRating: RatedBadge, UnratedBadge">
         <OnStill>
           <State name="rated">
             <RatedBadge imdbId="tt14452776" value={8.5} votes={330_000} />

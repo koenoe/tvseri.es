@@ -34,7 +34,7 @@ describe('episode codes: one zero-padded format, in the page and in toasts', () 
   });
 });
 
-describe('toast copy (CMFinal, EPShowFinal)', () => {
+describe('toast copy', () => {
   it('names episodes and runs with the same codes', () => {
     expect(markedMessage({ what: 'S03E05', when: 'Just now' })).toBe(
       'Marked S03E05 · Just now',

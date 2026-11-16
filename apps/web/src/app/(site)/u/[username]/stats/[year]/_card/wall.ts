@@ -1,9 +1,9 @@
 /**
- * The share card's poster wall (STShare V2b): a grid of 2:3
+ * The share card's poster wall: a grid of 2:3
  * cells where each poster covers a square block of cells, so every poster
  * stays 2:3. Sizes go by rank in hours: #1 is 3 × 3 cells, #2 and #3 are
  * 2 × 2, the rest 1 × 1. Posters are placed big to small, each in the first
- * free block scanning row by row, which gives the board's walls: the story's
+ * free block scanning row by row, which gives the story's
  * 8 × 3 (top 10) and the square's 5 × 4 (top 6). With fewer shows the wall
  * just ends early (cells drop from the end). Pure: satori has no grid, so the
  * card draws these as absolutely positioned images.
@@ -28,13 +28,13 @@ export type WallCell = Readonly<{
   top: number;
   width: number;
   height: number;
-  /** The board's corner per size: 18, 14, 10 */
+  /** The corner per size: 18, 14, 10 */
   radius: number;
 }>;
 
 const RADIUS: Readonly<Record<number, number>> = { 1: 10, 2: 14, 3: 18 };
 
-/** Half to even, as the board's generator (Python) rounds: 772.5 → 772 */
+/** Half to even, as Python's `round` does: 772.5 → 772 */
 const round = (value: number) => {
   const floor = Math.floor(value);
   const fraction = value - floor;
@@ -58,7 +58,7 @@ export function wallCapacity({ cols, rows }: WallGrid): number {
   return rank;
 }
 
-/** Where the posters of the first `count` ranks go (px, rounded as the board) */
+/** Where the posters of the first `count` ranks go (px, rounded to the pixel) */
 export function wallLayout(grid: WallGrid, count: number): WallCell[] {
   const { cols, rows, gap } = grid;
   const cellWidth = (grid.width - (cols - 1) * gap) / cols;

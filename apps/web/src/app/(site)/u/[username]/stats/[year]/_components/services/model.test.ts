@@ -143,7 +143,7 @@ describe('buildServices', () => {
 });
 
 describe('seriesLine fitting the column', () => {
-  it('keeps the board’s Plex line whole', () => {
+  it('keeps the Plex line whole', () => {
     expect(seriesLine(names('Billions', 'Barry', 'The Pitt'), 33)).toBe(
       'Billions, Barry, The Pitt and 30 more',
     );

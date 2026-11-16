@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import cn from '@/lib/cn';
 
 /**
- * The dark field every settings input sits in (`.sg-filter`):
+ * The dark field every settings input sits in:
  * black/25 with a 1px inner edge, 10px radius. The input inside it takes the
  * shell's focus ring (`INPUT_CLASS` leaves it out of the input itself).
  */

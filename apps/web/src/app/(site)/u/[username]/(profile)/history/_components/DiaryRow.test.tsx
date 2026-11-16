@@ -66,7 +66,7 @@ const run: Row = {
   title: null,
 };
 
-describe('DiaryRow (PGFinal 4: one show on one day)', () => {
+describe('DiaryRow (one show on one day)', () => {
   it('one episode: code, title and runtime, the row opens the episode', () => {
     render(<DiaryRow row={base} />);
     const link = screen.getByRole('link', { name: /Severance/ });

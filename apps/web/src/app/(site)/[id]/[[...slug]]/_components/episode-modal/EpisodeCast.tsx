@@ -36,7 +36,7 @@ const ghost = (count: number, size: string, look: keyof typeof GHOST) =>
 
 /**
  * Holds the faces' space while the credits load (no shift when they land);
- * when they failed, ERFinal's dashed slots in the same space and one line.
+ * when they failed, dashed slots in the same space and one line.
  */
 function FacesSkeleton({
   look = 'loading',

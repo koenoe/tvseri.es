@@ -22,15 +22,8 @@ const SEASONS = [
 
 export default function MetaSection() {
   return (
-    <Section
-      id="meta"
-      source="HMFinal hx-mrow, EPShowFinal ep-mrow, TYFinal t-mrow (V54)"
-      title="Meta row"
-    >
-      <Specimen
-        board="HMFinal spotlight, DSLSystem · Meta line"
-        label="Show facts"
-      >
+    <Section id="meta" source="the meta line" title="Meta row">
+      <Specimen label="Show facts" note="Spotlight meta line">
         <MetaRow>
           <MetaItem icon={calendarGlyph}>2022</MetaItem>
           <MetaItem icon={seasonGlyph}>2 seasons</MetaItem>
@@ -38,8 +31,8 @@ export default function MetaSection() {
         </MetaRow>
       </Specimen>
       <Specimen
-        board="EPShowFinal season facts (highlight, pink) and HMFinal premieres"
         label="Tones · highlight, pink, cyan"
+        note="Season facts (highlight, pink) and premieres"
       >
         <MetaRow>
           <MetaItem active icon={eyeGlyph} tone="highlight">
@@ -55,8 +48,8 @@ export default function MetaSection() {
         </MetaRow>
       </Specimen>
       <Specimen
-        board="Typography rule 7: one line, ellipsis, full text on hover"
         label="Truncation · 280px wide, genres shrink first"
+        note="Typography rule 7: one line, ellipsis, full text on hover"
       >
         <div className="w-70 rounded-8 p-2 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)]">
           <MetaRow>
@@ -69,8 +62,8 @@ export default function MetaSection() {
         </div>
       </Specimen>
       <Specimen
-        board="EPShowFinal season rows (ssp-r .sb, tabular)"
         label="Stacked rows · tabular figures"
+        note="Season rows (tabular)"
       >
         <div className="grid gap-2">
           {SEASONS.map(([season, year, episodes]) => (

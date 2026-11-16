@@ -9,7 +9,7 @@ import type { RollBlock } from './episodeCredits';
 const PHONE_ROLES = new Set(['Directed by', 'Written by']);
 
 /**
- * The credits' blocks (EP-B `ep-b-copy`): role over name(s), or name |
+ * The credits' blocks: role over name(s), or name |
  * character pairs. The roll draws them twice for a seamless loop; the copy
  * is hidden from assistive tech and the tab order, and from phones.
  */

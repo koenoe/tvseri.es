@@ -7,7 +7,7 @@ import Icon from '@/components/ui/icon/Icon';
 import { PersonNode, ShowNode } from './Nodes';
 
 /**
- * A path (HMFinal `e2-path`): show, person, show, person, show with a line
+ * A path: show, person, show, person, show with a line
  * and an arrow between each, 150px per node. On a phone the chain scrolls
  * sideways.
  */

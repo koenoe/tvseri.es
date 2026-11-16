@@ -72,8 +72,8 @@ const countLine = (won: number, nominated: number) =>
     .join(', ');
 
 /**
- * Every award and nomination from Wikidata, wins first then newest (no
- * board draws this page: the Shows rows' style in the shared side sheet).
+ * Every award and nomination from Wikidata, wins first then newest (in the Shows
+ * rows' style, in the shared side sheet).
  * A list that failed to load says so inside the sheet.
  */
 export default function AwardsSheet({

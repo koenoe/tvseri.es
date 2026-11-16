@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 /**
- * A moment's box between the rows (HMFinal `hx-mom`). No title row above
+ * A moment's box between the rows. No title row above
  * the block: its label (`MomentLabel`) heads it from inside. The
  * placeholder is this same frame, so they share their box.
  */

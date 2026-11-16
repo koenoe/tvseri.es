@@ -99,7 +99,7 @@ function endedLine(series: HookSource): string {
  * 4. an ended show's size: "Ended: 5 seasons, 42 episodes"
  * 5. the top three cast: "With Tom Hardy, Helen Mirren and Pierce Brosnan"
  *
- * The board's examples (HMFinal `SP[].drv`) fit no simpler order: Stranger
+ * These examples fit no simpler order: Stranger
  * Things has creators yet says "Ended…", Barry has ended yet names its
  * creators, MobLand names its cast. This order reproduces all of them.
  */
@@ -116,7 +116,7 @@ function derivedLine(series: HookSource, day: string | undefined): string {
 }
 
 /**
- * The spotlight's one-line hook (HMFinal "The hook line"): the tagline, else
+ * The spotlight's one-line hook: the tagline, else
  * the overview's first sentence (about 90 characters at a word boundary),
  * else a line derived from facts we have, else '' (the line is left out and
  * the buttons close up). First rule with a value wins.

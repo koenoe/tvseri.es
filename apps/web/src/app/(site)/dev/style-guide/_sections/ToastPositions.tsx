@@ -52,7 +52,7 @@ const PLACES: ReadonlyArray<Place> = [
 
 export default function ToastPositions() {
   return (
-    <Specimen board="Toaster.tsx (static, scaled)" label="Positions">
+    <Specimen label="Positions" note="Toaster.tsx (static, scaled)">
       {PLACES.map((place) => (
         <State key={place.name} name={place.name}>
           <div

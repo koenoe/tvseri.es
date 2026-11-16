@@ -32,7 +32,7 @@ export type ShelfMeta = Readonly<{
   /** The phone chip's name ("All") */
   chip: string;
   glyph: Glyph | ToggleGlyph;
-  /** The owner's line under the header (the board's `META.desc`) */
+  /** The owner's line under the header */
   description: string;
   /** What a visitor's line calls the shelf: "edw1n’s favourites" */
   visitorNoun: string;
@@ -41,9 +41,8 @@ export type ShelfMeta = Readonly<{
 }>;
 
 /**
- * The six shelves, in the nav's order. The board's mock
- * notes ("No cap: today's page stops at 10", a count in All's line) are left
- * out: the line is static in the shell.
+ * The six shelves, in the nav's order. The line is
+ * static in the shell, so there is no count in All's line.
  */
 export const SHELVES: Readonly<Record<LibraryShelf, ShelfMeta>> = {
   all: {
@@ -125,7 +124,7 @@ export const SHELVES: Readonly<Record<LibraryShelf, ShelfMeta>> = {
   },
 };
 
-/** The sort pill's labels (the board's `META.sorts`) */
+/** The sort pill's labels */
 const SORT_LABEL: Readonly<Record<LibrarySort, string>> = {
   active: 'Recently active',
   az: 'A–Z',

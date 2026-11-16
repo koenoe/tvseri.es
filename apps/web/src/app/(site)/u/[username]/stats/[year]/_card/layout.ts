@@ -1,7 +1,7 @@
 import type { WallGrid } from './wall';
 
 /**
- * Where everything sits on each card, in px (STShare markup: the story and
+ * Where everything sits on each card, in px (the story and
  * the square at 1080 wide). The card keeps its own pixel scale, exempt from
  * the type tokens: story 300 / 72 / 54 / 32, square 180 / 56 / 42 / 28. The
  * og:image (1200 × 630) is the square's parts at 0.8 in one landscape row:

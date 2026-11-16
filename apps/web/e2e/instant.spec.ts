@@ -9,7 +9,7 @@ import { TILE_PREFETCH } from '../src/components/ui/tile/tilePrefetch';
  */
 test.describe('home (/)', () => {
   /**
-   * HMFinal: "the whole first screen is static and on the CDN". The
+   * The whole first screen is static and on the CDN: the
    * spotlight and the rows are `use cache` content prerendered into the
    * static shell (the e2e build runs against the stub API), so they are
    * there under the lock; only the signed-in touches stream.

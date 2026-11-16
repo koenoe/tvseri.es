@@ -160,7 +160,7 @@ export default function ChromeSection() {
   return (
     <Section
       id="chrome"
-      source="the header and menu, the final boards' header and footer, LGPick pill, specs/logo_final.md, plan 02 page colour"
+      source="the header and menu, the header and footer, the frosted pill, the page colour"
       title="Header, menu, footer and page colour"
     >
       <div className="grid gap-6">
@@ -170,7 +170,7 @@ export default function ChromeSection() {
         />
         <HeaderState
           mode="floating"
-          note="LGPick's frosted pill on scroll-up past 60px: 1024px wide, 24px from the top, 20px logo (12px from the edges on a phone)"
+          note="The frosted pill on scroll-up past 60px: 1024px wide, 24px from the top, 20px logo (12px from the edges on a phone)"
         />
         <HeaderState
           mode="hidden"

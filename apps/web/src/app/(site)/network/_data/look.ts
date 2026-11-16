@@ -18,9 +18,8 @@ type Brand = Readonly<{
 }>;
 
 /**
- * Networks whose TMDB logo is in colour, and the grounds the design draws.
+ * Networks whose TMDB logo is in colour, and the grounds they sit on.
  * Every other network has a monochrome logo, made white.
- * DRAFT: owner approves (which logos keep their colour).
  */
 const BRANDS: Readonly<Record<string, Brand>> = {
   'apple-tv': { ground: '#121214', strength: 0.07 },

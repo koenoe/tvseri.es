@@ -26,7 +26,7 @@ const listOf = (all: number) => {
 };
 
 describe('the Shows list’s fold (lib/fold)', () => {
-  it('names what it shows: “Show all N series” (boards README, expand control)', () => {
+  it('names what it shows: “Show all N series”', () => {
     const { button } = listOf(20);
     expect(button?.textContent).toMatch(/^Show all 20 series/);
   });

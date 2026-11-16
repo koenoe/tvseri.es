@@ -169,7 +169,7 @@ StackTile.displayName = 'StackTile';
 const STACK_ROW = cn(TILE, ROW, ROW_ACTION_UNDER, 'md:col-span-2');
 /**
  * The fanned thumbs: 16px apart, 8px on a phone, so beside the 32px page
- * gutters the text keeps the board's 134px at 390 (104 at 360)
+ * gutters the text keeps 134px at 390 (104 at 360)
  */
 const FAN_BOX = cn('relative h-19 w-36 flex-none md:w-40', MEDIA_ACTION_UNDER);
 const STACK_TEXT = cn(TEXT, TEXT_ACTION_UNDER);

@@ -39,7 +39,7 @@ describe('the sidebar counts', () => {
     ).toBe('/u/juno/circle');
   });
 
-  it('read as the board when they load', async () => {
+  it('read as the meta line when they load', async () => {
     apiFetch.mockImplementation(
       (
         path: string,

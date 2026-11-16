@@ -32,9 +32,9 @@ type Props = Readonly<{
 }>;
 
 /**
- * The Circle's desktop pills: Following is the ghost `btn-g`,
- * Follow the white `btn-w`. The board's ring is an inset shadow; here it is
- * the 2px border, so each padding is 2px less than the board's.
+ * The Circle's desktop pills: Following is the ghost button,
+ * Follow the white one. The ring is the 2px border, so each padding is 2px
+ * less than it would be without it.
  */
 const CIRCLE = {
   follow: 'md:h-10 md:px-4 md:text-[14px]',

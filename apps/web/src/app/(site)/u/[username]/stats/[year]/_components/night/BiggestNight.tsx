@@ -55,7 +55,7 @@ async function artOf(seriesId: number | undefined): Promise<SeriesArt | null> {
 }
 
 /**
- * "Biggest night" (STD_Recommended, STMobile): the evening with the most
+ * "Biggest night": the evening with the most
  * episodes as a backdrop card linking to the show (badge, how much of the
  * show it was, date, episodes, runtime), then "Also big" and the year's
  * longest binge. The phone shows the card alone, with the show's name.
@@ -197,7 +197,7 @@ function NightCard({
 }
 
 /** The title treatment, 180 by 28 at the bottom left (desktop); else the name */
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 const NIGHT_TITLE: TitleTreatmentLook = {
   height: 28,
   logo: 'h-7 w-[180px] object-contain object-left-bottom max-md:hidden',

@@ -4,7 +4,7 @@ import SectionUnavailable from '@/components/ui/row/SectionUnavailable';
 
 /**
  * A stats block whose API read was unavailable: the shared static
- * "didn't load" state with Try again (CONTRACTS "Data at build time"),
+ * "didn't load" state with Try again,
  * baked in for the short `unavailable` life; never a pulsing skeleton. The
  * card sits over the block's own placeholder, settled, so the block keeps
  * its size: no block is a tile row. Its edges are the block's own (`flush`:

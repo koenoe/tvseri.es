@@ -84,7 +84,7 @@ export function PopularPicks({
   );
 }
 
-/** One row of the board's day-0 grid */
+/** One row of the day-0 grid */
 const SEEN_PICKS = 5;
 
 /** Day 0's Finished: popular posters to mark as seen (Get started's `SeenTile`), in the shelf's grid */

@@ -149,10 +149,10 @@ describe('hookLine', () => {
 const people = (...names: string[]) => names.map((name) => ({ name }));
 
 /**
- * The board's derived lines (HMFinal `SP[].drv`), each built from the facts
+ * The derived lines, each built from the facts
  * the show has: tagline and overview empty
  */
-describe('hookLine derived from facts (the board’s examples)', () => {
+describe('hookLine derived from facts (examples)', () => {
   it('Pluribus: a creator’s better-known show', () => {
     expect(
       hookLine(

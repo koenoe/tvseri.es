@@ -64,7 +64,7 @@ function LeadMeta({ release }: Readonly<{ release: NewRelease }>) {
 }
 
 /** The show's logo in the lead tile's box, else its title written */
-// Each place keeps its signed-off look (owner, 15 Nov 2026); unify only with his approval.
+// Each place keeps its own look on purpose; don't unify them.
 const LEAD_TITLE_LOOK: TitleTreatmentLook = {
   box: LOGO_BOX,
   logo: TITLE_LOGO_FIT,

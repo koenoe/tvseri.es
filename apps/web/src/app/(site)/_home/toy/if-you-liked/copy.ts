@@ -66,7 +66,7 @@ const mostShared = (items: ReadonlyArray<Item>): Shared | undefined => {
 const countWord = (count: number) => COUNT_WORDS[count] ?? String(count);
 
 /**
- * The card's line under its title. The board's is hand-written ("Four shows
+ * The card's line under its title. It is not hand-written (for example "Four shows
  * with its family, chaos and kitchen-sink heart"); the API gives a reason
  * per show only, and a TMDB keyword is a tag ("based on novel or book",
  * "interview"), not a noun phrase, so it is never pasted into a sentence
@@ -103,7 +103,7 @@ export type ReasonLine = Readonly<{
 }>;
 
 /**
- * The line under a poster (HMFinal): "Theme: grief" for a shared keyword,
+ * The line under a poster: "Theme: grief" for a shared keyword,
  * the network's name, or for a plain recommendation its first two genres.
  */
 export const reasonLine = (item: Item): ReasonLine | undefined => {

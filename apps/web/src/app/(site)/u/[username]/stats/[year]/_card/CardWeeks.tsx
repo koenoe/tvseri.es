@@ -5,13 +5,13 @@ import { labelFont } from './fonts';
 import type { CardLayout } from './layout';
 import type { ThemeStyle } from './theme';
 
-/** The card's lines are a touch brighter than the page's (`.st-ss-wl`) */
+/** The card's lines are a touch brighter than the page's */
 const WEEK_COLOR = 'rgba(255,255,255,0.28)';
 const EMPTY_COLOR = 'rgba(255,255,255,0.1)';
 
 /**
  * The 53 week lines with the streak bracket and its line under them. The
- * card spreads the lines edge to edge (the board's `space-between`), while
+ * card spreads the lines edge to edge (`space-between`), while
  * `weekLinesSvg` centres each in an equal slot: the drawing is widened and
  * shifted so its first and last lines touch the edges. The bracket spans
  * the streak's slots, as on the page.

@@ -17,7 +17,7 @@ export function toPlexHint(
   return JSON.stringify({
     n: Math.min(Math.max(recent, 0), MAX_RECENT),
     // A broken card has the waiting card's shape; the pre-paint script
-    // knows the board's four states only
+    // knows the four states only
     s: state === 'broken' ? 'wait' : state,
     u: username,
     v: PLEX_HINT_VERSION,

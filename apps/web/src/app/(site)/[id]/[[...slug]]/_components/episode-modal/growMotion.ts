@@ -37,7 +37,7 @@ function onto(origin: Box, viewport: Viewport) {
  * left/top/width/height from the tile's box) with transform only: the panel
  * starts scaled onto the tile's exact box and grows to its place. The
  * content keeps its proportions (`coverContent`) frame by frame. The shell
- * is opaque throughout, as the board's; the content fades in after
+ * is opaque throughout; the content fades in after
  * (`v2-fade`).
  */
 export function growFrom(origin: Box, viewport: Viewport): PanelMotion {
@@ -70,7 +70,7 @@ export function shrinkTo(origin: Box, viewport: Viewport): PanelMotion['exit'] {
 /**
  * The content's scale inside a panel scaled (`scaleX`, `scaleY`): one
  * uniform scale that covers the panel's box, as `object-fit: cover` does on
- * the board's resized shell, so the still is never stretched.
+ * a resized shell, so the still is never stretched.
  */
 export function coverContent(scaleX: number, scaleY: number) {
   const cover = Math.max(scaleX, scaleY);

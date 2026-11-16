@@ -13,7 +13,7 @@ import type { CardLayout } from './layout';
 import type { ThemeStyle } from './theme';
 
 /**
- * The share card (STShare V2b) as `next/og` JSX: one component for the
+ * The share card as `next/og` JSX: one component for the
  * story, the square and the og:image, laid out by `CARD_LAYOUTS`. Satori
  * rules: flexbox and absolute positioning only, inline styles, every box
  * with more than one child is `display: flex`.

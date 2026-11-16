@@ -26,7 +26,7 @@ describe('ticketStub', () => {
     expect(ticketStub(13)).toEqual({ count: 13, unit: 'Days' });
   });
 
-  it('counts whole weeks from two weeks (HMFinal: 21, 34, 58 days)', () => {
+  it('counts whole weeks from two weeks (21, 34, 58 days)', () => {
     expect(ticketStub(14)).toEqual({ count: 2, unit: 'Weeks' });
     expect(ticketStub(21)).toEqual({ count: 3, unit: 'Weeks' });
     expect(ticketStub(34)).toEqual({ count: 5, unit: 'Weeks' });

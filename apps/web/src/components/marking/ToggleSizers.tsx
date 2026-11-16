@@ -6,14 +6,14 @@ import cn from '@/lib/cn';
 /** The toggle's on label */
 export const ON_LABEL = 'On watchlist';
 
-/** The board's box where it draws one: 138 wide for the 36px toggle (the ticket's) */
+/** 138 wide for the 36px toggle (the ticket's) */
 const MIN_WIDTH: Partial<Record<ButtonSize, string>> = {
   sm: 'min-w-[138px]',
 };
 
 /**
  * The watchlist toggle's box: both of its faces laid out unseen in the
- * row's one cell, so the row is the wider of the two (at least the board's
+ * row's one cell, so the row is the wider of the two (at least
  * 138 × 36 for the 36px toggle) whichever shows, its ghost included
  */
 export default function ToggleSizers({

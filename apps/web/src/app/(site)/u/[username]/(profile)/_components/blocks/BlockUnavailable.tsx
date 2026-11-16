@@ -12,8 +12,7 @@ import { PROFILE_TRY_AGAIN } from './profileTryAgain';
 /**
  * A profile block whose data is unavailable: the disc beside the title and
  * line, Try again under them.
- * Each place keeps its signed-off look (owner, 15 Nov 2026); unify only
- * with his approval.
+ * Each place keeps its own look on purpose; don't unify them.
  */
 const PROFILE_SETTLED: FailedLook = {
   body: 'text-caption text-white/60',
@@ -33,8 +32,7 @@ const tryAgain = <RefreshRetry look={SETTLED_TRY_AGAIN} />;
 const warningDisc = <IconDisc glyph={warningGlyph} />;
 
 /**
- * A block whose data is `Unavailable` (an outage, CONTRACTS "Data at build
- * time"): the warning disc, a title and one line, and a Try again that
+ * A block whose data is `Unavailable` (an outage): the warning disc, a title and one line, and a Try again that
  * refreshes the route (the failed read is kept only for the short
  * `unavailable` life). `className` is the block's box: the size of what it
  * stands in for, so nothing shifts when it comes back.

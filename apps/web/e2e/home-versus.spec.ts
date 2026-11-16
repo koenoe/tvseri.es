@@ -4,7 +4,7 @@ import { TOLERANCE } from './helpers/parity';
 import { signInAs } from './helpers/session';
 
 /**
- * Versus, the toy of the day (HMFinal "H · Versus"). Sun 15 Nov 2026 plans
+ * Versus, the toy of the day. Sun 15 Nov 2026 plans
  * it for everyone (not an If you liked X day), so the page is pinned there
  * through `/dev/home?day=` (served in the e2e build only). The stub's deck
  * (`fixtures/home/toy.ts`): Dark and Devs first; The Bear in the second

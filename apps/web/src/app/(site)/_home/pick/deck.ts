@@ -1,5 +1,5 @@
 /**
- * The fanned deck of "Pick one for me" (HMFinal `p3Rest` / `p3Vals`).
+ * The fanned deck of "Pick one for me".
  *
  * - rest: the pick in front, the others fanned behind it, half to each side,
  *   smaller, tilted and darker the further back they are.

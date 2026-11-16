@@ -1,6 +1,6 @@
 /*
- * The week lines grow from the baseline when the year changes (STD_Recommended
- * production note: "the week lines grow from 0 with an 8ms stagger"). Only
+ * The week lines grow from the baseline when the year changes (from 0 with an
+ * 8ms stagger). Only
  * `transform` is animated; each line's delay is set inline (`--stagger`).
  * `.grow` sits on the year that arrives after a switch, never on a page load.
  */

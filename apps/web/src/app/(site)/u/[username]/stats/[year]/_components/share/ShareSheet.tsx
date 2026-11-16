@@ -17,7 +17,7 @@ import {
 import type { ShareCard } from './shareCard';
 import useShareCard, { prefetchShareCard } from './useShareCard';
 
-/** `st-sh-up .26s ease-out`: up 24px and in */
+/** Up 24px and in (.26s ease-out) */
 const MOTION: PanelMotion = {
   animate: {
     opacity: 1,
@@ -44,7 +44,7 @@ export const prefetchStory = (card: ShareCard) =>
   prefetchShareCard(card, 'story', 'dark');
 
 /**
- * The phone share sheet (STMobile `.st-sh-sheet`): Story first (where phone
+ * The phone share sheet: Story first (where phone
  * shares go), Story / Square and Dark / Colour, then Share… (the system
  * sheet with the image), Save image and Copy link.
  */

@@ -62,7 +62,6 @@ const TRIGGERS: ReadonlyArray<Trigger> = [
     widths: [1440, 390],
   },
   {
-    // Home draws the ⋯ on Continue watching from md; phones mark with the eye
     name: 'Home’s Continue watching Remote',
     open: async (page) => {
       await open(page, '/');
@@ -74,20 +73,7 @@ const TRIGGERS: ReadonlyArray<Trigger> = [
       await markNextFromRemote(page);
     },
     viewer: 'kit',
-    widths: [1440],
-  },
-  {
-    name: 'Home’s Continue watching eye',
-    open: async (page) => {
-      await open(page, '/');
-      await page
-        .locator('[data-slot="continue"]')
-        .getByRole('button', { name: /^Mark The Bear/ })
-        .first()
-        .click();
-    },
-    viewer: 'kit',
-    widths: [390],
+    widths: [1440, 390],
   },
 ];
 

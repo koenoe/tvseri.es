@@ -39,7 +39,7 @@ type Props = Readonly<{
  * under it). Rendered only signed in, with at least one show.
  *
  * The items read through the marking core (`useLiveUpNext`): a mark from
- * the eye or the Remote moves the tile and the lane rows on at once, and a
+ * the ⋯ Remote moves the tile and the lane rows on at once, and a
  * show with nothing aired left leaves the row (the next one takes the tile,
  * as the next load would draw it).
  */

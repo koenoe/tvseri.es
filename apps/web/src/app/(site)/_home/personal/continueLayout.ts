@@ -95,5 +95,9 @@ export const IN_PROGRESS_ROW_GHOST: LaneRowGhostLayout = {
   segment: cn(SEGMENT_CLASS, SEGMENT_OFF),
 };
 
-/** The eye at the row's end, above the row */
-export const LANE_EYE = 'relative z-1';
+/** Home's ⋯ on the Up next card and the rows: white glyph, a 2px white/20 ring, hover brightens only the ring */
+export const CONTINUE_REMOTE =
+  'bg-transparent text-white hover:bg-transparent aria-expanded:bg-transparent';
+
+/** The ⋯ at the row's end, above the row */
+export const LANE_REMOTE = 'relative z-1';

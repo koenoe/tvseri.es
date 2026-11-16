@@ -22,10 +22,9 @@ type Props = Readonly<{
 }>;
 
 /**
- * The 32px eye that marks an episode watched, on Continue watching and the
- * profile's lanes. It only draws: what a press does, whether it toggles, and
- * how the show is made ready come from the place (Home's `MarkEye`, the
- * profile's `ToggleEye`).
+ * The 32px eye that marks an episode watched, on the profile's lanes. It
+ * only draws: what a press does, whether it toggles, and how the show is
+ * made ready come from the place (the profile's `ToggleEye`).
  *
  * @example
  * <EyeButton label={label} onIntent={warm} onPress={mark} />

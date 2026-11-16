@@ -3,9 +3,9 @@ import { expect, type Page, type Request, test } from '@playwright/test';
 import { signInAs } from './helpers/session';
 
 /**
- * "Next up" outside the show page reads through the marking core: a mark
- * from Continue watching's eye, or the Remote's "Watched next episode" on
- * the profile, moves the tile on at once (no reload), and Undo moves it
+ * "Next up" outside the show page reads through the marking core: the
+ * Remote's "Watched next episode" on Home's Continue watching or on the
+ * profile moves the tile on at once (no reload), and Undo moves it
  * back. `kit` is partway through The Bear (S02E05 skipped): Next up S03E05
  * "Children", then S03E06 "Napkins".
  */
@@ -42,7 +42,7 @@ test.beforeEach(async ({ page }) => {
   await signInAs(page.context(), 'kit');
 });
 
-test('Continue watching moves on after the eye, and back on Undo', async ({
+test('Continue watching moves on after the Remote, and back on Undo', async ({
   page,
 }) => {
   const errors = consoleErrors(page);
@@ -53,39 +53,47 @@ test('Continue watching moves on after the eye, and back on Undo', async ({
   await expect(tile.getByText('S03E05', { exact: true })).toBeVisible();
   await expect(tile.getByText('Children', { exact: true })).toBeVisible();
 
-  const markShown = () =>
+  // the card's own text: the open Remote's menu, still closing on a slow
+  // run, names the next episode too ("Watched next episode S03E06")
+  const onCard = (text: string) =>
     tile
-      .getByRole('button', { name: 'Mark The Bear S03E05 as watched' })
-      .filter({ visible: true })
+      .getByText(text, { exact: true })
+      .locator('xpath=self::*[not(ancestor::*[@role="menuitem"])]');
+  const markNext = async () => {
+    await tile
+      .getByRole('button', { name: 'More actions for The Bear' })
       .click();
+    await page.getByRole('menuitem', { name: /Watched next episode/ }).click();
+  };
 
   // At once, before any reload; Undo (while its toast is up) moves it back
-  await markShown();
-  // The eye fetches the show's marks first (hover warms it): give a loaded
+  await markNext();
+  // The Remote fetches the show's marks when it opens: give a loaded
   // machine time
-  await expect(tile.getByText('S03E06', { exact: true })).toBeVisible({
-    timeout: 15_000,
-  });
+  await expect(onCard('S03E06')).toBeVisible({ timeout: 15_000 });
   await page.getByRole('button', { name: 'Undo' }).click();
-  await expect(tile.getByText('S03E05', { exact: true })).toBeVisible();
-  await expect(tile.getByText('Children', { exact: true })).toBeVisible();
+  await expect(onCard('S03E05')).toBeVisible();
+  await expect(onCard('Children')).toBeVisible();
 
-  // Marked again once the writes are in: the eye is back on the spot it was
-  // pressed, and a press there while that press's write is out is refused
-  // on purpose (`pressGate`: a double-tap never marks what slid in)
+  // Marked again once the writes are in
   await expect.poll(() => writes.size, { timeout: 15_000 }).toBe(0);
-  await markShown();
-  await expect(tile.getByText('S03E06', { exact: true })).toBeVisible();
-  await expect(tile.getByText('Napkins', { exact: true })).toBeVisible();
+  await markNext();
+  await expect(onCard('S03E06')).toBeVisible({ timeout: 15_000 });
+  await expect(onCard('Napkins')).toBeVisible();
   await expect(tile.getByText('5 of 10 watched')).toBeVisible();
   await expect(tile.getByText('Last watched S03E05 today')).toBeVisible();
+  // Continue watching has no eye any more: the ⋯ is its one control
   await expect(
-    tile
-      .getByRole('button', { name: 'Mark The Bear S03E06 as watched' })
-      .filter({ visible: true }),
-  ).toBeVisible();
+    section.getByRole('button', { name: /^Mark The Bear/ }),
+  ).toHaveCount(0);
   // The lane still lists the next show
   await expect(section.getByText('Dexter: Resurrection')).toBeVisible();
+  // and its row ends in the same ⋯
+  await expect(
+    section.getByRole('button', {
+      name: 'More actions for Dexter: Resurrection',
+    }),
+  ).toBeVisible();
   expect(errors).toEqual([]);
 });
 

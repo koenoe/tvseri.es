@@ -1,12 +1,11 @@
 import type { UpNextItem } from '@tvseri.es/schemas';
+import RowRemote from '@/components/remote/RowRemote';
 import UpNextFacts from '@/components/up-next/UpNextFacts';
 import UpNextItemCard, {
   type UpNextArt,
 } from '@/components/up-next/UpNextItemCard';
 import { ownerFacts } from '@/components/up-next/upNextCopy';
 import showPath from '@/lib/routing/showPath';
-
-import RowRemote from '../../blocks/RowRemote';
 
 /** Your own Up next: the shared card with the ⋯ Remote; it opens the show */
 export default function OwnerHero({

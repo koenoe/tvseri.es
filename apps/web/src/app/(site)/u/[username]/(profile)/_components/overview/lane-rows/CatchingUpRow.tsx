@@ -1,5 +1,6 @@
 import type { CatchingUpItem } from '@tvseri.es/schemas';
 import Image from 'next/image';
+import RowRemote from '@/components/remote/RowRemote';
 import {
   calendarGlyph,
   clockGlyph,
@@ -12,8 +13,6 @@ import TileLink from '@/components/ui/tile/TileLink';
 import cn from '@/lib/cn';
 import { formatRuntime } from '@/lib/format/duration';
 import showPath from '@/lib/routing/showPath';
-
-import RowRemote from '../../blocks/RowRemote';
 import CatchUpRun from '../catching-up/CatchUpRun';
 import { runPlan, runwayView } from '../catching-up/runway';
 

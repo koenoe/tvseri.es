@@ -22,8 +22,8 @@ import {
   IN_PROGRESS_ROW,
   IN_PROGRESS_ROW_GHOST,
   LANE_DOT,
-  LANE_EYE,
   LANE_POSTER_EMPTY,
+  LANE_REMOTE,
   LANE_ROW_PHONE_HIDDEN,
   LANE_ROWS,
   LANE_TITLE_TEXT,
@@ -35,8 +35,7 @@ import {
 /**
  * Continue watching's placeholder, built from the section's own layout
  * (`continueLayout.ts`): the real title, then the Up next card's ghost (the
- * shared card's, with Home's eye and ⋯ from md and the phone's eye in the
- * bar) and the In progress lane in the real grid: the lane's rows with their
+ * shared card's, with its ⋯) and the In progress lane in the real grid: the lane's rows with their
  * poster, lines, empty segments and pill; "Your profile" as a flat pill. The
  * grid pulses as one layer, so the ghosts inside carry the fill only. The
  * lane is drawn: most viewers have more than one show in progress (one show
@@ -47,18 +46,11 @@ const LANE_GHOST_ROWS = Array.from({ length: LANE_ROWS }, (_, n) => n);
 
 const DOT = <span className={cn(LANE_DOT, FLAT)} />;
 const COUNT = <Badge className={FLAT} variant="count" />;
-const CONTROL = ghostCircle();
 
-/** Home's controls: the eye and the ⋯ from md, the eye in the bar on a phone */
-const CARD_ACTIONS = (
-  <span className="flex gap-2 max-md:hidden">
-    <span className={CONTROL} />
-    <span className={CONTROL} />
-  </span>
-);
-const PHONE_EYE = <span className={ghostCircle('md:hidden')} />;
+/** The card's ⋯ */
+const CARD_ACTION = <span className={ghostCircle()} />;
 
-/** A lane row's ghosts: the empty poster, the title and count, the time, the eye */
+/** A lane row's ghosts: the empty poster, the title and count, the time, the ⋯ */
 const ROW_POSTER = <span className={LANE_POSTER_EMPTY} />;
 const ROW_TITLE = (
   <>
@@ -67,7 +59,7 @@ const ROW_TITLE = (
   </>
 );
 const ROW_FACTS = <Line className="h-5" width="w-24" />;
-const ROW_EYE = <span className={ghostCircle(LANE_EYE)} />;
+const ROW_REMOTE = <span className={ghostCircle(LANE_REMOTE)} />;
 
 function LaneGhost() {
   return (
@@ -81,7 +73,7 @@ function LaneGhost() {
       {LANE_GHOST_ROWS.map((n) => (
         <LaneRowGhost
           className={n > 0 ? LANE_ROW_PHONE_HIDDEN : undefined}
-          end={ROW_EYE}
+          end={ROW_REMOTE}
           facts={ROW_FACTS}
           ghost={IN_PROGRESS_ROW_GHOST}
           key={n}
@@ -114,7 +106,7 @@ export default function ContinueGhost() {
         </ButtonFace>
       </div>
       <div className={GRID}>
-        <UpNextCardGhost actions={CARD_ACTIONS} episodeEnd={PHONE_EYE} />
+        <UpNextCardGhost actions={CARD_ACTION} />
         <LaneGhost />
       </div>
     </section>

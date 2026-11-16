@@ -3,24 +3,28 @@ import Image from 'next/image';
 import { memo } from 'react';
 
 import LaneRow from '@/components/lane-row/LaneRow';
+import RowRemote from '@/components/remote/RowRemote';
 import { clockGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
+import cn from '@/lib/cn';
 import { formatDuration } from '@/lib/format/duration';
 import {
+  CONTINUE_REMOTE,
   IN_PROGRESS_ROW,
-  LANE_EYE,
   LANE_POSTER,
   LANE_POSTER_EMPTY,
+  LANE_REMOTE,
 } from './continueLayout';
 import { finishLine } from './format';
-import MarkEye from './MarkEye';
+
+const REMOTE = cn(CONTINUE_REMOTE, LANE_REMOTE);
 
 /**
  * A compact In progress row on the shared lane row:
  * poster, title and "2 to go", one segment per episode of the season (one
  * line past 30), the episode pill and the time to finish the season ("2h to
- * finish" on the phone), Home's one-way eye. As drawn, the row itself isn't
- * a link: the eye is its action. Memoised, as the Up next tile: a row
+ * finish" on the phone), the ⋯ Remote (the profile's rows' own). As drawn,
+ * the row itself isn't a link: the ⋯ is its action. Memoised, as the Up next tile: a row
  * re-renders only when its own show moves on.
  */
 function InProgressRow({
@@ -59,14 +63,12 @@ function InProgressRow({
       <span className="max-md:hidden"> the season</span>
     </MetaItem>
   ) : null;
-  const eye = (
-    <MarkEye
-      className={LANE_EYE}
-      code={item.code}
-      episode={item.episode}
-      episodeTitle={item.episodeTitle}
+  const remote = (
+    <RowRemote
+      className={REMOTE}
       season={item.season}
       seriesId={item.seriesId}
+      slug={item.slug}
       title={item.title}
     />
   );
@@ -75,7 +77,7 @@ function InProgressRow({
       className={className}
       code={item.code}
       count={`${item.toWatch} to go`}
-      end={eye}
+      end={remote}
       facts={facts}
       layout={IN_PROGRESS_ROW}
       poster={poster}

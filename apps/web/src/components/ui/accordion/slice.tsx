@@ -134,7 +134,7 @@ export function SliceFull({
   const layer = interactive ? 'pointer-events-none z-3' : 'z-1';
   return (
     <span
-      className={`${layer} absolute top-0 right-4 left-4 flex h-[204px] translate-y-1.5 flex-col items-start justify-end gap-[18px] opacity-0 transition-[opacity,translate] duration-300 xl:top-auto xl:right-auto xl:bottom-[26px] xl:left-6 xl:h-auto xl:w-[440px] group-data-[open=true]/fv:translate-y-0 group-data-[open=true]/fv:opacity-100 group-data-[open=true]/fv:delay-150`}
+      className={`${layer} absolute top-0 right-4 left-4 flex h-[284px] translate-y-1.5 flex-col items-start justify-end gap-[18px] opacity-0 transition-[opacity,translate] duration-300 xl:top-auto xl:right-auto xl:bottom-[26px] xl:left-6 xl:h-auto xl:w-[440px] group-data-[open=true]/fv:translate-y-0 group-data-[open=true]/fv:opacity-100 group-data-[open=true]/fv:delay-150`}
     >
       {children}
     </span>
@@ -161,24 +161,6 @@ export function SliceFacts({
         </MetaItem>
       ))}
     </MetaRow>
-  );
-}
-
-/**
- * A closed row's title below xl, where the slices stack as 56px rows. At xl
- * the closed slices are the backdrop alone: the boards style a vertical
- * title but no slice draws one (filled, suggested or intro).
- */
-export function SliceTitle({ title }: Readonly<{ title: string }>) {
-  return (
-    <span
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-x-0 top-0 flex h-14 items-center px-4 transition-opacity duration-300 group-data-[open=true]/fv:opacity-0 xl:hidden"
-    >
-      <span className="truncate text-body-sm font-semibold text-white/80">
-        {title}
-      </span>
-    </span>
   );
 }
 

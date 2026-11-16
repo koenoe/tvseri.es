@@ -7,7 +7,6 @@ import {
   SliceFull,
   SliceRing,
   SliceShade,
-  SliceTitle,
 } from '@/components/ui/accordion/slice';
 import { heartGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
@@ -83,7 +82,6 @@ export function suggestionSlice({
           <SliceFacts facts={shown} />
           <AddToFavourites seriesId={item.id} />
         </SliceFull>
-        <SliceTitle title={item.title} />
         <SliceRing dim />
         <TileLink
           aria-label={`Open ${item.title}`}

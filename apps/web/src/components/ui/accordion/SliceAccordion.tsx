@@ -15,7 +15,7 @@ import MaxMotion from '@/components/motion/MaxMotion';
 import PositionLayout from '@/components/motion/PositionLayout';
 import { PICTURE_LAYER } from '@/components/ui/picture/pictureSurface';
 
-import { ACCORDION, SLICE } from './sliceLayout';
+import { ACCORDION, SLICE, SLICE_PICTURE } from './sliceLayout';
 
 export type AccordionSlice = Readonly<{
   /** Stretches with the slice */
@@ -151,10 +151,15 @@ function Slice({
       transition={OPEN}
     >
       {/* the picture, its veil and its shade: one layer, so the slice's
-          rounded corners clip them together, also while it grows */}
-      <m.div className={PICTURE_LAYER} layout transition={OPEN}>
-        {slice.backdrop}
-      </m.div>
+          rounded corners clip them together, also while it grows. Inside
+          it the picture keeps the open slice's size and only follows the
+          slice's position: the slice reveals it, the picture never stretches
+          while the slice grows or shrinks */}
+      <div className={PICTURE_LAYER}>
+        <PositionLayout className={SLICE_PICTURE} transition={OPEN}>
+          {slice.backdrop}
+        </PositionLayout>
+      </div>
       <PositionLayout className="absolute inset-0" transition={OPEN}>
         {slice.content}
       </PositionLayout>

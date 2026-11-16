@@ -13,7 +13,6 @@ import {
   SliceFull,
   SliceRing,
   SliceShade,
-  SliceTitle,
 } from './slice';
 
 /** A slice's two layers: the backdrop stretches with it, the content only moves */
@@ -60,7 +59,6 @@ export function showSlice({
           <TitleTreatment look={SLICE_TITLE} src={logo} title={title} />
           <SliceFacts facts={facts} />
         </SliceFull>
-        <SliceTitle title={title} />
         <SliceRing />
         <TileLink
           aria-label={title}

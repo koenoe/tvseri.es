@@ -2,11 +2,12 @@ import { expect, type Locator, type Page, test } from '@playwright/test';
 
 import { open } from '../helpers';
 import { signInAs } from './session';
+import { untilStable } from './viewport';
 
 /**
  * Swipe down to close a phone bottom sheet (`useSheetSwipe`), shared by the
  * Chromium and WebKit specs. The swipe is a run of touch pointer events
- * dispatched in the page, one per frame, so it plays the same in both
+ * dispatched in the page on the clock, so it plays the same in both
  * engines (Playwright has no touch drag); how the browser hands a real
  * finger over (scrolling, `pointercancel`) is the device's to check.
  */
@@ -36,15 +37,23 @@ async function swipe(from: Locator, { dy, ms }: Swipe): Promise<number[]> {
           'dialog[open] > div:not([data-dialog-backdrop]):not([data-edge-tint])',
         );
       const tops: number[] = [];
+      // On the clock, in one task: a move every 16ms and the release `ms`
+      // after the press, whatever the machine. Paced by animation frames, a
+      // slow runner's first frame alone took longer than a flick's 80ms, so
+      // the flick arrived too slow to close
       element.dispatchEvent(new PointerEvent('pointerdown', init(y)));
-      const start = await frame();
-      let now = start;
-      while (now - start < ms) {
-        now = await frame();
-        const t = Math.min(1, (now - start) / ms);
-        element.dispatchEvent(
-          new PointerEvent('pointermove', init(y + dy * t)),
-        );
+      const start = performance.now();
+      let due = start + 16;
+      let t = 0;
+      while (t < 1) {
+        const now = performance.now();
+        t = Math.min(1, (now - start) / ms);
+        if (now >= due || t === 1) {
+          element.dispatchEvent(
+            new PointerEvent('pointermove', init(y + dy * t)),
+          );
+          due += 16;
+        }
       }
       element.dispatchEvent(new PointerEvent('pointerup', init(y + dy)));
       // the settle or the exit, frame by frame
@@ -73,6 +82,31 @@ const panelTranslate = (page: Page) =>
       )?.style.translate ?? null,
   );
 
+/**
+ * The open sheet's entry has played: its panel has held its place and its
+ * look for 200ms (a swipe that starts mid-entry fights the entry's motion).
+ */
+const entered = (page: Page) =>
+  untilStable(
+    () =>
+      page.evaluate(() => {
+        const node = document.querySelector(
+          'dialog[open] > div:not([data-dialog-backdrop]):not([data-edge-tint])',
+        );
+        if (!node) {
+          return null;
+        }
+        const { top, height } = node.getBoundingClientRect();
+        return [
+          Math.round(top),
+          Math.round(height),
+          getComputedStyle(node).opacity,
+          getComputedStyle(node).transform,
+        ];
+      }),
+    { message: 'the sheet has come in' },
+  );
+
 const nonDecreasing = (values: ReadonlyArray<number>) =>
   values.every((value, i) => i === 0 || value >= (values[i - 1] ?? value));
 
@@ -86,8 +120,7 @@ export function sheetSwipeSuite() {
       await tile.getByRole('button', { name: /^More actions for/ }).tap();
       const sheet = page.getByRole('dialog');
       await expect(sheet).toBeVisible();
-      // the entry has played
-      await page.waitForTimeout(400);
+      await entered(page);
       return sheet;
     };
     /** The ⋯ sheet's grab handle: the top of the panel */
@@ -157,7 +190,7 @@ export function sheetSwipeSuite() {
       await page.goto('/136315/the-bear?history');
       const sheet = page.getByRole('dialog', { name: 'Watch history' });
       await expect(sheet).toBeVisible();
-      await page.waitForTimeout(400);
+      await entered(page);
       const body = sheet.locator('.overflow-y-auto').first();
       await body.evaluate((node) => {
         node.scrollTop = 200;
@@ -187,7 +220,7 @@ export function sheetSwipeSuite() {
         .click();
       const menu = page.getByRole('dialog', { name: 'Menu' });
       await expect(menu).toBeVisible();
-      await page.waitForTimeout(400);
+      await entered(page);
       return menu;
     };
 
@@ -211,7 +244,7 @@ export function sheetSwipeSuite() {
       await page.goto('/136315/the-bear?history');
       const sheet = page.getByRole('dialog', { name: 'Watch history' });
       await expect(sheet).toBeVisible();
-      await page.waitForTimeout(400);
+      await entered(page);
       await swipe(sheet.getByRole('heading', { name: 'Watch history' }), {
         dy: 300,
         ms: 200,

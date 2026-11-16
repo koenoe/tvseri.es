@@ -218,6 +218,24 @@ test.describe('profile signed in', () => {
       await phoneScrollbars(page, 390);
     });
 
+    test('a tab opens at the top of the page, not at the last tab’s place', async ({
+      page,
+    }) => {
+      await page.goto('/u/alex/library');
+      const tabs = page.getByRole('navigation', { name: 'Profile' });
+      await expect(tabs).toBeVisible();
+      // scrolled until the tabs reach the top of the screen
+      const top = await tabs.evaluate(
+        (nav) => nav.getBoundingClientRect().top + window.scrollY - 8,
+      );
+      await page.evaluate((y) => window.scrollTo(0, y), top);
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(top);
+      await tabs.getByRole('link', { name: 'Overview' }).click();
+      await page.waitForURL((url) => url.pathname === '/u/alex');
+      await expect(page.locator('[data-slot="profile-tail"]')).toBeVisible();
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+    });
+
     const tabBoxes = async (page: Page) => {
       await page.goto('/u/alex');
       const nav = page.getByRole('navigation', { name: 'Profile' });

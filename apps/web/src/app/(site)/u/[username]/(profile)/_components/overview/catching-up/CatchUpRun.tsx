@@ -15,8 +15,6 @@ type Props = Readonly<{
   href: string;
   /** "S05E05 The Last Supper, Part 1" */
   nextUp: string;
-  /** After a mark's write settled (saved or rolled back) */
-  onMarked: () => void;
   plan: RunPlan;
   runway: Readonly<{
     chip: string;
@@ -68,7 +66,6 @@ function moreTiers(counts: ReadonlyArray<number>) {
 export default function CatchUpRun({
   href,
   nextUp,
-  onMarked,
   plan,
   runway,
   seriesId,
@@ -90,13 +87,11 @@ export default function CatchUpRun({
   const markUpTo = (chip: RunChip, event: MouseEvent<HTMLButtonElement>) => {
     const refs = refsUpTo(chips, chip);
     setHint(null);
-    pressMark(nextKey(seriesId), event, () => {
-      const write = run(() =>
+    pressMark(nextKey(seriesId), event, () =>
+      run(() =>
         marking.markEpisodes(seriesId, refs, { kind: 'now' }, codeRange(refs)),
-      );
-      void write.then(onMarked);
-      return write;
-    });
+      ),
+    );
   };
   const seasonHref = `${href}?season=${more.season}`;
   const clearHint = () => setHint(null);

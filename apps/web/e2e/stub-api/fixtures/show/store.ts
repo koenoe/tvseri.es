@@ -369,6 +369,34 @@ const seedAlexLike = (viewer: Viewer, bear: StubShow): UserState => {
   return state;
 };
 
+/**
+ * kit is catching up on The Long Run: seasons 1 to 6 and S07E01 to E06
+ * seen, so its overview's Catching up row starts at S07E07
+ * (`user-profile/states.ts` reads what's left from this state).
+ */
+const seedKitLongRun = (state: UserState): void => {
+  const long = findShow(SHOW_IDS.long);
+  if (!long) {
+    return;
+  }
+  seedWatched(
+    state,
+    VIEWERS.kit.id,
+    long,
+    long.episodes
+      .filter(
+        (episode) =>
+          episode.season < 7 || (episode.season === 7 && episode.number <= 6),
+      )
+      .map((episode) => ({
+        at: '2025-01-04T20:00:00.000Z',
+        episode: episode.number,
+        provider: 'plex' as const,
+        season: episode.season,
+      })),
+  );
+};
+
 const seedSam = (bear: StubShow): UserState => {
   const sam = emptyState();
   seedWatched(
@@ -389,9 +417,13 @@ const seedSam = (bear: StubShow): UserState => {
 const seedViewer = (name: keyof typeof VIEWERS, bear: StubShow): UserState => {
   switch (name) {
     case 'alex':
-    case 'kit':
     case 'rae':
       return seedAlexLike(VIEWERS[name], bear);
+    case 'kit': {
+      const kit = seedAlexLike(VIEWERS.kit, bear);
+      seedKitLongRun(kit);
+      return kit;
+    }
     case 'marathonwatcher-2026':
     case 'mira':
     case 'nina':

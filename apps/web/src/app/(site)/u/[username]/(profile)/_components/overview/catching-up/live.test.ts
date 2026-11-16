@@ -28,13 +28,17 @@ const item = (over: Partial<CatchingUpItem> = {}): CatchingUpItem => ({
   ...over,
 });
 
-/** The show in the store: season 1 has 90 aired (84 of them from E07 waiting) */
+/**
+ * The show in the store: season 1 has 90 aired, E01 to E06 seen before the
+ * overview was read (`seen`), so 84 from E07 waiting
+ */
 const view = (
   watched: ReadonlyArray<string>,
   skipped: ReadonlyArray<string> = [],
   seasons: SeriesBase['seasons'] = [
     { airedEpisodeCount: 90, episodeCount: 90, seasonNumber: 1 },
   ],
+  seen: ReadonlyArray<string> = codes(1, 1, 6),
 ): SeriesBase => ({
   prefs: null,
   seasons,
@@ -42,7 +46,7 @@ const view = (
   skipped: skipped as SeriesBase['skipped'],
   status: null,
   watched: Object.fromEntries(
-    watched.map((code) => [code, { runtime: 44, watchedAt: 1 }]),
+    [...seen, ...watched].map((code) => [code, { runtime: 44, watchedAt: 1 }]),
   ),
 });
 
@@ -50,8 +54,9 @@ describe('liveCatchingUp', () => {
   it('is the server item while the store has none of its episodes marked', () => {
     const server = item();
     expect(liveCatchingUp(server, undefined)).toBe(server);
-    // a mark elsewhere in the show (before the run) changes nothing here
-    expect(liveCatchingUp(server, view(['S01E01']))).toBe(server);
+    expect(liveCatchingUp(server, view([]))).toBe(server);
+    // a mark past the run alone changes nothing here
+    expect(liveCatchingUp(server, view(['S01E40']))).toBe(server);
   });
 
   it('moves the run on past the marked episodes: count, time and Next up follow', () => {
@@ -121,6 +126,7 @@ describe('liveCatchingUp', () => {
           { airedEpisodeCount: 10, episodeCount: 10, seasonNumber: 1 },
           { airedEpisodeCount: 28, episodeCount: 28, seasonNumber: 2 },
         ],
+        codes(1, 1, 8),
       ),
     );
     expect(live?.nextUp).toBe('S02E01');
@@ -152,6 +158,25 @@ describe('liveCatchingUp', () => {
       runtimeMinutes: null,
       waiting: 75,
     });
+  });
+
+  it('takes back the episodes an Undo opened again before a refreshed item', () => {
+    // the overview was read after E07 to E14 were marked; then Undo
+    const fresh = item({
+      episodes: codes(1, 15, 8),
+      nextUp: 'S01E15',
+      runtimeMinutes: 76 * 44,
+      waiting: 76,
+    });
+    const live = liveCatchingUp(fresh, view([]));
+    expect(live).toMatchObject({
+      episodes: codes(1, 7, 8),
+      nextUp: 'S01E07',
+      // E07 to E14's runtimes aren't in this item
+      runtimeMinutes: null,
+      waiting: 84,
+    });
+    expect(needsFreshRun(fresh, view([]))).toBe(true);
   });
 
   it('leaves Catching up once every waiting episode is marked', () => {

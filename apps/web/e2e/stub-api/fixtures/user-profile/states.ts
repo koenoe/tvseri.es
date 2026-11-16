@@ -1,4 +1,13 @@
+import { CATCHING_UP_MIN } from '@tvseri.es/constants';
 import type { CatchingUpItem, Overview } from '@tvseri.es/schemas';
+
+import { SHOW_IDS } from '../show/catalog.ts';
+import {
+  episodeKey,
+  seriesWatched,
+  userState,
+  VIEWERS,
+} from '../show/store.ts';
 
 import { alexOverview, emptyOverview } from './overview.ts';
 import { identity, img } from './shows.ts';
@@ -118,25 +127,46 @@ export const raeOverview = (): Overview => {
 const longRunCode = (episode: number) =>
   `S07E${String(episode).padStart(2, '0')}`;
 
+/** The run's window: S07E07 to S07E90, the owner's 84 waiting */
+const LONG_RUN_FROM = 7;
+const LONG_RUN_TO = 90;
+const LONG_RUN_MINUTES = 44;
+
 /**
  * kit's Catching up: The Long Run (the show stub's 900002, so its chips mark
- * through the marking routes) with the owner's real-data shape, 84 episodes
- * waiting in one long season and the API's eight codes from S07E07. The
- * show stub has none of them watched for kit.
+ * through the marking routes) with the owner's real-data shape: 84 episodes
+ * waiting in one long season, the API's eight codes sent. Read from kit's
+ * marks in the show stub (seasons 1 to 6 and S07E01 to E06 seeded, the rest
+ * as the test marks it), so a refresh after a mark or an Undo answers as
+ * the API would. Only the window counts as waiting, to keep the shape.
  */
-const kitCatchingUp = (): CatchingUpItem => ({
-  episodeRuntimes: Array.from({ length: 8 }, () => 44),
-  episodes: Array.from({ length: 8 }, (_, index) => longRunCode(7 + index)),
-  nextUp: longRunCode(7),
-  posterImage: img('ds_wire_p.jpg'),
-  runtime: 44,
-  runtimeMinutes: 84 * 44,
-  runway: null,
-  seriesId: 900002,
-  slug: 'the-long-run',
-  title: 'The Long Run',
-  waiting: 84,
-});
+const kitCatchingUp = (): CatchingUpItem[] => {
+  const state = userState(VIEWERS.kit.id);
+  const watched = state ? seriesWatched(state, SHOW_IDS.long) : new Map();
+  const open = Array.from(
+    { length: LONG_RUN_TO - LONG_RUN_FROM + 1 },
+    (_, index) => LONG_RUN_FROM + index,
+  ).filter((episode) => !watched.has(episodeKey(7, episode)));
+  if (open.length < CATCHING_UP_MIN) {
+    return [];
+  }
+  const sent = open.slice(0, 8);
+  return [
+    {
+      episodeRuntimes: sent.map(() => LONG_RUN_MINUTES),
+      episodes: sent.map(longRunCode),
+      nextUp: longRunCode(sent[0] ?? LONG_RUN_FROM),
+      posterImage: img('ds_wire_p.jpg'),
+      runtime: LONG_RUN_MINUTES,
+      runtimeMinutes: open.length * LONG_RUN_MINUTES,
+      runway: null,
+      seriesId: SHOW_IDS.long,
+      slug: 'the-long-run',
+      title: 'The Long Run',
+      waiting: open.length,
+    },
+  ];
+};
 
 /**
  * kit's tracker: The Bear as the show stub seeds it (season 1, season 2 with
@@ -148,7 +178,7 @@ export const kitOverview = (): Overview => {
   const [dexter] = alexOverview().upNext;
   return {
     ...emptyOverview(),
-    catchingUp: [kitCatchingUp()],
+    catchingUp: kitCatchingUp(),
     upNext: [
       {
         airDate: '2024-06-26',

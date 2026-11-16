@@ -43,16 +43,14 @@ const plan = (
 });
 
 const HREF = '/9/the-chosen';
-const onMarked = vi.fn();
 
 describe('CatchUpRun', () => {
-  it('marks only the waiting chips up to the tapped one, one way', async () => {
+  it('marks only the waiting chips up to the tapped one, one way', () => {
     const chips = [chip(5), chip(6), chip(7), chip(8)];
     render(
       <CatchUpRun
         href={HREF}
         nextUp="S05E05"
-        onMarked={onMarked}
         plan={plan(chips)}
         runway={null}
         seriesId={9}
@@ -70,8 +68,6 @@ describe('CatchUpRun', () => {
       expect.any(String),
     );
     expect(marking.markUpTo).not.toHaveBeenCalled();
-    // the row is asked whether it needs the overview again once it settled
-    await vi.waitFor(() => expect(onMarked).toHaveBeenCalledOnce());
     expect(marking.setWhen).not.toHaveBeenCalled();
     expect(marking.toggleScope).not.toHaveBeenCalled();
   });
@@ -82,7 +78,6 @@ describe('CatchUpRun', () => {
       <CatchUpRun
         href={HREF}
         nextUp="S05E03"
-        onMarked={onMarked}
         plan={plan(chips, {
           more: { narrow: 9, season: 5, small: 9, wide: 8 },
           narrow: 3,

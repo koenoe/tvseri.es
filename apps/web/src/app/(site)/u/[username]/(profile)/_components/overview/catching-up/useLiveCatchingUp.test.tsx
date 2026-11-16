@@ -46,7 +46,7 @@ const marks = (from: number, to: number) => ({
 
 function setup() {
   const { result } = renderHook(
-    () => ({ row: useLiveCatchingUp(ITEM), store: useMarkingStoreApi() }),
+    () => ({ live: useLiveCatchingUp(ITEM), store: useMarkingStoreApi() }),
     { wrapper },
   );
   act(() => {
@@ -55,7 +55,12 @@ function setup() {
         fetchedAt: 1,
         seasons: [{ airedEpisodeCount: 90, episodeCount: 90, seasonNumber: 1 }],
         seriesId: 7,
-        watched: [],
+        // E01 to E06 seen before the overview was read
+        watched: Array.from({ length: 6 }, (_, index) => ({
+          episodeNumber: index + 1,
+          seasonNumber: 1,
+          watchedAt: 1000,
+        })),
       },
       'seven',
     );
@@ -66,12 +71,12 @@ function setup() {
 describe('useLiveCatchingUp', () => {
   it('moves the run on with a mark and back when the write fails', () => {
     const result = setup();
-    expect(result.current.row.live).toBe(ITEM);
+    expect(result.current.live).toBe(ITEM);
     let id = 0;
     act(() => {
       id = result.current.store.getState().begin(7, marks(7, 10));
     });
-    expect(result.current.row.live).toMatchObject({
+    expect(result.current.live).toMatchObject({
       nextUp: 'S01E11',
       runtimeMinutes: 80 * 44,
       waiting: 80,
@@ -80,29 +85,33 @@ describe('useLiveCatchingUp', () => {
       result.current.store.getState().fail(7, id);
     });
     // everything back: the chips, the count, the time and Next up
-    expect(result.current.row.live).toBe(ITEM);
+    expect(result.current.live).toBe(ITEM);
   });
 
-  it('reads the overview again only once the marks used up the codes sent', () => {
+  it('reads the overview again once settled marks use up the codes sent, from anywhere', () => {
     const result = setup();
-    act(() => {
-      result.current.store.getState().begin(7, marks(7, 10));
-    });
-    result.current.row.onMarked();
-    expect(router.refresh).not.toHaveBeenCalled();
-    act(() => {
-      result.current.store.getState().begin(7, marks(11, 13));
-    });
-    act(() => {
-      result.current.row.onMarked();
-    });
+    const settle = (from: number, to: number) =>
+      act(() => {
+        const { store } = result.current;
+        store.getState().settle(7, store.getState().begin(7, marks(from, to)));
+      });
+    settle(7, 10);
+    settle(11, 13);
     // one code sent is left: the store carries the run on, no refresh yet
     expect(router.refresh).not.toHaveBeenCalled();
+    // a write still out: not yet
+    let id = 0;
     act(() => {
-      result.current.store.getState().begin(7, marks(14, 14));
+      id = result.current.store.getState().begin(7, marks(14, 14));
     });
+    expect(router.refresh).not.toHaveBeenCalled();
     act(() => {
-      result.current.row.onMarked();
+      result.current.store.getState().settle(7, id);
+    });
+    expect(router.refresh).toHaveBeenCalledOnce();
+    // the same state again (an overview with nothing new): no second read
+    act(() => {
+      result.current.store.getState().setHidden(99, true);
     });
     expect(router.refresh).toHaveBeenCalledOnce();
   });

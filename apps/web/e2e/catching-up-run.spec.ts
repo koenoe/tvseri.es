@@ -8,7 +8,9 @@ import { signInAs } from './helpers/session';
  * with "+N", the count, the time left and Next up following. `kit` has The
  * Long Run waiting: 84 episodes from S07E07, the API's eight codes sent
  * (`fixtures/user-profile/states.ts`). The marks go through the marking
- * routes and settle; the run stays moved on, also past the codes sent.
+ * routes and settle; the run stays moved on, also past the codes sent, and
+ * an Undo after the overview was read again moves it back. kit's overview
+ * is read from the stub's marks, as the API's would be.
  */
 
 test.use({ viewport: { height: 900, width: 1440 } });
@@ -69,10 +71,10 @@ test('marking up to the fourth chip moves the run on', async ({ page }) => {
   await expect(chip(block, 11)).toBeVisible();
   await expect(block.getByText('80 episodes waiting')).toBeVisible();
 
-  // E14 marks the rest of the eight codes sent: the run goes on from the
-  // marking store (the stub's overview never changes, as a read that has
-  // nothing new yet), never a lone "+N". The press is refused until the
-  // first write settled (one press, one write), so it is tried until taken.
+  // E14 marks the rest of the eight codes sent: the run goes on at once from
+  // the marking store, never a lone "+N", and the overview is read again.
+  // The press is refused until the first write settled (one press, one
+  // write), so it is tried until taken.
   await expect(async () => {
     await chip(block, 14).click();
     await expect(chip(block, 15)).toBeVisible({ timeout: 500 });
@@ -86,4 +88,37 @@ test('marking up to the fourth chip moves the run on', async ({ page }) => {
   await expect(block.getByText('55h 44m')).toBeVisible();
   await page.mouse.move(0, 0);
   await expect(block.getByText(/^S07E15/)).toBeVisible();
+
+  // the refreshed overview sends E15's runtime (the store alone doesn't
+  // know it): its hover line has the time left
+  await expect(async () => {
+    await page.mouse.move(0, 0);
+    await chip(block, 15).hover();
+    await expect(block.getByText(/^Watched up to E15 · \d+h/)).toBeVisible({
+      timeout: 500,
+    });
+  }).toPass();
+  await page.mouse.move(0, 0);
+
+  // Undo of E11 to E14 after that refresh: the run moves back at once, and
+  // the overview is read again, so the count and the time are the server's
+  await page.getByRole('button', { name: 'Undo' }).last().click();
+  for (const episode of [11, 12, 13, 14]) {
+    await expect(chip(block, episode)).toBeVisible();
+  }
+  await expect(chip(block, 15)).toHaveCount(0);
+  await expect(more(block, 76)).toBeVisible();
+  await expect(block.getByText('80 episodes waiting')).toBeVisible();
+  await expect(block.getByText('58h 40m')).toBeVisible();
+  // focus may come back to the run's chip as the toast closes, and a
+  // focused chip's line is its own; with nothing focused it is Next up
+  // (after the toast's exit, so this is retried)
+  await expect(async () => {
+    await page.evaluate(() => {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    });
+    await expect(block.getByText(/^S07E11/)).toBeVisible({ timeout: 500 });
+  }).toPass();
 });

@@ -44,7 +44,7 @@ export default function CatchingUpRow({
   item,
   nextUp,
 }: Readonly<{ item: CatchingUpItem; nextUp: string }>) {
-  const { live, onMarked } = useLiveCatchingUp(item);
+  const live = useLiveCatchingUp(item);
   const current = live ?? item;
   const plan = useMemo(() => runPlan(current), [current]);
   const serverNextUp = { code: item.nextUp, label: nextUp };
@@ -115,7 +115,6 @@ export default function CatchingUpRow({
         <CatchUpRun
           href={href}
           nextUp={nextUpLabel}
-          onMarked={onMarked}
           plan={plan}
           runway={runwayChip}
           seriesId={item.seriesId}

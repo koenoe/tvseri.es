@@ -4,6 +4,7 @@ import cn from '@/lib/cn';
 import { getGenres, isUnavailable } from '../../_data/loaders';
 import type { SectionProps } from '../types';
 import Lane, { LaneGhost } from '../ui/Lane';
+import { ROW_LIFT } from '../ui/rowLift';
 import StatsUnavailable from '../ui/StatsUnavailable';
 import { type GenreRow, genreRows, PHONE_ROWS } from './model';
 
@@ -47,7 +48,8 @@ function Row({
   return (
     <li
       className={cn(
-        'group/row grid h-[34px] grid-cols-[132px_minmax(0,1fr)_56px] items-center gap-3.5 rounded-8 px-1.5 [transition:background-color_.15s] hover:bg-white/5 md:grid-cols-[136px_minmax(0,1fr)_72px]',
+        'group/row grid h-[34px] grid-cols-[132px_minmax(0,1fr)_56px] items-center gap-3.5 md:grid-cols-[136px_minmax(0,1fr)_72px]',
+        ROW_LIFT,
         hiddenOnPhone && 'max-md:hidden',
       )}
     >

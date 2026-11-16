@@ -1,8 +1,11 @@
 import { Ghost, TextLine } from '@/components/ui/ghost/ghosts';
+import cn from '@/lib/cn';
 import { getCountries, isUnavailable } from '../../_data/loaders';
 import type { SectionProps } from '../types';
 import Lane, { LaneGhost } from '../ui/Lane';
+import { ROW_LIFT } from '../ui/rowLift';
 import StatsUnavailable from '../ui/StatsUnavailable';
+import CountryHighlight from './CountryHighlight';
 import { MAP_SIZE, rankCountries } from './model';
 import { worldMapSvg } from './worldMapSvg';
 
@@ -10,6 +13,19 @@ import { worldMapSvg } from './worldMapSvg';
 const MAP_ROW = 'grid grid-cols-[minmax(0,1fr)_176px] items-center gap-6';
 
 const LISTED = 6;
+
+/** A country's row, inset and lifted as Stats' list rows are (`ROW_LIFT`) */
+const COUNTRY_ROW = cn(
+  'flex justify-between gap-3 border-white/6 border-t py-2 text-body-sm outline-none focus-visible:bg-white/5',
+  ROW_LIFT,
+);
+/** The list's foot and the placeholder's lines, at the rows' inset */
+const LIST_INSET = 'px-1.5';
+const MORE = cn('pt-2 text-caption text-white/60', LIST_INSET);
+const COUNTRY_GHOSTS_CLASS = cn(
+  'flex flex-col justify-center gap-2',
+  LIST_INSET,
+);
 
 /**
  * "Where the series are from" (the phone leaves it
@@ -33,7 +49,8 @@ export default async function WhereFrom({ user, year }: SectionProps) {
   }
   const map = worldMapSvg({
     countries: ranked,
-    hoverClassName: 'transition-[stroke] duration-150 hover:stroke-white',
+    hoverClassName:
+      'transition-[stroke] duration-150 hover:stroke-white data-active:stroke-white',
     label: `Countries the ${year} series come from`,
   });
   const listed = ranked.slice(0, LISTED);
@@ -44,25 +61,27 @@ export default async function WhereFrom({ user, year }: SectionProps) {
       id="stats-map-title"
       title="Where the series are from"
     >
-      <div className={MAP_ROW}>
+      <CountryHighlight className={MAP_ROW}>
         <div>{map}</div>
         <div className="flex flex-col">
-          {listed.map((country) => (
-            <div
-              className="flex justify-between gap-3 border-white/6 border-t py-2 text-body-sm"
-              key={country.name}
-            >
-              <span className="text-white/80">{country.name}</span>
-              <span className="text-white/60 tabular-nums">
-                {country.count}
-              </span>
-            </div>
-          ))}
-          {more > 0 ? (
-            <span className="pt-2 text-caption text-white/60">{`and ${more} more`}</span>
-          ) : null}
+          <ul className="flex flex-col">
+            {listed.map((country) => (
+              <li
+                className={COUNTRY_ROW}
+                data-country={country.code ?? undefined}
+                key={country.name}
+                tabIndex={country.code ? 0 : undefined}
+              >
+                <span className="text-white/80">{country.name}</span>
+                <span className="text-white/60 tabular-nums">
+                  {country.count}
+                </span>
+              </li>
+            ))}
+          </ul>
+          {more > 0 ? <span className={MORE}>{`and ${more} more`}</span> : null}
         </div>
-      </div>
+      </CountryHighlight>
     </Lane>
   );
 }
@@ -86,7 +105,7 @@ export function WhereFromSkeleton() {
     <LaneGhost title="Where the series are from">
       <div className={MAP_ROW}>
         <Ghost className="w-full rounded-12" style={MAP_GHOST_STYLE} />
-        <span className="flex flex-col justify-center gap-2">
+        <span className={COUNTRY_GHOSTS_CLASS}>
           {COUNTRY_GHOSTS.map((n) => (
             <TextLine className="text-body-sm" key={n} width="w-full" />
           ))}

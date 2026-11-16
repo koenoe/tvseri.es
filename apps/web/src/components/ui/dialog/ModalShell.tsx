@@ -13,6 +13,7 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
 
 import { popLayer, pushLayer } from '@/components/ui/layer/topLayer';
@@ -73,13 +74,18 @@ function openerOf(node: HTMLDialogElement) {
  * A dialog on a page the router hides in its back/forward cache (React
  * Activity) comes back as it was left. Motion would reset its motion values
  * to `initial` when React shows them again: on Back the episode modal
- * flashed on its tile, faded backdrop and all, before snapping back.
+ * flashed on its tile, faded backdrop and all, before snapping back. Only
+ * once the entry has played (`keep`): until then a remount (content that
+ * suspends while the panel grows) replays the entry, as it always did.
  */
-function KeepValuesOnRemount({ children }: Readonly<{ children: ReactNode }>) {
+function KeepValuesOnRemount({
+  children,
+  keep,
+}: Readonly<{ children: ReactNode; keep: boolean }>) {
   const presence = use(PresenceContext);
   const kept = useMemo(
-    () => (presence ? { ...presence, keepValuesOnRemount: true } : null),
-    [presence],
+    () => (presence ? { ...presence, keepValuesOnRemount: keep } : null),
+    [keep, presence],
   );
   return <PresenceContext value={kept}>{children}</PresenceContext>;
 }
@@ -175,8 +181,19 @@ export default function ModalShell({
   // (a placeholder taller than what lands) never flashes a scroll bar. The
   // attribute is React's only at mount (the panel mounts per opening); the
   // entry's end removes it, and later renders leave the DOM alone.
+  // The entry has played (per opening): from then on a remount keeps the
+  // panel where it is (KeepValuesOnRemount).
+  const [settled, setSettled] = useState(false);
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open) {
+      setSettled(false);
+    }
+  }
   const opened = useCallback(() => {
     panelNode.current?.removeAttribute('data-opening');
+    setSettled(true);
   }, []);
 
   // Stable on purpose: a new callback would close and reopen the dialog.
@@ -260,7 +277,7 @@ export default function ModalShell({
           ref={attach}
           tabIndex={-1}
         >
-          <KeepValuesOnRemount>
+          <KeepValuesOnRemount keep={settled}>
             <DialogContext value={context}>
               <m.div
                 {...backdropMotion}

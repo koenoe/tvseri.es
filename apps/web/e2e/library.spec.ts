@@ -237,12 +237,29 @@ test.describe('the Library, yours', () => {
             ?.getBoundingClientRect().top ?? Number.NaN,
         anchorTitle,
       );
-    const before = await top();
+    // the jumped-to tiles ease the last fraction of a pixel into place over
+    // ~100ms: measure the anchor once it rests (the same top a frame apart)
+    const frame = () =>
+      page.evaluate(
+        () => new Promise((resolve) => requestAnimationFrame(resolve)),
+      );
+    let before = Number.NaN;
+    await expect
+      .poll(async () => {
+        const first = await top();
+        await frame();
+        before = await top();
+        return Math.abs(before - first);
+      })
+      .toBeLessThan(0.01);
     await load.click();
     await expect
       .poll(async () => (await tileTitles(page))[0])
       .not.toBe(anchorTitle);
-    expect(Math.abs((await top()) - before)).toBeLessThanOrEqual(2);
+    // the hook corrects late layout over its settle frames: the place it holds
+    await expect
+      .poll(async () => Math.abs((await top()) - before))
+      .toBeLessThanOrEqual(2);
   });
 
   test('a junk shelf is the static 404', async ({ page }) => {

@@ -7,6 +7,7 @@ import {
   TOLERANCE,
 } from './helpers/parity';
 import { setLibraryHint, signInAs, stubFault } from './helpers/session';
+import { fontsSettled, untilStable } from './helpers/viewport';
 
 /**
  * Home's viewer-dependent blocks keep their box from the first paint to
@@ -76,7 +77,7 @@ test.describe('home: nothing moves for a signed-in viewer', () => {
     await expect
       .poll(() => visiblePlaceholders(page, 'toy'), { timeout: 30_000 })
       .toEqual([]);
-    await page.evaluate(() => document.fonts.ready);
+    await fontsSettled(page);
 
     // the toy's place at the top of the screen, the row under it in view
     // (the section above it ends 80px down)
@@ -100,7 +101,13 @@ test.describe('home: nothing moves for a signed-in viewer', () => {
     release();
     const versus = page.getByRole('region', { name: 'Versus' });
     await expect(versus).toBeVisible();
-    await page.waitForTimeout(400);
+    // the card and the page under it have stopped moving (a late shift counts)
+    const readLoaded = () =>
+      Promise.all([
+        visibleBox(page, '[data-slot="toy"]', 'data-slot'),
+        page.evaluate(() => document.documentElement.scrollHeight),
+      ]);
+    await untilStable(readLoaded, { message: 'Versus kept moving' });
 
     const loaded = await visibleBox(page, '[data-slot="toy"]', 'data-slot');
     const { cls, shifts } = await readShifts(page);

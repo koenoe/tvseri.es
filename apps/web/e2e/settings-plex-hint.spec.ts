@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { VIEWPORTS } from './helpers/placeholders';
 import { type StubViewer, signInAs } from './helpers/session';
+import { fontsSettled, untilStable } from './helpers/viewport';
 
 /**
  * The Plex placeholder takes the shape this browser last saw (`data-plex` on
@@ -50,8 +51,17 @@ for (const [viewer, state] of CASES) {
         }).observe({ buffered: true, type: 'layout-shift' });
       });
       await page.reload();
-      await expect(page.locator('[data-slot="plex"]')).toBeVisible();
-      await page.waitForTimeout(1500);
+      const card = page.locator('[data-slot="plex"]');
+      await expect(card).toBeVisible();
+      await fontsSettled(page);
+      // the card and the page have stopped moving: a late shift is counted
+      await untilStable(
+        async () => [
+          await card.boundingBox(),
+          await page.evaluate(() => document.documentElement.scrollHeight),
+        ],
+        { message: 'the Plex card kept moving', quietMs: 500 },
+      );
       expect(
         await page.evaluate(() => document.documentElement.dataset.plex),
       ).toBe(state);

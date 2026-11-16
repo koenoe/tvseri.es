@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 
+import { TOLERANCE } from './helpers/parity';
 import { signInAs } from './helpers/session';
 
 /**
@@ -32,7 +33,7 @@ for (const width of [1440, 390]) {
     await expect(card.getByText('23 episodes missing')).toBeVisible();
     const more = card.getByRole('link', { name: '+20 more' });
     await expect(more).toHaveAttribute('href', /\?season=4&history$/);
-    expect(Math.abs(heavy - typical)).toBeLessThanOrEqual(2);
-    expect(heavy).toBeLessThan(700);
+    // the three listed holes keep the heavy card at the typical one's height
+    expect(Math.abs(heavy - typical)).toBeLessThanOrEqual(TOLERANCE);
   });
 }

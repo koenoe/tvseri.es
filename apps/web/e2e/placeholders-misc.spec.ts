@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { parityTable } from './helpers/parity';
 import { measureParity } from './helpers/shellParity';
+import { fontsSettled } from './helpers/viewport';
 
 // Shell mechanism: `instant()` (`helpers/shellParity.ts`); the 404 is static, so `instant()` shows the shell a browser paints.
 
@@ -56,7 +57,7 @@ for (const width of [320, 360, 390, 430, 768, 1024, 1440]) {
     await page.setViewportSize({ height: 900, width });
     await page.goto('/shows/breaking-bad');
     await expect(page.getByText('Page not found')).toBeVisible();
-    await page.evaluate(() => document.fonts.ready);
+    await fontsSettled(page);
     const heights = await page.evaluate((headlines) => {
       const h1 = document.querySelector('h1');
       if (!h1) {

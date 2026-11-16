@@ -4,6 +4,7 @@ import { expectParity, parityTable } from './helpers/parity';
 import { namedViewports } from './helpers/placeholders';
 import { setLibraryHint, signInAs } from './helpers/session';
 import { measureParity } from './helpers/shellParity';
+import { fontsSettled } from './helpers/viewport';
 
 // Shell mechanism: `instant()` (`helpers/shellParity.ts`); the shell and the viewer's holes are held by `instant()` on the production build.
 
@@ -239,7 +240,7 @@ for (const viewport of VIEWPORTS.slice(0, 2)) {
         await page.goto('/900004/harbour-lights');
         const placeholder = page.locator('[data-placeholder="prompt-card"]');
         await expect(placeholder).toBeVisible();
-        await page.evaluate(() => document.fonts.ready);
+        await fontsSettled(page);
         ghost = await placeholder.evaluate(read);
       },
       baseURL ? { baseURL } : undefined,
@@ -420,7 +421,7 @@ for (const width of [360, 390]) {
     await page.getByRole('option', { name: /^Season 2/ }).click();
     const ghost = header.locator('[data-placeholder="season-facts"]');
     await expect(ghost).toBeVisible();
-    await page.evaluate(() => document.fonts.ready);
+    await fontsSettled(page);
     const before = (await header.boundingBox())?.height ?? 0;
     release();
     await expect(ghost).toHaveCount(0);

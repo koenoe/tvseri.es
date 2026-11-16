@@ -3,6 +3,7 @@ import { expect, type Page, test } from '@playwright/test';
 import { CLS_LIMIT, readShifts, SHIFT_OBSERVER } from './helpers/parity';
 import { VIEWPORTS } from './helpers/placeholders';
 import { signInAs } from './helpers/session';
+import { fontsSettled, untilStable } from './helpers/viewport';
 
 /**
  * What changes on Discover after the first paint: the hub and the index
@@ -19,9 +20,13 @@ async function settle(page: Page) {
     timeout: 30_000,
   });
   await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
-  await page.evaluate(() => document.fonts.ready);
-  // a late shift (the footer is the last thing that can move)
-  await page.waitForTimeout(400);
+  await fontsSettled(page);
+  // a late shift: the page has stopped growing (the footer is the last thing
+  // that can move)
+  await untilStable(
+    () => page.evaluate(() => document.documentElement.scrollHeight),
+    { message: 'the page kept growing', quietMs: 400 },
+  );
 }
 
 const STATIC_PAGES = ['/discover', '/network', '/country', '/language'];

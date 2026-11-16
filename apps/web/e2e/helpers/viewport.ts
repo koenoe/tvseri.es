@@ -107,6 +107,30 @@ export async function fontsSettled(page: Page): Promise<void> {
 }
 
 /**
+ * The page has arrived, for a check that measures it: no placeholder in
+ * view, the fonts in, and the document's size and its loading images still
+ * for 300ms. Not `networkidle`: after hydration a page prefetches its links
+ * (a dozen server renders), and an image that never loads on the rig keeps
+ * a request open, so the network is rarely idle on a busy machine while the
+ * page itself stopped changing long before.
+ */
+export async function pageSettled(page: Page): Promise<void> {
+  await expect(page.locator('[data-placeholder]:visible')).toHaveCount(0);
+  await fontsSettled(page);
+  await untilStable(
+    () =>
+      page.evaluate(() => {
+        const root = document.documentElement;
+        const loading = [...document.images].filter(
+          (image) => !image.complete,
+        ).length;
+        return [root.scrollWidth, root.scrollHeight, loading];
+      }),
+    { message: 'the page kept changing', quietMs: 300 },
+  );
+}
+
+/**
  * Polls `read` (every 100ms) until it has returned the same value for
  * `quietMs`: a layout that has stopped moving, where a fixed sleep would
  * guess.

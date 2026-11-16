@@ -2,7 +2,7 @@ import { expect, type Page, test } from '@playwright/test';
 
 import { findOverflow, formatProblems } from './helpers/overflow';
 import { setLibraryHint, signInAs } from './helpers/session';
-import { clientSize, fontsSettled, phoneScrollbars } from './helpers/viewport';
+import { clientSize, pageSettled, phoneScrollbars } from './helpers/viewport';
 
 /**
  * Home holds its text from a small phone to 1440
@@ -79,9 +79,7 @@ const LONG_TITLE_DAYS = [
 
 /** Every section has streamed in and the images are settled */
 async function arrived(page: Page) {
-  await expect(page.locator('[data-placeholder]:visible')).toHaveCount(0);
-  await page.waitForLoadState('networkidle');
-  await fontsSettled(page);
+  await pageSettled(page);
 }
 
 const heading = (page: Page, name: string | RegExp) =>
@@ -310,7 +308,7 @@ for (const width of WIDTHS) {
     test('/dev/home itself', async ({ page }) => {
       await page.goto('/dev/home');
       await expect(page.locator('#toy-ghost-versus')).toBeAttached();
-      await page.waitForLoadState('networkidle');
+      await pageSettled(page);
       const wider = await page.evaluate(
         () =>
           document.documentElement.scrollWidth -

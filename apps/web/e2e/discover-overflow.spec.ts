@@ -2,7 +2,7 @@ import { expect, type Page, test } from '@playwright/test';
 
 import { findOverflow, formatProblems } from './helpers/overflow';
 import { failSharedRead } from './helpers/session';
-import { fontsSettled, phoneScrollbars } from './helpers/viewport';
+import { pageSettled, phoneScrollbars } from './helpers/viewport';
 
 /**
  * Discover holds its text from a small phone to 1440, where its
@@ -41,9 +41,7 @@ const FAILED = [
 
 /** Every section has streamed in and the images are settled */
 async function arrived(page: Page) {
-  await expect(page.locator('[data-placeholder]:visible')).toHaveCount(0);
-  await page.waitForLoadState('networkidle');
-  await fontsSettled(page);
+  await pageSettled(page);
 }
 
 for (const width of WIDTHS) {

@@ -51,7 +51,10 @@ test('no loading line under the field, at any point', async ({ page }) => {
   await expect(row.locator('[aria-hidden="true"]:not(svg)')).toHaveCount(0);
 });
 
-test('fast (150 ms): nothing shows: no ghost, no dim, never busy', async ({
+// A timing check (`@perf`): it holds only while the whole loop, the route
+// and the server included, answers inside the 250 ms; on a loaded machine it
+// measures the machine. The rule itself is `SearchBody.test.tsx`'s.
+test('@perf fast (150 ms): nothing shows: no ghost, no dim, never busy', async ({
   page,
 }) => {
   const control = await controlSearch(page);

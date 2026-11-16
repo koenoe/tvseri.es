@@ -6,7 +6,7 @@ import {
   openCappedLists,
 } from './helpers/overflow';
 import { type StubViewer, signInAs } from './helpers/session';
-import { fontsSettled, phoneScrollbars } from './helpers/viewport';
+import { fontsSettled, pageSettled, phoneScrollbars } from './helpers/viewport';
 
 /**
  * The profile overview holds real, heavy data: no sideways scroll, no text outside its card, no
@@ -38,8 +38,7 @@ async function arrived(page: Page) {
   await expect(
     page.getByRole('heading', { name: 'Recently watched' }),
   ).toBeVisible();
-  await page.waitForLoadState('networkidle');
-  await fontsSettled(page);
+  await pageSettled(page);
 }
 
 for (const width of OVERVIEW_WIDTHS) {
@@ -158,8 +157,7 @@ for (const width of WIDTHS) {
       await expect(
         page.locator('[data-diary] section[data-month]').first(),
       ).toBeVisible();
-      await page.waitForLoadState('networkidle');
-      await fontsSettled(page);
+      await pageSettled(page);
       const problems = await findOverflow(page);
       expect(problems, formatProblems(problems)).toEqual([]);
     });
@@ -208,8 +206,7 @@ for (const width of [360, 390, 800, 1023, 1024, 1440] as const) {
       await page.goto('/u/marathonwatcher-2026/history');
       const rows = page.locator('[data-diary-row]');
       await expect(rows.first()).toBeVisible();
-      await page.waitForLoadState('networkidle');
-      await fontsSettled(page);
+      await pageSettled(page);
       const clashes = await rows.evaluateAll((nodes) =>
         nodes.slice(0, 30).flatMap((row) => {
           const grid = row.firstElementChild;
@@ -292,8 +289,7 @@ for (const width of WIDTHS) {
         await signInAs(context, viewer);
         await page.goto(path);
         await expect(page.locator('[data-person]').first()).toBeVisible();
-        await page.waitForLoadState('networkidle');
-        await fontsSettled(page);
+        await pageSettled(page);
         const problems = await findOverflow(page);
         expect(problems, formatProblems(problems)).toEqual([]);
       });
@@ -423,8 +419,7 @@ for (const width of [360, 390] as const) {
       await expect(
         page.locator('[data-slot="library-tile"]').first(),
       ).toBeVisible();
-      await page.waitForLoadState('networkidle');
-      await fontsSettled(page);
+      await pageSettled(page);
       const problems = await findOverflow(page);
       expect(problems, formatProblems(problems)).toEqual([]);
       // a shown fact is whole or ends in an ellipsis after a readable stretch

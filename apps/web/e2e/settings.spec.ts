@@ -3,7 +3,7 @@ import { devices, expect, test } from '@playwright/test';
 
 import { findOverflow, formatProblems } from './helpers/overflow';
 import { signInAs } from './helpers/session';
-import { fontsSettled, phoneScrollbars } from './helpers/viewport';
+import { fontsSettled, pageSettled, phoneScrollbars } from './helpers/viewport';
 
 /**
  * Settings: per user, so the frame (header, section
@@ -315,8 +315,7 @@ for (const width of [360, 390] as const) {
       await phoneScrollbars(page, width);
       await signInAs(context, viewer);
       await page.goto(path);
-      await page.waitForLoadState('networkidle');
-      await fontsSettled(page);
+      await pageSettled(page);
       const problems = await findOverflow(page);
       expect(problems, formatProblems(problems)).toEqual([]);
     });

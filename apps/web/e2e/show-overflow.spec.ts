@@ -4,8 +4,8 @@ import { findOverflow, formatProblems } from './helpers/overflow';
 import { signInAs } from './helpers/session';
 import {
   clientSize,
-  fontsSettled,
   pageLine,
+  pageSettled,
   phoneScrollbars,
 } from './helpers/viewport';
 
@@ -32,9 +32,7 @@ async function arrived(page: Page) {
   await expect(
     page.locator('section[aria-label="Episodes"] [data-episode-tile]').first(),
   ).toBeVisible();
-  await expect(page.locator('[data-placeholder]:visible')).toHaveCount(0);
-  await page.waitForLoadState('networkidle');
-  await fontsSettled(page);
+  await pageSettled(page);
 }
 
 for (const width of WIDTHS) {

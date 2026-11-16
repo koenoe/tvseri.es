@@ -8,8 +8,12 @@ import { DialogClose, DialogCloseCircle } from './DialogClose';
 import { CENTER_MOTION } from './dialogMotion';
 import { BACKDROP, SHADOW, SURFACE } from './dialogStyles';
 import ModalShell from './ModalShell';
+import SheetHandle from './SheetHandle';
 
 export { DialogClose };
+
+/** Phones: the grab handle, in the sheet's 22px top padding (no height added) */
+const HANDLE = 'absolute top-2 left-1/2 -translate-x-1/2 sm:hidden';
 
 const PANEL = cn(
   'flex max-h-[calc(100dvh-32px)] max-w-[calc(100vw-32px)] flex-col gap-5 self-center justify-self-center overflow-y-auto overscroll-contain rounded-18 p-6',
@@ -20,7 +24,8 @@ const PANEL = cn(
 
 /**
  * The centred dialog (the date picker, “I’m up to…”):
- * 560px, title-3 title, meta subline and a ✕; a bottom sheet on phones.
+ * 560px, title-3 title, meta subline and a ✕; a bottom sheet on phones,
+ * topped by the grab handle (it swipes down to close).
  * Controlled: render it where the trigger lives and flip `open`. A URL-driven
  * dialog passes `open` from `useSearchParams()` in a small island.
  *
@@ -90,6 +95,7 @@ export function Dialog({
       open={open}
       panelClassName={panel}
     >
+      <SheetHandle className={HANDLE} />
       <header className="flex items-start gap-4">
         <div className={headingClasses}>
           <h2 className={titleClasses} id={titleId}>

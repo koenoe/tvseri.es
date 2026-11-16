@@ -2,6 +2,7 @@
 
 import { useId, useMemo } from 'react';
 
+import SheetHandle from '@/components/ui/dialog/SheetHandle';
 import { warningGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
@@ -139,10 +140,7 @@ export default function PhoneSheet({ model }: Readonly<{ model: TrayModel }>) {
   const ids = useId();
   return (
     <>
-      <span
-        aria-hidden="true"
-        className="mx-auto block h-[5px] w-9 rounded-[3px] bg-white/24"
-      />
+      <SheetHandle className="mx-auto" />
       <div className="flex h-10 items-center gap-2">
         <h2 className="text-body font-semibold text-white/80">Hero images</h2>
         <StatusChip status={model.status} />

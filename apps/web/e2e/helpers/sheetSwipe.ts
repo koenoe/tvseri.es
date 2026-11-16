@@ -183,6 +183,20 @@ export function sheetSwipeSuite() {
       expect(box?.y ?? 0).toBeLessThan(844);
     });
 
+    test('a dialog sheet (Jump to) wears the grab handle and leaves when it is dragged down', async ({
+      page,
+    }) => {
+      await page.goto('/u/alex/history');
+      await page.getByRole('button', { name: 'Jump' }).first().tap();
+      const sheet = page.getByRole('dialog', { name: 'Jump to' });
+      await expect(sheet).toBeVisible();
+      await entered(page);
+      const bar = sheet.locator('[data-sheet-handle]');
+      await expect(bar).toBeVisible();
+      await swipe(bar, { dy: 300, ms: 300 });
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+    });
+
     test('the full-screen watch history: a swipe on its header leaves it open', async ({
       page,
     }) => {
@@ -190,6 +204,8 @@ export function sheetSwipeSuite() {
       const sheet = page.getByRole('dialog', { name: 'Watch history' });
       await expect(sheet).toBeVisible();
       await entered(page);
+      // full screen: no grab handle, and no swipe
+      await expect(sheet.locator('[data-sheet-handle]')).toHaveCount(0);
       await swipe(sheet.getByRole('heading', { name: 'Watch history' }), {
         dy: 300,
         ms: 300,

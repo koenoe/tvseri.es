@@ -50,6 +50,22 @@ function Harness() {
   );
 }
 
+describe('LargeDialog on a phone', () => {
+  it('has no grab handle: it fills the screen and never swipes away', () => {
+    const ignore = () => undefined;
+    render(
+      <LargeDialog onOpenChange={ignore} open title="S01E02 Pilot">
+        <p>Credits</p>
+      </LargeDialog>,
+    );
+    expect(
+      screen
+        .getByRole('dialog', { name: 'S01E02 Pilot' })
+        .querySelector('[data-sheet-handle]'),
+    ).toBeNull();
+  });
+});
+
 describe('LargeDialog focus', () => {
   it('returns to the opener, or to restoreFocus when the opener was replaced', async () => {
     const user = userEvent.setup();

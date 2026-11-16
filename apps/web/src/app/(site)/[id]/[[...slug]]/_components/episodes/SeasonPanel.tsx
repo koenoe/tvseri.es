@@ -6,6 +6,7 @@ import { useCallback, useId, useLayoutEffect, useRef } from 'react';
 import { CENTER_MOTION } from '@/components/ui/dialog/dialogMotion';
 import { SURFACE } from '@/components/ui/dialog/dialogStyles';
 import ModalShell from '@/components/ui/dialog/ModalShell';
+import SheetHandle from '@/components/ui/dialog/SheetHandle';
 import { holdScrollLock } from '@/components/ui/dialog/scrollLock';
 import { closeGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
@@ -85,10 +86,7 @@ function PhoneSheet(props: SeasonPanelProps) {
       open
       panelClassName={SHEET}
     >
-      <span
-        aria-hidden="true"
-        className="h-1 w-9 flex-none self-center rounded-full bg-white/25"
-      />
+      <SheetHandle className="self-center" />
       <div className="flex h-13 flex-none items-center gap-3 pr-1 pl-2.5">
         <b className="flex-1 text-title-3" id={titleId}>
           Seasons{' '}

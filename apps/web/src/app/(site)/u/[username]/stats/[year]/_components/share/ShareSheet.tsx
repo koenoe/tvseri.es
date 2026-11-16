@@ -6,6 +6,7 @@ import Button from '@/components/ui/button/Button';
 import { DialogCloseCircle } from '@/components/ui/dialog/DialogClose';
 import type { PanelMotion } from '@/components/ui/dialog/dialogMotion';
 import ModalShell from '@/components/ui/dialog/ModalShell';
+import SheetHandle from '@/components/ui/dialog/SheetHandle';
 import { downloadGlyph, shareGlyph } from '@/components/ui/icon/glyphs';
 import {
   CardPreview,
@@ -69,10 +70,7 @@ export default function ShareSheet({
       open={open}
       panelClassName={PANEL}
     >
-      <span
-        aria-hidden
-        className="h-[5px] w-9 shrink-0 self-center rounded-full bg-white/25"
-      />
+      <SheetHandle className="self-center" />
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-title-3" id={titleId}>
           {card.username}’s {card.year}, as a card

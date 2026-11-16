@@ -4,6 +4,7 @@ import { type ReactNode, useId } from 'react';
 
 import { PHONE_MOTION } from '@/components/ui/dialog/dialogMotion';
 import ModalShell from '@/components/ui/dialog/ModalShell';
+import SheetHandle from '@/components/ui/dialog/SheetHandle';
 
 /** white, 16 16 0 0, 8 16 34 padding, its own shadow. */
 const SHEET =
@@ -42,10 +43,7 @@ export default function RemoteSheet({
       <h2 className="sr-only" id={titleId}>
         {label}
       </h2>
-      <span
-        aria-hidden
-        className="mx-auto mb-3 block h-1.25 w-9 rounded-full bg-black/18"
-      />
+      <SheetHandle className="mx-auto mb-3" tone="light" />
       {children}
     </ModalShell>
   );

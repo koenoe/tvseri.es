@@ -204,6 +204,31 @@ describe('a dialog opened over a sheet', () => {
   });
 });
 
+describe('the grab handle', () => {
+  const handleOf = (name: string) =>
+    screen.getByRole('dialog', { name }).querySelector('[data-sheet-handle]');
+
+  it('tops the dialog where it is a bottom sheet (phones only), hidden from assistive tech', () => {
+    render(
+      <Dialog onOpenChange={ignore} open title="Jump to">
+        <p>Body</p>
+      </Dialog>,
+    );
+    const handle = handleOf('Jump to');
+    expect(handle?.getAttribute('aria-hidden')).toBe('true');
+    expect(handle?.className).toContain('sm:hidden');
+  });
+
+  it('never tops a full-screen side sheet', () => {
+    render(
+      <SideSheet onOpenChange={ignore} open title="Watch history">
+        <p>Season 1</p>
+      </SideSheet>,
+    );
+    expect(handleOf('Watch history')).toBeNull();
+  });
+});
+
 describe('Dialog variants', () => {
   it('keeps the show page look by default and draws Settings’ plain one on request', () => {
     const { rerender } = render(

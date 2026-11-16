@@ -8,7 +8,10 @@ import {
   readShifts,
   SHIFT_OBSERVER,
 } from './parity';
-import { fontsSettled, untilStable } from './viewport';
+import { fontsSettled, phoneScrollbars, untilStable } from './viewport';
+
+/** No viewport set (a context without one): treated as not a phone */
+const NO_VIEWPORT_WIDTH = 1280;
 
 /**
  * Placeholder parity: a loading placeholder occupies the same box as the
@@ -134,6 +137,9 @@ export async function measureParity(
     shot?: string;
   }>,
 ): Promise<InstantParity> {
+  // a phone's scrollbar takes no room (`phoneScrollbars`): with a classic one
+  // a 390 phone had 375px of room while its media queries saw 390
+  await phoneScrollbars(page, page.viewportSize()?.width ?? NO_VIEWPORT_WIDTH);
   if (options.shellText) {
     await waitForOwnShell(
       page,

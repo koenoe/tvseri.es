@@ -1,4 +1,11 @@
-import { defineConfig, devices } from '@playwright/test';
+import { existsSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+
+import {
+  chromium as chromiumType,
+  defineConfig,
+  devices,
+} from '@playwright/test';
 
 /**
  * E2E rig (see instant-nav.rig.md): `instant()` navigation tests and redirect
@@ -35,21 +42,60 @@ const grepInvert = new RegExp(optIn.join('|'));
  * macOS overlays them: both are switched off. A launch option, so it reaches
  * every context, `browser.newContext()` ones included.
  */
-const chromiumLaunch = process.env.E2E_CLASSIC_SCROLLBARS
+const classicLaunch = process.env.E2E_CLASSIC_SCROLLBARS
   ? {
-      launchOptions: {
-        args: ['--disable-features=OverlayScrollbar'],
-        ignoreDefaultArgs: ['--hide-scrollbars'],
-      },
+      args: ['--disable-features=OverlayScrollbar'],
+      ignoreDefaultArgs: ['--hide-scrollbars'],
     }
   : {};
 
-const chromium = { ...devices['Desktop Chrome'], ...chromiumLaunch };
+/**
+ * `E2E_SLOW=1`: about as slow as a GitHub macOS runner, to reproduce a
+ * runner-only failure. Chromium and `next start` run at macOS's background
+ * QoS (`e2e/slow/clamped.sh`: the efficiency cores, low priority; set
+ * `E2E_SLOW_CLAMP=utility` for less), and two workers share them. The
+ * browser is Playwright's own headless shell, started through the clamp.
+ */
+const slow = Boolean(process.env.E2E_SLOW);
+const clamp = join(import.meta.dirname, 'e2e', 'slow', 'clamped.sh');
+
+/** Playwright's headless shell, the binary a headless run uses */
+function headlessShell(): string {
+  // …/ms-playwright/chromium-<rev>/… → …/ms-playwright/chromium_headless_shell-<rev>/<dir>/chrome-headless-shell
+  const full = chromiumType.executablePath();
+  const match = /^(.*)[/\\]chromium-(\d+)[/\\]/.exec(full);
+  if (!match?.[1]) {
+    throw new Error(`E2E_SLOW: no Playwright Chromium found (${full})`);
+  }
+  const root = join(match[1], `chromium_headless_shell-${match[2]}`);
+  const binary = existsSync(root)
+    ? readdirSync(root)
+        .map((dir) => join(root, dir, 'chrome-headless-shell'))
+        .find((path) => existsSync(path))
+    : undefined;
+  if (!binary) {
+    throw new Error(`E2E_SLOW: no headless shell in ${root}`);
+  }
+  return binary;
+}
+
+if (slow) {
+  // read by the clamp script, which the browser inherits the env of
+  process.env.E2E_SLOW_REAL = headlessShell();
+}
+
+const slowLaunch = slow ? { executablePath: clamp } : {};
+
+const chromium = {
+  ...devices['Desktop Chrome'],
+  launchOptions: { ...classicLaunch, ...slowLaunch },
+};
 
 export default defineConfig({
   expect: { timeout: 10_000 },
   forbidOnly: Boolean(process.env.CI),
   fullyParallel: true,
+  ...(slow && { workers: 2 }),
   grepInvert,
   projects: [
     {
@@ -125,7 +171,9 @@ export default defineConfig({
     {
       // The build prerenders against the stub (data at build time), so
       // instant() tests see the shared sections in the shell.
-      command: `next build && next start --port ${port}`,
+      command: slow
+        ? `next build && E2E_SLOW_REAL=$(command -v next) ${clamp} start --port ${port}`
+        : `next build && next start --port ${port}`,
       env: {
         API_KEY: 'stub',
         API_URL: `http://localhost:${stubPort}`,

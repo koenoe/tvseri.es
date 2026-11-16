@@ -21,17 +21,19 @@ function Pick({ show }: Readonly<{ show: TasteShow }>) {
   return (
     <li className="group flex min-w-0 flex-col gap-2">
       <div className="relative">
-        <TileLink className="block" href={href} title={show.title}>
+        {/* the poster's box holds its size: an image that fails to load
+            draws its title, which must not make the card taller */}
+        <TileLink className="block aspect-[2/3]" href={href} title={show.title}>
           {show.posterImage ? (
             <Image
               alt={show.title}
-              className="block aspect-[2/3] w-full rounded-8 bg-white/6 object-cover shadow-[0_10px_20px_-8px_rgb(0_0_0/0.8)]"
+              className="block size-full overflow-hidden rounded-8 bg-white/6 object-cover shadow-[0_10px_20px_-8px_rgb(0_0_0/0.8)]"
               height={150}
               src={show.posterImage}
               width={100}
             />
           ) : (
-            <span className="block aspect-[2/3] w-full rounded-8 bg-white/6">
+            <span className="block size-full rounded-8 bg-white/6">
               <span className="sr-only">{show.title}</span>
             </span>
           )}

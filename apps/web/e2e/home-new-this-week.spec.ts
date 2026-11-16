@@ -1,6 +1,7 @@
 import { expect, type Page, test } from '@playwright/test';
 
 import { signInAs } from './helpers/session';
+import { clientSize, phoneScrollbars } from './helpers/viewport';
 
 /**
  * Home's "New this week" (stub: `fixtures/home/newThisWeek.ts`): after the
@@ -69,6 +70,9 @@ test('a tile opens the show', async ({ page }) => {
 for (const width of [360, 390, 1440]) {
   test.describe(`at ${width}px`, () => {
     test.use({ viewport: { height: width < 500 ? 844 : 900, width } });
+    test.beforeEach(async ({ page }) => {
+      await phoneScrollbars(page, width);
+    });
 
     test('the lead is as tall as the posters, and the next one peeks', async ({
       page,
@@ -81,11 +85,12 @@ for (const width of [360, 390, 1440]) {
       expect(lead && poster).toBeTruthy();
       expect(Math.abs(lead!.height - poster!.height)).toBeLessThanOrEqual(1);
       expect(lead!.width).toBeGreaterThan(poster!.width * 2);
+      const room = (await clientSize(page)).width;
       if (width < 500) {
-        // about 85% of the screen, the next poster in view at the edge
-        expect(lead!.width / width).toBeGreaterThan(0.8);
-        expect(lead!.width / width).toBeLessThan(0.9);
-        expect(poster!.x).toBeLessThanOrEqual(width - 12);
+        // about 85% of the room, the next poster in view at the edge
+        expect(lead!.width / room).toBeGreaterThan(0.8);
+        expect(lead!.width / room).toBeLessThan(0.9);
+        expect(poster!.x).toBeLessThanOrEqual(room - 12);
       } else {
         // 16:9 at the posters' height
         expect(lead!.width / lead!.height).toBeCloseTo(16 / 9, 1);
@@ -93,7 +98,7 @@ for (const width of [360, 390, 1440]) {
       const scroll = await page.evaluate(
         () => document.documentElement.scrollWidth,
       );
-      expect(scroll).toBeLessThanOrEqual(width);
+      expect(scroll).toBeLessThanOrEqual(room);
     });
   });
 }

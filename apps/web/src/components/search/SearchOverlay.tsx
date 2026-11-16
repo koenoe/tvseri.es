@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  type CSSProperties,
   type MouseEvent,
   type SyntheticEvent,
   type TransitionEvent,
@@ -12,7 +11,6 @@ import {
   useState,
 } from 'react';
 
-import getMainBackgroundColor from '@/components/background/getMainBackgroundColor';
 import EdgeTint, {
   tintEdges,
   untintEdges,
@@ -24,7 +22,6 @@ import {
 } from '@/components/ui/dialog/focusReturn';
 import { lockScroll, unlockScroll } from '@/components/ui/dialog/scrollLock';
 import { popLayer, pushLayer } from '@/components/ui/layer/topLayer';
-import { remoteInk } from '@/lib/remote/ink';
 
 import growOrigin from './growOrigin';
 import SearchPanel from './SearchPanel';
@@ -73,7 +70,6 @@ export default function SearchOverlay({
 }: SearchOverlayProps) {
   const search = useOverlaySearch({ initialQuery, onClose });
   const [opened] = useState(() => ({
-    ink: { '--rk-ink': remoteInk(getMainBackgroundColor()) } as CSSProperties,
     // read as it opens: Enter or Space on the search button, not a click or
     // the shortcut (focusReturn.ts)
     ring: openedFromKeyboard(trigger),
@@ -206,7 +202,6 @@ export default function SearchOverlay({
         data-closing={closing}
         onTransitionEnd={faded}
         ref={panelRef}
-        style={opened.ink}
       >
         <SearchPanel
           inputRef={inputRef}

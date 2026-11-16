@@ -1,6 +1,6 @@
 /**
  * Shared by the options: the remote's soft
- * focus ring (2 px white gap, 2 px ink at 52%) marks what Enter opens; hover
+ * focus ring (2 px white gap, 2 px ground at 52%) marks what Enter opens; hover
  * only tints; a press pushes the option 1 px down for 80 ms.
  */
 export const MARKED_RING = 'shadow-[0_0_0_2px_#fff,0_0_0_4px_var(--rk-mark)]';

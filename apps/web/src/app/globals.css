@@ -101,9 +101,9 @@
   /* the page colour from the background system (BackgroundStyle), ground by default */
   --color-page: var(--main-background-color, #1c2223);
   /*
-   * The white "remote" family. Text and icons: the fixed `rk-text` (the
-   * ground) and its light steps; fills: steps mixed from the ink (the page
-   * colour). Only defined inside `remote-surface`.
+   * The white "remote" family: fixed steps mixed from `rk-text` (the
+   * ground), never from the page colour. Only defined inside
+   * `remote-surface`.
    */
   --color-rk-text: var(--rk-text);
   --color-rk-w80: var(--rk-w80);
@@ -318,29 +318,24 @@ html[data-signing-out] body > * {
 /*
  * The "remote" white family, shared by search and the
  * Remote menu. `remote-surface` is the white sheet and defines the --rk-*
- * steps. Text and icons use the fixed --rk-text (the ground) and its steps,
- * whatever the page colour: the same dark text on white on every page. Only
- * the fills (keys, lines, the latched key, the focus ring) are mixed from the
- * ink: search and the Remote set --rk-ink inline on the surface to
- * `remoteInk(colour)` (lib/remote/ink), which darkens a light page or tile
- * colour until the ring and a latched key's white label pass WCAG AA.
- * Contrast of the text steps (ground mixed with white): --rk-text 14:1 on
- * any key, --rk-w80 7.4:1 and --rk-meta 5.1:1 on any key (hover included),
- * --rk-w64 4.9:1 on white only; --rk-w40 is for disabled text and the
- * placeholder.
+ * steps. Every step, text and fill, is mixed from the fixed --rk-text (the
+ * ground) and white, whatever the page colour: the same neutral sheet on
+ * every page. Contrast: --rk-text 14:1 on a key, and a latched key's white
+ * label 16:1 on it; --rk-w80 6.9:1 and --rk-meta 5.2:1 on a key (hover
+ * included); --rk-w64 4.9:1 on white only; the focus ring (--rk-mark) 3.4:1
+ * on white; --rk-w40 is for disabled text and the placeholder.
  * `remote-key` is a pressable key; `remote-chip` the white letter / ↵ chip.
  * Key states: hover, :active (pressed), [aria-checked=true] or [data-latched]
  * (latched), :focus-visible or [data-active] (keyboard marker),
  * [aria-disabled=true] (disabled).
  */
 @utility remote-surface {
-  --rk-ink: var(--main-background-color, #1c2223);
-  --rk-key: color-mix(in srgb, var(--rk-ink) 6%, #fff);
-  --rk-key-hover: color-mix(in srgb, var(--rk-ink) 10%, #fff);
-  --rk-edge: color-mix(in srgb, var(--rk-ink) 14%, transparent);
-  --rk-line: color-mix(in srgb, var(--rk-ink) 7%, transparent);
-  --rk-mark: color-mix(in srgb, var(--rk-ink) 52%, #fff);
   --rk-text: var(--color-ground);
+  --rk-key: color-mix(in srgb, var(--rk-text) 6%, #fff);
+  --rk-key-hover: color-mix(in srgb, var(--rk-text) 10%, #fff);
+  --rk-edge: color-mix(in srgb, var(--rk-text) 14%, transparent);
+  --rk-line: color-mix(in srgb, var(--rk-text) 7%, transparent);
+  --rk-mark: color-mix(in srgb, var(--rk-text) 52%, #fff);
   --rk-w80: color-mix(in srgb, var(--rk-text) 80%, #fff);
   --rk-w64: color-mix(in srgb, var(--rk-text) 64%, #fff);
   --rk-meta: color-mix(in srgb, var(--rk-text) 72%, #fff);
@@ -385,7 +380,7 @@ html[data-signing-out] body > * {
   }
   &[aria-checked='true'],
   &[data-latched] {
-    background: var(--rk-ink);
+    background: var(--rk-text);
     color: #fff;
     box-shadow: inset 0 2px 0 rgb(0 0 0 / 0.35);
   }

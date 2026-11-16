@@ -26,7 +26,7 @@ type KeysProps = Readonly<{
 export type TileRemoteProps = KeysProps &
   Readonly<{
     className?: string;
-    /** The tile's colour (its backdrop colour): the keys mix from it. */
+    /** The tile's colour (its backdrop colour): the phone sheet's dim. */
     ink?: string;
     seriesName: string;
     /** The ⋯ glyph, 20 by default; Home's Up next tile draws 22. */

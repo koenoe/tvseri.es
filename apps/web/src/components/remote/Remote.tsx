@@ -11,7 +11,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import { toPageColor } from '@/components/background/pageColor';
 import type { CircleButtonSize } from '@/components/ui/button/buttonStyles';
 import { returnFocus } from '@/components/ui/dialog/focusReturn';
 import type { IconSize } from '@/components/ui/icon/types';
@@ -25,19 +24,11 @@ import RemotePopover from './RemotePopover';
 import RemoteSheet from './RemoteSheet';
 import RemoteTrigger, { OPEN_KEYS, remoteLabels } from './RemoteTrigger';
 
-/** `--main-background-color` as inherited at `element`, if it is set. */
-function pageColorAt(element: HTMLElement | null): string | undefined {
-  const value = element
-    ? getComputedStyle(element).getPropertyValue('--main-background-color')
-    : '';
-  return value.trim() ? toPageColor(value.trim()) : undefined;
-}
-
 type RemoteProps = Readonly<{
   /** The keys: rows of `RemoteKey`s (the big key first). */
   children: ReactNode;
   className?: string;
-  /** The ink: the page colour by default; a tile passes its own. */
+  /** A tile's own colour for the phone sheet's dim; the page colour otherwise. */
   ink?: string;
   /** After it closes (the Library's Watchlist drops a removed tile then, not under the pointer). */
   onClose?: () => void;
@@ -69,16 +60,12 @@ export default function Remote({
   const [openedBy, setOpenedBy] = useState<OpenedBy | null>(null);
   const [openId, setOpenId] = useState(0);
   const currentOpen = useRef(0);
-  // The page colour where the ⋯ sits (a frame or section may set its own),
-  // read when it opens; the panel darkens it (remoteInk).
-  const [pageInk, setPageInk] = useState<string>();
   // Focus goes back to the ⋯ with its ring only when the keyboard opened it
   const ring = useRef(false);
   const openAs = (by: OpenedBy) => {
     ring.current = by === 'keyboard';
     currentOpen.current += 1;
     setOpenId(currentOpen.current);
-    setPageInk(pageColorAt(triggerRef.current));
     setOpenedBy(by);
   };
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -132,8 +119,8 @@ export default function Remote({
 
   const layout = phone ? 'sheet' : 'popover';
   const context = useMemo(
-    () => ({ close, ink: ink ?? pageInk, layout, openId }) as const,
-    [close, ink, layout, openId, pageInk],
+    () => ({ close, layout, openId }) as const,
+    [close, layout, openId],
   );
   const isOpen = openedBy !== null;
   const wasOpen = useRef(false);

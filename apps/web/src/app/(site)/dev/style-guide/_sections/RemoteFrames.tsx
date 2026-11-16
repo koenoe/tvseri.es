@@ -94,7 +94,7 @@ export type FakeName = keyof typeof FAKES;
 const inkOf = (ink: string) =>
   ({ '--main-background-color': ink }) as CSSProperties;
 
-/** A show header frame: the ink is the page colour the Remote mixes from. */
+/** A show header frame on the page colour `ink` (the Remote itself stays neutral). */
 export function ShowFrame({
   extraSection,
   fake,

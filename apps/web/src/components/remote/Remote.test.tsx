@@ -12,7 +12,6 @@ import type { ReactNode } from 'react';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { PHONE } from '@/lib/media/breakpoints';
-import { remoteInk } from '@/lib/remote/ink';
 
 import { createFakeMarking } from './fakeMarking';
 import { RemoteMarkingProvider, type UseRemoteMarking } from './marking';
@@ -397,9 +396,6 @@ describe('TileRemote', () => {
     expect(
       keysOf().map((key) => key.getAttribute('aria-keyshortcuts')),
     ).toEqual(['N', 'E', 'H']);
-    expect(screen.getByRole('menu').style.getPropertyValue('--rk-ink')).toBe(
-      '#29251f',
-    );
     fireEvent.keyDown(screen.getByRole('menu'), { key: 'h' });
     expect(onHide).toHaveBeenCalledOnce();
     await closed();
@@ -436,37 +432,26 @@ describe('TileRemote on a hidden show', () => {
   });
 });
 
-describe('ink (WCAG AA on any page colour)', () => {
-  it('darkens a light tile colour until every step reads', async () => {
-    render(
-      <RemoteMarkingProvider value={fake({})}>
-        <TileRemote
-          episodes={BEAR}
-          historyHref="/136315/the-bear?season=3&history"
-          ink="#8a6d3b"
-          seriesId={136315}
-          seriesName="The Bear"
-        />
-      </RemoteMarkingProvider>,
-    );
-    await userEvent.click(trigger());
-    expect(screen.getByRole('menu').style.getPropertyValue('--rk-ink')).toBe(
-      remoteInk('#8a6d3b'),
-    );
-    expect(remoteInk('#8a6d3b')).not.toBe('#8a6d3b');
-  });
-
-  it('takes the page colour when no ink is given, darkened the same way', async () => {
+describe('a neutral sheet on any page colour', () => {
+  it('takes no colour from a tile or the page', async () => {
     document.documentElement.style.setProperty(
       '--main-background-color',
-      '#767676',
+      '#2f5fd0',
     );
     try {
-      renderShow(fake({}));
-      await userEvent.click(trigger());
-      expect(screen.getByRole('menu').style.getPropertyValue('--rk-ink')).toBe(
-        remoteInk('#767676'),
+      render(
+        <RemoteMarkingProvider value={fake({})}>
+          <TileRemote
+            episodes={BEAR}
+            historyHref="/136315/the-bear?season=3&history"
+            ink="#8a6d3b"
+            seriesId={136315}
+            seriesName="The Bear"
+          />
+        </RemoteMarkingProvider>,
       );
+      await userEvent.click(trigger());
+      expect(screen.getByRole('menu').getAttribute('style')).toBeNull();
     } finally {
       document.documentElement.style.removeProperty('--main-background-color');
     }

@@ -12,8 +12,6 @@ type RemoteContextValue = Readonly<{
    * late answer must not close a Remote reopened since.
    */
   close: (restoreFocus: boolean, fromOpen?: number) => void;
-  /** The ink the keys mix from, when not the page colour (a tile's own). */
-  ink?: string;
   /** Desktop popover (letters, hint) or the phone sheet (bigger keys, no letters). */
   layout: RemoteLayout;
   /** Which open this is: changes every time the ⋯ opens the Remote. */

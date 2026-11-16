@@ -1,16 +1,8 @@
 'use client';
 
-import {
-  type CSSProperties,
-  type KeyboardEvent,
-  type ReactNode,
-  useCallback,
-  useState,
-} from 'react';
+import { type KeyboardEvent, type ReactNode, useCallback } from 'react';
 
-import getMainBackgroundColor from '@/components/background/getMainBackgroundColor';
 import cn from '@/lib/cn';
-import { remoteInk } from '@/lib/remote/ink';
 
 import { moveInGrid, shortcutTarget } from './grid';
 import { type RemoteLayout, useRemote } from './RemoteContext';
@@ -57,16 +49,7 @@ export default function RemotePanel({
   label: string;
   openedBy: OpenedBy;
 }>) {
-  const { close, ink, layout } = useRemote();
-  // The tile's colour or the page colour, darkened (lib/remote/ink): it tints
-  // the fills only, the text keeps its fixed colours; read once, when the
-  // panel opens.
-  const [inkStyle] = useState(
-    () =>
-      ({
-        '--rk-ink': remoteInk(ink ?? getMainBackgroundColor()),
-      }) as CSSProperties,
-  );
+  const { close, layout } = useRemote();
 
   // Keyboard: focus the big key; pointer: the menu, so letters work at once.
   // After the commit: a sheet's showModal() would move focus again.
@@ -131,7 +114,6 @@ export default function RemotePanel({
       onKeyDown={handleKeyDown}
       ref={focusOnOpen}
       role="menu"
-      style={inkStyle}
       tabIndex={-1}
     >
       {children}

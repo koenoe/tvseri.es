@@ -128,7 +128,7 @@ export function contentSecurityPolicy({
 /** Device features the site never asks for. Clipboard and share stay on. */
 const DENIED_FEATURES = [
   'accelerometer',
-  'browsing-topics',
+  // not 'browsing-topics': Chrome dropped the Topics API and logs it as unknown
   'camera',
   'display-capture',
   'geolocation',

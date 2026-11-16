@@ -1,7 +1,14 @@
 'use client';
 
 import * as m from 'motion/react-m';
-import { memo, type ReactNode, useCallback, useId, useState } from 'react';
+import {
+  memo,
+  type ReactNode,
+  useCallback,
+  useId,
+  useRef,
+  useState,
+} from 'react';
 import CodeBadge from '@/components/ui/button/CodeBadge';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import TileLink from '@/components/ui/tile/TileLink';
@@ -77,6 +84,7 @@ function DiaryRow({
   const bump = useDiaryLayoutBump();
   const layout = useDiaryLayout();
   const listId = useId();
+  const poster = useRef<HTMLImageElement>(null);
   const toggle = useCallback(() => {
     bump();
     setOpen((current) => !current);
@@ -102,7 +110,7 @@ function DiaryRow({
   return (
     <m.div className={DIARY_ROW} data-diary-row {...layout}>
       <div className={gridClasses}>
-        <DiaryPoster src={row.poster} />
+        <DiaryPoster imageRef={poster} src={row.poster} />
         <span className={DIARY_ROW_TEXT}>
           <span className={TITLE}>
             {href ? (
@@ -147,7 +155,7 @@ function DiaryRow({
         {slot}
       </div>
       {/* after the grid: the row's first child stays its grid (the e2e reads it) */}
-      <DiaryGlow src={row.poster} />
+      {row.poster ? <DiaryGlow poster={poster} /> : null}
       {open ? <DiaryEpisodes id={listId} row={row} /> : null}
     </m.div>
   );

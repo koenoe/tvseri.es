@@ -1,14 +1,10 @@
 import Image from 'next/image';
+import { type RefObject, useCallback } from 'react';
 
 import cn from '@/lib/cn';
 
 import { DIARY_POSTER } from './diaryStyles';
 
-/**
- * One `sizes` for the poster and its glow: both pick the same file from the
- * same srcset (w92 on a phone, w154 on a desktop at 2x), so the glow costs
- * no request of its own.
- */
 const SIZES = '(max-width: 767px) 40px, 56px';
 
 const POSTER = cn(
@@ -18,34 +14,87 @@ const POSTER = cn(
 
 /**
  * A row's poster: one poster, also for a row of several episodes
- * (its expand control already says there is more).
+ * (its expand control already says there is more). `imageRef` lets the
+ * card's glow read it.
  */
-export default function DiaryPoster({ src }: Readonly<{ src: string | null }>) {
+export default function DiaryPoster({
+  imageRef,
+  src,
+}: Readonly<{
+  imageRef?: RefObject<HTMLImageElement | null>;
+  src: string | null;
+}>) {
   return (
     <span className={POSTER}>
       {src ? (
-        <Image alt="" className="object-cover" fill sizes={SIZES} src={src} />
+        <Image
+          alt=""
+          className="object-cover"
+          fill
+          ref={imageRef}
+          sizes={SIZES}
+          src={src}
+        />
       ) : null}
     </span>
   );
 }
 
+/** The glow's bitmap: the poster at 8 × 12, in its own 2:3 */
+const GLOW_WIDTH = 8;
+const GLOW_HEIGHT = 12;
+
 /**
- * The card's light, its poster blurred (40px) behind the
- * gradient. Painted when the row rasterises (no layer of its own, so a
- * scroll moves pixels already drawn), lazy below the fold like the poster,
- * and skipped with its day off screen (`content-visibility`).
+ * The poster, shrunk once into the glow's 8 × 12 canvas (a little more
+ * saturated where the canvas filter exists). The canvas is only shown,
+ * never read, so a cross-origin poster may taint it.
  */
-export function DiaryGlow({ src }: Readonly<{ src: string | null }>) {
-  return src ? (
-    <span aria-hidden="true" className="absolute inset-0 -z-2">
-      <Image
-        alt=""
-        className="object-cover opacity-55 blur-[40px] saturate-130"
-        fill
-        sizes={SIZES}
-        src={src}
-      />
-    </span>
-  ) : null;
+function paintGlow(canvas: HTMLCanvasElement, image: HTMLImageElement) {
+  const context = canvas.getContext('2d');
+  if (!context) {
+    return;
+  }
+  if ('filter' in context) {
+    context.filter = 'saturate(130%)';
+  }
+  context.imageSmoothingQuality = 'high';
+  context.drawImage(image, 0, 0, GLOW_WIDTH, GLOW_HEIGHT);
+}
+
+/**
+ * The card's light: its poster, shrunk to 8 × 12 and stretched over the
+ * card (`object-cover`), so the browser's smooth upscale is the blur.
+ * A CSS `blur()` gave every card its own compositor pass, redrawn each
+ * frame of a scroll; this is a plain image, drawn once. It paints when the
+ * poster has loaded (lazy, like the poster), from the file the poster
+ * already fetched.
+ */
+export function DiaryGlow({
+  poster,
+}: Readonly<{ poster: RefObject<HTMLImageElement | null> }>) {
+  const paint = useCallback(
+    (canvas: HTMLCanvasElement | null) => {
+      const image = poster.current;
+      if (!canvas || !image) {
+        return;
+      }
+      if (image.complete && image.naturalWidth > 0) {
+        paintGlow(canvas, image);
+        return;
+      }
+      const onLoad = () => paintGlow(canvas, image);
+      image.addEventListener('load', onLoad, { once: true });
+      return () => image.removeEventListener('load', onLoad);
+    },
+    [poster],
+  );
+  return (
+    <canvas
+      aria-hidden="true"
+      className="absolute inset-0 -z-2 size-full object-cover opacity-45"
+      height={GLOW_HEIGHT}
+      ref={paint}
+      width={GLOW_WIDTH}
+    />
+  );
 }

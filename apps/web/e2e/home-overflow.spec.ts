@@ -2,7 +2,12 @@ import { expect, type Page, test } from '@playwright/test';
 
 import { findOverflow, formatProblems } from './helpers/overflow';
 import { setLibraryHint, signInAs } from './helpers/session';
-import { clientSize, pageSettled, phoneScrollbars } from './helpers/viewport';
+import {
+  clientSize,
+  layoutSettled,
+  pageSettled,
+  phoneScrollbars,
+} from './helpers/viewport';
 
 /**
  * Home holds its text from a small phone to 1440
@@ -308,7 +313,7 @@ for (const width of WIDTHS) {
     test('/dev/home itself', async ({ page }) => {
       await page.goto('/dev/home');
       await expect(page.locator('#toy-ghost-versus')).toBeAttached();
-      await pageSettled(page);
+      await layoutSettled(page);
       const wider = await page.evaluate(
         () =>
           document.documentElement.scrollWidth -

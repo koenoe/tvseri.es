@@ -108,14 +108,22 @@ export async function fontsSettled(page: Page): Promise<void> {
 
 /**
  * The page has arrived, for a check that measures it: no placeholder in
- * view, the fonts in, and the document's size and its loading images still
- * for 300ms. Not `networkidle`: after hydration a page prefetches its links
- * (a dozen server renders), and an image that never loads on the rig keeps
- * a request open, so the network is rarely idle on a busy machine while the
- * page itself stopped changing long before.
+ * view, then `layoutSettled`. Not `networkidle`: after hydration a page
+ * prefetches its links (a dozen server renders), and an image that never
+ * loads on the rig keeps a request open, so the network is rarely idle on a
+ * busy machine while the page itself stopped changing long before.
  */
 export async function pageSettled(page: Page): Promise<void> {
   await expect(page.locator('[data-placeholder]:visible')).toHaveCount(0);
+  await layoutSettled(page);
+}
+
+/**
+ * The fonts are in, and the document's size and its loading images have
+ * held still for 300ms. On its own for a page whose ghosts are its content
+ * (`/dev/home`).
+ */
+export async function layoutSettled(page: Page): Promise<void> {
   await fontsSettled(page);
   await untilStable(
     () =>

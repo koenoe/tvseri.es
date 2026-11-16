@@ -5,8 +5,8 @@ import { signInAs, signInShownAs } from './helpers/session';
 import {
   fontsSettled,
   nextFrames,
+  pageSettled,
   phoneScrollbars,
-  untilStable,
 } from './helpers/viewport';
 
 /**
@@ -77,7 +77,9 @@ test.describe('stats', () => {
           clientWidth: document.documentElement.clientWidth,
           scrollWidth: document.documentElement.scrollWidth,
         }));
-      await untilStable(widths, { message: 'the page stops changing width' });
+      // every block streamed in and still: a width read while a section is
+      // still its ghost (a loaded machine) measures the ghost
+      await pageSettled(page);
       const { clientWidth, scrollWidth } = await widths();
       expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
     });

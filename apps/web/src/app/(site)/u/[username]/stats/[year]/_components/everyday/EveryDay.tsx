@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { Ghost, TextLine } from '@/components/ui/ghost/ghosts';
 import { bingeGlyph, eyeGlyph, moonGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
@@ -95,51 +97,89 @@ function Legend() {
 /** The legend to the right of the name and the count */
 const LEGEND = <Legend />;
 
-/** The year as 53 week columns with weekday and month labels (desktop) */
-function YearHeatmap({
-  grid,
-  username,
-  year,
-}: Readonly<{ grid: HeatGrid; username: string; year: number }>) {
-  const labelsStyle = { width: grid.columns * 14 };
-  const label = `Episodes per day in ${year} for ${username}`;
-  const drawing = heatmapSvg({
-    cells: grid.cells,
-    className: HOVER,
-    columns: grid.columns,
-    gap: 3,
-    label,
-    rows: 7,
-    size: 11,
-  });
+/** A day's square and the gap after it on the desktop heatmap */
+const CELL = 11;
+const GAP = 3;
+const PITCH = CELL + GAP;
+/** The drawing's height: seven days, Monday to Sunday */
+const DRAWING_HEIGHT = 7 * PITCH - GAP;
+/**
+ * The weeks a year spans (54 only in a leap year that starts on a Sunday,
+ * 2040 next): the skeleton's drawing, which can't know the year
+ */
+const USUAL_WEEKS = 53;
+
+/**
+ * The desktop heatmap's frame, shared by the block and its skeleton: a row
+ * that scrolls sideways where the column is narrower than the year (a
+ * classic scrollbar then takes its room under both), the month row over the
+ * week columns, the weekday column beside the drawing.
+ */
+function YearFrame({
+  columns,
+  drawing,
+  months,
+  weekdays,
+}: Readonly<{
+  columns: number;
+  drawing: ReactNode;
+  months: ReactNode;
+  weekdays: ReactNode;
+}>) {
+  const monthsStyle = { width: columns * PITCH };
   return (
     <div className="flex flex-col gap-2 overflow-x-auto overflow-y-hidden max-md:hidden [&_svg]:block">
       <div className="flex w-max gap-2.5">
         <span className="w-7 shrink-0" />
         <div
           className="relative h-[18px] text-caption text-white/60"
-          style={labelsStyle}
+          style={monthsStyle}
         >
-          {grid.months.map((month) => (
-            <MonthLabel
-              column={month.column}
-              key={month.label}
-              label={month.label}
-            />
-          ))}
+          {months}
         </div>
       </div>
       <div className="flex w-max gap-2.5">
         <div className="grid w-7 shrink-0 grid-rows-[repeat(7,11px)] gap-[3px] text-caption leading-5 text-white/60">
-          {WEEKDAY_LABELS.map((name, index) => (
-            <span className="self-center" key={index}>
-              {name}
-            </span>
-          ))}
+          {weekdays}
         </div>
         {drawing}
       </div>
     </div>
+  );
+}
+
+const WEEKDAYS = WEEKDAY_LABELS.map((name, index) => (
+  <span className="self-center" key={index}>
+    {name}
+  </span>
+));
+
+/** The year as 53 week columns with weekday and month labels (desktop) */
+function YearHeatmap({
+  grid,
+  username,
+  year,
+}: Readonly<{ grid: HeatGrid; username: string; year: number }>) {
+  const label = `Episodes per day in ${year} for ${username}`;
+  const drawing = heatmapSvg({
+    cells: grid.cells,
+    className: HOVER,
+    columns: grid.columns,
+    gap: GAP,
+    label,
+    rows: 7,
+    size: CELL,
+  });
+  const months = grid.months.map((month) => (
+    <MonthLabel column={month.column} key={month.label} label={month.label} />
+  ));
+  return (
+    <YearFrame
+      columns={grid.columns}
+      drawing={drawing}
+      months={months}
+      weekdays={WEEKDAYS}
+    />
   );
 }
 
@@ -148,7 +188,7 @@ function MonthLabel({
   column,
   label,
 }: Readonly<{ column: number; label: string }>) {
-  const style = { left: column * 14 };
+  const style = { left: column * PITCH };
   return (
     <span className="absolute top-0" style={style}>
       {label}
@@ -184,16 +224,34 @@ function PhoneMonths({
   );
 }
 
+/** The skeleton's drawing: the year's squares as one block */
+const drawingGhostStyle = {
+  height: DRAWING_HEIGHT,
+  width: USUAL_WEEKS * PITCH - GAP,
+};
+
 /**
- * The lane's height: 36 padding, 24 head, 16, the 18 + 8 + 95px chart, 16 and
- * a 20px meta row on desktop; on a phone the twelve months (four rows of up to
- * six weeks) and two meta rows.
+ * The block while it streams. Desktop: the heatmap's own frame (the same
+ * sideways scroller at the year's width, so a scrollbar takes the same room)
+ * with a bar for the months and a block for the squares, then the meta row.
+ * A phone: the twelve months (four rows of up to six weeks) and two meta
+ * rows, 598px with the card's padding.
  */
 export function EveryDaySkeleton() {
   return (
-    <LaneGhost className="h-[221px] max-md:h-[598px]" title="Every day">
-      <TextLine className="text-caption" width="w-full" />
-      <Ghost className="min-h-0 flex-1 rounded-6" />
+    <LaneGhost className="max-md:h-[598px]" title="Every day">
+      <YearFrame
+        columns={USUAL_WEEKS}
+        drawing={
+          <Ghost className="shrink-0 rounded-6" style={drawingGhostStyle} />
+        }
+        months={
+          <Ghost className="absolute inset-x-0 top-[3px] h-3 rounded-4" />
+        }
+        weekdays={null}
+      />
+      <TextLine className="text-caption md:hidden" width="w-full" />
+      <Ghost className="min-h-0 flex-1 rounded-6 md:hidden" />
       <TextLine className="text-meta" width="w-3/4" />
     </LaneGhost>
   );

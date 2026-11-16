@@ -226,6 +226,7 @@ for (const viewport of VIEWPORTS.slice(0, 2)) {
         answers: [...(answers?.children ?? [])].map(box),
         backdrop: style.backdropFilter,
         card: box(card),
+        connected: card.isConnected,
         controls: card.querySelectorAll('button, a, [tabindex]').length,
         notNow: box(notNow),
         shadow: style.boxShadow,
@@ -241,7 +242,13 @@ for (const viewport of VIEWPORTS.slice(0, 2)) {
         const placeholder = page.locator('[data-placeholder="prompt-card"]');
         await expect(placeholder).toBeVisible();
         await fontsSettled(page);
-        ghost = await placeholder.evaluate(read);
+        // the shell's parts are swapped in as they are parsed: a ghost read
+        // just as it was replaced is read again (the one now on screen)
+        await expect(async () => {
+          const once = await placeholder.evaluate(read);
+          expect(once.connected, 'the ghost was replaced').toBe(true);
+          ghost = once;
+        }).toPass();
       },
       baseURL ? { baseURL } : undefined,
     );

@@ -101,14 +101,18 @@ export async function measureNoScriptParity(
     names: ReadonlyArray<string>;
     path: string;
     viewer: StubViewer;
-    viewport: ViewportName;
+    /** A named viewport, or any size (a width where a line wraps) */
+    viewport: ViewportName | Readonly<{ height: number; width: number }>;
     /** Placeholder name to content name, where they differ */
     slotNames?: Readonly<Record<string, string>>;
     /** Someone else's profile: apply what the pre-paint script would */
     visitor?: boolean;
   }>,
 ): Promise<Parity> {
-  const viewport = VIEWPORTS[options.viewport];
+  const viewport =
+    typeof options.viewport === 'string'
+      ? VIEWPORTS[options.viewport]
+      : options.viewport;
   const names = [...options.names];
   const slotNames = names.map((name) => options.slotNames?.[name] ?? name);
 

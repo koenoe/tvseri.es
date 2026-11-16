@@ -1,10 +1,6 @@
 import { test } from '@playwright/test';
-import { expectParity } from './helpers/parity';
-import {
-  measureNoScriptParity,
-  VIEWPORTS,
-  type ViewportName,
-} from './helpers/placeholders';
+import { expectParity, parityTable } from './helpers/parity';
+import { ALL_VIEWPORTS, measureNoScriptParity } from './helpers/placeholders';
 
 // Shell mechanism: JavaScript off (`helpers/placeholders.ts`): the fallback depends on viewer hints a pre-paint script sets, so it is read raw.
 
@@ -14,7 +10,16 @@ import {
  * reserves (a connected card is taller and only grows that section).
  */
 
-const SIZES = Object.keys(VIEWPORTS) as ViewportName[];
+/**
+ * The four named sizes, and widths where Your data's Export line wraps
+ * around its streamed episode count (785 and 1085: the count's skeleton once
+ * wrapped differently from the count, and the card grew a line).
+ */
+const SIZES = [
+  ...ALL_VIEWPORTS,
+  { height: 900, width: 785 },
+  { height: 900, width: 1085 },
+] as const;
 
 const SECTIONS = [
   ['/settings/profile', 'alex', ['settings-profile']],
@@ -25,15 +30,16 @@ const SECTIONS = [
 ] as const;
 
 for (const viewport of SIZES) {
-  test.describe(`settings placeholders at ${VIEWPORTS[viewport].width}px`, () => {
+  test.describe(`settings placeholders at ${viewport.width}px`, () => {
     for (const [path, viewer, names] of SECTIONS) {
       test(path, async ({ browser }) => {
         const measured = await measureNoScriptParity(browser, {
           names,
           path,
           viewer,
-          viewport,
+          viewport: { height: viewport.height, width: viewport.width },
         });
+        console.log(parityTable(measured, `${path} at ${viewport.width}px`));
         expectParity(measured, { maxShift: 0.02 });
       });
     }

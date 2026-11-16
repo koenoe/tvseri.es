@@ -6,12 +6,42 @@ import { getSettingsViewer } from '../../_data/session';
 import { DataCard, DataRow } from './DataCard';
 import DownloadButton from './DownloadButton';
 
+/**
+ * The count and its skeleton are one unbreakable piece of the same text
+ * (tabular figures, so any four-digit count is as wide as the sample): the
+ * line wraps at the same word with either, at every width.
+ */
+const EPISODES = 'whitespace-nowrap tabular-nums';
+
 /** "4,812 episodes · " (nothing when the count didn't load). */
 async function Episodes() {
   const { id } = await getSettingsViewer();
   const { episodes } = await loadSettingsCounts(id);
-  return episodes === null ? null : <>{formatGrouped(episodes)} episodes · </>;
+  return episodes === null ? null : (
+    <>
+      <span className={EPISODES}>
+        {formatGrouped(episodes)} episodes ·
+      </span>{' '}
+    </>
+  );
 }
+
+/** The count's text, invisible, with a bar over it */
+function EpisodesSkeleton() {
+  return (
+    <>
+      <span
+        aria-hidden="true"
+        className={`relative text-transparent ${EPISODES}`}
+      >
+        0,000 episodes ·
+        <LineSkeleton className="absolute inset-x-0 top-1/2 w-full -translate-y-1/2" />
+      </span>{' '}
+    </>
+  );
+}
+
+const episodesSkeleton = <EpisodesSkeleton />;
 
 /**
  * Export: the history as a CSV the importer reads back as is, and
@@ -28,7 +58,7 @@ export default function ExportCard() {
         title="Watch history"
       >
         CSV ·{' '}
-        <Suspense fallback={<LineSkeleton className="w-[9.5em]" />}>
+        <Suspense fallback={episodesSkeleton}>
           <Episodes />
         </Suspense>
         the same columns the importer reads, so it goes back in as is

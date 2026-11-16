@@ -1,6 +1,8 @@
 import { instant } from '@next/playwright';
 import { expect, test } from '@playwright/test';
 
+import { clientSize, pageLine, phoneScrollbars } from './helpers/viewport';
+
 /**
  * The static 404: its own shell, the search prefilled from the
  * URL, five trending posters (stub `/collection/trending`) and Pick one for
@@ -44,10 +46,11 @@ test.describe('404', () => {
 
   // Five 58px posters need 322px; at 360 the row ended 14px from
   // the screen edge
-  test('the posters keep the 24px gutter on both sides at 360', async ({
+  test('the posters keep the page gutter on both sides at 360', async ({
     page,
   }) => {
     await page.setViewportSize({ height: 780, width: 360 });
+    await phoneScrollbars(page, 360);
     await page.goto('/abc');
     const posters = page
       .getByRole('region', { name: 'Or start something new' })
@@ -56,7 +59,9 @@ test.describe('404', () => {
     const right = await posters
       .last()
       .evaluate((item) => item.getBoundingClientRect().right);
-    expect(Math.round(right)).toBeLessThanOrEqual(360 - 24);
+    // the right gutter mirrors the left one: the page line
+    const [room, line] = await Promise.all([clientSize(page), pageLine(page)]);
+    expect(right).toBeLessThanOrEqual(room.width - line + 0.5);
   });
 
   test('the posters keep their place: no layout shift', async ({ page }) => {

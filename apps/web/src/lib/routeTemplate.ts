@@ -9,7 +9,6 @@ export const ROUTE_TEMPLATES = [
   '/country/[slug]',
   '/decade/[slug]',
   '/dev/home',
-  '/dev/home/rules',
   '/dev/style-guide',
   '/discover',
   '/genre/[slug]',

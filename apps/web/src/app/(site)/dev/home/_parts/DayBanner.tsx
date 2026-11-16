@@ -26,10 +26,6 @@ export default function DayBanner({ day }: Readonly<{ day: string }>) {
       <p>
         <a className="underline" href="/dev/home">
           All kinds
-        </a>{' '}
-        ·{' '}
-        <a className="underline" href="/dev/home/rules">
-          How Home works
         </a>
       </p>
     </aside>

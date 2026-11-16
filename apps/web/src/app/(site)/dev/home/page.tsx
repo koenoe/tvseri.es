@@ -75,11 +75,7 @@ async function Preview({
         <header className="mx-auto flex w-full max-w-page flex-col gap-3 px-gutter">
           <h1 className="text-title-1 text-white">Home, every kind</h1>
           <p className="text-body text-white/80">
-            Real data for today ({today}) from the API, one kind at a time.{' '}
-            <Link className="text-cyan underline" href="/dev/home/rules">
-              How Home works, with the calendar
-            </Link>
-            .
+            Real data for today ({today}) from the API, one kind at a time.
           </p>
           <p className="flex flex-wrap gap-x-3 gap-y-1 text-body-sm text-white/60">
             Whole page on:

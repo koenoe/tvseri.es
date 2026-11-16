@@ -49,7 +49,7 @@ export const NOT_FOUND_REWRITE = {
 const OWN_SUBPATHS: Readonly<Record<string, ReadonlyArray<string> | 'slug'>> = {
   country: 'slug',
   decade: 'slug',
-  dev: ['home', 'home/rules', 'style-guide'],
+  dev: ['home', 'style-guide'],
   discover: [],
   genre: 'slug',
   language: 'slug',

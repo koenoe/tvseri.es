@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-tvseri.es is a TV series tracker. Its main goal is helping users discover shows they haven't watched yet. It's a pnpm + Turborepo monorepo in strict TypeScript, deployed with SST v4 on AWS (the web app runs on Vercel).
+tvseri.es is a TV series tracker: what you've watched, where you are in a show, and when the shows you follow continue. Discovery lives on Home and Discover. It's a pnpm + Turborepo monorepo in strict TypeScript, deployed with SST v4 on AWS (the web app runs on Vercel).
 
 ## Layout
 

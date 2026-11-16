@@ -167,7 +167,7 @@ describe('the static 404 under a reserved segment no route of its own serves', (
     '/privacy/x',
     '/discover/x',
     '/dev/x',
-    '/dev/home/rules/x',
+    '/dev/home/x',
     '/sign-in/x',
     '/genre/drama/x',
     '/network/hbo/x/y',

@@ -49,10 +49,11 @@ type Props = Readonly<{
 
 /**
  * The hero circles: 22px icons in white/75 on desktop (ep-circ.ep-lg),
- * 40px circles with 18px icons on phones (fm-act).
+ * 40px circles with 20px icons on phones (production's size-10 / size-5).
+ * `[&_svg]`, not `[&>svg]`: a toggle wraps its icon in a span.
  */
 const PHONE_CIRCLE =
-  'text-white/75 md:[&>svg]:size-[22px] max-md:size-10 max-md:[&>svg]:size-[18px] disabled:cursor-default disabled:hover:border-white/20';
+  'text-white/75 md:[&>svg]:size-[22px] max-md:size-10 max-md:[&_svg]:size-5 disabled:cursor-default disabled:hover:border-white/20';
 
 /** Every aired episode watched: the eye is pressed (and unmarks the show). */
 const isCompleteView = (view: SeriesBase | undefined) =>

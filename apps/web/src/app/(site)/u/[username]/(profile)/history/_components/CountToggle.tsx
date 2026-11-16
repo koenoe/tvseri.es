@@ -8,7 +8,7 @@ const TURN =
   'transition-transform duration-200 ease-[cubic-bezier(.2,.8,.2,1)]';
 
 /**
- * A run's 32px chevron circle at the row's end (`.cb`), desktop only: it
+ * A run's 32px chevron circle at the row's end, desktop only: it
  * shows the toggle's state; the toggle's hit area under it takes the click
  * (so it lets the pointer through and brightens with the row's hover).
  */
@@ -27,7 +27,7 @@ export function RunChevron({ open }: Readonly<{ open: boolean }>) {
 }
 
 /**
- * "3 episodes" (`.c-2 .et`; the phone's pill, `.tg`): the row's
+ * "3 episodes" (a pill on a phone): the row's
  * disclosure, in the code line. On a desktop it reads as the line's text
  * and the row's chevron circle (`RunChevron`) shows the state; on a phone
  * it is a pill with its own chevron. Its hit area covers the whole row (a

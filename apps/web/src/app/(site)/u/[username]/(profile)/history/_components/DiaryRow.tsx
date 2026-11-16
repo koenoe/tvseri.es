@@ -30,7 +30,7 @@ const TITLE = cn(
   DIARY_ROW_TITLE_CELL,
 );
 
-/** `.c-2`: static, so a run's toggle covers the whole row */
+/** The code line: static, so a run's toggle covers the whole row */
 const META = cn(
   'static h-6 gap-2 text-[14px] leading-5 text-white/85 max-md:text-[13px] max-md:leading-[18px]',
   DIARY_ROW_META_CELL,
@@ -42,7 +42,7 @@ const META = cn(
  */
 const RANGE = 'block min-w-0 shrink truncate text-center leading-[22px]';
 
-/** `.c-rt`: the runtime, a 22px figure (15px on a phone) */
+/** The runtime, a 22px figure (15px on a phone) */
 const RUNTIME = cn(
   'whitespace-nowrap text-[22px] font-semibold leading-7 tabular-nums max-md:text-[15px] max-md:leading-6',
   DIARY_ROW_END_CELL,
@@ -53,7 +53,7 @@ const HOVER_ACTION =
   'opacity-0 transition-opacity duration-160 group-hover/row:opacity-100 focus-within:opacity-100 has-[[aria-expanded=true]]:opacity-100 max-md:hidden';
 
 /**
- * One show on one day (`.c-card`), lit by its poster: poster, the show,
+ * One show on one day, lit by its poster: poster, the show,
  * the code with the episode's title or "N episodes", the runtime and a 32px
  * slot. A one-episode row opens that episode; a run's "N episodes" opens
  * each episode (code, title, runtime) and its chevron fills the slot. The

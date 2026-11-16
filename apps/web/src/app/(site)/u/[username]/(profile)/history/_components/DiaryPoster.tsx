@@ -17,7 +17,7 @@ const POSTER = cn(
 );
 
 /**
- * A row's poster (`.c-pw`): one poster, also for a row of several episodes
+ * A row's poster: one poster, also for a row of several episodes
  * (its expand control already says there is more).
  */
 export default function DiaryPoster({ src }: Readonly<{ src: string | null }>) {
@@ -31,7 +31,7 @@ export default function DiaryPoster({ src }: Readonly<{ src: string | null }>) {
 }
 
 /**
- * `.c-glow`: the card's light, its poster blurred (40px) behind the
+ * The card's light, its poster blurred (40px) behind the
  * gradient. Painted when the row rasterises (no layer of its own, so a
  * scroll moves pixels already drawn), lazy below the fold like the poster,
  * and skipped with its day off screen (`content-visibility`).

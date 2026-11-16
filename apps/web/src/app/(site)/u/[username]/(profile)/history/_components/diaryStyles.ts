@@ -42,7 +42,7 @@ export const DIARY_ROWS = 'flex min-w-0 flex-col gap-2.5';
 export const DIARY_ROW_RADIUS = 'rounded-14 max-md:rounded-12';
 
 /**
- * `.c-card`: one show on one day, lit by its own poster (`DiaryGlow`) under
+ * One show on one day, lit by its own poster (`DiaryGlow`) under
  * a dark gradient (`::before`) that keeps white text at 4.5:1 over a bright
  * poster, with a 1px inner ring (`::after`). `isolate` keeps the glow and
  * the gradient (negative z) inside the card; `contain: paint` keeps the
@@ -51,7 +51,7 @@ export const DIARY_ROW_RADIUS = 'rounded-14 max-md:rounded-12';
 export const DIARY_ROW = `group/row relative isolate overflow-hidden bg-[#20272a] [contain:paint] ${DIARY_ROW_RADIUS} before:absolute before:inset-0 before:-z-1 before:bg-[linear-gradient(90deg,rgb(28_34_35/0.35)_0%,rgb(28_34_35/0.65)_45%,rgb(28_34_35/0.82)_100%)] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.06)]`;
 
 /**
- * `.c-row`: poster, text, runtime, then a 32px slot (the ⋯ on hover, a
+ * The row: poster, text, runtime, then a 32px slot (the ⋯ on hover, a
  * run's chevron, or nothing, so every runtime lines up): 112px, 14px in,
  * 20px apart. On a phone (84px, 12px in and apart) the text's two 24px
  * lines are grid cells: the show with the runtime at its end, then the code
@@ -87,6 +87,6 @@ export const DIARY_ROW_END_CELL =
  */
 export const DIARY_ROW_ACTION_CELL = 'max-md:col-start-4 max-md:row-start-1';
 
-/** `.c-pw`: the 2:3 poster, 56 × 84 (a phone's 40 × 60) */
+/** The 2:3 poster, 56 × 84 (a phone's 40 × 60) */
 export const DIARY_POSTER =
   'h-[84px] w-14 rounded-10 max-md:h-[60px] max-md:w-10 max-md:rounded-8';

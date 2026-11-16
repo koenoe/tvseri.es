@@ -93,7 +93,7 @@ export function formatWeekdayDate(
     weekday as (typeof SHORT_WEEKDAYS)[number],
   );
   return withYear
-    ? weekdayDayMonthYear(parts, index)
+    ? formats.weekdayDayMonthYear(parts, index)
     : weekdayDayMonth(parts, index);
 }
 
@@ -158,9 +158,6 @@ export const dayMonthYear = formats.dayMonthYear;
 
 /** "Fri Nov 13" (UK: "Fri 13 Nov") */
 export const weekdayDayMonth = formats.weekdayDayMonth;
-
-/** "Fri Nov 13, 2027" (UK: "Fri 13 Nov 2027") */
-export const weekdayDayMonthYear = formats.weekdayDayMonthYear;
 
 /** "Saturday December 27" (UK: "Saturday 27 December") */
 export const longWeekdayMonthDay = formats.longWeekdayMonthDay;

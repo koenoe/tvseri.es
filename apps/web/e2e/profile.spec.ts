@@ -353,6 +353,38 @@ test('day 0: a broken Get started answer hides the block, never a crash', async 
   await expect(page.locator('#get-started')).toHaveCount(0);
 });
 
+/**
+ * All three steps done: Get started is gone at once, as on Home (the API's
+ * own `hidden` only follows days later), and nothing holds its place: Up
+ * next opens the column.
+ */
+test('day 0: with all three steps done Get started is gone, no gap left', async ({
+  page,
+}) => {
+  await signInAs(page.context(), 'nina');
+  await stubFault('nina', {
+    body: {
+      doneAt: Date.now(),
+      doneCount: 3,
+      hidden: false,
+      steps: { alreadySeen: true, history: true, services: true },
+    },
+    mode: 'answer',
+    path: '/me/get-started',
+  });
+  await page.goto('/u/nina');
+  const upNext = page.locator('section[aria-labelledby="up-next"]');
+  await expect(upNext).toBeVisible();
+  await page.waitForLoadState('networkidle');
+  await expect(page.locator('[data-slot="get-started"]')).toHaveCount(0);
+  await expect(page.locator('[data-placeholder]:visible')).toHaveCount(0);
+  expect(
+    await upNext.evaluate(
+      (node) => node.parentElement?.firstElementChild === node,
+    ),
+  ).toBe(true);
+});
+
 test.describe('a profile that doesn’t exist', () => {
   test('its 404 doesn’t name the user in the tab title', async ({ page }) => {
     await signInAs(page.context(), 'alex');

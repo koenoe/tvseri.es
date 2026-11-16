@@ -9,9 +9,9 @@ export type StepFlags = Readonly<{
 export const doneCount = (steps: StepFlags): number =>
   Number(steps.services) + Number(steps.alreadySeen) + Number(steps.history);
 
-/** "1 of 3 done", "All set" */
+/** "1 of 3 done" (all three done, the card is gone) */
 export function progressText(done: number): string {
-  return done >= 3 ? 'All set' : `${done} of 3 done`;
+  return `${done} of 3 done`;
 }
 
 /** The services list with one provider switched on or off (the ones not shown stay as they are) */

@@ -16,6 +16,7 @@ import { loadUpNextArt } from '@/components/up-next/loadUpNextArt';
 import type { UpNextArt } from '@/components/up-next/UpNextItemCard';
 import { apiFetch } from '@/lib/api/client';
 import { isUnavailable } from '@/lib/cache/unavailable';
+import { isGetStartedDone } from '@/lib/profile/getStartedDone';
 import { isNewAccount } from '@/lib/profile/isNewAccount';
 
 import { getViewerPaths } from '../toy/connected-by/data';
@@ -137,7 +138,7 @@ export async function getGetStarted(
     schema: GetStartedStatusSchema,
   });
   // Done, it is gone: the slot goes back to Continue watching at once
-  return status.hidden || status.doneCount >= 3 ? null : status;
+  return isGetStartedDone(status) ? null : status;
 }
 
 /** Shows of a shared section, or none when it is unavailable */

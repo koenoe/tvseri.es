@@ -3,14 +3,12 @@
 import type { WatchProvider } from '@tvseri.es/schemas';
 import { useState, useTransition } from 'react';
 
-import Button from '@/components/ui/button/Button';
-import { completeGlyph } from '@/components/ui/icon/glyphs';
 import SectionHead from '@/components/ui/section/SectionHead';
 import { showToast } from '@/components/ui/toast/showToast';
 import cn from '@/lib/cn';
+import { isGetStartedDone } from '@/lib/profile/getStartedDone';
 import { saveServices } from '../../../_actions/services';
 import Dot from '../../blocks/Dot';
-import IconDisc from '../../blocks/IconDisc';
 import { doneCount, progressText, toggleProvider } from './getStartedCopy';
 import HistoryLinks from './HistoryLinks';
 import {
@@ -64,13 +62,12 @@ function Progress({ done }: Readonly<{ done: number }>) {
 /**
  * Get started: three steps that make the page run itself.
  * Services save through the profile's server action, Already seen marks the
- * whole show through the marking core, history is two links. All three done
- * collapses to "All set" with Show steps.
+ * whole show through the marking core, history is two links. With the
+ * third step done here it is gone at once, as on Home (`isGetStartedDone`).
  */
 export default function GetStartedCard(props: Props) {
   const [selected, setSelected] = useState(props.selected);
   const [seen, setSeen] = useState<ReadonlySet<number>>(new Set());
-  const [open, setOpen] = useState(false);
   const [, startTransition] = useTransition();
 
   const done = doneCount({
@@ -78,7 +75,6 @@ export default function GetStartedCard(props: Props) {
     history: props.history,
     services: selected.length > 0,
   });
-  const allSet = done >= 3;
 
   const onToggle = (provider: WatchProvider, on: boolean) => {
     const before = selected;
@@ -98,8 +94,10 @@ export default function GetStartedCard(props: Props) {
   // One way: a seen show stays seen here (the core's toast has the Undo)
   const onSeen = (seriesId: number) =>
     setSeen((previous) => new Set(previous).add(seriesId));
-  const toggleOpen = () => setOpen((value) => !value);
-  const showRows = !allSet || open;
+
+  if (isGetStartedDone({ doneCount: done, hidden: false })) {
+    return null;
+  }
 
   return (
     <section
@@ -114,68 +112,39 @@ export default function GetStartedCard(props: Props) {
         link={<Progress done={done} />}
         title="Get started"
       />
-      {allSet ? null : <p className={GET_STARTED_INTRO}>{INTRO}</p>}
+      <p className={GET_STARTED_INTRO}>{INTRO}</p>
       <div className={GET_STARTED_STEPS}>
-        {allSet ? <AllSet onToggle={toggleOpen} open={open} /> : null}
-        {showRows ? (
-          <div className="flex flex-col gap-2">
-            <StepRow
-              done={selected.length > 0}
-              line={STEPS[0].line}
-              number={1}
-              title={STEPS[0].title}
-            >
-              <ServicePicker
-                onToggle={onToggle}
-                providers={props.providers}
-                selected={selected}
-              />
-            </StepRow>
-            <StepRow
-              done={props.alreadySeen || seen.size > 0}
-              line={STEPS[1].line}
-              number={2}
-              title={STEPS[1].title}
-            >
-              <SeenGrid onSeen={onSeen} seen={seen} shows={props.shows} />
-            </StepRow>
-            <StepRow
-              done={props.history}
-              line={STEPS[2].line}
-              number={3}
-              title={STEPS[2].title}
-            >
-              <HistoryLinks />
-            </StepRow>
-          </div>
-        ) : null}
+        <div className="flex flex-col gap-2">
+          <StepRow
+            done={selected.length > 0}
+            line={STEPS[0].line}
+            number={1}
+            title={STEPS[0].title}
+          >
+            <ServicePicker
+              onToggle={onToggle}
+              providers={props.providers}
+              selected={selected}
+            />
+          </StepRow>
+          <StepRow
+            done={props.alreadySeen || seen.size > 0}
+            line={STEPS[1].line}
+            number={2}
+            title={STEPS[1].title}
+          >
+            <SeenGrid onSeen={onSeen} seen={seen} shows={props.shows} />
+          </StepRow>
+          <StepRow
+            done={props.history}
+            line={STEPS[2].line}
+            number={3}
+            title={STEPS[2].title}
+          >
+            <HistoryLinks />
+          </StepRow>
+        </div>
       </div>
     </section>
-  );
-}
-
-/** Every step done: the card stays 3 days, its steps folded */
-function AllSet({
-  onToggle,
-  open,
-}: Readonly<{ onToggle: () => void; open: boolean }>) {
-  return (
-    <div className="flex items-center gap-3.5 px-1 py-1.5">
-      <IconDisc glyph={completeGlyph} />
-      <span className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="text-body-sm font-semibold">All set</span>
-        <span className="text-caption text-white/60">
-          This card leaves your profile in 3 days.
-        </span>
-      </span>
-      <Button
-        aria-expanded={open}
-        className="h-8 px-3.5"
-        onClick={onToggle}
-        variant="outline"
-      >
-        {open ? 'Hide steps' : 'Show steps'}
-      </Button>
-    </div>
   );
 }

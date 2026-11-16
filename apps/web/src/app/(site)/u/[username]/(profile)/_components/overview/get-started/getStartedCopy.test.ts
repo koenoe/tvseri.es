@@ -16,7 +16,6 @@ describe('Get started copy', () => {
     expect(doneCount(steps)).toBe(1);
     expect(progressText(0)).toBe('0 of 3 done');
     expect(progressText(1)).toBe('1 of 3 done');
-    expect(progressText(3)).toBe('All set');
   });
 
   it('switches one provider and keeps the others', () => {

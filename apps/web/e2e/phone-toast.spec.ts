@@ -1,6 +1,8 @@
 import { devices, expect, test } from '@playwright/test';
 
+import { open } from './helpers';
 import { signInAs } from './helpers/session';
+import { untilStable } from './helpers/viewport';
 
 /**
  * Phones: a mark from the episode sheet's record stub, which
@@ -16,18 +18,18 @@ test('the mark toast sits above the episode sheet’s record stub', async ({
   page,
 }) => {
   await signInAs(context, 'alex');
-  await page.goto('/136315/the-bear?season=3&episode=6');
+  // hydrated: a click on the server-drawn sheet before it does nothing
+  await open(page, '/136315/the-bear?season=3&episode=6');
   const dialog = page.getByRole('dialog');
   await dialog
     .getByRole('button', { name: /Mark watched \(just now\)/ })
     .click();
   const toast = page.locator('[data-sonner-toast]');
   await expect(toast).toBeVisible();
-  // Wait for the toast's rise to settle
-  await expect
-    .poll(async () => (await toast.boundingBox())?.y ?? 0, { timeout: 2000 })
-    .toBeGreaterThan(0);
-  await page.waitForTimeout(400);
+  // the toast's rise is over
+  await untilStable(() => toast.boundingBox(), {
+    message: 'the toast rises and stops',
+  });
   const stub = await dialog.locator('[data-record-stub]').boundingBox();
   const box = await toast.boundingBox();
   expect(stub && box).toBeTruthy();
@@ -62,12 +64,14 @@ test('the first-tracking answers are 44px touch targets', async ({
 for (const width of [360, 390]) {
   test(`the sign-in toast says all of it at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ height: 800, width });
-    await page.goto('/');
-    const add = page.getByRole('button', {
-      name: /^Add .+ to your watchlist$/,
-    });
-    await add.first().scrollIntoViewIfNeeded();
-    await add.first().click();
+    // hydrated, and the rows have their tiles: the streamed-in sections
+    // replace the buttons a skeleton or the shell drew
+    await open(page, '/');
+    await expect(page.locator('[data-placeholder]:visible')).toHaveCount(0);
+    await page
+      .getByRole('button', { name: /^Add .+ to your watchlist$/ })
+      .first()
+      .click();
     const message = page
       .locator('[data-sonner-toast] p')
       .filter({ hasText: /^Please sign in/ });
@@ -92,7 +96,8 @@ for (const width of [360, 390]) {
   }) => {
     await page.setViewportSize({ height: 780, width });
     await signInAs(context, 'alex');
-    await page.goto('/136315/the-bear?season=3&episode=6');
+    // hydrated: a click on the server-drawn sheet before it does nothing
+    await open(page, '/136315/the-bear?season=3&episode=6');
     await page
       .getByRole('dialog')
       .getByRole('button', { name: /Mark watched \(just now\)/ })

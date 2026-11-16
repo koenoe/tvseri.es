@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 
+import { open } from './helpers';
 import { signInAs } from './helpers/session';
 
 /**
@@ -35,7 +36,7 @@ test('the toast does not move when a dialog locks and frees the page', async ({
       }
     }).observe(document, { childList: true, subtree: true });
   }, CLASSIC_BAR);
-  await page.goto('/136315/the-bear?history&season=3');
+  await open(page, '/136315/the-bear?history&season=3');
   const sheet = page.getByRole('dialog', { name: 'Watch history' });
   await sheet.getByRole('button', { name: 'Tap marks' }).click();
   await sheet

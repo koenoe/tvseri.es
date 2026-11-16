@@ -1,7 +1,8 @@
 import { expect, type Page, test } from '@playwright/test';
 
+import { open } from './helpers';
 import { type StubViewer, setLibraryHint, signInAs } from './helpers/session';
-import { clientSize } from './helpers/viewport';
+import { clientSize, untilStable } from './helpers/viewport';
 
 /**
  * The toast's one place (Toaster.tsx) from every
@@ -17,14 +18,19 @@ const HEIGHT = 900;
 
 /**
  * The card's insets from the window's right and bottom (inside its
- * scrollbar); its width: the room less `inset * 2` (`full`), or between min
- * and max
+ * scrollbar); its width: the room less `inset * 2` (`full`), or at least its
+ * 280px minimum and under the 720px cap (a mark toast is short: as wide as
+ * its content). How wide that content is depends on the machine's font:
+ * the width measured on the developer's Mac is a `@design` check.
  */
+const CAP = 720;
 const EXPECTED = {
-  390: { bottom: 40, full: true, max: 0, min: 0, right: 16 },
-  // a mark toast is short: narrower than the 720px cap, as wide as its content
-  1440: { bottom: 24, full: false, max: 559, min: 280, right: 24 },
+  390: { bottom: 40, full: true, min: 0, right: 16 },
+  1440: { bottom: 24, full: false, min: 280, right: 24 },
 } as const;
+
+/** The mark toast's width on the developer's Mac, at most */
+const DESIGN_MAX = 559;
 
 type Trigger = Readonly<{
   name: string;
@@ -44,7 +50,7 @@ const TRIGGERS: ReadonlyArray<Trigger> = [
   {
     name: 'the show hero’s Remote',
     open: async (page) => {
-      await page.goto('/136315/the-bear');
+      await open(page, '/136315/the-bear');
       await page
         .getByRole('button', { name: 'More actions for The Bear' })
         .filter({ visible: true })
@@ -59,7 +65,7 @@ const TRIGGERS: ReadonlyArray<Trigger> = [
     // Home draws the ⋯ on Continue watching from md; phones mark with the eye
     name: 'Home’s Continue watching Remote',
     open: async (page) => {
-      await page.goto('/');
+      await open(page, '/');
       await page
         .locator('[data-slot="continue"]')
         .getByRole('button', { name: /^More actions for/ })
@@ -73,7 +79,7 @@ const TRIGGERS: ReadonlyArray<Trigger> = [
   {
     name: 'Home’s Continue watching eye',
     open: async (page) => {
-      await page.goto('/');
+      await open(page, '/');
       await page
         .locator('[data-slot="continue"]')
         .getByRole('button', { name: /^Mark The Bear/ })
@@ -151,11 +157,12 @@ for (const trigger of TRIGGERS) {
         room.width - expected.right,
       );
       const full = room.width - expected.right * 2;
-      const [min, max] = expected.full
-        ? [full, full]
-        : [expected.min, expected.max];
-      expect(box?.width).toBeGreaterThanOrEqual(min);
-      expect(box?.width).toBeLessThanOrEqual(max);
+      if (expected.full) {
+        expect(box?.width).toBe(full);
+      } else {
+        expect(box?.width).toBeGreaterThanOrEqual(expected.min);
+        expect(box?.width).toBeLessThan(CAP);
+      }
       expect(Math.round((box?.y ?? 0) + (box?.height ?? 0))).toBe(
         room.height - expected.bottom,
       );
@@ -180,13 +187,26 @@ for (const trigger of TRIGGERS) {
   }
 }
 
+test('a mark toast at 1440 is as wide as its content on the Mac @design', async ({
+  context,
+  page,
+}) => {
+  await page.setViewportSize({ height: HEIGHT, width: 1440 });
+  await signInAs(context, 'alex');
+  await TRIGGERS[0]?.open(page);
+  const toast = page.locator('[data-sonner-toast]').first();
+  await expect(toast).toBeVisible();
+  await toast.hover();
+  expect((await toast.boundingBox())?.width).toBeLessThanOrEqual(DESIGN_MAX);
+});
+
 test('over the open episode modal the toast stays usable and in view', async ({
   context,
   page,
 }) => {
   await page.setViewportSize({ height: HEIGHT, width: 1440 });
   await signInAs(context, 'alex');
-  await page.goto('/136315/the-bear?season=3&episode=6');
+  await open(page, '/136315/the-bear?season=3&episode=6');
   const dialog = page.getByRole('dialog');
   await dialog
     .getByRole('button', { name: /Mark watched \(just now\)/ })
@@ -217,7 +237,7 @@ test('the toast rides above the footer, clear of its Top pill', async ({
 }) => {
   await page.setViewportSize({ height: HEIGHT, width: 1440 });
   await signInAs(context, 'alex');
-  await page.goto('/136315/the-bear');
+  await open(page, '/136315/the-bear');
   await page
     .getByRole('button', { name: 'More actions for The Bear' })
     .filter({ visible: true })
@@ -248,7 +268,7 @@ test('over the open history sheet the toast keeps its place, inside the sheet', 
 }) => {
   await page.setViewportSize({ height: HEIGHT, width: 1440 });
   await signInAs(context, 'alex');
-  await page.goto('/136315/the-bear?history&season=3');
+  await open(page, '/136315/the-bear?history&season=3');
   const sheet = page.getByRole('dialog', { name: 'Watch history' });
   await sheet.getByRole('button', { name: 'Tap marks' }).click();
   await sheet
@@ -275,7 +295,7 @@ test('on a phone the toast rises above the open ⋯ sheet', async ({
 }) => {
   await page.setViewportSize({ height: 844, width: 390 });
   await signInAs(context, 'alex');
-  await page.goto('/136315/the-bear');
+  await open(page, '/136315/the-bear');
   await page
     .getByRole('button', { name: 'More actions for The Bear' })
     .filter({ visible: true })
@@ -288,7 +308,11 @@ test('on a phone the toast rises above the open ⋯ sheet', async ({
   const toast = page.locator('[data-sonner-toast]').first();
   await expect(toast).toBeVisible();
   await expect(page.locator('dialog[open]')).toHaveCount(1);
-  await page.waitForTimeout(400);
+  // the toast's rise and the sheet's entry are over
+  await untilStable(
+    () => Promise.all([toast.boundingBox(), sheet.boundingBox()]),
+    { message: 'the toast and the sheet settle' },
+  );
   const sheetBox = await sheet.boundingBox();
   const box = await toast.boundingBox();
   expect(sheetBox && box).toBeTruthy();

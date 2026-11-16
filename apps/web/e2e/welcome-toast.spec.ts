@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 import { WELCOME_COOKIE_NAME } from '../src/auth/cookies';
+import { nextFrames } from './helpers/viewport';
 
 /**
  * The first sign-in's welcome (AU Final states, “3 · first sign-in”): the
@@ -67,7 +68,11 @@ test.describe('welcome toast', () => {
     );
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await expect.poll(() => holding).toBe(true);
-    await page.waitForTimeout(1000);
+    // hydrated (where a welcome shown at hydration would be up) with the
+    // image still held: the document has not loaded
+    await expect(page.locator('header [data-viewer-pending]')).toHaveCount(0);
+    expect(await page.evaluate(() => document.readyState)).not.toBe('complete');
+    await nextFrames(page, 10);
     await expect(page.getByText('Welcome', { exact: true })).toHaveCount(0);
 
     release();

@@ -42,8 +42,7 @@ export default function CardImage({ layout, model, posters, style }: Props) {
         display: 'flex',
         fontFamily: CARD_FONT.inter,
         height: layout.height,
-        // No `overflow: hidden`: satori drops a clipped box's absolute
-        // children when it's scaled (the thumbnail); the canvas clips anyway
+        // No `overflow: hidden`: the canvas clips anyway
         position: 'relative',
         width: layout.width,
       }}

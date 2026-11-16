@@ -31,7 +31,7 @@ export default function CardWeeks({
   weeks: ReadonlyArray<number>;
 }>) {
   const { left, width, height, lineWidth } = layout.weeks;
-  const border = `${2 * layout.unit}px solid ${style.bracket}`;
+  const border = `2px solid ${style.bracket}`;
   const drawingWidth = ((width - lineWidth) * WEEKS) / (WEEKS - 1);
   const shift = lineWidth / 2 - (width - lineWidth) / (2 * (WEEKS - 1));
   const lines = weekLinesSvg({
@@ -63,8 +63,8 @@ export default function CardWeeks({
           <div
             style={{
               borderBottom: border,
-              borderBottomLeftRadius: 6 * layout.unit,
-              borderBottomRightRadius: 6 * layout.unit,
+              borderBottomLeftRadius: 6,
+              borderBottomRightRadius: 6,
               borderLeft: border,
               borderRight: border,
               height: layout.weeks.bracketHeight,

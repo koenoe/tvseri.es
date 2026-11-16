@@ -14,16 +14,23 @@ describe('parseCardRequest', () => {
   it('defaults to the dark square', () => {
     expect(parseCardRequest('2025', query())).toEqual({
       ok: true,
-      request: { format: 'square', theme: 'dark', thumb: false, year: 2025 },
+      request: { format: 'square', theme: 'dark', year: 2025 },
     });
   });
 
-  it('reads the story, the colour theme and the thumbnail', () => {
+  it('reads the story and the colour theme', () => {
     expect(
-      parseCardRequest('2025', query('format=story&theme=colour&size=thumb')),
+      parseCardRequest('2025', query('format=story&theme=colour')),
     ).toEqual({
       ok: true,
-      request: { format: 'story', theme: 'colour', thumb: true, year: 2025 },
+      request: { format: 'story', theme: 'colour', year: 2025 },
+    });
+  });
+
+  it('is a 400 for a size (the thumbnail is gone: no other variants)', () => {
+    expect(parseCardRequest('2025', query('size=thumb'))).toMatchObject({
+      ok: false,
+      status: 400,
     });
   });
 
@@ -100,9 +107,6 @@ describe('cardPath', () => {
     expect(cardPath('nina', 2025, { format: 'story', theme: 'colour' })).toBe(
       '/u/nina/stats/2025/card?format=story&theme=colour',
     );
-    expect(
-      cardPath('nina', 2025, { format: 'square', theme: 'dark', thumb: true }),
-    ).toBe('/u/nina/stats/2025/card?format=square&theme=dark&size=thumb');
   });
 });
 

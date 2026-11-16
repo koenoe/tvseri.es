@@ -5,9 +5,8 @@ import sharp from 'sharp';
 
 import CardImage from './CardImage';
 import type { CardModel } from './cardModel';
-import { THUMB_SIZE } from './cardRequest';
 import { loadCardFonts } from './fonts';
-import { CARD_LAYOUTS, type CardLayoutName, scaleLayout } from './layout';
+import { CARD_LAYOUTS, type CardLayoutName } from './layout';
 import { loadPoster, missesPoster } from './posters';
 import { type CardTheme, themeStyle } from './theme';
 import { wallLayout } from './wall';
@@ -17,8 +16,6 @@ type DrawInput = Readonly<{
   colour: string | null;
   layout: CardLayoutName;
   theme: CardTheme;
-  /** The 128px sidebar thumbnail of the card */
-  thumb?: boolean;
 }>;
 
 type DrawnCard = Readonly<{
@@ -50,12 +47,8 @@ export async function drawCard({
   layout: name,
   model,
   theme,
-  thumb = false,
 }: DrawInput): Promise<DrawnCard> {
-  const scale = thumb ? THUMB_SIZE / CARD_LAYOUTS[name].width : 1;
-  const layout = thumb
-    ? scaleLayout(CARD_LAYOUTS[name], scale)
-    : CARD_LAYOUTS[name];
+  const layout = CARD_LAYOUTS[name];
   const cells = wallLayout(layout.wall, model.top.length);
   const sources = cells.map(
     (cell) => model.top[cell.rank]?.posterImage ?? null,

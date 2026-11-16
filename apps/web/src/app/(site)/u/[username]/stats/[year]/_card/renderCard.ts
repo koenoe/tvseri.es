@@ -24,7 +24,7 @@ type CardImageResult =
   | 'unavailable';
 
 /**
- * The card's JPEG, cached per user + year + layout + theme (+ thumbnail):
+ * The card's JPEG, cached per user + year + layout + theme:
  * the image is the same for every viewer. It lives as long as the page's
  * stats (`stats` profile) and carries the user's stats tags, so a mark that
  * changes the year expires this entry and the next request that reaches the
@@ -40,7 +40,6 @@ export async function renderCardImage(
   year: number,
   layout: CardLayoutName,
   theme: CardTheme,
-  thumb: boolean,
 ): Promise<CardImageResult> {
   'use cache';
   cacheTag(usernameTag(username));
@@ -61,7 +60,6 @@ export async function renderCardImage(
     layout,
     model: data.model,
     theme,
-    thumb,
   });
   shortOrStats(degraded);
   return { degraded, image };

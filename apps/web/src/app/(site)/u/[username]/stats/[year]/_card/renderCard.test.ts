@@ -18,7 +18,7 @@ const ready = {
   userId: 'stub-user-nina',
 } as unknown as Awaited<ReturnType<typeof getCardData>>;
 
-const render = () => renderCardImage('nina', 2025, 'square', 'dark', false);
+const render = () => renderCardImage('nina', 2025, 'square', 'dark');
 
 beforeEach(() => {
   vi.mocked(cacheLife).mockClear();

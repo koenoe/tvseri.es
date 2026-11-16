@@ -10,8 +10,7 @@ import { CARD_THEMES, type CardTheme } from './theme';
  * the route, the og:image and the share UI. Pure: the client imports it.
  *
  * `?format=story|square` (default square) and `?theme=dark|colour` (default
- * dark); `?size=thumb` is the sidebar's 128px thumbnail. A missing value is
- * the default. An unknown value, any other query key and a repeated key are a
+ * dark). A missing value is the default. An unknown value, any other query key and a repeated key are a
  * 400, so made-up URLs never become renders or CDN entries of their own (the
  * CDN keys on the full URL).
  */
@@ -27,14 +26,10 @@ export const CARD_SIZES: Readonly<
   story: { height: 1920, width: 1080 },
 };
 
-/** The sidebar thumbnail: 64px at 2× */
-export const THUMB_SIZE = 128;
-
 type CardRequest = Readonly<{
   year: number;
   format: CardFormat;
   theme: CardTheme;
-  thumb: boolean;
 }>;
 
 type CardRequestResult =
@@ -52,19 +47,15 @@ const pick = <T extends string>(
   return allowed.find((item) => item === value) ?? null;
 };
 
-const CARD_QUERY_KEYS: ReadonlySet<string> = new Set([
-  'format',
-  'size',
-  'theme',
-]);
+const CARD_QUERY_KEYS: ReadonlySet<string> = new Set(['format', 'theme']);
 
 const BAD_QUERY: CardRequestResult = {
-  message: 'format is story or square, theme dark or colour, size thumb',
+  message: 'format is story or square, theme dark or colour',
   ok: false,
   status: 400,
 };
 
-/** Only `format`, `theme` and `size`, each at most once */
+/** Only `format` and `theme`, each at most once */
 const isCardQuery = (query: URLSearchParams) => {
   const keys = [...query.keys()];
   return (
@@ -91,14 +82,10 @@ export function parseCardRequest(
   }
   const format = pick(query.get('format'), CARD_FORMATS, 'square');
   const theme = pick(query.get('theme'), CARD_THEMES, 'dark');
-  const size = pick(query.get('size'), ['full', 'thumb'] as const, 'full');
-  if (!format || !theme || !size) {
+  if (!format || !theme) {
     return BAD_QUERY;
   }
-  return {
-    ok: true,
-    request: { format, theme, thumb: size === 'thumb', year },
-  };
+  return { ok: true, request: { format, theme, year } };
 }
 
 /** Why a year has no card yet ("No card for 2026 so far"); null when it has */
@@ -113,15 +100,12 @@ export function cardYearMessage(year: number, state: YearState): string | null {
 export function cardPath(
   username: string,
   year: number,
-  options: Readonly<{ format: CardFormat; theme: CardTheme; thumb?: boolean }>,
+  options: Readonly<{ format: CardFormat; theme: CardTheme }>,
 ): string {
   const query = new URLSearchParams({
     format: options.format,
     theme: options.theme,
   });
-  if (options.thumb) {
-    query.set('size', 'thumb');
-  }
   return `${statsPath(username, year)}/card?${query}`;
 }
 

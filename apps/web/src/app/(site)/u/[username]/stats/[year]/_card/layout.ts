@@ -13,8 +13,6 @@ type Spot = Readonly<{ left: number; top: number }>;
 export type CardLayout = Readonly<{
   width: number;
   height: number;
-  /** 1 px at this scale: hairlines, the bracket's border, shadows */
-  unit: number;
   logo: Spot & Readonly<{ height: number }>;
   /** Right-aligned to `right` px from the card's right edge */
   handle: Readonly<{ right: number; top: number; size: number }>;
@@ -71,7 +69,6 @@ export const CARD_LAYOUTS: Readonly<Record<CardLayoutName, CardLayout>> = {
       shows: { left: 460, top: 366 },
       value: 45,
     },
-    unit: 1,
     wall: { cols: 5, gap: 8, left: 700, rows: 4, top: 56, width: 443 },
     weeks: {
       bracketGap: 6,
@@ -102,7 +99,6 @@ export const CARD_LAYOUTS: Readonly<Record<CardLayoutName, CardLayout>> = {
       shows: { left: 252, top: 590 },
       value: 56,
     },
-    unit: 1,
     wall: { cols: 5, gap: 10, left: 552, rows: 4, top: 156, width: 456 },
     weeks: {
       bracketGap: 8,
@@ -133,7 +129,6 @@ export const CARD_LAYOUTS: Readonly<Record<CardLayoutName, CardLayout>> = {
       shows: { left: 705, top: 1531 },
       value: 72,
     },
-    unit: 1,
     wall: { cols: 8, gap: 10, left: 90, rows: 3, top: 760, width: 900 },
     weeks: {
       bracketGap: 10,
@@ -151,30 +146,3 @@ export const CARD_LAYOUTS: Readonly<Record<CardLayoutName, CardLayout>> = {
     year: { left: 82, size: 300, top: 272 },
   },
 };
-
-/** Grid counts, not lengths */
-const COUNTS = new Set(['cols', 'rows']);
-
-const scaleValue = (value: unknown, key: string, factor: number): unknown => {
-  if (typeof value === 'number') {
-    return COUNTS.has(key) ? value : value * factor;
-  }
-  if (value && typeof value === 'object') {
-    return Object.fromEntries(
-      Object.entries(value).map(([name, item]) => [
-        name,
-        scaleValue(item, name, factor),
-      ]),
-    );
-  }
-  return value;
-};
-
-/**
- * The layout at `factor` (the sidebar thumbnail): every length scales, the
- * wall's cell counts don't. Satori can't scale the card with a transform
- * (it drops absolutely positioned images under one), so the thumbnail is
- * laid out small instead.
- */
-export const scaleLayout = (layout: CardLayout, factor: number): CardLayout =>
-  scaleValue(layout, '', factor) as CardLayout;

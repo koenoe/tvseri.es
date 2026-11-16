@@ -54,7 +54,7 @@ export function CardHandle({
           color: 'rgba(255,255,255,0.4)',
           fontSize: at,
           letterSpacing: 0,
-          marginRight: 2 * layout.unit,
+          marginRight: 2,
           position: 'relative',
           top: -0.214 * at,
         }}

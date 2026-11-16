@@ -31,7 +31,7 @@ export default async function Image({
   if (cardYearMessage(year, (await getStatsClock(year)).state)) {
     return notFound();
   }
-  const result = await renderCardImage(username, year, 'og', 'dark', false);
+  const result = await renderCardImage(username, year, 'og', 'dark');
   if (result === 'not-found' || result === 'unavailable') {
     return notFound();
   }

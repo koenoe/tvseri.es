@@ -11,12 +11,12 @@ import { getStatsClock } from '../_data/clock';
 
 /**
  * `GET /u/{username}/stats/{year}/card?format=story|square&theme=dark|colour`:
- * the share card as a JPEG, 1080 × 1080 (default) or 1080 × 1920;
- * `&size=thumb` is the sidebar's 128px thumbnail. The bytes are cached per
+ * the share card as a JPEG, 1080 × 1080 (default) or 1080 × 1920. The
+ * bytes are cached per
  * user + year + variant (`renderCardImage`); the CDN keeps them a day
  * (`cardCacheControl`), a card with a failed poster only minutes.
  *
- * - 400: an unknown `format`, `theme` or `size`, any other query key, or a
+ * - 400: an unknown `format` or `theme`, any other query key, or a
  *   repeated key (a missing one is the default).
  * - 404: a param that isn't a user's exact username, an unknown user, a year
  *   without a page or episodes, or a year that isn't over ("No card for 2026
@@ -35,12 +35,12 @@ export async function GET(
   if (!parsed.ok) {
     return text(parsed.message, parsed.status);
   }
-  const { format, theme, thumb, year } = parsed.request;
+  const { format, theme, year } = parsed.request;
   const notYet = cardYearMessage(year, (await getStatsClock(year)).state);
   if (notYet) {
     return text(notYet, 404);
   }
-  const result = await renderCardImage(username, year, format, theme, thumb);
+  const result = await renderCardImage(username, year, format, theme);
   if (result === 'not-found') {
     return text('Not found', 404);
   }

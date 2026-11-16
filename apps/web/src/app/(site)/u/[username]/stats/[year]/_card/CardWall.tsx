@@ -7,9 +7,9 @@ import { type WallCell, wallLayout } from './wall';
  * styles only). `posters` are data URLs by rank; null draws the title tile.
  */
 
-/** The poster's shadow and hairline, at the layout's scale */
-const shadow = (unit: number) =>
-  `0 ${20 * unit}px ${40 * unit}px ${-16 * unit}px rgba(0,0,0,0.75), 0 0 0 ${2 * unit}px rgba(221,238,255,0.06)`;
+/** The poster's shadow and hairline */
+const SHADOW =
+  '0 20px 40px -16px rgba(0,0,0,0.75), 0 0 0 2px rgba(221,238,255,0.06)';
 
 export default function CardWall({
   hours,
@@ -24,7 +24,6 @@ export default function CardWall({
 }>) {
   const cells = wallLayout(layout.wall, shows.length);
   const first = cells[0];
-  const boxShadow = shadow(layout.unit);
   return (
     <>
       {cells.map((cell) => {
@@ -38,8 +37,8 @@ export default function CardWall({
             key={show.id}
             src={poster}
             style={{
-              borderRadius: cell.radius * layout.unit,
-              boxShadow,
+              borderRadius: cell.radius,
+              boxShadow: SHADOW,
               height: cell.height,
               left: cell.left,
               objectFit: 'cover',
@@ -51,7 +50,6 @@ export default function CardWall({
           />
         ) : (
           <TitleTile
-            boxShadow={boxShadow}
             cell={cell}
             key={show.id}
             // The #1 keeps its title clear of the hours chip
@@ -61,7 +59,6 @@ export default function CardWall({
                 : 0
             }
             title={show.title}
-            unit={layout.unit}
           />
         );
       })}
@@ -108,18 +105,14 @@ function HoursChip({
  * the site (`PosterArt`'s placeholder, scaled to the cell).
  */
 function TitleTile({
-  boxShadow,
   cell,
   reserve,
   title,
-  unit,
 }: Readonly<{
-  boxShadow: string;
   cell: WallCell;
   /** Room kept free at the bottom, in px */
   reserve: number;
   title: string;
-  unit: number;
 }>) {
   const padding = Math.round(cell.width * 0.1);
   const inset = Math.round(cell.width * 0.05);
@@ -127,8 +120,8 @@ function TitleTile({
     <div
       style={{
         backgroundImage: 'linear-gradient(165deg, #2b3335 0%, #1a1f20 70%)',
-        borderRadius: cell.radius * unit,
-        boxShadow,
+        borderRadius: cell.radius,
+        boxShadow: SHADOW,
         display: 'flex',
         flexDirection: 'column',
         height: cell.height,
@@ -144,8 +137,8 @@ function TitleTile({
     >
       <div
         style={{
-          border: `${unit}px dashed rgba(255,255,255,0.14)`,
-          borderRadius: Math.max(4 * unit, cell.radius * unit - inset),
+          border: '1px dashed rgba(255,255,255,0.14)',
+          borderRadius: Math.max(4, cell.radius - inset),
           bottom: inset,
           left: inset,
           position: 'absolute',
@@ -157,7 +150,7 @@ function TitleTile({
         style={{
           color: '#ffffff',
           display: 'block',
-          fontSize: Math.max(16 * unit, Math.round(cell.width * 0.13)),
+          fontSize: Math.max(16, Math.round(cell.width * 0.13)),
           fontWeight: 600,
           lineClamp: 3,
           lineHeight: 1.2,

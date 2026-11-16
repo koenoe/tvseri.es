@@ -15,9 +15,14 @@ import { monthIndex } from '../../history/_lib/diary';
 
 type Props = Readonly<{ params: ProfileParams }>;
 
-/** Under the identity (~330px), the rule and the heading, below the pill (96px) */
+/**
+ * Under the identity (~330px), the rule and the heading, below the pill
+ * (96px). The gutter is kept whether the list overflows or not, and the
+ * skeleton sits in the same box: with a classic scrollbar the rows are as
+ * wide before and after the years land.
+ */
 const JUMP_SCROLL =
-  'max-h-[calc(100dvh-30rem)] min-h-60 overflow-y-auto overscroll-contain [scrollbar-width:thin]';
+  'max-h-[calc(100dvh-30rem)] min-h-60 overflow-y-auto overscroll-contain [scrollbar-gutter:stable] [scrollbar-width:thin]';
 
 /**
  * History's sidebar under the identity: a rule, then Jump to.
@@ -35,15 +40,15 @@ export default function HistoryAside({
         <SidebarRule />
         <div className="mt-5 flex min-h-0 flex-col">
           <JumpHeading />
-          <BlockError fallback={<JumpToSkeleton />} title="Jump to">
-            <Suspense fallback={<JumpToSkeleton />}>
-              {/* the sidebar sticks: a long open year scrolls in its own box,
-                  so its last months stay in reach on a short screen */}
-              <div className={JUMP_SCROLL}>
+          {/* the sidebar sticks: a long open year scrolls in its own box,
+              so its last months stay in reach on a short screen */}
+          <div className={JUMP_SCROLL}>
+            <BlockError fallback={<JumpToSkeleton />} title="Jump to">
+              <Suspense fallback={<JumpToSkeleton />}>
                 <Jump params={params} />
-              </div>
-            </Suspense>
-          </BlockError>
+              </Suspense>
+            </BlockError>
+          </div>
         </div>
       </div>
       {children}

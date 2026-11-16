@@ -1,6 +1,8 @@
 import type { BrowserContext, Locator, Page } from '@playwright/test';
 import sharp from 'sharp';
 
+import { clientSize, nextFrames } from './viewport';
+
 /**
  * The light line along a rounded picture card's edge
  * (`src/components/ui/picture/pictureSurface.ts`), measured on the rendered
@@ -215,10 +217,14 @@ const edgeOf = (id: string) => {
       [sample.x - sample.nx * reach, sample.y - sample.ny * reach],
       [sample.x + sample.nx * reach, sample.y + sample.ny * reach],
     ];
+    const room = document.documentElement;
     if (
       ends.some(
         ([x = 0, y = 0]) =>
-          x < 0 || y < 0 || x > innerWidth - 1 || y > innerHeight - 1,
+          x < 0 ||
+          y < 0 ||
+          x > room.clientWidth - 1 ||
+          y > room.clientHeight - 1,
       )
     ) {
       return false;
@@ -273,15 +279,18 @@ export async function findPictureEdges(
   scope?: Locator,
 ): Promise<EdgeProblem[]> {
   await page.addStyleTag({ content: HAIRLINES_OFF });
-  // down the page once, so lazy sections and pictures arrive
+  // down the page once, so lazy sections and pictures are asked for (each
+  // card below waits for its own pictures)
   for (let step = 0; step < 40; step += 1) {
     const bottom = await page.evaluate(() => {
       window.scrollBy(0, innerHeight * 0.8);
       return innerHeight + scrollY >= document.documentElement.scrollHeight - 2;
     });
-    await page.waitForTimeout(200);
+    // the scroll reaches the observers that start the loads
+    await nextFrames(page);
     if (bottom) break;
   }
+  await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
   const root = scope ? await scope.elementHandle() : null;
   const cards = await page.evaluate(findCards, root);
   const scale = await page.evaluate(() => devicePixelRatio);
@@ -300,11 +309,33 @@ export async function findPictureEdges(
         ].every((image) => image.complete),
       selector,
     );
-    // past a fade-in (the images' own, a crossfade)
-    await page.waitForTimeout(400);
+    // decoded, and past a fade-in (the images' own, a crossfade): every
+    // finite animation or transition in the card has finished
+    await page.locator(selector).evaluate(async (element) => {
+      await Promise.all(
+        [...element.querySelectorAll('img')].map((image) =>
+          image.decode().catch(() => undefined),
+        ),
+      );
+      // a fade the load starts (an onLoad that sets a class) has begun
+      for (let frame = 0; frame < 2; frame += 1) {
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+      }
+      await Promise.all(
+        element
+          .getAnimations({ subtree: true })
+          .filter(
+            (animation) =>
+              Number.isFinite(animation.effect?.getComputedTiming().endTime) &&
+              animation.playState !== 'paused',
+          )
+          .map((animation) => animation.finished.catch(() => undefined)),
+      );
+    });
+    await nextFrames(page);
     const edge = await page.evaluate(edgeOf, card.id);
     if (!edge?.samples.length) continue;
-    const viewport = page.viewportSize() ?? { height: 0, width: 0 };
+    const viewport = await clientSize(page);
     const x = Math.max(0, Math.floor(edge.box.x - 10));
     const y = Math.max(0, Math.floor(edge.box.y - 10));
     const clip = {

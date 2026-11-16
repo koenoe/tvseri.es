@@ -8,6 +8,7 @@ import {
   readShifts,
   SHIFT_OBSERVER,
 } from './parity';
+import { fontsSettled, untilStable } from './viewport';
 
 /**
  * Placeholder parity: a loading placeholder occupies the same box as the
@@ -59,8 +60,10 @@ async function waitForOwnShell(
   whole?: boolean,
   viewerHoles?: ReadonlyArray<string>,
 ) {
-  const deadline = Date.now() + 90_000;
-  for (let attempt = 1; ; attempt += 1) {
+  let attempt = 0;
+  // the generic shell is served until the entry regenerates: ask again
+  await expect(async () => {
+    attempt += 1;
     let own = false;
     await instant(
       page,
@@ -80,19 +83,11 @@ async function waitForOwnShell(
       },
       baseURL ? { baseURL } : undefined,
     );
-    if (own) {
-      if (attempt > 1) {
-        // evidence for the report: how often the generic shell was served
-        console.log(
-          `[shell] ${text.slice(0, 30)}: own shell on try ${attempt}`,
-        );
-      }
-      return;
-    }
-    expect(Date.now(), `the shell never carried "${text}"`).toBeLessThan(
-      deadline,
-    );
-    await page.waitForTimeout(2000);
+    expect(own, `the shell never carried "${text}"`).toBe(true);
+  }).toPass({ intervals: [2000], timeout: 90_000 });
+  if (attempt > 1) {
+    // evidence for the report: how often the generic shell was served
+    console.log(`[shell] ${text.slice(0, 30)}: own shell on try ${attempt}`);
   }
 }
 
@@ -152,9 +147,9 @@ export async function measureParity(
   await page.addInitScript(SHIFT_OBSERVER);
   let placeholders: Boxes = {};
   let before = 0;
-  const deadline = Date.now() + 90_000;
-  for (let incomplete = true; incomplete; ) {
-    incomplete = false;
+  // a section that was a hole in this load of the shell: load it again
+  await expect(async () => {
+    let incomplete = false;
     await instant(
       page,
       async () => {
@@ -187,18 +182,8 @@ export async function measureParity(
           incomplete = true;
           return;
         }
-        // Let fonts and the first paint settle before recording: two frames
-        // first, so the fonts the text needs have been asked for (`ready` is
-        // already resolved while none is loading)
-        await page.evaluate(
-          () =>
-            new Promise<void>((resolve) =>
-              requestAnimationFrame(() =>
-                requestAnimationFrame(() => resolve()),
-              ),
-            ),
-        );
-        await page.evaluate(() => document.fonts.ready);
+        // fonts and the first paint settled before recording
+        await fontsSettled(page);
         placeholders = await readBoxes(page, 'data-placeholder');
         before = await documentHeight(page);
         if (options.shellWhole) {
@@ -220,19 +205,25 @@ export async function measureParity(
       },
       options.baseURL ? { baseURL: options.baseURL } : undefined,
     );
-    if (incomplete) {
-      expect(Date.now(), 'the shell never came whole').toBeLessThan(deadline);
-      await page.waitForTimeout(2000);
-    }
-  }
+    expect(incomplete, 'the shell never came whole').toBe(false);
+  }).toPass({ intervals: [2000], timeout: 90_000 });
   await expect
     .poll(() => visiblePlaceholders(page), { timeout: 30_000 })
     .toBe(0);
   // Some pages keep a request open (images that never load on the rig):
   // wait for quiet, but not for ever.
   await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
-  // The footer is the last thing that can move: give a late shift a moment.
-  await page.waitForTimeout(400);
+  // The footer is the last thing that can move: read once the content and
+  // the document's height have held still (a late shift is counted).
+  await fontsSettled(page);
+  await untilStable(
+    async () => [
+      await readBoxes(page, 'data-slot'),
+      await documentHeight(page),
+    ],
+    // as long as the fixed wait this replaces: a late shift is still seen
+    { message: 'the content kept moving', quietMs: 400 },
+  );
   if (shotPath(options.shot, 'final')) {
     await page.screenshot({
       fullPage: true,

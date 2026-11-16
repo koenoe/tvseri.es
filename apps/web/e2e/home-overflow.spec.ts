@@ -2,6 +2,7 @@ import { expect, type Page, test } from '@playwright/test';
 
 import { findOverflow, formatProblems } from './helpers/overflow';
 import { setLibraryHint, signInAs } from './helpers/session';
+import { clientSize, phoneScrollbars } from './helpers/viewport';
 
 /**
  * Home holds its text from a small phone to 1440
@@ -89,6 +90,9 @@ const heading = (page: Page, name: string | RegExp) =>
 for (const width of WIDTHS) {
   test.describe(`home overflow at ${width}px`, () => {
     test.use({ viewport: { height: width < 500 ? 844 : 900, width } });
+    test.beforeEach(async ({ page }) => {
+      await phoneScrollbars(page, width);
+    });
 
     for (const { day, feature, signedIn, signedOut } of DAYS) {
       test(`${day} signed out`, async ({ page }) => {
@@ -201,7 +205,8 @@ for (const width of WIDTHS) {
         const tickets = page.locator('#premieres-rail > li');
         await expect(tickets.nth(1)).toBeAttached();
         const second = await tickets.nth(1).boundingBox();
-        expect(second?.x ?? width).toBeLessThanOrEqual(width - 12);
+        const room = (await clientSize(page)).width;
+        expect(second?.x ?? room).toBeLessThanOrEqual(room - 12);
       });
     }
     test('the map’s place names stay on the map, off other pins', async ({
@@ -250,10 +255,12 @@ for (const width of WIDTHS) {
         }, index);
         expect(problems).toEqual([]);
       }
-      const scrollWidth = await page.evaluate(
-        () => document.documentElement.scrollWidth,
+      const wider = await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth -
+          document.documentElement.clientWidth,
       );
-      expect(scrollWidth).toBeLessThanOrEqual(width);
+      expect(wider).toBeLessThanOrEqual(0);
     });
 
     // Where are they set?: the show's logo stands for its title when it has
@@ -305,9 +312,11 @@ for (const width of WIDTHS) {
       await expect(page.locator('#toy-ghost-versus')).toBeAttached();
       await page.waitForLoadState('networkidle');
       const wider = await page.evaluate(
-        () => document.documentElement.scrollWidth - window.innerWidth,
+        () =>
+          document.documentElement.scrollWidth -
+          document.documentElement.clientWidth,
       );
-      expect(wider).toBe(0);
+      expect(wider).toBeLessThanOrEqual(0);
     });
 
     // One season in stills on the long-title day: a long series title and

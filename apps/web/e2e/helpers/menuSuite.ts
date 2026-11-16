@@ -2,6 +2,7 @@ import { expect, type Page, test } from '@playwright/test';
 
 import { open } from '../helpers';
 import { signInAs } from './session';
+import { nextFrames } from './viewport';
 
 /**
  * The menu and the sticky header, at one viewport width: the phone
@@ -49,7 +50,8 @@ const showPill = async (page: Page) => {
     await expect
       .poll(() => page.evaluate((top) => Math.abs(window.scrollY - top), y))
       .toBeLessThanOrEqual(1);
-    await page.waitForTimeout(60);
+    // the scroll event reaches the header before the next step
+    await nextFrames(page);
   }
   await expect(header(page)).toHaveAttribute('data-header-mode', 'floating');
 };
@@ -119,7 +121,9 @@ export function menuSuite(width: number, height: number): void {
       await expect(page.locator('html')).toHaveCSS('overflow', 'hidden');
       await page.mouse.move(outside(width).x, outside(width).y);
       await page.mouse.wheel(0, 600);
-      await page.waitForTimeout(200);
+      // nothing to wait for: a locked page does not move. Long enough for an
+      // unlocked one to have started its smooth scroll
+      await nextFrames(page, 6);
       expect(await page.evaluate(() => window.scrollY)).toBe(0);
 
       await page.keyboard.press('Escape');
@@ -294,14 +298,16 @@ export function menuSuite(width: number, height: number): void {
         await expect
           .poll(() => page.evaluate((top) => Math.abs(window.scrollY - top), y))
           .toBeLessThanOrEqual(1);
-        await page.waitForTimeout(50);
+        // the scroll event reaches the header before the next step
+        await nextFrames(page);
       };
       await scrollTo(10);
       await scrollTo(900);
       await expect(header(page)).toHaveAttribute('data-header-mode', 'hidden');
       await scrollTo(895);
       await scrollTo(893);
-      await page.waitForTimeout(150);
+      // 7px up is not yet 8: the header stays hidden (no condition to poll)
+      await nextFrames(page, 6);
       await expect(header(page)).toHaveAttribute('data-header-mode', 'hidden');
       await scrollTo(892);
       await expect(header(page)).toHaveAttribute(

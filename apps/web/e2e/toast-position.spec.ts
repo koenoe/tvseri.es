@@ -1,23 +1,29 @@
 import { expect, type Page, test } from '@playwright/test';
 
 import { type StubViewer, setLibraryHint, signInAs } from './helpers/session';
+import { clientSize, phoneScrollbars } from './helpers/viewport';
 
 /**
  * The toast's one place (Toaster.tsx) from every
  * trigger, also while a layer is open (the Remote's popover or sheet): at
- * 1440 bottom right of the viewport, 24px in from the right and the bottom,
- * as wide as its content (280 to 720px); full width 16px in, 40px up at 390.
+ * 1440 bottom right of the window, 24px in from the right (of the room the
+ * scrollbar leaves) and the bottom, as wide as its content (280 to 720px);
+ * full width 16px in, 40px up at 390.
  * It never hops while the layer it came from closes, and its Undo takes the
  * click.
  */
 
 const HEIGHT = 900;
 
-/** The card's right edge and bottom; its width: exact, or between min and max */
+/**
+ * The card's insets from the window's right and bottom (inside its
+ * scrollbar); its width: the room less `inset * 2` (`full`), or between min
+ * and max
+ */
 const EXPECTED = {
-  390: { bottom: HEIGHT - 40, max: 390 - 32, min: 390 - 32, right: 390 - 16 },
+  390: { bottom: 40, full: true, max: 0, min: 0, right: 16 },
   // a mark toast is short: narrower than the 720px cap, as wide as its content
-  1440: { bottom: HEIGHT - 24, max: 559, min: 280, right: 1440 - 24 },
+  1440: { bottom: 24, full: false, max: 559, min: 280, right: 24 },
 } as const;
 
 type Trigger = Readonly<{
@@ -120,6 +126,7 @@ for (const trigger of TRIGGERS) {
       page,
     }) => {
       await page.setViewportSize({ height: HEIGHT, width });
+      await phoneScrollbars(page, width);
       await signInAs(context, trigger.viewer);
       if (trigger.viewer === 'kit') {
         await setLibraryHint(context, 'kit', [136315]);
@@ -139,14 +146,19 @@ for (const trigger of TRIGGERS) {
       await toast.hover();
 
       const box = await toast.boundingBox();
+      const room = await clientSize(page);
       const expected = EXPECTED[width];
       expect(Math.round((box?.x ?? 0) + (box?.width ?? 0))).toBe(
-        expected.right,
+        room.width - expected.right,
       );
-      expect(box?.width).toBeGreaterThanOrEqual(expected.min);
-      expect(box?.width).toBeLessThanOrEqual(expected.max);
+      const full = room.width - expected.right * 2;
+      const [min, max] = expected.full
+        ? [full, full]
+        : [expected.min, expected.max];
+      expect(box?.width).toBeGreaterThanOrEqual(min);
+      expect(box?.width).toBeLessThanOrEqual(max);
       expect(Math.round((box?.y ?? 0) + (box?.height ?? 0))).toBe(
-        expected.bottom,
+        room.height - expected.bottom,
       );
 
       // It only ever rises into place: no hop down when a layer closes.
@@ -189,9 +201,10 @@ test('over the open episode modal the toast stays usable and in view', async ({
     const rise = await toast.boundingBox();
     return Math.round((rise?.y ?? 0) + (rise?.height ?? 0));
   };
-  await expect.poll(bottom).toBe(HEIGHT - 24);
+  const room = await clientSize(page);
+  await expect.poll(bottom).toBe(room.height - 24);
   const box = await toast.boundingBox();
-  expect(Math.round((box?.x ?? 0) + (box?.width ?? 0))).toBe(1440 - 24);
+  expect(Math.round((box?.x ?? 0) + (box?.width ?? 0))).toBe(room.width - 24);
   const stub = await dialog.locator('[data-record-stub]').boundingBox();
   expect((stub?.x ?? 0) + (stub?.width ?? 0)).toBeLessThan(box?.x ?? 0);
   await toast.getByRole('button', { name: 'Undo' }).click();
@@ -246,11 +259,12 @@ test('over the open history sheet the toast keeps its place, inside the sheet', 
   const toast = page.locator('[data-sonner-toast]').first();
   await expect(toast).toBeVisible();
   await toast.hover();
-  const [box, panel] = await Promise.all([
+  const [box, panel, room] = await Promise.all([
     toast.boundingBox(),
     sheet.boundingBox(),
+    clientSize(page),
   ]);
-  expect(Math.round((box?.x ?? 0) + (box?.width ?? 0))).toBe(1440 - 24);
+  expect(Math.round((box?.x ?? 0) + (box?.width ?? 0))).toBe(room.width - 24);
   expect(box?.x ?? 0).toBeGreaterThanOrEqual(panel?.x ?? 0);
 });
 
@@ -261,6 +275,7 @@ test('on a phone the toast rises above the open ⋯ sheet', async ({
   page,
 }) => {
   await page.setViewportSize({ height: 844, width: 390 });
+  await phoneScrollbars(page, 390);
   await signInAs(context, 'alex');
   await page.goto('/136315/the-bear');
   await page

@@ -2,17 +2,18 @@ import { expect, type Page, test } from '@playwright/test';
 
 import { leftEdges, offEdge } from './helpers/leftEdges';
 import { type StubViewer, setLibraryHint, signInAs } from './helpers/session';
+import { pageLine, phoneScrollbars } from './helpers/viewport';
 
 /**
- * One page gutter (`--gutter`: 24px on phones, 32px from md, so 112 at
- * 1440 in the 1280 container). On every page kind the header logo, the
- * footer logo, every on-page title and the first tile of every row start on
- * the same left edge (or, beside a sidebar, on the main column's edge), and
- * no phone width scrolls sideways.
+ * One page gutter (`--gutter`, inside the 1280 container: 112 at 1440 with
+ * an overlay scrollbar). On every page kind the header logo, the footer
+ * logo, every on-page title and the first tile of every row start on the
+ * page line (or, beside a sidebar, on the main column's edge), and no phone
+ * width scrolls sideways.
  */
 
 type Kind = Readonly<{
-  /** desktop: the main column's left edge beside the sidebar, at 1440 */
+  /** desktop: the main column's edge beside the sidebar, px from the page line */
   column?: number;
   name: string;
   path: string;
@@ -23,29 +24,31 @@ type Kind = Readonly<{
 
 const KINDS: ReadonlyArray<Kind> = [
   // What's on (the toy on some days) heads its block beside the TV, in the
-  // right column at 752, by design: the left edge stays 112 for the rest
-  { column: 752, name: 'home', path: '/' },
-  { column: 752, name: 'home, a new viewer', path: '/', viewer: 'nina' },
+  // right column (600px + 40px gap), by design: the rest stays on the line
+  { column: 640, name: 'home', path: '/' },
+  { column: 640, name: 'home, a new viewer', path: '/', viewer: 'nina' },
   { name: 'discover', path: '/discover' },
   { name: 'a landing', path: '/genre/crime' },
   { name: 'a series', path: '/136315/the-bear' },
+  // beside the profile's and the person's sidebar and its gap
   {
-    column: 476,
+    column: 364,
     name: 'a person',
     path: '/person/17419/bryan-cranston',
     skip: ['Bryan Cranston'],
   },
-  { column: 476, name: 'the profile', path: '/u/alex', viewer: 'alex' },
+  { column: 364, name: 'the profile', path: '/u/alex', viewer: 'alex' },
   // a brand-new account: Get started and an empty Up next, both dotted
-  { column: 476, name: 'a new profile', path: '/u/nina', viewer: 'nina' },
+  { column: 364, name: 'a new profile', path: '/u/nina', viewer: 'nina' },
   {
-    column: 476,
+    column: 364,
     name: 'library',
     path: '/u/alex/library/watching',
     viewer: 'alex',
   },
-  { column: 476, name: 'history', path: '/u/alex/history', viewer: 'alex' },
-  { column: 424, name: 'settings', path: '/settings/profile', viewer: 'alex' },
+  { column: 364, name: 'history', path: '/u/alex/history', viewer: 'alex' },
+  // beside the 248px settings nav and its 64px gap
+  { column: 312, name: 'settings', path: '/settings/profile', viewer: 'alex' },
 ];
 
 const PHONE_WIDTHS = [360, 375, 390, 430] as const;
@@ -81,6 +84,7 @@ for (const kind of KINDS) {
     page,
   }) => {
     test.setTimeout(120_000);
+    await phoneScrollbars(page, PHONE_WIDTHS[0]);
     await signIn(page, kind);
     for (const width of PHONE_WIDTHS) {
       await page.setViewportSize({ height: 844, width });
@@ -93,7 +97,7 @@ for (const kind of KINDS) {
       expect(scroll, `${width}px scrolls sideways`).toBeLessThanOrEqual(0);
       if (width === 390) {
         const edges = edgesOf(await leftEdges(page), kind);
-        expect(offEdge(edges, [32])).toEqual([]);
+        expect(offEdge(edges)).toEqual([]);
       }
     }
   });
@@ -103,8 +107,8 @@ for (const kind of KINDS) {
     await page.setViewportSize({ height: 900, width: 1440 });
     await arrive(page, kind.path);
     const edges = edgesOf(await leftEdges(page), kind);
-    const allowed = kind.column ? [112, kind.column] : [112];
-    expect(offEdge(edges, allowed)).toEqual([]);
+    const columns = kind.column ? [kind.column] : [];
+    expect(offEdge(edges, { columns })).toEqual([]);
   });
 }
 
@@ -115,15 +119,17 @@ for (const width of [360, 390]) {
     page,
   }) => {
     await page.setViewportSize({ height: 844, width });
+    await phoneScrollbars(page, width);
     await arrive(page, '/136315/the-bear');
+    const line = await pageLine(page);
     const prompt = await page
       .getByRole('group', { name: 'Where are you in this series?' })
       .boundingBox();
-    expect(Math.round(prompt?.x ?? -1)).toBe(32);
+    expect(Math.abs((prompt?.x ?? -1) - line)).toBeLessThanOrEqual(0.5);
     const select = await page
       .locator('[data-season-header] > *')
       .first()
       .boundingBox();
-    expect(Math.round(select?.x ?? -1)).toBe(32);
+    expect(Math.abs((select?.x ?? -1) - line)).toBeLessThanOrEqual(0.5);
   });
 }

@@ -1,5 +1,7 @@
 import type { Page } from '@playwright/test';
 
+import { probePageLine } from './viewport';
+
 /**
  * The left edges a page shares (the page gutter, `--gutter` in globals.css):
  * the header logo, the footer logo, every on-page title (its leading edge:
@@ -11,13 +13,15 @@ import type { Page } from '@playwright/test';
 export type LeftEdges = Readonly<{
   footer: number | null;
   header: number | null;
+  /** the page line: where the page container's content starts (`pageLine`) */
+  line: number;
   /** the first tile of each row, at its resting scroll position */
   rows: ReadonlyArray<Readonly<{ name: string; x: number }>>;
   titles: ReadonlyArray<Readonly<{ text: string; x: number }>>;
 }>;
 
 /** Runs in the page (serialised): see `leftEdges` */
-const scan = (): LeftEdges => {
+const scan = (line: number): LeftEdges => {
   const round = (value: number) => Math.round(value * 10) / 10;
   const visible = (element: Element) => {
     const box = element.getBoundingClientRect();
@@ -101,22 +105,30 @@ const scan = (): LeftEdges => {
   return {
     footer: logoX(document.querySelector('footer')),
     header: logoX(document.querySelector('header a[href="/"]')),
+    line,
     rows,
     titles,
   };
 };
 
-export const leftEdges = (page: Page): Promise<LeftEdges> =>
-  page.evaluate(scan);
+export const leftEdges = async (page: Page): Promise<LeftEdges> =>
+  page.evaluate(scan, await page.evaluate(probePageLine));
 
 /**
- * Every edge that is not on one of the allowed lines (±1px): the page
- * gutter and, on pages with a sidebar, the main column's edge.
+ * Every edge that is not on one of the allowed lines (±1px): the page line
+ * (`edges.line`, measured in the page, so it holds with any scrollbar) and,
+ * on pages with a sidebar, each column's edge given as its distance from the
+ * page line (the sidebar and its gap: CSS px inside the fixed-width page
+ * container, the same on every machine).
  */
 export function offEdge(
   edges: LeftEdges,
-  allowed: ReadonlyArray<number>,
+  options: Readonly<{ columns?: ReadonlyArray<number> }> = {},
 ): ReadonlyArray<string> {
+  const allowed = [
+    edges.line,
+    ...(options.columns ?? []).map((column) => edges.line + column),
+  ];
   const on = (x: number | null) =>
     x === null || allowed.some((line) => Math.abs(line - x) <= 1);
   return [

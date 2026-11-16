@@ -17,11 +17,40 @@ const authPort = Number(process.env.STUB_AUTH_PORT ?? port + 1100);
 // Fake, local-only; never a real secret. Must match the auth stub's.
 const stubSecret = 'local-stub-only';
 
+/**
+ * Opt-in tags, left out of a default run:
+ * - `@perf`: timing checks (`E2E_PERF=1`).
+ * - `@design`: pixel-exact design checks (exact sizes, gaps, positions),
+ *   written against the developer's Mac. They run in the `design` project
+ *   only, and only with `E2E_DESIGN=1`. Everything else measures relatively
+ *   and holds on any machine (`e2e/README.md`).
+ */
+const optIn = [...(process.env.E2E_PERF ? [] : ['@perf']), '@design'];
+const grepInvert = new RegExp(optIn.join('|'));
+
+/**
+ * `E2E_CLASSIC_SCROLLBARS=1`: Chromium draws a classic 15px scrollbar, as on
+ * GitHub's macOS runners, instead of the Mac's overlay one (which takes no
+ * room). Playwright hides scrollbars in headless Chromium by default, and
+ * macOS overlays them: both are switched off. A launch option, so it reaches
+ * every context, `browser.newContext()` ones included.
+ */
+const chromiumLaunch = process.env.E2E_CLASSIC_SCROLLBARS
+  ? {
+      launchOptions: {
+        args: ['--disable-features=OverlayScrollbar'],
+        ignoreDefaultArgs: ['--hide-scrollbars'],
+      },
+    }
+  : {};
+
+const chromium = { ...devices['Desktop Chrome'], ...chromiumLaunch };
+
 export default defineConfig({
+  expect: { timeout: 10_000 },
   forbidOnly: Boolean(process.env.CI),
   fullyParallel: true,
-  // timing checks (`@perf`) run only when asked: `E2E_PERF=1`
-  grepInvert: process.env.E2E_PERF ? undefined : /@perf/,
+  grepInvert,
   projects: [
     {
       name: 'chromium',
@@ -30,8 +59,19 @@ export default defineConfig({
       // ("did not run") whenever a single chromium test failed.
       teardown: 'admin',
       testIgnore: /admin-images\.spec\.ts|\.webkit\.spec\.ts/,
-      use: { ...devices['Desktop Chrome'] },
+      use: chromium,
     },
+    ...(process.env.E2E_DESIGN
+      ? [
+          {
+            grep: /@design/,
+            grepInvert: process.env.E2E_PERF ? undefined : /@perf/,
+            name: 'design',
+            testIgnore: /admin-images\.spec\.ts|\.webkit\.spec\.ts/,
+            use: chromium,
+          },
+        ]
+      : []),
     // Safari does not focus a button on click: the checks that need it
     // run in WebKit (`*.webkit.spec.ts`).
     {
@@ -45,16 +85,18 @@ export default defineConfig({
     {
       name: 'admin',
       testMatch: /admin-images\.spec\.ts/,
-      use: { ...devices['Desktop Chrome'] },
+      use: chromium,
     },
   ],
   reporter: process.env.CI ? 'github' : 'list',
   testDir: './e2e',
+  timeout: 45_000,
   // The trace recorder snapshots the whole DOM before every input action
   // (~55,000 forced layouts per wheel step on a 1,000-row History): timing
   // runs (`E2E_PERF=1`) go without it, or they measure Playwright
   use: {
     baseURL,
+    screenshot: 'only-on-failure',
     trace: process.env.E2E_PERF ? 'off' : 'retain-on-failure',
   },
   webServer: [

@@ -9,6 +9,7 @@ import {
   SHIFT_OBSERVER,
 } from './parity';
 import { type StubViewer, signInAs } from './session';
+import { fontsSettled, phoneScrollbars, untilStable } from './viewport';
 
 /**
  * Placeholder parity: a Suspense fallback must occupy the box of what
@@ -88,8 +89,11 @@ const orNone = (boxes: Record<string, Box | null>): Boxes =>
  * Loads a page twice: with JavaScript off (the shell: every fallback on
  * screen, every resolved part waiting hidden), recording the placeholders,
  * and with JavaScript on once the content has arrived, recording the slots
- * and the layout shift. Returns a `Parity` for `expectParity`/`parityTable`
- * (`helpers/parity.ts`).
+ * and the layout shift. Both are read once their fonts are in and their
+ * boxes have stopped moving (a box read in the fallback font can wrap a line
+ * the real one does not). Phone viewports render with a phone's overlay
+ * scrollbar (`phoneScrollbars`). Returns a `Parity` for
+ * `expectParity`/`parityTable` (`helpers/parity.ts`).
  */
 export async function measureNoScriptParity(
   browser: Browser,
@@ -112,6 +116,7 @@ export async function measureNoScriptParity(
     javaScriptEnabled: false,
     viewport,
   });
+  await phoneScrollbars(shellContext, viewport.width);
   await signInAs(shellContext, options.viewer);
   const shell = await shellContext.newPage();
   await shell.goto(options.path);
@@ -122,13 +127,17 @@ export async function measureNoScriptParity(
       document.head.append(style);
     }, VISITOR_RULE);
   }
-  const placeholders = await shell.evaluate(rects, [
-    'placeholder',
-    names,
-  ] as const);
+  await fontsSettled(shell);
+  const readPlaceholders = () =>
+    shell.evaluate(rects, ['placeholder', names] as const);
+  await untilStable(readPlaceholders, {
+    message: 'the placeholders kept moving',
+  });
+  const placeholders = await readPlaceholders();
   await shellContext.close();
 
   const context = await browser.newContext({ viewport });
+  await phoneScrollbars(context, viewport.width);
   await signInAs(context, options.viewer);
   const page = await context.newPage();
   // later pages of an endless list are not the first render
@@ -142,7 +151,10 @@ export async function measureNoScriptParity(
     await expect(page.locator(`[data-slot="${slot}"]`).first()).toBeVisible();
   }
   await page.waitForLoadState('networkidle');
-  const slots = await page.evaluate(rects, ['slot', slotNames] as const);
+  await fontsSettled(page);
+  const readSlots = () => page.evaluate(rects, ['slot', slotNames] as const);
+  await untilStable(readSlots, { message: 'the content kept moving' });
+  const slots = await readSlots();
   const { cls, shifts } = await readShifts(page);
   await context.close();
 

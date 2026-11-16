@@ -10,4 +10,6 @@ import { expect, type Page } from '@playwright/test';
 export const open = async (page: Page, path: string) => {
   await page.goto(path);
   await expect(page.locator('header [data-viewer-pending]')).toHaveCount(0);
+  // text measured after this is in its own font, not the fallback's
+  await page.evaluate(() => document.fonts.ready);
 };

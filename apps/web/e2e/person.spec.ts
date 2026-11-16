@@ -171,7 +171,11 @@ test.describe('person (/person/{id}/{slug})', () => {
   ] as const) {
     test(`${label} draws the not-found page`, async ({ page }) => {
       await page.goto(path);
-      await expect(page.getByText('Page not found')).toBeVisible();
+      // the page's own view, in the main landmark: the router can keep a
+      // second, hidden copy of a not-found view beside it for a moment
+      await expect(
+        page.getByRole('main').getByText('Page not found'),
+      ).toBeVisible();
       await expect(page.getByTestId('route-person')).toHaveCount(0);
     });
   }

@@ -23,10 +23,10 @@ import type { ProfileParams } from './_data/profile';
  * The sidebar from `lg` (below 1024 a 300px sidebar left the content
  * ~370px); below it the phone's shell, the identity on
  * top. Its sub-pages on a phone: the compact identity sits
- * 16px above the tabs, and the page 16px under them (`SubpageMarker`)
+ * 24px above the tabs, and the page 24px under them (`SubpageMarker`)
  */
-const GRID = `${PROFILE_GROUP_CLASS} mx-auto grid w-full max-w-page items-start gap-12 px-gutter lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-16 lg:pt-[35px] max-lg:has-[[data-subpage]:not([style*=display])]:gap-4 ${OVERVIEW_GRID}`;
-const MAIN = `flex min-w-0 flex-col gap-12 max-lg:group-has-[[data-subpage]:not([style*=display])]/profile:gap-4 ${OVERVIEW_MAIN}`;
+const GRID = `${PROFILE_GROUP_CLASS} mx-auto grid w-full max-w-page items-start gap-12 px-gutter lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-16 lg:pt-[35px] max-lg:has-[[data-subpage]:not([style*=display])]:gap-6 ${OVERVIEW_GRID}`;
+const MAIN = `flex min-w-0 flex-col gap-12 max-lg:group-has-[[data-subpage]:not([style*=display])]/profile:gap-6 ${OVERVIEW_MAIN}`;
 
 /**
  * Every profile page but Stats: the sticky 300px

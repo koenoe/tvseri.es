@@ -71,7 +71,7 @@ export default function Identity({
       </section>
       <section aria-label="Identity" className={COMPACT_IDENTITY_CLASS}>
         {/* the handle fits this column (`@container`), beside the button */}
-        <div className="@container flex min-w-0 flex-1 flex-col">
+        <div className="@container flex min-w-0 flex-1 flex-col gap-2">
           <Handle size="compact" username={user.username} />
           <Hole
             fallback={<CompactMetaSkeleton />}

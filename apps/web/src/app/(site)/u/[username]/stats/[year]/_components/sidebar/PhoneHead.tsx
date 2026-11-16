@@ -18,7 +18,7 @@ import YearsSheet from './YearsSheet';
 import { loadYearRows, type YearRow } from './years';
 
 /** Scrolls with the page (no sticky bars under the sticky glass header) */
-const YEARS_CLASSES = '-mx-gutter mt-3 overflow-hidden px-gutter pt-3.5 pb-2.5';
+const YEARS_CLASSES = '-mx-gutter mt-3 overflow-hidden px-gutter pt-3.5 pb-4';
 
 /** Pills that fit beside "More" at 390px ("2026 so far" is the widest) */
 const FIT = 3;
@@ -141,7 +141,7 @@ export function PhoneHeadSkeleton() {
       </div>
       <div
         aria-hidden
-        className="mt-3 flex h-[58px] animate-ghost gap-2 px-0 pt-3.5 pb-2.5"
+        className="mt-3 flex h-16 animate-ghost gap-2 px-0 pt-3.5 pb-4"
       >
         {PILL_GHOSTS.map((n) => (
           <Ghost className="h-[34px] w-20 rounded-full" key={n} />

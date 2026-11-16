@@ -31,7 +31,7 @@ export function FullIdentitySkeleton() {
 export function CompactIdentitySkeleton() {
   return (
     <div className={COMPACT_IDENTITY_CLASS}>
-      <div className="flex min-w-0 flex-col">
+      <div className="flex min-w-0 flex-col gap-2">
         <span className="flex h-10 items-center">
           <span className={COMPACT_HANDLE_GHOST} />
         </span>

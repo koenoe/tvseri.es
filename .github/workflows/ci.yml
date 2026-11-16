@@ -103,3 +103,14 @@ jobs:
         env:
           E2E_CLASSIC_SCROLLBARS: '1'
         run: pnpm --filter @tvseri.es/web e2e --shard=${{ matrix.shard }}/4
+
+      # What a failure looked like: traces (retain-on-failure) and screenshots
+      # (`pnpm exec playwright show-trace <zip>`)
+      - name: Upload the failures' traces
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-results-shard-${{ matrix.shard }}
+          path: apps/web/test-results/
+          retention-days: 5
+          if-no-files-found: ignore

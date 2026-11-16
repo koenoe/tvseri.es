@@ -1,6 +1,6 @@
 import type { ToyKind } from '@tvseri.es/utils';
 import type { ReactNode } from 'react';
-import { GHOST_LOOK } from '@/components/ui/row/RowGhosts';
+import { GHOST_LOOK, type GhostCaption } from '@/components/ui/row/RowGhosts';
 import RowSkeleton from '@/components/ui/row/RowSkeleton';
 import { SIGNED_IN_ONLY, SIGNED_OUT_ONLY } from '@/components/ui/viewer/reveal';
 import cn from '@/lib/cn';
@@ -201,6 +201,9 @@ export function ContinueSkeleton() {
  * height it ends at. The title comes with the data, so it is a bar; the caption
  * is the one meta line the loaded tile draws.
  */
+/** The signed-in rows' line under each tile; their error keeps it too (`Guarded`) */
+export const SIGNED_IN_ROW_CAPTION = 'meta' satisfies GhostCaption;
+
 function SignedInRowSkeleton({
   id,
   tiles,
@@ -209,7 +212,7 @@ function SignedInRowSkeleton({
   return (
     <div {...signedIn} className={NOT_FOR_NEW_VIEWER}>
       <RowSkeleton
-        caption="meta"
+        caption={SIGNED_IN_ROW_CAPTION}
         id={id}
         look="home"
         name={id}

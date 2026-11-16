@@ -33,6 +33,7 @@ import {
   ContinueSkeleton,
   MoreGenreSkeleton,
   PickSkeleton,
+  SIGNED_IN_ROW_CAPTION,
   SpotlightSkeleton,
 } from './Skeletons';
 import { FeatureSlot, ToySlot } from './Slots';
@@ -121,6 +122,7 @@ export default async function HomeView({ day }: Readonly<{ day: string }>) {
             <PickOneSection day={day} placeholder={pick} />
           </Guarded>
           <Guarded
+            caption={SIGNED_IN_ROW_CAPTION}
             fallback={<BecauseYouWatchedSkeleton />}
             id="because-you-watched"
             title="Because you watched"
@@ -165,6 +167,7 @@ export default async function HomeView({ day }: Readonly<{ day: string }>) {
           </Guarded>
           <ToySlot day={day} />
           <Guarded
+            caption={SIGNED_IN_ROW_CAPTION}
             fallback={<MoreGenreSkeleton />}
             id="more-genre"
             tiles="backdrop"

@@ -2,6 +2,7 @@ import { type ReactNode, Suspense } from 'react';
 
 import type { Glyph } from '@/components/ui/icon/types';
 import RowErrorBoundary from '@/components/ui/row/RowErrorBoundary';
+import type { GhostCaption } from '@/components/ui/row/RowGhosts';
 import type { RowLook, RowTiles } from '@/components/ui/row/rowLayout';
 
 /**
@@ -12,6 +13,7 @@ import type { RowLook, RowTiles } from '@/components/ui/row/rowLayout';
  * below it.
  */
 export default function Guarded({
+  caption,
   children,
   fallback,
   id,
@@ -23,6 +25,8 @@ export default function Guarded({
   tiles,
   title,
 }: Readonly<{
+  /** a tile row's lines under each tile, as its skeleton draws them, so its error keeps the skeleton's height */
+  caption?: GhostCaption;
   children: ReactNode;
   /** the section's space while it streams in */
   fallback: ReactNode;
@@ -40,6 +44,7 @@ export default function Guarded({
 }>) {
   return (
     <RowErrorBoundary
+      caption={caption}
       id={id}
       look={look}
       placeholder={placeholder}

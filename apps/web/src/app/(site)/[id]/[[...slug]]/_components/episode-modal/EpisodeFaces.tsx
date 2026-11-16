@@ -72,7 +72,7 @@ function EpisodeFace({
   revealed: boolean;
 }>) {
   const label = `${person.name} as ${person.character}`;
-  const href = personPath(person.id);
+  const href = personPath(person.id, person.slug);
   return (
     <Face
       alt=""

@@ -81,14 +81,30 @@ describe('GET /api/series/:id/season/:season/episode/:episode', () => {
     expect(res.status).toBe(200);
     expect(res.headers.get('cache-control')).toBe(CACHE_HEADERS.short);
     expect(await res.json()).toEqual({
+      // every person links to the canonical URL: the slug the API's rule makes
       crew: [
-        { people: [{ id: 1, name: 'Dee Director' }], role: 'Directed by' },
+        {
+          people: [{ id: 1, name: 'Dee Director', slug: 'dee-director' }],
+          role: 'Directed by',
+        },
       ],
       guestStars: [
-        { character: 'Donna', id: 2, image: 'g.jpg', name: 'Gina Guest' },
+        {
+          character: 'Donna',
+          id: 2,
+          image: 'g.jpg',
+          name: 'Gina Guest',
+          slug: 'gina-guest',
+        },
       ],
       starring: [
-        { character: 'Carmy', id: 3, image: 'r.jpg', name: 'Rae Regular' },
+        {
+          character: 'Carmy',
+          id: 3,
+          image: 'r.jpg',
+          name: 'Rae Regular',
+          slug: 'rae-regular',
+        },
       ],
     });
     expect(loadEpisodeWithCredits).toHaveBeenCalledWith(136315, 2, 6);

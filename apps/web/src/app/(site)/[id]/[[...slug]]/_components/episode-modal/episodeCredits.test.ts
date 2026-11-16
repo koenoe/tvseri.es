@@ -1,27 +1,32 @@
-import type { EpisodePerson, Person } from '@tvseri.es/schemas';
+import type { Person } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
 import {
   guestFaces,
+  type SlugPerson,
   starringFaces,
   toEpisodeModalCredits,
   toRollBlocks,
 } from './episodeCredits';
 
-const crew = (id: number, name: string, job: string): EpisodePerson => ({
+const slugOf = (name: string) => name.toLowerCase().replace(' ', '-');
+
+const crew = (id: number, name: string, job: string): SlugPerson => ({
   character: '',
   id,
   image: '',
   job,
   name,
+  slug: slugOf(name),
 });
 
-const guest = (id: number, name: string, image = ''): EpisodePerson => ({
+const guest = (id: number, name: string, image = ''): SlugPerson => ({
   character: `Role ${id}`,
   id,
   image,
   job: '',
   name,
+  slug: slugOf(name),
 });
 
 const castMember = (id: number, image = 'face.jpg'): Person => ({
@@ -52,19 +57,25 @@ const EPISODE = {
 describe('toEpisodeModalCredits', () => {
   it('groups the crew jobs, in their order, without duplicates', () => {
     expect(toEpisodeModalCredits(EPISODE, []).crew).toEqual([
-      { people: [{ id: 1, name: 'Dee Director' }], role: 'Directed by' },
+      {
+        people: [{ id: 1, name: 'Dee Director', slug: 'dee-director' }],
+        role: 'Directed by',
+      },
       {
         people: [
-          { id: 2, name: 'Ada Writer' },
-          { id: 3, name: 'Tess Teleplay' },
+          { id: 2, name: 'Ada Writer', slug: 'ada-writer' },
+          { id: 3, name: 'Tess Teleplay', slug: 'tess-teleplay' },
         ],
         role: 'Written by',
       },
       {
-        people: [{ id: 4, name: 'Phil Camera' }],
+        people: [{ id: 4, name: 'Phil Camera', slug: 'phil-camera' }],
         role: 'Director of photography',
       },
-      { people: [{ id: 5, name: 'Eve Editor' }], role: 'Edited by' },
+      {
+        people: [{ id: 5, name: 'Eve Editor', slug: 'eve-editor' }],
+        role: 'Edited by',
+      },
     ]);
   });
 
@@ -76,6 +87,7 @@ describe('toEpisodeModalCredits', () => {
       id: 10,
       image: 'g.jpg',
       name: 'Gina Guest',
+      slug: 'gina-guest',
     });
     expect(credits.starring).toHaveLength(8);
     expect(credits.starring[0]).toEqual({
@@ -83,6 +95,7 @@ describe('toEpisodeModalCredits', () => {
       id: 100,
       image: 'face.jpg',
       name: 'Actor 100',
+      slug: 'actor-100',
     });
   });
 });

@@ -3,6 +3,7 @@ import type { StubPerson } from './person/build.ts';
 import { calloway } from './person/calloway.ts';
 import { cranston } from './person/cranston.ts';
 import { linden } from './person/linden.ts';
+import { platt } from './person/platt.ts';
 import { reddick } from './person/reddick.ts';
 
 /**
@@ -19,10 +20,12 @@ import { reddick } from './person/reddick.ts';
  * - 4242002: an adult-flagged person (the page 404s)
  * - 4242003 Mara Linden: the family block at its usual count (3 lines on
  *   desktop, 2 below lg)
+ * - 17485 Oliver Platt: a guest face of The Bear's S01E02 (the episode
+ *   modal links it without a slug)
  */
 
 const PEOPLE: ReadonlyMap<string, StubPerson> = new Map(
-  [cranston, reddick, calloway, linden].map((entry) => [
+  [cranston, reddick, calloway, linden, platt].map((entry) => [
     String(entry.person.id),
     entry,
   ]),

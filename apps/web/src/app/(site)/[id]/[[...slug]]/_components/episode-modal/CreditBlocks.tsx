@@ -41,7 +41,7 @@ export default function CreditBlocks({
                     {index > 0 ? <span className="lg:hidden">, </span> : null}
                     <TileLink
                       className="font-medium text-[19px] leading-[26px] hover:underline max-lg:font-normal max-lg:text-body-sm"
-                      href={personPath(person.id)}
+                      href={personPath(person.id, person.slug)}
                       prefetchOn={PERSON_PREFETCH}
                       tabIndex={tabIndex}
                     >
@@ -79,7 +79,7 @@ function PairRow({
     <>
       <TileLink
         className="text-right font-medium text-[16px] text-white/60 leading-[22px] hover:underline max-lg:text-body-sm"
-        href={personPath(person.id)}
+        href={personPath(person.id, person.slug)}
         prefetchOn={PERSON_PREFETCH}
         tabIndex={tabIndex}
       >

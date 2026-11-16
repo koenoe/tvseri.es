@@ -1,4 +1,4 @@
-import type { EpisodeWithCredits, Person } from '@tvseri.es/schemas';
+import type { EpisodePerson, Person } from '@tvseri.es/schemas';
 
 /** A face or a name | character line in the modal. */
 export type CreditPerson = Readonly<{
@@ -8,12 +8,18 @@ export type CreditPerson = Readonly<{
   character: string;
   /** '' when there's no photo. */
   image: string;
+  /**
+   * The person page's slug, so a link goes straight to the canonical URL:
+   * without it the page redirects there in the stream, and the screen stays
+   * empty until the redirect lands. Absent in an answer cached before it.
+   */
+  slug?: string;
 }>;
 
 /** One crew credit in the roll: "Directed by" over its names. */
 export type CrewBlock = Readonly<{
   role: string;
-  people: ReadonlyArray<Pick<CreditPerson, 'id' | 'name'>>;
+  people: ReadonlyArray<Pick<CreditPerson, 'id' | 'name' | 'slug'>>;
 }>;
 
 /**
@@ -43,30 +49,40 @@ const CREW_ROLES: ReadonlyArray<
 /** The show's main cast (seven regulars on The Bear). */
 const MAX_STARRING = 8;
 
+/** An episode's guest star or crew member, with the slug the route adds. */
+export type SlugPerson = EpisodePerson & Readonly<{ slug: string }>;
+
 const toPerson = (
   person: Readonly<{
     id: number;
     name: string;
     character: string;
     image: string;
+    slug: string;
   }>,
 ): CreditPerson => ({
   character: person.character,
   id: person.id,
   image: person.image,
   name: person.name,
+  slug: person.slug,
 });
 
 /** Trims an episode's credits and the show's cast to the modal's view. */
 export function toEpisodeModalCredits(
-  episode: Pick<EpisodeWithCredits, 'credits'>,
+  episode: Readonly<{
+    credits: Readonly<{
+      crew: ReadonlyArray<SlugPerson>;
+      guestStars: ReadonlyArray<SlugPerson>;
+    }>;
+  }>,
   cast: ReadonlyArray<Person>,
 ): EpisodeModalCredits {
   const crew = CREW_ROLES.flatMap(({ jobs, role }) => {
-    const byId = new Map<number, Pick<CreditPerson, 'id' | 'name'>>();
-    for (const { id, job, name } of episode.credits.crew) {
+    const byId = new Map<number, Pick<CreditPerson, 'id' | 'name' | 'slug'>>();
+    for (const { id, job, name, slug } of episode.credits.crew) {
       if (jobs.includes(job) && !byId.has(id)) {
-        byId.set(id, { id, name });
+        byId.set(id, { id, name, slug });
       }
     }
     const people = [...byId.values()];

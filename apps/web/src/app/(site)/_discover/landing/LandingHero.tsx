@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { CSSProperties, ReactNode } from 'react';
 
 import PageName from '@/components/header/PageName';
-import ChipLink from '@/components/ui/button/ChipLink';
+import ChipCloud from '@/components/ui/button/ChipCloud';
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
@@ -211,18 +211,17 @@ export function LandingFacts({
 export type LandingChip = Readonly<{ href: string; label: string }>;
 
 /**
- * The chips' line, shared with its placeholder: one swipe line to the
- * screen's edges on a phone, wrapping in the column from md. On a phone 36
- * under the meta line or the facts, whose text sits about 4px inside its
- * line box, so it looks as far from them as the 40 under it.
+ * The chips' place, shared with its placeholder: wrapping onto rows as a
+ * show's keywords do (`ChipCloud`). On a phone 36 under the meta line or the
+ * facts, whose text sits about 4px inside its line box, so it looks as far
+ * from them as the 40 under it.
  */
-export const CHIPS_LINE =
-  '-mx-gutter mt-9 flex w-[calc(100%+2*var(--page-gutter))] gap-3 px-gutter md:mx-0 md:w-auto md:max-w-full md:flex-wrap md:gap-2 md:px-0';
+export const CHIPS_LINE = 'mt-9';
 
 /**
  * Chips that link to other landings (sub-genres, "Often tagged with"):
- * wrapping on desktop, one swipe line to the screen's edges on a phone.
- * With a `heading` (an overline, desktop only) as on a theme landing.
+ * the show page's keyword chips, wrapping onto rows at every width. With a
+ * `heading` (an overline, desktop only) as on a theme landing.
  */
 export function LandingChips({
   chips,
@@ -231,6 +230,7 @@ export function LandingChips({
   if (chips.length === 0) {
     return null;
   }
+  const cloud = chips.map((chip) => ({ ...chip, key: chip.href }));
   return (
     <>
       {heading ? (
@@ -238,20 +238,11 @@ export function LandingChips({
           {heading}
         </p>
       ) : null}
-      <ul
-        aria-label={heading}
-        className={cn(
-          CHIPS_LINE,
-          'overflow-x-auto scrollbar-none md:overflow-visible',
-          heading ? 'md:mt-2' : 'md:mt-6',
-        )}
-      >
-        {chips.map((chip) => (
-          <li className="shrink-0" key={chip.href}>
-            <ChipLink href={chip.href}>{chip.label}</ChipLink>
-          </li>
-        ))}
-      </ul>
+      <ChipCloud
+        chips={cloud}
+        className={cn(CHIPS_LINE, heading ? 'md:mt-2' : 'md:mt-6')}
+        label={heading}
+      />
     </>
   );
 }

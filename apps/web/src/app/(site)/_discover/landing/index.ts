@@ -60,7 +60,7 @@ export { default as LandingEndCard } from './LandingEndCard';
  * `<LandingCrumb label href?>` ("Discover › Genres", static, `data-testid="landing-crumb"`),
  * `<LandingTitle id>` (display h1), `<LandingLine>` (body; body-sm on a phone),
  * `<LandingFacts facts>` (numeral over caption; 2 × 2 on a phone),
- * `<LandingChips chips heading?>` (links to landings; one swipe line on a phone).
+ * `<LandingChips chips heading?>` (links to landings, wrapping as a show's keywords do).
  * `<PlainHeroFrame crumb labelledBy>`: the hero of Language and Decade
  * (no tile, no glow), its heading as `children`.
  * `TITLE_SPACE`: the title's phone margins, for a placeholder that draws

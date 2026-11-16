@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import { ChipCloudGhost } from '@/components/ui/button/ChipCloud';
 import { PAGE_COLUMN } from '@/components/ui/page/pageColumn';
 import { RowErrorCard } from '@/components/ui/row/RowError';
 import {
@@ -32,6 +33,19 @@ export function SwitchGhost() {
   );
 }
 
+/**
+ * The chips' ghosts: a landing's six (`MAX_CHIPS`) at typical label widths,
+ * two rows on a phone as the real chips take
+ */
+const CHIP_WIDTHS = [
+  'w-[110px]',
+  'w-[89px]',
+  'w-[109px]',
+  'w-[76px]',
+  'w-[96px]',
+  'w-[84px]',
+] as const;
+
 type DetailsSkeletonProps = Readonly<{
   /** with the chips line (`LandingChips`) */
   chips?: boolean;
@@ -59,7 +73,6 @@ export function LandingHeroDetailsSkeleton({
   look = 'loading',
 }: DetailsSkeletonProps) {
   const block = bar(look);
-  const chip = cn('block h-8 w-24 shrink-0 rounded-full', GHOST_LOOK[look]);
   return (
     <>
       <span aria-hidden className={`${block} mt-2 h-5 w-64`} />
@@ -98,21 +111,17 @@ export function LandingHeroDetailsSkeleton({
         <span aria-hidden className={`${block} mt-10 h-5 w-32 max-md:hidden`} />
       ) : null}
       {chips ? (
-        <span
-          aria-hidden
+        <ChipCloudGhost
           className={cn(
             CHIPS_LINE,
-            // the swipe line's chips past the screen's edge are cut, not
-            // scrolled; from md the ghosts stay on the one line the chips
-            // most often take (the wrapped ones are cut), as the hero's size
-            'overflow-hidden md:max-h-8',
+            // from md the ghosts stay on the one row the chips most often
+            // take (the wrapped ones are cut), as the hero's size
+            'overflow-hidden md:max-h-[38px]',
             chipsHeading ? 'md:mt-2' : 'md:mt-6',
           )}
-        >
-          {Array.from({ length: chipsHeading ? 8 : 5 }, (_, index) => (
-            <span className={chip} key={index} />
-          ))}
-        </span>
+          look={look}
+          widths={CHIP_WIDTHS}
+        />
       ) : null}
     </>
   );

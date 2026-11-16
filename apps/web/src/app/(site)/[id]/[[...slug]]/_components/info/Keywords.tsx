@@ -1,20 +1,18 @@
 import { keywordLanding } from '@tvseri.es/constants';
-import { chipStyles } from '@/components/ui/button/buttonStyles';
-import ChipLink from '@/components/ui/button/ChipLink';
-import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
+import ChipCloud, {
+  ChipCloudGhost,
+  type CloudChip,
+} from '@/components/ui/button/ChipCloud';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import landingPath from '@/lib/routing/landingPath';
 
 import { loadKeywords } from '../../_data/loaders';
 
-const chip = 'h-auto py-2 font-medium';
-
 /**
  * The show's keywords beside the storyline (pd-kw). A keyword of a theme's
  * set links to the theme's landing (`/theme/{slug}`), the keyword of a genre
  * TMDB only has as a keyword to its genre landing (`/genre/horror`); the rest
- * have no page to go to, so they stay plain chips, dimmer than the linked
- * ones.
+ * have no page to go to, so they stay plain chips (`ChipCloud`).
  */
 export default async function Keywords({
   seriesId,
@@ -23,32 +21,21 @@ export default async function Keywords({
   if (isUnavailable(keywords) || keywords.length === 0) {
     return null;
   }
-  const plain = chipStyles({
-    // dimmer than a theme's chip, so the ones that lead somewhere stand out
-    className: `${chip} cursor-default text-white/60 hover:border-white/5`,
+  const chips = keywords.map((keyword): CloudChip => {
+    const landing = keywordLanding(Number(keyword.id));
+    return {
+      href: landing ? landingPath(landing.type, landing.slug) : undefined,
+      key: String(keyword.id),
+      label: keyword.name,
+    };
   });
   return (
-    <ul
-      aria-label="Keywords"
-      className="flex flex-wrap gap-2 self-start"
-      data-slot="keywords"
-    >
-      {keywords.map((keyword) => {
-        const landing = keywordLanding(Number(keyword.id));
-        const href = landing && landingPath(landing.type, landing.slug);
-        return (
-          <li key={keyword.id}>
-            {href ? (
-              <ChipLink className={chip} href={href}>
-                {keyword.name}
-              </ChipLink>
-            ) : (
-              <span className={plain}>{keyword.name}</span>
-            )}
-          </li>
-        );
-      })}
-    </ul>
+    <ChipCloud
+      chips={chips}
+      className="self-start"
+      label="Keywords"
+      slot="keywords"
+    />
   );
 }
 
@@ -78,17 +65,10 @@ const GHOST_WIDTHS = [
  */
 export function KeywordsSkeleton() {
   return (
-    <ul
-      aria-hidden="true"
-      className="flex animate-ghost flex-wrap gap-2 self-start"
-      data-placeholder="keywords"
-    >
-      {GHOST_WIDTHS.map((width, index) => (
-        <li
-          className={`h-[38px] rounded-full ${GHOST_FILL} ${width}`}
-          key={index}
-        />
-      ))}
-    </ul>
+    <ChipCloudGhost
+      className="self-start"
+      name="keywords"
+      widths={GHOST_WIDTHS}
+    />
   );
 }

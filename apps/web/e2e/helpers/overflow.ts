@@ -210,8 +210,17 @@ const scan = (): OverflowProblem[] => {
     if (element.parentElement?.closest('svg') || hidden(element)) continue;
     const rect = element.getBoundingClientRect();
     if (rect.width < 1 || rect.height < 1) continue;
-    // fully clipped away (a dropped fact) or in a scroller: not on screen here
+    // fully clipped away (a dropped fact) or in a scroller: not on screen
+    // here. What an ancestor's overflow cuts off isn't on screen either: a
+    // picture larger than the box that clips it (an accordion slice's) is
+    // measured by the part that shows, as text is.
     let clipped = false;
+    const shown = {
+      bottom: rect.bottom,
+      left: rect.left,
+      right: rect.right,
+      top: rect.top,
+    };
     for (
       let node = element.parentElement;
       node && node !== document.documentElement;
@@ -235,6 +244,10 @@ const scan = (): OverflowProblem[] => {
         clipped = true;
         break;
       }
+      shown.left = Math.max(shown.left, box.left);
+      shown.right = Math.min(shown.right, box.right);
+      shown.top = Math.max(shown.top, box.top);
+      shown.bottom = Math.min(shown.bottom, box.bottom);
     }
     if (clipped) continue;
     let card: Element | null = element.parentElement;
@@ -244,10 +257,10 @@ const scan = (): OverflowProblem[] => {
     if (!card || card === document.body) continue;
     const box = card.getBoundingClientRect();
     if (
-      rect.left < box.left - 1 ||
-      rect.right > box.right + 1 ||
-      rect.top < box.top - 2 ||
-      rect.bottom > box.bottom + 2
+      shown.left < box.left - 1 ||
+      shown.right > box.right + 1 ||
+      shown.top < box.top - 2 ||
+      shown.bottom > box.bottom + 2
     ) {
       problems.push({
         detail: `runs outside ${describeNode(card)}`,

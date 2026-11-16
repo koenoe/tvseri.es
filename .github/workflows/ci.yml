@@ -95,5 +95,11 @@ jobs:
       - name: Install browsers
         run: pnpm --filter @tvseri.es/web exec playwright install chromium webkit
 
+      # Classic scrollbars, drawn: the runner has classic ones, and with
+      # Playwright's --hide-scrollbars kept the page reserved their 15px
+      # gutter while clientWidth still read the whole window, a state no
+      # browser has (`E2E_CLASSIC_SCROLLBARS`, playwright.config.ts)
       - name: E2E (shard ${{ matrix.shard }} of 4)
+        env:
+          E2E_CLASSIC_SCROLLBARS: '1'
         run: pnpm --filter @tvseri.es/web e2e --shard=${{ matrix.shard }}/4

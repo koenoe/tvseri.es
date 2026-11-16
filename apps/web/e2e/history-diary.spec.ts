@@ -380,6 +380,45 @@ test.describe('History on a phone', () => {
   });
 });
 
+// A poster that fails to load (a TMDB hiccup, a slow image optimiser) keeps
+// its box: a broken image with an empty alt draws nothing at all, and the
+// row came out 14px short of its skipped estimate (CI, once).
+test('a row whose poster fails to load keeps its height', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    viewport: { height: 900, width: 1440 },
+  });
+  await signInAs(context, 'alex');
+  const page = await context.newPage();
+  await page.route('**/*', (route) =>
+    route.request().resourceType() === 'image'
+      ? route.abort()
+      : route.fallback(),
+  );
+  await page.goto('/u/alex/history');
+  const row = page.locator('[data-diary-row]').first();
+  await expect(row).toBeVisible();
+  const poster = row.locator('img').first();
+  // the request was refused: the image is broken, not still loading
+  await expect
+    .poll(() =>
+      poster.evaluate(
+        (image: HTMLImageElement) => image.complete && image.naturalWidth === 0,
+      ),
+    )
+    .toBe(true);
+  const box = await row.evaluate((node) => {
+    const image = node.querySelector('img')?.getBoundingClientRect();
+    return {
+      poster: image ? [image.width, image.height] : null,
+      row: node.getBoundingClientRect().height,
+    };
+  });
+  expect(box).toEqual({ poster: [40, 60], row: 76 });
+  await context.close();
+});
+
 // A day off screen is skipped (`content-visibility`) at an estimated
 // height; if the estimate is off, everything under it moves the moment it
 // renders (on a load, the months at the screen's foot). Each day below the
@@ -411,10 +450,21 @@ for (const viewport of [
     );
     expect(fold).toBeGreaterThan(0);
     const skipped = await heights();
-    await days.last().scrollIntoViewIfNeeded();
-    for (let index = 0; index < (await days.count()); index += 4) {
-      await days.nth(index).scrollIntoViewIfNeeded();
-    }
+    // every measured day on screen once, in one pass in the page (a
+    // locator's scroll waits for a still element, and the list keeps
+    // loading days below: on a slow machine the walk ran past the timeout)
+    await days.evaluateAll(async (elements, count) => {
+      const frames = () =>
+        new Promise<void>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+        );
+      for (let index = 0; index < count; index += 4) {
+        elements[index]?.scrollIntoView({ block: 'center' });
+        await frames();
+      }
+      elements[count - 1]?.scrollIntoView({ block: 'center' });
+      await frames();
+    }, skipped.length);
     // a page loaded below adds days: the ones measured first are compared
     const rendered = (await heights()).slice(0, skipped.length);
     expect(rendered).toEqual(

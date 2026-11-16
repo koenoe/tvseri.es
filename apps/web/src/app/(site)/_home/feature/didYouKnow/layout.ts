@@ -13,11 +13,13 @@ import { PICTURE_CARD } from '../../pictureCard';
  * number beside the text and the controls bottom right; below lg
  * the phone's stack, whatever the width: at 800 the
  * band's text column ran under the pager. A picture card (`PICTURE_CARD`),
- * its edge in the shade's colour.
+ * its edge in the card's own colour: the page colour under its 25% black,
+ * so the edge disappears on a light page colour too (a fixed near-black
+ * drew a black outline there).
  */
 export const DECK = cn(
   PICTURE_CARD,
-  'grid grid-cols-1 rounded-14 bg-black/25 [--picture-edge:rgb(14_16_17)] md:rounded-16 lg:h-60',
+  'grid grid-cols-1 rounded-14 bg-black/25 [--picture-edge:color-mix(in_srgb,var(--color-page)_75%,black)] md:rounded-16 lg:h-60',
 );
 
 /** The card's label, top left on the picture (a soft shadow under it) */

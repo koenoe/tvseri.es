@@ -73,7 +73,11 @@ const shadeStyle = (pose: CardPose, transition: string): CSSProperties => ({
 export default function PickDeck({ cards, phase, pick, seed }: Props) {
   const shuffling = phase === 'shuffle';
   // the motion blur follows the posters' speed (pick.module.css)
-  const deckClass = cn(DECK_BOX, phase !== 'rest' && styles.rolling);
+  const deckClass = cn(
+    DECK_BOX,
+    styles.fan,
+    phase !== 'rest' && styles.rolling,
+  );
   return (
     <div aria-hidden="true" className={deckClass}>
       {cards.map((card, k) => {

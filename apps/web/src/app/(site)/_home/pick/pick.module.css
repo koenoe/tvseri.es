@@ -29,3 +29,24 @@
   animation: pick-roll-soften 1120ms linear both;
   will-change: filter;
 }
+
+/*
+ * The fan's spread (`deck.ts` multiplies each card's offset by it): pulled in
+ * so the whole fan sits inside the card with a few px to spare: 55% on a
+ * phone, 90% from 640 (drawn at four fifths), whole from 1024.
+ */
+.fan {
+  --fan-spread: 0.55;
+}
+
+@media (min-width: 40rem) {
+  .fan {
+    --fan-spread: 0.9;
+  }
+}
+
+@media (min-width: 64rem) {
+  .fan {
+    --fan-spread: 1;
+  }
+}

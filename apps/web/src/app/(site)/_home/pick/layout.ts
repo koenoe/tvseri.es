@@ -18,17 +18,17 @@ export const PICK_BODY =
 
 /**
  * The fan at every width: its 336px box drawn at 0.64 on a phone (0.58
- * below 375) with the cards pulled in to 70% of their spread
- * (`--fan-spread`), so the posters are bigger and the fan stays about as
- * wide; at four fifths from 640 and whole from 1024 (734px wide at rest),
- * from its top centre, in a frame as tall as the scaled box. On a phone the
- * outer posters run a few px under the card's edge, as a deck in a hand does.
+ * below 375) with the cards pulled in to 55% of their spread (90% from 640)
+ * (`--fan-spread`, set in `pick.module.css`), so the posters are bigger and the whole fan fits inside
+ * the card (the outer poster, turned 15°, is 170px wide at full size); at
+ * four fifths from 640 and whole from 1024 (734px wide at rest), from its
+ * top centre, in a frame as tall as the scaled box.
  */
 export const DECK_FRAME =
   'h-[195px] min-[375px]:h-[215px] sm:h-[269px] lg:h-[336px]';
 
 export const DECK_BOX =
-  'relative h-[336px] origin-top scale-[0.58] [--fan-spread:0.7] min-[375px]:scale-[0.64] sm:scale-[0.8] sm:[--fan-spread:1] lg:scale-100';
+  'relative h-[336px] origin-top scale-[0.58] min-[375px]:scale-[0.64] sm:scale-[0.8] lg:scale-100';
 
 /** One card of the fan (180 × 270), placed by its pose */
 export const DECK_CARD =

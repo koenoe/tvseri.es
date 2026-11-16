@@ -22,6 +22,7 @@ import {
   RESULT_WHY,
   ROLL_LABEL,
 } from './layout';
+import styles from './pick.module.css';
 
 /** The day's seven */
 const DECK_SIZE = 7;
@@ -38,7 +39,7 @@ const FAN = Array.from({ length: DECK_SIZE }, (_, k) => {
   return { className, k, style };
 });
 
-const DECK = cn(DECK_BOX, PULSE);
+const DECK = cn(DECK_BOX, styles.fan, PULSE);
 const LINES = cn('flex flex-col gap-2', PULSE);
 const WHY = cn('text-meta', RESULT_WHY);
 const ACTIONS = cn(RESULT_ACTIONS, PULSE);

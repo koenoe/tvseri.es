@@ -214,11 +214,15 @@ test.describe('Home spotlight presses', () => {
     await signInAs(context, 'alex');
     await answerStates('alex', { [PLURIBUS]: STATES.watching });
     await open(page, '/');
+    // the stub answers no Pluribus season (404), so the series page then drops the
+    // episode it can't find (`?season=1`): catch the navigation itself, not
+    // a poll that can miss the moment on a loaded machine
+    const opened = page.waitForURL(/\/225171\/pluribus\?season=1&episode=4$/);
     await page
       .locator(SLIDE)
       .getByRole('link', { name: /^Continue S01E04/ })
       .click();
-    await expect(page).toHaveURL(/\/225171\/pluribus\?season=1&episode=4$/);
+    await opened;
   });
 });
 

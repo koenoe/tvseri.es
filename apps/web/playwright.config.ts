@@ -53,10 +53,17 @@ const classicLaunch = process.env.E2E_CLASSIC_SCROLLBARS
  * `E2E_SLOW=1`: about as slow as a GitHub macOS runner, to reproduce a
  * runner-only failure. Chromium and `next start` run at macOS's background
  * QoS (`e2e/slow/clamped.sh`: the efficiency cores, low priority; set
- * `E2E_SLOW_CLAMP=utility` for less), and two workers share them. The
+ * `E2E_SLOW_CLAMP=utility` for less), and two workers share them
+ * (`E2E_SLOW_WORKERS`). The
  * browser is Playwright's own headless shell, started through the clamp.
  */
 const slow = Boolean(process.env.E2E_SLOW);
+/**
+ * The clamp runs everything several times slower than a runner does: the
+ * budgets grow with it, so what fails is a race (a check that read too
+ * early), not a test that ran out of time.
+ */
+const slowFactor = slow ? 3 : 1;
 const clamp = join(import.meta.dirname, 'e2e', 'slow', 'clamped.sh');
 
 /** Playwright's headless shell, the binary a headless run uses */
@@ -92,10 +99,10 @@ const chromium = {
 };
 
 export default defineConfig({
-  expect: { timeout: 10_000 },
+  expect: { timeout: 10_000 * slowFactor },
   forbidOnly: Boolean(process.env.CI),
   fullyParallel: true,
-  ...(slow && { workers: 2 }),
+  ...(slow && { workers: Number(process.env.E2E_SLOW_WORKERS ?? 2) }),
   grepInvert,
   projects: [
     {
@@ -137,7 +144,7 @@ export default defineConfig({
   ],
   reporter: process.env.CI ? 'github' : 'list',
   testDir: './e2e',
-  timeout: 45_000,
+  timeout: 45_000 * slowFactor,
   // The trace recorder snapshots the whole DOM before every input action
   // (~55,000 forced layouts per wheel step on a 1,000-row History): timing
   // runs (`E2E_PERF=1`) go without it, or they measure Playwright

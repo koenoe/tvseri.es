@@ -1,6 +1,5 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
 import { useCallback, useState } from 'react';
 
 import { Dialog } from '@/components/ui/dialog/Dialog';
@@ -9,6 +8,7 @@ import useMarking from '@/lib/marking/useMarking';
 import { closeDialogs, type PickerRequest } from '../../_lib/dialogs';
 import { useShow } from '../../_lib/ShowProvider';
 import useSeasonEpisodes from '../../_lib/useSeasonEpisodes';
+import useShowQuery from '../../_lib/useShowQuery';
 import PickerCalendar from './PickerCalendar';
 import PickerOptions from './PickerOptions';
 import { type PickerAnswer, pickerModel } from './pickerModel';
@@ -32,8 +32,8 @@ type Shown = Readonly<{ request: PickerRequest; now: number }>;
 export default function DatePicker({
   request,
 }: Readonly<{ request: PickerRequest | null }>) {
-  const overSheet = useSearchParams().has('history');
   const show = useShow();
+  const overSheet = useShowQuery(show.id).has('history');
   const marking = useMarking();
   const [shown, setShown] = useState<Shown | null>(null);
   if (request && request !== shown?.request) {

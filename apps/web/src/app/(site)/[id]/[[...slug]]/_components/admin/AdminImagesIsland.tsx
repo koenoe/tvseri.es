@@ -1,13 +1,12 @@
 'use client';
 
 import type { TvSeries } from '@tvseri.es/schemas';
-import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useReducer } from 'react';
 
 import { useBackground } from '@/components/background/BackgroundProvider';
 import { createLoader } from '@/lib/lazy/createLoader';
 import whenIdle from '@/lib/lazy/whenIdle';
-
+import useShowQuery from '../../_lib/useShowQuery';
 import {
   closeTrayRequest,
   requestTray,
@@ -55,7 +54,7 @@ const IDLE_PRELOAD = { fallbackDelay: 1500, timeout: 4000 } as const;
  * the page colour) and a Suspense boundary (it reads the URL).
  */
 export default function AdminImagesIsland({ series }: Props) {
-  const linked = useSearchParams().has('images');
+  const linked = useShowQuery(series.id).has('images');
   const open = useAdminTrayOpen(series.id);
   const [, trayLoaded] = useReducer((count: number) => count + 1, 0);
   const setBackground = useBackground((state) => state.setBackground);

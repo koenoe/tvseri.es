@@ -1,7 +1,6 @@
 'use client';
 
 import type { EpisodeRef } from '@tvseri.es/schemas';
-import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
 import { createLoader } from '@/lib/lazy/createLoader';
@@ -12,6 +11,7 @@ import { useShow } from '../../_lib/ShowProvider';
 import { closeEpisode, toNumberParam } from '../../_lib/urlState';
 import useOpenedOnce from '../../_lib/useOpenedOnce';
 import { requestSeason } from '../../_lib/useSeasonEpisodes';
+import useShowQuery from '../../_lib/useShowQuery';
 import { isKnownEpisode } from './episodeSteps';
 import { prefetchEpisode } from './useEpisodeData';
 
@@ -42,8 +42,8 @@ export function preloadEpisodeModal() {
  * its exit.
  */
 export default function EpisodeModalIsland() {
-  const query = useSearchParams();
   const show = useShow();
+  const query = useShowQuery(show.id);
   const seasonNumber = toNumberParam(query.get('season'));
   const episodeNumber = toNumberParam(query.get('episode'));
   const asked: EpisodeRef | null =

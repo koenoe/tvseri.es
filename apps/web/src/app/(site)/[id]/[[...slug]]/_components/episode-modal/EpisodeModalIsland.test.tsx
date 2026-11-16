@@ -7,6 +7,7 @@ import EpisodeModalIsland from './EpisodeModalIsland';
 const { query } = vi.hoisted(() => ({ query: { value: '' } }));
 
 vi.mock('next/navigation', () => ({
+  usePathname: () => '/456/the-simpsons',
   useSearchParams: () => new URLSearchParams(query.value),
 }));
 // The modal's chunk never arrives: what starts must not wait for it

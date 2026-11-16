@@ -44,6 +44,29 @@ import useSheetSwipe from './useSheetSwipe';
  * never its content (an implicit `auto` column took the ⋯ sheet's nowrap
  * label as its minimum and pushed the sheet past a 360px screen).
  */
+/**
+ * Where each open dialog returns focus, kept from its first attach. A page
+ * the router hides in its back/forward cache (React Activity) detaches the
+ * dialog and attaches the same node again on Back: by then the focused or
+ * last clicked element is whatever led away (a face in the episode modal),
+ * not what opened the dialog.
+ */
+const openers = new WeakMap<
+  HTMLDialogElement,
+  Readonly<{ opener: HTMLElement | null; ring: boolean }>
+>();
+
+function openerOf(node: HTMLDialogElement) {
+  const kept = openers.get(node);
+  if (kept) {
+    return kept;
+  }
+  const opener = dialogOpener();
+  const first = { opener, ring: openedFromKeyboard(opener) };
+  openers.set(node, first);
+  return first;
+}
+
 const DIALOG =
   'fixed inset-0 m-0 grid h-dvh max-h-none w-full max-w-none grid-cols-1 overflow-clip bg-transparent p-0 text-white outline-none backdrop:bg-transparent';
 
@@ -141,8 +164,7 @@ export default function ModalShell({
 
   // Stable on purpose: a new callback would close and reopen the dialog.
   const attach = useCallback((node: HTMLDialogElement) => {
-    const opener = dialogOpener();
-    const ring = openedFromKeyboard(opener);
+    const { opener, ring } = openerOf(node);
     lockScroll();
     if (!node.open) {
       node.showModal();

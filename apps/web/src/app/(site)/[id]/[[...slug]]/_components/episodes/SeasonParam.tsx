@@ -1,9 +1,9 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
 import { useLayoutEffect } from 'react';
 
 import { useShow } from '../../_lib/ShowProvider';
+import useShowQuery from '../../_lib/useShowQuery';
 import { seasonFromQuery } from './panelRows';
 import { chooseFromUrl } from './seasonChoice';
 
@@ -15,8 +15,8 @@ import { chooseFromUrl } from './seasonChoice';
  * there; it follows the query the page writes afterwards.
  */
 export default function SeasonParam() {
-  const params = useSearchParams();
   const show = useShow();
+  const params = useShowQuery(show.id);
   const valid = seasonFromQuery(show.seasons, {
     history: params.has('history'),
     season: params.get('season'),

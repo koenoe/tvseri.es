@@ -1,12 +1,12 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
-
 import { createLoader } from '@/lib/lazy/createLoader';
 import { useLoader } from '@/lib/lazy/useLoader';
 
+import { useShow } from '../../_lib/ShowProvider';
 import { closeHistory, toNumberParam } from '../../_lib/urlState';
 import useOpenedOnce from '../../_lib/useOpenedOnce';
+import useShowQuery from '../../_lib/useShowQuery';
 
 /**
  * Client only, like the episode modal (a plain loader, not `next/dynamic`: a
@@ -33,7 +33,7 @@ export function preloadHistorySheet() {
  * browser), then stays mounted so closing plays its exit.
  */
 export default function HistorySheetIsland() {
-  const params = useSearchParams();
+  const params = useShowQuery(useShow().id);
   const open = params.has('history');
   const season = toNumberParam(params.get('season'));
   const opened = useOpenedOnce(open);

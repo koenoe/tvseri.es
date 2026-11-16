@@ -64,6 +64,39 @@ function watchForEmptyFrames(page: Page) {
   });
 }
 
+/**
+ * Records, every frame for a second, the frames where the shown dialog's
+ * panel is anywhere but in place (a transform, or a faded backdrop).
+ */
+function watchForMovedPanel(page: Page) {
+  return page.evaluate(() => {
+    const w = window as unknown as { movedFrames: string[] };
+    w.movedFrames = [];
+    const start = performance.now();
+    const tick = () => {
+      const dialog = document.querySelector('dialog');
+      if (dialog?.open) {
+        const backdrop = dialog.querySelector('[data-dialog-backdrop]');
+        const panel = backdrop?.nextElementSibling;
+        const transform = panel ? getComputedStyle(panel).transform : '';
+        const dim = backdrop ? getComputedStyle(backdrop).opacity : '';
+        if (transform !== 'none' || dim !== '1') {
+          w.movedFrames.push(`${transform} backdrop ${dim}`);
+        }
+      }
+      if (performance.now() - start < 1000) {
+        requestAnimationFrame(tick);
+      }
+    };
+    tick();
+  });
+}
+
+const movedFrames = (page: Page) =>
+  page.evaluate(
+    () => (window as unknown as { movedFrames: string[] }).movedFrames,
+  );
+
 const emptyFrames = (page: Page) =>
   page.evaluate(
     () => (window as unknown as { emptyFrames: string[] }).emptyFrames,
@@ -82,10 +115,13 @@ async function openFromTile(page: Page) {
   await expect(modal(page)).toBeVisible();
   // measured once the panel has grown in (`data-opening`, ModalShell)
   await expect(modal(page).locator('[data-opening]')).toHaveCount(0);
-  await untilStable(() => panelBox(page), {
-    message: 'the panel has grown in',
-  });
-  return { opened: await panelBox(page), tile };
+  // its full size and place: 1232 × 672 centred, 24px clear of a 1280 × 720
+  // window (LargeDialog)
+  const opened = { height: 672, width: 1232, x: 24, y: 24 };
+  await expect
+    .poll(() => panelBox(page), { message: 'the panel has grown in' })
+    .toEqual(opened);
+  return { opened, tile };
 }
 
 type Slow = Readonly<{ cpu: number; ms: number }>;
@@ -125,9 +161,13 @@ async function faceThereAndBack(page: Page, slow?: Slow) {
     [],
   );
 
+  await watchForMovedPanel(page);
   await page.goBack();
   await expect(page).toHaveURL(/\?season=1&episode=2$/);
   await expect(modal(page)).toBeVisible();
+  // it comes back in place: no frame on the tile, the dim never fades
+  await page.waitForTimeout(1000);
+  expect(await movedFrames(page), 'frames of a moved panel').toEqual([]);
   // full size and in place: the box it had when it first opened
   await expect
     .poll(() => panelBox(page), { message: 'the modal is back as it was' })

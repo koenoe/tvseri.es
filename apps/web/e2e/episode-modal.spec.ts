@@ -43,7 +43,7 @@ test.describe('episode modal', () => {
     await expect(dialog.getByText('9.6 IMDb')).toBeVisible();
     await expect(
       dialog.getByRole('link', { name: 'Jamie Lee Curtis as Donna Berzatto' }),
-    ).toHaveAttribute('href', '/person/8944');
+    ).toHaveAttribute('href', '/person/8944/jamie-lee-curtis');
     await expect(
       dialog
         .getByRole('region', { name: 'Credits' })

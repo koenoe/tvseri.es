@@ -1,15 +1,17 @@
 'use client';
 
-import { AnimatePresence } from 'motion/react';
+import { AnimatePresence, PresenceContext } from 'motion/react';
 import * as m from 'motion/react-m';
 import {
   type MouseEvent,
   type PointerEvent,
   type ReactNode,
   type SyntheticEvent,
+  use,
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
 } from 'react';
 
@@ -65,6 +67,21 @@ function openerOf(node: HTMLDialogElement) {
   const first = { opener, ring: openedFromKeyboard(opener) };
   openers.set(node, first);
   return first;
+}
+
+/**
+ * A dialog on a page the router hides in its back/forward cache (React
+ * Activity) comes back as it was left. Motion would reset its motion values
+ * to `initial` when React shows them again: on Back the episode modal
+ * flashed on its tile, faded backdrop and all, before snapping back.
+ */
+function KeepValuesOnRemount({ children }: Readonly<{ children: ReactNode }>) {
+  const presence = use(PresenceContext);
+  const kept = useMemo(
+    () => (presence ? { ...presence, keepValuesOnRemount: true } : null),
+    [presence],
+  );
+  return <PresenceContext value={kept}>{children}</PresenceContext>;
 }
 
 const DIALOG =
@@ -243,37 +260,39 @@ export default function ModalShell({
           ref={attach}
           tabIndex={-1}
         >
-          <DialogContext value={context}>
-            <m.div
-              {...backdropMotion}
-              className={backdropClasses}
-              data-dialog-backdrop=""
-            />
-            <m.div
-              animate={panelMotion.animate}
-              className={panelClasses}
-              data-opening=""
-              exit={panelMotion.exit}
-              initial={panelMotion.initial}
-              onAnimationComplete={opened}
-              ref={panelRef}
-              style={panelMotion.style}
-              {...panelSwipe}
-            >
-              {desktopMotion.contentStyle ? (
-                <m.div
-                  className={contentClasses}
-                  style={panelMotion.contentStyle}
-                >
-                  {children}
-                </m.div>
-              ) : (
-                children
-              )}
-            </m.div>
-            {/* iOS Safari's bars follow the sheet; sheets are phones only */}
-            <EdgeTint className="sm:hidden" />
-          </DialogContext>
+          <KeepValuesOnRemount>
+            <DialogContext value={context}>
+              <m.div
+                {...backdropMotion}
+                className={backdropClasses}
+                data-dialog-backdrop=""
+              />
+              <m.div
+                animate={panelMotion.animate}
+                className={panelClasses}
+                data-opening=""
+                exit={panelMotion.exit}
+                initial={panelMotion.initial}
+                onAnimationComplete={opened}
+                ref={panelRef}
+                style={panelMotion.style}
+                {...panelSwipe}
+              >
+                {desktopMotion.contentStyle ? (
+                  <m.div
+                    className={contentClasses}
+                    style={panelMotion.contentStyle}
+                  >
+                    {children}
+                  </m.div>
+                ) : (
+                  children
+                )}
+              </m.div>
+              {/* iOS Safari's bars follow the sheet; sheets are phones only */}
+              <EdgeTint className="sm:hidden" />
+            </DialogContext>
+          </KeepValuesOnRemount>
         </dialog>
       ) : null}
     </AnimatePresence>

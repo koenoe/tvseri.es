@@ -1,5 +1,5 @@
 import cn from '@/lib/cn';
-import { weekLinesLayout } from '../../_charts/weekLines';
+import { weekLinesLayout } from '../../[year]/_charts/weekLines';
 
 type Props = Readonly<{
   /** Episodes per visual week (53) */

@@ -1,5 +1,6 @@
 import type { User, WatchProvider } from '@tvseri.es/schemas';
-import { imgUrlOrEmpty } from './images';
+import { img } from '../show/catalog.ts';
+import { imgUrl } from './images';
 
 export const USER_ID = 'stub-user-lena';
 export const USERNAME = 'lena';
@@ -11,7 +12,9 @@ const provider = (
   logoPath: string,
 ): WatchProvider => ({
   id,
-  logo: imgUrlOrEmpty(file),
+  // the board images when they are there, else the rig's own logo (a
+  // member's services have logos: without one the sidebar drops the row)
+  logo: imgUrl(file) ?? img(file),
   logoPath: `/stub/${logoPath}.png`,
   name,
 });

@@ -41,7 +41,7 @@ async function otherStreaks(
 
 /**
  * "2025 at a glance": the year, its Share button
- * (finished years, desktop), the sentence, the 53 week lines with the month
+ * (finished years; an icon circle on a phone), the sentence, the 53 week lines with the month
  * axis and the longest streak bracketed under them.
  */
 export default async function YearHeader({
@@ -96,11 +96,7 @@ export default async function YearHeader({
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-8">
           <h1 className="shrink-0 text-numeral-xl tabular-nums">{year}</h1>
-          {shareable ? (
-            <div className="hidden md:block">
-              <ShareButton user={user} variant="header" year={year} />
-            </div>
-          ) : null}
+          {shareable ? <ShareButton user={user} year={year} /> : null}
         </div>
         <Sentence parts={sentence} />
       </div>
@@ -139,7 +135,8 @@ const BLOCK = `rounded-8 ${GHOST_FILL}`;
 const WEEK_GHOSTS = Array.from({ length: 52 }, (_, n) => n);
 
 /**
- * The header's size while it loads: the year, a two-line sentence (four on
+ * The header's size while it loads: the year (and a finished year's
+ * Share), a two-line sentence (four on
  * a phone, three for a current year) and the chart with its axis and bracket.
  */
 export function YearHeaderSkeleton() {
@@ -150,8 +147,13 @@ export function YearHeaderSkeleton() {
       data-placeholder="stats-header"
     >
       <div className="flex flex-col gap-3">
-        <div className="h-[60px] md:h-[76px]">
+        <div className="flex h-[60px] items-center justify-between gap-8 md:h-[76px]">
           <div className={`h-full w-36 ${BLOCK}`} />
+          {/* A finished year's Share (`data-stats-year` on <html>, set
+              before the first paint): the circle, or the pill from md */}
+          <div
+            className={`hidden size-8 rounded-full md:h-9 md:w-[92px] [html[data-stats-year=finished]_&]:block ${GHOST_FILL}`}
+          />
         </div>
         {/* the sentence: two lines from lg, four below (three for a current
             year on a phone) */}

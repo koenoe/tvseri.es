@@ -18,7 +18,6 @@ import {
   getSummary,
   isUnavailable,
 } from '../../_data/loaders';
-import ShareButton from '../share/ShareButton';
 import type { SectionProps } from '../types';
 import StatsUnavailable from '../ui/StatsUnavailable';
 import {
@@ -40,15 +39,9 @@ const GLYPHS: Readonly<Record<TileIcon, Glyph | ToggleGlyph>> = {
 
 /**
  * The six tiles under the header: 3 × 2 on desktop, 2 × 3 on a phone, each with the cyan ↑ /
- * pink ↓ change and "vs. …". On a phone the outlined Share button follows
- * (finished years).
+ * pink ↓ change and "vs. …".
  */
-export default async function Tiles({
-  shareable,
-  state,
-  user,
-  year,
-}: SectionProps) {
+export default async function Tiles({ state, user, year }: SectionProps) {
   const [summary, favorites] = await Promise.all([
     getSummary(user.id, year),
     getFavoritesCount(user.id, year),
@@ -81,11 +74,6 @@ export default async function Tiles({
           <Tile key={tile.icon} tile={tile} />
         ))}
       </div>
-      {shareable ? (
-        <div className="mt-6 flex flex-col md:hidden">
-          <ShareButton user={user} variant="phone" year={year} />
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -157,12 +145,6 @@ export function TilesSkeleton() {
           </div>
         ))}
       </div>
-      {/* A finished year's Share button on a phone (`data-stats-year` on
-          <html>, set before the first paint): the 24px gap and the button */}
-      <div
-        aria-hidden
-        className="mt-6 hidden h-10 max-md:[html[data-stats-year=finished]_&]:block"
-      />
     </div>
   );
 }

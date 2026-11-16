@@ -4,6 +4,8 @@ import { type ReactNode, useState } from 'react';
 
 import { createLoader } from '@/lib/lazy/createLoader';
 import { useLoader } from '@/lib/lazy/useLoader';
+import { PHONE } from '@/lib/media/breakpoints';
+import { matchesNow } from '@/lib/media/useMediaQuery';
 
 import type { ShareCard } from './shareCard';
 
@@ -26,7 +28,8 @@ type ShareChunk =
   | NonNullable<ReturnType<typeof sheet.get>>;
 
 /**
- * A button that opens the share UI: the desktop dialog or the phone sheet.
+ * The button that opens the share UI: the phone sheet below `md`, the
+ * dialog from it, chosen when it is pressed (one button for every width).
  * The server renders the button's look (`className`, `children`); this owns
  * only the open state. The sheet starts fetching the story card on the tap.
  */
@@ -35,28 +38,34 @@ export default function ShareTrigger({
   children,
   className,
   label,
-  mode,
 }: Readonly<{
   card: ShareCard;
   children: ReactNode;
   className: string;
-  label?: string;
-  mode: 'dialog' | 'sheet';
+  label: string;
 }>) {
   const [open, setOpen] = useState(false);
   // Each opening starts fresh (format, theme, "Link copied")
   const [session, setSession] = useState(0);
-  const loader = mode === 'sheet' ? sheet : dialog;
-  const preload = loader.preload;
-  const [chunk, load] = useLoader<ShareChunk>(loader);
+  // The panel of the last press: the sheet in the phone layout, else the
+  // dialog (read at each press, so a resized window gets the right one)
+  const [phone, setPhone] = useState(false);
+  const [dialogChunk, loadDialog] = useLoader<ShareChunk>(dialog);
+  const [sheetChunk, loadSheet] = useLoader<ShareChunk>(sheet);
+  const chunk = phone ? sheetChunk : dialogChunk;
+  const preload = () => (matchesNow(PHONE) ? sheet : dialog).preload();
   const openShare = () => {
+    const onPhone = matchesNow(PHONE);
+    setPhone(onPhone);
     // a failed chunk is tried again on the next tap
-    load();
-    if (mode === 'sheet') {
+    if (onPhone) {
+      loadSheet();
       sheet
         .load()
         .then(({ prefetchStory }) => prefetchStory(card))
         .catch(() => undefined);
+    } else {
+      loadDialog();
     }
     setSession((value) => value + 1);
     setOpen(true);

@@ -135,6 +135,98 @@ test.describe('stats', () => {
     ).toBeVisible();
   });
 
+  // The sidebar and the phone head are the Stats layout's (above `[year]`):
+  // a year switch keeps them mounted (no skeleton, the same nodes), the
+  // clicked year is the selected one while the new year is still its
+  // static shell, and the new year opens at the top of the page.
+  for (const width of [1440, 390]) {
+    test(`a year switch keeps the sidebar and selects the year at once at ${width}px`, async ({
+      baseURL,
+      page,
+    }) => {
+      await page.setViewportSize({ height: 900, width });
+      await phoneScrollbars(page, width);
+      await page.goto(PAGE);
+      await hydrated(page);
+      const name = width >= 1024 ? 'stats-aside' : 'stats-phone-head';
+      const head = page.locator(`[data-slot="${name}"]`);
+      const target = head.getByRole('link', {
+        name: new RegExp(`^${YEAR_BEFORE}`),
+      });
+      const current = head.getByRole('link', {
+        name: new RegExp(`^${LAST_YEAR}`),
+      });
+      await expect(current).toHaveAttribute('aria-current', 'page');
+      await expect(target).toBeVisible();
+      if (width >= 1024) {
+        // the sticky sidebar, with the page scrolled
+        await page.mouse.wheel(0, 800);
+        await expect
+          .poll(() => page.evaluate(() => window.scrollY))
+          .toBeGreaterThan(0);
+      }
+      // The nodes before the switch, and any sidebar skeleton that appears
+      await page.evaluate((slot) => {
+        const state = window as unknown as {
+          kept: Element[];
+          ghosts: string[];
+        };
+        const root = document.querySelector(`[data-slot="${slot}"]`);
+        const link = root?.querySelector('a[aria-current="page"]');
+        state.kept = [root, link].filter((node): node is Element => !!node);
+        state.ghosts = [];
+        const ghost =
+          '[data-placeholder="stats-aside"], [data-placeholder="stats-phone-head"]';
+        new MutationObserver((records) => {
+          for (const record of records) {
+            for (const node of record.addedNodes) {
+              if (
+                node instanceof Element &&
+                (node.matches(ghost) || node.querySelector(ghost))
+              ) {
+                state.ghosts.push(node.outerHTML.slice(0, 80));
+              }
+            }
+          }
+        }).observe(document.body, { childList: true, subtree: true });
+      }, name);
+      const keptNodes = () =>
+        page.evaluate((slot) => {
+          const { kept } = window as unknown as { kept: Element[] };
+          return (
+            kept.length === 2 &&
+            kept.every((node) => node.isConnected) &&
+            document.querySelector(`[data-slot="${slot}"]`) === kept[0]
+          );
+        }, name);
+      await instant(
+        page,
+        async () => {
+          await target.click();
+          await page.waitForURL(
+            (url) => url.pathname === `/u/lena/stats/${YEAR_BEFORE}`,
+          );
+          // selected from the static shell: no server render needed
+          await expect(target).toHaveAttribute('aria-current', 'page');
+          await expect(current).not.toHaveAttribute('aria-current');
+          expect(await keptNodes()).toBe(true);
+        },
+        baseURL ? { baseURL } : undefined,
+      );
+      await expect(
+        page.getByRole('heading', { level: 1, name: String(YEAR_BEFORE) }),
+      ).toBeVisible();
+      await expect(target).toHaveAttribute('aria-current', 'page');
+      expect(await keptNodes()).toBe(true);
+      expect(
+        await page.evaluate(
+          () => (window as unknown as { ghosts: string[] }).ghosts,
+        ),
+      ).toEqual([]);
+      expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    });
+  }
+
   test('serves the static 404 for malformed usernames and years, with no function', async ({
     request,
   }) => {

@@ -1,14 +1,12 @@
 /**
  * Board images, served from the folder in env `BOARD_IMG_DIR` at
  * `/img/stats/:file` (the stats route). Without the env every image is
- * missing (`null`, or '' where a type needs a string).
+ * missing (`null`).
  */
 export const imgUrl = (name: string): string | null =>
   process.env.BOARD_IMG_DIR
     ? `http://localhost:${process.env.STUB_API_PORT ?? 3190}/img/stats/${name}`
     : null;
-
-export const imgUrlOrEmpty = (name: string): string => imgUrl(name) ?? '';
 
 const BACKDROPS = new Set([
   'barry',

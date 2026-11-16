@@ -1,5 +1,4 @@
-import { ViewTransition } from 'react';
-import { BELOW_FLOATING_HEADER_LG } from '@/components/header/belowFloatingHeader';
+import { type ReactNode, ViewTransition } from 'react';
 import DataDownView from '@/components/ui/error/DataDownView';
 import { getStatsClock } from '../_data/clock';
 import type { StatsUser } from '../_data/loaders';
@@ -10,19 +9,12 @@ import YearGlance from './header/YearGlance';
 import YearHeader, { YearHeaderSkeleton } from './header/YearHeader';
 import StatsSection from './StatsSection';
 import { STATS_ROWS, type StatsBlock } from './sections';
-import PhoneHead, { PhoneHeadSkeleton } from './sidebar/PhoneHead';
-import StatsSidebar, { StatsSidebarSkeleton } from './sidebar/StatsSidebar';
 import type { SectionProps } from './types';
 
-const SIDEBAR_CLASSES = `sticky top-8 hidden lg:flex lg:flex-col lg:gap-10 ${BELOW_FLOATING_HEADER_LG}`;
-
 /**
- * The page under the site header: the sticky
- * 300px sidebar and the main column from `lg`; below it
- * a short identity header with the Years pills, then
- * the same column. A phone also leaves out "New, or back for more" and the
- * map. A year without episodes keeps the header and
- * tiles and says so.
+ * The year's column (the layout draws the sidebar or the phone head beside
+ * or above it). A phone leaves out "New, or back for more" and the map. A
+ * year without episodes keeps the header and tiles and says so.
  */
 
 export default async function StatsBody({
@@ -33,8 +25,13 @@ export default async function StatsBody({
     // The user lookup was unavailable: nothing of the page can be drawn, so
     // the page-level failure the show and person pages use (data
     // down, Try again refreshes), not a block that says "the rest of the
-    // page is fine" over an empty page
-    return <DataDownView />;
+    // page is fine" over an empty page. The layout's grid steps aside for it
+    // (`data-stats-down`), so it has the page's whole width.
+    return (
+      <div className="contents" data-stats-down="">
+        <DataDownView />
+      </div>
+    );
   }
   const [{ state }, summary] = await Promise.all([
     getStatsClock(year),
@@ -51,26 +48,7 @@ export default async function StatsBody({
   const glanceLabel = `${year} at a glance`;
   const yearTitle = String(year);
   return (
-    <Layout
-      phoneHead={
-        <StatsSection
-          fallback={<PhoneHeadSkeleton />}
-          id="stats-phone-head"
-          title="Years"
-        >
-          <PhoneHead {...props} />
-        </StatsSection>
-      }
-      sidebar={
-        <StatsSection
-          fallback={<StatsSidebarSkeleton />}
-          id="stats-sidebar"
-          title="Years"
-        >
-          <StatsSidebar {...props} />
-        </StatsSection>
-      }
-    >
+    <Column>
       <ViewTransition name="stats-glance">
         <YearGlance label={glanceLabel} year={year}>
           <StatsSection
@@ -96,7 +74,7 @@ export default async function StatsBody({
           <StatsRow key={row[0]?.id} props={props} row={row} />
         ))
       )}
-    </Layout>
+    </Column>
   );
 }
 
@@ -152,51 +130,25 @@ function StatsBlockView({
   );
 }
 
-function Layout({
+/** The column; `loading`: the skeleton's, named for the parity checks */
+function Column({
   children,
   loading = false,
-  phoneHead,
-  sidebar,
-}: Readonly<{
-  children: React.ReactNode;
-  /** The loading shell: the box's name for the placeholder-parity checks */
-  loading?: boolean;
-  phoneHead: React.ReactNode;
-  sidebar: React.ReactNode;
-}>) {
+}: Readonly<{ children: ReactNode; loading?: boolean }>) {
   return (
     <div
-      className="mx-auto w-full max-w-page items-start px-gutter pt-6 lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-16 lg:pt-[35px]"
+      className="flex min-w-0 flex-col gap-12 md:gap-16"
       data-placeholder={loading ? 'stats' : undefined}
       data-slot={loading ? undefined : 'stats'}
     >
-      <aside
-        aria-label="About this profile"
-        className={SIDEBAR_CLASSES}
-        data-placeholder={loading ? 'stats-aside' : undefined}
-        data-slot={loading ? undefined : 'stats-aside'}
-      >
-        {sidebar}
-      </aside>
-      <div
-        className="lg:hidden"
-        data-placeholder={loading ? 'stats-phone-head' : undefined}
-        data-slot={loading ? undefined : 'stats-phone-head'}
-      >
-        {phoneHead}
-      </div>
-      <div className="flex min-w-0 flex-col gap-12 md:gap-16">{children}</div>
+      {children}
     </div>
   );
 }
 
 export function StatsBodySkeleton() {
   return (
-    <Layout
-      loading
-      phoneHead={<PhoneHeadSkeleton />}
-      sidebar={<StatsSidebarSkeleton />}
-    >
+    <Column loading>
       <section className="flex flex-col md:gap-6">
         <YearHeaderSkeleton />
         <TilesSkeleton />
@@ -204,6 +156,6 @@ export function StatsBodySkeleton() {
       {STATS_ROWS.map((row) => (
         <StatsRow key={row[0]?.id} props={null} row={row} />
       ))}
-    </Layout>
+    </Column>
   );
 }

@@ -1,4 +1,4 @@
-import type { YearState } from '../../_lib/year';
+import type { YearState } from '../../[year]/_lib/year';
 
 /** "2026 so far" for the year in progress, else the year */
 export const yearLabel = (year: number, state: YearState) =>

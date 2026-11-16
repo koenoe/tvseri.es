@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { Ghost, TextLine } from '@/components/ui/ghost/ghosts';
 import { calendarGlyph, eyeGlyph } from '@/components/ui/icon/glyphs';
 import Handle from '@/components/ui/identity/Handle';
@@ -7,33 +6,34 @@ import MetaRow from '@/components/ui/meta/MetaRow';
 import { plural } from '@/lib/format/text';
 import profilePath from '@/lib/routing/profilePath';
 import statsPath from '@/lib/routing/statsPath';
-import { getProfileCounts, isUnavailable } from '../../_data/loaders';
-import type { SectionProps } from '../types';
-import StatsUnavailable from '../ui/StatsUnavailable';
-import { visiblePills } from './model';
+import StatsUnavailable from '../../[year]/_components/ui/StatsUnavailable';
+import { isUnavailable } from '../../[year]/_data/loaders';
+import { loadStatsHead, type StatsHeadParams } from './head';
 import { pillStyles } from './pillStyles';
 import Sparkline from './Sparkline';
+import YearLink from './YearLink';
+import YearPills from './YearPills';
 import YearsList from './YearsList';
 import YearsSheet from './YearsSheet';
-import { loadYearRows, type YearRow } from './years';
+import type { YearRow } from './years';
 
 /** Scrolls with the page (no sticky bars under the sticky glass header) */
 const YEARS_CLASSES = '-mx-gutter mt-3 overflow-hidden px-gutter pt-3.5 pb-4';
 
-/** Pills that fit beside "More" at 390px ("2026 so far" is the widest) */
-const FIT = 3;
-
 /**
- * The phone's identity and years: a short header (the handle, one
- * meta line) and the Years pill row, the page's year
- * filled white. "More" opens the full list in a bottom sheet (more than one
- * year).
+ * The phone's identity and years (in the Stats layout, so a year switch
+ * keeps it): a short header (the handle, one meta line) and the Years pill
+ * row, the URL's year filled white (`YearPills`). "More" opens the full list
+ * in a bottom sheet (more than one year).
  */
-export default async function PhoneHead({ user, year }: SectionProps) {
-  const [counts, rows] = await Promise.all([
-    getProfileCounts(user.id),
-    loadYearRows(user.id),
-  ]);
+export default async function PhoneHead({
+  params,
+}: Readonly<{ params: StatsHeadParams }>) {
+  const head = await loadStatsHead(params);
+  if (!head) {
+    return null;
+  }
+  const { counts, rows, user } = head;
   if (isUnavailable(counts) || isUnavailable(rows)) {
     return (
       <StatsUnavailable
@@ -46,14 +46,17 @@ export default async function PhoneHead({ user, year }: SectionProps) {
   const episodes = plural(counts.episodes, 'episode');
   const joinedText = `Member since ${user.memberSince}`;
   const profileHref = profilePath(user.username);
-  const { more, years } = visiblePills(
-    rows.map((row) => row.year),
-    year,
-    FIT,
+  const pills = rows.map((row) => ({
+    pill: <Pill row={row} username={user.username} />,
+    year: row.year,
+  }));
+  const more = (
+    <YearsSheet>
+      <YearsList rows={rows} username={user.username} />
+    </YearsSheet>
   );
-  const pills = rows.filter((row) => years.includes(row.year));
   return (
-    <>
+    <div data-slot="stats-phone-head">
       <section
         aria-label={`About ${user.username}`}
         className="flex flex-col gap-3 pt-0.5"
@@ -73,45 +76,23 @@ export default async function PhoneHead({ user, year }: SectionProps) {
         </div>
       </section>
       <nav aria-label="Years" className={YEARS_CLASSES}>
-        <ul className="flex gap-1.5">
-          {pills.map((row) => (
-            <li key={row.year}>
-              <Pill
-                row={row}
-                selected={row.year === year}
-                username={user.username}
-              />
-            </li>
-          ))}
-          {more ? (
-            <li>
-              <YearsSheet>
-                <YearsList
-                  rows={rows}
-                  selected={year}
-                  username={user.username}
-                />
-              </YearsSheet>
-            </li>
-          ) : null}
-        </ul>
+        <YearPills more={more} pills={pills} />
       </nav>
-    </>
+    </div>
   );
 }
 
-function Pill({
-  row,
-  selected,
-  username,
-}: Readonly<{ row: YearRow; selected: boolean; username: string }>) {
+const PILL = pillStyles();
+const SELECTED_PILL = pillStyles(true);
+
+function Pill({ row, username }: Readonly<{ row: YearRow; username: string }>) {
   const href = statsPath(username, row.year);
-  const classes = pillStyles(selected);
   return (
-    <Link
-      aria-current={selected ? 'page' : undefined}
-      className={classes}
+    <YearLink
+      className={PILL}
       href={href}
+      selectedClassName={SELECTED_PILL}
+      year={row.year}
     >
       <span>{row.label}</span>
       <Sparkline
@@ -119,7 +100,7 @@ function Pill({
         size="pill"
         values={row.values}
       />
-    </Link>
+    </YearLink>
   );
 }
 
@@ -132,7 +113,7 @@ const PILL_GHOSTS = [0, 1, 2];
  */
 export function PhoneHeadSkeleton() {
   return (
-    <>
+    <div data-placeholder="stats-phone-head">
       <div aria-hidden className="flex animate-ghost flex-col gap-3 pt-0.5">
         <div className="flex flex-col gap-2">
           <Ghost className="h-10 w-36 rounded-8" />
@@ -147,6 +128,6 @@ export function PhoneHeadSkeleton() {
           <Ghost className="h-[34px] w-20 rounded-full" key={n} />
         ))}
       </div>
-    </>
+    </div>
   );
 }

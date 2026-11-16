@@ -2,8 +2,6 @@ import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { Suspense, ViewTransition } from 'react';
 
-import Page from '@/components/background/Page';
-import OwnerVisitorSync from '@/components/ui/viewer/OwnerVisitorSync';
 import statsPath from '@/lib/routing/statsPath';
 
 import StatsBody, { StatsBodySkeleton } from './_components/StatsBody';
@@ -43,30 +41,26 @@ export async function generateMetadata({
 }
 
 /**
- * The shell is the page ground and the skeleton; the user's year renders in
- * the Suspense child from cached loaders (prerendered for the seed, generated
- * on a URL's first visit, then served from the ISR cache).
+ * The year's content column (the sidebar and the phone head are the
+ * layout's, so a year switch keeps them). The shell is its skeleton; the
+ * user's year renders in the Suspense child from cached loaders (prerendered
+ * for the seed, generated on a URL's first visit, then served from the ISR
+ * cache).
  */
 export default function StatsPage({
   params,
 }: PageProps<'/u/[username]/stats/[year]'>) {
   return (
-    <Page>
-      {/* renders nothing: no space to hold, it waits for the URL's params */}
-      <Suspense fallback={null}>
-        <OwnerVisitorSync />
-      </Suspense>
-      <div className="contents" data-testid="route-stats">
-        {/* No animation of its own: with a prerendered shell, React starts no
-            view transition for the year block's pair (`stats-glance`) unless
-            the page has a boundary too (Next: "put the wrapper in page.tsx") */}
-        <ViewTransition default="none">
-          <Suspense fallback={<StatsBodySkeleton />}>
-            <StatsRoute params={params} />
-          </Suspense>
-        </ViewTransition>
-      </div>
-    </Page>
+    <div className="contents" data-testid="route-stats">
+      {/* No animation of its own: with a prerendered shell, React starts no
+          view transition for the year block's pair (`stats-glance`) unless
+          the page has a boundary too (Next: "put the wrapper in page.tsx") */}
+      <ViewTransition default="none">
+        <Suspense fallback={<StatsBodySkeleton />}>
+          <StatsRoute params={params} />
+        </Suspense>
+      </ViewTransition>
+    </div>
   );
 }
 

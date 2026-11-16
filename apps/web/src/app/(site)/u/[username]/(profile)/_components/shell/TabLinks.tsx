@@ -2,11 +2,10 @@
 
 import Link from 'next/link';
 import { useSelectedLayoutSegment } from 'next/navigation';
-import type { MouseEvent } from 'react';
-
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
 import profilePath from '@/lib/routing/profilePath';
+import toTopOnPress from '@/lib/routing/toTopOnPress';
 
 import { PROFILE_TABS, TAB } from './tabs';
 
@@ -31,15 +30,6 @@ export default function TabLinks({
   // A tab opens at the top of the page. Next's own scroll is off: it scrolls
   // the first changed segment into view, and on a phone that is the
   // overview's last blocks (`@tail`) at the very bottom
-  // (not for a press that opens the tab elsewhere: a modifier key)
-  const toTop = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (
-      event.button === 0 &&
-      !(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
-    ) {
-      window.scrollTo({ behavior: 'instant', top: 0 });
-    }
-  };
   return (
     <>
       {tabs.map((tab) => {
@@ -60,7 +50,7 @@ export default function TabLinks({
             className={className}
             href={href}
             key={tab.label}
-            onClick={toTop}
+            onClick={toTopOnPress}
             scroll={false}
           >
             <Icon glyph={tab.glyph} size={16} />

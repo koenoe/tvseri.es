@@ -55,3 +55,22 @@ export function tintEdges(panel: HTMLElement) {
     dialog.style.setProperty('--edge-tint-top', ground);
   }
 }
+
+/**
+ * As the panel leaves (its exit, a swipe that closes it): the strips it
+ * coloured take the page's colour, so Safari's bars go back with the panel
+ * (measured: a strip that went transparent left the band white until the
+ * dialog was gone, Safari keeps its last colour).
+ */
+export function untintEdges(panel: HTMLElement) {
+  const dialog = panel.parentElement;
+  if (!dialog) {
+    return;
+  }
+  const page = getComputedStyle(document.body).backgroundColor;
+  for (const edge of ['--edge-tint-top', '--edge-tint-bottom']) {
+    if (dialog.style.getPropertyValue(edge)) {
+      dialog.style.setProperty(edge, page);
+    }
+  }
+}

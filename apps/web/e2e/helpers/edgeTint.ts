@@ -82,6 +82,15 @@ export function edgeTintSuite() {
         { colour: WHITE, edge: 'top', shown: true },
         { colour: WHITE, edge: 'bottom', shown: true },
       ]);
+      // as it fades out, the bars go back to the page colour at once
+      const ground = await page.evaluate(
+        () => getComputedStyle(document.body).backgroundColor,
+      );
+      await page.keyboard.press('Escape');
+      expect(await strips(page)).toEqual([
+        { colour: ground, edge: 'top', shown: true },
+        { colour: ground, edge: 'bottom', shown: true },
+      ]);
     });
   });
 

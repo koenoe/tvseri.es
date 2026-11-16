@@ -2,7 +2,7 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import EdgeTint, { tintEdges } from './EdgeTint';
+import EdgeTint, { tintEdges, untintEdges } from './EdgeTint';
 
 /** A dialog with a panel whose ground and offset jsdom can't compute */
 function dialogWith(background: string, offsetTop: number) {
@@ -34,6 +34,20 @@ describe('tintEdges', () => {
     expect(dialog.style.getPropertyValue('--edge-tint-bottom')).toBe(
       'rgb(47, 42, 36)',
     );
+  });
+});
+
+describe('untintEdges', () => {
+  it('hands the edges a sheet coloured back to the page colour', () => {
+    document.body.style.backgroundColor = 'rgb(28, 34, 35)';
+    const { dialog, panel } = dialogWith('rgb(255, 255, 255)', 400);
+    tintEdges(panel);
+    untintEdges(panel);
+    expect(dialog.style.getPropertyValue('--edge-tint-bottom')).toBe(
+      'rgb(28, 34, 35)',
+    );
+    // the top was Safari's own choice, and stays so
+    expect(dialog.style.getPropertyValue('--edge-tint-top')).toBe('');
   });
 });
 

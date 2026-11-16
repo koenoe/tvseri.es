@@ -13,7 +13,10 @@ import {
 } from 'react';
 
 import getMainBackgroundColor from '@/components/background/getMainBackgroundColor';
-import EdgeTint, { tintEdges } from '@/components/ui/dialog/EdgeTint';
+import EdgeTint, {
+  tintEdges,
+  untintEdges,
+} from '@/components/ui/dialog/EdgeTint';
 import {
   openedFromKeyboard,
   quietFocus,
@@ -165,6 +168,9 @@ export default function SearchOverlay({
   useEffect(() => {
     if (open) {
       return;
+    }
+    if (panelRef.current) {
+      untintEdges(panelRef.current);
     }
     halt();
     const timer = window.setTimeout(finishLate, CLOSE_FALLBACK_MS);

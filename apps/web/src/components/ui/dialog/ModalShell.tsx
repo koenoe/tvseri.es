@@ -26,7 +26,7 @@ import {
   type PanelMotion,
   PHONE_MOTION,
 } from './dialogMotion';
-import EdgeTint, { tintEdges } from './EdgeTint';
+import EdgeTint, { tintEdges, untintEdges } from './EdgeTint';
 import { openedFromKeyboard, returnFocus } from './focusReturn';
 import { dialogOpener } from './lastInvoker';
 import { lockScroll, unlockScroll } from './scrollLock';
@@ -121,6 +121,7 @@ export default function ModalShell({
   useLayoutEffect(() => {
     if (!open && panelNode.current) {
       releaseToastSheet(panelNode.current);
+      untintEdges(panelNode.current);
     }
   }, [open]);
 

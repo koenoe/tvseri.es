@@ -26,6 +26,7 @@ import {
   type PanelMotion,
   PHONE_MOTION,
 } from './dialogMotion';
+import EdgeTint, { tintEdges } from './EdgeTint';
 import { openedFromKeyboard, returnFocus } from './focusReturn';
 import { dialogOpener } from './lastInvoker';
 import { lockScroll, unlockScroll } from './scrollLock';
@@ -143,6 +144,11 @@ export default function ModalShell({
       // open; Tab then reaches the controls as usual.
       node.focus({ preventScroll: true });
     }
+    // after `showModal()`: a closed dialog lays nothing out (the panel's
+    // ref runs before this one)
+    if (panelNode.current) {
+      tintEdges(panelNode.current);
+    }
     pushLayer(node);
     return () => {
       popLayer(node);
@@ -229,6 +235,8 @@ export default function ModalShell({
                 children
               )}
             </m.div>
+            {/* iOS Safari's bars follow the sheet; sheets are phones only */}
+            <EdgeTint className="sm:hidden" />
           </DialogContext>
         </dialog>
       ) : null}

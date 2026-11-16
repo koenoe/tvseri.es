@@ -13,6 +13,7 @@ import {
 } from 'react';
 
 import getMainBackgroundColor from '@/components/background/getMainBackgroundColor';
+import EdgeTint, { tintEdges } from '@/components/ui/dialog/EdgeTint';
 import {
   openedFromKeyboard,
   quietFocus,
@@ -91,6 +92,7 @@ export default function SearchOverlay({
       }
       pushLayer(dialog);
       if (panelRef.current) {
+        tintEdges(panelRef.current);
         panelRef.current.style.transformOrigin = growOrigin(
           opened.trigger,
           panelRef.current,
@@ -206,6 +208,8 @@ export default function SearchOverlay({
           search={search}
         />
       </div>
+      {/* iOS Safari's bars follow the panel, full screen below md only */}
+      <EdgeTint className="md:hidden" />
     </dialog>
   );
 }

@@ -153,13 +153,26 @@ function namespaceOf(authorization: string | undefined): string | undefined {
   }
 }
 
+/**
+ * The routes a request is answered from. A namespace is copied on its first
+ * write: until then it reads the shared copy, which no signed-in request can
+ * change (a write without a namespace is refused) and so is still the seeds.
+ * A copy costs the whole fixture graph (~100ms of this one thread and a few
+ * MB that are never freed, an ESM module can't be unloaded), and most tests
+ * only read: copying every signed-in test's namespace made the stub slower
+ * and bigger over a run until reads timed out.
+ */
 function routesFor(
   namespace: string | undefined,
+  method: string,
 ): Promise<StubRoute[]> | StubRoute[] {
   if (!namespace) {
     return routes;
   }
   let loaded = namespaces.get(namespace);
+  if (!loaded && (method === 'GET' || method === 'HEAD')) {
+    return routes;
+  }
   if (!loaded) {
     loaded = loadRoutes(namespace);
     namespaces.set(namespace, loaded);
@@ -239,7 +252,7 @@ createServer(async (request, response) => {
     );
     return;
   }
-  for (const route of await routesFor(namespace)) {
+  for (const route of await routesFor(namespace, method)) {
     const intercepting = route.path === INTERCEPT;
     if (!intercepting && (route.method ?? 'GET') !== method) {
       continue;

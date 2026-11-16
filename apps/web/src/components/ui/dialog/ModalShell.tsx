@@ -123,6 +123,15 @@ export default function ModalShell({
     }
   }, [open]);
 
+  // `data-opening` until the panel's entry has played: a scroller inside
+  // (LargeDialog's) stays unscrollable meanwhile, so content still settling
+  // (a placeholder taller than what lands) never flashes a scroll bar. The
+  // attribute is React's only at mount (the panel mounts per opening); the
+  // entry's end removes it, and later renders leave the DOM alone.
+  const opened = useCallback(() => {
+    panelNode.current?.removeAttribute('data-opening');
+  }, []);
+
   // Stable on purpose: a new callback would close and reopen the dialog.
   const attach = useCallback((node: HTMLDialogElement) => {
     const opener = dialogOpener();
@@ -202,8 +211,10 @@ export default function ModalShell({
             <m.div
               animate={panelMotion.animate}
               className={panelClasses}
+              data-opening=""
               exit={panelMotion.exit}
               initial={panelMotion.initial}
+              onAnimationComplete={opened}
               ref={panelRef}
               style={panelMotion.style}
             >

@@ -73,7 +73,11 @@ export default function LargeDialog({
         {tools}
         <DialogCloseCircle tone="glass" />
       </div>
-      <div className="size-full overflow-y-auto overscroll-contain">
+      {/* unscrollable while the panel opens (`data-opening`, ModalShell) */}
+      <div
+        className="size-full overflow-y-auto overscroll-contain in-data-opening:overflow-y-hidden"
+        data-dialog-scroller=""
+      >
         {children}
       </div>
     </ModalShell>

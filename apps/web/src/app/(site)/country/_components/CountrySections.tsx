@@ -33,13 +33,12 @@ const newTitle = (name: string) => `New from ${name}`;
 async function CountryStart({ code }: Readonly<{ code: string }>) {
   const picks = await getWhereToStart('country', code);
   if (isUnavailable(picks)) {
-    return <WhereToStartSkeleton look="failed" phone="first-card" />;
+    return <WhereToStartSkeleton look="failed" />;
   }
   return (
     <WhereToStart
       id="country-start"
       kickers={KICKERS}
-      phone="first-card"
       picks={fillStartSlots(picks, new Set())}
       second="network"
     />
@@ -139,7 +138,7 @@ function CountryRowsSkeleton({ name }: Readonly<{ name?: string }>) {
 export function CountrySectionsSkeleton() {
   return (
     <LandingSections placeholder start="loose">
-      <WhereToStartSkeleton phone="first-card" title="Where to start" />
+      <WhereToStartSkeleton title="Where to start" />
       <CountryRowsSkeleton />
       <LandingEndCard line={END_LINE.country} title="" titleGhost />
     </LandingSections>
@@ -158,7 +157,7 @@ export default function CountrySections({
   return (
     <LandingSections start="loose">
       <LandingSectionSlot
-        fallback={<WhereToStartSkeleton phone="first-card" />}
+        fallback={<WhereToStartSkeleton />}
         id="country-start"
         title="Where to start"
       >

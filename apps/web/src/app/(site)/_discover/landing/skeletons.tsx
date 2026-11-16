@@ -388,12 +388,9 @@ export function SectionPlaceholder({
  */
 export function WhereToStartSkeleton({
   look = 'loading',
-  phone = 'cards',
   title,
 }: Readonly<{
   look?: PlaceholderLook;
-  /** as `WhereToStart`: on a phone every pick a card, or the first a card and the others a swipe row of posters (country) */
-  phone?: 'cards' | 'first-card';
   title?: string;
 }>) {
   const card = cn('block h-37 rounded-16 md:h-48', GHOST_LOOK[look]);
@@ -405,33 +402,13 @@ export function WhereToStartSkeleton({
     >
       <div className="flex flex-col gap-3 md:gap-6 lg:grid lg:grid-cols-3">
         {[0, 1, 2].map((index) => {
-          const hidden = phone === 'first-card' && index > 0 && 'max-lg:hidden';
           return look === 'loading' ? (
-            <StartCardGhost className={hidden || undefined} key={index} />
+            <StartCardGhost key={index} />
           ) : (
-            <span aria-hidden className={cn(card, hidden)} key={index} />
+            <span aria-hidden className={card} key={index} />
           );
         })}
       </div>
-      {phone === 'first-card' ? (
-        <div
-          aria-hidden
-          className={cn(
-            'mt-4 flex gap-3 overflow-hidden lg:hidden [--tile-radius:10px]',
-            look === 'loading' && 'animate-ghost',
-          )}
-        >
-          {[0, 1, 2].map((index) => (
-            <span
-              className={cn(
-                'block aspect-2/3 w-35 shrink-0 rounded-10',
-                look === 'loading' ? GHOST_FILL : GHOST_LOOK.failed,
-              )}
-              key={index}
-            />
-          ))}
-        </div>
-      ) : null}
     </SectionPlaceholder>
   );
 }

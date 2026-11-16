@@ -10,7 +10,6 @@ import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import { PAGE_COLUMN } from '@/components/ui/page/pageColumn';
 import PosterArt from '@/components/ui/tile/PosterArt';
-import PosterTile from '@/components/ui/tile/PosterTile';
 import TileLink from '@/components/ui/tile/TileLink';
 import WatchedOverlay from '@/components/ui/tile/WatchedOverlay';
 import showPath from '@/lib/routing/showPath';
@@ -34,12 +33,6 @@ type Props = Readonly<{
   id: string;
   /** a kind's own kicker where a landing words it differently (country: "One weekend") */
   kickers?: Kickers;
-  /**
-   * On a phone: every pick a card (genre, theme), or only the
-   * first, the others a swipe row of posters (country:
-   * "only the first is a card").
-   */
-  phone?: 'cards' | 'first-card';
   picks: ReadonlyArray<StartPick>;
   /**
    * The middle meta item: episodes (genre, theme) or the network (country,
@@ -58,7 +51,6 @@ type Props = Readonly<{
 export default function WhereToStart({
   id,
   kickers,
-  phone = 'cards',
   picks,
   second = 'episodes',
 }: Props) {
@@ -80,13 +72,8 @@ export default function WhereToStart({
         <StartSeenNote ids={ids} />
       </div>
       <ul className="flex flex-col gap-3 md:gap-6 lg:grid lg:grid-cols-3">
-        {picks.map((pick, index) => (
-          <li
-            className={
-              phone === 'first-card' && index > 0 ? 'max-lg:hidden' : undefined
-            }
-            key={pick.id}
-          >
+        {picks.map((pick) => (
+          <li key={pick.id}>
             <StartCard
               kicker={kickerOf(pick, kickers)}
               pick={pick}
@@ -95,47 +82,12 @@ export default function WhereToStart({
           </li>
         ))}
       </ul>
-      {phone === 'first-card' && picks.length > 1 ? (
-        <StartSwipe kickers={kickers} picks={picks.slice(1)} />
-      ) : null}
     </section>
   );
 }
 
 const kickerOf = (pick: StartPick, kickers: Kickers | undefined) =>
   kickers?.[pick.kind] ?? KICKER[pick.kind];
-
-/**
- * The phone's other picks after the first card (country: "The
- * other Where to start picks go into a swipe row"): posters at the phone
- * rows' size, named by their kicker.
- */
-function StartSwipe({
-  kickers,
-  picks,
-}: Readonly<{
-  kickers: Kickers | undefined;
-  picks: ReadonlyArray<StartPick>;
-}>) {
-  return (
-    <ul className="-mx-gutter mt-4 flex snap-x snap-mandatory scroll-px-gutter gap-3 overflow-x-auto overscroll-x-contain scrollbar-none px-gutter [--tile-radius:10px] lg:hidden">
-      {picks.map((pick) => (
-        <li className="w-35 shrink-0 snap-start" key={pick.id}>
-          <PosterTile
-            id={pick.id}
-            label={`${kickerOf(pick, kickers)}: ${pick.title}`}
-            loading="eager"
-            overlay={<WatchedOverlay id={pick.id} />}
-            poster={pick.poster}
-            sizes="140px"
-            slug={pick.slug}
-            title={pick.title}
-          />
-        </li>
-      ))}
-    </ul>
-  );
-}
 
 function StartCard({
   kicker,

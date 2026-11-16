@@ -217,14 +217,13 @@ for (const { height, width } of [
       name: 'Fishes',
     });
     await expect(heading).toBeVisible();
-    // the panel is the scroll container the title sits in
-    const panel = await heading.evaluate((element) => {
-      let node = element.parentElement;
-      while (node && getComputedStyle(node).overflowY !== 'auto') {
-        node = node.parentElement;
-      }
-      return node?.getBoundingClientRect() ?? null;
-    });
+    // measured once the panel has grown in: until then (`data-opening`,
+    // ModalShell) it is mid-scale and its scroller deliberately unscrollable
+    await expect(dialog.locator('[data-opening]')).toHaveCount(0);
+    // the panel is the dialog's scroll container the title sits in
+    const scroller = dialog.locator('[data-dialog-scroller]');
+    await expect(scroller).toHaveCSS('overflow-y', 'auto');
+    const panel = await scroller.boundingBox();
     const title = await heading.boundingBox();
     expect(panel && title).toBeTruthy();
     if (panel && title) {

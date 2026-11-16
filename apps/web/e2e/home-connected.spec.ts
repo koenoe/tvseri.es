@@ -147,6 +147,13 @@ test.describe('Connected by on a phone', () => {
     page,
   }) => {
     await page.goto(DAY);
+    // the shell's card (the shared paths, signed out) is replaced by the
+    // streamed one with the same paths: act on the streamed card
+    await expect(
+      page
+        .locator('[data-signed-out-only]')
+        .getByRole('region', { name: 'Connected by' }),
+    ).toHaveCount(0);
     await card(page).scrollIntoViewIfNeeded();
     const add = watchlist(page, 'Better Call Saul');
     await expect(add).toBeVisible();

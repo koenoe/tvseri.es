@@ -1,6 +1,5 @@
 import { expect, type Locator, type Page, test } from '@playwright/test';
 
-import { open } from '../helpers';
 import { signInAs } from './session';
 import { untilStable } from './viewport';
 
@@ -206,33 +205,6 @@ export function sheetSwipeSuite() {
         ms: 300,
       });
       await expect(page.getByRole('dialog')).toHaveCount(0);
-    });
-  });
-
-  test.describe('the phone menu still closes with a swipe down', () => {
-    test.use({ hasTouch: true, viewport: { height: 844, width: 390 } });
-
-    const openMenu = async (page: Page) => {
-      await open(page, '/discover');
-      await page
-        .locator('header[data-header-mode]')
-        .getByRole('button', { name: 'Menu' })
-        .click();
-      const menu = page.getByRole('dialog', { name: 'Menu' });
-      await expect(menu).toBeVisible();
-      await entered(page);
-      return menu;
-    };
-
-    test('past 80px it closes; a short, slow one settles back', async ({
-      page,
-    }) => {
-      const menu = await openMenu(page);
-      const glass = page.locator('[data-menu-glass]');
-      await swipe(glass, { dy: 40, ms: 600 });
-      await expect(menu).toBeVisible();
-      await swipe(glass, { dy: 140, ms: 400 });
-      await expect(menu).toBeHidden();
     });
   });
 

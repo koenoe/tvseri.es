@@ -1,7 +1,6 @@
 'use client';
 
 import * as m from 'motion/react-m';
-import { useRef } from 'react';
 
 import cn from '@/lib/cn';
 
@@ -15,7 +14,6 @@ import {
   PHONE_GLASS,
 } from './menuLook';
 import { phoneGlassVariants, phoneWordVariants } from './menuMotion';
-import useMenuSwipe from './useMenuSwipe';
 
 /* sizes at 390; the dimmed text at white/80 over the lighter glass */
 const PHONE_LOOK: MenuLook = {
@@ -37,17 +35,14 @@ const PHONE_LOOK: MenuLook = {
  * The phone menu: the glass spreads over the whole screen and
  * the grouped words stand at the bottom, by the thumb, on the page gutter.
  * The header stays above it as the transparent bar. A tap on the glass
- * (anywhere but a word) or a swipe down closes it.
+ * (anywhere but a word) closes it.
  */
 export default function MobileMenu({
   model,
   onClose,
 }: Readonly<{ model: MenuModel; onClose: () => void }>) {
-  const nav = useRef<HTMLElement>(null);
-  const swipe = useMenuSwipe(nav, onClose);
-
   return (
-    <div className="fixed inset-0 touch-none" {...swipe}>
+    <div className="fixed inset-0">
       <m.div
         className={cn('absolute inset-0', PHONE_GLASS)}
         data-menu-glass=""
@@ -57,7 +52,6 @@ export default function MobileMenu({
       <nav
         aria-label="Main"
         className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col px-gutter pb-[calc(16px+env(safe-area-inset-bottom))]"
-        ref={nav}
       >
         <MenuGroups look={PHONE_LOOK} model={model} onNavigate={onClose} />
       </nav>

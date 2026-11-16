@@ -26,7 +26,13 @@ test('the mark toast sits above the episode sheet’s record stub', async ({
     .click();
   const toast = page.locator('[data-sonner-toast]');
   await expect(toast).toBeVisible();
-  // the toast's rise is over
+  // the toast's rise is over: no transition left running on it (a stalled
+  // frame on a slow runner looked still to a box read alone), then still
+  await expect
+    .poll(() =>
+      toast.evaluate((node) => node.getAnimations({ subtree: true }).length),
+    )
+    .toBe(0);
   await untilStable(() => toast.boundingBox(), {
     message: 'the toast rises and stops',
   });

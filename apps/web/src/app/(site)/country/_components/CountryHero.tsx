@@ -17,6 +17,7 @@ import {
   LandingShowCountSkeleton,
   LandingTitle,
   TITLE_SPACE,
+  TitleLineGhost,
 } from '../../_discover/landing';
 import type { CountryNames } from '../_data/names';
 
@@ -93,7 +94,9 @@ export default function CountryHero({
   );
 }
 
-const BAR = 'block rounded-8 bg-white/5';
+/** The hero's ghosts are still (no pulse) */
+const FILL = 'bg-white/5';
+const BAR = `block rounded-8 ${FILL}`;
 
 /** The hero before the code is known (the shell of every country) */
 export function CountryHeroSkeleton() {
@@ -103,11 +106,11 @@ export function CountryHeroSkeleton() {
       <h1 className="sr-only" id="country-loading">
         Loading
       </h1>
-      {/* the title's lines, with its margins */}
+      {/* the title's lines, each a bar in its line box, with the title's margins */}
       <span aria-hidden className={`flex flex-col ${TITLE_SPACE}`}>
-        <span className={`${BAR} h-12 w-64 md:h-16 md:w-96`} />
+        <TitleLineGhost fill={FILL} width="w-64 md:w-96" />
         {/* most countries have a name of their own, which is a second line on a phone */}
-        <span className={`${BAR} h-12 w-40 md:hidden`} />
+        <TitleLineGhost className="md:hidden" fill={FILL} width="w-40" />
       </span>
       <span aria-hidden className={`${BAR} mt-2 h-5 w-56`} />
     </CountryHeroFrame>

@@ -219,6 +219,40 @@ export function SpotlightSkeleton({
   );
 }
 
+/**
+ * One line of the display title while it loads: the title's line box (48 /
+ * 64px) with the bar centred in it, as the glyphs sit in theirs, so the
+ * crumb keeps its distance and a second line keeps the line's gap.
+ */
+export function TitleLineGhost({
+  className,
+  fill = GHOST_LOOK.loading,
+  name,
+  width,
+}: Readonly<{
+  /** the box's placement (`TITLE_SPACE`, a breakpoint's `hidden`) */
+  className?: string;
+  /** the bar's fill, the loading ghost's by default */
+  fill?: string;
+  /** `data-placeholder` of the line box; the bar's is `{name}-bar` */
+  name?: string;
+  /** the bar's width classes */
+  width: string;
+}>) {
+  return (
+    <span
+      aria-hidden
+      className={cn('flex h-12 items-center md:h-16', className)}
+      data-placeholder={name}
+    >
+      <span
+        className={cn('block h-9 rounded-8 md:h-12', fill, width)}
+        data-placeholder={name ? `${name}-bar` : undefined}
+      />
+    </span>
+  );
+}
+
 type HeroSkeletonProps = DetailsSkeletonProps &
   Readonly<{
     /** with a recommendation tile (Theme, Network) */
@@ -252,17 +286,11 @@ export function LandingHeroSkeleton({
       <h1 className="sr-only" id="landing-loading">
         Loading
       </h1>
-      {/* the title's line box (display: 48 / 64px) with the bar centred in it, as the glyphs sit in theirs, so the crumb keeps its distance */}
-      <span
-        aria-hidden
-        className={cn('flex h-12 items-center md:h-16', TITLE_SPACE)}
-        data-placeholder="landing-title"
-      >
-        <span
-          className={`${bar('loading')} h-9 w-56 md:h-12 md:w-80`}
-          data-placeholder="landing-title-bar"
-        />
-      </span>
+      <TitleLineGhost
+        className={TITLE_SPACE}
+        name="landing-title"
+        width="w-56 md:w-80"
+      />
       <LandingHeroDetailsSkeleton line={line} {...details} />
     </LandingHero>
   );

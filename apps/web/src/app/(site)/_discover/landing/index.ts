@@ -129,7 +129,8 @@ export { default as Spotlight } from './Spotlight';
  * facts? chips? chipsHeading? line?>` (everything under the title while the
  * hero's data loads; `line` the real static line or `true` for a bar),
  * `<SpotlightSkeleton>`, `<PlainHeadingSkeleton id>` (a `PlainHeroFrame`'s
- * heading),
+ * heading), `<TitleLineGhost width className? name?>` (one line of a
+ * display title: its line box with the bar centred),
  * (each page composes its own whole-body placeholder from these and
  * `RowSkeleton` for the shell of a slug nobody has visited),
  * `<WhereToStartSkeleton title?>`, `<RankedListSkeleton title>`. Poster rows
@@ -147,6 +148,7 @@ export {
   RankedListSkeleton,
   SectionPlaceholder,
   SpotlightSkeleton,
+  TitleLineGhost,
   WhereToStartSkeleton,
 } from './skeletons';
 /** `toRowShow`: trims a `TileShow` or a pick to what a poster row sends per show (`RowShow`). */

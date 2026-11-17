@@ -56,7 +56,7 @@ const deps = (
 describe('checkUsage', () => {
   it('does nothing under the limits', async () => {
     const usage = deps({
-      BytesDownloaded: 1,
+      BytesDownloaded: 999_999_999_999,
       FunctionInvocations: 39_999_999,
       Requests: 39_999_999,
     });
@@ -77,6 +77,38 @@ describe('checkUsage', () => {
   it('alerts at 1 TB downloaded', async () => {
     const usage = deps({ BytesDownloaded: 1_000_000_000_000 });
     expect((await checkUsage(usage)).exceeded).toEqual(['BytesDownloaded']);
+  });
+
+  it('sums every distribution against the one limit', async () => {
+    const usage = deps(
+      {},
+      {
+        getMetricPage: async () => ({
+          MetricDataResults: [
+            { Label: 'Requests', Values: [15_000_000, 5_000_000] },
+            { Label: 'Requests', Values: [20_000_000] },
+          ],
+        }),
+      },
+    );
+    expect((await checkUsage(usage)).exceeded).toEqual(['Requests']);
+    expect(usage.publish).toHaveBeenCalledTimes(1);
+  });
+
+  it('sends one alert naming every limit reached', async () => {
+    const usage = deps({
+      BytesDownloaded: 1_000_000_000_000,
+      FunctionInvocations: 40_000_000,
+      Requests: 40_000_000,
+    });
+    await checkUsage(usage);
+    expect(usage.publish).toHaveBeenCalledTimes(1);
+    const named = vi.mocked(usage.publish).mock.calls[0]?.[0] ?? [];
+    expect([...named].sort()).toEqual([
+      'BytesDownloaded',
+      'FunctionInvocations',
+      'Requests',
+    ]);
   });
 
   it('asks for every distribution and each function once, over the month so far', async () => {

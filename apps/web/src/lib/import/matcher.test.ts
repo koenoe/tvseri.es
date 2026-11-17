@@ -495,6 +495,35 @@ describe('createEpisodeMatcher', () => {
     ).toMatchObject({ problem: { kind: 'episode-not-found' } });
   });
 
+  // Each catalogue read is a TMDB call: a 2,000-row import must not repeat them
+  it('reads each season and each picked series once per request, however many rows use it', async () => {
+    const catalog = makeCatalog(SEARCH);
+    const matcher = createEpisodeMatcher(catalog);
+    await matcher.match(row('Black Mirror', 7, 1));
+    await matcher.match(row('Black Mirror', 'Season 7', 'Bête Noire'));
+    await matcher.match(row('Black Mirror', 7, 2));
+    await matcher.match({ ...row('X', 3, 1), seriesId: 2 });
+    await matcher.match({ ...row('X', 3, 2), seriesId: 2 });
+    const seasonReads = vi
+      .mocked(catalog.getSeason)
+      .mock.calls.filter(([id, season]) => id === 4 && season === 7);
+    expect(seasonReads).toHaveLength(1);
+    expect(
+      vi.mocked(catalog.getTvSeries).mock.calls.filter(([id]) => id === 2),
+    ).toHaveLength(1);
+  });
+
+  it('a failed catalogue read fails the row instead of guessing a match', async () => {
+    const catalog = makeCatalog(SEARCH);
+    vi.mocked(catalog.searchTvSeries).mockRejectedValueOnce(
+      new Error('TMDB down'),
+    );
+    const matcher = createEpisodeMatcher(catalog);
+    await expect(matcher.match(row('Black Mirror', 7, 1))).rejects.toThrow(
+      'TMDB down',
+    );
+  });
+
   it('numbers match by number only, titles by title first', async () => {
     const matcher = createEpisodeMatcher(makeCatalog(SEARCH));
     expect(await matcher.match(row('Black Mirror', 7, 2))).toMatchObject({

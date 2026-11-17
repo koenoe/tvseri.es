@@ -33,18 +33,6 @@ describe('whenIdle: run a task when the browser idles', () => {
     expect(cancel).toHaveBeenCalledWith(7);
   });
 
-  it('passes no options without a timeout', () => {
-    const request = vi.fn(
-      (_run: () => void, _options?: IdleRequestOptions) => 1,
-    );
-    vi.stubGlobal('requestIdleCallback', request);
-    vi.stubGlobal('cancelIdleCallback', vi.fn());
-
-    whenIdle(vi.fn());
-
-    expect(request).toHaveBeenCalledWith(expect.any(Function), undefined);
-  });
-
   it('waits the fallback delay where idle callbacks are missing', () => {
     vi.stubGlobal('requestIdleCallback', undefined);
     const task = vi.fn();

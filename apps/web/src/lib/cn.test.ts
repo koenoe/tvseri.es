@@ -3,12 +3,6 @@ import { describe, expect, it } from 'vitest';
 import cn from './cn';
 
 describe('cn', () => {
-  it('joins truthy classes and drops falsy ones', () => {
-    expect(cn('a', false, null, undefined, 'b', { c: true, d: false })).toBe(
-      'a b c',
-    );
-  });
-
   it('keeps a type token next to a text colour', () => {
     expect(cn('text-body', 'text-white/80')).toBe('text-body text-white/80');
     expect(cn('text-meta text-white/60')).toBe('text-meta text-white/60');

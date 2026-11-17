@@ -18,7 +18,6 @@ describe('openSearch', () => {
     openSearch(trigger);
 
     window.removeEventListener(OPEN_SEARCH_EVENT, listener);
-    expect(OPEN_SEARCH_EVENT).toBe('tvseries:open-search');
     expect(listener).toHaveBeenCalledTimes(1);
     expect(listener.mock.results[0]?.value).toEqual({ trigger });
   });

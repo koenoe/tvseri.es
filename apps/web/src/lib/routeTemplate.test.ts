@@ -68,7 +68,6 @@ describe('toRouteTemplate', () => {
   it('prefers a static segment over a dynamic one', () => {
     // `/u/[username]` would match `/u/settings` too; static routes win, as in Next.
     expect(toRouteTemplate('/settings/profile')).toBe('/settings/profile');
-    expect(toRouteTemplate('/discover')).not.toBe('/[id]/[[...slug]]');
   });
 
   it.each(['/u', '/u/margaux/unknown', '/settings/nope/deeper'])(

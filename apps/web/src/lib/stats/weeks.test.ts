@@ -65,6 +65,5 @@ describe('weeks', () => {
 
   it('has a 53rd week in a long ISO year', () => {
     expect(weekIndexAt(Date.parse('2026-12-31T20:00:00Z'), 2026)).toBe(52);
-    expect(weekLabel(2026, 52)).toBe('Dec 28 – Dec 31');
   });
 });

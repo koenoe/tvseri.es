@@ -64,24 +64,6 @@ describe('proxy matcher', () => {
     expect(doesProxyMatch({ config, cookies: withSession, url })).toBe(true);
   });
 
-  it.each(['/', '/settings', '/1396/breaking-bad'])(
-    'refreshes on navigations to %s',
-    (url) => {
-      expect(doesProxyMatch({ config, cookies: withSession, url })).toBe(true);
-    },
-  );
-
-  it('skips router prefetches: their Set-Cookie may never be used', () => {
-    expect(
-      doesProxyMatch({
-        config,
-        cookies: withSession,
-        headers: { 'next-router-prefetch': '1', rsc: '1' },
-        url: '/settings',
-      }),
-    ).toBe(false);
-  });
-
   // Vercel runs the proxy before its CDN cache: an image that reads no
   // session would cost a function run per signed-in view for nothing
   it.each(['/u/juno/stats/2025/card', '/u/juno/stats/2025/opengraph-image'])(
@@ -99,10 +81,4 @@ describe('proxy matcher', () => {
       expect(doesProxyMatch({ config, cookies: withSession, url })).toBe(true);
     },
   );
-
-  it('skips anonymous visitors outside the user APIs', () => {
-    expect(doesProxyMatch({ config, url: '/api/region' })).toBe(false);
-    expect(doesProxyMatch({ config, url: '/' })).toBe(false);
-    expect(doesProxyMatch({ config, url: '/api/me/library-ids' })).toBe(true);
-  });
 });

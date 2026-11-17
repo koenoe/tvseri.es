@@ -55,6 +55,32 @@ describe('isSameOriginRequest', () => {
     ).toBe(false);
   });
 
+  it('refuses an Origin it cannot read, or on another port', () => {
+    expect(
+      isSameOriginRequest(request({ host: 'www.tvseri.es', origin: 'junk' })),
+    ).toBe(false);
+    expect(
+      isSameOriginRequest(
+        request({
+          host: 'www.tvseri.es',
+          origin: 'https://www.tvseri.es:8443',
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it('trusts Sec-Fetch-Site over a matching Origin', () => {
+    expect(
+      isSameOriginRequest(
+        request({
+          host: 'www.tvseri.es',
+          origin: 'https://www.tvseri.es',
+          'sec-fetch-site': 'same-site',
+        }),
+      ),
+    ).toBe(false);
+  });
+
   it('prefers the forwarded host behind a proxy', () => {
     expect(
       isSameOriginRequest(

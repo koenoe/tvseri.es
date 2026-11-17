@@ -30,6 +30,8 @@ describe('proxy matcher', () => {
     ['/1396/breaking-bad', SESSION, PREFETCH, false],
     ['/1396/breaking-bad', SESSION, { purpose: 'prefetch' }, false],
     ['/', DISPLAY, PREFETCH, false],
+    // A session-reading route has nothing to refresh for an anonymous visitor
+    ['/api/region', {}, {}, false],
     // Other API routes refresh for themselves; assets never need a session
     ['/api/tv/1396', SESSION, {}, false],
     ['/api/auth/login', SESSION, {}, false],

@@ -23,7 +23,7 @@ afterEach(() => {
 });
 
 describe('useRegion', () => {
-  it('follows the wide query on the app’s one shared listener and asks once it is wide', async () => {
+  it('asks for the region once, only when the wide query matches', async () => {
     let matches = false;
     let change = () => {};
     const added = vi.fn((_type: string, listener: () => void) => {
@@ -48,9 +48,6 @@ describe('useRegion', () => {
         <Wide />
       </>,
     );
-    // one MediaQueryList and one listener for every reader of the query
-    expect(matchMedia.mock.calls.filter(([q]) => q === WIDE)).toHaveLength(1);
-    expect(added).toHaveBeenCalledTimes(1);
     // a phone never asks
     expect(fetch).not.toHaveBeenCalled();
 

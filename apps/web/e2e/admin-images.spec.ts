@@ -123,10 +123,11 @@ test('an admin picks a backdrop and saves it for everyone', async ({
   await expect(second).toHaveAttribute('aria-checked', 'true');
   await expect(tray(page).getByText('Unsaved')).toBeVisible();
   await page.getByRole('button', { name: 'Save for everyone' }).click();
-  // The save answers once stored, without waiting for the CDN purge
+  // The save answers once stored (the stub has no CDN purge to wait for, so
+  // how fast is the machine's, not a rule: no budget of its own)
   await expect(
     page.getByText('Saved for everyone. Visitors get it on their next visit.'),
-  ).toBeVisible({ timeout: 1000 });
+  ).toBeVisible();
   await expect(tray(page)).toHaveCount(0);
 
   await page.goto(`${SHOW}?images`);

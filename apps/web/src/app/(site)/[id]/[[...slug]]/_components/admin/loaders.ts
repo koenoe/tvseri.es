@@ -1,21 +1,21 @@
 import 'server-only';
 
 import type { SeriesImages } from '@tvseri.es/schemas';
-import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
 
 /**
  * `GET /series/:id/images?language=`: the picker's choices, the automatic
- * pair and the saved pick. Tagged with the show, so a save refreshes it.
+ * pair and the saved pick. Not cached: only an admin opening the tray reads
+ * it, and the tray must show what is stored now. A cached copy (a day,
+ * tagged with the show) outlived a save on CI and under E2E_SLOW (the tray
+ * reopened on Auto), and a pick stored or reset elsewhere never showed until
+ * it expired.
  */
 export async function loadSeriesImages(
   id: number,
   language: string | undefined,
 ): Promise<SeriesImages | null> {
-  'use cache';
-  cacheLife('short');
-  cacheTag(`series:${id}`);
   return apiFetch<SeriesImages>('/series/:id/images', {
     notFound: 'null',
     params: { id },

@@ -47,15 +47,15 @@ export default $config({
       };
 
       if (!originShieldExcluded.has(name)) {
-        // biome-ignore lint/suspicious/noExplicitAny: sort out later
-        const origins = (args.origins || []) as any[];
-        args.origins = origins.map((origin) => ({
-          ...origin,
-          originShield: {
-            enabled: true,
-            originShieldRegion: $app.providers?.aws.region ?? 'eu-west-2',
-          },
-        }));
+        args.origins = $output(args.origins ?? []).apply((origins) =>
+          origins.map((origin) => ({
+            ...origin,
+            originShield: {
+              enabled: true,
+              originShieldRegion: $app.providers?.aws.region ?? 'eu-west-2',
+            },
+          })),
+        );
       }
 
       args.priceClass = 'PriceClass_100';
@@ -144,7 +144,7 @@ export default $config({
     // deleteAccount: depends on dynamo, auth
     await import('./infra/deleteAccount');
 
-    // API router that depends on auth, dns, dynamo, email, dominantColor, metricsQueue, scrobbleQueue, watchedStatusQueue, undoImportQueue, deleteAccountQueue
+    // API router that depends on auth, deleteAccount, dns, dominantColor, dynamo, imports, metrics, scrobbleQueue, secrets, watchedStatus
     await import('./infra/api');
 
     // Frontend apps that depend on api, auth, dns

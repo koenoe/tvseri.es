@@ -1,5 +1,11 @@
 {
   "skills": {
+    "accessibility": {
+      "computedHash": "48861fac56e62fd43f9c3a173cef9e35a1545637445c6bdb64c18f083af84a44",
+      "skillPath": "skills/accessibility/SKILL.md",
+      "source": "addyosmani/web-quality-skills",
+      "sourceType": "github"
+    },
     "amazon-dynamodb": {
       "computedHash": "86906ac60226d861da6aad9d0f00854783bd064d57bd31b3caa39faabaa2882c",
       "skillPath": "skills/specialized-skills/database-skills/amazon-dynamodb/SKILL.md",
@@ -18,10 +24,52 @@
       "source": "aws/agent-toolkit-for-aws",
       "sourceType": "github"
     },
+    "code-review": {
+      "computedHash": "c2745e2be960b82b9fddd82cf45265f42431e7b045c403f297b25f0f311e9210",
+      "skillPath": "skills/engineering/code-review/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceType": "github"
+    },
+    "codebase-design": {
+      "computedHash": "aa11a96c08451f4ff86052d5da94004a8c97bb4ea41b2ac8a4300c189f66c89c",
+      "skillPath": "skills/engineering/codebase-design/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceType": "github"
+    },
+    "connecting-lambda-to-dynamodb": {
+      "computedHash": "19d4a378c287420218e219d193ac6f37d2105be155b27d9df50fb795b5e28c64",
+      "skillPath": "skills/specialized-skills/serverless-skills/connecting-lambda-to-dynamodb/SKILL.md",
+      "source": "aws/agent-toolkit-for-aws",
+      "sourceType": "github"
+    },
     "core-web-vitals": {
       "computedHash": "601b2cbb920fb0ea9814a3f11232d7883e1eb0923865218502ab1d73e9fc5172",
       "skillPath": "skills/core-web-vitals/SKILL.md",
       "source": "addyosmani/web-quality-skills",
+      "sourceType": "github"
+    },
+    "debugging-lambda-timeouts": {
+      "computedHash": "da3148ccff16e63b1680501e30f2ab9511d371d9a8dd5cbff5f5c0d9b15d3c37",
+      "skillPath": "skills/specialized-skills/serverless-skills/debugging-lambda-timeouts/SKILL.md",
+      "source": "aws/agent-toolkit-for-aws",
+      "sourceType": "github"
+    },
+    "diagnosing-bugs": {
+      "computedHash": "ede7254edbd22fcab97a0941511f7d440d8f9a249348fea97c50987ad5501674",
+      "skillPath": "skills/engineering/diagnosing-bugs/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceType": "github"
+    },
+    "domain-modeling": {
+      "computedHash": "b3eb40152b81f0c98fd2095a023c019452dbdce56f7540cc67fece2972db8369",
+      "skillPath": "skills/engineering/domain-modeling/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceType": "github"
+    },
+    "github-actions-templates": {
+      "computedHash": "26d9b7d4392712d3ff500ff535c8f68c03820111e22af74fd579f58f605b2166",
+      "skillPath": "plugins/cicd-automation/skills/github-actions-templates/SKILL.md",
+      "source": "wshobson/agents",
       "sourceType": "github"
     },
     "grill-with-docs": {
@@ -30,10 +78,28 @@
       "source": "mattpocock/skills",
       "sourceType": "github"
     },
+    "grilling": {
+      "computedHash": "e40cc1d348f6d935e28f1e24474302d7368f0a400429271a43b35fe154891dc5",
+      "skillPath": "skills/productivity/grilling/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceType": "github"
+    },
     "hono": {
       "computedHash": "f469bac28a53d010bb47bd61109d0cfebe9a4f3fd407310746114549886b5870",
       "skillPath": "skills/hono/SKILL.md",
       "source": "honojs/skills",
+      "sourceType": "github"
+    },
+    "implement": {
+      "computedHash": "b6371a0a6723bad551f3adc721e3729a6a97acfc3670dc2bdea198bbe78408c0",
+      "skillPath": "skills/engineering/implement/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceType": "github"
+    },
+    "implement-spec": {
+      "computedHash": "0ccc13c6766b0e5f55229c8f1252d004090da70e6610b4c324cd245970fcb3f1",
+      "skillPath": "skills/engineering/implement-spec/SKILL.md",
+      "source": "mattpocock/skills",
       "sourceType": "github"
     },
     "improve-codebase-architecture": {
@@ -45,6 +111,12 @@
     "next-bundle-optimizer": {
       "computedHash": "7c37f80887cf574e146b88d42cf7d8e847a96ac4cbd1a499672213a30a5ba8f5",
       "skillPath": "skills/next-bundle-optimizer/SKILL.md",
+      "source": "vercel/next.js",
+      "sourceType": "github"
+    },
+    "next-cache-components-adoption": {
+      "computedHash": "3f233a4f8fec9aa3f5f3dd183f4d0b76986ab75a31b17efd7fc18368ab7d356f",
+      "skillPath": "skills/next-cache-components-adoption/SKILL.md",
       "source": "vercel/next.js",
       "sourceType": "github"
     },
@@ -66,10 +138,112 @@
       "source": "vercel/next.js",
       "sourceType": "github"
     },
+    "next-partial-prefetching-optimizer": {
+      "computedHash": "466c09de2cd57963f00ceca623ec5fe1c00fb97797a2f762c1db75870f91033e",
+      "skillPath": "skills/next-partial-prefetching-optimizer/SKILL.md",
+      "source": "vercel/next.js",
+      "sourceType": "github"
+    },
     "performance": {
       "computedHash": "ce9d36f139a1b2a6a8ac2cb222698963b8076d2dd8b41685e8e8ae589cdcf1e4",
       "skillPath": "skills/performance/SKILL.md",
       "source": "addyosmani/web-quality-skills",
+      "sourceType": "github"
+    },
+    "pr": {
+      "computedHash": "22a15d4d469344b38e03eb0e95772478393975836289393b1bad3c0febcdc679",
+      "skillPath": "skills/engineering/pr/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceType": "github"
+    },
+    "prototype": {
+      "computedHash": "d3fc74689bd993e39c44bfae510d014eecffbeec2922764b065377fd1327c0f6",
+      "skillPath": "skills/engineering/prototype/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceType": "github"
+    },
+    "pulumi-best-practices": {
+      "computedHash": "c30df908e9283daec0bcb13ea7396782a4040d5c8cc5e65bb275a64cbdce65cc",
+      "skillPath": "pulumi/skills/pulumi-best-practices/SKILL.md",
+      "source": "pulumi/agent-skills",
+      "sourceType": "github"
+    },
+    "research": {
+      "computedHash": "5d85b64ecceed6b3f6d5996dc8af07180be8d1ff11ef3d26eda2acff078fbd39",
+      "skillPath": "skills/engineering/research/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceType": "github"
+    },
+    "security-best-practices": {
+      "computedHash": "7bd6c2cc8083d90f5d5489c80887ed5399e167d3e7323c7f294035e1e586b689",
+      "skillPath": "skills/.curated/security-best-practices/SKILL.md",
+      "source": "openai/skills",
+      "sourceType": "github"
+    },
+    "setup-matt-pocock-skills": {
+      "computedHash": "50d6c45174f56a4323b24978f36fcc9169fae0b3abb026587bf636e468c4954c",
+      "skillPath": "skills/engineering/setup-matt-pocock-skills/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceType": "github"
+    },
+    "setup-ts-deep-modules": {
+      "computedHash": "61508216ede38d8cfa712879197a76f75f4896615dbf7abc3f62571f8f5923cc",
+      "skillPath": "skills/in-progress/setup-ts-deep-modules/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceType": "github"
+    },
+    "shadcn": {
+      "computedHash": "e976181d1ffe560455eb3c7bd83cec5f111a23b32128c20718fd0db6e071fb2d",
+      "skillPath": "skills/shadcn/SKILL.md",
+      "source": "shadcn-ui/ui",
+      "sourceType": "github"
+    },
+    "tailwind-design-system": {
+      "computedHash": "9799760f7ec8b10b4cc88840aa09c941ac26f70e81b33eee834527b799b07048",
+      "skillPath": "plugins/frontend-mobile-development/skills/tailwind-design-system/SKILL.md",
+      "source": "wshobson/agents",
+      "sourceType": "github"
+    },
+    "tanstack-query": {
+      "computedHash": "b8a0477cd4d7bf8fa54d27f8e64d82388402f0d502591db50a357df5b9995c75",
+      "skillPath": "plugins/tanstack-query/skills/tanstack-query/SKILL.md",
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github"
+    },
+    "tanstack-router": {
+      "computedHash": "24beccc4016f91bab65547209cfd849ea5e66f3d5d92820683a9dd84669ced56",
+      "skillPath": "plugins/tanstack-router/skills/tanstack-router/SKILL.md",
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github"
+    },
+    "tanstack-table": {
+      "computedHash": "d5ac71bd795696cd3310165c3ea0e435c310a0ac3c4e9dd45b39ed91b8dbcbb1",
+      "skillPath": "plugins/tanstack-table/skills/tanstack-table/SKILL.md",
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github"
+    },
+    "tdd": {
+      "computedHash": "daf55026f456af104a72fa43247f7bcec89e5127316dc5b1b8d675d6a9d8ce94",
+      "skillPath": "skills/engineering/tdd/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceType": "github"
+    },
+    "to-spec": {
+      "computedHash": "3fa1a0695d4ea242fae9e569e4d22aa1788623197abb33bfadafae7315789bbf",
+      "skillPath": "skills/engineering/to-spec/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceType": "github"
+    },
+    "to-tickets": {
+      "computedHash": "5f871bdc46a9212222214ba399be4965374208af1bd7f48f1271bef72841dd31",
+      "skillPath": "skills/engineering/to-tickets/SKILL.md",
+      "source": "mattpocock/skills",
+      "sourceType": "github"
+    },
+    "triage": {
+      "computedHash": "a683e69163e23630f39c05a50fb9d83a3795a6a6fbd317357669e082cd43a158",
+      "skillPath": "skills/engineering/triage/SKILL.md",
+      "source": "mattpocock/skills",
       "sourceType": "github"
     },
     "turborepo": {
@@ -78,10 +252,40 @@
       "source": "vercel/turborepo",
       "sourceType": "github"
     },
+    "typescript-advanced-types": {
+      "computedHash": "cdb885ca76ed5147c025e57a165c17eae923dff5faa9236cf0fe4365394a9a9d",
+      "skillPath": "plugins/javascript-typescript/skills/typescript-advanced-types/SKILL.md",
+      "source": "wshobson/agents",
+      "sourceType": "github"
+    },
     "valibot": {
       "computedHash": "dc7ad7dc09548808d26aef0bc58786a4ee3559e153a1e83c9c4574f3a294ea1b",
       "skillPath": "skills/valibot/SKILL.md",
       "source": "open-circle/agent-skills",
+      "sourceType": "github"
+    },
+    "vercel-composition-patterns": {
+      "computedHash": "cdc52f07ec7bc67c4f2e53205a4e35f99cdae70ca4240a714c96ba3889734678",
+      "skillPath": "skills/composition-patterns/SKILL.md",
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github"
+    },
+    "vercel-react-best-practices": {
+      "computedHash": "16b2055c5f9da13685718c1dd71978f1584a249513e1f341df3edceb08842f1b",
+      "skillPath": "skills/react-best-practices/SKILL.md",
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github"
+    },
+    "vitest": {
+      "computedHash": "71d82cd9c97042d9ac254997c6d6aae455e911144c04bedaea193e5a41a4cac8",
+      "skillPath": "skills/vitest/SKILL.md",
+      "source": "antfu/skills",
+      "sourceType": "github"
+    },
+    "wayfinder": {
+      "computedHash": "22338d9356ef84430c5ca916f2632f226583d9d7366433f62bfde5b1b6781e9e",
+      "skillPath": "skills/engineering/wayfinder/SKILL.md",
+      "source": "mattpocock/skills",
       "sourceType": "github"
     }
   },

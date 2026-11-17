@@ -21,10 +21,10 @@ a{color:inherit;text-decoration:none;}
 .t-w60{color:var(--w60);}.t-white{color:#fff;}.t-600{font-weight:600;}
 .t-gap-8{margin-top:8px;}.t-gap-12{margin-top:12px;}.t-gap-24{margin-top:24px;}.t-gap-32{margin-top:32px;}
 .a-pg{position:relative;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;background:radial-gradient(ellipse 80% 70% at 30% 20%,#25302f 0%,#1c2223 60%);isolation:isolate;}
-.a-hd{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;width:100%;max-width:1344px;padding:32px var(--gutter) 0;margin:0 auto;}
+.a-hd{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;width:100%;max-width:1280px;padding:32px var(--gutter) 0;margin:0 auto;}
 .a-logo{display:flex;align-items:center;color:#fff;}
-.a-logo svg{display:block;width:auto;height:18px;}
-.a-nn{display:inline-flex;gap:6px;align-items:center;height:36px;padding:0 12px;margin-right:-12px;font-size:14px;font-weight:500;line-height:24px;color:var(--w80);border-radius:999px;}
+.a-logo svg{display:block;width:auto;height:24px;}
+.a-nn{display:inline-flex;gap:6px;align-items:center;height:36px;padding:0 12px;margin-block:-6px;margin-right:-12px;font-size:14px;font-weight:500;line-height:24px;color:var(--w80);border-radius:999px;}
 .a-nn:hover{color:#fff;background:rgba(255,255,255,.07);}
 .a-main{display:flex;flex:1;align-items:center;justify-content:center;padding:20px 0;}
 .a-col{display:flex;flex-direction:column;width:360px;}
@@ -56,6 +56,9 @@ a{color:inherit;text-decoration:none;}
 .a-foot .ico{width:13px;height:13px;}
 .a-spin{width:16px;height:16px;animation:aSpin .9s linear infinite;}
 @keyframes aSpin{to{transform:rotate(360deg);}}
+/* the header is the website's bar: the 1280px page container, a 24px logo
+   32px from the top (20px in a 64px bar on a phone); "Not now" keeps its 36px
+   target without growing the row */
 /* the side gutter is the website's: 32px at every width (--gutter) */
 /* phones: 390px wide (t-mobile tokens, column top-aligned); the header row
    is the website's phone bar: 64px tall, a 20px logo */

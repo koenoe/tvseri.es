@@ -385,6 +385,19 @@ test.describe('without JavaScript', () => {
 });
 
 test.describe('the page itself', () => {
+  test('the header is the website bar: its logo where the website puts it', async ({
+    page,
+  }) => {
+    test.skip(test.info().project.name === 'phone', 'desktop header');
+    await page.goto('/start');
+    const logo = await page.locator('.a-logo svg').evaluate((svg) => {
+      const box = svg.getBoundingClientRect();
+      return { height: box.height, left: box.left, top: box.top };
+    });
+    // the 1280px page container at 1440, its gutter, 32px down, 24px tall
+    expect(logo).toEqual({ height: 24, left: 112, top: 32 });
+  });
+
   test('loads nothing from another origin and breaks no CSP rule', async ({
     page,
   }) => {

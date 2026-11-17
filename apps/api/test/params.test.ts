@@ -85,6 +85,7 @@ describe('catalogue path params', () => {
       '/series/12345678901',
       '/series/0',
       '/series/1/season/10000',
+      '/series/1/season/1000',
       '/series/1/season/1/episode/99999',
       '/series/1/season/123456/ratings',
       '/keyword/123456789012345',
@@ -94,6 +95,18 @@ describe('catalogue path params', () => {
       resetRequests();
       const response = await request(path);
       expect([path, response.status]).toEqual([path, 400]);
+      expect(requestedUrls()).toEqual([]);
+    }
+  });
+
+  it('never routes a season that is not digits to TMDB', async () => {
+    for (const path of [
+      '/series/1/season/abc/episode/1',
+      '/series/1/season/1e3',
+      '/series/1/season/-1',
+    ]) {
+      resetRequests();
+      expect([path, (await request(path)).status]).toEqual([path, 404]);
       expect(requestedUrls()).toEqual([]);
     }
   });

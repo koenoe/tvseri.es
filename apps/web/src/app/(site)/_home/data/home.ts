@@ -114,7 +114,8 @@ export async function getTopPicks(
     tryApi(() => apiFetch<TvSeries[]>('/collection/most-popular-this-month')),
     getSpotlight(),
   ]);
-  cacheLifeFor('medium', items, spotlight);
+  // `short`: the spotlight it gives way to turns over that often
+  cacheLifeFor('short', items, spotlight);
   if (isUnavailable(items)) {
     return items;
   }
@@ -341,8 +342,9 @@ export async function getNewThisWeek(
     getToy(day),
   ]);
   const standIn = !isUnavailable(answer) && isStandIn(answer, date);
+  // `short`, as the spotlight it gives way to
   cacheLifeFor(
-    standIn ? 'unavailable' : 'medium',
+    standIn ? 'unavailable' : 'short',
     answer,
     spotlight,
     feature,

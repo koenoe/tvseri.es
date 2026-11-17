@@ -253,7 +253,7 @@ describe('New this week', () => {
       [13, 2],
       [15, 6],
     ]);
-    expect(cacheLife).toHaveBeenLastCalledWith('medium');
+    expect(cacheLife).toHaveBeenLastCalledWith('short');
   });
 
   it('keeps another day’s list only for the outage life', async () => {

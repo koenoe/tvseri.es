@@ -236,6 +236,24 @@ describe('undo import', () => {
     expect(await episodes()).toHaveLength(2);
   });
 
+  it('refuses a new import while the last one is being undone', async () => {
+    seedUser();
+    const importId = await startImport();
+    await request(`/me/imports/${importId}`, {
+      as: USER_ID,
+      method: 'DELETE',
+    });
+
+    const blocked = await request('/me/imports', {
+      as: USER_ID,
+      method: 'POST',
+    });
+    expect(blocked.status).toBe(409);
+
+    await runUndoQueue();
+    await startImport();
+  });
+
   it('continues in a new message when the Lambda runs out of time', async () => {
     seedUser();
     const importId = await startImport();

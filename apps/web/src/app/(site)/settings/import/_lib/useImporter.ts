@@ -215,7 +215,9 @@ export function useImporter(initialLast: UndoableImport | null = null) {
       dispatch({
         chunk: 0,
         reason:
-          created?.error === 'unauthenticated' ? 'unauthenticated' : 'failed',
+          created?.error === 'unauthenticated' || created?.error === 'undoing'
+            ? created.error
+            : 'failed',
         type: 'importStopped',
       });
       return;

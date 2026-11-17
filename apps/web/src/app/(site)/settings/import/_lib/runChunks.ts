@@ -9,8 +9,11 @@ import {
 } from '@/lib/import/contract';
 import { readNdjson } from '@/lib/import/ndjson';
 
-/** Why a run stopped before its last chunk (the "Stopped" banner). */
-export type StopReason = ErrorEvent['error'];
+/**
+ * Why a run stopped before its last chunk (the "Stopped" banner).
+ * `undoing`: the import couldn't start while the last one's Undo runs.
+ */
+export type StopReason = ErrorEvent['error'] | 'undoing';
 
 export type RunOutcome =
   | Readonly<{ status: 'done' }>

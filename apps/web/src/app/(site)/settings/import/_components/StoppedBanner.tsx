@@ -13,6 +13,7 @@ const HEAD: Readonly<Record<StopReason, string>> = {
   conflict: 'it was undone or replaced by a newer import',
   failed: 'the connection dropped',
   unauthenticated: 'your session expired',
+  undoing: 'your last import is still being undone',
 };
 
 /**

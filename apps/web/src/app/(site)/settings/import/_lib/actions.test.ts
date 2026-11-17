@@ -71,6 +71,13 @@ describe('startImport', () => {
       ok: false,
     });
   });
+  it('a 409 is `undoing`: the last import’s Undo still runs', async () => {
+    vi.mocked(apiFetch).mockRejectedValue(new ApiError(409));
+    await expect(startImport()).resolves.toEqual({
+      error: 'undoing',
+      ok: false,
+    });
+  });
 });
 
 describe('undoImport', () => {

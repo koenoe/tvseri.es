@@ -25,7 +25,9 @@ const userItemKey = (userId: string) => marshall({ pk: userKey(userId) });
 
 /**
  * Starts an import: it becomes the user's last import (the one Undo applies
- * to; an earlier import can no longer be undone).
+ * to; an earlier import can no longer be undone). 409 while the last one's
+ * Undo is still running: replacing it would drop the skips Undo is about to
+ * put back (`importUnskipped`).
  */
 export const startImport = async (userId: string): Promise<LastImport> => {
   const lastImport: LastImport = {
@@ -35,7 +37,8 @@ export const startImport = async (userId: string): Promise<LastImport> => {
   };
   await client.send(
     new UpdateItemCommand({
-      ConditionExpression: 'attribute_exists(pk)',
+      ConditionExpression:
+        'attribute_exists(pk) AND (attribute_not_exists(lastImport.undoRequestedAt) OR attribute_exists(lastImport.undoneAt))',
       ExpressionAttributeValues: marshall({
         ':lastImport': lastImport,
         ':unskipped': freshUnskipped(lastImport.importId),

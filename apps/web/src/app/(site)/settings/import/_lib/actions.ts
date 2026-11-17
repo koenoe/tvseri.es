@@ -5,7 +5,12 @@ import * as v from 'valibot';
 import { fetchMe } from '@/auth/me';
 import { getViewer } from '@/auth/viewer';
 import { apiFailure } from '@/lib/actions/apiFailure';
-import { type ActionResult, actionError, okResult } from '@/lib/actions/result';
+import {
+  type ActionError,
+  type ActionResult,
+  actionError,
+  okResult,
+} from '@/lib/actions/result';
 import { apiFetch } from '@/lib/api/client';
 import { revalidateViewerStats } from '@/lib/stats/revalidateViewerStats';
 
@@ -18,9 +23,12 @@ import { revalidateViewerStats } from '@/lib/stats/revalidateViewerStats';
 /** A 409 (not the last import, or already undone) or a 400 is `invalid` */
 const STATUSES = { 400: 'invalid', 409: 'invalid' } as const;
 
-/** `POST /me/imports`: a new import, the user's last one. */
+/**
+ * `POST /me/imports`: a new import, the user's last one. 409 while the last
+ * import's Undo is still running is `undoing`.
+ */
 export async function startImport(): Promise<
-  ActionResult<{ importId: string; createdAt: number }>
+  ActionResult<{ importId: string; createdAt: number }, ActionError | 'undoing'>
 > {
   const viewer = await getViewer();
   if (!viewer) {
@@ -36,7 +44,7 @@ export async function startImport(): Promise<
       importId: created.importId,
     });
   } catch (error) {
-    return apiFailure('import', error, STATUSES);
+    return apiFailure('import', error, { 400: 'invalid', 409: 'undoing' });
   }
 }
 

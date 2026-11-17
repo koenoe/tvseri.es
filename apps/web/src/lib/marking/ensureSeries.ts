@@ -12,12 +12,15 @@ const pendingSeeds = new WeakMap<
  * the tab, so a hover warm-up and a Remote opening on the same show never
  * both fetch it. Resolves true once the store has the show, false when it
  * couldn't be read (signed out, a failed read). Callers check sign-in.
+ * `force` reads it again although the store has it: a seed the server
+ * marked unavailable.
  */
 export function ensureSeries(
   store: MarkingStoreApi,
   seriesId: number,
+  { force = false }: Readonly<{ force?: boolean }> = {},
 ): Promise<boolean> {
-  if (store.getState().series[seriesId]) {
+  if (!force && store.getState().series[seriesId]) {
     return Promise.resolve(true);
   }
   const pending =

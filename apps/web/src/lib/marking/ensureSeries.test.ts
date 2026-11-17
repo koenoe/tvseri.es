@@ -55,6 +55,18 @@ describe('ensureSeries', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it('asks again for a show the store has when forced (an unavailable seed)', async () => {
+    const fetch = answer(200);
+    vi.stubGlobal('fetch', fetch);
+    const store = createMarkingStore();
+    store.getState().seed(SEED, JSON.stringify(SEED));
+
+    await expect(ensureSeries(store, SERIES, { force: true })).resolves.toBe(
+      true,
+    );
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
   it('is false for a failed read, and asks again on the next call', async () => {
     const fetch = answer(500);
     vi.stubGlobal('fetch', fetch);

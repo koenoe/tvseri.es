@@ -496,6 +496,93 @@ test.describe('stats', () => {
     await expect.poll(scrollLeft).toBeLessThan(before);
   });
 
+  // The overview's window is a slider: dragging it (or pressing beside it)
+  // scrubs the weeks, the quarter in view lights as with a swipe, and its
+  // keys move it a week, or to the ends.
+  test('a phone scrubs the year in series from its overview', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ height: 900, width: 390 });
+    await phoneScrollbars(page, 390);
+    await page.goto(PAGE);
+    const section = page.locator(
+      'section[aria-labelledby="year-in-shows-title"]',
+    );
+    await section.scrollIntoViewIfNeeded();
+    await hydrated(page);
+    const scroller = section.getByRole('region', { name: /week by week$/ });
+    const scrollLeft = () => scroller.evaluate((el) => el.scrollLeft);
+    const lit = section
+      .getByRole('radiogroup', { name: 'Quarter' })
+      .locator('[aria-checked="true"]');
+    const slider = section.getByRole('slider', { name: 'Weeks in view' });
+    await expect(lit).toHaveText('Jan–Mar');
+    // the section is taller than the screen: the strip mid-screen, clear of
+    // the fixed header
+    await slider.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+    const strip = await slider.boundingBox();
+    const frame = await slider.locator('span').boundingBox();
+    if (!strip || !frame) {
+      throw new Error('no overview');
+    }
+    const { max, track } = await scroller.evaluate((el) => ({
+      max: el.scrollWidth - el.clientWidth,
+      track: el.scrollWidth,
+    }));
+    const perPx = track / strip.width;
+    const y = strip.y + strip.height / 2;
+
+    // drag the window by 60px: the weeks follow in proportion
+    const startX = frame.x + frame.width / 2;
+    await page.mouse.move(startX, y);
+    await page.mouse.down();
+    await page.mouse.move(startX + 60, y, { steps: 6 });
+    await expect
+      .poll(async () => Math.abs((await scrollLeft()) - 60 * perPx))
+      .toBeLessThan(2);
+    // on to the end of the strip: as far as it goes, the last quarter lit
+    await page.mouse.move(strip.x + strip.width + 20, y, { steps: 6 });
+    await expect.poll(scrollLeft).toBe(max);
+    await expect(lit).toHaveText('Oct–Dec');
+    await page.mouse.up();
+    // snapping is back once it lets go
+    await expect
+      .poll(() => scroller.evaluate((el) => el.style.scrollSnapType))
+      .toBe('');
+
+    // a press beside the window brings it there, centred on the pointer
+    const pressX = strip.x + strip.width * 0.3;
+    await page.mouse.move(pressX, y);
+    await page.mouse.down();
+    const centred = (strip.width * 0.3 - frame.width / 2) * perPx;
+    await expect
+      .poll(async () => Math.abs((await scrollLeft()) - centred))
+      .toBeLessThan(2);
+    await expect(lit).toHaveText('Apr–Jun');
+    await page.mouse.up();
+
+    // the keyboard: Home, a week on, End
+    await slider.focus();
+    await page.keyboard.press('Home');
+    await expect.poll(scrollLeft).toBe(0);
+    await expect(lit).toHaveText('Jan–Mar');
+    await expect(slider).toHaveAttribute('aria-valuenow', '0');
+    await expect(slider).toHaveAttribute(
+      'aria-valuetext',
+      /^January to (March|April)$/,
+    );
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(scrollLeft).toBe(24);
+    await expect(slider).toHaveAttribute('aria-valuenow', '1');
+    await page.keyboard.press('End');
+    await expect.poll(scrollLeft).toBe(max);
+    await expect(lit).toHaveText('Oct–Dec');
+    await expect(slider).toHaveAttribute(
+      'aria-valuemax',
+      String(Math.ceil(max / 24)),
+    );
+  });
+
   /**
    * Loads a year (nothing grows), switches to the year before, and returns
    * the delays of the first three week lines to grow.

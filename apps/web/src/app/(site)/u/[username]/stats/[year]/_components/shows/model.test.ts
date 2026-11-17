@@ -6,11 +6,15 @@ import {
   BOARD_ROWS,
   buildTimeline,
   endReference,
+  grabOffset,
   monthOfWeek,
+  monthsInView,
   openingQuarter,
   quarterOfWeek,
   quarterStarts,
   rowsToShow,
+  scrollForWindow,
+  sliderWeek,
   weekPercent,
 } from './model';
 
@@ -246,5 +250,48 @@ describe('activeQuarter', () => {
   it('reaches the last quarter where the window cannot scroll to its start', () => {
     expect(activeQuarter(672, starts, 672)).toBe(3);
     expect(activeQuarter(626, starts, 672)).toBe(2);
+  });
+});
+
+describe('the overview slider', () => {
+  it('moves a week for the arrows, a quarter for the page keys, to the ends', () => {
+    expect(sliderWeek('ArrowRight', 5, 40)).toBe(6);
+    expect(sliderWeek('ArrowUp', 5, 40)).toBe(6);
+    expect(sliderWeek('ArrowLeft', 5, 40)).toBe(4);
+    expect(sliderWeek('ArrowDown', 5, 40)).toBe(4);
+    expect(sliderWeek('PageUp', 5, 40)).toBe(18);
+    expect(sliderWeek('PageDown', 20, 40)).toBe(7);
+    expect(sliderWeek('Home', 20, 40)).toBe(0);
+    expect(sliderWeek('End', 20, 40)).toBe(40);
+  });
+
+  it('stays between the ends and ignores other keys', () => {
+    expect(sliderWeek('ArrowLeft', 0, 40)).toBe(0);
+    expect(sliderWeek('PageDown', 5, 40)).toBe(0);
+    expect(sliderWeek('PageUp', 35, 40)).toBe(40);
+    expect(sliderWeek('Enter', 5, 40)).toBeNull();
+  });
+
+  it('maps the window along the strip to the scroll, held to the track', () => {
+    // a 318px strip draws the 1272px track at a quarter of its size
+    expect(scrollForWindow(100, 318, 954)).toBe(400);
+    expect(scrollForWindow(-20, 318, 954)).toBe(0);
+    expect(scrollForWindow(300, 318, 954)).toBe(954);
+    expect(scrollForWindow(100, 0, 954)).toBe(0);
+  });
+
+  it('holds the window where it was pressed, or centred beside it', () => {
+    expect(grabOffset(110, 100, 80)).toBe(10);
+    expect(grabOffset(180, 100, 80)).toBe(80);
+    expect(grabOffset(20, 100, 80)).toBe(40);
+    expect(grabOffset(250, 100, 80)).toBe(40);
+  });
+
+  it('names the months in view', () => {
+    // 2025: week 0 starts Mon Dec 30 2024, its Thursday in January
+    expect(monthsInView(0, 13.25, 2025)).toBe('January to April');
+    expect(monthsInView(0, 13, 2025)).toBe('January to March');
+    expect(monthsInView(1, 3, 2025)).toBe('January');
+    expect(monthsInView(40, 53, 2025)).toBe('October to December');
   });
 });

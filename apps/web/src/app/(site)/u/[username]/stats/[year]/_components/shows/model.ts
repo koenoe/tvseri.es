@@ -5,7 +5,13 @@ import { SHORT_MONTHS } from '@/lib/format/months';
 import { plural } from '@/lib/format/text';
 
 import { formatYearHours } from '../../_lib/format';
-import { monthDay, monthStarts, WEEKS, weekIndexAt } from '../../_lib/weeks';
+import {
+  monthDay,
+  monthName,
+  monthStarts,
+  WEEKS,
+  weekIndexAt,
+} from '../../_lib/weeks';
 import type { YearState } from '../../_lib/year';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -129,6 +135,56 @@ export function activeQuarter(
     }
   });
   return best;
+}
+
+/** Weeks the overview's slider moves for PageUp and PageDown */
+const PAGE_WEEKS = 13;
+
+/**
+ * Where a key moves the overview's slider, in weeks (`week` now, 0 to
+ * `last`): the arrows a week, PageUp and PageDown about a quarter, Home and
+ * End to the ends. Any other key: `null`.
+ */
+export function sliderWeek(
+  key: string,
+  week: number,
+  last: number,
+): number | null {
+  const steps: Readonly<Record<string, number>> = {
+    ArrowDown: week - 1,
+    ArrowLeft: week - 1,
+    ArrowRight: week + 1,
+    ArrowUp: week + 1,
+    End: last,
+    Home: 0,
+    PageDown: week - PAGE_WEEKS,
+    PageUp: week + PAGE_WEEKS,
+  };
+  const next = steps[key];
+  return next === undefined ? null : Math.min(Math.max(next, 0), last);
+}
+
+/**
+ * The scroll (px, 0 to `max`) that puts the overview's window's left edge
+ * at `left` px along an overview `track` px wide.
+ */
+export const scrollForWindow = (left: number, track: number, max: number) =>
+  track > 0 ? Math.min(Math.max((left * PHONE_TRACK_PX) / track, 0), max) : 0;
+
+/**
+ * Where a press holds the overview's window, in px from its left edge: where
+ * it landed on the window, or its middle when it landed beside it (the
+ * window jumps there, centred on the pointer).
+ */
+export const grabOffset = (pointer: number, left: number, width: number) =>
+  pointer >= left && pointer <= left + width ? pointer - left : width / 2;
+
+/** "January to March": the months of the weeks in view, `from` to `to` */
+export function monthsInView(from: number, to: number, year: number): string {
+  const lastWeek = Math.min(Math.max(from, Math.ceil(to) - 1), WEEKS - 1);
+  const first = monthName(monthOfWeek(Math.floor(from), year));
+  const last = monthName(monthOfWeek(lastWeek, year));
+  return first === last ? first : `${first} to ${last}`;
 }
 
 /** Position along the 53 weeks, in percent */

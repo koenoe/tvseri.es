@@ -10,6 +10,7 @@ import {
 
 import {
   activeQuarter,
+  monthsInView,
   PHONE_TRACK_PX,
   PHONE_WEEK_PX,
   QUARTERS,
@@ -17,6 +18,7 @@ import {
   type TimelineRow,
 } from './model';
 import Overview from './Overview';
+import OverviewSlider from './OverviewSlider';
 import Segmented, { type SegmentedOption } from './Segmented';
 
 const OPTIONS: ReadonlyArray<SegmentedOption<number>> = QUARTERS.map(
@@ -37,8 +39,11 @@ const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
  * - moves the overview's window (a transform),
  * - writes the weeks in view (`--from`, `--to`) for the rows' pointers,
  * - flags the edges that have more beyond them (`data-fl`, `data-fr`),
- * - and lights the quarter in view (a tapped one stays lit on the way).
- * The quarter switch scrolls without dragging. The scroller is focusable
+ * - writes the overview slider's value (the first week in view) and the
+ *   months in view,
+ * - and lights the quarter in view (a tapped one stays lit on the way; a
+ *   swipe, or a drag or key on the overview, lets go of it).
+ * The quarter switch and the overview's slider scroll without swiping. The scroller is focusable
  * (arrow keys scroll it) only while it scrolls.
  */
 export default function QuarterScroller({
@@ -58,6 +63,7 @@ export default function QuarterScroller({
 }>) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const windowRef = useRef<HTMLSpanElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
   // The quarter a tap scrolls to: it stays lit on the way there
   const targetRef = useRef<number | null>(null);
   const [quarter, setQuarter] = useState(opening);
@@ -91,6 +97,22 @@ export default function QuarterScroller({
       frame.style.left = '0';
       frame.style.width = `${width * scale}px`;
       frame.style.transform = `translateX(${x * scale}px)`;
+      const slider = sliderRef.current;
+      if (slider) {
+        const from = x / PHONE_WEEK_PX;
+        const value = {
+          'aria-valuemax': Math.ceil(max / PHONE_WEEK_PX),
+          'aria-valuenow': Math.round(from),
+          'aria-valuetext': monthsInView(
+            from,
+            from + width / PHONE_WEEK_PX,
+            year,
+          ),
+        };
+        for (const [name, text] of Object.entries(value)) {
+          slider.setAttribute(name, String(text));
+        }
+      }
       const target = targetRef.current;
       if (target === null) {
         setQuarter(activeQuarter(x, startsPx, max));
@@ -130,6 +152,11 @@ export default function QuarterScroller({
     };
   }, [opening, year]);
 
+  // a drag or key on the overview takes over from a tap's scroll
+  const grab = () => {
+    targetRef.current = null;
+  };
+
   const select = (next: number) => {
     const scroller = scrollerRef.current;
     setQuarter(next);
@@ -150,6 +177,12 @@ export default function QuarterScroller({
     left: `${((openingAt / PHONE_TRACK_PX) * 100).toFixed(3)}%`,
     width: `${((NOMINAL_WEEKS * PHONE_WEEK_PX * 100) / PHONE_TRACK_PX).toFixed(3)}%`,
   };
+  const openingWeek = Math.round(openingAt / PHONE_WEEK_PX);
+  const sliderInitial = {
+    last: Math.ceil(PHONE_TRACK_PX / PHONE_WEEK_PX - NOMINAL_WEEKS),
+    now: openingWeek,
+    text: monthsInView(openingWeek, openingWeek + NOMINAL_WEEKS, year),
+  };
   const scrollerStyle = {
     '--from': '0',
     '--to': String(NOMINAL_WEEKS),
@@ -162,11 +195,13 @@ export default function QuarterScroller({
   return (
     <>
       <Overview rows={overview}>
-        <span
-          aria-hidden
-          className="absolute inset-y-0 rounded-6 bg-white/6 shadow-[inset_0_0_0_1.5px_#fff] will-change-transform"
-          ref={windowRef}
-          style={windowStyle}
+        <OverviewSlider
+          initial={sliderInitial}
+          onGrab={grab}
+          ref={sliderRef}
+          scrollerRef={scrollerRef}
+          windowRef={windowRef}
+          windowStyle={windowStyle}
         />
       </Overview>
       <div className="mt-1.5 md:hidden">

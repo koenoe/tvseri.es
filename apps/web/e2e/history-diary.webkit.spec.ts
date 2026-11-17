@@ -1,6 +1,5 @@
 import { expect, test } from '@playwright/test';
 
-import { loadRows, wheelFor5s } from './helpers/diary';
 import { signInAs } from './helpers/session';
 
 /**
@@ -54,20 +53,3 @@ for (const width of [390, 1440] as const) {
     expect(Math.abs(after - before.top)).toBeLessThanOrEqual(2);
   });
 }
-
-test.describe('History scroll in WebKit @perf', () => {
-  test.setTimeout(480_000);
-  test('2,000 rows scroll smoothly @scroll', async ({ context, page }) => {
-    await page.setViewportSize({ height: 900, width: 1440 });
-    await signInAs(context, 'marathonwatcher-2026');
-    await page.goto(PATH);
-    await expect(page.locator('[data-diary-row]').first()).toBeVisible();
-    const rows = await loadRows(page, 2000);
-    const scroll = await wheelFor5s(page);
-    console.log(
-      `[perf] history webkit: ${JSON.stringify({ rows, ...scroll })}`,
-    );
-    expect(rows).toBeGreaterThanOrEqual(2000);
-    expect(scroll.slowFrames).toBeLessThanOrEqual(2);
-  });
-});

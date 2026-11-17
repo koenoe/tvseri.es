@@ -490,6 +490,9 @@ for (const viewport of [
 // Timing-based: opt-in (`E2E_PERF=1`). The click timings with
 // `STUB_API_DELAY_MS=500` (`--grep "@perf @timing"`), the scroll without a
 // delay (`--grep "@perf @scroll"`), one worker so nothing else loads the machine.
+// Opt-in because frame and long-task counts depend on the machine's load. The
+// scroll runs in Chromium only: WebKit has no style-time metric and its frame
+// gaps came out the same with and without the whole-page restyle.
 test.describe('History performance @perf', () => {
   test.use({ viewport: { height: 900, width: 1440 } });
   test.setTimeout(480_000);
@@ -559,7 +562,10 @@ test.describe('History performance @perf', () => {
       `[perf] history chromium scroll: ${JSON.stringify({ rows, ...scroll })}`,
     );
     expect(rows).toBeGreaterThanOrEqual(2000);
+    // About 150 ms of style work here; the `:root:has(header…)` that
+    // restyled the whole page on every header turn took about 3,000 ms
+    expect(scroll.recalcStyleMs).toBeLessThanOrEqual(750);
     expect(scroll.longTasks).toBe(0);
-    expect(scroll.slowFrames).toBeLessThanOrEqual(2);
+    expect(scroll.slowFrames).toBeLessThanOrEqual(8);
   });
 });

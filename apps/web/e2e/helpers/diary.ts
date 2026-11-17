@@ -43,27 +43,49 @@ type WheelRun = {
   stop: () => void;
 };
 
+const WARM_UP_MS = 1000;
+const MEASURE_MS = 5000;
+
 /**
- * 5 s of scripted wheel through the loaded diary: long tasks and slow frames.
- * Each run owns its observer and frame loop and stops both when it reads
- * them, so repeated runs on one page count only their own 5 s.
+ * Six notches down, three up: every turn flips the header between hidden
+ * and floating, the change that once re-checked the whole page's style
+ * (a `:root:has(header…)`), while the run still works its way down the list.
+ */
+async function wheelPattern(page: Page, ms: number) {
+  const end = Date.now() + ms;
+  for (let step = 0; Date.now() < end; step += 1) {
+    await page.mouse.wheel(0, step % 9 < 6 ? 120 : -120);
+    await page.waitForTimeout(16);
+  }
+}
+
+/**
+ * 5 s of scripted wheel through the loaded diary after 1 s of warm-up that
+ * is not counted: the main thread's style, layout and script time
+ * (Chromium's DevTools metrics, so Chromium only), long tasks, and frames
+ * slower than 1.5× the run's median frame. Each run owns its observer and
+ * frame loop and stops both when it reads them.
  */
 export async function wheelFor5s(page: Page) {
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.mouse.move(900, 500);
+  await wheelPattern(page, WARM_UP_MS);
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Performance.enable');
+  const metrics = async () => {
+    const { metrics: list } = await cdp.send('Performance.getMetrics');
+    return new Map(list.map(({ name, value }) => [name, value]));
+  };
   await page.evaluate(() => {
-    window.scrollTo(0, 0);
     const w = window as unknown as { __wheel?: WheelRun };
     w.__wheel?.stop();
     const run: WheelRun = { frames: [], long: [], stop: () => {} };
-    const observer = PerformanceObserver.supportedEntryTypes.includes(
-      'longtask',
-    )
-      ? new PerformanceObserver((list) => {
-          for (const entry of list.getEntries()) {
-            run.long.push(entry.duration);
-          }
-        })
-      : null;
-    observer?.observe({ type: 'longtask' });
+    const observer = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        run.long.push(entry.duration);
+      }
+    });
+    observer.observe({ type: 'longtask' });
     let frame = 0;
     let last = performance.now();
     const tick = (now: number) => {
@@ -74,30 +96,36 @@ export async function wheelFor5s(page: Page) {
     frame = requestAnimationFrame(tick);
     run.stop = () => {
       cancelAnimationFrame(frame);
-      observer?.disconnect();
+      observer.disconnect();
     };
     w.__wheel = run;
   });
-  await page.mouse.move(900, 500);
-  const end = Date.now() + 5000;
-  while (Date.now() < end) {
-    await page.mouse.wheel(0, 120);
-    await page.waitForTimeout(16);
-  }
-  return page.evaluate(() => {
+  const before = await metrics();
+  await wheelPattern(page, MEASURE_MS);
+  const after = await metrics();
+  await cdp.detach();
+  const delta = (name: string) =>
+    (after.get(name) ?? 0) - (before.get(name) ?? 0);
+  const run = await page.evaluate(() => {
     const w = window as unknown as { __wheel?: WheelRun };
-    const run = w.__wheel;
-    if (!run) {
+    const current = w.__wheel;
+    if (!current) {
       throw new Error('wheelFor5s: no run on this page');
     }
-    run.stop();
+    current.stop();
     w.__wheel = undefined;
-    const frames = run.frames.slice(2);
-    return {
-      frames: frames.length,
-      longTasks: run.long.filter((duration) => duration > 50).length,
-      slowFrames: frames.filter((gap) => gap > 25).length,
-      worstFrame: Math.round(Math.max(0, ...frames)),
-    };
+    // the first gap runs from the setup to the first frame
+    return { frames: current.frames.slice(1), long: current.long };
   });
+  const sorted = [...run.frames].sort((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length / 2)] ?? 0;
+  return {
+    frames: run.frames.length,
+    layoutMs: Math.round(delta('LayoutDuration') * 1000),
+    longTasks: run.long.length,
+    recalcStyleMs: Math.round(delta('RecalcStyleDuration') * 1000),
+    scriptMs: Math.round(delta('ScriptDuration') * 1000),
+    slowFrames: run.frames.filter((gap) => gap > median * 1.5).length,
+    worstFrame: Math.round(Math.max(0, ...run.frames)),
+  };
 }

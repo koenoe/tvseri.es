@@ -1,5 +1,6 @@
 import BarTip, { type BarTipLayout } from '@/components/ui/chart/BarTip';
 import cn from '@/lib/cn';
+import ChartTable from '../../../../stats/[year]/_components/ui/ChartTable';
 
 import type { YearBar } from './yearBars';
 
@@ -27,21 +28,16 @@ function Bar({
   total,
 }: Readonly<{ bar: YearBar; index: number; total: number }>) {
   const fillClass = cn(
-    'block w-full rounded-2 transition-colors group-hover/bar:bg-white group-focus-visible/bar:bg-white',
+    'block w-full rounded-2 transition-colors group-hover/bar:bg-white',
     bar.current ? 'bg-cyan' : 'bg-white/22',
   );
   const tip = tipPlace(index, total);
   const style = { height: bar.height };
   return (
-    <span
-      aria-label={bar.label}
-      className="group/bar relative flex flex-1 cursor-default items-end outline-none"
-      role="img"
-      tabIndex={0}
-    >
+    <span className="group/bar relative flex flex-1 cursor-default items-end">
       <span className={fillClass} style={style} />
       <BarTip layout={tip} title={bar.count}>
-        {bar.range}
+        {bar.label}
       </BarTip>
     </span>
   );
@@ -57,8 +53,9 @@ const STUB_CURRENT = `${STUB} bg-cyan`;
 const STUB_OTHER = `${STUB} bg-white/10`;
 
 /**
- * The weekly bars: focusable, each shows its week on
- * hover and focus. `flat` is the empty year: 4px stubs, this week cyan.
+ * The weekly bars, each showing its week on hover. Screen readers get a
+ * hidden table instead (`ChartTable`, as on Stats), not a tab stop per
+ * week. `flat` is the empty year: 4px stubs, this week cyan.
  */
 export default function WeekBars({
   bars,
@@ -70,16 +67,19 @@ export default function WeekBars({
   label: string;
 }>) {
   return (
-    <div aria-label={label} className={WEEK_BARS} role="group">
-      {bars.map((bar, index) =>
-        flat ? (
-          <span aria-hidden="true" className={WEEK_SLOT} key={bar.range}>
-            <span className={bar.current ? STUB_CURRENT : STUB_OTHER} />
-          </span>
-        ) : (
-          <Bar bar={bar} index={index} key={bar.range} total={bars.length} />
-        ),
-      )}
-    </div>
+    <>
+      {flat ? null : <ChartTable caption={label} rows={bars} />}
+      <div aria-hidden="true" className={WEEK_BARS}>
+        {bars.map((bar, index) =>
+          flat ? (
+            <span aria-hidden="true" className={WEEK_SLOT} key={bar.label}>
+              <span className={bar.current ? STUB_CURRENT : STUB_OTHER} />
+            </span>
+          ) : (
+            <Bar bar={bar} index={index} key={bar.label} total={bars.length} />
+          ),
+        )}
+      </div>
+    </>
   );
 }

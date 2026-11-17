@@ -18,9 +18,8 @@ const BAR_MIN = 4;
 export type YearBar = Readonly<{
   /** `8 episodes` */
   count: string;
+  episodes: number;
   /** `This week` for the current bar, else `Mar 2 – Mar 8` */
-  range: string;
-  /** `Mar 2 – Mar 8: 8 episodes` */
   label: string;
   /** Pixels, 4 to 56 */
   height: number;
@@ -50,9 +49,9 @@ export function yearBars(
     return {
       count: text,
       current,
+      episodes: count,
       height: scaledHeight(count, busiest, BAR_AREA, BAR_MIN),
-      label: `${range}: ${text}`,
-      range,
+      label: range,
     };
   });
 }

@@ -10,11 +10,12 @@ describe('yearBars', () => {
   it('draws a bar per week up to this one, the last being this week', () => {
     const bars = yearBars([2, 4, 8], 2026, now);
     expect(bars).toHaveLength(3);
-    expect(bars[2]).toMatchObject({ current: true, range: 'This week' });
+    expect(bars[2]).toMatchObject({ current: true, label: 'This week' });
     expect(bars[1]).toMatchObject({
       count: '4 episodes',
       current: false,
-      label: 'Jan 5 – Jan 11: 4 episodes',
+      episodes: 4,
+      label: 'Jan 5 – Jan 11',
     });
   });
 

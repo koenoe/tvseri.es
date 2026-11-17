@@ -321,6 +321,8 @@ describe('the show read does not wait for the profile', () => {
     vi.mocked(auth).mockResolvedValueOnce(
       {} as Awaited<ReturnType<typeof auth>>,
     );
+    const { getViewer } = await import('@/auth/viewer');
+    vi.mocked(getViewer).mockResolvedValueOnce(null);
     const result = await markScope({ seriesId: 136315, when: { kind: 'now' } });
     expect(result).toMatchObject({ error: 'unauthenticated', ok: false });
   });

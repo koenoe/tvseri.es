@@ -172,6 +172,7 @@ describe('updateProfile', () => {
       expiresAt: null,
       user: null,
     });
+    vi.mocked(getViewer).mockResolvedValue(null);
     expect(await updateProfile({ name: 'Z', username: 'rae' })).toEqual({
       error: 'unauthenticated',
       ok: false,

@@ -2,6 +2,7 @@ import { revalidateTag } from 'next/cache';
 import { after, NextRequest } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import auth from '@/auth';
+import { missingUser } from '@/auth/missingUser';
 import { ApiError, apiFetch } from '@/lib/api/client';
 import { IMPORT_WRITE_BATCH_SIZE } from '@/lib/import/contract';
 import { readNdjson } from '@/lib/import/ndjson';
@@ -9,6 +10,9 @@ import { readNdjson } from '@/lib/import/ndjson';
 import { POST } from './route';
 
 vi.mock('@/auth', () => ({ default: vi.fn() }));
+vi.mock('@/auth/missingUser', () => ({
+  missingUser: vi.fn(async () => 'unauthenticated'),
+}));
 vi.mock('next/cache', () => ({
   cacheLife: vi.fn(),
   cacheTag: vi.fn(),
@@ -192,6 +196,20 @@ describe('POST /api/account/import', () => {
     );
     expect(response.status).toBe(401);
     expect(response.headers.get('cache-control')).toBe('no-store');
+    expect(calls).toEqual([]);
+  });
+
+  it('answers 503, not 401, when a valid session’s account can’t be read', async () => {
+    vi.mocked(auth).mockResolvedValue({
+      accessToken: null,
+      expiresAt: null,
+      user: null,
+    });
+    vi.mocked(missingUser).mockResolvedValueOnce('failed');
+    const response = await POST(
+      request({ importId: IMPORT_ID, rows: [row(0)] }),
+    );
+    expect(response.status).toBe(503);
     expect(calls).toEqual([]);
   });
 

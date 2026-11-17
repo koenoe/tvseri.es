@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import * as v from 'valibot';
 
 import auth from '@/auth';
+import { missingUser } from '@/auth/missingUser';
 import { setUserDisplayCookie } from '@/auth/sessionCookies';
 import { getViewer } from '@/auth/viewer';
 import { apiFailure } from '@/lib/actions/apiFailure';
@@ -69,7 +70,7 @@ export async function updateProfile(
   }
   const { accessToken, user } = await auth();
   if (!user || !accessToken) {
-    return actionError('unauthenticated');
+    return actionError(await missingUser());
   }
 
   const { name, username } = parsed.output;

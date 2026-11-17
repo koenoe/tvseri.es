@@ -4,6 +4,7 @@ import { DeleteAccountSchema } from '@tvseri.es/schemas';
 import * as v from 'valibot';
 
 import auth from '@/auth';
+import { missingUser } from '@/auth/missingUser';
 import { apiFailure } from '@/lib/actions/apiFailure';
 import {
   type ActionError,
@@ -42,7 +43,7 @@ export async function deleteAccount(
 ): Promise<ActionResult<undefined, DeleteAccountError>> {
   const { accessToken, user } = await auth();
   if (!accessToken || !user) {
-    return actionError('unauthenticated');
+    return actionError(await missingUser());
   }
   const parsed = v.safeParse(DeleteAccountSchema, { confirm });
   if (!parsed.success) {

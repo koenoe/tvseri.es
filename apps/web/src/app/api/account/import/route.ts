@@ -3,6 +3,7 @@ import { after, type NextRequest } from 'next/server';
 import * as v from 'valibot';
 
 import auth from '@/auth';
+import { missingUser } from '@/auth/missingUser';
 import { tags } from '@/lib/cache/tags';
 import { resolveRegionFromHeaders } from '@/lib/geo';
 import { runImport } from '@/lib/import/importRun';
@@ -41,7 +42,9 @@ export async function POST(req: NextRequest) {
   }
   const { accessToken, user } = await auth(req);
   if (!user || !accessToken) {
-    return json({ error: 'Unauthorized' }, 401);
+    return (await missingUser(req)) === 'failed'
+      ? json({ error: 'Unavailable' }, 503)
+      : json({ error: 'Unauthorized' }, 401);
   }
 
   const body: unknown = await req.json().catch(() => null);

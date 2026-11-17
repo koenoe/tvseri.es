@@ -22,6 +22,7 @@ import { createLimiter } from '@tvseri.es/utils';
 import * as v from 'valibot';
 
 import auth, { type Session } from '@/auth';
+import { missingUser } from '@/auth/missingUser';
 import { getViewer, type Viewer } from '@/auth/viewer';
 import { apiFailure } from '@/lib/actions/apiFailure';
 import { type ActionResult, actionError, okResult } from '@/lib/actions/result';
@@ -102,7 +103,8 @@ function failedAfterWrite(viewerId: string, error: unknown) {
 
 /**
  * The start every action shares: `input` checked against `schema`
- * (`invalid`), the caller signed in through `signIn` (`unauthenticated`),
+ * (`invalid`), the caller signed in through `signIn` (`unauthenticated`;
+ * `failed` when their account can't be read, `missingUser`),
  * then `body`; anything it throws becomes its `ActionError` (`onError`,
  * `failed` by default).
  */
@@ -120,7 +122,7 @@ async function guarded<S extends v.GenericSchema, U, T>(
   }
   const user = await signIn(parsed.output);
   if (!user) {
-    return actionError('unauthenticated');
+    return actionError(await missingUser());
   }
   try {
     return await body(parsed.output, user);

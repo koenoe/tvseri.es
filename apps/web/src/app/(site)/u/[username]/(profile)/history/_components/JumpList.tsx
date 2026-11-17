@@ -2,7 +2,14 @@
 
 import { LayoutGroup } from 'motion/react';
 import Link from 'next/link';
-import { type MouseEvent, useId, useState } from 'react';
+import {
+  type MouseEvent,
+  useCallback,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import MaxMotion from '@/components/motion/MaxMotion';
 import { calendarGlyph } from '@/components/ui/icon/glyphs';
@@ -51,11 +58,20 @@ export default function JumpList({
   // A new active month (a scroll, a jump) reopens the list at its year
   const open = choice.base === active ? choice.open : (activeYear ?? null);
   const jump = useDiaryJump();
-  const pick = (event: MouseEvent<HTMLAnchorElement>) => jump(event, onPick);
-  const toggle = (year: number) => {
+  const pick = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>) => jump(event, onPick),
+    [jump, onPick],
+  );
+  // stable for the memoised years: a scroll moves `active` many times a second
+  const latest = useRef({ active, open });
+  useLayoutEffect(() => {
+    latest.current = { active, open };
+  });
+  const toggle = useCallback((year: number) => {
+    const now = latest.current;
     setTouched(true);
-    setChoice({ base: active, open: open === year ? null : year });
-  };
+    setChoice({ base: now.active, open: now.open === year ? null : year });
+  }, []);
 
   return (
     <MaxMotion>
@@ -76,7 +92,7 @@ export default function JumpList({
         <ul className="flex flex-col gap-0.5">
           {index.map((year) => (
             <JumpYear
-              active={active}
+              active={activeYear === year.year ? active : null}
               animate={touched}
               basePath={basePath}
               key={year.year}

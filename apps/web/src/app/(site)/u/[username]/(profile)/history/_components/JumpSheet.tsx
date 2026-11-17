@@ -1,5 +1,7 @@
 'use client';
 
+import { useCallback } from 'react';
+
 import { Dialog } from '@/components/ui/dialog/Dialog';
 import { calendarGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
@@ -24,6 +26,31 @@ export function JumpButton({ onOpen }: Readonly<{ onOpen: () => void }>) {
   );
 }
 
+/** The sheet's list: only mounted while the sheet is open */
+function SheetList({
+  basePath,
+  index,
+  onPick,
+  week,
+}: Readonly<{
+  basePath: string;
+  index: ReadonlyArray<JumpYear>;
+  onPick: () => void;
+  week: Week | null;
+}>) {
+  // read here, so a closed sheet doesn't re-render on every scrolled month
+  const active = useActiveMonth();
+  return (
+    <JumpList
+      active={active}
+      basePath={basePath}
+      index={index}
+      onPick={onPick}
+      week={week}
+    />
+  );
+}
+
 /**
  * The phone's Jump to: the same list as the sidebar in a bottom sheet
  * (the phone's version). A pick closes it; the jump goes on underneath.
@@ -41,9 +68,7 @@ export default function JumpSheet({
   open: boolean;
   week: Week | null;
 }>) {
-  // read here, so a new active month re-renders the sheet, not the diary
-  const active = useActiveMonth();
-  const close = () => onOpenChange(false);
+  const close = useCallback(() => onOpenChange(false), [onOpenChange]);
   return (
     <Dialog
       className="max-sm:bg-[#161b1c]"
@@ -51,13 +76,7 @@ export default function JumpSheet({
       open={open}
       title="Jump to"
     >
-      <JumpList
-        active={active}
-        basePath={basePath}
-        index={index}
-        onPick={close}
-        week={week}
-      />
+      <SheetList basePath={basePath} index={index} onPick={close} week={week} />
     </Dialog>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { type MouseEvent, useId } from 'react';
+import { type MouseEvent, memo, useCallback, useId } from 'react';
 
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
@@ -10,8 +10,11 @@ import { formatGrouped } from '@/lib/formatCount';
 import type { MonthKey, JumpYear as Year } from '@/lib/profile/diary';
 import JumpMonthLink from './JumpMonthLink';
 
-/** A year in Jump to and, open, its months */
-export default function JumpYear({
+/**
+ * A year in Jump to and, open, its months. Memoised: `active` is the
+ * reading month only for its own year, so a scroll re-renders one or two years.
+ */
+function JumpYear({
   active,
   animate,
   basePath,
@@ -31,7 +34,7 @@ export default function JumpYear({
 }>) {
   const monthsId = useId();
   const hasMonths = year.months.length > 0;
-  const toggle = () => onToggle(year.year);
+  const toggle = useCallback(() => onToggle(year.year), [onToggle, year.year]);
   const yearLabel = `${year.year}, ${plural(year.episodes, 'episode')}`;
   return (
     <li>
@@ -71,3 +74,8 @@ export default function JumpYear({
     </li>
   );
 }
+
+const MemoJumpYear = memo(JumpYear);
+MemoJumpYear.displayName = 'JumpYear';
+
+export default MemoJumpYear;

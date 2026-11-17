@@ -2,7 +2,7 @@
 
 import * as m from 'motion/react-m';
 import Link from 'next/link';
-import type { MouseEvent } from 'react';
+import { type MouseEvent, memo } from 'react';
 
 import cn from '@/lib/cn';
 
@@ -19,7 +19,7 @@ const TRANSITION = { duration: 0.2, ease: [0.2, 0.8, 0.2, 1] } as const;
  * the month you're reading (200ms; one `layoutId` per
  * list).
  */
-export default function JumpMonthLink({
+function JumpMonthLink({
   animate,
   basePath,
   month,
@@ -70,3 +70,8 @@ export default function JumpMonthLink({
     </m.li>
   );
 }
+
+const MemoJumpMonthLink = memo(JumpMonthLink);
+MemoJumpMonthLink.displayName = 'JumpMonthLink';
+
+export default MemoJumpMonthLink;

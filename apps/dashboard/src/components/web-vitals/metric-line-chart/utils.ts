@@ -15,7 +15,7 @@ import {
   type PercentileKey,
 } from './constants';
 
-export function formatDate(dateStr: string): string {
+function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
   return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
 }
@@ -25,7 +25,7 @@ export function formatDate(dateStr: string): string {
  * For RES, calculate score at the given percentile level.
  * For other metrics, convert ms to display units if needed.
  */
-export function getMetricDisplayValue(
+function getMetricDisplayValue(
   metric: MetricType,
   item: MetricSeriesItem,
   percentile: PercentileKey,

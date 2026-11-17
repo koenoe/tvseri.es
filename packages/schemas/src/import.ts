@@ -1,12 +1,6 @@
 import * as v from 'valibot';
 
-import { WatchProviderSchema } from './watch-provider';
-import {
-  DateUnknownSchema,
-  EpisodeForWatchedSchema,
-  TvSeriesForWatchedSchema,
-  WatchedAtSchema,
-} from './watched';
+import { WatchedEpisodeEntrySchema } from './watched';
 
 /**
  * The user's last import (SETImport: Undo), kept on the Users item. Imported
@@ -28,18 +22,9 @@ export const LastImportSchema = v.object({
 
 export type LastImport = v.InferOutput<typeof LastImportSchema>;
 
-/** One matched import row (the web's matcher resolves title → show) */
-const ImportItemSchema = v.object({
-  dateUnknown: v.optional(DateUnknownSchema),
-  episode: EpisodeForWatchedSchema,
-  tvSeries: TvSeriesForWatchedSchema,
-  watchedAt: WatchedAtSchema,
-  watchProvider: v.optional(v.nullable(WatchProviderSchema)),
-});
-
 /** `POST /me/imports/:importId/batch` and `POST /me/imports/check` */
 export const ImportBatchSchema = v.pipe(
-  v.array(ImportItemSchema),
+  v.array(WatchedEpisodeEntrySchema),
   v.minLength(1, 'Batch cannot be empty.'),
   v.maxLength(100, 'Batch size too large. Maximum 100 items per request.'),
 );

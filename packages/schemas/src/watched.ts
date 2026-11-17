@@ -112,16 +112,24 @@ export const CreateWatchedItemSchema = v.intersect([
   ]),
 ]);
 
+/**
+ * One watched episode as a batch sends it (the watched batch and imports,
+ * where the web's matcher resolved the title to a show)
+ */
+export const WatchedEpisodeEntrySchema = v.object({
+  dateUnknown: v.optional(DateUnknownSchema),
+  episode: EpisodeForWatchedSchema,
+  tvSeries: TvSeriesForWatchedSchema,
+  // With dateUnknown, the time it was marked
+  watchedAt: WatchedAtSchema,
+  watchProvider: v.optional(v.nullable(WatchProviderSchema)),
+});
+
 export const CreateWatchedItemBatchSchema = v.pipe(
   v.array(
     v.object({
-      dateUnknown: v.optional(DateUnknownSchema),
-      episode: EpisodeForWatchedSchema,
-      tvSeries: TvSeriesForWatchedSchema,
+      ...WatchedEpisodeEntrySchema.entries,
       userId: boundedString(64),
-      // With dateUnknown, the time it was marked
-      watchedAt: WatchedAtSchema,
-      watchProvider: v.optional(v.nullable(WatchProviderSchema)),
     }),
   ),
   v.minLength(1, 'Batch cannot be empty.'),

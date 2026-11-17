@@ -4,9 +4,6 @@ import WatchlistToggle from '@/components/marking/WatchlistToggle';
 import { calendarGlyph, seasonGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
-import ServiceIcon, {
-  type ServiceIconLayout,
-} from '@/components/ui/service/ServiceIcon';
 import TileLink from '@/components/ui/tile/TileLink';
 import { TILE_HOVER_WIDE } from '@/components/ui/tile/tileHover';
 import TitleTreatment, {
@@ -41,13 +38,6 @@ export const TICKET_WIDTH =
 /** The 16:9 backdrop */
 export const TICKET_ART =
   'relative aspect-video overflow-hidden bg-white/4 before:absolute before:inset-0 before:z-1 before:bg-[linear-gradient(20deg,rgb(0_0_0/0.72)_0%,rgb(0_0_0/0.3)_38%,rgb(0_0_0/0)_62%)]';
-
-/** Each place keeps its own look on purpose; don't unify them. */
-const NETWORK: ServiceIconLayout = {
-  className:
-    'absolute top-2.5 right-2.5 z-1 size-6 rounded-6 object-cover md:top-3 md:right-3 md:size-7 md:rounded-[7px]',
-  size: 28,
-};
 
 /** The logo's place, bottom left of the backdrop */
 export const TICKET_LOGO =
@@ -85,7 +75,7 @@ const BACKDROP_SIZES = '(min-width: 768px) 382px, 260px';
 /**
  * One Premieres ticket (the profile's Coming up ticket):
  * the countdown stub, a dashed tear, the backdrop with the logo under a
- * scrim and the service icon (when known), then what happens, the date and
+ * scrim, then what happens, the date and
  * the release, and the Watchlist pill. The whole ticket opens the show.
  */
 export default function PremiereTicket({
@@ -94,7 +84,6 @@ export default function PremiereTicket({
 }: Readonly<{ premiere: Premiere; states?: ControlStatesRead }>) {
   const { series } = premiere;
   const tone = kindTone(premiere.kind);
-  const network = series.network?.logo ? series.network : null;
   const kindClass = cn(
     'truncate text-caption font-medium',
     tone === 'cyan' ? 'text-cyan' : 'text-pink',
@@ -125,14 +114,6 @@ export default function PremiereTicket({
               title={series.title}
             />
           </span>
-          {network ? (
-            <ServiceIcon
-              alt={network.name}
-              layout={NETWORK}
-              logo={network.logo}
-              title={network.name}
-            />
-          ) : null}
         </div>
         <div className={TICKET_BODY}>
           <div className={TICKET_LINES}>

@@ -2,7 +2,6 @@ import {
   getMetricStatus,
   METRICS_CONFIG,
   type MetricType,
-  type RatingStatus,
 } from '@/lib/web-vitals';
 
 import { RatingPill } from '../data-points';
@@ -14,16 +13,8 @@ type PercentileRowProps = Readonly<{
   value: number;
 }>;
 
-// Unlike the RES score elsewhere, a tooltip value of exactly 90 counts as great.
-function getStatus(metric: MetricType, value: number): RatingStatus {
-  if (metric !== 'res') return getMetricStatus(metric, value);
-  if (value >= 90) return 'great';
-  if (value >= 50) return 'needsImprovement';
-  return 'poor';
-}
-
 export function PercentileRow({ label, metric, value }: PercentileRowProps) {
-  const status = getStatus(metric, value);
+  const status = getMetricStatus(metric, value);
   const displayValue = formatValueForDisplay(metric, value);
   const unit = metric === 'res' ? '' : METRICS_CONFIG[metric].unit;
 

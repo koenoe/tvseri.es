@@ -1,7 +1,7 @@
 import { usersGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 
-import { CIRCLE_COPY, followNobodyLine } from '../_lib/circleCopy';
+import { CIRCLE_COPY, followNobodyLine } from '../../_lib/circleCopy';
 
 /**
  * You follow nobody: one calm card, then the people who

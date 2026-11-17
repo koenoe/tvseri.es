@@ -12,7 +12,7 @@ import {
   type TitleTreatmentLook,
 } from '@/components/ui/title/TitleTreatment';
 import showPath from '@/lib/routing/showPath';
-import { pickReason, seasonsAndEpisodes } from './circleCopy';
+import { pickReason, seasonsAndEpisodes } from '../../../_lib/circleCopy';
 import type { LoadedPick } from './loadCircle';
 import PersonChip from './PersonChip';
 

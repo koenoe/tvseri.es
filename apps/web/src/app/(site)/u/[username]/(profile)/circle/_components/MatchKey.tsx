@@ -1,7 +1,7 @@
 import type { TasteLevel } from '@tvseri.es/schemas';
 
 import { LEVELS } from '../../_components/visitor/match/levels';
-import { CIRCLE_COPY } from '../_lib/circleCopy';
+import { CIRCLE_COPY } from '../../_lib/circleCopy';
 
 /** Strongest first */
 const ORDER: ReadonlyArray<TasteLevel> = [

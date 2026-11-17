@@ -1,6 +1,6 @@
 import type { CirclePeople } from '@tvseri.es/schemas';
 
-import { CIRCLE_COPY } from '../_lib/circleCopy';
+import { CIRCLE_COPY } from '../../_lib/circleCopy';
 import CircleSection from './CircleSection';
 import FollowNobody from './FollowNobody';
 import OwnerPersonRow from './OwnerPersonRow';

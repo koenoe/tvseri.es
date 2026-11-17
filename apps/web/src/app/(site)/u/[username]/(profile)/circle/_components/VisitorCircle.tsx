@@ -1,5 +1,5 @@
+import { visitorCopy } from '../../_lib/circleCopy';
 import type { VisitorCircle as Lists } from '../_data/people';
-import { visitorCopy } from '../_lib/circleCopy';
 import CircleSection from './CircleSection';
 import VisitorList from './VisitorList';
 

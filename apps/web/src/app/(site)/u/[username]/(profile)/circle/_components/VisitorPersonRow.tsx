@@ -3,7 +3,7 @@ import Icon from '@/components/ui/icon/Icon';
 import type { FollowItem } from '@/lib/profile/views';
 
 import FollowButton from '../../_components/shell/FollowButton';
-import { relationTags } from '../_lib/circleCopy';
+import { relationTags } from '../../_lib/circleCopy';
 import PersonRow from './PersonRow';
 import { LEAD } from './rowBoxes';
 

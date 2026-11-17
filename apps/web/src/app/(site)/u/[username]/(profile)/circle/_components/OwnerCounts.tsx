@@ -1,7 +1,7 @@
 'use client';
 
 import { useFollowingShown } from '../../_components/shell/followCount';
-import { circleCounts } from '../_lib/circleCopy';
+import { circleCounts } from '../../_lib/circleCopy';
 
 /**
  * "8 following · 6 followers" on your own Circle: a Follow back (or an

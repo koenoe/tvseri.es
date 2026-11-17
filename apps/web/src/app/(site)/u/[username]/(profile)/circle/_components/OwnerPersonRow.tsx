@@ -4,7 +4,7 @@ import { CIRCLE_ROW_RING } from '../../_components/blocks/matchRingLooks';
 import FollowButton from '../../_components/shell/FollowButton';
 import { LEVELS } from '../../_components/visitor/match/levels';
 import { ringLabel } from '../../_components/visitor/match/matchCopy';
-import { levelLine, proofLine } from '../_lib/circleCopy';
+import { levelLine, proofLine } from '../../_lib/circleCopy';
 import PersonRow from './PersonRow';
 import { LEAD, LINE } from './rowBoxes';
 

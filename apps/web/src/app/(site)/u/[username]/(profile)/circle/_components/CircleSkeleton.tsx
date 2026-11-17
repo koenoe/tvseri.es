@@ -3,7 +3,7 @@ import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
 import SectionHead from '@/components/ui/section/SectionHead';
 import OwnerVisitor from '@/components/ui/viewer/OwnerVisitor';
 import SubpageHeader from '../../_components/subpage/SubpageHeader';
-import { CIRCLE_COPY, visitorCopy } from '../_lib/circleCopy';
+import { CIRCLE_COPY, visitorCopy } from '../../_lib/circleCopy';
 import CircleGhost from './CircleGhost';
 import { PAGE, VISITOR_HEAD } from './rowBoxes';
 

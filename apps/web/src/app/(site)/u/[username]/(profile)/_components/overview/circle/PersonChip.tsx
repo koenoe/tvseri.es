@@ -1,10 +1,10 @@
 import type { CirclePerson } from '@tvseri.es/schemas';
 
 import { GLASS } from '@/components/ui/glass/glass';
+import { levelLabel, personLabel } from '../../../_lib/circleCopy';
 import { RingArcs } from '../../blocks/MatchRing';
 import { CHIP_RING } from '../../blocks/matchRingLooks';
 import { LEVELS } from '../../visitor/match/levels';
-import { levelLabel, personLabel } from './circleCopy';
 
 /** One person behind a pick: ring, name, "Super match" */
 export default function PersonChip({

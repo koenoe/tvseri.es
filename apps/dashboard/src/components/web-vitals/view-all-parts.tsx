@@ -34,7 +34,6 @@ function StatusFilterItem({
   status,
 }: Readonly<{ count: number; status: RatingStatus }>) {
   const Icon = STATUS_ICONS[status];
-  const tooltip = `${status} (${count})`;
   const label = `${STATUS_LABELS[status]} (${count})`;
   const iconClasses = cn('size-4', RATING_COLORS[status].text);
   return (
@@ -42,7 +41,7 @@ function StatusFilterItem({
       aria-label={label}
       className="size-8 p-0 last:rounded-r-lg!"
       size="sm"
-      title={tooltip}
+      title={label}
       value={status}
     >
       <Icon className={iconClasses} />

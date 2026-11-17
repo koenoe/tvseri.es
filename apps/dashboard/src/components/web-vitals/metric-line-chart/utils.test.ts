@@ -95,3 +95,18 @@ describe('buildChartData', () => {
     expect(getLastDataIndex(data)).toBe(1);
   });
 });
+
+describe('chart dates', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 10, 18, 9));
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('read day first, as in "17 Nov"', () => {
+    const [yesterday] = buildChartData([], 1, 'lcp');
+    expect(yesterday?.formattedDate).toBe('17 Nov');
+  });
+});

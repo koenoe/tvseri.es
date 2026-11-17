@@ -605,10 +605,20 @@ export const MetricsRoutesQuerySchema = v.object({
 });
 
 /**
+ * A metrics dimension in a path segment (route, country, device, endpoint,
+ * dependency, platform): bounded, so it can't be anything as a key
+ */
+const MetricsKeyParamSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(256),
+);
+
+/**
  * Path parameters for single route endpoint.
  */
 export const MetricsRouteParamSchema = v.object({
-  route: v.string(),
+  route: MetricsKeyParamSchema,
 });
 
 /**
@@ -639,7 +649,7 @@ export const MetricsCountriesQuerySchema = v.object({
  * Path parameters for single country endpoint.
  */
 export const MetricsCountryParamSchema = v.object({
-  country: v.string(),
+  country: MetricsKeyParamSchema,
 });
 
 /**
@@ -666,7 +676,7 @@ export const MetricsDevicesQuerySchema = v.object({
  * Path parameters for single device endpoint.
  */
 export const MetricsDeviceParamSchema = v.object({
-  device: v.string(),
+  device: MetricsKeyParamSchema,
 });
 
 /**
@@ -684,7 +694,17 @@ export const ApiMetricsSummaryQuerySchema = v.object({
  */
 export const ApiMetricsEndpointParamSchema = v.object({
   /** URL-encoded endpoint (e.g., GET%20/tv/[id]) */
-  endpoint: v.string(),
+  endpoint: MetricsKeyParamSchema,
+});
+
+/** Path parameters for one dependency (`tmdb`, `dynamodb`...) */
+export const ApiMetricsDependencyParamSchema = v.object({
+  source: MetricsKeyParamSchema,
+});
+
+/** Path parameters for one platform */
+export const ApiMetricsPlatformParamSchema = v.object({
+  platform: MetricsKeyParamSchema,
 });
 
 /**

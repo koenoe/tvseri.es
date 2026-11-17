@@ -2,9 +2,13 @@ import { vValidator } from '@hono/valibot-validator';
 import {
   type AggregatedApiMetrics,
   type ApiMetricAggregate,
+  ApiMetricsDependencyParamSchema,
+  ApiMetricsEndpointParamSchema,
   ApiMetricsEndpointsQuerySchema,
+  ApiMetricsPlatformParamSchema,
   ApiMetricsPlatformsQuerySchema,
   ApiMetricsSummaryQuerySchema,
+  MetricsCountryParamSchema,
 } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
 
@@ -204,10 +208,11 @@ app.get(
  */
 app.get(
   '/endpoints/:endpoint',
+  vValidator('param', ApiMetricsEndpointParamSchema),
   vValidator('query', ApiMetricsSummaryQuerySchema),
   async (c) => {
     // Hono already URL-decodes path params (decoding twice breaks on '%')
-    const endpoint = c.req.param('endpoint');
+    const { endpoint } = c.req.valid('param');
     const { days } = c.req.valid('query');
     const numDays = Math.min(Math.max(days, 1), 30);
 
@@ -330,10 +335,11 @@ app.get(
 
 app.get(
   '/dependencies/:source',
+  vValidator('param', ApiMetricsDependencyParamSchema),
   vValidator('query', ApiMetricsSummaryQuerySchema),
   async (c) => {
     // Hono already URL-decodes path params (decoding twice breaks on '%')
-    const source = c.req.param('source');
+    const { source } = c.req.valid('param');
     const { days, platform } = c.req.valid('query');
     const numDays = Math.min(Math.max(days, 1), 30);
 
@@ -471,9 +477,10 @@ app.get(
  */
 app.get(
   '/platforms/:platform',
+  vValidator('param', ApiMetricsPlatformParamSchema),
   vValidator('query', ApiMetricsSummaryQuerySchema),
   async (c) => {
-    const platform = c.req.param('platform');
+    const { platform } = c.req.valid('param');
     const { days } = c.req.valid('query');
     const numDays = Math.min(Math.max(days, 1), 30);
 
@@ -597,9 +604,10 @@ app.get(
  */
 app.get(
   '/countries/:country',
+  vValidator('param', MetricsCountryParamSchema),
   vValidator('query', ApiMetricsSummaryQuerySchema),
   async (c) => {
-    const country = c.req.param('country');
+    const { country } = c.req.valid('param');
     const { days } = c.req.valid('query');
     const numDays = Math.min(Math.max(days, 1), 30);
 

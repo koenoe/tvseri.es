@@ -46,8 +46,13 @@ test('?history keeps the page shell instant, then opens the sheet', async ({
  */
 async function samplePanel(page: Page, axis: 'left' | 'top') {
   await page.evaluate((side) => {
-    const w = window as unknown as { __panel: number[]; __run: boolean };
+    const w = window as unknown as {
+      __animated: boolean;
+      __panel: number[];
+      __run: boolean;
+    };
     w.__panel = [];
+    w.__animated = false;
     w.__run = true;
     const tick = () => {
       const panel = document.querySelector(
@@ -55,6 +60,9 @@ async function samplePanel(page: Page, axis: 'left' | 'top') {
       );
       if (panel) {
         w.__panel.push(Math.round(panel.getBoundingClientRect()[side]));
+        w.__animated ||= panel
+          .getAnimations()
+          .some((animation) => animation.playState === 'running');
       }
       if (w.__run) {
         requestAnimationFrame(tick);
@@ -98,14 +106,18 @@ for (const [name, viewport, axis] of [
     );
     const positions = await stopSampling(page);
     const final = positions.at(-1) ?? 0;
-    // it starts away from its place and passes through a step on the way: a
-    // sheet that jumps has none. How many frames a slide paints depends on
-    // the machine (a CI runner painted two of a phone's), so one is the rule.
+    // it starts away from its place (a sheet that jumps is at rest on its
+    // first frame) and slides: a step on the way is seen, or, where the
+    // main thread stalled for the whole slide (a slow machine paints none
+    // of its frames), the slide is seen running on the panel
     expect(positions[0]).not.toBe(final);
     const between = new Set(
       positions.filter((value) => value !== final && value !== positions[0]),
     );
-    expect(between.size).toBeGreaterThanOrEqual(1);
+    const animated = await page.evaluate(
+      () => (window as unknown as { __animated: boolean }).__animated,
+    );
+    expect(between.size > 0 || animated).toBe(true);
   });
 }
 

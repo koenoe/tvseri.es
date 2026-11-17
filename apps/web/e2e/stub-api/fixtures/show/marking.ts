@@ -197,8 +197,11 @@ export const unmark = (
 ): void => {
   const store = seriesWatched(state, seriesId);
   for (const [key, item] of store) {
+    // The whole show keeps its specials, as the API's does
     const inSeason =
-      scope.season === undefined || item.seasonNumber === scope.season;
+      scope.season === undefined
+        ? item.seasonNumber > 0
+        : item.seasonNumber === scope.season;
     const inEpisode =
       scope.episode === undefined || item.episodeNumber === scope.episode;
     if (inSeason && inEpisode) {

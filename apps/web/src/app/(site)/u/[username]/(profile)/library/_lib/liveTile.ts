@@ -4,11 +4,7 @@ import { episodeCode } from '@tvseri.es/schemas';
 import { useEffect, useMemo, useState } from 'react';
 
 import { useSeriesView } from '@/lib/marking/hooks';
-import {
-  nextEpisode,
-  regularWatchedCount,
-  seriesProgress,
-} from '@/lib/marking/progress';
+import { nextEpisode, seriesProgress } from '@/lib/marking/progress';
 import type { SeriesBase } from '@/lib/marking/types';
 
 import { progressPercent, type TileView } from '@/lib/profile/tileView';
@@ -78,8 +74,8 @@ export function useLiveWatchingTile(
 /**
  * A Hidden shelf tile whose show is watched again: the API brings it back
  * to In progress, so the tile leaves after the mark's toast (`onWatched`),
- * as a finished Watching tile does. Counted from the regular episodes the
- * show had when the store first had it (the Remote seeds it when opened);
+ * as a finished Watching tile does. Counted from the episodes the show had
+ * watched when the store first had it (the Remote seeds it when opened);
  * a failed save or its Undo takes the count back and the tile stays.
  */
 export function useLeaveHiddenOnWatch(
@@ -88,7 +84,7 @@ export function useLeaveHiddenOnWatch(
   onWatched: () => void,
 ): void {
   const view = useSeriesView(seriesId);
-  const count = enabled && view ? regularWatchedCount(view) : null;
+  const count = enabled && view ? Object.keys(view.watched).length : null;
   const [baseline, setBaseline] = useState<number | null>(null);
   if (baseline === null && count !== null) {
     setBaseline(count);

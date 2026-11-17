@@ -65,12 +65,11 @@ describe('a Hidden shelf tile leaves once its show is watched again', () => {
     expect(onWatched).toHaveBeenCalledTimes(1);
   });
 
-  it('stays when the mark fails or is a special', () => {
+  it('stays when the mark fails', () => {
     vi.useFakeTimers();
     const { onWatched, store } = setup();
     act(() => {
-      const id = store().begin(SHOW, mark('S01E02'));
-      store().begin(SHOW, mark('S00E01'));
+      const id = store().begin(SHOW, mark('S00E01'));
       store().fail(SHOW, id);
     });
     act(() => {

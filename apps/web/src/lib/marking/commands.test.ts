@@ -1495,7 +1495,7 @@ describe('markNext on a show the store has not seeded', () => {
     expect(view()?.watched.S01E08).toBeDefined();
   });
 
-  it('Mark next on an unseeded show hidden in this tab brings it back', async () => {
+  it('Mark next on an unseeded show brings it back from Hide and off the watchlist', async () => {
     const t = setup();
     await t.commands.removeFromInProgress(OTHER);
     t.actions.markNextEpisode.mockResolvedValue({
@@ -1506,8 +1506,15 @@ describe('markNext on a show the store has not seeded', () => {
       },
       ok: true,
     });
+    t.store.getState().setLibrary({
+      ids: { favorites: [], inProgress: [], watched: [], watchlist: [OTHER] },
+      status: 'ready',
+    });
     await t.commands.markNext(OTHER);
     expect(t.store.getState().hidden[OTHER]).toBe(false);
+    expect(t.store.getState().library).toMatchObject({
+      ids: { inProgress: [OTHER], watchlist: [] },
+    });
   });
 });
 
@@ -1590,6 +1597,7 @@ describe('starting a show takes it off the watchlist at once', () => {
     const t = onWatchlist();
     t.actions.markEpisodes.mockImplementationOnce(failed);
     t.commands.toggleEpisode(SERIES, { episodeNumber: 1, seasonNumber: 1 });
+    expect(t.view().status?.isWatchlisted).toBe(false);
     await flush();
     expect(t.view().status?.isWatchlisted).toBe(true);
     expect(watchlistIds(t)).toEqual([SERIES]);
@@ -1599,6 +1607,7 @@ describe('starting a show takes it off the watchlist at once', () => {
     const t = onWatchlist();
     t.commands.toggleEpisode(SERIES, { episodeNumber: 1, seasonNumber: 1 });
     await flush();
+    expect(watchlistIds(t)).toEqual([]);
     t.toasts.at(-1)?.action?.onClick();
     await flush();
     expect(t.view().status?.isWatchlisted).toBe(true);
@@ -1677,9 +1686,14 @@ describe('watching a hidden show brings it back at once', () => {
     expect(hidden(t)).toBe(true);
   });
 
-  it('a special, an unmark or Undo putting marks back leave it hidden', async () => {
+  it('a special unhides it too', async () => {
     const t = await hiddenHere();
     t.commands.toggleEpisode(SERIES, { episodeNumber: 1, seasonNumber: 0 });
+    expect(hidden(t)).toBe(false);
+  });
+
+  it('an unmark or Undo putting marks back leave it hidden', async () => {
+    const t = await hiddenHere();
     t.commands.toggleEpisode(SERIES, { episodeNumber: 1, seasonNumber: 1 });
     await flush();
     expect(hidden(t)).toBe(true);

@@ -3,6 +3,7 @@
 import { act, renderHook } from '@testing-library/react';
 import type { LibraryShelf } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
+import type { SeriesBase } from '@/lib/marking/types';
 import type { TileView } from '@/lib/profile/tileView';
 import { useShelfCounts } from '../../_lib/shelfCounts';
 import useShelfTiles, { offWatchlistReason } from './useShelfTiles';
@@ -131,6 +132,29 @@ describe('a show started from the Watchlist shelf', () => {
     expect(offWatchlistReason(library, 2)).toBe('started');
     expect(offWatchlistReason(library, 3)).toBe('started-finished');
     expect(offWatchlistReason(library, 4)).toBe('watchlist-remove');
+  });
+
+  it('counts a mark not saved yet: the Remote can close before it is', () => {
+    const view = (watched: Record<string, true>): SeriesBase => ({
+      prefs: null,
+      seasons: [{ airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 1 }],
+      seriesId: 1,
+      skipped: [],
+      status: { isFavorited: false, isWatchlisted: true },
+      watched: Object.fromEntries(
+        Object.keys(watched).map((code) => [
+          code,
+          { runtime: 0, watchedAt: 1 },
+        ]),
+      ),
+    });
+    expect(offWatchlistReason(library, 1, view({}))).toBeNull();
+    expect(offWatchlistReason(library, 1, view({ S01E01: true }))).toBe(
+      'started',
+    );
+    expect(
+      offWatchlistReason(library, 1, view({ S01E01: true, S01E02: true })),
+    ).toBe('started-finished');
   });
 
   it('moves its count to Watching, or to Finished', () => {

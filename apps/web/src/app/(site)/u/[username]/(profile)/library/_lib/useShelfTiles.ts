@@ -2,6 +2,8 @@
 
 import type { LibraryIds, LibraryShelf } from '@tvseri.es/schemas';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { seriesProgress } from '@/lib/marking/progress';
+import type { SeriesBase } from '@/lib/marking/types';
 import type { TileView } from '@/lib/profile/tileView';
 import { bumpCounts } from '../../_lib/shelfCounts';
 
@@ -31,11 +33,21 @@ const COUNT_CHANGE: Readonly<
   'watchlist-remove': { watchlist: -1 },
 };
 
-/** Why a show is off the watchlist now, by the library ids; null: still on */
+/**
+ * Why a show is off the watchlist now; null: still on. A show on the
+ * Watchlist shelf has nothing regular watched, so any in its store `view`
+ * is a mark made here, which counts at once: the library ids follow only
+ * once it saved, and the Remote can close before that.
+ */
 export function offWatchlistReason(
   ids: LibraryIds,
   id: number,
+  view?: SeriesBase,
 ): LeaveReason | null {
+  const progress = view ? seriesProgress(view) : null;
+  if (progress && progress.watched > 0) {
+    return progress.isFinished ? 'started-finished' : 'started';
+  }
   if (ids.watchlist.includes(id)) {
     return null;
   }

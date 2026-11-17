@@ -25,7 +25,7 @@ function useLeftReason() {
     const { library, series } = store.getState();
     if (library.status === 'ready') {
       if (list === 'watchlist') {
-        return offWatchlistReason(library.ids, id);
+        return offWatchlistReason(library.ids, id, series[id]?.view);
       }
       return library.ids.favorites.includes(id) ? null : 'favourites-remove';
     }

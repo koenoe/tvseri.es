@@ -176,27 +176,20 @@ export function createMarkingCommands(deps: MarkingDeps) {
   }
 
   /**
-   * A new watch of a regular episode brings a show hidden in this tab back
-   * (the API unhides it in the same request): at once, and hidden again
-   * when nothing of it saved. A show hidden before this tab is out of every
-   * list it draws already. Returns the rollback.
+   * A new watch brings a show hidden in this tab back (the API unhides it
+   * in the same request): at once, and hidden again when nothing of it
+   * saved. A show hidden before this tab is out of every list it draws
+   * already. Returns the rollback.
    */
   function unhideFor(seriesId: number, ops: ReadonlyArray<MarkingOp>) {
-    const watchesRegular = (list: ReadonlyArray<MarkingOp>) =>
-      list.some(
-        (op) =>
-          op.kind === 'mark' &&
-          regularWatchedCount({ watched: op.records }) > 0,
-      );
-    if (store.getState().hidden[seriesId] !== true || !watchesRegular(ops)) {
+    const watches = (list: ReadonlyArray<MarkingOp>) =>
+      list.some((op) => op.kind === 'mark');
+    if (store.getState().hidden[seriesId] !== true || !watches(ops)) {
       return () => {};
     }
     store.getState().setHidden(seriesId, false);
     return (saved: ReadonlyArray<MarkingOp>) => {
-      if (
-        !watchesRegular(saved) &&
-        store.getState().hidden[seriesId] === false
-      ) {
+      if (!watches(saved) && store.getState().hidden[seriesId] === false) {
         store.getState().setHidden(seriesId, true);
       }
     };
@@ -701,10 +694,7 @@ export function createMarkingCommands(deps: MarkingDeps) {
       store.getState().seed(result.data.seed, JSON.stringify(result.data.seed));
       if (result.data.episode) {
         store.getState().countSaved(1);
-        if (
-          result.data.episode.seasonNumber > 0 &&
-          store.getState().hidden[seriesId] === true
-        ) {
+        if (store.getState().hidden[seriesId] === true) {
           store.getState().setHidden(seriesId, false);
         }
         deps.toast({
@@ -714,10 +704,16 @@ export function createMarkingCommands(deps: MarkingDeps) {
             when: 'Just now',
           }),
         });
+        // Next up is a regular episode: started, so its watchlist entry is parked
         store
           .getState()
           .updateLibraryIds((ids) =>
-            withMembership(ids, 'inProgress', [seriesId], true),
+            withMembership(
+              withMembership(ids, 'inProgress', [seriesId], true),
+              'watchlist',
+              [seriesId],
+              false,
+            ),
           );
       }
       return result.data.episode;

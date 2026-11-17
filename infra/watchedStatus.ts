@@ -32,8 +32,10 @@ export const watchedStatusQueue = new sst.aws.Queue(
 );
 watchedStatusQueue.subscribe(
   {
+    // The queue's maximumConcurrency below is the real cap; reserving more
+    // would only take concurrency from the account for nothing
     concurrency: {
-      reserved: productionReserved($app.stage, 25),
+      reserved: productionReserved($app.stage, 5),
     },
     handler: 'apps/api/src/lambdas/validateWatchedStatusQueue.handler',
     link: [
@@ -53,10 +55,12 @@ watchedStatusQueue.subscribe(
     // Default = {size: 10, window: “20 seconds”, partialResponses: false}
     batch: {
       partialResponses: true, // handler returns batchItemFailures per message
-      // Users run one after another in a 60 s Lambda: 10 keeps a batch with
-      // heavy users on a Monday's full check inside it (SQS BatchSize, an
-      // in-place UpdateEventSourceMapping change)
-      size: 10,
+      // Users run one after another in a 60 s Lambda, and a heavy user's
+      // Monday full check makes about one TMDB call per show at the
+      // background budget's 5 a second (lib/upstream/budget.ts): 5 users
+      // leave heavy ones room (SQS BatchSize, an in-place
+      // UpdateEventSourceMapping change)
+      size: 5,
       window: '1 minute',
     },
     transform: {
@@ -64,7 +68,8 @@ watchedStatusQueue.subscribe(
         // At most 5 concurrent invocations: the nightly burst spreads out
         // instead of fanning out to TMDB and DynamoDB all at once. Messages
         // wait in the queue meanwhile (no throttling, so no retries burned).
-        // Stays below the reserved concurrency above (production).
+        // Equal to the reserved concurrency above (production), so no
+        // invocation is throttled.
         args.scalingConfig = { maximumConcurrency: 5 };
       },
     },

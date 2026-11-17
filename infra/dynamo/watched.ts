@@ -82,12 +82,15 @@ watched.subscribe(
   {
     transform: {
       eventSourceMapping: {
-        // One sync per user+show covers more of an import per batch; two
-        // batches per shard in flight (records of one user stay in order:
-        // Lambda keeps per-partition-key order with a parallelization
-        // factor). Shards × 2 stays under production's reserved 10. All three are
+        // A batch syncs each user+show it touches, and an uncached show is
+        // TMDB calls at the background budget's 5 a second
+        // (lib/upstream/budget.ts): 20 records keep a batch of distinct
+        // shows inside the 30 s timeout, where 100 could not. Two batches per
+        // shard in flight (records of one user stay in order: Lambda keeps
+        // per-partition-key order with a parallelization factor). Shards × 2
+        // stays under production's reserved 10. All three are
         // UpdateEventSourceMapping fields: changed in place, no replacement.
-        batchSize: 100,
+        batchSize: 20,
         // Split a failing batch in half on each retry to isolate a poison record.
         bisectBatchOnFunctionError: true,
         destinationConfig: {

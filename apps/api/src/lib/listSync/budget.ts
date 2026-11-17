@@ -5,8 +5,9 @@
  * lists in one run. What it refuses heals on later nights, as the job derives
  * everything from current data.
  *
- * "Run" = one Lambda invocation (a batch of up to 10 users): the job has no
- * shared state across invocations, and at today's scale a night is one batch.
+ * "Run" = one Lambda invocation (a batch of up to 5 users,
+ * infra/watchedStatus.ts): the job has no shared state across invocations.
+ * At 5 users the per-user cap is what binds (5 × 10 = the run's 50).
  */
 const NIGHTLY_CAP = { perRun: 50, perUser: 10 } as const;
 

@@ -50,10 +50,11 @@ scrobbleQueue.subscribe(
     // Default = {size: 10, window: “20 seconds”, partialResponses: false}
     batch: {
       partialResponses: true, // handler returns batchItemFailures per message
-      // Messages run one after another and each can take up to 13.5 s of TMDB
-      // retries: 5 keeps a slow batch inside the 30 s timeout (a timeout would
-      // lose the partial response and redeliver the whole batch)
-      size: 5,
+      // Messages run one after another, and a slow TMDB (5 s an attempt, one
+      // retry) makes one take about 13 s: 2 keep such a batch inside the
+      // 30 s timeout (a timeout loses the partial response and redelivers
+      // the whole batch)
+      size: 2,
       window: '30 seconds',
     },
   },

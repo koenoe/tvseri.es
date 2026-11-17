@@ -63,29 +63,18 @@ export async function failSharedRead(includes: string): Promise<void> {
   }
 }
 
-/**
- * Any fault for this test's reads (`fixtures/__outage.ts`): `path` matches
- * one path exactly (`/me`), `includes` any path containing it; `slow`
- * answers as usual after `delayMs`, `answer` answers `body` (after `delayMs` when set); `times` limits
- * it to the first N matching reads.
- */
-export async function stubFault(
+/** POSTs to one of the stub's outage routes as `viewer`, in this test's namespace */
+async function postOutage(
   viewer: StubViewer,
-  rule: Readonly<{
-    body?: unknown;
-    delayMs?: number;
-    includes?: string;
-    mode: '500' | 'hang' | 'slow' | 'answer';
-    path?: string;
-    times?: number;
-  }>,
+  path: string,
+  body: unknown,
 ): Promise<void> {
   const namespace = currentNamespace();
   const token = await (
     await fetch(`${stubAuthUrl}/__token?user=${viewer}&ns=${namespace}`)
   ).text();
-  const response = await fetch(`${stubApiUrl}/__stub/outage`, {
-    body: JSON.stringify(rule),
+  const response = await fetch(`${stubApiUrl}${path}`, {
+    body: JSON.stringify(body),
     headers: {
       authorization: `Bearer ${token}`,
       'content-type': 'application/json',
@@ -96,6 +85,33 @@ export async function stubFault(
   if (!response.ok) {
     throw new Error(`stub answered ${response.status}`);
   }
+}
+
+/**
+ * Any fault for this test's reads (`fixtures/__outage.ts`): `path` matches
+ * one path exactly (`/me`), `includes` any path containing it; `slow`
+ * answers as usual after `delayMs`, `answer` answers `body` (after `delayMs`
+ * when set, or once `releaseHeld` is called when `held`); `times` limits it
+ * to the first N matching reads.
+ */
+export async function stubFault(
+  viewer: StubViewer,
+  rule: Readonly<{
+    body?: unknown;
+    delayMs?: number;
+    held?: boolean;
+    includes?: string;
+    mode: '500' | 'hang' | 'slow' | 'answer';
+    path?: string;
+    times?: number;
+  }>,
+): Promise<void> {
+  await postOutage(viewer, '/__stub/outage', rule);
+}
+
+/** Lets this test's `held` answers go, and the later ones through at once */
+export async function releaseHeld(viewer: StubViewer): Promise<void> {
+  await postOutage(viewer, '/__stub/outage/release', {});
 }
 
 /** The stub's viewer ids (`e2e/stub-api/fixtures/show/store.ts`). */

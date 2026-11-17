@@ -1,7 +1,7 @@
 import { expect, type Page, test } from '@playwright/test';
 
 import { answerStates, boxOf, idOfHref, STATES } from './helpers/seriesStates';
-import { signInAs } from './helpers/session';
+import { releaseHeld, signInAs } from './helpers/session';
 import { TOP_RATED } from './stub-api/fixtures/__top-rated.ts';
 
 /**
@@ -10,8 +10,6 @@ import { TOP_RATED } from './stub-api/fixtures/__top-rated.ts';
  * same box (the stub's read answers late), and a pick drawn by a roll takes
  * its state from the same read at once, with no ghost.
  */
-
-const LATE = 4000;
 
 const PICK = '[data-slot="pick-one"]';
 
@@ -65,7 +63,7 @@ test.describe('Pick one for me', () => {
         [first as number]: STATES.new,
         ...Object.fromEntries(rest.map((id) => [id, STATES.watchlist])),
       },
-      LATE,
+      'held',
     );
     // the tab's own library read agrees (as in `onWatchlistInTheTab`)
     await page.route('**/api/me/library-ids', (route) =>
@@ -78,8 +76,9 @@ test.describe('Pick one for me', () => {
     const loading = page.locator(`${PICK} [data-watchlist-toggle="loading"]`);
     await expect(loading).toBeVisible();
     const ghost = await boxOf(page, TOGGLE);
+    await releaseHeld('alex');
     const off = page.locator(`${PICK} [data-watchlist-toggle="off"]`);
-    await expect(off).toBeVisible({ timeout: 15_000 });
+    await expect(off).toBeVisible();
     expect(await boxOf(page, TOGGLE)).toEqual(ghost);
     await expect(off.getByRole('button')).toHaveText('Watchlist');
     // a roll lands on a card the read put on the watchlist

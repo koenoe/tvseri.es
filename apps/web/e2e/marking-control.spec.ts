@@ -10,20 +10,19 @@ import {
   STATES,
   type StateName,
 } from './helpers/seriesStates';
-import { signInAs } from './helpers/session';
+import { releaseHeld, signInAs } from './helpers/session';
 import { untilStable } from './helpers/viewport';
 
 /**
  * The Watchlist + Seen it control and the watchlist-only toggle
  *. Signed in, the control is a ghost at first paint and
- * streams in already in the viewer's state (the stub's read answers late,
- * `answerStates`), in the same box: the row is measured before and after,
+ * streams in already in the viewer's state (the stub's read is held until
+ * the ghost has been measured, `answerStates`), in the same box: the row is measured before and after,
  * and the page's layout shift stays at 0. Writes (server actions) are held,
  * so the presses stay optimistic, as on a slow network.
  */
 
 const PLURIBUS = 225171;
-const LATE = 4000;
 
 /** What each state draws in the row */
 const DRAWN: Readonly<Record<StateName, RegExp>> = {
@@ -92,7 +91,7 @@ async function lateState(page: Page, kind: StateName, id: number) {
   if (kind === 'watchlist') {
     await onWatchlistInTheTab(page, id);
   }
-  await answerStates('alex', { [id]: STATES[kind] }, LATE);
+  await answerStates('alex', { [id]: STATES[kind] }, 'held');
 }
 
 /**
@@ -129,8 +128,10 @@ async function ghostThenState(
   await page.evaluate(() => {
     (window as unknown as { __shifts: unknown[] }).__shifts.length = 0;
   });
+  // the ghost has been looked at: the viewer's state may come
+  await releaseHeld('alex');
   const row = page.locator(`${scope} [data-mark-control="${kind}"]`).last();
-  await expect(row).toBeVisible({ timeout: 15_000 });
+  await expect(row).toBeVisible();
   await untilStable(() => boxOf(page, `${scope} [data-mark-control]`), {
     message: 'the control stops moving',
   });
@@ -265,7 +266,7 @@ test.describe('the decade card', () => {
       const id = idOfHref(
         await page.locator(`${CARD} a`).first().getAttribute('href'),
       );
-      await answerStates('alex', { [id]: STATES[kind] }, LATE);
+      await answerStates('alex', { [id]: STATES[kind] }, 'held');
       const card = await boxOf(page, CARD);
       await ghostThenState(page, '/decade/2010s', CARD, kind);
       expect(await boxOf(page, CARD)).toEqual(card);
@@ -294,8 +295,9 @@ test.describe('a Premieres ticket', () => {
     await expect(loading).toBeVisible();
     const ghost = await boxOf(page, `${TICKET} [data-watchlist-toggle]`);
     expect(ghost?.height).toBe(36);
+    await releaseHeld('alex');
     const on = page.locator(`${TICKET} [data-watchlist-toggle="on"]`);
-    await expect(on).toBeVisible({ timeout: 15_000 });
+    await expect(on).toBeVisible();
     expect(await boxOf(page, `${TICKET} [data-watchlist-toggle]`)).toEqual(
       ghost,
     );

@@ -28,14 +28,19 @@ export const STATES = {
 
 export type StateName = keyof typeof STATES;
 
+/**
+ * The viewer's states for these shows. `'held'`: kept back until
+ * `releaseHeld(viewer)`, so the controls' ghosts are on screen for as long as
+ * the spec looks at them (not for a guessed number of seconds).
+ */
 export async function answerStates(
   viewer: StubViewer,
   states: Readonly<Record<number, SeriesViewerState>>,
-  delayMs = 0,
+  when: 'now' | 'held' = 'now',
 ): Promise<void> {
   await stubFault(viewer, {
     body: { states },
-    delayMs,
+    held: when === 'held',
     mode: 'answer',
     path: '/me/series-states',
   });

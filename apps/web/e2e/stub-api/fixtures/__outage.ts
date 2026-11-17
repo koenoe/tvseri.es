@@ -132,11 +132,15 @@ export const routes: StubRoute[] = [
  * `500` answers an error at once, `hang` outlasts the web's fetch timeout,
  * `slow` answers as usual after `delayMs`, `answer` answers `body` (an
  * empty list...). `times` limits the rule to the first N matching requests
- * (a failure that heals on the next visit).
+ * (a failure that heals on the next visit). `held` (with `answer`) keeps
+ * the answer back until `POST /__stub/outage/release`: a placeholder is on
+ * screen for exactly as long as the spec needs to look at it, on any
+ * machine (keep it under the web's 10s fetch timeout).
  */
 type Rule = Readonly<{
   body?: unknown;
   delayMs?: number;
+  held?: boolean;
   includes?: string;
   mode: '500' | 'hang' | 'slow' | 'answer';
   path?: string;
@@ -144,6 +148,9 @@ type Rule = Readonly<{
 }>;
 
 const rules: Array<{ rule: Rule; left: number }> = [];
+/** Held answers waiting for the release, and whether it came */
+const held: Array<() => void> = [];
+let released = false;
 const HANG_MS = 25_000;
 const MODES = new Set(['500', 'hang', 'slow', 'answer']);
 
@@ -187,6 +194,11 @@ export const intercept = (
         setTimeout(() => resolve(undefined), rule.delayMs ?? 3000),
       );
     case 'answer':
+      if (rule.held && !released) {
+        return new Promise((resolve) =>
+          held.push(() => resolve(ok(rule.body ?? null))),
+        );
+      }
       // `delayMs`: the answer arrives late (a placeholder's moment on screen)
       return rule.delayMs
         ? new Promise((resolve) =>
@@ -208,4 +220,16 @@ routes.push({
   },
   method: 'POST',
   path: '/__stub/outage',
+});
+
+routes.push({
+  handle: () => {
+    released = true;
+    for (const answer of held.splice(0)) {
+      answer();
+    }
+    return ok({ message: 'OK' });
+  },
+  method: 'POST',
+  path: '/__stub/outage/release',
 });

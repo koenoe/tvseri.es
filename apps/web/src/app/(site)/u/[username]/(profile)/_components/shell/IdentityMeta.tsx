@@ -8,8 +8,8 @@ import {
 import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import type { ProfileCounts } from '@/lib/profile/counts';
+import { readProfileCounts } from '@/lib/profile/counts';
 import profilePath from '@/lib/routing/profilePath';
-import { loadCounts } from '../../_data/counts';
 import { loadFollowState } from '../../_data/follow';
 import type { Profile } from '../../_data/profile';
 import EpisodesCount from './EpisodesCount';
@@ -49,7 +49,7 @@ export default async function IdentityMeta({
   profile,
 }: Readonly<{ profile: Profile }>) {
   const [counts, follow] = await Promise.all([
-    loadCounts(profile),
+    readProfileCounts(profile.user.id),
     loadFollowState(profile),
   ]);
   const known = isUnavailable(counts) ? null : counts;
@@ -103,7 +103,7 @@ function episodesLine(
 export async function CompactIdentityMeta({
   profile,
 }: Readonly<{ profile: Profile }>) {
-  const counts = await loadCounts(profile);
+  const counts = await readProfileCounts(profile.user.id);
   return (
     <span className="flex min-w-0 items-center gap-2 text-[13px] leading-5 whitespace-nowrap text-white/60">
       <Icon className="size-[13px] shrink-0" glyph={eyeGlyph} size={13} />

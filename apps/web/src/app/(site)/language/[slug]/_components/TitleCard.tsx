@@ -13,7 +13,7 @@ import WatchedLabel from '@/components/ui/tile/WatchedLabel';
 import cn from '@/lib/cn';
 import showPath from '@/lib/routing/showPath';
 
-import { useIsWatched } from '../../../_discover/marking';
+import { useIsWatched } from '../../../_discover/marking/useWatched';
 
 import { cardTitles, type Script, type TitleCard } from '../_data/language';
 

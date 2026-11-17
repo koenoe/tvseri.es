@@ -21,7 +21,7 @@ import WatchedLabel from '@/components/ui/tile/WatchedLabel';
 import cn from '@/lib/cn';
 import showPath from '@/lib/routing/showPath';
 
-import { useIsWatched } from '../marking';
+import { useIsWatched } from '../marking/useWatched';
 import { rankedPage, showMoreLabel } from './ranked';
 import SeenNote from './SeenNote';
 

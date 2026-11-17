@@ -1,7 +1,7 @@
 import { isUnavailable } from '@/lib/cache/unavailable';
+import { readProfileCounts } from '@/lib/profile/counts';
 import statsPath from '@/lib/routing/statsPath';
 
-import { loadCounts } from '../../_data/counts';
 import {
   getProfile,
   type Profile,
@@ -37,7 +37,7 @@ export default async function ProfileTabs({
 /** The tabs this profile has something behind */
 async function profileTabs(profile: Profile) {
   // The Stats tab from the stored episode count, not the whole history
-  const counts = await loadCounts(profile);
+  const counts = await readProfileCounts(profile.user.id);
   const known = isUnavailable(counts) ? null : counts;
   return visibleTabs({
     followers: known?.followers ?? null,

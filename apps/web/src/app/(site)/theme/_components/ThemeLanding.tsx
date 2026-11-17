@@ -1,20 +1,23 @@
 import { Suspense } from 'react';
 
 import {
+  LandingCrumb,
   LandingHeroSkeleton,
   LandingPage,
   LandingShell,
 } from '../../_discover/landing';
 import { themeLook } from '../_data/look';
-import ThemeCrumb from './ThemeCrumb';
 import ThemeHero from './ThemeHero';
 import ThemeSections, { ThemeSectionsSkeleton } from './ThemeSections';
 import { themeForSlug } from './themeSlug';
 
 type Props = Readonly<{ params: Promise<{ slug: string }> }>;
 
+/** "Discover › Themes": static, so it is in the cached shell */
+const CRUMB = <LandingCrumb label="Themes" />;
+
 const heroSkeleton = (
-  <LandingHeroSkeleton aside chipsHeading crumb={<ThemeCrumb />} line={false} />
+  <LandingHeroSkeleton aside chipsHeading crumb={CRUMB} line={false} />
 );
 
 /** The page before the slug is known: no colour of its own (`LandingShell`), the crumb, every section's place */

@@ -153,7 +153,7 @@ export async function getProfileCounts(
 ): Promise<Loaded<ProfileCounts>> {
   'use cache';
   cacheTag(userTag(userId), statsTag(userId));
-  const counts = await tryApi(() => readProfileCounts(userId));
+  const counts = await readProfileCounts(userId);
   if (isUnavailable(counts)) {
     cacheLife('unavailable');
     return counts;

@@ -12,6 +12,7 @@ import {
   formatShows,
   keywordLabel,
   LandingChips,
+  LandingCrumb,
   LandingFacts,
   LandingHero,
   LandingHeroDetailsSkeleton,
@@ -20,7 +21,6 @@ import {
 } from '../../_discover/landing';
 import { genreFacts, oftenWith } from '../_data/genreHero';
 import { genreLine } from '../_data/genreLines';
-import GenreCrumb from './GenreCrumb';
 import { genreForSlug } from './genreSlug';
 
 const TITLE_ID = 'genre-title';
@@ -45,7 +45,7 @@ export default async function GenreHero({
   const line = <LandingLine>{genreLine(slug)}</LandingLine>;
   return (
     <LandingHero glow={glow} labelledBy={TITLE_ID}>
-      <GenreCrumb />
+      <LandingCrumb label="Genres" />
       <LandingTitle id={TITLE_ID} name={genre.name}>
         {genre.name}
       </LandingTitle>

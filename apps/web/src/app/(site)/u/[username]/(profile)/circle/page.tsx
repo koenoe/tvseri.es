@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
-
 import { isUnavailable } from '@/lib/cache/unavailable';
+import { readProfileCounts } from '@/lib/profile/counts';
 
 import Hole from '../_components/blocks/Hole';
 import SubpageHeader, {
   SUBPAGE_TITLE_ID,
 } from '../_components/subpage/SubpageHeader';
-import { loadCounts } from '../_data/counts';
 import {
   getProfile,
   type Profile,
@@ -82,7 +81,7 @@ async function VisitorPage({ profile }: Readonly<{ profile: Profile }>) {
   const { username } = profile.user;
   const [lists, counts] = await Promise.all([
     loadVisitorCircle(profile),
-    loadCounts(profile),
+    readProfileCounts(profile.user.id),
   ]);
   // the counts are a nicety beside the lists: without them the titles go bare
   const known = isUnavailable(counts) ? null : counts;

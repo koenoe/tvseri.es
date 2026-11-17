@@ -19,6 +19,7 @@ import {
   formatShows,
   keywordLabel,
   LandingChips,
+  LandingCrumb,
   LandingHero,
   LandingHeroDetailsSkeleton,
   LandingTitle,
@@ -27,7 +28,6 @@ import {
 } from '../../_discover/landing';
 import { getThemeSpotlight } from '../_data/rows';
 import { mostlyLine } from '../_data/themeCopy';
-import ThemeCrumb from './ThemeCrumb';
 import { themeForSlug } from './themeSlug';
 
 const TITLE_ID = 'theme-title';
@@ -50,7 +50,7 @@ export default async function ThemeHero({
   );
   return (
     <LandingHero aside={aside} labelledBy={TITLE_ID}>
-      <ThemeCrumb />
+      <LandingCrumb label="Themes" />
       <LandingTitle id={TITLE_ID} name={theme.title}>
         {theme.title}
       </LandingTitle>

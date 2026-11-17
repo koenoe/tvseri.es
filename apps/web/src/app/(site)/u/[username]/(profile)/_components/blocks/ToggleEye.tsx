@@ -2,17 +2,18 @@
 
 import type { MouseEvent } from 'react';
 
-import EyeButton from '@/components/marking/EyeButton';
+import CircleButton from '@/components/ui/button/CircleButton';
+import { eyeGlyph } from '@/components/ui/icon/glyphs';
 import { nextKey, pressMark } from '@/lib/marking/pressGate';
 import { useEpisodeToggle } from '@/lib/marking/toggles';
 import useIntentSeed from '@/lib/marking/useIntentSeed';
 
 /**
- * The eye on a profile lane row (the shared `EyeButton`): toggles the
- * episode through the marking core (optimistic, toast with Undo); outline
- * until watched, filled after (icons_final: outline = not watched), with
- * the burst when it turns on. The show is seeded on intent
- * (`useIntentSeed`), and a press before the seed lands draws pressed at once.
+ * The 32px eye on a profile lane row: toggles the episode through the
+ * marking core (optimistic, toast with Undo); outline until watched, filled
+ * after, with the burst when it turns on. The show is seeded on intent
+ * (pointer, focus or touch: `useIntentSeed`), and a press before the seed
+ * lands draws pressed at once.
  */
 export default function ToggleEye({
   code,
@@ -40,13 +41,16 @@ export default function ToggleEye({
     ? `Unmark ${title} ${code}`
     : `Mark ${title} ${code} as watched`;
   const hint = isWatched ? 'Watched' : 'Mark as watched';
+  const pressed = isWatched || pending;
   return (
-    <EyeButton
+    <CircleButton
+      icon={eyeGlyph}
       label={label}
-      onIntent={intent}
-      onPress={onPress}
-      onTouchIntent={intent}
-      pressed={isWatched || pending}
+      onClick={onPress}
+      onFocus={intent}
+      onPointerEnter={intent}
+      onTouchStart={intent}
+      pressed={pressed}
       title={hint}
     />
   );

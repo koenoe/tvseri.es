@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { apiFetch } from '@/lib/api/client';
+import { tryApi, type Unavailable } from '@/lib/cache/unavailable';
 
 /**
  * The public counters of a user, one read each (never CDN-cached by the API:
@@ -70,17 +71,23 @@ export type ProfileCounts = Readonly<{
   following: number;
 }>;
 
-/** The identity's counters in one go (the profile's sidebar and the Stats page's); throws `ApiError` when the API fails */
-export async function readProfileCounts(
+/**
+ * The identity's counters in one go (the profile's sidebar and the Stats
+ * page's). A timeout or a 5xx is `Unavailable`, never a throw: the lines
+ * then say so and the page stays.
+ */
+export function readProfileCounts(
   userId: string,
-): Promise<ProfileCounts> {
-  const [episodes, finished, followers, following] = await Promise.all([
-    readCount(userId, 'episodes'),
-    readCount(userId, 'finished'),
-    readCount(userId, 'followers'),
-    readCount(userId, 'following'),
-  ]);
-  return { episodes, finished, followers, following };
+): Promise<ProfileCounts | Unavailable> {
+  return tryApi(async () => {
+    const [episodes, finished, followers, following] = await Promise.all([
+      readCount(userId, 'episodes'),
+      readCount(userId, 'finished'),
+      readCount(userId, 'followers'),
+      readCount(userId, 'following'),
+    ]);
+    return { episodes, finished, followers, following };
+  });
 }
 
 /** Shows the user has watched anything of: the finished and the in-progress ones */

@@ -1,5 +1,6 @@
+import { formatRuntime } from '@tvseri.es/utils';
+
 import type { UpNextFact } from '@/components/up-next/upNextCopy';
-import { formatRuntime } from '@/lib/format/duration';
 import { statusLabel } from '@/lib/format/status';
 import { plural } from '@/lib/format/text';
 

@@ -4,9 +4,9 @@ import {
   seasonCode,
   shortCode,
 } from '@tvseri.es/schemas';
+import { formatRuntime } from '@tvseri.es/utils';
 
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
-import { formatRuntime } from '@/lib/format/duration';
 
 /** One chip of the run: `E05` (always within one season) */
 export type RunChip = Readonly<{

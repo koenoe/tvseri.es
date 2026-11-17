@@ -1,7 +1,9 @@
 'use client';
 
 import type { EpisodeRef } from '@tvseri.es/schemas';
+import { formatDuration } from '@tvseri.es/utils';
 import { memo } from 'react';
+
 import { PULSE } from '@/components/ui/ghost/ghosts';
 import {
   calendarGlyph,
@@ -19,7 +21,6 @@ import {
   TitleTreatmentLogo,
 } from '@/components/ui/title/TitleTreatment';
 import cn from '@/lib/cn';
-import { formatDuration } from '@/lib/format/duration';
 
 import type { ShowSeason } from '../../_lib/show';
 import { formatAirDate } from '../episodes/format';

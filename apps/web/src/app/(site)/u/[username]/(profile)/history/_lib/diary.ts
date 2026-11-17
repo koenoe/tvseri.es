@@ -3,9 +3,8 @@ import {
   type StatsDaily,
   type StatsYears,
 } from '@tvseri.es/schemas';
-import { dayKeyIn, startOfDayIn } from '@tvseri.es/utils';
+import { dayKeyIn, formatRuntime, startOfDayIn } from '@tvseri.es/utils';
 
-import { formatRuntime } from '@/lib/format/duration';
 import { MONTH_NAMES, SHORT_WEEKDAYS } from '@/lib/format/months';
 import { pad2 } from '@/lib/format/pad2';
 import { plural } from '@/lib/format/text';

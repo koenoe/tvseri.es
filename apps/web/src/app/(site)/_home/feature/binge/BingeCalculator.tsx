@@ -1,10 +1,10 @@
 'use client';
 
+import { formatDuration } from '@tvseri.es/utils';
 import Link from 'next/link';
 import { useId, useMemo, useState } from 'react';
 
 import { variantHourglassGlyph } from '@/components/ui/icon/glyphs';
-import { formatDuration } from '@/lib/format/duration';
 import { plural } from '@/lib/format/text';
 import showPath from '@/lib/routing/showPath';
 import { useLocalDay } from '@/lib/viewer/useLocalDay';

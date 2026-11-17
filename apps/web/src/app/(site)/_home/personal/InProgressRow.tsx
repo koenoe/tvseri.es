@@ -1,4 +1,5 @@
 import type { UpNextItem } from '@tvseri.es/schemas';
+import { formatDuration } from '@tvseri.es/utils';
 import Image from 'next/image';
 import { memo } from 'react';
 
@@ -7,7 +8,7 @@ import RowRemote from '@/components/remote/RowRemote';
 import { clockGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import cn from '@/lib/cn';
-import { formatDuration } from '@/lib/format/duration';
+
 import {
   CONTINUE_REMOTE,
   IN_PROGRESS_ROW,

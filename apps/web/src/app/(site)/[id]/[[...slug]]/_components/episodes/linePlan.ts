@@ -1,7 +1,7 @@
 import { type EpisodeRef, shortCode } from '@tvseri.es/schemas';
+import { formatDuration } from '@tvseri.es/utils';
 
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
-import { formatDuration } from '@/lib/format/duration';
 import { shortCodeRange } from '@/lib/marking/copy';
 import { codeOf } from '@/lib/marking/progress';
 

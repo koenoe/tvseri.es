@@ -1,6 +1,8 @@
 import type { StatsNight } from '@tvseri.es/schemas';
+import { formatDuration } from '@tvseri.es/utils';
 import Image from 'next/image';
 import Link from 'next/link';
+
 import { Ghost, TextLine } from '@/components/ui/ghost/ghosts';
 import {
   bingeGlyph,
@@ -17,10 +19,10 @@ import TitleTreatment, {
   type TitleTreatmentLook,
 } from '@/components/ui/title/TitleTreatment';
 import cn from '@/lib/cn';
-import { formatDuration } from '@/lib/format/duration';
 import { plural } from '@/lib/format/text';
 import { episodeRun } from '@/lib/marking/copy';
 import showPath from '@/lib/routing/showPath';
+
 import {
   getSeriesArt,
   getShows,

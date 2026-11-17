@@ -4,9 +4,10 @@
  * Pure: `now` is passed in, dates are read in UTC.
  */
 
+import { formatRuntime } from '@tvseri.es/utils';
+
 import { daysFrom } from '@/lib/format/calendarDay';
 import { formatMonthYear } from '@/lib/format/date';
-import { formatRuntime } from '@/lib/format/duration';
 
 type DateInput = string | number | Date;
 

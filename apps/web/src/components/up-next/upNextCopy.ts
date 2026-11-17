@@ -1,7 +1,8 @@
 import type { UpNextItem } from '@tvseri.es/schemas';
+import { formatRuntime } from '@tvseri.es/utils';
+
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
 import { formatMonthYear } from '@/lib/format/date';
-import { formatRuntime } from '@/lib/format/duration';
 import { formatWhen } from '@/lib/format/when';
 
 /**

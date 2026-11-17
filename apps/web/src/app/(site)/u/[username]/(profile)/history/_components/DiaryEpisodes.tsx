@@ -1,11 +1,13 @@
 'use client';
 
+import { formatRuntime } from '@tvseri.es/utils';
 import * as m from 'motion/react-m';
 import { useState } from 'react';
+
 import { useMotionLive } from '@/components/motion/ArmedMaxMotion';
 import CodeBadge from '@/components/ui/button/CodeBadge';
 import TileLink from '@/components/ui/tile/TileLink';
-import { formatRuntime } from '@/lib/format/duration';
+
 import type { DiaryRow } from '../_lib/diary';
 import { episodeHref } from './episodeHref';
 

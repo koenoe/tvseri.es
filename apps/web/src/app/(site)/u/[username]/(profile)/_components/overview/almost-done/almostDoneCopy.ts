@@ -1,5 +1,5 @@
 import type { AlmostDoneItem } from '@tvseri.es/schemas';
-import { formatRuntime } from '@/lib/format/duration';
+import { formatRuntime } from '@tvseri.es/utils';
 
 /** The episode number of a `S02E06` code (null when it isn't one) */
 export function episodeNumber(code: string): number | null {

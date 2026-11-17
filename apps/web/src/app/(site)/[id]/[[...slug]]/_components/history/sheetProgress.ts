@@ -1,4 +1,5 @@
-import { formatDuration } from '@/lib/format/duration';
+import { formatDuration } from '@tvseri.es/utils';
+
 import { toPercentage } from '@/lib/marking/progress';
 
 import { formatAirDay } from '../progress/progressLine';

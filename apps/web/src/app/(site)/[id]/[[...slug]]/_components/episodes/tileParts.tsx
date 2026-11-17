@@ -1,13 +1,14 @@
 'use client';
 
+import { formatDuration } from '@tvseri.es/utils';
 import { useCallback } from 'react';
 
 import { calendarGlyph, clockGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import { EPISODE_TILE_HOVER } from '@/components/ui/tile/tileHover';
-import { formatDuration } from '@/lib/format/duration';
 import { codeOf } from '@/lib/marking/progress';
+
 import type { ShowEpisode } from '../../_lib/seasonEpisodes';
 import { openEpisode } from '../../_lib/urlState';
 import { preloadEpisodeModal } from '../episode-modal/EpisodeModalIsland';

@@ -1,6 +1,7 @@
 'use client';
 
 import { episodeCode, shortCode } from '@tvseri.es/schemas';
+import { formatDuration } from '@tvseri.es/utils';
 import { memo } from 'react';
 
 import { calendarGlyph, clockGlyph } from '@/components/ui/icon/glyphs';
@@ -8,7 +9,6 @@ import Icon from '@/components/ui/icon/Icon';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import cn from '@/lib/cn';
-import { formatDuration } from '@/lib/format/duration';
 import { codeOf } from '@/lib/marking/progress';
 import type { WatchRecord } from '@/lib/marking/types';
 

@@ -1,8 +1,9 @@
 import type { StatsShowRow } from '@tvseri.es/schemas';
-import { firstMondayOf } from '@tvseri.es/utils';
-import { formatDuration } from '@/lib/format/duration';
+import { firstMondayOf, formatDuration } from '@tvseri.es/utils';
+
 import { SHORT_MONTHS } from '@/lib/format/months';
 import { plural } from '@/lib/format/text';
+
 import { formatYearHours } from '../../_lib/format';
 import { monthDay, monthStarts, WEEKS, weekIndexAt } from '../../_lib/weeks';
 import type { YearState } from '../../_lib/year';

@@ -1,10 +1,12 @@
 import type { AlmostDoneItem } from '@tvseri.es/schemas';
+import { formatRuntime } from '@tvseri.es/utils';
 import Image from 'next/image';
+
 import LaneRow from '@/components/lane-row/LaneRow';
 import { clockGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
-import { formatRuntime } from '@/lib/format/duration';
 import showPath from '@/lib/routing/showPath';
+
 import ToggleEye from '../../blocks/ToggleEye';
 import {
   episodeNumber,

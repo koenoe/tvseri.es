@@ -7,7 +7,7 @@ import type { PickReason } from '@tvseri.es/schemas';
  * (`components/up-next/upNextCopy.ts`).
  */
 
-import { formatDuration } from '@/lib/format/duration';
+import { formatDuration } from '@tvseri.es/utils';
 
 /** The In progress lane: "2h to finish the season" (the phone drops "the season") */
 export function finishLine(minutes: number): string {

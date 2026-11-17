@@ -1,8 +1,10 @@
 'use client';
 
 import type { CatchingUpItem } from '@tvseri.es/schemas';
+import { formatRuntime } from '@tvseri.es/utils';
 import Image from 'next/image';
 import { useMemo } from 'react';
+
 import RowRemote from '@/components/remote/RowRemote';
 import {
   calendarGlyph,
@@ -14,8 +16,8 @@ import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import TileLink from '@/components/ui/tile/TileLink';
 import cn from '@/lib/cn';
-import { formatRuntime } from '@/lib/format/duration';
 import showPath from '@/lib/routing/showPath';
+
 import CatchUpRun from '../catching-up/CatchUpRun';
 import {
   CATCHING_UP_HEAD,

@@ -1,9 +1,9 @@
 import 'server-only';
 
 import type { TvSeries } from '@tvseri.es/schemas';
+import { formatDuration } from '@tvseri.es/utils';
 
 import type { UpNextFact } from '@/components/up-next/upNextCopy';
-import { formatDuration } from '@/lib/format/duration';
 import { loadSeason, loadSeriesOrNull } from '@/lib/series/loaders';
 
 import { loadCircle } from '../../../_data/circle';

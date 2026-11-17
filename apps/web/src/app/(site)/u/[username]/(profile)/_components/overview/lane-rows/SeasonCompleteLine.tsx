@@ -1,5 +1,6 @@
+import { formatRuntime } from '@tvseri.es/utils';
+
 import ProgressTrack from '@/components/ui/progress/ProgressTrack';
-import { formatRuntime } from '@/lib/format/duration';
 
 /** "▬▬▬ 8 episodes · 7h 10m" under a Season complete row */
 export default function SeasonCompleteLine({

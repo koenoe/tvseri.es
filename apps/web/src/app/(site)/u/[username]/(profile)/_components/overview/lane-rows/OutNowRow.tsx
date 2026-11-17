@@ -1,4 +1,5 @@
 import { type Overview, seasonCode } from '@tvseri.es/schemas';
+import { formatRuntime } from '@tvseri.es/utils';
 
 import LaneRow from '@/components/lane-row/LaneRow';
 import type {
@@ -8,7 +9,6 @@ import type {
 import RowRemote from '@/components/remote/RowRemote';
 import { calendarGlyph, clockGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
-import { formatRuntime } from '@/lib/format/duration';
 import { formatWhen } from '@/lib/format/when';
 import showPath from '@/lib/routing/showPath';
 

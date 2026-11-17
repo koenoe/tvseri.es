@@ -1,6 +1,7 @@
 import { type StatsFinishedShow, seasonCode } from '@tvseri.es/schemas';
 
-import { formatDuration } from '@/lib/format/duration';
+import { formatDuration } from '@tvseri.es/utils';
+
 import { plural } from '@/lib/format/text';
 import showPath from '@/lib/routing/showPath';
 

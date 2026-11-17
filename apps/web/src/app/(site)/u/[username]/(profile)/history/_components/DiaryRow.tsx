@@ -1,5 +1,6 @@
 'use client';
 
+import { formatRuntime } from '@tvseri.es/utils';
 import * as m from 'motion/react-m';
 import {
   memo,
@@ -9,11 +10,12 @@ import {
   useRef,
   useState,
 } from 'react';
+
 import CodeBadge from '@/components/ui/button/CodeBadge';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import TileLink from '@/components/ui/tile/TileLink';
 import cn from '@/lib/cn';
-import { formatRuntime } from '@/lib/format/duration';
+
 import type { DiaryRow as Row } from '../_lib/diary';
 import BulkBadge from './BulkBadge';
 import CountToggle, { RunChevron } from './CountToggle';

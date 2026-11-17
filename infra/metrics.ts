@@ -45,8 +45,7 @@ metricsQueue.subscribe(
 
 /**
  * Daily metrics aggregation: one Lambda, one schedule per aggregation, each
- * aggregating the previous day's raw metrics. API runs five minutes after Web
- * Vitals so the two never overlap.
+ * aggregating the previous day's raw metrics.
  */
 const metricsAggregate = new sst.aws.Function('MetricsAggregate', {
   handler: 'apps/api/src/lambdas/metricsAggregate.handler',

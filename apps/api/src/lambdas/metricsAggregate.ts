@@ -1,9 +1,9 @@
-import type { ScheduledHandler } from 'aws-lambda';
-
 import { apiAggregation } from '@/lib/metrics/apiAggregation';
 import { webVitalsAggregation } from '@/lib/metrics/webVitalsAggregation';
 
-const aggregations: Readonly<Record<string, ScheduledHandler>> = {
+const aggregations: Readonly<
+  Record<string, (event: unknown) => Promise<void>>
+> = {
   api: apiAggregation,
   'web-vitals': webVitalsAggregation,
 };
@@ -13,7 +13,7 @@ const aggregations: Readonly<Record<string, ScheduledHandler>> = {
  * passes the aggregation to run: `{ "aggregation": "api" }` or
  * `{ "aggregation": "web-vitals" }` (plus an optional `date` for manual runs).
  */
-export const handler: ScheduledHandler = (event, context, callback) => {
+export const handler = async (event: unknown): Promise<void> => {
   const name: unknown =
     event && typeof event === 'object' && 'aggregation' in event
       ? event.aggregation
@@ -27,5 +27,5 @@ export const handler: ScheduledHandler = (event, context, callback) => {
     throw new Error(`Unknown metrics aggregation: ${String(name)}`);
   }
 
-  return aggregation(event, context, callback);
+  await aggregation(event);
 };

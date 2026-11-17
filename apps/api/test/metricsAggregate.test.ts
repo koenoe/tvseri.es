@@ -1,5 +1,4 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import type { Context } from 'aws-lambda';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { handler } from '@/lambdas/metricsAggregate';
@@ -33,8 +32,7 @@ const webVital = {
   value: 1200,
 };
 
-const run = (aggregation: unknown) =>
-  handler({ aggregation, date: DAY } as never, {} as Context, () => {});
+const run = (aggregation: unknown) => handler({ aggregation, date: DAY });
 
 const summary = (table: string) =>
   db.dump(table).find((item) => item.pk === DAY && item.sk === 'SUMMARY');
@@ -98,7 +96,7 @@ describe('daily metrics aggregation', () => {
   it.each([undefined, 'unknown', 'toString'])(
     'rejects an unknown aggregation (%s)',
     async (aggregation) => {
-      await expect(async () => run(aggregation)).rejects.toThrow(
+      await expect(run(aggregation)).rejects.toThrow(
         'Unknown metrics aggregation',
       );
     },

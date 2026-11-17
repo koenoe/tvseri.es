@@ -1,6 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
-import type { ScheduledHandler } from 'aws-lambda';
 
 import { AGGREGATE_RETRY, batchWrite } from '@/lib/db/batch';
 import { fetchRawMetrics } from '@/lib/metrics/rawShards';
@@ -32,8 +31,8 @@ export const dailyAggregationHandler =
     source: 'API' | 'WEB';
     /** The aggregates' table, read when the handler runs (an SST link) */
     tableName: () => string;
-  }>): ScheduledHandler =>
-  async (event) => {
+  }>) =>
+  async (event: unknown): Promise<void> => {
     // Allow overriding date via event payload for manual runs/testing
     const eventDate =
       event && typeof event === 'object' && 'date' in event

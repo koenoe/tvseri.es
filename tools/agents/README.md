@@ -36,7 +36,7 @@ pnpm agents:heavy -- pnpm --filter @tvseri.es/web build
 pnpm agents:heavy -- pnpm exec playwright test   # prefer agents:e2e for the web suite
 pnpm agents:heavy --status
 pnpm agents:checks            # format-and-lint, check-types, knip, test, web build
-pnpm agents:checks --quick    # format-and-lint, then types and tests of packages changed since `redesign`
+pnpm agents:checks --quick    # format-and-lint, then types and tests of packages changed since the base branch (`main`; `AGENTS_BASE` overrides it)
 ```
 
 - A machine-wide counting semaphore: `slots` jobs at a time (default 2, `heavy/config.json`; `AGENTS_HEAVY_SLOTS` overrides per call). Waiters queue FIFO and see their position and who holds the slots.
@@ -72,19 +72,19 @@ It claims a port block like `serve` and passes `E2E_PORT`, `STUB_API_PORT` (+100
 
 ```bash
 pnpm agents:git-guard install   # once per new worktree (status / uninstall too)
-pnpm agents:sync                # merge `redesign` into this branch, no stash
+pnpm agents:sync                # merge `main` into this branch, no stash
 ```
 
 - `git stash` can't be blocked with an alias (git ignores aliases that shadow built-ins), and there is no pre-stash hook. The guard is a `reference-transaction` hook (`git-guard/reference-transaction`) that refuses any update of `refs/stash` (push, save, store, pop, drop of the top entry, clear) with a message pointing here. Before any change to the working tree, `git stash push` stores its ref, so a refused stash leaves your files as they were.
 - `install` copies it into every worktree's hooks folder (`core.hooksPath` is `.husky/_`, which is per worktree and ignored, and husky keeps unknown files there). The main checkout is skipped unless you pass `--include-main`. New worktrees need `install` again; `agents:status` shows `GUARD missing`.
 - lint-staged's own backup (`git stash store` from the pre-commit hook) is let through: the hook allows a stash update when git's parent process is the lint-staged Node process. lint-staged 17 finds its backup by hash, so concurrent commits in two worktrees don't mix them up.
 - Not covered: `git stash apply` and `git stash drop stash@{n}` for n > 0 change no ref (only the reflog), so they pass. `git -c core.hooksPath=…` bypasses every hook; never do it.
-- `sync` merges `redesign` (or the branch you name) into the current stream branch. It never fetches or stashes. It merges when the tree is clean. With a dirty tree it merges only if no dirty file also changes in `redesign` and `git merge-tree` predicts no conflict; otherwise it refuses and tells you to commit first. It refuses during a merge/rebase, on `redesign` itself and in the main checkout.
+- `sync` merges `main` (or `AGENTS_BASE`, or the branch you name) into the current stream branch. It never fetches or stashes. It merges when the tree is clean. With a dirty tree it merges only if no dirty file also changes in the base branch and `git merge-tree` predicts no conflict; otherwise it refuses and tells you to commit first. It refuses during a merge/rebase, on the base branch itself and in the main checkout.
 
 ## Overview and laptop health
 
 ```bash
-pnpm agents:status [--json]   # every worktree: branch, +ahead/-behind redesign, last commit, dirty files, servers, heavy slots, guard
+pnpm agents:status [--json]   # every worktree: branch, +ahead/-behind main, last commit, dirty files, servers, heavy slots, guard
 pnpm agents:load              # load, memory, swap, busiest worktrees; exit 3 when busy
 ```
 

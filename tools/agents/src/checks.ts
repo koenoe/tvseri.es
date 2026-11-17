@@ -1,3 +1,4 @@
+import { BASE } from './base.ts';
 import type { Context } from './context.ts';
 import { duration } from './format.ts';
 import { runCommand, withHeavySlot } from './heavy.ts';
@@ -7,9 +8,6 @@ type Step = Readonly<{
   env?: NodeJS.ProcessEnv;
   name: string;
 }>;
-
-/** The branch every stream starts from; `--quick` checks what changed since it. */
-const BASE = process.env.AGENTS_BASE ?? 'redesign';
 
 /** Turbo stays at two parallel tasks: the slot already accounts for a whole job. */
 const TURBO_LIMIT = '--concurrency=2';

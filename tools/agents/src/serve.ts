@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import { closeSync, existsSync, openSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
+import { BASE } from './base.ts';
 import {
   ALL_AGENT_PORTS,
   type Context,
@@ -287,7 +288,7 @@ export const serve = async (ctx: Context, argv: readonly string[]) => {
     !existsSync(join(webDir(ctx), 'e2e', 'stub-api', 'server.ts'))
   ) {
     throw new Error(
-      'This branch has no stub API (apps/web/e2e/stub-api). Merge `redesign` first.',
+      `This branch has no stub API (apps/web/e2e/stub-api). Merge \`${BASE}\` first.`,
     );
   }
   const stubAuthScript =

@@ -1,5 +1,6 @@
 import { chmodSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { BASE } from './base.ts';
 import type { Context } from './context.ts';
 import { exec, git } from './exec.ts';
 import { table } from './format.ts';
@@ -85,8 +86,6 @@ export const gitGuard = (ctx: Context, argv: readonly string[]) => {
   );
   return 0;
 };
-
-const BASE = process.env.AGENTS_BASE ?? 'redesign';
 
 /**
  * Brings the integration branch into the current stream branch without

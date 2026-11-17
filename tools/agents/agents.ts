@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Shared tooling for parallel coding agents: see tools/agents/README.md.
+import { BASE } from './src/base.ts';
 import { checks } from './src/checks.ts';
 import { resolveContext } from './src/context.ts';
 import { e2e } from './src/e2e.ts';
@@ -23,12 +24,12 @@ const HELP = `Usage: pnpm agents:<command> (or node tools/agents/agents.ts <comm
   checks [--quick]   pre-commit checks in one heavy slot
   e2e [-- <playwright args>]
                      the web's Playwright run in a heavy slot, on a claimed port block
-  status [--json]    every worktree: branch, ahead/behind redesign, dirty files, servers, slots
+  status [--json]    every worktree: branch, ahead/behind ${BASE}, dirty files, servers, slots
   load [--max-load n] [--min-free %]
                      load, memory, busiest worktrees; exits 3 when the machine is too busy
   git-guard [status|install|uninstall] [--include-main]
                      the hook that blocks git stash in agent worktrees
-  sync [branch]      merge redesign into this branch without stashing (refuses on overlap)
+  sync [branch]      merge ${BASE} into this branch without stashing (refuses on overlap)
 `;
 
 type Command = (

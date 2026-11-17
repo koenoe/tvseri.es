@@ -1,4 +1,5 @@
 import { basename, join } from 'node:path';
+import { BASE } from './base.ts';
 import { type Context, streamOf } from './context.ts';
 import { exec, git } from './exec.ts';
 import { table, truncate } from './format.ts';
@@ -7,8 +8,6 @@ import { guardState, listWorktrees } from './gitGuard.ts';
 import { heavyDir, readState } from './heavy.ts';
 import { isStale, loadEntries } from './registry.ts';
 import { liveness } from './serve.ts';
-
-const BASE = process.env.AGENTS_BASE ?? 'redesign';
 
 /** Parses `git rev-list --left-right --count base...HEAD` ("behind\tahead"). */
 export const parseAheadBehind = (

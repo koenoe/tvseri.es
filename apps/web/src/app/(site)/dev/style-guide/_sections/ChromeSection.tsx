@@ -197,7 +197,7 @@ export default function ChromeSection() {
       >
         <BackgroundStyle color={DEFAULT_PAGE_COLOR} />
         <div className={`${BOX} mt-4 h-72`}>
-          <BackgroundDynamic context="page" />
+          <BackgroundDynamic />
           <div className="relative z-10 p-6">
             <CurrentColor />
           </div>

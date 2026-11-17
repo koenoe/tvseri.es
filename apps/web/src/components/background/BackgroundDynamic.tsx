@@ -29,9 +29,8 @@ const transition = {
  * `MotionGlobalConfig.instantAnimations` first, so the sync is instant.
  */
 function BackgroundDynamic({
-  context = 'page',
   priority = false,
-}: Pick<BackgroundProps, 'context' | 'priority'>) {
+}: Pick<BackgroundProps, 'priority'>) {
   const { backgroundColor, backgroundImage } = useBackground(
     useShallow((state) => ({
       backgroundColor: state.backgroundColor,
@@ -52,7 +51,6 @@ function BackgroundDynamic({
       >
         <BackgroundBase
           color={backgroundColor}
-          context={context}
           image={backgroundImage}
           priority={priority}
         />

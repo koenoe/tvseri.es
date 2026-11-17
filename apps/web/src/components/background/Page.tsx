@@ -1,32 +1,10 @@
-import { cva } from 'class-variance-authority';
 import type { ReactNode } from 'react';
 
-import Background, { type BackgroundContext } from './Background';
+import Background from './Background';
 import { BackgroundProvider } from './BackgroundProvider';
 import BackgroundStyle from './BackgroundStyle';
 import { toPageColor } from './pageColor';
 import { DEFAULT_BACKGROUND_IMAGE } from './store';
-
-const pattern = (svg: string) =>
-  `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
-
-/** The dot and grid patterns, drawn in white at 20%. */
-const PATTERN_STYLES = {
-  dots: {
-    backgroundImage: pattern(
-      `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='16' height='16' fill='none'><circle fill='rgb(255 255 255 / 0.2)' cx='10' cy='10' r='1.6257413380501518'/></svg>`,
-    ),
-  },
-  grid: {
-    backgroundImage: pattern(
-      `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='8' height='8' fill='none' stroke='rgb(255 255 255 / 0.2)'><path d='M0 .5H31.5V32'/></svg>`,
-    ),
-  },
-} as const;
-
-const patternStyles = cva(
-  'pointer-events-none absolute -top-32 right-0 bottom-0 left-0 h-screen w-screen [mask-image:radial-gradient(circle,black,transparent_65%)]',
-);
 
 /**
  * The page's `<main>`: a loading shell that stands in for a page draws the
@@ -42,8 +20,13 @@ export type PageProps = Readonly<{
   backgroundImage?: string;
   /** Crossfade when the store's background changes (carousel pages). */
   animateBackground?: boolean;
-  /** `none`: the page colour only, no backdrop layer (the Discover landings draw their own static glow) */
-  backgroundContext?: BackgroundContext | 'none';
+  /**
+   * `page`: the backdrop and its gradients; `none`: the page colour only (the
+   * Discover landings draw their own static glow). By default `page` with a
+   * backdrop image or `animateBackground`, else `none`: gradients in the
+   * page colour over the page colour would draw nothing.
+   */
+  backgroundContext?: 'page' | 'none';
   /** Preload the backdrop with high priority (it's the LCP). */
   backgroundPriority?: boolean;
   /**
@@ -64,9 +47,9 @@ export type PageProps = Readonly<{
  */
 export default function Page({
   backgroundColor: color,
-  backgroundImage = DEFAULT_BACKGROUND_IMAGE,
+  backgroundImage,
   animateBackground = false,
-  backgroundContext = 'page',
+  backgroundContext = backgroundImage || animateBackground ? 'page' : 'none',
   backgroundPriority = false,
   backgroundClassName,
   children,
@@ -74,28 +57,20 @@ export default function Page({
   const backgroundColor = toPageColor(color);
   const mainStyle = { backgroundColor };
 
+  const image = backgroundImage ?? DEFAULT_BACKGROUND_IMAGE;
+
   const backgroundElement =
-    backgroundContext === 'none' ? null : backgroundContext === 'dots' ||
-      backgroundContext === 'grid' ? (
-      <div
-        className={patternStyles()}
-        style={PATTERN_STYLES[backgroundContext]}
-      />
-    ) : (
+    backgroundContext === 'none' ? null : (
       <Background
         animated={animateBackground}
         color={backgroundColor}
-        context={backgroundContext}
-        image={backgroundImage}
+        image={image}
         priority={backgroundPriority}
       />
     );
 
   return (
-    <BackgroundProvider
-      initialColor={backgroundColor}
-      initialImage={backgroundImage}
-    >
+    <BackgroundProvider initialColor={backgroundColor} initialImage={image}>
       <BackgroundStyle color={backgroundColor} />
       <main className={PAGE_MAIN_CLASS} style={mainStyle}>
         {backgroundClassName ? (

@@ -38,15 +38,9 @@ const SIDE_FADE_STOP = 'min(60%, calc(100% - max(752px, 50vw + 112px)))';
  */
 function BackgroundBase({
   color,
-  context,
   image,
-  className,
   priority = false,
-}: Pick<BackgroundProps, 'color' | 'context' | 'image'> &
-  Readonly<{
-    className?: string;
-    priority?: boolean;
-  }>) {
+}: Pick<BackgroundProps, 'color' | 'image' | 'priority'>) {
   const rgbString = useMemo(() => hexToRgb(color).join(','), [color]);
 
   const overlayStyles = useMemo(
@@ -70,24 +64,10 @@ function BackgroundBase({
     [rgbString],
   );
 
-  const imageStyles = useMemo(
-    () => ({ opacity: context === 'spotlight' ? 0.3 : 1 }),
-    [context],
-  );
-
   return (
     <>
-      {image ? (
-        <BackgroundImage
-          className={className}
-          priority={priority}
-          src={image}
-          style={imageStyles}
-        />
-      ) : null}
-      {context === 'page' && (
-        <div className="absolute inset-0 opacity-70" style={overlayStyles} />
-      )}
+      {image ? <BackgroundImage priority={priority} src={image} /> : null}
+      <div className="absolute inset-0 opacity-70" style={overlayStyles} />
       <div className="absolute inset-0" style={radialGradientStyles} />
       <div
         className="absolute bottom-0 left-0 h-1/5 w-full"

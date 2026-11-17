@@ -1,6 +1,6 @@
 # Background system (page colour)
 
-Every page has a page colour (`--main-background-color`, the `page` colour token) and, on some pages, a backdrop. The system paints the colour on the first frame of a hard load, keeps it right across client navigations, restores it on Back (also after a carousel changed it) and works with Activity (Cache Components keeps visited pages mounted but hidden).
+Every page has a page colour (`--main-background-color`, the `page` colour token) and, on some pages, a backdrop. The system paints the colour on the first frame of a hard load, keeps it right across client navigations, restores it on Back (also after Home's spotlight changed it) and works with Activity (Cache Components keeps visited pages mounted but hidden).
 
 ## Use it
 
@@ -10,19 +10,26 @@ Every page has a page colour (`--main-background-color`, the `page` colour token
   …
 </Page>
 
-// No backdrop, a faint pattern
-<Page backgroundContext="dots">…</Page>
+// The page colour only: no image means no backdrop layer (`backgroundContext` defaults to `none`)
+<Page backgroundColor={color}>…</Page>
 
-// A carousel: preload the next backdrop, then crossfade (client, inside an `animateBackground` Page)
+// Explicitly no backdrop, whatever else is passed (the Discover landings draw their own glow)
+<Page backgroundColor={ground} backgroundContext="none">…</Page>
+
+// Crossfade to another backdrop (client, inside an `animateBackground` Page: only the show page,
+// whose admin preview swaps the backdrop): preload it, then set it
 const setBackground = useBackground((state) => state.setBackground);
 await preloadImage(src, responsive).catch(() => undefined);
-setBackground({ backgroundColor: item.backdropColor, backgroundImage: item.backdropImage });
+setBackground({ backgroundColor: colour, backgroundImage: url });
 ```
+
+`backgroundContext` is `page` (the backdrop and its side, radial and bottom gradients in the page colour) or `none` (the page colour only). It defaults to `page` when the page passes a `backgroundImage` or `animateBackground`, else `none`: gradients in the page colour over the page colour would draw nothing.
 
 Reading the colour:
 
 - **CSS (preferred):** the `page` token: `bg-page`, `text-page`, `from-page/0`, `bg-page/90`. It reads the variable on `:root`, so it also works in portals and in the top layer (`<dialog>`, popovers): the search overlay, sheets and menus need nothing else.
-- **JS, frozen at a moment:** `getMainBackgroundColor()` returns the validated hex right now (the mobile menu captures it when it opens, so a carousel changing slides behind it doesn't recolour it).
+- **JS, the value itself:** `getMainBackgroundColor()` returns the validated hex right now (the show page's admin preview falls back to it).
+- **Hero artwork under the header:** `heroShade(color)` returns the vignette and side fade in the hero's colour, for the end of the hero's own background list (the show page's phone backdrop, Home's spotlight artwork).
 - **Inside a Page:** `useBackground((state) => state.backgroundColor)`.
 
 The colour must be a six-digit hex (`#1c2223`, any case). Anything else (a name, `url()`, a `;}` that breaks out of the rule) becomes the ground `#1c2223`: `toPageColor()` runs in `Page`, at the `<style>` sink (`BackgroundStyle`) and in the store, so a bad value never reaches the DOM.
@@ -37,24 +44,25 @@ Page.tsx (server)
 │   ├── BackgroundStyle     server: <style> with the validated colour
 │   │   └── BackgroundStyleTag  Activity-proof <style> (media toggle)
 │   └── <main>
-│       ├── Background
+│       ├── Background          (backgroundContext `page`; none for `none`)
 │       │   ├── BackgroundDynamic  AnimatePresence crossfade (animateBackground)
 │       │   │   └── BackgroundBase  backdrop + gradient overlays
 │       │   └── BackgroundStatic   plain div
 │       │       └── BackgroundBase
-│       │   (or the dots / grid pattern)
 │       └── children
 ```
 
 ## Data flow
 
-**Hard load (refresh, first visit).** The server HTML holds `<style>:root { --main-background-color: #… }</style>` and `main`'s inline colour, so the first frame has the colour. `BackgroundProvider`'s layout effect then sets the variable on `<html>` and subscribes to the store.
+**Hard load (refresh, first visit).** The server HTML holds the colour twice (`BackgroundStyle`): a `<style>` hoisted into `<head>` (React 19 `<style precedence>`), `html:not([data-page-colour-live]) { --main-background-color: #… }`, which applies from the first frame even on a slow device still parsing the body; and the in-page Activity-proof `<style>` (`BackgroundStyleTag`) with the variable and the `body`/`main`/footer colour, beside `main`'s inline colour. `BackgroundProvider`'s layout effect then sets the variable on `<html>`, sets `PAGE_COLOUR_LIVE` (`data-page-colour-live`, `pageColor.ts`) so the head copy never applies again, and subscribes to the store.
 
 **Client navigation forward.** The new page's provider starts from its server props.
 
-**Back.** Activity re-shows the page. Its layout effect (before paint) reads `isBackNavigation()` and `getHistoryKey()` (`@/lib/navigation`, set by `NavigationTracker`) and restores the state the entry was left with from the cache (`cache.ts`), e.g. the carousel's slide colour. A forward navigation to the same page is a new history entry and starts from the server props.
+**Back.** Activity re-shows the page. Its layout effect (before paint) reads `isBackNavigation()` and `getHistoryKey()` (`@/lib/navigation`, set by `NavigationTracker`) and restores the state the entry was left with from the cache (`cache.ts`), e.g. the spotlight slide's colour. A forward navigation to the same page is a new history entry and starts from the server props.
 
 **Activity hide.** The layout effect cleans up: it saves the store state under the entry's history key (captured at setup, because `history.state` already points at the next entry), removes the variable and disables the `<style>` (`media="not all"`). Setup does the reverse in the same effect, so the variable and the `<style>` never disagree.
+
+**iOS Safari's top bar.** `PageEdgeTint` (`components/ui/dialog/EdgeTint.tsx`, in the root layout) is a fixed 12px strip at the top in `bg-page`: Safari 26 colours its status bar from the fixed element at the edge, and without it kept the previous page's colour after a client navigation. A modal dialog's own strips sit above it in the top layer.
 
 **Re-show without a crossfade.** On a re-show the store sync would crossfade `BackgroundDynamic`; `MotionGlobalConfig.instantAnimations` is set for two frames so it's instant.
 
@@ -73,16 +81,17 @@ Page.tsx (server)
 | `BackgroundImage.tsx` | Server | Responsive `<img>` through the TMDB loader, `preload()` when `priority` |
 | `store.ts` | Shared | Zustand store; validates the colour |
 | `cache.ts` | Client | `Map<historyKey, state>`; `saveBackground`, `restoreBackground` |
-| `pageColor.ts` | Shared | `toPageColor`, `DEFAULT_PAGE_COLOR` (`#1c2223`) |
+| `pageColor.ts` | Shared | `toPageColor`, `DEFAULT_PAGE_COLOR` (`#1c2223`), `PAGE_COLOUR_LIVE`, `contrast` |
 | `getMainBackgroundColor.ts` | Client | The current colour, validated |
+| `heroShade.ts` | Shared | The vignette and side fade for hero artwork under the header |
 | `hexToRgb.ts`, `preloadImage.ts` | Shared | Helpers |
 
 ## Cache lifecycle
 
 ```
-Open /1396            → provider mounts, store = server props
-Carousel slide        → preloadImage, then setBackground (store update)
-Open /1399            → Activity hides /1396: cache[key of that entry] = {color, image}
-Back                  → Activity re-shows /1396: isBack → restore from cache, before paint
+Open /                → provider mounts, store = server props
+Spotlight slide       → setBackground (store update: Home's colour follows the slide)
+Open /1396            → Activity hides /: cache[key of that entry] = {color, image}
+Back                  → Activity re-shows /: isBack → restore from cache, before paint
 Refresh               → module Map is empty again; the server <style> paints the colour
 ```

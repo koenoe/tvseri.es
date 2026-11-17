@@ -1,9 +1,9 @@
 import { toPageColor } from './pageColor';
 
 /**
- * The page colour right now, read from the CSS variable (client only). For a
- * surface that must keep the colour it opened with (the mobile menu overlay);
- * anything that may follow the page live can use the `page` colour token
+ * The page colour right now, read from the CSS variable (client only). For
+ * code that needs the value itself (the show page's admin preview falls back
+ * to it); anything that may follow the page live can use the `page` colour token
  * (`bg-page`, `from-page/0`) instead, which also works in portals and the top
  * layer.
  */

@@ -13,6 +13,7 @@ const resources = {
   Follow: { name: 'Follow' },
   Lists: { name: 'Lists' },
   MdblistApiKey: { value: 'test-mdblist' },
+  MetricsApiAggregated: { name: 'MetricsApiAggregated' },
   MetricsQueue: { url: 'https://sqs.test/metrics' },
   MetricsRaw: { name: 'MetricsRaw' },
   MetricsWebVitalsAggregated: { name: 'MetricsWebVitalsAggregated' },

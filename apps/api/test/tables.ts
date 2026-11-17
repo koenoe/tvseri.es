@@ -21,6 +21,9 @@ export const TABLES: Readonly<Record<string, TableSchema>> = {
     hashKey: 'pk',
     rangeKey: 'sk',
   },
+  MetricsApiAggregated: { hashKey: 'pk', rangeKey: 'sk' },
+  MetricsRaw: { hashKey: 'pk', rangeKey: 'sk' },
+  MetricsWebVitalsAggregated: { hashKey: 'pk', rangeKey: 'sk' },
   PreferredImages: { hashKey: 'pk' },
   Users: {
     globalIndexes: {

@@ -1,6 +1,3 @@
-import type { WriteRequest } from '@aws-sdk/client-dynamodb';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { marshall } from '@aws-sdk/util-dynamodb';
 import { WEB_VITALS_SAMPLE_RATE } from '@tvseri.es/constants';
 import type {
   WebVitalAggregate,
@@ -11,20 +8,19 @@ import type {
   WebVitalTopItem,
 } from '@tvseri.es/schemas';
 import { buildHistogramBins, computeRESFromStats } from '@tvseri.es/utils';
-import type { ScheduledHandler } from 'aws-lambda';
 import { Resource } from 'sst';
-import { AGGREGATE_RETRY, batchWrite } from '@/lib/db/batch';
-import { fetchRawMetrics } from '@/lib/metrics/rawShards';
+import {
+  dailyAggregationHandler,
+  sampleMultiplier,
+} from '@/lib/metrics/dailyAggregation';
 
 /**
  * Web Vitals are sampled per page load (see WEB_VITALS_SAMPLE_RATE), so counts
  * (pageviews, per-metric counts, ratings, histogram bins) are extrapolated.
  * Percentiles and the score are ratios and stay as measured.
  */
-const SAMPLE_RATE_MULTIPLIER = Math.round(1 / WEB_VITALS_SAMPLE_RATE);
+const SAMPLE_RATE_MULTIPLIER = sampleMultiplier(WEB_VITALS_SAMPLE_RATE);
 const AGGREGATE_TTL_DAYS = 30;
-
-const dynamoClient = new DynamoDBClient({});
 
 /**
  * Aggregate Web Vital metrics into MetricsWebVitals table.
@@ -321,82 +317,12 @@ const aggregateWebVitals = (
 };
 
 /**
- * Write Web Vitals aggregates to MetricsWebVitals table.
+ * Web Vitals aggregation Lambda: runs daily (00:05 UTC) and writes the
+ * previous day's raw Web Vitals as pre-computed aggregates.
  */
-const writeAggregates = async (items: WebVitalAggregate[]): Promise<void> => {
-  if (items.length === 0) return;
-
-  const writeRequests: WriteRequest[] = items.map((item) => ({
-    PutRequest: {
-      Item: marshall(item, { removeUndefinedValues: true }),
-    },
-  }));
-
-  // 25-item batches, retrying UnprocessedItems (cron backoff); throws if any
-  // are left
-  await batchWrite(
-    Resource.MetricsWebVitalsAggregated.name,
-    writeRequests,
-    AGGREGATE_RETRY,
-  );
-};
-
-/**
- * Web Vitals aggregation Lambda.
- * Runs daily to aggregate raw Web Vital metrics into pre-computed aggregates.
- *
- * By default, aggregates the PREVIOUS day's data to ensure all metrics are collected.
- * Can also accept a specific date via event payload for manual runs:
- *   { "date": "2025-12-11" }
- */
-export const handler: ScheduledHandler = async (event) => {
-  const now = new Date();
-
-  // Allow overriding date via event payload for manual runs/testing
-  const eventDate =
-    event && typeof event === 'object' && 'date' in event
-      ? (event as { date: string }).date
-      : null;
-
-  let dateStr: string;
-  if (eventDate) {
-    dateStr = eventDate;
-    console.log(`[web-vitals-aggregate] Using provided date: ${dateStr}`);
-  } else {
-    // Calculate the previous day's date
-    const previousDay = new Date(now);
-    previousDay.setDate(previousDay.getDate() - 1);
-    dateStr = previousDay.toISOString().split('T')[0] as string;
-  }
-
-  // Time range for the full day
-  // sk is "{timestamp}#{id}": the ~ suffix captures every record of the last timestamp
-  // since ~ (ASCII 126) sorts after alphanumeric characters
-  const dayStart = `${dateStr}T00:00:00.000Z`;
-  const dayEnd = `${dateStr}T23:59:59.999Z~`;
-
-  console.log(`[web-vitals-aggregate] Processing date ${dateStr}`);
-
-  // Fetch raw Web Vital metrics
-  const rawMetrics = await fetchRawMetrics<WebVitalRecord>(
-    dynamoClient,
-    `WEB#${dateStr}`,
-    dayStart,
-    dayEnd,
-  );
-  console.log(`[web-vitals-aggregate] Found ${rawMetrics.length} raw metrics`);
-
-  if (rawMetrics.length === 0) {
-    console.log('[web-vitals-aggregate] No metrics to aggregate');
-    return;
-  }
-
-  // Aggregate
-  const aggregates = aggregateWebVitals(rawMetrics, dateStr);
-  console.log(`[web-vitals-aggregate] Created ${aggregates.length} aggregates`);
-
-  // Write to table
-  await writeAggregates(aggregates);
-
-  console.log('[web-vitals-aggregate] Done');
-};
+export const handler = dailyAggregationHandler({
+  aggregate: aggregateWebVitals,
+  label: 'web-vitals-aggregate',
+  source: 'WEB',
+  tableName: () => Resource.MetricsWebVitalsAggregated.name,
+});

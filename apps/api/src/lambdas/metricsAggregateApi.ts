@@ -1,6 +1,4 @@
-import type { WriteRequest } from '@aws-sdk/client-dynamodb';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { marshall } from '@aws-sdk/util-dynamodb';
+import { API_METRICS_SAMPLE_RATE } from '@tvseri.es/constants';
 import {
   APDEX_T,
   type Apdex,
@@ -12,30 +10,25 @@ import {
   type StatusCodeBreakdown,
 } from '@tvseri.es/schemas';
 import { buildLatencyHistogramBins } from '@tvseri.es/utils';
-import type { ScheduledHandler } from 'aws-lambda';
 import { Resource } from 'sst';
-import { AGGREGATE_RETRY, batchWrite } from '@/lib/db/batch';
+import {
+  dailyAggregationHandler,
+  sampleMultiplier,
+} from '@/lib/metrics/dailyAggregation';
 import {
   isValidTmdbEndpoint,
   normalizeDependencyEndpoint,
 } from '@/lib/metrics/dependencyEndpoint';
-import { fetchRawMetrics } from '@/lib/metrics/rawShards';
 
 const AGGREGATE_TTL_DAYS = 30;
 /** Number of top items to store in leaderboards */
 const TOP_ITEMS_LIMIT = 25;
-/**
- * Sample rate multiplier to extrapolate counts from sampled data.
- * If metrics are sampled at 10% (0.1), this should be 10 to get accurate totals.
- * Set to 1 if no sampling is applied.
- */
-const SAMPLE_RATE_MULTIPLIER = 10;
+/** Scales counts from sampled data back up to totals (10 for a 10% sample) */
+const SAMPLE_RATE_MULTIPLIER = sampleMultiplier(API_METRICS_SAMPLE_RATE);
 
 /** Latency thresholds for ratings (in ms) */
 const LATENCY_FAST_THRESHOLD = 200;
 const LATENCY_MODERATE_THRESHOLD = 500;
-
-const dynamoClient = new DynamoDBClient({});
 
 /**
  * Calculate percentile statistics from an array of numbers.
@@ -718,82 +711,12 @@ const aggregateApiMetrics = (
 };
 
 /**
- * Write API aggregates to MetricsApi table.
+ * API metrics aggregation Lambda: runs daily (00:10 UTC) and writes the
+ * previous day's raw API metrics as pre-computed aggregates.
  */
-const writeAggregates = async (items: ApiMetricAggregate[]): Promise<void> => {
-  if (items.length === 0) return;
-
-  const writeRequests: WriteRequest[] = items.map((item) => ({
-    PutRequest: {
-      Item: marshall(item, { removeUndefinedValues: true }),
-    },
-  }));
-
-  // 25-item batches, retrying UnprocessedItems (cron backoff); throws if any
-  // are left
-  await batchWrite(
-    Resource.MetricsApiAggregated.name,
-    writeRequests,
-    AGGREGATE_RETRY,
-  );
-};
-
-/**
- * API metrics aggregation Lambda.
- * Runs daily to aggregate raw API metrics into pre-computed aggregates.
- *
- * By default, aggregates the PREVIOUS day's data to ensure all metrics are collected.
- * Can also accept a specific date via event payload for manual runs:
- *   { "date": "2025-12-11" }
- */
-export const handler: ScheduledHandler = async (event) => {
-  const now = new Date();
-
-  // Allow overriding date via event payload for manual runs/testing
-  const eventDate =
-    event && typeof event === 'object' && 'date' in event
-      ? (event as { date: string }).date
-      : null;
-
-  let dateStr: string;
-  if (eventDate) {
-    dateStr = eventDate;
-    console.log(`[api-aggregate] Using provided date: ${dateStr}`);
-  } else {
-    // Calculate the previous day's date
-    const previousDay = new Date(now);
-    previousDay.setDate(previousDay.getDate() - 1);
-    dateStr = previousDay.toISOString().split('T')[0] as string;
-  }
-
-  // Time range for the full day
-  // sk is "{timestamp}#{requestId}": the ~ suffix captures every record of the last timestamp
-  // since ~ (ASCII 126) sorts after alphanumeric characters
-  const dayStart = `${dateStr}T00:00:00.000Z`;
-  const dayEnd = `${dateStr}T23:59:59.999Z~`;
-
-  console.log(`[api-aggregate] Processing date ${dateStr}`);
-
-  // Fetch raw API metrics
-  const rawMetrics = await fetchRawMetrics<ApiMetricRecord>(
-    dynamoClient,
-    `API#${dateStr}`,
-    dayStart,
-    dayEnd,
-  );
-  console.log(`[api-aggregate] Found ${rawMetrics.length} raw metrics`);
-
-  if (rawMetrics.length === 0) {
-    console.log('[api-aggregate] No metrics to aggregate');
-    return;
-  }
-
-  // Aggregate
-  const aggregates = aggregateApiMetrics(rawMetrics, dateStr);
-  console.log(`[api-aggregate] Created ${aggregates.length} aggregates`);
-
-  // Write to table
-  await writeAggregates(aggregates);
-
-  console.log('[api-aggregate] Done');
-};
+export const handler = dailyAggregationHandler({
+  aggregate: aggregateApiMetrics,
+  label: 'api-aggregate',
+  source: 'API',
+  tableName: () => Resource.MetricsApiAggregated.name,
+});

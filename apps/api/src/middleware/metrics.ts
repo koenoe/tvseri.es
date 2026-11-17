@@ -1,3 +1,4 @@
+import { API_METRICS_SAMPLE_RATE } from '@tvseri.es/constants';
 import type { ApiMetricRecord } from '@tvseri.es/schemas';
 import type { MiddlewareHandler } from 'hono';
 import { Resource } from 'sst';
@@ -15,12 +16,6 @@ const sendMetric = (record: ApiMetricRecord): void => {
     console.error('[metrics] Failed to send metric to SQS:', error);
   });
 };
-
-/**
- * Sampling rate for API metrics (0.0 to 1.0).
- * Set to 0.1 to record 10% of requests, reducing SQS costs by ~90%.
- */
-const METRICS_SAMPLE_RATE = 0.1;
 
 // Webhook/scrobble tokens are long-lived credentials: never store them
 const REDACTED = '[redacted]';
@@ -59,7 +54,7 @@ const toRouteLabel = (routePath: string) =>
 export const metrics = (): MiddlewareHandler<{ Variables: Variables }> => {
   return async (c, next) => {
     // Skip metrics collection for non-sampled requests
-    const shouldSample = Math.random() < METRICS_SAMPLE_RATE;
+    const shouldSample = Math.random() < API_METRICS_SAMPLE_RATE;
     if (!shouldSample) {
       await next();
       return;

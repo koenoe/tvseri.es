@@ -1,3 +1,4 @@
+export { API_METRICS_SAMPLE_RATE } from './apiMetrics';
 export {
   type AuthNotice,
   GOOGLE_UNVERIFIED_DESCRIPTION,

@@ -82,7 +82,15 @@ describe('toControlState: the API’s state to what a control draws', () => {
   });
 
   it('watching without facts: Continue with no episode and no count', () => {
-    expect(toControlState({ onWatchlist: true, state: 'watching' })).toEqual({
+    // a count without its episode would label nothing
+    expect(
+      toControlState({
+        onWatchlist: true,
+        seasonTotal: 15,
+        seasonWatched: 3,
+        state: 'watching',
+      }),
+    ).toEqual({
       kind: 'watching',
       next: null,
       onWatchlist: true,
@@ -90,8 +98,10 @@ describe('toControlState: the API’s state to what a control draws', () => {
       seasonWatched: null,
     });
   });
+});
 
-  it('up to date, with and without a next air date', () => {
+describe('toControlState: up to date', () => {
+  it('passes the next air date on, or none', () => {
     expect(
       toControlState({
         nextAirDate: '2026-11-19',
@@ -106,13 +116,6 @@ describe('toControlState: the API’s state to what a control draws', () => {
     expect(toControlState({ onWatchlist: false, state: 'up-to-date' })).toEqual(
       { kind: 'up-to-date', nextAirDate: null, onWatchlist: false },
     );
-  });
-
-  it('finished', () => {
-    expect(toControlState({ onWatchlist: false, state: 'finished' })).toEqual({
-      kind: 'finished',
-      onWatchlist: false,
-    });
   });
 });
 

@@ -95,26 +95,22 @@ describe('UpNextItemCard', () => {
     expect(screen.queryAllByRole('button')).toHaveLength(0);
   });
 
-  it('puts the actions top right and an episode control in the bar', () => {
+  it('takes the actions and an episode control outside the link', () => {
     const actions = <button type="button">More</button>;
     const end = <button type="button">Mark</button>;
     renderCard({ actions, episodeEnd: end });
-    const more = screen.getByRole('button', { name: 'More' });
-    // at the end of the card's top row
-    expect(more.parentElement?.parentElement?.className).toContain('top-4');
+    // no control nested in the link: each keeps its own press and name
+    const link = screen.getByRole('link');
+    expect(within(link).queryAllByRole('button')).toHaveLength(0);
+    // the bar lets presses through to the link; the control takes its own
     const mark = screen.getByRole('button', { name: 'Mark' });
-    // in the episode line, beside the title, with presses of its own
-    expect(mark.parentElement?.parentElement?.textContent).toContain(
-      'Pilot Two',
-    );
-    expect(mark.parentElement?.className).toContain('pointer-events-auto');
+    expect(mark.closest('.pointer-events-auto')).not.toBeNull();
   });
 
   it('puts the place’s tag above the pill, both at the start of the top row', () => {
     renderCard({ tag: <span>New to you</span> });
     const tag = screen.getByText('New to you');
     const start = tag.parentElement;
-    expect(start?.className).toContain('flex-col');
     expect(start?.textContent?.indexOf('New to you')).toBeLessThan(
       start?.textContent?.indexOf('Last watched') ?? -1,
     );
@@ -135,16 +131,13 @@ describe('UpNextItemCard', () => {
 });
 
 describe('UpNextCardGhost', () => {
-  it('takes the card’s box and fills the same slots', () => {
+  it('marks itself as the card’s placeholder and fills the same slots', () => {
     const actions = <span data-testid="ghost-action" />;
     const { container } = render(<UpNextCardGhost actions={actions} />);
-    const ghost = container.firstElementChild;
-    expect(ghost?.getAttribute('data-placeholder')).toBe('up-next-card');
-    expect(ghost?.className).toContain('md:min-h-[420px]');
     expect(
-      screen.getByTestId('ghost-action').parentElement?.parentElement
-        ?.className,
-    ).toContain('top-4');
+      container.querySelector('[data-placeholder="up-next-card"]'),
+    ).not.toBeNull();
+    expect(screen.getByTestId('ghost-action')).toBeTruthy();
     // the ghost carries the fill only: the placeholder around it pulses
     expect(container.querySelector('.animate-ghost')).toBeNull();
   });

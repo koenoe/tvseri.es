@@ -8,7 +8,10 @@ const at = (y: number, m: number, d: number, h = 21, min = 40) =>
 
 describe('lastWeekend', () => {
   it('is the Saturday of the weekend that is over', () => {
-    // Thu 12 Nov 2026 → Sat 7 Nov    expect(lastWeekend(at(2026, 11, 12))).toEqual(new Date(2026, 10, 7));
+    // Thu 12 Nov 2026 → Sat 7 Nov
+    expect(lastWeekend(at(2026, 11, 12))).toEqual(new Date(2026, 10, 7));
+    // Sat 14 Nov: today's weekend isn't over either → Sat 7 Nov
+    expect(lastWeekend(at(2026, 11, 14))).toEqual(new Date(2026, 10, 7));
     // Sun 15 Nov: this weekend isn't over yet → Sat 7 Nov
     expect(lastWeekend(at(2026, 11, 15))).toEqual(new Date(2026, 10, 7));
     // Mon 16 Nov → Sat 14 Nov
@@ -37,6 +40,11 @@ describe('toMarkWhen', () => {
     ).toEqual({ kind: 'date', watchedAt: morning });
   });
 
+  it('Just now and I don’t remember leave the date to the server', () => {
+    expect(toMarkWhen({ kind: 'now' }, now)).toEqual({ kind: 'now' });
+    expect(toMarkWhen({ kind: 'unknown' }, now)).toEqual({ kind: 'unknown' });
+  });
+
   it('release dates carry the browser’s offset', () => {
     expect(toMarkWhen({ kind: 'release' }, now)).toEqual({
       kind: 'release',
@@ -50,6 +58,9 @@ describe('labels', () => {
 
   it('names every choice', () => {
     expect(whenLabel({ kind: 'now' }, now)).toBe('Just now');
+    expect(whenLabel({ kind: 'yesterday' }, now)).toBe('Yesterday');
+    expect(whenLabel({ kind: 'weekend' }, now)).toBe('Last weekend');
+    expect(whenLabel({ kind: 'release' }, now)).toBe('On release day');
     expect(whenLabel({ kind: 'unknown' }, now)).toBe('I don’t remember when');
     expect(whenLabel({ day: new Date(2026, 10, 3), kind: 'day' }, now)).toBe(
       'Nov 3',

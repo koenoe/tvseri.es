@@ -61,16 +61,12 @@ afterEach(() => {
 });
 
 describe('WatchlistToggle: outlined, two states, one box', () => {
-  it('signed out: "+ Watchlist", outlined, and a press asks to sign in', async () => {
+  it('signed out: "+ Watchlist", and a press asks to sign in', async () => {
     const view = await renderToggle();
     expect(toggle().textContent).toBe('Watchlist');
-    expect(toggle().className).toContain('border-white/25');
-    expect(toggle().className).not.toContain('bg-white ');
-    // the box: both faces laid out unseen, the button fills it
+    // the box: both faces laid out unseen, so a swap never resizes it
     const row = view?.container.querySelector('[data-watchlist-toggle]');
-    expect(row?.className).toContain('relative z-3');
     expect(row?.textContent).toContain('On watchlist');
-    expect(toggle().className).toContain('w-full');
     fireEvent.click(toggle());
     expect(showToast).toHaveBeenCalledWith(
       expect.objectContaining({ title: SIGN_IN_MESSAGE }),

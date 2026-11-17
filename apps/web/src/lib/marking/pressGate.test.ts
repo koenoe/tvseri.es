@@ -74,4 +74,13 @@ describe('pressMark: one press, one write', () => {
     pressMark('1:next', click(0), run);
     expect(pressMark('1:next', click(0), run)).toBe(true);
   });
+
+  it('a keyboard or assistive press has no spot: a click where it happened to point still goes through', () => {
+    const run = vi.fn(() => held().promise);
+    expect(pressMark('1:S01E04', click(0, 100, 200), run)).toBe(true);
+    expect(pressMark('1:S01E05', click(1, 100, 200), run)).toBe(true);
+    // a press with no event at all is keyed only
+    expect(pressMark('1:S01E06', null, run)).toBe(true);
+    expect(pressMark('1:S01E06', null, run)).toBe(false);
+  });
 });

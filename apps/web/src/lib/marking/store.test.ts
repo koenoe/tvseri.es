@@ -94,6 +94,26 @@ describe('seeds never undo a settled mark (Back after a mark)', () => {
   });
 });
 
+describe('pending changes that answer out of order', () => {
+  it('each settles or fails on its own; a failure never takes a saved one with it', () => {
+    const store = createMarkingStore();
+    seed(store, viewerSeed(1_000));
+    const first = store.getState().begin(SERIES, {
+      kind: 'mark',
+      records: { S02E01: { runtime: 0, watchedAt: 2_000 } },
+    });
+    const second = store.getState().begin(SERIES, {
+      kind: 'mark',
+      records: { S02E02: { runtime: 0, watchedAt: 2_000 } },
+    });
+    store.getState().settle(SERIES, second, [], 2_000);
+    expect(watchedCodes(store).sort()).toEqual(['S02E01', 'S02E02']);
+    store.getState().fail(SERIES, first);
+    expect(watchedCodes(store)).toEqual(['S02E02']);
+    expect(store.getState().series[SERIES]?.pending).toEqual([]);
+  });
+});
+
 describe('a seed made during a render', () => {
   it('is in the store at once, and subscribers hear of it after the render', async () => {
     const store = createMarkingStore();

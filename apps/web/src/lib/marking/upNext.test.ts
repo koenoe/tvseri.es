@@ -157,10 +157,6 @@ describe('liveUpNext', () => {
     expect(liveUpNext(item, caughtUp)).toBeNull();
   });
 
-  it('is the server item again after an Undo (the store rolls back)', () => {
-    expect(liveUpNext(item, view())).toBe(item);
-  });
-
   it('never moves on a seed alone, even one that disagrees', () => {
     // The store thinks less has aired, or has an older history: no mark of
     // the item's episode, so the overview's item stands

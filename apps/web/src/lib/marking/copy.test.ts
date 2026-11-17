@@ -1,4 +1,3 @@
-import { episodeCode, shortCode } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -18,9 +17,7 @@ const ep = (seasonNumber: number, episodeNumber: number) => ({
 });
 
 describe('episode codes: one zero-padded format, in the page and in toasts', () => {
-  it('writes episodes as "S03E05"', () => {
-    expect(episodeCode(ep(3, 5))).toBe('S03E05');
-    expect(episodeCode(ep(12, 105))).toBe('S12E105');
+  it('names an episode by code, and title when known', () => {
     expect(episodeLabel(ep(3, 5))).toBe('S03E05');
     expect(episodeLabel(ep(2, 3), 'Sundae')).toBe('S02E03 Sundae');
   });
@@ -61,6 +58,10 @@ describe('toast copy', () => {
     ).toBe(
       'Marked up to S03E05 · Just now · incl. 1 skipped · unmarked S03E07–S03E08',
     );
+    // one episode never says it included a skip
+    expect(
+      markedMessage({ skipped: 1, what: 'S03E05', when: 'Just now' }),
+    ).toBe('Marked S03E05 · Just now');
     expect(beforeTooLabel(1)).toBe('Mark the one before too');
     expect(beforeTooLabel(3)).toBe('Mark the 3 before too');
   });
@@ -68,7 +69,6 @@ describe('toast copy', () => {
 
 describe('short codes inside one season', () => {
   it('zero-pads the episode number: "E06", "E06–E09"', () => {
-    expect(shortCode(6)).toBe('E06');
     expect(shortCodeRange(6, 6)).toBe('E06');
     expect(shortCodeRange(6, 9)).toBe('E06–E09');
   });

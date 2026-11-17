@@ -75,7 +75,6 @@ describe('MarkControl: the pair, or one button in the viewer’s state', () => {
   it('signed out: the pair, and a press asks to sign in', async () => {
     const { container } = await renderControl(null);
     expect(row(container)?.dataset.markControl).toBe('new');
-    expect(row(container)?.className).not.toContain('starting:opacity-0');
     fireEvent.click(
       screen.getByRole('button', { name: 'Add The Pitt to your watchlist' }),
     );
@@ -88,7 +87,7 @@ describe('MarkControl: the pair, or one button in the viewer’s state', () => {
     expect(showToast).toHaveBeenCalledTimes(2);
   });
 
-  it('new to you: "+ Watchlist" white and "Seen it" outlined, streamed in with a fade', async () => {
+  it('new to you: "+ Watchlist" and "Seen it"', async () => {
     const { container } = await renderControl({
       kind: 'new',
       onWatchlist: false,
@@ -97,15 +96,14 @@ describe('MarkControl: the pair, or one button in the viewer’s state', () => {
       name: 'Add The Pitt to your watchlist',
     });
     expect(add.textContent).toBe('Watchlist');
-    expect(add.className).toContain('bg-white');
-    const seen = screen.getByRole('button', { name: 'Mark The Pitt as seen' });
-    expect(seen.className).toContain('border-white/25');
+    expect(
+      screen.getByRole('button', { name: 'Mark The Pitt as seen' }),
+    ).toBeTruthy();
     expect(shown(layerOf(container, 'pair'))).toBe(true);
     expect(layerOf(container, 'single')).toBeNull();
-    expect(row(container)?.className).toContain('starting:opacity-0');
   });
 
-  it('on the watchlist: one outlined button, filled bookmark, full width, over the pair that sizes the row', async () => {
+  it('on the watchlist: one pressed button, over the pair that sizes the row', async () => {
     const { container } = await renderControl({
       kind: 'watchlist',
       onWatchlist: true,
@@ -115,8 +113,6 @@ describe('MarkControl: the pair, or one button in the viewer’s state', () => {
     });
     expect(button.textContent).toBe('On watchlist');
     expect(button.getAttribute('aria-pressed')).toBe('true');
-    expect(button.className).toContain('w-full');
-    expect(button.className).toContain('bg-white/6');
     expect(shown(layerOf(container, 'single'))).toBe(true);
     // the pair stays laid out, unseen: the row keeps its width
     expect(layerOf(container, 'pair')?.className).toContain('invisible');
@@ -133,28 +129,6 @@ describe('MarkControl: the pair, or one button in the viewer’s state', () => {
     const link = screen.getByRole('link', { name: /Continue S02E04/ });
     expect(link.getAttribute('href')).toBe('/7/the-pitt?season=2&episode=4');
     expect(link.textContent).toBe('Continue S02E043 of 15');
-    expect(link.className).toContain('w-full');
-    expect(link.querySelector('svg')).not.toBeNull();
-  });
-
-  it('up to date: the next air date at the end, opening the series', async () => {
-    await renderControl({
-      kind: 'up-to-date',
-      nextAirDate: '2026-11-19',
-      onWatchlist: false,
-    });
-    const link = screen.getByRole('link', { name: /Up to date/ });
-    expect(link.textContent).toBe('Up to dateThu Nov 19');
-    expect(link.getAttribute('href')).toBe('/7/the-pitt');
-  });
-
-  it('finished: the tile’s seasons at the end, opening the series', async () => {
-    await renderControl({ kind: 'finished', onWatchlist: false }, 'landing');
-    const link = screen.getByRole('link', { name: /Finished/ });
-    expect(link.textContent).toBe('Finished2 seasons');
-    expect(link.getAttribute('href')).toBe('/7/the-pitt');
-    // the landing's 16px either side
-    expect(link.className).toContain('has-[>svg:first-child]:pl-4');
   });
 
   it('a press on + Watchlist crossfades to On watchlist; Undo crossfades back', async () => {

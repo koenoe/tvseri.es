@@ -67,6 +67,12 @@ describe('stampFor', () => {
       watchedAt: NOW,
     });
   });
+
+  it('On release day: local noon of the episode’s air date', () => {
+    expect(
+      stampFor({ kind: 'release', tzOffsetMinutes: -60 }, '2024-06-26', NOW),
+    ).toEqual({ watchedAt: Date.UTC(2024, 5, 26, 11) });
+  });
 });
 
 describe('toBatchItems', () => {

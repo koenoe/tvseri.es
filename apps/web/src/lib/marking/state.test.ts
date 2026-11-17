@@ -4,6 +4,7 @@ import {
   applyOp,
   applyPending,
   libraryAfter,
+  recordOf,
   restoreOps,
   seedToBase,
   withMembership,
@@ -138,6 +139,18 @@ describe('libraryAfter: the lists the API will place the show in', () => {
     });
   });
 
+  it('specials alone put the show in no list', () => {
+    const specials = seedToBase({
+      seasons: [
+        { airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 0 },
+        { airedEpisodeCount: 3, episodeCount: 3, seasonNumber: 1 },
+      ],
+      seriesId: 7,
+      watched: [{ episodeNumber: 1, seasonNumber: 0, watchedAt: 1 }],
+    });
+    expect(libraryAfter(empty, 7, specials)).toBe(empty);
+  });
+
   it('the same ids when the show stays where it is', () => {
     const ids = { ...empty, watched: [7], watchlist: [7] };
     expect(libraryAfter(ids, 7, seed)).toBe(ids);
@@ -162,5 +175,35 @@ describe('withMembership: one show list changed, in the API order', () => {
   it('the same ids when nothing changes', () => {
     expect(withMembership(ids, 'favorites', [2], true)).toBe(ids);
     expect(withMembership(ids, 'watchlist', [2], false)).toBe(ids);
+  });
+});
+
+describe('recordOf: the optimistic record a mark draws until the server answers', () => {
+  const prior = { runtime: 42, source: 'Plex', watchedAt: 100 };
+
+  it('keeps the runtime it had, never the old date or flags', () => {
+    expect(recordOf({ kind: 'now' }, 900, prior)).toEqual({
+      runtime: 42,
+      watchedAt: 900,
+    });
+    expect(recordOf({ kind: 'date', watchedAt: 500 }, 900, prior)).toEqual({
+      runtime: 42,
+      watchedAt: 500,
+    });
+    expect(recordOf({ kind: 'unknown' }, 900)).toEqual({
+      dateUnknown: true,
+      runtime: 0,
+      watchedAt: 900,
+    });
+  });
+
+  it('release keeps what is there: only the server knows the air dates', () => {
+    expect(recordOf({ kind: 'release', tzOffsetMinutes: 0 }, 900, prior)).toBe(
+      prior,
+    );
+    expect(recordOf({ kind: 'release', tzOffsetMinutes: 0 }, 900)).toEqual({
+      runtime: 0,
+      watchedAt: 900,
+    });
   });
 });

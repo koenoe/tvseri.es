@@ -109,7 +109,11 @@ describe('marking actions refresh the viewer’s own stats', () => {
       episodes: [{ ...EPISODE, when: { kind: 'now' } }],
       seriesId: 136315,
     });
-    expect(partial.ok).toBe(false);
+    // the client keeps what was saved and rolls back only the rest
+    expect(partial).toMatchObject({
+      ok: false,
+      partial: { watched: [{ episodeNumber: 5, seasonNumber: 3 }] },
+    });
     expect(revalidateTag).toHaveBeenCalledTimes(1);
 
     vi.mocked(api.postBatchDelete).mockRejectedValueOnce(new Error('down'));

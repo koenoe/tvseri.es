@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 
 import {
   episodeState,
+  hasHistory,
   nextEpisode,
   openBefore,
   openEpisodes,
-  parseCode,
   seasonProgress,
   seriesProgress,
   toPercentage,
@@ -241,20 +241,30 @@ describe('episode helpers', () => {
   });
 });
 
-describe('parseCode (the one episode-code reader)', () => {
-  it('reads S02E05 into season and episode numbers', () => {
-    expect(parseCode('S02E05')).toEqual({ episodeNumber: 5, seasonNumber: 2 });
-    expect(parseCode('S10E123')).toEqual({
-      episodeNumber: 123,
-      seasonNumber: 10,
-    });
-    expect(parseCode('S00E01')).toEqual({ episodeNumber: 1, seasonNumber: 0 });
+describe('specials and unknown seasons', () => {
+  it('specials alone are no history of the series', () => {
+    expect(hasHistory(base({ watched: { S00E01: at(1) } }))).toBe(false);
+    expect(hasHistory(base({ skipped: ['S00E02'] }))).toBe(false);
+    expect(hasHistory(base({ skipped: ['S01E01'] }))).toBe(true);
+    expect(hasHistory(base({ watched: { S02E01: at(1) } }))).toBe(true);
   });
 
-  it('is null for anything that is not a code', () => {
-    expect(parseCode('')).toBeNull();
-    expect(parseCode('E05')).toBeNull();
-    expect(parseCode('S02')).toBeNull();
-    expect(parseCode('S02E05x')).toBeNull();
+  it('never asks about the specials before a special', () => {
+    expect(openBefore(base(), { episodeNumber: 2, seasonNumber: 0 })).toEqual(
+      [],
+    );
+  });
+
+  it('a season the show doesn’t list has nothing aired, so it is never complete', () => {
+    const series = base({ watched: { S07E01: at(1) } });
+    expect(seasonProgress(series, 7)).toEqual({
+      aired: 0,
+      isComplete: false,
+      seasonNumber: 7,
+      skipped: 0,
+      total: 0,
+      watched: 0,
+    });
+    expect(unwatchedInSeason(series, 7)).toEqual([]);
   });
 });

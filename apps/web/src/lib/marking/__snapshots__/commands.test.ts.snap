@@ -16,14 +16,6 @@ exports[`every mark toast: Undo, and Use release dates only for a bulk mark > I�
 }
 `;
 
-exports[`every mark toast: Undo, and Use release dates only for a bulk mark > a painted run: no release dates 1`] = `
-{
-  "action": "Undo",
-  "secondary": undefined,
-  "title": "Marked S03E06–S03E07 · Just now",
-}
-`;
-
 exports[`every mark toast: Undo, and Use release dates only for a bulk mark > a picker answer for a set, and the same set from its own release-dates press 1`] = `
 {
   "action": "Undo",

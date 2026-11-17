@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 import { FIRST_SECTION } from './_lib/sections';
-import ProfilePage from './profile/_components/ProfilePage';
+import ProfileSettings from './profile/page';
 
 export const metadata: Metadata = {
   alternates: { canonical: FIRST_SECTION },
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <div className="hidden lg:block">
-      <ProfilePage />
+      <ProfileSettings />
     </div>
   );
 }

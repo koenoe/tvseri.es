@@ -2,8 +2,7 @@
 
 import { LATE_FADE } from '@/components/motion/lateFade';
 import WatchedLabel from '@/components/ui/tile/WatchedLabel';
-import { useLibrarySelect } from '@/lib/marking/hooks';
-import { librarySets } from '@/lib/marking/librarySets';
+import { useIsWatched } from '@/lib/marking/useWatched';
 
 const BOX = `block ${LATE_FADE}`;
 
@@ -15,14 +14,11 @@ const BOX = `block ${LATE_FADE}`;
  * kept current by every mark), so the cached page never varies per user. It
  * fades in (`LATE_FADE`) so the late arrival doesn't pop. The Watched
  * overlay of every poster tile: rows, Discover, landings and search. It
- * reads one answer (`useLibrarySelect`), so a mark re-renders only the
- * labels it changes, not every tile on the page.
+ * reads one answer (`useIsWatched`), so a mark re-renders only the labels
+ * it changes, not every tile on the page.
  */
 export default function WatchedOverlay({ id }: Readonly<{ id: number }>) {
-  const watched = useLibrarySelect(
-    (ids) => librarySets(ids).watched.has(id),
-    false,
-  );
+  const watched = useIsWatched(id);
   return watched ? (
     <span className={BOX}>
       <WatchedLabel />

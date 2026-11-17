@@ -43,7 +43,7 @@ export const STATUS_ICONS = {
 
 export const STATUS_LABELS = {
   great: 'Great',
-  needsImprovement: 'Needs Improvement',
+  needsImprovement: 'Needs improvement',
   poor: 'Poor',
 } as const;
 

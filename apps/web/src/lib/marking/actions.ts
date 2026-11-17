@@ -227,6 +227,9 @@ export async function markEpisodes(
       const watched = await postBatch(
         { accessToken: session.accessToken, userId: session.user.id },
         items,
+        {
+          restore: episodes.every((episode) => episode.when.kind === 'restore'),
+        },
       );
       historyChanged(session.user.id);
       // What was left out fails like a partial write: the client keeps what

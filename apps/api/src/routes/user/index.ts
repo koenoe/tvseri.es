@@ -35,7 +35,7 @@ import {
   isInList,
   removeFromList,
 } from '@/lib/db/list';
-import { clearSkipped } from '@/lib/db/prefs';
+import { afterWatching, clearSkipped } from '@/lib/db/prefs';
 import { findUser } from '@/lib/db/user';
 import {
   getAllWatchedForTvSeries,
@@ -78,6 +78,7 @@ import match from './match';
 import { requireIsMe, type UserVariables, user } from './middleware';
 import overview from './overview';
 import {
+  BatchMarkQuerySchema,
   DateRangeQuerySchema,
   FollowListQuerySchema,
   HistoryQuerySchema,
@@ -326,7 +327,7 @@ app.post(
       watchProvider,
       when: whenFromBody(body),
     });
-    await clearSkipped(watchedItems);
+    await afterWatching(watchedItems);
     await syncListsForMark(user.id, [tvSeries.id], tvSeries);
 
     return markWatchedResponse(c, watchedItems, c.req.valid('query').view);
@@ -362,7 +363,7 @@ app.post(
       watchProvider,
       when: whenFromBody(body),
     });
-    await clearSkipped(watchedItems);
+    await afterWatching(watchedItems);
     await syncListsForMark(user.id, [tvSeries.id], tvSeries);
 
     return markWatchedResponse(c, watchedItems, c.req.valid('query').view);
@@ -409,7 +410,7 @@ app.post(
       watchProvider,
       ...whenFromBody(body),
     });
-    await clearSkipped([watchedItem]);
+    await afterWatching([watchedItem]);
     await syncListsForMark(user.id, [tvSeries.id], tvSeries);
 
     return markWatchedResponse(c, [watchedItem], c.req.valid('query').view);
@@ -510,10 +511,12 @@ app.post(
   '/:id/watched/batch',
   user(),
   requireIsMe(),
+  vValidator('query', BatchMarkQuerySchema),
   vValidator('json', CreateWatchedItemBatchSchema),
   async (c) => {
     const body = c.req.valid('json');
     const user = c.get('user');
+    const { restore } = c.req.valid('query');
 
     validateBatchWatchedItemsOwnership(body, user.id);
 
@@ -525,7 +528,7 @@ app.post(
         : item,
     );
     const watchedItems = await markWatchedInBatch(items);
-    await clearSkipped(watchedItems);
+    await (restore ? clearSkipped : afterWatching)(watchedItems);
     await syncListsForMark(
       user.id,
       body.map((item) => item.tvSeries.id),

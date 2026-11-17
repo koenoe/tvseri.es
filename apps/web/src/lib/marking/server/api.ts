@@ -146,9 +146,14 @@ export async function fetchLibraryIds(
   return apiFetch<LibraryIds>('/me/library-ids', { accessToken });
 }
 
+/**
+ * `restore`: Undo putting marks back, which the API treats as no new
+ * watching (a hidden show stays hidden)
+ */
 export async function postBatch(
   auth: Auth,
   items: CreateWatchedItemBatch,
+  { restore }: Readonly<{ restore: boolean }>,
 ): Promise<ReadonlyArray<ProgressItem>> {
   const { done, failure } = await settleAll(chunk(items), (body) =>
     apiFetch<ProgressItem[]>('/user/:id/watched/batch', {
@@ -156,6 +161,7 @@ export async function postBatch(
       body,
       method: 'POST',
       params: { id: auth.userId },
+      ...(restore ? { query: { restore: 'true' } } : {}),
     }),
   );
   const watched = done.flatMap(([, result]) => result.map(toProgressItem));

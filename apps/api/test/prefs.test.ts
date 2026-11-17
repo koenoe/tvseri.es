@@ -305,3 +305,105 @@ describe('per-show prefs', () => {
     ).toEqual(listsBefore);
   });
 });
+
+describe('a mark brings a hidden show back', () => {
+  const batchRow = (season: number, episode: number) => ({
+    episode: {
+      airDate: '2020-01-01T00:00:00.000Z',
+      episodeNumber: episode,
+      runtime: 30,
+      seasonNumber: season,
+      stillPath: null,
+      title: `Episode ${episode}`,
+    },
+    tvSeries: { id: SHOW, posterPath: '/p.jpg', slug: 'show', title: 'Show' },
+    userId: USER_ID,
+    watchedAt: Date.UTC(2024, 0, 1),
+  });
+  const post = (path: string, body: unknown) =>
+    request(`/user/${USER_ID}${path}`, { as: USER_ID, body, method: 'POST' });
+
+  it('an episode, season, whole-show or batch mark unhides it', async () => {
+    setup();
+    const marks = [
+      () =>
+        post(`/watched/series/${SHOW}/season/1/episode/1`, {
+          watchProvider: null,
+        }),
+      () => post(`/watched/series/${SHOW}/season/1`, { watchProvider: null }),
+      () => post(`/watched/series/${SHOW}`, { watchProvider: null }),
+      () => post('/watched/batch', [batchRow(2, 1)]),
+    ];
+    for (const mark of marks) {
+      await patch({ paused: 'hide', skip: ['S02E03'] });
+      expect((await mark()).status).toBe(201);
+      expect(await prefs()).toMatchObject({ paused: null, pausedAt: null });
+    }
+  });
+
+  it('Undo putting marks back leaves it hidden', async () => {
+    setup();
+    await patch({ paused: 'hide' });
+    const response = await post('/watched/batch?restore=true', [
+      batchRow(1, 1),
+    ]);
+    expect(response.status).toBe(201);
+    expect(await prefs()).toMatchObject({ paused: 'hide' });
+  });
+
+  it('a special, an unmark or a Keep answer change nothing', async () => {
+    setup();
+    await patch({ paused: 'hide' });
+    await post('/watched/batch', [batchRow(0, 1)]);
+    await request(`/user/${USER_ID}/watched/series/${SHOW}/season/1`, {
+      as: USER_ID,
+      method: 'DELETE',
+    });
+    expect(await prefs()).toMatchObject({ paused: 'hide' });
+
+    await patch({ paused: 'keep' });
+    await post('/watched/batch', [batchRow(1, 2)]);
+    expect(await prefs()).toMatchObject({ paused: 'keep' });
+  });
+
+  it('a show without prefs gets no prefs record', async () => {
+    setup();
+    await post('/watched/batch', [batchRow(1, 1)]);
+    expect(
+      db.dump('Lists').filter((item) => String(item.sk).startsWith('PREF#')),
+    ).toEqual([]);
+  });
+
+  it('a Plex scrobble unhides it', async () => {
+    setup();
+    await patch({ paused: 'hide' });
+    onTmdb('/find/tt0000103', {
+      tv_episode_results: [
+        {
+          air_date: '2020-01-08',
+          episode_number: 2,
+          id: 1,
+          name: 'Episode 2',
+          runtime: 30,
+          season_number: 1,
+          show_id: SHOW,
+          still_path: null,
+        },
+      ],
+    });
+    const event = {
+      Records: [
+        {
+          attributes: { SentTimestamp: String(Date.UTC(2024, 0, 1)) },
+          body: JSON.stringify({
+            metadata: { plex: { Guid: [{ id: 'imdb://tt0000103' }] } },
+            userId: USER_ID,
+          }),
+          messageId: 'm1',
+        },
+      ],
+    } as unknown as SQSEvent;
+    expect(await scrobbleHandler(event)).toEqual({ batchItemFailures: [] });
+    expect(await prefs()).toMatchObject({ paused: null });
+  });
+});

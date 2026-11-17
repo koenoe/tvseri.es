@@ -358,6 +358,10 @@ describe('markEpisodes: a restore, and a plain mark', () => {
         watchProvider: expect.objectContaining({ id: 0, name: 'Plex' }),
       }),
     ]);
+    // Undo putting marks back is no new watching: a hidden show stays hidden
+    expect(vi.mocked(api.postBatch).mock.calls[0]?.[2]).toEqual({
+      restore: true,
+    });
 
     await markEpisodes({
       episodes: [{ ...EPISODE, when: { kind: 'now' } }],
@@ -366,6 +370,9 @@ describe('markEpisodes: a restore, and a plain mark', () => {
     const [item] = vi.mocked(api.postBatch).mock.calls[1]?.[1] ?? [];
     expect(item?.watchProvider).toEqual(netflix);
     expect(item).not.toHaveProperty('importId');
+    expect(vi.mocked(api.postBatch).mock.calls[1]?.[2]).toEqual({
+      restore: false,
+    });
     vi.mocked(loadWatchProviders).mockResolvedValue([]);
   });
 

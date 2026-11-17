@@ -48,6 +48,14 @@ export const WatchedViewQuerySchema = v.object({
   view: v.optional(v.picklist(['progress', 'track'])),
 });
 
+/**
+ * `?restore=true` on a batch mark: Undo putting marks back, no new
+ * watching (a hidden show stays hidden)
+ */
+export const BatchMarkQuerySchema = v.object({
+  restore: v.optional(v.literal('true')),
+});
+
 /** `?include=watching` reads two small items per row: the Circle pages are 24 */
 const FOLLOW_WATCHING_MAX_LIMIT = 24;
 

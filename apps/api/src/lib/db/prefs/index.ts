@@ -200,25 +200,80 @@ const clearSkippedForSeries = async (
   }
 };
 
-/** Un-skips every episode in a set of just-written watched items */
-export const clearSkipped = async (
-  items: ReadonlyArray<
-    Pick<WatchedItem, 'episodeNumber' | 'seasonNumber' | 'seriesId' | 'userId'>
-  >,
-) => {
-  const codesBySeries = new Map<string, string[]>();
+type MarkedItem = Pick<
+  WatchedItem,
+  'episodeNumber' | 'seasonNumber' | 'seriesId' | 'userId'
+>;
+
+/** Just-written watched items per user and show */
+const bySeries = (items: ReadonlyArray<MarkedItem>) => {
+  const groups = new Map<
+    string,
+    { userId: string; seriesId: number; items: MarkedItem[] }
+  >();
   for (const item of items) {
     const key = `${item.userId}#${item.seriesId}`;
-    const codes = codesBySeries.get(key) ?? [];
-    codes.push(episodeCode(item));
-    codesBySeries.set(key, codes);
+    const group = groups.get(key) ?? {
+      items: [],
+      seriesId: item.seriesId,
+      userId: item.userId,
+    };
+    group.items.push(item);
+    groups.set(key, group);
   }
+  return [...groups.values()];
+};
+
+/** Un-skips every episode in a set of just-written watched items */
+export const clearSkipped = async (items: ReadonlyArray<MarkedItem>) => {
   await Promise.all(
-    Array.from(codesBySeries, ([key, codes]) => {
-      const [userId, seriesId] = key.split('#');
-      return clearSkippedForSeries(userId!, Number(seriesId), codes);
-    }),
+    bySeries(items).map((group) =>
+      clearSkippedForSeries(
+        group.userId,
+        group.seriesId,
+        group.items.map((item) => episodeCode(item)),
+      ),
+    ),
   );
+};
+
+/**
+ * Watching a show again brings it back from Hide (only Hide: Keep asks
+ * again on its own after new watching). Only a record that is hidden: any
+ * other show costs one failed conditional write and creates nothing.
+ */
+const unhideSeries = async (userId: string, seriesId: number) => {
+  try {
+    await client.send(
+      new UpdateItemCommand({
+        ConditionExpression: 'paused = :hide',
+        ExpressionAttributeValues: marshall({ ':hide': 'hide' }),
+        Key: marshall(prefsKey(userId, seriesId)),
+        TableName: Resource.Lists.name,
+        UpdateExpression: 'REMOVE paused, pausedAt',
+      }),
+    );
+  } catch (error) {
+    if (!(error instanceof ConditionalCheckFailedException)) {
+      throw error;
+    }
+  }
+};
+
+/**
+ * The prefs side of new watching (a user's mark, a Plex scrobble): the
+ * episodes are un-skipped, and a hidden show with a regular episode among
+ * them comes back. Imports and Undo putting marks back only un-skip
+ * (`clearSkipped`): they restore history, they are no new watching.
+ * Specials count nowhere, here neither.
+ */
+export const afterWatching = async (items: ReadonlyArray<MarkedItem>) => {
+  await Promise.all([
+    clearSkipped(items),
+    ...bySeries(items.filter((item) => item.seasonNumber > 0)).map((group) =>
+      unhideSeries(group.userId, group.seriesId),
+    ),
+  ]);
 };
 
 /**

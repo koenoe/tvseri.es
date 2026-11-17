@@ -1,6 +1,5 @@
 import { formatRuntime } from '@tvseri.es/utils';
 import Image from 'next/image';
-
 import type { DurationTileShow } from '@/app/(site)/_discover/data/duration';
 import {
   calendarGlyph,
@@ -11,6 +10,7 @@ import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import { SectionError } from '@/components/ui/row/RowError';
 import { GHOST_LOOK, GhostLine } from '@/components/ui/row/RowGhosts';
+import RowHeader from '@/components/ui/row/RowHeader';
 import { HUB_TILE_SHADOW } from '@/components/ui/row/rowLayout';
 import PosterTile from '@/components/ui/tile/PosterTile';
 import TileLink from '@/components/ui/tile/TileLink';
@@ -22,8 +22,8 @@ import { plural } from '@/lib/format/text';
 import showPath from '@/lib/routing/showPath';
 import { durationRowKey } from '../_data/lensModel';
 import { getWeekendShows } from '../_data/weekend';
+import { HUB_SECTION_HEAD } from './hubSectionHead';
 import OpenLensRowButton from './OpenLensRowButton';
-import SectionHeader from './SectionHeader';
 
 export const WEEKEND_ID = 'weekend';
 export const WEEKEND_TITLE = 'Finish it this weekend';
@@ -127,7 +127,9 @@ export function WeekendSkeleton() {
       className={WEEKEND_SECTION}
       data-placeholder="weekend"
     >
-      <SectionHeader id="weekend-loading" title={WEEKEND_TITLE} />
+      <div className={HUB_SECTION_HEAD}>
+        <RowHeader title={WEEKEND_TITLE} titleId="weekend-loading" />
+      </div>
       <div className={WEEKEND_RAIL}>
         <div className={WEEKEND_WIDE}>
           <span className={WEEKEND_WIDE_GHOST} />
@@ -180,11 +182,13 @@ export default async function Weekend() {
       className={WEEKEND_SECTION}
       data-slot="weekend"
     >
-      <SectionHeader
-        actions={action}
-        id={WEEKEND_TITLE_ID}
-        title={WEEKEND_TITLE}
-      />
+      <div className={HUB_SECTION_HEAD}>
+        <RowHeader
+          actions={action}
+          title={WEEKEND_TITLE}
+          titleId={WEEKEND_TITLE_ID}
+        />
+      </div>
       <div className={WEEKEND_RAIL}>
         <WideTile show={first} />
         {rest.map((show) => (

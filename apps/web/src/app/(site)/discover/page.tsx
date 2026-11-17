@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-
 import Page from '@/components/background/Page';
 import GuardedSection from '@/components/ui/row/GuardedSection';
+import RowHeader from '@/components/ui/row/RowHeader';
 import RowSkeleton from '@/components/ui/row/RowSkeleton';
 import AllTimeFavourites from './_components/AllTimeFavourites';
 import Essentials, {
@@ -13,9 +13,9 @@ import Genres from './_components/Genres';
 import GoDeeper, { GO_DEEPER_ID } from './_components/GoDeeper';
 import { GenresSkeleton, GoDeeperCardGhost } from './_components/HubSkeletons';
 import HubTitle from './_components/HubTitle';
+import { HUB_SECTION_HEAD } from './_components/hubSectionHead';
 import Lenses from './_components/lens/Lenses';
 import { LensProvider } from './_components/lens/LensProvider';
-import SectionHeader from './_components/SectionHeader';
 import Weekend, {
   WEEKEND_ID,
   WEEKEND_TITLE,
@@ -101,7 +101,9 @@ export default function DiscoverPage() {
             aria-labelledby="genres-title"
             className="mx-auto flex w-full max-w-page flex-col gap-6 px-gutter"
           >
-            <SectionHeader id="genres-title" title="Genres" />
+            <div className={HUB_SECTION_HEAD}>
+              <RowHeader title="Genres" titleId="genres-title" />
+            </div>
             <Suspense fallback={<GenresSkeleton />}>
               <Genres />
             </Suspense>

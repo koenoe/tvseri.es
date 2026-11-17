@@ -77,14 +77,19 @@ export type EpisodeLookup = (ref: EpisodeRef) => Episode | undefined;
 /**
  * Batch items for `POST /user/:id/watched/batch`. Episodes the lookup doesn't
  * know (not in TMDB's season) are left out: the API needs their metadata.
- * A restore keeps its own service, only when it is one of `knownProviders`
- * (a name alone can't be trusted to carry a logo), and its import.
+ * So is a mark of an episode that hasn't aired (`hasAired`), as the page
+ * refuses it and the API's batch route doesn't check; a restore is exempt,
+ * since it puts back a record the user had even when TMDB has since moved
+ * the date. A restore keeps its own service, only when it is one of
+ * `knownProviders` (a name alone can't be trusted to carry a logo), and its
+ * import.
  */
 export function toBatchItems(
   input: Readonly<{
     episodes: ReadonlyArray<
       EpisodeRef & Readonly<{ when: MarkWhen | RestoreWhen }>
     >;
+    hasAired: (episode: Episode) => boolean;
     knownProviders: ReadonlyArray<WatchProvider>;
     lookup: EpisodeLookup;
     now: number;
@@ -96,10 +101,10 @@ export function toBatchItems(
   const tvSeries = toSeriesForWatched(input.series);
   return input.episodes.flatMap((ref) => {
     const episode = input.lookup(ref);
-    if (!episode) {
+    const { when } = ref;
+    if (!episode || (when.kind !== 'restore' && !input.hasAired(episode))) {
       return [];
     }
-    const { when } = ref;
     const stamp = stampFor(when, episode.airDate, input.now);
     const restore = when.kind === 'restore' ? when : null;
     return [

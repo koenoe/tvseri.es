@@ -82,6 +82,7 @@ describe('toBatchItems', () => {
         { episodeNumber: 5, seasonNumber: 3, when: { kind: 'unknown' } },
         { episodeNumber: 99, seasonNumber: 3, when: { kind: 'now' } },
       ],
+      hasAired: () => true,
       knownProviders: [],
       lookup: (ref) => (ref.episodeNumber === 5 ? episode(3, 5) : undefined),
       now: NOW,
@@ -105,6 +106,33 @@ describe('toBatchItems', () => {
         watchedAt: NOW,
         watchProvider: null,
       },
+    ]);
+  });
+
+  it('leaves out a mark of an unaired episode, never a restore of one', () => {
+    const items = toBatchItems({
+      episodes: [
+        { episodeNumber: 5, seasonNumber: 3, when: { kind: 'now' } },
+        { episodeNumber: 6, seasonNumber: 3, when: { kind: 'now' } },
+        {
+          episodeNumber: 6,
+          seasonNumber: 3,
+          when: { kind: 'restore', watchedAt: 1_700_000_000_000 },
+        },
+      ],
+      hasAired: (item) => item.episodeNumber === 5,
+      knownProviders: [],
+      lookup: (ref) => episode(3, ref.episodeNumber),
+      now: NOW,
+      series,
+      userId: 'u1',
+      watchProvider: null,
+    });
+    expect(
+      items.map((item) => [item.episode.episodeNumber, item.watchedAt]),
+    ).toEqual([
+      [5, NOW],
+      [6, 1_700_000_000_000],
     ]);
   });
 
@@ -144,6 +172,7 @@ describe('toBatchItems', () => {
         },
         { episodeNumber: 4, seasonNumber: 3, when: { kind: 'now' } },
       ],
+      hasAired: () => true,
       knownProviders: [plex, netflix],
       lookup: (ref) => episode(3, ref.episodeNumber),
       now: NOW,

@@ -30,7 +30,8 @@ import { resolveRegion } from '@/lib/geo';
 import { loadSeriesForWrite } from '@/lib/series/forWrite';
 import { loadSeason, loadWatchProviders } from '@/lib/series/loaders';
 import { revalidateViewerStats } from '@/lib/stats/revalidateViewerStats';
-import { nextEpisode } from './progress';
+import { airedCountIn, hasEpisodeAired, nextEpisode } from './progress';
+import { toSeasonInfo } from './seasonInfo';
 import {
   addToList,
   deleteScope,
@@ -203,8 +204,14 @@ export async function markEpisodes(
           ?.episodes.find(
             (episode) => episode.episodeNumber === ref.episodeNumber,
           );
+      const seasonInfo = { seasons: toSeasonInfo(series) };
       const items = toBatchItems({
         episodes,
+        hasAired: (episode) =>
+          hasEpisodeAired(
+            episode,
+            airedCountIn(seasonInfo, episode.seasonNumber),
+          ),
         knownProviders: [PLEX_WATCH_PROVIDER, ...userProviders, ...providers],
         lookup,
         now: Date.now(),
@@ -220,7 +227,11 @@ export async function markEpisodes(
         items,
       );
       historyChanged(session.user.id);
-      return okResult({ watched });
+      // What was left out fails like a partial write: the client keeps what
+      // was saved and rolls the rest back.
+      return items.length < episodes.length
+        ? actionError('not-found', { watched })
+        : okResult({ watched });
     },
     ({ session }, error) => failedAfterWrite(session.user.id, error),
   );

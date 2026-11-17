@@ -1,4 +1,8 @@
-import { episodeCode, parseEpisodeCode } from '@tvseri.es/schemas';
+import {
+  type Episode,
+  episodeCode,
+  parseEpisodeCode,
+} from '@tvseri.es/schemas';
 
 import type {
   EpisodeCode,
@@ -225,6 +229,26 @@ export function airedInSeason(
   );
   return season ? airedEpisodes(season) : [];
 }
+
+/** How many episodes of a season have aired, by number (0 for a season it doesn't know). */
+export const airedCountIn = (
+  series: Pick<SeriesBase, 'seasons'>,
+  seasonNumber: number,
+): number =>
+  series.seasons.find((item) => item.seasonNumber === seasonNumber)
+    ?.airedEpisodeCount ?? 0;
+
+/**
+ * Has this episode aired? By its own air date (the API's `hasAired`), or by
+ * the season's aired count (`airedCountIn`): a full-season drop dates every
+ * episode the same day while the count says one.
+ */
+export const hasEpisodeAired = (
+  episode: Readonly<Pick<Episode, 'airDate' | 'episodeNumber' | 'hasAired'>>,
+  airedCount: number,
+): boolean =>
+  episode.episodeNumber <= airedCount ||
+  (episode.hasAired && episode.airDate !== '');
 
 /** Aired episodes of a season that aren't watched yet (skipped included). */
 export function unwatchedInSeason(

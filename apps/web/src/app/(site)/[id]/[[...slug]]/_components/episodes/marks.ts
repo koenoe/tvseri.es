@@ -1,6 +1,6 @@
 import type { EpisodeRef } from '@tvseri.es/schemas';
 
-import { codeOf } from '@/lib/marking/progress';
+import { airedCountIn, codeOf, hasEpisodeAired } from '@/lib/marking/progress';
 import type { SeriesBase, WatchRecord } from '@/lib/marking/types';
 
 import type { ShowEpisode } from '@/lib/series/seasonEpisodes';
@@ -28,29 +28,6 @@ export type MarkedEpisode = Readonly<{
 export const isWatchedMark = (mark: EpisodeMark) =>
   mark === 'watched' || mark === 'unknown';
 
-/**
- * Aired episodes, by number, as the marking core counts them (the show's
- * last and next episode to air): one episode of a full-season drop only.
- */
-function airedCountOf(
-  view: Pick<SeriesBase, 'seasons'>,
-  seasonNumber: number,
-): number {
-  return (
-    view.seasons.find((season) => season.seasonNumber === seasonNumber)
-      ?.airedEpisodeCount ?? 0
-  );
-}
-
-/**
- * Has this episode aired? By its own air date (the API's `hasAired`), or by
- * the season's aired count: a full-season drop dates every episode the same
- * day while the count says one.
- */
-const hasAired = (episode: ShowEpisode, airedCount: number) =>
-  episode.episodeNumber <= airedCount ||
-  (episode.hasAired && episode.airDate !== '');
-
 /** Marks every episode of a season from the live view and Next up. */
 export function markEpisodes(
   view: SeriesBase,
@@ -58,13 +35,13 @@ export function markEpisodes(
   episodes: ReadonlyArray<ShowEpisode>,
   nextUp: EpisodeRef | null,
 ): ReadonlyArray<MarkedEpisode> {
-  const aired = airedCountOf(view, seasonNumber);
+  const aired = airedCountIn(view, seasonNumber);
   const skipped = new Set(view.skipped);
   return episodes.map((episode) => {
     const code = codeOf(episode);
     const record = view.watched[code];
     let mark: EpisodeMark;
-    if (!record && !hasAired(episode, aired)) {
+    if (!record && !hasEpisodeAired(episode, aired)) {
       mark = 'unaired';
     } else if (skipped.has(code) && !record) {
       mark = 'skipped';

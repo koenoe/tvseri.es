@@ -1,3 +1,4 @@
+import type { Season } from '@tvseri.es/schemas';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ApiError } from '@/lib/api/client';
@@ -34,6 +35,7 @@ vi.mock('@/lib/series/loaders', () => ({
       {
         airDate: '2024-06-26',
         episodeNumber: 5,
+        hasAired: true,
         runtime: 35,
         seasonNumber: 3,
         stillPath: '/s.jpg',
@@ -382,5 +384,107 @@ describe('markEpisodes: a restore, and a plain mark', () => {
       seriesId: 136315,
     });
     expect(result).toMatchObject({ error: 'invalid', ok: false });
+  });
+});
+
+describe('markEpisodes sends only episodes that exist and have aired', () => {
+  const seasonOf = (
+    seasonNumber: number,
+    episodes: ReadonlyArray<
+      Readonly<{ airDate: string; episodeNumber: number; hasAired: boolean }>
+    >,
+  ): Season => ({
+    airDate: '',
+    description: '',
+    episodes: episodes.map((item) => ({
+      ...item,
+      description: '',
+      id: item.episodeNumber,
+      runtime: 30,
+      seasonNumber,
+      stillImage: '',
+      stillPath: '',
+      title: `Episode ${item.episodeNumber}`,
+    })),
+    hasAired: true,
+    id: seasonNumber,
+    seasonNumber,
+    title: `Season ${seasonNumber}`,
+  });
+
+  beforeEach(async () => {
+    const { loadSeason } = await import('@/lib/series/loaders');
+    vi.mocked(loadSeason).mockImplementation(async (_id, seasonNumber) =>
+      seasonNumber === 0
+        ? seasonOf(0, [
+            { airDate: '2023-12-24', episodeNumber: 1, hasAired: true },
+          ])
+        : seasonOf(3, [
+            { airDate: '2024-06-26', episodeNumber: 5, hasAired: true },
+            { airDate: '2099-01-01', episodeNumber: 6, hasAired: false },
+          ]),
+    );
+    vi.mocked(api.postBatch)
+      .mockReset()
+      .mockImplementation(async (_auth, items) =>
+        items.map((item) => ({
+          episodeNumber: item.episode.episodeNumber,
+          runtime: item.episode.runtime,
+          seasonNumber: item.episode.seasonNumber,
+          watchedAt: item.watchedAt,
+        })),
+      );
+  });
+
+  const sent = () =>
+    vi
+      .mocked(api.postBatch)
+      .mock.calls.flatMap(([, items]) =>
+        items.map(
+          (item) =>
+            `${item.episode.seasonNumber}x${item.episode.episodeNumber}`,
+        ),
+      );
+
+  it('drops an unaired and an unknown episode and reports them failed, keeping what was saved', async () => {
+    const result = await markEpisodes({
+      episodes: [
+        { episodeNumber: 5, seasonNumber: 3, when: { kind: 'now' } },
+        { episodeNumber: 6, seasonNumber: 3, when: { kind: 'now' } },
+        { episodeNumber: 40, seasonNumber: 3, when: { kind: 'now' } },
+      ],
+      seriesId: 136315,
+    });
+    expect(sent()).toEqual(['3x5']);
+    expect(result).toMatchObject({
+      error: 'not-found',
+      ok: false,
+      partial: { watched: [{ episodeNumber: 5, seasonNumber: 3 }] },
+    });
+  });
+
+  it('sends nothing when no episode qualifies', async () => {
+    const result = await markEpisodes({
+      episodes: [{ episodeNumber: 6, seasonNumber: 3, when: { kind: 'now' } }],
+      seriesId: 136315,
+    });
+    expect(api.postBatch).not.toHaveBeenCalled();
+    expect(result).toEqual({ error: 'not-found', ok: false });
+  });
+
+  it('keeps an aired special marked on its own, and an Undo restore of an unaired episode', async () => {
+    const result = await markEpisodes({
+      episodes: [
+        { episodeNumber: 1, seasonNumber: 0, when: { kind: 'now' } },
+        {
+          episodeNumber: 6,
+          seasonNumber: 3,
+          when: { kind: 'restore', watchedAt: Date.UTC(2024, 0, 1) },
+        },
+      ],
+      seriesId: 136315,
+    });
+    expect(sent()).toEqual(['0x1', '3x6']);
+    expect(result.ok).toBe(true);
   });
 });

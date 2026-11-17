@@ -10,6 +10,7 @@ import cn from '@/lib/cn';
 import { PHONE } from '@/lib/media/breakpoints';
 import useMediaQuery from '@/lib/media/useMediaQuery';
 
+import HeaderGlass, { GlassDistortion } from './HeaderGlass';
 import { useHeaderStore } from './HeaderStoreProvider';
 import useNamedHeader from './useNamedHeader';
 
@@ -24,30 +25,7 @@ const HEADER_VARIANTS = {
 } as const;
 
 /*
- * The header's glass: four layers, in this order.
- * Under everything shadow-lg (clipped by the pill's overflow, as there); the
- * page under the pill blurred 4px and run through the turbulence displacement
- * (`#glass-distortion`), saturate 120% and brightness 115%; white/10 over it;
- * a 1px light edge top left. No tint of our own.
- * The blur only works while no ancestor is a backdrop root: the header
- * promotes itself with `will-change: transform` only (an `opacity` there
- * made it one, and the pill showed the page sharp under white/10).
- */
-// On a slow device (`data-flat-glass`) the
-// distortion is the one thing the pill drops.
-const GLASS_BLUR =
-  'backdrop-blur-[4px] [filter:url(#glass-distortion)_saturate(120%)_brightness(1.15)] [html[data-flat-glass]_&]:[filter:saturate(120%)_brightness(1.15)]';
-
-const GLASS_EDGE_STYLE = {
-  boxShadow: 'inset 1px 1px 1px rgb(255 255 255 / 0.15)',
-} as const;
-
-const GLASS_LAYER = 'absolute inset-0 rounded-12';
-
-const HIDDEN_LAYER = { opacity: 0 } as const;
-
-/*
- * The boards' geometry. The bar: the 1280px page container, 32px from the
+ * The geometry. The bar: the 1280px page container, 32px from the
  * top (64px tall on a phone), the page gutter at the sides. The pill:
  * 1024px wide, 24px from the top, padded 16px 24px, radius 12; on
  * a phone 12px from the edges and the top, padded 16px 20px, so
@@ -105,8 +83,8 @@ const contentStyles = cva('relative z-4 flex items-center', {
 });
 
 /**
- * The header's three looks (port of MorphingHeader): the static bar, the
- * frosted floating pill, hidden. The mode comes from the header store
+ * The header's five looks: the static bar, the frosted floating pill,
+ * hidden, the phone page's name bar and the bar over the open phone menu. The mode comes from the header store
  * (HeaderScrollTracker); only changes to or from the pill animate. Motion
  * respects reduced motion here (moves and layout morphs become instant).
  * Keyboard focus moving into the hidden header shows the pill.
@@ -152,28 +130,13 @@ function HeaderFrame({ children }: Readonly<{ children: ReactNode }>) {
     [shouldAnimate],
   );
 
-  const glassOpacity = useMemo(
-    () => ({ opacity: isFloating ? 1 : 0 }),
-    [isFloating],
-  );
+  const navClasses = cn(navStyles({ layout }), named && 'bg-page');
 
   // Layout morphs need domMax (MaxMotion); until it loads the bar draws its
   // current mode without animating
   return (
     <MaxMotion>
-      <svg aria-hidden="true" className="pointer-events-none fixed size-0">
-        <defs>
-          <filter id="glass-distortion">
-            <feTurbulence
-              baseFrequency="0.008"
-              numOctaves="2"
-              result="noise"
-              type="turbulence"
-            />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="77" />
-          </filter>
-        </defs>
-      </svg>
+      <GlassDistortion />
       <m.header
         animate={visual}
         className={headerStyles({ mode: visual })}
@@ -192,43 +155,13 @@ function HeaderFrame({ children }: Readonly<{ children: ReactNode }>) {
           transition={layoutTransition}
         >
           <m.div
-            className={cn(navStyles({ layout }), named && 'bg-page')}
+            className={navClasses}
             initial={false}
             layout
             layoutDependency={isFloating}
             transition={layoutTransition}
           >
-            <m.div
-              animate={glassOpacity}
-              className={cn(GLASS_LAYER, 'z-0 shadow-lg')}
-              data-header-glass-layer="shadow"
-              initial={HIDDEN_LAYER}
-              transition={opacityTransition}
-            />
-            <m.div
-              animate={glassOpacity}
-              className={cn(GLASS_LAYER, 'z-1', GLASS_BLUR)}
-              data-header-glass
-              data-header-glass-layer="blur"
-              initial={HIDDEN_LAYER}
-              transition={opacityTransition}
-            />
-            <m.div
-              animate={glassOpacity}
-              className={cn(GLASS_LAYER, 'z-2 bg-white/10')}
-              data-header-glass-layer="white"
-              initial={HIDDEN_LAYER}
-              transition={opacityTransition}
-            />
-            <m.div
-              animate={glassOpacity}
-              className={cn(GLASS_LAYER, 'z-3')}
-              data-header-glass-layer="edge"
-              initial={HIDDEN_LAYER}
-              style={GLASS_EDGE_STYLE}
-              transition={opacityTransition}
-            />
-
+            <HeaderGlass shown={isFloating} transition={opacityTransition} />
             <m.div
               className={contentStyles({ layout })}
               initial={false}

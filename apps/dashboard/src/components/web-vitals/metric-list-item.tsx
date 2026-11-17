@@ -37,6 +37,7 @@ function MetricListItemComponent({
   variant = 'route',
 }: MetricListItemProps) {
   const isClickable = Boolean(onSelect);
+  const dotsCount = getDotsCount(pageViews);
 
   const handleClick = useCallback(() => onSelect?.(id), [id, onSelect]);
   const handleKeyDown = useCallback(
@@ -83,7 +84,7 @@ function MetricListItemComponent({
         )}
         <span className="text-xs flex items-center gap-0.5 mt-0.5 text-muted-foreground">
           {formatCountString(pageViews)}
-          <DataPointDots count={getDotsCount(pageViews)} />
+          <DataPointDots count={dotsCount} />
         </span>
       </div>
       <span className="text-sm font-medium ml-auto">{value}</span>

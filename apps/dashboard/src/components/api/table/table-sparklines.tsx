@@ -57,7 +57,8 @@ export function ErrorRateSparkline({
   values,
 }: SparklineProps & Readonly<{ errorRate: number }>) {
   if (values?.length && hasVariation(values)) {
-    return <TrendPath color={color} d={getSharpSparklinePath(values)} />;
+    const path = getSharpSparklinePath(values);
+    return <TrendPath color={color} d={path} />;
   }
 
   const y = getFlatLineY(errorRate, ERROR_RATE_CEILING);

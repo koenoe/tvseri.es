@@ -75,6 +75,7 @@ function CountriesSectionComponent({
     ? filterGroups(countriesGrouped, activeCountry)
     : countriesGrouped;
   const worldMapData = toWorldMapData(filteredCountriesGrouped);
+  const hasActiveFilter = Boolean(activeCountry);
 
   return (
     <>
@@ -108,7 +109,7 @@ function CountriesSectionComponent({
           <StatusAccordion
             data={filteredCountriesGrouped}
             defaultStatus={currentStatus}
-            hasActiveFilter={Boolean(activeCountry)}
+            hasActiveFilter={hasActiveFilter}
             highlightedItem={hoveredCountry}
             key={uniqueKey}
             onItemClick={activeCountry ? undefined : onCountrySelect}

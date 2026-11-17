@@ -164,8 +164,9 @@ export type StatusCodes = Readonly<{
 
 /** Buckets per-code counts (e.g. {"200": 150, "500": 3}) by status class. */
 export function toStatusCodes(
-  codes: Readonly<Record<string, number>> = {},
+  rawCodes: Readonly<Record<string, number>> | null | undefined,
 ): StatusCodes {
+  const codes = rawCodes ?? {};
   const result = {
     clientError: 0,
     codes,

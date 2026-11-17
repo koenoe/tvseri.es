@@ -78,9 +78,8 @@ export const columns: ApiColumnDef<EndpointMetrics>[] = [
     accessorFn: (row) => row.apdex.score,
     cell: ({ getValue }) => {
       const score = getValue() as number;
-      return (
-        <ScoreRing label={score.toFixed(2)} score={score * 100} size={32} />
-      );
+      const label = score.toFixed(2);
+      return <ScoreRing label={label} score={score * 100} size={32} />;
     },
     header: ({ column }) => (
       <SortableHeader column={column}>Apdex</SortableHeader>
@@ -117,14 +116,12 @@ export const columns: ApiColumnDef<EndpointMetrics>[] = [
       if (dependencies.length === 0) return null;
       return (
         <div className="flex flex-wrap gap-1">
-          {dependencies.map((dep) => (
-            <DependencyBadge
-              key={dep}
-              linkable
-              name={formatDependencyName(dep)}
-              source={dep}
-            />
-          ))}
+          {dependencies.map((dep) => {
+            const name = formatDependencyName(dep);
+            return (
+              <DependencyBadge key={dep} linkable name={name} source={dep} />
+            );
+          })}
         </div>
       );
     },

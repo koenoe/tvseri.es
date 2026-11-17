@@ -46,6 +46,7 @@ import {
   nextEpisode,
   openBefore,
   parseCode,
+  regularWatchedCount,
   unwatchedInSeason,
   unwatchedRegularEpisodes,
   watchedInSeason,
@@ -175,20 +176,50 @@ export function createMarkingCommands(deps: MarkingDeps) {
   }
 
   /**
+   * A new watch of a regular episode brings a show hidden in this tab back
+   * (the API unhides it in the same request): at once, and hidden again
+   * when nothing of it saved. A show hidden before this tab is out of every
+   * list it draws already. Returns the rollback.
+   */
+  function unhideFor(seriesId: number, ops: ReadonlyArray<MarkingOp>) {
+    const watchesRegular = (list: ReadonlyArray<MarkingOp>) =>
+      list.some(
+        (op) =>
+          op.kind === 'mark' &&
+          regularWatchedCount({ watched: op.records }) > 0,
+      );
+    if (store.getState().hidden[seriesId] !== true || !watchesRegular(ops)) {
+      return () => {};
+    }
+    store.getState().setHidden(seriesId, false);
+    return (saved: ReadonlyArray<MarkingOp>) => {
+      if (
+        !watchesRegular(saved) &&
+        store.getState().hidden[seriesId] === false
+      ) {
+        store.getState().setHidden(seriesId, true);
+      }
+    };
+  }
+
+  /**
    * Applies `ops` at once, sends, then settles (with the server's records).
    * On failure the store keeps exactly what the server saved (a multi-request
    * write can fail part-way) and rolls back the rest, with an error toast that
-   * says which and offers Try again.
+   * says which and offers Try again. `restore`: Undo putting marks back, no
+   * new watching.
    */
   async function run(
     seriesId: number,
     ops: ReadonlyArray<MarkingOp>,
     send: Send,
+    { restore = false }: Readonly<{ restore?: boolean }> = {},
   ): Promise<boolean> {
     if (!signedIn()) {
       return false;
     }
     const ids = ops.map((op) => store.getState().begin(seriesId, op));
+    const rollBackUnhide = restore ? () => {} : unhideFor(seriesId, ops);
     const result = await enqueue(seriesId, send);
     if (result.ok) {
       const watched = watchedOf(result);
@@ -210,6 +241,7 @@ export function createMarkingCommands(deps: MarkingDeps) {
       return true;
     }
     const saved = result.partial ? savedOps(result.partial) : [];
+    rollBackUnhide(saved);
     for (const id of ids) {
       store.getState().fail(seriesId, id);
     }
@@ -225,7 +257,7 @@ export function createMarkingCommands(deps: MarkingDeps) {
         action: {
           label: 'Try again',
           onClick: () => {
-            void run(seriesId, ops, send);
+            void run(seriesId, ops, send, { restore });
           },
         },
         title: saved.length > 0 ? PARTIAL_MESSAGE : ERROR_MESSAGE,
@@ -235,9 +267,11 @@ export function createMarkingCommands(deps: MarkingDeps) {
     return false;
   }
 
-  /** `ops` sent as the calls that make the API match them */
+  /** `ops` sent as the calls that make the API match them (Undo, the picker) */
   const runOps = (seriesId: number, ops: ReadonlyArray<MarkingOp>) =>
-    run(seriesId, ops, () => sequence(callsFor(actions, seriesId, ops)));
+    run(seriesId, ops, () => sequence(callsFor(actions, seriesId, ops)), {
+      restore: true,
+    });
 
   function undo({ codes, prior, seriesId }: Undoable) {
     merge.end();
@@ -667,6 +701,12 @@ export function createMarkingCommands(deps: MarkingDeps) {
       store.getState().seed(result.data.seed, JSON.stringify(result.data.seed));
       if (result.data.episode) {
         store.getState().countSaved(1);
+        if (
+          result.data.episode.seasonNumber > 0 &&
+          store.getState().hidden[seriesId] === true
+        ) {
+          store.getState().setHidden(seriesId, false);
+        }
         deps.toast({
           icon: 'eye',
           title: markedMessage({
@@ -919,10 +959,10 @@ export function createMarkingCommands(deps: MarkingDeps) {
           : current.status.isWatchlisted
         : library.status === 'ready' && library.ids[list].includes(seriesId);
       const value = !isOn;
-      // The watched stream takes a show with any watched episode off the
-      // watchlist, so saving one would silently undo itself at the next mark
+      // The API parks the watchlist entry of a show with a regular episode
+      // watched, so saving one would silently undo itself at the next mark
       const started =
-        (current ? Object.keys(current.watched).length > 0 : false) ||
+        (current ? regularWatchedCount(current) > 0 : false) ||
         (library.status === 'ready' &&
           (library.ids.inProgress.includes(seriesId) ||
             library.ids.watched.includes(seriesId)));

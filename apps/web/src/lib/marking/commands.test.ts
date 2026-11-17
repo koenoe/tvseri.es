@@ -19,6 +19,8 @@ function setup(
     seasons?: SeriesSeed['seasons'];
     /** replaces the seed's watched episodes (S3 E1 by default) */
     watched?: SeriesSeed['watched'];
+    /** the show is on the watchlist */
+    watchlisted?: boolean;
   }> = {},
 ) {
   const store = createMarkingStore();
@@ -31,7 +33,7 @@ function setup(
       seriesId: SERIES,
       status: {
         isFavorited: false,
-        isWatchlisted: false,
+        isWatchlisted: options.watchlisted ?? false,
         prefs: {
           firstTrackingAnsweredAt: null,
           neverAskBefore: false,
@@ -1492,6 +1494,21 @@ describe('markNext on a show the store has not seeded', () => {
     t.store.getState().seed({ ...seedAfter(7), fetchedAt: NOW - 500 }, 'late');
     expect(view()?.watched.S01E08).toBeDefined();
   });
+
+  it('Mark next on an unseeded show hidden in this tab brings it back', async () => {
+    const t = setup();
+    await t.commands.removeFromInProgress(OTHER);
+    t.actions.markNextEpisode.mockResolvedValue({
+      data: {
+        episode: { episodeNumber: 1, seasonNumber: 1 },
+        seed: { seasons: [], seriesId: OTHER },
+        watched: [],
+      },
+      ok: true,
+    });
+    await t.commands.markNext(OTHER);
+    expect(t.store.getState().hidden[OTHER]).toBe(false);
+  });
 });
 
 describe('markNext when the action throws', () => {
@@ -1541,5 +1558,135 @@ describe('a show whose viewer read failed (unavailable)', () => {
     expect(t.view().unavailable).toBeUndefined();
     t.commands.toggleEpisode(SERIES, { episodeNumber: 5, seasonNumber: 3 });
     expect(t.view().watched.S03E05).toBeDefined();
+  });
+});
+
+describe('starting a show takes it off the watchlist at once', () => {
+  const onWatchlist = () => {
+    const t = setup({ watched: [], watchlisted: true });
+    t.store.getState().setLibrary({
+      ids: { favorites: [], inProgress: [], watched: [], watchlist: [SERIES] },
+      status: 'ready',
+    });
+    return t;
+  };
+  const watchlistIds = (t: ReturnType<typeof setup>) => {
+    const { library } = t.store.getState();
+    return library.status === 'ready' ? library.ids.watchlist : null;
+  };
+
+  it('the first regular episode parks it, and the library follows when saved', async () => {
+    const t = onWatchlist();
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 1, seasonNumber: 1 });
+    expect(t.view().status?.isWatchlisted).toBe(false);
+    await flush();
+    expect(watchlistIds(t)).toEqual([]);
+    expect(t.store.getState().library).toMatchObject({
+      ids: { inProgress: [SERIES] },
+    });
+  });
+
+  it('a failed save puts it back', async () => {
+    const t = onWatchlist();
+    t.actions.markEpisodes.mockImplementationOnce(failed);
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 1, seasonNumber: 1 });
+    await flush();
+    expect(t.view().status?.isWatchlisted).toBe(true);
+    expect(watchlistIds(t)).toEqual([SERIES]);
+  });
+
+  it('Undo back to nothing watched puts it back, as the API does', async () => {
+    const t = onWatchlist();
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 1, seasonNumber: 1 });
+    await flush();
+    t.toasts.at(-1)?.action?.onClick();
+    await flush();
+    expect(t.view().status?.isWatchlisted).toBe(true);
+    expect(watchlistIds(t)).toEqual([SERIES]);
+  });
+
+  it('a special keeps it on the watchlist', async () => {
+    const t = setup({
+      seasons: [
+        { airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 0 },
+        { airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 1 },
+      ],
+      watched: [],
+      watchlisted: true,
+    });
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 1, seasonNumber: 0 });
+    await flush();
+    expect(t.view().status?.isWatchlisted).toBe(true);
+  });
+
+  it('a show with only specials watched can go on the watchlist', async () => {
+    const t = setup({
+      seasons: [
+        { airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 0 },
+        { airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 1 },
+      ],
+      watched: [{ episodeNumber: 1, seasonNumber: 0, watchedAt: 500 }],
+    });
+    t.commands.toggleList(SERIES, 'watchlist');
+    await flush();
+    expect(t.actions.setInList).toHaveBeenCalledWith({
+      list: 'watchlist',
+      seriesId: SERIES,
+      value: true,
+    });
+  });
+});
+
+describe('watching a hidden show brings it back at once', () => {
+  const hiddenHere = async () => {
+    const t = setup({
+      seasons: [
+        { airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 0 },
+        { airedEpisodeCount: 4, episodeCount: 4, seasonNumber: 1 },
+      ],
+      watched: [{ episodeNumber: 1, seasonNumber: 1, watchedAt: 1000 }],
+    });
+    await t.commands.removeFromInProgress(SERIES);
+    return t;
+  };
+  const hidden = (t: ReturnType<typeof setup>) =>
+    t.store.getState().hidden[SERIES];
+
+  it('a mark unhides it before the API answers', async () => {
+    const t = await hiddenHere();
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 2, seasonNumber: 1 });
+    expect(hidden(t)).toBe(false);
+    await flush();
+    expect(hidden(t)).toBe(false);
+  });
+
+  it('a whole-season mark and Seen it unhide it too', async () => {
+    const t = await hiddenHere();
+    t.commands.toggleScope(SERIES, 1);
+    expect(hidden(t)).toBe(false);
+    const seen = await hiddenHere();
+    seen.commands.markSeen(SERIES, 'The Bear');
+    expect(hidden(seen)).toBe(false);
+  });
+
+  it('a failed save hides it again', async () => {
+    const t = await hiddenHere();
+    t.actions.markEpisodes.mockImplementationOnce(failed);
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 2, seasonNumber: 1 });
+    await flush();
+    expect(hidden(t)).toBe(true);
+  });
+
+  it('a special, an unmark or Undo putting marks back leave it hidden', async () => {
+    const t = await hiddenHere();
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 1, seasonNumber: 0 });
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 1, seasonNumber: 1 });
+    await flush();
+    expect(hidden(t)).toBe(true);
+    // Undo of the unmark puts S01E01 back
+    t.toasts.at(-1)?.action?.onClick();
+    await flush();
+    expect(t.view().watched.S01E01).toBeDefined();
+    expect(hidden(t)).toBe(true);
   });
 });

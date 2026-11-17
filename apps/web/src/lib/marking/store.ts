@@ -1,6 +1,7 @@
 import type { LibraryIds } from '@tvseri.es/schemas';
 import { createStore } from 'zustand/vanilla';
 
+import { regularWatchedCount } from './progress';
 import { applyOp, applyPending, type PendingOp, seedToBase } from './state';
 import type { MarkingOp, SeriesBase, SeriesSeed } from './types';
 
@@ -31,9 +32,10 @@ export type MarkingState = Readonly<{
   series: Readonly<Record<number, SeriesEntry>>;
   library: LibraryState;
   /**
-   * Hide from in progress, as this tab changed it: `true` hidden, `false`
-   * brought back (over what a page drew), absent when untouched. The pref
-   * lives on the server; this only makes every list update at once.
+   * Hide from in progress, as this tab changed it (a Hide, an Unhide, a
+   * new watch of a show hidden here): `true` hidden, `false` brought back
+   * (over what a page drew), absent when untouched. The pref lives on the
+   * server; this only makes every list update at once.
    */
   hidden: Readonly<Record<number, boolean>>;
   /**
@@ -94,10 +96,6 @@ export type MarkingActions = Readonly<{
   /** Episodes saved outside a settle (the Remote's N on an unseeded show) */
   countSaved: (episodes: number) => void;
 }>;
-
-/** Regular episodes a base has watched (specials never count) */
-const regularWatched = (base: SeriesBase) =>
-  Object.keys(base.watched).filter((code) => !code.startsWith('S00')).length;
 
 export type MarkingStore = MarkingState & MarkingActions;
 
@@ -232,8 +230,8 @@ function createStoreOf() {
       set({
         episodesSaved:
           get().episodesSaved +
-          regularWatched(base) -
-          regularWatched(current.base),
+          regularWatchedCount(base) -
+          regularWatchedCount(current.base),
         series: {
           ...get().series,
           [seriesId]: entry(
@@ -324,8 +322,8 @@ function createStoreOf() {
       set({
         episodesSaved:
           get().episodesSaved +
-          regularWatched(base) -
-          regularWatched(current.base),
+          regularWatchedCount(base) -
+          regularWatchedCount(current.base),
         series: {
           ...get().series,
           [seriesId]: entry(

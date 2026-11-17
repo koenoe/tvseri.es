@@ -5,7 +5,7 @@ import type { LibraryShelf } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 import type { TileView } from '@/lib/profile/tileView';
 import { useShelfCounts } from '../../_lib/shelfCounts';
-import useShelfTiles from './useShelfTiles';
+import useShelfTiles, { offWatchlistReason } from './useShelfTiles';
 
 const COUNTS = {
   all: 10,
@@ -115,5 +115,41 @@ describe('useShelfTiles: leave, come back, Undo', () => {
     act(() => result.current.shelf.leave([1], 'watchlist-remove'));
     act(() => result.current.shelf.settled());
     expect(result.current.shelf.moving).toBe(false);
+  });
+});
+
+describe('a show started from the Watchlist shelf', () => {
+  const library = {
+    favorites: [],
+    inProgress: [2],
+    watched: [3],
+    watchlist: [1],
+  };
+
+  it('says why it left: started, finished in one go, or taken off', () => {
+    expect(offWatchlistReason(library, 1)).toBeNull();
+    expect(offWatchlistReason(library, 2)).toBe('started');
+    expect(offWatchlistReason(library, 3)).toBe('started-finished');
+    expect(offWatchlistReason(library, 4)).toBe('watchlist-remove');
+  });
+
+  it('moves its count to Watching, or to Finished', () => {
+    const { result } = setup('ines');
+    act(() => result.current.shelf.leave([2], 'started'));
+    expect(result.current.counts).toMatchObject({ watching: 3, watchlist: 4 });
+    act(() => result.current.shelf.leave([3], 'started-finished'));
+    expect(result.current.counts).toMatchObject({ finished: 5, watchlist: 3 });
+    expect(ids(result.current.shelf.tiles)).toEqual([1]);
+  });
+});
+
+describe('a show brought back in this tab still leaves when finished', () => {
+  it('on Watching, a finished tile goes even though it was unhidden here', () => {
+    const { result } = setup('noor', {
+      hidden: { 2: false },
+      shelf: 'watching',
+    });
+    act(() => result.current.shelf.leave([2], 'finished'));
+    expect(ids(result.current.shelf.tiles)).toEqual([1, 3]);
   });
 });

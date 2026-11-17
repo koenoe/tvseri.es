@@ -1,6 +1,6 @@
 'use client';
 
-import type { LibraryShelf } from '@tvseri.es/schemas';
+import type { LibraryIds, LibraryShelf } from '@tvseri.es/schemas';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { TileView } from '@/lib/profile/tileView';
 import { bumpCounts } from '../../_lib/shelfCounts';
@@ -11,6 +11,10 @@ export type LeaveReason =
   /** N marked the last aired episode: the show moves to Finished */
   | 'finished'
   | 'hide'
+  /** Marked from the Watchlist shelf: the API parks its watchlist entry */
+  | 'started'
+  /** ...and every aired episode is done */
+  | 'started-finished'
   | 'unhide'
   | 'watchlist-remove';
 
@@ -21,9 +25,25 @@ const COUNT_CHANGE: Readonly<
   'favourites-remove': { favourites: -1 },
   finished: { finished: 1, watching: -1 },
   hide: { hidden: 1, watching: -1 },
+  started: { watching: 1, watchlist: -1 },
+  'started-finished': { finished: 1, watchlist: -1 },
   unhide: { hidden: -1, watching: 1 },
   'watchlist-remove': { watchlist: -1 },
 };
+
+/** Why a show is off the watchlist now, by the library ids; null: still on */
+export function offWatchlistReason(
+  ids: LibraryIds,
+  id: number,
+): LeaveReason | null {
+  if (ids.watchlist.includes(id)) {
+    return null;
+  }
+  if (ids.inProgress.includes(id)) {
+    return 'started';
+  }
+  return ids.watched.includes(id) ? 'started-finished' : 'watchlist-remove';
+}
 
 const reverse = (change: Partial<Record<LibraryShelf, number>>) =>
   Object.fromEntries(
@@ -71,13 +91,17 @@ export default function useShelfTiles({
     () =>
       items.filter((tile) => {
         const state = hidden[tile.id];
+        const reason = left.get(tile.id);
+        // The store's hide state wins over a Hide or Unhide leaving (its
+        // Undo); any other leave (N finishing the show) still stands
         if (
           state !== undefined &&
-          (shelf === 'watching' || shelf === 'hidden')
+          (shelf === 'watching' || shelf === 'hidden') &&
+          (reason === undefined || reason === 'hide' || reason === 'unhide')
         ) {
           return shelf === 'watching' ? !state : state;
         }
-        return !left.has(tile.id);
+        return reason === undefined;
       }),
     [hidden, items, left, shelf],
   );

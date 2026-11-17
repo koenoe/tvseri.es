@@ -7,7 +7,7 @@ import TileLink from '@/components/ui/tile/TileLink';
 import cn from '@/lib/cn';
 import type { TileView } from '@/lib/profile/tileView';
 import showPath from '@/lib/routing/showPath';
-import { useLiveWatchingTile } from '../_lib/liveTile';
+import { useLeaveHiddenOnWatch, useLiveWatchingTile } from '../_lib/liveTile';
 import { useTilePress } from '../_lib/useTilePress';
 import OwnerRemote from './OwnerRemote';
 import { Poster, TileText } from './TileBody';
@@ -40,6 +40,12 @@ function LibraryTile({ eager, sizes, tile: served }: Props) {
     owner && shelf === 'watching',
     finished,
   );
+  const unhidden = useCallback(
+    () => leave(served.id, 'unhide'),
+    [leave, served.id],
+  );
+  // N on a hidden show brings it back to In progress
+  useLeaveHiddenOnWatch(served.id, owner && shelf === 'hidden', unhidden);
   const selecting = useStore(selection, (state) => state.selecting);
   const picked = useStore(selection, (state) => state.selected.has(tile.id));
   const { follow, toggle, touch } = useTilePress(

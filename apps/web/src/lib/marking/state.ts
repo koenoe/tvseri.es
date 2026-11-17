@@ -4,7 +4,7 @@ import {
   type MarkWhen,
 } from '@tvseri.es/schemas';
 
-import { seriesProgress } from './progress';
+import { regularWatchedCount, seriesProgress } from './progress';
 
 import type {
   EpisodeCode,
@@ -116,12 +116,24 @@ export function applyOp(base: SeriesBase, op: MarkingOp): SeriesBase {
 
 export type PendingOp = Readonly<{ id: number; op: MarkingOp }>;
 
+/**
+ * The API parks a show's watchlist entry while a regular episode is
+ * watched and puts it back when none is: `isWatchlisted` in a base is the
+ * entry, this is the list as drawn.
+ */
+const withParkedWatchlist = (series: SeriesBase): SeriesBase =>
+  series.status?.isWatchlisted && regularWatchedCount(series) > 0
+    ? { ...series, status: { ...series.status, isWatchlisted: false } }
+    : series;
+
 /** What every control draws: the base with the pending changes on top. */
 export const applyPending = (
   base: SeriesBase,
   pending: ReadonlyArray<PendingOp>,
 ): SeriesBase =>
-  pending.reduce((current, { op }) => applyOp(current, op), base);
+  withParkedWatchlist(
+    pending.reduce((current, { op }) => applyOp(current, op), base),
+  );
 
 /**
  * The ops that put `codes` back exactly as they are in `prior` (Undo), from

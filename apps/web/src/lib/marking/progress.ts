@@ -187,6 +187,10 @@ export function seriesProgress(series: SeriesBase): SeriesProgress {
 
 const isRegularCode = (code: string) => !code.startsWith('S00');
 
+/** Regular episodes watched, aired or not (the API's count for the lists) */
+export const regularWatchedCount = (series: Pick<SeriesBase, 'watched'>) =>
+  Object.keys(series.watched).filter(isRegularCode).length;
+
 /**
  * Has the viewer tracked anything of the series itself (a regular episode
  * watched or skipped)? Specials alone don't count, as the lists and the

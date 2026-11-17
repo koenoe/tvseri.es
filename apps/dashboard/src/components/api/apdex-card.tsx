@@ -144,7 +144,6 @@ function ApdexCardSkeleton() {
     <MetricCardSkeleton
       chart={SKELETON_CHART}
       descriptionWidth="w-44"
-      menuSize="icon-sm"
       titleWidth="w-24"
       value="0.00"
     />

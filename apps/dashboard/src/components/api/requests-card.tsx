@@ -88,7 +88,6 @@ function RequestsCardSkeleton() {
     <MetricCardSkeleton
       chart={SKELETON_CHART}
       descriptionWidth="w-16"
-      menuSize="icon-xs"
       titleWidth="w-20"
       value={SKELETON_VALUE}
     />

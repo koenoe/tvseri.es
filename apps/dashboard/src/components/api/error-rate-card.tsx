@@ -118,7 +118,6 @@ function ErrorRateCardSkeleton() {
       chart={SKELETON_CHART}
       chartSlotClassName="items-center"
       descriptionWidth="w-44"
-      menuSize="icon-xs"
       titleWidth="w-24"
       value={SKELETON_VALUE}
     />

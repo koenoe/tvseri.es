@@ -42,15 +42,13 @@ export function CardMenuButton({
 CardMenuButton.displayName = 'CardMenuButton';
 
 /** The ⋮ button of a card with nothing to show. */
-export function DisabledCardMenuButton({
-  size = 'icon-sm',
-}: Readonly<{ size?: 'icon-sm' | 'icon-xs' }>) {
+export function DisabledCardMenuButton() {
   return (
     <Button
       aria-label="Details"
       className="text-muted-foreground"
       disabled
-      size={size}
+      size="icon-sm"
       variant="ghost"
     >
       <MoreVertical className="size-4" />
@@ -169,7 +167,6 @@ type MetricCardSkeletonProps = Readonly<{
   chart: ReactNode;
   chartSlotClassName?: string;
   descriptionWidth: string;
-  menuSize: 'icon-sm' | 'icon-xs';
   titleWidth: string;
   /** Invisible text that gives the value its loaded width. */
   value: ReactNode;
@@ -179,7 +176,6 @@ export function MetricCardSkeleton({
   chart,
   chartSlotClassName,
   descriptionWidth,
-  menuSize,
   titleWidth,
   value,
 }: MetricCardSkeletonProps) {
@@ -191,7 +187,7 @@ export function MetricCardSkeleton({
         <Skeleton className={titleClasses} />
         <Skeleton className={descriptionClasses} />
         <CardAction>
-          <DisabledCardMenuButton size={menuSize} />
+          <DisabledCardMenuButton />
         </CardAction>
       </CardHeader>
       <CardContent className={CONTENT_CLASSES}>

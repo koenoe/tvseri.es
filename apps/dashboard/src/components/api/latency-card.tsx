@@ -80,7 +80,6 @@ function LatencyCardSkeleton() {
     <MetricCardSkeleton
       chart={SKELETON_CHART}
       descriptionWidth="w-48"
-      menuSize="icon-xs"
       titleWidth="w-28"
       value={SKELETON_VALUE}
     />

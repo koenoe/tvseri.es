@@ -323,6 +323,9 @@ test('"Essentials" keeps its place while the network logo loads', async ({
       range.selectNodeContents(node);
       return Math.round(range.getBoundingClientRect().left);
     });
+  // the heading's text is laid out (CI once read it at 0, a box not yet
+  // laid out as the section streamed in), and the logo is still on its way
+  await expect.poll(textX).toBeGreaterThan(0);
   const before = await textX();
   const logo = heading.getByRole('img');
   await expect

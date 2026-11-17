@@ -17,8 +17,5 @@ catalog:
   sst: 4.17.2
   typescript: 7.0.2
 
-minimumReleaseAgeExclude:
-  - '@testing-library/user-event@14.6.10'
-
 patchedDependencies:
   '@openauthjs/openauth@0.4.3': patches/@openauthjs__openauth@0.4.3.patch

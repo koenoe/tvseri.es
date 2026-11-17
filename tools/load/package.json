@@ -1,7 +1,7 @@
 {
   "devDependencies": {
-    "@aws-sdk/client-lambda": "^3.1164.0",
-    "@aws-sdk/client-sqs": "^3.1164.0",
+    "@aws-sdk/client-lambda": "^3.1169.0",
+    "@aws-sdk/client-sqs": "^3.1169.0",
     "@openauthjs/openauth": "0.4.3",
     "@tvseri.es/utils": "workspace:*",
     "vitest": "5.1.0"

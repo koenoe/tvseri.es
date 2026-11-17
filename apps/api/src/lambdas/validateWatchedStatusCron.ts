@@ -1,9 +1,10 @@
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { USER_KEY_PREFIX } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 
 import { ACTIVE_USER_WINDOW_MS } from '@/constants';
 import { queryPages } from '@/lib/db/query';
-import { ACTIVE_INDEX, ACTIVE_PK, USER_PK_PREFIX } from '@/lib/db/user';
+import { ACTIVE_INDEX, ACTIVE_PK } from '@/lib/db/user';
 import { queueWatchedStatusValidation } from '@/lib/watchedStatus';
 
 /**
@@ -32,7 +33,7 @@ export const handler = async () => {
     // Keys-only index: pk is USER#<id>
     const userIds = (page.Items ?? []).map((item) =>
       (unmarshall(item) as Readonly<{ pk: string }>).pk.slice(
-        USER_PK_PREFIX.length,
+        USER_KEY_PREFIX.length,
       ),
     );
 

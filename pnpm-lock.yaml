@@ -315,9 +315,6 @@ importers:
       hono:
         specifier: ^4.13.18
         version: 4.13.18
-      slugify:
-        specifier: ^1.6.9
-        version: 1.6.9
       sst:
         specifier: 'catalog:'
         version: 4.17.2

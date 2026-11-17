@@ -12,7 +12,6 @@ export {
   MIN_POSTERS,
   TMDB_COUNT_CAP,
 } from './discover';
-export { handleClaimKey } from './handleClaim';
 export { HOME_MOMENTS_VERSION } from './homeMoments';
 export {
   WHATS_ON_NETWORKS,

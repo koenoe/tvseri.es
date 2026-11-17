@@ -5,10 +5,15 @@ import {
   TransactWriteItemsCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { handleClaimKey } from '@tvseri.es/constants';
 import { type User, UsernameSchema } from '@tvseri.es/schemas';
-import { encodeToBase64Url, generateUsername } from '@tvseri.es/utils';
-import slugify from 'slugify';
+import {
+  emailKey,
+  generateUsername,
+  handleClaimKey,
+  normaliseEmail,
+  userKey,
+  usernameKey,
+} from '@tvseri.es/utils';
 import { Resource } from 'sst';
 import { ulid } from 'ulid';
 import client from './client';
@@ -57,10 +62,14 @@ const queryUser = async (
 };
 
 // The user id is the table's hash key: a GetItem, not a Query
-const getUserById = async (userId: string): Promise<User | null> => {
+const getUserById = async (
+  userId: string,
+  consistent = false,
+): Promise<User | null> => {
   const result = await client.send(
     new GetItemCommand({
-      Key: marshall({ pk: `USER#${userId}` }),
+      ConsistentRead: consistent,
+      Key: marshall({ pk: userKey(userId) }),
       TableName: Resource.Users.name,
     }),
   );
@@ -68,9 +77,26 @@ const getUserById = async (userId: string): Promise<User | null> => {
   return result.Item ? toUser(unmarshall(result.Item) as User) : null;
 };
 
-const normaliseEmail = (email: string): string => email.trim().toLowerCase();
-
-const emailKey = (email: string): string => `EMAIL#${encodeToBase64Url(email)}`;
+/**
+ * The user an address belongs to. Its claim item (written with every new
+ * user) is read strongly consistent, so a user created a moment ago by a
+ * parallel sign-in is found; users from before claims existed are only on
+ * the email index.
+ */
+const getUserByEmail = async (email: string): Promise<User | null> => {
+  const { Item } = await client.send(
+    new GetItemCommand({
+      ConsistentRead: true,
+      Key: marshall({ pk: emailKey(email) }),
+      TableName: Resource.Users.name,
+    }),
+  );
+  const userId = Item ? unmarshall(Item).userId : undefined;
+  if (typeof userId === 'string') {
+    return getUserById(userId, true);
+  }
+  return queryUser('gsi1', emailKey(email));
+};
 
 export const findUser = async (
   input:
@@ -83,20 +109,18 @@ export const findUser = async (
   }
 
   if (input.email !== undefined) {
-    return queryUser('gsi1', emailKey(normaliseEmail(input.email)));
+    return getUserByEmail(input.email);
   }
 
-  return queryUser(
-    'gsi2',
-    `USERNAME#${slugify(input.username, { lower: true, strict: true })}`,
-  );
+  return queryUser('gsi2', usernameKey(input.username));
 };
 
 const MAX_USERNAME_TRIES = 5;
 
-// A new user's generated handle is claimed (`handleClaimKey`, with the
-// user's id) in the user's own transaction, on condition that the claim
-// doesn't exist yet: two sign-ups can never both get the same handle.
+// A new user's generated handle (`handleClaimKey`) and email (`emailKey`)
+// are claimed, each with the user's id, in the user's own transaction, on
+// condition that the claim doesn't exist yet: two sign-ups can never both
+// get the same handle, nor one address two accounts.
 
 const isValidUsername = (username: string): boolean => {
   // Standard Schema API, so apps/auth doesn't need valibot itself
@@ -104,10 +128,14 @@ const isValidUsername = (username: string): boolean => {
   return !(result instanceof Promise) && !result.issues;
 };
 
-/** The handle's claim lost the race (its condition failed). */
-const isHandleTaken = (error: unknown): boolean =>
+/** The order of the sign-up transaction's items */
+const HANDLE_CLAIM = 0;
+const EMAIL_CLAIM = 1;
+
+/** Which claim's condition failed, if the transaction was cancelled by one */
+const lostClaim = (error: unknown, index: number): boolean =>
   error instanceof TransactionCanceledException &&
-  error.CancellationReasons?.[0]?.Code === 'ConditionalCheckFailed';
+  error.CancellationReasons?.[index]?.Code === 'ConditionalCheckFailed';
 
 /**
  * Creates the user on first sign-in. The public handle is generated, never
@@ -125,7 +153,7 @@ export const createUser = async (
   }>,
 ): Promise<User> => {
   const email = normaliseEmail(input.email);
-  const userByEmail = await findUser({ email: input.email });
+  const userByEmail = await findUser({ email });
   if (userByEmail) {
     throw new Error('UserAlreadyExists');
   }
@@ -143,7 +171,7 @@ export const createUser = async (
       {
         createdAt: now,
         id: userId,
-        pk: `USER#${userId}`,
+        pk: userKey(userId),
         ...(input.country && {
           country: input.country,
         }),
@@ -152,7 +180,7 @@ export const createUser = async (
         }),
         email,
         gsi1pk: emailKey(email),
-        gsi2pk: `USERNAME#${username}`,
+        gsi2pk: usernameKey(username),
         role,
         username,
         version: VERSION,
@@ -170,6 +198,13 @@ export const createUser = async (
               Put: {
                 ConditionExpression: 'attribute_not_exists(pk)',
                 Item: marshall({ pk: handleClaimKey(username), userId }),
+                TableName: Resource.Users.name,
+              },
+            },
+            {
+              Put: {
+                ConditionExpression: 'attribute_not_exists(pk)',
+                Item: marshall({ pk: emailKey(email), userId }),
                 TableName: Resource.Users.name,
               },
             },
@@ -194,7 +229,12 @@ export const createUser = async (
         version: VERSION,
       };
     } catch (error) {
-      if (isHandleTaken(error)) {
+      // A parallel sign-in with the same address won: the caller looks
+      // the user up again (by the claim, strongly consistent)
+      if (lostClaim(error, EMAIL_CLAIM)) {
+        throw new Error('UserAlreadyExists');
+      }
+      if (lostClaim(error, HANDLE_CLAIM)) {
         continue;
       }
       // No input here: it holds PII (email, name)

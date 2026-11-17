@@ -8,11 +8,9 @@ import {
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { handleClaimKey } from '@tvseri.es/constants';
 import type { User, WatchProvider } from '@tvseri.es/schemas';
-import { encodeToBase64Url } from '@tvseri.es/utils';
+import { handleClaimKey, userKey, usernameKey } from '@tvseri.es/utils';
 import { HTTPException } from 'hono/http-exception';
-import slugify from 'slugify';
 import { Resource } from 'sst';
 import { readWatchProviders } from '@/lib/watchProviders';
 import { DAY_MS } from '@/utils/time';
@@ -37,25 +35,24 @@ export type UserRecord = Readonly<User & UserActivity>;
 /** Constant hash key of the sparse `active` index (activePk) */
 export const ACTIVE_PK = 'ACTIVE';
 export const ACTIVE_INDEX = 'active';
-export const USER_PK_PREFIX = 'USER#';
 
 // The user id is the table's hash key: a GetItem, not a Query
 const getUserItem = async (userId: string) => {
   const result = await client.send(
     new GetItemCommand({
-      Key: marshall({ pk: `${USER_PK_PREFIX}${userId}` }),
+      Key: marshall({ pk: userKey(userId) }),
       TableName: Resource.Users.name,
     }),
   );
   return result.Item;
 };
 
-const queryUserItem = async (indexName: 'gsi1' | 'gsi2', value: string) => {
+const queryUsernameItem = async (username: string) => {
   const result = await client.send(
     new QueryCommand({
-      ExpressionAttributeValues: marshall({ ':value': value }),
-      IndexName: indexName,
-      KeyConditionExpression: `${indexName}pk = :value`,
+      ExpressionAttributeValues: marshall({ ':value': usernameKey(username) }),
+      IndexName: 'gsi2',
+      KeyConditionExpression: 'gsi2pk = :value',
       TableName: Resource.Users.name,
     }),
   );
@@ -64,23 +61,13 @@ const queryUserItem = async (indexName: 'gsi1' | 'gsi2', value: string) => {
 
 export const findUser = async (
   input:
-    | { userId: string; email?: never; username?: never }
-    | { userId?: never; email: string; username?: never }
-    | { userId?: never; email?: never; username: string }
-    | {
-        userId?: never;
-        email?: never;
-        username?: never;
-      },
+    | { userId: string; username?: never }
+    | { userId?: never; username: string },
 ): Promise<UserRecord | null> => {
-  const item = input.userId
-    ? await getUserItem(input.userId)
-    : input.email
-      ? await queryUserItem('gsi1', `EMAIL#${encodeToBase64Url(input.email)}`)
-      : await queryUserItem(
-          'gsi2',
-          `USERNAME#${slugify(input.username!, { lower: true, strict: true })}`,
-        );
+  const item =
+    input.userId !== undefined
+      ? await getUserItem(input.userId)
+      : await queryUsernameItem(input.username);
 
   if (!item) {
     return null;
@@ -151,7 +138,7 @@ export const markDeletionRequested = async (userId: string, now: number) => {
     new UpdateItemCommand({
       ConditionExpression: 'attribute_exists(pk)',
       ExpressionAttributeValues: marshall({ ':now': now }),
-      Key: marshall({ pk: `${USER_PK_PREFIX}${userId}` }),
+      Key: marshall({ pk: userKey(userId) }),
       TableName: Resource.Users.name,
       UpdateExpression:
         'SET deletionRequestedAt = if_not_exists(deletionRequestedAt, :now)',
@@ -164,7 +151,7 @@ export const clearDeletionRequested = async (userId: string) => {
   await client.send(
     new UpdateItemCommand({
       ConditionExpression: 'attribute_exists(pk)',
-      Key: marshall({ pk: `${USER_PK_PREFIX}${userId}` }),
+      Key: marshall({ pk: userKey(userId) }),
       TableName: Resource.Users.name,
       UpdateExpression: 'REMOVE deletionRequestedAt',
     }),
@@ -192,7 +179,7 @@ export const markUserActive = async (userId: string): Promise<boolean> => {
           ':dayAgo': new Date(now - DAY_MS).toISOString(),
           ':now': new Date(now).toISOString(),
         }),
-        Key: marshall({ pk: `${USER_PK_PREFIX}${userId}` }),
+        Key: marshall({ pk: userKey(userId) }),
         TableName: Resource.Users.name,
         UpdateExpression: 'SET lastActiveAt = :now, activePk = :active',
       }),
@@ -227,7 +214,7 @@ export const claimWatchedStatusRecheck = async (
           ':now': new Date().toISOString(),
           ':since': since.toISOString(),
         }),
-        Key: marshall({ pk: `${USER_PK_PREFIX}${userId}` }),
+        Key: marshall({ pk: userKey(userId) }),
         TableName: Resource.Users.name,
         UpdateExpression: 'SET lastRecheckAt = :now',
       }),
@@ -290,7 +277,7 @@ export const updateUser = async (
 
   if (updates.username) {
     values[':username'] = updates.username;
-    values[':newUsernameIndex'] = `USERNAME#${updates.username}`;
+    values[':newUsernameIndex'] = usernameKey(updates.username);
     updateExpressions.push('username = :username');
     updateExpressions.push('gsi2pk = :newUsernameIndex');
   }
@@ -317,7 +304,7 @@ export const updateUser = async (
     ConditionExpression:
       'attribute_exists(pk) AND (updatedAt = :lastUpdatedAt OR attribute_not_exists(updatedAt))',
     ExpressionAttributeValues: marshall(values),
-    Key: marshall({ pk: `USER#${user.id}` }),
+    Key: marshall({ pk: userKey(user.id) }),
     TableName: Resource.Users.name,
     UpdateExpression: `SET ${updateExpressions.join(', ')}`,
     ...(Object.keys(expressionAttributeNames).length > 0 && {
@@ -405,7 +392,7 @@ export const markGetStartedDone = async (
         ConditionExpression:
           'attribute_exists(pk) AND attribute_not_exists(getStartedDoneAt)',
         ExpressionAttributeValues: marshall({ ':now': now }),
-        Key: marshall({ pk: `${USER_PK_PREFIX}${userId}` }),
+        Key: marshall({ pk: userKey(userId) }),
         TableName: Resource.Users.name,
         UpdateExpression: 'SET getStartedDoneAt = :now',
       }),

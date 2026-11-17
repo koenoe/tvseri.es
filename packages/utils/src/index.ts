@@ -60,6 +60,14 @@ export { upperFirst } from './text/upperFirst';
 export { default as toQueryString } from './toQueryString';
 export { default as toUsernameSlug } from './toUsernameSlug';
 export {
+  emailKey,
+  handleClaimKey,
+  normaliseEmail,
+  USER_KEY_PREFIX,
+  userKey,
+  usernameKey,
+} from './usersTable';
+export {
   buildHistogramBins,
   findBinIndex,
   fromHistogramUnits,

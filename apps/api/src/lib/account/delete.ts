@@ -1,9 +1,11 @@
 import {
   type AttributeValue,
+  ConditionalCheckFailedException,
   DeleteItemCommand,
   GetItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { emailKey, userKey } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 
 import { batchWrite } from '@/lib/db/batch';
@@ -16,25 +18,50 @@ import { profileCounterCacheKeys } from '@/lib/profileCounters';
 import { getStatsInvalidationKeys } from '@/lib/stats/keys';
 
 /**
- * The user's handle claim (`HANDLE#<username>`, written by the auth service
- * with their first handle): deleted only when it names this user, so a claim
+ * Deletes the email's claim when it names this user (written by the auth
+ * service with every new user; users from before have none, and deleting a
+ * missing item is a no-op). Without this, the address could never sign up
+ * again.
+ */
+const releaseEmailClaim = async (email: string, userId: string) => {
+  try {
+    await client.send(
+      new DeleteItemCommand({
+        ConditionExpression: 'userId = :userId',
+        ExpressionAttributeValues: marshall({ ':userId': userId }),
+        Key: marshall({ pk: emailKey(email) }),
+        TableName: Resource.Users.name,
+      }),
+    );
+  } catch (error) {
+    if (!(error instanceof ConditionalCheckFailedException)) {
+      throw error;
+    }
+  }
+};
+
+/**
+ * The user's claims: their handle (`HANDLE#<username>`) and their email
+ * (`EMAIL#…`), each deleted only when it names this user, so a claim
  * written before claims named their user, or another user's, is never
  * touched. Read before the Users item goes; a re-run finds no user and stops.
  */
-const deleteHandleClaim = async (userId: string) => {
+const deleteClaims = async (userId: string) => {
   const { Item } = await client.send(
     new GetItemCommand({
       ConsistentRead: true,
-      Key: marshall({ pk: `USER#${userId}` }),
-      ProjectionExpression: 'username',
+      Key: marshall({ pk: userKey(userId) }),
+      ProjectionExpression: 'username, email',
       TableName: Resource.Users.name,
     }),
   );
-  const username = Item ? unmarshall(Item).username : undefined;
-  if (typeof username !== 'string' || !username) {
-    return;
+  const { email, username } = Item ? unmarshall(Item) : {};
+  if (typeof username === 'string' && username) {
+    await releaseHandleClaim(username, userId);
   }
-  await releaseHandleClaim(username, userId);
+  if (typeof email === 'string' && email) {
+    await releaseEmailClaim(email, userId);
+  }
 };
 
 /**
@@ -85,7 +112,7 @@ const canDeleteAccount = async (userId: string) => {
   const result = await client.send(
     new GetItemCommand({
       ConsistentRead: true,
-      Key: marshall({ pk: `USER#${userId}` }),
+      Key: marshall({ pk: userKey(userId) }),
       ProjectionExpression: 'pk, deletionRequestedAt',
       TableName: Resource.Users.name,
     }),
@@ -226,13 +253,13 @@ export const runDeleteAccountStep = async (
     return lists;
   }
   await deleteExistingCacheItems(userCacheKeys(userId, new Date()));
-  await deleteHandleClaim(userId);
+  await deleteClaims(userId);
   await client.send(
     new DeleteItemCommand({
       // Only a user who asked for it (a re-run finds nothing to delete)
       ConditionExpression:
         'attribute_not_exists(pk) OR attribute_exists(deletionRequestedAt)',
-      Key: marshall({ pk: `USER#${userId}` }),
+      Key: marshall({ pk: userKey(userId) }),
       TableName: Resource.Users.name,
     }),
   );

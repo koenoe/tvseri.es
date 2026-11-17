@@ -8,7 +8,6 @@
     "@tvseri.es/schemas": "workspace:*",
     "@tvseri.es/utils": "workspace:*",
     "hono": "^4.13.18",
-    "slugify": "^1.6.9",
     "sst": "catalog:",
     "ulid": "^3.0.2"
   },

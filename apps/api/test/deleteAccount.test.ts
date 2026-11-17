@@ -1,4 +1,5 @@
 import { CloudFrontKeyValueStoreClient } from '@aws-sdk/client-cloudfront-keyvaluestore';
+import { emailKey } from '@tvseri.es/utils';
 import type { Context, SQSEvent } from 'aws-lambda';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -351,6 +352,50 @@ describe('the handle claim (async-9)', () => {
     expect(db.dump('Users').some((item) => item.pk === 'HANDLE#wren')).toBe(
       true,
     );
+  });
+});
+
+describe('the email claim', () => {
+  it('goes with the account, so the address can sign up again; another user’s stays', async () => {
+    seedEverything();
+    db.seed('Users', [
+      { pk: emailKey('wren@example.com'), userId: USER_ID },
+      { pk: emailKey('other@example.com'), userId: OTHER_USER_ID },
+    ]);
+    await request('/me', {
+      as: USER_ID,
+      body: { confirm: 'wren' },
+      method: 'DELETE',
+    });
+
+    await runQueue(); // data
+    await runQueue(); // lists, the user item and their claims
+
+    expect(
+      db
+        .dump('Users')
+        .map((item) => String(item.pk))
+        .filter((pk) => pk.startsWith('EMAIL#')),
+    ).toEqual([emailKey('other@example.com')]);
+  });
+
+  it('never takes a claim on the address that names another user', async () => {
+    seedEverything();
+    db.seed('Users', [
+      { pk: emailKey('wren@example.com'), userId: OTHER_USER_ID },
+    ]);
+    await request('/me', {
+      as: USER_ID,
+      body: { confirm: 'wren' },
+      method: 'DELETE',
+    });
+
+    await runQueue();
+    await runQueue();
+
+    expect(
+      db.dump('Users').some((item) => item.pk === emailKey('wren@example.com')),
+    ).toBe(true);
   });
 });
 

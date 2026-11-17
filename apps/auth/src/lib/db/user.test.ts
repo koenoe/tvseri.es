@@ -21,7 +21,7 @@ vi.mock('@tvseri.es/utils', async (importOriginal) => {
   };
 });
 
-const { createUser } = await import('./user');
+const { createUser, findUser } = await import('./user');
 
 const INPUT = {
   country: 'GB',
@@ -29,11 +29,20 @@ const INPUT = {
   name: 'Margaux Realname',
 };
 
-/** Answers the user lookups: `taken` handles exist, no email exists. */
+/**
+ * Answers the user lookups: `taken` handles exist, no email exists.
+ * `raceLost` handles and, with `emailRaceLost`, the email's claim fail
+ * their condition in the sign-up transaction.
+ */
 function table({
+  emailRaceLost = false,
   taken = [],
   raceLost = [],
-}: Readonly<{ taken?: string[]; raceLost?: string[] }> = {}) {
+}: Readonly<{
+  emailRaceLost?: boolean;
+  taken?: string[];
+  raceLost?: string[];
+}> = {}) {
   send.mockImplementation(async (command: unknown) => {
     if (command instanceof QueryCommand) {
       const key = unmarshall(command.input.ExpressionAttributeValues ?? {})[
@@ -53,11 +62,13 @@ function table({
       const claim = unmarshall(
         command.input.TransactItems?.[0]?.Put?.Item ?? {},
       ).pk as string;
-      if (raceLost.includes(claim.replace(/^HANDLE#/, ''))) {
+      const handleLost = raceLost.includes(claim.replace(/^HANDLE#/, ''));
+      if (handleLost || emailRaceLost) {
         throw new TransactionCanceledException({
           $metadata: {},
           CancellationReasons: [
-            { Code: 'ConditionalCheckFailed' },
+            { Code: handleLost ? 'ConditionalCheckFailed' : 'None' },
+            { Code: emailRaceLost ? 'ConditionalCheckFailed' : 'None' },
             { Code: 'None' },
           ],
           message: 'Transaction cancelled',
@@ -108,7 +119,7 @@ describe('createUser', () => {
     },
   );
 
-  it('claims the handle and writes the user in one conditional transaction', async () => {
+  it('claims the handle and the email and writes the user in one conditional transaction', async () => {
     table();
     generated.names = ['calm-otter-412'];
     await createUser(INPUT);
@@ -121,10 +132,19 @@ describe('createUser', () => {
     // The claim names its user, so deleting the account can take it along
     expect(items[0]).toEqual({
       condition: 'attribute_not_exists(pk)',
-      item: { pk: 'HANDLE#calm-otter-412', userId: items[1]?.item.id },
+      item: { pk: 'HANDLE#calm-otter-412', userId: items[2]?.item.id },
     });
-    expect(items[1]?.condition).toBe('attribute_not_exists(pk)');
-    expect(items[1]?.item).toMatchObject({
+    // The email's claim: the normalised address, as the email index has it
+    expect(items[1]).toEqual({
+      condition: 'attribute_not_exists(pk)',
+      item: {
+        pk: `EMAIL#${Buffer.from('margaux.realname+alias@example.com').toString('base64url')}`,
+        userId: items[2]?.item.id,
+      },
+    });
+    expect(items[2]?.item.gsi1pk).toBe(items[1]?.item.pk);
+    expect(items[2]?.condition).toBe('attribute_not_exists(pk)');
+    expect(items[2]?.item).toMatchObject({
       country: 'GB',
       email: 'margaux.realname+alias@example.com',
       gsi2pk: 'USERNAME#calm-otter-412',
@@ -151,6 +171,19 @@ describe('createUser', () => {
     expect(writes()).toHaveLength(0);
   });
 
+  it('refuses the email when a parallel sign-up claimed it first, without trying other handles', async () => {
+    table({ emailRaceLost: true });
+    await expect(createUser(INPUT)).rejects.toThrow('UserAlreadyExists');
+    expect(writes()).toHaveLength(1);
+  });
+
+  it('calls a lost email claim UserAlreadyExists even when the handle was lost too', async () => {
+    table({ emailRaceLost: true, raceLost: ['calm-otter-412'] });
+    generated.names = ['calm-otter-412'];
+    await expect(createUser(INPUT)).rejects.toThrow('UserAlreadyExists');
+    expect(writes()).toHaveLength(1);
+  });
+
   it('refuses an email that already has an account', async () => {
     send.mockImplementation(async (command: unknown) =>
       command instanceof QueryCommand
@@ -158,5 +191,44 @@ describe('createUser', () => {
         : {},
     );
     await expect(createUser(INPUT)).rejects.toThrow('UserAlreadyExists');
+  });
+});
+
+describe('findUser by email', () => {
+  beforeEach(() => {
+    send.mockReset();
+  });
+
+  it('finds a user created a moment ago through the claim, strongly consistent', async () => {
+    send.mockImplementation(async (command: unknown) => {
+      if (!(command instanceof GetItemCommand)) {
+        throw new Error('unexpected command');
+      }
+      const { pk } = unmarshall(command.input.Key ?? {});
+      return pk.startsWith('EMAIL#')
+        ? { Item: marshall({ pk, userId: 'U1' }) }
+        : { Item: marshall({ email: 'ana@example.com', id: 'U1', pk }) };
+    });
+
+    const user = await findUser({ email: ' Ana@Example.com ' });
+
+    expect(user?.id).toBe('U1');
+    const reads = send.mock.calls.map(([command]) => command as GetItemCommand);
+    expect(reads.map((read) => read.input.ConsistentRead)).toEqual([
+      true,
+      true,
+    ]);
+    expect(unmarshall(reads[0]?.input.Key ?? {}).pk).toBe(
+      `EMAIL#${Buffer.from('ana@example.com').toString('base64url')}`,
+    );
+  });
+
+  it('falls back to the email index for a user from before claims', async () => {
+    send.mockImplementation(async (command: unknown) =>
+      command instanceof QueryCommand
+        ? { Items: [marshall({ id: 'OLD', username: 'someone' })] }
+        : {},
+    );
+    expect((await findUser({ email: 'old@example.com' }))?.id).toBe('OLD');
   });
 });

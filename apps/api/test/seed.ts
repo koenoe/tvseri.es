@@ -1,3 +1,5 @@
+import { emailKey, userKey, usernameKey } from '@tvseri.es/utils';
+
 import { db } from './db';
 
 export const USER_ID = '01JUSERAAAAAAAAAAAAAAAAAAA';
@@ -11,13 +13,14 @@ export const seedUser = (
   const username =
     (overrides.username as string | undefined) ??
     `user-${id.slice(-4).toLowerCase()}`;
+  const email = `${username}@example.com`;
   const user = {
     createdAt: '2025-01-01T00:00:00.000Z',
-    email: `${username}@example.com`,
-    gsi1pk: `EMAIL#${username}`,
-    gsi2pk: `USERNAME#${username}`,
+    email,
+    gsi1pk: emailKey(email),
+    gsi2pk: usernameKey(username),
     id,
-    pk: `USER#${id}`,
+    pk: userKey(id),
     role: 'user',
     username,
     version: 1,

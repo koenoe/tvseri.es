@@ -1,4 +1,5 @@
 /// <reference path="../../.sst/platform/config.d.ts" />
+import { backedUp } from './backup';
 
 export const users = new sst.aws.Dynamo('Users', {
   fields: {
@@ -31,4 +32,5 @@ export const users = new sst.aws.Dynamo('Users', {
     gsi2: { hashKey: 'gsi2pk', projection: 'all' }, // Username lookup
   },
   primaryIndex: { hashKey: 'pk' },
+  transform: backedUp,
 });

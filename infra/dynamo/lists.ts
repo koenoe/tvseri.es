@@ -1,4 +1,5 @@
 /// <reference path="../../.sst/platform/config.d.ts" />
+import { backedUp } from './backup';
 
 export const lists = new sst.aws.Dynamo('Lists', {
   fields: {
@@ -27,4 +28,5 @@ export const lists = new sst.aws.Dynamo('Lists', {
     gsi4: { hashKey: 'gsi4pk', projection: 'all' },
   },
   primaryIndex: { hashKey: 'pk', rangeKey: 'sk' },
+  transform: backedUp,
 });

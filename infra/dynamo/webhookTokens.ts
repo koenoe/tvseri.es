@@ -1,4 +1,5 @@
 /// <reference path="../../.sst/platform/config.d.ts" />
+import { backedUp } from './backup';
 
 export const webhookTokens = new sst.aws.Dynamo('WebhookTokens', {
   fields: {
@@ -20,4 +21,5 @@ export const webhookTokens = new sst.aws.Dynamo('WebhookTokens', {
     },
   },
   primaryIndex: { hashKey: 'pk' },
+  transform: backedUp,
 });

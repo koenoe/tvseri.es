@@ -14,11 +14,8 @@ import { Resource } from 'sst';
 
 import client from '@/lib/db/client';
 import { clearSkipped } from '@/lib/db/prefs';
-import {
-  episodeSk,
-  getWatchedEpisodeKeys,
-  markWatchedInBatch,
-} from '@/lib/db/watched';
+import { getWatchedEpisodeKeys, markWatchedInBatch } from '@/lib/db/watched';
+import { episodeSk } from '@/lib/db/watched/keys';
 
 import type { UndoImportMessage } from './undo';
 import { freshUnskipped, recordUnskipped } from './unskipped';

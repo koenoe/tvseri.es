@@ -5,9 +5,9 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import { Resource } from 'sst';
-
 import client from '@/lib/db/client';
 import { queryPages } from '@/lib/db/query';
+import { WATCHED_SK_PREFIX, watchedPk } from '@/lib/db/watched/keys';
 import { createLimiter } from '@/utils/limit';
 
 import { restoreUnskipped } from './unskipped';
@@ -67,8 +67,8 @@ export const undoImport = async (
   for await (const page of queryPages({
     ExpressionAttributeValues: marshall({
       ':importId': importId,
-      ':pk': `USER#${userId}`,
-      ':prefix': 'SERIES#',
+      ':pk': watchedPk(userId),
+      ':prefix': WATCHED_SK_PREFIX,
     }),
     FilterExpression: 'importId = :importId',
     KeyConditionExpression: 'pk = :pk AND begins_with(sk, :prefix)',

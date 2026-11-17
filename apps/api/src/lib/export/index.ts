@@ -16,6 +16,7 @@ import {
 } from '@/lib/db/list/keys';
 import { toSeriesPrefs } from '@/lib/db/prefs';
 import { queryAll } from '@/lib/db/query';
+import { WATCHED_SK_PREFIX } from '@/lib/db/watched/keys';
 import { findWebhookTokenByUserAndType } from '@/lib/db/webhooks';
 import { toCsv } from './csv';
 
@@ -45,7 +46,7 @@ const fetchWatched = async (
   userId: string,
 ): Promise<ReadonlyArray<ExportedWatchedItem>> => {
   const items = await queryAll({
-    ...userKey(Resource.Watched.name, userId, 'SERIES#'),
+    ...userKey(Resource.Watched.name, userId, WATCHED_SK_PREFIX),
     ExpressionAttributeNames: Object.fromEntries(
       WATCHED_ATTRIBUTES.map((name) => [`#${name}`, name]),
     ),

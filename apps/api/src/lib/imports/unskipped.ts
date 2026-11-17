@@ -13,7 +13,8 @@ import { Resource } from 'sst';
 
 import client from '@/lib/db/client';
 import { getSeriesPrefsMany, restoreSkipped } from '@/lib/db/prefs';
-import { episodeSk, getWatchedEpisodeKeys } from '@/lib/db/watched';
+import { getWatchedEpisodeKeys } from '@/lib/db/watched';
+import { episodeSk } from '@/lib/db/watched/keys';
 
 /**
  * The skips an import cleared (writing an episode un-skips it), kept on the

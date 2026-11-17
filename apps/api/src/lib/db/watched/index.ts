@@ -31,11 +31,18 @@ import client from '../client';
 import { countQuery } from '../count';
 import { decodeCursor, encodeCursor } from '../cursor';
 import { type QueryInput, queryPages } from '../query';
-
-const paddedNumber = (value: number) => value.toString().padStart(3, '0');
-
-/** `SERIES#<id>#S<season>#…`: the series and its season of a watched sort key */
-const SERIES_SK = /^SERIES#(\d+)#S(\d{3})#E(\d{3,4})/;
+import {
+  EPISODE_SK,
+  episodeIndexSk,
+  episodeSk,
+  historyIndexPk,
+  seasonIndexPrefix,
+  seriesIndexPk,
+  seriesSkPrefix,
+  seriesSkRange,
+  WATCHED_SK_PREFIX,
+  watchedPk,
+} from './keys';
 
 const BASE_QUERY_CONCURRENCY = 10;
 
@@ -133,14 +140,6 @@ const createWatchedItem = ({
   watchProviderName: watchProvider?.name ?? null,
 });
 
-/** The base-table sort key of one episode */
-export const episodeSk = (
-  seriesId: number | string,
-  seasonNumber: number,
-  episodeNumber: number,
-) =>
-  `SERIES#${seriesId}#S${paddedNumber(seasonNumber)}#E${paddedNumber(episodeNumber)}`;
-
 /**
  * The stored record: the item plus its table and index keys. An undated item
  * ("I don't remember") gets no gsi2 keys, so it's left out of gsi2: history,
@@ -149,13 +148,13 @@ export const episodeSk = (
  */
 const toWatchedRecord = (item: WatchedItem) =>
   marshall({
-    gsi1pk: `USER#${item.userId}#SERIES#${item.seriesId}`,
-    gsi1sk: `S${paddedNumber(item.seasonNumber)}#E${paddedNumber(item.episodeNumber)}`,
+    gsi1pk: seriesIndexPk(item.userId, item.seriesId),
+    gsi1sk: episodeIndexSk(item.seasonNumber, item.episodeNumber),
     ...(!item.dateUnknown && {
-      gsi2pk: `USER#${item.userId}#WATCHED`,
+      gsi2pk: historyIndexPk(item.userId),
       gsi2sk: item.watchedAt,
     }),
-    pk: `USER#${item.userId}`,
+    pk: watchedPk(item.userId),
     sk: episodeSk(item.seriesId, item.seasonNumber, item.episodeNumber),
     ...item,
   });
@@ -204,7 +203,7 @@ export const markWatchedInBatch = async (
 ) => {
   const uniqueCompositeKeys = new Set<string>();
   const uniqueItems = items.filter((item) => {
-    const compositeKey = `USER#${item.userId}#${episodeSk(item.tvSeries.id, item.episode.seasonNumber, item.episode.episodeNumber)}`;
+    const compositeKey = `${watchedPk(item.userId)}#${episodeSk(item.tvSeries.id, item.episode.seasonNumber, item.episode.episodeNumber)}`;
 
     if (uniqueCompositeKeys.has(compositeKey)) {
       return false;
@@ -279,9 +278,7 @@ export const unmarkWatchedInBatch = async (
 ) => {
   const uniqueCompositeKeys = new Set<string>();
   const uniqueItems = items.filter((item) => {
-    const paddedSeason = paddedNumber(item.seasonNumber);
-    const paddedEpisode = paddedNumber(item.episodeNumber);
-    const compositeKey = `USER#${item.userId}#SERIES#${item.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`;
+    const compositeKey = `${watchedPk(item.userId)}#${episodeSk(item.tvSeries.id, item.seasonNumber, item.episodeNumber)}`;
 
     if (uniqueCompositeKeys.has(compositeKey)) {
       return false;
@@ -291,19 +288,14 @@ export const unmarkWatchedInBatch = async (
     return true;
   });
 
-  const deleteRequests = uniqueItems.map((item) => {
-    const paddedSeason = paddedNumber(item.seasonNumber);
-    const paddedEpisode = paddedNumber(item.episodeNumber);
-
-    return {
-      DeleteRequest: {
-        Key: marshall({
-          pk: `USER#${item.userId}`,
-          sk: `SERIES#${item.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
-        }),
-      },
-    };
-  });
+  const deleteRequests = uniqueItems.map((item) => ({
+    DeleteRequest: {
+      Key: marshall({
+        pk: watchedPk(item.userId),
+        sk: episodeSk(item.tvSeries.id, item.seasonNumber, item.episodeNumber),
+      }),
+    },
+  }));
 
   await batchWrite(Resource.Watched.name, deleteRequests);
 };
@@ -317,13 +309,10 @@ export const unmarkWatched = async (
     runtime?: number;
   }>,
 ) => {
-  const paddedSeason = paddedNumber(input.seasonNumber);
-  const paddedEpisode = paddedNumber(input.episodeNumber);
-
   const command = new DeleteItemCommand({
     Key: marshall({
-      pk: `USER#${input.userId}`,
-      sk: `SERIES#${input.tvSeries.id}#S${paddedSeason}#E${paddedEpisode}`,
+      pk: watchedPk(input.userId),
+      sk: episodeSk(input.tvSeries.id, input.seasonNumber, input.episodeNumber),
     }),
     TableName: Resource.Watched.name,
   });
@@ -465,13 +454,15 @@ export const unmarkSeasonWatched = async (
     return;
   }
 
-  const paddedSeason = paddedNumber(input.seasonNumber);
-
   const deleteRequests = items.map((item) => ({
     DeleteRequest: {
       Key: marshall({
-        pk: `USER#${input.userId}`,
-        sk: `SERIES#${input.tvSeries.id}#S${paddedSeason}#E${paddedNumber(item.episodeNumber)}`,
+        pk: watchedPk(input.userId),
+        sk: episodeSk(
+          input.tvSeries.id,
+          input.seasonNumber,
+          item.episodeNumber,
+        ),
       }),
     },
   }));
@@ -578,8 +569,8 @@ export const unmarkTvSeriesWatched = async (
   const deleteRequests = items.map((item) => ({
     DeleteRequest: {
       Key: marshall({
-        pk: `USER#${input.userId}`,
-        sk: `SERIES#${input.tvSeries.id}#S${paddedNumber(item.seasonNumber)}#E${paddedNumber(item.episodeNumber)}`,
+        pk: watchedPk(input.userId),
+        sk: episodeSk(input.tvSeries.id, item.seasonNumber, item.episodeNumber),
       }),
     },
   }));
@@ -604,7 +595,7 @@ type AttributesOption<K extends keyof WatchedItem> = Readonly<{
 // sorted by `S<season>#E<episode>`
 const seriesKeyCondition = (input: SeriesInput) => ({
   ExpressionAttributeValues: marshall({
-    ':pk': `USER#${input.userId}#SERIES#${input.tvSeriesId}`,
+    ':pk': seriesIndexPk(input.userId, input.tvSeriesId),
   }),
   IndexName: 'gsi1',
   KeyConditionExpression: 'gsi1pk = :pk',
@@ -651,9 +642,9 @@ export const getAllWatchedForTvSeries = <
 export const getWatchedCountForTvSeries = async (input: SeriesInput) => {
   return countQuery({
     ExpressionAttributeValues: marshall({
-      ':from': `SERIES#${input.tvSeriesId}#S001`,
-      ':pk': `USER#${input.userId}`,
-      ':to': `SERIES#${input.tvSeriesId}#S999#E999`,
+      ':from': seriesSkRange(input.tvSeriesId, 1).from,
+      ':pk': watchedPk(input.userId),
+      ':to': seriesSkRange(input.tvSeriesId, 1).to,
     }),
     KeyConditionExpression: 'pk = :pk AND sk BETWEEN :from AND :to',
     TableName: Resource.Watched.name,
@@ -726,7 +717,7 @@ async function* readSummaryRows(
         runtime?: number;
         dateUnknown?: boolean;
       }>;
-      const match = SERIES_SK.exec(item.sk);
+      const match = EPISODE_SK.exec(item.sk);
       if (match) {
         yield {
           dateUnknown: item.dateUnknown,
@@ -768,9 +759,9 @@ export const getSeriesWatchSummary = async (
 
   for await (const row of readSummaryRows({
     ExpressionAttributeValues: marshall({
-      ':from': `SERIES#${input.tvSeriesId}#S000`,
-      ':pk': `USER#${input.userId}`,
-      ':to': `SERIES#${input.tvSeriesId}#S999#E999`,
+      ':from': seriesSkRange(input.tvSeriesId, 0).from,
+      ':pk': watchedPk(input.userId),
+      ':to': seriesSkRange(input.tvSeriesId, 0).to,
     }),
     KeyConditionExpression: 'pk = :pk AND #sk BETWEEN :from AND :to',
   })) {
@@ -853,14 +844,11 @@ const getWatchedForSeason = async <
       seasonNumber: number;
     }>,
 ) => {
-  const paddedSeason = paddedNumber(input.seasonNumber);
-
   const command = new QueryCommand({
     ...(input.attributes && projection(input.attributes)),
     ExpressionAttributeValues: marshall({
-      ':pk': `USER#${input.userId}#SERIES#${input.tvSeriesId}`,
-      // With its `#`: season 100's prefix never matches season 1000
-      ':season': `S${paddedSeason}#`,
+      ':pk': seriesIndexPk(input.userId, input.tvSeriesId),
+      ':season': seasonIndexPrefix(input.seasonNumber),
     }),
     IndexName: 'gsi1',
     KeyConditionExpression: 'gsi1pk = :pk AND begins_with(gsi1sk, :season)',
@@ -890,7 +878,7 @@ const datedKeyCondition = ({
       : undefined;
   return {
     ExpressionAttributeValues: marshall({
-      ':pk': `USER#${userId}#WATCHED`,
+      ':pk': historyIndexPk(userId),
       ...range,
     }),
     IndexName: 'gsi2',
@@ -934,8 +922,8 @@ export const getWatched = async <
 // `USER#<userId>` with an `SERIES#...` sort key
 const userKeyCondition = (userId: string) => ({
   ExpressionAttributeValues: marshall({
-    ':pk': `USER#${userId}`,
-    ':prefix': 'SERIES#',
+    ':pk': watchedPk(userId),
+    ':prefix': WATCHED_SK_PREFIX,
   }),
   KeyConditionExpression: 'pk = :pk AND begins_with(sk, :prefix)',
 });
@@ -1017,8 +1005,8 @@ export const getWatchedEpisodeKeys = async (
         for await (const page of queryPages({
           ConsistentRead: true,
           ExpressionAttributeValues: marshall({
-            ':pk': `USER#${userId}`,
-            ':prefix': `SERIES#${seriesId}#`,
+            ':pk': watchedPk(userId),
+            ':prefix': seriesSkPrefix(seriesId),
           }),
           KeyConditionExpression: 'pk = :pk AND begins_with(sk, :prefix)',
           ProjectionExpression: exceptImportId ? 'sk, importId' : 'sk',
@@ -1097,7 +1085,7 @@ export const getMarksByProvider = async ({
       '#w': 'watchedAt',
     },
     ExpressionAttributeValues: marshall({
-      ':pk': `USER#${userId}#WATCHED`,
+      ':pk': historyIndexPk(userId),
       ':provider': providerName,
     }),
     FilterExpression: '#p = :provider',

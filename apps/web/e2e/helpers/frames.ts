@@ -38,7 +38,12 @@ export type Frame = Readonly<{
 
 export type FrameEvent = Readonly<{ type: string; t: number; path: string }>;
 
-type Recording = Readonly<{ events: FrameEvent[]; frames: Frame[] }>;
+type Recording = Readonly<{
+  events: FrameEvent[];
+  frames: Frame[];
+  /** The recorder is still sampling (a window is open) */
+  recording: boolean;
+}>;
 
 /**
  * Runs in the page (serialised by `addInitScript`): no closures, no imports.
@@ -50,7 +55,7 @@ function recorder(windowMs: number) {
   }
   const events: Array<{ type: string; t: number; path: string }> = [];
   const frames: unknown[] = [];
-  w.__frames = { events, frames };
+  w.__frames = { events, frames, recording: false };
   let until = 0;
   let looping = false;
 
@@ -128,14 +133,27 @@ function recorder(windowMs: number) {
     });
   };
 
+  // The window runs `windowMs` past the last change of the routes on
+  // screen too: a navigation that commits late (a slow machine) is still
+  // recorded from its first frame to its rest, not cut off by the clock
+  let lastRoutes = '';
+  const state = w.__frames as { recording: boolean };
   const tick = () => {
     if (document.body) {
       sample();
+      const routes = String(
+        (frames.at(-1) as { routes?: string[] } | undefined)?.routes,
+      );
+      if (routes !== lastRoutes) {
+        lastRoutes = routes;
+        until = Math.max(until, performance.now() + windowMs);
+      }
     }
     if (performance.now() < until) {
       requestAnimationFrame(tick);
     } else {
       looping = false;
+      state.recording = false;
     }
   };
 
@@ -143,6 +161,7 @@ function recorder(windowMs: number) {
     const t = performance.now();
     events.push({ path: location.pathname, t, type });
     until = t + windowMs;
+    state.recording = true;
     if (!looping) {
       looping = true;
       requestAnimationFrame(tick);
@@ -180,9 +199,10 @@ export async function startRecording(page: Page): Promise<void> {
 /** Everything recorded in the current document so far. */
 export function readFrames(page: Page): Promise<Recording> {
   return page.evaluate(() => {
-    const { events, frames } = (window as unknown as { __frames: Recording })
-      .__frames;
-    return { events, frames };
+    const { events, frames, recording } = (
+      window as unknown as { __frames: Recording }
+    ).__frames;
+    return { events, frames, recording };
   });
 }
 

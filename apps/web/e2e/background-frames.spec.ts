@@ -31,19 +31,19 @@ const WINDOW = 1500;
 
 /**
  * The last event's recording window has closed: every frame of it is in (the
- * recorder samples in the page's own time, so this waits for its end, not for
- * a guess of it).
+ * recorder says when it stops, so this waits for its end, not for a guess of
+ * it).
  */
 const windowClosed = (page: Page) =>
   expect
     .poll(
       async () => {
-        const { events, frames } = await readFrames(page);
+        const { events, frames, recording } = await readFrames(page);
         const last = frames.at(-1);
+        // the recorder has stopped: the window ran out, also past the last
+        // change of the routes on screen
         return (
-          last !== undefined &&
-          last.event === events.length - 1 &&
-          last.t >= WINDOW
+          last !== undefined && last.event === events.length - 1 && !recording
         );
       },
       { message: 'the recording window closes' },

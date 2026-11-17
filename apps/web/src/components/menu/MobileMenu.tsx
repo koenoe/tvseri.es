@@ -37,6 +37,8 @@ const PHONE_LOOK: MenuLook = {
  * The header stays above it as the transparent bar. A tap on the glass
  * (anywhere but a word) closes it.
  */
+const GLASS = cn('absolute inset-0', PHONE_GLASS);
+
 export default function MobileMenu({
   model,
   onClose,
@@ -44,7 +46,7 @@ export default function MobileMenu({
   return (
     <div className="fixed inset-0">
       <m.div
-        className={cn('absolute inset-0', PHONE_GLASS)}
+        className={GLASS}
         data-menu-glass=""
         onClick={onClose}
         variants={phoneGlassVariants}

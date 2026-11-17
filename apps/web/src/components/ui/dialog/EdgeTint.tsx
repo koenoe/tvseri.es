@@ -49,14 +49,10 @@ export default function EdgeTint({
  * box at the same edge); a dialog's own strips sit in the top layer, above
  * this one.
  */
+const PAGE_STRIP = cn(STRIP, 'top-0 z-100 bg-page');
+
 export function PageEdgeTint() {
-  return (
-    <div
-      aria-hidden
-      className={cn(STRIP, 'top-0 z-100 bg-page')}
-      data-edge-tint=""
-    />
-  );
+  return <div aria-hidden className={PAGE_STRIP} data-edge-tint="" />;
 }
 
 /**

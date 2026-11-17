@@ -27,10 +27,11 @@ export default function Logo({
     size: LogoSize;
   }
 >) {
+  const classes = cn('shrink-0', SIZES[size], className);
   return (
     <svg
       aria-label="tvseri.es"
-      className={cn('shrink-0', SIZES[size], className)}
+      className={classes}
       fill="currentColor"
       role="img"
       viewBox={LOGO_VIEWBOX}

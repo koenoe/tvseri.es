@@ -61,8 +61,9 @@ export function GhostLine({
   width: string;
 }>) {
   const bar = cn(LINE_BAR, width, inPulse ? SLOT_LOOK[look] : GHOST_LOOK[look]);
+  const line = cn('flex items-center', className);
   return (
-    <span className={cn('flex items-center', className)}>
+    <span className={line}>
       <span className={bar} />
     </span>
   );
@@ -135,14 +136,10 @@ export default function RowGhosts({
  * arrival moves nothing.
  */
 export function TitleGhost({ className }: Readonly<{ className?: string }>) {
-  return (
-    <span
-      aria-hidden
-      className={cn(
-        'inline-block h-5 w-72 max-w-full rounded-6 align-middle md:h-6',
-        GHOST_LOOK.loading,
-        className,
-      )}
-    />
+  const classes = cn(
+    'inline-block h-5 w-72 max-w-full rounded-6 align-middle md:h-6',
+    GHOST_LOOK.loading,
+    className,
   );
+  return <span aria-hidden className={classes} />;
 }

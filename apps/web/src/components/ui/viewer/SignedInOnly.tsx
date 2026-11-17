@@ -41,11 +41,9 @@ export default function SignedInOnly({
     return null;
   }
   if (signedIn) {
+    const shown = cn(DISPLAY[display], className);
     return (
-      <span
-        className={cn(DISPLAY[display], className)}
-        data-placeholder={placeholder}
-      >
+      <span className={shown} data-placeholder={placeholder}>
         {children}
       </span>
     );
@@ -54,12 +52,9 @@ export default function SignedInOnly({
     '--viewer-display': display,
     display: 'none',
   } as CSSProperties;
+  const revealed = cn(className, VIEWER_REVEAL_CLASS);
   return (
-    <span
-      className={cn(className, VIEWER_REVEAL_CLASS)}
-      data-placeholder={placeholder}
-      style={style}
-    >
+    <span className={revealed} data-placeholder={placeholder} style={style}>
       {children}
     </span>
   );

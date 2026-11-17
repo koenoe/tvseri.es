@@ -49,6 +49,10 @@ const FADE = `transition-opacity duration-200 ${EASE} starting:opacity-0 data-cl
 
 const MOTION = `transition-[opacity,scale] duration-500 ${EASE} starting:scale-0 starting:opacity-0 data-closing:scale-[.03] data-closing:opacity-0`;
 
+const DIM = `absolute inset-0 bg-page/70 ${FADE}`;
+
+const PANEL = `remote-surface absolute inset-0 flex flex-col overflow-hidden pt-[env(safe-area-inset-top)] md:inset-x-0 md:top-32 md:bottom-auto md:mx-auto md:w-[672px] md:max-w-[calc(100vw-32px)] md:rounded-16 md:p-2 ${MOTION}`;
+
 /**
  * The search overlay: a native modal
  * `<dialog>` over the page colour at 70%, with the white 672 px panel 128 px
@@ -165,13 +169,9 @@ export default function SearchOverlay({
       onClose={closedByBrowser}
       ref={attach}
     >
+      <div className={DIM} data-closing={closing} data-dialog-backdrop="" />
       <div
-        className={`absolute inset-0 bg-page/70 ${FADE}`}
-        data-closing={closing}
-        data-dialog-backdrop=""
-      />
-      <div
-        className={`remote-surface absolute inset-0 flex flex-col overflow-hidden pt-[env(safe-area-inset-top)] md:inset-x-0 md:top-32 md:bottom-auto md:mx-auto md:w-[672px] md:max-w-[calc(100vw-32px)] md:rounded-16 md:p-2 ${MOTION}`}
+        className={PANEL}
         data-closing={closing}
         onTransitionEnd={faded}
         ref={panelRef}

@@ -18,13 +18,22 @@ const BAR = `block rounded-full ${FILL}`;
 const BAR_TEXT = `${BAR} h-2.5`;
 const BAR_META = `${BAR} h-2`;
 
+/** Each bar's width, as its line's typical text */
+const OVERLINE_BAR = `${BAR_META} w-11`;
+const SHOW_TITLE_BAR = `${BAR_TEXT} w-[70%]`;
+const SHOW_YEAR_BAR = `${BAR_META} w-13`;
+const NAME_LINE = `${LINE} w-[64%]`;
+const NAME_BAR = `${BAR_TEXT} w-full`;
+const ROLE_BAR = `${BAR_META} w-14`;
+const KNOWN_FOR_BAR = `${BAR_META} w-[80%]`;
+
 const range = (n: number) => Array.from({ length: n }, (_, i) => i);
 
 function Overline({ first }: Readonly<{ first: boolean }>) {
   const classes = cn(overlineClasses(first), LINE);
   return (
     <div className={classes}>
-      <span className={`${BAR_META} w-11`} />
+      <span className={OVERLINE_BAR} />
     </div>
   );
 }
@@ -37,10 +46,10 @@ function ShowGhost() {
     <div className={SHOW.tile} data-ghost="show">
       <span className={poster} />
       <span className={title}>
-        <span className={`${BAR_TEXT} w-[70%]`} />
+        <span className={SHOW_TITLE_BAR} />
       </span>
       <MetaRow className={year}>
-        <span className={`${BAR_META} w-13`} />
+        <span className={SHOW_YEAR_BAR} />
       </MetaRow>
     </div>
   );
@@ -56,15 +65,15 @@ function PersonGhost() {
     <div className={PERSON.tile} data-ghost="person">
       <span className={face} />
       <span className={name}>
-        <span className={`${LINE} w-[64%]`}>
-          <span className={`${BAR_TEXT} w-full`} />
+        <span className={NAME_LINE}>
+          <span className={NAME_BAR} />
         </span>
       </span>
       <MetaRow className={role}>
-        <span className={`${BAR_META} w-14`} />
+        <span className={ROLE_BAR} />
       </MetaRow>
       <MetaRow className={knownFor}>
-        <span className={`${BAR_META} w-[80%]`} />
+        <span className={KNOWN_FOR_BAR} />
       </MetaRow>
     </div>
   );

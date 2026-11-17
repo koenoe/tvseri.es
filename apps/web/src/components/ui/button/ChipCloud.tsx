@@ -40,8 +40,9 @@ export default function ChipCloud({
   const plain = chipStyles({
     className: `${CHIP} cursor-default text-white/60 hover:border-white/5`,
   });
+  const cloud = cn(CLOUD, className);
   return (
-    <ul aria-label={label} className={cn(CLOUD, className)} data-slot={slot}>
+    <ul aria-label={label} className={cloud} data-slot={slot}>
       {chips.map((chip) => (
         <li key={chip.key}>
           {chip.href ? (
@@ -77,15 +78,13 @@ export function ChipCloudGhost({
 }>) {
   const loading = look === 'loading';
   const fill = loading ? GHOST_FILL : GHOST_LOOK.failed;
+  const cloud = cn(CLOUD, loading && 'animate-ghost', className);
   return (
-    <ul
-      aria-hidden="true"
-      className={cn(CLOUD, loading && 'animate-ghost', className)}
-      data-placeholder={name}
-    >
-      {widths.map((width, index) => (
-        <li className={cn('h-[38px] rounded-full', fill, width)} key={index} />
-      ))}
+    <ul aria-hidden="true" className={cloud} data-placeholder={name}>
+      {widths.map((width, index) => {
+        const chip = cn('h-[38px] rounded-full', fill, width);
+        return <li className={chip} key={index} />;
+      })}
     </ul>
   );
 }

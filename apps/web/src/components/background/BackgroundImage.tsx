@@ -54,6 +54,10 @@ export default function BackgroundImage({
     priority ? 'eager' : 'lazy',
   );
   const fetchPriority = priority ? 'high' : 'auto';
+  const classes = cn(
+    'relative h-full w-full select-none object-cover object-top',
+    className,
+  );
 
   if (priority) {
     // `preload` dedupes within a request on its own (React keys image preloads
@@ -73,10 +77,7 @@ export default function BackgroundImage({
     <img
       {...rest}
       alt=""
-      className={cn(
-        'relative h-full w-full select-none object-cover object-top',
-        className,
-      )}
+      className={classes}
       decoding="async"
       draggable={false}
       fetchPriority={fetchPriority}

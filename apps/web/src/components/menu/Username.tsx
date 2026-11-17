@@ -23,6 +23,10 @@ const TEXT = cn(
 // when the bar is narrower (min-w-0 lets it shrink in the header's row)
 const NAME = 'min-w-0 truncate max-w-[150px] md:max-w-[200px]';
 
+const SIGN_IN = cn('block', TEXT);
+const HANDLE = cn('hidden before:content-(--viewer-handle)', TEXT, NAME);
+const PROFILE_LINK = cn('block', TEXT, NAME);
+
 const signedOutOnly = { [SIGNED_OUT_ONLY]: '' };
 const signedInOnly = { [SIGNED_IN_ONLY]: '' };
 
@@ -42,26 +46,19 @@ export default function Username() {
   if (username === undefined) {
     return (
       <span className="contents" data-viewer-pending="">
-        <SignInLink className={cn('block', TEXT)} {...signedOutOnly} />
-        <span
-          aria-hidden="true"
-          className={cn('hidden before:content-(--viewer-handle)', TEXT, NAME)}
-          {...signedInOnly}
-        />
+        <SignInLink className={SIGN_IN} {...signedOutOnly} />
+        <span aria-hidden="true" className={HANDLE} {...signedInOnly} />
       </span>
     );
   }
 
   if (!username) {
-    return <SignInLink className={cn('block', TEXT)} onClick={closeMenu} />;
+    return <SignInLink className={SIGN_IN} onClick={closeMenu} />;
   }
 
+  const href = profilePath(username);
   return (
-    <Link
-      className={cn('block', TEXT, NAME)}
-      href={profilePath(username)}
-      onClick={closeMenu}
-    >
+    <Link className={PROFILE_LINK} href={href} onClick={closeMenu}>
       {username}
     </Link>
   );

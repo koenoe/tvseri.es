@@ -66,13 +66,17 @@ export default function MarkControlRow({
     }
   }, [pairShown]);
   const classes = cn(ROW, fadeIn && LATE_FADE);
+  const pairLayer = layer(pairShown);
+  const singleLayer = cn('flex', layer(!pairShown));
+  const pairHidden = !pairShown || undefined;
+  const singleHidden = pairShown || undefined;
   return (
     <span className={classes} data-mark-control={state.kind} ref={row}>
       {/* keyed by the series: another series (the decade card's next
           tile) swaps at once, a press on this one crossfades */}
       <span
-        aria-hidden={!pairShown || undefined}
-        className={layer(pairShown)}
+        aria-hidden={pairHidden}
+        className={pairLayer}
         data-layer="pair"
         key={`pair-${show.id}`}
       >
@@ -80,8 +84,8 @@ export default function MarkControlRow({
       </span>
       {drawn ? (
         <span
-          aria-hidden={pairShown || undefined}
-          className={cn('flex', layer(!pairShown))}
+          aria-hidden={singleHidden}
+          className={singleLayer}
           data-layer="single"
           key={`single-${show.id}`}
         >

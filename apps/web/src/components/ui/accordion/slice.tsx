@@ -76,20 +76,19 @@ export function SliceBackdrop({
   const veil = dim
     ? 'opacity-[0.68] group-data-[open=true]/fv:opacity-[0.28]'
     : 'opacity-50 group-data-[open=true]/fv:opacity-20';
+  const imageClass = `object-cover ${saturation}`;
+  const veilClass = `absolute inset-0 bg-black transition-opacity duration-500 ${veil}`;
   return (
     <>
       <Image
         alt=""
-        className={`object-cover ${saturation}`}
+        className={imageClass}
         fill
         loading={loading}
         sizes="(min-width: 1280px) 520px, 100vw"
         src={src}
       />
-      <span
-        aria-hidden="true"
-        className={`absolute inset-0 bg-black transition-opacity duration-500 ${veil}`}
-      />
+      <span aria-hidden="true" className={veilClass} />
     </>
   );
 }
@@ -113,13 +112,8 @@ export function SliceRing({ dim }: Readonly<{ dim?: boolean }>) {
   const ring = dim
     ? 'shadow-[inset_0_0_0_1px_rgb(221_238_255/0.05)]'
     : 'shadow-[inset_0_0_0_1px_rgb(221_238_255/0.08)]';
-  return (
-    <span
-      aria-hidden="true"
-      className={`pointer-events-none absolute inset-0 rounded-12 transition-opacity duration-200 group-data-[moving=true]/fv:opacity-0 group-data-[moving=true]/fv:duration-0 ${ring}`}
-      data-hairline
-    />
-  );
+  const ringClass = `pointer-events-none absolute inset-0 rounded-12 transition-opacity duration-200 group-data-[moving=true]/fv:opacity-0 group-data-[moving=true]/fv:duration-0 ${ring}`;
+  return <span aria-hidden="true" className={ringClass} data-hairline />;
 }
 
 /** The open slice's content: title treatment, facts, an action */
@@ -132,13 +126,8 @@ export function SliceFull({
   interactive?: boolean;
 }>) {
   const layer = interactive ? 'pointer-events-none z-3' : 'z-1';
-  return (
-    <span
-      className={`${layer} absolute top-0 right-4 left-4 flex h-[284px] translate-y-1.5 flex-col items-start justify-end gap-[18px] opacity-0 transition-[opacity,translate] duration-300 xl:top-auto xl:right-auto xl:bottom-[26px] xl:left-6 xl:h-auto xl:w-[440px] group-data-[open=true]/fv:translate-y-0 group-data-[open=true]/fv:opacity-100 group-data-[open=true]/fv:delay-150`}
-    >
-      {children}
-    </span>
-  );
+  const classes = `${layer} absolute top-0 right-4 left-4 flex h-[284px] translate-y-1.5 flex-col items-start justify-end gap-[18px] opacity-0 transition-[opacity,translate] duration-300 xl:top-auto xl:right-auto xl:bottom-[26px] xl:left-6 xl:h-auto xl:w-[440px] group-data-[open=true]/fv:translate-y-0 group-data-[open=true]/fv:opacity-100 group-data-[open=true]/fv:delay-150`;
+  return <span className={classes}>{children}</span>;
 }
 
 /** The open slice's title treatment (240 × 80), or its name when it has none */
@@ -176,11 +165,6 @@ export function SliceCorner({
     side === 'left'
       ? 'left-4 duration-200'
       : 'right-4 duration-0 group-data-[open=true]/fv:delay-150';
-  return (
-    <span
-      className={`invisible absolute top-4 ${place} z-3 opacity-0 transition-[opacity,visibility] group-data-[open=true]/fv:visible group-data-[open=true]/fv:opacity-100 group-data-[open=true]/fv:duration-300`}
-    >
-      {children}
-    </span>
-  );
+  const classes = `invisible absolute top-4 ${place} z-3 opacity-0 transition-[opacity,visibility] group-data-[open=true]/fv:visible group-data-[open=true]/fv:opacity-100 group-data-[open=true]/fv:duration-300`;
+  return <span className={classes}>{children}</span>;
 }

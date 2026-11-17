@@ -4,6 +4,9 @@ import cn from '@/lib/cn';
 
 import { OWNER_VARIANT_CLASS, VISITOR_VARIANT_CLASS } from './ownerVisitorRule';
 
+const OWNER = cn(OWNER_VARIANT_CLASS, 'contents');
+const VISITOR = cn(VISITOR_VARIANT_CLASS, 'hidden');
+
 /**
  * Both variants of a placeholder (or any shell part that differs for the
  * owner and a visitor), one shown before the first paint (see
@@ -17,8 +20,8 @@ export default function OwnerVisitor({
 }: Readonly<{ owner: ReactNode; visitor: ReactNode }>) {
   return (
     <>
-      <div className={cn(OWNER_VARIANT_CLASS, 'contents')}>{owner}</div>
-      <div className={cn(VISITOR_VARIANT_CLASS, 'hidden')}>{visitor}</div>
+      <div className={OWNER}>{owner}</div>
+      <div className={VISITOR}>{visitor}</div>
     </>
   );
 }

@@ -53,6 +53,13 @@ const PANEL_LOOK: MenuLook = {
  * out (`SIDE_MOTION`), and a click on the dimmed page closes it. The header
  * stays above it, live (the menu's toggle is its ✕).
  */
+const DIM = cn('fixed inset-0', BACKDROP.side);
+
+const PANEL = cn(
+  'fixed inset-y-0 right-0 flex w-[380px] flex-col pt-[120px] pr-12 pb-7 pl-14 shadow-[-1px_0_0_rgb(255_255_255/0.1),-24px_0_48px_rgb(0_0_0/0.28)] xl:w-[420px]',
+  MENU_GLASS,
+);
+
 export default function DesktopMenu({
   model,
   onClose,
@@ -60,19 +67,12 @@ export default function DesktopMenu({
   return (
     <>
       <m.div
-        className={cn('fixed inset-0', BACKDROP.side)}
+        className={DIM}
         data-menu-dim=""
         onClick={onClose}
         variants={SCRIM_VARIANTS}
       />
-      <m.div
-        className={cn(
-          'fixed inset-y-0 right-0 flex w-[380px] flex-col pt-[120px] pr-12 pb-7 pl-14 shadow-[-1px_0_0_rgb(255_255_255/0.1),-24px_0_48px_rgb(0_0_0/0.28)] xl:w-[420px]',
-          MENU_GLASS,
-        )}
-        data-menu-panel=""
-        variants={PANEL_VARIANTS}
-      >
+      <m.div className={PANEL} data-menu-panel="" variants={PANEL_VARIANTS}>
         <nav aria-label="Main" className="flex min-h-0 flex-1 flex-col">
           <MenuGroups look={PANEL_LOOK} model={model} onNavigate={onClose} />
         </nav>

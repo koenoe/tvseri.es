@@ -172,6 +172,10 @@ export type PersonSpouse = Readonly<{
   /** Years of the marriage; no `endYear` = still married as far as known */
   startYear?: number;
   endYear?: number;
+  /** TMDB person id, only when Wikidata knows it (P4985) */
+  tmdbId?: number;
+  /** Person-page slug, only with `tmdbId` */
+  slug?: string;
 }>;
 
 export type PersonChild = Readonly<{

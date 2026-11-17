@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { db } from './db';
-import { onGet, onTmdb } from './fakeHttp';
+import { onGet, onTmdb, requestedUrls } from './fakeHttp';
 import { request } from './request';
 
 describe('B21a person external ids (socials)', () => {
@@ -1020,6 +1020,67 @@ describe('B21e family and awards (Wikidata)', () => {
     expect(body.family.children).toEqual([
       { id: 'Q31', name: 'Kim Kid', relation: 'son' },
     ]);
+  });
+
+  it('asks Wikidata for the TMDB id of spouses as well as children', async () => {
+    withPerson();
+    withRows([]);
+
+    await request('/person/17419/family-and-awards');
+
+    const query =
+      requestedUrls()
+        .find((url) => url.host === 'query.wikidata.org')
+        ?.searchParams.get('query') ?? '';
+    const branches = query.split('} UNION {');
+    const spouseBranch = branches.find((part) => part.includes('"spouse"'));
+    const childBranch = branches.find((part) => part.includes('"child"'));
+    expect(spouseBranch).toContain('OPTIONAL { ?item wdt:P4985 ?tmdb. }');
+    expect(childBranch).toContain('OPTIONAL { ?item wdt:P4985 ?tmdb. }');
+  });
+
+  it('links a spouse to their person page only when TMDB knows them', async () => {
+    withPerson();
+    onTmdb('/person/1234', { id: 1234, name: 'Robin Dearden Cranston' });
+    const married = { start: '1989-01-01T00:00:00Z' };
+    withRows([
+      spouse('Q11', 'Robin Dearden', { ...married, tmdb: 'abc' }),
+      spouse('Q11', 'Robin Dearden', { ...married, tmdb: '1234' }),
+      spouse('Q11', 'Robin Dearden', { ...married, tmdb: '5678' }),
+      spouse('Q12', 'Mickey Middleton', {
+        end: '1982-01-01T00:00:00Z',
+        start: '1977-01-01T00:00:00Z',
+      }),
+    ]);
+
+    const response = await request('/person/17419/family-and-awards');
+
+    const body = (await response.json()) as {
+      family: { spouses: unknown[] };
+    };
+    expect(body.family.spouses).toEqual([
+      { endYear: 1982, id: 'Q12', name: 'Mickey Middleton', startYear: 1977 },
+      {
+        id: 'Q11',
+        name: 'Robin Dearden',
+        slug: 'robin-dearden-cranston',
+        startYear: 1989,
+        tmdbId: 1234,
+      },
+    ]);
+  });
+
+  it('leaves a spouse unlinked when TMDB does not know the id', async () => {
+    withPerson();
+    onTmdb('/person/4321', null, { status: 404 });
+    withRows([spouse('Q31', 'Kim Spouse', { tmdb: '4321' })]);
+
+    const response = await request('/person/17419/family-and-awards');
+
+    const body = (await response.json()) as {
+      family: { spouses: unknown[] };
+    };
+    expect(body.family.spouses).toEqual([{ id: 'Q31', name: 'Kim Spouse' }]);
   });
 
   it('shows only what is present: no family, no awards', async () => {

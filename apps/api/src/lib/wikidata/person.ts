@@ -20,8 +20,8 @@ const MALE = 'Q6581097';
 
 /**
  * One query for the whole person: spouse (P26, with start/end), child (P40,
- * with sex and TMDB id P4985), awards received (P166) and nominated for (P1411), matched on the
- * IMDb id (P345). `imdbId` must be validated (`nm` + digits).
+ * with sex), both with their TMDB id (P4985), awards received (P166) and
+ * nominated for (P1411), matched on the IMDb id (P345). `imdbId` must be validated (`nm` + digits).
  */
 export const buildPersonQuery = (imdbId: string) => `
 SELECT ?kind ?item ?itemLabel ?start ?end ?sex ?tmdb ?year ?workLabel WHERE {
@@ -30,6 +30,7 @@ SELECT ?kind ?item ?itemLabel ?start ?end ?sex ?tmdb ?year ?workLabel WHERE {
     ?person p:P26 ?st. ?st ps:P26 ?item.
     OPTIONAL { ?st pq:P580 ?start. }
     OPTIONAL { ?st pq:P582 ?end. }
+    OPTIONAL { ?item wdt:P4985 ?tmdb. }
     BIND("spouse" AS ?kind)
   } UNION {
     ?person wdt:P40 ?item.
@@ -87,6 +88,17 @@ const numericId = (value?: string) =>
 // No English label: the service falls back to the Q-id; never show that
 const isLabelled = (label?: string) => !!label && !/^Q\d+$/.test(label);
 
+/**
+ * Several P4985 values give several rows per person: keep the first numeric
+ * one. The route swaps the slug for TMDB's own.
+ */
+const tmdbLink = (name: string, known: number | undefined, row: Binding) => {
+  const tmdbId = known ?? numericId(row.tmdb?.value);
+  return tmdbId
+    ? { slug: slugify(name, { lower: true, strict: true }), tmdbId }
+    : undefined;
+};
+
 const toFamily = (rows: ReadonlyArray<Binding>) => {
   const spouses = new Map<string, PersonSpouse>();
   const children = new Map<string, PersonChild>();
@@ -104,19 +116,15 @@ const toFamily = (rows: ReadonlyArray<Binding>) => {
         name: name as string,
         ...(startYear && { startYear }),
         ...(endYear && { endYear }),
+        ...tmdbLink(name as string, spouses.get(id)?.tmdbId, row),
       });
     } else if (row.kind?.value === 'child') {
       const sex = qid(row.sex?.value);
-      // Several P4985 values give several rows per child: keep the first numeric one
-      const tmdbId = children.get(id)?.tmdbId ?? numericId(row.tmdb?.value);
       children.set(id, {
         id,
         name: name as string,
         relation: sex === FEMALE ? 'daughter' : sex === MALE ? 'son' : 'child',
-        ...(tmdbId && {
-          slug: slugify(name as string, { lower: true, strict: true }),
-          tmdbId,
-        }),
+        ...tmdbLink(name as string, children.get(id)?.tmdbId, row),
       });
     }
   }

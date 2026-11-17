@@ -19,23 +19,32 @@ import { cacheHeader } from '@/utils/cacheHeader';
 import { IdParamSchema } from '@/utils/params';
 
 /**
- * A child links to their person page with TMDB's own slug (the page's
- * canonical one), so the link never costs a redirect; a child TMDB doesn't
- * know is plain text.
+ * A spouse or child links to their person page with TMDB's own slug (the
+ * page's canonical one), so the link never costs a redirect; one TMDB
+ * doesn't know is plain text.
  */
+const withTmdbSlug = async <
+  T extends Readonly<{ slug?: string; tmdbId?: number }>,
+>({
+  slug: _,
+  tmdbId,
+  ...person
+}: T) => {
+  const found = tmdbId ? await fetchPerson(tmdbId) : undefined;
+  return found ? { ...person, slug: found.slug, tmdbId } : person;
+};
+
 const withTmdbSlugs = async (
   family: PersonFamily | null,
 ): Promise<PersonFamily | null> => {
   if (!family) {
     return family;
   }
-  const children = await Promise.all(
-    family.children.map(async ({ slug: _, tmdbId, ...child }) => {
-      const found = tmdbId ? await fetchPerson(tmdbId) : undefined;
-      return found ? { ...child, slug: found.slug, tmdbId } : child;
-    }),
-  );
-  return { ...family, children };
+  const [spouses, children] = await Promise.all([
+    Promise.all(family.spouses.map(withTmdbSlug)),
+    Promise.all(family.children.map(withTmdbSlug)),
+  ]);
+  return { children, spouses };
 };
 
 const app = new Hono();

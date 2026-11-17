@@ -1,20 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { weekRange, yearBars } from './yearBars';
+import { yearBars } from './yearBars';
 
 const utc = (iso: string) => Date.parse(`${iso}T12:00:00Z`);
-
-describe('weekRange', () => {
-  it('runs Monday to Sunday', () => {
-    expect(weekRange(2026, 1)).toBe('Jan 5 – Jan 11');
-    expect(weekRange(2026, 8)).toBe('Feb 23 – Mar 1');
-  });
-
-  it('cuts the first and last week at the year', () => {
-    expect(weekRange(2026, 0)).toBe('Jan 1 – Jan 4');
-    expect(weekRange(2026, 52)).toBe('Dec 28 – Dec 31');
-  });
-});
 
 describe('yearBars', () => {
   const now = utc('2026-01-14');

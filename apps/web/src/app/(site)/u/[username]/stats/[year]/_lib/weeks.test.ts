@@ -9,9 +9,26 @@ import {
 } from './weeks';
 
 describe('weeks', () => {
-  it('labels a week as the bars’ tooltips do', () => {
-    expect(weekLabel(2025, 0)).toBe('Dec 30, 2024 – Jan 5');
+  it('labels a week Monday to Sunday', () => {
     expect(weekLabel(2025, 1)).toBe('Jan 6 – Jan 12');
+    expect(weekLabel(2026, 1)).toBe('Jan 5 – Jan 11');
+    expect(weekLabel(2026, 8)).toBe('Feb 23 – Mar 1');
+  });
+
+  it('labels the days a bar counts: the year’s own, week 0 from 1 January', () => {
+    // ISO week 1 starts in December: cut at the year
+    expect(weekLabel(2025, 0)).toBe('Jan 1 – Jan 5');
+    expect(weekLabel(2026, 0)).toBe('Jan 1 – Jan 4');
+    // ISO week 1 starts on 4 January: 1–3 January count in week 0 too
+    expect(weekLabel(2021, 0)).toBe('Jan 1 – Jan 10');
+    expect(weekLabel(2027, 0)).toBe('Jan 1 – Jan 10');
+  });
+
+  it('ends the last weeks on 31 December', () => {
+    expect(weekLabel(2026, 52)).toBe('Dec 28 – Dec 31');
+    expect(weekLabel(2025, 51)).toBe('Dec 22 – Dec 28');
+    expect(weekLabel(2025, 52)).toBe('Dec 29 – Dec 31');
+    expect(weekLabel(2021, 51)).toBe('Dec 27 – Dec 31');
   });
 
   it('finds the week of a moment', () => {
@@ -48,6 +65,6 @@ describe('weeks', () => {
 
   it('has a 53rd week in a long ISO year', () => {
     expect(weekIndexAt(Date.parse('2026-12-31T20:00:00Z'), 2026)).toBe(52);
-    expect(weekLabel(2026, 52)).toBe('Dec 28 – Jan 3, 2027');
+    expect(weekLabel(2026, 52)).toBe('Dec 28 – Dec 31');
   });
 });

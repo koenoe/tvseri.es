@@ -25,10 +25,24 @@ const day = (ms: number, year: number) => {
     : formatMonthDayYear(date);
 };
 
-/** "Jan 6 – Jan 12", "Dec 30, 2024 – Jan 5" (the bars' tooltips) */
+/**
+ * The days a week's bar counts: Monday to Sunday, cut at the year (a year's
+ * stats hold only its own days), with the days before ISO week 1 in week 0
+ * and the days after the last week in week 52, as `yearWeekIndex` counts.
+ * "Jan 1 – Jan 4", "Jan 5 – Jan 11", "Dec 28 – Dec 31" (2026); the bars'
+ * tooltips on the profile and on Stats.
+ */
 export function weekLabel(year: number, index: number): string {
-  const start = weekStart(year, index);
-  return `${day(start, year)} – ${day(start + 6 * DAY_MS, year)}`;
+  const yearStart = Date.UTC(year, 0, 1);
+  const yearEnd = Date.UTC(year, 11, 31);
+  const monday = weekStart(year, index);
+  const to =
+    index >= WEEKS - 1 ? yearEnd : Math.min(yearEnd, monday + 6 * DAY_MS);
+  const from =
+    index === 0 ? yearStart : Math.min(to, Math.max(yearStart, monday));
+  return from === to
+    ? day(from, year)
+    : `${day(from, year)} – ${day(to, year)}`;
 }
 
 /**

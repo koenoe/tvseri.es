@@ -6,13 +6,11 @@
  * are UTC.
  */
 
-import { firstMondayOf, yearWeekIndex } from '@tvseri.es/utils';
-import { dayMonth, utcParts } from '@/lib/format/date';
+import { yearWeekIndex } from '@tvseri.es/utils';
 import { plural } from '@/lib/format/text';
 import { scaledHeight } from '@/lib/scaledHeight';
+import { weekLabel } from '../../../../stats/[year]/_lib/weeks';
 
-const DAY_MS = 86_400_000;
-const WEEK_DAYS = 7;
 /** The chart is 56px high; an empty week still shows a 4px stub */
 const BAR_AREA = 56;
 const BAR_MIN = 4;
@@ -28,24 +26,6 @@ export type YearBar = Readonly<{
   height: number;
   current: boolean;
 }>;
-
-const short = (ms: number) => {
-  const date = new Date(ms);
-  return dayMonth(utcParts(date));
-};
-
-/** "Mar 2 – Mar 8": the Monday to Sunday of a week index, cut at the year's edges */
-export function weekRange(year: number, index: number): string {
-  const firstMonday = firstMondayOf(year);
-  const yearStart = Date.UTC(year, 0, 1);
-  const yearEnd = Date.UTC(year, 11, 31);
-  const from = Math.max(yearStart, firstMonday + index * WEEK_DAYS * DAY_MS);
-  const to = Math.min(
-    yearEnd,
-    firstMonday + (index * WEEK_DAYS + (WEEK_DAYS - 1)) * DAY_MS,
-  );
-  return `${short(from)} – ${short(to)}`;
-}
 
 const countLabel = (count: number) => plural(count, 'episode');
 
@@ -65,7 +45,7 @@ export function yearBars(
   const busiest = Math.max(1, ...counts);
   return counts.map((count, index) => {
     const current = index === last;
-    const range = current ? 'This week' : weekRange(year, index);
+    const range = current ? 'This week' : weekLabel(year, index);
     const text = countLabel(count);
     return {
       count: text,

@@ -71,4 +71,13 @@ describe('lens tabs (APG tabs)', () => {
     expect(tab('Country').getAttribute('aria-selected')).toBe('true');
     expect(screen.getByRole('tabpanel', { name: 'Country' })).toBeTruthy();
   });
+
+  it('fades the tiles up only once the viewer switches lens, never on the first paint', () => {
+    renderLenses();
+    const shown = screen.getByRole('tabpanel', { name: 'Duration' });
+    expect(shown.hasAttribute('data-fade')).toBe(false);
+    fireEvent.click(tab('Country'));
+    const switched = screen.getByRole('tabpanel', { name: 'Country' });
+    expect(switched.hasAttribute('data-fade')).toBe(true);
+  });
 });

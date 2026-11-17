@@ -6,8 +6,9 @@ export const LENS_GRID =
 
 /**
  * A lens tile's box: radius 14
- * (12 on phones), the first tile big. It fades up when its grid appears
- * (opacity and an 8px rise, nothing else animates).
+ * (12 on phones), the first tile big. It fades up (opacity and an 8px
+ * rise) when the viewer switches to its grid (`data-fade`), never on the
+ * first paint: there the fade only held back the page's largest paint.
  */
 export const lensTileStyles = ({
   calm,
@@ -15,7 +16,7 @@ export const lensTileStyles = ({
 }: Readonly<{ calm: boolean; first: boolean }>) =>
   cn(
     'group/tile relative block cursor-pointer overflow-hidden rounded-12 bg-[#232a2b] text-left text-white md:rounded-14',
-    'transition-[opacity,translate] duration-450 ease-[cubic-bezier(0.2,0.8,0.2,1)] starting:translate-y-2 starting:opacity-0',
+    'transition-[opacity,translate] duration-450 ease-[cubic-bezier(0.2,0.8,0.2,1)] in-data-fade:starting:translate-y-2 in-data-fade:starting:opacity-0',
     calm && 'bg-white/4',
     first
       ? 'col-span-2 h-47.5 md:col-span-1 md:row-span-2 md:h-auto'

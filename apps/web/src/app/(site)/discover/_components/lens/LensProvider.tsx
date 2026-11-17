@@ -9,6 +9,8 @@ type LensState = Readonly<{
   lens: LensKey;
   /** the open in-place row's key, or null */
   open: string | null;
+  /** the viewer has switched lens: from then on a shown grid fades up */
+  switched: boolean;
   selectLens: (lens: LensKey) => void;
   /** opens a tile's row, or closes it when it is the open one */
   toggleRow: (row: string) => void;
@@ -24,8 +26,9 @@ const createLensStore = (): LensStore =>
     closeRow: () => set({ open: null }),
     lens: 'duration',
     open: null,
-    openRow: (lens, row) => set({ lens, open: row }),
-    selectLens: (lens) => set({ lens, open: null }),
+    openRow: (lens, row) => set({ lens, open: row, switched: true }),
+    selectLens: (lens) => set({ lens, open: null, switched: true }),
+    switched: false,
     toggleRow: (row) =>
       set((current) => ({ open: current.open === row ? null : row })),
   }));

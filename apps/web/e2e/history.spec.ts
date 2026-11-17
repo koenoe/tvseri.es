@@ -292,6 +292,47 @@ test('Tap sets a date opens the picker; a choice applies', async ({ page }) => {
   ).toBeVisible();
 });
 
+test('the whole series’ calendar dates every aired episode with the picked day', async ({
+  page,
+}) => {
+  // A viewer with nothing tracked: every aired episode is open
+  await signInAs(page.context(), 'nina');
+  await page.goto(`${SHOW}?history`);
+  await sheet(page)
+    .getByRole('button', { name: 'When did you watch The Bear?' })
+    .click();
+  const picker = page.getByRole('dialog', {
+    name: 'When did you watch The Bear?',
+  });
+  await expect(picker).toBeVisible();
+  await expect(
+    picker.getByText(/^One date for all \d+ episodes$/),
+  ).toBeVisible();
+  // The 15th of last month: always in the past, never today
+  await picker.getByRole('button', { name: /previous month/i }).click();
+  await picker
+    .locator('[role="gridcell"]:not([data-outside]) button', {
+      hasText: /^15$/,
+    })
+    .click();
+  await expect(picker).toBeHidden();
+  await expect(page.getByText(/^Marked the whole series/)).toBeVisible();
+
+  const regular = sheet(page).getByRole('button', { name: /^S0[1-9]E\d\d/ });
+  await expect(regular.first()).toHaveAttribute('aria-pressed', 'true');
+  const names = await regular.evaluateAll((chips) =>
+    chips.map(
+      (chip) =>
+        chip.getAttribute('aria-label') ?? chip.getAttribute('title') ?? '',
+    ),
+  );
+  const aired = names.filter((name) => !/ · (Airs |Not aired yet)/.test(name));
+  expect(aired.length).toBeGreaterThan(0);
+  for (const name of aired) {
+    expect(name).toMatch(/ · \D*\b15\b[^·]*, 21:00$/);
+  }
+});
+
 test('Up to here opens I’m up to… and marks up to the target', async ({
   page,
 }) => {

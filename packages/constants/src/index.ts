@@ -55,17 +55,18 @@ export { MAX_TMDB_ID_DIGITS, TMDB_ID_PATTERN } from './tmdbId';
 export { MAX_EPISODES_PER_SERIES_MARK } from './watched';
 export { WEB_VITALS_SAMPLE_RATE } from './webVitals';
 
-export const WATCH_PROVIDER_PREDEFINED_COLOR: Record<string, string> = {
-  'Amazon Prime Video': '#00A8E1',
-  'BBC iPlayer': '#FF4E98',
-  'Disney+': '#0E47BA',
-  ITVX: '#102C3D',
-  Netflix: '#E50914',
-  'Now TV': '#00818A',
-  Unknown: '#000000',
-};
+export const WATCH_PROVIDER_PREDEFINED_COLOR: Readonly<Record<string, string>> =
+  {
+    'Amazon Prime Video': '#00A8E1',
+    'BBC iPlayer': '#FF4E98',
+    'Disney+': '#0E47BA',
+    ITVX: '#102C3D',
+    Netflix: '#E50914',
+    'Now TV': '#00818A',
+    Unknown: '#000000',
+  };
 
-export const WATCH_PROVIDER_PRIORITY: Record<string, number> = {
+export const WATCH_PROVIDER_PRIORITY: Readonly<Record<string, number>> = {
   'Apple TV+': -5,
   'BBC iPlayer': -10,
   Netflix: 0,

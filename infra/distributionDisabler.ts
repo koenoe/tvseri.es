@@ -105,7 +105,6 @@ const killSwitchSnsTopic = new sst.aws.SnsTopic(
 
 // Subscribe the kill switch Lambda to the SNS topic
 killSwitchSnsTopic.subscribe('KillSwitchSubscription', {
-  architecture: 'arm64',
   handler:
     'packages/kill-switch/disable-cloudfront-distributions/index.handler',
   permissions: [
@@ -156,7 +155,6 @@ new sst.aws.Cron(
   'MonitorCloudFrontMetrics',
   {
     function: {
-      architecture: 'arm64',
       handler: 'packages/kill-switch/metrics-monitor/index.handler',
       link: [killSwitchSnsTopic],
       permissions: [

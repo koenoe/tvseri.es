@@ -62,7 +62,6 @@ alarmOnDeadLetters('WatchedSubscriberDLQ', watchedSubscriberDlq);
 watched.subscribe(
   'WatchedSubscriber',
   {
-    architecture: 'arm64',
     // Caps parallel TMDB/DynamoDB fan-out from stream shards.
     concurrency: {
       reserved: productionReserved($app.stage, 10),
@@ -80,7 +79,6 @@ watched.subscribe(
       secrets.tmdbApiKey,
     ],
     memory: '512 MB',
-    runtime: 'nodejs24.x',
     timeout: '30 seconds',
   },
   {

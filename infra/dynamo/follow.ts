@@ -63,11 +63,9 @@ alarmOnDeadLetters('FollowSubscriberDLQ', followSubscriberDlq);
 follow.subscribe(
   'FollowSubscriber',
   {
-    architecture: 'arm64',
     handler: 'apps/api/src/lambdas/follow.handler',
     link: [followSubscriberDlq, users],
     memory: '256 MB',
-    runtime: 'nodejs24.x',
     timeout: '10 seconds',
   },
   {

@@ -176,14 +176,18 @@ export function createMarkingCommands(deps: MarkingDeps) {
   }
 
   /**
-   * A new watch brings a show hidden in this tab back (the API unhides it
-   * in the same request): at once, and hidden again when nothing of it
-   * saved. A show hidden before this tab is out of every list it draws
-   * already. Returns the rollback.
+   * A new watch of a regular episode brings a show hidden in this tab back
+   * (the API unhides it in the same request): at once, and hidden again
+   * when nothing of it saved. A show hidden before this tab is out of every
+   * list it draws already. Returns the rollback.
    */
   function unhideFor(seriesId: number, ops: ReadonlyArray<MarkingOp>) {
     const watches = (list: ReadonlyArray<MarkingOp>) =>
-      list.some((op) => op.kind === 'mark');
+      list.some(
+        (op) =>
+          op.kind === 'mark' &&
+          regularWatchedCount({ watched: op.records }) > 0,
+      );
     if (store.getState().hidden[seriesId] !== true || !watches(ops)) {
       return () => {};
     }
@@ -694,7 +698,10 @@ export function createMarkingCommands(deps: MarkingDeps) {
       store.getState().seed(result.data.seed, JSON.stringify(result.data.seed));
       if (result.data.episode) {
         store.getState().countSaved(1);
-        if (store.getState().hidden[seriesId] === true) {
+        if (
+          result.data.episode.seasonNumber > 0 &&
+          store.getState().hidden[seriesId] === true
+        ) {
           store.getState().setHidden(seriesId, false);
         }
         deps.toast({

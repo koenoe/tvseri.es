@@ -1686,10 +1686,12 @@ describe('watching a hidden show brings it back at once', () => {
     expect(hidden(t)).toBe(true);
   });
 
-  it('a special unhides it too', async () => {
+  it('a special leaves it hidden', async () => {
     const t = await hiddenHere();
     t.commands.toggleEpisode(SERIES, { episodeNumber: 1, seasonNumber: 0 });
-    expect(hidden(t)).toBe(false);
+    expect(hidden(t)).toBe(true);
+    await flush();
+    expect(hidden(t)).toBe(true);
   });
 
   it('an unmark or Undo putting marks back leave it hidden', async () => {

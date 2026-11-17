@@ -128,6 +128,25 @@ test.describe('person (/person/{id}/{slug})', () => {
     }
   });
 
+  test('a spouse links to their person page only when they have one', async ({
+    page,
+  }) => {
+    await page.goto('/person/4242003/mara-linden');
+    const family = page.getByRole('group', { name: 'Family and awards' });
+    await expect(family).toContainText('Married to Wren Calloway since 2011');
+    await family.getByRole('link', { name: 'Wren Calloway' }).click();
+    await expect(page).toHaveURL(/\/person\/4242001\/wren-calloway$/);
+    await expect(name(page, 'Wren Calloway')).toBeVisible();
+
+    await page.goto(CRANSTON);
+    await expect(
+      page.getByRole('group', { name: 'Family and awards' }),
+    ).toContainText('Married to Robin Dearden since 1989');
+    await expect(page.getByRole('link', { name: 'Robin Dearden' })).toHaveCount(
+      0,
+    );
+  });
+
   test('the Guest roles row opens Shows on Guest roles', async ({ page }) => {
     await page.goto(CRANSTON);
     await page.getByRole('button', { name: /37 guest roles/ }).click();

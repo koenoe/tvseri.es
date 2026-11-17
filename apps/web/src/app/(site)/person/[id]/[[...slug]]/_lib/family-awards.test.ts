@@ -19,7 +19,27 @@ describe('spouseLine', () => {
           { id: 'Q2', name: 'Robin Dearden', startYear: 1989 },
         ],
       }),
-    ).toBe('Married to Robin Dearden since 1989');
+    ).toEqual({ spouse: { name: 'Robin Dearden' }, years: ' since 1989' });
+  });
+
+  it('links a spouse TMDB knows', () => {
+    expect(
+      spouseLine({
+        children: [],
+        spouses: [
+          {
+            id: 'Q2',
+            name: 'Robin Dearden',
+            slug: 'robin-dearden',
+            startYear: 1989,
+            tmdbId: 1234,
+          },
+        ],
+      }),
+    ).toEqual({
+      spouse: { href: '/person/1234/robin-dearden', name: 'Robin Dearden' },
+      years: ' since 1989',
+    });
   });
 
   it('gives an ended marriage its years', () => {
@@ -28,7 +48,16 @@ describe('spouseLine', () => {
         children: [],
         spouses: [{ endYear: 2010, id: 'Q1', name: 'A', startYear: 2001 }],
       }),
-    ).toBe('Married to A, 2001–2010');
+    ).toEqual({ spouse: { name: 'A' }, years: ', 2001–2010' });
+    expect(
+      spouseLine({
+        children: [],
+        spouses: [{ endYear: 2010, id: 'Q1', name: 'A' }],
+      })?.years,
+    ).toBe(', until 2010');
+    expect(
+      spouseLine({ children: [], spouses: [{ id: 'Q1', name: 'A' }] })?.years,
+    ).toBe('');
     expect(spouseLine(null)).toBeUndefined();
   });
 });

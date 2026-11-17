@@ -34,6 +34,15 @@ async function nextLine(id: number, died: boolean) {
   return `Next: ${next.name}, ${when}`;
 }
 
+/** A spouse or child with their own person page */
+function FamilyLink({ href, name }: Readonly<{ href: string; name: string }>) {
+  return (
+    <Link className="text-white hover:text-[#d4d4d4]" href={href}>
+      {name}
+    </Link>
+  );
+}
+
 const FACTS_GHOST = `${FACTS} max-lg:gap-2.5 ${PULSE}`;
 const ICON_GHOST = cn(
   'size-[13px] shrink-0 rounded-full lg:size-[15px]',
@@ -102,7 +111,17 @@ export default async function FamilyFacts({
       data-slot="person-family"
       role="group"
     >
-      {spouse ? <Fact icon={heartGlyph}>{spouse}</Fact> : null}
+      {spouse ? (
+        <Fact icon={heartGlyph}>
+          Married to{' '}
+          {spouse.spouse.href ? (
+            <FamilyLink href={spouse.spouse.href} name={spouse.spouse.name} />
+          ) : (
+            spouse.spouse.name
+          )}
+          {spouse.years}
+        </Fact>
+      ) : null}
       {children ? (
         <Fact icon={userGlyph}>
           {children.label}{' '}
@@ -114,12 +133,7 @@ export default async function FamilyFacts({
                   : ', '
                 : null}
               {child.href ? (
-                <Link
-                  className="text-white hover:text-[#d4d4d4]"
-                  href={child.href}
-                >
-                  {child.name}
-                </Link>
+                <FamilyLink href={child.href} name={child.name} />
               ) : (
                 <span className="text-white">{child.name}</span>
               )}

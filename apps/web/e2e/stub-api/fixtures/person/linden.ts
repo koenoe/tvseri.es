@@ -9,7 +9,8 @@ import {
 /**
  * Mara Linden (invented, id 4242003): the family block at its most common
  * count. A spouse, children and upcoming work, no headline award: three
- * lines on desktop, two below lg (the "Next" line is desktop only).
+ * lines on desktop, two below lg (the "Next" line is desktop only). The
+ * spouse has a person page and links to it; the children have none.
  */
 
 const credits: ReadonlyArray<Credit> = [
@@ -48,7 +49,16 @@ export const linden: StubPerson = {
         { id: 'Q9900101', name: 'Ola Linden', relation: 'daughter' },
         { id: 'Q9900102', name: 'Bo Linden', relation: 'son' },
       ],
-      spouses: [{ id: 'Q9900103', name: 'Teo Marsh', startYear: 2011 }],
+      // Linked to a person the stub serves
+      spouses: [
+        {
+          id: 'Q9900103',
+          name: 'Wren Calloway',
+          slug: 'wren-calloway',
+          startYear: 2011,
+          tmdbId: 4242001,
+        },
+      ],
     },
   },
   knownFor: [],

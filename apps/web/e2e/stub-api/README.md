@@ -76,7 +76,7 @@ For a screenshot: `node page.cjs <url> <out.png> --user alex --width 390`.
 - Shared helpers go in a subfolder (`fixtures/<area>/`, not loaded as routes) and may be imported without an extension.
 - `handle` may return `undefined` to pass the request to the next matching route (e.g. `/series/:id` for ids another fixture owns).
 - A string body with a non-JSON `content-type` header is sent as it is (`/img/:kind/:file` placeholder SVGs, which need no key).
-- Person page (`fixtures/person.ts`, data in `fixtures/person/`): `17419` Bryan Cranston (living, upcoming work, 46 self credits, family and 87 awards, watched line), `129101` Lance Reddick (deceased, work after his death, one nomination, no family), `4242001` Wren Calloway (sparse: no photo, bio, links; two guest roles), `4242003` Mara Linden (spouse, children and upcoming work: the family block at its usual count, 3 lines on desktop and 2 below lg). Any other id is a 404.
+- Person page (`fixtures/person.ts`, data in `fixtures/person/`): `17419` Bryan Cranston (living, upcoming work, 46 self credits, family and 87 awards, watched line), `129101` Lance Reddick (deceased, work after his death, one nomination, no family), `4242001` Wren Calloway (sparse: no photo, bio, links; two guest roles), `4242003` Mara Linden (spouse linked to Wren Calloway, children and upcoming work: the family block at its usual count, 3 lines on desktop and 2 below lg). Any other id is a 404.
 - A `handle` that returns `undefined` gives no answer: the next matching route decides (file order). Fixtures for invented people answer only for their own viewers and ids, so several streams can serve `/me` side by side.
 
 ## Profile sub-pages (Library, History, Circle)

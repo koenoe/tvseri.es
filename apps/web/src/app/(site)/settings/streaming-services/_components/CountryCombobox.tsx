@@ -11,10 +11,10 @@ import {
   useMemo,
   useState,
 } from 'react';
-
 import { checkGlyph, searchGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
+import { moveSelection } from '@/lib/grid/moveSelection';
 
 import InputShell, { INPUT_CLASS } from '../../_components/InputShell';
 import {
@@ -74,19 +74,16 @@ export default function CountryCombobox({
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    const last = matches.length - 1;
-    if (event.key === 'ArrowDown') {
+    const { key } = event;
+    if (
+      key === 'ArrowDown' ||
+      key === 'ArrowUp' ||
+      // plain Home and End move the caret in the field
+      ((key === 'Home' || key === 'End') && event.ctrlKey)
+    ) {
       event.preventDefault();
-      setCursor((current) => Math.min(current + 1, last));
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      setCursor((current) => Math.max(current - 1, 0));
-    } else if (event.key === 'Home' && event.ctrlKey) {
-      event.preventDefault();
-      setCursor(0);
-    } else if (event.key === 'End' && event.ctrlKey) {
-      event.preventDefault();
-      setCursor(last);
+      const blocks = [{ columns: 1, size: matches.length }];
+      setCursor((current) => moveSelection(blocks, current, key));
     } else if (event.key === 'Enter') {
       event.preventDefault();
       if (active) {

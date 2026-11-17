@@ -9,10 +9,10 @@ import {
   useRef,
   useState,
 } from 'react';
-
 import { chevronDownGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
+import { moveSelection } from '@/lib/grid/moveSelection';
 import { createLoader } from '@/lib/lazy/createLoader';
 import whenIdle from '@/lib/lazy/whenIdle';
 import type { SeriesBase } from '@/lib/marking/types';
@@ -178,12 +178,13 @@ export default function SeasonSelect({
     if (!rows.length) {
       return;
     }
-    if (key === 'ArrowDown' || key === 'ArrowUp') {
+    if (
+      key === 'ArrowDown' ||
+      key === 'ArrowUp' ||
+      ((key === 'Home' || key === 'End') && !inInput)
+    ) {
       event.preventDefault();
-      move(active + (key === 'ArrowDown' ? 1 : -1));
-    } else if ((key === 'Home' || key === 'End') && !inInput) {
-      event.preventDefault();
-      move(key === 'Home' ? 0 : rows.length - 1);
+      move(moveSelection([{ columns: 1, size: rows.length }], active, key));
     } else if (key === 'Enter') {
       // A focused row's own click handles Enter, unless the keyboard moved.
       if (target === trigger.current || inInput || onList || state.keyboard) {

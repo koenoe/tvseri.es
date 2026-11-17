@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
+import { moveSelection } from '@/lib/grid/moveSelection';
 
 import { sortLabel, sortsOf } from '../_lib/shelves';
 import { PILL } from './toolbarStyles';
@@ -74,13 +75,15 @@ export default function SortMenu({
     if (event.key === 'Escape' || event.key === 'Tab') {
       event.preventDefault();
       close();
-    } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    } else if (
+      event.key === 'ArrowDown' ||
+      event.key === 'ArrowUp' ||
+      event.key === 'Home' ||
+      event.key === 'End'
+    ) {
       event.preventDefault();
-      const step = event.key === 'ArrowDown' ? 1 : -1;
-      items[(at + step + items.length) % items.length]?.focus();
-    } else if (event.key === 'Home' || event.key === 'End') {
-      event.preventDefault();
-      items[event.key === 'Home' ? 0 : items.length - 1]?.focus();
+      const blocks = [{ columns: 1, size: items.length }];
+      items[moveSelection(blocks, at, event.key, { wrap: true })]?.focus();
     }
   };
 

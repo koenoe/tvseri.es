@@ -92,3 +92,13 @@ describe('moveSelection: Home and End', () => {
     expect(moveSelection(MIXED, 1, 'End')).toBe(10);
   });
 });
+
+describe('moveSelection: wrap (a menu)', () => {
+  const column = [{ columns: 1, size: 4 }];
+
+  it('↓ on the last cell goes to the first, ↑ on the first to the last', () => {
+    expect(moveSelection(column, 3, 'ArrowDown', { wrap: true })).toBe(0);
+    expect(moveSelection(column, 0, 'ArrowUp', { wrap: true })).toBe(3);
+    expect(moveSelection(column, 1, 'ArrowDown', { wrap: true })).toBe(2);
+  });
+});

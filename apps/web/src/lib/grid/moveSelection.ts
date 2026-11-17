@@ -29,12 +29,14 @@ const startOf = (blocks: ReadonlyArray<GridBlock>, index: number) =>
  * crossing between blocks to the same column (clamped); Home and End go to
  * the first and the last cell. With nothing marked
  * (the recents before the first arrow), any arrow marks the first cell.
- * Returns -1 when there is nothing to mark.
+ * `wrap` (a menu): ↓ on the last cell goes to the first, ↑ on the first to
+ * the last. Returns -1 when there is nothing to mark.
  */
 export function moveSelection(
   blocks: ReadonlyArray<GridBlock>,
   selected: number,
   key: GridKey,
+  { wrap = false }: Readonly<{ wrap?: boolean }> = {},
 ): number {
   const total = startOf(blocks, blocks.length);
   if (total === 0) {
@@ -45,6 +47,12 @@ export function moveSelection(
   }
   if (key === 'Home') {
     return 0;
+  }
+  if (wrap && key === 'ArrowDown' && selected === total - 1) {
+    return 0;
+  }
+  if (wrap && key === 'ArrowUp' && selected === 0) {
+    return total - 1;
   }
   if (key === 'End') {
     return total - 1;

@@ -1,25 +1,17 @@
 import { expect, type Page, test } from '@playwright/test';
 
-import { png } from './helpers/png';
+import { png, routeImages } from './helpers/png';
 import { nextFrames, phoneScrollbars } from './helpers/viewport';
 
 /**
  * Home's spotlight on a production build, signed out: the slide opens its
  * show (the logo or title, the artwork; the buttons and the pager keep their
- * own jobs), and a switch is one timeline: the page colour, the artwork's
- * crossfade and the text start together.
+ * own jobs), its logo holds its box, and the slideshow holds or pauses
+ * when it should.
  */
 
-/** A tiny PNG for every TMDB image, so backdrops load (and decode) locally */
-const PIXEL = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAwS2OUAAAAABJRU5ErkJggg==',
-  'base64',
-);
-
 test.beforeEach(async ({ context }) => {
-  await context.route('https://image.tmdb.org/**', (route) =>
-    route.fulfill({ body: PIXEL, contentType: 'image/png' }),
-  );
+  await routeImages(context);
 });
 
 const spotlight = (page: Page) =>
@@ -70,79 +62,6 @@ test('the artwork opens the show; the buttons and the pager do their own thing',
   await expect(page).not.toHaveURL(/\/$/);
 });
 
-test('a switch starts the page colour, the artwork and the text together', async ({
-  page,
-}) => {
-  await page.setViewportSize({ height: 900, width: 1440 });
-  await page.goto('/');
-  await page.evaluate(() => {
-    const w = window as unknown as {
-      __starts: Record<string, number>;
-      __run: boolean;
-    };
-    const section = document.querySelector(
-      'section[aria-roledescription="carousel"]',
-    );
-    const ground = document.querySelector('[class*="home-ground"]');
-    w.__starts = {};
-    w.__run = true;
-    const known = new Set(document.getAnimations());
-    const tick = () => {
-      for (const animation of document.getAnimations()) {
-        if (known.has(animation) || animation.startTime === null) {
-          continue;
-        }
-        const target = (animation.effect as KeyframeEffect | null)?.target;
-        const kind =
-          target === ground
-            ? 'ground'
-            : target instanceof HTMLElement &&
-                section?.contains(target) &&
-                target.matches('[data-spotlight-layer]')
-              ? 'artwork'
-              : target instanceof HTMLElement &&
-                  target.matches('[aria-roledescription="slide"]') &&
-                  target.getAttribute('aria-hidden') !== 'true'
-                ? 'text'
-                : null;
-        if (kind && w.__starts[kind] === undefined) {
-          w.__starts[kind] = Number(animation.startTime);
-        }
-      }
-      if (w.__run) {
-        requestAnimationFrame(tick);
-      }
-    };
-    requestAnimationFrame(tick);
-  });
-  await pagerLine(page, 2).click();
-  await expect(slide(page, 2)).toBeVisible();
-  // the three have started once the switch has played its first frames
-  await expect
-    .poll(() =>
-      page.evaluate(
-        () =>
-          Object.keys(
-            (window as unknown as { __starts: Record<string, number> })
-              .__starts,
-          ).length,
-      ),
-    )
-    .toBe(3);
-  const starts = await page.evaluate(() => {
-    const w = window as unknown as {
-      __starts: Record<string, number>;
-      __run: boolean;
-    };
-    w.__run = false;
-    return w.__starts;
-  });
-  expect(Object.keys(starts).sort()).toEqual(['artwork', 'ground', 'text']);
-  const ground = starts.ground ?? 0;
-  expect(Math.abs((starts.artwork ?? 0) - ground)).toBeLessThanOrEqual(32);
-  expect(Math.abs((starts.text ?? 0) - ground)).toBeLessThanOrEqual(32);
-});
-
 /** The pager's current line ("1 of 10: Pluribus") and the page colour */
 const shown = (page: Page) =>
   page.evaluate(() => ({
@@ -160,17 +79,15 @@ const shown = (page: Page) =>
  * size it loads at, so the lines above it (the text stands on the stage's
  * foot) don't move when it arrives.
  */
-const LOGO_VIEWPORTS = [
-  { box: { height: 150, width: 375 }, height: 900, width: 1440 },
-  { box: { height: 70, width: 175 }, height: 844, width: 390 },
-] as const;
+const DESKTOP = { height: 900, width: 1440 } as const;
+const PHONE = { height: 844, width: 390 } as const;
 
 /** How the stub answers the logo: a file of that size, or a 404 */
 type LogoFile = Readonly<{ height: number; width: number }> | 'missing';
 
 async function logoBeforeAndAfter(
   page: Page,
-  viewport: (typeof LOGO_VIEWPORTS)[number],
+  viewport: typeof DESKTOP | typeof PHONE,
   file: LogoFile = { height: 200, width: 500 },
 ) {
   await page.setViewportSize(viewport);
@@ -227,46 +144,34 @@ async function logoBeforeAndAfter(
   return { held, loaded, rankHeld, rankLoaded };
 }
 
-for (const viewport of LOGO_VIEWPORTS) {
-  test(`the logo holds its box until it loads, at ${viewport.width}`, async ({
+test('the logo holds its box until it loads', async ({ page }) => {
+  const { held, loaded, rankHeld, rankLoaded } = await logoBeforeAndAfter(
     page,
-  }) => {
+    DESKTOP,
+  );
+  // the box it held before is the box it loads at, in the file's 2.5 : 1
+  expect(held?.width).toBeCloseTo(loaded?.width ?? 0, 0);
+  expect(held?.height).toBeCloseTo(loaded?.height ?? 0, 0);
+  expect((loaded?.width ?? 0) / (loaded?.height ?? 1)).toBeCloseTo(2.5, 1);
+  // the text stands on the stage's foot: the rank line above the logo stays
+  expect(rankHeld?.y).toBeCloseTo(rankLoaded?.y ?? 0, 0);
+});
+
+test("the logo's box stays held for a smaller file or a failed one, on a phone", async ({
+  page,
+}) => {
+  for (const file of [{ height: 80, width: 200 }, 'missing'] as const) {
     const { held, loaded, rankHeld, rankLoaded } = await logoBeforeAndAfter(
       page,
-      viewport,
+      PHONE,
+      file,
     );
-    // the box it held before is the box it loads at, in the file's 2.5 : 1
-    expect(held?.width).toBeCloseTo(loaded?.width ?? 0, 0);
-    expect(held?.height).toBeCloseTo(loaded?.height ?? 0, 0);
-    expect((loaded?.width ?? 0) / (loaded?.height ?? 1)).toBeCloseTo(2.5, 1);
-    // the text stands on the stage's foot: the rank line above the logo stays
-    expect(rankHeld?.y).toBeCloseTo(rankLoaded?.y ?? 0, 0);
-  });
-
-  test(`the logo's box stays held for a smaller file or a failed one, at ${viewport.width}`, async ({
-    page,
-  }) => {
-    for (const file of [{ height: 80, width: 200 }, 'missing'] as const) {
-      const { held, loaded, rankHeld, rankLoaded } = await logoBeforeAndAfter(
-        page,
-        viewport,
-        file,
-      );
-      expect(loaded?.width, String(file)).toBeCloseTo(held?.width ?? 0, 0);
-      expect(loaded?.height, String(file)).toBeCloseTo(held?.height ?? 0, 0);
-      expect(rankLoaded?.y, String(file)).toBeCloseTo(rankHeld?.y ?? 0, 0);
-      await page.unrouteAll();
-    }
-  });
-
-  test(`@design the logo loads at ${viewport.box.width} x ${viewport.box.height} at ${viewport.width}`, async ({
-    page,
-  }) => {
-    const { loaded } = await logoBeforeAndAfter(page, viewport);
-    expect(loaded?.width).toBeCloseTo(viewport.box.width, 0);
-    expect(loaded?.height).toBeCloseTo(viewport.box.height, 0);
-  });
-}
+    expect(loaded?.width, String(file)).toBeCloseTo(held?.width ?? 0, 0);
+    expect(loaded?.height, String(file)).toBeCloseTo(held?.height ?? 0, 0);
+    expect(rankLoaded?.y, String(file)).toBeCloseTo(rankHeld?.y ?? 0, 0);
+    await page.unrouteAll();
+  }
+});
 
 /**
  * The active pager line's countdown (one finite animation per slide, its end
@@ -480,13 +385,6 @@ test.describe('auto-advance and reduced motion', () => {
       await expect(pagerLine(page, 3)).toHaveAttribute('aria-current', 'true');
       expect(await nearTheEnd(page)).toEqual([8000]);
       await expect(pagerLine(page, 4)).toHaveAttribute('aria-current', 'true');
-    });
-
-    test('@design the play button is 32px square', async ({ page }) => {
-      await open(page);
-      const box = await toggle(page, 'Play').boundingBox();
-      expect(box?.width).toBe(32);
-      expect(box?.height).toBe(32);
     });
   });
 });

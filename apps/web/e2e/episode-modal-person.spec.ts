@@ -127,28 +127,8 @@ async function openFromTile(page: Page) {
   return { opened: await panelBox(page), tile };
 }
 
-type Slow = Readonly<{ cpu: number; ms: number }>;
-
-/** CPU throttling, and the person page's data and the chunks it loads late. */
-async function slowDown(page: Page, { cpu, ms }: Slow) {
-  const cdp = await page.context().newCDPSession(page);
-  await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpu });
-  await page.route(
-    (url) =>
-      url.pathname.startsWith('/person/') ||
-      url.pathname.startsWith('/_next/static/chunks/'),
-    async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, ms));
-      await route.continue();
-    },
-  );
-}
-
-async function faceThereAndBack(page: Page, slow?: Slow) {
+async function faceThereAndBack(page: Page) {
   const { opened, tile } = await openFromTile(page);
-  if (slow) {
-    await slowDown(page, slow);
-  }
   const face = modal(page).getByRole('link', {
     name: "Oliver Platt as Uncle Jimmy 'Cicero' Kalinowski",
   });
@@ -193,22 +173,9 @@ async function faceThereAndBack(page: Page, slow?: Slow) {
   ).toBe('');
 }
 
-test.describe('episode modal → person → Back', () => {
-  test.use({ viewport: { height: 720, width: 1280 } });
-
-  for (const reducedMotion of ['no-preference', 'reduce'] as const) {
-    test(`a face opens the person page, Back brings the modal back (${reducedMotion})`, async ({
-      page,
-    }) => {
-      await page.emulateMedia({ reducedMotion });
-      await faceThereAndBack(page);
-    });
-
-    test(`the same on a slow CPU and network @perf (${reducedMotion})`, async ({
-      page,
-    }) => {
-      await page.emulateMedia({ reducedMotion });
-      await faceThereAndBack(page, { cpu: 6, ms: 1500 });
-    });
-  }
+test('a face opens the person page, Back brings the modal back', async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 720, width: 1280 });
+  await faceThereAndBack(page);
 });

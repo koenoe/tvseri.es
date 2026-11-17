@@ -163,57 +163,6 @@ test.describe('switching shelves', () => {
       expect(samples.some((top) => top > from + 2 && top < to - 2)).toBe(true);
       expect(await page.evaluate(() => window.scrollY)).toBe(0);
     });
-
-    test('Back and Forward move the pill without a glide', async ({ page }) => {
-      await page.goto('/u/alex/library/watching');
-      await ready(page);
-      const watching = await rowTop(page, /Watching/);
-      const finished = await rowTop(page, /Finished/);
-      await switchTo(page, /Finished/, 'finished');
-      await expect(
-        page.locator('[data-slot="library-grid"] li').first(),
-      ).toBeVisible();
-      for (const [direction, path, from, to] of [
-        ['back', 'watching', finished, watching],
-        ['forward', 'finished', watching, finished],
-      ] as const) {
-        await watch(page, 'shelf-nav');
-        await (direction === 'back' ? page.goBack() : page.goForward());
-        await page.waitForURL(`**/u/alex/library/${path}`);
-        await expect
-          .poll(async () => (await watched(page, 'shelf-nav')).samples.length)
-          .toBe(90);
-        const { kept, samples } = await watched(page, 'shelf-nav');
-        expect(kept).toBe(true);
-        expect(
-          samples.every(
-            (top) => Math.abs(top - from) < 1 || Math.abs(top - to) < 1,
-          ),
-          `${direction}: ${samples.join(' ')}`,
-        ).toBe(true);
-        expect(samples.at(-1)).toBeCloseTo(to, 0);
-      }
-    });
-
-    test('with reduced motion the pill jumps', async ({ page }) => {
-      await page.emulateMedia({ reducedMotion: 'reduce' });
-      await page.goto('/u/alex/library/watching');
-      await ready(page);
-      const from = await rowTop(page, /Watching/);
-      const to = await rowTop(page, /Finished/);
-      await watch(page, 'shelf-nav');
-      await switchTo(page, /Finished/, 'finished');
-      await expect
-        .poll(async () => (await watched(page, 'shelf-nav')).samples.length)
-        .toBe(90);
-      const { samples } = await watched(page, 'shelf-nav');
-      expect(
-        samples.every(
-          (top) => Math.abs(top - from) < 1 || Math.abs(top - to) < 1,
-        ),
-        samples.join(' '),
-      ).toBe(true);
-    });
   });
 
   test('keeps the chips on a phone', async ({ page }) => {

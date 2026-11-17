@@ -73,3 +73,11 @@ export async function routeTrendingLogos(context: BrowserContext) {
       : route.fallback();
   });
 }
+
+/** A one-pixel PNG for every TMDB image, so backdrops load and decode locally */
+export async function routeImages(context: BrowserContext) {
+  const pixel = png(1, 1);
+  await context.route('https://image.tmdb.org/**', (route) =>
+    route.fulfill({ body: pixel, contentType: 'image/png' }),
+  );
+}

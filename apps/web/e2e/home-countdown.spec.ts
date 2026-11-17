@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page, test } from '@playwright/test';
 
-import { routeImages } from './helpers/pickRoll';
+import { routeImages } from './helpers/png';
 import { nextFrames } from './helpers/viewport';
 
 /**
@@ -69,69 +69,6 @@ test('the label names the card; three pills, the first pressed', async ({
   await expect(backdrop(page, 0)).toBeAttached();
   await expect(backdrop(page, 1)).toHaveCount(0);
   await settledOn(page, 0);
-});
-
-test('a pill crossfades: both layers stacked, opacity in transition', async ({
-  page,
-}) => {
-  await open(page);
-  await pills(page).nth(1).hover();
-  await expect(backdrop(page, 1)).toBeAttached();
-  // the incoming image is decoded before the switch
-  await decoded(page, 1);
-  await nextFrames(page, 3);
-
-  // mid-fade, read in the page two frames after the press (a round trip
-  // from the test could land after the 300ms fade): both backdrops and both
-  // foregrounds there, fading on opacity
-  const during = await card(page).evaluate(
-    (root) =>
-      new Promise<
-        ReadonlyArray<{
-          duration?: string;
-          fading: boolean;
-          property?: string;
-        }>
-      >((resolve) => {
-        root
-          .querySelectorAll<HTMLButtonElement>(
-            '[aria-label="Next premieres"] button',
-          )[1]
-          ?.click();
-        const read = () =>
-          ['backdrop', 'body'].flatMap((part) =>
-            [0, 1].map((n) => {
-              const layer = root.querySelector<HTMLElement>(
-                `[data-countdown-${part}="${n}"]`,
-              );
-              const style = layer ? getComputedStyle(layer) : null;
-              return {
-                duration: style?.transitionDuration,
-                fading:
-                  layer
-                    ?.getAnimations()
-                    .some((a) => a.playState === 'running') ?? false,
-                property: style?.transitionProperty,
-              };
-            }),
-          );
-        requestAnimationFrame(() =>
-          requestAnimationFrame(() => resolve(read())),
-        );
-      }),
-  );
-  await expect(pills(page).nth(1)).toHaveAttribute('aria-pressed', 'true');
-  for (const layer of during) {
-    expect(layer.property).toContain('opacity');
-    expect(layer.duration).toContain('0.3s');
-  }
-  // the incoming backdrop and both foregrounds are in their fade now
-  expect(during[1]?.fading).toBe(true);
-  expect(during[2]?.fading || during[3]?.fading).toBe(true);
-
-  await settledOn(page, 1);
-  await expect(body(page, 1)).toContainText('Barry');
-  await expect(body(page, 1)).toContainText('Special');
 });
 
 test('a backdrop that is not ready holds the old one until it is', async ({

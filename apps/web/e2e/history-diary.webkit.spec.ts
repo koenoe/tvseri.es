@@ -5,7 +5,7 @@ import { signInAs } from './helpers/session';
 
 /**
  * Safari's half of History: the month header scrolls with the
- * page (inside a `content-visibility` section; no sticky bar under the
+ * page (inside a section of `content-visibility` days; no sticky bar under the
  * glass header), and "Newer" prepends a month without moving the day
  * you're reading (no CSS scroll anchoring in WebKit: the diary holds it
  * itself).

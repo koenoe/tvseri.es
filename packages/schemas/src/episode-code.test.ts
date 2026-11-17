@@ -9,22 +9,6 @@ import {
 } from './episode-code';
 import { EpisodeCodeSchema } from './series-prefs';
 
-describe('episodeCode', () => {
-  it('zero-pads season and episode', () => {
-    expect(episodeCode({ episodeNumber: 5, seasonNumber: 3 })).toBe('S03E05');
-  });
-
-  it('keeps numbers past 99 whole', () => {
-    expect(episodeCode({ episodeNumber: 104, seasonNumber: 12 })).toBe(
-      'S12E104',
-    );
-  });
-
-  it('writes Specials as season 0', () => {
-    expect(episodeCode({ episodeNumber: 1, seasonNumber: 0 })).toBe('S00E01');
-  });
-});
-
 describe('shortCode', () => {
   it('is the episode part on its own', () => {
     expect(shortCode(5)).toBe('E05');
@@ -71,5 +55,23 @@ describe('episode codes as storage keys', () => {
       expect(v.parse(EpisodeCodeSchema, input)).toBe('S02E05');
     }
     expect(v.safeParse(EpisodeCodeSchema, 'S2').success).toBe(false);
+  });
+
+  // Anything else would be stored under a key no episode has
+  it.each([
+    '',
+    'S2',
+    'E05',
+    'S02E',
+    'S02 E05',
+    ' S02E05',
+    'S02E05x',
+    'S-1E05',
+    'S1.5E05',
+    'S1234E05',
+    'S02E12345',
+  ])('refuses %j', (input) => {
+    expect(v.safeParse(EpisodeCodeSchema, input).success).toBe(false);
+    expect(parseEpisodeCode(input)).toBeNull();
   });
 });

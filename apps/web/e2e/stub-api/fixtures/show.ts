@@ -343,9 +343,15 @@ const asMe = (request: StubRequest) => {
   return state ? { state, viewer } : NOT_FOUND;
 };
 
-const markView = (request: StubRequest): 'progress' | null | undefined => {
+const markView = (
+  request: StubRequest,
+): 'progress' | 'track' | null | undefined => {
   const view = request.query.get('view');
-  return view === null ? null : view === 'progress' ? 'progress' : undefined;
+  return view === null
+    ? null
+    : view === 'progress' || view === 'track'
+      ? view
+      : undefined;
 };
 
 const markResponse = (
@@ -353,7 +359,11 @@ const markResponse = (
   items: ReadonlyArray<WatchedItem>,
 ): StubResponse =>
   ok(
-    markView(request) === 'progress' ? project(items, PROGRESS_KEYS) : items,
+    markView(request) === 'progress'
+      ? project(items, PROGRESS_KEYS)
+      : markView(request) === 'track'
+        ? project(items, TRACK_KEYS)
+        : items,
     201,
   );
 

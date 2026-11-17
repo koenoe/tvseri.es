@@ -1,6 +1,8 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
+import { WIDE_LG } from '@/lib/media/breakpoints';
+import useMediaQuery from '@/lib/media/useMediaQuery';
 import {
   type JumpYear,
   openingMonth,
@@ -25,7 +27,9 @@ export default function JumpTo({
   week: Readonly<{ episodes: number; last: string | null }> | null;
 }>) {
   const from = parseMonthKey(useSearchParams().get('month'));
-  const active = useActiveMonth() ?? openingMonth(index, from);
+  // below `lg` the sidebar is hidden: the month header's sheet has the list
+  const shown = useMediaQuery(WIDE_LG);
+  const active = useActiveMonth(shown) ?? openingMonth(index, from);
   return (
     <JumpList active={active} basePath={basePath} index={index} week={week} />
   );

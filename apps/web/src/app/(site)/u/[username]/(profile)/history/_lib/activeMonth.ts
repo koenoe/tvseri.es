@@ -24,9 +24,12 @@ export const setJumping = (jumping: boolean) =>
 /** Whether a jump is on its way, read outside render (the diary's landing effect) */
 export const isJumping = () => useDiaryCursor.getState().jumping;
 
-/** The month you're reading; null before the diary has said */
-export const useActiveMonth = (): MonthKey | null =>
-  useDiaryCursor((state) => state.active);
+/**
+ * The month you're reading; null before the diary has said, and while
+ * `follow` is false (a hidden reader then doesn't re-render on every scrolled month)
+ */
+export const useActiveMonth = (follow = true): MonthKey | null =>
+  useDiaryCursor((state) => (follow ? state.active : null));
 
 /** A jump was asked for and its list hasn't landed yet */
 export const useJumping = (): boolean =>

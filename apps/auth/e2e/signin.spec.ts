@@ -453,10 +453,24 @@ test.describe('the page itself', () => {
       field: getComputedStyle(document.querySelector('#em') as Element)
         .fontSize,
       left: document.querySelector('.a-col')?.getBoundingClientRect().left,
+      // the website's phone bar: a 20px logo, centred 32px from the top
+      logo: (() => {
+        const box = document
+          .querySelector('.a-logo svg')
+          ?.getBoundingClientRect();
+        return box
+          ? { height: box.height, middle: box.top + box.height / 2 }
+          : null;
+      })(),
       overflow:
         document.documentElement.scrollWidth -
         document.documentElement.clientWidth,
     }));
-    expect(metrics).toEqual({ field: '16px', left: 32, overflow: 0 });
+    expect(metrics).toEqual({
+      field: '16px',
+      left: 32,
+      logo: { height: 20, middle: 32 },
+      overflow: 0,
+    });
   });
 });

@@ -57,10 +57,12 @@ a{color:inherit;text-decoration:none;}
 .a-spin{width:16px;height:16px;animation:aSpin .9s linear infinite;}
 @keyframes aSpin{to{transform:rotate(360deg);}}
 /* the side gutter is the website's: 32px at every width (--gutter) */
-/* phones: 390px wide (t-mobile tokens, column top-aligned) */
+/* phones: 390px wide (t-mobile tokens, column top-aligned); the header row
+   is the website's phone bar: 64px tall, a 20px logo */
 @media (max-width:767px){
 :root{--t1:24px;--t1lh:32px;--num:24px;--numlh:32px;}
-.a-hd{height:48px;padding:0 var(--gutter);}
+.a-hd{height:64px;padding:0 var(--gutter);}
+.a-logo svg{height:20px;}
 .a-main{display:block;padding:40px var(--gutter) 0;}
 .a-col{width:100%;}
 .a-foot{padding:24px var(--gutter) 40px;}

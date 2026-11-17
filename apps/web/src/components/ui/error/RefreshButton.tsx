@@ -1,7 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
+import useRouteRefresh from '@/lib/navigation/useRouteRefresh';
 
 import RetryButton from './RetryButton';
 
@@ -10,8 +9,6 @@ import RetryButton from './RetryButton';
  * itself): refetches the route's server data in a transition.
  */
 export default function RefreshButton() {
-  const router = useRouter();
-  const [pending, startRefresh] = useTransition();
-  const refresh = () => startRefresh(() => router.refresh());
+  const [pending, refresh] = useRouteRefresh();
   return <RetryButton onClick={refresh} pending={pending} />;
 }

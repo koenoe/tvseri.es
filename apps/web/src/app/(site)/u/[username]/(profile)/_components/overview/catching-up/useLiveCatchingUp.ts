@@ -1,12 +1,12 @@
 'use client';
 
 import type { CatchingUpItem } from '@tvseri.es/schemas';
-import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useRef, useTransition } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { useSeriesView } from '@/lib/marking/hooks';
 import { useMarkingStoreApi } from '@/lib/marking/MarkingProvider';
 import type { MarkingState } from '@/lib/marking/store';
+import useRouteRefresh from '@/lib/navigation/useRouteRefresh';
 import { liveCatchingUp, needsFreshRun } from './live';
 
 /**
@@ -23,8 +23,7 @@ import { liveCatchingUp, needsFreshRun } from './live';
 export default function useLiveCatchingUp(item: CatchingUpItem) {
   const view = useSeriesView(item.seriesId);
   const store = useMarkingStoreApi();
-  const router = useRouter();
-  const [, startRefresh] = useTransition();
+  const [, refresh] = useRouteRefresh();
   const refreshedFor = useRef<string | null>(null);
   const live = useMemo(() => liveCatchingUp(item, view), [item, view]);
 
@@ -45,11 +44,11 @@ export default function useLiveCatchingUp(item: CatchingUpItem) {
         return;
       }
       refreshedFor.current = key;
-      startRefresh(() => router.refresh());
+      refresh();
     };
     check(store.getState());
     return store.subscribe(check);
-  }, [item, router, store]);
+  }, [item, refresh, store]);
 
   return live;
 }

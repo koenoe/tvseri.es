@@ -1,10 +1,8 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
-
 import { TryAgain } from '@/components/ui/failed/FailedCard';
 import type { TryAgainLook } from '@/components/ui/failed/failedLooks';
+import useRouteRefresh from '@/lib/navigation/useRouteRefresh';
 
 import { ROW_TRY_AGAIN } from './rowFailedLook';
 
@@ -21,8 +19,6 @@ export default function RefreshRetry({
   /** the button's look where it isn't a row's card (a profile block) */
   look?: TryAgainLook;
 }>) {
-  const router = useRouter();
-  const [retrying, startRetry] = useTransition();
-  const retry = () => startRetry(() => router.refresh());
+  const [retrying, retry] = useRouteRefresh();
   return <TryAgain look={look} onClick={retry} pending={retrying} />;
 }

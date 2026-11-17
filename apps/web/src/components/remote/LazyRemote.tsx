@@ -110,11 +110,20 @@ function LazyRemote<P extends object>({
     },
     [remote, swap],
   );
-  // The real ⋯ is in the page: focus goes back to it before paint
+  // The real ⋯ is in the page, before paint: focus goes back to it, and it
+  // stays busy until the press below opens it (the Remote doesn't manage
+  // `aria-busy`, so the attribute is the wrapper's to set and take back)
   useLayoutEffect(() => {
-    if (Remote && keepFocus.current) {
+    const trigger = slot.current?.querySelector('button');
+    if (!Remote || !trigger) {
+      return;
+    }
+    if (keepFocus.current) {
       keepFocus.current = false;
-      slot.current?.querySelector('button')?.focus({ preventScroll: true });
+      trigger.focus({ preventScroll: true });
+    }
+    if (opening.current) {
+      trigger.setAttribute('aria-busy', 'true');
     }
   }, [Remote]);
   // Then the press that started the load opens it, once its mount has
@@ -130,6 +139,7 @@ function LazyRemote<P extends object>({
     }
     opening.current = null;
     queueMicrotask(() => {
+      trigger.removeAttribute('aria-busy');
       if (by === 'keyboard') {
         trigger.dispatchEvent(
           new globalThis.KeyboardEvent('keydown', {

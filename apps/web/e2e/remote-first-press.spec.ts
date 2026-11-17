@@ -104,6 +104,56 @@ async function expectOpenOnce(page: Page, menu: Locator, held: () => number) {
   await expect(menu).toBeVisible();
 }
 
+type TriggerState = 'busy' | 'gone' | 'idle' | 'open';
+
+/**
+ * From now on, how the pressed ⋯ reads each frame (it is swapped for the
+ * Remote's own ⋯ meanwhile, in the same row): `stop()` gives the frames.
+ */
+async function watchTrigger(more: Locator) {
+  await more.evaluate((button) => {
+    const row = button.parentElement?.parentElement;
+    const name = button.getAttribute('aria-label') ?? '';
+    const frames: TriggerState[] = [];
+    const tick = () => {
+      const current = [...(row?.querySelectorAll('button') ?? [])].find(
+        (candidate) => candidate.getAttribute('aria-label') === name,
+      );
+      frames.push(
+        !current
+          ? 'gone'
+          : current.getAttribute('aria-expanded') === 'true'
+            ? 'open'
+            : current.hasAttribute('aria-busy')
+              ? 'busy'
+              : 'idle',
+      );
+      if (frames.length < 150) {
+        requestAnimationFrame(tick);
+      }
+    };
+    requestAnimationFrame(tick);
+    Object.assign(window, { remoteFrames: frames });
+  });
+  return () =>
+    more
+      .page()
+      .evaluate(
+        () =>
+          (window as unknown as { remoteFrames: TriggerState[] }).remoteFrames,
+      );
+}
+
+/** Once the ⋯ reads pressed, it never reads idle again before it opens */
+function expectPressedThroughout(frames: ReadonlyArray<TriggerState>) {
+  const first = frames.findIndex((frame) => frame !== 'idle');
+  expect(first).toBeGreaterThanOrEqual(0);
+  expect(
+    frames.slice(first).filter((frame) => frame !== 'busy' && frame !== 'open'),
+  ).toEqual([]);
+  expect(frames).toContain('open');
+}
+
 for (const surface of SURFACES) {
   test.describe(`the ⋯ on ${surface.name}, first press`, () => {
     test.describe('at 1440', () => {
@@ -115,8 +165,10 @@ for (const surface of SURFACES) {
         }) => {
           const { held, more } = await freshMore(page, surface, delay);
           const menu = await menuFor(page, more);
+          const frames = await watchTrigger(more);
           await more.click();
           await expectOpenOnce(page, menu, held);
+          expectPressedThroughout(await frames());
           await expect(
             page.getByRole('button', { expanded: true, name: MORE }),
           ).toHaveCount(1);
@@ -150,8 +202,10 @@ for (const surface of SURFACES) {
         }) => {
           const { held, more } = await freshMore(page, surface, delay);
           const menu = await menuFor(page, more);
+          const frames = await watchTrigger(more);
           await more.tap();
           await expectOpenOnce(page, menu, held);
+          expectPressedThroughout(await frames());
           await expect(menu).toHaveAttribute('data-layout', 'sheet');
         });
       }

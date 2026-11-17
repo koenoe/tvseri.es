@@ -5,6 +5,7 @@ import { type ComponentProps, useLayoutEffect, useRef } from 'react';
 import Icon from '@/components/ui/icon/Icon';
 import type { Glyph, IconSize, ToggleGlyph } from '@/components/ui/icon/types';
 import { REDUCED_MOTION } from '@/lib/media/breakpoints';
+import { matchesNow } from '@/lib/media/useMediaQuery';
 
 import {
   CIRCLE_ICON_SIZE,
@@ -74,7 +75,7 @@ export default function CircleButton({
   useLayoutEffect(() => {
     const turnedOn = pressed === true && wasPressed.current === false;
     wasPressed.current = pressed;
-    if (!turnedOn || window.matchMedia(REDUCED_MOTION).matches) {
+    if (!turnedOn || matchesNow(REDUCED_MOTION)) {
       return;
     }
     const animation = burst.current?.animate(BURST_FRAMES, BURST_TIMING);

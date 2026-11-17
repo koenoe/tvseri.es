@@ -5,6 +5,7 @@ import { useCallback } from 'react';
 import ButtonContent from '@/components/ui/button/ButtonContent';
 import { buttonStyles } from '@/components/ui/button/buttonStyles';
 import { arrowRightGlyph } from '@/components/ui/icon/glyphs';
+import scrollBehavior from '@/lib/media/scrollBehavior';
 
 import type { LensKey } from '../_data/hubTiles';
 import { useLens } from './lens/LensProvider';
@@ -25,7 +26,9 @@ export default function OpenLensRowButton({
   const openRow = useLens((state) => state.openRow);
   const onClick = useCallback(() => {
     openRow(lens, row);
-    document.getElementById('lenses')?.scrollIntoView({ behavior: 'smooth' });
+    document
+      .getElementById('lenses')
+      ?.scrollIntoView({ behavior: scrollBehavior() });
   }, [lens, openRow, row]);
   return (
     <button className={className} onClick={onClick} type="button">

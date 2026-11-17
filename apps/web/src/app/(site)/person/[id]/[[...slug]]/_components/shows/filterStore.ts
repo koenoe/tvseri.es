@@ -3,6 +3,7 @@
 import { useCallback } from 'react';
 import { create } from 'zustand';
 
+import scrollBehavior from '@/lib/media/scrollBehavior';
 import type { ShowFilter } from '@/lib/person/shows';
 
 /**
@@ -53,7 +54,7 @@ export function useOpenShows(personId: number) {
       set(personId, { filter, open: true });
       document
         .getElementById('person-shows')
-        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        ?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
     },
     [personId, set],
   );

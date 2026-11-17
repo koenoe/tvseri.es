@@ -6,8 +6,7 @@ import {
   chevronLeftGlyph,
   chevronRightGlyph,
 } from '@/components/ui/icon/glyphs';
-import { REDUCED_MOTION } from '@/lib/media/breakpoints';
-import { matchesNow } from '@/lib/media/useMediaQuery';
+import scrollBehavior from '@/lib/media/scrollBehavior';
 
 import ArrowButton from './ArrowButton';
 import {
@@ -40,8 +39,7 @@ function pageRail(rail: HTMLElement, direction: PageDirection) {
     scrollLeft: rail.scrollLeft,
     scrollWidth: rail.scrollWidth,
   });
-  const behavior = matchesNow(REDUCED_MOTION) ? 'instant' : 'smooth';
-  rail.scrollTo({ behavior, left });
+  rail.scrollTo({ behavior: scrollBehavior(), left });
 }
 
 /**

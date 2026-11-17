@@ -8,6 +8,8 @@ import {
   useState,
 } from 'react';
 
+import scrollBehavior from '@/lib/media/scrollBehavior';
+
 import {
   activeQuarter,
   monthsInView,
@@ -25,8 +27,6 @@ import Segmented, { type SegmentedOption } from './Segmented';
 const OPTIONS: ReadonlyArray<SegmentedOption<number>> = QUARTERS.map(
   (label, value) => ({ label, value }),
 );
-
-const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
 
 /**
  * A row's pointer shows once its whole line is out of view: before the
@@ -193,7 +193,7 @@ export default function QuarterScroller({
     const max = scroller.scrollWidth - scroller.clientWidth;
     targetRef.current = next;
     scroller.scrollTo({
-      behavior: matchMedia(REDUCED_MOTION).matches ? 'auto' : 'smooth',
+      behavior: scrollBehavior(),
       left: Math.min(starts[next] ?? 0, max),
     });
   };

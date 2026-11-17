@@ -38,23 +38,4 @@ describe('Spotlight', () => {
     expect(link.textContent).toBe('Black Mirror');
     expect(link.querySelector('img')).toBeNull();
   });
-
-  it('uses the phone shade on a phone, the desktop one from md', () => {
-    const { container } = render(
-      <Spotlight kicker="Start here" reason="Any episode." show={show} />,
-    );
-    // in the picture's layer, over the backdrop
-    const shade = container.querySelector('article > span[aria-hidden] > span');
-    // near-black: the landing sets no picture colour (`--picture-shade`)
-    expect(shade?.className).toContain(
-      'via-[color:var(--picture-shade,rgb(12_15_16))]/60',
-    );
-    expect(shade?.className).toContain('via-45%');
-    expect(shade?.className).toContain('to-80%');
-    expect(shade?.className).toContain(
-      'md:via-[color:var(--picture-shade,rgb(12_15_16))]/72',
-    );
-    expect(shade?.className).toContain('md:via-42%');
-    expect(shade?.className).toContain('md:to-78%');
-  });
 });

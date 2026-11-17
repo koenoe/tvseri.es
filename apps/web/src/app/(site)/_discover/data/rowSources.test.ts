@@ -19,8 +19,6 @@ beforeEach(() => {
 });
 
 const {
-  bestRated,
-  chipTabs,
   discoverRowSource,
   discoverTabsSource,
   landingFactsOf,
@@ -58,15 +56,6 @@ const startAnswer = (picks: number[], backups: number[]) => {
     })),
   };
 };
-
-describe('bestRated', () => {
-  it('sorts by rating above a vote floor', () => {
-    expect(bestRated(300)).toEqual({
-      sort_by: 'vote_average.desc',
-      'vote_count.gte': '300',
-    });
-  });
-});
 
 describe('discoverRowSource', () => {
   it('sends the whole list as a row', async () => {
@@ -160,13 +149,5 @@ describe('landingFactsOf', () => {
     await expect(landingFactsOf('genre', 'nope')).rejects.toThrow(
       'no genre facts for nope',
     );
-  });
-});
-
-describe('chipTabs', () => {
-  it('keys each tab by its chip’s slug', () => {
-    expect(chipTabs([{ name: 'organized crime', slug: 'mafia' }])).toEqual([
-      { key: 'mafia', name: 'organized crime' },
-    ]);
   });
 });

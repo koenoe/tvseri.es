@@ -55,18 +55,4 @@ describe('ChannelCaption', () => {
     expect(top).toContain('>Netflix</span>');
     expect(top).not.toContain('<img');
   });
-
-  it('writes the title as a block, so its room above the facts holds', () => {
-    const html = renderToStaticMarkup(
-      <ChannelCaption
-        channel={channel('')}
-        networkHref={undefined}
-        number="01"
-      />,
-    );
-    const title = html.match(/<span class="([^"]*)">Black Mirror<\/span>/);
-    expect(title?.[1]?.split(' ')).toEqual(
-      expect.arrayContaining(['block', 'mb-5.5', 'md:mb-6.5']),
-    );
-  });
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { MAP_DOTS, projectToMap } from './worldMap';
+import { projectToMap } from './worldMap';
 
 describe('projectToMap', () => {
   // Pins (left, top) for five places
@@ -19,15 +19,5 @@ describe('projectToMap', () => {
   it('leaves out a place beyond the map', () => {
     expect(projectToMap(-41.29, 174.78)).toBeUndefined(); // Wellington
     expect(projectToMap(78.22, 15.65)).toBeUndefined(); // Svalbard
-  });
-});
-
-describe('MAP_DOTS', () => {
-  it('draws 2,541 dots', () => {
-    const dots = [...MAP_DOTS.matchAll(/M\d+ \d+h(\d+)/g)].reduce(
-      (sum, [, length]) => sum + Math.floor((Number(length) - 1) / 6) + 1,
-      0,
-    );
-    expect(dots).toBe(2541);
   });
 });

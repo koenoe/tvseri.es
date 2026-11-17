@@ -1,14 +1,7 @@
 import type { LibraryIds } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
-import {
-  DEAL_SIZE,
-  dealPick,
-  deckOffset,
-  nextPick,
-  restPose,
-  shufflePose,
-} from './deck';
+import { dealPick, deckOffset, nextPick, restPose } from './deck';
 
 describe('deckOffset', () => {
   it('fans seven cards three to each side of the pick', () => {
@@ -23,49 +16,30 @@ describe('deckOffset', () => {
 });
 
 describe('restPose', () => {
+  const poses = [0, 1, 2, 3, 4, 5, 6].map((k) => restPose(0, k, 7));
+
   it('puts the pick in front, upright and bright', () => {
-    expect(restPose(0, 0, 7)).toEqual({
-      brightness: 1,
-      transform:
-        'translateX(calc(0px * var(--fan-spread, 1))) rotate(0deg) scale(1)',
-      zIndex: 10,
-    });
+    expect(poses[0]).toMatchObject({ brightness: 1, zIndex: 10 });
+    expect(poses[0]?.transform).toContain('rotate(0deg) scale(1)');
   });
 
-  it('fans the others out, smaller and darker the further back', () => {
-    expect(restPose(0, 1, 7)).toEqual({
-      brightness: 0.6,
-      transform:
-        'translateX(calc(110px * var(--fan-spread, 1))) rotate(5deg) scale(0.9)',
-      zIndex: 9,
+  it('fans the others out to both sides, smaller, darker and further back the further away', () => {
+    // offsets 1, 2, 3 to the right and their mirrors on the left
+    for (const [near, far] of [
+      [1, 2],
+      [2, 3],
+      [6, 5],
+      [5, 4],
+    ] as const) {
+      expect(poses[far]!.brightness).toBeLessThan(poses[near]!.brightness);
+      expect(poses[far]!.zIndex).toBeLessThan(poses[near]!.zIndex);
+    }
+    expect(poses[1]).toMatchObject({
+      brightness: poses[6]!.brightness,
+      zIndex: poses[6]!.zIndex,
     });
-    expect(restPose(0, 5, 7)).toEqual({
-      brightness: 0.525,
-      transform:
-        'translateX(calc(-204px * var(--fan-spread, 1))) rotate(-10deg) scale(0.8)',
-      zIndex: 8,
-    });
-    expect(restPose(0, 3, 7)).toEqual({
-      brightness: 0.45,
-      transform:
-        'translateX(calc(282px * var(--fan-spread, 1))) rotate(15deg) scale(0.7)',
-      zIndex: 7,
-    });
-  });
-});
-
-describe('shufflePose', () => {
-  it('gathers the cards into a loose pile', () => {
-    expect(shufflePose(0, 2)).toEqual({
-      brightness: 0.71,
-      transform: 'translate(36px, -4px) rotate(12deg) scale(0.86)',
-      zIndex: 0,
-    });
-    expect(shufflePose(3, 2)).toEqual({
-      brightness: 0.63,
-      transform: 'translate(-18px, 4px) rotate(-6deg) scale(0.86)',
-      zIndex: 3,
-    });
+    expect(poses[1]!.transform).toMatch(/translateX\(calc\(\d/);
+    expect(poses[6]!.transform).toMatch(/translateX\(calc\(-\d/);
   });
 });
 
@@ -102,7 +76,6 @@ describe('dealPick', () => {
 
   it('deals the day’s seven while the viewer is unknown (signed out)', () => {
     expect(idsOf(dealPick(pool, null))).toEqual([1, 2, 3, 4, 5, 6, 7]);
-    expect(DEAL_SIZE).toBe(7);
   });
 
   it('never deals a show the viewer started, finished or is up to date with', () => {

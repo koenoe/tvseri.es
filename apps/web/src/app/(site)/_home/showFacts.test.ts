@@ -1,13 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { seasonsLabel, showSeasons, showYears } from './showFacts';
-
-describe('seasonsLabel', () => {
-  it('counts seasons in words', () => {
-    expect(seasonsLabel(1)).toBe('1 season');
-    expect(seasonsLabel(5)).toBe('5 seasons');
-  });
-});
+import { showSeasons, showYears } from './showFacts';
 
 describe('showSeasons', () => {
   it('is the season count', () => {

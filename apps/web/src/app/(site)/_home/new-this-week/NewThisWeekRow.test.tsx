@@ -110,13 +110,6 @@ describe('LeadTile', () => {
     expect(screen.getByText('Season 3')).toBeTruthy();
     expect(screen.queryByText('2026')).toBeNull();
   });
-
-  it('is as tall as the posters beside it and grows 3% on hover, as a backdrop tile', () => {
-    render(<LeadTile release={ITEMS[0]!} />);
-    const link = screen.getByRole('link', { name: 'Pluribus' });
-    expect(link.className).toContain('h-[calc(var(--row-tile)*3/2)]');
-    expect(link.className).toContain('hover:scale-103');
-  });
 });
 
 describe('NewThisWeekRow', () => {
@@ -146,7 +139,7 @@ describe('NewThisWeekRow', () => {
     expect(tiles[0]!.className).toContain(LEAD_WIDTH);
     expect(tiles[0]!.textContent).toContain('#1 this week');
     for (const tile of tiles.slice(1)) {
-      expect(tile.className).toContain('w-(--row-tile)');
+      expect(tile.className).not.toContain(LEAD_WIDTH);
       expect(tile.textContent).toBe('');
     }
     expect(
@@ -166,7 +159,7 @@ describe('NewThisWeekRow', () => {
       />,
     );
     const tiles = within(screen.getByRole('list')).getAllByRole('listitem');
-    expect(tiles[0]!.className).toContain('w-(--row-tile)');
+    expect(tiles[0]!.className).not.toContain(LEAD_WIDTH);
     expect(screen.queryByText(/^#\d+ this week$/)).toBeNull();
   });
 

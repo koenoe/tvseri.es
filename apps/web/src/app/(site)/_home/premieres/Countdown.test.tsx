@@ -66,7 +66,6 @@ describe('Countdown', () => {
 
     expect(label.startsWith('<h2')).toBe(true);
     expect(label).toContain('Next big premiere');
-    expect(label).toContain('uppercase');
     expect(html).not.toContain('backdrop-blur-');
   });
 

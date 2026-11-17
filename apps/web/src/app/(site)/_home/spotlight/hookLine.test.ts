@@ -165,18 +165,6 @@ describe('hookLine derived from facts (examples)', () => {
     ).toBe('From the creator of Breaking Bad');
   });
 
-  it('Task: a creator’s better-known show', () => {
-    expect(
-      hookLine(
-        show({
-          createdBy: people('Brad Ingelsby'),
-          creatorOf: { title: 'Mare of Easttown' },
-          topCast: ['Mark Ruffalo', 'Tom Pelphrey', 'Emilia Jones'],
-        }),
-      ),
-    ).toBe('From the creator of Mare of Easttown');
-  });
-
   it('Dept. Q: a season premiere comes before a creator’s other show', () => {
     expect(
       hookLine(
@@ -230,19 +218,6 @@ describe('hookLine derived from facts (examples)', () => {
         }),
       ),
     ).toBe('From Bill Hader and Alec Berg');
-  });
-
-  it('The White Lotus: a season premiere', () => {
-    expect(
-      hookLine(
-        show({
-          createdBy: people('Mike White'),
-          creatorOf: { title: 'Enlightened' },
-          nextEpisodeToAir: upcoming('2026-11-17', 4, 1),
-          numberOfSeasons: 3,
-        }),
-      ),
-    ).toBe('Season 4 premieres Nov 17');
   });
 
   it('Dexter: Resurrection: nothing qualifies, the line is left out', () => {

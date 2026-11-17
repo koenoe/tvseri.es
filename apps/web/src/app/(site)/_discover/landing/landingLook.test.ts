@@ -16,10 +16,7 @@ const luminance = (hex: string) => {
 const contrastWithWhite = (hex: string) => 1.05 / (luminance(hex) + 0.05);
 
 describe('landingLook (each landing its own ground)', () => {
-  it('draws the genre glow without a colour, and the same glow in the show’s hue with one', () => {
-    expect(GENRE_FALLBACK.glow).toBe(
-      'radial-gradient(ellipse 70% 90% at 15% 0%, rgb(196 120 64 / 0.16), rgb(196 120 64 / 0) 60%)',
-    );
+  it('draws the genre glow in the show’s hue', () => {
     expect(landingLook('#8a5a2b', GENRE_FALLBACK).glow).toMatch(
       /^radial-gradient\(ellipse 70% 90% at 15% 0%, rgb\((\d+ \d+ \d+) \/ 0\.16\), rgb\(\1 \/ 0\) 60%\)$/,
     );

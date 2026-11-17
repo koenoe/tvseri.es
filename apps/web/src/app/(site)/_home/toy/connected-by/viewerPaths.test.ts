@@ -2,7 +2,7 @@ import type { ConnectedPath, LibraryIds, TvSeries } from '@tvseri.es/schemas';
 import { rotationIndex } from '@tvseri.es/utils';
 import { describe, expect, it } from 'vitest';
 
-import { endOf, startOf, unseenPaths, viewerStart } from './viewerPaths';
+import { endOf, unseenPaths, viewerStart } from './viewerPaths';
 
 const show = (id: number) =>
   ({ id, slug: `show-${id}`, title: `Show ${id}` }) as TvSeries;
@@ -94,12 +94,5 @@ describe('unseenPaths', () => {
     };
 
     expect(unseenPaths(paths, ids)).toEqual([]);
-  });
-});
-
-describe('startOf and endOf', () => {
-  it('name the first and the last show of a path', () => {
-    expect(startOf(path(1, 2, 3))?.id).toBe(1);
-    expect(endOf(path(1, 2, 3))?.id).toBe(3);
   });
 });

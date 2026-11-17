@@ -77,6 +77,13 @@ describe('getShowSummaries', () => {
     });
     expect(Object.keys(summaries)).toHaveLength(60);
   });
+
+  it('asks once for exactly 50 ids', async () => {
+    apiFetch.mockResolvedValue({});
+    const ids = Array.from({ length: 50 }, (_, index) => index + 1);
+    await getShowSummaries(summaryIds(ids));
+    expect(apiFetch).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('getWhereToStart', () => {

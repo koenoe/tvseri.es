@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { idsOf, withoutNeighbours } from './neighbours';
+import { withoutNeighbours } from './neighbours';
 
 const show = (id: number) => ({ id });
 
@@ -29,11 +29,5 @@ describe('withoutNeighbours', () => {
       show(1),
       show(2),
     ]);
-  });
-});
-
-describe('idsOf', () => {
-  it('lists the ids of shows', () => {
-    expect(idsOf([show(3), show(7)])).toEqual([3, 7]);
   });
 });

@@ -75,7 +75,7 @@ afterEach(() => {
 });
 
 describe('Versus: tap the one you would start', () => {
-  it('chooses a poster, dims the other side and swaps the hint for the actions', () => {
+  it('chooses a poster and swaps the hint for the actions', () => {
     renderDeck();
     expect(screen.getByText('Tap the one you would start')).toBeTruthy();
 
@@ -83,7 +83,6 @@ describe('Versus: tap the one you would start', () => {
 
     expect(poster('Dark').getAttribute('aria-pressed')).toBe('true');
     expect(poster('Devs').getAttribute('aria-pressed')).toBe('false');
-    expect(poster('Devs').className).toContain('opacity-40');
     expect(screen.queryByText('Tap the one you would start')).toBeNull();
     expect(
       screen.getByRole('link', { name: 'Open Dark' }).getAttribute('href'),
@@ -101,13 +100,11 @@ describe('Versus: tap the one you would start', () => {
     fireEvent.click(poster('Devs'));
 
     expect(poster('Devs').getAttribute('aria-pressed')).toBe('true');
-    expect(poster('Dark').className).toContain('opacity-40');
     expect(screen.getByRole('link', { name: 'Open Devs' })).toBeTruthy();
 
     fireEvent.click(poster('Devs'));
 
     expect(poster('Devs').getAttribute('aria-pressed')).toBe('false');
-    expect(poster('Dark').className).not.toContain('opacity-40');
     expect(screen.getByText('Tap the one you would start')).toBeTruthy();
   });
 

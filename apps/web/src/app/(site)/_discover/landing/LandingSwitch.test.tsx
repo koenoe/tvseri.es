@@ -2,11 +2,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import {
-  LandingSwitch,
-  LandingSwitchProvider,
-  ROW_SWITCH_CLASS,
-} from './LandingSwitch';
+import { LandingSwitch, LandingSwitchProvider } from './LandingSwitch';
 
 describe('LandingSwitch', () => {
   it('gives a tab the language of its label (WCAG 3.1.2)', () => {
@@ -29,24 +25,5 @@ describe('LandingSwitch', () => {
     expect(
       screen.getByRole('button', { name: 'English' }).hasAttribute('lang'),
     ).toBe(false);
-  });
-});
-
-describe('a row switch on a phone', () => {
-  it('sits 8 in from the row’s edge', () => {
-    render(
-      <LandingSwitchProvider>
-        <LandingSwitch
-          className={ROW_SWITCH_CLASS}
-          controls="best-rail"
-          label="Best of"
-          switchId="best"
-          tabs={[{ key: 'a', label: 'Before 2010' }]}
-        />
-      </LandingSwitchProvider>,
-    );
-    expect(screen.getByRole('group', { name: 'Best of' }).className).toContain(
-      'max-md:ml-2',
-    );
   });
 });

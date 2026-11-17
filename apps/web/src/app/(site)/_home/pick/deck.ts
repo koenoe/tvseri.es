@@ -12,7 +12,7 @@ import type { LibraryIds } from '@tvseri.es/schemas';
 import { librarySets } from '@/lib/marking/librarySets';
 
 /** The cards dealt: the day's seven, or the first seven new to the viewer */
-export const DEAL_SIZE = 7;
+const DEAL_SIZE = 7;
 
 /**
  * The cards a viewer is dealt from the day's pool (the day's seven first,

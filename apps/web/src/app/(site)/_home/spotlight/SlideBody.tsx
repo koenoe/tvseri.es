@@ -1,7 +1,14 @@
 'use client';
 
 import Image from 'next/image';
-import { type CSSProperties, memo, type SyntheticEvent, useMemo } from 'react';
+import {
+  type CSSProperties,
+  memo,
+  type SyntheticEvent,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 import MarkControl from '@/components/marking/MarkControl';
 import {
   calendarGlyph,
@@ -22,24 +29,34 @@ import styles from './spotlight.module.css';
 /** The buttons take clicks; the rest of the text lets them through */
 const ACTIONS = `pointer-events-auto ${SLIDE_ACTIONS}`;
 
-/** The logo at its file's natural size, inside the 460 × 150 cap (260 × 70 on a phone) */
+/** The logo inside the 460 × 150 cap (260 × 70 on a phone) */
 const LOGO_BOX =
   'block h-auto max-h-[70px] max-w-[260px] md:max-h-[150px] md:max-w-[460px]';
 
-const LOGO = `${LOGO_BOX} w-auto`;
-
 const LOGO_RATIO = '--logo-ratio';
 
+/** The image's own width / height: the cap's box before an unknown ratio loads */
+const INTRINSIC_RATIO = 920 / 300;
+
 /**
- * With the logo's aspect ratio from the API, its box is held before it
- * loads: the cap's width at that ratio (the size a w500 logo loads at), so
- * the lines under it don't move. Once loaded the ratio is dropped
- * (`releaseLogoBox`): both rules then resolve to `auto` and the file's
- * natural size decides, as without it (a logo narrower than the cap is not
- * stretched).
+ * The logo's box is held from its first paint, so the lines under it never
+ * move: the cap's width at the API's ratio (the size a w500 logo loads at),
+ * else at the image's intrinsic one. A file smaller than the cap keeps its
+ * natural size inside the held box (`object-scale-down`), never stretched.
+ * Without the API's ratio the box is released once the file loads
+ * (`releaseLogoBox`): its natural size decides, as no ratio was promised.
  */
 const LOGO_HELD = `${LOGO_BOX} aspect-(--logo-ratio) w-[min(260px,calc(70px*var(--logo-ratio)))] md:w-[min(460px,calc(150px*var(--logo-ratio)))]`;
 
+const LOGO = `${LOGO_HELD} object-scale-down object-bottom md:object-bottom-left`;
+
+/** A failed logo: the title in the logo's held box */
+const LOGO_FALLBACK = cn(
+  LOGO_HELD,
+  'flex items-end justify-center md:justify-start',
+);
+
+// without the ratio, both held rules resolve to `auto`: the file's size
 const releaseLogoBox = (event: SyntheticEvent<HTMLImageElement>) => {
   event.currentTarget.style.removeProperty(LOGO_RATIO);
 };
@@ -89,10 +106,15 @@ function SlideBody({
   // the logo stands 24px above the meta row, the title 8px
   const titleClasses = slide.logo ? 'm-0 md:mb-6' : 'm-0 md:mb-2';
 
-  const logoClasses = slide.logoRatio ? LOGO_HELD : LOGO;
-  const logoStyle = slide.logoRatio
-    ? ({ [LOGO_RATIO]: slide.logoRatio } as CSSProperties)
-    : undefined;
+  const [failed, setFailed] = useState<string | null>(null);
+  const markFailed = useCallback(() => setFailed(slide.logo), [slide.logo]);
+  const logoStyle = useMemo(
+    () =>
+      ({
+        [LOGO_RATIO]: slide.logoRatio ?? INTRINSIC_RATIO,
+      }) as CSSProperties,
+    [slide.logoRatio],
+  );
 
   const show = useMemo(
     () => ({
@@ -128,15 +150,21 @@ function SlideBody({
       </span>
       <h2 className={titleClasses}>
         <TileLink className={TITLE_LINK} draggable={false} href={slide.href}>
-          {slide.logo ? (
+          {slide.logo && failed === slide.logo ? (
+            <span className={LOGO_FALLBACK} style={logoStyle}>
+              <span className="line-clamp-1 font-display text-display text-white md:line-clamp-2">
+                {slide.title}
+              </span>
+            </span>
+          ) : slide.logo ? (
             <Image
               alt={slide.title}
-              className={logoClasses}
-              // The 460 × 150 cap at 2×; CSS sets both sides from the file's
-              // natural size (before it loads, from `logoRatio` when known)
+              className={LOGO}
+              // The 460 × 150 cap at 2×; CSS holds the box (`LOGO_HELD`)
               height={300}
               loading="eager"
-              onLoad={slide.logoRatio ? releaseLogoBox : undefined}
+              onError={markFailed}
+              onLoad={slide.logoRatio ? undefined : releaseLogoBox}
               src={slide.logo}
               style={logoStyle}
               // Natural size, capped (auto width/height): a

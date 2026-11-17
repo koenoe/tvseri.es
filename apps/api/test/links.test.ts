@@ -174,7 +174,14 @@ const lambdaFunctions = (): ReadonlyArray<LambdaFunction> => {
   const names = componentNames();
   const functions: LambdaFunction[] = [];
   for (const path of infraFiles) {
-    walk(parse(path), (node) => {
+    walk(parse(path), (node, parent) => {
+      // SST also takes a bare handler string, which would have no link list
+      if (
+        stringValue(node)?.endsWith('.handler') &&
+        identifierName(parent && child(parent, 'key')) !== 'handler'
+      ) {
+        throw new Error(`${path}: a handler outside a function's arguments`);
+      }
       if (node.type !== 'ObjectExpression') {
         return;
       }

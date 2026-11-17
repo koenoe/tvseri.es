@@ -11,6 +11,7 @@ import {
 import type { SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
 import * as v from 'valibot';
 
+import { clearSkipped } from '@/lib/db/prefs';
 import { markWatched } from '@/lib/db/watched';
 import {
   fetchTvSeriesBase,
@@ -154,8 +155,7 @@ const processScrobble = async (record: SQSRecord) => {
     return;
   }
 
-  // Mark as watched and log success
-  await markWatched({
+  const watchedItem = await markWatched({
     episode: {
       airDate: episode.airDate,
       episodeNumber: episode.episodeNumber,
@@ -171,6 +171,7 @@ const processScrobble = async (record: SQSRecord) => {
     watchedAt: Number(record.attributes.SentTimestamp),
     watchProvider,
   });
+  await clearSkipped([watchedItem]);
 
   console.log(
     `[SUCCESS] Plex | ${tvSeries.title} - ${episodeCode(episode)} "${episode.title}" | User: ${payload.userId}`,

@@ -1,6 +1,10 @@
+import type { SQSEvent } from 'aws-lambda';
 import { describe, expect, it } from 'vitest';
 
+import { handler as scrobbleHandler } from '@/lambdas/scrobble';
+
 import { db } from './db';
+import { onTmdb } from './fakeHttp';
 import { fakeShow } from './fixtures/tmdb';
 import { listItem, seedWatched } from './library';
 import { request } from './request';
@@ -138,6 +142,39 @@ describe('per-show prefs', () => {
       method: 'POST',
     });
     expect(await prefs()).toMatchObject({ skipped: [] });
+  });
+
+  it('a Plex scrobble of a skipped episode clears the skip', async () => {
+    setup();
+    await patch({ skip: ['S01E02', 'S01E03'] });
+    onTmdb('/find/tt0000102', {
+      tv_episode_results: [
+        {
+          air_date: '2020-01-08',
+          episode_number: 2,
+          id: 1,
+          name: 'Episode 2',
+          runtime: 30,
+          season_number: 1,
+          show_id: SHOW,
+          still_path: null,
+        },
+      ],
+    });
+    const event = {
+      Records: [
+        {
+          attributes: { SentTimestamp: String(Date.UTC(2024, 0, 1)) },
+          body: JSON.stringify({
+            metadata: { plex: { Guid: [{ id: 'imdb://tt0000102' }] } },
+            userId: USER_ID,
+          }),
+          messageId: 'm1',
+        },
+      ],
+    } as unknown as SQSEvent;
+    expect(await scrobbleHandler(event)).toEqual({ batchItemFailures: [] });
+    expect(await prefs()).toMatchObject({ skipped: ['S01E03'] });
   });
 
   it('marking the whole show clears every skip', async () => {

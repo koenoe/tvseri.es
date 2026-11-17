@@ -56,6 +56,43 @@ const NAV_AWS: ReadonlyArray<NavItem> = [
   },
 ];
 
+type NavGroupProps = Readonly<{
+  currentPath: string;
+  items: ReadonlyArray<NavItem>;
+  label?: string;
+}>;
+
+function NavGroup({ currentPath, items, label }: NavGroupProps) {
+  return (
+    <SidebarGroup>
+      {label ? <SidebarGroupLabel>{label}</SidebarGroupLabel> : null}
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((item) => {
+            const isActive = currentPath.startsWith(item.url);
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={isActive}
+                  tooltip={item.title}
+                >
+                  <Link className="gap-3!" to={item.url}>
+                    <item.icon className="size-4.5!" />
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+}
+
+NavGroup.displayName = 'NavGroup';
+
 function AppSidebarComponent(props: React.ComponentProps<typeof Sidebar>) {
   const currentPath = useRouterState({
     select: (state) => state.location.pathname,
@@ -81,47 +118,8 @@ function AppSidebarComponent(props: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {NAV_MAIN.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={currentPath.startsWith(item.url)}
-                    tooltip={item.title}
-                  >
-                    <Link className="gap-3!" to={item.url}>
-                      <item.icon className="size-4.5!" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>AWS</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {NAV_AWS.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={currentPath.startsWith(item.url)}
-                    tooltip={item.title}
-                  >
-                    <Link className="gap-3!" to={item.url}>
-                      <item.icon className="size-4.5!" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <NavGroup currentPath={currentPath} items={NAV_MAIN} />
+        <NavGroup currentPath={currentPath} items={NAV_AWS} label="AWS" />
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>

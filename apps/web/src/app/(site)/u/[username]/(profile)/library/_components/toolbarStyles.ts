@@ -8,7 +8,7 @@ export const PILL_ON =
 
 /** The find field: 240px, the search glyph inside */
 export const FIELD =
-  'flex h-9 w-60 items-center gap-2 rounded-10 bg-white/4 px-3 text-[13px] leading-5 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)] focus-within:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.3)]';
+  'flex h-9 w-60 items-center gap-2 rounded-10 bg-white/4 px-3 text-[13px] leading-5 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)] focus-within:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.35)]';
 
 /** A shelf chip (the phone's shelves, the sidebar's skeleton) */
 export const SHELF_CHIP =

@@ -1,8 +1,6 @@
-name: CI
+name: Checks and e2e
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
 
@@ -17,8 +15,6 @@ jobs:
   # Format, lint, unused code, types and the unit tests (Vitest, every package)
   checks:
     runs-on: ubuntu-latest
-
-    if: github.actor != 'dependabot[bot]'
 
     steps:
       - name: Checkout
@@ -57,14 +53,12 @@ jobs:
       - name: Test
         run: pnpm test
 
-  # The web's Playwright suite against its stub API and auth server, on pull
-  # requests only: no secrets, no AWS
+  # The web's Playwright suite against its stub API and auth server: no
+  # secrets, no AWS
   e2e:
     # macOS: the layout specs measure rendered text to the pixel, and Linux
     # Chromium's font rendering differs from the Macs they were written on
     runs-on: macos-latest
-
-    if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
 
     # Four shards on two workers each, plus the job's own install, browsers
     # and build (about 2 minutes)
@@ -117,6 +111,13 @@ jobs:
           PWTEST_SHARD_WEIGHTS: '208:154:152:149'
         run: pnpm --filter @tvseri.es/web e2e --shard=${{ matrix.shard }}/4 --workers=2
 
+      # The sign-in pages on their own harness (stand-ins for SES and Google,
+      # no secrets), on the lightest shard. Runs even when the web's shard
+      # failed, so one push reports both
+      - name: Auth e2e
+        if: ${{ matrix.shard == 4 && !cancelled() }}
+        run: pnpm --filter @tvseri.es/auth e2e
+
       # What a failure looked like: traces (retain-on-failure) and screenshots
       # (`pnpm exec playwright show-trace <zip>`)
       - name: Upload the failures' traces
@@ -124,6 +125,8 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: e2e-results-shard-${{ matrix.shard }}
-          path: apps/web/test-results/
+          path: |
+            apps/web/test-results/
+            apps/auth/test-results/
           retention-days: 5
           if-no-files-found: ignore

@@ -2,17 +2,16 @@
 
 import type { LibraryCounts, LibraryShelf } from '@tvseri.es/schemas';
 import { LIBRARY_SHELVES } from '@tvseri.es/schemas';
-import * as m from 'motion/react-m';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Fragment } from 'react';
-import MaxMotion from '@/components/motion/MaxMotion';
+import { Fragment, useRef } from 'react';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
 import { formatGrouped } from '@/lib/formatCount';
 import { libraryPath } from '@/lib/routing/profilePath';
 import { useShelfCounts } from '../_lib/counts';
 import { SHELVES } from '../_lib/shelves';
+import { usePillGlide } from '../_lib/usePillGlide';
 import { NavRule, ROW, ShelvesHeading } from './shelfNavParts';
 
 type Props = Readonly<{
@@ -22,9 +21,6 @@ type Props = Readonly<{
   owner: boolean;
   username: string;
 }>;
-
-/** The active row's pill moves to the new row (FLIP) */
-const PILL = { duration: 0.24, ease: [0.2, 0.8, 0.2, 1] } as const;
 
 /**
  * The shelves this viewer sees: Hidden only for the owner, and not at 0
@@ -57,34 +53,37 @@ function useActiveShelf(defaultShelf: LibraryShelf): LibraryShelf {
 export function ShelfNav({ counts, defaultShelf, owner, username }: Props) {
   const live = useShelfCounts(username, counts);
   const active = useActiveShelf(defaultShelf);
+  const nav = useRef<HTMLElement>(null);
+  const onPick = usePillGlide(nav, active);
   return (
-    <MaxMotion>
-      <nav aria-label="Shelves" className="flex flex-col gap-0.5">
-        <ShelvesHeading />
-        {shelvesFor(owner, live, active).map((shelf) => (
-          <Fragment key={shelf}>
-            {shelf === 'all' ? <NavRule /> : null}
-            <ShelfRow
-              active={shelf === active}
-              count={live?.[shelf] ?? null}
-              shelf={shelf}
-              username={username}
-            />
-          </Fragment>
-        ))}
-      </nav>
-    </MaxMotion>
+    <nav aria-label="Shelves" className="flex flex-col gap-0.5" ref={nav}>
+      <ShelvesHeading />
+      {shelvesFor(owner, live, active).map((shelf) => (
+        <Fragment key={shelf}>
+          {shelf === 'all' ? <NavRule /> : null}
+          <ShelfRow
+            active={shelf === active}
+            count={live?.[shelf] ?? null}
+            onPick={onPick}
+            shelf={shelf}
+            username={username}
+          />
+        </Fragment>
+      ))}
+    </nav>
   );
 }
 
 function ShelfRow({
   active,
   count,
+  onPick,
   shelf,
   username,
 }: Readonly<{
   active: boolean;
   count: number | null;
+  onPick: () => void;
   shelf: LibraryShelf;
   username: string;
 }>) {
@@ -93,11 +92,10 @@ function ShelfRow({
   const content = (
     <>
       {active ? (
-        <m.span
+        <span
           aria-hidden="true"
           className="absolute inset-0 rounded-8 bg-white/10"
-          layoutId="shelf-row"
-          transition={PILL}
+          data-pill
         />
       ) : null}
       <Icon
@@ -131,6 +129,7 @@ function ShelfRow({
           : 'text-white/80 transition-colors hover:bg-white/5 hover:text-white',
       )}
       href={href}
+      onClick={onPick}
     >
       {content}
     </Link>

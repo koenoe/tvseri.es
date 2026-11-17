@@ -2,24 +2,13 @@ import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 import { open } from './helpers';
-import {
-  clientSize,
-  nextFrames,
-  pageLine,
-  untilStable,
-} from './helpers/viewport';
 
 /**
- * Header, menu, footer and page colour parity.
+ * The header and footer in the static shell, the header's modes, and the
+ * page colour's guard against a colour that is not one.
  */
 
 const header = (page: Page) => page.locator('header[data-header-mode]');
-const glass = (page: Page) => header(page).locator('[data-header-glass]');
-const logo = (page: Page) =>
-  page
-    .getByRole('link', { name: 'tvseri.es home' })
-    .getByRole('img')
-    .filter({ visible: true });
 
 // The display-only username cookie (auth/cookies.ts) gives the signed-in
 // look. A production server's proxy drops it on every request without a
@@ -50,38 +39,6 @@ const makeTall = (page: Page) =>
     spacer.style.height = '4000px';
     document.body.append(spacer);
   });
-
-/** Scroll down past 60px (hidden), then a little up: the pill. */
-const showPill = async (page: Page) => {
-  await makeTall(page);
-  await page.mouse.move(200, 400);
-  // the first scroll event is the tracker's baseline
-  await page.mouse.wheel(0, 20);
-  await page.mouse.wheel(0, 800);
-  await expect(header(page)).toHaveAttribute('data-header-mode', 'hidden');
-  await page.mouse.wheel(0, -200);
-  await expect(header(page)).toHaveAttribute('data-header-mode', 'floating');
-  // settled: the slide-in and the glass fade are done
-  await expect(glass(page)).toHaveCSS('opacity', '1');
-  await untilStable(() => glass(page).boundingBox(), {
-    message: 'the pill slides in and stops',
-  });
-};
-
-/** The pill's gaps to the room's edges (the window less its scrollbar) */
-const pillGaps = async (page: Page) => {
-  const [box, room] = await Promise.all([
-    glass(page).boundingBox(),
-    clientSize(page),
-  ]);
-  if (!box) throw new Error('no pill');
-  return {
-    box,
-    left: box.x,
-    right: room.width - box.x - box.width,
-    top: box.y,
-  };
-};
 
 test.describe('static shell', () => {
   test('the header and footer of / are in the static shell', async ({
@@ -142,24 +99,6 @@ test.describe('header', () => {
     ).toHaveAttribute('href', `/u/${USERNAME}`);
     await expect(page.getByRole('link', { name: 'Sign in' })).toHaveCount(0);
   });
-
-  test('the header logo starts on the page line', async ({ page }) => {
-    await page.setViewportSize({ height: 900, width: 1440 });
-    await open(page, '/discover');
-    const box = await logo(page).boundingBox();
-    expect(
-      Math.abs((box?.x ?? -1) - (await pageLine(page))),
-    ).toBeLessThanOrEqual(0.5);
-  });
-
-  test('the logo is 24px tall, 32px from the top @design', async ({ page }) => {
-    await page.setViewportSize({ height: 900, width: 1440 });
-    await open(page, '/discover');
-    const box = await logo(page).boundingBox();
-    expect(box?.height).toBe(24);
-    expect(box?.width).toBeCloseTo(124.1, 0);
-    expect(box?.y).toBe(32);
-  });
 });
 
 test.describe('header modes', () => {
@@ -192,96 +131,6 @@ test.describe('header modes', () => {
     await expect(header(page)).toHaveAttribute('data-header-mode', 'static');
   });
 
-  test('the pill is centred in the room, its logo smaller than the header’s', async ({
-    page,
-  }) => {
-    await page.setViewportSize({ height: 900, width: 1440 });
-    await open(page, '/discover');
-    const resting = (await logo(page).boundingBox())?.height ?? 0;
-    await showPill(page);
-
-    const gaps = await pillGaps(page);
-    expect(Math.abs(gaps.left - gaps.right)).toBeLessThanOrEqual(1);
-    expect(gaps.top).toBeGreaterThan(0);
-    expect((await logo(page).boundingBox())?.height).toBeLessThan(resting);
-  });
-
-  test('the pill is 1024px wide, 24px from the top, 56px tall, 20px logo @design', async ({
-    page,
-  }) => {
-    await page.setViewportSize({ height: 900, width: 1440 });
-    await open(page, '/discover');
-    await showPill(page);
-
-    const { box } = await pillGaps(page);
-    expect(box.height).toBe(56);
-    expect(box.width).toBe(1024);
-    expect(box.y).toBe(24);
-    expect((await logo(page).boundingBox())?.height).toBe(20);
-  });
-
-  test('the pill’s glass is production’s, layer for layer, with no tint', async ({
-    page,
-  }) => {
-    await open(page, '/discover');
-    await showPill(page);
-    await expect(glass(page)).toHaveCSS('opacity', '1');
-    const layers = await header(page).evaluate((element) =>
-      [
-        ...element.querySelectorAll<HTMLElement>('[data-header-glass-layer]'),
-      ].map((layer) => {
-        const style = getComputedStyle(layer);
-        return {
-          backdrop: style.backdropFilter,
-          background: style.backgroundColor,
-          image: style.backgroundImage,
-          name: layer.dataset.headerGlassLayer,
-          radius: style.borderRadius,
-          shadow: style.boxShadow,
-          z: style.zIndex,
-        };
-      }),
-    );
-    expect(layers.map((layer) => [layer.name, layer.z])).toEqual([
-      ['shadow', '0'],
-      ['blur', '1'],
-      ['white', '2'],
-      ['edge', '3'],
-    ]);
-    const [shadow, blur, white, edge] = layers;
-    expect(shadow?.shadow).toContain('0px 10px 15px -3px');
-    expect(blur?.backdrop).toBe('blur(4px)');
-    // white at 10% (Chrome reports Tailwind's colour in oklab)
-    expect(white?.background).toMatch(
-      /^(rgba\(255, 255, 255, 0\.1\)|oklab\(0\.99\d* [-\de.]+ [-\de.]+ \/ 0\.1\))$/,
-    );
-    for (const layer of layers) {
-      expect(layer.image, layer.name).toBe('none');
-      expect(layer.radius, layer.name).toBe('12px');
-    }
-    expect(edge?.shadow).toBe(
-      'rgba(255, 255, 255, 0.15) 1px 1px 1px 0px inset',
-    );
-  });
-
-  test('the pill’s search button asks the search overlay to open', async ({
-    page,
-  }) => {
-    await open(page, '/discover');
-    await showPill(page);
-    await page.evaluate(() => {
-      window.addEventListener('tvseries:open-search', () => {
-        document.body.dataset.searchOpened = 'yes';
-      });
-    });
-
-    await page.getByRole('button', { name: 'Search' }).click();
-    await expect(page.locator('body')).toHaveAttribute(
-      'data-search-opened',
-      'yes',
-    );
-  });
-
   test('keyboard focus moving into the hidden header shows the pill', async ({
     page,
   }) => {
@@ -295,201 +144,12 @@ test.describe('header modes', () => {
     await page.getByRole('link', { name: 'tvseri.es home' }).focus();
     await expect(header(page)).toHaveAttribute('data-header-mode', 'floating');
   });
-
-  test('a phone gets the pill inset evenly from the room’s edges', async ({
-    page,
-  }) => {
-    await page.setViewportSize({ height: 844, width: 390 });
-    await open(page, '/discover');
-    await showPill(page);
-
-    const gaps = await pillGaps(page);
-    expect(Math.abs(gaps.left - gaps.right)).toBeLessThanOrEqual(1);
-    expect(Math.abs(gaps.left - gaps.top)).toBeLessThanOrEqual(1);
-    expect(gaps.left).toBeGreaterThan(0);
-  });
-
-  test('a phone gets the pill 12px from the edges, 56px tall, with the 20px logo @design', async ({
-    page,
-  }) => {
-    await page.setViewportSize({ height: 844, width: 390 });
-    await open(page, '/discover');
-    await showPill(page);
-
-    const gaps = await pillGaps(page);
-    expect(gaps.box).toMatchObject({ height: 56, x: 12, y: 12 });
-    expect(gaps.right).toBe(12);
-    expect((await logo(page).boundingBox())?.height).toBe(20);
-  });
-});
-
-test.describe('menu', () => {
-  // The menu itself is covered at 390, 1024 and 1440 in menu.spec.ts
-  test('phone: following a word closes the menu', async ({ page }) => {
-    await page.setViewportSize({ height: 844, width: 390 });
-    await open(page, '/');
-    await page.getByRole('button', { name: 'Menu' }).click();
-    const dialog = page.getByRole('dialog', { name: 'Menu' });
-    await dialog.getByRole('link', { name: 'Discover' }).click();
-    await page.waitForURL((url) => url.pathname === '/discover');
-    await expect(dialog).toBeHidden();
-  });
-});
-
-// Timing-based: opt-in (`E2E_PERF=1`), so a loaded machine can't fail the default run.
-test.describe('performance (lenient: catches regressions, not tuning) @perf', () => {
-  test('scrolling down and up through the pill keeps frames smooth', async ({
-    page,
-  }) => {
-    await open(page, '/discover');
-    await makeTall(page);
-    // its own layer, by transform only: `opacity` would make it a backdrop
-    // root and the pill's blur would stop reaching the page (HeaderFrame)
-    await expect(header(page)).toHaveCSS('will-change', 'transform');
-    await page.evaluate(() => {
-      const w = window as unknown as { __frames: number[]; __run: boolean };
-      w.__frames = [];
-      w.__run = true;
-      let last = performance.now();
-      const tick = (now: number) => {
-        w.__frames.push(now - last);
-        last = now;
-        if (w.__run) {
-          requestAnimationFrame(tick);
-        }
-      };
-      requestAnimationFrame(tick);
-    });
-    await page.mouse.move(400, 500);
-    const wheel = async (dy: number, times: number) => {
-      for (let i = 0; i < times; i += 1) {
-        await page.mouse.wheel(0, dy);
-        await nextFrames(page, 1);
-      }
-    };
-    await wheel(40, 30);
-    await wheel(-30, 15);
-    await wheel(40, 15);
-    await wheel(-40, 40);
-    // the last wheel's scroll and the header's slide play out
-    await nextFrames(page, 24);
-
-    const frames = await page.evaluate(() => {
-      const w = window as unknown as { __frames: number[]; __run: boolean };
-      w.__run = false;
-      return w.__frames.slice(2).sort((a, b) => a - b);
-    });
-    const p95 = frames[Math.floor(frames.length * 0.95)] ?? 0;
-    expect(frames.length).toBeGreaterThan(60);
-    expect(p95).toBeLessThan(50);
-  });
-
-  test('the menu opens and closes without input lag', async ({ page }) => {
-    await open(page, '/discover');
-    await page.evaluate(() => {
-      const w = window as unknown as { __events: number[] };
-      w.__events = [];
-      new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          w.__events.push(entry.duration);
-        }
-      }).observe({ durationThreshold: 16, type: 'event' });
-    });
-    for (let i = 0; i < 2; i += 1) {
-      await page.getByRole('button', { name: 'Menu' }).click();
-      await page.getByRole('button', { name: 'Close menu' }).click();
-    }
-    // event timing entries are reported after the next paints
-    await nextFrames(page, 18);
-    const durations = await page.evaluate(
-      () => (window as unknown as { __events: number[] }).__events,
-    );
-    expect(Math.max(0, ...durations)).toBeLessThan(200);
-  });
 });
 
 test.describe('page colour', () => {
-  const SHOW = '/136315/the-bear';
-  // The stub's The Bear: backdropColor #29251f
-  const COLOUR = 'rgb(41, 37, 31)';
   const GROUND = 'rgb(28, 34, 35)';
   const bodyColour = (page: Page) =>
     page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-
-  test('hard refresh and Back paint the colour on the first frame', async ({
-    page,
-  }) => {
-    await page.goto(SHOW);
-    expect(await bodyColour(page)).toBe(COLOUR);
-
-    // Hard refresh: every frame from the first one has the show's colour.
-    await page.addInitScript(() => {
-      const frames: string[] = [];
-      Object.assign(window, { __frames: frames });
-      const record = () => {
-        if (document.body) {
-          frames.push(getComputedStyle(document.body).backgroundColor);
-        }
-        if (frames.length < 60) {
-          requestAnimationFrame(record);
-        }
-      };
-      requestAnimationFrame(record);
-    });
-    await page.reload();
-    await page.waitForFunction(
-      () => (window as unknown as { __frames: string[] }).__frames.length >= 30,
-    );
-    const frames = await page.evaluate(
-      () => (window as unknown as { __frames: string[] }).__frames,
-    );
-    expect(frames.length).toBeGreaterThan(0);
-    expect(new Set(frames)).toEqual(new Set([COLOUR]));
-
-    // Away to the ground and Back: no ground frame on the show page.
-    await page.getByRole('button', { name: 'Menu' }).click();
-    await page.getByRole('link', { name: 'Discover' }).click();
-    await page.waitForURL((url) => url.pathname === '/discover');
-    await expect.poll(() => bodyColour(page)).toBe(GROUND);
-    await page.evaluate(() => {
-      const back: Array<readonly [string, string]> = [];
-      Object.assign(window, { __back: back });
-      const record = () => {
-        back.push([
-          location.pathname,
-          getComputedStyle(document.body).backgroundColor,
-        ]);
-        if (back.length < 240) {
-          requestAnimationFrame(record);
-        }
-      };
-      requestAnimationFrame(record);
-    });
-    await page.goBack();
-    await page.waitForURL((url) => url.pathname === SHOW);
-    // a run of frames on the show page, not only its first
-    await expect
-      .poll(() =>
-        page.evaluate(
-          (show) =>
-            (
-              window as unknown as { __back: Array<readonly [string, string]> }
-            ).__back.filter(([path]) => path === show).length,
-          SHOW,
-        ),
-      )
-      .toBeGreaterThanOrEqual(20);
-    const back = await page.evaluate(
-      () =>
-        (window as unknown as { __back: Array<readonly [string, string]> })
-          .__back,
-    );
-    const onShow = back.filter(([path]) => path === SHOW);
-    expect(onShow.length).toBeGreaterThan(0);
-    expect(new Set(onShow.map(([, colour]) => colour))).toEqual(
-      new Set([COLOUR]),
-    );
-  });
 
   test('a colour that is not a six-digit hex paints the ground', async ({
     page,

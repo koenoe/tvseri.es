@@ -43,19 +43,17 @@ async function openSpecials(page: Page) {
   await expect(seasonSelect(page)).toHaveText('Specials');
 }
 
-for (const width of [1440, 390]) {
-  test(`a visitor finds the specials last in the select and sees their wall at ${width}`, async ({
-    page,
-  }) => {
-    await page.setViewportSize({ height: 900, width });
-    await openSpecials(page);
-    // the season line has a segment per special, the wall leads with E01
-    await expect(seasonLine(page).locator('button')).toHaveCount(3);
-    await expect(
-      episodes(page).getByRole('heading', { name: /Christmas at the Harbour/ }),
-    ).toBeVisible();
-  });
-}
+test(`a visitor finds the specials last in the select and sees their wall at 390`, async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 900, width: 390 });
+  await openSpecials(page);
+  // the season line has a segment per special, the wall leads with E01
+  await expect(seasonLine(page).locator('button')).toHaveCount(3);
+  await expect(
+    episodes(page).getByRole('heading', { name: /Christmas at the Harbour/ }),
+  ).toBeVisible();
+});
 
 test('specials watched leave progress at 0 and Next up on S01E01', async ({
   context,

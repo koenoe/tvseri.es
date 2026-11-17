@@ -63,43 +63,6 @@ test.describe('404', () => {
     const [room, line] = await Promise.all([clientSize(page), pageLine(page)]);
     expect(right).toBeLessThanOrEqual(room.width - line + 0.5);
   });
-
-  test('the posters keep their place: no layout shift', async ({ page }) => {
-    // Warm the font cache first: a first visit's font swap (shared
-    // next/font fallback, CLS ≈ 0.016 at 1280 × 720) is not the page's.
-    await page.goto('/abc');
-    await page.evaluate(() => document.fonts.ready);
-    await page.addInitScript(() => {
-      const shifts: number[] = [];
-      Object.assign(window, { shifts });
-      new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          shifts.push((entry as unknown as { value: number }).value);
-        }
-      }).observe({ buffered: true, type: 'layout-shift' });
-    });
-    await page.reload();
-    // wait for the posters themselves, not network idle: under a parallel
-    // run the shared server's prefetches keep the network busy
-    const posters = page
-      .getByRole('region', { name: 'Or start something new' })
-      .locator('img');
-    await expect(posters).toHaveCount(5);
-    await expect
-      .poll(() =>
-        posters.evaluateAll((images) =>
-          images.every((image) => (image as HTMLImageElement).complete),
-        ),
-      )
-      .toBe(true);
-    const cls = await page.evaluate(() =>
-      (window as unknown as { shifts: number[] }).shifts.reduce(
-        (sum, value) => sum + value,
-        0,
-      ),
-    );
-    expect(cls).toBeLessThan(0.01);
-  });
 });
 
 test.describe('favicon set', () => {

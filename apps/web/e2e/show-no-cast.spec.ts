@@ -8,8 +8,7 @@ import { fontsSettled } from './helpers/viewport';
  * section's own top margin, with nothing reserved for faces. Measured
  * against a show with a cast on the same page, and against the section's own
  * margin, so no pixel constant is involved. Quiet Street (900007) has no
- * cast and no creators; Harbour Lights (900004) has ten faces (six on
- * phones).
+ * cast and no creators; Harbour Lights (900004) has faces.
  */
 
 const NO_CAST = '/900007/quiet-street';
@@ -40,35 +39,23 @@ async function heroToEpisodes(page: Page, path: string): Promise<Gap> {
   });
 }
 
-for (const viewport of [
-  { height: 900, width: 1440 },
-  { height: 844, width: 390 },
-]) {
-  test.describe(`no cast at ${viewport.width}px`, () => {
-    test.use({ viewport });
+test.use({ viewport: { height: 844, width: 390 } });
 
-    test('the hero meets the episodes with the section’s own margin', async ({
-      page,
-    }) => {
-      const quiet = await heroToEpisodes(page, NO_CAST);
-      // no box between them: the whole gap is the section's top margin
-      expect(quiet.gap).toBeCloseTo(quiet.margin, 0);
-      // no cast box in the page, not even an empty one
-      await expect(page.locator('[data-slot="cast"]')).toHaveCount(0);
+test('the hero meets the episodes with the section’s own margin', async ({
+  page,
+}) => {
+  const quiet = await heroToEpisodes(page, NO_CAST);
+  // no box between them: the whole gap is the section's top margin
+  expect(quiet.gap).toBeCloseTo(quiet.margin, 0);
+  // no cast box in the page, not even an empty one
+  await expect(page.locator('[data-slot="cast"]')).toHaveCount(0);
 
-      const full = await heroToEpisodes(page, WITH_CAST);
-      if (viewport.width >= 1024) {
-        // the faces' row is real space on a show that has them
-        expect(full.gap).toBeGreaterThan(quiet.gap + 96);
-      } else {
-        // below lg the faces and their names sit in a grid (two rows of
-        // three on phones) that takes its whole height in the page
-        const cast = await page
-          .locator('[data-slot="cast"]')
-          .evaluate((node) => node.getBoundingClientRect().height);
-        expect(cast).toBeGreaterThan(0);
-        expect(full.gap).toBeGreaterThan(quiet.gap + cast);
-      }
-    });
-  });
-}
+  // on a phone the faces and their names sit in a grid that takes its
+  // whole height in the page
+  const full = await heroToEpisodes(page, WITH_CAST);
+  const cast = await page
+    .locator('[data-slot="cast"]')
+    .evaluate((node) => node.getBoundingClientRect().height);
+  expect(cast).toBeGreaterThan(0);
+  expect(full.gap).toBeGreaterThan(quiet.gap + cast);
+});

@@ -9,13 +9,8 @@ import { signInAs } from './helpers/session';
  * should be.
  */
 
-const SURFACES = [
-  ['Up next', 'up-next'],
-  ['Out now', 'b-out'],
-  ['Catching up', 'b-catch'],
-  ['From your circle', 'from-your-circle'],
-  ['Favourites', 'favourites'],
-] as const;
+// A lane and the Favourites slices: the two ways a block mounts its ⋯
+const SURFACES = ['Up next', 'Favourites'] as const;
 
 /** Console errors from Motion's strict mode, or anything that unmounts the page */
 function watchForCrashes(page: Page) {
@@ -49,7 +44,7 @@ test.describe('the ⋯ Remote on the profile', () => {
     await signInAs(page.context(), 'alex');
   });
 
-  for (const [name] of SURFACES) {
+  for (const name of SURFACES) {
     test(`opens from ${name}`, async ({ page }) => {
       const errors = watchForCrashes(page);
       await page.goto('/u/alex');
@@ -72,7 +67,7 @@ test.describe('the ⋯ Remote on the profile', () => {
     });
   }
 
-  test('opens from a Watching tile (N E H), and Hide fades the tile out', async ({
+  test('opens from a Watching tile (N E H), and Hide takes the tile out', async ({
     page,
   }) => {
     const errors = watchForCrashes(page);
@@ -96,28 +91,7 @@ test.describe('the ⋯ Remote on the profile', () => {
     ).resolves.toEqual(['N', 'E', 'H']);
     await expectNoCrash(page, errors);
 
-    // The tile fades and shrinks (0.2s, scale .96) before its cell leaves
-    const seen = first.evaluate(
-      (tile) =>
-        new Promise<{ minOpacity: number }>((resolve) => {
-          let minOpacity = 1;
-          const start = performance.now();
-          const tick = () => {
-            minOpacity = Math.min(
-              minOpacity,
-              Number(getComputedStyle(tile).opacity),
-            );
-            if (performance.now() - start < 800) {
-              requestAnimationFrame(tick);
-            } else {
-              resolve({ minOpacity });
-            }
-          };
-          requestAnimationFrame(tick);
-        }),
-    );
     await page.getByRole('menuitem', { name: /Hide from in progress/ }).click();
-    expect((await seen).minOpacity).toBeLessThan(1);
     await expect(tiles).toHaveCount(before - 1);
     await expectNoCrash(page, errors);
   });

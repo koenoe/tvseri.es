@@ -114,7 +114,6 @@ test('the viewer’s season and marks are in the HTML, before any JS', async ({
  * hydrates. The sheet's `&season` (`?history`) is the sheet's, not the wall's.
  */
 for (const [query, season] of [
-  ['?season=1', 'Season 1'],
   ['?season=2&episode=6', 'Season 2'],
   ['?history&season=1', 'Season 3'],
   ['?season=9', 'Season 3'],

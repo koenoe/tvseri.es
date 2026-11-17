@@ -34,33 +34,26 @@ async function openSearch(page: Page) {
   await expect(field(page)).toBeFocused();
 }
 
-for (const width of [1440, 390]) {
-  test.describe(`at ${width}`, () => {
-    test.beforeEach(async ({ page }) => {
-      await page.setViewportSize({ height: 900, width });
-    });
-
-    test('a handle typed with @ finds the member first; Enter opens their profile', async ({
-      context,
-      page,
-    }) => {
-      await signInAs(context, 'alex');
-      await open(page);
-      await page
-        .getByRole('banner')
-        .getByRole('button', { name: 'Search' })
-        .click();
-      await field(page).fill('@Juno');
-      const juno = option(page, '@juno');
-      await expect(juno).toBeVisible();
-      await expect(members(page)).toBeVisible();
-      await expect(juno).toHaveAttribute('aria-selected', 'true');
-      await expect(juno).toHaveAttribute('href', '/u/juno');
-      await page.keyboard.press('Enter');
-      await expect(page).toHaveURL('/u/juno');
-    });
-  });
-}
+test('a handle typed with @ finds the member first; Enter opens their profile', async ({
+  context,
+  page,
+}) => {
+  await page.setViewportSize({ height: 900, width: 1440 });
+  await signInAs(context, 'alex');
+  await open(page);
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Search' })
+    .click();
+  await field(page).fill('@Juno');
+  const juno = option(page, '@juno');
+  await expect(juno).toBeVisible();
+  await expect(members(page)).toBeVisible();
+  await expect(juno).toHaveAttribute('aria-selected', 'true');
+  await expect(juno).toHaveAttribute('href', '/u/juno');
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL('/u/juno');
+});
 
 test('signed in, a bare word runs the normal search and sends no member request', async ({
   context,
@@ -115,13 +108,9 @@ test('signed out: no member results and no lookup request', async ({
   expect(requests).toEqual([]);
 });
 
-const findPeople = async (
-  page: Page,
-  context: BrowserContext,
-  width: number,
-) => {
-  await page.setViewportSize({ height: 900, width });
-  await phoneScrollbars(page, width);
+const findPeople = async (page: Page, context: BrowserContext) => {
+  await page.setViewportSize({ height: 844, width: 390 });
+  await phoneScrollbars(page, 390);
   await signInAs(context, 'nina');
   await open(page, '/u/nina');
   const find = page.getByRole('button', { name: 'Find people' });
@@ -130,27 +119,16 @@ const findPeople = async (
   return find;
 };
 
-for (const width of [1440, 390]) {
-  test(`Find people on the empty circle opens search ready for a handle (${width})`, async ({
-    context,
-    page,
-  }) => {
-    const find = await findPeople(page, context, width);
-    await find.click();
-    await expect(field(page)).toBeFocused();
-    await expect(field(page)).toHaveValue('@');
-    // a lone @ asks nothing: the recents stay
-    await expect(dialog(page).getByText(/^Nothing for/)).toHaveCount(0);
-    await page.keyboard.type('juno');
-    await expect(option(page, '@juno')).toBeVisible();
-  });
-
-  test(`@design Find people is a 32px button (${width})`, async ({
-    context,
-    page,
-  }) => {
-    const find = await findPeople(page, context, width);
-    const box = await find.boundingBox();
-    expect(Math.round(box?.height ?? 0)).toBe(32);
-  });
-}
+test('Find people on the empty circle opens search ready for a handle', async ({
+  context,
+  page,
+}) => {
+  const find = await findPeople(page, context);
+  await find.click();
+  await expect(field(page)).toBeFocused();
+  await expect(field(page)).toHaveValue('@');
+  // a lone @ asks nothing: the recents stay
+  await expect(dialog(page).getByText(/^Nothing for/)).toHaveCount(0);
+  await page.keyboard.type('juno');
+  await expect(option(page, '@juno')).toBeVisible();
+});

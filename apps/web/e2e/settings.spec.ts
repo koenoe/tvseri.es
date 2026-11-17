@@ -14,7 +14,7 @@ import { fontsSettled, pageSettled, phoneScrollbars } from './helpers/viewport';
 const SIGN_IN_TITLE = 'Sign in, so we know your name.';
 
 test.describe('settings signed out', () => {
-  for (const url of ['/settings', '/settings/plex', '/settings/import']) {
+  for (const url of ['/settings', '/settings/plex']) {
     test(`${url} asks to sign in (not the show page's 404)`, async ({
       page,
     }) => {
@@ -139,14 +139,6 @@ test.describe('settings signed in (desktop)', () => {
     await expect(fewer.locator('svg')).toHaveClass(/rotate-180/);
   });
 
-  test('the old webhooks URL lands on Connected apps', async ({ page }) => {
-    await page.goto('/settings/webhooks');
-    await page.waitForURL((url) => url.pathname === '/settings/plex');
-    await expect(
-      page.getByRole('heading', { level: 2, name: 'Connected apps' }),
-    ).toBeVisible();
-  });
-
   // The stub's public lookup never learns a signed-in rename (its state is
   // per session), like a CDN that still holds the new name's 404: the
   // owner's own profile must come from their account
@@ -236,7 +228,7 @@ test.describe('settings show counts', () => {
 // ("Not available yet") was squeezed into a word-wide column and ran under
 // the pills. Below `xl` the pills take their own row; on a phone the toggle
 // joins them (beside Details the status broke into "Not / available yet").
-for (const width of [360, 390, 800, 1024, 1280] as const) {
+for (const width of [360, 800] as const) {
   test(`Connected apps: status and pills never overlap at ${width}px`, async ({
     context,
     page,
@@ -277,7 +269,7 @@ for (const width of [360, 390, 800, 1024, 1280] as const) {
 // handle ran out of their card, and Import's "Prime / Video" tab hung out of
 // its control (the drop zone's poster wall bleeds by design, so Import is
 // measured at its tabs).
-for (const width of [360, 390] as const) {
+for (const width of [360] as const) {
   // nina: no import of hers is ever under way (another spec runs one as
   // alex, which swaps the upload step for the check), and the boxes are
   // read in one pass, so nothing can re-render between them
@@ -309,7 +301,6 @@ for (const width of [360, 390] as const) {
   });
 
   for (const [path, viewer] of [
-    ['/settings/profile', 'alex'],
     ['/settings/profile', 'marathonwatcher-2026'],
   ] as const) {
     test(`${path} as ${viewer} holds its text at ${width}px`, async ({

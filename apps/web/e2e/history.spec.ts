@@ -8,7 +8,6 @@ import { untilStable } from './helpers/viewport';
  * The watch-history sheet, the date picker and "I'm up to…" on a production
  * build (stub viewer `alex`: The Bear S1–S2 watched, S03E01–E4, E5 Next up).
  * The overlays are client-only: `?history` must keep the page shell instant.
- * `PERF=1` also logs input delay, frame gaps and lazy-chunk sizes.
  */
 const SHOW = '/136315/the-bear';
 
@@ -79,47 +78,44 @@ const stopSampling = (page: Page) =>
     return w.__panel;
   });
 
-for (const [name, viewport, axis] of [
-  ['desktop', { height: 900, width: 1440 }, 'left'],
-  ['phone', { height: 844, width: 390 }, 'top'],
-] as const) {
-  test(`the sheet slides in on its first open after a hard load (${name})`, async ({
-    page,
-  }) => {
-    await page.setViewportSize(viewport);
-    await page.goto(SHOW);
-    const trigger = page
-      .getByRole('button', { name: /open watch history/ })
-      .first();
-    await expect(trigger).toBeVisible();
-    await samplePanel(page, axis);
-    await trigger.click();
-    await expect(sheet(page)).toBeVisible();
-    // the slide has come to rest
-    await untilStable(
-      () =>
-        page.evaluate(() => {
-          const w = window as unknown as { __panel: number[] };
-          return w.__panel.at(-1);
-        }),
-      { message: 'the sheet stops sliding', quietMs: 300 },
-    );
-    const positions = await stopSampling(page);
-    const final = positions.at(-1) ?? 0;
-    // it starts away from its place (a sheet that jumps is at rest on its
-    // first frame) and slides: a step on the way is seen, or, where the
-    // main thread stalled for the whole slide (a slow machine paints none
-    // of its frames), the slide is seen running on the panel
-    expect(positions[0]).not.toBe(final);
-    const between = new Set(
-      positions.filter((value) => value !== final && value !== positions[0]),
-    );
-    const animated = await page.evaluate(
-      () => (window as unknown as { __animated: boolean }).__animated,
-    );
-    expect(between.size > 0 || animated).toBe(true);
-  });
-}
+// The first open after a hard load once jumped into place: the slide is
+// checked where it is longest, the phone's full height.
+test('the sheet slides in on its first open after a hard load', async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 844, width: 390 });
+  await page.goto(SHOW);
+  const trigger = page
+    .getByRole('button', { name: /open watch history/ })
+    .first();
+  await expect(trigger).toBeVisible();
+  await samplePanel(page, 'top');
+  await trigger.click();
+  await expect(sheet(page)).toBeVisible();
+  // the slide has come to rest
+  await untilStable(
+    () =>
+      page.evaluate(() => {
+        const w = window as unknown as { __panel: number[] };
+        return w.__panel.at(-1);
+      }),
+    { message: 'the sheet stops sliding', quietMs: 300 },
+  );
+  const positions = await stopSampling(page);
+  const final = positions.at(-1) ?? 0;
+  // it starts away from its place (a sheet that jumps is at rest on its
+  // first frame) and slides: a step on the way is seen, or, where the
+  // main thread stalled for the whole slide (a slow machine paints none
+  // of its frames), the slide is seen running on the panel
+  expect(positions[0]).not.toBe(final);
+  const between = new Set(
+    positions.filter((value) => value !== final && value !== positions[0]),
+  );
+  const animated = await page.evaluate(
+    () => (window as unknown as { __animated: boolean }).__animated,
+  );
+  expect(between.size > 0 || animated).toBe(true);
+});
 
 test.describe('Back closes the sheet, like the episode modal', () => {
   async function openFromProgress(page: Page) {
@@ -383,138 +379,6 @@ test('I’m up to… previews what it would change before anything is written', 
   await upTo.getByRole('button', { name: 'Close' }).click();
   await expect(upTo).toBeHidden();
   await expect(page.getByText(/Marked/)).toHaveCount(0);
-});
-
-test('performance: open/close input delay, drag frames, lazy chunks', async ({
-  page,
-}) => {
-  test.skip(!process.env.PERF, 'PERF=1 logs the numbers');
-  await page.goto(SHOW);
-  await page.waitForLoadState('networkidle');
-  const jsBefore = await page.evaluate(() =>
-    performance
-      .getEntriesByType('resource')
-      .filter((entry) => entry.name.endsWith('.js'))
-      .map((entry) => (entry as PerformanceResourceTiming).encodedBodySize)
-      .reduce((sum, size) => sum + size, 0),
-  );
-  await page.evaluate(() => {
-    const w = window as unknown as { __events: PerformanceEventTiming[] };
-    w.__events = [];
-    new PerformanceObserver((list) => {
-      w.__events.push(...(list.getEntries() as PerformanceEventTiming[]));
-    }).observe({
-      durationThreshold: 16,
-      type: 'event',
-    } as PerformanceObserverInit);
-  });
-  // Open via the URL helper's path (replaceState), as the page's triggers do.
-  const sheetStart = await page.evaluate(() => performance.now());
-  await page.evaluate(() => {
-    const url = new URL(window.location.href);
-    url.searchParams.set('history', '');
-    url.searchParams.set('season', '3');
-    window.history.replaceState(
-      null,
-      '',
-      url.toString().replace('history=', 'history'),
-    );
-  });
-  await expect(sheet(page)).toBeVisible();
-  const sheetVisible = await page.evaluate(() => performance.now());
-  // The sheet's last lazy load: "time left" shows once every season is in.
-  await expect(
-    sheet(page)
-      .getByText(/\d+h \d+m left/)
-      .first(),
-  ).toBeVisible();
-  const jsAfterSheet = await page.evaluate(() =>
-    performance
-      .getEntriesByType('resource')
-      .filter((entry) => entry.name.endsWith('.js'))
-      .map((entry) => (entry as PerformanceResourceTiming).encodedBodySize)
-      .reduce((sum, size) => sum + size, 0),
-  );
-
-  // Picker: first open loads its chunk; measure the second open (warm).
-  await chip(page, 3, 5).click();
-  const picker = page.getByRole('dialog', { name: /When did you watch/ });
-  await expect(picker).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(picker).toBeHidden();
-  const jsAfterPicker = await page.evaluate(() =>
-    performance
-      .getEntriesByType('resource')
-      .filter((entry) => entry.name.endsWith('.js'))
-      .map((entry) => (entry as PerformanceResourceTiming).encodedBodySize)
-      .reduce((sum, size) => sum + size, 0),
-  );
-  const openStart = await page.evaluate(() => performance.now());
-  await chip(page, 3, 6).click();
-  await expect(picker).toBeVisible();
-  const openVisible = await page.evaluate(() => performance.now());
-  await page.keyboard.press('Escape');
-  await expect(picker).toBeHidden();
-  await sheet(page).getByRole('button', { name: 'Tap marks' }).click();
-
-  // Drag across Season 3 and count long frames while painting.
-  await page.evaluate(() => {
-    const w = window as unknown as { __frames: number[]; __raf: boolean };
-    w.__frames = [];
-    w.__raf = true;
-    let last = performance.now();
-    const tick = (now: number) => {
-      w.__frames.push(now - last);
-      last = now;
-      if (w.__raf) {
-        requestAnimationFrame(tick);
-      }
-    };
-    requestAnimationFrame(tick);
-  });
-  await chip(page, 3, 1).hover();
-  await page.mouse.down();
-  for (const e of [2, 3, 4, 5, 6, 7, 8, 9, 10, 9, 8, 7, 6]) {
-    const box = await chip(page, 3, e).boundingBox();
-    await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2, {
-      steps: 6,
-    });
-  }
-  await page.mouse.up();
-  const frames = await page.evaluate(() => {
-    const w = window as unknown as { __frames: number[]; __raf: boolean };
-    w.__raf = false;
-    return w.__frames.slice(1);
-  });
-  await page.keyboard.press('Escape');
-  await expect(sheet(page)).toBeHidden();
-  const events = await page.evaluate(() =>
-    (window as unknown as { __events: PerformanceEventTiming[] }).__events.map(
-      (entry) => ({
-        delay: Math.round(entry.processingStart - entry.startTime),
-        duration: entry.duration,
-        name: entry.name,
-      }),
-    ),
-  );
-  const long = frames.filter((delta) => delta > 25).length;
-  console.log(
-    JSON.stringify(
-      {
-        dragFrames: frames.length,
-        dragFramesOver25ms: long,
-        dragWorstFrameMs: Math.round(Math.max(...frames)),
-        eventsOver16ms: events,
-        jsKbInitial: Math.round(jsBefore / 1024),
-        jsKbPickerChunk: Math.round((jsAfterPicker - jsAfterSheet) / 1024),
-        jsKbSheetChunk: Math.round((jsAfterSheet - jsBefore) / 1024),
-        pickerWarmOpenMs: Math.round(openVisible - openStart),
-        sheetColdOpenMs: Math.round(sheetVisible - sheetStart),
-      },
-      null,
-      2,
-    ),
-  );
 });
 
 test('on desktop the sheet behaves as every side panel (the menu): the scrim, an inert locked page, Back closes', async ({

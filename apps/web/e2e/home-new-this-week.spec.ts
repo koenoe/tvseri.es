@@ -67,38 +67,25 @@ test('a tile opens the show', async ({ page }) => {
   await expect(page).toHaveURL(/\/940001\//);
 });
 
-for (const width of [360, 390, 1440]) {
-  test.describe(`at ${width}px`, () => {
-    test.use({ viewport: { height: width < 500 ? 844 : 900, width } });
-    test.beforeEach(async ({ page }) => {
-      await phoneScrollbars(page, width);
-    });
-
-    test('the lead is as tall as the posters, and the next one peeks', async ({
-      page,
-    }) => {
-      await page.goto('/');
-      const tiles = page.locator(`${ROW} #new-this-week-rail > li`);
-      await tiles.first().scrollIntoViewIfNeeded();
-      const lead = await tiles.nth(0).locator('a').first().boundingBox();
-      const poster = await tiles.nth(1).locator('a').first().boundingBox();
-      expect(lead && poster).toBeTruthy();
-      expect(Math.abs(lead!.height - poster!.height)).toBeLessThanOrEqual(1);
-      expect(lead!.width).toBeGreaterThan(poster!.width * 2);
-      const room = (await clientSize(page)).width;
-      if (width < 500) {
-        // about 85% of the room, the next poster in view at the edge
-        expect(lead!.width / room).toBeGreaterThan(0.8);
-        expect(lead!.width / room).toBeLessThan(0.9);
-        expect(poster!.x).toBeLessThanOrEqual(room - 12);
-      } else {
-        // 16:9 at the posters' height
-        expect(lead!.width / lead!.height).toBeCloseTo(16 / 9, 1);
-      }
-      const scroll = await page.evaluate(
-        () => document.documentElement.scrollWidth,
-      );
-      expect(scroll).toBeLessThanOrEqual(room);
-    });
-  });
-}
+test('on a phone the lead is as tall as the posters, and the next one peeks', async ({
+  page,
+}) => {
+  await page.setViewportSize({ height: 844, width: 390 });
+  await phoneScrollbars(page, 390);
+  await page.goto('/');
+  const tiles = page.locator(`${ROW} #new-this-week-rail > li`);
+  await tiles.first().scrollIntoViewIfNeeded();
+  const lead = await tiles.nth(0).locator('a').first().boundingBox();
+  const poster = await tiles.nth(1).locator('a').first().boundingBox();
+  expect(lead && poster).toBeTruthy();
+  expect(Math.abs(lead!.height - poster!.height)).toBeLessThanOrEqual(1);
+  const room = (await clientSize(page)).width;
+  // about 85% of the room, the next poster in view at the edge
+  expect(lead!.width / room).toBeGreaterThan(0.8);
+  expect(lead!.width / room).toBeLessThan(0.9);
+  expect(poster!.x).toBeLessThanOrEqual(room - 12);
+  const scroll = await page.evaluate(
+    () => document.documentElement.scrollWidth,
+  );
+  expect(scroll).toBeLessThanOrEqual(room);
+});

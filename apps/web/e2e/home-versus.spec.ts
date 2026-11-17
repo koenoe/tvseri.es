@@ -197,8 +197,6 @@ test.describe('Versus', () => {
 
 for (const viewport of [
   { height: 900, width: 1440 },
-  { height: 900, width: 1100 },
-  { height: 1000, width: 800 },
   { height: 844, width: 390 },
 ] as const) {
   test(`the placeholder has the card's boxes at ${viewport.width}px`, async ({

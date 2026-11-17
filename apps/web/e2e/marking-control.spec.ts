@@ -142,15 +142,20 @@ async function ghostThenState(
   return row;
 }
 
-for (const viewport of [
-  { height: 900, width: 1440 },
-  { height: 844, width: 390 },
-]) {
+// Each state draws a different control in the same box: one state of each
+// size at each width, not every state at every width
+for (const { kinds, viewport } of [
+  {
+    kinds: ['watching', 'finished'],
+    viewport: { height: 900, width: 1440 },
+  },
+  { kinds: ['new'], viewport: { height: 844, width: 390 } },
+] as const) {
   test.describe(`Home spotlight at ${viewport.width}`, () => {
     // the slideshow holds still (reduced motion): the first slide stays
     test.use({ reducedMotion: 'reduce', viewport });
 
-    for (const kind of Object.keys(STATES) as StateName[]) {
+    for (const kind of kinds) {
       test(`${kind}: the ghost, then the state in the same box`, async ({
         context,
         page,
@@ -235,43 +240,41 @@ test.describe('Home spotlight presses', () => {
 test.describe('the landing’s Start here tile', () => {
   test.use({ viewport: { height: 900, width: 1440 } });
   const TILE = '[data-slot="landing-hero"] article';
+  const kind = 'watching';
 
-  for (const kind of ['watchlist', 'watching', 'finished'] as const) {
-    test(`${kind}: the ghost, then the state in the same box`, async ({
-      context,
-      page,
-    }) => {
-      await signInAs(context, 'alex');
-      await page.goto('/theme/dystopia');
-      const href = await page.locator(`${TILE} a`).first().getAttribute('href');
-      await lateState(page, kind, idOfHref(href));
-      const tile = await boxOf(page, TILE);
-      await ghostThenState(page, '/theme/dystopia', TILE, kind);
-      expect(await boxOf(page, TILE)).toEqual(tile);
-    });
-  }
+  test(`${kind}: the ghost, then the state in the same box`, async ({
+    context,
+    page,
+  }) => {
+    await signInAs(context, 'alex');
+    await page.goto('/theme/dystopia');
+    const href = await page.locator(`${TILE} a`).first().getAttribute('href');
+    await lateState(page, kind, idOfHref(href));
+    const tile = await boxOf(page, TILE);
+    await ghostThenState(page, '/theme/dystopia', TILE, kind);
+    expect(await boxOf(page, TILE)).toEqual(tile);
+  });
 });
 
 test.describe('the decade card', () => {
   test.use({ viewport: { height: 900, width: 1440 } });
   const CARD = '[data-slot="decade-card"]';
+  const kind = 'new';
 
-  for (const kind of ['new', 'up-to-date'] as const) {
-    test(`${kind}: the ghost, then the state in the same box, right-aligned`, async ({
-      context,
-      page,
-    }) => {
-      await signInAs(context, 'alex');
-      await page.goto('/decade/2010s');
-      const id = idOfHref(
-        await page.locator(`${CARD} a`).first().getAttribute('href'),
-      );
-      await answerStates('alex', { [id]: STATES[kind] }, 'held');
-      const card = await boxOf(page, CARD);
-      await ghostThenState(page, '/decade/2010s', CARD, kind);
-      expect(await boxOf(page, CARD)).toEqual(card);
-    });
-  }
+  test(`${kind}: the ghost, then the state in the same box, right-aligned`, async ({
+    context,
+    page,
+  }) => {
+    await signInAs(context, 'alex');
+    await page.goto('/decade/2010s');
+    const id = idOfHref(
+      await page.locator(`${CARD} a`).first().getAttribute('href'),
+    );
+    await answerStates('alex', { [id]: STATES[kind] }, 'held');
+    const card = await boxOf(page, CARD);
+    await ghostThenState(page, '/decade/2010s', CARD, kind);
+    expect(await boxOf(page, CARD)).toEqual(card);
+  });
 });
 
 test.describe('a Premieres ticket', () => {

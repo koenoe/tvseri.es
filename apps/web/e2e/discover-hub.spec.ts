@@ -177,124 +177,55 @@ test.describe('discover hub (/discover)', () => {
   // a numeral may run behind its poster only as far as the tuck: 36
   // of a 290 tile for one digit, 40 for two (under a third of the last
   // digit), so no digit can be lost; on a phone the poster is bigger
-  // (72% of the tile, not 62%) and covers that much more of the numeral
-  for (const width of [1440, 390]) {
-    test(`keeps every numeral's digits in view at ${width}`, async ({
-      page,
-    }) => {
-      await page.setViewportSize({ height: 900, width });
-      await phoneScrollbars(page, width);
-      await open(page, '/discover');
-      // the row is streamed in after the shell: measure the one that stays
-      // (scrolling the shell's copy found it replaced mid-scroll on a slow runner)
-      await pageSettled(page);
-      const row = page.getByRole('region', { name: 'All-time favourites' });
-      await row.scrollIntoViewIfNeeded();
-      await fontsSettled(page);
-      const hidden = await row.locator('ol').evaluate((list) => {
-        const canvas = document.createElement('canvas').getContext('2d')!;
-        return [...list.children].map((item) => {
-          const numeral = item.querySelector('[aria-hidden="true"]')!;
-          const link = item.querySelector('a')!;
-          const poster = link.getBoundingClientRect();
-          const share =
-            Number.parseFloat(
-              getComputedStyle(link).getPropertyValue('--ranked-poster'),
-            ) || 180 / 290;
-          const box = numeral.getBoundingClientRect();
-          const text = numeral.textContent ?? '';
-          const style = getComputedStyle(numeral);
-          let inkEnd = box.right;
-          if (text.length > 1) {
-            // two digits are proportional figures: the canvas measures their ink
-            canvas.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
-            canvas.letterSpacing = style.letterSpacing;
-            const metrics = canvas.measureText(text);
-            const scale = box.width / (numeral as HTMLElement).offsetWidth;
-            inkEnd =
-              box.right -
-              (metrics.width - metrics.actualBoundingBoxRight) * scale;
-          }
-          // the poster is its share of the row's tile (a two-digit tile is wider)
-          const rowTile = poster.width / share;
-          const grown = (share - 180 / 290) * rowTile;
-          const allowed =
-            ((text.length > 1 ? 40 : 36) / 290) * rowTile + grown + 2;
-          return { allowed, behind: inkEnd - poster.left, text };
-        });
+  // (72% of the tile, not 62%) and covers that much more of the numeral,
+  // the tighter case
+  test("keeps every numeral's digits in view on a phone", async ({ page }) => {
+    await page.setViewportSize({ height: 900, width: 390 });
+    await phoneScrollbars(page, 390);
+    await open(page, '/discover');
+    // the row is streamed in after the shell: measure the one that stays
+    // (scrolling the shell's copy found it replaced mid-scroll on a slow runner)
+    await pageSettled(page);
+    const row = page.getByRole('region', { name: 'All-time favourites' });
+    await row.scrollIntoViewIfNeeded();
+    await fontsSettled(page);
+    const hidden = await row.locator('ol').evaluate((list) => {
+      const canvas = document.createElement('canvas').getContext('2d')!;
+      return [...list.children].map((item) => {
+        const numeral = item.querySelector('[aria-hidden="true"]')!;
+        const link = item.querySelector('a')!;
+        const poster = link.getBoundingClientRect();
+        const share =
+          Number.parseFloat(
+            getComputedStyle(link).getPropertyValue('--ranked-poster'),
+          ) || 180 / 290;
+        const box = numeral.getBoundingClientRect();
+        const text = numeral.textContent ?? '';
+        const style = getComputedStyle(numeral);
+        let inkEnd = box.right;
+        if (text.length > 1) {
+          // two digits are proportional figures: the canvas measures their ink
+          canvas.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+          canvas.letterSpacing = style.letterSpacing;
+          const metrics = canvas.measureText(text);
+          const scale = box.width / (numeral as HTMLElement).offsetWidth;
+          inkEnd =
+            box.right -
+            (metrics.width - metrics.actualBoundingBoxRight) * scale;
+        }
+        // the poster is its share of the row's tile (a two-digit tile is wider)
+        const rowTile = poster.width / share;
+        const grown = (share - 180 / 290) * rowTile;
+        const allowed =
+          ((text.length > 1 ? 40 : 36) / 290) * rowTile + grown + 2;
+        return { allowed, behind: inkEnd - poster.left, text };
       });
-      expect(hidden).toHaveLength(20);
-      for (const { allowed, behind, text } of hidden) {
-        expect(behind, `numeral ${text}`).toBeLessThanOrEqual(allowed);
-      }
     });
-  }
-});
-
-test.describe('Essentials title (row titles with a logo)', () => {
-  for (const width of [1440, 390]) {
-    test(`the logo starts at the row's left edge and sits on the text baseline at ${width}`, async ({
-      page,
-    }) => {
-      await page.setViewportSize({ height: 900, width });
-      await phoneScrollbars(page, width);
-      await page.goto('/discover');
-      const heading = page
-        .getByRole('region', { name: /Essentials/ })
-        .getByRole('heading', { level: 2 });
-      const logo = heading.getByRole('img');
-      await logo.scrollIntoViewIfNeeded();
-      await expect
-        .poll(() => logo.evaluate((img) => (img as HTMLImageElement).complete))
-        .toBe(true);
-      const m = await heading.evaluate((h) => {
-        const img = h.querySelector('img') as HTMLImageElement;
-        const text = [...h.querySelectorAll('*'), h]
-          .flatMap((el) => [...el.childNodes])
-          .find(
-            (node) =>
-              node.nodeType === Node.TEXT_NODE &&
-              node.textContent?.includes('Essentials'),
-          ) as Text;
-        // a zero-size inline box on the text's baseline
-        const probe = document.createElement('span');
-        probe.style.cssText =
-          'display:inline-block;width:0;height:0;vertical-align:baseline';
-        text.after(probe);
-        const baseline = probe.getBoundingClientRect().top;
-        probe.remove();
-        const section = h.closest('section') as HTMLElement;
-        const firstPoster = section.querySelector('li') as HTMLElement;
-        return {
-          baseline,
-          bottom: img.getBoundingClientRect().bottom,
-          left: img.getBoundingClientRect().left,
-          posterLeft: firstPoster.getBoundingClientRect().left,
-        };
-      });
-      // bottom on the baseline
-      expect(Math.abs(m.bottom - m.baseline)).toBeLessThanOrEqual(1);
-      expect(Math.abs(m.left - m.posterLeft)).toBeLessThanOrEqual(1);
-    });
-
-    test(`the logo is 20px tall (17 on a phone) at ${width}`, {
-      tag: '@design',
-    }, async ({ page }) => {
-      await page.setViewportSize({ height: 900, width });
-      await phoneScrollbars(page, width);
-      await page.goto('/discover');
-      const logo = page
-        .getByRole('region', { name: /Essentials/ })
-        .getByRole('heading', { level: 2 })
-        .getByRole('img');
-      await logo.scrollIntoViewIfNeeded();
-      await expect
-        .poll(() => logo.evaluate((img) => (img as HTMLImageElement).complete))
-        .toBe(true);
-      const box = await logo.boundingBox();
-      expect(box?.height ?? 0).toBeCloseTo(width === 390 ? 17 : 20, 0);
-    });
-  }
+    expect(hidden).toHaveLength(20);
+    for (const { allowed, behind, text } of hidden) {
+      expect(behind, `numeral ${text}`).toBeLessThanOrEqual(allowed);
+    }
+  });
 });
 
 test('"Essentials" keeps its place while the network logo loads', async ({

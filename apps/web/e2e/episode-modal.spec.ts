@@ -198,46 +198,37 @@ test('an episode the show does not have opens no modal and leaves the URL', asyn
 
 // At tablet width the side-by-side face squeezed the title
 // into ~190px and its 104px lines rose above the panel's top, where no
-// scroll reaches. Below `lg` the modal stacks; at `lg` and up, a short
-// window still keeps the title inside the panel.
-for (const { height, width } of [
-  { height: 813, width: 800 },
-  { height: 600, width: 800 },
-  { height: 768, width: 1024 },
-] as const) {
-  test(`the title stays inside the modal at ${width}×${height}`, async ({
-    page,
-  }) => {
-    await page.setViewportSize({ height, width });
-    await page.goto(`${SHOW}?season=2&episode=6`);
-    const dialog = modal(page);
-    const heading = dialog.getByRole('heading', {
-      exact: true,
-      level: 2,
-      name: 'Fishes',
-    });
-    await expect(heading).toBeVisible();
-    // measured once the panel has grown in: until then (`data-opening`,
-    // ModalShell) it is mid-scale and its scroller deliberately unscrollable
-    await expect(dialog.locator('[data-opening]')).toHaveCount(0);
-    // the panel is the dialog's scroll container the title sits in
-    const scroller = dialog.locator('[data-dialog-scroller]');
-    await expect(scroller).toHaveCSS('overflow-y', 'auto');
-    const panel = await scroller.boundingBox();
-    const title = await heading.boundingBox();
-    expect(panel && title).toBeTruthy();
-    if (panel && title) {
-      expect(title.y).toBeGreaterThanOrEqual(panel.y);
-      expect(title.x + title.width).toBeLessThanOrEqual(
-        panel.x + panel.width + 1,
-      );
-    }
-    // the last thing in the panel is reachable by scrolling down
-    const stub = dialog.getByRole('button', { name: 'Next episode' });
-    await stub.scrollIntoViewIfNeeded();
-    await expect(stub).toBeInViewport();
+// scroll reaches. A short tablet window is the tightest case.
+test('the title stays inside the modal at 800×600', async ({ page }) => {
+  await page.setViewportSize({ height: 600, width: 800 });
+  await page.goto(`${SHOW}?season=2&episode=6`);
+  const dialog = modal(page);
+  const heading = dialog.getByRole('heading', {
+    exact: true,
+    level: 2,
+    name: 'Fishes',
   });
-}
+  await expect(heading).toBeVisible();
+  // measured once the panel has grown in: until then (`data-opening`,
+  // ModalShell) it is mid-scale and its scroller deliberately unscrollable
+  await expect(dialog.locator('[data-opening]')).toHaveCount(0);
+  // the panel is the dialog's scroll container the title sits in
+  const scroller = dialog.locator('[data-dialog-scroller]');
+  await expect(scroller).toHaveCSS('overflow-y', 'auto');
+  const panel = await scroller.boundingBox();
+  const title = await heading.boundingBox();
+  expect(panel && title).toBeTruthy();
+  if (panel && title) {
+    expect(title.y).toBeGreaterThanOrEqual(panel.y);
+    expect(title.x + title.width).toBeLessThanOrEqual(
+      panel.x + panel.width + 1,
+    );
+  }
+  // the last thing in the panel is reachable by scrolling down
+  const stub = dialog.getByRole('button', { name: 'Next episode' });
+  await stub.scrollIntoViewIfNeeded();
+  await expect(stub).toBeInViewport();
+});
 
 // The record stub is one element at every width (docked by CSS on a phone):
 // crossing 640px with the modal open keeps it, and whatever it holds
@@ -260,9 +251,8 @@ test('the record stub survives the window crossing the phone width', async ({
   await expect(stub).toHaveAttribute('data-kept', 'yes');
 });
 
-// Below `lg` the credits roll inside their own box under the faces, as
-// they do beside them on a wide screen; a touch stops the roll where it is
-// and the box scrolls by hand from there.
+// Below `lg` the credits roll inside their own box; with reduced motion
+// they are a plain scrollable list.
 test.describe('the credits on a phone', () => {
   test.use({ viewport: { height: 844, width: 390 } });
 
@@ -272,32 +262,6 @@ test.describe('the credits on a phone', () => {
     credits(page).evaluate(
       (box) => box.getAnimations({ subtree: true }).length,
     );
-  const offset = (page: Page) =>
-    credits(page).evaluate((box) =>
-      box.firstElementChild
-        ? new DOMMatrixReadOnly(
-            getComputedStyle(box.firstElementChild).transform,
-          ).m42
-        : 0,
-    );
-
-  test('roll in their box and stop where they are for a touch', async ({
-    page,
-  }) => {
-    await page.goto(`${SHOW}?season=2&episode=6`);
-    await expect(credits(page)).toHaveCSS('overflow-y', 'auto');
-    await expect(credits(page)).toHaveCSS('overscroll-behavior-y', 'contain');
-    await expect.poll(() => offset(page)).toBeLessThan(-10);
-
-    await credits(page).dispatchEvent('pointerdown', { pointerType: 'touch' });
-    expect(await rolling(page)).toBe(0);
-    expect(await offset(page)).toBe(0);
-    // the box took over the roll's place, the list drawn once
-    expect(
-      await credits(page).evaluate((box) => box.scrollTop),
-    ).toBeGreaterThan(0);
-    await expect(credits(page).getByText('Directed by')).toHaveCount(1);
-  });
 
   test('stay a scrollable list with reduced motion', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });

@@ -16,19 +16,20 @@ const EXPECTED = [
   'x-frame-options',
 ];
 
-for (const path of ['/', '/shows/breaking-bad']) {
-  test(`${path} sends the security headers`, async ({ request }) => {
-    const response = await request.get(path);
-    const headers = response.headers();
+test('a page and the static 404 send the security headers', async ({
+  request,
+}) => {
+  for (const path of ['/', '/shows/breaking-bad']) {
+    const headers = (await request.get(path)).headers();
     for (const name of EXPECTED) {
-      expect(headers[name], name).toBeTruthy();
+      expect(headers[name], `${path}: ${name}`).toBeTruthy();
     }
     expect(headers['content-security-policy']).toContain(
       "frame-ancestors 'none'",
     );
     expect(headers['x-content-type-options']).toBe('nosniff');
-  });
-}
+  }
+});
 
 /** Collects CSP violations and console errors from the first script on. */
 async function watch(page: Page) {

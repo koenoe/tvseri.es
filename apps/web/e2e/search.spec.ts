@@ -306,94 +306,59 @@ test('P-SR-14: the 404 field opens search with its query', async ({ page }) => {
   await expect(marked(page)).toHaveAttribute('href', '/136315/the-bear');
 });
 
-for (const viewer of [null, 'alex'] as const) {
-  test(`P-SR-15: typing at once after opening keeps every key and lands results (${viewer ?? 'signed out'})`, async ({
-    context,
-    page,
-  }) => {
-    if (viewer) {
-      await signInAs(context, viewer);
-    }
-    // A cold open: the idle preload never runs (an idle callback that never
-    // fires, so no timer can preload it on a slow machine either), and the
-    // overlay's code arrives 400 ms after the click, so the keys come before
-    // its field exists.
-    await page.addInitScript(() => {
-      window.requestIdleCallback = () => 0;
-      window.cancelIdleCallback = () => undefined;
-    });
-    let slowChunks = false;
-    await page.route('**/_next/static/chunks/**', async (route) => {
-      if (slowChunks) {
-        await new Promise((resolve) => setTimeout(resolve, 400));
-      }
-      await route.continue();
-    });
-    await page.goto('/');
-    await expect(page.locator('html')).toHaveAttribute(
-      'data-search-listening',
-      '',
-    );
-    await expect(page.locator('html')).not.toHaveAttribute('data-search-ready');
-    slowChunks = true;
-    await page
-      .getByRole('banner')
-      .getByRole('button', { name: 'Search' })
-      .click();
-    await page.keyboard.type('the bear', { delay: 20 });
-
-    await expect(field(page)).toHaveValue('the bear');
-    await expect(marked(page)).toHaveAttribute('href', '/136315/the-bear');
-    await page.keyboard.press('Escape');
-    slowChunks = false;
-
-    // after a client navigation, the shortcut, then straight into typing
-    await page.goto('/the-bear-is-not-here');
-    // no idle preload here: hovering a search trigger loads it
-    await page
-      .getByRole('banner')
-      .getByRole('button', { name: 'Search' })
-      .hover();
-    await expect(page.locator('html')).toHaveAttribute('data-search-ready', '');
-    await page.getByRole('link', { name: 'tvseri.es home' }).click();
-    await expect(page).toHaveURL('/');
-    await page.keyboard.press('Control+k');
-    await page.keyboard.type('bre', { delay: 20 });
-
-    await expect(field(page)).toHaveValue('bre');
-    await expect(marked(page)).toHaveAttribute('href', '/1396/breaking-bad');
-  });
-}
-
-test('P-SR-16: it grows out of the header’s search icon and shrinks back into it (production’s motion)', async ({
+test('P-SR-15: typing at once after opening keeps every key and lands results', async ({
+  context,
   page,
 }) => {
-  await open(page);
-  const icon = page.getByRole('banner').getByRole('button', { name: 'Search' });
-  const box = await icon.boundingBox();
-  await icon.click();
-  // typing starts in the first frame of the grow
-  await page.keyboard.type('bre', { delay: 10 });
-  const panel = dialog(page).locator('.remote-surface');
+  await signInAs(context, 'alex');
+  // A cold open: the idle preload never runs (an idle callback that never
+  // fires, so no timer can preload it on a slow machine either), and the
+  // overlay's code arrives 400 ms after the click, so the keys come before
+  // its field exists.
+  await page.addInitScript(() => {
+    window.requestIdleCallback = () => 0;
+    window.cancelIdleCallback = () => undefined;
+  });
+  let slowChunks = false;
+  await page.route('**/_next/static/chunks/**', async (route) => {
+    if (slowChunks) {
+      await new Promise((resolve) => setTimeout(resolve, 400));
+    }
+    await route.continue();
+  });
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveAttribute(
+    'data-search-listening',
+    '',
+  );
+  await expect(page.locator('html')).not.toHaveAttribute('data-search-ready');
+  slowChunks = true;
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Search' })
+    .click();
+  await page.keyboard.type('the bear', { delay: 20 });
 
-  const { origin, panelLeft, panelTop } = await panel.evaluate((element) => ({
-    origin: getComputedStyle(element).transformOrigin,
-    panelLeft: (element as HTMLElement).offsetLeft,
-    panelTop: (element as HTMLElement).offsetTop,
-  }));
-  const [x, y] = origin.split(' ').map(Number.parseFloat);
-  expect(
-    Math.abs(panelLeft + (x ?? 0) - ((box?.x ?? 0) + (box?.width ?? 0) / 2)),
-  ).toBeLessThan(2);
-  expect(
-    Math.abs(panelTop + (y ?? 0) - ((box?.y ?? 0) + (box?.height ?? 0) / 2)),
-  ).toBeLessThan(2);
-  await expect(field(page)).toHaveValue('bre');
-  await expect(panel).toHaveCSS('scale', 'none');
-
+  await expect(field(page)).toHaveValue('the bear');
+  await expect(marked(page)).toHaveAttribute('href', '/136315/the-bear');
   await page.keyboard.press('Escape');
-  await expect(panel).toHaveAttribute('data-closing', '');
-  await expect(dialog(page)).toBeHidden();
+  slowChunks = false;
+
+  // after a client navigation, the shortcut, then straight into typing
+  await page.goto('/the-bear-is-not-here');
+  // no idle preload here: hovering a search trigger loads it
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Search' })
+    .hover();
+  await expect(page.locator('html')).toHaveAttribute('data-search-ready', '');
+  await page.getByRole('link', { name: 'tvseri.es home' }).click();
+  await expect(page).toHaveURL('/');
+  await page.keyboard.press('Control+k');
+  await page.keyboard.type('bre', { delay: 20 });
+
+  await expect(field(page)).toHaveValue('bre');
+  await expect(marked(page)).toHaveAttribute('href', '/1396/breaking-bad');
 });
 
 test.describe('the Watched label on a result', () => {

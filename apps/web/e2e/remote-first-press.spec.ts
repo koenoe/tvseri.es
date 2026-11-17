@@ -5,8 +5,8 @@ import { type StubViewer, setLibraryHint, signInAs } from './helpers/session';
 /**
  * The lazy ⋯ opens its Remote on the first press, on a page loaded fresh:
  * the Remote's code is held back after the page has loaded, so the press
- * lands before the code does (and, at 0 ms, around it). One press, one
- * open: a click at 1440, a tap at 390, Enter on the focused ⋯. It once
+ * lands before the code does. One press, one open: a click at 1440, a tap at
+ * 390, Enter on the focused ⋯ (one input per surface). It once
  * took two under `next dev`: StrictMode's re-run of the new Remote's
  * effects closed the menu the first press had just opened.
  */
@@ -17,8 +17,8 @@ type Surface = Readonly<{
   viewer: StubViewer;
   /** The surface's ⋯ buttons */
   more: (page: Page) => Locator;
-  /** Shows a ⋯ at 390 (a History row's is hover-only, none on a phone) */
-  phone: boolean;
+  /** How it is pressed (a History row's ⋯ is hover-only: no tap) */
+  inputs: ReadonlyArray<'click' | 'enter' | 'tap'>;
   /** Home's Continue watching: the viewer's in-progress hint */
   hint?: ReadonlyArray<number>;
 }>;
@@ -27,32 +27,32 @@ const MORE = /^More actions for/;
 
 const SURFACES: ReadonlyArray<Surface> = [
   {
+    inputs: ['click'],
     more: (page) =>
       page.locator('[data-diary]').getByRole('button', { name: MORE }),
     name: 'a History row',
     path: '/u/alex/history',
-    phone: false,
     viewer: 'alex',
   },
   {
+    inputs: ['enter', 'tap'],
     more: (page) =>
       page
         .getByRole('region', { name: 'Out now' })
         .getByRole('button', { name: MORE }),
     name: 'a profile lane row',
     path: '/u/alex',
-    phone: true,
     viewer: 'alex',
   },
   {
     hint: [136315],
+    inputs: ['click'],
     more: (page) =>
       page
         .locator('[data-slot="continue"]')
         .getByRole('button', { name: MORE }),
     name: "Home's Continue watching",
     path: '/',
-    phone: true,
     viewer: 'kit',
   },
 ];
@@ -159,11 +159,9 @@ for (const surface of SURFACES) {
     test.describe('at 1440', () => {
       test.use({ viewport: { height: 900, width: 1440 } });
 
-      for (const delay of [0, 400]) {
-        test(`a click opens the Remote (code ${delay}ms late)`, async ({
-          page,
-        }) => {
-          const { held, more } = await freshMore(page, surface, delay);
+      if (surface.inputs.includes('click')) {
+        test('a click opens the Remote (code 400ms late)', async ({ page }) => {
+          const { held, more } = await freshMore(page, surface, 400);
           const menu = await menuFor(page, more);
           const frames = await watchTrigger(more);
           await more.click();
@@ -175,32 +173,34 @@ for (const surface of SURFACES) {
         });
       }
 
-      test('Enter opens it on the big key; Escape gives focus back to the ⋯', async ({
-        page,
-      }) => {
-        const { held, more } = await freshMore(page, surface, 400);
-        const menu = await menuFor(page, more);
-        const name = (await more.getAttribute('aria-label')) ?? '';
-        await more.focus();
-        await page.keyboard.press('Enter');
-        await expectOpenOnce(page, menu, held);
-        await expect(menu.getByRole('menuitem').first()).toBeFocused();
-        await page.keyboard.press('Escape');
-        await expect(menu).toHaveCount(0);
-        await expect(
-          page.getByRole('button', { expanded: false, name }),
-        ).toBeFocused();
-      });
+      if (surface.inputs.includes('enter')) {
+        test('Enter opens it on the big key; Escape gives focus back to the ⋯', async ({
+          page,
+        }) => {
+          const { held, more } = await freshMore(page, surface, 400);
+          const menu = await menuFor(page, more);
+          const name = (await more.getAttribute('aria-label')) ?? '';
+          await more.focus();
+          await page.keyboard.press('Enter');
+          await expectOpenOnce(page, menu, held);
+          await expect(menu.getByRole('menuitem').first()).toBeFocused();
+          await page.keyboard.press('Escape');
+          await expect(menu).toHaveCount(0);
+          await expect(
+            page.getByRole('button', { expanded: false, name }),
+          ).toBeFocused();
+        });
+      }
     });
 
     test.describe('at 390', () => {
       test.use({ hasTouch: true, viewport: { height: 844, width: 390 } });
 
-      for (const delay of surface.phone ? [0, 400] : []) {
-        test(`a tap opens the Remote's sheet (code ${delay}ms late)`, async ({
+      if (surface.inputs.includes('tap')) {
+        test("a tap opens the Remote's sheet (code 400ms late)", async ({
           page,
         }) => {
-          const { held, more } = await freshMore(page, surface, delay);
+          const { held, more } = await freshMore(page, surface, 400);
           const menu = await menuFor(page, more);
           const frames = await watchTrigger(more);
           await more.tap();

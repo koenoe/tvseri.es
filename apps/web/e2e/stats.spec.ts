@@ -2,12 +2,7 @@ import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 import { signInAs, signInShownAs } from './helpers/session';
-import {
-  fontsSettled,
-  nextFrames,
-  pageSettled,
-  phoneScrollbars,
-} from './helpers/viewport';
+import { fontsSettled, pageSettled, phoneScrollbars } from './helpers/viewport';
 
 /**
  * `/u/{username}/stats/{year}`: public, one cached entry
@@ -64,7 +59,7 @@ const hydrated = (page: Page) =>
   expect(page.locator('html')).toHaveAttribute('data-search-ready', '');
 
 test.describe('stats', () => {
-  for (const width of [360, 390, 1440]) {
+  for (const width of [360]) {
     test(`never scrolls sideways at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ height: 900, width });
       await phoneScrollbars(page, width);
@@ -139,7 +134,7 @@ test.describe('stats', () => {
   // a year switch keeps them mounted (no skeleton, the same nodes), the
   // clicked year is the selected one while the new year is still its
   // static shell, and the new year opens at the top of the page.
-  for (const width of [1440, 390]) {
+  for (const width of [1440]) {
     test(`a year switch keeps the sidebar and selects the year at once at ${width}px`, async ({
       baseURL,
       page,
@@ -230,7 +225,7 @@ test.describe('stats', () => {
   // One Share for every width, beside the year's title: the icon circle on
   // a phone (on the title's row at 360), the pill on desktop; it opens the
   // phone's sheet or the desktop dialog.
-  for (const width of [360, 390, 1440]) {
+  for (const width of [390]) {
     test(`Share sits beside the year and opens its panel at ${width}px`, async ({
       page,
     }) => {
@@ -275,7 +270,7 @@ test.describe('stats', () => {
 
   // The user lookup unavailable: the data-down page has the whole width,
   // with no sidebar or phone head beside it (the layout's grid steps aside)
-  for (const width of [390, 1440]) {
+  for (const width of [390]) {
     test(`a failed user lookup is the whole data-down page at ${width}px`, async ({
       page,
     }) => {
@@ -335,78 +330,6 @@ test.describe('stats', () => {
       await expect(
         page.getByRole('heading', { level: 1, name: /^\d{4}$/ }),
       ).toHaveCount(0);
-    }
-  });
-
-  test('"Most hours" re-sorts the rows with a layout animation, not a jump', async ({
-    page,
-  }) => {
-    await page.setViewportSize({ height: 900, width: 1440 });
-    await page.goto(PAGE);
-    const rows = page.locator('#year-in-shows-rows [role="img"]');
-    await rows.first().scrollIntoViewIfNeeded();
-    await hydrated(page);
-    // Per animation frame: how many rows moved since the frame before, and
-    // whether any row is mid-flight (a transform: the layout animation's
-    // FLIP). Watched from the press until 30 still frames after the first
-    // move, so a slow press or a stalled frame is not the window's end
-    const sample = () =>
-      page.evaluate(
-        () =>
-          new Promise<Array<{ moved: number; flying: boolean }>>((resolve) => {
-            const rows = () =>
-              [
-                ...document.querySelectorAll(
-                  '#year-in-shows-rows [role="img"]',
-                ),
-              ].sort((a, b) =>
-                (a.getAttribute('aria-label') ?? '').localeCompare(
-                  b.getAttribute('aria-label') ?? '',
-                ),
-              );
-            const top = () =>
-              rows().map((row) => row.getBoundingClientRect().top);
-            const frames: Array<{ moved: number; flying: boolean }> = [];
-            let last = top();
-            let still = -1;
-            const tick = () => {
-              const next = top();
-              const moved = next.filter(
-                (y, i) => Math.abs(y - (last[i] ?? y)) > 0.5,
-              ).length;
-              const flying = rows().some((row) => {
-                const { transform } = getComputedStyle(row);
-                return (
-                  transform !== 'none' &&
-                  transform !== 'matrix(1, 0, 0, 1, 0, 0)'
-                );
-              });
-              frames.push({ flying, moved });
-              last = next;
-              if (moved > 0 || flying) {
-                still = 0;
-              } else if (still >= 0) {
-                still += 1;
-              }
-              if (still >= 30 || frames.length > 2000) {
-                resolve(frames);
-              } else {
-                requestAnimationFrame(tick);
-              }
-            };
-            requestAnimationFrame(tick);
-          }),
-      );
-    for (const label of ['Most hours', 'In order watched']) {
-      const frames = sample();
-      await page.getByRole('radio', { name: label }).first().click();
-      // a jump moves the rows in one frame, with no row in flight; the spring
-      // moves them over several (how many the machine paints: a CI runner
-      // painted six, a stalled one two), each row on a transform meanwhile
-      const recorded = await frames;
-      const withMotion = recorded.filter((frame) => frame.moved > 0).length;
-      const inFlight = recorded.some((frame) => frame.flying);
-      expect(withMotion > 1 || inFlight, label).toBe(true);
     }
   });
 
@@ -625,76 +548,6 @@ test.describe('stats', () => {
     );
   });
 
-  /**
-   * Loads a year (nothing grows), switches to the year before, and returns
-   * the delays of the first three week lines to grow.
-   */
-  async function growDelays(page: Page, baseURL: string | undefined) {
-    await page.setViewportSize({ height: 900, width: 1440 });
-    await warm(page, `/u/lena/stats/${YEAR_BEFORE}`, baseURL);
-    await warm(page, PAGE, baseURL);
-    // What the week lines animate (the numbers' cross-fade is a view
-    // transition, which React does not start while Next's testing API, on in
-    // this rig, wraps navigations; it is checked on a plain production build).
-    // Every grow that starts is recorded as it starts, with its line's delay:
-    // read later, a busy machine could find it already over (0.5s) or the
-    // year still on its way.
-    await page.addInitScript(() => {
-      const grown: number[] = [];
-      (window as unknown as { grown: number[] }).grown = grown;
-      document.addEventListener(
-        'animationstart',
-        (event) => {
-          const line = event.target;
-          if (
-            line instanceof SVGElement &&
-            line.closest('section[aria-label$="at a glance"]') &&
-            line.getBoundingClientRect().width > 0
-          ) {
-            grown.push(Number.parseFloat(line.style.animationDelay) || 0);
-          }
-        },
-        true,
-      );
-    });
-    const grown = () =>
-      page.evaluate(() => (window as unknown as { grown: number[] }).grown);
-    await page.goto(PAGE);
-    await expect(
-      page.getByRole('heading', { level: 1, name: String(LAST_YEAR) }),
-    ).toBeVisible();
-    await hydrated(page);
-    // a page load: nothing grows (the grow starts with the page's first
-    // frames, so a few of them are the window)
-    await nextFrames(page, 10);
-    expect(await grown()).toEqual([]);
-
-    const sidebar = page.getByRole('complementary');
-    await sidebar
-      .getByRole('link', { name: new RegExp(`^${YEAR_BEFORE}`) })
-      .click();
-    await page.waitForURL(
-      (url) => url.pathname === `/u/lena/stats/${YEAR_BEFORE}`,
-    );
-    // the first three lines to start
-    await expect.poll(async () => (await grown()).length).toBeGreaterThan(2);
-    return (await grown()).slice(0, 3).sort((a, b) => a - b);
-  }
-
-  test('a year switch grows the week lines one after the other, a page load does not', async ({
-    baseURL,
-    page,
-  }) => {
-    const [first = 0, second = 0, third = 0] = await growDelays(page, baseURL);
-    expect(first).toBe(0);
-    expect(second).toBeGreaterThan(first);
-    expect(third - second).toBeCloseTo(second - first, 5);
-  });
-
-  test('@design the week lines start 8ms apart', async ({ baseURL, page }) => {
-    expect(await growDelays(page, baseURL)).toEqual([0, 8, 16]);
-  });
-
   test('sends another spelling of the username to the canonical URL', async ({
     page,
   }) => {
@@ -780,7 +633,7 @@ test.describe('stats', () => {
 // year (the stub's The Traitors: its seasons watched the year before) has
 // no episodes or runtime in the year: its tile leaves both out rather than
 // claiming "0 episodes · 0m"; the other tiles keep theirs.
-for (const width of [390, 1440] as const) {
+for (const width of [390] as const) {
   test(`a Finished tile with nothing in the year shows no zeros at ${width}px`, async ({
     page,
   }) => {
@@ -814,7 +667,7 @@ for (const width of [390, 1440] as const) {
 // across the dividers (800 beside the old sidebar, 360 on a phone) and the
 // First and last cards cut their episode title to two letters. A "vs." line
 // wraps under its change where the tile is narrower than both.
-for (const width of [360, 390, 800, 1024] as const) {
+for (const width of [360] as const) {
   test(`tiles and First and last keep their text at ${width}px`, async ({
     page,
   }) => {

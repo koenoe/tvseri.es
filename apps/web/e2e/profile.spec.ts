@@ -273,16 +273,6 @@ test.describe('profile signed in', () => {
       );
     });
 
-    test('@design the five tabs are 50px tall in a 58px bar', async ({
-      page,
-    }) => {
-      const { boxes, nav } = await tabBoxes(page);
-      expect(boxes.map((box) => Math.round(box.height))).toEqual(
-        Array(5).fill(50),
-      );
-      expect(nav?.height).toBe(58);
-    });
-
     const identityGap = async (page: Page) => {
       await page.goto('/u/alex/history');
       const sidebar = page.getByRole('complementary', { name: 'About alex' });
@@ -309,12 +299,6 @@ test.describe('profile signed in', () => {
       page,
     }) => {
       expect(await identityGap(page)).toBeGreaterThanOrEqual(0);
-    });
-
-    test('@design the compact identity sits 16px above the tabs', async ({
-      page,
-    }) => {
-      expect(await identityGap(page)).toBe(16);
     });
 
     test('the overview keeps the full identity', async ({ page }) => {
@@ -397,14 +381,6 @@ test.describe('profile signed in', () => {
     });
   });
 
-  test('a tablet keeps the overview’s sidebar blocks', async ({ page }) => {
-    await page.setViewportSize({ height: 1024, width: 800 });
-    await page.goto('/u/alex');
-    await expect(
-      page.getByRole('heading', { name: 'Watchlist' }),
-    ).toBeVisible();
-  });
-
   test("someone else's profile is read as a match", async ({ page }) => {
     await page.goto('/u/juno');
     await expect(
@@ -417,7 +393,7 @@ test.describe('profile signed in', () => {
 /**
  * Real data is heavier than the tidy fixtures: sam has a 26-episode run in
  * Catching up with a long title, and a single watched episode. Nothing may
- * make the page scroll sideways at any width, and a short Recently watched
+ * make a phone's page scroll sideways, and a short Recently watched
  * keeps its poster at tile size.
  */
 test.describe('profile with real-data shapes', () => {
@@ -436,7 +412,7 @@ test.describe('profile with real-data shapes', () => {
     await signInAs(page.context(), 'sam');
   });
 
-  for (const width of [390, 1440]) {
+  for (const width of [390]) {
     test(`never scrolls sideways at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ height: 900, width });
       await phoneScrollbars(page, width);

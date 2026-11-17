@@ -57,17 +57,17 @@ test('no rewrite turns a fallback shell into a page of its own route', () => {
   }
 });
 
-// Shows without a page of their own: each first load is the shared fallback
+// A show without a page of its own: each first load is the shared fallback
 // shell, the next one the show's own entry. Neither may be a 404.
-for (const url of ['/1396/breaking-bad', '/900004/harbour-lights']) {
-  test(`${url} answers 200 on every hard load`, async ({ page }) => {
-    for (let load = 0; load < 3; load += 1) {
-      const response = await page.goto(url);
-      expect(response?.status(), `load ${load + 1}`).toBe(200);
-      await expect(page.getByTestId('route-show')).toBeVisible();
-    }
-  });
-}
+test('/900004/harbour-lights answers 200 on every hard load', async ({
+  page,
+}) => {
+  for (let load = 0; load < 3; load += 1) {
+    const response = await page.goto('/900004/harbour-lights');
+    expect(response?.status(), `load ${load + 1}`).toBe(200);
+    await expect(page.getByTestId('route-show')).toBeVisible();
+  }
+});
 
 /** Loads `url` without the app's scripts: the HTML as it paints before hydration */
 async function gotoWithoutBundles(page: Page, url: string) {

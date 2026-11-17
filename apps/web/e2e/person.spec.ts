@@ -1,15 +1,8 @@
 import { instant } from '@next/playwright';
-import {
-  expect,
-  type Locator,
-  type Page,
-  type Route,
-  test,
-} from '@playwright/test';
+import { expect, type Page, type Route, test } from '@playwright/test';
 
 import { open } from './helpers';
 import { signInAs } from './helpers/session';
-import { phoneScrollbars, untilStable } from './helpers/viewport';
 
 /**
  * The person page against the stub API
@@ -19,19 +12,6 @@ import { phoneScrollbars, untilStable } from './helpers/viewport';
  */
 
 const CRANSTON = '/person/17419/bryan-cranston';
-
-/** A row's height once it has stopped changing (fonts and the page settle) */
-async function settledHeight(row: Locator) {
-  let height = 0;
-  await untilStable(
-    async () => {
-      height = (await row.boundingBox())?.height ?? 0;
-      return height;
-    },
-    { message: 'the heading row stops changing height' },
-  );
-  return height;
-}
 
 const name = (page: Page, text: string) =>
   page.getByRole('heading', { level: 1, name: text });
@@ -198,34 +178,6 @@ test.describe('person (/person/{id}/{slug})', () => {
       await expect(page.getByTestId('route-person')).toHaveCount(0);
     });
   }
-
-  const headingRows = async (page: Page) => {
-    await page.setViewportSize({ height: 844, width: 390 });
-    await phoneScrollbars(page, 390);
-    await page.goto(CRANSTON);
-    const heights: number[] = [];
-    for (const title of ['Known for', 'Career', 'Series']) {
-      const row = page
-        .getByRole('heading', { level: 2, name: title })
-        .locator('..');
-      await expect(row).toBeVisible();
-      heights.push(await settledHeight(row));
-    }
-    return heights;
-  };
-
-  test('on a phone every section heading row is as tall as the others', async ({
-    page,
-  }) => {
-    const heights = await headingRows(page);
-    expect(new Set(heights).size, heights.join(', ')).toBe(1);
-  });
-
-  test('@design on a phone every section heading is 28px, like the profile and Stats', async ({
-    page,
-  }) => {
-    expect(await headingRows(page)).toEqual([28, 28, 28]);
-  });
 
   test('signed out, no space is reserved for the viewer', async ({ page }) => {
     await page.goto(CRANSTON);

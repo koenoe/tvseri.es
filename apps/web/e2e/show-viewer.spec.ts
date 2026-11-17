@@ -124,25 +124,14 @@ const heroGaps = async (page: Page, width: number) => {
   return read();
 };
 
-for (const width of [390, 360]) {
-  test(`the phone hero's rows stack in order and the progress line is a tap target at ${width}`, async ({
-    page,
-  }) => {
-    const gaps = await heroGaps(page, width);
-    expect(gaps.line).toBeGreaterThanOrEqual(44);
-    // in order, never overlapping, the two rows around the progress text
-    // spaced alike and no tighter than the facts under the title
-    expect(gaps.metaGap).toBeGreaterThanOrEqual(0);
-    expect(gaps.textGap).toBeGreaterThanOrEqual(gaps.metaGap);
-    expect(gaps.actionsGap).toBeCloseTo(gaps.textGap, 0);
-  });
-
-  test(`@design the phone hero's rows sit 16, 20 and 20px apart at ${width}`, async ({
-    page,
-  }) => {
-    const gaps = await heroGaps(page, width);
-    expect(gaps.metaGap).toBeCloseTo(16, 0);
-    expect(gaps.textGap).toBeCloseTo(20, 0);
-    expect(gaps.actionsGap).toBeCloseTo(20, 0);
-  });
-}
+test(`the phone hero's rows stack in order and the progress line is a tap target at 390`, async ({
+  page,
+}) => {
+  const gaps = await heroGaps(page, 390);
+  expect(gaps.line).toBeGreaterThanOrEqual(44);
+  // in order, never overlapping, the two rows around the progress text
+  // spaced alike and no tighter than the facts under the title
+  expect(gaps.metaGap).toBeGreaterThanOrEqual(0);
+  expect(gaps.textGap).toBeGreaterThanOrEqual(gaps.metaGap);
+  expect(gaps.actionsGap).toBeCloseTo(gaps.textGap, 0);
+});

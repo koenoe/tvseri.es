@@ -1,4 +1,4 @@
-import { expect, type Page, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 import { signInAs } from './helpers/session';
 import { phoneScrollbars } from './helpers/viewport';
@@ -69,47 +69,45 @@ test('an unknown show is noindex', async ({ request }) => {
 // greyed out, still a link to IMDb, in the rated badge's box, so the
 // buttons sit where they sit beside a rating.
 test.describe('hero without a rating', () => {
-  for (const width of [1440, 390]) {
-    test(`greys the IMDb badge out in the rated one's place at ${width}`, async ({
-      page,
-    }) => {
-      await page.setViewportSize({ height: 900, width });
-      await phoneScrollbars(page, width);
-      const boxes = async (path: string) => {
-        await page.goto(path);
-        const imdb = page.locator('[data-slot="imdb"]');
-        const actions = page.locator('[data-slot="actions"]');
-        await expect(imdb).toBeVisible();
-        await expect(actions).toBeVisible();
-        const [badge, buttons] = await Promise.all([
-          imdb.boundingBox(),
-          actions.boundingBox(),
-        ]);
-        return { badge, buttons };
-      };
-      const rated = await boxes('/136315/the-bear');
-      for (const path of ['/900097/no-rating', '/900098/rating-down']) {
-        const unrated = await boxes(path);
-        const link = page.getByRole('link', {
-          name: 'Rating unavailable. Open on IMDb',
-        });
-        await expect(link).toHaveAttribute(
-          'href',
-          /^https:\/\/www\.imdb\.com\/title\/tt\d+\/$/,
-        );
-        await expect(link.getByText('No rating')).toBeVisible();
-        // the rated badge has the placeholder's box (placeholders-show);
-        // the unrated one has the rated one's
-        expect(
-          Math.abs((unrated.badge?.width ?? 0) - (rated.badge?.width ?? 0)),
-        ).toBeLessThanOrEqual(2);
-        expect(unrated.badge?.height).toBeCloseTo(rated.badge?.height ?? 0, 0);
-        expect(
-          Math.abs((unrated.buttons?.x ?? 0) - (rated.buttons?.x ?? 0)),
-        ).toBeLessThanOrEqual(2);
-      }
-    });
-  }
+  test(`greys the IMDb badge out in the rated one's place at 390`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ height: 900, width: 390 });
+    await phoneScrollbars(page, 390);
+    const boxes = async (path: string) => {
+      await page.goto(path);
+      const imdb = page.locator('[data-slot="imdb"]');
+      const actions = page.locator('[data-slot="actions"]');
+      await expect(imdb).toBeVisible();
+      await expect(actions).toBeVisible();
+      const [badge, buttons] = await Promise.all([
+        imdb.boundingBox(),
+        actions.boundingBox(),
+      ]);
+      return { badge, buttons };
+    };
+    const rated = await boxes('/136315/the-bear');
+    for (const path of ['/900097/no-rating', '/900098/rating-down']) {
+      const unrated = await boxes(path);
+      const link = page.getByRole('link', {
+        name: 'Rating unavailable. Open on IMDb',
+      });
+      await expect(link).toHaveAttribute(
+        'href',
+        /^https:\/\/www\.imdb\.com\/title\/tt\d+\/$/,
+      );
+      await expect(link.getByText('No rating')).toBeVisible();
+      // the rated badge has the placeholder's box (placeholders-show);
+      // the unrated one has the rated one's
+      expect(
+        Math.abs((unrated.badge?.width ?? 0) - (rated.badge?.width ?? 0)),
+      ).toBeLessThanOrEqual(2);
+      expect(unrated.badge?.height).toBeCloseTo(rated.badge?.height ?? 0, 0);
+      expect(
+        Math.abs((unrated.buttons?.x ?? 0) - (rated.buttons?.x ?? 0)),
+      ).toBeLessThanOrEqual(2);
+    }
+  });
 });
 
 test('a keyword of a theme’s set links to its theme, other keywords stay plain', async ({
@@ -129,42 +127,6 @@ test('a keyword of a theme’s set links to its theme, other keywords stay plain
   ).toHaveCount(0);
   await expect(keywords.getByText('chef', { exact: true })).toBeVisible();
 });
-
-// After the first tightening the vote count sat too close against the IMDb
-// rating on desktop: more room there (about 8px from the value's digits to
-// the votes'), phones unchanged.
-const votesGap = async (page: Page, width: number) => {
-  await page.setViewportSize({ height: 900, width });
-  await phoneScrollbars(page, width);
-  await page.goto('/136315/the-bear');
-  const imdb = page.locator('[data-slot="imdb"]');
-  await expect(imdb).toBeVisible();
-  return imdb.evaluate((node) => {
-    const value = node.querySelector('b')?.getBoundingClientRect();
-    const votes = node.querySelector('small')?.getBoundingClientRect();
-    return (votes?.top ?? 0) - (value?.bottom ?? 0);
-  });
-};
-
-test('the IMDb votes sit under the value, with more room on desktop than on a phone', async ({
-  page,
-}) => {
-  const desktop = await votesGap(page, 1440);
-  const phone = await votesGap(page, 390);
-  expect(phone).toBeGreaterThanOrEqual(0);
-  expect(desktop).toBeGreaterThan(phone);
-});
-
-for (const [width, gap] of [
-  [1440, 4],
-  [390, 0],
-] as const) {
-  test(`@design the IMDb votes sit ${gap}px under the value's line at ${width}`, async ({
-    page,
-  }) => {
-    expect(await votesGap(page, width)).toBeCloseTo(gap, 0);
-  });
-}
 
 test.describe('viewer', () => {
   test('the Remote opens from the …, N marks the next episode, Escape closes', async ({

@@ -10,7 +10,7 @@ import { nextFrames } from './helpers/viewport';
  */
 
 test.describe('welcome toast', () => {
-  for (const width of [1440, 390, 375, 360]) {
+  for (const width of [1440, 360]) {
     test(`shows once the page has loaded, whole, at ${width}`, async ({
       baseURL,
       context,

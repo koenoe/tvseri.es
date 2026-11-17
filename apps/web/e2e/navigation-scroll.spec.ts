@@ -1,6 +1,7 @@
 import { expect, type Locator, type Page, test } from '@playwright/test';
 
 import { open } from './helpers';
+import { historyScrollSuite } from './helpers/historyScrollSuite';
 import { signInAs } from './helpers/session';
 
 /**
@@ -130,3 +131,10 @@ test.describe('a new page opens at the top', () => {
     });
   });
 });
+
+for (const [width, height] of [
+  [390, 844],
+  [1440, 900],
+] as const) {
+  historyScrollSuite(width, height);
+}

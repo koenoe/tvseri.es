@@ -9,11 +9,12 @@
  * per request, so a measurement can count the API reads a page view causes).
  */
 import { readdir } from 'node:fs/promises';
-import { createServer, type IncomingMessage } from 'node:http';
+import type { IncomingMessage } from 'node:http';
 import { registerHooks } from 'node:module';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+import { serveOnLoopback } from '../helpers/loopback.ts';
 import type { StubRoute } from './types';
 
 // Isolated state: a signed-in test carries a namespace in its token (`ns`
@@ -195,7 +196,7 @@ async function idOfUsername(username: string): Promise<string | null> {
   return personByUsername(username)?.user.id ?? null;
 }
 
-const server = createServer(async (request, response) => {
+await serveOnLoopback(port, async (request, response) => {
   const url = new URL(request.url ?? '/', `http://localhost:${port}`);
   const method = request.method ?? 'GET';
   const atUser = /^\/user\/(?:@|%40)([^/]+)(\/.*)?$/.exec(url.pathname);
@@ -305,11 +306,4 @@ const server = createServer(async (request, response) => {
   response.writeHead(404, { 'content-type': 'application/json' });
   response.end(JSON.stringify({ message: 'Not found (stub API)' }));
 });
-// Longer than the web's keep-alive (undici: 4s, or the server's hint), so
-// the client always closes an idle socket first. With Node's 5s default, a
-// request sent on a socket the server was about to drop was reset
-// (ECONNRESET), above all while this one thread was busy.
-server.keepAliveTimeout = 60_000;
-server.listen(port, '127.0.0.1', () => {
-  console.log(`stub API on http://localhost:${port} (${routes.length} routes)`);
-});
+console.log(`stub API on http://localhost:${port} (${routes.length} routes)`);

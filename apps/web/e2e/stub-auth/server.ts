@@ -15,13 +15,13 @@
  * secret here.
  */
 import { createReadStream, existsSync } from 'node:fs';
-import { createServer } from 'node:http';
 import path from 'node:path';
 
 import { exportJWK, generateKeyPair, SignJWT } from 'jose';
 
 import { SESSION_COOKIE_NAME } from '../../src/auth/cookies.ts';
 import { encryptToken } from '../../src/auth/crypto.ts';
+import { serveOnLoopback } from '../helpers/loopback.ts';
 import { VIEWERS } from '../stub-api/fixtures/show/store.ts';
 import { createRotation } from './rotation.ts';
 
@@ -175,7 +175,7 @@ async function rotatingRefresh(token: string) {
   });
 }
 
-const server = createServer(async (request, response) => {
+await serveOnLoopback(port, async (request, response) => {
   const url = new URL(request.url ?? '/', issuer);
   const send = (result: ReturnType<typeof json>) => {
     response.writeHead(result.status, {
@@ -343,11 +343,4 @@ const server = createServer(async (request, response) => {
 
   send(json({ message: 'Not found (stub auth)' }, 404));
 });
-// Longer than the web's keep-alive (undici: 4s, or the server's hint), so
-// the client always closes an idle socket first. With Node's 5s default, a
-// request sent on a socket the server was about to drop was reset
-// (ECONNRESET), above all while this one thread was busy.
-server.keepAliveTimeout = 60_000;
-server.listen(port, '127.0.0.1', () => {
-  console.log(`stub auth on ${issuer} (images: ${imgDir || 'none'})`);
-});
+console.log(`stub auth on ${issuer} (images: ${imgDir || 'none'})`);

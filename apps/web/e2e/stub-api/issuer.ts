@@ -12,12 +12,12 @@
  * Never point a browser that holds real sessions at that web server: it can't
  * read their cookies and drops them. Use a fresh browser context.
  */
-import { createServer } from 'node:http';
 
 import { exportJWK, generateKeyPair, SignJWT } from 'jose';
 
 import { encryptToken } from '../../src/auth/crypto.ts';
 import { ISSUER_PORT, VIEWERS } from '../fixtures/home/viewer.ts';
+import { serveOnLoopback } from '../helpers/loopback.ts';
 
 const port = Number(process.env.STUB_AUTH_PORT ?? ISSUER_PORT);
 const issuer = `http://localhost:${port}`;
@@ -56,7 +56,7 @@ async function sessionCookie(userId: string) {
   });
 }
 
-createServer(async (request, response) => {
+await serveOnLoopback(port, async (request, response) => {
   const url = new URL(request.url ?? '/', issuer);
   const json = (status: number, body: unknown) => {
     response.writeHead(status, { 'content-type': 'application/json' });
@@ -81,6 +81,5 @@ createServer(async (request, response) => {
     return;
   }
   json(404, { message: 'Not found (stub issuer)' });
-}).listen(port, '127.0.0.1', () => {
-  console.log(`stub issuer on ${issuer}`);
 });
+console.log(`stub issuer on ${issuer}`);

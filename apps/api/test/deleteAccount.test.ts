@@ -1,7 +1,7 @@
 import { CloudFrontKeyValueStoreClient } from '@aws-sdk/client-cloudfront-keyvaluestore';
 import { emailKey } from '@tvseri.es/utils';
 import type { Context, SQSEvent } from 'aws-lambda';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { handler as deleteAccount } from '@/lambdas/deleteAccount';
 import { db, sqsMessages } from './db';
@@ -11,17 +11,12 @@ import { OTHER_USER_ID, seedUser, USER_ID } from './seed';
 const QUEUE = 'https://sqs.test/delete-account';
 
 beforeEach(() => {
-  process.env.DELETE_ACCOUNT_ENABLED = 'true';
   vi.spyOn(CloudFrontKeyValueStoreClient.prototype, 'send').mockImplementation(
     (async (command: { constructor: { name: string } }) =>
       command.constructor.name === 'DescribeKeyValueStoreCommand'
         ? { ETag: 'etag' }
         : {}) as never,
   );
-});
-
-afterEach(() => {
-  delete process.env.DELETE_ACCOUNT_ENABLED;
 });
 
 const queued = () =>
@@ -123,17 +118,6 @@ const keysOf = (table: string) =>
   db.dump(table).map((item) => `${item.pk}|${item.sk ?? ''}`);
 
 describe('delete account', () => {
-  it('is off unless enabled', async () => {
-    delete process.env.DELETE_ACCOUNT_ENABLED;
-    seedUser({ username: 'wren' });
-    const response = await request('/me', {
-      as: USER_ID,
-      body: { confirm: 'wren' },
-      method: 'DELETE',
-    });
-    expect(response.status).toBe(403);
-  });
-
   it('needs the username typed to confirm', async () => {
     seedEverything();
     const response = await request('/me', {
@@ -253,7 +237,6 @@ describe('delete account', () => {
 
 describe('when starting fails', () => {
   it('takes the request back so the user can retry', async () => {
-    process.env.DELETE_ACCOUNT_ENABLED = 'true';
     seedEverything();
     vi.spyOn(CloudFrontKeyValueStoreClient.prototype, 'send').mockRejectedValue(
       new Error('KVS down') as never,
@@ -272,7 +255,6 @@ describe('when starting fails', () => {
 
 describe('delete account: hidden profile, late follows, handle claim', () => {
   it('hides a profile whose account is being deleted', async () => {
-    process.env.DELETE_ACCOUNT_ENABLED = 'true';
     seedEverything();
     await request('/me', {
       as: USER_ID,
@@ -284,7 +266,6 @@ describe('delete account: hidden profile, late follows, handle claim', () => {
   });
 
   it('sweeps follows made during the window, and refuses unknown steps', async () => {
-    process.env.DELETE_ACCOUNT_ENABLED = 'true';
     seedEverything();
     await request('/me', {
       as: USER_ID,

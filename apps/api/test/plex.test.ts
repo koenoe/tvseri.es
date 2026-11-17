@@ -552,7 +552,6 @@ describe('one token per user and provider', () => {
   });
 
   it('account deletion removes every row of the user', async () => {
-    process.env.DELETE_ACCOUNT_ENABLED = 'true';
     const user = seedUser();
     seedToken();
     seedSecondToken();
@@ -566,7 +565,6 @@ describe('one token per user and provider', () => {
     expect(response.status).toBe(202);
     expect(ownRows()).toEqual([]);
     expect([...edgeKeys.keys()]).toEqual([]);
-    delete process.env.DELETE_ACCOUNT_ENABLED;
   });
 });
 

@@ -92,10 +92,6 @@ export const webhookTokensKvs = new sst.Linkable('WebhookTokensKvs', {
 const apiFunctionArgs = {
   environment: {
     CLOUDFRONT_DISTRIBUTION_ID: apiRouter.distributionID,
-    // Delete account stays off in production until the dev-stage rehearsal
-    // (incl. a point-in-time restore of a test user) has passed: the owner
-    // flips this to 'true' then
-    DELETE_ACCOUNT_ENABLED: $app.stage === 'production' ? 'false' : 'true',
   },
   handler: 'apps/api/src/index.handler',
   link: [

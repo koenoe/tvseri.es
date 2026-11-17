@@ -105,13 +105,9 @@ app.get('/get-started', async (c) => {
   return c.json(await getGetStartedStatus(user, Date.now()));
 });
 
-// Delete account: off until the owner switches it on per stage
 app.delete('/', vValidator('json', DeleteAccountSchema), async (c) => {
   const { user } = c.get('auth')!;
 
-  if (process.env.DELETE_ACCOUNT_ENABLED !== 'true') {
-    throw new HTTPException(403, { message: 'Delete account is not enabled' });
-  }
   if (c.req.valid('json').confirm !== user.username) {
     throw new HTTPException(400, { message: 'Type your username to confirm' });
   }

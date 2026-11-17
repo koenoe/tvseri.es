@@ -28,11 +28,12 @@ import {
 const json = JSON.stringify;
 
 /**
- * The root layout's pre-paint script, the only one, inlined in every
- * document: it reads the display cookie once (`readCookieUser`, the header's
- * reading too) and storage once, and runs every rule that must be right at
- * the first paint, outside what React hydrates (attributes of `<html>` and
- * adopted stylesheets):
+ * The root layout's viewer pre-paint script, inlined in every document
+ * (the other one is NavigationTracker's, for the history keys): it reads
+ * the display cookie once (`readCookieUser`, the header's reading too) and
+ * storage once, and runs every rule that must be right at the first paint,
+ * outside what React hydrates (attributes of `<html>` and adopted
+ * stylesheets):
  *
  * - signed in (`u`): `SIGNED_IN_RULE`, the signed-in-only space
  *   (`components/ui/viewer/reveal`), and on a profile the owner's or a

@@ -1,12 +1,5 @@
 import { Link, useRouterState } from '@tanstack/react-router';
-import {
-  BarChart3,
-  Cloud,
-  Globe,
-  Layers,
-  LogOut,
-  type LucideIcon,
-} from 'lucide-react';
+import { Globe, Layers, LogOut, type LucideIcon } from 'lucide-react';
 import { memo } from 'react';
 
 import logo from '@/assets/logo.svg';
@@ -16,7 +9,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -43,29 +35,14 @@ const NAV_MAIN: ReadonlyArray<NavItem> = [
   },
 ];
 
-const NAV_AWS: ReadonlyArray<NavItem> = [
-  {
-    icon: Cloud,
-    title: 'Lambda',
-    url: '/aws/lambda',
-  },
-  {
-    icon: BarChart3,
-    title: 'CDN',
-    url: '/aws/cdn',
-  },
-];
-
 type NavGroupProps = Readonly<{
   currentPath: string;
   items: ReadonlyArray<NavItem>;
-  label?: string;
 }>;
 
-function NavGroup({ currentPath, items, label }: NavGroupProps) {
+function NavGroup({ currentPath, items }: NavGroupProps) {
   return (
     <SidebarGroup>
-      {label ? <SidebarGroupLabel>{label}</SidebarGroupLabel> : null}
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => {
@@ -119,7 +96,6 @@ function AppSidebarComponent(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavGroup currentPath={currentPath} items={NAV_MAIN} />
-        <NavGroup currentPath={currentPath} items={NAV_AWS} label="AWS" />
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>

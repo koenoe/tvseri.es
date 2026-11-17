@@ -326,27 +326,6 @@ function SidebarGroup({ className, ...props }: React.ComponentProps<'div'>) {
   );
 }
 
-function SidebarGroupLabel({
-  className,
-  asChild = false,
-  ...props
-}: React.ComponentProps<'div'> & { asChild?: boolean }) {
-  const Comp = asChild ? Slot.Root : 'div';
-
-  const classes = cn(
-    'text-sidebar-foreground/70 ring-sidebar-ring h-8 rounded-md px-2 text-xs font-medium transition-[margin,opacity] duration-200 ease-linear group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 focus-visible:ring-2 [&>svg]:size-4 flex shrink-0 items-center outline-hidden [&>svg]:shrink-0',
-    className,
-  );
-  return (
-    <Comp
-      className={classes}
-      data-sidebar="group-label"
-      data-slot="sidebar-group-label"
-      {...props}
-    />
-  );
-}
-
 function SidebarGroupContent({
   className,
   ...props
@@ -465,7 +444,6 @@ export {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarInset,
   SidebarMenu,

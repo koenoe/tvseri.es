@@ -37,7 +37,7 @@ const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
  * - moves the overview's window (a transform),
  * - writes the weeks in view (`--from`, `--to`) for the rows' pointers,
  * - flags the edges that have more beyond them (`data-fl`, `data-fr`),
- * - and lights the quarter in view.
+ * - and lights the quarter in view (a tapped one stays lit on the way).
  * The quarter switch scrolls without dragging. The scroller is focusable
  * (arrow keys scroll it) only while it scrolls.
  */
@@ -58,6 +58,8 @@ export default function QuarterScroller({
 }>) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const windowRef = useRef<HTMLSpanElement>(null);
+  // The quarter a tap scrolls to: it stays lit on the way there
+  const targetRef = useRef<number | null>(null);
   const [quarter, setQuarter] = useState(opening);
   const [scrolls, setScrolls] = useState(false);
   const starts = quarterStarts(year).map((week) => week * PHONE_WEEK_PX);
@@ -89,7 +91,12 @@ export default function QuarterScroller({
       frame.style.left = '0';
       frame.style.width = `${width * scale}px`;
       frame.style.transform = `translateX(${x * scale}px)`;
-      setQuarter(activeQuarter(x, startsPx, max));
+      const target = targetRef.current;
+      if (target === null) {
+        setQuarter(activeQuarter(x, startsPx, max));
+      } else if (Math.abs(x - Math.min(startsPx[target] ?? 0, max)) < 1) {
+        targetRef.current = null;
+      }
       setScrolls(true);
     };
     const onScroll = () => {
@@ -102,12 +109,23 @@ export default function QuarterScroller({
       scroller.scrollLeft = Math.min(startsPx[opening] ?? 0, max);
     }
     update();
+    // a swipe, wheel or key takes over from a tap's scroll
+    const release = () => {
+      targetRef.current = null;
+    };
+    const inputs = ['pointerdown', 'wheel', 'keydown'] as const;
+    for (const input of inputs) {
+      scroller.addEventListener(input, release, { passive: true });
+    }
     scroller.addEventListener('scroll', onScroll, { passive: true });
     const resize = new ResizeObserver(onScroll);
     resize.observe(scroller);
     return () => {
       cancelAnimationFrame(pending);
       scroller.removeEventListener('scroll', onScroll);
+      for (const input of inputs) {
+        scroller.removeEventListener(input, release);
+      }
       resize.disconnect();
     };
   }, [opening, year]);
@@ -119,6 +137,7 @@ export default function QuarterScroller({
       return;
     }
     const max = scroller.scrollWidth - scroller.clientWidth;
+    targetRef.current = next;
     scroller.scrollTo({
       behavior: matchMedia(REDUCED_MOTION).matches ? 'auto' : 'smooth',
       left: Math.min(starts[next] ?? 0, max),

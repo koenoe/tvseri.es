@@ -431,7 +431,7 @@ test.describe('stats', () => {
     await expect(first).toHaveAttribute('aria-checked', 'true');
     const scroller = section.getByRole('region', { name: /week by week$/ });
     const scrollLeft = () => scroller.evaluate((el) => el.scrollLeft);
-    expect(await scrollLeft()).toBe(0);
+    await expect.poll(scrollLeft).toBe(0);
     const row = section.locator('#year-in-shows-rows [role="img"]').first();
     // every row keeps its full label, wherever the window is
     await expect(row).toHaveAttribute(
@@ -441,15 +441,48 @@ test.describe('stats', () => {
     const title = row.locator('span').first();
     const titleX = (await title.boundingBox())?.x;
 
-    // the switch works from the keyboard (no dragging)
+    // the switch works from the keyboard (no dragging); the tapped quarter
+    // stays lit all the way there, never the ones it scrolls past
     await last.focus();
+    const lit = page.evaluate(
+      () =>
+        new Promise<string[]>((resolve) => {
+          const seen: string[] = [];
+          let frames = 0;
+          const tick = () => {
+            const on = document.querySelector(
+              '[aria-label="Quarter"] [aria-checked="true"]',
+            );
+            seen.push(on?.textContent ?? '');
+            frames += 1;
+            if (frames < 90) {
+              requestAnimationFrame(tick);
+            } else {
+              resolve(seen);
+            }
+          };
+          requestAnimationFrame(tick);
+        }),
+    );
     await page.keyboard.press('Enter');
     await expect(last).toHaveAttribute('aria-checked', 'true');
     await expect(first).toHaveAttribute('aria-checked', 'false');
     const max = await scroller.evaluate(
       (el) => el.scrollWidth - el.clientWidth,
     );
-    await expect.poll(scrollLeft).toBeGreaterThan(max * 0.9);
+    const target = await scroller.evaluate((el) => {
+      const snaps = [...el.querySelectorAll('.snap-start')];
+      return Number.parseFloat((snaps.at(-1) as HTMLElement).style.left);
+    });
+    // settled on the last quarter's first day (or as far as it goes)
+    await expect
+      .poll(async () => Math.abs((await scrollLeft()) - Math.min(target, max)))
+      .toBeLessThan(1.5);
+    const seen = await lit;
+    expect(
+      seen.filter((label) => label !== 'Jan–Mar' && label !== 'Oct–Dec'),
+    ).toEqual([]);
+    expect(seen.lastIndexOf('Jan–Mar')).toBeLessThan(seen.indexOf('Oct–Dec'));
     // the title stayed where it was
     expect((await title.boundingBox())?.x).toBe(titleX);
     // the first series, watched early in the year, points back to it

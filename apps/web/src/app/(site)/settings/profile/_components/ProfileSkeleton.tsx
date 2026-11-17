@@ -9,14 +9,12 @@ import cn from '@/lib/cn';
 
 import { GHOST_PANEL } from '../../_components/ghostPanel';
 import { PREVIEW_FOOT, PreviewLabel } from './ProfilePreview';
+import { EDITOR_GRID, FORM_CARD, PREVIEW_CELL } from './profileLayout';
 
 /** The form's fields: label (static), the input's box, the hint line */
 const FIELDS = ['Name', 'Username', 'Email'] as const;
 
-const FORM = cn(
-  'flex flex-col gap-4 rounded-16 bg-white/4 p-6 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.06)] md:gap-6',
-  GHOST_PANEL,
-);
+const FORM = cn(FORM_CARD, GHOST_PANEL);
 const PREVIEW = cn(
   'flex flex-col gap-10 rounded-16 bg-white/4 px-6 py-8',
   GHOST_PANEL,
@@ -33,32 +31,8 @@ const LINES = [0, 1, 2];
  */
 export default function ProfileSkeleton() {
   return (
-    <div
-      aria-hidden="true"
-      className={cn(
-        'grid grid-cols-[minmax(0,1fr)] items-start gap-6 lg:grid-cols-[minmax(0,1fr)_348px]',
-        PULSE,
-      )}
-    >
-      <div className={FORM}>
-        <div className="flex flex-col gap-6">
-          {FIELDS.map((label) => (
-            <div className="flex flex-col gap-2" key={label}>
-              <span className="text-body-sm font-semibold text-white">
-                {label}
-              </span>
-              <span className={INPUT} />
-              <TextLine className="text-caption" width="w-60" />
-            </div>
-          ))}
-        </div>
-        <div className="flex justify-end gap-3 border-t border-white/6 pt-6">
-          <ButtonFace className="border-0 px-6" size="md" variant="primary">
-            Saved
-          </ButtonFace>
-        </div>
-      </div>
-      <div className="flex flex-col gap-3 max-lg:order-first">
+    <div aria-hidden="true" className={cn(EDITOR_GRID, PULSE)}>
+      <div className={PREVIEW_CELL}>
         <div className={PREVIEW}>
           <span className="flex w-75 max-w-full flex-col gap-[22px]">
             {/* the handle's line at its largest size (48px on a 0.95 line; it shrinks with a long handle) */}
@@ -80,6 +54,24 @@ export default function ProfileSkeleton() {
           <PreviewLabel />
           <TextLine className="text-meta" width="w-28" />
         </span>
+      </div>
+      <div className={FORM}>
+        <div className="flex flex-col gap-6">
+          {FIELDS.map((label) => (
+            <div className="flex flex-col gap-2" key={label}>
+              <span className="text-body-sm font-semibold text-white">
+                {label}
+              </span>
+              <span className={INPUT} />
+              <TextLine className="text-caption" width="w-60" />
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-end gap-3 border-t border-white/6 pt-6">
+          <ButtonFace className="border-0 px-6" size="md" variant="primary">
+            Saved
+          </ButtonFace>
+        </div>
       </div>
     </div>
   );

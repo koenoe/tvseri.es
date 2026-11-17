@@ -19,6 +19,7 @@ import ProfilePreview, {
   type PreviewData,
   PreviewFoot,
 } from './ProfilePreview';
+import { EDITOR_GRID, PREVIEW_CELL } from './profileLayout';
 
 type Values = Readonly<{ name: string; username: string }>;
 
@@ -108,7 +109,11 @@ export default function ProfileEditor({
   );
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 lg:grid-cols-[minmax(0,1fr)_348px]">
+    <div className={EDITOR_GRID}>
+      <div className={PREVIEW_CELL}>
+        <ProfilePreview data={preview} username={draft.username} />
+        <PreviewFoot username={draft.username} />
+      </div>
       <ProfileForm
         canSave={canSave}
         changed={changed}
@@ -122,10 +127,6 @@ export default function ProfileEditor({
         saving={saving}
         username={draft.username}
       />
-      <div className="flex flex-col gap-3 max-lg:order-first">
-        <ProfilePreview data={preview} username={draft.username} />
-        <PreviewFoot username={draft.username} />
-      </div>
     </div>
   );
 }

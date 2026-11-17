@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon/Icon';
 import InputShell, { INPUT_CLASS } from '../../_components/InputShell';
 import type { UsernameHint } from '../_lib/usernameHint';
 import Field from './Field';
+import { FORM_CARD } from './profileLayout';
 
 type Props = Readonly<{
   canSave: boolean;
@@ -37,11 +38,7 @@ export default function ProfileForm({
 }: Props) {
   const ids = useId();
   return (
-    <form
-      className="flex flex-col gap-4 rounded-16 bg-white/4 p-6 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.06)] md:gap-6"
-      noValidate
-      onSubmit={onSubmit}
-    >
+    <form className={FORM_CARD} noValidate onSubmit={onSubmit}>
       <div className="flex flex-col gap-6">
         <Field
           hint="Private. Visitors only see your username."

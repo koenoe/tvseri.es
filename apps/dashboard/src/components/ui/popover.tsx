@@ -21,14 +21,15 @@ function PopoverContent({
   sideOffset = 4,
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Content>) {
+  const classes = cn(
+    'bg-card text-card-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-72 origin-(--radix-popover-content-transform-origin) overflow-hidden rounded-lg border shadow-lg outline-hidden duration-100',
+    className,
+  );
   return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Content
         align={align}
-        className={cn(
-          'bg-card text-card-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-72 origin-(--radix-popover-content-transform-origin) overflow-hidden rounded-lg border shadow-lg outline-hidden duration-100',
-          className,
-        )}
+        className={classes}
         data-slot="popover-content"
         sideOffset={sideOffset}
         {...props}

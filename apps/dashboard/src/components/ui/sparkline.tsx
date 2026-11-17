@@ -80,8 +80,9 @@ const Sparkline = memo(function Sparkline({
 
   if (data.length === 0) return null;
 
+  const classes = cn('relative', className);
   return (
-    <div className={cn('relative', className)} style={{ height, width }}>
+    <div className={classes} style={{ height, width }}>
       <svg
         aria-hidden="true"
         className="h-full w-full overflow-visible"

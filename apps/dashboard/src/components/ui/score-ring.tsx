@@ -37,12 +37,13 @@ function ScoreRingComponent({
   const strokeDashoffset = CIRCUMFERENCE - adjustedProgress;
   const scoreColor = getMetricHslColor('res', clampedScore);
 
+  const classes = cn('shrink-0', className);
   return (
     <svg
       aria-valuemax={100}
       aria-valuemin={0}
       aria-valuenow={clampedScore}
-      className={cn('shrink-0', className)}
+      className={classes}
       height={size}
       role="progressbar"
       style={{ minHeight: size, minWidth: size }}

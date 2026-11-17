@@ -23,22 +23,24 @@ import RemotePanel, { type OpenedBy } from './RemotePanel';
 import RemotePopover from './RemotePopover';
 import RemoteSheet from './RemoteSheet';
 import RemoteTrigger, { OPEN_KEYS, remoteLabels } from './RemoteTrigger';
+import useRemoteMount, { type RemoteMount } from './useRemoteMount';
 
-type RemoteProps = Readonly<{
-  /** The keys: rows of `RemoteKey`s (the big key first). */
-  children: ReactNode;
-  className?: string;
-  /** A tile's own colour for the phone sheet's dim; the page colour otherwise. */
-  ink?: string;
-  /** After it closes (the Library's Watchlist drops a removed tile then, not under the pointer). */
-  onClose?: () => void;
-  placement: RemotePlacement;
-  /** Names the menu and its ⋯ (`remoteLabels`) */
-  seriesName: string;
-  /** The ⋯ glyph: 20px by default. */
-  triggerIconSize?: IconSize;
-  triggerSize: CircleButtonSize;
-}>;
+type RemoteProps = RemoteMount &
+  Readonly<{
+    /** The keys: rows of `RemoteKey`s (the big key first). */
+    children: ReactNode;
+    className?: string;
+    /** A tile's own colour for the phone sheet's dim; the page colour otherwise. */
+    ink?: string;
+    /** After it closes (the Library's Watchlist drops a removed tile then, not under the pointer). */
+    onClose?: () => void;
+    placement: RemotePlacement;
+    /** Names the menu and its ⋯ (`remoteLabels`) */
+    seriesName: string;
+    /** The ⋯ glyph: 20px by default. */
+    triggerIconSize?: IconSize;
+    triggerSize: CircleButtonSize;
+  }>;
 
 /**
  * The ⋯ and its Remote: a popover by the ⋯ on desktop, a bottom sheet on
@@ -49,8 +51,10 @@ type RemoteProps = Readonly<{
 export default function Remote({
   children,
   className,
+  focusOnMount,
   ink,
   onClose,
+  openOnMount,
   placement,
   seriesName,
   triggerIconSize = 20,
@@ -69,7 +73,7 @@ export default function Remote({
     setOpenedBy(by);
   };
   const triggerRef = useRef<HTMLButtonElement>(null);
-  // remote_style.md §10: the sheet below the spec's 768px breakpoint
+  // the sheet below 768px
   const phone = useMediaQuery(PHONE);
   const menuId = useId();
   const mounted = useRef(false);
@@ -82,6 +86,12 @@ export default function Remote({
     }
     mounted.current = true;
   }, []);
+
+  const opening = useRemoteMount(
+    { focusOnMount, openOnMount },
+    triggerRef,
+    openAs,
+  );
 
   const close = useCallback(
     (restoreFocus: boolean, fromOpen?: number) => {
@@ -123,6 +133,8 @@ export default function Remote({
     [close, layout, openId],
   );
   const isOpen = openedBy !== null;
+  // absent unless opening: the ⋯ stays identical otherwise
+  const busy = opening || undefined;
   const wasOpen = useRef(false);
   useEffect(() => {
     if (wasOpen.current && !isOpen) {
@@ -155,6 +167,7 @@ export default function Remote({
     <RemoteContext value={context}>
       <RemoteTrigger
         after={layer}
+        aria-busy={busy}
         aria-controls={isOpen ? menuId : undefined}
         aria-expanded={isOpen}
         className={className}

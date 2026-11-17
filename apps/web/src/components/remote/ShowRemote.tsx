@@ -10,6 +10,7 @@ import type { RemotePlacement } from './place';
 import Remote from './Remote';
 import SmallKeys, { type HistoryAction } from './SmallKeys';
 import type { NextToAir, RemoteEpisode, RemoteSection } from './types';
+import type { RemoteMount } from './useRemoteMount';
 
 type KeysProps = HistoryAction &
   Readonly<{
@@ -23,6 +24,7 @@ type KeysProps = HistoryAction &
   }>;
 
 export type ShowRemoteProps = KeysProps &
+  RemoteMount &
   Readonly<{
     /** The Admin row, admins only: drawn after a rule, after E F W. */
     extraSection?: RemoteSection;
@@ -78,7 +80,9 @@ function ShowKeys({
  */
 export default function ShowRemote({
   className,
+  focusOnMount,
   onClose,
+  openOnMount,
   placement = 'side',
   seriesName,
   size = 48,
@@ -87,7 +91,9 @@ export default function ShowRemote({
   return (
     <Remote
       className={className}
+      focusOnMount={focusOnMount}
       onClose={onClose}
+      openOnMount={openOnMount}
       placement={placement}
       seriesName={seriesName}
       triggerSize={size}

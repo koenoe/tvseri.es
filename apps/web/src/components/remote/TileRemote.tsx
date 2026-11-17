@@ -10,6 +10,7 @@ import type { RemotePlacement } from './place';
 import Remote from './Remote';
 import SmallKeys from './SmallKeys';
 import type { RemoteEpisode } from './types';
+import type { RemoteMount } from './useRemoteMount';
 
 type KeysProps = Readonly<{
   /** Titles and stills for the big key: the tile's season. */
@@ -24,6 +25,7 @@ type KeysProps = Readonly<{
 }>;
 
 export type TileRemoteProps = KeysProps &
+  RemoteMount &
   Readonly<{
     className?: string;
     /** The tile's colour (its backdrop colour): the phone sheet's dim. */
@@ -79,8 +81,10 @@ function TileKeys({
  */
 export default function TileRemote({
   className,
+  focusOnMount,
   iconSize,
   ink,
+  openOnMount,
   placement = 'below',
   seriesName,
   size = 32,
@@ -89,7 +93,9 @@ export default function TileRemote({
   return (
     <Remote
       className={className}
+      focusOnMount={focusOnMount}
       ink={ink}
+      openOnMount={openOnMount}
       placement={placement}
       seriesName={seriesName}
       triggerIconSize={iconSize}

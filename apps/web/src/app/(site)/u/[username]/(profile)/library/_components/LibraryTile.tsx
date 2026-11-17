@@ -40,12 +40,8 @@ function LibraryTile({ eager, sizes, tile: served }: Props) {
     owner && shelf === 'watching',
     finished,
   );
-  const unhidden = useCallback(
-    () => leave(served.id, 'unhide'),
-    [leave, served.id],
-  );
   // N on a hidden show brings it back to In progress
-  useLeaveHiddenOnWatch(served.id, owner && shelf === 'hidden', unhidden);
+  useLeaveHiddenOnWatch(served.id, owner && shelf === 'hidden', leave);
   const selecting = useStore(selection, (state) => state.selecting);
   const picked = useStore(selection, (state) => state.selected.has(tile.id));
   const { follow, toggle, touch } = useTilePress(

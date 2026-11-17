@@ -62,7 +62,7 @@ describe('a Hidden shelf tile leaves once its show is watched again', () => {
     act(() => {
       vi.advanceTimersByTime(4000);
     });
-    expect(onWatched).toHaveBeenCalledTimes(1);
+    expect(onWatched).toHaveBeenCalledExactlyOnceWith(SHOW, 'unhide');
   });
 
   it('stays when the mark fails or is a special', () => {

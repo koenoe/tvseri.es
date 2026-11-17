@@ -3,7 +3,7 @@
 import { episodeCode } from '@tvseri.es/schemas';
 import { useEffect, useMemo, useState } from 'react';
 
-import { useSeriesView } from '@/lib/marking/hooks';
+import { useSeriesAnswer, useSeriesView } from '@/lib/marking/hooks';
 import {
   nextEpisode,
   regularWatchedCount,
@@ -75,21 +75,25 @@ export function useLiveWatchingTile(
   return live;
 }
 
+const regularOf = (view: SeriesBase | undefined) =>
+  view ? regularWatchedCount(view) : null;
+
 /**
  * A Hidden shelf tile whose show is watched again: the API brings it back
- * to In progress, so the tile leaves after the mark's toast (`onWatched`),
+ * to In progress, so the tile leaves after the mark's toast (`leave`),
  * as a finished Watching tile does. Counted from the regular episodes the
  * show had when the store first had it (the Remote seeds it when opened);
  * a failed save or its Undo takes the count back and the tile stays, and a
- * special never brings a show back.
+ * special never brings a show back. Subscribes to the count alone, so other
+ * changes to the show don't re-render the tile.
  */
 export function useLeaveHiddenOnWatch(
   seriesId: number,
   enabled: boolean,
-  onWatched: () => void,
+  leave: (id: number, reason: 'unhide') => void,
 ): void {
-  const view = useSeriesView(seriesId);
-  const count = enabled && view ? regularWatchedCount(view) : null;
+  const regular = useSeriesAnswer(seriesId, regularOf);
+  const count = enabled ? regular : null;
   const [baseline, setBaseline] = useState<number | null>(null);
   if (baseline === null && count !== null) {
     setBaseline(count);
@@ -99,7 +103,7 @@ export function useLeaveHiddenOnWatch(
     if (!watched) {
       return;
     }
-    const timer = setTimeout(onWatched, LEAVE_AFTER_MS);
+    const timer = setTimeout(() => leave(seriesId, 'unhide'), LEAVE_AFTER_MS);
     return () => clearTimeout(timer);
-  }, [watched, onWatched]);
+  }, [watched, leave, seriesId]);
 }

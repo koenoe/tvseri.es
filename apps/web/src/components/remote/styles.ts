@@ -42,7 +42,6 @@ export const KEY_CHIP = cn(
  */
 const HIT_AREA: Readonly<Record<CircleButtonSize, string>> = {
   32: "after:absolute after:-inset-1.75 after:rounded-full after:content-['']",
-  36: "after:absolute after:-inset-1.25 after:rounded-full after:content-['']",
   40: "after:absolute after:-inset-0.75 after:rounded-full after:content-['']",
   44: '',
   48: '',

@@ -23,7 +23,7 @@ type Props = Readonly<{
   loading?: 'eager' | 'lazy';
   overlay?: ReactNode;
   poster: string | null | undefined;
-  /** defaults to a poster row's; pass ROW_IMAGE_SIZES.posterCompact in compact rows */
+  /** defaults to a poster row's */
   sizes?: string;
   slug?: string | null;
   title: string;

@@ -5,7 +5,6 @@ import GuardedSection from '@/components/ui/row/GuardedSection';
 import Row from '@/components/ui/row/Row';
 import RowError from '@/components/ui/row/RowError';
 import RowSkeleton from '@/components/ui/row/RowSkeleton';
-import { ROW_IMAGE_SIZES } from '@/components/ui/row/rowLayout';
 import BackdropTile from '@/components/ui/tile/BackdropTile';
 import PosterTile from '@/components/ui/tile/PosterTile';
 import RankedTile from '@/components/ui/tile/RankedTile';
@@ -118,7 +117,6 @@ function ColumnRow() {
         id="sg-watchlist"
         inset="column"
         seeAllHref="/u/margaux/watchlist"
-        tiles="posterCompact"
         title="Watchlist"
       >
         {SHOWS.map((show) => (
@@ -126,7 +124,6 @@ function ColumnRow() {
             id={show.id}
             key={show.id}
             poster={show.poster}
-            sizes={ROW_IMAGE_SIZES.posterCompact}
             slug={show.slug}
             title={show.title}
           />
@@ -233,7 +230,6 @@ export default function RowSection() {
           id="sg-error"
           state="failed"
           subtitle="Loved by the few who found them"
-          tiles="posterCompact"
           title="Hidden gems"
         />
         <RowError id="sg-retrying" state="retrying" title="Hidden gems" />

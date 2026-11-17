@@ -63,26 +63,6 @@ describe('buttonStyles', () => {
     );
   });
 
-  it('draws the eye pill on a still, pressed when watched (EPShowFinal epc-pill)', () => {
-    const list = classes(buttonStyles({ size: 'xs', variant: 'scrim' }));
-    expect(list).toEqual(
-      expect.arrayContaining([
-        'h-8',
-        'text-caption',
-        'bg-black/50',
-        'text-white/80',
-        'hover:border-white/45',
-        'aria-pressed:border-white/75',
-        'aria-pressed:text-white',
-      ]),
-    );
-  });
-
-  it('draws the cyan next-up pill (EPShowFinal epc-pill.nx.nuf)', () => {
-    const list = classes(buttonStyles({ variant: 'accent' }));
-    expect(list).toEqual(expect.arrayContaining(['border-cyan', 'text-white']));
-  });
-
   it('draws the tonal and quiet sheet buttons (EPShowFinal v2-btn, dlg-c)', () => {
     expect(classes(buttonStyles({ variant: 'tonal' }))).toEqual(
       expect.arrayContaining(['bg-white/8', 'hover:bg-white/16']),
@@ -111,7 +91,7 @@ describe('buttonStyles', () => {
 
   it('lets className win over a variant class', () => {
     const list = classes(
-      buttonStyles({ className: 'border-cyan/60', variant: 'scrim' }),
+      buttonStyles({ className: 'border-cyan/60', variant: 'glass' }),
     );
     expect(list).toContain('border-cyan/60');
     expect(list).not.toContain('border-white/20');
@@ -137,7 +117,6 @@ describe('circleButtonStyles', () => {
   });
 
   it.each([
-    [36, 'size-9'],
     [40, 'size-10'],
     [44, 'size-11'],
     [48, 'size-12'],

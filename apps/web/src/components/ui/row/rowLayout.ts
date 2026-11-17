@@ -18,12 +18,7 @@
  * 3 + 27% at 1440).
  */
 
-export type RowTiles =
-  | 'backdrop'
-  | 'card'
-  | 'poster'
-  | 'posterCompact'
-  | 'ranked';
+export type RowTiles = 'backdrop' | 'card' | 'poster' | 'ranked';
 
 /** `page`: a full-bleed row on the page grid. `column`: a row inside a page column (profile main column) that clips at the column's left edge and bleeds to the window's right edge. `flush`: a section inside a column that already has the page gutter at every width (the person page, Stats): its edges are the column's. */
 export type RowInset = 'column' | 'flush' | 'page';
@@ -47,8 +42,6 @@ export const ROW_TILES: Readonly<Record<RowTiles, string>> = {
   card: '[--row-n:1] [--row-peek:0] [--row-gap:12px] [--tile-radius:16px] [--tile-aspect:auto] [--tile-ghost-h:303px] @max-[767px]:[--row-tile:calc(100cqw_-_2_*_var(--page-gutter))] @min-[768px]:@max-[1280px]:[--row-tile:560px] @min-[768px]:[--tile-ghost-h:404px] @min-[768px]:[--row-gap:24px] @min-[1280px]:[--tile-ghost-h:310px] @min-[1280px]:[--row-peek:0.36]',
   poster:
     '[--row-n:2] [--row-peek:0.45] [--row-gap:12px] [--tile-radius:10px] [--tile-aspect:2/3] @max-[639px]:[--row-tile:140px] @min-[640px]:[--row-n:3] @min-[768px]:[--row-n:4] @min-[768px]:[--row-peek:0.49] @min-[768px]:[--row-gap:16px] @min-[768px]:[--tile-radius:12px] @min-[1024px]:[--row-n:5] @min-[1024px]:[--row-gap:24px] @min-[1680px]:[--row-n:6] @min-[2200px]:[--row-n:7]',
-  posterCompact:
-    '[--row-n:2] [--row-peek:0.45] [--row-gap:12px] [--tile-radius:10px] [--tile-aspect:2/3] @min-[480px]:[--row-n:3] @min-[480px]:[--row-peek:0.52] @min-[480px]:[--row-gap:16px] @min-[640px]:[--row-n:4] @min-[880px]:[--row-n:5] @min-[1200px]:[--row-n:6]',
   /**
    * The numbered row: a tile is the
    * numeral's room and the poster, 290 = 110 + 180 at 1024 and up, 18 apart
@@ -72,7 +65,6 @@ export const ROW_IMAGE_SIZES: Readonly<Record<RowTiles, string>> = {
   card: '(min-width: 768px) 170px, 30vw',
   poster:
     '(min-width: 768px) 242px, (min-width: 640px) 207px, calc((100vw - 48px) / 2.45)',
-  posterCompact: '(min-width: 768px) 205px, calc((100vw - 48px) / 2.45)',
   /** the poster is 62% of the tile (180 of 290), 72% on phones */
   ranked:
     '(min-width: 1024px) 180px, (min-width: 640px) calc((100vw - 80px) * 0.18), calc((100vw - 48px) * 0.3)',

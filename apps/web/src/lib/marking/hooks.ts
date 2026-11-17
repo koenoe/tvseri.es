@@ -24,9 +24,7 @@ import {
   codeOf,
   episodeState,
   nextEpisode,
-  type SeasonProgress,
   type SeriesProgress,
-  seasonProgress,
   seriesProgress,
 } from './progress';
 import type { LibraryState, MarkingStore, MarkingStoreApi } from './store';
@@ -88,18 +86,6 @@ export function useSeriesProgress(
 ): SeriesProgress | undefined {
   const view = useSeriesView(seriesId);
   return useMemo(() => (view ? seriesProgress(view) : undefined), [view]);
-}
-
-/** @public (Marking contract) */
-export function useSeasonProgress(
-  seriesId: number,
-  seasonNumber: number,
-): SeasonProgress | undefined {
-  const view = useSeriesView(seriesId);
-  return useMemo(
-    () => (view ? seasonProgress(view, seasonNumber) : undefined),
-    [view, seasonNumber],
-  );
 }
 
 /** Next up (`null`: everything aired is watched or skipped). */
@@ -379,7 +365,6 @@ export function useRecheckViewer(): void {
  * state once when `enabled` and signed in (`ensureSeries`, shared with
  * Home's warm-up on hover). Returns the view when ready.
  */
-/** @public (Marking contract: the Remote on unseeded tiles) */
 export function useEnsureSeries(
   seriesId: number,
   enabled: boolean,

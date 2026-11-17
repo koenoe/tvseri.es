@@ -33,7 +33,7 @@ const CHIP_TONAL = chipStyles({ variant: 'tonal' });
 
 const VARIANTS = ['primary', 'outline', 'glass', 'tonal', 'quiet'] as const;
 const SIZES = ['xs', 'sm', 'md', 'lg'] as const;
-const CIRCLE_SIZES = [32, 36, 40, 44, 48] as const;
+const CIRCLE_SIZES = [32, 40, 44, 48] as const;
 
 export default function ButtonSection() {
   return (
@@ -122,58 +122,19 @@ function PillSpecimens() {
 
 function StillSpecimens() {
   return (
-    <>
-      <Specimen
-        label="Eye pill · xs on a still (static look; the WatchButton owns the logic)"
-        note="Eye pill on a still: mark, watched, next up, skipped"
-      >
-        <OnStill>
-          <Button icon={eyeGlyph} size="xs" variant="scrim">
-            Mark watched
-          </Button>
-          <Button icon={eyeGlyph} pressed size="xs" variant="scrim">
-            Jul 19
-          </Button>
-          <Button
-            className="border-cyan/60 [&>svg]:text-cyan"
-            icon={eyeGlyph}
-            size="xs"
-            variant="scrim"
-          >
-            Mark watched
-          </Button>
-          <Button className="text-white/60" size="xs" variant="scrim">
-            Skipped
-          </Button>
-        </OnStill>
-      </Specimen>
-      <Specimen
-        label="Cyan Next up pill"
-        note="Next up pill (40 and 44): Next up first"
-      >
-        <OnStill>
-          <Button icon={eyeGlyph} variant="accent">
-            Mark S03E05 watched
-          </Button>
-          <Button icon={eyeGlyph} size="lg" variant="accent">
-            Mark S03E05 watched
-          </Button>
-        </OnStill>
-      </Specimen>
-      <Specimen label="Error page actions" note="Solid and glass over a still">
-        <OnStill>
-          <Button icon={userGlyph} variant="primary">
-            Sign in
-          </Button>
-          <Button icon={statsGlyph} variant="glass">
-            See @maria’s stats
-          </Button>
-          <Button icon={homeGlyph} variant="glass">
-            Home
-          </Button>
-        </OnStill>
-      </Specimen>
-    </>
+    <Specimen label="Error page actions" note="Solid and glass over a still">
+      <OnStill>
+        <Button icon={userGlyph} variant="primary">
+          Sign in
+        </Button>
+        <Button icon={statsGlyph} variant="glass">
+          See @maria’s stats
+        </Button>
+        <Button icon={homeGlyph} variant="glass">
+          Home
+        </Button>
+      </OnStill>
+    </Specimen>
   );
 }
 
@@ -182,7 +143,7 @@ function CircleSpecimens() {
     <>
       <Specimen
         label="Circle buttons · sizes"
-        note="Circle buttons: 32, 36, 40, 44, 48"
+        note="Circle buttons: 32, 40, 44, 48"
       >
         {CIRCLE_SIZES.map((size) => (
           <State key={size} name={String(size)}>

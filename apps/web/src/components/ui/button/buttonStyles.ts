@@ -4,12 +4,11 @@ import type { IconSize } from '@/components/ui/icon/types';
 import cn from '@/lib/cn';
 
 /**
- * Class lists for every pressable control the boards draw. Each takes an
- * optional `className` that wins over the variant (merged by `cn`), so a page
- * can express a one-off state (the cyan edge of a Next up eye pill) without a
- * new variant. Focus rings come from the global `:focus-visible` rule.
- *
- * Board sources per variant are in the style guide (ButtonSection).
+ * Class lists for every shared pressable control. Each takes an optional
+ * `className` that wins over the variant (merged by `cn`), so a page can
+ * express a one-off state without a new variant. Focus rings come from the
+ * global `:focus-visible` rule. The style guide (ButtonSection) shows each
+ * variant.
  */
 
 const pill = cva(
@@ -33,9 +32,6 @@ const pill = cva(
         xs: 'h-8 px-3.5 text-caption has-[>svg:first-child]:pl-2.5',
       },
       variant: {
-        /** the cyan Next up pill, the strongest action on a page */
-        accent:
-          'border-2 border-cyan bg-[rgb(0_180_190/0.38)] text-white disabled:opacity-30 aria-disabled:opacity-30',
         /** frosted, for buttons over a still */
         glass:
           'border-2 border-white/20 bg-white/8 text-white backdrop-blur-md hover:border-white/50 disabled:opacity-30 aria-disabled:opacity-30',
@@ -51,15 +47,6 @@ const pill = cva(
         /** text only until hovered: Cancel, Not now */
         quiet:
           'text-white/80 hover:bg-white/8 hover:text-white disabled:opacity-30 aria-disabled:opacity-30',
-        /**
-         * dark glass on a still: the eye pill. Pressed
-         * (watched) gets the bright edge.
-         */
-        scrim: [
-          'border-2 border-white/20 bg-black/50 text-white/80 backdrop-blur-[6px] hover:border-white/45 hover:text-white',
-          'aria-pressed:border-white/75 aria-pressed:bg-black/60 aria-pressed:text-white',
-          'disabled:opacity-55 aria-disabled:opacity-55',
-        ],
         /** filled, no edge: sheet and card actions */
         tonal:
           'bg-white/8 text-white hover:bg-white/16 aria-pressed:bg-white aria-pressed:text-black/90 disabled:opacity-30 aria-disabled:opacity-30',
@@ -80,7 +67,7 @@ export function buttonStyles({
   return cn(pill(variants), className);
 }
 
-/** Icon size per button size (icons_final.md: 16 with a label, 20 on the 44px pill). */
+/** Icon size per button size: 16 with a label, 20 on the 44px pill. */
 export const BUTTON_ICON_SIZE: Readonly<Record<ButtonSize, IconSize>> = {
   lg: 20,
   md: 16,
@@ -103,8 +90,6 @@ const circle = cva(
       size: {
         /** a dialog's ✕, a card's ⋯ */
         32: 'size-8',
-        /** episode paging */
-        36: 'size-9',
         /** row arrows */
         40: 'size-10',
         /** the large ⋯ */
@@ -131,10 +116,9 @@ export function circleButtonStyles({
   return cn(circle(variants), className);
 }
 
-/** Icon size per circle size (the boards: 16 in 32/36, 20 in 40/44, 24 in 48). */
+/** Icon size per circle size: 16 in 32, 20 in 40/44, 24 in 48. */
 export const CIRCLE_ICON_SIZE: Readonly<Record<CircleButtonSize, IconSize>> = {
   32: 16,
-  36: 16,
   40: 20,
   44: 20,
   48: 24,

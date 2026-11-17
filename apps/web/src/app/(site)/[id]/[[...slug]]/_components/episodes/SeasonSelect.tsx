@@ -136,12 +136,12 @@ export default function SeasonSelect({
     }
   };
   const openPanel = (keyboard: boolean) => {
-    const show = () => setState({ ...CLOSED, keyboard, open: true });
+    const reveal = () => setState({ ...CLOSED, keyboard, open: true });
     if (panel.get()) {
-      show();
+      reveal();
     } else {
       // a failed chunk does nothing now; the next press loads it again
-      panel.load().then(show, () => undefined);
+      panel.load().then(reveal, () => undefined);
     }
   };
   const toggle = () => {

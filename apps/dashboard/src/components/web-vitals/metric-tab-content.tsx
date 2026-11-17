@@ -17,7 +17,8 @@ import { MetricLineChart, type PercentileKey } from './metric-line-chart';
 import { MetricSummary } from './metric-summary';
 import { RoutesSection } from './routes-section';
 import { useGroupedMetrics } from './use-grouped-metrics';
-import { useViewAllModal, ViewAllModal } from './view-all-modal';
+import { useViewAllModal } from './use-view-all-modal';
+import { ViewAllModal } from './view-all-modal';
 
 export type MetricTabContentProps = Readonly<{
   activePercentiles: Set<PercentileKey>;

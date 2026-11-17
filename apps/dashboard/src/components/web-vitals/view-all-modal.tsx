@@ -1,5 +1,4 @@
-import { CircleCheck } from 'lucide-react';
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -17,16 +16,15 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useMediaQuery } from '@/hooks/use-media-query';
-import type { GroupedMetricData, MetricItem } from '@/lib/api/utils';
+import type { GroupedMetricData } from '@/lib/api/utils';
+import type { RatingStatus } from '@/lib/web-vitals';
 import {
-  RATING_COLORS,
-  type RatingStatus,
-  STATUS_ICONS,
-} from '@/lib/web-vitals';
-
-import { MetricListItem } from './metric-list-item';
+  type FilterValue,
+  ItemsList,
+  type MetricItemWithStatus,
+  ModalHeading,
+} from './view-all-parts';
 
 type ViewAllModalProps = Readonly<{
   data: GroupedMetricData;
@@ -37,16 +35,6 @@ type ViewAllModalProps = Readonly<{
   title: string;
   variant?: 'country' | 'route';
 }>;
-
-type MetricItemWithStatus = MetricItem & { status: RatingStatus };
-
-type FilterValue = 'all' | RatingStatus;
-
-const FILTER_ORDER: ReadonlyArray<RatingStatus> = [
-  'great',
-  'needsImprovement',
-  'poor',
-];
 
 function ViewAllModalComponent({
   data,
@@ -60,14 +48,14 @@ function ViewAllModalComponent({
   const [activeFilter, setActiveFilter] = useState<FilterValue>(
     initialFilter ?? 'all',
   );
+  // Opening from another status column starts on that status.
+  const [shownFilter, setShownFilter] = useState(initialFilter);
+  if (shownFilter !== initialFilter) {
+    setShownFilter(initialFilter);
+    setActiveFilter(initialFilter ?? 'all');
+  }
   const isNarrowViewport = useMediaQuery('(max-width: 1023px)');
 
-  // Sync activeFilter when initialFilter changes (e.g., opening from different status)
-  useEffect(() => {
-    setActiveFilter(initialFilter ?? 'all');
-  }, [initialFilter]);
-
-  // Combine all items with their status
   const allItems: ReadonlyArray<MetricItemWithStatus> = [
     ...data.great.map((item) => ({ ...item, status: 'great' as const })),
     ...data.needsImprovement.map((item) => ({
@@ -77,7 +65,6 @@ function ViewAllModalComponent({
     ...data.poor.map((item) => ({ ...item, status: 'poor' as const })),
   ].sort((a, b) => b.pageViews - a.pageViews);
 
-  // Filter items based on active filter ('all' = show all)
   const filteredItems =
     activeFilter === 'all'
       ? allItems
@@ -86,7 +73,6 @@ function ViewAllModalComponent({
   const handleOpenChange = useCallback(
     (newOpen: boolean) => {
       if (!newOpen) {
-        // Reset filter when closing
         setActiveFilter(initialFilter ?? 'all');
       }
       onOpenChange(newOpen);
@@ -106,65 +92,16 @@ function ViewAllModalComponent({
     }
   }, []);
 
-  const filterToggle = (
-    <ToggleGroup
-      className="rounded-lg!"
-      onValueChange={handleFilterChange}
-      type="single"
-      value={activeFilter}
-      variant="outline"
-    >
-      <ToggleGroupItem
-        className="h-8 px-3 first:rounded-l-lg! last:rounded-r-lg!"
-        size="sm"
-        value="all"
-      >
-        All
-      </ToggleGroupItem>
-      {FILTER_ORDER.map((status) => {
-        const Icon = STATUS_ICONS[status];
-        const count = data[status].length;
-
-        return (
-          <ToggleGroupItem
-            className="size-8 p-0 last:rounded-r-lg!"
-            key={status}
-            size="sm"
-            title={`${status} (${count})`}
-            value={status}
-          >
-            <Icon className={`size-4 ${RATING_COLORS[status].text}`} />
-          </ToggleGroupItem>
-        );
-      })}
-    </ToggleGroup>
+  const heading = (
+    <ModalHeading
+      activeFilter={activeFilter}
+      data={data}
+      metricName={metricName}
+      onFilterChange={handleFilterChange}
+      title={title}
+    />
   );
-
-  const itemsList = (
-    <div className="overflow-y-auto flex-1 p-4">
-      {filteredItems.length === 0 ? (
-        <div className="flex h-full flex-col items-center justify-center gap-3">
-          <CircleCheck className="size-8 text-muted-foreground" />
-          <p className="text-muted-foreground">No scores found</p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {filteredItems.map((item) => (
-            <MetricListItem
-              id={item.id ?? item.label}
-              key={item.label}
-              label={item.label}
-              pageViews={item.pageViews}
-              StatusIcon={STATUS_ICONS[item.status]}
-              statusColor={RATING_COLORS[item.status].text}
-              value={item.value}
-              variant={variant}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  const itemsList = <ItemsList items={filteredItems} variant={variant} />;
 
   if (!isNarrowViewport) {
     return (
@@ -175,11 +112,7 @@ function ViewAllModalComponent({
         >
           <DialogHeader className="border-b px-4 py-3">
             <DialogTitle className="flex items-center gap-6 leading-none">
-              <span>{title}</span>
-              <span className="ml-auto text-sm font-normal text-muted-foreground leading-none">
-                {metricName}
-              </span>
-              {filterToggle}
+              {heading}
             </DialogTitle>
           </DialogHeader>
 
@@ -204,11 +137,7 @@ function ViewAllModalComponent({
       <DrawerContent className="max-h-[85vh] bg-card">
         <DrawerHeader className="border-b px-4 py-3 text-left">
           <DrawerTitle className="flex items-center gap-6 leading-none">
-            <span>{title}</span>
-            <span className="ml-auto text-sm font-normal text-muted-foreground leading-none">
-              {metricName}
-            </span>
-            {filterToggle}
+            {heading}
           </DrawerTitle>
         </DrawerHeader>
 
@@ -231,48 +160,3 @@ function ViewAllModalComponent({
 
 ViewAllModalComponent.displayName = 'ViewAllModal';
 export const ViewAllModal = memo(ViewAllModalComponent);
-
-// Hook to manage modal state
-export function useViewAllModal() {
-  const [modalState, setModalState] = useState<{
-    data: GroupedMetricData;
-    initialFilter?: RatingStatus;
-    metricName: string;
-    open: boolean;
-    title: string;
-    variant: 'country' | 'route';
-  }>({
-    data: { great: [], needsImprovement: [], poor: [] },
-    metricName: '',
-    open: false,
-    title: '',
-    variant: 'route',
-  });
-
-  const openModal = (
-    data: GroupedMetricData,
-    title: string,
-    metricName: string,
-    variant: 'country' | 'route' = 'route',
-    initialFilter?: RatingStatus,
-  ) => {
-    setModalState({
-      data,
-      initialFilter,
-      metricName,
-      open: true,
-      title,
-      variant,
-    });
-  };
-
-  const setOpen = (open: boolean) => {
-    setModalState((prev) => ({ ...prev, open }));
-  };
-
-  return {
-    modalState,
-    openModal,
-    setOpen,
-  };
-}

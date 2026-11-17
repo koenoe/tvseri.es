@@ -41,7 +41,7 @@ export const STATUS_ICONS = {
   poor: CircleAlert,
 } as const;
 
-const STATUS_LABELS = {
+export const STATUS_LABELS = {
   great: 'Great',
   needsImprovement: 'Needs Improvement',
   poor: 'Poor',

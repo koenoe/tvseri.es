@@ -10,6 +10,14 @@ import { MetricTabContent, type PercentileKey } from '@/components/web-vitals';
 import { WebVitalsHeader } from '@/components/web-vitals-header';
 import { useMetricsSummary } from '@/lib/api/hooks';
 import {
+  type DaysValue,
+  DEFAULT_DAYS,
+  DEFAULT_DEVICE,
+  type Device,
+  isDevice,
+  parseDays,
+} from '@/lib/search-params';
+import {
   formatMetricDisplay,
   getMetricTextClass,
   getMetricValue,
@@ -21,8 +29,8 @@ import {
 
 type WebSearchParams = {
   country?: string;
-  days?: 3 | 7 | 30;
-  device?: 'desktop' | 'mobile';
+  days?: DaysValue;
+  device?: Device;
 };
 
 export const Route = createFileRoute('/web/')({
@@ -39,13 +47,12 @@ export const Route = createFileRoute('/web/')({
       result.country = country;
     }
 
-    const device = search.device;
-    if (device === 'mobile' || device === 'desktop') {
-      result.device = device;
+    if (isDevice(search.device)) {
+      result.device = search.device;
     }
 
-    const days = Number(search.days);
-    if (days === 3 || days === 7 || days === 30) {
+    const days = parseDays(search.days);
+    if (days) {
       result.days = days;
     }
 
@@ -73,8 +80,8 @@ const METRIC_ORDER: ReadonlyArray<MetricType> = [
 function WebVitals() {
   const navigate = useNavigate({ from: Route.fullPath });
   const { country, days: daysParam, device: deviceParam } = Route.useSearch();
-  const days = daysParam ?? 7;
-  const device = deviceParam ?? 'desktop';
+  const days = daysParam ?? DEFAULT_DAYS;
+  const device = deviceParam ?? DEFAULT_DEVICE;
   const [activeMetric, setActiveMetric] = useState<MetricType>('res');
   const [activePercentiles, setActivePercentiles] = useState<
     Set<PercentileKey>

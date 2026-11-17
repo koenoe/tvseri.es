@@ -35,9 +35,10 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { useApiMetricsEndpointDetail } from '@/lib/api/hooks';
+import { type DaysValue, DEFAULT_DAYS, parseDays } from '@/lib/search-params';
 
 type EndpointDetailSearchParams = {
-  days?: 3 | 7 | 30;
+  days?: DaysValue;
   endpoint: string;
 };
 
@@ -80,18 +81,16 @@ export const Route = createFileRoute('/api/endpoints')({
   validateSearch: (
     search: Record<string, unknown>,
   ): EndpointDetailSearchParams => {
-    const days = Number(search.days);
-    const endpoint = String(search.endpoint ?? '');
     return {
-      days: days === 3 || days === 7 || days === 30 ? days : undefined,
-      endpoint,
+      days: parseDays(search.days),
+      endpoint: String(search.endpoint ?? ''),
     };
   },
 });
 
 function EndpointDetail() {
   const { days: daysParam, endpoint } = Route.useSearch();
-  const days = daysParam ?? 7;
+  const days = daysParam ?? DEFAULT_DAYS;
 
   const { data, isLoading } = useApiMetricsEndpointDetail({
     days,

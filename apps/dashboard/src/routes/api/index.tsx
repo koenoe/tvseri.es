@@ -19,6 +19,7 @@ import {
 import { ApiHeader } from '@/components/api-header';
 import { useApiMetricsEndpoints, useApiMetricsSummary } from '@/lib/api/hooks';
 import { formatDependencies } from '@/lib/api-metrics';
+import { type DaysValue, DEFAULT_DAYS, parseDays } from '@/lib/search-params';
 
 const EndpointsTable = lazy(() =>
   import('@/components/api/endpoints-table').then((mod) => ({
@@ -27,7 +28,7 @@ const EndpointsTable = lazy(() =>
 );
 
 type ApiSearchParams = {
-  days?: 3 | 7 | 30;
+  days?: DaysValue;
   pageIndex?: number;
   pageSize?: number;
   sortColumn?: string;
@@ -43,8 +44,8 @@ export const Route = createFileRoute('/api/')({
   validateSearch: (search: Record<string, unknown>): ApiSearchParams => {
     const result: ApiSearchParams = {};
 
-    const days = Number(search.days);
-    if (days === 3 || days === 7 || days === 30) {
+    const days = parseDays(search.days);
+    if (days) {
       result.days = days;
     }
 
@@ -153,7 +154,7 @@ EndpointsTableWrapper.displayName = 'EndpointsTableWrapper';
 
 function ApiMetrics() {
   const days = Route.useSearch({
-    select: (s) => s.days ?? 7,
+    select: (s) => s.days ?? DEFAULT_DAYS,
   });
 
   const { data: summaryData, isLoading: isSummaryLoading } =

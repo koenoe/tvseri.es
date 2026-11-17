@@ -18,51 +18,49 @@ import {
 } from './client';
 import { metricsKeys } from './query-keys';
 
-const ONE_MINUTE = 1000 * 60;
-const FIVE_MINUTES = 1000 * 60 * 5;
+// Metrics are aggregated once a day, so a minute of freshness is plenty.
+const CACHE_TIMES = {
+  gcTime: 1000 * 60 * 5,
+  staleTime: 1000 * 60,
+} as const;
 
 export function useMetricsSummary(params: MetricsSummaryParams) {
   return useQuery({
-    gcTime: FIVE_MINUTES,
+    ...CACHE_TIMES,
     queryFn: () => fetchMetricsSummary(params),
     queryKey: metricsKeys.summary(params),
-    staleTime: ONE_MINUTE,
   });
 }
 
 export function useMetricsRoutes(params: MetricsRoutesParams) {
   return useQuery({
-    gcTime: FIVE_MINUTES,
+    ...CACHE_TIMES,
     queryFn: () => fetchMetricsRoutes(params),
     queryKey: metricsKeys.routes(params),
-    staleTime: ONE_MINUTE,
   });
 }
 
 export function useMetricsCountries(params: MetricsCountriesParams) {
   return useQuery({
-    gcTime: FIVE_MINUTES,
+    ...CACHE_TIMES,
     queryFn: () => fetchMetricsCountries(params),
     queryKey: metricsKeys.countries(params),
-    staleTime: ONE_MINUTE,
   });
 }
 
 export function useApiMetricsSummary(params: ApiMetricsSummaryParams) {
   return useQuery({
-    gcTime: FIVE_MINUTES,
+    ...CACHE_TIMES,
     queryFn: () => fetchApiMetricsSummary(params),
     queryKey: metricsKeys.apiSummary(params),
-    staleTime: ONE_MINUTE,
   });
 }
 
 export function useApiMetricsEndpoints(params: ApiMetricsEndpointsParams) {
   return useQuery({
-    gcTime: FIVE_MINUTES,
+    ...CACHE_TIMES,
     queryFn: () => fetchApiMetricsEndpoints(params),
     queryKey: metricsKeys.apiEndpoints(params),
-    staleTime: ONE_MINUTE,
   });
 }
 
@@ -70,11 +68,10 @@ export function useApiMetricsEndpointDetail(
   params: ApiMetricsEndpointDetailParams,
 ) {
   return useQuery({
+    ...CACHE_TIMES,
     enabled: Boolean(params.endpoint),
-    gcTime: FIVE_MINUTES,
     queryFn: () => fetchApiMetricsEndpointDetail(params),
     queryKey: metricsKeys.apiEndpointDetail(params),
-    staleTime: ONE_MINUTE,
   });
 }
 
@@ -82,10 +79,9 @@ export function useApiMetricsDependencyDetail(
   params: ApiMetricsDependencyDetailParams,
 ) {
   return useQuery({
+    ...CACHE_TIMES,
     enabled: Boolean(params.source),
-    gcTime: FIVE_MINUTES,
     queryFn: () => fetchApiMetricsDependencyDetail(params),
     queryKey: metricsKeys.apiDependencyDetail(params),
-    staleTime: ONE_MINUTE,
   });
 }

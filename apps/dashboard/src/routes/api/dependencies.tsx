@@ -30,9 +30,10 @@ import {
 } from '@/components/ui/breadcrumb';
 import { useApiMetricsDependencyDetail } from '@/lib/api/hooks';
 import { formatDependencyName } from '@/lib/api-metrics';
+import { type DaysValue, DEFAULT_DAYS, parseDays } from '@/lib/search-params';
 
 type DependencyDetailSearchParams = {
-  days?: 3 | 7 | 30;
+  days?: DaysValue;
   source: string;
 };
 
@@ -72,18 +73,16 @@ export const Route = createFileRoute('/api/dependencies')({
   validateSearch: (
     search: Record<string, unknown>,
   ): DependencyDetailSearchParams => {
-    const days = Number(search.days);
-    const source = String(search.source ?? '');
     return {
-      days: days === 3 || days === 7 || days === 30 ? days : undefined,
-      source,
+      days: parseDays(search.days),
+      source: String(search.source ?? ''),
     };
   },
 });
 
 function DependencyDetail() {
   const { days: daysParam, source } = Route.useSearch();
-  const days = daysParam ?? 7;
+  const days = daysParam ?? DEFAULT_DAYS;
 
   const [sorting, setSorting] = useState<SortingState>([
     { desc: true, id: 'requests' },

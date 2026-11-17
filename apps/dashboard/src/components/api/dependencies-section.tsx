@@ -6,7 +6,6 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
 import { Fragment, memo, useCallback, useMemo, useState } from 'react';
 
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -24,9 +23,10 @@ import {
 } from '@/lib/api-metrics';
 import { STATUS_COLORS } from '@/lib/status-colors';
 import { RouteLabel } from './endpoint-label';
-import { RequestBar } from './request-bar';
 import { StatusCodePopover } from './status-code-popover';
-import { ErrorRateSparkline, LatencySparkline } from './table-sparklines';
+import { RequestBar } from './table/request-bar';
+import { TableFrame } from './table/table-frame';
+import { ErrorRateSparkline, LatencySparkline } from './table/table-sparklines';
 
 type DependenciesSectionProps = Readonly<{
   dependencies: Record<string, DependencyStats> | undefined;
@@ -232,79 +232,71 @@ function DependenciesSectionComponent({
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border">
-      <Table className="table-fixed text-sm [&_td]:py-2 [&_th]:h-10 [&_th]:py-2">
-        <TableHeader>
-          <TableRow className="hover:bg-transparent">
-            <TableHead className="px-3" style={{ width: COLUMN_WIDTHS.name }}>
-              <span className="text-muted-foreground">Dependency</span>
-            </TableHead>
-            <TableHead
-              className="px-3"
-              style={{ width: COLUMN_WIDTHS.requests }}
-            >
-              <span className="text-muted-foreground">Requests</span>
-            </TableHead>
-            <TableHead
-              className="px-3"
-              style={{ width: COLUMN_WIDTHS.latency }}
-            >
-              <span className="text-muted-foreground">Latency</span>
-            </TableHead>
-            <TableHead
-              className="px-3"
-              style={{ width: COLUMN_WIDTHS.errorRate }}
-            >
-              <span className="text-muted-foreground">Error Rate</span>
-            </TableHead>
-            <TableHead
-              className="px-3"
-              style={{ width: COLUMN_WIDTHS.actions }}
-            />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedKeys.map((key) => {
-            const stats = dependencies[key];
-            if (!stats) return null;
+    <TableFrame>
+      <TableHeader>
+        <TableRow className="hover:bg-transparent">
+          <TableHead className="px-3" style={{ width: COLUMN_WIDTHS.name }}>
+            <span className="text-muted-foreground">Dependency</span>
+          </TableHead>
+          <TableHead className="px-3" style={{ width: COLUMN_WIDTHS.requests }}>
+            <span className="text-muted-foreground">Requests</span>
+          </TableHead>
+          <TableHead className="px-3" style={{ width: COLUMN_WIDTHS.latency }}>
+            <span className="text-muted-foreground">Latency</span>
+          </TableHead>
+          <TableHead
+            className="px-3"
+            style={{ width: COLUMN_WIDTHS.errorRate }}
+          >
+            <span className="text-muted-foreground">Error Rate</span>
+          </TableHead>
+          <TableHead
+            className="px-3"
+            style={{ width: COLUMN_WIDTHS.actions }}
+          />
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {sortedKeys.map((key) => {
+          const stats = dependencies[key];
+          if (!stats) return null;
 
-            const latencyHistory =
-              stats.history && stats.history.length > 1
-                ? stats.history.map((point) => point.value)
-                : undefined;
+          const latencyHistory =
+            stats.history && stats.history.length > 1
+              ? stats.history.map((point) => point.value)
+              : undefined;
 
-            const errorHistory =
-              stats.history && stats.history.length > 1
-                ? stats.history.map((point) => point.value)
-                : undefined;
+          const errorHistory =
+            stats.history && stats.history.length > 1
+              ? stats.history.map((point) => point.value)
+              : undefined;
 
-            const isExpanded = expanded.has(key);
+          const isExpanded = expanded.has(key);
 
-            return (
-              <Fragment key={key}>
-                <DependencyRow
-                  errorHistory={errorHistory}
-                  isExpanded={isExpanded}
-                  latencyHistory={latencyHistory}
-                  maxRequestCount={maxRequestCount}
-                  name={key}
-                  onToggle={toggle}
-                  stats={stats}
-                />
-                {isExpanded &&
-                  stats.topOperations?.map((op) => (
-                    <OperationRow
-                      key={`${key}-${op.operation}`}
-                      maxRequestCount={maxRequestCount}
-                      operation={op}
-                    />
-                  ))}
-              </Fragment>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+          return (
+            <Fragment key={key}>
+              <DependencyRow
+                errorHistory={errorHistory}
+                isExpanded={isExpanded}
+                latencyHistory={latencyHistory}
+                maxRequestCount={maxRequestCount}
+                name={key}
+                onToggle={toggle}
+                stats={stats}
+              />
+              {isExpanded &&
+                stats.topOperations?.map((op) => (
+                  <OperationRow
+                    key={`${key}-${op.operation}`}
+                    maxRequestCount={maxRequestCount}
+                    operation={op}
+                  />
+                ))}
+            </Fragment>
+          );
+        })}
+      </TableBody>
+    </TableFrame>
   );
 }
 

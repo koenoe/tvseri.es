@@ -3,7 +3,6 @@ import { ChevronRight } from 'lucide-react';
 
 import { ScoreRing } from '@/components/ui/score-ring';
 import {
-  formatCountString,
   formatDependencyName,
   formatErrorRate,
   formatLatency,
@@ -12,9 +11,13 @@ import {
 
 import { DependencyBadge } from '../dependency-badge';
 import { MethodBadge, parseEndpoint, RouteLabel } from '../endpoint-label';
-import type { ApiColumnDef } from '../table-features';
-import { ErrorRateSparkline, LatencySparkline } from '../table-sparklines';
-import { SortIndicator } from './sort-indicator';
+import { RequestBar } from '../table/request-bar';
+import { SortableHeader } from '../table/sortable-header';
+import type { ApiColumnDef } from '../table/table-features';
+import {
+  ErrorRateSparkline,
+  LatencySparkline,
+} from '../table/table-sparklines';
 
 export const columns: ApiColumnDef<EndpointMetrics>[] = [
   {
@@ -30,14 +33,7 @@ export const columns: ApiColumnDef<EndpointMetrics>[] = [
       );
     },
     header: ({ column }) => (
-      <button
-        className="group/sort flex cursor-pointer items-center text-muted-foreground hover:text-foreground/80"
-        onClick={column.getToggleSortingHandler()}
-        type="button"
-      >
-        Route
-        <SortIndicator isSorted={column.getIsSorted()} />
-      </button>
+      <SortableHeader column={column}>Route</SortableHeader>
     ),
     id: 'endpoint',
     size: 320,
@@ -45,30 +41,16 @@ export const columns: ApiColumnDef<EndpointMetrics>[] = [
   {
     accessorFn: (row) => row.requestCount,
     cell: ({ row, table }) => {
-      const value = row.original.requestCount;
       const maxRequestCount = table.options.meta?.maxRequestCount ?? 1;
-      const percentage =
-        maxRequestCount > 0 ? (value / maxRequestCount) * 100 : 0;
       return (
-        <div
-          className="relative flex h-6 max-w-24 items-center rounded-sm bg-muted/80 px-1.5"
-          style={{ minWidth: 'fit-content', width: `${percentage}%` }}
-        >
-          <span className="tabular-nums text-white/80">
-            {formatCountString(value)}
-          </span>
-        </div>
+        <RequestBar
+          maxRequestCount={maxRequestCount}
+          requestCount={row.original.requestCount}
+        />
       );
     },
     header: ({ column }) => (
-      <button
-        className="group/sort flex cursor-pointer items-center text-muted-foreground hover:text-foreground/80"
-        onClick={column.getToggleSortingHandler()}
-        type="button"
-      >
-        Requests
-        <SortIndicator isSorted={column.getIsSorted()} />
-      </button>
+      <SortableHeader column={column}>Requests</SortableHeader>
     ),
     id: 'requests',
     size: 140,
@@ -88,14 +70,7 @@ export const columns: ApiColumnDef<EndpointMetrics>[] = [
       );
     },
     header: ({ column }) => (
-      <button
-        className="group/sort flex cursor-pointer items-center text-muted-foreground hover:text-foreground/80"
-        onClick={column.getToggleSortingHandler()}
-        type="button"
-      >
-        Latency
-        <SortIndicator isSorted={column.getIsSorted()} />
-      </button>
+      <SortableHeader column={column}>Latency</SortableHeader>
     ),
     id: 'latency',
     size: 140,
@@ -109,14 +84,7 @@ export const columns: ApiColumnDef<EndpointMetrics>[] = [
       );
     },
     header: ({ column }) => (
-      <button
-        className="group/sort flex cursor-pointer items-center text-muted-foreground hover:text-foreground/80"
-        onClick={column.getToggleSortingHandler()}
-        type="button"
-      >
-        Apdex
-        <SortIndicator isSorted={column.getIsSorted()} />
-      </button>
+      <SortableHeader column={column}>Apdex</SortableHeader>
     ),
     id: 'apdex',
     size: 80,
@@ -136,14 +104,7 @@ export const columns: ApiColumnDef<EndpointMetrics>[] = [
       );
     },
     header: ({ column }) => (
-      <button
-        className="group/sort flex cursor-pointer items-center text-muted-foreground hover:text-foreground/80"
-        onClick={column.getToggleSortingHandler()}
-        type="button"
-      >
-        Error Rate
-        <SortIndicator isSorted={column.getIsSorted()} />
-      </button>
+      <SortableHeader column={column}>Error Rate</SortableHeader>
     ),
     id: 'errorRate',
     size: 140,

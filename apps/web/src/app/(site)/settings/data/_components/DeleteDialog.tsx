@@ -15,6 +15,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog/Dialog';
 
+import InputShell, { INPUT_CLASS } from '../../_components/InputShell';
 import { DANGER_FILLED_BUTTON } from '../../_lib/appButtons';
 import { deleteDialogText, deleteErrorText } from '../_lib/deleteCopy';
 import { deleteAccount } from '../actions';
@@ -96,18 +97,20 @@ export default function DeleteDialog({
         <span className="text-body-sm font-semibold">
           Type {username} to confirm
         </span>
-        <input
-          autoCapitalize="none"
-          autoComplete="off"
-          autoCorrect="off"
-          className="h-12 rounded-10 bg-black/25 px-4 text-white shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)] outline-hidden focus:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.45)] max-md:text-body md:text-body-sm"
-          id={inputId}
-          onChange={change}
-          onKeyDown={keyDown}
-          spellCheck={false}
-          type="text"
-          value={typed}
-        />
+        <InputShell className="h-12 px-4">
+          <input
+            autoCapitalize="none"
+            autoComplete="off"
+            autoCorrect="off"
+            className={INPUT_CLASS}
+            id={inputId}
+            onChange={change}
+            onKeyDown={keyDown}
+            spellCheck={false}
+            type="text"
+            value={typed}
+          />
+        </InputShell>
       </label>
       {error ? (
         <p className="text-meta text-danger" role="alert">

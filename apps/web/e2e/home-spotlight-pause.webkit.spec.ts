@@ -1,3 +1,3 @@
 import { spotlightPauseSuite } from './helpers/spotlightPause';
 
-spotlightPauseSuite();
+spotlightPauseSuite('phone');

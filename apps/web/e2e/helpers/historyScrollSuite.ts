@@ -10,7 +10,7 @@ import { untilStable } from './viewport';
  * again with a new first page: only a Jump to scrolls to the diary's top),
  * and Back and Forward land where you left it. Run by
  * `navigation-scroll.spec.ts` (Chromium) and
- * `navigation-scroll.webkit.spec.ts` (WebKit), at a phone's and a
+ * `navigation-scroll.webkit.spec.ts` (WebKit, a phone only), at a phone's and a
  * desktop's width.
  */
 

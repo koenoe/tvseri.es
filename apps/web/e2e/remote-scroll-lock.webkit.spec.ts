@@ -1,3 +1,3 @@
 import { remoteScrollLockSuite } from './helpers/remoteScrollLock';
 
-remoteScrollLockSuite();
+remoteScrollLockSuite({ toggles: false });

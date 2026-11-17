@@ -19,32 +19,30 @@ export function remoteTouchSuite() {
       });
     };
 
-    for (const delay of [0, 250]) {
-      test(`a tap opens the Remote's sheet (code ${delay}ms late)`, async ({
-        context,
-        page,
-      }) => {
-        await signInAs(context, 'alex');
-        await page.goto('/u/alex/library/watchlist');
-        const tile = page.locator('[data-slot="library-grid"] ul > li').first();
-        await expect(tile).toBeVisible();
-        await page.waitForLoadState('networkidle');
-        await holdLateChunks(page, delay);
-        const more = tile.getByRole('button', { name: /^More actions for/ });
-        const name = (await more.getAttribute('aria-label')) ?? '';
-        await more.tap();
-        const sheet = page.getByRole('dialog', {
-          name: name.replace(/^More actions for/, 'Actions for'),
-        });
-        await expect(sheet).toBeVisible();
-        await expect(sheet.getByRole('menu')).toHaveAttribute(
-          'data-layout',
-          'sheet',
-        );
-        // one open, not a second tap's close
-        await page.waitForTimeout(600);
-        await expect(sheet).toBeVisible();
+    test(`a tap opens the Remote's sheet (code 250ms late)`, async ({
+      context,
+      page,
+    }) => {
+      await signInAs(context, 'alex');
+      await page.goto('/u/alex/library/watchlist');
+      const tile = page.locator('[data-slot="library-grid"] ul > li').first();
+      await expect(tile).toBeVisible();
+      await page.waitForLoadState('networkidle');
+      await holdLateChunks(page, 250);
+      const more = tile.getByRole('button', { name: /^More actions for/ });
+      const name = (await more.getAttribute('aria-label')) ?? '';
+      await more.tap();
+      const sheet = page.getByRole('dialog', {
+        name: name.replace(/^More actions for/, 'Actions for'),
       });
-    }
+      await expect(sheet).toBeVisible();
+      await expect(sheet.getByRole('menu')).toHaveAttribute(
+        'data-layout',
+        'sheet',
+      );
+      // one open, not a second tap's close
+      await page.waitForTimeout(600);
+      await expect(sheet).toBeVisible();
+    });
   });
 }

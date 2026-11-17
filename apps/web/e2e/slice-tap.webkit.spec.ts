@@ -1,3 +1,3 @@
 import { sliceTapSuite } from './helpers/sliceTap';
 
-sliceTapSuite();
+sliceTapSuite({ mouse: false });

@@ -8,7 +8,8 @@ import { signInAs } from './session';
  * slice opens it and stays on the page; a tap on the open slice follows its
  * link. A mouse still opens a slice on hover and follows it on click.
  */
-export function sliceTapSuite() {
+/** `mouse`: the hover-then-click case, which only Chromium needs to run */
+export function sliceTapSuite({ mouse = true } = {}) {
   const openFavourites = async (page: Page) => {
     await page.goto('/u/alex');
     // hydrated: the header's username slot stops pulsing
@@ -50,19 +51,21 @@ export function sliceTapSuite() {
     });
   });
 
-  test.describe('the slice accordion with a mouse', () => {
-    test.use({ viewport: { height: 844, width: 390 } });
+  if (mouse) {
+    test.describe('the slice accordion with a mouse', () => {
+      test.use({ viewport: { height: 844, width: 390 } });
 
-    test('a click on a closed slice follows it (hover has opened it)', async ({
-      context,
-      page,
-    }) => {
-      await signInAs(context, 'alex');
-      const slices = await openFavourites(page);
-      const second = slices.nth(1);
-      const href = await second.locator('a').first().getAttribute('href');
-      await second.click({ position: { x: 40, y: 28 } });
-      await page.waitForURL((url) => url.pathname === href);
+      test('a click on a closed slice follows it (hover has opened it)', async ({
+        context,
+        page,
+      }) => {
+        await signInAs(context, 'alex');
+        const slices = await openFavourites(page);
+        const second = slices.nth(1);
+        const href = await second.locator('a').first().getAttribute('href');
+        await second.click({ position: { x: 40, y: 28 } });
+        await page.waitForURL((url) => url.pathname === href);
+      });
     });
-  });
+  }
 }

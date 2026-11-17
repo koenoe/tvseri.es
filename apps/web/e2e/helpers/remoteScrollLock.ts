@@ -9,7 +9,8 @@ import { signInAs } from './session';
  * opened from it keeps the page locked after the Remote closes under it.
  * Shared by the Chromium and WebKit specs.
  */
-export function remoteScrollLockSuite() {
+/** `toggles`: the ⋯-again and click-outside closes, the same in every engine */
+export function remoteScrollLockSuite({ toggles = true } = {}) {
   test.describe('the desktop ⋯ locks the page while it is open', () => {
     test.use({ viewport: { height: 900, width: 1440 } });
 
@@ -65,25 +66,27 @@ export function remoteScrollLockSuite() {
       expect(await scrollY(page)).toBeGreaterThan(120);
     });
 
-    test('the ⋯ again, or a click outside, frees the page', async ({
-      context,
-      page,
-    }) => {
-      await signInAs(context, 'alex');
-      await page.goto(SHOW);
-      const button = trigger(page);
-      await button.click();
-      await expect.poll(() => locked(page)).toBe('hidden');
-      await button.click();
-      await expect(page.getByRole('menu')).toHaveCount(0);
-      expect(await locked(page)).toBe('');
+    if (toggles) {
+      test('the ⋯ again, or a click outside, frees the page', async ({
+        context,
+        page,
+      }) => {
+        await signInAs(context, 'alex');
+        await page.goto(SHOW);
+        const button = trigger(page);
+        await button.click();
+        await expect.poll(() => locked(page)).toBe('hidden');
+        await button.click();
+        await expect(page.getByRole('menu')).toHaveCount(0);
+        expect(await locked(page)).toBe('');
 
-      await button.click();
-      await expect.poll(() => locked(page)).toBe('hidden');
-      await page.mouse.click(200, 700);
-      await expect(page.getByRole('menu')).toHaveCount(0);
-      expect(await locked(page)).toBe('');
-    });
+        await button.click();
+        await expect.poll(() => locked(page)).toBe('hidden');
+        await page.mouse.click(200, 700);
+        await expect(page.getByRole('menu')).toHaveCount(0);
+        expect(await locked(page)).toBe('');
+      });
+    }
 
     test('a dialog opened from it keeps the page locked until it closes', async ({
       context,

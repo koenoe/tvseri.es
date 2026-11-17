@@ -24,7 +24,11 @@ const tabTo = async (page: Page, trigger: Locator) => {
   await page.keyboard.press('Shift');
 };
 
-export function focusRingSuite() {
+/**
+ * `keyboardTrigger`: the cases opened from the keyboard on the trigger,
+ * where Safari's focus differs; Chromium runs the click and shortcut ones.
+ */
+export function focusRingSuite({ keyboardTrigger = true } = {}) {
   test.describe('the focus ring on a trigger an overlay gives focus back to', () => {
     test.use({ viewport: { height: 900, width: 1440 } });
 
@@ -47,19 +51,21 @@ export function focusRingSuite() {
       await expect.poll(() => ringOn(button)).toBe(true);
     });
 
-    test('search: from the keyboard on the button, then Escape: the ring', async ({
-      page,
-    }) => {
-      await open(page);
-      const button = searchButton(page);
-      await tabTo(page, button);
-      await page.keyboard.press('Enter');
-      await expect(field(page)).toBeFocused();
-      await page.keyboard.press('Escape');
-      await expect(searchDialog(page)).toBeHidden();
-      await expect(button).toBeFocused();
-      expect(await ringOn(button)).toBe(true);
-    });
+    if (keyboardTrigger) {
+      test('search: from the keyboard on the button, then Escape: the ring', async ({
+        page,
+      }) => {
+        await open(page);
+        const button = searchButton(page);
+        await tabTo(page, button);
+        await page.keyboard.press('Enter');
+        await expect(field(page)).toBeFocused();
+        await page.keyboard.press('Escape');
+        await expect(searchDialog(page)).toBeHidden();
+        await expect(button).toBeFocused();
+        expect(await ringOn(button)).toBe(true);
+      });
+    }
 
     test('search: the shortcut, then Escape: no ring; Tab shows the next one', async ({
       browserName,
@@ -87,29 +93,31 @@ export function focusRingSuite() {
       }
     });
 
-    test('a dialog: a click, then Escape: no ring; from the keyboard: the ring', async ({
-      context,
-      page,
-    }) => {
-      await signInAs(context, 'alex');
-      await page.goto('/settings/data');
-      const trigger = page.getByRole('button', { name: 'Delete account' });
-      const dialog = page.getByRole('dialog');
+    if (keyboardTrigger) {
+      test('a dialog: a click, then Escape: no ring; from the keyboard: the ring', async ({
+        context,
+        page,
+      }) => {
+        await signInAs(context, 'alex');
+        await page.goto('/settings/data');
+        const trigger = page.getByRole('button', { name: 'Delete account' });
+        const dialog = page.getByRole('dialog');
 
-      await trigger.click();
-      await expect(dialog).toBeVisible();
-      await page.keyboard.press('Escape');
-      await expect(dialog).toBeHidden();
-      await expect(trigger).toBeFocused();
-      expect(await ringOn(trigger)).toBe(false);
+        await trigger.click();
+        await expect(dialog).toBeVisible();
+        await page.keyboard.press('Escape');
+        await expect(dialog).toBeHidden();
+        await expect(trigger).toBeFocused();
+        expect(await ringOn(trigger)).toBe(false);
 
-      await tabTo(page, trigger);
-      await page.keyboard.press('Enter');
-      await expect(dialog).toBeVisible();
-      await page.keyboard.press('Escape');
-      await expect(dialog).toBeHidden();
-      await expect(trigger).toBeFocused();
-      expect(await ringOn(trigger)).toBe(true);
-    });
+        await tabTo(page, trigger);
+        await page.keyboard.press('Enter');
+        await expect(dialog).toBeVisible();
+        await page.keyboard.press('Escape');
+        await expect(dialog).toBeHidden();
+        await expect(trigger).toBeFocused();
+        expect(await ringOn(trigger)).toBe(true);
+      });
+    }
   });
 }

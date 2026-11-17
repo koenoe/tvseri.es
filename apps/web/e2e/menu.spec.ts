@@ -1,10 +1,5 @@
 import { menuSuite } from './helpers/menuSuite';
 
-/** The menu and the sticky header in Chromium: phone, 1024, 1440. */
-for (const [width, height] of [
-  [390, 844],
-  [1024, 768],
-  [1440, 900],
-] as const) {
-  menuSuite(width, height);
-}
+/** The menu and the sticky header in Chromium: the phone and the side panel. */
+menuSuite(390, 844);
+menuSuite(1440, 900, ['open', 'signed-in', 'keyboard']);

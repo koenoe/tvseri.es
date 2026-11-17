@@ -132,9 +132,5 @@ test.describe('a new page opens at the top', () => {
   });
 });
 
-for (const [width, height] of [
-  [390, 844],
-  [1440, 900],
-] as const) {
-  historyScrollSuite(width, height);
-}
+// The phone runs in WebKit (`navigation-scroll.webkit.spec.ts`)
+historyScrollSuite(1440, 900);

@@ -40,16 +40,31 @@ export default function EdgeTint({
 }
 
 /**
- * The page's own top strip, in the page colour (`bg-page`, which follows
- * `--main-background-color`). Without a fixed coloured box at the top,
- * Safari falls back to the body's colour and often keeps the previous
- * page's after a client navigation, so the band behind the Dynamic Island
- * stayed on the old show's colour. This strip changes with the variable, so
- * Safari reads the current colour. Above the header (a transparent fixed
- * box at the same edge); a dialog's own strips sit in the top layer, above
- * this one.
+ * The page's own top strip, in the page colour (`bg-page`), shown only while
+ * the header is fixed (every mode but `static`).
+ *
+ * Safari colours its top bar (the iPhone status bar, the Mac's tab tint) from
+ * the fixed element at the top edge, else from the body. Two WebKit rules
+ * make a fixed element there risky:
+ * - When the top edge has no fixed element any more, WebKit keeps the last
+ *   one's colour for as long as that element still renders. The floating
+ *   pill's glass has no single colour, so on an iPhone the bar froze on the
+ *   colour it had when the pill appeared, and stayed on it after the next
+ *   navigation (the header is the same element, `absolute` again).
+ * - On a Mac and an iPad, WebKit stops sampling the top edge after the first
+ *   real scroll below the top and keeps the last element's colour until the
+ *   next document load. A strip that is always there was that element: the
+ *   tab tint kept the first page's colour for the whole visit.
+ *
+ * So the strip covers the header only while the header is fixed, and is gone
+ * (`display: none`, no renderer: WebKit lets go of it) at the top of a page,
+ * where Safari reads the body, which follows every colour change. Above the
+ * header; a dialog's own strips sit in the top layer, above this one.
  */
-const PAGE_STRIP = cn(STRIP, 'top-0 z-100 bg-page');
+const PAGE_STRIP = cn(
+  STRIP,
+  'top-0 z-100 hidden bg-page [:root:has(header[data-header-mode]:not([data-header-mode=static]))_&]:block',
+);
 
 export function PageEdgeTint() {
   return <div aria-hidden className={PAGE_STRIP} data-edge-tint="" />;

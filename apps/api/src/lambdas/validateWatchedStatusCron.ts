@@ -18,8 +18,8 @@ export const handler = async () => {
   let failedCount = 0;
   const since = new Date(Date.now() - ACTIVE_USER_WINDOW_MS).toISOString();
 
-  // A failure is thrown, not returned: EventBridge's async invoke then
-  // retries and the function's Errors metric shows it
+  // A failed query still throws (EventBridge retries the run); users SQS
+  // refused twice are only logged, as a rerun would queue everyone again
   for await (const page of queryPages({
     ExpressionAttributeValues: marshall({
       ':active': ACTIVE_PK,
@@ -43,12 +43,13 @@ export const handler = async () => {
   }
 
   if (failedCount > 0) {
-    throw new Error(
-      `${failedCount} users failed to queue (${queuedCount} queued)`,
+    console.error(
+      `[ERROR] ${failedCount} users failed to queue (${queuedCount} queued)`,
     );
+    return { failedCount, queuedCount };
   }
   console.log(
     `[SUCCESS] ${queuedCount} active users queued to validate their watched items`,
   );
-  return { queuedCount };
+  return { failedCount, queuedCount };
 };

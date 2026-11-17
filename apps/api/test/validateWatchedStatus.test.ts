@@ -1,7 +1,9 @@
+import { SQSClient } from '@aws-sdk/client-sqs';
 import type { SQSEvent } from 'aws-lambda';
 import { describe, expect, it, vi } from 'vitest';
 
 import { handler } from '@/lambdas/validateWatchedStatusQueue';
+import { queueWatchedStatusValidation } from '@/lib/watchedStatus';
 import { db } from './db';
 import { fakeShow } from './fixtures/tmdb';
 import { episodes, listItem, seedWatched } from './library';
@@ -314,6 +316,38 @@ describe('nightly cron (async-10)', () => {
 
     send.mockRestore();
     error.mockRestore();
+  });
+});
+
+describe('queueing users for the nightly check', () => {
+  // The first entry of each refused send fails; setup.ts's fake answers the rest
+  const refuse = (times: number) => {
+    const send = vi.mocked(SQSClient.prototype.send);
+    send.mockClear();
+    for (let i = 0; i < times; i++) {
+      send.mockImplementationOnce((async () => ({
+        Failed: [{ Id: '0' }],
+        Successful: [],
+      })) as never);
+    }
+    return send;
+  };
+
+  it('sends an entry SQS refused once more', async () => {
+    const send = refuse(1);
+
+    expect(await queueWatchedStatusValidation(['a', 'b'])).toBe(0);
+    expect(send).toHaveBeenCalledTimes(2);
+    expect(send.mock.calls[1]?.[0]).toMatchObject({
+      input: { Entries: [{ MessageBody: JSON.stringify({ id: 'a' }) }] },
+    });
+  });
+
+  it('counts an entry refused twice as failed, without a third try', async () => {
+    const send = refuse(2);
+
+    expect(await queueWatchedStatusValidation(['a', 'b'])).toBe(1);
+    expect(send).toHaveBeenCalledTimes(2);
   });
 });
 

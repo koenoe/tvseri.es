@@ -161,7 +161,6 @@ const ROUTES: Readonly<Record<string, Target>> = {
   'GET /user/:id/watched/runtime': 'write',
   'GET /user/:id/watched/series/:series-id{[0-9]+}': 'write',
   'GET /user/by-username/:username': 'catalogue',
-  'GET /webhook/token/:token': 'catalogue',
   'GET /webhook/type/:type{plex}': 'catalogue',
   'GET /webhook/type/:type{plex}/status': 'catalogue',
   'PATCH /me/series/:id/prefs': 'write',

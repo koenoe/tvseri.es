@@ -16,27 +16,6 @@ describe('review fixes', () => {
     expect(await getCacheItem('k')).toBeUndefined();
   });
 
-  it('keeps the old token lookup to its original fields', async () => {
-    db.seed('WebhookTokens', [
-      {
-        createdAt: '2026-01-01T00:00:00.000Z',
-        gsi1pk: `USER#${USER_ID}#TYPE#plex`,
-        lastAccount: { id: 7, title: 'guest' },
-        pk: 'TOKEN#abcdefabcdefabcdefabcdef',
-        token: 'abcdefabcdefabcdefabcdef',
-        type: 'plex',
-        userId: USER_ID,
-      },
-    ]);
-    const response = await request('/webhook/token/abcdefabcdefabcdefabcdef');
-    expect(await response.json()).toEqual({
-      createdAt: '2026-01-01T00:00:00.000Z',
-      token: 'abcdefabcdefabcdefabcdef',
-      type: 'plex',
-      userId: USER_ID,
-    });
-  });
-
   it('only asks OMDb for seasons the show has', async () => {
     fakeShow({
       extra: { external_ids: { imdb_id: 'tt0903747' } },

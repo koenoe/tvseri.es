@@ -9,7 +9,6 @@ import {
   type WebhookStatus,
   type WebhookToken,
 } from '@tvseri.es/schemas';
-import { pick } from '@tvseri.es/utils';
 import { type Context, Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 
@@ -17,7 +16,6 @@ import { getMarksByProvider } from '@/lib/db/watched';
 import {
   deleteWebhookToken,
   ensureEdgeKey,
-  findWebhookToken,
   findWebhookTokenByUserAndType,
   generateWebhookToken,
   updateWebhookSettings,
@@ -31,15 +29,6 @@ const TYPE_PATH = `/type/:type{${SCROBBLE_PROVIDERS.join('|')}}`;
 // The path pattern only matches a provider, but Hono can't infer that from a
 // built string
 const providerParam = (c: Context) => c.req.param('type') as ScrobbleProvider;
-
-// Kept for other clients; only the row's original fields,
-// never the settings or the media server accounts added later
-app.get('/token/:token', async (c) => {
-  const token = await findWebhookToken(c.req.param('token'));
-  return c.json(
-    token && pick(token, ['createdAt', 'token', 'type', 'userId'] as const),
-  );
-});
 
 /** The user's token for a provider, or `{ token: null }` when they have none */
 app.get(TYPE_PATH, requireAuth(), async (c) => {

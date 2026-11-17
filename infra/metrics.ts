@@ -44,29 +44,25 @@ metricsQueue.subscribe(
 );
 
 /**
- * Daily Web Vitals aggregation cron job.
- * Runs at 00:05 UTC to aggregate the previous day's Web Vitals data.
+ * Daily metrics aggregation: one Lambda, one schedule per aggregation, each
+ * aggregating the previous day's raw metrics. API runs five minutes after Web
+ * Vitals so the two never overlap.
  */
+const metricsAggregate = new sst.aws.Function('MetricsAggregate', {
+  handler: 'apps/api/src/lambdas/metricsAggregate.handler',
+  link: [dynamo.metricsRaw, dynamo.metricsApi, dynamo.metricsWebVitals],
+  memory: '512 MB',
+  timeout: '5 minutes',
+});
+
 new sst.aws.Cron('WebVitalsAggregateCron', {
-  function: {
-    handler: 'apps/api/src/lambdas/metricsAggregateWebVitals.handler',
-    link: [dynamo.metricsRaw, dynamo.metricsWebVitals],
-    memory: '512 MB',
-    timeout: '5 minutes',
-  },
+  event: { aggregation: 'web-vitals' },
+  function: metricsAggregate,
   schedule: 'cron(5 0 * * ? *)', // Daily at 00:05 UTC
 });
 
-/**
- * Daily API metrics aggregation cron job.
- * Runs at 00:10 UTC to aggregate the previous day's API metrics data.
- */
 new sst.aws.Cron('ApiMetricsAggregateCron', {
-  function: {
-    handler: 'apps/api/src/lambdas/metricsAggregateApi.handler',
-    link: [dynamo.metricsRaw, dynamo.metricsApi],
-    memory: '512 MB',
-    timeout: '5 minutes',
-  },
+  event: { aggregation: 'api' },
+  function: metricsAggregate,
   schedule: 'cron(10 0 * * ? *)', // Daily at 00:10 UTC
 });

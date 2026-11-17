@@ -12,11 +12,11 @@ export const sampleMultiplier = (sampleRate: number) =>
   Math.round(1 / sampleRate);
 
 /**
- * A daily aggregation Lambda: reads one day's raw metrics (every shard of
+ * A daily aggregation: reads one day's raw metrics (every shard of
  * `<source>#<date>`), aggregates them and writes the aggregates.
  *
  * By default it aggregates the PREVIOUS day, so all metrics are collected.
- * A manual run can name the day: `{ "date": "2025-12-11" }`.
+ * A manual run can name the day: `{ "aggregation": "api", "date": "2025-12-11" }`.
  */
 export const dailyAggregationHandler =
   <RawRecord, Aggregate extends Record<string, unknown>>({

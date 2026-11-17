@@ -710,11 +710,8 @@ const aggregateApiMetrics = (
   return aggregates;
 };
 
-/**
- * API metrics aggregation Lambda: runs daily (00:10 UTC) and writes the
- * previous day's raw API metrics as pre-computed aggregates.
- */
-export const handler = dailyAggregationHandler({
+/** Writes a day's raw API metrics as pre-computed aggregates */
+export const apiAggregation = dailyAggregationHandler({
   aggregate: aggregateApiMetrics,
   label: 'api-aggregate',
   source: 'API',

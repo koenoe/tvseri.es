@@ -316,11 +316,8 @@ const aggregateWebVitals = (
   return aggregates;
 };
 
-/**
- * Web Vitals aggregation Lambda: runs daily (00:05 UTC) and writes the
- * previous day's raw Web Vitals as pre-computed aggregates.
- */
-export const handler = dailyAggregationHandler({
+/** Writes a day's raw Web Vitals as pre-computed aggregates */
+export const webVitalsAggregation = dailyAggregationHandler({
   aggregate: aggregateWebVitals,
   label: 'web-vitals-aggregate',
   source: 'WEB',

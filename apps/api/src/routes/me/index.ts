@@ -26,7 +26,6 @@ import { getSeriesStates } from '@/lib/seriesStates';
 import { getWaitingFor } from '@/lib/waitingFor';
 import { toWatchProvider } from '@/lib/watchProviders';
 import { requireAuth, type Variables } from '@/middleware/auth';
-import { PRIVATE_NO_STORE } from '@/utils/cacheHeader';
 import exportRoutes from './export';
 import home from './home';
 import imports from './imports';
@@ -87,7 +86,6 @@ app.get('/waiting-for', async (c) => {
 app.get('/circle', async (c) => {
   const { user } = c.get('auth')!;
   const circle = await getCircle(user);
-  c.header('Cache-Control', PRIVATE_NO_STORE);
   return c.json(circle);
 });
 
@@ -96,7 +94,6 @@ app.get('/circle', async (c) => {
 app.get('/circle/people', async (c) => {
   const { user } = c.get('auth')!;
   const people = await getCirclePeople(user);
-  c.header('Cache-Control', PRIVATE_NO_STORE);
   return c.json(people);
 });
 

@@ -1,7 +1,6 @@
 import { Hono } from 'hono';
 import { exportEverything, exportHistoryCsv } from '@/lib/export';
 import type { Variables } from '@/middleware/auth';
-import { PRIVATE_NO_STORE } from '@/utils/cacheHeader';
 import { fitsLambdaResponse } from '@/utils/lambdaResponse';
 import { todayUtc } from '@/utils/time';
 
@@ -12,7 +11,6 @@ const attachment = (
   type: string,
   filename: string,
 ) => {
-  c.header('Cache-Control', PRIVATE_NO_STORE);
   c.header('Content-Type', type);
   c.header('Content-Disposition', `attachment; filename="${filename}"`);
 };

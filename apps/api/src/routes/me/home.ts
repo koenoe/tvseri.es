@@ -5,7 +5,6 @@ import { getLibraryIds } from '@/lib/db/list';
 import { becauseYouWatched, moreGenre } from '@/lib/home/picks';
 import { spotlightLines } from '@/lib/home/spotlightLines';
 import type { Variables } from '@/middleware/auth';
-import { cacheHeader } from '@/utils/cacheHeader';
 import { todayUtc } from '@/utils/time';
 
 const DateQuerySchema = v.object({
@@ -14,10 +13,12 @@ const DateQuerySchema = v.object({
 
 const app = new Hono<{ Variables: Variables }>();
 
-// Personal: only the viewer's browser may keep it (a day)
+// Personal rows picked per UTC day: only the viewer's browser keeps them, a day
+const HOME_CACHE_CONTROL = 'private, max-age=86400';
+
 app.use(async (c, next) => {
   await next();
-  c.header('Cache-Control', cacheHeader('metrics', { scope: 'private' }));
+  c.header('Cache-Control', HOME_CACHE_CONTROL);
 });
 
 // "Because you watched <a favourite>"

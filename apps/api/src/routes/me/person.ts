@@ -6,6 +6,7 @@ import { getWatchedCountForTvSeries } from '@/lib/db/watched';
 import { fetchPersonShows } from '@/lib/person/load';
 import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import type { Variables } from '@/middleware/auth';
+import { PRIVATE_NO_STORE } from '@/utils/cacheHeader';
 import { mapSettled } from '@/utils/limit';
 import { IdParamSchema } from '@/utils/params';
 
@@ -55,7 +56,7 @@ app.get('/:id/watched', vValidator('param', IdParamSchema), async (c) => {
     .filter((item) => item.episodesWatched > 0)
     .sort((a, b) => b.episodesWatched - a.episodesWatched);
 
-  c.header('Cache-Control', 'private, no-store');
+  c.header('Cache-Control', PRIVATE_NO_STORE);
 
   return c.json({
     episodes: seen.reduce((sum, item) => sum + item.episodesWatched, 0),

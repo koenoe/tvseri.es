@@ -4,7 +4,6 @@ import { Hono } from 'hono';
 
 import { findUser } from '@/lib/db/user';
 import type { Variables } from '@/middleware/auth';
-import { PRIVATE_NO_STORE } from '@/utils/cacheHeader';
 
 const app = new Hono<{ Variables: Variables }>();
 
@@ -15,7 +14,6 @@ const app = new Hono<{ Variables: Variables }>();
  * handles can't be listed. Per viewer: never kept by a shared cache.
  */
 app.get('/', vValidator('query', MemberLookupQuerySchema), async (c) => {
-  c.header('Cache-Control', PRIVATE_NO_STORE);
   const user = await findUser({ username: c.req.valid('query').username });
 
   // A profile whose account is being deleted is gone already

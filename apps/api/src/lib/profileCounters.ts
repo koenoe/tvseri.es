@@ -26,6 +26,18 @@ const watchedCountCacheKey = (userId: string) =>
   `profile:${userId}:watched-count`;
 
 /**
+ * Every Cache key a user's profile counters live under: the current ones
+ * and the runtime counter's earlier versions, which may still exist
+ * (deleting the account clears them all).
+ */
+export const profileCounterCacheKeys = (userId: string) => [
+  watchedCountCacheKey(userId),
+  watchedRuntimeCacheKey(userId),
+  `profile:${userId}:watched-runtime`,
+  `profile:${userId}:watched-runtime:v2`,
+];
+
+/**
  * Applies per-user deltas to existing counters, one atomic update per user, in
  * parallel. A missing counter is left alone: the API computes it fresh on
  * the next request.

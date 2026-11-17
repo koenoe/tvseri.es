@@ -12,6 +12,7 @@ import client from '@/lib/db/client';
 import { userPk } from '@/lib/db/list/keys';
 import { queryPages } from '@/lib/db/query';
 import { releaseHandleClaim } from '@/lib/db/user';
+import { profileCounterCacheKeys } from '@/lib/profileCounters';
 import { getStatsInvalidationKeys } from '@/lib/stats/keys';
 
 /**
@@ -183,10 +184,7 @@ const userCacheKeys = (userId: string, now: Date) => {
   );
   return [
     ...new Set([
-      `profile:${userId}:watched-count`,
-      `profile:${userId}:watched-runtime`,
-      `profile:${userId}:watched-runtime:v2`,
-      `profile:${userId}:watched-runtime:v3`,
+      ...profileCounterCacheKeys(userId),
       ...years.flatMap((year) => getStatsInvalidationKeys(userId, year)),
     ]),
   ];

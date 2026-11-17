@@ -1,6 +1,6 @@
+import StreamedSlot from '@/components/ui/StreamedSlot';
 import SectionErrorBoundary from '../../_components/SectionErrorBoundary';
 import SectionHeader from '../../_components/SectionHeader';
-import SettingsHole from '../../_components/SettingsHole';
 import ProfileSection from './ProfileSection';
 import ProfileSkeleton from './ProfileSkeleton';
 
@@ -20,9 +20,9 @@ export default function ProfilePage() {
     >
       <SectionHeader lede="How you appear on tvseri.es." title="Profile" />
       <SectionErrorBoundary placeholder={profileSkeleton} what="Your profile">
-        <SettingsHole fallback={profileSkeleton} name="settings-profile">
+        <StreamedSlot fallback={profileSkeleton} name="settings-profile">
           <ProfileSection />
-        </SettingsHole>
+        </StreamedSlot>
       </SectionErrorBoundary>
     </section>
   );

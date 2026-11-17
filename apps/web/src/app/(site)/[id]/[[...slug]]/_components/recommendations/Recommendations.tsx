@@ -1,8 +1,6 @@
-import { Suspense } from 'react';
-
+import GuardedSection from '@/components/ui/row/GuardedSection';
 import Row from '@/components/ui/row/Row';
 import RowError from '@/components/ui/row/RowError';
-import RowErrorBoundary from '@/components/ui/row/RowErrorBoundary';
 import RowSkeleton from '@/components/ui/row/RowSkeleton';
 import PosterTile from '@/components/ui/tile/PosterTile';
 import { isUnavailable } from '@/lib/cache/unavailable';
@@ -49,10 +47,12 @@ export default function Recommendations({
   seriesId,
 }: Readonly<{ seriesId: number }>) {
   return (
-    <RowErrorBoundary id={ROW_ID} title={TITLE}>
-      <Suspense fallback={<RowSkeleton id={ROW_ID} title={TITLE} />}>
-        <RecommendationsRow seriesId={seriesId} />
-      </Suspense>
-    </RowErrorBoundary>
+    <GuardedSection
+      fallback={<RowSkeleton id={ROW_ID} title={TITLE} />}
+      id={ROW_ID}
+      title={TITLE}
+    >
+      <RecommendationsRow seriesId={seriesId} />
+    </GuardedSection>
   );
 }

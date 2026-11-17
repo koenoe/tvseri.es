@@ -1,7 +1,8 @@
 import { isIfYouLikedDay } from '@tvseri.es/utils';
 
+import GuardedSection from '@/components/ui/row/GuardedSection';
+
 import { getFeatureSlot, getToySlot } from './data/home';
-import Guarded from './Guarded';
 import { ToyOrIfYouLiked } from './Personal';
 import { FeatureSection, SECTION_TITLE, ToySection } from './Sections';
 import { FeatureSkeleton, ToySkeleton } from './Skeletons';
@@ -19,14 +20,14 @@ export async function FeatureSlot({ day }: DayProps) {
   const slot = await getFeatureSlot(day);
   const placeholder = <FeatureSkeleton count={slot.count} kind={slot.kind} />;
   return (
-    <Guarded
+    <GuardedSection
       fallback={placeholder}
       id="feature"
       placeholder={placeholder}
       title={SECTION_TITLE.feature}
     >
       <FeatureSection day={day} placeholder={placeholder} />
-    </Guarded>
+    </GuardedSection>
   );
 }
 
@@ -41,13 +42,13 @@ export async function ToySlot({ day }: DayProps) {
     <ToySection day={day} placeholder={placeholder} />
   );
   return (
-    <Guarded
+    <GuardedSection
       fallback={placeholder}
       id="toy"
       placeholder={placeholder}
       title={SECTION_TITLE.toy}
     >
       {toy}
-    </Guarded>
+    </GuardedSection>
   );
 }

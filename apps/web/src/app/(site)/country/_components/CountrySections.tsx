@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 
 import { calendarGlyph } from '@/components/ui/icon/glyphs';
+import GuardedSection from '@/components/ui/row/GuardedSection';
 import RowError from '@/components/ui/row/RowError';
 import RowSkeleton from '@/components/ui/row/RowSkeleton';
 import { isUnavailable } from '@/lib/cache/unavailable';
@@ -12,7 +13,6 @@ import {
   LandingEndCard,
   LandingRow,
   LandingRowSlot,
-  LandingSectionSlot,
   LandingSections,
   WhereToStart,
   WhereToStartSkeleton,
@@ -156,13 +156,13 @@ export default function CountrySections({
 }: Readonly<{ names: CountryNames; slug: string }>) {
   return (
     <LandingSections start="loose">
-      <LandingSectionSlot
+      <GuardedSection
         fallback={<WhereToStartSkeleton />}
         id="country-start"
         title="Where to start"
       >
         <CountryStart code={names.code} />
-      </LandingSectionSlot>
+      </GuardedSection>
       <Suspense fallback={<CountryRowsSkeleton name={names.name} />}>
         <CountryRows names={names} slug={slug} />
       </Suspense>

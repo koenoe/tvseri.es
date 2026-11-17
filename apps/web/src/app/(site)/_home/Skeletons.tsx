@@ -201,7 +201,7 @@ export function ContinueSkeleton() {
  * height it ends at. The title comes with the data, so it is a bar; the caption
  * is the one meta line the loaded tile draws.
  */
-/** The signed-in rows' line under each tile; their error keeps it too (`Guarded`) */
+/** The signed-in rows' line under each tile; their error keeps it too (`GuardedSection`) */
 export const SIGNED_IN_ROW_CAPTION = 'meta' satisfies GhostCaption;
 
 function SignedInRowSkeleton({

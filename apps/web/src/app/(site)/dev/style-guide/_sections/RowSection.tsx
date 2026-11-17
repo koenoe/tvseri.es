@@ -1,9 +1,9 @@
-import { type ReactNode, Suspense } from 'react';
+import type { ReactNode } from 'react';
 
 import { variantBurstGlyph } from '@/components/ui/icon/glyphs';
+import GuardedSection from '@/components/ui/row/GuardedSection';
 import Row from '@/components/ui/row/Row';
 import RowError from '@/components/ui/row/RowError';
-import RowErrorBoundary from '@/components/ui/row/RowErrorBoundary';
 import RowSkeleton from '@/components/ui/row/RowSkeleton';
 import { ROW_IMAGE_SIZES } from '@/components/ui/row/rowLayout';
 import BackdropTile from '@/components/ui/tile/BackdropTile';
@@ -94,17 +94,15 @@ async function FailingRow(): Promise<ReactNode> {
   throw new Error('Style guide: this row always fails');
 }
 
-const LIVE_TITLE = 'Live: RowErrorBoundary (press Try again)';
+const LIVE_TITLE = 'Live: GuardedSection (press Try again)';
 
 /** The real boundary around a streamed row that fails. */
 function LiveRowError() {
   const skeleton = <RowSkeleton id="sg-live" title={LIVE_TITLE} />;
   return (
-    <RowErrorBoundary id="sg-live" title={LIVE_TITLE}>
-      <Suspense fallback={skeleton}>
-        <FailingRow />
-      </Suspense>
-    </RowErrorBoundary>
+    <GuardedSection fallback={skeleton} id="sg-live" title={LIVE_TITLE}>
+      <FailingRow />
+    </GuardedSection>
   );
 }
 

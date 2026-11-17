@@ -90,12 +90,12 @@ export { default as LandingRow } from './LandingRow';
 /**
  * `<LandingSections start?>`: everything below the hero, 64 between sections
  * (48 on a phone); `start="loose"` = 64 under a hero with a tile, else 48.
- * `<LandingRowSlot id title switcher?>` and `<LandingSectionSlot id title fallback>`:
- * one streamed section with its own error state and skeleton.
+ * `<LandingRowSlot id title switcher?>`: one streamed poster row with its
+ * own error state and skeleton; any other streamed section is a
+ * `GuardedSection` (`@/components/ui/row/GuardedSection`) with its skeleton.
  */
 export {
   LandingRowSlot,
-  LandingSectionSlot,
   LandingSections,
 } from './LandingSections';
 /**
@@ -110,7 +110,7 @@ export {
 /**
  * `<LandingStart by value index loaders>` (async, server): Where to start
  * under the rows above it, without the picks they draw. Put it in a
- * `<LandingSectionSlot>` with `<WhereToStartSkeleton>`.
+ * `<GuardedSection>` with `<WhereToStartSkeleton>`.
  */
 export { default as LandingStart } from './LandingStart';
 /**

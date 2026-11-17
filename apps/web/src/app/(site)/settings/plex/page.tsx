@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
+import StreamedSlot from '@/components/ui/StreamedSlot';
 import SectionErrorBoundary from '../_components/SectionErrorBoundary';
 import SectionHeader from '../_components/SectionHeader';
-import SettingsHole from '../_components/SettingsHole';
 import { AppsAccordion } from './_components/AppsAccordion';
 import ComingNextCard from './_components/ComingNextCard';
 import PlexCard from './_components/PlexCard';
@@ -23,9 +23,9 @@ export default function Page() {
       />
       <AppsAccordion>
         <SectionErrorBoundary placeholder={plexSkeleton} what="Plex">
-          <SettingsHole fallback={plexSkeleton} name="plex">
+          <StreamedSlot fallback={plexSkeleton} name="plex">
             <PlexCard />
-          </SettingsHole>
+          </StreamedSlot>
         </SectionErrorBoundary>
         <ComingNextCard app="jellyfin" />
         <ComingNextCard app="emby" />

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
+import StreamedSlot from '@/components/ui/StreamedSlot';
 import SectionErrorBoundary from '../_components/SectionErrorBoundary';
 import SectionHeader from '../_components/SectionHeader';
-import SettingsHole from '../_components/SettingsHole';
 import ImportSection from './_components/ImportSection';
 import ImportSkeleton from './_components/ImportSkeleton';
 
@@ -22,9 +22,9 @@ export default function Page() {
         title="Import"
       />
       <SectionErrorBoundary placeholder={importSkeleton} what="The importer">
-        <SettingsHole fallback={importSkeleton} name="import">
+        <StreamedSlot fallback={importSkeleton} name="import">
           <ImportSection />
-        </SettingsHole>
+        </StreamedSlot>
       </SectionErrorBoundary>
     </section>
   );

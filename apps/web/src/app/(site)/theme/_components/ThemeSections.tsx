@@ -1,5 +1,6 @@
 import { starGlyph } from '@/components/ui/icon/glyphs';
 import type { Glyph } from '@/components/ui/icon/types';
+import GuardedSection from '@/components/ui/row/GuardedSection';
 import RowSkeleton from '@/components/ui/row/RowSkeleton';
 
 import {
@@ -8,7 +9,6 @@ import {
   LandingEndCard,
   LandingRow,
   LandingRowSlot,
-  LandingSectionSlot,
   LandingSections,
   LandingStart,
   WhereToStartSkeleton,
@@ -57,7 +57,7 @@ export default async function ThemeSections({
   };
   return (
     <LandingSections start="loose">
-      <LandingSectionSlot
+      <GuardedSection
         fallback={<WhereToStartSkeleton />}
         id="start"
         title="Where to start"
@@ -68,7 +68,7 @@ export default async function ThemeSections({
           loaders={rows}
           value={slug}
         />
-      </LandingSectionSlot>
+      </GuardedSection>
       <LandingRowSlot id="best" title={titles.best}>
         <LandingRow
           id="best"

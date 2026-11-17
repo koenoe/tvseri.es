@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
-
+import StreamedSlot from '@/components/ui/StreamedSlot';
 import SectionErrorBoundary from '../_components/SectionErrorBoundary';
 import SectionHeader from '../_components/SectionHeader';
-import SettingsHole from '../_components/SettingsHole';
 import { DeleteSkeleton, StatsSkeleton } from './_components/DataSkeletons';
 import DataStats from './_components/DataStats';
 import DeleteAccountHole from './_components/DeleteAccountHole';
@@ -23,15 +22,15 @@ export default function Page() {
         title="Your data"
       />
       <SectionErrorBoundary placeholder={statsSkeleton} what="Your numbers">
-        <SettingsHole fallback={statsSkeleton} name="data-stats">
+        <StreamedSlot fallback={statsSkeleton} name="data-stats">
           <DataStats />
-        </SettingsHole>
+        </StreamedSlot>
       </SectionErrorBoundary>
       <ExportCard />
       <SectionErrorBoundary placeholder={deleteSkeleton} what="Delete account">
-        <SettingsHole fallback={deleteSkeleton} name="data-delete">
+        <StreamedSlot fallback={deleteSkeleton} name="data-delete">
           <DeleteAccountHole />
-        </SettingsHole>
+        </StreamedSlot>
       </SectionErrorBoundary>
     </section>
   );

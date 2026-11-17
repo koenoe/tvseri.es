@@ -1,8 +1,6 @@
-import { Suspense } from 'react';
-
+import GuardedSection from '@/components/ui/row/GuardedSection';
 import Row from '@/components/ui/row/Row';
 import RowError from '@/components/ui/row/RowError';
-import RowErrorBoundary from '@/components/ui/row/RowErrorBoundary';
 import RowSkeleton from '@/components/ui/row/RowSkeleton';
 import RankedTile from '@/components/ui/tile/RankedTile';
 import WatchedOverlay from '@/components/ui/tile/WatchedOverlay';
@@ -62,10 +60,14 @@ export default function AllTimeFavourites() {
     />
   );
   return (
-    <RowErrorBoundary id={ID} look="hubRanked" tiles="ranked" title={TITLE}>
-      <Suspense fallback={skeleton}>
-        <RankedRow />
-      </Suspense>
-    </RowErrorBoundary>
+    <GuardedSection
+      fallback={skeleton}
+      id={ID}
+      look="hubRanked"
+      tiles="ranked"
+      title={TITLE}
+    >
+      <RankedRow />
+    </GuardedSection>
   );
 }

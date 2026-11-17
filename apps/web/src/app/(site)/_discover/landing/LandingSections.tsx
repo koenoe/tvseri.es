@@ -1,6 +1,6 @@
-import { type ReactNode, Suspense } from 'react';
+import type { ReactNode } from 'react';
 
-import RowErrorBoundary from '@/components/ui/row/RowErrorBoundary';
+import GuardedSection from '@/components/ui/row/GuardedSection';
 import RowSkeleton from '@/components/ui/row/RowSkeleton';
 import cn from '@/lib/cn';
 
@@ -39,13 +39,6 @@ export function LandingSections({
   );
 }
 
-type SlotProps = Readonly<{
-  children: ReactNode;
-  /** the same id as the row or section inside */
-  id: string;
-  title: string;
-}>;
-
 /**
  * One streamed poster row: its own error state (a per-section error,
  * the rest of the page stays) and a skeleton of its exact size. `switcher`
@@ -56,34 +49,20 @@ export function LandingRowSlot({
   id,
   switcher = false,
   title,
-}: SlotProps & Readonly<{ switcher?: boolean }>) {
+}: Readonly<{
+  children: ReactNode;
+  /** the same id as the row inside */
+  id: string;
+  switcher?: boolean;
+  title: string;
+}>) {
   const ghost = switcher ? <SwitchGhost /> : undefined;
-  return (
-    <RowErrorBoundary id={id} title={title}>
-      <Suspense
-        fallback={
-          <RowSkeleton id={id} look="landing" switcher={ghost} title={title} />
-        }
-      >
-        {children}
-      </Suspense>
-    </RowErrorBoundary>
+  const skeleton = (
+    <RowSkeleton id={id} look="landing" switcher={ghost} title={title} />
   );
-}
-
-/**
- * One streamed section that isn't a poster row (Where to start, the ranked
- * list): its own error state and the given skeleton.
- */
-export function LandingSectionSlot({
-  children,
-  fallback,
-  id,
-  title,
-}: SlotProps & Readonly<{ fallback: ReactNode }>) {
   return (
-    <RowErrorBoundary id={id} title={title}>
-      <Suspense fallback={fallback}>{children}</Suspense>
-    </RowErrorBoundary>
+    <GuardedSection fallback={skeleton} id={id} title={title}>
+      {children}
+    </GuardedSection>
   );
 }

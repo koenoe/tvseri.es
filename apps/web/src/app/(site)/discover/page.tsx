@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
 import Page from '@/components/background/Page';
-import RowErrorBoundary from '@/components/ui/row/RowErrorBoundary';
+import GuardedSection from '@/components/ui/row/GuardedSection';
 import RowSkeleton from '@/components/ui/row/RowSkeleton';
 import AllTimeFavourites from './_components/AllTimeFavourites';
 import Essentials, {
@@ -37,6 +37,26 @@ export const metadata: Metadata = {
 export default function DiscoverPage() {
   // Finish it this weekend isn't a tile row: it streams in with, and fails over, its own placeholder
   const weekend = <WeekendSkeleton />;
+  const essentials = (
+    <RowSkeleton
+      caption="hub"
+      id={ESSENTIALS_ID}
+      look="hubPoster"
+      name={ESSENTIALS_ID}
+      title="Essentials"
+      titleContent={<EssentialsTitleGhost />}
+    />
+  );
+  const goDeeper = (
+    <RowSkeleton
+      id={GO_DEEPER_ID}
+      look="hub"
+      name={GO_DEEPER_ID}
+      tileGhost={<GoDeeperCardGhost />}
+      tiles="card"
+      title="Go deeper"
+    />
+  );
   return (
     <Page>
       <LensProvider>
@@ -48,54 +68,33 @@ export default function DiscoverPage() {
             <HubTitle />
             <Lenses />
           </div>
-          <RowErrorBoundary
+          <GuardedSection
             caption="hub"
+            fallback={essentials}
             id={ESSENTIALS_ID}
             look="hubPoster"
             title="Essentials"
           >
-            <Suspense
-              fallback={
-                <RowSkeleton
-                  caption="hub"
-                  id={ESSENTIALS_ID}
-                  look="hubPoster"
-                  name={ESSENTIALS_ID}
-                  title="Essentials"
-                  titleContent={<EssentialsTitleGhost />}
-                />
-              }
-            >
-              <Essentials />
-            </Suspense>
-          </RowErrorBoundary>
-          <RowErrorBoundary id={GO_DEEPER_ID} look="hub" title="Go deeper">
-            <Suspense
-              fallback={
-                <RowSkeleton
-                  id={GO_DEEPER_ID}
-                  look="hub"
-                  name={GO_DEEPER_ID}
-                  tileGhost={<GoDeeperCardGhost />}
-                  tiles="card"
-                  title="Go deeper"
-                />
-              }
-            >
-              <GoDeeper />
-            </Suspense>
-          </RowErrorBoundary>
+            <Essentials />
+          </GuardedSection>
+          <GuardedSection
+            fallback={goDeeper}
+            id={GO_DEEPER_ID}
+            look="hub"
+            title="Go deeper"
+          >
+            <GoDeeper />
+          </GuardedSection>
           {/* Phones go from Go deeper to All-time favourites */}
           <div className="max-md:hidden">
-            <RowErrorBoundary
+            <GuardedSection
+              fallback={weekend}
               id={WEEKEND_ID}
               placeholder={weekend}
               title={WEEKEND_TITLE}
             >
-              <Suspense fallback={weekend}>
-                <Weekend />
-              </Suspense>
-            </RowErrorBoundary>
+              <Weekend />
+            </GuardedSection>
           </div>
           <AllTimeFavourites />
           <section

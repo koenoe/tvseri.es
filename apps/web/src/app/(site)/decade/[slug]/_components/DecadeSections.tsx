@@ -4,6 +4,7 @@ import type { CSSProperties } from 'react';
 import { eyeGlyph } from '@/components/ui/icon/glyphs';
 import type { Glyph } from '@/components/ui/icon/types';
 import { PAGE_COLUMN } from '@/components/ui/page/pageColumn';
+import GuardedSection from '@/components/ui/row/GuardedSection';
 import { RowErrorCard } from '@/components/ui/row/RowError';
 import {
   GHOST_FILL,
@@ -19,7 +20,6 @@ import {
   LandingEndCard,
   LandingRow,
   LandingRowSlot,
-  LandingSectionSlot,
   LandingSections,
   type PlaceholderLook,
 } from '../../../_discover/landing';
@@ -217,9 +217,9 @@ export async function DecadeLandscapeSection({ params }: Props) {
   }
   const skeleton = <DecadeLandscapeFallback />;
   return (
-    <LandingSectionSlot fallback={skeleton} id="landscape" title={LANDSCAPE}>
+    <GuardedSection fallback={skeleton} id="landscape" title={LANDSCAPE}>
       <DecadeLandscapeBlock slug={slug} />
-    </LandingSectionSlot>
+    </GuardedSection>
   );
 }
 

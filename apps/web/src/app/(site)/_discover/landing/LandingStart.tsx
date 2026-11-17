@@ -22,7 +22,7 @@ type Props = Readonly<{
 /**
  * Where to start under the rows above it (Genre, Theme): the picks those
  * rows don't draw, in slot order (`keptSlots`). Its failed look when either
- * read is `Unavailable`. Put it in a `LandingSectionSlot`.
+ * read is `Unavailable`. Put it in a `GuardedSection`.
  */
 export default async function LandingStart({
   by,

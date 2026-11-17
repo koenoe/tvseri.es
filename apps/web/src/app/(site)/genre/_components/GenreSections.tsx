@@ -1,4 +1,5 @@
 import { calendarGlyph, trendingGlyph } from '@/components/ui/icon/glyphs';
+import GuardedSection from '@/components/ui/row/GuardedSection';
 import RowSkeleton from '@/components/ui/row/RowSkeleton';
 import { isUnavailable } from '@/lib/cache/unavailable';
 
@@ -8,7 +9,6 @@ import {
   LandingEndCard,
   LandingRow,
   LandingRowSlot,
-  LandingSectionSlot,
   LandingSections,
   LandingStart,
   RankedList,
@@ -79,7 +79,7 @@ export default async function GenreSections({
           title={titles.trending}
         />
       </LandingRowSlot>
-      <LandingSectionSlot
+      <GuardedSection
         fallback={<WhereToStartSkeleton />}
         id="start"
         title="Where to start"
@@ -90,7 +90,7 @@ export default async function GenreSections({
           loaders={rows}
           value={slug}
         />
-      </LandingSectionSlot>
+      </GuardedSection>
       <LandingRowSlot id="kind" switcher title={titles.kind}>
         <LandingChipRow
           id="kind"
@@ -112,13 +112,13 @@ export default async function GenreSections({
           title={titles.fresh}
         />
       </LandingRowSlot>
-      <LandingSectionSlot
+      <GuardedSection
         fallback={<RankedListSkeleton title={titles.best} />}
         id="best"
         title={titles.best}
       >
         <GenreBest lower={lower} slug={slug} title={titles.best} />
-      </LandingSectionSlot>
+      </GuardedSection>
       <LandingEndCard
         line={END_LINE.genre}
         title={`That’s the best of ${lower}`}

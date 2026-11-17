@@ -2,13 +2,13 @@ import { type ReactNode, Suspense } from 'react';
 
 import Page from '@/components/background/Page';
 import { BELOW_FLOATING_HEADER_LG } from '@/components/header/belowFloatingHeader';
+import GuardedSection from '@/components/ui/row/GuardedSection';
 import OwnerVisitorSync from '@/components/ui/viewer/OwnerVisitorSync';
 import type { StatsHeadParams } from './_components/sidebar/head';
 import PhoneHead, { PhoneHeadSkeleton } from './_components/sidebar/PhoneHead';
 import StatsSidebar, {
   StatsSidebarSkeleton,
 } from './_components/sidebar/StatsSidebar';
-import StatsSection from './[year]/_components/StatsSection';
 
 /**
  * The sticky 300px sidebar and the main column from `lg`; below it a short
@@ -42,22 +42,22 @@ export default function StatsLayout({
       </Suspense>
       <div className={GRID}>
         <aside aria-label="About this profile" className={SIDEBAR}>
-          <StatsSection
+          <GuardedSection
             fallback={<StatsSidebarSkeleton />}
             id="stats-sidebar"
             title="Years"
           >
             <StatsSidebar params={params} />
-          </StatsSection>
+          </GuardedSection>
         </aside>
         <div className={PHONE_HEAD}>
-          <StatsSection
+          <GuardedSection
             fallback={<PhoneHeadSkeleton />}
             id="stats-phone-head"
             title="Years"
           >
             <PhoneHead params={params} />
-          </StatsSection>
+          </GuardedSection>
         </div>
         {children}
       </div>

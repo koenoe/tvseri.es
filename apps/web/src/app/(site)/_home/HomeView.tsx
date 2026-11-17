@@ -1,9 +1,9 @@
 import Page from '@/components/background/Page';
+import GuardedSection from '@/components/ui/row/GuardedSection';
 import RowSkeleton from '@/components/ui/row/RowSkeleton';
 import cn from '@/lib/cn';
 
 import { getSpotlightColor } from './data/home';
-import Guarded from './Guarded';
 import { PICK_TITLE } from './moments';
 import { TITLE as NEW_THIS_WEEK_TITLE } from './new-this-week/layout';
 import { NewThisWeekSkeleton } from './new-this-week/NewThisWeekRow';
@@ -78,27 +78,27 @@ export default async function HomeView({ day }: Readonly<{ day: string }>) {
       <div className={GROUND} data-home-ground="" data-testid="route-home">
         {/* a failed spotlight leaves the header room above its row error */}
         <div className="[&:has(#spotlight-title)]:pt-16 md:[&:has(#spotlight-title)]:pt-20">
-          <Guarded
+          <GuardedSection
             fallback={spotlight}
             id="spotlight"
             placeholder={spotlight}
             title={SECTION_TITLE.spotlight}
           >
             <SpotlightSection day={day} placeholder={spotlight} />
-          </Guarded>
+          </GuardedSection>
         </div>
         {/* on a phone the pager sits 28px under the spotlight's buttons: the
             first row's title keeps the same 28px under the pager */}
         <div className="flex flex-col gap-12 pt-7 md:gap-16 md:pt-10">
-          <Guarded
+          <GuardedSection
             fallback={<ContinueSkeleton />}
             id="continue-watching"
             reserve={CONTINUE_RESERVE}
             title={CONTINUE_WATCHING_TITLE}
           >
             <ContinueOrGetStarted />
-          </Guarded>
-          <Guarded
+          </GuardedSection>
+          <GuardedSection
             fallback={
               <RowSkeleton
                 id="top-picks"
@@ -112,24 +112,24 @@ export default async function HomeView({ day }: Readonly<{ day: string }>) {
             title={topPicks}
           >
             <TopPicksSection day={day} />
-          </Guarded>
-          <Guarded
+          </GuardedSection>
+          <GuardedSection
             fallback={pick}
             id="pick-one"
             placeholder={pick}
             title={PICK_TITLE}
           >
             <PickOneSection day={day} placeholder={pick} />
-          </Guarded>
-          <Guarded
+          </GuardedSection>
+          <GuardedSection
             caption={SIGNED_IN_ROW_CAPTION}
             fallback={<BecauseYouWatchedSkeleton />}
             id="because-you-watched"
             title="Because you watched"
           >
             <BecauseYouWatchedSection day={day} />
-          </Guarded>
-          <Guarded
+          </GuardedSection>
+          <GuardedSection
             fallback={
               <RowSkeleton
                 id="hidden-gems"
@@ -147,26 +147,26 @@ export default async function HomeView({ day }: Readonly<{ day: string }>) {
             title={HIDDEN_GEMS_TITLE}
           >
             <HiddenGemsSection day={day} />
-          </Guarded>
+          </GuardedSection>
           <FeatureSlot day={day} />
-          <Guarded
+          <GuardedSection
             fallback={newThisWeek}
             id="new-this-week"
             placeholder={newThisWeek}
             title={NEW_THIS_WEEK_TITLE}
           >
             <NewThisWeekSection day={day} placeholder={newThisWeek} />
-          </Guarded>
-          <Guarded
+          </GuardedSection>
+          <GuardedSection
             fallback={premieres}
             id="premieres"
             placeholder={premieres}
             title={PREMIERES_TITLE}
           >
             <PremieresSection day={day} placeholder={premieres} />
-          </Guarded>
+          </GuardedSection>
           <ToySlot day={day} />
-          <Guarded
+          <GuardedSection
             caption={SIGNED_IN_ROW_CAPTION}
             fallback={<MoreGenreSkeleton />}
             id="more-genre"
@@ -174,7 +174,7 @@ export default async function HomeView({ day }: Readonly<{ day: string }>) {
             title="More for you"
           >
             <MoreGenreSection day={day} />
-          </Guarded>
+          </GuardedSection>
         </div>
       </div>
     </Page>

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 
 import { userGlyph } from '@/components/ui/icon/glyphs';
+import GuardedSection from '@/components/ui/row/GuardedSection';
 import { GHOST_LOOK, GhostLine } from '@/components/ui/row/RowGhosts';
 import RowSkeleton from '@/components/ui/row/RowSkeleton';
 import { isUnavailable } from '@/lib/cache/unavailable';
@@ -11,7 +12,6 @@ import {
   LandingEndCard,
   LandingRow,
   LandingRowSlot,
-  LandingSectionSlot,
   LandingSections,
   type PlaceholderLook,
   SectionPlaceholder,
@@ -124,9 +124,9 @@ export default async function LanguageSections({ params }: Props) {
           title="Start here"
         />
       </LandingRowSlot>
-      <LandingSectionSlot fallback={skeleton} id="wall" title={wallTitle}>
+      <GuardedSection fallback={skeleton} id="wall" title={wallTitle}>
         <Wall lang={slug} title={wallTitle} />
-      </LandingSectionSlot>
+      </GuardedSection>
       <LandingEndCard
         line={END_LINE.language}
         title={`That’s ${language.english}`}

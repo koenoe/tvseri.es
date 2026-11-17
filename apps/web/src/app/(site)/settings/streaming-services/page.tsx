@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
+import StreamedSlot from '@/components/ui/StreamedSlot';
 import SectionErrorBoundary from '../_components/SectionErrorBoundary';
 import SectionHeader from '../_components/SectionHeader';
-import SettingsHole from '../_components/SettingsHole';
 import ServicesSkeleton from './_components/ServicesSkeleton';
 import StreamingServicesSection from './_components/StreamingServicesSection';
 
@@ -22,13 +22,13 @@ export default function Page() {
         title="Streaming services"
       />
       <SectionErrorBoundary placeholder={servicesSkeleton} what="Your services">
-        <SettingsHole
+        <StreamedSlot
           className="flex flex-col gap-6"
           fallback={servicesSkeleton}
           name="services"
         >
           <StreamingServicesSection />
-        </SettingsHole>
+        </StreamedSlot>
       </SectionErrorBoundary>
     </section>
   );

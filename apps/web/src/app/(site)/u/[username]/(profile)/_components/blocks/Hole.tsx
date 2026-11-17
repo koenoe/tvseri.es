@@ -1,4 +1,6 @@
-import { type ReactNode, Suspense } from 'react';
+import type { ReactNode } from 'react';
+
+import StreamedSlot from '@/components/ui/StreamedSlot';
 
 import BlockError from './BlockError';
 
@@ -30,23 +32,22 @@ export default function Hole({
   look?: 'card' | 'line';
   title: string;
 }>) {
-  const name = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  const placeholder = bare ? (
-    fallback
-  ) : (
-    <div data-placeholder={name}>{fallback}</div>
+  const name = bare
+    ? undefined
+    : title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const guard = (slot: ReactNode, placeholder: ReactNode) => (
+    <BlockError fallback={placeholder} look={look} title={title}>
+      {slot}
+    </BlockError>
   );
   return (
-    <BlockError fallback={placeholder} look={look} title={title}>
-      <Suspense fallback={placeholder}>
-        {bare ? (
-          children
-        ) : (
-          <div className={className} data-slot={name}>
-            {children}
-          </div>
-        )}
-      </Suspense>
-    </BlockError>
+    <StreamedSlot
+      className={className}
+      fallback={fallback}
+      guard={guard}
+      name={name}
+    >
+      {children}
+    </StreamedSlot>
   );
 }

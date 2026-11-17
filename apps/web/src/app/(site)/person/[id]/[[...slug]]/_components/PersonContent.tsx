@@ -1,8 +1,6 @@
 import type { Person } from '@tvseri.es/schemas';
-import { type ReactNode, Suspense } from 'react';
-
 import Page from '@/components/background/Page';
-import RowErrorBoundary from '@/components/ui/row/RowErrorBoundary';
+import GuardedSection from '@/components/ui/row/GuardedSection';
 
 import Awards from './awards/Awards';
 import Collaborators from './Collaborators';
@@ -18,31 +16,10 @@ import Shows, { ShowsSkeleton } from './shows/Shows';
 import Sidebar from './sidebar/Sidebar';
 
 /**
- * One section of the column: streams on its own behind its placeholder, and
- * a failure stays in that section (`RowErrorBoundary`, with Try again).
- */
-function Section({
-  children,
-  fallback,
-  id,
-  title,
-}: Readonly<{
-  children: ReactNode;
-  fallback: ReactNode;
-  id: string;
-  title: string;
-}>) {
-  return (
-    <RowErrorBoundary id={id} inset="flush" title={title}>
-      <Suspense fallback={fallback}>{children}</Suspense>
-    </RowErrorBoundary>
-  );
-}
-
-/**
  * The person page: the sidebar (the header on phones), then Known for, Career, Shows, Frequent collaborators
  * and Awards (the three TV sections only for a person with a TV credit). Shared content is cached per person and prerendered; each
- * slower section streams on its own, never blocking the hero; the viewer's
+ * slower section streams on its own, never blocking the hero (a failure stays
+ * in that section, with Try again); the viewer's
  * watched line is the one request-time hole.
  */
 export default function PersonContent({
@@ -62,45 +39,50 @@ export default function PersonContent({
       >
         <Sidebar person={person} />
         <div className={PERSON_COLUMN} data-slot="person-column">
-          <Section
+          <GuardedSection
             fallback={<KnownForSkeleton />}
             id="person-known-for"
+            inset="flush"
             title="Known for"
           >
             <KnownFor id={person.id} />
-          </Section>
+          </GuardedSection>
           {tvCredits ? (
             <>
-              <Section
+              <GuardedSection
                 fallback={<CareerSkeleton />}
                 id="person-career"
+                inset="flush"
                 title="Career"
               >
                 <Career person={person} />
-              </Section>
-              <Section
+              </GuardedSection>
+              <GuardedSection
                 fallback={<ShowsSkeleton />}
                 id="person-shows"
+                inset="flush"
                 title="Series"
               >
                 <Shows person={person} />
-              </Section>
-              <Section
+              </GuardedSection>
+              <GuardedSection
                 fallback={<CollaboratorsSkeleton />}
                 id="person-collaborators"
+                inset="flush"
                 title="Frequent collaborators"
               >
                 <Collaborators id={person.id} />
-              </Section>
+              </GuardedSection>
             </>
           ) : null}
-          <Section
+          <GuardedSection
             fallback={<AwardsSkeleton />}
             id="person-awards"
+            inset="flush"
             title="Awards"
           >
             <Awards id={person.id} name={person.name} />
-          </Section>
+          </GuardedSection>
         </div>
       </div>
     </Page>

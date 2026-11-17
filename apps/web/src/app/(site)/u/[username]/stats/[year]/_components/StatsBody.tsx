@@ -1,5 +1,6 @@
 import { type ReactNode, ViewTransition } from 'react';
 import DataDownView from '@/components/ui/error/DataDownView';
+import GuardedSection from '@/components/ui/row/GuardedSection';
 import { getStatsClock } from '../_data/clock';
 import type { StatsUser } from '../_data/loaders';
 import { getSummary, isUnavailable } from '../_data/loaders';
@@ -7,7 +8,6 @@ import EmptyYear from './EmptyYear';
 import Tiles, { TilesSkeleton } from './header/Tiles';
 import YearGlance from './header/YearGlance';
 import YearHeader, { YearHeaderSkeleton } from './header/YearHeader';
-import StatsSection from './StatsSection';
 import { STATS_ROWS, type StatsBlock } from './sections';
 import type { SectionProps } from './types';
 
@@ -51,20 +51,20 @@ export default async function StatsBody({
     <Column>
       <ViewTransition name="stats-glance">
         <YearGlance label={glanceLabel} year={year}>
-          <StatsSection
+          <GuardedSection
             fallback={<YearHeaderSkeleton />}
             id="stats-header"
             title={yearTitle}
           >
             <YearHeader {...props} />
-          </StatsSection>
-          <StatsSection
+          </GuardedSection>
+          <GuardedSection
             fallback={<TilesSkeleton />}
             id="stats-tiles"
             title="Totals"
           >
             <Tiles {...props} />
-          </StatsSection>
+          </GuardedSection>
         </YearGlance>
       </ViewTransition>
       {isEmpty ? (
@@ -111,13 +111,13 @@ function StatsBlockView({
       data-slot={props ? item.id : undefined}
     >
       {props ? (
-        <StatsSection
+        <GuardedSection
           fallback={item.fallback}
           id={item.id}
           title={item.title(props)}
         >
           <Component {...props} />
-        </StatsSection>
+        </GuardedSection>
       ) : (
         item.fallback
       )}

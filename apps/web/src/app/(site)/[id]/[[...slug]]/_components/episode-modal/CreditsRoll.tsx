@@ -23,13 +23,19 @@ const ROLL_CLASSES =
 const STILL_LIST = 'max-lg:pb-8';
 
 /**
- * Below `lg` with reduced motion the list never rolls, so it is still from
- * its first render: drawn once, never doubled and collapsed after mount (a
- * class change after mount is a style change, which the global
+ * The desktop box when it never rolls (reduced motion): scrolled by hand
+ * instead of clipped, without chaining into the modal
+ */
+const STILL_BOX = 'lg:overflow-y-auto lg:overscroll-contain';
+
+/**
+ * With reduced motion the list never rolls, at any width, so it is still
+ * from its first render: drawn once, never doubled and collapsed after mount
+ * (a class change after mount is a style change, which the global
  * reduced-motion rule turns into a 0.01ms transition). The roll mounts on
  * the client only: its credits load after hydration.
  */
-const stillFromStart = () => !matchesNow(WIDE_LG) && matchesNow(REDUCED_MOTION);
+const stillFromStart = () => matchesNow(REDUCED_MOTION);
 
 /**
  * The end credits: role over name, name | character, rolling up at 30px/s
@@ -37,15 +43,19 @@ const stillFromStart = () => !matchesNow(WIDE_LG) && matchesNow(REDUCED_MOTION);
  * the compositor (WAAPI). Below `lg` it rolls inside its box under the
  * faces; a touch or a wheel there stops it where it is and the box scrolls
  * by hand from that place, as it does once the roll ends. It doesn't roll
- * there with reduced motion or when one pass fits the box.
+ * with reduced motion (the box scrolls by hand, also on desktop), nor below
+ * `lg` when one pass fits the box.
  */
 function CreditsRoll({
   blocks,
 }: Readonly<{ blocks: ReadonlyArray<RollBlock> }>) {
   const animation = useRef<Animation | null>(null);
   const list = useRef<HTMLDivElement | null>(null);
-  // Below `lg` only: the box scrolls by hand, the list drawn once
+  // The list drawn once: below `lg` once it stops, at any width with reduced
+  // motion
   const [still, setStill] = useState(stillFromStart);
+  // reduced motion on desktop: the box scrolls instead of rolling
+  const [stillBox] = useState(stillFromStart);
 
   const roll = useCallback((node: HTMLDivElement | null) => {
     list.current = node;
@@ -122,11 +132,12 @@ function CreditsRoll({
   }
 
   const listClasses = cn('flex flex-col', still && STILL_LIST);
+  const boxClasses = cn(ROLL_CLASSES, stillBox && STILL_BOX);
 
   return (
     <section
       aria-label="Credits"
-      className={ROLL_CLASSES}
+      className={boxClasses}
       onBlur={play}
       onFocus={pause}
       onPointerDown={onPointerDown}

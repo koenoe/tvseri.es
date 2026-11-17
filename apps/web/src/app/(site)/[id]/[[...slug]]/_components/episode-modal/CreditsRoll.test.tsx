@@ -66,8 +66,20 @@ describe('CreditsRoll', () => {
     expect(animate).not.toHaveBeenCalled();
   });
 
-  it('from lg, rolls the doubled list whatever the motion setting', () => {
+  it('from lg with reduced motion, never rolls and its box scrolls by hand', () => {
     media(WIDE_LG, REDUCED_MOTION);
+    const animate = stubAnimate();
+    render(<CreditsRoll blocks={BLOCKS} />);
+    expect(screen.getAllByTestId('list')).toHaveLength(1);
+    expect(copies.rendered).toBe(0);
+    expect(animate).not.toHaveBeenCalled();
+    expect(screen.getByRole('region', { name: 'Credits' }).className).toContain(
+      'lg:overflow-y-auto',
+    );
+  });
+
+  it('from lg, rolls the doubled list without reduced motion', () => {
+    media(WIDE_LG);
     const animate = stubAnimate();
     render(<CreditsRoll blocks={BLOCKS} />);
     expect(screen.getByTestId('copy')).toBeTruthy();

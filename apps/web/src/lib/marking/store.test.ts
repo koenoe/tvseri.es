@@ -132,6 +132,30 @@ describe('a seed made during a render', () => {
   });
 });
 
+describe('the hydration state: every show as its first seed drew it', () => {
+  it('keeps the seeded show for a part that hydrates after a mark', () => {
+    const store = createMarkingStore();
+    store.seedInRender(viewerSeed(1_000), 'k');
+    const seeded = store.getState().series[SERIES]?.view;
+    store.getState().begin(SERIES, {
+      kind: 'mark',
+      records: { S02E05: { runtime: 30, watchedAt: 2_000 } },
+    });
+    expect(watchedCodes(store)).toEqual(['S02E05']);
+    // what the server rendered with, so the late part hydrates without a
+    // mismatch; it draws the mark right after, from the live state
+    expect(store.getHydrationState().series[SERIES]?.view).toBe(seeded);
+    // stable while nothing changes (useSyncExternalStore's server snapshot)
+    expect(store.getHydrationState()).toBe(store.getHydrationState());
+  });
+
+  it('is the state itself before any seed in a render', () => {
+    const store = createMarkingStore();
+    seed(store, viewerSeed(1_000));
+    expect(store.getHydrationState()).toBe(store.getState());
+  });
+});
+
 describe('episodesSaved: the episodes this tab saved as watched, net', () => {
   it('counts what the server took (marks up, unmarks down), never pending, re-seeds or failures', () => {
     const store = createMarkingStore();

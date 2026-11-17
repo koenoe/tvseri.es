@@ -89,13 +89,19 @@ export function useMarkingStoreApi(): MarkingStoreApi {
 /**
  * Selects from the marking store; return primitives or stored objects.
  *
- * The server (and hydration) snapshot is the store's CURRENT state, not
- * zustand's initial one: `SeedSeries` seeds during render, so controls
- * rendered after it already draw the viewer's marks in the server HTML, and
- * the browser, seeding the same way before hydrating them, agrees.
+ * The server (and hydration) snapshot is the store's state with every show as
+ * its first seed drew it (`getHydrationState`), not zustand's initial one:
+ * `SeedSeries` seeds during render, so controls rendered after it already
+ * draw the viewer's marks in the server HTML, and the browser, seeding the
+ * same way before hydrating them, agrees, also when a part hydrates after
+ * the viewer marked something in a part that hydrated first (a slow device).
  */
 export function useMarkingStore<T>(selector: (state: MarkingStore) => T): T {
   const store = useMarkingStoreApi();
   const read = useCallback(() => selector(store.getState()), [store, selector]);
-  return useSyncExternalStore(store.subscribe, read, read);
+  const readHydration = useCallback(
+    () => selector(store.getHydrationState()),
+    [store, selector],
+  );
+  return useSyncExternalStore(store.subscribe, read, readHydration);
 }

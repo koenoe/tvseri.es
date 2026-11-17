@@ -158,8 +158,36 @@ function withRenderSafeSeed(store: ReturnType<typeof createStoreOf>) {
     } finally {
       inRender -= 1;
     }
+    const entry = store.getState().series[seed.seriesId];
+    if (entry && !asSeeded.has(seed.seriesId)) {
+      asSeeded.set(seed.seriesId, entry);
+      hydration = undefined;
+    }
   };
-  return Object.assign(store, { seedInRender });
+  // Each show as its first seed drew it: what the server rendered with (it
+  // seeds in render too, `SeedSeries`). A part of the page that hydrates
+  // late (a slow device, a streamed hole) must draw that, not a mark the
+  // viewer made meanwhile in a part that hydrated first, or React finds
+  // other text than the server HTML (#418) and throws the part away.
+  const asSeeded = new Map<number, SeriesEntry>();
+  let hydration: MarkingStore | undefined;
+  let hydrationOf: MarkingStore | undefined;
+  /** The state for `getServerSnapshot`: the current one, every show as seeded */
+  const getHydrationState = (): MarkingStore => {
+    const state = store.getState();
+    if (asSeeded.size === 0) {
+      return state;
+    }
+    if (!hydration || hydrationOf !== state) {
+      hydration = {
+        ...state,
+        series: { ...state.series, ...Object.fromEntries(asSeeded) },
+      };
+      hydrationOf = state;
+    }
+    return hydration;
+  };
+  return Object.assign(store, { getHydrationState, seedInRender });
 }
 
 /**

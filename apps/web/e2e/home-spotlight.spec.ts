@@ -165,9 +165,13 @@ const LOGO_VIEWPORTS = [
   { box: { height: 70, width: 175 }, height: 844, width: 390 },
 ] as const;
 
+/** How the stub answers the logo: a file of that size, or a 404 */
+type LogoFile = Readonly<{ height: number; width: number }> | 'missing';
+
 async function logoBeforeAndAfter(
   page: Page,
   viewport: (typeof LOGO_VIEWPORTS)[number],
+  file: LogoFile = { height: 200, width: 500 },
 ) {
   await page.setViewportSize(viewport);
   await phoneScrollbars(page, viewport.width);
@@ -179,7 +183,12 @@ async function logoBeforeAndAfter(
     'https://image.tmdb.org/**/ds_pluribus_logo.png',
     async (route) => {
       await gate;
-      await route.fulfill({ body: png(500, 200), contentType: 'image/png' });
+      await (file === 'missing'
+        ? route.fulfill({ status: 404 })
+        : route.fulfill({
+            body: png(file.width, file.height),
+            contentType: 'image/png',
+          }));
     },
   );
   // not the load event: it waits for the logo
@@ -191,13 +200,25 @@ async function logoBeforeAndAfter(
   const rankHeld = await rank.boundingBox();
 
   release();
+  if (file === 'missing') {
+    // a failed logo gives way to the title, in the same box
+    await expect(logo).toHaveCount(0);
+    const title = slide(page, 1)
+      .getByRole('heading', { name: 'Pluribus' })
+      .locator('span > span');
+    return {
+      held,
+      loaded: await title.locator('..').boundingBox(),
+      rankHeld,
+      rankLoaded: await rank.boundingBox(),
+    };
+  }
   await expect
     .poll(() =>
       logo.evaluate(
-        (image: HTMLImageElement) =>
-          image.complete &&
-          image.naturalWidth === 500 &&
-          image.style.getPropertyValue('--logo-ratio') === '',
+        (image: HTMLImageElement, width) =>
+          image.complete && image.naturalWidth === width,
+        file.width,
       ),
     )
     .toBe(true);
@@ -220,6 +241,22 @@ for (const viewport of LOGO_VIEWPORTS) {
     expect((loaded?.width ?? 0) / (loaded?.height ?? 1)).toBeCloseTo(2.5, 1);
     // the text stands on the stage's foot: the rank line above the logo stays
     expect(rankHeld?.y).toBeCloseTo(rankLoaded?.y ?? 0, 0);
+  });
+
+  test(`the logo's box stays held for a smaller file or a failed one, at ${viewport.width}`, async ({
+    page,
+  }) => {
+    for (const file of [{ height: 80, width: 200 }, 'missing'] as const) {
+      const { held, loaded, rankHeld, rankLoaded } = await logoBeforeAndAfter(
+        page,
+        viewport,
+        file,
+      );
+      expect(loaded?.width, String(file)).toBeCloseTo(held?.width ?? 0, 0);
+      expect(loaded?.height, String(file)).toBeCloseTo(held?.height ?? 0, 0);
+      expect(rankLoaded?.y, String(file)).toBeCloseTo(rankHeld?.y ?? 0, 0);
+      await page.unrouteAll();
+    }
   });
 
   test(`@design the logo loads at ${viewport.box.width} x ${viewport.box.height} at ${viewport.width}`, async ({

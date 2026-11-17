@@ -19,11 +19,10 @@ const STUB_URL =
 
 export type ImageKind = 'backdrop' | 'logo' | 'logo-block' | 'poster' | 'still';
 
-/** @public */
 export const imageUrl = (kind: ImageKind, label: string) =>
   `${STUB_URL}/img/${kind}/${encodeURIComponent(label)}.svg`;
 
-/** @public TMDB ids of the networks the boards use; others get a stable made-up id. */
+/** TMDB ids of the networks the fixtures name; others get a stable made-up id. */
 export const NETWORK_IDS: Readonly<Record<string, number>> = {
   ABC: 2,
   AMC: 174,
@@ -72,7 +71,7 @@ const hash = (value: string) =>
 export const networkId = (name: string) =>
   NETWORK_IDS[name] ?? 90_000 + hash(name);
 
-/** @public Stable ids: Breaking Bad keeps its real TMDB id (1396). */
+/** Stable ids: Breaking Bad keeps its real TMDB id (1396). */
 export const showId = (show: CatalogueShow) => catalogueId(show);
 
 export const slugOf = (title: string) =>
@@ -185,7 +184,6 @@ const backdropColor = (key: string) => {
     .join('')}`;
 };
 
-/** @public */
 export const toTvSeries = (show: CatalogueShow): TvSeries => {
   const id = showId(show);
   const ended = show.ended ?? show.year + show.seasons < ENDED_BEFORE;
@@ -252,7 +250,6 @@ export const SHOWS = CATALOGUE.map((show) => ({
   show,
 }));
 
-/** @public */
 export const byKey = (key: string) => {
   const found = SHOWS.find((entry) => entry.show.key === key);
   if (!found) {

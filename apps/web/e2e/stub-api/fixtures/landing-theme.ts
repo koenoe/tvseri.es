@@ -11,7 +11,7 @@ import type { StubRoute } from '../types';
  * their id, as the API sends them.
  */
 
-/** @public A theme's chip, as the API names it */
+/** A theme's chip, as the API names it */
 export const themeChip = (slug: string, count: number): LandingThemeChip => {
   const theme = themeBySlug(slug);
   if (!theme) {

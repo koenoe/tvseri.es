@@ -32,7 +32,7 @@ type Spec = Readonly<{
 const numbered = (count: number): string[] =>
   Array.from({ length: count }, (_, i) => `Episode ${i + 1}`);
 
-/** @public The matcher's tests run against this catalogue. */
+/** The matcher's tests run against this catalogue. */
 export const SPECS: ReadonlyArray<Spec> = [
   {
     id: 910001,

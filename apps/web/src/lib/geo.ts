@@ -64,7 +64,6 @@ export function resolveRegionFromHeaders(
 /**
  * `resolveRegionFromHeaders` with the request's headers. Reads `headers()`:
  * only inside a Suspense boundary, never in a cached scope.
- * @public
  */
 export async function resolveRegion(
   user?: Readonly<Pick<User, 'country'>> | null,

@@ -9,10 +9,9 @@ import {
  * and any keyword outside the themes, gets a stable pseudo-random third of
  * the catalogue when it isn't listed here, so every theme landing has shows;
  * the other keywords of a theme's set (TMDB's duplicates) only the shows
- * listed, so a set is about as big as its strongest keyword. Extend it for
- * the shows a board draws.
+ * listed, so a set is about as big as its strongest keyword. Extend it when
+ * a spec needs a theme's shows.
  */
-/** @public extend per board */
 export const KEYWORD_SHOWS: Readonly<Record<number, ReadonlyArray<string>>> = {
   // detective
   703: [

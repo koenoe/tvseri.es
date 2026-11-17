@@ -66,7 +66,9 @@ jobs:
 
     if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
 
-    # Four shards keep a run near ten minutes
+    # Four shards: the suite runs about 13 minutes on one worker on a Mac, and
+    # a runner is about 1.6 times slower, so each shard spends about 5 minutes
+    # on tests plus its own build (an estimate from local runs, not a CI run)
     strategy:
       fail-fast: false
       matrix:

@@ -25,15 +25,10 @@ const authPort = Number(process.env.STUB_AUTH_PORT ?? port + 1100);
 const stubSecret = 'local-stub-only';
 
 /**
- * Opt-in tags, left out of a default run:
- * - `@perf`: timing checks (`E2E_PERF=1`).
- * - `@design`: pixel-exact design checks (exact sizes, gaps, positions),
- *   written against the developer's Mac. They run in the `design` project
- *   only, and only with `E2E_DESIGN=1`. Everything else measures relatively
- *   and holds on any machine (`e2e/README.md`).
+ * `@perf` timing checks depend on the machine's load, so they are opt-in
+ * (`E2E_PERF=1`) and never in CI.
  */
-const optIn = [...(process.env.E2E_PERF ? [] : ['@perf']), '@design'];
-const grepInvert = new RegExp(optIn.join('|'));
+const grepInvert = process.env.E2E_PERF ? undefined : /@perf/;
 
 /**
  * `E2E_CLASSIC_SCROLLBARS=1`: Chromium draws a classic 15px scrollbar, as on
@@ -103,7 +98,7 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   fullyParallel: true,
   ...(slow && { workers: Number(process.env.E2E_SLOW_WORKERS ?? 2) }),
-  grepInvert,
+  ...(grepInvert && { grepInvert }),
   projects: [
     {
       name: 'chromium',
@@ -114,18 +109,6 @@ export default defineConfig({
       testIgnore: /admin-images\.spec\.ts|\.webkit\.spec\.ts/,
       use: chromium,
     },
-    ...(process.env.E2E_DESIGN
-      ? [
-          {
-            grep: /@design/,
-            // `undefined` would fall back to the top-level one (`@design`)
-            grepInvert: process.env.E2E_PERF ? /$^/ : /@perf/,
-            name: 'design',
-            testIgnore: /admin-images\.spec\.ts|\.webkit\.spec\.ts/,
-            use: chromium,
-          },
-        ]
-      : []),
     // Safari does not focus a button on click: the checks that need it
     // run in WebKit (`*.webkit.spec.ts`).
     {

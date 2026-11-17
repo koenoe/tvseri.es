@@ -3,10 +3,9 @@ import { Resource } from 'sst';
 import { getCacheEntry, setCacheItem } from '@/lib/db/cache';
 import { claim } from '@/lib/db/cache/singleFlight';
 import { createInstrumentedFetch } from '@/lib/metrics';
-import { nextUtcMidnight, takeDailyAllowance } from '@/lib/upstream/allowance';
+import { takeAllowanceOrThrow } from '@/lib/upstream/allowance';
 import { upstreamBaseUrl } from '@/lib/upstream/baseUrl';
 import { breakerFor } from '@/lib/upstream/breaker';
-import { UpstreamUnavailableError } from '@/lib/upstream/errors';
 import { logWarn } from '@/utils/logWarn';
 
 type MediaType = 'movie' | 'show';
@@ -61,22 +60,8 @@ const $fetch = createInstrumentedFetch(
  */
 export const DAILY_CAP = 800;
 
-/** One request's worth of the day's allowance, or "unavailable" */
-const takeAllowance = async (cap: number) => {
-  if (await breaker.isOpen()) {
-    throw new UpstreamUnavailableError('mdblist', 60, 'circuit open');
-  }
-  if (!(await takeDailyAllowance('mdblist', cap))) {
-    throw new UpstreamUnavailableError(
-      'mdblist',
-      (nextUtcMidnight() - Date.now()) / 1000,
-      'daily allowance spent',
-    );
-  }
-};
-
 async function mdblistFetch(path: string, options?: BetterFetchOption) {
-  await takeAllowance(DAILY_CAP);
+  await takeAllowanceOrThrow('mdblist', DAILY_CAP, breaker);
   const { data, error } = await $fetch(path, {
     ...options,
     query: { ...options?.query, apikey: apiKey(), format: 'json' },

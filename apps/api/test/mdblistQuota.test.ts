@@ -74,6 +74,16 @@ describe('the MDBList daily allowance', () => {
     expect(mdblistCalls()).toBe(0);
   });
 
+  it('stays closed until UTC midnight once spent, like OMDb', async () => {
+    await setCounter(today(), DAILY_CAP, { ttl: 86_400 });
+    const spent = await fetchTrending().catch((error: unknown) => error);
+    expect(spent).toMatchObject({ retryAfterSeconds: 16 * 60 * 60 });
+
+    await expect(fetchTrending()).rejects.toThrow(/circuit open/);
+    vi.setSystemTime(new Date('2026-12-03T00:00:01Z'));
+    expect(await fetchTrending()).toEqual([1]);
+  });
+
   it('counts every call in one counter per UTC day', async () => {
     await fetchTrending();
     vi.setSystemTime(new Date('2026-12-03T08:00:01Z'));

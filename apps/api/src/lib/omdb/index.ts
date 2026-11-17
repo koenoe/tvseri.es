@@ -3,7 +3,10 @@ import { Resource } from 'sst';
 
 import { readThroughStale } from '@/lib/db/cache/readThroughStale';
 import { createInstrumentedFetch } from '@/lib/metrics';
-import { nextUtcMidnight, takeDailyAllowance } from '@/lib/upstream/allowance';
+import {
+  nextUtcMidnight,
+  takeAllowanceOrThrow,
+} from '@/lib/upstream/allowance';
 import { upstreamBaseUrl } from '@/lib/upstream/baseUrl';
 import { breakerFor } from '@/lib/upstream/breaker';
 import { UpstreamUnavailableError } from '@/lib/upstream/errors';
@@ -94,13 +97,7 @@ const omdbGet = async <T extends OmdbAnswer>(
   if (!apiKey) {
     throw new Error('OMDb has no key');
   }
-  if (await breaker.isOpen()) {
-    throw new UpstreamUnavailableError('omdb', 60, 'circuit open');
-  }
-  if (!(await takeDailyAllowance('omdb', DAILY_CAP))) {
-    await breaker.openUntil(nextUtcMidnight(), 'daily allowance spent');
-    throw new UpstreamUnavailableError('omdb', 3600, 'daily allowance spent');
-  }
+  await takeAllowanceOrThrow('omdb', DAILY_CAP, breaker);
 
   const { data, error } = await $fetch<T>('/', {
     query: { ...query, apikey: apiKey },

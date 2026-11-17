@@ -1,4 +1,6 @@
 import { takeFromAllowance } from '@/lib/db/cache';
+import type { Breaker } from '@/lib/upstream/breaker';
+import { UpstreamUnavailableError } from '@/lib/upstream/errors';
 import { logWarn } from '@/utils/logWarn';
 import { DAY_MS, startOfDayUtc, todayUtc } from '@/utils/time';
 
@@ -32,3 +34,28 @@ export const takeDailyAllowance = async (
 /** When the next UTC day starts (epoch ms): a spent allowance comes back */
 export const nextUtcMidnight = (now: number = Date.now()) =>
   startOfDayUtc(now) + DAY_MS;
+
+/**
+ * The guard before every call to a quota'd upstream (OMDb, MDBList): an open
+ * breaker or a spent allowance throws "unavailable". A spent allowance also
+ * opens the breaker until the allowance comes back at UTC midnight, so the
+ * rest of the day costs no counter writes.
+ */
+export const takeAllowanceOrThrow = async (
+  source: keyof typeof LABEL,
+  cap: number,
+  breaker: Breaker,
+): Promise<void> => {
+  if (await breaker.isOpen()) {
+    throw new UpstreamUnavailableError(source, 60, 'circuit open');
+  }
+  if (!(await takeDailyAllowance(source, cap))) {
+    const until = nextUtcMidnight();
+    await breaker.openUntil(until, 'daily allowance spent');
+    throw new UpstreamUnavailableError(
+      source,
+      (until - Date.now()) / 1000,
+      'daily allowance spent',
+    );
+  }
+};

@@ -53,9 +53,12 @@ test.describe('settings signed in (desktop)', () => {
     // the viewer's parts streamed in, and the URL never moved
     await expect(page.getByText('@alex · Alex Example')).toBeVisible();
     expect(new URL(page.url()).pathname).toBe('/settings');
-    // One canonical. Released from instant()'s shell lock, Next renders the
-    // page's metadata again into <head>, and for a moment the new link sits
-    // beside the old one (a plain load inserts it once): the settled head
+    // One canonical, on the page a visitor loads. Released from instant()'s
+    // shell lock, Next renders the page's whole metadata (title, robots,
+    // icons, canonical) into <head> again, and on a loaded machine the old
+    // set is sometimes never removed: a testing-lock artefact, so the head
+    // is read on a plain load
+    await page.goto('/settings');
     const canonical = page.locator('link[rel="canonical"]');
     await expect(canonical).toHaveCount(1);
     await expect(canonical).toHaveAttribute('href', /\/settings\/profile$/);

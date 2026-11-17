@@ -277,8 +277,27 @@ const countdownReady = (page: Page) =>
     )
     .toBe(1);
 
-/** The slideshow is held: its countdown is seeked to the end and nothing moves */
+/**
+ * The slideshow is held: its countdown is seeked to the end and nothing
+ * moves. The hold lands a frame or more after its cause (an observer, a
+ * dialog opening; later on a slow machine): wait for the countdown to be
+ * paused first, or the seek can run the slide out before the hold arrives.
+ */
 async function expectHolds(page: Page) {
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        document
+          .getAnimations()
+          .filter(
+            (animation) =>
+              animation instanceof CSSAnimation &&
+              animation.animationName.includes('spotlight-countdown'),
+          )
+          .map((animation) => animation.playState),
+      ),
+    )
+    .toEqual(['paused']);
   const before = await shown(page);
   expect(await nearTheEnd(page)).toHaveLength(1);
   await nextFrames(page, 5);

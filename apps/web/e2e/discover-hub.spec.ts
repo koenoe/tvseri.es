@@ -2,7 +2,7 @@ import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 import { open } from './helpers';
-import { fontsSettled, phoneScrollbars } from './helpers/viewport';
+import { fontsSettled, pageSettled, phoneScrollbars } from './helpers/viewport';
 
 /**
  * The Discover hub (`/discover`): its prerendered shell (title, lens tabs,
@@ -185,6 +185,9 @@ test.describe('discover hub (/discover)', () => {
       await page.setViewportSize({ height: 900, width });
       await phoneScrollbars(page, width);
       await open(page, '/discover');
+      // the row is streamed in after the shell: measure the one that stays
+      // (scrolling the shell's copy found it replaced mid-scroll on a slow runner)
+      await pageSettled(page);
       const row = page.getByRole('region', { name: 'All-time favourites' });
       await row.scrollIntoViewIfNeeded();
       await fontsSettled(page);

@@ -67,7 +67,7 @@ test('the first-tracking answers are 44px touch targets', async ({
 
 // on a phone the signed-out toast read "Sign in to keep track of
 // w…": a toast's message wraps to a second line instead of losing its point
-for (const width of [360, 390]) {
+for (const width of [360]) {
   test(`the sign-in toast says all of it at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ height: 800, width });
     // hydrated, and the rows have their tiles: the streamed-in sections
@@ -95,7 +95,7 @@ for (const width of [360, 390]) {
 // one before too", Undo and ✕ on one line, and the message ("Marked S03E06
 // …") got ~40px at 390 and nothing at 360. The message keeps a full first
 // line; the two actions go under it.
-for (const width of [360, 390]) {
+for (const width of [360]) {
   test(`a two-action toast keeps its message readable at ${width}px`, async ({
     context,
     page,

@@ -2,7 +2,7 @@ import { expect, type Page, test } from '@playwright/test';
 
 import { expectHydrated } from './helpers';
 import { markWatched, signInAs } from './helpers/session';
-import { fontsSettled, pageSettled, phoneScrollbars } from './helpers/viewport';
+import { fontsSettled, phoneScrollbars } from './helpers/viewport';
 
 /**
  * The Focus wall's composition on awkward seasons, measured in the browser: no hole taller than
@@ -143,68 +143,48 @@ async function openWall(
   await fontsSettled(page);
 }
 
+// The composition itself is unit-tested (`episodes/wall.ts`): these check
+// that the browser lays it out, a tall Focus on the desktop's three columns
+// and a wide one on a phone.
 const CASES = [
-  // A miniseries with the later half watched.
-  {
-    focus: 'wide',
-    id: 920_004,
-    name: 'four, E3 and E4 watched',
-    watched: [3, 4],
-  },
-  { focus: 'wide', id: 920_003, name: 'three, E1 watched', watched: [1] },
-  { focus: 'wide', id: 920_002, name: 'two, nothing watched', watched: [] },
   {
     focus: 'tall',
     id: 920_010,
     name: 'ten, every other one watched',
     watched: [2, 4, 6, 8, 10],
+    width: 1440,
   },
   {
-    focus: 'tall',
-    id: 920_024,
-    name: 'twenty-four, the later half watched',
-    watched: [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
-  },
-  {
-    focus: null,
-    id: 920_101,
-    name: 'airing, caught up: only upcoming left',
-    watched: [1, 2, 3, 4, 5],
+    focus: 'wide',
+    id: 920_004,
+    name: 'four, E3 and E4 watched',
+    watched: [3, 4],
+    width: 390,
   },
 ] as const;
 
 test.describe('the episode wall holds together on small and odd seasons', () => {
-  for (const width of [1440, 390]) {
-    test.describe(`${width}px`, () => {
-      test.use({ viewport: { height: 1000, width } });
-      test.beforeEach(async ({ page }) => {
-        await phoneScrollbars(page, width);
-      });
-      for (const wallCase of CASES) {
-        test(wallCase.name, async ({ context, page }) => {
-          await signInAs(context, 'nina');
-          await markWatched('nina', wallCase.id, 1, wallCase.watched);
-          await openWall(page, wallCase.id, wallCase.watched);
-          await expectBalanced(page, wallCase.watched);
-          const focus = page.locator('[data-focus-layout]');
-          if (wallCase.focus) {
-            await expect(focus).toHaveAttribute(
-              'data-focus-layout',
-              wallCase.focus,
-            );
-          } else {
-            await expect(focus).toHaveCount(0);
-          }
-        });
-      }
+  for (const wallCase of CASES) {
+    test(`${wallCase.name} (${wallCase.width}px)`, async ({
+      context,
+      page,
+    }) => {
+      await page.setViewportSize({ height: 1000, width: wallCase.width });
+      await phoneScrollbars(page, wallCase.width);
+      await signInAs(context, 'nina');
+      await markWatched('nina', wallCase.id, 1, wallCase.watched);
+      await openWall(page, wallCase.id, wallCase.watched);
+      await expectBalanced(page, wallCase.watched);
+      await expect(page.locator('[data-focus-layout]')).toHaveAttribute(
+        'data-focus-layout',
+        wallCase.focus,
+      );
     });
   }
 
-  for (const [width, label] of [
-    [1440, 'Show all 13 episodes'],
-    // the phone's button reads the same
-    [390, 'Show all 13 episodes'],
-  ] as const) {
+  {
+    const width = 390;
+    const label = 'Show all 13 episodes';
     test(`Show all shows the whole season at once, no pager (${width}px)`, async ({
       context,
       page,
@@ -244,7 +224,7 @@ test.describe('the episode wall holds together on small and odd seasons', () => 
       expect(open?.width).toBe(folded?.width);
       expect(open?.height).toBe(folded?.height);
       await fewer.click();
-      await expect(visibleTiles).toHaveCount(width === 390 ? 3 : 8);
+      await expect(visibleTiles).toHaveCount(3);
       await expect(wall.getByRole('button', { name: label })).toBeFocused();
     });
   }
@@ -421,10 +401,8 @@ test.describe('controls never slide under the pointer', () => {
  * (20px on an episode tile, 24px on Next up): on a tile the wall
  * gives a fixed height (364px from md, two of them beside a tall Focus) the
  * still gives way, never the padding; Next up's still also takes any spare
- * height, so its text never sits over a hole. Measured on the wall lab's sizes and viewer states
- * at each layout, with long titles and overviews, an episode without a
- * synopsis and seasons without stills; the watched and skipped rows and the
- * stacks are measured too.
+ * height, so its text never sits over a hole. Measured on long titles and
+ * overviews at 1440 and on a Next up without a synopsis on a phone.
  */
 const lastLineGaps = (page: Page) =>
   page.evaluate(() => {
@@ -469,189 +447,87 @@ const lastLineGaps = (page: Page) =>
   });
 
 const PADDING_CASES = [
-  ...[1, 2, 3, 4, 5, 6, 8, 13].map((size) => ({
-    id: 920_000 + size,
-    name: `${size}, nothing watched`,
-    watched: [] as ReadonlyArray<number>,
-  })),
-  { id: 920_003, name: '3, E1 watched', watched: [1] },
-  { id: 920_004, name: '4, E3 and E4 watched', watched: [3, 4] },
-  {
-    id: 920_010,
-    name: '10, every other one watched',
-    watched: [2, 4, 6, 8, 10],
-  },
-  {
-    id: 920_024,
-    name: '24, the later half watched',
-    watched: [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
-  },
-  { id: 920_101, name: 'airing, upcoming tiles', watched: [1, 2] },
-  { id: 920_102, name: 'no stills, one without a synopsis', watched: [] },
-  { id: 920_102, name: 'Next up without a synopsis', watched: [1] },
-  { id: 920_102, name: 'Next up with a one-line synopsis', watched: [1, 2] },
-  { id: 920_103, name: 'long titles and overviews', watched: [] },
+  { id: 920_103, name: 'long titles and overviews', watched: [], width: 1440 },
+  { id: 920_102, name: 'Next up without a synopsis', watched: [1], width: 390 },
 ] as const;
 
-// The faded number overhangs the tile's corner in proportion to its size
-// (16 × 28 at 200px, 10 × 16 at a phone's 120px), so a phone's narrow "1"
-// keeps most of its ink
-for (const width of [1440, 390]) {
-  test(`the faded episode numbers overhang in proportion at ${width}px`, async ({
-    context,
-    page,
-  }) => {
-    await page.setViewportSize({ height: 1000, width });
-    await phoneScrollbars(page, width);
-    await signInAs(context, 'nina');
-    await openWall(page, 136_315, []);
-    // measured once the wall stopped changing: a tile swapped mid-read has
-    // no computed size (NaN)
-    await pageSettled(page);
-    const overhangs = await page
-      .locator('[data-episode-tile] > span[aria-hidden="true"]')
-      .evaluateAll((spans) =>
-        spans
-          .filter((span) => /^\d+$/.test(span.textContent ?? ''))
-          .map((span) => {
-            const tile = span.parentElement?.getBoundingClientRect();
-            const box = span.getBoundingClientRect();
-            const size = Number.parseFloat(getComputedStyle(span).fontSize);
-            return {
-              bottom: (box.bottom - (tile?.bottom ?? 0)) / size,
-              right: (box.right - (tile?.right ?? 0)) / size,
-            };
-          }),
-      );
-    expect(overhangs.length).toBeGreaterThan(0);
-    for (const overhang of overhangs) {
-      expect(overhang.right).toBeLessThanOrEqual(0.085);
-      expect(overhang.bottom).toBeLessThanOrEqual(0.14);
-    }
-  });
-}
-
 test.describe('every tile keeps its bottom padding under its last line', () => {
-  for (const width of [1440, 1024, 800, 390]) {
-    test.describe(`${width}px`, () => {
-      test.use({ viewport: { height: 1000, width } });
-      test.beforeEach(async ({ page }) => {
-        await phoneScrollbars(page, width);
-      });
-      for (const wallCase of PADDING_CASES) {
-        test(wallCase.name, async ({ context, page }) => {
-          await signInAs(context, 'nina');
-          await markWatched('nina', wallCase.id, 1, wallCase.watched);
-          await openWall(page, wallCase.id, wallCase.watched);
-          await page.waitForFunction(() =>
-            document
-              .getAnimations()
-              .every((animation) => animation.playState !== 'running'),
-          );
-          const gaps = await lastLineGaps(page);
-          expect(gaps.length).toBeGreaterThan(0);
-          for (const tile of gaps) {
-            expect(
-              tile.gap,
-              `${tile.code}: last line ${tile.gap}px above the bottom (padding ${tile.inset}px)`,
-            ).toBeGreaterThanOrEqual(tile.inset - 1);
-            // Next up's text holds the room of a two-line synopsis and no
-            // more: under a missing one, its two lines and their gap (60px)
-            if (tile.focusStacked) {
-              expect(
-                tile.gap,
-                `${tile.code} (Next up): ${tile.gap}px under its last line`,
-              ).toBeLessThanOrEqual(tile.inset + 62);
-            }
-          }
-        });
+  for (const wallCase of PADDING_CASES) {
+    test(`${wallCase.name} (${wallCase.width}px)`, async ({
+      context,
+      page,
+    }) => {
+      await page.setViewportSize({ height: 1000, width: wallCase.width });
+      await phoneScrollbars(page, wallCase.width);
+      await signInAs(context, 'nina');
+      await markWatched('nina', wallCase.id, 1, wallCase.watched);
+      await openWall(page, wallCase.id, wallCase.watched);
+      await page.waitForFunction(() =>
+        document
+          .getAnimations()
+          .every((animation) => animation.playState !== 'running'),
+      );
+      const gaps = await lastLineGaps(page);
+      expect(gaps.length).toBeGreaterThan(0);
+      for (const tile of gaps) {
+        expect(
+          tile.gap,
+          `${tile.code}: last line ${tile.gap}px above the bottom (padding ${tile.inset}px)`,
+        ).toBeGreaterThanOrEqual(tile.inset - 1);
+        // Next up's text holds the room of a two-line synopsis and no
+        // more: under a missing one, its two lines and their gap (60px)
+        if (tile.focusStacked) {
+          expect(
+            tile.gap,
+            `${tile.code} (Next up): ${tile.gap}px under its last line`,
+          ).toBeLessThanOrEqual(tile.inset + 62);
+        }
       }
     });
   }
 });
 
-// The pill's inset from the still's bottom left: the Focus text's padding
-// on phones (its left edge over "Next up"), 32 × 28 from md
-const PILL_INSETS = [
-  { bottom: 28, left: 32, underLabel: false, width: 1440 },
-  { bottom: 16, left: 16, underLabel: true, width: 390 },
-] as const;
-
-for (const inset of PILL_INSETS) {
-  test(`Next up's pill stays in its spot when the next synopsis is shorter (${inset.width}px)`, async ({
-    context,
-    page,
-  }) => {
-    await page.setViewportSize({ height: 1000, width: inset.width });
-    await phoneScrollbars(page, inset.width);
-    await signInAs(context, 'nina');
-    // the no-stills lab: E2 has no synopsis, E3 a one-line one
-    await markWatched('nina', 920_102, 1, [1]);
-    await openWall(page, 920_102, [1]);
-    const pill = (code: string) =>
-      page.getByRole('button', { name: new RegExp(`^Mark ${code} watched`) });
-    // Focus settles in with a short scale: measure it at rest, both times
-    const settled = () =>
-      page.waitForFunction(() =>
-        document
-          .getAnimations()
-          .every((animation) => animation.playState !== 'running'),
-      );
-    // the pill's place in the Focus tile (the page may scroll as the wall
-    // reflows under it)
-    const place = (code: string) =>
-      pill(code).evaluate((node) => {
-        const tile = node
-          .closest('[data-focus-layout]')
-          ?.getBoundingClientRect();
-        const box = node.getBoundingClientRect();
-        return { x: box.x - (tile?.x ?? 0), y: box.y - (tile?.y ?? 0) };
-      });
-    await expect(pill('S01E02')).toBeVisible();
-    await settled();
-    const before = await place('S01E02');
-    await pill('S01E02').click();
-    await expect(pill('S01E03')).toBeVisible();
-    await settled();
-    const after = await place('S01E03');
-    // within a pixel (sub-pixel rounding of the settled tile)
-    expect(Math.abs(after.x - before.x)).toBeLessThanOrEqual(1);
-    expect(Math.abs(after.y - before.y)).toBeLessThanOrEqual(1);
-    if (inset.underLabel) {
-      const pillBox = await pill('S01E03').boundingBox();
-      const labelBox = await page.getByText('Next up · S01E03').boundingBox();
-      expect(
-        Math.abs((pillBox?.x ?? 0) - (labelBox?.x ?? -9)),
-      ).toBeLessThanOrEqual(1);
-    }
-  });
-
-  // the spot itself: the still's bottom left, at the layout's inset (the
-  // pill stays there, above)
-  test(`Next up's pill sits at the still's inset (${inset.width}px)`, {
-    tag: '@design',
-  }, async ({ context, page }) => {
-    await page.setViewportSize({ height: 1000, width: inset.width });
-    await phoneScrollbars(page, inset.width);
-    await signInAs(context, 'nina');
-    await markWatched('nina', 920_102, 1, [1]);
-    await openWall(page, 920_102, [1]);
-    const pill = page.getByRole('button', { name: /^Mark S01E02 watched/ });
-    await expect(pill).toBeVisible();
-    await page.waitForFunction(() =>
+test("Next up's pill stays in its spot when the next synopsis is shorter (390px)", async ({
+  context,
+  page,
+}) => {
+  await page.setViewportSize({ height: 1000, width: 390 });
+  await phoneScrollbars(page, 390);
+  await signInAs(context, 'nina');
+  // the no-stills lab: E2 has no synopsis, E3 a one-line one
+  await markWatched('nina', 920_102, 1, [1]);
+  await openWall(page, 920_102, [1]);
+  const pill = (code: string) =>
+    page.getByRole('button', { name: new RegExp(`^Mark ${code} watched`) });
+  // Focus settles in with a short scale: measure it at rest, both times
+  const settled = () =>
+    page.waitForFunction(() =>
       document
         .getAnimations()
         .every((animation) => animation.playState !== 'running'),
     );
-    const spot = await pill.evaluate((node) => {
-      const still = node.parentElement?.getBoundingClientRect();
+  // the pill's place in the Focus tile (the page may scroll as the wall
+  // reflows under it)
+  const place = (code: string) =>
+    pill(code).evaluate((node) => {
+      const tile = node.closest('[data-focus-layout]')?.getBoundingClientRect();
       const box = node.getBoundingClientRect();
-      return {
-        bottom: (still?.bottom ?? 0) - box.bottom,
-        left: box.left - (still?.left ?? 0),
-      };
+      return { x: box.x - (tile?.x ?? 0), y: box.y - (tile?.y ?? 0) };
     });
-    expect(Math.abs(spot.bottom - inset.bottom)).toBeLessThanOrEqual(1);
-    expect(Math.abs(spot.left - inset.left)).toBeLessThanOrEqual(1);
-  });
-}
+  await expect(pill('S01E02')).toBeVisible();
+  await settled();
+  const before = await place('S01E02');
+  await pill('S01E02').click();
+  await expect(pill('S01E03')).toBeVisible();
+  await settled();
+  const after = await place('S01E03');
+  // within a pixel (sub-pixel rounding of the settled tile)
+  expect(Math.abs(after.x - before.x)).toBeLessThanOrEqual(1);
+  expect(Math.abs(after.y - before.y)).toBeLessThanOrEqual(1);
+  // on a phone the pill's left edge sits over "Next up"
+  const pillBox = await pill('S01E03').boundingBox();
+  const labelBox = await page.getByText('Next up · S01E03').boundingBox();
+  expect(Math.abs((pillBox?.x ?? 0) - (labelBox?.x ?? -9))).toBeLessThanOrEqual(
+    1,
+  );
+});

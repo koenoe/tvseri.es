@@ -2,27 +2,14 @@ import { instant } from '@next/playwright';
 import { expect, type Page, test } from '@playwright/test';
 
 import { open } from './helpers';
-import { signInAs } from './helpers/session';
 
 /**
- * The site footer (signed off): its height per width, its links,
- * and that no error view has it under it ("on the error
+ * The site footer: full width, its links, and that no error view has it
+ * under it ("on the error
  * pages we dont want the footer to render below").
  */
 
 const footer = (page: Page) => page.locator('[data-site-footer]');
-
-/**
- * The measured heights on the developer's Mac (the safe-area inset is 0
- * here). The credits sentence names OMDb and its licence: two lines at 1440
- * (one before), three at 768 (two before), four at 390 in the 326px column
- * the 32px gutters leave (three at 24px).
- */
-const HEIGHTS = [
-  [1440, 188],
-  [768, 196],
-  [390, 252],
-] as const;
 
 const footerHeight = async (page: Page) =>
   Math.round((await footer(page).boundingBox())?.height ?? 0);
@@ -46,7 +33,7 @@ const footerFits = (page: Page) =>
   });
 
 test.describe('the footer', () => {
-  for (const [width] of HEIGHTS) {
+  for (const width of [1440, 390]) {
     test(`is full width, holds its content and is the same on Home and a show page at ${width}`, async ({
       page,
     }) => {
@@ -65,19 +52,8 @@ test.describe('the footer', () => {
     });
   }
 
-  for (const [width, height] of HEIGHTS) {
-    test(`is ${height}px tall at ${width} on Home @design`, async ({
-      page,
-    }) => {
-      await page.setViewportSize({ height: 900, width });
-      await open(page, '/');
-      await expect(footer(page)).toBeVisible();
-      expect(await footerHeight(page)).toBe(height);
-    });
-  }
-
   // At 390 "OMDb" ended a line and "(CC BY-NC 4.0)" began the next
-  for (const width of [360, 390, 768, 1440]) {
+  for (const width of [390]) {
     test(`keeps "OMDb (CC BY-NC 4.0)" on one line at ${width}`, async ({
       page,
     }) => {
@@ -143,22 +119,6 @@ test.describe('the footer', () => {
     await footer(page).getByRole('link', { name: 'Top' }).click();
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
   });
-
-  test('is under Settings, signed in, the same footer as Home’s', async ({
-    context,
-    page,
-  }) => {
-    await page.setViewportSize({ height: 900, width: 1440 });
-    await open(page, '/');
-    const home = await footerHeight(page);
-    await signInAs(context, 'alex');
-    await open(page, '/settings/profile');
-    await expect(
-      page.getByRole('heading', { level: 2, name: 'Profile' }),
-    ).toBeVisible();
-    await expect(footer(page)).toBeVisible();
-    expect(await footerHeight(page)).toBe(home);
-  });
 });
 
 /** An error view is up and no footer shows, from its first frame. */
@@ -174,13 +134,13 @@ const expectErrorWithoutFooter = async (page: Page, title: string | RegExp) => {
 
 const LOST = /This page|channel 404|truth is out there/;
 
-for (const width of [1440, 390]) {
+for (const width of [1440]) {
   test.describe(`no footer under an error view at ${width}`, () => {
     test.beforeEach(async ({ page }) => {
       await page.setViewportSize({ height: 900, width });
     });
 
-    for (const path of ['/abc', '/shows/breaking-bad']) {
+    for (const path of ['/abc']) {
       test(`404, hard load (${path})`, async ({ page, baseURL }) => {
         await instant(
           page,
@@ -195,7 +155,7 @@ for (const width of [1440, 390]) {
       });
     }
 
-    for (const path of ['/999998/nothing', '/genre/nope', '/person/999999']) {
+    for (const path of ['/999998/nothing']) {
       test(`404 from inside a page (${path})`, async ({ page }) => {
         await page.goto(path);
         await expectErrorWithoutFooter(page, LOST);

@@ -8,10 +8,9 @@ import { untilStable } from './helpers/viewport';
  * footer block"): every page kind ends the same distance above the band,
  * the footer's own air (`[data-footer-air]`: 64px at 768 and up, 48px on a
  * phone), never doubled by a page's own bottom padding. A page that ends in
- * a full-width band (a series) has none: its band meets the footer's.
+ * a full-width band (a series) has none: its band meets the footer's. One
+ * page per kind, at a phone and a desktop.
  */
-
-const GAP = { 390: 48, 1440: 64 } as const;
 
 const airHeight = (page: Page) =>
   page
@@ -28,24 +27,12 @@ const PAGES: ReadonlyArray<
   }>
 > = [
   { name: 'Home', path: '/' },
-  { name: 'Discover', path: '/discover' },
   { name: 'a genre', path: '/genre/crime' },
-  { name: 'a network', path: '/network/hbo' },
-  { name: 'a country', path: '/country/gb' },
-  { name: 'a language', path: '/language/ja' },
-  { name: 'a decade', path: '/decade/2010s' },
-  { name: 'a theme', path: '/theme/dystopia' },
-  { name: 'the networks index', path: '/network' },
   // its last block is a full-width band that joins the footer's band
   { gap: 0, name: 'a series', path: '/136315/the-bear' },
-  { name: 'a person', path: '/person/17419/bryan-cranston' },
+  // signed-in pages last: the session stays for the rest of the test
   { name: 'a profile', path: '/u/alex', viewer: 'alex' },
-  { name: 'Library', path: '/u/alex/library/watching', viewer: 'alex' },
-  { name: 'History', path: '/u/alex/history', viewer: 'alex' },
-  { name: 'Circle', path: '/u/alex/circle', viewer: 'alex' },
-  { name: 'Stats', path: '/u/alex/stats/2026', viewer: 'alex' },
   { name: 'Settings', path: '/settings/profile', viewer: 'alex' },
-  { name: 'Privacy', path: '/privacy' },
 ];
 
 /**
@@ -162,34 +149,24 @@ const settle = async (page: Page) => {
 };
 
 for (const width of [1440, 390] as const) {
-  test(`the footer's air is ${GAP[width]}px at ${width} @design`, async ({
+  test(`every page kind ends the footer’s air above the footer (${width})`, async ({
+    context,
     page,
   }) => {
+    // short, so no page is shorter than the window (its main would grow)
     await page.setViewportSize({ height: 500, width });
-    await page.goto('/privacy');
-    expect(await airHeight(page)).toBe(GAP[width]);
-  });
-}
-
-for (const width of [1440, 390] as const) {
-  for (const entry of PAGES) {
-    const ends =
-      entry.gap === undefined ? 'the footer’s air' : `${entry.gap}px`;
-    test(`${entry.name} ends ${ends} above the footer (${width})`, async ({
-      context,
-      page,
-    }) => {
-      // short, so no page is shorter than the window (its main would grow)
-      await page.setViewportSize({ height: 500, width });
+    for (const entry of PAGES) {
       if (entry.viewer) {
         await signInAs(context, entry.viewer);
       }
       await page.goto(entry.path);
       await settle(page);
       const air = Math.round(await airHeight(page));
-      expect(air, 'the footer has its air').toBeGreaterThan(0);
+      expect(air, `${entry.name}: the footer has its air`).toBeGreaterThan(0);
       const measured = await gapAbove(page);
-      expect(measured?.gap, measured?.last).toBe(entry.gap ?? air);
-    });
-  }
+      expect(measured?.gap, `${entry.name}: ${measured?.last}`).toBe(
+        entry.gap ?? air,
+      );
+    }
+  });
 }

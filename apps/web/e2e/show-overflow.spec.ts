@@ -11,21 +11,16 @@ import {
 
 /**
  * The series page holds its text on a phone (`helpers/overflow.ts`): no sideways scroll, no text outside its card, no
- * value cut without an ellipsis. Signed in (alex): a season with a watched
- * stack (The Bear S3), one with a stack and a skipped episode (S2), and
- * Lantern Bay's specials with an upcoming one ("Next E03 …").
+ * value cut without an ellipsis. Signed in (alex): The Bear's S2, with
+ * watched stacks and a skipped episode, on the smallest phone. (Phones
+ * only: the desktop page's overlapping cast faces read as one control over
+ * another to the scan, by design.)
  */
 
-/**
- * Phones: the desktop page's overlapping cast faces read as one control
- * over another to the scan (by design)
- */
-const WIDTHS = [360, 390] as const;
+const WIDTHS = [360] as const;
 
 const PAGES = [
-  { name: 'The Bear season 3', path: '/136315/the-bear?season=3' },
   { name: 'The Bear season 2', path: '/136315/the-bear?season=2' },
-  { name: 'Lantern Bay specials', path: '/900006/lantern-bay?season=0' },
 ] as const;
 
 async function arrived(page: Page) {

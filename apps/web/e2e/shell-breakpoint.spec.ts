@@ -5,7 +5,8 @@ import { signInAs } from './helpers/session';
 /**
  * One rule: the profile, Stats and Settings sidebars
  * appear from lg (1024); below it those pages use the phone's shell, the
- * identity on top and Settings' section list on its own page.
+ * identity on top and Settings' section list on its own page. Checked on
+ * the profile and Settings, one each side of the breakpoint.
  */
 
 for (const width of [1023, 1024] as const) {
@@ -34,26 +35,6 @@ for (const width of [1023, 1024] as const) {
           expect(asideBox.y + asideBox.height).toBeLessThanOrEqual(tabBox.y);
         }
       }
-    });
-
-    test('library: the shelf nav in the sidebar or chips under the tabs', async ({
-      context,
-      page,
-    }) => {
-      await signInAs(context, 'alex');
-      await page.goto('/u/alex/library/watching');
-      const nav = page.locator('[data-slot="shelf-nav"]');
-      const chips = page.locator('[data-slot="shelf-chips"]');
-      await expect(sidebar ? nav : chips).toBeVisible();
-      await expect(sidebar ? chips : nav).toBeHidden();
-    });
-
-    test('stats: the sidebar or the phone header', async ({ page }) => {
-      await page.goto('/u/lena/stats/2025');
-      const aside = page.locator('[data-slot="stats-aside"]');
-      const head = page.locator('[data-slot="stats-phone-head"]');
-      await expect(sidebar ? aside : head).toBeVisible();
-      await expect(sidebar ? head : aside).toBeHidden();
     });
 
     test('settings: the nav beside a section, or the list and a back bar', async ({

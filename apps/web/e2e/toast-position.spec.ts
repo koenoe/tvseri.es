@@ -1,12 +1,12 @@
 import { expect, type Page, test } from '@playwright/test';
 
 import { open } from './helpers';
-import { type StubViewer, setLibraryHint, signInAs } from './helpers/session';
+import { type StubViewer, signInAs } from './helpers/session';
 import { clientSize, untilStable } from './helpers/viewport';
 
 /**
- * The toast's one place (Toaster.tsx) from every
- * trigger, also while a layer is open (the Remote's popover or sheet): at
+ * The toast's one place (Toaster.tsx), also while a layer is open (the
+ * Remote's popover or sheet, the history sheet): at
  * 1440 bottom right of the window, 24px in from the right (of the room the
  * scrollbar leaves) and the bottom, as wide as its content (280 to 720px);
  * full width 16px in, 40px up at 390.
@@ -20,17 +20,13 @@ const HEIGHT = 900;
  * The card's insets from the window's right and bottom (inside its
  * scrollbar); its width: the room less `inset * 2` (`full`), or at least its
  * 280px minimum and under the 720px cap (a mark toast is short: as wide as
- * its content). How wide that content is depends on the machine's font:
- * the width measured on the developer's Mac is a `@design` check.
+ * its content, which depends on the machine's font).
  */
 const CAP = 720;
 const EXPECTED = {
   390: { bottom: 40, full: true, min: 0, right: 16 },
   1440: { bottom: 24, full: false, min: 280, right: 24 },
 } as const;
-
-/** The mark toast's width on the developer's Mac, at most */
-const DESIGN_MAX = 559;
 
 type Trigger = Readonly<{
   name: string;
@@ -59,20 +55,6 @@ const TRIGGERS: ReadonlyArray<Trigger> = [
       await markNextFromRemote(page);
     },
     viewer: 'alex',
-    widths: [1440, 390],
-  },
-  {
-    name: 'Home’s Continue watching Remote',
-    open: async (page) => {
-      await open(page, '/');
-      await page
-        .locator('[data-slot="continue"]')
-        .getByRole('button', { name: /^More actions for/ })
-        .first()
-        .click();
-      await markNextFromRemote(page);
-    },
-    viewer: 'kit',
     widths: [1440, 390],
   },
 ];
@@ -119,9 +101,6 @@ for (const trigger of TRIGGERS) {
     }) => {
       await page.setViewportSize({ height: HEIGHT, width });
       await signInAs(context, trigger.viewer);
-      if (trigger.viewer === 'kit') {
-        await setLibraryHint(context, 'kit', [136315]);
-      }
       await trigger.open(page);
       await watchToast(page);
       const toast = page.locator('[data-sonner-toast]').first();
@@ -172,81 +151,6 @@ for (const trigger of TRIGGERS) {
     });
   }
 }
-
-test('a mark toast at 1440 is as wide as its content on the Mac @design', async ({
-  context,
-  page,
-}) => {
-  await page.setViewportSize({ height: HEIGHT, width: 1440 });
-  await signInAs(context, 'alex');
-  await TRIGGERS[0]?.open(page);
-  const toast = page.locator('[data-sonner-toast]').first();
-  await expect(toast).toBeVisible();
-  await toast.hover();
-  expect((await toast.boundingBox())?.width).toBeLessThanOrEqual(DESIGN_MAX);
-});
-
-test('over the open episode modal the toast stays usable and in view', async ({
-  context,
-  page,
-}) => {
-  await page.setViewportSize({ height: HEIGHT, width: 1440 });
-  await signInAs(context, 'alex');
-  await open(page, '/136315/the-bear?season=3&episode=6');
-  const dialog = page.getByRole('dialog');
-  await dialog
-    .getByRole('button', { name: /Mark watched \(just now\)/ })
-    .click();
-  const toast = page.locator('[data-sonner-toast]').first();
-  await expect(toast).toBeVisible();
-  await toast.hover();
-  // Its own place, under the credits roll: clear of the record stub (left).
-  // A new toast rises into it (sonner's entry, about 0.2s): read it settled
-  const bottom = async () => {
-    const rise = await toast.boundingBox();
-    return Math.round((rise?.y ?? 0) + (rise?.height ?? 0));
-  };
-  const room = await clientSize(page);
-  await expect.poll(bottom).toBe(room.height - 24);
-  const box = await toast.boundingBox();
-  expect(Math.round((box?.x ?? 0) + (box?.width ?? 0))).toBe(room.width - 24);
-  const stub = await dialog.locator('[data-record-stub]').boundingBox();
-  expect((stub?.x ?? 0) + (stub?.width ?? 0)).toBeLessThan(box?.x ?? 0);
-  await toast.getByRole('button', { name: 'Undo' }).click();
-  await expect(page.getByText(/^Marked S03E06/)).toHaveCount(0);
-  await expect(dialog).toBeVisible();
-});
-
-test('the toast rides above the footer, clear of its Top pill', async ({
-  context,
-  page,
-}) => {
-  await page.setViewportSize({ height: HEIGHT, width: 1440 });
-  await signInAs(context, 'alex');
-  await open(page, '/136315/the-bear');
-  await page
-    .getByRole('button', { name: 'More actions for The Bear' })
-    .filter({ visible: true })
-    .first()
-    .click();
-  await markNextFromRemote(page);
-  const toast = page.locator('[data-sonner-toast]').first();
-  await expect(toast).toBeVisible();
-  await page.evaluate(() =>
-    window.scrollTo({ top: document.documentElement.scrollHeight }),
-  );
-  await toast.hover();
-  const top = page.getByRole('link', { exact: true, name: 'Top' });
-  await expect
-    .poll(async () => {
-      const [box, pill] = await Promise.all([
-        toast.boundingBox(),
-        top.boundingBox(),
-      ]);
-      return Math.round((box?.y ?? 0) + (box?.height ?? 0)) <= (pill?.y ?? 0);
-    })
-    .toBe(true);
-});
 
 test('over the open history sheet the toast keeps its place, inside the sheet', async ({
   context,

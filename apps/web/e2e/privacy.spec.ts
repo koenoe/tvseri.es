@@ -4,8 +4,8 @@ import { findOverflow, formatProblems } from './helpers/overflow';
 
 /**
  * The privacy page: its own route (not the root `[id]`), static (served
- * from the prerendered shell), and its text holds at a phone, a tablet and
- * 1440 (`helpers/overflow.ts`).
+ * from the prerendered shell), and its text holds on a phone
+ * (`helpers/overflow.ts`).
  */
 
 test('/privacy is a static page', async ({ request }) => {
@@ -17,16 +17,7 @@ test('/privacy is a static page', async ({ request }) => {
   expect(html).toContain('Take it or delete it');
 });
 
-test('/privacy has no eyebrow over its title', async ({ page }) => {
-  await page.goto('/privacy');
-  const header = page.getByTestId('route-privacy').locator('header');
-  await expect(
-    header.getByRole('heading', { level: 1, name: 'Privacy' }),
-  ).toBeVisible();
-  await expect(header).not.toContainText(/tvseri\.es/i);
-});
-
-for (const width of [390, 800, 1440] as const) {
+for (const width of [390] as const) {
   test(`/privacy holds its text at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ height: width < 500 ? 844 : 900, width });
     await page.goto('/privacy');

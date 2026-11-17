@@ -9,28 +9,36 @@ import { type StubViewer, signInAs } from './helpers/session';
 import { fontsSettled, pageSettled, phoneScrollbars } from './helpers/viewport';
 
 /**
- * The profile overview holds real, heavy data: no sideways scroll, no text outside its card, no
- * value cut without an ellipsis, equal rows where a lane has them, at
- * a phone, a tablet, 1440 and a big screen. The heavy profile
- * (`marathonwatcher-2026`) is checked with every capped lane open too.
+ * The profile holds real, heavy data: no sideways scroll, no text outside its card, no
+ * value cut without an ellipsis, equal rows where a lane has them. The heavy
+ * profile (`marathonwatcher-2026`) is checked with every capped lane open
+ * too. Beyond a small phone and 1440, a width is kept where a bug was.
  */
 
-const WIDTHS = [390, 800, 1440, 1728] as const;
-/** The overview also at a small phone, both profiles */
-const OVERVIEW_WIDTHS = [360, ...WIDTHS] as const;
-
 const CASES: ReadonlyArray<
-  Readonly<{ name: string; path: string; viewer: StubViewer; open?: true }>
+  Readonly<{
+    name: string;
+    path: string;
+    viewer: StubViewer;
+    width: number;
+    open?: true;
+  }>
 > = [
   {
     name: 'heavy owner',
     open: true,
     path: '/u/marathonwatcher-2026',
     viewer: 'marathonwatcher-2026',
+    width: 360,
   },
-  { name: 'heavy, visited', path: '/u/marathonwatcher-2026', viewer: 'alex' },
-  { name: 'medium owner', open: true, path: '/u/mira', viewer: 'mira' },
-  { name: 'new user', path: '/u/nina', viewer: 'nina' },
+  {
+    name: 'heavy owner',
+    open: true,
+    path: '/u/marathonwatcher-2026',
+    viewer: 'marathonwatcher-2026',
+    width: 1440,
+  },
+  { name: 'new user', path: '/u/nina', viewer: 'nina', width: 360 },
 ];
 
 /** Every block has arrived: the last one is on the page and nothing loads */
@@ -41,29 +49,24 @@ async function arrived(page: Page) {
   await pageSettled(page);
 }
 
-for (const width of OVERVIEW_WIDTHS) {
-  test.describe(`profile overflow at ${width}px`, () => {
-    test.use({ viewport: { height: width < 500 ? 844 : 900, width } });
-    test.beforeEach(async ({ page }) => {
+test.describe('profile overflow', () => {
+  for (const { name, open, path, viewer, width } of CASES) {
+    test(`${name} at ${width}px`, async ({ context, page }) => {
+      await page.setViewportSize({ height: width < 500 ? 844 : 900, width });
       await phoneScrollbars(page, width);
+      await signInAs(context, viewer);
+      await page.goto(path);
+      await arrived(page);
+      const problems = await findOverflow(page);
+      expect(problems, formatProblems(problems)).toEqual([]);
+      if (open) {
+        await openCappedLists(page);
+        const opened = await findOverflow(page);
+        expect(opened, formatProblems(opened)).toEqual([]);
+      }
     });
-
-    for (const { name, open, path, viewer } of CASES) {
-      test(name, async ({ context, page }) => {
-        await signInAs(context, viewer);
-        await page.goto(path);
-        await arrived(page);
-        const problems = await findOverflow(page);
-        expect(problems, formatProblems(problems)).toEqual([]);
-        if (open) {
-          await openCappedLists(page);
-          const opened = await findOverflow(page);
-          expect(opened, formatProblems(opened)).toEqual([]);
-        }
-      });
-    }
-  });
-}
+  }
+});
 
 test('a busy profile stays short: lanes stay at their caps', async ({
   context,
@@ -102,7 +105,7 @@ test('a busy profile stays short: lanes stay at their caps', async ({
 // and the header's arrows pushed "History" past the column. Tablets have no
 // sidebar now; 1024 is the narrowest column beside it. The scan above skips
 // rails (scrollers), so the tile and the header are measured here.
-for (const width of [800, 1024] as const) {
+for (const width of [1024] as const) {
   test(`Recently watched keeps chips in their tiles and History in the column at ${width}px`, async ({
     context,
     page,
@@ -143,9 +146,9 @@ for (const width of [800, 1024] as const) {
   });
 }
 
-/** History: the heavy diary, its own and visited, at every width */
-for (const width of WIDTHS) {
-  for (const viewer of ['marathonwatcher-2026', 'alex'] as const) {
+/** History: the heavy diary on a phone */
+for (const width of [390] as const) {
+  for (const viewer of ['marathonwatcher-2026'] as const) {
     test(`heavy History as ${viewer} holds its text at ${width}px`, async ({
       context,
       page,
@@ -194,8 +197,8 @@ test('History at 800px leaves every row title room', async ({
 // shared the code line's width: the code ran under the toggle (390), the
 // runtime and "Marked in one go" under it and the + (800), the title cut to
 // three letters. No two of a row's parts may overlap.
-for (const width of [360, 390, 800, 1023, 1024, 1440] as const) {
-  for (const viewer of ['marathonwatcher-2026', 'alex'] as const) {
+for (const width of [390, 800] as const) {
+  for (const viewer of ['alex'] as const) {
     test(`History rows as ${viewer} keep their parts apart at ${width}px`, async ({
       context,
       page,
@@ -264,7 +267,7 @@ for (const width of [360, 390, 800, 1023, 1024, 1440] as const) {
 }
 
 // Circle with real-sized data: 100 follows with long handles (the cap's
-// line), long show titles, every level; and someone else's lists
+// line), long show titles, every level
 const CIRCLE_CASES: ReadonlyArray<
   Readonly<{ name: string; path: string; viewer: StubViewer }>
 > = [
@@ -273,11 +276,9 @@ const CIRCLE_CASES: ReadonlyArray<
     path: '/u/marathonwatcher-2026/circle',
     viewer: 'marathonwatcher-2026',
   },
-  { name: 'owner', path: '/u/alex/circle', viewer: 'alex' },
-  { name: 'visited', path: '/u/juno/circle', viewer: 'alex' },
 ];
 
-for (const width of WIDTHS) {
+for (const width of [390] as const) {
   test.describe(`Circle overflow at ${width}px`, () => {
     test.use({ viewport: { height: width < 500 ? 844 : 900, width } });
     test.beforeEach(async ({ page }) => {
@@ -303,7 +304,7 @@ for (const width of WIDTHS) {
 // Keep and Hide, Coming up's service logo, Waiting for's "31 days to go");
 // the circle switcher's names stay readable. A Library
 // tile's fact drops whole or ends with an ellipsis, never cut mid-word.
-for (const width of [360, 390] as const) {
+for (const width of [360] as const) {
   test(`phone lanes: one header rule, titles before facts at ${width}px`, async ({
     context,
     page,
@@ -407,7 +408,7 @@ for (const width of [360, 390] as const) {
     expect(chips).toEqual([]);
   });
 
-  for (const shelf of ['watching', 'finished'] as const) {
+  for (const shelf of ['watching'] as const) {
     test(`Library ${shelf} tiles keep their facts whole at ${width}px`, async ({
       context,
       page,

@@ -18,7 +18,7 @@ const CHANNEL_ICON_PROVIDERS: ReadonlyMap<
   [2552, [350]], // Apple TV
   [4330, [531, 2303, 2616]], // Paramount+ (Premium, Essential)
   [1024, [9]], // Prime Video
-  [453, [15]], // Hulu
+  [2739, [337]], // Disney+
 ]);
 
 /** The square service icon for a channel, or undefined when TMDB has none */

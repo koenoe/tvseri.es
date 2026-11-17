@@ -87,5 +87,5 @@ export const WHATS_ON_NETWORKS: ReadonlyArray<WhatsOnNetwork> = [
   { id: 2552, name: 'Apple TV' },
   { id: 4330, name: 'Paramount+' },
   { id: 1024, name: 'Prime Video' },
-  { id: 453, name: 'Hulu' },
+  { id: 2739, name: 'Disney+' },
 ];

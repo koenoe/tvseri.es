@@ -121,10 +121,10 @@ const WHATS_ON: Toy = {
     ),
     channel(
       {
-        id: 453,
+        id: 2739,
         logo: img('ep_logo_hulu.png'),
         logoKind: 'wordmark',
-        name: 'Hulu',
+        name: 'Disney+',
         wordmark: img('ep_logo_hulu.png'),
       },
       {

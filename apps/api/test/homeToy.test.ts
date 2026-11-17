@@ -84,7 +84,11 @@ beforeEach(() => {
   });
   onTmdb('/network/4330', { id: 4330, logo_path: null, name: 'Paramount+' });
   onTmdb('/network/1024', { id: 1024, logo_path: null, name: 'Prime Video' });
-  onTmdb('/network/453', { id: 453, logo_path: '/hulu.png', name: 'Hulu' });
+  onTmdb('/network/2739', {
+    id: 2739,
+    logo_path: '/disney.png',
+    name: 'Disney+',
+  });
 
   for (const id of new Set(
     WHERE_SET_PLACES.flatMap((place) => place.showIds),
@@ -133,7 +137,7 @@ describe('GET /home/toy', () => {
       'Apple TV',
       'Paramount+',
       'Prime Video',
-      'Hulu',
+      'Disney+',
     ]);
     // The service icon where there is one, else the network's wordmark
     expect(
@@ -147,7 +151,7 @@ describe('GET /home/toy', () => {
       // no provider icon listed and no network logo: an empty wordmark
       ['wordmark', ''],
       ['wordmark', ''],
-      ['wordmark', expect.stringContaining('/hulu.png')],
+      ['wordmark', expect.stringContaining('/disney.png')],
     ]);
 
     // Each channel's show carries its logo when it has one (one URL), read

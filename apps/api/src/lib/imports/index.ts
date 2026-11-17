@@ -120,6 +120,35 @@ export const checkImportBatch = async (
 };
 
 /**
+ * An update on the user's last import, only while it's still `importId`;
+ * with `claim`, also only while no Undo has started (409 otherwise)
+ */
+const updateLastImport = (
+  userId: string,
+  importId: string,
+  {
+    claim,
+    expression,
+    values = {},
+  }: Readonly<{
+    claim: boolean;
+    expression: string;
+    values?: Readonly<Record<string, number>>;
+  }>,
+) =>
+  client.send(
+    new UpdateItemCommand({
+      ConditionExpression: claim
+        ? 'lastImport.importId = :importId AND attribute_not_exists(lastImport.undoRequestedAt)'
+        : 'lastImport.importId = :importId',
+      ExpressionAttributeValues: marshall({ ':importId': importId, ...values }),
+      Key: userItemKey(userId),
+      TableName: Resource.Users.name,
+      UpdateExpression: expression,
+    }),
+  );
+
+/**
  * Writes one import batch: episodes watched before are skipped, so
  * their dates are kept and Undo never touches them; new ones carry the import
  * id. The caller checked the import is open (`assertImportOpen`).
@@ -135,35 +164,31 @@ export const writeImportBatch = async (
 ): Promise<ImportBatchResult> => {
   const { alreadyWatched, toWrite } = await planBatch(userId, batch);
 
-  if (toWrite.length > 0 || alreadyWatched.length > 0) {
-    // First claim the write on the import (409 once an Undo has started), so
-    // no item tagged with the id can land after Undo scanned for them. The
-    // same update counts the skipped episodes, so "episodes in your history
-    // from this import" is written + skipped everywhere.
-    await client.send(
-      new UpdateItemCommand({
-        ConditionExpression:
-          'lastImport.importId = :importId AND attribute_not_exists(lastImport.undoRequestedAt)',
-        ExpressionAttributeValues: marshall({
-          ':importId': importId,
-          ':skipped': alreadyWatched.length,
-          ':written': toWrite.length,
-        }),
-        Key: userItemKey(userId),
-        TableName: Resource.Users.name,
-        UpdateExpression:
-          'ADD lastImport.written :written, lastImport.skipped :skipped',
-      }),
-    );
-  }
-
   if (toWrite.length > 0) {
+    // First claim the write on the import (409 once an Undo has started), so
+    // no item tagged with the id can land after Undo scanned for them
+    await updateLastImport(userId, importId, {
+      claim: true,
+      expression: 'SET lastImport.importId = :importId',
+    });
     const items = await markWatchedInBatch(
       toWrite.map((item) => ({ ...item, importId, userId })),
     );
     // Writing an episode un-skips it; Undo puts those skips back
     await recordUnskipped(userId, importId, items);
     await clearSkipped(items);
+  }
+
+  if (toWrite.length > 0 || alreadyWatched.length > 0) {
+    // Counted once the episodes are in (a failed write counts nothing), so
+    // "episodes in your history from this import" is written + skipped
+    // everywhere. A batch with nothing to write still claims the import.
+    await updateLastImport(userId, importId, {
+      claim: toWrite.length === 0,
+      expression:
+        'ADD lastImport.written :written, lastImport.skipped :skipped',
+      values: { ':skipped': alreadyWatched.length, ':written': toWrite.length },
+    });
   }
 
   return { skipped: alreadyWatched.length, written: toWrite.length };

@@ -1,5 +1,5 @@
 import type { SQSEvent } from 'aws-lambda';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { handler as undoImport } from '@/lambdas/undoImport';
 import { db, sqsMessages } from './db';
@@ -109,6 +109,34 @@ describe('1 import keeps existing dates', () => {
     const me = await request('/me', { as: USER_ID });
     expect(await me.json()).toMatchObject({
       lastImport: { importId, skipped: 1, written: 1 },
+    });
+  });
+
+  it('counts nothing for a batch whose write failed', async () => {
+    seedUser();
+    const importId = await startImport();
+    const send = db.send.bind(db);
+    const failWrites = vi
+      .spyOn(db, 'send')
+      .mockImplementation(((
+        command: Readonly<{ constructor: { name: string } }>,
+      ) =>
+        command.constructor.name === 'BatchWriteItemCommand'
+          ? Promise.reject(new Error('throttled'))
+          : send(command as never)) as never);
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const response = await request(`/me/imports/${importId}/batch`, {
+      as: USER_ID,
+      body: [row(1, 1)],
+      method: 'POST',
+    });
+    failWrites.mockRestore();
+
+    expect(response.status).toBe(500);
+    const me = await request('/me', { as: USER_ID });
+    expect(await me.json()).toMatchObject({
+      lastImport: { importId, written: 0 },
     });
   });
 

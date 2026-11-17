@@ -11,6 +11,7 @@ import {
   putPreferredImages,
 } from '@/lib/db/preferredImages';
 import { requireAuthAdmin } from '@/middleware/auth';
+import { IdParamSchema } from '@/utils/params';
 
 const app = new Hono();
 
@@ -24,7 +25,7 @@ app.use(requireAuthAdmin());
  * write.
  */
 async function writeAndPurge(
-  id: string,
+  id: number,
   write: Promise<unknown>,
 ): Promise<AdminWriteResult> {
   await Promise.all([
@@ -36,18 +37,23 @@ async function writeAndPurge(
 
 app.put(
   '/preferred-images/series/:id{[0-9]+}',
+  vValidator('param', IdParamSchema),
   vValidator('json', PreferredImagesSchema),
   async (c) => {
-    const id = c.req.param('id');
+    const id = c.req.valid('param').id;
     return c.json(
       await writeAndPurge(id, putPreferredImages(id, c.req.valid('json'))),
     );
   },
 );
 
-app.delete('/preferred-images/series/:id{[0-9]+}', async (c) => {
-  const id = c.req.param('id');
-  return c.json(await writeAndPurge(id, deletePreferredImages(id)));
-});
+app.delete(
+  '/preferred-images/series/:id{[0-9]+}',
+  vValidator('param', IdParamSchema),
+  async (c) => {
+    const id = c.req.valid('param').id;
+    return c.json(await writeAndPurge(id, deletePreferredImages(id)));
+  },
+);
 
 export default app;

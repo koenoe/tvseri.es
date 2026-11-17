@@ -8,9 +8,42 @@ export const NumericIdSchema = v.pipe(
   v.transform(Number),
 );
 
-export const SeriesIdParamSchema = v.object({ id: NumericIdSchema });
+/** A user id (a ULID; bounded so it can't be anything as a key) */
+export const UserIdSchema = v.pipe(v.string(), v.regex(/^[\w-]{1,64}$/));
 
-export const PersonIdParamSchema = v.object({ id: NumericIdSchema });
+/**
+ * The longest stored username: names chosen before the 30-character cap
+ * went up to 128 and stay readable
+ */
+const STORED_USERNAME_MAX = 128;
+
+/** A stored username to look up (any shape: lookups slugify), bounded */
+export const UsernameParamSchema = v.pipe(
+  v.string(),
+  v.minLength(1),
+  v.maxLength(STORED_USERNAME_MAX),
+);
+
+/**
+ * `/user/:id`: a user id (any case, stored upper case) or `@username` (the
+ * web's Library), as the lookup it asks for
+ */
+export const UserRefSchema = v.union([
+  v.pipe(
+    UserIdSchema,
+    v.transform((userId) => ({ userId: userId.toUpperCase() })),
+  ),
+  v.pipe(
+    v.string(),
+    v.startsWith('@'),
+    v.transform((ref) => ref.slice(1)),
+    UsernameParamSchema,
+    v.transform((username) => ({ username })),
+  ),
+]);
+
+/** `/:id`: a show's, person's, keyword's or network's TMDB id */
+export const IdParamSchema = v.object({ id: NumericIdSchema });
 
 /** A season or episode number in a path segment (0 for specials), as a number */
 const numberParam = (max: number) =>
@@ -20,6 +53,21 @@ const numberParam = (max: number) =>
     v.transform(Number),
     v.maxValue(max),
   );
+
+/** `/series/:id/season/:season` */
+export const SeasonParamSchema = v.object({
+  ...IdParamSchema.entries,
+  season: numberParam(999),
+});
+
+/** `/series/:id/season/:season/episode/:episode` */
+export const EpisodeParamSchema = v.object({
+  ...SeasonParamSchema.entries,
+  episode: numberParam(9999),
+});
+
+/** A list item's show id in a path segment */
+export const ItemIdParamSchema = v.object({ 'item-id': NumericIdSchema });
 
 /** The mark routes' `/series/:series-id`, as numbers (EpisodeForWatchedSchema's bounds) */
 export const MarkSeriesParamSchema = v.object({ 'series-id': NumericIdSchema });

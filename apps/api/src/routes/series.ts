@@ -28,7 +28,13 @@ import {
 import { UpstreamUnavailableError } from '@/lib/upstream/errors';
 import { cachedNotFound } from '@/middleware/cacheControl';
 import { cacheHeader } from '@/utils/cacheHeader';
-import { IdListQuerySchema, RegionQuerySchema } from '@/utils/params';
+import {
+  EpisodeParamSchema,
+  IdListQuerySchema,
+  IdParamSchema,
+  RegionQuerySchema,
+  SeasonParamSchema,
+} from '@/utils/params';
 
 const EpisodeQuerySchema = v.object({
   view: v.optional(v.picklist(['credits'])),
@@ -83,9 +89,10 @@ app.get('/summaries', vValidator('query', IdListQuerySchema), async (c) => {
 
 app.get(
   '/:id{[0-9]+}',
+  vValidator('param', IdParamSchema),
   vValidator('query', IncludeImagesQuerySchema),
   async (c) => {
-    const series = await fetchTvSeries(c.req.param('id'), {
+    const series = await fetchTvSeries(c.req.valid('param').id, {
       includeImages: c.req.valid('query').include_images === 'true',
     });
 
@@ -99,53 +106,51 @@ app.get(
   },
 );
 
-app.get('/:id{[0-9]+}/season/:season{[0-9]+}', async (c) => {
-  const season = await fetchTvSeriesSeason(
-    c.req.param('id'),
-    c.req.param('season'),
-  );
+app.get(
+  '/:id{[0-9]+}/season/:season{[0-9]+}',
+  vValidator('param', SeasonParamSchema),
+  async (c) => {
+    const season = await fetchTvSeriesSeason(
+      c.req.valid('param').id,
+      c.req.valid('param').season,
+    );
 
-  c.header('Cache-Control', cacheHeader('short'));
+    c.header('Cache-Control', cacheHeader('short'));
 
-  if (!season) {
-    return c.notFound();
-  }
+    if (!season) {
+      return c.notFound();
+    }
 
-  return c.json(season);
-});
+    return c.json(season);
+  },
+);
 
 // Every regular season's episode runtimes, in one read (the show page's
 // time left and runtime range)
-app.get('/:id{[0-9]+}/runtimes', async (c) => {
-  const runtimes = await getSeriesRuntimesOf(Number(c.req.param('id')));
+app.get(
+  '/:id{[0-9]+}/runtimes',
+  vValidator('param', IdParamSchema),
+  async (c) => {
+    const runtimes = await getSeriesRuntimesOf(c.req.valid('param').id);
 
-  c.header('Cache-Control', cacheHeader('short'));
+    c.header('Cache-Control', cacheHeader('short'));
 
-  if (!runtimes) {
-    return c.notFound();
-  }
+    if (!runtimes) {
+      return c.notFound();
+    }
 
-  return c.json(runtimes);
-});
-
-const RatingsParamSchema = v.object({
-  id: v.string(),
-  season: v.pipe(
-    v.string(),
-    v.regex(/^\d{1,2}$/, 'Expected a season number'),
-    v.transform(Number),
-  ),
-});
+    return c.json(runtimes);
+  },
+);
 
 // IMDb ratings per episode (OMDb), for the episode modal
 app.get(
   '/:id{[0-9]+}/season/:season{[0-9]+}/ratings',
-  vValidator('param', RatingsParamSchema),
+  vValidator('param', SeasonParamSchema),
   async (c) => {
-    const { id, season } = c.req.valid('param');
+    const { id: seriesId, season } = c.req.valid('param');
     // The IMDb id from the shared series facts: no TMDB call while they are
     // warm, so a spent OMDb quota doesn't cost one either
-    const seriesId = Number(id);
     const { facts, failed } = await getSeriesFactsReport([seriesId]);
     if (failed.has(seriesId)) {
       throw new UpstreamUnavailableError('tmdb', 10, 'no series facts');
@@ -182,6 +187,7 @@ app.get(
 
 app.get(
   '/:id{[0-9]+}/season/:season{[0-9]+}/episode/:episode{[0-9]+}',
+  vValidator('param', EpisodeParamSchema),
   vValidator('query', EpisodeQuerySchema),
   async (c) => {
     const fetchEpisode =
@@ -189,9 +195,9 @@ app.get(
         ? fetchTvSeriesEpisodeWithCredits
         : fetchTvSeriesEpisode;
     const episode = await fetchEpisode(
-      c.req.param('id'),
-      c.req.param('season'),
-      c.req.param('episode'),
+      c.req.valid('param').id,
+      c.req.valid('param').season,
+      c.req.valid('param').episode,
     );
 
     c.header('Cache-Control', cacheHeader('short'));
@@ -211,10 +217,11 @@ const ImagesQuerySchema = v.object({
 
 app.get(
   '/:id{[0-9]+}/images',
+  vValidator('param', IdParamSchema),
   vValidator('query', ImagesQuerySchema),
   async (c) => {
     const images = await fetchTvSeriesImageChoices(
-      c.req.param('id'),
+      c.req.valid('param').id,
       c.req.valid('query').language,
     );
 
@@ -230,10 +237,14 @@ app.get(
 
 app.get(
   '/:id{[0-9]+}/content-rating',
+  vValidator('param', IdParamSchema),
   vValidator('query', RegionQuerySchema),
   async (c) => {
     const region = c.req.valid('query').region || 'US';
-    const rating = await fetchTvSeriesContentRating(c.req.param('id'), region);
+    const rating = await fetchTvSeriesContentRating(
+      c.req.valid('param').id,
+      region,
+    );
 
     c.header('Cache-Control', cacheHeader('medium'));
 
@@ -243,11 +254,12 @@ app.get(
 
 app.get(
   '/:id{[0-9]+}/watch-providers',
+  vValidator('param', IdParamSchema),
   vValidator('query', RegionQuerySchema),
   async (c) => {
     const region = c.req.valid('query').region || 'US';
     const providers = await fetchTvSeriesWatchProviders(
-      c.req.param('id'),
+      c.req.valid('param').id,
       region,
     );
 
@@ -257,51 +269,68 @@ app.get(
   },
 );
 
-app.get('/:id{[0-9]+}/credits', async (c) => {
-  const credits = await fetchTvSeriesCredits(c.req.param('id'));
+app.get(
+  '/:id{[0-9]+}/credits',
+  vValidator('param', IdParamSchema),
+  async (c) => {
+    const credits = await fetchTvSeriesCredits(c.req.valid('param').id);
 
-  c.header('Cache-Control', cacheHeader('medium'));
+    c.header('Cache-Control', cacheHeader('medium'));
 
-  return c.json(credits ?? { cast: [], crew: [] });
-});
+    return c.json(credits ?? { cast: [], crew: [] });
+  },
+);
 
-app.get('/:id{[0-9]+}/recommendations', async (c) => {
-  const items = await fetchTvSeriesRecommendations(c.req.param('id'));
+app.get(
+  '/:id{[0-9]+}/recommendations',
+  vValidator('param', IdParamSchema),
+  async (c) => {
+    const items = await fetchTvSeriesRecommendations(c.req.valid('param').id);
 
-  c.header('Cache-Control', cacheHeader('short'));
+    c.header('Cache-Control', cacheHeader('short'));
 
-  return c.json(items ?? []);
-});
+    return c.json(items ?? []);
+  },
+);
 
-app.get('/:id{[0-9]+}/similar', async (c) => {
-  const items = await fetchTvSeriesSimilar(c.req.param('id'));
+app.get(
+  '/:id{[0-9]+}/similar',
+  vValidator('param', IdParamSchema),
+  async (c) => {
+    const items = await fetchTvSeriesSimilar(c.req.valid('param').id);
 
-  c.header('Cache-Control', cacheHeader('short'));
+    c.header('Cache-Control', cacheHeader('short'));
 
-  return c.json(items ?? []);
-});
+    return c.json(items ?? []);
+  },
+);
 
-app.get('/:id{[0-9]+}/keywords', async (c) => {
-  const keywords = await fetchTvSeriesKeywords(c.req.param('id'));
+app.get(
+  '/:id{[0-9]+}/keywords',
+  vValidator('param', IdParamSchema),
+  async (c) => {
+    const keywords = await fetchTvSeriesKeywords(c.req.valid('param').id);
 
-  c.header('Cache-Control', cacheHeader('medium'));
+    c.header('Cache-Control', cacheHeader('medium'));
 
-  if (!keywords) {
-    return c.notFound();
-  }
+    if (!keywords) {
+      return c.notFound();
+    }
 
-  return c.json(keywords);
-});
+    return c.json(keywords);
+  },
+);
 
 // The show's IMDb rating (OMDb, by the IMDb id in the shared series facts).
 // Only `source=imdb` has one: OMDb gives no other source; any other answers
 // null
 app.get(
   '/:id{[0-9]+}/rating',
+  vValidator('param', IdParamSchema),
   vValidator('query', RatingQuerySchema),
   async (c) => {
     const source = c.req.valid('query').source || 'imdb';
-    const seriesId = Number(c.req.param('id'));
+    const seriesId = c.req.valid('param').id;
 
     c.header('Cache-Control', cacheHeader('short'));
 

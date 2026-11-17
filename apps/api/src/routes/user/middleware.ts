@@ -1,9 +1,11 @@
 import type { MiddlewareHandler } from 'hono';
 import { every } from 'hono/combine';
 import { HTTPException } from 'hono/http-exception';
+import * as v from 'valibot';
 
 import { findUser, type UserRecord } from '@/lib/db/user';
 import { type Variables as AuthVariables, auth } from '@/middleware/auth';
+import { UserRefSchema } from '@/utils/params';
 
 export type UserVariables = {
   /** Includes the internal activity fields: never return it as is */
@@ -18,17 +20,9 @@ const userMiddleware = <T extends UserVariables>(): MiddlewareHandler<{
   Variables: T;
 }> => {
   return async (c, next) => {
-    const userId = c.req.param('id');
-
-    if (!userId) {
-      throw new HTTPException(400, { message: 'Missing user ID' });
-    }
-
-    // `@username` in the id's place: a page that knows only the URL's
-    // username reads in parallel with the profile read (the web's Library)
-    const user = userId.startsWith('@')
-      ? await findUser({ username: userId.slice(1) })
-      : await findUser({ userId: userId.toUpperCase() });
+    // A malformed id or username is no one's: a 404 like an unknown user
+    const ref = v.safeParse(UserRefSchema, c.req.param('id'));
+    const user = ref.success ? await findUser(ref.output) : null;
 
     // A profile whose account is being deleted is gone already
     if (!user || user.deletionRequestedAt) {
@@ -68,6 +62,15 @@ const checkIsMe = <T extends UserVariables>(): MiddlewareHandler<{
  */
 export const requireIsMe = () => every(auth(), checkIsMe());
 
+/** A stats year: four digits, 2000 to 2100 */
+const YearParamSchema = v.pipe(
+  v.string(),
+  v.regex(/^\d{4}$/),
+  v.transform(Number),
+  v.minValue(2000),
+  v.maxValue(2100),
+);
+
 /**
  * Middleware to validate year param.
  */
@@ -75,19 +78,13 @@ export const yearMiddleware = <
   T extends { year: number },
 >(): MiddlewareHandler<{ Variables: T }> => {
   return async (c, next) => {
-    const yearParam = c.req.param('year');
+    const year = v.safeParse(YearParamSchema, c.req.param('year'));
 
-    if (!yearParam) {
-      throw new HTTPException(400, { message: 'Missing year' });
-    }
-
-    const year = parseInt(yearParam, 10);
-
-    if (Number.isNaN(year) || year < 2000 || year > 2100) {
+    if (!year.success) {
       throw new HTTPException(400, { message: 'Invalid year' });
     }
 
-    c.set('year', year);
+    c.set('year', year.output);
     return next();
   };
 };

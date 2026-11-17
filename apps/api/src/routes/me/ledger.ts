@@ -9,7 +9,7 @@ import { getSeriesFacts } from '@/lib/seriesFacts';
 import { fetchTvSeriesSeason, TMDB_CONCURRENCY } from '@/lib/tmdb';
 import type { Variables } from '@/middleware/auth';
 import { mapSettled } from '@/utils/limit';
-import { SeriesIdParamSchema } from '@/utils/params';
+import { IdParamSchema } from '@/utils/params';
 
 /** `/me/ledger`: holes in the viewer's record */
 const app = new Hono<{ Variables: Variables }>();
@@ -20,7 +20,7 @@ app.get('/', async (c) => {
 });
 
 // One show, the missing episodes named with their air dates
-app.get('/:id', vValidator('param', SeriesIdParamSchema), async (c) => {
+app.get('/:id', vValidator('param', IdParamSchema), async (c) => {
   const { user } = c.get('auth')!;
   const { id } = c.req.valid('param');
 

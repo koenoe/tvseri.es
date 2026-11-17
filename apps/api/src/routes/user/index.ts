@@ -64,9 +64,13 @@ import { fetchTvSeriesEpisode, fetchTvSeriesWatchProvider } from '@/lib/tmdb';
 import { requireAuth } from '@/middleware/auth';
 import { cacheHeader } from '@/utils/cacheHeader';
 import {
+  ItemIdParamSchema,
   MarkEpisodeParamSchema,
   MarkSeasonParamSchema,
   MarkSeriesParamSchema,
+  NumericIdSchema,
+  UserIdSchema,
+  UsernameParamSchema,
 } from '@/utils/params';
 import { parseDate, parseLimit } from '@/utils/query';
 import library from './library';
@@ -209,9 +213,11 @@ app.get('/:id', user(), (c) => {
 app.get('/by-username/:username', async (c) => {
   // Public identity only: kept by the CDN a minute, a 404 too
   c.header('Cache-Control', cacheHeader('profileLookup'));
-  const user = await findUser({
-    username: c.req.param('username'),
-  });
+  // A name no one can have is a 404 like an unknown one
+  const username = v.safeParse(UsernameParamSchema, c.req.param('username'));
+  const user = username.success
+    ? await findUser({ username: username.output })
+    : null;
 
   if (!user || user.deletionRequestedAt) {
     return c.notFound();
@@ -271,13 +277,14 @@ app.get(
   '/:id/watched/series/:series-id{[0-9]+}',
   user(),
   requireAuth(),
+  vValidator('param', MarkSeriesParamSchema),
   vValidator('query', WatchedSeriesQuerySchema),
   async (c) => {
     const user = c.get('user');
     const { view } = c.req.valid('query');
     const items = await getAllWatchedForTvSeries({
       attributes: view ? VIEW_ATTRIBUTES[view] : undefined,
-      tvSeriesId: c.req.param('series-id'),
+      tvSeriesId: c.req.valid('param')['series-id'],
       userId: user.id,
     });
 
@@ -562,10 +569,11 @@ app.get(
   '/:id/list/:list{favorites|in_progress|resuming_soon|watched|watchlist}/:item-id{[0-9]+}',
   user(),
   requireAuth(),
+  vValidator('param', ItemIdParamSchema),
   async (c) => {
     const user = c.get('user');
     const listId = c.req.param('list').toUpperCase();
-    const itemId = parseInt(c.req.param('item-id'), 10);
+    const itemId = c.req.valid('param')['item-id'];
 
     const value = await isInList({
       id: itemId,
@@ -636,10 +644,11 @@ app.delete(
   '/:id/list/:list{favorites|in_progress|watchlist}/:itemId{[0-9]+}',
   user(),
   requireIsMe(),
+  vValidator('param', v.object({ itemId: NumericIdSchema })),
   async (c) => {
     const user = c.get('user');
     const listId = c.req.param('list').toUpperCase();
-    const itemId = parseInt(c.req.param('itemId'), 10);
+    const itemId = c.req.valid('param').itemId;
 
     await Promise.all([
       removeFromList({
@@ -662,10 +671,11 @@ app.get(
   '/:id/list-status/:series-id{[0-9]+}',
   user(),
   requireAuth(),
+  vValidator('param', MarkSeriesParamSchema),
   async (c) => {
     const user = c.get('user');
     const statuses = await getListStatuses({
-      id: parseInt(c.req.param('series-id'), 10),
+      id: c.req.valid('param')['series-id'],
       userId: user.id,
     });
 
@@ -719,10 +729,7 @@ app.get('/:id/following/count', user(), (c) => {
   return c.json({ count: user.followingCount ?? 0 });
 });
 
-// A user id (a ULID; bounded so it can't be anything as a key)
-const OtherUserParamSchema = v.object({
-  other: v.pipe(v.string(), v.regex(/^[0-9A-Za-z_-]{1,64}$/)),
-});
+const OtherUserParamSchema = v.object({ other: UserIdSchema });
 
 app.get(
   '/:id/follower/:other',

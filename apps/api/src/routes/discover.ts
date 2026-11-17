@@ -70,12 +70,17 @@ app.get('/', async (c) => {
   return c.json(result);
 });
 
+const LandingTypeSchema = v.picklist(LANDING_TYPES);
+
+/** One landing slug: letters, digits and hyphens, at most 40 */
+const LANDING_SLUG = '[A-Za-z0-9-]{1,40}';
+
 // `?slugs=a,b,c`: 1 to 20 distinct landing slugs, case-insensitive
 const LandingCountsQuerySchema = v.object({
   slugs: v.pipe(
     v.string(),
     v.regex(
-      /^[A-Za-z0-9-]{1,40}(?:,[A-Za-z0-9-]{1,40})*$/,
+      new RegExp(`^${LANDING_SLUG}(?:,${LANDING_SLUG})*$`),
       'Expected a comma-separated list of slugs',
     ),
     v.transform((value) => [...new Set(value.toLowerCase().split(','))]),
@@ -83,10 +88,15 @@ const LandingCountsQuerySchema = v.object({
   ),
 });
 
+const LandingFactsParamSchema = v.object({
+  slug: v.pipe(v.string(), v.regex(new RegExp(`^${LANDING_SLUG}$`))),
+  type: LandingTypeSchema,
+});
+
 // Registered before the facts route, which has a slug where this has `counts`
 app.get(
   '/landing/:type/counts',
-  vValidator('param', v.object({ type: v.picklist(LANDING_TYPES) })),
+  vValidator('param', v.object({ type: LandingTypeSchema })),
   vValidator('query', LandingCountsQuerySchema),
   async (c) => {
     const slugs = c.req.valid('query').slugs;
@@ -104,12 +114,13 @@ app.get(
 // `:type` only matches the six landing types; anything else is a plain 404
 app.get(
   `/landing/:type{${LANDING_TYPES.join('|')}}/:slug{[A-Za-z0-9-]+}/facts`,
+  vValidator('param', LandingFactsParamSchema),
   async (c) => {
     // A slug that isn't a landing is a cacheable 404, like the catalogue routes
     c.header('Cache-Control', cacheHeader('medium'));
 
-    const type = LANDING_TYPES.find((t) => t === c.req.param('type'));
-    const facts = type && (await getLandingFacts(type, c.req.param('slug')));
+    const { slug, type } = c.req.valid('param');
+    const facts = await getLandingFacts(type, slug);
 
     if (!facts) {
       return c.notFound();

@@ -1,3 +1,4 @@
+import { vValidator } from '@hono/valibot-validator';
 import type { PersonFamily } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
 import { toPersonLinks } from '@/lib/person/links';
@@ -15,6 +16,7 @@ import {
 import { fetchPersonFamilyAndAwards } from '@/lib/wikidata';
 import { cachedNotFound } from '@/middleware/cacheControl';
 import { cacheHeader } from '@/utils/cacheHeader';
+import { IdParamSchema } from '@/utils/params';
 
 /**
  * A child links to their person page with TMDB's own slug (the page's
@@ -38,8 +40,8 @@ const withTmdbSlugs = async (
 
 const app = new Hono();
 
-app.get('/:id{[0-9]{1,10}}', async (c) => {
-  const person = await fetchPerson(c.req.param('id'));
+app.get('/:id{[0-9]{1,10}}', vValidator('param', IdParamSchema), async (c) => {
+  const person = await fetchPerson(c.req.valid('param').id);
 
   c.header('Cache-Control', cacheHeader('medium'));
 
@@ -50,105 +52,135 @@ app.get('/:id{[0-9]{1,10}}', async (c) => {
   return c.json(person);
 });
 
-app.get('/:id{[0-9]{1,10}}/credits', async (c) => {
-  const credits = await fetchPersonTvCredits(c.req.param('id'));
+app.get(
+  '/:id{[0-9]{1,10}}/credits',
+  vValidator('param', IdParamSchema),
+  async (c) => {
+    const credits = await fetchPersonTvCredits(c.req.valid('param').id);
 
-  c.header('Cache-Control', cacheHeader('medium'));
+    c.header('Cache-Control', cacheHeader('medium'));
 
-  return c.json(
-    credits ?? {
-      cast: { previous: [], upcoming: [] },
-      crew: { previous: [], upcoming: [] },
-    },
-  );
-});
+    return c.json(
+      credits ?? {
+        cast: { previous: [], upcoming: [] },
+        crew: { previous: [], upcoming: [] },
+      },
+    );
+  },
+);
 
 // Socials row: IMDb, Instagram, X, TikTok...
-app.get('/:id{[0-9]{1,10}}/external-ids', async (c) => {
-  const ids = await fetchPersonExternalIds(c.req.param('id'));
+app.get(
+  '/:id{[0-9]{1,10}}/external-ids',
+  vValidator('param', IdParamSchema),
+  async (c) => {
+    const ids = await fetchPersonExternalIds(c.req.valid('param').id);
 
-  c.header('Cache-Control', cacheHeader('long'));
+    c.header('Cache-Control', cacheHeader('long'));
 
-  if (!ids) {
-    return c.notFound();
-  }
+    if (!ids) {
+      return c.notFound();
+    }
 
-  return c.json({ links: toPersonLinks(ids) });
-});
+    return c.json({ links: toPersonLinks(ids) });
+  },
+);
 
 // Shows list: cast + crew merged, "Self" split out
-app.get('/:id{[0-9]{1,10}}/shows', async (c) => {
-  const shows = await fetchPersonShows(c.req.param('id'));
+app.get(
+  '/:id{[0-9]{1,10}}/shows',
+  vValidator('param', IdParamSchema),
+  async (c) => {
+    const shows = await fetchPersonShows(c.req.valid('param').id);
 
-  c.header('Cache-Control', cacheHeader('medium'));
+    c.header('Cache-Control', cacheHeader('medium'));
 
-  if (!shows) {
-    return c.notFound();
-  }
+    if (!shows) {
+      return c.notFound();
+    }
 
-  return c.json(shows);
-});
+    return c.json(shows);
+  },
+);
 
 // Career chart: a row per series, years across
-app.get('/:id{[0-9]{1,10}}/career', async (c) => {
-  const career = await fetchPersonCareer(c.req.param('id'));
+app.get(
+  '/:id{[0-9]{1,10}}/career',
+  vValidator('param', IdParamSchema),
+  async (c) => {
+    const career = await fetchPersonCareer(c.req.valid('param').id);
 
-  c.header('Cache-Control', cacheHeader('medium'));
+    c.header('Cache-Control', cacheHeader('medium'));
 
-  if (!career) {
-    return c.notFound();
-  }
+    if (!career) {
+      return c.notFound();
+    }
 
-  return c.json(career);
-});
+    return c.json(career);
+  },
+);
 
 // Frequent collaborators: people in 2+ of his shows
-app.get('/:id{[0-9]{1,10}}/collaborators', async (c) => {
-  const collaborators = await fetchPersonCollaborators(c.req.param('id'));
+app.get(
+  '/:id{[0-9]{1,10}}/collaborators',
+  vValidator('param', IdParamSchema),
+  async (c) => {
+    const collaborators = await fetchPersonCollaborators(
+      c.req.valid('param').id,
+    );
 
-  c.header('Cache-Control', cacheHeader('medium'));
+    c.header('Cache-Control', cacheHeader('medium'));
 
-  if (!collaborators) {
-    return c.notFound();
-  }
+    if (!collaborators) {
+      return c.notFound();
+    }
 
-  return c.json(collaborators);
-});
+    return c.json(collaborators);
+  },
+);
 
 // Spouse, children, awards from Wikidata; never fails when it is down
-app.get('/:id{[0-9]{1,10}}/family-and-awards', async (c) => {
-  const person = await fetchPerson(c.req.param('id'));
+app.get(
+  '/:id{[0-9]{1,10}}/family-and-awards',
+  vValidator('param', IdParamSchema),
+  async (c) => {
+    const person = await fetchPerson(c.req.valid('param').id);
 
-  if (!person) {
+    if (!person) {
+      c.header('Cache-Control', cacheHeader('medium'));
+      return c.notFound();
+    }
+
+    const { ok, value } = await fetchPersonFamilyAndAwards(person.imdbId);
+
+    // A Wikidata outage must not be pinned at the CDN
+    c.header('Cache-Control', ok ? cacheHeader('medium') : 'no-store');
+
+    if (!ok) {
+      return c.json({ ...value, degraded: true });
+    }
+
+    return c.json({ ...value, family: await withTmdbSlugs(value.family) });
+  },
+);
+
+app.get(
+  '/:id{[0-9]{1,10}}/known-for',
+  vValidator('param', IdParamSchema),
+  async (c) => {
+    const person = await fetchPerson(c.req.valid('param').id);
+
     c.header('Cache-Control', cacheHeader('medium'));
-    return c.notFound();
-  }
 
-  const { ok, value } = await fetchPersonFamilyAndAwards(person.imdbId);
+    if (!person) {
+      return c.notFound();
+    }
 
-  // A Wikidata outage must not be pinned at the CDN
-  c.header('Cache-Control', ok ? cacheHeader('medium') : 'no-store');
+    const items = await fetchPersonKnownFor(person);
 
-  if (!ok) {
-    return c.json({ ...value, degraded: true });
-  }
-
-  return c.json({ ...value, family: await withTmdbSlugs(value.family) });
-});
-
-app.get('/:id{[0-9]{1,10}}/known-for', async (c) => {
-  const person = await fetchPerson(c.req.param('id'));
-
-  c.header('Cache-Control', cacheHeader('medium'));
-
-  if (!person) {
-    return c.notFound();
-  }
-
-  const items = await fetchPersonKnownFor(person);
-
-  return c.json(items);
-});
+    return c.json(items);
+  },
+);
 
 // Non-matching paths (e.g. non-numeric ids): cacheable 404, like the real route
 app.get('*', cachedNotFound('medium'));

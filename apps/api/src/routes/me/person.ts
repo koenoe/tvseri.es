@@ -7,13 +7,13 @@ import { fetchPersonShows } from '@/lib/person/load';
 import { TMDB_CONCURRENCY } from '@/lib/tmdb';
 import type { Variables } from '@/middleware/auth';
 import { mapSettled } from '@/utils/limit';
-import { PersonIdParamSchema } from '@/utils/params';
+import { IdParamSchema } from '@/utils/params';
 
 /** `/me/person/:id/...`: the signed-in user's view of one person */
 const app = new Hono<{ Variables: Variables }>();
 
 // "Watched 74 episodes, 3 of 67 shows"
-app.get('/:id/watched', vValidator('param', PersonIdParamSchema), async (c) => {
+app.get('/:id/watched', vValidator('param', IdParamSchema), async (c) => {
   const { user } = c.get('auth')!;
   const { id } = c.req.valid('param');
 

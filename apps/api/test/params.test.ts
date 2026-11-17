@@ -76,3 +76,60 @@ describe('mark routes: series, season and episode numbers', () => {
     }
   });
 });
+
+describe('catalogue path params', () => {
+  it('rejects ids and numbers out of range before asking TMDB', async () => {
+    const paths = [
+      '/series/12345678901',
+      '/series/0',
+      '/series/1/season/10000',
+      '/series/1/season/1/episode/99999',
+      '/series/1/season/123456/ratings',
+      '/keyword/123456789012345',
+      '/discover/landing/genre/a-slug-that-is-much-longer-than-forty-chars/facts',
+    ];
+    for (const path of paths) {
+      resetRequests();
+      const response = await request(path);
+      expect([path, response.status]).toEqual([path, 400]);
+      expect(requestedUrls()).toEqual([]);
+    }
+  });
+
+  it('serves a normal id', async () => {
+    onTmdb('/keyword/818', { id: 818, name: 'based on novel or book' });
+    expect((await request('/keyword/818')).status).toBe(200);
+  });
+});
+
+describe('/user/:id and /user/by-username', () => {
+  it('answers 404 to an id or username no one can have, without a read', async () => {
+    seedUser();
+    for (const path of [
+      `/user/${'A'.repeat(65)}`,
+      `/user/@${'a'.repeat(129)}`,
+      `/user/${'A'.repeat(2000)}/watched/count`,
+      `/user/by-username/${'a'.repeat(129)}`,
+    ]) {
+      const response = await request(path);
+      expect([path.slice(0, 30), response.status]).toEqual([
+        path.slice(0, 30),
+        404,
+      ]);
+    }
+  });
+
+  it('still finds a user by id, any case, and by @username', async () => {
+    seedUser();
+    expect((await request(`/user/${USER_ID}`)).status).toBe(200);
+    expect((await request(`/user/${USER_ID.toLowerCase()}`)).status).toBe(200);
+    expect((await request('/user/@user-aaaa')).status).toBe(200);
+  });
+
+  it('rejects a stats year that is not four digits', async () => {
+    seedUser();
+    expect(
+      (await request(`/user/${USER_ID}/stats/2025abc/summary`)).status,
+    ).toBe(400);
+  });
+});

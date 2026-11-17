@@ -1,5 +1,4 @@
 /// <reference path="../../.sst/platform/config.d.ts" />
-import { backedUp } from './backup';
 
 export const preferredImages = new sst.aws.Dynamo('PreferredImages', {
   fields: {
@@ -11,5 +10,4 @@ export const preferredImages = new sst.aws.Dynamo('PreferredImages', {
     // updatedAt: 'number',
   },
   primaryIndex: { hashKey: 'pk' },
-  transform: backedUp,
 });

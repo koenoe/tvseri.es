@@ -79,17 +79,18 @@ export default $config({
       });
     });
 
-    // Every table (the app's and the auth service's) keeps point-in-time
-    // recovery explicitly, not only through SST's default, and production
-    // tables can't be deleted (in place, no data change). PR stages are
-    // removed when the PR closes, so they stay deletable.
+    // Point-in-time recovery on every production table (the app's and the
+    // auth service's), set here and nowhere else: any second of the last 35
+    // days can be restored, and there are no other backups. Other stages are
+    // disposable, so they skip its cost. Production tables also can't be
+    // deleted; PR stages are removed when the PR closes.
     $transform(sst.aws.Dynamo, (args) => {
       args.deletionProtection ??= isProduction;
       const table = args.transform?.table;
       args.transform = {
         ...args.transform,
         table: (tableArgs, opts, name) => {
-          tableArgs.pointInTimeRecovery = { enabled: true };
+          tableArgs.pointInTimeRecovery = { enabled: isProduction };
           // Pulumi's protect (engine-side, never sent to AWS, so no change
           // on the tables): a deploy that would delete or replace a
           // production table fails instead. With removal `retain` a replace

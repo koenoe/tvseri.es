@@ -1,7 +1,6 @@
 /// <reference path="../../.sst/platform/config.d.ts" />
 
 import { alarmOnDeadLetters } from '../alerts';
-import { backedUp } from './backup';
 import { users } from './users';
 
 export const follow = new sst.aws.Dynamo('Follow', {
@@ -43,7 +42,6 @@ export const follow = new sst.aws.Dynamo('Follow', {
     rangeKey: 'sk',
   },
   stream: 'new-and-old-images',
-  transform: backedUp,
 });
 
 /**

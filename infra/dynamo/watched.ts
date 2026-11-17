@@ -4,7 +4,6 @@ import { alarmOnDeadLetters } from '../alerts';
 import { productionReserved } from '../concurrency';
 import { dominantColor } from '../dominantColor';
 import * as secrets from '../secrets';
-import { backedUp } from './backup';
 import { cache } from './cache';
 import { lists } from './lists';
 import { preferredImages } from './preferredImages';
@@ -42,7 +41,6 @@ export const watched = new sst.aws.Dynamo('Watched', {
   },
   primaryIndex: { hashKey: 'pk', rangeKey: 'sk' },
   stream: 'new-and-old-images',
-  transform: backedUp,
 });
 
 /**

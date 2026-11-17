@@ -81,7 +81,7 @@ export default function ManualSearch({
           <Icon className="shrink-0" glyph={searchGlyph} size={13} />
           <span className="sr-only">Search for the series</span>
           <input
-            className="h-8 min-w-0 flex-1 bg-transparent text-meta text-white outline-none placeholder:text-white/60 max-md:text-body"
+            className="h-8 min-w-0 flex-1 bg-transparent text-meta text-white outline-hidden placeholder:text-white/60 max-md:text-body"
             onChange={onChange}
             placeholder="Search for the series"
             type="search"

@@ -37,7 +37,7 @@ export default function NotFoundSearch() {
       <Icon glyph={searchGlyph} size={20} />
       <input
         aria-label="Search series and people"
-        className="min-w-0 flex-1 bg-transparent text-body text-white outline-none placeholder:text-white/60"
+        className="min-w-0 flex-1 bg-transparent text-body text-white outline-hidden placeholder:text-white/60"
         defaultValue={prefill}
         key={prefill}
         name="q"

@@ -20,4 +20,4 @@ export default function InputShell({
 
 /** The bare input inside an `InputShell`: 16px on phones so iOS doesn't zoom. */
 export const INPUT_CLASS =
-  'min-w-0 flex-1 bg-transparent text-body text-white outline-none placeholder:text-white/60 md:text-body-sm';
+  'min-w-0 flex-1 bg-transparent text-body text-white outline-hidden placeholder:text-white/60 md:text-body-sm';

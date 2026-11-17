@@ -100,7 +100,7 @@ export default function DeleteDialog({
           autoCapitalize="none"
           autoComplete="off"
           autoCorrect="off"
-          className="h-12 rounded-10 bg-black/25 px-4 text-white shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)] outline-none focus:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.45)] max-md:text-body md:text-body-sm"
+          className="h-12 rounded-10 bg-black/25 px-4 text-white shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)] outline-hidden focus:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.45)] max-md:text-body md:text-body-sm"
           id={inputId}
           onChange={change}
           onKeyDown={keyDown}

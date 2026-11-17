@@ -79,7 +79,7 @@ export default function SeasonPanelBody({
             aria-controls={listboxId}
             aria-expanded="true"
             aria-label="Go to season"
-            className="h-11 min-w-0 flex-1 bg-transparent text-body-sm text-white outline-none placeholder:text-white/60"
+            className="h-11 min-w-0 flex-1 bg-transparent text-body-sm text-white outline-hidden placeholder:text-white/60"
             inputMode="numeric"
             onChange={onChange}
             placeholder="Go to season"

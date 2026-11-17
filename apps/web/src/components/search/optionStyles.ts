@@ -9,7 +9,7 @@ export const HOVER_RING =
   'group-hover:shadow-[0_0_0_2px_#fff,0_0_0_4px_rgb(0_0_0/0.15)]';
 
 export const OPTION_PRESS =
-  'outline-none [transition:translate_80ms,box-shadow_120ms,background-color_120ms] active:translate-y-px';
+  'outline-hidden [transition:translate_80ms,box-shadow_120ms,background-color_120ms] active:translate-y-px';
 
 /** The listbox's id (the input's `aria-controls`). */
 export const LISTBOX_ID = 'search-results';

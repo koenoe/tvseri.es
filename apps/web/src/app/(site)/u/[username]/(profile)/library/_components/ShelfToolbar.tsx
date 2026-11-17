@@ -108,7 +108,7 @@ function FindField({
       <Icon className="shrink-0 text-white/50" glyph={searchGlyph} size={16} />
       <input
         aria-label={label}
-        className="min-w-0 flex-1 bg-transparent text-[13px] text-white outline-none max-md:text-[16px] placeholder:text-white/60 [&::-webkit-search-cancel-button]:hidden"
+        className="min-w-0 flex-1 bg-transparent text-[13px] text-white outline-hidden max-md:text-[16px] placeholder:text-white/60 [&::-webkit-search-cancel-button]:hidden"
         maxLength={100}
         onChange={change}
         onKeyDown={keyDown}

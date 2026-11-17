@@ -26,7 +26,7 @@ export default function StatusLine({ mode, onRetry, query }: Props) {
     <p className="flex flex-wrap items-center gap-x-4.5 py-6 text-body-sm text-rk-w64">
       Search didn’t load for “{query}”.
       <button
-        className="-mx-2.5 -my-1 h-8 cursor-pointer rounded-8 px-2.5 font-medium text-rk-text underline underline-offset-3 hover:bg-black/5 focus-visible:shadow-[0_0_0_2px_var(--rk-mark)] focus-visible:outline-none"
+        className="-mx-2.5 -my-1 h-8 cursor-pointer rounded-8 px-2.5 font-medium text-rk-text underline underline-offset-3 hover:bg-black/5 focus-visible:shadow-[0_0_0_2px_var(--rk-mark)] focus-visible:outline-hidden"
         onClick={onRetry}
         type="button"
       >

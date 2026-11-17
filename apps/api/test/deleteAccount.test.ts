@@ -1,6 +1,6 @@
 import { CloudFrontKeyValueStoreClient } from '@aws-sdk/client-cloudfront-keyvaluestore';
 import { WEBHOOK_TOKEN_KV_PREFIX } from '@tvseri.es/constants';
-import { emailKey } from '@tvseri.es/utils';
+import { authRefreshPartition, authSubject, emailKey } from '@tvseri.es/utils';
 import type { Context, SQSEvent } from 'aws-lambda';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -445,5 +445,37 @@ describe('the per-show summaries', () => {
       .filter((item) => String(item.sk).startsWith('AGG#'))
       .map((item) => String(item.pk));
     expect(agg).toEqual([`USER#${OTHER_USER_ID}`]);
+  });
+});
+
+describe('the sign-ins', () => {
+  const signIn = async (userId: string, role: 'admin' | 'user', n: number) => ({
+    pk: authRefreshPartition(await authSubject(userId, role)),
+    sk: `token-${n}`,
+  });
+
+  it('go with the account (for every role signed in with), another user’s stay', async () => {
+    seedEverything();
+    const other = await signIn(OTHER_USER_ID, 'user', 3);
+    db.seed('AuthSignIns', [
+      await signIn(USER_ID, 'user', 1),
+      await signIn(USER_ID, 'admin', 2),
+      other,
+    ]);
+    await request('/me', {
+      as: USER_ID,
+      body: { confirm: 'wren' },
+      method: 'DELETE',
+    });
+
+    await runQueue();
+    expect(db.dump('AuthSignIns')).toHaveLength(3);
+    await runQueue();
+    expect(keysOf('AuthSignIns')).toEqual([`${other.pk}|${other.sk}`]);
+
+    // One made during the window goes with the sweep
+    db.seed('AuthSignIns', [await signIn(USER_ID, 'user', 4)]);
+    await runQueue();
+    expect(keysOf('AuthSignIns')).toEqual([`${other.pk}|${other.sk}`]);
   });
 });

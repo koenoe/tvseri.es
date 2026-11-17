@@ -137,11 +137,11 @@ export default $config({
     await import('./infra/watchedStatus');
     // imports: depends on dynamo
     await import('./infra/imports');
-    // deleteAccount: depends on dynamo
-    await import('./infra/deleteAccount');
-
     // Auth service that depends on dns, dynamo, email
     await import('./infra/auth');
+
+    // deleteAccount: depends on dynamo, auth
+    await import('./infra/deleteAccount');
 
     // API router that depends on auth, dns, dynamo, email, dominantColor, metricsQueue, scrobbleQueue, watchedStatusQueue, undoImportQueue, deleteAccountQueue
     await import('./infra/api');

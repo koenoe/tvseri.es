@@ -2,6 +2,8 @@ import type { TableSchema } from './fakeDynamo';
 
 /** Key schemas of the tables, as in infra/dynamo/*.ts */
 export const TABLES: Readonly<Record<string, TableSchema>> = {
+  // The auth service's storage (sst.aws.Auth's table)
+  AuthSignIns: { hashKey: 'pk', rangeKey: 'sk' },
   Cache: { hashKey: 'pk' },
   Follow: {
     globalIndexes: {

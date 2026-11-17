@@ -5,7 +5,13 @@ import {
   GetItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { emailKey, userKey } from '@tvseri.es/utils';
+import { RoleSchema } from '@tvseri.es/schemas';
+import {
+  authRefreshPartition,
+  authSubject,
+  emailKey,
+  userKey,
+} from '@tvseri.es/utils';
 import { Resource } from 'sst';
 
 import { batchWrite } from '@/lib/db/batch';
@@ -182,6 +188,31 @@ const deleteLists = (userId: string, hasTime: () => boolean) =>
     hasTime,
   );
 
+/**
+ * The user's sign-ins (refresh rows) in the auth service's storage: one
+ * partition per role, as a role changed later keeps the subject the user
+ * signed in with
+ */
+const deleteSignIns = async (userId: string, hasTime: () => boolean) => {
+  for (const role of RoleSchema.options) {
+    const outcome = await deleteQueried(
+      Resource.AuthSignIns.name,
+      {
+        ExpressionAttributeValues: marshall({
+          ':pk': authRefreshPartition(await authSubject(userId, role)),
+        }),
+        KeyConditionExpression: 'pk = :pk',
+      },
+      tableKey,
+      hasTime,
+    );
+    if (outcome === 'continue') {
+      return outcome;
+    }
+  }
+  return 'done';
+};
+
 const deleteFollows = async (userId: string, hasTime: () => boolean) => {
   // gsi1: the user's followers; gsi2: who the user follows
   for (const [index, key] of [
@@ -247,12 +278,21 @@ export const runDeleteAccountStep = async (
       return follows;
     }
     const watched = await deleteWatched(userId, hasTime);
-    return watched === 'continue' ? watched : deleteLists(userId, hasTime);
+    if (watched === 'continue') {
+      return watched;
+    }
+    // A sign-in during the window would otherwise be left behind
+    const signIns = await deleteSignIns(userId, hasTime);
+    return signIns === 'continue' ? signIns : deleteLists(userId, hasTime);
   }
 
   const lists = await deleteLists(userId, hasTime);
   if (lists === 'continue') {
     return lists;
+  }
+  const signIns = await deleteSignIns(userId, hasTime);
+  if (signIns === 'continue') {
+    return signIns;
   }
   await deleteExistingCacheItems(userCacheKeys(userId, new Date()));
   await deleteClaims(userId);

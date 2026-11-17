@@ -27,6 +27,10 @@ declare module "sst" {
       "type": "sst.aws.Auth"
       "url": string
     }
+    "AuthSignIns": {
+      "name": string
+      "type": "sst.sst.Linkable"
+    }
     "Cache": {
       "name": string
       "type": "sst.aws.Dynamo"

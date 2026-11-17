@@ -7,6 +7,7 @@ const resources = {
   ApiKey: { value: 'test-api-key' },
   App: { name: 'tvseries', stage: 'test' },
   Auth: { url: 'https://auth.test' },
+  AuthSignIns: { name: 'AuthSignIns' },
   Cache: { name: 'Cache' },
   DeleteAccountQueue: { url: 'https://sqs.test/delete-account' },
   DominantColor: { name: 'DominantColor' },

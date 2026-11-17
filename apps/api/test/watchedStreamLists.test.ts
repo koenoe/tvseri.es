@@ -435,7 +435,7 @@ describe('late stream records for a deleted account', () => {
   it('write no list items or counters for a user being deleted or gone', async () => {
     seedUser();
     const show = newShow();
-    const records = await recordWrites(() =>
+    const records = await recordWrites(async () =>
       request(`/user/${USER_ID}/watched/batch`, {
         as: USER_ID,
         body: [{ ...row(show, 1, day(0)), userId: USER_ID }],

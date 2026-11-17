@@ -1,3 +1,4 @@
+import { CloudFrontClient } from '@aws-sdk/client-cloudfront';
 import { CloudFrontKeyValueStoreClient } from '@aws-sdk/client-cloudfront-keyvaluestore';
 import { WEBHOOK_TOKEN_KV_PREFIX } from '@tvseri.es/constants';
 import { authRefreshPartition, authSubject, emailKey } from '@tvseri.es/utils';
@@ -160,6 +161,19 @@ describe('delete account', () => {
       method: 'DELETE',
     });
     expect(response.status).toBe(202);
+    // The public profile and stats leave the CDN at once
+    expect(CloudFrontClient.prototype.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          InvalidationBatch: expect.objectContaining({
+            Paths: {
+              Items: [`/user/${USER_ID}/*`, '/user/by-username/wren'],
+              Quantity: 2,
+            },
+          }),
+        }),
+      }),
+    );
     // The Plex link goes right away, at the edge too; the session stops working
     expect(keysOf('WebhookTokens')).toEqual([]);
     expect(edgeCommands).toContainEqual({

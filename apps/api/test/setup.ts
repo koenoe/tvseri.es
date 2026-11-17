@@ -1,3 +1,4 @@
+import { CloudFrontClient } from '@aws-sdk/client-cloudfront';
 import { LambdaClient } from '@aws-sdk/client-lambda';
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { afterEach, beforeEach, vi } from 'vitest';
@@ -63,6 +64,10 @@ beforeEach(() => {
   vi.spyOn(LambdaClient.prototype, 'send').mockRejectedValue(
     new Error('No Lambda in tests'),
   );
+  // No CDN in tests: a purge is accepted; a test that checks it spies again
+  vi.spyOn(CloudFrontClient.prototype, 'send').mockResolvedValue({
+    Invalidation: { Id: 'test' },
+  } as never);
   sqsMessages.length = 0;
 });
 

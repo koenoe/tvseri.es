@@ -10,6 +10,7 @@ import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import * as v from 'valibot';
 import { queueAccountDeletion } from '@/lib/account/queue';
+import { invalidatePaths } from '@/lib/cdn';
 import { getCircle } from '@/lib/circle';
 import { getCirclePeople } from '@/lib/circlePeople';
 import { getLibraryIds } from '@/lib/db/list';
@@ -126,6 +127,11 @@ app.delete('/', vValidator('json', DeleteAccountSchema), async (c) => {
     await clearDeletionRequested(user.id);
     throw error;
   }
+  // The public profile and stats leave the CDN now, not when they expire
+  await invalidatePaths([
+    `/user/${user.id}/*`,
+    `/user/by-username/${user.username}`,
+  ]);
 
   return c.json({ status: 'queued' }, 202);
 });

@@ -6,7 +6,7 @@ const LOOK = {
   // A 32px pill with a 2px inner ring, "Edit"
   compact: {
     className:
-      'h-8 shrink-0 rounded-full px-3 text-[13px] leading-5 font-semibold shadow-[inset_0_0_0_2px_rgb(255_255_255/0.2)] transition-shadow hover:shadow-[inset_0_0_0_2px_rgb(255_255_255/0.4)]',
+      'h-8 shrink-0 rounded-full px-3 text-meta font-semibold shadow-[inset_0_0_0_2px_rgb(255_255_255/0.2)] transition-shadow hover:shadow-[inset_0_0_0_2px_rgb(255_255_255/0.4)]',
     icon: 'size-4',
     label: 'Edit',
   },

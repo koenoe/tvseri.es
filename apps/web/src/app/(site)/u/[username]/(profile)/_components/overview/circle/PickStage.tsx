@@ -39,7 +39,7 @@ export default function PickStage({
             </Ambient>
           ))}
         </div>
-        <div className="relative z-1 h-[400px] overflow-hidden rounded-14 bg-[#161b1c] shadow-[0_24px_48px_-20px_rgb(0_0_0/0.8)]">
+        <div className="relative z-1 h-[400px] overflow-hidden rounded-14 bg-ground-deep shadow-[0_24px_48px_-20px_rgb(0_0_0/0.8)]">
           {picks.map((pick, index) => (
             <Layer active={index === active} key={pick.id}>
               {pick.card}

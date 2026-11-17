@@ -56,7 +56,7 @@ function PickTile({
             title={pick.title}
           />
         </span>
-        <span className="truncate text-[13px] leading-5 font-semibold md:text-[14px]">
+        <span className="truncate text-meta font-semibold md:text-[14px]">
           {pick.title}
         </span>
       </TileLink>

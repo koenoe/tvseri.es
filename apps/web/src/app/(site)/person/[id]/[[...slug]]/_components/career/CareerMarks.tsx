@@ -28,8 +28,8 @@ const place = (at: CaptionPlace, gap: number) => {
 
 /** On the bar: the caption's ground, so the count reads over the fill */
 const OVER = {
-  desktop: 'lg:rounded-6 lg:bg-[#161b1c] lg:px-2',
-  phone: 'max-lg:rounded-6 max-lg:bg-[#161b1c] max-lg:px-1.5',
+  desktop: 'lg:rounded-6 lg:bg-ground-deep lg:px-2',
+  phone: 'max-lg:rounded-6 max-lg:bg-ground-deep max-lg:px-1.5',
 };
 
 /** Desktop stops short of the Today label; phones keep 10px clear */

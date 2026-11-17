@@ -56,7 +56,7 @@ const GUEST_ROW =
 const TRACK = 'relative h-[52px] lg:h-[30px]';
 const CAPTION = cn(
   styles.cap,
-  'absolute top-1.5 hidden h-[18px] items-center gap-3 rounded-6 bg-[#161b1c] px-2 text-caption whitespace-nowrap text-white/80 lg:flex',
+  'absolute top-1.5 hidden h-[18px] items-center gap-3 rounded-6 bg-ground-deep px-2 text-caption whitespace-nowrap text-white/80 lg:flex',
 );
 const LABEL =
   'block truncate text-body-sm font-medium text-white/80 lg:font-normal';

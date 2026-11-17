@@ -71,7 +71,7 @@ export default function JumpSheet({
   const close = useCallback(() => onOpenChange(false), [onOpenChange]);
   return (
     <Dialog
-      className="max-sm:bg-[#161b1c]"
+      className="max-sm:bg-ground-deep"
       onOpenChange={onOpenChange}
       open={open}
       title="Jump to"

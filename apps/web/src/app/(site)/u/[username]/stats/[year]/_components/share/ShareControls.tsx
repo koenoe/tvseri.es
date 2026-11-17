@@ -35,7 +35,7 @@ export function CardPreview({
   size,
 }: Readonly<{ alt: string; path: string; size: Size }>) {
   return (
-    <span className="relative block shrink-0 overflow-hidden rounded-14 bg-[#161b1c] shadow-[0_24px_48px_-18px_rgb(0_0_0/0.8)] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(221_238_255/0.08)]">
+    <span className="relative block shrink-0 overflow-hidden rounded-14 bg-ground-deep shadow-[0_24px_48px_-18px_rgb(0_0_0/0.8)] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(221_238_255/0.08)]">
       <Image
         alt={alt}
         className="block"

@@ -174,7 +174,7 @@ function Bar({
 export function WhenWatchesSkeleton() {
   const title = (
     <span className="flex items-center gap-1.5">
-      When <TextLine className="text-[18px] leading-6" width="w-14" /> watches
+      When <TextLine className="text-title-3" width="w-14" /> watches
     </span>
   );
   return (

@@ -17,7 +17,7 @@ const FACT_AT_END = `${FACT} ml-auto`;
 export function TileText({ tile }: Readonly<{ tile: TileView }>) {
   return (
     <span className="flex min-w-0 flex-col gap-1">
-      <span className="truncate text-[13px] leading-5 font-semibold text-white md:text-[14px]">
+      <span className="truncate text-meta font-semibold text-white md:text-[14px]">
         {tile.title}
       </span>
       {/* one line: a fact that doesn't fit beside the ones before it wraps

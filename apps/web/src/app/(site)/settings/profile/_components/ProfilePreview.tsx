@@ -54,7 +54,7 @@ export default function ProfilePreview({
   return (
     <div
       aria-label="Preview of your profile sidebar"
-      className="flex flex-col gap-10 rounded-16 bg-[#1c2223] px-6 py-8 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.07)]"
+      className="flex flex-col gap-10 rounded-16 bg-ground px-6 py-8 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.07)]"
       role="img"
     >
       <section className={COLUMN}>

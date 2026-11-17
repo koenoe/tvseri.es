@@ -174,7 +174,7 @@ function NightCard({
             <span className="inline-flex h-6 min-w-14 shrink-0 items-center justify-center rounded-6 bg-white/10 px-1.5 font-medium text-caption tabular-nums">
               {code}
             </span>
-            <span className="min-w-0 truncate font-semibold text-[16px] leading-7">
+            <span className="min-w-0 truncate font-semibold text-body">
               {line}
             </span>
           </span>

@@ -66,6 +66,8 @@
   --color-black: #000;
   /* page ground (home, error pages, the default page colour) */
   --color-ground: #1c2223;
+  /* a step below the ground: chips, tiles and panels set into it */
+  --color-ground-deep: #161b1c;
   /* accents: cyan = next up, progress, positive delta; pink = upcoming, premieres */
   --color-cyan: #00ffff;
   --color-pink: #ff0080;

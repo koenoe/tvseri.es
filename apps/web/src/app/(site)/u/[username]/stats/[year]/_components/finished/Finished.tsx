@@ -66,7 +66,7 @@ function StripCard({ art, tile }: Readonly<Tile>) {
   return (
     <TileLink
       aria-label={tile.title}
-      className="relative block h-[172px] flex-none basis-[276px] overflow-hidden rounded-12 bg-[#161b1c]"
+      className="relative block h-[172px] flex-none basis-[276px] overflow-hidden rounded-12 bg-ground-deep"
       href={tile.href}
     >
       {/* the backdrop and its fade: one layer, clipped once by the corners */}

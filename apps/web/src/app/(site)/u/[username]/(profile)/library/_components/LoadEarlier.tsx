@@ -48,7 +48,7 @@ export default function LoadEarlier({
 }>) {
   return (
     <button
-      className="mb-6 flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-12 bg-white/4 text-[13px] leading-5 font-semibold transition-colors hover:bg-white/7"
+      className="mb-6 flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-12 bg-white/4 text-meta font-semibold transition-colors hover:bg-white/7"
       onClick={onLoad}
       type="button"
     >

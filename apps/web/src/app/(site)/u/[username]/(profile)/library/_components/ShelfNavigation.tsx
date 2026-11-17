@@ -112,7 +112,7 @@ export function ShelfAside({ params }: Props) {
 
 /** A shelf chip as a flat pill its unseen label and count size (no real-looking controls in a skeleton) */
 const CHIP_GHOST = cn(
-  'inline-flex h-8 shrink-0 items-center rounded-full px-3 text-[13px] leading-5 font-medium',
+  'inline-flex h-8 shrink-0 items-center rounded-full px-3 text-meta font-medium',
   FLAT,
 );
 

@@ -61,7 +61,7 @@ function PhoneError({ onRetry }: Readonly<{ onRetry: () => void }>) {
   const className = cn(smallAction, 'bg-[#141210] text-white');
   return (
     <div
-      className="flex min-h-11 items-center gap-2.5 rounded-12 bg-white py-1.5 pr-1.5 pl-3 text-[13px] leading-5 font-medium text-[#141210]"
+      className="flex min-h-11 items-center gap-2.5 rounded-12 bg-white py-1.5 pr-1.5 pl-3 text-meta font-medium text-[#141210]"
       role="alert"
     >
       <Icon glyph={warningGlyph} size={16} />

@@ -46,7 +46,7 @@ function Ghosts() {
     <span aria-hidden="true" className={FAN}>
       {Array.from({ length: SHOWN }, (_, index) => (
         <span
-          className={`${TILE} box-border border-2 border-white/12 border-dashed bg-[#1c2223]`}
+          className={`${TILE} box-border border-2 border-white/12 border-dashed bg-ground`}
           key={index}
         />
       ))}

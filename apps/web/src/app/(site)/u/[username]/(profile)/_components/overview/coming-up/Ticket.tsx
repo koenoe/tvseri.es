@@ -25,7 +25,7 @@ export const TICKET_TEXT = 'flex min-w-0 flex-1 flex-col gap-2';
 
 /** The punched notches either side of the tear and the hover */
 const TICKET_LOOK =
-  'transition-colors hover:bg-white/8 before:absolute before:-top-[7px] before:left-[71px] before:size-3.5 before:rounded-full before:bg-[#161b1c] after:absolute after:-bottom-[7px] after:left-[71px] after:size-3.5 after:rounded-full after:bg-[#161b1c]';
+  'transition-colors hover:bg-white/8 before:absolute before:-top-[7px] before:left-[71px] before:size-3.5 before:rounded-full before:bg-ground-deep after:absolute after:-bottom-[7px] after:left-[71px] after:size-3.5 after:rounded-full after:bg-ground-deep';
 
 const TICKET_CLASS = cn(TICKET_GRID, TICKET_LOOK);
 

@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { DECK_CARD, DECK_FAN } from './deckLayout';
 import { type StartCard, slotAt } from './startCards';
 
-const CARD = `${DECK_CARD} bg-[#1c2223] shadow-[0_24px_40px_-14px_rgb(0_0_0/0.85),inset_0_0_0_1px_rgb(221_238_255/0.08)]`;
+const CARD = `${DECK_CARD} bg-ground shadow-[0_24px_40px_-14px_rgb(0_0_0/0.85),inset_0_0_0_1px_rgb(221_238_255/0.08)]`;
 
 /** The five fanned slots plus one waiting behind: the rest aren't rendered, so their posters don't load */
 const VISIBLE = 6;

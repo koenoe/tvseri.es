@@ -17,7 +17,7 @@ const WHITE =
   'inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-white px-[18px] text-[14px] leading-5 font-semibold whitespace-nowrap text-[#171717] transition-colors hover:bg-white/90 max-md:px-3.5 max-md:text-[13px]';
 
 const GHOST =
-  'inline-flex h-9 cursor-pointer items-center justify-center rounded-full px-3.5 text-[13px] leading-5 font-semibold whitespace-nowrap text-white shadow-[inset_0_0_0_2px_rgb(255_255_255/0.2)] transition-shadow hover:shadow-[inset_0_0_0_2px_rgb(255_255_255/0.4)]';
+  'inline-flex h-9 cursor-pointer items-center justify-center rounded-full px-3.5 text-meta font-semibold whitespace-nowrap text-white shadow-[inset_0_0_0_2px_rgb(255_255_255/0.2)] transition-shadow hover:shadow-[inset_0_0_0_2px_rgb(255_255_255/0.4)]';
 
 /** The bar rises in (translateY 100% → 0), 240ms */
 const RISE = {

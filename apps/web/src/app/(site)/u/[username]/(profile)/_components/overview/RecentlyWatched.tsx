@@ -140,7 +140,7 @@ function NothingWatched({ who }: Readonly<{ who: string | null }>) {
             className="flex min-w-0 flex-col gap-2.5 max-md:shrink-0 max-md:basis-[42%] md:flex-1 md:basis-0"
             key={index}
           >
-            <span className="block aspect-2/3 rounded-10 border-2 border-dashed border-white/12 bg-[#1c2223]" />
+            <span className="block aspect-2/3 rounded-10 border-2 border-dashed border-white/12 bg-ground" />
             <span className="flex items-center justify-between gap-1.5">
               <span className="h-6 w-14 rounded-6 bg-white/7" />
               <span className="h-2 w-10 rounded-full bg-white/7" />

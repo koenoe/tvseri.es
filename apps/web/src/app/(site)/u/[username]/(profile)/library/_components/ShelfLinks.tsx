@@ -136,7 +136,7 @@ function ShelfRow({
 }
 
 const CHIP =
-  'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13px] leading-5 font-medium whitespace-nowrap';
+  'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-meta font-medium whitespace-nowrap';
 // contrast-exempt: an empty shelf chip (disabled, not a link)
 const EMPTY_CHIP = cn(CHIP, 'bg-white/6 text-white/35');
 

@@ -84,10 +84,7 @@ import detectDominantColorFromImage, {
 } from '../detectDominantColorFromImage';
 import { detectLogoSilhouette } from '../detectLogoSilhouette';
 import {
-  fetchBestBritishCrime,
   fetchImdbTopRatedTvSeries,
-  fetchKoreasFinest,
-  fetchMostAnticipated,
   fetchMostPopularThisMonth,
   fetchTrending,
 } from '../mdblist';
@@ -983,29 +980,6 @@ export async function fetchDiscoverCount(
   return response?.total_results ?? 0;
 }
 
-export async function fetchBestSportsDocumentariesTvSeries() {
-  const { items } = await fetchDiscoverTvSeries({
-    sort_by: 'vote_average.desc',
-    'vote_count.gte': 7,
-    with_genres: '99',
-    with_keywords: '6075|2702',
-    without_genres: '35',
-    without_keywords: '10596,293434,288928,11672',
-  });
-  return items.filter((item) => !!item.posterImage && !!item.backdropImage);
-}
-
-export async function fetchApplePlusTvSeries(region = 'US') {
-  const { items } = await fetchDiscoverTvSeries({
-    sort_by: 'vote_average.desc',
-    'vote_count.gte': 250,
-    watch_region: region,
-    with_networks: 2552,
-    with_watch_providers: '350',
-  });
-  return items.filter((item) => !!item.posterImage && !!item.backdropImage);
-}
-
 export async function fetchPopularTvSeriesByYear(year: number | string) {
   const withoutGenres = [...GLOBAL_GENRES_TO_IGNORE, 10764, 16];
   const startDate = `${year}-01-01`;
@@ -1491,24 +1465,9 @@ export async function fetchTopRatedTvSeries() {
   return series.filter((serie) => !!serie.posterImage);
 }
 
-export async function fetchKoreasFinestTvSeries() {
-  const series = await fetchTvSeriesPosterList(await fetchKoreasFinest());
-  return series.filter((serie) => !!serie.posterImage);
-}
-
 export async function fetchMostPopularTvSeriesThisMonth() {
   const series = await fetchTvSeriesPosterList(
     await fetchMostPopularThisMonth(),
   );
-  return series.filter((serie) => !!serie.posterImage);
-}
-
-export async function fetchMostAnticipatedTvSeries() {
-  const series = await fetchTvSeriesPosterList(await fetchMostAnticipated());
-  return series.filter((serie) => !!serie.posterImage);
-}
-
-export async function fetchBestBritishCrimeTvSeries() {
-  const series = await fetchTvSeriesPosterList(await fetchBestBritishCrime());
   return series.filter((serie) => !!serie.posterImage);
 }

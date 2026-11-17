@@ -26,12 +26,7 @@ const ROUTES: Readonly<Record<string, Target>> = {
   'DELETE /user/:id/watched/series/:series-id{[0-9]+}/season/:season{[0-9]+}/episode/:episode{[0-9]+}':
     'write',
   'DELETE /webhook/type/:type{plex}': 'write',
-  'GET /collection/best-british-crime': 'catalogue',
-  'GET /collection/best-sports-documentaries': 'catalogue',
-  'GET /collection/koreas-finest': 'catalogue',
-  'GET /collection/most-anticipated': 'catalogue',
   'GET /collection/most-popular-this-month': 'catalogue',
-  'GET /collection/must-watch-on-apple-tv': 'catalogue',
   'GET /collection/top-rated': 'catalogue',
   'GET /collection/trending': 'catalogue',
   'GET /discover': 'catalogue',

@@ -109,8 +109,6 @@ type StoredList = Readonly<{ fetchedAt: number; ids: ReadonlyArray<number> }>;
  * order), and the ids are cut to it again in code, stored copies included.
  */
 export const LIST_SIZES = {
-  /** The old web's rows only */
-  other: 20,
   /** Home's Top Picks row: 20 after the spotlight's 10 are left out */
   popular: 30,
   /**
@@ -179,19 +177,7 @@ const readList = async (
 export const fetchImdbTopRatedTvSeries = () =>
   readList('imdb-top-rated-by-koen', LIST_SIZES.topRated);
 
-/** Not read by the redesigned web: only the old web's Korean row */
-export const fetchKoreasFinest = () =>
-  readList('top-rated-korean-shows-on-netflix', LIST_SIZES.other);
-
 export const fetchMostPopularThisMonth = () =>
   readList('most-popular-this-month', LIST_SIZES.popular);
 
 export const fetchTrending = () => readList('trending', LIST_SIZES.trending);
-
-/** Not read by the redesigned web: only the old web's anticipated row */
-export const fetchMostAnticipated = () =>
-  readList('most-anticipated', LIST_SIZES.other);
-
-/** Not read by the redesigned web: only the old web's British crime row */
-export const fetchBestBritishCrime = () =>
-  readList('british-crime', LIST_SIZES.other);

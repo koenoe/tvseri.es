@@ -53,9 +53,7 @@ describe('query validation on the public routes', () => {
     expect(await status('/discover/watch-providers?region=')).toBe(200);
     expect(await status('/discover/watch-providers?region=GBR')).toBe(400);
     expect(await status('/discover/watch-providers?region=1')).toBe(400);
-    expect(await status('/collection/must-watch-on-apple-tv?region=xx1')).toBe(
-      400,
-    );
+    expect(await status('/series/1/watch-providers?region=xx1')).toBe(400);
   });
 
   it('include_colors is true or false', async () => {

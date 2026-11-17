@@ -1,5 +1,4 @@
 import { Hono } from 'hono';
-// import { cors } from 'hono/cors';
 import { HTTPException } from 'hono/http-exception';
 import { requestId } from 'hono/request-id';
 import { timeout } from 'hono/timeout';
@@ -53,30 +52,6 @@ app.use(timeout(14_000));
 // Reads only retry an external call while the retry can still answer the web
 // in time (READ_RETRY_DEADLINE); writes keep their retries.
 app.use(retryDeadline());
-
-// TODO: if we enable this here, we need to disable cors in infra (api.ts)
-// CORS for *.tvseri.es and *.*.dev.tvseri.es
-// const ALLOWED_ORIGINS = [
-//   /^https:\/\/[^.]+\.tvseri\.es$/,
-//   /^https:\/\/[^.]+\.[^.]+\.dev\.tvseri\.es$/,
-// ];
-// app.use(
-//   '*',
-//   cors({
-//     allowHeaders: [
-//       'Authorization',
-//       'Content-Type',
-//       'X-Api-Key',
-//       'X-Client-Platform',
-//       'X-Client-Version',
-//     ],
-//     allowMethods: ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT'],
-//     credentials: true,
-//     maxAge: 86400,
-//     origin: (origin) =>
-//       ALLOWED_ORIGINS.some((pattern) => pattern.test(origin)) ? origin : '',
-//   }),
-// );
 
 app.route('/admin', admin);
 app.route('/collection', collection);

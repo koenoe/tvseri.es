@@ -36,7 +36,7 @@ const updateUserCount = async (
       pk: { S: `USER#${userId}` },
     },
     TableName: Resource.Users.name,
-    // Use ADD for atomic increment/decrement, with fallback to 0 if field doesn't exist
+    // One atomic SET: the field plus the delta, counting from 0 when it doesn't exist yet
     UpdateExpression: 'SET #field = if_not_exists(#field, :zero) + :delta',
   });
 

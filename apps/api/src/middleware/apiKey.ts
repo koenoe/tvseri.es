@@ -28,7 +28,7 @@ const isApiKeyValid = (value: string | undefined) => {
 
 /**
  * Requires the API key, mirroring the CloudFront viewer-request function in
- * infra/api.ts exactly, so the Lambda Function URL can't be called directly
+ * infra/apiEdgeInjection.ts exactly, so the Lambda Function URL can't be called directly
  * without it. Traffic through CloudFront already passed the same check.
  *
  * Allowed without the key: OPTIONS, GET/HEAD with a Bearer token on the

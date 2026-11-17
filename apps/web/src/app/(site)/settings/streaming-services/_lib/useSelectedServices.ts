@@ -28,9 +28,14 @@ const titleOf = ({ provider, type }: WatchProviderAction) =>
  * offers Undo ("Added Netflix"). Quick taps each send the list with
  * all of them; the tiles settle on the latest list the server took
  * (`createSaveLedger`), so a failed save next to a later successful one
- * shows what the server has.
+ * shows what the server has. `undo: false` leaves out the "Added Netflix"
+ * toast (Get started, where the chip itself says it); a failed save always
+ * says so.
  */
-export function useSelectedServices(initial: ReadonlyArray<WatchProvider>) {
+export function useSelectedServices(
+  initial: ReadonlyArray<WatchProvider>,
+  { undo = true }: Readonly<{ undo?: boolean }> = {},
+) {
   const [ledger] = useState(() => createSaveLedger(initial));
   const [committed, setCommitted] = useState(initial);
   const [selected, applyOptimistic] = useOptimistic(committed, servicesReducer);
@@ -41,15 +46,17 @@ export function useSelectedServices(initial: ReadonlyArray<WatchProvider>) {
       const { list, seq } = ledger.want(action);
       startSaving(async () => {
         applyOptimistic(action);
-        const result = await updateWatchProviders({
-          watchProviders: [...list],
-        });
-        if (!result.ok) {
+        // A thrown action (offline, a server error) is a failed save too:
+        // the ledger must still settle it
+        const ok = await updateWatchProviders({ watchProviders: [...list] })
+          .then((result) => result.ok)
+          .catch(() => false);
+        if (!ok) {
           showToast({ title: SAVE_FAILED, tone: 'error' });
         }
-        setCommitted(ledger.settle(seq, result.ok));
+        setCommitted(ledger.settle(seq, ok));
       });
-      if (announce) {
+      if (announce && undo) {
         showToast({
           action: {
             label: 'Undo',
@@ -59,7 +66,7 @@ export function useSelectedServices(initial: ReadonlyArray<WatchProvider>) {
         });
       }
     },
-    [applyOptimistic, ledger],
+    [applyOptimistic, ledger, undo],
   );
 
   const toggle = useCallback(

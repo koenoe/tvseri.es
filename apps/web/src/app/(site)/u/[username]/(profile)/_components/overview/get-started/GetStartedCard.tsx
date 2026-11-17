@@ -1,15 +1,14 @@
 'use client';
 
 import type { WatchProvider } from '@tvseri.es/schemas';
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 
+import { useSelectedServices } from '@/app/(site)/settings/streaming-services/_lib/useSelectedServices';
 import SectionHead from '@/components/ui/section/SectionHead';
-import { showToast } from '@/components/ui/toast/showToast';
 import cn from '@/lib/cn';
 import { isGetStartedDone } from '@/lib/profile/getStartedDone';
-import { saveServices } from '../../../_actions/services';
 import Dot from '../../blocks/Dot';
-import { doneCount, progressText, toggleProvider } from './getStartedCopy';
+import { doneCount, progressText } from './getStartedCopy';
 import HistoryLinks from './HistoryLinks';
 import {
   GET_STARTED_INTRO,
@@ -61,14 +60,16 @@ function Progress({ done }: Readonly<{ done: number }>) {
 
 /**
  * Get started: three steps that make the page run itself.
- * Services save through the profile's server action, Already seen marks the
+ * Services save as Settings saves them (`useSelectedServices`: the chips
+ * settle on what the server has, a failed save says so), Already seen marks the
  * whole show through the marking core, history is two links. With the
  * third step done here it is gone at once, as on Home (`isGetStartedDone`).
  */
 export default function GetStartedCard(props: Props) {
-  const [selected, setSelected] = useState(props.selected);
+  const { selected, toggle } = useSelectedServices(props.selected, {
+    undo: false,
+  });
   const [seen, setSeen] = useState<ReadonlySet<number>>(new Set());
-  const [, startTransition] = useTransition();
 
   const done = doneCount({
     alreadySeen: props.alreadySeen || seen.size > 0,
@@ -76,21 +77,6 @@ export default function GetStartedCard(props: Props) {
     services: selected.length > 0,
   });
 
-  const onToggle = (provider: WatchProvider, on: boolean) => {
-    const before = selected;
-    const next = toggleProvider(before, provider, on);
-    setSelected(next);
-    startTransition(async () => {
-      const result = await saveServices(next).catch(() => null);
-      if (!result?.ok) {
-        setSelected(before);
-        showToast({
-          title: "Couldn't save that. It's back as it was.",
-          tone: 'error',
-        });
-      }
-    });
-  };
   // One way: a seen show stays seen here (the core's toast has the Undo)
   const onSeen = (seriesId: number) =>
     setSeen((previous) => new Set(previous).add(seriesId));
@@ -122,7 +108,7 @@ export default function GetStartedCard(props: Props) {
             title={STEPS[0].title}
           >
             <ServicePicker
-              onToggle={onToggle}
+              onToggle={toggle}
               providers={props.providers}
               selected={selected}
             />

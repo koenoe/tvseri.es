@@ -1,5 +1,3 @@
-import type { WatchProvider } from '@tvseri.es/schemas';
-
 export type StepFlags = Readonly<{
   alreadySeen: boolean;
   history: boolean;
@@ -12,14 +10,4 @@ export const doneCount = (steps: StepFlags): number =>
 /** "1 of 3 done" (all three done, the card is gone) */
 export function progressText(done: number): string {
   return `${done} of 3 done`;
-}
-
-/** The services list with one provider switched on or off (the ones not shown stay as they are) */
-export function toggleProvider(
-  selected: ReadonlyArray<WatchProvider>,
-  provider: WatchProvider,
-  on: boolean,
-): WatchProvider[] {
-  const rest = selected.filter((entry) => entry.id !== provider.id);
-  return on ? [...rest, provider] : rest;
 }

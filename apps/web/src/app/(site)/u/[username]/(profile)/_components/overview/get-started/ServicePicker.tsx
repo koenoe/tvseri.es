@@ -20,7 +20,7 @@ export default function ServicePicker({
   providers,
   selected,
 }: Readonly<{
-  onToggle: (provider: WatchProvider, on: boolean) => void;
+  onToggle: (provider: WatchProvider) => void;
   providers: ReadonlyArray<WatchProvider>;
   selected: ReadonlyArray<WatchProvider>;
 }>) {
@@ -59,7 +59,7 @@ function Chip({
   provider,
 }: Readonly<{
   on: boolean;
-  onToggle: (provider: WatchProvider, on: boolean) => void;
+  onToggle: (provider: WatchProvider) => void;
   provider: WatchProvider;
 }>) {
   const classes = cn(
@@ -68,10 +68,7 @@ function Chip({
       ? 'border-white bg-white/8 text-white'
       : 'border-white/20 text-white/80 hover:border-white/40',
   );
-  const toggle = useCallback(
-    () => onToggle(provider, !on),
-    [on, onToggle, provider],
-  );
+  const toggle = useCallback(() => onToggle(provider), [onToggle, provider]);
   return (
     <button
       aria-pressed={on}

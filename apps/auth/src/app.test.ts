@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { SCRIPT_HEADER } from './app';
-import { CODE_TTL } from './lib/codeLifetime';
+import { CODE_TTL, formatCodeLifetime } from './lib/codeLifetime';
 import { browser, ORIGIN } from './testing/browser';
 import { authorizeUrl, createTestApp } from './testing/testApp';
 import { FONT } from './ui/assets';
@@ -331,7 +331,10 @@ describe('email code flow', () => {
     it('refuses the right code once that lifetime is over', async () => {
       const res = await signInAfter(CODE_TTL);
       expect(res.status).not.toBe(302);
-      expect(await res.text()).toContain('This code has expired.');
+      // The page states the lifetime the provider enforces
+      expect(await res.text()).toContain(
+        `This code has expired. Codes work for ${formatCodeLifetime(CODE_TTL)}`,
+      );
     });
   });
 

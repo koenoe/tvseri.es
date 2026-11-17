@@ -252,7 +252,7 @@ test.describe('stats', () => {
       const middle = (shareBox?.y ?? 0) + (shareBox?.height ?? 0) / 2;
       expect(middle).toBeGreaterThan(titleBox?.y ?? 0);
       expect(middle).toBeLessThan((titleBox?.y ?? 0) + (titleBox?.height ?? 0));
-      expect(shareBox?.width).toBe(width < 768 ? 32 : shareBox?.width);
+      expect(shareBox?.width).toBe(width < 768 ? 40 : shareBox?.width);
       await share.click();
       const panel = page.getByRole('dialog', {
         name: `lena’s ${LAST_YEAR}, as a card`,

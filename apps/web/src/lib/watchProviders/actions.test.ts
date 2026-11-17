@@ -6,7 +6,7 @@ import { ApiError, apiFetch } from '@/lib/api/client';
 import { updateCountry, updateWatchProviders } from './actions';
 
 vi.mock('@/auth/viewer', () => ({ getViewer: vi.fn() }));
-vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
+vi.mock('next/cache', () => ({ refresh: vi.fn(), revalidatePath: vi.fn() }));
 vi.mock('@/lib/api/client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/lib/api/client')>()),
   apiFetch: vi.fn(),

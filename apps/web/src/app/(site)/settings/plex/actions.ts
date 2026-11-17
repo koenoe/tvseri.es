@@ -1,7 +1,7 @@
 'use server';
 
 import { UpdateWebhookSettingsSchema } from '@tvseri.es/schemas';
-import { revalidatePath } from 'next/cache';
+import { refresh } from 'next/cache';
 import * as v from 'valibot';
 
 import { getViewer } from '@/auth/viewer';
@@ -23,9 +23,6 @@ const PROVIDER = { type: 'plex' } as const;
 
 /** A 400 is a setting the API refuses */
 const STATUSES = { 400: 'invalid' } as const;
-
-/** The nav lines and the card read the same status: refresh every hole. */
-const refresh = () => revalidatePath('/settings', 'layout');
 
 /** Create my Plex URL / New URL: the previous URL stops working. */
 export async function createPlexUrl(): Promise<ActionResult> {

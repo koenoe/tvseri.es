@@ -11,7 +11,7 @@ import { checkUsername, updateProfile } from './profile';
 vi.mock('@/auth', () => ({ default: vi.fn() }));
 vi.mock('@/auth/viewer', () => ({ getViewer: vi.fn() }));
 vi.mock('@/auth/sessionCookies', () => ({ setUserDisplayCookie: vi.fn() }));
-vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
+vi.mock('next/cache', () => ({ refresh: vi.fn() }));
 vi.mock('@/lib/stats/revalidateUser', () => ({ revalidateUser: vi.fn() }));
 vi.mock('@/lib/api/client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/lib/api/client')>()),

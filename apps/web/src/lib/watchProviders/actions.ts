@@ -5,7 +5,7 @@ import {
   type UpdateWatchProvidersForUser,
   UpdateWatchProvidersForUserSchema,
 } from '@tvseri.es/schemas';
-import { revalidatePath } from 'next/cache';
+import { refresh, revalidatePath } from 'next/cache';
 import * as v from 'valibot';
 
 import { getViewer } from '@/auth/viewer';
@@ -36,7 +36,7 @@ export async function updateCountry(country: string): Promise<ActionResult> {
   } catch (error) {
     return apiFailure('settings', error);
   }
-  revalidatePath('/settings', 'layout');
+  refresh();
   return okResult(undefined);
 }
 
@@ -61,6 +61,9 @@ export async function updateWatchProviders(
   } catch (error) {
     return apiFailure('settings', error);
   }
+  // Not `refresh()`: Get started saves here too, and its tiles keep their
+  // own state, so the profile must not re-render on every tap. Settings is
+  // the path re-rendered at once.
   revalidatePath('/settings', 'layout');
   return okResult(undefined);
 }

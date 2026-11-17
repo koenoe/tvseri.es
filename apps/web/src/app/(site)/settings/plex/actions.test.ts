@@ -4,11 +4,11 @@ import { ApiError } from '@/lib/api/client';
 
 const getViewer = vi.fn();
 const apiFetch = vi.fn();
-const revalidatePath = vi.fn();
+const refresh = vi.fn();
 
 vi.mock('@/auth/viewer', () => ({ getViewer: () => getViewer() }));
 vi.mock('next/cache', () => ({
-  revalidatePath: (...a: unknown[]) => revalidatePath(...a),
+  refresh: () => refresh(),
 }));
 vi.mock('@/lib/api/client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/lib/api/client')>()),
@@ -27,7 +27,7 @@ const VIEWER = { accessToken: 'session-token', id: 'U1', role: 'user' };
 beforeEach(() => {
   getViewer.mockReset();
   apiFetch.mockReset();
-  revalidatePath.mockReset();
+  refresh.mockReset();
   getViewer.mockResolvedValue(VIEWER);
   apiFetch.mockResolvedValue({ message: 'OK' });
 });
@@ -111,7 +111,7 @@ describe('updatePlex', () => {
 
   it('refreshes the settings holes after a write', async () => {
     await updatePlex({ paused: true });
-    expect(revalidatePath).toHaveBeenCalledWith('/settings', 'layout');
+    expect(refresh).toHaveBeenCalled();
   });
 });
 
@@ -144,6 +144,6 @@ describe('revealPlexUrl', () => {
   it('never revalidates (a read)', async () => {
     apiFetch.mockResolvedValue({ token: 'a1b2c3d4e5f6a1b2c3d4e5f6' });
     await revealPlexUrl();
-    expect(revalidatePath).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
   });
 });

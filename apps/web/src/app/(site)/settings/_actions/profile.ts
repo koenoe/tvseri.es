@@ -1,7 +1,7 @@
 'use server';
 
 import { UpdateUserSchema, UsernameSchema } from '@tvseri.es/schemas';
-import { revalidatePath } from 'next/cache';
+import { refresh } from 'next/cache';
 import * as v from 'valibot';
 
 import auth from '@/auth';
@@ -100,6 +100,7 @@ export async function updateProfile(
     // The old URLs stop working and the new ones must not serve a cached 404.
     revalidateUser(user.id, [user.username, username]);
   }
-  revalidatePath('/settings', 'layout');
+  // Nothing under /settings is cached: re-rendering the page is enough
+  refresh();
   return okResult({ name, username });
 }

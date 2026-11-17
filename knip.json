@@ -23,6 +23,10 @@
         "scripts/*.mjs",
         "e2e/stub-api/fixtures/**/*.ts",
         "e2e/helpers/*.ts"
+      ],
+      "project": [
+        "**/*.{js,mjs,cjs,ts,tsx,css}",
+        "!src/app/(site)/dev/style-guide/_sections/IconSection.tsx"
       ]
     },
     "packages/kill-switch": {

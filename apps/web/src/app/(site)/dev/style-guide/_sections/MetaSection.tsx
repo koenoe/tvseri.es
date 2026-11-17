@@ -3,7 +3,6 @@ import {
   clockGlyph,
   eyeGlyph,
   networkGlyph,
-  premiereGlyph,
   seasonGlyph,
   starGlyph,
   tagGlyph,
@@ -39,7 +38,7 @@ export default function MetaSection() {
             4 of 10 watched
           </MetaItem>
           <MetaItem icon={clockGlyph}>3h 46m left</MetaItem>
-          <MetaItem icon={premiereGlyph} tone="pink">
+          <MetaItem icon={calendarGlyph} tone="pink">
             Next E07 Fri
           </MetaItem>
           <MetaItem icon={starGlyph} tone="cyan">

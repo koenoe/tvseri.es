@@ -7,7 +7,7 @@ import { type MouseEvent, memo, type Ref } from 'react';
 import { HEADER_ICON_BUTTON } from '@/components/header/headerIconButton';
 
 /*
- * The two lines of `menuGlyph` (M4 8h16 M8 16h12) and the cross of
+ * The menu's two lines (M4 8h16 M8 16h12) and the cross of
  * `closeGlyph` (M6 6l12 12 M18 6 6 18), as separate paths so they can morph.
  * Opening: the short line extends, then both turn into the cross. Closing
  * plays it backwards.

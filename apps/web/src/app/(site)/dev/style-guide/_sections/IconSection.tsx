@@ -6,6 +6,8 @@ import Section from './Section';
 
 const SIZES: ReadonlyArray<IconSize> = [13, 16, 20, 24];
 
+// Every glyph, so knip.json leaves this file out of the web's project: its
+// namespace use would otherwise count every glyph as used by the app
 const entries = Object.entries(glyphs).map(([key, glyph]) => ({
   glyph,
   name: key.replace(/Glyph$/, ''),

@@ -155,16 +155,13 @@ export default function useOverlaySearch({
     retry,
     /**
      * The dialog opened (or was re-attached after a stop: Strict Mode in
-     * development): take input, and search a prefilled query (the 404 field)
-     * at once.
+     * development): take input, and search a prefilled query (the 404 field,
+     * keys typed while it loaded: `query`, the latest) at once.
      */
-    start: () => {
+    start: (query: string | undefined = initialQuery) => {
       controller.resume(env);
-      if (
-        initialQuery?.trim() &&
-        controller.store.getState().query !== initialQuery
-      ) {
-        controller.input(initialQuery, env);
+      if (query?.trim() && controller.store.getState().query !== query) {
+        controller.input(query, env);
         controller.flush(env);
       }
     },

@@ -77,6 +77,12 @@ export default function SearchOverlay({
     stop: search.finish,
     trigger,
   }));
+  // The keys typed while the overlay loaded keep arriving (the launcher keeps
+  // them until the field has the focus) after its first render, whose
+  // `search.start` the stable `attach` holds: it reads the latest here. On a
+  // slow device the first keys were lost ("the bear" became "ear").
+  const typedSoFar = useRef(initialQuery);
+  typedSoFar.current = initialQuery;
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDialogElement | null>(null);
@@ -98,7 +104,7 @@ export default function SearchOverlay({
         );
       }
       inputRef.current?.focus();
-      opened.start();
+      opened.start(typedSoFar.current);
       return () => {
         // replaced or unmounted before its fade finished: stop its requests
         opened.stop();

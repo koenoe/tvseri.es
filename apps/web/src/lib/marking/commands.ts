@@ -48,6 +48,7 @@ import {
   openBefore,
   parseCode,
   unwatchedInSeason,
+  unwatchedRegularEpisodes,
   watchedInSeason,
 } from './progress';
 import { libraryAfter, recordOf, restoreOps, withMembership } from './state';
@@ -531,7 +532,7 @@ export function createMarkingCommands(deps: MarkingDeps) {
     return command(seriesId, (prior) => {
       const open =
         seasonNumber === undefined
-          ? airedRegularEpisodes(prior).filter((ref) => !isWatched(prior, ref))
+          ? unwatchedRegularEpisodes(prior)
           : unwatchedInSeason(prior, seasonNumber);
       if (open.length === 0) {
         return null;
@@ -677,9 +678,7 @@ export function createMarkingCommands(deps: MarkingDeps) {
      */
     markSeen(seriesId: number, title: string) {
       command(seriesId, (prior) => {
-        const open = airedRegularEpisodes(prior).filter(
-          (ref) => !isWatched(prior, ref),
-        );
+        const open = unwatchedRegularEpisodes(prior);
         if (open.length === 0) {
           // Nothing left to mark: say so, the button itself never changes
           deps.toast({ title: SEEN_MESSAGE });

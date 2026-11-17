@@ -10,6 +10,7 @@ import {
   seriesProgress,
   toPercentage,
   unwatchedInSeason,
+  unwatchedRegularEpisodes,
 } from './progress';
 import type { SeriesBase } from './types';
 
@@ -220,6 +221,22 @@ describe('episode helpers', () => {
     expect(unwatchedInSeason(series, 1)).toEqual([
       { episodeNumber: 2, seasonNumber: 1 },
       { episodeNumber: 3, seasonNumber: 1 },
+    ]);
+  });
+
+  it('a whole-series mark takes aired regular episodes not watched, skipped included', () => {
+    const series = base({
+      skipped: ['S01E02'],
+      watched: {
+        S00E01: at(1),
+        S01E01: at(1),
+        S02E01: { ...at(1), dateUnknown: true },
+      },
+    });
+    expect(unwatchedRegularEpisodes(series)).toEqual([
+      { episodeNumber: 2, seasonNumber: 1 },
+      { episodeNumber: 3, seasonNumber: 1 },
+      { episodeNumber: 2, seasonNumber: 2 },
     ]);
   });
 });

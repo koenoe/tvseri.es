@@ -236,6 +236,16 @@ export function unwatchedInSeason(
   );
 }
 
+/**
+ * Aired regular episodes of the show that aren't watched yet (skipped
+ * included): what the whole-series mark and its date mark.
+ */
+export function unwatchedRegularEpisodes(
+  series: SeriesBase,
+): ReadonlyArray<EpisodeRef> {
+  return airedRegularEpisodes(series).filter((ref) => !isWatched(series, ref));
+}
+
 /** Watched episodes of a season (any record, aired or not). */
 export function watchedInSeason(
   series: SeriesBase,

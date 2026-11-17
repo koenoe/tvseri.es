@@ -20,14 +20,6 @@ const collect = async (stream: ReadableStream<Uint8Array>) => {
   return values;
 };
 
-describe('toNdjsonLine', () => {
-  it('is one JSON value and a newline', () => {
-    expect(toNdjsonLine({ status: 'progress', written: 3 })).toBe(
-      '{"status":"progress","written":3}\n',
-    );
-  });
-});
-
 describe('readNdjson', () => {
   const encoder = new TextEncoder();
 

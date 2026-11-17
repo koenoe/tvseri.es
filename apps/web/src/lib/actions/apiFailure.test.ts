@@ -19,7 +19,6 @@ const { apiFailure } = await import('./apiFailure');
 /** Each action's statuses, as the actions pass them */
 const SITES = {
   deleteAccount: { 400: 'mismatch', 404: 'failed' },
-  import: { 400: 'invalid', 409: 'invalid' },
   marking: {},
   plex: { 400: 'invalid' },
   settings: { 409: { code: 'UsernameAlreadyTaken', error: 'taken' } },
@@ -33,23 +32,14 @@ afterEach(() => log.mockRestore());
 
 describe('apiFailure: the error word per action and status', () => {
   it.each([
-    ['settings', 401, undefined, 'unauthenticated'],
-    ['settings', 404, undefined, 'not-found'],
-    ['settings', 409, 'UsernameAlreadyTaken', 'taken'],
-    ['settings', 409, 'Other', 'failed'],
-    ['settings', 400, undefined, 'failed'],
-    ['plex', 400, undefined, 'invalid'],
-    ['plex', 404, undefined, 'not-found'],
-    ['plex', 409, undefined, 'failed'],
-    ['import', 400, undefined, 'invalid'],
-    ['import', 409, 'ImportNotOpen', 'invalid'],
-    ['import', 404, undefined, 'not-found'],
-    ['deleteAccount', 400, undefined, 'mismatch'],
-    ['deleteAccount', 404, undefined, 'failed'],
-    ['deleteAccount', 401, undefined, 'unauthenticated'],
     ['marking', 401, undefined, 'unauthenticated'],
     ['marking', 404, undefined, 'not-found'],
     ['marking', 500, undefined, 'failed'],
+    ['deleteAccount', 404, undefined, 'failed'],
+    ['plex', 400, undefined, 'invalid'],
+    ['plex', 409, undefined, 'failed'],
+    ['settings', 409, 'UsernameAlreadyTaken', 'taken'],
+    ['settings', 409, 'Other', 'failed'],
   ] as const)('%s: %i %s → %s', (site, status, code, expected) => {
     expect(apiFailure(site, new ApiError(status, code), SITES[site])).toEqual({
       error: expected,

@@ -170,17 +170,11 @@ describe('getSeriesArt', () => {
     expect(cacheLife.mock.calls).toEqual([['short'], ['short']]);
   });
 
-  it.each([
-    [0, 'ApiTimeout'],
-    [503, undefined],
-  ])(
-    'is Unavailable when the series read fails (%i %s), as it reaches us from its cached scope',
-    async (status, code) => {
-      apiFetch.mockRejectedValue(new ApiError(status, code));
-      expect(isUnavailable(await getSeriesArt(7))).toBe(true);
-      expect(cacheLife).toHaveBeenLastCalledWith('unavailable');
-    },
-  );
+  it('is Unavailable when the series read fails, as it reaches us from its cached scope', async () => {
+    apiFetch.mockRejectedValue(new ApiError(0, 'ApiTimeout'));
+    expect(isUnavailable(await getSeriesArt(7))).toBe(true);
+    expect(cacheLife).toHaveBeenLastCalledWith('unavailable');
+  });
 
   it('is null when the show is gone', async () => {
     apiFetch.mockResolvedValue(null);

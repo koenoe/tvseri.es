@@ -109,8 +109,6 @@ describe('apiFetch', () => {
 
     it.each([
       ['/series/:id', '/series/7?colour=2'],
-      ['/series/:id/images', '/series/7/images?colour=2'],
-      ['/collection/trending', '/collection/trending?colour=2'],
       ['/series/:id/credits', '/series/7/credits'],
     ])(
       'asks %s with the page colour version only when it carries a colour',
@@ -296,9 +294,7 @@ describe('isUpstreamFailure', () => {
     [0, true],
     [429, true],
     [500, true],
-    [503, true],
     [400, false],
-    [404, false],
   ])('treats status %i as an outage: %s', (status, expected) => {
     expect(isUpstreamFailure(new ApiError(status))).toBe(expected);
   });

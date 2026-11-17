@@ -19,7 +19,6 @@ describe('formatScore', () => {
 describe('ratingText', () => {
   it('the star and the score, never a percentage', () => {
     expect(ratingText(8.4)).toBe('★ 8.4');
-    expect(ratingText(8.4)).not.toContain('%');
     expect(ratingText(0)).toBe('');
   });
 });

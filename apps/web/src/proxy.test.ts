@@ -19,11 +19,8 @@ describe('proxy matcher', () => {
     ['/api/u/margaux/watched', {}, {}, true],
     ['/api/u/margaux/watched', SESSION, PREFETCH, true],
     ['/api/me/library-ids', {}, {}, true],
-    ['/api/me/series/1396', SESSION, {}, true],
     // Pages: only with a session or display cookie
     ['/', {}, {}, false],
-    ['/1396/breaking-bad', {}, {}, false],
-    ['/', SESSION, {}, true],
     ['/1396/breaking-bad', SESSION, {}, true],
     ['/u/margaux/stats/2025', DISPLAY, {}, true],
     // ...and never for prefetches

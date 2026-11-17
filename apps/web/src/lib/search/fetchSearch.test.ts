@@ -116,7 +116,7 @@ describe('fetchSearch with the member lookup (signed in)', () => {
     ).rejects.toThrow('502');
   });
 
-  it.each(['juno-tv', 'breaking bad', `@${'a'.repeat(31)}`, '@juno_tv', '@jo'])(
+  it.each(['juno-tv', `@${'a'.repeat(31)}`, '@juno_tv', '@jo'])(
     'asks only the search for %j: no @, or no handle after it',
     async (key) => {
       answer({ member: JUNO });

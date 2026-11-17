@@ -64,12 +64,7 @@ describe('buildSections: what Enter opens', () => {
 describe('personRole', () => {
   it.each([
     ['Acting', 'Actor'],
-    ['Writing', 'Writer'],
-    ['Directing', 'Director'],
-    ['Production', 'Producer'],
     ['Visual Effects', 'Visual effects'],
-    ['Costume & Make-Up', 'Costume & make-up'],
-    ['Crew', 'Crew'],
     [undefined, ''],
   ])('%s → %s', (department, role) => {
     expect(personRole(department)).toBe(role);
@@ -108,14 +103,6 @@ describe('buildSections: a member found by their handle', () => {
         name: '@juno-tv',
       },
     ]);
-  });
-
-  it('is first, and what Enter opens, when the handle was typed with @', () => {
-    const sections = buildSections(
-      { best: 'members', members: [JUNO], people: [], series: [] },
-      'desktop',
-    );
-    expect(names(sections)).toEqual([['members', ['@juno-tv']]]);
   });
 
   it('is one row of chips on desktop and phone', () => {

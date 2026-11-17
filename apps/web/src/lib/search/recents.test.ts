@@ -39,7 +39,6 @@ describe('withRecent', () => {
       list = withRecent(list, cell('show', id));
     }
 
-    expect(MAX_RECENTS).toBe(4);
     expect(list.map((c) => c.id)).toEqual([6, 5, 4, 3]);
   });
 

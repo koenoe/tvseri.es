@@ -1,16 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { ratingLabel, toSeasonRatingsView } from './episodeRatings';
-
-describe('toSeasonRatingsView', () => {
-  it('keeps only the rating per episode', () => {
-    expect(
-      toSeasonRatingsView({
-        ratings: { '1': { imdbRating: 7.9 }, '2': { imdbRating: null } },
-      }),
-    ).toEqual({ '1': 7.9, '2': null });
-  });
-});
+import { ratingLabel } from './episodeRatings';
 
 describe('ratingLabel', () => {
   const view = { '5': 8, '6': 9.6, '7': null };

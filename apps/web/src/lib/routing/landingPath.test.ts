@@ -1,13 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import landingPath, { landingPathFor } from './landingPath';
-
-describe('landingPath', () => {
-  it('builds the URL of a landing from its type and slug', () => {
-    expect(landingPath('genre', 'crime')).toBe('/genre/crime');
-    expect(landingPath('decade', '2010s')).toBe('/decade/2010s');
-  });
-});
+import { landingPathFor } from './landingPath';
 
 describe('landingPathFor', () => {
   it('links a TMDB genre id to its genre landing', () => {

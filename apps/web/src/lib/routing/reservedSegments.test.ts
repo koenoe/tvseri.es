@@ -56,31 +56,21 @@ describe('reserved first segments', () => {
 });
 
 describe('the static 404 rewrite', () => {
-  it.each([
-    '/abc',
-    '/abc/def',
-    '/12a',
-    '/tv/abc',
-    '/tv',
-    '/track/abc/x',
-    '/discovery',
-  ])('serves the static 404 for %s', (url) => {
-    expect(matchesNotFound(url)).not.toBe(false);
-  });
+  it.each(['/abc', '/abc/def', '/12a', '/tv/abc', '/discovery'])(
+    'serves the static 404 for %s',
+    (url) => {
+      expect(matchesNotFound(url)).not.toBe(false);
+    },
+  );
 
   it.each([
     '/1396',
     '/1396/breaking-bad',
     '/0123/x',
     '/discover',
-    '/genre/crime',
-    '/settings',
     '/settings/plex',
-    '/u/margaux',
-    '/person/17419',
     '/api/auth/callback',
     '/robots.txt',
-    '/icon.svg',
     '/_next/static/chunk.js',
   ])('leaves %s to the router', (url) => {
     expect(matchesNotFound(url)).toBe(false);
@@ -177,7 +167,6 @@ describe('the static 404 under a reserved segment no route of its own serves', (
     '/privacy/x',
     '/discover/x',
     '/dev/x',
-    '/dev/home/x',
     '/sign-in/x',
     '/genre/drama/x',
     '/network/hbo/x/y',

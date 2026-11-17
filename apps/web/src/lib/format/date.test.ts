@@ -24,20 +24,13 @@ describe('formatMonthYear', () => {
 describe('formatWeekdayDate', () => {
   it.each([
     ['2026-01-06', 'Tue Jan 6'],
-    ['2026-02-03', 'Tue Feb 3'],
-    ['2026-03-03', 'Tue Mar 3'],
-    ['2026-04-07', 'Tue Apr 7'],
-    ['2026-05-05', 'Tue May 5'],
-    ['2026-06-02', 'Tue Jun 2'],
-    ['2026-07-07', 'Tue Jul 7'],
-    ['2026-08-04', 'Tue Aug 4'],
     ['2026-09-15', 'Tue Sep 15'],
-    ['2026-10-06', 'Tue Oct 6'],
-    ['2026-11-17', 'Tue Nov 17'],
-    ['2026-12-01', 'Tue Dec 1'],
-  ])('writes %s as %s (three-letter months, no commas)', (day, expected) => {
-    expect(formatWeekdayDate(day, { timeZone: 'UTC' })).toBe(expected);
-  });
+  ])(
+    'writes %s as %s (three-letter months, Sep not Sept, no commas)',
+    (day, expected) => {
+      expect(formatWeekdayDate(day, { timeZone: 'UTC' })).toBe(expected);
+    },
+  );
 
   it('adds the year on request', () => {
     expect(

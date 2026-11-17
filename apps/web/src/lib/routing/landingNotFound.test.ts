@@ -22,12 +22,13 @@ describe('LANDING_NOT_FOUND_REWRITES', () => {
     expect(LANDING_NOT_FOUND_REWRITES).toHaveLength(LANDING_TYPES.length);
   });
 
-  it.each(
-    LANDING_TYPES.flatMap((type) =>
-      LANDING_SLUGS[type].map((slug) => `/${type}/${slug}`),
-    ),
-  )('leaves %s to its page', (url) => {
-    expect(isStatic404(url)).toBe(false);
+  it('leaves every landing slug to its page', () => {
+    for (const type of LANDING_TYPES) {
+      for (const slug of LANDING_SLUGS[type]) {
+        const url = `/${type}/${slug}`;
+        expect(isStatic404(url), url).toBe(false);
+      }
+    }
   });
 
   it.each([

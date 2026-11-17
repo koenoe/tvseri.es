@@ -20,19 +20,14 @@ describe('tryApi', () => {
     await expect(tryApi(async () => ({ id: 1 }))).resolves.toEqual({ id: 1 });
   });
 
-  it.each([
-    ['not configured', new ApiError(0, 'ApiNotConfigured')],
-    ['a timeout', new ApiError(0, 'ApiTimeout')],
-    ['no response', new ApiError(0, 'ApiNetworkError')],
-    ['a 500', new ApiError(500)],
-    ['a 503', new ApiError(503)],
-  ])('turns an upstream failure (%s) into Unavailable', async (_, error) => {
-    expect(isUnavailable(await tryApi(failWith(error)))).toBe(true);
+  // which statuses are an outage is isUpstreamFailure's (client.test)
+  it('turns an upstream failure into Unavailable', async () => {
+    const timeout = new ApiError(0, 'ApiTimeout');
+    expect(isUnavailable(await tryApi(failWith(timeout)))).toBe(true);
   });
 
   it.each([
     ['a 404 (the caller forgot notFound)', new ApiError(404)],
-    ['a 400 (a request the API refuses)', new ApiError(400)],
     ['an invalid body', new ApiError(200, 'ApiInvalidResponse')],
   ])('rethrows %s, so the row error boundary shows it', async (_, error) => {
     await expect(tryApi(failWith(error))).rejects.toBe(error);

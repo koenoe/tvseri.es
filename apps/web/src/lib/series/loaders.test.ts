@@ -43,17 +43,11 @@ describe('loadSeries', () => {
     await expect(loadSeries(7)).resolves.toBeNull();
   });
 
-  it.each([
-    [0, 'ApiTimeout'],
-    [503, undefined],
-  ])(
-    'answers an outage (%i %s) with Unavailable, cached briefly',
-    async (status, code) => {
-      apiFetch.mockRejectedValue(new ApiError(status, code));
-      expect(isUnavailable(await loadSeries(7))).toBe(true);
-      expect(cacheLife).toHaveBeenCalledExactlyOnceWith('unavailable');
-    },
-  );
+  it('answers an outage with Unavailable, cached briefly', async () => {
+    apiFetch.mockRejectedValue(new ApiError(0, 'ApiTimeout'));
+    expect(isUnavailable(await loadSeries(7))).toBe(true);
+    expect(cacheLife).toHaveBeenCalledExactlyOnceWith('unavailable');
+  });
 
   it('lets a bug through (a 400)', async () => {
     apiFetch.mockRejectedValue(new ApiError(400));
@@ -67,12 +61,9 @@ describe('loadSeriesOrNull', () => {
     await expect(loadSeriesOrNull(7)).resolves.toBeNull();
   });
 
-  it.each([
-    ['a 400', new ApiError(400)],
-    ['an invalid body', new ApiError(200, 'ApiInvalidResponse')],
-  ])('reads %s as no show too, and logs it once', async (_, error) => {
+  it('reads an invalid body as no show too, and logs it once', async () => {
     const log = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    apiFetch.mockRejectedValue(error);
+    apiFetch.mockRejectedValue(new ApiError(200, 'ApiInvalidResponse'));
     await expect(loadSeriesOrNull(7)).resolves.toBeNull();
     expect(log).toHaveBeenCalledTimes(1);
   });

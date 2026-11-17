@@ -1,8 +1,10 @@
-import { readdirSync, readFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
+
+import { sourceFiles } from '@/test/sourceFiles';
 
 /**
  * Informative text is at least white at 60%: the level that
@@ -18,17 +20,6 @@ const MARKER = /contrast-exempt:\s*\S/;
 const SRC = fileURLToPath(new URL('../..', import.meta.url));
 const LOW = /\btext-white\/([1-5]?[0-9])(?![0-9])/g;
 
-const sources = (dir: string): string[] =>
-  readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    const path = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      return sources(path);
-    }
-    return /\.tsx?$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name)
-      ? [path]
-      : [];
-  });
-
 type Use = Readonly<{
   file: string;
   line: number;
@@ -38,7 +29,7 @@ type Use = Readonly<{
 
 /** Every low step in the app, with whether its line (or the one above) carries the marker */
 const lowUses = (): ReadonlyArray<Use> =>
-  sources(SRC).flatMap((path) => {
+  sourceFiles(SRC).flatMap((path) => {
     const file = relative(SRC, path);
     const lines = readFileSync(path, 'utf8').split('\n');
     return lines.flatMap((text, index) =>
@@ -70,7 +61,7 @@ describe('text contrast floor', () => {
           `${use.file}:${use.line - 1}`,
         ]),
     );
-    const stale = sources(SRC).flatMap((path) => {
+    const stale = sourceFiles(SRC).flatMap((path) => {
       const file = relative(SRC, path);
       return readFileSync(path, 'utf8')
         .split('\n')

@@ -1,21 +1,12 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
+import { sourceFiles } from '@/test/sourceFiles';
+
 const SRC = path.resolve(import.meta.dirname, '../..');
 const DIRECTIVE = /^\s*['"]use cache['"];?\s*$/m;
-
-const sources = (dir: string): ReadonlyArray<string> =>
-  readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      return sources(full);
-    }
-    return /\.tsx?$/.test(entry.name) && !entry.name.includes('.test.')
-      ? [full]
-      : [];
-  });
 
 /**
  * A `'use cache'` scope without `cacheLife` takes Next's 15-minute `default`
@@ -27,7 +18,7 @@ const sources = (dir: string): ReadonlyArray<string> =>
  */
 describe("every 'use cache' scope", () => {
   it('names its cacheLife profile', () => {
-    const missing = sources(SRC).flatMap((file) =>
+    const missing = sourceFiles(SRC).flatMap((file) =>
       readFileSync(file, 'utf8')
         .split(DIRECTIVE)
         .slice(1)

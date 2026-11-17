@@ -1,22 +1,13 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
+import { sourceFiles } from '@/test/sourceFiles';
+
 import { tags } from './tags';
 
 const SRC = path.resolve(import.meta.dirname, '../..');
-
-const sources = (dir: string): ReadonlyArray<string> =>
-  readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      return sources(full);
-    }
-    return /\.tsx?$/.test(entry.name) && !entry.name.includes('.test.')
-      ? [full]
-      : [];
-  });
 
 /** The arguments of a call, split on its top-level commas */
 const splitArgs = (args: string): ReadonlyArray<string> => {
@@ -46,7 +37,7 @@ type Call = Readonly<{
 const CALL = /\b(cacheTag|updateTag|revalidateTag)\(((?:[^()]|\([^()]*\))*)\)/g;
 
 /** Every cacheTag/updateTag/revalidateTag call outside comments, with the arguments that are tags */
-const calls: ReadonlyArray<Call> = sources(SRC).flatMap((file) => {
+const calls: ReadonlyArray<Call> = sourceFiles(SRC).flatMap((file) => {
   const source = readFileSync(file, 'utf8')
     .replace(/\/\*[\s\S]*?\*\//g, '')
     .replace(/\/\/.*$/gm, '');
@@ -138,10 +129,15 @@ describe('cache tags', () => {
   it('are always built by `tags`, never written by hand', () => {
     const handWritten = calls.flatMap((call) =>
       call.args
-        .filter((arg) => !arg.startsWith('tags.') && !/^\w+$/.test(arg))
+        // an invalidation may loop over a list of built tags; a reader names its own
+        .filter(
+          (arg) =>
+            !arg.startsWith('tags.') &&
+            !(call.kind === 'invalidate' && /^\w+$/.test(arg)),
+        )
         .map((arg) => `${call.file}: ${arg}`),
     );
-    // an identifier argument is a loop over tags the file builds
+    // an invalidation's identifier argument is a loop over tags the file builds
     const unbuilt = calls
       .filter((call) => buildersOf(call).length === 0)
       .map((call) => call.file);

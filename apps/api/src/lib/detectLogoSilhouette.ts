@@ -3,7 +3,7 @@ import { generateTmdbImageUrl } from '@tvseri.es/utils';
 
 import { logWarn } from '@/utils/logWarn';
 
-import { getCacheItem, setCacheItem } from './db/cache';
+import { readThrough } from './db/cache/readThrough';
 import { invokeImageLambda } from './imageLambda';
 
 const CACHE_PREFIX = 'detectLogoSilhouette:v1:';
@@ -11,40 +11,16 @@ const CACHE_PREFIX = 'detectLogoSilhouette:v1:';
 /** The size the web draws network logos at, so the check sees the same file */
 const LOGO_SIZE = 'w500';
 
-const cacheKey = (path: string) => `${CACHE_PREFIX}${path}`;
-
-const readStored = async (path: string) => {
-  try {
-    const stored = await getCacheItem<unknown>(cacheKey(path));
-    return typeof stored === 'boolean' ? stored : undefined;
-  } catch (error) {
-    // Cache is best-effort: fall through to the check
-    logWarn('Logo silhouette cache read failed', error);
-    return undefined;
+/** Asks the image Lambda; throws when it gives no answer */
+const checkLogo = async (path: string): Promise<boolean> => {
+  const result = (await invokeImageLambda({
+    mode: 'logo',
+    url: generateTmdbImageUrl(path, LOGO_SIZE),
+  })) as Readonly<{ silhouette?: unknown }> | null;
+  if (typeof result?.silhouette !== 'boolean') {
+    throw new Error('DominantColor Lambda returned no logo answer');
   }
-};
-
-// Runs the check and stores the answer for good (a TMDB path never changes
-// its pixels). `undefined` when it fails; failures are never stored.
-const detectAndCache = async (path: string) => {
-  try {
-    const result = (await invokeImageLambda({
-      mode: 'logo',
-      url: generateTmdbImageUrl(path, LOGO_SIZE),
-    })) as Readonly<{ silhouette?: unknown }> | null;
-    if (typeof result?.silhouette !== 'boolean') {
-      throw new Error('DominantColor Lambda returned no logo answer');
-    }
-    await setCacheItem<boolean>(cacheKey(path), result.silhouette, {
-      ttl: null,
-    }).catch((error: unknown) => {
-      logWarn('Logo silhouette cache write failed', error);
-    });
-    return result.silhouette;
-  } catch (error) {
-    logWarn('Logo silhouette check failed', error);
-    return undefined;
-  }
+  return result.silhouette;
 };
 
 /**
@@ -63,5 +39,11 @@ export async function detectLogoSilhouette(
   if (!TMDB_IMAGE_PATH_REGEX.test(path)) {
     return undefined;
   }
-  return (await readStored(path)) ?? detectAndCache(path);
+  // Stored for good: a TMDB path never changes its pixels
+  return readThrough(`${CACHE_PREFIX}${path}`, null, () =>
+    checkLogo(path),
+  ).catch((error: unknown) => {
+    logWarn('Logo silhouette check failed', error);
+    return undefined;
+  });
 }

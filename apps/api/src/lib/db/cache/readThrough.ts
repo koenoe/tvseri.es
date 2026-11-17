@@ -7,8 +7,11 @@ import {
 import { createLimiter, mapSettled } from '@/utils/limit';
 import { logWarn } from '@/utils/logWarn';
 
-/** Seconds a value is stored, or `false` when it must not be stored at all */
-type Ttl<T> = number | ((value: T) => number | false);
+/**
+ * Seconds a value is stored, `null` to keep it for good, or `false` when it
+ * must not be stored at all
+ */
+type Ttl<T> = number | null | ((value: T) => number | null | false);
 
 const secondsFor = <T>(ttl: Ttl<T>, value: T) =>
   typeof ttl === 'function' ? ttl(value) : ttl;
@@ -130,7 +133,7 @@ export const readThroughMany = async <K, T>(
       ? await Promise.all(misses.map((miss) => limit(() => loadOne(miss))))
       : await mapSettled(misses, loadOne, concurrency);
 
-  const toStore = new Map<number, Array<readonly [string, T]>>();
+  const toStore = new Map<number | null, Array<readonly [string, T]>>();
   for (const { cacheKey, store, value } of loaded) {
     const seconds = store ? secondsFor(ttl, value) : false;
     if (seconds !== false) {

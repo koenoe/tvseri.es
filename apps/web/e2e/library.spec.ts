@@ -90,13 +90,18 @@ test.describe('the Library, yours', () => {
     const first = tiles(page).first();
     await first.hover();
     await first.getByRole('button', { name: /^More actions for/ }).click();
-    // the second tile slides (a transform) rather than jumping
+    // the second tile slides (a transform) rather than jumping: watched from
+    // the press until 30 frames after the first tile has left the grid (a
+    // count of frames from the moment it matters, not 1.5s of the clock from
+    // before the press, which a slow machine spent on the press itself)
     const slid = tiles(page)
       .nth(1)
       .evaluate(
-        (tile) =>
+        (tile, gone) =>
           new Promise<boolean>((resolve) => {
-            const start = performance.now();
+            const grid = tile.parentElement;
+            const count = grid?.children.length ?? 0;
+            let after = -1;
             const tick = () => {
               const { transform } = getComputedStyle(tile);
               if (
@@ -104,14 +109,22 @@ test.describe('the Library, yours', () => {
                 !transform.includes('1, 0, 0, 1, 0, 0')
               ) {
                 resolve(true);
-              } else if (performance.now() - start < 1500) {
-                requestAnimationFrame(tick);
-              } else {
+                return;
+              }
+              if (after < 0 && (grid?.children.length ?? 0) < count) {
+                after = 0;
+              } else if (after >= 0) {
+                after += 1;
+              }
+              if (after >= gone) {
                 resolve(false);
+              } else {
+                requestAnimationFrame(tick);
               }
             };
             requestAnimationFrame(tick);
           }),
+        30,
       );
     await page.getByRole('menuitem', { name: /Hide from in progress/ }).click();
     expect(await slid).toBe(true);

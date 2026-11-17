@@ -3,6 +3,7 @@ import 'server-only';
 import type { LandingType } from '@tvseri.es/constants';
 import { cacheLife, cacheTag } from 'next/cache';
 
+import { tags } from '@/lib/cache/tags';
 import { isUnavailable, type Unavailable } from '@/lib/cache/unavailable';
 
 import { getLandingFacts } from './facts';
@@ -17,7 +18,7 @@ export async function getLandingCount(
   slug: string,
 ): Promise<number | null | Unavailable> {
   'use cache';
-  cacheTag(`landing:${type}:${slug}`);
+  cacheTag(tags.landing(type, slug));
   const facts = await getLandingFacts(type, slug);
   if (isUnavailable(facts)) {
     cacheLife('unavailable');

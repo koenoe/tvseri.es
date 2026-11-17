@@ -4,6 +4,7 @@ import type { Keyword, Rating, Season, TvSeries } from '@tvseri.es/schemas';
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isUnavailable,
   tryApi,
@@ -87,7 +88,7 @@ export async function loadSeasonEpisodes(
   seasonNumber: number,
 ): Promise<ShowSeasonEpisodes | null | Unavailable> {
   'use cache';
-  cacheTag(`series:${seriesId}`);
+  cacheTag(tags.series(seriesId));
   const season = await tryApi(() =>
     apiFetch<Season>('/series/:id/season/:season', {
       notFound: 'null',
@@ -122,7 +123,7 @@ export async function loadKeywords(
   id: number,
 ): Promise<ReadonlyArray<Keyword> | Unavailable> {
   'use cache';
-  cacheTag(`series:${id}`);
+  cacheTag(tags.series(id));
   const keywords = await tryApi(() =>
     apiFetch<Keyword[]>('/series/:id/keywords', {
       notFound: 'null',
@@ -152,7 +153,7 @@ export async function loadRecommendations(
   id: number,
 ): Promise<ReadonlyArray<Recommendation> | Unavailable> {
   'use cache';
-  cacheTag(`series:${id}`);
+  cacheTag(tags.series(id));
   const items = await tryApi(() =>
     apiFetch<TvSeries[]>('/series/:id/recommendations', {
       notFound: 'null',
@@ -181,7 +182,7 @@ export async function loadRating(
   id: number,
 ): Promise<ShowRating | null | Unavailable> {
   'use cache';
-  cacheTag(`series:${id}`);
+  cacheTag(tags.series(id));
   const rating = await tryApi(() =>
     apiFetch<Rating | null>('/series/:id/rating', {
       notFound: 'null',
@@ -209,7 +210,7 @@ export async function loadContentRating(
 ): Promise<string | null> {
   'use cache';
   cacheLife('medium');
-  cacheTag(`series:${id}`);
+  cacheTag(tags.series(id));
   const rating = await apiFetch<string | null>('/series/:id/content-rating', {
     notFound: 'null',
     params: { id },

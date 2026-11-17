@@ -23,6 +23,7 @@ import {
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isStandIn,
   isUnavailable,
@@ -54,8 +55,6 @@ import { onDay } from './premiereDays';
  * every instance shows the same "of the day" and a new day is a new entry.
  */
 
-const TAG = 'home';
-
 /** The spotlight's ten: trending this week, each with a backdrop */
 const SPOTLIGHT_COUNT = 10;
 const ROW_LIMIT = 20;
@@ -72,7 +71,7 @@ export async function getHomeDay(): Promise<string> {
   'use cache';
   const now = new Date();
   cacheLife(untilUtcMidnight(now));
-  cacheTag(TAG);
+  cacheTag(tags.home);
   return utcDay(now);
 }
 
@@ -84,7 +83,7 @@ export async function getSpotlight(): Promise<
   ReadonlyArray<TvSeries> | Unavailable
 > {
   'use cache';
-  cacheTag(TAG);
+  cacheTag(tags.home);
   const items = await loadTrendingShows();
   if (isUnavailable(items)) {
     cacheLife('unavailable');
@@ -114,7 +113,7 @@ export async function getTopPicks(
   month: string,
 ): Promise<ReadonlyArray<TvSeries> | Unavailable> {
   'use cache';
-  cacheTag(TAG, `home:month:${month}`);
+  cacheTag(tags.home, tags.homeMonth(month));
   const [items, spotlight] = await Promise.all([
     tryApi(() => apiFetch<TvSeries[]>('/collection/most-popular-this-month')),
     getSpotlight(),
@@ -157,7 +156,7 @@ export async function getPickPool(
   day: string,
 ): Promise<ReadonlyArray<TvSeries> | Unavailable> {
   'use cache';
-  cacheTag(TAG);
+  cacheTag(tags.home);
   const [pool, topPicks] = await Promise.all([
     tryApi(() => apiFetch<TvSeries[]>('/collection/top-rated')),
     getTopPicks(day.slice(0, 7)),
@@ -197,7 +196,7 @@ export async function getHiddenGems(
   day: string,
 ): Promise<ReadonlyArray<TvSeries> | Unavailable> {
   'use cache';
-  cacheTag(TAG);
+  cacheTag(tags.home);
   const [gems, deck, feature] = await Promise.all([
     tryApi(() =>
       apiFetch<TvSeries[]>('/home/hidden-gems', {
@@ -258,7 +257,7 @@ async function featureOfDay(
   version: number,
 ): Promise<FeatureOfTheDay | null | Unavailable> {
   'use cache';
-  cacheTag(TAG);
+  cacheTag(tags.home);
   const query = momentQuery(day, featureKindOfDay(day), version);
   const result = await tryApi(() =>
     apiFetch<FeatureOfTheDay>('/home/feature', { notFound: 'null', query }),
@@ -286,7 +285,7 @@ async function toyOfDay(
   version: number,
 ): Promise<ToyOfTheDay | null | Unavailable> {
   'use cache';
-  cacheTag(TAG);
+  cacheTag(tags.home);
   const query = momentQuery(day, toyKindOfDay(day), version);
   const result = await tryApi(() =>
     apiFetch<ToyOfTheDay>('/home/toy', { notFound: 'null', query }),
@@ -356,7 +355,7 @@ export async function getNewThisWeek(
   day: string,
 ): Promise<ReadonlyArray<NewRelease> | Unavailable> {
   'use cache';
-  cacheTag(TAG);
+  cacheTag(tags.home);
   const date = apiDate(day);
   const [answer, spotlight, feature, toy] = await Promise.all([
     tryApi(() =>
@@ -402,7 +401,7 @@ export async function getPremieres(
   day: string,
 ): Promise<ReadonlyArray<Premiere> | Unavailable> {
   'use cache';
-  cacheTag(TAG);
+  cacheTag(tags.home);
   const [premieres, newThisWeek, feature, toy] = await Promise.all([
     tryApi(() =>
       apiFetch<Premieres>('/premieres', { query: { date: apiDate(day) } }),

@@ -12,6 +12,7 @@ import * as v from 'valibot';
 import { getViewer } from '@/auth/viewer';
 import { type ActionResult, actionError, okResult } from '@/lib/actions/result';
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import { loadSeries } from '@/lib/series/loaders';
 
@@ -37,8 +38,8 @@ async function adminToken(): Promise<string | null> {
 }
 
 function refresh(seriesId: number) {
-  updateTag(`series:${seriesId}`);
-  updateTag('home');
+  updateTag(tags.series(seriesId));
+  updateTag(tags.home);
 }
 
 export async function loadAdminImages(

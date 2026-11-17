@@ -13,6 +13,7 @@ import { cacheLife, cacheTag } from 'next/cache';
 import { unstable_rethrow } from 'next/navigation';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isUnavailable,
   tryApi,
@@ -51,7 +52,7 @@ export async function loadSeries(
   id: number,
 ): Promise<TvSeries | null | Unavailable> {
   'use cache';
-  cacheTag(`series:${id}`);
+  cacheTag(tags.series(id));
   const series = await tryApi(() => readSeries(id));
   if (isUnavailable(series)) {
     failedFills.set(id, failedFillsOf(id) + 1);
@@ -99,7 +100,7 @@ export async function loadSeason(
 ): Promise<Season | null> {
   'use cache';
   cacheLife('short');
-  cacheTag(`series:${id}`);
+  cacheTag(tags.series(id));
   return apiFetch<Season>('/series/:id/season/:season', {
     notFound: 'null',
     params: { id, season: seasonNumber },
@@ -113,7 +114,7 @@ export async function loadWatchProviders(
 ): Promise<ReadonlyArray<WatchProvider>> {
   'use cache';
   cacheLife('short');
-  cacheTag(`series:${id}`);
+  cacheTag(tags.series(id));
   return (
     (await apiFetch<WatchProvider[]>('/series/:id/watch-providers', {
       notFound: 'null',
@@ -131,7 +132,7 @@ export async function loadEpisodeWithCredits(
 ): Promise<EpisodeWithCredits | null> {
   'use cache';
   cacheLife('short');
-  cacheTag(`series:${id}`);
+  cacheTag(tags.series(id));
   return apiFetch<EpisodeWithCredits>(
     '/series/:id/season/:season/episode/:episode',
     {
@@ -158,7 +159,7 @@ export async function loadSeriesCredits(
   id: number,
 ): Promise<SeriesCast | null | Unavailable> {
   'use cache';
-  cacheTag(`series:${id}`);
+  cacheTag(tags.series(id));
   const credits = await tryApi(() =>
     apiFetch<SeriesCredits>('/series/:id/credits', {
       notFound: 'null',
@@ -186,7 +187,7 @@ export async function loadSeasonRatings(
   seasonNumber: number,
 ): Promise<SeasonRatings | null> {
   'use cache';
-  cacheTag(`series:${id}`);
+  cacheTag(tags.series(id));
   const result = await apiFetch<SeasonRatings>(
     '/series/:id/season/:season/ratings',
     { notFound: 'null', params: { id, season: seasonNumber } },
@@ -213,7 +214,7 @@ export async function loadRuntimes(
   id: number,
 ): Promise<SeriesRuntimes | Unavailable> {
   'use cache';
-  cacheTag(`series:${id}`);
+  cacheTag(tags.series(id));
   const runtimes = await tryApi(() =>
     apiFetch<SeriesRuntimes>('/series/:id/runtimes', {
       notFound: 'null',

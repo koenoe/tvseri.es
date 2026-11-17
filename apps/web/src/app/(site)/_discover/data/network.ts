@@ -4,6 +4,7 @@ import type { Network } from '@tvseri.es/schemas';
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isUnavailable,
   tryApi,
@@ -32,7 +33,7 @@ export async function getNetworkDetails(
   id: number,
 ): Promise<NetworkDetails | null | Unavailable> {
   'use cache';
-  cacheTag(`network:${id}`);
+  cacheTag(tags.network(id));
 
   const network = await tryApi(() =>
     apiFetch<Network>('/network/:id', { notFound: 'null', params: { id } }),

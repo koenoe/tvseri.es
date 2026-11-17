@@ -2,7 +2,7 @@ import 'server-only';
 
 import { revalidateTag, updateTag } from 'next/cache';
 
-import { statsTag, usernameTag, userTag } from './tags';
+import { tags } from '@/lib/cache/tags';
 
 /**
  * Call from a server action after a user's public identity changed: a
@@ -19,9 +19,9 @@ const userTags = (
   userId: string,
   usernames: ReadonlyArray<string>,
 ): ReadonlyArray<string> => [
-  userTag(userId),
-  statsTag(userId),
-  ...usernames.map(usernameTag),
+  tags.user(userId),
+  tags.stats(userId),
+  ...usernames.map(tags.username),
 ];
 
 export function revalidateUser(

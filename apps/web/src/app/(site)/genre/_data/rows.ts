@@ -4,6 +4,7 @@ import { allOf, type LandingFilter, landingFilter } from '@tvseri.es/constants';
 import { formatISO, subMonths } from 'date-fns';
 import { cacheLife, cacheTag } from 'next/cache';
 
+import { tags } from '@/lib/cache/tags';
 import {
   allAvailable,
   isUnavailable,
@@ -53,7 +54,7 @@ async function getNewInGenre(
   slug: string,
 ): Promise<DiscoverShows | Unavailable> {
   'use cache';
-  cacheTag(`genre:${slug}:new`);
+  cacheTag(tags.genreNew(slug));
 
   const today = new Date();
   const shows = await getDiscoverShows(
@@ -83,7 +84,7 @@ export async function getBestInGenre(
   slug: string,
 ): Promise<ReadonlyArray<RankedShow> | Unavailable> {
   'use cache';
-  cacheTag(`genre:${slug}:best`);
+  cacheTag(tags.genreBest(slug));
 
   const query = bestInGenreQuery(slug);
   const first = await getDiscoverShows(query);

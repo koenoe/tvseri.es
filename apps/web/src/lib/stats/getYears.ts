@@ -4,13 +4,12 @@ import type { StatsYears } from '@tvseri.es/schemas';
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isUnavailable,
   tryApi,
   type Unavailable,
 } from '@/lib/cache/unavailable';
-
-import { statsTag, userTag } from './tags';
 
 /**
  * The Years list: years with dated watches, newest first. Public and about
@@ -23,7 +22,7 @@ export async function getYears(
   userId: string,
 ): Promise<StatsYears | Unavailable> {
   'use cache';
-  cacheTag(userTag(userId), statsTag(userId));
+  cacheTag(tags.user(userId), tags.stats(userId));
   const result = await tryApi(() =>
     apiFetch<StatsYears>('/user/:id/stats/years', { params: { id: userId } }),
   );

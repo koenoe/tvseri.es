@@ -4,13 +4,12 @@ import { StatsZoneSchema } from '@tvseri.es/schemas';
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isUnavailable,
   tryApi,
   type Unavailable,
 } from '@/lib/cache/unavailable';
-
-import { statsTag, userTag } from './tags';
 
 /**
  * The zone a user's stats count in (IANA), so History can draw local days
@@ -25,7 +24,7 @@ export async function getStatsTimeZone(
   userId: string,
 ): Promise<string | Unavailable> {
   'use cache';
-  cacheTag(userTag(userId), statsTag(userId));
+  cacheTag(tags.user(userId), tags.stats(userId));
   const result = await tryApi(() =>
     apiFetch('/user/:id/stats/zone', {
       params: { id: userId },

@@ -5,6 +5,7 @@ import type { RomanizedTitles } from '@tvseri.es/schemas';
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isUnavailable,
   tryApi,
@@ -39,7 +40,7 @@ async function getRomanizedTitles(
   ids: string,
 ): Promise<RomanizedTitles | Unavailable> {
   'use cache';
-  cacheTag('romanized-titles');
+  cacheTag(tags.romanizedTitles);
   const titles = await tryApi(() =>
     apiFetch<RomanizedTitles>('/series/romanized-titles', { query: { ids } }),
   );
@@ -61,7 +62,7 @@ export async function getTitleWall(
   code: string,
 ): Promise<ReadonlyArray<TitleCard> | Unavailable> {
   'use cache';
-  cacheTag(`landing:language:${code}`);
+  cacheTag(tags.landing('language', code));
   const discover = await getDiscoverShows(languageQuery(code));
   if (isUnavailable(discover)) {
     cacheLife('unavailable');

@@ -4,6 +4,7 @@ import type { SeriesSummaries } from '@tvseri.es/schemas';
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isUnavailable,
   tryApi,
@@ -49,7 +50,7 @@ export async function getShowSummaries(
   ids: string,
 ): Promise<Readonly<Record<number, ShowSummary>> | Unavailable> {
   'use cache';
-  cacheTag('series-summaries');
+  cacheTag(tags.seriesSummaries);
 
   const list = ids.split(',').filter(Boolean);
   const responses = await tryApi(() =>

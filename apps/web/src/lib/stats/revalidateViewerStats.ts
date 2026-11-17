@@ -2,7 +2,7 @@ import 'server-only';
 
 import { revalidateTag } from 'next/cache';
 
-import { statsTag } from './tags';
+import { tags } from '@/lib/cache/tags';
 
 /**
  * Call from a server action after the viewer's own watched history changed
@@ -32,7 +32,7 @@ import { statsTag } from './tags';
  */
 export function revalidateViewerStats(viewerId: string): void {
   try {
-    revalidateTag(statsTag(viewerId), 'max');
+    revalidateTag(tags.stats(viewerId), 'max');
   } catch (error) {
     console.error('[stats] refresh after a write failed', error);
   }

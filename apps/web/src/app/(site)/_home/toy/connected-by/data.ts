@@ -5,6 +5,7 @@ import type { ConnectedFrom, ConnectedPath } from '@tvseri.es/schemas';
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isStandIn,
   isUnavailable,
@@ -29,7 +30,7 @@ async function connectedFrom(
   version: number,
 ): Promise<ConnectedFrom | null | Unavailable> {
   'use cache';
-  cacheTag('home');
+  cacheTag(tags.home);
   const date = apiDate(day);
   const result = await tryApi(() =>
     apiFetch<ConnectedFrom>('/home/connected', {

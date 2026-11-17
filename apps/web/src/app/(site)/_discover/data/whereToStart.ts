@@ -4,6 +4,7 @@ import type { WhereToStart, WhereToStartPick } from '@tvseri.es/schemas';
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isUnavailable,
   tryApi,
@@ -45,7 +46,7 @@ export async function getWhereToStart(
   value: string,
 ): Promise<ReadonlyArray<StartPick> | Unavailable> {
   'use cache';
-  cacheTag(`where-to-start:${by}:${value}`);
+  cacheTag(tags.whereToStart(by, value));
 
   const response = await tryApi(() =>
     apiFetch<WhereToStart>('/duration/where-to-start', {

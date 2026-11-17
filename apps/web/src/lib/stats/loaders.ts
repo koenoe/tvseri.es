@@ -19,6 +19,7 @@ import type {
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isUnavailable,
   tryApi,
@@ -28,7 +29,6 @@ import { type ProfileCounts, readProfileCounts } from '@/lib/profile/counts';
 import { memberSince } from '@/lib/profile/memberSince';
 import { loadProfileUser, type ProfileUser } from '@/lib/profile/user';
 import { loadSeries } from '@/lib/series/loaders';
-import { statsTag, usernameTag, userTag } from '@/lib/stats/tags';
 
 /**
  * The Stats page's reads. Everything is public and about the profile owner,
@@ -83,7 +83,7 @@ export async function getStatsUser(
   username: string,
 ): Promise<Loaded<StatsUser | null>> {
   'use cache';
-  cacheTag(usernameTag(username));
+  cacheTag(tags.username(username));
   const user = await tryApi(() => loadProfileUser(username));
   if (isUnavailable(user)) {
     cacheLife('unavailable');
@@ -94,7 +94,7 @@ export async function getStatsUser(
     return null;
   }
   cacheLife('statsCurrent');
-  cacheTag(userTag(user.id), statsTag(user.id));
+  cacheTag(tags.user(user.id), tags.stats(user.id));
   return toStatsUser(user);
 }
 
@@ -108,7 +108,7 @@ async function readStats<T>(
   params: Readonly<Record<string, string | number>>,
 ): Promise<Loaded<T>> {
   'use cache';
-  cacheTag(userTag(userId), statsTag(userId));
+  cacheTag(tags.user(userId), tags.stats(userId));
   const result = await tryApi(() =>
     apiFetch<T>(path, { params: { ...params, id: userId } }),
   );
@@ -152,7 +152,7 @@ export async function getProfileCounts(
   userId: string,
 ): Promise<Loaded<ProfileCounts>> {
   'use cache';
-  cacheTag(userTag(userId), statsTag(userId));
+  cacheTag(tags.user(userId), tags.stats(userId));
   const counts = await readProfileCounts(userId);
   if (isUnavailable(counts)) {
     cacheLife('unavailable');
@@ -180,7 +180,7 @@ export async function getSeriesArt(
   id: number,
 ): Promise<Loaded<SeriesArt | null>> {
   'use cache';
-  cacheTag(`series:${id}`);
+  cacheTag(tags.series(id));
   // `loadSeries` answers an outage itself: `tryApi` around a cached loader
   // never sees one (its error crosses the cache as a plain `Error`)
   const series = await loadSeries(id);
@@ -223,7 +223,7 @@ export async function getPopular(
   year: number,
 ): Promise<Loaded<ReadonlyArray<PopularItem>>> {
   'use cache';
-  cacheTag(`popular:${year}`);
+  cacheTag(tags.popular(year));
   const items = await tryApi(() =>
     apiFetch<ReadonlyArray<TvSeries>>('/popular/:year', { params: { year } }),
   );

@@ -2,12 +2,14 @@ import 'server-only';
 
 import type { TvSeries } from '@tvseri.es/schemas';
 import { cacheLife, cacheTag } from 'next/cache';
+
 import {
   getLandingCounts,
   landingCountsKey,
 } from '@/app/(site)/_discover/data/counts';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isUnavailable,
   tryApi,
@@ -26,7 +28,7 @@ export async function getAllTimeFavourites(): Promise<
   ReadonlyArray<RankedShow> | Unavailable
 > {
   'use cache';
-  cacheTag('discover');
+  cacheTag(tags.discover);
   const list = await tryApi(() =>
     apiFetch<TvSeries[]>('/collection/top-rated'),
   );

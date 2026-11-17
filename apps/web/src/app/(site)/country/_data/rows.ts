@@ -2,6 +2,7 @@ import 'server-only';
 
 import { cacheLife, cacheTag } from 'next/cache';
 
+import { tags } from '@/lib/cache/tags';
 import { isUnavailable, type Unavailable } from '@/lib/cache/unavailable';
 
 import {
@@ -30,7 +31,7 @@ const NEW_YEARS = 3;
  */
 async function getNewFrom(code: string): Promise<DiscoverShows | Unavailable> {
   'use cache';
-  cacheTag(`country-new:${code}`);
+  cacheTag(tags.countryNew(code));
 
   const today = new Date();
   const from = new Date(

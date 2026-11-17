@@ -5,6 +5,7 @@ import type { LandingFacts } from '@tvseri.es/schemas';
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isUnavailable,
   tryApi,
@@ -22,7 +23,7 @@ export async function getLandingFacts(
   slug: string,
 ): Promise<LandingFacts | null | Unavailable> {
   'use cache';
-  cacheTag(`landing:${type}:${slug}`);
+  cacheTag(tags.landing(type, slug));
 
   const facts = await tryApi(() =>
     apiFetch<LandingFacts>('/discover/landing/:type/:slug/facts', {

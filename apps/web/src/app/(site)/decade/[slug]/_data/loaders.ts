@@ -3,6 +3,7 @@ import 'server-only';
 import { landingFilter } from '@tvseri.es/constants';
 import { cacheLife, cacheTag } from 'next/cache';
 
+import { tags } from '@/lib/cache/tags';
 import { isUnavailable, type Unavailable } from '@/lib/cache/unavailable';
 
 import {
@@ -62,7 +63,7 @@ export async function getLandscape(
   slug: string,
 ): Promise<ReadonlyArray<LandscapeShow> | Unavailable> {
   'use cache';
-  cacheTag(`landing:decade:${slug}`);
+  cacheTag(tags.landing('decade', slug));
   const discover = await getDiscoverShows(landscapeQuery(slug));
   if (isUnavailable(discover)) {
     cacheLife('unavailable');

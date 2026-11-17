@@ -4,6 +4,7 @@ import type { GoDeeper } from '@tvseri.es/schemas';
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isStandIn,
   isUnavailable,
@@ -47,7 +48,7 @@ const today = () => new Date().toISOString().slice(0, 10);
  */
 export async function getGoDeeper(): Promise<GoDeeperView | Unavailable> {
   'use cache';
-  cacheTag('go-deeper');
+  cacheTag(tags.goDeeper);
 
   const date = today();
   const response = await tryApi(() =>

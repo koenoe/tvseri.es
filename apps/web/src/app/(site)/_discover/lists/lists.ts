@@ -4,6 +4,7 @@ import type { CountryOrLanguage } from '@tvseri.es/schemas';
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   allAvailable,
   isUnavailable,
@@ -34,7 +35,7 @@ export async function getIndexChips(
   type: Kind,
 ): Promise<ReadonlyArray<LandingChip> | Unavailable> {
   'use cache';
-  cacheTag(`landing-index:${type}`);
+  cacheTag(tags.landingIndex(type));
 
   const entries = await tryApi(() =>
     apiFetch<ReadonlyArray<CountryOrLanguage>>(PATH[type]),

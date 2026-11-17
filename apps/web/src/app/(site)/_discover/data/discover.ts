@@ -8,6 +8,7 @@ import {
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isUnavailable,
   tryApi,
@@ -50,7 +51,7 @@ export async function getDiscoverShows(
   life: 'medium' | 'short' = 'medium',
 ): Promise<DiscoverShows | Unavailable> {
   'use cache';
-  cacheTag('discover');
+  cacheTag(tags.discover);
 
   const query = Object.fromEntries(new URLSearchParams(queryString));
   const response = await tryApi(() =>

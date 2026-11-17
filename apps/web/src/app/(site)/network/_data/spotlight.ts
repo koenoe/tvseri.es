@@ -3,6 +3,7 @@ import 'server-only';
 import type { TvSeries } from '@tvseri.es/schemas';
 import { cacheLife, cacheTag } from 'next/cache';
 
+import { tags } from '@/lib/cache/tags';
 import { isUnavailable, type Unavailable } from '@/lib/cache/unavailable';
 import { loadSeries } from '@/lib/series/loaders';
 
@@ -91,7 +92,7 @@ export async function getNetworkSpotlight(
   networkId: number,
 ): Promise<NetworkSpotlight | null | Unavailable> {
   'use cache';
-  cacheTag(`network-spotlight:${networkId}`);
+  cacheTag(tags.networkSpotlight(networkId));
 
   const read = await readSpotlight(networkId);
   if (isUnavailable(read)) {

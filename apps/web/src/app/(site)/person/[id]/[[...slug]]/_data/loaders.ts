@@ -13,6 +13,7 @@ import type {
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isUnavailable,
   tryApi,
@@ -35,8 +36,6 @@ import { buildShows, crewWork, type ShowsView } from '../_lib/shows';
  * The viewer's watched line is not here: it is private (`WatchedHole`).
  */
 
-const tag = (id: number) => `person:${id}`;
-
 const UNAVAILABLE: Unavailable = { unavailable: true };
 
 export type PersonResult =
@@ -47,7 +46,7 @@ export type PersonResult =
 /** `GET /person/:id`: found, not found (or adult), or Unavailable. */
 export async function loadPerson(id: number): Promise<PersonResult> {
   'use cache';
-  cacheTag(tag(id));
+  cacheTag(tags.person(id));
   const person = await tryApi(() =>
     apiFetch<Person>('/person/:id', { notFound: 'null', params: { id } }),
   );
@@ -77,7 +76,7 @@ export async function loadShows(
   id: number,
 ): Promise<PersonShows | null | Unavailable> {
   'use cache';
-  cacheTag(tag(id));
+  cacheTag(tags.person(id));
   const shows = await tryApi(() =>
     apiFetch<PersonShows>('/person/:id/shows', {
       notFound: 'null',
@@ -97,7 +96,7 @@ async function loadCareer(
   id: number,
 ): Promise<PersonCareer | null | Unavailable> {
   'use cache';
-  cacheTag(tag(id));
+  cacheTag(tags.person(id));
   const career = await tryApi(() =>
     apiFetch<PersonCareer>('/person/:id/career', {
       notFound: 'null',
@@ -116,7 +115,7 @@ async function loadKnownForItems(
   id: number,
 ): Promise<ReadonlyArray<TvSeries | Movie> | Unavailable> {
   'use cache';
-  cacheTag(tag(id));
+  cacheTag(tags.person(id));
   const items = await tryApi(() =>
     apiFetch<(TvSeries | Movie)[]>('/person/:id/known-for', {
       notFound: 'null',
@@ -136,7 +135,7 @@ export async function loadKnownFor(
   id: number,
 ): Promise<ReadonlyArray<KnownForTile> | Unavailable> {
   'use cache';
-  cacheTag(tag(id));
+  cacheTag(tags.person(id));
   const [items, shows] = await Promise.all([
     loadKnownForItems(id),
     loadShows(id),
@@ -155,7 +154,7 @@ export async function loadCareerView(
   deathdate: string | undefined,
 ): Promise<CareerView | null | Unavailable> {
   'use cache';
-  cacheTag(tag(id));
+  cacheTag(tags.person(id));
   const reads = await Promise.all([
     loadCareer(id),
     loadKnownFor(id),
@@ -208,7 +207,7 @@ export async function loadShowsView(
   gender: Person['gender'],
 ): Promise<ShowsView | null | Unavailable> {
   'use cache';
-  cacheTag(tag(id));
+  cacheTag(tags.person(id));
   const [shows, career] = await Promise.all([loadShows(id), loadCareer(id)]);
   // Without the career every series would lose its years: all or nothing
   if (isUnavailable(shows) || isUnavailable(career)) {
@@ -227,7 +226,7 @@ export async function loadLinks(
   id: number,
 ): Promise<PersonLinks['links'] | Unavailable> {
   'use cache';
-  cacheTag(tag(id));
+  cacheTag(tags.person(id));
   const links = await tryApi(() =>
     apiFetch<PersonLinks>('/person/:id/external-ids', {
       notFound: 'null',
@@ -258,7 +257,7 @@ export async function loadCollaborators(
   id: number,
 ): Promise<ReadonlyArray<CollaboratorView> | Unavailable> {
   'use cache';
-  cacheTag(tag(id));
+  cacheTag(tags.person(id));
   const response = await tryApi(() =>
     apiFetch<PersonCollaborators>('/person/:id/collaborators', {
       notFound: 'null',
@@ -290,7 +289,7 @@ export async function loadFamilyAndAwards(
   id: number,
 ): Promise<PersonFamilyAndAwards | Unavailable> {
   'use cache';
-  cacheTag(tag(id));
+  cacheTag(tags.person(id));
   const response = await tryApi(() =>
     apiFetch<PersonFamilyAndAwards>('/person/:id/family-and-awards', {
       notFound: 'null',

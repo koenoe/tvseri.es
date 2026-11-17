@@ -8,6 +8,8 @@ import {
   themeBySlug,
 } from '@tvseri.es/constants';
 import { cacheLife, cacheTag } from 'next/cache';
+
+import { tags } from '@/lib/cache/tags';
 import {
   allAvailable,
   isUnavailable,
@@ -88,7 +90,7 @@ export async function getThemeSpotlight(
   slug: string,
 ): Promise<ThemeSpotlight | null | Unavailable> {
   'use cache';
-  cacheTag(`theme:${slug}:spotlight`);
+  cacheTag(tags.themeSpotlight(slug));
 
   const filter = themeFilter(slug);
   const lists = allAvailable(

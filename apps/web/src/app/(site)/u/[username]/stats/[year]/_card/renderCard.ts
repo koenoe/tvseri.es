@@ -2,7 +2,7 @@ import 'server-only';
 
 import { cacheLife, cacheTag } from 'next/cache';
 
-import { statsTag, usernameTag, userTag } from '@/lib/stats/tags';
+import { tags } from '@/lib/cache/tags';
 
 import { getCardData } from './cardData';
 import { drawCard } from './draw';
@@ -42,14 +42,14 @@ export async function renderCardImage(
   theme: CardTheme,
 ): Promise<CardImageResult> {
   'use cache';
-  cacheTag(usernameTag(username));
+  cacheTag(tags.username(username));
   const data = await getCardData(username, year);
   if (data === 'unavailable') {
     cacheLife('unavailable');
     return data;
   }
   if (data.userId !== null) {
-    cacheTag(userTag(data.userId), statsTag(data.userId));
+    cacheTag(tags.user(data.userId), tags.stats(data.userId));
   }
   if (data.status === 'not-found') {
     shortOrStats(data.userId === null);

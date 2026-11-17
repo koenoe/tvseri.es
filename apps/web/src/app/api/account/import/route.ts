@@ -1,7 +1,9 @@
 import { revalidateTag } from 'next/cache';
 import { after, type NextRequest } from 'next/server';
 import * as v from 'valibot';
+
 import auth from '@/auth';
+import { tags } from '@/lib/cache/tags';
 import { resolveRegionFromHeaders } from '@/lib/geo';
 import { runImport } from '@/lib/import/importRun';
 import { toNdjsonLine } from '@/lib/import/ndjson';
@@ -9,7 +11,6 @@ import { ImportRequestSchema, readRequestRows } from '@/lib/import/schema';
 import isSameOriginRequest, {
   crossSiteRefused,
 } from '@/lib/security/sameOrigin';
-import { statsTag } from '@/lib/stats/tags';
 
 const HEADERS = {
   'Cache-Control': 'no-store',
@@ -57,7 +58,7 @@ export async function POST(req: NextRequest) {
   if (!isDryRun) {
     const userId = user.id;
     after(() => {
-      revalidateTag(statsTag(userId), { expire: 0 });
+      revalidateTag(tags.stats(userId), { expire: 0 });
     });
   }
 

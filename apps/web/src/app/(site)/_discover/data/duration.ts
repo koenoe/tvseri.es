@@ -11,6 +11,7 @@ import type {
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isUnavailable,
   tryApi,
@@ -57,7 +58,7 @@ export async function getDurationTiles(): Promise<
   ReadonlyArray<DurationTileView> | Unavailable
 > {
   'use cache';
-  cacheTag('duration');
+  cacheTag(tags.duration);
 
   // the version steps past the CDN's week-long copy when the tiles change
   const response = await tryApi(() =>
@@ -91,7 +92,7 @@ export async function getDurationPage(
   | Unavailable
 > {
   'use cache';
-  cacheTag('duration');
+  cacheTag(tags.duration);
 
   const response = await tryApi(() =>
     apiFetch<DurationPage>('/duration/:bucket', {
@@ -119,7 +120,7 @@ export async function getFinishThisWeekend(): Promise<
   ReadonlyArray<DurationTileShow> | Unavailable
 > {
   'use cache';
-  cacheTag('duration');
+  cacheTag(tags.duration);
 
   const response = await tryApi(() =>
     apiFetch<FinishThisWeekend>('/duration/weekend'),

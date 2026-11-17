@@ -5,6 +5,7 @@ import type { LandingCounts } from '@tvseri.es/schemas';
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
 import {
   isUnavailable,
   tryApi,
@@ -22,7 +23,7 @@ export async function getLandingCounts(
   slugs: string,
 ): Promise<Readonly<Record<string, number>> | Unavailable> {
   'use cache';
-  cacheTag(`landing-counts:${type}`);
+  cacheTag(tags.landingCounts(type));
 
   if (!slugs) {
     cacheLife('medium');

@@ -123,7 +123,7 @@ export function markToast(
     extra?: Readonly<{ label: string; onClick: () => void }>;
   }>,
 ): ToastInput {
-  const bulk = input.refs.length > 1 || !/^S\d+ E\d+( |$)/.test(input.what);
+  const bulk = input.refs.length > 1 || !/^S\d+E\d+( |$)/.test(input.what);
   const releaseDates =
     input.refs.length > 1 &&
     (input.choice.kind === 'now' || input.choice.kind === 'unknown')

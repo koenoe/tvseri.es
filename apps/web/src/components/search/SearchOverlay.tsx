@@ -1,27 +1,21 @@
 'use client';
 
 import {
-  type MouseEvent,
   type SyntheticEvent,
   type TransitionEvent,
-  useCallback,
   useEffect,
   useEffectEvent,
   useRef,
   useState,
 } from 'react';
 
-import EdgeTint, {
-  tintEdges,
-  untintEdges,
-} from '@/components/ui/dialog/EdgeTint';
+import EdgeTint, { untintEdges } from '@/components/ui/dialog/EdgeTint';
 import {
   openedFromKeyboard,
   quietFocus,
   returnFocus,
 } from '@/components/ui/dialog/focusReturn';
-import { lockScroll, unlockScroll } from '@/components/ui/dialog/scrollLock';
-import { popLayer, pushLayer } from '@/components/ui/layer/topLayer';
+import useModalDialog from '@/components/ui/dialog/useModalDialog';
 
 import growOrigin from './growOrigin';
 import SearchPanel from './SearchPanel';
@@ -77,59 +71,32 @@ export default function SearchOverlay({
     stop: search.finish,
     trigger,
   }));
-  // The keys typed while the overlay loaded keep arriving (the launcher keeps
-  // them until the field has the focus) after its first render, whose
-  // `search.start` the stable `attach` holds: it reads the latest here. On a
-  // slow device the first keys were lost ("the bear" became "ear").
-  const typedSoFar = useRef(initialQuery);
-  typedSoFar.current = initialQuery;
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDialogElement | null>(null);
 
-  // Opening is mounting: stable, so the dialog opens once.
-  const attach = useCallback(
-    (dialog: HTMLDialogElement) => {
+  const { attach, onCancel, onClick } = useModalDialog({
+    // replaced or unmounted before its fade finished: stop its requests
+    onClosed: () => opened.stop(),
+    onDismiss: search.close,
+    onShown: (dialog) => {
       dialogRef.current = dialog;
-      lockScroll();
-      if (!dialog.open) {
-        dialog.showModal();
-      }
-      pushLayer(dialog);
       if (panelRef.current) {
-        tintEdges(panelRef.current);
         panelRef.current.style.transformOrigin = growOrigin(
           opened.trigger,
           panelRef.current,
         );
       }
       inputRef.current?.focus();
-      opened.start(typedSoFar.current);
-      return () => {
-        // replaced or unmounted before its fade finished: stop its requests
-        opened.stop();
-        popLayer(dialog);
-        if (dialog.open) {
-          dialog.close();
-        }
-        unlockScroll();
-      };
+      // The keys typed while the overlay loaded keep arriving (the launcher
+      // keeps them until the field has the focus) after its first render:
+      // the latest `initialQuery` is read here. On a slow device the first
+      // keys were lost ("the bear" became "ear").
+      opened.start(initialQuery);
     },
-    [opened],
-  );
+    panelRef,
+  });
 
-  const cancel = (event: SyntheticEvent<HTMLDialogElement>) => {
-    event.preventDefault();
-    search.close();
-  };
-  const clickDim = (event: MouseEvent<HTMLDialogElement>) => {
-    if (
-      event.target instanceof HTMLElement &&
-      event.target.dataset.searchDim !== undefined
-    ) {
-      search.close();
-    }
-  };
   const done = useRef(false);
   const finish = () => {
     if (done.current) {
@@ -193,15 +160,15 @@ export default function SearchOverlay({
     <dialog
       aria-label="Search"
       className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-clip bg-transparent p-0 backdrop:bg-transparent"
-      onCancel={cancel}
-      onClick={clickDim}
+      onCancel={onCancel}
+      onClick={onClick}
       onClose={closedByBrowser}
       ref={attach}
     >
       <div
         className={`absolute inset-0 bg-page/70 ${FADE}`}
         data-closing={closing}
-        data-search-dim=""
+        data-dialog-backdrop=""
       />
       <div
         className={`remote-surface absolute inset-0 flex flex-col overflow-hidden pt-[env(safe-area-inset-top)] md:inset-x-0 md:top-32 md:bottom-auto md:mx-auto md:w-[672px] md:max-w-[calc(100vw-32px)] md:rounded-16 md:p-2 ${MOTION}`}

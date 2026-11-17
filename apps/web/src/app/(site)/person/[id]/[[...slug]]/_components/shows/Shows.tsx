@@ -1,7 +1,7 @@
 import type { Person } from '@tvseri.es/schemas';
 
 import { Ghost, TextLine } from '@/components/ui/ghost/ghosts';
-import SectionUnavailable from '@/components/ui/row/SectionUnavailable';
+import { SectionError } from '@/components/ui/row/RowError';
 import SectionHead from '@/components/ui/section/SectionHead';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import cn from '@/lib/cn';
@@ -64,10 +64,10 @@ export default async function Shows({
   const view = await loadShowsView(person.id, person.gender);
   if (isUnavailable(view)) {
     return (
-      <SectionUnavailable
-        id="person-shows"
+      <SectionError
         inset="flush"
         placeholder={<ShowsSkeleton />}
+        state="unavailable"
         title="Series"
       />
     );

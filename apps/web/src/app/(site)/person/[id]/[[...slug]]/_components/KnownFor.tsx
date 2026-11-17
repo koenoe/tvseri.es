@@ -2,8 +2,8 @@ import Image from 'next/image';
 import { TextLine } from '@/components/ui/ghost/ghosts';
 import { variantGridFilmGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import { SectionError } from '@/components/ui/row/RowError';
 import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
-import SectionUnavailable from '@/components/ui/row/SectionUnavailable';
 import SectionHead from '@/components/ui/section/SectionHead';
 import TileLink from '@/components/ui/tile/TileLink';
 import { TILE_HOVER } from '@/components/ui/tile/tileHover';
@@ -68,10 +68,10 @@ export default async function KnownFor({ id }: Readonly<{ id: number }>) {
   const tiles = await loadKnownFor(id);
   if (isUnavailable(tiles)) {
     return (
-      <SectionUnavailable
-        id="person-known-for"
+      <SectionError
         inset="flush"
         placeholder={<KnownForSkeleton />}
+        state="unavailable"
         title="Known for"
       />
     );

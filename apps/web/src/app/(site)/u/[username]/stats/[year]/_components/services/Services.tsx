@@ -262,11 +262,7 @@ export default async function Services({ user, year }: SectionProps) {
   const providers = await getProviders(user.id, year);
   if (isUnavailable(providers)) {
     return (
-      <StatsUnavailable
-        id="stats-services"
-        placeholder={<ServicesSkeleton />}
-        title={'Services'}
-      />
+      <StatsUnavailable placeholder={<ServicesSkeleton />} title={'Services'} />
     );
   }
   const { count, unused, used } = buildServices(

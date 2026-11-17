@@ -63,7 +63,6 @@ export default async function YearHeader({
   if (isUnavailable(summary) || isUnavailable(weekly)) {
     return (
       <StatsUnavailable
-        id="stats-header"
         placeholder={<YearHeaderSkeleton />}
         title={String(year)}
       />

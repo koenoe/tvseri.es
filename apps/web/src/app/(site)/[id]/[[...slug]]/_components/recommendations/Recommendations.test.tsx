@@ -13,12 +13,11 @@ vi.mock('../../_data/loaders', () => ({
 describe('Recommendations', () => {
   it('draws the shared failed row (not the loading skeleton) when Unavailable', async () => {
     render(await RecommendationsRow({ seriesId: 1 }));
-    expect(screen.getByRole('alert').textContent).toContain(
-      'Recommendations didn’t load.',
-    );
-    expect(
-      screen.getByRole('region', { name: 'Recommendations' }).ariaBusy,
-    ).not.toBe('true');
+    const region = screen.getByRole('region', { name: 'Recommendations' });
+    expect(region.textContent).toContain('Recommendations didn’t load.');
+    expect(region.ariaBusy).not.toBe('true');
+    // in the prerendered page from the start: read in order, not announced
+    expect(screen.queryByRole('alert')).toBeNull();
     screen.getByRole('button', { name: 'Try again' }).click();
     expect(refresh).toHaveBeenCalledOnce();
   });

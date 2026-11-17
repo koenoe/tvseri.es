@@ -68,7 +68,6 @@ export default async function BiggestNight({ user, year }: SectionProps) {
   if (isUnavailable(when)) {
     return (
       <StatsUnavailable
-        id="stats-night"
         placeholder={<BiggestNightSkeleton />}
         title={'Biggest night'}
       />

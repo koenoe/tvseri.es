@@ -14,7 +14,6 @@ describe('StatsUnavailable', () => {
   it('draws the card over the section’s own placeholder, so the section keeps its size', () => {
     render(
       <StatsUnavailable
-        id="stats-tiles"
         placeholder={<div data-testid="tiles-ghost" style={{ height: 212 }} />}
         title="Totals"
       />,
@@ -23,5 +22,8 @@ describe('StatsUnavailable', () => {
     const ghost = screen.getByTestId('tiles-ghost');
     // the ghost stays in the flow, out of reach of assistive tech
     expect(ghost.closest('[inert]')).not.toBeNull();
+    // in the prerendered page from the start: read in order, not announced
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Try again' })).toBeTruthy();
   });
 });

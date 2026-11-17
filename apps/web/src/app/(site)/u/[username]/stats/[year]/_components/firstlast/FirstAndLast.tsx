@@ -96,7 +96,6 @@ export default async function FirstAndLast({ user, year }: SectionProps) {
   if (isUnavailable(spotlight)) {
     return (
       <StatsUnavailable
-        id="stats-first-last"
         placeholder={<FirstAndLastSkeleton />}
         title={'First and last'}
       />

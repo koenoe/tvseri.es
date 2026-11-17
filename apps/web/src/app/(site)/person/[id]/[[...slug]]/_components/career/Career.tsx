@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import type { Glyph } from '@/components/ui/icon/types';
-import SectionUnavailable from '@/components/ui/row/SectionUnavailable';
+import { SectionError } from '@/components/ui/row/RowError';
 import SectionHead from '@/components/ui/section/SectionHead';
 import TileLink from '@/components/ui/tile/TileLink';
 import { isUnavailable } from '@/lib/cache/unavailable';
@@ -286,10 +286,10 @@ export default async function Career({
   ]);
   if (isUnavailable(view)) {
     return (
-      <SectionUnavailable
-        id="person-career"
+      <SectionError
         inset="flush"
         placeholder={<CareerSkeleton />}
+        state="unavailable"
         title="Career"
       />
     );

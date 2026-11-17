@@ -35,7 +35,6 @@ export default async function EveryDay({ user, year }: SectionProps) {
   if (isUnavailable(daily)) {
     return (
       <StatsUnavailable
-        id="stats-every-day"
         placeholder={<EveryDaySkeleton />}
         title={'Every day'}
       />

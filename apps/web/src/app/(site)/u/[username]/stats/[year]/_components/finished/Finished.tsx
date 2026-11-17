@@ -110,7 +110,6 @@ export default async function Finished({ user, year }: SectionProps) {
   if (isUnavailable(finished)) {
     return (
       <StatsUnavailable
-        id="stats-finished"
         placeholder={<FinishedSkeleton />}
         title={`Finished in ${year}`}
       />

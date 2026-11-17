@@ -2,13 +2,12 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import RowError, { RowErrorCard } from './RowError';
+import RowError, { RowErrorCard, SectionError } from './RowError';
 import { GHOST_FILL } from './RowGhosts';
 import RowSkeleton from './RowSkeleton';
 
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ refresh: vi.fn() }),
-}));
+const refresh = vi.hoisted(() => vi.fn());
+vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh }) }));
 
 describe('RowError', () => {
   it('keeps the row header and says only this row failed', () => {
@@ -124,5 +123,29 @@ describe('RowError where the row stood', () => {
     expect(rail(failed)).toContain('pt-[var(--row-rail-pt,24px)]');
     expect(rail(failed)).not.toMatch(/(^|\s)(md:)?pt-(4|7)(\s|$)/);
     expect(rail(loading)).toContain('pt-[var(--row-rail-pt,24px)]');
+  });
+});
+
+describe('SectionError unavailable', () => {
+  it('keeps the section’s placeholder under the card, settled and out of the tree, and is not announced', () => {
+    const { container } = render(
+      <SectionError
+        placeholder={<div data-testid="stage" style={{ height: 860 }} />}
+        state="unavailable"
+        title="Trending this week"
+      />,
+    );
+    const holder = screen.getByTestId('stage').parentElement;
+    expect(holder?.getAttribute('aria-hidden')).toBe('true');
+    expect(holder?.hasAttribute('inert')).toBe(true);
+    // settled: the placeholder doesn't pulse under a failure
+    expect(holder?.parentElement?.className).toContain('[&_*]:animate-none');
+    // not a tile row: no row region with dashed slots
+    expect(container.querySelector('.border-dashed')).toBeNull();
+    expect(container.textContent).toContain('Trending this week didn’t load.');
+    // in the prerendered page from the start: read in order, not announced
+    expect(screen.queryByRole('alert')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(refresh).toHaveBeenCalledOnce();
   });
 });

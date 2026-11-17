@@ -2,7 +2,7 @@
 
 import { SectionError } from '@/app/(site)/settings/_components/SectionErrorBoundary';
 import BlockUnavailable from '@/app/(site)/u/[username]/(profile)/_components/blocks/BlockUnavailable';
-import SectionUnavailable from '@/components/ui/row/SectionUnavailable';
+import RowError from '@/components/ui/row/RowError';
 
 import Section from './Section';
 import { Specimen } from './Specimen';
@@ -24,9 +24,13 @@ export default function UnavailableSection() {
       <Specimen
         className="block"
         label="A row on Home or Discover"
-        note="SectionUnavailable (a row)"
+        note="RowError (state unavailable)"
       >
-        <SectionUnavailable id="sg-row-down" title="Top Picks for November" />
+        <RowError
+          id="sg-row-down"
+          state="unavailable"
+          title="Top Picks for November"
+        />
       </Specimen>
       <Specimen
         className="block max-w-80"

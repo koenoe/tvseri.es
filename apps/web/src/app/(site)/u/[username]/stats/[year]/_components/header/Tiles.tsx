@@ -48,11 +48,7 @@ export default async function Tiles({ state, user, year }: SectionProps) {
   ]);
   if (isUnavailable(summary) || isUnavailable(favorites)) {
     return (
-      <StatsUnavailable
-        id="stats-tiles"
-        placeholder={<TilesSkeleton />}
-        title={'Totals'}
-      />
+      <StatsUnavailable placeholder={<TilesSkeleton />} title={'Totals'} />
     );
   }
   const joinedYear = new Date(user.createdAt).getUTCFullYear();

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { userGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
-import SectionUnavailable from '@/components/ui/row/SectionUnavailable';
+import { SectionError } from '@/components/ui/row/RowError';
 import SectionHead from '@/components/ui/section/SectionHead';
 import TileLink from '@/components/ui/tile/TileLink';
 import { TILE_HOVER } from '@/components/ui/tile/tileHover';
@@ -36,10 +36,10 @@ export default async function Collaborators({ id }: Readonly<{ id: number }>) {
   const people = await loadCollaborators(id);
   if (isUnavailable(people)) {
     return (
-      <SectionUnavailable
-        id="person-collaborators"
+      <SectionError
         inset="flush"
         placeholder={<CollaboratorsSkeleton />}
+        state="unavailable"
         title="Frequent collaborators"
       />
     );

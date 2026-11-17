@@ -1,6 +1,6 @@
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
-import SectionUnavailable from '@/components/ui/row/SectionUnavailable';
+import { SectionError } from '@/components/ui/row/RowError';
 import SectionHead from '@/components/ui/section/SectionHead';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import cn from '@/lib/cn';
@@ -26,10 +26,10 @@ export default async function Awards({
   const data = await loadFamilyAndAwards(id);
   if (isUnavailable(data)) {
     return (
-      <SectionUnavailable
-        id="person-awards"
+      <SectionError
         inset="flush"
         placeholder={<AwardsSkeleton />}
+        state="unavailable"
         title="Awards"
       />
     );

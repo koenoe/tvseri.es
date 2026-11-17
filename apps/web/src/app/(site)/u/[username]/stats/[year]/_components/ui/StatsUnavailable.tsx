@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import SectionUnavailable from '@/components/ui/row/SectionUnavailable';
+import { SectionError } from '@/components/ui/row/RowError';
 
 /**
  * A stats block whose API read was unavailable: the shared static
@@ -11,15 +11,14 @@ import SectionUnavailable from '@/components/ui/row/SectionUnavailable';
  * the Stats column has the gutter).
  */
 export default function StatsUnavailable({
-  id,
   placeholder,
   title,
-}: Readonly<{ id: string; placeholder: ReactNode; title: string }>) {
+}: Readonly<{ placeholder: ReactNode; title: string }>) {
   return (
-    <SectionUnavailable
-      id={id}
+    <SectionError
       inset="flush"
       placeholder={placeholder}
+      state="unavailable"
       title={title}
     />
   );

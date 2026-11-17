@@ -43,7 +43,6 @@ export default async function StatsSidebar({
   if (isUnavailable(counts) || isUnavailable(rows)) {
     return (
       <StatsUnavailable
-        id="stats-sidebar"
         placeholder={<StatsSidebarSkeleton />}
         title={`@${user.username}`}
       />

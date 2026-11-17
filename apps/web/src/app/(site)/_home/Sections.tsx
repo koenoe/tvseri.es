@@ -1,7 +1,7 @@
 import { hasEnoughPosters } from '@tvseri.es/constants';
 import type { ReactNode } from 'react';
 import { variantBurstGlyph } from '@/components/ui/icon/glyphs';
-import SectionUnavailable from '@/components/ui/row/SectionUnavailable';
+import RowError, { SectionError } from '@/components/ui/row/RowError';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import { getHomeControlStates } from './data/controlStates';
 import { monthName } from './data/day';
@@ -61,9 +61,9 @@ export async function SpotlightSection({ day, placeholder }: PlacedProps) {
   const items = await getSpotlight();
   if (isUnavailable(items)) {
     return (
-      <SectionUnavailable
-        id="spotlight"
+      <SectionError
         placeholder={placeholder}
+        state="unavailable"
         title={SECTION_TITLE.spotlight}
       />
     );
@@ -77,7 +77,9 @@ export async function TopPicksSection({ day }: DayProps) {
   const title = topPicksTitle(day);
   const items = await getTopPicks(day.slice(0, 7));
   if (isUnavailable(items)) {
-    return <SectionUnavailable id="top-picks" look="home" title={title} />;
+    return (
+      <RowError id="top-picks" look="home" state="unavailable" title={title} />
+    );
   }
   return <PosterRow id="top-picks" items={items} title={title} />;
 }
@@ -86,9 +88,9 @@ export async function PickOneSection({ day, placeholder }: PlacedProps) {
   const pool = await getPickPool(day);
   if (isUnavailable(pool)) {
     return (
-      <SectionUnavailable
-        id="pick-one"
+      <SectionError
         placeholder={placeholder}
+        state="unavailable"
         title={PICK_TITLE}
       />
     );
@@ -102,9 +104,10 @@ export async function HiddenGemsSection({ day }: DayProps) {
   const items = await getHiddenGems(day);
   if (isUnavailable(items)) {
     return (
-      <SectionUnavailable
+      <RowError
         id="hidden-gems"
         look="home"
+        state="unavailable"
         subtitle={HIDDEN_GEMS_SUBTITLE}
         subtitleGlyph={HIDDEN_GEMS_GLYPH}
         title={HIDDEN_GEMS_TITLE}
@@ -126,9 +129,9 @@ export async function FeatureSection({ day, placeholder }: PlacedProps) {
   const result = await getFeature(day);
   if (isUnavailable(result)) {
     return (
-      <SectionUnavailable
-        id="feature"
+      <SectionError
         placeholder={placeholder}
+        state="unavailable"
         title={SECTION_TITLE.feature}
       />
     );
@@ -140,9 +143,9 @@ export async function NewThisWeekSection({ day, placeholder }: PlacedProps) {
   const items = await getNewThisWeek(day);
   if (isUnavailable(items)) {
     return (
-      <SectionUnavailable
-        id="new-this-week"
+      <SectionError
         placeholder={placeholder}
+        state="unavailable"
         title={NEW_THIS_WEEK_TITLE}
       />
     );
@@ -157,9 +160,9 @@ export async function PremieresSection({ day, placeholder }: PlacedProps) {
   const premieres = await getPremieres(day);
   if (isUnavailable(premieres)) {
     return (
-      <SectionUnavailable
-        id="premieres"
+      <SectionError
         placeholder={placeholder}
+        state="unavailable"
         title={PREMIERES_TITLE}
       />
     );
@@ -174,9 +177,9 @@ export async function ToySection({ day, placeholder }: PlacedProps) {
   const result = await getToy(day);
   if (isUnavailable(result)) {
     return (
-      <SectionUnavailable
-        id="toy"
+      <SectionError
         placeholder={placeholder}
+        state="unavailable"
         title={SECTION_TITLE.toy}
       />
     );

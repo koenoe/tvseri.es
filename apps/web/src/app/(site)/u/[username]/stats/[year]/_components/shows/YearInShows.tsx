@@ -20,7 +20,6 @@ export default async function YearInShows({ state, user, year }: SectionProps) {
   if (isUnavailable(shows)) {
     return (
       <StatsUnavailable
-        id="stats-shows"
         placeholder={<YearInShowsSkeleton />}
         title={'The year in series'}
       />

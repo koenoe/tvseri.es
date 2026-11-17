@@ -36,7 +36,6 @@ export default async function WhenWatches({ user, year }: SectionProps) {
   if (isUnavailable(when)) {
     return (
       <StatsUnavailable
-        id="stats-when"
         placeholder={<WhenWatchesSkeleton />}
         title={`When ${user.username} watches`}
       />

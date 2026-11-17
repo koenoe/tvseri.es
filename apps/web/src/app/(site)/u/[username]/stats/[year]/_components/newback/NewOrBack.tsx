@@ -28,7 +28,6 @@ export default async function NewOrBack({ user, year }: SectionProps) {
   if (isUnavailable(data)) {
     return (
       <StatsUnavailable
-        id="stats-new"
         placeholder={<NewOrBackSkeleton />}
         title={'New, or back for more'}
       />

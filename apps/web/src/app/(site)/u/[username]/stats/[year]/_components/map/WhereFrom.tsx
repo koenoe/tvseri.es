@@ -37,7 +37,6 @@ export default async function WhereFrom({ user, year }: SectionProps) {
   if (isUnavailable(countries)) {
     return (
       <StatsUnavailable
-        id="stats-map"
         placeholder={<WhereFromSkeleton />}
         title={'Where the series are from'}
       />

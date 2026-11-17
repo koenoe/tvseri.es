@@ -1,6 +1,6 @@
 import Face, { type FaceLook } from '@/components/ui/faces/Face';
+import { SectionError } from '@/components/ui/row/RowError';
 import { GHOST_FILL, GhostLine } from '@/components/ui/row/RowGhosts';
-import SectionUnavailable from '@/components/ui/row/SectionUnavailable';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import personPath from '@/lib/routing/personPath';
 import { type CastMember, loadCast } from '../../_data/loaders';
@@ -76,10 +76,10 @@ export default async function Cast({
   const cast = await loadCast(seriesId);
   if (isUnavailable(cast)) {
     return (
-      <SectionUnavailable
-        id="cast"
+      <SectionError
         inset="flush"
         placeholder={<CastSkeleton />}
+        state="unavailable"
         title="The cast"
       />
     );

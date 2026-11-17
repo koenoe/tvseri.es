@@ -1,9 +1,9 @@
 import { Suspense } from 'react';
 
 import Row from '@/components/ui/row/Row';
+import RowError from '@/components/ui/row/RowError';
 import RowErrorBoundary from '@/components/ui/row/RowErrorBoundary';
 import RowSkeleton from '@/components/ui/row/RowSkeleton';
-import SectionUnavailable from '@/components/ui/row/SectionUnavailable';
 import PosterTile from '@/components/ui/tile/PosterTile';
 import { isUnavailable } from '@/lib/cache/unavailable';
 
@@ -14,14 +14,14 @@ const TITLE = 'Recommendations';
 
 /**
  * The row; while the API is unavailable (the short `unavailable` life), the shared
- * failed row with Try again (`SectionUnavailable`).
+ * failed row with Try again (`RowError`).
  */
 export async function RecommendationsRow({
   seriesId,
 }: Readonly<{ seriesId: number }>) {
   const items = await loadRecommendations(seriesId);
   if (isUnavailable(items)) {
-    return <SectionUnavailable id={ROW_ID} title={TITLE} />;
+    return <RowError id={ROW_ID} state="unavailable" title={TITLE} />;
   }
   if (items.length === 0) {
     return null;

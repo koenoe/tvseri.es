@@ -37,7 +37,6 @@ export default async function PhoneHead({
   if (isUnavailable(counts) || isUnavailable(rows)) {
     return (
       <StatsUnavailable
-        id="stats-phone-head"
         placeholder={<PhoneHeadSkeleton />}
         title={`@${user.username}`}
       />

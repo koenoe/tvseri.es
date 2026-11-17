@@ -17,11 +17,7 @@ export default async function Genres({ user, year }: SectionProps) {
   const items = await getGenres(user.id, year);
   if (isUnavailable(items)) {
     return (
-      <StatsUnavailable
-        id="stats-genres"
-        placeholder={<GenresSkeleton />}
-        title={'Genres'}
-      />
+      <StatsUnavailable placeholder={<GenresSkeleton />} title={'Genres'} />
     );
   }
   const rows = genreRows(items);

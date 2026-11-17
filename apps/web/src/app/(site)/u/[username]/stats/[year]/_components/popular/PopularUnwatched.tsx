@@ -42,7 +42,6 @@ export default async function PopularUnwatched({ user, year }: SectionProps) {
   if (isUnavailable(popular) || isUnavailable(watched)) {
     return (
       <StatsUnavailable
-        id="stats-popular"
         placeholder={<PopularUnwatchedSkeleton />}
         title={'Popular unwatched'}
       />

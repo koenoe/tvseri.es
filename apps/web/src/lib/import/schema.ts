@@ -1,4 +1,4 @@
-import { ImportIdSchema } from '@tvseri.es/schemas';
+import { ImportIdSchema, PositiveIdSchema } from '@tvseri.es/schemas';
 import * as v from 'valibot';
 
 import {
@@ -44,7 +44,7 @@ const ImportRowSchema = v.object({
   index,
   season: CellSchema,
   seasonNumber: v.optional(index),
-  seriesId: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+  seriesId: v.optional(PositiveIdSchema),
   title: text,
   watchedAt: WatchedAtSchema,
   watchProvider: v.optional(

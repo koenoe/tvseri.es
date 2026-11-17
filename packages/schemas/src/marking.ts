@@ -1,5 +1,6 @@
 import * as v from 'valibot';
 
+import { PositiveIdSchema } from './positive-id';
 import { DateUnknownSchema, ImportIdSchema, WatchedAtSchema } from './watched';
 
 /**
@@ -7,7 +8,6 @@ import { DateUnknownSchema, ImportIdSchema, WatchedAtSchema } from './watched';
  * Every action validates its arguments with these before it calls the API.
  */
 
-const positiveId = v.pipe(v.number(), v.integer(), v.minValue(1));
 const count = (max: number) =>
   v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(max));
 
@@ -75,14 +75,14 @@ export const MarkEpisodesInputSchema = v.object({
       when: v.variant('kind', [MarkWhenSchema, RestoreWhenSchema]),
     }),
   ),
-  seriesId: positiveId,
+  seriesId: PositiveIdSchema,
 });
 
 export type MarkEpisodesInput = v.InferInput<typeof MarkEpisodesInputSchema>;
 
 export const UnmarkEpisodesInputSchema = v.object({
   episodes: episodeList(EpisodeRefSchema),
-  seriesId: positiveId,
+  seriesId: PositiveIdSchema,
 });
 
 export type UnmarkEpisodesInput = v.InferInput<
@@ -92,7 +92,7 @@ export type UnmarkEpisodesInput = v.InferInput<
 /** Mark every not-yet-watched aired episode of a season (or of the show). */
 export const MarkScopeInputSchema = v.object({
   seasonNumber: v.optional(count(999)),
-  seriesId: positiveId,
+  seriesId: PositiveIdSchema,
   when: v.variant('kind', [
     v.object({ kind: v.literal('now') }),
     v.object({ kind: v.literal('date'), watchedAt: WatchedAtSchema }),
@@ -104,20 +104,20 @@ export type MarkScopeInput = v.InferInput<typeof MarkScopeInputSchema>;
 
 export const UnmarkScopeInputSchema = v.object({
   seasonNumber: v.optional(count(999)),
-  seriesId: positiveId,
+  seriesId: PositiveIdSchema,
 });
 
 export type UnmarkScopeInput = v.InferInput<typeof UnmarkScopeInputSchema>;
 
 export const SetInListInputSchema = v.object({
   list: v.picklist(['favorites', 'watchlist']),
-  seriesId: positiveId,
+  seriesId: PositiveIdSchema,
   value: v.boolean(),
 });
 
 export type SetInListInput = v.InferInput<typeof SetInListInputSchema>;
 
-export const SeriesIdInputSchema = v.object({ seriesId: positiveId });
+export const SeriesIdInputSchema = v.object({ seriesId: PositiveIdSchema });
 
 /** The Library's bulk actions: lists and prefs, never watched */
 export const BULK_LIBRARY_OPS = [
@@ -140,7 +140,7 @@ export const BulkLibraryInputSchema = v.object({
     v.array(
       v.object({
         addedAt: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
-        id: positiveId,
+        id: PositiveIdSchema,
       }),
     ),
     v.minLength(1),

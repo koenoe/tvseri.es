@@ -1,17 +1,17 @@
 import * as v from 'valibot';
+import { PositiveIdSchema } from './positive-id';
 import { WatchProviderSchema } from './watch-provider';
 
 /** ISO 3166-1 alpha-2, e.g. `GB` */
 const RegionSchema = v.pipe(v.string(), v.regex(/^[A-Z]{2}$/));
 
 const boundedString = (max: number) => v.pipe(v.string(), v.maxLength(max));
-const positiveId = v.pipe(v.number(), v.integer(), v.minValue(1));
 const count = (max: number) =>
   v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(max));
 
 // Minimal TV series schema for watched operations - only includes fields actually used
 export const TvSeriesForWatchedSchema = v.object({
-  id: positiveId,
+  id: PositiveIdSchema,
   posterPath: boundedString(200),
   slug: boundedString(500),
   title: boundedString(1000),

@@ -1,5 +1,7 @@
 import * as v from 'valibot';
 
+import { PositiveIdSchema } from './positive-id';
+
 export const PreferredImagesSchema = v.object({
   backdropColor: v.string(),
   backdropImagePath: v.string(),
@@ -37,8 +39,6 @@ export type SeriesImages = Readonly<{
   titleTreatment: ReadonlyArray<SeriesLogoImage>;
 }>;
 
-const seriesId = v.pipe(v.number(), v.integer(), v.minValue(1));
-
 /** A TMDB image path, e.g. `/abc123.jpg` (the API's own rule). */
 const TmdbImagePathSchema = v.pipe(
   v.string(),
@@ -54,13 +54,13 @@ export const SavePreferredImagesInputSchema = v.object({
     titleTreatment: v.optional(v.literal('text')),
     titleTreatmentImagePath: v.optional(TmdbImagePathSchema),
   }),
-  seriesId,
+  seriesId: PositiveIdSchema,
 });
 
 /** The web's admin page-colour lookup: a few backdrops of one show. */
 export const BackdropColoursInputSchema = v.object({
   paths: v.pipe(v.array(TmdbImagePathSchema), v.minLength(1), v.maxLength(8)),
-  seriesId,
+  seriesId: PositiveIdSchema,
 });
 
 /**

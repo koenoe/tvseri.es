@@ -1,4 +1,4 @@
-import type { UpdateSeriesPrefs } from '@tvseri.es/schemas';
+import { PositiveIdSchema, type UpdateSeriesPrefs } from '@tvseri.es/schemas';
 import * as v from 'valibot';
 
 import type { ActionResult } from '@/lib/actions/result';
@@ -20,7 +20,7 @@ export type PausedChoice = 'keep' | 'hide';
 export const MAX_PAUSED = 20;
 
 const PausedIdsSchema = v.pipe(
-  v.array(v.pipe(v.number(), v.integer(), v.minValue(1))),
+  v.array(PositiveIdSchema),
   v.maxLength(MAX_PAUSED),
 );
 

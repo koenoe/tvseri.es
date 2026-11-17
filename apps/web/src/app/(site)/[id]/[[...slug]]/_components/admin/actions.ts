@@ -2,6 +2,7 @@
 
 import {
   BackdropColoursInputSchema,
+  PositiveIdSchema,
   type PreferredImages,
   SavePreferredImagesInputSchema,
   type SeriesImages,
@@ -30,8 +31,6 @@ import { loadBackdropColour, loadSeriesImages } from './loaders';
  * the pick.
  */
 
-const SeriesIdSchema = v.pipe(v.number(), v.integer(), v.minValue(1));
-
 async function adminToken(): Promise<string | null> {
   const viewer = await getViewer();
   return viewer?.role === 'admin' ? viewer.accessToken : null;
@@ -45,7 +44,7 @@ function refresh(seriesId: number) {
 export async function loadAdminImages(
   seriesId: number,
 ): Promise<ActionResult<SeriesImages>> {
-  if (!v.is(SeriesIdSchema, seriesId)) {
+  if (!v.is(PositiveIdSchema, seriesId)) {
     return actionError('invalid');
   }
   if (!(await adminToken())) {
@@ -121,7 +120,7 @@ export async function savePreferredImages(input: {
 export async function resetPreferredImages(
   seriesId: number,
 ): Promise<ActionResult> {
-  if (!v.is(SeriesIdSchema, seriesId)) {
+  if (!v.is(PositiveIdSchema, seriesId)) {
     return actionError('invalid');
   }
   const accessToken = await adminToken();

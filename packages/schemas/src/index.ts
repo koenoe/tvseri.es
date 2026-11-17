@@ -26,6 +26,7 @@ export * from './pagination';
 export * from './pagination-sorting';
 export * from './person';
 export * from './person-page';
+export * from './positive-id';
 export * from './preferred-images';
 export * from './profile-page';
 export * from './rating';

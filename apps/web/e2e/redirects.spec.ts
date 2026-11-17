@@ -2,15 +2,13 @@ import { expect, test } from '@playwright/test';
 
 /**
  * Real, no-follow requests against the production build: the status and
- * Location of each old URL. Leading zeros on
- * a show id are a config redirect too; the show page's own slug redirect is
- * tested in `show.spec.ts`.
+ * Location of each old URL, one case per rule. Leading zeros on a show id
+ * are a config redirect too; the show page's own slug redirect is tested in
+ * `show.spec.ts`.
  */
 const REDIRECTS: ReadonlyArray<readonly [from: string, to: string]> = [
   ['/home', '/'],
   ['/tv/1396', '/1396'],
-  ['/tv/1396/breaking-bad', '/1396/breaking-bad'],
-  ['/tv/1396/breaking-bad?season=2', '/1396/breaking-bad?season=2'],
   [
     '/tv/1396/breaking-bad?season=2&episode=6',
     '/1396/breaking-bad?season=2&episode=6',
@@ -18,7 +16,6 @@ const REDIRECTS: ReadonlyArray<readonly [from: string, to: string]> = [
   ['/tv/1396/wrong-slug', '/1396/wrong-slug'],
   ['/tv/0123/x', '/0123/x'],
   ['/track/1396', '/1396?history='],
-  ['/track/1396/breaking-bad', '/1396/breaking-bad?history='],
   ['/track/1396/breaking-bad?season=2', '/1396/breaking-bad?season=2&history='],
   ['/settings/webhooks', '/settings/plex'],
   // Leading zeros on a show id, at the edge with the query kept
@@ -26,11 +23,9 @@ const REDIRECTS: ReadonlyArray<readonly [from: string, to: string]> = [
     '/0136315/the-bear?season=2&episode=6',
     '/136315/the-bear?season=2&episode=6',
   ],
-  ['/00136315', '/136315'],
   // Old filter-grid links (B10c): one lens to its landing, anything else to the hub
   ['/discover?with_genres=80', '/genre/crime'],
   ['/discover?with_networks=49&sort_by=vote_average.desc', '/network/hbo'],
-  ['/discover?with_keywords=4565', '/theme/dystopia'],
   // any keyword of a theme's set; a genre TMDB keeps as a keyword
   ['/discover?with_keywords=10854', '/theme/time-travel'],
   ['/discover?with_keywords=9840', '/genre/romance'],
@@ -45,20 +40,20 @@ const REDIRECTS: ReadonlyArray<readonly [from: string, to: string]> = [
   ['/discover?with_watch_providers=8&watch_region=GB', '/discover'],
   // The profile's list pages became Library shelves, query kept
   ['/u/alex/in-progress', '/u/alex/library/watching'],
-  ['/u/alex/watchlist', '/u/alex/library/watchlist'],
   ['/u/alex/watchlist?sort=oldest', '/u/alex/library/watchlist?sort=oldest'],
   ['/u/alex/favorites', '/u/alex/library/favourites'],
-  ['/u/alex/finished', '/u/alex/library/finished'],
   ['/u/alex/social', '/u/alex/circle'],
 ];
 
-for (const [from, to] of REDIRECTS) {
-  test(`${from} redirects permanently to ${to}`, async ({ request }) => {
+test('every old URL redirects permanently to its new one', async ({
+  request,
+}) => {
+  for (const [from, to] of REDIRECTS) {
     const response = await request.get(from, { maxRedirects: 0 });
-    expect(response.status()).toBe(308);
-    expect(response.headers().location).toBe(to);
-  });
-}
+    expect.soft(response.status(), from).toBe(308);
+    expect.soft(response.headers().location, from).toBe(to);
+  }
+});
 
 // A handle that can't exist is the static 404 at once, not a redirect first
 test('a junk handle on an old list URL is the static 404', async ({

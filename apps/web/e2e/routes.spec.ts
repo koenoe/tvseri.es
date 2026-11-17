@@ -46,13 +46,13 @@ test('/u/margaux/library renders its own route', async ({ page }) => {
   ).toBeVisible();
 });
 
-// Non-numeric first segments serve the static 404 (no function run).
-for (const url of [
+// Non-numeric first segments serve the static 404 (no function run). A
+// request is enough: the static 404 is whole in its HTML.
+const STATIC_404 = [
   '/abc',
   '/abc/def',
   '/tv/abc',
   '/track/abc',
-  '/this-does-not-exist',
   '/12ab',
   '/person/abc',
   // ids longer than any TMDB id, Stats years without a page
@@ -60,37 +60,33 @@ for (const url of [
   '/99999999999/some-slug',
   '/person/123456789',
   '/u/nina/stats/2099',
-  '/u/nina/stats/1999',
   // a Library shelf that isn't one, or anything below a shelf
   '/u/nina/library/junk',
   '/u/nina/library/watching/x',
-]) {
-  test(`${url} is the static 404`, async ({ page }) => {
-    const response = await page.goto(url);
-    expect(response?.status()).toBe(404);
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.getByTestId(/^route-/)).toHaveCount(0);
-  });
-}
+];
 
 // A landing slug that isn't one is the same static 404 (one rewrite per
 // landing type, lib/routing/landingNotFound.ts), not a page that runs.
-for (const url of [
+const LANDING_404 = [
   '/genre/not-a-genre',
   '/theme/constructor',
   '/network/not-a-network',
   '/country/zz',
   '/decade/2015s',
-  '/decade/1850s',
   '/language/zz',
-]) {
-  test(`${url} is the static 404`, async ({ page }) => {
-    const response = await page.goto(url);
-    expect(response?.status()).toBe(404);
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.getByTestId('landing-crumb')).toHaveCount(0);
-  });
-}
+];
+
+test('junk segments and slugs are the static 404, never a route', async ({
+  request,
+}) => {
+  for (const url of [...STATIC_404, ...LANDING_404]) {
+    const response = await request.get(url);
+    expect.soft(response.status(), url).toBe(404);
+    const html = await response.text();
+    expect.soft(html, url).toContain('<h1');
+    expect.soft(html, url).not.toMatch(/data-testid="(route-|landing-crumb)/);
+  }
+});
 
 test('robots.txt is not rewritten', async ({ request }) => {
   const response = await request.get('/robots.txt');

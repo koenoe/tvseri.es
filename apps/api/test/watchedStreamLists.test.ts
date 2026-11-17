@@ -88,7 +88,7 @@ const undoImport = async (importId: string) => {
   const context = {
     getRemainingTimeInMillis: () => 300_000,
   } as unknown as Context;
-  expect(await undoImportHandler(event, context, () => {})).toEqual({
+  expect(await undoImportHandler(event, context)).toEqual({
     batchItemFailures: [],
   });
 };

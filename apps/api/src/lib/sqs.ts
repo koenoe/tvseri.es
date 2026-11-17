@@ -52,12 +52,7 @@ export const resumableStepHandler =
     /** The log line after a step */
     summary: (message: Message, outcome: Outcome | 'continue') => string;
   }>) =>
-  async (
-    event: SQSEvent,
-    context: Context,
-    // The Lambda handler signature's callback, unused
-    _callback?: unknown,
-  ): Promise<SQSBatchResponse> => {
+  async (event: SQSEvent, context: Context): Promise<SQSBatchResponse> => {
     const batchItemFailures: SQSBatchResponse['batchItemFailures'] = [];
     const hasTime = () => context.getRemainingTimeInMillis() > SAFETY_MS;
 

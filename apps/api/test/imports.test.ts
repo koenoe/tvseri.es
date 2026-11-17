@@ -87,7 +87,7 @@ const runUndoQueue = async (remainingMs?: number) => {
       messageId: `m${index}`,
     })),
   } as unknown as SQSEvent;
-  return undoImport(event, lambdaContext(remainingMs), () => {});
+  return undoImport(event, lambdaContext(remainingMs));
 };
 
 describe('1 import keeps existing dates', () => {

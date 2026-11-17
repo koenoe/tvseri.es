@@ -256,7 +256,6 @@ describe('an import and its Undo keep the lists right with skips', () => {
         })),
       } as unknown as SQSEvent,
       { getRemainingTimeInMillis: () => 300_000 } as unknown as Context,
-      () => {},
     );
   };
 

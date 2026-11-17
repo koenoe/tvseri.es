@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 
-/** History's perf helpers (§5.3), shared by the Chromium and WebKit specs */
+/** History's scroll performance helpers, shared by the Chromium and WebKit specs */
 
 /** Loads the diary until it holds `rows` rows (or the history ends) */
 export async function loadRows(page: Page, rows: number) {
@@ -37,34 +37,46 @@ export async function loadRows(page: Page, rows: number) {
   return page.locator('[data-diary-row]').count();
 }
 
-/** 5 s of scripted wheel through the loaded diary: long tasks and slow frames */
+type WheelRun = {
+  frames: number[];
+  long: number[];
+  stop: () => void;
+};
+
+/**
+ * 5 s of scripted wheel through the loaded diary: long tasks and slow frames.
+ * Each run owns its observer and frame loop and stops both when it reads
+ * them, so repeated runs on one page count only their own 5 s.
+ */
 export async function wheelFor5s(page: Page) {
   await page.evaluate(() => {
     window.scrollTo(0, 0);
-    const w = window as unknown as {
-      __frames: number[];
-      __long: number[];
-      __run: boolean;
-    };
-    w.__frames = [];
-    w.__long = [];
-    w.__run = true;
-    if (PerformanceObserver.supportedEntryTypes.includes('longtask')) {
-      new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          w.__long.push(entry.duration);
-        }
-      }).observe({ type: 'longtask' });
-    }
+    const w = window as unknown as { __wheel?: WheelRun };
+    w.__wheel?.stop();
+    const run: WheelRun = { frames: [], long: [], stop: () => {} };
+    const observer = PerformanceObserver.supportedEntryTypes.includes(
+      'longtask',
+    )
+      ? new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            run.long.push(entry.duration);
+          }
+        })
+      : null;
+    observer?.observe({ type: 'longtask' });
+    let frame = 0;
     let last = performance.now();
     const tick = (now: number) => {
-      w.__frames.push(now - last);
+      run.frames.push(now - last);
       last = now;
-      if (w.__run) {
-        requestAnimationFrame(tick);
-      }
+      frame = requestAnimationFrame(tick);
     };
-    requestAnimationFrame(tick);
+    frame = requestAnimationFrame(tick);
+    run.stop = () => {
+      cancelAnimationFrame(frame);
+      observer?.disconnect();
+    };
+    w.__wheel = run;
   });
   await page.mouse.move(900, 500);
   const end = Date.now() + 5000;
@@ -73,16 +85,17 @@ export async function wheelFor5s(page: Page) {
     await page.waitForTimeout(16);
   }
   return page.evaluate(() => {
-    const w = window as unknown as {
-      __frames: number[];
-      __long: number[];
-      __run: boolean;
-    };
-    w.__run = false;
-    const frames = w.__frames.slice(2);
+    const w = window as unknown as { __wheel?: WheelRun };
+    const run = w.__wheel;
+    if (!run) {
+      throw new Error('wheelFor5s: no run on this page');
+    }
+    run.stop();
+    w.__wheel = undefined;
+    const frames = run.frames.slice(2);
     return {
       frames: frames.length,
-      longTasks: w.__long.filter((duration) => duration > 50).length,
+      longTasks: run.long.filter((duration) => duration > 50).length,
       slowFrames: frames.filter((gap) => gap > 25).length,
       worstFrame: Math.round(Math.max(0, ...frames)),
     };

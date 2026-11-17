@@ -1,3 +1,5 @@
+import { zonedParts } from '@tvseri.es/utils';
+
 import {
   type DayParts,
   dayMonth,
@@ -23,8 +25,6 @@ type WhenOptions = Readonly<{
   zone?: Zone;
 }>;
 
-const zoned = new Map<string, Intl.DateTimeFormat>();
-
 const partsIn = (date: Date, zone: Zone): DayParts => {
   if (zone === 'utc') {
     return utcParts(date);
@@ -32,19 +32,8 @@ const partsIn = (date: Date, zone: Zone): DayParts => {
   if (zone === 'local') {
     return localParts(date);
   }
-  let formatter = zoned.get(zone);
-  if (!formatter) {
-    formatter = new Intl.DateTimeFormat('en-CA', {
-      day: 'numeric',
-      month: 'numeric',
-      timeZone: zone,
-      year: 'numeric',
-    });
-    zoned.set(zone, formatter);
-  }
-  const part = (type: string) =>
-    Number(formatter.formatToParts(date).find((p) => p.type === type)?.value);
-  return { day: part('day'), month: part('month') - 1, year: part('year') };
+  const { day, month, year } = zonedParts(date.getTime(), zone);
+  return { day, month: month - 1, year };
 };
 
 const dayNumber = ({ day, month, year }: DayParts) =>

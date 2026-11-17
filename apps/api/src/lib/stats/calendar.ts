@@ -1,5 +1,6 @@
+import { dayKeyIn } from '@tvseri.es/utils';
+
 import type { AllTimeItem, AllTimeStats } from './segments';
-import { localParts } from './timeZone';
 
 /**
  * A series' watch calendar: what the all-time segment (the years list, the
@@ -38,7 +39,7 @@ export const seriesCalendar = (
       undated += 1;
       continue;
     }
-    const month = localParts(item.watchedAt, timeZone).date.slice(0, 7);
+    const month = dayKeyIn(item.watchedAt, timeZone).slice(0, 7);
     const row = months[month] ?? [0, 0];
     months[month] = row;
     row[0] += 1;

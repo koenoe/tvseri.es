@@ -40,38 +40,3 @@ const COUNTRY_TIME_ZONES: Readonly<Record<string, string>> = {
 
 export const timeZoneForCountry = (country: string | undefined) =>
   COUNTRY_TIME_ZONES[country?.toUpperCase() ?? ''] ?? DEFAULT_TIME_ZONE;
-
-const formatters = new Map<string, Intl.DateTimeFormat>();
-
-const formatterFor = (timeZone: string) => {
-  let formatter = formatters.get(timeZone);
-  if (!formatter) {
-    formatter = new Intl.DateTimeFormat('en-GB', {
-      day: '2-digit',
-      hour: '2-digit',
-      hourCycle: 'h23',
-      month: '2-digit',
-      timeZone,
-      weekday: 'short',
-      year: 'numeric',
-    });
-    formatters.set(timeZone, formatter);
-  }
-  return formatter;
-};
-
-const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-/** The local hour (0-23), weekday (0 = Monday) and date (`YYYY-MM-DD`) of a moment in a zone */
-export const localParts = (ms: number, timeZone: string) => {
-  const parts = Object.fromEntries(
-    formatterFor(timeZone)
-      .formatToParts(ms)
-      .map((part) => [part.type, part.value]),
-  );
-  return {
-    date: `${parts.year}-${parts.month}-${parts.day}`,
-    hour: Number(parts.hour),
-    weekday: WEEKDAYS.indexOf(parts.weekday ?? ''),
-  };
-};

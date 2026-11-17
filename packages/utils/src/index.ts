@@ -72,6 +72,12 @@ export { formatSeriesYears } from './series/seriesYears';
 export { sleep } from './sleep';
 export { decodeFromBase64Url, encodeToBase64Url } from './stringBase64Url';
 export { upperFirst } from './text/upperFirst';
+export {
+  dayKeyIn,
+  startOfDayIn,
+  type ZonedParts,
+  zonedParts,
+} from './time/zoned';
 export { default as toQueryString } from './toQueryString';
 export { default as toUsernameSlug } from './toUsernameSlug';
 export {

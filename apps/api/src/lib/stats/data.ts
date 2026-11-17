@@ -8,11 +8,12 @@
  */
 
 import type { WatchedItem } from '@tvseri.es/schemas';
+import { dayKeyIn } from '@tvseri.es/utils';
 
 import { getAllWatched } from '@/lib/db/watched';
 import { dedupe } from '@/utils/dedupe';
+
 import { countsInStats } from './regular';
-import { localParts } from './timeZone';
 
 /** Further than any zone is from UTC (UTC−12 to UTC+14) */
 const MAX_ZONE_OFFSET_MS = 14 * 60 * 60 * 1000;
@@ -87,7 +88,7 @@ export const getWatchedItemsForLocalYear = async (
   return items.filter(
     (item) =>
       countsInStats(item) &&
-      localParts(item.watchedAt, timeZone).date.startsWith(prefix),
+      dayKeyIn(item.watchedAt, timeZone).startsWith(prefix),
   );
 };
 

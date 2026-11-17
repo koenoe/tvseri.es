@@ -1,12 +1,9 @@
 /**
- * Calendar days in a time zone, for the History diary: a watch's day
- * is its day in the owner's zone, the one the API counts `/stats/years`
- * months and `/stats/:year/daily` days in (it names it in `timeZone`). Pure
- * and deterministic for a given zone, so the server render and the browser
- * agree whatever the browser's own zone is.
+ * Wall-clock time in an IANA time zone, for the days the API counts stats in
+ * and the web's History diary and "when" lines. Pure and deterministic for a
+ * given zone, so a server and a browser agree whatever their own zone is.
+ * One cached formatter per zone.
  */
-
-import { pad2 } from '@/lib/format/pad2';
 
 const formatters = new Map<string, Intl.DateTimeFormat>();
 
@@ -21,6 +18,7 @@ const formatterFor = (timeZone: string) => {
       month: '2-digit',
       second: '2-digit',
       timeZone,
+      weekday: 'short',
       year: 'numeric',
     });
     formatters.set(timeZone, formatter);
@@ -28,27 +26,49 @@ const formatterFor = (timeZone: string) => {
   return formatter;
 };
 
-const partsAt = (ms: number, timeZone: string) => {
-  const parts: Record<string, number> = {};
+const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+export type ZonedParts = Readonly<{
+  year: number;
+  /** 1–12 */
+  month: number;
+  day: number;
+  /** 0–23 */
+  hour: number;
+  minute: number;
+  second: number;
+  /** 0 = Monday … 6 = Sunday */
+  weekday: number;
+}>;
+
+/** The wall-clock date and time of an instant in a zone */
+export function zonedParts(ms: number, timeZone: string): ZonedParts {
+  const parts: Record<string, string> = {};
   for (const part of formatterFor(timeZone).formatToParts(ms)) {
-    if (part.type !== 'literal') {
-      parts[part.type] = Number(part.value);
-    }
+    parts[part.type] = part.value;
   }
-  return parts as Readonly<
-    Record<'year' | 'month' | 'day' | 'hour' | 'minute' | 'second', number>
-  >;
-};
+  return {
+    day: Number(parts.day),
+    hour: Number(parts.hour),
+    minute: Number(parts.minute),
+    month: Number(parts.month),
+    second: Number(parts.second),
+    weekday: WEEKDAYS.indexOf(parts.weekday ?? ''),
+    year: Number(parts.year),
+  };
+}
+
+const pad2 = (n: number) => String(n).padStart(2, '0');
 
 /** `YYYY-MM-DD`: the day an instant falls on in the zone */
 export function dayKeyIn(ms: number, timeZone: string): string {
-  const { day, month, year } = partsAt(ms, timeZone);
+  const { day, month, year } = zonedParts(ms, timeZone);
   return `${year}-${pad2(month)}-${pad2(day)}`;
 }
 
 /** The zone's offset from UTC at an instant, in ms (BST: +3,600,000) */
 const offsetAt = (ms: number, timeZone: string) => {
-  const { day, hour, minute, month, second, year } = partsAt(ms, timeZone);
+  const { day, hour, minute, month, second, year } = zonedParts(ms, timeZone);
   const asUtc = Date.UTC(year, month - 1, day, hour, minute, second);
   return asUtc - (ms - (((ms % 1000) + 1000) % 1000));
 };

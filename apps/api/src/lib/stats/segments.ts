@@ -15,9 +15,14 @@ import type {
   StatsYears,
   WatchedItem,
 } from '@tvseri.es/schemas';
-import { buildPosterImageUrl, yearWeekIndex } from '@tvseri.es/utils';
+import {
+  buildPosterImageUrl,
+  dayKeyIn,
+  yearWeekIndex,
+  zonedParts,
+} from '@tvseri.es/utils';
+
 import { DAY_MS, todayUtc } from '@/utils/time';
-import { localParts } from './timeZone';
 
 export type SegmentItem = Readonly<
   Pick<
@@ -136,7 +141,7 @@ export const calculateDaily = (
 ): StatsDaily => {
   const perDay = new Map<string, number>();
   for (const item of items) {
-    const date = localParts(item.watchedAt, timeZone).date;
+    const date = dayKeyIn(item.watchedAt, timeZone);
     perDay.set(date, (perDay.get(date) ?? 0) + 1);
   }
   const days = [...perDay]
@@ -236,16 +241,16 @@ export const calculateWhen = (
   const daytime = { weekday: 0, weekend: 0 };
   const nights = new Map<string, SegmentItem[]>();
   for (const item of counted) {
-    const local = localParts(item.watchedAt, timeZone);
+    const local = zonedParts(item.watchedAt, timeZone);
     hours[local.hour]! += 1;
     weekdays[local.weekday]! += 1;
     if (local.hour >= DAY_STARTS_AT_HOUR && local.hour < DAY_ENDS_AT_HOUR) {
       daytime[local.weekday >= 5 ? 'weekend' : 'weekday'] += 1;
     }
-    const evening = localParts(
+    const evening = dayKeyIn(
       item.watchedAt - NIGHT_ENDS_AT_HOUR * 60 * 60 * 1000,
       timeZone,
-    ).date;
+    );
     nights.set(evening, [...(nights.get(evening) ?? []), item]);
   }
 
@@ -339,7 +344,7 @@ export const calculateAllTime = (
       undated += 1;
       continue;
     }
-    const local = localParts(item.watchedAt, timeZone).date;
+    const local = dayKeyIn(item.watchedAt, timeZone);
     const year = Number(local.slice(0, 4));
     const row = perYear.get(year) ?? { episodes: 0, months: emptyMonths() };
     row.episodes += 1;

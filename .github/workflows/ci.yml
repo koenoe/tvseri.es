@@ -93,8 +93,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Headless runs use Chromium's headless shell only, not the full browser
       - name: Install browsers
-        run: pnpm --filter @tvseri.es/web exec playwright install chromium webkit
+        run: pnpm --filter @tvseri.es/web exec playwright install --only-shell chromium webkit
 
       # Classic scrollbars, drawn: the runner has classic ones, and with
       # Playwright's --hide-scrollbars kept the page reserved their 15px

@@ -19,7 +19,6 @@
     },
     "apps/web": {
       "entry": [
-        "src/lib/tmdbImageLoader.ts",
         "test/empty.ts",
         "scripts/*.mjs",
         "e2e/stub-api/fixtures/**/*.ts",
@@ -33,7 +32,7 @@
       ]
     },
     "tools/load": {
-      "entry": ["src/*.load.ts", "src/setup.ts"],
+      "entry": ["src/*.load.ts"],
       "ignoreDependencies": ["@openauthjs/openauth"]
     }
   }

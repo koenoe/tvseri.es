@@ -140,6 +140,26 @@ describe('1 import keeps existing dates', () => {
     });
   });
 
+  it('sends no prefs write for shows with nothing skipped', async () => {
+    seedUser();
+    const importId = await startImport();
+    const send = vi.spyOn(db, 'send');
+
+    await request(`/me/imports/${importId}/batch`, {
+      as: USER_ID,
+      body: [row(1, 1), row(1, 2)],
+      method: 'POST',
+    });
+
+    const prefsWrites = send.mock.calls.filter(
+      ([command]) =>
+        command.constructor.name === 'UpdateItemCommand' &&
+        (command.input as Readonly<{ TableName?: string }>).TableName ===
+          'Lists',
+    );
+    expect(prefsWrites).toEqual([]);
+  });
+
   it('refuses batches for an import that is not the last one', async () => {
     seedUser();
     const first = await startImport();

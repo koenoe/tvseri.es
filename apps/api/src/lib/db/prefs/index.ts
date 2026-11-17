@@ -238,6 +238,21 @@ export const clearSkipped = async (items: ReadonlyArray<MarkedItem>) => {
 };
 
 /**
+ * Un-skips the given episodes per show, for a caller that read the prefs
+ * already and knows which are skipped (an import): no write for the rest
+ */
+export const clearSkippedCodes = async (
+  userId: string,
+  codesBySeries: ReadonlyMap<number, ReadonlySet<string>>,
+) => {
+  await Promise.all(
+    [...codesBySeries].map(([seriesId, codes]) =>
+      clearSkippedForSeries(userId, seriesId, [...codes]),
+    ),
+  );
+};
+
+/**
  * Watching a show again brings it back from Hide (only Hide: Keep asks
  * again on its own after new watching). Only a record that is hidden: any
  * other show costs one failed conditional write and creates nothing.

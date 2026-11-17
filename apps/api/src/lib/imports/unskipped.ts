@@ -41,7 +41,7 @@ export const freshUnskipped = (importId: string): ImportUnskipped => ({
  * Records which of the just-written episodes are skipped, before their skips
  * are cleared: if the request dies in between, Undo puts back a skip that is
  * still there (a no-op). An import with no record has its skips cleared
- * without one.
+ * without one. Returns them per show, the only skips there are to clear.
  */
 export const recordUnskipped = async (
   userId: string,
@@ -63,7 +63,7 @@ export const recordUnskipped = async (
     }
   }
   if (codesBySeries.size === 0) {
-    return;
+    return codesBySeries;
   }
 
   const entries = [...codesBySeries];
@@ -92,6 +92,7 @@ export const recordUnskipped = async (
       throw error;
     }
   }
+  return codesBySeries;
 };
 
 /** An episode code's watched-item sort key, or null for a malformed code */

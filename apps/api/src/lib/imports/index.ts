@@ -13,7 +13,7 @@ import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
 
 import client from '@/lib/db/client';
-import { clearSkipped } from '@/lib/db/prefs';
+import { clearSkippedCodes } from '@/lib/db/prefs';
 import { getWatchedEpisodeKeys, markWatchedInBatch } from '@/lib/db/watched';
 import { episodeSk } from '@/lib/db/watched/keys';
 import { sendMessage } from '@/lib/sqs';
@@ -178,8 +178,8 @@ export const writeImportBatch = async (
       toWrite.map((item) => ({ ...item, importId, userId })),
     );
     // Writing an episode un-skips it; Undo puts those skips back
-    await recordUnskipped(userId, importId, items);
-    await clearSkipped(items);
+    const unskipped = await recordUnskipped(userId, importId, items);
+    await clearSkippedCodes(userId, unskipped);
   }
 
   if (toWrite.length > 0 || alreadyWatched.length > 0) {

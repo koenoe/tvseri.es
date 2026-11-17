@@ -3,7 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ApiError } from '@/lib/api/client';
 
-import { discoverPage, UNAVAILABLE } from '../../_discover/data/loaderTesting';
+import {
+  discoverPage,
+  UNAVAILABLE,
+} from '../../_discover/data/testing/loaders';
 
 const apiFetch = vi.fn();
 

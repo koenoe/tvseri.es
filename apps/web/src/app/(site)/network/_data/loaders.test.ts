@@ -7,7 +7,7 @@ import {
   discoverPage,
   ownLife,
   UNAVAILABLE,
-} from '../../_discover/data/loaderTesting';
+} from '../../_discover/data/testing/loaders';
 
 const apiFetch = vi.fn();
 

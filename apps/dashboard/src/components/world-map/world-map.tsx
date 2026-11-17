@@ -32,31 +32,27 @@ function getCountryFill(
   const countryData = data[country];
   const isHoveredCountryWithData = hoveredCountry && data[hoveredCountry];
 
-  // If a country with data is hovered, grey out everything except the hovered one
+  // Hovering a country with data greys out all the others.
   if (isHoveredCountryWithData && country !== hoveredCountry) {
     return HOVERED_INACTIVE_COLOR;
   }
 
-  // Country has no data - show default grey
   if (!countryData) {
     return DEFAULT_COLOR;
   }
 
-  // Country has data - calculate color with opacity based on pageViews
   const statusColor = RATING_COLORS[countryData.status].hsl;
   const baseHsl = statusColor.match(/hsl\(([^)]+)\)/)?.[1] ?? '0, 0%, 50%';
   const [h, s] = baseHsl.split(',').map((v) => v.trim());
 
-  // If this country is hovered, show at full brightness
   if (hoveredCountry === country) {
     return `hsl(${h}, ${s}, 45%)`;
   }
 
-  // Calculate opacity based on pageViews (more views = more opacity)
   const opacity =
     MIN_OPACITY + (countryData.pageViews / maxPageViews) * (1 - MIN_OPACITY);
 
-  // Convert opacity to lightness adjustment (higher opacity = higher lightness)
+  // Busier countries are brighter, so traffic reads at a glance.
   const baseLightness = 45;
   const lightness = baseLightness * opacity;
 
@@ -77,10 +73,9 @@ export function WorldMap({
   >(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
 
-  // Use external hover state if provided, otherwise use internal
+  // The list beside the map can highlight a country too.
   const hoveredCountry = externalHoveredCountry ?? internalHoveredCountry;
 
-  // Calculate max pageViews for opacity scaling
   const maxPageViews = Math.max(
     ...Object.values(data).map((d) => d.pageViews),
     1,
@@ -100,7 +95,6 @@ export function WorldMap({
   const handleMouseEnter = useCallback(
     (event: React.MouseEvent<SVGPathElement>) => {
       const country = event.currentTarget.dataset.name;
-      // Only allow hover on countries with data
       if (!country || !data[country]) return;
 
       setInternalHoveredCountry(country);
@@ -131,7 +125,7 @@ export function WorldMap({
     onCountryHover?.(null);
   }, [onCountryHover]);
 
-  // Only show tooltip when hovering directly on the map (internal state), not from list hover
+  // Hovering the list highlights the map but shows no tooltip.
   const tooltipCountry = internalHoveredCountry;
   const tooltipData = tooltipCountry ? data[tooltipCountry] : null;
 

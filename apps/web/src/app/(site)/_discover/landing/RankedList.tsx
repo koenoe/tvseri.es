@@ -19,9 +19,8 @@ import ArrowButton from '@/components/ui/row/ArrowButton';
 import TileLink from '@/components/ui/tile/TileLink';
 import WatchedLabel from '@/components/ui/tile/WatchedLabel';
 import cn from '@/lib/cn';
+import { useIsWatched } from '@/lib/marking/useWatched';
 import showPath from '@/lib/routing/showPath';
-
-import { useIsWatched } from '../marking/useWatched';
 import { rankedPage, showMoreLabel } from './ranked';
 import SeenNote from './SeenNote';
 

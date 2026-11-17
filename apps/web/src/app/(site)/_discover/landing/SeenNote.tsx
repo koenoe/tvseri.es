@@ -5,7 +5,7 @@ import { eyeGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
 
-import { useWatchedCount } from '../marking/useWatched';
+import { useWatchedCount } from '@/lib/marking/useWatched';
 
 /** The line's own box in its slot: it arrives after the first paint, so it fades in */
 const LINE = cn('flex min-w-0 items-center gap-1.5', LATE_FADE);

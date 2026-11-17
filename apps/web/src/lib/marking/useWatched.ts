@@ -1,10 +1,11 @@
 'use client';
 
-import { useLibrarySelect } from '@/lib/marking/hooks';
-import { librarySets } from '@/lib/marking/librarySets';
+import { useLibrarySelect } from './hooks';
+import { librarySets } from './librarySets';
 
 /*
- * The viewer's watched shows for cached tiles: from the library ids, loaded
+ * The viewer's watched shows for cached tiles (Watched labels, "You’ve
+ * seen" lines): from the library ids, loaded
  * once per tab on the client after hydration (`useLibraryIds`) and kept
  * current by every mark. Each hook reads one primitive answer, so a mark
  * re-renders only the tiles and lines whose answer changed, not every tile

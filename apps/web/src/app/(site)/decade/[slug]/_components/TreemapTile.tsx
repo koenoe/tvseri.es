@@ -11,7 +11,7 @@ import { PICTURE_LAYER } from '@/components/ui/picture/pictureSurface';
 import { TILE_HOVER_WIDE } from '@/components/ui/tile/tileHover';
 import WatchedLabel from '@/components/ui/tile/WatchedLabel';
 import cn from '@/lib/cn';
-import { useIsWatched } from '../../../_discover/marking/useWatched';
+import { useIsWatched } from '@/lib/marking/useWatched';
 import type { LandscapeShow } from '../_data/landscape';
 
 /** A cell and the one tile hover (`tileHover`: a 3% grow, above its neighbours); the selected cell keeps its white ring */

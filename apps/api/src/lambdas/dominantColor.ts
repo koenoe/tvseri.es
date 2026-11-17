@@ -22,8 +22,8 @@ type ProcessImageResult =
   | Readonly<{ color: string }>
   | Readonly<{ silhouette: boolean }>;
 
-// The API stops waiting for this Lambda after 4s, so one attempt that leaves
-// time for image processing (no retries)
+// The API stops waiting for this Lambda after 8s (lib/imageLambda.ts),
+// cold start included: one attempt that leaves time for processing
 const IMAGE_FETCH_TIMEOUT = 2500;
 
 const $fetch = createFetch({

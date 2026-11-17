@@ -86,6 +86,7 @@ function expectColour(
     (frame) =>
       frame.pageColor !== color ||
       frame.body !== rgb(color) ||
+      frame.strip !== rgb(color) ||
       (frame.main !== null && frame.main !== rgb(color)) ||
       (frame.ground !== null && frame.ground !== rgb(color)),
   );

@@ -40,6 +40,26 @@ export default function EdgeTint({
 }
 
 /**
+ * The page's own top strip, in the page colour (`bg-page`, which follows
+ * `--main-background-color`). Without a fixed coloured box at the top,
+ * Safari falls back to the body's colour and often keeps the previous
+ * page's after a client navigation, so the band behind the Dynamic Island
+ * stayed on the old show's colour. This strip changes with the variable, so
+ * Safari reads the current colour. Above the header (a transparent fixed
+ * box at the same edge); a dialog's own strips sit in the top layer, above
+ * this one.
+ */
+export function PageEdgeTint() {
+  return (
+    <div
+      aria-hidden
+      className={cn(STRIP, 'top-0 z-100 bg-page')}
+      data-edge-tint=""
+    />
+  );
+}
+
+/**
  * A panel that reaches the top of the screen: full screen, not a bottom
  * sheet (`offsetTop` ignores the entry's transform).
  */

@@ -20,6 +20,8 @@ export type Frame = Readonly<{
   /** `--main-background-color` on :root, computed */
   pageColor: string;
   body: string;
+  /** the page's top strip (`PageEdgeTint`), the colour iOS Safari reads for its status bar */
+  strip: string;
   /** the visible `<main>`'s background */
   main: string | null;
   /** Home's ground (`[data-home-ground]`), visible only */
@@ -129,6 +131,10 @@ function recorder(windowMs: number) {
         document
           .querySelector('[data-slot="spotlight"] [aria-current="true"]')
           ?.getAttribute('aria-label') ?? null,
+      strip: (() => {
+        const strip = document.querySelector('body > [data-edge-tint]');
+        return strip ? getComputedStyle(strip).backgroundColor : '';
+      })(),
       t: performance.now() - (events.at(-1)?.t ?? 0),
     });
   };

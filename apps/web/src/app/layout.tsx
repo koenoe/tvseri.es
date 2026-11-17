@@ -5,6 +5,7 @@ import { type ReactNode, Suspense } from 'react';
 
 import MotionProvider from '@/components/motion/MotionProvider';
 import SearchLauncher from '@/components/search/SearchLauncher';
+import { PageEdgeTint } from '@/components/ui/dialog/EdgeTint';
 import Toaster from '@/components/ui/toast/Toaster';
 import ViewerHintsScript from '@/components/ViewerHintsScript';
 import WebVitals from '@/components/WebVitals';
@@ -49,6 +50,7 @@ export default function RootLayout({
     // flag covers this element's own attributes only, not anything below it.
     <html className={fontVariables} lang="en" suppressHydrationWarning>
       <body>
+        <PageEdgeTint />
         <ViewerHintsScript />
         <NavigationTracker />
         <MotionProvider>

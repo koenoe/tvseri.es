@@ -23,10 +23,10 @@ import {
 import { sentenceCase } from '@/lib/format/text';
 import personPath from '@/lib/routing/personPath';
 
-import { buildCareer, type CareerView } from '../_lib/career';
-import { toFractionalYear, yearsBetween } from '../_lib/format';
-import { buildKnownFor, type KnownForTile } from '../_lib/knownFor';
-import { buildShows, crewWork, type ShowsView } from '../_lib/shows';
+import { buildCareer, type CareerView } from './career';
+import { toFractionalYear, yearsBetween } from './format';
+import { buildKnownFor, type KnownForTile } from './knownFor';
+import { buildShows, crewWork, type ShowsView } from './shows';
 
 /**
  * The person page's cached reads, one entry per person id, trimmed

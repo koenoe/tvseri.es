@@ -7,8 +7,7 @@ import { type ReactNode, useState, useTransition } from 'react';
 import useBackCloses from '@/components/ui/dialog/useBackCloses';
 import { showToast } from '@/components/ui/toast/showToast';
 import cn from '@/lib/cn';
-
-import { loadAwardItems } from '../../_data/actions';
+import { fetchJson } from '@/lib/series/useCachedJson';
 
 const loadSheet = () => import('./AwardsSheet');
 
@@ -58,7 +57,7 @@ export default function AllAwards({
     }
     startLoad(async () => {
       const [list, sheet] = await Promise.allSettled([
-        loadAwardItems(personId),
+        fetchJson<ReadonlyArray<PersonAward>>(`/api/person/${personId}/awards`),
         loadSheet(),
       ]);
       if (sheet.status === 'rejected') {

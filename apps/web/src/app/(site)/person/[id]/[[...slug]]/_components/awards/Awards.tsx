@@ -5,7 +5,7 @@ import SectionHead from '@/components/ui/section/SectionHead';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import cn from '@/lib/cn';
 
-import { loadFamilyAndAwards } from '../../_data/loaders';
+import { loadFamilyAndAwards } from '@/lib/person/loaders';
 import { awardCards } from '../../_lib/awards';
 import { PERSON_LANE, PERSON_SECTION } from '../layout';
 import { AwardsSkeleton } from '../Skeletons';

@@ -6,7 +6,7 @@ import SignedInOnly from '@/components/ui/viewer/SignedInOnly';
 import { apiFetch } from '@/lib/api/client';
 import { isUnavailable, tryApi } from '@/lib/cache/unavailable';
 
-import { loadShowsView } from '../../_data/loaders';
+import { loadShowsView } from '@/lib/person/loaders';
 import { watchedLine } from '../../_lib/watched';
 import Fact, { FACTS } from '../sidebar/Fact';
 import SeedWatched from './SeedWatched';

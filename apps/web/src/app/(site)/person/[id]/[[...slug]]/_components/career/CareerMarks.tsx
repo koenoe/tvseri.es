@@ -12,7 +12,7 @@ import {
   type CaptionPlace,
   TRACK,
   watchedWidth,
-} from '../../_lib/career';
+} from '@/lib/person/career';
 import { useCreditWatched, useHasWatched } from '../watched/store';
 import { barStyle, WEIGHT } from './bars';
 import styles from './career.module.css';

@@ -10,7 +10,7 @@ import MetaRow from '@/components/ui/meta/MetaRow';
 import TileLink from '@/components/ui/tile/TileLink';
 import cn from '@/lib/cn';
 
-import type { ShowRowView } from '../../_lib/shows';
+import type { ShowRowView } from '@/lib/person/shows';
 import RowMark from './RowMark';
 import styles from './shows.module.css';
 

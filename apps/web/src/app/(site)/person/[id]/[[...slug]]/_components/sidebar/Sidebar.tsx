@@ -6,7 +6,7 @@ import {
   pinGlyph,
 } from '@/components/ui/icon/glyphs';
 import { isUnavailable } from '@/lib/cache/unavailable';
-import { loadShows } from '../../_data/loaders';
+import { loadShows } from '@/lib/person/loaders';
 import { departmentLabel, lifeFacts, occupationLabel } from '../../_lib/facts';
 import { nameFit } from '../../_lib/nameFit';
 import { PERSON_SIDE_HEADER, PERSON_SIDEBAR } from '../layout';

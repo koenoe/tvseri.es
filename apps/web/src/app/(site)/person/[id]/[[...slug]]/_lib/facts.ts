@@ -2,7 +2,7 @@ import type { Person, PersonShow } from '@tvseri.es/schemas';
 
 import { sentenceCase } from '@/lib/format/text';
 
-import { formatDay } from './format';
+import { formatDay } from '@/lib/person/format';
 
 export type FactIcon = 'calendar' | 'pin';
 

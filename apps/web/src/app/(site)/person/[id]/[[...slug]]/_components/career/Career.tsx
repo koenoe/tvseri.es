@@ -17,13 +17,13 @@ import SectionHead from '@/components/ui/section/SectionHead';
 import TileLink from '@/components/ui/tile/TileLink';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import cn from '@/lib/cn';
-import { loadCareerView, loadShowsView } from '../../_data/loaders';
 import {
   type CaptionPlace,
   type CareerView,
   GUEST_CAPTION_GAP,
-} from '../../_lib/career';
-import { allSeriesLabel } from '../../_lib/format';
+} from '@/lib/person/career';
+import { allSeriesLabel } from '@/lib/person/format';
+import { loadCareerView, loadShowsView } from '@/lib/person/loaders';
 import { PERSON_LANE, PERSON_SECTION } from '../layout';
 import { CareerSkeleton } from '../Skeletons';
 import { SECTION_LINK } from '../sectionLink';

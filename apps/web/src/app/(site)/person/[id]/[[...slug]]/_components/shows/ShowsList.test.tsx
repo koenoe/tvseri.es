@@ -2,8 +2,8 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-const loadSelfCredits = vi.fn();
-vi.mock('../../_data/actions', () => ({ loadSelfCredits }));
+const fetchJson = vi.fn();
+vi.mock('@/lib/series/useCachedJson', () => ({ fetchJson }));
 
 const { default: ShowsList } = await import('./ShowsList');
 
@@ -11,7 +11,6 @@ const listOf = (all: number) => {
   const { container } = render(
     <ShowsList
       counts={{ all, crew: 0, guest: 0, series: all }}
-      gender="female"
       personId={1}
       self={{ count: 0, label: '' }}
       titleId="t"
@@ -57,7 +56,6 @@ describe('the Shows heading’s one count', () => {
     render(
       <ShowsList
         counts={{ all: 69, crew: 4, guest: 42, series: 27 }}
-        gender="male"
         personId={2}
         self={{ count: 0, label: '' }}
         titleId="person-shows-title"
@@ -92,12 +90,11 @@ describe('the Shows heading’s one count', () => {
 
 describe('the self credits fold', () => {
   it('stays closed and keeps the list when its read fails', async () => {
-    loadSelfCredits.mockRejectedValueOnce(new Error('down'));
+    fetchJson.mockRejectedValueOnce(new Error('down'));
     const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
     render(
       <ShowsList
         counts={{ all: 20, crew: 0, guest: 0, series: 20 }}
-        gender="male"
         personId={3}
         self={{ count: 4, label: 'As himself' }}
         titleId="t"
@@ -110,7 +107,7 @@ describe('the self credits fold', () => {
     await act(async () => {
       fireEvent.click(fold);
     });
-    expect(loadSelfCredits).toHaveBeenCalledWith(3, 'male');
+    expect(fetchJson).toHaveBeenCalledWith('/api/person/3/self-credits');
     expect(fold.getAttribute('aria-expanded')).toBe('false');
     expect(screen.getByTestId('rows')).toBeTruthy();
     errors.mockRestore();

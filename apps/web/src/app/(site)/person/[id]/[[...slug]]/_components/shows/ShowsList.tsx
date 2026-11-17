@@ -1,6 +1,5 @@
 'use client';
 
-import type { Person } from '@tvseri.es/schemas';
 import {
   memo,
   type ReactNode,
@@ -18,14 +17,13 @@ import Icon from '@/components/ui/icon/Icon';
 import SectionHead from '@/components/ui/section/SectionHead';
 import cn from '@/lib/cn';
 import { foldOf } from '@/lib/fold';
-
-import { loadSelfCredits } from '../../_data/actions';
 import {
   FILTER_LABELS,
   SHOW_FILTERS,
   type ShowFilter,
   type ShowRowView,
-} from '../../_lib/shows';
+} from '@/lib/person/shows';
+import { fetchJson } from '@/lib/series/useCachedJson';
 import { PERSON_SECTION } from '../layout';
 import { useShowsFilter } from './filterStore';
 import { LIST } from './listStyles';
@@ -80,12 +78,10 @@ FilterPill.displayName = 'FilterPill';
 /** "As himself": the self credits, loaded when opened */
 function SelfFold({
   count,
-  gender,
   label,
   personId,
 }: Readonly<{
   count: number;
-  gender: Person['gender'];
   label: string;
   personId: number;
 }>) {
@@ -97,7 +93,11 @@ function SelfFold({
     if (!rows && !pending) {
       startLoad(async () => {
         try {
-          setRows(await loadSelfCredits(personId, gender));
+          setRows(
+            await fetchJson<ReadonlyArray<ShowRowView>>(
+              `/api/person/${personId}/self-credits`,
+            ),
+          );
         } catch (error) {
           // A rejection must not reach the section's error boundary, which
           // would replace the loaded list: the fold stays closed instead
@@ -106,7 +106,7 @@ function SelfFold({
         }
       });
     }
-  }, [gender, pending, personId, rows]);
+  }, [pending, personId, rows]);
   return (
     <>
       <button
@@ -145,7 +145,6 @@ function SelfFold({
 export default function ShowsList({
   children,
   counts,
-  gender,
   personId,
   self,
   titleId,
@@ -153,7 +152,6 @@ export default function ShowsList({
   children: ReactNode;
   /** Rows per filter: the heading's count and Show all N */
   counts: Readonly<Record<ShowFilter, number>>;
-  gender: Person['gender'];
   personId: number;
   self: Readonly<{ count: number; label: string }>;
   /** The heading's id, the section's label */
@@ -191,12 +189,7 @@ export default function ShowsList({
         {children}
       </div>
       {open && self.count > 0 ? (
-        <SelfFold
-          count={self.count}
-          gender={gender}
-          label={self.label}
-          personId={personId}
-        />
+        <SelfFold count={self.count} label={self.label} personId={personId} />
       ) : null}
       {fold === 'none' ? null : (
         <ExpandButton

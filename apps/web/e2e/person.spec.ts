@@ -221,10 +221,9 @@ test('a list that fails to load says so inside the awards sheet and leaves the A
     name: 'Awards',
   });
   await expect(awardsHead).toBeVisible();
-  // the list is a server action (a POST to the page): offline, a deploy skew
-  const failing = (route: Route) =>
-    route.request().method() === 'POST' ? route.abort() : route.fallback();
-  await page.route('**/person/**', failing);
+  // the list's own read fails: offline, an outage
+  const failing = (route: Route) => route.abort();
+  await page.route('**/api/person/*/awards', failing);
   await page.getByRole('button', { name: /^All \d+ nominations$/ }).click();
   const awards = page.getByRole('dialog');
   await expect(awards.getByText('The awards didn’t load.')).toBeVisible();
@@ -233,7 +232,7 @@ test('a list that fails to load says so inside the awards sheet and leaves the A
   await expect(
     page.getByText('Awards didn’t load.', { exact: true }),
   ).toHaveCount(0);
-  await page.unroute('**/person/**', failing);
+  await page.unroute('**/api/person/*/awards', failing);
   await awards.getByRole('button', { name: 'Try again' }).click();
   await expect(awards.getByRole('heading', { name: 'Won' })).toBeVisible();
   await expect(

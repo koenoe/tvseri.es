@@ -5,7 +5,7 @@ import type { PersonFamily } from '@tvseri.es/schemas';
 import { describe, expect, it, vi } from 'vitest';
 
 const loadFamilyAndAwards = vi.fn();
-vi.mock('../../_data/loaders', () => ({
+vi.mock('@/lib/person/loaders', () => ({
   loadFamilyAndAwards,
   loadShows: vi.fn(),
 }));

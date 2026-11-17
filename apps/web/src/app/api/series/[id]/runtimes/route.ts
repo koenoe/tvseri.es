@@ -4,7 +4,7 @@ import {
   publicJson,
   unavailableJson,
 } from '@/app/api/cacheHeaders';
-import { isSeriesId } from '@/app/api/handlers';
+import { isTmdbId } from '@/app/api/handlers';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import { loadRuntimes } from '@/lib/series/loaders';
 
@@ -19,7 +19,7 @@ export async function GET(
   { params }: Readonly<{ params: Promise<{ id: string }> }>,
 ) {
   const { id } = await params;
-  if (!isSeriesId(id)) {
+  if (!isTmdbId(id)) {
     return notFoundJson();
   }
   try {

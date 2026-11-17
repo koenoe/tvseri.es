@@ -9,8 +9,8 @@ import TileLink from '@/components/ui/tile/TileLink';
 import { TILE_HOVER } from '@/components/ui/tile/tileHover';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import cn from '@/lib/cn';
-import { loadKnownFor } from '../_data/loaders';
-import type { KnownForTile } from '../_lib/knownFor';
+import type { KnownForTile } from '@/lib/person/knownFor';
+import { loadKnownFor } from '@/lib/person/loaders';
 import { PERSON_SECTION, PERSON_SNAP_ROW } from './layout';
 
 /** Desktop: five across; phones: a snap row of 128px posters */

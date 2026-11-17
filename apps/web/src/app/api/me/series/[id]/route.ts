@@ -1,7 +1,7 @@
 import { readSeriesSeed } from '@/lib/marking/server/seed';
 import { loadSeriesForWrite } from '@/lib/series/forWrite';
 
-import { isSeriesId, privateJson, viewerRoute } from '../../../handlers';
+import { isTmdbId, privateJson, viewerRoute } from '../../../handlers';
 
 type Context = Readonly<{ params: Promise<{ id: string }> }>;
 
@@ -12,7 +12,7 @@ type Context = Readonly<{ params: Promise<{ id: string }> }>;
  */
 export const GET = viewerRoute(async (viewer, _req, { params }: Context) => {
   const { id } = await params;
-  if (!isSeriesId(id)) {
+  if (!isTmdbId(id)) {
     return privateJson({ error: 'Not found' }, 404);
   }
   const seriesId = Number(id);

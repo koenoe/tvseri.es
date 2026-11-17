@@ -1,7 +1,7 @@
 import type { EpisodePerson } from '@tvseri.es/schemas';
 import slugify from 'slugify';
 import { failedJson, notFoundJson, publicJson } from '@/app/api/cacheHeaders';
-import { isSeriesId } from '@/app/api/handlers';
+import { isTmdbId } from '@/app/api/handlers';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import { toEpisodeModalCredits } from '@/lib/series/episodeCredits';
 import {
@@ -35,7 +35,7 @@ export async function GET(
   { params }: Readonly<{ params: Promise<Params> }>,
 ) {
   const { episode, id, season } = await params;
-  if (!isSeriesId(id) || !SEASON.test(season) || !EPISODE.test(episode)) {
+  if (!isTmdbId(id) || !SEASON.test(season) || !EPISODE.test(episode)) {
     return notFoundJson();
   }
   const seriesId = Number(id);

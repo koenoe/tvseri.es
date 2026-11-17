@@ -6,7 +6,7 @@ import SectionHead from '@/components/ui/section/SectionHead';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import cn from '@/lib/cn';
 
-import { loadShowsView } from '../../_data/loaders';
+import { loadShowsView } from '@/lib/person/loaders';
 import { PERSON_SECTION } from '../layout';
 import { LIST } from './listStyles';
 import ShowRow from './ShowRow';
@@ -86,7 +86,6 @@ export default async function Shows({
     >
       <ShowsList
         counts={view.counts}
-        gender={person.gender}
         personId={person.id}
         self={self}
         titleId="person-shows-title"

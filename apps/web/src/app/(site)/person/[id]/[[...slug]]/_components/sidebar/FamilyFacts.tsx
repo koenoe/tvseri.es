@@ -10,11 +10,10 @@ import {
 import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import cn from '@/lib/cn';
-
-import { loadFamilyAndAwards, loadShows } from '../../_data/loaders';
+import { formatMonthDay } from '@/lib/person/format';
+import { loadFamilyAndAwards, loadShows } from '@/lib/person/loaders';
 import { awardsLine } from '../../_lib/awards';
 import { childrenLine, spouseLine } from '../../_lib/family';
-import { formatMonthDay } from '../../_lib/format';
 import Fact, { FACTS } from './Fact';
 
 /** "Next: Tightrope!, in development" or "Next: X, premieres Jun 12" */

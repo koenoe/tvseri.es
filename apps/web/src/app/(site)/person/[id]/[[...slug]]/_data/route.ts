@@ -1,10 +1,9 @@
 import type { Person } from '@tvseri.es/schemas';
 
 import { isUnavailable } from '@/lib/cache/unavailable';
+import { loadPerson, loadShows } from '@/lib/person/loaders';
 import type { EntitySpec } from '@/lib/routing/entityRoute';
 import personPath from '@/lib/routing/personPath';
-
-import { loadPerson, loadShows } from './loaders';
 
 const personOf = async (id: number) => {
   const result = await loadPerson(id);

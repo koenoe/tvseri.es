@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 import { create } from 'zustand';
 
-import type { ShowFilter } from '../../_lib/shows';
+import type { ShowFilter } from '@/lib/person/shows';
 
 /**
  * The Shows list's filter and Show all, shared with the Career chart: its

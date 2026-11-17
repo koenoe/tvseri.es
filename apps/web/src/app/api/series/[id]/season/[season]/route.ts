@@ -1,5 +1,5 @@
 import { failedJson, notFoundJson, publicJson } from '@/app/api/cacheHeaders';
-import { isSeriesId } from '@/app/api/handlers';
+import { isTmdbId } from '@/app/api/handlers';
 import { loadSeason } from '@/lib/series/loaders';
 import { toShowSeasonEpisodes } from '@/lib/series/seasonEpisodes';
 
@@ -15,7 +15,7 @@ export async function GET(
   { params }: Readonly<{ params: Promise<{ id: string; season: string }> }>,
 ) {
   const { id, season } = await params;
-  if (!isSeriesId(id) || !SEASON.test(season)) {
+  if (!isTmdbId(id) || !SEASON.test(season)) {
     return notFoundJson();
   }
   try {

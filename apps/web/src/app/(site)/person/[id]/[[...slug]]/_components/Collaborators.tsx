@@ -8,7 +8,7 @@ import { TILE_HOVER } from '@/components/ui/tile/tileHover';
 import { PERSON_PREFETCH } from '@/components/ui/tile/tilePrefetch';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import cn from '@/lib/cn';
-import { loadCollaborators } from '../_data/loaders';
+import { loadCollaborators } from '@/lib/person/loaders';
 import {
   COLLABORATOR_GRID,
   COLLABORATOR_ROLE_LINE,

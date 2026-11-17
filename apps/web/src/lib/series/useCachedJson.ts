@@ -40,6 +40,15 @@ export function primeJson(url: string, data: unknown) {
   }
 }
 
+/** A public JSON read; a non-2xx answer rejects like a network failure. */
+export async function fetchJson<T>(url: string): Promise<T> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`${response.status}`);
+  }
+  return (await response.json()) as T;
+}
+
 /** Starts loading `url` (no-op when loaded or loading). */
 export function requestJson(url: string) {
   const current = cache.get(url);
@@ -48,12 +57,9 @@ export function requestJson(url: string) {
   }
   cache.set(url, { status: 'loading' });
   emit();
-  fetch(url)
-    .then(async (response) => {
-      if (!response.ok) {
-        throw new Error(`${response.status}`);
-      }
-      cache.set(url, { data: await response.json(), status: 'ready' });
+  fetchJson(url)
+    .then((data) => {
+      cache.set(url, { data, status: 'ready' });
     })
     .catch(() => {
       cache.set(url, { status: 'error' });

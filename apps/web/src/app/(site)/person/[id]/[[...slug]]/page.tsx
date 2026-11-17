@@ -2,13 +2,12 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
 import { isUnavailable } from '@/lib/cache/unavailable';
+import { summary } from '@/lib/person/format';
+import { loadPerson } from '@/lib/person/loaders';
 import { entityMetadata } from '@/lib/routing/entityRoute';
-
 import PersonRoute from './_components/PersonRoute';
 import PersonSkeleton from './_components/PersonSkeleton';
-import { loadPerson } from './_data/loaders';
 import { PERSON_ROUTE } from './_data/route';
-import { summary } from './_lib/format';
 
 type Props = Readonly<{
   params: Promise<{ id: string; slug?: string[] }>;

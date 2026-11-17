@@ -25,10 +25,10 @@ const PRIVATE_HEADERS = {
 export const privateJson = (body: unknown, status = 200): Response =>
   Response.json(body, { headers: PRIVATE_HEADERS, status });
 
-const SERIES_ID = new RegExp(`^${TMDB_ID_PATTERN}$`);
+const TMDB_ID = new RegExp(`^${TMDB_ID_PATTERN}$`);
 
-/** A TMDB id as a path segment: up to `MAX_TMDB_ID_DIGITS`, no leading zero */
-export const isSeriesId = (value: string): boolean => SERIES_ID.test(value);
+/** A TMDB id (a show, a person) as a path segment: up to `MAX_TMDB_ID_DIGITS`, no leading zero */
+export const isTmdbId = (value: string): boolean => TMDB_ID.test(value);
 
 /**
  * A failed read's answer: the API's `AccountGone` passes through as it is

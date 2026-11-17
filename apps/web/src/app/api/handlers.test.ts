@@ -6,7 +6,7 @@ import { ApiError } from '@/lib/api/client';
 const { getViewer } = vi.hoisted(() => ({ getViewer: vi.fn() }));
 vi.mock('@/auth/viewer', () => ({ getViewer }));
 
-const { isSeriesId, viewerRoute } = await import('./handlers');
+const { isTmdbId, viewerRoute } = await import('./handlers');
 
 const VIEWER = { accessToken: 'token', id: 'user-1', role: 'user' };
 const REQ = new NextRequest('https://www.tvseri.es/api/me/thing');
@@ -60,15 +60,15 @@ describe('viewerRoute', () => {
   });
 });
 
-describe('isSeriesId', () => {
+describe('isTmdbId', () => {
   it.each(['1', '136315', '99999999'])('takes %s', (id) => {
-    expect(isSeriesId(id)).toBe(true);
+    expect(isTmdbId(id)).toBe(true);
   });
 
   it.each(['0', '01', '-1', '1.5', 'abc', '', '123456789'])(
     'refuses %s',
     (id) => {
-      expect(isSeriesId(id)).toBe(false);
+      expect(isTmdbId(id)).toBe(false);
     },
   );
 });

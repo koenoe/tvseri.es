@@ -13,7 +13,7 @@ vi.mock('@/lib/api/client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/lib/api/client')>()),
   apiFetch,
 }));
-vi.mock('../../_data/loaders', () => ({ loadShowsView }));
+vi.mock('@/lib/person/loaders', () => ({ loadShowsView }));
 vi.mock('./SeedWatched', () => ({ default: () => null }));
 
 const { default: WatchedHole } = await import('./WatchedHole');

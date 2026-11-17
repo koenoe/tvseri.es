@@ -3,9 +3,8 @@ import type { PersonLink } from '@tvseri.es/schemas';
 import { externalGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import { isUnavailable } from '@/lib/cache/unavailable';
+import { loadLinks } from '@/lib/person/loaders';
 import externalHref from '@/lib/routing/externalHref';
-
-import { loadLinks } from '../../_data/loaders';
 import SocialIcon, { hasSocialIcon, SOCIAL_LABELS } from './SocialIcon';
 
 const ROW = 'flex items-center gap-2';

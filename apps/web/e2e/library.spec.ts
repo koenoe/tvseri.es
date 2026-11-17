@@ -12,8 +12,10 @@ import { signInAs } from './helpers/session';
 
 const grid = (page: Page) => page.locator('[data-slot="library-grid"]');
 const tiles = (page: Page) => grid(page).locator('ul > li');
+// textContent, not innerText: a tile is `content-visibility: auto`, and its
+// innerText reads empty until the browser's next frame after it lands
 const tileTitles = (page: Page) =>
-  tiles(page).locator('a span.truncate:first-child').allInnerTexts();
+  tiles(page).locator('a span.truncate:first-child').allTextContents();
 
 test.describe('the Library, yours', () => {
   test.beforeEach(async ({ page }) => {
@@ -240,13 +242,14 @@ test.describe('the Library, yours', () => {
     const load = page.getByRole('button', { name: /· load$/ });
     await expect(load).toBeVisible();
     await expect(tiles(page).first()).toBeVisible();
-    const anchorTitle = (await tileTitles(page))[0];
+    const anchorTitle = (await tileTitles(page))[0] ?? '';
+    expect(anchorTitle).not.toBe('');
     // the first tile on screen, under the row: its top before and after
     const top = () =>
       page.evaluate(
         (title) =>
           [...document.querySelectorAll('[data-slot="library-grid"] ul > li')]
-            .find((li) => li.textContent?.includes(title ?? ''))
+            .find((li) => li.textContent?.includes(title))
             ?.getBoundingClientRect().top ?? Number.NaN,
         anchorTitle,
       );

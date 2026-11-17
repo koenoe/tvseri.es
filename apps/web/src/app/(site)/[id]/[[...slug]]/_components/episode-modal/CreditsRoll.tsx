@@ -23,6 +23,15 @@ const ROLL_CLASSES =
 const STILL_LIST = 'max-lg:pb-8';
 
 /**
+ * Below `lg` with reduced motion the list never rolls, so it is still from
+ * its first render: drawn once, never doubled and collapsed after mount (a
+ * class change after mount is a style change, which the global
+ * reduced-motion rule turns into a 0.01ms transition). The roll mounts on
+ * the client only: its credits load after hydration.
+ */
+const stillFromStart = () => !matchesNow(WIDE_LG) && matchesNow(REDUCED_MOTION);
+
+/**
  * The end credits: role over name, name | character, rolling up at 30px/s
  * for two passes, then still. Hover or focus pauses it. Transform only, on
  * the compositor (WAAPI). Below `lg` it rolls inside its box under the
@@ -36,18 +45,18 @@ function CreditsRoll({
   const animation = useRef<Animation | null>(null);
   const list = useRef<HTMLDivElement | null>(null);
   // Below `lg` only: the box scrolls by hand, the list drawn once
-  const [still, setStill] = useState(false);
+  const [still, setStill] = useState(stillFromStart);
 
   const roll = useCallback((node: HTMLDivElement | null) => {
     list.current = node;
-    if (!node) {
+    if (!node || stillFromStart()) {
       return;
     }
     // One read at mount: half the doubled list is one pass.
     const pass = node.scrollHeight / 2;
     if (!matchesNow(WIDE_LG)) {
       const box = node.parentElement;
-      if (matchesNow(REDUCED_MOTION) || !box || pass <= box.clientHeight) {
+      if (!box || pass <= box.clientHeight) {
         setStill(true);
         return;
       }

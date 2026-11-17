@@ -2,7 +2,7 @@ import { expect, type Page, test } from '@playwright/test';
 
 import { expectHydrated } from './helpers';
 import { markWatched, signInAs } from './helpers/session';
-import { fontsSettled, phoneScrollbars } from './helpers/viewport';
+import { fontsSettled, pageSettled, phoneScrollbars } from './helpers/viewport';
 
 /**
  * The Focus wall's composition on awkward seasons, measured in the browser: no hole taller than
@@ -505,6 +505,9 @@ for (const width of [1440, 390]) {
     await phoneScrollbars(page, width);
     await signInAs(context, 'nina');
     await openWall(page, 136_315, []);
+    // measured once the wall stopped changing: a tile swapped mid-read has
+    // no computed size (NaN)
+    await pageSettled(page);
     const overhangs = await page
       .locator('[data-episode-tile] > span[aria-hidden="true"]')
       .evaluateAll((spans) =>

@@ -1,5 +1,5 @@
 import { marshall } from '@aws-sdk/util-dynamodb';
-import type { Context, SQSEvent } from 'aws-lambda';
+import type { SQSEvent } from 'aws-lambda';
 import { describe, expect, it, vi } from 'vitest';
 
 import { handler as undoImportHandler } from '@/lambdas/undoImport';
@@ -7,6 +7,7 @@ import { handler as nightly } from '@/lambdas/validateWatchedStatusQueue';
 import { handler as streamHandler } from '@/lambdas/watched';
 import { db, sqsMessages } from './db';
 import { fakeShow } from './fixtures/tmdb';
+import { lambdaContext } from './lambdaContext';
 import { episodes, listItem, seedWatched } from './library';
 import { request } from './request';
 import { seedUser, USER_ID } from './seed';
@@ -255,7 +256,7 @@ describe('an import and its Undo keep the lists right with skips', () => {
           messageId: `m${index}`,
         })),
       } as unknown as SQSEvent,
-      { getRemainingTimeInMillis: () => 300_000 } as unknown as Context,
+      lambdaContext(),
     );
   };
 
@@ -322,9 +323,12 @@ describe('an import and its Undo keep the lists right with skips', () => {
 });
 
 const runNightly = () =>
-  nightly({
-    Records: [{ body: JSON.stringify({ id: USER_ID }), messageId: 'm0' }],
-  } as unknown as SQSEvent);
+  nightly(
+    {
+      Records: [{ body: JSON.stringify({ id: USER_ID }), messageId: 'm0' }],
+    } as unknown as SQSEvent,
+    lambdaContext(),
+  );
 
 const MONDAY = Date.UTC(2026, 10, 9, 3);
 const TUESDAY = Date.UTC(2026, 10, 10, 3);

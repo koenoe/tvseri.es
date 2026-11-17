@@ -1,11 +1,12 @@
 import { CloudFrontKeyValueStoreClient } from '@aws-sdk/client-cloudfront-keyvaluestore';
 import { WEBHOOK_TOKEN_KV_PREFIX } from '@tvseri.es/constants';
 import { authRefreshPartition, authSubject, emailKey } from '@tvseri.es/utils';
-import type { Context, SQSEvent } from 'aws-lambda';
+import type { SQSEvent } from 'aws-lambda';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { handler as deleteAccount } from '@/lambdas/deleteAccount';
 import { db, sqsMessages } from './db';
+import { lambdaContext } from './lambdaContext';
 import { request } from './request';
 import { OTHER_USER_ID, seedUser, USER_ID } from './seed';
 
@@ -43,7 +44,7 @@ const runQueue = async (remainingMs = 300_000) => {
         messageId: `m${index}`,
       })),
     } as unknown as SQSEvent,
-    { getRemainingTimeInMillis: () => remainingMs } as unknown as Context,
+    lambdaContext(remainingMs),
   );
 };
 

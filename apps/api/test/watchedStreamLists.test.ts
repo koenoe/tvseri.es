@@ -1,9 +1,10 @@
-import type { Context, SQSEvent } from 'aws-lambda';
+import type { SQSEvent } from 'aws-lambda';
 import { describe, expect, it } from 'vitest';
 import { handler as undoImportHandler } from '@/lambdas/undoImport';
 import { handler } from '@/lambdas/watched';
 import { db, sqsMessages } from './db';
 import { fakeShow } from './fixtures/tmdb';
+import { lambdaContext } from './lambdaContext';
 import { listItem, seedLibrary } from './library';
 import { request } from './request';
 import { seedUser, USER_ID } from './seed';
@@ -85,10 +86,7 @@ const undoImport = async (importId: string) => {
       messageId: `m${index}`,
     })),
   } as unknown as SQSEvent;
-  const context = {
-    getRemainingTimeInMillis: () => 300_000,
-  } as unknown as Context;
-  expect(await undoImportHandler(event, context)).toEqual({
+  expect(await undoImportHandler(event, lambdaContext())).toEqual({
     batchItemFailures: [],
   });
 };

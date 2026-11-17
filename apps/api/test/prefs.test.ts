@@ -2,10 +2,10 @@ import type { SQSEvent } from 'aws-lambda';
 import { describe, expect, it } from 'vitest';
 
 import { handler as scrobbleHandler } from '@/lambdas/scrobble';
-
 import { db } from './db';
 import { onTmdb } from './fakeHttp';
 import { fakeShow } from './fixtures/tmdb';
+import { lambdaContext } from './lambdaContext';
 import { listItem, seedWatched } from './library';
 import { request } from './request';
 import { seedUser, USER_ID } from './seed';
@@ -173,7 +173,9 @@ describe('per-show prefs', () => {
         },
       ],
     } as unknown as SQSEvent;
-    expect(await scrobbleHandler(event)).toEqual({ batchItemFailures: [] });
+    expect(await scrobbleHandler(event, lambdaContext())).toEqual({
+      batchItemFailures: [],
+    });
     expect(await prefs()).toMatchObject({ skipped: ['S01E03'] });
   });
 
@@ -403,7 +405,9 @@ describe('a mark brings a hidden show back', () => {
         },
       ],
     } as unknown as SQSEvent;
-    expect(await scrobbleHandler(event)).toEqual({ batchItemFailures: [] });
+    expect(await scrobbleHandler(event, lambdaContext())).toEqual({
+      batchItemFailures: [],
+    });
     expect(await prefs()).toMatchObject({ paused: null });
   });
 });

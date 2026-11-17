@@ -1,9 +1,9 @@
 import { CloudFrontKeyValueStoreClient } from '@aws-sdk/client-cloudfront-keyvaluestore';
 import type { SQSEvent } from 'aws-lambda';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
 import { db, sqsMessages } from './db';
 import { requestedUrls, resetRequests } from './fakeHttp';
+import { lambdaContext } from './lambdaContext';
 import { measureReads } from './readUnits';
 import { request } from './request';
 import { OTHER_USER_ID, seedUser, USER_ID } from './seed';
@@ -635,20 +635,23 @@ describe('Plex scrobble payloads', () => {
   it('the Lambda drops a malformed queued scrobble without asking TMDB', async () => {
     const { handler } = await import('@/lambdas/scrobble');
     resetRequests();
-    const result = await handler({
-      Records: [
-        {
-          attributes: { SentTimestamp: String(Date.UTC(2026, 0, 1)) },
-          body: JSON.stringify({
-            metadata: {
-              plex: { ...EPISODE_METADATA, parentIndex: '1/../../x' },
-            },
-            userId: USER_ID,
-          }),
-          messageId: 'm1',
-        },
-      ],
-    } as unknown as SQSEvent);
+    const result = await handler(
+      {
+        Records: [
+          {
+            attributes: { SentTimestamp: String(Date.UTC(2026, 0, 1)) },
+            body: JSON.stringify({
+              metadata: {
+                plex: { ...EPISODE_METADATA, parentIndex: '1/../../x' },
+              },
+              userId: USER_ID,
+            }),
+            messageId: 'm1',
+          },
+        ],
+      } as unknown as SQSEvent,
+      lambdaContext(),
+    );
 
     expect(result).toEqual({ batchItemFailures: [] });
     expect(requestedUrls()).toEqual([]);

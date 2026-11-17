@@ -1,8 +1,9 @@
-import type { Context, SQSEvent } from 'aws-lambda';
+import type { SQSEvent } from 'aws-lambda';
 import { describe, expect, it } from 'vitest';
 
 import { handler as undoImport } from '@/lambdas/undoImport';
 import { db, sqsMessages } from './db';
+import { lambdaContext } from './lambdaContext';
 import { request } from './request';
 import { OTHER_USER_ID, seedUser, USER_ID } from './seed';
 
@@ -68,9 +69,6 @@ const startImport = async () => {
   expect(response.status).toBe(201);
   return ((await response.json()) as { importId: string }).importId;
 };
-
-const lambdaContext = (remainingMs = 300_000) =>
-  ({ getRemainingTimeInMillis: () => remainingMs }) as unknown as Context;
 
 const UNDO_QUEUE = 'https://sqs.test/undo-import';
 

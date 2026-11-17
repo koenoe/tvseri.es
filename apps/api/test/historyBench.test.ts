@@ -3,8 +3,8 @@ import type { SQSEvent } from 'aws-lambda';
 import { describe, expect, it } from 'vitest';
 
 import { handler as nightly } from '@/lambdas/validateWatchedStatusQueue';
-
 import { db } from './db';
+import { lambdaContext } from './lambdaContext';
 import { measureReads } from './readUnits';
 import { request } from './request';
 import { seedUser, USER_ID } from './seed';
@@ -96,9 +96,12 @@ describe('measurement: the years list for a 6,000-episode history', () => {
 
     // After the nightly job built the per-show summaries, and a
     // mark cleared the years list's cache entry
-    await nightly({
-      Records: [{ body: JSON.stringify({ id: USER_ID }), messageId: 'm' }],
-    } as unknown as SQSEvent);
+    await nightly(
+      {
+        Records: [{ body: JSON.stringify({ id: USER_ID }), messageId: 'm' }],
+      } as unknown as SQSEvent,
+      lambdaContext(),
+    );
     await db.send({
       constructor: { name: 'DeleteItemCommand' },
       input: {

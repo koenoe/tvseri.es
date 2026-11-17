@@ -15,6 +15,7 @@ import { getAllTimeWatchedItems } from '@/lib/stats/data';
 import { calculateAllTime } from '@/lib/stats/segments';
 import { db } from './db';
 import { fakeShow } from './fixtures/tmdb';
+import { lambdaContext } from './lambdaContext';
 import { measureReads } from './readUnits';
 import { request } from './request';
 import { seedUser, USER_ID } from './seed';
@@ -51,9 +52,12 @@ const watchedItem = (
 });
 
 const runNightly = () =>
-  nightly({
-    Records: [{ body: JSON.stringify({ id: USER_ID }), messageId: 'm' }],
-  } as unknown as SQSEvent);
+  nightly(
+    {
+      Records: [{ body: JSON.stringify({ id: USER_ID }), messageId: 'm' }],
+    } as unknown as SQSEvent,
+    lambdaContext(),
+  );
 
 const SHOWS = [9601, 9602, 9603, 9604];
 const setupShows = () => {

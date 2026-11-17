@@ -1,7 +1,7 @@
 import type { DynamoDBStreamEvent, SQSEvent } from 'aws-lambda';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-
 import { fakeShow } from './fixtures/tmdb';
+import { lambdaContext } from './lambdaContext';
 import { seedUser, USER_ID } from './seed';
 
 /**
@@ -61,9 +61,12 @@ describe('Lambdas without the MdblistApiKey link', () => {
       } as DynamoDBStreamEvent),
     ).resolves.not.toThrow();
     await expect(
-      nightly({
-        Records: [{ body: JSON.stringify({ id: USER_ID }), messageId: 'm' }],
-      } as unknown as SQSEvent),
+      nightly(
+        {
+          Records: [{ body: JSON.stringify({ id: USER_ID }), messageId: 'm' }],
+        } as unknown as SQSEvent,
+        lambdaContext(),
+      ),
     ).resolves.toBeDefined();
     // Loading three handlers' module graphs takes seconds on a busy machine
   }, 30_000);

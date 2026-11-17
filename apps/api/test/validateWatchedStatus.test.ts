@@ -6,6 +6,7 @@ import { handler } from '@/lambdas/validateWatchedStatusQueue';
 import { queueWatchedStatusValidation } from '@/lib/watchedStatus';
 import { db } from './db';
 import { fakeShow } from './fixtures/tmdb';
+import { lambdaContext } from './lambdaContext';
 import { episodes, listItem, seedWatched } from './library';
 import { OTHER_USER_ID, seedUser, USER_ID } from './seed';
 import { listItems, withStream } from './stream';
@@ -48,7 +49,7 @@ const run = async (userIds: ReadonlyArray<string> = [USER_ID]) => {
       messageId: `m${index}`,
     })),
   } as unknown as SQSEvent;
-  return handler(event);
+  return handler(event, lambdaContext());
 };
 
 const item = (sk: string, userId = USER_ID) =>
@@ -316,6 +317,23 @@ describe('nightly cron (async-10)', () => {
 
     send.mockRestore();
     error.mockRestore();
+  });
+});
+
+describe('nightly validation: time left', () => {
+  it('hands back the users it has no time for instead of timing out', async () => {
+    vi.useFakeTimers({ now: TUESDAY, toFake: ['Date'] });
+    seedUser();
+    const event = {
+      Records: [USER_ID, OTHER_USER_ID].map((id, index) => ({
+        body: JSON.stringify({ id }),
+        messageId: `m${index}`,
+      })),
+    } as unknown as SQSEvent;
+
+    expect(await handler(event, lambdaContext(5_000))).toEqual({
+      batchItemFailures: [{ itemIdentifier: 'm0' }, { itemIdentifier: 'm1' }],
+    });
   });
 });
 

@@ -8,11 +8,17 @@ import {
   type TmdbExternalSource,
   type TvSeries,
 } from '@tvseri.es/schemas';
-import type { SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
+import type {
+  Context,
+  SQSBatchResponse,
+  SQSEvent,
+  SQSRecord,
+} from 'aws-lambda';
 import * as v from 'valibot';
 
 import { afterWatching } from '@/lib/db/prefs';
 import { markWatched } from '@/lib/db/watched';
+import { eachRecordInTime } from '@/lib/sqs';
 import {
   fetchTvSeriesBase,
   fetchTvSeriesEpisode,
@@ -171,25 +177,21 @@ const processScrobble = async (record: SQSRecord) => {
   );
 };
 
+// One scrobble's worst case: TMDB reads with their retries (~13.5 s)
+const SCROBBLE_RESERVE_MS = 15_000;
+
 /**
- * Each message is handled on its own and reported back as a batch item failure
- * if it throws, so one failing scrobble is retried (and eventually sent to the
- * DLQ) without re-running the others.
+ * Each message is handled on its own, so one failing scrobble is retried
+ * (and eventually sent to the DLQ) without re-running the others.
  */
-export const handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
-  const batchItemFailures: SQSBatchResponse['batchItemFailures'] = [];
-
-  for (const record of event.Records) {
-    try {
-      await processScrobble(record);
-    } catch (error) {
-      console.error(
-        `Error processing scrobble event ${record.messageId}:`,
-        error,
-      );
-      batchItemFailures.push({ itemIdentifier: record.messageId });
-    }
-  }
-
-  return { batchItemFailures };
-};
+export const handler = (
+  event: SQSEvent,
+  context: Context,
+): Promise<SQSBatchResponse> =>
+  eachRecordInTime(
+    event,
+    context,
+    SCROBBLE_RESERVE_MS,
+    processScrobble,
+    'SCROBBLE',
+  );

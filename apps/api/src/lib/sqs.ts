@@ -1,5 +1,10 @@
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
-import type { Context, SQSBatchResponse, SQSEvent } from 'aws-lambda';
+import type {
+  Context,
+  SQSBatchResponse,
+  SQSEvent,
+  SQSRecord,
+} from 'aws-lambda';
 
 /** The one SQS client of every Lambda (the SDK keeps its connections alive) */
 export const sqs = new SQSClient({});
@@ -53,11 +58,14 @@ export const resumableStepHandler =
     summary: (message: Message, outcome: Outcome | 'continue') => string;
   }>) =>
   async (event: SQSEvent, context: Context): Promise<SQSBatchResponse> => {
-    const batchItemFailures: SQSBatchResponse['batchItemFailures'] = [];
     const hasTime = () => context.getRemainingTimeInMillis() > SAFETY_MS;
 
-    for (const record of event.Records) {
-      try {
+    // No reserve: `run` checks `hasTime` itself and asks to continue
+    return eachRecordInTime(
+      event,
+      context,
+      0,
+      async (record) => {
         const message = JSON.parse(record.body) as Message;
         const outcome = await run(message, hasTime);
 
@@ -74,11 +82,39 @@ export const resumableStepHandler =
           }
         }
         console.log(`[${label}] ${summary(message, outcome)}`);
-      } catch (error) {
-        console.error(`[${label}] failed for ${record.messageId}`, error);
-        batchItemFailures.push({ itemIdentifier: record.messageId });
-      }
-    }
-
-    return { batchItemFailures };
+      },
+      label,
+    );
   };
+
+/**
+ * Handles a batch's messages one after another, each reported back on its
+ * own (partial batch response) when it throws. A message only starts while
+ * `reserveMs` (its worst case) is left before the Lambda timeout; the rest
+ * go back as failures, because a timeout would lose the partial response
+ * and redeliver the whole batch.
+ */
+export const eachRecordInTime = async (
+  event: SQSEvent,
+  context: Context,
+  reserveMs: number,
+  handle: (record: SQSRecord) => Promise<void>,
+  label: string,
+): Promise<SQSBatchResponse> => {
+  const batchItemFailures: SQSBatchResponse['batchItemFailures'] = [];
+
+  for (const record of event.Records) {
+    if (context.getRemainingTimeInMillis() < reserveMs) {
+      batchItemFailures.push({ itemIdentifier: record.messageId });
+      continue;
+    }
+    try {
+      await handle(record);
+    } catch (error) {
+      console.error(`[${label}] failed for ${record.messageId}`, error);
+      batchItemFailures.push({ itemIdentifier: record.messageId });
+    }
+  }
+
+  return { batchItemFailures };
+};

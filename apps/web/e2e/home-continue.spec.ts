@@ -31,8 +31,14 @@ const topPicks = (page: Page) =>
   page.getByRole('heading', { name: /^Top Picks/ });
 const failed = (page: Page, title = 'Continue watching') =>
   page.getByRole('alert').filter({ hasText: `${title} didn’t load.` });
-/** Top Picks' title: where the page below the row starts (once the stream has swapped it in: one title) */
+/**
+ * Top Picks' title: where the page below the row starts, once the stream has
+ * swapped the loaded row in. Its skeleton draws the same title (one heading
+ * either way, as the loaded row waits in a hidden segment), and the swap
+ * detaches it mid-measure: wait for the skeleton to be gone first.
+ */
 const below = async (page: Page) => {
+  await expect(page.locator('[data-placeholder="top-picks"]')).toHaveCount(0);
   const title = topPicks(page);
   await expect(title).toHaveCount(1);
   return (await title.boundingBox())?.y ?? Number.NaN;

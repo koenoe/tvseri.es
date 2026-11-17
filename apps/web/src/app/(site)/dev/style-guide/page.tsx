@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
 import ButtonSection from './_sections/ButtonSection';
 import ChromeSection from './_sections/ChromeSection';
 import DialogSection from './_sections/DialogSection';
@@ -26,12 +25,9 @@ export const metadata: Metadata = {
 
 /**
  * Internal: every ui primitive as the design draws it, to compare side by side
- * in Chrome. Not part of production builds.
+ * in Chrome. Not part of production builds (`/dev`'s layout).
  */
 export default function StyleGuidePage() {
-  if (process.env.NODE_ENV === 'production') {
-    notFound();
-  }
   return (
     <main className="mx-auto w-full max-w-page flex-1 px-gutter pt-28 pb-16">
       <h1 className="font-display text-display">Style guide</h1>

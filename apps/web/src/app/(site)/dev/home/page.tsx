@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
 import { connection } from 'next/server';
 import { Suspense } from 'react';
 
@@ -27,8 +26,7 @@ type SearchParams = Promise<Readonly<{ day?: string | string[] }>>;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
- * Internal (next dev, and the e2e build that compiles in Next's testing API,
- * `EXPOSE_TESTING_API=1`; every other production build 404s):
+ * Internal (`/dev`'s layout keeps it out of production builds):
  * - `/dev/home`: every rotating kind (the four features, the Countdown, the
  *   three toys, If you liked X) with the API's real data and images, each
  *   labelled with when it next appears and whether the API falls through
@@ -39,12 +37,6 @@ const DAY = /^\d{4}-\d{2}-\d{2}$/;
 export default function HomePartsPage({
   searchParams,
 }: Readonly<{ searchParams: SearchParams }>) {
-  if (
-    process.env.NODE_ENV === 'production' &&
-    process.env.EXPOSE_TESTING_API !== '1'
-  ) {
-    notFound();
-  }
   // the preview renders per request: hold a screen until it streams in, so
   // the footer isn't painted on the first screen and pushed away
   return (

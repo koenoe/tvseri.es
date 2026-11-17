@@ -120,7 +120,7 @@ export default function DeleteDialog({
         />
       </label>
       {message ? (
-        <p className="text-meta text-[#ff8f8f]" role="alert">
+        <p className="text-meta text-danger" role="alert">
           {message}
         </p>
       ) : null}

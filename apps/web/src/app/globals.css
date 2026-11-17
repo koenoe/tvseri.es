@@ -34,6 +34,8 @@
   --color-pink: #ff0080;
   /* the IMDb star */
   --color-imdb: #f5c518;
+  /* destructive: Delete account's dot and its refusal line */
+  --color-danger: #ff8f8f;
   --text-display: var(--t-display-size);
   --text-display--line-height: var(--t-display-lh);
   --text-display--font-weight: 800;

@@ -44,7 +44,7 @@ export function DeleteSkeleton() {
   );
   return (
     <div aria-hidden="true">
-      <DataCard danger dot="bg-[#ff8f8f]" title="Delete account">
+      <DataCard danger dot="bg-danger" title="Delete account">
         <DataRow action={action} title="Delete everything">
           Your profile, history, lists and Plex link. This can’t be undone.
         </DataRow>

@@ -1,6 +1,6 @@
 import type { EndpointMetrics } from '@tvseri.es/schemas';
 import { ChevronRight } from 'lucide-react';
-
+import { RouteLabel } from '@/components/route-label';
 import { ScoreRing } from '@/components/ui/score-ring';
 import {
   formatDependencyName,
@@ -8,9 +8,8 @@ import {
   formatLatency,
   sortDependencyKeys,
 } from '@/lib/api-metrics';
-
 import { DependencyBadge } from '../dependency-badge';
-import { MethodBadge, parseEndpoint, RouteLabel } from '../endpoint-label';
+import { MethodBadge, parseEndpoint } from '../endpoint-label';
 import { RequestBar } from '../table/request-bar';
 import { SortableHeader } from '../table/sortable-header';
 import type { ApiColumnDef } from '../table/table-features';

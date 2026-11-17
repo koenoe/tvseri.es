@@ -1,58 +1,42 @@
 import {
+  getMetricStatus,
   METRICS_CONFIG,
   type MetricType,
-  RATING_COLORS,
+  type RatingStatus,
 } from '@/lib/web-vitals';
 
+import { RatingPill } from '../data-points';
 import { formatValueForDisplay } from './utils';
 
 type PercentileRowProps = Readonly<{
-  isActive: boolean;
   label: string;
   metric: MetricType;
   value: number;
 }>;
 
-export function PercentileRow({
-  isActive,
-  label,
-  metric,
-  value,
-}: PercentileRowProps) {
-  const status =
-    metric === 'res'
-      ? value >= 90
-        ? 'great'
-        : value >= 50
-          ? 'needsImprovement'
-          : 'poor'
-      : (() => {
-          const config = METRICS_CONFIG[metric];
-          if (value <= config.thresholdGreat) return 'great';
-          if (value <= config.thresholdPoor) return 'needsImprovement';
-          return 'poor';
-        })();
+// Unlike the RES score elsewhere, a tooltip value of exactly 90 counts as great.
+function getStatus(metric: MetricType, value: number): RatingStatus {
+  if (metric !== 'res') return getMetricStatus(metric, value);
+  if (value >= 90) return 'great';
+  if (value >= 50) return 'needsImprovement';
+  return 'poor';
+}
 
-  const colorConfig = RATING_COLORS[status];
+export function PercentileRow({ label, metric, value }: PercentileRowProps) {
+  const status = getStatus(metric, value);
   const displayValue = formatValueForDisplay(metric, value);
-  const config = METRICS_CONFIG[metric];
-  const unit = metric === 'res' ? '' : config.unit;
+  const unit = metric === 'res' ? '' : METRICS_CONFIG[metric].unit;
 
   return (
-    <div className={`flex items-center gap-3 ${isActive ? '' : 'opacity-40'}`}>
+    <div className="flex items-center gap-3">
       <span className="flex items-center gap-1.5 text-neutral-400">
-        <span
-          className={`size-2 rounded-full ${isActive ? 'bg-blue-500' : 'border border-current'}`}
-        />
+        <span className="size-2 rounded-full bg-blue-500" />
         {label}
       </span>
-      <span
-        className={`rounded px-1.5 py-0.5 text-xs font-medium ${colorConfig.text}`}
-        style={{ border: `1px solid ${colorConfig.hsl}` }}
-      >
+      <RatingPill status={status}>
         {displayValue}
         {unit}
-      </span>
+      </RatingPill>
     </div>
   );
 }

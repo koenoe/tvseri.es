@@ -1,3 +1,4 @@
+import { RouteLabel } from '@/components/route-label';
 import type { ApiMetricsDependencyDetailResponse } from '@/lib/api/client';
 import {
   formatErrorRate,
@@ -7,8 +8,6 @@ import {
   toStatusCodes,
 } from '@/lib/api-metrics';
 import { STATUS_COLORS } from '@/lib/status-colors';
-
-import { RouteLabel } from '../endpoint-label';
 import { StatusCodePopover } from '../status-code-popover';
 import { RequestBar } from '../table/request-bar';
 import { SortableHeader } from '../table/sortable-header';

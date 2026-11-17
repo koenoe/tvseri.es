@@ -4,7 +4,7 @@ import type {
 } from '@tvseri.es/schemas';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { Fragment, memo, useCallback, useMemo, useState } from 'react';
-
+import { RouteLabel } from '@/components/route-label';
 import {
   TableBody,
   TableCell,
@@ -22,7 +22,6 @@ import {
   toStatusCodes,
 } from '@/lib/api-metrics';
 import { STATUS_COLORS } from '@/lib/status-colors';
-import { RouteLabel } from './endpoint-label';
 import { StatusCodePopover } from './status-code-popover';
 import { RequestBar } from './table/request-bar';
 import { TableFrame } from './table/table-frame';

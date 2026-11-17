@@ -151,6 +151,7 @@ function ViewAllModalComponent({
         <div className="flex flex-col gap-2">
           {filteredItems.map((item) => (
             <MetricListItem
+              id={item.id ?? item.label}
               key={item.label}
               label={item.label}
               pageViews={item.pageViews}

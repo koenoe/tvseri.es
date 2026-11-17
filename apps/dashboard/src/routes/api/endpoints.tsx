@@ -3,11 +3,7 @@ import { memo } from 'react';
 import { ApdexCard, ApdexCardSkeleton } from '@/components/api/apdex-card';
 import { ApiDetailHeader } from '@/components/api/api-detail-header';
 import { DependenciesSection } from '@/components/api/dependencies-section';
-import {
-  MethodBadge,
-  parseEndpoint,
-  RouteLabel,
-} from '@/components/api/endpoint-label';
+import { MethodBadge, parseEndpoint } from '@/components/api/endpoint-label';
 import {
   ErrorRateCard,
   ErrorRateCardSkeleton,
@@ -25,6 +21,7 @@ import {
   StatusCodePopover,
   SuccessCodesPopover,
 } from '@/components/api/status-code-popover';
+import { RouteLabel } from '@/components/route-label';
 import { BreadcrumbPage } from '@/components/ui/breadcrumb';
 import { useApiMetricsEndpointDetail } from '@/lib/api/hooks';
 import { type DaysValue, DEFAULT_DAYS, parseDays } from '@/lib/search-params';

@@ -46,16 +46,12 @@ function StatusListComponent({
       <div className="flex flex-col gap-2">
         {items.map((item) => (
           <MetricListItem
+            id={item.id ?? item.label}
             isHighlighted={highlightedItem === item.label}
             key={item.id ?? item.label}
             label={item.label}
-            onClick={
-              onItemClick ? () => onItemClick(item.id ?? item.label) : undefined
-            }
-            onMouseEnter={
-              onItemHover ? () => onItemHover(item.label) : undefined
-            }
-            onMouseLeave={onItemHover ? () => onItemHover(null) : undefined}
+            onHover={onItemHover}
+            onSelect={onItemClick}
             pageViews={item.pageViews}
             value={item.value}
             variant={variant}

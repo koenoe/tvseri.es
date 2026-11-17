@@ -1,7 +1,8 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import type { PaginationState, SortingState } from '@tanstack/react-table';
 import { memo, useCallback, useMemo, useState } from 'react';
 
+import { ApiDetailHeader } from '@/components/api/api-detail-header';
 import {
   ErrorRateCard,
   ErrorRateCardSkeleton,
@@ -19,15 +20,7 @@ import {
   RequestsCard,
   RequestsCardSkeleton,
 } from '@/components/api/requests-card';
-import { DateRangeSelect } from '@/components/date-range-select';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
+import { BreadcrumbPage } from '@/components/ui/breadcrumb';
 import { useApiMetricsDependencyDetail } from '@/lib/api/hooks';
 import { formatDependencyName } from '@/lib/api-metrics';
 import { type DaysValue, DEFAULT_DAYS, parseDays } from '@/lib/search-params';
@@ -42,22 +35,9 @@ function DependencyDetailHeaderComponent() {
   const displayName = formatDependencyName(source);
 
   return (
-    <div className="flex w-full items-center justify-between">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/api">API</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{displayName}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <DateRangeSelect />
-    </div>
+    <ApiDetailHeader>
+      <BreadcrumbPage>{displayName}</BreadcrumbPage>
+    </ApiDetailHeader>
   );
 }
 

@@ -15,15 +15,13 @@ import { apiFetch } from '@/lib/api/client';
 import { expireDeletedUser } from '@/lib/stats/revalidateUser';
 
 /**
- * `not-enabled`: the API's 403 (deleting accounts is switched off until the
- * owner turns it on); `mismatch`: a typed username that isn't the signed-in
- * user's (or the API's 400 for it). A 404 is a plain failure here.
+ * `mismatch`: a typed username that isn't the signed-in user's (or the API's
+ * 400 for it). A 404 is a plain failure here.
  */
-export type DeleteAccountError = ActionError | 'mismatch' | 'not-enabled';
+export type DeleteAccountError = ActionError | 'mismatch';
 
 const STATUSES = {
   400: 'mismatch',
-  403: 'not-enabled',
   404: 'failed',
 } as const;
 

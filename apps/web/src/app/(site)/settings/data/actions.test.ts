@@ -76,16 +76,6 @@ describe('deleteAccount only deletes the signed-in user', () => {
 });
 
 describe('the API’s answers', () => {
-  it('403: switched off in production, said honestly', async () => {
-    apiFetch.mockRejectedValue(
-      new ApiError(403, 'Delete account is not enabled'),
-    );
-    expect(await deleteAccount('rae')).toEqual({
-      error: 'not-enabled',
-      ok: false,
-    });
-  });
-
   it('400 is a mismatch, 401 signed out, the rest failed', async () => {
     apiFetch.mockRejectedValueOnce(new ApiError(400));
     expect(await deleteAccount('rae')).toEqual({

@@ -8,8 +8,6 @@ export const deleteDialogText = (episodes: number | null) =>
 /** What a refused delete says in the dialog, never the API's own text. */
 export function deleteErrorText(error: DeleteAccountError): string {
   switch (error) {
-    case 'not-enabled':
-      return 'Deleting accounts isn’t switched on yet.';
     case 'mismatch':
       return 'That isn’t your username.';
     case 'unauthenticated':

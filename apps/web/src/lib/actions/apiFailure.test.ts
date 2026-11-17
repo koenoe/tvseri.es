@@ -18,7 +18,7 @@ const { apiFailure } = await import('./apiFailure');
 
 /** Each action's statuses, as the actions pass them */
 const SITES = {
-  deleteAccount: { 400: 'mismatch', 403: 'not-enabled', 404: 'failed' },
+  deleteAccount: { 400: 'mismatch', 404: 'failed' },
   import: { 400: 'invalid', 409: 'invalid' },
   marking: {},
   plex: { 400: 'invalid' },
@@ -45,7 +45,6 @@ describe('apiFailure: the error word per action and status', () => {
     ['import', 409, 'ImportNotOpen', 'invalid'],
     ['import', 404, undefined, 'not-found'],
     ['deleteAccount', 400, undefined, 'mismatch'],
-    ['deleteAccount', 403, undefined, 'not-enabled'],
     ['deleteAccount', 404, undefined, 'failed'],
     ['deleteAccount', 401, undefined, 'unauthenticated'],
     ['marking', 401, undefined, 'unauthenticated'],

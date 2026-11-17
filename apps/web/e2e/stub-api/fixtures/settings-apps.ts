@@ -11,16 +11,11 @@ import {
 import { plexMarks, stubPlexUrlWorks } from './settings/store.ts';
 import { img, imgPath } from './show/catalog.ts';
 import { fail, isRecord, ok } from './show/http.ts';
-import { VIEWERS } from './show/store.ts';
 
 /**
  * Connected apps and Your data on the settings store (`settings/store.ts`):
  * the Plex token, pause and whose plays count, the two exports, and delete
  * account. Reads `state.plex`; writes use `rae`.
- *
- * Delete account is switched off for `alex` (403, as production is until the
- * owner turns it on) and on for everyone else, so both states can be shown.
- * `STUB_DELETE_ENABLED=true|false` overrides it for every viewer.
  */
 
 const me =
@@ -34,14 +29,6 @@ const isPlex = (params: Readonly<Record<string, string>>) =>
   params.type === 'plex';
 
 const newToken = (): string => randomBytes(12).toString('hex');
-
-const deleteEnabled = (viewerId: string): boolean => {
-  const forced = process.env.STUB_DELETE_ENABLED;
-  if (forced) {
-    return forced === 'true';
-  }
-  return viewerId !== VIEWERS.alex.id;
-};
 
 const status = (viewer: SettingsViewer) => {
   const plex = viewer.state.plex;
@@ -221,10 +208,7 @@ export const routes: readonly StubRoute[] = [
     path: '/me/export/everything.json',
   },
   {
-    handle: me(({ body }, { id, state }) => {
-      if (!deleteEnabled(id)) {
-        return fail(403, 'Delete account is not enabled');
-      }
+    handle: me(({ body }, { state }) => {
       if (!isRecord(body) || typeof body.confirm !== 'string') {
         return fail(400, 'Invalid body');
       }

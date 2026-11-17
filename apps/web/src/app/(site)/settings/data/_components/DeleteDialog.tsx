@@ -33,17 +33,13 @@ const signOut = () =>
  */
 export default function DeleteDialog({
   episodes,
-  notEnabled,
   onDeleted,
-  onNotEnabled,
   onOpenChange,
   open,
   username,
 }: Readonly<{
   episodes: number | null;
-  notEnabled: boolean;
   onDeleted: () => void;
-  onNotEnabled: () => void;
   onOpenChange: (open: boolean) => void;
   open: boolean;
   username: string;
@@ -52,8 +48,7 @@ export default function DeleteDialog({
   const [typed, setTyped] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const matches = typed.trim() === username;
-  const canDelete = matches && !notEnabled;
+  const canDelete = typed.trim() === username;
 
   const change = (event: ChangeEvent<HTMLInputElement>) => {
     setTyped(event.target.value);
@@ -77,10 +72,6 @@ export default function DeleteDialog({
         onDeleted();
         return;
       }
-      if (result.error === 'not-enabled') {
-        onNotEnabled();
-        return;
-      }
       setError(deleteErrorText(result.error));
     });
   };
@@ -93,7 +84,6 @@ export default function DeleteDialog({
     }
   };
 
-  const message = notEnabled ? deleteErrorText('not-enabled') : error;
   return (
     <Dialog
       description={deleteDialogText(episodes)}
@@ -119,9 +109,9 @@ export default function DeleteDialog({
           value={typed}
         />
       </label>
-      {message ? (
+      {error ? (
         <p className="text-meta text-danger" role="alert">
-          {message}
+          {error}
         </p>
       ) : null}
       <DialogFooter>

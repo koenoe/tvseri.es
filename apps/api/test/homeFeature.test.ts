@@ -148,7 +148,7 @@ const feature = async (date: string) => {
   };
 };
 
-describe('B12b GET /home/feature', () => {
+describe('GET /home/feature', () => {
   it('rejects a bad date and one far from today', async () => {
     day('2026-11-12');
 

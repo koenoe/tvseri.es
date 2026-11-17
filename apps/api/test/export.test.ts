@@ -24,7 +24,7 @@ const watched = (
   ...extra,
 });
 
-describe('B20e GET /me/export/history.csv', () => {
+describe('GET /me/export/history.csv', () => {
   it('needs a signed-in user', async () => {
     expect((await request('/me/export/history.csv')).status).toBe(401);
   });
@@ -82,7 +82,7 @@ describe('B20e GET /me/export/history.csv', () => {
   });
 });
 
-describe('B20e GET /me/export/everything.json', () => {
+describe('GET /me/export/everything.json', () => {
   it('has the profile, lists, watched, prefs, follows and the Plex link, without secrets', async () => {
     seedUser({ country: 'NL', name: 'Wren' });
     seedUser({ id: OTHER_USER_ID, username: 'other' });

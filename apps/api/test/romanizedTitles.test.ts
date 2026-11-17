@@ -17,7 +17,7 @@ const fakeTitles = (
     original_name: originalName,
   });
 
-describe('B10d GET /series/romanized-titles', () => {
+describe('GET /series/romanized-titles', () => {
   it('returns a Latin-script title per show, null where there is none', async () => {
     fakeTitles(
       1,

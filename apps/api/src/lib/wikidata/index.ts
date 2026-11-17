@@ -49,7 +49,7 @@ export const fetchPersonFamilyAndAwards = async (
 
   try {
     const value = await readThrough<PersonFamilyAndAwards | null>(
-      `wikidata-person:v2:${imdbId}`,
+      `wikidata-person:v3:${imdbId}`,
       (found) => (found ? HIT_TTL : MISS_TTL),
       async () => {
         const { data, error } = await $fetch<WikidataResults>('/sparql', {

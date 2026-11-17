@@ -16,7 +16,7 @@ import { describe, expect, it } from 'vitest';
 import { onTmdb } from './fakeHttp';
 import { request } from './request';
 
-describe('B10a slugs to discover filters', () => {
+describe('slugs to discover filters', () => {
   it('maps a genre slug to its TMDB genre id', () => {
     expect(landingFilter('genre', 'crime')).toEqual({ with_genres: '80' });
     expect(landingFilter('genre', 'sci-fi-fantasy')).toEqual({
@@ -286,7 +286,7 @@ describe('landing filters combined', () => {
   });
 });
 
-describe('B10c old discover links to landings', () => {
+describe('old discover links to landings', () => {
   const path = (query: Record<string, string>) =>
     landingPathFromDiscoverQuery(query);
 
@@ -359,7 +359,7 @@ describe('B10c old discover links to landings', () => {
   });
 });
 
-describe('B10a GET /network/:id', () => {
+describe('GET /network/:id', () => {
   it('returns the network with its logo and description', async () => {
     onTmdb('/network/49', {
       headquarters: 'New York City, New York',

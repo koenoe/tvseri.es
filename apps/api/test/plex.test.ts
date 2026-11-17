@@ -136,7 +136,7 @@ const queuedScrobbles = () =>
 const status = async (as = USER_ID) =>
   (await request('/webhook/type/plex/status', { as })).json();
 
-describe('B20d Plex status, pause, whose plays count, disconnect', () => {
+describe('Plex status, pause, whose plays count, disconnect', () => {
   it('reports not connected without a token', async () => {
     seedUser();
     expect(await status()).toEqual({ connected: false });

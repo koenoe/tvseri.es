@@ -122,7 +122,7 @@ const seedEverything = () => {
 const keysOf = (table: string) =>
   db.dump(table).map((item) => `${item.pk}|${item.sk ?? ''}`);
 
-describe('B20f delete account', () => {
+describe('delete account', () => {
   it('is off unless enabled', async () => {
     delete process.env.DELETE_ACCOUNT_ENABLED;
     seedUser({ username: 'wren' });
@@ -251,7 +251,7 @@ describe('B20f delete account', () => {
   });
 });
 
-describe('B20f when starting fails', () => {
+describe('when starting fails', () => {
   it('takes the request back so the user can retry', async () => {
     process.env.DELETE_ACCOUNT_ENABLED = 'true';
     seedEverything();
@@ -270,7 +270,7 @@ describe('B20f when starting fails', () => {
   });
 });
 
-describe('B20f delete account: hidden profile, late follows, handle claim', () => {
+describe('delete account: hidden profile, late follows, handle claim', () => {
   it('hides a profile whose account is being deleted', async () => {
     process.env.DELETE_ACCOUNT_ENABLED = 'true';
     seedEverything();

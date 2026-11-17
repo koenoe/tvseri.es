@@ -57,7 +57,7 @@ describe('public catalogue caching', () => {
   });
 });
 
-describe('B20a country on the user', () => {
+describe('country on the user', () => {
   it('saves the region and returns it from /me', async () => {
     seedUser({ username: 'wren' });
     const saved = await request('/me', {

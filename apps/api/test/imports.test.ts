@@ -90,7 +90,7 @@ const runUndoQueue = async (remainingMs?: number) => {
   return undoImport(event, lambdaContext(remainingMs), () => {});
 };
 
-describe('B20b1 import keeps existing dates', () => {
+describe('1 import keeps existing dates', () => {
   it('writes new episodes with the import id and skips ones already watched', async () => {
     seedUser();
     await markBefore([1], JAN_2020);
@@ -128,7 +128,7 @@ describe('B20b1 import keeps existing dates', () => {
   });
 });
 
-describe('B20b2 import check (dry run)', () => {
+describe('2 import check (dry run)', () => {
   it('says what would be written and skipped, writing nothing', async () => {
     seedUser();
     await markBefore([1], JAN_2020);
@@ -149,7 +149,7 @@ describe('B20b2 import check (dry run)', () => {
   });
 });
 
-describe('B20c undo import', () => {
+describe('undo import', () => {
   it('deletes only what the import wrote, in the queue Lambda', async () => {
     seedUser();
     seedUser({ id: OTHER_USER_ID, username: 'other' });

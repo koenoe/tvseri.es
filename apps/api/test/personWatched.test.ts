@@ -64,7 +64,7 @@ const setup = () => {
   ]);
 };
 
-describe('B21f person watched line', () => {
+describe('person watched line', () => {
   it('counts the viewer\'s episodes and shows of this person ("Watched 67 episodes, 2 of 4 shows")', async () => {
     setup();
 

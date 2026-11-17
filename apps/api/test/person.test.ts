@@ -4,7 +4,7 @@ import { db } from './db';
 import { onGet, onTmdb, requestedUrls } from './fakeHttp';
 import { request } from './request';
 
-describe('B21a person external ids (socials)', () => {
+describe('person external ids (socials)', () => {
   it('returns the links the Socials row draws, in a fixed order, without Facebook', async () => {
     onTmdb('/person/17419/external_ids', {
       facebook_id: 'BryanCranston',
@@ -163,7 +163,7 @@ describe('person known for', () => {
   });
 });
 
-describe('B21c merged credits', () => {
+describe('merged credits', () => {
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-11-12T12:00:00Z'));
@@ -380,7 +380,7 @@ describe('B21c merged credits', () => {
   });
 });
 
-describe('B21b career chart', () => {
+describe('career chart', () => {
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-11-12T12:00:00Z'));
@@ -632,7 +632,7 @@ describe('B21b career chart', () => {
   });
 });
 
-describe('B21d frequent collaborators', () => {
+describe('frequent collaborators', () => {
   const aggregate = (
     cast: Array<Record<string, unknown>>,
     crew: Array<Record<string, unknown>> = [],
@@ -835,7 +835,7 @@ describe('B21d frequent collaborators', () => {
   });
 });
 
-describe('B21e family and awards (Wikidata)', () => {
+describe('family and awards (Wikidata)', () => {
   const SPARQL = 'https://query.wikidata.org/sparql';
   const ENTITY = 'http://www.wikidata.org/entity/';
 
@@ -1102,7 +1102,7 @@ describe('B21e family and awards (Wikidata)', () => {
 
     const cached = db
       .dump('Cache')
-      .find((item) => item.pk === 'CACHE#wikidata-person:v2:nm0186505');
+      .find((item) => item.pk === 'CACHE#wikidata-person:v3:nm0186505');
     expect(cached?.expiresAt).toBe(
       Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
     );
@@ -1117,7 +1117,7 @@ describe('B21e family and awards (Wikidata)', () => {
     expect(await response.json()).toEqual({ awards: null, family: null });
     const cached = db
       .dump('Cache')
-      .find((item) => item.pk === 'CACHE#wikidata-person:v2:nm0186505');
+      .find((item) => item.pk === 'CACHE#wikidata-person:v3:nm0186505');
     expect(cached?.expiresAt).toBe(
       Math.floor(Date.now() / 1000) + 24 * 60 * 60,
     );

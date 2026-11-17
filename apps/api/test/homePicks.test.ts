@@ -33,7 +33,7 @@ const get = async <T>(path: string) => {
   };
 };
 
-describe('B12a GET /me/home/because-you-watched', () => {
+describe('GET /me/home/because-you-watched', () => {
   const setup = () => {
     seedUser();
     db.seed('Lists', [
@@ -119,7 +119,7 @@ describe('B12a GET /me/home/because-you-watched', () => {
   });
 });
 
-describe('B12a GET /me/home/if-you-liked', () => {
+describe('GET /me/home/if-you-liked', () => {
   it('starts from a finished show', async () => {
     seedUser();
     db.seed('Lists', [listItem('WATCHED', 5)]);
@@ -143,7 +143,7 @@ describe('B12a GET /me/home/if-you-liked', () => {
   });
 });
 
-describe('B12a GET /me/home/more-genre', () => {
+describe('GET /me/home/more-genre', () => {
   it('finds the most common genre of the watchlist and lists it minus the library', async () => {
     seedUser();
     db.seed('Lists', [

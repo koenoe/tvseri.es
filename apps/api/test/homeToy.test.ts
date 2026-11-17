@@ -104,7 +104,7 @@ beforeEach(() => {
   }
 });
 
-describe('B12c GET /home/toy', () => {
+describe('GET /home/toy', () => {
   it('rejects a bad date', async () => {
     expect((await request('/home/toy?date=x')).status).toBe(400);
   });

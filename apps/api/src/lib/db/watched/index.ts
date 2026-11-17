@@ -23,7 +23,7 @@ import {
 import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
 import { seasonForMark } from '@/lib/marking/catalog';
-import { TMDB_CONCURRENCY } from '@/lib/tmdb';
+import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { createLimiter } from '@/utils/limit';
 import { batchWrite } from '../batch';
 import client from '../client';

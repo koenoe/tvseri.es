@@ -6,7 +6,7 @@ import { getSeriesPrefsMany } from '@/lib/db/prefs';
 import { readShowItems } from '@/lib/rollups';
 import { getSeriesFacts } from '@/lib/seriesFacts';
 import { airedEpisodesAt } from '@/lib/seriesFacts/aired';
-import { TMDB_CONCURRENCY } from '@/lib/tmdb';
+import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { mapSettled } from '@/utils/limit';
 
 // The in-progress shows scanned (their per-show summaries), most recently

@@ -12,8 +12,8 @@ import {
   fetchDiscoverTvSeries,
   fetchGenresForTvSeries,
   fetchTvSeriesKeywords,
-  TMDB_CONCURRENCY,
 } from '@/lib/tmdb';
+import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { createLimiter, mapSettled } from '@/utils/limit';
 
 /** A tab or chip needs this many shows to be worth showing */

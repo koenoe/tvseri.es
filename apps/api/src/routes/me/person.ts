@@ -4,7 +4,7 @@ import { Hono } from 'hono';
 import { getLibraryIds } from '@/lib/db/list';
 import { getWatchedCountForTvSeries } from '@/lib/db/watched';
 import { fetchPersonShows } from '@/lib/person/load';
-import { TMDB_CONCURRENCY } from '@/lib/tmdb';
+import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import type { Variables } from '@/middleware/auth';
 import { mapSettled } from '@/utils/limit';
 import { IdParamSchema } from '@/utils/params';

@@ -69,7 +69,7 @@ import type { TmdbPersonExternalIds } from '@/lib/person/links';
 import type { PersonTvCredits } from '@/lib/person/shows';
 import { upstreamBaseUrl } from '@/lib/upstream/baseUrl';
 import { breakerFor } from '@/lib/upstream/breaker';
-import { budgetFor, UPSTREAM_BUDGETS } from '@/lib/upstream/budget';
+import { budgetFor, TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { toWatchProvider } from '@/lib/watchProviders';
 import calculateAge from '@/utils/calculateAge';
 import { dedupe } from '@/utils/dedupe';
@@ -106,12 +106,19 @@ import {
   topCastNames,
 } from './helpers';
 
-const tmdbApiKey = Resource.TmdbApiKey.value;
-const tmdbApiAccessToken = Resource.TmdbApiAccessToken.value;
-
-if (!tmdbApiKey || !tmdbApiAccessToken) {
-  throw new Error('No "API_KEY" found for TMDb');
-}
+/**
+ * Read on first request, not at import: Lambdas that reach this module only
+ * through a shared import and never call TMDB (account deletion) then don't
+ * need the TMDB links.
+ */
+const credentials = () => {
+  const apiKey = Resource.TmdbApiKey.value;
+  const accessToken = Resource.TmdbApiAccessToken.value;
+  if (!apiKey || !accessToken) {
+    throw new Error('No "API_KEY" found for TMDb');
+  }
+  return { accessToken, apiKey };
+};
 
 /**
  * Every TMDB request goes through the instance's TMDB budget (calls in
@@ -127,12 +134,6 @@ const $fetch = createInstrumentedFetch(
   { baseURL: upstreamBaseUrl('TMDB', 'https://api.themoviedb.org') },
   { breaker: breakerFor('tmdb'), budget: budgetFor('tmdb'), retries: 1 },
 );
-
-/**
- * How wide one fan-out runs (fan-outs side by side share the budget, so
- * this only keeps one from queueing far more than the budget lets through)
- */
-export const TMDB_CONCURRENCY = UPSTREAM_BUDGETS.api.tmdb.concurrency;
 
 /** A TMDB watch provider (a show's offer or the region's list) as served */
 const fromTmdbProvider = (
@@ -153,10 +154,11 @@ async function tmdbFetch(path: string, options?: BetterFetchOption) {
   const cacheKey = `${path}${options?.query ? JSON.stringify(options.query) : ''}`;
 
   return dedupe(cacheKey, async () => {
+    const { accessToken, apiKey } = credentials();
     const headers = {
       'content-type': 'application/json',
       ...(path.startsWith('/4/') && {
-        Authorization: `Bearer ${tmdbApiAccessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       }),
     };
 
@@ -169,7 +171,7 @@ async function tmdbFetch(path: string, options?: BetterFetchOption) {
       query: {
         ...options?.query,
         ...(path.startsWith('/3/') && {
-          api_key: tmdbApiKey,
+          api_key: apiKey,
         }),
       },
     });

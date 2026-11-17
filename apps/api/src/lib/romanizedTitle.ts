@@ -9,7 +9,8 @@
  */
 
 import { readThroughMany } from '@/lib/db/cache/readThrough';
-import { fetchTvSeriesTitles, TMDB_CONCURRENCY } from '@/lib/tmdb';
+import { fetchTvSeriesTitles } from '@/lib/tmdb';
+import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 
 const CACHE_TTL = 30 * 24 * 60 * 60; // 30 days
 

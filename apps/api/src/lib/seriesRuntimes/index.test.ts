@@ -12,7 +12,6 @@ vi.mock('@/lib/db/cache', () => ({
 }));
 vi.mock('@/lib/tmdb', () => ({
   fetchTvSeriesRuntimes: mocks.fetchTvSeriesRuntimes,
-  TMDB_CONCURRENCY: 4,
 }));
 vi.mock('@/utils/logWarn', () => ({ logWarn: () => undefined }));
 

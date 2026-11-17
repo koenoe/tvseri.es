@@ -2,8 +2,8 @@ import type { SeriesRuntimes } from '@tvseri.es/schemas';
 
 import { getCacheEntries, setCacheItems } from '@/lib/db/cache';
 import { refreshWaitMs } from '@/lib/deadline';
-import { fetchTvSeriesRuntimes, TMDB_CONCURRENCY } from '@/lib/tmdb';
-import { atLowPriority } from '@/lib/upstream/budget';
+import { fetchTvSeriesRuntimes } from '@/lib/tmdb';
+import { atLowPriority, TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { createLimiter } from '@/utils/limit';
 import { logWarn } from '@/utils/logWarn';
 import { within } from '@/utils/within';

@@ -37,6 +37,12 @@ export const UPSTREAM_BUDGETS: Readonly<
   background: { tmdb: { concurrency: 4, perSecond: 5 } },
 };
 
+/**
+ * How wide one fan-out runs (fan-outs side by side share the budget, so
+ * this only keeps one from queueing far more than the budget lets through)
+ */
+export const TMDB_CONCURRENCY = UPSTREAM_BUDGETS.api.tmdb.concurrency;
+
 // Every Lambda but the API is background work; the API's app.ts says so
 let kind: LambdaKind = 'background';
 let override: Partial<BudgetConfig> | undefined;

@@ -31,7 +31,7 @@ import {
 import { buildRollups, writeRollup } from '@/lib/rollups';
 import { getSeriesFacts, peekSeriesFacts } from '@/lib/seriesFacts';
 import { airedEpisodesAt } from '@/lib/seriesFacts/aired';
-import { TMDB_CONCURRENCY } from '@/lib/tmdb';
+import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { createLimiter } from '@/utils/limit';
 import { logWarn } from '@/utils/logWarn';
 import { within } from '@/utils/within';

@@ -7,7 +7,8 @@
  */
 
 import { readThroughMany } from '@/lib/db/cache/readThrough';
-import { fetchTvSeriesBase, TMDB_CONCURRENCY } from '@/lib/tmdb';
+import { fetchTvSeriesBase } from '@/lib/tmdb';
+import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 
 import type { StatsSeriesMeta } from './aggregations';
 

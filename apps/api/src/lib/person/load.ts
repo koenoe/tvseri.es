@@ -2,11 +2,8 @@ import type { PersonShows, SeriesFacts } from '@tvseri.es/schemas';
 
 import { readThroughStale } from '@/lib/db/cache/readThroughStale';
 import { getSeriesFactsReport } from '@/lib/seriesFacts';
-import {
-  fetchPersonCredits,
-  fetchTvSeriesAggregateCredits,
-  TMDB_CONCURRENCY,
-} from '@/lib/tmdb';
+import { fetchPersonCredits, fetchTvSeriesAggregateCredits } from '@/lib/tmdb';
+import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { UpstreamUnavailableError } from '@/lib/upstream/errors';
 import { mapSettled } from '@/utils/limit';
 import { todayUtc } from '@/utils/time';

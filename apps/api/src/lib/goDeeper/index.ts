@@ -15,8 +15,8 @@ import {
   fetchPersonTvCredits,
   fetchTvSeriesBase,
   fetchTvSeriesKeywords,
-  TMDB_CONCURRENCY,
 } from '@/lib/tmdb';
+import { TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { mapSettled } from '@/utils/limit';
 
 import { essentialsNetwork, rotateSeeds } from './rotation';

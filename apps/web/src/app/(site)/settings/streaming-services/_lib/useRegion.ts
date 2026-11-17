@@ -1,5 +1,6 @@
 'use client';
 
+import { regionName } from '@tvseri.es/utils';
 import {
   useCallback,
   useOptimistic,
@@ -12,7 +13,6 @@ import { showToast } from '@/components/ui/toast/showToast';
 import { refreshRegion } from '@/lib/region/useRegion';
 
 import { updateCountry } from '../../_actions/services';
-import { countryName } from '../../_lib/format';
 import { SAVE_FAILED } from '../../_lib/saveFailed';
 
 /**
@@ -48,7 +48,7 @@ export function useRegion(initial: string) {
       if (announce) {
         showToast({
           action: { label: 'Undo', onClick: () => choose(previous, false) },
-          title: `Region: ${countryName(code)}`,
+          title: `Region: ${regionName(code)}`,
         });
       }
     },

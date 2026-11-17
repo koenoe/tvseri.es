@@ -1,4 +1,5 @@
 import { landingFilter } from '@tvseri.es/constants';
+import { languageName as nameOf } from '@tvseri.es/utils';
 
 import type { TileShow } from '../../../_discover/data/tileShow';
 
@@ -23,15 +24,6 @@ const OVERRIDES: Readonly<Record<string, Omit<LanguageName, 'code'>>> = {
   cn: { english: 'Cantonese', native: '廣東話' },
 };
 
-const displayName = (locale: string, code: string): string | undefined => {
-  try {
-    const name = new Intl.DisplayNames([locale], { type: 'language' }).of(code);
-    return name && name !== code ? name : undefined;
-  } catch {
-    return undefined;
-  }
-};
-
 /**
  * The page name in its own script ("日本語") and in English,
  * from the runtime's language names (`Intl.DisplayNames`, CLDR), so the
@@ -47,8 +39,8 @@ export function languageName(code: string): LanguageName | null {
   if (override) {
     return { code, ...override };
   }
-  const english = displayName('en', code) ?? code;
-  const own = displayName(code, code) ?? english;
+  const english = nameOf(code) ?? code;
+  const own = nameOf(code, code) ?? english;
   const native = own.charAt(0).toLocaleUpperCase(code) + own.slice(1);
   return { code, english, native };
 }

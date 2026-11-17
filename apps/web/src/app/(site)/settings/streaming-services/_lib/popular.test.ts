@@ -105,16 +105,16 @@ describe('restOf', () => {
 
 describe('popularLabel', () => {
   it('names the region, with "the" where English wants it', () => {
-    expect(popularLabel('United Kingdom', 'GB', '')).toBe(
+    expect(popularLabel('United Kingdom', '')).toBe(
       'Popular in the United Kingdom',
     );
-    expect(popularLabel('Netherlands', 'NL', '')).toBe(
-      'Popular in the Netherlands',
-    );
-    expect(popularLabel('Germany', 'DE', '')).toBe('Popular in Germany');
+    expect(popularLabel('Netherlands', '')).toBe('Popular in the Netherlands');
+    expect(popularLabel('Bahamas', '')).toBe('Popular in the Bahamas');
+    expect(popularLabel('Czechia', '')).toBe('Popular in Czechia');
+    expect(popularLabel('Germany', '')).toBe('Popular in Germany');
   });
 
   it('names the filter while one is typed', () => {
-    expect(popularLabel('Germany', 'DE', ' sky ')).toBe('Matching “sky”');
+    expect(popularLabel('Germany', ' sky ')).toBe('Matching “sky”');
   });
 });

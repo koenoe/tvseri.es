@@ -4,6 +4,7 @@ import type {
   SeriesImages,
   SeriesLogoImage,
 } from '@tvseri.es/schemas';
+import { languageName } from '@tvseri.es/utils';
 import { toPageColor } from '@/components/background/pageColor';
 
 /**
@@ -98,18 +99,8 @@ export function backdropChoices(
   });
 }
 
-const languageNames = new Intl.DisplayNames(['en'], { type: 'language' });
-
-const languageName = (language: string | null) => {
-  if (!language) {
-    return 'no language';
-  }
-  try {
-    return languageNames.of(language) ?? language;
-  } catch {
-    return language;
-  }
-};
+const languageLabel = (language: string | null) =>
+  language ? (languageName(language) ?? language) : 'no language';
 
 export type TitleChoice =
   | (Readonly<{ kind: 'logo'; logo: SeriesLogoImage }> & ChoiceMarks)
@@ -142,7 +133,7 @@ export function titleChoices(
       key: logo.path,
       kind: 'logo',
       label: withMarks(
-        `Logo ${index + 1} of ${total}, ${logo.width} by ${logo.height}, ${languageName(logo.language)}`,
+        `Logo ${index + 1} of ${total}, ${logo.width} by ${logo.height}, ${languageLabel(logo.language)}`,
         isAuto,
         isSaved,
       ),

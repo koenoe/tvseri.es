@@ -12,6 +12,7 @@ import type {
   WhereToStart,
 } from '@tvseri.es/schemas';
 import { DURATION_BUCKETS } from '@tvseri.es/schemas';
+import { countryInSentence, regionName } from '@tvseri.es/utils';
 import { HTTPException } from 'hono/http-exception';
 import {
   DAY_BUILD_TTL,
@@ -282,27 +283,8 @@ export type WhereToStartFilter =
   | Readonly<{ theme: string }>
   | Readonly<{ country: string }>;
 
-const countryNames = new Intl.DisplayNames(['en'], { type: 'region' });
-
-/** Countries whose English name takes "the": "series from the Netherlands" */
-const WITH_THE = new Set([
-  'AE',
-  'BS',
-  'CF',
-  'DO',
-  'GB',
-  'GM',
-  'KM',
-  'MV',
-  'NL',
-  'PH',
-  'US',
-]);
-
-const countryName = (code: string) => {
-  const name = countryNames.of(code) ?? code;
-  return WITH_THE.has(code.toUpperCase()) ? `the ${name}` : name;
-};
+/** "series from the Netherlands" */
+const countryName = (code: string) => countryInSentence(regionName(code));
 
 /** Pool of candidates, Cache key and wording for each kind of filter */
 const startSource = (filter: WhereToStartFilter) => {

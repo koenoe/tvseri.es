@@ -37,8 +37,8 @@ const NOT_COUNTRIES = new Set([
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 /**
- * Every country, AA–ZZ minus the non-countries, named by `nameOf` (a bound
- * `Intl.DisplayNames#of`) and sorted by name. A code the runtime has no name
+ * Every country, AA–ZZ minus the non-countries, named by `nameOf`
+ * (`regionName` from `@tvseri.es/utils`) and sorted by name. A code the runtime has no name
  * for (it answers the code itself, "Unknown Region" or nothing) is left out.
  */
 export function listCountries(

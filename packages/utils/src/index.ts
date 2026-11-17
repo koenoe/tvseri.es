@@ -13,6 +13,12 @@ export {
 } from './histogram';
 export { leadFirst } from './home/leadFirst';
 export {
+  countryInSentence,
+  languageName,
+  regionName,
+  TAKES_THE,
+} from './intl/displayNames';
+export {
   addIsoWeeks,
   firstMondayOf,
   isoWeekOf,

@@ -1,5 +1,6 @@
 'use client';
 
+import { regionName } from '@tvseri.es/utils';
 import {
   type ChangeEvent,
   type KeyboardEvent,
@@ -23,8 +24,7 @@ import {
 } from '../_lib/countries';
 import Flag from './Flag';
 
-const NAMES = new Intl.DisplayNames(['en'], { type: 'region' });
-const COUNTRIES = listCountries((code) => NAMES.of(code));
+const COUNTRIES = listCountries(regionName);
 
 const keepFocus = (event: MouseEvent) => event.preventDefault();
 

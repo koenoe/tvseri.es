@@ -1,7 +1,7 @@
+import { regionName } from '@tvseri.es/utils';
 import { plural } from '@/lib/format/text';
 import { loadPlexStatus } from '../_data/plex';
 import { getSettingsSession, getSettingsViewer } from '../_data/session';
-import { countryName } from '../_lib/format';
 import { plexStateOf } from '../_lib/plexState';
 import type { SettingsSectionId } from '../_lib/sections';
 import { importedEpisodes } from '../import/_lib/lastImport';
@@ -17,7 +17,7 @@ async function ProfileLine() {
 async function ServicesLine() {
   const { user } = await getSettingsSession();
   const count = plural(user.watchProviders?.length ?? 0, 'service');
-  return user.country ? `${count} · ${countryName(user.country)}` : count;
+  return user.country ? `${count} · ${regionName(user.country)}` : count;
 }
 
 async function ImportLine() {

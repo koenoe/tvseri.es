@@ -9,11 +9,9 @@ import type {
   TvSeries,
   WatchedItem,
 } from '@tvseri.es/schemas';
-import { buildLogoImageUrl } from '@tvseri.es/utils';
+import { buildLogoImageUrl, regionName } from '@tvseri.es/utils';
 
 import { detectDominantColorsFromImages } from '@/lib/detectDominantColorFromImage';
-
-const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
 
 /** The series fields the genre and country stats read */
 export type StatsSeriesMeta = Readonly<{
@@ -139,7 +137,7 @@ export const aggregateCountries = (
     .filter((series): series is StatsSeriesMeta => !!series?.countries)
     .forEach((series) => {
       series.countries.forEach((country) => {
-        const countryName = displayNames.of(country.code) ?? country.name;
+        const countryName = regionName(country.code);
         countryStats[countryName] = (countryStats[countryName] || 0) + 1;
       });
     });

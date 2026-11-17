@@ -1,4 +1,5 @@
 import type { WatchProvider } from '@tvseri.es/schemas';
+import { countryInSentence } from '@tvseri.es/utils';
 
 import { type Fold, foldOf } from '@/lib/fold';
 
@@ -55,18 +56,11 @@ export function restOf({
   };
 }
 
-/** Countries whose English name takes "the". */
-const WITH_THE = new Set(['AE', 'GB', 'NL', 'PH', 'US']);
-
 /** The card's title: "Popular in the United Kingdom" or "Matching “sky”". */
-export function popularLabel(
-  regionName: string,
-  regionCode: string,
-  query: string,
-): string {
+export function popularLabel(regionName: string, query: string): string {
   const typed = query.trim();
   if (typed) {
     return `Matching “${typed}”`;
   }
-  return `Popular in ${WITH_THE.has(regionCode) ? 'the ' : ''}${regionName}`;
+  return `Popular in ${countryInSentence(regionName)}`;
 }

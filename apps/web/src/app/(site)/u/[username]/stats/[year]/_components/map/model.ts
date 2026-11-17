@@ -1,11 +1,12 @@
+import { regionName } from '@tvseri.es/utils';
+
 import { CODES, COLS, GRID, HEIGHT, ROWS, WIDTH } from './worldDots';
 
 /**
  * "Where the series are from": the API counts series per English country
- * name (`Intl.DisplayNames`), the map is keyed by ISO alpha-2, so names are
+ * name (`regionName`, `@tvseri.es/utils`), the map is keyed by ISO alpha-2, so names are
  * matched back to codes the same way.
  */
-const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
 
 let codeByName: ReadonlyMap<string, string> | undefined;
 
@@ -15,7 +16,7 @@ export function countryCode(name: string): string | null {
     for (let a = 65; a <= 90; a++) {
       for (let b = 65; b <= 90; b++) {
         const code = String.fromCharCode(a, b);
-        const label = regionNames.of(code);
+        const label = regionName(code);
         // Current codes only: deprecated ones (DD, CS, YD) and reserved
         // ones (UK) carry the same English names; ICU canonicalises them away
         const canonical =

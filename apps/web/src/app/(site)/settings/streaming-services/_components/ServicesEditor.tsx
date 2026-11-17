@@ -1,6 +1,7 @@
 'use client';
 
 import type { WatchProvider } from '@tvseri.es/schemas';
+import { regionName } from '@tvseri.es/utils';
 import {
   type ChangeEvent,
   useCallback,
@@ -13,7 +14,6 @@ import {
 import { createLoader } from '@/lib/lazy/createLoader';
 import { useLoader } from '@/lib/lazy/useLoader';
 
-import { countryName } from '../../_lib/format';
 import { popularLabel, restOf } from '../_lib/popular';
 import { hasMismatch, regionLine } from '../_lib/region';
 import { useRegion } from '../_lib/useRegion';
@@ -85,7 +85,7 @@ export default function ServicesEditor({
   }, []);
   const toggleAll = useCallback(() => setShowAll((value) => !value), []);
 
-  const name = countryName(region);
+  const name = regionName(region);
   return (
     <>
       <RegionCard
@@ -101,7 +101,7 @@ export default function ServicesEditor({
       {detected && hasMismatch(region, detected) ? (
         <MismatchLine
           chosen={{ code: region, name }}
-          detected={{ code: detected, name: countryName(detected) }}
+          detected={{ code: detected, name: regionName(detected) }}
           onUseDetected={onUseDetected}
         />
       ) : null}
@@ -116,7 +116,7 @@ export default function ServicesEditor({
       {open && !CountryCombobox ? <ComboboxSkeleton /> : null}
       <ServicesShelf onToggle={toggle} selected={selected} />
       <PopularCard
-        label={popularLabel(name, region, query)}
+        label={popularLabel(name, query)}
         onQuery={onQuery}
         onToggle={toggle}
         onToggleAll={toggleAll}

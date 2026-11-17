@@ -1,9 +1,9 @@
+import { regionName } from '@tvseri.es/utils';
 import { describe, expect, it } from 'vitest';
 
 import { filterCountries, listCountries } from './countries';
 
-const names = new Intl.DisplayNames(['en'], { type: 'region' });
-const countries = listCountries((code) => names.of(code));
+const countries = listCountries(regionName);
 
 describe('listCountries', () => {
   it('lists every real country once, sorted by name', () => {

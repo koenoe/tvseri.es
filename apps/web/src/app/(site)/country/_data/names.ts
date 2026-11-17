@@ -7,19 +7,7 @@
  * region.
  */
 
-const ENGLISH_REGIONS = new Intl.DisplayNames('en', { type: 'region' });
-const SHORT_REGIONS = new Intl.DisplayNames('en', {
-  style: 'short',
-  type: 'region',
-});
-
-/** English names that take "the" in a sentence ("New from the UK") */
-const WITH_THE =
-  /^(?:[A-Z]{2,3}|United .+|.+ (?:Republic|Islands|Emirates)|Netherlands|Philippines|Bahamas|Gambia|Maldives|Comoros|Seychelles)$/;
-
-const inSentence = (name: string) =>
-  WITH_THE.test(name) ? `the ${name}` : name;
-const ENGLISH_LANGUAGES = new Intl.DisplayNames('en', { type: 'language' });
+import { countryInSentence, languageName, regionName } from '@tvseri.es/utils';
 
 export type CountryNames = Readonly<{
   /** upper-case ISO 3166-1 alpha-2 */
@@ -48,18 +36,16 @@ const likelyLanguage = (code: string) => {
 
 export function countryNames(isoCode: string): CountryNames {
   const code = isoCode.toUpperCase();
-  const name = ENGLISH_REGIONS.of(code) ?? code;
+  const name = regionName(code);
   const language = likelyLanguage(code);
-  const own = language
-    ? new Intl.DisplayNames(language, { type: 'region' }).of(code)
-    : undefined;
+  const own = language ? regionName(code, { locale: language }) : undefined;
   return {
     code,
     language,
-    languageName: language ? (ENGLISH_LANGUAGES.of(language) ?? '') : '',
+    languageName: language ? (languageName(language) ?? '') : '',
     name,
     native: own && own !== name ? own : '',
-    prose: inSentence(name),
-    proseShort: inSentence(SHORT_REGIONS.of(code) ?? name),
+    prose: countryInSentence(name),
+    proseShort: countryInSentence(regionName(code, { style: 'short' })),
   };
 }

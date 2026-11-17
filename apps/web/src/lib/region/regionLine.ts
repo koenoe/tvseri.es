@@ -6,9 +6,10 @@
  */
 export function regionLine(code: string): string {
   const upper = code.toUpperCase();
-  // Country names that take "the" in English (ISO 3166-1 alpha-2); one
-  // string, as the pre-paint script embeds this function's source
-  const withThe = ' AE BS CD CF CZ DO GB GM KY MV NL PH US VA ';
+  // Names that take "the": a copy of `TAKES_THE` (`@tvseri.es/utils`), as
+  // the pre-paint script embeds this function's source; the test pins them
+  const takesThe =
+    /^(?:U[KS]|UAE|USA|United .+|.+ (?:Islands|Republic|Emirates|Territories)|(?:Caribbean )?Netherlands|Bahamas|Philippines|Gambia|Maldives|Seychelles|Comoros|Congo(?: .+)?|(?:Democratic )?Republic of .+|Holy See)$/;
   let name = upper;
   try {
     name =
@@ -18,5 +19,5 @@ export function regionLine(code: string): string {
   } catch {
     name = upper;
   }
-  return `Streaming in ${withThe.includes(` ${upper} `) ? `the ${name}` : name}`;
+  return `Streaming in ${takesThe.test(name) ? `the ${name}` : name}`;
 }

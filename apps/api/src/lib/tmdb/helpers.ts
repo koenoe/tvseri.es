@@ -19,13 +19,11 @@ import {
   buildTitleTreatmentImageUrl,
   formatSeriesYears,
   generateTmdbImageUrl,
+  regionName,
 } from '@tvseri.es/utils';
 import slugify from 'slugify';
 
 import { airedBySeason } from '@/lib/seriesFacts/aired';
-
-// Hoisted: constructing Intl.DisplayNames per series is relatively expensive
-const countryDisplayNames = new Intl.DisplayNames(['en'], { type: 'region' });
 
 export const GLOBAL_GENRES_TO_IGNORE = [10763, 10767, 10766, 10762];
 
@@ -300,9 +298,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
   const originCountry = series.origin_country?.[0]
     ? {
         code: series.origin_country[0],
-        name:
-          countryDisplayNames.of(series.origin_country[0]) ??
-          series.origin_country[0],
+        name: regionName(series.origin_country[0]),
       }
     : undefined;
 
@@ -448,7 +444,7 @@ export function normalizeNetwork(network: TmdbNetwork): Network {
       : null,
     name: network.name ?? '',
     originCountry: country
-      ? { code: country, name: countryDisplayNames.of(country) ?? country }
+      ? { code: country, name: regionName(country) }
       : null,
     slug: known?.slug ?? null,
   };

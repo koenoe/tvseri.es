@@ -18,6 +18,8 @@ const TRACK = 'relative h-1 rounded-2';
 export const TRACK_LOOK = {
   /** A line beside its caption (Up next, Season complete, the show page): grows, at least 80px */
   line: 'min-w-20 flex-1 bg-white/12',
+  /** A Library poster: across the art's foot */
+  poster: 'bg-white/12',
   /** Waiting for, a dated return: the row's full width */
   wait: 'bg-white/12',
   /** Waiting for, no return date yet: the ground fades out */
@@ -109,23 +111,27 @@ export function TrackTick({ at }: Readonly<{ at: number }>) {
 }
 
 /**
- * A labelled line beside its caption (Up next, Season complete): the watched
- * width, aired dimmed and the tick while a season still airs (`aired` under
- * 100); leave `aired` out when everything aired.
+ * A line beside its caption (Up next, Season complete) or on a Library
+ * poster: the watched width, aired dimmed and the tick while a season still
+ * airs (`aired` under 100); leave `aired` out when everything aired.
  */
 export default function ProgressTrack({
   aired,
   className,
   label,
+  look = TRACK_LOOK.line,
   watched,
 }: Readonly<{
   aired?: number;
   className?: string;
-  label: string;
+  /** Without one it is decorative: the poster's tile says it in words */
+  label?: string;
+  /** A `TRACK_LOOK` */
+  look?: string;
   watched: number;
 }>) {
   return (
-    <Track className={className} label={label} look={TRACK_LOOK.line}>
+    <Track className={className} label={label} look={look}>
       {aired === undefined ? null : <TrackAired at={aired} />}
       <TrackFill at={watched} />
       {aired === undefined || aired >= 100 ? null : <TrackTick at={aired} />}

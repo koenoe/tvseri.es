@@ -17,6 +17,9 @@ import {
 } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import type { Glyph, ToggleGlyph } from '@/components/ui/icon/types';
+import ProgressTrack, {
+  TRACK_LOOK,
+} from '@/components/ui/progress/ProgressTrack';
 import RelationPill, {
   type RelationPillLayout,
 } from '@/components/ui/relation/RelationPill';
@@ -26,26 +29,20 @@ import { useLibrarySelect } from '@/lib/marking/hooks';
 import { useWatchlistAdd } from '../../_components/blocks/WatchlistAdd';
 import { RELATION_LABEL, type Relation, relationOf } from '../../_lib/relation';
 
-/** Watching: the 4px line on the poster: aired dimmed, watched white */
+/** Watching: the progress line on the poster, over a shade */
 export function ProgressLine({
   aired,
   watched,
 }: Readonly<{ aired: number; watched: number }>) {
-  const airedStyle = { width: `${aired}%` };
-  const watchedStyle = { width: `${watched}%` };
   return (
     <>
       <span className="absolute inset-x-0 bottom-0 h-2/5 rounded-b-[inherit] bg-linear-to-t from-[rgb(15_20_20/0.85)] to-transparent" />
-      <span className="absolute inset-x-2 bottom-2 z-1 h-1 overflow-hidden rounded-2 bg-white/18">
-        <span
-          className="absolute inset-y-0 left-0 bg-white/40"
-          style={airedStyle}
-        />
-        <span
-          className="absolute inset-y-0 left-0 rounded-2 bg-white"
-          style={watchedStyle}
-        />
-      </span>
+      <ProgressTrack
+        aired={aired}
+        className="absolute inset-x-2 bottom-2 z-1"
+        look={TRACK_LOOK.poster}
+        watched={watched}
+      />
     </>
   );
 }

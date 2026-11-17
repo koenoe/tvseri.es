@@ -45,7 +45,10 @@ metricsQueue.subscribe(
 
 /**
  * Daily metrics aggregation: one Lambda, one schedule per aggregation, each
- * aggregating the previous day's raw metrics.
+ * aggregating the previous day's raw metrics. Both kinds reach the raw table
+ * through the queue above, whose batching window holds the day's last ones
+ * for up to 300 s (more after a failed batch's visibility timeout), so the
+ * runs start well after midnight.
  */
 const metricsAggregate = new sst.aws.Function('MetricsAggregate', {
   handler: 'apps/api/src/lambdas/metricsAggregate.handler',
@@ -57,11 +60,11 @@ const metricsAggregate = new sst.aws.Function('MetricsAggregate', {
 new sst.aws.Cron('WebVitalsAggregateCron', {
   event: { aggregation: 'web-vitals' },
   function: metricsAggregate,
-  schedule: 'cron(5 0 * * ? *)', // Daily at 00:05 UTC
+  schedule: 'cron(20 0 * * ? *)', // Daily at 00:20 UTC
 });
 
 new sst.aws.Cron('ApiMetricsAggregateCron', {
   event: { aggregation: 'api' },
   function: metricsAggregate,
-  schedule: 'cron(10 0 * * ? *)', // Daily at 00:10 UTC
+  schedule: 'cron(25 0 * * ? *)', // Daily at 00:25 UTC
 });

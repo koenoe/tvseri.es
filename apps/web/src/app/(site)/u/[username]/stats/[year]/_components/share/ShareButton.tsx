@@ -16,8 +16,8 @@ import { getShareCard } from './shareInfo';
  */
 const TRIGGER = 'flex shrink-0 cursor-pointer rounded-full';
 
-/** The phone's 32px icon circle */
-const CIRCLE = circleButtonStyles({ className: 'md:hidden' });
+/** The phone's 40px icon circle, the show page's hero circles' size */
+const CIRCLE = circleButtonStyles({ className: 'md:hidden', size: 40 });
 
 /** The outlined 36px "Share" pill from `md` */
 const PILL = buttonStyles({
@@ -41,7 +41,7 @@ export default async function ShareButton({
   return (
     <ShareTrigger card={card} className={TRIGGER} label={label}>
       <span aria-hidden className={CIRCLE}>
-        <Icon glyph={shareGlyph} size={CIRCLE_ICON_SIZE[32]} />
+        <Icon glyph={shareGlyph} size={CIRCLE_ICON_SIZE[40]} />
       </span>
       <span aria-hidden className={PILL}>
         <Icon glyph={shareGlyph} size={14} />

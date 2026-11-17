@@ -12,6 +12,8 @@ type Props = Readonly<{
   /** Shown as the count pill beside the title (left out at 0 or undefined) */
   count?: number;
   dot: DotTone;
+  /** A background class that fills the dot in its own colour (`Dot`'s `colour`) */
+  dotColour?: string;
   /** The cyan glow (Out now only) */
   glow?: boolean;
   /** Empty: the dot as a ring */
@@ -42,6 +44,7 @@ export default function Lane({
   className,
   count,
   dot,
+  dotColour,
   glow,
   hollow,
   id,
@@ -49,7 +52,9 @@ export default function Lane({
   title,
 }: Props) {
   const pill = count ? formatGrouped(count) : undefined;
-  const marker = <Dot glow={glow} hollow={hollow} tone={dot} />;
+  const marker = (
+    <Dot colour={dotColour} glow={glow} hollow={hollow} tone={dot} />
+  );
   const aside = link ? <span className={LANE_LINK_CLASS}>{link}</span> : null;
   return (
     <BaseLane

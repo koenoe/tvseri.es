@@ -11,14 +11,15 @@ export type LevelStyle = Readonly<{
   hex: string;
   rgb: string;
   tint: number;
-  /** The text colour, for the level word and the lane dot */
+  /** The text colour, for the level word */
   text: string;
+  /** The lane dot's fill (`Lane`'s `dotColour`) */
   dot: string;
 }>;
 
 export const LEVELS: Readonly<Record<TasteLevel, LevelStyle>> = {
   high: {
-    dot: '[&>div:first-child>span:first-child]:bg-[#dfd05a]',
+    dot: 'bg-[#dfd05a]',
     hex: '#dfd05a',
     rgb: '223 208 90',
     text: 'text-[#dfd05a]',
@@ -26,7 +27,7 @@ export const LEVELS: Readonly<Record<TasteLevel, LevelStyle>> = {
     word: 'High',
   },
   low: {
-    dot: '[&>div:first-child>span:first-child]:bg-[#ff8f4a]',
+    dot: 'bg-[#ff8f4a]',
     hex: '#ff8f4a',
     rgb: '255 143 74',
     text: 'text-[#ff8f4a]',
@@ -34,7 +35,7 @@ export const LEVELS: Readonly<Record<TasteLevel, LevelStyle>> = {
     word: 'Low',
   },
   medium: {
-    dot: '[&>div:first-child>span:first-child]:bg-[#f2b95f]',
+    dot: 'bg-[#f2b95f]',
     hex: '#f2b95f',
     rgb: '242 185 95',
     text: 'text-[#f2b95f]',
@@ -42,7 +43,7 @@ export const LEVELS: Readonly<Record<TasteLevel, LevelStyle>> = {
     word: 'Medium',
   },
   super: {
-    dot: '[&>div:first-child>span:first-child]:bg-[#8fdc5a]',
+    dot: 'bg-[#8fdc5a]',
     hex: '#8fdc5a',
     rgb: '143 220 90',
     text: 'text-[#8fdc5a]',
@@ -50,7 +51,7 @@ export const LEVELS: Readonly<Record<TasteLevel, LevelStyle>> = {
     word: 'Super',
   },
   'very-high': {
-    dot: '[&>div:first-child>span:first-child]:bg-[#b4da55]',
+    dot: 'bg-[#b4da55]',
     hex: '#b4da55',
     rgb: '180 218 85',
     text: 'text-[#b4da55]',
@@ -58,7 +59,7 @@ export const LEVELS: Readonly<Record<TasteLevel, LevelStyle>> = {
     word: 'Very high',
   },
   'very-low': {
-    dot: '[&>div:first-child>span:first-child]:bg-[#e8857a]',
+    dot: 'bg-[#e8857a]',
     hex: '#e8857a',
     rgb: '232 133 122',
     text: 'text-[#e8857a]',
@@ -69,7 +70,7 @@ export const LEVELS: Readonly<Record<TasteLevel, LevelStyle>> = {
 
 /** No level (under 5 shared shows): white, quiet */
 const NO_LEVEL: LevelStyle = {
-  dot: '[&>div:first-child>span:first-child]:bg-white',
+  dot: 'bg-white',
   hex: 'rgb(255 255 255 / 0.75)',
   rgb: '255 255 255',
   text: 'text-white/75',

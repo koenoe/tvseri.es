@@ -126,8 +126,8 @@ export default async function BothWatch({
   if (shows.length === 0) {
     return (
       <Lane
-        className={level.dot}
         dot="white"
+        dotColour={level.dot}
         hollow
         id="b-both"
         title="You both watch"
@@ -142,9 +142,9 @@ export default async function BothWatch({
   }
   return (
     <Lane
-      className={level.dot}
       count={match.sharedCount}
       dot="white"
+      dotColour={level.dot}
       id="b-both"
       link={link}
       title="You both watch"

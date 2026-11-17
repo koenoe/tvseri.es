@@ -1,5 +1,7 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 
+import cn from '@/lib/cn';
+
 const dot = cva('size-2 shrink-0 rounded-full', {
   // Filled and hollow are separate classes per tone, so no two background
   // utilities ever compete
@@ -36,8 +38,16 @@ const dot = cva('size-2 shrink-0 rounded-full', {
 
 export type DotTone = NonNullable<VariantProps<typeof dot>['tone']>;
 
+type Props = VariantProps<typeof dot> & {
+  /**
+   * A background class that fills the dot in another colour (the match
+   * level's, `bg-[#8fdc5a]`); it replaces the tone's fill
+   */
+  colour?: string;
+};
+
 /** The 8px block dot */
-export default function Dot(props: Readonly<VariantProps<typeof dot>>) {
-  const className = dot(props);
+export default function Dot({ colour, ...props }: Readonly<Props>) {
+  const className = cn(dot(props), colour);
   return <span aria-hidden="true" className={className} />;
 }

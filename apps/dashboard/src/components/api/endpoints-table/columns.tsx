@@ -13,8 +13,8 @@ import {
 import { DependencyBadge } from '../dependency-badge';
 import { MethodBadge, parseEndpoint, RouteLabel } from '../endpoint-label';
 import type { ApiColumnDef } from '../table-features';
+import { ErrorRateSparkline, LatencySparkline } from '../table-sparklines';
 import { SortIndicator } from './sort-indicator';
-import { ErrorRateSparkline, LatencySparkline } from './sparklines';
 
 export const columns: ApiColumnDef<EndpointMetrics>[] = [
   {
@@ -77,13 +77,13 @@ export const columns: ApiColumnDef<EndpointMetrics>[] = [
     accessorFn: (row) => row.latency.p75,
     cell: ({ row }) => {
       const p75 = row.original.latency.p75;
-      const series = row.original.series;
+      const values = row.original.series?.map((point) => point.p75);
       return (
         <div className="flex items-center gap-3">
           <span className="w-14 tabular-nums text-muted-foreground">
             {formatLatency(p75)}
           </span>
-          <LatencySparkline series={series} />
+          <LatencySparkline values={values} />
         </div>
       );
     },
@@ -125,13 +125,13 @@ export const columns: ApiColumnDef<EndpointMetrics>[] = [
     accessorFn: (row) => row.errorRate,
     cell: ({ row }) => {
       const errorRate = row.original.errorRate;
-      const series = row.original.series;
+      const values = row.original.series?.map((point) => point.errorRate ?? 0);
       return (
         <div className="flex items-center gap-3">
           <span className="w-14 tabular-nums text-muted-foreground">
             {formatErrorRate(errorRate)}
           </span>
-          <ErrorRateSparkline errorRate={errorRate} series={series} />
+          <ErrorRateSparkline errorRate={errorRate} values={values} />
         </div>
       );
     },

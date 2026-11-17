@@ -20,17 +20,13 @@ import {
   getErrorRateColor,
   getLatencyColor,
   sortDependencyKeys,
+  toStatusCodes,
 } from '@/lib/api-metrics';
-import {
-  getSharpSparklinePath,
-  getSmoothSparklinePath,
-  SPARKLINE_HEIGHT,
-  SPARKLINE_WIDTH,
-} from '@/lib/sparkline';
 import { STATUS_COLORS } from '@/lib/status-colors';
 import { RouteLabel } from './endpoint-label';
 import { RequestBar } from './request-bar';
 import { StatusCodePopover } from './status-code-popover';
+import { ErrorRateSparkline, LatencySparkline } from './table-sparklines';
 
 type DependenciesSectionProps = Readonly<{
   dependencies: Record<string, DependencyStats> | undefined;
@@ -45,206 +41,10 @@ const COLUMN_WIDTHS = {
   requests: 140,
 } as const;
 
-type LatencySparklineProps = Readonly<{
-  history: ReadonlyArray<{ p75: number }> | undefined;
-  p75: number;
-}>;
-
-function LatencySparkline({ history, p75 }: LatencySparklineProps) {
-  const path = useMemo(() => {
-    if (!history || history.length === 0) return '';
-    return getSmoothSparklinePath(
-      history.map((point) => point.p75),
-      SPARKLINE_WIDTH,
-      SPARKLINE_HEIGHT,
-    );
-  }, [history]);
-
-  const color = STATUS_COLORS[getLatencyColor(p75)].hsl;
-
-  if (!path) return <div className="h-4 w-12" />;
-
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-4 w-12 overflow-visible"
-      preserveAspectRatio="none"
-      viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
-    >
-      <path
-        d={path}
-        fill="none"
-        stroke={color}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
-
-type ErrorSparklineProps = Readonly<{
-  errorRate: number;
-  history: ReadonlyArray<{ errorRate: number }> | undefined;
-}>;
-
-function ErrorSparkline({ errorRate, history }: ErrorSparklineProps) {
-  const path = useMemo(() => {
-    if (!history || history.length === 0) return '';
-    const errorRates = history.map((point) => point.errorRate);
-    const hasVariation = errorRates.some((r) => r !== errorRates[0]);
-    if (!hasVariation) return '';
-    return getSharpSparklinePath(errorRates, SPARKLINE_WIDTH, SPARKLINE_HEIGHT);
-  }, [history]);
-
-  const color = STATUS_COLORS[getErrorRateColor(errorRate)].hsl;
-
-  if (!path) {
-    const normalizedRate = Math.min(errorRate, 10) / 10;
-    const y =
-      SPARKLINE_HEIGHT -
-      normalizedRate * SPARKLINE_HEIGHT * 0.8 -
-      SPARKLINE_HEIGHT * 0.1;
-
-    return (
-      <svg
-        aria-hidden="true"
-        className="h-4 w-12"
-        preserveAspectRatio="none"
-        viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
-      >
-        <line
-          stroke={color}
-          strokeLinecap="round"
-          strokeWidth="1.5"
-          x1="0"
-          x2={SPARKLINE_WIDTH}
-          y1={y}
-          y2={y}
-        />
-      </svg>
-    );
-  }
-
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-4 w-12 overflow-visible"
-      preserveAspectRatio="none"
-      viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
-    >
-      <path
-        d={path}
-        fill="none"
-        stroke={color}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
-
-function OperationLatencySparkline({
-  series,
-}: Readonly<{
-  series: ReadonlyArray<{ p75: number }> | undefined;
-}>) {
-  const path = useMemo(() => {
-    if (!series || series.length === 0) return '';
-    return getSmoothSparklinePath(
-      series.map((s) => s.p75),
-      SPARKLINE_WIDTH,
-      SPARKLINE_HEIGHT,
-    );
-  }, [series]);
-
-  if (!path) return <div className="h-4 w-12" />;
-
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-4 w-12 overflow-visible"
-      preserveAspectRatio="none"
-      viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
-    >
-      <path
-        className="stroke-muted-foreground/50"
-        d={path}
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
-
-function OperationErrorSparkline({
-  errorRate,
-  series,
-}: Readonly<{
-  errorRate: number;
-  series: ReadonlyArray<{ errorRate: number }> | undefined;
-}>) {
-  const path = useMemo(() => {
-    if (!series || series.length === 0) return '';
-    const errorRates = series.map((s) => s.errorRate);
-    const hasVariation = errorRates.some((r) => r !== errorRates[0]);
-    if (!hasVariation) return '';
-    return getSharpSparklinePath(errorRates, SPARKLINE_WIDTH, SPARKLINE_HEIGHT);
-  }, [series]);
-
-  if (!path) {
-    const normalizedRate = Math.min(errorRate, 10) / 10;
-    const y =
-      SPARKLINE_HEIGHT -
-      normalizedRate * SPARKLINE_HEIGHT * 0.8 -
-      SPARKLINE_HEIGHT * 0.1;
-
-    return (
-      <svg
-        aria-hidden="true"
-        className="h-4 w-12"
-        preserveAspectRatio="none"
-        viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
-      >
-        <line
-          className="stroke-muted-foreground/50"
-          strokeLinecap="round"
-          strokeWidth="1.5"
-          x1="0"
-          x2={SPARKLINE_WIDTH}
-          y1={y}
-          y2={y}
-        />
-      </svg>
-    );
-  }
-
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-4 w-12 overflow-visible"
-      preserveAspectRatio="none"
-      viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
-    >
-      <path
-        className="stroke-muted-foreground/50"
-        d={path}
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
-
 type DependencyRowProps = Readonly<{
-  errorHistory: ReadonlyArray<{ errorRate: number }> | undefined;
+  errorHistory: ReadonlyArray<number> | undefined;
   isExpanded: boolean;
-  latencyHistory: ReadonlyArray<{ p75: number }> | undefined;
+  latencyHistory: ReadonlyArray<number> | undefined;
   maxRequestCount: number;
   name: string;
   onToggle: (name: string) => void;
@@ -263,6 +63,8 @@ function DependencyRow({
   const displayName = formatDependencyName(name);
 
   const handleToggle = useCallback(() => onToggle(name), [onToggle, name]);
+  const latencyColor = STATUS_COLORS[getLatencyColor(stats.p75)].hsl;
+  const errorRateColor = STATUS_COLORS[getErrorRateColor(stats.errorRate)].hsl;
 
   return (
     <TableRow
@@ -296,7 +98,7 @@ function DependencyRow({
           <span className="w-14 tabular-nums text-muted-foreground">
             {formatLatency(stats.p75)}
           </span>
-          <LatencySparkline history={latencyHistory} p75={stats.p75} />
+          <LatencySparkline color={latencyColor} values={latencyHistory} />
         </div>
       </TableCell>
       <TableCell
@@ -307,7 +109,11 @@ function DependencyRow({
           <span className="w-14 tabular-nums text-muted-foreground">
             {formatErrorRate(stats.errorRate)}
           </span>
-          <ErrorSparkline errorRate={stats.errorRate} history={errorHistory} />
+          <ErrorRateSparkline
+            color={errorRateColor}
+            errorRate={stats.errorRate}
+            values={errorHistory}
+          />
         </div>
       </TableCell>
       <TableCell
@@ -329,28 +135,14 @@ function OperationRow({ maxRequestCount, operation }: OperationRowProps) {
     return operation.series;
   }, [operation.series]);
 
+  const latencyValues = series?.map((point) => point.p75);
+  const errorRateValues = series?.map((point) => point.errorRate);
   const isPath = operation.operation.startsWith('/');
 
-  const statusCodes = useMemo(() => {
-    const codes = operation.codes ?? {};
-    const result = {
-      clientError: 0,
-      codes,
-      redirect: 0,
-      serverError: 0,
-      success: 0,
-    };
-
-    for (const [code, count] of Object.entries(codes)) {
-      const status = Number.parseInt(code, 10);
-      if (status >= 200 && status < 300) result.success += count;
-      else if (status >= 300 && status < 400) result.redirect += count;
-      else if (status >= 400 && status < 500) result.clientError += count;
-      else if (status >= 500) result.serverError += count;
-    }
-
-    return result;
-  }, [operation.codes]);
+  const statusCodes = useMemo(
+    () => toStatusCodes(operation.codes),
+    [operation.codes],
+  );
 
   return (
     <TableRow className="hover:bg-transparent">
@@ -378,7 +170,7 @@ function OperationRow({ maxRequestCount, operation }: OperationRowProps) {
           <span className="w-14 tabular-nums text-muted-foreground">
             {formatLatency(operation.p75)}
           </span>
-          <OperationLatencySparkline series={series} />
+          <LatencySparkline values={latencyValues} />
         </div>
       </TableCell>
       <TableCell
@@ -389,9 +181,9 @@ function OperationRow({ maxRequestCount, operation }: OperationRowProps) {
           <span className="w-14 tabular-nums text-muted-foreground">
             {formatErrorRate(operation.errorRate)}
           </span>
-          <OperationErrorSparkline
+          <ErrorRateSparkline
             errorRate={operation.errorRate}
-            series={series}
+            values={errorRateValues}
           />
         </div>
       </TableCell>
@@ -478,12 +270,12 @@ function DependenciesSectionComponent({
 
             const latencyHistory =
               stats.history && stats.history.length > 1
-                ? stats.history.map((point) => ({ p75: point.value }))
+                ? stats.history.map((point) => point.value)
                 : undefined;
 
             const errorHistory =
               stats.history && stats.history.length > 1
-                ? stats.history.map((point) => ({ errorRate: point.value }))
+                ? stats.history.map((point) => point.value)
                 : undefined;
 
             const isExpanded = expanded.has(key);

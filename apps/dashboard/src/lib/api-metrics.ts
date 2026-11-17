@@ -153,3 +153,34 @@ export const formatDependencies = (
     };
   });
 };
+
+export type StatusCodes = Readonly<{
+  clientError: number;
+  codes?: Readonly<Record<string, number>>;
+  redirect: number;
+  serverError: number;
+  success: number;
+}>;
+
+/** Buckets per-code counts (e.g. {"200": 150, "500": 3}) by status class. */
+export function toStatusCodes(
+  codes: Readonly<Record<string, number>> = {},
+): StatusCodes {
+  const result = {
+    clientError: 0,
+    codes,
+    redirect: 0,
+    serverError: 0,
+    success: 0,
+  };
+
+  for (const [code, count] of Object.entries(codes)) {
+    const status = Number.parseInt(code, 10);
+    if (status >= 200 && status < 300) result.success += count;
+    else if (status >= 300 && status < 400) result.redirect += count;
+    else if (status >= 400 && status < 500) result.clientError += count;
+    else if (status >= 500) result.serverError += count;
+  }
+
+  return result;
+}

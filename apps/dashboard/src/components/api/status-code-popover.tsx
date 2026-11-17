@@ -7,15 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { formatCountString } from '@/lib/api-metrics';
-
-type StatusCodes = Readonly<{
-  clientError: number;
-  codes?: Readonly<Record<string, number>>;
-  redirect: number;
-  serverError: number;
-  success: number;
-}>;
+import { formatCountString, type StatusCodes } from '@/lib/api-metrics';
 
 type StatusCodePopoverProps = Readonly<{
   statusCodes?: StatusCodes;

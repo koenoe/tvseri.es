@@ -69,11 +69,11 @@ describe('privateJson', () => {
 });
 
 describe('isSeriesId', () => {
-  it.each(['1', '136315', '9999999999'])('takes %s', (id) => {
+  it.each(['1', '136315', '99999999'])('takes %s', (id) => {
     expect(isSeriesId(id)).toBe(true);
   });
 
-  it.each(['0', '01', '-1', '1.5', 'abc', '', '12345678901'])(
+  it.each(['0', '01', '-1', '1.5', 'abc', '', '123456789'])(
     'refuses %s',
     (id) => {
       expect(isSeriesId(id)).toBe(false);

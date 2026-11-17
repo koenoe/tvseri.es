@@ -50,6 +50,7 @@ export {
   WEBHOOK_TOKEN_PATTERN_SOURCE,
 } from './scrobble';
 export { THEME_GROUPS } from './themes';
+export { MAX_TMDB_ID_DIGITS, TMDB_ID_PATTERN } from './tmdbId';
 export { MAX_EPISODES_PER_SERIES_MARK } from './watched';
 export { WEB_VITALS_SAMPLE_RATE } from './webVitals';
 

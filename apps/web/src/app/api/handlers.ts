@@ -1,3 +1,4 @@
+import { TMDB_ID_PATTERN } from '@tvseri.es/constants';
 import 'server-only';
 
 import { unstable_rethrow } from 'next/navigation';
@@ -24,9 +25,9 @@ const PRIVATE_HEADERS = {
 export const privateJson = (body: unknown, status = 200): Response =>
   Response.json(body, { headers: PRIVATE_HEADERS, status });
 
-const SERIES_ID = /^[1-9]\d{0,9}$/;
+const SERIES_ID = new RegExp(`^${TMDB_ID_PATTERN}$`);
 
-/** A TMDB id as a path segment: 1 to 10 digits, no leading zero */
+/** A TMDB id as a path segment: up to `MAX_TMDB_ID_DIGITS`, no leading zero */
 export const isSeriesId = (value: string): boolean => SERIES_ID.test(value);
 
 /**

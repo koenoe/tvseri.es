@@ -1,3 +1,5 @@
+import { MAX_TMDB_ID_DIGITS } from '@tvseri.es/constants';
+
 /**
  * First URL segments that belong to a route of their own. Any other
  * non-numeric first segment can never be a show (`/[id]`), so it is rewritten
@@ -86,16 +88,19 @@ export const PERSON_NOT_FOUND_REWRITE = {
   source: '/person/:id((?!\\d+(?:/|$))[^/]+)/:rest*',
 } as const;
 
+/** More digits than a TMDB id has (`MAX_TMDB_ID_DIGITS`), no leading zero */
+const LONG_ID = `[1-9]\\d{${MAX_TMDB_ID_DIGITS},}`;
+
 /**
- * TMDB ids are below 10^8, so a show or person id of nine or more digits
- * (`/99999999999`, `/person/123456789/x`) can never exist: the static 404,
- * instead of a function, the API's 404 and a cached 404 entry per id. A
- * leading zero is left to the show page's canonical redirect.
+ * A show or person id longer than any TMDB id (`/999999999`,
+ * `/person/123456789/x`) can never exist: the static 404, instead of a
+ * function, the API's answer and a cached 404 entry per id. A leading zero
+ * is left to the config redirect.
  */
 export const LONG_ID_NOT_FOUND_REWRITES = [
-  { destination: '/_not-found', source: '/:id([1-9]\\d{8,})/:rest*' },
+  { destination: '/_not-found', source: `/:id(${LONG_ID})/:rest*` },
   {
     destination: '/_not-found',
-    source: '/person/:id([1-9]\\d{8,})/:rest*',
+    source: `/person/:id(${LONG_ID})/:rest*`,
   },
 ] as const;

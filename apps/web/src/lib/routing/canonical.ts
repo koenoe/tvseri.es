@@ -3,16 +3,17 @@
  * per entity, so a stale slug or a deep path 308s to it.
  */
 
+import { TMDB_ID_PATTERN } from '@tvseri.es/constants';
+
+const ID = new RegExp(`^0*(${TMDB_ID_PATTERN})$`);
+
 /**
  * The canonical form of a numeric URL id (`'0123'` → `'123'`), or null when
- * it isn't a safe positive integer id (a 404).
+ * it can't be a TMDB id (a 404): not all digits, zero, or more digits than
+ * `MAX_TMDB_ID_DIGITS`.
  */
 export function toCanonicalId(id: string): string | null {
-  if (!/^\d{1,16}$/.test(id)) {
-    return null;
-  }
-  const value = Number(id);
-  return Number.isSafeInteger(value) && value > 0 ? String(value) : null;
+  return ID.exec(id)?.[1] ?? null;
 }
 
 /**

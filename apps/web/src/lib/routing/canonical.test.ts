@@ -11,6 +11,13 @@ describe('toCanonicalId', () => {
     expect(toCanonicalId('abc')).toBeNull();
     expect(toCanonicalId('99999999999999999')).toBeNull();
   });
+
+  it('takes up to MAX_TMDB_ID_DIGITS digits, as the long-id 404 rewrite does', () => {
+    expect(toCanonicalId('99999999')).toBe('99999999');
+    expect(toCanonicalId('00099999999')).toBe('99999999');
+    expect(toCanonicalId('000123456789')).toBeNull();
+    expect(toCanonicalId('123456789')).toBeNull();
+  });
 });
 
 describe('canonicalPath', () => {

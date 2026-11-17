@@ -1,5 +1,7 @@
 import { regionName } from '@tvseri.es/utils';
+
 import { plural } from '@/lib/format/text';
+
 import { loadPlexStatus } from '../_data/plex';
 import { getSettingsSession, getSettingsViewer } from '../_data/session';
 import { plexStateOf } from '../_lib/plexState';

@@ -74,7 +74,7 @@ export function languageName(code: string, locale = 'en'): string | undefined {
  * pre-paint script; its test pins the two together.
  */
 export const TAKES_THE =
-  /^(?:U[KS]|UAE|USA|United .+|.+ (?:Islands|Republic|Emirates|Territories)|(?:Caribbean )?Netherlands|Bahamas|Philippines|Gambia|Maldives|Seychelles|Comoros|Congo(?: .+)?|(?:Democratic )?Republic of .+|Holy See)$/;
+  /^(?:U[KS]|United .+|(?:.+ )?(?:Islands|Republic|Territories|Netherlands)|Bahamas|Philippines|Gambia|Maldives|Seychelles|Comoros|Congo.*)$/;
 
 /** A country's English name in a sentence: "the Netherlands", "Germany" */
 export const countryInSentence = (name: string): string =>

@@ -14,6 +14,7 @@ import type {
 import { DURATION_BUCKETS } from '@tvseri.es/schemas';
 import { countryInSentence, regionName } from '@tvseri.es/utils';
 import { HTTPException } from 'hono/http-exception';
+
 import {
   DAY_BUILD_TTL,
   readDayBuild,
@@ -23,6 +24,7 @@ import { hasTimeForAnother } from '@/lib/deadline';
 import { getSeriesFactsReport } from '@/lib/seriesFacts';
 import { fetchDiscoverTvSeries } from '@/lib/tmdb';
 import { todayUtc } from '@/utils/time';
+
 import {
   BUCKETS,
   bucketQuery,

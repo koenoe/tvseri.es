@@ -5,6 +5,7 @@ import type {
   SeriesLogoImage,
 } from '@tvseri.es/schemas';
 import { languageName } from '@tvseri.es/utils';
+
 import { toPageColor } from '@/components/background/pageColor';
 
 /**

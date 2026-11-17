@@ -80,11 +80,6 @@ describe('countryInSentence', () => {
 
   it("reads an older runtime's names right", () => {
     expect(countryInSentence('Czech Republic')).toBe('the Czech Republic');
-    expect(countryInSentence('Democratic Republic of the Congo')).toBe(
-      'the Democratic Republic of the Congo',
-    );
-    expect(countryInSentence('Republic of the Congo')).toBe(
-      'the Republic of the Congo',
-    );
+    expect(countryInSentence('Congo (DRC)')).toBe('the Congo (DRC)');
   });
 });

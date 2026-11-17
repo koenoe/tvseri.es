@@ -45,7 +45,7 @@ afterEach(() => {
 });
 
 describe('the pre-paint script (inlined in every document)', () => {
-  it('stays small: 2,805 bytes minified (SWC, as a production build)', async () => {
+  it('stays small: 2,867 bytes minified (SWC, as a production build)', async () => {
     const swc = await import('next/dist/build/swc');
     await swc.loadBindings();
     const { code } = await swc.minify(viewerHintsScript, {
@@ -55,11 +55,11 @@ describe('the pre-paint script (inlined in every document)', () => {
     // The one pinned limit: grow it only on purpose. The e2e checks the
     // script as served (placeholders-show, under 3,000). Per hint
     // (minified): cookie read 163, Home/show prompt/Stats/Plex 1,023, region
-    // 261 + 231 + 247, the signed-in rule and owner/visitor about 430 (the
+    // about 800 (its line carries the English "the" rule), the signed-in rule and owner/visitor about 430 (the
     // retired MetaYearScript and SignedInScript were 1,116 bytes served
     // beside this one), the wrapper (keys, storage, the stylesheet helpers,
     // the header's handle and flat-glass flag) about 430.
-    expect(code.length).toBeLessThanOrEqual(2816);
+    expect(code.length).toBeLessThanOrEqual(2880);
     // self-contained: no import of a module the embedded source would need
     // (`!important` in its CSS is fine)
     expect(viewerHintsScript).not.toMatch(/\bimport\b|__vite_ssr_import/);

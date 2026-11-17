@@ -9,15 +9,12 @@ export function regionLine(code: string): string {
   // Names that take "the": a copy of `TAKES_THE` (`@tvseri.es/utils`), as
   // the pre-paint script embeds this function's source; the test pins them
   const takesThe =
-    /^(?:U[KS]|UAE|USA|United .+|.+ (?:Islands|Republic|Emirates|Territories)|(?:Caribbean )?Netherlands|Bahamas|Philippines|Gambia|Maldives|Seychelles|Comoros|Congo(?: .+)?|(?:Democratic )?Republic of .+|Holy See)$/;
+    /^(?:U[KS]|United .+|(?:.+ )?(?:Islands|Republic|Territories|Netherlands)|Bahamas|Philippines|Gambia|Maldives|Seychelles|Comoros|Congo.*)$/;
   let name = upper;
   try {
-    name =
-      new Intl.DisplayNames(['en'], { fallback: 'code', type: 'region' }).of(
-        upper,
-      ) ?? upper;
+    name = new Intl.DisplayNames('en', { type: 'region' }).of(upper) ?? upper;
   } catch {
-    name = upper;
+    // a malformed code: the code itself
   }
   return `Streaming in ${takesThe.test(name) ? `the ${name}` : name}`;
 }

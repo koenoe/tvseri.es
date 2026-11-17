@@ -36,6 +36,8 @@ The API applies the same rule for lists: `apps/api/src/lib/listSync/state.ts`.
 
 ## Limits
 
+- Only episodes that exist and have aired are sent (`hasEpisodeAired`, or an air date that has passed, since the cached flag can lag on release day); others fail like a partial save. Undo restores skip this check: they re-create records the viewer already had.
+
 - A whole-show mark takes up to 1,000 aired episodes (`MAX_EPISODES_PER_SERIES_MARK`, a 413 above it); larger shows are marked season by season.
 - One action takes up to 2,000 episodes (`MAX_EPISODES_PER_MARK_ACTION`); bigger sets are split automatically.
 

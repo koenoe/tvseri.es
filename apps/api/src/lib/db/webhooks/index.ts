@@ -11,7 +11,6 @@ import {
   ConditionalCheckFailedException,
   DeleteItemCommand,
   GetItemCommand,
-  QueryCommand,
   TransactionCanceledException,
   TransactWriteItemsCommand,
   UpdateItemCommand,
@@ -186,31 +185,11 @@ const findAllWebhookTokensByUserAndType = async ({
   return rows.filter((row) => row.userId === userId);
 };
 
-export const findWebhookTokenByUserAndType = async ({
-  userId,
-  type,
-}: {
-  userId: string;
-  type: string;
-}): Promise<WebhookToken | null> => {
-  const command = new QueryCommand({
-    ExpressionAttributeValues: marshall({
-      ':gsi1pk': `USER#${userId}#TYPE#${type}`,
-    }),
-    IndexName: 'gsi1',
-    KeyConditionExpression: 'gsi1pk = :gsi1pk',
-    Limit: 1,
-    TableName: Resource.WebhookTokens.name,
-  });
-
-  const result = await client.send(command);
-
-  if (!result.Items?.[0]) {
-    return null;
-  }
-
-  return unmarshall(result.Items[0]) as WebhookToken;
-};
+/** The user's token row for a provider, or null */
+export const findWebhookTokenByUserAndType = async (
+  input: Readonly<{ userId: string; type: string }>,
+): Promise<WebhookToken | null> =>
+  (await findAllWebhookTokensByUserAndType(input))[0] ?? null;
 
 export const findWebhookToken = async (
   token: string,

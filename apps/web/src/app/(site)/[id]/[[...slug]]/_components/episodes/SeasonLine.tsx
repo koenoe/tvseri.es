@@ -160,6 +160,7 @@ export default function SeasonLine({
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (
+      !locked &&
       event.target === event.currentTarget &&
       (event.key === 'Enter' || event.key === ' ')
     ) {
@@ -198,7 +199,6 @@ export default function SeasonLine({
   return (
     <div
       aria-disabled={locked || undefined}
-      aria-haspopup="dialog"
       aria-keyshortcuts="Enter"
       aria-label={aria}
       className={lineClass}

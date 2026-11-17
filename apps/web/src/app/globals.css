@@ -5,6 +5,13 @@
 @custom-variant focus-visible (&:focus-visible:not([data-quiet-focus]));
 
 /*
+ * The site header's look (`HeaderFrame`'s mode, mirrored on <html> by
+ * `RootHeaderMode`): absent before hydration, as the static bar is then.
+ */
+@custom-variant header-floating (:root[data-header-mode=floating] &);
+@custom-variant header-fixed (:root[data-header-mode]:not([data-header-mode=static]) &);
+
+/*
  * Design tokens from the approved boards. Tailwind's default palette, type scale and radii are cleared on
  * purpose: only the approved values exist, so a raw value can't slip in.
  *

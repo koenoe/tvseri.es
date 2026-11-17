@@ -7,12 +7,10 @@ import { useShallow } from 'zustand/shallow';
 import { STANDARD_EASE } from '@/components/motion/ease';
 import MaxMotion from '@/components/motion/MaxMotion';
 import cn from '@/lib/cn';
-import { PHONE } from '@/lib/media/breakpoints';
-import useMediaQuery from '@/lib/media/useMediaQuery';
 
 import HeaderGlass, { GlassDistortion } from './HeaderGlass';
 import { useHeaderStore } from './HeaderStoreProvider';
-import useNamedHeader from './useNamedHeader';
+import useHeaderLook from './useHeaderLook';
 
 const HEADER_VARIANTS = {
   floating: { opacity: 1, y: 0 },
@@ -90,7 +88,6 @@ const contentStyles = cva('relative z-4 flex items-center', {
  * Keyboard focus moving into the hidden header shows the pill.
  */
 function HeaderFrame({ children }: Readonly<{ children: ReactNode }>) {
-  const isPhone = useMediaQuery(PHONE);
   const { mode, previousMode, revealOnFocus } = useHeaderStore(
     useShallow((state) => ({
       mode: state.mode,
@@ -98,16 +95,7 @@ function HeaderFrame({ children }: Readonly<{ children: ReactNode }>) {
       revealOnFocus: state.revealOnFocus,
     })),
   );
-
-  const pageName = useNamedHeader();
-  const named = pageName !== null;
-  // While the phone menu is open the header is the transparent bar at the
-  // top over its glass; opened from the pill, the pill settles into the bar
-  // (the same 300ms morph) and comes back on close
-  const phoneMenu = useHeaderStore((state) => isPhone && state.menuOpen);
-  // Scrolled on a landing's phone page the header is the name bar, whichever
-  // way the page scrolls (the pill and the hidden bar step aside)
-  const visual = phoneMenu ? 'menu' : named ? 'named' : mode;
+  const { named, visual } = useHeaderLook();
   const isFloating = visual === 'floating';
   const layout = isFloating || visual === 'hidden' ? 'floating' : 'static';
   const shouldAnimate =

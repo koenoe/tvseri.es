@@ -17,4 +17,4 @@
 
 /** A desktop sidebar sticky from `lg` at `top-8` (profile, Stats, settings, person) */
 export const BELOW_FLOATING_HEADER_LG =
-  'lg:animate-[sticky-settle_400ms] lg:transition-transform lg:duration-300 lg:ease-[cubic-bezier(.25,.1,.25,1)] lg:[:root:has(header[data-header-mode=floating])_&]:translate-y-16';
+  'lg:animate-[sticky-settle_400ms] lg:transition-transform lg:duration-300 lg:ease-[cubic-bezier(.25,.1,.25,1)] lg:header-floating:translate-y-16';

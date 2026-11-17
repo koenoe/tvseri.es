@@ -61,10 +61,7 @@ export default function EdgeTint({
  * where Safari reads the body, which follows every colour change. Above the
  * header; a dialog's own strips sit in the top layer, above this one.
  */
-const PAGE_STRIP = cn(
-  STRIP,
-  'top-0 z-100 hidden bg-page [:root:has(header[data-header-mode]:not([data-header-mode=static]))_&]:block',
-);
+const PAGE_STRIP = cn(STRIP, 'top-0 z-100 hidden bg-page header-fixed:block');
 
 export function PageEdgeTint() {
   return <div aria-hidden className={PAGE_STRIP} data-edge-tint="" />;

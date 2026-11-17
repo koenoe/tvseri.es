@@ -5,6 +5,7 @@ import HeaderFrame from './HeaderFrame';
 import HeaderLogo from './HeaderLogo';
 import HeaderScrollTracker from './HeaderScrollTracker';
 import { HeaderStoreProvider } from './HeaderStoreProvider';
+import RootHeaderMode from './RootHeaderMode';
 
 /**
  * The site header: static bar, frosted pill on
@@ -16,6 +17,7 @@ export default function Header() {
   return (
     <HeaderStoreProvider>
       <HeaderScrollTracker />
+      <RootHeaderMode />
       <HeaderFrame>
         {/* The menu, Sign in and search animate from the first frame, before
             HeaderFrame's MaxMotion has domMax. Built here, on the server, so

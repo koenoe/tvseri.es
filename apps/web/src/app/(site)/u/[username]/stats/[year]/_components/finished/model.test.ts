@@ -54,8 +54,8 @@ describe('finishedTile', () => {
     ).toBe('1 episode');
   });
 
-  // House, bulk-marked "I don't remember" on Nov 16: Finished in the year,
-  // nothing of it dated in the year (the segment's 0 episodes, 0 minutes)
+  // Finished in the year with nothing of it dated in the year (e.g. a whole
+  // show marked "I don't remember"): the segment's 0 episodes, 0 minutes
   const undated = {
     ...show,
     episodes: 0,

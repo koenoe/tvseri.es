@@ -743,10 +743,9 @@ for (const width of [390, 1440] as const) {
     page,
   }) => {
     await page.setViewportSize({ height: 900, width });
-    await page.goto(`/u/lena/stats/${THIS_YEAR}`);
-    const section = page.getByRole('region', {
-      name: `Finished in ${THIS_YEAR}`,
-    });
+    // the stub's 2026 (raw2026), whatever year it is now
+    await page.goto('/u/lena/stats/2026');
+    const section = page.getByRole('region', { name: 'Finished in 2026' });
     const tileOf = (title: string) =>
       section.getByRole('link', { name: title }).filter({ visible: true });
     const cardOf = (title: string) =>

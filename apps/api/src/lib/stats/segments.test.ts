@@ -254,6 +254,23 @@ describe('calculateFinished', () => {
         at('2025-03-01T20:00:00Z', { episodeNumber: index + 1, seriesId: 2 }),
       ),
       at('2026-02-01T20:00:00Z', { seasonNumber: 0, seriesId: 2 }),
+      // a fourth show: seasons 1 and 2 in 2025, the last season in 2026
+      ...[1, 2].flatMap((seasonNumber) =>
+        Array.from({ length: 8 }, (_, index) =>
+          at('2025-06-01T20:00:00Z', {
+            episodeNumber: index + 1,
+            seasonNumber,
+            seriesId: 4,
+          }),
+        ),
+      ),
+      ...Array.from({ length: 6 }, (_, index) =>
+        at('2026-10-01T20:00:00Z', {
+          episodeNumber: index + 1,
+          seasonNumber: 3,
+          seriesId: 4,
+        }),
+      ),
       // the busiest day: 26 episodes of a third show, marked with the date
       ...Array.from({ length: 26 }, (_, index) =>
         at('2026-11-16T20:00:00Z', { episodeNumber: index + 1, seriesId: 3 }),
@@ -272,7 +289,7 @@ describe('calculateFinished', () => {
           .filter((item) => item.seriesId === seriesId)
           .map((item) => item.watchedAt),
       );
-    const finishedInYear = [1408, 2, 3].map(
+    const finishedInYear = [1408, 2, 3, 4].map(
       (id) =>
         ({ createdAt: lastWatchedAt(id), id, slug: '', title: '' }) as ListItem,
     );
@@ -290,6 +307,12 @@ describe('calculateFinished', () => {
       episodes: 0,
       runtimeMinutes: 0,
       seasons: [],
+    });
+    // Only what was watched in the year counts: the last season
+    expect(byId.get(4)).toMatchObject({
+      episodes: 6,
+      runtimeMinutes: 300,
+      seasons: [3],
     });
     // The other tiles keep their year's numbers
     expect(byId.get(3)).toMatchObject({

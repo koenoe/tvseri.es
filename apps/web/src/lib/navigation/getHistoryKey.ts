@@ -1,23 +1,11 @@
 /**
- * Returns a unique key for the current history entry.
+ * The current history entry's key (set by NavigationTracker's script; a push
+ * makes a new one, a replace keeps it). Per-entry state on Back is keyed by
+ * it, not by URL: opening /123 from /456 and later from Home gives two
+ * entries for the same URL, each with its own state (see README.md).
  *
- * NavigationTracker's pre-hydration script assigns a random key
- * (`Math.random().toString(36).slice(2)`) to each `history.state` entry.
- * pushState creates a new key; replaceState preserves the existing one.
- *
- * This key is used by the background system, Row and paged lists to cache per-entry
- * state in module-level Maps — enabling instant restoration on back-nav
- * without confusing entries that share the same URL (e.g. navigating
- * /123 -> /456 -> back -> /123 creates two distinct /tv/123
- * history entries, each with its own key and cached state).
- *
- * Prefer calling this from useLayoutEffect rather than during render,
- * since history.state is external mutable state and may not yet reflect
- * the current navigation when React's render function runs.
- *
- * @see NavigationTracker - Sets history.state.key
- * @see BackgroundProvider - Caches background color/image per key
- * @see Row - Caches the scroll position per key
+ * Read it in a layout effect, not during render: `history.state` may not
+ * reflect the current navigation yet while React renders.
  */
 export default function getHistoryKey(): string {
   if (typeof window !== 'undefined' && window?.history.state?.key) {

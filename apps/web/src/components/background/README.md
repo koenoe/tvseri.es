@@ -2,6 +2,15 @@
 
 Every page has a page colour (`--main-background-color`, the `page` colour token) and, on some pages, a backdrop. The system paints the colour on the first frame of a hard load, keeps it right across client navigations, restores it on Back (also after Home's spotlight changed it) and works with Activity (Cache Components keeps visited pages mounted but hidden).
 
+## Why each piece exists
+
+- **A copy of the colour in `<head>`** (`BackgroundStyle`): a slow phone still parsing the body would otherwise paint the default colour first, then flash.
+- **The hidden page's `<style>` is switched off** (`BackgroundStyleTag`, `media="not all"`): a page kept mounted by Activity would otherwise leak its colour onto the visible one.
+- **A colour per history entry** (`cache.ts`): Back to Home returns on the spotlight slide you left, in its colour, without a crossfade.
+- **`PageEdgeTint` only while the header is fixed**: Safari's top bar follows the page colour on every navigation (below).
+
+If you simplify any of these, the colour flashes on load, pages show the wrong colour after navigating, or Home loses its slide on Back.
+
 ## Use it
 
 ```tsx
@@ -62,7 +71,7 @@ Page.tsx (server)
 
 **Activity hide.** The layout effect cleans up: it saves the store state under the entry's history key (captured at setup, because `history.state` already points at the next entry), removes the variable and disables the `<style>` (`media="not all"`). Setup does the reverse in the same effect, so the variable and the `<style>` never disagree.
 
-**Safari's top bar (macOS tab tint, iOS status bar).** Safari takes the colour from a fixed element at the top edge if there is one, else from the page's background (`body`, which is `bg-page`). The page background follows every change of the variable. A fixed element does not: WebKit stops sampling the top edge after the first real scroll below the top on a Mac or an iPad and keeps the last top element's colour until the next document load (`Page::canSampleTopFixedContainerEdge`). And when the top edge has no fixed element any more, WebKit keeps the last one's colour while that element still renders (the header's glass pill has no single colour, so an iPhone froze on whatever it showed when the pill appeared). So `PageEdgeTint` (`components/ui/dialog/EdgeTint.tsx`, in the root layout), a 12px `bg-page` strip above the header, is shown only while the header is fixed, and is `display: none` (no renderer, WebKit lets go) whenever the header is `static`, which is the top of every page after a navigation: Safari then reads the body. A modal dialog's own strips sit above it in the top layer.
+**Safari's top bar (macOS tab tint, iOS status bar).** Safari takes the colour from a fixed element at the top edge if there is one, else from `body` (`bg-page`), which follows every colour change. A fixed element latches: WebKit can keep its colour after it leaves, or until the next document load. So `PageEdgeTint` (`components/ui/dialog/EdgeTint.tsx`, in the root layout), a 12px `bg-page` strip, is shown only while the header is fixed and is `display: none` at the top of every page, where Safari reads the body. Its comment has the WebKit details. A dialog's own strips sit above it in the top layer (`components/ui/dialog/README.md`).
 
 **Re-show without a crossfade.** On a re-show the store sync would crossfade `BackgroundDynamic`; `MotionGlobalConfig.instantAnimations` is set for two frames so it's instant.
 

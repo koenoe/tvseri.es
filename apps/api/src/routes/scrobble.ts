@@ -1,4 +1,3 @@
-import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import {
   PLEX_SCROBBLE_EVENT,
   type ScrobbleProvider,
@@ -15,10 +14,9 @@ import { Resource } from 'sst';
 import * as v from 'valibot';
 
 import { findWebhookToken, recordScrobbleReceived } from '@/lib/db/webhooks';
+import { sendMessage } from '@/lib/sqs';
 
 const app = new Hono();
-
-const sqs = new SQSClient({});
 
 // As Plex sends it: only `Metadata` is validated (PlexMetadataSchema), and
 // only for a watched episode
@@ -155,15 +153,10 @@ app.post('/provider/:provider', async (c) => {
   const { metadata } = scrobble;
 
   try {
-    await sqs.send(
-      new SendMessageCommand({
-        MessageBody: JSON.stringify({
-          metadata,
-          userId: webhookToken.userId,
-        } satisfies ScrobbleEvent),
-        QueueUrl: Resource.ScrobbleQueue.url,
-      }),
-    );
+    await sendMessage(Resource.ScrobbleQueue.url, {
+      metadata,
+      userId: webhookToken.userId,
+    } satisfies ScrobbleEvent);
   } catch (error) {
     console.error(`Failed to queue ${provider} scrobble:`, error);
 

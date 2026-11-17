@@ -1,28 +1,19 @@
-import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import type { ApiMetricRecord } from '@tvseri.es/schemas';
 import type { MiddlewareHandler } from 'hono';
 import { Resource } from 'sst';
 
 import { getMetricsStore, runWithMetrics } from '@/lib/metrics';
+import { sendMessage } from '@/lib/sqs';
 import type { Variables } from './auth';
-
-const sqs = new SQSClient({});
 
 /**
  * Send a metric record to SQS for async processing.
  * Fire-and-forget - errors are logged but don't affect the response.
  */
 const sendMetric = (record: ApiMetricRecord): void => {
-  sqs
-    .send(
-      new SendMessageCommand({
-        MessageBody: JSON.stringify(record),
-        QueueUrl: Resource.MetricsQueue.url,
-      }),
-    )
-    .catch((error) => {
-      console.error('[metrics] Failed to send metric to SQS:', error);
-    });
+  sendMessage(Resource.MetricsQueue.url, record).catch((error) => {
+    console.error('[metrics] Failed to send metric to SQS:', error);
+  });
 };
 
 /**

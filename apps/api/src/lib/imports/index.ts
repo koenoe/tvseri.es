@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto';
 import { UpdateItemCommand } from '@aws-sdk/client-dynamodb';
-import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import {
   type ImportBatch,
@@ -16,11 +15,10 @@ import client from '@/lib/db/client';
 import { clearSkipped } from '@/lib/db/prefs';
 import { getWatchedEpisodeKeys, markWatchedInBatch } from '@/lib/db/watched';
 import { episodeSk } from '@/lib/db/watched/keys';
+import { sendMessage } from '@/lib/sqs';
 
 import type { UndoImportMessage } from './undo';
 import { freshUnskipped, recordUnskipped } from './unskipped';
-
-const sqs = new SQSClient({});
 
 const userKey = (userId: string) => marshall({ pk: `USER#${userId}` });
 
@@ -187,13 +185,8 @@ export const requestUndoImport = async (userId: string, importId: string) => {
       UpdateExpression: 'SET lastImport.undoRequestedAt = :now',
     }),
   );
-  await sqs.send(
-    new SendMessageCommand({
-      MessageBody: JSON.stringify({
-        importId,
-        userId,
-      } satisfies UndoImportMessage),
-      QueueUrl: Resource.UndoImportQueue.url,
-    }),
-  );
+  await sendMessage(Resource.UndoImportQueue.url, {
+    importId,
+    userId,
+  } satisfies UndoImportMessage);
 };

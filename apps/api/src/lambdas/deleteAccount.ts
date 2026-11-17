@@ -1,5 +1,3 @@
-import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
-import type { Context, SQSBatchResponse, SQSEvent } from 'aws-lambda';
 import { Resource } from 'sst';
 
 import {
@@ -7,20 +5,7 @@ import {
   NEXT_STEP,
   runDeleteAccountStep,
 } from '@/lib/account/delete';
-
-const sqs = new SQSClient({});
-
-/** Stop a minute before the Lambda timeout and queue the rest */
-const SAFETY_MS = 60_000;
-
-const queue = (message: DeleteAccountMessage, delaySeconds?: number) =>
-  sqs.send(
-    new SendMessageCommand({
-      DelaySeconds: delaySeconds,
-      MessageBody: JSON.stringify(message),
-      QueueUrl: Resource.DeleteAccountQueue.url,
-    }),
-  );
+import { resumableStepHandler } from '@/lib/sqs';
 
 /**
  * Delete account, one step per message (batch size 1). A step that
@@ -28,37 +13,19 @@ const queue = (message: DeleteAccountMessage, delaySeconds?: number) =>
  * with a delay. Failures are reported per message, retried, then
  * dead-lettered (alarmed).
  */
-export const handler = async (
-  event: SQSEvent,
-  context: Context,
-): Promise<SQSBatchResponse> => {
-  const batchItemFailures: SQSBatchResponse['batchItemFailures'] = [];
-  const hasTime = () => context.getRemainingTimeInMillis() > SAFETY_MS;
-
-  for (const record of event.Records) {
-    try {
-      const message = JSON.parse(record.body) as DeleteAccountMessage;
-      const outcome = await runDeleteAccountStep(message, hasTime);
-
-      if (outcome === 'continue') {
-        await queue(message);
-      } else if (outcome === 'done') {
-        const next = NEXT_STEP[message.step];
-        if (next) {
-          await queue(
-            { step: next.step, userId: message.userId },
-            next.delaySeconds,
-          );
+export const handler = resumableStepHandler({
+  label: 'DELETE ACCOUNT',
+  next: (message: DeleteAccountMessage, outcome) => {
+    const following = outcome === 'done' ? NEXT_STEP[message.step] : null;
+    return following
+      ? {
+          delaySeconds: following.delaySeconds,
+          message: { step: following.step, userId: message.userId },
         }
-      }
-      console.log(
-        `[DELETE ACCOUNT] ${message.step}: ${outcome} | User: ${message.userId}`,
-      );
-    } catch (error) {
-      console.error(`[DELETE ACCOUNT] failed for ${record.messageId}`, error);
-      batchItemFailures.push({ itemIdentifier: record.messageId });
-    }
-  }
-
-  return { batchItemFailures };
-};
+      : null;
+  },
+  queueUrl: () => Resource.DeleteAccountQueue.url,
+  run: runDeleteAccountStep,
+  summary: (message, outcome) =>
+    `${message.step}: ${outcome} | User: ${message.userId}`,
+});

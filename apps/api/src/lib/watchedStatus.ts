@@ -1,4 +1,4 @@
-import { SendMessageBatchCommand, SQSClient } from '@aws-sdk/client-sqs';
+import { SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import type { User } from '@tvseri.es/schemas';
 import { chunk } from '@tvseri.es/utils';
 import { Resource } from 'sst';
@@ -6,11 +6,10 @@ import { Resource } from 'sst';
 import { ACTIVE_USER_WINDOW_MS } from '@/constants';
 
 import { claimWatchedStatusRecheck, type UserActivity } from '@/lib/db/user';
+import { sqs } from '@/lib/sqs';
 
 /** SQS message body: sent by queueWatchedStatusValidation, read by validateWatchedStatusQueue */
 export type ValidateWatchedStatusMessage = Readonly<Pick<User, 'id'>>;
-
-const sqs = new SQSClient({});
 
 // SendMessageBatch takes at most 10 entries
 const SQS_BATCH_LIMIT = 10;

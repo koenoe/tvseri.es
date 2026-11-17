@@ -1,12 +1,11 @@
-import { SendMessageBatchCommand, SQSClient } from '@aws-sdk/client-sqs';
+import { SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { vValidator } from '@hono/valibot-validator';
 import { type WebVitalRecord, WebVitalsBatchSchema } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
 import { Resource } from 'sst';
 
+import { sqs } from '@/lib/sqs';
 import type { Variables } from '@/middleware/auth';
-
-const sqs = new SQSClient({});
 
 const app = new Hono<{ Variables: Variables }>();
 

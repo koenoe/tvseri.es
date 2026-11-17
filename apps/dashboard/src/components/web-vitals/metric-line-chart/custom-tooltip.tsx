@@ -14,8 +14,7 @@ type CustomTooltipProps = Readonly<{
   activePercentiles: Set<PercentileKey>;
   label?: string;
   metric: MetricType;
-  // biome-ignore lint/suspicious/noExplicitAny: Recharts tooltip payload type
-  payload?: ReadonlyArray<any>;
+  payload?: ReadonlyArray<Readonly<{ payload?: ChartDataPoint }>>;
 }>;
 
 export function CustomTooltip({
@@ -28,7 +27,7 @@ export function CustomTooltip({
     return null;
   }
 
-  const data = payload[0]?.payload as ChartDataPoint | undefined;
+  const data = payload[0]?.payload;
   if (!data) {
     return null;
   }
@@ -41,16 +40,18 @@ export function CustomTooltip({
         <p className="text-xs text-neutral-500">{data.formattedDate}</p>
         <p className="font-semibold text-white">{metricConfig.label}</p>
         <div className="mt-2 flex flex-col gap-1.5">
-          {PERCENTILES.filter(({ key }) => activePercentiles.has(key)).map(
-            ({ key, label }) => (
+          {PERCENTILES.map(({ key, label }) => {
+            const value = data[key];
+            if (!activePercentiles.has(key) || value === undefined) return null;
+            return (
               <PercentileRow
                 key={key}
                 label={label}
                 metric={metric}
-                value={data[key]}
+                value={value}
               />
-            ),
-          )}
+            );
+          })}
         </div>
       </div>
       <DataPointsBubble pageViews={data.pageviews} />

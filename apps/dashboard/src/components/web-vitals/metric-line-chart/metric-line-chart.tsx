@@ -1,45 +1,45 @@
 import type { MetricSeriesItem } from '@tvseri.es/schemas';
-import { X } from 'lucide-react';
-import { memo, useCallback, useMemo } from 'react';
+import { memo, type ReactElement, useCallback, useMemo } from 'react';
 import {
   CartesianGrid,
   DefaultZIndexes,
   LabelList,
+  type LabelProps,
   Line,
   LineChart,
   ReferenceLine,
   XAxis,
   YAxis,
+  type YAxisTickContentProps,
 } from 'recharts';
 
 import { ChartContainer, ChartTooltip } from '@/components/ui/chart';
-import { getCountryDisplayName } from '@/lib/utils';
 import {
   METRICS_CONFIG,
   type MetricType,
   RATING_COLORS,
 } from '@/lib/web-vitals';
-
+import { CustomCursor, renderEndLabel, renderYAxisTick } from './chart-marks';
+import { ChartToolbar } from './chart-toolbar';
 import {
   BLUE_500,
   CHART_CONFIG,
-  type ChartDataPoint,
   PERCENTILES,
   type PercentileKey,
 } from './constants';
-import { CustomCursor } from './custom-cursor';
 import { CustomTooltip } from './custom-tooltip';
-import { PercentileToggle } from './percentile-toggle';
-import {
-  formatDate,
-  formatValueForDisplay,
-  getMetricDisplayValue,
-  getTickConfig,
-} from './utils';
+import { useChartScale } from './use-chart-scale';
 
 // Between the tooltip cursor and the active dots, as Recharts 2's render order had it
 const LINE_Z_INDEX =
   (DefaultZIndexes.cursorLine + DefaultZIndexes.activeDot) / 2;
+
+const CHART_MARGIN = { bottom: 0, left: 0, right: 32, top: 12 } as const;
+const AXIS_LINE = {
+  stroke: 'rgba(255, 255, 255, 0.15)',
+  strokeWidth: 1,
+} as const;
+const ACTIVE_DOT = { fill: BLUE_500, r: 4, stroke: 'none' } as const;
 
 type MetricLineChartProps = Readonly<{
   activePercentiles: Set<PercentileKey>;
@@ -60,260 +60,45 @@ function MetricLineChartComponent({
   onPercentilesChange,
   series,
 }: MetricLineChartProps) {
-  const isRES = metric === 'res';
-  const metricConfig = METRICS_CONFIG[metric];
+  const { chartData, gridLines, lastDataIndex, yAxisDomain, yAxisTicks } =
+    useChartScale(series, days, metric, activePercentiles);
+  const { thresholdGreat, thresholdPoor } = METRICS_CONFIG[metric];
 
-  // Create a map of existing data by date for quick lookup
-  const seriesMap = useMemo(() => {
-    const map = new Map<string, MetricSeriesItem>();
-    for (const item of series) {
-      map.set(item.date, item);
-    }
-    return map;
-  }, [series]);
-
-  // Generate full date range for the period (excludes today since data is aggregated nightly)
-  const chartData = useMemo<ChartDataPoint[]>(() => {
-    const result: ChartDataPoint[] = [];
-    const today = new Date();
-    today.setHours(12, 0, 0, 0);
-
-    for (let i = days; i >= 1; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const dateStr = `${year}-${month}-${day}`;
-      const item = seriesMap.get(dateStr);
-
-      if (item) {
-        result.push({
-          date: dateStr,
-          formattedDate: formatDate(dateStr),
-          p75: getMetricDisplayValue(metric, item, 'p75'),
-          p90: getMetricDisplayValue(metric, item, 'p90'),
-          p95: getMetricDisplayValue(metric, item, 'p95'),
-          p99: getMetricDisplayValue(metric, item, 'p99'),
-          pageviews: item.pageviews,
-        });
-      } else {
-        // No data for this date - include date but no values
-        result.push({
-          date: dateStr,
-          formattedDate: formatDate(dateStr),
-          p75: undefined as unknown as number,
-          p90: undefined as unknown as number,
-          p95: undefined as unknown as number,
-          p99: undefined as unknown as number,
-          pageviews: 0,
-        });
-      }
-    }
-    return result;
-  }, [days, metric, seriesMap]);
-
-  const yAxisMax = useMemo(() => {
-    if (isRES) {
-      return 100;
-    }
-
-    let dataMax = 0;
-    for (const point of chartData) {
-      for (const { key } of PERCENTILES) {
-        if (activePercentiles.has(key)) {
-          const value = point[key];
-          if (value !== undefined && !Number.isNaN(value)) {
-            dataMax = Math.max(dataMax, value);
-          }
-        }
-      }
-    }
-
-    const { thresholdPoor } = metricConfig;
-    const baseMax = thresholdPoor * 1.33;
-    const effectiveMax = Math.max(baseMax, dataMax * 1.15);
-
-    if (effectiveMax >= 1000) {
-      return Math.ceil(effectiveMax / 100) * 100;
-    }
-    if (effectiveMax >= 100) {
-      return Math.ceil(effectiveMax / 10) * 10;
-    }
-    if (effectiveMax >= 1) {
-      return Math.ceil(effectiveMax * 2) / 2;
-    }
-    return Math.ceil(effectiveMax * 20) / 20;
-  }, [activePercentiles, chartData, isRES, metricConfig]);
-
-  // Y-axis domain uses the rounded max
-  const yAxisDomain = useMemo(() => {
-    return [0, yAxisMax];
-  }, [yAxisMax]);
-
-  const handleToggle = useCallback(
-    (key: PercentileKey) => {
-      const next = new Set(activePercentiles);
-      if (next.has(key)) {
-        // Don't allow deselecting the last active percentile
-        if (next.size > 1) {
-          next.delete(key);
-        }
-      } else {
-        next.add(key);
-      }
-      onPercentilesChange(next);
-    },
-    [activePercentiles, onPercentilesChange],
+  const renderTick = useCallback(
+    (props: YAxisTickContentProps) => renderYAxisTick(metric, props),
+    [metric],
   );
 
-  // Reference lines for thresholds (green for great, orange for poor)
-  const referenceLines = isRES
-    ? [
-        { color: RATING_COLORS.great.hsl, value: 90 },
-        { color: RATING_COLORS.needsImprovement.hsl, value: 50 },
-      ]
-    : [
-        { color: RATING_COLORS.great.hsl, value: metricConfig.thresholdGreat },
-        {
-          color: RATING_COLORS.needsImprovement.hsl,
-          value: metricConfig.thresholdPoor,
-        },
-      ];
-
-  // Y-axis ticks: 0 and both thresholds (always visible since poor threshold is minimum top)
-  const yAxisTicks = useMemo(() => {
-    const thresholdGreat = isRES ? 90 : metricConfig.thresholdGreat;
-    const thresholdPoor = isRES ? 50 : metricConfig.thresholdPoor;
-    return [0, thresholdGreat, thresholdPoor, yAxisMax].sort((a, b) => a - b);
-  }, [isRES, metricConfig, yAxisMax]);
-
-  // Grid lines: midpoints between 0, great, poor, and max
-  const gridLines = useMemo(() => {
-    const thresholdGreat = isRES ? 90 : metricConfig.thresholdGreat;
-    const thresholdPoor = isRES ? 50 : metricConfig.thresholdPoor;
-    const points = [0, thresholdGreat, thresholdPoor, yAxisMax].sort(
-      (a, b) => a - b,
-    );
-    const midpoints: number[] = [];
-    for (let i = 0; i < points.length - 1; i++) {
-      const current = points[i];
-      const next = points[i + 1];
-      if (current !== undefined && next !== undefined) {
-        midpoints.push((current + next) / 2);
-      }
-    }
-    return midpoints;
-  }, [isRES, metricConfig, yAxisMax]);
-
-  // Custom Y-axis tick renderer
-  const renderYAxisTick = useCallback(
-    // biome-ignore lint/suspicious/noExplicitAny: Recharts tick props type
-    (props: any) => {
-      const { x, y, payload } = props;
-      const value = payload.value as number;
-      const { color, indicator } = getTickConfig(value, metric);
-      const formattedValue = isRES
-        ? value.toString()
-        : `${formatValueForDisplay(metric, value)}${metricConfig.unit}`;
-
-      // Right-align text, then position indicator after it
-      const textX = x - 4; // Small margin from axis line
-      const indicatorX = textX + 6; // Small gap after text end
-
-      return (
-        <g>
-          <text
-            dy={4}
-            fontSize={12}
-            style={{ fill: color }}
-            textAnchor="end"
-            x={textX}
-            y={y}
-          >
-            {formattedValue}
-          </text>
-          {indicator === 'dot' && (
-            <circle cx={indicatorX} cy={y} fill={color} r={3} />
-          )}
-          {indicator === 'triangle' && (
-            <path
-              d={`M${indicatorX - 3} ${y + 3} L${indicatorX} ${y - 3} L${indicatorX + 3} ${y + 3} Z`}
-              fill={color}
-            />
-          )}
-        </g>
-      );
-    },
-    [isRES, metric, metricConfig],
+  const endLabels = useMemo(
+    () =>
+      Object.fromEntries(
+        PERCENTILES.map(({ key, label }) => [
+          key,
+          (props: LabelProps) => renderEndLabel(label, lastDataIndex, props),
+        ]),
+      ) as Record<PercentileKey, (props: LabelProps) => ReactElement>,
+    [lastDataIndex],
   );
 
-  // Find the last index with actual data
-  const lastDataIndex = useMemo(() => {
-    for (let i = chartData.length - 1; i >= 0; i--) {
-      const point = chartData[i];
-      if (point && point.p75 !== undefined) {
-        return i;
-      }
-    }
-    return -1;
-  }, [chartData]);
-
-  // Custom label renderer for the end of each line
-  const renderEndLabel = (label: string) => {
-    // biome-ignore lint/suspicious/noExplicitAny: Recharts label props type
-    return (props: any) => {
-      const { x, y, index } = props;
-      const isLast = index === lastDataIndex;
-      if (!isLast) return <g />;
-      return (
-        <g>
-          <circle cx={x} cy={y} fill={BLUE_500} r={4} />
-          <text
-            className="text-xs font-medium"
-            dy={4}
-            fill={BLUE_500}
-            textAnchor="start"
-            x={x + 8}
-            y={y}
-          >
-            {label}
-          </text>
-        </g>
-      );
-    };
-  };
-
-  const countryDisplayName = country ? getCountryDisplayName(country) : null;
+  const tooltip = (
+    <CustomTooltip activePercentiles={activePercentiles} metric={metric} />
+  );
+  const cursor = <CustomCursor />;
 
   return (
     <div className="flex flex-col">
-      <div className="mb-4 flex items-center justify-end gap-6">
-        {countryDisplayName ? (
-          <button
-            className="flex cursor-pointer items-center gap-1 rounded-2xl border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted/50"
-            onClick={onClearCountry}
-            type="button"
-          >
-            {countryDisplayName}
-            <X className="size-3" />
-          </button>
-        ) : null}
-        <PercentileToggle
-          activePercentiles={activePercentiles}
-          onToggle={handleToggle}
-        />
-      </div>
+      <ChartToolbar
+        activePercentiles={activePercentiles}
+        country={country}
+        onClearCountry={onClearCountry}
+        onPercentilesChange={onPercentilesChange}
+      />
       <div className="-mx-4 h-[300px] w-[calc(100%+2rem)] lg:mx-0 lg:w-full">
         <ChartContainer
           className="!aspect-auto h-full w-full"
           config={CHART_CONFIG}
         >
-          <LineChart
-            accessibilityLayer
-            data={chartData}
-            margin={{ bottom: 0, left: 0, right: 32, top: 12 }}
-          >
+          <LineChart accessibilityLayer data={chartData} margin={CHART_MARGIN}>
             <CartesianGrid
               horizontal={false}
               stroke="hsl(var(--border))"
@@ -329,7 +114,7 @@ function MetricLineChartComponent({
               />
             ))}
             <XAxis
-              axisLine={{ stroke: 'rgba(255, 255, 255, 0.15)', strokeWidth: 1 }}
+              axisLine={AXIS_LINE}
               dataKey="formattedDate"
               interval={days <= 7 ? 0 : 6}
               tickLine={false}
@@ -337,56 +122,49 @@ function MetricLineChartComponent({
             />
             <YAxis
               allowDataOverflow
-              axisLine={{ stroke: 'rgba(255, 255, 255, 0.15)', strokeWidth: 1 }}
+              axisLine={AXIS_LINE}
               domain={yAxisDomain}
               interval={0}
-              tick={renderYAxisTick}
+              tick={renderTick}
               tickLine={false}
               tickMargin={8}
               ticks={yAxisTicks}
               width={60}
             />
-            {/* Threshold reference lines */}
-            {referenceLines.map(({ color, value }) => (
-              <ReferenceLine
-                key={value}
-                stroke={color}
-                strokeDasharray="5 5"
-                strokeWidth={1}
-                y={value}
-              />
-            ))}
-            {/* Recharts 3 layers by zIndex, not render order: LINE_Z_INDEX keeps the cursor under the lines */}
-            <ChartTooltip
-              content={
-                <CustomTooltip
-                  activePercentiles={activePercentiles}
-                  metric={metric}
-                />
-              }
-              cursor={<CustomCursor />}
+            <ReferenceLine
+              stroke={RATING_COLORS.great.hsl}
+              strokeDasharray="5 5"
+              strokeWidth={1}
+              y={thresholdGreat}
             />
-            {/* Lines for each percentile */}
-            {PERCENTILES.map(({ key, label }) => {
+            <ReferenceLine
+              stroke={RATING_COLORS.needsImprovement.hsl}
+              strokeDasharray="5 5"
+              strokeWidth={1}
+              y={thresholdPoor}
+            />
+            {/* Recharts 3 layers by zIndex, not render order: LINE_Z_INDEX keeps the cursor under the lines */}
+            <ChartTooltip content={tooltip} cursor={cursor} />
+            {PERCENTILES.map(({ key }) => {
               const isActive = activePercentiles.has(key);
+              const activeDot = isActive ? ACTIVE_DOT : false;
+              const strokeOpacity = isActive ? 1 : 0;
               return (
                 <Line
-                  activeDot={
-                    isActive ? { fill: BLUE_500, r: 4, stroke: 'none' } : false
-                  }
+                  activeDot={activeDot}
                   connectNulls={false}
                   dataKey={key}
                   dot={false}
                   isAnimationActive={false}
                   key={key}
                   stroke={BLUE_500}
-                  strokeOpacity={isActive ? 1 : 0}
+                  strokeOpacity={strokeOpacity}
                   strokeWidth={2}
                   type="monotone"
                   zIndex={LINE_Z_INDEX}
                 >
                   {isActive && (
-                    <LabelList content={renderEndLabel(label)} dataKey={key} />
+                    <LabelList content={endLabels[key]} dataKey={key} />
                   )}
                 </Line>
               );

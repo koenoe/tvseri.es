@@ -12,7 +12,7 @@ export const PERCENTILES: ReadonlyArray<{
   { key: 'p99', label: 'P99' },
 ];
 
-// Use the same blue-500 color for all percentile lines
+// Percentiles share one colour; the end labels tell them apart.
 export const BLUE_500 = 'rgb(59, 130, 246)';
 
 export const CHART_CONFIG: ChartConfig = {
@@ -22,12 +22,13 @@ export const CHART_CONFIG: ChartConfig = {
   p99: { color: BLUE_500, label: 'P99' },
 };
 
+/** A day on the chart; the percentiles are missing on days without data. */
 export type ChartDataPoint = Readonly<{
   date: string;
   formattedDate: string;
-  p75: number;
-  p90: number;
-  p95: number;
-  p99: number;
+  p75?: number;
+  p90?: number;
+  p95?: number;
+  p99?: number;
   pageviews: number;
 }>;

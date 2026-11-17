@@ -14,11 +14,15 @@ import {
   RequestsCard,
   RequestsCardSkeleton,
 } from '@/components/api/requests-card';
-import { PAGE_SIZES } from '@/components/api/table/table-pagination';
 import { ApiHeader } from '@/components/api-header';
 import { useApiMetricsSummary } from '@/lib/api/hooks';
 import { formatDependencies } from '@/lib/api-metrics';
-import { type DaysValue, DEFAULT_DAYS, parseDays } from '@/lib/search-params';
+import {
+  type DaysValue,
+  DEFAULT_DAYS,
+  PAGE_SIZES,
+  parseDays,
+} from '@/lib/search-params';
 
 type ApiSearchParams = {
   days?: DaysValue;

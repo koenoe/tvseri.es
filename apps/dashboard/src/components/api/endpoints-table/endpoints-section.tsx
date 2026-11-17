@@ -3,13 +3,14 @@ import type { PaginationState, SortingState } from '@tanstack/react-table';
 import { lazy, memo, Suspense, useCallback, useMemo } from 'react';
 
 import { useApiMetricsEndpoints } from '@/lib/api/hooks';
-import { DEFAULT_PAGE_SIZE } from '../table/table-pagination';
+import { DEFAULT_PAGE_SIZE } from '@/lib/search-params';
 import { EndpointsTableSkeleton } from './skeleton';
 
+// Starts loading with this module, so the table code arrives alongside the data.
+const endpointsTableModule = import('./endpoints-table');
+
 const EndpointsTable = lazy(() =>
-  import('./endpoints-table').then((mod) => ({
-    default: mod.EndpointsTable,
-  })),
+  endpointsTableModule.then((mod) => ({ default: mod.EndpointsTable })),
 );
 
 const route = getRouteApi('/api/');

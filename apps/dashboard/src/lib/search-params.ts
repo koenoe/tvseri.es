@@ -9,6 +9,10 @@ export function parseDays(value: unknown): DaysValue | undefined {
   return DAY_RANGES.find((range) => range === days);
 }
 
+export const PAGE_SIZES = [10, 25, 50] as const;
+
+export const DEFAULT_PAGE_SIZE = PAGE_SIZES[0];
+
 export type Device = 'desktop' | 'mobile';
 
 export const DEFAULT_DEVICE: Device = 'desktop';

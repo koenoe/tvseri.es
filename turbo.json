@@ -1,6 +1,15 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
+    "@tvseri.es/api#test": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/infra/**",
+        "$TURBO_ROOT$/apps/auth/src/**",
+        "$TURBO_ROOT$/packages/kill-switch/**"
+      ],
+      "outputs": []
+    },
     "//#check-types:infra": {
       "inputs": [
         "sst.config.ts",

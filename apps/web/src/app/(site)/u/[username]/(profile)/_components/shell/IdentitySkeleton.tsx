@@ -9,7 +9,7 @@ import { COMPACT_IDENTITY_CLASS, FULL_IDENTITY_CLASS } from './subpage';
 
 const HANDLE_GHOST = cn('h-[46px] w-40 rounded-8', GHOST_FILL, PULSE);
 const WATCHES_ON_GHOST = cn(
-  'h-[22px] w-full rounded-4 group-has-[[data-subpage]:not([style*=display])]/profile:hidden',
+  'h-[22px] w-full rounded-4 profile-subpage:hidden',
   GHOST_FILL,
   PULSE,
 );

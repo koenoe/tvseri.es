@@ -1,5 +1,5 @@
 import Hole from '../_components/blocks/Hole';
-import OverviewMarker from '../_components/shell/OverviewMarker';
+import PageKindMarker from '../_components/shell/PageKindMarker';
 import SidebarBlocksSkeleton, {
   SIDEBAR_BLOCKS_CLASS,
   SidebarRule,
@@ -17,7 +17,7 @@ type Props = Readonly<{ params: ProfileParams }>;
 export default function OverviewAside({ params }: Props) {
   return (
     <>
-      <OverviewMarker />
+      <PageKindMarker kind="overview" />
       <Hole bare fallback={<SidebarBlocksSkeleton />} title="The sidebar">
         <Blocks params={params} />
       </Hole>

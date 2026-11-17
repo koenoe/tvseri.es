@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import SubpageMarker from '../../_components/shell/SubpageMarker';
+import PageKindMarker from '../../_components/shell/PageKindMarker';
 import type { ProfileParams } from '../../_data/profile';
 import { ShelfAside } from '../../library/_components/ShelfNavigation';
 
@@ -15,7 +15,7 @@ export default function LibraryAside({
 }: Readonly<{ children: ReactNode; params: ProfileParams }>) {
   return (
     <>
-      <SubpageMarker />
+      <PageKindMarker kind="subpage" />
       <ShelfAside params={params} />
       {children}
     </>

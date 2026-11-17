@@ -5,6 +5,18 @@
 @custom-variant focus-visible (&:focus-visible:not([data-quiet-focus]));
 
 /*
+ * A profile page's kind, on its frame (`data-profile-frame`) and anything in
+ * it: the page's marker (`PageKindMarker`) writes `data-profile-page` on the
+ * frame as it mounts or an `Activity` shows it again, so these are plain
+ * attribute selectors. Before hydration the frame has no attribute yet and
+ * the document holds that one marker: the `:has()` reads it then. It tests
+ * no `style`, so a style change while scrolling never re-checks it (a
+ * `:has()` testing `style` recalculated the whole page on every one).
+ */
+@custom-variant profile-subpage (&:is([data-profile-page=subpage], [data-profile-page=subpage] *, [data-profile-frame]:not([data-profile-page]):has([data-profile-marker=subpage]), [data-profile-frame]:not([data-profile-page]):has([data-profile-marker=subpage]) *));
+@custom-variant profile-overview (&:is([data-profile-page=overview], [data-profile-page=overview] *, [data-profile-frame]:not([data-profile-page]):has([data-profile-marker=overview]), [data-profile-frame]:not([data-profile-page]):has([data-profile-marker=overview]) *));
+
+/*
  * The site header's look (`HeaderFrame`'s mode, mirrored on <html> by
  * `RootHeaderMode`): absent before hydration, as the static bar is then.
  */

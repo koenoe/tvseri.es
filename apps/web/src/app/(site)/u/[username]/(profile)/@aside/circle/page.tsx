@@ -1,6 +1,6 @@
 import OwnerVisitor from '@/components/ui/viewer/OwnerVisitor';
+import PageKindMarker from '../../_components/shell/PageKindMarker';
 import SidebarRule from '../../_components/shell/SidebarRule';
-import SubpageMarker from '../../_components/shell/SubpageMarker';
 import MatchKey from '../../circle/_components/MatchKey';
 
 /**
@@ -14,7 +14,7 @@ import MatchKey from '../../circle/_components/MatchKey';
 export default function CircleAside() {
   return (
     <>
-      <SubpageMarker />
+      <PageKindMarker kind="subpage" />
       <OwnerVisitor
         owner={
           <div className="-mt-2 flex flex-col gap-7 max-lg:hidden group-has-[[data-follows-nobody]]/profile:hidden">

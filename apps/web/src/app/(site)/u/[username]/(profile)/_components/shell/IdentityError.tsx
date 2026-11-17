@@ -6,10 +6,8 @@ import type { ReactNode } from 'react';
 import { FailedBlock } from '../blocks/BlockError';
 
 /** Which variant shows: the full one but on a phone's sub-pages, the compact one only there */
-const FULL_SHOWN =
-  'max-lg:group-has-[[data-subpage]:not([style*=display])]/profile:hidden';
-const COMPACT_SHOWN =
-  'hidden max-lg:group-has-[[data-subpage]:not([style*=display])]/profile:block';
+const FULL_SHOWN = 'max-lg:profile-subpage:hidden';
+const COMPACT_SHOWN = 'hidden max-lg:profile-subpage:block';
 
 type Props = Readonly<{
   /** The two variants' placeholders (`IdentitySkeleton`'s parts), from the server */

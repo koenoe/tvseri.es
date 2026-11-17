@@ -5,8 +5,8 @@ import { monthIndex } from '@/lib/profile/diary';
 import { loadHistoryYears, loadJumpWeek } from '@/lib/profile/history';
 import profilePath from '@/lib/routing/profilePath';
 import BlockError from '../../_components/blocks/BlockError';
+import PageKindMarker from '../../_components/shell/PageKindMarker';
 import { SidebarRule } from '../../_components/shell/SidebarBlocksSkeleton';
-import SubpageMarker from '../../_components/shell/SubpageMarker';
 import { getProfile, type ProfileParams, withToken } from '../../_data/profile';
 import JumpHeading from '../../history/_components/JumpHeading';
 import JumpTo from '../../history/_components/JumpTo';
@@ -34,7 +34,7 @@ export default function HistoryAside({
 }: Readonly<{ children: ReactNode; params: ProfileParams }>) {
   return (
     <>
-      <SubpageMarker />
+      <PageKindMarker kind="subpage" />
       <div className="-mt-4 flex flex-col max-lg:hidden">
         <SidebarRule />
         <div className="mt-5 flex min-h-0 flex-col">

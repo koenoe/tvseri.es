@@ -4,9 +4,8 @@ import type { ListItem } from '@tvseri.es/schemas';
 
 import { apiFetch } from '@/lib/api/client';
 import { resolveRegion } from '@/lib/geo';
-
+import { loadRegionProviders } from '@/lib/watchProviders/regionProviders';
 import { getSettingsSession, getSettingsViewer } from '../../_data/session';
-import { loadRegionProviders } from '../../_data/watchProviders';
 import { type UndoableImport, undoableImport } from '../_lib/lastImport';
 
 /** A service the importer knows: the Service column's name and logo. */

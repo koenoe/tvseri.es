@@ -4,9 +4,8 @@ import type { WatchProvider } from '@tvseri.es/schemas';
 import { useCallback, useOptimistic, useState, useTransition } from 'react';
 
 import { showToast } from '@/components/ui/toast/showToast';
-
-import { updateWatchProviders } from '../../_actions/services';
-import { SAVE_FAILED } from '../../_lib/saveFailed';
+import { SAVE_FAILED } from '@/lib/actions/saveFailed';
+import { updateWatchProviders } from './actions';
 import { createSaveLedger } from './saveLedger';
 import {
   servicesReducer,

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getViewer } from '@/auth/viewer';
 import { ApiError, apiFetch } from '@/lib/api/client';
 
-import { updateCountry, updateWatchProviders } from './services';
+import { updateCountry, updateWatchProviders } from './actions';
 
 vi.mock('@/auth/viewer', () => ({ getViewer: vi.fn() }));
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));

@@ -9,9 +9,8 @@ import {
 } from 'react';
 
 import { showToast } from '@/components/ui/toast/showToast';
-
+import { SAVE_FAILED } from '@/lib/actions/saveFailed';
 import { updateProfile } from '../../_actions/profile';
-import { SAVE_FAILED } from '../../_lib/saveFailed';
 import { type UsernameHint, usernameHint } from '../_lib/usernameHint';
 import { useUsernameAvailability } from '../_lib/useUsernameAvailability';
 import ProfileForm from './ProfileForm';

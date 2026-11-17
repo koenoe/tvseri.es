@@ -15,7 +15,7 @@ type Answer = Readonly<{ ok: boolean }>;
 const pending: Array<(answer: Answer) => void> = [];
 const sent: Array<ReadonlyArray<string>> = [];
 
-vi.mock('../../_actions/services', () => ({
+vi.mock('./actions', () => ({
   updateWatchProviders: (
     input: Readonly<{ watchProviders: ReadonlyArray<WatchProvider> }>,
   ) => {

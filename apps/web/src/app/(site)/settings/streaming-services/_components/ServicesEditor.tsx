@@ -13,11 +13,10 @@ import {
 
 import { createLoader } from '@/lib/lazy/createLoader';
 import { useLoader } from '@/lib/lazy/useLoader';
-
+import { useSelectedServices } from '@/lib/watchProviders/useSelectedServices';
 import { popularLabel, restOf } from '../_lib/popular';
 import { hasMismatch, regionLine } from '../_lib/region';
 import { useRegion } from '../_lib/useRegion';
-import { useSelectedServices } from '../_lib/useSelectedServices';
 import ComboboxSkeleton from './ComboboxSkeleton';
 import MismatchLine from './MismatchLine';
 import PopularCard from './PopularCard';

@@ -10,10 +10,9 @@ import {
 } from 'react';
 
 import { showToast } from '@/components/ui/toast/showToast';
+import { SAVE_FAILED } from '@/lib/actions/saveFailed';
 import { refreshRegion } from '@/lib/region/useRegion';
-
-import { updateCountry } from '../../_actions/services';
-import { SAVE_FAILED } from '../../_lib/saveFailed';
+import { updateCountry } from '@/lib/watchProviders/actions';
 
 /**
  * The saved region with one-tap saving: picking a country changes the card at

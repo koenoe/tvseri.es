@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { apiFetch } from '@/lib/api/client';
 import { loadSeriesForWrite } from '@/lib/series/forWrite';
 import { loadSeason } from '@/lib/series/loaders';
-import { loadRegionProviders } from '../../_data/watchProviders';
+import { loadRegionProviders } from '@/lib/watchProviders/regionProviders';
 import type { CheckEvent, ImportRow } from './contract';
 import { runImport } from './importRun';
 import { searchSeries } from './loaders';
@@ -18,7 +18,7 @@ vi.mock('@/lib/api/client', async (importOriginal) => ({
 vi.mock('@/lib/series/loaders', () => ({ loadSeason: vi.fn() }));
 vi.mock('@/lib/series/forWrite', () => ({ loadSeriesForWrite: vi.fn() }));
 vi.mock('./loaders', () => ({ searchSeries: vi.fn() }));
-vi.mock('../../_data/watchProviders', () => ({
+vi.mock('@/lib/watchProviders/regionProviders', () => ({
   loadRegionProviders: vi.fn(),
 }));
 

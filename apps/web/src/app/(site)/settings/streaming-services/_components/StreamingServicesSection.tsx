@@ -1,10 +1,9 @@
 import { headers } from 'next/headers';
 
 import { getRegionFromHeaders, resolveRegionFromHeaders } from '@/lib/geo';
+import { loadRegionProviders } from '@/lib/watchProviders/regionProviders';
 import { streamingServices } from '@/lib/watchProviders/streamingServices';
-
 import { getSettingsSession } from '../../_data/session';
-import { loadRegionProviders } from '../../_data/watchProviders';
 import ServicesEditor from './ServicesEditor';
 
 /**

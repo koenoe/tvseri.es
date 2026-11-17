@@ -8,7 +8,7 @@ const { apiFetch, session } = vi.hoisted(() => ({
 vi.mock('server-only', () => ({}));
 vi.mock('@/lib/api/client', () => ({ apiFetch }));
 vi.mock('@/lib/geo', () => ({ resolveRegion: async () => 'GB' }));
-vi.mock('../../_data/watchProviders', () => ({
+vi.mock('@/lib/watchProviders/regionProviders', () => ({
   loadRegionProviders: async () => [{ logo: '/n.png', name: 'Netflix' }],
 }));
 vi.mock('../../_data/session', () => ({

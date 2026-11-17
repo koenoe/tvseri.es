@@ -11,7 +11,7 @@ import { createLimiter } from '@tvseri.es/utils';
 import { ApiError, apiFetch } from '@/lib/api/client';
 import { loadSeriesForWrite } from '@/lib/series/forWrite';
 import { loadSeason } from '@/lib/series/loaders';
-import { loadRegionProviders } from '../../_data/watchProviders';
+import { loadRegionProviders } from '@/lib/watchProviders/regionProviders';
 import {
   type CheckEvent,
   IMPORT_MAX_ROWS_PER_REQUEST,

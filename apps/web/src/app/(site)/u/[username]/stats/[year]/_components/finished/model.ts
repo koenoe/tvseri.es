@@ -1,8 +1,9 @@
-import type { StatsFinishedShow } from '@tvseri.es/schemas';
+import { type StatsFinishedShow, seasonCode } from '@tvseri.es/schemas';
+
 import { formatDuration } from '@/lib/format/duration';
 import { plural } from '@/lib/format/text';
-import { seasonCode } from '@/lib/marking/copy';
 import showPath from '@/lib/routing/showPath';
+
 import { monthDay } from '../../_lib/weeks';
 
 /** Tiles shown: the first one wide, the rest narrow */

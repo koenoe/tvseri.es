@@ -1,10 +1,9 @@
 'use client';
 
-import type { EpisodeRef } from '@tvseri.es/schemas';
+import { type EpisodeRef, episodeCode } from '@tvseri.es/schemas';
 
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
-import { episodeCode } from '@/lib/marking/copy';
 
 import useSeasonEpisodes from '../../_lib/useSeasonEpisodes';
 

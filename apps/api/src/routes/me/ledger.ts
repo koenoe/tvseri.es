@@ -1,5 +1,5 @@
 import { vValidator } from '@hono/valibot-validator';
-import { type LedgerDetail, toEpisodeCode } from '@tvseri.es/schemas';
+import { episodeCode, type LedgerDetail } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
 
 import { getSeriesPrefs } from '@/lib/db/prefs';
@@ -63,7 +63,10 @@ app.get('/:id', vValidator('param', IdParamSchema), async (c) => {
         );
       return {
         airDate: episode?.airDate.slice(0, 10) ?? '',
-        code: toEpisodeCode(hole.season, hole.episode),
+        code: episodeCode({
+          episodeNumber: hole.episode,
+          seasonNumber: hole.season,
+        }),
         episode: hole.episode,
         season: hole.season,
         title: episode?.title ?? '',

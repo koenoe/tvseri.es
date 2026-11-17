@@ -1,12 +1,13 @@
 import { CATCHING_UP_MIN } from '@tvseri.es/constants';
 import {
   type CatchingUpItem,
+  episodeCode,
   parseEpisodeCode,
-  toEpisodeCode,
 } from '@tvseri.es/schemas';
 
 import { markedIn, openEpisodes } from '@/lib/marking/progress';
 import type { EpisodeRef, SeriesBase } from '@/lib/marking/types';
+
 import { minutesLeftWithout } from './runway';
 
 const rank = (ref: EpisodeRef) =>
@@ -36,9 +37,7 @@ function runMarks(item: CatchingUpItem, view: SeriesBase | undefined) {
   const last = rankOf(item.episodes.at(-1));
   const open = openEpisodes(view);
   const codes = (keep: (at: number) => boolean) =>
-    open
-      .filter((ref) => keep(rank(ref)))
-      .map((ref) => toEpisodeCode(ref.seasonNumber, ref.episodeNumber));
+    open.filter((ref) => keep(rank(ref))).map((ref) => episodeCode(ref));
   return {
     after: last === null ? [] : codes((at) => at > last),
     before: first === null ? [] : codes((at) => at < first),

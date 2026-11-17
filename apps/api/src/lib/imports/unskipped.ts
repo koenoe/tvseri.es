@@ -5,8 +5,8 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
+  episodeCode,
   parseEpisodeCode,
-  toEpisodeCode,
   type WatchedItem,
 } from '@tvseri.es/schemas';
 import { Resource } from 'sst';
@@ -54,7 +54,7 @@ export const recordUnskipped = async (
   ]);
   const codesBySeries = new Map<number, Set<string>>();
   for (const item of items) {
-    const code = toEpisodeCode(item.seasonNumber, item.episodeNumber);
+    const code = episodeCode(item);
     if (prefs.get(item.seriesId)?.skipped.includes(code)) {
       const codes = codesBySeries.get(item.seriesId) ?? new Set<string>();
       codes.add(code);

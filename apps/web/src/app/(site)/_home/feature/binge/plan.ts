@@ -1,3 +1,4 @@
+import { episodeCode } from '@tvseri.es/schemas';
 import {
   addDays,
   differenceInCalendarDays,
@@ -6,11 +7,10 @@ import {
   isWeekend,
   parseISO,
 } from 'date-fns';
-import { WEEKDAY_PATTERN, yearSuffix } from '@/lib/format/date';
 
+import { WEEKDAY_PATTERN, yearSuffix } from '@/lib/format/date';
 import { formatLocalDate } from '@/lib/format/datePattern';
 import { plural } from '@/lib/format/text';
-import { episodeCode } from '@/lib/marking/copy';
 
 /**
  * The Binge calculator's plan: from tonight,

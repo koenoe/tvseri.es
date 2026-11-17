@@ -1,6 +1,8 @@
+import { shortCode } from '@tvseri.es/schemas';
+
 import { shouldFold } from '@/lib/fold';
-import { shortCode } from '@/lib/marking/copy';
 import { codeOf } from '@/lib/marking/progress';
+
 import { formatMonthYear } from './format';
 import {
   fallbackRuntime,

@@ -1,4 +1,4 @@
-import { parseEpisodeCode, toEpisodeCode } from '@tvseri.es/schemas';
+import { episodeCode, parseEpisodeCode } from '@tvseri.es/schemas';
 
 import type {
   EpisodeCode,
@@ -26,7 +26,7 @@ export function episodeState(
   series: SeriesBase,
   ref: EpisodeRef,
 ): EpisodeState {
-  const code = toEpisodeCode(ref.seasonNumber, ref.episodeNumber);
+  const code = episodeCode(ref);
   const record = series.watched[code];
   if (record) {
     return record.dateUnknown ? 'unknown' : 'watched';
@@ -59,8 +59,7 @@ export function airedRegularEpisodes(
     .flatMap(airedEpisodes);
 }
 
-const codeOf = (ref: EpisodeRef): EpisodeCode =>
-  toEpisodeCode(ref.seasonNumber, ref.episodeNumber);
+const codeOf = (ref: EpisodeRef): EpisodeCode => episodeCode(ref);
 
 /**
  * Next up: the first aired regular episode with no mark (neither watched nor

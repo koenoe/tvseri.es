@@ -1,4 +1,5 @@
-import { episodeCode } from '@tvseri.es/utils';
+import { episodeCode } from '@tvseri.es/schemas';
+
 import {
   completeGlyph,
   onAirGlyph,

@@ -1,10 +1,10 @@
 'use client';
 
+import { episodeCode } from '@tvseri.es/schemas';
 import { useCallback, useMemo, useState } from 'react';
+
 import { plural } from '@/lib/format/text';
 import { formatGrouped } from '@/lib/formatCount';
-
-import { episodeCode } from '@/lib/marking/copy';
 import type { SearchShow } from '@/lib/search/searchView';
 
 import type {

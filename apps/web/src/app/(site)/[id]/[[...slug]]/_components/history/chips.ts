@@ -1,4 +1,5 @@
-import { shortCode } from '@/lib/marking/copy';
+import { shortCode } from '@tvseri.es/schemas';
+
 import { episodeState, parseCode } from '@/lib/marking/progress';
 import type { EpisodeRef, SeriesBase } from '@/lib/marking/types';
 

@@ -4,6 +4,7 @@ export * from './circle-people';
 export * from './country-language';
 export * from './discover';
 export * from './duration';
+export * from './episode-code';
 export * from './export';
 export * from './genre';
 export * from './go-deeper';

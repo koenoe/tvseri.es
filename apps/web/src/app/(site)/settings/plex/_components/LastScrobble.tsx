@@ -1,3 +1,4 @@
+import { episodeCode } from '@tvseri.es/schemas';
 import Image from 'next/image';
 import type { CSSProperties, ReactNode } from 'react';
 
@@ -10,7 +11,6 @@ import { PICTURE_LAYER } from '@/components/ui/picture/pictureSurface';
 import TitleTreatment, {
   type TitleTreatmentLook,
 } from '@/components/ui/title/TitleTreatment';
-import { episodeCode } from '@/lib/marking/copy';
 
 import LocalMoment from '../../_components/LocalMoment';
 import { LAST_FADE } from './layout';

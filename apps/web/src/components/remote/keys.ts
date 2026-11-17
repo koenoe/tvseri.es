@@ -1,5 +1,6 @@
+import { episodeCode } from '@tvseri.es/schemas';
+
 import { formatMonthDayYear } from '@/lib/format/calendarDay';
-import { episodeCode } from '@/lib/marking/copy';
 
 import type { EpisodeRef, ListStatus, NextToAir, RemoteEpisode } from './types';
 

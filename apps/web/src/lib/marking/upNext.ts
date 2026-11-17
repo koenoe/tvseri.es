@@ -1,4 +1,4 @@
-import { toEpisodeCode, type UpNextItem } from '@tvseri.es/schemas';
+import { episodeCode, type UpNextItem } from '@tvseri.es/schemas';
 import { episodeMinutes, minutesFor } from '@tvseri.es/utils';
 
 import {
@@ -95,7 +95,7 @@ export function liveUpNext(
   return {
     ...item,
     airDate: undefined,
-    code: toEpisodeCode(next.seasonNumber, next.episodeNumber),
+    code: episodeCode(next),
     episode: next.episodeNumber,
     episodeTitle: undefined,
     isLatest: sameRef(aired.at(-1), next),

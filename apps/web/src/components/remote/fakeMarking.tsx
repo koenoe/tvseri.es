@@ -1,11 +1,12 @@
 'use client';
 
+import { episodeCode } from '@tvseri.es/schemas';
 import { useMemo, useState } from 'react';
 
 import { eyeGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import { showToast } from '@/components/ui/toast/showToast';
-import { episodeCode, markedMessage } from '@/lib/marking/copy';
+import { markedMessage } from '@/lib/marking/copy';
 
 import type { RemoteMarking, UseRemoteMarking } from './marking';
 import type { EpisodeRef, ListStatus, MarkingList } from './types';

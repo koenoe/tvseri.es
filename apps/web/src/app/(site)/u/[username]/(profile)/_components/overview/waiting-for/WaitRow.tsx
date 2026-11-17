@@ -1,5 +1,10 @@
-import type { WaitingForItem } from '@tvseri.es/schemas';
+import {
+  episodeCode,
+  seasonCode,
+  type WaitingForItem,
+} from '@tvseri.es/schemas';
 import Image from 'next/image';
+
 import {
   TRACK_LOOK,
   Track,
@@ -10,8 +15,8 @@ import TileLink from '@/components/ui/tile/TileLink';
 import cn from '@/lib/cn';
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
 import { finishedLabel } from '@/lib/format/finished';
-import { episodeCode, seasonCode } from '@/lib/marking/copy';
 import showPath from '@/lib/routing/showPath';
+
 import { LANE_ROW } from '../../blocks/Lane';
 import { waitProgress } from './wait';
 

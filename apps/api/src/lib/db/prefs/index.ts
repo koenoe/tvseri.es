@@ -6,9 +6,9 @@ import {
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
   type EpisodeCode,
+  episodeCode,
   type PausedChoice,
   type SeriesPrefs,
-  toEpisodeCode,
   type UpdateSeriesPrefs,
   type WatchedItem,
 } from '@tvseri.es/schemas';
@@ -210,7 +210,7 @@ export const clearSkipped = async (
   for (const item of items) {
     const key = `${item.userId}#${item.seriesId}`;
     const codes = codesBySeries.get(key) ?? [];
-    codes.push(toEpisodeCode(item.seasonNumber, item.episodeNumber));
+    codes.push(episodeCode(item));
     codesBySeries.set(key, codes);
   }
   await Promise.all(

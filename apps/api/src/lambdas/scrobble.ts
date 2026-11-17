@@ -1,5 +1,6 @@
 import {
   type Episode,
+  episodeCode,
   type PlexMetadata,
   PlexMetadataSchema,
   type ScrobbleEvent,
@@ -7,7 +8,6 @@ import {
   type TvSeries,
   type WatchProvider,
 } from '@tvseri.es/schemas';
-import { episodeCode } from '@tvseri.es/utils';
 import type { SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
 import * as v from 'valibot';
 

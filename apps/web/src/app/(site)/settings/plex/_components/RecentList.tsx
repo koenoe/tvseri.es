@@ -1,9 +1,8 @@
-import type { RecentScrobble } from '@tvseri.es/schemas';
+import { episodeCode, type RecentScrobble } from '@tvseri.es/schemas';
 
 import CodeBadge from '@/components/ui/button/CodeBadge';
 import { eyeGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
-import { episodeCode } from '@/lib/marking/copy';
 
 import LocalMoment from '../../_components/LocalMoment';
 

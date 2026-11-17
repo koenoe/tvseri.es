@@ -1,11 +1,11 @@
 'use client';
 
+import { shortCode } from '@tvseri.es/schemas';
 import { useCallback, useState } from 'react';
 
 import Button from '@/components/ui/button/Button';
 import { refreshGlyph, searchGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
-import { shortCode } from '@/lib/marking/copy';
 import type { SearchShow } from '@/lib/search/searchView';
 
 import type { EpisodeOption } from '../_lib/contract';

@@ -1,7 +1,12 @@
-import { type CatchingUpItem, parseEpisodeCode } from '@tvseri.es/schemas';
+import {
+  type CatchingUpItem,
+  parseEpisodeCode,
+  seasonCode,
+  shortCode,
+} from '@tvseri.es/schemas';
+
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
 import { formatRuntime } from '@/lib/format/duration';
-import { seasonCode, shortCode } from '@/lib/marking/copy';
 
 /** One chip of the run: `E05` (always within one season) */
 export type RunChip = Readonly<{

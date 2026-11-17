@@ -1,8 +1,8 @@
 import {
+  episodeCode,
   type SeriesFacts,
   type SeriesPrefs,
   type SeriesRuntimes,
-  toEpisodeCode,
 } from '@tvseri.es/schemas';
 
 import { airedEpisodesAt } from '@/lib/seriesFacts/aired';
@@ -26,7 +26,7 @@ export type ShowInput = Readonly<{
 export type EpisodeRef = Readonly<{ season: number; episode: number }>;
 
 export const codeOf = (episode: EpisodeRef) =>
-  toEpisodeCode(episode.season, episode.episode);
+  episodeCode({ episodeNumber: episode.episode, seasonNumber: episode.season });
 
 /** What every block needs to know about one show, at one moment */
 export type ShowState = Readonly<{
@@ -59,9 +59,7 @@ export const analyzeShow = (input: ShowInput, now: number): ShowState => {
   const { facts, prefs } = input;
   const aired = airedEpisodesAt(facts, now).bySeason;
   const regular = input.watched.filter((item) => item.seasonNumber > 0);
-  const watchedCodes = new Set(
-    regular.map((item) => toEpisodeCode(item.seasonNumber, item.episodeNumber)),
-  );
+  const watchedCodes = new Set(regular.map((item) => episodeCode(item)));
   const skipped = new Set(prefs.skipped);
 
   const unwatched: EpisodeRef[] = [];
@@ -69,7 +67,10 @@ export const analyzeShow = (input: ShowInput, now: number): ShowState => {
     .map(Number)
     .sort((a, b) => a - b)) {
     for (let episode = 1; episode <= (aired[season] ?? 0); episode++) {
-      const code = toEpisodeCode(season, episode);
+      const code = episodeCode({
+        episodeNumber: episode,
+        seasonNumber: season,
+      });
       if (!watchedCodes.has(code) && !skipped.has(code)) {
         unwatched.push({ episode, season });
       }

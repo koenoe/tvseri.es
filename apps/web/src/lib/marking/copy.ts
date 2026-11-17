@@ -1,9 +1,4 @@
-// A leaf module, not the barrel: this runs in the browser
-import {
-  episodeCode,
-  seasonCode,
-  shortCode,
-} from '@tvseri.es/utils/src/episode/episodeCode';
+import { episodeCode, shortCode } from '@tvseri.es/schemas';
 
 import type { EpisodeRef } from './types';
 
@@ -11,9 +6,6 @@ import type { EpisodeRef } from './types';
  * The marking toast vocabulary, as the show page writes it (`sxMsg`,
  * `sxRunMsg`): one line, "Marked Season 2 · Just now".
  */
-
-/** "S03E05", "E05" and "S03", shared with the API (`@tvseri.es/utils`) */
-export { episodeCode, seasonCode, shortCode };
 
 /** "E06–E09" (or one "E06"): a run inside one season */
 export const shortCodeRange = (first: number, last: number) =>

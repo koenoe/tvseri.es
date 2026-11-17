@@ -1,4 +1,5 @@
-import type { Overview } from '@tvseri.es/schemas';
+import { type Overview, seasonCode } from '@tvseri.es/schemas';
+
 import LaneRow from '@/components/lane-row/LaneRow';
 import type {
   LaneRowGhostLayout,
@@ -9,8 +10,8 @@ import { calendarGlyph, clockGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import { formatRuntime } from '@/lib/format/duration';
 import { formatWhen } from '@/lib/format/when';
-import { seasonCode } from '@/lib/marking/copy';
 import showPath from '@/lib/routing/showPath';
+
 import LanePoster from '../../blocks/LanePoster';
 import ToggleEye from '../../blocks/ToggleEye';
 import SeasonCompleteLine from './SeasonCompleteLine';

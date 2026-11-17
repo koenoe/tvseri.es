@@ -1,10 +1,16 @@
-import type { StatsDaily, StatsYears } from '@tvseri.es/schemas';
+import {
+  episodeCode,
+  type StatsDaily,
+  type StatsYears,
+} from '@tvseri.es/schemas';
+
 import { formatRuntime } from '@/lib/format/duration';
 import { MONTH_NAMES, SHORT_WEEKDAYS } from '@/lib/format/months';
 import { pad2 } from '@/lib/format/pad2';
 import { plural } from '@/lib/format/text';
-import { episodeCode, episodeRun } from '@/lib/marking/copy';
+import { episodeRun } from '@/lib/marking/copy';
 import type { DiaryItem } from '@/lib/profile/views';
+
 import { dayKeyIn, startOfDayIn } from './zonedDay';
 
 /**

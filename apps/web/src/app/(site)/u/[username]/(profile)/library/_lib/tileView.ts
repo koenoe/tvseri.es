@@ -3,13 +3,13 @@ import {
   type LibraryOn,
   type LibraryShelf,
   parseEpisodeCode,
+  seasonCode,
 } from '@tvseri.es/schemas';
-
 import { formatRuntime, initialOf, type LibraryLetter } from '@tvseri.es/utils';
+
 import { formatMonthYear } from '@/lib/format/date';
 import { finishedLabel } from '@/lib/format/finished';
 import { statusFact } from '@/lib/format/status';
-import { seasonCode } from '@/lib/marking/copy';
 
 /** Which glyph a tile fact wears; `plain` has none */
 export type TileFactKind =

@@ -1,7 +1,7 @@
 import {
+  episodeCode,
   type LibraryIds,
   type MarkWhen,
-  toEpisodeCode,
 } from '@tvseri.es/schemas';
 
 import { seriesProgress } from './progress';
@@ -18,7 +18,7 @@ import type {
 export function seedToBase(seed: SeriesSeed): SeriesBase {
   const watched: Record<EpisodeCode, WatchRecord> = {};
   for (const item of seed.watched ?? []) {
-    watched[toEpisodeCode(item.seasonNumber, item.episodeNumber)] = {
+    watched[episodeCode(item)] = {
       runtime: item.runtime ?? 0,
       watchedAt: item.watchedAt,
       ...(item.dateUnknown ? { dateUnknown: true } : {}),

@@ -1,10 +1,10 @@
+import { shortCode } from '@tvseri.es/schemas';
 import Image from 'next/image';
 import type { CSSProperties } from 'react';
 
 import { PICTURE_LAYER } from '@/components/ui/picture/pictureSurface';
 import TileLink from '@/components/ui/tile/TileLink';
 import cn from '@/lib/cn';
-import { shortCode } from '@/lib/marking/copy';
 
 import { STILL_TILE } from './layout';
 

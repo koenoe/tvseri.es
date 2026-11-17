@@ -1,4 +1,4 @@
-import { toEpisodeCode } from '@tvseri.es/schemas';
+import { episodeCode } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
 import { toPercentage } from '@/lib/marking/progress';
@@ -92,7 +92,7 @@ const heroPercent = (watched: number, total: number) =>
       skipped: [],
       watched: Object.fromEntries(
         Array.from({ length: watched }, (_, index) => [
-          toEpisodeCode(1, index + 1),
+          episodeCode({ episodeNumber: index + 1, seasonNumber: 1 }),
           { runtime: 30, watchedAt: 1 },
         ]),
       ),

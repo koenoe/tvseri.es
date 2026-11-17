@@ -1,7 +1,8 @@
-import type { StatsSpotlightItem } from '@tvseri.es/schemas';
+import { episodeCode, type StatsSpotlightItem } from '@tvseri.es/schemas';
+
 import { formatDuration } from '@/lib/format/duration';
-import { episodeCode } from '@/lib/marking/copy';
 import showPath from '@/lib/routing/showPath';
+
 import { shortDay } from '../../_lib/weeks';
 
 export type SpotlightCard = Readonly<{

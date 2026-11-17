@@ -1,20 +1,10 @@
 import * as v from 'valibot';
 
-const EPISODE_CODE = /^S(\d{1,3})E(\d{1,4})$/i;
-
-/** `S02E05`: season and episode, at least two digits each */
-export const toEpisodeCode = (seasonNumber: number, episodeNumber: number) =>
-  `S${String(seasonNumber).padStart(2, '0')}E${String(episodeNumber).padStart(2, '0')}`;
-
-/** `S02E05` → season 2, episode 5; null for anything else */
-export const parseEpisodeCode = (
-  code: string,
-): Readonly<{ seasonNumber: number; episodeNumber: number }> | null => {
-  const match = EPISODE_CODE.exec(code);
-  return match
-    ? { episodeNumber: Number(match[2]), seasonNumber: Number(match[1]) }
-    : null;
-};
+import {
+  EPISODE_CODE_PATTERN,
+  episodeCode,
+  parseEpisodeCode,
+} from './episode-code';
 
 /**
  * An episode code, normalised to `S02E05` (accepts `s2e5`, `S002E005`), so
@@ -22,11 +12,8 @@ export const parseEpisodeCode = (
  */
 export const EpisodeCodeSchema = v.pipe(
   v.string(),
-  v.regex(EPISODE_CODE, 'Expected an episode code like S02E05'),
-  v.transform((code) => {
-    const { episodeNumber, seasonNumber } = parseEpisodeCode(code)!;
-    return toEpisodeCode(seasonNumber, episodeNumber);
-  }),
+  v.regex(EPISODE_CODE_PATTERN, 'Expected an episode code like S02E05'),
+  v.transform((code) => episodeCode(parseEpisodeCode(code)!)),
 );
 
 export type EpisodeCode = v.InferOutput<typeof EpisodeCodeSchema>;

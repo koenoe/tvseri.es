@@ -1,6 +1,6 @@
 'use client';
 
-import { episodeCode } from '@tvseri.es/utils';
+import { episodeCode } from '@tvseri.es/schemas';
 import { useEffect, useMemo } from 'react';
 
 import { useSeriesView } from '@/lib/marking/hooks';

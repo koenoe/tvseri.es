@@ -1,5 +1,7 @@
+import { episodeCode } from '@tvseri.es/schemas';
+
 import { plural } from '@/lib/format/text';
-import { codeRange, episodeCode } from '@/lib/marking/copy';
+import { codeRange } from '@/lib/marking/copy';
 import {
   airedRegularEpisodes,
   codeOf,

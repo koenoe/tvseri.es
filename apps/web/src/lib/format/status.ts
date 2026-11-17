@@ -1,4 +1,4 @@
-import { seasonCode } from '@/lib/marking/copy';
+import { seasonCode } from '@tvseri.es/schemas';
 
 /** A show's status as a fact beside its title: the glyph kind and the words */
 export type StatusFact = Readonly<{

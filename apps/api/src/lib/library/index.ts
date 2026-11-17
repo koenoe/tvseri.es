@@ -1,6 +1,7 @@
 import { QueryCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
+  episodeCode,
   type LibraryCounts,
   type LibraryFilter,
   type LibraryItem,
@@ -10,7 +11,6 @@ import {
   type LibrarySort,
   type SeriesFacts,
   type SeriesPrefs,
-  toEpisodeCode,
   type WatchingNow,
 } from '@tvseri.es/schemas';
 import {
@@ -205,18 +205,20 @@ const toProgress = (
     ),
     lastSeason: latest?.seasonNumber ?? null,
     lastWatched: state.lastWatched
-      ? toEpisodeCode(state.lastWatched.season, state.lastWatched.episode)
+      ? episodeCode({
+          episodeNumber: state.lastWatched.episode,
+          seasonNumber: state.lastWatched.season,
+        })
       : null,
     next: state.nextUp
-      ? toEpisodeCode(state.nextUp.season, state.nextUp.episode)
+      ? episodeCode({
+          episodeNumber: state.nextUp.episode,
+          seasonNumber: state.nextUp.season,
+        })
       : null,
     total: facts.numberOfEpisodes,
     toWatch: state.unwatched.length,
-    watched: new Set(
-      regular.map((episode) =>
-        toEpisodeCode(episode.seasonNumber, episode.episodeNumber),
-      ),
-    ).size,
+    watched: new Set(regular.map((episode) => episodeCode(episode))).size,
   };
 };
 

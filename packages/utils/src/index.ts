@@ -3,7 +3,6 @@ export * from './buildImageUrl';
 export { chunk } from './chunk';
 export { createLimiter } from './createLimiter';
 export { formatDuration, formatRuntime } from './duration/formatDuration';
-export { episodeCode, shortCode } from './episode/episodeCode';
 export { default as generateTmdbImageUrl } from './generateTmdbImageUrl';
 export { default as generateUsername } from './generateUsername';
 export {

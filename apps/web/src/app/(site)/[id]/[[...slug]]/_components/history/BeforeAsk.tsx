@@ -1,12 +1,13 @@
 'use client';
 
+import { episodeCode } from '@tvseri.es/schemas';
 import { useCallback } from 'react';
 
 import {
   chipStyles,
   textLinkStyles,
 } from '@/components/ui/button/buttonStyles';
-import { beforeWhat, episodeCode } from '@/lib/marking/copy';
+import { beforeWhat } from '@/lib/marking/copy';
 import { useSeriesView } from '@/lib/marking/hooks';
 import { openBefore } from '@/lib/marking/progress';
 import type { EpisodeRef } from '@/lib/marking/types';

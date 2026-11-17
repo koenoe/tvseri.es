@@ -1,4 +1,4 @@
-import { parseEpisodeCode, toEpisodeCode } from '@tvseri.es/schemas';
+import { episodeCode, parseEpisodeCode } from '@tvseri.es/schemas';
 
 /**
  * Which list a show belongs in for a user: Finished once
@@ -48,9 +48,7 @@ export const countDoneSkips = ({
       season.numberOfAiredEpisodes ?? 0,
     ]),
   );
-  const watchedCodes = new Set(
-    watched.map((item) => toEpisodeCode(item.seasonNumber, item.episodeNumber)),
-  );
+  const watchedCodes = new Set(watched.map((item) => episodeCode(item)));
   const done = new Set<string>();
   for (const code of skipped) {
     const ref = parseEpisodeCode(code);
@@ -60,7 +58,7 @@ export const countDoneSkips = ({
       ref.episodeNumber >= 1 &&
       ref.episodeNumber <= (aired.get(ref.seasonNumber) ?? 0)
     ) {
-      done.add(toEpisodeCode(ref.seasonNumber, ref.episodeNumber));
+      done.add(episodeCode(ref));
     }
   }
   return [...done].filter((code) => !watchedCodes.has(code)).length;

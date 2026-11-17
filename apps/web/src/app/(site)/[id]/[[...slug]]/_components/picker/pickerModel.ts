@@ -1,8 +1,10 @@
+import { episodeCode, shortCode } from '@tvseri.es/schemas';
 import { format, isSameDay, parseISO, subDays } from 'date-fns';
+
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
 import { WEEKDAY_PATTERN } from '@/lib/format/date';
 import { formatWhen } from '@/lib/format/when';
-import { episodeCode, shortCode, WHOLE_SHOW } from '@/lib/marking/copy';
+import { WHOLE_SHOW } from '@/lib/marking/copy';
 import { codeOf, episodeState, isWatchedState } from '@/lib/marking/progress';
 import type { EpisodeRef, SeriesBase, WatchRecord } from '@/lib/marking/types';
 import { lastWeekend, type WhenChoice } from '@/lib/marking/when';

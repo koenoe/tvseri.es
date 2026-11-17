@@ -1,6 +1,6 @@
-import type { WatchedItem } from '@tvseri.es/schemas';
+import { episodeCode, type WatchedItem } from '@tvseri.es/schemas';
 
-import { episodeCode, episodeRun } from '@/lib/marking/copy';
+import { episodeRun } from '@/lib/marking/copy';
 
 /** One episode inside a stack */
 export type StackEpisode = Readonly<{

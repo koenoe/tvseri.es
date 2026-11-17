@@ -1,5 +1,6 @@
+import { episodeCode } from '@tvseri.es/schemas';
+
 import { plural } from '@/lib/format/text';
-import { episodeCode } from '@/lib/marking/copy';
 
 import type {
   EpisodeOption,

@@ -2,11 +2,11 @@ import { randomUUID } from 'node:crypto';
 import { UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import {
+  episodeCode,
   type ImportBatch,
   type ImportBatchResult,
   type ImportCheckResult,
   type LastImport,
-  toEpisodeCode,
 } from '@tvseri.es/schemas';
 import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
@@ -86,10 +86,7 @@ const planBatch = async (userId: string, batch: ImportBatch) => {
     seen.add(sk);
     if (existing.has(sk)) {
       alreadyWatched.push({
-        code: toEpisodeCode(
-          item.episode.seasonNumber,
-          item.episode.episodeNumber,
-        ),
+        code: episodeCode(item.episode),
         seriesId: item.tvSeries.id,
       });
     } else {

@@ -1,5 +1,4 @@
-import type { ComingUpItem } from '@tvseri.es/schemas';
-import { episodeCode } from '@/lib/marking/copy';
+import { type ComingUpItem, episodeCode } from '@tvseri.es/schemas';
 
 /** The ticket stub: "2 DAYS", "3 WEEKS"; under two weeks in days */
 export function countdown(

@@ -1,6 +1,8 @@
 'use client';
 
+import { shortCode } from '@tvseri.es/schemas';
 import { useCallback, useState } from 'react';
+
 import Badge from '@/components/ui/button/Badge';
 import Button from '@/components/ui/button/Button';
 import { chipStyles } from '@/components/ui/button/buttonStyles';
@@ -22,7 +24,6 @@ import Icon from '@/components/ui/icon/Icon';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import { showToast } from '@/components/ui/toast/showToast';
-import { shortCode } from '@/lib/marking/copy';
 
 import Section from './Section';
 import { OnStill, Specimen } from './Specimen';

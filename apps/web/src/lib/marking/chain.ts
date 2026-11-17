@@ -1,9 +1,10 @@
 import {
   type EpisodeRef,
+  episodeCode,
   MAX_EPISODES_PER_MARK_ACTION,
-  toEpisodeCode,
 } from '@tvseri.es/schemas';
 import { chunk } from '@tvseri.es/utils';
+
 import type * as Actions from './actions';
 import { codeOf, parseCode } from './progress';
 import type { ActionResult } from './result';
@@ -36,7 +37,7 @@ export type Send = () => Promise<Result>;
 export const recordsFrom = (items: ReadonlyArray<ProgressItem>) => {
   const records: Record<EpisodeCode, WatchRecord> = {};
   for (const item of items) {
-    records[toEpisodeCode(item.seasonNumber, item.episodeNumber)] = {
+    records[episodeCode(item)] = {
       runtime: item.runtime,
       watchedAt: item.watchedAt,
       ...(item.dateUnknown ? { dateUnknown: true } : {}),

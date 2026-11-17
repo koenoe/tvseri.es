@@ -1,4 +1,8 @@
-import type { EpisodeRef, MarkWhen } from '@tvseri.es/schemas';
+import {
+  type EpisodeRef,
+  episodeCode,
+  type MarkWhen,
+} from '@tvseri.es/schemas';
 
 import {
   callsFor,
@@ -18,7 +22,6 @@ import {
   beforeWhat,
   codeRange,
   ERROR_MESSAGE,
-  episodeCode,
   episodeLabel,
   HIDDEN_MESSAGE,
   listMessage,

@@ -1,8 +1,10 @@
+import { seasonCode } from '@tvseri.es/schemas';
+
 import { Ghost, TextLine } from '@/components/ui/ghost/ghosts';
 import { calendarGlyph } from '@/components/ui/icon/glyphs';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
-import { seasonCode } from '@/lib/marking/copy';
+
 import { loadOverview, loadWaitingFor } from '../../_data/overview';
 import type { Profile } from '../../_data/profile';
 import { isDayZero } from '../../_lib/dayZero';

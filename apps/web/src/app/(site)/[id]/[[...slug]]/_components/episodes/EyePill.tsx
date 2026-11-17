@@ -1,11 +1,11 @@
 'use client';
 
+import { episodeCode } from '@tvseri.es/schemas';
 import { type MouseEvent, memo, useCallback, useContext } from 'react';
 
 import { eyeGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
-import { episodeCode } from '@/lib/marking/copy';
 import { episodeKey, nextKey, pressMark } from '@/lib/marking/pressGate';
 import type { WatchRecord } from '@/lib/marking/types';
 import useMarking from '@/lib/marking/useMarking';

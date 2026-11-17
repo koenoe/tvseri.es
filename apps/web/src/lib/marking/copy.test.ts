@@ -1,14 +1,13 @@
+import { episodeCode, shortCode } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
 import {
   beforeTooLabel,
   codeRange,
-  episodeCode,
   episodeLabel,
   episodeRun,
   markedMessage,
   runMessage,
-  shortCode,
   shortCodeRange,
   unmarkedRunMessage,
 } from './copy';

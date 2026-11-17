@@ -1,8 +1,4 @@
-import {
-  type Ledger,
-  type LedgerShow,
-  toEpisodeCode,
-} from '@tvseri.es/schemas';
+import { episodeCode, type Ledger, type LedgerShow } from '@tvseri.es/schemas';
 import { buildPosterImageUrl } from '@tvseri.es/utils';
 
 import { getAllListItems } from '@/lib/db/list';
@@ -34,9 +30,7 @@ const findHoles = (
   if (regular.length === 0) {
     return [];
   }
-  const seen = new Set(
-    regular.map((item) => toEpisodeCode(item.seasonNumber, item.episodeNumber)),
-  );
+  const seen = new Set(regular.map((item) => episodeCode(item)));
   const lastSeason = Math.max(...regular.map((item) => item.seasonNumber));
   const lastEpisode = Math.max(
     ...regular
@@ -54,7 +48,10 @@ const findHoles = (
         ? (airedBySeason[season] ?? 0)
         : Math.min(airedBySeason[season] ?? 0, lastEpisode - 1);
     for (let episode = 1; episode <= upTo; episode++) {
-      const code = toEpisodeCode(season, episode);
+      const code = episodeCode({
+        episodeNumber: episode,
+        seasonNumber: season,
+      });
       if (!seen.has(code) && !skipped.has(code)) {
         holes.push({ episode, season });
       }
@@ -114,7 +111,12 @@ export const getLedger = async (
         perSeason.set(hole.season, (perSeason.get(hole.season) ?? 0) + 1);
       }
       return {
-        episodes: holes.map((hole) => toEpisodeCode(hole.season, hole.episode)),
+        episodes: holes.map((hole) =>
+          episodeCode({
+            episodeNumber: hole.episode,
+            seasonNumber: hole.season,
+          }),
+        ),
         missingCount: holes.length,
         posterImage: show.posterPath
           ? buildPosterImageUrl(show.posterPath)

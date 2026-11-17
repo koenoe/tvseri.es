@@ -1,8 +1,13 @@
-import type { SharedShow, SharedShowNext } from '@tvseri.es/schemas';
+import {
+  episodeCode,
+  type SharedShow,
+  type SharedShowNext,
+  seasonCode,
+} from '@tvseri.es/schemas';
+
 import { genreNameById } from '@/app/(site)/_discover/data/genreNames';
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
 import { plural } from '@/lib/format/text';
-import { episodeCode, seasonCode } from '@/lib/marking/copy';
 
 export type NextLabel = Readonly<{
   text: string;

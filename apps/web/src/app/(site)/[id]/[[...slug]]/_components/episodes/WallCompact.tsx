@@ -1,9 +1,9 @@
 'use client';
 
+import { shortCode } from '@tvseri.es/schemas';
 import { memo } from 'react';
 
 import cn from '@/lib/cn';
-import { shortCode } from '@/lib/marking/copy';
 import { codeOf } from '@/lib/marking/progress';
 import type { WatchRecord } from '@/lib/marking/types';
 

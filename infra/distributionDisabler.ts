@@ -85,6 +85,10 @@ const killSwitchSnsTopic = new sst.aws.SnsTopic(
             },
             {
               Action: 'SNS:Publish',
+              // Only this account's budgets may publish (confused deputy)
+              Condition: {
+                StringEquals: { 'aws:SourceAccount': current.accountId },
+              },
               Effect: 'Allow',
               Principal: { Service: 'budgets.amazonaws.com' },
               Resource: '*',

@@ -9,12 +9,13 @@ import {
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import { PAGE_COLUMN } from '@/components/ui/page/pageColumn';
+import RowHeader from '@/components/ui/row/RowHeader';
 import PosterArt from '@/components/ui/tile/PosterArt';
 import TileLink from '@/components/ui/tile/TileLink';
 import WatchedOverlay from '@/components/ui/tile/WatchedOverlay';
 import showPath from '@/lib/routing/showPath';
 import type { StartPick } from '../data/whereToStart';
-import { StartSeenNote } from './WhereToStartMarks';
+import SeenNote from './SeenNote';
 
 /** The kicker per pick */
 const KICKER: Readonly<Record<StartPick['kind'], string>> = {
@@ -25,6 +26,9 @@ const KICKER: Readonly<Record<StartPick['kind'], string>> = {
 };
 
 const SIZES = '(min-width: 768px) 96px, 72px';
+
+/** A section header in the page column, not a row: no row insets */
+const HEADER = 'mb-6 [--row-end:0px] [--row-start:0px]';
 
 type Kickers = Readonly<Partial<Record<StartPick['kind'], string>>>;
 
@@ -65,11 +69,12 @@ export default function WhereToStart({
       className={PAGE_COLUMN}
       data-slot="start"
     >
-      <div className="mb-6 flex items-center gap-2.5 md:gap-5">
-        <h2 className="text-title-2 text-white" id={titleId}>
-          Where to start
-        </h2>
-        <StartSeenNote ids={ids} />
+      <div className={HEADER}>
+        <RowHeader
+          note={<SeenNote ids={ids} />}
+          title="Where to start"
+          titleId={titleId}
+        />
       </div>
       <ul className="flex flex-col gap-3 md:gap-6 lg:grid lg:grid-cols-3">
         {picks.map((pick) => (

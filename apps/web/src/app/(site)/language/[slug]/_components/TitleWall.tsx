@@ -1,6 +1,7 @@
 'use client';
 
 import { PAGE_COLUMN } from '@/components/ui/page/pageColumn';
+import RowHeader from '@/components/ui/row/RowHeader';
 
 import { usePressedTab } from '../../../_discover/landing/LandingSwitch';
 import SeenNote from '../../../_discover/landing/SeenNote';
@@ -39,13 +40,12 @@ export default function TitleWall({ cards, lang, title }: Props) {
       className={PAGE_COLUMN}
       data-slot="wall"
     >
-      <div className="mb-6 flex min-h-8 items-center gap-5">
-        <h2 className="text-title-2 text-white" id="wall-title">
-          {title}
-        </h2>
-        <span className="flex min-w-0 items-center gap-1.5 text-body-sm text-white/60 max-md:hidden">
-          <SeenNote ids={ids} />
-        </span>
+      <div className="mb-6 [--row-end:0px] [--row-head-h:2rem] [--row-start:0px]">
+        <RowHeader
+          note={<SeenNote ids={ids} />}
+          title={title}
+          titleId="wall-title"
+        />
       </div>
       <ul
         className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4"

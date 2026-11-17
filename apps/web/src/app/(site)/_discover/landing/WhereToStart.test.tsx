@@ -10,7 +10,7 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ prefetch: () => {} }),
 }));
 
-vi.mock('./WhereToStartMarks', () => ({ StartSeenNote: () => null }));
+vi.mock('./SeenNote', () => ({ default: () => null }));
 vi.mock('@/components/ui/tile/WatchedOverlay', () => ({
   default: () => null,
 }));

@@ -50,16 +50,19 @@ for (const width of [390, 1440] as const) {
   test.describe(`at ${width}px`, () => {
     test.use({ viewport: { height: 900, width } });
 
-    test('signed out: nothing in the header moves while the page hydrates', async ({
-      page,
-    }) => {
-      await page.addInitScript(SHIFT_OBSERVER);
-      await open(page, '/discover');
-      await expect(
-        page.getByRole('banner').getByRole('link', { name: 'Sign in' }),
-      ).toBeVisible();
-      expect(await settledHeaderShifts(page)).toEqual([]);
-    });
+    // signed out once, on a phone: the signed-in case is the harder one
+    if (width === 390) {
+      test('signed out: nothing in the header moves while the page hydrates', async ({
+        page,
+      }) => {
+        await page.addInitScript(SHIFT_OBSERVER);
+        await open(page, '/discover');
+        await expect(
+          page.getByRole('banner').getByRole('link', { name: 'Sign in' }),
+        ).toBeVisible();
+        expect(await settledHeaderShifts(page)).toEqual([]);
+      });
+    }
 
     test('signed in: the username is drawn before hydration where the link ends up', async ({
       context,

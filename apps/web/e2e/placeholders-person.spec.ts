@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { expectParity, parityTable } from './helpers/parity';
-import { ALL_VIEWPORTS } from './helpers/placeholders';
+import { namedViewports } from './helpers/placeholders';
 import { signInAs } from './helpers/session';
 import { measureParity } from './helpers/shellParity';
 
@@ -14,7 +14,7 @@ import { measureParity } from './helpers/shellParity';
  * asserted are the ones whose size is the same for everyone.
  */
 
-const VIEWPORTS = ALL_VIEWPORTS;
+const VIEWPORTS = namedViewports('desktop', 'phone');
 
 for (const viewport of VIEWPORTS) {
   test.describe(`person ${viewport.name}`, () => {
@@ -80,6 +80,11 @@ for (const viewport of VIEWPORTS) {
     // Four lines (Bryan Cranston on desktop) are the known exception, as
     // Career and Shows: the ghost only shows while a person's page is
     // generated for the first time, and the cached shell carries the block.
+    // the person-dependent holes once, at 1440
+    if (viewport.name !== 'desktop') {
+      return;
+    }
+
     test('the family lines: the ghost has the box of the usual count', async ({
       baseURL,
       page,

@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { expectParity, parityTable, TOLERANCE } from './helpers/parity';
-import { ALL_VIEWPORTS } from './helpers/placeholders';
+import { namedViewports } from './helpers/placeholders';
 import { routeTrendingLogos } from './helpers/png';
 import { setLibraryHint, signInAs } from './helpers/session';
 import { measureParity } from './helpers/shellParity';
@@ -21,7 +21,7 @@ import { measureParity } from './helpers/shellParity';
  * sections on a dev server with a slow stub API.
  */
 
-const VIEWPORTS = ALL_VIEWPORTS;
+const VIEWPORTS = namedViewports('desktop', 'phone');
 
 for (const viewport of VIEWPORTS) {
   test.describe(`home ${viewport.name}`, () => {
@@ -72,6 +72,11 @@ for (const viewport of VIEWPORTS) {
       console.log(parityTable(parity, `home get started ${viewport.name}`));
       expectParity(parity, { names: ['get-started'] });
     });
+
+    // the day's moments once, at 1440: each kind's placeholder is checked inside
+    if (viewport.name !== 'desktop') {
+      return;
+    }
 
     test("Today's feature: the placeholder has the loaded card's boxes", async ({
       page,

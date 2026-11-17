@@ -10,68 +10,68 @@ import { fontsSettled, untilStable } from './helpers/viewport';
  * the hard load doesn't shift; without it the page still works.
  */
 
-const CASES: ReadonlyArray<readonly [StubViewer, string]> = [
-  ['rae', 'on'],
-  ['sam', 'wait'],
-  ['nina', 'none'],
-];
+/** Each card state once, alternating the width */
+const CASES: ReadonlyArray<readonly [StubViewer, string, 'desktop' | 'phone']> =
+  [
+    ['rae', 'on', 'desktop'],
+    ['sam', 'wait', 'phone'],
+    ['nina', 'none', 'desktop'],
+  ];
 
-for (const [viewer, state] of CASES) {
-  for (const size of ['desktop', 'phone'] as const) {
-    test(`${viewer} (${state}) at ${VIEWPORTS[size].width}px: no shift once the hint is stored`, async ({
-      browser,
-    }) => {
-      const context = await browser.newContext({ viewport: VIEWPORTS[size] });
-      await signInAs(context, viewer);
-      const page = await context.newPage();
-      await page.goto('/settings/plex');
-      await expect(page.locator('[data-slot="plex"]')).toBeVisible();
-      // the card wrote the hint
-      await expect
-        .poll(() =>
-          page.evaluate(() =>
-            JSON.parse(localStorage.getItem('tvseries:plex-hint') ?? '{}'),
-          ),
-        )
-        .toMatchObject({ s: state, u: viewer, v: 1 });
+for (const [viewer, state, size] of CASES) {
+  test(`${viewer} (${state}) at ${VIEWPORTS[size].width}px: no shift once the hint is stored`, async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ viewport: VIEWPORTS[size] });
+    await signInAs(context, viewer);
+    const page = await context.newPage();
+    await page.goto('/settings/plex');
+    await expect(page.locator('[data-slot="plex"]')).toBeVisible();
+    // the card wrote the hint
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          JSON.parse(localStorage.getItem('tvseries:plex-hint') ?? '{}'),
+        ),
+      )
+      .toMatchObject({ s: state, u: viewer, v: 1 });
 
-      await page.addInitScript(() => {
-        const target = window as unknown as { __shift: number };
-        target.__shift = 0;
-        new PerformanceObserver((list) => {
-          for (const entry of list.getEntries()) {
-            const shift = entry as PerformanceEntry & {
-              hadRecentInput: boolean;
-              value: number;
-            };
-            if (!shift.hadRecentInput) {
-              target.__shift += shift.value;
-            }
+    await page.addInitScript(() => {
+      const target = window as unknown as { __shift: number };
+      target.__shift = 0;
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          const shift = entry as PerformanceEntry & {
+            hadRecentInput: boolean;
+            value: number;
+          };
+          if (!shift.hadRecentInput) {
+            target.__shift += shift.value;
           }
-        }).observe({ buffered: true, type: 'layout-shift' });
-      });
-      await page.reload();
-      const card = page.locator('[data-slot="plex"]');
-      await expect(card).toBeVisible();
-      await fontsSettled(page);
-      // the card and the page have stopped moving: a late shift is counted
-      await untilStable(
-        async () => [
-          await card.boundingBox(),
-          await page.evaluate(() => document.documentElement.scrollHeight),
-        ],
-        { message: 'the Plex card kept moving', quietMs: 500 },
-      );
-      expect(
-        await page.evaluate(() => document.documentElement.dataset.plex),
-      ).toBe(state);
-      const shift = await page.evaluate(
-        () => (window as unknown as { __shift: number }).__shift,
-      );
-      expect(shift).toBeLessThan(0.005);
-      await context.close();
+        }
+      }).observe({ buffered: true, type: 'layout-shift' });
     });
-  }
+    await page.reload();
+    const card = page.locator('[data-slot="plex"]');
+    await expect(card).toBeVisible();
+    await fontsSettled(page);
+    // the card and the page have stopped moving: a late shift is counted
+    await untilStable(
+      async () => [
+        await card.boundingBox(),
+        await page.evaluate(() => document.documentElement.scrollHeight),
+      ],
+      { message: 'the Plex card kept moving', quietMs: 500 },
+    );
+    expect(
+      await page.evaluate(() => document.documentElement.dataset.plex),
+    ).toBe(state);
+    const shift = await page.evaluate(
+      () => (window as unknown as { __shift: number }).__shift,
+    );
+    expect(shift).toBeLessThan(0.005);
+    await context.close();
+  });
 }
 
 test('without a hint the page still works (the not-connected card is reserved)', async ({

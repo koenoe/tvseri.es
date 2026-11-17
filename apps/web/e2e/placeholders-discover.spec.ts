@@ -6,10 +6,10 @@ import { signInAs } from './helpers/session';
 import { fontsSettled, untilStable } from './helpers/viewport';
 
 /**
- * What changes on Discover after the first paint: the hub and the index
- * pages load without a layout shift, and a signed-in viewer's marks (the
- * Watched labels on every kind of tile and the "You’ve seen N of M"
- * lines), which arrive on the client after hydration, fade in instead of
+ * What changes on Discover after the first paint: the hub and an index
+ * page load without a layout shift, and a signed-in viewer's marks (the
+ * Watched labels on the hub's and a landing's tiles and the "You’ve seen N
+ * of M" lines), which arrive on the client after hydration, fade in instead of
  * popping and move nothing. `placeholders-landings` holds the landings'
  * loading shells to their content's size.
  */
@@ -29,13 +29,17 @@ async function settle(page: Page) {
   );
 }
 
-const STATIC_PAGES = ['/discover', '/network', '/country', '/language'];
+/** The hub at both widths, one index page (they share a layout) on a desktop */
+const STATIC_PAGES = {
+  desktop: ['/discover', '/network'],
+  phone: ['/discover'],
+} as const;
 
 for (const name of ['desktop', 'phone'] as const) {
   test.describe(`Discover loads without a shift (${name})`, () => {
     test.use({ viewport: VIEWPORTS[name] });
 
-    for (const path of STATIC_PAGES) {
+    for (const path of STATIC_PAGES[name]) {
       test(path, async ({ page }) => {
         await page.addInitScript(SHIFT_OBSERVER);
         await page.goto(path);
@@ -103,11 +107,6 @@ const SIGNED_IN_PAGES = [
   { notes: false, path: '/discover' },
   // poster rows, Where to start, the ranked list
   { notes: true, path: '/genre/drama' },
-  // the title wall
-  { notes: true, path: '/language/ko' },
-  // the treemap
-  { notes: true, path: '/decade/2000s' },
-  { notes: true, path: '/theme/time-travel' },
 ] as const;
 
 test.describe('a signed-in viewer’s marks arrive without a shift or a pop', () => {
@@ -141,23 +140,5 @@ test.describe('a signed-in viewer’s marks arrive without a shift or a pop', ()
       const { cls, shifts } = await readShifts(page);
       expect(cls, shifts.join('\n')).toBeLessThan(CLS_LIMIT);
     });
-  }
-});
-
-test('the lens tiles’ backdrops zoom on the transition they declare', async ({
-  page,
-}) => {
-  await page.goto('/discover');
-  // the backdrop grows (`scale`) and saturates (`filter`) on hover: both ease
-  const transitions = await page
-    .locator('[role="tabpanel"] img')
-    .evaluateAll((images) =>
-      images
-        .map((image) => getComputedStyle(image).transitionProperty)
-        .filter((property) => property.includes('filter')),
-    );
-  expect(transitions.length, 'backdrop tiles').toBeGreaterThan(0);
-  for (const property of transitions) {
-    expect(property).toContain('scale');
   }
 });

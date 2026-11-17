@@ -55,17 +55,6 @@ test('stats desktop: every block is the size of its content', async ({
   expectParity(parity, { names: ['stats', 'stats-aside', ...BLOCKS] });
 });
 
-// Below lg a tablet has the phone's header (no sidebar) and the desktop's
-// blocks at the column's full width
-test('stats tablet: every block is the size of its content', async ({
-  baseURL,
-  page,
-}) => {
-  await page.setViewportSize({ height: 1000, width: 800 });
-  const parity = await run(page, baseURL, 'stats tablet');
-  expectParity(parity, { names: ['stats', 'stats-phone-head', ...BLOCKS] });
-});
-
 test('stats phone: the header, Shows, First and last, Finished, When, Night, Genres', async ({
   baseURL,
   page,

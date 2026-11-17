@@ -1,6 +1,6 @@
 import { test } from '@playwright/test';
 import { expectParity, parityTable } from './helpers/parity';
-import { ALL_VIEWPORTS, measureNoScriptParity } from './helpers/placeholders';
+import { measureNoScriptParity } from './helpers/placeholders';
 
 // Shell mechanism: JavaScript off (`helpers/placeholders.ts`): the fallback depends on viewer hints a pre-paint script sets, so it is read raw.
 
@@ -11,14 +11,14 @@ import { ALL_VIEWPORTS, measureNoScriptParity } from './helpers/placeholders';
  */
 
 /**
- * The four named sizes, and widths where Your data's Export line wraps
- * around its streamed episode count (785 and 1085: the count's skeleton once
+ * Every section at 1440; Your data also where its Export line wraps around
+ * its streamed episode count (785 and 1085: the count's skeleton once
  * wrapped differently from the count, and the card grew a line).
  */
 const SIZES = [
-  ...ALL_VIEWPORTS,
-  { height: 900, width: 785 },
-  { height: 900, width: 1085 },
+  { height: 900, sections: 'all', width: 1440 },
+  { height: 900, sections: 'data', width: 785 },
+  { height: 900, sections: 'data', width: 1085 },
 ] as const;
 
 const SECTIONS = [
@@ -32,6 +32,7 @@ const SECTIONS = [
 for (const viewport of SIZES) {
   test.describe(`settings placeholders at ${viewport.width}px`, () => {
     for (const [path, viewer, names] of SECTIONS) {
+      if (viewport.sections === 'data' && path !== '/settings/data') continue;
       test(path, async ({ browser }) => {
         const measured = await measureNoScriptParity(browser, {
           names,

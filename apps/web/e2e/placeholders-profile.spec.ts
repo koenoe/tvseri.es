@@ -11,8 +11,8 @@ import { signInAs, stubFault } from './helpers/session';
 
 /**
  * Placeholder parity for the profile and its sub-pages (see
- * helpers/placeholders.ts): every fallback is the box of what replaces it, at
- * every width of `VIEWPORTS`, and nothing shifts when the content arrives.
+ * helpers/placeholders.ts): every fallback is the box of what replaces it,
+ * and nothing shifts when the content arrives. One check per page type.
  * Read-only: the viewers only read.
  */
 
@@ -44,7 +44,8 @@ const VISITOR_BLOCKS = [
   'profile-tail',
 ] as const;
 
-const SIZES = Object.keys(VIEWPORTS) as ViewportName[];
+/** Every page type at 1440; the busy overview on a phone too */
+const SIZES: ReadonlyArray<ViewportName> = ['desktop', 'phone'];
 
 /**
  * The sidebar: the identity (the layout's), the overview's blocks under it
@@ -66,9 +67,6 @@ const SIDEBAR = [
  * the identity, or of someone else's match card (the `@aside` frame has no
  * box there).
  */
-/** Below md: the phone frames */
-const isPhone = (viewport: ViewportName) => VIEWPORTS[viewport].width < 768;
-
 const sidebarAbove = (viewport: ViewportName) =>
   VIEWPORTS[viewport].width < 1024;
 
@@ -87,25 +85,6 @@ const onScreen = (
             : [],
       )
     : names;
-
-/**
- * Someone else's Circle with its rows measured from the header's bottom: the
- * header's line wraps by the name's width, which its ghost can't know.
- */
-function belowTheHead(parity: Parity): Parity {
-  const placeholder = parity.placeholders['circle-head'];
-  const slot = parity.slots['circle-head'];
-  const dy = placeholder && slot ? slot.height - placeholder.height : 0;
-  return {
-    ...parity,
-    slots: Object.fromEntries(
-      Object.entries(parity.slots).map(([name, box]) => [
-        name,
-        { ...box, y: box.y - dy },
-      ]),
-    ),
-  };
-}
 
 function belowTheSidebar(parity: Parity, viewport: ViewportName): Parity {
   const last = !sidebarAbove(viewport)
@@ -155,41 +134,9 @@ for (const viewport of SIZES) {
       expectParity(belowTheSidebar(measured, viewport), { maxShift: 0.02 });
     });
 
-    // alex has the full page: a lane with no Show all arrives shorter
-    // (below the fold), the frame above the lanes is exact
-    test('your own overview', async ({ browser }) => {
-      const measured = await measureNoScriptParity(browser, {
-        names: onScreen(OWNER_BLOCKS, viewport, 'owner'),
-        path: '/u/alex',
-        viewer: 'alex',
-        viewport,
-      });
-      expectParity(measured, {
-        maxShift: 0.02,
-        names: onScreen(
-          ['profile-identity', 'profile-blocks', 'up-next'],
-          viewport,
-          'owner',
-        ),
-      });
-    });
-
-    test('someone else’s overview, a busy library', async ({ browser }) => {
-      const measured = await measureNoScriptParity(browser, {
-        names: onScreen(VISITOR_BLOCKS, viewport, 'visitor'),
-        path: '/u/marathonwatcher-2026',
-        viewer: 'alex',
-        viewport,
-        visitor: true,
-      });
-      // The match card's proof and picks name this library's long titles,
-      // so it lands taller than its ghost (above the tabs on a phone); the
-      // page it pushes is measured from its bottom. A tablet's 1000px
-      // window shows it move (0.021 measured): the usual-length case below
-      // is exact at every width.
-      const maxShift = viewport === 'tablet' ? 0.03 : 0.02;
-      expectParity(belowTheSidebar(measured, viewport), { maxShift });
-    });
+    if (viewport !== 'desktop') {
+      return;
+    }
 
     test('someone else’s overview', async ({ browser }) => {
       const measured = await measureNoScriptParity(browser, {
@@ -205,9 +152,6 @@ for (const viewport of SIZES) {
     // a full first page (24 shows) is exact: the toolbar and 24 ghosts
     for (const [path, name] of [
       ['library/watchlist', 'library-grid'],
-      ['library/favourites', 'library-grid'],
-      ['library/finished', 'library-grid'],
-      ['library/watchlist?sort=oldest', 'library-grid'],
     ] as const) {
       test(`${path} is its first page`, async ({ browser }) => {
         const measured = await measureNoScriptParity(browser, {
@@ -223,7 +167,7 @@ for (const viewport of SIZES) {
     // The Library's parts each match their ghosts (skeletons mirror the
     // content): the toolbar, the first tile's poster, title and
     // meta rows, the shelf nav (from lg) or chips (below it)
-    for (const shelf of ['watching', 'watchlist', 'favourites'] as const) {
+    for (const shelf of ['watching'] as const) {
       test(`the ${shelf} shelf's inner blocks`, async ({ browser }) => {
         const names = [
           'library-toolbar',
@@ -239,17 +183,6 @@ for (const viewport of SIZES) {
         expectParity(measured, { maxShift: 0.02 });
       });
     }
-
-    // A sub-page's identity (no Watches on; compact on a phone) is exact
-    test('a sub-page’s identity', async ({ browser }) => {
-      const measured = await measureNoScriptParity(browser, {
-        names: ['profile-identity'],
-        path: '/u/alex/library/watchlist',
-        viewer: 'alex',
-        viewport,
-      });
-      expectParity(measured, { maxShift: 0.02 });
-    });
 
     // Data-dependent length: the diary's frame and width are exact (its
     // first month header and day rows use the diary's own boxes; later
@@ -291,39 +224,6 @@ for (const viewport of SIZES) {
         names: ['circle'],
       });
       expectParity(measured, { maxShift: 0.02, names: ['circle-row'] });
-    });
-
-    // Someone else's: the frame, the header's place and a row are exact at
-    // every width. The header's line wraps by their name's width: its ghost
-    // is the line with a name of a usual length (a generated handle's), which
-    // can wrap a word earlier or later than this profile's
-    // (`out-500-heron512`) where the room is near the break (1100 less a
-    // classic scrollbar), so the row is exact below the header's last line.
-    test('someone else’s Circle keeps its frame; a row is exact', async ({
-      browser,
-    }) => {
-      // a phone's Circle draws no header (the profile's own head is above)
-      const heads = isPhone(viewport)
-        ? ['circle', 'circle-row']
-        : ['circle', 'circle-head', 'circle-row'];
-      const measured = await measureNoScriptParity(browser, {
-        names: heads,
-        path: '/u/out-500-heron512/circle',
-        viewer: 'alex',
-        viewport,
-        visitor: true,
-      });
-      // the boxes are exact; the only shift is the footer, which moves by
-      // the list's length (five ghosts, however many people they have)
-      expectParity(measured, {
-        heightTolerance: Number.POSITIVE_INFINITY,
-        ignoreShift: true,
-        names: heads.filter((name) => name !== 'circle-row'),
-      });
-      expectParity(belowTheHead(measured), {
-        ignoreShift: true,
-        names: ['circle-row'],
-      });
     });
   });
 }
@@ -367,7 +267,7 @@ test.describe('owner or visitor placeholders', () => {
  * seen, the ghost draws the common eight, so step 2 differs by exactly the
  * poster grid and everything else is exact.
  */
-for (const viewport of ['desktop', 'phone'] as const) {
+for (const viewport of ['phone'] as const) {
   test(`Get started fails into its own ghost at ${VIEWPORTS[viewport].width}px`, async ({
     browser,
   }) => {

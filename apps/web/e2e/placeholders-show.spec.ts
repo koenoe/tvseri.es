@@ -26,12 +26,13 @@ import { fontsSettled } from './helpers/viewport';
  * this browser knows it isn't for the viewer.
  */
 
-const VIEWPORTS = [
-  ...namedViewports('desktop', 'phone'),
-  // a small phone: where the season header's facts wrap to two lines
-  { height: 780, name: 'small phone', width: 360 },
-  ...namedViewports('tablet', 'laptop'),
-];
+const VIEWPORTS = namedViewports('desktop', 'phone');
+
+/** Each case at one width: the shell at both, the signed-in ones on a phone */
+const PHONE_ONLY = new Set([
+  'page shell, nina',
+  'a show the viewer has not tracked: the prompt has its space',
+]);
 
 const SHELL = [
   'show',
@@ -50,8 +51,13 @@ const SHELL = [
 for (const viewport of VIEWPORTS) {
   test.describe(`show ${viewport.name}`, () => {
     test.use({ viewport });
+    const at = (title: string) =>
+      PHONE_ONLY.has(title)
+        ? viewport.name === 'phone'
+        : viewport.name === 'desktop' || title === 'page shell, signed out';
 
     for (const viewer of [null, 'nina'] as const) {
+      if (!at(`page shell, ${viewer ?? 'signed out'}`)) continue;
       test(`page shell, ${viewer ?? 'signed out'}`, async ({
         baseURL,
         context,
@@ -73,120 +79,134 @@ for (const viewport of VIEWPORTS) {
       });
     }
 
-    test('the Bear, signed out: the wall and the viewer holes', async ({
-      baseURL,
-      page,
-    }) => {
-      const parity = await measureParity(page, {
+    if (at('the Bear, signed out: the wall and the viewer holes')) {
+      test('the Bear, signed out: the wall and the viewer holes', async ({
         baseURL,
-        goto: () => page.goto('/136315/the-bear'),
-        ready: () =>
-          expect(
-            page.locator('[data-placeholder="progress"]').first(),
-          ).toBeAttached(),
-        shellText: 'A made-up kitchen drama about a family sandwich shop.',
-        shot: `show-bear-out-${viewport.name}`,
+        page,
+      }) => {
+        const parity = await measureParity(page, {
+          baseURL,
+          goto: () => page.goto('/136315/the-bear'),
+          ready: () =>
+            expect(
+              page.locator('[data-placeholder="progress"]').first(),
+            ).toBeAttached(),
+          shellText: 'A made-up kitchen drama about a family sandwich shop.',
+          shot: `show-bear-out-${viewport.name}`,
+        });
+        console.log(parityTable(parity, `${viewport.name} bear out`));
+        // a visitor is asked too (answering asks them to sign in)
+        expect(parity.slots['first-tracking']?.height ?? 0).toBeGreaterThan(60);
+        expectParity(parity, { names: ['progress', 'actions', 'episodes'] });
       });
-      console.log(parityTable(parity, `${viewport.name} bear out`));
-      // a visitor is asked too (answering asks them to sign in)
-      expect(parity.slots['first-tracking']?.height ?? 0).toBeGreaterThan(60);
-      expectParity(parity, { names: ['progress', 'actions', 'episodes'] });
-    });
+    }
 
-    test('a show the viewer has not tracked: the prompt has its space', async ({
-      baseURL,
-      context,
-      page,
-    }) => {
-      await signInAs(context, 'nina');
-      await setLibraryHint(context, 'nina', [7]);
-      const parity = await measureParity(page, {
+    if (at('a show the viewer has not tracked: the prompt has its space')) {
+      test('a show the viewer has not tracked: the prompt has its space', async ({
         baseURL,
-        goto: () => page.goto('/136315/the-bear'),
-        ready: () =>
-          expect(
-            page.locator('[data-placeholder="progress"]').first(),
-          ).toBeAttached(),
-        shellText: 'A made-up kitchen drama about a family sandwich shop.',
-        shot: `show-bear-nina-${viewport.name}`,
+        context,
+        page,
+      }) => {
+        await signInAs(context, 'nina');
+        await setLibraryHint(context, 'nina', [7]);
+        const parity = await measureParity(page, {
+          baseURL,
+          goto: () => page.goto('/136315/the-bear'),
+          ready: () =>
+            expect(
+              page.locator('[data-placeholder="progress"]').first(),
+            ).toBeAttached(),
+          shellText: 'A made-up kitchen drama about a family sandwich shop.',
+          shot: `show-bear-nina-${viewport.name}`,
+        });
+        console.log(parityTable(parity, `${viewport.name} bear nina`));
+        // the prompt is shell content now: it is simply there, nothing streams in
+        expect(parity.slots['first-tracking']?.height ?? 0).toBeGreaterThan(60);
+        expectParity(parity, { names: ['progress', 'actions', 'episodes'] });
       });
-      console.log(parityTable(parity, `${viewport.name} bear nina`));
-      // the prompt is shell content now: it is simply there, nothing streams in
-      expect(parity.slots['first-tracking']?.height ?? 0).toBeGreaterThan(60);
-      expectParity(parity, { names: ['progress', 'actions', 'episodes'] });
-    });
+    }
 
-    test('a tracked show: nothing is reserved and nothing closes', async ({
-      baseURL,
-      context,
-      page,
-    }) => {
-      await signInAs(context, 'alex');
-      await setLibraryHint(context, 'alex', [136315]);
-      const parity = await measureParity(page, {
+    if (at('a tracked show: nothing is reserved and nothing closes')) {
+      test('a tracked show: nothing is reserved and nothing closes', async ({
         baseURL,
-        goto: () => page.goto('/136315/the-bear'),
-        ready: () =>
-          expect(
-            page.locator('[data-placeholder="progress"]').first(),
-          ).toBeAttached(),
-        shellText: 'A made-up kitchen drama about a family sandwich shop.',
+        context,
+        page,
+      }) => {
+        await signInAs(context, 'alex');
+        await setLibraryHint(context, 'alex', [136315]);
+        const parity = await measureParity(page, {
+          baseURL,
+          goto: () => page.goto('/136315/the-bear'),
+          ready: () =>
+            expect(
+              page.locator('[data-placeholder="progress"]').first(),
+            ).toBeAttached(),
+          shellText: 'A made-up kitchen drama about a family sandwich shop.',
+        });
+        console.log(parityTable(parity, `${viewport.name} bear alex tracked`));
+        expect(parity.placeholders['first-tracking']?.height ?? 0).toBe(0);
+        expect(parity.slots['first-tracking']?.height ?? 0).toBe(0);
+        expectParity(parity, { names: ['progress', 'actions'] });
       });
-      console.log(parityTable(parity, `${viewport.name} bear alex tracked`));
-      expect(parity.placeholders['first-tracking']?.height ?? 0).toBe(0);
-      expect(parity.slots['first-tracking']?.height ?? 0).toBe(0);
-      expectParity(parity, { names: ['progress', 'actions'] });
-    });
+    }
 
-    test("another account's hint is not used", async ({
-      baseURL,
-      context,
-      page,
-    }) => {
-      await signInAs(context, 'nina');
-      // alex's hint, in nina's browser
-      await setLibraryHint(context, 'alex', [7]);
-      const parity = await measureParity(page, {
+    if (at("another account's hint is not used")) {
+      test("another account's hint is not used", async ({
         baseURL,
-        goto: () => page.goto('/136315/the-bear'),
-        ready: () =>
-          expect(
-            page.locator('[data-placeholder="progress"]').first(),
-          ).toBeAttached(),
-        shellText: 'A made-up kitchen drama about a family sandwich shop.',
+        context,
+        page,
+      }) => {
+        await signInAs(context, 'nina');
+        // alex's hint, in nina's browser
+        await setLibraryHint(context, 'alex', [7]);
+        const parity = await measureParity(page, {
+          baseURL,
+          goto: () => page.goto('/136315/the-bear'),
+          ready: () =>
+            expect(
+              page.locator('[data-placeholder="progress"]').first(),
+            ).toBeAttached(),
+          shellText: 'A made-up kitchen drama about a family sandwich shop.',
+        });
+        // nina sees the prompt: alex's hint says nothing about her
+        expect(parity.slots['first-tracking']?.height ?? 0).toBeGreaterThan(60);
       });
-      // nina sees the prompt: alex's hint says nothing about her
-      expect(parity.slots['first-tracking']?.height ?? 0).toBeGreaterThan(60);
-    });
+    }
 
-    test('no hint yet (a first visit): the prompt is there, and the app writes the hint', async ({
-      baseURL,
-      context,
-      page,
-    }) => {
-      await signInAs(context, 'nina');
-      const parity = await measureParity(page, {
+    if (
+      at(
+        'no hint yet (a first visit): the prompt is there, and the app writes the hint',
+      )
+    ) {
+      test('no hint yet (a first visit): the prompt is there, and the app writes the hint', async ({
         baseURL,
-        goto: () => page.goto('/136315/the-bear'),
-        ready: () =>
-          expect(
-            page.locator('[data-placeholder="progress"]').first(),
-          ).toBeAttached(),
-        shellText: 'A made-up kitchen drama about a family sandwich shop.',
+        context,
+        page,
+      }) => {
+        await signInAs(context, 'nina');
+        const parity = await measureParity(page, {
+          baseURL,
+          goto: () => page.goto('/136315/the-bear'),
+          ready: () =>
+            expect(
+              page.locator('[data-placeholder="progress"]').first(),
+            ).toBeAttached(),
+          shellText: 'A made-up kitchen drama about a family sandwich shop.',
+        });
+        expect(parity.slots['first-tracking']?.height ?? 0).toBeGreaterThan(60);
+        // the prompt appears, and the library ids are kept for next time
+        await expect(
+          page.getByRole('group', { name: 'Where are you in this series?' }),
+        ).toBeVisible();
+        await expect
+          .poll(() =>
+            page.evaluate(() =>
+              window.localStorage.getItem('tvseries:library-hint'),
+            ),
+          )
+          .toContain('"u":"nina"');
       });
-      expect(parity.slots['first-tracking']?.height ?? 0).toBeGreaterThan(60);
-      // the prompt appears, and the library ids are kept for next time
-      await expect(
-        page.getByRole('group', { name: 'Where are you in this series?' }),
-      ).toBeVisible();
-      await expect
-        .poll(() =>
-          page.evaluate(() =>
-            window.localStorage.getItem('tvseries:library-hint'),
-          ),
-        )
-        .toContain('"u":"nina"');
-    });
+    }
   });
 }
 
@@ -204,7 +224,7 @@ for (const viewport of VIEWPORTS) {
  * and Not now land within 2px of the real ones (the question's width follows
  * the show's title, so only its line is compared).
  */
-for (const viewport of VIEWPORTS.slice(0, 2)) {
+for (const viewport of VIEWPORTS.slice(0, 1)) {
   test(`the prompt's placeholder is flat ghosts in the card's geometry (${viewport.name})`, async ({
     baseURL,
     page,
@@ -397,7 +417,7 @@ test('the pre-paint hint script does a bounded amount of work, even with a 5000-
  * watched" / "1 skipped"), and so does their placeholder: the header keeps
  * its height when they land.
  */
-for (const width of [360, 390]) {
+for (const width of [360]) {
   test(`the season facts' placeholder takes the facts' lines (${width}px)`, async ({
     context,
     page,

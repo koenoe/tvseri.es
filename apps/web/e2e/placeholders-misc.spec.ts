@@ -50,14 +50,15 @@ const HEADLINES = [
   'This page went missing. We asked the lights.',
 ] as const;
 
-for (const width of [320, 360, 390, 430, 768, 1024, 1440]) {
-  test(`404 at ${width}: every headline wraps the same in Inter and in its fallback`, async ({
-    page,
-  }) => {
+// One page, resized: the wrap is the font's, not the page's state
+test('404: every headline wraps the same in Inter and in its fallback, 320 to 1440', async ({
+  page,
+}) => {
+  await page.goto('/shows/breaking-bad');
+  await expect(page.getByText('Page not found')).toBeVisible();
+  await fontsSettled(page);
+  for (const width of [320, 360, 390, 430, 768, 1024, 1440]) {
     await page.setViewportSize({ height: 900, width });
-    await page.goto('/shows/breaking-bad');
-    await expect(page.getByText('Page not found')).toBeVisible();
-    await fontsSettled(page);
     const heights = await page.evaluate((headlines) => {
       const h1 = document.querySelector('h1');
       if (!h1) {
@@ -74,5 +75,5 @@ for (const width of [320, 360, 390, 430, 768, 1024, 1440]) {
     for (const { fallback, headline, real } of heights) {
       expect(fallback, `${headline} (${width}px)`).toBe(real);
     }
-  });
-}
+  }
+});

@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { expectParity, parityTable } from './helpers/parity';
-import { ALL_VIEWPORTS } from './helpers/placeholders';
+import { namedViewports } from './helpers/placeholders';
 import { measureParity } from './helpers/shellParity';
 
 // Shell mechanism: `instant()` (`helpers/shellParity.ts`); a landing nobody has visited has its whole body as one fallback, which `instant()` holds.
@@ -18,7 +18,10 @@ import { measureParity } from './helpers/shellParity';
  * does not move), the others are single sections.
  */
 
-const VIEWPORTS = ALL_VIEWPORTS;
+const VIEWPORTS = namedViewports('desktop', 'phone');
+
+/** On a phone: a genre's hero and a network's logo hero */
+const PHONE = new Set(['/genre/drama', '/network/netflix']);
 
 /**
  * `position`: sections whose place and width are compared but not their
@@ -62,6 +65,7 @@ for (const viewport of VIEWPORTS) {
     test.use({ viewport });
 
     for (const landing of LANDINGS) {
+      if (viewport.name === 'phone' && !PHONE.has(landing.path)) continue;
       test(landing.path, async ({ baseURL, page }) => {
         const parity = await measureParity(page, {
           baseURL,

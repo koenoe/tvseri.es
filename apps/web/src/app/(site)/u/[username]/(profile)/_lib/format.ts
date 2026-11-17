@@ -1,25 +1,10 @@
 /**
- * The profile's words for joining, recent days and time watched. The day
- * formats themselves ("Nov 8", "Sun 15 Nov") are `@/lib/format/calendarDay`.
- * Pure: `now` is passed in, dates are read in UTC.
+ * The profile's words for time watched. "Member since" is
+ * `@/lib/profile/memberSince`; the day formats ("Nov 8", "Sun 15 Nov") are
+ * `@/lib/format/calendarDay`.
  */
 
 import { formatRuntime } from '@tvseri.es/utils';
-
-import { daysFrom } from '@/lib/format/calendarDay';
-import { formatMonthYear } from '@/lib/format/date';
-
-type DateInput = string | number | Date;
-
-/**
- * "Member since …": "today" on the UTC day of joining, else "Nov 2024". The
- * profile and the Stats sidebar both say it this way.
- */
-export function memberSince(createdAt: DateInput, now: number): string {
-  return daysFrom(createdAt, now) === 0
-    ? 'today'
-    : formatMonthYear(new Date(createdAt));
-}
 
 /**
  * Time watched as the profile writes it: days and hours ("5d 1h",

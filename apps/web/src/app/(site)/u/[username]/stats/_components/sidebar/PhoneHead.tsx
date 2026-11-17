@@ -43,7 +43,6 @@ export default async function PhoneHead({
     );
   }
   const episodes = plural(counts.episodes, 'episode');
-  const joinedText = `Member since ${user.memberSince}`;
   const profileHref = profilePath(user.username);
   const pills = rows.map((row) => ({
     pill: <Pill row={row} username={user.username} />,
@@ -69,7 +68,11 @@ export default async function PhoneHead({
             username={user.username}
           />
           <MetaRow>
-            <MetaItem icon={calendarGlyph}>{joinedText}</MetaItem>
+            {user.memberSince ? (
+              <MetaItem icon={calendarGlyph}>
+                Member since {user.memberSince}
+              </MetaItem>
+            ) : null}
             <MetaItem icon={eyeGlyph}>{episodes}</MetaItem>
           </MetaRow>
         </div>

@@ -25,11 +25,10 @@ import {
   type Unavailable,
 } from '@/lib/cache/unavailable';
 import { type ProfileCounts, readProfileCounts } from '@/lib/profile/counts';
+import { memberSince } from '@/lib/profile/memberSince';
 import { loadProfileUser, type ProfileUser } from '@/lib/profile/user';
 import { loadSeries } from '@/lib/series/loaders';
 import { statsTag, usernameTag, userTag } from '@/lib/stats/tags';
-
-import { memberSince } from '../../../(profile)/_lib/format';
 
 /**
  * The Stats page's reads. Everything is public and about the profile owner,
@@ -49,10 +48,11 @@ export type StatsUser = Readonly<{
   /** ISO date */
   createdAt: string;
   /**
-   * "today" or "Nov 2024" ("Member since …", the profile's rule), read when
-   * the user is: the page can't read the clock outside a cache scope.
+   * "today" or "Nov 2024" ("Member since …"; null for an unreadable date),
+   * read when the user is: the page can't read the clock outside a cache
+   * scope.
    */
-  memberSince: string;
+  memberSince: string | null;
   watchProviders: ReadonlyArray<
     Readonly<{ id: number; name: string; logo: string }>
   >;

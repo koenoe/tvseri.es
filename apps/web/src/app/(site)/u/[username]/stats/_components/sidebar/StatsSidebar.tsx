@@ -87,9 +87,11 @@ function Profile({
     <section aria-label="Profile" className={`@container ${IDENTITY_BLOCK}`}>
       <Handle as="h2" href={profileHref} username={user.username} />
       <IdentityLines>
-        <IdentityLine glyph={calendarGlyph}>
-          Member since {user.memberSince}
-        </IdentityLine>
+        {user.memberSince ? (
+          <IdentityLine glyph={calendarGlyph}>
+            Member since {user.memberSince}
+          </IdentityLine>
+        ) : null}
         <IdentityLine glyph={eyeGlyph}>
           {episodes}, {finished}
         </IdentityLine>

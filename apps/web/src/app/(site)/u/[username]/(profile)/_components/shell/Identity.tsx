@@ -7,8 +7,8 @@ import {
   IdentityLines,
 } from '@/components/ui/identity/IdentityLines';
 import WatchesOn from '@/components/ui/identity/WatchesOn';
+import { memberSince } from '@/lib/profile/memberSince';
 import type { Profile } from '../../_data/profile';
-import { memberSince } from '../../_lib/format';
 import Hole from '../blocks/Hole';
 import IdentityMeta, {
   CompactIdentityMeta,
@@ -47,9 +47,11 @@ export default function Identity({
       <section aria-label="Identity" className={FULL_IDENTITY_CLASS}>
         <Handle username={user.username} />
         <IdentityLines>
-          <IdentityLine glyph={calendarGlyph}>
-            Member since {joined}
-          </IdentityLine>
+          {joined ? (
+            <IdentityLine glyph={calendarGlyph}>
+              Member since {joined}
+            </IdentityLine>
+          ) : null}
           <Hole
             className={IDENTITY_META_CLASS}
             fallback={<IdentityMetaSkeleton />}

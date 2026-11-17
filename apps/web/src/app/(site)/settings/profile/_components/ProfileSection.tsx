@@ -1,8 +1,8 @@
 import { plural } from '@/lib/format/text';
 import { formatGrouped } from '@/lib/formatCount';
+import { memberSince } from '@/lib/profile/memberSince';
 import { loadSettingsCounts } from '../../_data/counts';
 import { getSettingsSession, getSettingsViewer } from '../../_data/session';
-import { formatMonthYear } from '../../_lib/format';
 import ProfileEditor from './ProfileEditor';
 import type { PreviewData } from './ProfilePreview';
 
@@ -24,7 +24,7 @@ export default async function ProfileSection() {
     getSettingsViewer().then(({ id }) => loadSettingsCounts(id)),
   ]);
 
-  const since = formatMonthYear(user.createdAt);
+  const since = memberSince(user.createdAt, Date.now());
   const episodes = joinParts([
     counts.episodes === null ? null : plural(counts.episodes, 'episode'),
     counts.finished === null

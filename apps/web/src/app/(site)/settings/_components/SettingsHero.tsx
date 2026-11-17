@@ -8,11 +8,11 @@ import {
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import { plural } from '@/lib/format/text';
+import { memberSince } from '@/lib/profile/memberSince';
 
 import { loadSettingsCounts } from '../_data/counts';
 import { loadPlexStatus } from '../_data/plex';
 import { getSettingsSession, getSettingsViewer } from '../_data/session';
-import { formatMonthYear } from '../_lib/format';
 import { plexStateOf } from '../_lib/plexState';
 import LineSkeleton from './LineSkeleton';
 
@@ -47,7 +47,7 @@ async function HeroMeta() {
     getSettingsSession(),
     getSettingsViewer().then(({ id }) => loadSettingsCounts(id)),
   ]);
-  const since = formatMonthYear(user.createdAt);
+  const since = memberSince(user.createdAt, Date.now());
   return (
     <MetaRow className="gap-x-4 gap-y-2 text-white/80 max-md:gap-x-3 max-md:text-white/60">
       {since ? (

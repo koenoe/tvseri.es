@@ -30,22 +30,23 @@ import {
 import { FINISHED_TITLE } from '../firstlast/statsTitle';
 import type { SectionProps } from '../types';
 import StatsUnavailable from '../ui/StatsUnavailable';
-import { FINISHED_TILES, type FinishedTile, finishedTile } from './model';
+import {
+  FINISHED_TILES,
+  type FinishedTile,
+  finishedFacts,
+  finishedTile,
+} from './model';
 
 type Tile = Readonly<{ art: SeriesArt | null; tile: FinishedTile }>;
 
 /**
  * A finished show as a slice of the profile's accordion (one component,
- * `SliceAccordion`): the backdrop, and while open the logo, its three facts
- * and the viewer's Remote; no vertical title, as in the
+ * `SliceAccordion`): the backdrop, and while open the logo, its facts
+ * (`finishedFacts`) and the viewer's Remote; no vertical title, as in the
  * profile's favourites
  */
 function finishedSlice({ art, tile }: Tile): AccordionSlice {
-  const facts = [
-    { kind: 'seasons', text: tile.episodes },
-    { kind: 'finished', text: tile.finished },
-    { kind: 'runtime', text: tile.duration },
-  ] as const;
+  const facts = finishedFacts(tile);
   return {
     ...showSlice({
       backdrop: art?.backdropImage,
@@ -90,7 +91,9 @@ function StripCard({ art, tile }: Readonly<Tile>) {
         />
         <MetaRow className="gap-3">
           <MetaItem icon={completeGlyph}>{tile.finished}</MetaItem>
-          <MetaItem icon={clockGlyph}>{tile.duration}</MetaItem>
+          {tile.duration ? (
+            <MetaItem icon={clockGlyph}>{tile.duration}</MetaItem>
+          ) : null}
         </MetaRow>
       </span>
       <CardRim />

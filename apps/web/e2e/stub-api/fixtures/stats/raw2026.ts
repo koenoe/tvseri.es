@@ -111,6 +111,9 @@ export const raw2026: YearRaw = {
   ],
   finished: [
     { eps: 7, id: 9315, last: '2026-11-07', runtime: 428, seasons: [1] },
+    // Finished in the year with nothing of it dated in the year (its seasons
+    // watched the year before, the last mark undated): no 0 episodes or 0m
+    { eps: 0, id: 9001, last: '2026-09-20', runtime: 0, seasons: [] },
     { eps: 3, id: 9007, last: '2026-09-13', runtime: 151, seasons: [1] },
     { eps: 3, id: 9314, last: '2026-08-21', runtime: 190, seasons: [1] },
     { eps: 5, id: 9302, last: '2026-08-21', runtime: 226, seasons: [1] },

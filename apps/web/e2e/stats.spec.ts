@@ -734,6 +734,41 @@ test.describe('stats', () => {
   });
 });
 
+// A show that reached Finished in the year with nothing of it dated in the
+// year (the stub's The Traitors: its seasons watched the year before) has
+// no episodes or runtime in the year: its tile leaves both out rather than
+// claiming "0 episodes · 0m"; the other tiles keep theirs.
+for (const width of [390, 1440] as const) {
+  test(`a Finished tile with nothing in the year shows no zeros at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ height: 900, width });
+    await page.goto(`/u/lena/stats/${THIS_YEAR}`);
+    const section = page.getByRole('region', {
+      name: `Finished in ${THIS_YEAR}`,
+    });
+    const tileOf = (title: string) =>
+      section.getByRole('link', { name: title }).filter({ visible: true });
+    const cardOf = (title: string) =>
+      width < 768
+        ? tileOf(title)
+        : section
+            .locator('[data-open="true"]')
+            .filter({ has: page.getByRole('link', { name: title }) });
+    // Another tile keeps its runtime (the accordion opens on the newest)
+    await tileOf('Invincible').scrollIntoViewIfNeeded();
+    await expect(cardOf('Invincible')).toContainText('7h 8m');
+    if (width >= 768) {
+      await expect(cardOf('Invincible')).toContainText('S01, 7 episodes');
+    }
+    // Focusing a slice opens it and shows its facts
+    await tileOf('The Traitors').focus();
+    const card = cardOf('The Traitors');
+    await expect(card.getByText('Finished Sep 20')).toBeVisible();
+    await expect(card).not.toContainText(/\b0 episodes|\b0m\b/);
+  });
+}
+
 // The tiles' "vs." lines ran
 // across the dividers (800 beside the old sidebar, 360 on a phone) and the
 // First and last cards cut their episode title to two letters. A "vs." line

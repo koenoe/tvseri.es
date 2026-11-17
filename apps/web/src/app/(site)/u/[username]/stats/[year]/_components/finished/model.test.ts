@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { FINISHED_TILES, finishedTile, seasonsLabel } from './model';
+import {
+  FINISHED_TILES,
+  finishedFacts,
+  finishedTile,
+  seasonsLabel,
+} from './model';
 
 describe('seasonsLabel', () => {
   it('names one season', () => {
@@ -47,6 +52,41 @@ describe('finishedTile', () => {
     expect(
       finishedTile({ ...show, episodes: 1, seasons: [] }, 2025).episodes,
     ).toBe('1 episode');
+  });
+
+  // House, bulk-marked "I don't remember" on Nov 16: Finished in the year,
+  // nothing of it dated in the year (the segment's 0 episodes, 0 minutes)
+  const undated = {
+    ...show,
+    episodes: 0,
+    finishedAt: Date.UTC(2026, 10, 16, 21),
+    runtimeMinutes: 0,
+    seasons: [],
+  };
+
+  it('never claims 0 episodes or 0m', () => {
+    const tile = finishedTile(undated, 2026);
+    expect(tile.episodes).toBeNull();
+    expect(tile.duration).toBeNull();
+    expect(finishedFacts(tile)).toEqual([
+      { kind: 'finished', text: 'Finished Nov 16' },
+    ]);
+  });
+
+  it('leaves out only the runtime when the episodes have none', () => {
+    const tile = finishedTile({ ...show, runtimeMinutes: 0 }, 2025);
+    expect(finishedFacts(tile)).toEqual([
+      { kind: 'seasons', text: 'S01, 15 episodes' },
+      { kind: 'finished', text: 'Finished Apr 11' },
+    ]);
+  });
+
+  it('keeps the three facts of a show watched in the year', () => {
+    expect(finishedFacts(finishedTile(show, 2025))).toEqual([
+      { kind: 'seasons', text: 'S01, 15 episodes' },
+      { kind: 'finished', text: 'Finished Apr 11' },
+      { kind: 'runtime', text: '13h 45m' },
+    ]);
   });
 
   it('draws six tiles', () => {

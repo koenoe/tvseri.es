@@ -6,18 +6,17 @@ import { TabTriggerValueSkeleton } from '@/components/skeletons';
 import { PercentileBar } from '@/components/ui/percentile-bar';
 import { ScoreRing } from '@/components/ui/score-ring';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  formatMetricDisplay,
-  getMetricValue,
-  MetricTabContent,
-  type PercentileKey,
-} from '@/components/web-vitals';
+import { MetricTabContent, type PercentileKey } from '@/components/web-vitals';
 import { WebVitalsHeader } from '@/components/web-vitals-header';
 import { useMetricsSummary } from '@/lib/api/hooks';
 import {
+  formatMetricDisplay,
   getMetricTextClass,
+  getMetricValue,
   METRICS_CONFIG,
   type MetricType,
+  toWebVitalName,
+  type WebVitalMetric,
 } from '@/lib/web-vitals';
 
 type WebSearchParams = {
@@ -54,7 +53,7 @@ export const Route = createFileRoute('/web/')({
   },
 });
 
-const TAB_SKELETON_WIDTHS: Record<Exclude<MetricType, 'res'>, string> = {
+const TAB_SKELETON_WIDTHS: Record<WebVitalMetric, string> = {
   cls: 'w-6',
   fcp: 'w-14',
   inp: 'w-20',
@@ -119,12 +118,9 @@ function WebVitals() {
     return getMetricValue(metric, aggregated);
   };
 
-  const getMetricRatings = (
-    metric: Exclude<MetricType, 'res'>,
-  ): WebVitalRatings | null => {
+  const getMetricRatings = (metric: WebVitalMetric): WebVitalRatings | null => {
     if (!aggregated) return null;
-    const key = metric.toUpperCase() as 'CLS' | 'FCP' | 'INP' | 'LCP' | 'TTFB';
-    return aggregated[key]?.ratings ?? null;
+    return aggregated[toWebVitalName(metric)]?.ratings ?? null;
   };
 
   const renderMetricTrigger = (metric: MetricType) => {

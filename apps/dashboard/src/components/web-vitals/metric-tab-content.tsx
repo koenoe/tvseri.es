@@ -8,50 +8,20 @@ import { ScoreRing } from '@/components/ui/score-ring';
 import { useMetricsCountries, useMetricsRoutes } from '@/lib/api/hooks';
 import { groupCountriesByStatus, groupRoutesByStatus } from '@/lib/api/utils';
 import {
+  formatMetricDisplay,
   getMetricStatusConfig,
+  getMetricValue,
   getRatingStatusConfig,
   METRICS_CONFIG,
   type MetricType,
   type RatingStatus,
+  toWebVitalName,
 } from '@/lib/web-vitals';
 import { CountriesSection } from './countries-section';
 import { MetricLineChart, type PercentileKey } from './metric-line-chart';
 import { StatusAccordion } from './status-accordion';
 import { StatusColumns } from './status-columns';
 import { useViewAllModal, ViewAllModal } from './view-all-modal';
-
-/**
- * Get the raw metric value (p75) for status comparison.
- * Converts milliseconds to seconds for metrics with 's' unit to match thresholds.
- */
-export function getMetricValue(
-  metric: MetricType,
-  aggregated: AggregatedMetrics | null | undefined,
-): number {
-  if (!aggregated) return 0;
-  if (metric === 'res') return aggregated.score;
-  const key = metric.toUpperCase() as 'CLS' | 'FCP' | 'INP' | 'LCP' | 'TTFB';
-  const p75 = aggregated[key]?.p75 ?? 0;
-  const unit = METRICS_CONFIG[metric].unit;
-
-  // Convert ms to seconds for metrics with 's' unit to match thresholds
-  if (unit === 's') {
-    return p75 / 1000;
-  }
-  return p75;
-}
-
-/**
- * Format a metric value for display with proper rounding.
- * Value is already in display units (seconds for 's' metrics, ms for 'ms' metrics).
- */
-export function formatMetricDisplay(metric: MetricType, value: number): string {
-  const config = METRICS_CONFIG[metric];
-  if (metric === 'res') return Math.round(value).toString();
-  if (config.unit === 's') return value.toFixed(2);
-  if (config.unit === 'ms') return Math.round(value).toString();
-  return value.toFixed(2);
-}
 
 /**
  * Get contextual message based on metric status.
@@ -171,15 +141,12 @@ function MetricTabContentComponent({
   const displayValue = formatMetricDisplay(metric, metricValue);
   const unit = metricConfig.unit;
 
-  const metricKey = metric.toUpperCase() as
-    | 'CLS'
-    | 'FCP'
-    | 'INP'
-    | 'LCP'
-    | 'TTFB';
-  const ratings = metric === 'res' ? null : aggregated[metricKey].ratings;
+  const ratings =
+    metric === 'res' ? null : aggregated[toWebVitalName(metric)].ratings;
   const dataPointCount =
-    metric === 'res' ? aggregated.pageviews : aggregated[metricKey].count;
+    metric === 'res'
+      ? aggregated.pageviews
+      : aggregated[toWebVitalName(metric)].count;
 
   return (
     <div className="flex flex-col gap-6">

@@ -5,6 +5,8 @@ import {
   METRICS_CONFIG,
   type MetricType,
   RATING_COLORS,
+  toThresholdUnits,
+  toWebVitalName,
 } from '@/lib/web-vitals';
 
 import type { PercentileKey } from './constants';
@@ -35,16 +37,7 @@ export function getMetricDisplayValue(
     });
   }
 
-  const key = metric.toUpperCase() as 'CLS' | 'FCP' | 'INP' | 'LCP' | 'TTFB';
-  const metricData = item[key];
-  const rawValue = metricData[percentile];
-  const unit = METRICS_CONFIG[metric].unit;
-
-  // Convert ms to seconds for metrics with 's' unit to match thresholds
-  if (unit === 's') {
-    return rawValue / 1000;
-  }
-  return rawValue;
+  return toThresholdUnits(metric, item[toWebVitalName(metric)][percentile]);
 }
 
 /**

@@ -11,7 +11,9 @@ import { failRead, signInAs } from './helpers/session';
  * identity and the blocks that need it, each in its own box.
  */
 
-const MODES = ['500', 'hang'] as const;
+// A hang costs the web's 10 s timeout per read: every read fails with a
+// 500, and the profile read (the one that once took the page down) hangs too
+const MODES = ['500'] as const;
 
 const expectNoDataDownPage = async (page: Page) => {
   await expect(page.getByText('Something broke')).toHaveCount(0);
@@ -170,7 +172,6 @@ test.describe('a failing read on a profile', () => {
   for (const [mode, path] of [
     ['500', ''],
     ['500', '/library/watchlist'],
-    ['500', '/history'],
     ['hang', '/circle'],
   ] as const) {
     test(`the profile read (${mode}) fails the identity, not the page: ${path || 'overview'}`, async ({

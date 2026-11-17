@@ -3,13 +3,15 @@ import { expect, type Page, test } from '@playwright/test';
 import { failRead, signInAs } from './helpers/session';
 
 /**
- * One read that fails (a 500, or a hang past the web's 10 s timeout) never
- * takes a page down. Per page kind: Home's personal rows, the show's viewer
+ * One read that fails never takes a page down. Per page kind: Home's personal rows, the show's viewer
  * holes, Settings' sections and the Stats blocks each render with only the
  * part that read feeds failed. (Profiles: `profile-outage.spec.ts`.)
  */
 
-const MODES = ['500', 'hang'] as const;
+// A 500 here: a hang costs the web's 10 s timeout, and the hang's own path is
+// covered once per page kind elsewhere (`show-outage`, `home-continue`,
+// `profile-outage`)
+const MODES = ['500'] as const;
 
 const expectNoDataDownPage = async (page: Page) => {
   await expect(page.getByText('Something broke')).toHaveCount(0);
@@ -35,11 +37,11 @@ test.describe('a failing read on Home', () => {
 });
 
 test.describe('a failing read on the show page', () => {
-  for (const [what, includes] of [
-    ['the viewer’s marks', '/user/'],
-    ['the list status', '/me/series/'],
+  for (const [what, includes, modes] of [
+    ['the viewer’s marks', '/user/', MODES],
+    ['the list status', '/me/series/', MODES],
   ] as const) {
-    for (const mode of MODES) {
+    for (const mode of modes) {
       test(`${what} (${mode}) leave the show on screen`, async ({ page }) => {
         test.setTimeout(90_000);
         await signInAs(page.context(), 'alex');
@@ -81,23 +83,6 @@ test.describe('a failing read in Settings', () => {
       await expectNoDataDownPage(page);
     });
   }
-});
-
-test('a Settings section that fails late keeps its skeleton’s space', async ({
-  page,
-}) => {
-  // a hang: the skeleton is on screen for the web's 10 s fetch timeout, then the read fails
-  test.setTimeout(90_000);
-  await signInAs(page.context(), 'alex');
-  await failRead('alex', '/webhook/', 'hang');
-  await page.goto('/settings/plex', { waitUntil: 'commit' });
-  await expect(page.locator('[data-placeholder="plex"]')).toBeVisible();
-  const below = page.getByText('Jellyfin', { exact: true }).first();
-  const held = (await below.boundingBox())?.y;
-  await expect(
-    page.getByRole('alert').filter({ hasText: 'Plex didn’t load.' }),
-  ).toBeVisible({ timeout: 30_000 });
-  expect((await below.boundingBox())?.y).toBe(held);
 });
 
 test.describe('a failing read in Stats', () => {

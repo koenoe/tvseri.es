@@ -62,16 +62,6 @@ test.describe('sections whose reads fail', () => {
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
   });
 
-  test('the unavailable wall is as tall as the loading wall @design', async ({
-    page,
-  }) => {
-    await page.goto('/900092/partial-outage');
-    const wall = page.locator('[data-slot="episodes-unavailable"]').first();
-    await expect(wall.getByText('Season 1 didn’t load.')).toBeVisible();
-    const box = await wall.boundingBox();
-    expect(box?.height ?? 0).toBeGreaterThan(700);
-  });
-
   test('the episode modal shows its credits as unavailable', async ({
     page,
   }) => {

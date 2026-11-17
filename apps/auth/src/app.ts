@@ -42,11 +42,6 @@ export type AppConfig = Readonly<{
   google: ReturnType<typeof OidcProvider>;
   /** How long a sent code works, in seconds (`CODE_TTL`) */
   codeTtl: number;
-  /**
-   * Sign-in code emails to all addresses together per UTC hour (our patch;
-   * its default when left out: `MAX_CODES_PER_HOUR` in the patch)
-   */
-  maxCodesPerHour?: number;
   /** OpenAuth's refresh hook (our patch): re-reads the user's role on a refresh */
   refresh?: (
     input: Readonly<{
@@ -121,7 +116,6 @@ export function createApp(config: AppConfig) {
           },
           site: config.site,
         }),
-        maxSendsPerHour: config.maxCodesPerHour,
         // The patch's expiry: the same value the email and the page say
         ttl: config.codeTtl,
       }),

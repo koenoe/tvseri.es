@@ -34,8 +34,6 @@ export function createTestApp(
     googleIssuer?: string;
     /** The issuer's origin, the one the code form may be posted from */
     issuer?: string;
-    /** The hourly cap on code emails (the patch's default otherwise) */
-    maxCodesPerHour?: number;
     /** The issuer's refresh hook (the real one re-reads the role) */
     refresh?: AppConfig['refresh'];
     site?: string;
@@ -71,7 +69,6 @@ export function createTestApp(
       type: 'google',
     }),
     issuer: options.issuer ?? 'http://localhost',
-    maxCodesPerHour: options.maxCodesPerHour,
     refresh: options.refresh,
     sendEmail: async (message) => {
       if (options.failFor?.(message.recipient)) {

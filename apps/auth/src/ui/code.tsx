@@ -69,8 +69,8 @@ const checkClaims = (
  */
 export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
   const hasGoogle = Object.hasOwn(options.providers, 'google');
-  // Email refused (a failed send or the hourly cap, then this address's
-  // 5 codes in 15 minutes): say so plainly and lead with Google, which
+  // Email refused (a failed send, then this address's 5 codes in 15
+  // minutes): say so plainly and lead with Google, which
   // works now. The Google button, already first, takes the focus.
   const startNotes: Partial<Record<CodeProviderError['type'], NoteCopy>> = {
     rate_limited: warn(
@@ -97,7 +97,7 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
   };
 
   return {
-    // Before anything is counted (the hourly cap, our patch) or sent
+    // Before anything is counted or sent (our patch)
     checkClaims: async (claims) => checkClaims(claims),
     request: async (
       _req: Request,

@@ -217,7 +217,6 @@ test.describe('start page errors', () => {
     await expect(page).toHaveURL(/\/authorize/);
   });
 
-  // A failed send and the hourly cap answer the same way (`send_failed`)
   test('when email can’t be sent, leads with Google, which signs in', async ({
     page,
   }) => {

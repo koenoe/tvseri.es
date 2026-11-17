@@ -197,8 +197,8 @@ describe('email code flow', () => {
     expect(mail).toHaveLength(0);
   });
 
-  // An email refusal (a failed send or the hourly cap, then the per-address
-  // cap) leads with Google: the note says email codes are unavailable and
+  // An email refusal (a failed send, then the per-address cap) leads with
+  // Google: the note says email codes are unavailable and
   // the Google button, already first, takes the focus
   const GOOGLE_FOCUSED =
     /<a autofocus="" class="a-btn w"[^>]*href="\/google\/authorize"/;
@@ -305,73 +305,6 @@ describe('email code flow', () => {
     });
     expect(res.status).toBe(302);
     expect(res.headers.get('location')).toContain('/api/auth/callback?code=');
-  });
-
-  it('stops sending codes to anyone once the hourly cap is reached, and sends again the next hour', async () => {
-    vi.useFakeTimers({ now: Date.UTC(2026, 10, 13, 10, 5), toFake: ['Date'] });
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const test = createTestApp({ maxCodesPerHour: 2 });
-    const b = browser(test.app);
-    await b.get(authorizeUrl(ORIGIN));
-
-    await requestCode(b, 'ana@example.com');
-    await requestCode(b, 'ben@example.com');
-    const third = await (await requestCode(b, 'cy@example.com')).text();
-
-    expect(test.mail.map((m) => m.recipient)).toEqual([
-      'ana@example.com',
-      'ben@example.com',
-    ]);
-    expect(third).toContain('Email codes are unavailable right now.');
-    expect(third).toMatch(GOOGLE_FOCUSED);
-    expect(third).toContain('value="cy@example.com"');
-    expect(error).toHaveBeenCalledWith(expect.stringContaining('[CAP]'));
-
-    vi.setSystemTime(Date.UTC(2026, 10, 13, 11, 0));
-    await requestCode(b, 'cy@example.com');
-    expect(test.mail.map((m) => m.recipient)).toContain('cy@example.com');
-    error.mockRestore();
-    vi.useRealTimers();
-  });
-
-  it('sends 400 code emails an hour by default (the patch), not one more', async () => {
-    vi.useFakeTimers({ now: Date.UTC(2026, 10, 13, 10, 5), toFake: ['Date'] });
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const test = createTestApp();
-    const b = browser(test.app);
-    await b.get(authorizeUrl(ORIGIN));
-
-    for (let i = 0; i < 400; i++) {
-      await requestCode(b, `p${i}@example.com`);
-    }
-    expect(test.mail).toHaveLength(400);
-
-    const refused = await (await requestCode(b, 'last@example.com')).text();
-    expect(test.mail).toHaveLength(400);
-    expect(refused).toContain('Email codes are unavailable right now.');
-    expect(error).toHaveBeenCalledWith(
-      expect.stringContaining('reached 400 this hour'),
-    );
-    error.mockRestore();
-    vi.useRealTimers();
-  }, 20_000); // 401 sign-in requests in a row: give a loaded machine room
-
-  it('never spends the hourly cap on honeypot posts or invalid addresses', async () => {
-    const test = createTestApp({ maxCodesPerHour: 1 });
-    const b = browser(test.app);
-    await b.get(authorizeUrl(ORIGIN));
-    for (let i = 0; i < 3; i++) {
-      await b.post('/code/authorize', {
-        action: 'request',
-        email: `bot${i}@example.com`,
-        verify_email: 'x',
-      });
-      await requestCode(b, `not-an-address-${i}`);
-    }
-
-    await requestCode(b, 'ana@example.com');
-
-    expect(test.mail.map((m) => m.recipient)).toEqual(['ana@example.com']);
   });
 
   it('turns a filled honeypot away without sending anything', async () => {

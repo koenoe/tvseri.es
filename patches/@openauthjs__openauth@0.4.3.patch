@@ -138,10 +138,10 @@ index 1b18009bfeaa09f2222e9df760dde0e4eb1d4326..3d58daef39c716cfbce3b98ec84626aa
      url.searchParams.set("error_description", oauth.description);
      return c.redirect(url.toString());
 diff --git a/dist/esm/provider/code.js b/dist/esm/provider/code.js
-index 7cee307550b3d50b49bd3054b517da0d9bd037f8..f33198a656f6721f1a0ac26cf223d42830fb87c8 100644
+index 7cee307550b3d50b49bd3054b517da0d9bd037f8..721c78247bd90e729507b6e2fdc7dbe38f5d8eb7 100644
 --- a/dist/esm/provider/code.js
 +++ b/dist/esm/provider/code.js
-@@ -1,13 +1,54 @@
+@@ -1,13 +1,36 @@
  // src/provider/code.ts
 +// tvseri.es patch: every sent code is an item in the issuer storage,
 +// ["oauth:otp", claim, nonce] = { code, issuedAt } plus an attempt counter;
@@ -161,23 +161,6 @@ index 7cee307550b3d50b49bd3054b517da0d9bd037f8..f33198a656f6721f1a0ac26cf223d428
 +var SEND_WINDOW = 60 * 15;
 +var MAX_SENDS = 5;
 +var MAX_ATTEMPTS = 5;
-+// tvseri.es patch: one counter for every claim together per UTC hour
-+// (["oauth:otp-hour", "2026-11-13T10"], kept 2 hours), so code emails stay
-+// bounded whatever addresses are asked for. Claimed before the send, after
-+// the app's `checkClaims` (honeypot, address shape), so only a failed send of
-+// a valid claim still counts.
-+var MAX_CODES_PER_HOUR = 400;
-+async function claimHourlySend(storage, max) {
-+  const key = ["oauth:otp-hour", new Date().toISOString().slice(0, 13)];
-+  let count = await Storage.incr(storage, key, max);
-+  if (count === undefined && !await Storage.get(storage, key)) {
-+    // The hour's first send. Two first sends at once may each create the
-+    // item, losing a count (accepted, like the per-claim cap's overshoot).
-+    await Storage.set(storage, key, {}, 2 * 60 * 60);
-+    count = await Storage.incr(storage, key, max);
-+  }
-+  return count !== undefined;
-+}
 +function claimKey(claims) {
 +  return (claims.email ?? claims.phone ?? "").trim().toLowerCase();
 +}
@@ -185,7 +168,6 @@ index 7cee307550b3d50b49bd3054b517da0d9bd037f8..f33198a656f6721f1a0ac26cf223d428
    const length = config.length || 6;
 +  const codeTtl = config.ttl ?? CODE_TTL;
 +  const sendWindow = Math.max(SEND_WINDOW, codeTtl);
-+  const maxPerHour = config.maxSendsPerHour ?? MAX_CODES_PER_HOUR;
    function generate() {
      return generateUnbiasedDigits(length);
    }
@@ -196,7 +178,7 @@ index 7cee307550b3d50b49bd3054b517da0d9bd037f8..f33198a656f6721f1a0ac26cf223d428
        async function transition(c, next, fd, err) {
          await ctx.set(c, "provider", 60 * 60 * 24, next);
          const resp = ctx.forward(c, await config.request(c.req.raw, next, fd, err));
-@@ -27,25 +68,68 @@ function CodeProvider(config) {
+@@ -27,25 +50,62 @@ function CodeProvider(config) {
          if (action === "request" || action === "resend") {
            const claims = Object.fromEntries(fd);
            delete claims.action;
@@ -210,16 +192,10 @@ index 7cee307550b3d50b49bd3054b517da0d9bd037f8..f33198a656f6721f1a0ac26cf223d428
 +          if (sent.length >= MAX_SENDS)
 +            return transition(c, fallback, fd, { type: "rate_limited" });
 +          // tvseri.es patch: a claim the app refuses (honeypot, not an
-+          // address) is answered before any slot of the hourly cap is taken
++          // address) is answered before anything is sent
 +          const invalid = await config.checkClaims?.(claims);
 +          if (invalid)
 +            return transition(c, fallback, fd, invalid);
-+          // tvseri.es patch: the hourly cap for all claims; the person sees
-+          // the "email codes are unavailable, continue with Google" note.
-+          if (!await claimHourlySend(storage, maxPerHour)) {
-+            console.error(`[CAP] Sign-in code emails reached ${maxPerHour} this hour`);
-+            return transition(c, fallback, fd, { type: "send_failed" });
-+          }
            const err = await config.sendCode(claims, code);
            if (err)
 -            return transition(c, { type: "start" }, fd, err);
@@ -464,10 +440,10 @@ index 904bb5a4c84e7ebd410cdcfd2fb43bb30aa93549..78db474a43f96d0c5eec94457fdf52b4
       * @internal
       */
 diff --git a/dist/types/provider/code.d.ts b/dist/types/provider/code.d.ts
-index 3aa567060b27f491ac5a51f38bc02b08ac67bb81..42367a60bcd1402f7285a066ae49e5f6d3136bcd 100644
+index 3aa567060b27f491ac5a51f38bc02b08ac67bb81..c6d6c9c3f455ab44be963f524d12ec9aa79ea732 100644
 --- a/dist/types/provider/code.d.ts
 +++ b/dist/types/provider/code.d.ts
-@@ -6,6 +6,20 @@ export interface CodeProviderConfig<Claims extends Record<string, string> = Reco
+@@ -6,6 +6,15 @@ export interface CodeProviderConfig<Claims extends Record<string, string> = Reco
       * @default 6
       */
      length?: number;
@@ -476,11 +452,6 @@ index 3aa567060b27f491ac5a51f38bc02b08ac67bb81..42367a60bcd1402f7285a066ae49e5f6
 +     */
 +    ttl?: number;
 +    /**
-+     * tvseri.es patch: codes sent to all claims together per UTC hour
-+     * (default 400); past it a request gets `send_failed`.
-+     */
-+    maxSendsPerHour?: number;
-+    /**
 +     * tvseri.es patch: checks a claim before anything is counted or sent; an
 +     * error is answered like one from `sendCode`.
 +     */
@@ -488,7 +459,7 @@ index 3aa567060b27f491ac5a51f38bc02b08ac67bb81..42367a60bcd1402f7285a066ae49e5f6
      /**
       * The request handler to generate the UI for the code flow.
       *
-@@ -46,7 +60,8 @@ export type CodeProviderState = {
+@@ -46,7 +55,8 @@ export type CodeProviderState = {
  } | {
      type: "code";
      resend?: boolean;
@@ -498,7 +469,7 @@ index 3aa567060b27f491ac5a51f38bc02b08ac67bb81..42367a60bcd1402f7285a066ae49e5f6
      claims: Record<string, string>;
  };
  /**
-@@ -56,6 +71,9 @@ export type CodeProviderState = {
+@@ -56,6 +66,9 @@ export type CodeProviderState = {
   * | ----- | ----------- |
   * | `invalid_code` | The code is invalid. |
   * | `invalid_claim` | The _claim_, email or phone number, is invalid. |
@@ -508,7 +479,7 @@ index 3aa567060b27f491ac5a51f38bc02b08ac67bb81..42367a60bcd1402f7285a066ae49e5f6
   */
  export type CodeProviderError = {
      type: "invalid_code";
-@@ -63,6 +81,12 @@ export type CodeProviderError = {
+@@ -63,6 +76,12 @@ export type CodeProviderError = {
      type: "invalid_claim";
      key: string;
      value: string;

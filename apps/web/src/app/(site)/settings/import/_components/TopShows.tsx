@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Dot from '@/components/ui/lane/Dot';
 import { plural } from '@/lib/format/text';
 import { formatGrouped } from '@/lib/formatCount';
 
@@ -22,7 +23,7 @@ export default function TopShows({
   return (
     <div className="relative flex flex-col gap-4 border-white/7 border-t pt-6">
       <div className={CARD_HEAD}>
-        <span className="size-2 shrink-0 rounded-full bg-cyan" />
+        <Dot tone="cyan" />
         <h3 className={CARD_TITLE}>{title}</h3>
         <span className={`${CARD_COUNT} max-md:basis-full`}>{line}</span>
       </div>

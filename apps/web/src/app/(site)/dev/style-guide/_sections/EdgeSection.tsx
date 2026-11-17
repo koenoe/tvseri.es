@@ -1,7 +1,6 @@
 import type { CSSProperties } from 'react';
-
-import Dot from '@/app/(site)/u/[username]/(profile)/_components/blocks/Dot';
 import { heroShade } from '@/components/background/heroShade';
+import Dot from '@/components/ui/lane/Dot';
 import SectionHead from '@/components/ui/section/SectionHead';
 
 import Section from './Section';

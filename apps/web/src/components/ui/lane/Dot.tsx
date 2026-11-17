@@ -46,7 +46,7 @@ type Props = VariantProps<typeof dot> & {
   colour?: string;
 };
 
-/** The 8px block dot */
+/** The 8px dot before a lane, block or card title */
 export default function Dot({ colour, ...props }: Readonly<Props>) {
   const className = cn(dot(props), colour);
   return <span aria-hidden="true" className={className} />;

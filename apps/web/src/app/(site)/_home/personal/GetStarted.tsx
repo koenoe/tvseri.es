@@ -1,7 +1,7 @@
 import type { GetStartedStatus } from '@tvseri.es/schemas';
 import type { ReactNode } from 'react';
-
 import Badge from '@/components/ui/button/Badge';
+import Dot from '@/components/ui/lane/Dot';
 import SectionHead, {
   type SectionHeadLayout,
 } from '@/components/ui/section/SectionHead';
@@ -70,9 +70,7 @@ const HEAD: SectionHeadLayout = {
   title: 'text-title-2 whitespace-nowrap text-white',
 };
 
-const DOT = (
-  <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-white" />
-);
+const DOT = <Dot />;
 
 /** The heading line: a dot, the title, the count and a hairline (the placeholder's count is a bar) */
 export function GetStartedHead({ count }: Readonly<{ count: ReactNode }>) {

@@ -2,11 +2,11 @@
 
 import type { WatchProvider } from '@tvseri.es/schemas';
 import { useState } from 'react';
+import Dot from '@/components/ui/lane/Dot';
 import SectionHead from '@/components/ui/section/SectionHead';
 import cn from '@/lib/cn';
 import { isGetStartedDone } from '@/lib/profile/getStartedDone';
 import { useSelectedServices } from '@/lib/watchProviders/useSelectedServices';
-import Dot from '../../blocks/Dot';
 import { doneCount, progressText } from './getStartedCopy';
 import HistoryLinks from './HistoryLinks';
 import {

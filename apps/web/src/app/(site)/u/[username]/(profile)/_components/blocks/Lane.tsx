@@ -1,10 +1,8 @@
 import type { ReactNode } from 'react';
-
+import Dot, { type DotTone } from '@/components/ui/lane/Dot';
 import BaseLane from '@/components/ui/lane/Lane';
 import { PROFILE_LANE } from '@/components/ui/lane/laneLooks';
 import { formatGrouped } from '@/lib/formatCount';
-
-import Dot, { type DotTone } from './Dot';
 
 type Props = Readonly<{
   children: ReactNode;

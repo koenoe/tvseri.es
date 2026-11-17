@@ -8,6 +8,7 @@ import {
   PULSE,
 } from '@/components/ui/ghost/ghosts';
 import { userGlyph } from '@/components/ui/icon/glyphs';
+import Dot from '@/components/ui/lane/Dot';
 import { LaneGhost as BaseLaneGhost } from '@/components/ui/lane/Lane';
 import { HOME_LANE } from '@/components/ui/lane/laneLooks';
 import UpNextCardGhost from '@/components/up-next/UpNextCardGhost';
@@ -21,7 +22,6 @@ import {
   continueGrid,
   IN_PROGRESS_ROW,
   IN_PROGRESS_ROW_GHOST,
-  LANE_DOT,
   LANE_POSTER_EMPTY,
   LANE_REMOTE,
   LANE_ROW_PHONE_HIDDEN,
@@ -44,8 +44,7 @@ import {
 
 const LANE_GHOST_ROWS = Array.from({ length: LANE_ROWS }, (_, n) => n);
 
-const DOT_CLASS = cn(LANE_DOT, FLAT);
-const DOT = <span className={DOT_CLASS} />;
+const DOT = <Dot colour={FLAT} tone="cyan" />;
 const COUNT = <Badge className={FLAT} variant="count" />;
 
 /** The card's ⋯ */

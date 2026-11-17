@@ -51,9 +51,6 @@ export const continueGrid = (hasLane: boolean) =>
 /** The lane shows three compact rows under its head; the phone one */
 export const LANE_ROWS = 3;
 
-/** The In progress lane's cyan dot (the panel and head: `HOME_LANE`) */
-export const LANE_DOT = 'size-2 shrink-0 rounded-full bg-cyan';
-
 export const LANE_TITLE_TEXT = 'In progress';
 
 /** The phone shows the lane's first row only */

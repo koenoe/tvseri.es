@@ -6,6 +6,7 @@ import ExpandButton, {
 } from '@/components/ui/fold/ExpandButton';
 import { searchGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import Dot from '@/components/ui/lane/Dot';
 import cn from '@/lib/cn';
 
 import InputShell, { INPUT_CLASS } from '../../_components/InputShell';
@@ -60,7 +61,7 @@ export default function PopularCard({
     <section aria-labelledby="popular-services" className={POPULAR_CARD_CLASS}>
       <div className={POPULAR_HEAD_CLASS}>
         <span className={POPULAR_TITLE_CLASS}>
-          <span className="size-2 shrink-0 rounded-full bg-white/35" />
+          <Dot colour="bg-white/35" />
           <h3 className="text-body" id="popular-services">
             {label}
           </h3>

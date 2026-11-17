@@ -1,6 +1,6 @@
-import Dot from '@/app/(site)/u/[username]/(profile)/_components/blocks/Dot';
 import HeadLink from '@/app/(site)/u/[username]/(profile)/_components/blocks/HeadLink';
 import FoldLabel from '@/components/ui/fold/FoldLabel';
+import Dot from '@/components/ui/lane/Dot';
 import SectionHead from '@/components/ui/section/SectionHead';
 
 import Section from './Section';

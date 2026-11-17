@@ -1,9 +1,9 @@
 'use client';
 
 import { type ChangeEvent, useCallback } from 'react';
-
 import { historyGlyph, infoGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import Dot from '@/components/ui/lane/Dot';
 import cn from '@/lib/cn';
 
 import type { ColumnMapping, DetectedSource } from '../_lib/columns';
@@ -61,7 +61,7 @@ export default function ColumnsPanel(props: Props) {
   return (
     <div className="flex flex-col gap-4 rounded-18 bg-white/4 p-6 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.07)]">
       <div className={CARD_HEAD}>
-        <span className="size-2 shrink-0 rounded-full bg-white/75" />
+        <Dot colour="bg-white/75" />
         <h3 className={CARD_TITLE}>Columns</h3>
         <span className={CARD_COUNT}>tvseri.es field ← your CSV column</span>
         {changed ? (

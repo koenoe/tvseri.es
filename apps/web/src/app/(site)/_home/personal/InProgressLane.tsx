@@ -1,12 +1,11 @@
 import type { UpNextItem } from '@tvseri.es/schemas';
-
 import ButtonLink from '@/components/ui/button/ButtonLink';
 import { userGlyph } from '@/components/ui/icon/glyphs';
+import Dot from '@/components/ui/lane/Dot';
 import Lane from '@/components/ui/lane/Lane';
 import { HOME_LANE } from '@/components/ui/lane/laneLooks';
 
 import {
-  LANE_DOT,
   LANE_ROW_PHONE_HIDDEN,
   LANE_ROWS,
   LANE_TITLE_TEXT,
@@ -15,7 +14,7 @@ import {
 } from './continueLayout';
 import InProgressRow from './InProgressRow';
 
-const DOT = <span aria-hidden="true" className={LANE_DOT} />;
+const DOT = <Dot tone="cyan" />;
 
 /**
  * The In progress lane beside the Up next tile: a cyan

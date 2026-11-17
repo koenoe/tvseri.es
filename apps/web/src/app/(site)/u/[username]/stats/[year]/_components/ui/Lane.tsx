@@ -1,14 +1,12 @@
 import type { ReactNode } from 'react';
-
 import { Ghost } from '@/components/ui/ghost/ghosts';
+import Dot from '@/components/ui/lane/Dot';
 import BaseLane, {
   LaneGhost as BaseLaneGhost,
 } from '@/components/ui/lane/Lane';
 import { STATS_LANE } from '@/components/ui/lane/laneLooks';
 
-const DOT = (
-  <span aria-hidden className="size-2 shrink-0 rounded-full bg-white" />
-);
+const DOT = <Dot />;
 const GHOST_DOT = <Ghost className="size-2 shrink-0 rounded-full" />;
 
 /**

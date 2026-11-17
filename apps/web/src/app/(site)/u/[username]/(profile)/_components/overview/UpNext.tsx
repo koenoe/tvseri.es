@@ -1,5 +1,6 @@
 import { ghostCircle, PULSE } from '@/components/ui/ghost/ghosts';
 import { playGlyph } from '@/components/ui/icon/glyphs';
+import Dot from '@/components/ui/lane/Dot';
 import SectionHead from '@/components/ui/section/SectionHead';
 import SectionHeadGhost from '@/components/ui/section/SectionHeadGhost';
 import { loadUpNextArt } from '@/components/up-next/loadUpNextArt';
@@ -9,7 +10,6 @@ import { loadSeriesOrNull } from '@/lib/series/loaders';
 import { loadViewerLibrary } from '../../_data/library';
 import { loadOverview } from '../../_data/overview';
 import type { Profile } from '../../_data/profile';
-import Dot from '../blocks/Dot';
 import EmptyState from '../blocks/EmptyState';
 import LiveOwnerHero from './up-next/LiveOwnerHero';
 import { type HeroPick, loadPicks } from './up-next/loadUpNext';

@@ -1,5 +1,5 @@
 import { vValidator } from '@hono/valibot-validator';
-import { ImportBatchSchema } from '@tvseri.es/schemas';
+import { ImportBatchSchema, ImportIdSchema } from '@tvseri.es/schemas';
 import { Hono } from 'hono';
 import * as v from 'valibot';
 
@@ -13,10 +13,10 @@ import {
 import type { Variables } from '@/middleware/auth';
 
 const ImportIdParamSchema = v.object({
-  importId: v.pipe(v.string(), v.uuid()),
+  importId: ImportIdSchema,
 });
 
-/** `/me/imports`: the signed-in user's import (SETImport) */
+/** `/me/imports`: the signed-in user's import, its check step and Undo */
 const app = new Hono<{ Variables: Variables }>();
 
 app.post('/', async (c) => {

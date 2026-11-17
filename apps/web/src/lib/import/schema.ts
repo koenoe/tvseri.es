@@ -1,3 +1,4 @@
+import { ImportIdSchema } from '@tvseri.es/schemas';
 import * as v from 'valibot';
 
 import {
@@ -57,7 +58,7 @@ const ImportRowSchema = v.object({
  * on its own (`readRequestRows`), so one bad cell never stops a chunk.
  */
 export const ImportRequestSchema = v.object({
-  importId: v.optional(v.pipe(v.string(), v.minLength(1), v.maxLength(64))),
+  importId: v.optional(ImportIdSchema),
   rows: v.pipe(
     v.array(v.looseObject({ index })),
     v.minLength(1),

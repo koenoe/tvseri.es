@@ -1,6 +1,6 @@
 'use server';
 
-import type { LastImport } from '@tvseri.es/schemas';
+import { ImportIdSchema, type LastImport } from '@tvseri.es/schemas';
 import * as v from 'valibot';
 import { fetchMe } from '@/auth/me';
 import { getViewer } from '@/auth/viewer';
@@ -14,9 +14,6 @@ import { revalidateViewerStats } from '@/lib/stats/revalidateViewerStats';
  * import: the API's paths are `/me/...`, so the access token decides whose,
  * and no user id ever comes from the browser.
  */
-
-/** The API's import ids are UUIDs: anything else fails here, before a call. */
-const ImportIdSchema = v.pipe(v.string(), v.uuid());
 
 /** A 409 (not the last import, or already undone) or a 400 is `invalid` */
 const STATUSES = { 400: 'invalid', 409: 'invalid' } as const;

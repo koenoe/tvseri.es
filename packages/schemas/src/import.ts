@@ -3,8 +3,14 @@ import * as v from 'valibot';
 import { WatchedEpisodeEntrySchema } from './watched';
 
 /**
- * The user's last import (SETImport: Undo), kept on the Users item. Imported
- * watched items carry the same `importId`.
+ * An import's id as a request names it: the API mints a UUID per import
+ * (`POST /me/imports`), so anything else is refused before it is looked up.
+ */
+export const ImportIdSchema = v.pipe(v.string(), v.uuid());
+
+/**
+ * The user's last import (the one Undo applies to), kept on the Users item.
+ * Imported watched items carry the same `importId`.
  */
 export const LastImportSchema = v.object({
   /** epoch ms */

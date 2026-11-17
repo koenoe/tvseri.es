@@ -23,6 +23,7 @@ vi.mock('@/lib/api/client', async (importOriginal) => ({
   apiFetch: vi.fn(),
 }));
 
+const IMPORT_ID = '0b9f4c62-6a37-4d0e-9c5b-1f2e3d4c5b6a';
 const NOW = Date.UTC(2026, 10, 12, 21, 40);
 const noon = (year: number, month: number, day: number) =>
   new Date(year, month - 1, day, 12).getTime();
@@ -186,14 +187,18 @@ describe('POST /api/account/import', () => {
       expiresAt: null,
       user: null,
     });
-    const response = await POST(request({ importId: 'imp', rows: [row(0)] }));
+    const response = await POST(
+      request({ importId: IMPORT_ID, rows: [row(0)] }),
+    );
     expect(response.status).toBe(401);
     expect(response.headers.get('cache-control')).toBe('no-store');
     expect(calls).toEqual([]);
   });
 
   it('streams NDJSON that is never cached', async () => {
-    const response = await POST(request({ importId: 'imp', rows: [row(0)] }));
+    const response = await POST(
+      request({ importId: IMPORT_ID, rows: [row(0)] }),
+    );
     expect(response.headers.get('content-type')).toBe(
       'application/x-ndjson; charset=utf-8',
     );
@@ -204,19 +209,22 @@ describe('POST /api/account/import', () => {
   describe('validation', () => {
     it.each([
       [
-        'an import id over 64 chars',
-        { importId: 'x'.repeat(65), rows: [row(0)] },
+        'an import id that is not a UUID',
+        { importId: 'imp-1', rows: [row(0)] },
       ],
-      ['no rows', { importId: 'i', rows: [] }],
+      ['no rows', { importId: IMPORT_ID, rows: [] }],
       [
         'over 100 rows',
-        { importId: 'i', rows: Array.from({ length: 101 }, (_, i) => row(i)) },
+        {
+          importId: IMPORT_ID,
+          rows: Array.from({ length: 101 }, (_, i) => row(i)),
+        },
       ],
       ['no import id and no dry run', { rows: [row(0)] }],
-      ['not JSON-shaped rows', { importId: 'i', rows: 'nope' }],
+      ['not JSON-shaped rows', { importId: IMPORT_ID, rows: 'nope' }],
       [
         'a row without an index',
-        { importId: 'i', rows: [row(0), { ...row(1), index: 'one' }] },
+        { importId: IMPORT_ID, rows: [row(0), { ...row(1), index: 'one' }] },
       ],
     ])('400 for %s', async (_name, body) => {
       const response = await POST(request(body));
@@ -239,7 +247,7 @@ describe('POST /api/account/import', () => {
       async (_name, overrides) => {
         const response = await POST(
           request({
-            importId: 'i',
+            importId: IMPORT_ID,
             rows: [
               row(0),
               row(1, overrides),
@@ -286,7 +294,7 @@ describe('POST /api/account/import', () => {
 
     it('only bad rows: one event with their problems, nothing written', async () => {
       const response = await POST(
-        request({ importId: 'i', rows: [row(0, { seriesId: 0 })] }),
+        request({ importId: IMPORT_ID, rows: [row(0, { seriesId: 0 })] }),
       );
       const out = await events(response);
       expect(out).toEqual([
@@ -316,7 +324,7 @@ describe('POST /api/account/import', () => {
     it('takes "I don’t remember" (null) and today', async () => {
       const response = await POST(
         request({
-          importId: 'i',
+          importId: IMPORT_ID,
           rows: [
             row(0, { watchedAt: null }),
             row(1, { episode: 2, watchedAt: NOW }),
@@ -332,7 +340,7 @@ describe('POST /api/account/import', () => {
     it('never calls the batch route and writes nothing', async () => {
       const response = await POST(
         request(
-          { importId: 'imp-1', rows: [row(0), row(1, { episode: 2 })] },
+          { importId: IMPORT_ID, rows: [row(0), row(1, { episode: 2 })] },
           { dryRun: true },
         ),
       );
@@ -420,7 +428,7 @@ describe('POST /api/account/import', () => {
       await events(
         await POST(
           request({
-            importId: 'imp-1',
+            importId: IMPORT_ID,
             rows: [{ ...row(0), userId: 'USER-ATTACKER' }],
             userId: 'USER-ATTACKER',
           }),
@@ -438,11 +446,13 @@ describe('POST /api/account/import', () => {
     });
 
     it('writes into the import named in the body, with the session token', async () => {
-      await events(await POST(request({ importId: 'imp-1', rows: [row(0)] })));
+      await events(
+        await POST(request({ importId: IMPORT_ID, rows: [row(0)] })),
+      );
       expect(batchCalls()).toHaveLength(1);
       expect(batchCalls()[0]).toMatchObject({
         accessToken: 'session-token',
-        params: { importId: 'imp-1' },
+        params: { importId: IMPORT_ID },
       });
     });
   });
@@ -453,7 +463,7 @@ describe('POST /api/account/import', () => {
       const out = await events(
         await POST(
           request({
-            importId: 'imp-1',
+            importId: IMPORT_ID,
             rows: [row(0), row(1, { episode: 2 })],
           }),
         ),
@@ -481,7 +491,7 @@ describe('POST /api/account/import', () => {
     it('"I don’t remember" is dateUnknown with the time it was marked', async () => {
       await events(
         await POST(
-          request({ importId: 'imp-1', rows: [row(0, { watchedAt: null })] }),
+          request({ importId: IMPORT_ID, rows: [row(0, { watchedAt: null })] }),
         ),
       );
       expect(batchCalls()[0]?.body).toMatchObject([
@@ -490,7 +500,9 @@ describe('POST /api/account/import', () => {
     });
 
     it('a dated row carries no dateUnknown', async () => {
-      await events(await POST(request({ importId: 'imp-1', rows: [row(0)] })));
+      await events(
+        await POST(request({ importId: IMPORT_ID, rows: [row(0)] })),
+      );
       expect(batchCalls()[0]?.body).not.toMatchObject([{ dateUnknown: true }]);
     });
 
@@ -498,7 +510,7 @@ describe('POST /api/account/import', () => {
       await events(
         await POST(
           request({
-            importId: 'imp-1',
+            importId: IMPORT_ID,
             rows: [
               row(0, { watchProvider: 'netflix' }),
               row(1, { episode: 2, watchProvider: 'Apple TV+' }),
@@ -525,7 +537,7 @@ describe('POST /api/account/import', () => {
         row(i, { episode: (i % 2) + 1 }),
       );
       const out = await events(
-        await POST(request({ importId: 'imp-1', rows })),
+        await POST(request({ importId: IMPORT_ID, rows })),
       );
       expect(out).toHaveLength(2);
       expect(batchCalls().map((c) => (c.body as unknown[]).length)).toEqual([
@@ -540,7 +552,7 @@ describe('POST /api/account/import', () => {
       const out = await events(
         await POST(
           request({
-            importId: 'imp-1',
+            importId: IMPORT_ID,
             rows: [row(0, { title: 'Top Boy' })],
           }),
         ),
@@ -575,7 +587,7 @@ describe('POST /api/account/import', () => {
       const out = await events(
         await POST(
           request({
-            importId: 'imp-1',
+            importId: IMPORT_ID,
             rows: [row(0, { title: 'Trust No One' })],
           }),
         ),
@@ -590,7 +602,7 @@ describe('POST /api/account/import', () => {
       const out = await events(
         await POST(
           request({
-            importId: 'imp-1',
+            importId: IMPORT_ID,
             rows: [row(0, { episode: 'Part 1 Recap' })],
           }),
         ),
@@ -612,7 +624,7 @@ describe('POST /api/account/import', () => {
       const out = await events(
         await POST(
           request({
-            importId: 'imp-1',
+            importId: IMPORT_ID,
             rows: [row(0), row(1, { title: 'Top Boy' })],
           }),
         ),
@@ -627,7 +639,7 @@ describe('POST /api/account/import', () => {
       await events(
         await POST(
           request({
-            importId: 'imp-1',
+            importId: IMPORT_ID,
             rows: [row(0, { seriesId: 11, title: 'Top Boy' })],
           }),
         ),
@@ -646,7 +658,7 @@ describe('POST /api/account/import', () => {
     it('401 from the API stops with unauthenticated', async () => {
       onWrite = () => new ApiError(401, 'Unauthorized');
       const out = await events(
-        await POST(request({ importId: 'imp-1', rows: twoBatches() })),
+        await POST(request({ importId: IMPORT_ID, rows: twoBatches() })),
       );
       expect(out).toEqual([{ error: 'unauthenticated', status: 'error' }]);
       expect(batchCalls()).toHaveLength(1);
@@ -658,7 +670,7 @@ describe('POST /api/account/import', () => {
           ? { skipped: 0, written: (call.body as unknown[]).length }
           : new ApiError(401, 'Unauthorized');
       const out = await events(
-        await POST(request({ importId: 'imp-1', rows: twoBatches() })),
+        await POST(request({ importId: IMPORT_ID, rows: twoBatches() })),
       );
       expect(out.map((e) => e.status)).toEqual(['progress', 'error']);
       expect(out[1]).toEqual({ error: 'unauthenticated', status: 'error' });
@@ -676,7 +688,7 @@ describe('POST /api/account/import', () => {
         return original(path, options);
       }) as never);
       const out = await events(
-        await POST(request({ importId: 'imp-1', rows: [row(0)] })),
+        await POST(request({ importId: IMPORT_ID, rows: [row(0)] })),
       );
       // Public catalogue reads do not need the session; a 401 there is the API's
       expect(out).toEqual([{ error: 'unauthenticated', status: 'error' }]);
@@ -685,7 +697,7 @@ describe('POST /api/account/import', () => {
     it('409 is a conflict: the import is no longer the last one', async () => {
       onWrite = () => new ApiError(409, 'ImportNotOpen');
       const out = await events(
-        await POST(request({ importId: 'imp-1', rows: twoBatches() })),
+        await POST(request({ importId: IMPORT_ID, rows: twoBatches() })),
       );
       expect(out).toEqual([{ error: 'conflict', status: 'error' }]);
     });
@@ -696,7 +708,7 @@ describe('POST /api/account/import', () => {
           ? new ApiError(500, 'Internal Server Error')
           : { skipped: 0, written: (call.body as unknown[]).length };
       const out = await events(
-        await POST(request({ importId: 'imp-1', rows: twoBatches() })),
+        await POST(request({ importId: IMPORT_ID, rows: twoBatches() })),
       );
       expect(out).toHaveLength(2);
       expect(out[0]).toMatchObject({
@@ -722,7 +734,7 @@ describe('POST /api/account/import', () => {
         return original(path, options);
       }) as never);
       const out = await events(
-        await POST(request({ importId: 'imp-1', rows: [row(0)] })),
+        await POST(request({ importId: IMPORT_ID, rows: [row(0)] })),
       );
       expect(out[0]?.problems).toMatchObject([{ index: 0, kind: 'failed' }]);
     });
@@ -750,7 +762,7 @@ describe('POST /api/account/import', () => {
       const out = await events(
         await POST(
           request(
-            { importId: 'imp-1', rows: twoBatches() },
+            { importId: IMPORT_ID, rows: twoBatches() },
             { signal: controller.signal },
           ),
         ),
@@ -771,7 +783,7 @@ describe('the viewer’s stats after an import', () => {
 
   it('expire once the import’s stream is done', async () => {
     await events(
-      await POST(request({ importId: 'imp-1', rows: [row(0), row(1)] })),
+      await POST(request({ importId: IMPORT_ID, rows: [row(0), row(1)] })),
     );
     expect(revalidateTag).not.toHaveBeenCalled();
     await runAfter();

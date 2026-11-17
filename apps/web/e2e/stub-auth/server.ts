@@ -16,6 +16,7 @@
  */
 import { createReadStream, existsSync } from 'node:fs';
 import path from 'node:path';
+import { pipeline } from 'node:stream/promises';
 
 import { exportJWK, generateKeyPair, SignJWT } from 'jose';
 
@@ -336,7 +337,7 @@ await serveOnLoopback(port, async (request, response) => {
         'content-type':
           CONTENT_TYPES[path.extname(name)] ?? 'application/octet-stream',
       });
-      createReadStream(file).pipe(response);
+      await pipeline(createReadStream(file), response);
       return;
     }
   }

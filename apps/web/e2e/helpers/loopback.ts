@@ -20,10 +20,27 @@ const HOSTS = ['127.0.0.1', '::1'] as const;
 // A machine without IPv6 still serves on 127.0.0.1, where nothing races
 const NO_IPV6 = new Set(['EADDRNOTAVAIL', 'EAFNOSUPPORT']);
 
+// A throw outside any request (a timer, a stream nobody awaited) is logged,
+// not fatal: every test after it still needs the stub
+let survivesStrayErrors = false;
+function surviveStrayErrors() {
+  if (survivesStrayErrors) {
+    return;
+  }
+  survivesStrayErrors = true;
+  process.on('uncaughtException', (error) => {
+    console.error('[stub] uncaught exception:', error);
+  });
+  process.on('unhandledRejection', (reason) => {
+    console.error('[stub] unhandled rejection:', reason);
+  });
+}
+
 /**
  * Serves a stub on both loopback addresses. A handler that throws answers
  * 500 and is logged: one broken fixture must not end the server, and with
- * it every test after it. Resolves to a function that stops both.
+ * it every test after it; a stray throw outside a request is logged too.
+ * Resolves to a function that stops both.
  */
 export async function serveOnLoopback(
   port: number,
@@ -64,6 +81,8 @@ export async function serveOnLoopback(
         }),
     ),
   );
+  // After listening: a port already taken still ends the process
+  surviveStrayErrors();
   const listening = servers.filter((server) => server !== null);
   return async () => {
     await Promise.all(

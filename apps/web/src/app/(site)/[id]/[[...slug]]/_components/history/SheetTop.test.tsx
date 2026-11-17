@@ -1,9 +1,14 @@
 // @vitest-environment jsdom
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import MarkingProvider from '@/lib/marking/MarkingProvider';
+import { WHOLE_SHOW } from '@/lib/marking/copy';
+import MarkingProvider, {
+  useMarkingStoreApi,
+} from '@/lib/marking/MarkingProvider';
+import type { MarkingStoreApi } from '@/lib/marking/store';
 
+import { closeDialogs, useDialogs } from '../../_lib/dialogs';
 import ShowProvider from '../../_lib/ShowProvider';
 import type { ShowSummary } from '../../_lib/show';
 import SheetTop from './SheetTop';
@@ -96,5 +101,95 @@ describe('a fresh sheet', () => {
     expect(shown()).toBe(false);
     expect(container.textContent).not.toContain('legend ?');
     expect(container.textContent).not.toContain(': null');
+  });
+});
+
+const seasons = [0, 1, 2].map((seasonNumber) => ({
+  airDate: '2020-01-01',
+  airedEpisodeCount: 2,
+  episodeCount: 2,
+  seasonNumber,
+  title: seasonNumber ? `Season ${seasonNumber}` : 'Specials',
+}));
+
+let markingStore: MarkingStoreApi | null = null;
+function GrabStore() {
+  markingStore = useMarkingStoreApi();
+  return null;
+}
+
+/** The sheet top over a seeded show with `watched` episodes. */
+function mountSeeded(
+  watched: ReadonlyArray<
+    Readonly<{ seasonNumber: number; episodeNumber: number }>
+  >,
+  skipped: ReadonlyArray<string> = [],
+) {
+  render(
+    <MarkingProvider>
+      <GrabStore />
+      <ShowProvider show={{ ...show, seasons }}>
+        <SheetUiContext value={createSheetUi()}>
+          <SheetTop />
+        </SheetUiContext>
+      </ShowProvider>
+    </MarkingProvider>,
+  );
+  act(() => {
+    markingStore!.getState().seed(
+      {
+        fetchedAt: 1,
+        seasons,
+        seriesId: show.id,
+        status: {
+          isFavorited: false,
+          isWatchlisted: false,
+          prefs: {
+            firstTrackingAnsweredAt: null,
+            neverAskBefore: false,
+            skipped: [...skipped],
+          },
+        },
+        watched: watched.map((ref) => ({ ...ref, watchedAt: 1 })),
+      },
+      'seed',
+    );
+  });
+}
+
+describe('the whole series’ calendar', () => {
+  afterEach(() => {
+    closeDialogs();
+  });
+
+  it('dates every aired regular episode not watched yet, skipped included', () => {
+    mountSeeded([{ episodeNumber: 1, seasonNumber: 1 }], ['S02E01']);
+    fireEvent.click(
+      screen.getByRole('button', { name: 'When did you watch Test?' }),
+    );
+    expect(useDialogs.getState().picker).toEqual({
+      kind: 'set',
+      refs: [
+        { episodeNumber: 2, seasonNumber: 1 },
+        { episodeNumber: 1, seasonNumber: 2 },
+        { episodeNumber: 2, seasonNumber: 2 },
+      ],
+      seriesId: show.id,
+      what: WHOLE_SHOW,
+    });
+  });
+
+  it('is disabled once every aired episode is watched', () => {
+    mountSeeded(
+      [1, 2].flatMap((seasonNumber) =>
+        [1, 2].map((episodeNumber) => ({ episodeNumber, seasonNumber })),
+      ),
+    );
+    const button = screen.getByRole('button', {
+      name: 'When did you watch Test?',
+    });
+    expect(button.getAttribute('aria-disabled')).toBe('true');
+    fireEvent.click(button);
+    expect(useDialogs.getState().picker).toBeNull();
   });
 });

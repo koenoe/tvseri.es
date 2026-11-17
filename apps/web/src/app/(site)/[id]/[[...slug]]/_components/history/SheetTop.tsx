@@ -5,11 +5,16 @@ import { type MouseEvent, memo, useCallback } from 'react';
 import { SegmentedItem } from '@/components/ui/button/Segmented';
 import { helpGlyph, trendingGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import { WHOLE_SHOW } from '@/lib/marking/copy';
 import { useSeriesProgress } from '@/lib/marking/hooks';
+import { useMarkingStoreApi } from '@/lib/marking/MarkingProvider';
 import { pressMark, scopeKey } from '@/lib/marking/pressGate';
+import { unwatchedRegularEpisodes } from '@/lib/marking/progress';
 import useMarking from '@/lib/marking/useMarking';
 
+import { openPicker } from '../../_lib/dialogs';
 import { useShow } from '../../_lib/ShowProvider';
+import DateButton from './DateButton';
 import Legend from './Legend';
 import type { SheetMode } from './paint';
 import SheetToggle from './SheetToggle';
@@ -40,7 +45,10 @@ function PaintHint() {
   );
 }
 
-/** "The Bear · 21 of 47 watched" + Mark all watched / Unmark all (desktop). */
+/**
+ * "The Bear · 21 of 47 watched", the calendar (one date for every aired
+ * episode not watched yet) and Mark all watched / Unmark all (desktop).
+ */
 function ShowRow() {
   const show = useShow();
   const progress = useSeriesProgress(show.id);
@@ -55,13 +63,28 @@ function ShowRow() {
     },
     [marking, show.id],
   );
+  const markingStore = useMarkingStoreApi();
+  const dateAll = useCallback(() => {
+    const view = markingStore.getState().series[show.id]?.view;
+    const refs = view ? unwatchedRegularEpisodes(view) : [];
+    if (refs.length > 0) {
+      openPicker({ kind: 'set', refs, seriesId: show.id, what: WHOLE_SHOW });
+    }
+  }, [markingStore, show.id]);
   const label = complete ? 'Unmark the whole series' : 'Mark the whole series';
+  const calendarLabel = `When did you watch ${show.title}?`;
+  const nothingOpen = (progress?.toWatch ?? 0) === 0;
   return (
     <div className="flex items-center gap-4 rounded-14 bg-white/3.5 px-4 py-3.5 max-sm:hidden">
       <p className="min-w-0 flex-1 truncate text-body-sm text-white/60">
         <b className="font-semibold text-white">{show.title}</b>
         {` · ${progress?.watched ?? 0} of ${total} watched`}
       </p>
+      <DateButton
+        disabled={nothingOpen}
+        label={calendarLabel}
+        onClick={dateAll}
+      />
       <SheetToggle onClick={toggle} pressed={complete} size="md" title={label}>
         {complete ? 'Unmark all' : 'Mark all watched'}
       </SheetToggle>

@@ -496,6 +496,48 @@ test.describe('stats', () => {
     await expect.poll(scrollLeft).toBeLessThan(before);
   });
 
+  // The rows "All N" and a re-sort bring in point the right way before any
+  // scroll: the pointers are flagged by the scroll, and again on each render
+  test('a phone points the rows it shows later the right way at once', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ height: 900, width: 390 });
+    await phoneScrollbars(page, 390);
+    await page.goto(PAGE);
+    const section = page.locator(
+      'section[aria-labelledby="year-in-shows-title"]',
+    );
+    await section.scrollIntoViewIfNeeded();
+    await hydrated(page);
+    const quarters = section.getByRole('radiogroup', { name: 'Quarter' });
+    await quarters.getByRole('radio', { name: 'Oct–Dec' }).click();
+    const scroller = section.getByRole('region', { name: /week by week$/ });
+    await expect
+      .poll(() => scroller.evaluate((el) => el.scrollLeft))
+      .toBeGreaterThan(0);
+    await section.getByRole('button', { name: /^All \d+$/ }).click();
+    await page.getByRole('radio', { name: 'Most hours' }).first().click();
+    const wrong = await scroller.evaluate((el) => {
+      const from = el.scrollLeft / 24;
+      const to = (el.scrollLeft + el.clientWidth) / 24;
+      const before = [...el.querySelectorAll<HTMLElement>('[data-before]')];
+      const after = [...el.querySelectorAll<HTMLElement>('[data-after]')];
+      return [
+        ...before.filter(
+          (pointer) =>
+            pointer.hasAttribute('data-out') !==
+            from >= Number(pointer.dataset.before),
+        ),
+        ...after.filter(
+          (pointer) =>
+            pointer.hasAttribute('data-out') !==
+            to <= Number(pointer.dataset.after),
+        ),
+      ].length;
+    });
+    expect(wrong).toBe(0);
+  });
+
   // The overview's window is a slider: dragging it (or pressing beside it)
   // scrubs the weeks, the quarter in view lights as with a swipe, and its
   // keys move it a week, or to the ends.

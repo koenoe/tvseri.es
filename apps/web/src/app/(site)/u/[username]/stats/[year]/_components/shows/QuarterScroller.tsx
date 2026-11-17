@@ -30,9 +30,13 @@ const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
 
 /**
  * A row's pointer shows once its whole line is out of view: before the
- * first week in view (`from`) or after the last (`to`)
+ * first week in view or after the last. A flag on just the pointers, set
+ * only when it changes: an inherited custom property on the scroller
+ * restyled every row under it (400+ elements) every scroll frame.
  */
-function showPointers(scroller: HTMLElement, from: number, to: number) {
+function showPointers(scroller: HTMLElement) {
+  const from = scroller.scrollLeft / PHONE_WEEK_PX;
+  const to = (scroller.scrollLeft + scroller.clientWidth) / PHONE_WEEK_PX;
   for (const pointer of scroller.querySelectorAll<HTMLElement>(
     '[data-before]',
   )) {
@@ -103,10 +107,7 @@ export default function QuarterScroller({
         return;
       }
       const x = scroller.scrollLeft;
-      // a flag on the pointers, set only when it changes: an inherited
-      // custom property here restyled every row under the scroller (400+
-      // elements) every frame
-      showPointers(scroller, x / PHONE_WEEK_PX, (x + width) / PHONE_WEEK_PX);
+      showPointers(scroller);
       scroller.toggleAttribute('data-fl', x > 1);
       scroller.toggleAttribute('data-fr', x < max - 1);
       const scale =
@@ -168,6 +169,15 @@ export default function QuarterScroller({
       resize.disconnect();
     };
   }, [opening, year]);
+
+  // Rows that mount or move without a scroll (All N, a re-sort) get their
+  // pointers before they paint
+  useLayoutEffect(() => {
+    const scroller = scrollerRef.current;
+    if (scroller && scroller.clientWidth > 0) {
+      showPointers(scroller);
+    }
+  });
 
   // a drag or key on the overview takes over from a tap's scroll
   const grab = () => {

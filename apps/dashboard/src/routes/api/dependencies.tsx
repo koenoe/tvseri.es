@@ -11,10 +11,8 @@ import {
   LatencyCard,
   LatencyCardSkeleton,
 } from '@/components/api/latency-card';
-import {
-  OperationsTable,
-  OperationsTableSkeleton,
-} from '@/components/api/operations-table';
+import { OperationsTable } from '@/components/api/operations-table/operations-table';
+import { OperationsTableSkeleton } from '@/components/api/operations-table/skeleton';
 import { PercentileLatencyPopover } from '@/components/api/percentile-latency-popover';
 import {
   RequestsCard,

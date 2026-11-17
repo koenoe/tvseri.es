@@ -5,7 +5,9 @@ import type { RatingStatus, StatusConfig } from '@/lib/web-vitals';
 import { StatusAccordion } from './status-accordion';
 
 const WorldMap = lazy(() =>
-  import('@/components/world-map').then((mod) => ({ default: mod.WorldMap })),
+  import('@/components/world-map/world-map').then((mod) => ({
+    default: mod.WorldMap,
+  })),
 );
 
 const STATUSES: ReadonlyArray<RatingStatus> = [

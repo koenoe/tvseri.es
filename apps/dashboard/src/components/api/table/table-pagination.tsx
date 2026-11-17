@@ -24,6 +24,10 @@ type TablePaginationProps = Readonly<{
   table: PaginatedTable;
 }>;
 
+export const PAGE_SIZES = [10, 25, 50] as const;
+
+export const DEFAULT_PAGE_SIZE = PAGE_SIZES[0];
+
 const PAGE_BUTTON_CLASSES =
   'cursor-pointer rounded border border-border p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-50';
 
@@ -60,9 +64,11 @@ export function TablePagination({
                 onChange={handlePageSizeChange}
                 value={pagination.pageSize}
               >
-                <NativeSelectOption value={10}>10</NativeSelectOption>
-                <NativeSelectOption value={25}>25</NativeSelectOption>
-                <NativeSelectOption value={50}>50</NativeSelectOption>
+                {PAGE_SIZES.map((size) => (
+                  <NativeSelectOption key={size} value={size}>
+                    {size}
+                  </NativeSelectOption>
+                ))}
               </NativeSelect>
             </div>
             <div className="flex items-center gap-1">

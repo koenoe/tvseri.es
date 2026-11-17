@@ -13,7 +13,8 @@ import {
 } from '@/lib/web-vitals';
 import { CountriesSection } from './countries-section';
 import { DataPointsFooter } from './data-points';
-import { MetricLineChart, type PercentileKey } from './metric-line-chart';
+import type { PercentileKey } from './metric-line-chart/constants';
+import { MetricLineChart } from './metric-line-chart/metric-line-chart';
 import { MetricSummary } from './metric-summary';
 import { RoutesSection } from './routes-section';
 import { useGroupedMetrics } from './use-grouped-metrics';

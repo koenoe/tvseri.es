@@ -2,7 +2,8 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useCallback, useState } from 'react';
 
 import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
-import { MetricTabContent, type PercentileKey } from '@/components/web-vitals';
+import type { PercentileKey } from '@/components/web-vitals/metric-line-chart/constants';
+import { MetricTabContent } from '@/components/web-vitals/metric-tab-content';
 import { MetricTabTrigger } from '@/components/web-vitals/metric-tab-trigger';
 import { WebVitalsHeader } from '@/components/web-vitals-header';
 import { useMetricsSummary } from '@/lib/api/hooks';

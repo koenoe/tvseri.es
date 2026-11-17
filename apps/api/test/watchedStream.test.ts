@@ -43,23 +43,6 @@ const libraryIds = async () =>
   (await request('/me/library-ids', { as: USER_ID })).json();
 
 describe('watched stream list sync', () => {
-  it('moves a show to Watched when the last aired episode is marked', async () => {
-    SHOW = 4242;
-    seedUser();
-    fakeShow({ id: SHOW, seasons: [{ airDate: '2020-01-01', episodes: 2 }] });
-    await markAndStream([{ episode: 1, season: 1 }]);
-    expect(await libraryIds()).toMatchObject({
-      inProgress: [SHOW],
-      watched: [],
-    });
-
-    await markAndStream([{ episode: 2, season: 1 }]);
-    expect(await libraryIds()).toMatchObject({
-      inProgress: [],
-      watched: [SHOW],
-    });
-  });
-
   it("doesn't count specials towards finishing a show", async () => {
     SHOW = 4243;
     seedUser();

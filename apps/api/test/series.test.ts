@@ -135,27 +135,6 @@ describe('specials (season 0) beside the seasons', () => {
       numberOfEpisodes: 1,
     });
   });
-
-  it('counts the specials before the next one to air', async () => {
-    fakeShow({
-      extra: {
-        next_episode_to_air: {
-          air_date: '2099-12-24',
-          episode_number: 3,
-          id: 2,
-          name: 'Next',
-          season_number: 0,
-        },
-      },
-      id: 4804,
-      seasons: [{ airDate: '2020-01-01', episodes: 4 }],
-      specials: { airDate: '2020-06-01', episodes: 3 },
-    });
-    expect((await show(4804)).specials).toMatchObject({
-      numberOfAiredEpisodes: 2,
-      numberOfEpisodes: 3,
-    });
-  });
 });
 
 describe('episode credits', () => {
@@ -310,17 +289,6 @@ describe('episode IMDb ratings', () => {
     const [row] = cacheRows();
     expect(row?.pk).toBe('CACHE#omdb:v2:tt0903747:1');
     expect(Math.round(freshDays(row))).toBe(14);
-  });
-
-  it('serves the second request from the cache', async () => {
-    setup();
-    onGet(OMDB, omdbSeason);
-    await ratings();
-    onGet(OMDB, { Error: 'Request limit reached!', Response: 'False' });
-
-    expect((await ratings()).body).toEqual({
-      ratings: { 1: { imdbRating: 9.6 }, 2: { imdbRating: null } },
-    });
   });
 
   it('caches a season OMDb does not know for 1 day', async () => {

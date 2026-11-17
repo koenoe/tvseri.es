@@ -150,13 +150,14 @@ describe('fetchDurationList: each tile’s rule', () => {
         expect(query).toMatchObject({ ...BUCKETS[bucket].query });
       }
     });
-
-    it(`${bucket}: stops after ${LIST_MAX_PAGES} pages with what fits (the hub withholds a short list)`, async () => {
-      tmdb(bucket, (id) => id === 305);
-      const { value } = await fetchDurationList(bucket);
-
-      expect(value.map((show) => show.id)).toEqual([305]);
-      expect(pagesRead()).toHaveLength(LIST_MAX_PAGES);
-    });
   }
+
+  // The page cap is one rule for every tile
+  it(`stops after ${LIST_MAX_PAGES} pages with what fits (the hub withholds a short list)`, async () => {
+    tmdb('one-season', (id) => id === 305);
+    const { value } = await fetchDurationList('one-season');
+
+    expect(value.map((show) => show.id)).toEqual([305]);
+    expect(pagesRead()).toHaveLength(LIST_MAX_PAGES);
+  });
 });

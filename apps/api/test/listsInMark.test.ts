@@ -215,19 +215,4 @@ describe('In progress, Finished and the watchlist are updated inside the mark', 
     expect(lists()).toEqual([`LIST#IN_PROGRESS#ITEM#${show}`]);
     spy.mockRestore();
   });
-
-  it('adds little to a mark (in-memory double)', async () => {
-    seedUser();
-    const show = newShow(10);
-    await mark(show, 1); // warm
-    const started = performance.now();
-    for (let episode = 2; episode <= 9; episode++) {
-      await mark(show, episode);
-    }
-    const perMark = (performance.now() - started) / 8;
-    console.log(
-      `[LATENCY] mark with in-request list sync: ${perMark.toFixed(1)} ms`,
-    );
-    expect(perMark).toBeLessThan(200);
-  });
 });

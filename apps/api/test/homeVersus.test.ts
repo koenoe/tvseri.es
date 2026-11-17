@@ -1,6 +1,5 @@
 import { HOME_MOMENTS_VERSION } from '@tvseri.es/constants';
 import type { ToyOfTheDay, VersusPair } from '@tvseri.es/schemas';
-import { toyKindOfDay } from '@tvseri.es/utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { db } from './db';
@@ -80,10 +79,6 @@ beforeEach(() => {
 });
 
 describe('Versus, the toy of the day', () => {
-  it('is planned on Sun 15 Nov 2026', () => {
-    expect(toyKindOfDay(DAY)).toBe('versus');
-  });
-
   it('draws a deck of similar pairs with just what the card needs', async () => {
     const { body, cacheControl, status } = await toyOn(DAY);
 

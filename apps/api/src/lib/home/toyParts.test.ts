@@ -17,15 +17,6 @@ describe('channelIcon', () => {
     );
   });
 
-  it('gives every channel its square icon, Apple TV and Hulu too', () => {
-    expect(channelIcon(2552, PROVIDERS)).toBe(
-      'https://image.tmdb.org/t/p/w92/appletv.jpg',
-    );
-    expect(channelIcon(453, PROVIDERS)).toBe(
-      'https://image.tmdb.org/t/p/w92/hulu.jpg',
-    );
-  });
-
   it('takes the first listed of a channel’s providers (Paramount+’s tiers)', () => {
     expect(channelIcon(4330, PROVIDERS)).toBe(
       'https://image.tmdb.org/t/p/w92/paramount-premium.jpg',

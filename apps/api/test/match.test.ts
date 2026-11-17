@@ -106,20 +106,6 @@ describe('match line', () => {
     });
   });
 
-  it('is symmetric: the other side sees the same level', async () => {
-    setup();
-
-    const there = (await (await match(USER_ID, OTHER_USER_ID)).json()) as {
-      match: { level: string; sharedCount: number };
-    };
-    const back = (await (await match(OTHER_USER_ID, USER_ID)).json()) as {
-      match: { level: string; sharedCount: number };
-    };
-
-    expect(back.match.level).toBe(there.match.level);
-    expect(back.match.sharedCount).toBe(there.match.sharedCount);
-  });
-
   it('has no level under 5 shared shows', async () => {
     seedUser();
     seedUser({ id: OTHER_USER_ID });

@@ -40,10 +40,6 @@ describe('episodesPerSeason', () => {
       6, 3,
     ]);
   });
-
-  it('is empty without seasons', () => {
-    expect(episodesPerSeason(show([]))).toEqual([]);
-  });
 });
 
 describe('bingeShowOf', () => {

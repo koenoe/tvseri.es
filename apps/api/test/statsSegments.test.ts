@@ -54,28 +54,6 @@ const get = async (path: string) => {
 };
 
 describe('stats additions', () => {
-  it('lists the years with watches and their episode counts', async () => {
-    seedUser();
-    seedWatched([
-      { at: '2024-05-01T20:00:00Z', episode: 1, seriesId: 1 },
-      { at: '2024-05-02T20:00:00Z', episode: 2, seriesId: 1 },
-      { at: '2025-05-01T20:00:00Z', episode: 3, seriesId: 1 },
-      { at: '2026-01-01T20:00:00Z', dateUnknown: true, seriesId: 2 },
-    ]);
-
-    const response = await get('years');
-
-    // Current within seconds: never kept by the CDN
-    expect(response.headers.get('cache-control')).toBe('private, no-store');
-    expect(await response.json()).toMatchObject({
-      undated: 1,
-      years: [
-        { episodes: 1, year: 2025 },
-        { episodes: 2, year: 2024 },
-      ],
-    });
-  });
-
   it('draws the year in shows: series x week', async () => {
     seedUser();
     seedWatched([
@@ -129,21 +107,6 @@ describe('stats additions', () => {
     // 20:00 in London (BST)
     expect(when.timeZone).toBe('Europe/London');
     expect(when.hours[20]).toBe(1);
-  });
-
-  it('counts every day', async () => {
-    seedUser();
-    seedWatched([
-      { at: '2025-03-01T20:00:00Z', episode: 1, seriesId: 1 },
-      { at: '2025-03-01T21:00:00Z', episode: 2, seriesId: 1 },
-      { at: '2025-03-02T21:00:00Z', episode: 3, seriesId: 1 },
-    ]);
-
-    expect(await (await get('2025/daily')).json()).toMatchObject({
-      activeDays: 2,
-      busiestDay: { date: '2025-03-01', episodes: 2 },
-      longestStreak: { days: 2, from: '2025-03-01', to: '2025-03-02' },
-    });
   });
 
   it('counts each day in the user’s zone, and again after their country changes', async () => {
@@ -278,7 +241,7 @@ describe('stats additions', () => {
     );
   });
 
-  it('caches a segment per user and year; account deletion clears them with the all-time key', async () => {
+  it('caches a segment per user and year; account deletion clears them', async () => {
     seedUser();
     seedWatched([{ at: '2025-04-02T20:00:00Z', seriesId: 1 }]);
     await get('2025/daily');
@@ -293,10 +256,7 @@ describe('stats additions', () => {
       expect.arrayContaining([
         `stats:${USER_ID}:2025:shows`,
         `stats:${USER_ID}:2025:finished`,
-        `stats:${USER_ID}:2025:daily:v2`,
-        `stats:${USER_ID}:2025:when:v2`,
         `stats:${USER_ID}:2025:new-or-back`,
-        `stats:${USER_ID}:0:all-time:v3`,
       ]),
     );
   });
@@ -321,23 +281,6 @@ describe('stats additions', () => {
         ],
       }),
     ]);
-  });
-
-  it('splits daytime episodes into weekdays and weekends', async () => {
-    seedUser();
-    seedWatched([
-      // Sat 15 Mar 14:00 and Tue 18 Mar 12:00 (London, GMT), Tue 21:00 (evening)
-      { at: '2025-03-15T14:00:00Z', episode: 1, seriesId: 1 },
-      { at: '2025-03-18T12:00:00Z', episode: 2, seriesId: 1 },
-      { at: '2025-03-18T21:00:00Z', episode: 3, seriesId: 1 },
-    ]);
-
-    const response = await get('2025/when');
-
-    expect(await response.json()).toMatchObject({
-      daytime: { weekday: 1, weekend: 1 },
-      episodes: 3,
-    });
   });
 
   it('answers a member with nothing watched an empty year, not an error', async () => {

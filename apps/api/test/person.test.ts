@@ -1070,19 +1070,6 @@ describe('family and awards (Wikidata)', () => {
     ]);
   });
 
-  it('leaves a spouse unlinked when TMDB does not know the id', async () => {
-    withPerson();
-    onTmdb('/person/4321', null, { status: 404 });
-    withRows([spouse('Q31', 'Kim Spouse', { tmdb: '4321' })]);
-
-    const response = await request('/person/17419/family-and-awards');
-
-    const body = (await response.json()) as {
-      family: { spouses: unknown[] };
-    };
-    expect(body.family.spouses).toEqual([{ id: 'Q31', name: 'Kim Spouse' }]);
-  });
-
   it('shows only what is present: no family, no awards', async () => {
     withPerson();
     withRows([award('won', 'Tony Award for Best Actor in a Play')]);

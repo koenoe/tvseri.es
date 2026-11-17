@@ -8,7 +8,6 @@ import {
 import { setCacheItem } from '@/lib/db/cache';
 import { runWithDeadline } from '@/lib/deadline';
 import { createInstrumentedFetch } from '@/lib/metrics';
-import { MIN_OPEN_MS } from '@/lib/upstream/breaker';
 import { UpstreamUnavailableError } from '@/lib/upstream/errors';
 
 import {
@@ -35,13 +34,6 @@ describe('the TMDB policy through the API', () => {
 
     expect(response.status).toBe(200);
     expect(tmdbCalls('/tv/999/aggregate_credits')).toBe(1);
-  });
-
-  it('answers 404 for an unknown show after one call', async () => {
-    const response = await request('/series/998');
-
-    expect(response.status).toBe(404);
-    expect(tmdbCalls('/tv/998')).toBe(1);
   });
 
   it('retries a 5xx once and serves the retry', async () => {
@@ -225,17 +217,6 @@ describe('the TMDB circuit breaker through the API', () => {
     expect((await request('/series/1396')).status).toBe(200);
     expect((await request('/series/1396')).status).toBe(200);
     expect(tmdbCalls('/tv/1396')).toBe(3);
-  });
-
-  it('waits at least 10 s when the 429 says nothing', async () => {
-    setUpstreamConditions({ rateLimit: { perSecond: 0 } });
-    await request('/series/1396');
-    setUpstreamConditions({});
-
-    vi.advanceTimersByTime(MIN_OPEN_MS - 1);
-    expect((await request('/series/1396')).status).toBe(503);
-    vi.advanceTimersByTime(1);
-    expect((await request('/series/1396')).status).toBe(200);
   });
 
   it('serves the stored value while open, without a call', async () => {

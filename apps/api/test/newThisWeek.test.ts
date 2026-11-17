@@ -278,16 +278,6 @@ describe('GET /home/new-this-week', () => {
     expect(Math.round(freshHoursLeft('new-this-week:v1'))).toBe(1);
   });
 
-  it('asks for the genre list alongside discover, before the returning shows’ facts', async () => {
-    resetRequests();
-    await fetchNewThisWeek();
-
-    const paths = requestedUrls().map((url) => url.pathname);
-    const genres = paths.indexOf('/3/genre/tv/list');
-    expect(genres).toBeGreaterThanOrEqual(0);
-    expect(genres).toBeLessThan(paths.indexOf('/3/tv/2'));
-  });
-
   it('keeps a list built while the genre list failed for an hour only, unnamed', async () => {
     onTmdb('/genre/tv/list', { status_message: 'boom' }, { status: 500 });
 

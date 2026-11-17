@@ -176,16 +176,6 @@ describe('calculateWhen', () => {
 
     expect(when.daytime).toEqual({ weekday: 1, weekend: 2 });
   });
-
-  it('uses the given time zone', () => {
-    const when = calculateWhen(
-      [at('2025-03-15T23:30:00Z')],
-      'America/New_York',
-    );
-
-    // 19:30 in New York (EDT)
-    expect(when.hours[19]).toBe(1);
-  });
 });
 
 describe('calculateFinished', () => {

@@ -64,7 +64,7 @@ const hydrated = (page: Page) =>
   expect(page.locator('html')).toHaveAttribute('data-search-ready', '');
 
 test.describe('stats', () => {
-  for (const width of [390, 1440]) {
+  for (const width of [360, 390, 1440]) {
     test(`never scrolls sideways at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ height: 900, width });
       await phoneScrollbars(page, width);
@@ -408,6 +408,59 @@ test.describe('stats', () => {
       const inFlight = recorded.some((frame) => frame.flying);
       expect(withMotion > 1 || inFlight, label).toBe(true);
     }
+  });
+
+  // A phone shows the year in series a quarter at a time: the titles stay
+  // put while the weeks scroll under them, a quarter switch jumps without
+  // dragging, and a line out of view says where it is.
+  test('a phone shows the year in series a quarter at a time', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ height: 900, width: 390 });
+    await phoneScrollbars(page, 390);
+    await page.goto(PAGE);
+    const section = page.locator(
+      'section[aria-labelledby="year-in-shows-title"]',
+    );
+    await section.scrollIntoViewIfNeeded();
+    await hydrated(page);
+    const quarters = section.getByRole('radiogroup', { name: 'Quarter' });
+    const first = quarters.getByRole('radio', { name: 'Jan–Mar' });
+    const last = quarters.getByRole('radio', { name: 'Oct–Dec' });
+    // a finished year opens on its first quarter
+    await expect(first).toHaveAttribute('aria-checked', 'true');
+    const scroller = section.getByRole('region', { name: /week by week$/ });
+    const scrollLeft = () => scroller.evaluate((el) => el.scrollLeft);
+    expect(await scrollLeft()).toBe(0);
+    const row = section.locator('#year-in-shows-rows [role="img"]').first();
+    // every row keeps its full label, wherever the window is
+    await expect(row).toHaveAttribute(
+      'aria-label',
+      /^.+: \d+ episodes?, .+ to .+, .+, (finished|still watching|caught up)$/,
+    );
+    const title = row.locator('span').first();
+    const titleX = (await title.boundingBox())?.x;
+
+    // the switch works from the keyboard (no dragging)
+    await last.focus();
+    await page.keyboard.press('Enter');
+    await expect(last).toHaveAttribute('aria-checked', 'true');
+    await expect(first).toHaveAttribute('aria-checked', 'false');
+    const max = await scroller.evaluate(
+      (el) => el.scrollWidth - el.clientWidth,
+    );
+    await expect.poll(scrollLeft).toBeGreaterThan(max * 0.9);
+    // the title stayed where it was
+    expect((await title.boundingBox())?.x).toBe(titleX);
+    // the first series, watched early in the year, points back to it
+    const pointer = row.getByText(/^(Jan|Feb|Mar)/).first();
+    await expect(pointer).toHaveCSS('opacity', '1');
+
+    // the scroller takes focus and its arrow keys scroll it
+    await scroller.focus();
+    const before = await scrollLeft();
+    await page.keyboard.press('ArrowLeft');
+    await expect.poll(scrollLeft).toBeLessThan(before);
   });
 
   /**

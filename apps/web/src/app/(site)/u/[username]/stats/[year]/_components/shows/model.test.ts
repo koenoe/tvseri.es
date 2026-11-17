@@ -2,9 +2,14 @@ import type { StatsShowRow } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
 import {
+  activeQuarter,
   BOARD_ROWS,
   buildTimeline,
   endReference,
+  monthOfWeek,
+  openingQuarter,
+  quarterOfWeek,
+  quarterStarts,
   rowsToShow,
   weekPercent,
 } from './model';
@@ -156,5 +161,90 @@ describe('rowsToShow', () => {
 
   it('expands to every show', () => {
     expect(rowsToShow(rows, 'watched', true)).toHaveLength(30);
+  });
+});
+
+describe('monthOfWeek', () => {
+  it('is the month of the week’s Thursday', () => {
+    // 2025: week 0 runs Mon Dec 30 2024 to Sun Jan 5, Thursday Jan 2
+    expect(monthOfWeek(0, 2025)).toBe(0);
+    // week 13 runs Mar 31 to Apr 6, Thursday Apr 3
+    expect(monthOfWeek(13, 2025)).toBe(3);
+  });
+  it('keeps the last week in December when it runs into January', () => {
+    // week 52 of 2025 runs Dec 29 to Jan 4 2026, Thursday Jan 1
+    expect(monthOfWeek(52, 2025)).toBe(11);
+  });
+  it('keeps the first week in January when it starts in December', () => {
+    // week 0 of 2026 starts Mon Dec 29 2025, Thursday Jan 1
+    expect(monthOfWeek(0, 2026)).toBe(0);
+  });
+});
+
+describe('quarterOfWeek', () => {
+  it('groups the months by three', () => {
+    expect(quarterOfWeek(12, 2025)).toBe(0);
+    expect(quarterOfWeek(13, 2025)).toBe(1);
+    expect(quarterOfWeek(40, 2025)).toBe(3);
+  });
+});
+
+describe('quarterStarts', () => {
+  it('starts each quarter on the first of its month, in weeks', () => {
+    const [jan, apr, jul, oct] = quarterStarts(2025);
+    // the first quarter takes in week 0's days of December too
+    expect(jan).toBe(0);
+    expect(apr).toBeCloseTo(92 / 7, 5);
+    expect(jul).toBeCloseTo(183 / 7, 5);
+    expect(oct).toBeCloseTo(275 / 7, 5);
+  });
+});
+
+describe('openingQuarter', () => {
+  it('opens a finished year on its first quarter', () => {
+    expect(openingQuarter(2025, 'finished', undefined)).toBe(0);
+  });
+  it('opens a year in progress on the current quarter', () => {
+    expect(openingQuarter(2026, 'current', 45)).toBe(3);
+    expect(openingQuarter(2026, 'current', 20)).toBe(1);
+  });
+  it('falls back to the first quarter without a current week', () => {
+    expect(openingQuarter(2026, 'current', undefined)).toBe(0);
+    expect(openingQuarter(2027, 'future', undefined)).toBe(0);
+  });
+});
+
+describe('the phone’s pointer months', () => {
+  const reference = Date.UTC(2026, 0, 1) - 1;
+  const months = (weeks: ReadonlyArray<number>) =>
+    buildTimeline(
+      [show(1, { weeks: weeksWith(weeks) })],
+      new Set(),
+      2025,
+      reference,
+    ).rows[0]?.months;
+
+  it('names the first and last month of the line', () => {
+    expect(months([0, 1, 2, 3, 4, 5, 6])).toBe('Jan – Feb');
+  });
+  it('names one month when the line stays in it', () => {
+    expect(months([14, 15])).toBe('Apr');
+  });
+  it('counts a week across two months by its Thursday', () => {
+    // week 25 runs Jun 23 to 29, week 26 Jun 30 to Jul 6 (Thursday Jul 3)
+    expect(months([25, 26])).toBe('Jun – Jul');
+  });
+});
+
+describe('activeQuarter', () => {
+  const starts = [7, 315, 626, 943];
+  it('is the quarter whose start is nearest the scroll position', () => {
+    expect(activeQuarter(0, starts, 954)).toBe(0);
+    expect(activeQuarter(300, starts, 954)).toBe(1);
+    expect(activeQuarter(954, starts, 954)).toBe(3);
+  });
+  it('reaches the last quarter where the window cannot scroll to its start', () => {
+    expect(activeQuarter(672, starts, 672)).toBe(3);
+    expect(activeQuarter(626, starts, 672)).toBe(2);
   });
 });

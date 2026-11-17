@@ -1,8 +1,10 @@
 import type { StatsShowRow } from '@tvseri.es/schemas';
+import { firstMondayOf } from '@tvseri.es/utils';
 import { formatDuration } from '@/lib/format/duration';
+import { SHORT_MONTHS } from '@/lib/format/months';
 import { plural } from '@/lib/format/text';
 import { formatYearHours } from '../../_lib/format';
-import { monthDay, WEEKS, weekIndexAt } from '../../_lib/weeks';
+import { monthDay, monthStarts, WEEKS, weekIndexAt } from '../../_lib/weeks';
 import type { YearState } from '../../_lib/year';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -38,6 +40,8 @@ export type TimelineRow = Readonly<{
   live: boolean;
   /** 0 = most hours */
   rank: number;
+  /** "Jan – Feb", "Apr": where the line is, for a phone window that misses it */
+  months: string;
 }>;
 
 export type Timeline = Readonly<{
@@ -48,6 +52,83 @@ export type Timeline = Readonly<{
   moreShows: number;
   moreEpisodes: number;
 }>;
+
+/** A phone draws a week 24px wide and shows the year a quarter at a time */
+export const PHONE_WEEK_PX = 24;
+/** The phone's full-year track: 53 weeks of 24px */
+export const PHONE_TRACK_PX = WEEKS * PHONE_WEEK_PX;
+
+/** The quarter switch's labels, Jan–Mar first */
+export const QUARTERS = ['Jan–Mar', 'Apr–Jun', 'Jul–Sep', 'Oct–Dec'] as const;
+
+/**
+ * The month (0 to 11) a visual week belongs to: the month of its Thursday,
+ * as ISO weeks count. Week 52 can run into January: it stays December.
+ */
+export function monthOfWeek(week: number, year: number): number {
+  const thursday = new Date(firstMondayOf(year) + (week * 7 + 3) * DAY_MS);
+  return thursday.getUTCFullYear() > year ? 11 : thursday.getUTCMonth();
+}
+
+/** "Jan – Feb", or "Apr" when a line starts and ends in one month */
+function monthSpan(start: number, end: number, year: number): string {
+  const first = SHORT_MONTHS[monthOfWeek(start, year)] ?? '';
+  const last = SHORT_MONTHS[monthOfWeek(end - 1, year)] ?? '';
+  return first === last ? first : `${first} – ${last}`;
+}
+
+/** The quarter (0 to 3) a visual week belongs to */
+export const quarterOfWeek = (week: number, year: number) =>
+  Math.floor(monthOfWeek(week, year) / 3);
+
+/**
+ * Where each quarter starts along the 53 weeks, in weeks: the first day of
+ * April, July and October; the first quarter at the start of the track (week
+ * 0 can start in December).
+ */
+export function quarterStarts(year: number): ReadonlyArray<number> {
+  const months = monthStarts(year);
+  return [0, 3, 6, 9].map((month) =>
+    month === 0 ? 0 : (months[month]?.at ?? 0) * WEEKS,
+  );
+}
+
+/**
+ * The quarter a phone opens on: the first of a finished year, the current
+ * one of a year in progress.
+ */
+export function openingQuarter(
+  year: number,
+  state: YearState,
+  currentWeek: number | undefined,
+): number {
+  return state === 'current' && currentWeek !== undefined && currentWeek >= 0
+    ? quarterOfWeek(currentWeek, year)
+    : 0;
+}
+
+/**
+ * The quarter a phone's window shows: the one whose start is nearest the
+ * scroll position (px), each start held at the furthest the window can
+ * scroll (`max`), so the last quarter is reachable on a wide phone too.
+ */
+export function activeQuarter(
+  scrollLeft: number,
+  startsPx: ReadonlyArray<number>,
+  max: number,
+): number {
+  let best = 0;
+  startsPx.forEach((start, index) => {
+    const distance = Math.abs(scrollLeft - Math.min(start, max));
+    const bestDistance = Math.abs(
+      scrollLeft - Math.min(startsPx[best] ?? 0, max),
+    );
+    if (distance <= bestDistance) {
+      best = index;
+    }
+  });
+  return best;
+}
 
 /** Position along the 53 weeks, in percent */
 export const weekPercent = (week: number) => (week / WEEKS) * 100;
@@ -117,12 +198,14 @@ export function buildTimeline(
       : live
         ? 'still watching'
         : 'caught up';
+    const range = weekRange(row, year);
     return {
-      ...weekRange(row, year),
+      ...range,
       hours: formatYearHours(row.runtimeMinutes),
       id: row.id,
       label: describeRow(row, year, status),
       live,
+      months: monthSpan(range.start, range.end, year),
       rank: rankOf.get(index) ?? index,
       title: row.title,
     };

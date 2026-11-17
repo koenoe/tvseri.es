@@ -18,6 +18,7 @@ import {
   type SortOrder,
   type TimelineRow,
 } from './model';
+import QuarterScroller from './QuarterScroller';
 import SortSwitch from './SortSwitch';
 import TimelineRowView from './TimelineRowView';
 
@@ -57,18 +58,22 @@ function MoreLink({
 /**
  * The year in shows: the
  * sort control, the lane with the months, one row per show, the legend and
- * the rest of the shows behind "All 71 shows". Gets only the trimmed row
- * models; the server did the rules.
+ * the rest of the shows behind "All 71 shows". A phone shows the year a
+ * quarter at a time under an overview of all of it (`QuarterScroller`).
+ * Gets only the trimmed row models; the server did the rules.
  */
 export default function TimelineBoard({
   moreEpisodes,
   moreShows,
+  opening,
   rows,
   total,
   year,
 }: Readonly<{
   moreEpisodes: number;
   moreShows: number;
+  /** The quarter a phone opens on (0 to 3) */
+  opening: number;
   rows: ReadonlyArray<TimelineRow>;
   total: number;
   year: number;
@@ -100,6 +105,8 @@ export default function TimelineBoard({
     });
   };
   const sort = <SortSwitch onChange={changeOrder} value={order} />;
+  // the overview draws the lines a phone lists before "All 71"
+  const overview = shown.filter((row) => row.rank < PHONE_ROWS);
 
   return (
     <section
@@ -113,25 +120,32 @@ export default function TimelineBoard({
       />
       <div className="self-start md:hidden">{sort}</div>
       <div className="flex min-w-0 flex-col rounded-16 bg-black/22 px-3 py-3.5 md:px-2 md:pt-[18px] md:pb-3.5">
-        <MonthAxis year={year} />
-        <div
-          className="group/tl relative mt-1.5 flex flex-col md:mt-0"
-          id="year-in-shows-rows"
+        <QuarterScroller
+          label={`Series in ${year}, week by week`}
+          opening={opening}
+          overview={overview}
+          year={year}
         >
-          <MonthGrid year={year} />
-          <ArmedMaxMotion armed={armed}>
-            {shown.map((row) => {
-              const phoneHidden = !expanded && row.rank >= PHONE_ROWS;
-              return (
-                <TimelineRowView
-                  key={row.id}
-                  phoneHidden={phoneHidden}
-                  row={row}
-                />
-              );
-            })}
-          </ArmedMaxMotion>
-        </div>
+          <MonthAxis year={year} />
+          <div
+            className="group/tl relative flex flex-col"
+            id="year-in-shows-rows"
+          >
+            <MonthGrid year={year} />
+            <ArmedMaxMotion armed={armed}>
+              {shown.map((row) => {
+                const phoneHidden = !expanded && row.rank >= PHONE_ROWS;
+                return (
+                  <TimelineRowView
+                    key={row.id}
+                    phoneHidden={phoneHidden}
+                    row={row}
+                  />
+                );
+              })}
+            </ArmedMaxMotion>
+          </div>
+        </QuarterScroller>
         <Legend>
           {hasMore ? (
             <MoreLink
@@ -144,9 +158,10 @@ export default function TimelineBoard({
           ) : null}
         </Legend>
         {hasMore ? (
-          <div className="hidden items-center justify-between px-2.5 pt-4 md:flex">
+          <div className="flex items-center justify-between pt-1 md:px-2.5 md:pt-4">
             <span className="text-caption text-white/60">{footnote}</span>
             <MoreLink
+              className="max-md:hidden"
               expanded={expanded}
               label={desktopLabel}
               onToggle={toggle}

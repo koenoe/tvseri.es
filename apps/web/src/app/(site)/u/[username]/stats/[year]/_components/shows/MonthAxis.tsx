@@ -1,12 +1,15 @@
-import { monthStarts } from '../../_lib/weeks';
-
-/** Desktop only: 170px title + 10px padding + 16px gap in, 56px hours + 26px out */
-const GRID_INSET = 'left-[196px] right-[82px]';
+import { monthName, monthStarts } from '../../_lib/weeks';
 
 /**
- * The month header over the rows: month names on
- * desktop beside a "Hours" column title, initials across the full width on a
- * phone. Months sit where they start along the 53 weeks.
+ * Desktop: 170px title + 10px padding + 16px gap in, 56px hours + 26px out.
+ * A phone's grid spans its whole year track.
+ */
+const GRID_INSET = 'inset-x-0 md:left-[196px] md:right-[82px]';
+
+/**
+ * The month header over the rows: month names on desktop beside a "Hours"
+ * column title, full names along a phone's year track. Months sit where they
+ * start along the 53 weeks.
  */
 export function MonthAxis({ year }: Readonly<{ year: number }>) {
   const months = monthStarts(year);
@@ -17,15 +20,15 @@ export function MonthAxis({ year }: Readonly<{ year: number }>) {
     >
       <span className="hidden md:block" />
       <span className="relative block h-5 text-caption text-white/60">
-        {months.map(({ at, label }) => {
+        {months.map(({ at, label }, month) => {
           const style = { left: `${(at * 100).toFixed(3)}%` };
           return (
             <span
-              className="absolute top-0 h-5 whitespace-nowrap border-white/8 border-l pl-[3px] md:pl-1"
+              className="absolute top-0 h-5 whitespace-nowrap border-white/14 border-l pl-1 md:border-white/8"
               key={label}
               style={style}
             >
-              <span className="md:hidden">{label.slice(0, 1)}</span>
+              <span className="md:hidden">{monthName(month)}</span>
               <span className="hidden md:inline">{label}</span>
             </span>
           );
@@ -38,19 +41,19 @@ export function MonthAxis({ year }: Readonly<{ year: number }>) {
   );
 }
 
-/** The 12 faint month lines behind the rows (desktop) */
+/** The 12 faint month lines behind the rows */
 export function MonthGrid({ year }: Readonly<{ year: number }>) {
   const months = monthStarts(year);
   return (
     <div
       aria-hidden
-      className={`pointer-events-none absolute inset-y-0 ${GRID_INSET} hidden md:block`}
+      className={`pointer-events-none absolute inset-y-0 ${GRID_INSET}`}
     >
       {months.map(({ at, label }) => {
         const style = { left: `${(at * 100).toFixed(3)}%` };
         return (
           <span
-            className="absolute inset-y-0 border-white/4 border-l"
+            className="absolute inset-y-0 border-white/5 border-l md:border-white/4"
             key={label}
             style={style}
           />

@@ -37,7 +37,7 @@ const TOP =
  * black 5% band over the page colour (BackgroundStyle paints
  * `[data-site-footer]`), full bleed. Static: no data, one empty client island; Top is
  * the document's `#top` (the HTML spec scrolls to the top when no element
- * has that id). Not shown under an error view (`globals.css`). The toast
+ * has that id). Not shown under an error view (`ErrorState`). The toast
  * rides above it while it is in view (`FooterToastClearance`).
  */
 export default function Footer() {

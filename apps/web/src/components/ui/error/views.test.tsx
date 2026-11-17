@@ -150,6 +150,11 @@ describe('AppErrorView', () => {
   });
 });
 
+/** The view's root holds the rule that hides the footer and its air */
+const hidesFooter = (container: HTMLElement) =>
+  container.firstElementChild?.querySelector(':scope > style')?.textContent ===
+  '[data-site-footer],[data-footer-air]{display:none}';
+
 describe('the site footer under an error view', () => {
   it.each([
     ['404', () => <NotFoundView still={lost} />],
@@ -160,22 +165,18 @@ describe('the site footer under an error view', () => {
       'data down',
       () => <AppErrorView error={new DataDownError()} retry={vi.fn()} />,
     ],
-  ])('the %s marks its root, so globals.css hides the footer', (_, view) => {
+  ])('the %s hides the footer with its own rule', (_, view) => {
     setOnline(true);
     const { container } = render(view());
-    expect(container.firstElementChild?.hasAttribute('data-error-view')).toBe(
-      true,
-    );
+    expect(hidesFooter(container)).toBe(true);
   });
 
-  it('the offline view marks its root too', () => {
+  it('the offline view hides it too', () => {
     setOnline(false);
     const { container } = render(
       <AppErrorView error={new Error('boom')} retry={vi.fn()} />,
     );
-    expect(container.firstElementChild?.hasAttribute('data-error-view')).toBe(
-      true,
-    );
+    expect(hidesFooter(container)).toBe(true);
   });
 });
 

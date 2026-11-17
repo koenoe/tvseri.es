@@ -238,18 +238,3 @@ for (const width of [1440, 390]) {
     });
   });
 }
-
-test('the error-view marker hides the footer: the 403 view carries it too', async ({
-  page,
-}) => {
-  // No route calls forbidden() yet; ForbiddenView's root carries
-  // `data-error-view` (views.test.tsx), and this is what the marker does.
-  await open(page, '/');
-  await expect(footer(page)).toBeVisible();
-  await page.evaluate(() => {
-    const view = document.createElement('div');
-    view.setAttribute('data-error-view', '');
-    document.body.prepend(view);
-  });
-  await expect(footer(page)).toBeHidden();
-});

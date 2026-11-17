@@ -6,6 +6,17 @@ import ErrorScene from './ErrorScene';
 import ErrorTitle from './ErrorTitle';
 import type { ErrorBackdrop, ErrorStill } from './stills';
 
+/**
+ * No site footer under an error view. A `notFound()` or a thrown error inside
+ * a page is caught below the `(site)` layout, so the layout's footer stays in
+ * the tree beside the error view: the view's own rule hides it, in the server
+ * HTML and from the first frame, with no client code, and goes with the view.
+ * A rule, not a `body:has()`: that one re-checked the whole page on every
+ * DOM change. The root 404/401/403/500 pages that replace the layout never
+ * render a footer.
+ */
+const HIDE_SITE_FOOTER = '[data-site-footer],[data-footer-air]{display:none}';
+
 type Props = Readonly<{
   /** Buttons, left to right (shared width on phones, 44px tall). */
   actions: ReactNode;
@@ -35,8 +46,8 @@ type Props = Readonly<{
  * faded into its own ground colour, with the problem in an episode-code
  * kicker, a title-1 headline, one line of what to do, and the way out right
  * under it. The quote and credit sit bottom right (desktop) or last (phone).
- * Static: no request data. `data-error-view` hides the site footer while it
- * is on the page (`globals.css`).
+ * Static: no request data. Its own `<style>` hides the site footer while it
+ * is on the page.
  */
 export default function ErrorState({
   actions,
@@ -54,11 +65,8 @@ export default function ErrorState({
   const actionsClass = search ? 'mt-4' : 'mt-6';
 
   return (
-    <div
-      className="relative isolate flex min-h-dvh flex-col"
-      data-error-view
-      style={page}
-    >
+    <div className="relative isolate flex min-h-dvh flex-col" style={page}>
+      <style>{HIDE_SITE_FOOTER}</style>
       <ErrorScene backdrop={still} />
       {header}
       {/* The page container, as the header: at 1440 it is 112px */}

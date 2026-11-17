@@ -221,19 +221,6 @@
   }
 }
 
-/*
- * No site footer under an error view. A `notFound()`
- * or a thrown error inside a page is caught below the `(site)` layout, so the
- * layout's footer stays in the tree beside the error view; the views mark
- * their root `data-error-view` (ErrorState) and this hides the footer in the
- * same frame, with no client code. The root 404/401/403/500 pages that
- * replace the layout never render one.
- */
-body:has([data-error-view]) [data-site-footer],
-body:has([data-error-view]) [data-footer-air] {
-  display: none;
-}
-
 /* Signing out (SignOutForm): nothing of the private page stays readable
    while the next page loads; the page colour stays. */
 html[data-signing-out] body > * {

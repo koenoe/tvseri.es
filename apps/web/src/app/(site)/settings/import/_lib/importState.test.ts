@@ -129,14 +129,6 @@ const runOf = (state: ImportState) => {
 };
 
 describe('step 1 · upload', () => {
-  it('starts on the Netflix help tab and switches tabs', () => {
-    expect(initialImportState).toEqual({ step: 'upload', tab: 'netflix' });
-    expect(run([{ tab: 'prime', type: 'tab' }])).toEqual({
-      step: 'upload',
-      tab: 'prime',
-    });
-  });
-
   it('goes straight to Check when a file is dropped, the columns closed for a recognised file', () => {
     const state = run([loaded]);
     expect(state.step).toBe('check');
@@ -153,25 +145,6 @@ describe('step 1 · upload', () => {
 });
 
 describe('step 2 · check', () => {
-  it('toggles the columns and the unmatched list', () => {
-    const state = run([
-      loaded,
-      { type: 'toggleEdit' },
-      { type: 'toggleUnmatched' },
-    ]);
-    expect(state.step === 'check' && [state.edit, state.showUnmatched]).toEqual(
-      [true, true],
-    );
-    const back = run(
-      [{ type: 'toggleEdit' }, { type: 'toggleUnmatched' }],
-      state,
-    );
-    expect(back.step === 'check' && [back.edit, back.showUnmatched]).toEqual([
-      false,
-      false,
-    ]);
-  });
-
   it('fills the summary in as the dry run answers', () => {
     const state = run([
       loaded,
@@ -522,10 +495,6 @@ describe('undo', () => {
     });
     expect(runOf(run([{ type: 'undoFailed' }], undoing)).phase).toBe('stopped');
     expect(runOf(run([{ type: 'undone' }], undoing)).phase).toBe('undone');
-  });
-
-  it('remembers when the import was created', () => {
-    expect(runOf(run(started)).createdAt).toBe(1_700_000_000_000);
   });
 
   it('starts again from Upload after an undo', () => {

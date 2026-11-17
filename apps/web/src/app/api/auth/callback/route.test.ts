@@ -73,6 +73,12 @@ describe('GET /api/auth/callback', () => {
     // The header's display cookie comes from the same /me (one per sign-in)
     expect(me.checkUser).toHaveBeenCalledWith('access-1');
     expect(lastWrite('__tvseries_user')?.value).toBe('margaux');
+    // Unreadable to scripts and never sent on cross-site requests
+    expect(session?.options).toMatchObject({
+      httpOnly: true,
+      path: '/',
+      sameSite: 'lax',
+    });
     expect(lastWrite('__tvseries_login')?.value).toBe('');
     // Returning: no welcome toast
     expect(lastWrite('__tvseries_welcome')).toBeUndefined();
@@ -97,6 +103,8 @@ describe('GET /api/auth/callback', () => {
     expect(res.headers.get('location')).toBe('/u/margaux');
     expect(lastWrite('__tvseries_session')?.value).toBeTruthy();
     expect(lastWrite('__tvseries_welcome')).toBeUndefined();
+    // The display cookie left by another account goes with the old session
+    expect(lastWrite('__tvseries_user')?.value).toBe('');
   });
 
   it.each([
@@ -131,6 +139,16 @@ describe('GET /api/auth/callback', () => {
     expect(res.headers.get('location')).toBe('/');
     expect(authClient.exchange).not.toHaveBeenCalled();
     expect(lastWrite('__tvseries_login')?.value).toBe('');
+    expect(lastWrite('__tvseries_session')).toBeUndefined();
+  });
+
+  it('never exchanges a code this browser did not ask for (no login cookie)', async () => {
+    fakeCookieStore.reset({});
+
+    const res = await callback('?code=code-1&state=state-1');
+
+    expect(res.headers.get('location')).toBe('/');
+    expect(authClient.exchange).not.toHaveBeenCalled();
     expect(lastWrite('__tvseries_session')).toBeUndefined();
   });
 

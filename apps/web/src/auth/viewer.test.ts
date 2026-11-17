@@ -17,8 +17,14 @@ describe('viewerFromState', () => {
 
   it('a refreshed session uses the new token', async () => {
     const verify = vi.fn(async () => ({ id: 'u1', role: 'user' as const }));
-    await viewerFromState({ cookie: 'c', status: 'refreshed', tokens }, verify);
-    expect(verify).toHaveBeenCalledWith('jwt');
+    const fresh = { ...tokens, accessToken: 'new-jwt' };
+    await expect(
+      viewerFromState(
+        { cookie: 'c', status: 'refreshed', tokens: fresh },
+        verify,
+      ),
+    ).resolves.toMatchObject({ accessToken: 'new-jwt' });
+    expect(verify).toHaveBeenCalledWith('new-jwt');
   });
 
   it('is null without a usable session or with a bad token', async () => {

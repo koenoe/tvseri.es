@@ -815,6 +815,8 @@ describe('POST /api/account/import from another site', () => {
       );
       expect(response.status).toBe(403);
     }
+    expect(auth).not.toHaveBeenCalled();
+    expect(calls).toEqual([]);
   });
 
   it('refuses a simple (text/plain) request', async () => {

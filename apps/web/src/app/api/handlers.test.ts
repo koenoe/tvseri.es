@@ -6,7 +6,7 @@ import { ApiError } from '@/lib/api/client';
 const { getViewer } = vi.hoisted(() => ({ getViewer: vi.fn() }));
 vi.mock('@/auth/viewer', () => ({ getViewer }));
 
-const { isSeriesId, privateJson, viewerRoute } = await import('./handlers');
+const { isSeriesId, viewerRoute } = await import('./handlers');
 
 const VIEWER = { accessToken: 'token', id: 'user-1', role: 'user' };
 const REQ = new NextRequest('https://www.tvseri.es/api/me/thing');
@@ -56,14 +56,6 @@ describe('viewerRoute', () => {
     const res = await viewerRoute(async () =>
       Response.json({}, { headers: { 'Cache-Control': 'public, max-age=60' } }),
     )(REQ, CONTEXT);
-    expect(res.headers.get('cache-control')).toBe(PRIVATE);
-  });
-});
-
-describe('privateJson', () => {
-  it('is a private JSON answer', async () => {
-    const res = privateJson({ error: 'Not found' }, 404);
-    expect(res.status).toBe(404);
     expect(res.headers.get('cache-control')).toBe(PRIVATE);
   });
 });

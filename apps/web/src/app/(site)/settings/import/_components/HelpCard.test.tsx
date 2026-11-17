@@ -13,7 +13,7 @@ function Harness() {
 }
 
 describe('HelpCard', () => {
-  it('is a set of tabs, three lines each', async () => {
+  it('is a set of tabs, each with its own panel', async () => {
     render(<Harness />);
     const netflix = screen.getByRole('tab', { name: 'Netflix' });
     expect(netflix.getAttribute('aria-selected')).toBe('true');
@@ -25,7 +25,6 @@ describe('HelpCard', () => {
     expect(screen.getByRole('tabpanel').textContent).toContain(
       'Request your data',
     );
-    expect(screen.getAllByRole('listitem')).toHaveLength(3);
   });
 
   it('moves with the arrow keys, wrapping, and keeps one tab in the tab order', async () => {

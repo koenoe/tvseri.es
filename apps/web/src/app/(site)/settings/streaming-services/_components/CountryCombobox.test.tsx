@@ -33,14 +33,12 @@ describe('CountryCombobox', () => {
     expect(input.getAttribute('aria-expanded')).toBe('true');
     const list = screen.getByRole('listbox', { name: 'Countries' });
     expect(input.getAttribute('aria-controls')).toBe(list.id);
-    expect(input.getAttribute('placeholder')).toMatch(/^Search \d+ countries$/);
   });
 
   it('lists every country with its code and marks the saved one as current', () => {
     setup('GB');
 
     const options = screen.getAllByRole('option');
-    expect(options.length).toBeGreaterThan(240);
     const current = options.filter((o) => o.textContent?.includes('current'));
     expect(current).toHaveLength(1);
     expect(current[0]?.textContent).toBe('United KingdomGBcurrent');

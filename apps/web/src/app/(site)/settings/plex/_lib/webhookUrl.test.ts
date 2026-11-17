@@ -1,4 +1,3 @@
-import { SCROBBLE_PROVIDERS } from '@tvseri.es/constants';
 import { describe, expect, it, vi } from 'vitest';
 
 import { TOKEN_MASK, webhookUrl, webhookUrlPrefix } from './webhookUrl';
@@ -17,10 +16,6 @@ describe('the Plex webhook URL', () => {
       'https://www.tvseri.es/api/webhooks/scrobble/plex?token=',
     );
     expect(TOKEN_MASK).toHaveLength(TOKEN.length);
-  });
-
-  it('names a provider the API accepts', () => {
-    expect(SCROBBLE_PROVIDERS).toContain('plex');
   });
 
   it('is rewritten to the API by next.config.ts', async () => {

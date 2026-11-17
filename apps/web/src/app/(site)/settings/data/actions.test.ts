@@ -53,6 +53,15 @@ describe('deleteAccount only deletes the signed-in user', () => {
     },
   );
 
+  it('says unauthenticated for a session without an access token', async () => {
+    auth.mockResolvedValue({ ...SESSION, accessToken: null });
+    expect(await deleteAccount('rae')).toEqual({
+      error: 'unauthenticated',
+      ok: false,
+    });
+    expect(apiFetch).not.toHaveBeenCalled();
+  });
+
   it('rejects a confirmation the schema refuses (too long)', async () => {
     expect(await deleteAccount('x'.repeat(200))).toEqual({
       error: 'invalid',
@@ -89,6 +98,16 @@ describe('the API’s answers', () => {
     });
     apiFetch.mockRejectedValueOnce(new ApiError(500));
     expect(await deleteAccount('rae')).toEqual({ error: 'failed', ok: false });
+  });
+
+  // A 404 must not read as "you typed the wrong name"
+  it('a 404 or a throw that is not the API’s is failed, and expires nothing', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    apiFetch.mockRejectedValueOnce(new ApiError(404));
+    expect(await deleteAccount('rae')).toEqual({ error: 'failed', ok: false });
+    apiFetch.mockRejectedValueOnce(new TypeError('fetch failed'));
+    expect(await deleteAccount('rae')).toEqual({ error: 'failed', ok: false });
+    expect(expireDeletedUser).not.toHaveBeenCalled();
   });
 });
 

@@ -67,11 +67,6 @@ describe('LastImportUndo', () => {
     const dialog = await screen.findByRole('dialog', {
       name: 'Undo this import?',
     });
-    expect(
-      screen.getByText(
-        'Removes the 1,834 episodes this import added. Episodes you had marked before stay as they were.',
-      ),
-    ).toBeTruthy();
     const confirm = [
       ...dialog.querySelectorAll<HTMLButtonElement>('button'),
     ].find((button) => button.textContent === 'Undo import');

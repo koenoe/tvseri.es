@@ -109,7 +109,13 @@ describe('undoImport', () => {
   });
 
   it('refuses an id that is not a UUID before any call', async () => {
-    for (const bad of ['', 'x'.repeat(65), 'imp-1', `${IMPORT_ID}x`]) {
+    for (const bad of [
+      '',
+      'x'.repeat(65),
+      'imp-1',
+      `${IMPORT_ID}x`,
+      '../user/other',
+    ]) {
       await expect(undoImport(bad)).resolves.toEqual({
         error: 'invalid',
         ok: false,
@@ -126,14 +132,6 @@ describe('undoImport', () => {
     vi.mocked(getViewer).mockResolvedValue(null);
     await expect(undoImport(IMPORT_ID)).resolves.toEqual({
       error: 'unauthenticated',
-      ok: false,
-    });
-    expect(apiFetch).not.toHaveBeenCalled();
-  });
-
-  it('a path-like id never reaches the API', async () => {
-    await expect(undoImport('../user/other')).resolves.toEqual({
-      error: 'invalid',
       ok: false,
     });
     expect(apiFetch).not.toHaveBeenCalled();

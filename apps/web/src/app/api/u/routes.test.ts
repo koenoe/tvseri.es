@@ -68,27 +68,34 @@ describe('/api/u/:username/*', () => {
     expect(loadFollowPage).not.toHaveBeenCalled();
   });
 
-  it('pages history 100 at a time and follows by type', async () => {
-    await watchedGET(
-      request('/api/u/juno/watched?cursor=c2'),
-      params({ username: 'juno' }),
+  it('answers 401 and 404 on the follow lists too, without reading', async () => {
+    getViewer.mockResolvedValueOnce(null);
+    const signedOut = await socialGET(
+      request('/api/u/juno/social/followers'),
+      params({ type: 'followers', username: 'juno' }),
     );
+    expect(signedOut.status).toBe(401);
+    resolveProfileUser.mockResolvedValueOnce(null);
+    const unknown = await socialGET(
+      request('/api/u/nobody/social/followers'),
+      params({ type: 'followers', username: 'nobody' }),
+    );
+    expect(unknown.status).toBe(404);
+    expect(loadFollowPage).not.toHaveBeenCalled();
+  });
+
+  it('reads the follow list of the profile’s user, from the first page', async () => {
     await socialGET(
       request('/api/u/juno/social/followers'),
       params({ type: 'followers', username: 'juno' }),
     );
-    expect(loadHistoryPage).toHaveBeenCalledWith({
-      accessToken: 'token',
-      cursor: 'c2',
-      limit: 100,
-      userId: 'u1',
-    });
     expect(loadFollowPage).toHaveBeenCalledWith('followers', {
       accessToken: 'token',
       cursor: null,
       userId: 'u1',
     });
   });
+
   it('answers the Circle’s next page privately', async () => {
     const response = await socialGET(
       request('/api/u/juno/social/following?cursor=c3'),

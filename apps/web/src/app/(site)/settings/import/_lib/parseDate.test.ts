@@ -55,6 +55,10 @@ describe('parseDate', () => {
       isAssumed: true,
       watchedAt: noon(2024, 6, 5),
     });
+    expect(parseDate('05-06-2024', 'unknown', NOW)).toEqual({
+      isAssumed: true,
+      watchedAt: noon(2024, 6, 5),
+    });
   });
 
   it('a part above 12 decides for itself; equal parts are not assumed', () => {
@@ -73,6 +77,16 @@ describe('parseDate', () => {
     expect(parseDate('2025-03-21T23:59:00Z', 'iso', NOW)).toEqual({
       watchedAt: noon(2025, 3, 21),
     });
+    expect(parseDate('2025-03-21 23:59:00', 'iso', NOW)).toEqual({
+      watchedAt: noon(2025, 3, 21),
+    });
+  });
+
+  it('takes 29 February only in a leap year', () => {
+    expect(parseDate('29/02/24', 'dmy', NOW)).toEqual({
+      watchedAt: noon(2024, 2, 29),
+    });
+    expect(parseDate('29/02/23', 'dmy', NOW)).toEqual({ error: 'not-a-date' });
   });
 
   it('reads month names', () => {
@@ -115,6 +129,12 @@ describe('parseDate', () => {
     });
   });
 
+  it('takes the first day of 2000, the earliest the API accepts', () => {
+    expect(parseDate('2000-01-01', 'iso', NOW)).toEqual({
+      watchedAt: noon(2000, 1, 1),
+    });
+  });
+
   it('refuses a date before 2000: Before 2000', () => {
     expect(parseDate('1999-12-31', 'iso', NOW)).toEqual({
       error: 'before-2000',
@@ -128,6 +148,8 @@ describe('parseDate', () => {
   });
 
   it('refuses a date after tomorrow: In the future', () => {
+    // the day after tomorrow is the first one refused
+    expect(parseDate('2026-11-14', 'iso', NOW)).toEqual({ error: 'future' });
     expect(parseDate('2026-11-15', 'iso', NOW)).toEqual({ error: 'future' });
     expect(parseDate('11/21/26', 'mdy', NOW)).toEqual({ error: 'future' });
     expect(parseDate('11/6/99', 'mdy', NOW)).toEqual({ error: 'future' });

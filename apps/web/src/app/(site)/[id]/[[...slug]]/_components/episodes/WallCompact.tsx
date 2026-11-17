@@ -188,8 +188,11 @@ function FanThumb({
   episode,
   index,
 }: Readonly<{ episode: ShowEpisode; index: number }>) {
+  // No black ground or dark ring: on a tilted card both show as a black rim
+  // round the still. A faint light ground (for a missing still) and a light
+  // hairline, as the posters have.
   const classes = cn(
-    'absolute top-0.5 h-18 w-32 overflow-hidden rounded-8 bg-black shadow-[0_6px_14px_-4px_rgb(0_0_0/0.6),0_0_0_1px_rgb(0_0_0/0.4)]',
+    'absolute top-0.5 h-18 w-32 overflow-hidden rounded-8 bg-white/6 shadow-[0_6px_14px_-4px_rgb(0_0_0/0.6)] after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.08)]',
     FAN[index],
   );
   return (

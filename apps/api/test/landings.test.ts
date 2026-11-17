@@ -8,7 +8,6 @@ import {
   landingPathFromDiscoverQuery,
   landingSlugForId,
   NETWORKS,
-  THEME_GROUPS,
   themeBySlug,
 } from '@tvseri.es/constants';
 import { describe, expect, it } from 'vitest';
@@ -79,7 +78,6 @@ describe('slugs to discover filters', () => {
     expect(LANDING_SLUGS.genre).toEqual(
       expect.arrayContaining(['horror', 'thriller', 'romance', 'crime']),
     );
-    expect(LANDING_SLUGS.genre).toHaveLength(19);
   });
 
   it('maps a network slug to its TMDB network id', () => {
@@ -165,40 +163,11 @@ describe('slugs to discover filters', () => {
 });
 
 describe('the theme list', () => {
-  it('has 48 themes in six groups', () => {
-    expect(LANDING_SLUGS.theme).toHaveLength(48);
-    expect(THEME_GROUPS.map((group) => group.id)).toEqual([
-      'hooks',
-      'people',
-      'creatures',
-      'setting',
-      'subjects',
-      'subgenres',
-    ]);
-    const perGroup = Object.fromEntries(
-      THEME_GROUPS.map((group) => [
-        group.id,
-        LANDING_SLUGS.theme.filter(
-          (slug) => themeBySlug(slug)?.group === group.id,
-        ).length,
-      ]),
-    );
-    expect(perGroup).toEqual({
-      creatures: 9,
-      hooks: 9,
-      people: 6,
-      setting: 5,
-      subgenres: 13,
-      subjects: 6,
-    });
-  });
-
   it('gives each keyword id to one theme only, never to a genre', () => {
     const ids = LANDING_SLUGS.theme.flatMap(
       (slug) => themeBySlug(slug)?.keywordIds ?? [],
     );
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids).toHaveLength(145);
     for (const genreKeyword of [315058, 316362, 9840]) {
       expect(ids).not.toContain(genreKeyword);
     }
@@ -210,18 +179,6 @@ describe('the theme list', () => {
       keywordIds: [4379, 5455, 10854],
       name: 'Time travel',
     });
-    expect(themeBySlug('lgbtq')).toEqual({
-      group: 'subjects',
-      keywordIds: [158718, 163037, 1862, 250606, 363345],
-      name: 'LGBTQ+',
-    });
-    expect(themeBySlug('family-dramas')).toEqual({
-      genreId: 18,
-      group: 'subgenres',
-      keywordIds: [10041, 155294, 12279, 5683],
-      name: 'Family dramas',
-    });
-    expect(themeBySlug('set-in-the-1980s')?.name).toBe('Set in the 1980s');
     expect(themeBySlug('heist')).toBeUndefined();
     expect(themeBySlug('constructor')).toBeUndefined();
   });

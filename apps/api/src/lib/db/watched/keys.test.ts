@@ -53,4 +53,23 @@ describe('Watched table keys', () => {
     ]);
     expect(EPISODE_SK.exec('LIST#WATCHED#ITEM#1')).toBeNull();
   });
+
+  // A show's prefix and BETWEEN range must never reach another show's episodes
+  it('keeps one show apart from shows whose id starts the same', () => {
+    const show13 = episodeSk(13, 1, 1);
+    expect(show13.startsWith(seriesSkPrefix(1))).toBe(false);
+    const { from, to } = seriesSkRange(1, 1);
+    expect(show13 > from && show13 < to).toBe(false);
+  });
+
+  it('sorts episodes in season order, so a range from season 1 leaves the specials out', () => {
+    const { from, to } = seriesSkRange(1396, 1);
+    const inRange = (sk: string) => sk >= from && sk <= to;
+    expect(inRange(episodeSk(1396, 0, 1))).toBe(false);
+    expect(inRange(episodeSk(1396, 1, 1))).toBe(true);
+    expect(inRange(episodeSk(1396, 12, 1234))).toBe(true);
+    expect(episodeSk(1396, 2, 1) < episodeSk(1396, 10, 1)).toBe(true);
+    expect(episodeIndexSk(1, 9) < episodeIndexSk(1, 10)).toBe(true);
+    expect(episodeIndexSk(100, 1).startsWith(seasonIndexPrefix(1))).toBe(false);
+  });
 });

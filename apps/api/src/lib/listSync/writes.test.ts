@@ -52,4 +52,8 @@ describe('listWrites: what a placement plan writes (one rule, two executors)', (
       watchlist: 'restore',
     });
   });
+
+  it('places a finished show at the nightly job’s time when it gives one', () => {
+    expect(listWrites(plan('watched'), 2_000).put?.createdAt).toBe(2_000);
+  });
 });

@@ -33,7 +33,21 @@ const CASES: ReadonlyArray<Case> = [
     name: 'valid key',
     path: '/genres',
   },
+  {
+    allowed: false,
+    headers: { 'x-api-key': `${API_KEY}x` },
+    method: 'GET',
+    name: 'the key with a character added',
+    path: '/genres',
+  },
   { allowed: true, method: 'OPTIONS', name: 'OPTIONS', path: '/genres' },
+  {
+    allowed: false,
+    headers: { authorization: 'Bearer x' },
+    method: 'GET',
+    name: 'Bearer outside the dashboard routes',
+    path: '/me/library-ids',
+  },
   {
     allowed: true,
     headers: { authorization: 'Bearer x' },

@@ -178,7 +178,6 @@ describe('GET /home/feature', () => {
     ]) {
       day(date);
       const result = (await feature(date)).body.feature;
-      console.log(date, JSON.stringify(result).slice(0, 400));
       seen.set(result.kind, result);
     }
 

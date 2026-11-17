@@ -15,7 +15,21 @@ const shares = (input: string, output: string) =>
     channel === 0 ? null : rgb(output)[index]! / channel,
   );
 
+// Every other test measures through quietTextContrast, so a wrong opacity
+// there would pass them all: pin it to ratios worked out by hand
+describe('quietTextContrast', () => {
+  it('measures white at 60% composited on the ground against the ground', () => {
+    expect(quietTextContrast([255, 255, 255])).toBe(1);
+    expect(quietTextContrast(rgb('#29251f'))).toBeCloseTo(6.4, 1);
+    expect(quietTextContrast([0, 0, 0])).toBeCloseTo(7.37, 2);
+  });
+});
+
 describe('groundColor', () => {
+  it('serves white as the grey of the step that first passes', () => {
+    expect(groundColor('#ffffff')).toBe('#474747');
+  });
+
   it.each([
     // dark grounds pass unchanged
     ['The Bear', '#29251f'],

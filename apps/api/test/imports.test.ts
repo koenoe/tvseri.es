@@ -126,6 +126,27 @@ describe('1 import keeps existing dates', () => {
     expect(response.status).toBe(409);
     expect(await episodes()).toEqual([]);
   });
+
+  it("refuses another user's batch for the import, and one over 100 rows", async () => {
+    seedUser();
+    seedUser({ id: OTHER_USER_ID, username: 'other' });
+    const importId = await startImport();
+
+    const other = await request(`/me/imports/${importId}/batch`, {
+      as: OTHER_USER_ID,
+      body: [row(1, 1)],
+      method: 'POST',
+    });
+    const oversized = await request(`/me/imports/${importId}/batch`, {
+      as: USER_ID,
+      body: Array.from({ length: 101 }, (_, index) => row(1, index + 1)),
+      method: 'POST',
+    });
+
+    expect(other.status).toBe(409);
+    expect(oversized.status).toBe(400);
+    expect(db.dump('Watched')).toEqual([]);
+  });
 });
 
 describe('2 import check (dry run)', () => {

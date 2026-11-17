@@ -91,6 +91,12 @@ describe('countDoneSkips: which skips count towards finishing', () => {
     ).toBe(1);
   });
 
+  it('counts a skip listed twice once', () => {
+    expect(
+      countDoneSkips({ seasons, skipped: ['S01E03', 'S01E03'], watched }),
+    ).toBe(1);
+  });
+
   it('counts nothing for a show it knows no seasons of', () => {
     expect(countDoneSkips({ skipped: ['S01E03'], watched })).toBe(0);
   });

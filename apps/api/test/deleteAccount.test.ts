@@ -1,4 +1,5 @@
 import { CloudFrontKeyValueStoreClient } from '@aws-sdk/client-cloudfront-keyvaluestore';
+import { WEBHOOK_TOKEN_KV_PREFIX } from '@tvseri.es/constants';
 import { emailKey } from '@tvseri.es/utils';
 import type { Context, SQSEvent } from 'aws-lambda';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -10,12 +11,21 @@ import { OTHER_USER_ID, seedUser, USER_ID } from './seed';
 
 const QUEUE = 'https://sqs.test/delete-account';
 
+/** Every edge-store command sent, by name and input */
+let edgeCommands: Array<{ name: string; input: unknown }> = [];
+
 beforeEach(() => {
+  edgeCommands = [];
   vi.spyOn(CloudFrontKeyValueStoreClient.prototype, 'send').mockImplementation(
-    (async (command: { constructor: { name: string } }) =>
-      command.constructor.name === 'DescribeKeyValueStoreCommand'
+    (async (command: { constructor: { name: string }; input: unknown }) => {
+      edgeCommands.push({
+        input: command.input,
+        name: command.constructor.name,
+      });
+      return command.constructor.name === 'DescribeKeyValueStoreCommand'
         ? { ETag: 'etag' }
-        : {}) as never,
+        : {};
+    }) as never,
   );
 });
 
@@ -130,6 +140,17 @@ describe('delete account', () => {
     expect(keysOf('WebhookTokens')).toHaveLength(1);
   });
 
+  it('needs a signed-in user', async () => {
+    seedEverything();
+    const response = await request('/me', {
+      body: { confirm: 'wren' },
+      method: 'DELETE',
+    });
+    expect(response.status).toBe(401);
+    expect(queued()).toEqual([]);
+    expect(keysOf('WebhookTokens')).toHaveLength(1);
+  });
+
   it("deletes everything of the user, in steps, and nothing of anyone else's", async () => {
     seedEverything();
     const response = await request('/me', {
@@ -138,8 +159,16 @@ describe('delete account', () => {
       method: 'DELETE',
     });
     expect(response.status).toBe(202);
-    // The Plex link goes right away; the session stops working
+    // The Plex link goes right away, at the edge too; the session stops working
     expect(keysOf('WebhookTokens')).toEqual([]);
+    expect(edgeCommands).toContainEqual({
+      input: expect.objectContaining({
+        Deletes: [
+          { Key: `${WEBHOOK_TOKEN_KV_PREFIX}abcdefabcdefabcdefabcdef` },
+        ],
+      }),
+      name: 'UpdateKeysCommand',
+    });
     const me = await request('/me', { as: USER_ID });
     expect(me.status).toBe(401);
     // Its own code: the web signs this session out, never one it couldn't verify
@@ -291,7 +320,7 @@ describe('delete account: hidden profile, late follows, handle claim', () => {
   });
 });
 
-describe('the handle claim (async-9)', () => {
+describe('the handle claim', () => {
   it('goes with the account when it is the user’s own; any other claim stays', async () => {
     seedEverything();
     db.seed('Users', [

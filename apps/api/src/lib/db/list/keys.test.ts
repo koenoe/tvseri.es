@@ -10,6 +10,7 @@ import {
   PREF_SERIES_PREFIX,
   parkedWatchlistSk,
   parseListItemSk,
+  parsePrefSk,
   prefSk,
   ROLLUP_META_SK,
   ROLLUP_PREFIX,
@@ -72,5 +73,31 @@ describe('the Lists table keys', () => {
     expect(parseListItemSk('PARKED#WATCHLIST#1399')).toBeNull();
     expect(parseListItemSk(`LIST#CUSTOM#${CUSTOM}#ITEM#7`)).toBeNull();
     expect(parseListItemSk('LIST#WATCHED#ITEM#12a')).toBeNull();
+  });
+
+  // A Query by prefix must reach only its own kind of item
+  it('keep each prefix to its own items', () => {
+    const watchlistItem = listItemSk('WATCHLIST', 1399);
+    expect(watchlistItem.startsWith(listItemPrefix('WATCHED'))).toBe(false);
+    expect(
+      listItemSk('WATCHED', 1).startsWith(listItemPrefix('WATCHLIST')),
+    ).toBe(false);
+    for (const other of [
+      prefSk(1399),
+      parkedWatchlistSk(1399),
+      `${ROLLUP_SHOW_PREFIX}1399`,
+      ROLLUP_META_SK,
+    ]) {
+      expect(other.startsWith(LIST_PREFIX)).toBe(false);
+    }
+    expect(watchlistItem.startsWith(PREF_PREFIX)).toBe(false);
+    expect(watchlistItem.startsWith(ROLLUP_PREFIX)).toBe(false);
+  });
+
+  it('parse a prefs sort key back to its show, and nothing else', () => {
+    expect(parsePrefSk(prefSk(1399))).toBe(1399);
+    expect(parsePrefSk('LIST#WATCHED#ITEM#1399')).toBeNull();
+    expect(parsePrefSk('PREF#SERIES#')).toBeNull();
+    expect(parsePrefSk('PREF#SERIES#12a')).toBeNull();
   });
 });

@@ -4,7 +4,7 @@ Pages are cached (Cache Components), so the server HTML is the same for every vi
 
 ## What runs, and when
 
-- `viewerHintsScript.ts`: an inline script in the root layout's `<head>`, run once per document before the first paint. It reads the display cookie once (`readCookieUser`) and `localStorage` once, then sets:
+- `viewerHintsScript.ts`: an inline script at the top of the root layout's `<body>` (`components/ViewerHintsScript.tsx`), run once per document before the first paint. It reads the display cookie once (`readCookieUser`) and `localStorage` once, then sets:
   - **signed in**: a stylesheet that shows signed-in-only space, and on a profile the owner's or a visitor's placeholders;
   - `applyHtmlHints` (`htmlHints.ts`) on `<html>`:
     - `data-home`: Home's new or member layout;

@@ -38,6 +38,8 @@ Series data comes from [TMDB](https://www.themoviedb.org/settings/api), IMDb rat
 - **First-party metrics.** Web Vitals and API timings go through SQS into DynamoDB, are aggregated daily and are shown in the dashboard.
 - **Cost protection.** An AWS Budget alarm triggers a Lambda that disables the CloudFront distributions in production. Every distribution blocks a list of countries.
 
+The non-obvious rules and quirks are documented next to the code. Start at `apps/web/README.md`, which links the rest, including the API's list placement, import and account deletion.
+
 ## Getting started
 
 Requirements: Node 24, pnpm 12, AWS profiles named `tvseries-dev` and `tvseries-production`, and a Vercel account.

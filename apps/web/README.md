@@ -1,6 +1,6 @@
 # apps/web
 
-The Next.js 16 front end. Setup, commands and code style are in the repo's `CLAUDE.md`. This file covers how pages navigate, and points to the READMEs that explain each part's non-obvious rules.
+The Next.js 16 front end. Setup and commands are in the root `README.md`. This file covers how pages navigate, and points to the READMEs that explain each part's non-obvious rules.
 
 ## Instant navigation
 

@@ -19,7 +19,7 @@ A CSV of watched episodes (Netflix's viewing history or any file with mappable c
 - **Check** (`checkImportBatch`): reports what would be written and what is already watched. Nothing is written.
 - **Start** (`startImport`): the import becomes the user's `lastImport`. Starting a new import ends Undo for the previous one.
 - **Write** (`writeImportBatch`): only while the import is open (`assertImportOpen`, else 409). Episodes already watched are left alone, so their dates are kept and Undo never touches them. New ones carry the `importId`. Writing an episode clears its skip; the cleared skips are recorded first (`recordUnskipped`) so Undo can put them back. Lists follow through the watched stream (`lib/listSync`).
-- A session that expires mid-import stops it. The user can continue from the next chunk in the same tab.
+- A session that expires mid-import stops it. After signing in, Continue in the same tab re-sends the chunk that stopped; what it already wrote counts as already watched.
 - **Accepted race**: an episode marked by hand between the check and the write is overwritten by the import and would go with an Undo. Rare enough to accept.
 
 ## Undo

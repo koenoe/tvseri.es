@@ -16,14 +16,14 @@ The API applies the same rule for lists: `apps/api/src/lib/listSync/state.ts`.
 ## Marking and dates
 
 - The eye on one episode: watched → unmark; anything else (skipped included) → mark "Just now".
-- After a single "Just now" mark on the show page, the toast offers "Mark the N before too" (aired, unwatched, unskipped earlier episodes of that season; `openBefore`). Not for season 0, and not once the show's "Never for this show" is set.
+- After a single "Just now" mark on the show page (not in the watch-history sheet), the toast offers "Mark the N before too" (aired, unwatched, unskipped earlier episodes of that season; `openBefore`). Not for season 0, and not once the show's "Never for this show" is set.
 - Quick "Just now" marks of one show within 2 minutes merge into one toast; one Undo undoes them all (`createMergeRun` in `toasts.ts`). Any other command ends the run. This stops a toast storm while ticking through a binge.
 - Date choices (`when.ts`): Just now · Yesterday (same clock time) · Last weekend (Saturday 21:00) · a picked day (21:00 local, never in the future) · On release day (local noon of the air date, `server/batch.ts`) · I don't remember. Dates before 2000 are refused (`packages/schemas/src/watched.ts`).
 - "I don't remember" counts for progress, lists and all-time totals, but never appears in History or year stats: an undated watch can't belong to a year.
 - Marking a watched episode again overwrites it; that's how re-dating works. The eye never does this by accident because it unmarks a watched episode.
 - Season or whole-show eye: anything aired not watched → mark it all; all aired watched → unmark it all. The whole-show unmark deletes every record of the show, specials included (`unmarkTvSeriesWatched` in the API).
 - "I'm up to…" (`markUpTo`): marks every open aired episode up to the target (earlier seasons too), then unmarks watched episodes after it in the target's season only. It is one run: the unmark is sent only after the mark saved, and Try again redoes both.
-- "Seen it" / "Finished it all" mark every aired, unwatched episode as "I don't remember". Dating the whole series from the calendar dates every aired episode not yet watched. Both keep existing dates.
+- "Seen it" / "Finished it all" mark every aired, unwatched episode as "I don't remember"; existing dates are kept.
 - A show with any watched episode can't be put on the watchlist: the API would take it off again at the next mark.
 
 ## When things go wrong
@@ -45,4 +45,4 @@ List placement (In progress, Finished, Resuming soon, the watchlist) is the API'
 
 "Hide from In progress" keeps the show listed but out of the overview blocks; a later mark does not un-hide it. Shows not watched for 90 days appear under Paused (`apps/api/src/lib/overview/blocks.ts`).
 
-Plex scrobbles count only TV episodes, are dated when Plex sent them, carry the source "Plex", overwrite an existing mark and clear a skip like any other mark.
+Plex scrobbles (`apps/api/src/lambdas/scrobble.ts`) count only watched episodes from a TV library. They are dated when the webhook was queued, so retries and redrives keep the real date. They carry the source "Plex", overwrite an existing mark and clear a skip like any other mark.

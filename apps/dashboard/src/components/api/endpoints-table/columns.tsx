@@ -1,4 +1,3 @@
-import type { ColumnDef } from '@tanstack/react-table';
 import type { EndpointMetrics } from '@tvseri.es/schemas';
 import { ChevronRight } from 'lucide-react';
 
@@ -13,10 +12,11 @@ import {
 
 import { DependencyBadge } from '../dependency-badge';
 import { MethodBadge, parseEndpoint, RouteLabel } from '../endpoint-label';
+import type { ApiColumnDef } from '../table-features';
 import { SortIndicator } from './sort-indicator';
 import { ErrorRateSparkline, LatencySparkline } from './sparklines';
 
-export const columns: ColumnDef<EndpointMetrics>[] = [
+export const columns: ApiColumnDef<EndpointMetrics>[] = [
   {
     accessorFn: (row) => row.endpoint,
     cell: ({ row }) => {
@@ -186,11 +186,3 @@ export const columns: ColumnDef<EndpointMetrics>[] = [
     size: 32,
   },
 ];
-
-// Extend TanStack Table's meta type
-declare module '@tanstack/react-table' {
-  interface TableMeta<TData> {
-    maxRequestCount?: number;
-    totalRequestCount?: number;
-  }
-}

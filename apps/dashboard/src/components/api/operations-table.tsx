@@ -1,13 +1,9 @@
 import {
-  type ColumnDef,
   flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   type OnChangeFn,
   type PaginationState,
   type SortingState,
-  useReactTable,
+  useTable,
 } from '@tanstack/react-table';
 import {
   ChevronDown,
@@ -41,6 +37,7 @@ import { STATUS_COLORS } from '@/lib/status-colors';
 import { RouteLabel } from './endpoint-label';
 import { RequestBar } from './request-bar';
 import { StatusCodePopover } from './status-code-popover';
+import { type ApiColumnDef, apiTableFeatures } from './table-features';
 
 export type OperationStats = Readonly<{
   codes?: Record<string, number>;
@@ -269,7 +266,7 @@ function SortIndicator({
   );
 }
 
-const columns: ColumnDef<OperationStats>[] = [
+const columns: ApiColumnDef<OperationStats>[] = [
   {
     accessorFn: (row) => row.operation,
     cell: ({ row }) => {
@@ -404,12 +401,6 @@ const columns: ColumnDef<OperationStats>[] = [
   },
 ];
 
-declare module '@tanstack/react-table' {
-  interface TableMeta<TData> {
-    maxRequestCount?: number;
-  }
-}
-
 const OperationsTable = memo(function OperationsTable({
   onPaginationChange,
   onSortingChange,
@@ -444,13 +435,11 @@ const OperationsTable = memo(function OperationsTable({
     [onPaginationChange, pagination],
   );
 
-  const table = useReactTable({
+  const table = useTable({
     autoResetPageIndex: false,
     columns,
     data: operations as OperationStats[],
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    features: apiTableFeatures,
     meta: { maxRequestCount },
     onPaginationChange: handlePaginationChange,
     onSortingChange: handleSortingChange,
@@ -497,7 +486,7 @@ const OperationsTable = memo(function OperationsTable({
           {table.getRowModel().rows.length > 0 ? (
             table.getRowModel().rows.map((row) => (
               <TableRow className="hover:bg-muted/50" key={row.id}>
-                {row.getVisibleCells().map((cell) => (
+                {row.getAllCells().map((cell) => (
                   <TableCell
                     className="px-3 py-2"
                     key={cell.id}

@@ -1,13 +1,10 @@
 import { useNavigate } from '@tanstack/react-router';
 import {
   flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   type OnChangeFn,
   type PaginationState,
   type SortingState,
-  useReactTable,
+  useTable,
 } from '@tanstack/react-table';
 import type { EndpointMetrics } from '@tvseri.es/schemas';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -27,6 +24,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
+import { apiTableFeatures } from '../table-features';
 import { columns } from './columns';
 
 type EndpointsTableProps = Readonly<{
@@ -73,13 +71,11 @@ function EndpointsTableComponent({
     [onPaginationChange, pagination],
   );
 
-  const table = useReactTable({
+  const table = useTable({
     autoResetPageIndex: false,
     columns,
     data: endpoints as EndpointMetrics[],
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    features: apiTableFeatures,
     meta: { maxRequestCount },
     onPaginationChange: handlePaginationChange,
     onSortingChange: handleSortingChange,
@@ -147,7 +143,7 @@ function EndpointsTableComponent({
                 key={row.id}
                 onClick={handleRowClick}
               >
-                {row.getVisibleCells().map((cell) => {
+                {row.getAllCells().map((cell) => {
                   const isChevron = cell.column.id === 'chevron';
                   return (
                     <TableCell

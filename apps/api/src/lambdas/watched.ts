@@ -1,8 +1,11 @@
 import type { AttributeValue } from '@aws-sdk/client-dynamodb';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { WatchedItem } from '@tvseri.es/schemas';
+import { USER_KEY_PREFIX, userKey } from '@tvseri.es/utils';
 import type { DynamoDBStreamEvent } from 'aws-lambda';
+import { Resource } from 'sst';
 
+import { batchGet } from '@/lib/db/batch';
 import { markUserActive } from '@/lib/db/user';
 import { resyncShow } from '@/lib/listSync';
 import { applyWatchedCounterDeltas } from '@/lib/profileCounters';
@@ -20,6 +23,28 @@ type SeriesGroup = Readonly<{
  */
 const syncSeries = ({ seriesId, userId }: SeriesGroup) =>
   resyncShow({ seriesId, userId });
+
+/**
+ * The batch's users whose account is still there and not being deleted.
+ * Records that arrive late for a deleted account (its own sweep removing the
+ * watched items, or a retry) must not write list items, summaries or
+ * counters back after the deletion cleared them.
+ */
+const liveUsers = async (
+  userIds: ReadonlySet<string>,
+): Promise<ReadonlySet<string>> => {
+  const items = await batchGet(
+    Resource.Users.name,
+    [...userIds].map((userId) => marshall({ pk: userKey(userId) })),
+    { ConsistentRead: true, ProjectionExpression: 'pk, deletionRequestedAt' },
+  );
+  return new Set(
+    items
+      .map((item) => unmarshall(item))
+      .filter((user) => !user.deletionRequestedAt)
+      .map((user) => String(user.pk).slice(USER_KEY_PREFIX.length)),
+  );
+};
 
 /**
  * Records watch activity (manual marks and Plex scrobbles alike) for the
@@ -113,22 +138,32 @@ export const handler = async (event: DynamoDBStreamEvent) => {
     });
   }
 
+  const live = await liveUsers(
+    new Set([...groups.values()].map(({ userId }) => userId)),
+  );
+  const isLive = (userId: string) => live.has(userId);
+  const ofLive = <V>(byUser: ReadonlyMap<string, V>) =>
+    new Map([...byUser].filter(([userId]) => isLive(userId)));
+
   // The idempotent steps; any failure fails the batch, which is retried as a
   // whole (safe, they write final state only): the lists, then the years
   // list's cache. The year sections keep their day (the stats profile).
   await Promise.all([
-    ...Array.from(groups.values()).map(syncSeries),
-    markUsersActive(activeUserIds),
+    ...[...groups.values()]
+      .filter(({ userId }) => isLive(userId))
+      .map(syncSeries),
+    markUsersActive(new Set([...activeUserIds].filter(isLive))),
   ]);
-  if (allTimeToInvalidate.size > 0) {
-    await invalidateAllTimeStats([...allTimeToInvalidate]);
+  const toInvalidate = [...allTimeToInvalidate].filter(isLive);
+  if (toInvalidate.length > 0) {
+    await invalidateAllTimeStats(toInvalidate);
   }
 
   // Last, and only once everything above succeeded: the counter deltas are
   // not idempotent, so a batch retried after a failure above must not have
   // applied them already
   await applyWatchedCounterDeltas({
-    countDeltas: countChanges,
-    runtimeDeltas: runtimeChanges,
+    countDeltas: ofLive(countChanges),
+    runtimeDeltas: ofLive(runtimeChanges),
   });
 };

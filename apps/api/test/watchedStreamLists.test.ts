@@ -430,3 +430,26 @@ describe('In progress keeps its order on an unmark or Undo import', () => {
     expect(inProgressItem(show)).toMatchObject({ createdAt: day(4) });
   });
 });
+
+describe('late stream records for a deleted account', () => {
+  it('write no list items or counters for a user being deleted or gone', async () => {
+    seedUser();
+    const show = newShow();
+    const records = await recordWrites(() =>
+      request(`/user/${USER_ID}/watched/batch`, {
+        as: USER_ID,
+        body: [{ ...row(show, 1, day(0)), userId: USER_ID }],
+        method: 'POST',
+      }),
+    );
+    const listsBefore = db.dump('Lists');
+
+    seedUser({ deletionRequestedAt: day(1) });
+    await handler(streamEvent(records));
+    expect(db.dump('Lists')).toEqual(listsBefore);
+
+    db.reset();
+    await handler(streamEvent(records));
+    expect(db.dump('Lists')).toEqual([]);
+  });
+});

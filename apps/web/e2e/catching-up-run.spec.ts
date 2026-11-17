@@ -74,10 +74,15 @@ test('marking up to the fourth chip moves the run on', async ({ page }) => {
   // E14 marks the rest of the eight codes sent: the run goes on at once from
   // the marking store, never a lone "+N", and the overview is read again.
   // The press is refused until the first write settled (one press, one
-  // write), so it is tried until taken.
+  // write; `pressGate` shows no sign of it), so it is tried until taken. A
+  // taken press removes E14 at once: then only its result is awaited (a
+  // second click would wait for a chip that is gone; on a slow machine the
+  // 500ms each try had ran out before the taken press had drawn)
   await expect(async () => {
-    await chip(block, 14).click();
-    await expect(chip(block, 15)).toBeVisible({ timeout: 500 });
+    if (await chip(block, 14).isVisible()) {
+      await chip(block, 14).click();
+    }
+    await expect(chip(block, 15)).toBeVisible({ timeout: 2000 });
   }).toPass();
   for (const episode of [15, 16, 17, 18]) {
     await expect(chip(block, episode)).toBeVisible();

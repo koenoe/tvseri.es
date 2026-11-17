@@ -75,6 +75,8 @@ describe('MarkControl: the pair, or one button in the viewer’s state', () => {
   it('signed out: the pair, and a press asks to sign in', async () => {
     const { container } = await renderControl(null);
     expect(row(container)?.dataset.markControl).toBe('new');
+    // Signed out, the pair is in the static shell: nothing streams in to fade
+    expect(row(container)?.className).not.toContain('starting:opacity-0');
     fireEvent.click(
       screen.getByRole('button', { name: 'Add The Pitt to your watchlist' }),
     );
@@ -101,6 +103,8 @@ describe('MarkControl: the pair, or one button in the viewer’s state', () => {
     ).toBeTruthy();
     expect(shown(layerOf(container, 'pair'))).toBe(true);
     expect(layerOf(container, 'single')).toBeNull();
+    // The viewer's state streams in, so it fades in rather than popping
+    expect(row(container)?.className).toContain('starting:opacity-0');
   });
 
   it('on the watchlist: one pressed button, over the pair that sizes the row', async () => {

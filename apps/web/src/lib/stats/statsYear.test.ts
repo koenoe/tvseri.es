@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseStatsYear, yearState } from './year';
+import { parseStatsYear, yearState } from './statsYear';
 
 describe('parseStatsYear', () => {
   it.each([

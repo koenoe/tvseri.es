@@ -1,5 +1,5 @@
 // Relative: next.config.ts loads this file without the app's path aliases
-import { FIRST_STATS_YEAR, nextUtcYear } from '../stats/years';
+import { FIRST_STATS_YEAR, nextUtcYear } from '../stats/statsYear';
 
 /**
  * Malformed profile URLs get the static, prerendered 404 with no function

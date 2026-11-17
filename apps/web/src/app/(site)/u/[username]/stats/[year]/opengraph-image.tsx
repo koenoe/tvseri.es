@@ -1,5 +1,5 @@
 import { getStatsClock } from '@/lib/stats/clock';
-import { parseStatsYear } from '@/lib/stats/year';
+import { parseStatsYear } from '@/lib/stats/statsYear';
 import { cardCacheControl, cardYearMessage } from './_card/cardRequest';
 import { isCardUsername } from './_card/cardUser';
 import { renderCardImage } from './_card/renderCard';

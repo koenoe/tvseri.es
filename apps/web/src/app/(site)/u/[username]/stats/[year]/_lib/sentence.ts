@@ -1,7 +1,7 @@
 import type { StatsMetrics, StatsSummary } from '@tvseri.es/schemas';
 import { plural } from '@/lib/format/text';
 import { formatGrouped } from '@/lib/formatCount';
-import type { YearState } from '@/lib/stats/year';
+import type { YearState } from '@/lib/stats/statsYear';
 import { formatStatsRuntime } from './format';
 
 /** A run of the sentence; `strong` runs are drawn white and 600 */

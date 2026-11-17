@@ -4,7 +4,7 @@ import { Suspense, ViewTransition } from 'react';
 
 import statsPath from '@/lib/routing/statsPath';
 import { getStatsUser, isUnavailable } from '@/lib/stats/loaders';
-import { LAST_STATS_YEAR, parseStatsYear } from '@/lib/stats/year';
+import { LAST_STATS_YEAR, parseStatsYear } from '@/lib/stats/statsYear';
 import StatsBody, { StatsBodySkeleton } from './_components/StatsBody';
 
 /**

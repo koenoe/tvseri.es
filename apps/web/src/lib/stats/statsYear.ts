@@ -1,10 +1,20 @@
-import { FIRST_STATS_YEAR, nextUtcYear } from '@/lib/stats/years';
-
 /**
  * Which years have a Stats page: four digits, 2000 (imports can backdate
  * watches) to next year (time zones ahead of the server's). Anything else is
- * a 404, so arbitrary values never become their own cache entry (ported).
+ * a 404, so arbitrary values never become their own cache entry. Shared by
+ * the page's year rule and the static 404 rewrite for other years
+ * (`lib/routing/profileNotFound`, loaded by next.config.ts: no `@/` imports
+ * here).
  */
+export const FIRST_STATS_YEAR = 2000;
+
+/**
+ * Next year in UTC. Read at module scope (Cache Components rejects reading
+ * the clock in a prerender), so it is fixed per server process, and per
+ * build for the rewrite.
+ */
+export const nextUtcYear = (now: Date = new Date()): number =>
+  now.getUTCFullYear() + 1;
 
 // Module scope, not render: Cache Components rejects reading the clock in a
 // prerender. Next year is allowed for time zones ahead of the server's.

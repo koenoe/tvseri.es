@@ -1,5 +1,5 @@
 import type { StatsUser } from '@/lib/stats/loaders';
-import type { YearState } from '@/lib/stats/year';
+import type { YearState } from '@/lib/stats/statsYear';
 
 /** What every Stats section gets from the page; each loads its own data */
 export type SectionProps = Readonly<{

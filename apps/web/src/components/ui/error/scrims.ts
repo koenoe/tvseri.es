@@ -1,6 +1,5 @@
+import { hexWithAlpha as withAlpha } from '@tvseri.es/utils';
 import type { CSSProperties } from 'react';
-
-import { hexWithAlpha as withAlpha } from '@/lib/color';
 
 const TOP = 'linear-gradient(180deg, rgb(0 0 0 / 0.5) 0%, rgb(0 0 0 / 0) 20%)';
 

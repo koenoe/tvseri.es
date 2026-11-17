@@ -7,6 +7,8 @@
  * factors that give exactly those steps).
  */
 
+import { channelsToHex, hexChannels, type Rgb } from '@tvseri.es/utils';
+
 export type CardTheme = 'dark' | 'colour';
 
 export const CARD_THEMES: ReadonlyArray<CardTheme> = ['dark', 'colour'];
@@ -21,33 +23,26 @@ export const DARK_GROUND = '#161b1c';
 const MIDDLE = 0.785;
 const BOTTOM = 0.4094;
 
-type Rgb = readonly [number, number, number];
-
 const HEX = /^#?([0-9a-f]{6}|[0-9a-f]{3})$/i;
 
+/** `#1a74b6`, `1a74b6` or `#17b` → its channels; null for anything else */
 export function parseHex(value: string | null | undefined): Rgb | null {
   const match = value ? HEX.exec(value.trim()) : null;
-  if (!match) {
+  const digits = match?.[1];
+  if (!digits) {
     return null;
   }
-  const digits =
-    match[1]!.length === 3
-      ? [...match[1]!].map((digit) => digit + digit).join('')
-      : match[1]!;
-  return [0, 2, 4].map((at) =>
-    Number.parseInt(digits.slice(at, at + 2), 16),
-  ) as unknown as Rgb;
+  return hexChannels(
+    `#${digits.length === 3 ? [...digits].map((digit) => digit + digit).join('') : digits}`,
+  );
 }
 
-const toHex = (rgb: Rgb) =>
-  `#${rgb.map((channel) => channel.toString(16).padStart(2, '0')).join('')}`;
-
 const scale = (rgb: Rgb, factor: number): Rgb =>
-  rgb.map((channel) => Math.round(channel * factor)) as unknown as Rgb;
+  rgb.map((channel) => channel * factor) as unknown as Rgb;
 
 /** The #1 show's colour, or the default blue when there is none */
 export function cardColour(value: string | null | undefined): string {
-  return toHex(parseHex(value) ?? parseHex(FALLBACK_COLOUR)!);
+  return channelsToHex(parseHex(value) ?? parseHex(FALLBACK_COLOUR)!);
 }
 
 /** What the card draws differently per theme */
@@ -76,8 +71,8 @@ export function themeStyle(
   }
   const top = cardColour(colour);
   const rgb = parseHex(top)!;
-  const middle = toHex(scale(rgb, MIDDLE));
-  const bottom = toHex(scale(rgb, BOTTOM));
+  const middle = channelsToHex(scale(rgb, MIDDLE));
+  const bottom = channelsToHex(scale(rgb, BOTTOM));
   return {
     backgroundColor: bottom,
     backgroundImage: `linear-gradient(170deg, ${top} 0%, ${middle} 45%, ${bottom} 100%)`,

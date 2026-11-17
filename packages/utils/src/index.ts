@@ -1,6 +1,15 @@
 export { createAuthServerFetch } from './authServerFetch';
 export * from './buildImageUrl';
 export { chunk } from './chunk';
+export {
+  channelsToHex,
+  contrastRatio,
+  hexChannels,
+  hexWithAlpha,
+  type Rgb,
+  relativeLuminance,
+  UNKNOWN_COLOR,
+} from './color';
 export { createLimiter } from './createLimiter';
 export { formatDuration, formatRuntime } from './duration/formatDuration';
 export { default as generateTmdbImageUrl } from './generateTmdbImageUrl';

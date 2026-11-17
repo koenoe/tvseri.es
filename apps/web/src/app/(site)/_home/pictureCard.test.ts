@@ -1,22 +1,25 @@
+import { contrastRatio, hexChannels, type Rgb } from '@tvseri.es/utils';
 import { describe, expect, it } from 'vitest';
-
-import { contrast } from '@/components/background/pageColor';
 
 import { PICTURE_SHADE_SHARE, pictureShade } from './pictureCard';
 
-const hex = (rgb: ReadonlyArray<number>) =>
-  `#${rgb.map((value) => Math.round(value).toString(16).padStart(2, '0')).join('')}`;
-
-const channels = (color: string) =>
-  [1, 3, 5].map((at) => Number.parseInt(color.slice(at, at + 2), 16));
-
 /** `color-mix(in srgb, <color> share, black)`, as the browser mixes it */
-const mixWithBlack = (color: string) =>
-  channels(color).map((value) => value * PICTURE_SHADE_SHARE);
+const mixWithBlack = (color: string): Rgb => {
+  const [r, g, b] = hexChannels(color);
+  return [
+    r * PICTURE_SHADE_SHARE,
+    g * PICTURE_SHADE_SHARE,
+    b * PICTURE_SHADE_SHARE,
+  ];
+};
 
 /** The shade at `alpha` over a white picture */
-const overWhite = (shade: ReadonlyArray<number>, alpha: number) =>
-  hex(shade.map((value) => value * alpha + 255 * (1 - alpha)));
+const overWhite = ([r, g, b]: Rgb, alpha: number): Rgb => {
+  const over = (value: number) => Math.round(value * alpha + 255 * (1 - alpha));
+  return [over(r), over(g), over(b)];
+};
+
+const WHITE: Rgb = [255, 255, 255];
 
 describe('pictureShade', () => {
   it('shades in the picture’s colour, darkened, through a CSS variable', () => {
@@ -44,10 +47,10 @@ describe('pictureShade', () => {
     const brightest = ['#474747', '#524600', '#3d474e', '#57420d', '#1d3a9e'];
     for (const color of brightest) {
       const shade = mixWithBlack(color);
-      expect(contrast('#ffffff', overWhite(shade, 0.65))).toBeGreaterThan(4.5);
+      expect(contrastRatio(WHITE, overWhite(shade, 0.65))).toBeGreaterThan(4.5);
     }
     // the default near-black at the same strength, for comparison
-    expect(contrast('#ffffff', overWhite([14, 16, 17], 0.65))).toBeGreaterThan(
+    expect(contrastRatio(WHITE, overWhite([14, 16, 17], 0.65))).toBeGreaterThan(
       4.5,
     );
   });

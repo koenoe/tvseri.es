@@ -19,6 +19,13 @@
  * Nothing stored is rewritten.
  */
 
+import {
+  channelsToHex,
+  contrastRatio,
+  hexChannels,
+  type Rgb,
+} from '@tvseri.es/utils';
+
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 
 /** White at this opacity is the quietest text on a ground */
@@ -29,31 +36,12 @@ const MIN_CONTRAST = 4.5;
 const STEP = 0.04;
 const STEPS = 25;
 
-type Rgb = readonly [number, number, number];
-
-const toRgb = (hex: string): Rgb => [
-  Number.parseInt(hex.slice(1, 3), 16),
-  Number.parseInt(hex.slice(3, 5), 16),
-  Number.parseInt(hex.slice(5, 7), 16),
-];
-
-const toHex = (rgb: Rgb) =>
-  `#${rgb.map((value) => value.toString(16).padStart(2, '0')).join('')}`;
-
-const linear = (channel: number) => {
-  const value = channel / 255;
-  return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
-};
-
-const luminance = ([r, g, b]: Rgb) =>
-  0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b);
-
 /** WCAG contrast of white at 60% (composited on `ground`) against `ground` */
 export function quietTextContrast(ground: Rgb): number {
   const text = ground.map(
     (channel) => 255 * QUIET_TEXT_OPACITY + channel * (1 - QUIET_TEXT_OPACITY),
   ) as unknown as Rgb;
-  return (luminance(text) + 0.05) / (luminance(ground) + 0.05);
+  return contrastRatio(text, ground);
 }
 
 const scale = (rgb: Rgb, share: number): Rgb =>
@@ -68,11 +56,11 @@ export function groundColor(value: unknown): string | undefined {
   if (typeof value !== 'string' || !HEX_COLOR.test(value)) {
     return undefined;
   }
-  const base = toRgb(value.toLowerCase());
+  const base = hexChannels(value);
   for (let step = 0; step <= STEPS; step += 1) {
     const ground = scale(base, 1 - step * STEP);
     if (quietTextContrast(ground) >= MIN_CONTRAST) {
-      return toHex(ground);
+      return channelsToHex(ground);
     }
   }
   return '#000000';

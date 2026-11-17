@@ -6,7 +6,7 @@
  * (Netflix red) gives the wash its colour.
  */
 
-import { channelsToHex, hexChannels } from '@/lib/color';
+import { channelsToHex, hexChannels } from '@tvseri.es/utils';
 
 type Brand = Readonly<{
   /** the logo's colour, six-digit hex; none for a monochrome logo */

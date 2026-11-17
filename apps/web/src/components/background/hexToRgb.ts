@@ -1,4 +1,4 @@
-import { hexChannels, type Rgb } from '@/lib/color';
+import { hexChannels, type Rgb } from '@tvseri.es/utils';
 
 import { toPageColor } from './pageColor';
 

@@ -20,6 +20,7 @@ import {
   formatSeriesYears,
   generateTmdbImageUrl,
   regionName,
+  UNKNOWN_COLOR,
 } from '@tvseri.es/utils';
 import slugify from 'slugify';
 
@@ -324,7 +325,7 @@ export function normalizeTvSeries(series: TmdbTvSeries): TvSeries {
     : undefined;
 
   return {
-    backdropColor: '#000000',
+    backdropColor: UNKNOWN_COLOR,
     countries: (series.production_countries ?? []).map((country) => ({
       code: country.iso_3166_1 ?? '',
       name: country.name ?? '',
@@ -405,7 +406,7 @@ export function normalizeMovie(movie: TmdbMovie): Movie {
   });
 
   return {
-    backdropColor: '#000000',
+    backdropColor: UNKNOWN_COLOR,
     countries: (movie.production_countries ?? []).map((country) => ({
       code: country.iso_3166_1 ?? '',
       name: country.name ?? '',

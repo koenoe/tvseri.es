@@ -5,6 +5,7 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { PreferredImages } from '@tvseri.es/schemas';
+import { UNKNOWN_COLOR } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 
 import { groundColorOr } from '../../groundColor';
@@ -12,7 +13,6 @@ import { batchGet } from '../batch';
 import client from '../client';
 
 /** A pick's colour when it isn't a six-digit hex: the API's unknown colour */
-const UNKNOWN_COLOR = '#000000';
 
 /**
  * A saved pick as served: its colour through the page colour rule

@@ -1,4 +1,5 @@
 import { createFetch } from '@better-fetch/fetch';
+import { channelsToHex } from '@tvseri.es/utils';
 import type { Handler } from 'aws-lambda';
 import sharp from 'sharp';
 
@@ -28,9 +29,6 @@ const IMAGE_FETCH_TIMEOUT = 2500;
 const $fetch = createFetch({
   timeout: IMAGE_FETCH_TIMEOUT,
 });
-
-const toHex = ({ r, g, b }: Readonly<{ r: number; g: number; b: number }>) =>
-  `#${[r, g, b].map((channel) => Math.round(channel).toString(16).padStart(2, '0')).join('')}`;
 
 export const handler: Handler<ProcessImageEvent, ProcessImageResult> = async (
   event,
@@ -65,7 +63,9 @@ export const handler: Handler<ProcessImageEvent, ProcessImageResult> = async (
       .stats();
     // The page colour rule (white/60 text at 4.5:1), applied where the
     // colour is detected
-    const color = groundColor(toHex(dominant));
+    const color = groundColor(
+      channelsToHex([dominant.r, dominant.g, dominant.b]),
+    );
     if (!color) {
       throw new Error('Invalid dominant color');
     }

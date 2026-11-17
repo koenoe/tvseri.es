@@ -1,3 +1,4 @@
+import { UNKNOWN_COLOR } from '@tvseri.es/utils';
 import type { CSSProperties } from 'react';
 
 import { PICTURE_SURFACE } from '@/components/ui/picture/pictureSurface';
@@ -26,7 +27,6 @@ export const PICTURE_BLEED = `absolute -inset-px ${PICTURE_SURFACE}`;
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 
 /** The API's backdrop colour when it couldn't detect one */
-const UNKNOWN_COLOR = '#000000';
 
 /**
  * How much of the picture's colour the shade keeps (the rest is black), so

@@ -9,9 +9,11 @@ import {
   parseDiscoverPage,
   type WatchProvider,
 } from '@tvseri.es/schemas';
+import { UNKNOWN_COLOR } from '@tvseri.es/utils';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import * as v from 'valibot';
+
 import { readThroughDay } from '@/lib/db/cache/readThroughDay';
 import { detectDominantColorsFromImages } from '@/lib/detectDominantColorFromImage';
 import { buildGoDeeper } from '@/lib/goDeeper';
@@ -46,7 +48,7 @@ const enrichWatchProvidersWithColors = async (
     color:
       WATCH_PROVIDER_PREDEFINED_COLOR[provider.name] ||
       (provider.logoPath ? detectedColors.get(provider.logoPath) : undefined) ||
-      '#000000',
+      UNKNOWN_COLOR,
   }));
 };
 

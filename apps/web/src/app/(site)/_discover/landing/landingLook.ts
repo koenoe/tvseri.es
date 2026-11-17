@@ -10,7 +10,12 @@
  * without one, the designed fallback.
  */
 
-import { channelsToHex, hexChannels, type Rgb } from '@/lib/color';
+import {
+  channelsToHex,
+  hexChannels,
+  type Rgb,
+  UNKNOWN_COLOR,
+} from '@tvseri.es/utils';
 
 export type LandingLook = Readonly<{
   /** six-digit hex, the page colour */
@@ -31,7 +36,6 @@ export const GENRE_FALLBACK: LandingLook = {
 
 const HEX = /^#[0-9a-f]{6}$/i;
 /** The API's backdrop colour when it couldn't detect one */
-const UNKNOWN = '#000000';
 
 const GROUND_LIGHTNESS = 0.1;
 const GROUND_MAX_SATURATION = 0.35;
@@ -90,7 +94,7 @@ const TINTED = 0.12;
 
 /** A usable colour: a six-digit hex that isn't the API's unknown black */
 const usable = (colour: string | null | undefined): colour is string =>
-  Boolean(colour && HEX.test(colour) && colour.toLowerCase() !== UNKNOWN);
+  Boolean(colour && HEX.test(colour) && colour.toLowerCase() !== UNKNOWN_COLOR);
 
 /**
  * The colour to build a landing's look from, given its candidates' colours

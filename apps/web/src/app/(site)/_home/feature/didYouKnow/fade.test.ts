@@ -1,7 +1,5 @@
+import { contrastRatio, hexChannels, type Rgb } from '@tvseri.es/utils';
 import { describe, expect, it } from 'vitest';
-
-import { contrast } from '@/components/background/pageColor';
-import { channelsToHex, hexChannels, type Rgb } from '@/lib/color';
 
 import { PICTURE_SHADE_SHARE } from '../../pictureCard';
 import { factFadeStops, numberRoom } from './fade';
@@ -45,7 +43,7 @@ function ratio(shade: Rgb, alpha: number, textAlpha: number): number {
     ground,
     (value) => 255 * textAlpha + value * (1 - textAlpha),
   );
-  return contrast(channelsToHex(text), channelsToHex(ground));
+  return contrastRatio(text, ground);
 }
 
 /**

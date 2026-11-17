@@ -9,7 +9,7 @@ import type {
   TvSeries,
   WatchedItem,
 } from '@tvseri.es/schemas';
-import { buildLogoImageUrl, regionName } from '@tvseri.es/utils';
+import { buildLogoImageUrl, regionName, UNKNOWN_COLOR } from '@tvseri.es/utils';
 
 import { detectDominantColorsFromImages } from '@/lib/detectDominantColorFromImage';
 
@@ -115,7 +115,7 @@ export const aggregateProviders = async (
 
     return {
       count: episodes.size,
-      defaultColor: defaultColor || '#000000',
+      defaultColor: defaultColor || UNKNOWN_COLOR,
       logo: logoPath ? buildLogoImageUrl(logoPath) : null,
       name,
       series: topSeries(episodes),

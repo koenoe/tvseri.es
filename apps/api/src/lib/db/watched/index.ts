@@ -541,17 +541,24 @@ export const markTvSeriesWatched = async ({
   ]);
 };
 
+/**
+ * Unmarks every regular episode. Specials (season 0) stay: they count
+ * nowhere a whole-show unmark is about (progress, lists, stats), and are
+ * unmarked one by one or by their season.
+ */
 export const unmarkTvSeriesWatched = async (
   input: Readonly<{
     userId: string;
     tvSeries: TvSeries;
   }>,
 ) => {
-  const items = await getAllWatchedForTvSeries({
-    attributes: ['episodeNumber', 'seasonNumber'],
-    tvSeriesId: input.tvSeries.id,
-    userId: input.userId,
-  });
+  const items = (
+    await getAllWatchedForTvSeries({
+      attributes: ['episodeNumber', 'seasonNumber'],
+      tvSeriesId: input.tvSeries.id,
+      userId: input.userId,
+    })
+  ).filter((item) => item.seasonNumber > 0);
 
   if (!items.length) {
     return;

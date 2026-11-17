@@ -21,7 +21,7 @@ The API applies the same rule for lists: `apps/api/src/lib/listSync/state.ts`.
 - Date choices (`when.ts`): Just now · Yesterday (same clock time) · Last weekend (Saturday 21:00) · a picked day (21:00 local, never in the future) · On release day (local noon of the air date, `server/batch.ts`) · I don't remember. Dates before 2000 are refused (`packages/schemas/src/watched.ts`).
 - "I don't remember" counts for progress, lists and all-time totals, but never appears in History or year stats: an undated watch can't belong to a year.
 - Marking a watched episode again overwrites it; that's how re-dating works. The eye never does this by accident because it unmarks a watched episode.
-- Season or whole-show eye: anything aired not watched → mark it all; all aired watched → unmark it all. The whole-show unmark deletes every record of the show, specials included (`unmarkTvSeriesWatched` in the API).
+- Season or whole-show eye: anything aired not watched → mark it all; all aired watched → unmark it all. The whole-show unmark removes every regular episode and keeps the specials, which count nowhere it is about (`unmarkTvSeriesWatched` in the API); its Undo puts back exactly what it removed.
 - "I'm up to…" (`markUpTo`): marks every open aired episode up to the target (earlier seasons too), then unmarks watched episodes after it in the target's season only. It is one run: the unmark is sent only after the mark saved, and Try again redoes both.
 - "Seen it" / "Finished it all" mark every aired, unwatched episode as "I don't remember"; existing dates are kept.
 - A show with any watched episode can't be put on the watchlist: the API would take it off again at the next mark.

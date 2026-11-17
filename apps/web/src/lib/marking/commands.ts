@@ -982,11 +982,13 @@ export function createMarkingCommands(deps: MarkingDeps) {
             seasonNumber === undefined
               ? airedRegularEpisodes(prior)
               : airedInSeason(prior, seasonNumber);
+          // The whole show keeps its specials (the API's rule)
           const watched =
             seasonNumber === undefined
-              ? Object.keys(prior.watched).flatMap(
-                  (code) => parseCode(code) ?? [],
-                )
+              ? Object.keys(prior.watched).flatMap((code) => {
+                  const ref = parseCode(code);
+                  return ref && ref.seasonNumber > 0 ? [ref] : [];
+                })
               : watchedInSeason(prior, seasonNumber);
           if (aired.length === 0 || watched.length === 0) {
             return null;

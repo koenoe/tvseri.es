@@ -157,3 +157,32 @@ describe('stats leave specials out', () => {
     expect(await runtime()).toBe(120);
   });
 });
+
+describe('a whole-show unmark keeps specials', () => {
+  it('removes the regular episodes only, and the totals follow', async () => {
+    seedMixed();
+    expect(await count()).toBe(2);
+    expect(await runtime()).toBe(90);
+
+    await withStream(async () => {
+      const response = await request(
+        `/user/${USER_ID}/watched/series/${SHOW}`,
+        {
+          as: USER_ID,
+          method: 'DELETE',
+        },
+      );
+      expect(response.status).toBe(200);
+    });
+
+    expect(
+      db.dump('Watched').map((item) => [item.seasonNumber, item.episodeNumber]),
+    ).toEqual([
+      [0, 1],
+      [0, 2],
+      [0, 3],
+    ]);
+    expect(await count()).toBe(0);
+    expect(await runtime()).toBe(0);
+  });
+});

@@ -1092,6 +1092,47 @@ describe('specials, episodes yet to air and the ones before', () => {
     ]);
   });
 
+  it('the whole-show unmark keeps specials, and its Undo puts back only what it removed', async () => {
+    const t = setup({
+      seasons: [
+        { airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 0 },
+        { airedEpisodeCount: 2, episodeCount: 2, seasonNumber: 1 },
+      ],
+      watched: [
+        { episodeNumber: 1, seasonNumber: 0, watchedAt: 500 },
+        { episodeNumber: 1, seasonNumber: 1, watchedAt: 1000 },
+        { episodeNumber: 2, seasonNumber: 1, watchedAt: 2000 },
+      ],
+    });
+    t.commands.toggleScope(SERIES);
+    expect(Object.keys(t.view().watched)).toEqual(['S00E01']);
+    await flush();
+    expect(t.actions.unmarkScope).toHaveBeenCalledWith({
+      seasonNumber: undefined,
+      seriesId: SERIES,
+    });
+    t.toasts.at(-1)?.action?.onClick();
+    await flush();
+    expect(Object.keys(t.view().watched).sort()).toEqual([
+      'S00E01',
+      'S01E01',
+      'S01E02',
+    ]);
+    expect(t.actions.markEpisodes).toHaveBeenCalledTimes(1);
+    expect(t.actions.markEpisodes.mock.calls[0]?.[0].episodes).toEqual([
+      {
+        episodeNumber: 1,
+        seasonNumber: 1,
+        when: { kind: 'restore', watchedAt: 1000 },
+      },
+      {
+        episodeNumber: 2,
+        seasonNumber: 1,
+        when: { kind: 'restore', watchedAt: 2000 },
+      },
+    ]);
+  });
+
   it('a special marked out of order never offers the ones before', () => {
     const t = withSpecials();
     t.commands.toggleEpisode(SERIES, { episodeNumber: 2, seasonNumber: 0 });

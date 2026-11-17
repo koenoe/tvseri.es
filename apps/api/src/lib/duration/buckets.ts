@@ -9,12 +9,13 @@ import {
   buildBackdropImageUrl,
   buildPosterImageUrl,
   formatRuntime,
+  isOver,
 } from '@tvseri.es/utils';
 
 const HOUR = 60;
 
-export const isEnded = (facts: SeriesFacts) =>
-  facts.status === 'Ended' || facts.status === 'Canceled';
+/** No more episodes are coming: the facts' side of `isOver` */
+export const isEnded = (facts: SeriesFacts) => isOver(facts.status);
 
 type Bucket = Readonly<{
   /** Where the candidates come from (TMDB discover) */

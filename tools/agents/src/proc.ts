@@ -1,3 +1,4 @@
+import { setTimeout as sleep } from 'node:timers/promises';
 import { exec } from './exec.ts';
 
 export type ProcInfo = Readonly<{
@@ -94,9 +95,6 @@ export const processCwds = (
     }).stdout,
   );
 };
-
-const sleep = (ms: number) =>
-  new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 /** PIDs whose process group is `pgid`. */
 const groupMembers = (pgid: number): readonly number[] =>

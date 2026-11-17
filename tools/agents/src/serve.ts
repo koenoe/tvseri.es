@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { closeSync, existsSync, openSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { setTimeout as sleep } from 'node:timers/promises';
 import {
   ALL_AGENT_PORTS,
   type Context,
@@ -45,9 +46,6 @@ export const liveness = (): Liveness => {
     isSame: (identity) => byPid.get(identity.pid)?.lstart === identity.lstart,
   };
 };
-
-const sleep = (ms: number) =>
-  new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 const substitutePort = (
   args: readonly string[],

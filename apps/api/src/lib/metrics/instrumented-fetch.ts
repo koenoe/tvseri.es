@@ -1,5 +1,6 @@
 import type { BetterFetchOption } from '@better-fetch/fetch';
 import { createFetch } from '@better-fetch/fetch';
+import { sleep } from '@tvseri.es/utils';
 
 import {
   MIN_RETRY_BUDGET,
@@ -53,11 +54,6 @@ const verdictOf = (status: number, retryAfterMs?: number): Verdict =>
     : status >= 500
       ? { kind: 'failed' }
       : { kind: 'ok' };
-
-const sleep = (ms: number) =>
-  new Promise<void>((resolve) => {
-    setTimeout(resolve, ms);
-  });
 
 /**
  * An abort signal that fires after `ms`, built on setTimeout (so tests can

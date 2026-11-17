@@ -7,7 +7,7 @@ import {
   type WriteRequest,
 } from '@aws-sdk/client-dynamodb';
 
-import { chunk } from '@tvseri.es/utils';
+import { chunk, sleep } from '@tvseri.es/utils';
 
 import { createLimiter } from '@/utils/limit';
 
@@ -45,9 +45,6 @@ export const AGGREGATE_RETRY: BatchRetry = {
   maxAttempts: 5,
   maxDelayMs: 1600,
 };
-
-const sleep = (ms: number) =>
-  new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 const backoff = (attempt: number, retry: BatchRetry) => {
   const delay = Math.min(retry.maxDelayMs, retry.baseDelayMs * 2 ** attempt);

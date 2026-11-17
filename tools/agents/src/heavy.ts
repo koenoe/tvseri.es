@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { constants, setPriority } from 'node:os';
 import { join } from 'node:path';
+import { setTimeout as sleep } from 'node:timers/promises';
 import type { Context } from './context.ts';
 import { since, table, truncate } from './format.ts';
 import {
@@ -172,9 +173,6 @@ export const printHeavyState = (dir: string): void => {
   if (rows.length)
     console.log(table(['STATE', 'WORKTREE', 'PID', 'FOR', 'COMMAND'], rows));
 };
-
-const sleep = (ms: number) =>
-  new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 const say = (text: string) => process.stderr.write(`[heavy] ${text}\n`);
 

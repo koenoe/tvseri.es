@@ -77,26 +77,15 @@ type OmdbSeason = OmdbAnswer &
 type OmdbTitle = OmdbAnswer &
   Readonly<{ imdbRating?: string; imdbVotes?: string }>;
 
-const readApiKey = () => {
-  try {
-    return Resource.OmdbApiKey.value;
-  } catch {
-    return '';
-  }
-};
-
 /**
  * One OMDb request: undefined for a title (or season) OMDb doesn't know;
- * throws when it can't be asked (no key, breaker open, allowance spent,
- * quota hit, an error).
+ * throws when it can't be asked (breaker open, allowance spent, quota hit,
+ * an error).
  */
 const omdbGet = async <T extends OmdbAnswer>(
   query: Record<string, string>,
 ): Promise<T | undefined> => {
-  const apiKey = readApiKey();
-  if (!apiKey) {
-    throw new Error('OMDb has no key');
-  }
+  const apiKey = Resource.OmdbApiKey.value;
   await takeAllowanceOrThrow('omdb', DAILY_CAP, breaker);
 
   const { data, error } = await $fetch<T>('/', {

@@ -76,18 +76,13 @@ jobs:
         run: echo "$HOME/.config/sst/bin" >> $GITHUB_PATH
 
       - name: Setup SST secrets
-        env:
-          OMDB_API_KEY: ${{ secrets.OMDB_API_KEY }}
         run: |
           pnpm sst secret set MdblistApiKey "${{ secrets.MDBLIST_API_KEY }}" --stage production
+          pnpm sst secret set OmdbApiKey "${{ secrets.OMDB_API_KEY }}" --stage production
           pnpm sst secret set TmdbApiAccessToken "${{ secrets.TMDB_API_ACCESS_TOKEN }}" --stage production
           pnpm sst secret set TmdbApiKey "${{ secrets.TMDB_API_KEY }}" --stage production
           pnpm sst secret set GoogleClientId "${{ secrets.GOOGLE_CLIENT_ID }}" --stage production
           pnpm sst secret set SessionSecret "${{ secrets.SESSION_SECRET }}" --stage production
-          # Optional (empty placeholder in infra/secrets.ts): only set when the GitHub secret exists
-          if [ -n "$OMDB_API_KEY" ]; then
-            pnpm sst secret set OmdbApiKey "$OMDB_API_KEY" --stage production
-          fi
 
       - name: Deploy Production
         env:

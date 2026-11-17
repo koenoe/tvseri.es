@@ -108,10 +108,18 @@ export const formatCountString = (count: number): string => {
   return `${value}${unit}`;
 };
 
+/** The values of a daily series, or undefined when it is too short to draw a trend. */
+export const toSeriesValues = (
+  points: ReadonlyArray<TimeSeriesPoint> | undefined,
+): ReadonlyArray<number> | undefined =>
+  points && points.length > 1 ? points.map((point) => point.value) : undefined;
+
 export type DependencyMetricItem = Readonly<{
   errorRate: number;
-  history?: ReadonlyArray<TimeSeriesPoint>;
+  errorRateHistory?: ReadonlyArray<TimeSeriesPoint>;
   latency: LatencyStats;
+  latencyHistory?: ReadonlyArray<TimeSeriesPoint>;
+  requestsHistory?: ReadonlyArray<TimeSeriesPoint>;
   source: string;
   sourceName: string;
   throughput: number;
@@ -139,7 +147,7 @@ export const formatDependencies = (
     const stats = dependencies[source]!;
     return {
       errorRate: stats.errorRate,
-      history: stats.history,
+      errorRateHistory: stats.errorRateHistory,
       latency: {
         count: stats.count,
         p75: stats.p75,
@@ -147,6 +155,8 @@ export const formatDependencies = (
         p95: stats.p95,
         p99: stats.p99,
       },
+      latencyHistory: stats.history,
+      requestsHistory: stats.requestsHistory,
       source,
       sourceName: formatDependencyName(source),
       throughput: stats.throughput,

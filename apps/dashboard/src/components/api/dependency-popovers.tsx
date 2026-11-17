@@ -13,6 +13,7 @@ import {
   formatLatency,
   getErrorRateColor,
   getLatencyColor,
+  toSeriesValues,
 } from '@/lib/api-metrics';
 import { NEUTRAL_COLOR, STATUS_COLORS } from '@/lib/status-colors';
 import { DependencyBadge } from './dependency-badge';
@@ -66,16 +67,18 @@ DependencyListPopover.displayName = 'DependencyListPopover';
 
 function HistorySparkline({
   color,
-  dependency,
-}: Readonly<{ color: string; dependency: DependencyMetricItem }>) {
-  const { history } = dependency;
-  if (!history || history.length <= 1) return null;
-  const points = history.map((point) => point.value);
+  points,
+}: Readonly<{
+  color: string;
+  points: DependencyMetricItem['latencyHistory'];
+}>) {
+  const values = toSeriesValues(points);
+  if (!values) return null;
   return (
     <Sparkline
       className="h-5 w-16"
       color={color}
-      data={points}
+      data={values}
       height={20}
       strokeWidth={1.2}
       width={64}
@@ -111,7 +114,7 @@ function renderLatency(dep: DependencyMetricItem) {
       <span className="text-sm tabular-nums text-muted-foreground">
         {formatLatency(dep.latency.p75)}
       </span>
-      <HistorySparkline color={color} dependency={dep} />
+      <HistorySparkline color={color} points={dep.latencyHistory} />
     </>
   );
 }
@@ -122,7 +125,7 @@ function renderRequests(dep: DependencyMetricItem) {
       <span className="text-sm tabular-nums text-muted-foreground">
         {formatCountString(dep.latency.count)}
       </span>
-      <HistorySparkline color={NEUTRAL_COLOR} dependency={dep} />
+      <HistorySparkline color={NEUTRAL_COLOR} points={dep.requestsHistory} />
     </>
   );
 }

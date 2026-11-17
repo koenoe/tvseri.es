@@ -223,14 +223,7 @@ export const aggregateSummaries = (
   }
 
   // Aggregate dependencies if present
-  let dependencies:
-    | Record<
-        string,
-        DependencyStats & {
-          history?: Array<{ timestamp: string; value: number }>;
-        }
-      >
-    | undefined;
+  let dependencies: Record<string, DependencyStats> | undefined;
   const depsWithData = items.filter((item) => item.dependencies);
   if (depsWithData.length > 0) {
     const depData = new Map<
@@ -295,14 +288,17 @@ export const aggregateSummaries = (
 
         const topOperations = aggregateDependencyTopOperations(items, source);
 
-        const history = [...dailyStats.entries()]
-          .map(([date, data]) => ({
-            timestamp: date,
-            value: Math.round(
-              percentileFromLatencyHistogram(data.histogram, 75),
-            ),
-          }))
-          .sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+        const days = [...dailyStats.entries()].sort(([a], [b]) =>
+          a.localeCompare(b),
+        );
+        const toSeries = (
+          pick: (day: { errorCount: number; histogram: number[] }) => number,
+        ) =>
+          days.length > 1
+            ? days.map(([timestamp, day]) => ({ timestamp, value: pick(day) }))
+            : undefined;
+        const dayCount = (bins: number[]) =>
+          bins.reduce((sum, bin) => sum + bin, 0);
 
         dependencies[source] = {
           count: totalCount,
@@ -311,11 +307,20 @@ export const aggregateSummaries = (
             totalCount > 0
               ? Math.round((errorCount / totalCount) * 10000) / 100
               : 0,
-          history: history.length > 1 ? history : undefined,
+          errorRateHistory: toSeries((day) => {
+            const count = dayCount(day.histogram);
+            return count > 0
+              ? Math.round((day.errorCount / count) * 10000) / 100
+              : 0;
+          }),
+          history: toSeries((day) =>
+            Math.round(percentileFromLatencyHistogram(day.histogram, 75)),
+          ),
           p75: Math.round(percentileFromLatencyHistogram(mergedBins, 75)),
           p90: Math.round(percentileFromLatencyHistogram(mergedBins, 90)),
           p95: Math.round(percentileFromLatencyHistogram(mergedBins, 95)),
           p99: Math.round(percentileFromLatencyHistogram(mergedBins, 99)),
+          requestsHistory: toSeries((day) => dayCount(day.histogram)),
           throughput,
           topOperations: topOperations.length > 0 ? topOperations : undefined,
         };

@@ -28,8 +28,9 @@ export const COLUMN_WIDTHS = {
 } as const;
 
 type DependencyRowProps = Readonly<{
-  history: ReadonlyArray<number> | undefined;
+  errorRateHistory: ReadonlyArray<number> | undefined;
   isExpanded: boolean;
+  latencyHistory: ReadonlyArray<number> | undefined;
   maxRequestCount: number;
   name: string;
   onToggle: (name: string) => void;
@@ -37,8 +38,9 @@ type DependencyRowProps = Readonly<{
 }>;
 
 export function DependencyRow({
-  history,
+  errorRateHistory,
   isExpanded,
+  latencyHistory,
   maxRequestCount,
   name,
   onToggle,
@@ -82,7 +84,7 @@ export function DependencyRow({
           <span className="w-14 tabular-nums text-muted-foreground">
             {formatLatency(stats.p75)}
           </span>
-          <LatencySparkline color={latencyColor} values={history} />
+          <LatencySparkline color={latencyColor} values={latencyHistory} />
         </div>
       </TableCell>
       <TableCell
@@ -96,7 +98,7 @@ export function DependencyRow({
           <ErrorRateSparkline
             color={errorRateColor}
             errorRate={stats.errorRate}
-            values={history}
+            values={errorRateHistory}
           />
         </div>
       </TableCell>

@@ -145,9 +145,14 @@ export const DependencyOperationStatsSchema = v.object({
 export const DependencyStatsSchema = v.object({
   count: v.number(),
   ...ErrorFields,
+  /** Daily error rate (%), one point per day with data. */
+  errorRateHistory: v.optional(v.array(TimeSeriesPointSchema)),
   histogram: v.optional(HistogramSchema),
+  /** Daily p75 latency (ms), one point per day with data. */
   history: v.optional(v.array(TimeSeriesPointSchema)),
   ...PercentileFields,
+  /** Daily request count, one point per day with data. */
+  requestsHistory: v.optional(v.array(TimeSeriesPointSchema)),
   throughput: v.number(),
   topOperations: v.optional(v.array(DependencyOperationStatsSchema)),
 });

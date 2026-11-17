@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { sortDependencyKeys } from '@/lib/api-metrics';
+import { sortDependencyKeys, toSeriesValues } from '@/lib/api-metrics';
 import { COLUMN_WIDTHS, DependencyRow, OperationRow } from './dependency-rows';
 import { TableFrame } from './table/table-frame';
 
@@ -78,18 +78,17 @@ function DependenciesSectionComponent({
           const stats = dependencies[key];
           if (!stats) return null;
 
-          const history =
-            stats.history && stats.history.length > 1
-              ? stats.history.map((point) => point.value)
-              : undefined;
+          const latencyHistory = toSeriesValues(stats.history);
+          const errorRateHistory = toSeriesValues(stats.errorRateHistory);
 
           const isExpanded = expanded.has(key);
 
           return (
             <Fragment key={key}>
               <DependencyRow
-                history={history}
+                errorRateHistory={errorRateHistory}
                 isExpanded={isExpanded}
+                latencyHistory={latencyHistory}
                 maxRequestCount={maxRequestCount}
                 name={key}
                 onToggle={toggle}

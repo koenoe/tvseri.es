@@ -219,7 +219,11 @@ function SeasonSection({
             <TextLine className="text-meta" width="w-12" />
           </span>
         )}
-        <DateButton label={calendarLabel} onClick={dateSeason} />
+        <DateButton
+          disabled={count.aired === 0}
+          label={calendarLabel}
+          onClick={dateSeason}
+        />
         <SeasonToggles
           disabled={count.aired === 0}
           label={label}

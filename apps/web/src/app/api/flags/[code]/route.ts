@@ -1,3 +1,4 @@
+import { CACHE_LIFE } from '@tvseri.es/constants';
 import * as flags from 'country-flag-icons/string/3x2';
 
 const SVGS: Readonly<Record<string, string | undefined>> = flags;
@@ -25,7 +26,7 @@ export async function GET(
   }
   return new Response(svg, {
     headers: {
-      'Cache-Control': 'public, max-age=31536000, immutable',
+      'Cache-Control': `public, max-age=${CACHE_LIFE.immutable.maxAge}, immutable`,
       'Content-Type': 'image/svg+xml; charset=utf-8',
     },
   });

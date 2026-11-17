@@ -1,5 +1,7 @@
-/** A day in the browser only: never in the CDN (per viewer) */
-export const REGION_CACHE_CONTROL = 'private, max-age=86400';
+import { CACHE_LIFE } from '@tvseri.es/constants';
+
+/** A day (`short`) in the browser only: never in the CDN (per viewer) */
+export const REGION_CACHE_CONTROL = `private, max-age=${CACHE_LIFE.short.maxAge}`;
 
 /**
  * `/api/region` for this viewer. The display username is part of the URL, so

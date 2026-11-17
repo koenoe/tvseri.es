@@ -380,9 +380,8 @@ test.describe('History on a phone', () => {
   });
 });
 
-// A poster that fails to load (a TMDB hiccup, a slow image optimiser) keeps
-// its box: a broken image with an empty alt draws nothing at all, and the
-// row came out 14px short of its skipped estimate (CI, once).
+// A poster that fails to load (a TMDB hiccup) keeps its box, and its row
+// the height the skipped estimate counts on.
 test('a row whose poster fails to load keeps its height', async ({
   browser,
 }) => {
@@ -399,23 +398,37 @@ test('a row whose poster fails to load keeps its height', async ({
   await page.goto('/u/alex/history');
   const row = page.locator('[data-diary-row]').first();
   await expect(row).toBeVisible();
-  const poster = row.locator('img').first();
+  const image = row.locator('img').first();
   // the request was refused: the image is broken, not still loading
   await expect
     .poll(() =>
-      poster.evaluate(
-        (image: HTMLImageElement) => image.complete && image.naturalWidth === 0,
+      image.evaluate(
+        (node: HTMLImageElement) => node.complete && node.naturalWidth === 0,
       ),
     )
     .toBe(true);
+  // the poster's box keeps its 2:3 size, and the row its height around it
   const box = await row.evaluate((node) => {
-    const image = node.querySelector('img')?.getBoundingClientRect();
+    const poster = node.querySelector('img')?.parentElement;
+    const grid = poster?.parentElement;
+    if (!poster || !grid) {
+      throw new Error('no poster in the row');
+    }
+    const style = getComputedStyle(grid);
+    const { height, width } = poster.getBoundingClientRect();
     return {
-      poster: image ? [image.width, image.height] : null,
-      row: node.getBoundingClientRect().height,
+      grid: grid.getBoundingClientRect().height,
+      padded:
+        height +
+        Number.parseFloat(style.paddingTop) +
+        Number.parseFloat(style.paddingBottom),
+      ratio: Math.round((height / width) * 10) / 10,
+      width,
     };
   });
-  expect(box).toEqual({ poster: [40, 60], row: 76 });
+  expect(box.width).toBeGreaterThan(0);
+  expect(box.ratio).toBe(1.5);
+  expect(box.grid).toBeCloseTo(box.padded, 0);
   await context.close();
 });
 

@@ -7,7 +7,12 @@ import {
 import type { MiddlewareHandler } from 'hono';
 import { Resource } from 'sst';
 
-const apiKey = Buffer.from(Resource.ApiKey.value);
+// Read on first request: no module reads a linked resource at import
+let apiKey: Buffer | undefined;
+const expectedKey = () => {
+  apiKey ??= Buffer.from(Resource.ApiKey.value);
+  return apiKey;
+};
 
 // Dashboard read-only admin routes (they verify the Bearer token themselves)
 const DASHBOARD_READ_PATH = new RegExp(DASHBOARD_READ.pathSource);
@@ -23,7 +28,10 @@ const isApiKeyValid = (value: string | undefined) => {
     return false;
   }
   const provided = Buffer.from(value);
-  return provided.length === apiKey.length && timingSafeEqual(provided, apiKey);
+  const expected = expectedKey();
+  return (
+    provided.length === expected.length && timingSafeEqual(provided, expected)
+  );
 };
 
 /**

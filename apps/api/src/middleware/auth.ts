@@ -26,10 +26,12 @@ type AuthMiddlewareVariables = Variables &
     user?: UserRecord;
   }>;
 
-const client = createClient({
-  clientID: 'api',
-  issuer: Resource.Auth.url,
-});
+// Created on first request: no module reads a linked resource at import
+let client: ReturnType<typeof createClient> | undefined;
+const authClient = () => {
+  client ??= createClient({ clientID: 'api', issuer: Resource.Auth.url });
+  return client;
+};
 
 /**
  * Auth middleware - populates auth context if token is present.
@@ -53,7 +55,7 @@ export const auth = (): MiddlewareHandler<{
     let recheck: Promise<void> | undefined;
 
     if (bearerToken) {
-      const verified = await client.verify(subjects, bearerToken);
+      const verified = await authClient().verify(subjects, bearerToken);
 
       if (verified.err) {
         throw new HTTPException(401, {

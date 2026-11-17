@@ -4,20 +4,17 @@ import type { User } from '@tvseri.es/schemas';
 import type { NextRequest } from 'next/server';
 import { cache } from 'react';
 
-import { SESSION_COOKIE_NAME } from './cookies';
 import isLocalWithoutSecret from './localWithoutSecret';
 import { fetchMe } from './me';
 import {
   checkRequestToken,
   checkToken,
   readRequestSession,
-  type TokenCheck,
+  readRouteSession,
+  type TokenChecker,
+  verifySubject,
 } from './requestSession';
-import {
-  resolveSession,
-  type SessionContext,
-  type SessionState,
-} from './session';
+import type { SessionContext, SessionState } from './session';
 
 export type Session = Readonly<{
   accessToken: string;
@@ -45,32 +42,16 @@ async function fetchUser(
   }
 }
 
-async function verifyAccessToken(
-  accessToken: string,
-  context: SessionContext,
-  check: (accessToken: string) => Promise<TokenCheck>,
-): Promise<boolean> {
-  const checked = await check(accessToken);
-  if (checked.kind === 'unavailable') {
-    console.log(`[auth] [${context}] verify unavailable:`, checked.error);
-    return false;
-  }
-  if (checked.result.err) {
-    console.log(`[auth] [${context}] verify failed:`, checked.result.err);
-    return false;
-  }
-  return true;
-}
-
 /**
  * Turns a resolved session into a user session. Failures here (bad access
  * token, `/me` unavailable) only yield an empty session for this request;
- * they never delete the cookie; only a refused refresh (in the proxy) does.
+ * they never delete the cookie. Only the proxy ends a session (`decide`,
+ * `afterUserCheck` in `proxyDecision.ts`).
  */
 async function loadSession(
   state: SessionState,
   context: SessionContext,
-  check: (accessToken: string) => Promise<TokenCheck>,
+  check: TokenChecker,
 ): Promise<Session | EmptySession> {
   if (state.status !== 'valid' && state.status !== 'refreshed') {
     return EMPTY_SESSION;
@@ -83,7 +64,9 @@ async function loadSession(
   // the auth server, so they don't need verifying.
   const [verified, user] = await Promise.all([
     state.status === 'refreshed' ||
-      verifyAccessToken(accessToken, context, check),
+      verifySubject(accessToken, context, check).then(
+        (subject) => subject !== null,
+      ),
     fetchUser(accessToken, context),
   ]);
 
@@ -105,21 +88,11 @@ const authRSC = cache(
     loadSession(await readRequestSession(), 'RSC', checkRequestToken),
 );
 
-/**
- * Route handlers: read-only too. The proxy runs before every route handler
- * that reads the session (its matcher; `proxyMatcher.test.ts` checks them
- * all), refreshes there and forwards the new cookie on the request, so the
- * token in `req` is fresh. One refresher per request keeps rotation simple:
- * a second refresh here would only race the proxy's.
- */
+/** Route handlers: read-only too (`readRouteSession`). */
 async function authRouteHandler(
   req: NextRequest,
 ): Promise<Session | EmptySession> {
-  const state = await resolveSession(
-    req.cookies.get(SESSION_COOKIE_NAME)?.value,
-    { context: 'RouteHandler', mode: 'read-only' },
-  );
-  return loadSession(state, 'RouteHandler', checkToken);
+  return loadSession(await readRouteSession(req), 'RouteHandler', checkToken);
 }
 
 /**

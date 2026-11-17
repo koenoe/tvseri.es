@@ -42,14 +42,6 @@ export type MenuModel = Readonly<{
   you: Readonly<{ handle: string; items: ReadonlyArray<MenuItem> }> | null;
 }>;
 
-/**
- * Sign in starts the OAuth flow in a route handler (a full navigation, not a
- * client route), coming back to `path` (pathname + search) afterwards.
- */
-export function loginHref(path: string): string {
-  return `/api/auth/login?returnTo=${encodeURIComponent(path)}`;
-}
-
 /** `path` is `base` or a page under it */
 const within = (path: string, base: string) =>
   path === base || path.startsWith(`${base}/`);

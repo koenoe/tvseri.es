@@ -1,6 +1,6 @@
 import type { LibraryIds } from '@tvseri.es/schemas';
 
-import { readDisplayUsername } from '@/components/menu/displayCookie';
+import { readDisplayUsername } from '@/auth/displayUsername';
 import { LIBRARY_HINT_KEY, LIBRARY_HINT_VERSION } from '@/lib/viewer/htmlHints';
 
 import type { MarkingStoreApi } from './store';

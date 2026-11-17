@@ -1,18 +1,18 @@
 import 'server-only';
 
-import type { Role } from '@tvseri.es/schemas';
 import type { NextRequest } from 'next/server';
 import { cache } from 'react';
 
-import { SESSION_COOKIE_NAME } from './cookies';
 import isLocalWithoutSecret from './localWithoutSecret';
 import {
   checkRequestToken,
   checkToken,
   readRequestSession,
-  type TokenCheck,
+  readRouteSession,
+  type VerifiedSubject,
+  verifySubject,
 } from './requestSession';
-import { resolveSession, type SessionState } from './session';
+import type { SessionState } from './session';
 
 /**
  * The signed-in viewer from the access token alone: id and
@@ -20,36 +20,14 @@ import { resolveSession, type SessionState } from './session';
  * (marking, library ids, the admin check) skip `GET /me`. Use `auth()` when
  * you need the profile (username, country, services).
  */
-export type Viewer = Readonly<{
-  accessToken: string;
-  id: string;
-  role: Role;
-}>;
+export type Viewer = VerifiedSubject & Readonly<{ accessToken: string }>;
 
-type Verify = (
-  accessToken: string,
-) => Promise<Readonly<{ id: string; role: Role }> | null>;
-
-/** The verified subject from a token check (`checkToken` or its per-request copy) */
-const subjectFrom =
-  (check: (accessToken: string) => Promise<TokenCheck>): Verify =>
-  async (accessToken) => {
-    const checked = await check(accessToken);
-    if (checked.kind === 'unavailable') {
-      console.log('[auth] [Viewer] verify unavailable:', checked.error);
-      return null;
-    }
-    const { result } = checked;
-    if (result.err || result.subject.type !== 'user') {
-      return null;
-    }
-    return result.subject.properties;
-  };
+type Verify = (accessToken: string) => Promise<VerifiedSubject | null>;
 
 /** Pure: a resolved session to a viewer (tests pass a fake `verify`). */
 export async function viewerFromState(
   state: SessionState,
-  verify: Verify = subjectFrom(checkToken),
+  verify: Verify,
 ): Promise<Viewer | null> {
   if (state.status !== 'valid' && state.status !== 'refreshed') {
     return null;
@@ -70,19 +48,16 @@ export async function viewerFromState(
  */
 const viewerRSC = cache(
   async (): Promise<Viewer | null> =>
-    viewerFromState(await readRequestSession(), subjectFrom(checkRequestToken)),
+    viewerFromState(await readRequestSession(), (accessToken) =>
+      verifySubject(accessToken, 'RSC', checkRequestToken),
+    ),
 );
 
-/**
- * Route handlers: read-only too; the proxy refreshed before the handler ran
- * and forwarded the new cookie on `req` (see `auth(req)`).
- */
+/** Route handlers: read-only too (`readRouteSession`). */
 async function viewerRouteHandler(req: NextRequest): Promise<Viewer | null> {
-  const state = await resolveSession(
-    req.cookies.get(SESSION_COOKIE_NAME)?.value,
-    { context: 'RouteHandler', mode: 'read-only' },
+  return viewerFromState(await readRouteSession(req), (accessToken) =>
+    verifySubject(accessToken, 'RouteHandler', checkToken),
   );
-  return viewerFromState(state);
 }
 
 /**

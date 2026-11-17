@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { readDisplayUsername } from './displayCookie';
+import { readDisplayUsername } from './displayUsername';
 
 describe('readDisplayUsername', () => {
   it('reads the username from the display cookie', () => {

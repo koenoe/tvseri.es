@@ -22,7 +22,9 @@ import { toTokenPayload } from './session';
 
 /**
  * Create a new session (for the callback route). Any display cookie left over
- * is dropped; the proxy fills it in from `/me` on the next request.
+ * (another account's) is dropped; the callback then sets it from `/me`
+ * (`setUserDisplayCookie`), or the proxy does on a later request when that
+ * read failed.
  */
 export async function createSession(tokens: Tokens): Promise<void> {
   const cookieStore = await cookies();

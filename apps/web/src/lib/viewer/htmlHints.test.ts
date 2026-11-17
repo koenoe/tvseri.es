@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { readDisplayUsername } from '@/auth/displayUsername';
+
 import {
   applyHtmlHints,
   LIBRARY_HINT_KEY,
@@ -9,7 +11,6 @@ import {
   PROMPT_HINT_KEY,
   PROMPT_HINT_VERSION,
 } from './htmlHints';
-import { readCookieUser } from './readCookieUser';
 
 const COOKIE = '__tvseries_user';
 
@@ -48,7 +49,7 @@ function run(
   applyHtmlHints(
     root,
     path,
-    readCookieUser(options.cookie ?? `${COOKIE}=kit`, COOKIE),
+    readDisplayUsername(options.cookie ?? `${COOKIE}=kit`),
     storage,
     options.year ?? 2026,
     LIBRARY_HINT_KEY,

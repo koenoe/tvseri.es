@@ -1,4 +1,4 @@
-import { toSafeReturnTo } from '@/auth/returnTo';
+import { loginHref } from '@/auth/loginHref';
 import ButtonContent from '@/components/ui/button/ButtonContent';
 import {
   BUTTON_ICON_SIZE,
@@ -14,11 +14,7 @@ import { refreshGlyph } from '@/components/ui/icon/glyphs';
 export default function TryAgainLink({
   returnTo,
 }: Readonly<{ returnTo: unknown }>) {
-  const safe = toSafeReturnTo(returnTo);
-  const href =
-    safe === '/'
-      ? '/api/auth/login?returnTo=%2F'
-      : `/api/auth/login?${new URLSearchParams({ returnTo: safe })}`;
+  const href = loginHref(returnTo);
   const classes = buttonStyles({ variant: 'primary' });
   return (
     <a className={classes} href={href}>

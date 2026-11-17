@@ -11,9 +11,9 @@ import {
 import { useShallow } from 'zustand/shallow';
 
 import { ACCOUNT_GONE } from '@/auth/accountGone';
+import { readDisplayUsername } from '@/auth/displayUsername';
 import {
   forgetViewer,
-  readDisplayUsername,
   readSignedIn,
   subscribeToSignedIn,
 } from '@/components/menu/displayCookie';

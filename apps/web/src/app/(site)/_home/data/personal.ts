@@ -11,7 +11,7 @@ import {
 import { isIfYouLikedDay } from '@tvseri.es/utils';
 
 import auth, { type Session } from '@/auth';
-import { getViewer as getTokenViewer } from '@/auth/viewer';
+import { getViewer } from '@/auth/viewer';
 import { loadUpNextArt } from '@/components/up-next/loadUpNextArt';
 import type { UpNextArt } from '@/components/up-next/UpNextItemCard';
 import { apiFetch } from '@/lib/api/client';
@@ -50,8 +50,8 @@ class ViewerUnavailableError extends Error {
 }
 
 /** Signed in: the session; signed out: null; a session that failed to load throws */
-export async function getViewer(): Promise<Session | null> {
-  const [session, claimed] = await Promise.all([auth(), getTokenViewer()]);
+export async function getViewerSession(): Promise<Session | null> {
+  const [session, claimed] = await Promise.all([auth(), getViewer()]);
   if (session.user) {
     return session;
   }
@@ -66,13 +66,13 @@ export async function getViewer(): Promise<Session | null> {
  * so a personal read can start before the profile arrives
  */
 export async function getViewerToken(): Promise<string | null> {
-  return (await getTokenViewer())?.accessToken ?? null;
+  return (await getViewer())?.accessToken ?? null;
 }
 
 /**
  * A personal read that needs only the token: it starts from the verified
  * cookie at once, beside the profile (`GET /me`), which only decides signed
- * in or failed (`getViewer` throws when the profile can't be read, so the
+ * in or failed (`getViewerSession` throws when the profile can't be read, so the
  * row shows its failed state). Signed out: null, and nothing is read.
  */
 export async function readAsViewer<T>(
@@ -82,7 +82,10 @@ export async function readAsViewer<T>(
   if (!accessToken) {
     return null;
   }
-  const [viewer, data] = await Promise.all([getViewer(), read(accessToken)]);
+  const [viewer, data] = await Promise.all([
+    getViewerSession(),
+    read(accessToken),
+  ]);
   return viewer ? data : null;
 }
 

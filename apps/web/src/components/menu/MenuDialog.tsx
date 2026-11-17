@@ -2,10 +2,10 @@
 
 import * as m from 'motion/react-m';
 import { type Ref, useCallback, useState } from 'react';
+import { readDisplayUsername } from '@/auth/displayUsername';
 import { PHONE } from '@/lib/media/breakpoints';
 import useMediaQuery from '@/lib/media/useMediaQuery';
 import DesktopMenu from './DesktopMenu';
-import { readDisplayUsername } from './displayCookie';
 import MobileMenu from './MobileMenu';
 import { menuModel } from './menuItems';
 import { MENU_ID } from './menuMotion';

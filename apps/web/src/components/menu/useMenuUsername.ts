@@ -1,6 +1,8 @@
 import { useSyncExternalStore } from 'react';
 
-import { readDisplayUsername, subscribeToDisplayCookie } from './displayCookie';
+import { readDisplayUsername } from '@/auth/displayUsername';
+
+import { subscribeToDisplayCookie } from './displayCookie';
 
 const getSnapshot = () => readDisplayUsername(document.cookie);
 

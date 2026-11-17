@@ -15,7 +15,7 @@ import type { FeatureKind, ToyKind } from '@tvseri.es/utils';
 import { apiFetch } from '@/lib/api/client';
 
 import { addDays, isInApiWindow } from '../../../_home/data/day';
-import { getIfYouLiked, getViewer } from '../../../_home/data/personal';
+import { getIfYouLiked, getViewerSession } from '../../../_home/data/personal';
 import { onDay } from '../../../_home/data/premiereDays';
 
 /**
@@ -171,7 +171,7 @@ export async function ifYouLiked(
   today: string,
 ): Promise<Asked<BecauseYouWatched>> {
   try {
-    const viewer = await getViewer().catch(() => null);
+    const viewer = await getViewerSession().catch(() => null);
     if (viewer) {
       const data = await getIfYouLiked(viewer.accessToken, today);
       return data

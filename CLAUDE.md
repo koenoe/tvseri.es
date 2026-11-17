@@ -25,6 +25,9 @@ packages/
   kill-switch/        Budget kill-switch handlers
   typescript-config/  Shared tsconfigs; every package extends base.json
 infra/        SST resources, loaded from sst.config.ts
+tools/
+  agents/     `pnpm agents:*`: shared ports, queued builds and e2e for parallel agents (tools/agents/README.md)
+  load/       Load rig: the API in-process against a synthetic TMDB (`pnpm --filter @tvseri.es/load-rig load`)
 ```
 
 Packages ship raw TypeScript. Apps bundle them directly, so there's no build step.
@@ -73,7 +76,7 @@ Biome, not ESLint/Prettier: single quotes, semicolons, trailing commas, `(x) => 
 - Fetch data in Server Components. Avoid `cookies()`/`headers()` where they'd make a route dynamic for no reason.
 - Watch the size of props serialised from RSC to client components.
 - Request interception lives in `src/proxy.ts` (Next 16), not `middleware.ts`.
-- **Auth**: use `auth()` from `src/auth`. It resolves the OpenAuth session per context (`RSC`, `RouteHandler`, `Proxy`). Only the proxy refreshes tokens (one refresh per refresh token per instance, `src/auth/refresh.ts`); RSC and route handlers are read-only and read the cookie it forwards. OpenAuth rotates refresh tokens and RSC can't write the new cookie, so refreshing there would log the user out. A route handler that reads the session must be in the proxy's matcher (`src/proxyMatcher.test.ts` checks). Only an `invalid_grant` from the auth server ends a session; any other refresh failure keeps it for the next request. The `__tvseries_user` display cookie is cosmetic (the pre-paint script reads it to hold signed-in space); never trust it for anything else. Sign-in is `apps/auth`: Google OIDC or an email code.
+- **Auth**: use `auth()` from `src/auth`. It resolves the OpenAuth session per context (`RSC`, `RouteHandler`, `Proxy`). Only the proxy refreshes tokens (one refresh per refresh token per instance, `src/auth/refresh.ts`); RSC and route handlers are read-only and read the cookie it forwards. OpenAuth rotates refresh tokens and RSC can't write the new cookie, so refreshing there would log the user out. Route handlers read it with `readRouteSession(req)`, and `auth()` and `getViewer()` share one token check (`verifySubject`, `src/auth/requestSession.ts`). A route handler that reads the session must be in the proxy's matcher (`src/proxyMatcher.test.ts` checks). A session ends only when its cookie can't be decrypted, the auth server refuses the refresh token (`invalid_grant`), or `/me` says the account is gone (`AccountGone`); any other failure keeps it for the next request. The `__tvseries_user` display cookie is cosmetic: read it only through `readDisplayUsername` (`src/auth/displayUsername.ts`); the proxy only renews or deletes it. The browser uses it for display and pre-paint hints; the server only as a hint to start a profile owner's reads early (`(profile)/_data/ownerHint.ts`). Never trust it for who the viewer is. Sign-in links use `loginHref` (`src/auth/loginHref.ts`). Sign-in is `apps/auth`: Google OIDC or an email code.
 - Client state: Zustand. Animation: Motion. Styling: **Tailwind v4**, CSS-first: the tokens live in `src/app/globals.css` (`@theme`) and Tailwind's default palette, type scale and radii are cleared. Use the type tokens (`text-title-2`, `text-meta`…), the colour steps (`text-white/80`, `/60`, `/40`, `text-cyan`, `text-pink`) and `rounded-{px}`; merge classes with `cn()` from `@/lib/cn`.
 - UI primitives live in `src/components/ui` (no primitives library: native `<dialog>`, the Popover API and Motion). `/dev/style-guide` shows them in `next dev`.
 - Use `next/font`/`next/script`. For above-the-fold `next/image`, use `loading="eager"`; use `priority` sparingly.

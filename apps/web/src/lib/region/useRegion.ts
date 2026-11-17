@@ -3,7 +3,7 @@
 import { useSyncExternalStore } from 'react';
 import * as v from 'valibot';
 
-import { readDisplayUsername } from '@/components/menu/displayCookie';
+import { readDisplayUsername } from '@/auth/displayUsername';
 import { WIDE } from '@/lib/media/breakpoints';
 import { matchesNow, subscribeMediaQuery } from '@/lib/media/useMediaQuery';
 import {

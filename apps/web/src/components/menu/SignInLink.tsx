@@ -1,16 +1,8 @@
 'use client';
 
-import type { MouseEventHandler, ReactNode, SyntheticEvent } from 'react';
+import type { MouseEventHandler, ReactNode } from 'react';
 
-import { loginHref } from './menuItems';
-
-// The return path is only known in the browser (the header is cached for
-// every page), so it's filled in when the link is about to be used.
-const withReturnTo = (event: SyntheticEvent<HTMLAnchorElement>) => {
-  event.currentTarget.href = loginHref(
-    window.location.pathname + window.location.search,
-  );
-};
+import { fillLoginHref } from '@/auth/loginHref';
 
 /** A plain link: signing in is a full navigation through the auth route. */
 export default function SignInLink({
@@ -26,7 +18,7 @@ export default function SignInLink({
   [data: `data-${string}`]: string;
 }>) {
   const handleClick: MouseEventHandler<HTMLAnchorElement> = (event) => {
-    withReturnTo(event);
+    fillLoginHref(event);
     onClick?.(event);
   };
   return (
@@ -35,8 +27,8 @@ export default function SignInLink({
       className={className}
       href="/api/auth/login"
       onClick={handleClick}
-      onFocus={withReturnTo}
-      onPointerEnter={withReturnTo}
+      onFocus={fillLoginHref}
+      onPointerEnter={fillLoginHref}
     >
       {children}
     </a>

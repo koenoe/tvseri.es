@@ -60,7 +60,10 @@ describe('auth', () => {
     vi.stubEnv('API_KEY', 'key');
     vi.spyOn(console, 'log').mockImplementation(() => undefined);
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    authClient.verify.mockResolvedValue({ err: false });
+    authClient.verify.mockResolvedValue({
+      aud: 'web',
+      subject: { properties: { id: 'user-1', role: 'user' }, type: 'user' },
+    });
     meResponds(200);
   });
 

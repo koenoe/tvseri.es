@@ -1,5 +1,6 @@
 'use client';
 
+import { loginHrefHere } from '@/auth/loginHref';
 import { showToast } from '@/components/ui/toast/showToast';
 
 import { SIGN_IN_MESSAGE } from './copy';
@@ -13,14 +14,10 @@ export const MARKING_TOAST_ID = 'marking';
  * signed-out visitor tries (a `+`, a heart), so the copy stays one.
  */
 export default function promptSignIn() {
-  const returnTo = `${window.location.pathname}${window.location.search}`;
   showToast({
     action: {
       label: 'Sign in',
-      onClick: () =>
-        window.location.assign(
-          `/api/auth/login?returnTo=${encodeURIComponent(returnTo)}`,
-        ),
+      onClick: () => window.location.assign(loginHrefHere()),
     },
     id: MARKING_TOAST_ID,
     title: SIGN_IN_MESSAGE,

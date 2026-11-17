@@ -1,6 +1,6 @@
 'use client';
 
-import { readDisplayUsername } from '@/components/menu/displayCookie';
+import { readDisplayUsername } from '@/auth/displayUsername';
 import { eyeGlyph, skippedGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import { showToast } from '@/components/ui/toast/showToast';

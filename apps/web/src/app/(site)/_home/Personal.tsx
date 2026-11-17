@@ -4,7 +4,7 @@ import {
   getGetStarted,
   getIfYouLiked,
   getMoreGenre,
-  getViewer,
+  getViewerSession,
   getViewerToken,
   readAsViewer,
 } from './data/personal';
@@ -39,7 +39,7 @@ export async function ContinueOrGetStarted() {
   const continueWatching = getContinueWatching(accessToken);
   // Get started may win the slot; its failure is then nobody's
   continueWatching.catch(() => undefined);
-  const viewer = await getViewer();
+  const viewer = await getViewerSession();
   if (!viewer) {
     return null;
   }

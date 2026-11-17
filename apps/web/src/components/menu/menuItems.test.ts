@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { loginHref, type MenuItem, menuModel } from './menuItems';
+import { type MenuItem, menuModel } from './menuItems';
 
 const labels = (items: ReadonlyArray<MenuItem>) =>
   items.map((item) => item.label);
@@ -12,18 +12,6 @@ const current = (model: ReturnType<typeof menuModel>) =>
 
 const viewer = (pathname: string) =>
   menuModel({ handle: 'margaux', pathname, year: 2026 });
-
-describe('loginHref', () => {
-  it('returns to the current page after signing in', () => {
-    expect(loginHref('/1396/breaking-bad?season=2')).toBe(
-      '/api/auth/login?returnTo=%2F1396%2Fbreaking-bad%3Fseason%3D2',
-    );
-  });
-
-  it('returns home from the root', () => {
-    expect(loginHref('/')).toBe('/api/auth/login?returnTo=%2F');
-  });
-});
 
 describe('menuModel: content per viewer', () => {
   it('signed out: Watch (Home, Discover), then Sign in', () => {

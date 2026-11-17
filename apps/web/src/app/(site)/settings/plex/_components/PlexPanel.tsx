@@ -3,7 +3,7 @@
 import type { ScrobbleAccount } from '@tvseri.es/schemas';
 import { type ReactNode, useEffect } from 'react';
 
-import { readDisplayUsername } from '@/components/menu/displayCookie';
+import { readDisplayUsername } from '@/auth/displayUsername';
 
 import { plexStateFrom } from '../../_lib/plexState';
 import { persistPlexHint } from '../_lib/plexHint';

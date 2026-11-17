@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { useLayoutEffect } from 'react';
 
-import { USER_DISPLAY_COOKIE_NAME } from '@/auth/cookies';
+import { readDisplayUsername } from '@/auth/displayUsername';
 
 import {
   applyHtmlHints,
@@ -14,7 +14,6 @@ import {
   PROMPT_HINT_KEY,
   PROMPT_HINT_VERSION,
 } from './htmlHints';
-import { readCookieUser } from './readCookieUser';
 
 function storage(): Storage | null {
   try {
@@ -35,7 +34,7 @@ export default function RouteHints() {
     applyHtmlHints(
       document.documentElement,
       pathname,
-      readCookieUser(document.cookie, USER_DISPLAY_COOKIE_NAME),
+      readDisplayUsername(document.cookie),
       storage(),
       new Date().getUTCFullYear(),
       LIBRARY_HINT_KEY,

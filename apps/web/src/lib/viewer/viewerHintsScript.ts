@@ -1,4 +1,5 @@
 import { USER_DISPLAY_COOKIE_NAME } from '@/auth/cookies';
+import { readCookieUser } from '@/auth/displayUsername';
 import {
   applyOwnerVisitor,
   OWNER_VISITOR_SHEET,
@@ -23,7 +24,6 @@ import {
   PROMPT_HINT_KEY,
   PROMPT_HINT_VERSION,
 } from './htmlHints';
-import { readCookieUser } from './readCookieUser';
 
 const json = JSON.stringify;
 

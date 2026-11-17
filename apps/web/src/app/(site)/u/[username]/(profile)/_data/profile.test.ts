@@ -17,7 +17,11 @@ vi.mock('@/lib/profile/user', () => ({
 }));
 vi.mock('next/headers', () => ({
   cookies: async () => ({
-    get: () => (displayed === undefined ? undefined : { value: displayed }),
+    // The request's `Cookie` string, values URI-encoded like Next's store
+    toString: () =>
+      displayed === undefined
+        ? ''
+        : `__tvseries_user=${encodeURIComponent(displayed)}`,
   }),
 }));
 vi.mock('next/navigation', () => ({

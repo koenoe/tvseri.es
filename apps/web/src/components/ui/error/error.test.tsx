@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import LoginButton from './LoginButton';
@@ -19,6 +19,19 @@ describe('LoginButton', () => {
     expect(link.getAttribute('href')).toBe(
       '/api/auth/login?returnTo=%2Fu%2Fmaria%2Fhistory',
     );
+  });
+
+  it('keeps the page’s query once the link is about to be used', () => {
+    window.history.replaceState(null, '', '/u/maria/history?year=2025');
+    render(<LoginButton />);
+    const link = screen.getByRole('link', { name: 'Sign in' });
+
+    fireEvent.focus(link);
+
+    expect(link.getAttribute('href')).toBe(
+      '/api/auth/login?returnTo=%2Fu%2Fmaria%2Fhistory%3Fyear%3D2025',
+    );
+    window.history.replaceState(null, '', '/');
   });
 });
 

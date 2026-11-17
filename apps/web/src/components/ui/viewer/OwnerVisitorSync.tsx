@@ -3,7 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useLayoutEffect } from 'react';
 
-import { readDisplayUsername } from '@/components/menu/displayCookie';
+import { readDisplayUsername } from '@/auth/displayUsername';
 
 import {
   isVisitorOf,

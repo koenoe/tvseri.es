@@ -1,12 +1,7 @@
 import { USER_DISPLAY_COOKIE_NAME } from '@/auth/cookies';
+import { readDisplayUsername } from '@/auth/displayUsername';
 import { expireCookie } from '@/lib/expireCookie';
 import { LIBRARY_HINT_KEY, PLEX_HINT_KEY } from '@/lib/viewer/htmlHints';
-import { readCookieUser } from '@/lib/viewer/readCookieUser';
-
-/** The username in a `document.cookie` string, or `null` (signed out). */
-export function readDisplayUsername(cookie: string): string | null {
-  return readCookieUser(cookie, USER_DISPLAY_COOKIE_NAME);
-}
 
 /** Fired on `window` when this tab changes the display cookie itself (`forgetViewer`). */
 const DISPLAY_COOKIE_CHANGE = 'tvseries:display-cookie';

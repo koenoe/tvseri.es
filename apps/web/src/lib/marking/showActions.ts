@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 
-import { readDisplayUsername } from '@/components/menu/displayCookie';
+import { readDisplayUsername } from '@/auth/displayUsername';
 import { showToast } from '@/components/ui/toast/showToast';
 import type { MarkingCommands } from '@/lib/marking/commands';
 import { ERROR_MESSAGE } from '@/lib/marking/copy';

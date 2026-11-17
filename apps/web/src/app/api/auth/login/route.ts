@@ -20,11 +20,10 @@
  */
 import type { NextRequest } from 'next/server';
 
-import { SESSION_COOKIE_NAME } from '@/auth/cookies';
 import { startLogin } from '@/auth/login';
 import { checkUser } from '@/auth/me';
+import { readRouteSession } from '@/auth/requestSession';
 import { toSafeReturnTo } from '@/auth/returnTo';
-import { resolveSession } from '@/auth/session';
 import { deleteSession } from '@/auth/sessionCookies';
 import getBaseUrl from '@/lib/getBaseUrl';
 
@@ -59,10 +58,7 @@ export async function GET(req: NextRequest): Promise<Response> {
     req.nextUrl.searchParams.get('returnTo') ?? refererPath(req),
   );
 
-  const session = await resolveSession(
-    req.cookies.get(SESSION_COOKIE_NAME)?.value,
-    { context: 'RouteHandler', mode: 'read-only' },
-  );
+  const session = await readRouteSession(req);
   if (session.status === 'valid') {
     const check = await checkUser(session.tokens.accessToken);
     if (check.kind === 'user') {

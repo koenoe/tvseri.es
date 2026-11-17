@@ -6,7 +6,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useStore } from 'zustand';
 import { useShallow } from 'zustand/shallow';
 
-import { readDisplayUsername } from '@/components/menu/displayCookie';
+import { readDisplayUsername } from '@/auth/displayUsername';
 import type { ArrowKey } from '@/lib/grid/moveSelection';
 import { PHONE } from '@/lib/media/breakpoints';
 import useMediaQuery from '@/lib/media/useMediaQuery';

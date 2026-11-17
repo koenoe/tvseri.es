@@ -19,8 +19,11 @@ vi.mock('@/auth', () => ({ default: () => auth() }));
 vi.mock('@/auth/viewer', () => ({ getViewer: () => getViewer() }));
 vi.mock('next/headers', () => ({
   cookies: async () => ({
-    get: () =>
-      cookie.value === undefined ? undefined : { value: cookie.value },
+    // The request's `Cookie` string, values URI-encoded like Next's store
+    toString: () =>
+      cookie.value === undefined
+        ? ''
+        : `__tvseries_user=${encodeURIComponent(cookie.value)}`,
   }),
 }));
 vi.mock('next/navigation', () => ({

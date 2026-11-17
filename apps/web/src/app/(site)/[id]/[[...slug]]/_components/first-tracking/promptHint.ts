@@ -1,4 +1,4 @@
-import { readDisplayUsername } from '@/components/menu/displayCookie';
+import { readDisplayUsername } from '@/auth/displayUsername';
 import { PROMPT_HINT_KEY, PROMPT_HINT_VERSION } from '@/lib/viewer/htmlHints';
 
 /** Most shows kept: past this the oldest answers drop out. */

@@ -170,6 +170,13 @@ describe('toggleEpisode', () => {
     });
   });
 
+  it('a Just-now mark away from the run starts its own toast', () => {
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 3, seasonNumber: 3 });
+    t.commands.toggleEpisode(SERIES, { episodeNumber: 5, seasonNumber: 3 });
+    // "S03E03–S03E05" would claim S03E04 was marked too
+    expect(t.toasts.at(-1)?.title).toBe('Marked S03E05 · Just now');
+  });
+
   it('a watched episode is unmarked', async () => {
     t.commands.toggleEpisode(
       SERIES,

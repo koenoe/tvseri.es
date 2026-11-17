@@ -17,7 +17,7 @@ The API applies the same rule for lists: `apps/api/src/lib/listSync/state.ts`.
 
 - The eye on one episode: watched → unmark; anything else (skipped included) → mark "Just now".
 - After a single "Just now" mark on the show page (not in the watch-history sheet), the toast offers "Mark the N before too" (aired, unwatched, unskipped earlier episodes of that season; `openBefore`). Not for season 0, and not once the show's "Never for this show" is set.
-- Quick "Just now" marks of one show within 2 minutes merge into one toast; one Undo undoes them all (`createMergeRun` in `toasts.ts`). Any other command ends the run. This stops a toast storm while ticking through a binge.
+- Quick "Just now" marks of next-door episodes in one season of one show, within 2 minutes, merge into one toast (a mark away from the run, or in another season, starts its own); one Undo undoes them all (`createMergeRun` in `toasts.ts`). Any other command ends the run. This stops a toast storm while ticking through a binge.
 - Date choices (`when.ts`): Just now · Yesterday (same clock time) · Last weekend (Saturday 21:00) · a picked day (21:00 local, never in the future) · On release day (local noon of the air date, `server/batch.ts`) · I don't remember. Dates before 2000 are refused (`packages/schemas/src/watched.ts`).
 - "I don't remember" counts for progress, lists and all-time totals, but never appears in History or year stats: an undated watch can't belong to a year.
 - Marking a watched episode again overwrites it; that's how re-dating works. The eye never does this by accident because it unmarks a watched episode.

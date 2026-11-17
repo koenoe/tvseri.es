@@ -65,9 +65,26 @@ const sortRefs = (refs: ReadonlyArray<EpisodeRef>) =>
   );
 
 /**
- * Quick Just-now marks of one show merge into one toast ("Marked E5–E7 ·
- * Just now") with one Undo back to before the first. Any other command
- * ends the run.
+ * Whether `ref` extends the run at either end in its season: the toast shows
+ * the run as a range, which must not claim episodes in a gap or a special
+ */
+const nextTo = (refs: ReadonlyArray<EpisodeRef>, ref: EpisodeRef) => {
+  const first = refs[0];
+  const last = refs.at(-1);
+  return (
+    !!first &&
+    !!last &&
+    first.seasonNumber === ref.seasonNumber &&
+    last.seasonNumber === ref.seasonNumber &&
+    (ref.episodeNumber === first.episodeNumber - 1 ||
+      ref.episodeNumber === last.episodeNumber + 1)
+  );
+};
+
+/**
+ * Quick Just-now marks of next-door episodes of one show merge into one
+ * toast ("Marked E5–E7 · Just now") with one Undo back to before the first.
+ * Any other command, or a mark away from the run, ends it.
  */
 export function createMergeRun() {
   let run: Run | null = null;
@@ -78,7 +95,10 @@ export function createMergeRun() {
     /** The merged run's refs and its prior, or null when `ref` starts a new one */
     join(seriesId: number, ref: EpisodeRef, now: number) {
       const merging =
-        run && run.seriesId === seriesId && now - run.at < MERGE_WINDOW_MS
+        run &&
+        run.seriesId === seriesId &&
+        now - run.at < MERGE_WINDOW_MS &&
+        nextTo(run.refs, ref)
           ? run
           : null;
       if (!merging) {

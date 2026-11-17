@@ -43,8 +43,9 @@ type Props = Readonly<{
 }>;
 
 /**
- * One service as a tile. A tap saves at once: it adds the service, or removes
- * it when it is already selected (`aria-pressed`).
+ * One service as a tile. A tap saves at once: "Add Netflix" from the
+ * popular list, "Remove Netflix" from your services. An action that moves
+ * the tile between the lists, not a toggle, so no `aria-pressed`.
  */
 function ServiceTile({ onToggle, provider, variant }: Props) {
   const look = SIZES[variant];
@@ -59,6 +60,7 @@ function ServiceTile({ onToggle, provider, variant }: Props) {
     'absolute top-2 right-2 flex size-5 items-center justify-center rounded-full',
     look.badge,
   );
+  const labelClasses = cn('max-w-full truncate', look.label);
   const handleClick = useCallback(
     () => onToggle(provider),
     [onToggle, provider],
@@ -66,7 +68,6 @@ function ServiceTile({ onToggle, provider, variant }: Props) {
   return (
     <button
       aria-label={label}
-      aria-pressed={selected}
       className={classes}
       onClick={handleClick}
       title={label}
@@ -80,9 +81,7 @@ function ServiceTile({ onToggle, provider, variant }: Props) {
         unoptimized={!isTmdbImage(provider.logo)}
         width={look.image}
       />
-      <span className={cn('max-w-full truncate', look.label)}>
-        {provider.name}
-      </span>
+      <span className={labelClasses}>{provider.name}</span>
       <span aria-hidden="true" className={badgeClasses}>
         <Icon className={look.iconClass} glyph={look.icon} size={13} />
       </span>

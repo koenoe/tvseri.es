@@ -10,12 +10,12 @@ const network = (slug: string) => {
 };
 
 describe('sinceLine', () => {
-  it('writes the year the design gives a network, not the first show’s', () => {
+  it('writes the year we know for a network, not the first show’s', () => {
     expect(sinceLine(network('hbo'), 1999)).toBe('Since 1972');
     expect(sinceLine(network('apple-tv'), 2019)).toBe('Since 2019');
   });
 
-  it('says “Originals since” where the design does (Netflix)', () => {
+  it('says “Originals since” where it applies (Netflix)', () => {
     expect(sinceLine(network('netflix'), 2015)).toBe('Originals since 2012');
   });
 
@@ -38,7 +38,7 @@ describe('network lines', () => {
     );
   });
 
-  it('has the shorter phone line where the phone design draws one', () => {
+  it('has the shorter phone line where there is one', () => {
     expect(network('hbo').phoneDescription).toBe(
       'Prestige drama since The Sopranos.',
     );

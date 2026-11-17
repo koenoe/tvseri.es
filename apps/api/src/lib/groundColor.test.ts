@@ -17,8 +17,8 @@ const shares = (input: string, output: string) =>
 
 describe('groundColor', () => {
   it.each([
-    // the boards' own grounds and dark detections pass unchanged
-    ['The Bear (board)', '#29251f'],
+    // dark grounds pass unchanged
+    ['The Bear', '#29251f'],
     ['the default ground', '#1c2223'],
     ['near-black', '#0b0c0e'],
     ['black', '#000000'],

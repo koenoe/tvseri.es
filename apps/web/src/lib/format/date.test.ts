@@ -16,7 +16,7 @@ describe('formatMonthYear', () => {
     expect(formatMonthYear(Date.UTC(2026, 10, 12))).toBe('Nov 2026');
   });
 
-  it('writes September as the boards do', () => {
+  it('writes September as Sep', () => {
     expect(formatMonthYear('2024-09-03')).toBe('Sep 2024');
   });
 });

@@ -94,7 +94,7 @@ describe('measurement: the years list for a 6,000-episode history', () => {
     console.log(`[BENCH] ${JSON.stringify(report)}`);
     expect(report.yearsPages1Mb).toBeGreaterThan(1);
 
-    // After the nightly job built the per-show summaries (item 1), and a
+    // After the nightly job built the per-show summaries, and a
     // mark cleared the years list's cache entry
     await nightly({
       Records: [{ body: JSON.stringify({ id: USER_ID }), messageId: 'm' }],

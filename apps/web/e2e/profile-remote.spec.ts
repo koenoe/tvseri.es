@@ -5,8 +5,8 @@ import { signInAs } from './helpers/session';
 /**
  * The ⋯ Remote on every profile surface that has one, signed in as the stub's
  * `alex`: it opens (it once threw inside the strict LazyMotion wrapper and
- * took the block or the page down), and Hide / Keep leave the page as the
- * boards draw them.
+ * took the block or the page down), and Hide / Keep leave the page as it
+ * should be.
  */
 
 const SURFACES = [

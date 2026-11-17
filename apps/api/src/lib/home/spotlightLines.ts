@@ -19,7 +19,7 @@ const TRENDING_TTL = 3600;
 const CONCURRENCY = 5;
 /** In-progress shows read for "up to date" (one Watched query each) */
 const MAX_UP_TO_DATE_CHECKS = 6;
-/** "Top rated": what the board means by a show everyone rates highly */
+/** "Top rated": a show many people rate highly */
 const TOP_RATED = { minAverage: 8, minVotes: 1000 } as const;
 
 /** What the lines are made of, the same for every viewer (Cache table, 7 days) */

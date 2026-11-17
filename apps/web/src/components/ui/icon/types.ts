@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 
-/** One glyph from icons_final, drawn on the 24-unit grid. */
+/** One glyph, drawn on the 24-unit grid. */
 export type Glyph = Readonly<{
   filled?: undefined;
   outline: ReactElement;
@@ -12,5 +12,5 @@ export type ToggleGlyph = Readonly<{
   outline: ReactElement;
 }>;
 
-/** The family's steps, plus the odd sizes boards draw (11, 12, 14, 15, 18, 22) */
+/** The family's steps, plus odd sizes some layouts need (11, 12, 14, 15, 18, 22) */
 export type IconSize = 11 | 12 | 13 | 14 | 15 | 16 | 18 | 20 | 22 | 24;

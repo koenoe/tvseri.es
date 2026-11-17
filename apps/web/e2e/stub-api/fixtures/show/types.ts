@@ -1,4 +1,4 @@
-/** A person on a cast list or an episode: `img` is a board image name, if any. */
+/** A person on a cast list or an episode: `img` is a local image name, if any. */
 export type RawPerson = Readonly<{
   id: number;
   img?: string;
@@ -22,7 +22,7 @@ export type RawEpisode = Readonly<{
   number: number;
   runtime: number;
   season: number;
-  /** Board image name for the still. */
+  /** Local image name for the still. */
   still: string;
   title: string;
 }>;

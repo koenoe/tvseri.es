@@ -3,7 +3,7 @@
  * CSS transitions write the same curves out in their class strings.
  */
 
-/** The search and Remote curve (remote_style.md §9): sheets, popovers, the pending ring */
+/** One curve for sheets, popovers and the pending ring, so they move alike */
 export const SHEET_EASE = [0.32, 0.72, 0, 1] as const;
 
 /** CSS's `ease`: the header, the menu and the side panels' scrim */

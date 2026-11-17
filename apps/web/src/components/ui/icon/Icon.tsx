@@ -3,9 +3,9 @@ import type { SVGProps } from 'react';
 import type { Glyph, IconSize, ToggleGlyph } from './types';
 
 /**
- * Stroke per size, in viewBox units (icons_final.md, "Grid, strokes"):
+ * Stroke per size, in viewBox units, so lines stay crisp:
  * 13 and 16px render 1.08 and 1.33px, 20px 1.5px, 24px 1.75px. The odd
- * sizes boards draw take the step below: ≤17px 2, 18–21px 1.8, ≥22px 1.75.
+ * sizes take the step below: ≤17px 2, 18–21px 1.8, ≥22px 1.75.
  */
 const STROKE: Readonly<Record<IconSize, number>> = {
   11: 2,

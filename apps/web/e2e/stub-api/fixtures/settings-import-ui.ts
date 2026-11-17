@@ -7,8 +7,8 @@ import { VIEWERS } from './show/store.ts';
 
 /**
  * The importer UI's slice of the stub: the viewer's finished and in-progress
- * lists, which the drop zone's poster wall reads (SETImport: "the poster wall
- * behind the drop zone: only the user's own shows"). `alex` and `rae` have
+ * lists, which the drop zone's poster wall reads (only the user's own
+ * shows). `alex` and `rae` have
  * twelve; `nina` (brand new) and `sam` have none, so their wall
  * stays neutral.
  */

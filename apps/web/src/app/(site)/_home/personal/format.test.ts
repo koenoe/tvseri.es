@@ -15,7 +15,7 @@ describe('finishLine', () => {
 });
 
 describe('reasonLine', () => {
-  it('writes network and keyword reasons as the board does', () => {
+  it('writes network and keyword reasons', () => {
     expect(
       reasonLine({ kind: 'network', label: 'Apple TV' }, 'Severance'),
     ).toBe('Apple TV, like Severance');

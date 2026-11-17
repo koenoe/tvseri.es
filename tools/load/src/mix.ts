@@ -1,7 +1,7 @@
 import { castOf, SHOW_COUNT } from './upstream';
 
 /**
- * The viral-day mix from the TMDB-under-load analysis (§6), per page view:
+ * A viral day's traffic, per page view:
  * 90% signed out (show pages, Home, person pages, half the show views
  * prefetching up to 10 cast members' pages), 10% signed in (Home, profile,
  * the person page's watched line, single-episode marks). The API paths are

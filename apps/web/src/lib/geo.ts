@@ -23,7 +23,7 @@ type ReadonlyHeaders = Awaited<ReturnType<typeof headers>>;
  *
  * @param headerStore - Headers object from request
  * @param fallback - Returned when no geo header is present (default 'US').
- *   Pass `null` where a guessed region would be wrong, e.g. RUM metrics.
+ *   Pass `null` where a guessed region would be wrong (a "detected" region).
  * @returns ISO 3166-1 alpha-2 country code (e.g., 'US', 'GB', 'NL')
  */
 export function getRegionFromHeaders(

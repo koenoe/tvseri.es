@@ -27,7 +27,7 @@ describe('buildLinkTiles', () => {
   ]);
   const tiles = buildLinkTiles(COUNTRY_TILES, counts);
 
-  it('links every tile to its landing, in the design order', () => {
+  it('links every tile to its landing, in its fixed order', () => {
     expect(tiles.map((tile) => [tile.name, tile.action])).toEqual([
       ['United Kingdom', { href: '/country/gb', kind: 'link' }],
       ['Germany', { href: '/country/de', kind: 'link' }],
@@ -132,7 +132,7 @@ describe('buildDecadeTiles', () => {
 });
 
 describe('buildDurationTiles', () => {
-  it('puts the API tiles in the design order, dressed, Under 6 hours counted as miniseries', () => {
+  it('puts the API tiles in their fixed order, dressed, Under 6 hours counted as miniseries', () => {
     const preview = [
       { backdrop: null, id: 1, poster: 'a' },
       { backdrop: 'b-bd', id: 2, poster: 'b' },

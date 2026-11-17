@@ -7,10 +7,10 @@ import { byId } from './discover/shows';
 /**
  * The language landing: its facts and the romanised titles of
  * the script switch (the catalogue's `romaji`; null when the title is Latin
- * already or none is known, as the API answers). DSLLanguage prints 16,900
- * shows for Japanese.
+ * already or none is known, as the API answers). Japanese has a realistic
+ * 16,900 shows.
  */
-const BOARD_COUNTS: Readonly<Record<string, number>> = { ja: 16_900 };
+const KNOWN_COUNTS: Readonly<Record<string, number>> = { ja: 16_900 };
 
 export const routes: ReadonlyArray<StubRoute> = [
   {
@@ -20,7 +20,7 @@ export const routes: ReadonlyArray<StubRoute> = [
       }
       const slug = params.slug ?? '';
       const count =
-        BOARD_COUNTS[slug] ??
+        KNOWN_COUNTS[slug] ??
         CATALOGUE.filter((show) => show.language === slug).length;
       if (count === 0) {
         return { body: { message: 'Not Found' }, status: 404 };

@@ -29,7 +29,7 @@ export default function TileSection() {
         <Specimen label="Poster 220 · rest, hover grows 4%" width="w-55">
           <ShowPoster show={{ ...breakingBad!, watched: false }} />
         </Specimen>
-        <Specimen label="Watched label (B02)" width="w-55">
+        <Specimen label="Watched label" width="w-55">
           <ShowPoster show={severance!} />
         </Specimen>
         <Specimen label="No poster: placeholder" width="w-55">

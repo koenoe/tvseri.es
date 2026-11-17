@@ -7,7 +7,7 @@ import {
 import type { StubRoute } from '../types';
 
 /**
- * Home: the boards' shows, served from `e2e/fixtures/home`. The
+ * Home: its fixture shows, served from `e2e/fixtures/home`. The
  * file name sorts first, so Home's trending ten (with backdrops and logos
  * for the spotlight) answer `/collection/trending` before collection.ts. The day's
  * moments switch with `STUB_HOME_FEATURE` / `STUB_HOME_TOY` at start or `POST /__stub/state` `{ "feature": "binge", "toy":

@@ -39,6 +39,12 @@ import {
   newGetStarted,
   samOverview,
 } from './user-profile/overview.ts';
+import { historyItems, watchedPage } from './user-profile/pages-diary.ts';
+import {
+  catalogueShow,
+  progressOf,
+  seasonSizes,
+} from './user-profile/pages-library.ts';
 import {
   PEOPLE,
   type PersonName,
@@ -47,13 +53,6 @@ import {
   personByUsername,
   publicUser,
 } from './user-profile/people.ts';
-import { historyItems, watchedPage } from './user-profile/pg-diary.ts';
-import { withWatching } from './user-profile/pg-follows.ts';
-import {
-  catalogueShow,
-  progressOf,
-  seasonSizes,
-} from './user-profile/pg-library.ts';
 import { identity, showById } from './user-profile/shows.ts';
 import {
   circle,
@@ -64,6 +63,7 @@ import {
 } from './user-profile/social.ts';
 import { kitOverview, raeOverview } from './user-profile/states.ts';
 import { daysAgo } from './user-profile/time.ts';
+import { withWatching } from './user-profile/watchingFollows.ts';
 
 /**
  * The profile page's stub routes: identities, counts, lists,

@@ -6,7 +6,7 @@ const W = 680;
 const H = 293;
 
 describe('labelSides', () => {
-  it('keeps the board side (right, above) when it is free', () => {
+  it('keeps the default side (right, above) when it is free', () => {
     expect(
       labelSides(
         [{ name: 'Baltimore', point: { x: 200, y: 120 } }],

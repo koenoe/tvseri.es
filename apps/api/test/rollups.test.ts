@@ -91,7 +91,7 @@ const expectSummariesMatch = async () => {
   }
 };
 
-describe('per-show summaries (item 1)', () => {
+describe('per-show summaries', () => {
   it('match the watched items after random marks, unmarks, re-dates, undated and specials, with duplicated and replayed stream batches', async () => {
     for (let seed = 1; seed <= 12; seed++) {
       db.reset();

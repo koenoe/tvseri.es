@@ -34,7 +34,7 @@ function segmentFor(name: string): string {
 export const img = (name: string) => `${TMDB}/${segmentFor(name)}/${name}`;
 
 /** Today in the demo: Wed 11 Nov 2026 (the demo days are Mon 9 to Sat 14) */
-export const BOARD_TODAY = '2026-11-11';
+export const FIXTURE_TODAY = '2026-11-11';
 
 const GENRES: Readonly<Record<string, Genre>> = {
   'Action & Adventure': {

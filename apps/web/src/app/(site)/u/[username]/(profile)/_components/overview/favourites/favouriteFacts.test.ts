@@ -19,7 +19,7 @@ const facts = (overrides: Partial<ListItemFacts>): ListItemFacts => ({
 const texts = (list: ReadonlyArray<{ text: string }>) =>
   list.map((fact) => fact.text);
 
-describe('favouriteFacts (V60 open tile)', () => {
+describe('favouriteFacts', () => {
   it('a finished miniseries', () => {
     const tyson = facts({
       progress: { finishedAt: Date.UTC(2026, 10, 3), state: 'finished' },
@@ -73,7 +73,7 @@ describe('favouriteFacts (V60 open tile)', () => {
   });
 });
 
-describe('relationOf (V62 relation pill)', () => {
+describe('relationOf', () => {
   const ids: LibraryIds = {
     favorites: [1],
     inProgress: [4],

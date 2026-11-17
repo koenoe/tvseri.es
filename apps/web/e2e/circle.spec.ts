@@ -147,7 +147,7 @@ test.describe('your own Circle', () => {
         .getByRole('region', { name: 'Follows you' })
         .getByRole('button', { name: 'Follow back' }),
     ).toHaveCount(4);
-    // as the design draws it: no "closest taste first", no match key
+    // no "closest taste first", no match key
     await expect(page.getByText('closest taste first')).toHaveCount(0);
     await expect(
       page.getByRole('heading', { name: 'How a match is made' }),

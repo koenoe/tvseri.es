@@ -1,9 +1,8 @@
 import type { CirclePeople, CircleRow } from '@tvseri.es/schemas';
 import { watchingNow } from '@tvseri.es/utils';
-
+import { entriesOf } from './pages-library.ts';
+import { pgShows } from './pages-shows.ts';
 import { PEOPLE, type PersonName } from './people.ts';
-import { entriesOf } from './pg-library.ts';
-import { pgShows } from './pg-shows.ts';
 import { follows, followsOf, followsWritten, match } from './social.ts';
 
 /**

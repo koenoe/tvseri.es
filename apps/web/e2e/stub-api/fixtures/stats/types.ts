@@ -9,7 +9,7 @@ export type CatalogSeries = Readonly<{
   epRuntime: number;
   network: string;
   firstAir: string;
-  /** Key of the board images (`st_p_<art>.jpg`, `st_bd_<art>.jpg`, `st_logo_<art>.png`) */
+  /** Key of the local images (`st_p_<art>.jpg`, `st_bd_<art>.jpg`, `st_logo_<art>.png`) */
   art?: string;
 }>;
 

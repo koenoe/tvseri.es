@@ -32,7 +32,7 @@ const SIZES: Readonly<Record<Size, SizeStyle>> = {
 };
 
 /**
- * "@alex": Jakarta 800 on one line (typography spec, Profile block), the @
+ * "@alex": Jakarta 800 on one line, the @
  * smaller and dimmer. The size is fitted to the column (`@container` on it:
  * the 300px sidebar, the page width on a phone) from the handle's measured
  * width, so every generated handle fits; a chosen handle still too long at

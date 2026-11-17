@@ -6,7 +6,7 @@
  *
  * With the reference file, its dots are the land mask (which cells have a
  * dot), so the map matches it dot for dot; Natural
- * Earth only says which country a cell belongs to (a board dot Natural Earth
+ * Earth only says which country a cell belongs to (a dot Natural Earth
  * puts in the sea is land without a country).
  *
  * Natural Earth 1:110m (world-atlas) in Web Mercator, sampled at cell

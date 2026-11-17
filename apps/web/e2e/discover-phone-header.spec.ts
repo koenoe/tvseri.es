@@ -3,7 +3,7 @@ import { expect, type Page, test } from '@playwright/test';
 import { open } from './helpers';
 
 /**
- * DSLMobile "Scrolled": on a phone landing the header shrinks to the page's
+ * On a phone landing the header shrinks to the page's
  * name (with search and menu, on the page ground) once the title scrolls
  * away, scrolling either way. It is the site's own header, not a second bar.
  */

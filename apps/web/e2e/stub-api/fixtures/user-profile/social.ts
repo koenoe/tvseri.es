@@ -28,7 +28,7 @@ const FOLLOWS: ReadonlyArray<readonly [PersonName, PersonName]> = [
 ];
 
 /**
- * The PG Final Circle's follows: the above plus alex following leo and rumi,
+ * The Circle's follows: the above plus alex following leo and rumi,
  * so alex's eight follows cover every match level (PEOPLE.alex.following is
  * 8). Only the Circle routes read these (`/me/circle/people`, the follow
  * lists with `include=watching`); the overview's From your circle, the
@@ -123,7 +123,7 @@ export const followPage = (
 
 type Level = TasteMatchResponse['match']['level'];
 
-/** The other cards of V62 "Sidebar · every level": who shares what with alex */
+/** The other match cards, one per level: who shares what with alex */
 const LEVEL_CARDS: Partial<
   Record<
     PersonName,

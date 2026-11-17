@@ -25,7 +25,7 @@ app.get('/', vValidator('query', SearchQuerySchema), async (c) => {
     0,
     MAX_SERIES,
   );
-  // The board drops people without a photo: they'd be a blank face
+  // People without a photo would be a blank face
   const people = rankByTier(
     peopleResults.filter((person) => !!person.image),
     q,

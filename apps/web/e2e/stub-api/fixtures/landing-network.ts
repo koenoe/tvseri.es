@@ -53,8 +53,8 @@ const genre = (
   label,
 });
 
-/** DSLNetwork's three states */
-const BOARD: Readonly<Record<string, NetworkLandingFacts>> = {
+/** The landing's three states */
+const SAMPLE_FACTS: Readonly<Record<string, NetworkLandingFacts>> = {
   'apple-tv': {
     bestBy: {
       kind: 'genres',
@@ -148,7 +148,7 @@ const BOARD: Readonly<Record<string, NetworkLandingFacts>> = {
   },
 };
 
-/** Facts counted from the catalogue, for the networks the board doesn't draw */
+/** Facts counted from the catalogue, for every other network */
 const catalogueFacts = (slug: string, id: number): NetworkLandingFacts => {
   const shows = SHOWS.filter((entry) => networkId(entry.show.network) === id);
   const eras = ERAS.map((item) =>
@@ -245,7 +245,7 @@ export const routes: ReadonlyArray<StubRoute> = [
       if (!entry) {
         return { body: { message: 'Not Found' }, status: 404 };
       }
-      return { body: BOARD[slug] ?? catalogueFacts(slug, entry.id) };
+      return { body: SAMPLE_FACTS[slug] ?? catalogueFacts(slug, entry.id) };
     },
     path: '/discover/landing/:type/:slug/facts',
   },

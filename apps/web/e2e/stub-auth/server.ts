@@ -321,7 +321,7 @@ const server = createServer(async (request, response) => {
     return send(json(rotation.stats(ns)));
   }
 
-  // Local images (board images; the folder is not committed).
+  // Local images (the folder is not committed).
   if (
     (request.method === 'GET' || request.method === 'HEAD') &&
     url.pathname.startsWith('/img/') &&

@@ -23,7 +23,7 @@ API_URL=http://localhost:3190 API_KEY=stub pnpm exec next dev --port 3101
 # 1. stub API
 STUB_API_PORT=4116 STUB_ASSETS_URL=http://localhost:4216 node e2e/stub-api/server.ts
 # 2. auth + images stub (STUB_IMG_DIR: a local, uncommitted folder of images; SECRET_KEY: a fake value, never a real secret)
-SECRET_KEY=local-stub-only STUB_AUTH_PORT=4216 STUB_IMG_DIR=<folder with the board images> \
+SECRET_KEY=local-stub-only STUB_AUTH_PORT=4216 STUB_IMG_DIR=<folder with the local images> \
   node --conditions=react-server e2e/stub-auth/server.ts
 # 3. the web app
 API_URL=http://localhost:4116 API_KEY=stub AUTH_URL=http://localhost:4216 SECRET_KEY=local-stub-only \
@@ -79,9 +79,9 @@ For a screenshot: `node page.cjs <url> <out.png> --user alex --width 390`.
 - Person page (`fixtures/person.ts`, data in `fixtures/person/`): `17419` Bryan Cranston (living, upcoming work, 46 self credits, family and 87 awards, watched line), `129101` Lance Reddick (deceased, work after his death, one nomination, no family), `4242001` Wren Calloway (sparse: no photo, bio, links; two guest roles), `4242003` Mara Linden (spouse, children and upcoming work: the family block at its usual count, 3 lines on desktop and 2 below lg). Any other id is a 404.
 - A `handle` that returns `undefined` gives no answer: the next matching route decides (file order). Fixtures for invented people answer only for their own viewers and ids, so several streams can serve `/me` side by side.
 
-## Profile sub-pages (PG Final: Library, History, Circle)
+## Profile sub-pages (Library, History, Circle)
 
-`fixtures/__profile-pages.ts` (data in `fixtures/user-profile/pg-*.ts`) implements the API's profile pages contract with the API's own paging logic (`queryShelf` from `@tvseri.es/utils`), so stub and API can't drift.
+`fixtures/__profile-pages.ts` (data in `fixtures/user-profile/pages-*.ts`) implements the API's profile pages contract with the API's own paging logic (`queryShelf` from `@tvseri.es/utils`), so stub and API can't drift.
 
 | Route | Stub |
 | --- | --- |

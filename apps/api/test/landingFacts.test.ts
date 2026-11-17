@@ -81,7 +81,7 @@ const facts = async (path: string) => {
   return response.json();
 };
 
-describe('B09 genre facts', () => {
+describe('genre facts', () => {
   it('counts shows, shared genres, the peak decade, new shows, and sub-genres', async () => {
     genreList([
       [80, 'Crime'],
@@ -194,7 +194,7 @@ describe('B09 genre facts', () => {
   });
 });
 
-describe('B09 genre facts at TMDB’s count cap', () => {
+describe('genre facts at TMDB’s count cap', () => {
   it('has no peak decade when the peak decade’s count is capped (a floor, not a number)', async () => {
     genreList([[18, 'Drama']]);
     count({ with_genres: '18' }, 20_001);
@@ -235,7 +235,7 @@ describe('B09 genre facts at TMDB’s count cap', () => {
   });
 });
 
-describe('B09 genre facts for a genre TMDB keeps as a keyword', () => {
+describe('genre facts for a genre TMDB keeps as a keyword', () => {
   it('counts Horror by its keyword, and its themes by their strongest keyword', async () => {
     genreList([
       [18, 'Drama'],
@@ -310,7 +310,7 @@ describe('B09 genre facts for a genre TMDB keeps as a keyword', () => {
   });
 });
 
-describe('B09 theme facts', () => {
+describe('theme facts', () => {
   it('counts shows, top genres, co-tagged themes and next-door themes over keyword sets', async () => {
     genreList([
       [10765, 'Sci-Fi & Fantasy'],
@@ -420,7 +420,7 @@ const fakeNetworkShows = () => {
   });
 };
 
-describe('B09 network facts', () => {
+describe('network facts', () => {
   it('picks decades for a network that spans them, and finds its originals', async () => {
     count({ with_networks: '49' }, 381);
     count({ 'first_air_date.lte': '2009-12-31', with_networks: '49' }, 90);
@@ -540,7 +540,7 @@ const noNetworkShows = (country: string) => {
   }
 };
 
-describe('B09 country facts', () => {
+describe('country facts', () => {
   it('lists the networks with most shows made there, 12 or more', async () => {
     noNetworkShows('GB');
     count({ with_origin_country: 'GB' }, 7240);
@@ -571,7 +571,7 @@ describe('B09 country facts', () => {
   });
 });
 
-describe('B09 decade and language facts', () => {
+describe('decade and language facts', () => {
   it('count the shows', async () => {
     count(
       {
@@ -595,7 +595,7 @@ describe('B09 decade and language facts', () => {
   });
 });
 
-describe('B09 caching and unknown landings', () => {
+describe('caching and unknown landings', () => {
   it('serves a repeat from the Cache table without asking TMDB', async () => {
     count({ with_original_language: 'ja' }, 16900);
     await request('/discover/landing/language/ja/facts');

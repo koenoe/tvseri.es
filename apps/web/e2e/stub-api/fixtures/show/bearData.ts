@@ -1,9 +1,8 @@
 import type { RawEpisode, RawPerson } from './types.ts';
 
 /**
- * The Bear (TMDB 136315): five seasons, 47 episodes. Seasons 1 and 2 come
- * from the show-page boards; Seasons 3 to 5 fill the gaps plausibly (their
- * stills reuse Season 2's).
+ * The Bear (TMDB 136315): five seasons, 47 episodes. Seasons 3 to 5 are
+ * plausible stand-ins (their stills reuse Season 2's).
  */
 export const BEAR_EPISODES: ReadonlyArray<RawEpisode> = [
   {

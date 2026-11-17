@@ -4,7 +4,7 @@ import { onGet, onTmdb, requestedUrls } from './fakeHttp';
 import { fakeShow } from './fixtures/tmdb';
 import { request } from './request';
 
-describe('B22 show ids', () => {
+describe('show ids', () => {
   it('exposes the IMDb id of a show', async () => {
     fakeShow({
       extra: { external_ids: { imdb_id: 'tt0903747', tvdb_id: 81189 } },
@@ -158,7 +158,7 @@ describe('specials (season 0) beside the seasons', () => {
   });
 });
 
-describe('B06 episode credits', () => {
+describe('episode credits', () => {
   const setup = () => {
     fakeShow({ id: 9, seasons: [{ airDate: '2020-01-01', episodes: 2 }] });
     onTmdb(
@@ -254,7 +254,7 @@ describe('B06 episode credits', () => {
   });
 });
 
-describe('B05 episode IMDb ratings', () => {
+describe('episode IMDb ratings', () => {
   const OMDB = 'https://www.omdbapi.com/';
   const setup = () =>
     fakeShow({

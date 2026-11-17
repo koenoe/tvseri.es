@@ -1,6 +1,6 @@
 import type { NewRelease, NewThisWeek, TvSeries } from '@tvseri.es/schemas';
 
-import { BOARD_TODAY, series } from './base.ts';
+import { FIXTURE_TODAY, series } from './base.ts';
 import { TRENDING } from './core.ts';
 import { ok, type StubRoute } from './routes.ts';
 
@@ -108,7 +108,7 @@ const NEW_THIS_WEEK_ITEMS: ReadonlyArray<NewRelease> = [
 export const NEW_THIS_WEEK_ROUTES: Readonly<Record<string, StubRoute>> = {
   '/home/new-this-week': (url) =>
     ok({
-      date: url.searchParams.get('date') ?? BOARD_TODAY,
+      date: url.searchParams.get('date') ?? FIXTURE_TODAY,
       items: NEW_THIS_WEEK_ITEMS,
     } satisfies NewThisWeek),
 };

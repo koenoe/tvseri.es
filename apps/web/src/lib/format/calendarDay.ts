@@ -1,5 +1,5 @@
 /**
- * Days as the boards write them, read and shown in UTC (the API's days are
+ * Days read and shown in UTC (the API's days are
  * UTC days): "Nov 8", "Nov 8, 2026". The ladder for a day in the past is
  * `formatWhen`, an air date is `formatAirWeekdayDate`.
  */

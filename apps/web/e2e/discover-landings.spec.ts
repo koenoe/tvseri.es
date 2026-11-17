@@ -4,7 +4,7 @@ import { expect, type Page, test } from '@playwright/test';
 import { open } from './helpers';
 
 /**
- * The Genre and Theme landings (DSLGenre, DSLTheme). The sample slugs
+ * The Genre and Theme landings. The sample slugs
  * (crime, dystopia) prerender at build: on a hard load their hero and first
  * rows are in the shell. A client navigation commits the route's App Shell
  * (Partial Prefetching: a link prefetches the shell every slug shares, the
@@ -224,7 +224,7 @@ test.describe('each landing on its own ground', () => {
       grounds.push(await bodyColour(page));
     }
     expect(grounds[0]).not.toBe(grounds[1]);
-    // neither is DSLGenre's fallback: each comes from its lead show
+    // neither is the genre fallback: each comes from its lead show
     expect(grounds).not.toContain('rgb(28, 25, 22)');
   });
 

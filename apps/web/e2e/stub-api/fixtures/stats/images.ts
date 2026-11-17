@@ -1,10 +1,10 @@
 /**
- * Board images, served from the folder in env `BOARD_IMG_DIR` at
+ * Local images, served from the folder in env `STATS_IMG_DIR` at
  * `/img/stats/:file` (the stats route). Without the env every image is
  * missing (`null`).
  */
 export const imgUrl = (name: string): string | null =>
-  process.env.BOARD_IMG_DIR
+  process.env.STATS_IMG_DIR
     ? `http://localhost:${process.env.STUB_API_PORT ?? 3190}/img/stats/${name}`
     : null;
 
@@ -33,7 +33,7 @@ export const logoOf = (art: string | undefined) =>
   art && BACKDROPS.has(art) ? imgUrl(`st_logo_${art}.png`) : null;
 
 /**
- * Page colours (`backdropColor`) of the shows with board art, as TMDB-like
+ * Page colours (`backdropColor`) of the shows with local art, as TMDB-like
  * picks from their backdrops, so the share card's Colour theme draws a real
  * colour (The Traitors' is #1a74b6).
  */

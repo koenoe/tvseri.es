@@ -12,7 +12,7 @@ const provider = (
   logoPath: string,
 ): WatchProvider => ({
   id,
-  // the board images when they are there, else the rig's own logo (a
+  // the local images when they are there, else the rig's own logo (a
   // member's services have logos: without one the sidebar drops the row)
   logo: imgUrl(file) ?? img(file),
   logoPath: `/stub/${logoPath}.png`,

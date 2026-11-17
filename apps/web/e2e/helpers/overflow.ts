@@ -79,7 +79,7 @@ const scan = (): OverflowProblem[] => {
       if (
         style.visibility === 'hidden' ||
         // invisible, or a decorative watermark (the show page's episode
-        // number bleeds off its tile at 7.5%, typography spec)
+        // number bleeds off its tile at 7.5%, on purpose)
         Number(style.opacity) < 0.15 ||
         style.display === 'none' ||
         (style.position === 'absolute' &&

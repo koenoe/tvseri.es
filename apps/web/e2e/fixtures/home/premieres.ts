@@ -1,6 +1,6 @@
 import type { Premiere, Premieres, TvSeries } from '@tvseri.es/schemas';
 
-import { BOARD_TODAY, series } from './base.ts';
+import { FIXTURE_TODAY, series } from './base.ts';
 import { PICK_POOL } from './core.ts';
 import { ok, type StubRoute } from './routes.ts';
 
@@ -83,7 +83,7 @@ const BIG_FROM_WED: ReadonlyArray<Premiere> = [
 /** `GET /premieres` on Wed 11 Nov: the row's tickets, in date order */
 export const PREMIERES: Premieres = {
   countdown: { isDue: false, items: BIG_FROM_WED },
-  date: BOARD_TODAY,
+  date: FIXTURE_TODAY,
   items: [
     premiere(MOCRO, '2026-11-11', 0, {
       release: 'full-season',

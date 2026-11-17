@@ -25,7 +25,7 @@ const firstPoster = (page: Page, row: string) =>
 async function expectHbo(page: Page) {
   await expect(crumb(page).filter({ hasText: 'Networks' })).toBeVisible();
   await expect(heading(page, 'HBO')).toBeVisible();
-  // DSLNetwork's desktop line (DSLMobile's shorter one is the phone's)
+  // the desktop line (phones get a shorter one)
   await expect(
     page.getByText(
       'Prestige drama since The Sopranos. Most of its series are finished stories you can start from the beginning.',

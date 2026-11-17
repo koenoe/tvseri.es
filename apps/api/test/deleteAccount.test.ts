@@ -399,7 +399,7 @@ describe('the email claim', () => {
   });
 });
 
-describe('the per-show summaries (item 1)', () => {
+describe('the per-show summaries', () => {
   it('go with the account (the Lists partition), another user’s stay', async () => {
     seedEverything();
     db.seed('Lists', [

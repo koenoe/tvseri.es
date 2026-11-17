@@ -29,7 +29,7 @@ type Props = Readonly<{
 /**
  * A card of the title wall: the
  * coloured top rule, the title in the chosen script (title-2, two lines at
- * most), the other title below (always, as the design draws it), then
+ * most), the other title below (always), then
  * year · Animation/Live action (the phone keeps the year).
  */
 function TitleWallCard({ card, lang, script }: Props) {

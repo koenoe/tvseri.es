@@ -31,8 +31,7 @@ const digestOf = (error: unknown) =>
  * has no connection (it retries by itself once it's back), data down for a
  * `DataDownError`, else the 500 with the Error ID. Try again is the
  * boundary's `retry()`, in a transition, so the button shows it's working
- * and the offline page stays up until the retry settles. Over the still
- * with the real header, as the boards draw it.
+ * and the offline page stays up until the retry settles.
  */
 export default function AppErrorView({ error, retry }: Props) {
   const header = <Header />;

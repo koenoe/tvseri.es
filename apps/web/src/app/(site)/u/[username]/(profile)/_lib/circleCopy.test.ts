@@ -196,7 +196,7 @@ const person = (
   level: CirclePerson['level'],
 ): CirclePerson => ({ arc: 80, id: username, level, username });
 
-describe('pickReason (V60 From your circle)', () => {
+describe('pickReason', () => {
   it('a favourite of the closest match', () => {
     expect(
       pickReason({

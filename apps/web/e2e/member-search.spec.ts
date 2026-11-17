@@ -6,9 +6,8 @@ import { phoneScrollbars } from './helpers/viewport';
 
 /**
  * Search finds a member by their exact `@handle` (signed in only; a bare
- * word never asks), and the empty circle's Find people (V61) opens search
- * with `@` typed. No board
- * draws a member result yet: it is the recents' chip under “Members”.
+ * word never asks), and the empty circle's Find people opens search
+ * with `@` typed. A member result is the recents' chip under “Members”.
  */
 
 const memberRequests = (page: Page) => {

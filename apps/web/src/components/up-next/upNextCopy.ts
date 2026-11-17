@@ -6,8 +6,8 @@ import { formatMonthYear } from '@/lib/format/date';
 import { formatWhen } from '@/lib/format/when';
 
 /**
- * The Up next card's words (V60's hero, Home's Continue watching tile), as
- * pure functions with an injected clock. Days are UTC calendar days: the
+ * The Up next card's words (the profile hero, Home's Continue watching
+ * tile), as pure functions with an injected clock. Days are UTC calendar days: the
  * card renders on the server and hydrates in the viewer's zone, and both
  * must write the same words.
  */

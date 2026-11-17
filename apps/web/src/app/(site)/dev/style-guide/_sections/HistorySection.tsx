@@ -3,7 +3,7 @@ import {
   heavyDiary,
   statsDaily,
   statsYears,
-} from '../../../../../../e2e/stub-api/fixtures/user-profile/pg-diary.ts';
+} from '../../../../../../e2e/stub-api/fixtures/user-profile/pages-diary.ts';
 import DiaryEnd from '../../../u/[username]/(profile)/history/_components/DiaryEnd';
 import DiaryMonth from '../../../u/[username]/(profile)/history/_components/DiaryMonth';
 import JumpHeading from '../../../u/[username]/(profile)/history/_components/JumpHeading';

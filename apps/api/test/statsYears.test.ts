@@ -39,7 +39,7 @@ const years = async () => {
   return (await response.json()) as StatsYears;
 };
 
-describe('GET /user/:id/stats/years: months and undated (PG Final History)', () => {
+describe('GET /user/:id/stats/years: months and undated', () => {
   it('counts each month in the user’s zone, regular episodes and minutes; specials and undated stay out', async () => {
     // no country: Europe/London, where 31 March 23:59 UTC is 1 April (BST)
     seedUser();

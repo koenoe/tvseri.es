@@ -39,7 +39,7 @@ describe('landing filters through normalizeDiscoverQuery', () => {
   });
 });
 
-describe('B01 normalizeDiscoverQuery: wider whitelist', () => {
+describe('normalizeDiscoverQuery: wider whitelist', () => {
   it('keeps date windows in YYYY-MM-DD form', () => {
     expect(
       normalize({
@@ -160,7 +160,7 @@ describe('B01 normalizeDiscoverQuery: wider whitelist', () => {
   });
 });
 
-describe('B01 GET /discover', () => {
+describe('GET /discover', () => {
   it('forwards the wider filters to TMDB', async () => {
     onTmdb(
       '/discover/tv',

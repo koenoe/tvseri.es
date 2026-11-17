@@ -18,7 +18,7 @@ const LABEL: Readonly<Record<BlockKind, string>> = {
   shows: 'Series',
 };
 
-/** A member draws as a recent chip: no design draws a member result yet */
+/** A member draws as a recent chip */
 const OPTION = {
   members: RecentOption,
   people: PersonOption,

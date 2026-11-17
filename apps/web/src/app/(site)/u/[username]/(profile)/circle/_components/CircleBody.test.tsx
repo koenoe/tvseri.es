@@ -110,7 +110,7 @@ describe('your own Circle', () => {
   });
 });
 
-describe('How a match is made (PGFinal 5 sidebar)', () => {
+describe('How a match is made', () => {
   it('states the weights and lists the six levels, strongest first', () => {
     render(<MatchKey />);
     const key = screen.getByRole('region', { name: 'How a match is made' });

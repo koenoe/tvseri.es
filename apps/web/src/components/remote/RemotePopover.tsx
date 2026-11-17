@@ -10,7 +10,7 @@ import { holdScrollLock } from '@/components/ui/dialog/scrollLock';
 import ExitGuard from './ExitGuard';
 import { placeRemote, type RemotePlacement } from './place';
 
-/** remote_style.md §9: grow from the ⋯ (180 ms, search's curve); fade out 120 ms. */
+/** Grows from the ⋯ it opens from */
 const GROW = {
   animate: {
     opacity: 1,

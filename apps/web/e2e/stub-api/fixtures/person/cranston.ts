@@ -276,7 +276,7 @@ const series: ReadonlyArray<Credit> = [
   },
 ];
 
-/** The three one-off roles that have a poster on the board */
+/** The three one-off roles that have a poster */
 const GUEST_POSTERS: Readonly<Record<number, string>> = {
   9100030: '/pr_p_americasgame.jpg',
   9100031: '/pr_p_homemovie.jpg',

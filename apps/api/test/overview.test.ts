@@ -143,7 +143,7 @@ const setup = () => {
   watched(6, range(1, 1, 1));
 };
 
-describe('B14 profile overview', () => {
+describe('profile overview', () => {
   it("builds every block from the viewer's in-progress shows", async () => {
     setup();
 

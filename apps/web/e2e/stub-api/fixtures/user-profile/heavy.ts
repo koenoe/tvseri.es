@@ -27,7 +27,7 @@ import { day, daysAgo } from './time.ts';
 /**
  * The heavy profile (`marathonwatcher-2026`) and a medium one (`mira`):
  * real-data shapes for the overflow and caps rules. Every lane is far past
- * what the boards draw: 22 shows catching up with 8 to 32 episodes waiting
+ * its cap: 22 shows catching up with 8 to 32 episodes waiting
  * across seasons (the API sends at most 8 codes), 28 paused, 9 almost done,
  * 5 out now (dates this year and last), 14 tickets, 15 returns, a show with
  * 23 holes, long and non-Latin titles, 80-character episode titles,

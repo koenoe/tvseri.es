@@ -36,7 +36,7 @@ describe('slotAt', () => {
   });
 });
 
-describe('withoutShows (V61: never the same show twice)', () => {
+describe('withoutShows: never the same show twice', () => {
   it('leaves out the shows Up next borrowed, in order', async () => {
     const { withoutShows } = await import('./loadStart');
     const cards = [5, 1, 7, 2].map((id) => ({ id }));

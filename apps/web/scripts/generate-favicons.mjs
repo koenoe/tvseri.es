@@ -53,7 +53,7 @@ function png(svg, size) {
 }
 
 const fav16 = standalone(read('favicon-16.svg'))
-  // the spec's 16px file draws on a 32 viewBox at width/height 16
+  // the 16px source draws on a 32 viewBox at width/height 16
   .replace('width="16" height="16"', 'width="32" height="32"');
 const fav32 = standalone(read('favicon-32.svg'));
 const app180 = standalone(read('apple-icon-180.svg'));

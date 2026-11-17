@@ -11,7 +11,7 @@ const EMPTY = { strokeDashoffset: 44 };
 const FULL = { strokeDashoffset: 6 };
 
 /**
- * The pending ring (remote_style.md §5): 20px, fills once over the request
+ * The pending ring: 20px, fills once over the request
  * (900 ms, search's curve). The text colour on a key, white on a latched one.
  */
 export default function PendingRing() {

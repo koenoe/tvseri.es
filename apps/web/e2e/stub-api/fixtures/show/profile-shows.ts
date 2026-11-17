@@ -1,10 +1,10 @@
-import { PEOPLE, type PersonName } from '../user-profile/people.ts';
 import {
   catalogueShow as profileShowById,
   progressOf,
   seasonSizes,
   seededWatchedCount,
-} from '../user-profile/pg-library.ts';
+} from '../user-profile/pages-library.ts';
+import { PEOPLE, type PersonName } from '../user-profile/people.ts';
 import {
   addDays,
   findShow,

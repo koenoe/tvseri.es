@@ -5,7 +5,7 @@ import { daysFrom, formatMonthDay, formatMonthDayYear } from './calendarDay';
 // Thu 12 Nov 2026, 15:00 UTC
 const NOW = Date.UTC(2026, 10, 12, 15);
 
-describe('calendar days (V60 design rules)', () => {
+describe('calendar days', () => {
   it('month and day in UTC', () => {
     expect(formatMonthDay(Date.UTC(2026, 10, 8, 23))).toBe('Nov 8');
   });

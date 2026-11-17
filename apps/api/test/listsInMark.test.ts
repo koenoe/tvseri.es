@@ -53,7 +53,7 @@ const batchRow = (show: number) => ({
 
 const lists = () => listItems(USER_ID).map((item) => String(item.sk));
 
-describe('In progress, Finished and the watchlist are updated inside the mark (item 3)', () => {
+describe('In progress, Finished and the watchlist are updated inside the mark', () => {
   it('a mark places the show before the stream has run', async () => {
     seedUser();
     const show = newShow();

@@ -82,7 +82,7 @@ describe('profile read rule', () => {
   });
 });
 
-describe('the username lookup at the edge (item 5)', () => {
+describe('the username lookup at the edge', () => {
   const HEADER =
     'public, max-age=60, s-maxage=60, stale-while-revalidate=600, stale-if-error=600';
 

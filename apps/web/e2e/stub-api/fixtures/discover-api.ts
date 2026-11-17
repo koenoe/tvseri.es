@@ -14,12 +14,11 @@ import { byId, networkId, SHOWS } from './discover/shows';
 import { matching } from './discover-catalogue';
 
 /**
- * The discover routes added for the redesign build (counts for the hub's
- * tiles, summaries for meta lines, Where to start for themes and countries).
- * Numbers a board prints are kept, so the page matches its board.
+ * The discover routes (counts for the hub's tiles, summaries for meta
+ * lines, Where to start for themes and countries), with realistic numbers.
  */
 
-const BOARD_COUNTS: Readonly<Record<string, Readonly<Record<string, number>>>> =
+const KNOWN_COUNTS: Readonly<Record<string, Readonly<Record<string, number>>>> =
   {
     country: { de: 2980, dk: 1120, es: 1650, gb: 7240, jp: 9800, kr: 4100 },
     decade: {
@@ -187,7 +186,7 @@ const whereToStart = (query: URLSearchParams): WhereToStart | undefined => {
 export const routes: ReadonlyArray<StubRoute> = [
   {
     handle: ({ params, query }) => {
-      const table = BOARD_COUNTS[params.type ?? ''] ?? {};
+      const table = KNOWN_COUNTS[params.type ?? ''] ?? {};
       const slugs = (query.get('slugs') ?? '').split(',').filter(Boolean);
       const body: LandingCounts = {
         counts: Object.fromEntries(

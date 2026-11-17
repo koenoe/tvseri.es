@@ -27,7 +27,7 @@ import { genreForSlug } from './genreSlug';
 
 /**
  * The page's place before the slug is known (the cached shell of a genre
- * nobody has visited): every section as drawn, the titles that come with the
+ * nobody has visited): every section, the titles that come with the
  * genre's name as bars.
  */
 export function GenreSectionsSkeleton() {

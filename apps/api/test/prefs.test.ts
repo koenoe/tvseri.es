@@ -36,7 +36,7 @@ const EMPTY = {
   skipped: [],
 };
 
-describe('B04 per-show prefs', () => {
+describe('per-show prefs', () => {
   it('needs a signed-in user', async () => {
     setup();
     const response = await request(`/me/series/${SHOW}/prefs`);
@@ -191,7 +191,7 @@ describe('B04 per-show prefs', () => {
     }
   });
 
-  it('Hide and Unhide (PG Final): only the prefs item changes, the Library follows', async () => {
+  it('Hide and Unhide: only the prefs item changes, the Library follows', async () => {
     setup();
     db.seed('Lists', [
       listItem(USER_ID, 'IN_PROGRESS', SHOW, 500),

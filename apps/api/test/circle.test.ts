@@ -67,7 +67,7 @@ const tasteShow = (id: number) => ({
   title: `Show ${id}`,
 });
 
-describe('GET /me/circle: From your circle (V60)', () => {
+describe('GET /me/circle: From your circle', () => {
   it('picks three unseen shows from the people you follow, closest match first', async () => {
     await setup();
 

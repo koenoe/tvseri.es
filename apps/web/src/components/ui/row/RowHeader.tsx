@@ -12,7 +12,7 @@ export type RowHeading = Readonly<{
   count?: number;
   /** only when the row has a page to go to (home rows have none) */
   seeAllHref?: string;
-  /** one plain line after the title, e.g. "Loved by the few who found them"; desktop only, as the phone boards drop it */
+  /** one plain line after the title, e.g. "Loved by the few who found them"; desktop only: phones have no room for it */
   subtitle?: string;
   /** the 13px line icon before the subtitle */
   subtitleGlyph?: Glyph;

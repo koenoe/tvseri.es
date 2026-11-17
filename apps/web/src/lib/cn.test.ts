@@ -24,7 +24,7 @@ describe('cn', () => {
     expect(cn('bg-ground', 'bg-page')).toBe('bg-page');
   });
 
-  it('merges the board radii', () => {
+  it('merges the radius tokens', () => {
     expect(cn('rounded-12', 'rounded-16')).toBe('rounded-16');
   });
 });

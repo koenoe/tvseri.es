@@ -12,8 +12,8 @@ import {
 } from '@tvseri.es/utils';
 
 import { type ListName, listItems } from './library.ts';
+import { PG_SHOW_COUNT, pgShowById, pgShows, seeded } from './pages-shows.ts';
 import type { PersonName } from './people.ts';
-import { PG_SHOW_COUNT, pgShowById, pgShows, seeded } from './pg-shows.ts';
 import {
   bulkKeys,
   type ProfileShow,
@@ -37,7 +37,7 @@ import { daysAgo } from './time.ts';
  *   (Frieren, Haikyu, Witch Hat, X-Men) and shows both favourited.
  * - the circle: each followed person watches something; oskar's latest is
  *   hidden; rumi has nothing in progress.
- * - `marathonwatcher-2026`: its own 320-show library (`pg-shows.ts`): 60 in
+ * - `marathonwatcher-2026`: its own 320-show library (`pages-shows.ts`): 60 in
  *   progress (12 hidden), 48 on the watchlist over three years, 210
  *   finished, 98 favourites across finished and watching.
  * - `seenit`: two finished shows.

@@ -426,7 +426,7 @@ test.describe('the page itself', () => {
     expect(violations).toEqual([]);
   });
 
-  test('works by keyboard alone, in the board’s focus order', async ({
+  test('works by keyboard alone, in the intended focus order', async ({
     page,
     browserName,
   }) => {

@@ -8,7 +8,6 @@ import cn from '@/lib/cn';
 const PHONE_SHADE =
   'absolute inset-0 bg-[linear-gradient(0deg,rgb(22_27_29)_0%,rgb(22_27_29/0.5)_45%,rgb(22_27_29/0)_100%)] md:hidden';
 
-/** From md, the fade from the left and the vignette (V60's hero) */
 const SIDE_SHADE =
   'absolute inset-0 bg-[linear-gradient(270deg,rgb(22_27_29/0)_0%,rgb(22_27_29/0.4)_50%,rgb(22_27_29)_100%)] opacity-70 max-md:hidden';
 

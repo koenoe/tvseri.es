@@ -11,7 +11,7 @@ import {
 const classes = (value: string) => value.split(' ');
 
 describe('buttonStyles', () => {
-  it('draws the white primary pill (HMFinal hx-solid, ERFinal er-solid)', () => {
+  it('draws the white primary pill', () => {
     const list = classes(buttonStyles({ size: 'md', variant: 'primary' }));
     expect(list).toEqual(
       expect.arrayContaining([
@@ -28,7 +28,7 @@ describe('buttonStyles', () => {
     );
   });
 
-  it('dims a disabled primary to white/20 with white/60 text (EPShowFinal dlg-go)', () => {
+  it('dims a disabled primary to white/20 with white/60 text', () => {
     const list = classes(buttonStyles({ variant: 'primary' }));
     expect(list).toEqual(
       expect.arrayContaining([
@@ -39,7 +39,7 @@ describe('buttonStyles', () => {
     );
   });
 
-  it('draws the outline pill with a 2px white/25 edge (HMFinal hx-btn)', () => {
+  it('draws the outline pill with a 2px white/25 edge', () => {
     const list = classes(buttonStyles({ variant: 'outline' }));
     expect(list).toEqual(
       expect.arrayContaining([
@@ -51,7 +51,7 @@ describe('buttonStyles', () => {
     );
   });
 
-  it('draws the glass pill for stills (ERFinal er-glass)', () => {
+  it('draws the glass pill for stills', () => {
     const list = classes(buttonStyles({ variant: 'glass' }));
     expect(list).toEqual(
       expect.arrayContaining([
@@ -63,7 +63,7 @@ describe('buttonStyles', () => {
     );
   });
 
-  it('draws the tonal and quiet sheet buttons (EPShowFinal v2-btn, dlg-c)', () => {
+  it('draws the tonal and quiet sheet buttons', () => {
     expect(classes(buttonStyles({ variant: 'tonal' }))).toEqual(
       expect.arrayContaining(['bg-white/8', 'hover:bg-white/16']),
     );
@@ -85,7 +85,7 @@ describe('buttonStyles', () => {
     expect(classes(buttonStyles({ size }))).toContain(height);
   });
 
-  it('marks a pending button busy at half opacity (HMFinal e2-busy)', () => {
+  it('marks a pending button busy at half opacity', () => {
     expect(classes(buttonStyles({}))).toContain('aria-busy:opacity-50');
   });
 
@@ -99,7 +99,7 @@ describe('buttonStyles', () => {
 });
 
 describe('circleButtonStyles', () => {
-  it('draws the 32px circle with a 2px white/20 ring (EPShowFinal ep-circ)', () => {
+  it('draws the 32px circle with a 2px white/20 ring', () => {
     const list = classes(circleButtonStyles({ size: 32 }));
     expect(list).toEqual(
       expect.arrayContaining([
@@ -124,7 +124,7 @@ describe('circleButtonStyles', () => {
     expect(classes(circleButtonStyles({ size }))).toContain(sizeClass);
   });
 
-  it('puts the glass circle on stills (EPShowFinal ep-tools)', () => {
+  it('puts the glass circle on stills', () => {
     expect(classes(circleButtonStyles({ tone: 'glass' }))).toEqual(
       expect.arrayContaining(['bg-black/25', 'backdrop-blur-md']),
     );
@@ -149,7 +149,7 @@ describe('chipStyles', () => {
     );
   });
 
-  it('draws the 30px sheet chip (EPShowFinal hu-chip)', () => {
+  it('draws the 30px sheet chip', () => {
     expect(classes(chipStyles({ variant: 'tonal' }))).toEqual(
       expect.arrayContaining(['h-7.5', 'bg-white/8', 'hover:bg-white/16']),
     );
@@ -157,7 +157,7 @@ describe('chipStyles', () => {
 });
 
 describe('badgeStyles', () => {
-  it('draws the New badge as an overline pill (EPShowFinal mk-new)', () => {
+  it('draws the New badge as an overline pill', () => {
     expect(classes(badgeStyles({ variant: 'new' }))).toEqual(
       expect.arrayContaining([
         'h-4.5',
@@ -170,7 +170,7 @@ describe('badgeStyles', () => {
     );
   });
 
-  it('draws the episode code badge with tabular figures (EPShowFinal ep-badge)', () => {
+  it('draws the episode code badge with tabular figures', () => {
     expect(classes(badgeStyles({ variant: 'code' }))).toEqual(
       expect.arrayContaining([
         'h-6',

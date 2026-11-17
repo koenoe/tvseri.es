@@ -57,7 +57,7 @@ export type Credit = Readonly<{
   name: string;
   /** First air year; the date is January 1st of it unless `date` says */
   year?: number;
-  /** A precise first air date, where the boards' order needs one */
+  /** A precise first air date, where the order needs one */
   date?: string;
   /** Cast: the characters; empty for crew only */
   characters?: ReadonlyArray<string>;

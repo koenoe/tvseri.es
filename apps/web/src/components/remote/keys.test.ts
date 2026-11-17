@@ -26,7 +26,7 @@ describe('bigKey', () => {
     );
   });
 
-  it('moves on after a mark (E6 Napkins, CMFinal 2)', () => {
+  it('moves on after a mark (E6 Napkins)', () => {
     const key = bigKey({
       episodes: BEAR,
       hasAired: true,
@@ -69,7 +69,7 @@ describe('bigKey', () => {
     });
   });
 
-  it('is disabled with its reason when the show is caught up and nothing is dated (Severance, CMFinal 3)', () => {
+  it('is disabled with its reason when the show is caught up and nothing is dated (Severance)', () => {
     expect(
       bigKey({
         episodes: [],

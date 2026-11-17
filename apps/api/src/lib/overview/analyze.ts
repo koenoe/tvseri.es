@@ -85,8 +85,7 @@ export const analyzeShow = (input: ShowInput, now: number): ShowState => {
       }))
       .sort(compare)
       .at(-1) ?? null;
-  // EPShowFinal's rule ("what you haven't seen comes first"): the first
-  // aired episode with no mark; watched and skipped are both marks.
+  // What you haven't seen comes first; watched and skipped are both marks.
   const nextUp = unwatched[0] ?? null;
 
   const watchedPerSeason = new Map<number, number>();

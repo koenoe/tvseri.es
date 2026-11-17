@@ -162,7 +162,7 @@ const bucketOrder = (tile: DurationTileInput) =>
   DURATION_BUCKETS.indexOf(tile.bucket);
 
 /**
- * Duration: the API's tiles in the design's order, dressed with their own
+ * Duration: the API's tiles in a fixed order, dressed with their own
  * preview shows, without the ones whose list is too short to open
  */
 /** The show a Duration tile draws as its backdrop: its preview's first with one */

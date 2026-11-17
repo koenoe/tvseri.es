@@ -26,7 +26,6 @@ function KeyIcon({
   checked,
   icon,
 }: Readonly<{ checked?: boolean; icon: Glyph | ToggleGlyph }>) {
-  // remote_style.md / icons_final: latched = the filled glyph, in white
   return icon.filled ? (
     <Icon active={checked} glyph={icon} size={20} />
   ) : (
@@ -67,7 +66,7 @@ function KeyBody({
 }
 
 /**
- * A small key (remote_style.md §4): icon, label up to two lines, an optional
+ * A small key: icon, label up to two lines, an optional
  * reason under it, the letter chip. A link (`href`, `external` for a new tab)
  * or a button (`onSelect`); it closes the Remote unless `keepOpen`.
  */

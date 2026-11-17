@@ -32,7 +32,7 @@ type Tally = Readonly<{
 /** As in the Shows list's "Self" split (`person/shows.ts`) */
 const SELF_CHARACTER = /\b(self|himself|herself|themselves)\b/i;
 
-/** How many people the route returns: the board shows 4-6 */
+/** How many people the route returns (the page shows 4-6) */
 const MAX_COLLABORATORS = 12;
 
 const bestJob = (jobs: Tally['jobs']) =>

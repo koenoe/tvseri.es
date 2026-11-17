@@ -3,15 +3,15 @@ import { watchingNow } from '@tvseri.es/utils';
 
 import type { StubResponse } from '../../types.ts';
 import { fail, ok } from './http.ts';
+import { entriesOf } from './pages-library.ts';
 import type { PersonName } from './people.ts';
 import { personById } from './people.ts';
-import { entriesOf } from './pg-library.ts';
 
 /** `include=watching` costs reads per row on the API: at most 24 rows a page */
 const WATCHING_MAX_LIMIT = 24;
 
 /**
- * `?include=watching` on `/user/:id/followers|following` (PG Final visitor
+ * `?include=watching` on `/user/:id/followers|following` (a visitor's
  * Circle): each row gains `watching` (their latest In progress show they
  * haven't hidden, or null). 400 for another `include` or `limit` above 24.
  */

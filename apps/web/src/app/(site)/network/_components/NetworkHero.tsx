@@ -81,7 +81,7 @@ async function NetworkMeta({ network }: Readonly<{ network: NetworkEntry }>) {
   const [details, facts, firstShow] = await Promise.all([
     getNetworkDetails(network.id),
     getLandingFacts('network', network.slug),
-    // the design gives some networks their year: no read for those
+    // some networks have a known year: no read for those
     network.since ? null : getNetworkSince(network.id),
   ]);
   // each item has its own read: one that failed shows its own dashed bar,

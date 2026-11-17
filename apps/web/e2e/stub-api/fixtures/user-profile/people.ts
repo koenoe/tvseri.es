@@ -15,7 +15,7 @@ import { img } from './shows.ts';
  * - `tamsin`, `oskar`, `bea`, `leo`, `rumi`: one card each for the other
  *   match levels (very high to very low); `noor` is "not enough shared".
  * - `marathonwatcher-2026`: the heavy profile (`heavy.ts`): a 20-character
- *   name, four-digit counts, every lane far past what the board draws.
+ *   name, four-digit counts, every lane far past its cap.
  * - `mira`: a medium profile, a few rows in every lane.
  * - `seenit`: two finished shows marked "Seen it" (undated only).
  */

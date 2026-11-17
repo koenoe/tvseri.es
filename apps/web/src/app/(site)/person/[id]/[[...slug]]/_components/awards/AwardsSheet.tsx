@@ -43,7 +43,7 @@ function AwardList({
 }
 
 /**
- * The list's read failed: ERFinal's card, in the sheet, with Try again; the
+ * The list's read failed: the error card, in the sheet, with Try again; the
  * card's own inset (12px, 32 from md) taken back, so it lines up with the
  * sheet's title
  */

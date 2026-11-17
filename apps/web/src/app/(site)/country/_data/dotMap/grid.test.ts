@@ -32,7 +32,7 @@ describe('the designed windows', () => {
 
   it('phone: 8px dots inside the 390 x 420 map', () => {
     const { cols, height, pitch, rows, width } = WINDOWS.phone;
-    // The design's last dot centres: x 388, y 412
+    // The reference map's last dot centres: x 388, y 412
     expect((cols - 1) * pitch + pitch / 2).toBe(388);
     expect((rows - 1) * pitch + pitch / 2).toBe(412);
     expect([width, height]).toEqual([390, 420]);

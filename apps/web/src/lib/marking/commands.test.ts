@@ -729,7 +729,7 @@ describe('a press command resolves when its write settled (the press gate)', () 
   });
 });
 
-describe('hide and unhide (PG Final: a pref, the show stays yours)', () => {
+describe('hide and unhide: a pref, the show stays yours', () => {
   const LIBRARY = {
     favorites: [],
     inProgress: [SERIES],

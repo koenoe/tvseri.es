@@ -1,7 +1,7 @@
 import { formatAirWeekdayDate } from '@/lib/format/airDate';
 
 /**
- * The overline of the network's recommendation tile (DSLNetwork): when its
+ * The overline of the network's recommendation tile: when its
  * most popular running show is back, from its next episode ("Returning Tue
  * 17 Nov" for a season premiere, "New episode Thu 19 Nov" otherwise, the year
  * added when it isn't this year), or, for a network with no running shows,

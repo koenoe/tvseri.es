@@ -11,8 +11,8 @@ import useMarking from './useMarking';
 
 /**
  * The eye on any episode control (a tile's pill, a "Mark as watched" circle,
- * a chip): its state and the toggle. Pages draw the button as their board
- * does; this is the behaviour (watched → unmark, otherwise mark Just now,
+ * a chip): its state and the toggle. Pages draw the button their own way;
+ * this is the behaviour (watched → unmark, otherwise mark Just now,
  * skipped included).
  *
  * @example

@@ -6,9 +6,9 @@ import type {
 } from '@tvseri.es/schemas';
 
 import { historyOf } from './library.ts';
+import { heavyShows } from './pages-library.ts';
+import { seeded } from './pages-shows.ts';
 import { fakeId, type PersonName } from './people.ts';
-import { heavyShows } from './pg-library.ts';
-import { seeded } from './pg-shows.ts';
 import type { ProfileShow } from './shows.ts';
 
 /**

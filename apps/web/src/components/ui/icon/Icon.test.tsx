@@ -18,7 +18,7 @@ describe('Icon', () => {
     [16, '2'],
     [20, '1.8'],
     [24, '1.75'],
-  ] as const)('draws %ipx with stroke %s (icons_final.md)', (size, stroke) => {
+  ] as const)('draws %ipx with stroke %s', (size, stroke) => {
     const { attr } = svg(
       renderToStaticMarkup(<Icon glyph={searchGlyph} size={size} />),
     );

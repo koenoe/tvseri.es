@@ -51,8 +51,8 @@ const WIDEST = ADVANCE.m ?? 0.929;
 
 /**
  * How wide "@name" is in em of the handle's font size (the 2px after the
- * "@" aside), so the size can be fitted to the column exactly: the spec's
- * `300px / (characters × 0.472)` assumes an average letter, and a handle
+ * "@" aside), so the size can be fitted to the column exactly: a
+ * `300px / (characters × 0.472)` rule assumes an average letter, and a handle
  * full of m's and w's ran onto a second line. `at` is the "@"'s size in em
  * of the handle (0.6 in the sidebar, 0.75 in the compact identity).
  */

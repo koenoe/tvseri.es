@@ -103,7 +103,6 @@ export const Spinner = () => (
   </svg>
 );
 
-/** The lock-up (logo_final), 18px on auth */
 export const Logo = () => (
   <svg
     aria-label="tvseri.es"

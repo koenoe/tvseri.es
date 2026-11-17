@@ -14,7 +14,6 @@ import KeyRow from './KeyRow';
 import type { SmallKeyModel } from './keys';
 import type { RemoteMarking } from './marking';
 
-/** icons_final: history; heart and bookmark (filled when latched); the remote's eye-off for Hide. */
 const ICONS = {
   favorites: heartGlyph,
   hide: skippedGlyph,

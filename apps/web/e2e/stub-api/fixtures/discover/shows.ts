@@ -100,7 +100,7 @@ const GENRE_NAMES: Readonly<Record<number, string>> = {
 const ENDED_BEFORE = 2025;
 
 /**
- * Season premieres the boards date: the show's
+ * Dated season premieres: the show's
  * next episode, so a page can say "Returning Tue 17 Nov".
  */
 const NEXT_PREMIERES: Readonly<Record<string, readonly [string, number]>> = {
@@ -131,9 +131,9 @@ const nextEpisode = (show: CatalogueShow) => {
 };
 
 /**
- * The shows DSLGenre draws in "New in crime", dated a few weeks back from
- * today so a "first aired in the last 12 months" window finds them whenever
- * the stub runs (the board was drawn a year earlier).
+ * The shows in "New in crime", dated a few weeks back from today so a
+ * "first aired in the last 12 months" window finds them whenever the stub
+ * runs.
  */
 const RECENT: ReadonlyArray<string> = [
   'blackrabbit',
@@ -237,7 +237,7 @@ export const toTvSeries = (show: CatalogueShow): TvSeries => {
     status: ended ? 'Ended' : 'Returning Series',
     tagline: '',
     title: show.title,
-    // every catalogue show has a title treatment, as the boards' spotlights do
+    // every catalogue show has a title treatment, so spotlights can use it
     titleTreatmentImage: imageUrl('logo', show.title),
     type: show.seasons === 1 && ended ? 'Miniseries' : 'Scripted',
     voteAverage: show.vote / 10,

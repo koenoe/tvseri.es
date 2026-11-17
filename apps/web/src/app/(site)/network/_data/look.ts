@@ -11,7 +11,7 @@ import { channelsToHex, hexChannels } from '@tvseri.es/utils';
 type Brand = Readonly<{
   /** the logo's colour, six-digit hex; none for a monochrome logo */
   colour?: string;
-  /** the page's ground, when the design picks one */
+  /** the page's ground, when the network has its own */
   ground?: string;
   /** the wash's strength at its centre (white .08, a colour .30) */
   strength?: number;
@@ -31,13 +31,13 @@ const BRANDS: Readonly<Record<string, Brand>> = {
   'paramount-plus': { colour: '#0064ff' },
 };
 
-/** The ground of a network the design doesn't draw (HBO's) */
+/** The ground of a network without its own (HBO's) */
 export const DEFAULT_GROUND = '#0e0e10';
 
 const WHITE = '#ffffff';
 const WHITE_STRENGTH = 0.08;
 const COLOUR_STRENGTH = 0.3;
-/** How much of a logo's colour tints the ground of a network the design doesn't draw */
+/** How much of a logo's colour tints the ground of a network without its own */
 const GROUND_TINT = 0.04;
 
 export type NetworkLook = Readonly<{

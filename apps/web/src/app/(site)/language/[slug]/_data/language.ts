@@ -26,7 +26,7 @@ export type TitleCard = Readonly<{
 const ANIMATION = 16;
 
 /**
- * The top rules' colours: the design's (the API has no colour per show),
+ * The top rules' colours, ours (the API has no colour per show),
  * one per show by its id, so a show keeps its colour.
  */
 export const RULE_COLORS = [
@@ -47,8 +47,7 @@ export const RULE_COLORS = [
 
 /**
  * A title-wall card: the title as it was written, its
- * romanised form (the API's, else the English title, as the design falls
- * back) and the English title; Animation or Live action from the genres.
+ * romanised form (the API's, else the English title) and the English title; Animation or Live action from the genres.
  */
 export function toTitleCard(
   show: Pick<
@@ -74,8 +73,8 @@ export function toTitleCard(
 /**
  * The card's two lines in a script, each with its HTML `lang`: the title,
  * and the other title below (the English one, or the original in English),
- * even when they read the same (the design keeps "Monster" under
- * "Monster" in Rōmaji). `code` is the landing's language (TMDB's code).
+ * even when they read the same ("Monster" under "Monster" in Rōmaji),
+ * so every card has the same shape. `code` is the landing's language (TMDB's code).
  */
 export function cardTitles(
   card: Pick<TitleCard, 'titles'>,

@@ -7,7 +7,7 @@ import type {
 } from '@tvseri.es/schemas';
 
 import { featureKindOfDay } from '../../../../../packages/utils/src/rotation.ts';
-import { BOARD_TODAY, img, series } from './base.ts';
+import { FIXTURE_TODAY, img, series } from './base.ts';
 import { LONG_TITLES_FROM, withLongTitles } from './longTitles.ts';
 import { COUNTDOWN_PREMIERES } from './premieres.ts';
 import { notFound, ok, type StubRoute } from './routes.ts';
@@ -269,13 +269,13 @@ export const FEATURE_ROUTES: Readonly<Record<string, StubRoute>> = {
       url.searchParams.get('kind') ??
       featureKindOfDay(date);
     const long = date >= LONG_TITLES_FROM || state.longTitles;
-    const board =
+    const fixture =
       kind === 'countdown' && COUNTDOWN_DAYS.has(date)
         ? countdownFrom(date)
         : kind === 'stills' && long
           ? STILLS_TWELVE
           : FEATURES[kind];
-    const feature = board && long ? withLongTitles(board) : board;
-    return feature ? ok({ date: BOARD_TODAY, feature }) : notFound();
+    const feature = fixture && long ? withLongTitles(fixture) : fixture;
+    return feature ? ok({ date: FIXTURE_TODAY, feature }) : notFound();
   },
 };

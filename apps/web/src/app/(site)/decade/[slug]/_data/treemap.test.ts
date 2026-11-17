@@ -6,7 +6,7 @@ import { layoutTreemap, MAP_HEIGHT, MAP_WIDTH, voteBars } from './treemap';
 const VOTES = [
   24_000, 19_000, 18_000, 11_000, 10_100, 9400, 7000, 6100, 5500, 5400, 4600,
 ];
-const BOARD: ReadonlyArray<readonly [number, number, number, number]> = [
+const EXPECTED: ReadonlyArray<readonly [number, number, number, number]> = [
   [4, 4, 427, 305], // Game of Thrones
   [4, 317, 427, 239], // Money Heist
   [439, 4, 286, 340], // Stranger Things
@@ -30,7 +30,7 @@ const tile = (cell: ReturnType<typeof layoutTreemap>[number]) => [
 
 describe('layoutTreemap', () => {
   it('draws the design’s tiles for the design’s votes', () => {
-    expect(layoutTreemap(VOTES).map(tile)).toEqual(BOARD);
+    expect(layoutTreemap(VOTES).map(tile)).toEqual(EXPECTED);
   });
 
   it('is deterministic and keeps the input order', () => {

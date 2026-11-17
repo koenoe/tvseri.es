@@ -5,7 +5,7 @@ import { themeChip } from './landing-theme';
 
 /**
  * `GET /discover/landing/genre/:slug/facts` for every genre landing. Crime
- * carries DSLGenre's numbers (10,927 shows, 71% also Drama, 3,180 started in
+ * carries realistic numbers (10,927 shows, 71% also Drama, 3,180 started in
  * the 2010s, 1,040 new in the last year, six sub-genre chips); the others,
  * and the genres TMDB only has as a keyword (Horror, Thriller, Romance), are
  * plausible stand-ins so every genre renders.
@@ -39,7 +39,7 @@ const GENRES: ReadonlyArray<Genre> = [
   { id: 37, name: 'Western', slug: 'western' },
 ];
 
-/** DSLGenre's sub-genre chips, as the theme list names them (murder mysteries where the board has heist) */
+/** Crime's sub-genre chips, as the theme list names them */
 const CRIME_CHIPS: ReadonlyArray<LandingThemeChip> = [
   themeChip('detectives', 1860),
   themeChip('serial-killers', 640),

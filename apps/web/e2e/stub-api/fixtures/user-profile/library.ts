@@ -253,7 +253,7 @@ const HISTORY: Readonly<Partial<Record<PersonName, () => WatchedItem[]>>> = {
   sam: () => [watched('sam', 'marathon', 8, 2, daysAgo(2))],
 };
 
-/** A person's dated history, newest first (`pg-diary.ts` adds the heavy diary and pages it) */
+/** A person's dated history, newest first (`pages-diary.ts` adds the heavy diary and pages it) */
 export const historyOf = (name: PersonName): WatchedItem[] =>
   HISTORY[name]?.() ?? [];
 

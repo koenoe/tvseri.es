@@ -4,7 +4,7 @@ import { WELCOME_COOKIE_NAME } from '../src/auth/cookies';
 import { nextFrames } from './helpers/viewport';
 
 /**
- * The first sign-in's welcome (AU Final states, “3 · first sign-in”): the
+ * The first sign-in's welcome: the
  * callback sets the cookie, the page says welcome once, after it has loaded
  * (shown at hydration, its time ran out over a slow page's skeletons).
  */

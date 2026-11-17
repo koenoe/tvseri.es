@@ -9,7 +9,7 @@ import {
 
 import FindPeople from './FindPeople';
 
-describe('Find people (V61, the empty circle)', () => {
+describe('Find people (the empty circle)', () => {
   const listener = vi.fn((event: CustomEvent<OpenSearchDetail>) => event);
 
   afterEach(() => {

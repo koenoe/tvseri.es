@@ -16,7 +16,7 @@ type BuildEnv = Readonly<{
   /** A Vercel preview build: the toolbar (comments) loads from vercel.live. */
   vercelPreview: boolean;
   /**
-   * A local build or dev server against the stubs (e2e, board checks): their
+   * A local build or dev server against the stubs (e2e): their
    * placeholder images come from the stubs' origins. Never set on Vercel
    * (`localStubOrigins`).
    */

@@ -48,7 +48,7 @@ export default function MetaSection() {
       </Specimen>
       <Specimen
         label="Truncation · 280px wide, genres shrink first"
-        note="Typography rule 7: one line, ellipsis, full text on hover"
+        note="One line, ellipsis, full text on hover"
       >
         <div className="w-70 rounded-8 p-2 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)]">
           <MetaRow>

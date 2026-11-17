@@ -16,7 +16,6 @@ type Props = Omit<ComponentProps<'button'>, 'children'> &
     children: ReactNode;
     /** Leading icon; a toggle glyph fills while `pressed`. */
     icon?: Glyph | ToggleGlyph;
-    /** Only where a board draws a size off the button's default. */
     iconSize?: IconSize;
     /** Busy: the icon becomes the pending ring and clicks are ignored. */
     pending?: boolean;
@@ -26,7 +25,7 @@ type Props = Omit<ComponentProps<'button'>, 'children'> &
   }>;
 
 /**
- * A pill button from the boards. Works in Server Components (no hooks); pass
+ * A pill button. Works in Server Components (no hooks); pass
  * `onClick` from a client component.
  *
  * @example

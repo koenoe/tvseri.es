@@ -1,7 +1,7 @@
 /**
  * The Stats page's user and stats routes for the invented user `lena`
- * (data in `stats/`). Board images for local screenshots are served from the
- * folder in env `BOARD_IMG_DIR` at `/img/stats/:file`; without it the bodies
+ * (data in `stats/`). Local images for screenshots are served from the
+ * folder in env `STATS_IMG_DIR` at `/img/stats/:file`; without it the bodies
  * carry no image URLs.
  */
 import { readFile } from 'node:fs/promises';
@@ -68,7 +68,7 @@ const notFound = (): StubResponse => ({
 });
 
 const image = async (file: string | undefined): Promise<StubResponse> => {
-  const dir = process.env.BOARD_IMG_DIR;
+  const dir = process.env.STATS_IMG_DIR;
   // Plain file names only: no path walking out of the folder
   if (!dir || !file || file !== path.basename(file)) {
     return notFound();

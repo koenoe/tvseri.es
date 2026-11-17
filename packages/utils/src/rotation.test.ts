@@ -17,8 +17,8 @@ const days = (from: string, count: number) =>
       .slice(0, 10),
   );
 
-describe('home moments of the day (HMFinal moment rotation)', () => {
-  it('match the board demo days', () => {
+describe('home moments of the day', () => {
+  it('match the known days', () => {
     // Mon 9 = Binge calculator + What's on; Tue 10 = Season in stills +
     // Where are they set? (signed in: If you liked X); Wed 11 = From the
     // archive + Connected by; Sat 14 = Connected by (signed in: If you liked X)

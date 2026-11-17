@@ -14,7 +14,7 @@ const listItem = (userId: string, list: string, id: number) => ({
   title: `Show ${id}`,
 });
 
-describe('B02 GET /me/library-ids', () => {
+describe('GET /me/library-ids', () => {
   it('needs a signed-in user', async () => {
     expect((await request('/me/library-ids')).status).toBe(401);
   });

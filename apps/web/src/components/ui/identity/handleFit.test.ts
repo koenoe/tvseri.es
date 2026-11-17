@@ -16,7 +16,7 @@ const WIDEST_GENERATED = 'honorable-hummingbird-000';
 const COMPACT_AT_390 = 390 - 32 - 12 - 105;
 
 describe('handleEm', () => {
-  it('keeps short handles at 48px, as the spec says (@ryanllester, @dmbhaggis)', () => {
+  it('keeps short handles at 48px, as the column allows (@ryanllester, @dmbhaggis)', () => {
     expect(sizeIn300('ryanllester')).toBe(48);
     expect(sizeIn300('dmbhaggis')).toBe(48);
   });

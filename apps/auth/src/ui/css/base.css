@@ -1,5 +1,4 @@
-/* The sign-in pages: the design's values, laid out in document flow
-   instead of fixed desktop and phone frames. Inlined and hashed for the CSP (assets.ts). */
+/* The sign-in pages, laid out in document flow. Inlined and hashed for the CSP (assets.ts). */
 @font-face{font-family:Inter;font-style:normal;font-weight:400 700;font-display:swap;src:url(__FONT_URL__) format('woff2');}
 :root{--w80:rgba(255,255,255,.8);--w60:rgba(255,255,255,.6);--w40:rgba(255,255,255,.4);--cyan:#0ff;--err:#ff6b6b;--t1:32px;--t1lh:40px;--num:32px;--numlh:40px;--gutter:32px;color-scheme:dark;}
 *,*::before,*::after{box-sizing:border-box;}

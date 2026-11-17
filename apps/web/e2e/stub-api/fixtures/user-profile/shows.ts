@@ -1,8 +1,8 @@
 import { landingFilter } from '@tvseri.es/constants';
 
 /**
- * The profile fixtures' shows: the titles the V60–V63 boards draw, with
- * stand-in artwork from the local board image folder (`STUB_ASSETS_URL/img`,
+ * The profile fixtures' shows, with stand-in artwork from the local image
+ * folder (`STUB_ASSETS_URL/img`,
  * empty without it). Invented ids (99xxxx), so `/series/:id` here never
  * answers for another stream's shows.
  */

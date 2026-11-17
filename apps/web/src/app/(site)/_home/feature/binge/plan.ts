@@ -32,7 +32,7 @@ export const NIGHTS_OPTIONS: ReadonlyArray<
 ];
 
 /** The strip's width at 1440 (1440 − 2 × 112 − 2 × 40) */
-export const BOARD_STRIP_WIDTH = 1136;
+export const DESKTOP_STRIP_WIDTH = 1136;
 /** Up to this many days the strip is one line; past it, it wraps */
 const ONE_LINE_DAYS = 120;
 /** A guard against a runaway plan */

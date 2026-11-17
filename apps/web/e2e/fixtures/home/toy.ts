@@ -11,7 +11,7 @@ import type {
 
 import { toyKindOfDay } from '../../../../../packages/utils/src/rotation.ts';
 import { showById } from '../../stub-api/fixtures/user-profile/shows.ts';
-import { BOARD_TODAY, img, series, slugify } from './base.ts';
+import { FIXTURE_TODAY, img, series, slugify } from './base.ts';
 import { TOP_PICKS, TRENDING } from './core.ts';
 import { LONG_TITLES_FROM, withLongTitles } from './longTitles.ts';
 import { notFound, ok, type StubRoute } from './routes.ts';
@@ -567,8 +567,8 @@ const profileSeries = (id: number): TvSeries | undefined => {
 const MOBLAND_ID = 990010;
 
 /**
- * `GET /home/connected?from=`: paths from any show the fixtures know (the
- * boards' and the profile rig's, where the signed-in viewers' libraries
+ * `GET /home/connected?from=`: paths from any show the fixtures know (Home's
+ * and the profile rig's, where the signed-in viewers' libraries
  * live), through Breaking Bad, to Dept. Q, MobLand, Succession, Black
  * Mirror, Six Feet Under and Shameless (never the start itself)
  */
@@ -617,7 +617,7 @@ export const TOY_ROUTES: Readonly<Record<string, StubRoute>> = {
     const start = connectedStart(from);
     return start
       ? ok({
-          date: url.searchParams.get('date') ?? BOARD_TODAY,
+          date: url.searchParams.get('date') ?? FIXTURE_TODAY,
           from,
           paths: pathsFrom(start),
         })
@@ -630,12 +630,12 @@ export const TOY_ROUTES: Readonly<Record<string, StubRoute>> = {
       url.searchParams.get('kind') ??
       toyKindOfDay(url.searchParams.get('date') ?? '');
     const date = url.searchParams.get('date') ?? '';
-    const board = TOYS[kind];
+    const fixture = TOYS[kind];
     const toy =
-      board && (date >= LONG_TITLES_FROM || state.longTitles)
-        ? withLongTitles(board)
-        : board;
-    return toy ? ok({ date: BOARD_TODAY, toy }) : notFound();
+      fixture && (date >= LONG_TITLES_FROM || state.longTitles)
+        ? withLongTitles(fixture)
+        : fixture;
+    return toy ? ok({ date: FIXTURE_TODAY, toy }) : notFound();
   },
   '/me/home/if-you-liked': () => ok(IF_YOU_LIKED),
 };

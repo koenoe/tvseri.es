@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  BOARD_STRIP_WIDTH,
+  DESKTOP_STRIP_WIDTH,
   episodeAt,
   legendLabel,
   nightsSummary,
@@ -21,7 +21,7 @@ const plan = (overrides: Partial<Parameters<typeof planBinge>[0]> = {}) =>
     perNight: 2,
     seasons: DARK,
     today: TODAY,
-    width: BOARD_STRIP_WIDTH,
+    width: DESKTOP_STRIP_WIDTH,
     ...overrides,
   });
 
@@ -50,7 +50,7 @@ describe('formatters', () => {
 });
 
 describe('planBinge', () => {
-  it('draws the board: Dark in 13 nights, the last on Mon Nov 23', () => {
+  it('plans Dark in 13 nights, the last on Mon Nov 23', () => {
     const result = plan();
     expect(result.nights).toBe(13);
     expect(result.finish).toBe('Mon Nov 23');

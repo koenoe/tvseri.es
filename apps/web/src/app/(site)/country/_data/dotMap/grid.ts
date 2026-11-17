@@ -1,6 +1,5 @@
 /**
- * The country dot map's grid: the window sizes the design
- * draws, the run-length codec of the generated dataset, and turning a window of
+ * The country dot map's grid: the window sizes, the run-length codec of the generated dataset, and turning a window of
  * cells into the two SVG paths of round-capped dots.
  *
  * Pure and import-free: `scripts/generate-dot-maps.mjs` (plain Node) uses it too.
@@ -28,7 +27,7 @@ export type WindowSpec = Readonly<{
 }>;
 
 /**
- * Measured on the design's windows (GB, KR, DK desktop; GB phone) by fitting
+ * Measured on reference maps (GB, KR, DK desktop; GB phone) by fitting
  * Natural Earth to their dots.
  */
 export const WINDOWS: Readonly<Record<DotMapVariant, WindowSpec>> = {

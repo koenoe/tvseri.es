@@ -5,8 +5,7 @@ import { plural } from '@/lib/format/text';
 /**
  * The viewer's watched layer (signed in only). A credit watched completely
  * takes the plain ✓ ("62 of 62 watched", "Watched"); a partial count takes
- * the eye ("10 of 20 watched"), because a ✓ would say complete
- * (icons_final.md, "The ✓ is complete").
+ * the eye ("10 of 20 watched"), because a ✓ would say complete.
  */
 export type CreditWatched = Readonly<{
   complete: boolean;

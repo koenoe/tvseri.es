@@ -6,7 +6,7 @@ import type { StubRoute } from '../types';
 
 /**
  * Theme landings: `GET /discover/landing/theme/:slug/facts` (dystopia with
- * DSLTheme's numbers, every other theme a plausible stand-in), with chips
+ * realistic numbers, every other theme a plausible stand-in), with chips
  * named as the theme list names them and the theme's strongest keyword as
  * their id, as the API sends them.
  */

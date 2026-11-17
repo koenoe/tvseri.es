@@ -283,7 +283,7 @@ const server = createServer(async (request, response) => {
       ...result.headers,
     };
     response.writeHead(status, headers);
-    // Bytes (board images for local screenshots) are sent as they are
+    // Bytes (local images for screenshots) are sent as they are
     if (result.body instanceof Uint8Array) {
       response.end(result.body);
       return;

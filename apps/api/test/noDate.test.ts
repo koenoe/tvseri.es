@@ -33,7 +33,7 @@ const count = async () => {
   return ((await response.json()) as { count: number }).count;
 };
 
-describe('B03 no date ("I don\'t remember")', () => {
+describe('no date ("I don\'t remember")', () => {
   it('marks one episode without a date: in progress, out of history', async () => {
     setup();
     const response = await request(

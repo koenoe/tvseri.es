@@ -12,7 +12,7 @@ describe('toPageColor', () => {
   });
 
   it('uses a valid colour as it is: the API serves it readable, the web corrects nothing', () => {
-    // dark board grounds and a bright colour alike
+    // dark grounds and a bright colour alike
     for (const colour of ['#29251f', '#1c2223', '#d9a521', '#ffffff']) {
       expect(toPageColor(colour)).toBe(colour);
     }

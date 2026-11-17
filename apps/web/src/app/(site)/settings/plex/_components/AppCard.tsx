@@ -20,7 +20,7 @@ const CONNECTED =
 export const APP_CARD_CLASS = 'flex flex-col overflow-hidden rounded-[20px]';
 
 /**
- * One connector's card: colour means live (settings_build_spec §5). A
+ * One connector's card: colour means live. A
  * connected card is a brand-tinted panel; every other one is neutral with a
  * 2px edge in its brand colour.
  */

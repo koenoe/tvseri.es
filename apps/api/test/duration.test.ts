@@ -71,7 +71,7 @@ const get = async <T>(path: string) => {
   };
 };
 
-describe('B08 consumers: GET /duration', () => {
+describe('consumers: GET /duration', () => {
   it('lists the five tiles with exact and estimated counts', async () => {
     // Sample: 4 shows; 1 is a 4-hour miniseries, 1 a 5-season show
     onTmdb(
@@ -247,7 +247,7 @@ describe('duration answers with a show TMDB failed on', () => {
   });
 });
 
-describe('B08 consumers: GET /duration/where-to-start', () => {
+describe('consumers: GET /duration/where-to-start', () => {
   it('picks a night, a weekend and the long haul in a genre, each with a line', async () => {
     onTmdb('/genre/tv/list', { genres: [{ id: 80, name: 'Crime' }] });
     onTmdb('/discover/tv', ids(1, 2, 3, 4), { query: { with_genres: '80' } });

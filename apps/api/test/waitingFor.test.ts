@@ -40,7 +40,7 @@ beforeEach(() => {
   vi.setSystemTime(new Date('2026-11-12T12:00:00Z'));
 });
 
-describe('B15 resuming_soon list routes', () => {
+describe('resuming_soon list routes', () => {
   it('reads the RESUMING_SOON list and its count', async () => {
     seedUser();
     db.seed('Lists', [listItem(USER_ID, 'RESUMING_SOON', 11, APR_16)]);
@@ -62,7 +62,7 @@ describe('B15 resuming_soon list routes', () => {
   });
 });
 
-describe('B15 waiting for', () => {
+describe('waiting for', () => {
   const setup = () => {
     seedUser();
     seedUser({ id: OTHER_USER_ID });

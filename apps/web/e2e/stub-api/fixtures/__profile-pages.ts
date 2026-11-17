@@ -19,14 +19,13 @@ import * as v from 'valibot';
 import type { StubRequest, StubResponse, StubRoute } from '../types.ts';
 import { fail, ok, viewerIdOf } from './user-profile/http.ts';
 import { isOutageId } from './user-profile/outage.ts';
-import { type PersonName, personById } from './user-profile/people.ts';
-import { circlePeople } from './user-profile/pg-circle.ts';
+import { circlePeople } from './user-profile/pages-circle.ts';
 import {
   historyItems,
   statsDaily,
   statsYears,
   UNDATED,
-} from './user-profile/pg-diary.ts';
+} from './user-profile/pages-diary.ts';
 import {
   addToList,
   entriesOf,
@@ -35,7 +34,8 @@ import {
   removeFromList,
   setPaused,
   toLibraryItem,
-} from './user-profile/pg-library.ts';
+} from './user-profile/pages-library.ts';
+import { type PersonName, personById } from './user-profile/people.ts';
 
 /**
  * The profile sub-pages: Library, History's month index and

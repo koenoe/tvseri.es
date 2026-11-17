@@ -135,7 +135,7 @@ describe('B12c GET /home/toy', () => {
       'Prime Video',
       'Hulu',
     ]);
-    // The service icon where the board draws one, else the network's wordmark
+    // The service icon where there is one, else the network's wordmark
     expect(
       channels &&
         'channels' in channels &&

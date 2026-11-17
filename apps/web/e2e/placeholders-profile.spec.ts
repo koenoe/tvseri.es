@@ -138,8 +138,8 @@ function belowTheSidebar(parity: Parity, viewport: ViewportName): Parity {
 for (const viewport of SIZES) {
   test.describe(`profile placeholders at ${VIEWPORTS[viewport].width}px`, () => {
     // The placeholders are the capped lanes of an established library
-    // (overflow and caps): every lane full to
-    // what its board draws, with its Show all foot. The sidebar follows the
+    // (overflow and caps): every lane full to its cap, with its Show all
+    // foot. The sidebar follows the
     // handle's length and the year's sentence, so it is asserted on the
     // page below; below lg it sits above the overview, and the
     // blocks are compared after its difference. Between md and xl a block's
@@ -157,7 +157,7 @@ for (const viewport of SIZES) {
 
     // alex has the full page: a lane with no Show all arrives shorter
     // (below the fold), the frame above the lanes is exact
-    test('your own overview, as the board draws it', async ({ browser }) => {
+    test('your own overview', async ({ browser }) => {
       const measured = await measureNoScriptParity(browser, {
         names: onScreen(OWNER_BLOCKS, viewport, 'owner'),
         path: '/u/alex',

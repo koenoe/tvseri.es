@@ -32,7 +32,7 @@ const plexToken = {
   userId: USER_ID,
 };
 
-describe('B13 Get started', () => {
+describe('Get started', () => {
   it('starts at 0 of 3 for a new user', async () => {
     vi.useFakeTimers({ now: NOW, toFake: ['Date'] });
     seedUser({ createdAt: new Date(NOW - DAY).toISOString() });

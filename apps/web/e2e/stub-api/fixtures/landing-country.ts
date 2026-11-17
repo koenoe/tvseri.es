@@ -19,7 +19,7 @@ const made = (slug: string, count: number) => {
   return { count, id: network.id, name: network.name, slug };
 };
 
-const BOARD: Readonly<Record<string, CountryLandingFacts>> = {
+const SAMPLE_FACTS: Readonly<Record<string, CountryLandingFacts>> = {
   dk: { count: 1120, madeFor: [], slug: 'dk', type: 'country' },
   gb: {
     count: 7240,
@@ -49,7 +49,7 @@ export const routes: ReadonlyArray<StubRoute> = [
       if (!landingFilter('country', slug)) {
         return { body: { message: 'Not Found' }, status: 404 };
       }
-      const body: CountryLandingFacts = BOARD[slug] ?? {
+      const body: CountryLandingFacts = SAMPLE_FACTS[slug] ?? {
         count: SHOWS.filter(
           (entry) => entry.show.country === slug.toUpperCase(),
         ).length,

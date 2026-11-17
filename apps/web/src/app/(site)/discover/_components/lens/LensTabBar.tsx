@@ -79,7 +79,7 @@ const moveTo = (key: string, index: number): number | null => {
 /**
  * The six lens tabs (APG tabs): one tab stop, the arrow keys, Home and End
  * move and select at once (every panel is already in the page, so selecting
- * costs nothing). The design's look; its markup used toggle buttons.
+ * costs nothing).
  */
 export default function LensTabBar() {
   // read when a key is pressed: the bar itself never re-renders

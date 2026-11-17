@@ -31,7 +31,7 @@ const MONTH_YEAR = new Intl.DateTimeFormat('en-US', {
 });
 
 /**
- * "Mar 2025" (the boards' short months: "Sep", never "Sept"), read in UTC:
+ * "Mar 2025" ("Sep", never "Sept"), read in UTC:
  * a bare YYYY-MM-DD is a UTC day. Throws on an invalid date.
  */
 export function formatMonthYear(value: DateInput): string {

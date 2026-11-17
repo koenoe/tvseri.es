@@ -108,13 +108,13 @@ describe('ticketLabel', () => {
 });
 
 describe('countdown labels', () => {
-  it('formats the date and unit as the board does', () => {
+  it('formats the date and unit', () => {
     expect(countdownDate('2026-11-17')).toBe('Nov 17');
     expect(countdownUnit(3)).toBe('days to go');
     expect(countdownUnit(1)).toBe('day to go');
   });
 
-  it('names the season as the board does ("Season 4", else the kind)', () => {
+  it('names the season ("Season 4", else the kind)', () => {
     expect(countdownSeason('season-premiere', 4)).toBe('Season 4');
     expect(countdownSeason('special', 6)).toBe('Special');
     expect(countdownSeason('new-series', 1)).toBe('New series');

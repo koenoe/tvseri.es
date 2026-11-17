@@ -15,7 +15,7 @@ export type PanelMotion = Readonly<{
   contentStyle?: MotionStyle;
 }>;
 
-/** Phones: every dialog slides up 24px and fades (remote_style.md §9). */
+/** Phones: every dialog slides up 24px and fades. */
 export const PHONE_MOTION: PanelMotion = {
   animate: {
     opacity: 1,

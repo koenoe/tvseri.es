@@ -7,9 +7,9 @@ import { CATALOGUE } from './discover/catalogue';
  * The decade landing: its facts. The treemap and Missed by most
  * read `/discover` over the catalogue (`discover-catalogue.ts`); the card's
  * network and seasons come from `/series/summaries` (`discover-api.ts`).
- * DSLDecade prints 41,800 shows for the 2010s.
+ * The 2010s have a realistic 41,800 shows.
  */
-const BOARD_COUNTS: Readonly<Record<string, number>> = { '2010s': 41_800 };
+const KNOWN_COUNTS: Readonly<Record<string, number>> = { '2010s': 41_800 };
 
 const DECADE = /^(\d{3})0s$/;
 
@@ -27,7 +27,7 @@ export const routes: ReadonlyArray<StubRoute> = [
       const from = Number(slug.slice(0, 4));
       const body: DecadeLandingFacts = {
         count:
-          BOARD_COUNTS[slug] ??
+          KNOWN_COUNTS[slug] ??
           CATALOGUE.filter((show) => show.year >= from && show.year <= from + 9)
             .length,
         slug,

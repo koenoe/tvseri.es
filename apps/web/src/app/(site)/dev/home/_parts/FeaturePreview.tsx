@@ -1,4 +1,4 @@
-import { BOARD_TODAY } from '../../../../../../e2e/fixtures/home/base.ts';
+import { FIXTURE_TODAY } from '../../../../../../e2e/fixtures/home/base.ts';
 import { FEATURES } from '../../../../../../e2e/fixtures/home/feature.ts';
 import Feature from '../../../_home/feature/Feature';
 import { FeatureSkeleton } from '../../../_home/Skeletons';
@@ -43,7 +43,7 @@ export default function FeaturePreview() {
         const feature = FEATURES[kind];
         return feature ? (
           <div id={`feature-${kind}`} key={kind}>
-            <Feature feature={feature} today={BOARD_TODAY} />
+            <Feature feature={feature} today={FIXTURE_TODAY} />
           </div>
         ) : null;
       })}

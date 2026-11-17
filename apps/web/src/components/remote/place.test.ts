@@ -55,7 +55,7 @@ describe('placeRemote', () => {
     expect(high.top).toBe(16);
   });
 
-  it('in progress tile: under the ⋯, right edges aligned, 8px gap (CMFinal at-t)', () => {
+  it('in progress tile: under the ⋯, right edges aligned, 8px gap', () => {
     // the 448px tile frame: a 32px ⋯ 16px from its top right corner
     expect(
       placeRemote({

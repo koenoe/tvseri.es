@@ -55,7 +55,7 @@ for (const width of [390, 1440] as const) {
   });
 }
 
-test.describe('History scroll in WebKit (§5.3) @perf', () => {
+test.describe('History scroll in WebKit @perf', () => {
   test.setTimeout(480_000);
   test('2,000 rows scroll smoothly @scroll', async ({ context, page }) => {
     await page.setViewportSize({ height: 900, width: 1440 });

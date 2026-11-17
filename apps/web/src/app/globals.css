@@ -24,7 +24,7 @@
 @custom-variant header-fixed (:root[data-header-mode]:not([data-header-mode=static]) &);
 
 /*
- * Design tokens from the approved boards. Tailwind's default palette, type scale and radii are cleared on
+ * Design tokens. Tailwind's default palette, type scale and radii are cleared on
  * purpose: only the approved values exist, so a raw value can't slip in.
  *
  * Type: `text-<token>` sets size, line height, weight and tracking. Colour is a separate
@@ -91,7 +91,7 @@
   --text-numeral-xl--line-height: var(--t-numeral-xl-lh);
   --text-numeral-xl--font-weight: 700;
   --text-numeral-xl--letter-spacing: -0.01em;
-  /* Radii as the boards draw them, named by their pixel value: rounded-12 = 12px */
+  /* Radii named by their pixel value: rounded-12 = 12px */
   --radius-2: 2px;
   --radius-4: 4px;
   --radius-6: 6px;
@@ -102,7 +102,7 @@
   --radius-16: 16px;
   --radius-18: 18px;
 
-  /* the page container every final board draws (header, rows, footer): max-w-page */
+  /* the page container (header, rows, footer): max-w-page */
   --container-page: 1280px;
 
   /* the white "remote" surface */
@@ -228,8 +228,7 @@ html[data-signing-out] body > * {
 }
 
 /*
- * Toasts arrive in .3s on the boards' curve (t1-in `.3s cubic-bezier(.2,.8,.2,1)`);
- * sonner's own transition is 400ms. Unlayered and two attributes deep, so it
+ * Toasts arrive in .3s, not sonner's own 400ms. Unlayered and two attributes deep, so it
  * wins over the stylesheet sonner injects.
  */
 [data-sonner-toaster] [data-sonner-toast] {

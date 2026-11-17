@@ -3,7 +3,7 @@ import type { NETWORKS } from '@tvseri.es/constants';
 type Network = Pick<(typeof NETWORKS)[number], 'since'>;
 
 /**
- * The hero's meta item: the year the design gives a network
+ * The hero's meta item: the year we know for a network
  * ("Since 1972", "Originals since 2012"), else the year of its first show
  * on TMDB (`getNetworkSince`), else nothing.
  */

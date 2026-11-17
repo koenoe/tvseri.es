@@ -42,7 +42,7 @@ const search = async (q: string) => {
   };
 };
 
-describe('B07 GET /search', () => {
+describe('GET /search', () => {
   it('rejects a missing, blank or too long query', async () => {
     expect((await request('/search')).status).toBe(400);
     expect((await request('/search?q=%20%20')).status).toBe(400);

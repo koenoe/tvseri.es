@@ -138,7 +138,7 @@ const setup = () => {
   ]);
 };
 
-describe('B16 season ledger', () => {
+describe('season ledger', () => {
   it('lists the shows with holes, most holes first, per season', async () => {
     setup();
 

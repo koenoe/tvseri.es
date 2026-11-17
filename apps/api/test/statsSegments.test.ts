@@ -53,7 +53,7 @@ const get = async (path: string) => {
   return response;
 };
 
-describe('B18 stats additions', () => {
+describe('stats additions', () => {
   it('lists the years with watches and their episode counts', async () => {
     seedUser();
     seedWatched([

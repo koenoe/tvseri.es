@@ -129,7 +129,7 @@ export type RunPlan = Readonly<{
     small: number;
     wide: number;
   }>;
-  /** A later season with waiting episodes: the boundary, as the board draws it */
+  /** A later season with waiting episodes: the boundary */
   next: RunNext | null;
 }>;
 

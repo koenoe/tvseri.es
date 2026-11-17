@@ -26,7 +26,7 @@ const countryCrumb = <LandingCrumb href="/country" label="Countries" />;
 
 /**
  * The hero's frame: it ends 600 from the top of the
- * page on desktop (the design's 60 header + 540; ours is 80 tall, so 520),
+ * page on desktop (540 under the header),
  * the text at its foot over the map; on a phone the crumb starts 274 under
  * the header, below the smaller map.
  */

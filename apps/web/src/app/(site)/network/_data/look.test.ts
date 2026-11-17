@@ -37,7 +37,7 @@ describe('networkLook', () => {
     });
   });
 
-  it('tints the ground of a coloured network the design does not draw', () => {
+  it('tints the ground of a coloured network without its own', () => {
     const look = networkLook('hulu');
     expect(look.keepLogo).toBe(true);
     expect(look.ground).toBe(mixHex(DEFAULT_GROUND, '#1ce783', 0.04));

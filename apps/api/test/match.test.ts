@@ -47,7 +47,7 @@ const setup = () => {
 const match = (as: string | undefined, target: string) =>
   request(`/user/${target}/match`, { as });
 
-describe('B17 match line', () => {
+describe('match line', () => {
   it('computes the taste match, "New to you" and the follow flags', async () => {
     setup();
     await request(`/user/${USER_ID}/follow`, {
@@ -162,7 +162,7 @@ type MatchBody = Readonly<{
 const matchBody = async (as: string, target: string) =>
   (await (await match(as, target)).json()) as MatchBody;
 
-describe('B17 match: what is next for a shared show (V62 You both watch)', () => {
+describe('match: what is next for a shared show (You both watch)', () => {
   const sharedNext = async () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-11-12T12:00:00Z'));
@@ -248,7 +248,7 @@ describe('B17 match: what is next for a shared show (V62 You both watch)', () =>
   });
 });
 
-describe('B17 match: a shared show’s own facts (You both watch)', () => {
+describe('match: a shared show’s own facts (You both watch)', () => {
   it('names the first air year, the season count and the first genre, from the facts alone', async () => {
     seedUser();
     seedUser({ id: OTHER_USER_ID });
@@ -295,7 +295,7 @@ describe('B17 match: a shared show’s own facts (You both watch)', () => {
   });
 });
 
-describe('B17 match: where your tastes split (V62)', () => {
+describe('match: where your tastes split', () => {
   const genre = (id: number, genreId: number) =>
     fakeShow({
       extra: { genres: [{ id: genreId, name: `genre ${genreId}` }] },

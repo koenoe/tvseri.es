@@ -34,7 +34,7 @@ describe('MetaRow', () => {
     }
   });
 
-  it('keeps one line with 16px gaps and the meta token (V54)', () => {
+  it('keeps one line with 16px gaps and the meta token', () => {
     render(<MetaRow data-testid="row" />);
     const classes = screen.getByTestId('row').className.split(' ');
     expect(classes).toEqual(

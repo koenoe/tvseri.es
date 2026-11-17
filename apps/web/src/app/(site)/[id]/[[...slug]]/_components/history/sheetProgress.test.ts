@@ -7,7 +7,7 @@ import { progressLine } from '../progress/progressLine';
 import { sheetProgress } from './sheetProgress';
 
 describe('sheetProgress', () => {
-  it('reads like the board for an ended show', () => {
+  it('reads for an ended show', () => {
     expect(
       sheetProgress({
         aired: 47,

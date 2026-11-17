@@ -9,12 +9,12 @@ type NetworkEntry = Readonly<{
   id: number;
   /** TMDB's name for the network */
   name: string;
-  /** the hero's line (DSLNetwork) */
+  /** the landing hero's line */
   description: string;
-  /** a shorter line on phones, where DSLMobile draws one */
+  /** a shorter line for phones, where the hero's is too long */
   phoneDescription?: string;
   /**
-   * The hero's "Since 1972" where the boards write it (the network's start,
+   * The hero's "Since 1972" (the network's start,
    * or `originals` for "Originals since 2012"); without it the page uses
    * the year of the network's first show on TMDB.
    */

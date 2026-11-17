@@ -16,7 +16,7 @@ import { formatYearHours } from '../../_lib/format';
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Rows listed before "All 71 shows" (the top 20 by hours) */
-export const BOARD_ROWS = 20;
+export const TOP_ROWS = 20;
 /** The phone shows the first 16 of those */
 export const PHONE_ROWS = 16;
 /**
@@ -28,7 +28,7 @@ const STILL_WATCHING_DAYS = 14;
 
 export type SortOrder = 'watched' | 'hours';
 
-/** What the client board needs of one show: nothing else crosses to it */
+/** What the client timeline needs of one show: nothing else crosses to it */
 export type TimelineRow = Readonly<{
   id: number;
   title: string;
@@ -266,9 +266,7 @@ export function buildTimeline(
       title: row.title,
     };
   });
-  const left = shows.filter(
-    (_, index) => (rankOf.get(index) ?? 0) >= BOARD_ROWS,
-  );
+  const left = shows.filter((_, index) => (rankOf.get(index) ?? 0) >= TOP_ROWS);
   return {
     moreEpisodes: left.reduce((sum, row) => sum + row.episodes, 0),
     moreShows: left.length,
@@ -286,7 +284,7 @@ export function rowsToShow(
   order: SortOrder,
   expanded: boolean,
 ): ReadonlyArray<TimelineRow> {
-  const shown = expanded ? rows : rows.filter((row) => row.rank < BOARD_ROWS);
+  const shown = expanded ? rows : rows.filter((row) => row.rank < TOP_ROWS);
   return order === 'hours'
     ? shown.slice().sort((a, b) => a.rank - b.rank)
     : shown;

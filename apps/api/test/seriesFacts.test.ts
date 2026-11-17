@@ -4,7 +4,7 @@ import { getSeriesFacts, getSeriesFactsReport } from '@/lib/seriesFacts';
 import { onTmdb } from './fakeHttp';
 import { fakeShow } from './fixtures/tmdb';
 
-describe('B08 series facts', () => {
+describe('series facts', () => {
   it('reads the facts of many shows: one TMDB call per show, cached after', async () => {
     fakeShow({
       extra: {

@@ -1,4 +1,4 @@
-import { BOARD_TODAY } from '../../../../../../e2e/fixtures/home/base.ts';
+import { FIXTURE_TODAY } from '../../../../../../e2e/fixtures/home/base.ts';
 import {
   COUNTDOWN_PREMIERES,
   PICK_DECK,
@@ -22,7 +22,7 @@ export default function PickPremieresPreview() {
   return (
     <>
       <div id="pick-rest">
-        <PickOneForMe day={BOARD_TODAY} pool={PICK_DECK} />
+        <PickOneForMe day={FIXTURE_TODAY} pool={PICK_DECK} />
       </div>
       <div id="pick-ghost">
         <PickGhost />

@@ -21,7 +21,7 @@ const watched = (
   watchedAt,
 });
 
-describe('stackWatched (V60 Recently watched)', () => {
+describe('stackWatched', () => {
   it('stacks consecutive episodes of one show, newest first', () => {
     const stacks = stackWatched(
       [
@@ -53,7 +53,7 @@ describe('stackWatched (V60 Recently watched)', () => {
     expect(stacks[0]?.range).toBe('S02E24–S03E01');
   });
 
-  it("a visitor's page repeats the E in the range (V62)", () => {
+  it("a visitor's page repeats the E in the range", () => {
     const items = [watched(2, 2, 23), watched(2, 2, 22)];
     expect(stackWatched(items, 5, true)[0]?.range).toBe('S02E22–E23');
     expect(stackWatched(items, 5)[0]?.range).toBe('S02E22–23');

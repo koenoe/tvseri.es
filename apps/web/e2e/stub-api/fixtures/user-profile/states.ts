@@ -14,8 +14,7 @@ import { identity, img } from './shows.ts';
 import { day, daysAgo } from './time.ts';
 
 /**
- * rae's tracker: the V60 "every component, every state" sheet in one
- * profile. `/u/rae` draws the first Up next (a full season out); the other
+ * rae's tracker: every component in every state in one profile. `/u/rae` draws the first Up next (a full season out); the other
  * Up next states are tiles at `/u/rae/in-progress`. Catching up shows its
  * four runway states, Out now a season that just completed, and the rest
  * (Almost done, Paused, the ledger) is alex's so presses can be tried.

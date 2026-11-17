@@ -194,7 +194,7 @@ export const COUNTRY_TILES: ReadonlyArray<LinkTileEntry> = [
     name: 'Spain',
   },
   {
-    // One tile for both, as the design draws it; it opens Denmark's landing
+    // One tile for both; it opens Denmark's landing
     // and counts shows made in either (TMDB's `DK|SE` is "or").
     count: { query: 'with_origin_country=DK|SE' },
     dress: { kind: 'backdrop', position: 'center 30%', show: SHOW.theBridge },
@@ -435,7 +435,7 @@ export const DURATION_TILES: Readonly<
   'under-6-hours': { dress: 'backdrop', name: 'Under 6 hours' },
 };
 
-/** The Genres block, in the design's order, then the genres TMDB only has as a keyword */
+/** The Genres block, in a fixed order, then the genres TMDB only has as a keyword */
 export const GENRE_TILES = [
   { name: 'Drama', slug: 'drama' },
   { name: 'Crime', slug: 'crime' },

@@ -1,5 +1,5 @@
-/** "The 50 best" is the design's list: ranked rows end at 50 */
-const BOARD_COUNT = 50;
+/** Ranked rows end at 50 */
+const BEST_COUNT = 50;
 /** Below this a number in the title reads oddly ("The 2 best"), so it goes */
 const MIN_NAMED = 3;
 
@@ -9,8 +9,8 @@ const MIN_NAMED = 3;
  * shows") says how many it has, a tiny one drops the count ("The best ...").
  */
 export function bestTitle(lower: string, shown: number): string {
-  if (shown >= BOARD_COUNT) {
-    return `The ${BOARD_COUNT} best ${lower} series`;
+  if (shown >= BEST_COUNT) {
+    return `The ${BEST_COUNT} best ${lower} series`;
   }
   return shown >= MIN_NAMED
     ? `The ${shown} best ${lower} series`

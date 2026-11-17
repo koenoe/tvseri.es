@@ -3,7 +3,7 @@ import type { Episode, Season, TvSeries } from '@tvseri.es/schemas';
 import { img, imgPath } from '../show/catalog.ts';
 
 /**
- * A small catalogue for the importer (SETImport): the shows of the sample
+ * A small catalogue for the importer: the shows of the sample
  * Netflix file, shaped like the API's `GET /search/series`, `/series/:id` and
  * `/series/:id/season/:n`. Ids start at 910001 so they never meet the show
  * stream's (136315, 900001 to 900003, 1396, 34307, 76331).

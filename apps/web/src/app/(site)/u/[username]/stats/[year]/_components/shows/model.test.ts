@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 
 import {
   activeQuarter,
-  BOARD_ROWS,
   buildTimeline,
   endReference,
   grabOffset,
@@ -15,6 +14,7 @@ import {
   rowsToShow,
   scrollForWindow,
   sliderWeek,
+  TOP_ROWS,
   weekPercent,
 } from './model';
 
@@ -151,9 +151,9 @@ describe('rowsToShow', () => {
 
   it('shows the top 20 by hours, in the order watched', () => {
     const shown = rowsToShow(rows, 'watched', false);
-    expect(shown).toHaveLength(BOARD_ROWS);
+    expect(shown).toHaveLength(TOP_ROWS);
     expect(shown.map((row) => row.id)).toEqual(
-      Array.from({ length: BOARD_ROWS }, (_, index) => 30 - 19 + index),
+      Array.from({ length: TOP_ROWS }, (_, index) => 30 - 19 + index),
     );
   });
 

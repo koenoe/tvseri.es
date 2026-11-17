@@ -100,7 +100,7 @@ const goDeeper = async (date: string) => {
 
 const ids = (items: Array<{ id: number }>) => items.map((item) => item.id);
 
-describe('B23 GET /discover/go-deeper', () => {
+describe('GET /discover/go-deeper', () => {
   it('rotates the Essentials network per day and builds a theme, creator and network card', async () => {
     // Essentials on 2026-11-13: Netflix
     best('213', '250', [901, 902, 903]);

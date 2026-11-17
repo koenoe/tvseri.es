@@ -92,11 +92,11 @@ export type RowLook =
   | 'landing';
 
 // The arrows' chevron at stroke 2
-const BOARD_ARROWS = '[--row-arrow-stroke:2]';
+const THICK_ARROWS = '[--row-arrow-stroke:2]';
 
 // a 44px header line with 14px gaps, the track's 6px below
 // the cards; white chevrons
-const HUB_LINE = `${BOARD_ARROWS} [--row-arrow-ink:#fff] md:[--row-head-h:44px] md:[--row-head-gap:14px] md:pb-1.5`;
+const HUB_LINE = `${THICK_ARROWS} [--row-arrow-ink:#fff] md:[--row-head-h:44px] md:[--row-head-gap:14px] md:pb-1.5`;
 
 /** The Discover hub's poster shadow, for hub posters outside a row too */
 export const HUB_TILE_SHADOW =
@@ -107,7 +107,7 @@ const HUB_POSTERS = `${HUB_TILE_SHADOW} [--tile-radius:10px] @max-[639px]:[--row
 
 export const ROW_LOOKS: Readonly<Record<RowLook, string>> = {
   /** Home: the arrows' chevron at stroke 2 */
-  home: BOARD_ARROWS,
+  home: THICK_ARROWS,
   /** a hub section: 24 + the track's 4px from the header to the cards */
   hub: `${HUB_LINE} md:[--row-rail-pt:28px]`,
   /** a lens tile's row opened in place: 16 + 4 */
@@ -116,5 +116,5 @@ export const ROW_LOOKS: Readonly<Record<RowLook, string>> = {
   /** the hub's numbered row: its posters' shadow, the tile sizes its own (`ranked`) */
   hubRanked: `${HUB_LINE} md:[--row-rail-pt:28px] ${HUB_TILE_SHADOW}`,
   /** the landings: 14px header icons, a 2px focus offset, no poster shadow on phones */
-  landing: `${BOARD_ARROWS} [--row-meta-icon:14px] [--tile-focus-offset:2px] max-md:[--tile-shadow:none]`,
+  landing: `${THICK_ARROWS} [--row-meta-icon:14px] [--tile-focus-offset:2px] max-md:[--tile-shadow:none]`,
 };

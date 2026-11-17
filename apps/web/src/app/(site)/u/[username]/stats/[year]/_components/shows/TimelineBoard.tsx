@@ -12,11 +12,11 @@ import { plural } from '@/lib/format/text';
 import Legend from './Legend';
 import { MonthAxis, MonthGrid } from './MonthAxis';
 import {
-  BOARD_ROWS,
   PHONE_ROWS,
   rowsToShow,
   type SortOrder,
   type TimelineRow,
+  TOP_ROWS,
 } from './model';
 import QuarterScroller from './QuarterScroller';
 import SortSwitch from './SortSwitch';
@@ -84,9 +84,9 @@ export default function TimelineBoard({
   const [armed, setArmed] = useState(false);
   const shown = rowsToShow(rows, order, expanded);
   const toggle = () => setExpanded((value) => !value);
-  const hasMore = total > BOARD_ROWS;
+  const hasMore = total > TOP_ROWS;
   const summary = `${moreShows} more series, ${plural(moreEpisodes, 'episode')}`;
-  const desktopLabel = expanded ? `Top ${BOARD_ROWS}` : `All ${total} series`;
+  const desktopLabel = expanded ? `Top ${TOP_ROWS}` : `All ${total} series`;
   const phoneLabel = expanded ? `Top ${PHONE_ROWS}` : `All ${total}`;
   const footnote = expanded ? `Showing all ${total} series` : summary;
   // Motion's layout features load on the first re-sort; the order changes

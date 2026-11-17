@@ -1,6 +1,6 @@
 /**
  * Surfaces and dims, mixed from the page colour (`--color-page`) so they keep
- * the show's tint, as the boards draw them on The Bear (#29251f): the dialog
+ * the show's tint; on The Bear (#29251f): the dialog
  * #1f1b17 (darker), the history sheet #2f2a24 and the episode modal #35302a
  * (lighter), the dim rgba(20,17,13,.72). Not expressible as white/black steps.
  */

@@ -37,7 +37,7 @@ const SERVERS: Readonly<Record<Server['app'], Server>> = {
 };
 
 /**
- * Jellyfin and Emby (settings_build_spec §5): wanted next, not live. Details
+ * Jellyfin and Emby: wanted next, not live. Details
  * is an honest panel: what it will do, what it needs, and that there is
  * nothing to set up yet. No URL, no create button, no toast.
  */

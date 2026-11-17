@@ -121,7 +121,7 @@ beforeEach(() => {
   });
 });
 
-describe('B11 GET /premieres', () => {
+describe('GET /premieres', () => {
   it('lists new series, season premieres and finales in date order', async () => {
     const { body, cacheControl } = await fetchPremieres();
 

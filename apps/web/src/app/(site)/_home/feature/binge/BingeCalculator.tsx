@@ -29,7 +29,7 @@ import {
 } from './layout';
 import NightStrip from './NightStrip';
 import {
-  BOARD_STRIP_WIDTH,
+  DESKTOP_STRIP_WIDTH,
   legendLabel,
   type NightsMode,
   nightsSummary,
@@ -83,7 +83,7 @@ export default function BingeCalculator({
   const [mode, setMode] = useState<NightsMode>(DEFAULT_MODE);
   const viewerToday = useLocalDay();
   const today = fixedToday ?? viewerToday;
-  const [width, measure] = useElementWidth(BOARD_STRIP_WIDTH);
+  const [width, measure] = useElementWidth(DESKTOP_STRIP_WIDTH);
   const choice = choices[selected] ?? choices[0];
   const seasons = choice?.seasons;
   const plan = useMemo(

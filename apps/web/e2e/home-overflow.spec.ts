@@ -64,7 +64,7 @@ const DAYS = [
 
 /**
  * Mon 4 to Thu 7 Jan 2027: every feature and toy again, and Sat 9 the
- * Countdown, with the longest real titles in place of the boards'
+ * Countdown, with the longest real titles in place of the usual ones
  * (`fixtures/home/longTitles.ts`;
  * "Open Avatar: The Last Airbender" once ran under Did you know's pager
  * at 800). Signed out: the toy is the shared one.

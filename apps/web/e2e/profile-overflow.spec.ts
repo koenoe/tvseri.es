@@ -10,13 +10,13 @@ import { fontsSettled, pageSettled, phoneScrollbars } from './helpers/viewport';
 
 /**
  * The profile overview holds real, heavy data: no sideways scroll, no text outside its card, no
- * value cut without an ellipsis, equal rows where the board draws them, at
+ * value cut without an ellipsis, equal rows where a lane has them, at
  * a phone, a tablet, 1440 and a big screen. The heavy profile
  * (`marathonwatcher-2026`) is checked with every capped lane open too.
  */
 
 const WIDTHS = [390, 800, 1440, 1728] as const;
-/** The overview also at a small phone (the boards draw 390), both profiles */
+/** The overview also at a small phone (below the 390 most layouts assume), both profiles */
 const OVERVIEW_WIDTHS = [360, ...WIDTHS] as const;
 
 const CASES: ReadonlyArray<
@@ -65,7 +65,7 @@ for (const width of OVERVIEW_WIDTHS) {
   });
 }
 
-test('a busy profile stays short: lanes list what the board draws', async ({
+test('a busy profile stays short: lanes stay at their caps', async ({
   context,
   page,
 }) => {

@@ -2,7 +2,7 @@ import { instant } from '@next/playwright';
 import { expect, test } from '@playwright/test';
 
 /**
- * A sign-in that fails on our side (AU Final states, “Sign-in broke”): the
+ * A sign-in that fails on our side (“Sign-in broke”): the
  * callback never answers with JSON; it sends the visitor to the static
  * S05E00 page with Try again back to where the login was going, or (Google
  * cancel / no verified email) restarts the login with a notice.

@@ -10,7 +10,7 @@ import {
   type KeyboardEvent,
   useCallback,
   useEffect,
-  useRef,
+  useEffectEvent,
   useState,
 } from 'react';
 
@@ -49,15 +49,9 @@ export type ToolbarProps = Readonly<{
 }>;
 
 function useDebounced(value: string, onChange: (value: string) => void) {
-  const latest = useRef(onChange);
-  latest.current = onChange;
-  const first = useRef(true);
+  const fire = useEffectEvent(onChange);
   useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
-    const timer = setTimeout(() => latest.current(value), FIND_DEBOUNCE_MS);
+    const timer = setTimeout(() => fire(value), FIND_DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [value]);
 }

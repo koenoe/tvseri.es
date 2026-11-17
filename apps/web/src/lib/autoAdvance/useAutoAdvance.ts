@@ -4,6 +4,7 @@ import {
   type FocusEvent,
   type PointerEvent,
   useCallback,
+  useEffectEvent,
   useRef,
   useState,
   useSyncExternalStore,
@@ -111,8 +112,13 @@ export default function useAutoAdvance({
   }, []);
 
   const cleanupRef = useRef<(() => void) | null>(null);
-  // the observer reads the reader's pause when the element comes back
-  const userPausedRef = useRef(false);
+  const userPaused = userChoice ?? reduceMotion;
+  // paused by the reader, it keeps its place until they press play
+  const backInView = useEffectEvent(() => {
+    if (!userPaused) {
+      onBackInView?.();
+    }
+  });
 
   // A callback ref that also cleans up on `null` (Motion's ref composition
   // drops React 19's ref cleanup functions)
@@ -136,9 +142,8 @@ export default function useAutoAdvance({
           }
           offscreen = next;
           pause('offscreen', next);
-          // paused by the reader, it keeps its place until they press play
-          if (!next && !userPausedRef.current) {
-            onBackInView?.();
+          if (!next) {
+            backInView();
           }
         },
         { threshold: THRESHOLDS },
@@ -160,8 +165,7 @@ export default function useAutoAdvance({
         unsubscribe();
       };
     },
-    // `onBackInView` should be stable (it reconnects the observers)
-    [onBackInView, pause],
+    [pause],
   );
 
   const handlers = {
@@ -183,8 +187,7 @@ export default function useAutoAdvance({
     },
   };
 
-  const pauses: Pauses = { ...holds, user: userChoice ?? reduceMotion };
-  userPausedRef.current = pauses.user;
+  const pauses: Pauses = { ...holds, user: userPaused };
   const paused = Object.values(pauses).some(Boolean);
   return {
     handlers,

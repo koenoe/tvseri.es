@@ -2,7 +2,12 @@
 
 import { AnimatePresence } from 'motion/react';
 import * as m from 'motion/react-m';
-import { type ReactNode, type RefObject, useCallback, useRef } from 'react';
+import {
+  type ReactNode,
+  type RefObject,
+  useCallback,
+  useEffectEvent,
+} from 'react';
 
 import { SHEET_EASE } from '@/components/motion/ease';
 import { holdScrollLock } from '@/components/ui/dialog/scrollLock';
@@ -42,8 +47,7 @@ export default function RemotePopover({
   placement: RemotePlacement;
   triggerRef: RefObject<HTMLButtonElement | null>;
 }>) {
-  const dismissRef = useRef(onDismiss);
-  dismissRef.current = onDismiss;
+  const dismiss = useEffectEvent(onDismiss);
 
   // Stable: a new callback would detach and reattach the open popover.
   const attach = useCallback(
@@ -70,7 +74,7 @@ export default function RemotePopover({
       const outside = (event: PointerEvent) => {
         const target = event.target instanceof Node ? event.target : null;
         if (!node.contains(target) && !trigger?.contains(target)) {
-          dismissRef.current();
+          dismiss();
         }
       };
       // Scroll and resize fire many times a frame: place once per frame.

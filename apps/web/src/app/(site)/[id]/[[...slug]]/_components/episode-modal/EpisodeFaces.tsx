@@ -29,7 +29,7 @@ const LABEL =
 
 /** The photo's ring and grow; on phones up to 60px, smaller so every face fits */
 const PHOTO =
-  'block rounded-full border-2 border-white object-cover shadow-[0_10px_24px_-8px_rgb(0_0_0/0.7)] transition-transform duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] group-hover:scale-115 group-focus-visible:scale-115 group-data-revealed:scale-115 max-lg:size-(--phone-face) max-lg:shadow-none';
+  'block rounded-full border-2 border-white object-cover shadow-[0_10px_24px_-8px_rgb(0_0_0/0.7)] transition-transform duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] group-hover:scale-115 group-focus-visible:scale-115 group-focus-visible:outline-2 group-focus-visible:outline-white group-focus-visible:outline-offset-2 group-data-revealed:scale-115 max-lg:size-(--phone-face) max-lg:shadow-none';
 
 /** The name and role fade up below the face, kept inside the row's ends on phones */
 const EPISODE_CAPTION: Omit<FaceLook, 'photo' | 'sizes'> = {

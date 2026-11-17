@@ -138,7 +138,7 @@ export default function OverviewSlider({
       aria-valuemin={0}
       aria-valuenow={initial.now}
       aria-valuetext={initial.text}
-      className="absolute inset-0 cursor-grab touch-pan-y select-none rounded-6 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70 active:cursor-grabbing"
+      className="absolute inset-0 cursor-grab touch-pan-y select-none rounded-6 outline-none focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70 active:cursor-grabbing"
       onBlur={onBlur}
       onKeyDown={onKeyDown}
       onLostPointerCapture={release}

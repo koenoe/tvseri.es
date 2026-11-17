@@ -60,9 +60,10 @@ export default function CareerMarks({
   const base = cn('absolute', WEIGHT[weight]);
 
   if (!signedIn) {
+    const softClass = cn(base, 'bg-white/26');
     return runs.map((run) => (
       <i
-        className={cn(base, 'bg-white/26')}
+        className={softClass}
         key={run.start}
         style={barStyle(run.start, run.end)}
       />
@@ -116,25 +117,27 @@ export default function CareerMarks({
         } as CSSProperties)
       : undefined;
 
+  const labelClass = cn(
+    styles.wn,
+    desktop?.over ? OVER.desktop : null,
+    phone?.over ? OVER.phone : null,
+    'absolute top-3 right-(--wrm) left-(--wlm) flex h-5 items-center gap-1 text-caption whitespace-nowrap text-white/80 tabular-nums lg:top-1.5 lg:right-(--wr) lg:left-(--wl) lg:gap-[5px]',
+  );
+
   return (
     <>
-      {pieces.map((piece) => (
-        <i
-          className={cn(base, piece.lit ? 'bg-white/92' : outline)}
-          key={`${piece.start}-${piece.lit}`}
-          style={barStyle(piece.start, piece.end)}
-        />
-      ))}
+      {pieces.map((piece) => {
+        const pieceClass = cn(base, piece.lit ? 'bg-white/92' : outline);
+        return (
+          <i
+            className={pieceClass}
+            key={`${piece.start}-${piece.lit}`}
+            style={barStyle(piece.start, piece.end)}
+          />
+        );
+      })}
       {watched ? (
-        <span
-          className={cn(
-            styles.wn,
-            desktop?.over ? OVER.desktop : null,
-            phone?.over ? OVER.phone : null,
-            'absolute top-3 right-(--wrm) left-(--wlm) flex h-5 items-center gap-1 text-caption whitespace-nowrap text-white/80 tabular-nums lg:top-1.5 lg:right-(--wr) lg:left-(--wl) lg:gap-[5px]',
-          )}
-          style={labelStyle}
-        >
+        <span className={labelClass} style={labelStyle}>
           <Icon
             className="shrink-0 max-lg:size-[11px]"
             glyph={watched.complete ? checkGlyph : eyeGlyph}

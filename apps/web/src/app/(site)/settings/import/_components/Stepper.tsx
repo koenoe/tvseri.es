@@ -43,27 +43,25 @@ export default function Stepper({ step }: Readonly<{ step: 1 | 2 | 3 }>) {
         {STEPS.map((name, index) => {
           const state = stateOf(index, step);
           const isLast = index === STEPS.length - 1;
+          const itemClass = cn(
+            'flex min-w-0 items-center',
+            isLast ? 'flex-none' : 'flex-1',
+          );
+          const stepClass = cn(
+            'inline-flex h-9 items-center gap-3 whitespace-nowrap pr-2.5 pl-1 text-body-sm',
+            STEP[state],
+          );
+          const dotClass = cn(
+            'flex size-6.5 items-center justify-center rounded-full text-caption font-medium not-italic',
+            DOT[state],
+          );
           return (
-            <li
-              className={cn(
-                'flex min-w-0 items-center',
-                isLast ? 'flex-none' : 'flex-1',
-              )}
-              key={name}
-            >
+            <li className={itemClass} key={name}>
               <span
                 aria-current={state === 'on' ? 'step' : undefined}
-                className={cn(
-                  'inline-flex h-9 items-center gap-3 whitespace-nowrap pr-2.5 pl-1 text-body-sm',
-                  STEP[state],
-                )}
+                className={stepClass}
               >
-                <i
-                  className={cn(
-                    'flex size-6.5 items-center justify-center rounded-full text-caption font-medium not-italic',
-                    DOT[state],
-                  )}
-                >
+                <i className={dotClass}>
                   {state === 'done' ? (
                     <Icon glyph={checkGlyph} size={13} />
                   ) : (
@@ -84,12 +82,10 @@ export default function Stepper({ step }: Readonly<{ step: 1 | 2 | 3 }>) {
           {label}
         </span>
         <span aria-hidden="true" className="grid grid-cols-3 gap-1">
-          {STEPS.map((name, index) => (
-            <i
-              className={cn('h-1 rounded-2', BAR[stateOf(index, step)])}
-              key={name}
-            />
-          ))}
+          {STEPS.map((name, index) => {
+            const barClass = cn('h-1 rounded-2', BAR[stateOf(index, step)]);
+            return <i className={barClass} key={name} />;
+          })}
         </span>
       </div>
     </>

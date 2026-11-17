@@ -37,16 +37,17 @@ const TILES = [0, 1, 2, 3, 4, 5, 6] as const;
 /** The Focus tile's lines: Next up, the title, the overview, date, what's left. */
 function FocusGhost() {
   const look = FOCUS.tall;
+  const bodyClass = cn(FOCUS_BODY, look.body);
+  const stillClass = cn(FOCUS_STILL, GHOST_FILL, look.still);
+  const frameClass = cn(
+    'flex flex-col overflow-hidden rounded-12',
+    GHOST_FILL,
+    look.frame,
+  );
   return (
-    <div
-      className={cn(
-        'flex flex-col overflow-hidden rounded-12',
-        GHOST_FILL,
-        look.frame,
-      )}
-    >
-      <div className={cn(FOCUS_STILL, GHOST_FILL, look.still)} />
-      <div className={cn(FOCUS_BODY, look.body)}>
+    <div className={frameClass}>
+      <div className={stillClass} />
+      <div className={bodyClass}>
         <GhostLine className="h-5" inPulse look="loading" width="w-32" />
         <GhostLine className="h-7 md:h-8" inPulse look="loading" width="w-56" />
         <span className="flex flex-col">
@@ -66,18 +67,19 @@ function FocusGhost() {
   );
 }
 
+const TILE_STILL_GHOST = cn(TILE_STILL, GHOST_FILL);
+
 /** An episode tile's lines: number and title, two of overview, date · runtime. */
 function TileGhost({ phoneHidden }: Readonly<{ phoneHidden: boolean }>) {
+  const tileFrameClass = cn(
+    'overflow-hidden rounded-12',
+    GHOST_FILL,
+    TILE_FRAME,
+    phoneHidden && 'max-md:hidden',
+  );
   return (
-    <div
-      className={cn(
-        'overflow-hidden rounded-12',
-        GHOST_FILL,
-        TILE_FRAME,
-        phoneHidden && 'max-md:hidden',
-      )}
-    >
-      <div className={cn(TILE_STILL, GHOST_FILL)} />
+    <div className={tileFrameClass}>
+      <div className={TILE_STILL_GHOST} />
       <div className={TILE_BODY}>
         <GhostLine className="h-7" inPulse look="loading" width="w-2/3" />
         <span className="flex flex-col">
@@ -90,6 +92,8 @@ function TileGhost({ phoneHidden }: Readonly<{ phoneHidden: boolean }>) {
   );
 }
 
+const WALL_GRID_GHOST = cn(WALL_GRID, 'animate-ghost');
+
 /**
  * The wall's slots: ghosted tiles while loading, dashed outlines
  * of the same slots when the season failed (`EpisodesError` lays its card
@@ -100,26 +104,25 @@ export function WallSkeleton({
 }: Readonly<{ look?: 'failed' | 'loading' }>) {
   if (look === 'failed') {
     const slot = `rounded-12 ${GHOST_LOOK.failed}`;
+    const focusSlotClass = cn(slot, 'h-103', FOCUS.tall.frame);
     return (
       <div aria-hidden="true" className={WALL_GRID}>
-        <div className={cn(slot, 'h-103', FOCUS.tall.frame)} />
-        {TILES.map((tile) => (
-          <div
-            className={cn(
-              slot,
-              'h-89',
-              TILE_FRAME,
-              tile > 0 && 'max-md:hidden',
-            )}
-            key={tile}
-          />
-        ))}
+        <div className={focusSlotClass} />
+        {TILES.map((tile) => {
+          const tileSlotClass = cn(
+            slot,
+            'h-89',
+            TILE_FRAME,
+            tile > 0 && 'max-md:hidden',
+          );
+          return <div className={tileSlotClass} key={tile} />;
+        })}
         <ShowMoreGhost look="failed" />
       </div>
     );
   }
   return (
-    <div aria-hidden="true" className={cn(WALL_GRID, 'animate-ghost')}>
+    <div aria-hidden="true" className={WALL_GRID_GHOST}>
       <FocusGhost />
       {TILES.map((tile) => (
         <TileGhost key={tile} phoneHidden={tile > 0} />

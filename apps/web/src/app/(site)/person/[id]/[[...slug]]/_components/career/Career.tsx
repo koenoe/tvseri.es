@@ -62,6 +62,18 @@ const LABEL =
   'block truncate text-body-sm font-medium text-white/80 lg:font-normal';
 const SUB = 'text-caption text-white/60 tabular-nums lg:hidden';
 
+const AXIS_COLUMNS = cn(COLUMNS, 'h-6');
+const NAME_LABEL = cn(styles.name, LABEL);
+const WHEN_SUB = cn(SUB, 'text-pink');
+const UPCOMING_BAR = cn(
+  'absolute bg-linear-to-r from-pink to-pink/0',
+  WEIGHT[2],
+);
+const UPCOMING_CAPTION = cn(CAPTION, styles.capOn, 'text-pink');
+const GUEST_ROW_CLASS = cn(ROW, GUEST_ROW);
+const SHORT_ALL_SERIES = cn(SECTION_LINK, 'cursor-pointer lg:hidden');
+const LONG_ALL_SERIES = cn(SECTION_LINK, 'cursor-pointer');
+
 const captionStyle = (at: CaptionPlace): CSSProperties => {
   if (at.side === 'over') {
     return { right: 0 };
@@ -88,9 +100,14 @@ function Axis({ view }: Readonly<{ view: CareerView }>) {
   const markerClass = marker.died
     ? 'translate-x-[calc(-100%-6px)] text-white/60'
     : '-translate-x-1/2 font-medium text-white';
+  const markerLabelClass = cn(
+    styles.dim,
+    'absolute top-0 text-caption whitespace-nowrap',
+    markerClass,
+  );
   return (
     <>
-      <div aria-hidden="true" className={cn(COLUMNS, 'h-6')}>
+      <div aria-hidden="true" className={AXIS_COLUMNS}>
         <span />
         <span className="relative">
           {view.axis.desktop.map((tick) => (
@@ -111,14 +128,7 @@ function Axis({ view }: Readonly<{ view: CareerView }>) {
               {tick.label}
             </span>
           ))}
-          <span
-            className={cn(
-              styles.dim,
-              'absolute top-0 text-caption whitespace-nowrap',
-              markerClass,
-            )}
-            style={{ left: `${marker.at}%` }}
-          >
+          <span className={markerLabelClass} style={{ left: `${marker.at}%` }}>
             {marker.label}
           </span>
         </span>
@@ -157,7 +167,7 @@ function Rows({
           key={row.id}
         >
           <span className="flex min-w-0 flex-col gap-px pl-1 lg:block lg:pl-2">
-            <span className={cn(styles.name, LABEL)}>{row.name}</span>
+            <span className={NAME_LABEL}>{row.name}</span>
             <span className="sr-only">{row.details}</span>
             <span aria-hidden="true" className={SUB}>
               {row.years}
@@ -195,23 +205,20 @@ function Rows({
             key={row.id}
           >
             <span className="flex min-w-0 flex-col gap-px pl-1 lg:block lg:pl-2">
-              <span className={cn(styles.name, LABEL)}>{row.name}</span>
+              <span className={NAME_LABEL}>{row.name}</span>
               <span className="sr-only">{row.details}</span>
-              <span aria-hidden="true" className={cn(SUB, 'text-pink')}>
+              <span aria-hidden="true" className={WHEN_SUB}>
                 {row.when}
               </span>
             </span>
             <span className={TRACK}>
               <i
-                className={cn(
-                  'absolute bg-linear-to-r from-pink to-pink/0',
-                  WEIGHT[2],
-                )}
+                className={UPCOMING_BAR}
                 style={barStyle(row.bar.start, row.bar.end, 1)}
               />
               <span
                 aria-hidden="true"
-                className={cn(CAPTION, styles.capOn, 'text-pink')}
+                className={UPCOMING_CAPTION}
                 style={style}
               >
                 <CaptionItem icon={filmGlyph}>{row.role}</CaptionItem>
@@ -237,7 +244,7 @@ function GuestRow({
   return (
     <GuestRowButton
       aria={view.aria}
-      className={cn(ROW, GUEST_ROW)}
+      className={GUEST_ROW_CLASS}
       personId={personId}
     >
       <span className="flex min-w-0 flex-col gap-px pl-1 lg:block lg:pl-2">
@@ -305,10 +312,7 @@ export default async function Career({
     <>
       {hasBars ? <CareerKeyInline personId={person.id} /> : null}
       {series > 0 ? (
-        <AllSeriesButton
-          className={cn(SECTION_LINK, 'cursor-pointer lg:hidden')}
-          personId={person.id}
-        >
+        <AllSeriesButton className={SHORT_ALL_SERIES} personId={person.id}>
           {allSeriesLabel(series, 'short')}
           {chevron}
         </AllSeriesButton>
@@ -337,10 +341,7 @@ export default async function Career({
         </CareerTouch>
         {series > 0 ? (
           <div className="mt-2 hidden justify-end border-t border-white/6 pt-3 lg:flex">
-            <AllSeriesButton
-              className={cn(SECTION_LINK, 'cursor-pointer')}
-              personId={person.id}
-            >
+            <AllSeriesButton className={LONG_ALL_SERIES} personId={person.id}>
               {allSeriesLabel(series, 'long')}
               {chevron}
             </AllSeriesButton>

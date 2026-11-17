@@ -68,13 +68,10 @@ export const indexMetadata = (kind: IndexKind): Metadata => ({
   title: COPY[kind].title,
 });
 
+const COUNT_GHOST_CLASS = cn('block h-5 w-24 rounded-8', GHOST_LOOK.loading);
+
 /** The count's place when the list is unavailable: a bar the width of "24 countries" */
-const COUNT_GHOST = (
-  <span
-    aria-hidden
-    className={cn('block h-5 w-24 rounded-8', GHOST_LOOK.loading)}
-  />
-);
+const COUNT_GHOST = <span aria-hidden className={COUNT_GHOST_CLASS} />;
 
 /** The landings' English names, A to Z: the chips' labels before the list is known (the list is these, cut by the ones with shows) */
 const landingLabels = (kind: ListKind): ReadonlyArray<string> =>

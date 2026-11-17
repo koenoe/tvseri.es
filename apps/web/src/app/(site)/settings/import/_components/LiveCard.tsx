@@ -33,13 +33,13 @@ export default function LiveCard({
   const fill = { transform: `scaleX(${progress})` } as CSSProperties;
   const dot = { backgroundColor: `rgb(${OUTCOME_RGB[outcomeOf(rate)]})` };
   const matched = `${Math.round(rate * 100)}% matched so far`;
+  const cardClass = cn(
+    'relative flex flex-col items-center gap-4 overflow-hidden rounded-[24px] bg-white/3 px-8 pb-8 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.07)] [mask-image:linear-gradient(#000_70%,rgb(0_0_0/0.85))] max-md:px-6 max-md:pb-6',
+    stopped ? 'pt-9' : 'pt-12',
+  );
+  const metaClass = cn(META_ROW, 'relative justify-center text-white/60');
   return (
-    <div
-      className={cn(
-        'relative flex flex-col items-center gap-4 overflow-hidden rounded-[24px] bg-white/3 px-8 pb-8 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.07)] [mask-image:linear-gradient(#000_70%,rgb(0_0_0/0.85))] max-md:px-6 max-md:pb-6',
-        stopped ? 'pt-9' : 'pt-12',
-      )}
-    >
+    <div className={cardClass}>
       {stopped ? null : <Ripple className="top-1/2" mode="breathe" />}
       <div
         aria-live="polite"
@@ -60,7 +60,7 @@ export default function LiveCard({
         />
       </span>
       {stopped ? null : (
-        <span className={cn(META_ROW, 'relative justify-center text-white/60')}>
+        <span className={metaClass}>
           {current ? (
             <span className={META_ITEM}>
               <Icon glyph={showGlyph} size={13} />

@@ -57,6 +57,14 @@ function GhostRow() {
   );
 }
 
+const DAY_NUMBER_GHOST = cn(GHOST, 'h-[26px] w-8');
+
+const DAY_NAME_GHOST = cn(GHOST, 'h-2.5 w-7');
+
+const MONTH_COUNT_GHOST = cn(GHOST, 'h-3 w-30');
+
+const MONTH_TITLE_GHOST = cn(GHOST, 'h-5 w-40');
+
 /**
  * History before its first page: a month header and six
  * day rows with one or two rows each, in the diary's own boxes; the ghosts
@@ -72,19 +80,19 @@ export default function DiarySkeleton() {
       <div className={DIARY_MONTH}>
         <div className={DIARY_MONTH_HEADER}>
           <span className="flex h-6 items-center">
-            <span className={cn(GHOST, 'h-5 w-40')} />
+            <span className={MONTH_TITLE_GHOST} />
           </span>
           <span className="h-0.5 flex-1 rounded-2 bg-white/8 max-md:hidden" />
           <span className="flex h-5 items-center max-md:order-last max-md:basis-full">
-            <span className={cn(GHOST, 'h-3 w-30')} />
+            <span className={MONTH_COUNT_GHOST} />
           </span>
           <span className={JUMP_GHOST} />
         </div>
         {DAYS.map((rows, day) => (
           <div className={DIARY_DAY} key={day}>
             <span className="flex flex-col items-start gap-1.5 pt-1">
-              <span className={cn(GHOST, 'h-2.5 w-7')} />
-              <span className={cn(GHOST, 'h-[26px] w-8')} />
+              <span className={DAY_NAME_GHOST} />
+              <span className={DAY_NUMBER_GHOST} />
             </span>
             <span className={DIARY_ROWS}>
               {Array.from({ length: rows }, (_, index) => (

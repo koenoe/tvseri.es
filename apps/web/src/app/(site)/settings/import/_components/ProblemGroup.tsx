@@ -26,6 +26,10 @@ export default function ProblemGroup({
   what: string;
 }>) {
   const bodyId = `import-group-${id}`;
+  const chevronClass = cn(
+    'text-white/60 transition-transform duration-200',
+    open && 'rotate-90',
+  );
   return (
     <div className="overflow-hidden rounded-16 bg-white/3.5 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.07)]">
       <button
@@ -35,14 +39,7 @@ export default function ProblemGroup({
         onClick={onToggle}
         type="button"
       >
-        <Icon
-          className={cn(
-            'text-white/60 transition-transform duration-200',
-            open && 'rotate-90',
-          )}
-          glyph={chevronRightGlyph}
-          size={16}
-        />
+        <Icon className={chevronClass} glyph={chevronRightGlyph} size={16} />
         <b className="whitespace-nowrap text-body-sm font-semibold">{name}</b>
         <span className="inline-flex h-5.5 items-center justify-self-start rounded-full bg-white/10 px-2 text-caption font-medium tabular-nums max-md:justify-self-end">
           {formatGrouped(count)}

@@ -70,13 +70,20 @@ export const FocusTile = memo(function FocusTile({
     look.frame,
     episode.episodeNumber % 2 ? styles.a1 : styles.a0,
   );
+  const stillClass = cn(FOCUS_STILL, look.still);
+  const bodyClass = cn(FOCUS_BODY, look.body);
+  const titleClass = cn('text-title-2', look.title);
+  const overviewClass = cn(
+    'line-clamp-2 max-w-160 text-body-sm text-white/80',
+    look.overview,
+  );
   return (
     <div
       className={classes}
       data-episode-tile={codeOf(episode)}
       data-focus-layout={layout}
     >
-      <div className={cn(FOCUS_STILL, look.still)}>
+      <div className={stillClass}>
         <Still sizes={STILL_SIZES.focus} src={episode.stillImage} />
         <StillFade />
         <EyePill
@@ -87,19 +94,12 @@ export const FocusTile = memo(function FocusTile({
           variant="primary"
         />
       </div>
-      <div className={cn(FOCUS_BODY, look.body)}>
+      <div className={bodyClass}>
         <span className="inline-flex items-center gap-2 text-overline text-cyan uppercase before:size-1.5 before:rounded-full before:bg-cyan">
           {`Next up · ${episodeCode(episode)}`}
         </span>
-        <h4 className={cn('text-title-2', look.title)}>{episode.title}</h4>
-        <p
-          className={cn(
-            'line-clamp-2 max-w-160 text-body-sm text-white/80',
-            look.overview,
-          )}
-        >
-          {episode.description}
-        </p>
+        <h4 className={titleClass}>{episode.title}</h4>
+        <p className={overviewClass}>{episode.description}</p>
         <EpisodeMeta episode={episode} />
         <span className="text-meta text-white/80">{context}</span>
       </div>

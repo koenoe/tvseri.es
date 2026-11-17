@@ -13,6 +13,7 @@ import { SECTION_LINK } from '../sectionLink';
 import AllAwards from './AllAwards';
 
 const SECTION = cn(PERSON_SECTION, 'scroll-mt-20');
+const ALL_LINK = cn(SECTION_LINK, 'cursor-pointer');
 
 /**
  * Awards (from Wikidata): a big number per award family, four across on desktop,
@@ -53,11 +54,7 @@ export default async function Awards({
   );
   const allLink =
     awards.total > 1 ? (
-      <AllAwards
-        className={cn(SECTION_LINK, 'cursor-pointer')}
-        name={name}
-        personId={id}
-      >
+      <AllAwards className={ALL_LINK} name={name} personId={id}>
         All {awards.total}
         <span className="hidden lg:inline"> nominations</span>
         <Icon glyph={chevronRightGlyph} size={14} />

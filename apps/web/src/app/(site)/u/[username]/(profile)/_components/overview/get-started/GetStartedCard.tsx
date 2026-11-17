@@ -43,15 +43,13 @@ function Progress({ done }: Readonly<{ done: number }>) {
     <span className={PROGRESS_TEXT}>
       {progressText(done)}
       <span aria-hidden="true" className={PROGRESS_SEGMENTS}>
-        {segments.map((step) => (
-          <i
-            className={cn(
-              'h-1 flex-1 rounded-2 transition-colors',
-              step <= done ? 'bg-white' : 'bg-white/12',
-            )}
-            key={step}
-          />
-        ))}
+        {segments.map((step) => {
+          const segmentClass = cn(
+            'h-1 flex-1 rounded-2 transition-colors',
+            step <= done ? 'bg-white' : 'bg-white/12',
+          );
+          return <i className={segmentClass} key={step} />;
+        })}
       </span>
     </span>
   );

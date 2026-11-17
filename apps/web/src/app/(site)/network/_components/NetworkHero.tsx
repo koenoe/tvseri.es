@@ -72,9 +72,10 @@ async function NetworkMark({
 }
 
 /** One meta item whose read failed: a dashed bar of its size */
-const failedItem = (size: string) => (
-  <span aria-hidden className={cn(FAILED_BAR, 'h-5 shrink-0', size)} />
-);
+const failedItem = (size: string) => {
+  const barClass = cn(FAILED_BAR, 'h-5 shrink-0', size);
+  return <span aria-hidden className={barClass} />;
+};
 
 /** Country · "381 shows" · "Since 1972" (the year is dropped on a phone) */
 async function NetworkMeta({ network }: Readonly<{ network: NetworkEntry }>) {

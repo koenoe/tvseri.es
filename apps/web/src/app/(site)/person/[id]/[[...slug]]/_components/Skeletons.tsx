@@ -46,6 +46,11 @@ const COLLABORATORS_ROW = cn(
   COLLABORATOR_GRID,
 );
 
+const CAREER_LANE = cn(
+  LANE,
+  'h-[563px] overflow-hidden px-4 pt-4 lg:h-[422px] lg:px-6 lg:pt-5',
+);
+
 export function CareerSkeleton() {
   return (
     <section
@@ -55,12 +60,7 @@ export function CareerSkeleton() {
     >
       <SectionHead id="person-career-loading" title="Career" />
       <div className="h-[46px] lg:hidden" />
-      <div
-        className={cn(
-          LANE,
-          'h-[563px] overflow-hidden px-4 pt-4 lg:h-[422px] lg:px-6 lg:pt-5',
-        )}
-      >
+      <div className={CAREER_LANE}>
         <div className="h-6" />
         {CAREER_BARS.map((bar) => (
           <div
@@ -108,6 +108,11 @@ export function CollaboratorsSkeleton() {
   );
 }
 
+const AWARDS_LANE = cn(
+  LANE,
+  'grid h-[220px] grid-cols-2 gap-x-6 gap-y-4 p-5 lg:h-[136px] lg:grid-cols-4',
+);
+
 export function AwardsSkeleton() {
   return (
     <section
@@ -116,12 +121,7 @@ export function AwardsSkeleton() {
       data-placeholder="person-awards"
     >
       <SectionHead id="person-awards-loading" title="Awards" />
-      <div
-        className={cn(
-          LANE,
-          'grid h-[220px] grid-cols-2 gap-x-6 gap-y-4 p-5 lg:h-[136px] lg:grid-cols-4',
-        )}
-      >
+      <div className={AWARDS_LANE}>
         {[0, 1, 2, 3].map((award) => (
           <span className="flex flex-col" key={award}>
             <TextLine bar="h-6" className="text-title-1" width="w-8" />

@@ -108,8 +108,9 @@ export default async function PopularUnwatched({ user, year }: SectionProps) {
 
 export function PopularUnwatchedSkeleton() {
   const slots = Array.from({ length: POPULAR_SLOTS }, (_, index) => index);
+  const frameClass = cn('flex flex-col gap-6', PULSE);
   return (
-    <div aria-hidden className={cn('flex flex-col gap-6', PULSE)}>
+    <div aria-hidden className={frameClass}>
       <SectionHead id="stats-popular-skeleton" title="Popular unwatched" />
       <div className="grid grid-cols-3 gap-3 md:grid-cols-5 md:gap-4">
         {slots.map((slot) => (

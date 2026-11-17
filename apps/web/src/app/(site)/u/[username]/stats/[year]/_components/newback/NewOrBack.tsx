@@ -68,11 +68,10 @@ function Count({
   glyph,
   label,
 }: Readonly<{ count: number; dim?: boolean; glyph: Glyph; label: string }>) {
+  const numeralClass = cn('text-numeral', dim && 'text-white/60');
   return (
     <div className="flex flex-col gap-1.5">
-      <span className={cn('text-numeral', dim && 'text-white/60')}>
-        {count}
-      </span>
+      <span className={numeralClass}>{count}</span>
       <MetaRow>
         <MetaItem icon={glyph}>{label}</MetaItem>
       </MetaRow>
@@ -116,10 +115,11 @@ function Stack({ side }: Readonly<{ side: Side }>) {
 
 const POSTER =
   '-ml-3.5 aspect-2/3 w-11 rounded-6 object-cover shadow-[-6px_0_14px_rgb(0_0_0/0.55)]';
+const POSTER_BLANK = cn(POSTER, 'block bg-white/5');
 
 function Poster({ show }: Readonly<{ show: StatsSeriesRef }>) {
   if (!show.posterImage) {
-    return <span aria-hidden className={cn(POSTER, 'block bg-white/5')} />;
+    return <span aria-hidden className={POSTER_BLANK} />;
   }
   return (
     <Image

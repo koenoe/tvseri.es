@@ -18,13 +18,12 @@ const NO_INSET = 'contents [--row-end:0px] [--row-start:0px]';
  * them (bottom left; the big tile's larger), each a bar in its line box
  */
 function TileTextGhost({ first }: Readonly<{ first: boolean }>) {
+  const frameClass = cn(
+    'absolute right-3 bottom-2.5 left-3 flex flex-col gap-1 md:right-5.5 md:bottom-5 md:left-5.5 md:gap-2.5',
+    first && 'md:bottom-7.5 md:left-8 md:gap-3.5',
+  );
   return (
-    <span
-      className={cn(
-        'absolute right-3 bottom-2.5 left-3 flex flex-col gap-1 md:right-5.5 md:bottom-5 md:left-5.5 md:gap-2.5',
-        first && 'md:bottom-7.5 md:left-8 md:gap-3.5',
-      )}
-    >
+    <span className={frameClass}>
       <GhostLine
         className={first ? 'h-7 md:h-10' : 'h-7 md:h-8'}
         inPulse
@@ -38,14 +37,18 @@ function TileTextGhost({ first }: Readonly<{ first: boolean }>) {
 
 /** The grid's five tile slots, in the tiles' exact places */
 function LensGridSlots({ look }: Readonly<{ look: 'failed' | 'loading' }>) {
-  return SLOTS.map((slot) => (
-    <span
-      className={cn('relative', slot === 0 ? FIRST : REST, GHOST_LOOK[look])}
-      key={slot}
-    >
-      {look === 'loading' ? <TileTextGhost first={slot === 0} /> : null}
-    </span>
-  ));
+  return SLOTS.map((slot) => {
+    const slotClass = cn(
+      'relative',
+      slot === 0 ? FIRST : REST,
+      GHOST_LOOK[look],
+    );
+    return (
+      <span className={slotClass} key={slot}>
+        {look === 'loading' ? <TileTextGhost first={slot === 0} /> : null}
+      </span>
+    );
+  });
 }
 
 /** The lens grid's exact space while its tiles load */

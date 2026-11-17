@@ -124,12 +124,17 @@ ProgressBar.displayName = 'ProgressBar';
 
 export default memo(ProgressBar);
 
+const SKELETON_CLASS = cn(
+  LINE_SPACE,
+  'flex animate-ghost items-center gap-3 px-2.5',
+);
+
 /** The line's exact space while the viewer's marks load: the same box for everyone. */
 export function ProgressSkeleton() {
   return (
     <div
       aria-hidden="true"
-      className={cn(LINE_SPACE, 'flex animate-ghost items-center gap-3 px-2.5')}
+      className={SKELETON_CLASS}
       data-placeholder="progress"
     >
       <span className={`h-1 flex-1 rounded-2 ${GHOST_FILL}`} />

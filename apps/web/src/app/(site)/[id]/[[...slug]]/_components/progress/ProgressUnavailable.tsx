@@ -7,6 +7,11 @@ import cn from '@/lib/cn';
 import { useReloadViewer } from '../../_lib/viewerUnavailable';
 import { PROGRESS_LINE_SPACE } from '../frames';
 
+const UNAVAILABLE_CLASS = cn(
+  PROGRESS_LINE_SPACE,
+  'flex items-center gap-3 px-2.5',
+);
+
 /**
  * The progress line when the viewer's marks didn't load: the same
  * box, an empty dashed track (the failed look) and "Your progress
@@ -28,7 +33,7 @@ export default function ProgressUnavailable({
     : 'Your progress didn’t load';
   return (
     <div
-      className={cn(PROGRESS_LINE_SPACE, 'flex items-center gap-3 px-2.5')}
+      className={UNAVAILABLE_CLASS}
       data-slot="progress"
       data-state="unavailable"
       role="status"

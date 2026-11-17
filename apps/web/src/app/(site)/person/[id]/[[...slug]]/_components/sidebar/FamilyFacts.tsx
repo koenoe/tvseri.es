@@ -57,18 +57,19 @@ export function FamilyFactsSkeleton() {
       className={FACTS_GHOST}
       data-placeholder="person-family"
     >
-      {[0, 1, 2].map((line) => (
-        <span
-          className={cn(
-            'flex h-6 items-center gap-2 lg:gap-2.5',
-            line === 2 && 'max-lg:hidden',
-          )}
-          key={line}
-        >
-          <span className={ICON_GHOST} />
-          <span className={cn(LINE_GHOST, line === 1 ? 'w-40' : 'w-52')} />
-        </span>
-      ))}
+      {[0, 1, 2].map((line) => {
+        const lineClass = cn(
+          'flex h-6 items-center gap-2 lg:gap-2.5',
+          line === 2 && 'max-lg:hidden',
+        );
+        const barClass = cn(LINE_GHOST, line === 1 ? 'w-40' : 'w-52');
+        return (
+          <span className={lineClass} key={line}>
+            <span className={ICON_GHOST} />
+            <span className={barClass} />
+          </span>
+        );
+      })}
     </div>
   );
 }

@@ -49,6 +49,17 @@ export function LandingHero({
   const glowStyle: CSSProperties | undefined = glow
     ? { background: glow }
     : undefined;
+  const copyClass = cn(
+    'flex min-w-0 flex-col items-start',
+    // 8 more under the crumb beside a tile
+    aside && 'lg:[&>[data-testid=landing-crumb]]:mb-2',
+  );
+  const frameClass = cn(
+    'relative mx-auto w-full max-w-page px-gutter pt-4',
+    aside
+      ? 'md:pt-13 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,640px)] lg:items-end lg:gap-16'
+      : 'md:pt-9',
+  );
   return (
     <section
       aria-labelledby={labelledBy}
@@ -63,23 +74,8 @@ export function LandingHero({
           style={glowStyle}
         />
       ) : null}
-      <div
-        className={cn(
-          'relative mx-auto w-full max-w-page px-gutter pt-4',
-          aside
-            ? 'md:pt-13 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,640px)] lg:items-end lg:gap-16'
-            : 'md:pt-9',
-        )}
-      >
-        <div
-          className={cn(
-            'flex min-w-0 flex-col items-start',
-            // 8 more under the crumb beside a tile
-            aside && 'lg:[&>[data-testid=landing-crumb]]:mb-2',
-          )}
-        >
-          {children}
-        </div>
+      <div className={frameClass}>
+        <div className={copyClass}>{children}</div>
         {aside ? <div className="mt-10 md:mt-12 lg:mt-0">{aside}</div> : null}
       </div>
     </section>
@@ -153,6 +149,8 @@ export function LandingCrumb({
  */
 export const TITLE_SPACE = 'max-md:mt-2 max-md:mb-1';
 
+const TITLE_CLASS = cn('font-display text-display text-white', TITLE_SPACE);
+
 /** The kind's name, the biggest thing on the page (display, Jakarta 800) */
 export function LandingTitle({
   children,
@@ -166,11 +164,7 @@ export function LandingTitle({
 }>) {
   return (
     <>
-      <h1
-        className={cn('font-display text-display text-white', TITLE_SPACE)}
-        data-slot="landing-title"
-        id={id}
-      >
+      <h1 className={TITLE_CLASS} data-slot="landing-title" id={id}>
         {children}
       </h1>
       <PageName name={name} />
@@ -231,6 +225,7 @@ export function LandingChips({
     return null;
   }
   const cloud = chips.map((chip) => ({ ...chip, key: chip.href }));
+  const chipsClass = cn(CHIPS_LINE, heading ? 'md:mt-2' : 'md:mt-6');
   return (
     <>
       {heading ? (
@@ -238,11 +233,7 @@ export function LandingChips({
           {heading}
         </p>
       ) : null}
-      <ChipCloud
-        chips={cloud}
-        className={cn(CHIPS_LINE, heading ? 'md:mt-2' : 'md:mt-6')}
-        label={heading}
-      />
+      <ChipCloud chips={cloud} className={chipsClass} label={heading} />
     </>
   );
 }

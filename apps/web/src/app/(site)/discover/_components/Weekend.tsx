@@ -48,6 +48,14 @@ const WIDE_LINK = `relative block h-49.5 overflow-hidden rounded-10 bg-white/5 s
  * past its column at a tablet.
  */
 const WEEKEND_LINE = 'flex min-w-0 flex-col gap-2.5';
+const WEEKEND_WIDE_GHOST = cn(
+  'block h-49.5 rounded-10 md:h-85',
+  GHOST_LOOK.loading,
+);
+const WEEKEND_POSTER_GHOST = cn(
+  'block aspect-2/3 rounded-10',
+  GHOST_LOOK.loading,
+);
 
 function ShowLine({ show }: Readonly<{ show: DurationTileShow }>) {
   return (
@@ -122,23 +130,13 @@ export function WeekendSkeleton() {
       <SectionHeader id="weekend-loading" title={WEEKEND_TITLE} />
       <div className={WEEKEND_RAIL}>
         <div className={WEEKEND_WIDE}>
-          <span
-            className={cn(
-              'block h-49.5 rounded-10 md:h-85',
-              GHOST_LOOK.loading,
-            )}
-          />
+          <span className={WEEKEND_WIDE_GHOST} />
           <TileLine />
         </div>
         {[0, 1, 2].map((slot) => (
           <div className={WEEKEND_POSTER} key={slot}>
             <div className="flex flex-col gap-2 md:gap-3">
-              <span
-                className={cn(
-                  'block aspect-2/3 rounded-10',
-                  GHOST_LOOK.loading,
-                )}
-              />
+              <span className={WEEKEND_POSTER_GHOST} />
               <TileLine />
             </div>
           </div>

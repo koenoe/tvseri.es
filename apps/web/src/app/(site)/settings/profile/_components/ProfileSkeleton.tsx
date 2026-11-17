@@ -22,6 +22,8 @@ const PREVIEW = cn(
 const INPUT = cn('block h-12 rounded-10', GHOST_FILL);
 const LINES = [0, 1, 2];
 
+const SKELETON_CLASS = cn(EDITOR_GRID, PULSE);
+
 /**
  * The Profile hole while it streams, in the editor's own grid: the form card
  * with its three fields (real labels, the inputs as flat boxes, the hints as
@@ -31,7 +33,7 @@ const LINES = [0, 1, 2];
  */
 export default function ProfileSkeleton() {
   return (
-    <div aria-hidden="true" className={cn(EDITOR_GRID, PULSE)}>
+    <div aria-hidden="true" className={SKELETON_CLASS}>
       <div className={PREVIEW_CELL}>
         <div className={PREVIEW}>
           <span className="flex w-75 max-w-full flex-col gap-[22px]">

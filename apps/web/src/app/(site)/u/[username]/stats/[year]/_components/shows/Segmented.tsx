@@ -28,14 +28,15 @@ export default function Segmented<T extends number | string>({
       {options.map((option) => {
         const checked = option.value === value;
         const select = () => onChange(option.value);
+        const itemClass = cn(
+          'cursor-pointer whitespace-nowrap rounded-[7px] font-medium transition-colors duration-200',
+          itemClassName,
+          checked ? 'bg-white/15 text-white' : 'text-white/60',
+        );
         return (
           <button
             aria-checked={checked}
-            className={cn(
-              'cursor-pointer whitespace-nowrap rounded-[7px] font-medium transition-colors duration-200',
-              itemClassName,
-              checked ? 'bg-white/15 text-white' : 'text-white/60',
-            )}
+            className={itemClass}
             key={option.value}
             onClick={select}
             role="radio"

@@ -149,12 +149,9 @@ export function CopyLinkButton({
   className,
   share,
 }: Readonly<{ className?: string; share: ShareState }>) {
+  const buttonClass = cn('has-[>svg:first-child]:pl-4', className);
   return (
-    <Button
-      className={cn('has-[>svg:first-child]:pl-4', className)}
-      onClick={share.copyLink}
-      variant="outline"
-    >
+    <Button className={buttonClass} onClick={share.copyLink} variant="outline">
       {share.copied ? (
         <Icon className="text-cyan" glyph={completeGlyph} size={14} />
       ) : (

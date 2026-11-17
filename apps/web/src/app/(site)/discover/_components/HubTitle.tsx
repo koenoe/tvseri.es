@@ -7,14 +7,11 @@ import cn from '@/lib/cn';
 import RegionLine from './RegionLine';
 import UpdatedLine from './UpdatedLine';
 
+const HUB_TITLE_GHOST = cn('h-3 w-31 rounded-4', GHOST_LOOK.loading);
+
 /** "Updated Nov 10" while the day is looked up: a bar the line's width (the last item of the row, so nothing beside it moves) */
 function UpdatedGhost() {
-  return (
-    <span
-      aria-hidden
-      className={cn('h-3 w-31 rounded-4', GHOST_LOOK.loading)}
-    />
-  );
+  return <span aria-hidden className={HUB_TITLE_GHOST} />;
 }
 
 /**

@@ -25,12 +25,13 @@ export function LandingSections({
   placeholder?: boolean;
   start?: 'loose' | 'tight';
 }>) {
+  const rowsClass = cn(
+    'flex flex-col gap-12 md:gap-16',
+    start === 'loose' ? 'mt-12 md:mt-16' : 'mt-8 md:mt-12',
+  );
   return (
     <div
-      className={cn(
-        'flex flex-col gap-12 md:gap-16',
-        start === 'loose' ? 'mt-12 md:mt-16' : 'mt-8 md:mt-12',
-      )}
+      className={rowsClass}
       data-placeholder={placeholder ? 'landing-rows' : undefined}
       data-slot={placeholder ? undefined : 'landing-rows'}
     >

@@ -30,13 +30,11 @@ export function DataCard({
       ? 'bg-[rgb(255_90_90/0.03)] shadow-[inset_0_0_0_1px_rgb(255_120_120/0.22)]'
       : 'bg-white/4 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.06)]',
   );
+  const dotClass = cn('size-2 shrink-0 rounded-full', dot);
   return (
     <section className={classes}>
       <div className="-mb-2 flex min-h-6 items-center gap-3">
-        <span
-          aria-hidden="true"
-          className={cn('size-2 shrink-0 rounded-full', dot)}
-        />
+        <span aria-hidden="true" className={dotClass} />
         <h3 className="text-body">{title}</h3>
         <NewBadge />
       </div>

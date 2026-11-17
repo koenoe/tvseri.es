@@ -42,6 +42,8 @@ const LANDSCAPE = 'The decade by attention';
  */
 const TYPICAL_VOTES = [100, 62, 48, 40, 33, 28, 24, 20, 17, 15, 13];
 const GHOST_CELLS = layoutTreemap(TYPICAL_VOTES);
+const WIDE_PILL = cn('h-10 w-31 rounded-full', GHOST_FILL);
+const NARROW_PILL = cn('h-10 w-27 rounded-full', GHOST_FILL);
 
 /**
  * The landscape's place while it loads, built from the loaded parts: the
@@ -55,6 +57,12 @@ function DecadeLandscapeSkeleton({
 }: Readonly<{ look?: PlaceholderLook }>) {
   const loading = look === 'loading';
   const shape = loading ? GHOST_FILL : GHOST_LOOK.failed;
+  const cellClass = cn('relative block size-full rounded-12', shape);
+  const cardClass = cn(
+    'mt-4 grid h-47 grid-cols-[minmax(0,1fr)_auto] items-center gap-8 rounded-16 px-8 py-6 max-md:hidden lg:h-41',
+    shape,
+  );
+  const rankBarClass = cn('mt-2 block h-1 w-full rounded-2', shape);
   return (
     <div aria-hidden className={loading ? 'animate-ghost' : undefined}>
       <span className="relative mt-10 block h-140 max-md:hidden">
@@ -71,9 +79,7 @@ function DecadeLandscapeSkeleton({
               key={`${cell.left}-${cell.top}`}
               style={style}
             >
-              <span
-                className={cn('relative block size-full rounded-12', shape)}
-              >
+              <span className={cellClass}>
                 {loading ? (
                   <span className="absolute right-4 bottom-3 left-4 flex flex-col">
                     <GhostLine
@@ -97,13 +103,7 @@ function DecadeLandscapeSkeleton({
           );
         })}
       </span>
-      <span
-        className={cn(
-          'mt-4 grid h-47 grid-cols-[minmax(0,1fr)_auto] items-center gap-8 rounded-16 px-8 py-6 max-md:hidden lg:h-41',
-          shape,
-        )}
-        data-placeholder="decade-card"
-      >
+      <span className={cardClass} data-placeholder="decade-card">
         {loading ? (
           <>
             <span className="flex min-w-0 flex-col items-start">
@@ -128,8 +128,8 @@ function DecadeLandscapeSkeleton({
               />
             </span>
             <span className="flex items-center gap-3 pt-1">
-              <span className={cn('h-10 w-31 rounded-full', GHOST_FILL)} />
-              <span className={cn('h-10 w-27 rounded-full', GHOST_FILL)} />
+              <span className={WIDE_PILL} />
+              <span className={NARROW_PILL} />
             </span>
           </>
         ) : null}
@@ -153,7 +153,7 @@ function DecadeLandscapeSkeleton({
                 look={look}
                 width="w-3/5"
               />
-              <span className={cn('mt-2 block h-1 w-full rounded-2', shape)} />
+              <span className={rankBarClass} />
             </span>
             <GhostLine
               className="h-5"

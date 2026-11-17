@@ -28,19 +28,22 @@ const CHIP_WIDTHS = ['w-22', 'w-29', 'w-26', 'w-30', 'w-24', 'w-20'];
 /** Already seen's eight posters */
 const POSTERS = [0, 1, 2, 3, 4, 5, 6, 7];
 
+const PROGRESS_BAR_GHOST = cn(PROGRESS_BAR, 'h-1 rounded-2');
+
 /** "0 of 3 done" and its three-part bar */
 const progress = (
   <span className={PROGRESS}>
     <TextLine className="text-caption" width="w-16" />
-    <Ghost className={cn(PROGRESS_BAR, 'h-1 rounded-2')} />
+    <Ghost className={PROGRESS_BAR_GHOST} />
   </span>
 );
 
 const chips = (
   <span className={PILL_ROW}>
-    {CHIP_WIDTHS.map((width, index) => (
-      <Ghost className={cn('h-8 rounded-full', width)} key={index} />
-    ))}
+    {CHIP_WIDTHS.map((width, index) => {
+      const chipClass = cn('h-8 rounded-full', width);
+      return <Ghost className={chipClass} key={index} />;
+    })}
   </span>
 );
 
@@ -52,14 +55,16 @@ const posters = (
   </span>
 );
 
+const LINK_PILL = cn(HISTORY_PILL, FLAT);
+
 /** The two links as flat pills their static labels size */
 const links = (
   <span className={PILL_ROW}>
-    <span className={cn(HISTORY_PILL, FLAT)}>
+    <span className={LINK_PILL}>
       <Icon glyph={importGlyph} size={15} />
       Import a file
     </span>
-    <span className={cn(HISTORY_PILL, FLAT)}>
+    <span className={LINK_PILL}>
       <Icon glyph={linkGlyph} size={15} />
       Connect Plex
     </span>
@@ -67,6 +72,8 @@ const links = (
 );
 
 const CONTROLS = [chips, posters, links] as const;
+
+const SECTION_GHOST = cn(GET_STARTED_SECTION, 'animate-ghost');
 
 /**
  * Get started while it can't be drawn (its failed card lies over this, so a
@@ -79,7 +86,7 @@ export default function GetStartedGhost() {
   return (
     <div
       aria-hidden="true"
-      className={cn(GET_STARTED_SECTION, 'animate-ghost')}
+      className={SECTION_GHOST}
       data-placeholder="get-started"
     >
       <SectionHeadGhost link={progress} title="Get started" />

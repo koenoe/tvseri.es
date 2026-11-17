@@ -89,10 +89,11 @@ export function FailedBlock({
   const action = (
     <TryAgain look={drawn.tryAgain} onClick={onRetry} pending={retrying} />
   );
+  const placeholderClass = cn('invisible relative', className);
   return (
     // the placeholder only holds the space: hidden, so nothing of it shows
     // past the card's rounded corners (a heading's first letter did)
-    <div aria-busy={retrying} className={cn('invisible relative', className)}>
+    <div aria-busy={retrying} className={placeholderClass}>
       {fallback}
       <FailedCard
         action={action}

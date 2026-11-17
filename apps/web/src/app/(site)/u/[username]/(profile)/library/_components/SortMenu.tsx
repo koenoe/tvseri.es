@@ -154,13 +154,14 @@ function SortItem({
   text: string;
 }>) {
   const pick = useCallback(() => onPick(sort), [onPick, sort]);
+  const itemClass = cn(
+    'flex h-9 items-center gap-2.5 rounded-8 px-3 text-left text-[13px] leading-5 font-medium outline-offset-[-2px] transition-colors',
+    on ? 'text-white' : 'text-white/80 hover:bg-white/8',
+  );
   return (
     <button
       aria-checked={on}
-      className={cn(
-        'flex h-9 items-center gap-2.5 rounded-8 px-3 text-left text-[13px] leading-5 font-medium outline-offset-[-2px] transition-colors',
-        on ? 'text-white' : 'text-white/80 hover:bg-white/8',
-      )}
+      className={itemClass}
       onClick={pick}
       role="menuitemradio"
       tabIndex={-1}

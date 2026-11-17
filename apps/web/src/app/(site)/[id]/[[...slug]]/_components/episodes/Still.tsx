@@ -37,10 +37,11 @@ export default function Still({
   const { backdrop } = useShow();
   const standIn = useContext(StillBackdrop);
   const image = src || (standIn ? backdrop : '');
+  const imageClass = cn('object-cover', EPISODE_STILL_ZOOM, className);
   return image ? (
     <Image
       alt=""
-      className={cn('object-cover', EPISODE_STILL_ZOOM, className)}
+      className={imageClass}
       fill
       loading={loading}
       sizes={sizes}

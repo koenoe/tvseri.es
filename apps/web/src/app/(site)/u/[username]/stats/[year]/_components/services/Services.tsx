@@ -91,6 +91,11 @@ function ServiceLogo({
   );
 }
 
+const SHOWS_CLASS = cn(
+  'w-16 text-right text-caption tabular-nums',
+  'text-white/60',
+);
+
 const MORE_SUFFIX = /^(.*?)( and [\d,]+ more)$/;
 
 /**
@@ -104,10 +109,12 @@ function NamesLine({
 }: Readonly<{ className: string; line: string }>) {
   const parts = MORE_SUFFIX.exec(line);
   if (!parts) {
-    return <span className={cn('truncate', className)}>{line}</span>;
+    const truncateClass = cn('truncate', className);
+    return <span className={truncateClass}>{line}</span>;
   }
+  const lineClass = cn('flex min-w-0', className);
   return (
-    <span className={cn('flex min-w-0', className)}>
+    <span className={lineClass}>
       <span className="truncate">{parts[1]}</span>
       <span className="shrink-0 whitespace-pre">{parts[2]}</span>
     </span>
@@ -172,47 +179,31 @@ function ServiceRow({
   );
   const fillStyle = { width: `${bar}%` };
   const phoneLine = dim && line ? line : shows;
+  const nameClass = cn(
+    'whitespace-nowrap font-semibold text-body-sm',
+    dim && 'text-white/60',
+  );
+  const namesLineClass = cn('text-caption', textTone, 'max-md:hidden');
+  const phoneLineClass = cn('truncate text-caption md:hidden', textTone);
+  const trackClass = cn(
+    'relative h-1 flex-1 rounded-2 bg-white/6',
+    dim && 'opacity-55',
+  );
   return (
     <div className={rowClass}>
       <div className={dim ? 'opacity-55' : undefined}>
         <ServiceLogo logo={logo} name={name} />
       </div>
       <span className="flex min-w-0 flex-col gap-0.5 md:gap-1">
-        <b
-          className={cn(
-            'whitespace-nowrap font-semibold text-body-sm',
-            dim && 'text-white/60',
-          )}
-        >
-          {name}
-        </b>
-        {line ? (
-          <NamesLine
-            className={cn('text-caption', textTone, 'max-md:hidden')}
-            line={line}
-          />
-        ) : null}
-        <span className={cn('truncate text-caption md:hidden', textTone)}>
-          {phoneLine}
-        </span>
+        <b className={nameClass}>{name}</b>
+        {line ? <NamesLine className={namesLineClass} line={line} /> : null}
+        <span className={phoneLineClass}>{phoneLine}</span>
       </span>
       <span className="hidden min-w-0 items-center gap-3 md:flex">
-        <span
-          className={cn(
-            'relative h-1 flex-1 rounded-2 bg-white/6',
-            dim && 'opacity-55',
-          )}
-        >
+        <span className={trackClass}>
           <i className={fill} style={fillStyle} />
         </span>
-        <span
-          className={cn(
-            'w-16 text-right text-caption tabular-nums',
-            'text-white/60',
-          )}
-        >
-          {shows}
-        </span>
+        <span className={SHOWS_CLASS}>{shows}</span>
       </span>
       <span className="flex justify-end">
         <ChipView chip={chip} dim={dim} />

@@ -53,26 +53,25 @@ const PLACES: ReadonlyArray<Place> = [
 export default function ToastPositions() {
   return (
     <Specimen label="Positions" note="Toaster.tsx (static, scaled)">
-      {PLACES.map((place) => (
-        <State key={place.name} name={place.name}>
-          <div
-            className={cn(
-              'relative overflow-hidden rounded-8 bg-page shadow-[inset_0_0_0_1px_rgb(255_255_255/0.12)]',
-              place.phone ? 'h-48 w-24' : 'h-32 w-56',
-            )}
-          >
-            {place.extra ? (
-              <span className={cn('absolute', place.extra)} />
-            ) : null}
-            <span
-              className={cn(
-                'absolute h-4 rounded-6 bg-[#141414] shadow-[0_0_0_1px_rgb(255_255_255/0.2)]',
-                place.toast,
-              )}
-            />
-          </div>
-        </State>
-      ))}
+      {PLACES.map((place) => {
+        const frameClass = cn(
+          'relative overflow-hidden rounded-8 bg-page shadow-[inset_0_0_0_1px_rgb(255_255_255/0.12)]',
+          place.phone ? 'h-48 w-24' : 'h-32 w-56',
+        );
+        const extraClass = cn('absolute', place.extra);
+        const toastClass = cn(
+          'absolute h-4 rounded-6 bg-[#141414] shadow-[0_0_0_1px_rgb(255_255_255/0.2)]',
+          place.toast,
+        );
+        return (
+          <State key={place.name} name={place.name}>
+            <div className={frameClass}>
+              {place.extra ? <span className={extraClass} /> : null}
+              <span className={toastClass} />
+            </div>
+          </State>
+        );
+      })}
     </Specimen>
   );
 }

@@ -24,6 +24,8 @@ import {
 const HOUR_AXIS = ['00', '06', '12', '18', '23'] as const;
 const WEEKDAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'] as const;
 const CAPTION = 'text-caption text-white/60';
+const HOUR_CAPTION = cn(CAPTION, 'mt-2 flex justify-between tabular-nums');
+const WEEKDAY_CAPTION = cn(CAPTION, 'mt-2 flex gap-2');
 
 /**
  * "When {name} watches": the busiest weekday and hour as a headline, the
@@ -65,7 +67,7 @@ export default async function WhenWatches({ user, year }: SectionProps) {
         tip={hourRange}
         values={when.hours}
       />
-      <div className={cn(CAPTION, 'mt-2 flex justify-between tabular-nums')}>
+      <div className={HOUR_CAPTION}>
         {HOUR_AXIS.map((hour) => (
           <span key={hour}>{hour}</span>
         ))}
@@ -78,7 +80,7 @@ export default async function WhenWatches({ user, year }: SectionProps) {
           tip={weekdayTip}
           values={when.weekdays}
         />
-        <div className={cn(CAPTION, 'mt-2 flex gap-2')}>
+        <div className={WEEKDAY_CAPTION}>
           {WEEKDAY_LETTERS.map((letter, index) => (
             <span className="flex-1 text-center" key={WEEKDAY_NAMES[index]}>
               {letter}
@@ -117,10 +119,11 @@ function Bars({
     episodes,
     label: tip(index),
   }));
+  const barsClass = cn('flex items-end', className);
   return (
     <>
       <ChartTable caption={label} rows={rows} />
-      <div aria-hidden className={cn('flex items-end', className)}>
+      <div aria-hidden className={barsClass}>
         {values.map((value, index) => (
           <Bar
             episodes={value}
@@ -150,15 +153,13 @@ function Bar({
     height: `max(2px, round(calc(var(--bar-h) * ${ratio}), 1px))`,
   };
   const fill = peak ? 'bg-white' : 'bg-white/22';
+  const barClass = cn(
+    'block w-full rounded-2 [transition:background-color_.12s] group-hover/bar:bg-white',
+    fill,
+  );
   return (
     <span className="group/bar relative flex h-full min-w-0 flex-1 items-end justify-center">
-      <i
-        className={cn(
-          'block w-full rounded-2 [transition:background-color_.12s] group-hover/bar:bg-white',
-          fill,
-        )}
-        style={style}
-      />
+      <i className={barClass} style={style} />
       <BarTip title={plural(episodes, 'episode')}>{tip}</BarTip>
     </span>
   );

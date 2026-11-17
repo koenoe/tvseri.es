@@ -25,6 +25,8 @@ import { promptDecision } from './shouldAsk';
 
 type Props = Readonly<{ seriesId: number; title: string }>;
 
+const FRAME = cn('group/prompt', PROMPT_FRAME);
+
 /**
  * "Seen The Bear before?" under the progress line,
  * real content in the static shell for everyone: no blank
@@ -103,7 +105,7 @@ function FirstTrackingPrompt({ seriesId, title }: Props) {
   }
   return (
     <div
-      className={cn('group/prompt', PROMPT_FRAME)}
+      className={FRAME}
       data-ask={decision === 'ask' ? '' : undefined}
       data-leaving={leaving ? '' : undefined}
       data-prompt=""

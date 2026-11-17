@@ -41,8 +41,10 @@ const PREVIEW = 6;
 /** The filtered list and its folds, at the section's own spacing */
 const LIST_BOX = cn(styles.root, PERSON_SECTION);
 
+const LIST_ROOT = cn(LIST, styles.root);
 const WIDE_BUTTON =
   'flex h-12 w-full cursor-pointer items-center rounded-12 px-4 text-body-sm font-medium text-white transition-colors';
+const TOGGLE_BUTTON = cn(WIDE_BUTTON, 'gap-3 bg-white/4 text-left');
 
 /** The full-width bar under the person's lists */
 const EXPAND: ExpandLayout = {
@@ -110,7 +112,7 @@ function SelfFold({
       <button
         aria-busy={pending}
         aria-expanded={open}
-        className={cn(WIDE_BUTTON, 'gap-3 bg-white/4 text-left')}
+        className={TOGGLE_BUTTON}
         onClick={toggle}
         type="button"
       >
@@ -122,7 +124,7 @@ function SelfFold({
         <ExpandChevron className="ml-auto" open={open} size={16} />
       </button>
       {open && rows ? (
-        <div className={cn(LIST, styles.root)} data-filter="all">
+        <div className={LIST_ROOT} data-filter="all">
           {rows.map((row) => (
             <ShowRow key={row.id} personId={personId} row={row} />
           ))}

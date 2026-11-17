@@ -53,13 +53,15 @@ const OWNER_ROWS = LIBRARY_SHELVES;
 const COUNT_GHOST = cn('ml-auto h-3 w-6 rounded-4', GHOST_FILL, PULSE);
 const VISITOR_ROWS = LIBRARY_SHELVES.filter((shelf) => shelf !== 'hidden');
 
+const GHOST_ROW_CLASS = cn(ROW, 'text-white/80');
+
 function GhostRows({
   shelves,
 }: Readonly<{ shelves: ReadonlyArray<LibraryShelf> }>) {
   return shelves.map((shelf) => (
     <Fragment key={shelf}>
       {shelf === 'all' ? <NavRule /> : null}
-      <span className={cn(ROW, 'text-white/80')}>
+      <span className={GHOST_ROW_CLASS}>
         <Icon
           className="text-white/60"
           glyph={SHELVES[shelf].glyph}

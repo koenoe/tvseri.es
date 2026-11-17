@@ -205,6 +205,7 @@ export default function FocusWall({
       slot={slot}
     />
   );
+  const watchedClass = cn(WATCHED_GRID, main.length ? 'mt-3' : 'mt-1');
   return (
     <div
       aria-label={`Season ${seasonNumber} episodes, what you haven’t seen first`}
@@ -212,10 +213,7 @@ export default function FocusWall({
     >
       {main.length ? <div className={WALL_GRID}>{main.map(render)}</div> : null}
       {watched.length ? (
-        <div
-          className={cn(WATCHED_GRID, main.length ? 'mt-3' : 'mt-1')}
-          data-wall-group="watched"
-        >
+        <div className={watchedClass} data-wall-group="watched">
           {watched.map(render)}
         </div>
       ) : null}

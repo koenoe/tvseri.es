@@ -97,6 +97,17 @@ export default function CatchUpRun({
   const clearHint = () => setHint(null);
   const nextHint = () => setHint(next?.hint ?? null);
   const runwayHint = () => setHint(runway?.hint ?? null);
+  const nextChipClass = cn(
+    CHIP,
+    'bg-[rgb(0_255_255/0.1)] text-cyan transition-colors hover:bg-[rgb(0_255_255/0.18)]',
+  );
+  const runwayChipClass = cn(
+    CHIP,
+    'cursor-default',
+    runway?.out
+      ? 'bg-[rgb(0_255_255/0.1)] text-cyan'
+      : 'bg-[rgb(255_0_128/0.18)] text-pink',
+  );
 
   return (
     <div
@@ -143,10 +154,7 @@ export default function CatchUpRun({
         {next ? (
           <Link
             aria-label={next.chipTitle}
-            className={cn(
-              CHIP,
-              'bg-[rgb(0_255_255/0.1)] text-cyan transition-colors hover:bg-[rgb(0_255_255/0.18)]',
-            )}
+            className={nextChipClass}
             href={`${href}?season=${next.season}`}
             onPointerEnter={nextHint}
             onPointerLeave={clearHint}
@@ -156,13 +164,7 @@ export default function CatchUpRun({
           </Link>
         ) : runway ? (
           <span
-            className={cn(
-              CHIP,
-              'cursor-default',
-              runway.out
-                ? 'bg-[rgb(0_255_255/0.1)] text-cyan'
-                : 'bg-[rgb(255_0_128/0.18)] text-pink',
-            )}
+            className={runwayChipClass}
             onPointerEnter={runwayHint}
             onPointerLeave={clearHint}
             title={runway.chipTitle}
@@ -196,17 +198,13 @@ function MoreChip({
   season: number;
 }>) {
   const label = `${count} more waiting in season ${season}`;
+  const chipClass = cn(
+    CHIP,
+    'bg-white/6 text-white/80 transition-colors hover:bg-white/12 hover:text-white',
+    className,
+  );
   return (
-    <Link
-      aria-label={label}
-      className={cn(
-        CHIP,
-        'bg-white/6 text-white/80 transition-colors hover:bg-white/12 hover:text-white',
-        className,
-      )}
-      href={href}
-      title={label}
-    >
+    <Link aria-label={label} className={chipClass} href={href} title={label}>
       +{count}
     </Link>
   );

@@ -7,6 +7,8 @@ import { useHasWatched } from '../watched/store';
 
 const SAMPLE = 'block h-1.5 w-4 rounded-[3px]';
 const OUTLINE = 'shadow-[inset_0_0_0_1px_rgb(255_255_255/0.42)]';
+const WATCHED_SAMPLE = cn(SAMPLE, 'bg-white/92');
+const UNWATCHED_SAMPLE = cn(SAMPLE, OUTLINE);
 const THICK = ['h-0.5 rounded-[1px]', 'h-1 rounded-2', 'h-1.5 rounded-[3px]'];
 
 const KEY = 'flex items-center gap-4 text-meta whitespace-nowrap text-white/60';
@@ -22,25 +24,27 @@ function Key({
   marks,
 }: Readonly<{ className?: string; marks: boolean }>) {
   const thick = marks ? OUTLINE : 'bg-white/26';
+  const keyClass = cn(KEY, className);
   return (
-    <span className={cn(KEY, className)}>
+    <span className={keyClass}>
       {marks ? (
         <>
           <span className="inline-flex items-center gap-1.5">
-            <i className={cn(SAMPLE, 'bg-white/92')} />
+            <i className={WATCHED_SAMPLE} />
             Watched
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <i className={cn(SAMPLE, OUTLINE)} />
+            <i className={UNWATCHED_SAMPLE} />
             Not watched
           </span>
         </>
       ) : null}
       <span className="inline-flex items-center gap-1.5">
         <span aria-hidden="true" className="inline-flex items-center gap-0.75">
-          {THICK.map((size) => (
-            <i className={cn('block w-2.5', size, thick)} key={size} />
-          ))}
+          {THICK.map((size) => {
+            const barClass = cn('block w-2.5', size, thick);
+            return <i className={barClass} key={size} />;
+          })}
         </span>
         Thicker = more episodes
       </span>

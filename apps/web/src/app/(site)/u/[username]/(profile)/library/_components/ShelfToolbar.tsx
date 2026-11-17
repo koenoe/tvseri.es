@@ -101,8 +101,9 @@ function FindField({
     },
     [text],
   );
+  const fieldClass = cn(FIELD, className);
   return (
-    <label className={cn(FIELD, className)}>
+    <label className={fieldClass}>
       {/* contrast-exempt: the search icon */}
       <Icon className="shrink-0 text-white/50" glyph={searchGlyph} size={16} />
       <input
@@ -151,6 +152,7 @@ function FilterChip({
     : on
       ? 'text-[rgb(23_23_23/0.6)]'
       : 'text-white/60';
+  const figureClass = cn('tabular-nums', countClass);
   return (
     <button
       aria-pressed={on}
@@ -160,9 +162,7 @@ function FilterChip({
     >
       <Icon glyph={fresh ? sparkleGlyph : heartGlyph} size={13} />
       {fresh ? 'New to you' : 'You both'}
-      <span className={cn('tabular-nums', countClass)}>
-        {formatGrouped(count)}
-      </span>
+      <span className={figureClass}>{formatGrouped(count)}</span>
     </button>
   );
 }
@@ -188,6 +188,8 @@ export default function ShelfToolbar({
   const [finding, setFinding] = useState(q !== '');
   const findLabel = `Find in ${SHELVES[shelf].label}`;
   const toggleFinding = useCallback(() => setFinding((was) => !was), []);
+  const findPillClass = cn(PILL, 'px-2.5 md:hidden', finding && PILL_ON);
+  const selectPillClass = cn(PILL, selecting && PILL_ON);
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2.5">
@@ -218,7 +220,7 @@ export default function ShelfToolbar({
         <button
           aria-expanded={finding}
           aria-label={findLabel}
-          className={cn(PILL, 'px-2.5 md:hidden', finding && PILL_ON)}
+          className={findPillClass}
           onClick={toggleFinding}
           type="button"
         >
@@ -227,7 +229,7 @@ export default function ShelfToolbar({
         {canSelect ? (
           <button
             aria-pressed={selecting}
-            className={cn(PILL, selecting && PILL_ON)}
+            className={selectPillClass}
             onClick={onSelect}
             type="button"
           >

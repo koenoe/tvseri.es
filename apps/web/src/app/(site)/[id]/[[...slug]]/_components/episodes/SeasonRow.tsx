@@ -73,6 +73,10 @@ const SeasonRow = memo(function SeasonRow({
     'inline-flex items-center gap-1.5 self-center whitespace-nowrap text-meta tabular-nums',
     TONE[row.state.tone],
   );
+  const nameClass = cn(
+    'whitespace-nowrap text-body-sm',
+    isSelected ? 'font-semibold' : 'font-medium',
+  );
   return (
     <button
       aria-label={row.aria}
@@ -86,14 +90,7 @@ const SeasonRow = memo(function SeasonRow({
       type="button"
     >
       <span className="flex min-w-0 items-baseline justify-between gap-4">
-        <b
-          className={cn(
-            'whitespace-nowrap text-body-sm',
-            isSelected ? 'font-semibold' : 'font-medium',
-          )}
-        >
-          {row.name}
-        </b>
+        <b className={nameClass}>{row.name}</b>
         <span className={state}>
           {row.state.tone === 'done' ? (
             <Icon active glyph={eyeGlyph} size={14} />

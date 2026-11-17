@@ -44,7 +44,8 @@ import {
 
 const LANE_GHOST_ROWS = Array.from({ length: LANE_ROWS }, (_, n) => n);
 
-const DOT = <span className={cn(LANE_DOT, FLAT)} />;
+const DOT_CLASS = cn(LANE_DOT, FLAT);
+const DOT = <span className={DOT_CLASS} />;
 const COUNT = <Badge className={FLAT} variant="count" />;
 
 /** The card's ⋯ */

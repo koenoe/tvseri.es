@@ -86,6 +86,10 @@ export default function WaitRow({
   const label = dated
     ? `${finished ?? 'Finished'}, ${what} · ${formatAirWeekdayDate(item.nextDate as string, now)}; today ${Math.round(progress)}% of the way`
     : `${finished ?? 'Finished'}, no return date yet`;
+  const whatClass = cn(
+    'max-w-full truncate',
+    dated ? 'font-medium text-pink' : 'text-white/60',
+  );
   return (
     <TileLink className={WAIT_LINK} href={showPath(item.seriesId, item.slug)}>
       {item.posterImage ? (
@@ -118,12 +122,7 @@ export default function WaitRow({
             On a phone the title has its line to itself and "31 days to go"
             joins this one, before "Finished …" */}
         <span className="flex h-5 flex-row-reverse flex-wrap content-start justify-between gap-x-2.5 gap-y-8 overflow-clip whitespace-nowrap text-caption text-white/60">
-          <span
-            className={cn(
-              'max-w-full truncate',
-              dated ? 'font-medium text-pink' : 'text-white/60',
-            )}
-          >
+          <span className={whatClass}>
             {what} ·{' '}
             {dated
               ? formatAirWeekdayDate(item.nextDate as string, now)

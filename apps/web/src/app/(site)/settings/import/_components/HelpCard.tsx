@@ -75,16 +75,17 @@ export default function HelpCard({
           {HELP_TABS.map(([key, label]) => {
             const isOn = key === tab;
             const pick = onTab ? () => onTab(key) : undefined;
+            const tabClass = cn(
+              'h-7.5 cursor-pointer whitespace-nowrap rounded-[7px] px-3 text-body-sm font-medium transition-[background-color,color] max-md:flex-auto max-md:px-2 max-md:text-meta',
+              isOn
+                ? 'bg-white/16 text-white'
+                : 'text-white/60 hover:text-white',
+            );
             return (
               <button
                 aria-controls={panelId}
                 aria-selected={isOn}
-                className={cn(
-                  'h-7.5 cursor-pointer whitespace-nowrap rounded-[7px] px-3 text-body-sm font-medium transition-[background-color,color] max-md:flex-auto max-md:px-2 max-md:text-meta',
-                  isOn
-                    ? 'bg-white/16 text-white'
-                    : 'text-white/60 hover:text-white',
-                )}
+                className={tabClass}
                 id={tabId(key)}
                 key={key}
                 onClick={pick}

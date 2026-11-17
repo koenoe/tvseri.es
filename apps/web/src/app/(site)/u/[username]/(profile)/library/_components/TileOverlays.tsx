@@ -61,16 +61,17 @@ export function HeartBadge() {
 
 /** Select mode's circle (`.ck`): ringed, white with a check when picked */
 export function CheckCircle({ picked }: Readonly<{ picked: boolean }>) {
+  const circleClass = cn(
+    'absolute top-2 left-2 z-3 flex size-[26px] items-center justify-center rounded-full',
+    picked
+      ? 'bg-white text-[#171717]'
+      : 'bg-[rgb(15_20_20/0.45)] text-transparent shadow-[inset_0_0_0_2px_rgb(255_255_255/0.75)]',
+  );
   return (
     <m.span
       animate={{ opacity: 1, scale: 1 }}
       aria-hidden="true"
-      className={cn(
-        'absolute top-2 left-2 z-3 flex size-[26px] items-center justify-center rounded-full',
-        picked
-          ? 'bg-white text-[#171717]'
-          : 'bg-[rgb(15_20_20/0.45)] text-transparent shadow-[inset_0_0_0_2px_rgb(255_255_255/0.75)]',
-      )}
+      className={circleClass}
       initial={{ opacity: 0, scale: 0.8 }}
       transition={{ duration: 0.16, ease: 'easeOut' }}
     >

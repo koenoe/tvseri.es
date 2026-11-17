@@ -44,10 +44,11 @@ const ghost = (count: number, size: string, look: keyof typeof GHOST) =>
 function FacesSkeleton({
   look = 'loading',
 }: Readonly<{ look?: keyof typeof GHOST }>) {
+  const frameClass = cn('flex flex-col gap-3', look === 'loading' && PULSE);
   return (
     <div
       aria-hidden={look === 'loading' ? true : undefined}
-      className={cn('flex flex-col gap-3', look === 'loading' && PULSE)}
+      className={frameClass}
       data-slot={look === 'failed' ? 'credits-unavailable' : undefined}
     >
       <span className="h-5 text-meta text-white/80">

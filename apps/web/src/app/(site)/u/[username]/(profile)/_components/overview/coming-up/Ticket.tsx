@@ -60,6 +60,15 @@ export default function Ticket({
     'border-r-2 border-dashed border-white/14',
     STUB[text.kind],
   );
+  const labelClass = cn(
+    'truncate text-caption font-medium',
+    text.kind === 'finale' ? 'text-cyan' : 'text-pink',
+  );
+  const metaClass = cn(
+    'mt-0.5 justify-between gap-2',
+    // the watchlist tag is 24px tall
+    item.onWatchlist && 'h-6',
+  );
   return (
     <TileLink className={TICKET_CLASS} href={href}>
       <span className={stub}>
@@ -81,14 +90,7 @@ export default function Ticket({
           <MetaRow className="gap-2" fit="drop">
             {text.badge ? <CodeBadge code={text.badge} size="lane" /> : null}
             {text.label ? (
-              <span
-                className={cn(
-                  'truncate text-caption font-medium',
-                  text.kind === 'finale' ? 'text-cyan' : 'text-pink',
-                )}
-              >
-                {text.label}
-              </span>
+              <span className={labelClass}>{text.label}</span>
             ) : null}
             {text.note ? (
               <span className="truncate text-caption text-white/60">
@@ -97,14 +99,7 @@ export default function Ticket({
             ) : null}
           </MetaRow>
           {/* the date stays; "On your watchlist" drops whole when there is no room */}
-          <MetaRow
-            className={cn(
-              'mt-0.5 justify-between gap-2',
-              // the watchlist tag is 24px tall
-              item.onWatchlist && 'h-6',
-            )}
-            fit="drop"
-          >
+          <MetaRow className={metaClass} fit="drop">
             <MetaItem icon={calendarGlyph}>
               {formatAirWeekdayDate(item.date, now)}
             </MetaItem>

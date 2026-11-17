@@ -68,8 +68,9 @@ function PlexLogo({ className }: Readonly<{ className: string }>) {
 /** An app's logo tile: its glyph centred on the brand's ground. */
 export default function AppTile({ app }: Readonly<{ app: AppBrand }>) {
   const { glyph, ground } = TILES[app];
+  const tileClass = cn(APP_TILE_CLASS, ground);
   return (
-    <span className={cn(APP_TILE_CLASS, ground)}>
+    <span className={tileClass}>
       {app === 'plex' ? (
         <PlexLogo className={glyph} />
       ) : (

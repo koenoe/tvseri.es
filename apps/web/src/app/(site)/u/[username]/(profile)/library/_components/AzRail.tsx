@@ -39,16 +39,17 @@ export default function AzRail({
           );
         }
         const href = hrefOf(letter);
+        const letterClass = cn(
+          'rounded-4 px-[3px] transition-colors',
+          letter === active
+            ? 'bg-white text-black'
+            : 'text-white/60 hover:text-white',
+        );
         return (
           <Link
             aria-current={letter === active ? 'location' : undefined}
             aria-label={`Jump to ${label}`}
-            className={cn(
-              'rounded-4 px-[3px] transition-colors',
-              letter === active
-                ? 'bg-white text-black'
-                : 'text-white/60 hover:text-white',
-            )}
+            className={letterClass}
             href={href}
             key={letter}
             replace

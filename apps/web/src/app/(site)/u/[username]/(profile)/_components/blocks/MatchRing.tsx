@@ -36,12 +36,13 @@ function RingSvgs({
   const dash = arcDash(arc, level);
   const isSuper = level === 'super';
   const arcClass = isSuper && look.glow ? look.glow : undefined;
+  const haloClass = cn(className, look.halo);
   return (
     <>
       {isSuper && look.halo ? (
         <svg
           aria-hidden="true"
-          className={cn(className, look.halo)}
+          className={haloClass}
           height={box}
           viewBox={viewBox}
           width={box}

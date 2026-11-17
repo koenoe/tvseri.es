@@ -104,6 +104,18 @@ export default function PromptCard({
   );
 }
 
+const GHOST_CARD_CLASS = cn(CARD_BOX, 'border-transparent', GHOST_LOOK.loading);
+const GHOST_TITLE_CLASS = cn(TITLE, 'flex items-center');
+const GHOST_QUESTION_CLASS = cn('h-3 w-[192px] rounded-4', GHOST_FILL);
+const GHOST_ANSWER_JUST_STARTING_CLASS = cn(
+  ANSWER_BOX,
+  'w-[112px]',
+  GHOST_FILL,
+);
+const GHOST_ANSWER_UP_TO_CLASS = cn(ANSWER_BOX, 'w-[98px]', GHOST_FILL);
+const GHOST_ANSWER_FINISHED_CLASS = cn(ANSWER_BOX, 'w-[115px]', GHOST_FILL);
+const GHOST_NOT_NOW_CLASS = cn(NOT_NOW_BOX, 'w-[76px]', GHOST_FILL);
+
 /**
  * The card while the page loads (the skeleton looked "too
  * much like the actual component"; "I wouldn't show the glass in a
@@ -117,19 +129,19 @@ export function PromptGhost() {
   return (
     <div
       aria-hidden="true"
-      className={cn(CARD_BOX, 'border-transparent', GHOST_LOOK.loading)}
+      className={GHOST_CARD_CLASS}
       data-placeholder="prompt-card"
     >
-      <span className={cn(TITLE, 'flex items-center')}>
+      <span className={GHOST_TITLE_CLASS}>
         {'\u200b'}
-        <span className={cn('h-3 w-[192px] rounded-4', GHOST_FILL)} />
+        <span className={GHOST_QUESTION_CLASS} />
       </span>
       <span className={ANSWERS}>
-        <span className={cn(ANSWER_BOX, 'w-[112px]', GHOST_FILL)} />
-        <span className={cn(ANSWER_BOX, 'w-[98px]', GHOST_FILL)} />
-        <span className={cn(ANSWER_BOX, 'w-[115px]', GHOST_FILL)} />
+        <span className={GHOST_ANSWER_JUST_STARTING_CLASS} />
+        <span className={GHOST_ANSWER_UP_TO_CLASS} />
+        <span className={GHOST_ANSWER_FINISHED_CLASS} />
       </span>
-      <span className={cn(NOT_NOW_BOX, 'w-[76px]', GHOST_FILL)} />
+      <span className={GHOST_NOT_NOW_CLASS} />
     </div>
   );
 }

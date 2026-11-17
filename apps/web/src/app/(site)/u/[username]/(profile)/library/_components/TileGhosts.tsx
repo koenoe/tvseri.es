@@ -9,10 +9,19 @@ import { LIBRARY_CELL, LIBRARY_GRID } from './gridStyles';
 const FILL = GHOST_FILL;
 
 const POSTER = cn('relative block aspect-2/3 rounded-10', FILL);
+const ICON_GHOST = cn('size-[13px] shrink-0 rounded-full', FILL);
+const CODE_GHOST = cn('h-5 w-[52px] shrink-0 rounded-6', FILL);
+const TO_GO_GHOST = cn('ml-auto h-3 w-[38%] rounded-6', FILL);
+const HOURS_GHOST = cn('h-3 w-[16%] rounded-6', FILL);
+const STATUS_GHOST = cn('h-3 w-[34%] rounded-6', FILL);
+const DATE_GHOST = cn('h-3 w-[58%] rounded-6', FILL);
+const PROGRESS_GHOST = cn('absolute inset-x-2 bottom-2 h-1 rounded-2', FILL);
+const HEART_GHOST = cn('absolute top-2 left-2 size-[26px] rounded-full', FILL);
+const TITLE_GHOST = cn('h-3 w-4/5 rounded-6', FILL);
 
 /** A 13px icon's ghost in a meta line */
 function IconGhost() {
-  return <span className={cn('size-[13px] shrink-0 rounded-full', FILL)} />;
+  return <span className={ICON_GHOST} />;
 }
 
 /**
@@ -24,8 +33,8 @@ function MetaGhost({ shelf }: Readonly<{ shelf: LibraryShelf }>) {
   if (shelf === 'watching') {
     return (
       <>
-        <span className={cn('h-5 w-[52px] shrink-0 rounded-6', FILL)} />
-        <span className={cn('ml-auto h-3 w-[38%] rounded-6', FILL)} />
+        <span className={CODE_GHOST} />
+        <span className={TO_GO_GHOST} />
       </>
     );
   }
@@ -33,16 +42,16 @@ function MetaGhost({ shelf }: Readonly<{ shelf: LibraryShelf }>) {
     return (
       <>
         <IconGhost />
-        <span className={cn('h-3 w-[16%] rounded-6', FILL)} />
+        <span className={HOURS_GHOST} />
         <IconGhost />
-        <span className={cn('h-3 w-[34%] rounded-6', FILL)} />
+        <span className={STATUS_GHOST} />
       </>
     );
   }
   return (
     <>
       <IconGhost />
-      <span className={cn('h-3 w-[58%] rounded-6', FILL)} />
+      <span className={DATE_GHOST} />
     </>
   );
 }
@@ -60,23 +69,12 @@ function GhostTile({ shelf }: Readonly<{ shelf: LibraryShelf }>) {
       data-placeholder="library-tile"
     >
       <span className={POSTER}>
-        {shelf === 'watching' ? (
-          <span
-            className={cn('absolute inset-x-2 bottom-2 h-1 rounded-2', FILL)}
-          />
-        ) : null}
-        {shelf === 'favourites' ? (
-          <span
-            className={cn(
-              'absolute top-2 left-2 size-[26px] rounded-full',
-              FILL,
-            )}
-          />
-        ) : null}
+        {shelf === 'watching' ? <span className={PROGRESS_GHOST} /> : null}
+        {shelf === 'favourites' ? <span className={HEART_GHOST} /> : null}
       </span>
       <span className="flex flex-col gap-1">
         <span className="flex h-5 items-center">
-          <span className={cn('h-3 w-4/5 rounded-6', FILL)} />
+          <span className={TITLE_GHOST} />
         </span>
         <span className="flex h-5 items-center gap-2 overflow-hidden md:gap-3">
           <MetaGhost shelf={shelf} />

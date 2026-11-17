@@ -87,6 +87,7 @@ export default function RowError({
     ) : (
       <RowErrorCard state={state} title={heading.title} />
     );
+  const slotsClass = cn('relative', reserve);
   return (
     <RowFrame
       aria-busy={state === 'retrying'}
@@ -102,7 +103,7 @@ export default function RowError({
         its skeleton was on screen then moves nothing below it
       */}
       <div className="relative pt-[var(--row-rail-pt,24px)] pb-6">
-        <div className={cn('relative', reserve)}>
+        <div className={slotsClass}>
           <RowGhosts
             caption={caption}
             look={state === 'retrying' ? 'retrying' : 'failed'}
@@ -141,15 +142,14 @@ export function SectionError({
     ) : (
       <RowErrorCard state={state.state} title={title} />
     );
+  const sectionClass = cn(
+    'relative',
+    ROW_INSET[inset],
+    state.state !== 'retrying' && '[&_*]:animate-none',
+  );
   return (
     <div className="@container">
-      <div
-        className={cn(
-          'relative',
-          ROW_INSET[inset],
-          state.state !== 'retrying' && '[&_*]:animate-none',
-        )}
-      >
+      <div className={sectionClass}>
         <div aria-hidden inert>
           {placeholder}
         </div>

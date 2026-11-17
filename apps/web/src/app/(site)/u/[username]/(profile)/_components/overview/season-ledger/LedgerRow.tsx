@@ -45,13 +45,14 @@ export default function LedgerRow({
   const watched = () => onChoose(episode, 'watched');
   const skipped = () => onChoose(episode, 'skipped');
   const undo = () => onChoose(episode, 'open');
+  const rowClass = cn(
+    LEDGER_HOLE,
+    'transition-[background-color,box-shadow]',
+    done && LEDGER_SETTLED,
+  );
   return (
     <div
-      className={cn(
-        LEDGER_HOLE,
-        'transition-[background-color,box-shadow]',
-        done && LEDGER_SETTLED,
-      )}
+      className={rowClass}
       onFocus={onIntent}
       onPointerEnter={onIntent}
       onTouchStart={onIntent}

@@ -68,13 +68,14 @@ export default function Strip({
     [keys, onPick, picked],
   );
 
+  const stripClass = cn(
+    '-m-[3px] flex min-w-0 gap-2 overflow-x-auto overflow-y-hidden scroll-smooth p-[3px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+    className,
+  );
   return (
     <div
       aria-label={label}
-      className={cn(
-        '-m-[3px] flex min-w-0 gap-2 overflow-x-auto overflow-y-hidden scroll-smooth p-[3px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-        className,
-      )}
+      className={stripClass}
       onKeyDown={onKeyDown}
       ref={centrePicked}
       role="radiogroup"

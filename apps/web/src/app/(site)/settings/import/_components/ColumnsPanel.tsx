@@ -32,6 +32,8 @@ const SELECT_STYLE = {
 const SELECT =
   'h-9 w-full min-w-0 cursor-pointer appearance-none rounded-8 bg-[#141819] pr-8 pl-3 text-meta leading-5 text-white shadow-[inset_0_0_0_1px_rgb(255_255_255/0.14)] max-md:text-body';
 
+const SEGMENT_FILL = cn(SEGMENT, 'flex-1');
+
 type Props = Readonly<{
   combined: Readonly<Record<'show' | 'season' | 'episode', boolean>>;
   dateExample: string;
@@ -154,13 +156,18 @@ function FieldRow({
       ? providers
       : [fixedName, ...providers];
 
+  const rowClass = cn(
+    'grid min-h-14 grid-cols-[150px_200px_210px_minmax(0,1fr)] items-center gap-4 border-white/6 border-t first:border-t-0',
+    'max-md:grid-cols-[110px_minmax(0,1fr)] max-md:gap-x-3 max-md:gap-y-2 max-md:py-2.5',
+  );
+  const sourceClass = cn(!isService && 'max-md:hidden', 'max-md:col-span-full');
+  const hintClass = cn(
+    'text-caption text-white/60 max-md:col-span-full',
+    missing && 'text-white',
+  );
+
   return (
-    <div
-      className={cn(
-        'grid min-h-14 grid-cols-[150px_200px_210px_minmax(0,1fr)] items-center gap-4 border-white/6 border-t first:border-t-0',
-        'max-md:grid-cols-[110px_minmax(0,1fr)] max-md:gap-x-3 max-md:gap-y-2 max-md:py-2.5',
-      )}
-    >
+    <div className={rowClass}>
       <span className="flex items-center gap-2 text-body-sm font-semibold">
         {label}
         {required ? (
@@ -200,9 +207,7 @@ function FieldRow({
           ))}
         </select>
       )}
-      <span
-        className={cn(!isService && 'max-md:hidden', 'max-md:col-span-full')}
-      >
+      <span className={sourceClass}>
         {isService ? (
           <span
             aria-label="Where the service comes from"
@@ -211,7 +216,7 @@ function FieldRow({
           >
             <button
               aria-pressed={!fixed}
-              className={cn(SEGMENT, 'flex-1')}
+              className={SEGMENT_FILL}
               onClick={toColumn}
               type="button"
             >
@@ -219,7 +224,7 @@ function FieldRow({
             </button>
             <button
               aria-pressed={fixed}
-              className={cn(SEGMENT, 'flex-1')}
+              className={SEGMENT_FILL}
               onClick={toFixed}
               type="button"
             >
@@ -228,14 +233,7 @@ function FieldRow({
           </span>
         ) : null}
       </span>
-      <span
-        className={cn(
-          'text-caption text-white/60 max-md:col-span-full',
-          missing && 'text-white',
-        )}
-      >
-        {hint}
-      </span>
+      <span className={hintClass}>{hint}</span>
     </div>
   );
 }

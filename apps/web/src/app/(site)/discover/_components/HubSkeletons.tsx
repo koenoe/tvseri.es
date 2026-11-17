@@ -32,6 +32,8 @@ export const GENRE_TILE =
 export const GENRE_NAME =
   'text-body font-semibold max-md:line-clamp-2 md:truncate';
 
+const GENRE_TILE_GHOST = cn(GENRE_TILE, GENRE_CELL);
+
 /**
  * The genre tiles (`Genres`): the names are static, so they are drawn; the
  * count line is a ghost in its own line box.
@@ -40,7 +42,7 @@ export function GenresSkeleton() {
   return (
     <div aria-busy className={GENRE_GRID} data-placeholder="genres">
       {GENRE_TILES.map((genre) => (
-        <span className={cn(GENRE_TILE, GENRE_CELL)} key={genre.slug}>
+        <span className={GENRE_TILE_GHOST} key={genre.slug}>
           <b className={GENRE_NAME}>{genre.name}</b>
           <GhostLine className="h-5" look="loading" width="w-20" />
         </span>
@@ -49,13 +51,13 @@ export function GenresSkeleton() {
   );
 }
 
+const POSTER_GHOST = cn('block aspect-2/3 rounded-(--tile-radius)', GHOST_FILL);
+
 /** A Go deeper card's poster and the lines under it (desktop) */
 function CardPosterGhost() {
   return (
     <span className="flex flex-col gap-2 xl:gap-3">
-      <span
-        className={cn('block aspect-2/3 rounded-(--tile-radius)', GHOST_FILL)}
-      />
+      <span className={POSTER_GHOST} />
       <span className="flex flex-col gap-2 max-xl:hidden">
         <GhostLine className="h-6" inPulse look="loading" width="w-3/4" />
         <GhostLine className="h-5" inPulse look="loading" width="w-1/2" />
@@ -63,6 +65,15 @@ function CardPosterGhost() {
     </span>
   );
 }
+
+const CTA_GHOST = cn('h-9 w-40 self-start rounded-full xl:hidden', GHOST_FILL);
+
+const LAST_POSTER_GHOST = cn('aspect-2/3 rounded-10 max-xl:hidden', GHOST_FILL);
+
+const ACTION_GHOST = cn(
+  'absolute right-4 bottom-4 size-9 rounded-full',
+  GHOST_FILL,
+);
 
 /**
  * A Go deeper card while it loads (`GoDeeperCard`): its frame, the from and
@@ -94,24 +105,15 @@ export function GoDeeperCardGhost() {
           <GhostLine className="h-6" inPulse look="loading" width="w-32" />
           <GhostLine className="h-5" inPulse look="loading" width="w-20" />
         </span>
-        <span
-          className={cn(
-            'absolute right-4 bottom-4 size-9 rounded-full',
-            GHOST_FILL,
-          )}
-        />
+        <span className={ACTION_GHOST} />
       </span>
       <span className="grid grid-cols-3 gap-2.5 [--tile-radius:8px] xl:grid-cols-4 xl:gap-5 xl:[--tile-radius:10px]">
         <CardPosterGhost />
         <CardPosterGhost />
         <CardPosterGhost />
-        <span
-          className={cn('aspect-2/3 rounded-10 max-xl:hidden', GHOST_FILL)}
-        />
+        <span className={LAST_POSTER_GHOST} />
       </span>
-      <span
-        className={cn('h-9 w-40 self-start rounded-full xl:hidden', GHOST_FILL)}
-      />
+      <span className={CTA_GHOST} />
     </span>
   );
 }

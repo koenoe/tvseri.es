@@ -24,13 +24,10 @@ export type PlaceholderLook = 'failed' | 'loading';
 const bar = (look: PlaceholderLook) => cn('block rounded-8', GHOST_LOOK[look]);
 
 /** The row switch's place while it loads (the Segmented's 38px pill) */
+const SWITCH_GHOST = cn('block h-9.5 w-72 rounded-full', GHOST_LOOK.loading);
+
 export function SwitchGhost() {
-  return (
-    <span
-      aria-hidden
-      className={cn('block h-9.5 w-72 rounded-full', GHOST_LOOK.loading)}
-    />
-  );
+  return <span aria-hidden className={SWITCH_GHOST} />;
 }
 
 /**
@@ -73,6 +70,13 @@ export function LandingHeroDetailsSkeleton({
   look = 'loading',
 }: DetailsSkeletonProps) {
   const block = bar(look);
+  const chipsClass = cn(
+    CHIPS_LINE,
+    // from md the ghosts stay on the one row the chips most often
+    // take (the wrapped ones are cut), as the hero's size
+    'overflow-hidden md:max-h-[38px]',
+    chipsHeading ? 'md:mt-2' : 'md:mt-6',
+  );
   return (
     <>
       <span aria-hidden className={`${block} mt-2 h-5 w-64`} />
@@ -112,13 +116,7 @@ export function LandingHeroDetailsSkeleton({
       ) : null}
       {chips ? (
         <ChipCloudGhost
-          className={cn(
-            CHIPS_LINE,
-            // from md the ghosts stay on the one row the chips most often
-            // take (the wrapped ones are cut), as the hero's size
-            'overflow-hidden md:max-h-[38px]',
-            chipsHeading ? 'md:mt-2' : 'md:mt-6',
-          )}
+          className={chipsClass}
           look={look}
           widths={CHIP_WIDTHS}
         />
@@ -127,6 +125,13 @@ export function LandingHeroDetailsSkeleton({
   );
 }
 
+const SPOTLIGHT_GHOST = cn(
+  'flex h-75 flex-col justify-end rounded-16 md:h-110',
+  GHOST_LOOK.loading,
+);
+const SPOTLIGHT_PILL_WIDE = cn('h-10 w-31 rounded-full', GHOST_FILL);
+const SPOTLIGHT_PILL_NARROW = cn('h-10 w-27 rounded-full', GHOST_FILL);
+
 /**
  * The recommendation tile while it loads, built from `Spotlight`'s layout:
  * the kicker, the title (the logo's 32 / 44px line), the meta line
@@ -134,13 +139,7 @@ export function LandingHeroDetailsSkeleton({
  */
 function SpotlightGhost() {
   return (
-    <span
-      aria-hidden
-      className={cn(
-        'flex h-75 flex-col justify-end rounded-16 md:h-110',
-        GHOST_LOOK.loading,
-      )}
-    >
+    <span aria-hidden className={SPOTLIGHT_GHOST}>
       <span className="flex flex-col items-start p-4 md:p-8">
         <GhostLine className="h-5" inPulse look="loading" width="w-24" />
         <GhostLine
@@ -162,8 +161,8 @@ function SpotlightGhost() {
           width="w-4/5 max-w-[520px]"
         />
         <span className="mt-4 flex items-center gap-2 md:mt-6 md:gap-3">
-          <span className={cn('h-10 w-31 rounded-full', GHOST_FILL)} />
-          <span className={cn('h-10 w-27 rounded-full', GHOST_FILL)} />
+          <span className={SPOTLIGHT_PILL_WIDE} />
+          <span className={SPOTLIGHT_PILL_NARROW} />
         </span>
       </span>
     </span>
@@ -175,17 +174,17 @@ function SpotlightGhost() {
  * poster (72 / 96 wide) and, beside it, the kicker, title, meta line and
  * reason, each a bar in its line box
  */
+const START_POSTER_GHOST = cn('block aspect-2/3 rounded-8', GHOST_FILL);
+
 function StartCardGhost({ className }: Readonly<{ className?: string }>) {
+  const cardClass = cn(
+    'grid h-37 grid-cols-[72px_minmax(0,1fr)] items-start gap-4 overflow-hidden rounded-16 p-4 md:h-48 md:grid-cols-[96px_minmax(0,1fr)] md:gap-6 md:p-6',
+    GHOST_LOOK.loading,
+    className,
+  );
   return (
-    <span
-      aria-hidden
-      className={cn(
-        'grid h-37 grid-cols-[72px_minmax(0,1fr)] items-start gap-4 overflow-hidden rounded-16 p-4 md:h-48 md:grid-cols-[96px_minmax(0,1fr)] md:gap-6 md:p-6',
-        GHOST_LOOK.loading,
-        className,
-      )}
-    >
-      <span className={cn('block aspect-2/3 rounded-8', GHOST_FILL)} />
+    <span aria-hidden className={cardClass}>
+      <span className={START_POSTER_GHOST} />
       <span className="flex min-w-0 flex-col" data-placeholder="start-text">
         <GhostLine className="h-5" inPulse look="loading" width="w-20" />
         <GhostLine className="mt-2 h-6" inPulse look="loading" width="w-3/5" />
@@ -239,14 +238,12 @@ export function TitleLineGhost({
   /** the bar's width classes */
   width: string;
 }>) {
+  const lineClass = cn('flex h-12 items-center md:h-16', className);
+  const barClass = cn('block h-9 rounded-8 md:h-12', fill, width);
   return (
-    <span
-      aria-hidden
-      className={cn('flex h-12 items-center md:h-16', className)}
-      data-placeholder={name}
-    >
+    <span aria-hidden className={lineClass} data-placeholder={name}>
       <span
-        className={cn('block h-9 rounded-8 md:h-12', fill, width)}
+        className={barClass}
         data-placeholder={name ? `${name}-bar` : undefined}
       />
     </span>
@@ -296,6 +293,13 @@ export function LandingHeroSkeleton({
   );
 }
 
+const HEADING_TITLE_GHOST = cn(
+  'block h-12 w-40 rounded-8 md:h-16 md:w-56',
+  GHOST_FILL,
+  TITLE_SPACE,
+);
+const HEADING_META_GHOST = cn('mt-2 block h-5 w-64 rounded-8', GHOST_FILL);
+
 /**
  * A `PlainHeroFrame`'s heading while the slug resolves: the h1 the frame
  * is labelled by, the title's place and the meta line's; `children` add
@@ -314,18 +318,8 @@ export function PlainHeadingSkeleton({
       <h1 className="sr-only" id={id}>
         Loading
       </h1>
-      <span
-        aria-hidden
-        className={cn(
-          'block h-12 w-40 rounded-8 md:h-16 md:w-56',
-          GHOST_FILL,
-          TITLE_SPACE,
-        )}
-      />
-      <span
-        aria-hidden
-        className={cn('mt-2 block h-5 w-64 rounded-8', GHOST_FILL)}
-      />
+      <span aria-hidden className={HEADING_TITLE_GHOST} />
+      <span aria-hidden className={HEADING_META_GHOST} />
       {children}
     </>
   );
@@ -356,11 +350,8 @@ export function SectionPlaceholder({
   name,
   title,
 }: SectionProps) {
-  const heading = (
-    <h2 className={cn('mb-6 text-title-2 text-white', headingClass)}>
-      {title ?? <TitleGhost />}
-    </h2>
-  );
+  const titleClass = cn('mb-6 text-title-2 text-white', headingClass);
+  const heading = <h2 className={titleClass}>{title ?? <TitleGhost />}</h2>;
   if (look === 'loading') {
     return (
       <section aria-busy className={PAGE_COLUMN} data-placeholder={name}>
@@ -418,16 +409,14 @@ function RankedRowGhost({
   compact,
   look,
 }: Readonly<{ compact?: boolean; look: PlaceholderLook }>) {
+  const rowClass = cn(
+    'grid items-center rounded-12',
+    compact
+      ? 'grid-cols-[32px_minmax(0,1fr)_auto] gap-3 px-2 py-2.5'
+      : 'grid-cols-[48px_minmax(0,1fr)_auto] gap-4 px-4 py-3',
+  );
   return (
-    <span
-      aria-hidden
-      className={cn(
-        'grid items-center rounded-12',
-        compact
-          ? 'grid-cols-[32px_minmax(0,1fr)_auto] gap-3 px-2 py-2.5'
-          : 'grid-cols-[48px_minmax(0,1fr)_auto] gap-4 px-4 py-3',
-      )}
-    >
+    <span aria-hidden className={rowClass}>
       <GhostLine
         className={compact ? 'h-6' : 'h-7'}
         look={look}
@@ -454,6 +443,10 @@ export function RankedListSkeleton({
   look = 'loading',
   title,
 }: Readonly<{ look?: PlaceholderLook; title?: string }>) {
+  const buttonGhostClass = cn(
+    'mx-2 block h-10 w-44 rounded-full',
+    GHOST_LOOK[look],
+  );
   return (
     <SectionPlaceholder look={look} name="ranked" title={title}>
       <div>
@@ -468,13 +461,7 @@ export function RankedListSkeleton({
               <RankedRowGhost compact key={index} look={look} />
             ))}
           </div>
-          <span
-            aria-hidden
-            className={cn(
-              'mx-2 block h-10 w-44 rounded-full',
-              GHOST_LOOK[look],
-            )}
-          />
+          <span aria-hidden className={buttonGhostClass} />
         </div>
       </div>
     </SectionPlaceholder>

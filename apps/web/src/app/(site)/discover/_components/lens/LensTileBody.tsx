@@ -84,6 +84,14 @@ export default function LensTileBody({
   const sizes = first ? SIZES.big : SIZES.small;
   const position =
     look.kind === 'backdrop' ? { objectPosition: look.position } : undefined;
+  const nameClass = cn(
+    'text-body font-semibold md:text-title-2',
+    first && 'text-title-2 md:text-title-1',
+  );
+  const captionClass = cn(
+    'absolute right-3 bottom-2.5 left-3 flex flex-col gap-1 md:right-5.5 md:bottom-5 md:left-5.5 md:gap-2.5',
+    first && 'md:bottom-7.5 md:left-8 md:gap-3.5',
+  );
   return (
     <>
       {look.kind === 'backdrop' && look.image ? (
@@ -120,18 +128,8 @@ export default function LensTileBody({
           <span aria-hidden className={FADE} />
         </>
       )}
-      <span
-        className={cn(
-          'absolute right-3 bottom-2.5 left-3 flex flex-col gap-1 md:right-5.5 md:bottom-5 md:left-5.5 md:gap-2.5',
-          first && 'md:bottom-7.5 md:left-8 md:gap-3.5',
-        )}
-      >
-        <span
-          className={cn(
-            'text-body font-semibold md:text-title-2',
-            first && 'text-title-2 md:text-title-1',
-          )}
-        >
+      <span className={captionClass}>
+        <span className={nameClass}>
           {tile.wordmark ? (
             <TileWordmark
               first={first}

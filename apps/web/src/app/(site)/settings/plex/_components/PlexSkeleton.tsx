@@ -63,6 +63,11 @@ const SEGMENT_GHOST = segmentedItemStyles({ className: SEGMENT_CLASS });
 /** The card's box as one flat pulsing layer: no brand edge, no amber panel */
 const CARD = cn(APP_CARD_CLASS, 'animate-ghost', GHOST_FILL);
 
+const WEEK_BAR_GHOST = cn(WEEK_BAR_CLASS, 'h-5 max-md:h-4');
+const PILL_GHOST = cn(APP_PILL_CLASS, FLAT);
+const URL_FIELD_GHOST = cn(URL_FIELD_CLASS, GHOST_FILL_OVER);
+const OPTIONS_GHOST = cn(OPTIONS_CLASS, 'border-transparent');
+
 const DAYS = [0, 1, 2, 3, 4, 5, 6] as const;
 
 /** The week's seven columns: a bar and a letter each (`WeekBars`) */
@@ -70,7 +75,7 @@ const GhostWeek = () => (
   <span className={WEEK_CLASS}>
     {DAYS.map((day) => (
       <span className={WEEK_DAY_CLASS} key={day}>
-        <Ghost className={cn(WEEK_BAR_CLASS, 'h-5 max-md:h-4')} />
+        <Ghost className={WEEK_BAR_GHOST} />
         <TextLine bar="h-2.5" className={WEEK_LETTER_CLASS} width="w-2" />
       </span>
     ))}
@@ -128,9 +133,9 @@ function HeaderGhost({
 }: Readonly<{ state: string; status?: ReactNode }>) {
   const pills = (
     <>
-      <span className={cn(APP_PILL_CLASS, FLAT)}>{state}</span>
-      <span className={cn(APP_PILL_CLASS, FLAT)}>Built in</span>
-      <span className={cn(APP_PILL_CLASS, FLAT)}>Needs Plex Pass</span>
+      <span className={PILL_GHOST}>{state}</span>
+      <span className={PILL_GHOST}>Built in</span>
+      <span className={PILL_GHOST}>Needs Plex Pass</span>
     </>
   );
   const tile = <Ghost className={APP_TILE_CLASS} />;
@@ -153,7 +158,7 @@ const WAIT_STATUS = <PlexStatusLine lastReceivedAt={null} state="wait" />;
 
 /** The URL with Show and Copy (`UrlField`) */
 const UrlGhost = () => (
-  <span className={cn(URL_FIELD_CLASS, GHOST_FILL_OVER)}>
+  <span className={URL_FIELD_GHOST}>
     <TextLine className="min-w-0 flex-1 text-body-sm" width="w-3/5" />
     {/* the eye's box (unseen: any 13px glyph sizes it the same) */}
     <ButtonFace className={SM_BUTTON} icon={copyGlyph} variant="quiet">
@@ -188,7 +193,7 @@ function SettingsGhost() {
   const who = <TextLine className="text-meta" width="w-56" />;
   return (
     <>
-      <span className={cn(OPTIONS_CLASS, 'border-transparent')}>
+      <span className={OPTIONS_GHOST}>
         <OptionGhost line={pause} title="Pause scrobbling">
           <Ghost className={SWITCH_BOX_CLASS} />
         </OptionGhost>

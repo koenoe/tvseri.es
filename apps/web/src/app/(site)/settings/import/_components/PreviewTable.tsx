@@ -21,6 +21,11 @@ const TEXT = 'min-w-0 truncate';
 /** Phones: the row is a card (show · date over episode · service) */
 const PHONE_SMALL = 'max-md:text-caption max-md:text-white/60';
 
+const PHONE_CELL = cn(CELL, PHONE_SMALL);
+const SHOW_CELL = cn(CELL, 'font-semibold max-md:block max-md:truncate');
+const TR_CLASS_BASE =
+  'max-md:grid max-md:grid-cols-[minmax(0,1fr)_auto] max-md:gap-x-3 max-md:gap-y-0.5 max-md:border-white/5 max-md:border-t max-md:px-3.5 max-md:py-3 max-md:first:border-t-0 max-md:[&:nth-child(n+4)]:hidden';
+
 /**
  * The first rows as they will be read: fixed columns,
  * 64px rows, a poster from the match, one line each with the whole text on
@@ -40,33 +45,26 @@ export default function PreviewTable({
       <table className="w-full table-fixed border-collapse max-md:block">
         <thead className="max-md:hidden">
           <tr>
-            {heads.map((head) => (
-              <th
-                className={cn(
-                  'h-13.5 bg-white/4 px-4 text-left align-middle',
-                  WIDTH[head.key],
-                )}
-                key={head.key}
-                scope="col"
-              >
-                <span
-                  className={cn(
-                    'block text-overline uppercase',
-                    head.needed ? 'text-white' : 'text-white/60',
-                  )}
-                >
-                  {head.label}
-                </span>
-                <span
-                  className={cn(
-                    'mt-1 block truncate text-caption',
-                    head.needed ? 'text-white' : 'text-white/60',
-                  )}
-                >
-                  {head.source}
-                </span>
-              </th>
-            ))}
+            {heads.map((head) => {
+              const headClass = cn(
+                'h-13.5 bg-white/4 px-4 text-left align-middle',
+                WIDTH[head.key],
+              );
+              const labelClass = cn(
+                'block text-overline uppercase',
+                head.needed ? 'text-white' : 'text-white/60',
+              );
+              const sourceClass = cn(
+                'mt-1 block truncate text-caption',
+                head.needed ? 'text-white' : 'text-white/60',
+              );
+              return (
+                <th className={headClass} key={head.key} scope="col">
+                  <span className={labelClass}>{head.label}</span>
+                  <span className={sourceClass}>{head.source}</span>
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody className="max-md:block">
@@ -83,18 +81,21 @@ function PreviewTableRow({ row }: Readonly<{ row: PreviewRow }>) {
   const td =
     'h-16 border-white/5 border-t px-4 align-middle max-md:block max-md:h-auto max-md:border-0 max-md:p-0';
   const muted = row.isFilm ? 'text-white/60' : 'text-white';
+  const rowClass = cn(TR_CLASS_BASE, muted);
+  const seasonCellClass = cn(td, 'max-md:hidden');
+  const episodeCellClass = cn(td, 'max-md:col-start-1 max-md:row-start-2');
+  const dateCellClass = cn(
+    td,
+    'max-md:col-start-2 max-md:row-start-1 max-md:justify-self-end',
+  );
+  const serviceCellClass = cn(
+    td,
+    'max-md:col-start-2 max-md:row-start-2 max-md:justify-self-end',
+  );
   return (
-    <tr
-      className={cn(
-        'max-md:grid max-md:grid-cols-[minmax(0,1fr)_auto] max-md:gap-x-3 max-md:gap-y-0.5 max-md:border-white/5 max-md:border-t max-md:px-3.5 max-md:py-3 max-md:first:border-t-0 max-md:[&:nth-child(n+4)]:hidden',
-        muted,
-      )}
-    >
+    <tr className={rowClass}>
       <td className={td}>
-        <span
-          className={cn(CELL, 'font-semibold max-md:block max-md:truncate')}
-          title={row.show}
-        >
+        <span className={SHOW_CELL} title={row.show}>
           {row.poster ? (
             <Image
               alt=""
@@ -111,10 +112,10 @@ function PreviewTableRow({ row }: Readonly<{ row: PreviewRow }>) {
           <span className={TEXT}>{row.show}</span>
         </span>
       </td>
-      <td className={cn(td, 'max-md:hidden')}>
+      <td className={seasonCellClass}>
         <span className={CELL}>{row.season}</span>
       </td>
-      <td className={cn(td, 'max-md:col-start-1 max-md:row-start-2')}>
+      <td className={episodeCellClass}>
         {row.isFilm ? (
           <span className={CELL}>
             <span className="inline-flex h-6 items-center rounded-full px-2.5 text-caption font-medium text-white/80 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.2)]">
@@ -122,26 +123,16 @@ function PreviewTableRow({ row }: Readonly<{ row: PreviewRow }>) {
             </span>
           </span>
         ) : (
-          <span className={cn(CELL, PHONE_SMALL)} title={row.episode}>
+          <span className={PHONE_CELL} title={row.episode}>
             <span className={TEXT}>{row.episode}</span>
           </span>
         )}
       </td>
-      <td
-        className={cn(
-          td,
-          'max-md:col-start-2 max-md:row-start-1 max-md:justify-self-end',
-        )}
-      >
-        <span className={cn(CELL, PHONE_SMALL)}>{row.date}</span>
+      <td className={dateCellClass}>
+        <span className={PHONE_CELL}>{row.date}</span>
       </td>
-      <td
-        className={cn(
-          td,
-          'max-md:col-start-2 max-md:row-start-2 max-md:justify-self-end',
-        )}
-      >
-        <span className={cn(CELL, PHONE_SMALL)} title={row.service}>
+      <td className={serviceCellClass}>
+        <span className={PHONE_CELL} title={row.service}>
           {row.serviceLogo ? (
             <Image
               alt=""

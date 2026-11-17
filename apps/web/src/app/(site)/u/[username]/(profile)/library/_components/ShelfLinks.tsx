@@ -74,6 +74,9 @@ export function ShelfNav({ counts, defaultShelf, owner, username }: Props) {
   );
 }
 
+// contrast-exempt: an empty shelf (disabled, not a link)
+const EMPTY_ROW = cn(ROW, 'text-white/40');
+
 function ShelfRow({
   active,
   count,
@@ -89,6 +92,11 @@ function ShelfRow({
 }>) {
   const meta = SHELVES[shelf];
   const empty = count === 0 && !active;
+  const iconClass = cn('relative', active ? 'text-white' : 'text-white/60');
+  const countClass = cn(
+    'relative ml-auto tabular-nums',
+    active ? 'text-white' : 'text-white/60',
+  );
   const content = (
     <>
       {active ? (
@@ -98,36 +106,27 @@ function ShelfRow({
           data-pill
         />
       ) : null}
-      <Icon
-        className={cn('relative', active ? 'text-white' : 'text-white/60')}
-        glyph={meta.glyph}
-        size={16}
-      />
+      <Icon className={iconClass} glyph={meta.glyph} size={16} />
       <span className="relative">{meta.label}</span>
-      <span
-        className={cn(
-          'relative ml-auto tabular-nums',
-          active ? 'text-white' : 'text-white/60',
-        )}
-      >
+      <span className={countClass}>
         {count === null ? '' : formatGrouped(count)}
       </span>
     </>
   );
   if (empty) {
-    // contrast-exempt: an empty shelf (disabled, not a link)
-    return <span className={cn(ROW, 'text-white/40')}>{content}</span>;
+    return <span className={EMPTY_ROW}>{content}</span>;
   }
   const href = libraryPath(username, shelf);
+  const rowClass = cn(
+    ROW,
+    active
+      ? 'text-white'
+      : 'text-white/80 transition-colors hover:bg-white/5 hover:text-white',
+  );
   return (
     <Link
       aria-current={active ? 'page' : undefined}
-      className={cn(
-        ROW,
-        active
-          ? 'text-white'
-          : 'text-white/80 transition-colors hover:bg-white/5 hover:text-white',
-      )}
+      className={rowClass}
       href={href}
       onClick={onPick}
     >
@@ -138,6 +137,8 @@ function ShelfRow({
 
 const CHIP =
   'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13px] leading-5 font-medium whitespace-nowrap';
+// contrast-exempt: an empty shelf chip (disabled, not a link)
+const EMPTY_CHIP = cn(CHIP, 'bg-white/6 text-white/35');
 
 /**
  * The phone's shelves: one row of chips under the
@@ -155,35 +156,34 @@ export function ShelfChips({ counts, defaultShelf, owner, username }: Props) {
       {shelvesFor(owner, live, active).map((shelf) => {
         const count = live?.[shelf] ?? null;
         const on = shelf === active;
+        const chipCountClass = cn(
+          'tabular-nums',
+          on ? 'text-[rgb(23_23_23/0.6)]' : 'text-white/60',
+        );
         const label = (
           <>
             {SHELVES[shelf].chip}
-            <span
-              className={cn(
-                'tabular-nums',
-                on ? 'text-[rgb(23_23_23/0.6)]' : 'text-white/60',
-              )}
-            >
+            <span className={chipCountClass}>
               {count === null ? '' : formatGrouped(count)}
             </span>
           </>
         );
         if (count === 0 && !on) {
           return (
-            // contrast-exempt: an empty shelf chip (disabled, not a link)
-            <span className={cn(CHIP, 'bg-white/6 text-white/35')} key={shelf}>
+            <span className={EMPTY_CHIP} key={shelf}>
               {label}
             </span>
           );
         }
         const href = libraryPath(username, shelf);
+        const chipClass = cn(
+          CHIP,
+          on ? 'bg-white text-[#171717]' : 'bg-white/6 text-white/80',
+        );
         return (
           <Link
             aria-current={on ? 'page' : undefined}
-            className={cn(
-              CHIP,
-              on ? 'bg-white text-[#171717]' : 'bg-white/6 text-white/80',
-            )}
+            className={chipClass}
             href={href}
             key={shelf}
           >

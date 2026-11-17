@@ -26,13 +26,9 @@ export default function DiaryDay({
   const style = skippable
     ? ({ '--rows': day.rows.length } as CSSProperties)
     : undefined;
+  const dayClass = cn(DIARY_DAY, skippable && DIARY_DAY_SKIPPED);
   return (
-    <m.div
-      className={cn(DIARY_DAY, skippable && DIARY_DAY_SKIPPED)}
-      data-diary-day
-      style={style}
-      {...layout}
-    >
+    <m.div className={dayClass} data-diary-day style={style} {...layout}>
       <time className="flex flex-col items-start" dateTime={day.key}>
         <span className="text-overline uppercase text-white/60">
           {day.weekday}

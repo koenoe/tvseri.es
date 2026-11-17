@@ -55,6 +55,10 @@ const FADE_RIGHT: CSSProperties = {
 const POINTER =
   'absolute -top-0.5 inline-flex items-center gap-1 whitespace-nowrap text-caption text-white/60';
 const FADE = 'absolute inset-y-0 hidden w-5';
+const FADE_LEFT_CLASS = cn(FADE, 'left-0 group-data-[fl]/qs:block');
+const FADE_RIGHT_CLASS = cn(FADE, 'right-0 group-data-[fr]/qs:block');
+const POINTER_BEFORE_CLASS = cn(POINTER, 'left-0');
+const POINTER_AFTER_CLASS = cn(POINTER, 'right-0');
 
 /**
  * A phone's view of the line: the window's width, held at its left edge
@@ -64,19 +68,13 @@ const FADE = 'absolute inset-y-0 hidden w-5';
 function PhoneWindow({ months }: Readonly<{ months: string }>) {
   return (
     <span className="sticky left-0 block h-4 w-[100cqw] md:hidden">
-      <span
-        className={cn(FADE, 'left-0 group-data-[fl]/qs:block')}
-        style={FADE_LEFT}
-      />
-      <span
-        className={cn(FADE, 'right-0 group-data-[fr]/qs:block')}
-        style={FADE_RIGHT}
-      />
-      <span className={cn(POINTER, 'left-0')} style={BEFORE}>
+      <span className={FADE_LEFT_CLASS} style={FADE_LEFT} />
+      <span className={FADE_RIGHT_CLASS} style={FADE_RIGHT} />
+      <span className={POINTER_BEFORE_CLASS} style={BEFORE}>
         <Icon glyph={arrowLeftGlyph} size={12} />
         {months}
       </span>
-      <span className={cn(POINTER, 'right-0')} style={AFTER}>
+      <span className={POINTER_AFTER_CLASS} style={AFTER}>
         {months}
         <Icon glyph={arrowRightGlyph} size={12} />
       </span>

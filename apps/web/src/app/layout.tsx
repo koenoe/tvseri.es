@@ -12,6 +12,7 @@ import WebVitals from '@/components/WebVitals';
 import WelcomeToast from '@/components/WelcomeToast';
 import MarkingProvider from '@/lib/marking/MarkingProvider';
 import NavigationTracker from '@/lib/navigation/NavigationTracker';
+import PrefetchProvider from '@/lib/navigation/PrefetchProvider';
 import RouteHints from '@/lib/viewer/RouteHints';
 
 import { fontVariables } from './fonts';
@@ -53,16 +54,18 @@ export default function RootLayout({
         <PageEdgeTint />
         <ViewerHintsScript />
         <NavigationTracker />
-        <MotionProvider>
-          <MarkingProvider>{children}</MarkingProvider>
-          <Suspense fallback={null}>
-            <RouteHints />
-            <WebVitals />
-          </Suspense>
-          <Toaster />
-          <WelcomeToast />
-          <SearchLauncher />
-        </MotionProvider>
+        <PrefetchProvider>
+          <MotionProvider>
+            <MarkingProvider>{children}</MarkingProvider>
+            <Suspense fallback={null}>
+              <RouteHints />
+              <WebVitals />
+            </Suspense>
+            <Toaster />
+            <WelcomeToast />
+            <SearchLauncher />
+          </MotionProvider>
+        </PrefetchProvider>
       </body>
     </html>
   );

@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import type {
   ComponentProps,
   FocusEvent,
   MouseEvent,
   PointerEvent,
 } from 'react';
+
+import { usePrefetch } from '@/lib/navigation/PrefetchProvider';
 
 import { usePrefetchExhausted } from './prefetchBudget';
 import { TILE_PREFETCH, type TilePrefetch } from './tilePrefetch';
@@ -40,8 +41,8 @@ export default function TileLink({
   prefetchOn = TILE_PREFETCH,
   ...rest
 }: Props) {
-  const router = useRouter();
-  const prefetch = () => router.prefetch(href);
+  const prefetchRoute = usePrefetch();
+  const prefetch = () => prefetchRoute(href);
   const handleMouseEnter = (event: MouseEvent<HTMLAnchorElement>) => {
     prefetch();
     onMouseEnter?.(event);

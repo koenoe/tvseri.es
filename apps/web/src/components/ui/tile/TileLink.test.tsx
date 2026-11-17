@@ -3,6 +3,8 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
+import PrefetchProvider from '@/lib/navigation/PrefetchProvider';
+
 import TileLink from './TileLink';
 import { TILE_PREFETCH } from './tilePrefetch';
 
@@ -21,10 +23,13 @@ vi.mock('next/link', () => ({
   ),
 }));
 
+// the router's prefetch reaches tiles through the root layout's provider
+const wrapper = PrefetchProvider;
+
 describe('TileLink', () => {
   it('prefetches in the viewport by default (TILE_PREFETCH)', () => {
     expect(TILE_PREFETCH).toBe('viewport');
-    render(<TileLink href="/136315/the-bear">The Bear</TileLink>);
+    render(<TileLink href="/136315/the-bear">The Bear</TileLink>, { wrapper });
     // Next's own default (`auto`): the viewport prefetch
     expect(
       screen.getByRole('link', { name: 'The Bear' }).dataset.prefetch,
@@ -37,6 +42,7 @@ describe('TileLink', () => {
       <TileLink href="/136315/the-bear" prefetchOn="intent">
         The Bear
       </TileLink>,
+      { wrapper },
     );
     expect(
       screen.getByRole('link', { name: 'The Bear' }).dataset.prefetch,
@@ -54,6 +60,7 @@ describe('TileLink', () => {
       <TileLink href="/136315/the-bear" prefetchOn="intent">
         The Bear
       </TileLink>,
+      { wrapper },
     );
     intent(screen.getByRole('link', { name: 'The Bear' }));
     expect(prefetch).toHaveBeenCalledWith('/136315/the-bear');
@@ -65,6 +72,7 @@ describe('TileLink', () => {
       <TileLink href="/136315/the-bear" onFocus={onFocus}>
         The Bear
       </TileLink>,
+      { wrapper },
     );
     fireEvent.focus(screen.getByRole('link', { name: 'The Bear' }));
     expect(onFocus).toHaveBeenCalledOnce();

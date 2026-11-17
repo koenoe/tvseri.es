@@ -1,16 +1,12 @@
-import cn from '@/lib/cn';
-
 import type { SortOrder } from './model';
+import Segmented, { type SegmentedOption } from './Segmented';
 
-const OPTIONS: ReadonlyArray<Readonly<{ label: string; value: SortOrder }>> = [
+const OPTIONS: ReadonlyArray<SegmentedOption<SortOrder>> = [
   { label: 'In order watched', value: 'watched' },
   { label: 'Most hours', value: 'hours' },
 ];
 
-/**
- * "In order watched / Most hours": a radio group of two,
- * 3px padding, radius 10; the chosen one `white/15`.
- */
+/** "In order watched / Most hours" */
 export default function SortSwitch({
   onChange,
   value,
@@ -19,30 +15,13 @@ export default function SortSwitch({
   value: SortOrder;
 }>) {
   return (
-    <div
-      aria-label="Order"
-      className="flex gap-0.5 rounded-10 bg-white/6 p-[3px]"
-      role="radiogroup"
-    >
-      {OPTIONS.map((option) => {
-        const checked = option.value === value;
-        const select = () => onChange(option.value);
-        return (
-          <button
-            aria-checked={checked}
-            className={cn(
-              'cursor-pointer whitespace-nowrap rounded-[7px] px-3 py-1 font-medium text-body-sm transition-colors duration-200',
-              checked ? 'bg-white/15 text-white' : 'text-white/60',
-            )}
-            key={option.value}
-            onClick={select}
-            role="radio"
-            type="button"
-          >
-            {option.label}
-          </button>
-        );
-      })}
-    </div>
+    <Segmented
+      className="flex"
+      itemClassName="px-3 py-1 text-body-sm"
+      label="Order"
+      onChange={onChange}
+      options={OPTIONS}
+      value={value}
+    />
   );
 }

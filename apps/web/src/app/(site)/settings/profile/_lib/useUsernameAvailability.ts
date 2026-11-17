@@ -1,7 +1,6 @@
 'use client';
 
-// A leaf module, not the barrel: this runs in the browser
-import { UsernameSchema } from '@tvseri.es/schemas/src/user';
+import { UsernameSchema } from '@tvseri.es/schemas';
 import { useCallback, useRef, useState } from 'react';
 import * as v from 'valibot';
 

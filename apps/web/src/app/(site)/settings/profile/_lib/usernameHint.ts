@@ -1,11 +1,10 @@
-// A leaf module, not the barrel: this runs in the browser
 import {
   isReservedUsername,
   USERNAME_MAX_LENGTH,
   USERNAME_TOO_LONG,
   UsernameSchema,
-} from '@tvseri.es/schemas/src/user';
-import toUsernameSlug from '@tvseri.es/utils/src/toUsernameSlug';
+} from '@tvseri.es/schemas';
+import { toUsernameSlug } from '@tvseri.es/utils';
 import * as v from 'valibot';
 
 export type UsernameAvailability = 'available' | 'taken' | 'unknown';

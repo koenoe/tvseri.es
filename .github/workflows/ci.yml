@@ -66,8 +66,8 @@ jobs:
 
     if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
 
-    # Four shards of about 7 minutes of tests each on one worker, plus the
-    # job's own install and build (about 2 to 3 minutes)
+    # Four shards on two workers each, plus the job's own install, browsers
+    # and build (about 2 minutes)
     strategy:
       fail-fast: false
       matrix:
@@ -101,6 +101,10 @@ jobs:
       # gutter while clientWidth still read the whole window, a state no
       # browser has (`E2E_CLASSIC_SCROLLBARS`, playwright.config.ts)
       #
+      # Two workers, set: the runners differ in cores, and Playwright's default
+      # (half of them) gave some shards 1 worker and others 2, 7.5 against 2.5
+      # minutes for the same share of tests
+      #
       # Playwright splits the tests, in file order, into equal counts, but the
       # files are not equally slow. The weights set each shard's share of the
       # tests (Playwright's own, undocumented `PWTEST_SHARD_WEIGHTS`). Recut
@@ -110,7 +114,7 @@ jobs:
         env:
           E2E_CLASSIC_SCROLLBARS: '1'
           PWTEST_SHARD_WEIGHTS: '208:154:152:149'
-        run: pnpm --filter @tvseri.es/web e2e --shard=${{ matrix.shard }}/4
+        run: pnpm --filter @tvseri.es/web e2e --shard=${{ matrix.shard }}/4 --workers=2
 
       # What a failure looked like: traces (retain-on-failure) and screenshots
       # (`pnpm exec playwright show-trace <zip>`)

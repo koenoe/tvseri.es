@@ -15,10 +15,9 @@ export const CONNECTED_CARD =
   'flex flex-col gap-4 rounded-16 bg-black/25 p-4 md:h-[372px] md:px-7 md:pt-6 md:pb-6.5 lg:h-[336px]';
 
 /**
- * The card's head: the "Connected by" label, "{A} to
- * {B}, in 2 steps" and the actions (the end's Watchlist and "Another
- * path"); one row from lg, the label on its own row below that; on a phone
- * the three are stacked and centred, with the Watchlist under the path
+ * The card's head: the "Connected by" label, "{A} to {B}, in 2 steps" and
+ * "Another path"; one row from lg, the label on its own row below that; on
+ * a phone the three are stacked and centred
  */
 export const PATH_HEAD =
   'flex flex-wrap items-center gap-4 max-md:justify-center max-md:text-center lg:flex-nowrap';
@@ -41,13 +40,7 @@ export const PATH_TITLE_SLOT = 'max-md:basis-full md:flex-1 md:basis-0';
  */
 export const PATH_TITLE_BOX = `${PATH_TITLE_SLOT} max-md:line-clamp-2 max-md:min-h-12 md:line-clamp-1`;
 
-/** The head's actions, a pair from md (`ACTION_PAIR`): the end's Watchlist, then "Another path" */
+/** "Another path", at the head's end (centred under the title on a phone) */
 export const PATH_SWITCH = 'ml-auto max-md:mx-auto';
-
-/** The end's Watchlist in the head: from md only */
-export const HEAD_WATCHLIST = 'max-md:hidden';
-
-/** On a phone the end's Watchlist sits under the path, centred */
-export const PATH_FOOT = 'flex justify-center md:hidden';
 
 export const ANOTHER_PATH_LABEL = 'Another path';

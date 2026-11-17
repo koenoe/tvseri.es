@@ -1,4 +1,3 @@
-import WatchlistToggleGhost from '@/components/marking/WatchlistToggleGhost';
 import {
   ButtonFace,
   Ghost,
@@ -7,7 +6,6 @@ import {
 } from '@/components/ui/ghost/ghosts';
 import { routeGlyph, shuffleGlyph } from '@/components/ui/icon/glyphs';
 import cn from '@/lib/cn';
-import { ACTION_PAIR } from '../../actionPair';
 import { MomentFrame } from '../../feature/Moment';
 import { PAGE_COLUMN } from '../../frame';
 import MomentLabel from '../../MomentLabel';
@@ -16,8 +14,6 @@ import { CHAIN, LINK_BOX } from './Chain';
 import {
   ANOTHER_PATH_LABEL,
   CONNECTED_CARD,
-  HEAD_WATCHLIST,
-  PATH_FOOT,
   PATH_HEAD,
   PATH_LABEL,
   PATH_SWITCH,
@@ -27,9 +23,8 @@ import {
 import { NAME, NODE, PERSON_EMPTY, ROLES, SHOW_EMPTY } from './Nodes';
 
 const CHAIN_GHOST = cn(CHAIN, PULSE);
-const ACTIONS = cn(ACTION_PAIR, PATH_SWITCH, PULSE);
+const SWITCH = cn(PATH_SWITCH, PULSE);
 const TITLE_SLOT = cn('block', PATH_TITLE_SLOT, PULSE);
-const FOOT = cn(PATH_FOOT, PULSE);
 
 /** On a phone (112px nodes) names and roles take two lines' box each, and so does the head's title */
 const NAME_PHONE = cn(NAME, 'md:hidden');
@@ -76,8 +71,8 @@ function PersonGhost() {
 
 /**
  * Connected by's placeholder, in the moment's frame: the card with its head
- * (the real label, "{A} to {B}, in 2 steps" to come, Watchlist and "Another
- * path" as flat pills; on a phone the Watchlist under the path) and a
+ * (the real label, "{A} to {B}, in 2 steps" to come, "Another path" as a
+ * flat pill) and a
  * two-step chain, show, person, show, person, show, flat bars between the
  * nodes' empty poster and face boxes.
  */
@@ -96,12 +91,9 @@ export default function ConnectedByGhost() {
               <TextLine className={PATH_TITLE} width="w-56 md:w-80" />
               <TextLine className={TITLE_PHONE} width="w-24" />
             </span>
-            <span className={ACTIONS}>
-              <WatchlistToggleGhost className={HEAD_WATCHLIST} size="md" />
-              <ButtonFace icon={shuffleGlyph} size="md">
-                {ANOTHER_PATH_LABEL}
-              </ButtonFace>
-            </span>
+            <ButtonFace className={SWITCH} icon={shuffleGlyph} size="md">
+              {ANOTHER_PATH_LABEL}
+            </ButtonFace>
           </div>
           <div className={CHAIN_GHOST}>
             <ShowGhost />
@@ -113,9 +105,6 @@ export default function ConnectedByGhost() {
             <PersonGhost />
             <Line />
             <ShowGhost />
-          </div>
-          <div className={FOOT}>
-            <WatchlistToggleGhost size="md" />
           </div>
         </div>
       </div>

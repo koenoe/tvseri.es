@@ -209,19 +209,12 @@ const featureBoxes = (kind: string) => {
   >;
 };
 
-type ToyPart =
-  | 'frame'
-  | 'heading'
-  | 'screen'
-  | 'remote'
-  | 'watchlist'
-  | 'another';
+type ToyPart = 'frame' | 'heading' | 'screen' | 'remote' | 'another';
 
 /**
  * Runs in the page (serialised): the toy's frame (If you liked X's is
  * `toy-if-you-liked`) and, inside it, its heading (and for What's on the screen and the remote, the label row's
- * parent and its sibling; for Connected by the end's Watchlist and Another
- * path on screen), relative to the frame, for the loaded toy
+ * parent and its sibling; for Connected by Another path on screen), relative to the frame, for the loaded toy
  * (`#toy-<kind>`) and its placeholder (`#toy-ghost-<kind>`) on `/dev/home`.
  */
 const toyBoxes = (kind: string) => {
@@ -257,16 +250,15 @@ const toyBoxes = (kind: string) => {
       parts.screen = box(remote?.previousElementSibling);
     }
     if (kind === 'connected-by') {
-      // the pill on screen with this label (a button, or its flat face)
-      const pill = (label: string) =>
+      // the pill on screen (a button, or its flat face)
+      parts.another = box(
         [...frame.querySelectorAll('button, span')].find(
           (element) =>
-            element.textContent?.trim() === label &&
+            element.textContent?.trim() === 'Another path' &&
             String(element.className).includes('rounded-full') &&
             element.getBoundingClientRect().width > 0,
-        );
-      parts.watchlist = box(pill('Watchlist'));
-      parts.another = box(pill('Another path'));
+        ),
+      );
     }
     return parts;
   };

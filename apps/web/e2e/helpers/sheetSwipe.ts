@@ -6,17 +6,39 @@ import { untilStable } from './viewport';
 /**
  * Swipe down to close a phone bottom sheet (`useSheetSwipe`), shared by the
  * Chromium and WebKit specs. The swipe is a run of touch pointer events
- * dispatched in the page on the clock, so it plays the same in both
- * engines (Playwright has no touch drag); how the browser hands a real
- * finger over (scrolling, `pointercancel`) is the device's to check.
+ * dispatched in the page, so it plays the same in both engines (Playwright
+ * has no touch drag); how the browser hands a real finger over (scrolling,
+ * `pointercancel`) is the device's to check.
  */
 
-type Swipe = Readonly<{ dy: number; ms: number }>;
+type Swipe = Readonly<{
+  dy: number;
+  ms: number;
+  /**
+   * Moves on the clock in one task, no frame in between: a flick's speed
+   * must not depend on how fast a runner paints (a slow runner's first frame
+   * alone took longer than 80 ms). Otherwise each move waits for a frame,
+   * as a finger's do, so the panel is drawn where the finger is.
+   */
+  flick?: boolean;
+}>;
 
-/** Swipes from the middle of `from` by `dy` px over `ms`; the panel's top per frame back */
-async function swipe(from: Locator, { dy, ms }: Swipe): Promise<number[]> {
+type SwipeTrace = Readonly<{
+  /** The panel's top before the press */
+  rest: number;
+  /** Its top in each frame drawn during the drag */
+  dragged: ReadonlyArray<number>;
+  /** Its top right after the release, then in each frame until it is gone or 900 ms passed */
+  released: ReadonlyArray<number>;
+}>;
+
+/** Swipes from the middle of `from` by `dy` px over `ms`, tracing the panel's top */
+async function swipe(
+  from: Locator,
+  { dy, flick = false, ms }: Swipe,
+): Promise<SwipeTrace> {
   return from.evaluate(
-    async (element, { dy, ms }) => {
+    async (element, { dy, flick, ms }) => {
       const box = element.getBoundingClientRect();
       const x = box.left + box.width / 2;
       const y = box.top + box.height / 2;
@@ -35,39 +57,46 @@ async function swipe(from: Locator, { dy, ms }: Swipe): Promise<number[]> {
         document.querySelector(
           'dialog[open] > div:not([data-dialog-backdrop]):not([data-edge-tint])',
         );
-      const tops: number[] = [];
-      // On the clock, in one task: a move every 16ms and the release `ms`
-      // after the press, whatever the machine. Paced by animation frames, a
-      // slow runner's first frame alone took longer than a flick's 80ms, so
-      // the flick arrived too slow to close
+      const top = () => {
+        const node = panel();
+        return node ? Math.round(node.getBoundingClientRect().top) : null;
+      };
+      const rest = top() ?? 0;
+      const dragged: number[] = [];
       element.dispatchEvent(new PointerEvent('pointerdown', init(y)));
       const start = performance.now();
       let due = start + 16;
       let t = 0;
       while (t < 1) {
+        if (!flick) {
+          await frame();
+          // what the previous move put on screen
+          dragged.push(top() ?? rest);
+        }
         const now = performance.now();
         t = Math.min(1, (now - start) / ms);
-        if (now >= due || t === 1) {
+        if (!flick || now >= due || t === 1) {
           element.dispatchEvent(
             new PointerEvent('pointermove', init(y + dy * t)),
           );
           due += 16;
         }
       }
+      // the last move and the release in one task, as when a finger lifts
+      // between two frames
       element.dispatchEvent(new PointerEvent('pointerup', init(y + dy)));
-      // the settle or the exit, frame by frame
+      const released: number[] = [];
       const end = performance.now() + 900;
-      while (performance.now() < end) {
-        const node = panel();
-        if (!node) {
+      for (let now = top(); now !== null; now = top()) {
+        released.push(now);
+        if (performance.now() >= end) {
           break;
         }
-        tops.push(Math.round(node.getBoundingClientRect().top));
         await frame();
       }
-      return tops;
+      return { dragged, released, rest };
     },
-    { dy, ms },
+    { dy, flick, ms },
   );
 }
 
@@ -138,14 +167,25 @@ export function sheetSwipeSuite() {
         (await handle(sheet).evaluate(
           (node) => node.parentElement?.getBoundingClientRect().height,
         )) ?? 0;
-      const tops = await swipe(handle(sheet), {
-        dy: Math.round(height * 0.4),
-        ms: 900,
+      const dy = Math.round(height * 0.4);
+      const ms = 900;
+      const { dragged, released, rest } = await swipe(handle(sheet), {
+        dy,
+        ms,
       });
       await expect(page.getByRole('dialog')).toHaveCount(0);
-      // no jump back up: it keeps going down until it is gone
-      expect(tops.length).toBeGreaterThan(2);
-      expect(nonDecreasing(tops)).toBe(true);
+      // frames were drawn mid-drag, the panel under the finger
+      expect(dragged.length).toBeGreaterThan(10);
+      const last = dragged.at(-1) ?? rest;
+      expect(last - rest).toBeGreaterThan(dy * 0.8);
+      // the exit starts where the finger let go (a frame or two of drag
+      // past the last one drawn, never back at rest) and only goes down
+      const perFrame = (dy / ms) * 16;
+      expect(Math.abs((released[0] ?? rest) - last)).toBeLessThanOrEqual(
+        perFrame * 3 + 2,
+      );
+      expect(nonDecreasing([...dragged, ...released])).toBe(true);
+      expect(released.length).toBeGreaterThan(2);
     });
 
     test('a short, slow swipe settles back and presses nothing', async ({
@@ -161,16 +201,19 @@ export function sheetSwipeSuite() {
 
     test('a flick closes it, however short', async ({ page }) => {
       const sheet = await openRemote(page);
-      await swipe(handle(sheet), { dy: 60, ms: 80 });
+      await swipe(handle(sheet), { dy: 60, flick: true, ms: 80 });
       await expect(page.getByRole('dialog')).toHaveCount(0);
     });
 
     test('a swipe up leaves the sheet where it is', async ({ page }) => {
       const sheet = await openRemote(page);
-      const tops = await swipe(handle(sheet), { dy: -200, ms: 300 });
+      const { dragged, released, rest } = await swipe(handle(sheet), {
+        dy: -200,
+        ms: 300,
+      });
       await expect(sheet).toBeVisible();
       expect(await panelTranslate(page)).toBe('');
-      expect(new Set(tops).size).toBe(1);
+      expect(new Set([rest, ...dragged, ...released]).size).toBe(1);
     });
 
     test('opens again in place after a swipe closed it', async ({ page }) => {

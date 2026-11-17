@@ -152,6 +152,8 @@ test.describe('discover hub (/discover)', () => {
   }) => {
     await page.setViewportSize({ height: 900, width: 1440 });
     await open(page, '/discover');
+    // the row streams in over its placeholder: scroll once it has landed
+    await pageSettled(page);
     const row = page.getByRole('region', { name: 'All-time favourites' });
     await row.scrollIntoViewIfNeeded();
     const rail = row.locator('ol');

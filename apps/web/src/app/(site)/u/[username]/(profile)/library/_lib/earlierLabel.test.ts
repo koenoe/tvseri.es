@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { earlierLabel } from './LoadEarlier';
+import { earlierLabel } from './earlierLabel';
 
 describe('earlierLabel: the row above an A–Z jump', () => {
   it('names the letters above the first one shown and the shows they hold', () => {

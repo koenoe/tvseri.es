@@ -15,11 +15,13 @@ import useBulk from '@/lib/marking/useBulk';
 import type { ShelfPageView } from '@/lib/profile/shelfPage';
 import { type ShelfQuery, toSearch } from '@/lib/profile/shelfQuery';
 import type { TileView } from '@/lib/profile/tileView';
+import LoadAbove from '../../_components/blocks/LoadAbove';
 import InfiniteScroll from '../../_components/pagination/InfiniteScroll';
 import PaginationNotice from '../../_components/pagination/PaginationNotice';
 import usePaginated from '../../_lib/pagination/usePaginated';
 import useScrollAnchor from '../../_lib/pagination/useScrollAnchor';
 import { bumpCounts } from '../../_lib/shelfCounts';
+import { earlierLabel } from '../_lib/earlierLabel';
 import { SHELVES } from '../_lib/shelves';
 import useShelfSelect from '../_lib/useShelfSelect';
 import useShelfTiles, { type LeaveReason } from '../_lib/useShelfTiles';
@@ -27,7 +29,6 @@ import ActionBar from './ActionBar';
 import AzRail from './AzRail';
 import { EAGER, LIBRARY_GRID } from './gridStyles';
 import LibraryCell from './LibraryCell';
-import LoadEarlier from './LoadEarlier';
 import ShelfGridEmpty from './ShelfGridEmpty';
 import ShelfToolbar from './ShelfToolbar';
 import TileGhosts from './TileGhosts';
@@ -210,13 +211,11 @@ export default function LibraryView({
             />
           ) : null}
           {paged.canLoadBefore && above > 0 ? (
-            <LoadEarlier
-              above={above}
-              firstShown={tiles[0]?.initial}
-              letters={first.letters}
-              loading={paged.beforeStatus === 'loading'}
-              onLoad={loadEarlier}
-            />
+            <LoadAbove className="mb-6" onLoad={loadEarlier}>
+              {paged.beforeStatus === 'loading'
+                ? 'Loading…'
+                : earlierLabel(first.letters, tiles[0]?.initial, above)}
+            </LoadAbove>
           ) : null}
           {empty ? (
             <ShelfGridEmpty

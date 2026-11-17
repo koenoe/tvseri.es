@@ -7,6 +7,7 @@ import cn from '@/lib/cn';
 import type { MonthKey } from '@/lib/profile/diary';
 import type { DiaryItem } from '@/lib/profile/views';
 import profilePath from '@/lib/routing/profilePath';
+import LoadAbove from '../../_components/blocks/LoadAbove';
 import InfiniteScroll from '../../_components/pagination/InfiniteScroll';
 import PaginationNotice from '../../_components/pagination/PaginationNotice';
 import { isJumping, setJumping, useJumping } from '../_lib/activeMonth';
@@ -16,7 +17,6 @@ import { scrollToDiaryTop } from '../_lib/useDiaryJump';
 import DiaryEnd from './DiaryEnd';
 import DiaryMonth from './DiaryMonth';
 import JumpSheet, { JumpButton } from './JumpSheet';
-import NewerLink from './NewerLink';
 import useRowRenderer from './useRowRenderer';
 
 type Week = Readonly<{ episodes: number; last: string | null }>;
@@ -94,11 +94,13 @@ export default function Diary({
     <>
       <div className={classes} data-diary ref={listRef}>
         {diary.newer ? (
-          <NewerLink
+          <LoadAbove
             busy={diary.beforeStatus === 'loading'}
+            className="mb-2"
             onLoad={diary.newer.load}
-            title={diary.newer.title}
-          />
+          >
+            Newer: {diary.newer.title}
+          </LoadAbove>
         ) : null}
         <InfiniteScroll hasMore={diary.canLoadMore} loadMore={diary.loadMore}>
           {months.map((entry) => {

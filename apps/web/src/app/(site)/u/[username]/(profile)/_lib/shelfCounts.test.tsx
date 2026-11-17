@@ -2,7 +2,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { bumpCounts, useShelfCount, useShelfCounts } from './counts';
+import { bumpCounts, useShelfCount, useShelfCounts } from './shelfCounts';
 
 const COUNTS = {
   all: 10,

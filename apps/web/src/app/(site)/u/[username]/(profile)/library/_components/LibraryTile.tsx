@@ -16,11 +16,10 @@ import TileLink from '@/components/ui/tile/TileLink';
 import cn from '@/lib/cn';
 import { LONG_PRESS_MS } from '@/lib/longPress';
 import { useMarkingStoreApi } from '@/lib/marking/MarkingProvider';
+import type { TileView } from '@/lib/profile/tileView';
 import showPath from '@/lib/routing/showPath';
-
 import { FACT_GLYPH } from '../_lib/factGlyphs';
 import { useLiveWatchingTile } from '../_lib/liveTile';
-import type { TileView } from '../_lib/tileView';
 import { POSTER_VARS } from './gridStyles';
 import {
   CheckCircle,

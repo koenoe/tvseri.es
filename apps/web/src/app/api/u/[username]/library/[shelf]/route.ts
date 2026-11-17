@@ -1,9 +1,8 @@
 import { LibraryShelfSchema } from '@tvseri.es/schemas';
 import * as v from 'valibot';
-
-import { loadShelfPage } from '@/app/(site)/u/[username]/(profile)/library/_data/library';
-import { parseShelfQuery } from '@/app/(site)/u/[username]/(profile)/library/_lib/shelfQuery';
 import { ApiError } from '@/lib/api/client';
+import { loadShelfPage } from '@/lib/profile/shelfPage';
+import { parseShelfQuery } from '@/lib/profile/shelfQuery';
 
 import { privateJson, viewerRoute } from '../../../../handlers';
 import requireProfile from '../../../requireProfile';

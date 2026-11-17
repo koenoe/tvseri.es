@@ -42,7 +42,7 @@ vi.mock('@/lib/api/client', async (importOriginal) => ({
 const { getProfile } = await import('./profile');
 const { loadOverview } = await import('./overview');
 const { loadViewerLibrary } = await import('./library');
-const { libraryRead, settleGuess } = await import('../library/_data/read');
+const { libraryRead, settleGuess } = await import('./libraryRead');
 
 /** The viewer: alex, signed in with their own token */
 const ALEX = {

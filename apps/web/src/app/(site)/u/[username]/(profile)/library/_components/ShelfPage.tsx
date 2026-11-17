@@ -7,26 +7,26 @@ import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
 import OwnerVisitor from '@/components/ui/viewer/OwnerVisitor';
 import { ApiError } from '@/lib/api/client';
 import { isUnavailable } from '@/lib/cache/unavailable';
-
-import Hole from '../../_components/blocks/Hole';
-import SubpageHeader, {
-  SUBPAGE_TITLE_ID,
-} from '../../_components/subpage/SubpageHeader';
-import {
-  getProfile,
-  getProfileOrNull,
-  type Profile,
-  type ProfileParams,
-  type ProfileViewer,
-} from '../../_data/profile';
-import { loadLibrarySummary, loadShelfPage } from '../_data/library';
-import { type LibraryRead, libraryRead, settleGuess } from '../_data/read';
+import { type LibraryRead, loadShelfPage } from '@/lib/profile/shelfPage';
 import {
   defaultShelf,
   parseShelfQuery,
   type SearchParams,
   type ShelfQuery,
-} from '../_lib/shelfQuery';
+} from '@/lib/profile/shelfQuery';
+import type { ProfileViewer } from '@/lib/profile/user';
+import Hole from '../../_components/blocks/Hole';
+import SubpageHeader, {
+  SUBPAGE_TITLE_ID,
+} from '../../_components/subpage/SubpageHeader';
+import { libraryRead, settleGuess } from '../../_data/libraryRead';
+import {
+  getProfile,
+  getProfileOrNull,
+  type Profile,
+  type ProfileParams,
+} from '../../_data/profile';
+import { loadLibrarySummary } from '../_data/library';
 import { SHELVES, seenOnlyLine, visitorDescription } from '../_lib/shelves';
 import LibraryView from './LibraryView';
 import ShelfCount from './ShelfCount';

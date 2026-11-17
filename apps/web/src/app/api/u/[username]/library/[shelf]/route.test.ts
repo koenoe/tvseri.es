@@ -15,7 +15,7 @@ vi.mock('@/auth/viewer', () => ({
 vi.mock('@/lib/profile/user', () => ({
   resolveProfileUser: (...args: unknown[]) => resolveProfileUser(...args),
 }));
-vi.mock('@/app/(site)/u/[username]/(profile)/library/_data/library', () => ({
+vi.mock('@/lib/profile/shelfPage', () => ({
   loadShelfPage: (...args: unknown[]) => loadShelfPage(...args),
 }));
 

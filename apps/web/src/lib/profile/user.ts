@@ -5,6 +5,9 @@ import type { User, WatchProvider } from '@tvseri.es/schemas';
 import { apiFetch } from '@/lib/api/client';
 
 /** The profile owner: what `GET /user/by-username/:username` makes public */
+/** Who is looking at a profile: its owner or anyone else signed in */
+export type ProfileViewer = 'owner' | 'visitor';
+
 export type ProfileUser = Readonly<{
   id: string;
   username: string;

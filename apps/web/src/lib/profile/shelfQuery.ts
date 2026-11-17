@@ -9,7 +9,7 @@ import {
   type LibrarySort,
 } from '@tvseri.es/schemas';
 
-import type { ProfileViewer } from '../../_data/profile';
+import type { ProfileViewer } from '@/lib/profile/user';
 
 type Letter = (typeof LIBRARY_LETTERS)[number];
 

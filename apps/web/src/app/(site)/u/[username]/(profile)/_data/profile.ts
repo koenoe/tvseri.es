@@ -8,13 +8,12 @@ import { getViewer } from '@/auth/viewer';
 import {
   loadProfileUser,
   type ProfileUser,
+  type ProfileViewer,
   resolveProfileUser,
 } from '@/lib/profile/user';
 
 import { orNull } from '../_lib/orNull';
 import { looksLikeOwnProfile } from './ownerHint';
-
-export type ProfileViewer = 'owner' | 'visitor';
 
 /**
  * Who is looking at whose profile. The viewer is the verified token's id

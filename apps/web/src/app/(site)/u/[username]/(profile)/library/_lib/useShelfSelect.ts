@@ -5,9 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 
 import { showToast } from '@/components/ui/toast/showToast';
-
+import type { TileView } from '@/lib/profile/tileView';
 import { createSelectionStore, SELECT_MAX } from './selection';
-import type { TileView } from './tileView';
 import type { LeaveReason } from './useShelfTiles';
 
 /** The pick past the cap */

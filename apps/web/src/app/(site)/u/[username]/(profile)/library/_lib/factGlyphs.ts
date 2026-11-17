@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/icon/glyphs';
 import type { Glyph, ToggleGlyph } from '@/components/ui/icon/types';
 
-import type { TileFactKind } from './tileView';
+import type { TileFactKind } from '@/lib/profile/tileView';
 
 /** Each tile fact's 13px glyph; `plain` has none */
 export const FACT_GLYPH: Readonly<

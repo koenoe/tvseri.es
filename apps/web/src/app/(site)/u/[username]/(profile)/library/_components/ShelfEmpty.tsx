@@ -2,6 +2,7 @@ import type { LibraryShelf } from '@tvseri.es/schemas';
 import type { ReactNode } from 'react';
 
 import SectionHead from '@/components/ui/section/SectionHead';
+import { loadShelfPage } from '@/lib/profile/shelfPage';
 import EmptyState from '../../_components/blocks/EmptyState';
 import { loadPicks } from '../../_components/overview/up-next/loadUpNext';
 import PickHero from '../../_components/overview/up-next/PickHero';
@@ -9,7 +10,7 @@ import PickSwitcher from '../../_components/overview/up-next/PickSwitcher';
 import PickUnavailable from '../../_components/overview/up-next/PickUnavailable';
 import { loadTrendingCards } from '../../_components/sidebar/start/trending';
 import { type Profile, withToken } from '../../_data/profile';
-import { loadSeenChoices, loadShelfPage } from '../_data/library';
+import { loadSeenChoices } from '../_data/library';
 import { OWNER_EMPTY as OWNER } from '../_lib/shelfEmpty';
 import { SHELVES } from '../_lib/shelves';
 import { FavouritePicks, PopularPicks, SeenPicks } from './EmptyPicks';

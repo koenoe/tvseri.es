@@ -2,7 +2,7 @@
 
 import { formatGrouped } from '@/lib/formatCount';
 
-import { useShelfCount } from '../../library/_lib/counts';
+import { useShelfCount } from '../../_lib/shelfCounts';
 
 /**
  * "218 finished": the Finished shelf's number (`useShelfCount`), so a

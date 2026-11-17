@@ -3,14 +3,12 @@ import { act, render } from '@testing-library/react';
 import { MotionGlobalConfig } from 'motion/react';
 import { Profiler, type ReactNode, useCallback, useLayoutEffect } from 'react';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-
-import { VisitorOverlay } from '@/app/(site)/u/[username]/(profile)/library/_components/TileOverlays';
+import WatchedOverlay from '@/components/ui/tile/WatchedOverlay';
 import MarkingProvider, {
   useMarkingStoreApi,
 } from '@/lib/marking/MarkingProvider';
 import type { MarkingStoreApi } from '@/lib/marking/store';
-
-import WatchedOverlay from './WatchedOverlay';
+import { VisitorOverlay } from './TileOverlays';
 
 /**
  * One mark re-renders the tiles whose answer changed, not every

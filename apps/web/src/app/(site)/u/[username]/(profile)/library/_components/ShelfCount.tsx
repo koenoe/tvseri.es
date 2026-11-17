@@ -3,7 +3,7 @@
 import type { LibraryCounts, LibraryShelf } from '@tvseri.es/schemas';
 
 import { formatGrouped } from '@/lib/formatCount';
-import { useShelfCounts } from '../_lib/counts';
+import { useShelfCounts } from '../../_lib/shelfCounts';
 
 /** The header's count, following this page's changes */
 export default function ShelfCount({

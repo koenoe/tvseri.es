@@ -7,7 +7,7 @@ import { useSeriesView } from '@/lib/marking/hooks';
 import { nextEpisode, seriesProgress } from '@/lib/marking/progress';
 import type { SeriesBase } from '@/lib/marking/types';
 
-import { progressPercent, type TileView } from './tileView';
+import { progressPercent, type TileView } from '@/lib/profile/tileView';
 
 /** A show N finished leaves Watching after its toast (4 s) */
 const LEAVE_AFTER_MS = 4000;

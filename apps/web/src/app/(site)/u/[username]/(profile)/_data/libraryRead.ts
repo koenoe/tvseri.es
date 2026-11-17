@@ -1,16 +1,11 @@
 import 'server-only';
 
 import { getViewer } from '@/auth/viewer';
+import type { LibraryRead } from '@/lib/profile/shelfPage';
+import type { ProfileViewer } from '@/lib/profile/user';
 
-import { looksLikeOwnProfile } from '../../_data/ownerHint';
-import type {
-  Profile,
-  ProfileParams,
-  ProfileViewer,
-} from '../../_data/profile';
-
-/** A Library read: the viewer's token and the profile as `@username` (the API resolves it) */
-export type LibraryRead = Readonly<{ accessToken: string; userId: string }>;
+import { looksLikeOwnProfile } from './ownerHint';
+import type { Profile, ProfileParams } from './profile';
 
 /**
  * The Library's reads, keyed by the URL's username so they start at once,

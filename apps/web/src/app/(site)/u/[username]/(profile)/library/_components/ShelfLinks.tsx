@@ -9,7 +9,7 @@ import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
 import { formatGrouped } from '@/lib/formatCount';
 import { libraryPath } from '@/lib/routing/profilePath';
-import { useShelfCounts } from '../_lib/counts';
+import { useShelfCounts } from '../../_lib/shelfCounts';
 import { SHELVES } from '../_lib/shelves';
 import { usePillGlide } from '../_lib/usePillGlide';
 import { NavRule, ROW, ShelvesHeading } from './shelfNavParts';

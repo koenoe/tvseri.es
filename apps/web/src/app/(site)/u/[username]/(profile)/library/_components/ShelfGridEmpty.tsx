@@ -1,8 +1,7 @@
 import type { LibraryShelf } from '@tvseri.es/schemas';
-
+import type { ShelfQuery } from '@/lib/profile/shelfQuery';
 import EmptyState from '../../_components/blocks/EmptyState';
 import { OWNER_EMPTY } from '../_lib/shelfEmpty';
-import type { ShelfQuery } from '../_lib/shelfQuery';
 import { SHELVES } from '../_lib/shelves';
 
 /**

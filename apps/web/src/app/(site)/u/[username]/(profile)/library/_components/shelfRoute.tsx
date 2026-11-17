@@ -1,8 +1,7 @@
 import type { LibraryShelf } from '@tvseri.es/schemas';
 import type { Metadata } from 'next';
-
+import type { SearchParams } from '@/lib/profile/shelfQuery';
 import { type ProfileParams, profileMetadata } from '../../_data/profile';
-import type { SearchParams } from '../_lib/shelfQuery';
 import { SHELVES } from '../_lib/shelves';
 import ShelfPage from './ShelfPage';
 

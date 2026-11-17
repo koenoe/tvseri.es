@@ -3,7 +3,7 @@
 import * as m from 'motion/react-m';
 import { memo } from 'react';
 
-import type { TileView } from '../_lib/tileView';
+import type { TileView } from '@/lib/profile/tileView';
 import { LIBRARY_CELL, TILE_SIZES } from './gridStyles';
 import LibraryTile from './LibraryTile';
 

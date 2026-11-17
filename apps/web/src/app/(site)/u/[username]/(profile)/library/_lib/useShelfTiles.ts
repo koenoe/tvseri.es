@@ -2,9 +2,8 @@
 
 import type { LibraryShelf } from '@tvseri.es/schemas';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
-import { bumpCounts } from './counts';
-import type { TileView } from './tileView';
+import type { TileView } from '@/lib/profile/tileView';
+import { bumpCounts } from '../../_lib/shelfCounts';
 
 /** Why a tile leaves its shelf (the counts follow) */
 export type LeaveReason =

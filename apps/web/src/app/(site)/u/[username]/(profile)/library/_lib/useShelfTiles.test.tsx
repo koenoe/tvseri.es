@@ -3,9 +3,8 @@
 import { act, renderHook } from '@testing-library/react';
 import type { LibraryShelf } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
-
-import { useShelfCounts } from './counts';
-import type { TileView } from './tileView';
+import type { TileView } from '@/lib/profile/tileView';
+import { useShelfCounts } from '../../_lib/shelfCounts';
 import useShelfTiles from './useShelfTiles';
 
 const COUNTS = {

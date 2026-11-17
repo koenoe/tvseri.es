@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import type { SeriesBase } from '@/lib/marking/types';
-
+import type { TileView } from '@/lib/profile/tileView';
 import { liveWatchingTile } from './liveTile';
-import type { TileView } from './tileView';
 
 const TILE: TileView = {
   addedAt: 1,

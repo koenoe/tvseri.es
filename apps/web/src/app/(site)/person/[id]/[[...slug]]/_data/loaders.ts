@@ -10,7 +10,7 @@ import type {
   PersonShows,
   TvSeries,
 } from '@tvseri.es/schemas';
-import { cacheTag } from 'next/cache';
+import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
@@ -284,7 +284,7 @@ export async function loadFamilyAndAwards(
   );
   // `degraded`: Wikidata didn't answer; try again on a visit 30 s on
   if (isUnavailable(response) || response?.degraded) {
-    cacheLifeFor('unavailable');
+    cacheLife('unavailable');
     return UNAVAILABLE;
   }
   const value = response ?? { awards: null, family: null };

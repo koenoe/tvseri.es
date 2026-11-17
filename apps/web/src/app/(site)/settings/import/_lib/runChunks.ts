@@ -6,8 +6,8 @@ import {
   IMPORT_MAX_ROWS_PER_REQUEST,
   type ImportEvent,
   type ImportRow,
-} from './contract';
-import { readNdjson } from './ndjson';
+} from '@/lib/import/contract';
+import { readNdjson } from '@/lib/import/ndjson';
 
 /** Why a run stopped before its last chunk (the "Stopped" banner). */
 export type StopReason = ErrorEvent['error'];

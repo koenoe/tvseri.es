@@ -1,10 +1,10 @@
-import type { ColumnMapping, DetectedSource } from './columns';
 import type {
   CheckEvent,
   ImportEvent,
   ImportedShow,
   ImportProblem,
-} from './contract';
+} from '@/lib/import/contract';
+import type { ColumnMapping, DetectedSource } from './columns';
 import type { PreparedImport } from './prepareRows';
 import { type ProblemGroups, problemGroups } from './problems';
 import type { StopReason } from './runChunks';

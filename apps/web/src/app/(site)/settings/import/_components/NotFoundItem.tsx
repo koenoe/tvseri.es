@@ -6,9 +6,8 @@ import { useCallback, useState } from 'react';
 import Button from '@/components/ui/button/Button';
 import { refreshGlyph, searchGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
+import type { EpisodeOption } from '@/lib/import/contract';
 import type { SearchShow } from '@/lib/search/searchView';
-
-import type { EpisodeOption } from '../_lib/contract';
 import type { Fix } from '../_lib/importState';
 import { type ProblemItem, rowCount } from '../_lib/problems';
 import FixDone from './FixDone';

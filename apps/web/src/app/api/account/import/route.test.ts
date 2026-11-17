@@ -1,11 +1,10 @@
 import { revalidateTag } from 'next/cache';
 import { after, NextRequest } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-import { IMPORT_WRITE_BATCH_SIZE } from '@/app/(site)/settings/import/_lib/contract';
-import { readNdjson } from '@/app/(site)/settings/import/_lib/ndjson';
 import auth from '@/auth';
 import { ApiError, apiFetch } from '@/lib/api/client';
+import { IMPORT_WRITE_BATCH_SIZE } from '@/lib/import/contract';
+import { readNdjson } from '@/lib/import/ndjson';
 
 import { POST } from './route';
 

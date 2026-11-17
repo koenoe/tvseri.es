@@ -1,4 +1,4 @@
-import { IMPORT_MAX_FILE_BYTES } from './contract';
+import { IMPORT_MAX_FILE_BYTES } from '@/lib/import/contract';
 import type { ParsedFile } from './importState';
 
 /**

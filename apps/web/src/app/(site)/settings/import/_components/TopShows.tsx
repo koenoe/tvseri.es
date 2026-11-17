@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { plural } from '@/lib/format/text';
 import { formatGrouped } from '@/lib/formatCount';
 
-import type { ImportedShow } from '../_lib/contract';
+import type { ImportedShow } from '@/lib/import/contract';
 import { CARD_COUNT, CARD_HEAD, CARD_TITLE } from './styles';
 
 /** "The shows it brought in": 8 posters, most imported episodes first. */

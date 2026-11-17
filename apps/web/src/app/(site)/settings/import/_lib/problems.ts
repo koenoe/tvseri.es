@@ -7,7 +7,7 @@ import type {
   ImportProblem,
   ImportProblemKind,
   SeriesCandidate,
-} from './contract';
+} from '@/lib/import/contract';
 
 /**
  * Per-record problems, grouped the way the page shows them: the Check

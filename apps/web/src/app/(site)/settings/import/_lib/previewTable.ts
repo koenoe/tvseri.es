@@ -1,8 +1,8 @@
+import { matchProvider } from '@/lib/import/providers';
 import type { ColumnMapping } from './columns';
 import { columnSource, type FieldKey } from './copy';
 import type { DateOrder } from './parseDate';
 import { previewCell } from './preview';
-import { matchProvider } from './providers';
 
 /** The Check table's rows and headers, from the file and the mapping. */
 

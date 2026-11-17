@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { ImportProblem, SeriesCandidate } from './contract';
+import type { ImportProblem, SeriesCandidate } from '@/lib/import/contract';
 import { problemGroups, rowLabel, unmatchedLines } from './problems';
 
 const candidate = (

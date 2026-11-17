@@ -2,7 +2,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { ImportProblem, ImportRequest } from './contract';
+import type { ImportProblem, ImportRequest } from '@/lib/import/contract';
 
 vi.mock('./actions', () => ({
   importStatus: vi.fn(async () => ({ data: { lastImport: null }, ok: true })),

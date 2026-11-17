@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import Papa from 'papaparse';
 import { describe, expect, it } from 'vitest';
-
+import { createEpisodeMatcher } from '@/lib/import/matcher';
 import {
   searchCatalogue,
   specById,
@@ -11,7 +11,6 @@ import {
   toSeries,
 } from '../../../../../../e2e/stub-api/fixtures/settings-import/catalog.ts';
 import { detectSource } from './columns';
-import { createEpisodeMatcher } from './matcher';
 import { prepareRows } from './prepareRows';
 
 /**

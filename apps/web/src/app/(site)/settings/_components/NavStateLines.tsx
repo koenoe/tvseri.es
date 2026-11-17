@@ -1,12 +1,12 @@
 import { regionName } from '@tvseri.es/utils';
 
 import { plural } from '@/lib/format/text';
+import { importedEpisodes } from '@/lib/import/lastImport';
 
 import { loadPlexStatus } from '../_data/plex';
 import { getSettingsSession, getSettingsViewer } from '../_data/session';
 import { plexStateOf } from '../_lib/plexState';
 import type { SettingsSectionId } from '../_lib/sections';
-import { importedEpisodes } from '../import/_lib/lastImport';
 import LocalMoment from './LocalMoment';
 
 const DAY = 24 * 60 * 60 * 1000;

@@ -1,6 +1,6 @@
+import type { ImportCell } from '@/lib/import/contract';
+import { type SplitEntry, splitEntry } from '@/lib/import/parseEntry';
 import type { ColumnMapping } from './columns';
-import type { ImportCell } from './contract';
-import { type SplitEntry, splitEntry } from './parseEntry';
 
 /** A cell the way the importer reads it: numbers stay numbers. */
 const toCell = (value: unknown): ImportCell =>

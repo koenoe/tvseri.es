@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { ImportEvent, ImportRow } from './contract';
+import type { ImportEvent, ImportRow } from '@/lib/import/contract';
 import { planChunks, runChunks } from './runChunks';
 
 const rows = (count: number): ImportRow[] =>

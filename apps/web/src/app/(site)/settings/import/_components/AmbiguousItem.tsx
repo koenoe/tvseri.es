@@ -1,6 +1,6 @@
 import Button from '@/components/ui/button/Button';
 
-import type { SeriesCandidate } from '../_lib/contract';
+import type { SeriesCandidate } from '@/lib/import/contract';
 import type { Fix } from '../_lib/importState';
 import { type ProblemItem, rowCount } from '../_lib/problems';
 import FixDone from './FixDone';

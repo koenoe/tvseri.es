@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
-
+import {
+  IMPORT_MAX_SERVICE_LENGTH,
+  IMPORT_MAX_TEXT_LENGTH,
+} from '@/lib/import/contract';
 import { detectSource, NETFLIX_MAPPING } from './columns';
-import { IMPORT_MAX_SERVICE_LENGTH, IMPORT_MAX_TEXT_LENGTH } from './contract';
 import { prepareRows } from './prepareRows';
 
 const NOW = new Date(2026, 10, 12, 21, 40).getTime();

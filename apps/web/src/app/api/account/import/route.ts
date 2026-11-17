@@ -1,15 +1,11 @@
 import { revalidateTag } from 'next/cache';
 import { after, type NextRequest } from 'next/server';
 import * as v from 'valibot';
-
-import { runImport } from '@/app/(site)/settings/import/_lib/importRun';
-import { toNdjsonLine } from '@/app/(site)/settings/import/_lib/ndjson';
-import {
-  ImportRequestSchema,
-  readRequestRows,
-} from '@/app/(site)/settings/import/_lib/schema';
 import auth from '@/auth';
 import { resolveRegionFromHeaders } from '@/lib/geo';
+import { runImport } from '@/lib/import/importRun';
+import { toNdjsonLine } from '@/lib/import/ndjson';
+import { ImportRequestSchema, readRequestRows } from '@/lib/import/schema';
 import isSameOriginRequest, {
   crossSiteRefused,
 } from '@/lib/security/sameOrigin';

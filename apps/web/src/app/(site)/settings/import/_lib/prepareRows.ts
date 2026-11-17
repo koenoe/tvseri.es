@@ -1,9 +1,9 @@
-import type { ColumnMapping } from './columns';
 import {
   IMPORT_MAX_SERVICE_LENGTH,
   IMPORT_MAX_TEXT_LENGTH,
   type ImportRow,
-} from './contract';
+} from '@/lib/import/contract';
+import type { ColumnMapping } from './columns';
 import {
   type DateOrder,
   type DateProblem,

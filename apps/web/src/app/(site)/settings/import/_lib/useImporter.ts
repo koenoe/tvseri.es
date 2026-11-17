@@ -4,10 +4,13 @@ import { useRouter } from 'next/navigation';
 import { useReducer, useRef, useTransition } from 'react';
 
 import { showToast } from '@/components/ui/toast/showToast';
-
+import type {
+  ImportedShow,
+  ImportProblem,
+  ImportRow,
+} from '@/lib/import/contract';
 import { startImport } from './actions';
 import { type ColumnMapping, detectSource } from './columns';
-import type { ImportedShow, ImportProblem, ImportRow } from './contract';
 import {
   type Fix,
   type GroupId,

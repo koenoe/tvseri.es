@@ -12,9 +12,8 @@ import {
 import Icon from '@/components/ui/icon/Icon';
 import { plural } from '@/lib/format/text';
 import { formatGrouped } from '@/lib/formatCount';
+import type { ImportedShow } from '@/lib/import/contract';
 import profilePath from '@/lib/routing/profilePath';
-
-import type { ImportedShow } from '../_lib/contract';
 import {
   OUTCOME_COPY,
   OUTCOME_RGB,

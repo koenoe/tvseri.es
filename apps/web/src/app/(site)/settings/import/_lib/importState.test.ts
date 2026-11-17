@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
-
+import type {
+  ImportEvent,
+  ImportedShow,
+  ImportProblem,
+} from '@/lib/import/contract';
 import type { ColumnMapping, DetectedSource } from './columns';
-import type { ImportEvent, ImportedShow, ImportProblem } from './contract';
 import {
   answeredRows,
   checkSummary,

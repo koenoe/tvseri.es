@@ -5,13 +5,12 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { plural } from '@/lib/format/text';
 import { formatGrouped } from '@/lib/formatCount';
-import type { SearchShow } from '@/lib/search/searchView';
-
 import type {
   EpisodeOption,
   ImportRow,
   SeriesCandidate,
-} from '../_lib/contract';
+} from '@/lib/import/contract';
+import type { SearchShow } from '@/lib/search/searchView';
 import type { Fix, ImportStep, PickedFix } from '../_lib/importState';
 import { groupsOf } from '../_lib/importState';
 import { type ProblemItem, rowCount } from '../_lib/problems';

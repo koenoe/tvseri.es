@@ -2,13 +2,13 @@ import type { Episode, Season, TvSeries } from '@tvseri.es/schemas';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { apiFetch } from '@/lib/api/client';
+import type { CheckEvent, ImportRow } from '@/lib/import/contract';
+import { runImport } from '@/lib/import/importRun';
+import { searchSeries } from '@/lib/import/loaders';
+import { toNdjsonLine } from '@/lib/import/ndjson';
 import { loadSeriesForWrite } from '@/lib/series/forWrite';
 import { loadSeason } from '@/lib/series/loaders';
 import { loadRegionProviders } from '@/lib/watchProviders/regionProviders';
-import type { CheckEvent, ImportRow } from './contract';
-import { runImport } from './importRun';
-import { searchSeries } from './loaders';
-import { toNdjsonLine } from './ndjson';
 import { runChunks } from './runChunks';
 
 vi.mock('@/lib/api/client', async (importOriginal) => ({
@@ -17,7 +17,7 @@ vi.mock('@/lib/api/client', async (importOriginal) => ({
 }));
 vi.mock('@/lib/series/loaders', () => ({ loadSeason: vi.fn() }));
 vi.mock('@/lib/series/forWrite', () => ({ loadSeriesForWrite: vi.fn() }));
-vi.mock('./loaders', () => ({ searchSeries: vi.fn() }));
+vi.mock('@/lib/import/loaders', () => ({ searchSeries: vi.fn() }));
 vi.mock('@/lib/watchProviders/regionProviders', () => ({
   loadRegionProviders: vi.fn(),
 }));

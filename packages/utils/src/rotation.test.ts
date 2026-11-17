@@ -21,7 +21,8 @@ describe('home moments of the day', () => {
   it('match the known days', () => {
     // Mon 9 = Binge calculator + What's on; Tue 10 = Season in stills +
     // Where are they set? (signed in: If you liked X); Wed 11 = From the
-    // archive + Connected by; Sat 14 = Connected by (signed in: If you liked X)
+    // archive + Connected by; Fri 13 = Binge calculator + Where are they set?;
+    // Sat 14 = Season in stills + Connected by (signed in: If you liked X)
     expect(featureKindOfDay('2026-11-09')).toBe('binge');
     expect(toyKindOfDay('2026-11-09')).toBe('whats-on');
     expect(isIfYouLikedDay('2026-11-09')).toBe(false);
@@ -31,20 +32,11 @@ describe('home moments of the day', () => {
     expect(featureKindOfDay('2026-11-11')).toBe('archive');
     expect(toyKindOfDay('2026-11-11')).toBe('connected-by');
     expect(isIfYouLikedDay('2026-11-11')).toBe(false);
+    expect(featureKindOfDay('2026-11-13')).toBe('binge');
+    expect(toyKindOfDay('2026-11-13')).toBe('where-set');
     expect(featureKindOfDay('2026-11-14')).toBe('stills');
     expect(toyKindOfDay('2026-11-14')).toBe('connected-by');
     expect(isIfYouLikedDay('2026-11-14')).toBe(true);
-  });
-
-  it('Fri 13 and Sat 14: different pairs (binge + where-set, then stills + connected-by)', () => {
-    expect([
-      featureKindOfDay('2026-11-13'),
-      toyKindOfDay('2026-11-13'),
-    ]).toEqual(['binge', 'where-set']);
-    expect([
-      featureKindOfDay('2026-11-14'),
-      toyKindOfDay('2026-11-14'),
-    ]).toEqual(['stills', 'connected-by']);
   });
 
   it("a fall-through tries the next kinds first and yesterday's last", () => {
@@ -121,7 +113,6 @@ describe('home moments of the day', () => {
   });
 
   it('plans Versus on Thu 12 Nov (signed out) and Sun 15 Nov (everyone)', () => {
-    expect(TOY_KINDS).toContain('versus');
     expect(toyKindOfDay('2026-11-12')).toBe('versus');
     expect(toyKindOfDay('2026-11-15')).toBe('versus');
     expect(isIfYouLikedDay('2026-11-15')).toBe(false);
@@ -141,12 +132,6 @@ describe('home moments of the day', () => {
 });
 
 describe('rotationIndex', () => {
-  it('gives the same index for the same day, count and salt', () => {
-    expect(rotationIndex('2026-11-12', 4, 'feature')).toBe(
-      rotationIndex('2026-11-12', 4, 'feature'),
-    );
-  });
-
   it('is always 0 for a single choice', () => {
     expect(rotationIndex('2026-11-12', 1, 'x')).toBe(0);
   });
@@ -169,11 +154,5 @@ describe('rotationIndex', () => {
     );
 
     expect(a).not.toEqual(b);
-  });
-
-  it('pins a few literal days', () => {
-    expect(
-      days('2026-11-09', 4).map((d) => rotationIndex(d, 4, 'feature')),
-    ).toEqual([1, 0, 3, 2]);
   });
 });

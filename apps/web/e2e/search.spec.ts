@@ -130,7 +130,13 @@ test('P-SR-6: one request per pause in typing; a newer one aborts the one in fli
   await open(page);
   await openSearch(page);
 
-  await field(page).pressSequentially('breaking', { delay: 60 });
+  // The page's clock stands still while the word is typed, so no gap between
+  // two keys is ever the 150ms pause the search waits for (on a slow machine
+  // a stall between keys was one, and sent "breaki"); then the pause
+  await page.clock.install();
+  await page.clock.pauseAt(Date.now() + 60_000);
+  await field(page).pressSequentially('breaking');
+  await page.clock.resume();
   await expect(option(page, /^Breaking Bad/)).toBeVisible();
   expect(urls).toEqual([expect.stringContaining('/api/search?q=breaking')]);
 

@@ -23,13 +23,6 @@ import { monthsBetween, ticketText } from './coming-up/tickets';
  * Coming up: tickets counting down the next 30 days, premieres
  * pink, finales cyan, how it airs and where. Owner only.
  */
-/** The header's static label (also in the placeholder) */
-const NEXT_30_DAYS = (
-  <span className="flex items-center gap-1 text-body-sm font-medium whitespace-nowrap text-white/60 md:ml-auto">
-    Next 30 days
-  </span>
-);
-
 export default async function ComingUp({
   profile,
 }: Readonly<{ profile: Profile }>) {
@@ -39,15 +32,12 @@ export default async function ComingUp({
   ]);
   const now = Date.now();
   const tickets = overview.comingUp;
-  const label = NEXT_30_DAYS;
 
   if (tickets.length === 0) {
     const nextReturn = waiting.items.find((item) => item.nextDate);
     const dayZero = isDayZero(overview);
-    // No dead ends: day one has no "Next 30 days"
-    const head = dayZero ? null : label;
     return (
-      <Lane dot="pink" hollow id="v3-cu" link={head} title="Coming up">
+      <Lane dot="pink" hollow id="v3-cu" title="Coming up">
         <EmptyState
           glyph={calendarGlyph}
           sub={
@@ -73,7 +63,7 @@ export default async function ComingUp({
     waiting.items.map((item) => [item.seriesId, item.finishedAt] as const),
   );
   return (
-    <Lane dot="pink" id="v3-cu" link={label} title="Coming up">
+    <Lane dot="pink" id="v3-cu" title="Coming up">
       <CappedRows
         cap={LANE_CAPS.comingUp}
         className="flex flex-col gap-3"
@@ -123,7 +113,7 @@ function TicketGhost() {
 /** Coming up's placeholder: the capped lane (four tickets and Show all) */
 export function ComingUpSkeleton() {
   return (
-    <LaneGhost count={false} link={NEXT_30_DAYS} title="Coming up">
+    <LaneGhost count={false} title="Coming up">
       <GhostRows className="flex flex-col gap-3" count={LANE_CAPS.comingUp}>
         <TicketGhost />
       </GhostRows>

@@ -21,7 +21,7 @@
  * when set.
  */
 import { appendFileSync } from 'node:fs';
-import { isoWeekOf } from '@tvseri.es/utils';
+import { isoWeekOf, sleep } from '@tvseri.es/utils';
 import { afterAll, describe, it, vi } from 'vitest';
 
 import { db } from '../../../apps/api/test/db';
@@ -87,11 +87,6 @@ const percentile = (values: ReadonlyArray<number>, p: number) => {
     sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))] ?? 0
   );
 };
-
-const sleep = (ms: number) =>
-  new Promise<void>((resolve) => {
-    setTimeout(resolve, ms);
-  });
 
 const userIds = Array.from(
   { length: USERS },

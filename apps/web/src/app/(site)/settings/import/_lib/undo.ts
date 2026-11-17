@@ -1,3 +1,5 @@
+import { sleep } from '@tvseri.es/utils';
+
 import { showToast } from '@/components/ui/toast/showToast';
 
 import { importStatus, undoImport } from './actions';
@@ -5,11 +7,6 @@ import { importStatus, undoImport } from './actions';
 const UNDO_POLL_MS = 2000;
 /** About three minutes: the API says seconds to a minute */
 const UNDO_POLL_ATTEMPTS = 90;
-
-const sleep = (ms: number) =>
-  new Promise<void>((resolve) => {
-    setTimeout(resolve, ms);
-  });
 
 /** Asks the API to undo an import; a toast says so when it can't. */
 export async function requestUndo(importId: string): Promise<boolean> {

@@ -10,7 +10,7 @@ vi.mock('../../_data/viewerSeed', () => ({
     signedIn: false,
   })),
 }));
-vi.mock('../../_data/loaders', () => ({
+vi.mock('@/lib/series/loaders', () => ({
   loadRuntimes: vi.fn(async () => ({})),
 }));
 vi.mock('@/lib/marking/SeedSeries', () => ({ default: () => null }));

@@ -15,12 +15,11 @@ import { episodeKey, pressMark, scopeKey } from '@/lib/marking/pressGate';
 import { codeOf, openBefore } from '@/lib/marking/progress';
 import type { EpisodeRef } from '@/lib/marking/types';
 import useMarking from '@/lib/marking/useMarking';
-
+import type { ShowEpisode } from '@/lib/series/seasonEpisodes';
+import useSeasonEpisodes from '@/lib/series/useSeasonEpisodes';
 import { openPicker, openUpTo } from '../../_lib/dialogs';
 import { useShow } from '../../_lib/ShowProvider';
-import type { ShowEpisode } from '../../_lib/seasonEpisodes';
 import type { ShowSeason } from '../../_lib/show';
-import useSeasonEpisodes from '../../_lib/useSeasonEpisodes';
 import BeforeAsk from './BeforeAsk';
 import ChipGrid, { ChipGridGhost } from './ChipGrid';
 import { airedRefs, isWatchedChip, type SheetChip, tally } from './chips';

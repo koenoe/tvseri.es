@@ -9,10 +9,9 @@ import { LARGE_MOTION } from '@/components/ui/dialog/dialogMotion';
 import LargeDialog from '@/components/ui/dialog/LargeDialog';
 import { episodeLabel } from '@/lib/marking/copy';
 import { codeOf } from '@/lib/marking/progress';
-
+import useSeasonEpisodes from '@/lib/series/useSeasonEpisodes';
 import { useShow } from '../../_lib/ShowProvider';
 import { closeEpisode } from '../../_lib/urlState';
-import useSeasonEpisodes from '../../_lib/useSeasonEpisodes';
 import EpisodeView from './EpisodeView';
 import { growFrom, isOnScreen, shrinkTo } from './growMotion';
 import useEpisodeStepping from './useEpisodeStepping';

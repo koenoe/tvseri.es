@@ -10,7 +10,7 @@ import { episodeKey, nextKey, pressMark } from '@/lib/marking/pressGate';
 import type { WatchRecord } from '@/lib/marking/types';
 import useMarking from '@/lib/marking/useMarking';
 
-import type { ShowEpisode } from '../../_lib/seasonEpisodes';
+import type { ShowEpisode } from '@/lib/series/seasonEpisodes';
 import { UNAVAILABLE_REASON, ViewerLocked } from '../../_lib/viewerUnavailable';
 import { useClock } from './clock';
 import { formatWatchedDay } from './format';

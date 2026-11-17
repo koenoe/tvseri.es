@@ -5,7 +5,7 @@ import { type EpisodeRef, episodeCode } from '@tvseri.es/schemas';
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 
-import useSeasonEpisodes from '../../_lib/useSeasonEpisodes';
+import useSeasonEpisodes from '@/lib/series/useSeasonEpisodes';
 
 import Still from './Still';
 

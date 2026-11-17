@@ -5,7 +5,7 @@ import { formatAirWeekdayDate } from '@/lib/format/airDate';
 import { shortCodeRange } from '@/lib/marking/copy';
 import { codeOf } from '@/lib/marking/progress';
 
-import type { ShowEpisode } from '../../_lib/seasonEpisodes';
+import type { ShowEpisode } from '@/lib/series/seasonEpisodes';
 
 import { type Clock, formatWatchedDay } from './format';
 import {

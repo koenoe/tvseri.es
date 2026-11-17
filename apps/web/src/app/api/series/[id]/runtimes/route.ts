@@ -1,4 +1,3 @@
-import { loadRuntimes } from '@/app/(site)/[id]/[[...slug]]/_data/loaders';
 import {
   failedJson,
   notFoundJson,
@@ -7,6 +6,7 @@ import {
 } from '@/app/api/cacheHeaders';
 import { isSeriesId } from '@/app/api/handlers';
 import { isUnavailable } from '@/lib/cache/unavailable';
+import { loadRuntimes } from '@/lib/series/loaders';
 
 /**
  * Every regular season's episode runtimes for the show page's client parts

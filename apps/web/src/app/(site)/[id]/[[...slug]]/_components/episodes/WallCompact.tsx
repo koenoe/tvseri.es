@@ -7,7 +7,7 @@ import cn from '@/lib/cn';
 import { codeOf } from '@/lib/marking/progress';
 import type { WatchRecord } from '@/lib/marking/types';
 
-import type { ShowEpisode } from '../../_lib/seasonEpisodes';
+import type { ShowEpisode } from '@/lib/series/seasonEpisodes';
 import { useClock } from './clock';
 import type { WallDispatch } from './EpisodesView';
 import EyePill from './EyePill';

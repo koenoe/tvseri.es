@@ -3,7 +3,7 @@
 import type { UpNextItem } from '@tvseri.es/schemas';
 import { useMemo } from 'react';
 
-import useSeasonEpisodes from '@/app/(site)/[id]/[[...slug]]/_lib/useSeasonEpisodes';
+import useSeasonEpisodes from '@/lib/series/useSeasonEpisodes';
 
 /**
  * An Up next item with its episode's title: the overview's, else (the item

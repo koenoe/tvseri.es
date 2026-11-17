@@ -5,6 +5,7 @@ import type {
   Person,
   Season,
   SeasonRatings,
+  SeriesRuntimes,
   TvSeries,
   WatchProvider,
 } from '@tvseri.es/schemas';
@@ -201,3 +202,34 @@ export async function loadSeasonRatings(
 /** No episode of the season has a rating (or OMDb was unavailable). */
 export const isEmptyRatings = (ratings: SeasonRatings) =>
   Object.keys(ratings.ratings).length === 0;
+
+/**
+ * Runtimes in minutes of every regular season's episodes, by season number
+ * (`{ 1: [28, 32, …] }`, index = episode number − 1): the hero's time left
+ * and the Information block's runtime range. One read for the whole show
+ * (`GET /series/:id/runtimes`), never a request per season.
+ */
+export async function loadRuntimes(
+  id: number,
+): Promise<SeriesRuntimes | Unavailable> {
+  'use cache';
+  cacheTag(`series:${id}`);
+  const runtimes = await tryApi(() =>
+    apiFetch<SeriesRuntimes>('/series/:id/runtimes', {
+      notFound: 'null',
+      params: { id },
+    }),
+  );
+  if (isUnavailable(runtimes)) {
+    cacheLife('unavailable');
+    return runtimes;
+  }
+  if (!runtimes) {
+    // No such show (or an API without the route yet): nothing to draw, and
+    // nothing worth keeping for a day.
+    cacheLife('unavailable');
+    return {};
+  }
+  cacheLife('short');
+  return runtimes;
+}

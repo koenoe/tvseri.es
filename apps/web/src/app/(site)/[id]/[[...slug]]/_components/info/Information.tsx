@@ -14,7 +14,7 @@ import { statusLabel } from '@/lib/format/status';
 import externalHref from '@/lib/routing/externalHref';
 import landingPath, { landingPathFor } from '@/lib/routing/landingPath';
 
-import { loadRuntimes } from '../../_data/loaders';
+import { loadRuntimes } from '@/lib/series/loaders';
 import { INFORMATION_GRID } from '../frames';
 import { airedRange, episodesFact, runtimeRange } from './infoFacts';
 

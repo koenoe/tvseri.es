@@ -12,7 +12,7 @@ import cn from '@/lib/cn';
 import { codeOf } from '@/lib/marking/progress';
 import type { WatchRecord } from '@/lib/marking/types';
 
-import type { ShowEpisode } from '../../_lib/seasonEpisodes';
+import type { ShowEpisode } from '@/lib/series/seasonEpisodes';
 import { useClock } from './clock';
 import EyePill from './EyePill';
 import styles from './focusWall.module.css';

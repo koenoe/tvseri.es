@@ -6,11 +6,10 @@ import { useEffect } from 'react';
 import { createLoader } from '@/lib/lazy/createLoader';
 import { useLoader } from '@/lib/lazy/useLoader';
 import whenIdle from '@/lib/lazy/whenIdle';
-
+import { requestSeason } from '@/lib/series/useSeasonEpisodes';
 import { useShow } from '../../_lib/ShowProvider';
 import { closeEpisode, toNumberParam } from '../../_lib/urlState';
 import useOpenedOnce from '../../_lib/useOpenedOnce';
-import { requestSeason } from '../../_lib/useSeasonEpisodes';
 import useShowQuery from '../../_lib/useShowQuery';
 import { isKnownEpisode } from './episodeSteps';
 import { prefetchEpisode } from './useEpisodeData';

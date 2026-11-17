@@ -2,7 +2,7 @@
 
 import { parseEpisodeCode } from '@tvseri.es/schemas';
 
-import useSeasonEpisodes from '@/app/(site)/[id]/[[...slug]]/_lib/useSeasonEpisodes';
+import useSeasonEpisodes from '@/lib/series/useSeasonEpisodes';
 
 /**
  * "S01E11 The Long Night": the server's label (its code and the title Up

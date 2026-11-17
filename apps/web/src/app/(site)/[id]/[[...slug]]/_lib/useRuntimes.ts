@@ -2,7 +2,7 @@
 
 import type { SeriesRuntimes } from '@tvseri.es/schemas';
 
-import useCachedJson from './useCachedJson';
+import useCachedJson from '@/lib/series/useCachedJson';
 
 /**
  * A show's episode runtimes for every regular season, from one request

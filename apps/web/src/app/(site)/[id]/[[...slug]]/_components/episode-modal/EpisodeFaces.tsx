@@ -14,7 +14,7 @@ import Face, { type FaceLook } from '@/components/ui/faces/Face';
 import cn from '@/lib/cn';
 import personPath from '@/lib/routing/personPath';
 
-import type { CreditPerson } from './episodeCredits';
+import type { CreditPerson } from '@/lib/series/episodeCredits';
 
 type Props = Readonly<{
   label: string;

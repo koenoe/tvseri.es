@@ -3,9 +3,9 @@
 import { useMemo } from 'react';
 
 import { useSeriesView } from '@/lib/marking/hooks';
+import type { ShowSeasonEpisodes } from '@/lib/series/seasonEpisodes';
+import useSeasonEpisodes, { primeSeason } from '@/lib/series/useSeasonEpisodes';
 import { useShow } from '../../_lib/ShowProvider';
-import type { ShowSeasonEpisodes } from '../../_lib/seasonEpisodes';
-import useSeasonEpisodes, { primeSeason } from '../../_lib/useSeasonEpisodes';
 import { ViewerLocked } from '../../_lib/viewerUnavailable';
 import { ClockProvider } from './clock';
 import EpisodesView, { signedOutView } from './EpisodesView';

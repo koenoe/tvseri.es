@@ -1,9 +1,8 @@
 'use client';
 
 import { useMemo } from 'react';
-
+import type { ShowSeasonEpisodes } from '@/lib/series/seasonEpisodes';
 import { useShow } from '../../_lib/ShowProvider';
-import type { ShowSeasonEpisodes } from '../../_lib/seasonEpisodes';
 import { ClockProvider } from './clock';
 import EpisodesView, { signedOutView } from './EpisodesView';
 

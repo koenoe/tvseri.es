@@ -4,9 +4,8 @@ import { plural } from '@/lib/format/text';
 
 import { codeOf } from '@/lib/marking/progress';
 import type { SeriesBase } from '@/lib/marking/types';
-
+import type { ShowEpisode } from '@/lib/series/seasonEpisodes';
 import { toNumberParam } from '../../_lib/numberParam';
-import type { ShowEpisode } from '../../_lib/seasonEpisodes';
 import type { ShowSeason, ShowSummary } from '../../_lib/show';
 import { airWeekday, airYear } from './format';
 import { fallbackRuntime, weightOf } from './marks';

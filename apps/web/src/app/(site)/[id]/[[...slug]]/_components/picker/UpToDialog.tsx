@@ -12,9 +12,8 @@ import {
 import { useNextEpisode } from '@/lib/marking/hooks';
 import type { EpisodeRef, SeriesBase } from '@/lib/marking/types';
 import useMarking from '@/lib/marking/useMarking';
-
+import useSeasonEpisodes from '@/lib/series/useSeasonEpisodes';
 import { closeDialogs, type UpToRequest } from '../../_lib/dialogs';
-import useSeasonEpisodes from '../../_lib/useSeasonEpisodes';
 import { seasonChips, tally } from '../history/chips';
 import { AT_ROW, OVER_SHEET, rowPlacement } from './placement';
 import { UpToChips, UpToKinds, UpToTabs } from './UpToParts';

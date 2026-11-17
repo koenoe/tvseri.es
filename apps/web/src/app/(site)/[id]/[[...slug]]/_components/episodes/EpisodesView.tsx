@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { nextEpisode } from '@/lib/marking/progress';
 import type { SeriesBase } from '@/lib/marking/types';
-import type { ShowSeasonEpisodes } from '../../_lib/seasonEpisodes';
+import type { ShowSeasonEpisodes } from '@/lib/series/seasonEpisodes';
 import type { ShowSeason } from '../../_lib/show';
 import EpisodesError from './EpisodesError';
 import { WallSkeleton } from './EpisodesSkeleton';

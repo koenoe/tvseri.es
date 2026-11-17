@@ -3,7 +3,7 @@ import type { EpisodeRef } from '@tvseri.es/schemas';
 import { codeOf } from '@/lib/marking/progress';
 import type { SeriesBase, WatchRecord } from '@/lib/marking/types';
 
-import type { ShowEpisode } from '../../_lib/seasonEpisodes';
+import type { ShowEpisode } from '@/lib/series/seasonEpisodes';
 
 /**
  * One episode's state as the wall, the season line and the facts draw it:

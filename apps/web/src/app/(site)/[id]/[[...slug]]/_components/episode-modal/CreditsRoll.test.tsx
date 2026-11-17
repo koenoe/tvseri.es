@@ -3,9 +3,8 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { REDUCED_MOTION, WIDE_LG } from '@/lib/media/breakpoints';
-
+import type { RollBlock } from '@/lib/series/episodeCredits';
 import CreditsRoll from './CreditsRoll';
-import type { RollBlock } from './episodeCredits';
 
 /** Every render of the list's second copy (the roll's seamless loop) */
 const copies = vi.hoisted(() => ({ rendered: 0 }));

@@ -1,6 +1,6 @@
 import type { SeriesBase, WatchRecord } from '@/lib/marking/types';
 
-import type { ShowEpisode } from '../../_lib/seasonEpisodes';
+import type { ShowEpisode } from '@/lib/series/seasonEpisodes';
 
 /**
  * Test helpers: a season of episodes and a marking view. The episodes'

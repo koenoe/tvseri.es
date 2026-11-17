@@ -4,8 +4,8 @@ import { memo, type PointerEvent, useCallback, useRef, useState } from 'react';
 import cn from '@/lib/cn';
 import { REDUCED_MOTION, WIDE_LG } from '@/lib/media/breakpoints';
 import { matchesNow } from '@/lib/media/useMediaQuery';
+import type { RollBlock } from '@/lib/series/episodeCredits';
 import CreditBlocks from './CreditBlocks';
-import type { RollBlock } from './episodeCredits';
 
 /** The roll's pace (EPBEndCredits production note: 30px/s, two passes). */
 const PX_PER_SECOND = 30;

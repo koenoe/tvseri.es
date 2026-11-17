@@ -9,7 +9,7 @@ import MetaRow from '@/components/ui/meta/MetaRow';
 import { EPISODE_TILE_HOVER } from '@/components/ui/tile/tileHover';
 import { codeOf } from '@/lib/marking/progress';
 
-import type { ShowEpisode } from '../../_lib/seasonEpisodes';
+import type { ShowEpisode } from '@/lib/series/seasonEpisodes';
 import { openEpisode } from '../../_lib/urlState';
 import { preloadEpisodeModal } from '../episode-modal/EpisodeModalIsland';
 import { formatAirDate } from './format';

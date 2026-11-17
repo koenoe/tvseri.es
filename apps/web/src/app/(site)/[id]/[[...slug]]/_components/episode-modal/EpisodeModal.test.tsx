@@ -18,7 +18,7 @@ vi.mock('../../_lib/ShowProvider', () => ({
     title: 'The Bear',
   }),
 }));
-vi.mock('../../_lib/useSeasonEpisodes', () => ({ default: () => undefined }));
+vi.mock('@/lib/series/useSeasonEpisodes', () => ({ default: () => undefined }));
 vi.mock('./useEpisodeStepping', () => ({ default: () => () => {} }));
 vi.mock('./EpisodeView', () => ({
   default: ({

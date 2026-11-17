@@ -1,7 +1,7 @@
-import { toShowSeasonEpisodes } from '@/app/(site)/[id]/[[...slug]]/_lib/seasonEpisodes';
 import { failedJson, notFoundJson, publicJson } from '@/app/api/cacheHeaders';
 import { isSeriesId } from '@/app/api/handlers';
 import { loadSeason } from '@/lib/series/loaders';
+import { toShowSeasonEpisodes } from '@/lib/series/seasonEpisodes';
 
 const SEASON = /^\d{1,3}$/;
 

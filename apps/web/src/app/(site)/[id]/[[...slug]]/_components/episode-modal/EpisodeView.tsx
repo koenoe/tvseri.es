@@ -6,9 +6,8 @@ import { type CSSProperties, type RefObject, useMemo } from 'react';
 import { PICTURE_SURFACE_LG } from '@/components/ui/picture/pictureSurface';
 import cn from '@/lib/cn';
 import { codeOf } from '@/lib/marking/progress';
-
+import useSeasonEpisodes from '@/lib/series/useSeasonEpisodes';
 import type { ShowSummary } from '../../_lib/show';
-import useSeasonEpisodes from '../../_lib/useSeasonEpisodes';
 import Still from '../episodes/Still';
 import EpisodeCast from './EpisodeCast';
 import EpisodeFacts from './EpisodeFacts';

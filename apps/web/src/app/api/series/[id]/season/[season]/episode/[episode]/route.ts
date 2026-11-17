@@ -1,10 +1,9 @@
 import type { EpisodePerson } from '@tvseri.es/schemas';
 import slugify from 'slugify';
-
-import { toEpisodeModalCredits } from '@/app/(site)/[id]/[[...slug]]/_components/episode-modal/episodeCredits';
 import { failedJson, notFoundJson, publicJson } from '@/app/api/cacheHeaders';
 import { isSeriesId } from '@/app/api/handlers';
 import { isUnavailable } from '@/lib/cache/unavailable';
+import { toEpisodeModalCredits } from '@/lib/series/episodeCredits';
 import {
   loadEpisodeWithCredits,
   loadSeriesCredits,

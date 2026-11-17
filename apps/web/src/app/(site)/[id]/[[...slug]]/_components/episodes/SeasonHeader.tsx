@@ -5,8 +5,8 @@ import { useMemo } from 'react';
 
 import { seasonProgress } from '@/lib/marking/progress';
 import type { SeriesBase } from '@/lib/marking/types';
+import type { ShowEpisode } from '@/lib/series/seasonEpisodes';
 import { useShow } from '../../_lib/ShowProvider';
-import type { ShowEpisode } from '../../_lib/seasonEpisodes';
 import { SeasonLineGhost } from './EpisodesSkeleton';
 import { seasonFacts, seasonFactsEstimate } from './facts';
 import type { MarkedEpisode } from './marks';

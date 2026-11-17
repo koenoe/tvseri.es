@@ -8,10 +8,13 @@ import { PULSE } from '@/components/ui/ghost/ghosts';
 import { GHOST_FILL, GHOST_LOOK } from '@/components/ui/row/RowGhosts';
 import cn from '@/lib/cn';
 import { codeOf } from '@/lib/marking/progress';
-
+import {
+  guestFaces,
+  starringFaces,
+  toRollBlocks,
+} from '@/lib/series/episodeCredits';
 import CreditsRoll from './CreditsRoll';
 import EpisodeFaces from './EpisodeFaces';
-import { guestFaces, starringFaces, toRollBlocks } from './episodeCredits';
 import { useEpisodeCredits } from './useEpisodeData';
 
 type Props = Readonly<{

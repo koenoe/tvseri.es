@@ -1,9 +1,9 @@
 'use client';
 
 import type { EpisodeRef } from '@tvseri.es/schemas';
-import useCachedJson, { requestJson } from '../../_lib/useCachedJson';
-import type { EpisodeModalCredits } from './episodeCredits';
-import type { SeasonRatingsView } from './episodeRatings';
+import type { EpisodeModalCredits } from '@/lib/series/episodeCredits';
+import type { SeasonRatingsView } from '@/lib/series/episodeRatings';
+import useCachedJson, { requestJson } from '@/lib/series/useCachedJson';
 
 /**
  * The modal's two public reads (both CDN-cached route handlers, in the

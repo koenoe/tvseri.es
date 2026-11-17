@@ -1,6 +1,6 @@
-import { toSeasonRatingsView } from '@/app/(site)/[id]/[[...slug]]/_components/episode-modal/episodeRatings';
 import { failedJson, notFoundJson, publicJson } from '@/app/api/cacheHeaders';
 import { isSeriesId } from '@/app/api/handlers';
+import { toSeasonRatingsView } from '@/lib/series/episodeRatings';
 import { isEmptyRatings, loadSeasonRatings } from '@/lib/series/loaders';
 
 /** The API takes seasons 0 to 99. */

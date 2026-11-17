@@ -21,11 +21,9 @@ import {
   TitleTreatmentLogo,
 } from '@/components/ui/title/TitleTreatment';
 import cn from '@/lib/cn';
-
+import { ratingLabel } from '@/lib/series/episodeRatings';
 import type { ShowSeason } from '../../_lib/show';
 import { formatAirDate } from '../episodes/format';
-
-import { ratingLabel } from './episodeRatings';
 import { positionLabel } from './episodeSteps';
 import { useSeasonRatings } from './useEpisodeData';
 

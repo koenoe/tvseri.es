@@ -2,7 +2,7 @@ import TileLink from '@/components/ui/tile/TileLink';
 import { PERSON_PREFETCH } from '@/components/ui/tile/tilePrefetch';
 import personPath from '@/lib/routing/personPath';
 
-import type { RollBlock } from './episodeCredits';
+import type { RollBlock } from '@/lib/series/episodeCredits';
 
 /**
  * The credits' blocks: role over name(s), or name |

@@ -1,12 +1,6 @@
 import 'server-only';
 
-import type {
-  Keyword,
-  Rating,
-  Season,
-  SeriesRuntimes,
-  TvSeries,
-} from '@tvseri.es/schemas';
+import type { Keyword, Rating, Season, TvSeries } from '@tvseri.es/schemas';
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
@@ -20,7 +14,7 @@ import { loadSeries, loadSeriesCredits } from '@/lib/series/loaders';
 import {
   type ShowSeasonEpisodes,
   toShowSeasonEpisodes,
-} from '../_lib/seasonEpisodes';
+} from '@/lib/series/seasonEpisodes';
 
 /**
  * The show page's own cached reads, trimmed to what the page draws inside
@@ -222,35 +216,4 @@ export async function loadContentRating(
     query: { region },
   });
   return rating || null;
-}
-
-/**
- * Runtimes in minutes of every regular season's episodes, by season number
- * (`{ 1: [28, 32, …] }`, index = episode number − 1): the hero's time left
- * and the Information block's runtime range. One read for the whole show
- * (`GET /series/:id/runtimes`), never a request per season.
- */
-export async function loadRuntimes(
-  id: number,
-): Promise<SeriesRuntimes | Unavailable> {
-  'use cache';
-  cacheTag(`series:${id}`);
-  const runtimes = await tryApi(() =>
-    apiFetch<SeriesRuntimes>('/series/:id/runtimes', {
-      notFound: 'null',
-      params: { id },
-    }),
-  );
-  if (isUnavailable(runtimes)) {
-    cacheLife('unavailable');
-    return runtimes;
-  }
-  if (!runtimes) {
-    // No such show (or an API without the route yet): nothing to draw, and
-    // nothing worth keeping for a day.
-    cacheLife('unavailable');
-    return {};
-  }
-  cacheLife('short');
-  return runtimes;
 }

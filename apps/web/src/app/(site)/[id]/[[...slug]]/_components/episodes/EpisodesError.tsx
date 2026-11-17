@@ -2,7 +2,7 @@
 
 import { RowErrorCard } from '@/components/ui/row/RowError';
 
-import { requestSeason } from '../../_lib/useSeasonEpisodes';
+import { requestSeason } from '@/lib/series/useSeasonEpisodes';
 import { WallSkeleton } from './EpisodesSkeleton';
 import { seasonName } from './panelRows';
 

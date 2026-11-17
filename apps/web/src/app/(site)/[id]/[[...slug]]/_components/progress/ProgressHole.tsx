@@ -3,7 +3,7 @@ import type { TvSeries } from '@tvseri.es/schemas';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import SeedSeries from '@/lib/marking/SeedSeries';
 
-import { loadRuntimes } from '../../_data/loaders';
+import { loadRuntimes } from '@/lib/series/loaders';
 import { getViewerSeed } from '../../_data/viewerSeed';
 import ProgressBar from './ProgressBar';
 import { formatAirDay } from './progressLine';

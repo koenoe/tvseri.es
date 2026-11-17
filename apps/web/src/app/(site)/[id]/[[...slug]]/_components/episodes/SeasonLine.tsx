@@ -13,10 +13,9 @@ import cn from '@/lib/cn';
 import { episodeKey, pressMark } from '@/lib/marking/pressGate';
 import { codeOf } from '@/lib/marking/progress';
 import useMarking from '@/lib/marking/useMarking';
-
+import type { ShowEpisode } from '@/lib/series/seasonEpisodes';
 import { openUpTo, useDialogs } from '../../_lib/dialogs';
 import { type PointerLike, usePointerRun } from '../../_lib/pointerRun';
-import type { ShowEpisode } from '../../_lib/seasonEpisodes';
 import { UNAVAILABLE_REASON, ViewerLocked } from '../../_lib/viewerUnavailable';
 import { preloadUpTo } from '../picker/UpToHost';
 import { useClock } from './clock';

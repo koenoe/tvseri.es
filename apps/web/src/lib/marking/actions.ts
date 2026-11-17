@@ -205,16 +205,18 @@ export async function markEpisodes(
             (episode) => episode.episodeNumber === ref.episodeNumber,
           );
       const seasonInfo = { seasons: toSeasonInfo(series) };
+      const now = Date.now();
       const items = toBatchItems({
         episodes,
+        // The live date too: the cached flags lag on release day
         hasAired: (episode) =>
           hasEpisodeAired(
             episode,
             airedCountIn(seasonInfo, episode.seasonNumber),
-          ),
+          ) || Date.parse(episode.airDate) <= now,
         knownProviders: [PLEX_WATCH_PROVIDER, ...userProviders, ...providers],
         lookup,
-        now: Date.now(),
+        now,
         series,
         userId: session.user.id,
         watchProvider: pickWatchProvider(providers, userProviders),

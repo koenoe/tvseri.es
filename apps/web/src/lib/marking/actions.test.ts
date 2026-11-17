@@ -422,6 +422,8 @@ describe('markEpisodes sends only episodes that exist and have aired', () => {
         : seasonOf(3, [
             { airDate: '2024-06-26', episodeNumber: 5, hasAired: true },
             { airDate: '2099-01-01', episodeNumber: 6, hasAired: false },
+            // aired since the cached flag was set
+            { airDate: '2024-07-03', episodeNumber: 7, hasAired: false },
           ]),
     );
     vi.mocked(api.postBatch)
@@ -472,10 +474,11 @@ describe('markEpisodes sends only episodes that exist and have aired', () => {
     expect(result).toEqual({ error: 'not-found', ok: false });
   });
 
-  it('keeps an aired special marked on its own, and an Undo restore of an unaired episode', async () => {
+  it('keeps an aired special marked on its own, an episode whose date has passed, and an Undo restore of an unaired one', async () => {
     const result = await markEpisodes({
       episodes: [
         { episodeNumber: 1, seasonNumber: 0, when: { kind: 'now' } },
+        { episodeNumber: 7, seasonNumber: 3, when: { kind: 'now' } },
         {
           episodeNumber: 6,
           seasonNumber: 3,
@@ -484,7 +487,7 @@ describe('markEpisodes sends only episodes that exist and have aired', () => {
       ],
       seriesId: 136315,
     });
-    expect(sent()).toEqual(['0x1', '3x6']);
+    expect(sent()).toEqual(['0x1', '3x7', '3x6']);
     expect(result.ok).toBe(true);
   });
 });

@@ -1,6 +1,6 @@
 # E2E
 
-Run through `pnpm agents:e2e` (`tools/agents/README.md`). `@perf` timing checks are left out by default (`E2E_PERF=1`). Everything else measures relatively (`helpers/viewport.ts`), never exact pixels or frame timings.
+Run through `pnpm agents:e2e` (`tools/agents/README.md`). Checks measure relatively (`helpers/viewport.ts`). The one `@perf` check (History's scroll) is left out by default and never runs in CI: its frame and style-time counts depend on the machine's load (`E2E_PERF=1`).
 
 `E2E_CLASSIC_SCROLLBARS=1 pnpm agents:e2e` renders as CI does (`ci.yml` sets it): Chromium draws a classic 15px scrollbar instead of the Mac's overlay one. Without it on a machine with classic scrollbars (the runner), Playwright's `--hide-scrollbars` leaves the page reserving the gutter while `clientWidth` reads the whole window, which no browser does.
 Run it before pushing a layout check: a spec that passes only without it measures the machine, not the page.
@@ -16,4 +16,6 @@ The browser suite covers what only a real browser can show. It should be green o
 - **Prefer unit tests** (Vitest, next to the code) for rules: marking, dates, counts, permissions, import parsing. A test earns its place only if it fails when something real breaks. Don't pin class lists or internals.
 - **Wait for state, never for time.** Wait for an attribute, a role or a request, not `waitForTimeout` or a frame count.
 - Placeholder parity (the first paint matches the loading skeleton): one check per page type is enough.
+- A layout check runs at one phone and one desktop width per page kind. Add another width only where a bug was, and name it.
+- A WebKit twin (`*.webkit.spec.ts`) only where Safari behaves differently and it has bitten us: focus on click, sheets, scroll anchoring.
 - The stub API (`stub-api/`) holds only what the remaining journeys need. Every route it fakes is another copy of the API to keep in sync.

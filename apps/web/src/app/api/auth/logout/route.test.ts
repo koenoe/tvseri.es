@@ -101,4 +101,23 @@ describe('POST /api/auth/logout', () => {
       expect(fakeCookieStore.writes).toEqual([]);
     },
   );
+
+  it('refuses a post whose Origin is another site when Sec-Fetch-Site is missing', async () => {
+    const res = await logout(
+      {},
+      { host: 'www.tvseri.es', origin: 'https://evil.example' },
+    );
+
+    expect(res.status).toBe(403);
+    expect(fakeCookieStore.writes).toEqual([]);
+  });
+
+  it('accepts a post from its own Origin when Sec-Fetch-Site is missing', async () => {
+    const res = await logout(
+      {},
+      { host: 'www.tvseri.es', origin: 'https://www.tvseri.es' },
+    );
+
+    expect(res.status).toBe(303);
+  });
 });

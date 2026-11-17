@@ -6,13 +6,16 @@
  * cookies, revokes the refresh token after the response (best effort) and
  * redirects (303) to `returnTo` (`toSafeReturnTo`) or `/`.
  *
- * Posts from another site (`Sec-Fetch-Site` other than `same-origin`) get a
- * 403, so no other page can log a visitor out.
+ * Posts from another site get a 403 (`isSameOriginRequest`: `Sec-Fetch-Site`,
+ * else `Origin`), so no other page can log a visitor out.
  */
 import type { NextRequest } from 'next/server';
 
 import { toSafeReturnTo } from '@/auth/returnTo';
 import { deleteSession } from '@/auth/sessionCookies';
+import isSameOriginRequest, {
+  crossSiteRefused,
+} from '@/lib/security/sameOrigin';
 
 import { redirect } from '../redirect';
 
@@ -25,9 +28,8 @@ async function formReturnTo(req: NextRequest): Promise<unknown> {
 }
 
 export async function POST(req: NextRequest): Promise<Response> {
-  const site = req.headers.get('sec-fetch-site');
-  if (site !== null && site !== 'same-origin') {
-    return new Response(null, { status: 403 });
+  if (!isSameOriginRequest(req)) {
+    return crossSiteRefused();
   }
 
   const returnTo = toSafeReturnTo(await formReturnTo(req));

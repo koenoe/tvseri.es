@@ -643,25 +643,75 @@ describe('a write that fails part-way', () => {
 });
 
 describe('I’m up to when the mark fails', () => {
-  it('leaves the later episodes watched: no unmark without the mark', async () => {
-    const t = setup({
+  const later = () =>
+    setup({
       watched: [
         { episodeNumber: 1, seasonNumber: 3, watchedAt: 1000 },
         { episodeNumber: 8, seasonNumber: 3, watchedAt: 1000 },
       ],
     });
-    t.actions.markEpisodes.mockImplementationOnce(
-      () => Promise.resolve({ error: 'failed', ok: false }) as never,
-    );
+  const press = (t: ReturnType<typeof setup>) =>
     t.commands.markUpTo(
       SERIES,
       { episodeNumber: 4, seasonNumber: 3 },
       { kind: 'now' },
     );
-    await flush();
+
+  it('leaves the later episodes watched: no unmark without the mark', async () => {
+    const t = later();
+    t.actions.markEpisodes.mockImplementationOnce(
+      () => Promise.resolve({ error: 'failed', ok: false }) as never,
+    );
+    press(t);
     await flush();
     expect(t.actions.unmarkEpisodes).not.toHaveBeenCalled();
     expect(Object.keys(t.view().watched).sort()).toEqual(['S03E01', 'S03E08']);
+  });
+
+  it('a mark saved in part keeps what it saved and still unmarks nothing', async () => {
+    const t = later();
+    t.actions.markEpisodes.mockImplementationOnce(
+      () =>
+        Promise.resolve({
+          error: 'failed',
+          ok: false,
+          partial: {
+            watched: [
+              {
+                episodeNumber: 4,
+                runtime: 30,
+                seasonNumber: 3,
+                watchedAt: NOW,
+              },
+            ],
+          },
+        }) as never,
+    );
+    press(t);
+    await flush();
+    expect(t.actions.unmarkEpisodes).not.toHaveBeenCalled();
+    expect(Object.keys(t.view().watched).sort()).toEqual([
+      'S03E01',
+      'S03E04',
+      'S03E08',
+    ]);
+  });
+
+  it('Try again redoes the mark and then the unmark', async () => {
+    const t = later();
+    t.actions.markEpisodes.mockImplementationOnce(
+      () => Promise.resolve({ error: 'failed', ok: false }) as never,
+    );
+    press(t);
+    await flush();
+    t.toasts.at(-1)?.action?.onClick();
+    await flush();
+    expect(t.actions.unmarkEpisodes).toHaveBeenCalledWith({
+      episodes: [{ episodeNumber: 8, seasonNumber: 3 }],
+      seriesId: SERIES,
+    });
+    expect(t.view().watched.S03E04).toBeDefined();
+    expect(t.view().watched.S03E08).toBeUndefined();
   });
 });
 

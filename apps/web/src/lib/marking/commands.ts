@@ -306,8 +306,8 @@ export function createMarkingCommands(deps: MarkingDeps) {
     });
   };
 
-  /** Marks `refs` with one date; the core of every mark command. */
-  function mark(
+  /** The store op and requests of a mark of `refs` with one date */
+  function markWrite(
     seriesId: number,
     refs: ReadonlyArray<EpisodeRef>,
     when: MarkWhen,
@@ -319,12 +319,23 @@ export function createMarkingCommands(deps: MarkingDeps) {
       const code = codeOf(ref);
       records[code] = recordOf(when, now, current?.watched[code]);
     }
+    const op: MarkingOp = { kind: 'mark', records };
     const calls = markCalls(
       actions,
       seriesId,
       refs.map((ref) => ({ ...ref, when })),
     );
-    return run(seriesId, [{ kind: 'mark', records }], () => sequence(calls));
+    return { calls, op };
+  }
+
+  /** Marks `refs` with one date; the core of every mark command. */
+  function mark(
+    seriesId: number,
+    refs: ReadonlyArray<EpisodeRef>,
+    when: MarkWhen,
+  ) {
+    const { calls, op } = markWrite(seriesId, refs, when);
+    return run(seriesId, [op], () => sequence(calls));
   }
 
   function unmark(seriesId: number, refs: ReadonlyArray<EpisodeRef>) {
@@ -711,15 +722,24 @@ export function createMarkingCommands(deps: MarkingDeps) {
         }
         const what = `up to ${episodeCode(ref)}`;
         return {
-          send: async () => {
-            // A failed (or part-saved) mark must not still remove the later
-            // episodes: the viewer would lose progress for a press that failed
+          // One run: the unmark is sent only after the whole mark saved (a
+          // failed press must not still remove progress), and Try again
+          // redoes both
+          send: () => {
             const marked =
-              refs.length === 0 ||
-              (await mark(seriesId, refs, toMarkWhen(choice, deps.now())));
-            if (marked && later.length > 0) {
-              await unmark(seriesId, later);
-            }
+              refs.length > 0
+                ? [markWrite(seriesId, refs, toMarkWhen(choice, deps.now()))]
+                : [];
+            const unmarked: MarkingOp[] =
+              later.length > 0
+                ? [{ codes: later.map(codeOf), kind: 'unmark' }]
+                : [];
+            const ops = [...marked.map((write) => write.op), ...unmarked];
+            const calls = [
+              ...marked.flatMap((write) => write.calls),
+              ...callsFor(actions, seriesId, unmarked),
+            ];
+            return run(seriesId, ops, () => sequence(calls));
           },
           toast: markedToast({
             choice,

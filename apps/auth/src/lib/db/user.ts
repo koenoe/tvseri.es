@@ -53,7 +53,7 @@ const queryUser = async (
       }),
       IndexName: indexName,
       KeyConditionExpression: `${indexName}pk = :value`,
-      TableName: Resource.Users.name,
+      TableName: Resource.AuthUsers.name,
     }),
   );
 
@@ -70,7 +70,7 @@ const getUserById = async (
     new GetItemCommand({
       ConsistentRead: consistent,
       Key: marshall({ pk: userKey(userId) }),
-      TableName: Resource.Users.name,
+      TableName: Resource.AuthUsers.name,
     }),
   );
 
@@ -88,7 +88,7 @@ const getUserByEmail = async (email: string): Promise<User | null> => {
     new GetItemCommand({
       ConsistentRead: true,
       Key: marshall({ pk: emailKey(email) }),
-      TableName: Resource.Users.name,
+      TableName: Resource.AuthUsers.name,
     }),
   );
   const userId = Item ? unmarshall(Item).userId : undefined;
@@ -198,21 +198,21 @@ export const createUser = async (
               Put: {
                 ConditionExpression: 'attribute_not_exists(pk)',
                 Item: marshall({ pk: handleClaimKey(username), userId }),
-                TableName: Resource.Users.name,
+                TableName: Resource.AuthUsers.name,
               },
             },
             {
               Put: {
                 ConditionExpression: 'attribute_not_exists(pk)',
                 Item: marshall({ pk: emailKey(email), userId }),
-                TableName: Resource.Users.name,
+                TableName: Resource.AuthUsers.name,
               },
             },
             {
               Put: {
                 ConditionExpression: 'attribute_not_exists(pk)',
                 Item: user,
-                TableName: Resource.Users.name,
+                TableName: Resource.AuthUsers.name,
               },
             },
           ],

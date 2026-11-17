@@ -27,7 +27,15 @@ declare module "sst" {
       "type": "sst.aws.Auth"
       "url": string
     }
+    "AuthEmail": {
+      "sender": string
+      "type": "sst.sst.Linkable"
+    }
     "AuthSignIns": {
+      "name": string
+      "type": "sst.sst.Linkable"
+    }
+    "AuthUsers": {
       "name": string
       "type": "sst.sst.Linkable"
     }

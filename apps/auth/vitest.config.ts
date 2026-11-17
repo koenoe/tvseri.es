@@ -43,8 +43,8 @@ export default defineConfig({
     // Linked SST resources for tests (sst reads SST_RESOURCES_JSON)
     env: {
       SST_RESOURCES_JSON: JSON.stringify({
-        Email: { sender: 'example.com' },
-        Users: { name: 'Users' },
+        AuthEmail: { sender: 'example.com' },
+        AuthUsers: { name: 'Users' },
       }),
     },
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],

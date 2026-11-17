@@ -37,7 +37,7 @@ export const sendEmail = async ({
         },
       },
       Destination: { ToAddresses: [recipient] },
-      FromEmailAddress: `tvseri.es <${sender ?? 'no-reply'}@${Resource.Email.sender}>`,
+      FromEmailAddress: `tvseri.es <${sender ?? 'no-reply'}@${Resource.AuthEmail.sender}>`,
     }),
   );
 };

@@ -6,6 +6,42 @@ import * as dynamo from './dynamo';
 import { email } from './email';
 import * as secrets from './secrets';
 
+/**
+ * The public issuer's share of the Users table: reading users and creating
+ * one (a transaction of conditional puts, authorised per put), not the
+ * whole table
+ */
+const authUsers = new sst.Linkable('AuthUsers', {
+  include: [
+    sst.aws.permission({
+      actions: ['dynamodb:GetItem', 'dynamodb:PutItem', 'dynamodb:Query'],
+      resources: [dynamo.users.arn, $interpolate`${dynamo.users.arn}/index/*`],
+    }),
+  ],
+  properties: {
+    name: dynamo.users.name,
+  },
+});
+
+/**
+ * Sending the sign-in code, not managing SES. Any identity of the account:
+ * an account in the SES sandbox also checks the recipient's identity.
+ */
+const authEmail = new sst.Linkable('AuthEmail', {
+  include: [
+    sst.aws.permission({
+      actions: ['ses:SendEmail'],
+      resources: [
+        $interpolate`arn:aws:ses:${aws.getRegionOutput().region}:${aws.getCallerIdentityOutput().accountId}:identity/*`,
+        email.nodes.configurationSet.arn,
+      ],
+    }),
+  ],
+  properties: {
+    sender: email.sender,
+  },
+});
+
 export const auth = new sst.aws.Auth('Auth', {
   domain: {
     dns: sst.aws.dns({
@@ -25,7 +61,7 @@ export const auth = new sst.aws.Auth('Auth', {
       BASE_DOMAIN: domain,
     },
     handler: 'apps/auth/src/index.handler',
-    link: [dynamo.users, email, secrets.googleClientId],
+    link: [authEmail, authUsers, secrets.googleClientId],
     memory: '1024 MB',
     nodejs: {
       loader: {

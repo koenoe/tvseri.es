@@ -3,7 +3,7 @@ import 'server-only';
 import type { NextRequest } from 'next/server';
 
 import type { Viewer } from '@/auth/viewer';
-import { ApiError } from '@/lib/api/client';
+import { ApiError, apiResponse, errorCode } from '@/lib/api/client';
 import isSameOriginRequest, {
   crossSiteRefused,
 } from '@/lib/security/sameOrigin';
@@ -20,23 +20,12 @@ const FALLBACK_TYPE: Readonly<Record<ExportFile, string>> = {
 
 export type ExportFile = 'everything.json' | 'history.csv';
 
-/** The API's error code (`{ message }`) from a failed answer, if any */
-async function errorCode(response: Response): Promise<string | undefined> {
-  const body: unknown = await response.json().catch(() => null);
-  return typeof body === 'object' &&
-    body !== null &&
-    'message' in body &&
-    typeof body.message === 'string'
-    ? body.message
-    : undefined;
-}
-
 /**
  * `GET /me/export/<file>` for the signed-in viewer, streamed to the browser
  * with the API's own attachment name. The browser can't hold the API key, so
  * this is the only way to it. The proxy answers 401 signed out; this checks
  * again (`viewerRoute`) and never forwards anything but the viewer's own
- * token. Streamed, so not through `apiFetch` (which reads the whole body).
+ * token. Streamed, so through `apiResponse` (`apiFetch` reads the whole body).
  *
  * - 403: asked for from another site (before the session is read)
  * - 401: not signed in, or the API refused the token (`AccountGone` passes
@@ -55,28 +44,18 @@ export function forwardExport(
 }
 
 async function forward(viewer: Viewer, file: ExportFile): Promise<Response> {
-  const apiUrl = process.env.API_URL;
-  const apiKey = process.env.API_KEY;
-  if (!apiUrl || !apiKey) {
-    throw new ApiError(0, 'ApiNotConfigured');
-  }
-  const upstream = await fetch(
-    `${apiUrl.replace(/\/$/, '')}/me/export/${file}`,
-    {
-      cache: 'no-store',
-      headers: {
-        authorization: `Bearer ${viewer.accessToken}`,
-        'x-api-key': apiKey,
-        'x-client-platform': 'web',
-      },
-      signal: AbortSignal.timeout(EXPORT_TIMEOUT_MS),
-    },
-  );
+  const upstream = await apiResponse('/me/export/:file', {
+    accessToken: viewer.accessToken,
+    cache: 'no-store',
+    params: { file },
+    timeoutMs: EXPORT_TIMEOUT_MS,
+  });
   if (upstream.status === 413) {
     return privateJson({ error: 'TooLarge' }, 413);
   }
   if (!upstream.ok || !upstream.body) {
-    throw new ApiError(upstream.status, await errorCode(upstream));
+    const body: unknown = await upstream.json().catch(() => null);
+    throw new ApiError(upstream.status, errorCode(body));
   }
   return new Response(upstream.body, {
     headers: {

@@ -85,6 +85,13 @@ type Request = Readonly<{
 
 type Reply = Readonly<{ data: unknown; status: number }>;
 
+/** Options of `apiResponse` only; `apiFetch` keeps the defaults. */
+type RawOptions = Readonly<{
+  cache?: RequestCache;
+  /** Defaults to `FETCH_TIMEOUT` */
+  timeoutMs?: number;
+}>;
+
 const PARAM = /:([A-Za-z_][A-Za-z0-9_]*)/g;
 
 /**
@@ -155,7 +162,8 @@ function parseBody(text: string, response: Response): unknown {
   }
 }
 
-const errorCode = (data: unknown) =>
+/** The API's error code: the `message` of a failed answer's JSON body */
+export const errorCode = (data: unknown): string | undefined =>
   typeof data === 'object' &&
   data !== null &&
   'message' in data &&
@@ -170,12 +178,27 @@ function readApiConfigFromEnv(): ApiConfig | null {
 }
 
 export function createApiClient(transport: ApiTransport) {
-  async function send({
-    accessToken,
-    body,
-    method,
-    path,
-  }: Request): Promise<Reply> {
+  /** A failed fetch or body read: no HTTP status, so status 0. */
+  function unreachable(cause: unknown, path: string, startedAt: number): never {
+    // Next's control-flow errors (e.g. prerender finished) are not API failures.
+    unstable_rethrow(cause);
+    console.error('API Fetch Error:', {
+      cause,
+      ms: Math.round(performance.now() - startedAt),
+      path,
+    });
+    throw new ApiError(0, isTimeout(cause) ? 'ApiTimeout' : 'ApiNetworkError');
+  }
+
+  /**
+   * Sends one request with the key, the client header and the viewer's
+   * token, and returns the response whatever its status. Throws `ApiError`
+   * (status 0) without a response: not configured, network, timeout.
+   */
+  async function open(
+    { accessToken, body, method, path }: Request,
+    { cache, timeoutMs = FETCH_TIMEOUT }: RawOptions = {},
+  ): Promise<Response> {
     const config = transport.config();
     if (!config) {
       console.error('API Fetch Error: API_URL or API_KEY is not set');
@@ -193,34 +216,33 @@ export function createApiClient(transport: ApiTransport) {
       headers['content-type'] = 'application/json';
     }
 
-    let response: Response;
-    let text: string;
     const startedAt = performance.now();
     try {
       // No retries: the API already retries its external services.
-      response = await transport.fetch(
+      return await transport.fetch(
         `${config.baseUrl.replace(/\/$/, '')}${path}`,
         {
           body,
+          ...(cache ? { cache } : {}),
           headers,
           method,
-          signal: AbortSignal.timeout(FETCH_TIMEOUT),
+          signal: AbortSignal.timeout(timeoutMs),
         },
       );
+    } catch (cause) {
+      return unreachable(cause, path, startedAt);
+    }
+  }
+
+  async function send(request: Request): Promise<Reply> {
+    const { method, path } = request;
+    const startedAt = performance.now();
+    const response = await open(request);
+    let text: string;
+    try {
       text = await response.text();
     } catch (cause) {
-      // Next's control-flow errors (e.g. prerender finished) are not API failures.
-      unstable_rethrow(cause);
-      // Network failure or timeout: there is no HTTP status.
-      console.error('API Fetch Error:', {
-        cause,
-        ms: Math.round(performance.now() - startedAt),
-        path,
-      });
-      throw new ApiError(
-        0,
-        isTimeout(cause) ? 'ApiTimeout' : 'ApiNetworkError',
-      );
+      return unreachable(cause, path, startedAt);
     }
 
     if (process.env.API_LOG_TIMINGS === '1') {
@@ -318,14 +340,33 @@ export function createApiClient(transport: ApiTransport) {
     return parsed.output;
   }
 
-  return { apiFetch };
+  /**
+   * The API's response itself, whatever its status, for a body that must
+   * not be read here (a streamed download). GET only; the caller reads the
+   * status and the body. Throws `ApiError` (status 0) like `apiFetch` when
+   * there is no response.
+   */
+  function apiResponse(
+    path: string,
+    options: AuthContext &
+      Pick<ApiFetchOptions, 'params' | 'query'> &
+      RawOptions = {},
+  ): Promise<Response> {
+    const { accessToken, cache, timeoutMs } = options;
+    return open(
+      { accessToken, method: 'GET', path: buildPath(path, options) },
+      { cache, timeoutMs },
+    );
+  }
+
+  return { apiFetch, apiResponse };
 }
 
 /**
  * The app's API client: page loaders, server actions and route handlers call
  * the API through it.
  */
-export const { apiFetch } = createApiClient({
+export const { apiFetch, apiResponse } = createApiClient({
   config: readApiConfigFromEnv,
   dedupe: cache,
   // Resolved per call, so Next's instrumented `fetch` is the one used.

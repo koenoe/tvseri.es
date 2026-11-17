@@ -7,14 +7,6 @@
 /** A month: 20px between months (`section + section`) */
 export const DIARY_MONTH = 'flex flex-col [&+&]:mt-5';
 
-/**
- * A month off screen is skipped at its height: the header (48px; 72px on a
- * phone, Jump beside the title and the line under it), then its days (see
- * `DIARY_DAY_SKIPPED`), from `--days` and `--rows`.
- */
-export const DIARY_MONTH_SKIPPED =
-  '[content-visibility:auto] [contain-intrinsic-size:auto_calc(48px_+_var(--days)*19px_+_var(--rows)*122px)] max-md:[contain-intrinsic-size:auto_calc(72px_+_var(--days)*15px_+_var(--rows)*94px)]';
-
 /** `.mhd`: title, rule, line (and the phone's Jump) */
 export const DIARY_MONTH_HEADER =
   'flex items-center gap-3.5 py-3 max-md:flex-wrap max-md:gap-x-2.5 max-md:gap-y-0.5 max-md:py-2.5';
@@ -31,6 +23,14 @@ export const DIARY_DAY =
  * renders, so the month's estimate (`19px`/`15px` a day) holds both ways.
  * `auto` keeps the real height once it has rendered, so a day above the
  * reader never changes size.
+ *
+ * The days are the only skipped level: a month is never skipped as well.
+ * WebKit mis-sizes `content-visibility: auto` inside another one: a month
+ * scrolled past keeps only its header's height as its remembered size, and
+ * more do once the router hides the page and shows it again (Back, a
+ * revisit from the tabs). The diary then shrinks by thousands of pixels
+ * and jumps as the months below settle. One level sizes right in both
+ * engines.
  */
 export const DIARY_DAY_SKIPPED =
   '[content-visibility:auto] [contain-intrinsic-size:auto_calc(var(--rows)*122px_-_10px)] max-md:[contain-intrinsic-size:auto_calc(var(--rows)*94px_-_10px)]';

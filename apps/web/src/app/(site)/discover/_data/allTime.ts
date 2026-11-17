@@ -6,7 +6,7 @@ import type { TvSeries } from '@tvseri.es/schemas';
  * (`LIST_SIZES.topRated`), so a few shows without a poster still leave
  * twenty.
  */
-export const ALL_TIME_COUNT = 20;
+const ALL_TIME_COUNT = 20;
 
 /** A ranked poster: only what the numbered tile draws */
 export type RankedShow = Readonly<{

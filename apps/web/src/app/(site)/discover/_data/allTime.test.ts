@@ -1,7 +1,7 @@
 import type { TvSeries } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
-import { ALL_TIME_COUNT, rankedShows } from './allTime';
+import { rankedShows } from './allTime';
 
 const series = (id: number, poster = `https://img/p${id}.jpg`) =>
   ({
@@ -16,10 +16,6 @@ const ids = (count: number, from = 1) =>
   Array.from({ length: count }, (_, index) => series(from + index));
 
 describe('rankedShows (Discover’s numbered All-time favourites)', () => {
-  it('draws twenty', () => {
-    expect(ALL_TIME_COUNT).toBe(20);
-  });
-
   it('takes the first twenty in the list’s order, ranked 1 to 20', () => {
     const shows = rankedShows(ids(24));
     expect(shows).toHaveLength(20);

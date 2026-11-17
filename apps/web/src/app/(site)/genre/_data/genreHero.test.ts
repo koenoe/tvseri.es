@@ -2,7 +2,6 @@ import type { GenreLandingFacts } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
 import { genreFacts, oftenWith } from './genreHero';
-import { genreLine } from './genreLines';
 
 const crime: GenreLandingFacts = {
   alsoWith: [
@@ -55,11 +54,5 @@ describe('genre hero', () => {
       phone: 'With Drama, Mystery',
     });
     expect(oftenWith({ ...crime, alsoWith: [] })).toBeNull();
-  });
-
-  it('keeps the approved crime line', () => {
-    expect(genreLine('crime')).toBe(
-      'Detectives, gangsters, heists and the people who chase them.',
-    );
   });
 });

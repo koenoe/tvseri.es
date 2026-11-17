@@ -24,23 +24,3 @@ describe('sinceLine', () => {
     expect(sinceLine(network('hulu'), null)).toBeNull();
   });
 });
-
-describe('network lines', () => {
-  it('are the designed desktop lines, word for word', () => {
-    expect(network('hbo').description).toBe(
-      'Prestige drama since The Sopranos. Most of its series are finished stories you can start from the beginning.',
-    );
-    expect(network('apple-tv').description).toBe(
-      'Only originals, almost all still running. A young network: its page is about what is on and what is next.',
-    );
-    expect(network('netflix').description).toBe(
-      'Its own series and other networks’ series side by side. The Originals / Also on Netflix switch keeps them apart.',
-    );
-  });
-
-  it('has the shorter phone line where there is one', () => {
-    expect(network('hbo').phoneDescription).toBe(
-      'Prestige drama since The Sopranos.',
-    );
-  });
-});

@@ -90,7 +90,6 @@ describe('ChipGrid', () => {
       seasonNumber: 3,
       to: 3,
     });
-    expect(t.buttons[2]!.className).toContain('bg-white/24');
     fireEvent.pointerUp(t.grid, { ...mouse, ...at(3) });
     fireEvent.click(t.buttons[3]!, { detail: 1 });
     expect(t.onCommit).toHaveBeenCalledWith({

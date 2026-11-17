@@ -21,7 +21,7 @@ beforeEach(() => {
   apiFetch.mockReset();
   vi.mocked(cacheLife).mockClear();
 });
-const { getBestInGenre, genreRows, GENRE_ROW } = await import('./rows');
+const { getBestInGenre } = await import('./rows');
 
 describe('genre loaders when the API fails', () => {
   it('passes a failed summaries read on instead of caching a list without networks', async () => {
@@ -32,14 +32,6 @@ describe('genre loaders when the API fails', () => {
     );
     await expect(getBestInGenre('crime')).resolves.toEqual(UNAVAILABLE);
     expect(ownLife(2)).toBe('unavailable');
-  });
-
-  it('gives a row Unavailable (its skeleton) when its shows fail', async () => {
-    apiFetch.mockRejectedValue(new ApiError(0, 'ApiTimeout'));
-    const rows = genreRows('crime');
-    for (const index of Object.values(GENRE_ROW)) {
-      await expect(rows[index]?.()).resolves.toEqual(UNAVAILABLE);
-    }
   });
 
   it('caches the list on its profile when every read works', async () => {

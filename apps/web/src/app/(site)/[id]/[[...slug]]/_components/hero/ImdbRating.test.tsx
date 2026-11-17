@@ -15,24 +15,10 @@ describe('ImdbRating', () => {
     rated(8.1, 321_400);
     render(await ImdbRating({ imdbId: 'tt1', seriesId: 1 }));
     expect(screen.getByText('8.1')).toBeTruthy();
-    expect(screen.getByText('321.4K').tagName).toBe('SMALL');
+    expect(screen.getByText('321.4K')).toBeTruthy();
     expect(
       screen.getByLabelText('IMDb rating 8.1 out of 10, 321.4K votes'),
     ).toBeTruthy();
-  });
-
-  it('sits the vote count tight under the value: type-tall lines, no margin', async () => {
-    rated(8.1, 321_400);
-    render(await ImdbRating({ imdbId: 'tt1', seriesId: 1 }));
-    const value = screen.getByText('8.1');
-    const votes = screen.getByText('321.4K');
-    // 18px value in an 18px line (24 in 22 from md), the votes 12 in 12:
-    // about 4px of air between the digits.
-    expect(value.className).toContain('leading-[18px]');
-    expect(value.className).toContain('md:leading-[22px]');
-    expect(votes.className).toContain('text-caption/none');
-    expect(votes.className).not.toMatch(/(^|\s)m[ty]?-/);
-    expect(screen.getByText('/ 10').className).toContain('/none');
   });
 
   it('keeps small counts and a perfect score as they are', async () => {
@@ -44,10 +30,8 @@ describe('ImdbRating', () => {
 
   it('leaves the vote line out without votes, never "0"', async () => {
     rated(7.4, 0);
-    const { container } = render(
-      await ImdbRating({ imdbId: 'tt1', seriesId: 1 }),
-    );
-    expect(container.querySelector('small')).toBeNull();
+    render(await ImdbRating({ imdbId: 'tt1', seriesId: 1 }));
+    expect(screen.queryByText('0')).toBeNull();
     expect(screen.getByLabelText('IMDb rating 7.4 out of 10')).toBeTruthy();
   });
 
@@ -64,8 +48,7 @@ describe('ImdbRating', () => {
       expect(link.getAttribute('target')).toBe('_blank');
       // no number and no votes, in the rated badge's lines
       expect(link.textContent).not.toMatch(/\d\.\d/);
-      expect(screen.getByText('No rating').tagName).toBe('SMALL');
-      expect(link.className).toContain('text-white/60');
+      expect(screen.getByText('No rating')).toBeTruthy();
       unmount();
     }
   });

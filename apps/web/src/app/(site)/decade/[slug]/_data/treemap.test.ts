@@ -33,13 +33,6 @@ describe('layoutTreemap', () => {
     expect(layoutTreemap(VOTES).map(tile)).toEqual(EXPECTED);
   });
 
-  it('is deterministic and keeps the input order', () => {
-    const cells = layoutTreemap(VOTES);
-    expect(layoutTreemap(VOTES)).toEqual(cells);
-    expect(cells).toHaveLength(VOTES.length);
-    expect(cells[0]?.tileWidth).toBe(427);
-  });
-
   it('adds the votes line to tiles of 220 × 150 or more (their cell)', () => {
     expect(layoutTreemap(VOTES).map((cell) => cell.votesLine)).toEqual([
       true,

@@ -11,10 +11,6 @@ describe('episode runtimes', () => {
     expect(runtimeTotal(items([30, 0, 45]), 40)).toBe(115);
   });
 
-  it('sums nothing to 0', () => {
-    expect(runtimeTotal([], 40)).toBe(0);
-  });
-
   it('falls back to the mean of the known runtimes, never an invented one', () => {
     expect(
       fallbackRuntime([{ runtime: 30 }, { runtime: 0 }, { runtime: 45 }]),

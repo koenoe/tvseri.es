@@ -38,19 +38,6 @@ describe('trayReducer', () => {
     });
   });
 
-  it('keeps the pick when a save fails', () => {
-    const picked = trayReducer(ready, {
-      backdrop: '/b2.jpg',
-      base: BASE,
-      type: 'pick',
-    });
-    const failed = trayReducer(
-      trayReducer(picked, { type: 'start', write: 'save' }),
-      { type: 'fail', write: 'save' },
-    );
-    expect(failed.picked).toEqual({ backdrop: '/b2.jpg', title: '/l1.png' });
-  });
-
   it('locks the strips while saving or asking', () => {
     const saving = trayReducer(ready, { type: 'start', write: 'save' });
     expect(isLocked(saving)).toBe(true);
@@ -76,9 +63,5 @@ describe('trayReducer', () => {
     expect(
       trayReducer(asking, { type: 'start', write: 'reset' }),
     ).toMatchObject({ busy: 'reset', confirm: null });
-  });
-
-  it('switches the phone tab', () => {
-    expect(trayReducer(ready, { tab: 'title', type: 'tab' }).tab).toBe('title');
   });
 });

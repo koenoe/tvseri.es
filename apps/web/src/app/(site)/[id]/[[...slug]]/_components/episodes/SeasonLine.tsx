@@ -4,7 +4,7 @@ import {
   type FocusEvent,
   type KeyboardEvent,
   type MouseEvent,
-  useContext,
+  use,
   useMemo,
   useRef,
   useState,
@@ -76,7 +76,7 @@ export default function SeasonLine({
 }: Props) {
   const marking = useMarking();
   const clock = useClock();
-  const locked = useContext(ViewerLocked);
+  const locked = use(ViewerLocked);
   const geometry = useMemo(() => lineGeometry(episodes), [episodes]);
   const tips = useMemo(
     () => marked.map((item) => segmentTip(item, clock)),

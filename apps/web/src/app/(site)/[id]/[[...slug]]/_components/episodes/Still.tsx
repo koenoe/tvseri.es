@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { createContext, useContext } from 'react';
+import { createContext, use } from 'react';
 
 import { ArtPlaceholder } from '@/components/ui/tile/PosterArt';
 import { EPISODE_STILL_ZOOM } from '@/components/ui/tile/tileHover';
@@ -35,7 +35,7 @@ export default function Still({
   src: string;
 }>) {
   const { backdrop } = useShow();
-  const standIn = useContext(StillBackdrop);
+  const standIn = use(StillBackdrop);
   const image = src || (standIn ? backdrop : '');
   const imageClass = cn('object-cover', EPISODE_STILL_ZOOM, className);
   return image ? (

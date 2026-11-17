@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, type ReactNode, useContext } from 'react';
+import { createContext, type ReactNode, use } from 'react';
 
 import type { ShowSummary } from './show';
 
@@ -15,7 +15,7 @@ export default function ShowProvider({
 }
 
 export function useShow(): ShowSummary {
-  const show = useContext(ShowContext);
+  const show = use(ShowContext);
   if (!show) {
     throw new Error('useShow needs <ShowProvider> (the show page)');
   }

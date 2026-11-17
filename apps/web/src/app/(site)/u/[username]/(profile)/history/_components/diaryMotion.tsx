@@ -3,8 +3,8 @@
 import {
   createContext,
   type ReactNode,
+  use,
   useCallback,
-  useContext,
   useMemo,
   useState,
 } from 'react';
@@ -41,7 +41,7 @@ const DiaryLayoutContext = createContext<DiaryLayout>(IDLE);
 
 /** The props a month's moving parts (days, rows) pass to their `m.div` */
 export function useDiaryLayout() {
-  const { armed, version } = useContext(DiaryLayoutContext);
+  const { armed, version } = use(DiaryLayoutContext);
   return {
     layout: armed ? ('position' as const) : false,
     layoutDependency: version,
@@ -50,7 +50,7 @@ export function useDiaryLayout() {
 
 /** Called by a row when it opens or closes */
 export function useDiaryLayoutBump() {
-  return useContext(DiaryLayoutContext).bump;
+  return use(DiaryLayoutContext).bump;
 }
 
 /** The month's arming handlers and its context */

@@ -1,7 +1,7 @@
 'use client';
 
 import { episodeCode } from '@tvseri.es/schemas';
-import { type MouseEvent, memo, useCallback, useContext } from 'react';
+import { type MouseEvent, memo, use, useCallback } from 'react';
 
 import { eyeGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
@@ -62,7 +62,7 @@ const EyePill = memo(function EyePill({
 }>) {
   const marking = useMarking();
   const clock = useClock();
-  const locked = useContext(ViewerLocked);
+  const locked = use(ViewerLocked);
   const { episodeNumber, seasonNumber, title } = episode;
   const isWatched = isWatchedMark(mark);
   const skipped = mark === 'skipped';

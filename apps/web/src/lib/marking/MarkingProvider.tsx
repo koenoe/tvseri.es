@@ -4,8 +4,8 @@ import {
   type Context,
   createContext,
   type ReactNode,
+  use,
   useCallback,
-  useContext,
   useEffect,
   useState,
   useSyncExternalStore,
@@ -79,7 +79,7 @@ export function MarkingStoreBridge({
 }
 
 export function useMarkingStoreApi(): MarkingStoreApi {
-  const store = useContext(MarkingStoreContext);
+  const store = use(MarkingStoreContext);
   if (!store) {
     throw new Error('Marking hooks need <MarkingProvider> (root layout)');
   }

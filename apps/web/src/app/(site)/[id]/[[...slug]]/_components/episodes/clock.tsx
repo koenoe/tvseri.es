@@ -3,7 +3,7 @@
 import {
   createContext,
   type ReactNode,
-  useContext,
+  use,
   useMemo,
   useSyncExternalStore,
 } from 'react';
@@ -33,4 +33,4 @@ export function ClockProvider({ children }: Readonly<{ children: ReactNode }>) {
   return <ClockContext value={clock}>{children}</ClockContext>;
 }
 
-export const useClock = (): Clock => useContext(ClockContext);
+export const useClock = (): Clock => use(ClockContext);

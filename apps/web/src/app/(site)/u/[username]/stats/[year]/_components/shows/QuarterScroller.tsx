@@ -11,6 +11,7 @@ import {
 import {
   activeQuarter,
   monthsInView,
+  NOMINAL_WEEKS,
   PHONE_TRACK_PX,
   PHONE_WEEK_PX,
   QUARTERS,
@@ -25,10 +26,24 @@ const OPTIONS: ReadonlyArray<SegmentedOption<number>> = QUARTERS.map(
   (label, value) => ({ label, value }),
 );
 
-/** The weeks a 390px phone shows (318px of lane), until it measures its own */
-const NOMINAL_WEEKS = 318 / PHONE_WEEK_PX;
-
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
+
+/**
+ * A row's pointer shows once its whole line is out of view: before the
+ * first week in view (`from`) or after the last (`to`)
+ */
+function showPointers(scroller: HTMLElement, from: number, to: number) {
+  for (const pointer of scroller.querySelectorAll<HTMLElement>(
+    '[data-before]',
+  )) {
+    pointer.toggleAttribute('data-out', from >= Number(pointer.dataset.before));
+  }
+  for (const pointer of scroller.querySelectorAll<HTMLElement>(
+    '[data-after]',
+  )) {
+    pointer.toggleAttribute('data-out', to <= Number(pointer.dataset.after));
+  }
+}
 
 /**
  * The phone's year in series, a quarter at a time (md and up it steps
@@ -37,7 +52,7 @@ const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
  * The rows (`children`) scroll sideways on a 24px-a-week track, snapping to
  * the quarters' first days. One passive scroll listener, once a frame:
  * - moves the overview's window (a transform),
- * - writes the weeks in view (`--from`, `--to`) for the rows' pointers,
+ * - shows the pointers of the rows whose line is out of view,
  * - flags the edges that have more beyond them (`data-fl`, `data-fr`),
  * - writes the overview slider's value (the first week in view) and the
  *   months in view,
@@ -88,8 +103,10 @@ export default function QuarterScroller({
         return;
       }
       const x = scroller.scrollLeft;
-      scroller.style.setProperty('--from', String(x / PHONE_WEEK_PX));
-      scroller.style.setProperty('--to', String((x + width) / PHONE_WEEK_PX));
+      // a flag on the pointers, set only when it changes: an inherited
+      // custom property here restyled every row under the scroller (400+
+      // elements) every frame
+      showPointers(scroller, x / PHONE_WEEK_PX, (x + width) / PHONE_WEEK_PX);
       scroller.toggleAttribute('data-fl', x > 1);
       scroller.toggleAttribute('data-fr', x < max - 1);
       const scale =
@@ -183,10 +200,6 @@ export default function QuarterScroller({
     now: openingWeek,
     text: monthsInView(openingWeek, openingWeek + NOMINAL_WEEKS, year),
   };
-  const scrollerStyle = {
-    '--from': '0',
-    '--to': String(NOMINAL_WEEKS),
-  } as CSSProperties;
   const focusable = scrolls
     ? ({ 'aria-label': label, role: 'region', tabIndex: 0 } as const)
     : {};
@@ -218,7 +231,6 @@ export default function QuarterScroller({
         className="group/qs mt-3 snap-x snap-proximity overflow-x-auto overscroll-x-contain [container-type:inline-size] [scrollbar-width:none] md:contents [&::-webkit-scrollbar]:hidden"
         data-fr=""
         ref={scrollerRef}
-        style={scrollerStyle}
         {...focusable}
       >
         <div className="relative md:contents" style={contentStyle}>

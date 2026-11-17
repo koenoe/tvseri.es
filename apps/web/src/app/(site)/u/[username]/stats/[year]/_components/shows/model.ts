@@ -63,6 +63,8 @@ export type Timeline = Readonly<{
 export const PHONE_WEEK_PX = 24;
 /** The phone's full-year track: 53 weeks of 24px */
 export const PHONE_TRACK_PX = WEEKS * PHONE_WEEK_PX;
+/** The weeks a 390px phone shows (318px of lane), until it measures its own */
+export const NOMINAL_WEEKS = 318 / PHONE_WEEK_PX;
 
 /** The quarter switch's labels, Jan–Mar first */
 export const QUARTERS = ['Jan–Mar', 'Apr–Jun', 'Jul–Sep', 'Oct–Dec'] as const;

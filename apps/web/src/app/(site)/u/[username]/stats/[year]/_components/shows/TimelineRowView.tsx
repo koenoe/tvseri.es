@@ -7,7 +7,7 @@ import { arrowLeftGlyph, arrowRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
 
-import { type TimelineRow, weekPercent } from './model';
+import { NOMINAL_WEEKS, type TimelineRow, weekPercent } from './model';
 
 /** Spring 400 / 40 for the "Most hours" re-sort */
 const SPRING = { damping: 40, stiffness: 400, type: 'spring' } as const;
@@ -32,17 +32,6 @@ const endStyle = (row: TimelineRow): CSSProperties => ({
   left: `calc(${percent(weekPercent(row.end))} - ${row.live ? 4 : 2}px)`,
 });
 
-/**
- * The phone's pointers, shown only when the whole line is out of view:
- * before the first week in view (`--from`) or after the last (`--to`).
- */
-const BEFORE: CSSProperties = {
-  opacity: 'clamp(0, (var(--from) - var(--e)) * 1000 + 1, 1)',
-};
-const AFTER: CSSProperties = {
-  opacity: 'clamp(0, (var(--s) - var(--to)) * 1000 + 1, 1)',
-};
-
 /** The lane's colour: the lines fade into it at an edge with more beyond */
 const LANE = 'color-mix(in srgb, var(--color-page) 78%, #000)';
 const FADE_LEFT: CSSProperties = {
@@ -52,8 +41,12 @@ const FADE_RIGHT: CSSProperties = {
   background: `linear-gradient(270deg, ${LANE}, transparent)`,
 };
 
+/**
+ * The phone's pointers, shown only when the whole line is out of view
+ * (`data-out`, kept by `QuarterScroller` as the weeks scroll)
+ */
 const POINTER =
-  'absolute -top-0.5 inline-flex items-center gap-1 whitespace-nowrap text-caption text-white/60';
+  'absolute -top-0.5 inline-flex items-center gap-1 whitespace-nowrap text-caption text-white/60 opacity-0 data-out:opacity-100';
 const FADE = 'absolute inset-y-0 hidden w-5';
 const FADE_LEFT_CLASS = cn(FADE, 'left-0 group-data-[fl]/qs:block');
 const FADE_RIGHT_CLASS = cn(FADE, 'right-0 group-data-[fr]/qs:block');
@@ -65,17 +58,23 @@ const POINTER_AFTER_CLASS = cn(POINTER, 'right-0');
  * while the weeks scroll under it. Fades the lines at an edge with more
  * beyond, and says where the line is when it is out of view.
  */
-function PhoneWindow({ months }: Readonly<{ months: string }>) {
+function PhoneWindow({ row }: Readonly<{ row: TimelineRow }>) {
+  // the scroll starts at week 0, the window NOMINAL_WEEKS wide
+  const afterOut = row.start >= NOMINAL_WEEKS ? '' : undefined;
   return (
     <span className="sticky left-0 block h-4 w-[100cqw] md:hidden">
       <span className={FADE_LEFT_CLASS} style={FADE_LEFT} />
       <span className={FADE_RIGHT_CLASS} style={FADE_RIGHT} />
-      <span className={POINTER_BEFORE_CLASS} style={BEFORE}>
+      <span className={POINTER_BEFORE_CLASS} data-before={row.end}>
         <Icon glyph={arrowLeftGlyph} size={12} />
-        {months}
+        {row.months}
       </span>
-      <span className={POINTER_AFTER_CLASS} style={AFTER}>
-        {months}
+      <span
+        className={POINTER_AFTER_CLASS}
+        data-after={row.start}
+        data-out={afterOut}
+      >
+        {row.months}
         <Icon glyph={arrowRightGlyph} size={12} />
       </span>
     </span>
@@ -85,7 +84,6 @@ function PhoneWindow({ months }: Readonly<{ months: string }>) {
 function Track({ row }: Readonly<{ row: TimelineRow }>) {
   const span = spanStyle(row);
   const end = endStyle(row);
-  const range = { '--e': row.end, '--s': row.start } as CSSProperties;
   const endClass = row.live
     ? 'absolute top-[3px] -ml-px size-2.5 rounded-full bg-cyan md:top-0.5 md:ml-0.5 md:size-2'
     : 'absolute top-px ml-px h-3.5 w-0.5 rounded-[1px] bg-white/70 md:top-0 md:h-3';
@@ -93,7 +91,6 @@ function Track({ row }: Readonly<{ row: TimelineRow }>) {
     <span
       aria-hidden
       className="relative h-4 [--seg-inset:1px] md:col-start-2 md:row-start-1 md:h-3 md:[--seg-inset:0.5px]"
-      style={range}
     >
       <span
         className="absolute top-[5px] h-1.5 rounded-[3px] bg-white/12 md:top-1 md:h-1 md:rounded-2"
@@ -107,7 +104,7 @@ function Track({ row }: Readonly<{ row: TimelineRow }>) {
         />
       ))}
       <span className={endClass} style={end} />
-      <PhoneWindow months={row.months} />
+      <PhoneWindow row={row} />
     </span>
   );
 }

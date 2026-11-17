@@ -1,6 +1,6 @@
 import type { ListItem } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
-
+import { countsInStats } from './regular';
 import {
   calculateAllTime,
   calculateDaily,
@@ -219,6 +219,84 @@ describe('calculateFinished', () => {
       title: 'Show 1',
     });
     expect(finished.shows[1]).toMatchObject({ episodes: 0, id: 9 });
+  });
+
+  // A show's Finished date is its last watch of any kind (listSync's
+  // `lastWatchedAt`: undated "I don't remember" marks at the time they were
+  // made, specials too), while the year's read is dated regular episodes
+  // only (gsi2, `countsInStats`). So a show can reach Finished in the year
+  // with nothing of it counted in the year.
+  it('reports 0 for a show that reached Finished with nothing dated in the year', () => {
+    const bulkMarkedAt = Date.parse('2026-11-16T21:00:00Z');
+    const house = (
+      seasonNumber: number,
+      episodeNumber: number,
+      watchedAt: number,
+      dateUnknown = false,
+    ) => ({
+      ...at('2026-01-01T00:00:00Z', {
+        episodeNumber,
+        seasonNumber,
+        seriesId: 1408,
+        slug: 'house',
+        title: 'House',
+      }),
+      dateUnknown,
+      watchedAt,
+    });
+    const watched: ReadonlyArray<SegmentItem & { dateUnknown?: boolean }> = [
+      // the whole show marked at once, "I don't remember"
+      ...Array.from({ length: 22 }, (_, index) =>
+        house(1, index + 1, bulkMarkedAt, true),
+      ),
+      // another show, its earlier seasons in 2025, a special in 2026
+      ...Array.from({ length: 10 }, (_, index) =>
+        at('2025-03-01T20:00:00Z', { episodeNumber: index + 1, seriesId: 2 }),
+      ),
+      at('2026-02-01T20:00:00Z', { seasonNumber: 0, seriesId: 2 }),
+      // the busiest day: 26 episodes of a third show, marked with the date
+      ...Array.from({ length: 26 }, (_, index) =>
+        at('2026-11-16T20:00:00Z', { episodeNumber: index + 1, seriesId: 3 }),
+      ),
+    ];
+    // getWatchedItemsForYear: dated items of the UTC year (gsi2), regular only
+    const yearRead = watched.filter(
+      (item) =>
+        !item.dateUnknown &&
+        new Date(item.watchedAt).getUTCFullYear() === 2026 &&
+        countsInStats(item),
+    );
+    const lastWatchedAt = (seriesId: number) =>
+      Math.max(
+        ...watched
+          .filter((item) => item.seriesId === seriesId)
+          .map((item) => item.watchedAt),
+      );
+    const finishedInYear = [1408, 2, 3].map(
+      (id) =>
+        ({ createdAt: lastWatchedAt(id), id, slug: '', title: '' }) as ListItem,
+    );
+
+    const { shows } = calculateFinished(yearRead, finishedInYear);
+    const byId = new Map(shows.map((show) => [show.id, show]));
+
+    expect(byId.get(1408)).toMatchObject({
+      episodes: 0,
+      finishedAt: bulkMarkedAt,
+      runtimeMinutes: 0,
+      seasons: [],
+    });
+    expect(byId.get(2)).toMatchObject({
+      episodes: 0,
+      runtimeMinutes: 0,
+      seasons: [],
+    });
+    // The other tiles keep their year's numbers
+    expect(byId.get(3)).toMatchObject({
+      episodes: 26,
+      runtimeMinutes: 1300,
+      seasons: [1],
+    });
   });
 });
 

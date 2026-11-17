@@ -63,7 +63,12 @@ export type StatsFinishedShow = Readonly<{
   posterImage: string | null;
   /** ms: when the show reached Finished */
   finishedAt: number;
-  /** Episodes and runtime watched in the year, and the seasons they were in */
+  /**
+   * Episodes and runtime watched in the year (dated regular episodes), and
+   * the seasons they were in. 0 and none when the show reached Finished
+   * in the year with nothing dated in it (an "I don't remember" mark, a
+   * special, or the rest watched in earlier years)
+   */
   episodes: number;
   runtimeMinutes: number;
   seasons: ReadonlyArray<number>;

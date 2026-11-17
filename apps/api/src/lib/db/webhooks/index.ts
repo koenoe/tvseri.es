@@ -27,6 +27,7 @@ import { Resource } from 'sst';
 
 import client from '../client';
 import { queryAll } from '../query';
+import { userTypeIndexPk, webhookPk } from './keys';
 
 const kvs = new CloudFrontKeyValueStoreClient({});
 
@@ -125,8 +126,8 @@ export const generateWebhookToken = async (input: {
           {
             Put: {
               Item: marshall({
-                gsi1pk: `USER#${input.userId}#TYPE#${input.type}`,
-                pk: `TOKEN#${webhookToken.token}`,
+                gsi1pk: userTypeIndexPk(input.userId, input.type),
+                pk: webhookPk(webhookToken.token),
                 ...webhookToken,
               }),
               TableName,
@@ -136,7 +137,7 @@ export const generateWebhookToken = async (input: {
             Delete: {
               ConditionExpression: 'attribute_exists(pk) AND userId = :userId',
               ExpressionAttributeValues: marshall({ ':userId': input.userId }),
-              Key: marshall({ pk: `TOKEN#${token}` }),
+              Key: marshall({ pk: webhookPk(token) }),
               TableName,
             },
           })),
@@ -175,7 +176,7 @@ const findAllWebhookTokensByUserAndType = async ({
 }: Readonly<{ userId: string; type: string }>): Promise<WebhookToken[]> => {
   const rows = await queryAll<WebhookToken>({
     ExpressionAttributeValues: marshall({
-      ':gsi1pk': `USER#${userId}#TYPE#${type}`,
+      ':gsi1pk': userTypeIndexPk(userId, type),
     }),
     IndexName: 'gsi1',
     KeyConditionExpression: 'gsi1pk = :gsi1pk',
@@ -196,7 +197,7 @@ export const findWebhookToken = async (
 ): Promise<WebhookToken | null> => {
   const command = new GetItemCommand({
     Key: marshall({
-      pk: `TOKEN#${token}`,
+      pk: webhookPk(token),
     }),
     TableName: Resource.WebhookTokens.name,
   });
@@ -246,7 +247,7 @@ export const updateWebhookSettings = async (
       // Never another user's row, never a row that was just replaced
       ConditionExpression: 'attribute_exists(pk) AND userId = :userId',
       ExpressionAttributeValues: marshall(values),
-      Key: marshall({ pk: `TOKEN#${current.token}` }),
+      Key: marshall({ pk: webhookPk(current.token) }),
       ReturnValues: 'ALL_NEW',
       TableName: Resource.WebhookTokens.name,
       UpdateExpression: [
@@ -274,7 +275,7 @@ export const recordScrobbleReceived = async (
           ':now': Date.now(),
           ...(account && { ':account': account }),
         }),
-        Key: marshall({ pk: `TOKEN#${token}` }),
+        Key: marshall({ pk: webhookPk(token) }),
         TableName: Resource.WebhookTokens.name,
         UpdateExpression: account
           ? 'SET lastReceivedAt = :now, lastAccount = :account'
@@ -313,7 +314,7 @@ export const deleteWebhookToken = async (
         new DeleteItemCommand({
           ConditionExpression: 'userId = :userId',
           ExpressionAttributeValues: marshall({ ':userId': input.userId }),
-          Key: marshall({ pk: `TOKEN#${token}` }),
+          Key: marshall({ pk: webhookPk(token) }),
           TableName: Resource.WebhookTokens.name,
         }),
       );
@@ -354,7 +355,7 @@ export const ensureEdgeKey = async (
           ':at': Date.now(),
           ':store': edgeStoreId(),
         }),
-        Key: marshall({ pk: `TOKEN#${webhookToken.token}` }),
+        Key: marshall({ pk: webhookPk(webhookToken.token) }),
         TableName: Resource.WebhookTokens.name,
         UpdateExpression: 'SET edgeAt = :at, edgeStore = :store',
       }),

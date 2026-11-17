@@ -40,11 +40,19 @@ const LANE = cn(PERSON_LANE, 'px-4 pt-4 pb-3 lg:px-6 lg:pt-5 lg:pb-4');
 /** Label column 104px (phone) / 168px (desktop), 12 / 16px to the track */
 const COLUMNS =
   'grid grid-cols-[104px_minmax(0,1fr)] gap-3 lg:grid-cols-[168px_minmax(0,1fr)] lg:gap-4';
+/**
+ * A row's highlight reaches 8px (phone) / 12px (desktop) past its label and
+ * track, into the lane's padding; the negative margin keeps every label and
+ * bar where the columns put them.
+ */
 const ROW = cn(
   styles.row,
   COLUMNS,
-  'h-[52px] items-center rounded-8 lg:h-[30px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70',
+  '-mx-2 px-2 lg:-mx-3 lg:px-3 h-[52px] items-center rounded-8 lg:h-[30px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70',
 );
+/** The guest button's width: the lane's, plus the row's two overhangs */
+const GUEST_ROW =
+  'w-[calc(100%+16px)] cursor-pointer text-left lg:w-[calc(100%+24px)]';
 const TRACK = 'relative h-[52px] lg:h-[30px]';
 const CAPTION = cn(
   styles.cap,
@@ -229,7 +237,7 @@ function GuestRow({
   return (
     <GuestRowButton
       aria={view.aria}
-      className={cn(ROW, 'w-full cursor-pointer text-left')}
+      className={cn(ROW, GUEST_ROW)}
       personId={personId}
     >
       <span className="flex min-w-0 flex-col gap-px pl-1 lg:block lg:pl-2">

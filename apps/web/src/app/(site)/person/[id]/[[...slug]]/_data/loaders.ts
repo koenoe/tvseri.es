@@ -10,11 +10,12 @@ import type {
   PersonShows,
   TvSeries,
 } from '@tvseri.es/schemas';
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
+  cacheLifeFor,
   isUnavailable,
   tryApi,
   type Unavailable,
@@ -50,11 +51,10 @@ export async function loadPerson(id: number): Promise<PersonResult> {
   const person = await tryApi(() =>
     apiFetch<Person>('/person/:id', { notFound: 'null', params: { id } }),
   );
+  cacheLifeFor('medium', person);
   if (isUnavailable(person)) {
-    cacheLife('unavailable');
     return person;
   }
-  cacheLife('medium');
   if (!person || person.isAdult) {
     return { status: 'not-found' };
   }
@@ -83,11 +83,7 @@ export async function loadShows(
       params: { id },
     }),
   );
-  if (isUnavailable(shows)) {
-    cacheLife('unavailable');
-  } else {
-    cacheLife('medium');
-  }
+  cacheLifeFor('medium', shows);
   return shows;
 }
 
@@ -103,11 +99,7 @@ async function loadCareer(
       params: { id },
     }),
   );
-  if (isUnavailable(career)) {
-    cacheLife('unavailable');
-  } else {
-    cacheLife('medium');
-  }
+  cacheLifeFor('medium', career);
   return career;
 }
 
@@ -122,11 +114,10 @@ async function loadKnownForItems(
       params: { id },
     }),
   );
+  cacheLifeFor('medium', items);
   if (isUnavailable(items)) {
-    cacheLife('unavailable');
     return items;
   }
-  cacheLife('medium');
   return items ?? [];
 }
 
@@ -140,11 +131,10 @@ export async function loadKnownFor(
     loadKnownForItems(id),
     loadShows(id),
   ]);
+  cacheLifeFor('medium', items, shows);
   if (isUnavailable(items) || isUnavailable(shows)) {
-    cacheLife('unavailable');
     return UNAVAILABLE;
   }
-  cacheLife('medium');
   return buildKnownFor(items, shows?.shows ?? []);
 }
 
@@ -161,8 +151,8 @@ export async function loadCareerView(
     loadShows(id),
   ]);
   // Every read or none: a degraded chart never gets the long life
+  cacheLifeFor('medium', ...reads);
   if (reads.some(isUnavailable)) {
-    cacheLife('unavailable');
     return UNAVAILABLE;
   }
   const [career, knownFor, shows] = reads as [
@@ -170,7 +160,6 @@ export async function loadCareerView(
     ReadonlyArray<KnownForTile>,
     PersonShows | null,
   ];
-  cacheLife('medium');
   if (!career) {
     return null;
   }
@@ -210,11 +199,10 @@ export async function loadShowsView(
   cacheTag(tags.person(id));
   const [shows, career] = await Promise.all([loadShows(id), loadCareer(id)]);
   // Without the career every series would lose its years: all or nothing
+  cacheLifeFor('medium', shows, career);
   if (isUnavailable(shows) || isUnavailable(career)) {
-    cacheLife('unavailable');
     return UNAVAILABLE;
   }
-  cacheLife('medium');
   if (!shows) {
     return null;
   }
@@ -233,11 +221,10 @@ export async function loadLinks(
       params: { id },
     }),
   );
+  cacheLifeFor('long', links);
   if (isUnavailable(links)) {
-    cacheLife('unavailable');
     return links;
   }
-  cacheLife('long');
   return links?.links ?? [];
 }
 
@@ -264,11 +251,10 @@ export async function loadCollaborators(
       params: { id },
     }),
   );
+  cacheLifeFor('medium', response);
   if (isUnavailable(response)) {
-    cacheLife('unavailable');
     return response;
   }
-  cacheLife('medium');
   return (response?.collaborators ?? [])
     .slice(0, COLLABORATORS)
     .map((person) => ({
@@ -298,14 +284,10 @@ export async function loadFamilyAndAwards(
   );
   // `degraded`: Wikidata didn't answer; try again on a visit 30 s on
   if (isUnavailable(response) || response?.degraded) {
-    cacheLife('unavailable');
+    cacheLifeFor('unavailable');
     return UNAVAILABLE;
   }
   const value = response ?? { awards: null, family: null };
-  if (value.awards || value.family) {
-    cacheLife('medium');
-  } else {
-    cacheLife('short');
-  }
+  cacheLifeFor(value.awards || value.family ? 'medium' : 'short');
   return value;
 }

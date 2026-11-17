@@ -4,7 +4,11 @@ import { landingFilter } from '@tvseri.es/constants';
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { tags } from '@/lib/cache/tags';
-import { isUnavailable, type Unavailable } from '@/lib/cache/unavailable';
+import {
+  cacheLifeFor,
+  isUnavailable,
+  type Unavailable,
+} from '@/lib/cache/unavailable';
 
 import {
   discoverQueryString,
@@ -74,11 +78,10 @@ export async function getLandscape(
     top.length > 0
       ? await getShowSummaries(summaryIds(top.map((show) => show.id)))
       : {};
+  cacheLifeFor('medium', summaries);
   if (isUnavailable(summaries)) {
-    cacheLife('unavailable');
     return summaries;
   }
-  cacheLife('medium');
   return buildLandscape(top, summaries);
 }
 

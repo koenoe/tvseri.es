@@ -3,20 +3,12 @@ import 'server-only';
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { tags } from '@/lib/cache/tags';
+import { cacheLifeFor } from '@/lib/cache/unavailable';
 
 import { getCardData } from './cardData';
 import { drawCard } from './draw';
 import type { CardLayoutName } from './layout';
 import type { CardTheme } from './theme';
-
-/** `cacheLife` takes one profile name per call (its overloads) */
-const shortOrStats = (short: boolean) => {
-  if (short) {
-    cacheLife('unavailable');
-  } else {
-    cacheLife('stats');
-  }
-};
 
 type CardImageResult =
   | Readonly<{ image: Uint8Array<ArrayBuffer>; degraded: boolean }>
@@ -52,7 +44,7 @@ export async function renderCardImage(
     cacheTag(tags.user(data.userId), tags.stats(data.userId));
   }
   if (data.status === 'not-found') {
-    shortOrStats(data.userId === null);
+    cacheLifeFor(data.userId === null ? 'unavailable' : 'stats');
     return data.status;
   }
   const { degraded, image } = await drawCard({
@@ -61,6 +53,6 @@ export async function renderCardImage(
     model: data.model,
     theme,
   });
-  shortOrStats(degraded);
+  cacheLifeFor(degraded ? 'unavailable' : 'stats');
   return { degraded, image };
 }

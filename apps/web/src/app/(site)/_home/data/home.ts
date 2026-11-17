@@ -25,6 +25,7 @@ import { cacheLife, cacheTag } from 'next/cache';
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
+  cacheLifeFor,
   isStandIn,
   isUnavailable,
   tryApi,
@@ -75,21 +76,16 @@ export async function getHomeDay(): Promise<string> {
   return utcDay(now);
 }
 
-const firstUnavailable = (
-  ...values: ReadonlyArray<unknown>
-): Unavailable | undefined => values.find(isUnavailable);
-
 export async function getSpotlight(): Promise<
   ReadonlyArray<TvSeries> | Unavailable
 > {
   'use cache';
   cacheTag(tags.home);
   const items = await loadTrendingShows();
+  cacheLifeFor('short', items);
   if (isUnavailable(items)) {
-    cacheLife('unavailable');
     return items;
   }
-  cacheLife('short');
   return items
     .filter((item) => Boolean(item.backdropImage))
     .slice(0, SPOTLIGHT_COUNT);
@@ -118,14 +114,9 @@ export async function getTopPicks(
     tryApi(() => apiFetch<TvSeries[]>('/collection/most-popular-this-month')),
     getSpotlight(),
   ]);
+  cacheLifeFor('medium', items, spotlight);
   if (isUnavailable(items)) {
-    cacheLife('unavailable');
     return items;
-  }
-  if (isUnavailable(spotlight)) {
-    cacheLife('unavailable');
-  } else {
-    cacheLife('medium');
   }
   return withoutNeighbours(
     items,
@@ -161,14 +152,9 @@ export async function getPickPool(
     tryApi(() => apiFetch<TvSeries[]>('/collection/top-rated')),
     getTopPicks(day.slice(0, 7)),
   ]);
+  cacheLifeFor('short', pool, topPicks);
   if (isUnavailable(pool)) {
-    cacheLife('unavailable');
     return pool;
-  }
-  if (isUnavailable(topPicks)) {
-    cacheLife('unavailable');
-  } else {
-    cacheLife('short');
   }
   const candidates = withoutNeighbours(
     pool.filter((item) => Boolean(item.posterImage)),
@@ -206,14 +192,9 @@ export async function getHiddenGems(
     getPickDeck(day),
     getFeature(day),
   ]);
+  cacheLifeFor('medium', gems, deck, feature);
   if (isUnavailable(gems)) {
-    cacheLife('unavailable');
     return gems;
-  }
-  if (firstUnavailable(deck, feature)) {
-    cacheLife('unavailable');
-  } else {
-    cacheLife('medium');
   }
   return withoutNeighbours(
     gems.filter((item) => Boolean(item.posterImage)),
@@ -262,14 +243,11 @@ async function featureOfDay(
   const result = await tryApi(() =>
     apiFetch<FeatureOfTheDay>('/home/feature', { notFound: 'null', query }),
   );
+  const standIn =
+    !isUnavailable(result) && !!result && isStandIn(result, query.date);
+  cacheLifeFor(standIn ? 'unavailable' : 'medium', result);
   if (isUnavailable(result)) {
-    cacheLife('unavailable');
     return result;
-  }
-  if (result && isStandIn(result, query.date)) {
-    cacheLife('unavailable');
-  } else {
-    cacheLife('medium');
   }
   return result && { ...result, feature: featureOnDay(result.feature, day) };
 }
@@ -290,14 +268,11 @@ async function toyOfDay(
   const result = await tryApi(() =>
     apiFetch<ToyOfTheDay>('/home/toy', { notFound: 'null', query }),
   );
+  const standIn =
+    !isUnavailable(result) && !!result && isStandIn(result, query.date);
+  cacheLifeFor(standIn ? 'unavailable' : 'medium', result);
   if (isUnavailable(result)) {
-    cacheLife('unavailable');
     return result;
-  }
-  if (result && isStandIn(result, query.date)) {
-    cacheLife('unavailable');
-  } else {
-    cacheLife('medium');
   }
   return result;
 }
@@ -365,14 +340,16 @@ export async function getNewThisWeek(
     getFeature(day),
     getToy(day),
   ]);
+  const standIn = !isUnavailable(answer) && isStandIn(answer, date);
+  cacheLifeFor(
+    standIn ? 'unavailable' : 'medium',
+    answer,
+    spotlight,
+    feature,
+    toy,
+  );
   if (isUnavailable(answer)) {
-    cacheLife('unavailable');
     return answer;
-  }
-  if (firstUnavailable(spotlight, feature, toy) || isStandIn(answer, date)) {
-    cacheLife('unavailable');
-  } else {
-    cacheLife('medium');
   }
   const taken = [
     isUnavailable(spotlight) ? [] : idsOf(spotlight),
@@ -410,17 +387,16 @@ export async function getPremieres(
     getFeature(day),
     getToy(day),
   ]);
+  const standIn = !isUnavailable(premieres) && isStandIn(premieres, day);
+  cacheLifeFor(
+    standIn ? 'unavailable' : 'short',
+    premieres,
+    newThisWeek,
+    feature,
+    toy,
+  );
   if (isUnavailable(premieres)) {
-    cacheLife('unavailable');
     return premieres;
-  }
-  if (
-    firstUnavailable(newThisWeek, feature, toy) ||
-    isStandIn(premieres, day)
-  ) {
-    cacheLife('unavailable');
-  } else {
-    cacheLife('short');
   }
   // drawn on their backdrop: one without it is left out (the API already
   // does; a cached older answer may not)

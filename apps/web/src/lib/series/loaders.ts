@@ -15,6 +15,7 @@ import { unstable_rethrow } from 'next/navigation';
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
+  cacheLifeFor,
   isUnavailable,
   tryApi,
   type Unavailable,
@@ -54,11 +55,9 @@ export async function loadSeries(
   'use cache';
   cacheTag(tags.series(id));
   const series = await tryApi(() => readSeries(id));
+  cacheLifeFor('short', series);
   if (isUnavailable(series)) {
     failedFills.set(id, failedFillsOf(id) + 1);
-    cacheLife('unavailable');
-  } else {
-    cacheLife('short');
   }
   return series;
 }
@@ -166,11 +165,10 @@ export async function loadSeriesCredits(
       params: { id },
     }),
   );
+  cacheLifeFor('medium', credits);
   if (isUnavailable(credits)) {
-    cacheLife('unavailable');
     return credits;
   }
-  cacheLife('medium');
   return credits && { cast: credits.cast };
 }
 
@@ -192,11 +190,7 @@ export async function loadSeasonRatings(
     '/series/:id/season/:season/ratings',
     { notFound: 'null', params: { id, season: seasonNumber } },
   );
-  if (result && isEmptyRatings(result)) {
-    cacheLife('unavailable');
-  } else {
-    cacheLife('medium');
-  }
+  cacheLifeFor(result && isEmptyRatings(result) ? 'unavailable' : 'medium');
   return result;
 }
 
@@ -221,16 +215,11 @@ export async function loadRuntimes(
       params: { id },
     }),
   );
+  // No show (or an API without the route yet): nothing to draw, and nothing
+  // worth keeping for a day
+  cacheLifeFor(runtimes ? 'short' : 'unavailable', runtimes);
   if (isUnavailable(runtimes)) {
-    cacheLife('unavailable');
     return runtimes;
   }
-  if (!runtimes) {
-    // No such show (or an API without the route yet): nothing to draw, and
-    // nothing worth keeping for a day.
-    cacheLife('unavailable');
-    return {};
-  }
-  cacheLife('short');
-  return runtimes;
+  return runtimes ?? {};
 }

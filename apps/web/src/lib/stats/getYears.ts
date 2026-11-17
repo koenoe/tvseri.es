@@ -1,12 +1,12 @@
 import 'server-only';
 
 import type { StatsYears } from '@tvseri.es/schemas';
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
-  isUnavailable,
+  cacheLifeFor,
   tryApi,
   type Unavailable,
 } from '@/lib/cache/unavailable';
@@ -26,10 +26,6 @@ export async function getYears(
   const result = await tryApi(() =>
     apiFetch<StatsYears>('/user/:id/stats/years', { params: { id: userId } }),
   );
-  if (isUnavailable(result)) {
-    cacheLife('unavailable');
-  } else {
-    cacheLife('statsCurrent');
-  }
+  cacheLifeFor('statsCurrent', result);
   return result;
 }

@@ -2,11 +2,12 @@ import 'server-only';
 
 import { HOME_MOMENTS_VERSION } from '@tvseri.es/constants';
 import type { ConnectedFrom, ConnectedPath } from '@tvseri.es/schemas';
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
+  cacheLifeFor,
   isStandIn,
   isUnavailable,
   tryApi,
@@ -38,15 +39,8 @@ async function connectedFrom(
       query: { date, from, v: version },
     }),
   );
-  if (isUnavailable(result)) {
-    cacheLife('unavailable');
-    return result;
-  }
-  if (result && isStandIn(result, date)) {
-    cacheLife('unavailable');
-  } else {
-    cacheLife('medium');
-  }
+  const standIn = !isUnavailable(result) && !!result && isStandIn(result, date);
+  cacheLifeFor(standIn ? 'unavailable' : 'medium', result);
   return result;
 }
 

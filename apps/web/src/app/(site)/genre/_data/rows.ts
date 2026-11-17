@@ -7,6 +7,7 @@ import { cacheLife, cacheTag } from 'next/cache';
 import { tags } from '@/lib/cache/tags';
 import {
   allAvailable,
+  cacheLifeFor,
   isUnavailable,
   type Unavailable,
 } from '@/lib/cache/unavailable';
@@ -64,11 +65,10 @@ async function getNewInGenre(
       'first_air_date.lte': isoDate(today),
     }),
   );
+  cacheLifeFor('medium', shows);
   if (isUnavailable(shows)) {
-    cacheLife('unavailable');
     return shows;
   }
-  cacheLife('medium');
   return shows;
 }
 
@@ -114,11 +114,10 @@ export async function getBestInGenre(
       ? await getShowSummaries(summaryIds(shows.map((show) => show.id)))
       : {};
   // a list without its networks would be cached for a week: pass it on
+  cacheLifeFor('medium', summaries);
   if (isUnavailable(summaries)) {
-    cacheLife('unavailable');
     return summaries;
   }
-  cacheLife('medium');
   return shows.map((show) => ({
     id: show.id,
     network: summaries[show.id]?.network ?? null,

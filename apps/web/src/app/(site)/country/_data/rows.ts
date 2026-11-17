@@ -1,9 +1,13 @@
 import 'server-only';
 
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheTag } from 'next/cache';
 
 import { tags } from '@/lib/cache/tags';
-import { isUnavailable, type Unavailable } from '@/lib/cache/unavailable';
+import {
+  cacheLifeFor,
+  isUnavailable,
+  type Unavailable,
+} from '@/lib/cache/unavailable';
 
 import {
   type DiscoverShows,
@@ -43,11 +47,10 @@ async function getNewFrom(code: string): Promise<DiscoverShows | Unavailable> {
       with_origin_country: code,
     }),
   );
+  cacheLifeFor('medium', found);
   if (isUnavailable(found)) {
-    cacheLife('unavailable');
     return found;
   }
-  cacheLife('medium');
   return found;
 }
 

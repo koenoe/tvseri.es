@@ -7,6 +7,7 @@ import { cacheLife, cacheTag } from 'next/cache';
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
+  cacheLifeFor,
   isUnavailable,
   tryApi,
   type Unavailable,
@@ -44,11 +45,10 @@ async function getRomanizedTitles(
   const titles = await tryApi(() =>
     apiFetch<RomanizedTitles>('/series/romanized-titles', { query: { ids } }),
   );
+  cacheLifeFor('long', titles);
   if (isUnavailable(titles)) {
-    cacheLife('unavailable');
     return titles;
   }
-  cacheLife('long');
   return titles;
 }
 
@@ -75,11 +75,10 @@ export async function getTitleWall(
   }
   const ids = [...shows.map((show) => show.id)].sort((a, b) => a - b);
   const romanized = await getRomanizedTitles(ids.join(','));
+  cacheLifeFor('medium', romanized);
   if (isUnavailable(romanized)) {
-    cacheLife('unavailable');
     return romanized;
   }
-  cacheLife('medium');
   return shows.map((show) => toTitleCard(show, romanized[show.id]));
 }
 

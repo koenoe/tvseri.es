@@ -1,11 +1,12 @@
 import 'server-only';
 
 import type { GoDeeper } from '@tvseri.es/schemas';
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
+  cacheLifeFor,
   isStandIn,
   isUnavailable,
   tryApi,
@@ -54,14 +55,10 @@ export async function getGoDeeper(): Promise<GoDeeperView | Unavailable> {
   const response = await tryApi(() =>
     apiFetch<GoDeeper>('/discover/go-deeper', { query: { date } }),
   );
+  const standIn = !isUnavailable(response) && isStandIn(response, date);
+  cacheLifeFor(standIn ? 'unavailable' : 'short', response);
   if (isUnavailable(response)) {
-    cacheLife('unavailable');
     return response;
-  }
-  if (isStandIn(response, date)) {
-    cacheLife('unavailable');
-  } else {
-    cacheLife('short');
   }
   return {
     cards: response.cards.map((card) => ({

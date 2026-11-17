@@ -12,6 +12,7 @@ import { cacheLife, cacheTag } from 'next/cache';
 import { tags } from '@/lib/cache/tags';
 import {
   allAvailable,
+  cacheLifeFor,
   isUnavailable,
   type Unavailable,
 } from '@/lib/cache/unavailable';
@@ -120,16 +121,11 @@ export async function getThemeSpotlight(
     // with images: the title treatment only comes with them
     loadSeries(show.id),
   ]);
-  if (isUnavailable(summaries)) {
-    cacheLife('unavailable');
-    return summaries;
-  }
   // The logo is decoration: without it the tile still draws, and the short
   // life brings it back soon (one failed read must not blank the tile)
-  if (isUnavailable(details)) {
-    cacheLife('unavailable');
-  } else {
-    cacheLife('medium');
+  cacheLifeFor('medium', summaries, details);
+  if (isUnavailable(summaries)) {
+    return summaries;
   }
   const logo = isUnavailable(details) ? null : details?.titleTreatmentImage;
   const summary = summaries[show.id];

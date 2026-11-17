@@ -1,7 +1,7 @@
 import 'server-only';
 
 import type { TvSeries } from '@tvseri.es/schemas';
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheTag } from 'next/cache';
 
 import {
   getLandingCounts,
@@ -11,6 +11,7 @@ import {
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
+  cacheLifeFor,
   isUnavailable,
   tryApi,
   type Unavailable,
@@ -32,11 +33,10 @@ export async function getAllTimeFavourites(): Promise<
   const list = await tryApi(() =>
     apiFetch<TvSeries[]>('/collection/top-rated'),
   );
+  cacheLifeFor('short', list);
   if (isUnavailable(list)) {
-    cacheLife('unavailable');
     return list;
   }
-  cacheLife('short');
   return rankedShows(list);
 }
 

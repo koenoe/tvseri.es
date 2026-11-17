@@ -1,11 +1,12 @@
 import 'server-only';
 
 import { StatsZoneSchema } from '@tvseri.es/schemas';
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
+  cacheLifeFor,
   isUnavailable,
   tryApi,
   type Unavailable,
@@ -31,10 +32,9 @@ export async function getStatsTimeZone(
       schema: StatsZoneSchema,
     }),
   );
+  cacheLifeFor('statsCurrent', result);
   if (isUnavailable(result)) {
-    cacheLife('unavailable');
     return result;
   }
-  cacheLife('statsCurrent');
   return result.timeZone;
 }

@@ -1,11 +1,12 @@
 import 'server-only';
 
 import type { SeriesSummaries } from '@tvseri.es/schemas';
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
+  cacheLifeFor,
   isUnavailable,
   tryApi,
   type Unavailable,
@@ -62,11 +63,10 @@ export async function getShowSummaries(
       ),
     ),
   );
+  cacheLifeFor('medium', responses);
   if (isUnavailable(responses)) {
-    cacheLife('unavailable');
     return responses;
   }
-  cacheLife('medium');
   const summaries: Record<number, ShowSummary> = {};
   for (const response of responses) {
     for (const summary of Object.values(response)) {

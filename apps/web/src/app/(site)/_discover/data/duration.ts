@@ -8,11 +8,12 @@ import type {
   DurationTiles,
   FinishThisWeekend,
 } from '@tvseri.es/schemas';
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
+  cacheLifeFor,
   isUnavailable,
   tryApi,
   type Unavailable,
@@ -66,11 +67,10 @@ export async function getDurationTiles(): Promise<
       query: { v: DURATION_TILES_VERSION },
     }),
   );
+  cacheLifeFor('medium', response);
   if (isUnavailable(response)) {
-    cacheLife('unavailable');
     return response;
   }
-  cacheLife('medium');
   return response.tiles.map((tile) => ({
     bucket: tile.bucket,
     count: tile.count,
@@ -104,11 +104,10 @@ export async function getDurationPage(
       },
     }),
   );
+  cacheLifeFor('medium', response);
   if (isUnavailable(response)) {
-    cacheLife('unavailable');
     return response;
   }
-  cacheLife('medium');
   return {
     items: response.items.map(toDurationTileShow),
     nextPage: response.nextPage,
@@ -125,10 +124,9 @@ export async function getFinishThisWeekend(): Promise<
   const response = await tryApi(() =>
     apiFetch<FinishThisWeekend>('/duration/weekend'),
   );
+  cacheLifeFor('medium', response);
   if (isUnavailable(response)) {
-    cacheLife('unavailable');
     return response;
   }
-  cacheLife('medium');
   return response.items.map(toDurationTileShow);
 }

@@ -7,6 +7,7 @@ import { cacheLife, cacheTag } from 'next/cache';
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
+  cacheLifeFor,
   isUnavailable,
   tryApi,
   type Unavailable,
@@ -35,18 +36,13 @@ export async function getLandingCounts(
       query: { slugs },
     }),
   );
-  if (isUnavailable(response)) {
-    cacheLife('unavailable');
-    return response;
-  }
   // An answer that misses a slug (the API was a build behind) is kept briefly
-  const complete = slugs
-    .split(',')
-    .every((slug) => response.counts[slug] !== undefined);
-  if (complete) {
-    cacheLife('medium');
-  } else {
-    cacheLife('short');
+  const complete =
+    !isUnavailable(response) &&
+    slugs.split(',').every((slug) => response.counts[slug] !== undefined);
+  cacheLifeFor(complete ? 'medium' : 'short', response);
+  if (isUnavailable(response)) {
+    return response;
   }
   return response.counts;
 }

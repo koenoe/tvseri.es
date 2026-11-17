@@ -1,12 +1,12 @@
 import 'server-only';
 
 import type { TvSeries } from '@tvseri.es/schemas';
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
-  isUnavailable,
+  cacheLifeFor,
   tryApi,
   type Unavailable,
 } from '@/lib/cache/unavailable';
@@ -26,10 +26,6 @@ export async function loadTrendingShows(): Promise<
   const shows = await tryApi(() =>
     apiFetch<ReadonlyArray<TvSeries>>('/collection/trending'),
   );
-  if (isUnavailable(shows)) {
-    cacheLife('unavailable');
-  } else {
-    cacheLife('short');
-  }
+  cacheLifeFor('short', shows);
   return shows;
 }

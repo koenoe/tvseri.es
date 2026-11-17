@@ -7,6 +7,7 @@ import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
   allAvailable,
+  cacheLifeFor,
   isUnavailable,
   tryApi,
   type Unavailable,
@@ -63,10 +64,9 @@ export async function getIndexChips(
     ),
   );
   // a partial list would be cached for a week: pass the failure on
+  cacheLifeFor('medium', counts);
   if (isUnavailable(counts)) {
-    cacheLife('unavailable');
     return counts;
   }
-  cacheLife('medium');
   return chipsWithShows(type, entries, Object.assign({}, ...counts));
 }

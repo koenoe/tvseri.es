@@ -6,6 +6,7 @@ import { cacheLife, cacheTag } from 'next/cache';
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
+  cacheLifeFor,
   isUnavailable,
   tryApi,
   type Unavailable,
@@ -95,11 +96,10 @@ export async function loadSeasonEpisodes(
       params: { id: seriesId, season: seasonNumber },
     }),
   );
+  cacheLifeFor('short', season);
   if (isUnavailable(season)) {
-    cacheLife('unavailable');
     return season;
   }
-  cacheLife('short');
   return season ? toShowSeasonEpisodes(season) : null;
 }
 
@@ -130,11 +130,10 @@ export async function loadKeywords(
       params: { id },
     }),
   );
+  cacheLifeFor('medium', keywords);
   if (isUnavailable(keywords)) {
-    cacheLife('unavailable');
     return keywords;
   }
-  cacheLife('medium');
   return (keywords ?? []).map(({ id: keywordId, name }) => ({
     id: keywordId,
     name,
@@ -160,11 +159,10 @@ export async function loadRecommendations(
       params: { id },
     }),
   );
+  cacheLifeFor('short', items);
   if (isUnavailable(items)) {
-    cacheLife('unavailable');
     return items;
   }
-  cacheLife('short');
   return (items ?? [])
     .filter((item) => !item.isAdult)
     .map((item) => ({
@@ -190,11 +188,10 @@ export async function loadRating(
       query: { source: 'imdb' },
     }),
   );
+  cacheLifeFor('short', rating);
   if (isUnavailable(rating)) {
-    cacheLife('unavailable');
     return rating;
   }
-  cacheLife('short');
   return rating && rating.value > 0
     ? { value: rating.value, votes: rating.votes }
     : null;

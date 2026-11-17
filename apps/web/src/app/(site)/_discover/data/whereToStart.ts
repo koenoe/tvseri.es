@@ -1,11 +1,12 @@
 import 'server-only';
 
 import type { WhereToStart, WhereToStartPick } from '@tvseri.es/schemas';
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
+  cacheLifeFor,
   isUnavailable,
   tryApi,
   type Unavailable,
@@ -53,11 +54,10 @@ export async function getWhereToStart(
       query: { [by]: value },
     }),
   );
+  cacheLifeFor('medium', response);
   if (isUnavailable(response)) {
-    cacheLife('unavailable');
     return response;
   }
-  cacheLife('medium');
   // A show is picked once (an older API answer could name one twice)
   const seen = new Set<number>();
   const candidates = [

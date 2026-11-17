@@ -5,11 +5,12 @@ import {
   normalizeDiscoverQuery,
   type TvSeries,
 } from '@tvseri.es/schemas';
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
+  cacheLifeFor,
   isUnavailable,
   tryApi,
   type Unavailable,
@@ -59,14 +60,9 @@ export async function getDiscoverShows(
       query: { ...query, page: page > 1 ? page : undefined },
     }),
   );
+  cacheLifeFor(life, response);
   if (isUnavailable(response)) {
-    cacheLife('unavailable');
     return response;
-  }
-  if (life === 'short') {
-    cacheLife('short');
-  } else {
-    cacheLife('medium');
   }
   // TMDB repeats a show across pages now and then: keep the first.
   const seen = new Set<number>();

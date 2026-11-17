@@ -2,11 +2,12 @@ import 'server-only';
 
 import type { LandingType } from '@tvseri.es/constants';
 import type { LandingFacts } from '@tvseri.es/schemas';
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
+  cacheLifeFor,
   isUnavailable,
   tryApi,
   type Unavailable,
@@ -31,10 +32,9 @@ export async function getLandingFacts(
       params: { slug, type },
     }),
   );
+  cacheLifeFor('medium', facts);
   if (isUnavailable(facts)) {
-    cacheLife('unavailable');
     return facts;
   }
-  cacheLife('medium');
   return facts;
 }

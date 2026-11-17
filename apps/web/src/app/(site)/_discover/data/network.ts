@@ -1,11 +1,12 @@
 import 'server-only';
 
 import type { Network } from '@tvseri.es/schemas';
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
+  cacheLifeFor,
   isUnavailable,
   tryApi,
   type Unavailable,
@@ -38,11 +39,10 @@ export async function getNetworkDetails(
   const network = await tryApi(() =>
     apiFetch<Network>('/network/:id', { notFound: 'null', params: { id } }),
   );
+  cacheLifeFor('long', network);
   if (isUnavailable(network)) {
-    cacheLife('unavailable');
     return network;
   }
-  cacheLife('long');
   if (!network) {
     return null;
   }

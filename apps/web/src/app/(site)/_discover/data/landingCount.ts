@@ -1,10 +1,14 @@
 import 'server-only';
 
 import type { LandingType } from '@tvseri.es/constants';
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheTag } from 'next/cache';
 
 import { tags } from '@/lib/cache/tags';
-import { isUnavailable, type Unavailable } from '@/lib/cache/unavailable';
+import {
+  cacheLifeFor,
+  isUnavailable,
+  type Unavailable,
+} from '@/lib/cache/unavailable';
 
 import { getLandingFacts } from './facts';
 
@@ -20,10 +24,9 @@ export async function getLandingCount(
   'use cache';
   cacheTag(tags.landing(type, slug));
   const facts = await getLandingFacts(type, slug);
+  cacheLifeFor('medium', facts);
   if (isUnavailable(facts)) {
-    cacheLife('unavailable');
     return facts;
   }
-  cacheLife('medium');
   return facts?.count ?? null;
 }

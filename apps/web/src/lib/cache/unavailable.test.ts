@@ -1,9 +1,17 @@
 import { CACHE_LIFE } from '@tvseri.es/constants';
-import { describe, expect, it } from 'vitest';
+import { cacheLife } from 'next/cache';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ApiError } from '@/lib/api/client';
 
-import { allAvailable, isUnavailable, tryApi } from './unavailable';
+import {
+  allAvailable,
+  cacheLifeFor,
+  isUnavailable,
+  tryApi,
+} from './unavailable';
+
+vi.mock('next/cache', () => ({ cacheLife: vi.fn() }));
 
 const failWith = (error: unknown) => () => Promise.reject(error);
 
@@ -56,6 +64,27 @@ describe('allAvailable', () => {
 
   it('gives Unavailable when one read failed', () => {
     expect(isUnavailable(allAvailable([1, { unavailable: true }]))).toBe(true);
+  });
+});
+
+describe('cacheLifeFor', () => {
+  beforeEach(() => {
+    vi.mocked(cacheLife).mockClear();
+  });
+
+  it('names the profile when every read worked', () => {
+    cacheLifeFor('medium', [1], null, { items: [] });
+    expect(vi.mocked(cacheLife).mock.calls).toEqual([['medium']]);
+  });
+
+  it('names the profile when there is no read to check', () => {
+    cacheLifeFor('stats');
+    expect(vi.mocked(cacheLife).mock.calls).toEqual([['stats']]);
+  });
+
+  it('names `unavailable` when any read failed', () => {
+    cacheLifeFor('short', [1], { unavailable: true });
+    expect(vi.mocked(cacheLife).mock.calls).toEqual([['unavailable']]);
   });
 });
 

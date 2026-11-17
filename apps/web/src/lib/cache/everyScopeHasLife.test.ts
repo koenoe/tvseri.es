@@ -22,7 +22,8 @@ const sources = (dir: string): ReadonlyArray<string> =>
  * profile, and caps every page it is in at that (`cacheLife.md`, "Nested
  * caching behavior"). Each scope names its CACHE_LIFE profile; a function
  * that only derives from cached reads needs no scope at all. Checked per
- * directive: a `cacheLife(` before the next directive in the file.
+ * directive: a `cacheLife(` or `cacheLifeFor(` (its profile, or
+ * `unavailable` when a read failed) before the next directive in the file.
  */
 describe("every 'use cache' scope", () => {
   it('names its cacheLife profile', () => {
@@ -30,7 +31,7 @@ describe("every 'use cache' scope", () => {
       readFileSync(file, 'utf8')
         .split(DIRECTIVE)
         .slice(1)
-        .filter((scope) => !scope.includes('cacheLife('))
+        .filter((scope) => !/\bcacheLife(For)?\(/.test(scope))
         .map(() => path.relative(SRC, file)),
     );
     expect(missing).toEqual([]);

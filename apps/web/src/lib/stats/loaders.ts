@@ -16,11 +16,12 @@ import type {
   StatsWhen,
   TvSeries,
 } from '@tvseri.es/schemas';
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
+  cacheLifeFor,
   isUnavailable,
   tryApi,
   type Unavailable,
@@ -85,15 +86,10 @@ export async function getStatsUser(
   'use cache';
   cacheTag(tags.username(username));
   const user = await tryApi(() => loadProfileUser(username));
-  if (isUnavailable(user)) {
-    cacheLife('unavailable');
+  cacheLifeFor(user ? 'statsCurrent' : 'unavailable', user);
+  if (isUnavailable(user) || !user) {
     return user;
   }
-  if (!user) {
-    cacheLife('unavailable');
-    return null;
-  }
-  cacheLife('statsCurrent');
   cacheTag(tags.user(user.id), tags.stats(user.id));
   return toStatsUser(user);
 }
@@ -112,11 +108,7 @@ async function readStats<T>(
   const result = await tryApi(() =>
     apiFetch<T>(path, { params: { ...params, id: userId } }),
   );
-  if (isUnavailable(result)) {
-    cacheLife('unavailable');
-  } else {
-    cacheLife('stats');
-  }
+  cacheLifeFor('stats', result);
   return result;
 }
 
@@ -154,11 +146,10 @@ export async function getProfileCounts(
   'use cache';
   cacheTag(tags.user(userId), tags.stats(userId));
   const counts = await readProfileCounts(userId);
+  cacheLifeFor('statsCurrent', counts);
   if (isUnavailable(counts)) {
-    cacheLife('unavailable');
     return counts;
   }
-  cacheLife('statsCurrent');
   return counts;
 }
 
@@ -184,11 +175,10 @@ export async function getSeriesArt(
   // `loadSeries` answers an outage itself: `tryApi` around a cached loader
   // never sees one (its error crosses the cache as a plain `Error`)
   const series = await loadSeries(id);
+  cacheLifeFor('short', series);
   if (isUnavailable(series)) {
-    cacheLife('unavailable');
     return series;
   }
-  cacheLife('short');
   return series ? toSeriesArt(series) : null;
 }
 
@@ -227,11 +217,10 @@ export async function getPopular(
   const items = await tryApi(() =>
     apiFetch<ReadonlyArray<TvSeries>>('/popular/:year', { params: { year } }),
   );
+  cacheLifeFor('medium', items);
   if (isUnavailable(items)) {
-    cacheLife('unavailable');
     return items;
   }
-  cacheLife('medium');
   return items.map((series) => ({
     episodes: series.numberOfEpisodes ?? null,
     genre: series.genres[0]?.name ?? null,

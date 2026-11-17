@@ -1,10 +1,14 @@
 import 'server-only';
 
 import type { TvSeries } from '@tvseri.es/schemas';
-import { cacheLife, cacheTag } from 'next/cache';
+import { cacheTag } from 'next/cache';
 
 import { tags } from '@/lib/cache/tags';
-import { isUnavailable, type Unavailable } from '@/lib/cache/unavailable';
+import {
+  cacheLifeFor,
+  isUnavailable,
+  type Unavailable,
+} from '@/lib/cache/unavailable';
 import { loadSeries } from '@/lib/series/loaders';
 
 import {
@@ -95,11 +99,10 @@ export async function getNetworkSpotlight(
   cacheTag(tags.networkSpotlight(networkId));
 
   const read = await readSpotlight(networkId);
+  cacheLifeFor('short', read);
   if (isUnavailable(read)) {
-    cacheLife('unavailable');
     return read;
   }
-  cacheLife('short');
   if (!read) {
     return null;
   }

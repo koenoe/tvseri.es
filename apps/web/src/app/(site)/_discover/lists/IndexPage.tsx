@@ -1,6 +1,5 @@
 import { LANDING_SLUGS } from '@tvseri.es/constants';
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
 import {
   globeGlyph,
   languageGlyph,
@@ -69,7 +68,7 @@ export const indexMetadata = (kind: IndexKind): Metadata => ({
   title: COPY[kind].title,
 });
 
-/** The count's place while it loads, or when the list is unavailable: a bar the width of "24 countries" */
+/** The count's place when the list is unavailable: a bar the width of "24 countries" */
 const COUNT_GHOST = (
   <span
     aria-hidden
@@ -115,7 +114,7 @@ async function Chips({ kind }: Readonly<{ kind: ListKind }>) {
 /**
  * `/country`, `/language`, `/network`: every landing of a kind as a chip.
  * Countries and languages are TMDB's list cut by the landing counts (cached
- * loaders, streamed); networks are `NETWORKS`, static.
+ * loaders, in the prerendered page); networks are `NETWORKS`, static.
  */
 export default function IndexPage({ kind }: Readonly<{ kind: IndexKind }>) {
   const copy = COPY[kind];
@@ -134,25 +133,20 @@ export default function IndexPage({ kind }: Readonly<{ kind: IndexKind }>) {
       </LandingIndex>
     );
   }
-  const count = (
-    <Suspense fallback={COUNT_GHOST}>
-      <Count kind={kind} />
-    </Suspense>
-  );
-  const skeleton = (
-    <LandingIndexSkeleton labels={landingLabels(kind)} title={copy.title} />
-  );
+  // No Suspense around the count and the chips: their cached list is in the
+  // prerendered page itself. As a streamed boundary the document held the
+  // ghost of every landing (all ~250 countries) and swapped the list in by
+  // script: a slow device painted that ghost, four times the list's height,
+  // and the page jumped up when the list landed.
   return (
     <LandingIndex
       end={end}
-      meta={count}
+      meta={<Count kind={kind} />}
       metaGlyph={copy.glyph}
       title={copy.title}
     >
       <RowErrorBoundary id="landing-index" title={copy.title}>
-        <Suspense fallback={skeleton}>
-          <Chips kind={kind} />
-        </Suspense>
+        <Chips kind={kind} />
       </RowErrorBoundary>
     </LandingIndex>
   );

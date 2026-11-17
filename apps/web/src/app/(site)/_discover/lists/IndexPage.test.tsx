@@ -8,14 +8,24 @@ import IndexPage, { indexMetadata } from './IndexPage';
 
 describe('IndexPage', () => {
   it.each([
-    ['country', 'Countries', 'There are more ways to browse.'],
-    ['language', 'Languages', 'There are more ways to browse.'],
-    ['network', 'Networks', 'There are more ways to browse.'],
-  ] as const)('%s: its title, metadata and end line', (kind, title, line) => {
+    ['country', 'Countries'],
+    ['language', 'Languages'],
+    ['network', 'Networks'],
+  ] as const)('%s: its metadata', (kind, title) => {
     expect(indexMetadata(kind).title).toBe(title);
-    render(<IndexPage kind={kind} />);
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(title);
-    expect(document.body.textContent).toContain(line);
+  });
+
+  // Countries and languages render their cached list in the page (async
+  // server components, not unit-tested): their title and end line are
+  // e2e's (`discover-netcountry.spec.ts`, index pages)
+  it('network: its title and end line', () => {
+    render(<IndexPage kind="network" />);
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(
+      'Networks',
+    );
+    expect(document.body.textContent).toContain(
+      'There are more ways to browse.',
+    );
   });
 
   it('network: every network as a chip and the count, with no API read', () => {

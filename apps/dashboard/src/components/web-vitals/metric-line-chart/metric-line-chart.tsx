@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { memo, useCallback, useMemo } from 'react';
 import {
   CartesianGrid,
+  DefaultZIndexes,
   LabelList,
   Line,
   LineChart,
@@ -35,6 +36,10 @@ import {
   getMetricDisplayValue,
   getTickConfig,
 } from './utils';
+
+// Between the tooltip cursor and the active dots, as Recharts 2's render order had it
+const LINE_Z_INDEX =
+  (DefaultZIndexes.cursorLine + DefaultZIndexes.activeDot) / 2;
 
 type MetricLineChartProps = Readonly<{
   activePercentiles: Set<PercentileKey>;
@@ -351,7 +356,7 @@ function MetricLineChartComponent({
                 y={value}
               />
             ))}
-            {/* Tooltip with cursor BEFORE Lines so cursor renders underneath activeDots */}
+            {/* Recharts 3 layers by zIndex, not render order: LINE_Z_INDEX keeps the cursor under the lines */}
             <ChartTooltip
               content={
                 <CustomTooltip
@@ -361,7 +366,7 @@ function MetricLineChartComponent({
               }
               cursor={<CustomCursor />}
             />
-            {/* Lines for each percentile - rendered AFTER tooltip for z-index */}
+            {/* Lines for each percentile */}
             {PERCENTILES.map(({ key, label }) => {
               const isActive = activePercentiles.has(key);
               return (
@@ -378,6 +383,7 @@ function MetricLineChartComponent({
                   strokeOpacity={isActive ? 1 : 0}
                   strokeWidth={2}
                   type="monotone"
+                  zIndex={LINE_Z_INDEX}
                 >
                   {isActive && (
                     <LabelList content={renderEndLabel(label)} dataKey={key} />

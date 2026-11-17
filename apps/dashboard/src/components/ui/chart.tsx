@@ -5,6 +5,9 @@ import { cn } from '@/lib/utils';
 
 const THEMES = { dark: '.dark', light: '' } as const;
 
+// Recharts 3 measures on mount; this size avoids the zero-size warning before it does
+const INITIAL_DIMENSION = { height: 200, width: 320 } as const;
+
 export type ChartConfig = {
   [k in string]: {
     label?: React.ReactNode;
@@ -48,7 +51,9 @@ function ChartContainer({
         {...props}
       >
         <ChartStyle config={config} id={chartId} />
-        <RechartsPrimitive.ResponsiveContainer>
+        <RechartsPrimitive.ResponsiveContainer
+          initialDimension={INITIAL_DIMENSION}
+        >
           {children}
         </RechartsPrimitive.ResponsiveContainer>
       </div>

@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import { memo } from 'react';
+import { cn } from '@/lib/utils';
 
 type StatusHeaderProps = Readonly<{
   Icon: LucideIcon;
@@ -16,13 +17,15 @@ function StatusHeaderComponent({
   textColorClass,
   threshold,
 }: StatusHeaderProps) {
-  const fontWeight = showFontMedium ? 'font-medium ' : '';
+  const labelClasses = cn(
+    'flex items-center gap-1.5 whitespace-nowrap',
+    showFontMedium && 'font-medium',
+    textColorClass,
+  );
 
   return (
     <>
-      <span
-        className={`flex items-center gap-1.5 whitespace-nowrap ${fontWeight}${textColorClass}`}
-      >
+      <span className={labelClasses}>
         <Icon className="size-4" />
         {label}
       </span>

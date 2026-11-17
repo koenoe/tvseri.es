@@ -1,4 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 import { COLUMN_PADDING, type RatingStatus } from '@/lib/web-vitals';
 
 function TabTriggerValueSkeleton({
@@ -8,9 +9,10 @@ function TabTriggerValueSkeleton({
   if (isScoreRing) {
     return <Skeleton className="size-9 rounded-full" />;
   }
+  const valueClasses = cn('h-6 rounded-none', width);
   return (
     <div className="flex w-full flex-col gap-2">
-      <Skeleton className={`h-6 ${width} rounded-none`} />
+      <Skeleton className={valueClasses} />
       <Skeleton className="h-0.75 w-full rounded-full" />
     </div>
   );
@@ -51,19 +53,23 @@ const ROUTE_WIDTHS: Record<RatingStatus, ReadonlyArray<string>> = {
 
 function RouteColumnSkeleton({ variant }: Readonly<{ variant: RatingStatus }>) {
   const widths = ROUTE_WIDTHS[variant];
+  const columnClasses = cn('flex flex-col', COLUMN_PADDING[variant]);
   return (
-    <div className={`flex flex-col ${COLUMN_PADDING[variant]}`}>
+    <div className={columnClasses}>
       <div className="mb-4 flex items-center gap-2">
         <Skeleton className="h-4 w-32 rounded-none bg-muted/50" />
         <Skeleton className="ml-auto h-4 w-10 rounded-none bg-muted/50" />
       </div>
       <div className="space-y-2">
-        {widths.map((width, item) => (
-          <div className="flex items-center justify-between" key={item}>
-            <Skeleton className={`h-7 ${width} rounded-none`} />
-            <Skeleton className="h-4 w-6 rounded-none" />
-          </div>
-        ))}
+        {widths.map((width, item) => {
+          const rowClasses = cn('h-7 rounded-none', width);
+          return (
+            <div className="flex items-center justify-between" key={item}>
+              <Skeleton className={rowClasses} />
+              <Skeleton className="h-4 w-6 rounded-none" />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -102,11 +108,13 @@ function StatusAccordionSkeleton() {
     <div className="flex h-full flex-col rounded-lg border">
       {[0, 1, 2].map((i) => {
         const isLast = i === 2;
+        const headerClasses = cn(
+          'flex items-center justify-between px-4 py-3',
+          !isLast && 'border-b',
+        );
         return (
           <div className={isLast ? 'flex flex-1 flex-col' : ''} key={i}>
-            <div
-              className={`flex items-center justify-between px-4 py-3 ${!isLast ? 'border-b' : ''}`}
-            >
+            <div className={headerClasses}>
               <div className="flex items-center gap-2">
                 <Skeleton className="size-4 rounded-full" />
                 <Skeleton className="h-4 w-28 rounded-none" />

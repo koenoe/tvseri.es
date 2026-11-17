@@ -1,13 +1,13 @@
 import { memo } from 'react';
 
 import type { GroupedMetricData } from '@/lib/api/utils';
+import { cn } from '@/lib/utils';
 import {
   COLUMN_PADDING,
   DEFAULT_EMPTY_MESSAGES,
   type RatingStatus,
   type StatusConfig,
 } from '@/lib/web-vitals';
-
 import { StatusHeader } from './status-header';
 import { StatusList } from './status-list';
 
@@ -40,12 +40,10 @@ function StatusColumnsComponent({
         const emptyMessage =
           emptyMessages?.[status] ?? DEFAULT_EMPTY_MESSAGES[status];
         const handleViewAll = onViewAll ? () => onViewAll(status) : undefined;
+        const columnClasses = cn('flex flex-col', COLUMN_PADDING[status]);
 
         return (
-          <div
-            className={`flex flex-col ${COLUMN_PADDING[status]}`}
-            key={status}
-          >
+          <div className={columnClasses} key={status}>
             <div className="mb-4 flex items-center justify-between">
               <StatusHeader
                 Icon={config.Icon}

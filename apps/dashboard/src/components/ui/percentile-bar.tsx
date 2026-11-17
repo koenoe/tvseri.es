@@ -7,6 +7,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 import {
   getMetricStatus,
   METRICS_CONFIG,
@@ -119,6 +120,7 @@ function PercentileBarComponent({
 
   const showP75Label = variant === 'normal';
   const markerColor = RATING_COLORS[activeZone].bg;
+  const markerClasses = cn(markerVariants({ variant }), markerColor);
   const visibleZones = zones.filter((zone) => zone.percentage > 0);
   const firstVisibleStatus = visibleZones[0]?.status;
   const lastVisibleStatus = visibleZones.at(-1)?.status;
@@ -135,7 +137,13 @@ function PercentileBarComponent({
             const isLast = zone.status === lastVisibleStatus;
             const bgColor = isActive ? zone.color : getGreyShade(zone.status);
             const hoverClass = HOVER_CLASSES[zone.status];
-            const segmentClassName = `${hoverClass} relative h-full ${isFirst ? 'rounded-l' : ''} ${isLast ? 'rounded-r' : ''} ${bgColor}`;
+            const segmentClassName = cn(
+              hoverClass,
+              'relative h-full',
+              isFirst && 'rounded-l',
+              isLast && 'rounded-r',
+              bgColor,
+            );
             const widthStyle = { width: `${zone.percentage}%` } as const;
 
             return (
@@ -153,7 +161,7 @@ function PercentileBarComponent({
         </div>
 
         {/* P75 marker - vertical line extending above and below the bar */}
-        <div className={`${markerVariants({ variant })} ${markerColor}`} />
+        <div className={markerClasses} />
       </div>
 
       {showP75Label ? (

@@ -116,9 +116,15 @@ const checkAuthAdmin = (): MiddlewareHandler<{ Variables: Variables }> => {
   return async (c, next) => {
     const auth = c.get('auth');
 
-    if (auth?.user?.role !== 'admin') {
+    if (!auth) {
       throw new HTTPException(401, {
-        message: 'Unauthorized',
+        message: 'Authentication required',
+      });
+    }
+    // Signed in, but not an admin: signing in again won't help
+    if (auth.user.role !== 'admin') {
+      throw new HTTPException(403, {
+        message: 'Forbidden',
       });
     }
 

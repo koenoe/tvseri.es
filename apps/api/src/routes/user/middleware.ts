@@ -48,9 +48,12 @@ const checkIsMe = <T extends UserVariables>(): MiddlewareHandler<{
 }> => {
   return async (c, next) => {
     const authData = c.get('auth');
-    const user = c.get('user');
-    if (authData?.user.id !== user.id) {
-      throw new HTTPException(401, { message: 'Unauthorized' });
+    if (!authData) {
+      throw new HTTPException(401, { message: 'Authentication required' });
+    }
+    // Signed in, but as someone else: signing in again won't help
+    if (authData.user.id !== c.get('user').id) {
+      throw new HTTPException(403, { message: 'Forbidden' });
     }
     return next();
   };

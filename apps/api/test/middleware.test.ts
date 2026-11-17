@@ -106,7 +106,7 @@ describe('auth middleware', () => {
           method,
         });
 
-        expect(response.status).toBe(401);
+        expect(response.status).toBe(403);
         expect(db.dump('Watched')).toEqual(before.watched);
         expect(db.dump('Lists')).toEqual(before.lists);
       },

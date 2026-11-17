@@ -121,7 +121,7 @@ export async function shelfData(
     shelfAndPage(start.read, viewer, shelf, search);
   const { profile, value } = await settleGuess(
     start.guess,
-    getProfile(params),
+    getProfile(params, shelf ? `library/${shelf}` : 'library'),
     readAs(start.guess),
     readAs,
   );

@@ -28,6 +28,9 @@ vi.mock('next/navigation', () => ({
   notFound: () => {
     throw new Error('NOT_FOUND');
   },
+  permanentRedirect: (url: string) => {
+    throw new Error(`REDIRECT ${url}`);
+  },
   unauthorized: () => {
     throw new Error('UNAUTHORIZED');
   },
@@ -123,5 +126,18 @@ describe('getProfile (every profile for signed-in users only)', () => {
     displayed = 'juno';
     auth.mockRejectedValue(new Error('down'));
     expect((await getProfile(params('juno'))).viewer).toBe('visitor');
+  });
+
+  it('sends another spelling to the canonical URL from the page’s own hole', async () => {
+    getViewer.mockResolvedValue(viewer('u-alex'));
+    resolveProfileUser.mockResolvedValue({ isOwner: false, user: juno });
+    await expect(
+      getProfile(params('Juno'), 'library/favourites'),
+    ).rejects.toThrow('REDIRECT /u/juno/library/favourites');
+    // the other holes render the profile; the page's redirect wins
+    expect((await getProfile(params('Juno'))).user.username).toBe('juno');
+    await expect(getProfile(params('juno'), '')).resolves.toMatchObject({
+      viewer: 'visitor',
+    });
   });
 });

@@ -1,13 +1,14 @@
 import 'server-only';
 
 import type { User, WatchProvider } from '@tvseri.es/schemas';
+import { toUsernameSlug } from '@tvseri.es/utils';
 
 import { apiFetch } from '@/lib/api/client';
 
-/** The profile owner: what `GET /user/by-username/:username` makes public */
 /** Who is looking at a profile: its owner or anyone else signed in */
 export type ProfileViewer = 'owner' | 'visitor';
 
+/** The profile owner: what `GET /user/by-username/:username` makes public */
 export type ProfileUser = Readonly<{
   id: string;
   username: string;
@@ -70,7 +71,8 @@ export async function lookupUsernameOwner(
  * the CDN's copy: services they just changed show at once, the new name
  * works right after a rename even if the CDN still holds a 404 for it, and
  * the old name is gone for them at once. Only when their account can't be
- * read does their own profile fall back to the shared copy.
+ * read does their own profile fall back to the shared copy. Names compare
+ * as slugs, as the API looks them up, so `/u/Rae` is still rae's own.
  */
 export async function resolveProfileUser(
   username: string,
@@ -82,7 +84,10 @@ export async function resolveProfileUser(
     return { isOwner: false, user: shared };
   }
   const own = await loadOwnUser();
-  const ownProfile = own?.username === username ? toProfileUser(own) : null;
+  const ownProfile =
+    own && toUsernameSlug(own.username) === toUsernameSlug(username)
+      ? toProfileUser(own)
+      : null;
   if (ownProfile) {
     return { isOwner: true, user: ownProfile };
   }

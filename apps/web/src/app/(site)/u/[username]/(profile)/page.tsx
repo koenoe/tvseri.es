@@ -26,7 +26,7 @@ export default function ProfilePage({ params }: Props) {
 }
 
 async function Overview({ params }: Props) {
-  const profile = await getProfile(params);
+  const profile = await getProfile(params, '');
   return profile.viewer === 'owner' ? (
     <OwnerOverview profile={profile} />
   ) : (

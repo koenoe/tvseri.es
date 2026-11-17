@@ -1,7 +1,7 @@
 import 'server-only';
 
 import type { Metadata } from 'next';
-import { notFound, unauthorized } from 'next/navigation';
+import { notFound, permanentRedirect, unauthorized } from 'next/navigation';
 
 import auth from '@/auth';
 import { getViewer } from '@/auth/viewer';
@@ -11,6 +11,7 @@ import {
   type ProfileViewer,
   resolveProfileUser,
 } from '@/lib/profile/user';
+import profilePath, { type ProfileSegment } from '@/lib/routing/profilePath';
 
 import { orNull } from '../_lib/orNull';
 import { looksLikeOwnProfile } from './ownerHint';
@@ -40,8 +41,15 @@ export type ProfileParams = Promise<Readonly<{ username: string }>>;
  * makes too; a failed read keeps the 401. Call it inside a Suspense hole: it
  * reads the session. `getViewer()` and the API GETs are memoised per
  * render, so every hole of a page can call it.
+ *
+ * The page's own hole passes its segment (`at`): another spelling the API
+ * resolves (`/u/Rae`) then goes to the canonical URL, one URL per user as on
+ * Stats. Its query is not carried over.
  */
-export async function getProfile(params: ProfileParams): Promise<Profile> {
+export async function getProfile(
+  params: ProfileParams,
+  at?: ProfileSegment,
+): Promise<Profile> {
   const [{ username }, viewer] = await Promise.all([params, getViewer()]);
   if (!viewer) {
     if ((await loadProfileUser(username).catch(() => undefined)) === null) {
@@ -58,6 +66,9 @@ export async function getProfile(params: ProfileParams): Promise<Profile> {
   const found = await resolveProfileUser(username, viewer.id, loadOwnUser);
   if (!found) {
     notFound();
+  }
+  if (at !== undefined && found.user.username !== username) {
+    permanentRedirect(profilePath(found.user.username, at));
   }
   return {
     accessToken: viewer.accessToken,

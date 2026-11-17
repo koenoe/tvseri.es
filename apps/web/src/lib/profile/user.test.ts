@@ -13,7 +13,10 @@ const { cdn } = vi.hoisted(() => {
     cdn: {
       fetch: (url: string) => {
         const { pathname } = new URL(url);
-        const name = decodeURIComponent(pathname.split('/').pop() ?? '');
+        // the API looks a name up by its slug: any spelling finds the user
+        const name = decodeURIComponent(
+          pathname.split('/').pop() ?? '',
+        ).toLowerCase();
         const copy = kept.get(url) ?? {
           body: JSON.stringify(origin.get(name) ?? { message: 'Not Found' }),
           status: origin.has(name) ? 200 : 404,
@@ -111,6 +114,26 @@ describe('a rename', () => {
     await expect(
       resolveProfileUser('rae', 'u-rae', ownAccount),
     ).resolves.toBeNull();
+  });
+});
+
+describe('another spelling of a name', () => {
+  it('is still the owner’s own profile', async () => {
+    await expect(
+      resolveProfileUser('Rae', 'u-rae', () => Promise.resolve(rae)),
+    ).resolves.toEqual({
+      isOwner: true,
+      user: expect.objectContaining({ username: 'rae' }),
+    });
+  });
+
+  it('is the same user for a visitor', async () => {
+    await expect(
+      resolveProfileUser('RAE', 'u-kit', () => Promise.resolve(null)),
+    ).resolves.toEqual({
+      isOwner: false,
+      user: expect.objectContaining({ username: 'rae' }),
+    });
   });
 });
 

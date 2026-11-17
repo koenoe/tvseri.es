@@ -129,7 +129,7 @@ const firstValue = (value: string | string[] | undefined) =>
 
 async function History({ params, searchParams }: Props) {
   const [profile, search] = await Promise.all([
-    getProfile(params),
+    getProfile(params, 'history'),
     searchParams,
   ]);
   const owner = profile.viewer === 'owner';

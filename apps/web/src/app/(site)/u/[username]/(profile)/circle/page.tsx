@@ -43,7 +43,7 @@ export default function CirclePage({ params }: Props) {
 }
 
 async function Circle({ params }: Props) {
-  const profile = await getProfile(params);
+  const profile = await getProfile(params, 'circle');
   return profile.viewer === 'owner' ? (
     <OwnerPage profile={profile} />
   ) : (

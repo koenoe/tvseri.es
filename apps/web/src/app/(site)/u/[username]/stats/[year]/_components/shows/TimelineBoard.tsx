@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { flushSync } from 'react-dom';
 import ArmedMaxMotion from '@/components/motion/ArmedMaxMotion';
-import { loadMax } from '@/components/motion/useMaxFeatures';
+import { isMaxLoaded, loadMax } from '@/components/motion/useMaxFeatures';
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import SectionHead from '@/components/ui/section/SectionHead';
@@ -104,7 +104,21 @@ export default function TimelineBoard({
       setOrder(next);
     });
   };
-  const sort = <SortSwitch onChange={changeOrder} value={order} />;
+  // Armed on the pointer down or focus before the press, so the rows'
+  // switch to Motion and the re-sort render in two frames, not one
+  const arm = () => {
+    if (armed) {
+      return;
+    }
+    if (isMaxLoaded()) {
+      setArmed(true);
+    } else {
+      void loadMax();
+    }
+  };
+  const sort = (
+    <SortSwitch onChange={changeOrder} onIntent={arm} value={order} />
+  );
   // the overview draws the lines a phone lists before "All 71"
   const overview = shown.filter((row) => row.rank < PHONE_ROWS);
 

@@ -12,6 +12,7 @@ export default function Segmented<T extends number | string>({
   itemClassName,
   label,
   onChange,
+  onIntent,
   options,
   value,
 }: Readonly<{
@@ -19,12 +20,20 @@ export default function Segmented<T extends number | string>({
   itemClassName: string;
   label: string;
   onChange: (value: T) => void;
+  /** A pointer down or focus on the track, before a choice */
+  onIntent?: () => void;
   options: ReadonlyArray<SegmentedOption<T>>;
   value: T;
 }>) {
   const track = cn('gap-0.5 rounded-10 bg-white/6 p-[3px]', className);
   return (
-    <div aria-label={label} className={track} role="radiogroup">
+    <div
+      aria-label={label}
+      className={track}
+      onFocus={onIntent}
+      onPointerDown={onIntent}
+      role="radiogroup"
+    >
       {options.map((option) => {
         const checked = option.value === value;
         const select = () => onChange(option.value);

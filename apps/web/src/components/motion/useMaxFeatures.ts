@@ -28,6 +28,9 @@ export function loadMax(): Promise<MaxFeatures | null> {
   );
 }
 
+/** Whether `domMax` is in already (a sync check for event handlers) */
+export const isMaxLoaded = (): boolean => max.get() !== null;
+
 function subscribe(onChange: () => void) {
   listeners.add(onChange);
   void loadMax();

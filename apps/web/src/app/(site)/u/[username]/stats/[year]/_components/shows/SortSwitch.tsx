@@ -9,9 +9,11 @@ const OPTIONS: ReadonlyArray<SegmentedOption<SortOrder>> = [
 /** "In order watched / Most hours" */
 export default function SortSwitch({
   onChange,
+  onIntent,
   value,
 }: Readonly<{
   onChange: (value: SortOrder) => void;
+  onIntent: () => void;
   value: SortOrder;
 }>) {
   return (
@@ -20,6 +22,7 @@ export default function SortSwitch({
       itemClassName="px-3 py-1 text-body-sm"
       label="Order"
       onChange={onChange}
+      onIntent={onIntent}
       options={OPTIONS}
       value={value}
     />

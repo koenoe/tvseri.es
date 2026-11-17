@@ -2,7 +2,7 @@ import { CACHE_LIFE } from '@tvseri.es/constants';
 
 import statsPath from '@/lib/routing/statsPath';
 
-import { parseStatsYear, type YearState } from '../_lib/year';
+import { parseStatsYear, type YearState } from '@/lib/stats/year';
 import { CARD_THEMES, type CardTheme } from './theme';
 
 /**

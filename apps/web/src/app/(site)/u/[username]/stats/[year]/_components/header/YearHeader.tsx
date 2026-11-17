@@ -1,8 +1,8 @@
 import type { StatsYears } from '@tvseri.es/schemas';
 import { TextLine } from '@/components/ui/ghost/ghosts';
 import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
+import { getStatsClock } from '@/lib/stats/clock';
 import { getYears } from '@/lib/stats/getYears';
-import { getStatsClock } from '../../_data/clock';
 import {
   getDaily,
   getGenres,
@@ -10,11 +10,11 @@ import {
   getSummary,
   getWeekly,
   isUnavailable,
-} from '../../_data/loaders';
+} from '@/lib/stats/loaders';
+import StatsUnavailable from '../../../_components/StatsUnavailable';
 import { type SentencePart, yearSentence } from '../../_lib/sentence';
 import ShareButton from '../share/ShareButton';
 import type { SectionProps } from '../types';
-import StatsUnavailable from '../ui/StatsUnavailable';
 import { longestStreakYet, streakBracket } from './model';
 import WeekChart from './WeekChart';
 

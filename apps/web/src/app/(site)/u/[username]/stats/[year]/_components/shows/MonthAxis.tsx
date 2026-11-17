@@ -1,4 +1,4 @@
-import { monthName, monthStarts } from '../../_lib/weeks';
+import { monthName, monthStarts } from '@/lib/stats/weeks';
 
 /**
  * Desktop: 170px title + 10px padding + 16px gap in, 56px hours + 26px out.

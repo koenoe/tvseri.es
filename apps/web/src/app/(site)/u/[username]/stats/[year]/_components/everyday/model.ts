@@ -1,6 +1,6 @@
 import { dayRangeText } from '@/lib/format/date';
 import { plural } from '@/lib/format/text';
-import { dateMs, dayRange, monthName, shortDay } from '../../_lib/weeks';
+import { dateMs, dayRange, monthName, shortDay } from '@/lib/stats/weeks';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 

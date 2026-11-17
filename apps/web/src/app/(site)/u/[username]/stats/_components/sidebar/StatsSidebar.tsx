@@ -18,8 +18,8 @@ import { plural } from '@/lib/format/text';
 import { formatGrouped } from '@/lib/formatCount';
 import type { ProfileCounts } from '@/lib/profile/counts';
 import profilePath from '@/lib/routing/profilePath';
-import StatsUnavailable from '../../[year]/_components/ui/StatsUnavailable';
-import { isUnavailable, type StatsUser } from '../../[year]/_data/loaders';
+import { isUnavailable, type StatsUser } from '@/lib/stats/loaders';
+import StatsUnavailable from '../StatsUnavailable';
 import { loadStatsHead, type StatsHeadParams } from './head';
 import YearsList from './YearsList';
 

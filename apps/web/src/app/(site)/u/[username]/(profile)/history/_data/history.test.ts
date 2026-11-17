@@ -21,7 +21,7 @@ vi.mock('@/lib/profile/pages', () => ({
 vi.mock('@/lib/stats/timeZone', () => ({
   getStatsTimeZone: (...args: unknown[]) => getStatsTimeZone(...args),
 }));
-vi.mock('@/app/(site)/u/[username]/stats/[year]/_data/loaders', () => ({
+vi.mock('@/lib/stats/loaders', () => ({
   getDaily: (...args: unknown[]) => getDaily(...args),
 }));
 vi.mock('@/lib/stats/getYears', () => ({

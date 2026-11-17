@@ -1,11 +1,11 @@
 import { Ghost, TextLine } from '@/components/ui/ghost/ghosts';
 import cn from '@/lib/cn';
 
-import { getGenres, isUnavailable } from '../../_data/loaders';
+import { getGenres, isUnavailable } from '@/lib/stats/loaders';
+import StatsUnavailable from '../../../_components/StatsUnavailable';
 import type { SectionProps } from '../types';
 import Lane, { LaneGhost } from '../ui/Lane';
 import { ROW_LIFT } from '../ui/rowLift';
-import StatsUnavailable from '../ui/StatsUnavailable';
 import { type GenreRow, genreRows, PHONE_ROWS } from './model';
 
 /**

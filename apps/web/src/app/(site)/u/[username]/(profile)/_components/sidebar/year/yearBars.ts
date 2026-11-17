@@ -9,7 +9,7 @@
 import { yearWeekIndex } from '@tvseri.es/utils';
 import { plural } from '@/lib/format/text';
 import { scaledHeight } from '@/lib/scaledHeight';
-import { weekLabel } from '../../../../stats/[year]/_lib/weeks';
+import { weekLabel } from '@/lib/stats/weeks';
 
 /** The chart is 56px high; an empty week still shows a 4px stub */
 const BAR_AREA = 56;

@@ -2,8 +2,8 @@ import 'server-only';
 
 import { cacheLife } from 'next/cache';
 
-import { weekIndexAt } from '../_lib/weeks';
-import { type YearState, yearState } from '../_lib/year';
+import { weekIndexAt } from './weeks';
+import { type YearState, yearState } from './year';
 
 export type StatsClock = Readonly<{
   state: YearState;

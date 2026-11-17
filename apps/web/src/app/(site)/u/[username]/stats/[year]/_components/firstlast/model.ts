@@ -4,7 +4,7 @@ import { formatDuration } from '@tvseri.es/utils';
 
 import showPath from '@/lib/routing/showPath';
 
-import { shortDay } from '../../_lib/weeks';
+import { shortDay } from '@/lib/stats/weeks';
 
 export type SpotlightCard = Readonly<{
   href: string;

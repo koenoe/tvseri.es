@@ -6,7 +6,7 @@ import type { Fact } from '@/components/ui/accordion/slice';
 import { plural } from '@/lib/format/text';
 import showPath from '@/lib/routing/showPath';
 
-import { monthDay } from '../../_lib/weeks';
+import { monthDay } from '@/lib/stats/weeks';
 
 /** Tiles shown: the first one wide, the rest narrow */
 export const FINISHED_TILES = 6;

@@ -15,9 +15,9 @@ import TileLink from '@/components/ui/tile/TileLink';
 import TitleTreatment from '@/components/ui/title/TitleTreatment';
 import cn from '@/lib/cn';
 
-import { getSpotlight, isUnavailable } from '../../_data/loaders';
+import { getSpotlight, isUnavailable } from '@/lib/stats/loaders';
+import StatsUnavailable from '../../../_components/StatsUnavailable';
 import type { SectionProps } from '../types';
-import StatsUnavailable from '../ui/StatsUnavailable';
 import { type SpotlightCard, spotlightCard } from './model';
 import { FIRST_LAST_TITLE } from './statsTitle';
 

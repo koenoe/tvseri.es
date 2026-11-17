@@ -3,16 +3,15 @@ import { firstMondayOf, formatDuration } from '@tvseri.es/utils';
 
 import { SHORT_MONTHS } from '@/lib/format/months';
 import { plural } from '@/lib/format/text';
-
-import { formatYearHours } from '../../_lib/format';
 import {
   monthDay,
   monthName,
   monthStarts,
   WEEKS,
   weekIndexAt,
-} from '../../_lib/weeks';
-import type { YearState } from '../../_lib/year';
+} from '@/lib/stats/weeks';
+import type { YearState } from '@/lib/stats/year';
+import { formatYearHours } from '../../_lib/format';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 

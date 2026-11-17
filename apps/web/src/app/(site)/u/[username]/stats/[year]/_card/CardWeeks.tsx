@@ -1,5 +1,5 @@
-import { weekLinesSvg } from '../_charts/weekLines';
-import { WEEKS } from '../_lib/weeks';
+import { WEEKS } from '@/lib/stats/weeks';
+import { weekLinesSvg } from '../../_components/weekLines';
 import type { CardStreak } from './cardModel';
 import { labelFont } from './fonts';
 import type { CardLayout } from './layout';

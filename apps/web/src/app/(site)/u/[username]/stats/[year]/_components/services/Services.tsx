@@ -11,10 +11,10 @@ import ServiceIcon, {
 } from '@/components/ui/service/ServiceIcon';
 import cn from '@/lib/cn';
 
-import { getProviders, isUnavailable } from '../../_data/loaders';
+import { getProviders, isUnavailable } from '@/lib/stats/loaders';
+import StatsUnavailable from '../../../_components/StatsUnavailable';
 import type { SectionProps } from '../types';
 import Lane, { LaneGhost } from '../ui/Lane';
-import StatsUnavailable from '../ui/StatsUnavailable';
 import {
   buildServices,
   type ServiceStatus,

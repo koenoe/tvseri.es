@@ -1,8 +1,8 @@
 import type { StatsMetrics, StatsSummary } from '@tvseri.es/schemas';
 import { plural } from '@/lib/format/text';
 import { formatGrouped } from '@/lib/formatCount';
+import type { YearState } from '@/lib/stats/year';
 import { formatStatsRuntime } from './format';
-import type { YearState } from './year';
 
 /** A run of the sentence; `strong` runs are drawn white and 600 */
 export type SentencePart = Readonly<{ text: string; strong?: boolean }>;

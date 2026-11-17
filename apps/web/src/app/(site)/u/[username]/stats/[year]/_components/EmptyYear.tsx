@@ -4,7 +4,7 @@ import Icon from '@/components/ui/icon/Icon';
 import statsPath from '@/lib/routing/statsPath';
 import { getYears } from '@/lib/stats/getYears';
 
-import { isUnavailable } from '../_data/loaders';
+import { isUnavailable } from '@/lib/stats/loaders';
 import type { SectionProps } from './types';
 
 /**

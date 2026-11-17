@@ -1,6 +1,6 @@
 import BarTip, { type BarTipLayout } from '@/components/ui/chart/BarTip';
+import ChartTable from '@/components/ui/chart/ChartTable';
 import cn from '@/lib/cn';
-import ChartTable from '../../../../stats/[year]/_components/ui/ChartTable';
 
 import type { YearBar } from './yearBars';
 

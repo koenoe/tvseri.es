@@ -14,9 +14,7 @@ vi.mock('@/lib/api/client', async (importOriginal) => ({
 }));
 
 const { loadYearSoFar } = await import('./stats');
-const { getSummary } = await import(
-  '@/app/(site)/u/[username]/stats/[year]/_data/loaders'
-);
+const { getSummary } = await import('@/lib/stats/loaders');
 
 beforeEach(() => {
   vi.clearAllMocks();

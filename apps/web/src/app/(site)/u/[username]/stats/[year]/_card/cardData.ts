@@ -10,7 +10,7 @@ import {
   getSummary,
   getWeekly,
   isUnavailable,
-} from '../_data/loaders';
+} from '@/lib/stats/loaders';
 
 import { buildCardModel, byHours, type CardModel } from './cardModel';
 import { exactUser } from './cardUser';

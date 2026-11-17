@@ -6,14 +6,13 @@ import type {
   StatsSummary,
   StatsWeeklyItem,
 } from '@tvseri.es/schemas';
-
+import { isUnavailable, type Unavailable } from '@/lib/cache/unavailable';
 import {
   getGenres,
   getProviders,
   getSummary,
   getWeekly,
-} from '@/app/(site)/u/[username]/stats/[year]/_data/loaders';
-import { isUnavailable, type Unavailable } from '@/lib/cache/unavailable';
+} from '@/lib/stats/loaders';
 
 /** What the sidebar's "{year} so far" needs */
 export type YearSoFarStats = Readonly<{

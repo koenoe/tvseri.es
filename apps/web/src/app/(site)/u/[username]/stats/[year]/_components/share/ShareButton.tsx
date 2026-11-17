@@ -6,7 +6,7 @@ import {
 import { shareGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 
-import type { StatsUser } from '../../_data/loaders';
+import type { StatsUser } from '@/lib/stats/loaders';
 import ShareTrigger from './ShareTrigger';
 import { getShareCard } from './shareInfo';
 

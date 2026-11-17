@@ -1,9 +1,9 @@
 import { type ReactNode, ViewTransition } from 'react';
 import DataDownView from '@/components/ui/error/DataDownView';
 import GuardedSection from '@/components/ui/row/GuardedSection';
-import { getStatsClock } from '../_data/clock';
-import type { StatsUser } from '../_data/loaders';
-import { getSummary, isUnavailable } from '../_data/loaders';
+import { getStatsClock } from '@/lib/stats/clock';
+import type { StatsUser } from '@/lib/stats/loaders';
+import { getSummary, isUnavailable } from '@/lib/stats/loaders';
 import EmptyYear from './EmptyYear';
 import Tiles, { TilesSkeleton } from './header/Tiles';
 import YearGlance from './header/YearGlance';

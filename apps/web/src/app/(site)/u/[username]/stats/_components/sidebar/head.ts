@@ -8,7 +8,7 @@ import {
   isUnavailable,
   type Loaded,
   type StatsUser,
-} from '../../[year]/_data/loaders';
+} from '@/lib/stats/loaders';
 import { loadYearRows, type YearRow } from './years';
 
 /** The layout's params: the sidebar is per user, never per year */

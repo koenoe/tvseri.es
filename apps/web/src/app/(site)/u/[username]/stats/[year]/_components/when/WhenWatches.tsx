@@ -1,15 +1,15 @@
 import BarTip from '@/components/ui/chart/BarTip';
+import ChartTable from '@/components/ui/chart/ChartTable';
 import { Ghost, TextLine } from '@/components/ui/ghost/ghosts';
 import { moonGlyph, sunGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import cn from '@/lib/cn';
 import { plural } from '@/lib/format/text';
-import { getWhen, isUnavailable } from '../../_data/loaders';
+import { getWhen, isUnavailable } from '@/lib/stats/loaders';
+import StatsUnavailable from '../../../_components/StatsUnavailable';
 import type { SectionProps } from '../types';
-import ChartTable from '../ui/ChartTable';
 import Lane, { LaneGhost } from '../ui/Lane';
-import StatsUnavailable from '../ui/StatsUnavailable';
 import {
   barHeightRatio,
   bulkNote,

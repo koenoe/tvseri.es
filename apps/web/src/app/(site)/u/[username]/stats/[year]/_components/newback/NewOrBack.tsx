@@ -11,10 +11,10 @@ import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import cn from '@/lib/cn';
 
-import { getNewOrBack, isUnavailable } from '../../_data/loaders';
+import { getNewOrBack, isUnavailable } from '@/lib/stats/loaders';
+import StatsUnavailable from '../../../_components/StatsUnavailable';
 import type { SectionProps } from '../types';
 import Lane, { LaneGhost } from '../ui/Lane';
-import StatsUnavailable from '../ui/StatsUnavailable';
 import { newBackSummary, type Side, splitLabel } from './model';
 
 /**

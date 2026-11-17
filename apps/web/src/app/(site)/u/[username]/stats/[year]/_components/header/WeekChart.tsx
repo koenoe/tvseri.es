@@ -1,8 +1,8 @@
 import BarTip from '@/components/ui/chart/BarTip';
+import ChartTable from '@/components/ui/chart/ChartTable';
 import { SHORT_MONTHS } from '@/lib/format/months';
-import { weekLinesLayout, weekLinesSvg } from '../../_charts/weekLines';
-import { weekLabel } from '../../_lib/weeks';
-import ChartTable from '../ui/ChartTable';
+import { weekLabel } from '@/lib/stats/weeks';
+import { weekLinesLayout, weekLinesSvg } from '../../../_components/weekLines';
 import { type StreakBracket, weekTitle } from './model';
 import grow from './weekGrow.module.css';
 

@@ -1,4 +1,5 @@
 import type { NextRequest } from 'next/server';
+import { getStatsClock } from '@/lib/stats/clock';
 import {
   CARD_CONTENT_TYPE,
   cardCacheControl,
@@ -7,7 +8,6 @@ import {
 } from '../_card/cardRequest';
 import { isCardUsername } from '../_card/cardUser';
 import { renderCardImage } from '../_card/renderCard';
-import { getStatsClock } from '../_data/clock';
 
 /**
  * `GET /u/{username}/stats/{year}/card?format=story|square&theme=dark|colour`:

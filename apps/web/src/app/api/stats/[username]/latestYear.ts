@@ -1,8 +1,8 @@
 import 'server-only';
 
-import { getStatsUser } from '@/app/(site)/u/[username]/stats/[year]/_data/loaders';
 import { isUnavailable, type Unavailable } from '@/lib/cache/unavailable';
 import { getYears } from '@/lib/stats/getYears';
+import { getStatsUser } from '@/lib/stats/loaders';
 
 /**
  * The newest year a user's Stats page has something to show (a year with

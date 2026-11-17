@@ -1,14 +1,9 @@
 import 'server-only';
 
+import { getStatsClock } from '@/lib/stats/clock';
 import { getYears } from '@/lib/stats/getYears';
-
-import { getStatsClock } from '../../[year]/_data/clock';
-import {
-  getWeekly,
-  isUnavailable,
-  type Loaded,
-} from '../../[year]/_data/loaders';
-import { WEEKS } from '../../[year]/_lib/weeks';
+import { getWeekly, isUnavailable, type Loaded } from '@/lib/stats/loaders';
+import { WEEKS } from '@/lib/stats/weeks';
 import { yearLabel } from './model';
 
 /** One year of the Years submenu: its label, count and weekly sparkline */

@@ -4,11 +4,11 @@ import type {
   StatsSummary,
 } from '@tvseri.es/schemas';
 import { formatGrouped } from '@/lib/formatCount';
+import { WEEKS } from '@/lib/stats/weeks';
 import { joinAnd } from '@/lib/text/fitNames';
 import { streakBracket } from '../_components/header/model';
 import { formatStatsRuntime, formatYearHours } from '../_lib/format';
 import { headline } from '../_lib/sentence';
-import { WEEKS } from '../_lib/weeks';
 
 /**
  * What the share card says, derived from the page's own reads:

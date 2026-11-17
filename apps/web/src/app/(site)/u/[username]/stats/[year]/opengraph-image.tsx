@@ -1,8 +1,8 @@
+import { getStatsClock } from '@/lib/stats/clock';
+import { parseStatsYear } from '@/lib/stats/year';
 import { cardCacheControl, cardYearMessage } from './_card/cardRequest';
 import { isCardUsername } from './_card/cardUser';
 import { renderCardImage } from './_card/renderCard';
-import { getStatsClock } from './_data/clock';
-import { parseStatsYear } from './_lib/year';
 
 /**
  * The page's og:image: the share card laid out at 1200 × 630 (the square's

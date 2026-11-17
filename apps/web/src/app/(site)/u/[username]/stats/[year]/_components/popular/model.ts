@@ -1,4 +1,4 @@
-import type { PopularItem } from '../../_data/loaders';
+import type { PopularItem } from '@/lib/stats/loaders';
 
 /** How many posters sit in a row */
 export const POPULAR_SLOTS = 5;

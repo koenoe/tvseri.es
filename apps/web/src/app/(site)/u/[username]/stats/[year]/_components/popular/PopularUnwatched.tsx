@@ -12,9 +12,9 @@ import {
   getPopular,
   getWatchedSeries,
   isUnavailable,
-} from '../../_data/loaders';
+} from '@/lib/stats/loaders';
+import StatsUnavailable from '../../../_components/StatsUnavailable';
 import type { SectionProps } from '../types';
-import StatsUnavailable from '../ui/StatsUnavailable';
 import AddToWatchlist from './AddToWatchlist';
 import {
   decadePath,

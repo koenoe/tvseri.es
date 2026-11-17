@@ -1,9 +1,9 @@
 import 'server-only';
 
+import type { StatsUser } from '@/lib/stats/loaders';
 import { getCardData } from '../../_card/cardData';
 import { cardDescription } from '../../_card/cardModel';
 import { cardColour } from '../../_card/theme';
-import type { StatsUser } from '../../_data/loaders';
 import type { ShareCard } from './shareCard';
 
 /**

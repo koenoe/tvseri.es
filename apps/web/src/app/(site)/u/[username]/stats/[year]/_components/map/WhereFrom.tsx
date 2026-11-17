@@ -1,10 +1,10 @@
 import { Ghost, TextLine } from '@/components/ui/ghost/ghosts';
 import cn from '@/lib/cn';
-import { getCountries, isUnavailable } from '../../_data/loaders';
+import { getCountries, isUnavailable } from '@/lib/stats/loaders';
+import StatsUnavailable from '../../../_components/StatsUnavailable';
 import type { SectionProps } from '../types';
 import Lane, { LaneGhost } from '../ui/Lane';
 import { ROW_LIFT } from '../ui/rowLift';
-import StatsUnavailable from '../ui/StatsUnavailable';
 import CountryHighlight from './CountryHighlight';
 import { MAP_SIZE, rankCountries } from './model';
 import { worldMapSvg } from './worldMapSvg';

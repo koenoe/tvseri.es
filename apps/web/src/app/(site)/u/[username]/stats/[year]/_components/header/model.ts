@@ -6,12 +6,12 @@ import type {
 import { yearWeekIndex } from '@tvseri.es/utils';
 import { plural } from '@/lib/format/text';
 import { formatGrouped } from '@/lib/formatCount';
+import { dateMs, WEEKS } from '@/lib/stats/weeks';
 import {
   formatAverage,
   formatStatsRuntime,
   percentageDelta,
 } from '../../_lib/format';
-import { dateMs, WEEKS } from '../../_lib/weeks';
 
 export type TileIcon =
   | 'runtime'

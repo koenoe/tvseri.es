@@ -29,11 +29,11 @@ import {
   getWhen,
   isUnavailable,
   type SeriesArt,
-} from '../../_data/loaders';
-import { dateMs, shortDay } from '../../_lib/weeks';
+} from '@/lib/stats/loaders';
+import { dateMs, shortDay } from '@/lib/stats/weeks';
+import StatsUnavailable from '../../../_components/StatsUnavailable';
 import type { SectionProps } from '../types';
 import Lane, { LaneGhost } from '../ui/Lane';
-import StatsUnavailable from '../ui/StatsUnavailable';
 import {
   alsoBigText,
   bingeText,

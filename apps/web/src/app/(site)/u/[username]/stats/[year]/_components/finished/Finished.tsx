@@ -26,10 +26,10 @@ import {
   getSeriesArt,
   isUnavailable,
   type SeriesArt,
-} from '../../_data/loaders';
+} from '@/lib/stats/loaders';
+import StatsUnavailable from '../../../_components/StatsUnavailable';
 import { FINISHED_TITLE } from '../firstlast/statsTitle';
 import type { SectionProps } from '../types';
-import StatsUnavailable from '../ui/StatsUnavailable';
 import {
   FINISHED_TILES,
   type FinishedTile,

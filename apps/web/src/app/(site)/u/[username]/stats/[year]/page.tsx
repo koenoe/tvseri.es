@@ -3,10 +3,9 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import { Suspense, ViewTransition } from 'react';
 
 import statsPath from '@/lib/routing/statsPath';
-
+import { getStatsUser, isUnavailable } from '@/lib/stats/loaders';
+import { LAST_STATS_YEAR, parseStatsYear } from '@/lib/stats/year';
 import StatsBody, { StatsBodySkeleton } from './_components/StatsBody';
-import { getStatsUser, isUnavailable } from './_data/loaders';
-import { LAST_STATS_YEAR, parseStatsYear } from './_lib/year';
 
 /**
  * `/u/{username}/stats/{year}`: the one public

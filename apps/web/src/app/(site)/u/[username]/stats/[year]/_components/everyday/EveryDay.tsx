@@ -5,10 +5,10 @@ import { bingeGlyph, eyeGlyph, moonGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 
-import { getDaily, isUnavailable } from '../../_data/loaders';
+import { getDaily, isUnavailable } from '@/lib/stats/loaders';
+import StatsUnavailable from '../../../_components/StatsUnavailable';
 import type { SectionProps } from '../types';
 import Lane, { LaneGhost } from '../ui/Lane';
-import StatsUnavailable from '../ui/StatsUnavailable';
 import { heatmapSvg } from './heatmap';
 import {
   busiestDayText,

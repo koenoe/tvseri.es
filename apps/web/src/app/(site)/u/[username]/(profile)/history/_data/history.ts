@@ -2,8 +2,6 @@ import 'server-only';
 
 import type { StatsYears } from '@tvseri.es/schemas';
 import { cache } from 'react';
-
-import { getDaily } from '@/app/(site)/u/[username]/stats/[year]/_data/loaders';
 import { apiFetch } from '@/lib/api/client';
 import {
   isUnavailable,
@@ -11,6 +9,7 @@ import {
   type Unavailable,
 } from '@/lib/cache/unavailable';
 import { loadHistoryPage } from '@/lib/profile/pages';
+import { getDaily } from '@/lib/stats/loaders';
 import { getStatsTimeZone } from '@/lib/stats/timeZone';
 
 import {

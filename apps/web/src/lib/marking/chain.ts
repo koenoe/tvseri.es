@@ -5,9 +5,10 @@ import {
 } from '@tvseri.es/schemas';
 import { chunk } from '@tvseri.es/utils';
 
+import type { ActionResult } from '@/lib/actions/result';
+
 import type * as Actions from './actions';
 import { codeOf, parseCode } from './progress';
-import type { ActionResult } from './result';
 import type { ProgressItem } from './server/api';
 import type { EpisodeCode, MarkingOp, WatchRecord } from './types';
 

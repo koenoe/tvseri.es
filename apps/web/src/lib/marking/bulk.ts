@@ -4,7 +4,7 @@ import type {
   BulkLibraryResult,
   LibraryIds,
 } from '@tvseri.es/schemas';
-import type { ActionResult } from './result';
+import type { ActionResult } from '@/lib/actions/result';
 import { withMembership } from './state';
 import type { MarkingStoreApi } from './store';
 import { reportFailure, type ToastInput } from './toasts';

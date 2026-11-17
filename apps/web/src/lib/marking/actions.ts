@@ -21,14 +21,14 @@ import * as v from 'valibot';
 
 import auth, { type Session } from '@/auth';
 import { getViewer, type Viewer } from '@/auth/viewer';
+import { apiFailure } from '@/lib/actions/apiFailure';
+import { type ActionResult, actionError, okResult } from '@/lib/actions/result';
 import { ApiError } from '@/lib/api/client';
 import { resolveRegion } from '@/lib/geo';
 import { loadSeriesForWrite } from '@/lib/series/forWrite';
 import { loadSeason, loadWatchProviders } from '@/lib/series/loaders';
 import { revalidateViewerStats } from '@/lib/stats/revalidateViewerStats';
-
 import { nextEpisode } from './progress';
-import { type ActionResult, actionError, okResult } from './result';
 import {
   addToList,
   deleteScope,
@@ -62,9 +62,13 @@ type MarkNextData = MarkData &
 /** Bulk writes in flight at once ("at most 6 at a time") */
 const BULK_CONCURRENCY = 6;
 
-function failed(error: unknown): ReturnType<typeof actionError> {
+/** An API failure, with what a multi-request write saved before it failed */
+function failed(error: unknown): ActionResult<never> {
   if (error instanceof PartialWriteError) {
     const reason = failed(error.reason);
+    if (reason.ok) {
+      return reason;
+    }
     const saved = error.watched.length > 0 || error.unmarked.length > 0;
     return saved
       ? actionError(reason.error, {
@@ -73,14 +77,7 @@ function failed(error: unknown): ReturnType<typeof actionError> {
         })
       : reason;
   }
-  if (error instanceof ApiError && error.status === 401) {
-    return actionError('unauthenticated');
-  }
-  if (error instanceof ApiError && error.status === 404) {
-    return actionError('not-found');
-  }
-  console.error('[marking]', error);
-  return actionError('failed');
+  return apiFailure('marking', error);
 }
 
 /**

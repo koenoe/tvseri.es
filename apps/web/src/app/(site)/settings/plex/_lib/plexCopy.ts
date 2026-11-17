@@ -1,4 +1,4 @@
-import type { AppsActionError } from '../../_lib/appsResult';
+import type { ActionError } from '@/lib/actions/result';
 import type { PlexState } from '../../_lib/plexState';
 
 /**
@@ -34,11 +34,9 @@ export function whoLine(choice: WhoChoice, hasAccount: boolean): string {
 }
 
 /** What a failed Plex write says (never the API's own text). */
-export const PLEX_ERROR_TEXT: Readonly<Record<AppsActionError, string>> = {
+export const PLEX_ERROR_TEXT: Readonly<Record<ActionError, string>> = {
   failed: 'That didn’t save. Try again.',
   invalid: 'Plex doesn’t allow that right now.',
-  mismatch: 'That doesn’t match.',
-  'not-enabled': 'That isn’t switched on yet.',
   'not-found': 'Plex isn’t connected any more.',
   unauthenticated: 'Sign in again to change this.',
 };

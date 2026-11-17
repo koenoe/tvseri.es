@@ -5,10 +5,11 @@ import { revalidatePath } from 'next/cache';
 import * as v from 'valibot';
 
 import { getViewer } from '@/auth/viewer';
-import { ApiError, apiFetch } from '@/lib/api/client';
+import { apiFailure } from '@/lib/actions/apiFailure';
+import { type ActionResult, actionError, okResult } from '@/lib/actions/result';
+import { apiFetch } from '@/lib/api/client';
 import getBaseUrl from '@/lib/getBaseUrl';
 
-import { type AppsActionResult, appsError, appsOk } from '../_lib/appsResult';
 import { webhookUrl } from './_lib/webhookUrl';
 
 /**
@@ -20,30 +21,17 @@ import { webhookUrl } from './_lib/webhookUrl';
 
 const PROVIDER = { type: 'plex' } as const;
 
-function failed(error: unknown) {
-  if (error instanceof ApiError) {
-    if (error.status === 401) {
-      return appsError('unauthenticated');
-    }
-    if (error.status === 404) {
-      return appsError('not-found');
-    }
-    if (error.status === 400) {
-      return appsError('invalid');
-    }
-  }
-  console.error('[plex]', error instanceof ApiError ? error.status : error);
-  return appsError('failed');
-}
+/** A 400 is a setting the API refuses */
+const STATUSES = { 400: 'invalid' } as const;
 
 /** The nav lines and the card read the same status: refresh every hole. */
 const refresh = () => revalidatePath('/settings', 'layout');
 
 /** Create my Plex URL / New URL: the previous URL stops working. */
-export async function createPlexUrl(): Promise<AppsActionResult> {
+export async function createPlexUrl(): Promise<ActionResult> {
   const viewer = await getViewer();
   if (!viewer) {
-    return appsError('unauthenticated');
+    return actionError('unauthenticated');
   }
   try {
     await apiFetch('/webhook/type/:type', {
@@ -52,24 +40,24 @@ export async function createPlexUrl(): Promise<AppsActionResult> {
       params: PROVIDER,
     });
   } catch (error) {
-    return failed(error);
+    return apiFailure('plex', error, STATUSES);
   }
   refresh();
-  return appsOk(undefined);
+  return okResult(undefined);
 }
 
 /**
  * Pause scrobbling and whose plays count (`onlyAccountId` is the last
  * scrobble's account, or null for everyone; the API refuses any other id).
  */
-export async function updatePlex(input: unknown): Promise<AppsActionResult> {
+export async function updatePlex(input: unknown): Promise<ActionResult> {
   const parsed = v.safeParse(UpdateWebhookSettingsSchema, input);
   if (!parsed.success) {
-    return appsError('invalid');
+    return actionError('invalid');
   }
   const viewer = await getViewer();
   if (!viewer) {
-    return appsError('unauthenticated');
+    return actionError('unauthenticated');
   }
   try {
     await apiFetch('/webhook/type/:type', {
@@ -79,17 +67,17 @@ export async function updatePlex(input: unknown): Promise<AppsActionResult> {
       params: PROVIDER,
     });
   } catch (error) {
-    return failed(error);
+    return apiFailure('plex', error, STATUSES);
   }
   refresh();
-  return appsOk(undefined);
+  return okResult(undefined);
 }
 
 /** Disconnect: the URL stops working; what was marked stays. */
-export async function disconnectPlex(): Promise<AppsActionResult> {
+export async function disconnectPlex(): Promise<ActionResult> {
   const viewer = await getViewer();
   if (!viewer) {
-    return appsError('unauthenticated');
+    return actionError('unauthenticated');
   }
   try {
     await apiFetch('/webhook/type/:type', {
@@ -98,10 +86,10 @@ export async function disconnectPlex(): Promise<AppsActionResult> {
       params: PROVIDER,
     });
   } catch (error) {
-    return failed(error);
+    return apiFailure('plex', error, STATUSES);
   }
   refresh();
-  return appsOk(undefined);
+  return okResult(undefined);
 }
 
 /**
@@ -110,11 +98,11 @@ export async function disconnectPlex(): Promise<AppsActionResult> {
  * Read fresh from the API with the session's token; never logged.
  */
 export async function revealPlexUrl(): Promise<
-  AppsActionResult<Readonly<{ url: string }>>
+  ActionResult<Readonly<{ url: string }>>
 > {
   const viewer = await getViewer();
   if (!viewer) {
-    return appsError('unauthenticated');
+    return actionError('unauthenticated');
   }
   try {
     const { token } = await apiFetch<Readonly<{ token: string | null }>>(
@@ -122,10 +110,10 @@ export async function revealPlexUrl(): Promise<
       { accessToken: viewer.accessToken, params: PROVIDER },
     );
     if (!token) {
-      return appsError('not-found');
+      return actionError('not-found');
     }
-    return appsOk({ url: webhookUrl(getBaseUrl(), 'plex', token) });
+    return okResult({ url: webhookUrl(getBaseUrl(), 'plex', token) });
   } catch (error) {
-    return failed(error);
+    return apiFailure('plex', error, STATUSES);
   }
 }

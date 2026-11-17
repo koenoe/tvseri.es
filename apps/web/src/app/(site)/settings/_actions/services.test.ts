@@ -30,7 +30,10 @@ beforeEach(() => {
 
 describe('updateCountry', () => {
   it('saves the country with the session token', async () => {
-    expect(await updateCountry('NL')).toEqual({ data: undefined, ok: true });
+    expect(await updateCountry('NL')).toMatchObject({
+      data: undefined,
+      ok: true,
+    });
     expect(apiFetch).toHaveBeenCalledWith('/me', {
       accessToken: 'token-rae',
       body: { country: 'NL' },
@@ -59,7 +62,9 @@ describe('updateCountry', () => {
 
 describe('updateWatchProviders', () => {
   it('saves the whole list with the session token', async () => {
-    expect(await updateWatchProviders({ watchProviders: [netflix] })).toEqual({
+    expect(
+      await updateWatchProviders({ watchProviders: [netflix] }),
+    ).toMatchObject({
       data: undefined,
       ok: true,
     });

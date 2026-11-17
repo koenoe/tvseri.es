@@ -4,8 +4,9 @@ import type { LastImport } from '@tvseri.es/schemas';
 import * as v from 'valibot';
 import { fetchMe } from '@/auth/me';
 import { getViewer } from '@/auth/viewer';
-import { ApiError, apiFetch } from '@/lib/api/client';
-import { type ActionResult, actionError, okResult } from '@/lib/marking/result';
+import { apiFailure } from '@/lib/actions/apiFailure';
+import { type ActionResult, actionError, okResult } from '@/lib/actions/result';
+import { apiFetch } from '@/lib/api/client';
 import { revalidateViewerStats } from '@/lib/stats/revalidateViewerStats';
 
 /**
@@ -17,21 +18,8 @@ import { revalidateViewerStats } from '@/lib/stats/revalidateViewerStats';
 /** The API's import ids are UUIDs: anything else fails here, before a call. */
 const ImportIdSchema = v.pipe(v.string(), v.uuid());
 
-function failed(error: unknown) {
-  if (error instanceof ApiError) {
-    if (error.status === 401) {
-      return actionError('unauthenticated');
-    }
-    if (error.status === 409 || error.status === 400) {
-      return actionError('invalid');
-    }
-    if (error.status === 404) {
-      return actionError('not-found');
-    }
-  }
-  console.error('[import]', error);
-  return actionError('failed');
-}
+/** A 409 (not the last import, or already undone) or a 400 is `invalid` */
+const STATUSES = { 400: 'invalid', 409: 'invalid' } as const;
 
 /** `POST /me/imports`: a new import, the user's last one. */
 export async function startImport(): Promise<
@@ -51,7 +39,7 @@ export async function startImport(): Promise<
       importId: created.importId,
     });
   } catch (error) {
-    return failed(error);
+    return apiFailure('import', error, STATUSES);
   }
 }
 
@@ -80,7 +68,7 @@ export async function undoImport(
     revalidateViewerStats(viewer.id);
     return okResult({ requestedAt: Date.now() });
   } catch (error) {
-    return failed(error);
+    return apiFailure('import', error, STATUSES);
   }
 }
 
@@ -105,6 +93,6 @@ export async function importStatus(): Promise<
     }
     return okResult({ lastImport: user.lastImport ?? null });
   } catch (error) {
-    return failed(error);
+    return apiFailure('import', error, STATUSES);
   }
 }

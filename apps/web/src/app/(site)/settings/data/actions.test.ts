@@ -62,7 +62,7 @@ describe('deleteAccount only deletes the signed-in user', () => {
   });
 
   it('sends the session’s token and username, nothing else', async () => {
-    expect(await deleteAccount('  rae ')).toEqual({
+    expect(await deleteAccount('  rae ')).toMatchObject({
       data: undefined,
       ok: true,
     });
@@ -104,7 +104,10 @@ describe('the API’s answers', () => {
 
 describe('deleteAccount and the public pages', () => {
   it('expires the signed-in user’s public pages once the deletion is accepted', async () => {
-    expect(await deleteAccount('rae')).toEqual({ data: undefined, ok: true });
+    expect(await deleteAccount('rae')).toMatchObject({
+      data: undefined,
+      ok: true,
+    });
     expect(expireDeletedUser).toHaveBeenCalledWith('U1', ['rae']);
   });
 

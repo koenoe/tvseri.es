@@ -1,5 +1,5 @@
 import type { EpisodeRef } from '@tvseri.es/schemas';
-
+import type { ActionError } from '@/lib/actions/result';
 import {
   ERROR_MESSAGE,
   markedMessage,
@@ -7,7 +7,6 @@ import {
   USE_RELEASE_DATES,
 } from './copy';
 import { codeOf } from './progress';
-import type { ActionError } from './result';
 import type { EpisodeCode, SeriesBase } from './types';
 import { type WhenChoice, whenLabel } from './when';
 

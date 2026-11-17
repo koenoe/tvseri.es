@@ -1,12 +1,12 @@
 import { plural } from '@/lib/format/text';
-import type { AppsActionError } from '../../_lib/appsResult';
+import type { DeleteAccountError } from '../actions';
 
 /** The dialog's subline, naming the history it deletes. */
 export const deleteDialogText = (episodes: number | null) =>
   `Your history${episodes === null ? '' : ` (${plural(episodes, 'episode')})`}, watchlist, favourites, Plex link and profile are deleted for good. Download your data first if you want a copy.`;
 
 /** What a refused delete says in the dialog, never the API's own text. */
-export function deleteErrorText(error: AppsActionError): string {
+export function deleteErrorText(error: DeleteAccountError): string {
   switch (error) {
     case 'not-enabled':
       return 'Deleting accounts isn’t switched on yet.';

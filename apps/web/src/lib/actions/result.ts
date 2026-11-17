@@ -1,6 +1,9 @@
 /**
- * The result of a marking action. Isomorphic (no server imports), so client
- * code can read it.
+ * What every server action answers: `ok` with its data, or one error word
+ * (never the API's own text). Isomorphic (no server imports), so client code
+ * can read it. An action with errors of its own widens `E`
+ * (`ActionResult<T, ActionError | 'taken'>`); `apiFailure` maps API errors
+ * to these words.
  */
 export type ActionError =
   | 'unauthenticated'
@@ -30,21 +33,28 @@ export type PartialWrite = Readonly<{
 }>;
 
 /**
- * `at`: server time (epoch ms) when the write finished, so a page seed
- * fetched before it never undoes it (`store.seed`).
+ * `at`: server time (epoch ms) when the write finished, so a marking page
+ * seed fetched before it never undoes it (`store.seed`). `partial`: what a
+ * failed marking write did save.
  */
-export type ActionResult<T = undefined> = Readonly<
+export type ActionResult<
+  T = undefined,
+  E extends string = ActionError,
+> = Readonly<
   | { ok: true; data: T; at?: number }
-  | { ok: false; error: ActionError; partial?: PartialWrite; at?: number }
+  | { ok: false; error: E; partial?: PartialWrite; at?: number }
 >;
 
-export const okResult = <T>(data: T): ActionResult<T> => ({
+export const okResult = <T>(data: T): ActionResult<T, never> => ({
   at: Date.now(),
   data,
   ok: true,
 });
 
-export const actionError = (error: ActionError, partial?: PartialWrite) =>
+export const actionError = <E extends string>(
+  error: E,
+  partial?: PartialWrite,
+) =>
   partial
     ? ({ at: Date.now(), error, ok: false, partial } as const)
     : ({ error, ok: false } as const);

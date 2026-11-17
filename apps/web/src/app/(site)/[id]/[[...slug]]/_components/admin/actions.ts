@@ -10,9 +10,9 @@ import { updateTag } from 'next/cache';
 import * as v from 'valibot';
 
 import { getViewer } from '@/auth/viewer';
+import { type ActionResult, actionError, okResult } from '@/lib/actions/result';
 import { apiFetch } from '@/lib/api/client';
 import { isUnavailable } from '@/lib/cache/unavailable';
-import { type ActionResult, actionError, okResult } from '@/lib/marking/result';
 import { loadSeries } from '@/lib/series/loaders';
 
 import { loadBackdropColour, loadSeriesImages } from './loaders';

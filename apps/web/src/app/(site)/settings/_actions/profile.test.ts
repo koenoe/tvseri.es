@@ -41,7 +41,7 @@ describe('updateProfile', () => {
 
     const result = await updateProfile({ name: 'Rae F', username: 'rae' });
 
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       data: { name: 'Rae F', username: 'rae' },
       ok: true,
     });
@@ -198,7 +198,7 @@ describe('checkUsername', () => {
   it('is available when the lookup finds nobody', async () => {
     vi.mocked(apiFetch).mockResolvedValue(null);
 
-    expect(await checkUsername('rae-fox')).toEqual({
+    expect(await checkUsername('rae-fox')).toMatchObject({
       data: 'available',
       ok: true,
     });
@@ -213,10 +213,16 @@ describe('checkUsername', () => {
 
   it('is taken when somebody else has it, available when it is the viewer', async () => {
     vi.mocked(apiFetch).mockResolvedValueOnce({ id: 'u-margaux' });
-    expect(await checkUsername('margaux')).toEqual({ data: 'taken', ok: true });
+    expect(await checkUsername('margaux')).toMatchObject({
+      data: 'taken',
+      ok: true,
+    });
 
     vi.mocked(apiFetch).mockResolvedValueOnce({ id: 'u-rae' });
-    expect(await checkUsername('rae')).toEqual({ data: 'available', ok: true });
+    expect(await checkUsername('rae')).toMatchObject({
+      data: 'available',
+      ok: true,
+    });
   });
 
   it('refuses a username the rule would reject, and signed-out callers', async () => {

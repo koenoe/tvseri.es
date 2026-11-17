@@ -7,11 +7,23 @@ import * as v from 'valibot';
 import auth from '@/auth';
 import { setUserDisplayCookie } from '@/auth/sessionCookies';
 import { getViewer } from '@/auth/viewer';
+import { apiFailure } from '@/lib/actions/apiFailure';
+import {
+  type ActionError,
+  type ActionResult,
+  actionError,
+  okResult,
+} from '@/lib/actions/result';
 import { apiFetch } from '@/lib/api/client';
 import { lookupUsernameOwner } from '@/lib/profile/user';
 import { revalidateUser } from '@/lib/stats/revalidateUser';
-import { failure } from './failure';
-import { done, fail, type SettingsActionResult } from './result';
+
+/** A taken username (the API's 409) is `taken` */
+type ProfileResult<T> = ActionResult<T, ActionError | 'taken'>;
+
+const TAKEN = {
+  409: { code: 'UsernameAlreadyTaken', error: 'taken' },
+} as const;
 
 const ProfileInputSchema = v.object({
   name: v.pipe(v.string(), v.maxLength(128)),
@@ -26,19 +38,19 @@ const ProfileInputSchema = v.object({
  */
 export async function checkUsername(
   username: string,
-): Promise<SettingsActionResult<'available' | 'taken'>> {
+): Promise<ProfileResult<'available' | 'taken'>> {
   if (!v.is(UsernameSchema, username)) {
-    return fail('invalid');
+    return actionError('invalid');
   }
   const viewer = await getViewer();
   if (!viewer) {
-    return fail('unauthenticated');
+    return actionError('unauthenticated');
   }
   try {
     const owner = await lookupUsernameOwner(username);
-    return done(owner && owner !== viewer.id ? 'taken' : 'available');
+    return okResult(owner && owner !== viewer.id ? 'taken' : 'available');
   } catch (error) {
-    return failure(error);
+    return apiFailure('settings', error, TAKEN);
   }
 }
 
@@ -50,21 +62,21 @@ export async function checkUsername(
  */
 export async function updateProfile(
   input: Readonly<{ name: string; username: string }>,
-): Promise<SettingsActionResult<Readonly<{ name: string; username: string }>>> {
+): Promise<ProfileResult<Readonly<{ name: string; username: string }>>> {
   const parsed = v.safeParse(ProfileInputSchema, input);
   if (!parsed.success) {
-    return fail('invalid');
+    return actionError('invalid');
   }
   const { accessToken, user } = await auth();
   if (!user || !accessToken) {
-    return fail('unauthenticated');
+    return actionError('unauthenticated');
   }
 
   const { name, username } = parsed.output;
   const nameChanged = name !== (user.name ?? '');
   const usernameChanged = username !== user.username;
   if (!nameChanged && !usernameChanged) {
-    return done({ name, username });
+    return okResult({ name, username });
   }
 
   const body = v.safeParse(UpdateUserSchema, {
@@ -72,13 +84,13 @@ export async function updateProfile(
     ...(usernameChanged && { username }),
   });
   if (!body.success) {
-    return fail('invalid');
+    return actionError('invalid');
   }
 
   try {
     await apiFetch('/me', { accessToken, body: body.output, method: 'PUT' });
   } catch (error) {
-    return failure(error);
+    return apiFailure('settings', error, TAKEN);
   }
 
   if (usernameChanged) {
@@ -88,5 +100,5 @@ export async function updateProfile(
     revalidateUser(user.id, [user.username, username]);
   }
   revalidatePath('/settings', 'layout');
-  return done({ name, username });
+  return okResult({ name, username });
 }

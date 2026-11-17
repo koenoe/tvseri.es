@@ -1,7 +1,7 @@
 import type { UpdateSeriesPrefs } from '@tvseri.es/schemas';
 import * as v from 'valibot';
 
-import type { ActionResult } from '@/lib/marking/result';
+import type { ActionResult } from '@/lib/actions/result';
 
 /**
  * "Still watching?" (Paused): Keep or Hide, written as the per-show pref

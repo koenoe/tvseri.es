@@ -121,7 +121,7 @@ describe('revealPlexUrl', () => {
     vi.stubEnv('NODE_ENV', 'production');
     apiFetch.mockResolvedValue({ token: 'a1b2c3d4e5f6a1b2c3d4e5f6' });
     const log = vi.spyOn(console, 'error').mockImplementation(() => {});
-    expect(await revealPlexUrl()).toEqual({
+    expect(await revealPlexUrl()).toMatchObject({
       data: {
         url: 'https://www.example.com/api/webhooks/scrobble/plex?token=a1b2c3d4e5f6a1b2c3d4e5f6',
       },

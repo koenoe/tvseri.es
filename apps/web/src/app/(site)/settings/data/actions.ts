@@ -4,9 +4,28 @@ import { DeleteAccountSchema } from '@tvseri.es/schemas';
 import * as v from 'valibot';
 
 import auth from '@/auth';
-import { ApiError, apiFetch } from '@/lib/api/client';
+import { apiFailure } from '@/lib/actions/apiFailure';
+import {
+  type ActionError,
+  type ActionResult,
+  actionError,
+  okResult,
+} from '@/lib/actions/result';
+import { apiFetch } from '@/lib/api/client';
 import { expireDeletedUser } from '@/lib/stats/revalidateUser';
-import { type AppsActionResult, appsError, appsOk } from '../_lib/appsResult';
+
+/**
+ * `not-enabled`: the API's 403 (deleting accounts is switched off until the
+ * owner turns it on); `mismatch`: a typed username that isn't the signed-in
+ * user's (or the API's 400 for it). A 404 is a plain failure here.
+ */
+export type DeleteAccountError = ActionError | 'mismatch' | 'not-enabled';
+
+const STATUSES = {
+  400: 'mismatch',
+  403: 'not-enabled',
+  404: 'failed',
+} as const;
 
 /**
  * Delete account. It only ever deletes the signed-in user: the one
@@ -22,17 +41,17 @@ import { type AppsActionResult, appsError, appsOk } from '../_lib/appsResult';
  */
 export async function deleteAccount(
   confirm: string,
-): Promise<AppsActionResult> {
+): Promise<ActionResult<undefined, DeleteAccountError>> {
   const { accessToken, user } = await auth();
   if (!accessToken || !user) {
-    return appsError('unauthenticated');
+    return actionError('unauthenticated');
   }
   const parsed = v.safeParse(DeleteAccountSchema, { confirm });
   if (!parsed.success) {
-    return appsError('invalid');
+    return actionError('invalid');
   }
   if (parsed.output.confirm.trim() !== user.username) {
-    return appsError('mismatch');
+    return actionError('mismatch');
   }
 
   try {
@@ -42,25 +61,10 @@ export async function deleteAccount(
       method: 'DELETE',
     });
   } catch (error) {
-    if (error instanceof ApiError) {
-      if (error.status === 403) {
-        return appsError('not-enabled');
-      }
-      if (error.status === 400) {
-        return appsError('mismatch');
-      }
-      if (error.status === 401) {
-        return appsError('unauthenticated');
-      }
-    }
-    console.error(
-      '[deleteAccount]',
-      error instanceof ApiError ? error.status : error,
-    );
-    return appsError('failed');
+    return apiFailure('deleteAccount', error, STATUSES);
   }
   // The profile and stats pages go with the account, without re-rendering
   // this page: the "Account deleted" state stays until the person leaves.
   expireDeletedUser(user.id, [user.username]);
-  return appsOk(undefined);
+  return okResult(undefined);
 }

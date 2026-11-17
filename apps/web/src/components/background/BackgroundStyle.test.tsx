@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 
 import BackgroundStyle from './BackgroundStyle';
+import { PAGE_COLOUR_LIVE } from './pageColor';
 
 const render = (color: string) =>
   renderToStaticMarkup(<BackgroundStyle color={color} />);
@@ -23,6 +24,15 @@ describe('BackgroundStyle', () => {
     const html = render(color);
     expect(html).toContain(':root { --main-background-color: #1c2223; }');
     expect(html).not.toContain(color);
+  });
+
+  it('also hoists the colour into <head> for the document until the page takes over', () => {
+    const html = render('#2B3A4C');
+    // React 19 hoists a <style> with `href` and `precedence` into <head>
+    expect(html).toContain('data-precedence="page-colour"');
+    expect(html).toContain(
+      `html:not([${PAGE_COLOUR_LIVE}]) { --main-background-color: #2b3a4c; }`,
+    );
   });
 
   it('renders no inline script', () => {

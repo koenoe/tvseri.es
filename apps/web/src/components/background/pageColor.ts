@@ -3,6 +3,14 @@ import { hexChannels, type Rgb } from '@/lib/color';
 /** The ground (`--color-ground`): the page colour when a page sets none. */
 export const DEFAULT_PAGE_COLOR = '#1c2223';
 
+/**
+ * Set on `<html>` once a page's `BackgroundProvider` holds the colour (its
+ * layout effect sets the variable inline): from then on the copy of the
+ * server colour that `BackgroundStyle` hoists into `<head>` never applies
+ * again, and Activity, Back and other pages are the provider's alone.
+ */
+export const PAGE_COLOUR_LIVE = 'data-page-colour-live';
+
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 
 const linear = (value: number) => {

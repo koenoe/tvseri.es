@@ -16,6 +16,7 @@ import getHistoryKey from '@/lib/navigation/getHistoryKey';
 import isBackNavigation from '@/lib/navigation/isBackNavigation';
 
 import { restoreBackground, saveBackground } from './cache';
+import { PAGE_COLOUR_LIVE } from './pageColor';
 import { type BackgroundStore, createBackgroundStore } from './store';
 
 type BackgroundStoreApi = ReturnType<typeof createBackgroundStore>;
@@ -108,6 +109,8 @@ export function BackgroundProvider({
       styleTag.media = '';
     }
     setCssVariable(store.getState().backgroundColor);
+    // the head copy of the server colour has done its job (BackgroundStyle)
+    document.documentElement.setAttribute(PAGE_COLOUR_LIVE, '');
 
     // Later changes (carousel slides, the admin picker)
     const unsubscribe = store.subscribe((state) =>

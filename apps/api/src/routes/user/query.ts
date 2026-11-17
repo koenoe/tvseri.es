@@ -43,14 +43,9 @@ export const ListQuerySchema = v.pipe(
   ),
 );
 
-/** `?view=progress|track` on a series' watched episodes */
-export const WatchedSeriesQuerySchema = v.object({
+/** `?view=progress|track` on a series' watched episodes and the marks' answers */
+export const WatchedViewQuerySchema = v.object({
   view: v.optional(v.picklist(['progress', 'track'])),
-});
-
-/** `?view=progress` on the mark routes' responses */
-export const MarkQuerySchema = v.object({
-  view: v.optional(v.picklist(['progress'])),
 });
 
 /** `?include=watching` reads two small items per row: the Circle pages are 24 */

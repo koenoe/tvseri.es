@@ -125,10 +125,19 @@ export const WatchedEpisodeEntrySchema = v.object({
   watchProvider: v.optional(v.nullable(WatchProviderSchema)),
 });
 
+/**
+ * An import's id as a request names it: the API mints a UUID per import
+ * (`POST /me/imports`), so anything else is refused before it is looked up.
+ */
+export const ImportIdSchema = v.pipe(v.string(), v.uuid());
+
 export const CreateWatchedItemBatchSchema = v.pipe(
   v.array(
     v.object({
       ...WatchedEpisodeEntrySchema.entries,
+      // Undo of an unmark puts an imported episode back in its import; the
+      // API keeps it only for the caller's open last import
+      importId: v.optional(ImportIdSchema),
       userId: boundedString(64),
     }),
   ),

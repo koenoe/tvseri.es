@@ -46,12 +46,12 @@ import {
   markWatched,
   markWatchedInBatch,
   PROGRESS_ATTRIBUTES,
-  toWatchedProgressItem,
   unmarkSeasonWatched,
   unmarkTvSeriesWatched,
   unmarkWatched,
   unmarkWatchedInBatch,
 } from '@/lib/db/watched';
+import { isImportOpen } from '@/lib/imports';
 import { readWatchingNowMany } from '@/lib/library';
 import { withListFacts } from '@/lib/listFacts';
 import { syncListsForMark } from '@/lib/listSync';
@@ -82,8 +82,7 @@ import {
   FollowListQuerySchema,
   HistoryQuerySchema,
   ListQuerySchema,
-  MarkQuerySchema,
-  WatchedSeriesQuerySchema,
+  WatchedViewQuerySchema,
 } from './query';
 import stats from './stats';
 
@@ -152,11 +151,16 @@ const series = (): MiddlewareHandler<{ Variables: Variables }> => {
   };
 };
 
-/** `?view=progress`: only season, episode, runtime and watchedAt per item */
-const isProgressView = (c: Context) => c.req.query('view') === 'progress';
-
-const markWatchedResponse = (c: Context, items: ReadonlyArray<WatchedItem>) =>
-  c.json(isProgressView(c) ? items.map(toWatchedProgressItem) : items, 201);
+/** A mark's answer: the written items, or only a view's fields of them */
+const markWatchedResponse = (
+  c: Context,
+  items: ReadonlyArray<WatchedItem>,
+  view: keyof typeof VIEW_ATTRIBUTES | undefined,
+) =>
+  c.json(
+    view ? items.map((item) => pick(item, VIEW_ATTRIBUTES[view])) : items,
+    201,
+  );
 
 const validateBatchWatchedItemsOwnership = (
   items: CreateWatchedItemBatch | DeleteWatchedItemBatch,
@@ -256,9 +260,11 @@ app.get('/:id/watched/runtime', user(), async (c) => {
   return c.json({ runtime });
 });
 
-/** `?view=track`: what the /track page reads per watched episode */
+/** `?view=track`: what the /track page and the marking store read per watched episode */
 const TRACK_ATTRIBUTES = [
   ...PROGRESS_ATTRIBUTES,
+  // Undo of an unmark puts an imported episode back in its import
+  'importId',
   'watchProviderLogoPath',
   'watchProviderName',
 ] as const;
@@ -278,7 +284,7 @@ app.get(
   user(),
   requireAuth(),
   vValidator('param', MarkSeriesParamSchema),
-  vValidator('query', WatchedSeriesQuerySchema),
+  vValidator('query', WatchedViewQuerySchema),
   async (c) => {
     const user = c.get('user');
     const { view } = c.req.valid('query');
@@ -299,7 +305,7 @@ app.post(
   user(),
   requireIsMe(),
   vValidator('param', MarkSeriesParamSchema),
-  vValidator('query', MarkQuerySchema),
+  vValidator('query', WatchedViewQuerySchema),
   vValidator('json', CreateWatchedItemSchema),
   async (c) => {
     const body = c.req.valid('json');
@@ -323,7 +329,7 @@ app.post(
     await clearSkipped(watchedItems);
     await syncListsForMark(user.id, [tvSeries.id], tvSeries);
 
-    return markWatchedResponse(c, watchedItems);
+    return markWatchedResponse(c, watchedItems, c.req.valid('query').view);
   },
 );
 
@@ -332,7 +338,7 @@ app.post(
   user(),
   requireIsMe(),
   vValidator('param', MarkSeasonParamSchema),
-  vValidator('query', MarkQuerySchema),
+  vValidator('query', WatchedViewQuerySchema),
   vValidator('json', CreateWatchedItemSchema),
   async (c) => {
     const body = c.req.valid('json');
@@ -359,7 +365,7 @@ app.post(
     await clearSkipped(watchedItems);
     await syncListsForMark(user.id, [tvSeries.id], tvSeries);
 
-    return markWatchedResponse(c, watchedItems);
+    return markWatchedResponse(c, watchedItems, c.req.valid('query').view);
   },
 );
 
@@ -368,7 +374,7 @@ app.post(
   user(),
   requireIsMe(),
   vValidator('param', MarkEpisodeParamSchema),
-  vValidator('query', MarkQuerySchema),
+  vValidator('query', WatchedViewQuerySchema),
   vValidator('json', CreateWatchedItemSchema),
   async (c) => {
     const body = c.req.valid('json');
@@ -406,7 +412,7 @@ app.post(
     await clearSkipped([watchedItem]);
     await syncListsForMark(user.id, [tvSeries.id], tvSeries);
 
-    return markWatchedResponse(c, [watchedItem]);
+    return markWatchedResponse(c, [watchedItem], c.req.valid('query').view);
   },
 );
 
@@ -511,7 +517,14 @@ app.post(
 
     validateBatchWatchedItemsOwnership(body, user.id);
 
-    const watchedItems = await markWatchedInBatch(body);
+    // An episode Undo puts back rejoins its import only while that import
+    // can still be undone: otherwise it is restored as an ordinary mark
+    const items = body.map(({ importId, ...item }) =>
+      importId && isImportOpen(user.lastImport, importId)
+        ? { ...item, importId }
+        : item,
+    );
+    const watchedItems = await markWatchedInBatch(items);
     await clearSkipped(watchedItems);
     await syncListsForMark(
       user.id,

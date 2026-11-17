@@ -177,6 +177,37 @@ describe('per-show prefs', () => {
     expect(await prefs()).toMatchObject({ skipped: ['S01E03'] });
   });
 
+  it('a season mark answers in the track view with its service', async () => {
+    setup();
+    const response = await request(
+      `/user/${USER_ID}/watched/series/${SHOW}/season/1?view=track`,
+      {
+        as: USER_ID,
+        body: {
+          watchProvider: {
+            id: 8,
+            logo: '',
+            logoPath: '/n.jpg',
+            name: 'Netflix',
+          },
+        },
+        method: 'POST',
+      },
+    );
+    expect(response.status).toBe(201);
+    const items = (await response.json()) as Array<Record<string, unknown>>;
+    expect(items).toHaveLength(3);
+    expect(Object.keys(items[0]!).sort()).toEqual([
+      'episodeNumber',
+      'runtime',
+      'seasonNumber',
+      'watchProviderLogoPath',
+      'watchProviderName',
+      'watchedAt',
+    ]);
+    expect(items[0]).toMatchObject({ watchProviderName: 'Netflix' });
+  });
+
   it('marking the whole show clears every skip', async () => {
     setup();
     await patch({ skip: ['S01E02', 'S02E03'] });

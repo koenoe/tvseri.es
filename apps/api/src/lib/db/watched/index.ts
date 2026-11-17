@@ -19,7 +19,6 @@ import {
   buildLogoImageUrl,
   buildPosterImageUrl,
   buildStillImageUrl,
-  pick,
 } from '@tvseri.es/utils';
 import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
@@ -77,14 +76,6 @@ export const PROGRESS_ATTRIBUTES = [
   'seasonNumber',
   'watchedAt',
 ] as const satisfies ReadonlyArray<keyof WatchedItem>;
-
-type WatchedProgressItem = Readonly<
-  Pick<WatchedItem, (typeof PROGRESS_ATTRIBUTES)[number]>
->;
-
-export const toWatchedProgressItem = (
-  item: WatchedProgressItem,
-): WatchedProgressItem => pick(item, PROGRESS_ATTRIBUTES);
 
 /**
  * A ProjectionExpression (with attribute name placeholders, so reserved words

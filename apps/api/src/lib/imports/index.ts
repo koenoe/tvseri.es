@@ -49,16 +49,21 @@ export const startImport = async (userId: string): Promise<LastImport> => {
   return lastImport;
 };
 
-/** 409 unless `importId` is the user's last import and it isn't being undone */
+/** Whether `importId` is the user's last import and it isn't being undone */
+export const isImportOpen = (
+  lastImport: LastImport | undefined,
+  importId: string,
+) =>
+  lastImport?.importId === importId &&
+  !lastImport.undoRequestedAt &&
+  !lastImport.undoneAt;
+
+/** 409 unless the import is open (`isImportOpen`) */
 export const assertImportOpen = (
   lastImport: LastImport | undefined,
   importId: string,
 ) => {
-  if (
-    lastImport?.importId !== importId ||
-    lastImport.undoRequestedAt ||
-    lastImport.undoneAt
-  ) {
+  if (!isImportOpen(lastImport, importId)) {
     throw new HTTPException(409, {
       message: 'This import is no longer open',
     });

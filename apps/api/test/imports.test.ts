@@ -237,6 +237,97 @@ describe('undo import', () => {
   });
 });
 
+describe('Undo of an unmark puts an imported episode back in its import', () => {
+  const unmark = (episode: number) =>
+    request(`/user/${USER_ID}/watched/batch/delete`, {
+      as: USER_ID,
+      body: [
+        {
+          episodeNumber: episode,
+          seasonNumber: 1,
+          tvSeries: row(1, episode).tvSeries,
+          userId: USER_ID,
+        },
+      ],
+      method: 'POST',
+    });
+  const restore = (episode: number, importId: string) =>
+    request(`/user/${USER_ID}/watched/batch`, {
+      as: USER_ID,
+      body: [{ ...row(1, episode), importId, userId: USER_ID }],
+      method: 'POST',
+    });
+  const importIds = () =>
+    db
+      .dump('Watched')
+      .map((item) => [item.episodeNumber, item.importId ?? null] as const)
+      .sort(([a], [b]) => Number(a) - Number(b));
+
+  it('keeps the import id, so Undo import still removes it', async () => {
+    seedUser();
+    const importId = await startImport();
+    await request(`/me/imports/${importId}/batch`, {
+      as: USER_ID,
+      body: [row(1, 1), row(1, 2)],
+      method: 'POST',
+    });
+    expect((await unmark(2)).status).toBe(201);
+    expect((await restore(2, importId)).status).toBe(201);
+    expect(importIds()).toEqual([
+      [1, importId],
+      [2, importId],
+    ]);
+
+    await request(`/me/imports/${importId}`, {
+      as: USER_ID,
+      method: 'DELETE',
+    });
+    await runUndoQueue();
+    expect(await episodes()).toEqual([]);
+  });
+
+  it('the track view carries the import id the store keeps for Undo', async () => {
+    seedUser();
+    const importId = await startImport();
+    await request(`/me/imports/${importId}/batch`, {
+      as: USER_ID,
+      body: [row(1, 1)],
+      method: 'POST',
+    });
+    const response = await request(
+      `/user/${USER_ID}/watched/series/${SHOW}?view=track`,
+      { as: USER_ID },
+    );
+    expect(await response.json()).toEqual([
+      expect.objectContaining({ episodeNumber: 1, importId }),
+    ]);
+  });
+
+  it('drops an import id that is not the open last import', async () => {
+    seedUser();
+    const first = await startImport();
+    await startImport();
+    expect((await restore(1, first)).status).toBe(201);
+    // Never an import of this user
+    expect((await restore(2, crypto.randomUUID())).status).toBe(201);
+    expect(importIds()).toEqual([
+      [1, null],
+      [2, null],
+    ]);
+  });
+
+  it('drops the import id once the import is being undone', async () => {
+    seedUser();
+    const importId = await startImport();
+    await request(`/me/imports/${importId}`, {
+      as: USER_ID,
+      method: 'DELETE',
+    });
+    expect((await restore(1, importId)).status).toBe(201);
+    expect(importIds()).toEqual([[1, null]]);
+  });
+});
+
 describe('import and skipped marks', () => {
   const prefsOf = async (userId: string) => {
     const response = await request(`/me/series/${SHOW}/prefs`, { as: userId });

@@ -1,3 +1,4 @@
+import { PLEX_WATCH_PROVIDER } from '@tvseri.es/constants';
 import {
   type Episode,
   episodeCode,
@@ -6,7 +7,6 @@ import {
   type ScrobbleEvent,
   type TmdbExternalSource,
   type TvSeries,
-  type WatchProvider,
 } from '@tvseri.es/schemas';
 import type { SQSBatchResponse, SQSEvent, SQSRecord } from 'aws-lambda';
 import * as v from 'valibot';
@@ -73,13 +73,6 @@ const processScrobble = async (record: SQSRecord) => {
     );
     return;
   }
-
-  const watchProvider = {
-    id: 0,
-    logo: '',
-    logoPath: '/vLZKlXUNDcZR7ilvfY9Wr9k80FZ.jpg',
-    name: 'Plex',
-  } as WatchProvider;
 
   const metadata = normalizePlexMetadata(plex.output);
 
@@ -169,7 +162,7 @@ const processScrobble = async (record: SQSRecord) => {
     // When the scrobble was queued, not processed: retries, duplicate
     // deliveries and DLQ redrives keep the real date (and stay idempotent)
     watchedAt: Number(record.attributes.SentTimestamp),
-    watchProvider,
+    watchProvider: PLEX_WATCH_PROVIDER,
   });
   await clearSkipped([watchedItem]);
 

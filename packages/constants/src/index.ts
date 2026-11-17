@@ -43,6 +43,7 @@ export { CATCHING_UP_MIN } from './overview';
 export { PAGE_COLOR_VERSION } from './pageColor';
 export {
   PLEX_SCROBBLE_EVENT,
+  PLEX_WATCH_PROVIDER,
   SCROBBLE_PROVIDERS,
   SCROBBLE_WEBHOOK_PATH_SOURCE,
   type ScrobbleProvider,

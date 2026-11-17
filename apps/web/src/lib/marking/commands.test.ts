@@ -642,6 +642,29 @@ describe('a write that fails part-way', () => {
   });
 });
 
+describe('I’m up to when the mark fails', () => {
+  it('leaves the later episodes watched: no unmark without the mark', async () => {
+    const t = setup({
+      watched: [
+        { episodeNumber: 1, seasonNumber: 3, watchedAt: 1000 },
+        { episodeNumber: 8, seasonNumber: 3, watchedAt: 1000 },
+      ],
+    });
+    t.actions.markEpisodes.mockImplementationOnce(
+      () => Promise.resolve({ error: 'failed', ok: false }) as never,
+    );
+    t.commands.markUpTo(
+      SERIES,
+      { episodeNumber: 4, seasonNumber: 3 },
+      { kind: 'now' },
+    );
+    await flush();
+    await flush();
+    expect(t.actions.unmarkEpisodes).not.toHaveBeenCalled();
+    expect(Object.keys(t.view().watched).sort()).toEqual(['S03E01', 'S03E08']);
+  });
+});
+
 describe('runs for one show never interleave', () => {
   it('a second run waits for the first run’s requests', async () => {
     const t = setup();

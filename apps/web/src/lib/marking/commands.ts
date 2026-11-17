@@ -712,10 +712,12 @@ export function createMarkingCommands(deps: MarkingDeps) {
         const what = `up to ${episodeCode(ref)}`;
         return {
           send: async () => {
-            if (refs.length > 0) {
-              await mark(seriesId, refs, toMarkWhen(choice, deps.now()));
-            }
-            if (later.length > 0) {
+            // A failed (or part-saved) mark must not still remove the later
+            // episodes: the viewer would lose progress for a press that failed
+            const marked =
+              refs.length === 0 ||
+              (await mark(seriesId, refs, toMarkWhen(choice, deps.now())));
+            if (marked && later.length > 0) {
               await unmark(seriesId, later);
             }
           },

@@ -1,16 +1,22 @@
+type DistributionConfig = Readonly<{ Enabled?: boolean }>;
+
+export type CloudFrontDeps<Config extends DistributionConfig> = Readonly<{
+  listDistributionIds: () => Promise<ReadonlyArray<string>>;
+  getConfig: (
+    id: string,
+  ) => Promise<Readonly<{ config: Config; etag: string }>>;
+  updateConfig: (id: string, config: Config, etag: string) => Promise<unknown>;
+}>;
+
 /**
  * Disables every CloudFront distribution in the account; already disabled
  * ones are skipped. Each is tried even when another fails, then any failure
  * is thrown (so the invocation errors and Lambda's async retries run again;
  * the skip makes a retry safe).
- *
- * @param {{
- *   listDistributionIds: () => Promise<string[]>,
- *   getConfig: (id: string) => Promise<{ config: { Enabled?: boolean }, etag: string }>,
- *   updateConfig: (id: string, config: Record<string, unknown>, etag: string) => Promise<void>,
- * }} deps
  */
-export const disableAll = async (deps) => {
+export const disableAll = async <Config extends DistributionConfig>(
+  deps: CloudFrontDeps<Config>,
+) => {
   const ids = await deps.listDistributionIds();
   const results = await Promise.allSettled(
     ids.map(async (id) => {
@@ -23,7 +29,7 @@ export const disableAll = async (deps) => {
       console.log(`Disabled distribution ${id}`);
     }),
   );
-  const failed = ids.filter((_, i) => results[i].status === 'rejected');
+  const failed = ids.filter((_, i) => results[i]?.status === 'rejected');
   if (failed.length > 0) {
     throw new AggregateError(
       results.flatMap((result) =>

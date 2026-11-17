@@ -6,7 +6,7 @@ import {
   UpdateDistributionCommand,
 } from '@aws-sdk/client-cloudfront';
 
-import { disableAll } from './disableAll.mjs';
+import { disableAll } from './disableAll';
 
 const cloudFrontClient = new CloudFrontClient();
 
@@ -18,13 +18,16 @@ export async function handler() {
         const response = await cloudFrontClient.send(
           new GetDistributionConfigCommand({ Id: id }),
         );
+        if (!response.DistributionConfig || !response.ETag) {
+          throw new Error(`No config for distribution ${id}`);
+        }
         return { config: response.DistributionConfig, etag: response.ETag };
       },
       listDistributionIds: async () =>
         (
           (await cloudFrontClient.send(new ListDistributionsCommand({})))
             .DistributionList?.Items ?? []
-        ).map((item) => item.Id),
+        ).flatMap(({ Id }) => (Id ? [Id] : [])),
       updateConfig: (id, config, etag) =>
         cloudFrontClient.send(
           new UpdateDistributionCommand({

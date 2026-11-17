@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { disableAll } from './disableAll.mjs';
+import { disableAll } from './disableAll';
 
 type Config = { Enabled: boolean; Comment: string };
 

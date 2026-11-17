@@ -1,12 +1,8 @@
 {
   "compilerOptions": {
-    "allowJs": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "noEmit": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "noEmit": true
   },
   "exclude": ["node_modules"],
   "extends": "@tvseri.es/typescript-config/base.json",

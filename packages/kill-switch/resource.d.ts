@@ -1,5 +1,6 @@
-// BudgetAlertSNS is only created outside `sst dev` (see sst.config.ts), so a
-// locally regenerated sst-env.d.ts drops it. Declare it here so types stay stable.
+// BudgetAlertSNS exists in production only (sst.config.ts), so an
+// sst-env.d.ts generated for any other stage drops it. Declared here so the
+// types don't depend on the stage they were generated for.
 import 'sst';
 
 declare module 'sst' {

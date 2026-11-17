@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "$schema": "https://unpkg.com/knip@6/schema.json",
   "exclude": ["duplicates"],
   "ignore": [".claude/**"],
   "ignoreExportsUsedInFile": {
@@ -31,7 +31,7 @@
     },
     "packages/kill-switch": {
       "entry": [
-        "disable-cloudfront-distributions/index.mjs!",
+        "disable-cloudfront-distributions/index.ts!",
         "metrics-monitor/index.ts!"
       ]
     },

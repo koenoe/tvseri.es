@@ -54,7 +54,7 @@ const GridChipMemo = memo(GridChip);
 GridChipMemo.displayName = 'GridChip';
 
 /**
- * One season's `.mk-chip` grid and its paint gesture: a tap is a click (`onTap`); a drag paints a
+ * One season's episode chip grid and its paint gesture: a tap is a click (`onTap`); a drag paints a
  * consecutive run, the first chip deciding, and the release applies it per
  * mode (`onCommit`). Touch starts a run with a 350ms press or a sideways
  * 6px move; vertical moves scroll. Chip boxes are measured once per drag,

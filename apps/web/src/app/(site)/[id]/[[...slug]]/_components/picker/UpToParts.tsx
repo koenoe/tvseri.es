@@ -22,7 +22,7 @@ const DOT: Readonly<Record<SetState, string>> = {
   w: 'bg-white',
 };
 
-/** Season tabs with a dot each: none / partly / complete (`.ut-tabs`). */
+/** Season tabs with a dot each: none / partly / complete. */
 export const UpToTabs = memo(function UpToTabs({
   onPick,
   seasons,
@@ -77,7 +77,7 @@ function overlayOf(
   return unmarks.has(code) ? 'struck' : undefined;
 }
 
-/** The season's chips: target ringed, to-mark lit, to-unmark struck (`.ut-grid`). */
+/** The season's chips: target ringed, to-mark lit, to-unmark struck. */
 export const UpToChips = memo(function UpToChips({
   chips,
   onPick,
@@ -123,7 +123,7 @@ export const UpToChips = memo(function UpToChips({
   );
 });
 
-/** Just now · On release dates · I don't remember (New) (`.ut-kinds`). */
+/** Just now · On release dates · I don't remember (New). */
 export const UpToKinds = memo(function UpToKinds({
   kind,
   onPick,

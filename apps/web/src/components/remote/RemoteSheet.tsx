@@ -10,7 +10,7 @@ import SheetHandle from '@/components/ui/dialog/SheetHandle';
 const SHEET =
   'w-full self-end bg-white rounded-t-16 px-gutter pt-2 pb-8.5 shadow-[0_-20px_40px_-12px_rgb(0_0_0/0.5)]!';
 
-/** `.rk-dim`: the page colour at 40% (the tile's ink when it has one). */
+/** The dim: the page colour at 40% (the tile's ink when it has one). */
 const DIM =
   'bg-[color-mix(in_srgb,var(--remote-ink,var(--color-page))_40%,transparent)]';
 

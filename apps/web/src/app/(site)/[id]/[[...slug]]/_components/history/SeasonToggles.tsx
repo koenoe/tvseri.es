@@ -6,14 +6,13 @@ import SheetToggle from './SheetToggle';
 
 /**
  * The phone "Season" chip as it renders: plain and outlined, white
- * text, no progress fill (its `.mk-part` gradient has no share set, so it
- * draws none) and no eye; `aria-pressed` carries complete.
+ * text, no progress fill and no eye; `aria-pressed` carries complete.
  */
 const PHONE = 'bg-transparent text-white sm:hidden';
 
 /**
- * Mark season / Unmark season: the `.sx-tg.sm` pill on desktop, the
- * `.mk-chip` "Season" chip on phones. One rule: marks what's
+ * Mark season / Unmark season: a small pill on desktop, a "Season" chip on
+ * phones. One rule: marks what's
  * open Just now, unmarks all when complete.
  */
 export default function SeasonToggles({

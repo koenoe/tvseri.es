@@ -9,7 +9,7 @@ import JumpList from './JumpList';
 
 type Week = Readonly<{ episodes: number; last: string | null }>;
 
-/** The phone month header's Jump (`.chip`, 30px) */
+/** The phone month header's Jump (30px) */
 export function JumpButton({ onOpen }: Readonly<{ onOpen: () => void }>) {
   return (
     <button

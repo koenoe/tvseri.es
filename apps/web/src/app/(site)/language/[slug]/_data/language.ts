@@ -73,8 +73,7 @@ export function toTitleCard(
 /**
  * The card's two lines in a script, each with its HTML `lang`: the title,
  * and the other title below (the English one, or the original in English),
- * even when they read the same ("Monster" under "Monster" in Rōmaji),
- * so every card has the same shape. `code` is the landing's language (TMDB's code).
+ * even when they read the same ("Monster" under "Monster" in Rōmaji). `code` is the landing's language (TMDB's code).
  */
 export function cardTitles(
   card: Pick<TitleCard, 'titles'>,

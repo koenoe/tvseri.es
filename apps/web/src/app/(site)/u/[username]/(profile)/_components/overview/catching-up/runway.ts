@@ -40,7 +40,7 @@ const chipWidth = (label: string) => Math.max(46, 20 + label.length * 7.5);
 const CHIP_GAP = 6;
 /** "+N" sits beside the chips' group, 8px off */
 const MORE_GAP = 8;
-/** `.pr-run`: 8px either side of the 2px tick */
+/** 8px either side of the 2px tick */
 const TICK_WIDTH = 8 + 2 + 8;
 
 /**

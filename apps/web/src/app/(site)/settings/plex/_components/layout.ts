@@ -14,7 +14,7 @@ export const APP_BODY_CLASS = 'flex flex-col gap-4 px-6 pb-6';
 export const URL_FIELD_CLASS =
   'flex h-12 items-center gap-2 rounded-12 bg-black/32 pr-2 pl-4 text-body-sm text-white/60';
 
-/** Pause scrobbling and Whose plays count (`PlexOptions`, `.sg-opts2`) */
+/** Pause scrobbling and Whose plays count (`PlexOptions`) */
 export const OPTIONS_CLASS = 'flex flex-col gap-4 border-white/7 border-y py-4';
 export const OPTION_ROW_CLASS =
   'flex items-center gap-4 max-md:flex-wrap max-md:gap-y-3';

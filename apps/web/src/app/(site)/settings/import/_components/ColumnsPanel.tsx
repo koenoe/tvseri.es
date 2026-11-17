@@ -28,7 +28,7 @@ const SELECT_STYLE = {
   backgroundSize: '16px',
 } as const;
 
-/** `.sg-sel` at 36px; 16px text on phones (no zoom on focus) */
+/** 36px; 16px text on phones (no zoom on focus) */
 const SELECT =
   'h-9 w-full min-w-0 cursor-pointer appearance-none rounded-8 bg-[#141819] pr-8 pl-3 text-meta leading-5 text-white shadow-[inset_0_0_0_1px_rgb(255_255_255/0.14)] max-md:text-body';
 

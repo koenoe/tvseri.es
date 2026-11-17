@@ -10,7 +10,7 @@ import { formatGrouped } from '@/lib/formatCount';
 import type { MonthKey, JumpYear as Year } from '@/lib/profile/diary';
 import JumpMonthLink from './JumpMonthLink';
 
-/** A year in Jump to (`.rl-y`) and, open, its months */
+/** A year in Jump to and, open, its months */
 export default function JumpYear({
   active,
   animate,

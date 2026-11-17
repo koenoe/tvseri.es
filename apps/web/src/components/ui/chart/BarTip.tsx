@@ -10,7 +10,7 @@ const TIP =
   'pointer-events-none absolute bottom-[calc(100%+8px)] hidden flex-col items-center gap-0.5 whitespace-nowrap rounded-8 bg-[rgba(15,20,20,0.94)] px-2.5 py-1.5 text-caption text-white/60 shadow-[0_8px_20px_-6px_rgba(0,0,0,0.7),inset_0_0_0_1px_rgba(255,255,255,0.08)] group-hover/bar:flex group-focus-visible/bar:flex';
 
 /**
- * The dark tooltip over a bar (`.st-tip`): shown while its `group/bar`
+ * The dark tooltip over a bar: shown while its `group/bar`
  * parent is hovered or keyboard-focused. CSS only; the parent carries the
  * `aria-label` (the tip is hidden from assistive tech).
  *

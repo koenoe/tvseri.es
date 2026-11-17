@@ -11,7 +11,7 @@ import type { RemoteSection } from './types';
 
 /**
  * The Admin row: a rule, the shield, the overline title and the note on
- * the right (`.rk-adm`), then its keys in equal columns.
+ * the right, then its keys in equal columns.
  */
 export default function ExtraSection({
   section,

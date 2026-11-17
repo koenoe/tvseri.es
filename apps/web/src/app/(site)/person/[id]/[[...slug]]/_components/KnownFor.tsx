@@ -13,7 +13,7 @@ import { loadKnownFor } from '../_data/loaders';
 import type { KnownForTile } from '../_lib/knownFor';
 import { PERSON_SECTION, PERSON_SNAP_ROW } from './layout';
 
-/** Desktop: five across (`.ra-kf`); phones: a snap row of 128px posters */
+/** Desktop: five across; phones: a snap row of 128px posters */
 const ROW = cn(PERSON_SNAP_ROW, 'lg:grid-cols-5 lg:gap-5');
 const TILE =
   'group flex w-32 shrink-0 snap-start flex-col gap-2 lg:w-auto lg:min-w-0 lg:gap-2.5';

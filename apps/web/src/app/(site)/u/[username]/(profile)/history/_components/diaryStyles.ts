@@ -7,11 +7,11 @@
 /** A month: 20px between months (`section + section`) */
 export const DIARY_MONTH = 'flex flex-col [&+&]:mt-5';
 
-/** `.mhd`: title, rule, line (and the phone's Jump) */
+/** Title, rule, line (and the phone's Jump) */
 export const DIARY_MONTH_HEADER =
   'flex items-center gap-3.5 py-3 max-md:flex-wrap max-md:gap-x-2.5 max-md:gap-y-0.5 max-md:py-2.5';
 
-/** `.day`: the weekday and day column (the phone's 44px, 10px gap), then the rows */
+/** The weekday and day column (the phone's 44px, 10px gap), then the rows */
 export const DIARY_DAY =
   'grid grid-cols-[72px_minmax(0,1fr)] gap-4 border-t border-white/6 py-3.5 max-md:grid-cols-[44px_minmax(0,1fr)] max-md:gap-2.5 max-md:py-3';
 
@@ -35,7 +35,7 @@ export const DIARY_DAY =
 export const DIARY_DAY_SKIPPED =
   '[content-visibility:auto] [contain-intrinsic-size:auto_calc(var(--rows)*122px_-_10px)] max-md:[contain-intrinsic-size:auto_calc(var(--rows)*94px_-_10px)]';
 
-/** `.ents`: 10px between a day's rows */
+/** 10px between a day's rows */
 export const DIARY_ROWS = 'flex min-w-0 flex-col gap-2.5';
 
 /** The card's corners (the placeholder's ghost card shares them) */

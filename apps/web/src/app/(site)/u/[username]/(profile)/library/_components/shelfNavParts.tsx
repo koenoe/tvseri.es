@@ -12,7 +12,7 @@ export function ShelvesHeading() {
   );
 }
 
-/** The 1px rule before All shows (`.shdiv`) */
+/** The 1px rule before All shows */
 export function NavRule() {
   return <span aria-hidden="true" className="mx-3 my-1.5 h-px bg-white/8" />;
 }

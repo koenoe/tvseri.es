@@ -828,7 +828,7 @@ export function createMarkingCommands(deps: MarkingDeps) {
     },
 
     /**
-     * The date picker (`.dp`) for one episode or a set: a When answer marks
+     * The date picker for one episode or a set: a When answer marks
      * (or re-dates) them all, Skipped makes them all skipped (watched ones
      * are unmarked first), Not watched clears them. `what` names them in the
      * toast ("S03E05 Children", "Season 3", "S03E06–S03E09").

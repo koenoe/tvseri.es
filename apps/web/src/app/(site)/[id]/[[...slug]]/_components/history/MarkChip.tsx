@@ -5,20 +5,20 @@ import cn from '@/lib/cn';
 import type { ChipState } from './chips';
 
 /**
- * The `.mk-chip.mk-sm` look (overrides): one
+ * The small chip look (overrides): one
  * class list per state so no fill fights another. `extra` is a drag or
  * "I'm up to…" overlay that replaces the state's fill and edge.
  */
 export type ChipOverlay =
-  /** in a mark run (`.sc-run`) */
+  /** in a mark run */
   | 'run'
-  /** in an unmark run (`.sc-run.sc-un`) */
+  /** in an unmark run */
   | 'unrun'
-  /** "I'm up to…" target (`.ut-tg`) */
+  /** "I'm up to…" target */
   | 'target'
-  /** will be marked (`.ut-pv`) */
+  /** will be marked */
   | 'preview'
-  /** will be unmarked (`.ut-un`) */
+  /** will be unmarked */
   | 'struck';
 
 const BASE =

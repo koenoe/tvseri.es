@@ -11,7 +11,7 @@ const dayOffset = (date: Date | number, days: number) => {
 };
 
 /**
- * The date picker's answers (`.dp`): When (Just now, Yesterday, Last weekend,
+ * The date picker's answers: When (Just now, Yesterday, Last weekend,
  * On release day), Without a day (I don't remember, Skipped, Not watched) or a
  * picked day. `skip` and `unmark` aren't dates: `useMarking().setWhen` turns
  * them into a skip or an unmark.

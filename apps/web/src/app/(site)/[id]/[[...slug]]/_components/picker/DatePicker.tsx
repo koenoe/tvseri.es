@@ -23,7 +23,7 @@ const handleOpenChange = (open: boolean) => {
 type Shown = Readonly<{ request: PickerRequest; now: number }>;
 
 /**
- * The date picker (`.dp`): "When did you watch E05?" with When, Without a
+ * The date picker: "When did you watch E05?" with When, Without a
  * day and the month grid; a choice applies at once through
  * `useMarking().setWhen` (Undo lives in the toast), so there is no footer.
  * Keeps the last request while it animates out.

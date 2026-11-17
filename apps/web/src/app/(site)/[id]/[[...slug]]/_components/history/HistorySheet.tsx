@@ -27,7 +27,7 @@ const preloadDialogs = () => {
 const isNeverAsking = (view: SeriesBase | undefined) =>
   view?.prefs?.neverAskBefore === true;
 
-/** "Not asking about earlier episodes of The Bear · Ask again" (`.h1-off`). */
+/** "Not asking about earlier episodes of The Bear · Ask again". */
 function NeverAskNote() {
   const show = useShow();
   const neverAsking = useSeriesAnswer(show.id, isNeverAsking);

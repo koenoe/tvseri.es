@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import cn from '@/lib/cn';
 
 /**
- * The one 4px progress line (`.up-tr`) and its parts: the ground, the aired
+ * The one 4px progress line and its parts: the ground, the aired
  * stretch (white/30), the watched fill (white) and a tick where airing stops.
  * Positions are percentages, 0 to 100. Each place composes the parts it
  * draws; the two common compositions are `ProgressTrack` and

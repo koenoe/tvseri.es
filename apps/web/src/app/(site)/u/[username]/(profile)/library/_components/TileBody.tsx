@@ -13,7 +13,7 @@ import { useTileContext } from './tileContext';
 const FACT = 'inline-flex min-w-0 max-w-full items-center gap-1.5';
 const FACT_AT_END = `${FACT} ml-auto`;
 
-/** The tile's title and its one meta line (`.tx`) */
+/** The tile's title and its one meta line */
 export function TileText({ tile }: Readonly<{ tile: TileView }>) {
   return (
     <span className="flex min-w-0 flex-col gap-1">

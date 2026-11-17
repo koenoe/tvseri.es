@@ -329,7 +329,7 @@ test('I’m up to… previews what it would change before anything is written', 
   await expect(
     upTo.getByRole('button', { name: 'Pick an episode' }),
   ).toBeDisabled();
-  // picking an episode is the preview (touch has no hover): the plan and
+  // picking an episode is the preview: the plan and
   // the button say what will change; closing without confirming writes nothing
   await upTo.getByRole('button', { name: /^Up to S01E03 / }).click();
   await expect(

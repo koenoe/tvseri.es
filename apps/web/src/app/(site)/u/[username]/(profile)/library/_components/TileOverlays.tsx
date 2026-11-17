@@ -26,7 +26,7 @@ import { useLibrarySelect } from '@/lib/marking/hooks';
 import { useWatchlistAdd } from '../../_components/blocks/WatchlistAdd';
 import { RELATION_LABEL, type Relation, relationOf } from '../../_lib/relation';
 
-/** Watching: the 4px line on the poster (`.pl`): aired dimmed, watched white */
+/** Watching: the 4px line on the poster: aired dimmed, watched white */
 export function ProgressLine({
   aired,
   watched,
@@ -50,7 +50,7 @@ export function ProgressLine({
   );
 }
 
-/** Favourites: the heart on the poster (`.fav`) */
+/** Favourites: the heart on the poster */
 export function HeartBadge() {
   return (
     <span className="absolute top-2 left-2 z-2 flex size-[26px] items-center justify-center rounded-full bg-[rgb(15_20_20/0.6)] text-white">
@@ -59,7 +59,7 @@ export function HeartBadge() {
   );
 }
 
-/** Select mode's circle (`.ck`): ringed, white with a check when picked */
+/** Select mode's circle: ringed, white with a check when picked */
 export function CheckCircle({ picked }: Readonly<{ picked: boolean }>) {
   const circleClass = cn(
     'absolute top-2 left-2 z-3 flex size-[26px] items-center justify-center rounded-full',
@@ -104,7 +104,7 @@ const PILL_TONE: Readonly<Record<Relation, string>> = {
   watchlist: 'bg-[rgb(15_20_20/0.75)] text-white/85',
 };
 
-/** The + on a show new to the visitor (`.tadd`): saves it to THEIR watchlist; a check while it is there */
+/** The + on a show new to the visitor: saves it to THEIR watchlist; a check while it is there */
 export function AddToMine({
   id,
   title,
@@ -133,7 +133,7 @@ export function AddToMine({
 
 /**
  * A visitor's tile: one relation pill at the poster's
- * foot (`.rel`), and + on a show new to them. Drawn once the viewer's
+ * foot, and + on a show new to them. Drawn once the viewer's
  * library is known.
  */
 export function VisitorOverlay({

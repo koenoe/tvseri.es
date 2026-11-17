@@ -16,7 +16,7 @@ const SHOWN = { opacity: 1, y: 0 } as const;
 const TRANSITION = { duration: 0.2, ease: [0.2, 0.8, 0.2, 1] } as const;
 
 /**
- * An open row's episodes (`.spr`): code, title, runtime, each opening its
+ * An open row's episodes: code, title, runtime, each opening its
  * episode. They fade in from 8px up (200ms) when the
  * month's Motion is live; without it (`domMax` still loading, or failed)
  * they appear at once instead of sitting at their hidden start.

@@ -3,8 +3,7 @@ import { episodeCode, shortCode } from '@tvseri.es/schemas';
 import type { EpisodeRef } from './types';
 
 /**
- * The marking toast vocabulary, as the show page writes it (`sxMsg`,
- * `sxRunMsg`): one line, "Marked Season 2 · Just now".
+ * The marking toast vocabulary: one line, "Marked Season 2 · Just now".
  */
 
 /** "E06–E09" (or one "E06"): a run inside one season */

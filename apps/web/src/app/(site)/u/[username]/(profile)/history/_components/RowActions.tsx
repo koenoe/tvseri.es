@@ -1,7 +1,7 @@
 import NewToYouTag from '../../_components/blocks/NewToYouTag';
 
 /**
- * "New to you" after the show's name (`.rel.new`, once per show); the
+ * "New to you" after the show's name (once per show); the
  * sparkle alone on a phone, where the row leaves the words no room
  */
 export function RowNewTag() {

@@ -65,7 +65,7 @@ const FORMATTERS = {
 };
 
 /**
- * "Or pick a day" (`.dp-r`): the month grid from react-day-picker, weeks
+ * "Or pick a day": the month grid from react-day-picker, weeks
  * from Monday, other months' days faded (no next month's on phones),
  * future days disabled, today ringed, the current day white. A tap applies.
  */

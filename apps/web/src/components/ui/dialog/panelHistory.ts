@@ -1,6 +1,6 @@
 /**
  * Back closes an open side panel (the menu, the awards sheet and the
- * watch-history sheet alike), as phone users expect. A panel
+ * watch-history sheet alike). A panel
  * without a URL of its own holds one history entry while it is open: opening
  * pushes it (same URL, so nothing renders), Back pops it and closes the
  * panel, Forward doesn't reopen it, and a close by ✕, Escape or the dim goes

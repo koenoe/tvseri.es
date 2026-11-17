@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority';
 
 /**
- * The tray controls (`.ad-btn`, `.ad-q`, `.ad-st`, `.ad-t1-b`): 10px
+ * The tray controls: 10px
  * corners and the tray's own fills, which the app's pill buttons don't draw.
  */
 export const trayButton = cva(

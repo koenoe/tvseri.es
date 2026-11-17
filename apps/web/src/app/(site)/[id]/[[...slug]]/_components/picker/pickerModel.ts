@@ -12,7 +12,7 @@ import { lastWeekend, type WhenChoice } from '@/lib/marking/when';
 import type { PickerRequest } from '../../_lib/dialogs';
 
 /**
- * The date picker's copy and options (`.dp`): the
+ * The date picker's copy and options: the
  * title and subline, When (with each date), Without a day and which one is
  * the current answer. Pure: `now` and the episode's title/air date come in.
  */

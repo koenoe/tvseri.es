@@ -1,4 +1,4 @@
-/** Above Jump to in the sidebar (`.shv-h`): what the numbers count */
+/** Above Jump to in the sidebar: what the numbers count */
 export default function JumpHeading() {
   return (
     <div className="mb-3 flex items-center justify-between">

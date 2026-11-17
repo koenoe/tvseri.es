@@ -39,7 +39,7 @@ export function StillFade() {
 }
 
 /**
- * Production's faded episode number in the corner (`.ep-tnum`), cut by the
+ * Production's faded episode number in the corner, cut by the
  * tile's edge. Its overhang scales with the type (200px from md, 120px on
  * phones at 3/5 of it), so a phone's "1" isn't half gone.
  */
@@ -66,7 +66,7 @@ export function EpisodeMeta({ episode }: Readonly<{ episode: ShowEpisode }>) {
 }
 
 /**
- * The whole tile is the target that opens the episode modal (`.ep-hit`);
+ * The whole tile is the target that opens the episode modal;
  * the pill sits above it.
  */
 export function OpenEpisodeHit({

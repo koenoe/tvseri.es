@@ -6,7 +6,7 @@ import cn from '@/lib/cn';
 import IconDisc from './IconDisc';
 
 /**
- * A block that has nothing to show (`.es-empty`): one
+ * A block that has nothing to show: one
  * icon, one calm line, an optional second line. The block itself stays,
  * with a hollow dot. `action`: the block's one quiet action at the end
  * (From your circle's Find people); under the text on a

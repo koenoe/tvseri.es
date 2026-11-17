@@ -16,7 +16,7 @@ import { fontsSettled, pageSettled, phoneScrollbars } from './helpers/viewport';
  */
 
 const WIDTHS = [390, 800, 1440, 1728] as const;
-/** The overview also at a small phone (below the 390 most layouts assume), both profiles */
+/** The overview also at a small phone, both profiles */
 const OVERVIEW_WIDTHS = [360, ...WIDTHS] as const;
 
 const CASES: ReadonlyArray<

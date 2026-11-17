@@ -63,7 +63,7 @@ function useDebounced(value: string, onChange: (value: string) => void) {
 }
 
 /**
- * "Find in Watchlist" (`.fld`): a title prefix, 150 ms after the last key;
+ * "Find in Watchlist": a title prefix, 150 ms after the last key;
  * Escape clears it
  */
 function FindField({

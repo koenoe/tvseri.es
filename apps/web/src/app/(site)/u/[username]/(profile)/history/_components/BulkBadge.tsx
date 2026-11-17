@@ -2,7 +2,7 @@ import { infoGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 
 /**
- * `.bulk`: several episodes marked at one moment (a whole season at once).
+ * Several episodes marked at one moment (a whole season at once).
  * Not on a phone, where the code line keeps its room for the toggle.
  */
 export default function BulkBadge() {

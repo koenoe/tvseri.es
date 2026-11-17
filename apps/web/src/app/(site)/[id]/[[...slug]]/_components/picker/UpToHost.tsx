@@ -14,7 +14,7 @@ export function preloadUpTo() {
 }
 
 /**
- * "I'm up to…" (`.ut`) for `useDialogs`' up-to request: from the
+ * "I'm up to…" for `useDialogs`' up-to request: from the
  * season line (Enter), the sheet's Up to here and the first-tracking prompt.
  * Loads when it first opens, then stays mounted so closing plays the exit.
  */

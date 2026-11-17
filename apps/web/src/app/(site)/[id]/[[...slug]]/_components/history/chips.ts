@@ -4,7 +4,7 @@ import { episodeState, parseCode } from '@/lib/marking/progress';
 import type { EpisodeRef, SeriesBase } from '@/lib/marking/types';
 
 /**
- * The `.mk` chip states: not watched (''), watched (`w`),
+ * The episode chip states: not watched (''), watched (`w`),
  * "I don't remember" (`nd`), Next up (`nx`), skipped (`sk`) and not aired yet
  * (`na`, drawn disabled).
  */

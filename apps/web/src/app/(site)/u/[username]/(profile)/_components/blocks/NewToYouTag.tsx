@@ -13,7 +13,7 @@ const VARIANT: Readonly<Record<Variant, string>> = {
   art: cn(GLASS, 'h-5 gap-1 pr-[7px] pl-1.5 text-[12px] font-medium leading-5'),
   // The hero: a 32px pill that sits left of the + (`right-14`)
   hero: cn(GLASS, 'h-8 gap-1.5 pr-3 pl-[11px] text-caption font-medium'),
-  // plain `.nty`: in a line of text or a row, on its own flat tint
+  // plain: in a line of text or a row, on its own flat tint
   inline:
     'h-5 gap-[5px] bg-[rgb(143_220_90/0.13)] pr-2 pl-[7px] text-[12px] font-medium leading-5',
 };

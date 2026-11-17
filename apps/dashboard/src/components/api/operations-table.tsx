@@ -31,7 +31,8 @@ import {
 import {
   formatErrorRate,
   formatLatency,
-  getLatencyStatus,
+  getErrorRateColor,
+  getLatencyColor,
 } from '@/lib/api-metrics';
 import { STATUS_COLORS } from '@/lib/status-colors';
 import { RouteLabel } from './endpoint-label';
@@ -137,19 +138,6 @@ function getSharpSparklinePath(
   return `M ${coords.join(' L ')}`;
 }
 
-function getLatencyColor(p75: number): string {
-  const status = getLatencyStatus(p75);
-  if (status === 'fast') return STATUS_COLORS.green.hsl;
-  if (status === 'moderate') return STATUS_COLORS.amber.hsl;
-  return STATUS_COLORS.red.hsl;
-}
-
-function getErrorRateColor(errorRate: number): string {
-  if (errorRate < 1) return STATUS_COLORS.green.hsl;
-  if (errorRate < 5) return STATUS_COLORS.amber.hsl;
-  return STATUS_COLORS.red.hsl;
-}
-
 function LatencySparkline({
   p75,
   series,
@@ -166,7 +154,7 @@ function LatencySparkline({
     );
   }, [series]);
 
-  const color = getLatencyColor(p75);
+  const color = STATUS_COLORS[getLatencyColor(p75)].hsl;
 
   if (!path) return <div className="h-4 w-12" />;
 
@@ -204,7 +192,7 @@ function ErrorRateSparkline({
     return getSharpSparklinePath(errorRates, SPARKLINE_WIDTH, SPARKLINE_HEIGHT);
   }, [series]);
 
-  const color = getErrorRateColor(errorRate);
+  const color = STATUS_COLORS[getErrorRateColor(errorRate)].hsl;
 
   if (!path) {
     const normalizedRate = Math.min(errorRate, 10) / 10;

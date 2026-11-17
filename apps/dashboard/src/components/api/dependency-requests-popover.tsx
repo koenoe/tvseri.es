@@ -10,14 +10,13 @@ import {
   type DependencyMetricItem,
   formatCountString,
 } from '@/lib/api-metrics';
+import { NEUTRAL_COLOR } from '@/lib/status-colors';
 import { DependencyBadge } from './dependency-badge';
 
 type DependencyRequestsPopoverProps = Readonly<{
   children: React.ReactNode;
   dependencies?: ReadonlyArray<DependencyMetricItem>;
 }>;
-
-const NEUTRAL_COLOR = 'hsl(220, 9%, 70%)';
 
 const RequestsSparkline = memo(function RequestsSparkline({
   history,

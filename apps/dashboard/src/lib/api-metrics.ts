@@ -1,6 +1,6 @@
 import type { DependencyStats, TimeSeriesPoint } from '@tvseri.es/schemas';
 
-import { STATUS_COLORS } from './status-colors';
+import { STATUS_COLORS, type StatusColor } from './status-colors';
 
 export type ApdexStatus = 'frustrated' | 'satisfied' | 'tolerating';
 
@@ -48,13 +48,25 @@ export const getApdexStatusConfig = (score: number) => {
   };
 };
 
-export type LatencyStatus = 'fast' | 'moderate' | 'slow';
-
-export const getLatencyStatus = (p75Ms: number): LatencyStatus => {
-  if (p75Ms < 200) return 'fast';
-  if (p75Ms < 500) return 'moderate';
-  return 'slow';
+export const getLatencyColor = (p75Ms: number): StatusColor => {
+  if (p75Ms < 200) return 'green';
+  if (p75Ms < 500) return 'amber';
+  return 'red';
 };
+
+export const getErrorRateColor = (errorRate: number): StatusColor => {
+  if (errorRate < 1) return 'green';
+  if (errorRate < 5) return 'amber';
+  return 'red';
+};
+
+// Error-rate bars and flat lines treat 10% as full scale.
+export const ERROR_RATE_CEILING = 10;
+
+export const countFilledBars = (errorRate: number, barCount: number): number =>
+  Math.round(
+    (Math.min(errorRate, ERROR_RATE_CEILING) / ERROR_RATE_CEILING) * barCount,
+  );
 
 export const formatLatency = (ms: number): string => {
   if (ms < 1000) return `${Math.round(ms)}ms`;

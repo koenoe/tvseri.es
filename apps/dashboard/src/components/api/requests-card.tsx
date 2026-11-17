@@ -13,6 +13,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { type DependencyMetricItem, formatCount } from '@/lib/api-metrics';
 import { getSmoothSparklinePath } from '@/lib/sparkline';
+import { NEUTRAL_COLOR } from '@/lib/status-colors';
 import { DependencyRequestsPopover } from './dependency-requests-popover';
 
 const formatRpm = (rpm: number): string => {
@@ -29,8 +30,6 @@ type RequestsCardProps = Readonly<{
   }>;
   throughput: number;
 }>;
-
-const NEUTRAL_COLOR = 'hsl(220, 9%, 70%)';
 
 const RequestsCard = memo(function RequestsCard({
   action,

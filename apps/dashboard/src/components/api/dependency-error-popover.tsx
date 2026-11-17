@@ -5,23 +5,20 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import type { DependencyMetricItem } from '@/lib/api-metrics';
+import {
+  countFilledBars,
+  type DependencyMetricItem,
+  getErrorRateColor,
+} from '@/lib/api-metrics';
 import { DependencyBadge } from './dependency-badge';
-import { SegmentedBar, type StatusColor } from './segmented-bar';
+import { SegmentedBar } from './segmented-bar';
 
 const BAR_COUNT = 16;
-const MAX_ERROR_RATE = 10;
 
 type DependencyErrorPopoverProps = Readonly<{
   children: React.ReactNode;
   dependencies?: ReadonlyArray<DependencyMetricItem>;
 }>;
-
-function getErrorRateColor(errorRate: number): StatusColor {
-  if (errorRate < 1) return 'green';
-  if (errorRate < 5) return 'amber';
-  return 'red';
-}
 
 type ErrorRateVisualizationProps = Readonly<{
   errorRate: number;
@@ -29,9 +26,7 @@ type ErrorRateVisualizationProps = Readonly<{
 
 function ErrorRateVisualization({ errorRate }: ErrorRateVisualizationProps) {
   const color = getErrorRateColor(errorRate);
-  const filledBars = Math.round(
-    (Math.min(errorRate, MAX_ERROR_RATE) / MAX_ERROR_RATE) * BAR_COUNT,
-  );
+  const filledBars = countFilledBars(errorRate, BAR_COUNT);
 
   return (
     <SegmentedBar

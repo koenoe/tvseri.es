@@ -10,15 +10,18 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { DependencyMetricItem } from '@/lib/api-metrics';
+import {
+  countFilledBars,
+  type DependencyMetricItem,
+  getErrorRateColor,
+} from '@/lib/api-metrics';
 import { getSharpSparklinePath } from '@/lib/sparkline';
 import { STATUS_COLORS } from '@/lib/status-colors';
 import { Button } from '../ui/button';
 import { DependencyErrorPopover } from './dependency-error-popover';
-import { SegmentedBar, type StatusColor } from './segmented-bar';
+import { SegmentedBar } from './segmented-bar';
 
 const BAR_COUNT = 32;
-const MAX_ERROR_RATE = 10;
 
 type ErrorRateSeriesItem = Readonly<{
   date: string;
@@ -32,12 +35,6 @@ type ErrorRateCardProps = Readonly<{
   series?: ReadonlyArray<ErrorRateSeriesItem>;
 }>;
 
-function getErrorRateColor(errorRate: number): StatusColor {
-  if (errorRate < 1) return 'green';
-  if (errorRate < 5) return 'amber';
-  return 'red';
-}
-
 const ErrorRateCard = memo(function ErrorRateCard({
   action,
   dependencies,
@@ -45,9 +42,7 @@ const ErrorRateCard = memo(function ErrorRateCard({
   series,
 }: ErrorRateCardProps) {
   const color = getErrorRateColor(errorRate);
-  const filledBars = Math.round(
-    (Math.min(errorRate, MAX_ERROR_RATE) / MAX_ERROR_RATE) * BAR_COUNT,
-  );
+  const filledBars = countFilledBars(errorRate, BAR_COUNT);
 
   const sparklineData = useMemo(() => {
     if (!series || series.length === 0) return null;

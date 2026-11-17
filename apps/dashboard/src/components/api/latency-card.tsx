@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { type DependencyMetricItem, getLatencyStatus } from '@/lib/api-metrics';
+import { type DependencyMetricItem, getLatencyColor } from '@/lib/api-metrics';
 import { getSmoothSparklinePath } from '@/lib/sparkline';
 import { STATUS_COLORS } from '@/lib/status-colors';
 import { DependencyLatencyPopover } from './dependency-latency-popover';
@@ -34,9 +34,7 @@ const LatencyCard = memo(function LatencyCard({
   p75,
   series,
 }: LatencyCardProps) {
-  const status = getLatencyStatus(p75);
-  const colorKey =
-    status === 'fast' ? 'green' : status === 'moderate' ? 'amber' : 'red';
+  const colorKey = getLatencyColor(p75);
 
   const { linePath, areaPath, color } = useMemo(() => {
     const points = series.map((s) => s.latency.p75);

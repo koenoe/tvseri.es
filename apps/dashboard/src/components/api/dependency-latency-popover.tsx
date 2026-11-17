@@ -9,7 +9,7 @@ import { Sparkline } from '@/components/ui/sparkline';
 import {
   type DependencyMetricItem,
   formatLatency,
-  getLatencyStatus,
+  getLatencyColor,
 } from '@/lib/api-metrics';
 import { STATUS_COLORS } from '@/lib/status-colors';
 import { DependencyBadge } from './dependency-badge';
@@ -26,9 +26,7 @@ const LatencySparkline = memo(function LatencySparkline({
   history: ReadonlyArray<{ timestamp: string; value: number }>;
   p75: number;
 }>) {
-  const status = getLatencyStatus(p75);
-  const colorKey =
-    status === 'fast' ? 'green' : status === 'moderate' ? 'amber' : 'red';
+  const colorKey = getLatencyColor(p75);
   const color = STATUS_COLORS[colorKey].hsl;
 
   const points = useMemo(() => history.map((s) => s.value), [history]);

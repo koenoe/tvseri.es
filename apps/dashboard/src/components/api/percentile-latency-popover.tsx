@@ -8,7 +8,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Sparkline } from '@/components/ui/sparkline';
-import { formatLatency, getLatencyStatus } from '@/lib/api-metrics';
+import { formatLatency, getLatencyColor } from '@/lib/api-metrics';
 import { STATUS_COLORS } from '@/lib/status-colors';
 
 type PercentileData = Readonly<{
@@ -33,10 +33,7 @@ const PercentileSparkline = memo(function PercentileSparkline({
   points: ReadonlyArray<number>;
   value: number;
 }>) {
-  const status = getLatencyStatus(value);
-  const colorKey =
-    status === 'fast' ? 'green' : status === 'moderate' ? 'amber' : 'red';
-  const color = STATUS_COLORS[colorKey].hsl;
+  const color = STATUS_COLORS[getLatencyColor(value)].hsl;
 
   return (
     <Sparkline

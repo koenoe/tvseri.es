@@ -17,7 +17,8 @@ import {
   formatDependencyName,
   formatErrorRate,
   formatLatency,
-  getLatencyStatus,
+  getErrorRateColor,
+  getLatencyColor,
   sortDependencyKeys,
 } from '@/lib/api-metrics';
 import {
@@ -35,19 +36,6 @@ type DependenciesSectionProps = Readonly<{
   dependencies: Record<string, DependencyStats> | undefined;
   maxRequestCount?: number;
 }>;
-
-function getErrorRateColor(errorRate: number): string {
-  if (errorRate < 1) return STATUS_COLORS.green.hsl;
-  if (errorRate < 5) return STATUS_COLORS.amber.hsl;
-  return STATUS_COLORS.red.hsl;
-}
-
-function getLatencyColor(p75: number): string {
-  const status = getLatencyStatus(p75);
-  if (status === 'fast') return STATUS_COLORS.green.hsl;
-  if (status === 'moderate') return STATUS_COLORS.amber.hsl;
-  return STATUS_COLORS.red.hsl;
-}
 
 const COLUMN_WIDTHS = {
   actions: 48,
@@ -72,7 +60,7 @@ function LatencySparkline({ history, p75 }: LatencySparklineProps) {
     );
   }, [history]);
 
-  const color = getLatencyColor(p75);
+  const color = STATUS_COLORS[getLatencyColor(p75)].hsl;
 
   if (!path) return <div className="h-4 w-12" />;
 
@@ -109,7 +97,7 @@ function ErrorSparkline({ errorRate, history }: ErrorSparklineProps) {
     return getSharpSparklinePath(errorRates, SPARKLINE_WIDTH, SPARKLINE_HEIGHT);
   }, [history]);
 
-  const color = getErrorRateColor(errorRate);
+  const color = STATUS_COLORS[getErrorRateColor(errorRate)].hsl;
 
   if (!path) {
     const normalizedRate = Math.min(errorRate, 10) / 10;

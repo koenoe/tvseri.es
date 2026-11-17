@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react';
 
-type StatusColor = 'amber' | 'green' | 'red';
+import type { StatusColor } from '@/lib/status-colors';
 
 type SegmentedBarProps = Readonly<{
   barCount: number;
@@ -69,4 +69,4 @@ const SegmentedBar = memo(function SegmentedBar({
 
 SegmentedBar.displayName = 'SegmentedBar';
 
-export { SegmentedBar, type StatusColor };
+export { SegmentedBar };

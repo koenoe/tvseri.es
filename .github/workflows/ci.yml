@@ -104,12 +104,13 @@ jobs:
       # Playwright splits the tests, in file order, into equal counts, but the
       # files are not equally slow: in equal counts the shards took 4.9, 8.3, 8.6
       # and 6.8 minutes. The weights set each shard's share of the tests
-      # (Playwright's own, undocumented `PWTEST_SHARD_WEIGHTS`). Rebalance from
-      # the shards' "passed (Xm)" lines when they drift apart.
+      # (Playwright's own, undocumented `PWTEST_SHARD_WEIGHTS`), cut from one
+      # full run's test durations into equal time. Recut when the shards'
+      # "passed (Xm)" lines drift apart.
       - name: E2E (shard ${{ matrix.shard }} of 4)
         env:
           E2E_CLASSIC_SCROLLBARS: '1'
-          PWTEST_SHARD_WEIGHTS: '211:142:138:173'
+          PWTEST_SHARD_WEIGHTS: '208:154:152:149'
         run: pnpm --filter @tvseri.es/web e2e --shard=${{ matrix.shard }}/4
 
       # What a failure looked like: traces (retain-on-failure) and screenshots

@@ -351,10 +351,12 @@ describe('a mark brings a hidden show back', () => {
     expect(await prefs()).toMatchObject({ paused: 'hide' });
   });
 
-  it('a special, an unmark or a Keep answer change nothing', async () => {
+  it('a special unhides it too; an unmark or a Keep answer change nothing', async () => {
     setup();
     await patch({ paused: 'hide' });
     await post('/watched/batch', [batchRow(0, 1)]);
+    expect(await prefs()).toMatchObject({ paused: null });
+    await patch({ paused: 'hide' });
     await request(`/user/${USER_ID}/watched/series/${SHOW}/season/1`, {
       as: USER_ID,
       method: 'DELETE',

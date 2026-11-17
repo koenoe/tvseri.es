@@ -13,7 +13,7 @@ One rule, used by every writer: `decideListState` (`state.ts`), then `listWrites
 - A show's place in its list (`createdAt`) is when the user last watched anything of it.
 - **Watchlist**: a show with anything watched has its watchlist entry *parked*, not deleted. If everything is unmarked again it comes back with its original date. A watchlist entry the user removed by hand is forgotten, so an unmark never brings it back.
 - Favourites are never changed automatically.
-- **Hidden** ("Hide from In progress", the `paused: 'hide'` pref) is no list: a show stays in In progress while hidden. A new watch of a regular episode (the user's mark routes, a Plex scrobble) clears it in the same request as the skips (`afterWatching` in `lib/db/prefs`). An import, Undo putting marks back (`POST /watched/batch?restore=true`) and unmarks leave it.
+- **Hidden** ("Hide from In progress", the `paused: 'hide'` pref) is no list: a show stays in In progress while hidden. Any new watch, a special included (the user's mark routes, a Plex scrobble) clears it in the same request as the skips (`afterWatching` in `lib/db/prefs`). An import, Undo putting marks back (`POST /watched/batch?restore=true`) and unmarks leave it.
 
 `listWrites` is pure and idempotent, so running it twice writes the same items.
 

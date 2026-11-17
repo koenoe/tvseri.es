@@ -262,15 +262,14 @@ const unhideSeries = async (userId: string, seriesId: number) => {
 
 /**
  * The prefs side of new watching (a user's mark, a Plex scrobble): the
- * episodes are un-skipped, and a hidden show with a regular episode among
- * them comes back. Imports and Undo putting marks back only un-skip
- * (`clearSkipped`): they restore history, they are no new watching.
- * Specials count nowhere, here neither.
+ * episodes are un-skipped, and a hidden show comes back. Imports and Undo
+ * putting marks back only un-skip (`clearSkipped`): they restore history,
+ * they are no new watching.
  */
 export const afterWatching = async (items: ReadonlyArray<MarkedItem>) => {
   await Promise.all([
     clearSkipped(items),
-    ...bySeries(items.filter((item) => item.seasonNumber > 0)).map((group) =>
+    ...bySeries(items).map((group) =>
       unhideSeries(group.userId, group.seriesId),
     ),
   ]);

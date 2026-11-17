@@ -65,7 +65,7 @@ const LOOKS: Readonly<
     ),
     tryAgain: {
       className:
-        'inline-flex shrink-0 items-center gap-1 font-medium text-white hover:underline disabled:hover:no-underline',
+        'inline-flex shrink-0 items-center gap-1 font-medium text-white hover:underline aria-disabled:hover:no-underline',
       glyph: 12,
     },
   },

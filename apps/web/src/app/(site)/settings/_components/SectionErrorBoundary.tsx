@@ -38,7 +38,7 @@ const SETTINGS_FAILED: FailedLook = {
 
 const SETTINGS_TRY_AGAIN: TryAgainLook = {
   className:
-    'inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-full border-2 border-white/20 bg-white/8 px-4 text-body-sm font-medium text-white transition-colors duration-150 hover:border-white/50 disabled:hover:border-white/20',
+    'inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-full border-2 border-white/20 bg-white/8 px-4 text-body-sm font-medium text-white transition-colors duration-150 hover:border-white/50 aria-disabled:hover:border-white/20',
   glyph: 16,
 };
 

@@ -31,14 +31,14 @@ describe('RowError', () => {
     expect(onRetry).toHaveBeenCalledOnce();
   });
 
-  it('keeps its Try again in place, disabled and saying it is trying, while it retries', () => {
+  it('keeps its Try again in place, aria-disabled and saying it is trying, while it retries', () => {
     render(<RowError id="hidden-gems" state="retrying" title="Hidden gems" />);
     const region = screen.getByRole('region', { name: 'Hidden gems' });
     expect(region.getAttribute('aria-busy')).toBe('true');
     expect(region.textContent).toContain('Hidden gems didn’t load.');
     expect(region.textContent).toContain('Only this row reloads.');
     const button = screen.getByRole('button', { name: 'Loading…' });
-    expect(button.hasAttribute('disabled')).toBe(true);
+    expect(button.getAttribute('aria-disabled')).toBe('true');
     expect(button.getAttribute('aria-busy')).toBe('true');
   });
 });

@@ -17,6 +17,6 @@ export const ROW_FAILED: FailedLook = {
 /** Its Try again (also `RefreshRetry`'s) */
 export const ROW_TRY_AGAIN: TryAgainLook = {
   className:
-    'inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-full border-2 border-white/20 bg-white/8 pr-4 pl-3.5 text-body-sm font-medium whitespace-nowrap text-white backdrop-blur-md transition-colors duration-150 hover:border-white/50 disabled:hover:border-white/20',
+    'inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-full border-2 border-white/20 bg-white/8 pr-4 pl-3.5 text-body-sm font-medium whitespace-nowrap text-white backdrop-blur-md transition-colors duration-150 hover:border-white/50 aria-disabled:hover:border-white/20',
   glyph: 16,
 };

@@ -1,5 +1,6 @@
 import type { AriaRole, ReactNode } from 'react';
 
+import pendingClick from '@/components/ui/button/pendingClick';
 import { refreshGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
@@ -64,14 +65,15 @@ const IDLE = 'Try again';
 const RETRYING = 'Loading…';
 
 /** A retry in flight, the same in every place: dimmed and not pressable */
-const PENDING = 'disabled:cursor-progress disabled:opacity-50';
+const PENDING = 'aria-disabled:cursor-progress aria-disabled:opacity-50';
 
 /**
  * A failed card's Try again: the refresh glyph and its label. It only
  * draws; the place passes what a press does (`onClick`: re-run its error
  * boundary, refresh the route) and whether that retry is in flight
  * (`pending`). While it is, the button stays where it is, says "Loading…"
- * with the glyph turning, and is disabled and dimmed; it is as wide
+ * with the glyph turning, dimmed, and ignores presses (`aria-disabled`, so
+ * it keeps focus, as every busy `Button`); it is as wide
  * as its longer label either way, so nothing moves.
  */
 export function TryAgain({
@@ -84,15 +86,16 @@ export function TryAgain({
   pending?: boolean;
 }>) {
   const classes = cn(look.className, PENDING);
+  const handleClick = pendingClick(pending, onClick);
   const glyph = pending ? 'animate-spin' : undefined;
   const shown = pending ? RETRYING : IDLE;
   const hidden = pending ? IDLE : RETRYING;
   return (
     <button
       aria-busy={pending || undefined}
+      aria-disabled={pending || undefined}
       className={classes}
-      disabled={pending}
-      onClick={onClick}
+      onClick={handleClick}
       type="button"
     >
       <Icon className={glyph} glyph={refreshGlyph} size={look.glyph} />

@@ -1,4 +1,4 @@
-import type { ComponentProps, MouseEvent, ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 
 import type { Glyph, IconSize, ToggleGlyph } from '@/components/ui/icon/types';
 
@@ -8,6 +8,7 @@ import {
   type ButtonVariantProps,
   buttonStyles,
 } from './buttonStyles';
+import pendingClick from './pendingClick';
 
 type Props = Omit<ComponentProps<'button'>, 'children'> &
   ButtonVariantProps &
@@ -49,13 +50,7 @@ export default function Button({
 }: Props) {
   const classes = buttonStyles({ className, size, variant });
   const resolvedIconSize = iconSize ?? BUTTON_ICON_SIZE[size ?? 'md'];
-  const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
-    if (pending) {
-      event.preventDefault();
-      return;
-    }
-    onClick?.(event);
-  };
+  const handleClick = pendingClick(pending, onClick);
 
   return (
     <button
@@ -63,8 +58,7 @@ export default function Button({
       aria-disabled={pending || ariaDisabled}
       aria-pressed={pressed}
       className={classes}
-      // Only with a handler: a Server Component can't pass a function.
-      onClick={onClick ? handleClick : undefined}
+      onClick={handleClick}
       type={type}
       {...rest}
     >

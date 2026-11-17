@@ -73,12 +73,19 @@ describe('TryAgain', () => {
     expect(button.textContent).toContain('Loading…');
   });
 
-  it('shows a retry in flight the same way everywhere', () => {
-    render(<TryAgain look={BUTTON} onClick={vi.fn()} pending />);
+  it('shows a retry in flight the same way everywhere, focusable and ignoring presses', () => {
+    const onClick = vi.fn();
+    render(<TryAgain look={BUTTON} onClick={onClick} pending />);
     const button = screen.getByRole('button', { name: 'Loading…' });
-    expect(button.hasAttribute('disabled')).toBe(true);
+    // aria-disabled, not disabled: the focus stays on the button
+    expect(button.hasAttribute('disabled')).toBe(false);
+    expect(button.getAttribute('aria-disabled')).toBe('true');
     expect(button.getAttribute('aria-busy')).toBe('true');
-    expect(button.className).toContain('disabled:opacity-50');
+    expect(button.className).toContain('aria-disabled:opacity-50');
+    button.focus();
+    expect(document.activeElement).toBe(button);
+    fireEvent.click(button);
+    expect(onClick).not.toHaveBeenCalled();
     expect(button.querySelector('svg')?.getAttribute('class')).toContain(
       'animate-spin',
     );

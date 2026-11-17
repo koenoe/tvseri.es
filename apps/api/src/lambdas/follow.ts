@@ -4,6 +4,7 @@ import {
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { userKey } from '@tvseri.es/utils';
 import type { DynamoDBStreamEvent } from 'aws-lambda';
 import { Resource } from 'sst';
 
@@ -33,7 +34,7 @@ const updateUserCount = async (
       ':zero': { N: '0' },
     },
     Key: {
-      pk: { S: `USER#${userId}` },
+      pk: { S: userKey(userId) },
     },
     TableName: Resource.Users.name,
     // One atomic SET: the field plus the delta, counting from 0 when it doesn't exist yet

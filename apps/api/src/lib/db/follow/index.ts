@@ -6,27 +6,13 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { PaginationOptions, User } from '@tvseri.es/schemas';
+import { userKey } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 
 import { batchGet } from '../batch';
 import client from '../client';
 import { decodeCursor, encodeCursor } from '../cursor';
-
-function userPk(userId: string) {
-  return `USER#${userId}`;
-}
-
-function followPk(followerId: string, followingId: string) {
-  return `FOLLOW#${followerId}#${followingId}`;
-}
-
-function followersPk(userId: string) {
-  return `USER#${userId}#FOLLOWERS`;
-}
-
-function followingPk(userId: string) {
-  return `USER#${userId}#FOLLOWING`;
-}
+import { followersPk, followingPk, followPk } from './keys';
 
 function createSortKey(timestamp: number, userId: string) {
   return `${timestamp}#${userId}`;
@@ -43,7 +29,7 @@ async function batchGetUsers(
 ): Promise<Record<string, FollowUser>> {
   const items = await batchGet(
     Resource.Users.name,
-    userIds.map((id) => marshall({ pk: userPk(id) })),
+    userIds.map((id) => marshall({ pk: userKey(id) })),
     {
       // Only what the follow lists render (full items include email)
       ExpressionAttributeNames: {

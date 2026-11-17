@@ -4,6 +4,7 @@ import {
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
+import { userKey } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 import client from '@/lib/db/client';
 import { queryPages } from '@/lib/db/query';
@@ -95,7 +96,7 @@ export const undoImport = async (
           ':importId': importId,
           ':now': Date.now(),
         }),
-        Key: marshall({ pk: `USER#${userId}` }),
+        Key: marshall({ pk: userKey(userId) }),
         TableName: Resource.Users.name,
         // The skips are back: the record has done its job
         UpdateExpression:

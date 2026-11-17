@@ -11,9 +11,11 @@ import { Resource } from 'sst';
 import { batchWrite } from '@/lib/db/batch';
 import { deleteExistingCacheItems } from '@/lib/db/cache';
 import client from '@/lib/db/client';
+import { followersPk, followingPk } from '@/lib/db/follow/keys';
 import { userPk } from '@/lib/db/list/keys';
 import { queryPages } from '@/lib/db/query';
 import { releaseHandleClaim } from '@/lib/db/user';
+import { WATCHED_SK_PREFIX, watchedPk } from '@/lib/db/watched/keys';
 import { profileCounterCacheKeys } from '@/lib/profileCounters';
 import { getStatsInvalidationKeys } from '@/lib/stats/keys';
 
@@ -159,8 +161,8 @@ const deleteWatched = (userId: string, hasTime: () => boolean) =>
     Resource.Watched.name,
     {
       ExpressionAttributeValues: marshall({
-        ':pk': `USER#${userId}`,
-        ':prefix': 'SERIES#',
+        ':pk': watchedPk(userId),
+        ':prefix': WATCHED_SK_PREFIX,
       }),
       KeyConditionExpression: 'pk = :pk AND begins_with(sk, :prefix)',
     },
@@ -183,8 +185,8 @@ const deleteLists = (userId: string, hasTime: () => boolean) =>
 const deleteFollows = async (userId: string, hasTime: () => boolean) => {
   // gsi1: the user's followers; gsi2: who the user follows
   for (const [index, key] of [
-    ['gsi1', `USER#${userId}#FOLLOWERS`],
-    ['gsi2', `USER#${userId}#FOLLOWING`],
+    ['gsi1', followersPk(userId)],
+    ['gsi2', followingPk(userId)],
   ] as const) {
     const outcome = await deleteQueried(
       Resource.Follow.name,

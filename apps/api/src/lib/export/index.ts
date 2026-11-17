@@ -13,16 +13,18 @@ import {
   LIST_PREFIX,
   PREF_PREFIX,
   PREF_SERIES_PREFIX,
+  userPk,
 } from '@/lib/db/list/keys';
 import { toSeriesPrefs } from '@/lib/db/prefs';
 import { queryAll } from '@/lib/db/query';
-import { WATCHED_SK_PREFIX } from '@/lib/db/watched/keys';
+import { WATCHED_SK_PREFIX, watchedPk } from '@/lib/db/watched/keys';
 import { findWebhookTokenByUserAndType } from '@/lib/db/webhooks';
 import { toCsv } from './csv';
 
-const userKey = (table: string, userId: string, prefix: string) => ({
+/** Every item of one user's partition whose sort key starts with `prefix` */
+const partitionQuery = (table: string, pk: string, prefix: string) => ({
   ExpressionAttributeValues: marshall({
-    ':pk': `USER#${userId}`,
+    ':pk': pk,
     ':prefix': prefix,
   }),
   KeyConditionExpression: 'pk = :pk AND begins_with(sk, :prefix)',
@@ -46,7 +48,11 @@ const fetchWatched = async (
   userId: string,
 ): Promise<ReadonlyArray<ExportedWatchedItem>> => {
   const items = await queryAll({
-    ...userKey(Resource.Watched.name, userId, WATCHED_SK_PREFIX),
+    ...partitionQuery(
+      Resource.Watched.name,
+      watchedPk(userId),
+      WATCHED_SK_PREFIX,
+    ),
     ExpressionAttributeNames: Object.fromEntries(
       WATCHED_ATTRIBUTES.map((name) => [`#${name}`, name]),
     ),
@@ -102,7 +108,7 @@ const LIST_SK = /^LIST#([A-Z_]+|[^#]+)#ITEM#(\d+)$/;
 
 const fetchLists = async (userId: string) => {
   const items = await queryAll(
-    userKey(Resource.Lists.name, userId, LIST_PREFIX),
+    partitionQuery(Resource.Lists.name, userPk(userId), LIST_PREFIX),
   );
   const lists: Record<string, ExportedListItem[]> = {};
   for (const item of items) {
@@ -121,12 +127,14 @@ const fetchLists = async (userId: string) => {
 };
 
 const fetchPrefs = async (userId: string) =>
-  (await queryAll(userKey(Resource.Lists.name, userId, PREF_PREFIX))).map(
-    (item) => ({
-      seriesId: Number(String(item.sk).replace(PREF_SERIES_PREFIX, '')),
-      ...toSeriesPrefs(item as Parameters<typeof toSeriesPrefs>[0]),
-    }),
-  );
+  (
+    await queryAll(
+      partitionQuery(Resource.Lists.name, userPk(userId), PREF_PREFIX),
+    )
+  ).map((item) => ({
+    seriesId: Number(String(item.sk).replace(PREF_SERIES_PREFIX, '')),
+    ...toSeriesPrefs(item as Parameters<typeof toSeriesPrefs>[0]),
+  }));
 
 const FOLLOW_PAGE = 100;
 

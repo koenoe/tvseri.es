@@ -8,6 +8,7 @@ import {
   type ImportCheckResult,
   type LastImport,
 } from '@tvseri.es/schemas';
+import { userKey } from '@tvseri.es/utils';
 import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
 
@@ -20,7 +21,7 @@ import { sendMessage } from '@/lib/sqs';
 import type { UndoImportMessage } from './undo';
 import { freshUnskipped, recordUnskipped } from './unskipped';
 
-const userKey = (userId: string) => marshall({ pk: `USER#${userId}` });
+const userItemKey = (userId: string) => marshall({ pk: userKey(userId) });
 
 /**
  * Starts an import: it becomes the user's last import (the one Undo applies
@@ -39,7 +40,7 @@ export const startImport = async (userId: string): Promise<LastImport> => {
         ':lastImport': lastImport,
         ':unskipped': freshUnskipped(lastImport.importId),
       }),
-      Key: userKey(userId),
+      Key: userItemKey(userId),
       TableName: Resource.Users.name,
       UpdateExpression:
         'SET lastImport = :lastImport, importUnskipped = :unskipped',
@@ -143,7 +144,7 @@ export const writeImportBatch = async (
           ':skipped': alreadyWatched.length,
           ':written': toWrite.length,
         }),
-        Key: userKey(userId),
+        Key: userItemKey(userId),
         TableName: Resource.Users.name,
         UpdateExpression:
           'ADD lastImport.written :written, lastImport.skipped :skipped',
@@ -177,7 +178,7 @@ export const requestUndoImport = async (userId: string, importId: string) => {
         ':importId': importId,
         ':now': Date.now(),
       }),
-      Key: userKey(userId),
+      Key: userItemKey(userId),
       TableName: Resource.Users.name,
       UpdateExpression: 'SET lastImport.undoRequestedAt = :now',
     }),

@@ -9,6 +9,7 @@ import {
   parseEpisodeCode,
   type WatchedItem,
 } from '@tvseri.es/schemas';
+import { userKey } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 
 import client from '@/lib/db/client';
@@ -28,7 +29,7 @@ type ImportUnskipped = Readonly<{
   codes: Readonly<Record<string, ReadonlySet<string>>>;
 }>;
 
-const userKey = (userId: string) => marshall({ pk: `USER#${userId}` });
+const userItemKey = (userId: string) => marshall({ pk: userKey(userId) });
 
 /** Written with `lastImport` when an import starts */
 export const freshUnskipped = (importId: string): ImportUnskipped => ({
@@ -79,7 +80,7 @@ export const recordUnskipped = async (
             entries.map(([, codes], index) => [`:c${index}`, codes]),
           ),
         }),
-        Key: userKey(userId),
+        Key: userItemKey(userId),
         TableName: Resource.Users.name,
         UpdateExpression: `ADD ${entries
           .map((_, index) => `importUnskipped.codes.#s${index} :c${index}`)
@@ -115,7 +116,7 @@ export const restoreUnskipped = async (userId: string, importId: string) => {
   const result = await client.send(
     new GetItemCommand({
       ConsistentRead: true,
-      Key: userKey(userId),
+      Key: userItemKey(userId),
       ProjectionExpression: 'importUnskipped',
       TableName: Resource.Users.name,
     }),

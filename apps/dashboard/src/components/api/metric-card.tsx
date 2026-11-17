@@ -27,7 +27,13 @@ export function CardMenuButton({
   ...props
 }: ComponentProps<typeof Button>) {
   return (
-    <Button className={className} size="icon-sm" variant="ghost" {...props}>
+    <Button
+      aria-label="Details"
+      className={className}
+      size="icon-sm"
+      variant="ghost"
+      {...props}
+    >
       <MoreVertical className="size-4" />
     </Button>
   );
@@ -41,6 +47,7 @@ export function DisabledCardMenuButton({
 }: Readonly<{ size?: 'icon-sm' | 'icon-xs' }>) {
   return (
     <Button
+      aria-label="Details"
       className="text-muted-foreground"
       disabled
       size={size}

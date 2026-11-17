@@ -31,6 +31,7 @@ function DateRangeSelectComponent() {
 
   return (
     <NativeSelect
+      aria-label="Date range"
       className="[&_select]:h-7 [&_select]:text-xs [&_select]:px-3 [&_select]:pr-7 [&_svg]:right-2 [&_svg]:size-3"
       onChange={handleDaysChange}
       value={days}

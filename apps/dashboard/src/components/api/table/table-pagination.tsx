@@ -55,6 +55,7 @@ export function TablePagination({
             <div className="flex items-center gap-2">
               <span className="text-muted-foreground">Show</span>
               <NativeSelect
+                aria-label="Rows per page"
                 className="[&_select]:cursor-pointer [&_select]:h-6 [&_select]:py-0 [&_select]:rounded [&_select]:bg-transparent! [&_select]:pl-2 [&_select]:pr-5 [&_select]:text-muted-foreground [&_svg]:right-1.5 [&_svg]:size-2.5 [&_svg]:text-muted-foreground"
                 onChange={handlePageSizeChange}
                 value={pagination.pageSize}
@@ -69,6 +70,7 @@ export function TablePagination({
                 {currentPage} of {totalPages}
               </span>
               <button
+                aria-label="Previous page"
                 className={PAGE_BUTTON_CLASSES}
                 disabled={isFirstPage}
                 onClick={handlePreviousPage}
@@ -77,6 +79,7 @@ export function TablePagination({
                 <ChevronLeft className="size-4" />
               </button>
               <button
+                aria-label="Next page"
                 className={PAGE_BUTTON_CLASSES}
                 disabled={isLastPage}
                 onClick={handleNextPage}

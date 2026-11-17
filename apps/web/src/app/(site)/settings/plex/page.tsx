@@ -6,7 +6,6 @@ import { AppsAccordion } from './_components/AppsAccordion';
 import ComingNextCard from './_components/ComingNextCard';
 import PlexCard from './_components/PlexCard';
 import PlexSkeleton from './_components/PlexSkeleton';
-import ViaTraktCard from './_components/ViaTraktCard';
 
 /** The section's skeleton: its hole's fallback and its failure's space */
 const plexSkeleton = <PlexSkeleton />;
@@ -30,7 +29,6 @@ export default function Page() {
         <ComingNextCard app="jellyfin" />
         <ComingNextCard app="emby" />
       </AppsAccordion>
-      <ViaTraktCard />
     </section>
   );
 }

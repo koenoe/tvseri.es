@@ -177,7 +177,6 @@ describe('GET /me/series-states', () => {
     expect(response.status).toBe(200);
     expect(response.headers.get('cache-control')).toBe('private, no-store');
     const { states: byId } = await body(response);
-    expect(Object.keys(byId).sort()).toEqual(ALL.map(String).sort());
     expect(byId).toEqual({
       [BETWEEN_SEASONS]: {
         nextAirDate: '2027-01-07',

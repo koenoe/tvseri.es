@@ -121,10 +121,15 @@ const plexScrobble = (
   return form;
 };
 
-const scrobble = (accountId = 1, title = 'wren', metadata = EPISODE_METADATA) =>
+const scrobble = (
+  accountId = 1,
+  title = 'wren',
+  metadata = EPISODE_METADATA,
+  token = TOKEN,
+) =>
   // Through the app directly: the request helper only sends JSON
   import('@/app').then(({ default: app }) =>
-    app.request(`/scrobble/provider/plex?token=${TOKEN}`, {
+    app.request(`/scrobble/provider/plex?token=${token}`, {
       body: plexScrobble(accountId, title, metadata),
       method: 'POST',
     }),
@@ -154,6 +159,19 @@ describe('Plex status, pause, whose plays count, disconnect', () => {
       onlyAccount: null,
       paused: false,
     });
+  });
+
+  it('refuses a scrobble with a token nobody holds, and queues nothing', async () => {
+    seedUser();
+    seedToken();
+    const response = await scrobble(
+      1,
+      'wren',
+      EPISODE_METADATA,
+      '999999999999999999999999',
+    );
+    expect(response.status).toBe(401);
+    expect(queuedScrobbles()).toEqual([]);
   });
 
   it('lists recent Plex marks from the history', async () => {

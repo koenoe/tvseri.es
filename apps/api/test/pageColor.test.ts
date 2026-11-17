@@ -1,7 +1,7 @@
 import { LambdaClient } from '@aws-sdk/client-lambda';
+import { hexChannels } from '@tvseri.es/utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
-import { groundColor } from '@/lib/groundColor';
+import { groundColor, quietTextContrast } from '@/lib/groundColor';
 
 import { db } from './db';
 import { onTmdb } from './fakeHttp';
@@ -52,7 +52,11 @@ describe('a series’ detected colour', () => {
     const stored = { pk: v1('/old.jpg'), value: MUSTARD };
     db.seed('Cache', [stored]);
 
-    expect(await seriesColor(1)).toBe(SERVED_MUSTARD);
+    const served = await seriesColor(1);
+    // Mustard fails the rule as stored: it must come out darker, and pass
+    expect(served).not.toBe(MUSTARD);
+    expect(quietTextContrast(hexChannels(served))).toBeGreaterThanOrEqual(4.5);
+    expect(served).toBe(SERVED_MUSTARD);
     expect(send).not.toHaveBeenCalled();
     expect(db.dump('Cache')).toEqual([stored]);
   });

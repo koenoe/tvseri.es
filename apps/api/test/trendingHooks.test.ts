@@ -210,9 +210,12 @@ describe('GET /collection/trending: the hook line’s facts', () => {
 
     await get();
 
-    expect(db.dump('Cache').map((item) => item.pk)).toContain(
-      'CACHE#person-created:v1:10',
-    );
+    const stored = db
+      .dump('Cache')
+      .find((item) => item.pk === 'CACHE#person-created:v1:10');
+    const daysLeft =
+      (Number(stored?.expiresAt) - Date.now() / 1000) / (24 * 60 * 60);
+    expect(daysLeft).toBeCloseTo(7, 0);
   });
 
   it('answers from the cached lookup without asking TMDB', async () => {

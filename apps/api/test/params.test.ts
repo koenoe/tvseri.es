@@ -19,9 +19,11 @@ describe('bounded id params', () => {
     onTmdb('/network/12345678901', { id: 1, name: 'Nobody' });
 
     for (const path of ['/person/12345678901', '/network/12345678901']) {
+      resetRequests();
       const response = await request(path);
       expect(response.status).toBe(404);
       expect(response.headers.get('cache-control')).toContain('s-maxage');
+      expect(requestedUrls()).toEqual([]);
     }
   });
 });
@@ -111,10 +113,12 @@ describe('/user/:id and /user/by-username', () => {
       `/user/${'A'.repeat(2000)}/watched/count`,
       `/user/by-username/${'a'.repeat(129)}`,
     ]) {
+      db.calls.length = 0;
       const response = await request(path);
-      expect([path.slice(0, 30), response.status]).toEqual([
+      expect([path.slice(0, 30), response.status, db.calls.length]).toEqual([
         path.slice(0, 30),
         404,
+        0,
       ]);
     }
   });

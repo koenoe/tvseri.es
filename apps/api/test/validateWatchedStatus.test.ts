@@ -261,13 +261,20 @@ describe('nightly validation: reconcile lists with watched items', () => {
     });
     seedWatched(USER_ID, show, episodes(1, 1, 2), LAST_WATCH);
     seedListItem('IN_PROGRESS', show, 777, 'Ended');
-    // The other user's mismatch is not this message's business
-    seedWatched(OTHER_USER_ID, show, episodes(1, 1, 2), LAST_WATCH);
+    // The other user's mismatch is not this message's business: recent
+    // enough that a run over their data would heal it into In progress
+    seedWatched(
+      OTHER_USER_ID,
+      show,
+      episodes(1, 1, 2),
+      new Date(TUESDAY - 6 * 60 * 60 * 1000).toISOString(),
+    );
     const before = listItems(USER_ID);
 
     await run();
 
     expect(listItems(USER_ID)).toEqual(before);
+    expect(listItems(OTHER_USER_ID)).toEqual([]);
   });
 });
 

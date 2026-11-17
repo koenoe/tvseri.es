@@ -29,21 +29,109 @@ describe('auth middleware', () => {
     });
   });
 
-  it('rejects writes to another user (requireIsMe)', async () => {
-    seedUser();
-    seedUser({ id: OTHER_USER_ID, username: 'other' });
-    const response = await request(`/user/${OTHER_USER_ID}/list/watchlist`, {
-      as: USER_ID,
-      body: {
-        id: 1,
-        posterPath: '/p.jpg',
-        slug: 'x',
-        status: 'Ended',
-        title: 'X',
+  describe("another user's library", () => {
+    const listItem = {
+      id: 1,
+      posterPath: '/p.jpg',
+      slug: 'x',
+      status: 'Ended',
+      title: 'X',
+    };
+    const batchItem = (userId: string) => ({
+      episode: {
+        airDate: '2020-01-01T00:00:00.000Z',
+        episodeNumber: 1,
+        runtime: 30,
+        seasonNumber: 1,
+        stillPath: null,
+        title: 'Pilot',
       },
-      method: 'POST',
+      tvSeries: { id: 1, posterPath: '/p.jpg', slug: 'x', title: 'X' },
+      userId,
+      watchedAt: Date.UTC(2024, 0, 1),
     });
-    expect(response.status).toBe(401);
+    const unmarkItem = (userId: string) => ({
+      episodeNumber: 1,
+      seasonNumber: 1,
+      tvSeries: { id: 1, posterPath: '/p.jpg', slug: 'x', title: 'X' },
+      userId,
+    });
+
+    // Something to lose: a mark and list rows of the other user
+    const seedOther = () => {
+      seedUser();
+      seedUser({ id: OTHER_USER_ID, username: 'other' });
+      db.seed('Watched', [
+        {
+          pk: `USER#${OTHER_USER_ID}`,
+          seasonNumber: 1,
+          seriesId: 1,
+          sk: 'SERIES#1#S001#E001',
+          userId: OTHER_USER_ID,
+          watchedAt: Date.UTC(2024, 0, 1),
+        },
+      ]);
+      for (const list of ['WATCHLIST', 'FAVORITES', 'IN_PROGRESS']) {
+        db.seed('Lists', [
+          {
+            createdAt: 1,
+            id: 1,
+            pk: `USER#${OTHER_USER_ID}`,
+            sk: `LIST#${list}#ITEM#1`,
+          },
+        ]);
+      }
+      return { lists: db.dump('Lists'), watched: db.dump('Watched') };
+    };
+
+    it.each([
+      ['POST', 'watched/series/1', { watchProvider: null }],
+      ['POST', 'watched/series/1/season/1', { watchProvider: null }],
+      ['POST', 'watched/series/1/season/1/episode/1', { watchProvider: null }],
+      ['DELETE', 'watched/series/1', undefined],
+      ['DELETE', 'watched/series/1/season/1', undefined],
+      ['DELETE', 'watched/series/1/season/1/episode/1', undefined],
+      ['POST', 'watched/batch', [batchItem(OTHER_USER_ID)]],
+      ['POST', 'watched/batch/delete', [unmarkItem(OTHER_USER_ID)]],
+      ['POST', 'list/watchlist', listItem],
+      ['DELETE', 'list/in_progress/1', undefined],
+    ])(
+      'refuses %s /user/:other/%s and leaves their data alone',
+      async (method, path, body) => {
+        const before = seedOther();
+
+        const response = await request(`/user/${OTHER_USER_ID}/${path}`, {
+          as: USER_ID,
+          body,
+          method,
+        });
+
+        expect(response.status).toBe(401);
+        expect(db.dump('Watched')).toEqual(before.watched);
+        expect(db.dump('Lists')).toEqual(before.lists);
+      },
+    );
+
+    // Your own route, but a batch item that names someone else
+    it.each([
+      ['watched/batch', batchItem],
+      ['watched/batch/delete', unmarkItem],
+    ])(
+      'refuses a %s item of another user on your own route',
+      async (path, item) => {
+        const before = seedOther();
+
+        const response = await request(`/user/${USER_ID}/${path}`, {
+          as: USER_ID,
+          body: [item(USER_ID), item(OTHER_USER_ID)],
+          method: 'POST',
+        });
+
+        expect(response.status).toBe(403);
+        expect(db.dump('Watched')).toEqual(before.watched);
+        expect(db.dump('Lists')).toEqual(before.lists);
+      },
+    );
   });
 });
 

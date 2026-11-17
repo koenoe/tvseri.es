@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { getCacheItem, setCacheItem } from '@/lib/db/cache';
 import { db } from './db';
-import { onGet } from './fakeHttp';
+import { onGet, requestedUrls, resetRequests } from './fakeHttp';
 import { fakeShow } from './fixtures/tmdb';
 import { request } from './request';
 import { seedUser, USER_ID } from './seed';
@@ -29,9 +29,13 @@ describe('review fixes', () => {
     const real = await request('/series/1396/season/1/ratings');
     expect(await real.json()).toEqual({ ratings: { 1: { imdbRating: 9 } } });
 
+    resetRequests();
     const beyond = await request('/series/1396/season/9/ratings');
     expect(beyond.status).toBe(200);
     expect(await beyond.json()).toEqual({ ratings: {} });
+    expect(
+      requestedUrls().filter((url) => url.hostname === 'www.omdbapi.com'),
+    ).toEqual([]);
 
     const silly = await request('/series/1396/season/123456/ratings');
     expect(silly.status).toBe(400);

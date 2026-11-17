@@ -5,7 +5,7 @@ import GuardedSection from '@/components/ui/row/GuardedSection';
 import RowError from '@/components/ui/row/RowError';
 import RowSkeleton from '@/components/ui/row/RowSkeleton';
 import { isUnavailable } from '@/lib/cache/unavailable';
-
+import type { CountryNames } from '../../_discover/data/countryNames';
 import { getLandingFacts } from '../../_discover/data/facts';
 import { getWhereToStart } from '../../_discover/data/whereToStart';
 import {
@@ -20,7 +20,6 @@ import {
 import { SwitchGhost } from '../../_discover/landing/skeletons';
 import { fillStartSlots } from '../../_discover/landing/startSlots';
 import { secondRow } from '../_data/madeFor';
-import type { CountryNames } from '../_data/names';
 import { countryRowLoaders } from '../_data/rows';
 
 /** Rows of `countryRowLoaders` (0 is Where to start's picks) */

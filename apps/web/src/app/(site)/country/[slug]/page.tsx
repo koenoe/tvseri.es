@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-
+import { countryNames } from '../../_discover/data/countryNames';
 import { NOT_FOUND_METADATA } from '../../_discover/landing/notFoundMetadata';
 import CountryLanding, {
   CountryLandingShell,
   isCountrySlug,
 } from '../_components/CountryLanding';
-import { countryNames } from '../_data/names';
 
 /** One sample code (Cache Components needs one); every other country renders on demand and is cached */
 export function generateStaticParams() {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { countryNames } from './names';
+import { countryNames } from './countryNames';
 
 describe('countryNames', () => {
   it('names the United Kingdom in English only (its own name is the same)', () => {

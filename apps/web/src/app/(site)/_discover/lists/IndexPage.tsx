@@ -12,8 +12,8 @@ import { isUnavailable } from '@/lib/cache/unavailable';
 import cn from '@/lib/cn';
 import { formatGrouped } from '@/lib/formatCount';
 
-import { countryNames } from '../../country/_data/names';
-import { languageName } from '../../language/[slug]/_data/language';
+import { countryNames } from '../data/countryNames';
+import { languageName } from '../data/languageName';
 
 import { INDEX_END_LINE } from '../landing';
 import { networkChips } from './indexChips';

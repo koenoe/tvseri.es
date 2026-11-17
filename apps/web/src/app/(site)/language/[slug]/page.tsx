@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-
+import { languageName } from '../../_discover/data/languageName';
 import { NOT_FOUND_METADATA } from '../../_discover/landing/notFoundMetadata';
 import LanguageLanding, {
   LanguageLandingShell,
 } from './_components/LanguageLanding';
-import { languageName } from './_data/language';
 
 type Props = Readonly<{ params: Promise<{ slug: string }> }>;
 

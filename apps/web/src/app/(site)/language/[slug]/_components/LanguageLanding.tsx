@@ -1,8 +1,7 @@
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-
+import { languageName } from '../../../_discover/data/languageName';
 import { LandingPage, LandingShell } from '../../../_discover/landing';
-import { languageName } from '../_data/language';
 import { languageLook } from '../_data/look';
 import {
   LanguageHeading,

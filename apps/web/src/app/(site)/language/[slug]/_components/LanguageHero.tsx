@@ -4,7 +4,7 @@ import { type ReactNode, Suspense } from 'react';
 import { languageGlyph, variantTGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
-
+import { languageName } from '../../../_discover/data/languageName';
 import {
   LandingCrumb,
   LandingShowCount,
@@ -13,7 +13,7 @@ import {
   PlainHeadingSkeleton,
   PlainHeroFrame,
 } from '../../../_discover/landing';
-import { htmlLang, languageName, scriptTabs } from '../_data/language';
+import { htmlLang, scriptTabs } from '../_data/language';
 import ScriptSwitch from './ScriptSwitch';
 
 const TITLE_ID = 'language-title';

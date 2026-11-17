@@ -6,7 +6,7 @@ import { GHOST_LOOK, GhostLine } from '@/components/ui/row/RowGhosts';
 import RowSkeleton from '@/components/ui/row/RowSkeleton';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import cn from '@/lib/cn';
-
+import { languageName } from '../../../_discover/data/languageName';
 import {
   END_LINE,
   LandingEndCard,
@@ -16,7 +16,6 @@ import {
   type PlaceholderLook,
   SectionPlaceholder,
 } from '../../../_discover/landing';
-import { languageName } from '../_data/language';
 import { getTitleWall, languageRows } from '../_data/loaders';
 import TitleWall from './TitleWall';
 

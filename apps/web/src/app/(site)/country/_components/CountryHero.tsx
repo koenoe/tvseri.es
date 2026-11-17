@@ -9,7 +9,7 @@ import {
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import { isUnavailable } from '@/lib/cache/unavailable';
-
+import type { CountryNames } from '../../_discover/data/countryNames';
 import { getLandingFacts } from '../../_discover/data/facts';
 import {
   formatShows,
@@ -19,7 +19,6 @@ import {
   TITLE_SPACE,
   TitleLineGhost,
 } from '../../_discover/landing';
-import type { CountryNames } from '../_data/names';
 
 const TITLE_ID = 'country-title';
 

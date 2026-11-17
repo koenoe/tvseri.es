@@ -2,12 +2,11 @@ import { landingFilter } from '@tvseri.es/constants';
 import { notFound } from 'next/navigation';
 
 import { isUnavailable } from '@/lib/cache/unavailable';
-
+import { countryNames } from '../../_discover/data/countryNames';
 import { getLandingColour } from '../../_discover/data/leadColour';
 import { getWhereToStart } from '../../_discover/data/whereToStart';
 import { LandingPage, LandingShell } from '../../_discover/landing';
 import { landingLook } from '../../_discover/landing/landingLook';
-import { countryNames } from '../_data/names';
 import CountryDotMap from './CountryDotMap';
 import CountryHero, { CountryHeroSkeleton } from './CountryHero';
 import CountrySections, { CountrySectionsSkeleton } from './CountrySections';

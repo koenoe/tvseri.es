@@ -63,6 +63,15 @@ export default function DropZoneFace({
   );
 }
 
+/**
+ * Where the picture's block (the tray and the two lines) sits from md: at
+ * the top the centring gave it, (300 − 148) / 2 = 76px. From md its lines
+ * never wrap, so the block is always 148px tall and this is the centre;
+ * pinned to the top, it stays put when a slow device paints the tray before
+ * the lines under it are parsed (centred, the tray moved up 40px as they
+ * arrived: CLS 0.023 at 800px). Below md the line wraps, so it stays centred.
+ */
+const FACE_TOP = 'md:justify-start md:pt-[76px]';
+
 /** The frame both share: 300px (240 on phones), the inset edge. */
-export const DROP_ZONE_FRAME =
-  'relative flex h-75 w-full flex-col items-center justify-center overflow-hidden rounded-[22px] bg-[#151b1c] text-white shadow-[inset_0_0_0_1.5px_rgb(255_255_255/0.14)] max-md:h-60';
+export const DROP_ZONE_FRAME = `relative flex h-75 w-full flex-col items-center justify-center overflow-hidden rounded-[22px] bg-[#151b1c] text-white shadow-[inset_0_0_0_1.5px_rgb(255_255_255/0.14)] max-md:h-60 ${FACE_TOP}`;

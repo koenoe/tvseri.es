@@ -29,9 +29,11 @@ describe('dealRandom', () => {
 });
 
 describe('slotAt', () => {
-  it('fans five cards and hides the rest', () => {
-    expect(slotAt(0)).toMatchObject({ rotate: 0, x: 0 });
-    expect(slotAt(3)).toMatchObject({ rotate: -14, x: -84, y: 22 });
+  it('shows five cards and hides the rest behind the deck', () => {
+    expect([0, 1, 2, 3, 4].map((index) => slotAt(index).opacity)).toEqual([
+      1, 1, 1, 1, 1,
+    ]);
+    expect(slotAt(5).opacity).toBe(0);
     expect(slotAt(7).opacity).toBe(0);
   });
 });

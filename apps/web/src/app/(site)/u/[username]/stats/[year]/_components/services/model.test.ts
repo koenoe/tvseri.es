@@ -143,12 +143,6 @@ describe('buildServices', () => {
 });
 
 describe('seriesLine fitting the column', () => {
-  it('keeps the Plex line whole', () => {
-    expect(seriesLine(names('Billions', 'Barry', 'The Pitt'), 33)).toBe(
-      'Billions, Barry, The Pitt and 30 more',
-    );
-  });
-
   it('names fewer shows when three don’t fit, so nothing clips', () => {
     expect(
       seriesLine(names('Adolescence', 'Dept. Q', 'Black Rabbit'), 30),

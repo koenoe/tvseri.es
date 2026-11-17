@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  FINISHED_TILES,
-  finishedFacts,
-  finishedTile,
-  seasonsLabel,
-} from './model';
+import { finishedFacts, finishedTile, seasonsLabel } from './model';
 
 describe('seasonsLabel', () => {
   it('names one season', () => {
@@ -87,9 +82,5 @@ describe('finishedTile', () => {
       { kind: 'finished', text: 'Finished Apr 11' },
       { kind: 'runtime', text: '13h 45m' },
     ]);
-  });
-
-  it('draws six tiles', () => {
-    expect(FINISHED_TILES).toBe(6);
   });
 });

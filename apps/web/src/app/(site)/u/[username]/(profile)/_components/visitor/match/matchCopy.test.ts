@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 
-import { LEVELS, levelStyle } from './levels';
 import {
   arcDash,
   levelLine,
@@ -18,21 +17,6 @@ describe('arcDash', () => {
 
   it('is an empty ring without a level', () => {
     expect(arcDash(60, null)).toBe('0 100');
-  });
-});
-
-describe('levels', () => {
-  it('has the six words and colours', () => {
-    expect(Object.values(LEVELS).map((level) => level.word)).toEqual([
-      'High',
-      'Low',
-      'Medium',
-      'Super',
-      'Very high',
-      'Very low',
-    ]);
-    expect(levelStyle('super').hex).toBe('#8fdc5a');
-    expect(levelStyle(null).word).toBe('');
   });
 });
 

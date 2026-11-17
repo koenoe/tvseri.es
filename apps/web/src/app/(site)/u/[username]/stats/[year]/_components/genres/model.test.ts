@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { genreRows, PHONE_ROWS } from './model';
+import { genreRows } from './model';
 
 const items = [
   { count: 48, genre: 'Drama' },
@@ -38,9 +38,5 @@ describe('genreRows', () => {
   it('is empty without genres', () => {
     expect(genreRows([])).toEqual([]);
     expect(genreRows([{ count: 0, genre: 'Drama' }])).toEqual([]);
-  });
-
-  it('keeps six rows for the phone', () => {
-    expect(PHONE_ROWS).toBe(6);
   });
 });

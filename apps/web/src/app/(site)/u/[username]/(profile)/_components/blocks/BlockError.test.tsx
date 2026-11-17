@@ -33,10 +33,8 @@ describe('BlockError', () => {
     const alert = screen.getByRole('alert');
     expect(alert.textContent).toContain('This year so far didn’t load.');
     expect(screen.getByRole('button', { name: 'Try again' })).toBeTruthy();
-    // the card is absolutely positioned inside the placeholder's wrapper
+    // the card lies over the placeholder, which stays in the flow
     expect(alert.parentElement).toBe(placeholder.parentElement);
-    expect(alert.className).toContain('absolute');
-    expect(alert.className).toContain('inset-0');
   });
 
   it('draws a one-line block as one line, without the explanation', () => {

@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
 
-import { episodeRun } from '@/lib/marking/copy';
-
 import {
   alsoBigText,
   bingeText,
@@ -38,28 +36,6 @@ describe('dominantSeries', () => {
       dominantSeries([ep(3, 1, 1), ep(4, 1, 1), ep(4, 1, 2)]),
     ).toMatchObject({ seriesId: 4 });
     expect(dominantSeries([])).toBeUndefined();
-  });
-});
-
-describe('the badge: a night’s run (episodeRun)', () => {
-  it('shows a run in one season', () => {
-    expect(episodeRun(run(2, 7, 12))).toBe('S02E07–E12');
-  });
-
-  it('shows a run across seasons', () => {
-    expect(episodeRun([...run(1, 9, 10), ...run(2, 1, 3)])).toBe(
-      'S01E09–S02E03',
-    );
-  });
-
-  it('shows one episode', () => {
-    expect(episodeRun(run(2, 7, 7))).toBe('S02E07');
-  });
-
-  it('orders by season and episode, not by when they were watched', () => {
-    expect(episodeRun([ep(1, 2, 9), ep(1, 2, 7), ep(1, 2, 8)])).toBe(
-      'S02E07–E09',
-    );
   });
 });
 

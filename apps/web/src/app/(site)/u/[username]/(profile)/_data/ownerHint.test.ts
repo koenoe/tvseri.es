@@ -108,6 +108,7 @@ describe('a forged display cookie naming another user', () => {
       params: { id: 'u-juno' },
     });
     // `/me/library-ids` is alex's own library ("New to you"), with alex's token
+    expect(paths()).toContain('/me/library-ids');
     for (const [path, options] of apiFetch.mock.calls) {
       if (String(path).startsWith('/me/')) {
         expect(options).toMatchObject({ accessToken: 'alex-token' });
@@ -155,6 +156,16 @@ describe('a forged display cookie naming another user', () => {
       async (viewer) => viewer,
     );
     expect(settled.value).toBe('visitor');
+  });
+});
+
+describe('a forged display cookie on a signed-out request', () => {
+  it('is the 401, reading only the public lookup and no account', async () => {
+    getViewer.mockResolvedValue(null);
+
+    await expect(getProfile(params)).rejects.toThrow('UNAUTHORIZED');
+    expect(auth).not.toHaveBeenCalled();
+    expect(paths()).toEqual(['/user/by-username/:username']);
   });
 });
 

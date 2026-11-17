@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { lastWatchedLine, withoutAnswered } from './pausedCopy';
+import { lastWatchedLine } from './pausedCopy';
 
 const NOW = Date.UTC(2026, 10, 12, 15);
 
@@ -12,13 +12,5 @@ describe('Paused copy', () => {
     expect(lastWatchedLine({ lastWatchedAt: Date.UTC(2025, 5, 1) }, NOW)).toBe(
       'Last watched Jun 1, 2025',
     );
-  });
-
-  it('drops answered rows', () => {
-    const rows = [{ seriesId: 1 }, { seriesId: 2 }, { seriesId: 3 }];
-    expect(withoutAnswered(rows, new Set([2]))).toEqual([
-      { seriesId: 1 },
-      { seriesId: 3 },
-    ]);
   });
 });

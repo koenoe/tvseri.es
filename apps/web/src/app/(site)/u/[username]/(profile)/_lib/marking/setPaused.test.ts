@@ -27,6 +27,16 @@ describe('answerPaused', () => {
     expect(result).toEqual({ done: [1], ok: false });
   });
 
+  it('sends a Hide all of exactly the cap', async () => {
+    const update = vi.fn().mockResolvedValue(ok);
+    const all = Array.from({ length: MAX_PAUSED }, (_, i) => i + 1);
+    expect(await answerPaused(all, 'hide', update)).toEqual({
+      done: all,
+      ok: true,
+    });
+    expect(update).toHaveBeenCalledTimes(MAX_PAUSED);
+  });
+
   it('sends nothing for too many or invalid ids', async () => {
     const update = vi.fn();
     const many = Array.from({ length: MAX_PAUSED + 1 }, (_, i) => i + 1);

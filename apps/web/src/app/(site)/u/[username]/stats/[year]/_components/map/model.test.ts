@@ -40,9 +40,14 @@ describe('countryAlpha', () => {
 
 describe('dotPaths', () => {
   it('splits highlighted countries from the rest of the land', () => {
-    const { base, countries } = dotPaths(new Set(['US', 'GB']));
-    expect(countries.get('US')?.split('h0').length).toBeGreaterThan(150);
-    expect(countries.get('GB')?.startsWith('M')).toBe(true);
-    expect(base.split('h0').length).toBeGreaterThan(3000);
+    const land = dotPaths(new Set()).base;
+    const { base, countries } = dotPaths(new Set(['US', 'GB', 'Atlantis']));
+    expect([...countries.keys()].sort()).toEqual(['GB', 'US']);
+    expect(countries.get('US')).not.toBe('');
+    expect(countries.get('GB')).not.toBe('');
+    // every dot is drawn once: in its country or in the land
+    const drawn = [base, ...countries.values()].join('').length;
+    expect(drawn).toBe(land.length);
+    expect(base.length).toBeLessThan(land.length);
   });
 });

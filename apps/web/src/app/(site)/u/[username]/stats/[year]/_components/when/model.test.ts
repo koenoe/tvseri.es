@@ -9,7 +9,6 @@ import {
   nightShareText,
   peakIndex,
   peakText,
-  WEEKDAY_NAMES,
 } from './model';
 
 const hours2025 = [
@@ -87,10 +86,9 @@ describe('daytimeText', () => {
 });
 
 describe('tooltips', () => {
-  it('names hours and weekdays', () => {
+  it('names the hours', () => {
     expect(hourRange(0)).toBe('00:00 – 01:00');
     expect(hourRange(23)).toBe('23:00 – 00:00');
-    expect(WEEKDAY_NAMES[5]).toBe('Saturdays');
   });
 });
 

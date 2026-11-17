@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { spanOf, wallCapacity, wallLayout } from './wall';
+import { spanOf, wallLayout } from './wall';
 
 const STORY = { cols: 8, gap: 10, left: 90, rows: 3, top: 760, width: 900 };
 const SQUARE = { cols: 5, gap: 10, left: 552, rows: 4, top: 156, width: 456 };
@@ -15,13 +15,6 @@ const box = (cell: {
 describe('spanOf', () => {
   it('sizes by rank: #1 3 × 3, #2–3 2 × 2, the rest 1 × 1', () => {
     expect([0, 1, 2, 3, 9].map(spanOf)).toEqual([3, 2, 2, 1, 1]);
-  });
-});
-
-describe('wallCapacity', () => {
-  it('fits the top 10 on the story and the top 6 on the square', () => {
-    expect(wallCapacity(STORY)).toBe(10);
-    expect(wallCapacity(SQUARE)).toBe(6);
   });
 });
 

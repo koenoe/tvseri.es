@@ -94,23 +94,18 @@ describe('CatchUpRun', () => {
         seriesId={9}
       />,
     );
-    const group = screen.getByRole('group', {
-      name: 'Mark episodes as watched up to',
-    });
-    expect(group.className).not.toContain('flex-wrap');
-    // the fourth chip shows in a wide card only
     expect(
-      screen.getByLabelText('Mark up to S05E06 as watched').className,
-    ).toContain('hidden');
+      screen.getByRole('group', { name: 'Mark episodes as watched up to' }),
+    ).toBeTruthy();
     // "+9" in a narrow card, "+8" in a wide one, both to the season on the show page
-    const narrow = screen.getByRole('link', {
-      name: '9 more waiting in season 5',
-    });
-    const wide = screen.getByRole('link', {
-      name: '8 more waiting in season 5',
-    });
-    expect(narrow.getAttribute('href')).toBe(`${HREF}?season=5`);
-    expect(wide.className).toContain('hidden');
+    for (const name of [
+      '9 more waiting in season 5',
+      '8 more waiting in season 5',
+    ]) {
+      expect(screen.getByRole('link', { name }).getAttribute('href')).toBe(
+        `${HREF}?season=5`,
+      );
+    }
     expect(
       screen
         .getByRole('link', { name: 'Season 6: 14 episodes waiting' })

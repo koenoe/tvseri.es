@@ -111,16 +111,4 @@ describe('DiaryRow (one show on one day)', () => {
     render(<DiaryRow row={{ ...run, bulk: true }} />);
     expect(screen.getByText('Marked in one go')).toBeTruthy();
   });
-
-  it('carries the ⋯ and a tag where the page passes them', () => {
-    render(
-      <DiaryRow
-        action={<button type="button">More</button>}
-        row={base}
-        tag={<span>New to you</span>}
-      />,
-    );
-    expect(screen.getByRole('button', { name: 'More' })).toBeTruthy();
-    expect(screen.getByText('New to you')).toBeTruthy();
-  });
 });

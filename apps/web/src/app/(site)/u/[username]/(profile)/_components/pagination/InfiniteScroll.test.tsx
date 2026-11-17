@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import InfiniteScroll from './InfiniteScroll';
@@ -33,6 +33,19 @@ describe('InfiniteScroll', () => {
       </InfiniteScroll>,
     );
     expect(inView.mock.calls[0]?.[2]).toEqual({ margin: '0px 0px 600px 0px' });
+  });
+
+  it('loads the next page once the sentinel comes into view', () => {
+    const load = vi.fn(() => Promise.resolve());
+    render(
+      <InfiniteScroll hasMore loadMore={load}>
+        <p>rows</p>
+      </InfiniteScroll>,
+    );
+    expect(load).not.toHaveBeenCalled();
+    const onEnter = inView.mock.calls[0]?.[1] as () => void;
+    act(() => onEnter());
+    expect(load).toHaveBeenCalledOnce();
   });
 
   it('has no sentinel at the end', () => {

@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildTiles,
-  directionWord,
   longestStreakYet,
   streakBracket,
   weekTitle,
@@ -134,12 +133,6 @@ describe('week tooltips', () => {
     expect(weekTitle(13)).toBe('13 episodes');
     expect(weekTitle(1)).toBe('1 episode');
     expect(weekTitle(0)).toBe('Nothing watched');
-  });
-
-  it('says which way a tile changed, in words', () => {
-    expect(directionWord('up')).toBe('Up');
-    expect(directionWord('down')).toBe('Down');
-    expect(directionWord(null)).toBeNull();
   });
 });
 

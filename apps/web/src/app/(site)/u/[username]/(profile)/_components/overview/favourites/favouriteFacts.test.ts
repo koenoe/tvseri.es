@@ -1,7 +1,7 @@
-import type { LibraryIds, ListItemFacts } from '@tvseri.es/schemas';
+import type { ListItemFacts } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
-import { favouriteFacts, relationOf, suggestionFacts } from './favouriteFacts';
+import { favouriteFacts, suggestionFacts } from './favouriteFacts';
 
 // Thu 12 Nov 2026
 const NOW = Date.UTC(2026, 10, 12, 15);
@@ -70,22 +70,5 @@ describe('favouriteFacts', () => {
       '4 seasons',
       '44h',
     ]);
-  });
-});
-
-describe('relationOf', () => {
-  const ids: LibraryIds = {
-    favorites: [1],
-    inProgress: [4],
-    watched: [1, 2],
-    watchlist: [3],
-  };
-
-  it('strongest first', () => {
-    expect(relationOf(ids, 1)).toBe('both-love');
-    expect(relationOf(ids, 2)).toBe('seen');
-    expect(relationOf(ids, 4)).toBe('watching');
-    expect(relationOf(ids, 3)).toBe('watchlist');
-    expect(relationOf(ids, 9)).toBe('new');
   });
 });

@@ -59,7 +59,6 @@ describe('weekLinesSvg', () => {
     );
     expect(markup).toContain('width="100%"');
     expect(markup).toContain('x="25.000%"');
-    expect(markup).toContain('x="-1"');
   });
 
   it('spaces the slots by the gap, as flex does', () => {

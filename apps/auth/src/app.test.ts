@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { SCRIPT_HEADER } from './app';
+import { CODE_TTL } from './lib/codeLifetime';
 import { browser, ORIGIN } from './testing/browser';
 import { authorizeUrl, createTestApp } from './testing/testApp';
 import { FONT } from './ui/assets';
@@ -305,6 +306,33 @@ describe('email code flow', () => {
     });
     expect(res.status).toBe(302);
     expect(res.headers.get('location')).toContain('/api/auth/callback?code=');
+  });
+
+  describe('the code lifetime', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    const signInAfter = async (seconds: number) => {
+      vi.useFakeTimers({ now: Date.now(), toFake: ['Date'] });
+      const { b, lastCode } = await startSignIn();
+      await requestCode(b);
+      vi.setSystemTime(Date.now() + seconds * 1000);
+      return b.post('/code/authorize', {
+        action: 'verify',
+        code: lastCode('ana@example.com') ?? '',
+      });
+    };
+
+    it('takes the right code until the lifetime the email states', async () => {
+      expect((await signInAfter(CODE_TTL - 1)).status).toBe(302);
+    });
+
+    it('refuses the right code once that lifetime is over', async () => {
+      const res = await signInAfter(CODE_TTL);
+      expect(res.status).not.toBe(302);
+      expect(await res.text()).toContain('This code has expired.');
+    });
   });
 
   it('turns a filled honeypot away without sending anything', async () => {

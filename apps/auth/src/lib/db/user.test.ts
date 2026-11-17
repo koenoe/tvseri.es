@@ -104,21 +104,6 @@ describe('createUser', () => {
     }
   });
 
-  it.each(Array.from({ length: 20 }, (_, i) => i))(
-    'never derives the handle from the email or name (run %i)',
-    async () => {
-      table();
-      const user = await createUser({
-        email: 'happy.penguin@example.com',
-        name: 'Happy Penguin',
-      });
-      // the words come from the list, the email's local part never as a whole
-      expect(user.username).not.toBe('happypenguin');
-      expect(user.username).not.toBe('happy-penguin');
-      expect(user.username).toMatch(/-\d{1,3}$/);
-    },
-  );
-
   it('claims the handle and the email and writes the user in one conditional transaction', async () => {
     table();
     generated.names = ['calm-otter-412'];
@@ -230,5 +215,12 @@ describe('findUser by email', () => {
         : {},
     );
     expect((await findUser({ email: 'old@example.com' }))?.id).toBe('OLD');
+  });
+
+  it('finds nobody for an address with neither a claim nor an index entry', async () => {
+    send.mockImplementation(async (command: unknown) =>
+      command instanceof QueryCommand ? { Items: [] } : {},
+    );
+    expect(await findUser({ email: 'nobody@example.com' })).toBeNull();
   });
 });

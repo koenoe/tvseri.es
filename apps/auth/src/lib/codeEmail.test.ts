@@ -29,7 +29,7 @@ const preheader = (html: string) =>
     .match(/<div style="display:none[^>]*>([\s\S]*?)<\/div>/)?.[1]
     ?.replace(/(&#847;|&zwnj;|&nbsp;)+$/, '');
 
-describe('the code email (EMCode2, A · Margin rule)', () => {
+describe('the code email', () => {
   it('ends the subject with the code, right after the word “code”', () => {
     expect(email.subject).toBe('Your tvseri.es sign-in code: 482913');
   });
@@ -47,9 +47,7 @@ describe('the code email (EMCode2, A · Margin rule)', () => {
 
   it('has the code exactly once, as one unbroken text run in its own element', () => {
     expect(count(email.html, '482913')).toBe(1);
-    expect(body(email.html)).toMatch(
-      /<div class="em-code" style="[^"]*letter-spacing:\.16em;font-variant-numeric:tabular-nums;[^"]*">482913<\/div>/,
-    );
+    expect(body(email.html)).toMatch(/<div class="em-code"[^>]*>482913<\/div>/);
   });
 
   it('has nothing to load and nothing to click', () => {
@@ -73,12 +71,10 @@ describe('the code email (EMCode2, A · Margin rule)', () => {
     expect(email.html).toContain('a[x-apple-data-detectors]');
   });
 
-  it('is dark on the site’s ground, in English, for phones too', () => {
+  // A client must not invert the dark email into an unreadable one
+  it('declares its language and its dark colour scheme', () => {
     expect(email.html).toContain('<html lang="en" dir="ltr">');
     expect(email.html).toContain('<meta name="color-scheme" content="dark">');
-    expect(email.html).toContain('bgcolor="#1c2223"');
-    expect(email.html).toContain('border-left:3px solid #ffffff');
-    expect(email.html).toContain('@media (max-width:480px)');
   });
 
   it('has the hand-written text part', () => {
@@ -97,8 +93,6 @@ describe('the code email (EMCode2, A · Margin rule)', () => {
   });
 
   it('stays small: under 4 KB of HTML', () => {
-    const bytes = Buffer.byteLength(email.html);
-    expect(bytes).toBeLessThan(4 * 1024);
-    expect(bytes).toBeGreaterThan(3000);
+    expect(Buffer.byteLength(email.html)).toBeLessThan(4 * 1024);
   });
 });

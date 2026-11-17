@@ -12,26 +12,6 @@ const USER = { id: '01JUSERAAAAAAAAAAAAAAAAAAA', role: 'user' };
 const as = (role: Role) => ({ role });
 
 describe('createRefreshProperties', () => {
-  it('takes the role from the user item when it changed', async () => {
-    const refresh = createRefreshProperties(async () => ({ role: 'admin' }));
-    expect(await refresh({ properties: USER, type: 'user' })).toEqual({
-      ...USER,
-      role: 'admin',
-    });
-  });
-
-  it('demotes as well', async () => {
-    const refresh = createRefreshProperties(async () => ({ role: 'user' }));
-    expect(
-      await refresh({ properties: { ...USER, role: 'admin' }, type: 'user' }),
-    ).toEqual(USER);
-  });
-
-  it('changes nothing when the role is the same', async () => {
-    const refresh = createRefreshProperties(async () => ({ role: 'user' }));
-    expect(await refresh({ properties: USER, type: 'user' })).toBeUndefined();
-  });
-
   it('keeps the token as it is when the read fails or the user is gone', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const failing = createRefreshProperties(async () => {
@@ -161,5 +141,26 @@ describe('the auth app (createApp, as index.ts wires it) on a refresh', () => {
 
   it('demotes: an admin whose role was removed gets user in the next token', async () => {
     expect(await refreshWith('admin', 'user')).toBe('user');
+  });
+
+  // A throttled read must not cost the viewer their session or their role
+  it('still refreshes, with the role it had, when the user read fails', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { app, storage } = createTestApp({
+      refresh: createRefreshProperties(async () => {
+        throw new Error('throttled');
+      }),
+    });
+    await seedRefreshToken(storage, 'admin');
+    const res = await app.request('https://auth.test/token', {
+      body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: 'user:abc:token-1',
+      }),
+      method: 'POST',
+    });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { access_token: string };
+    expect(claims(body.access_token).properties.role).toBe('admin');
   });
 });

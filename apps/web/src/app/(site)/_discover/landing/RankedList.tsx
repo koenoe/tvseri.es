@@ -21,7 +21,14 @@ import WatchedLabel from '@/components/ui/tile/WatchedLabel';
 import cn from '@/lib/cn';
 import { useIsWatched } from '@/lib/marking/useWatched';
 import showPath from '@/lib/routing/showPath';
-import { rankedPage, showMoreLabel } from './ranked';
+import {
+  RANKED_COLUMNS,
+  RANKED_PHONE,
+  RANKED_PHONE_LIST,
+  RANKED_ROW,
+  rankedPage,
+  showMoreLabel,
+} from './ranked';
 import SeenNote from './SeenNote';
 
 export type RankedShow = Readonly<{
@@ -119,18 +126,15 @@ export default function RankedList({ id, items, subtitle, title }: Props) {
           />
         </span>
       </div>
-      <ol
-        className="grid grid-flow-col grid-cols-2 grid-rows-5 gap-x-12 gap-y-1 max-md:hidden"
-        id={listId}
-      >
+      <ol className={RANKED_COLUMNS} id={listId}>
         {current.items.map(({ item, rank }) => (
           <li key={item.id}>
             <RankedItem rank={rank} show={item} />
           </li>
         ))}
       </ol>
-      <div className="-mx-2 flex flex-col items-start gap-4 md:hidden">
-        <ol className="flex w-full flex-col gap-0.5">
+      <div className={RANKED_PHONE}>
+        <ol className={RANKED_PHONE_LIST}>
           {phone.items.map(({ item, rank }) => (
             <li key={item.id}>
               <RankedItem compact rank={rank} show={item} />
@@ -164,16 +168,11 @@ function RankedItem({
   const watched = useIsWatched(show.id);
   const href = showPath(show.id, show.slug);
   const label = `${rank}. ${show.title}${watched ? ', watched' : ''}`;
+  const rowClass = compact
+    ? `${RANKED_ROW.compact} transition-colors hover:bg-white/5`
+    : `${RANKED_ROW.full} transition-colors duration-200 hover:bg-white/5`;
   return (
-    <TileLink
-      aria-label={label}
-      className={
-        compact
-          ? 'grid grid-cols-[32px_minmax(0,1fr)_auto] items-center gap-3 rounded-12 px-2 py-2.5 transition-colors hover:bg-white/5'
-          : 'grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-4 rounded-12 px-4 py-3 transition-colors duration-200 hover:bg-white/5'
-      }
-      href={href}
-    >
+    <TileLink aria-label={label} className={rowClass} href={href}>
       <span className="text-right text-title-3 text-white/60 tabular-nums">
         {rank}
       </span>

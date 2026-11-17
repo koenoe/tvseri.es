@@ -16,6 +16,7 @@ import { loadLibrarySummary } from '../_data/library';
 import { SHELVES } from '../_lib/shelves';
 import { ShelfChips, ShelfNav } from './ShelfLinks';
 import { NavRule, ROW, ShelvesHeading } from './shelfNavParts';
+import { SHELF_CHIP } from './toolbarStyles';
 
 type Props = Readonly<{ params: ProfileParams }>;
 
@@ -111,10 +112,7 @@ export function ShelfAside({ params }: Props) {
 }
 
 /** A shelf chip as a flat pill its unseen label and count size (no real-looking controls in a skeleton) */
-const CHIP_GHOST = cn(
-  'inline-flex h-8 shrink-0 items-center rounded-full px-3 text-meta font-medium',
-  FLAT,
-);
+const CHIP_GHOST = cn(SHELF_CHIP, FLAT);
 
 function ChipGhosts({
   shelves,
@@ -122,7 +120,7 @@ function ChipGhosts({
   return shelves.map((shelf) => (
     <span className={CHIP_GHOST} key={shelf}>
       {SHELVES[shelf].chip}
-      <span className="ml-1.5 w-5" />
+      <span className="w-5" />
     </span>
   ));
 }

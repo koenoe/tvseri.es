@@ -13,6 +13,7 @@ import { useShelfCounts } from '../../_lib/shelfCounts';
 import { SHELVES } from '../_lib/shelves';
 import { usePillGlide } from '../_lib/usePillGlide';
 import { NavRule, ROW, ShelvesHeading } from './shelfNavParts';
+import { SHELF_CHIP } from './toolbarStyles';
 
 type Props = Readonly<{
   counts: LibraryCounts | null;
@@ -135,10 +136,8 @@ function ShelfRow({
   );
 }
 
-const CHIP =
-  'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-meta font-medium whitespace-nowrap';
 // contrast-exempt: an empty shelf chip (disabled, not a link)
-const EMPTY_CHIP = cn(CHIP, 'bg-white/6 text-white/35');
+const EMPTY_CHIP = cn(SHELF_CHIP, 'bg-white/6 text-white/35');
 
 /**
  * The phone's shelves: one row of chips under the
@@ -177,7 +176,7 @@ export function ShelfChips({ counts, defaultShelf, owner, username }: Props) {
         }
         const href = libraryPath(username, shelf);
         const chipClass = cn(
-          CHIP,
+          SHELF_CHIP,
           on ? 'bg-white text-[#171717]' : 'bg-white/6 text-white/80',
         );
         return (

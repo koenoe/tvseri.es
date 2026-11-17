@@ -11,7 +11,18 @@ import {
 } from '@/components/ui/row/RowGhosts';
 import cn from '@/lib/cn';
 
-import { CHIPS_LINE, LandingHero, TITLE_SPACE } from './LandingHero';
+import {
+  CHIPS_LINE,
+  FACTS_GRID,
+  LandingHero,
+  TITLE_SPACE,
+} from './LandingHero';
+import {
+  RANKED_COLUMNS,
+  RANKED_PHONE,
+  RANKED_PHONE_LIST,
+  RANKED_ROW,
+} from './ranked';
 
 /**
  * `loading`: a Suspense fallback (the fill, `aria-busy` where the section
@@ -89,10 +100,7 @@ export function LandingHeroDetailsSkeleton({
         (line ?? null)
       )}
       {facts > 0 ? (
-        <span
-          aria-hidden
-          className="mt-6 grid w-full grid-cols-2 gap-x-6 gap-y-4 md:mt-10 md:flex md:w-auto md:gap-12"
-        >
+        <span aria-hidden className={FACTS_GRID}>
           {Array.from({ length: facts }, (_, index) => (
             <span className="flex flex-col gap-1" key={index}>
               <span className={`${block} h-8 w-24 md:h-10`} />
@@ -409,12 +417,7 @@ function RankedRowGhost({
   compact,
   look,
 }: Readonly<{ compact?: boolean; look: PlaceholderLook }>) {
-  const rowClass = cn(
-    'grid items-center rounded-12',
-    compact
-      ? 'grid-cols-[32px_minmax(0,1fr)_auto] gap-3 px-2 py-2.5'
-      : 'grid-cols-[48px_minmax(0,1fr)_auto] gap-4 px-4 py-3',
-  );
+  const rowClass = compact ? RANKED_ROW.compact : RANKED_ROW.full;
   return (
     <span aria-hidden className={rowClass}>
       <GhostLine
@@ -450,13 +453,13 @@ export function RankedListSkeleton({
   return (
     <SectionPlaceholder look={look} name="ranked" title={title}>
       <div>
-        <div className="grid grid-flow-col grid-cols-2 grid-rows-5 gap-x-12 gap-y-1 max-md:hidden">
+        <div className={RANKED_COLUMNS}>
           {Array.from({ length: 10 }, (_, index) => (
             <RankedRowGhost key={index} look={look} />
           ))}
         </div>
-        <div className="-mx-2 flex flex-col items-start gap-4 md:hidden">
-          <div className="flex w-full flex-col gap-0.5">
+        <div className={RANKED_PHONE}>
+          <div className={RANKED_PHONE_LIST}>
             {Array.from({ length: 5 }, (_, index) => (
               <RankedRowGhost compact key={index} look={look} />
             ))}

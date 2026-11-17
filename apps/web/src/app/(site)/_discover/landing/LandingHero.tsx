@@ -183,6 +183,10 @@ export function LandingLine({ children }: Readonly<{ children: ReactNode }>) {
 
 export type LandingFact = Readonly<{ value: string; caption: string }>;
 
+/** The facts' grid, shared with the skeleton */
+export const FACTS_GRID =
+  'mt-6 grid w-full grid-cols-2 gap-x-6 gap-y-4 md:mt-10 md:flex md:w-auto md:gap-12';
+
 /**
  * The hero's big numbers: numeral over a caption, in a
  * row 48 apart on desktop, 2 × 2 on a phone.
@@ -191,7 +195,7 @@ export function LandingFacts({
   facts,
 }: Readonly<{ facts: ReadonlyArray<LandingFact> }>) {
   return (
-    <dl className="mt-6 grid w-full grid-cols-2 gap-x-6 gap-y-4 md:mt-10 md:flex md:w-auto md:gap-12">
+    <dl className={FACTS_GRID}>
       {facts.map((fact) => (
         <div className="flex flex-col-reverse gap-1" key={fact.caption}>
           <dt className="text-caption text-white/60">{fact.caption}</dt>

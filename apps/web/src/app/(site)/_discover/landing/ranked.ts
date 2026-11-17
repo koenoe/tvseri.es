@@ -50,3 +50,19 @@ export function showMoreLabel(
   }
   return `Show ${shown + 1} to ${Math.min(shown + step, total)} of ${total}`;
 }
+
+/** The ranked list's layout, shared with its skeleton: two columns of five from md */
+export const RANKED_COLUMNS =
+  'grid grid-flow-col grid-cols-2 grid-rows-5 gap-x-12 gap-y-1 max-md:hidden';
+
+/** A phone's five rows and the Show more button below them */
+export const RANKED_PHONE = '-mx-2 flex flex-col items-start gap-4 md:hidden';
+
+export const RANKED_PHONE_LIST = 'flex w-full flex-col gap-0.5';
+
+/** One row's grid: the rank, the title and facts, the end */
+export const RANKED_ROW = {
+  compact:
+    'grid grid-cols-[32px_minmax(0,1fr)_auto] items-center gap-3 rounded-12 px-2 py-2.5',
+  full: 'grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-4 rounded-12 px-4 py-3',
+} as const;

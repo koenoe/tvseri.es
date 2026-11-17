@@ -10,6 +10,9 @@ export const PILL_ON =
 export const FIELD =
   'flex h-9 w-60 items-center gap-2 rounded-10 bg-white/4 px-3 text-[13px] leading-5 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.1)] focus-within:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.3)]';
 
-/** A visitor's filter chip */
-export const CHIP =
-  'inline-flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3 text-meta font-medium whitespace-nowrap';
+/** A shelf chip (the phone's shelves, the sidebar's skeleton) */
+export const SHELF_CHIP =
+  'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-meta font-medium whitespace-nowrap';
+
+/** A visitor's filter chip: a shelf chip that is a button */
+export const CHIP = `${SHELF_CHIP} cursor-pointer`;

@@ -21,6 +21,9 @@ export const getActiveMonth = () => useDiaryCursor.getState().active;
 export const setJumping = (jumping: boolean) =>
   useDiaryCursor.setState({ jumping });
 
+/** Whether a jump is on its way, read outside render (the diary's landing effect) */
+export const isJumping = () => useDiaryCursor.getState().jumping;
+
 /** The month you're reading; null before the diary has said */
 export const useActiveMonth = (): MonthKey | null =>
   useDiaryCursor((state) => state.active);

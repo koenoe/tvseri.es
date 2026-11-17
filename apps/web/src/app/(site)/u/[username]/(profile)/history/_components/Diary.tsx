@@ -8,7 +8,7 @@ import type { DiaryItem } from '@/lib/profile/views';
 import profilePath from '@/lib/routing/profilePath';
 import InfiniteScroll from '../../_components/pagination/InfiniteScroll';
 import PaginationNotice from '../../_components/pagination/PaginationNotice';
-import { setJumping, useJumping } from '../_lib/activeMonth';
+import { isJumping, setJumping, useJumping } from '../_lib/activeMonth';
 import type { MonthKey } from '../_lib/diary';
 import useActiveMonthTracker from '../_lib/useActiveMonthTracker';
 import useDiary from '../_lib/useDiary';
@@ -63,12 +63,18 @@ export default function Diary({
   const jumping = useJumping();
   useActiveMonthTracker(listRef, months);
 
-  // A jump's list landed (a new first page): to its top, and show it
+  // A jump's list landed (a new first page): to its top, and show it. Only
+  // a jump's: a tab press, Back or Forward also bring a new first page
+  // when the diary was kept from an earlier visit (the router hides a left
+  // page and shows it again), and those keep their own place (the top,
+  // or the browser's restored offset).
   const [seenFirst, setSeenFirst] = useState(first);
   useLayoutEffect(() => {
     if (seenFirst !== first) {
       setSeenFirst(first);
-      scrollToDiaryTop();
+      if (isJumping()) {
+        scrollToDiaryTop();
+      }
     }
     setJumping(false);
   }, [first, seenFirst]);

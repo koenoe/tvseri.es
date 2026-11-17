@@ -3,7 +3,6 @@
 import { alarmOnDeadLetters } from './alerts';
 import { productionReserved } from './concurrency';
 import * as dynamo from './dynamo';
-import * as secrets from './secrets';
 
 /**
  * Undo import: the API queues one message per undo; the consumer
@@ -38,18 +37,7 @@ undoImportQueue.subscribe(
     handler: 'apps/api/src/lambdas/undoImport.handler',
     // Only what it touches: watched items, the user's lastImport, the skips
     // it puts back (prefs rows in Lists), and its own queue for continuations.
-    // The TMDB key and token too: the watched store it reads through loads
-    // the TMDB module, which reads both when it loads (the undo itself never
-    // calls TMDB); without them the function fails before it handles a
-    // message
-    link: [
-      dynamo.lists,
-      dynamo.users,
-      dynamo.watched,
-      secrets.tmdbApiAccessToken,
-      secrets.tmdbApiKey,
-      undoImportQueue,
-    ],
+    link: [dynamo.lists, dynamo.users, dynamo.watched, undoImportQueue],
     memory: '512 MB',
     timeout: '300 seconds',
   },

@@ -57,7 +57,14 @@ const NOT_RUN: ReadonlyArray<
   // catalogue; undoing only queries and deletes watched items and prefs
   {
     handlers: [lambda('undoImport')],
-    resources: ['Cache', 'DominantColor', 'MdblistApiKey', 'PreferredImages'],
+    resources: [
+      'Cache',
+      'DominantColor',
+      'MdblistApiKey',
+      'PreferredImages',
+      'TmdbApiAccessToken',
+      'TmdbApiKey',
+    ],
   },
 ];
 

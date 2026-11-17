@@ -346,33 +346,52 @@ test.describe('stats', () => {
     const rows = page.locator('#year-in-shows-rows [role="img"]');
     await rows.first().scrollIntoViewIfNeeded();
     await hydrated(page);
-    // Per animation frame, how many rows moved since the frame before
+    // Per animation frame: how many rows moved since the frame before, and
+    // whether any row is mid-flight (a transform: the layout animation's
+    // FLIP). Watched from the press until 30 still frames after the first
+    // move, so a slow press or a stalled frame is not the window's end
     const sample = () =>
       page.evaluate(
         () =>
-          new Promise<number[]>((resolve) => {
-            const top = () =>
-              [...document.querySelectorAll('#year-in-shows-rows [role="img"]')]
-                .sort((a, b) =>
-                  (a.getAttribute('aria-label') ?? '').localeCompare(
-                    b.getAttribute('aria-label') ?? '',
-                  ),
-                )
-                .map((row) => row.getBoundingClientRect().top);
-            const moved: number[] = [];
-            let last = top();
-            const start = performance.now();
-            const tick = (now: number) => {
-              const next = top();
-              moved.push(
-                next.filter((y, i) => Math.abs(y - (last[i] ?? y)) > 0.5)
-                  .length,
+          new Promise<Array<{ moved: number; flying: boolean }>>((resolve) => {
+            const rows = () =>
+              [
+                ...document.querySelectorAll(
+                  '#year-in-shows-rows [role="img"]',
+                ),
+              ].sort((a, b) =>
+                (a.getAttribute('aria-label') ?? '').localeCompare(
+                  b.getAttribute('aria-label') ?? '',
+                ),
               );
+            const top = () =>
+              rows().map((row) => row.getBoundingClientRect().top);
+            const frames: Array<{ moved: number; flying: boolean }> = [];
+            let last = top();
+            let still = -1;
+            const tick = () => {
+              const next = top();
+              const moved = next.filter(
+                (y, i) => Math.abs(y - (last[i] ?? y)) > 0.5,
+              ).length;
+              const flying = rows().some((row) => {
+                const { transform } = getComputedStyle(row);
+                return (
+                  transform !== 'none' &&
+                  transform !== 'matrix(1, 0, 0, 1, 0, 0)'
+                );
+              });
+              frames.push({ flying, moved });
               last = next;
-              if (now - start < 1200) {
-                requestAnimationFrame(tick);
+              if (moved > 0 || flying) {
+                still = 0;
+              } else if (still >= 0) {
+                still += 1;
+              }
+              if (still >= 30 || frames.length > 2000) {
+                resolve(frames);
               } else {
-                resolve(moved);
+                requestAnimationFrame(tick);
               }
             };
             requestAnimationFrame(tick);
@@ -381,10 +400,13 @@ test.describe('stats', () => {
     for (const label of ['Most hours', 'In order watched']) {
       const frames = sample();
       await page.getByRole('radio', { name: label }).first().click();
-      // a jump moves the rows in one frame; the spring in several (how
-      // many the machine paints: a CI runner painted six of 1.2s)
-      const framesWithMotion = (await frames).filter((count) => count > 0);
-      expect(framesWithMotion.length, label).toBeGreaterThan(1);
+      // a jump moves the rows in one frame, with no row in flight; the spring
+      // moves them over several (how many the machine paints: a CI runner
+      // painted six, a stalled one two), each row on a transform meanwhile
+      const recorded = await frames;
+      const withMotion = recorded.filter((frame) => frame.moved > 0).length;
+      const inFlight = recorded.some((frame) => frame.flying);
+      expect(withMotion > 1 || inFlight, label).toBe(true);
     }
   });
 

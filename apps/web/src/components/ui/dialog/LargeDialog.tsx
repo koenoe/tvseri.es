@@ -9,8 +9,15 @@ import { LARGE_MOTION, type PanelMotion } from './dialogMotion';
 import { BACKDROP, SHADOW, SURFACE } from './dialogStyles';
 import ModalShell from './ModalShell';
 
+/**
+ * `overflow: clip`, not `hidden`: while the episode card grows, its content
+ * is scaled past the panel's box, and `showModal()` focusing the ✕ out there
+ * made Chrome scroll a hidden (scrollable) panel sideways; the offset then
+ * snapped back as the scale settled, a visible jump. A clipped box can't
+ * scroll.
+ */
 const PANEL = cn(
-  'h-[min(880px,calc(100dvh-48px))] w-[min(1320px,calc(100vw-48px))] self-center justify-self-center overflow-hidden rounded-[20px]',
+  'h-[min(880px,calc(100dvh-48px))] w-[min(1320px,calc(100vw-48px))] self-center justify-self-center overflow-clip rounded-[20px]',
   SURFACE.large,
   SHADOW.large,
   // phones: full screen

@@ -30,15 +30,11 @@ export const GROUP_LABEL = 'truncate text-overline text-white/60 uppercase';
 const GLASS_BLUR =
   'backdrop-blur-[20px] backdrop-saturate-120 [html[data-flat-glass]_&]:backdrop-filter-none [@media(prefers-reduced-transparency:reduce)]:backdrop-filter-none [html[data-flat-glass]_&]:bg-[linear-gradient(rgb(255_255_255/0.05),rgb(255_255_255/0.05)),linear-gradient(rgb(17_19_20/0.94),rgb(17_19_20/0.94))] [@media(prefers-reduced-transparency:reduce)]:bg-[linear-gradient(rgb(255_255_255/0.05),rgb(255_255_255/0.05)),linear-gradient(rgb(17_19_20/0.94),rgb(17_19_20/0.94))]';
 
-/** The desktop panel's glass: an 84% tint. */
+/**
+ * The open menu's glass, the same on desktop (the side panel) and phones
+ * (full screen): an 84% tint under the 5% white wash.
+ */
 export const MENU_GLASS = `bg-[linear-gradient(rgb(255_255_255/0.05),rgb(255_255_255/0.05)),linear-gradient(rgb(17_19_20/0.84),rgb(17_19_20/0.84))] ${GLASS_BLUR}`;
 
-/**
- * The phone's full-screen glass: a 70% tint, so more of the page shows
- * through. Over a white page it is about rgb(97 97 98): white words keep
- * 6.2:1 and the phone's dimmed text (white/80, `PHONE_DIM`) 4.7:1.
- */
-export const PHONE_GLASS = `bg-[linear-gradient(rgb(255_255_255/0.05),rgb(255_255_255/0.05)),linear-gradient(rgb(17_19_20/0.7),rgb(17_19_20/0.7))] ${GLASS_BLUR}`;
-
-/** The phone's labels, account words and note, over the lighter glass. */
+/** The phone's labels, account words and note. */
 export const PHONE_DIM = 'text-white/80';

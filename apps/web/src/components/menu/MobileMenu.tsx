@@ -10,12 +10,12 @@ import {
   ACCOUNT_WORD,
   GROUP_LABEL,
   MARKED_WORD,
+  MENU_GLASS,
   PHONE_DIM,
-  PHONE_GLASS,
 } from './menuLook';
 import { phoneGlassVariants, phoneWordVariants } from './menuMotion';
 
-/* sizes at 390; the dimmed text at white/80 over the lighter glass */
+/* sizes at 390; the dimmed text at white/80 */
 const PHONE_LOOK: MenuLook = {
   account:
     'mt-3.5 flex gap-[22px] border-t border-white/14 pt-0.5 pointer-events-auto',
@@ -37,7 +37,7 @@ const PHONE_LOOK: MenuLook = {
  * The header stays above it as the transparent bar. A tap on the glass
  * (anywhere but a word) closes it.
  */
-const GLASS = cn('absolute inset-0', PHONE_GLASS);
+const GLASS = cn('absolute inset-0', MENU_GLASS);
 
 export default function MobileMenu({
   model,

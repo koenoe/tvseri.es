@@ -217,17 +217,21 @@ export async function firstQueryOnSlow(page: Page, slow: number) {
  * Enter-ahead (P-SR-5): Enter while “bryan cranston” is pending (the stub
  * answers after 1.2 s) opens its first result as soon as it lands.
  * `slowRender`: a busy server, where the person page's full (dynamic) render
- * takes 8 s while its cached route and shell (the prefetch) answer at once;
- * the URL must still change at once.
+ * is still out while its cached route and shell (the prefetch) answer at
+ * once; the URL must change before that render lands.
  */
 export async function enterAhead(
   page: Page,
   { slowRender = false }: Readonly<{ slowRender?: boolean }> = {},
 ) {
+  // `slowRender`: the page's dynamic render is held until the shell has been
+  // seen (not 8s of the clock against a 4s budget, which a slow machine
+  // could miss either way)
+  const held: Array<() => void> = [];
   if (slowRender) {
     await page.route('**/person/17419/bryan-cranston?_rsc=*', async (route) => {
       if (!route.request().headers()['next-router-prefetch']) {
-        await new Promise((resolve) => setTimeout(resolve, 8000));
+        await new Promise<void>((resolve) => held.push(resolve));
       }
       await route.continue().catch(() => undefined);
     });
@@ -238,8 +242,9 @@ export async function enterAhead(
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL('/');
 
-  // 1.2 s for the answer, then the page's shell
-  await expect(page).toHaveURL('/person/17419/bryan-cranston', {
-    timeout: slowRender ? 4000 : 5000,
-  });
+  // the answer, then the page's shell, while its render is still out
+  await expect(page).toHaveURL('/person/17419/bryan-cranston');
+  for (const release of held.splice(0)) {
+    release();
+  }
 }

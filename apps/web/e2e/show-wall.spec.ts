@@ -1,5 +1,6 @@
 import { expect, type Page, test } from '@playwright/test';
 
+import { expectHydrated } from './helpers';
 import { markWatched, signInAs } from './helpers/session';
 import { fontsSettled, phoneScrollbars } from './helpers/viewport';
 
@@ -220,6 +221,8 @@ test.describe('the episode wall holds together on small and odd seasons', () => 
       const showAll = wall.getByRole('button', { name: label });
       await expect(showAll).toHaveAttribute('aria-expanded', 'false');
       const folded = await showAll.boundingBox();
+      // the wall streams and hydrates after the page: a press before that is lost
+      await expectHydrated(showAll);
       await showAll.click();
       // E1 Focus + E2–E12 open + E13 in the watched group: all 13.
       await expect(visibleTiles).toHaveCount(13);

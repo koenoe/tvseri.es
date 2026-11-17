@@ -19,7 +19,7 @@
 @media (max-width:767px){
 .e-bars{bottom:auto;height:470px;}
 .e-scr{bottom:auto;height:471px;background:linear-gradient(0deg,#121718 0%,rgba(18,23,24,0) 60%);}
-.e-main{align-items:stretch;width:auto;padding:48px 0;margin:auto 16px 0;}
+.e-main{align-items:stretch;width:auto;padding:48px 0;margin:auto var(--gutter) 0;}
 .e-acts{gap:8px;}
 .e-btn{flex:1 1 0;height:44px;}
 }

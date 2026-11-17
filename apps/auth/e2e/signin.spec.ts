@@ -444,7 +444,7 @@ test.describe('the page itself', () => {
     ]);
   });
 
-  test('fits a phone: no sideways scroll, 16px gutters, 16px fields', async ({
+  test('fits a phone: no sideways scroll, 32px gutters like the website, 16px fields', async ({
     page,
   }) => {
     test.skip(test.info().project.name !== 'phone', 'phone layout');
@@ -457,6 +457,6 @@ test.describe('the page itself', () => {
         document.documentElement.scrollWidth -
         document.documentElement.clientWidth,
     }));
-    expect(metrics).toEqual({ field: '16px', left: 16, overflow: 0 });
+    expect(metrics).toEqual({ field: '16px', left: 32, overflow: 0 });
   });
 });

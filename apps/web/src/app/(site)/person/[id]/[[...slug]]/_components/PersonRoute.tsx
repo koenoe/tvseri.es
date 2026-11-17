@@ -2,21 +2,22 @@ import { permanentRedirect } from 'next/navigation';
 
 import NotFoundContent from '@/app/_not-found/NotFoundContent';
 import DataDownView from '@/components/ui/error/DataDownView';
-import { isUnavailable } from '@/lib/cache/unavailable';
-import { canonicalPath, toCanonicalId } from '@/lib/routing/canonical';
-import personPath from '@/lib/routing/personPath';
+import { resolveEntityRoute } from '@/lib/routing/entityRoute';
 
-import { loadPerson, loadShows } from '../_data/loaders';
+import { PERSON_PAGE_ROUTE } from '../_data/route';
 import { hasTvCredits } from '../_lib/tvCredits';
 import PersonContent from './PersonContent';
 
 type Params = Promise<{ id: string; slug?: string[] }>;
 
 /**
- * Resolves the URL to a person: the 404 view for a non-numeric, unknown or
- * adult id; the data-down page while the API is unavailable; a 308 to the
- * canonical URL for leading zeros or a missing or stale slug; else the
- * page. Person pages take no query, so the redirect needs none.
+ * Resolves the URL to a person (`resolveEntityRoute`, as the show page
+ * does): the 404 view for a non-numeric, unknown or adult id; the data-down
+ * page while the API is unavailable; the canonical URL for a missing or
+ * stale slug; else the page. It renders after the static shell has
+ * streamed, so the browser follows the redirect client-side (leading zeros
+ * are the config 308 in `lib/routing/redirects.ts`). Person pages take no
+ * query, so the redirect needs none.
  *
  * The 404 view is content, not `notFound()`, and the status comes from
  * `generateMetadata`, for the reason in the show page's `ShowRoute`.
@@ -24,28 +25,16 @@ type Params = Promise<{ id: string; slug?: string[] }>;
 export default async function PersonRoute({
   params,
 }: Readonly<{ params: Params }>) {
-  const resolved = await params;
-  const id = toCanonicalId(resolved.id);
-  if (!id) {
+  const route = await resolveEntityRoute(await params, PERSON_PAGE_ROUTE);
+  if (route.kind === 'not-found') {
     return <NotFoundContent />;
   }
-  // The credits come with the person (the same cached read Known for, Career
-  // and Shows use): a person without TV credits gets no placeholders for
-  // the sections that would stay empty, so nothing collapses under them
-  const [result, shows] = await Promise.all([
-    loadPerson(Number(id)),
-    loadShows(Number(id)),
-  ]);
-  if (isUnavailable(result)) {
+  if (route.kind === 'unavailable') {
     return <DataDownView />;
   }
-  if (result.status === 'not-found') {
-    return <NotFoundContent />;
+  if (route.kind === 'redirect') {
+    permanentRedirect(route.path);
   }
-  const { person } = result;
-  const redirectPath = canonicalPath(resolved, person, personPath);
-  if (redirectPath) {
-    permanentRedirect(redirectPath);
-  }
+  const { person, shows } = route.loaded;
   return <PersonContent person={person} tvCredits={hasTvCredits(shows)} />;
 }

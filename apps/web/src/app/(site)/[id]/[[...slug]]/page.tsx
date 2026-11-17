@@ -1,14 +1,11 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
-import { isUnavailable } from '@/lib/cache/unavailable';
-import getBaseUrl from '@/lib/getBaseUrl';
-import { canonicalPath, toCanonicalId } from '@/lib/routing/canonical';
-import showPath from '@/lib/routing/showPath';
+import { entityMetadata } from '@/lib/routing/entityRoute';
 import ShowRoute from './_components/ShowRoute';
 import ShowSkeleton from './_components/ShowSkeleton';
 import { loadShow } from './_data/loaders';
+import { SHOW_ROUTE } from './_data/route';
 
 type Props = Readonly<{
   params: Promise<{ id: string; slug?: string[] }>;
@@ -37,47 +34,19 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const resolved = await params;
-  const id = toCanonicalId(resolved.id);
-  const show = id ? await loadShow(Number(id)) : null;
-  // The 404 status (the view itself is ShowRoute's: see there why)
-  if (!show || (!isUnavailable(show) && show.status === 'not-found')) {
-    notFound();
-  }
-  if (isUnavailable(show)) {
-    return {};
-  }
-  const { series } = show;
-  const url = `${getBaseUrl()}${showPath(series.id, series.slug)}`;
-  // A stale slug redirects in the page (in the stream, so a client-side
-  // redirect on a first visit): it points crawlers at the canonical URL.
-  if (canonicalPath(resolved, series, showPath)) {
-    return { alternates: { canonical: url }, robots: { index: false } };
-  }
-  const images = series.posterImage
-    ? [
-        {
+  return entityMetadata(await params, SHOW_ROUTE, (series) => ({
+    description: series.description,
+    image: series.posterImage
+      ? {
           alt: `${series.title} poster`,
           height: 450,
           url: series.posterImage,
           width: 300,
-        },
-      ]
-    : undefined;
-  return {
-    alternates: { canonical: url },
-    description: series.description,
-    openGraph: {
-      description: series.description,
-      images,
-      locale: 'en_US',
-      siteName: 'tvseri.es',
-      title: series.title,
-      type: 'video.tv_show',
-      url,
-    },
+        }
+      : undefined,
     title: series.title,
-  };
+    type: 'video.tv_show',
+  }));
 }
 
 /**

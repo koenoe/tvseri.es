@@ -1,15 +1,13 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 
 import { isUnavailable } from '@/lib/cache/unavailable';
-import getBaseUrl from '@/lib/getBaseUrl';
-import { canonicalPath, toCanonicalId } from '@/lib/routing/canonical';
-import personPath from '@/lib/routing/personPath';
+import { entityMetadata } from '@/lib/routing/entityRoute';
 
 import PersonRoute from './_components/PersonRoute';
 import PersonSkeleton from './_components/PersonSkeleton';
 import { loadPerson } from './_data/loaders';
+import { PERSON_ROUTE } from './_data/route';
 import { summary } from './_lib/format';
 
 type Props = Readonly<{
@@ -36,41 +34,14 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const resolved = await params;
-  const id = toCanonicalId(resolved.id);
-  const result = id ? await loadPerson(Number(id)) : null;
-  // The 404 status (the view itself is PersonRoute's)
-  if (!result || (!isUnavailable(result) && result.status === 'not-found')) {
-    notFound();
-  }
-  if (isUnavailable(result)) {
-    return {};
-  }
-  const { person } = result;
-  const url = `${getBaseUrl()}${personPath(person.id, person.slug)}`;
-  // A stale slug redirects in the page (in the stream, so client-side on a
-  // first visit): point crawlers at the canonical URL meanwhile
-  if (canonicalPath(resolved, person, personPath)) {
-    return { alternates: { canonical: url }, robots: { index: false } };
-  }
-  const description = summary(person.biography);
-  const images = person.image
-    ? [{ alt: person.name, height: 900, url: person.image, width: 600 }]
-    : undefined;
-  return {
-    alternates: { canonical: url },
-    description,
-    openGraph: {
-      description,
-      images,
-      locale: 'en_US',
-      siteName: 'tvseri.es',
-      title: person.name,
-      type: 'profile',
-      url,
-    },
+  return entityMetadata(await params, PERSON_ROUTE, (person) => ({
+    description: summary(person.biography),
+    image: person.image
+      ? { alt: person.name, height: 900, url: person.image, width: 600 }
+      : undefined,
     title: person.name,
-  };
+    type: 'profile',
+  }));
 }
 
 /**

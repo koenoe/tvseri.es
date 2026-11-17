@@ -2,10 +2,8 @@ import { Suspense } from 'react';
 
 import NotFoundContent from '@/app/_not-found/NotFoundContent';
 import DataDownView from '@/components/ui/error/DataDownView';
-import { isUnavailable } from '@/lib/cache/unavailable';
-import { canonicalPath, toCanonicalId } from '@/lib/routing/canonical';
-import showPath from '@/lib/routing/showPath';
-import { loadShow } from '../_data/loaders';
+import { resolveEntityRoute } from '@/lib/routing/entityRoute';
+import { SHOW_ROUTE } from '../_data/route';
 import CanonicalRedirect from './CanonicalRedirect';
 import ShowContent from './ShowContent';
 import ShowSkeleton from './ShowSkeleton';
@@ -21,7 +19,8 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
  * missing or stale slug; else the page. Leading zeros never get here: a config redirect
  * (`lib/routing/redirects.ts`) 308s them at the edge.
  *
- * The slug redirect renders inside Suspense and reads the query on that
+ * The URL resolves as the person page's does (`resolveEntityRoute`). The
+ * slug redirect renders inside Suspense and reads the query on that
  * branch; the canonical page reads it only in the episodes' viewer hole
  * (`?season`, already request time), so it stays a cached shell. The (site) App Shell is static (`ensureStatic`), so this is a
  * client-side redirect in the stream that keeps the query; the URL also
@@ -39,26 +38,19 @@ export default async function ShowRoute({
   params,
   searchParams,
 }: Readonly<{ params: Params; searchParams: SearchParams }>) {
-  const resolved = await params;
-  const id = toCanonicalId(resolved.id);
-  if (!id) {
+  const route = await resolveEntityRoute(await params, SHOW_ROUTE);
+  if (route.kind === 'not-found') {
     return <NotFoundContent />;
   }
-  const show = await loadShow(Number(id));
-  if (isUnavailable(show)) {
+  if (route.kind === 'unavailable') {
     return <DataDownView />;
   }
-  if (show.status === 'not-found') {
-    return <NotFoundContent />;
-  }
-  const { series } = show;
-  const redirectPath = canonicalPath(resolved, series, showPath);
-  if (redirectPath) {
+  if (route.kind === 'redirect') {
     return (
       <Suspense fallback={<ShowSkeleton />}>
-        <CanonicalRedirect path={redirectPath} searchParams={searchParams} />
+        <CanonicalRedirect path={route.path} searchParams={searchParams} />
       </Suspense>
     );
   }
-  return <ShowContent query={searchParams} series={series} />;
+  return <ShowContent query={searchParams} series={route.loaded} />;
 }

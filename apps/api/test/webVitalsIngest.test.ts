@@ -1,8 +1,11 @@
 import type { NavigationType, WebVitalRecord } from '@tvseri.es/schemas';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import { sqsMessages } from './db';
+import { metricsDynamo } from '@/routes/metrics/reads';
+
+import { db, sqsMessages } from './db';
 import { request } from './request';
+import { seedUser, USER_ID } from './seed';
 
 const record = (navigationType: NavigationType): WebVitalRecord => ({
   client: { platform: 'web', userAgent: 'Test Browser', version: null },
@@ -68,4 +71,21 @@ describe('POST /metrics/web-vitals', () => {
     expect(res.status).toBe(400);
     expect(webVitals()).toHaveLength(0);
   });
+});
+
+describe('the dashboard reads of /metrics/web-vitals', () => {
+  it.each(['summary', 'routes', 'countries'])(
+    '/%s is admin only, kept by the browser alone',
+    async (view) => {
+      seedUser({ role: 'admin' });
+      vi.spyOn(metricsDynamo, 'send').mockImplementation(((command: never) =>
+        db.send(command)) as never);
+      const path = `/metrics/web-vitals/${view}?days=7`;
+
+      expect((await request(path)).status).toBe(401);
+      const admin = await request(path, { admin: true, as: USER_ID });
+      expect(admin.status).toBe(200);
+      expect(admin.headers.get('cache-control')).toMatch(/^private, /);
+    },
+  );
 });

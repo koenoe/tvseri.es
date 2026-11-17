@@ -22,12 +22,17 @@ function SlideTo({ color }: Readonly<{ color: string }>) {
 }
 
 function ShowPage({
+  initialColor = '#111111',
   mode,
   slideTo = '#222222',
-}: Readonly<{ mode: 'hidden' | 'visible'; slideTo?: string }>) {
+}: Readonly<{
+  initialColor?: string;
+  mode: 'hidden' | 'visible';
+  slideTo?: string;
+}>) {
   return (
     <Activity mode={mode}>
-      <BackgroundProvider initialColor="#111111" initialImage="server.jpg">
+      <BackgroundProvider initialColor={initialColor} initialImage="server.jpg">
         <SlideTo color={slideTo} />
       </BackgroundProvider>
     </Activity>
@@ -66,6 +71,12 @@ describe('BackgroundProvider', () => {
     navigate('k-bad', { back: false });
     render(<ShowPage mode="visible" slideTo="url(x)" />);
     fireEvent.click(screen.getByRole('button', { hidden: true }));
+    expect(pageColor()).toBe('#1c2223');
+  });
+
+  it('never applies a server colour that is not a six-digit hex', () => {
+    navigate('k-bad-server', { back: false });
+    render(<ShowPage initialColor="red;}body{display:none" mode="visible" />);
     expect(pageColor()).toBe('#1c2223');
   });
 

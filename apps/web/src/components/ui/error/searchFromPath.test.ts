@@ -26,4 +26,11 @@ describe('searchFromPath', () => {
     expect(searchFromPath('/%E0%A4%A')).toBe('');
     expect(searchFromPath('/shows/%E0%A4%A')).toBe('shows');
   });
+
+  it('caps a long segment at what search accepts (100 characters)', () => {
+    const query = searchFromPath(`/${'very-long-title-'.repeat(12)}`);
+    expect(query.length).toBeLessThanOrEqual(100);
+    expect(query.startsWith('very long title very')).toBe(true);
+    expect(query.endsWith(' ')).toBe(false);
+  });
 });

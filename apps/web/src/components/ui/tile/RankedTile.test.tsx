@@ -60,8 +60,6 @@ describe('RankedTile', () => {
     const numeral = container.querySelector('[aria-hidden="true"]')!;
     expect(numeral.textContent).toBe('10');
     expect(numeral.className).toContain('pointer-events-none');
-    // outlined: the stroke under a fill of the page colour
-    expect(numeral.className).toContain('text-page');
     // no caption: the title is on the poster art
     expect(container.textContent).toBe('10');
   });

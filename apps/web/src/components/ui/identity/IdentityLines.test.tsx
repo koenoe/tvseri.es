@@ -3,12 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { calendarGlyph, usersGlyph } from '@/components/ui/icon/glyphs';
 
-import {
-  IDENTITY_LINE,
-  IdentityLine,
-  IdentityLines,
-  IdentityLinkLine,
-} from './IdentityLines';
+import { IdentityLine, IdentityLines, IdentityLinkLine } from './IdentityLines';
 
 describe('IdentityLines', () => {
   it('draws a line as its icon, then the place’s words', () => {
@@ -18,8 +13,9 @@ describe('IdentityLines', () => {
       </IdentityLines>,
     );
 
-    expect(html).toContain(`<span class="${IDENTITY_LINE}"><svg`);
-    expect(html).toContain('Member since today</span></div>');
+    const icon = html.indexOf('<svg');
+    expect(icon).toBeGreaterThan(-1);
+    expect(html.indexOf('Member since today')).toBeGreaterThan(icon);
   });
 
   it('links a line where the place passes a href', () => {
@@ -30,6 +26,5 @@ describe('IdentityLines', () => {
     );
 
     expect(html).toContain('href="/u/alex/circle"');
-    expect(html).toContain(`class="${IDENTITY_LINE} hover:text-white"`);
   });
 });

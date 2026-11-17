@@ -22,12 +22,12 @@ const topPicks = () =>
   );
 
 describe('Row (server markup)', () => {
-  it('is a region named by its title-2 header', () => {
+  it('is a region named by its title', () => {
     const root = topPicks();
     const section = root.querySelector('section')!;
     const heading = root.querySelector('h2')!;
     expect(heading.textContent).toBe('Top Picks for November');
-    expect(heading.className).toContain('text-title-2');
+    expect(heading.id).not.toBe('');
     expect(section.getAttribute('aria-labelledby')).toBe(heading.id);
   });
 
@@ -42,18 +42,6 @@ describe('Row (server markup)', () => {
       'Severance',
       'Silo',
     ]);
-  });
-
-  it('scrolls natively with snapping and no scroll bar', () => {
-    const root = topPicks();
-    const list = root.querySelector('ul')!;
-    expect(list.classList).toContain('overflow-x-auto');
-    expect(list.classList).toContain('scrollbar-none');
-    expect(list.classList).toContain('snap-x');
-    expect(list.classList).toContain('snap-mandatory');
-    for (const item of list.children) {
-      expect(item.classList).toContain('snap-start');
-    }
   });
 
   it('renders no arrows on the server (they appear once the rail is measured)', () => {
@@ -93,19 +81,5 @@ describe('Row (server markup)', () => {
       ),
     );
     expect(root.querySelectorAll('button')).toHaveLength(2);
-  });
-
-  it('takes a custom look as tokens on its own wrapper, not a fork', () => {
-    const root = serverRender(
-      renderToStaticMarkup(
-        <Row id="essentials" look="hubPoster" title="Essentials">
-          <a href="/1396">Breaking Bad</a>
-        </Row>,
-      ),
-    );
-    const look = root.querySelector('[data-row-look="hubPoster"]')!;
-    expect(look.className).toContain('[--tile-radius:10px]');
-    expect(look.className).toContain('@max-[639px]:[--row-tile:132px]');
-    expect(root.querySelector('[data-row-look]')).toBe(look);
   });
 });

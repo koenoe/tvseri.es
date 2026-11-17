@@ -63,7 +63,9 @@ const REFINE = {
   status: 'pending',
 } as const;
 
-const LOCK = 'md:h-[min(400px,calc(100dvh-14rem))]';
+/** The desktop panel holds its max height, so rows arriving don't make it jump */
+const heightLocked = () =>
+  document.querySelector('[class*="md:h-[min("]') !== null;
 
 const listbox = () => screen.getByRole('listbox', { name: 'Results' });
 const isDimmed = (element: Element) => element.closest('.opacity-50') !== null;
@@ -151,22 +153,18 @@ describe('SearchBody while a request is out', () => {
 describe('SearchBody height (desktop)', () => {
   it('grows to its max height from the first ghost and stays while it shows rows', () => {
     draw({ ...FIRST_QUERY, stalled: true });
-    expect(listbox().parentElement?.parentElement?.className).toContain(LOCK);
+    expect(heightLocked()).toBe(true);
   });
 
   it('with nothing found it is as tall as its one line', () => {
     draw({ results: NOTHING, shown: 'zzqx', status: 'ready' });
-    expect(listbox().parentElement?.parentElement?.className).not.toContain(
-      LOCK,
-    );
+    expect(heightLocked()).toBe(false);
   });
 
   it('on the recents it is as tall as they are', () => {
     draw(FIRST_QUERY);
 
-    expect(listbox().parentElement?.parentElement?.className).not.toContain(
-      LOCK,
-    );
+    expect(heightLocked()).toBe(false);
   });
 });
 

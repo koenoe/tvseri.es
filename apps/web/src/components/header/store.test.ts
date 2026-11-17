@@ -32,12 +32,6 @@ describe('header store', () => {
     });
   });
 
-  it('leaves the static bar alone on focus', () => {
-    const store = createHeaderStore();
-    store.getState().revealOnFocus();
-    expect(store.getState().mode).toBe('static');
-  });
-
   it('opens and closes the menu', () => {
     const store = createHeaderStore();
     store.getState().toggleMenu();

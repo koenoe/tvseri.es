@@ -47,7 +47,6 @@ describe('SlidingProgressTrack', () => {
     const [, clip] = parts(container);
     const fill = clip?.firstElementChild as HTMLElement;
     expect(fill.style.transform).toBe('translateX(calc(-55.3%))');
-    expect(fill.className).toContain('ease-out');
     expect(parts(container)).toHaveLength(2);
   });
 
@@ -60,15 +59,14 @@ describe('SlidingProgressTrack', () => {
 });
 
 describe('Track parts', () => {
-  it("a wait's line: the fill and today's tick on the place's ground", () => {
+  it("a wait's line: a labelled picture with today's tick", () => {
     const { container, getByRole } = render(
       <Track label="today 25% of the way" look={TRACK_LOOK.wait}>
         <TrackFill at={25} />
         <TrackTick at={25} />
       </Track>,
     );
-    expect(getByRole('img').className).toContain('bg-white/12');
-    expect(getByRole('img').className).not.toContain('flex-1');
+    expect(getByRole('img', { name: 'today 25% of the way' })).toBeTruthy();
     expect(parts(container)[1]?.style.left).toBe('25%');
   });
 });

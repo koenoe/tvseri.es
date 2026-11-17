@@ -1,6 +1,15 @@
+import { contrastRatio, hexChannels, type Rgb } from '@tvseri.es/utils';
 import { describe, expect, it } from 'vitest';
 
 import { DEFAULT_PAGE_COLOR, toPageColor } from './pageColor';
+
+const WHITE: Rgb = [255, 255, 255];
+
+/** White text at `alpha` over a ground, as the eye sees it */
+const whiteAt = (alpha: number, ground: Rgb): Rgb =>
+  ground.map(
+    (channel) => 255 * alpha + channel * (1 - alpha),
+  ) as unknown as Rgb;
 
 describe('toPageColor', () => {
   it('keeps a six-digit hex colour', () => {
@@ -33,11 +42,20 @@ describe('toPageColor', () => {
     ['undefined', undefined],
     ['null', null],
     ['a number', 0x1a2b3c],
+    ['an object', {}],
+    ['an array', ['#1a2b3c']],
+    ['a boolean', true],
+    ['transparent', 'transparent'],
   ])('falls back to the ground for %s', (_, value) => {
     expect(toPageColor(value)).toBe('#1c2223');
   });
 
-  it('defaults to the ground #1c2223', () => {
-    expect(DEFAULT_PAGE_COLOR).toBe('#1c2223');
+  // every fallback lands here, so it must meet the API's own rule
+  it('falls back to a ground that keeps white/60 text at 4.5:1', () => {
+    const ground = hexChannels(DEFAULT_PAGE_COLOR);
+    expect(contrastRatio(whiteAt(0.6, ground), ground)).toBeGreaterThanOrEqual(
+      4.5,
+    );
+    expect(contrastRatio(WHITE, ground)).toBeGreaterThanOrEqual(4.5);
   });
 });

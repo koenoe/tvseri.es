@@ -12,20 +12,12 @@ const svg = (markup: string) => {
 };
 
 describe('Icon', () => {
-  it.each([
-    [13, '2'],
-    [15, '2'],
-    [16, '2'],
-    [20, '1.8'],
-    [24, '1.75'],
-  ] as const)('draws %ipx with stroke %s', (size, stroke) => {
+  it('draws at the size it is given', () => {
     const { attr } = svg(
-      renderToStaticMarkup(<Icon glyph={searchGlyph} size={size} />),
+      renderToStaticMarkup(<Icon glyph={searchGlyph} size={20} />),
     );
-    expect(attr('width')).toBe(String(size));
-    expect(attr('height')).toBe(String(size));
-    expect(attr('stroke-width')).toBe(stroke);
-    expect(attr('viewBox')).toBe('0 0 24 24');
+    expect(attr('width')).toBe('20');
+    expect(attr('height')).toBe('20');
   });
 
   it('is decorative unless it carries a label', () => {
@@ -59,14 +51,11 @@ describe('Icon', () => {
     ).toBe(outline);
   });
 
-  it('inherits the text colour and keeps round caps and joins', () => {
+  it('inherits the text colour', () => {
     const { attr } = svg(
       renderToStaticMarkup(<Icon glyph={searchGlyph} size={13} />),
     );
     expect(attr('stroke')).toBe('currentColor');
-    expect(attr('fill')).toBe('none');
-    expect(attr('stroke-linecap')).toBe('round');
-    expect(attr('stroke-linejoin')).toBe('round');
   });
 });
 

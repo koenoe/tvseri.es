@@ -58,14 +58,13 @@ describe('LaneRow', () => {
       '/tv/1/black-doves',
     ]);
     expect(links[0]).toHaveProperty('tabIndex', -1);
-    expect(links[1]?.className).toContain('title');
     expect(screen.getByRole('img').getAttribute('aria-label')).toBe(
       '5 of 6 episodes watched',
     );
   });
 
   it('is no link without a page: the title is plain text', () => {
-    const { container } = render(
+    render(
       <LaneRow
         code="S02E06"
         count="1 to go"
@@ -76,11 +75,11 @@ describe('LaneRow', () => {
       />,
     );
     expect(screen.queryAllByRole('link')).toHaveLength(0);
-    expect(container.querySelector('b.title')?.textContent).toBe('Black Doves');
+    expect(screen.getByText('Black Doves')).toBeTruthy();
   });
 
   it('draws the count beside the title and again in the meta line where the layout says', () => {
-    const { container } = render(
+    render(
       <LaneRow
         code="S02E06"
         count="1 to go"
@@ -90,11 +89,8 @@ describe('LaneRow', () => {
         title="Black Doves"
       />,
     );
-    const line = container.querySelector('.title-line');
-    expect(line?.querySelector('.count-wide')?.textContent).toBe('1 to go');
-    const meta = container.querySelector('.meta');
-    expect(meta?.firstElementChild?.textContent).toBe('S02E06');
-    expect(meta?.querySelector('.count-phone')?.textContent).toBe('1 to go');
+    expect(screen.getByText('S02E06')).toBeTruthy();
+    expect(screen.getAllByText('1 to go')).toHaveLength(2);
   });
 
   it('without a title line the title stands alone, with no segments or count', () => {
@@ -109,10 +105,9 @@ describe('LaneRow', () => {
         title="The Gilded Age"
       />,
     );
-    const text = container.querySelector('li.row > span.text');
-    expect(text?.firstElementChild?.tagName).toBe('B');
+    expect(screen.getByText('The Gilded Age')).toBeTruthy();
     expect(container.querySelector('[role="img"]')).toBeNull();
-    expect(text?.lastElementChild?.textContent).toBe('Season complete');
+    expect(screen.getByText('Season complete')).toBeTruthy();
   });
 });
 

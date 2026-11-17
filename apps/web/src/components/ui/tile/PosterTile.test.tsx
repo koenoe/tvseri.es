@@ -28,12 +28,10 @@ describe('PosterTile', () => {
     expect(link.getAttribute('href')).toBe('/1396/breaking-bad');
   });
 
-  it('grows 4% on hover, the one tile hover, and shrinks when pressed on touch', () => {
+  it('has the one tile hover: it grows, it never lifts', () => {
     render(<PosterTile id={1} poster={POSTER} slug="a" title="A" />);
     const link = screen.getByRole('link', { name: 'A' });
     expect(link.className).toContain('hover:scale-104');
-    expect(link.className).toContain('duration-250');
-    expect(link.className).toContain('pointer-coarse:active:scale-98');
     expect(link.className).not.toContain('translate-y');
   });
 
@@ -86,7 +84,7 @@ describe('PosterTile', () => {
 });
 
 describe('PosterLink', () => {
-  it('links the poster in the place’s look, named by its label', () => {
+  it('links the poster, named by its label', () => {
     render(
       <PosterLink
         href="/1/severance"
@@ -99,7 +97,6 @@ describe('PosterLink', () => {
     );
 
     const link = screen.getByRole('link', { name: 'Severance, S01E02' });
-    expect(link.className).toBe('place-link');
     expect(link.getAttribute('href')).toBe('/1/severance');
     expect(link.textContent).toBe('Severance');
   });

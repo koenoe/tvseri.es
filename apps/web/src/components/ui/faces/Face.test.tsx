@@ -20,7 +20,7 @@ const LOOK: FaceLook = {
 };
 
 describe('Face', () => {
-  it('links to the person under the place’s label, the photo in its ring', () => {
+  it('links to the person under the place’s label, with photo, name and role', () => {
     render(
       <Face
         alt="Ayo Edebiri"
@@ -34,14 +34,9 @@ describe('Face', () => {
     );
 
     const link = screen.getByRole('link', { name: 'Ayo Edebiri as Sydney' });
-    expect(link.className).toBe('face-link');
     expect(link.getAttribute('href')).toBe('/person/1/ayo-edebiri');
-    const photo = link.querySelector('img');
-    expect(photo?.className).toBe('face-photo');
-    expect(photo?.getAttribute('alt')).toBe('Ayo Edebiri');
-    expect(link.querySelector('.face-caption')?.textContent).toBe(
-      'Ayo EdebiriSydney',
-    );
+    expect(link.querySelector('img')?.getAttribute('alt')).toBe('Ayo Edebiri');
+    expect(link.textContent).toBe('Ayo EdebiriSydney');
   });
 
   it('draws the blank circle for a person without a photo', () => {

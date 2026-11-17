@@ -6,7 +6,6 @@ import { describe, expect, it, vi } from 'vitest';
 import PrefetchProvider from '@/lib/navigation/PrefetchProvider';
 
 import TileLink from './TileLink';
-import { TILE_PREFETCH } from './tilePrefetch';
 
 const { prefetch } = vi.hoisted(() => ({ prefetch: vi.fn() }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ prefetch }) }));
@@ -27,8 +26,7 @@ vi.mock('next/link', () => ({
 const wrapper = PrefetchProvider;
 
 describe('TileLink', () => {
-  it('prefetches in the viewport by default (TILE_PREFETCH)', () => {
-    expect(TILE_PREFETCH).toBe('viewport');
+  it('prefetches in the viewport by default', () => {
     render(<TileLink href="/136315/the-bear">The Bear</TileLink>, { wrapper });
     // Next's own default (`auto`): the viewport prefetch
     expect(

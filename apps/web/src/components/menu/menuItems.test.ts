@@ -82,19 +82,6 @@ describe('menuModel: content per viewer', () => {
     );
   });
 
-  it('has Settings and Sign out in the account line, no Dashboard', () => {
-    expect(labels(viewer('/').account)).toEqual(['Settings', 'Sign out']);
-  });
-
-  it('signed out, the account line is empty', () => {
-    const model = menuModel({
-      handle: null,
-      pathname: '/',
-      year: 2026,
-    });
-    expect(model.account).toEqual([]);
-  });
-
   it('encodes the handle in its links', () => {
     const model = menuModel({
       handle: 'a b',

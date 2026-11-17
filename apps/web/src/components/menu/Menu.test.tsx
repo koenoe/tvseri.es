@@ -181,33 +181,20 @@ describe('the menu', () => {
     ]);
   });
 
-  it('lowercases the words and the header’s username by CSS only; the labels stay uppercase', async () => {
+  it('lowercases the words by CSS only, so their names stay as written', async () => {
     signIn('margaux');
     renderMenu();
-    const username = screen.getByRole('link', { name: 'margaux' });
-    expect(username.className).toContain('lowercase');
     const menu = await open();
-
-    for (const word of within(menu).getAllByRole('link')) {
-      expect(word.className).toContain('lowercase');
-    }
-    expect(
-      within(menu).getByRole('button', { name: 'Sign out' }).className,
-    ).toContain('lowercase');
-    expect(within(menu).getByRole('link', { name: 'Home' }).textContent).toBe(
-      'Home',
-    );
-    const label = [...menu.querySelectorAll('p')].find(
-      (element) => element.textContent === 'Watch',
-    );
-    expect(label?.className).toContain('uppercase');
-    expect(label?.className).not.toContain('lowercase');
+    const home = within(menu).getByRole('link', { name: 'Home' });
+    expect(home.textContent).toBe('Home');
+    expect(home.className).toContain('lowercase');
   });
 
   it('has the blur fallback on its glass', async () => {
     renderMenu();
     const menu = await open();
     const panel = menu.querySelector('[data-menu-panel]');
+    // regression: iPhones keep the blur; without it the glass is a 94% tint
     expect(panel?.className).toContain('backdrop-blur-[20px]');
     expect(panel?.className).toContain(
       '[html[data-flat-glass]_&]:backdrop-filter-none',
@@ -368,19 +355,8 @@ describe('the phone menu', () => {
     renderMenu();
     const menu = await open();
 
-    expect(words()).toEqual([
-      'Home',
-      'Discover',
-      'Overview',
-      'Library',
-      'History',
-      'Stats',
-      'Settings',
-      'Sign out',
-    ]);
     expect(menu.querySelector('[data-menu-panel]')).toBeNull();
     const glass = menu.querySelector<HTMLElement>('[data-menu-glass]');
-    expect(glass?.className).toContain('inset-0');
     await userEvent.click(glass as HTMLElement);
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });

@@ -31,7 +31,9 @@ describe('Page', () => {
         x
       </Page>,
     );
-    expect(html).toContain('<div class="max-md:hidden"><div class="absolute');
+    const wrapper = html.indexOf('class="max-md:hidden"');
+    expect(wrapper).toBeGreaterThan(-1);
+    expect(html.indexOf('<img', wrapper)).toBeGreaterThan(wrapper);
   });
 
   it('draws no backdrop without an image: the page colour alone', () => {

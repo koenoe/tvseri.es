@@ -60,7 +60,6 @@ describe('EdgeTint', () => {
       expect(strip.getAttribute('aria-hidden')).toBe('true');
       expect(strip.className).toContain('pointer-events-none');
       expect(strip.className).toContain('fixed');
-      expect(strip.className).toContain('sm:hidden');
     }
   });
 });

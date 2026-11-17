@@ -29,20 +29,16 @@ describe('TitleTreatment', () => {
       <TitleTreatment look={IN_BOX} src={SRC} title="Breaking Bad" />,
     );
 
-    expect(html).toMatch(/^<span class="logo-box"><img/);
     expect(html).toContain('alt="Breaking Bad"');
-    expect(html).toContain('class="logo-fit"');
     expect(html).toContain('sizes="200px"');
-    expect(html).toContain('position:absolute');
-    expect(html).not.toContain('title-text');
+    expect(html).not.toContain('>Breaking Bad<');
   });
 
-  it('draws a logo with its own size bare, without a box', () => {
+  it('draws a logo at its own size, lazily by default', () => {
     const html = renderToStaticMarkup(
       <TitleTreatment look={OWN_SIZE} src={SRC} title="Breaking Bad" />,
     );
 
-    expect(html).toMatch(/^<img/);
     expect(html).toContain('width="150"');
     expect(html).toContain('height="44"');
     expect(html).toContain('loading="lazy"');
@@ -53,10 +49,11 @@ describe('TitleTreatment', () => {
       <TitleTreatment look={IN_BOX} src={undefined} title="Breaking Bad" />,
     );
 
-    expect(html).toBe('<span class="title-text">Breaking Bad</span>');
+    expect(html).not.toContain('<img');
+    expect(html).toContain('>Breaking Bad<');
   });
 
-  it('wraps the written title in its line limit, in the place’s element', () => {
+  it('writes the title in the place’s element', () => {
     const html = renderToStaticMarkup(
       <TitleTreatment
         as="h1"
@@ -66,9 +63,7 @@ describe('TitleTreatment', () => {
       />,
     );
 
-    expect(html).toBe(
-      '<h1 class="title-text"><span class="title-lines">Breaking Bad</span></h1>',
-    );
+    expect(html).toMatch(/^<h1[^>]*>.*Breaking Bad.*<\/h1>$/);
   });
 
   it('passes the place’s alt, loading and dragging to the logo', () => {
@@ -84,7 +79,7 @@ describe('TitleTreatment', () => {
       />,
     );
 
-    expect(html).toContain('<h3 class="logo-box"><img');
+    expect(html).toMatch(/<h3[^>]*><img/);
     expect(html).toContain('alt=""');
     expect(html).toContain('draggable="false"');
     expect(html).toContain('loading="eager"');

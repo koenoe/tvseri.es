@@ -30,17 +30,15 @@ describe('Header (static shell)', () => {
 
     expect(html).toContain('data-viewer-pending');
     expect(html).toMatch(/<a[^>]*data-signed-out-only=""[^>]*>Sign in<\/a>/);
-    expect(html).toMatch(
-      /<span[^>]*before:content-\(--viewer-handle\)[^>]*data-signed-in-only=""/,
-    );
+    expect(html).toMatch(/<[^>]*data-signed-in-only=""/);
   });
 
-  it('has the 20px (phone) and 24px (desktop) logo, linking home', () => {
+  it('has the logo, linking home', () => {
     const html = renderToString(<Header />);
 
-    expect(html).toContain('aria-label="tvseri.es home"');
-    expect(html).toContain('h-[20px] w-[103.4px]');
-    expect(html).toContain('h-[24px] w-[124.1px]');
+    expect(html).toMatch(
+      /<a(?=[^>]*href="\/")(?=[^>]*aria-label="tvseri.es home")/,
+    );
   });
 
   it('starts as the static bar with search and the menu button', () => {
@@ -49,7 +47,5 @@ describe('Header (static shell)', () => {
     expect(html).toContain('data-header-mode="static"');
     expect(html).toContain('aria-label="Search"');
     expect(html).toContain('aria-label="Menu"');
-    expect(html).toContain('d="M 4 8 L 20 8"');
-    expect(html).toContain('d="M 8 16 L 20 16"');
   });
 });

@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from 'vitest';
 
 import LoginButton from './LoginButton';
 import NotFoundView from './NotFoundView';
-import { searchFromPath } from './searchFromPath';
 import { NOT_FOUND_STILLS } from './stills';
 import UnauthorizedView from './UnauthorizedView';
 
@@ -32,26 +31,6 @@ describe('LoginButton', () => {
       '/api/auth/login?returnTo=%2Fu%2Fmaria%2Fhistory%3Fyear%3D2025',
     );
     window.history.replaceState(null, '', '/');
-  });
-});
-
-describe('searchFromPath', () => {
-  it.each([
-    ['/shows/breaking-bad', 'breaking bad'],
-    ['/1396/breaking_bad', 'breaking bad'],
-    ['/the%20bear', 'the bear'],
-    ['/1396', ''],
-    ['/', ''],
-  ])('reads %s as “%s”', (path, query) => {
-    expect(searchFromPath(path)).toBe(query);
-  });
-
-  it('caps a long segment at what search accepts (100 characters)', () => {
-    const query = searchFromPath(`/${'very-long-title-'.repeat(12)}`);
-
-    expect(query.length).toBeLessThanOrEqual(100);
-    expect(query.startsWith('very long title very')).toBe(true);
-    expect(query.endsWith(' ')).toBe(false);
   });
 });
 

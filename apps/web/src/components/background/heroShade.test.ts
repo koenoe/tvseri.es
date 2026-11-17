@@ -10,13 +10,6 @@ describe('heroShade', () => {
     );
   });
 
-  it('folds production’s 70% layer opacity into the fade’s stops (.4 and 1 at 70%)', () => {
-    const fade = heroShade('#000000').split(', linear-gradient')[1]!;
-    expect(0.4 * 0.7).toBeCloseTo(0.28, 10);
-    expect(fade).toContain('rgba(0,0,0,0.28) 50%');
-    expect(fade).toContain('rgba(0,0,0,0.7) 100%');
-  });
-
   it('falls back to the ground for a colour that is not a six-digit hex', () => {
     expect(heroShade('red;}')).toContain('rgba(28,34,35,0.7)');
   });

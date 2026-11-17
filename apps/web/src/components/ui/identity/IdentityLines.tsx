@@ -17,7 +17,7 @@ const IDENTITY_LINES =
   'flex flex-col gap-3 text-[14px] leading-[normal] text-white/70';
 
 /** One meta line: a 15px icon, then its text on one line */
-export const IDENTITY_LINE = 'flex items-center gap-2.5 whitespace-nowrap';
+const IDENTITY_LINE = 'flex items-center gap-2.5 whitespace-nowrap';
 
 const IDENTITY_ICON = 'size-[15px]';
 

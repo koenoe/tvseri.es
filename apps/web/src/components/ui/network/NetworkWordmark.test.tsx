@@ -35,28 +35,20 @@ const draw = (props: Readonly<{ keep?: boolean; silhouette?: boolean }>) =>
   );
 
 describe('NetworkWordmark', () => {
-  it('draws a logo that reads as a silhouette white, in the place’s box', () => {
+  // the logo API's silhouette flag decides white drawing vs a light chip
+  it('whitens a silhouette logo, without a chip', () => {
     const { container } = draw({});
     const logo = screen.getByAltText('Network');
     expect(container.firstElementChild).toBe(logo);
-    expect(logo.className).toContain('brightness-0 invert');
-    expect(logo.className).toContain('h-8 w-24');
+    expect(logo.className).toContain('invert');
   });
 
-  it('draws a filled logo in its own colours on a light chip of the place’s height', () => {
+  it('puts a filled logo in its own colours on a chip', () => {
     const { container } = draw({ silhouette: false });
-    const chip = container.firstElementChild as HTMLElement;
     const logo = screen.getByAltText('Network');
-    expect(chip.tagName).toBe('SPAN');
-    expect(chip.className).toContain('bg-white/92');
-    expect(chip.className).toContain('rounded-6');
-    expect(chip.className).toContain('h-8');
-    // the chip hugs the logo instead of taking the place's width
-    expect(chip.className).toContain('w-fit');
-    expect(chip.className).not.toContain('w-24');
-    expect(chip.firstElementChild).toBe(logo);
+    expect(container.firstElementChild).not.toBe(logo);
+    expect(container.firstElementChild?.contains(logo)).toBe(true);
     expect(logo.className).not.toContain('invert');
-    expect(logo.className).toContain('h-full');
   });
 
   it('keeps a kept logo’s own colours without a chip', () => {

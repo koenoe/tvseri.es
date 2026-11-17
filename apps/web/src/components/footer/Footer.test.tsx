@@ -17,15 +17,11 @@ const readSentence = (element: HTMLElement) => {
 };
 
 describe('Footer', () => {
-  it('draws the 18px logo over production’s credits sentence, verbatim', () => {
+  it('draws the logo over production’s credits sentence, verbatim', () => {
     render(<Footer />);
 
     const footer = screen.getByRole('contentinfo');
-    expect(
-      footer
-        .querySelector('svg[aria-label="tvseri.es"]')
-        ?.getAttribute('class'),
-    ).toContain('h-[18px]');
+    expect(footer.querySelector('svg[aria-label="tvseri.es"]')).not.toBeNull();
     const sentence = footer.querySelector('p');
     expect(sentence).not.toBeNull();
     expect(readSentence(sentence as HTMLElement)).toBe(

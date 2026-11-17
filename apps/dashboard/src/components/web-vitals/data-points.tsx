@@ -73,3 +73,23 @@ export function RatingPill({
 }
 
 RatingPill.displayName = 'RatingPill';
+
+export function DataPointsFooter({ count }: Readonly<{ count: number }>) {
+  return (
+    <div className="flex flex-col items-center gap-2 border-t border-border pt-4 text-center lg:flex-row lg:justify-between lg:text-left">
+      <span className="text-sm text-muted-foreground/70">
+        This report is based on{' '}
+        <DataPointDots
+          className="inline size-3.5 text-muted-foreground/70"
+          count={3}
+        />{' '}
+        {count.toLocaleString()} data points
+      </span>
+      <span className="text-sm text-muted-foreground/70">
+        Updated once a day
+      </span>
+    </div>
+  );
+}
+
+DataPointsFooter.displayName = 'DataPointsFooter';

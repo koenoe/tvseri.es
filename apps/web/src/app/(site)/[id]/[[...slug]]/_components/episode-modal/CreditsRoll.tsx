@@ -1,7 +1,8 @@
 'use client';
 
-import { memo, useCallback, useRef } from 'react';
-import { WIDE_LG } from '@/lib/media/breakpoints';
+import { memo, type PointerEvent, useCallback, useRef, useState } from 'react';
+import cn from '@/lib/cn';
+import { REDUCED_MOTION, WIDE_LG } from '@/lib/media/breakpoints';
 import { matchesNow } from '@/lib/media/useMediaQuery';
 import CreditBlocks from './CreditBlocks';
 import type { RollBlock } from './episodeCredits';
@@ -10,30 +11,47 @@ import type { RollBlock } from './episodeCredits';
 const PX_PER_SECOND = 30;
 
 /**
- * Masks the roll's top and bottom 14%; below `lg` (phones
- * and tablets, where the modal stacks) the credits are a plain list (no
- * roll, no mask).
+ * Masks the roll's top and bottom 14%. Below `lg` (phones and tablets,
+ * where the modal stacks) it is a box filling the rest of the modal under
+ * the faces (at least 240px), its own scroller (no scroll chaining into the
+ * modal's), its top and bottom 32px fading out.
  */
 const ROLL_CLASSES =
-  'absolute top-16 right-12 bottom-16 w-[min(420px,calc(100%-820px))] min-w-[300px] overflow-hidden max-lg:static max-lg:w-auto max-lg:min-w-0 max-lg:overflow-visible max-lg:px-5 max-lg:pt-4 lg:[mask-image:linear-gradient(180deg,transparent_0%,#000_14%,#000_86%,transparent_100%)]';
+  'absolute top-16 right-12 bottom-16 w-[min(420px,calc(100%-820px))] min-w-[300px] overflow-hidden max-lg:static max-lg:mt-2 max-lg:min-h-[240px] max-lg:w-auto max-lg:min-w-0 max-lg:flex-1 max-lg:basis-0 max-lg:overflow-y-auto max-lg:overscroll-contain max-lg:px-5 max-lg:[mask-image:linear-gradient(180deg,transparent_0,#000_32px,#000_calc(100%-32px),transparent_100%)] lg:[mask-image:linear-gradient(180deg,transparent_0%,#000_14%,#000_86%,transparent_100%)]';
+
+/** The phone's box once still: the list ends clear of the bottom fade */
+const STILL_LIST = 'max-lg:pb-8';
 
 /**
- * The end credits: role over name, name | character, rolling up the
- * right side at 30px/s for two passes, then still. Hover or focus pauses it.
- * Transform only, on the compositor (WAAPI); still on phones, where it's a
- * plain list under the faces.
+ * The end credits: role over name, name | character, rolling up at 30px/s
+ * for two passes, then still. Hover or focus pauses it. Transform only, on
+ * the compositor (WAAPI). Below `lg` it rolls inside its box under the
+ * faces; a touch or a wheel there stops it where it is and the box scrolls
+ * by hand from that place, as it does once the roll ends. It doesn't roll
+ * there with reduced motion or when one pass fits the box.
  */
 function CreditsRoll({
   blocks,
 }: Readonly<{ blocks: ReadonlyArray<RollBlock> }>) {
   const animation = useRef<Animation | null>(null);
+  const list = useRef<HTMLDivElement | null>(null);
+  // Below `lg` only: the box scrolls by hand, the list drawn once
+  const [still, setStill] = useState(false);
 
   const roll = useCallback((node: HTMLDivElement | null) => {
-    if (!node || !matchesNow(WIDE_LG)) {
+    list.current = node;
+    if (!node) {
       return;
     }
     // One read at mount: half the doubled list is one pass.
     const pass = node.scrollHeight / 2;
+    if (!matchesNow(WIDE_LG)) {
+      const box = node.parentElement;
+      if (matchesNow(REDUCED_MOTION) || !box || pass <= box.clientHeight) {
+        setStill(true);
+        return;
+      }
+    }
     // Its own layer only while it rolls: the list is still once it ends.
     node.style.willChange = 'transform';
     const settle = () => {
@@ -48,7 +66,12 @@ function CreditsRoll({
         iterations: 2,
       },
     );
-    animation.current.finished.then(settle, settle);
+    animation.current.finished.then(() => {
+      settle();
+      if (!matchesNow(WIDE_LG)) {
+        setStill(true);
+      }
+    }, settle);
     return () => {
       animation.current?.cancel();
       animation.current = null;
@@ -56,6 +79,29 @@ function CreditsRoll({
   }, []);
 
   const pause = useCallback(() => animation.current?.pause(), []);
+  // Below `lg`: stop where it is and hand the box to the finger or wheel.
+  const stop = useCallback(() => {
+    const running = animation.current;
+    const node = list.current;
+    const box = node?.parentElement;
+    if (!running || !node || !box || matchesNow(WIDE_LG)) {
+      return;
+    }
+    const offset = -new DOMMatrixReadOnly(getComputedStyle(node).transform).m42;
+    const pass = node.scrollHeight / 2;
+    running.cancel();
+    animation.current = null;
+    box.scrollTop = pass > 0 ? offset % pass : 0;
+    setStill(true);
+  }, []);
+  const onPointerDown = useCallback(
+    (event: PointerEvent<HTMLElement>) => {
+      if (event.pointerType !== 'mouse') {
+        stop();
+      }
+    },
+    [stop],
+  );
   const play = useCallback(() => {
     if (animation.current?.playState === 'paused') {
       animation.current.play();
@@ -66,18 +112,22 @@ function CreditsRoll({
     return null;
   }
 
+  const listClasses = cn('flex flex-col', still && STILL_LIST);
+
   return (
     <section
       aria-label="Credits"
       className={ROLL_CLASSES}
       onBlur={play}
       onFocus={pause}
+      onPointerDown={onPointerDown}
       onPointerEnter={pause}
       onPointerLeave={play}
+      onWheel={stop}
     >
-      <div className="flex flex-col" ref={roll}>
+      <div className={listClasses} ref={roll}>
         <CreditBlocks blocks={blocks} />
-        <CreditBlocks blocks={blocks} copy />
+        {still ? null : <CreditBlocks blocks={blocks} copy />}
       </div>
     </section>
   );

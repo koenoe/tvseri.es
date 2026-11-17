@@ -259,3 +259,55 @@ test('the record stub survives the window crossing the phone width', async ({
   await page.setViewportSize({ height: 900, width: 800 });
   await expect(stub).toHaveAttribute('data-kept', 'yes');
 });
+
+// Below `lg` the credits roll inside their own box under the faces, as
+// they do beside them on a wide screen; a touch stops the roll where it is
+// and the box scrolls by hand from there.
+test.describe('the credits on a phone', () => {
+  test.use({ viewport: { height: 844, width: 390 } });
+
+  const credits = (page: Page) =>
+    modal(page).getByRole('region', { name: 'Credits' });
+  const rolling = (page: Page) =>
+    credits(page).evaluate(
+      (box) => box.getAnimations({ subtree: true }).length,
+    );
+  const offset = (page: Page) =>
+    credits(page).evaluate((box) =>
+      box.firstElementChild
+        ? new DOMMatrixReadOnly(
+            getComputedStyle(box.firstElementChild).transform,
+          ).m42
+        : 0,
+    );
+
+  test('roll in their box and stop where they are for a touch', async ({
+    page,
+  }) => {
+    await page.goto(`${SHOW}?season=2&episode=6`);
+    await expect(credits(page)).toHaveCSS('overflow-y', 'auto');
+    await expect(credits(page)).toHaveCSS('overscroll-behavior-y', 'contain');
+    await expect.poll(() => offset(page)).toBeLessThan(-10);
+
+    await credits(page).dispatchEvent('pointerdown', { pointerType: 'touch' });
+    expect(await rolling(page)).toBe(0);
+    expect(await offset(page)).toBe(0);
+    // the box took over the roll's place, the list drawn once
+    expect(
+      await credits(page).evaluate((box) => box.scrollTop),
+    ).toBeGreaterThan(0);
+    await expect(credits(page).getByText('Directed by')).toHaveCount(1);
+  });
+
+  test('stay a scrollable list with reduced motion', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto(`${SHOW}?season=2&episode=6`);
+    await expect(credits(page).getByText('Directed by')).toHaveCount(1);
+    expect(await rolling(page)).toBe(0);
+    expect(
+      await credits(page).evaluate(
+        (box) => box.scrollHeight > box.clientHeight,
+      ),
+    ).toBe(true);
+  });
+});

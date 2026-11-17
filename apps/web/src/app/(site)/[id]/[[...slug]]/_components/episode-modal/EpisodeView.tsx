@@ -33,7 +33,7 @@ const PHONE_FADE: CSSProperties = {
  * band at the top, fading into the panel
  */
 const STILL_LAYER = cn(
-  'absolute inset-0 overflow-hidden max-lg:relative max-lg:h-[300px]',
+  'absolute inset-0 overflow-hidden max-lg:relative max-lg:h-[300px] max-lg:shrink-0',
   PICTURE_SURFACE_LG,
 );
 
@@ -94,7 +94,7 @@ export default function EpisodeView({
 
   return (
     <div
-      className="relative flex min-h-full flex-col max-lg:block max-lg:pb-8 max-sm:pb-[120px]"
+      className="relative flex min-h-full flex-col max-lg:pb-8 max-sm:pb-[120px]"
       ref={contentRef}
     >
       {/* the still and its dim: one layer from lg, where the panel's
@@ -121,7 +121,7 @@ export default function EpisodeView({
         />
       </div>
       <m.div
-        className="relative flex flex-1 flex-col pt-16 max-lg:static max-lg:block max-lg:pt-0"
+        className="relative flex flex-1 flex-col pt-16 max-lg:static max-lg:pt-0"
         {...FADE_IN}
       >
         <div className="relative mt-auto mb-11 ml-16 flex w-[min(740px,calc(100%-560px))] flex-col items-start gap-4 max-lg:mb-0 max-lg:ml-0 max-lg:-mt-[100px] max-lg:w-auto max-lg:gap-2.5 max-lg:px-5">

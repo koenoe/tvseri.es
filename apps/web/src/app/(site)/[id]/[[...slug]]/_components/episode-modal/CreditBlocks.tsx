@@ -1,17 +1,13 @@
 import TileLink from '@/components/ui/tile/TileLink';
 import { PERSON_PREFETCH } from '@/components/ui/tile/tilePrefetch';
-import cn from '@/lib/cn';
 import personPath from '@/lib/routing/personPath';
 
 import type { RollBlock } from './episodeCredits';
 
-/** Phones draw only these under the faces (no roll, no lists). */
-const PHONE_ROLES = new Set(['Directed by', 'Written by']);
-
 /**
  * The credits' blocks: role over name(s), or name |
  * character pairs. The roll draws them twice for a seamless loop; the copy
- * is hidden from assistive tech and the tab order, and from phones.
+ * is hidden from assistive tech and the tab order.
  */
 export default function CreditBlocks({
   blocks,
@@ -21,16 +17,14 @@ export default function CreditBlocks({
   return (
     <div
       aria-hidden={copy || undefined}
-      className="flex flex-col items-stretch gap-11 pt-[300px] max-lg:gap-4 max-lg:pt-2 data-copy:max-lg:hidden"
-      data-copy={copy ? '' : undefined}
+      className="flex flex-col items-stretch gap-11 pt-[300px] max-lg:gap-4 max-lg:pt-8"
     >
       {blocks.map((block) => {
-        const blockClasses = cn(
-          'flex flex-col items-center gap-2.5 text-center max-lg:gap-1.5',
-          !PHONE_ROLES.has(block.role) && 'max-lg:hidden',
-        );
         return (
-          <div className={blockClasses} key={block.role}>
+          <div
+            className="flex flex-col items-center gap-2.5 text-center max-lg:gap-1.5"
+            key={block.role}
+          >
             <span className="text-[11px] font-semibold uppercase leading-[normal] tracking-[0.16em] text-white/60 max-lg:leading-5 max-lg:tracking-[0.08em]">
               {block.role}
             </span>

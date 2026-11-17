@@ -2,7 +2,11 @@ import { createHash, randomBytes } from 'node:crypto';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { MemoryStorage } from '@openauthjs/openauth/storage/memory';
-import type { StorageAdapter } from '@openauthjs/openauth/storage/storage';
+import {
+  joinKey,
+  type StorageAdapter,
+} from '@openauthjs/openauth/storage/storage';
+import { authRefreshPartition, authSubject } from '@tvseri.es/utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { browser, ORIGIN } from './testing/browser';
@@ -147,6 +151,32 @@ describe('/revoke: successor hunk', () => {
     const other = await session(test);
     await post(test, '/revoke', { token: other.refresh_token });
     expect((await refresh(test, other.refresh_token)).status).toBe(400);
+  });
+});
+
+describe('refresh rows (deleted with the account by the API)', () => {
+  it('sit in the partition authRefreshPartition(authSubject(id, role)) names', async () => {
+    const memory = MemoryStorage();
+    const written: string[][] = [];
+    const storage: StorageAdapter = {
+      ...memory,
+      set: (key, value, expiry) => {
+        written.push(key);
+        return memory.set(key, value, expiry);
+      },
+    };
+    const test = createTestApp({ storage });
+    const tokens = await session(test);
+
+    const subject = await authSubject('user-1', 'user');
+    expect(tokens.refresh_token.startsWith(`${subject}:`)).toBe(true);
+    const refreshRows = written.filter(
+      ([prefix]) => prefix === 'oauth:refresh',
+    );
+    expect(refreshRows).toHaveLength(1);
+    expect(joinKey(refreshRows[0]!.slice(0, 2))).toBe(
+      authRefreshPartition(subject),
+    );
   });
 });
 

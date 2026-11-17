@@ -7,13 +7,11 @@ export const sessionSecret = new sst.Secret('SessionSecret');
 export const tmdbApiAccessToken = new sst.Secret('TmdbApiAccessToken');
 export const tmdbApiKey = new sst.Secret('TmdbApiKey');
 
-const apiKeyRotation = new time.Rotating('ApiKeyRotation', {
-  rotationMonths: 1,
-});
-
+// Shared only between Vercel and the API's edge, so it never rotates on a
+// timer: a rotation 401s every call until the new web build is live. Bump
+// `version` to replace it by hand.
 export const apiKeyRandom = new random.RandomPassword('ApiKeyRandom', {
   keepers: {
-    rotation: apiKeyRotation.id,
     version: '2',
   },
   length: 24,

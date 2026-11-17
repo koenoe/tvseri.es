@@ -13,8 +13,8 @@ import Row from '@/components/ui/row/Row';
 import RowError from '@/components/ui/row/RowError';
 import { GHOST_LOOK } from '@/components/ui/row/RowGhosts';
 import { isUnavailable } from '@/lib/cache/unavailable';
+import { pluralCapped } from '@/lib/format/text';
 import landingPath from '@/lib/routing/landingPath';
-import { formatCount } from '../_data/format';
 import { withYear } from '../_data/hubShow';
 import HubPoster from './HubPoster';
 
@@ -102,7 +102,7 @@ export default async function Essentials() {
       Essentials
     </span>
   );
-  const allLabel = `All ${formatCount(essentials.total, 'series')}`;
+  const allLabel = `All ${pluralCapped(essentials.total, 'series', 'series')}`;
   const all = (
     <ButtonLink
       className="px-4 max-md:hidden"

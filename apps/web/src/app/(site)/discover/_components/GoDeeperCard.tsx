@@ -24,10 +24,10 @@ import {
 } from '@/components/ui/tile/tilePrefetch';
 import WatchedOverlay from '@/components/ui/tile/WatchedOverlay';
 import cn from '@/lib/cn';
+import { pluralCapped } from '@/lib/format/text';
 import { formatCappedCount } from '@/lib/formatCount';
 import landingPath from '@/lib/routing/landingPath';
 import personPath from '@/lib/routing/personPath';
-import { formatCount } from '../_data/format';
 
 const KIND = {
   creator: { glyph: userGlyph, label: 'Creator' },
@@ -69,7 +69,7 @@ export default function GoDeeperCard({
   // a creator card goes to a person page: those prefetch on intent
   const prefetchOn = card.kind === 'creator' ? PERSON_PREFETCH : TILE_PREFETCH;
   const kind = KIND[card.kind];
-  const count = formatCount(card.total, 'series');
+  const count = pluralCapped(card.total, 'series', 'series');
   const label = `From ${card.from.title} to ${card.to.name}`;
   const openLabel = `Open ${card.to.name}: ${count}`;
   const total = `All ${formatCappedCount(card.total)}`;

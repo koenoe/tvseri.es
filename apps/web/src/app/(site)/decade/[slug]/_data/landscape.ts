@@ -1,6 +1,7 @@
+import { formatGrouped } from '@/lib/formatCount';
 import type { ShowSummary } from '../../../_discover/data/summaries';
 import type { TileShow } from '../../../_discover/data/tileShow';
-import { formatCount, formatSeasons } from '../../../_discover/landing/format';
+import { formatSeasons } from '../../../_discover/landing/format';
 import { decadeKicker, decadeReason } from './reason';
 import { layoutTreemap, type TreemapCell, voteBars } from './treemap';
 
@@ -66,7 +67,7 @@ export function buildLandscape(
         }),
         slug: show.slug,
         title: show.title,
-        votes: formatCount(show.voteCount),
+        votes: formatGrouped(show.voteCount),
         year: show.year,
       },
     ];

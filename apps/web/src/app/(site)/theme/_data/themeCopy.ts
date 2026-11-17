@@ -1,6 +1,6 @@
 import type { ThemeLandingFacts } from '@tvseri.es/schemas';
 import { ratingText } from '@/lib/format/rating';
-import { formatCount } from '../../_discover/landing/format';
+import { formatGrouped } from '@/lib/formatCount';
 
 /**
  * A theme's name inside a sentence: its first letter lower case ("time
@@ -109,11 +109,11 @@ export function spotlightReason(
       return 'An anthology: every episode stands alone, so any one is a way in.';
     case 'miniseries':
       return data.episodes
-        ? `A miniseries: ${formatCount(data.episodes)} episodes, and then it ends.`
+        ? `A miniseries: ${formatGrouped(data.episodes)} episodes, and then it ends.`
         : 'A miniseries: one season, and then it ends.';
     case 'best':
       return `The best-rated ${data.series} on TMDB: ${ratingText(
         data.voteAverage,
-      )} from ${formatCount(data.voteCount)} votes.`;
+      )} from ${formatGrouped(data.voteCount)} votes.`;
   }
 }

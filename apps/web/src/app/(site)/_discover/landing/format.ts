@@ -1,21 +1,17 @@
 /**
- * How the landings write their numbers:
- * grouped counts ("10,927"), whole percentages ("71%"), lengths in hours
+ * How the landings write their numbers (grouped counts are
+ * `formatGrouped`): whole percentages ("71%"), lengths in hours
  * ("4h", "7h 30m", "49h") and page ranges ("1–10 of 50").
  */
 
 import { upperFirst } from '@tvseri.es/utils';
 
-import { plural } from '@/lib/format/text';
-import { formatCappedCount, formatGrouped } from '@/lib/formatCount';
+import { plural, pluralCapped } from '@/lib/format/text';
 
 const PERCENT = new Intl.NumberFormat('en-GB', {
   maximumFractionDigits: 0,
   style: 'percent',
 });
-
-/** 10927 → "10,927" */
-export const formatCount = formatGrouped;
 
 /** A whole percentage, 71 → "71%" */
 export const formatPercent = (value: number): string =>
@@ -23,7 +19,7 @@ export const formatPercent = (value: number): string =>
 
 /** "1 series", "146 series", "20,000+ series" (TMDB's count stops at its cap) */
 export const formatShows = (count: number): string =>
-  `${formatCappedCount(count)} series`;
+  pluralCapped(count, 'series', 'series');
 
 /** "7 seasons", or "9 episodes" for a one-season show (the theme spotlight) */
 export function formatSeasons(

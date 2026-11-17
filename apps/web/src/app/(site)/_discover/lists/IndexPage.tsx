@@ -7,15 +7,15 @@ import {
 } from '@/components/ui/icon/glyphs';
 import type { Glyph } from '@/components/ui/icon/types';
 import RowErrorBoundary from '@/components/ui/row/RowErrorBoundary';
-
 import { GHOST_LOOK } from '@/components/ui/row/RowGhosts';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import cn from '@/lib/cn';
+import { formatGrouped } from '@/lib/formatCount';
 
 import { countryNames } from '../../country/_data/names';
 import { languageName } from '../../language/[slug]/_data/language';
 
-import { formatCount, INDEX_END_LINE } from '../landing';
+import { INDEX_END_LINE } from '../landing';
 import { networkChips } from './indexChips';
 import LandingIndex, {
   LandingIndexChips,
@@ -94,7 +94,7 @@ async function Count({ kind }: Readonly<{ kind: ListKind }>) {
   if (isUnavailable(chips)) {
     return COUNT_GHOST;
   }
-  return `${formatCount(chips.length)} ${COPY[kind].noun}`;
+  return `${formatGrouped(chips.length)} ${COPY[kind].noun}`;
 }
 
 async function Chips({ kind }: Readonly<{ kind: ListKind }>) {
@@ -121,7 +121,7 @@ export default function IndexPage({ kind }: Readonly<{ kind: IndexKind }>) {
   const end = { line: INDEX_END_LINE, title: copy.end };
   if (kind === 'network') {
     const chips = networkChips();
-    const meta = `${formatCount(chips.length)} ${copy.noun}`;
+    const meta = `${formatGrouped(chips.length)} ${copy.noun}`;
     return (
       <LandingIndex
         end={end}

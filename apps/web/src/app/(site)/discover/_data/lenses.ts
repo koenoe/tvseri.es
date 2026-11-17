@@ -19,9 +19,8 @@ import {
   getNetworkDetails,
 } from '@/app/(site)/_discover/data/network';
 import { isUnavailable, type Unavailable } from '@/lib/cache/unavailable';
+import { pluralCapped } from '@/lib/format/text';
 import landingPath from '@/lib/routing/landingPath';
-
-import { formatCount } from './format';
 import { type HubShow, withNetwork } from './hubShow';
 import {
   COUNTRY_TILES,
@@ -236,7 +235,9 @@ export async function getLensRow(
       key,
       line:
         entry.line ??
-        (count === undefined ? '' : formatCount(count, 'miniseries')),
+        (count === undefined
+          ? ''
+          : pluralCapped(count, 'miniseries', 'miniseries')),
       title: entry.name,
     };
   }
@@ -259,7 +260,9 @@ export async function getLensRow(
     key,
     line:
       decade.line ??
-      (before1990 === undefined ? '' : formatCount(before1990, 'series')),
+      (before1990 === undefined
+        ? ''
+        : pluralCapped(before1990, 'series', 'series')),
     title: decade.name,
   };
 }

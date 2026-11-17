@@ -1,8 +1,7 @@
 import { hasEnoughPosters } from '@tvseri.es/constants';
 import { DURATION_BUCKETS, type DurationBucket } from '@tvseri.es/schemas';
 import { buildBackdropImageUrl, buildPosterImageUrl } from '@tvseri.es/utils';
-
-import { formatCount } from './format';
+import { pluralCapped } from '@/lib/format/text';
 import type {
   CountSource,
   DecadeTileEntry,
@@ -74,7 +73,7 @@ const lookOf = (dress: TileDress): LensTileView['look'] => {
 };
 
 const countLine = (count: number | undefined, noun = 'series') =>
-  count === undefined ? '' : formatCount(count, noun);
+  count === undefined ? '' : pluralCapped(count, noun, noun);
 
 /** The network slug of a tile that is one network (its count is the network's), so it can draw its wordmark */
 export const wordmarkNetwork = (entry: LinkTileEntry): string | undefined =>

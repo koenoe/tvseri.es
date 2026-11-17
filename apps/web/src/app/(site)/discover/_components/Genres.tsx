@@ -4,8 +4,8 @@ import { seasonGlyph } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
 import { isUnavailable } from '@/lib/cache/unavailable';
+import { pluralCapped } from '@/lib/format/text';
 import landingPath from '@/lib/routing/landingPath';
-import { formatCount } from '../_data/format';
 import { GENRE_TILES } from '../_data/hubTiles';
 import { getGenreCounts } from '../_data/rows';
 import { GENRE_CELL, GENRE_GRID, GENRE_NAME, GENRE_TILE } from './HubSkeletons';
@@ -35,7 +35,9 @@ export default async function Genres() {
               <b className={GENRE_NAME}>{genre.name}</b>
               <MetaRow className="gap-3 text-caption">
                 <MetaItem icon={seasonGlyph} iconSize={12}>
-                  {count === undefined ? '' : formatCount(count, 'series')}
+                  {count === undefined
+                    ? ''
+                    : pluralCapped(count, 'series', 'series')}
                 </MetaItem>
               </MetaRow>
             </Link>

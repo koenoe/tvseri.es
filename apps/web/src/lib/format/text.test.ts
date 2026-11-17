@@ -1,12 +1,24 @@
 import { describe, expect, it } from 'vitest';
 
-import { plural, sentenceCase } from './text';
+import { plural, pluralCapped, sentenceCase } from './text';
 
 describe('plural', () => {
   it('says one or many', () => {
     expect(plural(1, 'episode')).toBe('1 episode');
     expect(plural(62, 'episode')).toBe('62 episodes');
     expect(plural(2, 'child', 'children')).toBe('2 children');
+  });
+});
+
+describe('pluralCapped', () => {
+  it('groups thousands and stops at TMDB’s cap', () => {
+    expect(pluralCapped(7240, 'series', 'series')).toBe('7,240 series');
+    expect(pluralCapped(1104, 'miniseries', 'miniseries')).toBe(
+      '1,104 miniseries',
+    );
+    expect(pluralCapped(1, 'series', 'series')).toBe('1 series');
+    expect(pluralCapped(20_000, 'series', 'series')).toBe('20,000 series');
+    expect(pluralCapped(20_001, 'series', 'series')).toBe('20,000+ series');
   });
 });
 

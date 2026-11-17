@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  formatCount,
   formatPercent,
   formatSeasons,
   formatShows,
@@ -11,10 +10,7 @@ import {
 import { rankedPage, showMoreLabel } from './ranked';
 
 describe('landing numbers', () => {
-  it('groups counts and writes whole percentages (the genre facts)', () => {
-    expect(formatCount(10_927)).toBe('10,927');
-    expect(formatCount(3180)).toBe('3,180');
-    expect(formatCount(146)).toBe('146');
+  it('writes whole percentages and show counts (the genre facts)', () => {
     expect(formatPercent(71)).toBe('71%');
     expect(formatShows(146)).toBe('146 series');
     expect(formatShows(1)).toBe('1 series');

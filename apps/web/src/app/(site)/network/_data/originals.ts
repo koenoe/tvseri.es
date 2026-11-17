@@ -1,7 +1,6 @@
 import type { NetworkLandingFacts } from '@tvseri.es/schemas';
 
-import { formatCappedCount } from '@/lib/formatCount';
-import { formatCount } from '../../_discover/landing';
+import { formatCappedCount, formatGrouped } from '@/lib/formatCount';
 
 /**
  * A guess from a sample, rounded so it reads as one: to 10 below 1,000, to
@@ -32,12 +31,12 @@ export function originalsLine(
   if (exact) {
     return found >= count
       ? `All ${total} of its series first aired on ${name}`
-      : `First aired on ${name}: ${formatCount(found)} of its ${total} series`;
+      : `First aired on ${name}: ${formatGrouped(found)} of its ${total} series`;
   }
   const estimate = roundEstimate((found / Math.max(scanned, 1)) * count);
   // "about 380 of its 381" reads oddly: within one rounding step is almost all
   if (estimate > count - stepFor(count)) {
     return `First aired on ${name}: almost all of its ${total} series`;
   }
-  return `First aired on ${name}: about ${formatCount(Math.max(estimate, found))} of its ${total} series`;
+  return `First aired on ${name}: about ${formatGrouped(Math.max(estimate, found))} of its ${total} series`;
 }

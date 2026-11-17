@@ -34,12 +34,11 @@
 /** `END_LINE[type]`: the end card's line, "Try another genre next."; `INDEX_END_LINE` on the index pages. */
 export { END_LINE, INDEX_END_LINE } from './endLines';
 /**
- * Numbers as the landings write them: `formatCount` "10,927",
- * `formatShows` "146 shows", `formatSeasons` "7 seasons" / "9 episodes",
+ * Numbers as the landings write them: `formatShows` "146 series",
+ * `formatSeasons` "7 seasons" / "9 episodes",
  * `keywordLabel` (a chip or tab: the design's wording for a few keywords).
  */
 export {
-  formatCount,
   formatSeasons,
   formatShows,
   keywordLabel,

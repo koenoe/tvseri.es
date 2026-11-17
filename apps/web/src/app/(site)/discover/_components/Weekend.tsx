@@ -18,9 +18,8 @@ import { TILE_HOVER_WIDE } from '@/components/ui/tile/tileHover';
 import WatchedOverlay from '@/components/ui/tile/WatchedOverlay';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import cn from '@/lib/cn';
+import { plural } from '@/lib/format/text';
 import showPath from '@/lib/routing/showPath';
-
-import { formatEpisodes } from '../_data/format';
 import { durationRowKey } from '../_data/lensModel';
 import { getWeekendShows } from '../_data/weekend';
 import OpenLensRowButton from './OpenLensRowButton';
@@ -56,7 +55,7 @@ function ShowLine({ show }: Readonly<{ show: DurationTileShow }>) {
       <span className="truncate text-body-sm font-semibold">{show.title}</span>
       <MetaRow className="gap-3 text-caption max-xl:hidden" fit="drop">
         <MetaItem icon={seasonGlyph} iconSize={12}>
-          {formatEpisodes(show.episodes)}
+          {plural(show.episodes, 'episode')}
         </MetaItem>
         <MetaItem icon={calendarGlyph} iconSize={12}>
           {show.year ?? ''}

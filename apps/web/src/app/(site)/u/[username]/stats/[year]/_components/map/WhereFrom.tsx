@@ -16,7 +16,7 @@ const LISTED = 6;
 
 /** A country's row, inset and lifted as Stats' list rows are (`ROW_LIFT`) */
 const COUNTRY_ROW = cn(
-  'flex justify-between gap-3 border-white/6 border-t py-2 text-body-sm outline-none focus-visible:bg-white/5',
+  'flex justify-between gap-3 border-white/6 border-t py-2 text-body-sm',
   ROW_LIFT,
 );
 /** The list's foot and the placeholder's lines, at the rows' inset */
@@ -69,7 +69,6 @@ export default async function WhereFrom({ user, year }: SectionProps) {
                 className={COUNTRY_ROW}
                 data-country={country.code ?? undefined}
                 key={country.name}
-                tabIndex={country.code ? 0 : undefined}
               >
                 <span className="text-white/80">{country.name}</span>
                 <span className="text-white/60 tabular-nums">

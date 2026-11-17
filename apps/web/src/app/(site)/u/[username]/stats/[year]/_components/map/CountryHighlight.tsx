@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  type FocusEvent,
-  type PointerEvent,
-  type ReactNode,
-  useRef,
-} from 'react';
+import { type PointerEvent, type ReactNode, useRef } from 'react';
 
 /** Where an event happened: the country of the dots or row under it */
 const countryOf = (event: Readonly<{ target: EventTarget }>) =>
@@ -15,10 +10,12 @@ const countryOf = (event: Readonly<{ target: EventTarget }>) =>
     : null;
 
 /**
- * The map and its list, linked: pointing at or focusing a country (its dots
- * or its row) marks every element of that country `data-active`, and each
+ * The map and its list, linked: pointing at a country (its dots or its
+ * row) marks every element of that country `data-active`, and each
  * draws it its own way (the dots whiten, the row lifts). The server draws
  * both; this only flips one attribute, so nothing moves or re-renders.
+ * Pointer only: the rows are plain list items (no tab stops), and their
+ * text already says what the highlight shows.
  */
 export default function CountryHighlight({
   children,
@@ -45,15 +42,11 @@ export default function CountryHighlight({
   };
   const onPointer = (event: PointerEvent<HTMLDivElement>) =>
     highlight(countryOf(event));
-  const onFocus = (event: FocusEvent<HTMLDivElement>) =>
-    highlight(countryOf(event));
   const clear = () => highlight(null);
 
   return (
     <div
       className={className}
-      onBlur={clear}
-      onFocus={onFocus}
       onPointerLeave={clear}
       onPointerOver={onPointer}
       ref={root}

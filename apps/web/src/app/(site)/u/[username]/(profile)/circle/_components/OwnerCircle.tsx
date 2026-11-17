@@ -1,8 +1,9 @@
 import type { CirclePeople } from '@tvseri.es/schemas';
 
-import { CIRCLE_COPY } from '../../_lib/circleCopy';
+import { usersGlyph } from '@/components/ui/icon/glyphs';
+import EmptyState from '../../_components/blocks/EmptyState';
+import { CIRCLE_COPY, followNobodyLine } from '../../_lib/circleCopy';
 import CircleSection from './CircleSection';
-import FollowNobody from './FollowNobody';
 import OwnerPersonRow from './OwnerPersonRow';
 import { LIST } from './rowBoxes';
 
@@ -25,7 +26,11 @@ export default function OwnerCircle({
       >
         {following.length === 0 ? (
           <div className="mt-4">
-            <FollowNobody followers={followers.length} />
+            <EmptyState
+              glyph={usersGlyph}
+              sub={followNobodyLine(followers.length)}
+              title={CIRCLE_COPY.followNobody}
+            />
           </div>
         ) : (
           <ul className={`${LIST} mt-4 md:mt-5`}>

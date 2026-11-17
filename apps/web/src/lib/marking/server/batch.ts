@@ -4,6 +4,7 @@ import type {
   Episode,
   EpisodeRef,
   MarkWhen,
+  RestoreWhen,
   TvSeries,
   WatchProvider,
 } from '@tvseri.es/schemas';
@@ -40,11 +41,15 @@ export type Stamp = Readonly<{ watchedAt: number; dateUnknown?: true }>;
 
 /** The record a mark writes for one episode. */
 export function stampFor(
-  when: MarkWhen,
+  when: MarkWhen | RestoreWhen,
   airDate: string | undefined,
   now: number,
 ): Stamp {
   switch (when.kind) {
+    case 'restore':
+      return when.dateUnknown
+        ? { dateUnknown: true, watchedAt: when.watchedAt }
+        : { watchedAt: when.watchedAt };
     case 'now':
       return { watchedAt: now };
     case 'date':
@@ -72,10 +77,15 @@ export type EpisodeLookup = (ref: EpisodeRef) => Episode | undefined;
 /**
  * Batch items for `POST /user/:id/watched/batch`. Episodes the lookup doesn't
  * know (not in TMDB's season) are left out: the API needs their metadata.
+ * A restore keeps its own service, only when it is one of `knownProviders`
+ * (a name alone can't be trusted to carry a logo), and its import.
  */
 export function toBatchItems(
   input: Readonly<{
-    episodes: ReadonlyArray<EpisodeRef & Readonly<{ when: MarkWhen }>>;
+    episodes: ReadonlyArray<
+      EpisodeRef & Readonly<{ when: MarkWhen | RestoreWhen }>
+    >;
+    knownProviders: ReadonlyArray<WatchProvider>;
     lookup: EpisodeLookup;
     now: number;
     series: SeriesFields;
@@ -89,10 +99,13 @@ export function toBatchItems(
     if (!episode) {
       return [];
     }
-    const stamp = stampFor(ref.when, episode.airDate, input.now);
+    const { when } = ref;
+    const stamp = stampFor(when, episode.airDate, input.now);
+    const restore = when.kind === 'restore' ? when : null;
     return [
       {
         ...(stamp.dateUnknown ? { dateUnknown: true as const } : {}),
+        ...(restore?.importId ? { importId: restore.importId } : {}),
         episode: {
           airDate: episode.airDate ?? '',
           episodeNumber: episode.episodeNumber,
@@ -104,7 +117,11 @@ export function toBatchItems(
         tvSeries,
         userId: input.userId,
         watchedAt: stamp.watchedAt,
-        watchProvider: input.watchProvider,
+        watchProvider: restore
+          ? (input.knownProviders.find(
+              (provider) => provider.name === restore.source,
+            ) ?? null)
+          : input.watchProvider,
       },
     ];
   });

@@ -1,7 +1,7 @@
 import {
   type EpisodeRef,
-  episodeCode,
   MAX_EPISODES_PER_MARK_ACTION,
+  type RestoreWhen,
 } from '@tvseri.es/schemas';
 import { chunk } from '@tvseri.es/utils';
 
@@ -10,7 +10,8 @@ import type { ActionResult } from '@/lib/actions/result';
 import type * as Actions from './actions';
 import { codeOf, parseCode } from './progress';
 import type { ProgressItem } from './server/api';
-import type { EpisodeCode, MarkingOp, WatchRecord } from './types';
+import { recordsFrom } from './state';
+import type { MarkingOp, WatchRecord } from './types';
 
 /**
  * The request side of the marking commands: the server calls that make the
@@ -34,19 +35,6 @@ export type MarkingActions = Readonly<
 
 export type Result = ActionResult<unknown>;
 export type Send = () => Promise<Result>;
-
-export const recordsFrom = (items: ReadonlyArray<ProgressItem>) => {
-  const records: Record<EpisodeCode, WatchRecord> = {};
-  for (const item of items) {
-    records[episodeCode(item)] = {
-      runtime: item.runtime,
-      watchedAt: item.watchedAt,
-      ...(item.dateUnknown ? { dateUnknown: true } : {}),
-      ...(item.watchProviderName ? { source: item.watchProviderName } : {}),
-    };
-  }
-  return records;
-};
 
 export const watchedOf = (result: Result): ReadonlyArray<ProgressItem> =>
   result.ok &&
@@ -113,6 +101,14 @@ export const markCalls = (
     (part) => () => actions.markEpisodes({ episodes: part, seriesId }),
   );
 
+const restoreOf = (record: WatchRecord): RestoreWhen => ({
+  kind: 'restore',
+  watchedAt: record.watchedAt,
+  ...(record.dateUnknown ? { dateUnknown: true } : {}),
+  ...(record.source ? { source: record.source } : {}),
+  ...(record.importId ? { importId: record.importId } : {}),
+});
+
 /** Server calls that make the API match `ops` (Undo, picker, toggles). */
 export function callsFor(
   actions: MarkingActions,
@@ -122,21 +118,10 @@ export function callsFor(
   const calls: Send[] = [];
   for (const op of ops) {
     if (op.kind === 'mark') {
+      // Only Undo sends records it has: each goes back exactly as it was
       const episodes = Object.entries(op.records).flatMap(([code, record]) => {
         const ref = parseCode(code);
-        return ref
-          ? [
-              {
-                ...ref,
-                when: record.dateUnknown
-                  ? ({ kind: 'unknown' } as const)
-                  : ({
-                      kind: 'date',
-                      watchedAt: record.watchedAt,
-                    } as const),
-              },
-            ]
-          : [];
+        return ref ? [{ ...ref, when: restoreOf(record) }] : [];
       });
       calls.push(...markCalls(actions, seriesId, episodes));
     } else if (op.kind === 'unmark') {

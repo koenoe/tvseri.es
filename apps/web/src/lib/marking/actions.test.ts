@@ -319,3 +319,64 @@ describe('the show read does not wait for the profile', () => {
     expect(result).toMatchObject({ error: 'unauthenticated', ok: false });
   });
 });
+
+describe('markEpisodes: a restore, and a plain mark', () => {
+  it('a restore reaches the API exactly; a mark gets the show’s service', async () => {
+    const { loadWatchProviders } = await import('@/lib/series/loaders');
+    const netflix = { id: 8, logo: '', logoPath: '/n.jpg', name: 'Netflix' };
+    vi.mocked(loadWatchProviders).mockResolvedValue([netflix]);
+    const importId = '7f9c2c1e-5b8a-4d3e-9f10-2a6b8c4d5e6f';
+    vi.mocked(api.postBatch).mockClear();
+
+    const restored = await markEpisodes({
+      episodes: [
+        {
+          ...EPISODE,
+          when: {
+            dateUnknown: true,
+            importId,
+            kind: 'restore',
+            source: 'Plex',
+            watchedAt: Date.UTC(2024, 0, 1),
+          },
+        },
+      ],
+      seriesId: 136315,
+    });
+    expect(restored.ok).toBe(true);
+    expect(vi.mocked(api.postBatch).mock.calls[0]?.[1]).toEqual([
+      expect.objectContaining({
+        dateUnknown: true,
+        importId,
+        watchedAt: Date.UTC(2024, 0, 1),
+        watchProvider: expect.objectContaining({ id: 0, name: 'Plex' }),
+      }),
+    ]);
+
+    await markEpisodes({
+      episodes: [{ ...EPISODE, when: { kind: 'now' } }],
+      seriesId: 136315,
+    });
+    const [item] = vi.mocked(api.postBatch).mock.calls[1]?.[1] ?? [];
+    expect(item?.watchProvider).toEqual(netflix);
+    expect(item).not.toHaveProperty('importId');
+    vi.mocked(loadWatchProviders).mockResolvedValue([]);
+  });
+
+  it('refuses a restore with an import id that is no UUID', async () => {
+    const result = await markEpisodes({
+      episodes: [
+        {
+          ...EPISODE,
+          when: {
+            importId: 'x',
+            kind: 'restore',
+            watchedAt: Date.UTC(2024, 0, 1),
+          },
+        },
+      ],
+      seriesId: 136315,
+    });
+    expect(result).toMatchObject({ error: 'invalid', ok: false });
+  });
+});

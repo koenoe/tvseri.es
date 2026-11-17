@@ -715,6 +715,64 @@ describe('I’m up to when the mark fails', () => {
   });
 });
 
+describe('Undo of an unmark puts records back exactly', () => {
+  it('sends each record’s date, no-date flag, service and import', async () => {
+    const importId = '7f9c2c1e-5b8a-4d3e-9f10-2a6b8c4d5e6f';
+    const t = setup({
+      watched: [
+        {
+          episodeNumber: 5,
+          seasonNumber: 3,
+          watchedAt: Date.UTC(2024, 0, 1),
+          watchProviderName: 'Plex',
+        },
+        {
+          dateUnknown: true,
+          episodeNumber: 6,
+          importId,
+          seasonNumber: 3,
+          watchedAt: Date.UTC(2024, 0, 2),
+        },
+      ],
+    });
+    t.commands.paintRun(
+      SERIES,
+      [
+        { episodeNumber: 5, seasonNumber: 3 },
+        { episodeNumber: 6, seasonNumber: 3 },
+      ],
+      'unmark',
+    );
+    await flush();
+    t.toasts.at(-1)?.action?.onClick();
+    await flush();
+    expect(t.actions.markEpisodes).toHaveBeenLastCalledWith({
+      episodes: [
+        {
+          episodeNumber: 5,
+          seasonNumber: 3,
+          when: {
+            kind: 'restore',
+            source: 'Plex',
+            watchedAt: Date.UTC(2024, 0, 1),
+          },
+        },
+        {
+          episodeNumber: 6,
+          seasonNumber: 3,
+          when: {
+            dateUnknown: true,
+            importId,
+            kind: 'restore',
+            watchedAt: Date.UTC(2024, 0, 2),
+          },
+        },
+      ],
+      seriesId: SERIES,
+    });
+  });
+});
+
 describe('runs for one show never interleave', () => {
   it('a second run waits for the first run’s requests', async () => {
     const t = setup();

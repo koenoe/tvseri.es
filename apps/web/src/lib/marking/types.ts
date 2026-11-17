@@ -12,6 +12,8 @@ export type WatchRecord = Readonly<{
   runtime: number;
   /** Where it was watched ("Plex", "Disney+"), when the record carries it. */
   source?: string;
+  /** The import that wrote it: Undo of an unmark puts it back in there. */
+  importId?: string;
 }>;
 
 /** What the store knows about a season (from `TvSeries.seasons`). */
@@ -64,7 +66,7 @@ export type MarkingOp = Readonly<
 /**
  * What a page passes to seed the store (`SeedSeries`), straight from its
  * loaders: the season summary of `GET /series/:id`, plus, signed in,
- * `GET /user/:id/watched/series/:id?view=progress` and `GET /me/series/:id/status`.
+ * `GET /user/:id/watched/series/:id?view=track` and `GET /me/series/:id/status`.
  */
 export type SeriesSeed = Readonly<{
   seriesId: number;
@@ -85,6 +87,7 @@ export type SeriesSeed = Readonly<{
       dateUnknown?: true;
       runtime?: number;
       watchProviderName?: string | null;
+      importId?: string;
     }>
   >;
   status?: Readonly<{

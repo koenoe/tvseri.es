@@ -31,6 +31,7 @@ export type ProgressItem = Readonly<{
   dateUnknown?: true;
   runtime: number;
   watchProviderName?: string;
+  importId?: string;
 }>;
 
 const toProgressItem = (
@@ -41,6 +42,7 @@ const toProgressItem = (
     dateUnknown?: true;
     runtime?: number;
     watchProviderName?: string | null;
+    importId?: string;
   }>,
 ): ProgressItem => ({
   episodeNumber: item.episodeNumber,
@@ -51,6 +53,7 @@ const toProgressItem = (
   ...(item.watchProviderName
     ? { watchProviderName: item.watchProviderName }
     : {}),
+  ...(item.importId ? { importId: item.importId } : {}),
 });
 
 /** At most this many write requests at once. */
@@ -211,7 +214,7 @@ export async function postScope(
       season: input.seasonNumber ?? 0,
       seriesId: input.seriesId,
     },
-    query: { view: 'progress' },
+    query: { view: 'track' },
   });
   return (items ?? []).map(toProgressItem);
 }

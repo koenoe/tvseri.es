@@ -1,6 +1,6 @@
 import * as v from 'valibot';
 
-import { WatchedAtSchema } from './watched';
+import { DateUnknownSchema, ImportIdSchema, WatchedAtSchema } from './watched';
 
 /**
  * Inputs of the web's marking server actions (`apps/web/src/lib/marking`).
@@ -53,10 +53,27 @@ const episodeList = <T extends v.GenericSchema>(item: T) =>
     v.maxLength(MAX_EPISODES_PER_MARK_ACTION),
   );
 
-/** Mark (or re-date) episodes, each with its own date. */
+/**
+ * Undo of an unmark: the record exactly as it was. `source` names where it
+ * was watched; the server keeps it only when it is a service it knows.
+ */
+export const RestoreWhenSchema = v.object({
+  dateUnknown: v.optional(DateUnknownSchema),
+  importId: v.optional(ImportIdSchema),
+  kind: v.literal('restore'),
+  source: v.optional(v.pipe(v.string(), v.maxLength(100))),
+  watchedAt: WatchedAtSchema,
+});
+
+export type RestoreWhen = v.InferOutput<typeof RestoreWhenSchema>;
+
+/** Mark (or re-date) episodes, each with its own date, or restore them. */
 export const MarkEpisodesInputSchema = v.object({
   episodes: episodeList(
-    v.object({ ...EpisodeRefSchema.entries, when: MarkWhenSchema }),
+    v.object({
+      ...EpisodeRefSchema.entries,
+      when: v.variant('kind', [MarkWhenSchema, RestoreWhenSchema]),
+    }),
   ),
   seriesId: positiveId,
 });

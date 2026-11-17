@@ -1,5 +1,6 @@
 'use server';
 
+import { PLEX_WATCH_PROVIDER } from '@tvseri.es/constants';
 import {
   BulkLibraryInputSchema,
   type BulkLibraryResult,
@@ -15,6 +16,7 @@ import {
   UnmarkScopeInputSchema,
   type UpdateSeriesPrefs,
   UpdateSeriesPrefsSchema,
+  type WatchProvider,
 } from '@tvseri.es/schemas';
 import { createLimiter } from '@tvseri.es/utils';
 import * as v from 'valibot';
@@ -148,20 +150,32 @@ async function sessionWithSeries(
   return session.user ? { series, session } : null;
 }
 
-async function watchProviderFor(
+type ProviderUser = Readonly<{
+  country?: string;
+  watchProviders?: ReadonlyArray<WatchProvider>;
+}>;
+
+/** The show's services in the viewer's region (none when that read fails) */
+async function showProviders(
   series: Pick<TvSeries, 'id'>,
-  user: Readonly<{
-    country?: string;
-    watchProviders?: ReadonlyArray<{ id: number }>;
-  }>,
-) {
+  user: ProviderUser,
+): Promise<ReadonlyArray<WatchProvider>> {
   try {
     const region = await resolveRegion(user);
-    const providers = await loadWatchProviders(series.id, region);
-    return pickWatchProvider(providers, user.watchProviders);
+    return await loadWatchProviders(series.id, region);
   } catch {
-    return null;
+    return [];
   }
+}
+
+async function watchProviderFor(
+  series: Pick<TvSeries, 'id'>,
+  user: ProviderUser,
+) {
+  return pickWatchProvider(
+    await showProviders(series, user),
+    user.watchProviders,
+  );
 }
 
 /** Mark (or re-date) episodes, each with its own date. */
@@ -178,10 +192,11 @@ export async function markEpisodes(
         return actionError('not-found');
       }
       const seasonNumbers = [...new Set(episodes.map((e) => e.seasonNumber))];
-      const [seasons, watchProvider] = await Promise.all([
+      const [seasons, providers] = await Promise.all([
         Promise.all(seasonNumbers.map((n) => loadSeason(seriesId, n))),
-        watchProviderFor(series, session.user),
+        showProviders(series, session.user),
       ]);
+      const userProviders = session.user.watchProviders ?? [];
       const lookup = (ref: EpisodeRef) =>
         seasons
           .find((season) => season?.seasonNumber === ref.seasonNumber)
@@ -190,11 +205,12 @@ export async function markEpisodes(
           );
       const items = toBatchItems({
         episodes,
+        knownProviders: [PLEX_WATCH_PROVIDER, ...userProviders, ...providers],
         lookup,
         now: Date.now(),
         series,
         userId: session.user.id,
-        watchProvider,
+        watchProvider: pickWatchProvider(providers, userProviders),
       });
       if (items.length === 0) {
         return actionError('not-found');

@@ -76,6 +76,7 @@ describe('toBatchItems', () => {
         { episodeNumber: 5, seasonNumber: 3, when: { kind: 'unknown' } },
         { episodeNumber: 99, seasonNumber: 3, when: { kind: 'now' } },
       ],
+      knownProviders: [],
       lookup: (ref) => (ref.episodeNumber === 5 ? episode(3, 5) : undefined),
       now: NOW,
       series,
@@ -97,6 +98,84 @@ describe('toBatchItems', () => {
         userId: 'u1',
         watchedAt: NOW,
         watchProvider: null,
+      },
+    ]);
+  });
+
+  it('a restore keeps its date, no-date flag, known service and import; a mark gets the viewer’s service', () => {
+    const plex = { id: 0, logo: '', logoPath: '/plex.jpg', name: 'Plex' };
+    const netflix = { id: 8, logo: '', logoPath: '/n.jpg', name: 'Netflix' };
+    const importId = '7f9c2c1e-5b8a-4d3e-9f10-2a6b8c4d5e6f';
+    const items = toBatchItems({
+      episodes: [
+        {
+          episodeNumber: 1,
+          seasonNumber: 3,
+          when: {
+            kind: 'restore',
+            source: 'Plex',
+            watchedAt: 1_700_000_000_000,
+          },
+        },
+        {
+          episodeNumber: 2,
+          seasonNumber: 3,
+          when: {
+            dateUnknown: true,
+            importId,
+            kind: 'restore',
+            watchedAt: 1_600_000_000_000,
+          },
+        },
+        {
+          episodeNumber: 3,
+          seasonNumber: 3,
+          when: {
+            kind: 'restore',
+            source: 'Made up',
+            watchedAt: 1_700_000_000_000,
+          },
+        },
+        { episodeNumber: 4, seasonNumber: 3, when: { kind: 'now' } },
+      ],
+      knownProviders: [plex, netflix],
+      lookup: (ref) => episode(3, ref.episodeNumber),
+      now: NOW,
+      series,
+      userId: 'u1',
+      watchProvider: netflix,
+    });
+    expect(
+      items.map(({ dateUnknown, importId, watchedAt, watchProvider }) => ({
+        dateUnknown,
+        importId,
+        provider: watchProvider?.name ?? null,
+        watchedAt,
+      })),
+    ).toEqual([
+      {
+        dateUnknown: undefined,
+        importId: undefined,
+        provider: 'Plex',
+        watchedAt: 1_700_000_000_000,
+      },
+      {
+        dateUnknown: true,
+        importId,
+        provider: null,
+        watchedAt: 1_600_000_000_000,
+      },
+      {
+        dateUnknown: undefined,
+        importId: undefined,
+        provider: null,
+        watchedAt: 1_700_000_000_000,
+      },
+      {
+        dateUnknown: undefined,
+        importId: undefined,
+        provider: 'Netflix',
+        watchedAt: NOW,
       },
     ]);
   });

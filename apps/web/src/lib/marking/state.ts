@@ -14,17 +14,29 @@ import type {
   WatchRecord,
 } from './types';
 
-/** The store's base for a seed (server truth for one show). */
-export function seedToBase(seed: SeriesSeed): SeriesBase {
-  const watched: Record<EpisodeCode, WatchRecord> = {};
-  for (const item of seed.watched ?? []) {
-    watched[episodeCode(item)] = {
+/**
+ * The store's records for watched items as the API returns them (a seed, a
+ * write's answer). Every field Undo needs to put a record back is kept.
+ */
+export const recordsFrom = (
+  items: NonNullable<SeriesSeed['watched']>,
+): Record<EpisodeCode, WatchRecord> => {
+  const records: Record<EpisodeCode, WatchRecord> = {};
+  for (const item of items) {
+    records[episodeCode(item)] = {
       runtime: item.runtime ?? 0,
       watchedAt: item.watchedAt,
       ...(item.dateUnknown ? { dateUnknown: true } : {}),
       ...(item.watchProviderName ? { source: item.watchProviderName } : {}),
+      ...(item.importId ? { importId: item.importId } : {}),
     };
   }
+  return records;
+};
+
+/** The store's base for a seed (server truth for one show). */
+export function seedToBase(seed: SeriesSeed): SeriesBase {
+  const watched = recordsFrom(seed.watched ?? []);
   return {
     prefs: seed.status
       ? {

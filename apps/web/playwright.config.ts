@@ -125,7 +125,9 @@ export default defineConfig({
       use: chromium,
     },
   ],
-  reporter: process.env.CI ? 'github' : 'list',
+  // In CI `list` takes the place of the dots Playwright adds beside `github`:
+  // its per-test durations are what the shard weights in ci.yml are cut from
+  reporter: process.env.CI ? [['github'], ['list']] : 'list',
   testDir: './e2e',
   timeout: 45_000 * slowFactor,
   // The trace recorder snapshots the whole DOM before every input action

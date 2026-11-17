@@ -102,11 +102,10 @@ jobs:
       # browser has (`E2E_CLASSIC_SCROLLBARS`, playwright.config.ts)
       #
       # Playwright splits the tests, in file order, into equal counts, but the
-      # files are not equally slow: in equal counts the shards took 4.9, 8.3, 8.6
-      # and 6.8 minutes. The weights set each shard's share of the tests
-      # (Playwright's own, undocumented `PWTEST_SHARD_WEIGHTS`), cut from one
-      # full run's test durations into equal time. Recut when the shards'
-      # "passed (Xm)" lines drift apart.
+      # files are not equally slow. The weights set each shard's share of the
+      # tests (Playwright's own, undocumented `PWTEST_SHARD_WEIGHTS`). Recut
+      # them into equal time from the per-test durations the log lists, when
+      # the shards' "passed (Xm)" lines drift apart.
       - name: E2E (shard ${{ matrix.shard }} of 4)
         env:
           E2E_CLASSIC_SCROLLBARS: '1'

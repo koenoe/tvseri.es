@@ -4,7 +4,7 @@ import { memo, type ReactNode, useId } from 'react';
 
 import ArmedMaxMotion from '@/components/motion/ArmedMaxMotion';
 
-import type { DiaryMonth as Month, DiaryRow as Row } from '../_lib/diary';
+import type { DiaryMonth as Month, DiaryRow as Row } from '@/lib/profile/diary';
 import DiaryDay from './DiaryDay';
 import DiaryRow from './DiaryRow';
 import { DiaryLayoutProvider, useMonthLayout } from './diaryMotion';

@@ -1,3 +1,4 @@
+import { buildDiary, monthIndex, thisWeek } from '@/lib/profile/diary';
 import {
   heavyDiary,
   statsDaily,
@@ -7,11 +8,6 @@ import DiaryEnd from '../../../u/[username]/(profile)/history/_components/DiaryE
 import DiaryMonth from '../../../u/[username]/(profile)/history/_components/DiaryMonth';
 import JumpHeading from '../../../u/[username]/(profile)/history/_components/JumpHeading';
 import JumpList from '../../../u/[username]/(profile)/history/_components/JumpList';
-import {
-  buildDiary,
-  monthIndex,
-  thisWeek,
-} from '../../../u/[username]/(profile)/history/_lib/diary';
 import Section from './Section';
 
 /** The stub's heavy diary from June to December 2025: the bulk day, the binge, quiet days */

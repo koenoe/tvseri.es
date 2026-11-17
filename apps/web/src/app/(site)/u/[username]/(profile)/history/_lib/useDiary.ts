@@ -8,18 +8,16 @@ import {
   useMemo,
   useState,
 } from 'react';
-
-import type { DiaryItem } from '@/lib/profile/views';
-
-import usePaginated from '../../_lib/pagination/usePaginated';
-import useScrollAnchor from '../../_lib/pagination/useScrollAnchor';
 import {
   createDiary,
   type MonthKey,
   monthIndex,
   newerMonth,
   parseMonthKey,
-} from './diary';
+} from '@/lib/profile/diary';
+import type { DiaryItem } from '@/lib/profile/views';
+import usePaginated from '../../_lib/pagination/usePaginated';
+import useScrollAnchor from '../../_lib/pagination/useScrollAnchor';
 
 /** The day rows the scroll anchor holds in place while a month lands above */
 const ANCHOR = '[data-diary-day]';

@@ -5,7 +5,7 @@ import { MotionGlobalConfig } from 'motion/react';
 import type { ReactNode } from 'react';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
-import type { DiaryRow as Row } from '../_lib/diary';
+import type { DiaryRow as Row } from '@/lib/profile/diary';
 import DiaryRow from './DiaryRow';
 
 vi.mock('next/navigation', () => ({

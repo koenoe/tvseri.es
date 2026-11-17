@@ -8,7 +8,7 @@ import { useMotionLive } from '@/components/motion/ArmedMaxMotion';
 import CodeBadge from '@/components/ui/button/CodeBadge';
 import TileLink from '@/components/ui/tile/TileLink';
 
-import type { DiaryRow } from '../_lib/diary';
+import type { DiaryRow } from '@/lib/profile/diary';
 import { episodeHref } from './episodeHref';
 
 const INITIAL = { opacity: 0, y: -8 } as const;

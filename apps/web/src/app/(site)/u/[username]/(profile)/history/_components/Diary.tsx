@@ -4,12 +4,12 @@ import type { Page, StatsYears } from '@tvseri.es/schemas';
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import cn from '@/lib/cn';
+import type { MonthKey } from '@/lib/profile/diary';
 import type { DiaryItem } from '@/lib/profile/views';
 import profilePath from '@/lib/routing/profilePath';
 import InfiniteScroll from '../../_components/pagination/InfiniteScroll';
 import PaginationNotice from '../../_components/pagination/PaginationNotice';
 import { isJumping, setJumping, useJumping } from '../_lib/activeMonth';
-import type { MonthKey } from '../_lib/diary';
 import useActiveMonthTracker from '../_lib/useActiveMonthTracker';
 import useDiary from '../_lib/useDiary';
 import { scrollToDiaryTop } from '../_lib/useDiaryJump';

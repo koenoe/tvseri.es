@@ -1,11 +1,5 @@
-import {
-  loadHistoryTimeZone,
-  loadNewerMonth,
-} from '@/app/(site)/u/[username]/(profile)/history/_data/history';
-import {
-  jumpRange,
-  parseMonthKey,
-} from '@/app/(site)/u/[username]/(profile)/history/_lib/diary';
+import { jumpRange, parseMonthKey } from '@/lib/profile/diary';
+import { loadHistoryTimeZone, loadNewerMonth } from '@/lib/profile/history';
 import { loadHistoryPage } from '@/lib/profile/pages';
 
 import { privateJson, viewerRoute } from '../../../handlers';

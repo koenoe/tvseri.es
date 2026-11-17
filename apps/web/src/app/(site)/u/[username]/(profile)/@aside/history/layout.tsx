@@ -1,8 +1,9 @@
 import { type ReactNode, Suspense } from 'react';
 
 import { isUnavailable } from '@/lib/cache/unavailable';
+import { monthIndex } from '@/lib/profile/diary';
+import { loadHistoryYears, loadJumpWeek } from '@/lib/profile/history';
 import profilePath from '@/lib/routing/profilePath';
-
 import BlockError from '../../_components/blocks/BlockError';
 import { SidebarRule } from '../../_components/shell/SidebarBlocksSkeleton';
 import SubpageMarker from '../../_components/shell/SubpageMarker';
@@ -10,8 +11,6 @@ import { getProfile, type ProfileParams, withToken } from '../../_data/profile';
 import JumpHeading from '../../history/_components/JumpHeading';
 import JumpTo from '../../history/_components/JumpTo';
 import JumpToSkeleton from '../../history/_components/JumpToSkeleton';
-import { loadHistoryYears, loadJumpWeek } from '../../history/_data/history';
-import { monthIndex } from '../../history/_lib/diary';
 
 type Props = Readonly<{ params: ProfileParams }>;
 

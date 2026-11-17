@@ -18,7 +18,7 @@ vi.mock('@/lib/profile/pages', () => ({
   loadHistoryPage: (...args: unknown[]) => loadHistoryPage(...args),
 }));
 const loadHistoryTimeZone = vi.fn();
-vi.mock('@/app/(site)/u/[username]/(profile)/history/_data/history', () => ({
+vi.mock('@/lib/profile/history', () => ({
   loadHistoryTimeZone: (...args: unknown[]) => loadHistoryTimeZone(...args),
   loadNewerMonth: (...args: unknown[]) => loadNewerMonth(...args),
 }));

@@ -9,7 +9,7 @@ import { calendarGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 
 import { plural } from '@/lib/format/text';
-import type { MonthKey, JumpYear as Year } from '../_lib/diary';
+import type { MonthKey, JumpYear as Year } from '@/lib/profile/diary';
 import { useDiaryJump } from '../_lib/useDiaryJump';
 import JumpYear from './JumpYear';
 

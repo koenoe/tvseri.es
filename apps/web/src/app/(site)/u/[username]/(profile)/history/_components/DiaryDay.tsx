@@ -5,7 +5,7 @@ import type { CSSProperties, ReactNode } from 'react';
 
 import cn from '@/lib/cn';
 
-import type { DiaryDay as Day } from '../_lib/diary';
+import type { DiaryDay as Day } from '@/lib/profile/diary';
 import { useDiaryLayout } from './diaryMotion';
 import { DIARY_DAY, DIARY_DAY_SKIPPED, DIARY_ROWS } from './diaryStyles';
 

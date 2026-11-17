@@ -21,7 +21,7 @@ import {
   thisWeek,
   thisWeekFromPage,
   weekYears,
-} from '../_lib/diary';
+} from './diary';
 
 /**
  * History's reads besides the diary's pages: the month index and month

@@ -6,6 +6,8 @@ import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
 import OwnerVisitor from '@/components/ui/viewer/OwnerVisitor';
 import { isUnavailable, tryApi } from '@/lib/cache/unavailable';
 import { readCount } from '@/lib/profile/counts';
+import { parseMonthKey } from '@/lib/profile/diary';
+import { loadHistoryStart } from '@/lib/profile/history';
 import Hole from '../_components/blocks/Hole';
 import EpisodesCount from '../_components/shell/EpisodesCount';
 import SubpageHeader, {
@@ -22,8 +24,6 @@ import Diary from './_components/Diary';
 import DiaryEnd from './_components/DiaryEnd';
 import DiarySkeleton from './_components/DiarySkeleton';
 import HistoryDayZero from './_components/HistoryDayZero';
-import { loadHistoryStart } from './_data/history';
-import { parseMonthKey } from './_lib/diary';
 
 type SearchParams = Promise<
   Readonly<Record<string, string | string[] | undefined>>

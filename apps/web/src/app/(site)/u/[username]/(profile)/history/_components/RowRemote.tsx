@@ -1,9 +1,8 @@
 'use client';
 
 import { LazyShowRemote } from '@/components/remote/LazyRemote';
+import type { DiaryRow } from '@/lib/profile/diary';
 import showPath from '@/lib/routing/showPath';
-
-import type { DiaryRow } from '../_lib/diary';
 
 /**
  * The owner's ⋯ on a row: the show page's Remote (N E F W: "the

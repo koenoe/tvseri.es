@@ -3,9 +3,8 @@
 import { Dialog } from '@/components/ui/dialog/Dialog';
 import { calendarGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
-
+import type { JumpYear } from '@/lib/profile/diary';
 import { useActiveMonth } from '../_lib/activeMonth';
-import type { JumpYear } from '../_lib/diary';
 import JumpList from './JumpList';
 
 type Week = Readonly<{ episodes: number; last: string | null }>;

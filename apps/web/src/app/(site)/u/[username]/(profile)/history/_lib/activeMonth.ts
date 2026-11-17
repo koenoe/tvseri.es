@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 
-import type { MonthKey } from './diary';
+import type { MonthKey } from '@/lib/profile/diary';
 
 /**
  * The month at the top of the diary (white in Jump to) and whether a jump

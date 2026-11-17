@@ -1,9 +1,12 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-
+import {
+  type JumpYear,
+  openingMonth,
+  parseMonthKey,
+} from '@/lib/profile/diary';
 import { useActiveMonth } from '../_lib/activeMonth';
-import { type JumpYear, openingMonth, parseMonthKey } from '../_lib/diary';
 import JumpList from './JumpList';
 
 /**

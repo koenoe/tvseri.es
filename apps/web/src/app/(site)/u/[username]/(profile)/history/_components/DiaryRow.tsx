@@ -16,7 +16,7 @@ import MetaRow from '@/components/ui/meta/MetaRow';
 import TileLink from '@/components/ui/tile/TileLink';
 import cn from '@/lib/cn';
 
-import type { DiaryRow as Row } from '../_lib/diary';
+import type { DiaryRow as Row } from '@/lib/profile/diary';
 import BulkBadge from './BulkBadge';
 import CountToggle, { RunChevron } from './CountToggle';
 import DiaryEpisodes from './DiaryEpisodes';

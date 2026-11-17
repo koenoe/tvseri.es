@@ -1,9 +1,8 @@
 'use client';
 
 import { type RefObject, useEffect } from 'react';
-
+import type { DiaryMonth } from '@/lib/profile/diary';
 import { getActiveMonth, setActiveMonth } from './activeMonth';
-import type { DiaryMonth } from './diary';
 
 /**
  * A band near the top of the screen, under the header pill: the first

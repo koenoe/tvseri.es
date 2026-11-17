@@ -7,7 +7,7 @@ import Icon from '@/components/ui/icon/Icon';
 
 import { plural } from '@/lib/format/text';
 import { formatGrouped } from '@/lib/formatCount';
-import type { MonthKey, JumpYear as Year } from '../_lib/diary';
+import type { MonthKey, JumpYear as Year } from '@/lib/profile/diary';
 import JumpMonthLink from './JumpMonthLink';
 
 /** A year in Jump to (`.rl-y`) and, open, its months */

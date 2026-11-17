@@ -3,10 +3,8 @@ import { render, screen, within } from '@testing-library/react';
 import { MotionGlobalConfig } from 'motion/react';
 import type { ReactNode } from 'react';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-
+import { buildDiary } from '@/lib/profile/diary';
 import type { DiaryItem } from '@/lib/profile/views';
-
-import { buildDiary } from '../_lib/diary';
 import DiaryEnd from './DiaryEnd';
 import DiaryMonth from './DiaryMonth';
 

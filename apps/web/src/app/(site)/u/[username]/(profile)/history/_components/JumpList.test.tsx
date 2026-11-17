@@ -5,7 +5,7 @@ import { MotionGlobalConfig } from 'motion/react';
 import type { ReactNode } from 'react';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
-import { type JumpYear, monthIndex } from '../_lib/diary';
+import { type JumpYear, monthIndex } from '@/lib/profile/diary';
 import JumpList from './JumpList';
 
 const push = vi.fn();

@@ -7,7 +7,7 @@ import type { MouseEvent } from 'react';
 import cn from '@/lib/cn';
 
 import { plural } from '@/lib/format/text';
-import type { JumpMonth } from '../_lib/diary';
+import type { JumpMonth } from '@/lib/profile/diary';
 
 const MONTH_IN = { opacity: 0, y: -4 } as const;
 const SHOWN = { opacity: 1, y: 0 } as const;

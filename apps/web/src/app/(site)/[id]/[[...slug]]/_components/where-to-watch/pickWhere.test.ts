@@ -15,6 +15,15 @@ const appleStore = provider(2, 'Apple TV Store');
 const netflixAds = provider(1796, 'Netflix Standard with Ads');
 
 describe('pickWhere', () => {
+  it('picks by the viewer’s order when the show is on several of theirs', () => {
+    expect(pickWhere({ stream: [hulu, disney] }, [disney, hulu])?.text).toBe(
+      'On your Disney+',
+    );
+    expect(pickWhere({ stream: [disney, hulu] }, [hulu, disney])?.text).toBe(
+      'On your Hulu',
+    );
+  });
+
   it('says "On your …" for one of the viewer’s services, first match wins', () => {
     expect(pickWhere({ stream: [hulu, disney] }, [disney])).toEqual({
       kind: 'yours',

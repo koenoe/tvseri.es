@@ -2,7 +2,8 @@ import type { WatchProvider } from '@tvseri.es/schemas';
 
 /**
  * Where to watch: one answer per show
- * and region. One of the viewer's services first ("On your Disney+"), else
+ * and region. One of the viewer's services first, the first in their own
+ * order that streams it ("On your Disney+"), else
  * the first service it streams on ("Disney+"), else where to rent or buy it,
  * quietly ("Buy on Apple TV Store"), else nothing. Never "not on your
  * services".
@@ -39,13 +40,17 @@ export function pickWhere(
   offers: WhereOffers,
   services: ReadonlyArray<Pick<WatchProvider, 'id' | 'name'>>,
 ): Where | null {
-  const ids = new Set(services.map((service) => service.id));
-  const names = new Set(services.map((service) => key(service.name)));
-  const yours = offers.stream.find(
-    (provider) =>
-      !isChannel(provider.name) &&
-      (ids.has(provider.id) || names.has(key(provider.name))),
-  );
+  const own = offers.stream.filter((provider) => !isChannel(provider.name));
+  let yours: WatchProvider | undefined;
+  for (const service of services) {
+    const name = key(service.name);
+    yours = own.find(
+      (provider) => provider.id === service.id || key(provider.name) === name,
+    );
+    if (yours) {
+      break;
+    }
+  }
   if (yours) {
     const name = foldPlan(yours.name);
     return { kind: 'yours', logo: yours.logo, name, text: `On your ${name}` };

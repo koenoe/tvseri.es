@@ -68,8 +68,8 @@ export {
   type RuntimesBySeason,
   resolveSeasonMinutes,
 } from './runtime/minutesFor';
-export { isOver } from './series/isOver';
 export { formatSeriesYears } from './series/seriesYears';
+export { isOver, isRunning } from './series/status';
 export { sleep } from './sleep';
 export { decodeFromBase64Url, encodeToBase64Url } from './stringBase64Url';
 export { upperFirst } from './text/upperFirst';

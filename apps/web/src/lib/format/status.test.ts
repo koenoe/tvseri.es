@@ -38,4 +38,8 @@ describe('statusFact', () => {
   it('is null without a status', () => {
     expect(statusFact('')).toBeNull();
   });
+
+  it('reads a status it has no words for as ended, as the series years do', () => {
+    expect(statusFact('Rumoured')).toEqual({ kind: 'ended', text: 'Rumoured' });
+  });
 });

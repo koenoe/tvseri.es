@@ -1,4 +1,5 @@
 import { seasonCode } from '@tvseri.es/schemas';
+import { isRunning } from '@tvseri.es/utils';
 
 /** A show's status as a fact beside its title: the glyph kind and the words */
 export type StatusFact = Readonly<{
@@ -30,13 +31,17 @@ export function statusLabel(status: string, seasons = 0): string {
   }
 }
 
-/** The status with its glyph kind (Library tiles, Favourites slices); none is null */
+/**
+ * The status with its glyph kind (Library tiles, Favourites slices); none is
+ * null. A status TMDB doesn't list as running reads as ended, as the series'
+ * years do (`formatSeriesYears`).
+ */
 export function statusFact(status: string, seasons = 0): StatusFact | null {
   if (!status) {
     return null;
   }
   return {
-    kind: status === 'Ended' || status === 'Canceled' ? 'ended' : 'ongoing',
+    kind: isRunning(status) ? 'ongoing' : 'ended',
     text: statusLabel(status, seasons),
   };
 }

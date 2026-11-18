@@ -2,6 +2,7 @@ import type { BetterFetchOption } from '@better-fetch/fetch';
 import { CACHE_LIFE, WATCH_PROVIDER_PRIORITY } from '@tvseri.es/constants';
 import type {
   CountryOrLanguage,
+  CrewCredit,
   Episode,
   EpisodePerson,
   EpisodeStill,
@@ -92,6 +93,7 @@ import {
   deduplicateDiscoverItems,
   GLOBAL_GENRES_TO_IGNORE,
   logoAspectRatio,
+  normalizeAggregateCrew,
   normalizeMovie,
   normalizeNetwork,
   normalizePersons,
@@ -618,7 +620,7 @@ export async function fetchTvSeriesWatchProvider(
 
 export async function fetchTvSeriesCredits(
   id: number | string,
-): Promise<Readonly<{ cast: Person[]; crew: Person[] }>> {
+): Promise<Readonly<{ cast: Person[]; crew: CrewCredit[] }>> {
   const credits = (await tmdbFetch(`/3/tv/${id}/aggregate_credits`)) as
     | TmdbTvSeriesCredits
     | undefined;
@@ -637,7 +639,7 @@ export async function fetchTvSeriesCredits(
 
   return {
     cast: normalizePersons(cast),
-    crew: normalizePersons(credits.crew),
+    crew: normalizeAggregateCrew(credits.crew),
   };
 }
 

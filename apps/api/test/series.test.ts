@@ -397,3 +397,49 @@ describe('GET /series/:id/runtimes', () => {
     expect(response.status).toBe(404);
   });
 });
+
+describe('GET /series/:id/credits', () => {
+  it('serves the cast with a photo and the whole crew, by department and job', async () => {
+    onTmdb('/tv/77/aggregate_credits', {
+      cast: [
+        { id: 1, name: 'Faceless', order: 1, roles: [] },
+        {
+          id: 2,
+          name: 'Jeremy Allen White',
+          order: 0,
+          profile_path: '/white.jpg',
+          roles: [{ character: 'Carmy', episode_count: 28 }],
+          total_episode_count: 28,
+        },
+      ],
+      crew: [
+        {
+          department: 'Directing',
+          id: 3,
+          jobs: [{ episode_count: 12, job: 'Director' }],
+          name: 'Faceless Director',
+          total_episode_count: 12,
+        },
+      ],
+      id: 77,
+    });
+
+    const body = (await (await request('/series/77/credits')).json()) as {
+      cast: Array<{ id: number }>;
+      crew: unknown[];
+    };
+
+    expect(body.cast.map((person) => person.id)).toEqual([2]);
+    expect(body.crew).toEqual([
+      {
+        department: 'Directing',
+        id: 3,
+        image: '',
+        jobs: [{ episodes: 12, job: 'Director' }],
+        name: 'Faceless Director',
+        numberOfEpisodes: 12,
+        slug: 'faceless-director',
+      },
+    ]);
+  });
+});

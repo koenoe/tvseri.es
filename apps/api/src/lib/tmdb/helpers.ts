@@ -1,5 +1,6 @@
 import { landingSlugForId, networkById } from '@tvseri.es/constants';
 import type {
+  CrewCredit,
   Movie,
   Network,
   TmdbDiscoverMovieQuery,
@@ -155,34 +156,46 @@ function normalizeGenres(genres: TmdbTvSeries['genres']) {
   );
 }
 
-export function normalizePersons(
-  persons:
-    | TmdbTvSeries['created_by']
-    | TmdbTvSeriesCredits['cast']
-    | TmdbTvSeriesCredits['crew'],
-) {
-  return (persons ?? []).map((person) => {
-    let character = '';
-    let job = '';
-    if ('roles' in person && person.roles) {
-      character = person.roles?.[0]?.character as string;
-    } else if ('jobs' in person && person.jobs) {
-      job = person.jobs?.[0]?.job as string;
-    }
+const profileImage = (path: string | null | undefined) =>
+  path ? buildProfileImageUrl(path, 'w138_and_h175_face') : '';
 
-    return {
-      character,
-      id: person.id,
-      image: person.profile_path
-        ? buildProfileImageUrl(person.profile_path, 'w138_and_h175_face')
+export function normalizePersons(
+  persons: TmdbTvSeries['created_by'] | TmdbTvSeriesCredits['cast'],
+) {
+  return (persons ?? []).map((person) => ({
+    character:
+      'roles' in person && person.roles
+        ? (person.roles[0]?.character as string)
         : '',
-      job,
-      name: person.name ?? '',
-      numberOfEpisodes:
-        'total_episode_count' in person ? person.total_episode_count : 0,
-      slug: toSlug(person.name as string),
-    };
-  });
+    id: person.id,
+    image: profileImage(person.profile_path),
+    job: '',
+    name: person.name ?? '',
+    numberOfEpisodes:
+      'total_episode_count' in person ? person.total_episode_count : 0,
+    slug: toSlug(person.name as string),
+  }));
+}
+
+/**
+ * A show's crew from `aggregate_credits`, one row per person per department,
+ * with every job: the sheet groups them by department and job. Unlike the
+ * cast, crew without a photo stay (a blank face).
+ */
+export function normalizeAggregateCrew(
+  crew: TmdbTvSeriesCredits['crew'],
+): CrewCredit[] {
+  return (crew ?? []).map((person) => ({
+    department: person.department ?? '',
+    id: person.id,
+    image: profileImage(person.profile_path),
+    jobs: (person.jobs ?? []).flatMap(({ episode_count, job }) =>
+      job ? [{ episodes: episode_count ?? 0, job }] : [],
+    ),
+    name: person.name ?? '',
+    numberOfEpisodes: person.total_episode_count ?? 0,
+    slug: toSlug(person.name ?? ''),
+  }));
 }
 
 /** `releaseYear`: the shared year format ("2014–", "2016–2025"), "TBA" without a year */

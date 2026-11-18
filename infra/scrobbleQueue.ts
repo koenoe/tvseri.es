@@ -1,5 +1,7 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
+import { alarmOnDeadLetters } from './alerts';
+import { productionReserved } from './concurrency';
 import { dominantColor } from './dominantColor';
 import * as dynamo from './dynamo';
 import * as secrets from './secrets';
@@ -14,6 +16,7 @@ const scrobbleDlq = new sst.aws.Queue('ScrobbleDLQ', {
     },
   },
 });
+alarmOnDeadLetters('ScrobbleDLQ', scrobbleDlq);
 
 export const scrobbleQueue = new sst.aws.Queue('ScrobbleQueue', {
   dlq: {
@@ -27,7 +30,7 @@ export const scrobbleQueue = new sst.aws.Queue('ScrobbleQueue', {
 scrobbleQueue.subscribe(
   {
     concurrency: {
-      reserved: 25,
+      reserved: productionReserved($app.stage, 25),
     },
     handler: 'apps/api/src/lambdas/scrobble.handler',
     link: [
@@ -37,7 +40,6 @@ scrobbleQueue.subscribe(
       dynamo.preferredImages,
       dynamo.users,
       dynamo.watched,
-      secrets.mdblistApiKey,
       secrets.tmdbApiAccessToken,
       secrets.tmdbApiKey,
     ],
@@ -48,7 +50,11 @@ scrobbleQueue.subscribe(
     // Default = {size: 10, window: “20 seconds”, partialResponses: false}
     batch: {
       partialResponses: true, // handler returns batchItemFailures per message
-      size: 25,
+      // Messages run one after another, and a slow TMDB (5 s an attempt, one
+      // retry) makes one take about 13 s: 2 keep such a batch inside the
+      // 30 s timeout (a timeout loses the partial response and redelivers
+      // the whole batch)
+      size: 2,
       window: '30 seconds',
     },
   },

@@ -7,6 +7,8 @@ import {
   type WriteRequest,
 } from '@aws-sdk/client-dynamodb';
 
+import { chunk, sleep } from '@tvseri.es/utils';
+
 import { createLimiter } from '@/utils/limit';
 
 import client from './client';
@@ -44,20 +46,9 @@ export const AGGREGATE_RETRY: BatchRetry = {
   maxDelayMs: 1600,
 };
 
-const sleep = (ms: number) =>
-  new Promise<void>((resolve) => setTimeout(resolve, ms));
-
 const backoff = (attempt: number, retry: BatchRetry) => {
   const delay = Math.min(retry.maxDelayMs, retry.baseDelayMs * 2 ** attempt);
   return sleep(retry.jitter ? Math.random() * delay : delay);
-};
-
-export const chunk = <T>(items: ReadonlyArray<T>, size: number): T[][] => {
-  const chunks: T[][] = [];
-  for (let i = 0; i < items.length; i += size) {
-    chunks.push(items.slice(i, i + size));
-  }
-  return chunks;
 };
 
 const unprocessedError = (
@@ -186,7 +177,7 @@ const getChunk = async (
  * Reads any number of items from one table by key.
  *
  * Splits into 100-key batches (bounded concurrency) and retries
- * `UnprocessedKeys` with exponential backoff. Missing items are simply absent
+ * `UnprocessedKeys` with exponential backoff. Missing items are absent
  * from the result; order is not guaranteed. Duplicate keys are removed
  * (BatchGetItem rejects them).
  *

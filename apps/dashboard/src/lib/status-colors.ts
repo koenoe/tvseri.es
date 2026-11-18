@@ -15,3 +15,8 @@ export const STATUS_COLORS = {
     text: 'text-red-500',
   },
 } as const;
+
+export type StatusColor = keyof typeof STATUS_COLORS;
+
+// Volume has no good or bad, so request charts stay grey.
+export const NEUTRAL_COLOR = 'hsl(220, 9%, 70%)';

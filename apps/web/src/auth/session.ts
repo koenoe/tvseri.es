@@ -1,23 +1,18 @@
 import 'server-only';
 
 import type { Tokens } from '@openauthjs/openauth/client';
-import { cookies } from 'next/headers';
-import { after } from 'next/server';
-import {
-  FETCH_TIMEOUT,
-  SESSION_COOKIE_NAME,
-  SESSION_COOKIE_OPTIONS,
-  SESSION_REFRESH_THRESHOLD,
-  USER_DISPLAY_COOKIE_NAME,
-  USER_DISPLAY_COOKIE_OPTIONS,
-} from '@/constants';
-import { client } from './client';
+
+import { getAuthClient } from './client';
 import { decryptToken, encryptToken, type TokenPayload } from './crypto';
+import { createRefresher, type RefreshResult } from './refresh';
+
+/** Refresh when less than this many seconds of the access token are left. */
+const SESSION_REFRESH_THRESHOLD = 60;
 
 /**
  * - `none`: no session cookie.
- * - `invalid`: the cookie can't be decrypted or the auth server rejected the
- *   refresh token. The cookie must be deleted.
+ * - `invalid`: the cookie can't be decrypted or the auth server refused the
+ *   refresh token (`invalid_grant`). The cookie must be deleted.
  * - `stale`: there is a session, but no usable access token right now (it
  *   expired and we may not or could not refresh). Keep the cookie.
  * - `valid`: the access token in the cookie can be used as is.
@@ -43,22 +38,40 @@ type ResolveMode = 'read-only' | 'refresh';
 
 export type SessionContext = 'Proxy' | 'RouteHandler' | 'RSC';
 
+/** The boundaries `resolveSession` talks to; tests pass fakes. */
+export type SessionDeps = Readonly<{
+  /** One refresh per refresh token at a time (`createRefresher`). */
+  refresh: (refreshToken: string) => Promise<RefreshResult>;
+  /** Milliseconds since the epoch, like `Date.now()`. */
+  now: () => number;
+}>;
+
+const now = () => Date.now();
+
+const DEFAULT_DEPS: SessionDeps = {
+  now,
+  // One per server instance, shared by every request it serves. The auth
+  // client is created on first refresh, so importing needs no AUTH_URL.
+  refresh: createRefresher({
+    now,
+    refresh: (token) => getAuthClient().refresh(token),
+  }),
+};
+
 const NONE: SessionState = { status: 'none' };
 const INVALID: SessionState = { status: 'invalid' };
 const STALE: SessionState = { status: 'stale' };
 
-function nowInSeconds(): number {
-  return Math.floor(Date.now() / 1000);
-}
+const toSeconds = (ms: number) => Math.floor(ms / 1000);
 
-function isExpired(tokens: TokenPayload): boolean {
-  return tokens.expiresAt <= nowInSeconds();
-}
-
-function toTokenPayload({ access, expiresIn, refresh }: Tokens): TokenPayload {
+/** Tokens from the auth server as stored in the session cookie. */
+export function toTokenPayload(
+  { access, expiresIn, refresh }: Tokens,
+  nowMs: number = Date.now(),
+): TokenPayload {
   return {
     accessToken: access,
-    expiresAt: nowInSeconds() + expiresIn,
+    expiresAt: toSeconds(nowMs) + expiresIn,
     refreshToken: refresh,
   };
 }
@@ -66,36 +79,31 @@ function toTokenPayload({ access, expiresIn, refresh }: Tokens): TokenPayload {
 async function refreshSession(
   tokens: TokenPayload,
   context: SessionContext,
+  deps: SessionDeps,
 ): Promise<SessionState> {
-  let refreshed: Awaited<ReturnType<typeof client.refresh>>;
+  const result = await deps.refresh(tokens.refreshToken);
 
-  try {
-    refreshed = await client.refresh(tokens.refreshToken);
-  } catch (error) {
-    // Network error, timeout or 5xx: not a verdict on the session. Keep the
-    // cookie and try again on the next request.
-    console.log(
-      `[auth] [${context}] refresh unavailable, keeping session:`,
-      error,
-    );
-    return isExpired(tokens) ? STALE : { status: 'valid', tokens };
+  switch (result.kind) {
+    case 'refreshed':
+      return {
+        cookie: await encryptToken(result.tokens),
+        status: 'refreshed',
+        tokens: result.tokens,
+      };
+    case 'rejected':
+      console.log(`[auth] [${context}] refresh rejected: invalid_grant`);
+      return INVALID;
+    case 'unavailable': {
+      // Network error, timeout, 5xx or an answer that isn't a verdict: keep
+      // the cookie and try again on the next request.
+      console.log(
+        `[auth] [${context}] refresh unavailable, keeping session:`,
+        result.error instanceof Error ? result.error.message : result.error,
+      );
+      const isExpired = tokens.expiresAt <= toSeconds(deps.now());
+      return isExpired ? STALE : { status: 'valid', tokens };
+    }
   }
-
-  if (refreshed.err || !refreshed.tokens) {
-    console.log(
-      `[auth] [${context}] refresh rejected:`,
-      refreshed.err ? refreshed.err.name : 'no tokens returned',
-    );
-    return INVALID;
-  }
-
-  const nextTokens = toTokenPayload(refreshed.tokens);
-
-  return {
-    cookie: await encryptToken(nextTokens),
-    status: 'refreshed',
-    tokens: nextTokens,
-  };
 }
 
 /**
@@ -105,6 +113,7 @@ async function refreshSession(
 export async function resolveSession(
   cookie: string | undefined,
   options: Readonly<{ context: SessionContext; mode: ResolveMode }>,
+  deps: SessionDeps = DEFAULT_DEPS,
 ): Promise<SessionState> {
   if (!cookie) {
     return NONE;
@@ -116,7 +125,7 @@ export async function resolveSession(
     return INVALID;
   }
 
-  const expiresIn = tokens.expiresAt - nowInSeconds();
+  const expiresIn = tokens.expiresAt - toSeconds(deps.now());
 
   if (expiresIn > SESSION_REFRESH_THRESHOLD) {
     return { status: 'valid', tokens };
@@ -126,80 +135,5 @@ export async function resolveSession(
     return expiresIn > 0 ? { status: 'valid', tokens } : STALE;
   }
 
-  return refreshSession(tokens, options.context);
-}
-
-/**
- * Create a new session (for callback route). Any display cookie left over is
- * dropped; the proxy fills it in from `/me` on the next request.
- */
-export async function createSession(tokens: Tokens): Promise<void> {
-  const cookieStore = await cookies();
-  const encrypted = await encryptToken(toTokenPayload(tokens));
-  cookieStore.set(SESSION_COOKIE_NAME, encrypted, SESSION_COOKIE_OPTIONS);
-  cookieStore.delete(USER_DISPLAY_COOKIE_NAME);
-}
-
-/**
- * Sets the display-only username cookie (see `USER_DISPLAY_COOKIE_NAME`).
- * Route handlers and server actions only.
- */
-export async function setUserDisplayCookie(username: string): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.set(
-    USER_DISPLAY_COOKIE_NAME,
-    username,
-    USER_DISPLAY_COOKIE_OPTIONS,
-  );
-}
-
-async function revokeRefreshToken(refreshToken: string): Promise<void> {
-  try {
-    await fetch(`${process.env.AUTH_URL}/revoke`, {
-      body: new URLSearchParams({ token: refreshToken }),
-      method: 'POST',
-      signal: AbortSignal.timeout(FETCH_TIMEOUT),
-    });
-  } catch (error) {
-    console.log('[auth] revoke failed:', error);
-  }
-}
-
-/**
- * Deletes the session (and display) cookie and, after the response, revokes its refresh
- * token on the auth server (best effort; logout never waits for or depends on
- * it).
- */
-export async function deleteSession(): Promise<void> {
-  const cookieStore = await cookies();
-  const cookie = cookieStore.get(SESSION_COOKIE_NAME)?.value;
-  cookieStore.delete(SESSION_COOKIE_NAME);
-  cookieStore.delete(USER_DISPLAY_COOKIE_NAME);
-
-  const tokens = cookie ? await decryptToken(cookie) : null;
-  if (tokens) {
-    after(() => revokeRefreshToken(tokens.refreshToken));
-  }
-}
-
-/**
- * Writes the outcome of a `refresh`-mode `resolveSession` to the Next cookie
- * store (route handlers and server actions only; RSC can't set cookies).
- */
-export async function persistSessionState(state: SessionState): Promise<void> {
-  if (state.status === 'refreshed') {
-    const cookieStore = await cookies();
-    cookieStore.set(SESSION_COOKIE_NAME, state.cookie, SESSION_COOKIE_OPTIONS);
-    // Keep the display cookie's lifetime in step with the session's.
-    const username = cookieStore.get(USER_DISPLAY_COOKIE_NAME)?.value;
-    if (username) {
-      await setUserDisplayCookie(username);
-    }
-  } else if (state.status === 'invalid') {
-    // Only drop the cookie: the auth server just rejected this token, so
-    // revoking it there would be pointless. Revoke is for explicit logout.
-    const cookieStore = await cookies();
-    cookieStore.delete(SESSION_COOKIE_NAME);
-    cookieStore.delete(USER_DISPLAY_COOKIE_NAME);
-  }
+  return refreshSession(tokens, options.context, deps);
 }

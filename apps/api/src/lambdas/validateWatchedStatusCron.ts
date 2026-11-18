@@ -1,16 +1,11 @@
-import {
-  type AttributeValue,
-  DynamoDBClient,
-  QueryCommand,
-} from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { USER_KEY_PREFIX } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 
 import { ACTIVE_USER_WINDOW_MS } from '@/constants';
-import { ACTIVE_INDEX, ACTIVE_PK, USER_PK_PREFIX } from '@/lib/db/user';
+import { queryPages } from '@/lib/db/query';
+import { ACTIVE_INDEX, ACTIVE_PK } from '@/lib/db/user';
 import { queueWatchedStatusValidation } from '@/lib/watchedStatus';
-
-const dynamo = new DynamoDBClient({});
 
 /**
  * Queues every user who watched something within ACTIVE_USER_WINDOW_MS (the
@@ -19,61 +14,42 @@ const dynamo = new DynamoDBClient({});
  * (middleware/auth.ts).
  */
 export const handler = async () => {
-  let lastEvaluatedKey: Record<string, AttributeValue> | undefined;
   let queuedCount = 0;
+  let failedCount = 0;
   const since = new Date(Date.now() - ACTIVE_USER_WINDOW_MS).toISOString();
 
-  try {
-    do {
-      const command = new QueryCommand({
-        ExclusiveStartKey: lastEvaluatedKey,
-        ExpressionAttributeValues: marshall({
-          ':active': ACTIVE_PK,
-          ':since': since,
-        }),
-        IndexName: ACTIVE_INDEX,
-        KeyConditionExpression: 'activePk = :active AND lastActiveAt >= :since',
-        Limit: 1000,
-        TableName: Resource.Users.name,
-      });
-
-      const result = await dynamo.send(command);
-
-      // Keys-only index: pk is USER#<id>
-      const userIds = (result.Items ?? []).map((item) =>
-        (unmarshall(item) as Readonly<{ pk: string }>).pk.slice(
-          USER_PK_PREFIX.length,
-        ),
-      );
-
-      const failedCount = await queueWatchedStatusValidation(userIds);
-      if (failedCount > 0) {
-        console.error(`[ERROR] ${failedCount} users failed to queue`);
-      }
-      queuedCount += userIds.length - failedCount;
-
-      lastEvaluatedKey = result.LastEvaluatedKey;
-    } while (lastEvaluatedKey);
-
-    console.log(
-      `[SUCCESS] ${queuedCount} active users queued to validate their watched items`,
+  // A failed query still throws (EventBridge retries the run); users SQS
+  // refused twice are only logged, as a rerun would queue everyone again
+  for await (const page of queryPages({
+    ExpressionAttributeValues: marshall({
+      ':active': ACTIVE_PK,
+      ':since': since,
+    }),
+    IndexName: ACTIVE_INDEX,
+    KeyConditionExpression: 'activePk = :active AND lastActiveAt >= :since',
+    Limit: 1000,
+    TableName: Resource.Users.name,
+  })) {
+    // Keys-only index: pk is USER#<id>
+    const userIds = (page.Items ?? []).map((item) =>
+      (unmarshall(item) as Readonly<{ pk: string }>).pk.slice(
+        USER_KEY_PREFIX.length,
+      ),
     );
 
-    return {
-      body: JSON.stringify({ queuedCount }),
-      statusCode: 200,
-    };
-  } catch (error) {
-    console.error(
-      'Failed to queue users to validate their watched status:',
-      error,
-    );
-
-    return {
-      body: JSON.stringify({
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }),
-      statusCode: 500,
-    };
+    const failed = await queueWatchedStatusValidation(userIds);
+    failedCount += failed;
+    queuedCount += userIds.length - failed;
   }
+
+  if (failedCount > 0) {
+    console.error(
+      `[ERROR] ${failedCount} users failed to queue (${queuedCount} queued)`,
+    );
+    return { failedCount, queuedCount };
+  }
+  console.log(
+    `[SUCCESS] ${queuedCount} active users queued to validate their watched items`,
+  );
+  return { failedCount, queuedCount };
 };

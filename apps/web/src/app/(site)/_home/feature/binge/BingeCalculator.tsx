@@ -1,0 +1,151 @@
+'use client';
+
+import { formatDuration, plural } from '@tvseri.es/utils';
+import Link from 'next/link';
+import { useId, useMemo, useState } from 'react';
+
+import { variantHourglassGlyph } from '@/components/ui/icon/glyphs';
+import showPath from '@/lib/routing/showPath';
+import { useLocalDay } from '@/lib/viewer/useLocalDay';
+
+import MomentLabel from '../../MomentLabel';
+import { FEATURE_TITLE } from '../../moments';
+
+import BingeChoices from './BingeChoices';
+import BingeControls from './BingeControls';
+import BingeFooter from './BingeFooter';
+import type { BingeChoice } from './choices';
+import { useElementWidth } from './hooks';
+import {
+  BINGE_CARD,
+  BINGE_HEAD,
+  BINGE_HEADLINE,
+  BINGE_HEADLINE_FACTS,
+  BINGE_HEADLINE_LINK,
+  BINGE_PICKERS,
+  DEFAULT_MODE,
+  DEFAULT_PER_NIGHT,
+} from './layout';
+import NightStrip from './NightStrip';
+import {
+  DESKTOP_STRIP_WIDTH,
+  legendLabel,
+  type NightsMode,
+  nightsSummary,
+  type PerNight,
+  planBinge,
+} from './plan';
+
+/**
+ * Any day stands in until the viewer's is known: with Every night (the only
+ * mode before a click) the plan's shape doesn't depend on the day, only its
+ * date labels, which wait for the real day.
+ */
+const STAND_IN_DAY = '2026-11-11';
+
+const LEGEND_DOT = 'block size-2.5 rounded-full';
+const WATCHING_DOT = `${LEGEND_DOT} bg-white/72`;
+const NIGHT_OFF_DOT = `${LEGEND_DOT} shadow-[inset_0_0_0_1.5px_rgb(255_255_255/0.2)]`;
+
+function Legend({ perNight }: Readonly<{ perNight: number }>) {
+  return (
+    <div className="flex flex-wrap items-center gap-6 text-caption text-white/60">
+      <span className="inline-flex items-center gap-2">
+        <i className={WATCHING_DOT} />
+        {legendLabel(perNight)}
+      </span>
+      <span className="inline-flex items-center gap-2">
+        <i className={NIGHT_OFF_DOT} />A night off
+      </span>
+    </div>
+  );
+}
+
+/**
+ * The Binge calculator: pick a show, episodes a night and
+ * which nights; the headline, the night strip and the finish date follow.
+ * Headed by its label inside the card, no title above. The only
+ * client island of the feature of the day.
+ */
+export default function BingeCalculator({
+  choices,
+  today: fixedToday,
+}: Readonly<{
+  choices: ReadonlyArray<BingeChoice>;
+  /** A fixed `YYYY-MM-DD` (the dev preview); the page uses the viewer's */
+  today?: string;
+}>) {
+  const labelId = useId();
+  const [selected, setSelected] = useState(0);
+  const [perNight, setPerNight] = useState<PerNight>(DEFAULT_PER_NIGHT);
+  const [mode, setMode] = useState<NightsMode>(DEFAULT_MODE);
+  const viewerToday = useLocalDay();
+  const today = fixedToday ?? viewerToday;
+  const [width, measure] = useElementWidth(DESKTOP_STRIP_WIDTH);
+  const choice = choices[selected] ?? choices[0];
+  const seasons = choice?.seasons;
+  const plan = useMemo(
+    () =>
+      planBinge({
+        mode,
+        perNight,
+        seasons: seasons ?? [],
+        today: today ?? STAND_IN_DAY,
+        width,
+      }),
+    [mode, perNight, seasons, today, width],
+  );
+  if (!choice) {
+    return null;
+  }
+
+  const episodes = choice.seasons.reduce((sum, count) => sum + count, 0);
+  const total = formatDuration(episodes * choice.runtime);
+  const dated = today !== null;
+  const href = showPath(choice.id, choice.slug);
+  const nights = plural(plan.nights, 'night');
+  const nightLength = formatDuration(perNight * choice.runtime);
+  const summary = nightsSummary(perNight, mode);
+  return (
+    <section aria-labelledby={labelId} className={BINGE_CARD}>
+      <div className={BINGE_HEAD}>
+        <MomentLabel
+          glyph={variantHourglassGlyph}
+          id={labelId}
+          title={FEATURE_TITLE.binge}
+        />
+        <h3 className={BINGE_HEADLINE}>
+          <Link className={BINGE_HEADLINE_LINK} href={href}>
+            {choice.title}
+          </Link>{' '}
+          in {nights}{' '}
+          <em className={BINGE_HEADLINE_FACTS}>
+            · {episodes} episodes, {total}
+          </em>
+        </h3>
+      </div>
+      <div className={BINGE_PICKERS}>
+        <BingeChoices
+          choices={choices}
+          onChoose={setSelected}
+          selected={selected}
+        />
+        <BingeControls
+          mode={mode}
+          nightLength={nightLength}
+          onMode={setMode}
+          onPerNight={setPerNight}
+          perNight={perNight}
+        />
+      </div>
+      <NightStrip dated={dated} plan={plan} ref={measure} />
+      {mode === 'every' ? null : <Legend perNight={perNight} />}
+      <BingeFooter
+        choice={choice}
+        dated={dated}
+        finish={plan.finish}
+        summary={summary}
+      />
+    </section>
+  );
+}

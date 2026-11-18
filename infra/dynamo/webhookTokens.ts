@@ -2,8 +2,10 @@
 
 export const webhookTokens = new sst.aws.Dynamo('WebhookTokens', {
   fields: {
-    gsi1pk: 'string', // TOKEN#<token>
-    pk: 'string', // USER#<userId>#TYPE#<type>
+    // As apps/api/src/lib/db/webhooks writes them. Never change these fields
+    // or the index to "match" anything: that replaces the table.
+    gsi1pk: 'string', // USER#<userId>#TYPE#<type> (a user's token per provider)
+    pk: 'string', // TOKEN#<token>
 
     // Other fields will be stored but not indexed
     // token: 'string',

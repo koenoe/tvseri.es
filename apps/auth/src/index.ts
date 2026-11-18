@@ -1,15 +1,18 @@
-import { issuer } from '@openauthjs/openauth';
-import { OauthError } from '@openauthjs/openauth/error';
-import { CodeProvider } from '@openauthjs/openauth/provider/code';
 import { GoogleOidcProvider } from '@openauthjs/openauth/provider/google';
-import { subjects } from '@tvseri.es/schemas';
-import { Hono } from 'hono';
 import { handle } from 'hono/aws-lambda';
 import { Resource } from 'sst';
-import { allowClient } from './lib/clients';
+
+import { createApp } from './app';
+import {
+  allowClient,
+  CLIENT_ORIGINS,
+  ISSUER_ORIGIN,
+  SITE_URL,
+} from './lib/clients';
+import { CODE_TTL } from './lib/codeLifetime';
 import { createUser, findUser } from './lib/db/user';
 import { sendEmail } from './lib/email';
-import { CodeUI, SelectUI } from './ui';
+import { createRefreshProperties } from './lib/refresh';
 
 const ttl =
   Resource.App.stage !== 'production'
@@ -47,78 +50,22 @@ const findOrCreateUser = async (
   }
 };
 
-const issuerApp = issuer({
+const app = createApp({
   allow: allowClient,
-  providers: {
-    code: CodeProvider(
-      CodeUI({
-        sendCode: async (claims, code) => {
-          await sendEmail({
-            body: `Your OTP is <strong>${code}</strong>`,
-            recipient: claims.email!,
-            sender: 'auth',
-            subject: `Your OTP: ${code}`,
-          });
-        },
-      }),
-    ),
-    google: GoogleOidcProvider({
-      clientID: Resource.GoogleClientId.value,
-      scopes: ['openid', 'email', 'profile'],
-    }),
-  },
-  select: SelectUI(),
-  subjects,
-  success: async (ctx, value, req) => {
-    let email: string | undefined;
-    let name: string | undefined;
-
-    // Emails are normalised by the user lookup (lib/db/user.ts)
-    if (value.provider === 'google') {
-      if (!value.id.email_verified || typeof value.id.email !== 'string') {
-        throw new OauthError(
-          'access_denied',
-          'Your Google account has no verified email address',
-        );
-      }
-
-      email = value.id.email;
-      name = typeof value.id.name === 'string' ? value.id.name : undefined;
-    } else if (value.provider === 'code') {
-      email = value.claims.email;
-    }
-
-    if (email) {
-      const user = await findOrCreateUser({
-        country: req.headers.get('cloudfront-viewer-country'),
-        email,
-        name,
-      });
-
-      return ctx.subject('user', {
-        id: user.id,
-        role: user.role,
-      });
-    }
-
-    throw new Error('Invalid provider');
-  },
+  codeTtl: CODE_TTL,
+  findOrCreateUser,
+  formTargets: CLIENT_ORIGINS,
+  google: GoogleOidcProvider({
+    clientID: Resource.GoogleClientId.value,
+    scopes: ['openid', 'email', 'profile'],
+  }),
+  issuer: ISSUER_ORIGIN,
+  // A role changed in the database reaches the next refreshed token
+  refresh: createRefreshProperties((userId) => findUser({ userId })),
+  sendEmail: ({ html, recipient, subject, text }) =>
+    sendEmail({ html, recipient, sender: 'auth', subject, text }),
+  site: SITE_URL,
   ttl,
 });
-
-// The JWKS and the discovery document only change when keys are added (old
-// keys stay valid), so let CloudFront cache them: token verifiers (cold API
-// containers, new Vercel instances) then get them from the edge instead of a
-// possibly cold issuer. OpenAuth registers its routes itself, so wrap it to
-// add the header. `mount` (not `route`) keeps the issuer's own error handling
-// exactly as before.
-const app = new Hono()
-  .use('/.well-known/*', async (c, next) => {
-    await next();
-    if (c.req.method === 'GET' && c.res.ok) {
-      c.header('Cache-Control', 'public, max-age=3600');
-    }
-  })
-  .mount('/', issuerApp.fetch);
 
 export const handler = handle(app);

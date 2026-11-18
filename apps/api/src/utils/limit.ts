@@ -1,43 +1,8 @@
+import { createLimiter } from '@tvseri.es/utils';
+
 import { logWarn } from './logWarn';
 
-/**
- * Minimal promise concurrency limiter (p-limit style).
- *
- * Use it to bound fan-out to external services (TMDB, Lambda, DynamoDB)
- * so one request can't fire hundreds of parallel calls.
- *
- * Never call a limited function from inside another task of the same limiter:
- * with every slot taken, the nested call would wait forever.
- */
-export const createLimiter = (concurrency: number) => {
-  let active = 0;
-  const queue: Array<() => void> = [];
-
-  const runNext = () => {
-    if (active >= concurrency) {
-      return;
-    }
-    const task = queue.shift();
-    if (task) {
-      active++;
-      task();
-    }
-  };
-
-  return <T>(fn: () => Promise<T>): Promise<T> =>
-    new Promise<T>((resolve, reject) => {
-      queue.push(() => {
-        Promise.resolve()
-          .then(fn)
-          .then(resolve, reject)
-          .finally(() => {
-            active--;
-            runNext();
-          });
-      });
-      runNext();
-    });
-};
+export { createLimiter };
 
 // Above this share of rejected items, mapSettled throws instead of returning a
 // degraded (and cacheable) list
@@ -87,4 +52,40 @@ export const mapSettled = async <T, R>(
   }
 
   return values;
+};
+
+/**
+ * Like `mapSettled`, but a failing item never fails the whole call: the
+ * failures are counted so the caller can serve (and briefly cache) a partial
+ * result. Use it where a degraded answer beats a 5xx.
+ */
+export const mapSettledPartial = async <T, R>(
+  items: ReadonlyArray<T>,
+  fn: (item: T) => Promise<R | null | undefined>,
+  concurrency = 8,
+): Promise<Readonly<{ failed: number; values: R[] }>> => {
+  const limit = createLimiter(concurrency);
+  const results = await Promise.allSettled(
+    items.map((item) => limit(() => fn(item))),
+  );
+
+  const values: R[] = [];
+  let failed = 0;
+  let firstReason: unknown;
+  for (const result of results) {
+    if (result.status === 'rejected') {
+      failed++;
+      firstReason ??= result.reason;
+    } else if (result.value != null) {
+      values.push(result.value);
+    }
+  }
+
+  if (failed > 0) {
+    logWarn(
+      `mapSettledPartial: ${failed}/${items.length} items failed`,
+      firstReason,
+    );
+  }
+  return { failed, values };
 };

@@ -1,69 +1,43 @@
 import { Resource } from 'sst';
 
+import { clientsFor, createAllowClient } from './allowClient';
+
 const IS_PRODUCTION = Resource.App.stage === 'production';
 
-// Every stage serves its apps under its own domain. BASE_DOMAIN comes from
-// infra/dns.ts (via infra/auth.ts); the fallback mirrors that logic.
-const DOMAIN =
-  process.env.BASE_DOMAIN ||
-  (IS_PRODUCTION
-    ? 'tvseri.es'
-    : Resource.App.stage === 'dev'
-      ? 'dev.tvseri.es'
-      : `${Resource.App.stage}.dev.tvseri.es`);
+// The stage's base domain: infra/dns.ts is its one owner (passed in by
+// infra/auth.ts), so the issuer never derives it from the stage itself
+const DOMAIN = process.env.BASE_DOMAIN;
+if (!DOMAIN) {
+  throw new Error('BASE_DOMAIN is not set (infra/auth.ts)');
+}
 
-const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1']);
+const CLIENTS = clientsFor(DOMAIN);
 
-const CLIENTS: Readonly<
-  Record<string, Readonly<{ host: string; path: string }>>
-> = {
-  dashboard: { host: `dashboard.${DOMAIN}`, path: '/' },
-  website: { host: `www.${DOMAIN}`, path: '/api/auth/callback' },
-};
-
-const isAllowedRedirect = (clientID: string, redirectURI: string): boolean => {
-  const client = Object.hasOwn(CLIENTS, clientID)
-    ? CLIENTS[clientID]
-    : undefined;
-  if (!client || !URL.canParse(redirectURI)) {
-    return false;
-  }
-
-  const url = new URL(redirectURI);
-  const isOwnHost = url.protocol === 'https:' && url.host === client.host;
-  // `sst dev` runs the apps locally; never in production.
-  const isLocalHost =
-    !IS_PRODUCTION && url.protocol === 'http:' && LOCAL_HOSTS.has(url.hostname);
-
-  return (
-    (isOwnHost || isLocalHost) &&
-    url.pathname === client.path &&
-    !url.search &&
-    !url.hash &&
-    !url.username &&
-    !url.password
-  );
-};
+/** This issuer's public origin (infra/auth.ts: `auth.<domain>`) */
+export const ISSUER_ORIGIN = `https://auth.${DOMAIN}`;
 
 /**
- * OpenAuth `allow` callback: known clients, their exact redirect URIs, and only
- * the authorization code flow with S256 PKCE (both clients send it). The
- * patched issuer runs this before it stores the redirect URI, so a rejected
- * request gets a 400 instead of a redirect.
+ * The website on this stage: the sign-in pages' logo, Not now and lost-state
+ * links. Under `sst dev` (SST's local runtime sets SST_DEV) it's the local
+ * Next server: `www.<stage>.dev.tvseri.es` doesn't exist then.
  */
-export const allowClient = async (
-  {
-    clientID,
-    redirectURI,
-  }: Readonly<{ clientID: string; redirectURI: string }>,
-  req: Request,
-): Promise<boolean> => {
-  const params = new URL(req.url).searchParams;
+export const SITE_URL =
+  process.env.SST_DEV === 'true'
+    ? 'http://localhost:3000'
+    : `https://www.${DOMAIN}`;
 
-  return (
-    params.get('response_type') === 'code' &&
-    params.get('code_challenge_method') === 'S256' &&
-    !!params.get('code_challenge') &&
-    isAllowedRedirect(clientID, redirectURI)
-  );
-};
+/**
+ * The clients' origins, for the sign-in pages' CSP `form-action`: the code
+ * form's success is a 302 to the client's callback. Local hosts outside
+ * production, like `createAllowClient`.
+ */
+export const CLIENT_ORIGINS: readonly string[] = [
+  ...Object.values(CLIENTS).map(({ host }) => `https://${host}`),
+  ...(IS_PRODUCTION ? [] : ['http://localhost:*', 'http://127.0.0.1:*']),
+];
+
+/** OpenAuth's `allow` callback for this stage (see `createAllowClient`) */
+export const allowClient = createAllowClient({
+  domain: DOMAIN,
+  production: IS_PRODUCTION,
+});

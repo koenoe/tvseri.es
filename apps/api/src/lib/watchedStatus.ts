@@ -1,43 +1,58 @@
-import { SendMessageBatchCommand, SQSClient } from '@aws-sdk/client-sqs';
+import { SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import type { User } from '@tvseri.es/schemas';
+import { chunk } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 
 import { ACTIVE_USER_WINDOW_MS } from '@/constants';
-import { chunk } from '@/lib/db/batch';
+
 import { claimWatchedStatusRecheck, type UserActivity } from '@/lib/db/user';
+import { sqs } from '@/lib/sqs';
 
 /** SQS message body: sent by queueWatchedStatusValidation, read by validateWatchedStatusQueue */
 export type ValidateWatchedStatusMessage = Readonly<Pick<User, 'id'>>;
 
-const sqs = new SQSClient({});
-
 // SendMessageBatch takes at most 10 entries
 const SQS_BATCH_LIMIT = 10;
+
+const sendBatch = async (
+  batch: ReadonlyArray<string>,
+): Promise<ReadonlyArray<string>> => {
+  const response = await sqs.send(
+    new SendMessageBatchCommand({
+      Entries: batch.map((id, index) => ({
+        Id: `${index}`,
+        MessageBody: JSON.stringify({
+          id,
+        } satisfies ValidateWatchedStatusMessage),
+      })),
+      QueueUrl: Resource.ValidateWatchedStatusQueue.url,
+    }),
+  );
+  return (response.Failed ?? []).flatMap(({ Id }) => {
+    const id = batch[Number(Id)];
+    return id === undefined ? [] : [id];
+  });
+};
 
 /**
  * Queues users to have their watched lists validated by
  * validateWatchedStatusQueue. Only the id goes in the message: keep PII
- * (email, name) out of SQS.
+ * (email, name) out of SQS. Entries SQS refuses (throttling, a blip) get one
+ * more try; the cron must not throw for them, as a rerun would queue every
+ * active user again.
  *
- * Returns how many users failed to queue.
+ * Returns how many users still failed to queue.
  */
 export const queueWatchedStatusValidation = async (
   userIds: ReadonlyArray<string>,
 ): Promise<number> => {
   const failedCounts = await Promise.all(
     chunk(userIds, SQS_BATCH_LIMIT).map(async (batch) => {
-      const response = await sqs.send(
-        new SendMessageBatchCommand({
-          Entries: batch.map((id, index) => ({
-            Id: `${index}`,
-            MessageBody: JSON.stringify({
-              id,
-            } satisfies ValidateWatchedStatusMessage),
-          })),
-          QueueUrl: Resource.ValidateWatchedStatusQueue.url,
-        }),
-      );
-      return response.Failed?.length ?? 0;
+      const failed = await sendBatch(batch);
+      if (failed.length === 0) {
+        return 0;
+      }
+      return (await sendBatch(failed)).length;
     }),
   );
 

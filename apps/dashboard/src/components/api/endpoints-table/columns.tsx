@@ -1,22 +1,24 @@
-import type { ColumnDef } from '@tanstack/react-table';
 import type { EndpointMetrics } from '@tvseri.es/schemas';
 import { ChevronRight } from 'lucide-react';
-
+import { RouteLabel } from '@/components/route-label';
 import { ScoreRing } from '@/components/ui/score-ring';
 import {
-  formatCountString,
   formatDependencyName,
   formatErrorRate,
   formatLatency,
   sortDependencyKeys,
 } from '@/lib/api-metrics';
-
 import { DependencyBadge } from '../dependency-badge';
-import { MethodBadge, parseEndpoint, RouteLabel } from '../endpoint-label';
-import { SortIndicator } from './sort-indicator';
-import { ErrorRateSparkline, LatencySparkline } from './sparklines';
+import { MethodBadge, parseEndpoint } from '../endpoint-label';
+import { RequestBar } from '../table/request-bar';
+import { SortableHeader } from '../table/sortable-header';
+import type { ApiColumnDef } from '../table/table-features';
+import {
+  ErrorRateSparkline,
+  LatencySparkline,
+} from '../table/table-sparklines';
 
-export const columns: ColumnDef<EndpointMetrics>[] = [
+export const columns: ApiColumnDef<EndpointMetrics>[] = [
   {
     accessorFn: (row) => row.endpoint,
     cell: ({ row }) => {
@@ -30,14 +32,7 @@ export const columns: ColumnDef<EndpointMetrics>[] = [
       );
     },
     header: ({ column }) => (
-      <button
-        className="group/sort flex cursor-pointer items-center text-muted-foreground hover:text-foreground/80"
-        onClick={column.getToggleSortingHandler()}
-        type="button"
-      >
-        Route
-        <SortIndicator isSorted={column.getIsSorted()} />
-      </button>
+      <SortableHeader column={column}>Route</SortableHeader>
     ),
     id: 'endpoint',
     size: 320,
@@ -45,30 +40,16 @@ export const columns: ColumnDef<EndpointMetrics>[] = [
   {
     accessorFn: (row) => row.requestCount,
     cell: ({ row, table }) => {
-      const value = row.original.requestCount;
       const maxRequestCount = table.options.meta?.maxRequestCount ?? 1;
-      const percentage =
-        maxRequestCount > 0 ? (value / maxRequestCount) * 100 : 0;
       return (
-        <div
-          className="relative flex h-6 max-w-24 items-center rounded-sm bg-muted/80 px-1.5"
-          style={{ minWidth: 'fit-content', width: `${percentage}%` }}
-        >
-          <span className="tabular-nums text-white/80">
-            {formatCountString(value)}
-          </span>
-        </div>
+        <RequestBar
+          maxRequestCount={maxRequestCount}
+          requestCount={row.original.requestCount}
+        />
       );
     },
     header: ({ column }) => (
-      <button
-        className="group/sort flex cursor-pointer items-center text-muted-foreground hover:text-foreground/80"
-        onClick={column.getToggleSortingHandler()}
-        type="button"
-      >
-        Requests
-        <SortIndicator isSorted={column.getIsSorted()} />
-      </button>
+      <SortableHeader column={column}>Requests</SortableHeader>
     ),
     id: 'requests',
     size: 140,
@@ -77,25 +58,18 @@ export const columns: ColumnDef<EndpointMetrics>[] = [
     accessorFn: (row) => row.latency.p75,
     cell: ({ row }) => {
       const p75 = row.original.latency.p75;
-      const series = row.original.series;
+      const values = row.original.series?.map((point) => point.p75);
       return (
         <div className="flex items-center gap-3">
           <span className="w-14 tabular-nums text-muted-foreground">
             {formatLatency(p75)}
           </span>
-          <LatencySparkline series={series} />
+          <LatencySparkline values={values} />
         </div>
       );
     },
     header: ({ column }) => (
-      <button
-        className="group/sort flex cursor-pointer items-center text-muted-foreground hover:text-foreground/80"
-        onClick={column.getToggleSortingHandler()}
-        type="button"
-      >
-        Latency
-        <SortIndicator isSorted={column.getIsSorted()} />
-      </button>
+      <SortableHeader column={column}>Latency</SortableHeader>
     ),
     id: 'latency',
     size: 140,
@@ -104,19 +78,11 @@ export const columns: ColumnDef<EndpointMetrics>[] = [
     accessorFn: (row) => row.apdex.score,
     cell: ({ getValue }) => {
       const score = getValue() as number;
-      return (
-        <ScoreRing label={score.toFixed(2)} score={score * 100} size={32} />
-      );
+      const label = score.toFixed(2);
+      return <ScoreRing label={label} score={score * 100} size={32} />;
     },
     header: ({ column }) => (
-      <button
-        className="group/sort flex cursor-pointer items-center text-muted-foreground hover:text-foreground/80"
-        onClick={column.getToggleSortingHandler()}
-        type="button"
-      >
-        Apdex
-        <SortIndicator isSorted={column.getIsSorted()} />
-      </button>
+      <SortableHeader column={column}>Apdex</SortableHeader>
     ),
     id: 'apdex',
     size: 80,
@@ -125,25 +91,18 @@ export const columns: ColumnDef<EndpointMetrics>[] = [
     accessorFn: (row) => row.errorRate,
     cell: ({ row }) => {
       const errorRate = row.original.errorRate;
-      const series = row.original.series;
+      const values = row.original.series?.map((point) => point.errorRate ?? 0);
       return (
         <div className="flex items-center gap-3">
           <span className="w-14 tabular-nums text-muted-foreground">
             {formatErrorRate(errorRate)}
           </span>
-          <ErrorRateSparkline errorRate={errorRate} series={series} />
+          <ErrorRateSparkline errorRate={errorRate} values={values} />
         </div>
       );
     },
     header: ({ column }) => (
-      <button
-        className="group/sort flex cursor-pointer items-center text-muted-foreground hover:text-foreground/80"
-        onClick={column.getToggleSortingHandler()}
-        type="button"
-      >
-        Error Rate
-        <SortIndicator isSorted={column.getIsSorted()} />
-      </button>
+      <SortableHeader column={column}>Error Rate</SortableHeader>
     ),
     id: 'errorRate',
     size: 140,
@@ -157,14 +116,12 @@ export const columns: ColumnDef<EndpointMetrics>[] = [
       if (dependencies.length === 0) return null;
       return (
         <div className="flex flex-wrap gap-1">
-          {dependencies.map((dep) => (
-            <DependencyBadge
-              key={dep}
-              linkable
-              name={formatDependencyName(dep)}
-              source={dep}
-            />
-          ))}
+          {dependencies.map((dep) => {
+            const name = formatDependencyName(dep);
+            return (
+              <DependencyBadge key={dep} linkable name={name} source={dep} />
+            );
+          })}
         </div>
       );
     },
@@ -186,11 +143,3 @@ export const columns: ColumnDef<EndpointMetrics>[] = [
     size: 32,
   },
 ];
-
-// Extend TanStack Table's meta type
-declare module '@tanstack/react-table' {
-  interface TableMeta<TData> {
-    maxRequestCount?: number;
-    totalRequestCount?: number;
-  }
-}

@@ -1,5 +1,7 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
+import { alarmOnDeadLetters } from './alerts';
+import { productionReserved } from './concurrency';
 import { dominantColor } from './dominantColor';
 import * as dynamo from './dynamo';
 import * as secrets from './secrets';
@@ -14,6 +16,7 @@ const watchedStatusDlq = new sst.aws.Queue('ValidateWatchedStatusDLQ', {
     },
   },
 });
+alarmOnDeadLetters('ValidateWatchedStatusDLQ', watchedStatusDlq);
 
 export const watchedStatusQueue = new sst.aws.Queue(
   'ValidateWatchedStatusQueue',
@@ -29,8 +32,10 @@ export const watchedStatusQueue = new sst.aws.Queue(
 );
 watchedStatusQueue.subscribe(
   {
+    // The queue's maximumConcurrency below is the real cap; reserving more
+    // would only take concurrency from the account for nothing
     concurrency: {
-      reserved: 25,
+      reserved: productionReserved($app.stage, 5),
     },
     handler: 'apps/api/src/lambdas/validateWatchedStatusQueue.handler',
     link: [
@@ -40,7 +45,6 @@ watchedStatusQueue.subscribe(
       dynamo.preferredImages,
       dynamo.users,
       dynamo.watched,
-      secrets.mdblistApiKey,
       secrets.tmdbApiAccessToken,
       secrets.tmdbApiKey,
     ],
@@ -51,7 +55,12 @@ watchedStatusQueue.subscribe(
     // Default = {size: 10, window: “20 seconds”, partialResponses: false}
     batch: {
       partialResponses: true, // handler returns batchItemFailures per message
-      size: 25,
+      // Users run one after another in a 60 s Lambda, and a user's check
+      // reads each of their finished shows (a TMDB call when it isn't
+      // cached) at the background budget's 5 a second
+      // (lib/upstream/budget.ts): 5 users leave heavy ones room (SQS
+      // BatchSize, an in-place UpdateEventSourceMapping change)
+      size: 5,
       window: '1 minute',
     },
     transform: {
@@ -59,20 +68,21 @@ watchedStatusQueue.subscribe(
         // At most 5 concurrent invocations: the nightly burst spreads out
         // instead of fanning out to TMDB and DynamoDB all at once. Messages
         // wait in the queue meanwhile (no throttling, so no retries burned).
-        // Stays below the reserved concurrency above.
+        // Equal to the reserved concurrency above (production), so no
+        // invocation is throttled.
         args.scalingConfig = { maximumConcurrency: 5 };
       },
     },
   },
 );
 
-export const watchedStatusCron = new sst.aws.Cron('ValidateWatchedStatus', {
+new sst.aws.Cron('ValidateWatchedStatus', {
   function: {
     handler: 'apps/api/src/lambdas/validateWatchedStatusCron.handler',
     link: [dynamo.users, watchedStatusQueue],
     memory: '512 MB',
     // Queries the users active in the last 30 days (sparse `active` index) and
-    // queues them; 10s stopped scaling at a few thousand users
+    // queues them; 10 s doesn't reach past a few thousand users
     timeout: '60 seconds',
   }, // 03:00 UTC, daily
   schedule: 'cron(0 3 * * ? *)',

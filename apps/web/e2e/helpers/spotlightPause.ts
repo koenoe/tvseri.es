@@ -1,0 +1,131 @@
+import { expect, type Page, test } from '@playwright/test';
+
+import { untilStable } from './viewport';
+
+/**
+ * The spotlight's pause button holds in real time, shared by the Chromium
+ * and WebKit specs, on a desktop and on a phone with touch: paused, the
+ * countdown and the slide stay put past a slide's 8s, also when the reader
+ * scrolls the spotlight away and back; play resumes the line from where it
+ * stopped.
+ */
+
+/** A slide lasts 8s: waiting longer proves a pause holds */
+const PAST_A_SLIDE_MS = 9000;
+
+const toggle = (page: Page, name: 'Pause' | 'Play') =>
+  page
+    .getByRole('region', { name: 'Trending spotlight' })
+    .getByRole('button', { name: `${name} the slideshow` });
+
+/** The current pager line and its countdown's progress (ms) */
+const countdown = (page: Page) =>
+  page.evaluate(() => {
+    const [animation] = document
+      .getAnimations()
+      .filter(
+        (item) =>
+          item instanceof CSSAnimation &&
+          item.animationName.includes('spotlight-countdown'),
+      );
+    return {
+      line: document
+        .querySelector('[data-slot="spotlight"] [aria-current="true"]')
+        ?.getAttribute('aria-label'),
+      time: Math.round(Number(animation?.currentTime ?? Number.NaN)),
+    };
+  });
+
+/**
+ * The countdown once the pause has taken: the button turned to Play and the
+ * countdown held still. Read at once after the press, it can be a frame
+ * before the pause lands (183ms, then 200 for good).
+ */
+const pausedCountdown = async (page: Page) => {
+  await expect(toggle(page, 'Play')).toBeVisible();
+  await untilStable(() => countdown(page), {
+    message: 'the countdown stops',
+  });
+  return countdown(page);
+};
+
+const scrollAwayAndBack = async (page: Page) => {
+  await page.evaluate(() => window.scrollTo(0, 1800));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(1800);
+  await page.waitForTimeout(500);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+  await page.waitForTimeout(500);
+};
+
+/** Play runs the line on from where it stopped */
+async function expectResumed(
+  page: Page,
+  paused: Awaited<ReturnType<typeof countdown>>,
+) {
+  await expect
+    .poll(async () => (await countdown(page)).time)
+    .toBeGreaterThan(paused.time + 500);
+  expect((await countdown(page)).line).toBe(paused.line);
+}
+
+/** Chromium runs the desktop, WebKit the phone (where the tap is what differs) */
+export function spotlightPauseSuite(device: 'desktop' | 'phone') {
+  test.describe('the spotlight’s pause button', () => {
+    test.setTimeout(60_000);
+
+    if (device === 'desktop') {
+      test('desktop: paused, it stays put past a slide and through a scroll; play resumes it', async ({
+        page,
+      }) => {
+        await page.setViewportSize({ height: 900, width: 1280 });
+        await page.goto('/');
+        await page.waitForLoadState('load');
+        await toggle(page, 'Pause').click();
+        // the mouse away from the spotlight (hover holds it too)
+        await page.mouse.move(4, 896);
+        const paused = await pausedCountdown(page);
+        expect(paused.time).toBeGreaterThanOrEqual(0);
+
+        await page.waitForTimeout(PAST_A_SLIDE_MS);
+        expect(await countdown(page)).toEqual(paused);
+
+        await scrollAwayAndBack(page);
+        expect(await countdown(page)).toEqual(paused);
+
+        await toggle(page, 'Play').click();
+        await page.mouse.move(4, 896);
+        await expectResumed(page, paused);
+      });
+    }
+
+    if (device === 'phone') {
+      test.describe('a phone', () => {
+        test.use({ hasTouch: true, viewport: { height: 844, width: 390 } });
+
+        test('a tap on pause holds it past a slide and through a scroll; play resumes it', async ({
+          page,
+        }) => {
+          await page.goto('/');
+          await page.waitForLoadState('load');
+          await toggle(page, 'Pause').tap();
+          const paused = await pausedCountdown(page);
+          expect(paused.time).toBeGreaterThanOrEqual(0);
+
+          await page.waitForTimeout(PAST_A_SLIDE_MS);
+          expect(await countdown(page)).toEqual(paused);
+
+          await scrollAwayAndBack(page);
+          expect(await countdown(page)).toEqual(paused);
+
+          // Playwright's WebKit keeps a mouse where the tap was and fires a
+          // mouse `pointerenter` on the spotlight when the page scrolls under
+          // it (a hover hold no phone has): the mouse leaves first
+          await page.mouse.move(4, 840);
+          await toggle(page, 'Play').tap();
+          await expectResumed(page, paused);
+        });
+      });
+    }
+  });
+}

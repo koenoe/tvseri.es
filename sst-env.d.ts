@@ -19,9 +19,25 @@ declare module "sst" {
       "type": "sst.aws.Router"
       "url": string
     }
+    "ApiWriteFunction": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
     "Auth": {
       "type": "sst.aws.Auth"
       "url": string
+    }
+    "AuthEmail": {
+      "sender": string
+      "type": "sst.sst.Linkable"
+    }
+    "AuthSignIns": {
+      "name": string
+      "type": "sst.sst.Linkable"
+    }
+    "AuthUsers": {
+      "name": string
+      "type": "sst.sst.Linkable"
     }
     "Cache": {
       "name": string
@@ -29,6 +45,14 @@ declare module "sst" {
     }
     "Dashboard": {
       "type": "sst.aws.StaticSite"
+      "url": string
+    }
+    "DeleteAccountDLQ": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "DeleteAccountQueue": {
+      "type": "sst.aws.Queue"
       "url": string
     }
     "DominantColor": {
@@ -80,6 +104,10 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Dynamo"
     }
+    "OmdbApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "PreferredImages": {
       "name": string
       "type": "sst.aws.Dynamo"
@@ -103,6 +131,14 @@ declare module "sst" {
     "TmdbApiKey": {
       "type": "sst.sst.Secret"
       "value": string
+    }
+    "UndoImportDLQ": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "UndoImportQueue": {
+      "type": "sst.aws.Queue"
+      "url": string
     }
     "Users": {
       "name": string

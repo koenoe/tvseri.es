@@ -1,3 +1,4 @@
+import type { WebVitalMetricStats, WebVitalName } from '@tvseri.es/schemas';
 import {
   CircleAlert,
   CircleCheck,
@@ -40,13 +41,23 @@ export const STATUS_ICONS = {
   poor: CircleAlert,
 } as const;
 
-const STATUS_LABELS = {
+export const STATUS_LABELS = {
   great: 'Great',
-  needsImprovement: 'Needs Improvement',
+  needsImprovement: 'Needs improvement',
   poor: 'Poor',
 } as const;
 
 export type MetricType = 'cls' | 'fcp' | 'inp' | 'lcp' | 'res' | 'ttfb';
+
+export type WebVitalMetric = Exclude<MetricType, 'res'>;
+
+/** The metrics as the API keys them, plus the RES score. */
+export type WebVitalsData = Readonly<
+  Record<WebVitalName, WebVitalMetricStats> & { score: number }
+>;
+
+export const toWebVitalName = (metric: WebVitalMetric): WebVitalName =>
+  metric.toUpperCase() as WebVitalName;
 
 type MetricConfig = Readonly<{
   description: string;
@@ -248,3 +259,27 @@ export const getRatingStatusConfig = (metric: MetricType) => {
     },
   } as const;
 };
+
+// The API reports milliseconds; the thresholds of 's' metrics are in seconds.
+export function toThresholdUnits(metric: MetricType, ms: number): number {
+  return METRICS_CONFIG[metric].unit === 's' ? ms / 1000 : ms;
+}
+
+/** RES is the score; every other metric is its p75 in threshold units. */
+export function getMetricValue(
+  metric: MetricType,
+  data: WebVitalsData | null | undefined,
+): number {
+  if (!data) return 0;
+  if (metric === 'res') return data.score;
+  return toThresholdUnits(metric, data[toWebVitalName(metric)]?.p75 ?? 0);
+}
+
+/** Formats a value that is already in threshold units. */
+export function formatMetricDisplay(metric: MetricType, value: number): string {
+  const config = METRICS_CONFIG[metric];
+  if (metric === 'res') return Math.round(value).toString();
+  if (config.unit === 's') return value.toFixed(2);
+  if (config.unit === 'ms') return Math.round(value).toString();
+  return value.toFixed(2);
+}

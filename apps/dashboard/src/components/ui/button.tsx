@@ -51,9 +51,10 @@ function Button({
   }) {
   const Comp = asChild ? Slot.Root : 'button';
 
+  const classes = cn(buttonVariants({ className, size, variant }));
   return (
     <Comp
-      className={cn(buttonVariants({ className, size, variant }))}
+      className={classes}
       data-size={size}
       data-slot="button"
       data-variant={variant}

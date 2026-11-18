@@ -1,17 +1,22 @@
 import * as v from 'valibot';
 
-export const DISCOVER_SORT_BY_OPTIONS = [
+const DISCOVER_SORT_BY_OPTIONS = [
   'popularity.desc',
   'first_air_date.desc',
   'vote_average.desc',
   'vote_count.desc',
+  'first_air_date.asc',
+  'original_name.asc',
+  'popularity.asc',
+  'vote_average.asc',
+  'vote_count.asc',
 ] as const;
 
 /** Matches the API default in `buildDiscoverQuery`, so it can be omitted from the query. */
-export const DEFAULT_DISCOVER_SORT_BY = 'popularity.desc';
+const DEFAULT_DISCOVER_SORT_BY = 'popularity.desc';
 
 /** TMDB serves at most 500 pages for discover. */
-export const MAX_DISCOVER_PAGE = 500;
+const MAX_DISCOVER_PAGE = 500;
 
 /** Upper bound for the number of values in a list filter (e.g. `with_genres=18,35`). */
 const MAX_DISCOVER_LIST_VALUES = 20;
@@ -29,44 +34,97 @@ const LANGUAGE = '[a-z]{2}';
 
 const IdListSchema = v.pipe(v.string(), v.regex(listPattern(ID)));
 
+/** TMDB statuses 0-5 (0 = Returning Series) and types 0-6 (0 = Documentary) */
+const StatusListSchema = v.pipe(v.string(), v.regex(listPattern('[0-5]')));
+const TypeListSchema = v.pipe(v.string(), v.regex(listPattern('[0-6]')));
+
+/** `YYYY-MM-DD`, a real calendar date: `2026-02-30` passes the pattern but not this check. */
+export const IsoDateSchema = v.pipe(
+  v.string(),
+  v.regex(/^\d{4}-\d{2}-\d{2}$/),
+  v.check((value) => {
+    const time = new Date(`${value}T00:00:00Z`).getTime();
+    return (
+      !Number.isNaN(time) && new Date(time).toISOString().startsWith(value)
+    );
+  }),
+);
+
+/** 0 to 10, up to two decimals */
+const RatingSchema = v.pipe(
+  v.string(),
+  v.regex(/^(?:10(?:\.0{1,2})?|\d(?:\.\d{1,2})?)$/),
+);
+const CountSchema = v.pipe(v.string(), v.regex(/^\d{1,7}$/));
+const RuntimeSchema = v.pipe(v.string(), v.regex(/^\d{1,5}$/));
+
 export const DiscoverQuerySchema = v.object({
+  'air_date.gte': v.optional(IsoDateSchema),
+  'air_date.lte': v.optional(IsoDateSchema),
+  'first_air_date.gte': v.optional(IsoDateSchema),
+  'first_air_date.lte': v.optional(IsoDateSchema),
   sort_by: v.optional(v.picklist(DISCOVER_SORT_BY_OPTIONS)),
+  'vote_average.gte': v.optional(RatingSchema),
+  'vote_average.lte': v.optional(RatingSchema),
+  'vote_count.gte': v.optional(CountSchema),
+  'vote_count.lte': v.optional(CountSchema),
   watch_region: v.optional(v.pipe(v.string(), v.regex(/^[A-Z]{2}$/))),
   with_genres: v.optional(IdListSchema),
   with_keywords: v.optional(IdListSchema),
-  with_networks: v.optional(v.pipe(v.string(), v.regex(/^\d{1,10}$/))),
+  with_networks: v.optional(IdListSchema),
   with_origin_country: v.optional(
     v.pipe(v.string(), v.regex(listPattern(COUNTRY))),
   ),
   with_original_language: v.optional(
     v.pipe(v.string(), v.regex(listPattern(LANGUAGE))),
   ),
+  'with_runtime.gte': v.optional(RuntimeSchema),
+  'with_runtime.lte': v.optional(RuntimeSchema),
+  with_status: v.optional(StatusListSchema),
+  with_type: v.optional(TypeListSchema),
   with_watch_providers: v.optional(IdListSchema),
+  without_genres: v.optional(IdListSchema),
+  without_keywords: v.optional(IdListSchema),
 });
 
 export type DiscoverQuery = v.InferOutput<typeof DiscoverQuerySchema>;
 
 type DiscoverQueryKey = keyof DiscoverQuery;
 
-// Sorted alphabetically: the canonical query string uses this key order.
-const DISCOVER_QUERY_KEYS: ReadonlyArray<DiscoverQueryKey> = [
-  'sort_by',
-  'watch_region',
+// The schema's keys, sorted: the canonical query string uses this key order.
+const DISCOVER_QUERY_KEYS: ReadonlyArray<DiscoverQueryKey> = (
+  Object.keys(DiscoverQuerySchema.entries) as DiscoverQueryKey[]
+).sort();
+
+const LIST_KEYS: ReadonlySet<DiscoverQueryKey> = new Set([
   'with_genres',
   'with_keywords',
   'with_networks',
   'with_origin_country',
   'with_original_language',
+  'with_status',
+  'with_type',
   'with_watch_providers',
-];
-
-const LIST_KEYS: ReadonlySet<DiscoverQueryKey> = new Set([
-  'with_genres',
-  'with_keywords',
-  'with_origin_country',
-  'with_original_language',
-  'with_watch_providers',
+  'without_genres',
+  'without_keywords',
 ]);
+
+// `8.0` and `8` are one filter: written as a plain number
+const NUMBER_KEYS: ReadonlySet<DiscoverQueryKey> = new Set([
+  'vote_average.gte',
+  'vote_average.lte',
+  'vote_count.gte',
+  'vote_count.lte',
+  'with_runtime.gte',
+  'with_runtime.lte',
+]);
+
+function canonicalizeValue(key: DiscoverQueryKey, value: string) {
+  if (LIST_KEYS.has(key)) {
+    return canonicalizeList(value);
+  }
+  return NUMBER_KEYS.has(key) ? String(Number(value)) : value;
+}
 
 type DiscoverQueryInput =
   | URLSearchParams
@@ -98,7 +156,7 @@ export type NormalizedDiscoverQuery = Readonly<{
  * Turns arbitrary discover search params into one canonical query, so equal filters
  * always produce the same upstream request (and cache key):
  * - keeps only known keys and drops values that don't validate
- * - dedupes and sorts list values, sorts keys
+ * - dedupes and sorts list values, writes numbers plainly (`8.0` is `8`), sorts keys
  * - drops defaults (`sort_by=popularity.desc`)
  * - keeps `watch_region` only when a watch provider filter is set (TMDB ignores it otherwise);
  *   falls back to `options.region` in that case
@@ -125,10 +183,7 @@ export function normalizeDiscoverQuery(
       continue;
     }
 
-    entries.push([
-      key,
-      LIST_KEYS.has(key) ? canonicalizeList(result.output) : result.output,
-    ]);
+    entries.push([key, canonicalizeValue(key, result.output)]);
   }
 
   const hasWatchProviders = entries.some(

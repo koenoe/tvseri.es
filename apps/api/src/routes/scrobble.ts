@@ -1,26 +1,35 @@
-import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import {
   PLEX_SCROBBLE_EVENT,
   type ScrobbleProvider,
 } from '@tvseri.es/constants';
-import type {
-  PlexMetadata,
-  ScrobbleEvent,
-  ScrobbleMetadata,
+import {
+  PlexMetadataSchema,
+  type ScrobbleAccount,
+  type ScrobbleEvent,
+  type ScrobbleMetadata,
 } from '@tvseri.es/schemas';
 import { type Context, Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
+import * as v from 'valibot';
 
-import { findWebhookToken } from '@/lib/db/webhooks';
+import { findWebhookToken, recordScrobbleReceived } from '@/lib/db/webhooks';
+import { sendMessage } from '@/lib/sqs';
 
 const app = new Hono();
 
-const sqs = new SQSClient({});
-
+// As Plex sends it: only `Metadata` is validated (PlexMetadataSchema), and
+// only for a watched episode
 type PlexPayload = Readonly<{
-  event: string;
-  Metadata?: PlexMetadata;
+  event?: unknown;
+  Account?: Readonly<{ id?: unknown; title?: unknown }>;
+  Metadata?: Readonly<{ librarySectionType?: unknown; type?: unknown }>;
+}>;
+
+type Scrobble = Readonly<{
+  metadata: ScrobbleMetadata;
+  /** Whose play it was, when the server says */
+  account?: ScrobbleAccount;
 }>;
 
 /**
@@ -59,9 +68,7 @@ const parsePlexPayload = async (c: Context): Promise<PlexPayload> => {
 };
 
 /** Only watched episodes from a TV library are scrobbled */
-const isEpisodeScrobble = (
-  payload: PlexPayload,
-): payload is PlexPayload & Readonly<{ Metadata: PlexMetadata }> =>
+const isEpisodeScrobble = (payload: PlexPayload) =>
   payload.event === PLEX_SCROBBLE_EVENT &&
   payload.Metadata?.type === 'episode' &&
   payload.Metadata.librarySectionType === 'show';
@@ -73,11 +80,24 @@ const isEpisodeScrobble = (
  */
 const adapters: Record<
   ScrobbleProvider,
-  (c: Context) => Promise<ScrobbleMetadata | null>
+  (c: Context) => Promise<Scrobble | null>
 > = {
   plex: async (c) => {
     const payload = await parsePlexPayload(c);
-    return isEpisodeScrobble(payload) ? { plex: payload.Metadata } : null;
+    if (!isEpisodeScrobble(payload)) {
+      return null;
+    }
+    const metadata = v.safeParse(PlexMetadataSchema, payload.Metadata);
+    if (!metadata.success) {
+      throw new HTTPException(400, { message: 'Invalid episode metadata' });
+    }
+    const { id, title } = payload.Account ?? {};
+    return {
+      ...(typeof id === 'number' && {
+        account: { id, title: String(title ?? '').slice(0, 100) },
+      }),
+      metadata: { plex: metadata.output },
+    };
   },
 };
 
@@ -113,23 +133,30 @@ app.post('/provider/:provider', async (c) => {
     return c.json({ error: 'Missing token' }, 400);
   }
 
-  const metadata = await adapters[provider](c);
-  if (!metadata) {
+  const scrobble = await adapters[provider](c);
+  if (!scrobble) {
     return c.json({ message: 'OK' });
   }
 
   const webhookToken = await findValidToken(token, provider);
+  await recordScrobbleReceived(webhookToken.token, scrobble.account);
+
+  // Paused, or someone else's play: acknowledged, not marked
+  if (
+    webhookToken.paused ||
+    (webhookToken.onlyAccount &&
+      webhookToken.onlyAccount.id !== scrobble.account?.id)
+  ) {
+    return c.json({ message: 'OK' });
+  }
+
+  const { metadata } = scrobble;
 
   try {
-    await sqs.send(
-      new SendMessageCommand({
-        MessageBody: JSON.stringify({
-          metadata,
-          userId: webhookToken.userId,
-        } satisfies ScrobbleEvent),
-        QueueUrl: Resource.ScrobbleQueue.url,
-      }),
-    );
+    await sendMessage(Resource.ScrobbleQueue.url, {
+      metadata,
+      userId: webhookToken.userId,
+    } satisfies ScrobbleEvent);
   } catch (error) {
     console.error(`Failed to queue ${provider} scrobble:`, error);
 

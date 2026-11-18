@@ -1,0 +1,51 @@
+import { formatGrouped, plural } from '@tvseri.es/utils';
+import { memberSince } from '@/lib/profile/memberSince';
+import { loadSettingsCounts } from '../../_data/counts';
+import { getSettingsSession, getSettingsViewer } from '../../_data/session';
+import ProfileEditor from './ProfileEditor';
+import type { PreviewData } from './ProfilePreview';
+
+const PREVIEW_LOGOS = 6;
+
+const joinParts = (parts: ReadonlyArray<string | null>) => {
+  const present = parts.filter((part): part is string => part !== null);
+  return present.length > 0 ? present : null;
+};
+
+/**
+ * The streamed part of Profile: the session (the saved name, username and
+ * email) and the counts the preview shows. Only the fields the client uses
+ * cross to it.
+ */
+export default async function ProfileSection() {
+  const [{ user }, counts] = await Promise.all([
+    getSettingsSession(),
+    getSettingsViewer().then(({ id }) => loadSettingsCounts(id)),
+  ]);
+
+  const since = memberSince(user.createdAt, Date.now());
+  const episodes = joinParts([
+    counts.episodes === null ? null : plural(counts.episodes, 'episode'),
+    counts.finished === null
+      ? null
+      : `${formatGrouped(counts.finished)} finished`,
+  ]);
+  const people = joinParts([
+    counts.followers === null ? null : plural(counts.followers, 'follower'),
+    counts.following === null
+      ? null
+      : `${formatGrouped(counts.following)} following`,
+  ]);
+  const preview: PreviewData = {
+    episodes: episodes?.join(', ') ?? null,
+    logos: (user.watchProviders ?? [])
+      .slice(0, PREVIEW_LOGOS)
+      .map(({ id, logo, name }) => ({ id, logo, name })),
+    member: since ? `Member since ${since}` : null,
+    people: people?.join(' · ') ?? null,
+  };
+  const email = user.email ?? '—';
+  const initial = { name: user.name ?? '', username: user.username };
+
+  return <ProfileEditor email={email} initial={initial} preview={preview} />;
+}

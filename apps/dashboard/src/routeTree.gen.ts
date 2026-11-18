@@ -14,8 +14,6 @@ import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
 import { Route as ApiIndexRouteImport } from './routes/api/index'
 import { Route as ApiDependenciesRouteImport } from './routes/api/dependencies'
 import { Route as ApiEndpointsRouteImport } from './routes/api/endpoints'
-import { Route as AwsCdnRouteImport } from './routes/aws/cdn'
-import { Route as AwsLambdaRouteImport } from './routes/aws/lambda'
 import { Route as WebIndexRouteImport } from './routes/web/index'
 
 const IndexRoute = IndexRouteImport.update({
@@ -43,16 +41,6 @@ const ApiEndpointsRoute = ApiEndpointsRouteImport.update({
   path: '/api/endpoints',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AwsCdnRoute = AwsCdnRouteImport.update({
-  id: '/aws/cdn',
-  path: '/aws/cdn',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AwsLambdaRoute = AwsLambdaRouteImport.update({
-  id: '/aws/lambda',
-  path: '/aws/lambda',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const WebIndexRoute = WebIndexRouteImport.update({
   id: '/web/',
   path: '/web/',
@@ -64,8 +52,6 @@ export interface FileRoutesByFullPath {
   '/unauthorized': typeof UnauthorizedRoute
   '/api/dependencies': typeof ApiDependenciesRoute
   '/api/endpoints': typeof ApiEndpointsRoute
-  '/aws/cdn': typeof AwsCdnRoute
-  '/aws/lambda': typeof AwsLambdaRoute
   '/api/': typeof ApiIndexRoute
   '/web/': typeof WebIndexRoute
 }
@@ -74,8 +60,6 @@ export interface FileRoutesByTo {
   '/unauthorized': typeof UnauthorizedRoute
   '/api/dependencies': typeof ApiDependenciesRoute
   '/api/endpoints': typeof ApiEndpointsRoute
-  '/aws/cdn': typeof AwsCdnRoute
-  '/aws/lambda': typeof AwsLambdaRoute
   '/api': typeof ApiIndexRoute
   '/web': typeof WebIndexRoute
 }
@@ -85,8 +69,6 @@ export interface FileRoutesById {
   '/unauthorized': typeof UnauthorizedRoute
   '/api/dependencies': typeof ApiDependenciesRoute
   '/api/endpoints': typeof ApiEndpointsRoute
-  '/aws/cdn': typeof AwsCdnRoute
-  '/aws/lambda': typeof AwsLambdaRoute
   '/api/': typeof ApiIndexRoute
   '/web/': typeof WebIndexRoute
 }
@@ -97,8 +79,6 @@ export interface FileRouteTypes {
     | '/unauthorized'
     | '/api/dependencies'
     | '/api/endpoints'
-    | '/aws/cdn'
-    | '/aws/lambda'
     | '/api/'
     | '/web/'
   fileRoutesByTo: FileRoutesByTo
@@ -107,8 +87,6 @@ export interface FileRouteTypes {
     | '/unauthorized'
     | '/api/dependencies'
     | '/api/endpoints'
-    | '/aws/cdn'
-    | '/aws/lambda'
     | '/api'
     | '/web'
   id:
@@ -117,8 +95,6 @@ export interface FileRouteTypes {
     | '/unauthorized'
     | '/api/dependencies'
     | '/api/endpoints'
-    | '/aws/cdn'
-    | '/aws/lambda'
     | '/api/'
     | '/web/'
   fileRoutesById: FileRoutesById
@@ -128,8 +104,6 @@ export interface RootRouteChildren {
   UnauthorizedRoute: typeof UnauthorizedRoute
   ApiDependenciesRoute: typeof ApiDependenciesRoute
   ApiEndpointsRoute: typeof ApiEndpointsRoute
-  AwsCdnRoute: typeof AwsCdnRoute
-  AwsLambdaRoute: typeof AwsLambdaRoute
   ApiIndexRoute: typeof ApiIndexRoute
   WebIndexRoute: typeof WebIndexRoute
 }
@@ -171,20 +145,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEndpointsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/aws/cdn': {
-      id: '/aws/cdn'
-      path: '/aws/cdn'
-      fullPath: '/aws/cdn'
-      preLoaderRoute: typeof AwsCdnRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/aws/lambda': {
-      id: '/aws/lambda'
-      path: '/aws/lambda'
-      fullPath: '/aws/lambda'
-      preLoaderRoute: typeof AwsLambdaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/web/': {
       id: '/web/'
       path: '/web'
@@ -200,8 +160,6 @@ const rootRouteChildren: RootRouteChildren = {
   UnauthorizedRoute: UnauthorizedRoute,
   ApiDependenciesRoute: ApiDependenciesRoute,
   ApiEndpointsRoute: ApiEndpointsRoute,
-  AwsCdnRoute: AwsCdnRoute,
-  AwsLambdaRoute: AwsLambdaRoute,
   ApiIndexRoute: ApiIndexRoute,
   WebIndexRoute: WebIndexRoute,
 }

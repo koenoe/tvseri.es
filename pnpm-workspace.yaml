@@ -1,6 +1,7 @@
 packages:
   - apps/*
   - packages/*
+  - tools/*
 
 allowBuilds:
   core-js: true
@@ -10,8 +11,11 @@ allowBuilds:
 
 catalog:
   '@types/node': 24.19.2
+  # TypeScript 7 under another name, for a package whose `typescript` is the
+  # TypeScript 6 API (packages/schemas); bump together with `typescript`
+  '@typescript/native': npm:typescript@7.0.2
   sst: 4.17.2
-  typescript: 6.0.3
+  typescript: 7.0.2
 
 patchedDependencies:
   '@openauthjs/openauth@0.4.3': patches/@openauthjs__openauth@0.4.3.patch

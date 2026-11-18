@@ -1,0 +1,80 @@
+/*
+ * The Career chart's hover (the Stats "Year in shows" pattern): the hot row lights up, every other row and the marker's
+ * label dim to 32% over 0.2s, and the row's caption shows. A row is hot on
+ * hover (pointers that hover), on keyboard focus, or after a first tap
+ * (`data-hot`, set by CareerTouch).
+ */
+
+.row,
+.dim {
+  transition:
+    opacity 0.2s,
+    background-color 0.2s;
+}
+
+.cap {
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+
+.capOn {
+  opacity: 1;
+}
+
+.wn {
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+
+.row:focus-visible,
+.row[data-hot] {
+  background-color: rgb(255 255 255 / 0.05);
+}
+
+.row:focus-visible .name,
+.row[data-hot] .name {
+  color: #fff;
+}
+
+.row:focus-visible .cap,
+.row[data-hot] .cap {
+  opacity: 1;
+}
+
+.grid:has(.row:focus-visible, .row[data-hot])
+  :is(.row:not(:focus-visible, [data-hot]), .dim) {
+  opacity: 0.32;
+}
+
+@media (hover: hover) {
+  .row:hover {
+    background-color: rgb(255 255 255 / 0.05);
+  }
+
+  .row:hover .name {
+    color: #fff;
+  }
+
+  .row:hover .cap {
+    opacity: 1;
+  }
+
+  .grid:has(.row:hover) :is(.row:not(:hover), .dim) {
+    opacity: 0.32;
+  }
+}
+
+/* Desktop only: the caption takes the watched count's place (phones have no caption) */
+@media (width >= 64rem) {
+  .row:focus-visible .wn,
+  .row[data-hot] .wn {
+    opacity: 0;
+  }
+}
+
+@media (width >= 64rem) and (hover: hover) {
+  .row:hover .wn {
+    opacity: 0;
+  }
+}

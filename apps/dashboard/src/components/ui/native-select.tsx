@@ -11,15 +11,12 @@ function NativeSelect({
   size = 'default',
   ...props
 }: NativeSelectProps) {
+  const classes = cn(
+    'group/native-select relative w-fit has-[select:disabled]:opacity-50',
+    className,
+  );
   return (
-    <div
-      className={cn(
-        'group/native-select relative w-fit has-[select:disabled]:opacity-50',
-        className,
-      )}
-      data-size={size}
-      data-slot="native-select-wrapper"
-    >
+    <div className={classes} data-size={size} data-slot="native-select-wrapper">
       <select
         className="border-input bg-input/30 placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 dark:hover:bg-input/50 focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 h-9 w-full min-w-0 cursor-pointer appearance-none rounded-4xl border py-1 pr-8 pl-3 text-sm transition-colors select-none focus-visible:ring-[3px] aria-invalid:ring-[3px] data-[size=sm]:h-8 data-[size=xs]:h-7 data-[size=xs]:text-xs outline-none disabled:pointer-events-none disabled:cursor-not-allowed"
         data-size={size}

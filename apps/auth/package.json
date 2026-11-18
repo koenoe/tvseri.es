@@ -1,25 +1,32 @@
 {
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.1164.0",
-    "@aws-sdk/client-sesv2": "^3.1164.0",
+    "@aws-sdk/client-dynamodb": "^3.1169.0",
+    "@aws-sdk/client-sesv2": "^3.1169.0",
     "@aws-sdk/util-dynamodb": "^3.996.9",
     "@openauthjs/openauth": "0.4.3",
+    "@tvseri.es/constants": "workspace:*",
     "@tvseri.es/schemas": "workspace:*",
     "@tvseri.es/utils": "workspace:*",
-    "hono": "^4.13.17",
-    "slugify": "^1.6.9",
+    "hono": "^4.13.18",
     "sst": "catalog:",
     "ulid": "^3.0.2"
   },
   "devDependencies": {
+    "@playwright/test": "1.65.1",
     "@tvseri.es/typescript-config": "workspace:*",
+    "@types/jsdom": "^30.0.0",
     "@types/node": "catalog:",
-    "typescript": "catalog:"
+    "esbuild": "^0.28.2",
+    "jsdom": "^31.0.1",
+    "typescript": "catalog:",
+    "vitest": "5.1.0"
   },
   "name": "@tvseri.es/auth",
   "private": true,
   "scripts": {
-    "check-types": "tsc"
+    "check-types": "tsc",
+    "e2e": "playwright test",
+    "test": "vitest run"
   },
   "type": "module",
   "version": "0.0.0"

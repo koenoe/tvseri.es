@@ -1,6 +1,10 @@
 import type { AttributeValue } from '@aws-sdk/client-dynamodb';
-import { UpdateItemCommand } from '@aws-sdk/client-dynamodb';
+import {
+  ConditionalCheckFailedException,
+  UpdateItemCommand,
+} from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { userKey } from '@tvseri.es/utils';
 import type { DynamoDBStreamEvent } from 'aws-lambda';
 import { Resource } from 'sst';
 
@@ -11,15 +15,14 @@ type FollowItem = {
   followingId: string;
 };
 
-/**
- * Atomically increment or decrement a user's follower/following count
- */
 const updateUserCount = async (
   userId: string,
   field: 'followerCount' | 'followingCount',
   delta: number,
 ) => {
   const command = new UpdateItemCommand({
+    // Never create a Users item: a deleted account stays deleted
+    ConditionExpression: 'attribute_exists(pk)',
     ExpressionAttributeNames: {
       '#field': field,
     },
@@ -28,38 +31,37 @@ const updateUserCount = async (
       ':zero': { N: '0' },
     },
     Key: {
-      pk: { S: `USER#${userId}` },
+      pk: { S: userKey(userId) },
     },
     TableName: Resource.Users.name,
-    // Use ADD for atomic increment/decrement, with fallback to 0 if field doesn't exist
+    // One atomic SET: the field plus the delta, counting from 0 when it doesn't exist yet
     UpdateExpression: 'SET #field = if_not_exists(#field, :zero) + :delta',
   });
 
-  await client.send(command);
+  try {
+    await client.send(command);
+  } catch (error) {
+    if (!(error instanceof ConditionalCheckFailedException)) {
+      throw error;
+    }
+  }
 };
 
 /**
- * DynamoDB Stream handler for maintaining follower/following counts on User records.
- *
- * When a follow relationship is created (INSERT):
- * - Increment followerCount for the followed user
- * - Increment followingCount for the follower
- *
- * When a follow relationship is removed (REMOVE):
- * - Decrement followerCount for the followed user
- * - Decrement followingCount for the follower
+ * Keeps the follower/following counts on User records: a follow's INSERT
+ * increments both sides, its REMOVE decrements them.
  *
  * A failing batch throws; the event source mapping bisects it and retries,
  * then sends it to the DLQ. Deltas that were already applied before the
  * failure are applied again on retry (rare, accepted for the batching).
  */
 export const handler = async (event: DynamoDBStreamEvent) => {
-  // Batch updates by user to minimize DynamoDB calls
+  // One counter update per user per batch, however many follows changed
   const followerCountChanges = new Map<string, number>();
   const followingCountChanges = new Map<string, number>();
 
   for (const record of event.Records) {
-    // Only handle INSERT and REMOVE events
+    // A MODIFY doesn't change who follows whom
     if (record.eventName !== 'INSERT' && record.eventName !== 'REMOVE') {
       continue;
     }
@@ -82,13 +84,11 @@ export const handler = async (event: DynamoDBStreamEvent) => {
 
     const delta = record.eventName === 'INSERT' ? 1 : -1;
 
-    // Track followerCount change for the followed user
     followerCountChanges.set(
       followItem.followingId,
       (followerCountChanges.get(followItem.followingId) || 0) + delta,
     );
 
-    // Track followingCount change for the follower
     followingCountChanges.set(
       followItem.followerId,
       (followingCountChanges.get(followItem.followerId) || 0) + delta,
@@ -99,12 +99,10 @@ export const handler = async (event: DynamoDBStreamEvent) => {
     );
   }
 
-  // Apply all followerCount updates
   const followerUpdates = Array.from(followerCountChanges.entries())
     .filter(([, delta]) => delta !== 0)
     .map(([userId, delta]) => updateUserCount(userId, 'followerCount', delta));
 
-  // Apply all followingCount updates
   const followingUpdates = Array.from(followingCountChanges.entries())
     .filter(([, delta]) => delta !== 0)
     .map(([userId, delta]) => updateUserCount(userId, 'followingCount', delta));

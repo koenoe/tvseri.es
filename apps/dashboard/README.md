@@ -4,9 +4,8 @@ Internal admin dashboard for tvseri.es, at `dashboard.tvseri.es`. Only users wit
 
 ## Sections
 
-- **Web**: Web Vitals per route and device, with a world map
+- **Web**: Web Vitals per route, device and country, with a world map
 - **API**: endpoint timings and upstream dependencies
-- **AWS**: Lambda and CDN metrics
 
 The data comes from the API's metrics routes, which are aggregated daily by the crons in `infra/metrics.ts`.
 

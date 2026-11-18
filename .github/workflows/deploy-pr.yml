@@ -22,14 +22,17 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     environment:
       name: Preview
     env:
+      # Pulumi fetches provider plugins (e.g. pulumiverse/vercel) from GitHub
+      # releases; unauthenticated, runners share a 60-an-hour limit and a
+      # deploy fails on a 403. The job's own read-only token lifts that.
+      GITHUB_TOKEN: ${{ github.token }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_TEAM_ID }}
       VERCEL_TELEMETRY_DISABLED: 1
       NEXT_TELEMETRY_DISABLED: 1
-
-    if: github.actor != 'dependabot[bot]'
 
     steps:
       - name: Checkout
@@ -43,9 +46,9 @@ jobs:
       - name: Setup AWS Profile
         run: |
           aws configure set region eu-west-2 --profile tvseries-dev
-          aws configure set aws_access_key_id ${{ env.AWS_ACCESS_KEY_ID }} --profile tvseries-dev
-          aws configure set aws_secret_access_key ${{ env.AWS_SECRET_ACCESS_KEY }} --profile tvseries-dev
-          aws configure set aws_session_token ${{ env.AWS_SESSION_TOKEN }} --profile tvseries-dev
+          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID" --profile tvseries-dev
+          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY" --profile tvseries-dev
+          aws configure set aws_session_token "$AWS_SESSION_TOKEN" --profile tvseries-dev
 
       - name: Install pnpm
         uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
@@ -65,12 +68,21 @@ jobs:
         run: echo "$HOME/.config/sst/bin" >> $GITHUB_PATH
 
       - name: Setup SST secrets
+        env:
+          MDBLIST_API_KEY: ${{ secrets.MDBLIST_API_KEY }}
+          OMDB_API_KEY: ${{ secrets.OMDB_API_KEY }}
+          TMDB_API_ACCESS_TOKEN: ${{ secrets.TMDB_API_ACCESS_TOKEN }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          pnpm sst secret set MdblistApiKey "${{ secrets.MDBLIST_API_KEY }}" --stage pr-${{ github.event.pull_request.number }}
-          pnpm sst secret set TmdbApiAccessToken "${{ secrets.TMDB_API_ACCESS_TOKEN }}" --stage pr-${{ github.event.pull_request.number }}
-          pnpm sst secret set TmdbApiKey "${{ secrets.TMDB_API_KEY }}" --stage pr-${{ github.event.pull_request.number }}
-          pnpm sst secret set GoogleClientId "${{ secrets.GOOGLE_CLIENT_ID }}" --stage pr-${{ github.event.pull_request.number }}
-          pnpm sst secret set SessionSecret "${{ secrets.SESSION_SECRET }}" --stage pr-${{ github.event.pull_request.number }}
+          pnpm sst secret set MdblistApiKey "$MDBLIST_API_KEY" --stage "pr-$PR_NUMBER"
+          pnpm sst secret set OmdbApiKey "$OMDB_API_KEY" --stage "pr-$PR_NUMBER"
+          pnpm sst secret set TmdbApiAccessToken "$TMDB_API_ACCESS_TOKEN" --stage "pr-$PR_NUMBER"
+          pnpm sst secret set TmdbApiKey "$TMDB_API_KEY" --stage "pr-$PR_NUMBER"
+          pnpm sst secret set GoogleClientId "$GOOGLE_CLIENT_ID" --stage "pr-$PR_NUMBER"
+          pnpm sst secret set SessionSecret "$SESSION_SECRET" --stage "pr-$PR_NUMBER"
 
       - name: Deploy PR
         id: deploy
@@ -82,8 +94,7 @@ jobs:
         run: |
           set -o pipefail
           OUTPUT=$(pnpm sst deploy --stage pr-${{ github.event.pull_request.number }} 2>&1 | tee /dev/stderr)
-          # Extract the web URL from SST output
-          # Try custom domain first, fall back to Vercel URL
+          # The custom domain, else the Vercel URL
           WEB_URL=$(echo "$OUTPUT" | grep -oE 'https://www.pr-[0-9]+\.dev\.tvseri\.es' | head -1 || \
                     echo "$OUTPUT" | grep -oE 'https://[a-z0-9-]+\.vercel\.app' | head -1 || \
                     echo "")

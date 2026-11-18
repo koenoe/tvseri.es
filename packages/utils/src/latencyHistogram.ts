@@ -1,22 +1,8 @@
-/**
- * API latency histogram utilities for accurate percentile calculation
- * when aggregating data across multiple time periods.
- *
- * Uses fixed bin edges to enable merging histograms by summing counts.
- * All values are in milliseconds.
- */
+/** API latency histograms (milliseconds), merged by summing bins */
 
-import {
-  findBinIndexForEdges,
-  mergeHistogramBins,
-  percentileFromBins,
-} from './histogram';
+import { findBinIndexForEdges, percentileFromBins } from './histogram';
 
-/**
- * Histogram bin edges for API latency in milliseconds.
- * Provides good granularity for typical API response times.
- */
-export const LATENCY_HISTOGRAM_EDGES: readonly number[] = [
+const LATENCY_HISTOGRAM_EDGES: readonly number[] = [
   0,
   10,
   25,
@@ -36,15 +22,9 @@ export const LATENCY_HISTOGRAM_EDGES: readonly number[] = [
   Infinity,
 ] as const;
 
-/**
- * Find which bin a latency value belongs to.
- */
-export const findLatencyBinIndex = (latencyMs: number): number =>
+const findLatencyBinIndex = (latencyMs: number): number =>
   findBinIndexForEdges(latencyMs, LATENCY_HISTOGRAM_EDGES);
 
-/**
- * Build histogram bins from an array of latency values (in ms).
- */
 export const buildLatencyHistogramBins = (latencies: number[]): number[] => {
   const bins = new Array(LATENCY_HISTOGRAM_EDGES.length - 1).fill(
     0,
@@ -59,19 +39,7 @@ export const buildLatencyHistogramBins = (latencies: number[]): number[] => {
   return bins;
 };
 
-/**
- * Merge multiple latency histograms by summing corresponding bins.
- * @deprecated Use mergeHistogramBins from './histogram' directly
- */
-export const mergeLatencyHistograms = mergeHistogramBins;
-
-/**
- * Calculate a percentile from latency histogram bins using linear interpolation.
- *
- * @param bins - Count of values in each bin
- * @param percentile - Target percentile (0-100)
- * @returns Percentile value in milliseconds
- */
+/** A percentile (0–100) of the latency bins, in milliseconds */
 export const percentileFromLatencyHistogram = (
   bins: number[],
   percentile: number,

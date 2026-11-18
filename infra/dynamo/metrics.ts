@@ -1,32 +1,15 @@
 /// <reference path="../../.sst/platform/config.d.ts" />
 
 /**
- * Metrics tables for Speed Insights.
+ * First-party metrics: raw Web Vitals and API events (7-day TTL, no GSIs:
+ * written constantly, read only by the daily aggregation), and one aggregate
+ * table per kind (30-day TTL).
  *
- * ═══════════════════════════════════════════════════════════════════════════
- * TABLE STRATEGY
- * ═══════════════════════════════════════════════════════════════════════════
- *
- * 1. MetricsRaw (shared)
- *    - Raw events for both Web Vitals and API metrics
- *    - 7-day TTL, no GSIs (write-heavy, rarely read)
- *    - Used for drill-downs and complex filter queries
- *
- * 2. MetricsWebVitalsAggregated
- *    - Pre-computed Web Vitals aggregates
- *    - 30-day TTL, GSIs for time-series
- *    - Dimensions: Route, Device, Country (and combos)
- *
- * 3. MetricsApiAggregated
- *    - Pre-computed API metrics aggregates
- *    - 30-day TTL, GSIs for time-series
- *    - Dimensions: Endpoint, Platform, Country (and combos)
+ * Aggregates put the date plus any filter combination in `pk` and the
+ * dimension in `sk`, so one query lists a dimension under a filter (routes on
+ * mobile: pk `<date>#D#mobile`, sk begins_with `R#`). The GSIs give one
+ * dimension's value over time.
  */
-
-// ════════════════════════════════════════════════════════════════════════════
-// RAW DATA TABLE (shared)
-// ════════════════════════════════════════════════════════════════════════════
-
 export const metricsRaw = new sst.aws.Dynamo('MetricsRaw', {
   fields: {
     pk: 'string', // WEB#<date>#<shard> | API#<date>#<shard> (shard: 0-9)
@@ -36,63 +19,6 @@ export const metricsRaw = new sst.aws.Dynamo('MetricsRaw', {
   ttl: 'expiresAt',
 });
 
-// ════════════════════════════════════════════════════════════════════════════
-// WEB VITALS AGGREGATES
-// ════════════════════════════════════════════════════════════════════════════
-/**
- * Web Vitals aggregate table.
- *
- * ═══════════════════════════════════════════════════════════════════════════
- * PRIMARY INDEX - Filter combos in pk, dimension in sk
- * ═══════════════════════════════════════════════════════════════════════════
- *
- * pk patterns (date + optional filters):
- *   "2025-12-11"                    → No filters (global view)
- *   "2025-12-11#D#mobile"           → Device filter
- *   "2025-12-11#C#US"               → Country filter
- *   "2025-12-11#D#mobile#C#US"      → Device + Country filter
- *
- * sk patterns (what you're querying):
- *   "SUMMARY"                       → Totals for this filter combo
- *   "R#/series/:id"                 → Route metrics
- *   "C#US"                          → Country metrics (when no country filter)
- *   "D#mobile"                      → Device metrics (when no device filter)
- *
- * ═══════════════════════════════════════════════════════════════════════════
- * QUERY EXAMPLES
- * ═══════════════════════════════════════════════════════════════════════════
- *
- * "All routes (no filter)":
- *   pk = "2025-12-11", sk begins_with "R#"
- *
- * "Routes on mobile":
- *   pk = "2025-12-11#D#mobile", sk begins_with "R#"
- *
- * "Routes in Algeria on mobile":
- *   pk = "2025-12-11#D#mobile#C#DZ", sk begins_with "R#"
- *
- * "All countries (no filter)":
- *   pk = "2025-12-11", sk begins_with "C#"
- *
- * "Countries on mobile":
- *   pk = "2025-12-11#D#mobile", sk begins_with "C#"
- *
- * ═══════════════════════════════════════════════════════════════════════════
- * GSIs - Time-series queries for specific dimensions
- * ═══════════════════════════════════════════════════════════════════════════
- *
- * RouteTimeIndex:
- *   GSI1PK: "R#/series/:id", GSI1SK: "2025-12-11"
- *   → "Show /series/:id score over 30 days"
- *
- * CountryTimeIndex:
- *   GSI2PK: "C#US", GSI2SK: "2025-12-11"
- *   → "Show US score over 30 days"
- *
- * DeviceTimeIndex:
- *   GSI3PK: "D#mobile", GSI3SK: "2025-12-11"
- *   → "Show mobile score over 30 days"
- */
 export const metricsWebVitals = new sst.aws.Dynamo(
   'MetricsWebVitalsAggregated',
   {
@@ -128,60 +54,6 @@ export const metricsWebVitals = new sst.aws.Dynamo(
   },
 );
 
-// ════════════════════════════════════════════════════════════════════════════
-// API METRICS AGGREGATES
-// ════════════════════════════════════════════════════════════════════════════
-/**
- * API metrics aggregate table.
- *
- * ═══════════════════════════════════════════════════════════════════════════
- * PRIMARY INDEX - Filter combos in pk, dimension in sk
- * ═══════════════════════════════════════════════════════════════════════════
- *
- * pk patterns (date + optional filters):
- *   "2025-12-11"                    → No filter
- *   "2025-12-11#P#ios"              → Platform filter
- *   "2025-12-11#C#US"               → Country filter
- *   "2025-12-11#P#ios#C#US"         → Platform + Country filter
- *
- * sk patterns (what you're querying):
- *   "SUMMARY"                       → Totals for this filter combo
- *   "E#GET /tv/:id"                 → Endpoint metrics
- *   "P#ios"                         → Platform metrics (when no platform filter)
- *   "C#US"                          → Country metrics (when no country filter)
- *
- * ═══════════════════════════════════════════════════════════════════════════
- * QUERY EXAMPLES
- * ═══════════════════════════════════════════════════════════════════════════
- *
- * "All endpoints (no filter)":
- *   pk = "2025-12-11", sk begins_with "E#"
- *
- * "Endpoints on iOS":
- *   pk = "2025-12-11#P#ios", sk begins_with "E#"
- *
- * "Endpoints in US":
- *   pk = "2025-12-11#C#US", sk begins_with "E#"
- *
- * "Endpoints on iOS in US":
- *   pk = "2025-12-11#P#ios#C#US", sk begins_with "E#"
- *
- * ═══════════════════════════════════════════════════════════════════════════
- * GSIs - Time-series queries for specific dimensions
- * ═══════════════════════════════════════════════════════════════════════════
- *
- * EndpointTimeIndex:
- *   GSI1PK: "E#GET /tv/:id", GSI1SK: "2025-12-11"
- *   → "Show GET /tv/:id latency over 30 days"
- *
- * PlatformTimeIndex:
- *   GSI2PK: "P#ios", GSI2SK: "2025-12-11"
- *   → "Show iOS performance over 30 days"
- *
- * CountryTimeIndex:
- *   GSI3PK: "C#US", GSI3SK: "2025-12-11"
- *   → "Show US performance over 30 days"
- */
 export const metricsApi = new sst.aws.Dynamo('MetricsApiAggregated', {
   fields: {
     GSI1PK: 'string', // E#<endpoint>

@@ -5,6 +5,7 @@ import type {
   MetricRecord,
   WebVitalRecord,
 } from '@tvseri.es/schemas';
+import { chunk } from '@tvseri.es/utils';
 import type {
   SQSBatchItemFailure,
   SQSBatchResponse,
@@ -12,24 +13,15 @@ import type {
 } from 'aws-lambda';
 import { Resource } from 'sst';
 
-import { chunk, writeBatch } from '@/lib/db/batch';
+import { writeBatch } from '@/lib/db/batch';
+import { randomRawShard } from '@/lib/metrics/rawShards';
 
 const DYNAMO_BATCH_LIMIT = 25;
 const RAW_TTL_DAYS = 7;
-/** Number of shards to distribute writes across (prevents hot partitions) */
-const SHARD_COUNT = 10;
 
-/**
- * Get a random shard number for partition key distribution.
- */
-const getRandomShard = (): number => Math.floor(Math.random() * SHARD_COUNT);
-
-/**
- * Transform an API metric record into a DynamoDB item.
- */
 const apiMetricToDynamo = (record: ApiMetricRecord) => {
   const dateStr = record.timestamp.split('T')[0];
-  const shard = getRandomShard();
+  const shard = randomRawShard();
 
   return {
     ...record,
@@ -39,12 +31,9 @@ const apiMetricToDynamo = (record: ApiMetricRecord) => {
   };
 };
 
-/**
- * Transform a web vital record into a DynamoDB item.
- */
 const webVitalToDynamo = (record: WebVitalRecord) => {
   const dateStr = record.timestamp.split('T')[0];
-  const shard = getRandomShard();
+  const shard = randomRawShard();
 
   return {
     ...record,
@@ -54,9 +43,6 @@ const webVitalToDynamo = (record: WebVitalRecord) => {
   };
 };
 
-/**
- * Transform any metric record into a DynamoDB item.
- */
 const toDynamoItem = (record: MetricRecord) => {
   if (record.type === 'api') {
     return apiMetricToDynamo(record);
@@ -65,10 +51,7 @@ const toDynamoItem = (record: MetricRecord) => {
 };
 
 /**
- * Metrics processor Lambda.
- * Receives batched metrics from SQS and writes them to DynamoDB.
- *
- * Returns partial batch failures to avoid reprocessing successful messages
+ * Writes batched metrics from SQS to DynamoDB. Returns partial batch failures to avoid reprocessing successful messages
  * (pk uses a random shard, so a re-processed message becomes a duplicate row).
  * DynamoDB UnprocessedItems are retried with backoff by writeBatch; only
  * messages whose items remain unprocessed are reported as failures.

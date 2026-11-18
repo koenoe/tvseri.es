@@ -1,15 +1,14 @@
-import { MoreVertical } from 'lucide-react';
 import { memo, useMemo } from 'react';
 
-import { Button } from '@/components/ui/button';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Sparkline } from '@/components/ui/sparkline';
-import { formatLatency, getLatencyStatus } from '@/lib/api-metrics';
+import { formatLatency, getLatencyColor } from '@/lib/api-metrics';
 import { STATUS_COLORS } from '@/lib/status-colors';
+import { CardMenuButton } from './metric-card';
 
 type PercentileData = Readonly<{
   p75: number;
@@ -33,10 +32,7 @@ const PercentileSparkline = memo(function PercentileSparkline({
   points: ReadonlyArray<number>;
   value: number;
 }>) {
-  const status = getLatencyStatus(value);
-  const colorKey =
-    status === 'fast' ? 'green' : status === 'moderate' ? 'amber' : 'red';
-  const color = STATUS_COLORS[colorKey].hsl;
+  const color = STATUS_COLORS[getLatencyColor(value)].hsl;
 
   return (
     <Sparkline
@@ -73,13 +69,7 @@ function PercentileLatencyPopoverComponent({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button
-          className="text-muted-foreground cursor-pointer data-[state=open]:bg-input/50"
-          size="icon-sm"
-          variant="ghost"
-        >
-          <MoreVertical className="size-4" />
-        </Button>
+        <CardMenuButton />
       </PopoverTrigger>
       <PopoverContent align="end" className="w-auto">
         <div className="flex flex-col gap-3 p-3">

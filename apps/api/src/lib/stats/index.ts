@@ -1,11 +1,7 @@
-/**
- * Stats module - centralized stats logic for the API.
- */
-
-// Cache operations
-export { getStatsCache, invalidateStatsCache, setStatsCache } from './cache';
-
-// Segments derived from a year's watched items, and the summary metrics
+export { getAllTimeStats } from './allTime';
+export { getStatsCache, invalidateAllTimeStats } from './cache';
+export { getFavoritesCount, getYearSpotlight } from './highlights';
+export { countsInStats } from './regular';
 export {
   computeYearSegment,
   getSummaryMetrics,

@@ -1,7 +1,3 @@
-/**
- * Aggregation functions for stats (genres, providers, countries).
- */
-
 import { WATCH_PROVIDER_PREDEFINED_COLOR } from '@tvseri.es/constants';
 import type {
   StatsGenreItem,
@@ -9,11 +5,9 @@ import type {
   TvSeries,
   WatchedItem,
 } from '@tvseri.es/schemas';
-import { buildLogoImageUrl } from '@tvseri.es/utils';
+import { buildLogoImageUrl, regionName, UNKNOWN_COLOR } from '@tvseri.es/utils';
 
 import { detectDominantColorsFromImages } from '@/lib/detectDominantColorFromImage';
-
-const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
 
 /** The series fields the genre and country stats read */
 export type StatsSeriesMeta = Readonly<{
@@ -24,12 +18,27 @@ export type StatsSeriesMeta = Readonly<{
 }>;
 
 type ProviderItem = Readonly<
-  Pick<WatchedItem, 'seriesId' | 'watchProviderLogoPath' | 'watchProviderName'>
+  Pick<
+    WatchedItem,
+    'seriesId' | 'title' | 'watchProviderLogoPath' | 'watchProviderName'
+  >
 >;
 
-/**
- * Aggregate genre counts from a list of TV series.
- */
+/** How many series a provider row names ("Billions, Barry, The Pitt and 30 more") */
+const PROVIDER_SERIES_NAMED = 3;
+
+type ProviderEntry = {
+  /** Episodes per series, in the order first seen */
+  episodes: Map<number, { count: number; title: string }>;
+  logoPath?: string | null;
+};
+
+const topSeries = (episodes: ProviderEntry['episodes']) =>
+  [...episodes]
+    .sort(([, a], [, b]) => b.count - a.count)
+    .slice(0, PROVIDER_SERIES_NAMED)
+    .map(([id, { title }]) => ({ id, title }));
+
 export const aggregateGenres = (
   seriesList: ReadonlyArray<StatsSeriesMeta | null | undefined>,
   limit = 10,
@@ -55,28 +64,26 @@ const getPredefinedColor = (name: string): string | undefined =>
     name as keyof typeof WATCH_PROVIDER_PREDEFINED_COLOR
   ];
 
-/**
- * Aggregate streaming provider stats from watched items.
- */
+/** Providers by how many series were watched on them, each with its top series */
 export const aggregateProviders = async (
   items: ReadonlyArray<ProviderItem>,
   limit = 10,
 ): Promise<StatsProviderItem[]> => {
-  const providerMap = items.reduce((map, item) => {
-    if (!item.watchProviderName) return map;
-
-    const existing = map.get(item.watchProviderName);
-    if (existing) {
-      existing.series.add(item.seriesId);
-      existing.logoPath ||= item.watchProviderLogoPath;
-    } else {
-      map.set(item.watchProviderName, {
-        logoPath: item.watchProviderLogoPath,
-        series: new Set([item.seriesId]),
-      });
-    }
-    return map;
-  }, new Map<string, { series: Set<number>; logoPath?: string | null }>());
+  const providerMap = new Map<string, ProviderEntry>();
+  for (const item of items) {
+    if (!item.watchProviderName) continue;
+    const entry = providerMap.get(item.watchProviderName) ?? {
+      episodes: new Map(),
+      logoPath: item.watchProviderLogoPath,
+    };
+    entry.logoPath ||= item.watchProviderLogoPath;
+    const series = entry.episodes.get(item.seriesId);
+    entry.episodes.set(item.seriesId, {
+      count: (series?.count ?? 0) + 1,
+      title: series?.title ?? item.title,
+    });
+    providerMap.set(item.watchProviderName, entry);
+  }
 
   const entries = [...providerMap.entries()];
 
@@ -92,25 +99,23 @@ export const aggregateProviders = async (
         })
       : new Map<string, string>();
 
-  const stats = entries.map(([name, { series, logoPath }]) => {
+  const stats = entries.map(([name, { episodes, logoPath }]) => {
     const defaultColor =
       getPredefinedColor(name) ||
       (logoPath ? detectedColors.get(logoPath) : undefined);
 
     return {
-      count: series.size,
-      defaultColor: defaultColor || '#000000',
+      count: episodes.size,
+      defaultColor: defaultColor || UNKNOWN_COLOR,
       logo: logoPath ? buildLogoImageUrl(logoPath) : null,
       name,
+      series: topSeries(episodes),
     };
   });
 
   return stats.sort((a, b) => b.count - a.count).slice(0, limit);
 };
 
-/**
- * Aggregate country stats from a list of TV series.
- */
 export const aggregateCountries = (
   seriesList: ReadonlyArray<StatsSeriesMeta | null | undefined>,
 ): Record<string, number> => {
@@ -120,7 +125,7 @@ export const aggregateCountries = (
     .filter((series): series is StatsSeriesMeta => !!series?.countries)
     .forEach((series) => {
       series.countries.forEach((country) => {
-        const countryName = displayNames.of(country.code) ?? country.name;
+        const countryName = regionName(country.code);
         countryStats[countryName] = (countryStats[countryName] || 0) + 1;
       });
     });

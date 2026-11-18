@@ -6,19 +6,13 @@ import {
   NativeSelect,
   NativeSelectOption,
 } from '@/components/ui/native-select';
-
-const DATE_RANGE_OPTIONS = [
-  { label: 'Last 3 days', value: 3 },
-  { label: 'Last 7 days', value: 7 },
-  { label: 'Last 30 days', value: 30 },
-] as const;
-
-type DaysValue = 3 | 7 | 30;
+import { DAY_RANGES, type DaysValue, DEFAULT_DAYS } from '@/lib/search-params';
 
 function DateRangeSelectComponent() {
   const navigate = useNavigate();
   const days = useSearch({
-    select: (search) => ((search as { days?: number }).days ?? 7) as DaysValue,
+    select: (search) =>
+      ((search as { days?: number }).days ?? DEFAULT_DAYS) as DaysValue,
     strict: false,
   });
 
@@ -37,13 +31,14 @@ function DateRangeSelectComponent() {
 
   return (
     <NativeSelect
+      aria-label="Date range"
       className="[&_select]:h-7 [&_select]:text-xs [&_select]:px-3 [&_select]:pr-7 [&_svg]:right-2 [&_svg]:size-3"
       onChange={handleDaysChange}
       value={days}
     >
-      {DATE_RANGE_OPTIONS.map((option) => (
-        <NativeSelectOption key={option.value} value={option.value}>
-          {option.label}
+      {DAY_RANGES.map((range) => (
+        <NativeSelectOption key={range} value={range}>
+          {`Last ${range} days`}
         </NativeSelectOption>
       ))}
     </NativeSelect>

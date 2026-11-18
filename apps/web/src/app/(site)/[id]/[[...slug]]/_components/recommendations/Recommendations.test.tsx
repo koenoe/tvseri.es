@@ -1,0 +1,24 @@
+// @vitest-environment jsdom
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+
+import { RecommendationsRow } from './Recommendations';
+
+const refresh = vi.fn();
+vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh }) }));
+vi.mock('../../_data/loaders', () => ({
+  loadRecommendations: vi.fn(async () => ({ unavailable: true })),
+}));
+
+describe('Recommendations', () => {
+  it('draws the shared failed row (not the loading skeleton) when Unavailable', async () => {
+    render(await RecommendationsRow({ seriesId: 1 }));
+    const region = screen.getByRole('region', { name: 'Recommendations' });
+    expect(region.textContent).toContain('Recommendations didn’t load.');
+    expect(region.ariaBusy).not.toBe('true');
+    // in the prerendered page from the start: read in order, not announced
+    expect(screen.queryByRole('alert')).toBeNull();
+    screen.getByRole('button', { name: 'Try again' }).click();
+    expect(refresh).toHaveBeenCalledOnce();
+  });
+});

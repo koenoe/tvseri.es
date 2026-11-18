@@ -1,27 +1,15 @@
-/**
- * Utilities for processing metrics data
- */
-import type {
-  CountryMetrics,
-  RouteMetrics,
-  WebVitalMetricStats,
-} from '@tvseri.es/schemas';
+import type { CountryMetrics, RouteMetrics } from '@tvseri.es/schemas';
 
 import { getCountryDisplayName } from '@/lib/utils';
 import {
+  formatMetricDisplay,
   getMetricStatus,
+  getMetricValue,
   METRICS_CONFIG,
   type MetricType,
   type RatingStatus,
+  type WebVitalsData,
 } from '@/lib/web-vitals';
-
-type MetricItemWithRaw = {
-  id?: string;
-  label: string;
-  pageViews: number;
-  rawValue: number;
-  value: number | string;
-};
 
 export type MetricItem = Readonly<{
   id?: string;
@@ -36,164 +24,61 @@ export type GroupedMetricData = Readonly<{
   poor: ReadonlyArray<MetricItem>;
 }>;
 
-/**
- * Get the display value for a metric.
- * For RES, show the score. For others, show p75 with unit.
- * API returns milliseconds, so we convert to seconds when needed.
- */
-function getMetricDisplayValue(
+/** RES shows the bare score; the others show p75 with their unit. */
+function getDisplayValue(
   metric: MetricType,
-  data: {
-    CLS: WebVitalMetricStats;
-    FCP: WebVitalMetricStats;
-    INP: WebVitalMetricStats;
-    LCP: WebVitalMetricStats;
-    score: number;
-    TTFB: WebVitalMetricStats;
-  },
+  data: WebVitalsData,
 ): number | string {
   if (metric === 'res') {
     return data.score;
   }
-
-  const metricKey = metric.toUpperCase() as
-    | 'CLS'
-    | 'FCP'
-    | 'INP'
-    | 'LCP'
-    | 'TTFB';
-  const p75 = data[metricKey].p75;
-  const unit = METRICS_CONFIG[metric].unit;
-
-  if (unit === 's') {
-    return `${(p75 / 1000).toFixed(2)}s`;
-  }
-  if (unit === 'ms') {
-    return `${Math.round(p75)}ms`;
-  }
-  // CLS: unitless, show 2 decimal places
-  return p75.toFixed(2);
+  const value = getMetricValue(metric, data);
+  return `${formatMetricDisplay(metric, value)}${METRICS_CONFIG[metric].unit}`;
 }
 
-/**
- * Get the raw value used for determining status.
- * For RES, use score. For others, use p75.
- * Converts milliseconds to seconds for metrics with 's' unit to match thresholds.
- */
-function getMetricRawValue(
+/** Groups rows by their rating for `metric`, busiest first within a group. */
+function groupByStatus<T extends WebVitalsData>(
+  rows: ReadonlyArray<T>,
   metric: MetricType,
-  data: {
-    CLS: WebVitalMetricStats;
-    FCP: WebVitalMetricStats;
-    INP: WebVitalMetricStats;
-    LCP: WebVitalMetricStats;
-    score: number;
-    TTFB: WebVitalMetricStats;
-  },
-): number {
-  if (metric === 'res') {
-    return data.score;
+  toItem: (row: T) => Omit<MetricItem, 'value'>,
+): GroupedMetricData {
+  const groups: Record<RatingStatus, Array<MetricItem>> = {
+    great: [],
+    needsImprovement: [],
+    poor: [],
+  };
+
+  for (const row of rows) {
+    const status = getMetricStatus(metric, getMetricValue(metric, row));
+    groups[status].push({
+      ...toItem(row),
+      value: getDisplayValue(metric, row),
+    });
   }
 
-  const metricKey = metric.toUpperCase() as
-    | 'CLS'
-    | 'FCP'
-    | 'INP'
-    | 'LCP'
-    | 'TTFB';
-  const p75 = data[metricKey].p75;
-  const unit = METRICS_CONFIG[metric].unit;
-
-  // Convert ms to seconds for metrics with 's' unit to match thresholds
-  if (unit === 's') {
-    return p75 / 1000;
+  for (const items of Object.values(groups)) {
+    items.sort((a, b) => b.pageViews - a.pageViews);
   }
-  return p75;
+  return groups;
 }
 
-/**
- * Sort items by pageview count (highest first) within each group.
- */
-function sortItemsByPageViews(
-  items: Array<MetricItemWithRaw>,
-): Array<MetricItem> {
-  const sorted = [...items].sort((a, b) => b.pageViews - a.pageViews);
-
-  // Remove rawValue from result
-  return sorted.map(({ id, label, pageViews, value }) => ({
-    id,
-    label,
-    pageViews,
-    value,
-  }));
-}
-
-/**
- * Group routes by their status for a given metric.
- * Items within each group are sorted by pageview count.
- */
 export function groupRoutesByStatus(
   routes: ReadonlyArray<RouteMetrics>,
   metric: MetricType,
 ): GroupedMetricData {
-  const groups: Record<RatingStatus, Array<MetricItemWithRaw>> = {
-    great: [],
-    needsImprovement: [],
-    poor: [],
-  };
-
-  for (const route of routes) {
-    const rawValue = getMetricRawValue(metric, route);
-    const status = getMetricStatus(metric, rawValue);
-    const displayValue = getMetricDisplayValue(metric, route);
-
-    groups[status].push({
-      label: route.route,
-      pageViews: route.pageviews,
-      rawValue,
-      value: displayValue,
-    });
-  }
-
-  return {
-    great: sortItemsByPageViews(groups.great),
-    needsImprovement: sortItemsByPageViews(groups.needsImprovement),
-    poor: sortItemsByPageViews(groups.poor),
-  };
+  return groupByStatus(routes, metric, (route) => ({
+    label: route.route,
+    pageViews: route.pageviews,
+  }));
 }
 
-/**
- * Group countries by their status for a given metric.
- * Items within each group are sorted by pageview count.
- */
 export function groupCountriesByStatus(
   countries: ReadonlyArray<CountryMetrics>,
   metric: MetricType,
 ): GroupedMetricData {
-  const groups: Record<RatingStatus, Array<MetricItemWithRaw>> = {
-    great: [],
-    needsImprovement: [],
-    poor: [],
-  };
-
-  for (const country of countries) {
-    const rawValue = getMetricRawValue(metric, country);
-    const status = getMetricStatus(metric, rawValue);
-    const displayValue = getMetricDisplayValue(metric, country);
-    const countryName = getCountryDisplayName(country.country);
-
-    groups[status].push({
-      id: country.country,
-      label: countryName,
-      pageViews: country.pageviews,
-      rawValue,
-      value: displayValue,
-    });
-  }
-
-  return {
-    great: sortItemsByPageViews(groups.great),
-    needsImprovement: sortItemsByPageViews(groups.needsImprovement),
-    poor: sortItemsByPageViews(groups.poor),
-  };
+  return groupByStatus(countries, metric, (country) => ({
+    id: country.country,
+    label: getCountryDisplayName(country.country),
+    pageViews: country.pageviews,
+  }));
 }

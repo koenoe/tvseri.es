@@ -1,35 +1,18 @@
-import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
+import { API_METRICS_SAMPLE_RATE } from '@tvseri.es/constants';
 import type { ApiMetricRecord } from '@tvseri.es/schemas';
 import type { MiddlewareHandler } from 'hono';
 import { Resource } from 'sst';
 
 import { getMetricsStore, runWithMetrics } from '@/lib/metrics';
+import { sendMessage } from '@/lib/sqs';
 import type { Variables } from './auth';
 
-const sqs = new SQSClient({});
-
-/**
- * Send a metric record to SQS for async processing.
- * Fire-and-forget - errors are logged but don't affect the response.
- */
+/** Fire-and-forget: an error is logged and never affects the response */
 const sendMetric = (record: ApiMetricRecord): void => {
-  sqs
-    .send(
-      new SendMessageCommand({
-        MessageBody: JSON.stringify(record),
-        QueueUrl: Resource.MetricsQueue.url,
-      }),
-    )
-    .catch((error) => {
-      console.error('[metrics] Failed to send metric to SQS:', error);
-    });
+  sendMessage(Resource.MetricsQueue.url, record).catch((error) => {
+    console.error('[metrics] Failed to send metric to SQS:', error);
+  });
 };
-
-/**
- * Sampling rate for API metrics (0.0 to 1.0).
- * Set to 0.1 to record 10% of requests, reducing SQS costs by ~90%.
- */
-const METRICS_SAMPLE_RATE = 0.1;
 
 // Webhook/scrobble tokens are long-lived credentials: never store them
 const REDACTED = '[redacted]';
@@ -49,26 +32,17 @@ const toRouteLabel = (routePath: string) =>
   routePath.replace(PARAM_CONSTRAINT, '');
 
 /**
- * Metrics middleware for collecting API performance data.
+ * Records a sample of requests (API_METRICS_SAMPLE_RATE, to keep SQS
+ * costs down) on the metrics queue: latency, status, client platform and
+ * country, and every dependency call (TMDB, MDBList, DynamoDB...).
  *
- * Captures:
- * - Request latency
- * - Status codes (including errors, see below)
- * - Cache status (from CloudFront header)
- * - Client context (platform, device, country)
- * - All dependency metrics (TMDB, MDBList, DynamoDB, etc.)
- *
- * Sends metrics to SQS for async batch processing to DynamoDB.
- * Only samples a percentage of requests to reduce SQS costs.
- *
- * Note: when a handler throws, Hono runs app.onError and sets its response on
+ * When a handler throws, Hono runs app.onError and sets its response on
  * `c.res` before control returns here, so `c.res.status` is the status the
  * client actually got (e.g. 409/503 mapped by onError, 504 from timeout()).
  */
 export const metrics = (): MiddlewareHandler<{ Variables: Variables }> => {
   return async (c, next) => {
-    // Skip metrics collection for non-sampled requests
-    const shouldSample = Math.random() < METRICS_SAMPLE_RATE;
+    const shouldSample = Math.random() < API_METRICS_SAMPLE_RATE;
     if (!shouldSample) {
       await next();
       return;
@@ -76,10 +50,10 @@ export const metrics = (): MiddlewareHandler<{ Variables: Variables }> => {
 
     const start = performance.now();
 
-    // Run the request within a metrics context to collect dependencies
+    // The context collects the dependency calls the request makes
     const store = await runWithMetrics(async () => {
       await next();
-      // Return store while still inside the context
+      // Read while still inside the context: it's gone after
       return getMetricsStore();
     });
 
@@ -87,23 +61,19 @@ export const metrics = (): MiddlewareHandler<{ Variables: Variables }> => {
     const timestamp = new Date().toISOString();
     const requestId = c.get('requestId') ?? crypto.randomUUID();
 
-    // Get client context from headers
     const userAgent = c.req.header('user-agent') ?? null;
     const platform = c.req.header('x-client-platform') ?? 'web';
     const clientVersion = c.req.header('x-client-version') ?? null;
 
-    // Get country from CloudFront
     const country = c.req.header('cloudfront-viewer-country') ?? 'unknown';
 
-    // Check if authenticated
     const authenticated = !!c.get('auth')?.user;
 
-    // Get query params (if any)
     const queryParams = c.req.query();
     const query =
       Object.keys(queryParams).length > 0 ? redactQuery(queryParams) : null;
 
-    // Get response size (may be 0 on errors)
+    // 0 when the response has no length (an error, a stream)
     const contentLength = c.res.headers.get('content-length');
     const responseSize = contentLength ? parseInt(contentLength, 10) : 0;
 
@@ -131,7 +101,6 @@ export const metrics = (): MiddlewareHandler<{ Variables: Variables }> => {
       type: 'api',
     };
 
-    // Send to SQS (fire and forget - don't block response)
     sendMetric(record);
   };
 };

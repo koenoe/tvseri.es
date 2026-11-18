@@ -1,11 +1,16 @@
 /// <reference path="../.sst/platform/config.d.ts" />
 
+import { alarmOnDeadLetters } from './alerts';
 import * as dynamo from './dynamo';
 
-/**
- * Dead Letter Queue for metrics that fail after all retries.
- */
-export const metricsDlq = new sst.aws.Queue('MetricsDLQ');
+const metricsDlq = new sst.aws.Queue('MetricsDLQ', {
+  transform: {
+    queue: {
+      messageRetentionSeconds: 1_209_600, // 14 days (max), like the other DLQs
+    },
+  },
+});
+alarmOnDeadLetters('MetricsDLQ', metricsDlq);
 
 export const metricsQueue = new sst.aws.Queue('MetricsQueue', {
   dlq: {
@@ -26,45 +31,38 @@ metricsQueue.subscribe(
   },
   {
     batch: {
-      partialResponses: true, // Enable partial batch failure reporting
-      size: 500, // Max batch size - fewer Lambda invocations
-      // Max allowed: metrics are fire-and-forget, so fuller batches (fewer
-      // invocations) beat lower latency. Keep visibilityTimeout in sync.
+      partialResponses: true, // handler returns batchItemFailures per message
+      size: 500,
+      // The longest window SQS allows: metrics are fire-and-forget, so fuller
+      // batches (fewer invocations) beat lower latency. Keep
+      // visibilityTimeout in sync.
       window: '300 seconds',
     },
   },
 );
 
 /**
- * Daily Web Vitals aggregation cron job.
- * Runs at 00:05 UTC to aggregate the previous day's Web Vitals data.
+ * Daily metrics aggregation: one Lambda, one schedule per aggregation, each
+ * aggregating the previous day's raw metrics. Both kinds reach the raw table
+ * through the queue above, whose batching window holds the day's last ones
+ * for up to 300 s (more after a failed batch's visibility timeout), so the
+ * runs start well after midnight.
  */
-export const webVitalsAggregateCron = new sst.aws.Cron(
-  'WebVitalsAggregateCron',
-  {
-    function: {
-      handler: 'apps/api/src/lambdas/metricsAggregateWebVitals.handler',
-      link: [dynamo.metricsRaw, dynamo.metricsWebVitals],
-      memory: '512 MB',
-      timeout: '5 minutes',
-    },
-    schedule: 'cron(5 0 * * ? *)', // Daily at 00:05 UTC
-  },
-);
+const metricsAggregate = new sst.aws.Function('MetricsAggregate', {
+  handler: 'apps/api/src/lambdas/metricsAggregate.handler',
+  link: [dynamo.metricsRaw, dynamo.metricsApi, dynamo.metricsWebVitals],
+  memory: '512 MB',
+  timeout: '5 minutes',
+});
 
-/**
- * Daily API metrics aggregation cron job.
- * Runs at 00:10 UTC to aggregate the previous day's API metrics data.
- */
-export const apiMetricsAggregateCron = new sst.aws.Cron(
-  'ApiMetricsAggregateCron',
-  {
-    function: {
-      handler: 'apps/api/src/lambdas/metricsAggregateApi.handler',
-      link: [dynamo.metricsRaw, dynamo.metricsApi],
-      memory: '512 MB',
-      timeout: '5 minutes',
-    },
-    schedule: 'cron(10 0 * * ? *)', // Daily at 00:10 UTC
-  },
-);
+new sst.aws.Cron('WebVitalsAggregateCron', {
+  event: { aggregation: 'web-vitals' },
+  function: metricsAggregate,
+  schedule: 'cron(20 0 * * ? *)', // Daily at 00:20 UTC
+});
+
+new sst.aws.Cron('ApiMetricsAggregateCron', {
+  event: { aggregation: 'api' },
+  function: metricsAggregate,
+  schedule: 'cron(25 0 * * ? *)', // Daily at 00:25 UTC
+});

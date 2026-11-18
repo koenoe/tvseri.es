@@ -1,0 +1,166 @@
+/*
+ * The season line: a 4px
+ * track per episode inside a 36px hit area, its state in `::before`, the
+ * hover / run highlight in `::after` (opacity only). Pseudo-elements and
+ * sibling states read better here than as utilities on up to 200 segments.
+ */
+.line {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  height: 36px;
+  margin: -4px 0;
+  border-radius: 4px;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.line:focus-visible,
+.line.anchored {
+  outline: 2px solid var(--color-white);
+  outline-offset: 4px;
+}
+
+.seg {
+  position: relative;
+  height: 36px;
+  min-width: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.seg::before,
+.seg::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  right: 0;
+  left: 0;
+  height: 4px;
+  border-radius: 2px;
+}
+
+.seg::before {
+  background: rgb(255 255 255 / 0.12);
+}
+
+.seg::after {
+  background: rgb(255 255 255 / 0.55);
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.w::before {
+  background: var(--color-white);
+}
+
+.nd::before {
+  background: rgb(255 255 255 / 0.45);
+}
+
+.sk::before {
+  background: rgb(255 255 255 / 0.05);
+}
+
+.nx::before {
+  background: rgb(0 255 255 / 0.55);
+}
+
+.na {
+  cursor: default;
+}
+
+/* the viewer's marks didn't load: the line is off (the core refuses it) */
+.locked {
+  opacity: 0.4;
+}
+
+.locked .seg {
+  cursor: default;
+}
+
+.na::before {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px rgb(255 0 128 / 0.45);
+}
+
+/*
+ * the run being painted: a softer white to mark (it will be watched, beside
+ * the solid white of what is), a cleared outline to unmark; cyan stays Next
+ * up's alone
+ */
+.run::after {
+  opacity: 1;
+  background: rgb(255 255 255 / 0.6);
+}
+
+.run.unrun::before {
+  background: rgb(255 255 255 / 0.12);
+}
+
+.run.unrun::after {
+  opacity: 1;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.7);
+}
+
+.tip,
+.label {
+  position: absolute;
+  z-index: 30;
+  flex-direction: column;
+  gap: 2px;
+  width: max-content;
+  max-width: 280px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-page) 75%, black);
+  color: rgb(255 255 255 / 0.6);
+  font-size: 12px;
+  line-height: 20px;
+  text-align: left;
+  pointer-events: none;
+}
+
+.tip b,
+.label b {
+  font-weight: 600;
+  color: var(--color-white);
+}
+
+/* hover previews one episode, mouse only */
+.tip {
+  bottom: 30px;
+  left: 50%;
+  display: none;
+  transform: translateX(-50%);
+  box-shadow:
+    0 10px 30px -8px rgb(0 0 0 / 0.8),
+    0 0 0 1px rgb(255 255 255 / 0.1);
+}
+
+@media (hover: hover) {
+  .line:not(.dragging) .seg:not(.na):hover::after {
+    opacity: 1;
+  }
+
+  .line:not(.dragging) .seg:hover .tip {
+    display: flex;
+  }
+}
+
+/* the floating label above the run while dragging */
+.label {
+  z-index: 31;
+  bottom: 34px;
+  display: flex;
+  box-shadow:
+    0 10px 30px -8px rgb(0 0 0 / 0.8),
+    0 0 0 1px rgb(255 255 255 / 0.1);
+}

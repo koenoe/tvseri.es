@@ -16,4 +16,7 @@ export type Movie = Omit<
   | 'seasons'
   | 'status'
   | 'type'
->;
+> & {
+  /** YYYY-MM-DD, when TMDB knows it (Known for: "Film · 2015") */
+  releaseDate?: string;
+};

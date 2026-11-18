@@ -1,0 +1,131 @@
+name: e2e
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Format, lint, unused code, types and the unit tests (Vitest, every package)
+  checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Cache turbo setup
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: '.node-version'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Format and lint
+        run: pnpm format-and-lint
+
+      - name: Check for unused code
+        run: pnpm knip
+
+      - name: Check types
+        run: pnpm check-types
+
+      - name: Test
+        run: pnpm test
+
+  # The web's Playwright suite against its stub API and auth server: no
+  # secrets, no AWS
+  e2e:
+    # macOS: the layout specs measure rendered text to the pixel, and Linux
+    # Chromium's font rendering differs from the Macs they were written on
+    runs-on: macos-latest
+
+    # Four shards on two workers each, plus the job's own install, browsers
+    # and build (about 2 minutes)
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: '.node-version'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install browsers
+        run: pnpm --filter @tvseri.es/web exec playwright install --only-shell chromium webkit
+
+      # Classic scrollbars, drawn: the runner has classic ones, and with
+      # Playwright's --hide-scrollbars the page reserves their 15px gutter
+      # while clientWidth reads the whole window, a state no browser has
+      # (`E2E_CLASSIC_SCROLLBARS`, playwright.config.ts)
+      #
+      # Two workers, set: the runners differ in cores, and Playwright's default
+      # (half of them) gave some shards 1 worker and others 2, 7.5 against 2.5
+      # minutes for the same share of tests
+      #
+      # Playwright splits the tests, in file order, into equal counts, but the
+      # files are not equally slow. The weights set each shard's share of the
+      # tests (Playwright's own, undocumented `PWTEST_SHARD_WEIGHTS`). Recut
+      # them into equal time from the per-test durations the log lists, when
+      # the shards' "passed (Xm)" lines drift apart.
+      - name: E2E (shard ${{ matrix.shard }} of 4)
+        env:
+          E2E_CLASSIC_SCROLLBARS: '1'
+          PWTEST_SHARD_WEIGHTS: '208:154:152:149'
+        run: pnpm --filter @tvseri.es/web e2e --shard=${{ matrix.shard }}/4 --workers=2
+
+      # The sign-in pages on their own harness (stand-ins for SES and Google,
+      # no secrets), on the lightest shard. Runs even when the web's shard
+      # failed, so one push reports both
+      - name: Auth e2e
+        if: ${{ matrix.shard == 4 && !cancelled() }}
+        run: pnpm --filter @tvseri.es/auth e2e
+
+      # What a failure looked like: traces (retain-on-failure) and screenshots
+      # (`pnpm exec playwright show-trace <zip>`)
+      - name: Upload the failures' traces
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-results-shard-${{ matrix.shard }}
+          path: |
+            apps/web/test-results/
+            apps/auth/test-results/
+          retention-days: 5
+          if-no-files-found: ignore

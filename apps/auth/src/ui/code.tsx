@@ -4,75 +4,109 @@ import type {
   CodeProviderOptions,
   CodeProviderState,
 } from '@openauthjs/openauth/provider/code';
-import type { CodeUICopy as OpenAuthCodeUICopy } from '@openauthjs/openauth/ui/code';
-import { html } from 'hono/html';
-import { Layout } from './layout';
-import { LoadingDots } from './loading-dots';
 
-// The extra keys are for the errors added by our OpenAuth patch.
-type CodeUICopy = OpenAuthCodeUICopy &
-  Readonly<{
-    code_expired: string;
-    rate_limited: string;
-    send_failed: string;
-  }>;
-
-/**
- * Default copy for the Code UI.
- * Matches the defaults from @openauthjs/openauth/ui/code
- */
-const DEFAULT_COPY: CodeUICopy = {
-  button_continue: 'Continue',
-  code_didnt_get: "Didn't get code?",
-  code_expired: 'This code is no longer valid. Please request a new one.',
-  code_info: "We'll send a pin code to your email.",
-  code_invalid: 'Invalid code',
-  code_placeholder: 'Code',
-  code_resend: 'Resend',
-  code_resent: 'Code resent to ',
-  code_sent: 'Code sent to ',
-  email_invalid: 'Email address is not valid',
-  email_placeholder: 'Email',
-  rate_limited: 'Too many codes requested. Please try again later.',
-  send_failed: "We couldn't send the email. Please try again later.",
-};
+import { CodePage } from './codePage';
+import { CheckIcon, WarnIcon } from './icons';
+import type { NoteCopy } from './note';
+import { htmlPage } from './page';
+import { StartPage } from './start';
 
 // Server-side sanity check only; the real proof is receiving the code.
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export interface CodeUIOptions {
+const RESENT: NoteCopy = {
+  body: 'Only the newest one works.',
+  icon: CheckIcon,
+  title: 'New code sent.',
+  tone: 'ok',
+};
+
+const warn = (title: string, body: string): NoteCopy => ({
+  body,
+  icon: WarnIcon,
+  title,
+  tone: 'warn',
+});
+
+export type CodeUIOptions = Readonly<{
+  /** How long a sent code works, in seconds: the page says it */
+  codeTtl: number;
+  /** The issuer's providers, so the start state draws the same start page */
+  providers: Readonly<Record<string, string>>;
   sendCode: (claims: Record<string, string>, code: string) => Promise<void>;
-  copy?: Partial<CodeUICopy>;
-}
+  site: string;
+}>;
 
+const formValue = (form: FormData | undefined, name: string) => {
+  const value = form?.get(name);
+  return typeof value === 'string' ? value : '';
+};
+
+/**
+ * A claim the provider must not act on: the honeypot (bots fill hidden
+ * fields; `request` redirects these back to the start) or not an address.
+ * Only trimmed here: the provider's storage key and the user lookup
+ * normalise the address themselves.
+ */
+const checkClaims = (
+  claims: Record<string, string>,
+): CodeProviderError | undefined => {
+  if (claims.verify_email) {
+    return { key: 'verify_email', type: 'invalid_claim', value: '' };
+  }
+  const email = (claims.email ?? '').trim();
+  if (!EMAIL_PATTERN.test(email)) {
+    return { key: 'email', type: 'invalid_claim', value: email };
+  }
+  return undefined;
+};
+
+/**
+ * The email code provider's UI. Its start state is the start page itself
+ * (the form there posts `action=request` here), so a failed send shows on
+ * the page the person was on, with what they typed put back. The code state
+ * is the code page.
+ */
 export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
-  const copy: CodeUICopy = {
-    ...DEFAULT_COPY,
-    ...options.copy,
+  const hasGoogle = Object.hasOwn(options.providers, 'google');
+  // Email refused (a failed send, then this address's 5 codes in 15
+  // minutes): say so plainly and lead with Google, which works now. The
+  // Google button, already first, takes the focus.
+  const startNotes: Partial<Record<CodeProviderError['type'], NoteCopy>> = {
+    rate_limited: warn(
+      'Email codes for this address are paused for 15 minutes.',
+      hasGoogle ? 'Continue with Google to sign in now.' : 'Ask again then.',
+    ),
+    send_failed: warn(
+      'Email codes are unavailable right now.',
+      hasGoogle
+        ? 'Continue with Google to sign in now, or try email again later.'
+        : 'Try again in a few minutes.',
+    ),
   };
-
-  const errorMessages: Readonly<Record<CodeProviderError['type'], string>> = {
-    code_expired: copy.code_expired,
-    invalid_claim: copy.email_invalid,
-    invalid_code: copy.code_invalid,
-    rate_limited: copy.rate_limited,
-    send_failed: copy.send_failed,
+  // A failed resend keeps the person on the code page (our patch)
+  const codeNotes: Partial<Record<CodeProviderError['type'], NoteCopy>> = {
+    rate_limited: warn(
+      'That’s 5 codes in 15 minutes.',
+      'Use the newest one, or ask again in a few minutes.',
+    ),
+    send_failed: warn(
+      'We couldn’t send a new code.',
+      'Use the newest one, or try again in a minute.',
+    ),
   };
 
   return {
+    // Before anything is counted or sent (our patch)
+    checkClaims: async (claims) => checkClaims(claims),
     request: async (
       _req: Request,
       state: CodeProviderState,
       form?: FormData,
       error?: CodeProviderError,
     ): Promise<Response> => {
-      const errorMessage = error ? errorMessages[error.type] : undefined;
-      const alert = errorMessage ? (
-        <div data-component="form-alert">{errorMessage}</div>
-      ) : null;
-
-      // Honeypot: bots fill hidden fields, humans don't see them
-      if (form?.get('verify_email')) {
+      // Honeypot: bots fill hidden fields, people don't see them
+      if (formValue(form, 'verify_email')) {
         return new Response(null, {
           headers: { Location: '/code/authorize' },
           status: 302,
@@ -80,282 +114,74 @@ export function CodeUI(options: CodeUIOptions): CodeProviderOptions {
       }
 
       if (state.type === 'start') {
-        // Set again after a failed first step (invalid email, rate limited,
-        // send failed) so the user doesn't have to retype it.
-        const submittedEmail = form?.get('email');
-        const email = typeof submittedEmail === 'string' ? submittedEmail : '';
-        const jsx = (
-          <Layout>
-            {html`
-              <script>
-                function disableSubmitButton(event) {
-                  const form = event.target;
-                  const button = form.querySelector('[data-component="button"]');
-                  if (button) {
-                    button.setAttribute('data-loading', 'true');
-                    if (button instanceof HTMLButtonElement) {
-                      button.disabled = true;
-                    }
-                  }
-                }
-              </script>
-            `}
-            <form
-              data-component="form"
-              method="post"
-              onsubmit="disableSubmitButton(event)"
-            >
-              {alert}
-              <input name="action" type="hidden" value="request" />
-              <div aria-hidden="true" data-component="form-verify">
-                <input
-                  autoComplete="off"
-                  name="verify_email"
-                  tabIndex={-1}
-                  type="email"
-                />
-              </div>
-              <input
-                autofocus
-                data-1p-ignore
-                data-component="input"
-                id="email"
-                inputMode="email"
-                name="email"
-                placeholder={copy.email_placeholder}
-                required
-                type="email"
-                value={email}
-              />
-              <button data-component="button" type="submit">
-                <span data-slot="text">{copy.button_continue}</span>
-                <LoadingDots />
-              </button>
-            </form>
-          </Layout>
+        const emailError = error?.type === 'invalid_claim';
+        const emailRefused =
+          error?.type === 'send_failed' || error?.type === 'rate_limited';
+        return htmlPage(
+          <StartPage
+            email={formValue(form, 'email')}
+            emailError={emailError}
+            focus={emailRefused && hasGoogle ? 'provider' : undefined}
+            note={error ? startNotes[error.type] : undefined}
+            providers={options.providers}
+            site={options.site}
+          />,
         );
-
-        return new Response(jsx.toString(), {
-          headers: {
-            'Content-Type': 'text/html',
-          },
-        });
       }
 
       if (state.type === 'code') {
-        const jsx = (
-          <Layout>
-            {html`
-              <script>
-                function getCodeInputs() {
-                  return Array.from(document.querySelectorAll('[data-element="code"]')).filter(
-                    (el) => el instanceof HTMLInputElement,
-                  );
-                }
-
-                function getHiddenCodeInput() {
-                  return document.querySelector('input[name="code"]');
-                }
-
-                function getCodeFormElement() {
-                  return document.querySelector('form[data-form="code"]');
-                }
-
-                function disableCodeInputs() {
-                  getCodeInputs().forEach((input) => {
-                    input.disabled = true;
-                  });
-                }
-
-                function updateCodeValue() {
-                  const values = getCodeInputs().map((input) => input.value);
-                  const hiddenInput = getHiddenCodeInput();
-                  if (hiddenInput instanceof HTMLInputElement) {
-                    hiddenInput.value = values.join('');
-                  }
-
-                  if (values.every((v) => v.length === 1) && values.length === 6) {
-                    disableCodeInputs();
-                    const codeForm = getCodeFormElement();
-                    if (codeForm instanceof HTMLFormElement) {
-                      if (typeof codeForm.requestSubmit === 'function') {
-                        codeForm.requestSubmit();
-                      } else {
-                        codeForm.submit();
-                      }
-                    }
-                  }
-                }
-
-                function focusNextInput(current) {
-                  if (!(current instanceof HTMLInputElement)) {
-                    return;
-                  }
-                  const all = getCodeInputs();
-                  const idx = all.indexOf(current);
-                  if (idx > -1) {
-                    all[idx + 1]?.focus();
-                  }
-                }
-
-                function focusPreviousInput(current) {
-                  if (!(current instanceof HTMLInputElement)) {
-                    return;
-                  }
-                  const all = getCodeInputs();
-                  const idx = all.indexOf(current);
-                  if (idx > -1) {
-                    all[idx - 1]?.focus();
-                  }
-                }
-
-                function handleCodePaste(event) {
-                  event.preventDefault();
-                  const paste = (event.clipboardData || window.clipboardData).getData('text');
-                  const digits = paste.replace(/\D/g, '').slice(0, 6).split('');
-                  const all = getCodeInputs();
-
-                  digits.forEach((digit, i) => {
-                    if (all[i]) {
-                      all[i].value = digit;
-                    }
-                  });
-
-                  const focusIdx = Math.min(digits.length, all.length - 1);
-                  all[focusIdx]?.focus();
-                  updateCodeValue();
-                }
-
-                function handleCodeInput(event) {
-                  const target = event.target;
-                  if (!(target instanceof HTMLInputElement)) {
-                    return;
-                  }
-                  const value = target.value.replace(/\D/g, '');
-                  target.value = value.slice(-1);
-
-                  if (value.length > 0) {
-                    focusNextInput(target);
-                  }
-                  updateCodeValue();
-                }
-
-                function handleCodeKeyDown(event) {
-                  const target = event.target;
-                  if (!(target instanceof HTMLInputElement)) {
-                    return;
-                  }
-                  if (event.key === 'Backspace') {
-                    if (target.value === '') {
-                      focusPreviousInput(target);
-                    } else {
-                      target.value = '';
-                    }
-                    updateCodeValue();
-                  } else if (event.key === 'ArrowLeft') {
-                    event.preventDefault();
-                    focusPreviousInput(target);
-                  } else if (event.key === 'ArrowRight') {
-                    event.preventDefault();
-                    focusNextInput(target);
-                  }
-                }
-
-                function handleCodeFocus(event) {
-                  const target = event.target;
-                  if (target instanceof HTMLInputElement) {
-                    target.select();
-                  }
-                }
-
-                function handleCodeFormSubmit() {
-                  disableCodeInputs();
-                }
-              </script>
-            `}
-            <form
-              data-component="form"
-              data-form="code"
-              method="post"
-              onsubmit="handleCodeFormSubmit()"
-            >
-              {alert}
-              <input name="action" type="hidden" value="verify" />
-              <input name="code" type="hidden" value="" />
-              <div data-component="code-inputs">
-                {[0, 1, 2, 3, 4, 5].map((i) => (
-                  <input
-                    aria-label={`Digit ${i + 1} of verification code`}
-                    autoComplete={i === 0 ? 'one-time-code' : 'off'}
-                    autofocus={i === 0}
-                    data-1p-ignore
-                    data-component="code-input"
-                    data-element="code"
-                    inputMode="numeric"
-                    key={i}
-                    maxLength={1}
-                    onfocus="handleCodeFocus(event)"
-                    oninput="handleCodeInput(event)"
-                    onkeydown="handleCodeKeyDown(event)"
-                    onpaste="handleCodePaste(event)"
-                    pattern="[0-9]*"
-                    required
-                    type="text"
-                  />
-                ))}
-              </div>
-            </form>
-            <form method="post">
-              {Object.entries(state.claims).map(([key, value]) => (
-                <input key={key} name={key} type="hidden" value={value} />
-              ))}
-              <input name="action" type="hidden" value="resend" />
-              <div data-component="form-footer">
-                <span>{copy.code_didnt_get}</span>
-                <button data-component="link" type="submit">
-                  {copy.code_resend}
-                </button>
-              </div>
-            </form>
-          </Layout>
+        const action = formValue(form, 'action');
+        const fresh = !error && (action === 'request' || action === 'resend');
+        const note =
+          (error ? codeNotes[error.type] : undefined) ??
+          (fresh && state.resend ? RESENT : undefined);
+        const codeState =
+          error?.type === 'code_expired'
+            ? 'expired'
+            : error?.type === 'invalid_code'
+              ? 'wrong'
+              : 'typing';
+        const code =
+          codeState === 'wrong'
+            ? formValue(form, 'code').replace(/\D/g, '').slice(0, 6)
+            : '';
+        return htmlPage(
+          <CodePage
+            claims={state.claims}
+            code={code}
+            codeTtl={options.codeTtl}
+            fresh={fresh}
+            note={note}
+            site={options.site}
+            state={codeState}
+          />,
         );
-
-        return new Response(jsx.toString(), {
-          headers: {
-            'Content-Type': 'text/html',
-          },
-        });
       }
 
-      // Unknown state - redirect to start
+      // Unknown state: back to the start
       return new Response(null, {
-        headers: {
-          Location: '/code/authorize',
-        },
+        headers: { Location: '/code/authorize' },
         status: 302,
       });
     },
     // Returning an error means nothing was sent: the provider then records
     // nothing, so the honeypot and failures don't use up anyone's limit.
     sendCode: async (claims, code) => {
-      // Honeypot: bots fill hidden fields, humans don't see them. `request`
-      // redirects these back to the start.
-      if (claims.verify_email) {
-        console.log('Honeypot triggered, hihi');
-        return { key: 'verify_email', type: 'invalid_claim', value: '' };
+      const invalid = checkClaims(claims);
+      if (invalid) {
+        return invalid;
       }
-
-      // Not normalised here: the provider's storage key and the user lookup do that.
-      const email = claims.email ?? '';
-      if (!EMAIL_PATTERN.test(email)) {
-        return { key: 'email', type: 'invalid_claim', value: email };
-      }
+      const email = (claims.email ?? '').trim();
 
       try {
-        await options.sendCode(claims, code);
+        await options.sendCode({ ...claims, email }, code);
       } catch (error) {
-        // Don't surface raw SES errors; no PII in the log
-        console.error('Failed to send code', error);
+        // Don't surface raw SES errors. Only the error's name is logged: SES
+        // puts a refused address in its message
+        console.error(
+          'Failed to send code',
+          error instanceof Error ? error.name : 'UnknownError',
+        );
         return { type: 'send_failed' };
       }
     },

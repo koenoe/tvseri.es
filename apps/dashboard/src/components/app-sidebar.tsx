@@ -1,12 +1,5 @@
 import { Link, useRouterState } from '@tanstack/react-router';
-import {
-  BarChart3,
-  Cloud,
-  Globe,
-  Layers,
-  LogOut,
-  type LucideIcon,
-} from 'lucide-react';
+import { Globe, Layers, LogOut, type LucideIcon } from 'lucide-react';
 import { memo } from 'react';
 
 import logo from '@/assets/logo.svg';
@@ -16,7 +9,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -43,18 +35,40 @@ const NAV_MAIN: ReadonlyArray<NavItem> = [
   },
 ];
 
-const NAV_AWS: ReadonlyArray<NavItem> = [
-  {
-    icon: Cloud,
-    title: 'Lambda',
-    url: '/aws/lambda',
-  },
-  {
-    icon: BarChart3,
-    title: 'CDN',
-    url: '/aws/cdn',
-  },
-];
+type NavGroupProps = Readonly<{
+  currentPath: string;
+  items: ReadonlyArray<NavItem>;
+}>;
+
+function NavGroup({ currentPath, items }: NavGroupProps) {
+  return (
+    <SidebarGroup>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((item) => {
+            const isActive = currentPath.startsWith(item.url);
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={isActive}
+                  tooltip={item.title}
+                >
+                  <Link className="gap-3!" to={item.url}>
+                    <item.icon className="size-4.5!" />
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+}
+
+NavGroup.displayName = 'NavGroup';
 
 function AppSidebarComponent(props: React.ComponentProps<typeof Sidebar>) {
   const currentPath = useRouterState({
@@ -81,47 +95,7 @@ function AppSidebarComponent(props: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {NAV_MAIN.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={currentPath.startsWith(item.url)}
-                    tooltip={item.title}
-                  >
-                    <Link className="gap-3!" to={item.url}>
-                      <item.icon className="size-4.5!" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>AWS</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {NAV_AWS.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={currentPath.startsWith(item.url)}
-                    tooltip={item.title}
-                  >
-                    <Link className="gap-3!" to={item.url}>
-                      <item.icon className="size-4.5!" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <NavGroup currentPath={currentPath} items={NAV_MAIN} />
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>

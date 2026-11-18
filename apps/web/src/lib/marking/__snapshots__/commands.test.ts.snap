@@ -1,0 +1,33 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`every mark toast: Undo, and Use release dates only for a bulk mark > Finished it all: no date, release dates offered for the whole show 1`] = `
+{
+  "action": "Undo",
+  "secondary": "Use release dates",
+  "title": "Marked the whole series · I don’t remember when · incl. 1 skipped",
+}
+`;
+
+exports[`every mark toast: Undo, and Use release dates only for a bulk mark > I’m up to: names the run and what it unmarked, offers release dates for the same episodes 1`] = `
+{
+  "action": "Undo",
+  "secondary": "Use release dates",
+  "title": "Marked up to S03E04 · Just now · incl. 1 skipped · unmarked S03E08",
+}
+`;
+
+exports[`every mark toast: Undo, and Use release dates only for a bulk mark > a picker answer for a set, and the same set from its own release-dates press 1`] = `
+{
+  "action": "Undo",
+  "secondary": "Use release dates",
+  "title": "Marked S03E05–S03E06 · Just now",
+}
+`;
+
+exports[`every mark toast: Undo, and Use release dates only for a bulk mark > a picker answer for a set, and the same set from its own release-dates press 2`] = `
+{
+  "action": "Undo",
+  "secondary": undefined,
+  "title": "Marked S03E05–S03E06 · On release day",
+}
+`;

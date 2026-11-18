@@ -34,10 +34,8 @@ export default $config({
     // (infra/dashboard.ts creates the `Dashboard` StaticSite).
     const originShieldExcluded = new Set(['DashboardCdnDistribution']);
 
-    // Global transform to apply geographic restrictions to all CloudFront distributions
-    // and enable origin shield (except for the distributions above).
-    // Note: this runs after component-level transforms, so the exclusion has to
-    // live here; a `transform.cdn` on the StaticSite would be overwritten.
+    // Runs after component-level transforms, so the Origin Shield exclusion
+    // has to live here: a `transform.cdn` on the StaticSite would be overwritten.
     $transform(aws.cloudfront.Distribution, (args, _opts, name) => {
       args.restrictions = {
         geoRestriction: {
@@ -47,15 +45,15 @@ export default $config({
       };
 
       if (!originShieldExcluded.has(name)) {
-        // biome-ignore lint/suspicious/noExplicitAny: sort out later
-        const origins = (args.origins || []) as any[];
-        args.origins = origins.map((origin) => ({
-          ...origin,
-          originShield: {
-            enabled: true,
-            originShieldRegion: $app.providers?.aws.region ?? 'eu-west-2',
-          },
-        }));
+        args.origins = $output(args.origins ?? []).apply((origins) =>
+          origins.map((origin) => ({
+            ...origin,
+            originShield: {
+              enabled: true,
+              originShieldRegion: $app.providers?.aws.region ?? 'eu-west-2',
+            },
+          })),
+        );
       }
 
       args.priceClass = 'PriceClass_100';
@@ -65,39 +63,58 @@ export default $config({
 
     // The API Router's viewer-request function: SST ships its own part of the
     // code unminified, which leaves little room under CloudFront's 10 KB
-    // function limit. Whitespace and syntax are minified at deploy; names are
-    // kept, because CloudFront calls the top-level `handler` by name. es2017
-    // keeps esbuild from introducing syntax the CloudFront runtime may lack.
+    // function limit, so it's minified at deploy (infra/edgeFunctionMinify.ts).
     $transform(aws.cloudfront.Function, (args, _opts, name) => {
       if (name !== 'ApiRouterCloudfrontFunctionRequest') {
         return;
       }
 
       args.code = $resolve([args.code]).apply(async ([code]) => {
-        const { transform } = await import('esbuild');
-        const result = await transform(code, {
-          loader: 'js',
-          minifySyntax: true,
-          minifyWhitespace: true,
-          target: 'es2017',
-        });
-        return result.code;
+        const { minifyEdgeFunction } = await import(
+          './infra/edgeFunctionMinify'
+        );
+        return minifyEdgeFunction(code);
       });
     });
 
-    // Global transform to standardize all Lambda functions
+    // Point-in-time recovery on every production table (the app's and the
+    // auth service's), set here and nowhere else: any second of the last 35
+    // days can be restored, and there are no other backups. Other stages are
+    // disposable, so they skip its cost. Production tables also can't be
+    // deleted; PR stages are removed when the PR closes.
+    $transform(sst.aws.Dynamo, (args) => {
+      args.deletionProtection ??= isProduction;
+      const table = args.transform?.table;
+      args.transform = {
+        ...args.transform,
+        table: (tableArgs, opts, name) => {
+          tableArgs.pointInTimeRecovery = { enabled: isProduction };
+          // Pulumi's protect (engine-side, never sent to AWS, so no change
+          // on the tables): a deploy that would delete or replace a
+          // production table fails instead. With removal `retain` a replace
+          // would otherwise orphan the old table and point the app at a new
+          // empty one; deletion protection alone never sees that delete.
+          opts.protect = isProduction;
+          if (typeof table === 'function') {
+            table(tableArgs, opts, name);
+          } else if (table) {
+            Object.assign(tableArgs, table);
+          }
+        },
+      };
+    });
+
     $transform(sst.aws.Function, (args) => {
       args.architecture = 'arm64';
       args.runtime = 'nodejs24.x';
-      // No @aws-sdk/* esbuild externals anywhere: a bundled SDK cold-starts faster than the
-      // runtime-provided one (AWS guidance). Compare REPORT "Init Duration" before/after.
+      // No @aws-sdk/* esbuild externals anywhere: a bundled SDK cold-starts
+      // faster than the runtime-provided one.
       args.nodejs = {
         ...args.nodejs,
         minify: true,
       };
     });
 
-    // Base infrastructure with no dependencies
     await import('./infra/dns');
     await import('./infra/email');
     await import('./infra/dominantColor');
@@ -108,21 +125,16 @@ export default $config({
       await import('./infra/distributionDisabler');
     }
 
-    // Queue consumers that depend on base infrastructure
-    // scrobbleQueue: depends on dynamo, dominantColor
     await import('./infra/scrobbleQueue');
-    // metrics: depends on dynamo
     await import('./infra/metrics');
-    // watchedStatus: depends on dynamo, dominantColor
     await import('./infra/watchedStatus');
-
-    // Auth service that depends on dns, dynamo, email
+    await import('./infra/imports');
     await import('./infra/auth');
 
-    // API router that depends on auth, dns, dynamo, email, dominantColor, metricsQueue, scrobbleQueue, watchedStatusQueue
+    await import('./infra/deleteAccount');
+
     await import('./infra/api');
 
-    // Frontend apps that depend on api, auth, dns
     await import('./infra/web');
     await import('./infra/dashboard');
   },

@@ -1,0 +1,37 @@
+.a-link{font-weight:500;color:#fff;text-decoration:underline;text-decoration-color:rgba(255,255,255,.4);text-underline-offset:3px;}
+.a-link:hover{text-decoration-color:#fff;}
+.a-link[aria-disabled=true]{color:var(--w40);text-decoration:none;cursor:default;}
+.a-res{margin-top:16px;font-size:14px;line-height:24px;color:var(--w60);text-align:center;}
+.a-res .tn{font-variant-numeric:tabular-nums;}
+.a-pills{display:flex;gap:8px;justify-content:center;margin-top:16px;}
+.a-pill{display:inline-flex;gap:6px;align-items:center;height:32px;padding:0 12px;font-size:12px;font-weight:500;line-height:20px;color:var(--w80);background:rgba(255,255,255,.08);border-radius:999px;}
+.a-pill:hover{color:#fff;background:rgba(255,255,255,.14);}
+.a-pill .ico{width:13px;height:13px;}
+@media (pointer:coarse){.a-pills{display:none;}}
+/* the code field: ONE real input; with JS it is painted as six slots (input-otp pattern) */
+.a-otp{position:relative;display:flex;gap:8px;margin-bottom:16px;}
+.a-otp input{width:100%;height:64px;padding:0 0 0 .5em;font-size:var(--num);font-weight:700;font-variant-numeric:tabular-nums;color:#fff;text-align:center;letter-spacing:.5em;outline:none;background:rgba(0,0,0,.25);border:0;border-radius:12px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);}
+.a-otp input:focus{box-shadow:inset 0 0 0 1px rgba(255,255,255,.45);}
+.a-sl{display:none;}
+.js .a-otp input{position:absolute;inset:0;z-index:2;height:100%;padding:0;font-size:16px;font-weight:400;color:transparent;text-align:left;letter-spacing:2em;cursor:text;caret-color:transparent;background:transparent;border-radius:0;box-shadow:none;}
+.js .a-otp input::selection{background:transparent;}
+.js .a-sl{position:relative;display:flex;flex:1;align-items:center;justify-content:center;height:64px;background:rgba(0,0,0,.25);border-radius:12px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);transition:box-shadow .15s,opacity .15s;}
+.a-otp>div:nth-of-type(4){margin-left:8px;}
+.a-sl b{font-size:var(--num);font-weight:700;font-variant-numeric:tabular-nums;line-height:var(--numlh);color:#fff;}
+.a-sl b.pop{animation:aPop .12s cubic-bezier(.2,.8,.2,1) both;}
+@keyframes aPop{from{opacity:0;transform:scale(.6);}to{opacity:1;transform:none;}}
+.a-sl.on{box-shadow:inset 0 0 0 1px rgba(255,255,255,.45);}
+.a-sl.on.cr::after{position:absolute;top:18px;bottom:18px;left:50%;width:2px;margin-left:-1px;content:'';background:#fff;border-radius:1px;animation:aBlink 1s steps(1) infinite;}
+@keyframes aBlink{50%{opacity:0;}}
+.a-sl i{position:absolute;right:6px;bottom:-10px;left:6px;height:2px;overflow:hidden;background:rgba(255,255,255,.14);border-radius:1px;}
+.a-sl i::before{display:block;height:100%;content:'';background:var(--cyan);transform:scaleX(0);transform-origin:0 50%;transition:transform .18s cubic-bezier(.2,.8,.2,1);}
+.a-sl.f i::before{transform:scaleX(1);}
+.a-otp.bad .a-sl{box-shadow:inset 0 0 0 1px rgba(255,107,107,.7);}
+.a-otp.bad .a-sl i::before{background:var(--err);}
+.a-otp.shake{animation:aShake .3s cubic-bezier(.36,.07,.19,.97) both;}
+@keyframes aShake{20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(4px);}}
+.a-otp.dim .a-sl,.a-otp.dim input{opacity:.4;}
+.a-otp.sel .a-sl{background:rgba(255,107,107,.08);box-shadow:inset 0 0 0 1px rgba(255,107,107,.7);}
+[data-state=checking] .a-sl{box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);}
+[data-state=ok] .a-sl{box-shadow:inset 0 0 0 1px rgba(0,255,255,.5);}
+[data-state=wrong] #code-h,.a-pg:not([data-state=wrong]) #code-e{display:none;}

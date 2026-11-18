@@ -32,8 +32,9 @@
       "!**/next-env.d.ts",
       "!**/*.gen.ts",
       "!.claude",
-      "!docs/redesign/specs",
-      "!docs/redesign/boards"
+      "!**/design/icons",
+      "!**/design/logo",
+      "!docs"
     ],
     "maxSize": 1572864
   },
@@ -77,10 +78,32 @@
       }
     }
   },
-  "overrides": [{ "includes": [".editorconfig"] }, { "includes": ["LICENSE"] }],
+  "markdown": {
+    "formatter": {
+      "enabled": false
+    },
+    "linter": {
+      "enabled": false
+    }
+  },
+  "overrides": [
+    { "includes": [".editorconfig"] },
+    { "includes": ["LICENSE"] },
+    {
+      "includes": ["**/*.test.tsx"],
+      "linter": {
+        "rules": { "correctness": { "noComponentHookFactories": "off" } }
+      }
+    }
+  ],
   "vcs": {
     "clientKind": "git",
     "enabled": true,
     "useIgnoreFile": true
+  },
+  "yaml": {
+    "formatter": {
+      "quoteStyle": "single"
+    }
   }
 }

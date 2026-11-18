@@ -1,5 +1,3 @@
-import type { AttributeValue } from '@aws-sdk/client-dynamodb';
-import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
 import type {
   AggregatedApiMetrics,
@@ -17,36 +15,13 @@ import {
 import { Resource } from 'sst';
 
 import { batchGet } from '@/lib/db/batch';
+import { toPercent } from '@/lib/metrics/percent';
 
-const dynamoClient = new DynamoDBClient({});
-
-// ════════════════════════════════════════════════════════════════════════════
-// UTILITIES
-// ════════════════════════════════════════════════════════════════════════════
-
-/**
- * Generate date strings for a range of days ending yesterday.
- * We start from yesterday because the aggregation runs daily for the previous day,
- * so today's data doesn't exist yet.
- */
-export const getDateRange = (
-  days: number,
-): { dates: string[]; endDate: string; startDate: string } => {
-  const dates: string[] = [];
-  const now = new Date();
-
-  for (let i = 1; i <= days; i++) {
-    const date = new Date(now);
-    date.setDate(date.getDate() - i);
-    dates.push(date.toISOString().split('T')[0] as string);
-  }
-
-  return {
-    dates,
-    endDate: dates[0] as string,
-    startDate: dates[dates.length - 1] as string,
-  };
-};
+import {
+  metricsDynamo,
+  queryByPkAndPrefix as queryItemsByPrefix,
+  queryTimeSeries,
+} from '../reads';
 
 /**
  * Build the pk for a given date and optional filters.
@@ -71,48 +46,12 @@ export const buildPk = (
   return pk;
 };
 
-// ════════════════════════════════════════════════════════════════════════════
-// PRIMARY INDEX QUERIES
-// ════════════════════════════════════════════════════════════════════════════
-
-/**
- * Query by pk and sk prefix.
- */
-export const queryByPkAndPrefix = async (
-  pk: string,
-  skPrefix: string,
-): Promise<ApiMetricAggregate[]> => {
-  const items: ApiMetricAggregate[] = [];
-  let lastKey: Record<string, AttributeValue> | undefined;
-
-  do {
-    const result = await dynamoClient.send(
-      new QueryCommand({
-        ExclusiveStartKey: lastKey,
-        ExpressionAttributeNames: {
-          '#pk': 'pk',
-          '#sk': 'sk',
-        },
-        ExpressionAttributeValues: {
-          ':pk': { S: pk },
-          ':skPrefix': { S: skPrefix },
-        },
-        KeyConditionExpression: '#pk = :pk AND begins_with(#sk, :skPrefix)',
-        TableName: Resource.MetricsApiAggregated.name,
-      }),
-    );
-
-    if (result.Items) {
-      items.push(
-        ...result.Items.map((item) => unmarshall(item) as ApiMetricAggregate),
-      );
-    }
-
-    lastKey = result.LastEvaluatedKey;
-  } while (lastKey);
-
-  return items;
-};
+export const queryByPkAndPrefix = (pk: string, skPrefix: string) =>
+  queryItemsByPrefix<ApiMetricAggregate>(
+    Resource.MetricsApiAggregated.name,
+    pk,
+    skPrefix,
+  );
 
 /**
  * The SUMMARY aggregate of each date (with optional filters), in one
@@ -130,7 +69,7 @@ export const getSummaries = async (
       sk: { S: 'SUMMARY' },
     })),
     {},
-    dynamoClient,
+    metricsDynamo,
   );
 
   return items
@@ -138,148 +77,33 @@ export const getSummaries = async (
     .sort((a, b) => a.date.localeCompare(b.date));
 };
 
-// ════════════════════════════════════════════════════════════════════════════
-// GSI TIME-SERIES QUERIES
-// ════════════════════════════════════════════════════════════════════════════
-
-/**
- * Query endpoint time-series using GSI1 (EndpointTimeIndex).
- */
-export const queryEndpointTimeSeries = async (
+/** Query endpoint time-series using GSI1 (EndpointTimeIndex). */
+export const queryEndpointTimeSeries = (
   endpoint: string,
   startDate: string,
   endDate: string,
-): Promise<ApiMetricAggregate[]> => {
-  const items: ApiMetricAggregate[] = [];
-  let lastKey: Record<string, AttributeValue> | undefined;
-
-  do {
-    const result = await dynamoClient.send(
-      new QueryCommand({
-        ExclusiveStartKey: lastKey,
-        ExpressionAttributeNames: {
-          '#gsi1pk': 'GSI1PK',
-          '#gsi1sk': 'GSI1SK',
-        },
-        ExpressionAttributeValues: {
-          ':gsi1pk': { S: `E#${endpoint}` },
-          ':skEnd': { S: endDate },
-          ':skStart': { S: startDate },
-        },
-        IndexName: 'EndpointTimeIndex',
-        KeyConditionExpression:
-          '#gsi1pk = :gsi1pk AND #gsi1sk BETWEEN :skStart AND :skEnd',
-        TableName: Resource.MetricsApiAggregated.name,
-      }),
-    );
-
-    if (result.Items) {
-      items.push(
-        ...result.Items.map((item) => unmarshall(item) as ApiMetricAggregate),
-      );
-    }
-
-    lastKey = result.LastEvaluatedKey;
-  } while (lastKey);
-
-  return items;
-};
-
-/**
- * Query platform time-series using GSI2 (PlatformTimeIndex).
- */
-export const queryPlatformTimeSeries = async (
-  platform: string,
-  startDate: string,
-  endDate: string,
-): Promise<ApiMetricAggregate[]> => {
-  const items: ApiMetricAggregate[] = [];
-  let lastKey: Record<string, AttributeValue> | undefined;
-
-  do {
-    const result = await dynamoClient.send(
-      new QueryCommand({
-        ExclusiveStartKey: lastKey,
-        ExpressionAttributeNames: {
-          '#gsi2pk': 'GSI2PK',
-          '#gsi2sk': 'GSI2SK',
-        },
-        ExpressionAttributeValues: {
-          ':gsi2pk': { S: `P#${platform}` },
-          ':skEnd': { S: endDate },
-          ':skStart': { S: startDate },
-        },
-        IndexName: 'PlatformTimeIndex',
-        KeyConditionExpression:
-          '#gsi2pk = :gsi2pk AND #gsi2sk BETWEEN :skStart AND :skEnd',
-        TableName: Resource.MetricsApiAggregated.name,
-      }),
-    );
-
-    if (result.Items) {
-      items.push(
-        ...result.Items.map((item) => unmarshall(item) as ApiMetricAggregate),
-      );
-    }
-
-    lastKey = result.LastEvaluatedKey;
-  } while (lastKey);
-
-  return items;
-};
-
-/**
- * Query country time-series using GSI3 (CountryTimeIndex).
- */
-export const queryCountryTimeSeries = async (
-  country: string,
-  startDate: string,
-  endDate: string,
-): Promise<ApiMetricAggregate[]> => {
-  const items: ApiMetricAggregate[] = [];
-  let lastKey: Record<string, AttributeValue> | undefined;
-
-  do {
-    const result = await dynamoClient.send(
-      new QueryCommand({
-        ExclusiveStartKey: lastKey,
-        ExpressionAttributeNames: {
-          '#gsi3pk': 'GSI3PK',
-          '#gsi3sk': 'GSI3SK',
-        },
-        ExpressionAttributeValues: {
-          ':gsi3pk': { S: `C#${country}` },
-          ':skEnd': { S: endDate },
-          ':skStart': { S: startDate },
-        },
-        IndexName: 'CountryTimeIndex',
-        KeyConditionExpression:
-          '#gsi3pk = :gsi3pk AND #gsi3sk BETWEEN :skStart AND :skEnd',
-        TableName: Resource.MetricsApiAggregated.name,
-      }),
-    );
-
-    if (result.Items) {
-      items.push(
-        ...result.Items.map((item) => unmarshall(item) as ApiMetricAggregate),
-      );
-    }
-
-    lastKey = result.LastEvaluatedKey;
-  } while (lastKey);
-
-  return items;
-};
-
-// ════════════════════════════════════════════════════════════════════════════
-// AGGREGATION UTILITIES
-// ════════════════════════════════════════════════════════════════════════════
+) =>
+  queryTimeSeries<ApiMetricAggregate>({
+    endDate,
+    gsi: 'GSI1',
+    index: 'EndpointTimeIndex',
+    pk: `E#${endpoint}`,
+    startDate,
+    table: Resource.MetricsApiAggregated.name,
+  });
 
 /**
  * Aggregate multiple daily summaries into a single summary.
  * Uses histogram merging for accurate percentile calculation when histograms
  * are available, falling back to weighted averages for legacy data.
  */
+/**
+ * A stored day's error rate as a percentage, the unit of every rate the
+ * routes send: the aggregate item keeps it as a fraction.
+ */
+export const dayErrorRate = (day: Pick<ApiMetricAggregate, 'errorRate'>) =>
+  toPercent(day.errorRate, 1);
+
 export const aggregateSummaries = (
   items: ApiMetricAggregate[],
 ): AggregatedApiMetrics | null => {
@@ -288,7 +112,6 @@ export const aggregateSummaries = (
   const totalRequests = items.reduce((sum, item) => sum + item.requestCount, 0);
   if (totalRequests === 0) return null;
 
-  // Collect histograms from items and merge for accurate percentiles
   const histograms = items
     .map((item) => item.latency.histogram?.bins)
     .filter((bins): bins is number[] => bins !== undefined && bins.length > 0);
@@ -297,7 +120,6 @@ export const aggregateSummaries = (
 
   const mergedBins = mergeHistogramBins(histograms);
 
-  // Aggregate latency ratings if present
   let ratings: LatencyRatings | undefined;
   const itemsWithRatings = items.filter((item) => item.latency.ratings);
   if (itemsWithRatings.length > 0) {
@@ -320,7 +142,6 @@ export const aggregateSummaries = (
     ratings,
   };
 
-  // Sum status codes by category and individual codes
   const statusCodes: {
     clientError: number;
     codes: Record<string, number>;
@@ -340,7 +161,6 @@ export const aggregateSummaries = (
       statusCodes.redirect += item.statusCodes.redirect ?? 0;
       statusCodes.clientError += item.statusCodes.clientError ?? 0;
       statusCodes.serverError += item.statusCodes.serverError ?? 0;
-      // Merge individual codes
       if (item.statusCodes.codes) {
         for (const [code, count] of Object.entries(item.statusCodes.codes)) {
           statusCodes.codes[code] = (statusCodes.codes[code] ?? 0) + count;
@@ -349,9 +169,8 @@ export const aggregateSummaries = (
     }
   }
 
-  // Calculate error rate from status codes
   const totalErrors = statusCodes.clientError + statusCodes.serverError;
-  const errorRate = Math.round((totalErrors / totalRequests) * 10000) / 100;
+  const errorRate = toPercent(totalErrors, totalRequests);
 
   // Aggregate Apdex: sum counts across days, recalculate score
   const apdex: Apdex = {
@@ -375,15 +194,7 @@ export const aggregateSummaries = (
       ) / 100;
   }
 
-  // Aggregate dependencies if present
-  let dependencies:
-    | Record<
-        string,
-        DependencyStats & {
-          history?: Array<{ timestamp: string; value: number }>;
-        }
-      >
-    | undefined;
+  let dependencies: Record<string, DependencyStats> | undefined;
   const depsWithData = items.filter((item) => item.dependencies);
   if (depsWithData.length > 0) {
     const depData = new Map<
@@ -448,27 +259,33 @@ export const aggregateSummaries = (
 
         const topOperations = aggregateDependencyTopOperations(items, source);
 
-        const history = [...dailyStats.entries()]
-          .map(([date, data]) => ({
-            timestamp: date,
-            value: Math.round(
-              percentileFromLatencyHistogram(data.histogram, 75),
-            ),
-          }))
-          .sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+        const days = [...dailyStats.entries()].sort(([a], [b]) =>
+          a.localeCompare(b),
+        );
+        const toSeries = (
+          pick: (day: { errorCount: number; histogram: number[] }) => number,
+        ) =>
+          days.length > 1
+            ? days.map(([timestamp, day]) => ({ timestamp, value: pick(day) }))
+            : undefined;
+        const dayCount = (bins: number[]) =>
+          bins.reduce((sum, bin) => sum + bin, 0);
 
         dependencies[source] = {
           count: totalCount,
           errorCount,
-          errorRate:
-            totalCount > 0
-              ? Math.round((errorCount / totalCount) * 10000) / 100
-              : 0,
-          history: history.length > 1 ? history : undefined,
+          errorRate: toPercent(errorCount, totalCount),
+          errorRateHistory: toSeries((day) =>
+            toPercent(day.errorCount, dayCount(day.histogram)),
+          ),
+          history: toSeries((day) =>
+            Math.round(percentileFromLatencyHistogram(day.histogram, 75)),
+          ),
           p75: Math.round(percentileFromLatencyHistogram(mergedBins, 75)),
           p90: Math.round(percentileFromLatencyHistogram(mergedBins, 90)),
           p95: Math.round(percentileFromLatencyHistogram(mergedBins, 95)),
           p99: Math.round(percentileFromLatencyHistogram(mergedBins, 99)),
+          requestsHistory: toSeries((day) => dayCount(day.histogram)),
           throughput,
           topOperations: topOperations.length > 0 ? topOperations : undefined,
         };
@@ -476,8 +293,7 @@ export const aggregateSummaries = (
     }
   }
 
-  // Calculate throughput (requests per minute)
-  // Count unique dates to get the actual number of days with data
+  // Requests per minute, over the days that have data
   const uniqueDates = new Set(items.map((item) => item.date));
   const daysWithData = uniqueDates.size;
   const minutesInPeriod = daysWithData * 1440; // 1440 minutes per day
@@ -555,8 +371,7 @@ const aggregateDependencyTopOperations = (
     if (histograms.length === 0) continue;
 
     const mergedBins = mergeHistogramBins(histograms);
-    const errorRate =
-      totalCount > 0 ? Math.round((errorCount / totalCount) * 10000) / 100 : 0;
+    const errorRate = toPercent(errorCount, totalCount);
 
     aggregatedOps.push({
       codes: Object.fromEntries(codes),
@@ -636,18 +451,14 @@ export const aggregateDependencyOperationsWithSeries = (
     if (histograms.length === 0) continue;
 
     const mergedBins = mergeHistogramBins(histograms);
-    const errorRate =
-      totalCount > 0 ? Math.round((errorCount / totalCount) * 10000) / 100 : 0;
+    const errorRate = toPercent(errorCount, totalCount);
 
     const series = [...dailyData.entries()]
       .map(([date, data]) => {
         const dayCount = data.histogram.reduce((a, b) => a + b, 0);
         return {
           date,
-          errorRate:
-            dayCount > 0
-              ? Math.round((data.errorCount / dayCount) * 10000) / 100
-              : 0,
+          errorRate: toPercent(data.errorCount, dayCount),
           p75: Math.round(percentileFromLatencyHistogram(data.histogram, 75)),
         };
       })
@@ -670,3 +481,39 @@ export const aggregateDependencyOperationsWithSeries = (
 
   return result.sort((a, b) => b.count - a.count).slice(0, limit);
 };
+
+type ApiSort = 'requests' | 'errorRate' | 'p75' | 'p99' | 'apdex';
+
+type ApiSortable = Readonly<{
+  apdex?: Readonly<{ score: number }>;
+  errorRate: number;
+  latency: Readonly<{ p75: number; p99: number }>;
+  requestCount: number;
+}>;
+
+const apiSortValue = (row: ApiSortable, sortBy: ApiSort) => {
+  switch (sortBy) {
+    case 'apdex':
+      return row.apdex?.score ?? 0;
+    case 'errorRate':
+      return row.errorRate;
+    case 'p75':
+      return row.latency.p75;
+    case 'p99':
+      return row.latency.p99;
+    default:
+      return row.requestCount;
+  }
+};
+
+/** Sorts endpoint, platform or country rows in place by one of their numbers */
+export const sortApiRows = <T extends ApiSortable>(
+  rows: T[],
+  sortBy: ApiSort,
+  sortDir: 'asc' | 'desc',
+) =>
+  rows.sort((a, b) => {
+    const aVal = apiSortValue(a, sortBy);
+    const bVal = apiSortValue(b, sortBy);
+    return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
+  });

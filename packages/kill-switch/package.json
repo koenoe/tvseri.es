@@ -1,20 +1,21 @@
 {
   "dependencies": {
-    "@aws-sdk/client-cloudfront": "^3.1164.0",
-    "@aws-sdk/client-cloudwatch": "^3.1164.0",
-    "@aws-sdk/client-sns": "^3.1164.0",
+    "@aws-sdk/client-cloudfront": "^3.1169.0",
+    "@aws-sdk/client-cloudwatch": "^3.1169.0",
+    "@aws-sdk/client-sns": "^3.1169.0",
     "sst": "catalog:"
   },
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",
-    "@types/aws-lambda": "^8.10.164",
     "@types/node": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "5.1.0"
   },
   "name": "@tvseri.es/kill-switch",
   "private": true,
   "scripts": {
-    "check-types": "tsc"
+    "check-types": "tsc",
+    "test": "vitest run"
   },
   "type": "module",
   "version": "0.0.0"

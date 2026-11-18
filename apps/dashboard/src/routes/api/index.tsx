@@ -1,9 +1,7 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import type { SortingState } from '@tanstack/react-table';
-import { lazy, memo, Suspense, useCallback } from 'react';
+import { createFileRoute } from '@tanstack/react-router';
 
 import { ApdexCard, ApdexCardSkeleton } from '@/components/api/apdex-card';
-import { EndpointsTableSkeleton } from '@/components/api/endpoints-table';
+import { EndpointsSection } from '@/components/api/endpoints-table/endpoints-section';
 import {
   ErrorRateCard,
   ErrorRateCardSkeleton,
@@ -17,17 +15,17 @@ import {
   RequestsCardSkeleton,
 } from '@/components/api/requests-card';
 import { ApiHeader } from '@/components/api-header';
-import { useApiMetricsEndpoints, useApiMetricsSummary } from '@/lib/api/hooks';
+import { useApiMetricsSummary } from '@/lib/api/hooks';
 import { formatDependencies } from '@/lib/api-metrics';
-
-const EndpointsTable = lazy(() =>
-  import('@/components/api/endpoints-table').then((mod) => ({
-    default: mod.EndpointsTable,
-  })),
-);
+import {
+  type DaysValue,
+  DEFAULT_DAYS,
+  PAGE_SIZES,
+  parseDays,
+} from '@/lib/search-params';
 
 type ApiSearchParams = {
-  days?: 3 | 7 | 30;
+  days?: DaysValue;
   pageIndex?: number;
   pageSize?: number;
   sortColumn?: string;
@@ -43,8 +41,8 @@ export const Route = createFileRoute('/api/')({
   validateSearch: (search: Record<string, unknown>): ApiSearchParams => {
     const result: ApiSearchParams = {};
 
-    const days = Number(search.days);
-    if (days === 3 || days === 7 || days === 30) {
+    const days = parseDays(search.days);
+    if (days) {
       result.days = days;
     }
 
@@ -61,8 +59,10 @@ export const Route = createFileRoute('/api/')({
       result.pageIndex = pageIndex;
     }
 
-    const pageSize = Number(search.pageSize);
-    if (pageSize === 10 || pageSize === 25 || pageSize === 50) {
+    const pageSize = PAGE_SIZES.find(
+      (size) => size === Number(search.pageSize),
+    );
+    if (pageSize) {
       result.pageSize = pageSize;
     }
 
@@ -70,90 +70,9 @@ export const Route = createFileRoute('/api/')({
   },
 });
 
-const DEFAULT_PAGE_SIZE = 10;
-
-const EndpointsTableWrapper = memo(function EndpointsTableWrapper({
-  days,
-}: Readonly<{ days: number }>) {
-  const navigate = useNavigate();
-  const { pageIndex, pageSize, sortColumn, sortDirection } = Route.useSearch({
-    select: (s) => ({
-      pageIndex: s.pageIndex,
-      pageSize: s.pageSize,
-      sortColumn: s.sortColumn,
-      sortDirection: s.sortDirection,
-    }),
-  });
-
-  const { data: endpointsData, isLoading } = useApiMetricsEndpoints({ days });
-
-  const sorting: SortingState = sortColumn
-    ? [{ desc: sortDirection === 'desc', id: sortColumn }]
-    : [{ desc: true, id: 'requests' }];
-
-  const pagination = {
-    pageIndex: pageIndex ?? 0,
-    pageSize: pageSize ?? DEFAULT_PAGE_SIZE,
-  };
-
-  const handleSortingChange = useCallback(
-    (newSorting: SortingState) => {
-      const firstSort = newSorting[0];
-      void navigate({
-        replace: true,
-        resetScroll: false,
-        search: (prev) => ({
-          ...prev,
-          sortColumn: firstSort?.id,
-          sortDirection: firstSort?.desc ? 'desc' : 'asc',
-        }),
-        to: '.',
-      });
-    },
-    [navigate],
-  );
-
-  const handlePaginationChange = useCallback(
-    (newPagination: { pageIndex: number; pageSize: number }) => {
-      void navigate({
-        replace: true,
-        resetScroll: false,
-        search: (prev) => ({
-          ...prev,
-          pageIndex: newPagination.pageIndex || undefined,
-          pageSize:
-            newPagination.pageSize !== DEFAULT_PAGE_SIZE
-              ? newPagination.pageSize
-              : undefined,
-        }),
-        to: '.',
-      });
-    },
-    [navigate],
-  );
-
-  if (isLoading) {
-    return <EndpointsTableSkeleton />;
-  }
-
-  return (
-    <Suspense fallback={<EndpointsTableSkeleton />}>
-      <EndpointsTable
-        endpoints={endpointsData?.endpoints ?? []}
-        onPaginationChange={handlePaginationChange}
-        onSortingChange={handleSortingChange}
-        pagination={pagination}
-        sorting={sorting}
-      />
-    </Suspense>
-  );
-});
-
-EndpointsTableWrapper.displayName = 'EndpointsTableWrapper';
-
 function ApiMetrics() {
   const days = Route.useSearch({
-    select: (s) => s.days ?? 7,
+    select: (s) => s.days ?? DEFAULT_DAYS,
   });
 
   const { data: summaryData, isLoading: isSummaryLoading } =
@@ -203,7 +122,7 @@ function ApiMetrics() {
         )}
       </div>
 
-      <EndpointsTableWrapper days={days} />
+      <EndpointsSection days={days} />
     </div>
   );
 }

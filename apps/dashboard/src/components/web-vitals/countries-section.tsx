@@ -1,12 +1,50 @@
 import { lazy, memo, Suspense, useState } from 'react';
 import { WorldMapSkeleton } from '@/components/skeletons';
-import type { GroupedMetricData } from '@/lib/api/utils';
+import type { GroupedMetricData, MetricItem } from '@/lib/api/utils';
 import type { RatingStatus, StatusConfig } from '@/lib/web-vitals';
 import { StatusAccordion } from './status-accordion';
 
 const WorldMap = lazy(() =>
-  import('@/components/world-map').then((mod) => ({ default: mod.WorldMap })),
+  import('@/components/world-map/world-map').then((mod) => ({
+    default: mod.WorldMap,
+  })),
 );
+
+const STATUSES: ReadonlyArray<RatingStatus> = [
+  'great',
+  'needsImprovement',
+  'poor',
+];
+
+function filterGroups(
+  grouped: GroupedMetricData,
+  country: string,
+): GroupedMetricData {
+  const isCountry = (item: MetricItem) => item.id === country;
+  return {
+    great: grouped.great.filter(isCountry),
+    needsImprovement: grouped.needsImprovement.filter(isCountry),
+    poor: grouped.poor.filter(isCountry),
+  };
+}
+
+// The map looks countries up by display name.
+function toWorldMapData(grouped: GroupedMetricData) {
+  const data: Record<
+    string,
+    { pageViews: number; status: RatingStatus; value: number | string }
+  > = {};
+  for (const status of STATUSES) {
+    for (const item of grouped[status]) {
+      data[item.label] = {
+        pageViews: item.pageViews,
+        status,
+        value: item.value,
+      };
+    }
+  }
+  return data;
+}
 
 type CountriesSectionProps = Readonly<{
   activeCountry?: string;
@@ -33,47 +71,14 @@ function CountriesSectionComponent({
 }: CountriesSectionProps) {
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
 
-  // Filter countries if there's an active filter
-  const filteredCountriesGrouped: GroupedMetricData = activeCountry
-    ? {
-        great: countriesGrouped.great.filter(
-          (item) => item.id === activeCountry,
-        ),
-        needsImprovement: countriesGrouped.needsImprovement.filter(
-          (item) => item.id === activeCountry,
-        ),
-        poor: countriesGrouped.poor.filter((item) => item.id === activeCountry),
-      }
+  const filteredCountriesGrouped = activeCountry
+    ? filterGroups(countriesGrouped, activeCountry)
     : countriesGrouped;
-
-  // Convert grouped data to WorldMap format (use filtered data when filter is active)
-  const worldMapData: Record<
-    string,
-    { pageViews: number; status: RatingStatus; value: number | string }
-  > = {};
-
-  const statuses: ReadonlyArray<RatingStatus> = [
-    'great',
-    'needsImprovement',
-    'poor',
-  ];
-
-  const dataForMap = activeCountry
-    ? filteredCountriesGrouped
-    : countriesGrouped;
-  for (const status of statuses) {
-    for (const item of dataForMap[status]) {
-      worldMapData[item.label] = {
-        pageViews: item.pageViews,
-        status,
-        value: item.value,
-      };
-    }
-  }
+  const worldMapData = toWorldMapData(filteredCountriesGrouped);
+  const hasActiveFilter = Boolean(activeCountry);
 
   return (
     <>
-      {/* Countries Header */}
       <div className="grid lg:grid-cols-5">
         <div className="flex items-center justify-between lg:col-span-3">
           <h3 className="font-semibold">Countries</h3>
@@ -88,7 +93,6 @@ function CountriesSectionComponent({
         </div>
       </div>
 
-      {/* Countries Content */}
       <div className="flex flex-col gap-6 lg:grid lg:grid-cols-5 lg:items-start">
         <div className="flex items-center justify-center lg:col-span-3">
           <Suspense fallback={<WorldMapSkeleton />}>
@@ -105,7 +109,7 @@ function CountriesSectionComponent({
           <StatusAccordion
             data={filteredCountriesGrouped}
             defaultStatus={currentStatus}
-            hasActiveFilter={Boolean(activeCountry)}
+            hasActiveFilter={hasActiveFilter}
             highlightedItem={hoveredCountry}
             key={uniqueKey}
             onItemClick={activeCountry ? undefined : onCountrySelect}

@@ -1,0 +1,40 @@
+import 'server-only';
+
+import { StatsZoneSchema } from '@tvseri.es/schemas';
+import { cacheTag } from 'next/cache';
+
+import { apiFetch } from '@/lib/api/client';
+import { tags } from '@/lib/cache/tags';
+import {
+  cacheLifeFor,
+  isUnavailable,
+  tryApi,
+  type Unavailable,
+} from '@/lib/cache/unavailable';
+
+/**
+ * The zone a user's stats count in (IANA), so History can draw local days
+ * without waiting on `/stats/years`. The API names it on
+ * `GET /user/:id/stats/zone`, never stored by the CDN.
+ *
+ * Tagged `stats:{id}` and kept 5 minutes (`statsCurrent`): a change of
+ * country shows within that. Concurrent calls in one render share one API
+ * call (`'use cache'` dedupes).
+ */
+export async function getStatsTimeZone(
+  userId: string,
+): Promise<string | Unavailable> {
+  'use cache';
+  cacheTag(tags.user(userId), tags.stats(userId));
+  const result = await tryApi(() =>
+    apiFetch('/user/:id/stats/zone', {
+      params: { id: userId },
+      schema: StatsZoneSchema,
+    }),
+  );
+  cacheLifeFor('statsCurrent', result);
+  if (isUnavailable(result)) {
+    return result;
+  }
+  return result.timeZone;
+}

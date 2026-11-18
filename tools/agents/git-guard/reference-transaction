@@ -1,0 +1,25 @@
+#!/bin/sh
+# Installed by `pnpm agents:git-guard install` into each agent worktree's
+# hooks folder (.husky/_). Refuses every update of refs/stash: all worktrees of
+# a repo share one stash list, so one agent's `git stash pop` can take another
+# agent's work. lint-staged's own backup (pre-commit) is let through.
+[ "$1" = "prepared" ] || exit 0
+grep -q ' refs/stash$' || exit 0
+
+# lint-staged (the pre-commit hook) stores its backup with `git stash store`:
+# allow it when the git process's own parent is the lint-staged Node process.
+git_pid=$PPID
+parent=$(ps -o ppid= -p "$git_pid" 2>/dev/null | tr -d ' ')
+case "$(ps -o command= -p "${parent:-0}" 2>/dev/null)" in
+  *node*lint-staged*) exit 0 ;;
+esac
+
+cat >&2 <<'MSG'
+
+  git stash is blocked in agent worktrees (agents:git-guard).
+  Every worktree shares one stash list: a stash/pop here can take another
+  agent's work. Commit instead (a WIP commit is fine), or merge the base
+  branch with `pnpm agents:sync`.
+
+MSG
+exit 1

@@ -9,10 +9,7 @@ const countryDisplayNames = new Intl.DisplayNames(['en'], {
   type: 'region',
 });
 
-/**
- * Safely get country display name from ISO 3166-1 alpha-2 code.
- * Returns the code itself if invalid or not found.
- */
+/** The English name of an ISO 3166-1 alpha-2 code; the code itself when unknown. */
 export function getCountryDisplayName(code: string): string {
   try {
     return countryDisplayNames.of(code) ?? code;

@@ -1,55 +1,57 @@
 import {
   ConditionalCheckFailedException,
+  DeleteItemCommand,
   GetItemCommand,
   QueryCommand,
+  TransactionCanceledException,
+  TransactWriteItemsCommand,
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { User, WatchProvider } from '@tvseri.es/schemas';
-import { encodeToBase64Url } from '@tvseri.es/utils';
+import { DAY_MS, handleClaimKey, userKey, usernameKey } from '@tvseri.es/utils';
 import { HTTPException } from 'hono/http-exception';
-import slugify from 'slugify';
 import { Resource } from 'sst';
+import { readWatchProviders } from '@/lib/watchProviders';
 import client from '../client';
 
 /**
- * Internal activity fields on the user item, used to decide whose watched
- * status gets re-checked. Never part of a public user response.
+ * Internal fields on the user item (a pending account deletion, the
+ * watched-status re-check). Never part of a public user response.
  */
 export type UserActivity = Readonly<{
+  /** Set when the user asked to delete their account (epoch ms) */
+  deletionRequestedAt?: number;
   /** ISO date of the last watch activity, written at most once a day */
   lastActiveAt?: string;
   /** ISO date of the last on-visit watched-status re-check */
   lastRecheckAt?: string;
 }>;
 
-/** A user as stored, including the internal activity fields */
+/** A user as stored, including the internal fields */
 export type UserRecord = Readonly<User & UserActivity>;
 
 /** Constant hash key of the sparse `active` index (activePk) */
 export const ACTIVE_PK = 'ACTIVE';
 export const ACTIVE_INDEX = 'active';
-export const USER_PK_PREFIX = 'USER#';
-
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 // The user id is the table's hash key: a GetItem, not a Query
 const getUserItem = async (userId: string) => {
   const result = await client.send(
     new GetItemCommand({
-      Key: marshall({ pk: `${USER_PK_PREFIX}${userId}` }),
+      Key: marshall({ pk: userKey(userId) }),
       TableName: Resource.Users.name,
     }),
   );
   return result.Item;
 };
 
-const queryUserItem = async (indexName: 'gsi1' | 'gsi2', value: string) => {
+const queryUsernameItem = async (username: string) => {
   const result = await client.send(
     new QueryCommand({
-      ExpressionAttributeValues: marshall({ ':value': value }),
-      IndexName: indexName,
-      KeyConditionExpression: `${indexName}pk = :value`,
+      ExpressionAttributeValues: marshall({ ':value': usernameKey(username) }),
+      IndexName: 'gsi2',
+      KeyConditionExpression: 'gsi2pk = :value',
       TableName: Resource.Users.name,
     }),
   );
@@ -58,23 +60,13 @@ const queryUserItem = async (indexName: 'gsi1' | 'gsi2', value: string) => {
 
 export const findUser = async (
   input:
-    | { userId: string; email?: never; username?: never }
-    | { userId?: never; email: string; username?: never }
-    | { userId?: never; email?: never; username: string }
-    | {
-        userId?: never;
-        email?: never;
-        username?: never;
-      },
+    | { userId: string; username?: never }
+    | { userId?: never; username: string },
 ): Promise<UserRecord | null> => {
-  const item = input.userId
-    ? await getUserItem(input.userId)
-    : input.email
-      ? await queryUserItem('gsi1', `EMAIL#${encodeToBase64Url(input.email)}`)
-      : await queryUserItem(
-          'gsi2',
-          `USERNAME#${slugify(input.username!, { lower: true, strict: true })}`,
-        );
+  const item =
+    input.userId !== undefined
+      ? await getUserItem(input.userId)
+      : await queryUsernameItem(input.username);
 
   if (!item) {
     return null;
@@ -82,13 +74,17 @@ export const findUser = async (
 
   const user = unmarshall(item) as UserRecord;
   const {
+    country,
+    deletionRequestedAt,
     id,
     createdAt,
     updatedAt,
     email,
     followerCount,
     followingCount,
+    getStartedDoneAt,
     lastActiveAt,
+    lastImport,
     lastRecheckAt,
     name,
     role,
@@ -98,34 +94,68 @@ export const findUser = async (
   } = user;
 
   return {
+    country,
     createdAt,
+    deletionRequestedAt,
     email,
     followerCount,
     followingCount,
+    getStartedDoneAt,
     id,
     lastActiveAt,
+    lastImport,
     lastRecheckAt,
     name,
     role,
     updatedAt,
     username,
     version,
-    watchProviders,
+    watchProviders: readWatchProviders(watchProviders),
   };
 };
 
 /**
- * Splits the internal activity fields off a stored user, so the user can be
+ * Splits the internal fields off a stored user, so the user can be
  * returned in a response.
  */
 export const splitUserRecord = ({
+  deletionRequestedAt,
   lastActiveAt,
   lastRecheckAt,
   ...user
 }: UserRecord): Readonly<{ user: User; activity: UserActivity }> => ({
-  activity: { lastActiveAt, lastRecheckAt },
+  activity: { deletionRequestedAt, lastActiveAt, lastRecheckAt },
   user,
 });
+
+/**
+ * Delete account: stamps the request, which the queue checks before
+ * deleting anything and which signs the user out of the API meanwhile.
+ */
+export const markDeletionRequested = async (userId: string, now: number) => {
+  await client.send(
+    new UpdateItemCommand({
+      ConditionExpression: 'attribute_exists(pk)',
+      ExpressionAttributeValues: marshall({ ':now': now }),
+      Key: marshall({ pk: userKey(userId) }),
+      TableName: Resource.Users.name,
+      UpdateExpression:
+        'SET deletionRequestedAt = if_not_exists(deletionRequestedAt, :now)',
+    }),
+  );
+};
+
+/** Takes the request back when starting the deletion failed (the user can retry) */
+export const clearDeletionRequested = async (userId: string) => {
+  await client.send(
+    new UpdateItemCommand({
+      ConditionExpression: 'attribute_exists(pk)',
+      Key: marshall({ pk: userKey(userId) }),
+      TableName: Resource.Users.name,
+      UpdateExpression: 'REMOVE deletionRequestedAt',
+    }),
+  );
+};
 
 /**
  * Records watch activity: sets `lastActiveAt` (and the sparse `active` index
@@ -148,7 +178,7 @@ export const markUserActive = async (userId: string): Promise<boolean> => {
           ':dayAgo': new Date(now - DAY_MS).toISOString(),
           ':now': new Date(now).toISOString(),
         }),
-        Key: marshall({ pk: `${USER_PK_PREFIX}${userId}` }),
+        Key: marshall({ pk: userKey(userId) }),
         TableName: Resource.Users.name,
         UpdateExpression: 'SET lastActiveAt = :now, activePk = :active',
       }),
@@ -183,7 +213,7 @@ export const claimWatchedStatusRecheck = async (
           ':now': new Date().toISOString(),
           ':since': since.toISOString(),
         }),
-        Key: marshall({ pk: `${USER_PK_PREFIX}${userId}` }),
+        Key: marshall({ pk: userKey(userId) }),
         TableName: Resource.Users.name,
         UpdateExpression: 'SET lastRecheckAt = :now',
       }),
@@ -197,18 +227,36 @@ export const claimWatchedStatusRecheck = async (
   }
 };
 
+/**
+ * Frees a user's name (after a rename, with the account): its claim is
+ * deleted only when it names this user; an older claim without a user, or
+ * another user's, stays. Throws on anything but that condition.
+ */
+export const releaseHandleClaim = async (username: string, userId: string) => {
+  try {
+    await client.send(
+      new DeleteItemCommand({
+        ConditionExpression: 'userId = :userId',
+        ExpressionAttributeValues: marshall({ ':userId': userId }),
+        Key: marshall({ pk: handleClaimKey(username) }),
+        TableName: Resource.Users.name,
+      }),
+    );
+  } catch (error) {
+    if (!(error instanceof ConditionalCheckFailedException)) {
+      throw error;
+    }
+  }
+};
+
 export const updateUser = async (
   user: User,
   updates: Readonly<{
+    country?: string;
     username?: string;
     name?: string;
     watchProviders?: WatchProvider[];
-  }> &
-    (
-      | { username: string }
-      | { name: string }
-      | { watchProviders: WatchProvider[] }
-    ),
+  }>,
 ): Promise<User> => {
   if (updates.username) {
     const existingUser = await findUser({ username: updates.username });
@@ -228,7 +276,7 @@ export const updateUser = async (
 
   if (updates.username) {
     values[':username'] = updates.username;
-    values[':newUsernameIndex'] = `USERNAME#${updates.username}`;
+    values[':newUsernameIndex'] = usernameKey(updates.username);
     updateExpressions.push('username = :username');
     updateExpressions.push('gsi2pk = :newUsernameIndex');
   }
@@ -239,41 +287,120 @@ export const updateUser = async (
     updateExpressions.push('#fullName = :name');
   }
 
+  if (updates.country) {
+    values[':country'] = updates.country;
+    updateExpressions.push('country = :country');
+  }
+
   if (updates.watchProviders) {
     values[':watchProviders'] = updates.watchProviders;
     updateExpressions.push('watchProviders = :watchProviders');
   }
 
+  const update = {
+    // Only an existing user: a request still on its way when the account was
+    // deleted must not write a new, partial item
+    ConditionExpression:
+      'attribute_exists(pk) AND (updatedAt = :lastUpdatedAt OR attribute_not_exists(updatedAt))',
+    ExpressionAttributeValues: marshall(values),
+    Key: marshall({ pk: userKey(user.id) }),
+    TableName: Resource.Users.name,
+    UpdateExpression: `SET ${updateExpressions.join(', ')}`,
+    ...(Object.keys(expressionAttributeNames).length > 0 && {
+      ExpressionAttributeNames: expressionAttributeNames,
+    }),
+  };
+  const newUsername =
+    updates.username && updates.username !== user.username
+      ? updates.username
+      : undefined;
+
   try {
-    await client.send(
-      new UpdateItemCommand({
-        ExpressionAttributeValues: marshall(values),
-        Key: marshall({
-          pk: `USER#${user.id}`,
+    if (newUsername) {
+      // The name's claim and the user in one transaction: two people who
+      // pick the same free name at once can't both get it (the lookup above
+      // reads an index that can lag). A claim from before claims named their
+      // user doesn't block; it becomes this user's.
+      await client.send(
+        new TransactWriteItemsCommand({
+          TransactItems: [
+            {
+              Put: {
+                ConditionExpression:
+                  'attribute_not_exists(pk) OR attribute_not_exists(userId) OR userId = :userId',
+                ExpressionAttributeValues: marshall({ ':userId': user.id }),
+                Item: marshall({
+                  pk: handleClaimKey(newUsername),
+                  userId: user.id,
+                }),
+                TableName: Resource.Users.name,
+              },
+            },
+            { Update: update },
+          ],
         }),
-        TableName: Resource.Users.name,
-        UpdateExpression: `SET ${updateExpressions.join(', ')}`,
-        ...(Object.keys(expressionAttributeNames).length > 0 && {
-          ExpressionAttributeNames: expressionAttributeNames,
-        }),
-        ConditionExpression:
-          '(updatedAt = :lastUpdatedAt OR attribute_not_exists(updatedAt))',
-      }),
-    );
-
-    const updatedUser = {
-      ...user,
-      ...updates,
-      updatedAt: now,
-    };
-
-    return updatedUser;
+      );
+    } else {
+      await client.send(new UpdateItemCommand(update));
+    }
   } catch (error) {
-    if (error instanceof ConditionalCheckFailedException) {
+    if (
+      error instanceof TransactionCanceledException &&
+      error.CancellationReasons?.[0]?.Code === 'ConditionalCheckFailed'
+    ) {
+      throw new Error('UsernameAlreadyTaken');
+    }
+    if (
+      error instanceof ConditionalCheckFailedException ||
+      error instanceof TransactionCanceledException
+    ) {
       throw new HTTPException(409, {
         message:
           "Looks like you're updating your profile on another device. Please try again.",
       });
+    }
+    throw error;
+  }
+
+  // Best effort: a leftover claim only keeps a generated handle from coming
+  // up again
+  if (newUsername && user.username) {
+    await releaseHandleClaim(user.username, user.id).catch((error: unknown) => {
+      console.error('[ERROR] Failed to release a username claim', error);
+    });
+  }
+
+  return {
+    ...user,
+    ...updates,
+    updatedAt: now,
+  };
+};
+
+/**
+ * Stamps when Get started was first completed. Never rewrites the item
+ * or bumps `updatedAt`. Returns `now` when this call stamped it; null when
+ * it was stamped before or the user is gone.
+ */
+export const markGetStartedDone = async (
+  userId: string,
+  now: number,
+): Promise<number | null> => {
+  try {
+    await client.send(
+      new UpdateItemCommand({
+        ConditionExpression:
+          'attribute_exists(pk) AND attribute_not_exists(getStartedDoneAt)',
+        ExpressionAttributeValues: marshall({ ':now': now }),
+        Key: marshall({ pk: userKey(userId) }),
+        TableName: Resource.Users.name,
+        UpdateExpression: 'SET getStartedDoneAt = :now',
+      }),
+    );
+    return now;
+  } catch (error) {
+    if (error instanceof ConditionalCheckFailedException) {
+      return null;
     }
     throw error;
   }

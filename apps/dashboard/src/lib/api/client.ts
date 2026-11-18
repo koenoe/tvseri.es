@@ -1,7 +1,3 @@
-/**
- * API client for metrics endpoints
- */
-
 import type {
   AggregatedApiMetrics,
   ApiMetricsEndpointsResponse,
@@ -11,18 +7,31 @@ import type {
   MetricsSummaryResponse,
 } from '@tvseri.es/schemas';
 
-import { getAccessToken } from '@/lib/auth';
+import { authorizedFetch } from '@/lib/auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-async function getAuthHeaders(): Promise<HeadersInit> {
-  const token = await getAccessToken();
-  if (!token) {
-    throw new Error('Not authenticated');
+type QueryValue = number | string | undefined;
+
+// Empty values are left out of the query string, so the API applies its defaults.
+async function getMetrics<T>(
+  path: string,
+  query: ReadonlyArray<readonly [string, QueryValue]>,
+  description: string,
+): Promise<T> {
+  const searchParams = new URLSearchParams();
+  for (const [key, value] of query) {
+    if (value) searchParams.set(key, value.toString());
   }
-  return {
-    Authorization: `Bearer ${token}`,
-  };
+
+  const url = `${API_BASE_URL}${path}?${searchParams.toString()}`;
+  const response = await authorizedFetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch ${description}: ${response.statusText}`);
+  }
+
+  return response.json() as Promise<T>;
 }
 
 export type MetricsSummaryParams = Readonly<{
@@ -31,23 +40,18 @@ export type MetricsSummaryParams = Readonly<{
   device?: string;
 }>;
 
-export async function fetchMetricsSummary(
+export function fetchMetricsSummary(
   params: MetricsSummaryParams,
 ): Promise<MetricsSummaryResponse> {
-  const searchParams = new URLSearchParams();
-  if (params.days) searchParams.set('days', params.days.toString());
-  if (params.device) searchParams.set('device', params.device);
-  if (params.country) searchParams.set('country', params.country);
-
-  const url = `${API_BASE_URL}/metrics/web-vitals/summary?${searchParams.toString()}`;
-  const headers = await getAuthHeaders();
-  const response = await fetch(url, { headers });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch metrics summary: ${response.statusText}`);
-  }
-
-  return response.json() as Promise<MetricsSummaryResponse>;
+  return getMetrics<MetricsSummaryResponse>(
+    '/metrics/web-vitals/summary',
+    [
+      ['days', params.days],
+      ['device', params.device],
+      ['country', params.country],
+    ],
+    'metrics summary',
+  );
 }
 
 export type MetricsRoutesParams = Readonly<{
@@ -59,26 +63,21 @@ export type MetricsRoutesParams = Readonly<{
   sortDir?: 'asc' | 'desc';
 }>;
 
-export async function fetchMetricsRoutes(
+export function fetchMetricsRoutes(
   params: MetricsRoutesParams,
 ): Promise<MetricsRoutesResponse> {
-  const searchParams = new URLSearchParams();
-  if (params.days) searchParams.set('days', params.days.toString());
-  if (params.device) searchParams.set('device', params.device);
-  if (params.country) searchParams.set('country', params.country);
-  if (params.sortBy) searchParams.set('sortBy', params.sortBy);
-  if (params.sortDir) searchParams.set('sortDir', params.sortDir);
-  if (params.limit) searchParams.set('limit', params.limit.toString());
-
-  const url = `${API_BASE_URL}/metrics/web-vitals/routes?${searchParams.toString()}`;
-  const headers = await getAuthHeaders();
-  const response = await fetch(url, { headers });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch metrics routes: ${response.statusText}`);
-  }
-
-  return response.json() as Promise<MetricsRoutesResponse>;
+  return getMetrics<MetricsRoutesResponse>(
+    '/metrics/web-vitals/routes',
+    [
+      ['days', params.days],
+      ['device', params.device],
+      ['country', params.country],
+      ['sortBy', params.sortBy],
+      ['sortDir', params.sortDir],
+      ['limit', params.limit],
+    ],
+    'metrics routes',
+  );
 }
 
 export type MetricsCountriesParams = Readonly<{
@@ -89,27 +88,20 @@ export type MetricsCountriesParams = Readonly<{
   sortDir?: 'asc' | 'desc';
 }>;
 
-export async function fetchMetricsCountries(
+export function fetchMetricsCountries(
   params: MetricsCountriesParams,
 ): Promise<MetricsCountriesResponse> {
-  const searchParams = new URLSearchParams();
-  if (params.days) searchParams.set('days', params.days.toString());
-  if (params.device) searchParams.set('device', params.device);
-  if (params.sortBy) searchParams.set('sortBy', params.sortBy);
-  if (params.sortDir) searchParams.set('sortDir', params.sortDir);
-  if (params.limit) searchParams.set('limit', params.limit.toString());
-
-  const url = `${API_BASE_URL}/metrics/web-vitals/countries?${searchParams.toString()}`;
-  const headers = await getAuthHeaders();
-  const response = await fetch(url, { headers });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch metrics countries: ${response.statusText}`,
-    );
-  }
-
-  return response.json() as Promise<MetricsCountriesResponse>;
+  return getMetrics<MetricsCountriesResponse>(
+    '/metrics/web-vitals/countries',
+    [
+      ['days', params.days],
+      ['device', params.device],
+      ['sortBy', params.sortBy],
+      ['sortDir', params.sortDir],
+      ['limit', params.limit],
+    ],
+    'metrics countries',
+  );
 }
 
 export type ApiMetricsSummaryParams = Readonly<{
@@ -117,24 +109,17 @@ export type ApiMetricsSummaryParams = Readonly<{
   platform?: string;
 }>;
 
-export async function fetchApiMetricsSummary(
+export function fetchApiMetricsSummary(
   params: ApiMetricsSummaryParams,
 ): Promise<ApiMetricsSummaryResponse> {
-  const searchParams = new URLSearchParams();
-  if (params.days) searchParams.set('days', params.days.toString());
-  if (params.platform) searchParams.set('platform', params.platform);
-
-  const url = `${API_BASE_URL}/metrics/api?${searchParams.toString()}`;
-  const headers = await getAuthHeaders();
-  const response = await fetch(url, { headers });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch API metrics summary: ${response.statusText}`,
-    );
-  }
-
-  return response.json() as Promise<ApiMetricsSummaryResponse>;
+  return getMetrics<ApiMetricsSummaryResponse>(
+    '/metrics/api',
+    [
+      ['days', params.days],
+      ['platform', params.platform],
+    ],
+    'API metrics summary',
+  );
 }
 
 export type ApiMetricsEndpointsParams = Readonly<{
@@ -146,28 +131,21 @@ export type ApiMetricsEndpointsParams = Readonly<{
   sortDir?: 'asc' | 'desc';
 }>;
 
-export async function fetchApiMetricsEndpoints(
+export function fetchApiMetricsEndpoints(
   params: ApiMetricsEndpointsParams,
 ): Promise<ApiMetricsEndpointsResponse> {
-  const searchParams = new URLSearchParams();
-  if (params.days) searchParams.set('days', params.days.toString());
-  if (params.platform) searchParams.set('platform', params.platform);
-  if (params.country) searchParams.set('country', params.country);
-  if (params.sortBy) searchParams.set('sortBy', params.sortBy);
-  if (params.sortDir) searchParams.set('sortDir', params.sortDir);
-  if (params.limit) searchParams.set('limit', params.limit.toString());
-
-  const url = `${API_BASE_URL}/metrics/api/endpoints?${searchParams.toString()}`;
-  const headers = await getAuthHeaders();
-  const response = await fetch(url, { headers });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch API metrics endpoints: ${response.statusText}`,
-    );
-  }
-
-  return response.json() as Promise<ApiMetricsEndpointsResponse>;
+  return getMetrics<ApiMetricsEndpointsResponse>(
+    '/metrics/api/endpoints',
+    [
+      ['days', params.days],
+      ['platform', params.platform],
+      ['country', params.country],
+      ['sortBy', params.sortBy],
+      ['sortDir', params.sortDir],
+      ['limit', params.limit],
+    ],
+    'API metrics endpoints',
+  );
 }
 
 export type ApiMetricsEndpointDetailParams = Readonly<{
@@ -190,24 +168,15 @@ export type ApiMetricsEndpointDetailResponse = Readonly<{
   startDate: string;
 }>;
 
-export async function fetchApiMetricsEndpointDetail(
+export function fetchApiMetricsEndpointDetail(
   params: ApiMetricsEndpointDetailParams,
 ): Promise<ApiMetricsEndpointDetailResponse> {
-  const searchParams = new URLSearchParams();
-  if (params.days) searchParams.set('days', params.days.toString());
-
   const encodedEndpoint = encodeURIComponent(params.endpoint);
-  const url = `${API_BASE_URL}/metrics/api/endpoints/${encodedEndpoint}?${searchParams.toString()}`;
-  const headers = await getAuthHeaders();
-  const response = await fetch(url, { headers });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch API metrics endpoint detail: ${response.statusText}`,
-    );
-  }
-
-  return response.json() as Promise<ApiMetricsEndpointDetailResponse>;
+  return getMetrics<ApiMetricsEndpointDetailResponse>(
+    `/metrics/api/endpoints/${encodedEndpoint}`,
+    [['days', params.days]],
+    'API metrics endpoint detail',
+  );
 }
 
 export type ApiMetricsDependencyDetailParams = Readonly<{
@@ -257,23 +226,16 @@ export type ApiMetricsDependencyDetailResponse = Readonly<{
   startDate: string;
 }>;
 
-export async function fetchApiMetricsDependencyDetail(
+export function fetchApiMetricsDependencyDetail(
   params: ApiMetricsDependencyDetailParams,
 ): Promise<ApiMetricsDependencyDetailResponse> {
-  const searchParams = new URLSearchParams();
-  if (params.days) searchParams.set('days', params.days.toString());
-  if (params.platform) searchParams.set('platform', params.platform);
-
   const encodedSource = encodeURIComponent(params.source);
-  const url = `${API_BASE_URL}/metrics/api/dependencies/${encodedSource}?${searchParams.toString()}`;
-  const headers = await getAuthHeaders();
-  const response = await fetch(url, { headers });
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch API metrics dependency detail: ${response.statusText}`,
-    );
-  }
-
-  return response.json() as Promise<ApiMetricsDependencyDetailResponse>;
+  return getMetrics<ApiMetricsDependencyDetailResponse>(
+    `/metrics/api/dependencies/${encodedSource}`,
+    [
+      ['days', params.days],
+      ['platform', params.platform],
+    ],
+    'API metrics dependency detail',
+  );
 }

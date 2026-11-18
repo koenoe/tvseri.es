@@ -1,0 +1,88 @@
+import type { TvSeries } from '@tvseri.es/schemas';
+import { Suspense } from 'react';
+
+import { ActionButtonsSkeleton } from '../actions/ActionButtons';
+import ActionsHole from '../actions/ActionsHole';
+import FirstTrackingPrompt from '../first-tracking/FirstTrackingPrompt';
+import { ProgressSkeleton } from '../progress/ProgressBar';
+import ProgressHole from '../progress/ProgressHole';
+import RatingAndProvider, {
+  RatingAndProviderSkeleton,
+} from '../where-to-watch/RatingAndProvider';
+import HeroGrid from './HeroGrid';
+import HeroMeta from './HeroMeta';
+import HeroTitle from './HeroTitle';
+import {
+  HERO_ACTIONS_ROW,
+  HERO_DESCRIPTION,
+  HERO_META_ROW,
+  HERO_PROMPT_SLOT,
+  HERO_RATING_CELL,
+  HERO_SPACER,
+  HERO_TITLE_GROUP,
+} from './heroLayout';
+import ImdbRating, { ImdbRatingSkeleton } from './ImdbRating';
+import PhoneBackdrop from './PhoneBackdrop';
+
+type Props = Readonly<{ series: TvSeries }>;
+
+/** Phones clamp the synopsis to three lines (the Storyline band has it all) */
+const DESCRIPTION = `${HERO_DESCRIPTION} max-md:line-clamp-3`;
+
+/**
+ * The hero: title treatment,
+ * facts, the age rating and provider logo, the progress line, the
+ * first-tracking prompt (static shell content, hidden by a pre-paint hint
+ * where it isn't for the viewer), the
+ * description and the rating with the actions, in that order at every
+ * width. Each viewer hole renders once; a grid places it. The title group
+ * sits bottom-aligned on a fixed-height spacer (`HERO_SPACER`), so the page
+ * below never moves. The cached shell draws what is the same for every
+ * viewer; the viewer's parts are Suspense holes whose skeletons hold their
+ * space.
+ */
+export default function Hero({ series }: Props) {
+  const imdbId = series.externalIds?.imdbId ?? null;
+  return (
+    <HeroGrid seriesId={series.id}>
+      <PhoneBackdrop />
+      <div aria-hidden="true" className={HERO_SPACER} />
+      <div className={HERO_TITLE_GROUP}>
+        <HeroTitle
+          logo={series.titleTreatmentImage}
+          seriesId={series.id}
+          title={series.title}
+        />
+        <div className={HERO_META_ROW}>
+          <HeroMeta series={series}>
+            <Suspense fallback={<RatingAndProviderSkeleton />}>
+              <RatingAndProvider seriesId={series.id} />
+            </Suspense>
+          </HeroMeta>
+        </div>
+        <Suspense fallback={<ProgressSkeleton />}>
+          <ProgressHole series={series} />
+        </Suspense>
+      </div>
+      <div className={HERO_PROMPT_SLOT} data-slot="first-tracking">
+        {/* Shell content for everyone; nobody has seen a show before it airs */}
+        {series.hasAired ? (
+          <FirstTrackingPrompt seriesId={series.id} title={series.title} />
+        ) : null}
+      </div>
+      {series.description ? (
+        <p className={DESCRIPTION}>{series.description}</p>
+      ) : null}
+      <div className={HERO_ACTIONS_ROW}>
+        <div className={HERO_RATING_CELL}>
+          <Suspense fallback={<ImdbRatingSkeleton />}>
+            <ImdbRating imdbId={imdbId} seriesId={series.id} />
+          </Suspense>
+        </div>
+        <Suspense fallback={<ActionButtonsSkeleton />}>
+          <ActionsHole series={series} />
+        </Suspense>
+      </div>
+    </HeroGrid>
+  );
+}

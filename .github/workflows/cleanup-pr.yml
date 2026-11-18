@@ -23,8 +23,7 @@ permissions:
 jobs:
   cleanup:
     runs-on: ubuntu-latest
-
-    if: github.event.pull_request.user.login != 'dependabot[bot]'
+    timeout-minutes: 45
 
     steps:
       - name: Checkout
@@ -38,9 +37,9 @@ jobs:
       - name: Setup AWS Profile
         run: |
           aws configure set region eu-west-2 --profile tvseries-dev
-          aws configure set aws_access_key_id ${{ env.AWS_ACCESS_KEY_ID }} --profile tvseries-dev
-          aws configure set aws_secret_access_key ${{ env.AWS_SECRET_ACCESS_KEY }} --profile tvseries-dev
-          aws configure set aws_session_token ${{ env.AWS_SESSION_TOKEN }} --profile tvseries-dev
+          aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID" --profile tvseries-dev
+          aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY" --profile tvseries-dev
+          aws configure set aws_session_token "$AWS_SESSION_TOKEN" --profile tvseries-dev
 
       - name: Install pnpm
         uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1

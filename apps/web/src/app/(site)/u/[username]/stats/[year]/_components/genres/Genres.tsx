@@ -1,0 +1,88 @@
+import { Ghost, TextLine } from '@/components/ui/ghost/ghosts';
+import cn from '@/lib/cn';
+
+import { getGenres, isUnavailable } from '@/lib/stats/loaders';
+import StatsUnavailable from '../../../_components/StatsUnavailable';
+import type { SectionProps } from '../types';
+import Lane, { LaneGhost } from '../ui/Lane';
+import { ROW_LIFT } from '../ui/rowLift';
+import { type GenreRow, genreRows, PHONE_ROWS } from './model';
+
+/**
+ * "Genres": one row per genre with a bar against
+ * the top genre (white; the others white/40) and its show count. The phone
+ * keeps the top six with narrower columns.
+ */
+export default async function Genres({ user, year }: SectionProps) {
+  const items = await getGenres(user.id, year);
+  if (isUnavailable(items)) {
+    return (
+      <StatsUnavailable placeholder={<GenresSkeleton />} title={'Genres'} />
+    );
+  }
+  const rows = genreRows(items);
+  if (rows.length === 0) {
+    return null;
+  }
+  return (
+    <Lane className="max-md:p-4" id="genres-title" title="Genres">
+      <ul className="flex flex-col">
+        {rows.map((row, index) => {
+          const hiddenOnPhone = index >= PHONE_ROWS;
+          return <Row hiddenOnPhone={hiddenOnPhone} key={row.name} row={row} />;
+        })}
+      </ul>
+    </Lane>
+  );
+}
+
+/** A genre's row: name, bar, count; hover lifts the row and whitens the bar */
+function Row({
+  hiddenOnPhone,
+  row,
+}: Readonly<{ hiddenOnPhone: boolean; row: GenreRow }>) {
+  const style = { width: row.width };
+  const barClass = cn(
+    'absolute inset-y-0 left-0 rounded-2 [transition:background-color_.15s] group-hover/row:bg-white',
+    row.top ? 'bg-white' : 'bg-white/40',
+  );
+  const rowClass = cn(
+    'group/row grid h-[34px] grid-cols-[132px_minmax(0,1fr)_56px] items-center gap-3.5 md:grid-cols-[136px_minmax(0,1fr)_72px]',
+    ROW_LIFT,
+    hiddenOnPhone && 'max-md:hidden',
+  );
+  return (
+    <li className={rowClass}>
+      <span className="flex min-w-0 items-center gap-2.5 text-[14px] text-white/80 leading-6">
+        <span className="truncate">{row.name}</span>
+      </span>
+      <span className="relative h-1 rounded-2 bg-white/6">
+        <i className={barClass} style={style} />
+      </span>
+      <span className="whitespace-nowrap text-right text-caption text-white/60 tabular-nums">
+        {row.value}
+      </span>
+    </li>
+  );
+}
+
+/** A typical year's genres (the lane lists up to ten) */
+const GENRE_GHOSTS = Array.from({ length: 10 }, (_, n) => n);
+
+/** The lane at a typical year's height: nine rows on desktop, six on a phone */
+export function GenresSkeleton() {
+  return (
+    <LaneGhost
+      className="h-[376px] gap-2.5 max-md:h-[270px] max-md:p-4"
+      title="Genres"
+    >
+      {GENRE_GHOSTS.map((n) => (
+        <span className="flex h-5 shrink-0 items-center gap-3" key={n}>
+          <TextLine className="w-28 text-caption" width="w-20" />
+          <Ghost className="h-1 flex-1 rounded-2" />
+          <TextLine className="text-caption" width="w-12" />
+        </span>
+      ))}
+    </LaneGhost>
+  );
+}

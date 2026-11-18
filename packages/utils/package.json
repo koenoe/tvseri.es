@@ -1,19 +1,23 @@
 {
   "dependencies": {
+    "@tvseri.es/schemas": "workspace:*",
     "slugify": "^1.6.9",
     "sst": "catalog:"
   },
   "devDependencies": {
     "@tvseri.es/typescript-config": "workspace:*",
     "@types/node": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "5.1.0"
   },
   "main": "./src/index.ts",
   "name": "@tvseri.es/utils",
   "private": true,
   "scripts": {
-    "check-types": "tsc"
+    "check-types": "tsc",
+    "test": "vitest run"
   },
+  "sideEffects": false,
   "type": "module",
   "version": "0.0.0"
 }

@@ -2,9 +2,6 @@ import type { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 
 import { addDependencyMetric } from './context';
 
-/**
- * Get operation name from DynamoDB command.
- */
 const getOperationName = (command: {
   constructor: { name: string };
 }): string => {
@@ -13,14 +10,10 @@ const getOperationName = (command: {
   return name.endsWith('Command') ? name.slice(0, -7) : name;
 };
 
-/**
- * Get table name from DynamoDB command input.
- */
 const getTableName = (command: { input?: unknown }): string => {
   const input = command.input as Record<string, unknown> | undefined;
   if (!input) return 'unknown';
 
-  // Single table operations
   if ('TableName' in input && typeof input.TableName === 'string') {
     return input.TableName;
   }
@@ -56,10 +49,7 @@ const getTableName = (command: { input?: unknown }): string => {
   return 'unknown';
 };
 
-/**
- * Extract useful params from DynamoDB command input for debugging.
- * Returns key fields, index name, and limit if present.
- */
+/** A command's key fields, index and limit, for debugging */
 const getParams = (command: {
   input?: unknown;
 }): Record<string, string> | null => {
@@ -68,7 +58,6 @@ const getParams = (command: {
 
   const params: Record<string, string> = {};
 
-  // Key for GetItem/DeleteItem/UpdateItem
   if ('Key' in input && typeof input.Key === 'object' && input.Key) {
     const key = input.Key as Record<string, Record<string, string>>;
     for (const [attr, value] of Object.entries(key)) {
@@ -77,12 +66,10 @@ const getParams = (command: {
     }
   }
 
-  // Index name for Query/Scan
   if ('IndexName' in input && typeof input.IndexName === 'string') {
     params.index = input.IndexName;
   }
 
-  // Limit for Query/Scan
   if ('Limit' in input && typeof input.Limit === 'number') {
     params.limit = String(input.Limit);
   }
@@ -90,31 +77,25 @@ const getParams = (command: {
   return Object.keys(params).length > 0 ? params : null;
 };
 
-/**
- * Create an instrumented DynamoDB client that tracks all operations.
- *
- * Wraps the client's `send` method to automatically record metrics
- * for each DynamoDB operation including duration and success/failure.
- */
+/** Wraps `send` to record every operation's duration and status as a dependency metric */
 export const createInstrumentedDynamoClient = (
   client: DynamoDBClient,
 ): DynamoDBClient => {
-  const originalSend = client.send.bind(client);
+  // One wrapper for every command type, so it takes and returns unknown
+  const originalSend = client.send.bind(client) as (
+    command: unknown,
+  ) => Promise<unknown>;
 
-  // Override the send method with a generic wrapper
-  // biome-ignore lint/suspicious/noExplicitAny: DynamoDB send accepts many command types
-  (client as any).send = async (command: {
-    constructor: { name: string };
-    input?: unknown;
-  }) => {
+  const send = async (
+    command: Readonly<{ constructor: { name: string }; input?: unknown }>,
+  ) => {
     const start = performance.now();
     const operation = getOperationName(command);
     const table = getTableName(command);
     const params = getParams(command);
 
     try {
-      // biome-ignore lint/suspicious/noExplicitAny: Pass through to original send
-      const result = await (originalSend as any)(command);
+      const result = await originalSend(command);
       const duration = Math.round(performance.now() - start);
 
       addDependencyMetric({
@@ -148,5 +129,5 @@ export const createInstrumentedDynamoClient = (
     }
   };
 
-  return client;
+  return Object.assign(client, { send });
 };

@@ -1,22 +1,16 @@
-/**
- * Stats API endpoints.
- * All business logic is delegated to lib/stats modules.
- */
-
-import type { StatsFavoritesCount, StatsSpotlight } from '@tvseri.es/schemas';
-import { buildStillImageUrl } from '@tvseri.es/utils';
+import type { StatsYears, StatsZone } from '@tvseri.es/schemas';
 import { type Context, Hono } from 'hono';
-import { getListItemsCount } from '@/lib/db/list';
-import { getWatched } from '@/lib/db/watched';
 import {
   computeYearSegment,
+  getAllTimeStats,
+  getFavoritesCount,
   getStatsCache,
   getSummaryMetrics,
-  setStatsCache,
+  getYearSpotlight,
   type YearSegment,
 } from '@/lib/stats';
-import { fetchTvSeries } from '@/lib/tmdb';
-import { cacheHeader } from '@/utils/cacheHeader';
+import { timeZoneForCountry } from '@/lib/stats/timeZone';
+import { cacheHeader, PRIVATE_NO_STORE } from '@/utils/cacheHeader';
 
 import { type UserVariables, user, yearMiddleware } from './middleware';
 
@@ -41,122 +35,24 @@ app.get('/:id/stats/:year/summary', user(), yearMiddleware(), async (c) => {
   return statsJson(c, await getSummaryMetrics(userId, c.get('year')));
 });
 
-// Favorites count endpoint
 app.get(
   '/:id/stats/:year/favorites-count',
   user(),
   yearMiddleware(),
-  async (c) => {
-    const { id: userId } = c.get('user');
-    const year = c.get('year');
-
-    const cached = await getStatsCache<StatsFavoritesCount>(
-      userId,
-      year,
-      'favorites-count',
-    );
-    if (cached) {
-      c.header('Cache-Control', STATS_CACHE_HEADER);
-      return c.json(cached);
-    }
-
-    const [current, previous] = await Promise.all([
-      getListItemsCount({
-        endDate: new Date(`${year}-12-31T23:59:59.999Z`),
-        listId: 'FAVORITES',
-        startDate: new Date(`${year}-01-01T00:00:00.000Z`),
-        userId,
-      }),
-      getListItemsCount({
-        endDate: new Date(`${year - 1}-12-31T23:59:59.999Z`),
-        listId: 'FAVORITES',
-        startDate: new Date(`${year - 1}-01-01T00:00:00.000Z`),
-        userId,
-      }),
-    ]);
-
-    const result = { current, previous };
-
-    await setStatsCache(userId, year, 'favorites-count', result);
-    c.header('Cache-Control', STATS_CACHE_HEADER);
-    return c.json(result);
-  },
+  async (c) =>
+    statsJson(c, await getFavoritesCount(c.get('user').id, c.get('year'))),
 );
 
-// First and last watch spotlight
-app.get('/:id/stats/:year/spotlight', user(), yearMiddleware(), async (c) => {
-  const { id: userId } = c.get('user');
-  const year = c.get('year');
+// First and last watch of the year
+app.get('/:id/stats/:year/spotlight', user(), yearMiddleware(), async (c) =>
+  statsJson(c, await getYearSpotlight(c.get('user').id, c.get('year'))),
+);
 
-  const cached = await getStatsCache<StatsSpotlight>(userId, year, 'spotlight');
-  if (cached) {
-    c.header('Cache-Control', STATS_CACHE_HEADER);
-    return c.json(cached);
-  }
-
-  const [firstResult, lastResult] = await Promise.all([
-    getWatched({
-      endDate: new Date(`${year}-12-31T23:59:59.999Z`),
-      options: { limit: 1, sortDirection: 'asc' },
-      startDate: new Date(`${year}-01-01T00:00:00.000Z`),
-      userId,
-    }),
-    getWatched({
-      endDate: new Date(`${year}-12-31T23:59:59.999Z`),
-      options: { limit: 1, sortDirection: 'desc' },
-      startDate: new Date(`${year}-01-01T00:00:00.000Z`),
-      userId,
-    }),
-  ]);
-
-  const firstItem = firstResult.items[0];
-  const lastItem = lastResult.items[0];
-
-  const enrichSpotlight = async (
-    item: (typeof firstResult.items)[0] | undefined,
-  ) => {
-    if (!item) return null;
-
-    const tvSeries = await fetchTvSeries(item.seriesId, {
-      includeImages: true,
-    });
-    if (!tvSeries) return null;
-
-    return {
-      episode: {
-        episodeNumber: item.episodeNumber,
-        runtime: item.runtime,
-        seasonNumber: item.seasonNumber,
-        stillImage: item.episodeStillPath
-          ? buildStillImageUrl(item.episodeStillPath)
-          : null,
-        title: item.episodeTitle ?? `Episode ${item.episodeNumber}`,
-      },
-      tvSeries: {
-        backdropColor: tvSeries.backdropColor ?? null,
-        backdropImage: tvSeries.backdropImage ?? null,
-        id: tvSeries.id,
-        posterImage: tvSeries.posterImage ?? null,
-        slug: tvSeries.slug,
-        title: tvSeries.title,
-        titleTreatmentImage: tvSeries.titleTreatmentImage ?? null,
-      },
-      watchedAt: item.watchedAt,
-      watchProviderLogo: item.watchProviderLogoImage ?? null,
-    };
-  };
-
-  const [first, last] = await Promise.all([
-    enrichSpotlight(firstItem),
-    enrichSpotlight(lastItem),
-  ]);
-
-  const result = { first, last };
-
-  await setStatsCache(userId, year, 'spotlight', result);
-  c.header('Cache-Control', STATS_CACHE_HEADER);
-  return c.json(result);
-});
+const isInZone = (value: unknown, timeZone: string) =>
+  typeof value !== 'object' ||
+  value === null ||
+  !('timeZone' in value) ||
+  value.timeZone === timeZone;
 
 /**
  * A segment derived from the year's watched items. On a miss it computes and
@@ -164,18 +60,23 @@ app.get('/:id/stats/:year/spotlight', user(), yearMiddleware(), async (c) => {
  */
 const yearSegment =
   (segment: YearSegment) => async (c: Context<{ Variables: Variables }>) => {
-    const { id: userId } = c.get('user');
+    const { country, id: userId } = c.get('user');
     const year = c.get('year');
+    const timeZone = timeZoneForCountry(country);
 
     const cached = await getStatsCache(userId, year, segment);
-    if (cached) {
+    // A segment counted in a zone (`daily`, `when`) is stale once the user's
+    // country moved them to another one
+    if (cached && isInZone(cached, timeZone)) {
       return statsJson(c, cached);
     }
 
-    return statsJson(c, await computeYearSegment(userId, year, segment));
+    return statsJson(
+      c,
+      await computeYearSegment({ timeZone, userId }, year, segment),
+    );
   };
 
-// Weekly watch data
 app.get(
   '/:id/stats/:year/weekly',
   user(),
@@ -183,7 +84,6 @@ app.get(
   yearSegment('weekly'),
 );
 
-// Genre stats
 app.get(
   '/:id/stats/:year/genres',
   user(),
@@ -191,7 +91,6 @@ app.get(
   yearSegment('genres'),
 );
 
-// Provider/streaming service stats
 app.get(
   '/:id/stats/:year/providers',
   user(),
@@ -199,7 +98,6 @@ app.get(
   yearSegment('providers'),
 );
 
-// Country stats
 app.get(
   '/:id/stats/:year/countries',
   user(),
@@ -207,12 +105,65 @@ app.get(
   yearSegment('countries'),
 );
 
-// Watched series list (unique series with poster info)
 app.get(
   '/:id/stats/:year/watched-series',
   user(),
   yearMiddleware(),
   yearSegment('watched-series'),
+);
+
+// The stats page
+app.get(
+  '/:id/stats/:year/shows',
+  user(),
+  yearMiddleware(),
+  yearSegment('shows'),
+);
+
+app.get(
+  '/:id/stats/:year/finished',
+  user(),
+  yearMiddleware(),
+  yearSegment('finished'),
+);
+
+app.get(
+  '/:id/stats/:year/daily',
+  user(),
+  yearMiddleware(),
+  yearSegment('daily'),
+);
+
+app.get('/:id/stats/:year/when', user(), yearMiddleware(), yearSegment('when'));
+
+app.get(
+  '/:id/stats/:year/new-or-back',
+  user(),
+  yearMiddleware(),
+  yearSegment('new-or-back'),
+);
+
+// The Years submenu: years with watches and their episode counts
+app.get('/:id/stats/years', user(), async (c) => {
+  const { country, id: userId } = c.get('user');
+  const { timeZone, undated, years } = await getAllTimeStats(
+    userId,
+    timeZoneForCountry(country),
+  );
+  // Current within seconds (like the sidebar counts): never kept by the
+  // CDN; computed per request (cached until the next mark in the Cache
+  // table)
+  c.header('Cache-Control', PRIVATE_NO_STORE);
+  return c.json({ timeZone, undated, years } satisfies StatsYears);
+});
+
+// The zone the user's stats count in (as `/stats/years` names it), so
+// History can draw its local days without waiting on that read. No
+// Cache-Control: CloudFront never stores it
+app.get('/:id/stats/zone', user(), (c) =>
+  c.json({
+    timeZone: timeZoneForCountry(c.get('user').country),
+  } satisfies StatsZone),
 );
 
 export default app;

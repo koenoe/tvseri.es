@@ -1,424 +1,22 @@
-import type {
-  DependencyOperationStats,
-  DependencyStats,
-} from '@tvseri.es/schemas';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import type { DependencyStats } from '@tvseri.es/schemas';
 import { Fragment, memo, useCallback, useMemo, useState } from 'react';
 
 import {
-  Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  formatDependencyName,
-  formatErrorRate,
-  formatLatency,
-  getLatencyStatus,
-  sortDependencyKeys,
-} from '@/lib/api-metrics';
-import {
-  getSharpSparklinePath,
-  getSmoothSparklinePath,
-  SPARKLINE_HEIGHT,
-  SPARKLINE_WIDTH,
-} from '@/lib/sparkline';
-import { STATUS_COLORS } from '@/lib/status-colors';
-import { RouteLabel } from './endpoint-label';
-import { RequestBar } from './request-bar';
-import { StatusCodePopover } from './status-code-popover';
+import { sortDependencyKeys, toSeriesValues } from '@/lib/api-metrics';
+import { COLUMN_WIDTHS, DependencyRow, OperationRow } from './dependency-rows';
+import { TableFrame } from './table/table-frame';
 
 type DependenciesSectionProps = Readonly<{
   dependencies: Record<string, DependencyStats> | undefined;
-  maxRequestCount?: number;
 }>;
-
-function getErrorRateColor(errorRate: number): string {
-  if (errorRate < 1) return STATUS_COLORS.green.hsl;
-  if (errorRate < 5) return STATUS_COLORS.amber.hsl;
-  return STATUS_COLORS.red.hsl;
-}
-
-function getLatencyColor(p75: number): string {
-  const status = getLatencyStatus(p75);
-  if (status === 'fast') return STATUS_COLORS.green.hsl;
-  if (status === 'moderate') return STATUS_COLORS.amber.hsl;
-  return STATUS_COLORS.red.hsl;
-}
-
-const COLUMN_WIDTHS = {
-  actions: 48,
-  errorRate: 140,
-  latency: 140,
-  name: 260,
-  requests: 140,
-} as const;
-
-type LatencySparklineProps = Readonly<{
-  history: ReadonlyArray<{ p75: number }> | undefined;
-  p75: number;
-}>;
-
-function LatencySparkline({ history, p75 }: LatencySparklineProps) {
-  const path = useMemo(() => {
-    if (!history || history.length === 0) return '';
-    return getSmoothSparklinePath(
-      history.map((point) => point.p75),
-      SPARKLINE_WIDTH,
-      SPARKLINE_HEIGHT,
-    );
-  }, [history]);
-
-  const color = getLatencyColor(p75);
-
-  if (!path) return <div className="h-4 w-12" />;
-
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-4 w-12 overflow-visible"
-      preserveAspectRatio="none"
-      viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
-    >
-      <path
-        d={path}
-        fill="none"
-        stroke={color}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
-
-type ErrorSparklineProps = Readonly<{
-  errorRate: number;
-  history: ReadonlyArray<{ errorRate: number }> | undefined;
-}>;
-
-function ErrorSparkline({ errorRate, history }: ErrorSparklineProps) {
-  const path = useMemo(() => {
-    if (!history || history.length === 0) return '';
-    const errorRates = history.map((point) => point.errorRate);
-    const hasVariation = errorRates.some((r) => r !== errorRates[0]);
-    if (!hasVariation) return '';
-    return getSharpSparklinePath(errorRates, SPARKLINE_WIDTH, SPARKLINE_HEIGHT);
-  }, [history]);
-
-  const color = getErrorRateColor(errorRate);
-
-  if (!path) {
-    const normalizedRate = Math.min(errorRate, 10) / 10;
-    const y =
-      SPARKLINE_HEIGHT -
-      normalizedRate * SPARKLINE_HEIGHT * 0.8 -
-      SPARKLINE_HEIGHT * 0.1;
-
-    return (
-      <svg
-        aria-hidden="true"
-        className="h-4 w-12"
-        preserveAspectRatio="none"
-        viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
-      >
-        <line
-          stroke={color}
-          strokeLinecap="round"
-          strokeWidth="1.5"
-          x1="0"
-          x2={SPARKLINE_WIDTH}
-          y1={y}
-          y2={y}
-        />
-      </svg>
-    );
-  }
-
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-4 w-12 overflow-visible"
-      preserveAspectRatio="none"
-      viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
-    >
-      <path
-        d={path}
-        fill="none"
-        stroke={color}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
-
-function OperationLatencySparkline({
-  series,
-}: Readonly<{
-  series: ReadonlyArray<{ p75: number }> | undefined;
-}>) {
-  const path = useMemo(() => {
-    if (!series || series.length === 0) return '';
-    return getSmoothSparklinePath(
-      series.map((s) => s.p75),
-      SPARKLINE_WIDTH,
-      SPARKLINE_HEIGHT,
-    );
-  }, [series]);
-
-  if (!path) return <div className="h-4 w-12" />;
-
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-4 w-12 overflow-visible"
-      preserveAspectRatio="none"
-      viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
-    >
-      <path
-        className="stroke-muted-foreground/50"
-        d={path}
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
-
-function OperationErrorSparkline({
-  errorRate,
-  series,
-}: Readonly<{
-  errorRate: number;
-  series: ReadonlyArray<{ errorRate: number }> | undefined;
-}>) {
-  const path = useMemo(() => {
-    if (!series || series.length === 0) return '';
-    const errorRates = series.map((s) => s.errorRate);
-    const hasVariation = errorRates.some((r) => r !== errorRates[0]);
-    if (!hasVariation) return '';
-    return getSharpSparklinePath(errorRates, SPARKLINE_WIDTH, SPARKLINE_HEIGHT);
-  }, [series]);
-
-  if (!path) {
-    const normalizedRate = Math.min(errorRate, 10) / 10;
-    const y =
-      SPARKLINE_HEIGHT -
-      normalizedRate * SPARKLINE_HEIGHT * 0.8 -
-      SPARKLINE_HEIGHT * 0.1;
-
-    return (
-      <svg
-        aria-hidden="true"
-        className="h-4 w-12"
-        preserveAspectRatio="none"
-        viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
-      >
-        <line
-          className="stroke-muted-foreground/50"
-          strokeLinecap="round"
-          strokeWidth="1.5"
-          x1="0"
-          x2={SPARKLINE_WIDTH}
-          y1={y}
-          y2={y}
-        />
-      </svg>
-    );
-  }
-
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-4 w-12 overflow-visible"
-      preserveAspectRatio="none"
-      viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
-    >
-      <path
-        className="stroke-muted-foreground/50"
-        d={path}
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
-
-type DependencyRowProps = Readonly<{
-  errorHistory: ReadonlyArray<{ errorRate: number }> | undefined;
-  isExpanded: boolean;
-  latencyHistory: ReadonlyArray<{ p75: number }> | undefined;
-  maxRequestCount: number;
-  name: string;
-  onToggle: (name: string) => void;
-  stats: DependencyStats;
-}>;
-
-function DependencyRow({
-  errorHistory,
-  isExpanded,
-  latencyHistory,
-  maxRequestCount,
-  name,
-  onToggle,
-  stats,
-}: DependencyRowProps) {
-  const displayName = formatDependencyName(name);
-
-  const handleToggle = useCallback(() => onToggle(name), [onToggle, name]);
-
-  return (
-    <TableRow
-      className="cursor-pointer hover:bg-muted/50"
-      onClick={handleToggle}
-    >
-      <TableCell
-        className="px-3 py-2 font-medium"
-        style={{ width: COLUMN_WIDTHS.name }}
-      >
-        <div className="flex items-center gap-2">
-          {isExpanded ? (
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          ) : (
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          )}
-          {displayName}
-        </div>
-      </TableCell>
-      <TableCell
-        className="px-3 py-2"
-        style={{ width: COLUMN_WIDTHS.requests }}
-      >
-        <RequestBar
-          maxRequestCount={maxRequestCount}
-          requestCount={stats.count}
-        />
-      </TableCell>
-      <TableCell className="px-3 py-2" style={{ width: COLUMN_WIDTHS.latency }}>
-        <div className="flex items-center gap-3">
-          <span className="w-14 tabular-nums text-muted-foreground">
-            {formatLatency(stats.p75)}
-          </span>
-          <LatencySparkline history={latencyHistory} p75={stats.p75} />
-        </div>
-      </TableCell>
-      <TableCell
-        className="px-3 py-2"
-        style={{ width: COLUMN_WIDTHS.errorRate }}
-      >
-        <div className="flex items-center gap-3">
-          <span className="w-14 tabular-nums text-muted-foreground">
-            {formatErrorRate(stats.errorRate)}
-          </span>
-          <ErrorSparkline errorRate={stats.errorRate} history={errorHistory} />
-        </div>
-      </TableCell>
-      <TableCell
-        className="px-3 py-2"
-        style={{ width: COLUMN_WIDTHS.actions }}
-      ></TableCell>
-    </TableRow>
-  );
-}
-
-type OperationRowProps = Readonly<{
-  maxRequestCount: number;
-  operation: DependencyOperationStats;
-}>;
-
-function OperationRow({ maxRequestCount, operation }: OperationRowProps) {
-  const series = useMemo(() => {
-    if (!operation.series || operation.series.length <= 1) return undefined;
-    return operation.series;
-  }, [operation.series]);
-
-  const isPath = operation.operation.startsWith('/');
-
-  const statusCodes = useMemo(() => {
-    const codes = operation.codes ?? {};
-    const result = {
-      clientError: 0,
-      codes,
-      redirect: 0,
-      serverError: 0,
-      success: 0,
-    };
-
-    for (const [code, count] of Object.entries(codes)) {
-      const status = Number.parseInt(code, 10);
-      if (status >= 200 && status < 300) result.success += count;
-      else if (status >= 300 && status < 400) result.redirect += count;
-      else if (status >= 400 && status < 500) result.clientError += count;
-      else if (status >= 500) result.serverError += count;
-    }
-
-    return result;
-  }, [operation.codes]);
-
-  return (
-    <TableRow className="hover:bg-transparent">
-      <TableCell
-        className="truncate px-3 py-2 pl-9"
-        style={{ width: COLUMN_WIDTHS.name }}
-      >
-        {isPath ? (
-          <RouteLabel route={operation.operation} />
-        ) : (
-          operation.operation
-        )}
-      </TableCell>
-      <TableCell
-        className="px-3 py-2"
-        style={{ width: COLUMN_WIDTHS.requests }}
-      >
-        <RequestBar
-          maxRequestCount={maxRequestCount}
-          requestCount={operation.count}
-        />
-      </TableCell>
-      <TableCell className="px-3 py-2" style={{ width: COLUMN_WIDTHS.latency }}>
-        <div className="flex items-center gap-3">
-          <span className="w-14 tabular-nums text-muted-foreground">
-            {formatLatency(operation.p75)}
-          </span>
-          <OperationLatencySparkline series={series} />
-        </div>
-      </TableCell>
-      <TableCell
-        className="px-3 py-2"
-        style={{ width: COLUMN_WIDTHS.errorRate }}
-      >
-        <div className="flex items-center gap-3">
-          <span className="w-14 tabular-nums text-muted-foreground">
-            {formatErrorRate(operation.errorRate)}
-          </span>
-          <OperationErrorSparkline
-            errorRate={operation.errorRate}
-            series={series}
-          />
-        </div>
-      </TableCell>
-      <TableCell className="px-3 py-2" style={{ width: COLUMN_WIDTHS.actions }}>
-        <div className="flex justify-end">
-          <StatusCodePopover statusCodes={statusCodes} />
-        </div>
-      </TableCell>
-    </TableRow>
-  );
-}
 
 function DependenciesSectionComponent({
   dependencies,
-  maxRequestCount: maxRequestCountProp,
 }: DependenciesSectionProps) {
   const sortedKeys = useMemo(
     () => (dependencies ? sortDependencyKeys(Object.keys(dependencies)) : []),
@@ -442,89 +40,73 @@ function DependenciesSectionComponent({
   }, []);
 
   const maxRequestCount = useMemo(() => {
-    if (maxRequestCountProp !== undefined) return maxRequestCountProp;
     if (!dependencies) return 1;
     return Math.max(...Object.values(dependencies).map((d) => d.count), 1);
-  }, [dependencies, maxRequestCountProp]);
+  }, [dependencies]);
 
   if (!dependencies || sortedKeys.length === 0) {
     return null;
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border">
-      <Table className="table-fixed text-sm [&_td]:py-2 [&_th]:h-10 [&_th]:py-2">
-        <TableHeader>
-          <TableRow className="hover:bg-transparent">
-            <TableHead className="px-3" style={{ width: COLUMN_WIDTHS.name }}>
-              <span className="text-muted-foreground">Dependency</span>
-            </TableHead>
-            <TableHead
-              className="px-3"
-              style={{ width: COLUMN_WIDTHS.requests }}
-            >
-              <span className="text-muted-foreground">Requests</span>
-            </TableHead>
-            <TableHead
-              className="px-3"
-              style={{ width: COLUMN_WIDTHS.latency }}
-            >
-              <span className="text-muted-foreground">Latency</span>
-            </TableHead>
-            <TableHead
-              className="px-3"
-              style={{ width: COLUMN_WIDTHS.errorRate }}
-            >
-              <span className="text-muted-foreground">Error Rate</span>
-            </TableHead>
-            <TableHead
-              className="px-3"
-              style={{ width: COLUMN_WIDTHS.actions }}
-            />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedKeys.map((key) => {
-            const stats = dependencies[key];
-            if (!stats) return null;
+    <TableFrame>
+      <TableHeader>
+        <TableRow className="hover:bg-transparent">
+          <TableHead className="px-3" style={{ width: COLUMN_WIDTHS.name }}>
+            <span className="text-muted-foreground">Dependency</span>
+          </TableHead>
+          <TableHead className="px-3" style={{ width: COLUMN_WIDTHS.requests }}>
+            <span className="text-muted-foreground">Requests</span>
+          </TableHead>
+          <TableHead className="px-3" style={{ width: COLUMN_WIDTHS.latency }}>
+            <span className="text-muted-foreground">Latency</span>
+          </TableHead>
+          <TableHead
+            className="px-3"
+            style={{ width: COLUMN_WIDTHS.errorRate }}
+          >
+            <span className="text-muted-foreground">Error Rate</span>
+          </TableHead>
+          <TableHead
+            className="px-3"
+            style={{ width: COLUMN_WIDTHS.actions }}
+          />
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {sortedKeys.map((key) => {
+          const stats = dependencies[key];
+          if (!stats) return null;
 
-            const latencyHistory =
-              stats.history && stats.history.length > 1
-                ? stats.history.map((point) => ({ p75: point.value }))
-                : undefined;
+          const latencyHistory = toSeriesValues(stats.history);
+          const errorRateHistory = toSeriesValues(stats.errorRateHistory);
 
-            const errorHistory =
-              stats.history && stats.history.length > 1
-                ? stats.history.map((point) => ({ errorRate: point.value }))
-                : undefined;
+          const isExpanded = expanded.has(key);
 
-            const isExpanded = expanded.has(key);
-
-            return (
-              <Fragment key={key}>
-                <DependencyRow
-                  errorHistory={errorHistory}
-                  isExpanded={isExpanded}
-                  latencyHistory={latencyHistory}
-                  maxRequestCount={maxRequestCount}
-                  name={key}
-                  onToggle={toggle}
-                  stats={stats}
-                />
-                {isExpanded &&
-                  stats.topOperations?.map((op) => (
-                    <OperationRow
-                      key={`${key}-${op.operation}`}
-                      maxRequestCount={maxRequestCount}
-                      operation={op}
-                    />
-                  ))}
-              </Fragment>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+          return (
+            <Fragment key={key}>
+              <DependencyRow
+                errorRateHistory={errorRateHistory}
+                isExpanded={isExpanded}
+                latencyHistory={latencyHistory}
+                maxRequestCount={maxRequestCount}
+                name={key}
+                onToggle={toggle}
+                stats={stats}
+              />
+              {isExpanded &&
+                stats.topOperations?.map((op) => (
+                  <OperationRow
+                    key={op.operation}
+                    maxRequestCount={maxRequestCount}
+                    operation={op}
+                  />
+                ))}
+            </Fragment>
+          );
+        })}
+      </TableBody>
+    </TableFrame>
   );
 }
 

@@ -1,13 +1,7 @@
 /**
- * In-flight request deduplication.
- *
- * Prevents duplicate concurrent requests for the same resource
- * within a single Lambda invocation. Multiple callers requesting the
- * same resource will share the same Promise.
- *
- * Note: This is request-scoped (not cross-invocation) since Lambda
- * instances don't share memory. For cross-invocation caching, use
- * the DynamoDB cache layer.
+ * In-flight deduplication: concurrent callers asking for the same key share
+ * one Promise. Per Lambda instance only (instances share no memory); the
+ * Cache table is what instances share.
  */
 const inFlight = new Map<string, Promise<unknown>>();
 

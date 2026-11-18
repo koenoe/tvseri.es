@@ -8,7 +8,6 @@ import { auth } from './auth';
 import { domain, zone } from './dns';
 import * as secrets from './secrets';
 
-// Validate Vercel credentials upfront for clearer error messages
 const VERCEL_TOKEN = process.env.VERCEL_API_TOKEN;
 const VERCEL_TEAM_ID = process.env.VERCEL_TEAM_ID;
 
@@ -24,7 +23,6 @@ const customDomain = isProduction ? 'www.tvseri.es' : `www.${domain}`;
 const siteUrl = `https://${customDomain}`;
 const projectName = isProduction ? 'tvseries' : `tvseries-${$app.stage}`;
 
-// Helper to run Vercel CLI commands
 function runVercel(
   command: string,
   projectId: string,
@@ -48,7 +46,6 @@ function runVercel(
   });
 }
 
-// Dev mode: run Next.js locally
 if ($dev) {
   $resolve([
     apiRouter.url,
@@ -76,7 +73,6 @@ SECRET_KEY="${secretKey}"
   });
 }
 
-// Deployed environments: Vercel
 export const web = $dev
   ? { url: 'http://localhost:3000' }
   : (() => {
@@ -84,7 +80,7 @@ export const web = $dev
         framework: 'nextjs',
         name: projectName,
         resourceConfig: {
-          // Cost: API is in AWS eu-west-2 (London), so run only in lhr1. Measure US TTFB after deploy.
+          // One region, next to the API in eu-west-2 (London)
           functionDefaultCpuType: 'standard',
           functionDefaultRegions: ['lhr1'],
         },
@@ -97,7 +93,6 @@ export const web = $dev
 
       const vercelTarget = isProduction ? 'production' : 'preview';
 
-      // Environment variables for Vercel project
       const vercelVariables = [
         {
           key: 'API_KEY',
@@ -133,20 +128,36 @@ export const web = $dev
           ),
       );
 
-      // Build and deploy
       const deployedUrl = $resolve([
         apiRouter.url,
+        // Resolves once the API's distribution is deployed (see the wait below)
+        apiRouter.distributionID,
         auth.url,
         secrets.apiKeyRandom.result,
         secrets.sessionSecret.value,
         project.id,
         ...envVars.map((e) => e.id),
-      ]).apply(([apiUrl, authUrl, apiKey, secretKey, projectId]) => {
+      ]).apply(([apiUrl, , authUrl, apiKey, secretKey, projectId]) => {
         // Pulumi runs apply callbacks during previews (`sst diff`) too: never build/deploy/alias there.
         if ($util.runtime.isDryRun()) return siteUrl;
 
         const prodFlag = isProduction ? ' --prod' : '';
         const environment = isProduction ? 'production' : 'preview';
+
+        // The build prerenders against the API, so wait until the API
+        // answers with this deploy's key: a new stage's domain and routes are
+        // created in this same deploy, and a replaced key reaches the edge
+        // minutes after it changes. An unknown username is the API's 404;
+        // the edge refusing the key is a 401, so that keeps waiting.
+        console.log('|  Waiting for the API to accept the key...');
+        execSync(
+          'for i in $(seq 1 60); do code=$(curl -s -o /dev/null -w "%{http_code}" -H "x-api-key: $API_KEY" "$API_URL/user/by-username/deploy-probe"); [ "$code" = "404" ] && exit 0; sleep 5; done; echo "API not accepting the key after 5 minutes (last: $code)"; exit 1',
+          {
+            env: { ...process.env, API_KEY: apiKey, API_URL: apiUrl },
+            shell: '/bin/bash',
+            stdio: 'inherit',
+          },
+        );
 
         console.log('|  Pulling Vercel project settings...');
         runVercel(`pull --yes --environment=${environment}`, projectId);
@@ -170,7 +181,6 @@ export const web = $dev
         ).trim();
         console.log(`|  Deployed to ${deploymentUrl}`);
 
-        // Set alias for deployment
         runVercel(`alias set ${deploymentUrl} ${customDomain}`, projectId);
         console.log(`|  Live at ${siteUrl}`);
 
@@ -178,7 +188,6 @@ export const web = $dev
       });
 
       if (isProduction) {
-        // www.tvseri.es -> Vercel
         new vercel.ProjectDomain('WebDomainWww', {
           domain: 'www.tvseri.es',
           projectId: project.id,
@@ -194,8 +203,8 @@ export const web = $dev
           zoneId: zone,
         });
 
-        // tvseri.es -> redirect to www via SST Cdn
-        // SST manages the certificate lifecycle, preventing deletion issues
+        // The apex redirects to www. An SST Cdn rather than a bare
+        // distribution, so SST owns the certificate's lifecycle.
         const redirectFunction = new aws.cloudfront.Function(
           'ApexRedirectFunction',
           {

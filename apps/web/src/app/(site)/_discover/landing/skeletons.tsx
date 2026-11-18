@@ -1,0 +1,468 @@
+import type { ReactNode } from 'react';
+
+import { ChipCloudGhost } from '@/components/ui/button/ChipCloud';
+import { PAGE_COLUMN } from '@/components/ui/page/pageColumn';
+import { RowErrorCard } from '@/components/ui/row/RowError';
+import {
+  GHOST_FILL,
+  GHOST_LOOK,
+  GhostLine,
+  TitleGhost,
+} from '@/components/ui/row/RowGhosts';
+import cn from '@/lib/cn';
+
+import {
+  CHIPS_LINE,
+  FACTS_GRID,
+  LandingHero,
+  TITLE_SPACE,
+} from './LandingHero';
+import {
+  RANKED_COLUMNS,
+  RANKED_PHONE,
+  RANKED_PHONE_LIST,
+  RANKED_ROW,
+} from './ranked';
+
+/**
+ * `loading`: a Suspense fallback (the fill, `aria-busy` where the section
+ * says so). `failed`: the section's data is `Unavailable` in the cached page
+ * (the failed row: dashed outlines, settled, with the "didn’t load"
+ * card where the section has a title).
+ */
+export type PlaceholderLook = 'failed' | 'loading';
+
+const bar = (look: PlaceholderLook) => cn('block rounded-8', GHOST_LOOK[look]);
+
+/** The row switch's place while it loads (the Segmented's 38px pill) */
+const SWITCH_GHOST = cn('block h-9.5 w-72 rounded-full', GHOST_LOOK.loading);
+
+export function SwitchGhost() {
+  return <span aria-hidden className={SWITCH_GHOST} />;
+}
+
+/**
+ * The chips' ghosts: a landing's six (`MAX_CHIPS`) at typical label widths,
+ * two rows on a phone as the real chips take
+ */
+const CHIP_WIDTHS = [
+  'w-[110px]',
+  'w-[89px]',
+  'w-[109px]',
+  'w-[76px]',
+  'w-[96px]',
+  'w-[84px]',
+] as const;
+
+type DetailsSkeletonProps = Readonly<{
+  /** with the chips line (`LandingChips`) */
+  chips?: boolean;
+  /** the chips have an overline heading on desktop ("Often tagged with") */
+  chipsHeading?: boolean;
+  /** how many facts the hero has (Genre: 4) */
+  facts?: number;
+  /** the hero's line: the real one when it needs no API (it's static copy), `true` for a bar, nothing for none */
+  line?: ReactNode;
+  look?: PlaceholderLook;
+}>;
+
+/**
+ * Everything under the hero's title while its data loads, at the loaded
+ * size: the meta line, the line, the facts and the chips. Put it in the
+ * `<Suspense>` around the hero's gated details; the crumb and the title
+ * (from the slug) stay real in the shell. `look="failed"` when the data is
+ * `Unavailable`.
+ */
+export function LandingHeroDetailsSkeleton({
+  chips = true,
+  chipsHeading = false,
+  facts = 0,
+  line,
+  look = 'loading',
+}: DetailsSkeletonProps) {
+  const block = bar(look);
+  const chipsClass = cn(
+    CHIPS_LINE,
+    // from md the ghosts stay on the one row the chips most often
+    // take (the wrapped ones are cut), as the hero's size
+    'overflow-hidden md:max-h-[38px]',
+    chipsHeading ? 'md:mt-2' : 'md:mt-6',
+  );
+  const kickerBar = `${block} mt-2 h-5 w-64`;
+  const lineBar = `${block} mt-3 h-6 w-full max-w-[600px] md:h-7`;
+  const factBar = `${block} h-8 w-24 md:h-10`;
+  const chipsHeadingBar = `${block} mt-10 h-5 w-32 max-md:hidden`;
+  return (
+    <>
+      <span aria-hidden className={kickerBar} />
+      {line === true ? (
+        <span aria-hidden className={lineBar} />
+      ) : (
+        (line ?? null)
+      )}
+      {facts > 0 ? (
+        <span aria-hidden className={FACTS_GRID}>
+          {Array.from({ length: facts }, (_, index) => (
+            <span className="flex flex-col gap-1" key={index}>
+              <span className={factBar} />
+              <span className="flex flex-col">
+                <GhostLine className="h-5" look={look} width="w-28" />
+                {/* the second fact's caption names a genre ("are also Action & Adventure"): two lines in a phone's 151px column */}
+                {index === 1 ? (
+                  <GhostLine
+                    className="h-5 md:hidden"
+                    look={look}
+                    width="w-20"
+                  />
+                ) : null}
+              </span>
+            </span>
+          ))}
+        </span>
+      ) : null}
+      {chipsHeading ? <span aria-hidden className={chipsHeadingBar} /> : null}
+      {chips ? (
+        <ChipCloudGhost
+          className={chipsClass}
+          look={look}
+          widths={CHIP_WIDTHS}
+        />
+      ) : null}
+    </>
+  );
+}
+
+const SPOTLIGHT_GHOST = cn(
+  'flex h-75 flex-col justify-end rounded-16 md:h-110',
+  GHOST_LOOK.loading,
+);
+const SPOTLIGHT_PILL_WIDE = cn('h-10 w-31 rounded-full', GHOST_FILL);
+const SPOTLIGHT_PILL_NARROW = cn('h-10 w-27 rounded-full', GHOST_FILL);
+
+/**
+ * The recommendation tile while it loads, built from `Spotlight`'s layout:
+ * the kicker, the title (the logo's 32 / 44px line), the meta line
+ * (desktop), the reason and the two pills, at the bottom of the tile.
+ */
+function SpotlightGhost() {
+  return (
+    <span aria-hidden className={SPOTLIGHT_GHOST}>
+      <span className="flex flex-col items-start p-4 md:p-8">
+        <GhostLine className="h-5" inPulse look="loading" width="w-24" />
+        <GhostLine
+          className="mt-2 h-8 md:mt-4 md:h-11"
+          inPulse
+          look="loading"
+          width="w-48 md:w-64"
+        />
+        <GhostLine
+          className="mt-4 h-5 max-md:hidden"
+          inPulse
+          look="loading"
+          width="w-56"
+        />
+        <GhostLine
+          className="mt-2 h-6 md:mt-3"
+          inPulse
+          look="loading"
+          width="w-4/5 max-w-[520px]"
+        />
+        <span className="mt-4 flex items-center gap-2 md:mt-6 md:gap-3">
+          <span className={SPOTLIGHT_PILL_WIDE} />
+          <span className={SPOTLIGHT_PILL_NARROW} />
+        </span>
+      </span>
+    </span>
+  );
+}
+
+/**
+ * One Where to start card while it loads, from `WhereToStart`'s card: the
+ * poster (72 / 96 wide) and, beside it, the kicker, title, meta line and
+ * reason, each a bar in its line box
+ */
+const START_POSTER_GHOST = cn('block aspect-2/3 rounded-8', GHOST_FILL);
+
+function StartCardGhost({ className }: Readonly<{ className?: string }>) {
+  const cardClass = cn(
+    'grid h-37 grid-cols-[72px_minmax(0,1fr)] items-start gap-4 overflow-hidden rounded-16 p-4 md:h-48 md:grid-cols-[96px_minmax(0,1fr)] md:gap-6 md:p-6',
+    GHOST_LOOK.loading,
+    className,
+  );
+  return (
+    <span aria-hidden className={cardClass}>
+      <span className={START_POSTER_GHOST} />
+      <span className="flex min-w-0 flex-col" data-placeholder="start-text">
+        <GhostLine className="h-5" inPulse look="loading" width="w-20" />
+        <GhostLine className="mt-2 h-6" inPulse look="loading" width="w-3/5" />
+        <GhostLine className="mt-2 h-5" inPulse look="loading" width="w-4/5" />
+        <GhostLine className="mt-3 h-6" inPulse look="loading" width="w-2/3" />
+      </span>
+    </span>
+  );
+}
+
+/** The recommendation tile's place (`Spotlight`'s exact size) */
+export function SpotlightSkeleton({
+  look = 'loading',
+  title = 'The recommendation',
+}: Readonly<{
+  look?: PlaceholderLook;
+  /** failed: what the card says didn't load */
+  title?: string;
+}>) {
+  const classes = cn('block h-75 rounded-16 md:h-110', GHOST_LOOK[look]);
+  const tile = <span aria-hidden className={classes} />;
+  if (look === 'loading') {
+    return <SpotlightGhost />;
+  }
+  // The failed look: the dashed tile under the "didn't load" card
+  return (
+    <div className="relative [--row-end:0px] [--row-start:0px]">
+      {tile}
+      <RowErrorCard state="unavailable" title={title} />
+    </div>
+  );
+}
+
+/**
+ * One line of the display title while it loads: the title's line box (48 /
+ * 64px) with the bar centred in it, as the glyphs sit in theirs, so the
+ * crumb keeps its distance and a second line keeps the line's gap.
+ */
+export function TitleLineGhost({
+  className,
+  fill = GHOST_LOOK.loading,
+  name,
+  width,
+}: Readonly<{
+  /** the box's placement (`TITLE_SPACE`, a breakpoint's `hidden`) */
+  className?: string;
+  /** the bar's fill, the loading ghost's by default */
+  fill?: string;
+  /** `data-placeholder` of the line box; the bar's is `{name}-bar` */
+  name?: string;
+  /** the bar's width classes */
+  width: string;
+}>) {
+  const lineClass = cn('flex h-12 items-center md:h-16', className);
+  const barClass = cn('block h-9 rounded-8 md:h-12', fill, width);
+  const barName = name ? `${name}-bar` : undefined;
+  return (
+    <span aria-hidden className={lineClass} data-placeholder={name}>
+      <span className={barClass} data-placeholder={barName} />
+    </span>
+  );
+}
+
+type HeroSkeletonProps = DetailsSkeletonProps &
+  Readonly<{
+    /** with a recommendation tile (Theme, Network) */
+    aside?: boolean;
+    /** the real crumb: it is static, so the shell already says where you are */
+    crumb: ReactNode;
+    glow?: string;
+  }>;
+
+/**
+ * The whole hero before the slug is known (the shell of a slug that wasn't
+ * prerendered): the real crumb, a bar for the title, then
+ * `LandingHeroDetailsSkeleton` and the tile (`aside`).
+ */
+export function LandingHeroSkeleton({
+  aside = false,
+  crumb,
+  glow,
+  line = true,
+  ...details
+}: HeroSkeletonProps) {
+  const tile = aside ? <SpotlightSkeleton /> : undefined;
+  return (
+    <LandingHero
+      aside={tile}
+      glow={glow}
+      labelledBy="landing-loading"
+      placeholder
+    >
+      {crumb}
+      <h1 className="sr-only" id="landing-loading">
+        Loading
+      </h1>
+      <TitleLineGhost
+        className={TITLE_SPACE}
+        name="landing-title"
+        width="w-56 md:w-80"
+      />
+      <LandingHeroDetailsSkeleton line={line} {...details} />
+    </LandingHero>
+  );
+}
+
+const HEADING_TITLE_GHOST = cn(
+  'block h-12 w-40 rounded-8 md:h-16 md:w-56',
+  GHOST_FILL,
+  TITLE_SPACE,
+);
+const HEADING_META_GHOST = cn('mt-2 block h-5 w-64 rounded-8', GHOST_FILL);
+
+/**
+ * A `PlainHeroFrame`'s heading while the slug resolves: the h1 the frame
+ * is labelled by, the title's place and the meta line's; `children` add
+ * what the heading draws under them.
+ */
+export function PlainHeadingSkeleton({
+  children,
+  id,
+}: Readonly<{
+  children?: ReactNode;
+  /** the frame's `labelledBy` */
+  id: string;
+}>) {
+  return (
+    <>
+      <h1 className="sr-only" id={id}>
+        Loading
+      </h1>
+      <span aria-hidden className={HEADING_TITLE_GHOST} />
+      <span aria-hidden className={HEADING_META_GHOST} />
+      {children}
+    </>
+  );
+}
+
+type SectionProps = Readonly<{
+  /** the slots, at the loaded section's size */
+  children: ReactNode;
+  look: PlaceholderLook;
+  /** the heading's own classes, where the loaded heading is not the plain title (the wall's 32px line) */
+  headingClass?: string;
+  /** the parity checks' name (`data-placeholder`) */
+  name?: string;
+  /** without one the title comes with the data: a bar in its line */
+  title?: string;
+}>;
+
+/**
+ * A section that isn't a poster row, before it has its data: its title over
+ * slots of the loaded size. Loading, the region is busy; failed (the data
+ * is `Unavailable`), the error card over the slots says it didn't load,
+ * with Try again (it refreshes the route).
+ */
+export function SectionPlaceholder({
+  children,
+  headingClass,
+  look,
+  name,
+  title,
+}: SectionProps) {
+  const titleClass = cn('mb-6 text-title-2 text-white', headingClass);
+  const heading = <h2 className={titleClass}>{title ?? <TitleGhost />}</h2>;
+  if (look === 'loading') {
+    return (
+      <section aria-busy className={PAGE_COLUMN} data-placeholder={name}>
+        {heading}
+        {children}
+      </section>
+    );
+  }
+  const cardTitle = title ?? '';
+  return (
+    <section className={PAGE_COLUMN}>
+      {heading}
+      <div className="relative [--row-end:0px] [--row-start:0px]">
+        {children}
+        <RowErrorCard state="unavailable" title={cardTitle} />
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Where to start's place: the title (a bar when it comes with the data) and
+ * the cards: three across from lg (the column is too narrow for three below it), stacked before.
+ * The section is only drawn with three cards (`MIN_POSTERS`, a slot
+ * shown above is filled from its backups), so all three stack on a phone.
+ */
+export function WhereToStartSkeleton({
+  look = 'loading',
+  title,
+}: Readonly<{
+  look?: PlaceholderLook;
+  title?: string;
+}>) {
+  const card = cn('block h-37 rounded-16 md:h-48', GHOST_LOOK[look]);
+  const failedTitle = look === 'failed' ? 'Where to start' : undefined;
+  const sectionTitle = title ?? failedTitle;
+  return (
+    <SectionPlaceholder look={look} name="start" title={sectionTitle}>
+      <div className="flex flex-col gap-3 md:gap-6 lg:grid lg:grid-cols-3">
+        {[0, 1, 2].map((index) => {
+          return look === 'loading' ? (
+            <StartCardGhost key={index} />
+          ) : (
+            <span aria-hidden className={card} key={index} />
+          );
+        })}
+      </div>
+    </SectionPlaceholder>
+  );
+}
+
+/** One row of the ranked list as it is drawn (`RankedItem`): the rank, the title line, the facts line */
+function RankedRowGhost({
+  compact,
+  look,
+}: Readonly<{ compact?: boolean; look: PlaceholderLook }>) {
+  const rowClass = compact ? RANKED_ROW.compact : RANKED_ROW.full;
+  return (
+    <span aria-hidden className={rowClass}>
+      <GhostLine
+        className={compact ? 'h-6' : 'h-7'}
+        look={look}
+        width="ml-auto w-4"
+      />
+      <span className="flex min-w-0 flex-col gap-1 md:gap-2">
+        <GhostLine
+          className={compact ? 'h-6' : 'h-7'}
+          look={look}
+          width="w-3/5"
+        />
+        <GhostLine className="h-5" look={look} width="w-2/5" />
+      </span>
+      <span />
+    </span>
+  );
+}
+
+/**
+ * The ranked list's place: the title and the rows as drawn (ten in two
+ * columns of five on desktop; five and a "Show 6 to 10" button on a phone).
+ */
+export function RankedListSkeleton({
+  look = 'loading',
+  title,
+}: Readonly<{ look?: PlaceholderLook; title?: string }>) {
+  const buttonGhostClass = cn(
+    'mx-2 block h-10 w-44 rounded-full',
+    GHOST_LOOK[look],
+  );
+  return (
+    <SectionPlaceholder look={look} name="ranked" title={title}>
+      <div>
+        <div className={RANKED_COLUMNS}>
+          {Array.from({ length: 10 }, (_, index) => (
+            <RankedRowGhost key={index} look={look} />
+          ))}
+        </div>
+        <div className={RANKED_PHONE}>
+          <div className={RANKED_PHONE_LIST}>
+            {Array.from({ length: 5 }, (_, index) => (
+              <RankedRowGhost compact key={index} look={look} />
+            ))}
+          </div>
+          <span aria-hidden className={buttonGhostClass} />
+        </div>
+      </div>
+    </SectionPlaceholder>
+  );
+}

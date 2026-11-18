@@ -1,34 +1,51 @@
 {
-  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "$schema": "https://unpkg.com/knip@6/schema.json",
   "exclude": ["duplicates"],
-  "ignore": [".claude/**"],
+  "ignore": [".claude/**", "packages/schemas/tmdb-v*.d.ts"],
   "ignoreExportsUsedInFile": {
     "interface": true,
     "type": true
   },
   "ignoreWorkspaces": ["packages/typescript-config"],
   "workspaces": {
-    ".": {
-      "entry": ["infra/**/*.ts"]
-    },
     "apps/api": {
       "entry": ["src/index.ts", "src/lambdas/*.ts"]
     },
     "apps/auth": {
-      "entry": ["src/index.ts"]
+      "entry": ["src/index.ts", "e2e/harness/*.ts"]
     },
     "apps/dashboard": {
       "entry": ["src/routes/**/*.tsx"]
     },
     "apps/web": {
-      "entry": ["src/lib/tmdbImageLoader.ts"],
-      "ignoreDependencies": ["postcss-load-config"]
+      "entry": [
+        "test/empty.ts",
+        "scripts/*.mjs",
+        "e2e/stub-api/fixtures/**/*.ts"
+      ],
+      "project": [
+        "**/*.{js,mjs,cjs,ts,tsx,css}",
+        "!src/app/(site)/dev/style-guide/_sections/IconSection.tsx"
+      ]
+    },
+    "packages/constants": {
+      "includeEntryExports": true
     },
     "packages/kill-switch": {
       "entry": [
-        "disable-cloudfront-distributions/index.mjs!",
+        "disable-cloudfront-distributions/index.ts!",
         "metrics-monitor/index.ts!"
       ]
+    },
+    "packages/schemas": {
+      "includeEntryExports": true
+    },
+    "packages/utils": {
+      "includeEntryExports": true
+    },
+    "tools/load": {
+      "entry": ["src/*.load.ts"],
+      "ignoreDependencies": ["@openauthjs/openauth"]
     }
   }
 }

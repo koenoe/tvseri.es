@@ -1,11 +1,22 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
+    "@tvseri.es/api#test": {
+      "dependsOn": ["transit"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/infra/**",
+        "$TURBO_ROOT$/apps/auth/src/**",
+        "$TURBO_ROOT$/packages/kill-switch/**"
+      ],
+      "outputs": []
+    },
     "//#check-types:infra": {
       "inputs": [
         "sst.config.ts",
         "sst-env.d.ts",
         "infra/**",
+        "packages/constants/src/**",
         "tsconfig.infra.json"
       ]
     },
@@ -14,7 +25,14 @@
       "cache": false
     },
     "check-types": {
-      "dependsOn": ["^check-types"]
+      "dependsOn": ["transit"]
+    },
+    "test": {
+      "dependsOn": ["transit"],
+      "outputs": []
+    },
+    "transit": {
+      "dependsOn": ["^transit"]
     }
   },
   "ui": "tui"

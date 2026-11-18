@@ -1,12 +1,9 @@
 /**
- * Shared histogram utilities for accurate percentile calculation
- * when aggregating data across multiple time periods.
+ * Fixed-edge histograms: summing bins merges periods, so percentiles over
+ * several days stay accurate where averaging daily percentiles would not.
  */
 
-/**
- * Merge multiple histograms by summing corresponding bins.
- * Works for any histogram type (web vitals, latency, etc.)
- */
+/** Sums histograms bin by bin; a shorter one counts as zeros at the end */
 export const mergeHistogramBins = (histograms: number[][]): number[] => {
   if (histograms.length === 0) return [];
 
@@ -23,9 +20,7 @@ export const mergeHistogramBins = (histograms: number[][]): number[] => {
   return merged;
 };
 
-/**
- * Find which bin a value belongs to given bin edges.
- */
+/** The bin a value falls in; anything past the last edge is in the last bin */
 export const findBinIndexForEdges = (
   value: number,
   edges: readonly number[],
@@ -37,12 +32,8 @@ export const findBinIndexForEdges = (
 };
 
 /**
- * Calculate a percentile from histogram bins using linear interpolation.
- *
- * @param bins - Count of values in each bin
- * @param edges - Bin edge boundaries
- * @param percentile - Target percentile (0-100)
- * @returns Percentile value in the same units as edges
+ * A percentile (0–100) from histogram bins, interpolated linearly within its
+ * bin, in the units of `edges`.
  */
 export const percentileFromBins = (
   bins: number[],
@@ -65,17 +56,15 @@ export const percentileFromBins = (
       const binStart = edges[i] ?? 0;
       const binEnd = edges[i + 1] ?? binStart;
 
-      // For infinity edge, return bin start as conservative estimate
+      // An open-ended bin has no width to interpolate over
       if (!Number.isFinite(binEnd)) {
         return binStart;
       }
 
-      // Linear interpolation within the bin
       const fractionInBin = (targetCount - prevCumulative) / binCount;
       return binStart + fractionInBin * (binEnd - binStart);
     }
   }
 
-  // Fallback: return start of last finite bin
   return edges[edges.length - 2] ?? 0;
 };

@@ -1,0 +1,363 @@
+import type { Person } from '@tvseri.es/schemas';
+import type { CSSProperties, ReactNode } from 'react';
+import {
+  calendarGlyph,
+  chevronRightGlyph,
+  clockGlyph,
+  filmGlyph,
+  micGlyph,
+  seasonGlyph,
+  userGlyph,
+  usersGlyph,
+} from '@/components/ui/icon/glyphs';
+import Icon from '@/components/ui/icon/Icon';
+import type { Glyph } from '@/components/ui/icon/types';
+import { SectionError } from '@/components/ui/row/RowError';
+import SectionHead from '@/components/ui/section/SectionHead';
+import TileLink from '@/components/ui/tile/TileLink';
+import { isUnavailable } from '@/lib/cache/unavailable';
+import cn from '@/lib/cn';
+import {
+  type CaptionPlace,
+  type CareerView,
+  GUEST_CAPTION_GAP,
+} from '@/lib/person/career';
+import { allSeriesLabel } from '@/lib/person/format';
+import { loadCareerView, loadShowsView } from '@/lib/person/loaders';
+import { PERSON_LANE, PERSON_SECTION } from '../layout';
+import { CareerSkeleton } from '../Skeletons';
+import { SECTION_LINK } from '../sectionLink';
+import { barStyle, WEIGHT } from './bars';
+import { AllSeriesButton, GuestRowButton } from './CareerButtons';
+import { CareerKeyBlock, CareerKeyInline } from './CareerKey';
+import CareerMarks from './CareerMarks';
+import CareerTouch from './CareerTouch';
+import styles from './career.module.css';
+
+/** The chart's lane */
+const LANE = cn(PERSON_LANE, 'px-4 pt-4 pb-3 lg:px-6 lg:pt-5 lg:pb-4');
+
+/** Label column 104px (phone) / 168px (desktop), 12 / 16px to the track */
+const COLUMNS =
+  'grid grid-cols-[104px_minmax(0,1fr)] gap-3 lg:grid-cols-[168px_minmax(0,1fr)] lg:gap-4';
+/**
+ * A row's highlight reaches 8px (phone) / 12px (desktop) past its label and
+ * track, into the lane's padding; the negative margin keeps every label and
+ * bar where the columns put them.
+ */
+const ROW = cn(
+  styles.row,
+  COLUMNS,
+  '-mx-2 px-2 lg:-mx-3 lg:px-3 h-[52px] items-center rounded-8 lg:h-[30px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/70',
+);
+/** The guest button's width: the lane's, plus the row's two overhangs */
+const GUEST_ROW =
+  'w-[calc(100%+16px)] cursor-pointer text-left lg:w-[calc(100%+24px)]';
+const TRACK = 'relative h-[52px] lg:h-[30px]';
+const CAPTION = cn(
+  styles.cap,
+  'absolute top-1.5 hidden h-[18px] items-center gap-3 rounded-6 bg-ground-deep px-2 text-caption whitespace-nowrap text-white/80 lg:flex',
+);
+const LABEL =
+  'block truncate text-body-sm font-medium text-white/80 lg:font-normal';
+const SUB = 'text-caption text-white/60 tabular-nums lg:hidden';
+
+const AXIS_COLUMNS = cn(COLUMNS, 'h-6');
+const NAME_LABEL = cn(styles.name, LABEL);
+const WHEN_SUB = cn(SUB, 'text-pink');
+const UPCOMING_BAR = cn(
+  'absolute bg-linear-to-r from-pink to-pink/0',
+  WEIGHT[2],
+);
+const UPCOMING_CAPTION = cn(CAPTION, styles.capOn, 'text-pink');
+const GUEST_ROW_CLASS = cn(ROW, GUEST_ROW);
+const SHORT_ALL_SERIES = cn(SECTION_LINK, 'cursor-pointer lg:hidden');
+const LONG_ALL_SERIES = cn(SECTION_LINK, 'cursor-pointer');
+
+const captionStyle = (at: CaptionPlace): CSSProperties => {
+  if (at.side === 'over') {
+    return { right: 0 };
+  }
+  return at.side === 'after'
+    ? { left: `calc(${at.left}% + 8px)` }
+    : { right: `calc(${at.right}% + 8px)` };
+};
+
+function CaptionItem({
+  children,
+  icon,
+}: Readonly<{ children: ReactNode; icon: Glyph }>) {
+  return (
+    <span className="inline-flex items-center gap-[5px]">
+      <Icon className="shrink-0" glyph={icon} size={12} />
+      {children}
+    </span>
+  );
+}
+
+function Axis({ view }: Readonly<{ view: CareerView }>) {
+  const { marker } = view;
+  const markerClass = marker.died
+    ? 'translate-x-[calc(-100%-6px)] text-white/60'
+    : '-translate-x-1/2 font-medium text-white';
+  const markerLabelClass = cn(
+    styles.dim,
+    'absolute top-0 text-caption whitespace-nowrap',
+    markerClass,
+  );
+  const markerAt = { left: `${marker.at}%` };
+  return (
+    <>
+      <div aria-hidden="true" className={AXIS_COLUMNS}>
+        <span />
+        <span className="relative">
+          {view.axis.desktop.map((tick) => {
+            const tickAt = { left: `${tick.at}%` };
+            return (
+              <span
+                className="absolute top-0 hidden -translate-x-1/2 text-caption whitespace-nowrap text-white/60 tabular-nums lg:block"
+                key={tick.label}
+                style={tickAt}
+              >
+                {tick.label}
+              </span>
+            );
+          })}
+          {view.axis.phone.map((tick) => {
+            const tickAt = { left: `${tick.at}%` };
+            return (
+              <span
+                className="absolute top-0 -translate-x-1/2 text-caption whitespace-nowrap text-white/60 tabular-nums lg:hidden"
+                key={tick.label}
+                style={tickAt}
+              >
+                {tick.label}
+              </span>
+            );
+          })}
+          <span className={markerLabelClass} style={markerAt}>
+            {marker.label}
+          </span>
+        </span>
+      </div>
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute top-6 right-0 bottom-0 left-[116px] lg:left-[184px]"
+      >
+        {view.grid.map((at) => {
+          const lineAt = { left: `${at}%` };
+          return (
+            <i
+              className="absolute top-0 bottom-0 w-px bg-white/5"
+              key={at}
+              style={lineAt}
+            />
+          );
+        })}
+        <i
+          className="absolute top-0 bottom-0 w-px bg-white/28"
+          style={markerAt}
+        />
+      </span>
+    </>
+  );
+}
+
+function Rows({
+  personId,
+  view,
+}: Readonly<{ personId: number; view: CareerView }>) {
+  return (
+    <>
+      {view.rows.map((row) => {
+        const captionAt = captionStyle(row.caption);
+        return (
+          <TileLink
+            className={ROW}
+            data-career-row=""
+            href={row.href}
+            key={row.id}
+          >
+            <span className="flex min-w-0 flex-col gap-px pl-1 lg:block lg:pl-2">
+              <span className={NAME_LABEL}>{row.name}</span>
+              <span className="sr-only">{row.details}</span>
+              <span aria-hidden="true" className={SUB}>
+                {row.years}
+              </span>
+            </span>
+            <span className={TRACK}>
+              <CareerMarks
+                bar={row.bar}
+                personId={personId}
+                runs={row.runs}
+                seriesId={row.id}
+                weight={row.weight}
+              />
+              <span aria-hidden="true" className={CAPTION} style={captionAt}>
+                <CaptionItem icon={row.voice ? micGlyph : userGlyph}>
+                  {row.role}
+                </CaptionItem>
+                <CaptionItem icon={seasonGlyph}>{row.episodes}</CaptionItem>
+                <CaptionItem icon={calendarGlyph}>{row.years}</CaptionItem>
+              </span>
+            </span>
+          </TileLink>
+        );
+      })}
+      {view.upcoming.map((row) => {
+        const style = { right: `calc(${row.captionRight}% + 4px)` };
+        const barAt = barStyle(row.bar.start, row.bar.end, 1);
+        return (
+          <TileLink
+            className={ROW}
+            data-career-row=""
+            href={row.href}
+            key={row.id}
+          >
+            <span className="flex min-w-0 flex-col gap-px pl-1 lg:block lg:pl-2">
+              <span className={NAME_LABEL}>{row.name}</span>
+              <span className="sr-only">{row.details}</span>
+              <span aria-hidden="true" className={WHEN_SUB}>
+                {row.when}
+              </span>
+            </span>
+            <span className={TRACK}>
+              <i className={UPCOMING_BAR} style={barAt} />
+              <span
+                aria-hidden="true"
+                className={UPCOMING_CAPTION}
+                style={style}
+              >
+                <CaptionItem icon={filmGlyph}>{row.role}</CaptionItem>
+                <CaptionItem icon={clockGlyph}>{row.when}</CaptionItem>
+                <CaptionItem icon={calendarGlyph}>{row.date}</CaptionItem>
+              </span>
+            </span>
+          </TileLink>
+        );
+      })}
+    </>
+  );
+}
+
+function GuestRow({
+  personId,
+  view,
+}: Readonly<{ personId: number; view: NonNullable<CareerView['guest']> }>) {
+  const style =
+    view.caption.side === 'after'
+      ? { left: `calc(${view.caption.left}% + ${GUEST_CAPTION_GAP}px)` }
+      : { right: 0 };
+  return (
+    <GuestRowButton
+      aria={view.aria}
+      className={GUEST_ROW_CLASS}
+      personId={personId}
+    >
+      <span className="flex min-w-0 flex-col gap-px pl-1 lg:block lg:pl-2">
+        <span className="block truncate text-body-sm font-medium text-white/60 lg:font-normal">
+          Guest roles
+          <small className="ml-1.5 hidden text-caption text-white/60 tabular-nums lg:inline">
+            {view.count}
+          </small>
+        </span>
+        <span className={SUB}>
+          {view.count}, {view.years}
+        </span>
+      </span>
+      <span className={TRACK}>
+        {view.ticks.map((at, index) => {
+          const tickAt = { left: `calc(${at}% - 1px)` };
+          return (
+            <i
+              className="absolute top-[15px] h-2.5 w-0.5 rounded-[1px] bg-white/38 lg:top-2.5"
+              key={index}
+              style={tickAt}
+            />
+          );
+        })}
+        <span aria-hidden="true" className={CAPTION} style={style}>
+          <CaptionItem icon={usersGlyph}>
+            {view.count} one-off roles
+          </CaptionItem>
+          <CaptionItem icon={calendarGlyph}>{view.years}</CaptionItem>
+        </span>
+      </span>
+    </GuestRowButton>
+  );
+}
+
+/**
+ * Career: a
+ * server-drawn chart, one row per series, the viewer's stretches filled
+ * (client marks), Today or the date of death, announced work in pink past
+ * Today, guest roles as ticks. Rows link to the show; a first tap on touch
+ * lights the row.
+ */
+export default async function Career({
+  person,
+}: Readonly<{ person: Pick<Person, 'deathdate' | 'gender' | 'id'> }>) {
+  const [view, shows] = await Promise.all([
+    loadCareerView(person.id, person.deathdate),
+    loadShowsView(person.id, person.gender),
+  ]);
+  if (isUnavailable(view)) {
+    return (
+      <SectionError
+        inset="flush"
+        placeholder={<CareerSkeleton />}
+        state="unavailable"
+        title="Career"
+      />
+    );
+  }
+  if (!view) {
+    return null;
+  }
+  const series = shows && !isUnavailable(shows) ? shows.counts.series : 0;
+  const chevron = <Icon glyph={chevronRightGlyph} size={14} />;
+  // The key lists only marks on screen: none when there are only guest ticks
+  const hasBars = view.rows.length + view.upcoming.length > 0;
+  const headLink = (
+    <>
+      {hasBars ? <CareerKeyInline personId={person.id} /> : null}
+      {series > 0 ? (
+        <AllSeriesButton className={SHORT_ALL_SERIES} personId={person.id}>
+          {allSeriesLabel(series, 'short')}
+          {chevron}
+        </AllSeriesButton>
+      ) : null}
+    </>
+  );
+
+  return (
+    <section
+      aria-labelledby="person-career"
+      className={PERSON_SECTION}
+      data-slot="person-career"
+    >
+      <SectionHead id="person-career" link={headLink} title="Career" />
+      {hasBars ? <CareerKeyBlock personId={person.id} /> : null}
+      <div className={LANE}>
+        <CareerTouch>
+          <Axis view={view} />
+          <Rows personId={person.id} view={view} />
+          {view.guest ? (
+            <>
+              <div className="my-2 h-px bg-white/6" />
+              <GuestRow personId={person.id} view={view.guest} />
+            </>
+          ) : null}
+        </CareerTouch>
+        {series > 0 ? (
+          <div className="mt-2 hidden justify-end border-t border-white/6 pt-3 lg:flex">
+            <AllSeriesButton className={LONG_ALL_SERIES} personId={person.id}>
+              {allSeriesLabel(series, 'long')}
+              {chevron}
+            </AllSeriesButton>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
+}

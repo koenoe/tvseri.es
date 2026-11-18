@@ -1,13 +1,9 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { memo } from 'react';
-
 import { ApdexCard, ApdexCardSkeleton } from '@/components/api/apdex-card';
+import { ApiDetailHeader } from '@/components/api/api-detail-header';
 import { DependenciesSection } from '@/components/api/dependencies-section';
-import {
-  MethodBadge,
-  parseEndpoint,
-  RouteLabel,
-} from '@/components/api/endpoint-label';
+import { MethodBadge, parseEndpoint } from '@/components/api/endpoint-label';
 import {
   ErrorRateCard,
   ErrorRateCardSkeleton,
@@ -25,19 +21,13 @@ import {
   StatusCodePopover,
   SuccessCodesPopover,
 } from '@/components/api/status-code-popover';
-import { DateRangeSelect } from '@/components/date-range-select';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
+import { RouteLabel } from '@/components/route-label';
+import { BreadcrumbPage } from '@/components/ui/breadcrumb';
 import { useApiMetricsEndpointDetail } from '@/lib/api/hooks';
+import { type DaysValue, DEFAULT_DAYS, parseDays } from '@/lib/search-params';
 
 type EndpointDetailSearchParams = {
-  days?: 3 | 7 | 30;
+  days?: DaysValue;
   endpoint: string;
 };
 
@@ -46,25 +36,12 @@ function EndpointDetailHeaderComponent() {
   const { method, route } = parseEndpoint(endpoint);
 
   return (
-    <div className="flex w-full items-center justify-between">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/api">API</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage className="flex items-center gap-2">
-              <MethodBadge method={method} />
-              <RouteLabel route={route} />
-            </BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <DateRangeSelect />
-    </div>
+    <ApiDetailHeader>
+      <BreadcrumbPage className="flex items-center gap-2">
+        <MethodBadge method={method} />
+        <RouteLabel route={route} />
+      </BreadcrumbPage>
+    </ApiDetailHeader>
   );
 }
 
@@ -80,18 +57,16 @@ export const Route = createFileRoute('/api/endpoints')({
   validateSearch: (
     search: Record<string, unknown>,
   ): EndpointDetailSearchParams => {
-    const days = Number(search.days);
-    const endpoint = String(search.endpoint ?? '');
     return {
-      days: days === 3 || days === 7 || days === 30 ? days : undefined,
-      endpoint,
+      days: parseDays(search.days),
+      endpoint: String(search.endpoint ?? ''),
     };
   },
 });
 
 function EndpointDetail() {
   const { days: daysParam, endpoint } = Route.useSearch();
-  const days = daysParam ?? 7;
+  const days = daysParam ?? DEFAULT_DAYS;
 
   const { data, isLoading } = useApiMetricsEndpointDetail({
     days,

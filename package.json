@@ -3,12 +3,12 @@
     "sst": "catalog:"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.15",
-    "esbuild": "^0.25.12",
+    "@biomejs/biome": "2.6.8",
+    "esbuild": "^0.28.2",
     "husky": "^9.1.7",
-    "knip": "^6.44.2",
-    "lint-staged": "^17.6.0",
-    "turbo": "^2.11.10",
+    "knip": "^6.45.1",
+    "lint-staged": "^17.6.1",
+    "turbo": "^2.11.11",
     "typescript": "catalog:"
   },
   "engines": {
@@ -17,15 +17,27 @@
   "name": "tvseri.es",
   "packageManager": "pnpm@12.14.0",
   "scripts": {
+    "agents:checks": "node tools/agents/agents.ts checks",
+    "agents:e2e": "node tools/agents/agents.ts e2e",
+    "agents:gc": "node tools/agents/agents.ts gc",
+    "agents:git-guard": "node tools/agents/agents.ts git-guard",
+    "agents:heavy": "node tools/agents/agents.ts heavy",
+    "agents:load": "node tools/agents/agents.ts load",
+    "agents:ps": "node tools/agents/agents.ts ps",
+    "agents:serve": "node tools/agents/agents.ts serve",
+    "agents:status": "node tools/agents/agents.ts status",
+    "agents:stop": "node tools/agents/agents.ts stop",
+    "agents:sync": "node tools/agents/agents.ts sync",
     "check-types": "turbo run check-types //#check-types:infra",
     "check-types:infra": "tsc -p tsconfig.infra.json",
     "dev": "sst dev",
-    "format-and-lint": "biome check .",
+    "format-and-lint": "biome check . --error-on-warnings",
     "format-and-lint:fix": "biome check . --write",
     "knip": "knip",
     "postinstall": "sst install",
     "preinstall": "npx only-allow pnpm",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "turbo run test"
   },
   "version": "0.0.0"
 }

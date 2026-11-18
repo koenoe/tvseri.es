@@ -1,8 +1,8 @@
 /**
- * Single source of truth for reading viewing-history entries such as
+ * Reads viewing-history entries such as
  * "Stranger Things: Stranger Things 4: Chapter One: The Hellfire Club".
- * Used by the client (to split a combined column into title/season/episode)
- * and by the import route (to turn season/episode labels into numbers).
+ * The importer splits a combined column into title/season/episode with it;
+ * the route's matcher turns season/episode labels into numbers.
  */
 
 const CARDINALS = [
@@ -63,6 +63,8 @@ const SEASON_LABELS = [
   'Stranger Things',
 ];
 const LIMITED_SERIES_LABELS = ['Limited Series', 'Miniseries', 'Miniserie'];
+/** TMDB keeps specials, extras and the like in season 0 */
+const SPECIALS_LABELS = ['Specials', 'Special'];
 const EPISODE_LABELS = ['Chapter', 'Episode', 'Aflevering'];
 
 const NUMBER = `\\d+|${CARDINALS.join('|')}`;
@@ -71,6 +73,12 @@ const ORDINAL = `\\d+(?:st|nd|rd|th)|${ORDINALS.join('|')}`;
 // Groups: 1 = season number, 2 = season ordinal, 3 = limited series
 const SEASON_REGEX = new RegExp(
   `\\b(?:(?:${SEASON_LABELS.join('|')})\\s+(${NUMBER})|(?:The\\s+Complete\\s+)?(${ORDINAL})\\s+(?:Season|Series)|(${LIMITED_SERIES_LABELS.join('|')}))\\b`,
+  'i',
+);
+// "Specials" is only a season label when it is a part of its own: after the
+// title and before the episode ("Black Mirror: Specials: White Christmas")
+const SPECIALS_REGEX = new RegExp(
+  `(?:^|[:—–-]\\s+)(${SPECIALS_LABELS.join('|')})(?=\\s*(?:[:—–-]\\s|$))`,
   'i',
 );
 // Groups: 1 = episode number, 2 = episode ordinal
@@ -84,12 +92,13 @@ const TRAILING_DELIMITER_REGEX = /\s*[:\\—–-]\s*$/;
 const toNumber = (
   number: string | undefined,
   ordinal: string | undefined,
+  minimum = 1,
 ): number | null => {
   if (number) {
     const value = /^\d+$/.test(number)
       ? Number.parseInt(number, 10)
       : CARDINALS.indexOf(number.toLowerCase()) + 1;
-    return value > 0 ? value : null;
+    return value >= minimum ? value : null;
   }
   if (ordinal) {
     const value = /^\d/.test(ordinal)
@@ -120,7 +129,7 @@ export type SplitEntry = Readonly<{
 /**
  * Splits a combined viewing-history value into its title, season label and
  * episode label. Season/episode are returned as text; use
- * `parseSeasonNumber`/`parseEpisodeNumber` to turn them into numbers.
+ * `recogniseSeasonNumber`/`parseEpisodeNumber` to turn them into numbers.
  */
 export const splitEntry = (value: string): SplitEntry => {
   const seasonMatch = SEASON_REGEX.exec(value);
@@ -133,6 +142,19 @@ export const splitEntry = (value: string): SplitEntry => {
       season: seasonMatch[0],
       title: value
         .slice(0, seasonMatch.index)
+        .replace(TRAILING_DELIMITER_REGEX, '')
+        .trim(),
+    };
+  }
+
+  const specialsMatch = SPECIALS_REGEX.exec(value);
+  if (specialsMatch?.[1]) {
+    const start = specialsMatch.index + specialsMatch[0].length;
+    return {
+      episode: value.slice(start).trim().replace(LEADING_DELIMITER_REGEX, ''),
+      season: specialsMatch[1],
+      title: value
+        .slice(0, specialsMatch.index)
         .replace(TRAILING_DELIMITER_REGEX, '')
         .trim(),
     };
@@ -166,17 +188,34 @@ export const splitEntry = (value: string): SplitEntry => {
   return { episode: '', season: '', title: value };
 };
 
-/** Season number from a season label or number; defaults to 1. */
-export const parseSeasonNumber = (value: string | number): number => {
+/**
+ * The season a label or number names, or null when it names none: empty, or a
+ * label we don't know ("Book Two"). Null means "any season": the matcher
+ * looks the episode up by its title, and takes a number only when the show
+ * has one regular season, so an unreadable season is never guessed. Season 0
+ * ("Specials", "Season 0") is a season like any other; "Limited Series" is
+ * season 1.
+ */
+export const recogniseSeasonNumber = (
+  value: string | number,
+): number | null => {
   if (typeof value === 'number') {
-    return Number.isInteger(value) && value > 0 ? value : 1;
+    return Number.isInteger(value) && value >= 0 ? value : null;
   }
   const trimmed = value.trim();
   if (/^\d+$/.test(trimmed)) {
-    return Math.max(1, Number.parseInt(trimmed, 10));
+    return Number.parseInt(trimmed, 10);
+  }
+  if (new RegExp(`^(?:${SPECIALS_LABELS.join('|')})$`, 'i').test(trimmed)) {
+    return 0;
   }
   const match = SEASON_REGEX.exec(trimmed);
-  return toNumber(match?.[1], match?.[2]) ?? 1;
+  if (match?.[3]) {
+    return 1;
+  }
+  return match?.[1]
+    ? toNumber(match[1], undefined, 0)
+    : toNumber(undefined, match?.[2]);
 };
 
 /** Episode number from an episode label or number, or null if there is none. */

@@ -1,0 +1,36 @@
+/*
+ * When Focus moves to the next episode the
+ * tile settles in (opacity + scale, transform only). Two identical keyframes
+ * whose names alternate with the episode number, so each move replays it.
+ */
+.a0 {
+  animation: focus-in-a 0.36s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.a1 {
+  animation: focus-in-b 0.36s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes focus-in-a {
+  from {
+    opacity: 0.5;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes focus-in-b {
+  from {
+    opacity: 0.5;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

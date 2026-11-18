@@ -4,9 +4,49 @@ import {
   WEBHOOK_TOKEN_KV_PREFIX,
   WEBHOOK_TOKEN_PATTERN_SOURCE,
 } from '../packages/constants/src/scrobble';
+import { API_WRITE_ROUTES } from './apiWriteRoutes';
 
 const UNAUTHORIZED =
   '{ statusCode: 401, statusDescription: "Unauthorized", body: { encoding: "text", data: "Unauthorized" } }';
+
+/**
+ * The bulkhead (apiWriteRoutes.ts): the viewer's own writes and own-state
+ * reads go to the write function, whose URL host the KeyValueStore holds.
+ * Everything else, and everything while that key is missing, falls through
+ * to SST's routing and so to the catalogue function (the default route).
+ *
+ * The origin is set as SST's `setUrlOrigin` sets a function URL origin
+ * (Router 4.17.2), through CloudFront's documented `updateRequestOrigin`;
+ * settings not given (timeouts, Origin Shield) are inherited from the
+ * distribution's origin, as they are for SST's routes. Returning the request
+ * here skips SST's routing, so the CloudFront default domain is left to
+ * SST's code that blocks it. The cache behaviour, and so the cache key, is
+ * the distribution's one behaviour either way. Any failure (no key, a
+ * refused origin) falls through to SST's routing.
+ */
+const WRITE_ROUTING = `
+  const route = event.request.uri;
+  if (
+    method !== "OPTIONS" &&
+    !/${API_WRITE_ROUTES.dotSegmentSource}/i.test(route) &&
+    (method === "GET" || method === "HEAD"
+      ? /${API_WRITE_ROUTES.ownStateReadSource}/
+      : /${API_WRITE_ROUTES.writePathSource}/
+    ).test(route)
+  ) {
+    try {
+      const host = await cf.kvs().get(${JSON.stringify(API_WRITE_ROUTES.kvKey)});
+      if (!event.request.headers.host.value.includes("cloudfront.net")) {
+        event.request.headers["x-forwarded-host"] = event.request.headers.host;
+        cf.updateRequestOrigin({
+          domainName: host,
+          customOriginConfig: { port: 443, protocol: "https", sslProtocols: ["TLSv1.2"] },
+          originAccessControlConfig: { enabled: false },
+        });
+        return event.request;
+      }
+    } catch (e) {}
+  }`;
 
 /**
  * Code injected at the top of the API Router's viewer-request function, inside
@@ -62,5 +102,6 @@ export const buildApiEdgeInjection = (apiKey: string) => {
       return ${UNAUTHORIZED};
     }
   }
+${WRITE_ROUTING}
 }`;
 };

@@ -1,36 +1,47 @@
-/**
- * Sparkline path generation utilities.
- * Used to create SVG paths for mini charts in tables and cards.
- */
-
 export const SPARKLINE_WIDTH = 48;
 export const SPARKLINE_HEIGHT = 16;
 
-/**
- * Generate a smooth (Catmull-Rom) sparkline path.
- * Best for latency/continuous metrics where smooth curves are preferred.
- */
+export function midline(width: number, height: number): string {
+  return `M 0,${height / 2} L ${width},${height / 2}`;
+}
+
+/** Closes a line path along the bottom edge so it can be filled. */
+export function toAreaPath(
+  linePath: string,
+  width: number,
+  height: number,
+): string {
+  return `${linePath} L ${width},${height} L 0,${height} Z`;
+}
+
+// Scales to the series' own min–max, keeping 10% headroom top and bottom.
+function toCoords(
+  points: ReadonlyArray<number>,
+  width: number,
+  height: number,
+): ReadonlyArray<readonly [number, number]> {
+  const min = Math.min(...points);
+  const max = Math.max(...points);
+  const range = max - min || 1;
+
+  return points.map((val, i) => {
+    const x = (i / (points.length - 1)) * width;
+    const normalizedVal = (val - min) / range;
+    const y = height - (normalizedVal * (height * 0.8) + height * 0.1);
+    return [x, y] as const;
+  });
+}
+
+/** A smooth (Catmull-Rom) path, for continuous metrics like latency. */
 export function getSmoothSparklinePath(
   points: ReadonlyArray<number>,
   width: number = SPARKLINE_WIDTH,
   height: number = SPARKLINE_HEIGHT,
 ): string {
   if (points.length === 0) return '';
-  if (points.length === 1) {
-    return `M 0,${height / 2} L ${width},${height / 2}`;
-  }
+  if (points.length === 1) return midline(width, height);
 
-  const min = Math.min(...points);
-  const max = Math.max(...points);
-  const range = max - min || 1;
-
-  const coords = points.map((val, i) => {
-    const x = (i / (points.length - 1)) * width;
-    const normalizedVal = (val - min) / range;
-    const y = height - (normalizedVal * (height * 0.8) + height * 0.1);
-    return [x, y] as const;
-  });
-
+  const coords = toCoords(points, width, height);
   const firstPoint = coords[0];
   if (!firstPoint) return '';
 
@@ -56,37 +67,22 @@ export function getSmoothSparklinePath(
   return d;
 }
 
-/**
- * Generate a sharp (linear) sparkline path.
- * Best for error rates and discrete data where exact values matter.
- */
+/** A straight-segment path, for error rates where exact values matter. */
 export function getSharpSparklinePath(
   points: ReadonlyArray<number>,
   width: number = SPARKLINE_WIDTH,
   height: number = SPARKLINE_HEIGHT,
 ): string {
   if (points.length === 0) return '';
-  if (points.length === 1) {
-    return `M 0,${height / 2} L ${width},${height / 2}`;
-  }
+  if (points.length === 1) return midline(width, height);
 
-  const min = Math.min(...points);
-  const max = Math.max(...points);
-  const range = max - min || 1;
-
-  const coords = points.map((val, i) => {
-    const x = (i / (points.length - 1)) * width;
-    const normalizedVal = (val - min) / range;
-    const y = height - (normalizedVal * (height * 0.8) + height * 0.1);
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  });
-
+  const coords = toCoords(points, width, height).map(
+    ([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`,
+  );
   return `M ${coords.join(' L ')}`;
 }
 
-/**
- * Calculate Y position for a flat line (when there's no variation in data).
- */
+/** The height of a series without variation, against `maxValue`. */
 export function getFlatLineY(
   value: number,
   maxValue: number,

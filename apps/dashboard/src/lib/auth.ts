@@ -2,45 +2,27 @@ import { createClient } from '@openauthjs/openauth/client';
 import type { Subject } from '@tvseri.es/schemas';
 import { subjects } from '@tvseri.es/schemas';
 
-type User = Extract<Subject, { type: 'user' }>['properties'];
+import { createAuthorizedFetch } from '@/lib/api/authorized-fetch';
+import { authServerFetch } from '@/lib/auth-server-fetch';
+import { AuthUnavailableError, createSession } from '@/lib/auth-session';
 
-type StoredTokens = Readonly<{
-  accessToken: string;
-  refreshToken: string;
-}>;
+type User = Extract<Subject, { type: 'user' }>['properties'];
 
 const client = createClient({
   clientID: 'dashboard',
+  fetch: authServerFetch,
   issuer: import.meta.env.VITE_AUTH_URL,
 });
 
-const STORAGE_KEY = 'auth';
+const session = createSession({
+  refresh: (refreshToken, options) => client.refresh(refreshToken, options),
+  storage: localStorage,
+});
 
-let tokens: StoredTokens | undefined;
-let currentUser: User | undefined;
-
-function parseTokensFromLocalStorage(): StoredTokens | undefined {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (!stored) {
-    return;
-  }
-
-  try {
-    return JSON.parse(stored) as StoredTokens;
-  } catch {
-    return;
-  }
-}
-
-function saveTokens(accessToken: string, refreshToken: string): void {
-  tokens = { accessToken, refreshToken };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens));
-}
-
-function clearTokens(): void {
-  tokens = undefined;
-  localStorage.removeItem(STORAGE_KEY);
-}
+export const authorizedFetch = createAuthorizedFetch({
+  fetch: (input, init) => fetch(input, init),
+  session,
+});
 
 async function handleCallback(): Promise<boolean> {
   const params = new URLSearchParams(location.search.slice(1));
@@ -75,7 +57,10 @@ async function handleCallback(): Promise<boolean> {
     return false;
   }
 
-  saveTokens(exchanged.tokens.access, exchanged.tokens.refresh);
+  session.save({
+    accessToken: exchanged.tokens.access,
+    refreshToken: exchanged.tokens.refresh,
+  });
 
   sessionStorage.removeItem('challenge');
   window.history.replaceState({}, '', '/');
@@ -83,12 +68,8 @@ async function handleCallback(): Promise<boolean> {
   return true;
 }
 
-async function verifyToken(): Promise<User | undefined> {
-  if (!tokens?.accessToken) {
-    return;
-  }
-
-  const verified = await client.verify(subjects, tokens.accessToken);
+async function verifyToken(accessToken: string): Promise<User | undefined> {
+  const verified = await client.verify(subjects, accessToken);
   if (verified.err) {
     return;
   }
@@ -98,39 +79,21 @@ async function verifyToken(): Promise<User | undefined> {
   }
 }
 
-export async function getAccessToken(): Promise<string | undefined> {
-  if (!tokens) {
-    tokens = parseTokensFromLocalStorage();
-  }
-
-  if (!tokens?.refreshToken) {
-    return;
-  }
-
-  const next = await client.refresh(tokens.refreshToken, {
-    access: tokens.accessToken,
-  });
-
-  if (next.err) {
-    clearTokens();
-    return;
-  }
-
-  // No new tokens means current access token is still valid
-  if (!next.tokens) {
-    return tokens.accessToken;
-  }
-
-  saveTokens(next.tokens.access, next.tokens.refresh);
-
-  return next.tokens.access;
-}
-
+/**
+ * The signed-in admin, or undefined when signed out. Throws
+ * `AuthUnavailableError` when the auth server gives no verdict: the tokens
+ * stay, and the route's error state offers to try again.
+ */
 export async function init(): Promise<User | undefined> {
   await handleCallback();
-  await getAccessToken();
-  currentUser = await verifyToken();
-  return currentUser;
+  const access = await session.getAccessToken();
+  if (access.kind === 'unavailable') {
+    throw new AuthUnavailableError(access.error);
+  }
+  if (access.kind === 'signed-out') {
+    return;
+  }
+  return verifyToken(access.accessToken);
 }
 
 export async function getLoginUrl(): Promise<string> {
@@ -143,8 +106,7 @@ export async function getLoginUrl(): Promise<string> {
 }
 
 export function logout(): void {
-  const refreshToken =
-    tokens?.refreshToken ?? parseTokensFromLocalStorage()?.refreshToken;
+  const refreshToken = session.read()?.refreshToken;
 
   // Best-effort server-side revoke; never block logout on it.
   if (refreshToken) {
@@ -156,8 +118,6 @@ export function logout(): void {
     }).catch(() => undefined);
   }
 
-  clearTokens();
-
-  currentUser = undefined;
+  session.clear();
   window.location.replace('/');
 }

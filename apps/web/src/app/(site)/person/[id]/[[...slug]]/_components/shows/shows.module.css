@@ -1,0 +1,61 @@
+/*
+ * The Shows list, filtered without a re-render: the
+ * rows are server HTML with their filter flags; the island sets
+ * `data-filter` and `data-fold` on the root. Six rows of the filter, then
+ * Show all, when the fold rule folds the list.
+ */
+
+.root[data-filter='series'] .row:not([data-series]),
+.root[data-filter='guest'] .row:not([data-guest]),
+.root[data-filter='crew'] .row:not([data-crew]) {
+  display: none;
+}
+
+/* Folded (the island's `data-fold`, `lib/fold`): everywhere, or on phones only */
+.root[data-fold='all'][data-filter='all'] .list .row:not(:nth-child(-n + 6 of .row)),
+.root[data-fold='all'][data-filter='series']
+  .list
+  .row:not(:nth-child(-n + 6 of [data-series])),
+.root[data-fold='all'][data-filter='guest']
+  .list
+  .row:not(:nth-child(-n + 6 of [data-guest])),
+.root[data-fold='all'][data-filter='crew']
+  .list
+  .row:not(:nth-child(-n + 6 of [data-crew])) {
+  display: none;
+}
+
+@media (width < 64rem) {
+  .root[data-fold='phone'][data-filter='all']
+    .list
+    .row:not(:nth-child(-n + 6 of .row)),
+  .root[data-fold='phone'][data-filter='series']
+    .list
+    .row:not(:nth-child(-n + 6 of [data-series])),
+  .root[data-fold='phone'][data-filter='guest']
+    .list
+    .row:not(:nth-child(-n + 6 of [data-guest])),
+  .root[data-fold='phone'][data-filter='crew']
+    .list
+    .row:not(:nth-child(-n + 6 of [data-crew])) {
+    display: none;
+  }
+}
+
+/* Behind the camera reads the crew work; elsewhere the role */
+.root[data-filter='crew'] .castRole,
+.root:not([data-filter='crew']) .row:not([data-crew-only]) .crewRole {
+  display: none;
+}
+
+/* A long open list: rows past the preview skip rendering until near */
+.list .row:nth-child(n + 7) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 61px;
+}
+
+@media (width >= 64rem) {
+  .list .row:nth-child(n + 7) {
+    contain-intrinsic-size: auto 57px;
+  }
+}

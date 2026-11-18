@@ -1,145 +1,102 @@
-import type {
-  EpisodeForWatched,
-  TvSeries,
-  WatchProvider,
-} from '@tvseri.es/schemas';
-import type { NextRequest } from 'next/server';
+import { revalidateTag } from 'next/cache';
+import { after, type NextRequest } from 'next/server';
+import * as v from 'valibot';
 
-import { cachedTvSeries, cachedTvSeriesSeason } from '@/app/cached';
 import auth from '@/auth';
-import { fetchWatchProviders, markWatchedInBatch } from '@/lib/api';
+import { missingUser } from '@/auth/missingUser';
+import { tags } from '@/lib/cache/tags';
 import { resolveRegionFromHeaders } from '@/lib/geo';
-import { createEpisodeMatcher } from '@/lib/import/matcher';
+import { runImport } from '@/lib/import/importRun';
 import { toNdjsonLine } from '@/lib/import/ndjson';
-import { cachedSearchTvSeries } from '@/lib/import/searchSeries';
-import {
-  type ImportError,
-  type ImportEvent,
-  type ImportRow,
-  isImportRows,
-  toImportError,
-} from '@/lib/import/types';
+import { ImportRequestSchema, readRequestRows } from '@/lib/import/schema';
+import isSameOriginRequest, {
+  crossSiteRefused,
+} from '@/lib/security/sameOrigin';
 
-const BATCH_SIZE = 25;
+const HEADERS = {
+  'Cache-Control': 'no-store',
+  'Content-Type': 'application/x-ndjson; charset=utf-8',
+} as const;
 
-type WatchedItem = {
-  episode: EpisodeForWatched;
-  tvSeries: TvSeries;
-  userId: string;
-  watchedAt: number;
-  watchProvider?: WatchProvider | null;
-};
+const json = (body: unknown, status: number) =>
+  Response.json(body, { headers: { 'Cache-Control': 'no-store' }, status });
 
-const errorMessage = (error: unknown) =>
-  error instanceof Error ? error.message : 'Unknown error';
-
+/**
+ * The importer's one route: matches the rows to episodes and
+ * streams one NDJSON event per batch.
+ *
+ * - `?dryRun=1`: asks the API what each batch would do; nothing is written.
+ * - with `importId`: writes through the user's import. Once the stream is
+ *   done, the user's stats expire (a route handler has no `updateTag`).
+ *
+ * The user is the session's: the body never names one, and the API reads the
+ * user from the token. A doubtful match is never written; it comes back as a
+ * problem for the user to settle.
+ */
 export async function POST(req: NextRequest) {
-  const { user, accessToken } = await auth(req);
+  if (
+    !isSameOriginRequest(req) ||
+    !req.headers.get('content-type')?.includes('application/json')
+  ) {
+    return crossSiteRefused();
+  }
+  const { accessToken, user } = await auth(req);
   if (!user || !accessToken) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    return (await missingUser(req)) === 'failed'
+      ? json({ error: 'Unavailable' }, 503)
+      : json({ error: 'Unauthorized' }, 401);
   }
 
   const body: unknown = await req.json().catch(() => null);
-  if (!isImportRows(body)) {
-    return Response.json({ error: 'Invalid payload' }, { status: 400 });
+  const parsed = v.safeParse(ImportRequestSchema, body);
+  const isDryRun = req.nextUrl.searchParams.get('dryRun') === '1';
+  if (!parsed.success || (!isDryRun && !parsed.output.importId)) {
+    return json({ error: 'Invalid payload' }, 400);
+  }
+  const { importId } = parsed.output;
+  // A row that breaks the schema (a cell too long, a date out of range) comes
+  // back as a `failed` problem; the others go on
+  const { refused, rows } = readRequestRows(parsed.output.rows);
+
+  if (!isDryRun) {
+    const userId = user.id;
+    after(() => {
+      revalidateTag(tags.stats(userId), { expire: 0 });
+    });
   }
 
-  const { signal } = req;
-  const providers = await fetchWatchProviders(
-    resolveRegionFromHeaders(user, req.headers),
-  );
-  const matcher = createEpisodeMatcher({
-    getSeason: cachedTvSeriesSeason,
-    getTvSeries: cachedTvSeries,
-    searchTvSeries: cachedSearchTvSeries,
+  const events = runImport({
+    accessToken,
+    importId: isDryRun ? undefined : importId,
+    now: Date.now(),
+    refused,
+    region: resolveRegionFromHeaders(user, req.headers),
+    rows,
+    signal: req.signal,
   });
-
-  const importBatch = async (
-    batch: ReadonlyArray<ImportRow>,
-  ): Promise<ImportEvent> => {
-    const watchedItems: WatchedItem[] = [];
-    const watchedRows: ImportRow[] = [];
-    const errors: ImportError[] = [];
-
-    for (const row of batch) {
-      try {
-        const result = await matcher.match(row);
-        if ('error' in result) {
-          errors.push(toImportError(row, result.error));
-          continue;
-        }
-        const { episode, seasonNumber, tvSeries } = result;
-        const watchProvider =
-          providers.find(
-            (p) => p.name?.toLowerCase() === row.watchProvider?.toLowerCase(),
-          ) ?? null;
-
-        watchedRows.push(row);
-        watchedItems.push({
-          episode: {
-            airDate: episode.airDate,
-            episodeNumber: episode.episodeNumber,
-            runtime: episode.runtime,
-            seasonNumber,
-            stillPath: episode.stillPath,
-            title: episode.title,
-          },
-          tvSeries,
-          userId: user.id,
-          watchedAt: row.watchedAt,
-          watchProvider,
-        });
-      } catch (error) {
-        errors.push(
-          toImportError(row, `Processing error: ${errorMessage(error)}`),
-        );
-      }
-    }
-
-    if (watchedItems.length === 0) {
-      return { errors, status: 'progress', successCount: 0 };
-    }
-    try {
-      await markWatchedInBatch({
-        accessToken,
-        items: watchedItems,
-        userId: user.id,
-      });
-      return { errors, status: 'progress', successCount: watchedItems.length };
-    } catch (error) {
-      const message = `Database error: ${errorMessage(error)}`;
-      errors.push(...watchedRows.map((row) => toImportError(row, message)));
-      return { errors, status: 'progress', successCount: 0 };
-    }
-  };
 
   const encoder = new TextEncoder();
-  let offset = 0;
   const stream = new ReadableStream<Uint8Array>({
+    async cancel() {
+      await events.return(undefined);
+    },
     async pull(controller) {
-      if (offset >= body.length || signal.aborted) {
-        controller.close();
-        return;
-      }
-      const batch = body.slice(offset, offset + BATCH_SIZE);
-      offset += BATCH_SIZE;
-      const event = await importBatch(batch).catch(
-        (error): ImportEvent => ({
-          error: errorMessage(error),
-          status: 'error',
-        }),
-      );
-      controller.enqueue(encoder.encode(toNdjsonLine(event)));
-      if (event.status === 'error') {
+      try {
+        const { done, value } = await events.next();
+        if (done) {
+          controller.close();
+          return;
+        }
+        controller.enqueue(encoder.encode(toNdjsonLine(value)));
+      } catch (error) {
+        console.error('[import] stream failed', error);
+        controller.enqueue(
+          encoder.encode(toNdjsonLine({ error: 'failed', status: 'error' })),
+        );
         controller.close();
       }
     },
   });
 
-  return new Response(stream, {
-    headers: {
-      'Cache-Control': 'no-store',
-      'Content-Type': 'application/x-ndjson; charset=utf-8',
-    },
-  });
+  return new Response(stream, { headers: HEADERS });
 }

@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react';
 
-type StatusColor = 'amber' | 'green' | 'red';
+import type { StatusColor } from '@/lib/status-colors';
+import { cn } from '@/lib/utils';
 
 type SegmentedBarProps = Readonly<{
   barCount: number;
@@ -23,6 +24,9 @@ function generateOpacities(count: number): ReadonlyArray<number> {
     return 1 - progress * progress * 0.77;
   });
 }
+
+const BAR_CLASSES = 'h-full flex-1 rounded-full';
+const EMPTY_BAR_CLASSES = 'h-full flex-1 rounded-full bg-muted/30';
 
 const OPACITY_CACHE = new Map<number, ReadonlyArray<number>>();
 
@@ -56,7 +60,7 @@ const SegmentedBar = memo(function SegmentedBar({
 
       return (
         <div
-          className={`h-full flex-1 rounded-full ${isFilled ? '' : 'bg-muted/30'}`}
+          className={isFilled ? BAR_CLASSES : EMPTY_BAR_CLASSES}
           key={i}
           style={style}
         />
@@ -64,9 +68,10 @@ const SegmentedBar = memo(function SegmentedBar({
     });
   }, [barCount, colorValue, filledBars, opacities]);
 
-  return <div className={`flex gap-0.5 ${height} ${width}`}>{bars}</div>;
+  const classes = cn('flex gap-0.5', height, width);
+  return <div className={classes}>{bars}</div>;
 });
 
 SegmentedBar.displayName = 'SegmentedBar';
 
-export { SegmentedBar, type StatusColor };
+export { SegmentedBar };

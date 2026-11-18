@@ -1,0 +1,32 @@
+import 'server-only';
+
+import type { LandingType } from '@tvseri.es/constants';
+import { cacheTag } from 'next/cache';
+
+import { tags } from '@/lib/cache/tags';
+import {
+  cacheLifeFor,
+  isUnavailable,
+  type Unavailable,
+} from '@/lib/cache/unavailable';
+
+import { getLandingFacts } from './facts';
+
+/**
+ * A landing's show count (its facts' `count`, cached `medium`), null for a
+ * slug the API doesn't know, `Unavailable` when the API can't answer (then
+ * cached for seconds, so the prerender leaves it out and it regenerates).
+ */
+export async function getLandingCount(
+  type: LandingType,
+  slug: string,
+): Promise<number | null | Unavailable> {
+  'use cache';
+  cacheTag(tags.landing(type, slug));
+  const facts = await getLandingFacts(type, slug);
+  cacheLifeFor('medium', facts);
+  if (isUnavailable(facts)) {
+    return facts;
+  }
+  return facts?.count ?? null;
+}

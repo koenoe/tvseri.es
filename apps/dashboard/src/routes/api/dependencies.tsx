@@ -1,7 +1,8 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import type { PaginationState, SortingState } from '@tanstack/react-table';
 import { memo, useCallback, useMemo, useState } from 'react';
 
+import { ApiDetailHeader } from '@/components/api/api-detail-header';
 import {
   ErrorRateCard,
   ErrorRateCardSkeleton,
@@ -10,29 +11,20 @@ import {
   LatencyCard,
   LatencyCardSkeleton,
 } from '@/components/api/latency-card';
-import {
-  OperationsTable,
-  OperationsTableSkeleton,
-} from '@/components/api/operations-table';
+import { OperationsTable } from '@/components/api/operations-table/operations-table';
+import { OperationsTableSkeleton } from '@/components/api/operations-table/skeleton';
 import { PercentileLatencyPopover } from '@/components/api/percentile-latency-popover';
 import {
   RequestsCard,
   RequestsCardSkeleton,
 } from '@/components/api/requests-card';
-import { DateRangeSelect } from '@/components/date-range-select';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
+import { BreadcrumbPage } from '@/components/ui/breadcrumb';
 import { useApiMetricsDependencyDetail } from '@/lib/api/hooks';
 import { formatDependencyName } from '@/lib/api-metrics';
+import { type DaysValue, DEFAULT_DAYS, parseDays } from '@/lib/search-params';
 
 type DependencyDetailSearchParams = {
-  days?: 3 | 7 | 30;
+  days?: DaysValue;
   source: string;
 };
 
@@ -41,22 +33,9 @@ function DependencyDetailHeaderComponent() {
   const displayName = formatDependencyName(source);
 
   return (
-    <div className="flex w-full items-center justify-between">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/api">API</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{displayName}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <DateRangeSelect />
-    </div>
+    <ApiDetailHeader>
+      <BreadcrumbPage>{displayName}</BreadcrumbPage>
+    </ApiDetailHeader>
   );
 }
 
@@ -72,18 +51,16 @@ export const Route = createFileRoute('/api/dependencies')({
   validateSearch: (
     search: Record<string, unknown>,
   ): DependencyDetailSearchParams => {
-    const days = Number(search.days);
-    const source = String(search.source ?? '');
     return {
-      days: days === 3 || days === 7 || days === 30 ? days : undefined,
-      source,
+      days: parseDays(search.days),
+      source: String(search.source ?? ''),
     };
   },
 });
 
 function DependencyDetail() {
   const { days: daysParam, source } = Route.useSearch();
-  const days = daysParam ?? 7;
+  const days = daysParam ?? DEFAULT_DAYS;
 
   const [sorting, setSorting] = useState<SortingState>([
     { desc: true, id: 'requests' },

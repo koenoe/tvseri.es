@@ -6,27 +6,13 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { PaginationOptions, User } from '@tvseri.es/schemas';
+import { userKey } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 
 import { batchGet } from '../batch';
 import client from '../client';
 import { decodeCursor, encodeCursor } from '../cursor';
-
-function userPk(userId: string) {
-  return `USER#${userId}`;
-}
-
-function followPk(followerId: string, followingId: string) {
-  return `FOLLOW#${followerId}#${followingId}`;
-}
-
-function followersPk(userId: string) {
-  return `USER#${userId}#FOLLOWERS`;
-}
-
-function followingPk(userId: string) {
-  return `USER#${userId}#FOLLOWING`;
-}
+import { followersPk, followingPk, followPk } from './keys';
 
 function createSortKey(timestamp: number, userId: string) {
   return `${timestamp}#${userId}`;
@@ -39,10 +25,11 @@ export type FollowUser = Pick<
 
 async function batchGetUsers(
   userIds: ReadonlyArray<string>,
+  { skipPendingDeletion = false }: Readonly<{ skipPendingDeletion?: boolean }>,
 ): Promise<Record<string, FollowUser>> {
   const items = await batchGet(
     Resource.Users.name,
-    userIds.map((id) => marshall({ pk: userPk(id) })),
+    userIds.map((id) => marshall({ pk: userKey(id) })),
     {
       // Only what the follow lists render (full items include email)
       ExpressionAttributeNames: {
@@ -51,15 +38,19 @@ async function batchGetUsers(
         '#followingCount': 'followingCount',
         '#id': 'id',
         '#username': 'username',
+        ...(skipPendingDeletion && {
+          '#deletionRequestedAt': 'deletionRequestedAt',
+        }),
       },
-      ProjectionExpression:
-        '#id, #username, #createdAt, #followerCount, #followingCount',
+      ProjectionExpression: `#id, #username, #createdAt, #followerCount, #followingCount${skipPendingDeletion ? ', #deletionRequestedAt' : ''}`,
     },
   );
   const users: Record<string, FollowUser> = {};
   for (const item of items) {
-    const user = unmarshall(item) as FollowUser;
-    if (user?.id) {
+    const { deletionRequestedAt, ...user } = unmarshall(item) as FollowUser & {
+      deletionRequestedAt?: number;
+    };
+    if (user?.id && !deletionRequestedAt) {
       users[user.id] = user;
     }
   }
@@ -79,6 +70,7 @@ export type FollowStatuses = Readonly<{
 async function resolveFollowPage(
   userIds: ReadonlyArray<string>,
   viewerId: string | undefined,
+  skipPendingDeletion: boolean,
 ): Promise<
   Readonly<{
     users: ReadonlyArray<FollowUser>;
@@ -86,7 +78,7 @@ async function resolveFollowPage(
   }>
 > {
   const [usersById, statuses] = await Promise.all([
-    batchGetUsers(userIds),
+    batchGetUsers(userIds, { skipPendingDeletion }),
     viewerId
       ? getFollowStatuses({
           targetUserIds: userIds.filter((id) => id !== viewerId),
@@ -108,26 +100,47 @@ type FollowListInput = Readonly<{
   options?: Omit<PaginationOptions, 'sortBy'>;
   /** Also resolve this user's follow statuses for the page (`statuses`) */
   viewerId?: string;
+  /** Leave out users whose account is being deleted (the page may come back shorter) */
+  skipPendingDeletion?: boolean;
 }>;
 
-export async function getFollowers(input: FollowListInput) {
-  const { userId, options = {}, viewerId } = input;
+/**
+ * One page of a follow list, newest first by default: the people found on
+ * `index` under `pk`, each named by the `person` attribute of the item
+ */
+const getFollowPage = async (
+  input: FollowListInput,
+  {
+    index,
+    person,
+    pk,
+  }: Readonly<{
+    index: 'gsi1' | 'gsi2';
+    person: 'followerId' | 'followingId';
+    pk: string;
+  }>,
+) => {
+  const { options = {}, viewerId } = input;
   const { limit = 20, cursor, sortDirection = 'desc' } = options;
-  const params = {
-    ExclusiveStartKey: decodeCursor(cursor),
-    ExpressionAttributeValues: marshall({ ':gsi1pk': followersPk(userId) }),
-    IndexName: 'gsi1',
-    KeyConditionExpression: 'gsi1pk = :gsi1pk',
-    Limit: limit,
-    ScanIndexForward: sortDirection === 'asc',
-    TableName: Resource.Follow.name,
-  };
-  const data = await client.send(new QueryCommand(params));
-  const items = (data.Items || []).map((item) => unmarshall(item));
-  const userIds: string[] = items
-    .map((item) => item.followerId)
+  const data = await client.send(
+    new QueryCommand({
+      ExclusiveStartKey: decodeCursor(cursor),
+      ExpressionAttributeValues: marshall({ ':pk': pk }),
+      IndexName: index,
+      KeyConditionExpression: `${index}pk = :pk`,
+      Limit: limit,
+      ScanIndexForward: sortDirection === 'asc',
+      TableName: Resource.Follow.name,
+    }),
+  );
+  const userIds: string[] = (data.Items || [])
+    .map((item) => unmarshall(item)[person])
     .filter(Boolean);
-  const { users, statuses } = await resolveFollowPage(userIds, viewerId);
+  const { users, statuses } = await resolveFollowPage(
+    userIds,
+    viewerId,
+    input.skipPendingDeletion ?? false,
+  );
 
   return {
     items: users,
@@ -136,35 +149,23 @@ export async function getFollowers(input: FollowListInput) {
       : null,
     statuses,
   };
-}
+};
 
-export async function getFollowing(input: FollowListInput) {
-  const { userId, options = {}, viewerId } = input;
-  const { limit = 20, cursor, sortDirection = 'desc' } = options;
-  const params = {
-    ExclusiveStartKey: decodeCursor(cursor),
-    ExpressionAttributeValues: marshall({ ':gsi2pk': followingPk(userId) }),
-    IndexName: 'gsi2',
-    KeyConditionExpression: 'gsi2pk = :gsi2pk',
-    Limit: limit,
-    ScanIndexForward: sortDirection === 'asc',
-    TableName: Resource.Follow.name,
-  };
-  const data = await client.send(new QueryCommand(params));
-  const items = (data.Items || []).map((item) => unmarshall(item));
-  const userIds: string[] = items
-    .map((item) => item.followingId)
-    .filter(Boolean);
-  const { users, statuses } = await resolveFollowPage(userIds, viewerId);
+/** One page of the people who follow `userId` */
+export const getFollowers = (input: FollowListInput) =>
+  getFollowPage(input, {
+    index: 'gsi1',
+    person: 'followerId',
+    pk: followersPk(input.userId),
+  });
 
-  return {
-    items: users,
-    nextCursor: data.LastEvaluatedKey
-      ? encodeCursor(data.LastEvaluatedKey)
-      : null,
-    statuses,
-  };
-}
+/** One page of the people `userId` follows */
+export const getFollowing = (input: FollowListInput) =>
+  getFollowPage(input, {
+    index: 'gsi2',
+    person: 'followingId',
+    pk: followingPk(input.userId),
+  });
 
 export async function follow({
   userId,
@@ -179,9 +180,9 @@ export async function follow({
   const item = marshall({
     createdAt: now,
     followerId: userId,
-    followingId: targetUserId, // For getting followers of targetUserId
+    followingId: targetUserId,
     gsi1pk: followersPk(targetUserId),
-    gsi1sk: createSortKey(now, userId), // For getting users that userId is following
+    gsi1sk: createSortKey(now, userId),
     gsi2pk: followingPk(userId),
     gsi2sk: createSortKey(now, targetUserId),
     pk: followKey,
@@ -234,19 +235,9 @@ export async function isFollowing({
   return !!data.Item;
 }
 
-export async function isFollower({
-  userId,
-  targetUserId,
-}: {
-  userId: string;
-  targetUserId: string;
-}) {
-  return isFollowing({ targetUserId: userId, userId: targetUserId });
-}
-
 /**
  * Resolves which of `targetUserIds` the viewer follows and is followed by,
- * in a single BatchGetItem (instead of 2 GetItems per user).
+ * in batched reads (BatchGetItem) instead of 2 GetItems per user.
  */
 async function getFollowStatuses({
   viewerId,

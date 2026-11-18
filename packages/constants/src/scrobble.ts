@@ -1,6 +1,6 @@
 /**
  * Media servers whose scrobble webhooks are accepted. The API Router's edge
- * function only lets webhook calls through for these (`infra/api.ts`), and
+ * function only lets webhook calls through for these (`infra/apiEdgeInjection.ts`), and
  * the API has one payload adapter per provider (`routes/scrobble.ts`).
  */
 export const SCROBBLE_PROVIDERS = ['plex'] as const;
@@ -26,3 +26,14 @@ export const WEBHOOK_TOKEN_KV_PREFIX = 'wh:';
 
 /** The Plex webhook event for a watched item; every other event is ignored */
 export const PLEX_SCROBBLE_EVENT = 'media.scrobble';
+
+/**
+ * Where a Plex scrobble says it was watched. Undo of an unmark puts it back
+ * on the record, so the scrobble and the restore share it.
+ */
+export const PLEX_WATCH_PROVIDER = {
+  id: 0,
+  logo: '',
+  logoPath: '/vLZKlXUNDcZR7ilvfY9Wr9k80FZ.jpg',
+  name: 'Plex',
+} as const;

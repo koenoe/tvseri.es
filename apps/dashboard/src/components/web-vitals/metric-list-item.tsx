@@ -1,50 +1,22 @@
 import type { LucideIcon } from 'lucide-react';
-import { memo } from 'react';
+import { type KeyboardEvent, memo, useCallback } from 'react';
+
+import { RouteLabel } from '@/components/route-label';
 import { formatCountString } from '@/lib/api-metrics';
+import { cn } from '@/lib/utils';
+import { DataPointDots, getDotsCount } from './data-points';
 
-function getDotsCount(pageViews: number) {
-  // > 100 = 3 dots, 50-100 = 2 dots, < 50 = 1 dot
-  if (pageViews > 100) return 3;
-  if (pageViews >= 50) return 2;
-  return 1;
-}
-
-/**
- * Renders a route path with dynamic segments styled differently.
- * Dynamic segments like [id], [slug], :id, or * get mono font + muted bg.
- * Static segments get normal white text.
- */
-function RouteLabel({ route }: Readonly<{ route: string }>) {
-  // Match dynamic segments: [param], :param, or *
-  const parts = route.split(/(\[[^\]]+\]|:[^/]+|\*)/g).filter(Boolean);
-
-  return (
-    <span className="truncate max-w-56 text-sm py-0.5">
-      {parts.map((part, index) => {
-        const isDynamic =
-          part.startsWith('[') || part.startsWith(':') || part === '*';
-        return isDynamic ? (
-          <span
-            className="rounded bg-muted/50 p-0.5 font-mono text-xs text-muted-foreground inline-flex items-center"
-            key={index}
-          >
-            {part}
-          </span>
-        ) : (
-          <span key={index}>{part}</span>
-        );
-      })}
-    </span>
-  );
-}
-RouteLabel.displayName = 'RouteLabel';
+const ROUTE_CLASSES = 'truncate max-w-56 text-sm py-0.5';
+const ROUTE_DYNAMIC_CLASSES =
+  'rounded bg-muted/50 p-0.5 font-mono text-xs text-muted-foreground inline-flex items-center';
 
 type MetricListItemProps = Readonly<{
+  /** Passed back to `onSelect`; the country code for countries. */
+  id: string;
   isHighlighted?: boolean;
   label: string;
-  onClick?: () => void;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
+  onHover?: (label: string | null) => void;
+  onSelect?: (id: string) => void;
   pageViews: number;
   statusColor?: string;
   StatusIcon?: LucideIcon;
@@ -53,51 +25,70 @@ type MetricListItemProps = Readonly<{
 }>;
 
 function MetricListItemComponent({
+  id,
   isHighlighted,
   label,
-  onClick,
-  onMouseEnter,
-  onMouseLeave,
+  onHover,
+  onSelect,
   pageViews,
   statusColor,
   StatusIcon,
   value,
   variant = 'route',
 }: MetricListItemProps) {
-  const isRoute = variant === 'route';
-  const formattedPageViews = formatCountString(pageViews);
+  const isClickable = Boolean(onSelect);
   const dotsCount = getDotsCount(pageViews);
-  const isClickable = Boolean(onClick);
+
+  const handleClick = useCallback(() => onSelect?.(id), [id, onSelect]);
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLDivElement>) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        onSelect?.(id);
+      }
+    },
+    [id, onSelect],
+  );
+  const handleMouseEnter = useCallback(
+    () => onHover?.(label),
+    [label, onHover],
+  );
+  const handleMouseLeave = useCallback(() => onHover?.(null), [onHover]);
+
+  const rowClasses = cn(
+    'flex items-center justify-center rounded-sm px-1 -mx-1 transition-colors duration-150',
+    isHighlighted && 'bg-muted/50',
+    isClickable && 'cursor-pointer hover:bg-muted/30',
+  );
+  const iconClasses = cn('size-4 shrink-0 ml-2', statusColor);
 
   return (
     <div
-      className={`flex items-center justify-center rounded-sm px-1 -mx-1 transition-colors duration-150 ${isHighlighted ? 'bg-muted/50' : ''} ${isClickable ? 'cursor-pointer hover:bg-muted/30' : ''}`}
-      onClick={onClick}
-      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      className={rowClasses}
+      onClick={isClickable ? handleClick : undefined}
+      onKeyDown={isClickable ? handleKeyDown : undefined}
+      onMouseEnter={onHover ? handleMouseEnter : undefined}
+      onMouseLeave={onHover ? handleMouseLeave : undefined}
       role={isClickable ? 'button' : undefined}
       tabIndex={isClickable ? 0 : undefined}
     >
       <div className="flex gap-2.5 items-center justify-center">
-        {isRoute ? (
-          <RouteLabel route={label} />
+        {variant === 'route' ? (
+          <RouteLabel
+            className={ROUTE_CLASSES}
+            dynamicClassName={ROUTE_DYNAMIC_CLASSES}
+            route={label}
+          />
         ) : (
           <span className="truncate max-w-56 text-sm mr-1 py-0.5">{label}</span>
         )}
         <span className="text-xs flex items-center gap-0.5 mt-0.5 text-muted-foreground">
-          {formattedPageViews}
-          <svg className="size-4" fill="currentColor" viewBox="0 0 16 16">
-            {dotsCount >= 1 && <circle cx="10" cy="8" r="2" />}
-            {dotsCount >= 2 && <circle cx="5" cy="11" r="2" />}
-            {dotsCount >= 3 && <circle cx="5" cy="5" r="2" />}
-          </svg>
+          {formatCountString(pageViews)}
+          <DataPointDots count={dotsCount} />
         </span>
       </div>
       <span className="text-sm font-medium ml-auto">{value}</span>
-      {StatusIcon ? (
-        <StatusIcon className={`size-4 shrink-0 ml-2 ${statusColor ?? ''}`} />
-      ) : null}
+      {StatusIcon ? <StatusIcon className={iconClasses} /> : null}
     </div>
   );
 }

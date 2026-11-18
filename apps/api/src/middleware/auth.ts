@@ -26,10 +26,12 @@ type AuthMiddlewareVariables = Variables &
     user?: UserRecord;
   }>;
 
-const client = createClient({
-  clientID: 'api',
-  issuer: Resource.Auth.url,
-});
+// Created on first request: no module reads a linked resource at import
+let client: ReturnType<typeof createClient> | undefined;
+const authClient = () => {
+  client ??= createClient({ clientID: 'api', issuer: Resource.Auth.url });
+  return client;
+};
 
 /**
  * Auth middleware - populates auth context if token is present.
@@ -53,7 +55,7 @@ export const auth = (): MiddlewareHandler<{
     let recheck: Promise<void> | undefined;
 
     if (bearerToken) {
-      const verified = await client.verify(subjects, bearerToken);
+      const verified = await authClient().verify(subjects, bearerToken);
 
       if (verified.err) {
         throw new HTTPException(401, {
@@ -67,9 +69,12 @@ export const auth = (): MiddlewareHandler<{
       const userRecord =
         loadedUser?.id === userId ? loadedUser : await findUser({ userId });
 
-      if (!userRecord) {
+      // A user whose account is being deleted (or is gone) is signed out
+      // everywhere. Its own code tells the web "this user is gone" apart from
+      // a token that couldn't be verified (which may be an auth outage).
+      if (!userRecord || userRecord.deletionRequestedAt) {
         throw new HTTPException(401, {
-          message: 'Unauthorized',
+          message: 'AccountGone',
         });
       }
 
@@ -111,9 +116,15 @@ const checkAuthAdmin = (): MiddlewareHandler<{ Variables: Variables }> => {
   return async (c, next) => {
     const auth = c.get('auth');
 
-    if (auth?.user?.role !== 'admin') {
+    if (!auth) {
       throw new HTTPException(401, {
-        message: 'Unauthorized',
+        message: 'Authentication required',
+      });
+    }
+    // Signed in, but not an admin: signing in again won't help
+    if (auth.user.role !== 'admin') {
+      throw new HTTPException(403, {
+        message: 'Forbidden',
       });
     }
 

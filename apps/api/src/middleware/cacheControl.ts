@@ -28,9 +28,11 @@ export const enforcePrivateCache = (c: Context) => {
  * - 404 → untouched: public 404s keep the route's normal profile on purpose,
  *   so hammered junk ids are served from the CDN
  * - any other 4xx/5xx with a shared cache header → no-store
+ * - any other 4xx/5xx with a browser-only lifetime (`private, max-age=…`,
+ *   which personal routes set around their handler) → private, no-store
  *
- * Responses without a shared cache header are left alone (CloudFront's
- * default TTL is 0).
+ * Responses without a cache header are left alone (CloudFront's default TTL
+ * is 0).
  */
 export const errorCacheControl = (): MiddlewareHandler => {
   return async (c, next) => {
@@ -40,8 +42,11 @@ export const errorCacheControl = (): MiddlewareHandler => {
       return;
     }
 
-    if (isSharedCacheControl(c.res.headers.get('Cache-Control'))) {
+    const cacheControl = c.res.headers.get('Cache-Control');
+    if (isSharedCacheControl(cacheControl)) {
       c.header('Cache-Control', 'no-store');
+    } else if (cacheControl && !/no-store/i.test(cacheControl)) {
+      c.header('Cache-Control', PRIVATE_NO_STORE);
     }
   };
 };

@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "lib": ["es2024"],
+    "noEmit": true,
+    "types": ["node"],
+    "verbatimModuleSyntax": true
+  },
+  "exclude": ["node_modules"],
+  "extends": "@tvseri.es/typescript-config/base.json",
+  "include": ["**/*.ts"]
+}

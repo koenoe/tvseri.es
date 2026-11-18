@@ -5,17 +5,33 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { PreferredImages } from '@tvseri.es/schemas';
+import { UNKNOWN_COLOR } from '@tvseri.es/utils';
 import { Resource } from 'sst';
 
+import { groundColorOr } from '../../groundColor';
 import { batchGet } from '../batch';
 import client from '../client';
+import { preferredImagesPk, seriesIdOfPk } from './keys';
+
+/**
+ * A saved pick as served: its colour through the page colour rule
+ * (`groundColor`). Picks saved before the rule keep their stored colour;
+ * only what is read is corrected, nothing is rewritten.
+ */
+const served = (item: Record<string, unknown>): PreferredImages => {
+  const preferredImages = item as PreferredImages;
+  return {
+    ...preferredImages,
+    backdropColor: groundColorOr(preferredImages.backdropColor, UNKNOWN_COLOR),
+  };
+};
 
 export const findPreferredImages = async (
   id: number,
 ): Promise<PreferredImages | null> => {
   const command = new GetItemCommand({
     Key: marshall({
-      pk: `SERIES#${id}`,
+      pk: preferredImagesPk(id),
     }),
     TableName: Resource.PreferredImages.name,
   });
@@ -27,7 +43,7 @@ export const findPreferredImages = async (
       return null;
     }
 
-    return unmarshall(result.Item) as PreferredImages;
+    return served(unmarshall(result.Item));
   } catch (_error) {
     throw new Error('Failed to find preferred images');
   }
@@ -42,14 +58,15 @@ export const findPreferredImagesForMany = async (
 ): Promise<Map<number, PreferredImages>> => {
   const items = await batchGet(
     Resource.PreferredImages.name,
-    ids.map((id) => marshall({ pk: `SERIES#${id}` })),
+    ids.map((id) => marshall({ pk: preferredImagesPk(id) })),
   );
 
   return new Map(
     items.map((item) => {
-      const { pk, ...preferredImages } = unmarshall(item) as PreferredImages &
-        Readonly<{ pk: string }>;
-      return [Number(pk.slice('SERIES#'.length)), preferredImages];
+      const { pk, ...preferredImages } = unmarshall(item) as Readonly<{
+        pk: string;
+      }>;
+      return [seriesIdOfPk(pk), served(preferredImages)];
     }),
   );
 };
@@ -60,9 +77,9 @@ export const putPreferredImages = async (
 ): Promise<void> => {
   const command = new PutItemCommand({
     Item: marshall({
-      pk: `SERIES#${id}`,
+      pk: preferredImagesPk(id),
       updatedAt: Date.now(),
-      ...preferred,
+      ...served(preferred),
     }),
     TableName: Resource.PreferredImages.name,
   });
@@ -79,7 +96,7 @@ export const deletePreferredImages = async (
 ): Promise<void> => {
   const command = new DeleteItemCommand({
     Key: marshall({
-      pk: `SERIES#${id}`,
+      pk: preferredImagesPk(id),
     }),
     TableName: Resource.PreferredImages.name,
   });

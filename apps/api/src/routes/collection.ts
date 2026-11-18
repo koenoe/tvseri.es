@@ -1,12 +1,6 @@
 import { Hono } from 'hono';
 import {
-  fetchApplePlusTvSeries,
-  fetchBestBritishCrimeTvSeries,
-  fetchBestSportsDocumentariesTvSeries,
-  fetchKoreasFinestTvSeries,
-  fetchMostAnticipatedTvSeries,
   fetchMostPopularTvSeriesThisMonth,
-  fetchNetflixOriginals,
   fetchTopRatedTvSeries,
   fetchTrendingTvSeries,
 } from '@/lib/tmdb';
@@ -25,7 +19,9 @@ app.get('/trending', async (c) => {
 app.get('/top-rated', async (c) => {
   const items = await fetchTopRatedTvSeries();
 
-  c.header('Cache-Control', cacheHeader('long'));
+  // The owner's MDBList list (refreshed every 12 h) is Discover's ranked
+  // All-time favourites: an edit to it shows within a day, not a month
+  c.header('Cache-Control', cacheHeader('short'));
 
   return c.json(items);
 });
@@ -34,54 +30,6 @@ app.get('/most-popular-this-month', async (c) => {
   const items = await fetchMostPopularTvSeriesThisMonth();
 
   c.header('Cache-Control', cacheHeader('medium'));
-
-  return c.json(items);
-});
-
-app.get('/most-anticipated', async (c) => {
-  const items = await fetchMostAnticipatedTvSeries();
-
-  c.header('Cache-Control', cacheHeader('short'));
-
-  return c.json(items);
-});
-
-app.get('/koreas-finest', async (c) => {
-  const items = await fetchKoreasFinestTvSeries();
-
-  c.header('Cache-Control', cacheHeader('long'));
-
-  return c.json(items);
-});
-
-app.get('/must-watch-on-apple-tv', async (c) => {
-  const items = await fetchApplePlusTvSeries(c.req.query('region'));
-
-  c.header('Cache-Control', cacheHeader('long'));
-
-  return c.json(items);
-});
-
-app.get('/netflix-originals', async (c) => {
-  const items = await fetchNetflixOriginals(c.req.query('region'));
-
-  c.header('Cache-Control', cacheHeader('long'));
-
-  return c.json(items);
-});
-
-app.get('/best-sports-documentaries', async (c) => {
-  const items = await fetchBestSportsDocumentariesTvSeries();
-
-  c.header('Cache-Control', cacheHeader('long'));
-
-  return c.json(items);
-});
-
-app.get('/best-british-crime', async (c) => {
-  const items = await fetchBestBritishCrimeTvSeries();
-
-  c.header('Cache-Control', cacheHeader('long'));
 
   return c.json(items);
 });

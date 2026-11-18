@@ -1,28 +1,17 @@
-/**
- * Stats-specific cache operations.
- * Uses the generic cache module with stats-specific key patterns.
- */
-
 import {
-  deleteExistingCacheItems,
   getCacheItem,
   getCacheItems,
+  invalidateCacheItemsAsOf,
   setCacheItem,
+  setCacheItemAsOf,
 } from '@/lib/db/cache';
 import { logWarn } from '@/utils/logWarn';
 
-import {
-  buildStatsCacheKey,
-  getStatsInvalidationKeys,
-  type StatsCacheKey,
-} from './keys';
+import { buildStatsCacheKey, type StatsCacheKey } from './keys';
 
-const CACHE_TTL = 86400; // 24 hours
+const CACHE_TTL = 86400;
 
-/**
- * Get a cached stats value.
- * Best-effort: a cache failure is treated as a miss.
- */
+/** Best-effort: a cache failure is a miss */
 export const getStatsCache = async <T>(
   userId: string,
   year: number,
@@ -37,9 +26,8 @@ export const getStatsCache = async <T>(
 };
 
 /**
- * Reads several stats values (of any user/year) in one BatchGetItem. Returns
- * them in the order asked; misses are `undefined`.
- * Best-effort: a cache failure is treated as all misses.
+ * Several of a user's stats values in one batched read, in the order asked;
+ * misses are `undefined`. Best-effort: a cache failure is all misses.
  */
 export const getStatsCaches = async <T>(
   entries: ReadonlyArray<readonly [year: number, key: StatsCacheKey]>,
@@ -57,10 +45,7 @@ export const getStatsCaches = async <T>(
   }
 };
 
-/**
- * Set a stats cache value with default TTL.
- * Best-effort: a cache failure doesn't fail the request.
- */
+/** Best-effort: a cache failure doesn't fail the request */
 export const setStatsCache = async <T>(
   userId: string,
   year: number,
@@ -77,17 +62,37 @@ export const setStatsCache = async <T>(
 };
 
 /**
- * Invalidate the stats cache entries for the given user+year pairs: whatever
- * depends on that year's watched items (see getStatsInvalidationKeys). One
- * consistent BatchGetItem for all of them, then deletes only what's cached.
+ * Sets a stats value built from a read that started at `asOf` (epoch ms):
+ * not stored when the key was cleared (or stored from a newer read) since.
+ * Best-effort, as `setStatsCache`.
  */
-export const invalidateStatsCache = (
-  entries: ReadonlyArray<Readonly<{ userId: string; year: number }>>,
+export const setStatsCacheAsOf = async <T>(
+  userId: string,
+  year: number,
+  key: StatsCacheKey,
+  value: T,
+  asOf: number,
+): Promise<void> => {
+  try {
+    await setCacheItemAsOf(buildStatsCacheKey(userId, year, key), value, asOf, {
+      ttl: CACHE_TTL,
+    });
+  } catch (error) {
+    logWarn('Stats cache set failed, continuing without cache', error);
+  }
+};
+
+/**
+ * Clears the users' years list (the all-time segment), which every watch
+ * changes; the year sections keep their day (the stats profile). As of
+ * now: a years read still out from before the watch can't store what it
+ * read (`setStatsCacheAsOf`), which would keep the old years for a day.
+ */
+export const invalidateAllTimeStats = (
+  userIds: ReadonlyArray<string>,
 ): Promise<void> =>
-  deleteExistingCacheItems([
-    ...new Set(
-      entries.flatMap(({ userId, year }) =>
-        getStatsInvalidationKeys(userId, year),
-      ),
-    ),
-  ]);
+  invalidateCacheItemsAsOf(
+    userIds.map((userId) => buildStatsCacheKey(userId, 0, 'all-time')),
+    Date.now(),
+    { ttl: CACHE_TTL },
+  );

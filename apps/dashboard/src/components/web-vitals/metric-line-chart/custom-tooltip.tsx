@@ -1,11 +1,12 @@
 import { METRICS_CONFIG, type MetricType } from '@/lib/web-vitals';
 
+import { DataPointsBubble } from '../data-points';
+
 import {
   type ChartDataPoint,
   PERCENTILES,
   type PercentileKey,
 } from './constants';
-import { DataPointsIndicator } from './data-points-indicator';
 import { PercentileRow } from './percentile-row';
 
 type CustomTooltipProps = Readonly<{
@@ -13,8 +14,7 @@ type CustomTooltipProps = Readonly<{
   activePercentiles: Set<PercentileKey>;
   label?: string;
   metric: MetricType;
-  // biome-ignore lint/suspicious/noExplicitAny: Recharts tooltip payload type
-  payload?: ReadonlyArray<any>;
+  payload?: ReadonlyArray<Readonly<{ payload?: ChartDataPoint }>>;
 }>;
 
 export function CustomTooltip({
@@ -27,7 +27,7 @@ export function CustomTooltip({
     return null;
   }
 
-  const data = payload[0]?.payload as ChartDataPoint | undefined;
+  const data = payload[0]?.payload;
   if (!data) {
     return null;
   }
@@ -36,29 +36,25 @@ export function CustomTooltip({
 
   return (
     <div className="pointer-events-none flex min-w-56 flex-col gap-1.5 text-sm">
-      {/* First bubble: Date + metric values */}
       <div className="rounded-lg border border-border bg-black px-3 py-2.5 shadow-lg">
         <p className="text-xs text-neutral-500">{data.formattedDate}</p>
         <p className="font-semibold text-white">{metricConfig.label}</p>
         <div className="mt-2 flex flex-col gap-1.5">
-          {PERCENTILES.filter(({ key }) => activePercentiles.has(key)).map(
-            ({ key, label }) => (
+          {PERCENTILES.map(({ key, label }) => {
+            const value = data[key];
+            if (!activePercentiles.has(key) || value === undefined) return null;
+            return (
               <PercentileRow
-                isActive={activePercentiles.has(key)}
                 key={key}
                 label={label}
                 metric={metric}
-                value={data[key]}
+                value={value}
               />
-            ),
-          )}
+            );
+          })}
         </div>
       </div>
-      {/* Second bubble: Data points */}
-      <div className="flex items-center justify-between rounded-lg border border-border bg-black px-3 py-2 text-neutral-400 shadow-lg">
-        <span>Data points</span>
-        <DataPointsIndicator pageviews={data.pageviews} />
-      </div>
+      <DataPointsBubble pageViews={data.pageviews} />
     </div>
   );
 }

@@ -1,9 +1,4 @@
-/**
- * Web Vitals histogram utilities for accurate percentile calculation
- * when aggregating data across multiple time periods.
- *
- * Uses fixed bin edges per metric to enable merging histograms by summing counts.
- */
+/** Web Vitals histograms, fixed edges per metric so bins merge by summing */
 
 import {
   findBinIndexForEdges,
@@ -14,11 +9,9 @@ import {
 export type WebVitalMetricName = 'CLS' | 'FCP' | 'INP' | 'LCP' | 'TTFB';
 
 /**
- * Histogram bin edges per metric.
- * Values are in display units: ms for INP, s for LCP/FCP/TTFB, unitless for CLS.
- *
- * These match the thresholds from web.dev and provide good granularity
- * around the "good" and "needs improvement" boundaries.
+ * Bin edges in display units: ms for INP, s for LCP/FCP/TTFB, unitless for
+ * CLS. They include web.dev's "good" and "needs improvement" thresholds and
+ * are finest around them.
  */
 const HISTOGRAM_EDGES: Readonly<Record<WebVitalMetricName, readonly number[]>> =
   {
@@ -29,23 +22,15 @@ const HISTOGRAM_EDGES: Readonly<Record<WebVitalMetricName, readonly number[]>> =
     TTFB: [0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.8, 2.5, 4.0, Infinity],
   } as const;
 
-/**
- * Convert raw metric value to histogram units.
- * Raw values from web-vitals library are in ms, but LCP/FCP/TTFB bins use seconds.
- */
+/** web-vitals reports LCP/FCP/TTFB in ms; their bins are in seconds */
 const toHistogramUnits = (
   value: number,
   metric: WebVitalMetricName,
 ): number => {
-  // INP is in ms, CLS is unitless - use as-is
   if (metric === 'INP' || metric === 'CLS') return value;
-  // LCP, FCP, TTFB: convert from ms to seconds
   return value / 1000;
 };
 
-/**
- * Convert histogram units back to raw metric units (ms).
- */
 const fromHistogramUnits = (
   value: number,
   metric: WebVitalMetricName,
@@ -54,15 +39,10 @@ const fromHistogramUnits = (
   return value * 1000;
 };
 
-/**
- * Find which bin a value belongs to.
- */
 const findBinIndex = (value: number, edges: readonly number[]): number =>
   findBinIndexForEdges(value, edges);
 
-/**
- * Build histogram bins from an array of raw values.
- */
+/** Bins for raw web-vitals values (ms for the timings) */
 export const buildHistogramBins = (
   values: number[],
   metric: WebVitalMetricName,
@@ -80,20 +60,10 @@ export const buildHistogramBins = (
   return bins;
 };
 
-/**
- * Merge multiple histograms by summing corresponding bins.
- * @deprecated Use mergeHistogramBins from './histogram' directly
- */
+/** @deprecated Use `mergeHistogramBins` */
 export const mergeHistograms = mergeHistogramBins;
 
-/**
- * Calculate a percentile from histogram bins using linear interpolation.
- *
- * @param bins - Count of values in each bin
- * @param metric - Metric name (determines bin edges and unit conversion)
- * @param percentile - Target percentile (0-100)
- * @returns Percentile value in raw metric units (ms for time-based)
- */
+/** A percentile (0–100) of a metric's bins, in raw units (ms for timings) */
 export const percentileFromHistogram = (
   bins: number[],
   metric: WebVitalMetricName,

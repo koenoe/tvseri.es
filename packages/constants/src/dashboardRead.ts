@@ -5,7 +5,6 @@
  * Regex sources are strings because the edge function is built from them.
  */
 export const DASHBOARD_READ = {
-  // No dot segments
   dotSegmentSource: '\\.\\.|%2e',
   methods: ['GET', 'HEAD'],
   pathSource:

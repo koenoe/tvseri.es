@@ -65,5 +65,5 @@ export const WATCH_PROVIDER_PRIORITY: Readonly<Record<string, number>> = {
   'Apple TV+': -5,
   'BBC iPlayer': -10,
   Netflix: 0,
-  'Sky Go': 1000, // Sky Go is only available for Sky TV customers, so kinda sucks
+  'Sky Go': 1000, // needs a Sky TV subscription, so it sorts last
 };

@@ -1,6 +1,6 @@
 /**
  * Media servers whose scrobble webhooks are accepted. The API Router's edge
- * function only lets webhook calls through for these (`infra/api.ts`), and
+ * function only lets webhook calls through for these (`infra/apiEdgeInjection.ts`), and
  * the API has one payload adapter per provider (`routes/scrobble.ts`).
  */
 export const SCROBBLE_PROVIDERS = ['plex'] as const;

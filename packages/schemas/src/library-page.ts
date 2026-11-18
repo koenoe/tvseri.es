@@ -1,7 +1,7 @@
 /**
- * The profile Library: six shelves over one user's lists and
- * prefs. `GET /user/:id/library` (counts) and `GET /user/:id/library/:shelf`
- * (one page of a shelf).
+ * The profile Library: six shelves over one user's lists and prefs.
+ * `GET /user/:id/library` (counts) and `GET /user/:id/library/:shelf` (one
+ * page of a shelf).
  */
 
 import * as v from 'valibot';

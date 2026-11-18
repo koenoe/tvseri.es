@@ -1,7 +1,6 @@
 /**
- * The profile Circle: `GET /me/circle/people` (the owner's view)
- * and `?include=watching` on `GET /user/:id/followers|following` (a
- * visitor's).
+ * The profile Circle: `GET /me/circle/people` (the owner's view) and
+ * `?include=watching` on `GET /user/:id/followers|following` (a visitor's).
  */
 
 import * as v from 'valibot';

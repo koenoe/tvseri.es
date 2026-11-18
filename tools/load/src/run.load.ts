@@ -70,7 +70,7 @@ const TMDB = 'api.themoviedb.org';
 const DAY_MS = 86_400_000;
 const START = Date.parse('2026-11-13T23:20:00Z');
 
-/** TMDB's typical 150-250 ms, with a slow tail */
+/** TMDB's typical 120-250 ms, with a slow tail */
 const LATENCY: UpstreamConditions['latencyMs'] = () =>
   120 + Math.random() * 130 + (Math.random() < 0.02 ? 1200 : 0);
 

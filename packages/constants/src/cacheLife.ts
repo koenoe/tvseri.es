@@ -93,15 +93,11 @@ export const CACHE_LIFE = {
   },
 
   /**
-   * An API read that failed (web loaders only, `tryApi`): the server
-   * revalidates it after 30 seconds, not a retry (nothing runs until the
-   * next visit), only a short life for a failure. The placeholder is part of
-   * the static page; 30 s on, the next visit gets it at once while the page
-   * regenerates in the background (the 1-day SWR window keeps it stale, not
-   * expired), until the API answers and the section's own profile takes
-   * over. Next keeps it in the prerender and the static shell because
-   * `expire` (sMaxAge + SWR) and `stale` (maxAge, the client's reuse) stay at
-   * 5 minutes or more: only `revalidate` is short.
+   * An API read that failed (web loaders only, `tryApi`): revalidated 30
+   * seconds on, by the next visit rather than a retry, until the API answers
+   * and the section's own profile takes over. Only `revalidate` is short:
+   * `expire` (sMaxAge + SWR) and `stale` (maxAge) stay at 5 minutes or more,
+   * so Next keeps the placeholder in the prerender and the static shell.
    */
   unavailable: {
     maxAge: 300,

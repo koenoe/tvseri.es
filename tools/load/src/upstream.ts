@@ -164,7 +164,7 @@ const images = (id: number) => ({
   ],
 });
 
-/** A person's TV credits: 30-90 shows, a few undated or upcoming */
+/** A person's TV credits: 30-89 shows, a few undated or upcoming */
 const tvCredits = (personId: number) => {
   const count = 30 + (mix(personId) % 60);
   const credit = (index: number) => {

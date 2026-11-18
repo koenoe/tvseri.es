@@ -9,7 +9,7 @@ const boundedString = (max: number) => v.pipe(v.string(), v.maxLength(max));
 const count = (max: number) =>
   v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(max));
 
-// Minimal TV series schema for watched operations - only includes fields actually used
+// Only the fields watched operations use
 export const TvSeriesForWatchedSchema = v.object({
   id: PositiveIdSchema,
   posterPath: boundedString(200),
@@ -19,7 +19,7 @@ export const TvSeriesForWatchedSchema = v.object({
 
 export type TvSeriesForWatched = v.InferOutput<typeof TvSeriesForWatchedSchema>;
 
-// Minimal episode schema for watched operations - only includes fields actually used
+// Only the fields watched operations use
 export const EpisodeForWatchedSchema = v.object({
   airDate: boundedString(40),
   episodeNumber: count(9999),

@@ -1,6 +1,6 @@
 /**
- * The approved lock-up (the white dot): the TV mark plus `tvseri.es` as Plus Jakarta Sans 800 outlines, with
- * the full stop in the text colour. One geometry for `apps/web` and
+ * The logo: the TV mark plus `tvseri.es` as Plus Jakarta Sans 800 outlines,
+ * with the full stop in the text colour. One geometry for `apps/web` and
  * `apps/auth`: `<svg viewBox={LOGO_VIEWBOX} fill="currentColor">` around
  * `<g transform="scale(1 -1)"><path d={LOGO_PATH} /></g>`. The viewBox is
  * exactly 1em tall, so the size is the height and the width follows

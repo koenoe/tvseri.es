@@ -10,7 +10,7 @@ import { castOf, SHOW_COUNT } from './upstream';
 
 /**
  * Whether show pages prefetch their cast's person pages (the tiles'
- * viewport prefetch, today's setting). `LOAD_PERSON_PREFETCH=0` models
+ * viewport prefetch, the current setting). `LOAD_PERSON_PREFETCH=0` models
  * person tiles prefetched on intent only.
  */
 const PERSON_PREFETCH = process.env.LOAD_PERSON_PREFETCH !== '0';
@@ -42,8 +42,7 @@ export const createRandom = (seed: number) => {
 
 /**
  * Show popularity: Zipf over the synthetic catalogue. s = 1.3 sends about 8%
- * of show views past the top 300 shows: with this rig's default rate that is
- * the analysis' "new show URLs 2-8 a second" scaled to the simulated share.
+ * of show views past the top 300 shows, the long tail the CDN has no copy of.
  */
 const ZIPF_S = 1.3;
 const zipf = (() => {

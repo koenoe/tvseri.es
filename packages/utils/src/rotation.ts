@@ -39,7 +39,8 @@ export const rotationIndex = (
   return (((day * step + (seed >>> 8)) % count) + count) % count;
 };
 
-// Home's moments rotate by day too. They live here, with no imports, so the e2e stub API (plain Node) can run the very same pick as the API.
+// Home's moments rotate by day too. They live here, with no imports, so the
+// e2e stub API (plain Node) runs the same pick as the API.
 
 /** The moments Home draws after Hidden gems, in the rotation's order (the API builds them, the web's placeholders follow them) */
 export const FEATURE_KINDS = [
@@ -62,7 +63,7 @@ export type ToyKind = (typeof TOY_KINDS)[number];
 /**
  * Home's moment rotation: each slot walks its list in order, one step a
  * day, and signed in "If you liked X" takes the toy's slot every other day.
- * Day 0 is a fixed demo date, Mon 9 Nov 2026 (Binge calculator +
+ * Day 0 is a fixed date, Mon 9 Nov 2026 (Binge calculator +
  * What's on; Tue 10 = Season in stills + Where are they set? and If you
  * liked X; Wed 11 = From the archive + Connected by). A running day count,
  * not the day of the year, so no kind repeats across New Year.
@@ -93,8 +94,7 @@ export const featureKindOfDay = (date: string): FeatureKind =>
  * on (W S C V, S C V W, C V W S...). A plain 4-day walk would put the same
  * two toys on every odd day, which signed in are If you liked X days: a
  * signed-in viewer would never see them. The shifted walk still shows each
- * toy once in every four days, never one two days running, and keeps the
- * the demo days (Mon 9, Tue 10, Wed 11, Sat 14).
+ * toy once in every four days and never one two days running.
  */
 export const toyKindOfDay = (date: string): ToyKind => {
   const count = TOY_KINDS.length;

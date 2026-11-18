@@ -1,13 +1,10 @@
 /**
- * A poster row or block on the Discover hub and the landings is shown only
- * with at least this many posters; under it the block is left out and the
- * next one moves up. A spotlight, one show by design, is the exception. The API applies
- * it where it decides a row (the hub's Essentials), the web where it plans
- * the rest.
+ * A poster row or block on Home, the Discover hub and the landings is shown
+ * only with at least this many posters; under it the block is left out and
+ * the next one moves up. A spotlight, one show by design, is the exception.
  */
 export const MIN_POSTERS = 3;
 
-/** Whether a row or block of `count` posters is shown */
 export const hasEnoughPosters = (count: number): boolean =>
   count >= MIN_POSTERS;
 

@@ -1,6 +1,3 @@
-/**
- * Metrics schemas and types for API and Web Vitals tracking.
- */
 import * as v from 'valibot';
 
 const MetricClientSchema = v.object({
@@ -35,25 +32,13 @@ export const TimeSeriesPointSchema = v.object({
   value: v.number(),
 });
 
-/**
- * Base percentile fields (p75, p90, p95, p99).
- * Reused across multiple schemas for latency distributions.
- */
 const PercentileFields = {
-  /** 75th percentile */
   p75: v.number(),
-  /** 90th percentile */
   p90: v.number(),
-  /** 95th percentile */
   p95: v.number(),
-  /** 99th percentile */
   p99: v.number(),
 };
 
-/**
- * Base error tracking fields.
- * Reused across schemas that track error rates.
- */
 const ErrorFields = {
   /** Error count for multi-day aggregation */
   errorCount: v.number(),
@@ -66,8 +51,6 @@ const ErrorFields = {
  * - Satisfied: latency ≤ T
  * - Tolerating: T < latency ≤ 4T
  * - Frustrated: latency > 4T
- *
- * Default: 300ms (suitable for real-time APIs)
  */
 export const APDEX_T = 300;
 
@@ -121,9 +104,7 @@ export const PercentileStatsSchema = v.object({
   ratings: v.optional(LatencyRatingsSchema),
 });
 
-/**
- * Daily series point for dependency operation sparklines.
- */
+/** Daily series point for dependency operation sparklines */
 const DependencyOperationSeriesPointSchema = v.object({
   date: v.string(),
   errorRate: v.number(),
@@ -219,8 +200,7 @@ export const MetricRecordSchema = v.variant('type', [
 ]);
 
 /**
- * Schema for batch web vitals submission from browser.
- * Capped so one request can't enqueue an unbounded number of SQS messages
+ * A browser's batch of web vitals. Capped so one request can't enqueue an unbounded number of SQS messages
  * (the browser flushes a handful of metrics per page).
  */
 export const WebVitalsBatchSchema = v.pipe(
@@ -228,9 +208,7 @@ export const WebVitalsBatchSchema = v.pipe(
   v.maxLength(50, 'Batch size too large. Maximum 50 items per request.'),
 );
 
-/**
- * Status code category breakdown.
- */
+/** Status code category breakdown */
 export const StatusCodeBreakdownSchema = v.object({
   /** 4xx client errors */
   clientError: v.number(),
@@ -247,10 +225,7 @@ export const StatusCodeBreakdownSchema = v.object({
   success: v.number(),
 });
 
-/**
- * Top country item for geographic breakdown on endpoint detail pages.
- * Shows which countries are hitting an endpoint and their performance.
- */
+/** Top country item for the geographic breakdown on endpoint detail pages */
 const ApiTopCountrySchema = v.object({
   /** Country code (ISO 3166-1 alpha-2) */
   country: v.string(),
@@ -262,14 +237,11 @@ const ApiTopCountrySchema = v.object({
   requestCount: v.number(),
 });
 
-/**
- * Top endpoint item for leaderboards in SUMMARY.
- * Similar to WebVitalTopItemSchema but for API metrics.
- */
+/** Top endpoint item for the leaderboard in SUMMARY items */
 const ApiTopEndpointSchema = v.object({
   /** Apdex score (0-1) */
   apdexScore: v.number(),
-  /** Dependency names for this endpoint (e.g., ["TMDB", "MDBLIST"]) */
+  /** Dependency names for this endpoint (e.g., ["tmdb", "dynamodb"]) */
   dependencyNames: v.array(v.string()),
   /** Endpoint identifier (e.g., "GET /tv/[id]") */
   endpoint: v.string(),
@@ -282,11 +254,8 @@ const ApiTopEndpointSchema = v.object({
 });
 
 /**
- * API metrics aggregate schema - stored in MetricsApi table
- *
- * ═══════════════════════════════════════════════════════════════════════════
- * KEY DESIGN: Filters in pk, dimension in sk
- * ═══════════════════════════════════════════════════════════════════════════
+ * An item of the MetricsApi table: filters in pk, dimension in sk (written
+ * by `aggregateApiMetrics`).
  *
  * pk patterns (date + optional filters):
  *   "2025-12-11"                    → No filter
@@ -306,82 +275,45 @@ const ApiTopEndpointSchema = v.object({
  *   CountryTimeIndex:  GSI3PK: "C#US"           GSI3SK: "2025-12-11"
  */
 export const ApiMetricAggregateSchema = v.object({
-  /**
-   * Apdex (Application Performance Index) statistics.
-   * Measures user satisfaction with response times.
-   */
   apdex: ApdexSchema,
-  /** Date in YYYY-MM-DD format */
+  /** YYYY-MM-DD */
   date: v.string(),
   /**
    * Dependency latencies (TMDB, DynamoDB, etc.)
    * Only populated for SUMMARY and ENDPOINT items.
    */
   dependencies: v.optional(v.record(v.string(), DependencyStatsSchema)),
-  /** Error rate (4xx + 5xx) / total */
+  /** (4xx + 5xx) / total: a fraction (0-1), unlike the percentages in `ErrorFields` */
   errorRate: v.number(),
-  /** TTL for DynamoDB (30 days) */
+  /** DynamoDB TTL (30 days) */
   expiresAt: v.number(),
-  /**
-   * GSI1 partition key - for endpoint time-series queries.
-   * Only set on ENDPOINT items.
-   * Format: "E#GET /tv/:id"
-   */
+  /** EndpointTimeIndex: "E#<endpoint>", on the unfiltered pk's endpoint items only */
   GSI1PK: v.optional(v.string()),
-  /** GSI1 sort key - date for time range queries */
+  /** The date */
   GSI1SK: v.optional(v.string()),
-  /**
-   * GSI2 partition key - for platform time-series queries.
-   * Only set on PLATFORM items.
-   * Format: "P#ios"
-   */
+  /** PlatformTimeIndex: "P#<platform>", on the unfiltered pk's platform items only */
   GSI2PK: v.optional(v.string()),
-  /** GSI2 sort key - date for time range queries */
+  /** The date */
   GSI2SK: v.optional(v.string()),
-  /**
-   * GSI3 partition key - for country time-series queries.
-   * Only set on COUNTRY items.
-   * Format: "C#US"
-   */
+  /** CountryTimeIndex: "C#<country>", on the unfiltered pk's country items only */
   GSI3PK: v.optional(v.string()),
-  /** GSI3 sort key - date for time range queries */
+  /** The date */
   GSI3SK: v.optional(v.string()),
-  /** Latency percentile statistics */
   latency: PercentileStatsSchema,
-  /**
-   * Partition key: "<date>" or "<date>#P#<platform>"
-   * Examples: "2025-12-11", "2025-12-11#P#ios"
-   */
+  /** "<date>", then optionally "#P#<platform>" and "#C#<country>" */
   pk: v.string(),
-  /** Total request count */
   requestCount: v.number(),
-  /**
-   * Sort key - dimension type:
-   * - "SUMMARY" (totals for this pk's filter)
-   * - "E#GET /tv/:id" (endpoint)
-   * - "S#5xx" (status category)
-   * - "P#ios" (platform, when pk has no platform filter)
-   * - "C#US" (country)
-   */
+  /** "SUMMARY", "E#<endpoint>", or "P#<platform>" / "C#<country>" when pk has no such filter */
   sk: v.string(),
-  /** Status code breakdown */
   statusCodes: StatusCodeBreakdownSchema,
-  /**
-   * Top countries by request count, embedded in ENDPOINT items.
-   * Geographic breakdown for endpoint detail pages.
-   */
+  /** Top countries by request count, embedded in endpoint items */
   topCountries: v.optional(v.array(ApiTopCountrySchema)),
-  /**
-   * Top endpoints by request count, embedded in SUMMARY items.
-   * Pre-computed leaderboard for dashboard.
-   */
+  /** Top endpoints by request count, embedded in SUMMARY items */
   topEndpoints: v.optional(v.array(ApiTopEndpointSchema)),
   type: v.literal('api-aggregate'),
 });
 
-/**
- * Ratings breakdown for a single web vital metric.
- */
+/** Ratings breakdown for a single web vital metric */
 export const WebVitalRatingsSchema = v.object({
   good: v.number(),
   needsImprovement: v.number(),
@@ -389,18 +321,10 @@ export const WebVitalRatingsSchema = v.object({
 });
 
 /**
- * Aggregated stats for a single web vital metric.
- * Full percentile distribution + ratings breakdown + histogram for accurate aggregation.
- *
- * Histogram bin edges per metric (values in native units - ms for INP, s for others, unitless for CLS):
- * - LCP: [0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 8.0, ∞]
- * - FCP: [0, 0.5, 1.0, 1.5, 1.8, 2.2, 2.6, 3.0, 4.0, 5.0, ∞]
- * - INP: [0, 50, 100, 150, 200, 300, 400, 500, 750, 1000, ∞]
- * - CLS: [0, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.35, 0.5, ∞]
- * - TTFB: [0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.8, 2.5, 4.0, ∞]
+ * Aggregated stats for a single web vital metric. The histogram's bin edges
+ * per metric are in `webVitalHistogram.ts` (@tvseri.es/utils).
  */
 export const WebVitalMetricStatsSchema = v.object({
-  /** Sample count for this metric */
   count: v.number(),
   /**
    * Histogram for accurate percentile calculation across multiple days.
@@ -408,15 +332,11 @@ export const WebVitalMetricStatsSchema = v.object({
    */
   histogram: v.optional(HistogramSchema),
   ...PercentileFields,
-  /** Ratings breakdown */
   ratings: WebVitalRatingsSchema,
 });
 
-/**
- * Top item in a leaderboard (routes, countries, etc.)
- */
+/** Top item in a leaderboard (routes, countries) */
 export const WebVitalTopItemSchema = v.object({
-  /** Number of page views */
   pageviews: v.number(),
   /** Real Experience Score (0-100) */
   score: v.number(),
@@ -425,11 +345,8 @@ export const WebVitalTopItemSchema = v.object({
 });
 
 /**
- * Web vitals aggregate schema - stored in MetricsWebVitals table
- *
- * ═══════════════════════════════════════════════════════════════════════════
- * KEY DESIGN: Filters in pk, dimension in sk
- * ═══════════════════════════════════════════════════════════════════════════
+ * An item of the MetricsWebVitals table: filters in pk, dimension in sk
+ * (written by `aggregateWebVitals`).
  *
  * pk patterns (date + optional device/country filters):
  *   "2025-12-11"                   → No filters
@@ -443,10 +360,6 @@ export const WebVitalTopItemSchema = v.object({
  *   "C#US"                         → Country metrics (when no country filter)
  *   "D#mobile"                     → Device metrics (when no device filter)
  *
- * ═══════════════════════════════════════════════════════════════════════════
- * QUERY EXAMPLES
- * ═══════════════════════════════════════════════════════════════════════════
- *
  * "All routes (no filter)":
  *   pk = "2025-12-11", sk begins_with "R#"
  *
@@ -459,10 +372,7 @@ export const WebVitalTopItemSchema = v.object({
  *   DeviceTimeIndex:  GSI3PK: "D#mobile"       GSI3SK: "2025-12-11"
  */
 export const WebVitalAggregateSchema = v.object({
-  /**
-   * Device breakdown embedded in ROUTE items.
-   * Map of device type → stats for quick access without extra queries.
-   */
+  /** Not written by the aggregation: device splits are their own items (pk `#D#<device>`) */
   byDevice: v.optional(
     v.record(
       v.string(),
@@ -472,86 +382,45 @@ export const WebVitalAggregateSchema = v.object({
       }),
     ),
   ),
-  /** All 5 web vitals metrics aggregated */
   CLS: WebVitalMetricStatsSchema,
-  /** Date in YYYY-MM-DD format */
+  /** YYYY-MM-DD */
   date: v.string(),
-  /** TTL for DynamoDB (30 days from creation) */
+  /** DynamoDB TTL (30 days from creation) */
   expiresAt: v.number(),
   FCP: WebVitalMetricStatsSchema,
-  /**
-   * GSI1 partition key - for route time-series queries.
-   * Only set on ROUTE and ROUTE+* items (sparse index).
-   * Format: "R#/tv/[id]"
-   */
+  /** RouteTimeIndex: "R#<route>", on the unfiltered pk's route items only */
   GSI1PK: v.optional(v.string()),
-  /**
-   * GSI1 sort key - date for time range queries.
-   * Format: "2025-12-11" or "2025-12-11#D#mobile" for cross-filter
-   */
+  /** The date */
   GSI1SK: v.optional(v.string()),
-  /**
-   * GSI2 partition key - for country time-series queries.
-   * Only set on COUNTRY and COUNTRY+* items (sparse index).
-   * Format: "C#US"
-   */
+  /** CountryTimeIndex: "C#<country>", on the unfiltered pk's country items only */
   GSI2PK: v.optional(v.string()),
-  /**
-   * GSI2 sort key - date for time range queries.
-   * Format: "2025-12-11"
-   */
+  /** The date */
   GSI2SK: v.optional(v.string()),
-  /**
-   * GSI3 partition key - for device time-series queries.
-   * Only set on DEVICE items (sparse index).
-   * Format: "D#mobile"
-   */
+  /** DeviceTimeIndex: "D#<device>", on the unfiltered pk's device items only */
   GSI3PK: v.optional(v.string()),
-  /**
-   * GSI3 sort key - date for time range queries.
-   * Format: "2025-12-11"
-   */
+  /** The date */
   GSI3SK: v.optional(v.string()),
   INP: WebVitalMetricStatsSchema,
   LCP: WebVitalMetricStatsSchema,
   /** Number of page views (unique metric.id count) */
   pageviews: v.number(),
-  /**
-   * Partition key: "<date>" or "<date>#D#<device>" or "<date>#C#<country>" or "<date>#D#<device>#C#<country>"
-   * Examples: "2025-12-11", "2025-12-11#D#mobile", "2025-12-11#D#mobile#C#DZ"
-   */
+  /** "<date>", then optionally "#D#<device>" and "#C#<country>" */
   pk: v.string(),
-  /**
-   * Real Experience Score (0-100)
-   * Weighted average of good ratings across all metrics
-   */
+  /** Real Experience Score (0-100), from the p75s (`computeRESFromStats`) */
   score: v.number(),
-  /**
-   * Sort key - dimension type:
-   * - "SUMMARY" (totals for this pk's filter)
-   * - "R#/series/:id" (route)
-   * - "C#US" (country, when pk has no country filter)
-   * - "D#mobile" (device, when pk has no device filter)
-   */
+  /** "SUMMARY", "R#<route>", or "C#<country>" / "D#<device>" when pk has no such filter */
   sk: v.string(),
   TTFB: WebVitalMetricStatsSchema,
-  /**
-   * Top countries embedded in SUMMARY items.
-   * Pre-computed leaderboard for dashboard.
-   */
+  /** Top countries, embedded in SUMMARY items */
   topCountries: v.optional(v.array(WebVitalTopItemSchema)),
-  /**
-   * Top routes embedded in SUMMARY items.
-   * Pre-computed leaderboard for dashboard.
-   */
+  /** Top routes, embedded in SUMMARY items */
   topRoutes: v.optional(v.array(WebVitalTopItemSchema)),
   type: v.literal('web-vital-aggregate'),
 });
 
 /**
- * `days` query param: a whole number of days. The dashboard sends 3, 7 or 30;
- * other values are clamped to 1-30 like before (defaults to 7). Anything that
- * isn't a whole number is a 400 instead of silently turning into NaN.
+ * `days` query param: a whole number of days, clamped to 1-30 (default 7);
+ * the dashboard sends 3, 7 or 30. Anything else is a 400, never NaN.
  */
 const MetricsDaysSchema = v.optional(
   v.pipe(
@@ -848,7 +717,6 @@ export type MetricsCountriesResponse = v.InferOutput<
   typeof MetricsCountriesResponseSchema
 >;
 
-// API Metrics types
 export type AggregatedApiMetrics = v.InferOutput<
   typeof AggregatedApiMetricsSchema
 >;

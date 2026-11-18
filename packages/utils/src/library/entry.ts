@@ -21,7 +21,7 @@ export type LibraryEntry = Readonly<{
   favouriteAt: number | null;
   /** WATCHED (Finished) `createdAt`: the show's latest watch when it finished */
   finishedAt: number | null;
-  /** IN_PROGRESS `createdAt`: the show's latest watch (see the contract) */
+  /** IN_PROGRESS `createdAt`: the show's latest watch */
   activeAt: number | null;
   /** prefs `pausedAt` when `paused` is `hide` and the show is In progress */
   hiddenAt: number | null;

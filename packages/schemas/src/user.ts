@@ -48,8 +48,8 @@ export const isReservedUsername = (username: string): boolean =>
   RESERVED_USERNAMES.has(username);
 
 /**
- * The longest username a person can choose: a generated
- * handle is at most 25 ("honorable-hummingbird-000"). Usernames chosen
+ * The longest username a person can choose: a generated handle is at most
+ * 25 ("honorable-hummingbird-999"). Usernames chosen
  * before the cap (up to 128) stay valid to read and are never rewritten:
  * only a new choice is checked (`UsernameSchema`).
  */
@@ -164,8 +164,7 @@ export type UpdateWatchProvidersForUser = v.InferOutput<
   typeof UpdateWatchProvidersForUserSchema
 >;
 
-/** `GET /me/get-started`: the card's three steps */
-/** `GET /me/get-started`: the web checks the answer's shape before it draws it */
+/** `GET /me/get-started`: the card's three steps; the web checks the answer's shape before it draws it */
 export const GetStartedStatusSchema = v.object({
   /** When all three were first done (epoch ms) */
   doneAt: v.nullable(v.number()),

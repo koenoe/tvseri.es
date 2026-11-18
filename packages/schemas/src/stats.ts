@@ -1,6 +1,6 @@
 import * as v from 'valibot';
 
-// Base stats metrics - shared between current and previous year
+// Shared by the current and the previous year
 export const StatsMetricsSchema = v.object({
   avgPerDay: v.number(),
   episodeCount: v.number(),
@@ -11,7 +11,6 @@ export const StatsMetricsSchema = v.object({
 
 export type StatsMetrics = Readonly<v.InferOutput<typeof StatsMetricsSchema>>;
 
-// Summary endpoint response
 export const StatsSummarySchema = v.object({
   current: StatsMetricsSchema,
   previous: StatsMetricsSchema,
@@ -19,7 +18,6 @@ export const StatsSummarySchema = v.object({
 
 export type StatsSummary = Readonly<v.InferOutput<typeof StatsSummarySchema>>;
 
-// Favorites count endpoint response
 export const StatsFavoritesCountSchema = v.object({
   current: v.number(),
   previous: v.number(),
@@ -29,7 +27,6 @@ export type StatsFavoritesCount = Readonly<
   v.InferOutput<typeof StatsFavoritesCountSchema>
 >;
 
-// Spotlight episode info
 const StatsSpotlightEpisodeSchema = v.object({
   episodeNumber: v.number(),
   runtime: v.number(),
@@ -38,7 +35,6 @@ const StatsSpotlightEpisodeSchema = v.object({
   title: v.string(),
 });
 
-// Spotlight TV series info
 const StatsSpotlightTvSeriesSchema = v.object({
   backdropColor: v.nullable(v.string()),
   backdropImage: v.nullable(v.string()),
@@ -49,7 +45,7 @@ const StatsSpotlightTvSeriesSchema = v.object({
   titleTreatmentImage: v.nullable(v.string()),
 });
 
-// Single spotlight item (first or last watch)
+// The first or the last watch
 export const StatsSpotlightItemSchema = v.nullable(
   v.object({
     episode: StatsSpotlightEpisodeSchema,
@@ -63,7 +59,6 @@ export type StatsSpotlightItem = Readonly<
   v.InferOutput<typeof StatsSpotlightItemSchema>
 >;
 
-// Spotlight endpoint response
 export const StatsSpotlightSchema = v.object({
   first: StatsSpotlightItemSchema,
   last: StatsSpotlightItemSchema,
@@ -73,7 +68,6 @@ export type StatsSpotlight = Readonly<
   v.InferOutput<typeof StatsSpotlightSchema>
 >;
 
-// Weekly stats item
 export const StatsWeeklyItemSchema = v.object({
   episodes: v.number(),
   runtimeHours: v.number(),
@@ -85,7 +79,6 @@ export type StatsWeeklyItem = Readonly<
   v.InferOutput<typeof StatsWeeklyItemSchema>
 >;
 
-// Genre stats item
 export const StatsGenreItemSchema = v.object({
   count: v.number(),
   genre: v.string(),
@@ -95,7 +88,6 @@ export type StatsGenreItem = Readonly<
   v.InferOutput<typeof StatsGenreItemSchema>
 >;
 
-// Provider/streaming service stats item
 export const StatsProviderItemSchema = v.object({
   count: v.number(),
   defaultColor: v.string(),
@@ -112,14 +104,13 @@ export type StatsProviderItem = Readonly<
   v.InferOutput<typeof StatsProviderItemSchema>
 >;
 
-// Countries stats - record of country name to count
+// Country name → count
 export const StatsCountriesSchema = v.record(v.string(), v.number());
 
 export type StatsCountries = Readonly<
   v.InferOutput<typeof StatsCountriesSchema>
 >;
 
-// Watched series item
 export const StatsWatchedSeriesItemSchema = v.object({
   id: v.number(),
   posterImage: v.nullable(v.string()),

@@ -9,6 +9,7 @@ const NOW = Date.UTC(2026, 10, 12, 15);
 const facts = (overrides: Partial<ListItemFacts>): ListItemFacts => ({
   backdropImage: '',
   progress: { state: 'none' },
+  renewedSeason: 3,
   seasonCount: 2,
   status: 'Returning Series',
   totalRuntime: 660,
@@ -45,6 +46,17 @@ describe('favouriteFacts', () => {
     expect(
       texts(favouriteFacts(current, { history: true, now: NOW })).at(-1),
     ).toBe('Up to date');
+  });
+
+  it('names a renewal only when TMDB lists the season, beside aired seasons', () => {
+    const renewed = facts({ renewedSeason: 2, seasonCount: 1 });
+    expect(
+      texts(favouriteFacts(renewed, { history: false, now: NOW })),
+    ).toEqual(['1 season', 'S02 renewed', '11h']);
+    const returning = facts({ renewedSeason: null });
+    expect(
+      texts(favouriteFacts(returning, { history: false, now: NOW })),
+    ).toEqual(['2 seasons', 'Returning', '11h']);
   });
 
   it('a visitor sees no history', () => {

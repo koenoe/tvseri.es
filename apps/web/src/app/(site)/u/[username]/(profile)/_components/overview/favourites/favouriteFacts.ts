@@ -3,7 +3,7 @@ import { formatRuntime, plural } from '@tvseri.es/utils';
 
 import type { Fact } from '@/components/ui/accordion/slice';
 import { finishedLabel } from '@/lib/format/finished';
-import { statusFact as statusOf } from '@/lib/format/status';
+import { statusFact } from '@/lib/format/status';
 
 /** "Miniseries", else "2 seasons" */
 function sizeFact(facts: ListItemFacts): Fact | null {
@@ -13,10 +13,6 @@ function sizeFact(facts: ListItemFacts): Fact | null {
   return facts.seasonCount > 0
     ? { kind: 'seasons', text: plural(facts.seasonCount, 'season') }
     : null;
-}
-
-function statusFact(facts: ListItemFacts): Fact | null {
-  return statusOf(facts.status, facts.seasonCount);
 }
 
 function runtimeFact(facts: ListItemFacts): Fact | null {

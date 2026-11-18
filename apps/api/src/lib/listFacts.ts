@@ -12,6 +12,7 @@ import { analyzeShow, type WatchedEpisode } from '@/lib/overview/analyze';
 import { pickedBackdrop, readPreferredImages } from '@/lib/preferredBackdrops';
 import { readShowItems } from '@/lib/rollups';
 import { getSeriesFacts } from '@/lib/seriesFacts';
+import { seasonsOutlookAt } from '@/lib/seriesFacts/aired';
 
 const NO_PREFS = { paused: null, pausedAt: null, skipped: [] } as const;
 
@@ -93,24 +94,27 @@ export const withListFacts = async <T extends Pick<ListItem, 'id'>>(
 
   return items.map((item) => {
     const showFacts = facts.get(item.id);
+    if (!showFacts) {
+      return { ...item, facts: null };
+    }
+    const seasons = seasonsOutlookAt(showFacts, now);
     return {
       ...item,
-      facts: showFacts
-        ? {
-            backdropImage: pickedBackdrop(
-              picks,
-              item.id,
-              showFacts.backdropPath
-                ? buildBackdropImageUrl(showFacts.backdropPath)
-                : '',
-            ),
-            progress: progressOf(item.id, showFacts),
-            seasonCount: showFacts.seasons.length,
-            status: showFacts.status,
-            totalRuntime: showFacts.totalRuntime,
-            type: showFacts.type,
-          }
-        : null,
+      facts: {
+        backdropImage: pickedBackdrop(
+          picks,
+          item.id,
+          showFacts.backdropPath
+            ? buildBackdropImageUrl(showFacts.backdropPath)
+            : '',
+        ),
+        progress: progressOf(item.id, showFacts),
+        renewedSeason: seasons.renewedSeason,
+        seasonCount: seasons.airedSeasons,
+        status: showFacts.status,
+        totalRuntime: showFacts.totalRuntime,
+        type: showFacts.type,
+      },
     };
   });
 };

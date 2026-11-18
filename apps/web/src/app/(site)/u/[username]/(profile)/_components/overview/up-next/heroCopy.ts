@@ -1,7 +1,8 @@
+import type { TvSeries } from '@tvseri.es/schemas';
 import { formatRuntime, plural } from '@tvseri.es/utils';
 
 import type { UpNextFact } from '@/components/up-next/upNextCopy';
-import { statusLabel } from '@/lib/format/status';
+import { seriesSeasons, statusLabel } from '@/lib/format/status';
 
 /**
  * The profile's own Up next words: what a show is on someone else's
@@ -17,23 +18,26 @@ export function seasonsLabel(seasons: number, ended: boolean): string {
 
 /** The visitor's facts line: what the show is, "4 seasons · Ended · 36h" */
 export function visitorFacts(
-  show: Readonly<{
-    numberOfEpisodes: number;
-    numberOfSeasons: number;
-    status: string;
-  }>,
+  show: Pick<
+    TvSeries,
+    'numberOfEpisodes' | 'numberOfSeasons' | 'seasons' | 'status'
+  >,
   runtimeMinutes: number | null,
 ): UpNextFact[] {
+  const { airedSeasons, renewedSeason } = seriesSeasons(show);
   const total =
     runtimeMinutes && show.numberOfEpisodes > 0
       ? formatRuntime(runtimeMinutes * show.numberOfEpisodes)
       : null;
   const facts: Array<UpNextFact | null> = [
-    show.numberOfSeasons > 0
-      ? { kind: 'seasons', text: plural(show.numberOfSeasons, 'season') }
+    airedSeasons > 0
+      ? { kind: 'seasons', text: plural(airedSeasons, 'season') }
       : null,
     show.status
-      ? { kind: 'status', text: statusLabel(show.status, show.numberOfSeasons) }
+      ? {
+          kind: 'status',
+          text: statusLabel({ renewedSeason, status: show.status }),
+        }
       : null,
     total ? { kind: 'total', text: total } : null,
   ];

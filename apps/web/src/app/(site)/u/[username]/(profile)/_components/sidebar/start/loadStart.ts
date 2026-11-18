@@ -66,10 +66,10 @@ async function watchlistCards(
         : null,
       seasons: seasonsLabel(item.facts?.seasonCount ?? 1, true),
       slug: item.slug,
-      status: statusLabel(
-        item.facts?.status ?? item.status,
-        item.facts?.seasonCount ?? 0,
-      ),
+      status: statusLabel({
+        renewedSeason: item.facts?.renewedSeason,
+        status: item.facts?.status ?? item.status,
+      }),
       title: item.title,
     };
   });

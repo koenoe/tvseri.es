@@ -73,7 +73,7 @@ function sizeFacts(item: LibraryItem): ReadonlyArray<TileFact> {
   const status =
     facts.type === 'Miniseries'
       ? ({ kind: 'ended', text: 'Miniseries' } as const)
-      : statusFact(facts.status, facts.seasonCount);
+      : statusFact(facts);
   return present([hours ? { kind: 'runtime', text: hours } : null, status]);
 }
 

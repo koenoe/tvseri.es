@@ -40,7 +40,7 @@ import { queryAll } from '@/lib/db/query';
 import { analyzeShow, type WatchedEpisode } from '@/lib/overview/analyze';
 import { readShowItems } from '@/lib/rollups';
 import { getSeriesFacts } from '@/lib/seriesFacts';
-import { airedEpisodesAt } from '@/lib/seriesFacts/aired';
+import { airedEpisodesAt, seasonsOutlookAt } from '@/lib/seriesFacts/aired';
 import { createLimiter } from '@/utils/limit';
 
 /**
@@ -396,6 +396,8 @@ export const getShelfPage = async (
         facts: showFacts
           ? {
               hasAired: airedEpisodesAt(showFacts, input.now).total > 0,
+              renewedSeason: seasonsOutlookAt(showFacts, input.now)
+                .renewedSeason,
               seasonCount: showFacts.seasons.length,
               status: showFacts.status,
               totalRuntime: showFacts.totalRuntime,

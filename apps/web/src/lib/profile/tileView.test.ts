@@ -11,6 +11,7 @@ const item = (patch: Partial<LibraryItem> = {}): LibraryItem => ({
   addedAt: THIS_YEAR,
   facts: {
     hasAired: true,
+    renewedSeason: 3,
     seasonCount: 2,
     status: 'Returning Series',
     totalRuntime: 540,

@@ -143,6 +143,11 @@ export type LibraryProgress = v.InferOutput<typeof LibraryProgressSchema>;
 const LibraryItemFactsSchema = v.object({
   /** At least one regular episode has aired */
   hasAired: v.boolean(),
+  /**
+   * The season TMDB lists after the last one to air, for a returning show
+   * ("S02 renewed"); null otherwise (`seasonsOutlook`)
+   */
+  renewedSeason: v.optional(v.nullable(v.number())),
   /** Regular seasons */
   seasonCount: v.number(),
   /** TMDB status: Returning Series, Ended, Canceled... */

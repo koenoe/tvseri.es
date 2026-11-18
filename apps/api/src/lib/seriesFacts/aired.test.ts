@@ -1,7 +1,7 @@
 import type { SeriesFacts } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 
-import { airedEpisodesAt } from './aired';
+import { airedEpisodesAt, seasonsOutlookAt } from './aired';
 
 const facts = (overrides: Partial<SeriesFacts> = {}): SeriesFacts => ({
   backdropPath: null,
@@ -96,5 +96,66 @@ describe('airedEpisodesAt', () => {
         Date.parse('2024-01-01'),
       ).total,
     ).toBe(0);
+  });
+});
+
+describe('seasonsOutlookAt', () => {
+  const ONE_SEASON_AIRED = facts({
+    lastEpisodeToAir: {
+      airDate: '2025-11-11',
+      episodeNumber: 8,
+      runtime: 30,
+      seasonNumber: 1,
+    },
+    nextEpisodeToAir: null,
+    seasons: [
+      { airDate: '2025-09-30', episodeCount: 8, seasonNumber: 1 },
+      { airDate: '2026-12-01', episodeCount: 8, seasonNumber: 2 },
+    ],
+  });
+
+  it('counts the aired season and names the listed unaired one', () => {
+    expect(
+      seasonsOutlookAt(ONE_SEASON_AIRED, Date.parse('2026-11-18')),
+    ).toEqual({ airedSeasons: 1, renewedSeason: 2 });
+  });
+
+  it('is no renewal once that season has started airing', () => {
+    expect(
+      seasonsOutlookAt(
+        {
+          ...ONE_SEASON_AIRED,
+          nextEpisodeToAir: {
+            airDate: '2026-12-01',
+            episodeNumber: 1,
+            runtime: 30,
+            seasonNumber: 2,
+          },
+        },
+        Date.parse('2026-12-02'),
+      ),
+    ).toEqual({ airedSeasons: 2, renewedSeason: null });
+  });
+
+  it('reads a special as the last aired episode by the seasons, not as season 0', () => {
+    expect(
+      seasonsOutlookAt(
+        facts({
+          lastEpisodeToAir: {
+            airDate: '2025-12-24',
+            episodeNumber: 1,
+            runtime: 60,
+            seasonNumber: 0,
+          },
+          nextEpisodeToAir: null,
+          seasons: [
+            { airDate: '2020-01-01', episodeCount: 8, seasonNumber: 1 },
+            { airDate: '2025-01-01', episodeCount: 10, seasonNumber: 2 },
+            { airDate: '', episodeCount: 6, seasonNumber: 3 },
+          ],
+        }),
+        Date.parse('2026-01-01'),
+      ),
+    ).toEqual({ airedSeasons: 2, renewedSeason: 3 });
   });
 });

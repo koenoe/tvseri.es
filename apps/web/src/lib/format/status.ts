@@ -1,5 +1,9 @@
-import { seasonCode } from '@tvseri.es/schemas';
-import { isRunning } from '@tvseri.es/utils';
+import { seasonCode, type TvSeries } from '@tvseri.es/schemas';
+import {
+  isRunning,
+  type SeasonsOutlook,
+  seasonsOutlook,
+} from '@tvseri.es/utils';
 
 /** A show's status as a fact beside its title: the glyph kind and the words */
 export type StatusFact = Readonly<{
@@ -8,16 +12,25 @@ export type StatusFact = Readonly<{
 }>;
 
 /**
- * TMDB's status as every page says it. A returning show with `seasons` out
- * is "S0{seasons + 1} renewed": TMDB's "Returning Series" carries the next
- * season, but it can't tell a renewal from a season still airing, so this is
- * the best the data says. A status it has no words for is shown as TMDB has
- * it.
+ * TMDB's status and the season it lists as coming (`seasonsOutlook`, or the
+ * API's facts). An object, so a season count can't be passed for the season.
  */
-export function statusLabel(status: string, seasons = 0): string {
+type StatusInput = Readonly<{
+  status: string;
+  renewedSeason?: number | null;
+}>;
+
+/**
+ * TMDB's status as every page says it. A returning show is "S02 renewed"
+ * only when TMDB lists that season; else just "Returning". A status it has
+ * no words for is shown as TMDB has it.
+ */
+export function statusLabel({ renewedSeason, status }: StatusInput): string {
   switch (status) {
     case 'Returning Series':
-      return seasons > 0 ? `${seasonCode(seasons + 1)} renewed` : 'Returning';
+      return renewedSeason
+        ? `${seasonCode(renewedSeason)} renewed`
+        : 'Returning';
     case 'Ended':
       return 'Ended';
     case 'Canceled':
@@ -36,12 +49,31 @@ export function statusLabel(status: string, seasons = 0): string {
  * null. A status TMDB doesn't list as running reads as ended, as the series'
  * years do (`formatSeriesYears`).
  */
-export function statusFact(status: string, seasons = 0): StatusFact | null {
-  if (!status) {
+export function statusFact(input: StatusInput): StatusFact | null {
+  if (!input.status) {
     return null;
   }
   return {
-    kind: isRunning(status) ? 'ongoing' : 'ended',
-    text: statusLabel(status, seasons),
+    kind: isRunning(input.status) ? 'ongoing' : 'ended',
+    text: statusLabel(input),
   };
+}
+
+/**
+ * A show's aired seasons and listed renewal from its details. Without the
+ * seasons (a list-shaped read) TMDB's count stands and no renewal is claimed.
+ */
+export function seriesSeasons(
+  series: Pick<TvSeries, 'numberOfSeasons' | 'seasons' | 'status'>,
+): SeasonsOutlook {
+  if (!series.seasons?.length) {
+    return { airedSeasons: series.numberOfSeasons, renewedSeason: null };
+  }
+  return seasonsOutlook(
+    series.status,
+    series.seasons.map((season) => ({
+      seasonNumber: season.seasonNumber,
+      started: (season.numberOfAiredEpisodes ?? 0) > 0 || season.hasAired,
+    })),
+  );
 }

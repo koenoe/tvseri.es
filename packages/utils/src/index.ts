@@ -66,6 +66,11 @@ export {
   minutesFor,
   resolveSeasonMinutes,
 } from './runtime/minutesFor';
+export {
+  firstSeasonAfter,
+  type SeasonsOutlook,
+  seasonsOutlook,
+} from './series/seasons';
 export { formatSeriesYears } from './series/seriesYears';
 export { isOver, isRunning } from './series/status';
 export { sleep } from './sleep';

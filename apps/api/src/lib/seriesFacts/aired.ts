@@ -1,5 +1,10 @@
 import type { SeriesFacts } from '@tvseri.es/schemas';
-import { endOfDayUtc, isOver } from '@tvseri.es/utils';
+import {
+  endOfDayUtc,
+  isOver,
+  type SeasonsOutlook,
+  seasonsOutlook,
+} from '@tvseri.es/utils';
 
 type Episode = Readonly<{ seasonNumber: number; episodeNumber: number }>;
 
@@ -94,4 +99,25 @@ export const airedEpisodesAt = (
   });
   const total = Object.values(bySeason).reduce((sum, count) => sum + count, 0);
   return { bySeason, total };
+};
+
+/**
+ * Aired seasons and a listed renewal (`seasonsOutlook`) at `now`. A season
+ * also counts as started once its air date has passed: the aired rule's floor
+ * leaves the latest season at 0 when TMDB's last aired episode is a special.
+ */
+export const seasonsOutlookAt = (
+  facts: Parameters<typeof airedEpisodesAt>[0],
+  now: number,
+): SeasonsOutlook => {
+  const { bySeason } = airedEpisodesAt(facts, now);
+  return seasonsOutlook(
+    facts.status,
+    facts.seasons.map((season) => ({
+      seasonNumber: season.seasonNumber,
+      started:
+        (bySeason[season.seasonNumber] ?? 0) > 0 ||
+        Date.parse(season.airDate) <= now,
+    })),
+  );
 };

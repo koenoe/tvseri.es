@@ -77,6 +77,7 @@ describe('?include=facts on list reads (Favourites accordion)', () => {
         {
           backdropImage: expect.stringContaining('/b1.jpg'),
           progress: { finishedAt: FINISHED_AT, state: 'finished' },
+          renewedSeason: null,
           seasonCount: 1,
           status: 'Ended',
           totalRuntime: 360,
@@ -88,6 +89,7 @@ describe('?include=facts on list reads (Favourites accordion)', () => {
         expect.objectContaining({
           backdropImage: '',
           progress: { season: 2, state: 'watching' },
+          renewedSeason: null,
           seasonCount: 2,
           status: 'Returning Series',
           totalRuntime: null,
@@ -96,6 +98,48 @@ describe('?include=facts on list reads (Favourites accordion)', () => {
       ],
       [3, expect.objectContaining({ progress: { state: 'up-to-date' } })],
       [4, expect.objectContaining({ progress: { state: 'none' } })],
+    ]);
+  });
+
+  it('counts aired seasons and names a renewal only for a listed unaired season', async () => {
+    seedUser();
+    seedUser({ id: OWNER });
+    // One aired season and an announced one (TMDB counts both)
+    fakeShow({
+      id: 5,
+      seasons: [
+        { airDate: '2025-09-30', episodes: 8 },
+        { airDate: '2027-01-01', aired: 0, episodes: 8 },
+      ],
+      status: 'Returning Series',
+    });
+    // Two aired seasons, nothing listed after them
+    fakeShow({
+      id: 6,
+      seasons: [
+        { airDate: '2024-09-30', episodes: 8 },
+        { airDate: '2025-09-30', episodes: 8 },
+      ],
+      status: 'Returning Series',
+    });
+    db.seed('Lists', [
+      listItem(OWNER, 'FAVORITES', 5, 2),
+      listItem(OWNER, 'FAVORITES', 6, 1),
+    ]);
+
+    const { items } = (await (
+      await favourites('?include=facts&limit=5')
+    ).json()) as { items: Item[] };
+
+    expect(
+      items.map((item) => [
+        item.id,
+        item.facts?.seasonCount,
+        item.facts?.renewedSeason,
+      ]),
+    ).toEqual([
+      [5, 1, 2],
+      [6, 2, null],
     ]);
   });
 

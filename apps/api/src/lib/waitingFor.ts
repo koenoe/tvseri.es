@@ -4,7 +4,12 @@ import type {
   WaitingFor,
   WaitingForItem,
 } from '@tvseri.es/schemas';
-import { DAY_MS, isOver, startOfDayUtc } from '@tvseri.es/utils';
+import {
+  DAY_MS,
+  firstSeasonAfter,
+  isOver,
+  startOfDayUtc,
+} from '@tvseri.es/utils';
 import { getAllListItems } from '@/lib/db/list';
 import { episodeKindOf } from '@/lib/episodeKind';
 import { getSeriesFacts } from '@/lib/seriesFacts';
@@ -12,11 +17,12 @@ import { getSeriesFacts } from '@/lib/seriesFacts';
 /** The season that is coming: an announced unaired one, else the one after the last aired */
 const nextSeasonOf = (facts: SeriesFacts) => {
   const lastSeason = facts.lastEpisodeToAir?.seasonNumber ?? 0;
-  const announced = facts.seasons
-    .map((season) => season.seasonNumber)
-    .filter((seasonNumber) => seasonNumber > lastSeason)
-    .sort((a, b) => a - b)[0];
-  return announced ?? lastSeason + 1;
+  return (
+    firstSeasonAfter(
+      facts.seasons.map((season) => season.seasonNumber),
+      lastSeason,
+    ) ?? lastSeason + 1
+  );
 };
 
 /**

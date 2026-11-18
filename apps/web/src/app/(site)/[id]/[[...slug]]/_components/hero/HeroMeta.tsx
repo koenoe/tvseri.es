@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/icon/glyphs';
 import MetaItem from '@/components/ui/meta/MetaItem';
 import MetaRow from '@/components/ui/meta/MetaRow';
+import { seriesSeasons } from '@/lib/format/status';
 import landingPath from '@/lib/routing/landingPath';
 
 function Genres({ genres }: Readonly<{ genres: TvSeries['genres'] }>) {
@@ -46,16 +47,18 @@ export default function HeroMeta({
 }: Readonly<{
   /** The age rating and provider hole. */
   children?: ReactNode;
-  series: Pick<TvSeries, 'genres' | 'numberOfSeasons' | 'releaseYear'>;
+  series: Pick<
+    TvSeries,
+    'genres' | 'numberOfSeasons' | 'releaseYear' | 'seasons' | 'status'
+  >;
 }>) {
   const genreNames = series.genres.map((genre) => genre.name).join(', ');
+  const { airedSeasons } = seriesSeasons(series);
   return (
     <MetaRow className={ROW}>
       <MetaItem icon={calendarGlyph}>{series.releaseYear}</MetaItem>
-      {series.numberOfSeasons > 0 ? (
-        <MetaItem icon={seasonGlyph}>
-          {plural(series.numberOfSeasons, 'season')}
-        </MetaItem>
+      {airedSeasons > 0 ? (
+        <MetaItem icon={seasonGlyph}>{plural(airedSeasons, 'season')}</MetaItem>
       ) : null}
       {series.genres.length > 0 ? (
         <MetaItem icon={tagGlyph} shrink title={genreNames}>

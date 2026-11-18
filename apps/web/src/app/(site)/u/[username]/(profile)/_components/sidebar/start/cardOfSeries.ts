@@ -1,6 +1,6 @@
 import type { TvSeries } from '@tvseri.es/schemas';
 
-import { statusLabel } from '@/lib/format/status';
+import { seriesSeasons, statusLabel } from '@/lib/format/status';
 import { type StartCard, seasonsLabel } from './startCards';
 
 /** A deck card from a whole show (trending, circle picks) */
@@ -11,21 +11,23 @@ export function cardOfSeries(
     | 'network'
     | 'numberOfSeasons'
     | 'posterImage'
+    | 'seasons'
     | 'slug'
     | 'status'
     | 'title'
   >,
   out = false,
 ): StartCard {
+  const { airedSeasons, renewedSeason } = seriesSeasons(series);
   return {
     id: series.id,
     poster: series.posterImage,
     provider: series.network?.logo
       ? { logo: series.network.logo, name: series.network.name }
       : null,
-    seasons: seasonsLabel(series.numberOfSeasons, out),
+    seasons: seasonsLabel(airedSeasons, out),
     slug: series.slug,
-    status: statusLabel(series.status, series.numberOfSeasons),
+    status: statusLabel({ renewedSeason, status: series.status }),
     title: series.title,
   };
 }

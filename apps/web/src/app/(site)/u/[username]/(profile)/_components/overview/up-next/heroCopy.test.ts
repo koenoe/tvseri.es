@@ -1,4 +1,4 @@
-import type { LibraryIds } from '@tvseri.es/schemas';
+import type { LibraryIds, Season } from '@tvseri.es/schemas';
 import { describe, expect, it } from 'vitest';
 import { isNewToViewer } from '@/lib/marking/librarySets';
 import { circleLine, seasonsLabel, visitorFacts } from './heroCopy';
@@ -11,6 +11,22 @@ describe('visitor and pick copy', () => {
         36,
       ).map((f) => f.text),
     ).toEqual(['4 seasons', 'Ended', '36h']);
+  });
+
+  it('counts aired seasons and names only a listed renewal', () => {
+    const show = {
+      numberOfEpisodes: 16,
+      numberOfSeasons: 2,
+      seasons: [
+        { hasAired: true, numberOfAiredEpisodes: 8, seasonNumber: 1 },
+        { hasAired: false, numberOfAiredEpisodes: 0, seasonNumber: 2 },
+      ] as Season[],
+      status: 'Returning Series' as const,
+    };
+    expect(visitorFacts(show, null).map((f) => f.text)).toEqual([
+      '1 season',
+      'S02 renewed',
+    ]);
   });
 
   it('labels seasons and the circle', () => {

@@ -10,7 +10,7 @@ import Icon from '@/components/ui/icon/Icon';
 import NetworkWordmark from '@/components/ui/network/NetworkWordmark';
 import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
 import { isUnavailable } from '@/lib/cache/unavailable';
-import { statusLabel } from '@/lib/format/status';
+import { seriesSeasons, statusLabel } from '@/lib/format/status';
 import externalHref from '@/lib/routing/externalHref';
 import landingPath, { landingPathFor } from '@/lib/routing/landingPath';
 
@@ -128,6 +128,10 @@ export default function Information({
   series,
 }: Readonly<{ series: TvSeries }>) {
   const aired = airedRange(series);
+  const status = statusLabel({
+    renewedSeason: seriesSeasons(series).renewedSeason,
+    status: series.status,
+  });
   const country = series.originCountry;
   const countryHref = country
     ? landingPathFor('country', country.code)
@@ -140,9 +144,7 @@ export default function Information({
           {series.originalTitle ? (
             <Item label="Original title">{series.originalTitle}</Item>
           ) : null}
-          <Item label="Status">
-            {statusLabel(series.status, series.numberOfSeasons)}
-          </Item>
+          <Item label="Status">{status}</Item>
           {series.type ? <Item label="Type">{series.type}</Item> : null}
           {aired ? <Item label="Aired">{aired}</Item> : null}
         </div>

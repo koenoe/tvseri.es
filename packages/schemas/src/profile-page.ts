@@ -175,8 +175,13 @@ export type Circle = Readonly<{
 /** What the favourites accordion shows per tile (`?include=facts` on list reads) */
 export type ListItemFacts = Readonly<{
   backdropImage: string;
-  /** Regular seasons */
+  /** Regular seasons that have started airing (`seasonsOutlook`) */
   seasonCount: number;
+  /**
+   * The season TMDB lists after the last one to air, for a returning show
+   * ("S02 renewed"); null otherwise. Absent from an API older than the field.
+   */
+  renewedSeason?: number | null;
   /** TMDB type: Miniseries, Scripted... */
   type: string | null;
   /** TMDB status: Ended, Canceled, Returning Series... */

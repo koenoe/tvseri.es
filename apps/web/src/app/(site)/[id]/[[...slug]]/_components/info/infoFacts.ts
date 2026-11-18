@@ -1,6 +1,8 @@
 import type { TvSeries } from '@tvseri.es/schemas';
 import { isOver, plural } from '@tvseri.es/utils';
 
+import { seriesSeasons } from '@/lib/format/status';
+
 import { formatAirDate } from '../episodes/format';
 
 /** "Jun 23, 2022 – Jun 25, 2026", or "Jun 23, 2022 – present" while it runs. */
@@ -20,10 +22,14 @@ export function airedRange(
 
 /** "5 seasons · 47 episodes", then " · 20–70 min" once the runtimes are known. */
 export function episodesFact(
-  series: Pick<TvSeries, 'numberOfEpisodes' | 'numberOfSeasons'>,
+  series: Pick<
+    TvSeries,
+    'numberOfEpisodes' | 'numberOfSeasons' | 'seasons' | 'status'
+  >,
 ): string {
+  const { airedSeasons } = seriesSeasons(series);
   return [
-    series.numberOfSeasons > 0 ? plural(series.numberOfSeasons, 'season') : '',
+    airedSeasons > 0 ? plural(airedSeasons, 'season') : '',
     series.numberOfEpisodes > 0
       ? plural(series.numberOfEpisodes, 'episode')
       : '',

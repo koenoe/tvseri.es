@@ -43,7 +43,7 @@
 
 /*
  * Design tokens. Tailwind's default palette, type scale and radii are cleared on
- * purpose: only the approved values exist, so a raw value can't slip in.
+ * purpose: only the tokens exist, so a raw value can't slip in.
  *
  * Type: `text-<token>` sets size, line height, weight and tracking. Colour is a separate
  * class (`text-white/80` body, `text-white/60` meta/caption/overline). The display token

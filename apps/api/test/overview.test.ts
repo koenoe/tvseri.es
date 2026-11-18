@@ -365,7 +365,7 @@ describe('Up next only (Home: ?view=up-next)', () => {
     // batches, the 35 shows' episodes one query each (a show's episodes are
     // one gsi1 partition), the three season titles from the cache
     // (the per-show summaries aren't built in this test: one more batch
-    // finds none, and each show is read itself as before)
+    // finds none, and each show is then read on its own)
     expect(warm.dynamo.QueryCommand).toBe(36);
     expect(warm.dynamo.BatchGetItemCommand).toBe(4);
     expect(warm.tmdb).toBe(0);

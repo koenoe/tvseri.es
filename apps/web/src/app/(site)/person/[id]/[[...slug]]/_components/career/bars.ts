@@ -10,7 +10,7 @@ export const WEIGHT: Readonly<Record<PersonCareerWeight, string>> = {
 
 /**
  * A bar between two % positions, 1px in from the start and `trim` px short
- * of the end (2 for a series, 1 for announced work, as drawn)
+ * of the end (2 for a series, 1 for announced work)
  */
 export const barStyle = (
   start: number,

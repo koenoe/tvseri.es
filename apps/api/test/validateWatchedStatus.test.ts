@@ -174,7 +174,7 @@ describe('nightly validation: reconcile lists with watched items', () => {
     const removed = newShow([{ airDate: '2020-01-01', episodes: 5 }], {
       status: 'Ended',
     });
-    // production's tile Remove: DELETE …/list/in_progress/:id, watches stay
+    // a tile's Remove: DELETE …/list/in_progress/:id, watches stay
     const threeDaysAgo = new Date(TUESDAY - 3 * 86_400_000).toISOString();
     seedWatched(USER_ID, removed, episodes(1, 1, 2), threeDaysAgo);
     const before = listItems(USER_ID);

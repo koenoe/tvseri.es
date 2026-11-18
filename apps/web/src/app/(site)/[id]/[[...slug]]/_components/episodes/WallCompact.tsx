@@ -26,7 +26,7 @@ const LINE = 'truncate text-meta text-white/60';
  * Phones, a row whose action has a label (Show, Skipped): the action goes
  * under the text, beside the 128px still, so the text keeps the row's width
  * (beside the still and the pill it had ~50px: "E01–…" / "4 / episodes").
- * Watched rows keep their 36px eye at the end, as drawn.
+ * Watched rows keep their 36px eye at the end.
  */
 const ROW_ACTION_UNDER =
   'max-md:grid max-md:grid-cols-[auto_minmax(0,1fr)] max-md:gap-x-4 max-md:gap-y-2';

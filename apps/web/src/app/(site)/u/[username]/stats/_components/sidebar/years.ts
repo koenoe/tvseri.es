@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { getStatsClock } from '@/lib/stats/clock';
-import { getYears } from '@/lib/stats/getYears';
+import { getStatsPageYears } from '@/lib/stats/getYears';
 import { getWeekly, isUnavailable, type Loaded } from '@/lib/stats/loaders';
 import { WEEKS } from '@/lib/stats/weeks';
 import { yearLabel } from './model';
@@ -26,7 +26,7 @@ const FLAT = Array.from({ length: WEEKS }, () => 0);
 export async function loadYearRows(
   userId: string,
 ): Promise<Loaded<ReadonlyArray<YearRow>>> {
-  const years = await getYears(userId);
+  const years = await getStatsPageYears(userId);
   if (isUnavailable(years)) {
     return years;
   }

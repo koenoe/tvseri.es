@@ -7,9 +7,11 @@ import { apiFetch } from '@/lib/api/client';
 import { tags } from '@/lib/cache/tags';
 import {
   cacheLifeFor,
+  isUnavailable,
   tryApi,
   type Unavailable,
 } from '@/lib/cache/unavailable';
+import { hasStatsPage } from './statsYear';
 
 /**
  * The Years list: years with dated watches, newest first. Public and about
@@ -28,4 +30,24 @@ export async function getYears(
   );
   cacheLifeFor('statsCurrent', result);
   return result;
+}
+
+/**
+ * The years the Stats page can show and read: `getYears` without those
+ * outside the page's years (backdated watches can go back to 1989), which
+ * have no page and whose per-year reads the API refuses with a 400. Every
+ * Stats read that fans out over the years uses this; History and Settings
+ * keep every year (`getYears`).
+ */
+export async function getStatsPageYears(
+  userId: string,
+): Promise<StatsYears | Unavailable> {
+  const answer = await getYears(userId);
+  if (isUnavailable(answer)) {
+    return answer;
+  }
+  return {
+    ...answer,
+    years: answer.years.filter(({ year }) => hasStatsPage(year)),
+  };
 }

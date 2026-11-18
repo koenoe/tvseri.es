@@ -1,7 +1,7 @@
 import 'server-only';
 
 import type { StatsShowRow } from '@tvseri.es/schemas';
-import { getYears } from '@/lib/stats/getYears';
+import { getStatsPageYears } from '@/lib/stats/getYears';
 import {
   getDaily,
   getSeriesArt,
@@ -55,7 +55,7 @@ async function otherShowCounts(
   userId: string,
   year: number,
 ): Promise<ReadonlyArray<number> | 'unavailable'> {
-  const years = await getYears(userId);
+  const years = await getStatsPageYears(userId);
   if (isUnavailable(years)) {
     return 'unavailable';
   }

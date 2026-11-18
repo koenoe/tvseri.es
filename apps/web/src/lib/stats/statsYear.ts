@@ -32,8 +32,14 @@ export function parseStatsYear(
     return null;
   }
   const year = Number(param);
-  return year >= FIRST_STATS_YEAR && year <= lastYear ? year : null;
+  return hasStatsPage(year, lastYear) ? year : null;
 }
+
+/** Whether a year has a Stats page: 2000 to next year */
+export const hasStatsPage = (
+  year: number,
+  lastYear: number = NEXT_YEAR,
+): boolean => year >= FIRST_STATS_YEAR && year <= lastYear;
 
 /** The newest year with a page; the build seed is the one before this one */
 export const LAST_STATS_YEAR = NEXT_YEAR;

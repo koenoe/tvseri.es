@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import statsPath from '@/lib/routing/statsPath';
-import { getYears } from '@/lib/stats/getYears';
+import { getStatsPageYears } from '@/lib/stats/getYears';
 
 import { isUnavailable } from '@/lib/stats/loaders';
 import type { SectionProps } from './types';
@@ -13,7 +13,7 @@ import type { SectionProps } from './types';
  * a link to the newest year that has stats, in the lanes' style.
  */
 export default async function EmptyYear({ user, year }: SectionProps) {
-  const years = await getYears(user.id);
+  const years = await getStatsPageYears(user.id);
   const latest = isUnavailable(years)
     ? null
     : (years.years.find((entry) => entry.year !== year && entry.episodes > 0) ??

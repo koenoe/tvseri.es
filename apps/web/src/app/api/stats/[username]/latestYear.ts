@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { isUnavailable, type Unavailable } from '@/lib/cache/unavailable';
-import { getYears } from '@/lib/stats/getYears';
+import { getStatsPageYears } from '@/lib/stats/getYears';
 import { getStatsUser } from '@/lib/stats/loaders';
 
 /**
@@ -20,7 +20,7 @@ export async function latestStatsYear(
   if (isUnavailable(user)) {
     return user;
   }
-  const years = await getYears(user.id);
+  const years = await getStatsPageYears(user.id);
   if (isUnavailable(years)) {
     return years;
   }

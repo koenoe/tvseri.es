@@ -2,7 +2,7 @@ import type { StatsYears } from '@tvseri.es/schemas';
 import { TextLine } from '@/components/ui/ghost/ghosts';
 import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
 import { getStatsClock } from '@/lib/stats/clock';
-import { getYears } from '@/lib/stats/getYears';
+import { getStatsPageYears } from '@/lib/stats/getYears';
 import {
   getDaily,
   getGenres,
@@ -57,7 +57,7 @@ export default async function YearHeader({
       getGenres(user.id, year),
       getProviders(user.id, year),
       getDaily(user.id, year),
-      getYears(user.id),
+      getStatsPageYears(user.id),
       getStatsClock(year),
     ]);
   if (isUnavailable(summary) || isUnavailable(weekly)) {

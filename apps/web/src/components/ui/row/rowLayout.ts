@@ -74,11 +74,14 @@ export const ROW_TILES: Readonly<Record<RowTiles, string>> = {
 export const ROW_IMAGE_SIZES: Readonly<Record<RowTiles, string>> = {
   backdrop: '(min-width: 640px) 422px, 80vw',
   card: '(min-width: 768px) 170px, 30vw',
-  poster:
-    '(min-width: 768px) 242px, (min-width: 640px) 207px, calc((100vw - 48px) / 2.45)',
-  /** the poster is 62% of the tile (180 of 290), 72% on phones */
+  /** a phone's poster tile is a fixed 140px */
+  poster: '(min-width: 768px) 242px, (min-width: 640px) 207px, 140px',
+  /**
+   * the poster is 62% of the tile (180 of 290), 72% on phones, where a tile
+   * is (100vw - 32px gutter - 2 × 12px gap) / 2.45
+   */
   ranked:
-    '(min-width: 1024px) 180px, (min-width: 640px) calc((100vw - 80px) * 0.18), calc((100vw - 48px) * 0.3)',
+    '(min-width: 1024px) 180px, (min-width: 640px) calc((100vw - 80px) * 0.18), calc((100vw - 56px) * 0.294)',
 };
 
 /**

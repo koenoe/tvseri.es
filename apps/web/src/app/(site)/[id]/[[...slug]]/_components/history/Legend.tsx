@@ -23,6 +23,14 @@ const ITEMS: ReadonlyArray<Item> = [
   { chip: 'E06', isNew: true, label: 'Skipped', state: 'sk' },
 ];
 
+/**
+ * A pill's slot is as wide as the widest pill (a glyph and "E03", 53px), so
+ * pills with and without a glyph leave every label starting on one line;
+ * the pills themselves stay exactly as the grid draws them.
+ */
+const ITEM =
+  'grid grid-cols-[54px_auto] items-center gap-2 [&>:first-child]:justify-self-start';
+
 function LegendItem({ item }: Readonly<{ item: Item }>) {
   const chipClass = markChipClass(
     item.state,
@@ -31,7 +39,7 @@ function LegendItem({ item }: Readonly<{ item: Item }>) {
   );
   const struck = item.state === 'sk';
   return (
-    <span className="flex items-center gap-2">
+    <span className={ITEM}>
       <span aria-hidden="true" className={chipClass}>
         {/* Next up is drawn as the cyan ring alone. */}
         {item.state === 'nx' ? null : <ChipGlyph state={item.state} />}

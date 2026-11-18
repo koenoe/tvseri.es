@@ -45,7 +45,6 @@ app.get('/', vValidator('query', MetricsRoutesQuerySchema), async (c) => {
     sortDir,
   );
 
-  // Apply limit if provided
   const result = limit ? routes.slice(0, limit) : routes;
 
   const response: MetricsRoutesResponse = {

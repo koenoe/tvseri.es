@@ -19,9 +19,6 @@ import { randomRawShard } from '@/lib/metrics/rawShards';
 const DYNAMO_BATCH_LIMIT = 25;
 const RAW_TTL_DAYS = 7;
 
-/**
- * Transform an API metric record into a DynamoDB item.
- */
 const apiMetricToDynamo = (record: ApiMetricRecord) => {
   const dateStr = record.timestamp.split('T')[0];
   const shard = randomRawShard();
@@ -34,9 +31,6 @@ const apiMetricToDynamo = (record: ApiMetricRecord) => {
   };
 };
 
-/**
- * Transform a web vital record into a DynamoDB item.
- */
 const webVitalToDynamo = (record: WebVitalRecord) => {
   const dateStr = record.timestamp.split('T')[0];
   const shard = randomRawShard();
@@ -49,9 +43,6 @@ const webVitalToDynamo = (record: WebVitalRecord) => {
   };
 };
 
-/**
- * Transform any metric record into a DynamoDB item.
- */
 const toDynamoItem = (record: MetricRecord) => {
   if (record.type === 'api') {
     return apiMetricToDynamo(record);

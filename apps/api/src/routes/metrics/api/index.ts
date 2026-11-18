@@ -25,7 +25,6 @@ import {
 
 const app = new Hono<{ Variables: Variables }>();
 
-// All API metrics routes require admin auth
 app.use('*', requireAuthAdmin());
 
 // Cache for 24 hours since data is aggregated once per day.
@@ -57,7 +56,6 @@ app.get('/', vValidator('query', ApiMetricsSummaryQuerySchema), async (c) => {
   // ascending for the chart
   const summaries = await getSummaries(dates, { platform });
 
-  // Aggregate all summaries into period totals
   const aggregated = aggregateSummaries(summaries);
 
   return c.json({
@@ -101,7 +99,6 @@ app.get(
     } = c.req.valid('query');
     const { dates, endDate, startDate } = getDateRange(days);
 
-    // Fetch endpoint items for each day with optional filters
     const allEndpointItems: ApiMetricAggregate[] = [];
     await Promise.all(
       dates.map(async (date) => {
@@ -123,7 +120,6 @@ app.get(
       }
     }
 
-    // Aggregate each endpoint's data
     const endpoints: Array<{
       apdex: AggregatedApiMetrics['apdex'];
       dependencies?: AggregatedApiMetrics['dependencies'];
@@ -173,7 +169,6 @@ app.get(
 
     sortApiRows(endpoints, sortBy, sortDir);
 
-    // Apply limit if provided
     const result = limit ? endpoints.slice(0, limit) : endpoints;
 
     return c.json({

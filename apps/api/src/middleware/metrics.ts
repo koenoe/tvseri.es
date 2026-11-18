@@ -53,7 +53,6 @@ const toRouteLabel = (routePath: string) =>
  */
 export const metrics = (): MiddlewareHandler<{ Variables: Variables }> => {
   return async (c, next) => {
-    // Skip metrics collection for non-sampled requests
     const shouldSample = Math.random() < API_METRICS_SAMPLE_RATE;
     if (!shouldSample) {
       await next();
@@ -62,10 +61,10 @@ export const metrics = (): MiddlewareHandler<{ Variables: Variables }> => {
 
     const start = performance.now();
 
-    // Run the request within a metrics context to collect dependencies
+    // The context collects the dependency calls the request makes
     const store = await runWithMetrics(async () => {
       await next();
-      // Return store while still inside the context
+      // Read while still inside the context: it's gone after
       return getMetricsStore();
     });
 
@@ -73,23 +72,19 @@ export const metrics = (): MiddlewareHandler<{ Variables: Variables }> => {
     const timestamp = new Date().toISOString();
     const requestId = c.get('requestId') ?? crypto.randomUUID();
 
-    // Get client context from headers
     const userAgent = c.req.header('user-agent') ?? null;
     const platform = c.req.header('x-client-platform') ?? 'web';
     const clientVersion = c.req.header('x-client-version') ?? null;
 
-    // Get country from CloudFront
     const country = c.req.header('cloudfront-viewer-country') ?? 'unknown';
 
-    // Check if authenticated
     const authenticated = !!c.get('auth')?.user;
 
-    // Get query params (if any)
     const queryParams = c.req.query();
     const query =
       Object.keys(queryParams).length > 0 ? redactQuery(queryParams) : null;
 
-    // Get response size (may be 0 on errors)
+    // 0 when the response has no length (an error, a stream)
     const contentLength = c.res.headers.get('content-length');
     const responseSize = contentLength ? parseInt(contentLength, 10) : 0;
 

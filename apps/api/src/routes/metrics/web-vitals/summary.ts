@@ -29,8 +29,7 @@ app.get('/', vValidator('query', MetricsSummaryQuerySchema), async (c) => {
   const { country, days, device } = c.req.valid('query');
   const { dates, endDate, startDate } = getDateRange(days);
 
-  // Fetch SUMMARY items for each day with filters
-  // Data is stored with combined dimension keys: <date>#D#<device>#C#<country>
+  // Filters are part of the key: <date>#D#<device>#C#<country>
   const summaries = await getExact(
     dates.map((date) => ({
       pk: buildPk(date, { country, device }),
@@ -38,10 +37,8 @@ app.get('/', vValidator('query', MetricsSummaryQuerySchema), async (c) => {
     })),
   );
 
-  // Sort by date ascending for chart
   summaries.sort((a, b) => a.date.localeCompare(b.date));
 
-  // Aggregate all summaries into period totals
   const aggregated = aggregateSummaries(summaries);
 
   const response: MetricsSummaryResponse = {

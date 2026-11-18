@@ -66,12 +66,12 @@ const updateUserCount = async (
  * failure are applied again on retry (rare, accepted for the batching).
  */
 export const handler = async (event: DynamoDBStreamEvent) => {
-  // Batch updates by user to minimize DynamoDB calls
+  // One counter update per user per batch, however many follows changed
   const followerCountChanges = new Map<string, number>();
   const followingCountChanges = new Map<string, number>();
 
   for (const record of event.Records) {
-    // Only handle INSERT and REMOVE events
+    // A MODIFY doesn't change who follows whom
     if (record.eventName !== 'INSERT' && record.eventName !== 'REMOVE') {
       continue;
     }
@@ -94,13 +94,11 @@ export const handler = async (event: DynamoDBStreamEvent) => {
 
     const delta = record.eventName === 'INSERT' ? 1 : -1;
 
-    // Track followerCount change for the followed user
     followerCountChanges.set(
       followItem.followingId,
       (followerCountChanges.get(followItem.followingId) || 0) + delta,
     );
 
-    // Track followingCount change for the follower
     followingCountChanges.set(
       followItem.followerId,
       (followingCountChanges.get(followItem.followerId) || 0) + delta,
@@ -111,12 +109,10 @@ export const handler = async (event: DynamoDBStreamEvent) => {
     );
   }
 
-  // Apply all followerCount updates
   const followerUpdates = Array.from(followerCountChanges.entries())
     .filter(([, delta]) => delta !== 0)
     .map(([userId, delta]) => updateUserCount(userId, 'followerCount', delta));
 
-  // Apply all followingCount updates
   const followingUpdates = Array.from(followingCountChanges.entries())
     .filter(([, delta]) => delta !== 0)
     .map(([userId, delta]) => updateUserCount(userId, 'followingCount', delta));

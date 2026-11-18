@@ -99,22 +99,21 @@ const getParams = (command: {
 export const createInstrumentedDynamoClient = (
   client: DynamoDBClient,
 ): DynamoDBClient => {
-  const originalSend = client.send.bind(client);
+  // One wrapper for every command type, so it takes and returns unknown
+  const originalSend = client.send.bind(client) as (
+    command: unknown,
+  ) => Promise<unknown>;
 
-  // Override the send method with a generic wrapper
-  // biome-ignore lint/suspicious/noExplicitAny: DynamoDB send accepts many command types
-  (client as any).send = async (command: {
-    constructor: { name: string };
-    input?: unknown;
-  }) => {
+  const send = async (
+    command: Readonly<{ constructor: { name: string }; input?: unknown }>,
+  ) => {
     const start = performance.now();
     const operation = getOperationName(command);
     const table = getTableName(command);
     const params = getParams(command);
 
     try {
-      // biome-ignore lint/suspicious/noExplicitAny: Pass through to original send
-      const result = await (originalSend as any)(command);
+      const result = await originalSend(command);
       const duration = Math.round(performance.now() - start);
 
       addDependencyMetric({
@@ -148,5 +147,5 @@ export const createInstrumentedDynamoClient = (
     }
   };
 
-  return client;
+  return Object.assign(client, { send });
 };

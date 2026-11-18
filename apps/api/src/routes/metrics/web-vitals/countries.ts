@@ -43,7 +43,6 @@ app.get('/', vValidator('query', MetricsCountriesQuerySchema), async (c) => {
     sortDir,
   );
 
-  // Apply limit if provided
   const result = limit ? countries.slice(0, limit) : countries;
 
   const response: MetricsCountriesResponse = {

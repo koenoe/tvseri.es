@@ -7,8 +7,8 @@ import { tags } from '@/lib/cache/tags';
 /**
  * Call after the viewer's own watched history changed (a mark, unmark,
  * re-date, skip, import or Undo succeeded; from a server action, or the
- * import status route once an Undo is done): their Stats pages and
- * share cards refresh soon instead of up to a day later (visitors keep the cached `stats` profile otherwise).
+ * import status route once an Undo is done): their Stats pages and share
+ * cards refresh soon instead of up to a day later (the `stats` profile).
  *
  * It marks the `stats:{id}` tag stale (`revalidateTag(tag, 'max')`): the
  * next visit gets the cached page and regenerates it in the background, so
@@ -19,9 +19,9 @@ import { tags } from '@/lib/cache/tags';
  *
  * Not `updateTag`: in a server action it makes Next re-render the whole
  * current page into the action's response and purge the browser's router
- * cache, so every mark re-rendered the show page on the server and
- * re-prefetched every link on it (and the e2e saw the response never end,
- * which stalls the marking core's per-show write chain). A
+ * cache, so every mark would re-render the show page on the server and
+ * re-prefetch every link on it (and the response could hang, stalling the
+ * marking core's per-show write chain). A
  * stale-while-revalidate profile expires the same entries without that.
  *
  * It never throws: the write it follows already succeeded, so a failed

@@ -5,11 +5,7 @@ import { headers } from 'next/headers';
 
 const DEFAULT_REGION = 'US';
 
-/**
- * Header names for geolocation, in priority order.
- * - x-vercel-ip-country: Vercel's geo header (current hosting)
- * - cloudfront-viewer-country: AWS CloudFront header (legacy/fallback)
- */
+/** Geolocation headers in priority order: Vercel's, then CloudFront's. */
 const GEO_HEADERS = [
   'x-vercel-ip-country',
   'cloudfront-viewer-country',
@@ -18,13 +14,9 @@ const GEO_HEADERS = [
 type ReadonlyHeaders = Awaited<ReturnType<typeof headers>>;
 
 /**
- * Gets the user's country/region code from a Headers object.
- * Useful in API routes where you already have the headers.
- *
- * @param headerStore - Headers object from request
- * @param fallback - Returned when no geo header is present (default 'US').
- *   Pass `null` where a guessed region would be wrong (a "detected" region).
- * @returns ISO 3166-1 alpha-2 country code (e.g., 'US', 'GB', 'NL')
+ * The visitor's ISO 3166-1 alpha-2 country from the geo headers, else
+ * `fallback` ('US'). Pass `null` where a guessed region would be wrong (a
+ * "detected" region).
  */
 export function getRegionFromHeaders(
   headerStore: Headers | ReadonlyHeaders,

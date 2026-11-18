@@ -15,7 +15,6 @@ import {
 } from './menuLook';
 import { phoneGlassVariants, phoneWordVariants } from './menuMotion';
 
-/* sizes at 390; the dimmed text at white/80 */
 const PHONE_LOOK: MenuLook = {
   account:
     'mt-3.5 flex gap-[22px] border-t border-white/14 pt-0.5 pointer-events-auto',

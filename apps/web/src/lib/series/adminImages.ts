@@ -15,10 +15,9 @@ import { loadSeries } from '@/lib/series/loaders';
 /**
  * `GET /series/:id/images?language=`: the picker's choices, the automatic
  * pair and the saved pick. Not cached: only an admin opening the tray reads
- * it, and the tray must show what is stored now. A cached copy (a day,
- * tagged with the show) outlived a save on CI and under E2E_SLOW (the tray
- * reopened on Auto), and a pick stored or reset elsewhere never showed until
- * it expired.
+ * it, and the tray must show what is stored now: a cached copy (a day,
+ * tagged with the show) can outlive a save, and would hide a pick stored or
+ * reset elsewhere until it expired.
  */
 async function loadSeriesImages(
   id: number,

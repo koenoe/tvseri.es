@@ -30,8 +30,8 @@ const toProfileUser = (user: Partial<User> | null): ProfileUser | null =>
 
 /**
  * `GET /user/by-username/:username`: the public identity, null on 404. The
- * API's CDN keeps the answer a minute plus ten stale (`profileLookup`), a
- * 404 too, under one key per username that every profile and Stats page
+ * API's CDN keeps the answer a minute, plus ten minutes stale
+ * (`profileLookup`), a 404 too, under one key per username that every profile and Stats page
  * shares. So a rename shows there within that life, and the owner's own
  * pages never trust it (`resolveProfileUser`).
  */

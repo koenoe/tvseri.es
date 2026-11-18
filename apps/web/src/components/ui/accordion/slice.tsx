@@ -49,7 +49,7 @@ const FACT_ICON: Readonly<Record<FactKind, Glyph | ToggleGlyph>> = {
  * A slice's size changes at once and Motion plays it as a transform, so
  * anything sized or placed by the slice's own box would jump or re-wrap
  * mid-animation. Content therefore keeps the open slice's size (fixed widths
- * at xl, the 220px open row below it, placed from the top or left edge),
+ * at xl, the 300px open row below it, placed from the top or left edge),
  * the slice clips it, and it changes only by opacity. What sits on a closed
  * slice's centre or the open one's right edge hides at once instead.
  */
@@ -153,7 +153,7 @@ export function SliceFacts({
   );
 }
 
-/** Top right of the open slice: the ⋯ (shown only while the slice is open) */
+/** A top corner of the open slice (the ⋯ on the right), shown only while it is open */
 export function SliceCorner({
   children,
   side,

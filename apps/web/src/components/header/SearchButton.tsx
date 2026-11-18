@@ -10,7 +10,7 @@ import { HEADER_ICON_BUTTON } from './headerIconButton';
 /**
  * Opens the search overlay (see `openSearch`). Live under the open menu
  * too: the menu closes at once, without waiting for
- * its exit, and search grows from this button as built.
+ * its exit, and search grows from this button.
  */
 export default function SearchButton() {
   const closeMenu = useHeaderStore((state) => state.closeMenu);

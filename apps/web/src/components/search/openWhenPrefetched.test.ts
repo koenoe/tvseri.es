@@ -4,11 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import openWhenPrefetched, { PREFETCH_WAIT_MS } from './openWhenPrefetched';
 
 /**
- * Enter-ahead (a race): the answer lands and opens its first result
- * at once, before that page was ever prefetched. Pushed then, Next has no
- * route tree for it and waits for the page's whole dynamic render (seconds
- * on a busy server) before the URL changes; pushed once the prefetch is in,
- * it shows the page's cached shell at once.
+ * Enter-ahead: the answer opens its first result before that page was
+ * prefetched (why that is slow: `openWhenPrefetched`).
  */
 describe('openWhenPrefetched', () => {
   let push: ReturnType<typeof vi.fn<(href: string) => void>>;

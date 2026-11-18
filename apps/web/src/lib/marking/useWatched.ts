@@ -5,11 +5,10 @@ import { librarySets } from './librarySets';
 
 /*
  * The viewer's watched shows for cached tiles (Watched labels, "You’ve
- * seen" lines): from the library ids, loaded
- * once per tab on the client after hydration (`useLibraryIds`) and kept
- * current by every mark. Each hook reads one primitive answer, so a mark
- * re-renders only the tiles and lines whose answer changed, not every tile
- * on the page. `false` / 0 while loading, on the server and signed out.
+ * seen" lines): from the library ids, loaded once per tab on the client
+ * after hydration (`useLibraryIds`) and kept current by every mark. Each
+ * hook reads one primitive answer, so a mark re-renders only the tiles and
+ * lines whose answer changed, not every tile on the page. `false` / 0 while loading, on the server and signed out.
  */
 
 /** Whether the viewer has watched the show */

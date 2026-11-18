@@ -18,14 +18,12 @@ export const GRID = {
   shows: 'grid grid-cols-4 gap-x-4 gap-y-6 max-md:grid-cols-3 max-md:gap-x-3',
 } as const;
 
-/** A block's overline (“Shows”, “People”); the second block starts 32 below the first. */
+/** A block's overline (“Series”, “People”); the second block starts 32 below the first. */
 export const overlineClasses = (first: boolean) =>
   cn('mb-3 text-overline', !first && 'mt-8');
 
 export const SHOW = {
-  /** The poster: 2:3, radius 8 */
   poster: 'relative block aspect-2/3 rounded-8',
-  /** The cell: a column */
   tile: 'relative flex min-w-0 flex-col',
   /** The title line, 12 below the poster (14/24) */
   title: 'mt-3 text-body-sm',

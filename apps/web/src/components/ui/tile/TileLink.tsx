@@ -22,10 +22,9 @@ type Props = Omit<ComponentProps<typeof Link>, 'href' | 'prefetch'> &
 
 /**
  * The link of a show or person tile in rows, grids, walls and search
- * results. Their prefetch policy is one constant, `TILE_PREFETCH`
- * (`tilePrefetch.ts`).
- * Whatever the policy, hover, keyboard focus and the first touch
- * (`pointerdown`, before the click) also prefetch: `router.prefetch` fetches
+ * results. Their prefetch policy lives in `tilePrefetch.ts` (`TILE_PREFETCH`,
+ * `PERSON_PREFETCH` for people). Whatever the policy, hover, keyboard focus
+ * and the first touch (`pointerdown`, before the click) also prefetch: `router.prefetch` fetches
  * what a default `<Link>` would (the route's App Shell, Partial Prefetching)
  * and skips a route that is cached and fresh, so it only does work for a
  * tile the viewport prefetch didn't cover (scrolled past, expired) or one

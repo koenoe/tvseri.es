@@ -1,6 +1,6 @@
 /**
- * The one way to open the search overlay (Phase 2 listens for it; there is no
- * search page): the header's search button (bar and pill) and
+ * The one way to open the search overlay (`useSearchLauncher` listens for
+ * it; there is no search page): the header's search button, Find people and
  * the 404's search field dispatch this window event. `detail.trigger` is the
  * element to return focus to; `detail.query` prefills the field.
  *

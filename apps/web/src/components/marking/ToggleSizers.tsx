@@ -3,7 +3,6 @@ import { ButtonFace } from '@/components/ui/ghost/ghosts';
 import { plusGlyph } from '@/components/ui/icon/glyphs';
 import cn from '@/lib/cn';
 
-/** The toggle's on label */
 export const ON_LABEL = 'On watchlist';
 
 /** 138 wide for the 36px toggle (the ticket's) */

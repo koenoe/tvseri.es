@@ -27,7 +27,7 @@ export type UpNextFact = Readonly<{
     | 'people'
     | 'trending';
   text: string;
-  /** The one highlighted fact of the line (`cs-hi`) */
+  /** The one highlighted fact of the line */
   highlight?: boolean;
 }>;
 

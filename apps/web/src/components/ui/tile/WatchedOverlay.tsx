@@ -12,9 +12,8 @@ const BOX = `block ${LATE_FADE}`;
  * It comes from the viewer's library ids, loaded once per tab after
  * hydration (`useLibraryIds`: nothing signed out, nothing until they arrive,
  * kept current by every mark), so the cached page never varies per user. It
- * fades in (`LATE_FADE`) so the late arrival doesn't pop. The Watched
- * overlay of every poster tile: rows, Discover, landings and search. It
- * reads one answer (`useIsWatched`), so a mark re-renders only the labels
+ * fades in (`LATE_FADE`) so the late arrival doesn't pop. It reads one
+ * answer (`useIsWatched`), so a mark re-renders only the labels
  * it changes, not every tile on the page.
  */
 export default function WatchedOverlay({ id }: Readonly<{ id: number }>) {

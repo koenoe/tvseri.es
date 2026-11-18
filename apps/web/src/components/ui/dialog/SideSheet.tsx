@@ -18,14 +18,13 @@ const PANEL = cn(
 );
 
 /**
- * The side sheet: 600px on the right, full
- * height, title-2 title and a ✕; full screen on phones. On desktop it
- * behaves as every side panel does (with the menu): the page
- * becomes a dimmed (`BACKDROP.side`), inert, scroll-locked background, the
- * panel slides in and out (`SIDE_MOTION`), and ✕, Escape, a click on the
- * dimmed page and Back (its owner's history entry) close it. The body scrolls and
- * keeps room at the bottom for the toast, which lands inside the sheet: 24px
- * from the viewport's right edge, 560px at most, in a 600px sheet.
+ * The side sheet: 600px on the right, full height, title-2 title and a ✕;
+ * full screen on phones. On desktop it behaves as every side panel does
+ * (with the menu): the page becomes a dimmed (`BACKDROP.side`), inert,
+ * scroll-locked background, the panel slides in and out (`SIDE_MOTION`), and
+ * ✕, Escape, a click on the dimmed page and Back (its owner's history entry)
+ * close it. The body scrolls and keeps room at the bottom for the toast,
+ * which lands over the sheet, 24px from the viewport's right edge.
  *
  * @example
  * <SideSheet open={open} onOpenChange={setOpen} title="Watch history" description="34 of 47 watched">

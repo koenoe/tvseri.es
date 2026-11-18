@@ -5,8 +5,8 @@ import { describe, expect, it, vi } from 'vitest';
 /**
  * In `next dev` a hot reload can evaluate this module again while
  * the root layout still renders the earlier copy of the provider; hooks
- * from the new copy then found no provider and every render of the series
- * page threw. The provider and the hooks must meet through one context per
+ * from the new copy would then find no provider and every render of the
+ * series page would throw. The provider and the hooks must meet through one context per
  * page, however many times the module is evaluated.
  */
 describe('the marking context across module copies', () => {

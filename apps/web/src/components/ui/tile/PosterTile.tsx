@@ -35,11 +35,11 @@ export const POSTER_TILE = 'group/ptile flex flex-col gap-2 md:gap-3';
 const LINK = `block rounded-[var(--tile-radius,12px)] focus-visible:outline-offset-[var(--tile-focus-offset,4px)] ${TILE_HOVER}`;
 
 /**
- * A show's poster linking to its page, with an optional line below
- * (12px below on desktop, 8 on phones). The one tile hover
- * (`tileHover`): it grows 4% (a press shrinks it on touch); keyboard focus
- * draws a 2px ring 4px out (`--tile-focus-offset`).
- * Width comes from the parent (a Row's `li`, a grid cell).
+ * A show's poster linking to its page, with an optional line below (12px
+ * below on desktop, 8 on phones). The one tile hover (`tileHover`): it grows
+ * 4% (a press shrinks it on touch); keyboard focus draws a 2px ring 4px out
+ * (`--tile-focus-offset`). Width comes from the parent (a Row's `li`, a grid
+ * cell).
  *
  * @example
  * <PosterTile id={show.id} slug={show.slug} title={show.title} poster={show.poster} overlay={watched ? <WatchedLabel /> : null} />

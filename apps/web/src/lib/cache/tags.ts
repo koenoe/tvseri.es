@@ -7,7 +7,7 @@ import type { LandingType } from '@tvseri.es/constants';
  * are part of every cached entry: renaming one orphans the entries under the
  * old one (`tags.test.ts` pins them).
  *
- * Invalidated today: `home` and `series:{id}` (the admin image picker),
+ * Invalidated: `home` and `series:{id}` (the admin image picker),
  * `user:`, `stats:` and `username:` (renames, account deletes, the viewer's
  * own marks and imports). The rest only expire on their cacheLife.
  */

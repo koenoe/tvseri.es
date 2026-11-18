@@ -20,8 +20,7 @@ type Props = Omit<ComponentProps<typeof Link>, 'children'> &
 
 /**
  * A `next/link` that looks like a `Button` (same variants and sizes). It
- * navigates, so its icon leads: no trailing
- * icon.
+ * navigates, so its icon leads: no trailing icon.
  *
  * @example
  * <ButtonLink href="/discover" icon={arrowRightGlyph}>Back to Discover</ButtonLink>

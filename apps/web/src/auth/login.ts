@@ -13,7 +13,7 @@ export const LOGIN_CALLBACK_PATH = '/api/auth/callback';
 const LOGIN_COOKIE_NAME = '__tvseries_login';
 const LOGIN_COOKIE_OPTIONS = {
   httpOnly: true,
-  maxAge: 60 * 10, // 10 minutes
+  maxAge: 60 * 10,
   path: LOGIN_CALLBACK_PATH,
   sameSite: 'lax' as const,
   secure: process.env.NODE_ENV === 'production',

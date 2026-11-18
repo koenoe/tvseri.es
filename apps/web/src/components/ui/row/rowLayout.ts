@@ -13,14 +13,19 @@
  * The frame is an inline-size container, so `cqw` is the row's own width and
  * the counts follow the space the row gets (full bleed or a column), not the
  * window. Example values: a full row (220 + 24, gutter 112 at 1440), the
- * profile column (160 + 16, 5 + 52%), a phone (140 + 12, 2.45 at 390; the
- * phone gutter is 24), Home's 16:9 tile (384 + 24,
- * 3 + 27% at 1440).
+ * profile column (160 + 16, 5 + 52%), a phone (140 + 12 at 390), Home's 16:9
+ * tile (384 + 24, 3 + 27% at 1440).
  */
 
 export type RowTiles = 'backdrop' | 'card' | 'poster' | 'ranked';
 
-/** `page`: a full-bleed row on the page grid. `column`: a row inside a page column (profile main column) that clips at the column's left edge and bleeds to the window's right edge. `flush`: a section inside a column that already has the page gutter at every width (the person page, Stats): its edges are the column's. */
+/**
+ * `page`: a full-bleed row on the page grid. `column`: a row inside a page
+ * column (profile main column) that clips at the column's left edge and
+ * bleeds to the window's right edge. `flush`: a section inside a column that
+ * already has the page gutter at every width (the person page, Stats): its
+ * edges are the column's.
+ */
 export type RowInset = 'column' | 'flush' | 'page';
 
 export const ROW_TILE_WIDTH =
@@ -38,14 +43,20 @@ export const ROW_INSET: Readonly<Record<RowInset, string>> = {
 export const ROW_TILES: Readonly<Record<RowTiles, string>> = {
   backdrop:
     '[--row-n:1] [--row-peek:0.25] [--row-gap:12px] [--tile-radius:12px] [--tile-aspect:16/9] @min-[640px]:[--row-n:2] @min-[768px]:[--row-peek:0.27] @min-[768px]:[--row-gap:16px] @min-[1024px]:[--row-n:3] @min-[1024px]:[--row-gap:24px] @min-[1680px]:[--row-n:4]',
-  /** The Discover hub's Go deeper card: one at a time on phones inside both page gutters (342 at 390), 960 + 40% of the next at 1440; between them (768 to 1279) the phone's stacked card at 560px with the next one peeking, because the desktop card squeezes its posters below about 900px (29px posters at 800); the ghost is the card's height (303 on phones, 404 stacked at 560, 310 with a two-line "why" on desktop, measured on the loaded card) */
+  /**
+   * The Discover hub's Go deeper card: one at a time on phones inside both
+   * page gutters, 960 + 36% of the next at 1440; between them (768 to 1279)
+   * the phone's stacked card at 560px with the next one peeking, because the
+   * desktop card squeezes its posters below about 900px. The ghost is the
+   * card's height (303 on phones, 404 stacked at 560, 310 with a two-line
+   * "why" on desktop, measured on the loaded card).
+   */
   card: '[--row-n:1] [--row-peek:0] [--row-gap:12px] [--tile-radius:16px] [--tile-aspect:auto] [--tile-ghost-h:303px] @max-[767px]:[--row-tile:calc(100cqw_-_2_*_var(--page-gutter))] @min-[768px]:@max-[1280px]:[--row-tile:560px] @min-[768px]:[--tile-ghost-h:404px] @min-[768px]:[--row-gap:24px] @min-[1280px]:[--tile-ghost-h:310px] @min-[1280px]:[--row-peek:0.36]',
   poster:
     '[--row-n:2] [--row-peek:0.45] [--row-gap:12px] [--tile-radius:10px] [--tile-aspect:2/3] @max-[639px]:[--row-tile:140px] @min-[640px]:[--row-n:3] @min-[768px]:[--row-n:4] @min-[768px]:[--row-peek:0.49] @min-[768px]:[--row-gap:16px] @min-[768px]:[--tile-radius:12px] @min-[1024px]:[--row-n:5] @min-[1024px]:[--row-gap:24px] @min-[1680px]:[--row-n:6] @min-[2200px]:[--row-n:7]',
   /**
-   * The numbered row: a tile is the
-   * numeral's room and the poster, 290 = 110 + 180 at 1024 and up, 18 apart
-   * (the frame's 308 pitch); below that numeral and poster scale together
+   * The numbered row: a tile is the numeral's room and the poster, 290 = 110
+   * + 180 at 1024 and up, 18 apart (a 308px pitch); below that numeral and poster scale together
    * with the tile (`RankedTile`), 2 + 45% on phones like the poster rows, 3
    * + 45% from 640. The poster is 62% of the tile (180 of 290), 72% on
    * phones, where it is bigger and covers more of the numeral

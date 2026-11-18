@@ -13,11 +13,10 @@ import type {
 } from './types';
 
 /**
- * The watch-progress rules, pure. Specials
- * (season 0) never count for progress, Next up or completion; aired episodes
- * are numbered 1…airedEpisodeCount within a season. Skipped is not
- * watched (progress, complete, the eye), but it is done: never "left", and a
- * show with every aired episode watched or skipped is Finished (the API's
+ * The watch-progress rules, pure. Specials (season 0) never count for
+ * progress, Next up or completion; aired episodes are numbered
+ * 1…airedEpisodeCount within a season. Skipped is not watched (progress,
+ * complete, the eye), but it is done: never "left", and a show with every aired episode watched or skipped is Finished (the API's
  * list rule, `isFinished`).
  */
 

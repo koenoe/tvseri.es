@@ -12,9 +12,9 @@ export type TilePrefetch = 'intent' | 'viewport';
  *   the functions and API reads on a page full of tiles, but a click
  *   without a hover waits for the page (measured 0.3–0.8 s locally).
  *
- * `viewport`: the UI must feel instant. Switch
- * here if the cost matters again (e.g. on Vercel Hobby, whose ISR-write
- * allowance this uses up first).
+ * `viewport`: the UI must feel instant. Switch to `intent` here if the cost
+ * matters (e.g. on Vercel Hobby, whose ISR-write allowance this uses up
+ * first).
  */
 export const TILE_PREFETCH: TilePrefetch = 'viewport';
 

@@ -4,8 +4,8 @@ import type { CSSProperties } from 'react';
 const TOP = 'linear-gradient(180deg, rgb(0 0 0 / 0.5) 0%, rgb(0 0 0 / 0) 20%)';
 
 /**
- * The error scenes' scrims in the still's own ground colour, never text on a busy
- * area: 50% black under the header, then (desktop) left 95 → 86 → 0% and
+ * The error scenes' scrims in the still's own ground colour, so text never
+ * sits on a busy area: 50% black under the header, then (desktop) left 95 → 86 → 0% and
  * bottom 92 → 0%, or (phone) the still fading into the ground below it.
  */
 export function stillScrims(ground: string): Readonly<{

@@ -61,9 +61,8 @@ const followsLink = (event: MouseEvent) => {
 };
 
 /**
- * Everything that holds while the menu is open ("Focus and inert",
- * "Close", "Scroll"): the page scroll locked (the shared counted lock); the
- * page beside the header (main content, footer) inert, never the header, so
+ * Everything that holds while the menu is open: the page scroll locked
+ * (the shared counted lock); the page beside the header (main content, footer) inert, never the header, so
  * the username, Sign in and search stay usable; focus cycling through the
  * header and the menu; Escape and Android Back (a close request, where the
  * browser has `CloseWatcher`) close it. Back closes it too, as on every

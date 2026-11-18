@@ -48,8 +48,6 @@ const setCssVariable = (color: string) =>
  *
  * History state is read in the layout effect, never during render: it is
  * external mutable state that may not reflect the navigation yet.
- *
- * @see state-lift-state - Move state into provider for sibling access
  */
 export function BackgroundProvider({
   children,
@@ -103,7 +101,8 @@ export function BackgroundProvider({
       );
     }
 
-    // Enable the <style> and set the variable atomically.
+    // The <style> and the variable in one effect: a re-show never paints a
+    // stale colour (`StyleTagRefContext`)
     const styleTag = styleTagRef.current;
     if (styleTag) {
       styleTag.media = '';

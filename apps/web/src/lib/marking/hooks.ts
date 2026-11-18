@@ -362,8 +362,8 @@ export function useRecheckViewer(): void {
 
 /**
  * Seeds a show the page didn't (the Remote on a tile): fetches its marking
- * state once when `enabled` and signed in (`ensureSeries`, shared with
- * Home's warm-up on hover). Returns the view when ready.
+ * state once when `enabled` and signed in (`ensureSeries`, shared with the
+ * hover warm-up of `useShowActions().prepare`). Returns the view when ready.
  */
 export function useEnsureSeries(
   seriesId: number,

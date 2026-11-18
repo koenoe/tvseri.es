@@ -8,7 +8,7 @@ import { PAGE_COLOUR_LIVE, toPageColor } from './pageColor';
  *
  * Two copies. The in-page `<style>` (Activity-proof, `BackgroundStyleTag`)
  * sits where the page renders, in the body: a slow device parsing the
- * document painted a frame or two of the ground before it reached it. So the
+ * document can paint a frame or two of the ground before it reaches it. So the
  * colour is also hoisted into `<head>` (React 19 `<style precedence>`), where
  * it applies from the first frame, scoped to the document until the page's
  * provider takes over (`PAGE_COLOUR_LIVE`).

@@ -9,8 +9,8 @@ import { SIGN_IN_MESSAGE } from './copy';
 export const MARKING_TOAST_ID = 'marking';
 
 /**
- * The signed-out prompt every marking control shows (the dark toast with the
- * warning icon and a Sign in action back to this page). Use it for any personal action a
+ * The signed-out prompt every marking control shows (an error toast with a
+ * Sign in action back to this page). Use it for any personal action a
  * signed-out visitor tries (a `+`, a heart), so the copy stays one.
  */
 export default function promptSignIn() {

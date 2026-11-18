@@ -3,9 +3,8 @@ import type { IconSize } from '@/components/ui/icon/types';
 import cn from '@/lib/cn';
 
 /**
- * Where a paired control stands, and so how its buttons are drawn
- *: Home's spotlight slide (40 tall, 0 16 0 14;
- * a phone's 38, 0 14), the Discover landing's Start here tile and the
+ * Where a paired control stands, and so how its buttons are drawn: Home's
+ * spotlight slide (40 tall, 0 16 0 14; a phone's 38, 0 14), the Discover landing's Start here tile and the
  * decade card (40 tall, 16 on both sides, a 15px icon).
  */
 export type MarkLook = 'decade' | 'landing' | 'spotlight';
@@ -30,7 +29,7 @@ export const PAIR: Readonly<Record<MarkLook, string>> = {
   spotlight: 'flex items-center gap-2.5 md:gap-3',
 };
 
-/** The white "+ Watchlist" keeps its white on hover (`hx-solid`) */
+/** The white "+ Watchlist" keeps its white on hover */
 export const SOLID = 'hover:bg-white';
 
 /**

@@ -17,8 +17,7 @@ type Props = Readonly<{
 }>;
 
 /**
- * The outlined numeral: 240px Inter
- * 800 at a 290px tile, outlined: a 2px line at white/32, standing on the
+ * The outlined numeral: 240px Inter 800 at a 290px tile, outlined: a 2px line at white/32, standing on the
  * poster's baseline with its right edge 22px behind the poster. The font is
  * variable, so its glyphs overlap inside (the 4's bar, the 1's foot): a bare
  * stroke draws those seams. The stroke is drawn twice as wide under a fill
@@ -30,11 +29,11 @@ const NUMERAL =
   'pointer-events-none absolute bottom-0 font-sans font-[800] leading-[0.8] text-page select-none [paint-order:stroke_fill] [-webkit-text-stroke:max(3px,calc(var(--row-tile)*0.0138))_rgb(255_255_255/0.32)]';
 
 /**
- * One digit: tabular, its box's right edge at 146 of 290 (a 132
- * box with its −0.06em tracking), so a wide digit keeps the frame's 17px
- * from the poster before. Two digits (10 to 20, half the row): a
- * smaller size, −0.05em (the digits never overlap), proportional figures in their natural shape,
- * the last digit partly behind the poster (`numeralFit`).
+ * One digit: tabular, its box's right edge at 146 of 290 (a 132 box with its
+ * −0.06em tracking), so a wide digit keeps 17px from the poster before. Two
+ * digits (10 to 20, half the row): a smaller size, −0.05em (the digits never
+ * overlap), proportional figures in their natural shape, the last digit
+ * partly behind the poster (`numeralFit`).
  */
 const DIGITS = {
   one: 'tabular-nums',
@@ -48,7 +47,8 @@ const tileWidths = (value: number) =>
  * A poster in a numbered row: the rank's outlined numeral behind and to the
  * left of the shared poster tile (its hover, Watched label and link), no
  * caption (the title is on the art). A two-digit tile is wider than the
- * row's tile by what its number needs (`data-own-width`: the row lets it). Use it in a `Row tiles="ranked"`.
+ * row's tile by what its number needs (`data-own-width`: the row lets it).
+ * Use it in a `Row tiles="ranked"`.
  *
  * @example
  * <Row id="all-time" tiles="ranked" title="All-time favourites">

@@ -5,7 +5,7 @@ import { MENU_GLASS, PHONE_DIM } from './menuLook';
 
 const WHITE: Rgb = [255, 255, 255];
 
-/** `rgb(17_19_20/0.7)`'s alpha: the glass's tint over the page */
+/** `rgb(17_19_20/0.84)`'s alpha: the glass's tint over the page */
 const tintOf = (glass: string): number =>
   Number(glass.match(/rgb\(17_19_20\/([\d.]+)\)/)?.[1]);
 

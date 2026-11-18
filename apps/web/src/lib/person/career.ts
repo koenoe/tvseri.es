@@ -19,7 +19,7 @@ import { VOICE_ROLE } from './shows';
 const CAREER_ROWS = 9;
 const UPCOMING_ROWS = 2;
 
-/** Track widths (1440 desktop, 390 phone), for text fits */
+/** Track widths in px at a 1440px desktop and a 390px phone, for text fits */
 export const TRACK = { desktop: 620, phone: 210 } as const;
 /** Inter 12px, about this wide per character */
 const CHAR = { desktop: 6.6, phone: 5.6 } as const;

@@ -28,7 +28,7 @@ export default function RelationPill({
   /** the relation's colours (and glass) */
   tone: string;
 }>) {
-  // joined, not merged: a tone's glass and its fill both apply, as drawn
+  // joined, not merged: a tone's glass and its fill both apply
   const classes = `${layout.pill} ${tone}`;
   return (
     <span className={classes} title={label}>

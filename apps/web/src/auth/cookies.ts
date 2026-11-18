@@ -7,7 +7,7 @@
 export const SESSION_COOKIE_NAME = '__tvseries_session';
 export const SESSION_COOKIE_OPTIONS = {
   httpOnly: true,
-  maxAge: 60 * 60 * 24 * 365, // 1 year
+  maxAge: 60 * 60 * 24 * 365,
   path: '/',
   sameSite: 'lax' as const,
   secure: process.env.NODE_ENV === 'production',

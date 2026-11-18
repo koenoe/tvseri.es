@@ -37,18 +37,17 @@ const ACTIONS_STACKED =
   'max-[600px]:order-last max-[600px]:basis-full max-[600px]:justify-end';
 
 /**
- * The dark toast: a 22px icon disc (a warning
- * has no disc), the
- * message (one line where it fits, the 52px toast; a second line on a phone
- * rather than losing its point: "Marked S03E06 Nap…";
- * the full text on hover past two), at most one quiet action,
- * the filled action (Undo) and ✕. Sonner leaves custom toasts unsized: the
- * card sizes itself (`CARD`) and sonner's list item, placed on the toaster's
- * right edge, wraps it.
+ * The dark toast: a 22px icon disc (a warning has no disc), the message (one
+ * line where it fits, the 52px toast; a second line on a phone rather than
+ * losing its point; the full text on hover past two), at most one quiet
+ * action, the filled action (Undo) and ✕. Sonner leaves custom toasts
+ * unsized: the card sizes itself (`CARD`) and sonner's list item, placed on
+ * the toaster's right edge, wraps it.
+ *
  * On a phone a toast with two actions stacks: the message keeps the first
  * line beside the icon and ✕, the actions sit under it on the right (the
- * message is the point of a toast; "Mark the one before too" + Undo left
- * it no room at 360).
+ * message is the point of a toast, and two actions beside it leave it no
+ * room at 360).
  */
 export default function ToastCard({
   action,

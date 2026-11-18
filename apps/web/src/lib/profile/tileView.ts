@@ -175,10 +175,10 @@ export const progressPercent = (part: number, whole: number) =>
   Math.round((Math.min(part, whole) / whole) * 1000) / 10;
 
 /**
- * Every per-shelf rule of a tile:
- * the meta line, the code badge and progress line on Watching, the heart on
- * Favourites, and the season the Remote's E opens. Pure: `now` decides
- * "this year" (UTC, like the rest of the profile).
+ * Every per-shelf rule of a tile: the meta line, the code badge and
+ * progress line on Watching, the heart on Favourites, and the season the
+ * Remote's E opens. Pure: `now` decides "this year" (UTC, like the rest of
+ * the profile).
  */
 export function toTileView(
   item: LibraryItem,

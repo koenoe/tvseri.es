@@ -36,7 +36,7 @@ type Props =
   | (Common & Readonly<{ active?: undefined; glyph: Glyph | ToggleGlyph }>);
 
 /**
- * One line icon from the approved set. `currentColor` throughout, so the text
+ * One line icon from the set in `glyphs.tsx`. `currentColor` throughout, so the text
  * colour (cyan, pink, white/60…) colours it. A server component: no client JS
  * of its own, and only the glyphs a page imports end up in a bundle.
  *

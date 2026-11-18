@@ -19,8 +19,7 @@ const readModel = () =>
   });
 
 /**
- * The open menu: a non-modal `<dialog>` (`show()`, "Focus and
- * inert"), because a modal one would make the header inert, and the
+ * The open menu: a non-modal `<dialog>` (`show()`), because a modal one would make the header inert, and the
  * username, Sign in and search must stay usable above it. It sits under the
  * header (z-30 < the header's z-40) and holds the phone or the desktop
  * layout. Opened by a click, focus goes to the dialog itself (no ring); by

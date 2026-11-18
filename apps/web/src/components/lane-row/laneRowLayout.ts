@@ -8,7 +8,6 @@ import type { CodeBadgeSize } from '@/components/ui/button/CodeBadge';
  * server-rendered rows and placeholders read these as strings.
  */
 export type LaneRowLayout = Readonly<{
-  /** The row's box */
   row: string;
   /** The text column; its gap spaces the title, the segments and the meta line */
   text: string;
@@ -26,13 +25,11 @@ export type LaneRowLayout = Readonly<{
   meta: string;
   /** `drop`: facts that don't fit drop whole (`MetaRow`'s `fit`) */
   metaFit?: 'drop';
-  /** The code badge's size */
   code: CodeBadgeSize;
 }>;
 
 /** A lane row's placeholder at one place: its box and its segments' fill */
 export type LaneRowGhostLayout = Readonly<{
-  /** The placeholder row's box */
   row: string;
   /** One empty segment (8 are drawn); left out, no segments */
   segment?: string;

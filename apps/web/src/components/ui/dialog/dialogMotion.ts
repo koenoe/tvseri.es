@@ -26,7 +26,7 @@ export const PHONE_MOTION: PanelMotion = {
   initial: { opacity: 0, y: 24 },
 };
 
-/** `dlg-in .2s ease-out` (fade, 8px rise). */
+/** A fade and an 8px rise over 200ms */
 export const CENTER_MOTION: PanelMotion = {
   animate: { opacity: 1, transition: { duration: 0.2, ease: 'easeOut' }, y: 0 },
   exit: { opacity: 0, transition: { duration: 0.12, ease: 'easeIn' }, y: 8 },
@@ -65,9 +65,9 @@ export const toVariants = (motion: PanelMotion): Variants => ({
 });
 
 /**
- * The episode modal: a grow curve (`v2-grow .62s
- * cubic-bezier(.22,1.1,.36,1)`). The grow from the tile itself is a shared
- * layout animation the episode wall adds; the shell scales in on its own.
+ * The episode modal: scales in on an overshooting grow curve. The grow from
+ * the tile itself is a shared layout animation the episode wall adds; the
+ * shell scales in on its own.
  */
 export const LARGE_MOTION: PanelMotion = {
   animate: {
@@ -79,7 +79,7 @@ export const LARGE_MOTION: PanelMotion = {
   initial: { opacity: 0, scale: 0.96 },
 };
 
-/** the dim fades in over .3s. */
+/** The dim fades in over 300ms */
 export const BACKDROP_MOTION: PanelMotion = {
   animate: { opacity: 1, transition: { duration: 0.3, ease: 'easeOut' } },
   exit: { opacity: 0, transition: { duration: 0.16 } },

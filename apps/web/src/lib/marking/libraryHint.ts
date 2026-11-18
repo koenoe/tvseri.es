@@ -9,8 +9,8 @@ import type { MarkingStoreApi } from './store';
 const MAX_HINT_IDS = 5000;
 
 /**
- * The stored hint: ids only, versioned, for one account. A show is tracked
- * when it has watched episodes or is in progress.
+ * The stored hint: ids only, versioned, for one account. A show counts as
+ * tracked when it is finished or in progress.
  */
 export function toLibraryHint(username: string, library: LibraryIds): string {
   const ids = [...new Set([...library.watched, ...library.inProgress])].slice(

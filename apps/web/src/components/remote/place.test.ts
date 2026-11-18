@@ -15,7 +15,6 @@ const trigger = (x: number, y: number, size = 40) => ({
 
 describe('placeRemote', () => {
   it('show page: grows sideways, 12px right of the ⋯, its first key level with it', () => {
-    // frame: ⋯ at (196, 152), the remote at (248, 144)
     expect(
       placeRemote({
         panel: PANEL,
@@ -56,7 +55,7 @@ describe('placeRemote', () => {
   });
 
   it('in progress tile: under the ⋯, right edges aligned, 8px gap', () => {
-    // the 448px tile frame: a 32px ⋯ 16px from its top right corner
+    // a 448px tile: a 32px ⋯ 16px from its top right corner
     expect(
       placeRemote({
         panel: PANEL,

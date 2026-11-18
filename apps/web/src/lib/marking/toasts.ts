@@ -79,7 +79,7 @@ const nextTo = (refs: ReadonlyArray<EpisodeRef>, ref: EpisodeRef) => {
 };
 
 /**
- * Quick Just-now marks of next-door episodes of one show merge into one
+ * Quick Just-now marks of next-door episodes in one season merge into one
  * toast ("Marked E5–E7 · Just now") with one Undo back to before the first.
  * Any other command, or a mark away from the run, ends it.
  */

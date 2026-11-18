@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { encryptToken } from './crypto';
 
 /*
- * React's `cache()` only memoizes inside a server request; here one request
+ * React's `cache()` only memoises inside a server request; here one request
  * is one memo table, so the test sees what a page that calls both `auth()`
  * and `getViewer()` costs.
  */

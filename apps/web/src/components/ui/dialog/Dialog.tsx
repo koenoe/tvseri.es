@@ -18,23 +18,10 @@ const HANDLE = 'absolute top-2 left-1/2 -translate-x-1/2 sm:hidden';
 const PANEL = cn(
   'flex max-h-[calc(100dvh-32px)] max-w-[calc(100vw-32px)] flex-col gap-5 self-center justify-self-center overflow-y-auto overscroll-contain rounded-18 p-6',
   SHADOW.dialog,
-  // phones: a bottom sheet (18 18 0 0, 22 20 28)
+  // phones: a bottom sheet
   'max-sm:max-h-[calc(100dvh-48px)] max-sm:w-full max-sm:max-w-none max-sm:gap-4.5 max-sm:self-end max-sm:rounded-b-none max-sm:px-gutter max-sm:pt-5.5 max-sm:pb-7',
 );
 
-/**
- * The centred dialog (the date picker, “I’m up to…”):
- * 560px, title-3 title, meta subline and a ✕; a bottom sheet on phones,
- * topped by the grab handle (it swipes down to close).
- * Controlled: render it where the trigger lives and flip `open`. A URL-driven
- * dialog passes `open` from `useSearchParams()` in a small island.
- *
- * @example
- * <Dialog open={open} onOpenChange={setOpen} title="When did you watch it?">
- *   …
- *   <DialogFooter><DialogClose>Cancel</DialogClose></DialogFooter>
- * </Dialog>
- */
 /**
  * `tinted` (default): the show page's dialog, 560px, its
  * surface mixed from the page colour, title-3. `plain`: Settings' dialogs
@@ -48,7 +35,7 @@ const VARIANT_PANEL: Readonly<Record<DialogVariant, string>> = {
   tinted: cn('w-140', SURFACE.dialog),
 };
 
-/** Title to description: 4px under the show page's title-3, 8px in Settings (.dlg-ht). */
+/** Title to description: 4px under the show page's title-3, 8px in Settings */
 const VARIANT_HEADING: Readonly<Record<DialogVariant, string>> = {
   plain: 'gap-2',
   tinted: 'gap-1',
@@ -59,6 +46,19 @@ const VARIANT_TITLE: Readonly<Record<DialogVariant, string>> = {
   tinted: 'text-title-3',
 };
 
+/**
+ * The centred dialog (the date picker, “I’m up to…”): a title, meta
+ * subline and a ✕ at the size of its `variant`; a bottom sheet on phones,
+ * topped by the grab handle (it swipes down to close). Controlled: render it
+ * where the trigger lives and flip `open`. A URL-driven dialog passes `open`
+ * from `useSearchParams()` in a small island.
+ *
+ * @example
+ * <Dialog open={open} onOpenChange={setOpen} title="When did you watch it?">
+ *   …
+ *   <DialogFooter><DialogClose>Cancel</DialogClose></DialogFooter>
+ * </Dialog>
+ */
 export function Dialog({
   children,
   className,

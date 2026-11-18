@@ -11,7 +11,6 @@ type Props = Readonly<{
   search: OverlaySearch;
 }>;
 
-/** The panel's contents: the field, then the results under a rule. */
 export default function SearchPanel({ inputRef, onClose, search }: Props) {
   const { state } = search;
   // The field updates at once; the results render when the browser has time.

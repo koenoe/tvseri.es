@@ -6,8 +6,8 @@ import type { WatchedItem, WatchingNow } from '@tvseri.es/schemas';
  */
 
 /**
- * One episode in the History diary: a watched item minus what
- * its rows no longer draw (where it was watched, when it aired).
+ * One episode in the History diary: a watched item minus what its rows
+ * don't draw (where it was watched, when it aired).
  */
 export type DiaryItem = Readonly<
   Pick<

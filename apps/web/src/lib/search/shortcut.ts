@@ -10,7 +10,7 @@ const KEYS = new Set(['f', 'k']);
 
 /**
  * ⌘K or ⌘F on a Mac, Ctrl+K or Ctrl+F elsewhere: opens and closes search
- * (today's shortcuts; ⌘F replaces the browser's find on purpose).
+ * (⌘F replaces the browser's find on purpose).
  */
 export function isSearchShortcut(event: KeyChord, isMac: boolean): boolean {
   const modifier = isMac

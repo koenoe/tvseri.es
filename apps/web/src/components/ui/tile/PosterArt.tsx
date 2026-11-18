@@ -15,10 +15,9 @@ type Props = Readonly<{
 }>;
 
 /**
- * The 2:3 poster itself: radius from the row
- * (`--tile-radius`, 12 by default), the soft drop shadow (`--tile-shadow`
- * for a page's own), a 1px inner ring
- * and, without art, a dashed placeholder with the title. No link
+ * The 2:3 poster itself: radius from the row (`--tile-radius`, 12 by
+ * default), the soft drop shadow (`--tile-shadow` for a page's own), a 1px
+ * inner ring and, without art, a dashed placeholder with the title. No link
  * and no hover of its own, so a non-clickable tile can use it too.
  */
 export default function PosterArt({

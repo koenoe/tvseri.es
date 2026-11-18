@@ -43,7 +43,7 @@ describe('tmdbImageLoader', () => {
     const still = buildStillImageUrl('/s.jpg');
     expect(load(still, 64)).toBe('https://image.tmdb.org/t/p/w92/s.jpg');
     expect(load(still, 200)).toBe('https://image.tmdb.org/t/p/w300/s.jpg');
-    // the episode modal's 1320px still is no longer a 454px file
+    // the episode modal's 1320px still gets a file at least that wide
     expect(load(still, 1320)).toBe(
       'https://image.tmdb.org/t/p/w1920_and_h1080_multi_faces/s.jpg',
     );

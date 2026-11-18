@@ -10,7 +10,7 @@ import cn from '@/lib/cn';
  * background and the first spotlight slide show the same backdrop, so they
  * must share `sizes`, or the browser downloads two different files.
  *
- * Note: `object-cover` draws a 16:9 backdrop wider than its box on portrait
+ * `object-cover` draws a 16:9 backdrop wider than its box on portrait
  * screens. `sizes` follows the box width on purpose: the cover width would
  * send every phone the 1920 cap, for a background behind gradient overlays.
  */

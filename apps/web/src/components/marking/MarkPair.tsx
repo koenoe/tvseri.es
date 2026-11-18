@@ -11,7 +11,7 @@ import type { MarkShow } from './singleFace';
 /**
  * New to you (and signed out): "+ Watchlist" (white) and "Seen it"
  * (outlined). Watchlist adds the series; Seen it marks every aired episode
- * seen with no date (`markSeen`). The series' marking state is fetched on
+ * not yet watched, with no date (`markSeen`). The series' marking state is fetched on
  * hover or focus, and a press waits for it; signed out, a press asks to sign
  * in. What the press did is the toast's, with Undo.
  */

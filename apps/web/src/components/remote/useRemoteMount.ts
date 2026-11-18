@@ -32,7 +32,7 @@ export default function useRemoteMount(
   // Swapped in for a press (`RemoteMount`). The open waits until the mount
   // has settled: StrictMode re-runs a new Remote's effects (as a re-shown
   // Activity would), and Remote closes its menu on that re-run, so
-  // an open sent from the commit itself was undone and needed a second
+  // an open sent from the commit itself would be undone and need a second
   // press. The microtask runs after that re-run, in the same flush.
   const [opening, setOpening] = useState(openOnMount !== undefined);
   const pendingOpen = useRef(openOnMount);

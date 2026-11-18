@@ -96,9 +96,9 @@ export function decide(
  *
  * - `gone`: the user was deleted. The session can never work again, so it
  *   ends here exactly like a refused refresh: both cookies go and a user API
- *   answers 401. Without this a deleted user's other browsers kept a valid
+ *   answers 401. Otherwise a deleted user's other browsers would keep a valid
  *   token (the issuer still refreshes it) and a handle in the header while
- *   every page said "Sign in".
+ *   every page says "Sign in".
  * - `user`: the display cookie takes the current username.
  * - `unknown` (an outage, a token the API couldn't verify): nothing ends; the
  *   display cookie keeps its value, or stays missing until `/me` answers.

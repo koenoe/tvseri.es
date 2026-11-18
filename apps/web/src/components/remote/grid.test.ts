@@ -4,7 +4,7 @@ import { moveInGrid, shortcutTarget } from './grid';
 
 // The show page Remote: the big key (row 1), E F W (row 2).
 const SHOW = [1, 3];
-// With the admin row the show stream adds: two more keys (row 3).
+// The show page with the admin row: two more keys (row 3).
 const ADMIN = [1, 3, 2];
 
 describe('moveInGrid', () => {

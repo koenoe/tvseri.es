@@ -51,7 +51,7 @@ import { seedToBase } from './state';
 import type { SeriesSeed } from './types';
 
 /**
- * The marking server actions: the ONE write path for watched, no date,
+ * The marking server actions: the one write path for watched, no date,
  * skipped, lists and per-show prefs. Each validates its input, authenticates
  * (the proxy has refreshed the session before an action runs; actions only
  * read it) and acts on the caller's own account. Clients call them through
@@ -63,7 +63,7 @@ type MarkData = Readonly<{ watched: ReadonlyArray<ProgressItem> }>;
 type MarkNextData = MarkData &
   Readonly<{ episode: EpisodeRef | null; seed: SeriesSeed }>;
 
-/** Bulk writes in flight at once ("at most 6 at a time") */
+/** Bulk writes in flight at once */
 const BULK_CONCURRENCY = 6;
 
 /** An API failure, with what a multi-request write saved before it failed */
@@ -445,9 +445,8 @@ async function setHidden(
 }
 
 /**
- * The Library's bulk actions in one server action: Next
- * runs a tab's actions one at a time, so the fan-out is here, 6 requests at
- * a time over the existing list and prefs routes. Lists and prefs only:
+ * The Library's bulk actions in one server action: Next runs a tab's
+ * actions one at a time, so the fan-out is here, 6 requests at a time over the existing list and prefs routes. Lists and prefs only:
  * nothing here can touch a watched episode. Answers which shows were done
  * and which failed.
  */
@@ -522,7 +521,8 @@ export async function bulkLibrary(
 /**
  * Marks Next up (Just now) for a show the page hasn't seeded (the Remote on a
  * tile): reads progress and prefs on the server, applies the same rule as the
- * store (`nextEpisode`). `episode: null` when everything aired is watched.
+ * store (`nextEpisode`). `episode: null` when everything aired is watched
+ * or skipped.
  * `seed` is the show after the write, so the store follows the mark even
  * when the Remote's own seed was still on its way (it is older, so ignored).
  */

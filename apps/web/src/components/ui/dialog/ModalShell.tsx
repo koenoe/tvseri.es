@@ -106,9 +106,9 @@ export default function ModalShell({
     panelRef: panelNode,
   });
 
-  // Nor does a press inside reach what the dialog sits in: a Library tile
-  // around the ⋯ sheet took a long press (or a slow swipe) in the sheet for
-  // its own and entered selection.
+  // A press inside never reaches what the dialog sits in: a Library tile
+  // around the ⋯ sheet would take a long press (or a slow swipe) in the
+  // sheet for its own and enter selection.
   const keepPress = (event: PointerEvent<HTMLDialogElement>) =>
     event.stopPropagation();
 

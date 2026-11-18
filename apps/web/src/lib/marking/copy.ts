@@ -2,9 +2,7 @@ import { compareEpisodes, episodeCode, shortCode } from '@tvseri.es/schemas';
 
 import type { EpisodeRef } from './types';
 
-/**
- * The marking toast vocabulary: one line, "Marked Season 2 · Just now".
- */
+/** The marking toast vocabulary: one line, "Marked Season 2 · Just now". */
 
 /** "E06–E09" (or one "E06"): a run inside one season */
 export const shortCodeRange = (first: number, last: number) =>
@@ -79,7 +77,7 @@ export const WHOLE_SHOW = 'the whole series';
 const capitalised = (text: string) =>
   `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
 
-/** "Season 3 unmarked", "The whole show unmarked", "S03E05 Children unmarked" */
+/** "Season 3 unmarked", "The whole series unmarked", "S03E05 Children unmarked" */
 export const unmarkedMessage = (what: string) =>
   `${capitalised(what)} unmarked`;
 

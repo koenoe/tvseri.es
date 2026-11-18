@@ -12,7 +12,8 @@ export type ToastOptions = Readonly<{
   /** Milliseconds, paused while hovered or focused. Default 6000. */
   duration?: number;
   /**
-   * The icon in the disc (16px). Default: ✓ (done), or ⚠ for `tone: 'error'`.
+   * The icon in the disc (drawn at 15px). Default: ✓ (done), or ⚠ for
+   * `tone: 'error'`.
    * Marks pass the filled eye.
    */
   icon?: ReactNode;
@@ -23,7 +24,10 @@ export type ToastOptions = Readonly<{
   id?: number | string;
   /** The quiet button before the action: “Use release dates”. */
   secondaryAction?: ToastAction;
-  /** One line where it fits, two on a phone; past that cut, with the full text on hover. */
+  /**
+   * One line where it fits, two on a phone; past that cut, with the full text
+   * on hover.
+   */
   title: string;
   /** Errors and warnings use the same dark toast with a bare warning icon. */
   tone?: 'default' | 'error';
@@ -42,8 +46,8 @@ const forget = (id: number | string) => () => {
 };
 
 /**
- * Shows the one toast (one at a time, replaced not stacked,
- * Undo + at most one more action). Returns the id, so a caller can merge
+ * Shows the one toast (one at a time, replaced not stacked, Undo + at most
+ * one more action). Returns the id, so a caller can merge
  * the next mark into it.
  *
  * @example

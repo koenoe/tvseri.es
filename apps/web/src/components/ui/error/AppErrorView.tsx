@@ -49,7 +49,7 @@ export default function AppErrorView({ error, retry }: Props) {
     if (online) {
       return;
     }
-    // “this one retries when you’re back”
+    // the offline copy promises “this one retries when you’re back”
     const onOnline = () => startRetry(retry);
     window.addEventListener('online', onOnline);
     return () => window.removeEventListener('online', onOnline);

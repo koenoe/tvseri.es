@@ -42,7 +42,7 @@ export type ShowRowView = Readonly<{
   crewOnly: boolean;
   /** "62 episodes"; null for crew-only rows */
   episodes: string | null;
-  /** Bitmask-free filter flags */
+  /** The filter pills the row is in */
   series: boolean;
   guest: boolean;
   behind: boolean;
@@ -177,8 +177,8 @@ export function buildShows(
       (b.firstAirDate ?? '').localeCompare(a.firstAirDate ?? ''),
   );
   const rows = ordered.map((show) => toRow(show, spans));
-  // One source for every number: the past shows (announced work is its own
-  // group: a 67 never counts an announced show)
+  // One source for every count: the past shows (announced work is its own
+  // group and never counts)
   const count = (filter: ShowFilter) =>
     rows.filter((row) => inFilter(row, filter)).length;
   return {

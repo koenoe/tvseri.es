@@ -1,8 +1,7 @@
 /**
  * Each row's scroll offset per history entry, so Back returns a row to where
- * the user left it. Module scope:
- * it survives client navigations and clears on a full reload, like the
- * history keys it pairs with.
+ * the user left it. Module scope: it survives client navigations and clears
+ * on a full reload, like the history keys it pairs with.
  */
 const offsets = new Map<string, number>();
 

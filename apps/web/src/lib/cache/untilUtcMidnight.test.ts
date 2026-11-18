@@ -43,7 +43,7 @@ describe('untilUtcMidnight', () => {
       const made = new Date(Date.UTC(2026, 10, 13, 0, minute));
       worst = Math.max(worst, dayLateness(made));
     }
-    // uncapped, an entry made at 00:30 kept Friday until 23:30 on Saturday
+    // uncapped, an entry made at 00:30 would keep Friday until 23:30 on Saturday
     expect(worst).toBeLessThanOrEqual(MAX_DAY_REVALIDATE_SECONDS);
   });
 

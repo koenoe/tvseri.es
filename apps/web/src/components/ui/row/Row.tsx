@@ -30,17 +30,6 @@ type Props = RowHeading &
   }>;
 
 /**
- * The one horizontal row: a title-2 header with two round
- * arrows at its end, and a native scroll-snap rail with a peek at the right
- * edge and no scroll bar. A server component: touch and trackpads scroll
- * without JS; the arrows and the Back restore are two small islands.
- *
- * @example
- * <Row id="top-picks" title="Top Picks for November">
- *   {shows.map((show) => <PosterTile key={show.id} {...} />)}
- * </Row>
- */
-/**
  * The rail: it clips its scroll box, so the tile hover's grow (`tileHover`)
  * needs room around the tiles: 24px above, 24 below, the gutters at the
  * ends. A row whose tiles start at its column's edge (`inset="column"`)
@@ -50,10 +39,24 @@ type Props = RowHeading &
 export const ROW_RAIL =
   'relative -ml-(--row-bleed,0px) flex snap-x snap-mandatory scroll-pr-(--row-end) scroll-pl-[calc(var(--row-start)+var(--row-bleed,0px))] items-start gap-(--row-gap) overflow-x-auto overscroll-x-contain scrollbar-none pt-[var(--row-rail-pt,24px)] pr-(--row-end) pb-6 pl-[calc(var(--row-start)+var(--row-bleed,0px))]';
 
-/** A tile is the row's width, unless it sets its own (`data-own-width`: a numbered row's two-digit tiles) */
+/**
+ * A tile is the row's width, unless it sets its own (`data-own-width`: a
+ * numbered row's two-digit tiles)
+ */
 const ITEM =
   'w-(--row-tile) shrink-0 snap-start has-[>[data-own-width]]:w-auto';
 
+/**
+ * The one horizontal row: a title-2 header with two round arrows at its end,
+ * and a native scroll-snap rail with a peek at the right edge and no scroll
+ * bar. A server component: touch and trackpads scroll
+ * without JS; the arrows and the Back restore are two small islands.
+ *
+ * @example
+ * <Row id="top-picks" title="Top Picks for November">
+ *   {shows.map((show) => <PosterTile key={show.id} {...} />)}
+ * </Row>
+ */
 export default function Row({
   children,
   id,

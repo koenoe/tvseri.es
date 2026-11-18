@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { inkOf, numeralFit, TILE } from './rankNumeral';
 
-/** In px at the frame's 290px tile */
+/** In px at the reference 290px tile */
 const px = (fraction: number) => fraction * TILE.width;
 
 const ranks = Array.from({ length: 11 }, (_, index) => index + 10);

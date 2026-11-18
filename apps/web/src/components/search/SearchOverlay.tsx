@@ -57,7 +57,7 @@ const PANEL = `remote-surface absolute inset-0 flex flex-col overflow-hidden pt-
  * The search overlay: a native modal
  * `<dialog>` over the page colour at 70%, with the white 672 px panel 128 px
  * down (full screen on a phone). It grows out of the header's search icon
- * and shrinks back into it, as production does.
+ * and shrinks back into it.
  */
 export default function SearchOverlay({
   initialQuery,
@@ -94,8 +94,8 @@ export default function SearchOverlay({
       inputRef.current?.focus();
       // The keys typed while the overlay loaded keep arriving (the launcher
       // keeps them until the field has the focus) after its first render:
-      // the latest `initialQuery` is read here. On a slow device the first
-      // keys were lost ("the bear" became "ear").
+      // the latest `initialQuery` is read here, or a slow device loses the
+      // first keys ("the bear" becomes "ear").
       opened.start(initialQuery);
     },
     panelRef,

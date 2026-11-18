@@ -51,7 +51,7 @@ export function useEpisodeToggle(
 }
 
 /**
- * Heart (favorites) or bookmark (watchlist) for any show: on from the seeded
+ * Heart (favourites) or bookmark (watchlist) for any show: on from the seeded
  * show, else from the viewer's library ids; optimistic, with rollback.
  */
 export function useListToggle(

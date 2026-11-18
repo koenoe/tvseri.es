@@ -3,12 +3,6 @@ import type { SVGProps } from 'react';
 
 import cn from '@/lib/cn';
 
-/**
- * The approved lock-up (the white dot): the TV mark plus `tvseri.es` as Plus Jakarta Sans 800 outlines, in
- * the text colour, drawn from the geometry `apps/auth` shares
- * (`@tvseri.es/constants`). The viewBox is exactly 1em tall, so the size is
- * the height.
- */
 const SIZES = {
   18: 'h-[18px] w-[93px]',
   20: 'h-[20px] w-[103.4px]',
@@ -17,6 +11,12 @@ const SIZES = {
 
 export type LogoSize = keyof typeof SIZES;
 
+/**
+ * The lock-up (the white dot): the TV mark plus `tvseri.es` as Plus Jakarta
+ * Sans 800 outlines, in the text colour, drawn from the geometry `apps/auth`
+ * shares (`@tvseri.es/constants`). The viewBox is exactly 1em tall, so the
+ * size is the height.
+ */
 export default function Logo({
   className,
   size,

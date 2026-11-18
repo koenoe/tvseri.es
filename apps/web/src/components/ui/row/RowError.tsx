@@ -54,15 +54,15 @@ type Props = Omit<RowHeading, 'count' | 'seeAllHref'> &
  * The room the card has (over the slots, 12px in; 32 from the left from md),
  * as a container: the card lies in a row (mark, text, Try again; 24px
  * padding) where that room is 560px or more, and stacks across it where it
- * isn't (a phone, a half-width Stats block at 800, where the row ran past
- * the page). Its width hugs the row, never past the room.
+ * isn't (a phone, a half-width Stats block at 800). Its width hugs the row,
+ * never past the room.
  */
 const CARD_ROOM =
   'absolute top-1/2 right-[calc(var(--row-end)+12px)] left-[calc(var(--row-start)+12px)] -translate-y-1/2 @container md:left-[calc(var(--row-start)+32px)]';
 
 /**
- * What a row shows when its data failed: the
- * header stays, dashed slots keep the row's space, and one card says only
+ * What a row shows when its data failed: the header stays, dashed slots keep
+ * the row's space, and one card says only
  * this row failed, with Try again. While it retries the slots pulse and the
  * card says so. Use it through RowErrorBoundary; render it directly only to
  * show it (style guide) or, `state="unavailable"`, for a cached section
@@ -100,9 +100,9 @@ export default function RowError({
     >
       <RowHeader {...heading} switcher={switcher} titleId={titleId} />
       {/*
-        the slots start where the row's cards did (its look's rail offset,
-        as Row and RowSkeleton), not 28/16: a row that fails after
-        its skeleton was on screen then moves nothing below it
+        the slots start where the row's cards do (its look's rail offset, as
+        Row and RowSkeleton), so a row that fails after its skeleton was on
+        screen moves nothing below it
       */}
       <div className="relative pt-[var(--row-rail-pt,24px)] pb-6">
         <div className={slotsClass}>
@@ -115,9 +115,8 @@ export default function RowError({
 }
 
 /**
- * A section that isn't a tile row, failed ("Per-section
- * error": the header stays, the slots keep the space, one card says only
- * this section failed): its own placeholder, settled (no pulse) and out of
+ * A section that isn't a tile row, failed (the header stays, the slots keep
+ * the space, one card says only this section failed): its own placeholder, settled (no pulse) and out of
  * the accessibility tree, under the card. A read that fails after the
  * placeholder was on screen (a 10 s timeout) then moves nothing below it,
  * and a hero fails as a hero, not as a row of tiles. While it retries the

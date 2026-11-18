@@ -70,11 +70,11 @@ const LIST_CHANGE: Readonly<
 };
 
 /**
- * The Library's bulk actions: the library ids change
- * at once, one server action does the writes (6 at a time, on the server),
- * one toast says what happened with Undo (the inverse op, with each show's
- * original date), and shows that failed roll back with "2 couldn't be
- * removed · Try again". Lists and prefs only: no watched write exists here.
+ * The Library's bulk actions: the library ids change at once, one server
+ * action does the writes (6 at a time, on the server), one toast says what
+ * happened with Undo (the inverse op, with each show's original date), and
+ * shows that failed roll back with "2 couldn't be removed · Try again".
+ * Lists and prefs only: no watched write exists here.
  * Resolves which shows were done and which failed.
  */
 export function createBulk(deps: BulkDeps) {

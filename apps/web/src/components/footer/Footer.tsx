@@ -12,7 +12,6 @@ import Logo from '@/components/ui/Logo';
 import { JustWatchLogo, TmdbLogo } from './CreditLogos';
 import FooterToastClearance from './FooterToastClearance';
 
-/** The public repository */
 const REPO_URL = 'https://github.com/koenoe/tvseri.es';
 
 /** The logo links: a 10px logo, a 24px hit area (WCAG 2.5.8) */
@@ -30,15 +29,11 @@ const TOP =
   'ml-auto inline-flex h-11 items-center gap-1.5 rounded-full bg-white/8 pr-4 pl-3.5 text-meta font-medium text-white/80 ring-1 ring-white/10 ring-inset transition-colors duration-150 hover:bg-white/14 hover:text-white md:ml-0 md:h-8 md:pr-3 md:pl-2.5';
 
 /**
- * The site footer: the 18px lock-up over the credits
- * sentence with the TMDB and JustWatch logos inline as links and OMDb's
- * name (the IMDb ratings; its CC BY-NC 4.0 licence asks for credit), then
- * GitHub, Privacy and a Top pill (a row under the sentence below 768). A hard-edged
- * black 5% band over the page colour (BackgroundStyle paints
- * `[data-site-footer]`), full bleed. Static: no data, one empty client island; Top is
+ * The site footer. OMDb is credited by name: its CC BY-NC 4.0 licence asks
+ * for credit. The band's colour is painted by BackgroundStyle
+ * (`[data-site-footer]`). Static: no data, one empty client island. Top is
  * the document's `#top` (the HTML spec scrolls to the top when no element
- * has that id). Not shown under an error view (`ErrorState`). The toast
- * rides above it while it is in view (`FooterToastClearance`).
+ * has that id). Not shown under an error view (`ErrorState`).
  */
 export default function Footer() {
   return (

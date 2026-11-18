@@ -23,7 +23,6 @@ const SCRIM_VARIANTS = toVariants(SIDE_SCRIM_MOTION);
 const HOVER_RULE =
   'before:transition-opacity before:duration-150 hover:before:opacity-45';
 
-/* sizes at 1024 and 1440 */
 const PANEL_LOOK: MenuLook = {
   account: 'mt-auto flex gap-6 border-t border-white/14 pointer-events-auto',
   accountItem: ACCOUNT_WORD,

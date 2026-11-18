@@ -92,7 +92,7 @@ export const SERVER_ERROR_STILL: ErrorStill = {
   position: 'center 50%',
 };
 
-/** Data down: “We were on a break!” (no phone frame drawn; centred). */
+/** Data down: “We were on a break!” */
 export const DATA_DOWN_STILL: ErrorStill = {
   credit: 'Friends · Ross, season 3',
   ground: '#16110c',

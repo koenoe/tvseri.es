@@ -13,8 +13,8 @@ const MIN_PRERENDER_SECONDS = CACHE_LIFE.unavailable.maxAge;
  * that reuses a cached entry takes the entry's whole `revalidate` as its own
  * life from the moment it is (re)generated, not what is left of it: an
  * entry made at 00:30 (fresh for 23.5 h) reused by a regeneration at 16:00
- * kept the page, and yesterday's day with its moments, until 15:30 the next
- * day. Capped, the page names the right day at most 15 minutes after
+ * would keep the page, and yesterday's day with its moments, until 15:30
+ * the next day. Capped, the page names the right day at most 15 minutes after
  * midnight (`dayLateness` in the test).
  */
 export const MAX_DAY_REVALIDATE_SECONDS = 15 * 60;

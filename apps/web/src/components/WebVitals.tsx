@@ -23,7 +23,6 @@ function getDeviceType(): string {
 let metricsQueue: QueuedRecord[] = [];
 let isInitialized = false;
 
-/** Current route info, updated on navigation. */
 let currentRoute: string | null = null;
 let currentPath: string | null = null;
 
@@ -41,13 +40,13 @@ function sendBeacon(metrics: QueuedRecord[]): void {
         keepalive: true,
         method: 'POST',
       }).catch(() => {
-        // Silently fail
+        // Fire-and-forget: a lost batch is not retried
       });
     } else if (navigator.sendBeacon) {
       navigator.sendBeacon(METRICS_ENDPOINT, body);
     }
   } catch {
-    // Silently fail
+    // Fire-and-forget: a lost batch is not retried
   }
 }
 

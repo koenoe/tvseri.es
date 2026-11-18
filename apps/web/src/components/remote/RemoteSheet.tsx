@@ -6,7 +6,6 @@ import { PHONE_MOTION } from '@/components/ui/dialog/dialogMotion';
 import ModalShell from '@/components/ui/dialog/ModalShell';
 import SheetHandle from '@/components/ui/dialog/SheetHandle';
 
-/** white, 16 16 0 0, 8 16 34 padding, its own shadow. */
 const SHEET =
   'w-full self-end bg-white rounded-t-16 px-gutter pt-2 pb-8.5 shadow-[0_-20px_40px_-12px_rgb(0_0_0/0.5)]!';
 

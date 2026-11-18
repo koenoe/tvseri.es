@@ -14,7 +14,7 @@ import { lockScroll, unlockScroll } from './scrollLock';
 type Options = Readonly<{
   /** Escape, or a click on the dim (`data-dialog-backdrop`), on this dialog */
   onDismiss: () => void;
-  /** Before `showModal()`: what has the focus now opened the dialog */
+  /** Before `showModal()`, while focus is still on what opened the dialog */
   onOpening?: (dialog: HTMLDialogElement) => void;
   /** After `showModal()`: the dialog is in the top layer and laid out */
   onShown?: (dialog: HTMLDialogElement) => void;

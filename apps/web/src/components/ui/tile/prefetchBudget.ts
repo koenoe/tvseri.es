@@ -63,7 +63,7 @@ function observe() {
       }
     }).observe({ buffered: true, type: 'resource' });
   } catch {
-    // no resource timing: no bound, as before
+    // no resource timing: no bound
   }
 }
 

@@ -39,9 +39,9 @@ type Options = Readonly<{
 /**
  * A swipe down on a layer, touch and pen only. Past a 10px slop, mostly
  * down, a press becomes a swipe; a first move up or sideways, or a
- * `canStart` that says no, leaves the press to the page. The layer follows through `onMove` (no
- * React render per move) and `onRelease` decides. A swipe that starts on
- * a link or button never follows it. While a press may become a swipe, a
+ * `canStart` that says no, leaves the press to the page. The layer follows
+ * through `onMove` (no React render per move) and `onRelease` decides. A
+ * swipe that starts on a link or button swallows its click. While a press may become a swipe, a
  * non-passive `touchmove` keeps the browser from scrolling under it (React
  * listens passively), so it never takes the gesture over half way.
  * Returns the handlers for the layer's root.

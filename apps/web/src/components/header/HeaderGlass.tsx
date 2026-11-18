@@ -14,7 +14,7 @@ import cn from '@/lib/cn';
  * a 1px light edge top left. No tint of our own.
  * The blur only works while no ancestor is a backdrop root: the header
  * promotes itself with `will-change: transform` only (an `opacity` there
- * made it one, and the pill showed the page sharp under white/10).
+ * would make it one, and the pill would show the page sharp under white/10).
  */
 // On a slow device (`data-flat-glass`) the
 // distortion is the one thing the pill drops.

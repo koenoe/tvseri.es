@@ -25,7 +25,7 @@ type Props = Omit<ComponentProps<'button'>, 'aria-label' | 'children'> &
     pressed?: boolean;
   }>;
 
-/** A toggle's icon shrinks while it is held (production's press) */
+/** A toggle's icon shrinks while it is held */
 const TOGGLE_ICON =
   'inline-flex transition-[scale] duration-150 ease-out group-active/circle:scale-60 group-disabled/circle:scale-100';
 
@@ -33,7 +33,7 @@ const TOGGLE_ICON =
 const BURST =
   'pointer-events-none absolute inset-0 -z-1 rounded-full bg-white opacity-0';
 
-/** A white disc grows to twice the button and fades (production's burst) */
+/** A white disc grows to twice the button and fades */
 const BURST_FRAMES: Keyframe[] = [
   { opacity: 1, scale: 0 },
   { opacity: 0, scale: 2 },
@@ -47,10 +47,10 @@ const BURST_TIMING: KeyframeAnimationOptions = {
 /**
  * The round icon button (close, row arrows, the hero's watchlist/favourite
  * circles, the eye): white/20 ring, brighter on hover, white when on. A
- * toggle (`pressed` given) also moves as production's does: the icon shrinks
- * while held, and turning it on sends a white disc out from behind it. The
- * burst plays only on the change from off to on, never for a button that is
- * drawn already on, and not at all with reduced motion.
+ * toggle (`pressed` given) also moves: the icon shrinks while held, and
+ * turning it on sends a white disc out from behind it. The burst plays only
+ * on the change from off to on, never for a button that is drawn already
+ * on, and not at all with reduced motion.
  *
  * @example
  * <CircleButton icon={closeGlyph} label="Close" onClick={close} />

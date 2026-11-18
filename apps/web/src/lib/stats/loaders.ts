@@ -34,8 +34,9 @@ import { loadSeries } from '@/lib/series/loaders';
 /**
  * The Stats page's reads. Everything is public and about the profile owner,
  * so every loader is `'use cache'` (tags `user:{id}` and `stats:{id}`; the
- * year sections on the `stats` profile, the counts on `statsCurrent`), never reads the viewer, and never throws during a
- * prerender: an API failure is `Unavailable` with `cacheLife('unavailable')`.
+ * year sections on the `stats` profile, the counts on `statsCurrent`), never
+ * reads the viewer, and never throws during a prerender: an API failure is
+ * `Unavailable` with `cacheLife('unavailable')`.
  */
 
 export type Loaded<T> = T | Unavailable;

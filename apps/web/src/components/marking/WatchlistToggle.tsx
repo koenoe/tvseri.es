@@ -15,8 +15,8 @@ type Props = ToggleProps &
   Readonly<{
     /**
      * The page's one read (`loadSeriesStates`) where the series may already
-     * be on the viewer's watchlist; none where it never is (Versus, Connected
-     * by) or the block asks for nothing (Binge)
+     * be on the viewer's watchlist; none where it never is (Versus) or the
+     * block asks for nothing (Binge)
      */
     states?: ControlStatesRead;
   }>;
@@ -25,8 +25,8 @@ const signedOutOnly = { [SIGNED_OUT_ONLY]: '' };
 const signedInOnly = { [SIGNED_IN_ONLY]: '' };
 
 /**
- * The watchlist-only control: Premieres' tickets,
- * Pick one for me, Connected by, Versus and Binge. With the page's read it
+ * The watchlist-only control: Premieres' tickets, Pick one for me, Versus
+ * and Binge. With the page's read it
  * streams in its own Suspense boundary: a ghost of its box for a signed-in
  * viewer until the state lands, "+ Watchlist" for everyone else. A state
  * already in the browser (a block drawn after a roll) draws at once.

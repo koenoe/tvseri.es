@@ -9,7 +9,8 @@ import { tryApi, type Unavailable } from '@/lib/cache/unavailable';
  * count means, so the profile, Settings and Stats cannot drift apart.
  *
  * - `episodes`: every episode marked watched, bulk imports included.
- * - `finished`: shows on the WATCHED list (every aired episode watched).
+ * - `finished`: shows on the WATCHED list (every aired episode watched or
+ *   skipped).
  * - `watching`: shows on the IN_PROGRESS list (some, not all watched).
  * - `favourites` / `watchlist`: shows on those lists.
  * - `followers` / `following`: people.

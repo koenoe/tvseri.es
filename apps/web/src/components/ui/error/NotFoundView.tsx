@@ -14,11 +14,11 @@ const BODY_WITH_PICK =
   'The link is broken, or the page has gone. Search for it, or let us pick a series for you.';
 
 /**
- * The 404: S04E04 · Page not found, the still's own
- * headline, a search field prefilled from the URL, Pick one for me, Home
- * and five trending posters new to the viewer. Without trending shows (the API is down) the
- * pick, the posters and the sentence that offers the pick are left out: no
- * error inside the error page.
+ * The 404: S04E04 · Page not found, the still's own headline, a search field
+ * prefilled from the URL, Pick one for me, Home and five trending posters new
+ * to the viewer. Without trending shows (the API is down) the pick, the
+ * posters and the sentence that offers the pick are left out: no error
+ * inside the error page.
  *
  * @example
  * <NotFoundView header={<Header />} shows={await loadTrending()} still={still} />

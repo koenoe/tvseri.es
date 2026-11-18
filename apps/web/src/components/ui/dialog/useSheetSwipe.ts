@@ -20,8 +20,8 @@ import {
 const SETTLE = `${SHEET_SETTLE.duration}s cubic-bezier(${SHEET_SETTLE.ease.join(',')})`;
 
 /**
- * Swipe down to close a phone bottom sheet, never a full-screen panel (`sheetSwipe.ts` for the rules
- * and numbers). The drag moves the panel with `translate` and fades the dim
+ * Swipe down to close a phone bottom sheet, never a full-screen panel
+ * (`sheetSwipe.ts` for the rules and numbers). The drag moves the panel with `translate` and fades the dim
  * with `filter: opacity()`: both compose with the `transform` and `opacity`
  * Motion animates, so Motion's entry and exit never fight the finger, and a
  * swipe that closes leaves the panel where it went: the exit then plays

@@ -13,17 +13,14 @@ export const SURFACE = {
   sheet: 'bg-[color-mix(in_srgb,var(--color-page)_97%,white)]',
 } as const;
 
-/** rgba(10,9,8,.5) */
 const SCRIM = 'bg-black/50';
 
 export const BACKDROP = {
   dialog: SCRIM,
-  /** rgba(20,17,13,.72) */
   page: 'bg-[color-mix(in_srgb,var(--color-page)_50%,black)]/72',
   /**
    * Every desktop side panel (the watch-history sheet, the menu, the awards
-   * sheet): the page behind becomes a dimmed, inactive background, the same
-   * for all: the dialog scrim, not a new value.
+   * sheet) dims the page behind with the dialog scrim, so all of them match.
    */
   side: SCRIM,
 } as const;

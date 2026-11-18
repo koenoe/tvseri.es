@@ -1,8 +1,8 @@
 /**
- * Single source of truth for reading viewing-history entries such as
+ * Reads viewing-history entries such as
  * "Stranger Things: Stranger Things 4: Chapter One: The Hellfire Club".
- * Used by the client (to split a combined column into title/season/episode)
- * and by the import route (to turn season/episode labels into numbers).
+ * The importer splits a combined column into title/season/episode with it;
+ * the route's matcher turns season/episode labels into numbers.
  */
 
 const CARDINALS = [

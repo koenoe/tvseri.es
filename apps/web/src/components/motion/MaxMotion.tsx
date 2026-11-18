@@ -18,10 +18,8 @@ import useMaxFeatures, { NOT_YET } from './useMaxFeatures';
  * (Upgrading an existing element from `domAnimation` doesn't work: Motion
  * mounts a projection only with its element.) Anything inside that must
  * animate from the first frame (the header's menu) sits in a nested
- * `MotionProvider` (`domAnimation`). A render of the component around it
- * re-renders only the parts of the subtree that changed
- * (`StableLazyMotion`): a page of Library tiles landing doesn't re-render
- * every tile's `m.li`.
+ * `MotionProvider` (`domAnimation`). Renders through `StableLazyMotion`, so
+ * a page of Library tiles landing doesn't re-render every tile's `m.li`.
  */
 export default function MaxMotion({
   children,

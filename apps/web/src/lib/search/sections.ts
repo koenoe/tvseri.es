@@ -91,8 +91,7 @@ const memberCell = (member: MemberMatch): SearchCell => ({
 });
 
 /**
- * The result blocks in the order the design draws them: the block holding the
- * best match (the API's `best`) comes first, so the first cell is always
+ * The result blocks in order: the block holding the best match (the API's `best`) comes first, so the first cell is always
  * what Enter opens; ties and unknowns go to the shows. An `@` query's answer
  * is a member found by their handle (`best: 'members'`), first. Empty blocks
  * are left out.

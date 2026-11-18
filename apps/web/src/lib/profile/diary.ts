@@ -18,12 +18,12 @@ import { episodeRun } from '@/lib/marking/copy';
 import type { DiaryItem } from '@/lib/profile/views';
 
 /**
- * The History diary, pure: watched episodes become
- * months, days and rows (one show on one day). Days, months, their ranges
- * and This week are the owner's local ones, in the zone `/stats/years` and
- * `/stats/:year/daily` name (`timeZone`, the owner's country's: in UTC
- * an import at local midnight sat a day early, unlike the episode modal).
- * Every function takes that zone last (UTC when absent, as older answers).
+ * The History diary, pure: watched episodes become months, days and rows
+ * (one show on one day). Days, months, their ranges and This week are the
+ * owner's local ones, in the zone `/stats/years` and `/stats/:year/daily`
+ * name (`timeZone`, the owner's country's: in UTC an import at local
+ * midnight would sit a day early, unlike in the episode modal). Every
+ * function takes that zone last (UTC when absent).
  * The month index for Jump to and the month header lines come from the
  * cached `/stats/years`; the ranges a jump reads from `GET /user/:id/watched`
  * are built here too, so the page and the route handler agree.

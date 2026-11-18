@@ -36,7 +36,7 @@ const signedInOnly = { [SIGNED_IN_ONLY]: '' };
  *
  * The server never knows who is signed in (the header HTML is the same for
  * everyone), so until hydration this draws both and the root pre-paint
- * scripts pick one: Sign in as itself, or the username from
+ * script picks one: Sign in as itself, or the username from
  * `--viewer-handle` (`lib/viewer/viewerHintsScript`), at the same place and width.
  */
 export default function Username() {

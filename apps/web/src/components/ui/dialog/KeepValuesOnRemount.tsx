@@ -9,7 +9,7 @@ import { type ReactNode, use, useMemo } from 'react';
  * to `initial` when React shows them again: on Back the episode modal
  * flashed on its tile, faded backdrop and all, before snapping back. Only
  * once the entry has played (`keep`): until then a remount (content that
- * suspends while the panel grows) replays the entry, as it always did.
+ * suspends while the panel grows) replays the entry.
  */
 export default function KeepValuesOnRemount({
   children,

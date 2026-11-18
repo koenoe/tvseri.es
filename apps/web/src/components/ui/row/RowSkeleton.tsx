@@ -27,7 +27,10 @@ type Props = Readonly<{
   title: string;
   /** the title's own ghost where it has structure (a logo beside the words) */
   titleContent?: ReactNode;
-  /** the title comes with the data ("Because you watched Severance"): a bar the width of a typical one, in the title's line */
+  /**
+   * the title comes with the data ("Because you watched Severance"): a bar
+   * the width of a typical one, in the title's line
+   */
   titleGhost?: boolean;
 }>;
 

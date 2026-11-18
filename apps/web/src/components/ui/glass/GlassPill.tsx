@@ -5,9 +5,8 @@ import cn from '@/lib/cn';
 import { GLASS } from './glass';
 
 /**
- * A glass label on a picture: an icon and a short line on
- * a 32px glass pill. The Up next card ("Last watched S02E01 yesterday") and
- * the Countdown's name on Home.
+ * A glass label on a picture: an icon and a short line on a 32px glass pill
+ * (the Up next card's "Last watched S02E01 yesterday").
  */
 export default function GlassPill({
   children,

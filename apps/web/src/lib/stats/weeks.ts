@@ -45,7 +45,7 @@ export function weekLabel(year: number, index: number): string {
 
 /**
  * The visual week a moment falls in (0 to 52), or -1 outside the year, as
- * the API's `weekIndexOf` counts: days of the year before ISO week 1 (1–3
+ * `yearWeekIndex` counts: days of the year before ISO week 1 (1–3
  * January in 2021 or 2027) are week 0, days after the last week are week 52.
  */
 export function weekIndexAt(ms: number, year: number): number {

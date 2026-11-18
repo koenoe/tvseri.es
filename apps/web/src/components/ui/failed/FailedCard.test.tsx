@@ -71,7 +71,7 @@ describe('TryAgain', () => {
     expect(button.hasAttribute('disabled')).toBe(false);
     expect(button.getAttribute('aria-disabled')).toBe('true');
     expect(button.getAttribute('aria-busy')).toBe('true');
-    // regression: the dim follows aria-disabled now that disabled is gone
+    // the dim keys on aria-disabled, since the button is never disabled
     expect(button.className).toContain('aria-disabled:opacity-50');
     button.focus();
     expect(document.activeElement).toBe(button);

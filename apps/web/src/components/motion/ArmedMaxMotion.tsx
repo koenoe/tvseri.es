@@ -14,8 +14,6 @@ const LiveContext = createContext(false);
  * visual element or layout projection and nothing to update; once both,
  * they get `domMax` in that same render and keep their DOM. Arm it before
  * the change that should animate (a pointer down, focus, the first sort).
- * A render of the parent re-renders only the parts of the subtree that
- * changed (`StableLazyMotion`).
  *
  * An `m` element without a renderer draws its `initial` (motion.dev,
  * "Reduce bundle size": the animation runs when the features resolve), so

@@ -22,10 +22,9 @@ const MAIN: SectionHeadLayout = {
 };
 
 /**
- * A section heading with a rule:
- * an optional leading mark (the profile's block dot), the title, an optional
- * count pill, a 2px rule that fills the row, then an optional end slot (a
- * link, a count, a control). `size="side"` is the sidebars' title-3.
+ * A section heading with a rule: an optional leading mark (the profile's
+ * block dot), the title, an optional count pill, a 2px rule that fills the
+ * row, then an optional end slot (a link, a count, a control). `size="side"` is the sidebars' title-3.
  */
 export default function SectionHead({
   className,
@@ -38,7 +37,10 @@ export default function SectionHead({
   title,
 }: Readonly<{
   className?: string;
-  /** the count right after the title (PRA "Series 67"): a number is drawn as the pill, a node as given */
+  /**
+   * the count right after the title ("Series 67"): a number is drawn as the
+   * pill, a node as given
+   */
   count?: ReactNode;
   id: string;
   /** a place's own spacing and title (each keeps its own look) */

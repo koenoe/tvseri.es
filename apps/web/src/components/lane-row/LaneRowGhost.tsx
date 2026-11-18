@@ -33,9 +33,7 @@ export default function LaneRowGhost({
   facts: ReactNode;
   /** The placeholder's own box and segment fill */
   ghost: LaneRowGhostLayout;
-  /** The loaded row's look */
   layout: LaneRowLayout;
-  /** The poster's ghost */
   poster: ReactNode;
   /** The title line's ghosts (the title, the count) */
   title: ReactNode;

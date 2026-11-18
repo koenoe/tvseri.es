@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { streamingServices } from './streamingServices';
 
-// The UK list as the rehearsal saw it, plus the usual stores
+// The UK services TMDB lists, plus the usual stores
 const UK = [
   { id: 8, name: 'Netflix' },
   { id: 9, name: 'Amazon Prime Video' },

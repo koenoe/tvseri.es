@@ -13,15 +13,13 @@ import type { MarkingStoreApi } from '@/lib/marking/store';
 import useMarking from '@/lib/marking/useMarking';
 
 /**
- * The marking actions of controls on cached pages (the marking controls),
- * on the marking core: "Seen it" marks the show seen with no date
- * (`markSeen`: what is open, "I don't remember", so this year's stats and
- * history stay untouched); the watchlist press adds or removes. "Seen it"
- * only ever marks: a second click, or a show the store already has as
- * watched, never unmarks anything. Each waits for the show's marking state (`ensureSeries`,
- * usually fetched on hover by `prepare`), so it decides from the server's
- * truth and the controls follow it at once. Signed out, a click asks to
- * sign in. Every action is optimistic with the core's toast and Undo.
+ * Show-level marking actions for controls on cached pages. "Seen it" marks
+ * what is open with no date (`markSeen`), so this year's stats and history
+ * stay untouched, and never unmarks: a second click, or a show already
+ * watched, changes nothing. The watchlist press adds or removes. Each waits
+ * for the show's marking state (`ensureSeries`, usually fetched on hover by
+ * `prepare`), so it decides from the server's state. Signed out, a click
+ * asks to sign in.
  */
 
 export type ShowRef = Readonly<{ id: number; title: string }>;

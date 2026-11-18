@@ -1,8 +1,8 @@
 import { isGridKey, moveSelection } from '@/lib/grid/moveSelection';
 
 /**
- * Keyboard movement in the Remote's key grid (“↓ → ← ↑ move between
- * the two rows”), on the shared grid module (one block per row of keys).
+ * Keyboard movement in the Remote's key grid (arrows move within and
+ * between rows), on the shared grid module (one block per row of keys).
  * `rows` holds each row's key count in order (the big key is a row of one),
  * keys are numbered across rows; -1 = nothing focused (opened by mouse),
  * which moves as if on the first key. Null when `key` doesn't move focus.

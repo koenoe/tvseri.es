@@ -1,21 +1,11 @@
 /**
- * Navigation direction tracking using history state index.
+ * Navigation direction from a history-state index, as React Router
+ * (`history.state.idx`) and TanStack Router (`__TSR_index`) do: on popstate,
+ * an index lower than the current one is Back.
  *
- * This pattern is used by major routing libraries:
- * - React Router uses `history.state.idx` (@remix-run/router)
- * - TanStack Router uses `history.state.__TSR_index`
- *
- * Both calculate direction on popstate: delta = newIndex - oldIndex
- * - delta < 0 = back navigation
- * - delta > 0 = forward navigation
- *
- * Our implementation adds a pre-hydration inline script that:
- * 1. Ensures history.state has a unique key and index
- * 2. Patches pushState to increment index on forward navigation
- * 3. Patches replaceState to preserve key and index
- * 4. Listens to popstate to detect back (newIndex < currentIndex) vs forward
- * 5. Sets window.__navIsBack for synchronous reads during render
- * 6. Opens every new page at the top (below)
+ * The script gives every entry a key and an index (`pushState` increments
+ * it, `replaceState` keeps both), sets `window.__navIsBack` on popstate for
+ * synchronous reads during render, and opens every new page at the top.
  *
  * A new page opens at the top: a push or replace that changes the pathname
  * scrolls the window to 0, after the commit that wrote the URL (a
@@ -35,12 +25,9 @@
  * `scroll={false}` there still holds) and a URL with a hash (Next scrolls to
  * the anchor).
  *
- * Why inline script instead of useEffect?
- * - Must run BEFORE React hydration (synchronous)
- * - Must run BEFORE Next.js patches pushState/replaceState
- * - Enables pre-hydration DOM updates (BackgroundStyle) to prevent flicker
+ * An inline script, not an effect: it has to run before hydration and
+ * before Next patches pushState/replaceState.
  *
- * @see rendering-hydration-no-flicker - Pre-hydration script pattern
  * @see https://github.com/remix-run/react-router/blob/main/packages/react-router/lib/router/history.ts
  * @see https://github.com/TanStack/router/blob/main/packages/history/src/index.ts
  */

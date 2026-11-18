@@ -1,6 +1,6 @@
 /**
  * Where a numbered row's numeral sits and how wide its tile is
- * (`RankedTile`). In tile widths: the frame's tile is 290px, the poster its
+ * (`RankedTile`). In tile widths: the reference tile is 290px, the poster its
  * last 180, a one-digit numeral 240px and a two-digit one 200px.
  */
 export const TILE = {
@@ -29,7 +29,7 @@ export const TILE = {
  * Inter 800's proportional digits, in 1/1000 em: advance, ink start, ink
  * end (canvas `measureText` in Chromium; WebKit's advances are the same).
  * A newer Inter can move these by a few units: re-measure if the font
- * changes (the e2e checks every numeral's ink against its poster).
+ * changes.
  */
 const DIGITS: Readonly<Record<string, readonly [number, number, number]>> = {
   '0': [665, 25, 640],
@@ -67,8 +67,8 @@ export type NumeralFit = Readonly<{
 }>;
 
 /**
- * One digit stays at the frame's size and place. Two digits keep their
- * natural shape at the frame's smaller size: the last digit runs the same
+ * One digit stays at the reference size and place. Two digits keep their
+ * natural shape at the smaller size: the last digit runs the same
  * 40px behind the poster for every number, and the tile is as wide as its
  * number needs (a 20 is wider than an 11), so the gap before each numeral
  * is the same and no digit is squeezed or lost.

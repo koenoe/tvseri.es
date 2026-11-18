@@ -6,7 +6,7 @@ import type {
 
 /**
  * The pages under `/u/{username}` ('' = the overview). Typed, so a link to
- * one of the old pages (In progress, Favorites, Social…) can't be built:
+ * one of the old pages (In progress, Favourites, Social…) can't be built:
  * those URLs only live on as redirects.
  */
 export type ProfileSegment =

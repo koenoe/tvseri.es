@@ -6,10 +6,9 @@ import RefreshButton from './RefreshButton';
 import { DATA_DOWN_STILL } from './stills';
 
 /**
- * Data down: the API or TMDB isn't answering. S05E03 · Can’t
- * load shows, Try again and Home. Error boundaries pick it for a
- * `DataDownError`; a page can also render it itself, and
- * Try again then refreshes the route.
+ * Data down: the API or TMDB isn't answering. S05E03 · Can’t load series,
+ * Try again and Home. Error boundaries pick it for a `DataDownError`; a page
+ * can also render it itself, and Try again then refreshes the route.
  *
  * @example
  * <DataDownView header={<Header />} />

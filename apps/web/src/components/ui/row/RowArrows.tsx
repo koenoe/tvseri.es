@@ -43,9 +43,10 @@ function pageRail(rail: HTMLElement, direction: PageDirection) {
 }
 
 /**
- * The two round arrows at the end of a row's header.
- * They page the rail by its visible width (smoothly, or at once with
- * reduced motion), dim at the ends and stay focused after paging. Only for a fine pointer with hover; touch swipes.
+ * The two round arrows at the end of a row's header. They page the rail by
+ * its visible width (smoothly, or at once with reduced motion), dim at the
+ * ends and stay focused after paging. Only for a fine pointer with hover;
+ * touch swipes.
  *
  * The rail is measured, never counted: until it is (server render and
  * hydration) and whenever it fits, the pair isn't rendered at all. That can't

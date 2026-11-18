@@ -16,10 +16,10 @@ function targetOf(): HTMLElement {
 }
 
 /**
- * Moving the host re-inserts its toasts, which replays their 8px rise: the
- * toast hopped when a sheet it was fired from closed. Transitions are off
- * for the move (`[data-toast-moving]` in globals.css), for two frames, so the
- * toast stays exactly where it is.
+ * Moving the host re-inserts its toasts, which would replay their 8px rise:
+ * the toast would hop when the sheet it was fired from closes. Transitions
+ * are off for the move (`[data-toast-moving]` in globals.css), for two
+ * frames, so the toast stays exactly where it is.
  */
 const place = () => {
   if (!host) {

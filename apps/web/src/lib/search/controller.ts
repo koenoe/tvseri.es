@@ -195,7 +195,7 @@ export function createSearchController(
      * Open again after a `dispose` that wasn't a close: React re-attaches the
      * dialog in development (Strict Mode runs a ref's cleanup and the ref
      * again). Takes input again and sends the search the stop cut off;
-     * without it every keystroke after the re-attach was dropped.
+     * without it every keystroke after the re-attach would be dropped.
      */
     resume(nextEnv: SearchEnv) {
       env = nextEnv;

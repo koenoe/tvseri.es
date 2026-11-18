@@ -942,7 +942,7 @@ export function createMarkingCommands(deps: MarkingDeps) {
     },
 
     /**
-     * Heart (favorites) or bookmark (watchlist). With `announce` (the show's
+     * Heart (favourites) or bookmark (watchlist). With `announce` (the show's
      * title) a toast names the change and offers Undo: for a control that
      * doesn't show the list's state as clearly as the heart or bookmark does.
      */

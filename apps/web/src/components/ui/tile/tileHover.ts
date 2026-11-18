@@ -5,8 +5,8 @@
  * Keyboard focus keeps the site's ring. Transform only, on the compositor.
  *
  * Rows clip their scroll box, so a growing tile needs room around it:
- * `Row`'s rail keeps its padding for that (24px above, the line
- * below, 32px at the ends).
+ * `Row`'s rail keeps its padding for that (24px above and below, the gutters
+ * at the ends).
  *
  * The lens tiles and the cast avatars keep their own hovers: gestures with a
  * reveal, not a tile.

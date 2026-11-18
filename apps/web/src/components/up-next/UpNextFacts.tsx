@@ -44,7 +44,7 @@ function Fact({ fact }: Readonly<{ fact: UpNextFact }>) {
 }
 
 /**
- * The card's facts line (`cs-mrow`): one icon per fact, the key one lighter;
+ * The card's facts line: one icon per fact, the key one lighter;
  * facts that don't fit drop whole from the end
  */
 export default function UpNextFacts({

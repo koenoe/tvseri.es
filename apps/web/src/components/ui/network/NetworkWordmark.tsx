@@ -37,8 +37,8 @@ const CHIP_LOGO = 'block h-full w-auto max-w-full object-contain object-left';
  * keeps its own colours, contained on its bottom left. A logo whose
  * silhouette would be a blank shape (`silhouette={false}`) is drawn in its
  * own colours on a light chip of the same height instead. The network
- * page's title, Discover's tiles and Essentials, the show's Information and
- * What's on's caption.
+ * page's title, Discover's tiles and Essentials, the show's Information, the
+ * profile's start deck and What's on's caption.
  */
 export default function NetworkWordmark({
   alt,

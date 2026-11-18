@@ -11,8 +11,8 @@ const USERNAME = `:username(${POSSIBLE_USERNAME})`;
 
 /**
  * The profile's list pages became shelves of the Library and Social became
- * Circle. The username is held to what one can look like, so a
- * junk handle gets the static 404 in one hop instead of a redirect first.
+ * Circle. The username is held to what one can look like, so a junk handle
+ * gets the static 404 in one hop instead of a redirect first.
  */
 const PROFILE_REDIRECTS: ReadonlyArray<Redirect> = (
   [

@@ -19,7 +19,8 @@ afterEach(() => {
 });
 
 describe('300 tiles asking the library', () => {
-  // before: 301 listeners (and as many on `cookieStore`), 903 cookie reads
+  // per-tile subscriptions would add 301 listeners (as many on
+  // `cookieStore`) and read the cookie 903 times
   it('add one pair of window listeners and read the cookie once, not per tile', () => {
     setCookie('__tvseries_user=nina; Path=/');
     vi.stubGlobal(

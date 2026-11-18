@@ -4,8 +4,6 @@ import type { BackgroundState } from './store';
  * Background state per history entry (`history.state.key`, see
  * `@/lib/navigation/getHistoryKey`). Module-level, so it survives client
  * navigations and is empty again after a document load.
- *
- * @see js-cache-function-results - Module-level Map for caching
  */
 const cache = new Map<string, BackgroundState>();
 

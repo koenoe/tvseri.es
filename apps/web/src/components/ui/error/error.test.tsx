@@ -107,7 +107,7 @@ describe('UnauthorizedView', () => {
     expect(held.getAttribute('aria-hidden')).toBe('true');
   });
 
-  // a handle nobody has (or a check that failed) was vouched for
+  // a handle nobody has (or a failed check) must not be vouched for
   it('claims nothing about a user it could not find', () => {
     render(
       <UnauthorizedView

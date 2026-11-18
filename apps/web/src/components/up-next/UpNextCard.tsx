@@ -48,7 +48,6 @@ type Props = Readonly<{
   /** The facts line (`UpNextFacts`) */
   facts: ReactNode;
   href: string;
-  /** The link's name */
   label: string;
   /** `eager` above the fold */
   loading?: 'eager' | 'lazy';

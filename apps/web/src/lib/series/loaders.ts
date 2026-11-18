@@ -215,8 +215,7 @@ export async function loadRuntimes(
       params: { id },
     }),
   );
-  // No show (or an API without the route yet): nothing to draw, and nothing
-  // worth keeping for a day
+  // No show: nothing to draw, and nothing worth keeping for a day
   cacheLifeFor(runtimes ? 'short' : 'unavailable', runtimes);
   if (isUnavailable(runtimes)) {
     return runtimes;

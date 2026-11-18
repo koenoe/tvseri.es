@@ -19,7 +19,7 @@ const CLOUD = 'flex max-w-full flex-wrap gap-2';
 
 /**
  * Keyword chips that wrap onto rows, never a swipe line: a show's keywords
- * (pd-kw) and a landing's chips (sub-genres, "Often tagged with"). A chip
+ * and a landing's chips (sub-genres, "Often tagged with"). A chip
  * with an `href` links to its landing; the rest stay plain, dimmer, so the
  * ones that lead somewhere stand out.
  */

@@ -1,7 +1,7 @@
 /**
  * The data-down seam. Production error boundaries only see an error's
  * `digest`, and Next keeps a digest the thrown error already has, so a
- * `DataDownError` reaches the boundary recognisably and it shows “Our show
+ * `DataDownError` reaches the boundary recognisably and it shows “Our series
  * data is on a break.” instead of the 500.
  */
 export const DATA_DOWN_DIGEST = 'TVSERIES_DATA_DOWN';

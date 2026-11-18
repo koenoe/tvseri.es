@@ -48,7 +48,7 @@ describe('the statsCurrent profile', () => {
     // The Stats page's revalidate is its shortest read: 300 s
     expect(sMaxAge).toBe(300);
     // Next leaves a cache out of the shell when `stale` < 300 s or
-    // `expire` < 300 s (cacheLife.md, "Prerendering behavior")
+    // `expire` < 300 s (Next's cacheLife docs, "Prerendering behavior")
     expect(maxAge).toBeGreaterThanOrEqual(300);
     expect(sMaxAge + staleWhileRevalidate).toBeGreaterThanOrEqual(300);
     // Every other profile on the page is longer, so this one sets it

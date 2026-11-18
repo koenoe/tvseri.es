@@ -11,7 +11,7 @@ import type { ErrorBackdrop, ErrorStill } from './stills';
  * a page is caught below the `(site)` layout, so the layout's footer stays in
  * the tree beside the error view: the view's own rule hides it, in the server
  * HTML and from the first frame, with no client code, and goes with the view.
- * A rule, not a `body:has()`: that one re-checked the whole page on every
+ * A plain rule, not `body:has()`, which re-checks the whole page on every
  * DOM change. The root 404/401/403/500 pages that replace the layout never
  * render a footer.
  */
@@ -70,7 +70,7 @@ export default function ErrorState({
       <style>{HIDE_SITE_FOOTER}</style>
       <ErrorScene backdrop={still} />
       {header}
-      {/* The page container, as the header: at 1440 it is 112px */}
+      {/* The header's page container: 112px side margins at 1440 */}
       <main className="relative mx-auto mt-auto w-full max-w-page px-gutter pt-12 pb-10 md:pb-16">
         <div className="flex flex-col items-start md:w-140">
           <div className="flex items-center gap-3">

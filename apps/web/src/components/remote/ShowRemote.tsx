@@ -29,7 +29,6 @@ export type ShowRemoteProps = KeysProps &
     /** The Admin row, admins only: drawn after a rule, after E F W. */
     extraSection?: RemoteSection;
     className?: string;
-    /** After the Remote closes */
     onClose?: () => void;
     /** Beside the ⋯ (the show page), or under it (a tile: the Library) */
     placement?: RemotePlacement;

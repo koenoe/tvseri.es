@@ -15,8 +15,9 @@ const SEGMENT_ON_CLASS = cn(SEGMENT_CLASS, 'bg-white');
 const SEGMENT_OFF_CLASS = cn(SEGMENT_CLASS, SEGMENT_OFF);
 
 /**
- * One 6px segment per episode of the season, white where watched; past `MAX_SEGMENTS` one line filled to the
- * share watched, so a long season never sets the row's width.
+ * One 6px segment per episode of the season, white where watched; past
+ * `MAX_SEGMENTS` one line filled to the share watched, so a long season never
+ * sets the row's width.
  */
 export default function Segments({
   label,

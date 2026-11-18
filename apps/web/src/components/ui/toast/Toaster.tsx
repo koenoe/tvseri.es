@@ -9,12 +9,13 @@ import { getToastHost } from './toastHost';
 /**
  * The toast's one place, the same from every page and every layer (a dialog,
  * a sheet, the Remote): bottom right of the viewport, 24px in from the right
- * and the bottom, as sonner places it by default (and production did). The
- * card is as wide as its content, 720px at most (at 560 a mark with two actions wrapped). Phones
- * (up to sonner's 600px breakpoint): full width, 16px in,
- * 40px up, and above the home indicator where the page draws under it.
+ * and the bottom, as sonner places it by default. The card is as wide as its
+ * content, 720px at most. Phones (up to sonner's 600px breakpoint): full
+ * width, 16px in, 40px up, and above the home indicator where the page draws
+ * under it.
  *
- * What moves it (custom properties; all but the first are set in clearToast.ts):
+ * What moves it (custom properties; the clear, sheet and footer ones are set
+ * in clearToast.ts):
  * - `--toast-lift` raises it over a docked panel (the admin image tray);
  * - `--toast-clear` keeps it above a bar docked at the bottom of the screen
  *   (a phone sheet's controls, `clearToastOver`);

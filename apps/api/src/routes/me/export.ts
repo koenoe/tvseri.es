@@ -1,8 +1,8 @@
+import { todayUtc } from '@tvseri.es/utils';
 import { Hono } from 'hono';
 import { exportEverything, exportHistoryCsv } from '@/lib/export';
 import type { Variables } from '@/middleware/auth';
 import { fitsLambdaResponse } from '@/utils/lambdaResponse';
-import { todayUtc } from '@/utils/time';
 
 const app = new Hono<{ Variables: Variables }>();
 

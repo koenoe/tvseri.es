@@ -1,7 +1,6 @@
 import type { SeriesFacts, SharedShowNext } from '@tvseri.es/schemas';
-
+import { DAY_MS, todayUtc } from '@tvseri.es/utils';
 import { analyzeShow } from '@/lib/overview/analyze';
-import { DAY_MS, todayUtc } from '@/utils/time';
 
 /** "S02 out now": the season finished airing at most this many days ago (as Out now) */
 const SEASON_OUT_DAYS = 14;

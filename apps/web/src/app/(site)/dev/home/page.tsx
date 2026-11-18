@@ -1,3 +1,4 @@
+import { todayUtc } from '@tvseri.es/utils';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { connection } from 'next/server';
@@ -5,7 +6,6 @@ import { Suspense } from 'react';
 
 import Page from '@/components/background/Page';
 
-import { utcDay } from '../../_home/data/day';
 import HomeView from '../../_home/HomeView';
 import DayBanner from './_parts/DayBanner';
 import FeaturePreview from './_parts/FeaturePreview';
@@ -60,7 +60,7 @@ async function Preview({
   }
   // a dev page of today's real data: rendered per request
   await connection();
-  const today = utcDay(new Date());
+  const today = todayUtc();
   return (
     <Page backgroundColor="#212628">
       <div className="-mt-16 flex flex-col gap-16 bg-page pt-28 pb-16 md:-mt-20">

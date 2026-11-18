@@ -4,9 +4,9 @@
  * `formatWhen`, an air date is `formatAirWeekdayDate`.
  */
 
-import { dayMonth, dayMonthYear, utcParts } from './date';
+import { DAY_MS } from '@tvseri.es/utils';
 
-const DAY_MS = 86_400_000;
+import { dayMonth, dayMonthYear, utcParts } from './date';
 
 type DateInput = string | number | Date;
 

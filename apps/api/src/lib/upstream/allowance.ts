@@ -1,8 +1,8 @@
+import { DAY_MS, startOfDayUtc, todayUtc } from '@tvseri.es/utils';
 import { takeFromAllowance } from '@/lib/db/cache';
 import type { Breaker } from '@/lib/upstream/breaker';
 import { UpstreamUnavailableError } from '@/lib/upstream/errors';
 import { logWarn } from '@/utils/logWarn';
-import { DAY_MS, startOfDayUtc, todayUtc } from '@/utils/time';
 
 /** The day's counter outlives its day, so a late call still finds it */
 const ALLOWANCE_TTL = 2 * 24 * 60 * 60;

@@ -1,4 +1,4 @@
-const DAY_MS = 86_400_000;
+import { DAY_MS } from './time/utc';
 
 const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
 

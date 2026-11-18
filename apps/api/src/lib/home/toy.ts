@@ -6,9 +6,11 @@ import type {
   WherePlace,
 } from '@tvseri.es/schemas';
 import {
+  addDaysUtc,
   fallThroughOrder,
   TOY_KINDS as KINDS,
   rotationIndex,
+  todayUtc,
   toyKindOfDay,
 } from '@tvseri.es/utils';
 import { hasTimeForAnother } from '@/lib/deadline';
@@ -23,7 +25,6 @@ import {
 } from '@/lib/tmdb';
 import { mapSettledPartial } from '@/utils/limit';
 import { logWarn } from '@/utils/logWarn';
-import { addDaysUtc, todayUtc } from '@/utils/time';
 import { hasArtwork } from './artwork';
 import { fetchConnectedFrom } from './connectedFrom';
 import {

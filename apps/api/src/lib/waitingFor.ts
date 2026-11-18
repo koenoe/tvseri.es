@@ -4,11 +4,10 @@ import type {
   WaitingFor,
   WaitingForItem,
 } from '@tvseri.es/schemas';
-import { isOver } from '@tvseri.es/utils';
+import { DAY_MS, isOver, startOfDayUtc } from '@tvseri.es/utils';
 import { getAllListItems } from '@/lib/db/list';
 import { episodeKindOf } from '@/lib/episodeKind';
 import { getSeriesFacts } from '@/lib/seriesFacts';
-import { DAY_MS, startOfDayUtc } from '@/utils/time';
 
 /** The season that is coming: an announced unaired one, else the one after the last aired */
 const nextSeasonOf = (facts: SeriesFacts) => {

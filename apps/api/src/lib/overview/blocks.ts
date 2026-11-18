@@ -11,13 +11,15 @@ import type {
 } from '@tvseri.es/schemas';
 import {
   buildPosterImageUrl,
+  DAY_MS,
+  daysBetweenUtc,
   episodeMinutes,
   isOver,
   minutesFor,
   resolveSeasonMinutes,
+  todayUtc,
 } from '@tvseri.es/utils';
 import { episodeKindOf } from '@/lib/episodeKind';
-import { DAY_MS, startOfDayUtc } from '@/utils/time';
 import { codeOf, type EpisodeRef, type ShowState } from './analyze';
 
 const PAUSED_AFTER = 90 * DAY_MS;
@@ -34,9 +36,6 @@ const identity = (state: ShowState) => ({
   slug: state.facts.slug,
   title: state.facts.title,
 });
-
-const daysBetween = (date: string, now: number) =>
-  Math.round((Date.parse(date) - startOfDayUtc(now)) / DAY_MS);
 
 const seasonTotal = (state: ShowState, season: number) =>
   state.facts.seasons.find((candidate) => candidate.seasonNumber === season)
@@ -230,7 +229,7 @@ export const buildOutNow = (
 const runwayOf = (state: ShowState, now: number): PremiereRunway | null => {
   const next = state.facts.nextEpisodeToAir;
   if (next?.airDate && next.episodeNumber === 1) {
-    const daysToGo = daysBetween(next.airDate, now);
+    const daysToGo = daysBetweenUtc(todayUtc(now), next.airDate);
     if (daysToGo >= 0 && daysToGo <= WINDOW_DAYS) {
       return {
         date: next.airDate,
@@ -298,7 +297,7 @@ export const buildComingUp = (
   for (const { onWatchlist, state } of sources) {
     const next = state.facts.nextEpisodeToAir;
     if (isHidden(state) || seen.has(state.facts.id) || !next?.airDate) continue;
-    const daysToGo = daysBetween(next.airDate, now);
+    const daysToGo = daysBetweenUtc(todayUtc(now), next.airDate);
     if (daysToGo < 0 || daysToGo > WINDOW_DAYS) continue;
     seen.add(state.facts.id);
 

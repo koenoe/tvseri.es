@@ -5,6 +5,8 @@
  * time, see `formatWatchedAt`).
  */
 
+import { DAY_MS } from '@tvseri.es/utils';
+
 import { airDay } from '@/lib/format/airDate';
 import {
   type DayParts,
@@ -21,8 +23,6 @@ export type Clock = Readonly<{
   /** Epoch ms; null in the static shell (absolute dates only). */
   now: number | null;
 }>;
-
-const DAY_MS = 86_400_000;
 
 function instantDay(at: number, local: boolean): DayParts {
   const date = new Date(at);

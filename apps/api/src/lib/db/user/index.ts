@@ -9,11 +9,10 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { User, WatchProvider } from '@tvseri.es/schemas';
-import { handleClaimKey, userKey, usernameKey } from '@tvseri.es/utils';
+import { DAY_MS, handleClaimKey, userKey, usernameKey } from '@tvseri.es/utils';
 import { HTTPException } from 'hono/http-exception';
 import { Resource } from 'sst';
 import { readWatchProviders } from '@/lib/watchProviders';
-import { DAY_MS } from '@/utils/time';
 import client from '../client';
 
 /**

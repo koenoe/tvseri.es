@@ -1,7 +1,7 @@
+import { todayUtc } from '@tvseri.es/utils';
 import { Hono } from 'hono';
 import { fetchPremieresWithStatus } from '@/lib/home/premieres';
 import { todayBuildCacheControl } from '@/utils/cacheHeader';
-import { todayUtc } from '@/utils/time';
 
 const app = new Hono();
 

@@ -1,11 +1,11 @@
 import { vValidator } from '@hono/valibot-validator';
+import { todayUtc } from '@tvseri.es/utils';
 import { Hono } from 'hono';
 import * as v from 'valibot';
 import { getLibraryIds } from '@/lib/db/list';
 import { becauseYouWatched, moreGenre } from '@/lib/home/picks';
 import { spotlightLines } from '@/lib/home/spotlightLines';
 import type { Variables } from '@/middleware/auth';
-import { todayUtc } from '@/utils/time';
 
 const DateQuerySchema = v.object({
   date: v.optional(v.pipe(v.string(), v.isoDate())),

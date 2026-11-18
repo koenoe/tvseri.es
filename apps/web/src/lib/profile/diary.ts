@@ -3,7 +3,12 @@ import {
   type StatsDaily,
   type StatsYears,
 } from '@tvseri.es/schemas';
-import { dayKeyIn, formatRuntime, startOfDayIn } from '@tvseri.es/utils';
+import {
+  DAY_MS,
+  dayKeyIn,
+  formatRuntime,
+  startOfDayIn,
+} from '@tvseri.es/utils';
 
 import { MONTH_NAMES, SHORT_WEEKDAYS } from '@/lib/format/months';
 import { pad2 } from '@/lib/format/pad2';
@@ -96,7 +101,6 @@ export type JumpYear = Readonly<{
 
 type Years = StatsYears['years'];
 
-const DAY_MS = 86_400_000;
 /** The API's lowest `watchedAt`: where a jump starts reading */
 const HISTORY_START = '2000-01-01T00:00:00.000Z';
 const MONTH_KEY = /^(\d{4})-(0[1-9]|1[0-2])$/;

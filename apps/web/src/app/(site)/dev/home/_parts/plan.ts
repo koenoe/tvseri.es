@@ -1,12 +1,11 @@
 import {
+  addDaysUtc,
   type FeatureKind,
   featureKindOfDay,
   isIfYouLikedDay,
   type ToyKind,
   toyKindOfDay,
 } from '@tvseri.es/utils';
-
-import { addDays } from '../../../_home/data/day';
 
 /**
  * The dev preview's day plan (`/dev/home`, which jumps to a day by it): what
@@ -34,7 +33,7 @@ export const planOf = (day: string): DayPlan => ({
 
 /** The plans of `count` days from `from` on */
 export const plansFrom = (from: string, count: number) =>
-  Array.from({ length: count }, (_, index) => planOf(addDays(from, index)));
+  Array.from({ length: count }, (_, index) => planOf(addDaysUtc(from, index)));
 
 /** The first day from `from` on (within `horizon` days) whose plan matches */
 export const nextDay = (

@@ -15,6 +15,7 @@ import {
 } from '@tvseri.es/schemas';
 import {
   buildPosterImageUrl,
+  endOfDayUtc,
   type LibraryEntry,
   type LibraryLetter,
   queryShelf,
@@ -181,8 +182,6 @@ export const getLibrarySummary = async (
 ): Promise<LibraryCounts> =>
   shelfCounts((await readLibrary(ownerId)).entries, { owner });
 
-const endOfDay = (date: string) => Date.parse(`${date}T23:59:59.999Z`);
-
 /** The owner's progress in one show (regular episodes only) */
 const toProgress = (
   facts: SeriesFacts,
@@ -201,7 +200,9 @@ const toProgress = (
   return {
     aired: airedEpisodesAt(facts, now).total,
     airing: Boolean(
-      next?.airDate && endOfDay(next.airDate) > now && next.episodeNumber > 1,
+      next?.airDate &&
+        endOfDayUtc(next.airDate) > now &&
+        next.episodeNumber > 1,
     ),
     lastSeason: latest?.seasonNumber ?? null,
     lastWatched: state.lastWatched

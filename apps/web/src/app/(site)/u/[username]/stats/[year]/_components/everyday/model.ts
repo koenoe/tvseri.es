@@ -1,8 +1,7 @@
+import { DAY_MS } from '@tvseri.es/utils';
 import { dayRangeText } from '@/lib/format/date';
 import { plural } from '@/lib/format/text';
 import { dateMs, dayRange, monthName, shortDay } from '@/lib/stats/weeks';
-
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** The five fills */
 export const STEP_FILLS = [

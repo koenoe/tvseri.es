@@ -1,6 +1,5 @@
+import { daysBetweenUtc } from '@tvseri.es/utils';
 import type { ReactNode } from 'react';
-
-import { daysBetween } from '../../../_home/data/day';
 
 type Props = Readonly<{
   children?: ReactNode;
@@ -16,7 +15,7 @@ type Props = Readonly<{
 }>;
 
 const when = (day: string, today: string) => {
-  const days = daysBetween(today, day);
+  const days = daysBetweenUtc(today, day);
   const date = new Date(`${day}T00:00:00Z`).toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',

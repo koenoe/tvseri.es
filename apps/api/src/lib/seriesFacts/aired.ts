@@ -1,7 +1,5 @@
 import type { SeriesFacts } from '@tvseri.es/schemas';
-import { isOver } from '@tvseri.es/utils';
-
-const endOfDay = (date: string) => Date.parse(`${date}T23:59:59.999Z`);
+import { endOfDayUtc, isOver } from '@tvseri.es/utils';
 
 type Episode = Readonly<{ seasonNumber: number; episodeNumber: number }>;
 
@@ -89,7 +87,7 @@ export const airedEpisodesAt = (
   const bySeason = airedBySeason({
     last: facts.lastEpisodeToAir,
     next,
-    nextHasAired: Boolean(next?.airDate && endOfDay(next.airDate) <= now),
+    nextHasAired: Boolean(next?.airDate && endOfDayUtc(next.airDate) <= now),
     now,
     seasons: facts.seasons,
     status: facts.status,

@@ -1,6 +1,6 @@
 import { allOf, isCappedCount, type LandingFilter } from '@tvseri.es/constants';
 import type { GenreLandingFacts } from '@tvseri.es/schemas';
-import { todayUtc } from '@/utils/time';
+import { todayUtc } from '@tvseri.es/utils';
 import {
   byCountThenId,
   type Counter,

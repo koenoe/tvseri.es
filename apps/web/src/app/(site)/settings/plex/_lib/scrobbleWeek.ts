@@ -1,3 +1,4 @@
+import { DAY_MS } from '@tvseri.es/utils';
 import { utcParts, weekdayDayMonth } from '@/lib/format/date';
 import { WEEKDAY_NAMES } from '@/lib/format/months';
 import { plural } from '@/lib/format/text';
@@ -10,8 +11,6 @@ import { localDay } from '@/lib/viewer/dayClock';
  * Pure (today is an argument), so it is tested without a browser; the card
  * calls it after hydration, when the zone is known.
  */
-
-const DAY_MS = 86_400_000;
 
 /** The bars' stub for a day without marks, and the least a day with one gets */
 const EMPTY_BAR = 3;

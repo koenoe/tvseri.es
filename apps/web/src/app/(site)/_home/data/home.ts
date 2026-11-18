@@ -18,6 +18,7 @@ import {
   leadFirst,
   rotationIndex,
   type ToyKind,
+  todayUtc,
   toyKindOfDay,
 } from '@tvseri.es/utils';
 import { cacheLife, cacheTag } from 'next/cache';
@@ -34,7 +35,7 @@ import {
 import { untilUtcMidnight } from '@/lib/cache/untilUtcMidnight';
 import { loadTrendingShows } from '@/lib/series/trending';
 
-import { apiDate, utcDay } from './day';
+import { apiDate } from './day';
 import { featureShowIds, toyShowIds } from './momentShows';
 import { idsOf, withoutNeighbours } from './neighbours';
 import { onDay } from './premiereDays';
@@ -73,7 +74,7 @@ export async function getHomeDay(): Promise<string> {
   const now = new Date();
   cacheLife(untilUtcMidnight(now));
   cacheTag(tags.home);
-  return utcDay(now);
+  return todayUtc(now.getTime());
 }
 
 export async function getSpotlight(): Promise<

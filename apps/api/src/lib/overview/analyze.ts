@@ -4,6 +4,7 @@ import {
   type SeriesPrefs,
   type SeriesRuntimes,
 } from '@tvseri.es/schemas';
+import { endOfDayUtc } from '@tvseri.es/utils';
 
 import { airedEpisodesAt } from '@/lib/seriesFacts/aired';
 
@@ -49,8 +50,6 @@ export type ShowState = Readonly<{
   paused: SeriesPrefs['paused'];
   pausedAt: number | null;
 }>;
-
-const endOfDay = (date: string) => Date.parse(`${date}T23:59:59.999Z`);
 
 const compare = (a: EpisodeRef, b: EpisodeRef) =>
   a.season - b.season || a.episode - b.episode;
@@ -99,7 +98,7 @@ export const analyzeShow = (input: ShowInput, now: number): ShowState => {
   const next = facts.nextEpisodeToAir;
   const last = facts.lastEpisodeToAir;
   const latestSource =
-    next?.airDate && endOfDay(next.airDate) <= now ? next : last;
+    next?.airDate && endOfDayUtc(next.airDate) <= now ? next : last;
   const dated = input.watched.filter((item) => !item.dateUnknown);
 
   return {

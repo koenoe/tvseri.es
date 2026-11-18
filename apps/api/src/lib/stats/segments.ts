@@ -17,12 +17,12 @@ import type {
 } from '@tvseri.es/schemas';
 import {
   buildPosterImageUrl,
+  DAY_MS,
   dayKeyIn,
+  todayUtc,
   yearWeekIndex,
   zonedParts,
 } from '@tvseri.es/utils';
-
-import { DAY_MS, todayUtc } from '@/utils/time';
 
 export type SegmentItem = Readonly<
   Pick<

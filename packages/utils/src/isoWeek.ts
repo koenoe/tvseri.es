@@ -1,4 +1,4 @@
-const DAY_MS = 86_400_000;
+import { DAY_MS } from './time/utc';
 
 const pad = (value: number) => String(value).padStart(2, '0');
 

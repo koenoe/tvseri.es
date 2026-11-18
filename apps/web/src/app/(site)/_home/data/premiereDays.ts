@@ -1,6 +1,5 @@
 import type { Premiere } from '@tvseri.es/schemas';
-
-import { daysBetween } from './day';
+import { daysBetweenUtc } from '@tvseri.es/utils';
 
 /**
  * Premieres as seen on `day`: `daysAway` from that day (the API's count is
@@ -14,7 +13,7 @@ export function onDay(
   return premieres
     .map((premiere) => ({
       ...premiere,
-      daysAway: daysBetween(day, premiere.date),
+      daysAway: daysBetweenUtc(day, premiere.date),
     }))
     .filter((premiere) => premiere.daysAway >= 0);
 }

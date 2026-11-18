@@ -1,5 +1,5 @@
 import type { StatsShowRow } from '@tvseri.es/schemas';
-import { firstMondayOf, formatDuration } from '@tvseri.es/utils';
+import { DAY_MS, firstMondayOf, formatDuration } from '@tvseri.es/utils';
 
 import { SHORT_MONTHS } from '@/lib/format/months';
 import { plural } from '@/lib/format/text';
@@ -12,8 +12,6 @@ import {
   weekIndexAt,
 } from '@/lib/stats/weeks';
 import { formatYearHours } from '../../_lib/format';
-
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Rows listed before "All 71 shows" (the top 20 by hours) */
 export const TOP_ROWS = 20;

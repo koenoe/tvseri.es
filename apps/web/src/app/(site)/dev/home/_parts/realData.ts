@@ -1,4 +1,5 @@
 import { HOME_MOMENTS_VERSION } from '@tvseri.es/constants';
+import { addDaysUtc } from '@tvseri.es/utils';
 import 'server-only';
 
 import type {
@@ -14,7 +15,7 @@ import type { FeatureKind, ToyKind } from '@tvseri.es/utils';
 
 import { apiFetch } from '@/lib/api/client';
 
-import { addDays, isInApiWindow } from '../../../_home/data/day';
+import { isInApiWindow } from '../../../_home/data/day';
 import { getIfYouLiked, getViewerSession } from '../../../_home/data/personal';
 import { onDay } from '../../../_home/data/premiereDays';
 
@@ -123,7 +124,7 @@ export async function countdown(
     if (!first) {
       return { note: 'No big premiere in the next 60 days: no Countdown.' };
     }
-    const due = addDays(first.date, -3);
+    const due = addDaysUtc(first.date, -3);
     return {
       dueOn: due < today ? today : due,
       note: `${first.series.title} premieres ${first.date}; the Countdown takes the feature's slot from 3 days before.`,

@@ -5,14 +5,12 @@
  * All UTC.
  */
 
-import { firstMondayOf, yearWeekIndex } from '@tvseri.es/utils';
+import { DAY_MS, firstMondayOf, yearWeekIndex } from '@tvseri.es/utils';
 import { formatMonthDay, formatMonthDayYear } from '@/lib/format/calendarDay';
 import { utcParts, weekdayDayMonth } from '@/lib/format/date';
 import { MONTH_NAMES, SHORT_MONTHS } from '@/lib/format/months';
 
 export const WEEKS = 53;
-
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** The Monday a visual week starts (ms) */
 const weekStart = (year: number, index: number) =>

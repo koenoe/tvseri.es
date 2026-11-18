@@ -1,6 +1,6 @@
 import { CACHE_LIFE, type CacheLifeProfile } from '@tvseri.es/constants';
 
-import { DAY_MS, startOfDayUtc, todayUtc } from './time';
+import { DAY_MS, startOfDayUtc, todayUtc } from '@tvseri.es/utils';
 
 /**
  * For anything user-specific or behind authentication: these responses must

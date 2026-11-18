@@ -5,8 +5,8 @@ import {
   featureKindOfDay,
   FEATURE_KINDS as KINDS,
   rotationIndex,
+  todayUtc,
 } from '@tvseri.es/utils';
-
 import { hasTimeForAnother } from '@/lib/deadline';
 import {
   fetchDiscoverTvSeries,
@@ -17,7 +17,6 @@ import {
 } from '@/lib/tmdb';
 import { mapSettledPartial } from '@/utils/limit';
 import { logWarn } from '@/utils/logWarn';
-import { todayUtc } from '@/utils/time';
 import { archiveStanding } from './archive';
 import { backdropColorsOf, hasArtwork, withBackdropColor } from './artwork';
 import { bingeShowOf, choicesFrom } from './binge';

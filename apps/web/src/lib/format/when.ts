@@ -1,4 +1,4 @@
-import { zonedParts } from '@tvseri.es/utils';
+import { DAY_MS, zonedParts } from '@tvseri.es/utils';
 
 import {
   type DayParts,
@@ -8,8 +8,6 @@ import {
   utcParts,
 } from './date';
 import { SHORT_WEEKDAYS } from './months';
-
-const DAY_MS = 86_400_000;
 
 /** `'utc'`, `'local'` (the runtime's own zone) or an IANA zone name */
 type Zone = string;

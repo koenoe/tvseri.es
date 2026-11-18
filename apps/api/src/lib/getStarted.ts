@@ -1,9 +1,8 @@
 import type { GetStartedStatus, User } from '@tvseri.es/schemas';
-
+import { DAY_MS } from '@tvseri.es/utils';
 import { hasListItems } from '@/lib/db/list';
 import { markGetStartedDone } from '@/lib/db/user';
 import { findWebhookTokenByUserAndType } from '@/lib/db/webhooks';
-import { DAY_MS } from '@/utils/time';
 
 /** The card stays this long after all steps are done ("All set") */
 const SHOWN_AFTER_DONE_MS = 3 * DAY_MS;

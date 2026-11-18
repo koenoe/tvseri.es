@@ -1,6 +1,6 @@
+import { addDaysUtc } from '@tvseri.es/utils';
 import { PARTIAL_TTL } from '@/utils/cacheHeader';
 import { logWarn } from '@/utils/logWarn';
-import { addDaysUtc } from '@/utils/time';
 
 import { setCacheItem } from './index';
 import { readStoredEntry, type Stored } from './readThroughStale';

@@ -4,10 +4,10 @@ import type {
   Premieres,
   TvSeries,
 } from '@tvseri.es/schemas';
+import { addDaysUtc, daysBetweenUtc, todayUtc } from '@tvseri.es/utils';
 import { readDayBuild } from '@/lib/db/cache/readThroughDay';
 import { fetchTvSeriesBase, fetchTvSeriesSeason } from '@/lib/tmdb';
 import { mapSettledPartial } from '@/utils/limit';
-import { addDaysUtc, daysBetweenUtc, todayUtc } from '@/utils/time';
 import { withTitleTreatment } from './artwork';
 import { discoverWindow } from './discoverWindow';
 import { logFallThrough } from './fallThrough';

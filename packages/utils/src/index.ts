@@ -74,6 +74,14 @@ export { sleep } from './sleep';
 export { decodeFromBase64Url, encodeToBase64Url } from './stringBase64Url';
 export { upperFirst } from './text/upperFirst';
 export {
+  addDaysUtc,
+  DAY_MS,
+  daysBetweenUtc,
+  endOfDayUtc,
+  startOfDayUtc,
+  todayUtc,
+} from './time/utc';
+export {
   dayKeyIn,
   startOfDayIn,
   type ZonedParts,

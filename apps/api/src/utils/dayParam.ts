@@ -1,7 +1,5 @@
-import { isoWeekOf } from '@tvseri.es/utils';
+import { addDaysUtc, isoWeekOf, todayUtc } from '@tvseri.es/utils';
 import * as v from 'valibot';
-
-import { addDaysUtc, todayUtc } from './time';
 
 /**
  * `?date=YYYY-MM-DD` for the date-pure home routes: exactly yesterday, today

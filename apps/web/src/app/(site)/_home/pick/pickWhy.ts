@@ -1,10 +1,9 @@
 import type { TvSeries } from '@tvseri.es/schemas';
-import { isOver } from '@tvseri.es/utils';
+import { daysBetweenUtc, isOver } from '@tvseri.es/utils';
 
 import { formatDay } from '@/lib/format/datePattern';
 import { plural } from '@/lib/format/text';
 
-import { daysBetween } from '../data/day';
 import { firstGenre } from '../genres';
 import { seasonsLabel, showSeasons } from '../showFacts';
 
@@ -37,7 +36,7 @@ const COUNT_WORDS = ['', 'One', 'Two', 'Three'] as const;
 
 /** Whole calendar days between two dates (`YYYY-MM-DD`, a time after it is ignored) */
 const daysFrom = (from: string, to: string) =>
-  daysBetween(from.slice(0, 10), to.slice(0, 10));
+  daysBetweenUtc(from.slice(0, 10), to.slice(0, 10));
 
 const episodesLabel = (count: number) => plural(count, 'episode');
 

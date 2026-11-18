@@ -52,7 +52,7 @@ app.get('/library-ids', async (c) => {
     getLibraryIds(user.id),
     readStartedIds(user.id),
   ]);
-  return c.json(started ? { ...library, started } : library);
+  return c.json({ ...library, started });
 });
 
 // The viewer's relationship with each asked show (the "+ Watchlist / Seen

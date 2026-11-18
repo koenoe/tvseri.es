@@ -10,7 +10,7 @@ export type LibraryIds = Readonly<{
   /**
    * Every show with a regular episode watched (`GET /me/library-ids` only):
    * also the shows taken out of In progress by hand, which no list holds.
-   * Absent while the viewer's summaries are still being built.
+   * Absent on the other reads of these ids (circle, match).
    */
   started?: ReadonlyArray<number>;
 }>;

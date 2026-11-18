@@ -43,6 +43,7 @@ describe('GET /me/library-ids', () => {
     expect(await response.json()).toEqual({
       favorites: [1],
       inProgress: [3],
+      started: [],
       watched: [1, 2],
       watchlist: [4],
     });
@@ -81,7 +82,7 @@ describe('GET /me/library-ids', () => {
     expect(ids.started).toEqual([3, 7, 11]);
   });
 
-  it('leaves started out while the summaries are still being built', async () => {
+  it('lists started shows before the summaries are complete', async () => {
     seedUser();
     db.seed('Lists', [
       {
@@ -96,9 +97,9 @@ describe('GET /me/library-ids', () => {
 
     const ids = (await (
       await request('/me/library-ids', { as: USER_ID })
-    ).json()) as Record<string, unknown>;
+    ).json()) as { started?: number[] };
 
-    expect(ids).not.toHaveProperty('started');
+    expect(ids.started).toEqual([7]);
   });
 
   it('returns empty lists for a new user', async () => {
@@ -107,6 +108,7 @@ describe('GET /me/library-ids', () => {
     expect(await response.json()).toEqual({
       favorites: [],
       inProgress: [],
+      started: [],
       watched: [],
       watchlist: [],
     });

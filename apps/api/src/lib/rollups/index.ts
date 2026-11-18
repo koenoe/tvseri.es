@@ -170,17 +170,16 @@ const readStoredRollups = async (
 
 /**
  * The shows with a regular episode watched (specials don't count, as in
- * `hasHistory`): one Query of the summaries, or null while they aren't
- * complete (a missing summary could still mean "not built yet"). An empty
- * summary is an unmarked show; an overflow one has thousands of items.
+ * `hasHistory`), from the summaries that exist: one Query. A summary that
+ * holds a watched episode is proof on its own, so this doesn't wait for
+ * the summaries to be complete (that only matters for reading a missing
+ * one as "nothing watched"); until then some started shows are missing.
+ * An empty summary is an unmarked show; an overflow one has thousands.
  */
 export const readStartedIds = async (
   userId: string,
-): Promise<ReadonlyArray<number> | null> => {
-  const { complete, rollups } = await readStoredRollups(userId);
-  if (!complete) {
-    return null;
-  }
+): Promise<ReadonlyArray<number>> => {
+  const { rollups } = await readStoredRollups(userId);
   return [...rollups]
     .filter(
       ([, rollup]) =>

@@ -49,6 +49,7 @@ import {
   regularWatchedCount,
   unwatchedInSeason,
   unwatchedRegularEpisodes,
+  upToPlan,
   watchedInSeason,
 } from './progress';
 import {
@@ -757,14 +758,7 @@ export function createMarkingCommands(deps: MarkingDeps) {
      */
     markUpTo(seriesId: number, ref: EpisodeRef, choice: WhenChoice) {
       command(seriesId, (prior) => {
-        const all = airedRegularEpisodes(prior);
-        const target = all.findIndex((item) => codeOf(item) === codeOf(ref));
-        const refs = all
-          .slice(0, target + 1)
-          .filter((item) => !isWatched(prior, item));
-        const later = watchedInSeason(prior, ref.seasonNumber).filter(
-          (item) => item.episodeNumber > ref.episodeNumber,
-        );
+        const { mark: refs, unmark: later } = upToPlan(prior, ref);
         if (refs.length === 0 && later.length === 0) {
           return null;
         }

@@ -2,40 +2,11 @@ import { episodeCode } from '@tvseri.es/schemas';
 import { plural } from '@tvseri.es/utils';
 
 import { codeRange } from '@/lib/marking/copy';
-import {
-  airedRegularEpisodes,
-  codeOf,
-  episodeState,
-  isWatchedState,
-  watchedInSeason,
-} from '@/lib/marking/progress';
-import type { EpisodeRef, SeriesBase } from '@/lib/marking/types';
+import type { UpToPlan } from '@/lib/marking/progress';
+import type { EpisodeRef } from '@/lib/marking/types';
 
-/**
- * "I'm up to…": what a target changes, the live
- * hint and the primary button. The plan is `useMarking().markUpTo`'s rule:
- * every open episode up to the target (earlier seasons included, skipped
- * too) is marked; the target season's later watched ones are unmarked.
- */
+/** "I'm up to…": the live hint and the primary button for a plan (`upToPlan`). */
 export type UpToKind = 'now' | 'release' | 'unknown';
-
-export type UpToPlan = Readonly<{
-  mark: ReadonlyArray<EpisodeRef>;
-  unmark: ReadonlyArray<EpisodeRef>;
-}>;
-
-export function upToPlan(view: SeriesBase, target: EpisodeRef): UpToPlan {
-  const all = airedRegularEpisodes(view);
-  const index = all.findIndex((ref) => codeOf(ref) === codeOf(target));
-  return {
-    mark: all
-      .slice(0, index + 1)
-      .filter((ref) => !isWatchedState(episodeState(view, ref))),
-    unmark: watchedInSeason(view, target.seasonNumber).filter(
-      (ref) => ref.episodeNumber > target.episodeNumber,
-    ),
-  };
-}
 
 /**
  * "Up to S03E05 Children · marks 4 (S03E02–S03E05) · unmarks 1 (S03E07)",

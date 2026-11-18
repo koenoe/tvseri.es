@@ -287,4 +287,26 @@ export function watchedInSeason(
 export const parseCode = (code: string): EpisodeRef | null =>
   parseEpisodeCode(code);
 
+/**
+ * "I'm up to…": every open aired episode up to the target is marked (earlier
+ * seasons included, skipped ones too); the watched ones after it in the
+ * target's season are unmarked. The dialog's hint and `markUpTo` both use it,
+ * so what the hint promises is what gets sent.
+ */
+export type UpToPlan = Readonly<{
+  mark: ReadonlyArray<EpisodeRef>;
+  unmark: ReadonlyArray<EpisodeRef>;
+}>;
+
+export function upToPlan(view: SeriesBase, target: EpisodeRef): UpToPlan {
+  const all = airedRegularEpisodes(view);
+  const index = all.findIndex((ref) => codeOf(ref) === codeOf(target));
+  return {
+    mark: all.slice(0, index + 1).filter((ref) => !isWatched(view, ref)),
+    unmark: watchedInSeason(view, target.seasonNumber).filter(
+      (ref) => ref.episodeNumber > target.episodeNumber,
+    ),
+  };
+}
+
 export { codeOf };

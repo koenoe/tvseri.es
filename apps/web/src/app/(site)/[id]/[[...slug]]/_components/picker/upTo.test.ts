@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
+import { upToPlan } from '@/lib/marking/progress';
 import type { SeriesBase } from '@/lib/marking/types';
 
-import { upToGo, upToHint, upToPlan } from './upTo';
+import { upToGo, upToHint } from './upTo';
 
 const at = { runtime: 30, watchedAt: 1 };
 

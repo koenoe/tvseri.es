@@ -10,6 +10,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog/Dialog';
 import { useNextEpisode } from '@/lib/marking/hooks';
+import { upToPlan } from '@/lib/marking/progress';
 import type { EpisodeRef, SeriesBase } from '@/lib/marking/types';
 import useMarking from '@/lib/marking/useMarking';
 import useSeasonEpisodes from '@/lib/series/useSeasonEpisodes';
@@ -17,7 +18,7 @@ import { closeDialogs, type UpToRequest } from '../../_lib/dialogs';
 import { seasonChips, tally } from '../history/chips';
 import { AT_ROW, OVER_SHEET, rowPlacement } from './placement';
 import { UpToChips, UpToKinds, UpToTabs } from './UpToParts';
-import { type UpToKind, upToGo, upToHint, upToPlan } from './upTo';
+import { type UpToKind, upToGo, upToHint } from './upTo';
 import useViewWhileOpen from './useViewWhileOpen';
 
 const SUBTITLE =

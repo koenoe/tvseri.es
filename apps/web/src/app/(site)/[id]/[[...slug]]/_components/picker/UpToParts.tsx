@@ -5,8 +5,8 @@ import { memo } from 'react';
 import Badge from '@/components/ui/button/Badge';
 import cn from '@/lib/cn';
 import { episodeLabel } from '@/lib/marking/copy';
+import type { UpToPlan } from '@/lib/marking/progress';
 import type { EpisodeRef } from '@/lib/marking/types';
-
 import { chipLabel, type SetState, type SheetChip } from '../history/chips';
 import {
   ChipGlyph,
@@ -14,7 +14,7 @@ import {
   ChipText,
   markChipClass,
 } from '../history/MarkChip';
-import { UP_TO_KINDS, type UpToKind, type UpToPlan } from './upTo';
+import { UP_TO_KINDS, type UpToKind } from './upTo';
 
 const DOT: Readonly<Record<SetState, string>> = {
   '': 'bg-white/25',

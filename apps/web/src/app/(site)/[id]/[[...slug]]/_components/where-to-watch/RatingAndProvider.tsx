@@ -40,12 +40,13 @@ export default async function RatingAndProvider({
   // rented or bought: dimmed, as the show page draws it
   const layout =
     where?.kind === 'rent' || where?.kind === 'buy' ? DIMMED : OWNED;
+  const ratedTitle = `Rated ${rating}`;
   return (
     <span className="ml-6 flex gap-2 max-md:hidden" data-slot="rating-provider">
       {rating ? (
         <span
           className="flex size-7 min-w-7 w-auto items-center justify-center rounded-6 border border-white/60 px-1.5 text-[12px] leading-5 opacity-60"
-          title={`Rated ${rating}`}
+          title={ratedTitle}
         >
           <span className="sr-only">Rated </span>
           {rating}

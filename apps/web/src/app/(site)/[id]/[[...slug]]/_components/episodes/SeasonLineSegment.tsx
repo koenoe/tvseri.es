@@ -34,9 +34,10 @@ const SeasonLineSegment = memo(function SeasonLineSegment({
     inRun && unmark && styles.unrun,
   );
   const style = { flex };
+  const label = `${title} · ${detail}`;
   return (
     <button
-      aria-label={`${title} · ${detail}`}
+      aria-label={label}
       className={classes}
       data-index={index}
       style={style}

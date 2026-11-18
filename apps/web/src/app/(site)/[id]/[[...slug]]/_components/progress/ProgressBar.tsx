@@ -40,12 +40,13 @@ const pct = (fraction: number) => Number((fraction * 100).toFixed(1));
 function Track({ line }: Readonly<{ line: ProgressLine }>) {
   const aired = pct(line.aired);
   const tick = line.airing ? aired : undefined;
+  const watched = pct(line.watched);
   return (
     <SlidingProgressTrack
       aired={aired}
       slide="ease-out"
       tick={tick}
-      watched={pct(line.watched)}
+      watched={watched}
     />
   );
 }
@@ -128,6 +129,8 @@ const SKELETON_CLASS = cn(
   LINE_SPACE,
   'flex animate-ghost items-center gap-3 px-2.5',
 );
+const TRACK_GHOST = `h-1 flex-1 rounded-2 ${GHOST_FILL}`;
+const CAPTION_GHOST = `h-3 w-40 rounded-4 ${GHOST_FILL}`;
 
 /** The line's exact space while the viewer's marks load: the same box for everyone. */
 export function ProgressSkeleton() {
@@ -137,8 +140,8 @@ export function ProgressSkeleton() {
       className={SKELETON_CLASS}
       data-placeholder="progress"
     >
-      <span className={`h-1 flex-1 rounded-2 ${GHOST_FILL}`} />
-      <span className={`h-3 w-40 rounded-4 ${GHOST_FILL}`} />
+      <span className={TRACK_GHOST} />
+      <span className={CAPTION_GHOST} />
     </div>
   );
 }

@@ -104,11 +104,12 @@ export default function EpisodesView({
     () => (marked ? planWall(marked, wallView) : null),
     [marked, wallView],
   );
+  const episodes = season?.episodes ?? null;
 
   return (
     <>
       <SeasonHeader
-        episodes={season?.episodes ?? null}
+        episodes={episodes}
         marked={marked}
         nextUp={nextUp}
         personal={personal}

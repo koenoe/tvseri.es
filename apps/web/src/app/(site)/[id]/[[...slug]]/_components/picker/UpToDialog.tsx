@@ -106,6 +106,8 @@ function UpToBody({
     closeDialogs();
     marking.markUpTo(view.seriesId, target, { kind: choice.kind });
   }, [choice.kind, go.disabled, marking, target, view.seriesId]);
+  const time = format(choice.now, 'HH:mm');
+  const goBlocked = go.disabled || undefined;
   return (
     <>
       <UpToTabs onPick={pickTab} seasons={tabs} tab={choice.tab} />
@@ -119,15 +121,11 @@ function UpToBody({
       <p aria-live="polite" className="min-h-5 text-meta text-white/80">
         {hint}
       </p>
-      <UpToKinds
-        kind={choice.kind}
-        onPick={pickKind}
-        time={format(choice.now, 'HH:mm')}
-      />
+      <UpToKinds kind={choice.kind} onPick={pickKind} time={time} />
       <DialogFooter>
         <DialogClose className="font-semibold">Cancel</DialogClose>
         <Button
-          aria-disabled={go.disabled || undefined}
+          aria-disabled={goBlocked}
           className="font-semibold"
           onClick={apply}
           variant="primary"
@@ -173,12 +171,13 @@ export default function UpToDialog({
   const { anchor, at } = choice.request;
   const placement =
     at === 'sheet' ? OVER_SHEET : at === 'row' && anchor ? AT_ROW : undefined;
+  const open = request !== null;
   const dialog = (
     <Dialog
       className={placement}
       description={SUBTITLE}
       onOpenChange={handleOpenChange}
-      open={request !== null}
+      open={open}
       title="Which episode did you watch last?"
     >
       <UpToBody choice={choice} onChange={change} view={view} />

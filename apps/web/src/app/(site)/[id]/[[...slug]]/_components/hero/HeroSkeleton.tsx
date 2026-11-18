@@ -24,6 +24,9 @@ import { ImdbRatingSkeleton } from './ImdbRating';
 
 /** A bar inside a pulsing block (the meta row, the description) */
 const BAR = cn('rounded-4', GHOST_FILL);
+const YEAR_BAR = `h-3.5 w-14 ${BAR}`;
+const SEASONS_BAR = `ml-4 h-3.5 w-20 ${BAR}`;
+const GENRES_BAR = `ml-4 h-3.5 w-40 ${BAR}`;
 
 const TITLE_GHOST = cn(
   HERO_TITLE_SPACE,
@@ -48,9 +51,9 @@ export default function HeroSkeleton() {
       <div className={HERO_TITLE_GROUP}>
         <span className={TITLE_GHOST} />
         <div className={META_GHOST}>
-          <span className={`h-3.5 w-14 ${BAR}`} />
-          <span className={`ml-4 h-3.5 w-20 ${BAR}`} />
-          <span className={`ml-4 h-3.5 w-40 ${BAR}`} />
+          <span className={YEAR_BAR} />
+          <span className={SEASONS_BAR} />
+          <span className={GENRES_BAR} />
         </div>
         <ProgressSkeleton />
       </div>
@@ -63,11 +66,14 @@ export default function HeroSkeleton() {
         </div>
       </div>
       <div aria-hidden="true" className={DESCRIPTION_GHOST}>
-        {[0, 1].map((line) => (
-          <span className="flex h-7 items-center" key={line}>
-            <span className={`h-3 ${BAR} ${line === 1 ? 'w-4/5' : 'w-full'}`} />
-          </span>
-        ))}
+        {[0, 1].map((line) => {
+          const lineClasses = `h-3 ${BAR} ${line === 1 ? 'w-4/5' : 'w-full'}`;
+          return (
+            <span className="flex h-7 items-center" key={line}>
+              <span className={lineClasses} />
+            </span>
+          );
+        })}
       </div>
       <div className={HERO_ACTIONS_ROW}>
         <div className={HERO_RATING_CELL}>

@@ -10,9 +10,10 @@ export default function DateButton({
   label,
   onClick,
 }: Readonly<{ label: string; disabled?: boolean; onClick: () => void }>) {
+  const blocked = disabled || undefined;
   return (
     <button
-      aria-disabled={disabled || undefined}
+      aria-disabled={blocked}
       aria-label={label}
       className="flex h-7.5 min-w-7.5 cursor-pointer items-center justify-center rounded-8 px-1.5 text-white/70 transition-colors hover:bg-white/8 hover:text-white aria-disabled:cursor-default aria-disabled:opacity-30"
       onClick={disabled ? undefined : onClick}

@@ -35,6 +35,14 @@ const VALUE_LINE = 'flex min-w-[55px] items-baseline gap-1 md:min-w-[65px]';
 const BADGE = 'inline-flex items-center gap-2.5';
 const STAR = 'size-5 shrink-0 md:size-6';
 const OUT_OF = 'text-body-sm/none text-white/60';
+const RATED_STAR = `${STAR} text-[#fde047]`;
+// contrast-exempt: the greyed-out star, decorative
+const UNRATED_STAR = `${STAR} text-white/40`;
+const RATED_BADGE = `${BADGE} text-white`;
+const UNRATED_BADGE = `${BADGE} text-white/60 transition-colors hover:text-white/80`;
+const STAR_GHOST = `size-5 rounded-full md:size-6 ${GHOST_FILL}`;
+const VALUE_GHOST = `h-[18px] w-[55px] rounded-4 md:h-[22px] md:w-[65px] ${GHOST_FILL}`;
+const VOTES_GHOST = `h-2 w-9 rounded-4 ${GHOST_FILL}`;
 
 const imdbHref = (imdbId: string) => `${IMDB_URL}${imdbId}/`;
 
@@ -72,12 +80,7 @@ export function RatedBadge({
   const votes = formatVotes(count);
   const body = (
     <>
-      <Icon
-        active
-        className={`${STAR} text-[#fde047]`}
-        glyph={starGlyph}
-        size={24}
-      />
+      <Icon active className={RATED_STAR} glyph={starGlyph} size={24} />
       <span>
         <span className={VALUE_LINE}>
           <b className={VALUE}>{value}</b>
@@ -94,7 +97,7 @@ export function RatedBadge({
   return imdbId ? (
     <a
       aria-label={label}
-      className={`${BADGE} text-white`}
+      className={RATED_BADGE}
       data-slot="imdb"
       href={imdbHref(imdbId)}
       rel="noopener noreferrer"
@@ -111,18 +114,18 @@ export function RatedBadge({
 
 /** No rating to show: the badge greyed out, a way to look it up on IMDb */
 export function UnratedBadge({ imdbId }: Readonly<{ imdbId: string }>) {
+  const href = imdbHref(imdbId);
   return (
     <a
       aria-label="Rating unavailable. Open on IMDb"
-      className={`${BADGE} text-white/60 transition-colors hover:text-white/80`}
+      className={UNRATED_BADGE}
       data-slot="imdb"
       data-unrated=""
-      href={imdbHref(imdbId)}
+      href={href}
       rel="noopener noreferrer"
       target="_blank"
     >
-      {/* contrast-exempt: the greyed-out star, decorative */}
-      <Icon className={`${STAR} text-white/40`} glyph={starGlyph} size={24} />
+      <Icon className={UNRATED_STAR} glyph={starGlyph} size={24} />
       <span>
         <span className={VALUE_LINE}>
           <b className={VALUE}>–</b>
@@ -146,12 +149,10 @@ export function ImdbRatingSkeleton() {
       className="inline-flex animate-ghost items-center gap-2.5"
       data-placeholder="imdb"
     >
-      <span className={`size-5 rounded-full md:size-6 ${GHOST_FILL}`} />
+      <span className={STAR_GHOST} />
       <span className="flex flex-col gap-1 md:gap-2">
-        <span
-          className={`h-[18px] w-[55px] rounded-4 md:h-[22px] md:w-[65px] ${GHOST_FILL}`}
-        />
-        <span className={`h-2 w-9 rounded-4 ${GHOST_FILL}`} />
+        <span className={VALUE_GHOST} />
+        <span className={VOTES_GHOST} />
       </span>
     </span>
   );

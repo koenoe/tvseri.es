@@ -40,10 +40,11 @@ function LiveEpisodes({ defaultSeason, initial, personal, seriesId }: Props) {
   // The viewer's marks didn't load: neutral facts, the controls off (with
   // the reason) until a retry seeds the real state.
   const locked = seeded?.unavailable === true;
+  const personalNow = personal && !locked;
   return (
     <ViewerLocked value={locked}>
       <EpisodesView
-        personal={personal && !locked}
+        personal={personalNow}
         season={isInitial ? initial : fetched}
         seasonNumber={selected}
         seriesId={seriesId}

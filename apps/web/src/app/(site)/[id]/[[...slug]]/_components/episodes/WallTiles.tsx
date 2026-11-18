@@ -77,10 +77,11 @@ export const FocusTile = memo(function FocusTile({
     'line-clamp-2 max-w-160 text-body-sm text-white/80',
     look.overview,
   );
+  const tileCode = codeOf(episode);
   return (
     <div
       className={classes}
-      data-episode-tile={codeOf(episode)}
+      data-episode-tile={tileCode}
       data-focus-layout={layout}
     >
       <div className={stillClass}>
@@ -146,8 +147,9 @@ export const EpisodeTile = memo(function EpisodeTile({
   seriesId,
 }: TileProps & GridTileProps) {
   const classes = gridTile({ deferred, phoneHidden });
+  const tileCode = codeOf(episode);
   return (
-    <div className={classes} data-episode-tile={codeOf(episode)}>
+    <div className={classes} data-episode-tile={tileCode}>
       <div className={TILE_STILL}>
         <Still sizes={STILL_SIZES.tile} src={episode.stillImage} />
         <StillFade />
@@ -182,8 +184,9 @@ export const UpcomingTile = memo(function UpcomingTile({
   const clock = useClock();
   const classes = gridTile({ deferred, phoneHidden });
   const runtime = episode.runtime > 0 ? formatDuration(episode.runtime) : '';
+  const tileCode = codeOf(episode);
   return (
-    <div className={classes} data-episode-tile={codeOf(episode)}>
+    <div className={classes} data-episode-tile={tileCode}>
       <div className={TILE_STILL}>
         <Still
           className="brightness-45 grayscale-60"

@@ -23,6 +23,7 @@ type Props = Readonly<{
 
 const MORE_ROW =
   'col-span-full flex min-h-14 items-center justify-center gap-3';
+const PHONE_MORE_ROW = `${MORE_ROW} md:hidden`;
 
 /**
  * Show all / Show fewer with a chevron: the dashed pill in both states. Both
@@ -85,15 +86,15 @@ function FoldToggle({
     [dispatch, reveals?.phone],
   );
   const fold = useCallback(() => foldBack(dispatch), [dispatch]);
+  const rowClasses = desktop ? MORE_ROW : PHONE_MORE_ROW;
+  const desktopLabel = slot.label ?? '';
+  const phoneLabel = slot.phoneLabel ?? '';
   return (
-    <div
-      className={desktop ? MORE_ROW : `${MORE_ROW} md:hidden`}
-      data-wall-more=""
-    >
+    <div className={rowClasses} data-wall-more="">
       {desktop ? (
         <ExpandButton
           className="max-md:hidden"
-          label={slot.label ?? ''}
+          label={desktopLabel}
           layout={TOGGLE}
           onClick={open ? fold : expand}
           open={open}
@@ -101,7 +102,7 @@ function FoldToggle({
       ) : null}
       <ExpandButton
         className="md:hidden"
-        label={slot.phoneLabel ?? ''}
+        label={phoneLabel}
         layout={TOGGLE}
         onClick={open ? fold : expandPhone}
         open={open}
@@ -196,21 +197,20 @@ export default function FocusWall({
   const headingAt = slots.findIndex((slot) => slot.kind === 'heading');
   const main = headingAt === -1 ? slots : slots.slice(0, headingAt);
   const watched = headingAt === -1 ? [] : slots.slice(headingAt);
+  const layout = focusLayout ?? 'tall';
   const render = (slot: WallSlot) => (
     <Slot
       dispatch={dispatch}
-      focusLayout={focusLayout ?? 'tall'}
+      focusLayout={layout}
       key={slot.key}
       seriesId={seriesId}
       slot={slot}
     />
   );
   const watchedClass = cn(WATCHED_GRID, main.length ? 'mt-3' : 'mt-1');
+  const label = `Season ${seasonNumber} episodes, what you haven’t seen first`;
   return (
-    <div
-      aria-label={`Season ${seasonNumber} episodes, what you haven’t seen first`}
-      role="group"
-    >
+    <div aria-label={label} role="group">
       {main.length ? <div className={WALL_GRID}>{main.map(render)}</div> : null}
       {watched.length ? (
         <div className={watchedClass} data-wall-group="watched">

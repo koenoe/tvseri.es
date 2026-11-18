@@ -35,8 +35,9 @@ export default function ShowContent({
   query: ShowQuery;
   series: TvSeries;
 }>) {
+  const show = toShowSummary(series);
   return (
-    <ShowProvider show={toShowSummary(series)}>
+    <ShowProvider show={show}>
       <Page
         animateBackground
         backgroundClassName="max-md:hidden"

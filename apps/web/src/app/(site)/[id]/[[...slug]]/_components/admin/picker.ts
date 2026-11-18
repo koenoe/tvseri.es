@@ -4,7 +4,7 @@ import type {
   SeriesImages,
   SeriesLogoImage,
 } from '@tvseri.es/schemas';
-import { languageName } from '@tvseri.es/utils';
+import { languageName, plural } from '@tvseri.es/utils';
 
 import { toPageColor } from '@/components/background/pageColor';
 
@@ -208,9 +208,7 @@ export function availability(
     return { canChoose: true };
   }
   const count =
-    backdrops === 0
-      ? 'No backdrops'
-      : `${backdrops} backdrop${backdrops === 1 ? '' : 's'}`;
+    backdrops === 0 ? 'No backdrops' : plural(backdrops, 'backdrop');
   return {
     canChoose: false,
     why: `${count}${logos === 0 ? ', no logos' : ''}: nothing to choose`,

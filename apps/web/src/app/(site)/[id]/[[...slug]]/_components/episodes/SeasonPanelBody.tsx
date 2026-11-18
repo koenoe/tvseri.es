@@ -98,18 +98,23 @@ export default function SeasonPanelBody({
         role="listbox"
         tabIndex={padded ? undefined : 0}
       >
-        {rows.map((row, index) => (
-          <SeasonRow
-            id={optionId(listboxId, row.seasonNumber)}
-            index={index}
-            isActive={keyboard && index === active}
-            isSelected={row.seasonNumber === selected}
-            key={row.seasonNumber}
-            onPick={onPick}
-            padded={padded}
-            row={row}
-          />
-        ))}
+        {rows.map((row, index) => {
+          const rowId = optionId(listboxId, row.seasonNumber);
+          const isActive = keyboard && index === active;
+          const isSelected = row.seasonNumber === selected;
+          return (
+            <SeasonRow
+              id={rowId}
+              index={index}
+              isActive={isActive}
+              isSelected={isSelected}
+              key={row.seasonNumber}
+              onPick={onPick}
+              padded={padded}
+              row={row}
+            />
+          );
+        })}
       </div>
     </>
   );

@@ -28,12 +28,13 @@ export default async function ProgressHole({
   const nextAirDay = series.nextEpisodeToAir?.airDate
     ? formatAirDay(series.nextEpisodeToAir.airDate)
     : null;
+  const knownRuntimes = isUnavailable(runtimes) ? NO_RUNTIMES : runtimes;
   return (
     <>
       <SeedSeries seed={seed} />
       <ProgressBar
         nextAirDay={nextAirDay}
-        runtimes={isUnavailable(runtimes) ? NO_RUNTIMES : runtimes}
+        runtimes={knownRuntimes}
         seriesId={series.id}
         signedIn={signedIn}
       />

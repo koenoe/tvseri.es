@@ -19,6 +19,7 @@ const notNowStyles = `relative ${NOT_NOW_BOX} cursor-pointer whitespace-nowrap p
 /** The question's line box (24px). */
 const TITLE =
   'flex min-w-0 max-w-full whitespace-nowrap text-body-sm font-medium md:shrink';
+const QUESTION = `${TITLE} text-white max-md:font-semibold`;
 
 /** The three answers: one row on desktop, wrapping on phones. */
 const ANSWERS = 'flex flex-wrap gap-2 md:flex-1 md:flex-nowrap';
@@ -55,6 +56,7 @@ export default function PromptCard({
   answers,
   seriesTitle,
 }: Readonly<{ seriesTitle: string; answers: PromptAnswers }>) {
+  const question = `Seen ${seriesTitle} before?`;
   return (
     <div
       aria-label="Where are you in this series?"
@@ -63,10 +65,7 @@ export default function PromptCard({
     >
       {/* a long title is cut, never the question's end or the answers: the
           card keeps its width and "Not now" stays inside it */}
-      <b
-        className={`${TITLE} text-white max-md:font-semibold`}
-        title={`Seen ${seriesTitle} before?`}
-      >
+      <b className={QUESTION} title={question}>
         <span className="shrink-0">Seen&nbsp;</span>
         <span className="min-w-0 truncate">{seriesTitle}</span>
         <span className="shrink-0">&nbsp;before?</span>

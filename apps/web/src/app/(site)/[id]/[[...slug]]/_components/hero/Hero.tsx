@@ -41,6 +41,7 @@ type Props = Readonly<{ series: TvSeries }>;
  * their space.
  */
 export default function Hero({ series }: Props) {
+  const imdbId = series.externalIds?.imdbId ?? null;
   return (
     <HeroGrid seriesId={series.id}>
       <PhoneBackdrop />
@@ -74,10 +75,7 @@ export default function Hero({ series }: Props) {
       <div className={HERO_ACTIONS_ROW}>
         <div className={HERO_RATING_CELL}>
           <Suspense fallback={<ImdbRatingSkeleton />}>
-            <ImdbRating
-              imdbId={series.externalIds?.imdbId ?? null}
-              seriesId={series.id}
-            />
+            <ImdbRating imdbId={imdbId} seriesId={series.id} />
           </Suspense>
         </div>
         <Suspense fallback={<ActionButtonsSkeleton />}>

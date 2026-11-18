@@ -29,13 +29,12 @@ const GHOST = {
   loading: `border-2 border-white/20 ${GHOST_FILL}`,
 } as const;
 
-const ghost = (count: number, size: string, look: keyof typeof GHOST) =>
-  Array.from({ length: count }, (_, index) => (
-    <span
-      className={`${size} ${GHOST[look]} -mr-4 rounded-full max-lg:mr-0 max-lg:-ml-3 max-lg:size-[60px]`}
-      key={index}
-    />
+const ghost = (count: number, size: string, look: keyof typeof GHOST) => {
+  const faceClasses = `${size} ${GHOST[look]} -mr-4 rounded-full max-lg:mr-0 max-lg:-ml-3 max-lg:size-[60px]`;
+  return Array.from({ length: count }, (_, index) => (
+    <span className={faceClasses} key={index} />
   ));
+};
 
 /**
  * Holds the faces' space while the credits load (no shift when they land);
@@ -45,12 +44,10 @@ function FacesSkeleton({
   look = 'loading',
 }: Readonly<{ look?: keyof typeof GHOST }>) {
   const frameClass = cn('flex flex-col gap-3', look === 'loading' && PULSE);
+  const hidden = look === 'loading' ? true : undefined;
+  const slot = look === 'failed' ? 'credits-unavailable' : undefined;
   return (
-    <div
-      aria-hidden={look === 'loading' ? true : undefined}
-      className={frameClass}
-      data-slot={look === 'failed' ? 'credits-unavailable' : undefined}
-    >
+    <div aria-hidden={hidden} className={frameClass} data-slot={slot}>
       <span className="h-5 text-meta text-white/80">
         {look === 'failed' ? didNotLoad('The credits') : null}
       </span>
@@ -85,9 +82,8 @@ function EpisodeCast({ episode, part, seriesId }: Props) {
   );
 
   if (part === 'roll') {
-    return view ? (
-      <CreditsRoll blocks={view.blocks} key={codeOf(episode)} />
-    ) : null;
+    const episodeCode = codeOf(episode);
+    return view ? <CreditsRoll blocks={view.blocks} key={episodeCode} /> : null;
   }
   if (credits === undefined) {
     return <FacesSkeleton />;

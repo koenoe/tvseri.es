@@ -124,9 +124,10 @@ export function WallSkeleton({
   return (
     <div aria-hidden="true" className={WALL_GRID_GHOST}>
       <FocusGhost />
-      {TILES.map((tile) => (
-        <TileGhost key={tile} phoneHidden={tile > 0} />
-      ))}
+      {TILES.map((tile) => {
+        const phoneHidden = tile > 0;
+        return <TileGhost key={tile} phoneHidden={phoneHidden} />;
+      })}
       <ShowMoreGhost look="loading" />
     </div>
   );

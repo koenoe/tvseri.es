@@ -97,16 +97,19 @@ function BackdropStrip({
       onPick={onPick}
       picked={picked}
     >
-      {choices.map((choice) => (
-        <BackdropOption
-          choice={choice}
-          key={choice.key}
-          locked={locked}
-          onPick={onPick}
-          size={size}
-          tabbable={choice.key === tabbable}
-        />
-      ))}
+      {choices.map((choice) => {
+        const isTabbable = choice.key === tabbable;
+        return (
+          <BackdropOption
+            choice={choice}
+            key={choice.key}
+            locked={locked}
+            onPick={onPick}
+            size={size}
+            tabbable={isTabbable}
+          />
+        );
+      })}
     </Strip>
   );
 }

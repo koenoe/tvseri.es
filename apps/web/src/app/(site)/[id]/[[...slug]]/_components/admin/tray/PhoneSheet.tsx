@@ -103,6 +103,7 @@ function PhoneStrip({ model }: Readonly<{ model: TrayModel }>) {
   const count = onBackdrops
     ? backdropCount(images, picked.backdrop)
     : titleCount(images, picked.title);
+  const titleOptions = choices.titles ?? [];
   return (
     <>
       <div className="flex min-h-6 items-center gap-2">
@@ -120,7 +121,7 @@ function PhoneStrip({ model }: Readonly<{ model: TrayModel }>) {
       ) : (
         <TitleStrip
           backdrop={titleBackdrop}
-          choices={choices.titles ?? []}
+          choices={titleOptions}
           className={EDGE}
           locked={model.locked}
           onPick={model.pickTitle}
@@ -138,6 +139,10 @@ function PhoneStrip({ model }: Readonly<{ model: TrayModel }>) {
 export default function PhoneSheet({ model }: Readonly<{ model: TrayModel }>) {
   const { state } = model;
   const ids = useId();
+  const busy = state.busy !== null;
+  const saveDisabled = !model.canSave;
+  const tabLabelId = tabId(ids, state.tab);
+  const tabPanelId = panelId(ids);
   return (
     <>
       <SheetHandle className="mx-auto" />
@@ -147,8 +152,8 @@ export default function PhoneSheet({ model }: Readonly<{ model: TrayModel }>) {
         {state.confirm ? null : (
           <span className="ml-auto">
             <SaveButton
-              busy={state.busy !== null}
-              disabled={!model.canSave}
+              busy={busy}
+              disabled={saveDisabled}
               onSave={model.save}
               size="sm"
             />
@@ -162,9 +167,9 @@ export default function PhoneSheet({ model }: Readonly<{ model: TrayModel }>) {
           {state.failed ? <PhoneError onRetry={model.retry} /> : null}
           <PhoneTabs ids={ids} model={model} />
           <div
-            aria-labelledby={tabId(ids, state.tab)}
+            aria-labelledby={tabLabelId}
             className="flex flex-col gap-3"
-            id={panelId(ids)}
+            id={tabPanelId}
             role="tabpanel"
           >
             <PhoneStrip model={model} />

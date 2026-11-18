@@ -29,12 +29,13 @@ function LegendItem({ item }: Readonly<{ item: Item }>) {
     undefined,
     'pointer-events-none h-6 min-w-11 px-[7px]',
   );
+  const struck = item.state === 'sk';
   return (
     <span className="flex items-center gap-2">
       <span aria-hidden="true" className={chipClass}>
         {/* Next up is drawn as the cyan ring alone. */}
         {item.state === 'nx' ? null : <ChipGlyph state={item.state} />}
-        <ChipText struck={item.state === 'sk'}>{item.chip}</ChipText>
+        <ChipText struck={struck}>{item.chip}</ChipText>
       </span>
       <span className="inline-flex items-center gap-2 whitespace-nowrap">
         {item.label}

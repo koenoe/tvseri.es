@@ -118,10 +118,11 @@ const EyePill = memo(function EyePill({
     'flex-none',
     primary ? 'size-4 text-white md:size-4.5' : 'size-4',
   );
+  const blocked = locked || undefined;
 
   return (
     <button
-      aria-disabled={locked || undefined}
+      aria-disabled={blocked}
       aria-label={name}
       aria-pressed={isWatched}
       className={classes}

@@ -33,11 +33,14 @@ const GRID =
 function GridChip({ chip, index, overlay, title }: ChipProps) {
   const classes = markChipClass(chip.state, overlay, CHIP_LAYOUT);
   const na = chip.state === 'na';
+  const unavailable = na || undefined;
+  const pressed = isPressedChip(chip.state);
+  const struck = chip.state === 'sk';
   return (
     <button
-      aria-disabled={na || undefined}
+      aria-disabled={unavailable}
       aria-label={title}
-      aria-pressed={isPressedChip(chip.state)}
+      aria-pressed={pressed}
       className={classes}
       data-chip={index}
       tabIndex={na ? -1 : undefined}
@@ -45,7 +48,7 @@ function GridChip({ chip, index, overlay, title }: ChipProps) {
       type="button"
     >
       <ChipGlyph overlay={overlay} state={chip.state} />
-      <ChipText struck={chip.state === 'sk'}>{chipLabel(chip.ref)}</ChipText>
+      <ChipText struck={struck}>{chipLabel(chip.ref)}</ChipText>
     </button>
   );
 }
@@ -105,13 +108,14 @@ function ChipGrid({
             ? 'unrun'
             : 'run'
           : undefined;
+        const title = titles[index] ?? '';
         return (
           <GridChipMemo
             chip={chip}
             index={index}
             key={chip.ref.episodeNumber}
             overlay={overlay}
-            title={titles[index] ?? ''}
+            title={title}
           />
         );
       })}

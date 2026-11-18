@@ -62,6 +62,7 @@ function SeasonSection({
     : undefined;
   const lastEpisode = last ? episodes.get(last.episodeNumber) : undefined;
   const calendarLabel = `When did you watch ${label}?`;
+  const nothingAired = count.aired === 0;
 
   return (
     <section
@@ -81,12 +82,12 @@ function SeasonSection({
           </span>
         )}
         <DateButton
-          disabled={count.aired === 0}
+          disabled={nothingAired}
           label={calendarLabel}
           onClick={dateSeason}
         />
         <SeasonToggles
-          disabled={count.aired === 0}
+          disabled={nothingAired}
           label={label}
           onToggle={toggleSeason}
           state={count.state}

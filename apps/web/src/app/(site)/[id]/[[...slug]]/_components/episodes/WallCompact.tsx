@@ -76,8 +76,9 @@ export const CompactTile = memo(function CompactTile({
       variant="compact"
     />
   );
+  const episodeCode = codeOf(episode);
   return (
-    <div className={row} data-episode-tile={codeOf(episode)}>
+    <div className={row} data-episode-tile={episodeCode}>
       <span className={media}>
         <Still
           className={thumb}

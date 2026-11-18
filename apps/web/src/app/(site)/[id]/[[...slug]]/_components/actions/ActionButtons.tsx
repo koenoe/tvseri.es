@@ -142,11 +142,14 @@ function ActionButtons({
       : 'Mark the whole series (just now)');
   const listLabel = (name: string) =>
     unavailable ? `${name}: ${UNAVAILABLE_REASON.toLowerCase()}` : name;
+  const eyeDisabled = eyeOff !== null;
+  const favouriteLabel = listLabel('Favourite');
+  const watchlistLabel = listLabel('Watchlist');
   return (
     <div className="flex gap-2 md:gap-3" data-slot="actions">
       <CircleButton
         className={PHONE_CIRCLE}
-        disabled={eyeOff !== null}
+        disabled={eyeDisabled}
         icon={watchEyeGlyph}
         label={eyeLabel}
         onClick={toggleShow}
@@ -157,7 +160,7 @@ function ActionButtons({
         className={PHONE_CIRCLE}
         disabled={unavailable}
         icon={heartGlyph}
-        label={listLabel('Favourite')}
+        label={favouriteLabel}
         onClick={favorites.toggle}
         pressed={favorites.isOn}
         size={48}
@@ -166,7 +169,7 @@ function ActionButtons({
         className={PHONE_CIRCLE}
         disabled={unavailable}
         icon={bookmarkGlyph}
-        label={listLabel('Watchlist')}
+        label={watchlistLabel}
         onClick={watchlist.toggle}
         pressed={watchlist.isOn}
         size={48}

@@ -90,6 +90,9 @@ export default function EpisodeView({
   );
   const title = details?.title || `Episode ${episode.episodeNumber}`;
   const code = codeOf(episode);
+  const airDate = details?.airDate ?? '';
+  const loading = season === undefined;
+  const runtime = details?.runtime ?? 0;
 
   return (
     <div
@@ -125,11 +128,11 @@ export default function EpisodeView({
       >
         <div className="relative mt-auto mb-11 ml-16 flex w-[min(740px,calc(100%-560px))] flex-col items-start gap-4 max-lg:mb-0 max-lg:ml-0 max-lg:-mt-[100px] max-lg:w-auto max-lg:gap-2.5 max-lg:px-5">
           <EpisodeFacts
-            airDate={details?.airDate ?? ''}
+            airDate={airDate}
             episode={episode}
-            loading={season === undefined}
+            loading={loading}
             logo={show.logo}
-            runtime={details?.runtime ?? 0}
+            runtime={runtime}
             seasons={show.seasons}
             seriesId={show.id}
             showTitle={show.title}
@@ -139,7 +142,7 @@ export default function EpisodeView({
           {/* one element at every width: under the faces, docked to the
               screen's foot on a phone by its own `max-sm:fixed` */}
           <RecordStub
-            airDate={details?.airDate ?? ''}
+            airDate={airDate}
             episode={episode}
             hasNext={hasNext}
             hasPrev={hasPrev}

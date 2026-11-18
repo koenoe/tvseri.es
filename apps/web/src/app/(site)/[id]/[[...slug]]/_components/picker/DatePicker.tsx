@@ -72,12 +72,13 @@ export default function DatePicker({
   });
   const placement = overSheet ? OVER_SHEET : undefined;
   const calendarKey = `${shown.now}:${model.selected?.getTime() ?? ''}`;
+  const open = request !== null;
   return (
     <Dialog
       className={placement}
       description={model.subtitle}
       onOpenChange={handleOpenChange}
-      open={request !== null}
+      open={open}
       title={model.title}
     >
       <div className="grid grid-cols-[216px_minmax(0,1fr)] items-start gap-5 max-sm:grid-cols-1 max-sm:gap-4.5">

@@ -34,10 +34,11 @@ export const SaveButton = memo(function SaveButton({
   size?: 'md' | 'sm';
 }>) {
   const className = trayButton({ size, tone: 'solid' });
+  const blocked = disabled && !busy;
   return (
     <button
       aria-busy={busy}
-      aria-disabled={disabled && !busy}
+      aria-disabled={blocked}
       className={className}
       onClick={onSave}
       type="button"

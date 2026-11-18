@@ -32,9 +32,10 @@ function StepButton({
   }, [direction, enabled, onStep]);
   const className = enabled ? undefined : 'pointer-events-none';
   const tabIndex = enabled ? 0 : -1;
+  const disabled = !enabled;
   return (
     <CircleButton
-      aria-disabled={!enabled}
+      aria-disabled={disabled}
       className={className}
       icon={icon}
       label={label}

@@ -23,6 +23,8 @@ import { type CastMember, loadCast } from '../../_data/loaders';
 const CAST_SPACE = 'mt-9 -mb-2 first:mt-6 lg:mt-13 lg:mb-[67px] lg:first:mt-6';
 
 const listStyles = `${CAST_SPACE} grid grid-cols-3 gap-4 md:grid-cols-6 lg:flex lg:w-[973px] lg:max-w-full lg:flex-wrap lg:gap-0 lg:pt-4`;
+const SKELETON_LIST = `${listStyles} animate-ghost`;
+const GHOST_FACE = `mx-auto aspect-square w-full rounded-full lg:size-24 ${GHOST_FILL}`;
 
 /**
  * A face as production draws it: 96px from lg, overlapping its neighbours;
@@ -106,19 +108,13 @@ export default async function Cast({
 export function CastSkeleton() {
   const placeholders = Array.from({ length: 10 }, (_, index) => index);
   return (
-    <div
-      aria-hidden="true"
-      className={`${listStyles} animate-ghost`}
-      data-placeholder="cast"
-    >
+    <div aria-hidden="true" className={SKELETON_LIST} data-placeholder="cast">
       {placeholders.map((index) => (
         <span
           className="flex w-full flex-col max-md:[&:nth-child(n+7)]:hidden lg:-mt-4 lg:-mr-4 lg:-mb-14 lg:w-24"
           key={index}
         >
-          <span
-            className={`mx-auto aspect-square w-full rounded-full lg:size-24 ${GHOST_FILL}`}
-          />
+          <span className={GHOST_FACE} />
           <span className="mt-2 flex flex-col items-center gap-1 lg:invisible lg:mt-3 lg:gap-0">
             <GhostLine className="h-6" inPulse look="loading" width="w-3/4" />
             <GhostLine className="h-5" inPulse look="loading" width="w-1/2" />

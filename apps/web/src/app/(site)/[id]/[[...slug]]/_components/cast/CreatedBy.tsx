@@ -19,18 +19,21 @@ export default function CreatedBy({
   return (
     <p className={LINE}>
       <span className="text-white/60">Created by:</span>{' '}
-      {creators.map((creator, index) => (
-        <Fragment key={creator.id}>
-          {index > 0 ? ', ' : null}
-          <TileLink
-            className="hover:underline"
-            href={personPath(creator.id, creator.slug)}
-            prefetchOn={PERSON_PREFETCH}
-          >
-            {creator.name}
-          </TileLink>
-        </Fragment>
-      ))}
+      {creators.map((creator, index) => {
+        const href = personPath(creator.id, creator.slug);
+        return (
+          <Fragment key={creator.id}>
+            {index > 0 ? ', ' : null}
+            <TileLink
+              className="hover:underline"
+              href={href}
+              prefetchOn={PERSON_PREFETCH}
+            >
+              {creator.name}
+            </TileLink>
+          </Fragment>
+        );
+      })}
     </p>
   );
 }

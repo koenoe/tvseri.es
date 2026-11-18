@@ -16,17 +16,14 @@ export default function EpisodesError({
   seriesId,
 }: Readonly<{ seasonNumber: number; seriesId: number }>) {
   const retry = () => requestSeason(seriesId, seasonNumber);
+  const title = seasonName(seasonNumber);
   return (
     <div
       className="relative [--row-end:0px] [--row-start:0px]"
       data-slot="episodes-unavailable"
     >
       <WallSkeleton look="failed" />
-      <RowErrorCard
-        onRetry={retry}
-        state="failed"
-        title={seasonName(seasonNumber)}
-      />
+      <RowErrorCard onRetry={retry} state="failed" title={title} />
     </div>
   );
 }

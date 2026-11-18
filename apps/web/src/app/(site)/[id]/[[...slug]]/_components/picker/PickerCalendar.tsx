@@ -89,6 +89,7 @@ export default function PickerCalendar({
       onPick(day);
     }
   };
+  const selectedDay = selected ?? undefined;
   return (
     <div className="flex min-w-0 flex-col gap-2.5">
       <span className={DIALOG_LABEL}>Or pick a day</span>
@@ -104,7 +105,7 @@ export default function PickerCalendar({
         navLayout="around"
         onDayClick={handleDayClick}
         onMonthChange={setMonth}
-        selected={selected ?? undefined}
+        selected={selectedDay}
         showOutsideDays
         today={today}
         weekStartsOn={1}

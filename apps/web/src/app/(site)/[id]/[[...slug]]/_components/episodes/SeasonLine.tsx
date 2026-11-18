@@ -107,10 +107,12 @@ export default function SeasonLine({
     anchored && styles.anchored,
     locked && styles.locked,
   );
+  const blocked = locked || undefined;
+  const unmarking = run?.direction === 'unmark';
 
   return (
     <div
-      aria-disabled={locked || undefined}
+      aria-disabled={blocked}
       aria-keyshortcuts={locked ? undefined : 'Enter'}
       aria-label={aria}
       className={lineClass}
@@ -128,18 +130,26 @@ export default function SeasonLine({
           {plan.detail}
         </span>
       ) : null}
-      {marked.map((item, index) => (
-        <SeasonLineSegment
-          className={MARK_CLASS[item.mark] ?? ''}
-          detail={tips[index]?.detail ?? ''}
-          flex={geometry.weights[index] ?? 1}
-          index={index}
-          inRun={index >= low && index <= high && item.mark !== 'unaired'}
-          key={item.episode.episodeNumber}
-          title={tips[index]?.title ?? ''}
-          unmark={run?.direction === 'unmark'}
-        />
-      ))}
+      {marked.map((item, index) => {
+        const markClass = MARK_CLASS[item.mark] ?? '';
+        const tip = tips[index];
+        const detail = tip?.detail ?? '';
+        const weight = geometry.weights[index] ?? 1;
+        const inRun = index >= low && index <= high && item.mark !== 'unaired';
+        const title = tip?.title ?? '';
+        return (
+          <SeasonLineSegment
+            className={markClass}
+            detail={detail}
+            flex={weight}
+            index={index}
+            inRun={inRun}
+            key={item.episode.episodeNumber}
+            title={title}
+            unmark={unmarking}
+          />
+        );
+      })}
     </div>
   );
 }

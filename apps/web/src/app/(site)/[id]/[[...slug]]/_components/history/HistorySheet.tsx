@@ -60,13 +60,16 @@ function SheetBody({ season }: Readonly<{ season: number | null }>) {
     <SheetUiContext value={store}>
       <div className="flex flex-col gap-6 pt-2 max-sm:gap-3 max-sm:pt-0">
         <SheetTop />
-        {show.seasons.map((item) => (
-          <SeasonSection
-            initial={item.seasonNumber === season}
-            key={item.seasonNumber}
-            season={item}
-          />
-        ))}
+        {show.seasons.map((item) => {
+          const initial = item.seasonNumber === season;
+          return (
+            <SeasonSection
+              initial={initial}
+              key={item.seasonNumber}
+              season={item}
+            />
+          );
+        })}
         <NeverAskNote />
       </div>
     </SheetUiContext>

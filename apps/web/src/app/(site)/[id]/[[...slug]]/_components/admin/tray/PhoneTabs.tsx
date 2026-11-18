@@ -44,12 +44,14 @@ function TabButton({
   tab: Tab;
 }>) {
   const select = useCallback(() => onSelect(tab), [onSelect, tab]);
+  const tabPanelId = panelId(ids);
+  const ownId = tabId(ids, tab);
   return (
     <button
-      aria-controls={panelId(ids)}
+      aria-controls={tabPanelId}
       aria-selected={selected}
       className="h-9 cursor-pointer rounded-8 text-body-sm font-medium text-white/60 aria-selected:bg-white/16 aria-selected:text-white"
-      id={tabId(ids, tab)}
+      id={ownId}
       onClick={select}
       role="tab"
       tabIndex={selected ? 0 : -1}
@@ -91,16 +93,19 @@ export default function PhoneTabs({
       onKeyDown={onKeyDown}
       role="tablist"
     >
-      {tabs.map(([tab, label]) => (
-        <TabButton
-          ids={ids}
-          key={tab}
-          label={label}
-          onSelect={setTab}
-          selected={current === tab}
-          tab={tab}
-        />
-      ))}
+      {tabs.map(([tab, label]) => {
+        const selected = current === tab;
+        return (
+          <TabButton
+            ids={ids}
+            key={tab}
+            label={label}
+            onSelect={setTab}
+            selected={selected}
+            tab={tab}
+          />
+        );
+      })}
     </div>
   );
 }

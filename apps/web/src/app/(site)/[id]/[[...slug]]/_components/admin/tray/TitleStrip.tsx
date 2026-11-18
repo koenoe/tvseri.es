@@ -142,18 +142,21 @@ function TitleStrip({
       onPick={onPick}
       picked={picked}
     >
-      {choices.map((choice) => (
-        <TitleOption
-          backdrop={backdrop}
-          choice={choice}
-          key={choice.key}
-          locked={locked}
-          onPick={onPick}
-          size={size}
-          tabbable={choice.key === tabbable}
-          title={title}
-        />
-      ))}
+      {choices.map((choice) => {
+        const isTabbable = choice.key === tabbable;
+        return (
+          <TitleOption
+            backdrop={backdrop}
+            choice={choice}
+            key={choice.key}
+            locked={locked}
+            onPick={onPick}
+            size={size}
+            tabbable={isTabbable}
+            title={title}
+          />
+        );
+      })}
       {noLogos ? (
         <a
           className={linkClassName}

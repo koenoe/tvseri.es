@@ -103,10 +103,11 @@ function FirstTrackingPrompt({ seriesId, title }: Props) {
   if (gone) {
     return null;
   }
+  const asking = decision === 'ask' ? '' : undefined;
   return (
     <div
       className={FRAME}
-      data-ask={decision === 'ask' ? '' : undefined}
+      data-ask={asking}
       data-leaving={leaving ? '' : undefined}
       data-prompt=""
       inert={leaving}

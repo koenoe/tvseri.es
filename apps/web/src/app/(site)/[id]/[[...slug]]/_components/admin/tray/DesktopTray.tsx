@@ -29,6 +29,8 @@ function DesktopHeader({ model }: Readonly<{ model: TrayModel }>) {
   const { state } = model;
   const confirm = state.confirm ? CONFIRM[state.confirm] : null;
   const confirmYes = state.confirm === 'reset' ? model.reset : model.discard;
+  const busy = state.busy !== null;
+  const saveDisabled = !model.canSave;
   return (
     <div className="flex h-10 items-center gap-4">
       <span className="flex min-w-0 items-center gap-2.5">
@@ -61,11 +63,7 @@ function DesktopHeader({ model }: Readonly<{ model: TrayModel }>) {
           <button className={tonal} onClick={model.cancel} type="button">
             Cancel
           </button>
-          <SaveButton
-            busy={state.busy !== null}
-            disabled={!model.canSave}
-            onSave={model.save}
-          />
+          <SaveButton busy={busy} disabled={saveDisabled} onSave={model.save} />
         </div>
       )}
     </div>

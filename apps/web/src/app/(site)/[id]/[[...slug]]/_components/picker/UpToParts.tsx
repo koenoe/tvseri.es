@@ -102,20 +102,21 @@ export const UpToChips = memo(function UpToChips({
         const na = state === 'na';
         const aria = `Up to ${episodeLabel(chip.ref, titleOf(chip.ref))}`;
         const pick = () => onPick(chip.ref);
+        const unavailable = na || undefined;
+        const isTarget = overlay === 'target';
+        const struck = state === 'sk' || overlay === 'struck';
         return (
           <button
-            aria-disabled={na || undefined}
+            aria-disabled={unavailable}
             aria-label={aria}
-            aria-pressed={overlay === 'target'}
+            aria-pressed={isTarget}
             className={classes}
             key={chip.ref.episodeNumber}
             onClick={na ? undefined : pick}
             type="button"
           >
             <ChipGlyph overlay={overlay} state={state} />
-            <ChipText struck={state === 'sk' || overlay === 'struck'}>
-              {chipLabel(chip.ref)}
-            </ChipText>
+            <ChipText struck={struck}>{chipLabel(chip.ref)}</ChipText>
           </button>
         );
       })}
@@ -142,9 +143,10 @@ export const UpToKinds = memo(function UpToKinds({
       {UP_TO_KINDS.map((option) => {
         const pick = () => onPick(option.kind);
         const detail = option.detail.replace('{time}', time);
+        const checked = option.kind === kind;
         return (
           <button
-            aria-checked={option.kind === kind}
+            aria-checked={checked}
             className="flex min-w-0 cursor-pointer flex-col items-start gap-1 rounded-12 bg-white/5 p-3 text-left transition-[background-color,box-shadow] hover:bg-white/10 aria-checked:bg-white/12 aria-checked:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.5)]"
             key={option.kind}
             onClick={pick}

@@ -77,9 +77,10 @@ export function OpenEpisodeHit({
     () => openEpisode({ episodeNumber, seasonNumber }),
     [episodeNumber, seasonNumber],
   );
+  const label = `Open ${codeOf(episode)} ${episode.title}`;
   return (
     <button
-      aria-label={`Open ${codeOf(episode)} ${episode.title}`}
+      aria-label={label}
       className="absolute inset-0 z-2 cursor-pointer rounded-12 focus-visible:outline-offset-[-2px]"
       onClick={open}
       onFocus={preloadEpisodeModal}

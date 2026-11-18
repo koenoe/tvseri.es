@@ -160,14 +160,17 @@ export default function Information({
           ) : null}
           {series.languages.length > 0 ? (
             <Item label="Spoken languages">
-              {series.languages.map((language, index) => (
-                <Fragment key={language.code}>
-                  {index > 0 ? ', ' : null}
-                  <Link className={link} href={`/language/${language.code}`}>
-                    {language.englishName}
-                  </Link>
-                </Fragment>
-              ))}
+              {series.languages.map((language, index) => {
+                const href = `/language/${language.code}`;
+                return (
+                  <Fragment key={language.code}>
+                    {index > 0 ? ', ' : null}
+                    <Link className={link} href={href}>
+                      {language.englishName}
+                    </Link>
+                  </Fragment>
+                );
+              })}
             </Item>
           ) : null}
           <Item label="Episodes">

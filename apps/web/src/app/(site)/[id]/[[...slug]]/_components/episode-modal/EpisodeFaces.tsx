@@ -137,16 +137,19 @@ function EpisodeFaces({ className, label, people, size }: Props) {
     <div className={columnClasses}>
       <span className={LABEL}>{label}</span>
       <div className={rowClasses} style={rowStyle}>
-        {people.map((person) => (
-          <EpisodeFace
-            key={person.id}
-            look={look}
-            onClick={onClick}
-            onPointerDown={onPointerDown}
-            person={person}
-            revealed={revealed === person.id}
-          />
-        ))}
+        {people.map((person) => {
+          const isRevealed = revealed === person.id;
+          return (
+            <EpisodeFace
+              key={person.id}
+              look={look}
+              onClick={onClick}
+              onPointerDown={onPointerDown}
+              person={person}
+              revealed={isRevealed}
+            />
+          );
+        })}
       </div>
     </div>
   );

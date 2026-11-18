@@ -14,9 +14,10 @@ export default function CreditBlocks({
   copy,
 }: Readonly<{ blocks: ReadonlyArray<RollBlock>; copy?: boolean }>) {
   const tabIndex = copy ? -1 : undefined;
+  const hidden = copy || undefined;
   return (
     <div
-      aria-hidden={copy || undefined}
+      aria-hidden={hidden}
       className="flex flex-col items-stretch gap-11 pt-[300px] max-lg:gap-4 max-lg:pt-8"
     >
       {blocks.map((block) => {
@@ -30,19 +31,22 @@ export default function CreditBlocks({
             </span>
             {block.kind === 'names' ? (
               <span className="flex flex-col items-center gap-2.5 max-lg:block">
-                {block.people.map((person, index) => (
-                  <span key={person.id}>
-                    {index > 0 ? <span className="lg:hidden">, </span> : null}
-                    <TileLink
-                      className="font-medium text-[19px] leading-[26px] hover:underline max-lg:font-normal max-lg:text-body-sm"
-                      href={personPath(person.id, person.slug)}
-                      prefetchOn={PERSON_PREFETCH}
-                      tabIndex={tabIndex}
-                    >
-                      {person.name}
-                    </TileLink>
-                  </span>
-                ))}
+                {block.people.map((person, index) => {
+                  const href = personPath(person.id, person.slug);
+                  return (
+                    <span key={person.id}>
+                      {index > 0 ? <span className="lg:hidden">, </span> : null}
+                      <TileLink
+                        className="font-medium text-[19px] leading-[26px] hover:underline max-lg:font-normal max-lg:text-body-sm"
+                        href={href}
+                        prefetchOn={PERSON_PREFETCH}
+                        tabIndex={tabIndex}
+                      >
+                        {person.name}
+                      </TileLink>
+                    </span>
+                  );
+                })}
               </span>
             ) : (
               <div className="grid w-full grid-cols-2 gap-x-6 gap-y-2 max-lg:gap-y-1">
@@ -69,11 +73,12 @@ function PairRow({
   person: Extract<RollBlock, { kind: 'pairs' }>['people'][number];
   tabIndex: number | undefined;
 }>) {
+  const href = personPath(person.id, person.slug);
   return (
     <>
       <TileLink
         className="text-right font-medium text-[16px] text-white/60 leading-[22px] hover:underline max-lg:text-body-sm"
-        href={personPath(person.id, person.slug)}
+        href={href}
         prefetchOn={PERSON_PREFETCH}
         tabIndex={tabIndex}
       >

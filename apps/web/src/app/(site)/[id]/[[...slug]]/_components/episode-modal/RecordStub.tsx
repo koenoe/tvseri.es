@@ -41,7 +41,8 @@ type Props = Readonly<{
  * eye's 40px box and a bar in the line's box, never an eye that looks ready
  * but can't mark yet
  */
-const EYE_GHOST = <span className={ghostCircle(`size-10 ${PULSE}`)} />;
+const EYE_GHOST_CLASSES = ghostCircle(`size-10 ${PULSE}`);
+const EYE_GHOST = <span className={EYE_GHOST_CLASSES} />;
 const LINE_GHOST = (
   <span className={PULSE}>
     <TextLine className="" width="w-28" />
@@ -49,9 +50,8 @@ const LINE_GHOST = (
 );
 
 /** The date action's text in a flat bar: the link's box, nothing to press */
-const DATE_GHOST = (
-  <span className={`rounded-4 text-caption ${FLAT} ${PULSE}`}>Add a date</span>
-);
+const DATE_GHOST_CLASSES = `rounded-4 text-caption ${FLAT} ${PULSE}`;
+const DATE_GHOST = <span className={DATE_GHOST_CLASSES}>Add a date</span>;
 
 const LINK =
   'cursor-pointer text-caption font-medium text-white/80 underline underline-offset-2 hover:text-white max-sm:font-normal max-sm:text-white/60 max-sm:no-underline';

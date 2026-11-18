@@ -31,10 +31,11 @@ export default function SeasonToggles({
     ? `Unmark ${label}`
     : `Mark ${label} watched (just now)`;
   const phoneClass = markChipClass('', undefined, PHONE);
+  const blocked = disabled || undefined;
   return (
     <>
       <SheetToggle
-        aria-disabled={disabled || undefined}
+        aria-disabled={blocked}
         aria-label={aria}
         className="max-sm:hidden"
         onClick={disabled ? undefined : onToggle}
@@ -45,7 +46,7 @@ export default function SeasonToggles({
         {complete ? 'Unmark season' : 'Mark season'}
       </SheetToggle>
       <button
-        aria-disabled={disabled || undefined}
+        aria-disabled={blocked}
         aria-label={aria}
         aria-pressed={complete}
         className={phoneClass}

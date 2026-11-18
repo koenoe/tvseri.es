@@ -34,9 +34,10 @@ export default function ContinueRow({
   const code = episodeCode(nextUp);
   const title = episode ? `${code} · ${episode.title}` : code;
   const pick = () => onPick(nextUp.seasonNumber);
+  const label = `${verb}: Season ${nextUp.seasonNumber}, episode ${nextUp.episodeNumber}. Show Season ${nextUp.seasonNumber}`;
   return (
     <button
-      aria-label={`${verb}: Season ${nextUp.seasonNumber}, episode ${nextUp.episodeNumber}. Show Season ${nextUp.seasonNumber}`}
+      aria-label={label}
       className="flex h-15 flex-none items-center gap-3.5 rounded-12 bg-cyan/5 pr-4 pl-3 text-left shadow-[inset_0_0_0_1px_rgb(0_255_255/0.2)] hover:bg-cyan/9"
       onClick={pick}
       type="button"

@@ -73,11 +73,12 @@ function InProgressRow({
       title={item.title}
     />
   );
+  const toGo = `${item.toWatch} to go`;
   return (
     <LaneRow
       className={className}
       code={item.code}
-      count={`${item.toWatch} to go`}
+      count={toGo}
       end={remote}
       facts={facts}
       layout={IN_PROGRESS_ROW}

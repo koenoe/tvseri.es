@@ -55,12 +55,13 @@ export default function FactDeck({
       </p>
       {slides.map((slide, index) => {
         const on = index === shown;
+        const off = !on;
         const layer = cn(
           '[grid-area:1/1] transition-opacity duration-500 ease-[ease]',
           on ? 'opacity-100' : 'opacity-0',
         );
         return (
-          <div aria-hidden={!on} className={layer} inert={!on} key={index}>
+          <div aria-hidden={off} className={layer} inert={off} key={index}>
             {slide}
           </div>
         );

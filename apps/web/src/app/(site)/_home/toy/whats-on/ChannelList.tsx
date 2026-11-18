@@ -60,16 +60,19 @@ export default function ChannelList({
       onKeyDown={onKeyDown}
       role="radiogroup"
     >
-      {rows.map((row, index) => (
-        <ChannelButton
-          index={index}
-          key={row.number}
-          on={index === current}
-          onTune={onTune}
-          onWarm={onWarm}
-          row={row}
-        />
-      ))}
+      {rows.map((row, index) => {
+        const on = index === current;
+        return (
+          <ChannelButton
+            index={index}
+            key={row.number}
+            on={on}
+            onTune={onTune}
+            onWarm={onWarm}
+            row={row}
+          />
+        );
+      })}
     </div>
   );
 }

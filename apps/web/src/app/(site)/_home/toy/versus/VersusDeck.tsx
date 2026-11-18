@@ -71,6 +71,8 @@ export default function VersusDeck({
   const announcement = versusAnnouncement(titles, chosen);
   const chosenSeries = chosen ? pair[chosen] : null;
   const hide = known ? undefined : UNTIL_KNOWN;
+  const leftState = stateOf('left', chosen);
+  const rightState = stateOf('right', chosen);
 
   // the placeholder is the card's sibling, so the card is never remounted
   return (
@@ -87,7 +89,7 @@ export default function VersusDeck({
                 current={index}
                 onTap={tapLeft}
                 sides={lefts}
-                state={stateOf('left', chosen)}
+                state={leftState}
                 warm={warm}
               />
             </div>
@@ -114,7 +116,7 @@ export default function VersusDeck({
                 current={index}
                 onTap={tapRight}
                 sides={rights}
-                state={stateOf('right', chosen)}
+                state={rightState}
                 warm={warm}
               />
             </div>

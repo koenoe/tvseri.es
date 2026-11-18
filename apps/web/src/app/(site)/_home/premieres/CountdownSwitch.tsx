@@ -85,20 +85,22 @@ export default function CountdownSwitch({
   const pills = slides.map((slide) => slide.pill);
   return (
     <>
-      {slides.map((slide, index) =>
-        warm.has(index) ? (
+      {slides.map((slide, index) => {
+        const on = index === shown;
+        return warm.has(index) ? (
           <CountdownBackdrop
             backdrop={slide.backdrop}
             color={slide.color}
             index={index}
             key={slide.key}
-            on={index === shown}
+            on={on}
             onLoaded={loaded}
           />
-        ) : null,
-      )}
+        ) : null;
+      })}
       {slides.map((slide, index) => {
         const on = index === shown;
+        const off = !on;
         const layer = cn(
           'absolute inset-0 z-2',
           COUNTDOWN_FADE,
@@ -106,10 +108,10 @@ export default function CountdownSwitch({
         );
         return (
           <div
-            aria-hidden={!on}
+            aria-hidden={off}
             className={layer}
             data-countdown-body={index}
-            inert={!on}
+            inert={off}
             key={slide.key}
           >
             {slide.body}

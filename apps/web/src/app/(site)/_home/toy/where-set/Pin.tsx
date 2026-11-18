@@ -70,9 +70,10 @@ function Pin({
     }
   }, [image, onWarm]);
   const position: CSSProperties = { left: place.left, top: place.top };
+  const label = `${place.name}: ${place.shows[0]?.title ?? ''}`;
   return (
     <button
-      aria-label={`${place.name}: ${place.shows[0]?.title ?? ''}`}
+      aria-label={label}
       aria-pressed={on}
       className="group absolute z-2 -mt-3.5 -ml-3.5 size-7 cursor-pointer rounded-full"
       onClick={pick}

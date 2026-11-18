@@ -57,6 +57,7 @@ export default function FactSlide({
   const { series } = fact;
   const sentence = cn(FACT_SENTENCE, FACT_SENTENCE_ROOM);
   const open = `Open ${series.title}`;
+  const href = showPath(series.id, series.slug);
   const shade = pictureShade(series.backdropColor);
   const fade = { '--fact-fade': factFade(copy.value) } as CSSProperties;
   return (
@@ -85,7 +86,7 @@ export default function FactSlide({
           <ShowMeta series={series} />
           <ButtonLink
             className={FACT_OPEN}
-            href={showPath(series.id, series.slug)}
+            href={href}
             icon={arrowRightGlyph}
             size="sm"
           >

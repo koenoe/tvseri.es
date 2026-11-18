@@ -27,7 +27,8 @@ async function ViewerConnectedBy({ day, paths }: Props) {
   const mine = await readAsViewer((accessToken) =>
     getViewerPaths(accessToken, day, paths),
   ).catch(() => null);
-  return <ConnectedBy paths={mine ?? paths} />;
+  const shown = mine ?? paths;
+  return <ConnectedBy paths={shown} />;
 }
 
 /**

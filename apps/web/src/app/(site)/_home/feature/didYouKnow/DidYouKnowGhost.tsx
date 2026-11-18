@@ -96,9 +96,10 @@ export default function DidYouKnowGhost() {
           </div>
           <div className={DECK_CONTROLS}>
             <span className={PIPS}>
-              {PIP_COUNT.map((n) => (
-                <i className={n > 0 ? PIP_OFF : PIP} key={n} />
-              ))}
+              {PIP_COUNT.map((n) => {
+                const pip = n > 0 ? PIP_OFF : PIP;
+                return <i className={pip} key={n} />;
+              })}
             </span>
             <ButtonFace icon={shuffleGlyph} size="md">
               {ANOTHER_LABEL}

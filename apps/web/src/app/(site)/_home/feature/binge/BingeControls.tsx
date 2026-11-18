@@ -63,32 +63,38 @@ export default function BingeControls({
   return (
     <div className={BINGE_CONTROLS}>
       <ControlRow hint={hint} label={EACH_NIGHT_LABEL}>
-        {PER_NIGHT_OPTIONS.map((count) => (
-          <button
-            aria-pressed={count === perNight}
-            className={BINGE_OPTION}
-            key={count}
-            onClick={choosePerNight}
-            type="button"
-            value={count}
-          >
-            {perNightLabel(count)}
-          </button>
-        ))}
+        {PER_NIGHT_OPTIONS.map((count) => {
+          const chosen = count === perNight;
+          return (
+            <button
+              aria-pressed={chosen}
+              className={BINGE_OPTION}
+              key={count}
+              onClick={choosePerNight}
+              type="button"
+              value={count}
+            >
+              {perNightLabel(count)}
+            </button>
+          );
+        })}
       </ControlRow>
       <ControlRow label={NIGHTS_LABEL}>
-        {NIGHTS_OPTIONS.map((option) => (
-          <button
-            aria-pressed={option.mode === mode}
-            className={BINGE_OPTION}
-            key={option.mode}
-            onClick={chooseMode}
-            type="button"
-            value={option.mode}
-          >
-            {option.label}
-          </button>
-        ))}
+        {NIGHTS_OPTIONS.map((option) => {
+          const chosen = option.mode === mode;
+          return (
+            <button
+              aria-pressed={chosen}
+              className={BINGE_OPTION}
+              key={option.mode}
+              onClick={chooseMode}
+              type="button"
+              value={option.mode}
+            >
+              {option.label}
+            </button>
+          );
+        })}
       </ControlRow>
     </div>
   );

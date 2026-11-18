@@ -35,12 +35,14 @@ export default function WhatsOn({
   );
   const captions = channels.map((channel, index) => {
     const slug = landingSlugForId('network', channel.network.id);
+    const networkHref = slug ? landingPath('network', slug) : undefined;
+    const number = channelNumber(index);
     return (
       <ChannelCaption
         channel={channel}
         key={channel.series.id}
-        networkHref={slug ? landingPath('network', slug) : undefined}
-        number={channelNumber(index)}
+        networkHref={networkHref}
+        number={number}
       />
     );
   });

@@ -52,6 +52,7 @@ function ArtworkLayers({
   }>) {
   return layers.map((layer) => {
     const item = slides[layer.index];
+    const priority = layer.key === 0 && layer.index === firstIndex;
     return item ? (
       <Artwork
         backdrop={item.backdrop}
@@ -60,7 +61,7 @@ function ArtworkLayers({
         layer={layer}
         onLoaded={onLoaded}
         onSettled={onSettled}
-        priority={layer.key === 0 && layer.index === firstIndex}
+        priority={priority}
       />
     ) : null;
   });
@@ -92,13 +93,14 @@ function TextLayers({
     const line = previewLine ?? lines[String(item.id)];
     const hook = line ? spotlightLineText(line) : item.hook;
     const label = `${layer.index + 1} of ${slides.length}: ${item.title}`;
+    const leaving = layer !== top;
     return (
       <SlideBody
         entering={layer.entering}
         hook={hook}
         key={layer.key}
         label={label}
-        leaving={layer !== top}
+        leaving={leaving}
         slide={item}
         states={states}
       />

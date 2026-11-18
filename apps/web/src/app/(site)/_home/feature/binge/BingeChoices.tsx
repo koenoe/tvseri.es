@@ -23,27 +23,30 @@ export default function BingeChoices({
     onChoose(Number(event.currentTarget.value));
   return (
     <div className={BINGE_CHOICES}>
-      {choices.map((choice, index) => (
-        <button
-          aria-label={choice.title}
-          aria-pressed={index === selected}
-          className={CHOICE}
-          key={choice.id}
-          onClick={choose}
-          type="button"
-          value={index}
-        >
-          {choice.poster ? (
-            <Image
-              alt=""
-              className="object-cover"
-              fill
-              sizes="96px"
-              src={choice.poster}
-            />
-          ) : null}
-        </button>
-      ))}
+      {choices.map((choice, index) => {
+        const chosen = index === selected;
+        return (
+          <button
+            aria-label={choice.title}
+            aria-pressed={chosen}
+            className={CHOICE}
+            key={choice.id}
+            onClick={choose}
+            type="button"
+            value={index}
+          >
+            {choice.poster ? (
+              <Image
+                alt=""
+                className="object-cover"
+                fill
+                sizes="96px"
+                src={choice.poster}
+              />
+            ) : null}
+          </button>
+        );
+      })}
     </div>
   );
 }

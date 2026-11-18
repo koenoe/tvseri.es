@@ -33,23 +33,27 @@ export default function MapPins({
       role="group"
     >
       {map}
-      {places.map((place, index) => (
-        <Pin
-          index={index}
-          key={place.slug}
-          on={index === current}
-          onPick={onPick}
-          onWarm={onWarm}
-          place={place}
-        />
-      ))}
+      {places.map((place, index) => {
+        const on = index === current;
+        return (
+          <Pin
+            index={index}
+            key={place.slug}
+            on={on}
+            onPick={onPick}
+            onWarm={onWarm}
+            place={place}
+          />
+        );
+      })}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-3 overflow-hidden"
       >
-        {places.map((place, index) => (
-          <PinLabel key={place.slug} on={index === current} place={place} />
-        ))}
+        {places.map((place, index) => {
+          const on = index === current;
+          return <PinLabel key={place.slug} on={on} place={place} />;
+        })}
       </div>
     </div>
   );

@@ -60,28 +60,25 @@ export default function WhereSet({
     }
     points.push({ name: place.name, point });
     const shows = [place.series, ...place.others].map((series) => {
+      const showId = `${place.slug}-${series.id}`;
       images.push(
         series.backdropImage ? (
           <Image
             alt=""
             className="object-cover"
             fill
-            key={`${place.slug}-${series.id}`}
+            key={showId}
             sizes="(min-width: 768px) 460px, 100vw"
             src={series.backdropImage}
           />
         ) : null,
       );
       metas.push(
-        <ShowMeta
-          className={DETAIL_META}
-          key={`${place.slug}-${series.id}`}
-          series={series}
-        />,
+        <ShowMeta className={DETAIL_META} key={showId} series={series} />,
       );
       titles.push(
         <TitleTreatment
-          key={`${place.slug}-${series.id}`}
+          key={showId}
           look={DETAIL_TITLE_LOOK}
           src={series.titleTreatmentImage}
           title={series.title}

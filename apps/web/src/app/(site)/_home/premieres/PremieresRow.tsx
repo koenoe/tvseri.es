@@ -11,6 +11,7 @@ import PremiereTicket, { TICKET_WIDTH } from './PremiereTicket';
 import TicketGhost from './TicketGhost';
 
 const ID = 'premieres';
+const TITLE_ID = `${ID}-title`;
 export const PREMIERES_TITLE = 'Premieres';
 const SUBTITLE = 'New series and new seasons, next 60 days';
 
@@ -39,7 +40,6 @@ export default function PremieresRow({
   /** the viewer's states (the page's one read) for the tickets' Watchlist */
   states?: ControlStatesRead;
 }>) {
-  const titleId = `${ID}-title`;
   const railId = `${ID}-rail`;
   return (
     <RowFrame
@@ -47,25 +47,25 @@ export default function PremieresRow({
       look="home"
       name={ID}
       tiles="backdrop"
-      titleId={titleId}
+      titleId={TITLE_ID}
     >
       <RowHeader
         subtitle={SUBTITLE}
         subtitleGlyph={calendarGlyph}
         title={PREMIERES_TITLE}
-        titleId={titleId}
+        titleId={TITLE_ID}
       >
         <RowArrows railId={railId} title={PREMIERES_TITLE} />
       </RowHeader>
       <ul className={LIST} id={railId} role="list">
-        {premieres.map((premiere) => (
-          <li
-            className={ITEM}
-            key={`${premiere.series.id}-${premiere.kind}-${premiere.date}`}
-          >
-            <PremiereTicket premiere={premiere} states={states} />
-          </li>
-        ))}
+        {premieres.map((premiere) => {
+          const ticketId = `${premiere.series.id}-${premiere.kind}-${premiere.date}`;
+          return (
+            <li className={ITEM} key={ticketId}>
+              <PremiereTicket premiere={premiere} states={states} />
+            </li>
+          );
+        })}
       </ul>
       <RowScrollRestore railId={railId} restoreKey={ID} />
     </RowFrame>
@@ -86,13 +86,13 @@ export function PremieresSkeleton() {
       look="home"
       name={ID}
       tiles="backdrop"
-      titleId={`${ID}-title`}
+      titleId={TITLE_ID}
     >
       <RowHeader
         subtitle={SUBTITLE}
         subtitleGlyph={calendarGlyph}
         title={PREMIERES_TITLE}
-        titleId={`${ID}-title`}
+        titleId={TITLE_ID}
       />
       <div aria-hidden className={GHOST_RAIL}>
         {GHOST_TICKETS.map((index) => (

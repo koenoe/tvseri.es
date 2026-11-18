@@ -31,11 +31,12 @@ export default function LikedSource({
   const seasons = showSeasons(series);
   const overlay =
     from === 'watched' ? <WatchedLabel /> : <WatchedOverlay id={series.id} />;
+  const href = showPath(series.id, series.slug);
   return (
     <div className={LIKED_SOURCE}>
       <Link
         className="block rounded-10 focus-visible:outline-offset-4"
-        href={showPath(series.id, series.slug)}
+        href={href}
       >
         <PosterArt
           overlay={overlay}

@@ -53,6 +53,8 @@ export default function CountdownBody({
   const fill: CSSProperties = { width: `${countdownFill(daysAway)}%` };
   const dot: CSSProperties = { left: `${countdownFill(daysAway)}%` };
   const open = `Open ${series.title}`;
+  const chip = countdownChip(daysAway);
+  const href = showPath(series.id, series.slug);
   return (
     <div className={COUNTDOWN_BODY}>
       {daysAway > 0 ? (
@@ -63,11 +65,7 @@ export default function CountdownBody({
       ) : (
         <b className={COUNTDOWN_TONIGHT}>Tonight</b>
       )}
-      <span
-        aria-label={countdownChip(daysAway)}
-        className={COUNTDOWN_TRACK}
-        role="img"
-      >
+      <span aria-label={chip} className={COUNTDOWN_TRACK} role="img">
         <i
           className="absolute inset-y-0 left-0 rounded-2 bg-white"
           style={fill}
@@ -77,11 +75,7 @@ export default function CountdownBody({
           style={dot}
         />
       </span>
-      <Link
-        aria-label={open}
-        className="block max-w-full"
-        href={showPath(series.id, series.slug)}
-      >
+      <Link aria-label={open} className="block max-w-full" href={href}>
         <TitleTreatment
           look={COUNTDOWN_TITLE_LOOK}
           src={series.titleTreatmentImage}

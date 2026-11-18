@@ -44,19 +44,18 @@ import {
 const STAND_IN_DAY = '2026-11-11';
 
 const LEGEND_DOT = 'block size-2.5 rounded-full';
+const WATCHING_DOT = `${LEGEND_DOT} bg-white/72`;
+const NIGHT_OFF_DOT = `${LEGEND_DOT} shadow-[inset_0_0_0_1.5px_rgb(255_255_255/0.2)]`;
 
 function Legend({ perNight }: Readonly<{ perNight: number }>) {
   return (
     <div className="flex flex-wrap items-center gap-6 text-caption text-white/60">
       <span className="inline-flex items-center gap-2">
-        <i className={`${LEGEND_DOT} bg-white/72`} />
+        <i className={WATCHING_DOT} />
         {legendLabel(perNight)}
       </span>
       <span className="inline-flex items-center gap-2">
-        <i
-          className={`${LEGEND_DOT} shadow-[inset_0_0_0_1.5px_rgb(255_255_255/0.2)]`}
-        />
-        A night off
+        <i className={NIGHT_OFF_DOT} />A night off
       </span>
     </div>
   );
@@ -105,6 +104,8 @@ export default function BingeCalculator({
   const dated = today !== null;
   const href = showPath(choice.id, choice.slug);
   const nights = plural(plan.nights, 'night');
+  const nightLength = formatDuration(perNight * choice.runtime);
+  const summary = nightsSummary(perNight, mode);
   return (
     <section aria-labelledby={labelId} className={BINGE_CARD}>
       <div className={BINGE_HEAD}>
@@ -131,7 +132,7 @@ export default function BingeCalculator({
         />
         <BingeControls
           mode={mode}
-          nightLength={formatDuration(perNight * choice.runtime)}
+          nightLength={nightLength}
           onMode={setMode}
           onPerNight={setPerNight}
           perNight={perNight}
@@ -143,7 +144,7 @@ export default function BingeCalculator({
         choice={choice}
         dated={dated}
         finish={plan.finish}
-        summary={nightsSummary(perNight, mode)}
+        summary={summary}
       />
     </section>
   );

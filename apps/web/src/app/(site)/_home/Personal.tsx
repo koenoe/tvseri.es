@@ -48,15 +48,19 @@ export async function ContinueOrGetStarted() {
     return <GetStarted status={status} username={viewer.user.username} />;
   }
   const data = await continueWatching;
-  return data ? (
+  if (!data) {
+    return null;
+  }
+  const now = Date.now();
+  return (
     <ContinueWatching
       first={data.first}
       items={data.items}
-      now={Date.now()}
+      now={now}
       second={data.second}
       username={viewer.user.username}
     />
-  ) : null;
+  );
 }
 
 type DayProps = Readonly<{ day: string }>;

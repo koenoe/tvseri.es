@@ -41,11 +41,12 @@ type Props = Readonly<{
  */
 export default function PickResult({ card, onRoll, states }: Props) {
   const href = showPath(card.id, card.slug);
+  const openLabel = `Open ${card.title}`;
   return (
     <div aria-live="polite" className={RESULT}>
       <h3 className={RESULT_TITLE}>
         <Link
-          aria-label={`Open ${card.title}`}
+          aria-label={openLabel}
           className="decoration-2 underline-offset-[5px] hover:underline"
           href={href}
         >

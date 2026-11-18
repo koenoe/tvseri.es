@@ -37,13 +37,16 @@ export default function InProgressLane({
       slot="continue-lane"
       title={LANE_TITLE_TEXT}
     >
-      {rows.map((item, index) => (
-        <InProgressRow
-          className={index > 0 ? LANE_ROW_PHONE_HIDDEN : undefined}
-          item={item}
-          key={item.seriesId}
-        />
-      ))}
+      {rows.map((item, index) => {
+        const phoneHidden = index > 0 ? LANE_ROW_PHONE_HIDDEN : undefined;
+        return (
+          <InProgressRow
+            className={phoneHidden}
+            item={item}
+            key={item.seriesId}
+          />
+        );
+      })}
       <ButtonLink
         className={PROFILE_BUTTON_PHONE}
         href={profileHref}

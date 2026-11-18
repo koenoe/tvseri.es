@@ -28,6 +28,8 @@ const NODE_CLAMP = 'line-clamp-2 max-w-full break-words md:line-clamp-1';
  */
 const NAME_TEXT = `${NAME} ${NODE_CLAMP} min-h-12 md:min-h-0`;
 const IMAGE = 'block object-cover shadow-[0_8px_16px_rgb(0_0_0/0.3)]';
+const SHOW_IMAGE = `${IMAGE} h-[126px] w-[84px] rounded-[9px]`;
+const PERSON_IMAGE = `${IMAGE} my-[21px] size-[84px] rounded-full object-[center_18%]`;
 
 /** A show's poster box, empty (no poster, or the placeholder) */
 export const SHOW_EMPTY = 'block h-[126px] w-[84px] rounded-[9px] bg-white/5';
@@ -42,16 +44,13 @@ const ROLES_TEXT = `${ROLES} ${NODE_CLAMP} min-h-10 md:min-h-0`;
 
 /** A show in the chain: its 84 × 126 poster (9px corners) and title */
 export function ShowNode({ series }: Readonly<{ series: TvSeries }>) {
+  const href = showPath(series.id, series.slug);
   return (
-    <TileLink
-      aria-label={series.title}
-      className={NODE}
-      href={showPath(series.id, series.slug)}
-    >
+    <TileLink aria-label={series.title} className={NODE} href={href}>
       {series.posterImage ? (
         <Image
           alt=""
-          className={`${IMAGE} h-[126px] w-[84px] rounded-[9px]`}
+          className={SHOW_IMAGE}
           height={126}
           sizes="84px"
           src={series.posterImage}
@@ -71,17 +70,19 @@ export function ShowNode({ series }: Readonly<{ series: TvSeries }>) {
 export function PersonNode({ person }: Readonly<{ person: ConnectedPerson }>) {
   const roles = roleLine(person.characters);
   const label = roles ? `${person.name}, ${roles}` : person.name;
+  const href = personPath(person.id, person.slug);
+  const rolesTitle = roles || undefined;
   return (
     <TileLink
       aria-label={label}
       className={NODE}
-      href={personPath(person.id, person.slug)}
+      href={href}
       prefetchOn={PERSON_PREFETCH}
     >
       {person.image ? (
         <Image
           alt=""
-          className={`${IMAGE} my-[21px] size-[84px] rounded-full object-[center_18%]`}
+          className={PERSON_IMAGE}
           height={84}
           sizes="84px"
           src={person.image}
@@ -97,7 +98,7 @@ export function PersonNode({ person }: Readonly<{ person: ConnectedPerson }>) {
       <small
         aria-hidden={roles ? undefined : true}
         className={ROLES_TEXT}
-        title={roles || undefined}
+        title={rolesTitle}
       >
         {roles}
       </small>

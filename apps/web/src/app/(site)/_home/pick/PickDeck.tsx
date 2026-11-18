@@ -95,11 +95,12 @@ export default function PickDeck({ cards, phase, pick, seed }: Props) {
           !(front && phase === 'rest') && 'pointer-events-none',
           front ? DECK_CARD_FRONT : DECK_CARD_BACK,
         );
+        const href = showPath(card.id, card.slug);
         return (
           <Link
             className={className}
             data-hairline
-            href={showPath(card.id, card.slug)}
+            href={href}
             key={card.id}
             prefetch={false}
             style={style}

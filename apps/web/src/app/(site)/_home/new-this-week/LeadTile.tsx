@@ -83,13 +83,11 @@ export default function LeadTile({
   release,
 }: Readonly<{ release: NewRelease }>) {
   const { series } = release;
+  const href = showPath(series.id, series.slug);
+  const logo = series.titleTreatmentImage || undefined;
   return (
     <div className={LEAD_COLUMN}>
-      <TileLink
-        className={FRAME}
-        data-hairline
-        href={showPath(series.id, series.slug)}
-      >
+      <TileLink className={FRAME} data-hairline href={href}>
         <BackdropImage backdrop={series.backdropImage} sizes={LEAD_SIZES} />
         <span className={OVERLAY}>
           <WatchedOverlay id={series.id} />
@@ -97,7 +95,7 @@ export default function LeadTile({
         <span className={MARK}>
           <TitleTreatment
             look={LEAD_TITLE_LOOK}
-            src={series.titleTreatmentImage || undefined}
+            src={logo}
             title={series.title}
           />
         </span>

@@ -58,6 +58,8 @@ export default function WhereSetExplorer({
     warmNext();
     setCurrent({ place: current.place, step: next });
   };
+  const onMore = place.shows.length > 1 ? stepOn : undefined;
+  const show = place.shows[current.step] ?? place.shows[0];
 
   return (
     <>
@@ -71,10 +73,10 @@ export default function WhereSetExplorer({
       <PlaceDetail
         images={images}
         metas={metas}
-        onMore={place.shows.length > 1 ? stepOn : undefined}
+        onMore={onMore}
         onWarmMore={warmNext}
         place={place}
-        show={place.shows[current.step] ?? place.shows[0]}
+        show={show}
         titles={titles}
         warm={warm}
       />

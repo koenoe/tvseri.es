@@ -35,7 +35,8 @@ function UpNextTile({ item: liveItem, now, show }: Props) {
     item.season,
     item.episode,
   );
-  const facts = <UpNextFacts facts={ownerFacts(item, now)} />;
+  const factLines = ownerFacts(item, now);
+  const facts = <UpNextFacts facts={factLines} />;
   const action = (
     <RowRemote
       className={CONTINUE_REMOTE}

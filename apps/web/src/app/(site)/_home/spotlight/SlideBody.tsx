@@ -130,10 +130,11 @@ function SlideBody({
     SLIDE_BODY,
     leaving ? styles.leaving : entering && styles.fadeIn,
   );
+  const hidden = leaving || undefined;
 
   return (
     <div
-      aria-hidden={leaving || undefined}
+      aria-hidden={hidden}
       aria-label={label}
       aria-roledescription="slide"
       className={bodyClasses}

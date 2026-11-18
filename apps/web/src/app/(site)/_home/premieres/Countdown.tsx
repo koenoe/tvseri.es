@@ -48,12 +48,9 @@ export default function Countdown({
       title: premiere.series.title,
     },
   }));
+  const firstHref = showPath(first.series.id, first.series.slug);
   const open = alone ? (
-    <ButtonLink
-      href={showPath(first.series.id, first.series.slug)}
-      icon={arrowRightGlyph}
-      size="sm"
-    >
+    <ButtonLink href={firstHref} icon={arrowRightGlyph} size="sm">
       {`Open ${first.series.title}`}
     </ButtonLink>
   ) : null;

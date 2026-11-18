@@ -58,24 +58,22 @@ export default function VersusPoster({
     'bg-white/5 transition-shadow duration-200',
     state === 'chosen' ? CHOSEN : cn(SHADOW, HOVER),
   );
+  const isChosen = state === 'chosen';
   return (
     <button
-      aria-pressed={state === 'chosen'}
+      aria-pressed={isChosen}
       className={button}
       onClick={onTap}
       type="button"
     >
       <span className={VERSUS_POSTER_STACK}>
         <span className={box}>
-          {sides.map((each, index) =>
-            warm.has(index) ? (
-              <Poster
-                key={each.id}
-                shown={index === current}
-                src={each.posterImage}
-              />
-            ) : null,
-          )}
+          {sides.map((each, index) => {
+            const shown = index === current;
+            return warm.has(index) ? (
+              <Poster key={each.id} shown={shown} src={each.posterImage} />
+            ) : null;
+          })}
         </span>
         <span className={VERSUS_NAME}>{side.title}</span>
       </span>

@@ -68,9 +68,11 @@ export async function SpotlightSection({ day, placeholder }: PlacedProps) {
       />
     );
   }
-  return items.length > 0 ? (
-    <Spotlight day={day} items={items} states={getHomeControlStates(day)} />
-  ) : null;
+  if (items.length === 0) {
+    return null;
+  }
+  const states = getHomeControlStates(day);
+  return <Spotlight day={day} items={items} states={states} />;
 }
 
 export async function TopPicksSection({ day }: DayProps) {
@@ -95,9 +97,11 @@ export async function PickOneSection({ day, placeholder }: PlacedProps) {
       />
     );
   }
-  return pool.length > 0 ? (
-    <PickOneForMe day={day} pool={pool} states={getHomeControlStates(day)} />
-  ) : null;
+  if (pool.length === 0) {
+    return null;
+  }
+  const states = getHomeControlStates(day);
+  return <PickOneForMe day={day} pool={pool} states={states} />;
 }
 
 export async function HiddenGemsSection({ day }: DayProps) {
@@ -168,9 +172,11 @@ export async function PremieresSection({ day, placeholder }: PlacedProps) {
     );
   }
   // under three tickets the row steps aside (MIN_POSTERS)
-  return hasEnoughPosters(premieres.length) ? (
-    <PremieresRow premieres={premieres} states={getHomeControlStates(day)} />
-  ) : null;
+  if (!hasEnoughPosters(premieres.length)) {
+    return null;
+  }
+  const states = getHomeControlStates(day);
+  return <PremieresRow premieres={premieres} states={states} />;
 }
 
 export async function ToySection({ day, placeholder }: PlacedProps) {

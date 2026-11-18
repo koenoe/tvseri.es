@@ -82,26 +82,24 @@ function Controls() {
   return (
     <div className={BINGE_CONTROLS}>
       <ControlRow hint={hint} label={EACH_NIGHT_LABEL}>
-        {PER_NIGHT_OPTIONS.map((count) => (
-          <span
-            aria-pressed={count === DEFAULT_PER_NIGHT}
-            className={OPTION}
-            key={count}
-          >
-            {perNightLabel(count)}
-          </span>
-        ))}
+        {PER_NIGHT_OPTIONS.map((count) => {
+          const chosen = count === DEFAULT_PER_NIGHT;
+          return (
+            <span aria-pressed={chosen} className={OPTION} key={count}>
+              {perNightLabel(count)}
+            </span>
+          );
+        })}
       </ControlRow>
       <ControlRow label={NIGHTS_LABEL}>
-        {NIGHTS_OPTIONS.map((option) => (
-          <span
-            aria-pressed={option.mode === DEFAULT_MODE}
-            className={OPTION}
-            key={option.mode}
-          >
-            {option.label}
-          </span>
-        ))}
+        {NIGHTS_OPTIONS.map((option) => {
+          const chosen = option.mode === DEFAULT_MODE;
+          return (
+            <span aria-pressed={chosen} className={OPTION} key={option.mode}>
+              {option.label}
+            </span>
+          );
+        })}
       </ControlRow>
     </div>
   );

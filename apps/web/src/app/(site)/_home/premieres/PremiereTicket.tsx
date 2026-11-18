@@ -88,12 +88,14 @@ export default function PremiereTicket({
     'truncate text-caption font-medium',
     tone === 'cyan' ? 'text-cyan' : 'text-pink',
   );
+  const label = ticketLabel(premiere);
+  const href = showPath(series.id, series.slug);
   return (
     <article className={TICKET} data-hairline>
       <TileLink
-        aria-label={ticketLabel(premiere)}
+        aria-label={label}
         className="absolute inset-0 z-2 rounded-[inherit] focus-visible:outline-offset-4"
-        href={showPath(series.id, series.slug)}
+        href={href}
       />
       <TicketStub daysAway={premiere.daysAway} tone={tone} />
       <div className="flex min-w-0 flex-col">

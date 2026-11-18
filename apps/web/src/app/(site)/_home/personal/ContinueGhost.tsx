@@ -48,7 +48,8 @@ const DOT = <Dot colour={FLAT} tone="cyan" />;
 const COUNT = <Badge className={FLAT} variant="count" />;
 
 /** The card's ⋯ */
-const CARD_ACTION = <span className={ghostCircle()} />;
+const CARD_ACTION_CIRCLE = ghostCircle();
+const CARD_ACTION = <span className={CARD_ACTION_CIRCLE} />;
 
 /** A lane row's ghosts: the empty poster, the title and count, the time, the ⋯ */
 const ROW_POSTER = <span className={LANE_POSTER_EMPTY} />;
@@ -59,7 +60,8 @@ const ROW_TITLE = (
   </>
 );
 const ROW_FACTS = <Line className="h-5" width="w-24" />;
-const ROW_REMOTE = <span className={ghostCircle(LANE_REMOTE)} />;
+const ROW_REMOTE_CIRCLE = ghostCircle(LANE_REMOTE);
+const ROW_REMOTE = <span className={ROW_REMOTE_CIRCLE} />;
 
 function LaneGhost() {
   return (
@@ -70,18 +72,21 @@ function LaneGhost() {
       placeholder="continue-lane"
       title={LANE_TITLE_TEXT}
     >
-      {LANE_GHOST_ROWS.map((n) => (
-        <LaneRowGhost
-          className={n > 0 ? LANE_ROW_PHONE_HIDDEN : undefined}
-          end={ROW_REMOTE}
-          facts={ROW_FACTS}
-          ghost={IN_PROGRESS_ROW_GHOST}
-          key={n}
-          layout={IN_PROGRESS_ROW}
-          poster={ROW_POSTER}
-          title={ROW_TITLE}
-        />
-      ))}
+      {LANE_GHOST_ROWS.map((n) => {
+        const phoneHidden = n > 0 ? LANE_ROW_PHONE_HIDDEN : undefined;
+        return (
+          <LaneRowGhost
+            className={phoneHidden}
+            end={ROW_REMOTE}
+            facts={ROW_FACTS}
+            ghost={IN_PROGRESS_ROW_GHOST}
+            key={n}
+            layout={IN_PROGRESS_ROW}
+            poster={ROW_POSTER}
+            title={ROW_TITLE}
+          />
+        );
+      })}
       <ButtonFace className={PROFILE_BUTTON_PHONE} icon={userGlyph}>
         {PROFILE_LABEL}
         <Line className="h-5" width="w-24" />

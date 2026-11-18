@@ -15,9 +15,10 @@ export function MomentFrame({
   name?: string;
   placeholder?: boolean;
 }>) {
+  const hidden = placeholder || undefined;
   return (
     <div
-      aria-hidden={placeholder || undefined}
+      aria-hidden={hidden}
       className="flex flex-col gap-6"
       data-placeholder={placeholder ? name : undefined}
       data-slot={placeholder ? undefined : name}

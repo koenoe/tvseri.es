@@ -18,20 +18,20 @@ export const CHAIN =
 export default function Chain({ path }: Readonly<{ path: ConnectedPath }>) {
   return (
     <div className={CHAIN}>
-      {path.nodes.map((node, index) => (
-        <Fragment
-          key={
-            node.type === 'show' ? `s${node.series.id}` : `p${node.person.id}`
-          }
-        >
-          {index > 0 ? <Line /> : null}
-          {node.type === 'show' ? (
-            <ShowNode series={node.series} />
-          ) : (
-            <PersonNode person={node.person} />
-          )}
-        </Fragment>
-      ))}
+      {path.nodes.map((node, index) => {
+        const nodeId =
+          node.type === 'show' ? `s${node.series.id}` : `p${node.person.id}`;
+        return (
+          <Fragment key={nodeId}>
+            {index > 0 ? <Line /> : null}
+            {node.type === 'show' ? (
+              <ShowNode series={node.series} />
+            ) : (
+              <PersonNode person={node.person} />
+            )}
+          </Fragment>
+        );
+      })}
     </div>
   );
 }

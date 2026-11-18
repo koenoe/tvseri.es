@@ -57,10 +57,11 @@ export default function FromTheArchive({
   feature,
 }: Readonly<{ feature: Archive }>) {
   const { series } = feature;
+  const href = showPath(series.id, series.slug);
   return (
     <MomentFrame name="feature">
       <section aria-labelledby={LABEL_ID} className={PAGE_COLUMN}>
-        <Link className={ARCHIVE_CARD} href={showPath(series.id, series.slug)}>
+        <Link className={ARCHIVE_CARD} href={href}>
           <span aria-hidden="true" className={PICTURE_BLEED}>
             {series.backdropImage ? (
               <Image

@@ -36,19 +36,23 @@ export default function CountdownPills({
       onFocus={onWarm}
       onPointerEnter={onWarm}
     >
-      {pills.map((pill, index) => (
-        <PillSwitchItem
-          aria-label={`${pill.title}, ${pill.label}`}
-          className={COUNTDOWN_PILL}
-          data-index={index}
-          key={pill.title}
-          onClick={choose}
-          pressed={index === pressed}
-          title={pill.title}
-        >
-          {pill.title}
-        </PillSwitchItem>
-      ))}
+      {pills.map((pill, index) => {
+        const label = `${pill.title}, ${pill.label}`;
+        const isPressed = index === pressed;
+        return (
+          <PillSwitchItem
+            aria-label={label}
+            className={COUNTDOWN_PILL}
+            data-index={index}
+            key={pill.title}
+            onClick={choose}
+            pressed={isPressed}
+            title={pill.title}
+          >
+            {pill.title}
+          </PillSwitchItem>
+        );
+      })}
     </PillSwitch>
   );
 }

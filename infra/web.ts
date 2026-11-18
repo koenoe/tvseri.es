@@ -150,14 +150,14 @@ export const web = $dev
         const prodFlag = isProduction ? ' --prod' : '';
         const environment = isProduction ? 'production' : 'preview';
 
-        // The build prerenders against the API. On a new stage its domain,
-        // distribution and routes are created in this same deploy, so wait
-        // until the API itself answers (an unauthenticated /me is its 401)
-        // before building: a prerender against a missing API holds only
-        // placeholders until the pages regenerate.
-        console.log('|  Waiting for the API to answer...');
+        // The build prerenders against the API, so wait until the API
+        // answers with this deploy's key: a new stage's domain and routes are
+        // created in this same deploy, and a replaced key reaches the edge
+        // minutes after it changes. An unknown username is the API's 404;
+        // the edge refusing the key is a 401, so that keeps waiting.
+        console.log('|  Waiting for the API to accept the key...');
         execSync(
-          'for i in $(seq 1 60); do code=$(curl -s -o /dev/null -w "%{http_code}" -H "x-api-key: $API_KEY" "$API_URL/me"); [ "$code" = "401" ] && exit 0; sleep 5; done; echo "API not answering after 5 minutes (last: $code)"; exit 1',
+          'for i in $(seq 1 60); do code=$(curl -s -o /dev/null -w "%{http_code}" -H "x-api-key: $API_KEY" "$API_URL/user/by-username/deploy-probe"); [ "$code" = "404" ] && exit 0; sleep 5; done; echo "API not accepting the key after 5 minutes (last: $code)"; exit 1',
           {
             env: { ...process.env, API_KEY: apiKey, API_URL: apiUrl },
             shell: '/bin/bash',

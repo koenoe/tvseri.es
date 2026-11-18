@@ -75,11 +75,53 @@ describe('loadSeriesCredits', () => {
     await expect(loadSeriesCredits(7)).resolves.toBeNull();
   });
 
-  it('reads the credits, kept as the cast alone, cached medium', async () => {
+  it('reads the cast and the crew, cached medium', async () => {
     const cast = [{ id: 1, name: 'Jeremy Allen White' }];
-    apiFetch.mockResolvedValue({ cast, crew: [{ id: 2, name: 'Crew' }] });
-    await expect(loadSeriesCredits(7)).resolves.toEqual({ cast });
+    const crew = [
+      {
+        department: 'Directing',
+        id: 2,
+        image: '',
+        jobs: [{ episodes: 3, job: 'Director' }],
+        name: 'Joanna Calo',
+        numberOfEpisodes: 3,
+        slug: 'joanna-calo',
+      },
+    ];
+    apiFetch.mockResolvedValue({ cast, crew });
+    await expect(loadSeriesCredits(7)).resolves.toEqual({ cast, crew });
     expect(cacheLife).toHaveBeenCalledExactlyOnceWith('medium');
+  });
+
+  it('reads a crew row cached before it kept its department as its one job', async () => {
+    apiFetch.mockResolvedValue({
+      cast: [],
+      crew: [
+        {
+          character: '',
+          id: 2,
+          image: '',
+          job: 'Director',
+          name: 'Joanna Calo',
+          numberOfEpisodes: 3,
+          slug: 'joanna-calo',
+        },
+      ],
+    });
+    await expect(loadSeriesCredits(7)).resolves.toEqual({
+      cast: [],
+      crew: [
+        {
+          department: '',
+          id: 2,
+          image: '',
+          jobs: [{ episodes: 3, job: 'Director' }],
+          name: 'Joanna Calo',
+          numberOfEpisodes: 3,
+          slug: 'joanna-calo',
+        },
+      ],
+    });
   });
 
   it('answers an outage with Unavailable, cached briefly', async () => {

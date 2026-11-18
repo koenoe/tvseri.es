@@ -1,4 +1,5 @@
 import type {
+  CrewCredit,
   Episode,
   EpisodeCredits,
   EpisodePerson,
@@ -205,15 +206,25 @@ const toPerson = (person: RawPerson, show: StubShow): Person => ({
   slug: slugify(person.name),
 });
 
+/** TMDB's department for the stub crew's jobs; Crew for any other */
+const JOB_DEPARTMENTS: Readonly<Record<string, string>> = {
+  Creator: 'Writing',
+  'Executive Producer': 'Production',
+  'Original Music Composer': 'Sound',
+};
+
 export const toCredits = (
   show: StubShow,
-): Readonly<{ cast: ReadonlyArray<Person>; crew: ReadonlyArray<Person> }> => ({
+): Readonly<{
+  cast: ReadonlyArray<Person>;
+  crew: ReadonlyArray<CrewCredit>;
+}> => ({
   cast: show.cast.map((person) => toPerson(person, show)),
   crew: show.crew.map((member) => ({
-    character: '',
+    department: JOB_DEPARTMENTS[member.job] ?? 'Crew',
     id: member.id,
     image: '',
-    job: member.job,
+    jobs: [{ episodes: show.episodes.length, job: member.job }],
     name: member.name,
     numberOfEpisodes: show.episodes.length,
     slug: slugify(member.name),

@@ -48,10 +48,21 @@ describe('GET /api/series/:id/credits', () => {
     },
   );
 
-  it('serves the cast and the crew (the creators), trimmed, on the short CDN life', async () => {
+  it('serves the cast and the crew in sections, trimmed, on the short CDN life', async () => {
     vi.mocked(loadSeries).mockResolvedValue(SERIES);
     vi.mocked(loadSeriesCredits).mockResolvedValue({
       cast: [person(2, 'Jeremy Allen White', 'Carmy Berzatto')],
+      crew: [
+        {
+          department: 'Directing',
+          id: 3,
+          image: '',
+          jobs: [{ episodes: 3, job: 'Director' }],
+          name: 'Joanna Calo',
+          numberOfEpisodes: 3,
+          slug: 'joanna-calo',
+        },
+      ],
     });
 
     const res = await get('136315');
@@ -70,11 +81,28 @@ describe('GET /api/series/:id/credits', () => {
       ],
       crew: [
         {
-          id: 1,
-          image: '1.jpg',
-          name: 'Christopher Storer',
-          role: 'Creator',
-          slug: 'christopher-storer',
+          people: [
+            {
+              id: 1,
+              image: '1.jpg',
+              name: 'Christopher Storer',
+              role: 'Creator',
+              slug: 'christopher-storer',
+            },
+          ],
+          title: 'Created by',
+        },
+        {
+          people: [
+            {
+              id: 3,
+              image: '',
+              name: 'Joanna Calo',
+              role: 'Director · 3 episodes',
+              slug: 'joanna-calo',
+            },
+          ],
+          title: 'Directed by',
         },
       ],
     });
@@ -82,7 +110,7 @@ describe('GET /api/series/:id/credits', () => {
   });
 
   it('404s a show the API doesn’t know, or an adult one', async () => {
-    vi.mocked(loadSeriesCredits).mockResolvedValue({ cast: [] });
+    vi.mocked(loadSeriesCredits).mockResolvedValue({ cast: [], crew: [] });
     vi.mocked(loadSeries).mockResolvedValueOnce(null);
     expect((await get('136315')).status).toBe(404);
 

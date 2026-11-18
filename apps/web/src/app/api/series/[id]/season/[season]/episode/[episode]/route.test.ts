@@ -74,7 +74,10 @@ describe('GET /api/series/:id/season/:season/episode/:episode', () => {
 
   it('answers the trimmed credits with the show’s regulars', async () => {
     vi.mocked(loadEpisodeWithCredits).mockResolvedValue(EPISODE);
-    vi.mocked(loadSeriesCredits).mockResolvedValue({ cast: [REGULAR] });
+    vi.mocked(loadSeriesCredits).mockResolvedValue({
+      cast: [REGULAR],
+      crew: [],
+    });
 
     const res = await get('136315', '2', '6');
 

@@ -1,6 +1,7 @@
 import 'server-only';
 
 import type {
+  CrewCredit,
   EpisodeWithCredits,
   Person,
   Season,
@@ -142,17 +143,48 @@ export async function loadEpisodeWithCredits(
   );
 }
 
-type SeriesCredits = Readonly<{
-  cast: ReadonlyArray<Person>;
-  crew: ReadonlyArray<Person>;
+/**
+ * A crew row as the API sends it, or as it sent it before the crew kept its
+ * department and jobs (one `job`): an old answer can still be in a cache
+ */
+type CrewRow = Readonly<{
+  department?: string;
+  id: number;
+  image: string;
+  job?: string;
+  jobs?: CrewCredit['jobs'];
+  name: string;
+  numberOfEpisodes?: number;
+  slug: string;
 }>;
 
-/** The part of a show's credits the web reads: its cast (the regulars) */
-type SeriesCast = Readonly<{ cast: ReadonlyArray<Person> }>;
+type SeriesCredits = Readonly<{
+  cast: ReadonlyArray<Person>;
+  crew: ReadonlyArray<CrewRow>;
+}>;
+
+/** A show's credits as the web reads them: the regulars and the crew */
+type SeriesCast = Readonly<{
+  cast: ReadonlyArray<Person>;
+  crew: ReadonlyArray<CrewCredit>;
+}>;
+
+/** An old row lands in the Crew section with its one job */
+const toCrewCredit = (row: CrewRow): CrewCredit => ({
+  department: row.department ?? '',
+  id: row.id,
+  image: row.image,
+  jobs:
+    row.jobs ??
+    (row.job ? [{ episodes: row.numberOfEpisodes ?? 0, job: row.job }] : []),
+  name: row.name,
+  numberOfEpisodes: row.numberOfEpisodes ?? 0,
+  slug: row.slug,
+});
 
 /**
- * `GET /series/:id/credits`, trimmed inside the cache to the cast (nothing
- * reads the crew): null on 404, `Unavailable` on an outage.
+ * `GET /series/:id/credits`, trimmed inside the cache to the cast and the
+ * crew rows: null on 404, `Unavailable` on an outage.
  */
 export async function loadSeriesCredits(
   id: number,
@@ -169,7 +201,12 @@ export async function loadSeriesCredits(
   if (isUnavailable(credits)) {
     return credits;
   }
-  return credits && { cast: credits.cast };
+  return (
+    credits && {
+      cast: credits.cast,
+      crew: (credits.crew ?? []).map(toCrewCredit),
+    }
+  );
 }
 
 /**

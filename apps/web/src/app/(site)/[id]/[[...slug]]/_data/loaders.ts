@@ -70,7 +70,7 @@ export type ShowCast = Readonly<{
   line: Readonly<{ first: string; rest: string }>;
   /** The whole cast, for the "+N"s and the stack's line */
   castCount: number;
-  /** Everyone the sheet lists, each once: the cast and the creators */
+  /** Everyone the sheet lists, each once: the cast, the creators and the crew */
   peopleCount: number;
 }>;
 
@@ -93,7 +93,7 @@ export async function loadCast(
     castCount: cast.length,
     faces: cast.slice(0, CAST_SIZE).map(toCastPerson),
     line: stackLine(cast.slice(0, 2), cast.length),
-    peopleCount: countPeople(creators, cast),
+    peopleCount: countPeople(creators, cast, credits?.crew ?? []),
     stack: toCastStack(cast),
   };
 }

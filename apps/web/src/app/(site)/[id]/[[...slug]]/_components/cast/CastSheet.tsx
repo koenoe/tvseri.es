@@ -39,7 +39,7 @@ const SUBTITLE =
 
 /**
  * The cast & crew sheet: everyone who made the show, the cast then the
- * crew, each face linking to the person. Its list loads when it opens
+ * crew in IMDb's sections, each face linking to the person. Its list loads when it opens
  * (`CastSheetList`). Loaded with its first press (`CastSheetButton`).
  */
 export default function CastSheet({

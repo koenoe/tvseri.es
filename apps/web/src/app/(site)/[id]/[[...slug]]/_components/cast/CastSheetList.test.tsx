@@ -25,7 +25,30 @@ const WHITE = {
   slug: 'jeremy-allen-white',
 };
 
-const PEOPLE = { cast: [WHITE], crew: [STORER] };
+const CALO = {
+  id: 3,
+  image: '',
+  name: 'Joanna Calo',
+  role: 'Director · 3 episodes',
+  slug: 'joanna-calo',
+};
+
+const RUSSO = {
+  id: 4,
+  image: '',
+  name: 'Jeff Russo',
+  role: 'Original Music Composer · 28 episodes',
+  slug: 'jeff-russo',
+};
+
+const PEOPLE = {
+  cast: [WHITE],
+  crew: [
+    { people: [STORER], title: 'Created by' },
+    { people: [CALO], title: 'Directed by' },
+    { people: [RUSSO], title: 'Music by' },
+  ],
+};
 
 const answer = (body: unknown, ok = true) =>
   vi.fn(async () => ({ json: async () => body, ok, status: ok ? 200 : 502 }));
@@ -56,29 +79,41 @@ describe('CastSheetList', () => {
     expect(fetch).toHaveBeenCalledWith('/api/series/101/credits', undefined);
   });
 
-  it('lists the cast, then the crew, each under its heading', async () => {
+  it('lists the cast, then each crew section in order, under its heading', async () => {
     showId = 103;
     vi.stubGlobal('fetch', answer(PEOPLE));
-    render(<CastSheetList total={2} />);
+    render(<CastSheetList total={4} />);
 
-    const cast = await screen.findByRole('region', { name: 'Cast' });
-    const crew = screen.getByRole('region', { name: 'Crew' });
-    expect(cast.textContent).toContain('Jeremy Allen White');
-    expect(cast.textContent).not.toContain('Christopher Storer');
-    expect(crew.textContent).toContain('Christopher Storer');
+    await screen.findByRole('region', { name: 'Cast' });
+    const regions = screen.getAllByRole('region');
     expect(
-      cast.compareDocumentPosition(crew) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+      regions.map((region) => region.querySelector('h3')?.textContent),
+    ).toEqual(['Cast', 'Created by', 'Directed by', 'Music by']);
+    expect(regions[0]?.textContent).toContain('Jeremy Allen White');
+    expect(regions[0]?.textContent).not.toContain('Christopher Storer');
+    expect(regions[2]?.textContent).toContain('Director · 3 episodes');
   });
 
-  it('has no Crew section without creators', async () => {
+  it('names a crew row by its jobs, and keeps one without a photo', async () => {
+    showId = 105;
+    vi.stubGlobal('fetch', answer(PEOPLE));
+    render(<CastSheetList total={4} />);
+
+    const calo = await screen.findByRole('link', {
+      name: 'Joanna Calo, Director · 3 episodes',
+    });
+    expect(calo.getAttribute('href')).toBe('/person/3/joanna-calo');
+    expect(calo.querySelector('img')).toBeNull();
+  });
+
+  it('has no crew sections without a crew', async () => {
     showId = 104;
     vi.stubGlobal('fetch', answer({ cast: [WHITE], crew: [] }));
     render(<CastSheetList total={1} />);
 
     expect(await screen.findByRole('region', { name: 'Cast' })).toBeTruthy();
-    expect(screen.queryByRole('region', { name: 'Crew' })).toBeNull();
-    expect(screen.queryByText('Crew')).toBeNull();
+    expect(screen.getAllByRole('region')).toHaveLength(1);
+    expect(screen.queryByText('Created by')).toBeNull();
   });
 
   it('says the list didn’t load, and Try again loads it', async () => {

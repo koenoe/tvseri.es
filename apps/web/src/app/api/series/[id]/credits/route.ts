@@ -11,9 +11,8 @@ import { loadSeries, loadSeriesCredits } from '@/lib/series/loaders';
 
 /**
  * Everyone who made a show, for the show page's cast & crew sheet: the
- * whole cast and the creators as its two sections, trimmed to the face,
- * name and role. A
- * route, not part of the page: a long-running show lists hundreds, and only
+ * whole cast, then the crew in IMDb's sections, trimmed to the face, name
+ * and role. A route, not part of the page: a long-running show lists hundreds, and only
  * the viewers who open the sheet should pay for them. Public, CDN-cached on
  * the shorter life of its two reads (the show's `short`).
  */
@@ -37,9 +36,10 @@ export async function GET(
     if (!series || series.isAdult) {
       return notFoundJson('short');
     }
-    return publicJson(toCastAndCrew(series.createdBy, credits?.cast ?? []), {
-      life: 'short',
-    });
+    return publicJson(
+      toCastAndCrew(series.createdBy, credits?.cast ?? [], credits?.crew ?? []),
+      { life: 'short' },
+    );
   } catch {
     return failedJson();
   }

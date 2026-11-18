@@ -33,11 +33,16 @@ describe('CastSheetButton', () => {
           cast: [],
           crew: [
             {
-              id: 1,
-              image: '',
-              name: 'Christopher Storer',
-              role: 'Creator',
-              slug: 'christopher-storer',
+              people: [
+                {
+                  id: 1,
+                  image: '',
+                  name: 'Christopher Storer',
+                  role: 'Creator',
+                  slug: 'christopher-storer',
+                },
+              ],
+              title: 'Created by',
             },
           ],
         }),

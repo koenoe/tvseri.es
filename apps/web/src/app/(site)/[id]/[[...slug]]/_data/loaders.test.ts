@@ -145,6 +145,36 @@ describe('loadCast', () => {
     expect(result.peopleCount).toBe(15);
   });
 
+  it('counts the crew in everyone, but not in the cast’s "+N" or line', async () => {
+    const crewRow = (id: number, department: string) => ({
+      department,
+      id,
+      image: '',
+      jobs: [{ episodes: 1, job: 'Director' }],
+      name: `Person ${id}`,
+      numberOfEpisodes: 1,
+      slug: `person-${id}`,
+    });
+    apiFetch.mockResolvedValue({
+      cast: [person(2, 'Role 2'), person(3, 'Role 3')],
+      // the creator directs, and one director writes too: each once
+      crew: [
+        crewRow(1, 'Directing'),
+        crewRow(9, 'Directing'),
+        crewRow(9, 'Writing'),
+      ],
+    });
+
+    const result = await loadCast(7, [person(1)]);
+    if (isUnavailable(result)) {
+      throw new Error('expected the cast');
+    }
+
+    expect(result.castCount).toBe(2);
+    expect(result.line).toEqual({ first: 'Person 2', rest: ' and Person 3' });
+    expect(result.peopleCount).toBe(4);
+  });
+
   it('passes an outage on', async () => {
     apiFetch.mockRejectedValue(new ApiError(503, 'down'));
 

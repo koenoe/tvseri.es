@@ -9,6 +9,7 @@ import personPath from '@/lib/routing/personPath';
 import {
   type CastAndCrew,
   type CastCrewPerson,
+  crewLabel,
   faceLabel,
 } from '@/lib/series/castAndCrew';
 import useCachedJson, { requestJson } from '@/lib/series/useCachedJson';
@@ -58,9 +59,15 @@ const SHEET_FACE: FaceLook = {
   sizes: '56px',
 };
 
-function PersonRow({ person }: Readonly<{ person: CastCrewPerson }>) {
+/** A row's link name: "… as Character" for the cast, "…, Director" for the crew */
+type RowLabel = (person: CastCrewPerson) => string;
+
+function PersonRow({
+  labelOf,
+  person,
+}: Readonly<{ labelOf: RowLabel; person: CastCrewPerson }>) {
   const href = personPath(person.id, person.slug);
-  const label = faceLabel(person);
+  const label = labelOf(person);
   return (
     <li className={ROW}>
       <Face
@@ -115,9 +122,14 @@ function RowsSkeleton({ count }: Readonly<{ count: number }>) {
 
 /** One of the sheet's sections, under its name; none without anyone */
 function Section({
+  labelOf,
   people,
   title,
-}: Readonly<{ people: ReadonlyArray<CastCrewPerson>; title: string }>) {
+}: Readonly<{
+  labelOf: RowLabel;
+  people: ReadonlyArray<CastCrewPerson>;
+  title: string;
+}>) {
   const titleId = useId();
   if (people.length === 0) {
     return null;
@@ -129,7 +141,7 @@ function Section({
       </h3>
       <ul className={LIST}>
         {people.map((person) => (
-          <PersonRow key={person.id} person={person} />
+          <PersonRow key={person.id} labelOf={labelOf} person={person} />
         ))}
       </ul>
     </section>
@@ -137,8 +149,8 @@ function Section({
 }
 
 /**
- * Everyone, from the public, CDN-cached route (`/api/series/:id/credits`),
- * in two sections, Cast then Crew: the rows' skeleton while it loads, the
+ * Everyone, from the public, CDN-cached route (`/api/series/:id/credits`):
+ * the Cast, then the crew in IMDb's sections (Created by, Directed by…), the rows' skeleton while it loads, the
  * section's failed card over it with Try again when it fails.
  */
 export default function CastSheetList({ total }: Readonly<{ total: number }>) {
@@ -162,8 +174,15 @@ export default function CastSheetList({ total }: Readonly<{ total: number }>) {
   }
   return (
     <>
-      <Section people={people.cast} title="Cast" />
-      <Section people={people.crew} title="Crew" />
+      <Section labelOf={faceLabel} people={people.cast} title="Cast" />
+      {people.crew.map((section) => (
+        <Section
+          key={section.title}
+          labelOf={crewLabel}
+          people={section.people}
+          title={section.title}
+        />
+      ))}
     </>
   );
 }

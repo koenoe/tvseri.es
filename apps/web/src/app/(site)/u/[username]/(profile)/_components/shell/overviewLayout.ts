@@ -18,9 +18,13 @@
 export const OVERVIEW_GRID =
   'max-md:profile-overview:gap-5 lg:profile-overview:grid-rows-[auto_1fr] lg:profile-overview:gap-y-10';
 
-/** On the sidebar: scrolls with the page on the overview, so never moves for the header */
+/**
+ * On the sidebar: scrolls with the page on the overview, so never moves for
+ * the header and needs no room under it for that move
+ * (`BELOW_FLOATING_HEADER_LG`'s margin): the tail sits the row gap under it
+ */
 export const OVERVIEW_SIDEBAR =
-  'max-md:profile-overview:gap-5 lg:profile-overview:static lg:profile-overview:header-floating:translate-y-0';
+  'max-md:profile-overview:gap-5 lg:profile-overview:static lg:profile-overview:mb-0 lg:profile-overview:header-floating:translate-y-0';
 
 /** On the main column: beside the sidebar and its tail */
 export const OVERVIEW_MAIN =

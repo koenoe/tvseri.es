@@ -38,7 +38,7 @@ function Fact({ logo, value }: Readonly<{ logo?: boolean; value: string }>) {
 
 /**
  * The lower band for a show that is not known yet: the real headings, the
- * description box with three lines (five on a phone, six below 375, where it is narrow),
+ * description box with three lines (nine on a phone, ten below 375, where it is narrow),
  * the keywords' ghosts and the Information block's three columns.
  */
 export default function StorylineSkeleton() {
@@ -56,6 +56,10 @@ export default function StorylineSkeleton() {
             <BodyLine width="w-full" />
             <BodyLine width="w-3/4" />
             <span className="md:hidden">
+              <BodyLine width="w-full" />
+              <BodyLine width="w-full" />
+              <BodyLine width="w-full" />
+              <BodyLine width="w-full" />
               <BodyLine width="w-full" />
               <BodyLine width="w-2/3" />
             </span>

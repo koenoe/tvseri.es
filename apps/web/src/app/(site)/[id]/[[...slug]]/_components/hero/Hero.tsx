@@ -1,6 +1,8 @@
 import type { TvSeries } from '@tvseri.es/schemas';
 import { Suspense } from 'react';
 
+import ClampedText, { type ClampFit } from '@/components/ui/fold/ClampedText';
+
 import { ActionButtonsSkeleton } from '../actions/ActionButtons';
 import ActionsHole from '../actions/ActionsHole';
 import FirstTrackingPrompt from '../first-tracking/FirstTrackingPrompt';
@@ -15,6 +17,7 @@ import HeroTitle from './HeroTitle';
 import {
   HERO_ACTIONS_ROW,
   HERO_DESCRIPTION,
+  HERO_DESCRIPTION_TEXT,
   HERO_META_ROW,
   HERO_PROMPT_SLOT,
   HERO_RATING_CELL,
@@ -26,8 +29,11 @@ import PhoneBackdrop from './PhoneBackdrop';
 
 type Props = Readonly<{ series: TvSeries }>;
 
-/** Phones clamp the synopsis to three lines (the Storyline band has it all) */
-const DESCRIPTION = `${HERO_DESCRIPTION} max-md:line-clamp-3`;
+/**
+ * The More toggle's first guess: prose overflowed three lines from about 140
+ * characters at 390 and 380 at 1440, so a little under that
+ */
+const DESCRIPTION_FIT: ClampFit = { base: 120, md: 340 };
 
 /**
  * The hero: title treatment,
@@ -71,7 +77,12 @@ export default function Hero({ series }: Props) {
         ) : null}
       </div>
       {series.description ? (
-        <p className={DESCRIPTION}>{series.description}</p>
+        <ClampedText
+          className={HERO_DESCRIPTION}
+          fit={DESCRIPTION_FIT}
+          text={series.description}
+          textClassName={HERO_DESCRIPTION_TEXT}
+        />
       ) : null}
       <div className={HERO_ACTIONS_ROW}>
         <div className={HERO_RATING_CELL}>

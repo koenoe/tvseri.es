@@ -3,7 +3,7 @@
 import { render, screen } from '@testing-library/react';
 import type { TvSeries } from '@tvseri.es/schemas';
 import { act } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { closeTrayRequest, requestTray } from '../admin/adminStore';
 import Hero from './Hero';
@@ -35,6 +35,17 @@ const series = {
   title: 'Show',
 } as unknown as TvSeries;
 
+beforeEach(() => {
+  // jsdom has none; the synopsis' clamp watches its width with one
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      disconnect() {}
+      observe() {}
+    },
+  );
+});
+
 describe('Hero', () => {
   it('renders the actions and the first-tracking prompt once each (one tree, placed by CSS)', () => {
     render(<Hero series={series} />);
@@ -45,6 +56,15 @@ describe('Hero', () => {
   it('asks nothing before the premiere', () => {
     render(<Hero series={{ ...series, hasAired: false }} />);
     expect(screen.queryByTestId('prompt')).toBeNull();
+  });
+
+  it('draws the synopsis clamped to three lines in its grid cell, which docking hides', () => {
+    render(<Hero series={series} />);
+    const text = screen.getByText('A show.');
+    expect(text.className).toContain('line-clamp-3');
+    expect(text.parentElement?.className).toContain(
+      'md:group-data-docked/hero:hidden',
+    );
   });
 
   it('docks while the admin tray is open for this show (data-docked drives the CSS) and undocks on close', () => {

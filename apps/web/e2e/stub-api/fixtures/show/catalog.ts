@@ -835,7 +835,10 @@ const buildBreakingBad = (): StubShow => {
   };
 };
 
-/** Three seasons, a three-line overview and twelve keywords: the median show. */
+/**
+ * Three seasons, an overview of three lines on desktop (clamped on phones)
+ * and twelve keywords: the median show.
+ */
 const buildTypical = (): StubShow => {
   const episodes = syntheticEpisodes(
     SHOW_IDS.typical,
@@ -874,7 +877,7 @@ const buildTypical = (): StubShow => {
     lastAirDate: episodes.at(-1)?.airDate ?? TODAY,
     originalTitle: 'Harbour Lights',
     overview:
-      'A made-up drama about the families who run a ferry crossing and the café beside it. When the last boat of the season is cancelled, old secrets surface and a stranger arrives.',
+      'A made-up drama about the families who run a ferry crossing and the café beside it. When the last boat of the season is cancelled, old secrets surface and a stranger arrives. As the winter storms close the harbour, the town has to decide who it trusts, and what it is willing to lose to keep the lights on.',
     poster: 'ds_wire_p.jpg',
     ratingValue: 8.1,
     ratingVotes: 52_000,
@@ -998,7 +1001,9 @@ const buildShows = (): ReadonlyArray<StubShow> => {
       imdbId: 'tt9000002',
       lastAirDate: longEpisodes.at(-1)?.airDate ?? TODAY,
       originalTitle: 'The Long Run',
-      overview: 'A made-up long-runner with one 200-episode season.',
+      // Long enough for the hero's three-line clamp at every width
+      overview:
+        'A made-up long-runner with one 200-episode season. In a river town where the mill closed a generation ago, the Ashdown family keeps a boatyard open on borrowed money and stubbornness. When the eldest daughter comes home from the city to sell it, she finds the books cooked, the moorings let to people nobody will name and her father unwilling to say where he goes at night. Season by season the town changes around them: a bridge is built, the school closes, the floods come back, and every choice the family makes to keep the yard afloat costs someone they love a little more than the last one did.',
       poster: 'ds_wire_p.jpg',
       ratingValue: 7.9,
       ratingVotes: 41_000,

@@ -41,27 +41,32 @@ const TITLE_GHOST = cn(
 );
 
 const META_GHOST = cn(HERO_META_ROW, PULSE);
-const DESCRIPTION_GHOST = cn(HERO_DESCRIPTION, PULSE);
+/** Laid out as `ClampedText`: the lines, then the toggle 8px under them */
+const DESCRIPTION_GHOST = cn(HERO_DESCRIPTION, 'flex flex-col gap-2', PULSE);
 
 /**
- * The description's lines: three 22px lines on phones (its clamp), two 28px
- * lines on desktop, the last one shorter.
+ * The description's three lines (its clamp): 22px lines on phones, 28px on
+ * desktop, the last one shorter.
  */
-const DESCRIPTION_LINES = [
-  { bar: 'w-full', line: '' },
-  { bar: 'w-full md:w-4/5', line: '' },
-  { bar: 'w-4/5', line: 'md:hidden' },
-].map(({ bar, line }) => ({
+const DESCRIPTION_LINES = ['w-full', 'w-full', 'w-3/5'].map((bar, index) => ({
   bar: `h-3 ${BAR} ${bar}`,
-  line: cn('flex h-[22px] items-center md:h-7', line),
+  key: index,
 }));
+const DESCRIPTION_LINE = 'flex h-[22px] items-center md:h-7';
+
+/**
+ * The typical synopsis overflows three lines on phones only, so the More
+ * toggle's 24px row is there on phones
+ */
+const TOGGLE_GHOST = 'flex h-6 items-center md:hidden';
+const TOGGLE_BAR = `h-3 w-12 ${BAR}`;
 
 /**
  * The hero for a show that is not known yet (the page's loading shell): the
  * hero's own grid and cells, with quiet bars where the title, facts,
- * description and actions go. The description is the typical show's at its
- * width (two lines on desktop, the three-line clamp on phones); the actions
- * are the four circles and the rating.
+ * description and actions go. The description is the typical show's: its
+ * three-line clamp, with the More toggle on phones; the actions are the four
+ * circles and the rating.
  */
 export default function HeroSkeleton() {
   return (
@@ -86,11 +91,16 @@ export default function HeroSkeleton() {
         </div>
       </div>
       <div aria-hidden="true" className={DESCRIPTION_GHOST}>
-        {DESCRIPTION_LINES.map(({ bar, line }) => (
-          <span className={line} key={bar}>
-            <span className={bar} />
-          </span>
-        ))}
+        <div>
+          {DESCRIPTION_LINES.map(({ bar, key }) => (
+            <span className={DESCRIPTION_LINE} key={key}>
+              <span className={bar} />
+            </span>
+          ))}
+        </div>
+        <span className={TOGGLE_GHOST}>
+          <span className={TOGGLE_BAR} />
+        </span>
       </div>
       <div className={HERO_ACTIONS_ROW}>
         <div className={HERO_RATING_CELL}>

@@ -42,13 +42,17 @@ export const HERO_PROMPT_SLOT =
   'col-start-1 row-start-2 min-w-0 md:w-[973px] md:max-w-full';
 
 /**
- * The synopsis: four fifths of the 1216 page, wider than
- * the progress line and the prompt above it: fewer lines, so the hero stays
- * short. Phones clamp it to three smaller lines; the Storyline band below
- * keeps the full text.
+ * The synopsis' cell: four fifths of the 1216 page, wider than the progress
+ * line and the prompt above it: fewer lines, so the hero stays short. It
+ * holds the text clamped to three lines and, when the clamp cuts it, the
+ * More toggle; the Storyline band below keeps the full text.
  */
 export const HERO_DESCRIPTION =
-  'col-start-1 row-start-3 max-w-[973px] max-md:mb-5 max-md:text-body-sm/[22px] max-md:text-white/85 md:mb-6 md:text-body md:text-white/80 md:group-data-docked/hero:hidden';
+  'col-start-1 row-start-3 max-w-[973px] max-md:mb-5 md:mb-6 md:group-data-docked/hero:hidden';
+
+/** The synopsis' type: smaller lines on phones */
+export const HERO_DESCRIPTION_TEXT =
+  'max-md:text-body-sm/[22px] max-md:text-white/85 md:text-body md:text-white/80';
 
 /**
  * The rating's cell in the actions row: on phones it pushes the buttons to

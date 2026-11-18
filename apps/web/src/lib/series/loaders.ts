@@ -183,11 +183,25 @@ const toCrewCredit = (row: CrewRow): CrewCredit => ({
 });
 
 /**
+ * The credits response's shape. Bump it whenever that shape changes: it rides
+ * in the request (the API's CDN keys on the query) and in this cache's key, so
+ * neither serves a week-old answer in the old shape (the crew without its
+ * departments filed every crew member under "Crew").
+ */
+const CREDITS_SHAPE = 2;
+
+/**
  * `GET /series/:id/credits`, trimmed inside the cache to the cast and the
  * crew rows: null on 404, `Unavailable` on an outage.
  */
-export async function loadSeriesCredits(
+export const loadSeriesCredits = (
   id: number,
+): Promise<SeriesCast | null | Unavailable> =>
+  loadSeriesCreditsShaped(id, CREDITS_SHAPE);
+
+async function loadSeriesCreditsShaped(
+  id: number,
+  shape: number,
 ): Promise<SeriesCast | null | Unavailable> {
   'use cache';
   cacheTag(tags.series(id));
@@ -195,6 +209,7 @@ export async function loadSeriesCredits(
     apiFetch<SeriesCredits>('/series/:id/credits', {
       notFound: 'null',
       params: { id },
+      query: { shape },
     }),
   );
   cacheLifeFor('medium', credits);

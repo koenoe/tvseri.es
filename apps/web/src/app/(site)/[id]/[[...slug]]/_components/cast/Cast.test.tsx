@@ -42,7 +42,7 @@ describe('Cast', () => {
     expect(refresh).toHaveBeenCalledTimes(1);
   });
 
-  it('draws the phone stack of the cast and the row’s "+N", both opening everyone', async () => {
+  it('draws the phone stack and the row’s "+N", both counting everyone else in the sheet', async () => {
     vi.mocked(loadCast).mockResolvedValue({
       castCount: 20,
       faces: FACES,
@@ -51,32 +51,49 @@ describe('Cast', () => {
     });
     const { container } = render(await Cast({ creators: [], seriesId: 1 }));
 
-    const stack = screen.getByRole('button', { name: 'Cast, 20 people' });
-    // the rest of the cast: the creator is in the sheet, not the stack
-    expect(stack.textContent).toContain('+15');
-    // faces and "+N" only: no names line under them
-    expect(stack.querySelector('b')).toBeNull();
-    const more = screen.getByRole('button', {
+    // the phone stack and the desktop row's circle open the same list
+    const [stack, more] = screen.getAllByRole('button', {
       name: 'All cast and crew, 21 people',
     });
-    expect(more.textContent).toContain('+10');
-    expect(more.textContent).toContain('21 people');
+    // five faces + 16 = 21: the crew counts too, as in the sheet
+    expect(stack?.textContent).toContain('+16');
+    // faces and "+N" only: no names line under them
+    expect(stack?.querySelector('b')).toBeNull();
+    // ten faces + 11 = 21, the caption's number
+    expect(more?.textContent).toContain('+11');
+    expect(more?.textContent).toContain('21 people');
     expect(container.querySelectorAll('a[href^="/person/"]')).toHaveLength(10);
   });
 
-  it('has no "+N" in the row when the ten are the whole cast', async () => {
+  it('adds up on a long show, digits grouped', async () => {
     vi.mocked(loadCast).mockResolvedValue({
-      castCount: 10,
+      castCount: 2622,
       faces: FACES,
-      peopleCount: 11,
+      peopleCount: 2803,
       stack: STACK,
     });
     render(await Cast({ creators: [], seriesId: 1 }));
 
-    expect(screen.queryByRole('button', { name: /^All / })).toBeNull();
+    const [stack, more] = screen.getAllByRole('button', {
+      name: 'All cast and crew, 2,803 people',
+    });
+    expect(stack?.textContent).toContain('+2,798');
+    expect(more?.textContent).toContain('+2,793');
+  });
+
+  it('has no "+N" in the row when the ten are everyone', async () => {
+    vi.mocked(loadCast).mockResolvedValue({
+      castCount: 10,
+      faces: FACES,
+      peopleCount: 10,
+      stack: STACK,
+    });
+    render(await Cast({ creators: [], seriesId: 1 }));
+
+    // only the phone stack: the desktop row has no circle to add
     expect(
-      screen.getByRole('button', { name: 'Cast, 10 people' }),
-    ).toBeTruthy();
+      screen.getAllByRole('button', { name: 'All cast and crew, 10 people' }),
+    ).toHaveLength(1);
   });
 
   it('counts the cast without a photo in the stack’s "+N"', async () => {
@@ -88,7 +105,9 @@ describe('Cast', () => {
     });
     render(await Cast({ creators: [], seriesId: 1 }));
 
-    const stack = screen.getByRole('button', { name: 'Cast, 3 people' });
+    const stack = screen.getByRole('button', {
+      name: 'All cast and crew, 3 people',
+    });
     expect(stack.querySelectorAll('img')).toHaveLength(2);
     expect(stack.textContent).toContain('+1');
   });

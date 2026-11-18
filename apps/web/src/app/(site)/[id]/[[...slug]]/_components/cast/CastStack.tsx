@@ -1,3 +1,4 @@
+import { formatGrouped } from '@tvseri.es/utils';
 import Image from 'next/image';
 import { PANEL_GLASS } from '@/components/ui/glass/glass';
 import { GHOST_FILL } from '@/components/ui/row/RowGhosts';
@@ -28,14 +29,20 @@ const MORE = cn(
   PANEL_GLASS,
 );
 
+const MORE_LONG = cn(MORE, 'text-[13px]');
+
 /**
  * The phone's cast: five faces of the cast (only those with a photo) and
  * "+N" for the rest across the width;
  * the whole of it opens the sheet with everyone, the crew too.
  */
 export default function CastStack({ cast }: Readonly<{ cast: ShowCast }>) {
-  const more = cast.castCount - cast.stack.length;
-  const label = `Cast, ${peopleCount(cast.castCount)}`;
+  // everyone the sheet lists besides these faces, as the desktop's "+N"
+  const rest = cast.peopleCount - cast.stack.length;
+  const more = formatGrouped(rest);
+  const label = `All cast and crew, ${peopleCount(cast.peopleCount)}`;
+  // four digits and more get a smaller size, so "+2,798" stays inside the circle
+  const moreClass = rest >= 1000 ? MORE_LONG : MORE;
   return (
     <CastSheetButton className={STACK} label={label} total={cast.peopleCount}>
       <span aria-hidden="true" className="flex items-center">
@@ -50,7 +57,7 @@ export default function CastStack({ cast }: Readonly<{ cast: ShowCast }>) {
             width={160}
           />
         ))}
-        {more > 0 ? <span className={MORE}>+{more}</span> : null}
+        {rest > 0 ? <span className={moreClass}>+{more}</span> : null}
       </span>
     </CastSheetButton>
   );

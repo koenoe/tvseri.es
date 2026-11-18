@@ -65,7 +65,7 @@ export type ShowCast = Readonly<{
   faces: ReadonlyArray<CastCrewPerson>;
   /** The phone stack: the first five of the cast with a photo */
   stack: ReadonlyArray<CastCrewPerson>;
-  /** The whole cast, for the "+N"s */
+  /** The whole cast: no cast, no faces block (the "+N"s count `peopleCount`) */
   castCount: number;
   /** Everyone the sheet lists, each once: the cast, the creators and the crew */
   peopleCount: number;

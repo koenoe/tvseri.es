@@ -1,4 +1,5 @@
 import type { Person } from '@tvseri.es/schemas';
+import { formatGrouped } from '@tvseri.es/utils';
 
 import Face, { type FaceLook } from '@/components/ui/faces/Face';
 import { PANEL_GLASS } from '@/components/ui/glass/glass';
@@ -90,7 +91,9 @@ function CastFace({ person }: Readonly<{ person: CastCrewPerson }>) {
  * itself like a face, and opens the side panel with everyone.
  */
 function MoreFace({ cast }: Readonly<{ cast: ShowCast }>) {
-  const more = cast.castCount - cast.faces.length;
+  // everyone the panel lists besides these faces, so the circle and its
+  // caption add up (10 + 2,793 = 2,803 people)
+  const more = formatGrouped(cast.peopleCount - cast.faces.length);
   const total = cast.peopleCount;
   const people = peopleCount(total);
   const label = `All cast and crew, ${people}`;
@@ -131,7 +134,7 @@ export default async function Cast({
   if (cast.castCount === 0) {
     return null;
   }
-  const hasMore = cast.castCount > cast.faces.length;
+  const hasMore = cast.peopleCount > cast.faces.length;
   return (
     <div className={CAST_SPACE} data-slot="cast">
       <CastStack cast={cast} />

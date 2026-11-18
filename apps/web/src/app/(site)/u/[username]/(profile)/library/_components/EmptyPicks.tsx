@@ -33,6 +33,10 @@ const PICK_LINK = 'flex flex-col gap-2.5 rounded-10';
 /** Dimmed until the pointer or focus reaches the tile */
 const PICK_LINK_DIMMED = `${PICK_LINK} opacity-60 transition-opacity duration-160 group-hover/fp:opacity-100 focus-visible:opacity-100`;
 
+const PICK_CELL = `${LIBRARY_CELL} group/fp relative`;
+
+const SEEN_CELL = `${LIBRARY_CELL} [&>button]:w-full`;
+
 /**
  * A suggested show in the shelf's grid: the poster and its title as one
  * link, the pick's action over the poster's corner
@@ -42,12 +46,10 @@ function PickTile({
   dimmed = false,
   pick,
 }: Readonly<{ action: ReactNode; dimmed?: boolean; pick: PopularPick }>) {
+  const href = showPath(pick.id, pick.slug);
   return (
-    <li className={`${LIBRARY_CELL} group/fp relative`}>
-      <TileLink
-        className={dimmed ? PICK_LINK_DIMMED : PICK_LINK}
-        href={showPath(pick.id, pick.slug)}
-      >
+    <li className={PICK_CELL}>
+      <TileLink className={dimmed ? PICK_LINK_DIMMED : PICK_LINK} href={href}>
         <span className="block" style={POSTER_VARS}>
           <PosterArt
             loading="lazy"
@@ -98,11 +100,14 @@ export function SeenPicks({
   );
   return (
     <ul className={LIBRARY_GRID}>
-      {shows.slice(0, SEEN_PICKS).map((show) => (
-        <li className={`${LIBRARY_CELL} [&>button]:w-full`} key={show.id}>
-          <SeenTile onSeen={onSeen} seen={seen.has(show.id)} show={show} />
-        </li>
-      ))}
+      {shows.slice(0, SEEN_PICKS).map((show) => {
+        const isSeen = seen.has(show.id);
+        return (
+          <li className={SEEN_CELL} key={show.id}>
+            <SeenTile onSeen={onSeen} seen={isSeen} show={show} />
+          </li>
+        );
+      })}
     </ul>
   );
 }

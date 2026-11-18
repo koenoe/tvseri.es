@@ -40,12 +40,8 @@ export default async function ShelfEmpty({
   shelf,
 }: Readonly<{ profile: Profile; shelf: LibraryShelf }>) {
   if (profile.viewer === 'visitor') {
-    return (
-      <EmptyState
-        glyph={SHELVES[shelf].glyph}
-        title={`Nothing on ${profile.user.username}’s ${SHELVES[shelf].visitorNoun} yet.`}
-      />
-    );
+    const visitorTitle = `Nothing on ${profile.user.username}’s ${SHELVES[shelf].visitorNoun} yet.`;
+    return <EmptyState glyph={SHELVES[shelf].glyph} title={visitorTitle} />;
   }
   const empty = OWNER[shelf];
   const state = (
@@ -94,15 +90,15 @@ export default async function ShelfEmpty({
         slug,
         title,
       }));
+    const favouritesSub =
+      picks.length > 0
+        ? 'Favourites lead your profile. Here are a few series you’ve finished.'
+        : empty.sub;
     return (
       <div className="flex flex-col gap-10">
         <EmptyState
           glyph={empty.glyph}
-          sub={
-            picks.length > 0
-              ? 'Favourites lead your profile. Here are a few series you’ve finished.'
-              : empty.sub
-          }
+          sub={favouritesSub}
           title={empty.title}
         />
         {picks.length > 0 ? <FavouritePicks picks={picks} /> : null}

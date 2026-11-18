@@ -19,6 +19,10 @@ const WHITE =
 const GHOST =
   'inline-flex h-9 cursor-pointer items-center justify-center rounded-full px-3.5 text-meta font-semibold whitespace-nowrap text-white shadow-[inset_0_0_0_2px_rgb(255_255_255/0.2)] transition-shadow hover:shadow-[inset_0_0_0_2px_rgb(255_255_255/0.4)]';
 
+const HINT_BAR = `${BAR} font-medium text-white/80 max-md:hidden`;
+
+const DESKTOP_CANCEL = `${GHOST} max-md:hidden`;
+
 /** The bar rises in (translateY 100% → 0), 240ms */
 const RISE = {
   animate: { opacity: 1, y: 0 },
@@ -61,7 +65,7 @@ export default function ActionBar({
         {...RISE}
       >
         {count === 0 ? (
-          <div className={`${BAR} font-medium text-white/80 max-md:hidden`}>
+          <div className={HINT_BAR}>
             <Icon className="shrink-0" glyph={infoGlyph} size={16} />
             <span>Click posters to select. Shift-click selects a run.</span>
             <span className="flex-1" />
@@ -81,11 +85,7 @@ export default function ActionBar({
               <span className="max-md:hidden">{action.label}</span>
               <span className="md:hidden">{action.short}</span>
             </button>
-            <button
-              className={`${GHOST} max-md:hidden`}
-              onClick={onCancel}
-              type="button"
-            >
+            <button className={DESKTOP_CANCEL} onClick={onCancel} type="button">
               Cancel
             </button>
           </div>

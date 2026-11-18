@@ -107,6 +107,7 @@ export function AddToMine({
   title,
 }: Readonly<{ id: number; title: string }>) {
   const { isOn, label, toggle } = useWatchlistAdd(id, title);
+  const glyph = watchlistGlyph(isOn);
   return (
     <PosterCircle
       isOn={isOn}
@@ -122,7 +123,7 @@ export function AddToMine({
         key={isOn ? 'on' : 'off'}
         transition={{ duration: 0.16, ease: 'easeOut' }}
       >
-        <Icon glyph={watchlistGlyph(isOn)} size={16} />
+        <Icon glyph={glyph} size={16} />
       </m.span>
     </PosterCircle>
   );

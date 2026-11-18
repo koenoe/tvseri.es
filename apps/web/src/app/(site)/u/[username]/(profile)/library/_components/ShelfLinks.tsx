@@ -59,18 +59,22 @@ export function ShelfNav({ counts, defaultShelf, owner, username }: Props) {
   return (
     <nav aria-label="Shelves" className="flex flex-col gap-0.5" ref={nav}>
       <ShelvesHeading />
-      {shelvesFor(owner, live, active).map((shelf) => (
-        <Fragment key={shelf}>
-          {shelf === 'all' ? <NavRule /> : null}
-          <ShelfRow
-            active={shelf === active}
-            count={live?.[shelf] ?? null}
-            onPick={onPick}
-            shelf={shelf}
-            username={username}
-          />
-        </Fragment>
-      ))}
+      {shelvesFor(owner, live, active).map((shelf) => {
+        const isActive = shelf === active;
+        const count = live?.[shelf] ?? null;
+        return (
+          <Fragment key={shelf}>
+            {shelf === 'all' ? <NavRule /> : null}
+            <ShelfRow
+              active={isActive}
+              count={count}
+              onPick={onPick}
+              shelf={shelf}
+              username={username}
+            />
+          </Fragment>
+        );
+      })}
     </nav>
   );
 }

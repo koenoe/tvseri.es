@@ -184,6 +184,8 @@ export default function ShelfToolbar({
   const toggleFinding = useCallback(() => setFinding((was) => !was), []);
   const findPillClass = cn(PILL, 'px-2.5 md:hidden', finding && PILL_ON);
   const selectPillClass = cn(PILL, selecting && PILL_ON);
+  const newOn = filter === 'new';
+  const sharedOn = filter === 'shared';
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2.5">
@@ -199,13 +201,13 @@ export default function ShelfToolbar({
             <FilterChip
               count={filters.new}
               filter="new"
-              on={filter === 'new'}
+              on={newOn}
               onFilter={onFilter}
             />
             <FilterChip
               count={filters.shared}
               filter="shared"
-              on={filter === 'shared'}
+              on={sharedOn}
               onFilter={onFilter}
             />
           </>

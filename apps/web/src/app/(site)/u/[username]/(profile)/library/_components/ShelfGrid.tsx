@@ -38,6 +38,7 @@ export default function ShelfGrid({
   status: PaginationStatus;
   tiles: ReadonlyArray<TileView>;
 }>) {
+  const animateEntries = list > 0;
   return (
     <InfiniteScroll
       hasMore={hasMore}
@@ -46,15 +47,18 @@ export default function ShelfGrid({
     >
       <MaxMotion>
         <ul className={LIBRARY_GRID} key={list} ref={listRef}>
-          <AnimatePresence initial={list > 0} onExitComplete={settled}>
-            {tiles.map((tile, index) => (
-              <LibraryCell
-                eager={index < EAGER}
-                key={tile.id}
-                moving={moving}
-                tile={tile}
-              />
-            ))}
+          <AnimatePresence initial={animateEntries} onExitComplete={settled}>
+            {tiles.map((tile, index) => {
+              const eager = index < EAGER;
+              return (
+                <LibraryCell
+                  eager={eager}
+                  key={tile.id}
+                  moving={moving}
+                  tile={tile}
+                />
+              );
+            })}
           </AnimatePresence>
         </ul>
       </MaxMotion>

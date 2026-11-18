@@ -103,13 +103,14 @@ export default function SortMenu({
   }, []);
 
   const label = sortLabel(shelf, sort);
+  const pillLabel = `Sort: ${label}`;
   return (
     <div className="relative">
       <button
         aria-controls={open ? menuId : undefined}
         aria-expanded={open}
         aria-haspopup="menu"
-        aria-label={`Sort: ${label}`}
+        aria-label={pillLabel}
         className={PILL}
         onClick={toggle}
         onKeyDown={onPillKey}
@@ -129,15 +130,19 @@ export default function SortMenu({
           ref={menu}
           role="menu"
         >
-          {sorts.map((each) => (
-            <SortItem
-              key={each}
-              on={each === sort}
-              onPick={pick}
-              sort={each}
-              text={sortLabel(shelf, each)}
-            />
-          ))}
+          {sorts.map((each) => {
+            const on = each === sort;
+            const text = sortLabel(shelf, each);
+            return (
+              <SortItem
+                key={each}
+                on={on}
+                onPick={pick}
+                sort={each}
+                text={text}
+              />
+            );
+          })}
         </div>
       ) : null}
     </div>

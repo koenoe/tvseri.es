@@ -22,6 +22,7 @@ export default function ShelfGridEmpty({
 }>) {
   const meta = SHELVES[shelf];
   if (!query.q && !query.with) {
+    const visitorTitle = `Nothing on ${username}’s ${meta.visitorNoun} yet.`;
     return owner ? (
       <EmptyState
         glyph={OWNER_EMPTY[shelf].glyph}
@@ -29,10 +30,7 @@ export default function ShelfGridEmpty({
         title={OWNER_EMPTY[shelf].title}
       />
     ) : (
-      <EmptyState
-        glyph={meta.glyph}
-        title={`Nothing on ${username}’s ${meta.visitorNoun} yet.`}
-      />
+      <EmptyState glyph={meta.glyph} title={visitorTitle} />
     );
   }
   return (

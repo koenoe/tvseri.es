@@ -14,16 +14,10 @@ import { SHELVES, visitorDescription } from '../_lib/shelves';
 import ShelfCount from './ShelfCount';
 import ShelfSkeleton from './ShelfSkeleton';
 
-const GHOST_COUNT = (
-  <span
-    className={`inline-block h-3 w-6 rounded-4 align-middle ${GHOST_FILL} ${PULSE}`}
-  />
-);
-const GHOST_LINE = (
-  <span
-    className={`inline-block h-3 w-96 max-w-full rounded-4 align-middle ${GHOST_FILL} ${PULSE}`}
-  />
-);
+const GHOST_COUNT_CLASSES = `inline-block h-3 w-6 rounded-4 align-middle ${GHOST_FILL} ${PULSE}`;
+const GHOST_COUNT = <span className={GHOST_COUNT_CLASSES} />;
+const GHOST_LINE_CLASSES = `inline-block h-3 w-96 max-w-full rounded-4 align-middle ${GHOST_FILL} ${PULSE}`;
+const GHOST_LINE = <span className={GHOST_LINE_CLASSES} />;
 
 async function Count({
   params,
@@ -70,6 +64,7 @@ export default function ShelfHeader({
   shelf: LibraryShelf;
 }>) {
   const meta = SHELVES[shelf];
+  const ownerDescription = ownerLine ?? meta.description;
   const count = (
     <Suspense fallback={GHOST_COUNT}>
       <Count params={params} shelf={shelf} />
@@ -77,7 +72,7 @@ export default function ShelfHeader({
   );
   const description = (
     <OwnerVisitor
-      owner={ownerLine ?? meta.description}
+      owner={ownerDescription}
       visitor={
         <Suspense fallback={GHOST_LINE}>
           <VisitorLine params={params} shelf={shelf} />

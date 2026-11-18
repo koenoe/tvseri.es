@@ -102,6 +102,8 @@ export default function LibraryView({
     selecting ? stopSelecting() : selection.getState().start();
   const onAct = () => void act();
   const empty = tiles.length === 0;
+  const canSelect = owner && meta.action !== null && !empty;
+  const busy = pending || undefined;
 
   return (
     <TileContext value={context}>
@@ -110,7 +112,7 @@ export default function LibraryView({
             sticky glass header looked wrong); Select's action bar sticks */}
         <div data-slot="library-toolbar">
           <ShelfToolbar
-            canSelect={owner && meta.action !== null && !empty}
+            canSelect={canSelect}
             filter={query.with}
             filters={first.filters}
             onFilter={onFilter}
@@ -124,7 +126,7 @@ export default function LibraryView({
           />
         </div>
         <div
-          aria-busy={pending || undefined}
+          aria-busy={busy}
           className="relative transition-opacity duration-200 aria-busy:opacity-60"
           data-slot="library-grid"
         >

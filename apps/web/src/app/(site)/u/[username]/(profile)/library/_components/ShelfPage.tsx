@@ -31,6 +31,7 @@ async function Body({ params, searchParams, shelf }: Props) {
     notFound();
   }
   const filtered = query.q !== '' || query.with !== null;
+  const owner = profile.viewer === 'owner';
   const view: ReactNode =
     first.total === 0 && !filtered ? (
       <ShelfEmpty profile={profile} shelf={shown} />
@@ -38,7 +39,7 @@ async function Body({ params, searchParams, shelf }: Props) {
       <>
         <LibraryView
           first={first}
-          owner={profile.viewer === 'owner'}
+          owner={owner}
           query={query}
           username={profile.user.username}
         />

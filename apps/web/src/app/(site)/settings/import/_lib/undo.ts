@@ -2,7 +2,8 @@ import { sleep } from '@tvseri.es/utils';
 
 import { showToast } from '@/components/ui/toast/showToast';
 
-import { importStatus, undoImport } from './actions';
+import { undoImport } from './actions';
+import { readLastImport } from './lastImportStatus';
 
 const UNDO_POLL_MS = 2000;
 /** About three minutes: the API says seconds to a minute */
@@ -19,8 +20,8 @@ export async function requestUndo(importId: string): Promise<boolean> {
 }
 
 /**
- * Polls `GET /me` until the import is undone (or is no longer the last
- * one), then calls `onUndone`. Past about three minutes a toast says it
+ * Polls the last import until it is undone (or is no longer the last one),
+ * then calls `onUndone`. Past about three minutes a toast says it
  * finishes on its own.
  */
 export async function pollUntilUndone(
@@ -29,8 +30,7 @@ export async function pollUntilUndone(
 ): Promise<void> {
   for (let attempt = 0; attempt < UNDO_POLL_ATTEMPTS; attempt++) {
     await sleep(UNDO_POLL_MS);
-    const status = await importStatus().catch(() => null);
-    const last = status?.ok ? status.data.lastImport : undefined;
+    const last = await readLastImport();
     if (
       last === null ||
       (last && (last.importId !== importId || last.undoneAt))

@@ -4,8 +4,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ImportProblem, ImportRequest } from '@/lib/import/contract';
 
+vi.mock('./lastImportStatus', () => ({
+  readLastImport: vi.fn(async () => null),
+}));
 vi.mock('./actions', () => ({
-  importStatus: vi.fn(async () => ({ data: { lastImport: null }, ok: true })),
   startImport: vi.fn(async () => ({
     data: { createdAt: 1_700_000_000_000, importId: 'imp-1' },
     ok: true,
@@ -17,7 +19,8 @@ const refresh = vi.fn();
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh }) }));
 
 const { showToast } = await import('@/components/ui/toast/showToast');
-const { importStatus, undoImport } = await import('./actions');
+const { undoImport } = await import('./actions');
+const { readLastImport } = await import('./lastImportStatus');
 const { importedCount } = await import('./importState');
 const { useImporter } = await import('./useImporter');
 
@@ -271,16 +274,11 @@ describe('useImporter', () => {
   });
 
   it('Undo cancels a pick still in its grace: it is never sent', async () => {
-    vi.mocked(importStatus).mockResolvedValue({
-      data: {
-        lastImport: {
-          createdAt: 1,
-          importId: 'imp-1',
-          undoneAt: 2,
-          written: 1,
-        },
-      },
-      ok: true,
+    vi.mocked(readLastImport).mockResolvedValue({
+      createdAt: 1,
+      importId: 'imp-1',
+      undoneAt: 2,
+      written: 1,
     });
     const hook = await importedWithProblems();
     vi.useFakeTimers();
@@ -379,16 +377,11 @@ describe('useImporter', () => {
   });
 
   it('undoes the last import from before a reload: asks, undoes, polls until done', async () => {
-    vi.mocked(importStatus).mockResolvedValue({
-      data: {
-        lastImport: {
-          createdAt: 1,
-          importId: 'imp-0',
-          undoRequestedAt: 2,
-          written: 5,
-        },
-      },
-      ok: true,
+    vi.mocked(readLastImport).mockResolvedValue({
+      createdAt: 1,
+      importId: 'imp-0',
+      undoRequestedAt: 2,
+      written: 5,
     });
     const hook = renderHook(() =>
       useImporter({ createdAt: 1, importId: 'imp-0', written: 5 }),
@@ -410,16 +403,11 @@ describe('useImporter', () => {
       phase: 'undoing',
     });
 
-    vi.mocked(importStatus).mockResolvedValue({
-      data: {
-        lastImport: {
-          createdAt: 1,
-          importId: 'imp-0',
-          undoneAt: 3,
-          written: 5,
-        },
-      },
-      ok: true,
+    vi.mocked(readLastImport).mockResolvedValue({
+      createdAt: 1,
+      importId: 'imp-0',
+      undoneAt: 3,
+      written: 5,
     });
     await act(async () => {
       await vi.advanceTimersByTimeAsync(2000);
@@ -452,10 +440,7 @@ describe('useImporter', () => {
   });
 
   it('refreshes the page once when the import finishes, and again once undone (the nav line)', async () => {
-    vi.mocked(importStatus).mockResolvedValue({
-      data: { lastImport: null },
-      ok: true,
-    });
+    vi.mocked(readLastImport).mockResolvedValue(null);
     const hook = await importedWithProblems();
     expect(refresh).toHaveBeenCalledTimes(1);
 

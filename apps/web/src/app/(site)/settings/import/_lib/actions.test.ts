@@ -1,14 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { fetchMe } from '@/auth/me';
 import { getViewer } from '@/auth/viewer';
 import { ApiError, apiFetch } from '@/lib/api/client';
 import { revalidateViewerStats } from '@/lib/stats/revalidateViewerStats';
 
-import { importStatus, startImport, undoImport } from './actions';
+import { startImport, undoImport } from './actions';
 
 vi.mock('@/auth/viewer', () => ({ getViewer: vi.fn() }));
-vi.mock('@/auth/me', () => ({ fetchMe: vi.fn() }));
 vi.mock('@/lib/stats/revalidateViewerStats', () => ({
   revalidateViewerStats: vi.fn(),
 }));
@@ -142,66 +140,5 @@ describe('undoImport', () => {
       ok: false,
     });
     expect(apiFetch).not.toHaveBeenCalled();
-  });
-});
-
-describe('importStatus', () => {
-  const lastImport = {
-    createdAt: 1,
-    importId: IMPORT_ID,
-    undoneAt: 5,
-    written: 3,
-  };
-
-  it('reads the last import of the session user', async () => {
-    vi.mocked(fetchMe).mockResolvedValue({ lastImport } as never);
-    await expect(importStatus()).resolves.toMatchObject({
-      data: { lastImport },
-      ok: true,
-    });
-    expect(fetchMe).toHaveBeenCalledWith('session-token');
-  });
-
-  it('the queued Undo is done: the viewer’s stats refresh again', async () => {
-    vi.mocked(fetchMe).mockResolvedValue({ lastImport } as never);
-    await importStatus();
-    expect(revalidateViewerStats).toHaveBeenCalledWith(VIEWER.id);
-
-    vi.mocked(revalidateViewerStats).mockReset();
-    vi.mocked(fetchMe).mockResolvedValue({
-      lastImport: { ...lastImport, undoneAt: undefined },
-    } as never);
-    await importStatus();
-    expect(revalidateViewerStats).not.toHaveBeenCalled();
-  });
-
-  it('no import yet: null', async () => {
-    vi.mocked(fetchMe).mockResolvedValue({} as never);
-    await expect(importStatus()).resolves.toMatchObject({
-      data: { lastImport: null },
-      ok: true,
-    });
-  });
-
-  it('signed out, or an unknown user: unauthenticated', async () => {
-    vi.mocked(getViewer).mockResolvedValue(null);
-    await expect(importStatus()).resolves.toEqual({
-      error: 'unauthenticated',
-      ok: false,
-    });
-    vi.mocked(getViewer).mockResolvedValue(VIEWER);
-    vi.mocked(fetchMe).mockResolvedValue(null);
-    await expect(importStatus()).resolves.toEqual({
-      error: 'unauthenticated',
-      ok: false,
-    });
-  });
-
-  it('an API failure is `failed`', async () => {
-    vi.mocked(fetchMe).mockRejectedValue(new ApiError(503));
-    await expect(importStatus()).resolves.toEqual({
-      error: 'failed',
-      ok: false,
-    });
   });
 });

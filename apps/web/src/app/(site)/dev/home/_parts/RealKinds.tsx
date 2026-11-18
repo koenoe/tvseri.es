@@ -1,12 +1,11 @@
 import { FEATURE_KINDS, TOY_KINDS } from '@tvseri.es/utils';
 import { Suspense } from 'react';
-
-import { nextDay } from '../../../_home/data/plan';
 import Feature from '../../../_home/feature/Feature';
 import { FeatureSkeleton, ToySkeleton } from '../../../_home/Skeletons';
 import IfYouLiked from '../../../_home/toy/IfYouLiked';
 import Toy from '../../../_home/toy/Toy';
 import KindBlock from './KindBlock';
+import { nextDay } from './plan';
 import {
   countdown,
   countdownOfThree,

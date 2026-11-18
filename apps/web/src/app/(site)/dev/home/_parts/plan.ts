@@ -6,11 +6,12 @@ import {
   toyKindOfDay,
 } from '@tvseri.es/utils';
 
-import { addDays } from './day';
+import { addDays } from '../../../_home/data/day';
 
 /**
- * What a day plans for Home's two rotating slots, from the date alone (the
- * same rules the API and the page use):
+ * The dev preview's day plan (`/dev/home`, which jumps to a day by it): what
+ * a day plans for Home's two rotating slots, from the date alone (the
+ * rotation in `@tvseri.es/utils` that the API plans by):
  * the feature after Hidden gems, the toy after Premieres, and whether a
  * signed-in viewer gets "If you liked X" in the toy's slot. Not in the plan:
  * the Countdown (it takes the feature's slot when the next big premiere is 3

@@ -8,8 +8,8 @@ import Icon from '@/components/ui/icon/Icon';
 import { showToast } from '@/components/ui/toast/showToast';
 import { markedMessage } from '@/lib/marking/copy';
 
-import type { RemoteMarking, UseRemoteMarking } from './marking';
-import type { EpisodeRef, ListStatus, MarkingList } from './types';
+import type { RemoteMarking, UseRemoteMarking } from '../marking';
+import type { EpisodeRef, ListStatus, MarkingList } from '../types';
 
 type FakeConfig = Readonly<{
   /** Milliseconds each request takes. */

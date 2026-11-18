@@ -1,5 +1,5 @@
 import { isInApiWindow } from '../../../_home/data/day';
-import { planOf } from '../../../_home/data/plan';
+import { planOf } from './plan';
 
 /** What `/dev/home?day=` shows: the day's plan, fixed in a corner so the page's layout is Home's own */
 export default function DayBanner({ day }: Readonly<{ day: string }>) {

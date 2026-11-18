@@ -10,10 +10,9 @@ import userEvent from '@testing-library/user-event';
 import { MotionGlobalConfig } from 'motion/react';
 import { type ReactNode, StrictMode } from 'react';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-
-import { createFakeMarking } from './fakeMarking';
 import { LazyShowRemote, LazyTileRemote } from './LazyRemote';
 import { RemoteMarkingProvider } from './marking';
+import { createFakeMarking } from './testing/fakeMarking';
 
 /**
  * The first press on a ⋯ whose Remote isn't loaded yet, under StrictMode

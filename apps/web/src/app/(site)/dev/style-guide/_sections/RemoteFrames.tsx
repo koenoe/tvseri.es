@@ -1,10 +1,10 @@
 'use client';
 
 import type { CSSProperties } from 'react';
-import { createFakeMarking } from '@/components/remote/fakeMarking';
 import { RemoteMarkingProvider } from '@/components/remote/marking';
 import ShowRemote from '@/components/remote/ShowRemote';
 import TileRemote from '@/components/remote/TileRemote';
+import { createFakeMarking } from '@/components/remote/testing/fakeMarking';
 import type { RemoteEpisode, RemoteSection } from '@/components/remote/types';
 import severance from '@/components/ui/error/stills/severance.webp';
 import stranger from '@/components/ui/error/stills/stranger.webp';

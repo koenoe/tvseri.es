@@ -4,11 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { MotionGlobalConfig } from 'motion/react';
 import type { ReactNode } from 'react';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-
-import { createFakeMarking } from './fakeMarking';
 import { LazyShowRemote, LazyTileRemote } from './LazyRemote';
 import { RemoteMarkingProvider } from './marking';
 import ShowRemote from './ShowRemote';
+import { createFakeMarking } from './testing/fakeMarking';
 
 vi.mock('next/link', () => ({
   default: ({

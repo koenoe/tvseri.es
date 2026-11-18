@@ -6,12 +6,12 @@ import { Suspense } from 'react';
 import Page from '@/components/background/Page';
 
 import { utcDay } from '../../_home/data/day';
-import { plansFrom } from '../../_home/data/plan';
 import HomeView from '../../_home/HomeView';
 import DayBanner from './_parts/DayBanner';
 import FeaturePreview from './_parts/FeaturePreview';
 import PersonalPreview from './_parts/PersonalPreview';
 import PickPremieresPreview from './_parts/PickPremieresPreview';
+import { plansFrom } from './_parts/plan';
 import RealKinds from './_parts/RealKinds';
 import SpotlightPreview from './_parts/SpotlightPreview';
 import ToyPreview from './_parts/ToyPreview';

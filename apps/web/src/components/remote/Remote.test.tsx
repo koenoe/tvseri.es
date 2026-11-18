@@ -12,11 +12,10 @@ import type { ReactNode } from 'react';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { PHONE } from '@/lib/media/breakpoints';
-
-import { createFakeMarking } from './fakeMarking';
 import { RemoteMarkingProvider, type UseRemoteMarking } from './marking';
 import ShowRemote from './ShowRemote';
 import TileRemote from './TileRemote';
+import { createFakeMarking } from './testing/fakeMarking';
 import type { RemoteEpisode, RemoteSection } from './types';
 
 vi.mock('next/link', () => ({

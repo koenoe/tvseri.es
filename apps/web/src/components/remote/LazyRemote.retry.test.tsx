@@ -3,10 +3,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MotionGlobalConfig } from 'motion/react';
 import type { ReactNode } from 'react';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-
-import { createFakeMarking } from './fakeMarking';
 import { LazyShowRemote, LazyTileRemote } from './LazyRemote';
 import { RemoteMarkingProvider } from './marking';
+import { createFakeMarking } from './testing/fakeMarking';
 
 const { attempts, tileAttempts } = vi.hoisted(() => ({
   attempts: { count: 0 },

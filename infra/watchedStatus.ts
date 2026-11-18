@@ -55,11 +55,11 @@ watchedStatusQueue.subscribe(
     // Default = {size: 10, window: “20 seconds”, partialResponses: false}
     batch: {
       partialResponses: true, // handler returns batchItemFailures per message
-      // Users run one after another in a 60 s Lambda, and a heavy user's
-      // Monday full check makes about one TMDB call per show at the
-      // background budget's 5 a second (lib/upstream/budget.ts): 5 users
-      // leave heavy ones room (SQS BatchSize, an in-place
-      // UpdateEventSourceMapping change)
+      // Users run one after another in a 60 s Lambda, and a user's check
+      // reads each of their finished shows (a TMDB call when it isn't
+      // cached) at the background budget's 5 a second
+      // (lib/upstream/budget.ts): 5 users leave heavy ones room (SQS
+      // BatchSize, an in-place UpdateEventSourceMapping change)
       size: 5,
       window: '1 minute',
     },

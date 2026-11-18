@@ -1,4 +1,5 @@
 import HeadLink from '@/app/(site)/u/[username]/(profile)/_components/blocks/HeadLink';
+import ClampedText, { type ClampFit } from '@/components/ui/fold/ClampedText';
 import FoldLabel from '@/components/ui/fold/FoldLabel';
 import Dot from '@/components/ui/lane/Dot';
 import SectionHead from '@/components/ui/section/SectionHead';
@@ -10,10 +11,19 @@ import { Specimen, State } from './Specimen';
 const FOLD =
   'flex h-12 w-80 items-center justify-center gap-2 rounded-12 bg-white/5 px-4 text-body-sm font-medium';
 
+const CLAMP_FIT: ClampFit = { base: 120 };
+const CLAMP_TEXT = 'text-body text-white/80';
+const LONG_TEXT =
+  'A made-up biography long enough for the clamp: born in a harbour town, trained as a carpenter, then twenty years of stage work before a first television role at forty. Since then a run of character parts in crime dramas, two long-running comedies and a documentary series about boatbuilding.';
+const SHORT_TEXT = 'A made-up biography that three lines hold.';
+
 const DOT = <Dot tone="cyan" />;
 const LINK = <HeadLink href="#headings">Stats</HeadLink>;
 
-/** The shared section heading (`SectionHead`) and the fold's label (`FoldLabel`). */
+/**
+ * The shared section heading (`SectionHead`), the fold's label (`FoldLabel`)
+ * and three-line text with More (`ClampedText`).
+ */
 export default function HeadingSection() {
   return (
     <Section
@@ -62,6 +72,29 @@ export default function HeadingSection() {
           <button aria-expanded className={FOLD} type="button">
             <FoldLabel label="Show all 67 series" open size={15} />
           </button>
+        </State>
+      </Specimen>
+      <Specimen
+        label="Clamped text"
+        note="ClampedText (the show hero's synopsis, the person page's biography)"
+      >
+        <State name="cut: More">
+          <div className="w-80">
+            <ClampedText
+              fit={CLAMP_FIT}
+              text={LONG_TEXT}
+              textClassName={CLAMP_TEXT}
+            />
+          </div>
+        </State>
+        <State name="fits: no toggle">
+          <div className="w-80">
+            <ClampedText
+              fit={CLAMP_FIT}
+              text={SHORT_TEXT}
+              textClassName={CLAMP_TEXT}
+            />
+          </div>
         </State>
       </Specimen>
     </Section>

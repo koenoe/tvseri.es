@@ -13,7 +13,7 @@ import { fontsSettled } from './helpers/viewport';
  * placeholder is the box of what replaces it, and nothing shifts.
  *
  * - The page shell (a show nobody has visited: `/900004`, the stub's median
- *   show: a two-line description, twelve keywords, three seasons): the whole
+ *   show: a three-line description, twelve keywords, three seasons): the whole
  *   page, section by section.
  * - The viewer's holes on a prerendered show (The Bear): the progress line,
  *   the first-tracking prompt, the actions and the episodes wall.

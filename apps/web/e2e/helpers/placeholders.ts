@@ -37,14 +37,6 @@ export type ViewportName = keyof typeof VIEWPORTS;
 export const namedViewports = (...names: ReadonlyArray<ViewportName>) =>
   names.map((name) => ({ name, ...VIEWPORTS[name] }));
 
-/** Every viewport, desktop first, then phone, tablet and laptop */
-export const ALL_VIEWPORTS = namedViewports(
-  'desktop',
-  'phone',
-  'tablet',
-  'laptop',
-);
-
 /** What the pre-paint script does on a hard load: someone else's profile shows the visitor placeholders */
 const VISITOR_RULE =
   '.ph-owner{display:none!important}.ph-visitor{display:contents!important}';

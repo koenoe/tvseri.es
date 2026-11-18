@@ -1,12 +1,4 @@
-import { formatGrouped } from '@tvseri.es/utils';
 import { formatCappedCount } from '@/lib/formatCount';
-
-/**
- * `1 episode`, `4,812 episodes` (grouped); `many`
- * for irregular plurals: `plural(n, 'series', 'series')`.
- */
-export const plural = (count: number, one: string, many = `${one}s`) =>
-  `${formatGrouped(count)} ${count === 1 ? one : many}`;
 
 /**
  * `plural` for a TMDB count, which stops at its cap: `20,000+ series`

@@ -1,7 +1,7 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "exclude": ["duplicates"],
-  "ignore": [".claude/**"],
+  "ignore": [".claude/**", "packages/schemas/tmdb-v*.d.ts"],
   "ignoreExportsUsedInFile": {
     "interface": true,
     "type": true
@@ -21,19 +21,27 @@
       "entry": [
         "test/empty.ts",
         "scripts/*.mjs",
-        "e2e/stub-api/fixtures/**/*.ts",
-        "e2e/helpers/*.ts"
+        "e2e/stub-api/fixtures/**/*.ts"
       ],
       "project": [
         "**/*.{js,mjs,cjs,ts,tsx,css}",
         "!src/app/(site)/dev/style-guide/_sections/IconSection.tsx"
       ]
     },
+    "packages/constants": {
+      "includeEntryExports": true
+    },
     "packages/kill-switch": {
       "entry": [
         "disable-cloudfront-distributions/index.ts!",
         "metrics-monitor/index.ts!"
       ]
+    },
+    "packages/schemas": {
+      "includeEntryExports": true
+    },
+    "packages/utils": {
+      "includeEntryExports": true
     },
     "tools/load": {
       "entry": ["src/*.load.ts"],

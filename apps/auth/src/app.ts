@@ -9,9 +9,10 @@ import { Hono } from 'hono';
 import { csrf } from 'hono/csrf';
 
 import { renderCodeEmail } from './lib/codeEmail';
-import { CodeUI, changeAddressPage, SelectUI } from './ui';
 import { contentSecurityPolicy, FONT } from './ui/assets';
+import { CodeUI } from './ui/code';
 import { lostStateResponse } from './ui/error';
+import { changeAddressPage, SelectUI } from './ui/select';
 
 /**
  * Header the code page's script sends with its verify post. A success then

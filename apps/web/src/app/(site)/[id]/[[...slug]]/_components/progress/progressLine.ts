@@ -24,7 +24,7 @@ export type ProgressLine = Readonly<{
 }>;
 
 /** The runtime of some episodes, in minutes (0 for an unknown one). */
-export function minutesOf(
+function minutesOf(
   episodes: ReadonlyArray<
     Readonly<{ seasonNumber: number; episodeNumber: number }>
   >,

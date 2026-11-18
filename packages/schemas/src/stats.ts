@@ -30,7 +30,7 @@ export type StatsFavoritesCount = Readonly<
 >;
 
 // Spotlight episode info
-export const StatsSpotlightEpisodeSchema = v.object({
+const StatsSpotlightEpisodeSchema = v.object({
   episodeNumber: v.number(),
   runtime: v.number(),
   seasonNumber: v.number(),
@@ -38,12 +38,8 @@ export const StatsSpotlightEpisodeSchema = v.object({
   title: v.string(),
 });
 
-export type StatsSpotlightEpisode = Readonly<
-  v.InferOutput<typeof StatsSpotlightEpisodeSchema>
->;
-
 // Spotlight TV series info
-export const StatsSpotlightTvSeriesSchema = v.object({
+const StatsSpotlightTvSeriesSchema = v.object({
   backdropColor: v.nullable(v.string()),
   backdropImage: v.nullable(v.string()),
   id: v.number(),
@@ -52,10 +48,6 @@ export const StatsSpotlightTvSeriesSchema = v.object({
   title: v.string(),
   titleTreatmentImage: v.nullable(v.string()),
 });
-
-export type StatsSpotlightTvSeries = Readonly<
-  v.InferOutput<typeof StatsSpotlightTvSeriesSchema>
->;
 
 // Single spotlight item (first or last watch)
 export const StatsSpotlightItemSchema = v.nullable(

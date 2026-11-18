@@ -6,17 +6,13 @@
  * All values are in milliseconds.
  */
 
-import {
-  findBinIndexForEdges,
-  mergeHistogramBins,
-  percentileFromBins,
-} from './histogram';
+import { findBinIndexForEdges, percentileFromBins } from './histogram';
 
 /**
  * Histogram bin edges for API latency in milliseconds.
  * Provides good granularity for typical API response times.
  */
-export const LATENCY_HISTOGRAM_EDGES: readonly number[] = [
+const LATENCY_HISTOGRAM_EDGES: readonly number[] = [
   0,
   10,
   25,
@@ -39,7 +35,7 @@ export const LATENCY_HISTOGRAM_EDGES: readonly number[] = [
 /**
  * Find which bin a latency value belongs to.
  */
-export const findLatencyBinIndex = (latencyMs: number): number =>
+const findLatencyBinIndex = (latencyMs: number): number =>
   findBinIndexForEdges(latencyMs, LATENCY_HISTOGRAM_EDGES);
 
 /**
@@ -58,12 +54,6 @@ export const buildLatencyHistogramBins = (latencies: number[]): number[] => {
 
   return bins;
 };
-
-/**
- * Merge multiple latency histograms by summing corresponding bins.
- * @deprecated Use mergeHistogramBins from './histogram' directly
- */
-export const mergeLatencyHistograms = mergeHistogramBins;
 
 /**
  * Calculate a percentile from latency histogram bins using linear interpolation.

@@ -132,15 +132,6 @@ export const UserSchema = v.object({
   watchProviders: v.optional(v.array(WatchProviderSchema)),
 });
 
-export const UserWithFollowInfoSchema = v.object({
-  ...UserSchema.entries,
-  followerCount: v.number(),
-  followingCount: v.number(),
-  isFollower: v.boolean(),
-  isFollowing: v.boolean(),
-  isMe: v.boolean(),
-});
-
 /**
  * `PUT /me`: only the fields sent change (at least one). `country` is the
  * region that decides services and release dates.
@@ -169,8 +160,6 @@ export const UpdateWatchProvidersForUserSchema = v.object({
 
 export type Role = v.InferOutput<typeof RoleSchema>;
 export type User = v.InferOutput<typeof UserSchema>;
-export type UserWithFollowInfo = v.InferOutput<typeof UserWithFollowInfoSchema>;
-export type UpdateUser = v.InferOutput<typeof UpdateUserSchema>;
 export type UpdateWatchProvidersForUser = v.InferOutput<
   typeof UpdateWatchProvidersForUserSchema
 >;

@@ -22,7 +22,7 @@ const runId = Math.random().toString(36).slice(2, 8);
 const e2ePort = Number(process.env.E2E_PORT ?? 3100);
 
 /** Where the auth stub listens (`playwright.config.ts` starts it). */
-export const stubAuthUrl = `http://localhost:${Number(process.env.STUB_AUTH_PORT ?? e2ePort + 1100)}`;
+const stubAuthUrl = `http://localhost:${Number(process.env.STUB_AUTH_PORT ?? e2ePort + 1100)}`;
 
 /** This test's namespace: its own copy of the stub's state */
 function currentNamespace(): string {

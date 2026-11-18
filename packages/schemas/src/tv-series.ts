@@ -72,11 +72,9 @@ const NetworkSchema = v.object({
 export type Status = v.InferOutput<typeof StatusSchema>;
 
 /** Ids on other sites, for the links in the show's Information block */
-export const ExternalIdsSchema = v.object({
+const ExternalIdsSchema = v.object({
   imdbId: v.nullable(v.string()),
 });
-
-export type ExternalIds = v.InferOutput<typeof ExternalIdsSchema>;
 
 export const TvSeriesSchema = v.object({
   backdropColor: v.string(),

@@ -1,6 +1,6 @@
 import * as v from 'valibot';
 
-export const DISCOVER_SORT_BY_OPTIONS = [
+const DISCOVER_SORT_BY_OPTIONS = [
   'popularity.desc',
   'first_air_date.desc',
   'vote_average.desc',
@@ -13,10 +13,10 @@ export const DISCOVER_SORT_BY_OPTIONS = [
 ] as const;
 
 /** Matches the API default in `buildDiscoverQuery`, so it can be omitted from the query. */
-export const DEFAULT_DISCOVER_SORT_BY = 'popularity.desc';
+const DEFAULT_DISCOVER_SORT_BY = 'popularity.desc';
 
 /** TMDB serves at most 500 pages for discover. */
-export const MAX_DISCOVER_PAGE = 500;
+const MAX_DISCOVER_PAGE = 500;
 
 /** Upper bound for the number of values in a list filter (e.g. `with_genres=18,35`). */
 const MAX_DISCOVER_LIST_VALUES = 20;

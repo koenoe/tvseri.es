@@ -3,13 +3,13 @@
  */
 import * as v from 'valibot';
 
-export const MetricClientSchema = v.object({
+const MetricClientSchema = v.object({
   platform: v.string(),
   userAgent: v.nullable(v.string()),
   version: v.nullable(v.string()),
 });
 
-export const MetricDeviceSchema = v.object({
+const MetricDeviceSchema = v.object({
   os: v.optional(v.nullable(v.string())),
   osVersion: v.optional(v.nullable(v.string())),
   type: v.string(),
@@ -25,7 +25,7 @@ export const DependencyMetricSchema = v.object({
   timestamp: v.string(),
 });
 
-export const HistogramSchema = v.object({
+const HistogramSchema = v.object({
   /** Count of values in each histogram bin */
   bins: v.array(v.number()),
 });
@@ -124,7 +124,7 @@ export const PercentileStatsSchema = v.object({
 /**
  * Daily series point for dependency operation sparklines.
  */
-export const DependencyOperationSeriesPointSchema = v.object({
+const DependencyOperationSeriesPointSchema = v.object({
   date: v.string(),
   errorRate: v.number(),
   p75: v.number(),
@@ -165,11 +165,7 @@ export const WebVitalNameSchema = v.picklist([
   'TTFB',
 ]);
 
-export const WebVitalRatingSchema = v.picklist([
-  'good',
-  'needs-improvement',
-  'poor',
-]);
+const WebVitalRatingSchema = v.picklist(['good', 'needs-improvement', 'poor']);
 
 export const ApiMetricRecordSchema = v.object({
   authenticated: v.boolean(),
@@ -233,17 +229,6 @@ export const WebVitalsBatchSchema = v.pipe(
 );
 
 /**
- * HTTP method picklist for API metrics.
- */
-export const HttpMethodSchema = v.picklist([
-  'GET',
-  'POST',
-  'PUT',
-  'PATCH',
-  'DELETE',
-]);
-
-/**
  * Status code category breakdown.
  */
 export const StatusCodeBreakdownSchema = v.object({
@@ -266,7 +251,7 @@ export const StatusCodeBreakdownSchema = v.object({
  * Top country item for geographic breakdown on endpoint detail pages.
  * Shows which countries are hitting an endpoint and their performance.
  */
-export const ApiTopCountrySchema = v.object({
+const ApiTopCountrySchema = v.object({
   /** Country code (ISO 3166-1 alpha-2) */
   country: v.string(),
   ...ErrorFields,
@@ -281,7 +266,7 @@ export const ApiTopCountrySchema = v.object({
  * Top endpoint item for leaderboards in SUMMARY.
  * Similar to WebVitalTopItemSchema but for API metrics.
  */
-export const ApiTopEndpointSchema = v.object({
+const ApiTopEndpointSchema = v.object({
   /** Apdex score (0-1) */
   apdexScore: v.number(),
   /** Dependency names for this endpoint (e.g., ["TMDB", "MDBLIST"]) */
@@ -659,16 +644,6 @@ export const ApiMetricsDependencyParamSchema = v.object({
 });
 
 /**
- * Query parameters for API metrics status codes endpoint.
- */
-export const ApiMetricsStatusQuerySchema = v.object({
-  /** Number of days to query, clamped to 1-30 */
-  days: MetricsDaysSchema,
-  /** Platform filter (ios, android, web) */
-  platform: v.optional(v.string()),
-});
-
-/**
  * Query parameters for API metrics endpoints list.
  */
 export const ApiMetricsEndpointsQuerySchema = v.object({
@@ -688,8 +663,6 @@ export const ApiMetricsEndpointsQuerySchema = v.object({
   sortDir: v.optional(v.picklist(['asc', 'desc'])),
 });
 
-export type MetricClient = v.InferOutput<typeof MetricClientSchema>;
-export type MetricDevice = v.InferOutput<typeof MetricDeviceSchema>;
 export type DependencyMetric = v.InferOutput<typeof DependencyMetricSchema>;
 export type Apdex = v.InferOutput<typeof ApdexSchema>;
 export type LatencyRatings = v.InferOutput<typeof LatencyRatingsSchema>;
@@ -701,13 +674,8 @@ export type DependencyStats = v.InferOutput<typeof DependencyStatsSchema>;
 export type StatusCodeBreakdown = v.InferOutput<
   typeof StatusCodeBreakdownSchema
 >;
-export type ApiTopCountry = v.InferOutput<typeof ApiTopCountrySchema>;
-export type ApiTopEndpoint = v.InferOutput<typeof ApiTopEndpointSchema>;
-export type HttpMethod = v.InferOutput<typeof HttpMethodSchema>;
 export type WebVitalName = v.InferOutput<typeof WebVitalNameSchema>;
-export type WebVitalRating = v.InferOutput<typeof WebVitalRatingSchema>;
 export type WebVitalRatings = v.InferOutput<typeof WebVitalRatingsSchema>;
-export type Histogram = v.InferOutput<typeof HistogramSchema>;
 export type TimeSeriesPoint = v.InferOutput<typeof TimeSeriesPointSchema>;
 export type WebVitalMetricStats = v.InferOutput<
   typeof WebVitalMetricStatsSchema
@@ -815,7 +783,7 @@ export const AggregatedApiMetricsSchema = v.object({
 /**
  * Daily data point for API metrics time series charts
  */
-export const ApiMetricSeriesItemSchema = v.object({
+const ApiMetricSeriesItemSchema = v.object({
   ...ApiMetricsObject,
   date: v.string(),
 });
@@ -834,7 +802,7 @@ export const ApiMetricsSummaryResponseSchema = v.object({
  * Daily series item for endpoint sparklines.
  * Contains key metrics per day for trend visualization.
  */
-export const EndpointDailySeriesItemSchema = v.object({
+const EndpointDailySeriesItemSchema = v.object({
   date: v.string(),
   errorRate: v.number(),
   p75: v.number(),
@@ -884,14 +852,8 @@ export type MetricsCountriesResponse = v.InferOutput<
 export type AggregatedApiMetrics = v.InferOutput<
   typeof AggregatedApiMetricsSchema
 >;
-export type ApiMetricSeriesItem = v.InferOutput<
-  typeof ApiMetricSeriesItemSchema
->;
 export type ApiMetricsSummaryResponse = v.InferOutput<
   typeof ApiMetricsSummaryResponseSchema
->;
-export type EndpointDailySeriesItem = v.InferOutput<
-  typeof EndpointDailySeriesItemSchema
 >;
 export type EndpointMetrics = v.InferOutput<typeof EndpointMetricsSchema>;
 export type ApiMetricsEndpointsResponse = v.InferOutput<

@@ -78,16 +78,10 @@ export const MarkEpisodesInputSchema = v.object({
   seriesId: PositiveIdSchema,
 });
 
-export type MarkEpisodesInput = v.InferInput<typeof MarkEpisodesInputSchema>;
-
 export const UnmarkEpisodesInputSchema = v.object({
   episodes: episodeList(EpisodeRefSchema),
   seriesId: PositiveIdSchema,
 });
-
-export type UnmarkEpisodesInput = v.InferInput<
-  typeof UnmarkEpisodesInputSchema
->;
 
 /** Mark every not-yet-watched aired episode of a season (or of the show). */
 export const MarkScopeInputSchema = v.object({
@@ -100,22 +94,16 @@ export const MarkScopeInputSchema = v.object({
   ]),
 });
 
-export type MarkScopeInput = v.InferInput<typeof MarkScopeInputSchema>;
-
 export const UnmarkScopeInputSchema = v.object({
   seasonNumber: v.optional(count(999)),
   seriesId: PositiveIdSchema,
 });
-
-export type UnmarkScopeInput = v.InferInput<typeof UnmarkScopeInputSchema>;
 
 export const SetInListInputSchema = v.object({
   list: v.picklist(['favorites', 'watchlist']),
   seriesId: PositiveIdSchema,
   value: v.boolean(),
 });
-
-export type SetInListInput = v.InferInput<typeof SetInListInputSchema>;
 
 export const SeriesIdInputSchema = v.object({ seriesId: PositiveIdSchema });
 

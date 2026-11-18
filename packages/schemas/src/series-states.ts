@@ -12,8 +12,6 @@ export const SeriesStatesQuerySchema = v.object({
   ids: idListSchema(SERIES_STATES_MAX_IDS),
 });
 
-export type SeriesStatesQuery = v.InferOutput<typeof SeriesStatesQuerySchema>;
-
 const count = v.pipe(v.number(), v.integer(), v.minValue(0));
 
 const onWatchlist = v.boolean();

@@ -38,7 +38,7 @@
  */
 
 /** The six groups the themes fall into, in their order */
-export const THEME_GROUPS = [
+const THEME_GROUPS = [
   { id: 'hooks', name: 'Story hooks' },
   { id: 'people', name: "Who it's about" },
   { id: 'creatures', name: 'Creatures and the supernatural' },

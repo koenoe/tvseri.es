@@ -14,12 +14,7 @@ export {
   TMDB_COUNT_CAP,
 } from './discover';
 export { HOME_MOMENTS_VERSION } from './homeMoments';
-export {
-  WHATS_ON_NETWORKS,
-  WHERE_SET_PLACES,
-  type WhatsOnNetwork,
-  type WhereSetPlace,
-} from './homeToys';
+export { WHATS_ON_NETWORKS, WHERE_SET_PLACES } from './homeToys';
 export {
   allOf,
   DISCOVER_FILTER_KEYS,
@@ -51,7 +46,6 @@ export {
   WEBHOOK_TOKEN_KV_PREFIX,
   WEBHOOK_TOKEN_PATTERN_SOURCE,
 } from './scrobble';
-export { THEME_GROUPS } from './themes';
 export { MAX_TMDB_ID_DIGITS, TMDB_ID_PATTERN } from './tmdbId';
 export { MAX_EPISODES_PER_SERIES_MARK } from './watched';
 export { WEB_VITALS_SAMPLE_RATE } from './webVitals';

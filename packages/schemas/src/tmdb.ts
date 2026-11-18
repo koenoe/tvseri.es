@@ -15,9 +15,6 @@ export type TmdbMovie =
     images: paths[`/3/tv/${number}/images`]['get']['responses']['200']['content']['application/json'];
   };
 
-export type TmdbTvSeriesAccountStates =
-  paths[`/3/tv/${number}/account_states`]['get']['responses']['200']['content']['application/json'];
-
 export type TmdbTvSeriesContentRatings =
   paths[`/3/tv/${number}/content_ratings`]['get']['responses']['200']['content']['application/json'];
 
@@ -39,12 +36,6 @@ export type TmdbTvSeriesSeason =
 export type TmdbTvSeriesEpisode =
   paths[`/3/tv/${number}/season/${number}/episode/${number}`]['get']['responses']['200']['content']['application/json'];
 
-export type TmdbTrendingTvSeries =
-  paths[`/3/trending/tv/${string}`]['get']['responses']['200']['content']['application/json'];
-
-export type TmdbDiscoverMovies =
-  paths['/3/discover/movie']['get']['responses']['200']['content']['application/json'];
-
 export type TmdbDiscoverTvSeries =
   paths['/3/discover/tv']['get']['responses']['200']['content']['application/json'];
 
@@ -53,10 +44,6 @@ export type TmdbDiscoverMovieQuery =
 
 export type TmdbDiscoverTvSeriesQuery =
   paths['/3/discover/tv']['get']['parameters']['query'];
-
-export type TmdbDiscoverQuery =
-  | TmdbDiscoverMovieQuery
-  | TmdbDiscoverTvSeriesQuery;
 
 export type TmdbSearchTvSeries =
   paths['/3/search/tv']['get']['responses']['200']['content']['application/json'];
@@ -73,26 +60,11 @@ export type TmdbLanguages =
 export type TmdbGenresForTvSeries =
   paths['/3/genre/tv/list']['get']['responses']['200']['content']['application/json'];
 
-export type TmdbAccountDetails =
-  paths[`/3/account/${number}`]['get']['responses']['200']['content']['application/json'];
-
-export type TmdbWatchlist =
-  paths[`/3/account/${number}/watchlist/tv`]['get']['responses']['200']['content']['application/json'];
-
-export type TmdbFavorites =
-  paths[`/3/account/${number}/favorite/tv`]['get']['responses']['200']['content']['application/json'];
-
 export type TmdbWatchProviders =
   paths['/3/watch/providers/tv']['get']['responses']['200']['content']['application/json'];
 
 export type TmdbPerson =
   paths[`/3/person/${number}`]['get']['responses']['200']['content']['application/json'];
-
-export type TmdbPersonImages =
-  paths[`/3/person/${number}/images`]['get']['responses']['200']['content']['application/json'];
-
-export type TmdbPersonCredits =
-  paths[`/3/person/${number}/combined_credits`]['get']['responses']['200']['content']['application/json'];
 
 export type TmdbPersonTvCredits =
   paths[`/3/person/${number}/tv_credits`]['get']['responses']['200']['content']['application/json'];

@@ -162,10 +162,7 @@ const PROBIT_0_9 = 1.2815515655446004;
  * computeMetricScore(1200, 'LCP') // → ~99 (very fast)
  * computeMetricScore(6000, 'LCP') // → ~25 (slow)
  */
-export const computeMetricScore = (
-  value: number,
-  metric: RESMetricName,
-): number => {
+const computeMetricScore = (value: number, metric: RESMetricName): number => {
   // Handle edge cases:
   // - Zero or negative values indicate missing data, return 0 (not 100)
   // - Non-finite values (NaN, Infinity) also return 0

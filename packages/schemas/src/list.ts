@@ -38,9 +38,3 @@ export const CreateListItemSchema = v.object({
 });
 
 export type CreateListItem = v.InferOutput<typeof CreateListItemSchema>;
-
-export const DeleteListItemSchema = v.object({
-  id: v.number(),
-});
-
-export type DeleteListItem = v.InferOutput<typeof DeleteListItemSchema>;

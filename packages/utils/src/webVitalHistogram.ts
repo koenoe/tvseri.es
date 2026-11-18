@@ -20,21 +20,20 @@ export type WebVitalMetricName = 'CLS' | 'FCP' | 'INP' | 'LCP' | 'TTFB';
  * These match the thresholds from web.dev and provide good granularity
  * around the "good" and "needs improvement" boundaries.
  */
-export const HISTOGRAM_EDGES: Readonly<
-  Record<WebVitalMetricName, readonly number[]>
-> = {
-  CLS: [0, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.35, 0.5, Infinity],
-  FCP: [0, 0.5, 1.0, 1.5, 1.8, 2.2, 2.6, 3.0, 4.0, 5.0, Infinity],
-  INP: [0, 50, 100, 150, 200, 300, 400, 500, 750, 1000, Infinity],
-  LCP: [0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 8.0, Infinity],
-  TTFB: [0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.8, 2.5, 4.0, Infinity],
-} as const;
+const HISTOGRAM_EDGES: Readonly<Record<WebVitalMetricName, readonly number[]>> =
+  {
+    CLS: [0, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.35, 0.5, Infinity],
+    FCP: [0, 0.5, 1.0, 1.5, 1.8, 2.2, 2.6, 3.0, 4.0, 5.0, Infinity],
+    INP: [0, 50, 100, 150, 200, 300, 400, 500, 750, 1000, Infinity],
+    LCP: [0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 8.0, Infinity],
+    TTFB: [0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.8, 2.5, 4.0, Infinity],
+  } as const;
 
 /**
  * Convert raw metric value to histogram units.
  * Raw values from web-vitals library are in ms, but LCP/FCP/TTFB bins use seconds.
  */
-export const toHistogramUnits = (
+const toHistogramUnits = (
   value: number,
   metric: WebVitalMetricName,
 ): number => {
@@ -47,7 +46,7 @@ export const toHistogramUnits = (
 /**
  * Convert histogram units back to raw metric units (ms).
  */
-export const fromHistogramUnits = (
+const fromHistogramUnits = (
   value: number,
   metric: WebVitalMetricName,
 ): number => {
@@ -58,7 +57,7 @@ export const fromHistogramUnits = (
 /**
  * Find which bin a value belongs to.
  */
-export const findBinIndex = (value: number, edges: readonly number[]): number =>
+const findBinIndex = (value: number, edges: readonly number[]): number =>
   findBinIndexForEdges(value, edges);
 
 /**

@@ -80,7 +80,7 @@ export const LIBRARY_PAGE_SIZE = 24;
 export const LIBRARY_FIND_MAX = 100;
 
 /** `cursor` / `before` */
-export const LIBRARY_CURSOR_MAX = 512;
+const LIBRARY_CURSOR_MAX = 512;
 
 /**
  * `GET /user/:id/library/:shelf` query. Strict: anything off is a 400 (the
@@ -116,8 +116,6 @@ export const LibraryQuerySchema = v.pipe(
   ),
 );
 
-export type LibraryQuery = v.InferOutput<typeof LibraryQuerySchema>;
-
 const TimeSchema = v.number();
 
 /** The owner's progress in an in-progress show: regular episodes only (no specials) */
@@ -142,7 +140,7 @@ export const LibraryProgressSchema = v.object({
 
 export type LibraryProgress = v.InferOutput<typeof LibraryProgressSchema>;
 
-export const LibraryItemFactsSchema = v.object({
+const LibraryItemFactsSchema = v.object({
   /** At least one regular episode has aired */
   hasAired: v.boolean(),
   /** Regular seasons */
@@ -154,8 +152,6 @@ export const LibraryItemFactsSchema = v.object({
   /** TMDB type: Scripted, Miniseries... */
   type: v.nullable(v.string()),
 });
-
-export type LibraryItemFacts = v.InferOutput<typeof LibraryItemFactsSchema>;
 
 /** Which shelves a show sits on (a show can sit on two) */
 export const LibraryOnSchema = v.object({

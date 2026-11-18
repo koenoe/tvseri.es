@@ -1,11 +1,12 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { getSeriesFacts, getSeriesFactsReport } from '@/lib/seriesFacts';
 import { onTmdb } from './fakeHttp';
 import { fakeShow } from './fixtures/tmdb';
+import { request } from './request';
 
 describe('series facts', () => {
-  it('reads the facts of many shows: one TMDB call per show, cached after', async () => {
+  it('reads the facts of many shows: two TMDB calls per show, cached after', async () => {
     fakeShow({
       extra: {
         episode_run_time: [45, 55],
@@ -70,5 +71,62 @@ describe('series facts', () => {
 
     expect([...facts.keys()]).toEqual([1]);
     expect([...failed]).toEqual([2]);
+  });
+
+  describe("the backdrop: the show page's default", () => {
+    const backdrop = (path: string, language: string | null) => ({
+      file_path: path,
+      iso_639_1: language,
+    });
+    const showWithTitledBackdrop = () =>
+      fakeShow({
+        extra: { backdrop_path: '/titled.jpg', original_language: 'ja' },
+        id: 7,
+        seasons: [{ airDate: '2019-05-06', episodes: 4 }],
+      });
+
+    it('is the first text-free backdrop, the one the show page draws', async () => {
+      showWithTitledBackdrop();
+      onTmdb(
+        '/tv/7/images',
+        {
+          backdrops: [
+            backdrop('/titled.jpg', 'en'),
+            backdrop('/plain.jpg', null),
+            backdrop('/plain-2.jpg', null),
+          ],
+          logos: [],
+        },
+        // The show page's language rule: English, none, the original's
+        { query: { include_image_language: 'en,null,ja' } },
+      );
+
+      const facts = await getSeriesFacts([7]);
+      const page = (await (
+        await request('/series/7?include_images=true')
+      ).json()) as Readonly<{ backdropPath: string }>;
+
+      expect(facts.get(7)?.backdropPath).toBe('/plain.jpg');
+      expect(facts.get(7)?.backdropPath).toBe(page.backdropPath);
+    });
+
+    it("keeps TMDB's backdrop_path when the show has no images", async () => {
+      showWithTitledBackdrop();
+
+      const facts = await getSeriesFacts([7]);
+
+      expect(facts.get(7)?.backdropPath).toBe('/titled.jpg');
+    });
+
+    it("keeps TMDB's backdrop_path when the images call fails", async () => {
+      showWithTitledBackdrop();
+      onTmdb('/tv/7/images', { status_message: 'boom' }, { status: 500 });
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const { facts, failed } = await getSeriesFactsReport([7]);
+
+      expect(failed.size).toBe(0);
+      expect(facts.get(7)?.backdropPath).toBe('/titled.jpg');
+    });
   });
 });

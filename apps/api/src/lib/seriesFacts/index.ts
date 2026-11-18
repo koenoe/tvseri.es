@@ -9,6 +9,7 @@ import { getCacheEntries, setCacheItems } from '@/lib/db/cache';
 import { claim } from '@/lib/db/cache/singleFlight';
 import { hasTimeForAnother, refreshWaitMs } from '@/lib/deadline';
 import { fetchRawTvSeriesDetails } from '@/lib/tmdb';
+import { defaultBackdropPath } from '@/lib/tmdb/helpers';
 import { atLowPriority, TMDB_CONCURRENCY } from '@/lib/upstream/budget';
 import { createLimiter } from '@/utils/limit';
 import { logWarn } from '@/utils/logWarn';
@@ -39,7 +40,9 @@ const MAX_REFRESHES = 20;
 /** Missing facts one personal read fetches; the rest come on later views */
 const MAX_MISSING = 100;
 
-const cacheKey = (id: number) => `series-facts:v1:${id}`;
+// v2: backdropPath is the show page's default (text-free) backdrop, no
+// longer TMDB's backdrop_path
+const cacheKey = (id: number) => `series-facts:v2:${id}`;
 
 /** Cached facts carry when they were read: DynamoDB TTL deletes lag hours */
 type CachedFacts = SeriesFacts & Readonly<{ fetchedAt: number }>;
@@ -88,7 +91,7 @@ const toSeriesFacts = (series: TmdbTvSeries): SeriesFacts => {
     (lastEpisodeToAir?.runtime || null);
 
   return {
-    backdropPath: series.backdrop_path ?? null,
+    backdropPath: defaultBackdropPath(series) ?? null,
     episodeRuntime,
     firstAirDate: series.first_air_date ?? '',
     genreIds: (series.genres ?? []).map((genre) => genre.id),
@@ -134,7 +137,10 @@ const readCached = async (ids: ReadonlyArray<number>) =>
     return new Map<string, Readonly<{ value: CachedFacts | null }>>();
   });
 
-/** One TMDB details call; undefined for a show TMDB doesn't know */
+/**
+ * Two TMDB calls (details, then images for the default backdrop); undefined
+ * for a show TMDB doesn't know
+ */
 const fetchFacts = async (id: number) => {
   const series = await fetchRawTvSeriesDetails(id);
   return series ? toSeriesFacts(series) : undefined;
@@ -161,9 +167,9 @@ const store = async (found: ReadonlyArray<SeriesFacts>, now: number) => {
 /**
  * The facts of many shows, by id, for the shared CDN-cached routes
  * (duration, summaries). Facts are cached per show in the Cache table and
- * shared by every user; older than a day they are fetched again (one TMDB
- * details call each, bounded concurrency). Shows TMDB doesn't know are absent
- * from `facts`. A TMDB failure for one show leaves it out of `facts` and lists
+ * shared by every user; older than a day they are fetched again (details
+ * and images, two TMDB calls each, bounded concurrency). Shows TMDB doesn't
+ * know are absent from `facts`. A TMDB failure for one show leaves it out of `facts` and lists
  * it in `failed` (unless older facts are still stored: those are served),
  * instead of failing the rest: a caller whose answer is cached must not cache
  * it with a show missing.

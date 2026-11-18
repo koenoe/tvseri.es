@@ -369,8 +369,8 @@ describe('Up next only (Home: ?view=up-next)', () => {
     expect(warm.dynamo.QueryCommand).toBe(36);
     expect(warm.dynamo.BatchGetItemCommand).toBe(4);
     expect(warm.tmdb).toBe(0);
-    // cold: each show's facts, its runtimes (one call: the seasons come from
-    // the facts), three season titles
-    expect(cold.tmdb).toBe(35 + 35 + 3);
+    // cold: each show's facts (details and images), its runtimes (one call:
+    // the seasons come from the facts), three season titles
+    expect(cold.tmdb).toBe(35 * 2 + 35 + 3);
   });
 });

@@ -114,10 +114,20 @@ export function pickAutomaticImages(images: RawImages) {
   };
 }
 
+/**
+ * The backdrop a show is drawn with when no admin pick is saved: the
+ * automatic one from its images, else TMDB's `backdrop_path` (which may
+ * carry text). One rule for the show page and every card drawn from series
+ * facts, so a show looks the same on both.
+ */
+export const defaultBackdropPath = (
+  item: Readonly<{ backdrop_path?: string; images?: RawImages }>,
+) => pickAutomaticImages(item.images ?? {}).backdropPath ?? item.backdrop_path;
+
 function extractImages(item: TmdbTvSeries | TmdbMovie) {
   const images = item.images ?? {};
   const automatic = pickAutomaticImages(images);
-  const backdrop = automatic.backdropPath ?? item.backdrop_path;
+  const backdrop = defaultBackdropPath(item);
   const poster = item.poster_path ?? images.posters?.[0]?.file_path;
   const titleTreatment = automatic.titleTreatmentPath;
   const titleTreatmentAspectRatio = titleTreatment

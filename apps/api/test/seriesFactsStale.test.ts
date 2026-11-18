@@ -24,7 +24,7 @@ const tmdbCalls = () =>
   requestedUrls().filter((url) => /^\/3\/tv\/\d+$/.test(url.pathname)).length;
 
 const factsRow = (id: number) =>
-  db.dump('Cache').find((item) => item.pk === `CACHE#series-facts:v1:${id}`);
+  db.dump('Cache').find((item) => item.pk === `CACHE#series-facts:v2:${id}`);
 
 describe('series facts on the personal routes: served stale, refreshed a few at a time', () => {
   it('serves facts past their day and refreshes them, at most 20 a read, oldest first', async () => {

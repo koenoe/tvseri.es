@@ -23,10 +23,12 @@ import CastSheetList from './CastSheetList';
 /**
  * The list's scroll: it carries the side space itself (the gutter on phones,
  * 32px in the panel), so the rows' hover fill, which reaches 12px past the
- * text edge, stays inside it; nothing ever scrolls sideways
+ * text edge, stays inside it; nothing ever scrolls sideways. No top padding:
+ * Safari sticks a sticky heading below it (Chrome at the edge), which let
+ * rows show above the stuck heading; the list carries that space instead
  */
 const SCROLL =
-  'min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain pb-8 max-md:-mx-gutter max-md:px-gutter md:px-8 md:pt-2';
+  'min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain pb-8 max-md:-mx-gutter max-md:px-gutter md:px-8';
 
 const PANEL = cn(
   'flex flex-col',
@@ -86,7 +88,9 @@ export default function CastSheet({
         <DialogCloseCircle size={40} />
       </header>
       <div className={SCROLL}>
-        <CastSheetList total={total} />
+        <div className="md:pt-2">
+          <CastSheetList total={total} />
+        </div>
       </div>
     </ModalShell>
   );

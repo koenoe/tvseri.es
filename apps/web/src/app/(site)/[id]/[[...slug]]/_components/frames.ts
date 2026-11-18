@@ -3,15 +3,14 @@
  * (`ShowSkeleton`), so both draw the same boxes.
  */
 
-/** "Created by" and the cast, at every width (phones: the six-face grid) */
+/** "Created by" and the cast, at every width (phones: the stack) */
 export const CAST_FRAME = 'mx-auto max-w-page px-gutter';
 
 /**
- * "Created by"'s line. Phones: 24px under the hero's last row (the actions,
- * or the first-tracking prompt's card); desktop's actions row carries its
- * own 24px.
+ * "Created by"'s line, from md: on phones the creators lead the cast's
+ * stack instead. Desktop's actions row carries its own 24px above it.
  */
-export const CREATED_BY_LINE = 'max-md:mt-6';
+export const CREATED_BY_LINE = 'max-md:hidden';
 
 export const EPISODES_SECTION =
   'relative z-26 mx-auto mt-10 mb-16 w-full max-w-page px-gutter md:mb-22';

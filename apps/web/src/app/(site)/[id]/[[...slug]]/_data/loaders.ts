@@ -1,6 +1,12 @@
 import 'server-only';
 
-import type { Keyword, Rating, Season, TvSeries } from '@tvseri.es/schemas';
+import type {
+  Keyword,
+  Person,
+  Rating,
+  Season,
+  TvSeries,
+} from '@tvseri.es/schemas';
 import { cacheLife, cacheTag } from 'next/cache';
 
 import { apiFetch } from '@/lib/api/client';
@@ -11,6 +17,11 @@ import {
   tryApi,
   type Unavailable,
 } from '@/lib/cache/unavailable';
+import {
+  type CastCrewPerson,
+  toCastAndCrew,
+  toCastPerson,
+} from '@/lib/series/castAndCrew';
 import { loadSeries, loadSeriesCredits } from '@/lib/series/loaders';
 
 import {
@@ -48,32 +59,42 @@ export async function loadShow(id: number): Promise<ShowResult> {
 
 const CAST_SIZE = 10;
 
-export type CastMember = Readonly<{
-  id: number;
-  name: string;
-  character: string;
-  image: string;
-  slug: string;
+/** The phone stack's faces before its "+N" */
+const STACK_SIZE = 5;
+
+export type ShowCast = Readonly<{
+  /** The desktop row: the first ten of the cast */
+  faces: ReadonlyArray<CastCrewPerson>;
+  /** The phone stack: the first five of everyone, the creators first */
+  stack: ReadonlyArray<CastCrewPerson>;
+  /** The whole cast, for the row's "+N" */
+  castCount: number;
+  /** Everyone the sheet lists: creators and the whole cast */
+  peopleCount: number;
 }>;
 
 /**
  * `GET /series/:id/credits` (the one cached read, `loadSeriesCredits`): the
- * first 10 of the cast.
+ * faces the page draws and the counts of everyone. The whole list loads
+ * only when the sheet opens (`/api/series/:id/credits`), so it never rides
+ * in the page.
  */
 export async function loadCast(
   id: number,
-): Promise<ReadonlyArray<CastMember> | Unavailable> {
+  creators: ReadonlyArray<Person>,
+): Promise<ShowCast | Unavailable> {
   const credits = await loadSeriesCredits(id);
   if (isUnavailable(credits)) {
     return credits;
   }
-  return (credits?.cast ?? []).slice(0, CAST_SIZE).map((person) => ({
-    character: person.character,
-    id: person.id,
-    image: person.image,
-    name: person.name,
-    slug: person.slug,
-  }));
+  const cast = credits?.cast ?? [];
+  const people = toCastAndCrew(creators, cast);
+  return {
+    castCount: cast.length,
+    faces: cast.slice(0, CAST_SIZE).map(toCastPerson),
+    peopleCount: people.length,
+    stack: people.slice(0, STACK_SIZE),
+  };
 }
 
 /**

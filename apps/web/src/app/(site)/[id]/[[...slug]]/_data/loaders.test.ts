@@ -15,7 +15,9 @@ vi.mock('@/lib/api/client', async (importOriginal) => ({
   apiFetch,
 }));
 
-const { loadSeasonEpisodes, loadWallEpisodes } = await import('./loaders');
+const { loadCast, loadSeasonEpisodes, loadWallEpisodes } = await import(
+  './loaders'
+);
 
 const episode = {
   airDate: '2022-06-23',
@@ -91,5 +93,53 @@ describe('loadWallEpisodes', () => {
   it('is null when the read failed (the wall shows its error)', async () => {
     apiFetch.mockRejectedValue(new ApiError(0, 'ApiTimeout'));
     await expect(loadWallEpisodes(7, 1)).resolves.toBeNull();
+  });
+});
+
+const person = (id: number, character = '') => ({
+  character,
+  id,
+  image: `${id}.jpg`,
+  job: '',
+  name: `Person ${id}`,
+  numberOfEpisodes: 1,
+  slug: `person-${id}`,
+});
+
+describe('loadCast', () => {
+  it('draws ten faces and five in the stack, and counts everyone', async () => {
+    const cast = Array.from({ length: 14 }, (_, index) =>
+      person(index + 2, `Role ${index + 2}`),
+    );
+    apiFetch.mockResolvedValue({ cast, crew: [] });
+
+    const result = await loadCast(7, [person(1)]);
+    if (isUnavailable(result)) {
+      throw new Error('expected the cast');
+    }
+
+    expect(result.faces).toHaveLength(10);
+    expect(result.faces[0]).toEqual({
+      id: 2,
+      image: '2.jpg',
+      name: 'Person 2',
+      role: 'Role 2',
+      slug: 'person-2',
+    });
+    expect(result.stack.map((face) => face.role)).toEqual([
+      'Creator',
+      'Role 2',
+      'Role 3',
+      'Role 4',
+      'Role 5',
+    ]);
+    expect(result.castCount).toBe(14);
+    expect(result.peopleCount).toBe(15);
+  });
+
+  it('passes an outage on', async () => {
+    apiFetch.mockRejectedValue(new ApiError(503, 'down'));
+
+    expect(isUnavailable(await loadCast(7, []))).toBe(true);
   });
 });

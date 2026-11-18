@@ -26,9 +26,10 @@ async function RealFeature({
     featureOfKind(kind, today),
     next ? slotOn('feature', next) : null,
   ]);
+  const anchor = `kind-${kind}`;
   return (
     <KindBlock
-      id={`kind-${kind}`}
+      id={anchor}
       kind={kind}
       next={next}
       note={asked.note}
@@ -42,11 +43,12 @@ async function RealFeature({
 
 async function RealCountdown({ today }: Props) {
   const asked = await countdown(today);
+  const next = asked.dueOn ?? null;
   return (
     <KindBlock
       id="kind-countdown"
       kind="countdown"
-      next={asked.dueOn ?? null}
+      next={next}
       note={asked.note}
       today={today}
     >
@@ -79,9 +81,10 @@ async function RealToy({
     toyOfKind(kind, today),
     next ? slotOn('toy', next) : null,
   ]);
+  const anchor = `kind-${kind}`;
   return (
     <KindBlock
-      id={`kind-${kind}`}
+      id={anchor}
       kind={kind}
       next={next}
       note={asked.note}
@@ -95,11 +98,12 @@ async function RealToy({
 
 async function RealIfYouLiked({ today }: Props) {
   const asked = await ifYouLiked(today);
+  const next = nextDay(today, (plan) => plan.ifYouLiked);
   return (
     <KindBlock
       id="kind-if-you-liked"
       kind="if-you-liked (signed in, toy slot)"
-      next={nextDay(today, (plan) => plan.ifYouLiked)}
+      next={next}
       note={asked.note}
       today={today}
     >

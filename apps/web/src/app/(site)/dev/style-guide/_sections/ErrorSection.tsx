@@ -51,17 +51,17 @@ export default function ErrorSection() {
         (/breaking-bad fills the search with “breaking bad”). Each headline
         takes focus on load, as on the real page.
       </p>
-      {NOT_FOUND_STILLS.map((still) => (
-        <Specimen
-          key={still.id}
-          label={`404 · ${still.credit}`}
-          note={`404 · ${still.id} (app/not-found.tsx, static)`}
-        >
-          <Frame>
-            <NotFoundView shows={TRENDING} still={still} />
-          </Frame>
-        </Specimen>
-      ))}
+      {NOT_FOUND_STILLS.map((still) => {
+        const label = `404 · ${still.credit}`;
+        const note = `404 · ${still.id} (app/not-found.tsx, static)`;
+        return (
+          <Specimen key={still.id} label={label} note={note}>
+            <Frame>
+              <NotFoundView shows={TRENDING} still={still} />
+            </Frame>
+          </Specimen>
+        );
+      })}
       <Specimen label="401" note="401 · settings (unauthorized())">
         <Frame>
           <UnauthorizedView variant="default" />

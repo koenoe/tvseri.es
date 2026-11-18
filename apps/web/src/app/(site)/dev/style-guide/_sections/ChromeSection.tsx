@@ -51,6 +51,9 @@ const BAD_COLORS = ['red', '#fff;}body{display:none}', 'url(x.png)', '#fff'];
 
 const BOX =
   'relative overflow-hidden rounded-12 bg-ground [transform:translateZ(0)]';
+const BEHIND_BOX = `${BOX} h-40`;
+const SPACED_BOX = `${BOX} mt-4`;
+const TALL_BOX = `${BOX} mt-4 h-72`;
 
 const behindStyle = {
   backgroundImage: `url(${TMDB.replace('w1920_and_h1080_multi_faces', 'w780')}/tsRy63Mu5cu8etL1X7ZLyf7UP1M.jpg)`,
@@ -68,7 +71,7 @@ function HeaderState({
 }: Readonly<{ mode: HeaderMode; note: string }>) {
   return (
     <figure>
-      <div className={`${BOX} h-40`} style={behindStyle}>
+      <div className={BEHIND_BOX} style={behindStyle}>
         <HeaderStoreProvider initialMode={mode}>
           <HeaderFrame>
             <MotionProvider>
@@ -186,7 +189,7 @@ export default function ChromeSection() {
       </p>
 
       <h3 className="mt-12 text-title-3">Footer</h3>
-      <div className={`${BOX} mt-4`}>
+      <div className={SPACED_BOX}>
         <Footer />
       </div>
 
@@ -196,7 +199,7 @@ export default function ChromeSection() {
         initialImage={DEFAULT_BACKGROUND_IMAGE}
       >
         <BackgroundStyle color={DEFAULT_PAGE_COLOR} />
-        <div className={`${BOX} mt-4 h-72`}>
+        <div className={TALL_BOX}>
           <BackgroundDynamic />
           <div className="relative z-10 p-6">
             <CurrentColor />

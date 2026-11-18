@@ -19,12 +19,15 @@ function Network() {
     setSlow(value);
     setSlowState(value);
   };
+  const fast = !slow;
+  const pickFast = pick(false);
+  const pickSlow = pick(true);
   return (
     <div className="flex gap-2">
       <button
-        aria-pressed={!slow}
+        aria-pressed={fast}
         className={CHIP_PLAIN}
-        onClick={pick(false)}
+        onClick={pickFast}
         type="button"
       >
         Fast
@@ -32,7 +35,7 @@ function Network() {
       <button
         aria-pressed={slow}
         className={CHIP_PLAIN}
-        onClick={pick(true)}
+        onClick={pickSlow}
         type="button"
       >
         Slow (900 ms)

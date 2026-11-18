@@ -78,11 +78,14 @@ export default function EdgeSection() {
         </p>
       </Specimen>
       <Specimen label="Contrast floor" note="lib/a11y/textContrast.test.ts">
-        {STEPS.map(([step, use]) => (
-          <State key={step} name={step}>
-            <span className={`text-body-sm ${step}`}>{use}</span>
-          </State>
-        ))}
+        {STEPS.map(([step, use]) => {
+          const sample = `text-body-sm ${step}`;
+          return (
+            <State key={step} name={step}>
+              <span className={sample}>{use}</span>
+            </State>
+          );
+        })}
         <State name="white/40: decorative only, marked contrast-exempt">
           {/* contrast-exempt: the style guide's sample of the step */}
           <span className="text-body-sm text-white/40">

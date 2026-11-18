@@ -49,6 +49,15 @@ export default function DialogSection() {
   const show = (which: Open) => () => setOpen(which);
   const change = (which: Open) => (next: boolean) =>
     setOpen(next ? which : null);
+  const openDialog = show('dialog');
+  const openSheet = show('sheet');
+  const openLarge = show('large');
+  const changeDialog = change('dialog');
+  const changeSheet = change('sheet');
+  const changeLarge = change('large');
+  const dialogOpen = open === 'dialog';
+  const sheetOpen = open === 'sheet';
+  const largeOpen = open === 'large';
 
   return (
     <Section
@@ -65,15 +74,15 @@ export default function DialogSection() {
         label="Open one"
         note="Dialog (560, radius 18) · side sheet (600, right) · episode shell (1320 × 880)"
       >
-        <Button onClick={show('dialog')}>Centred dialog</Button>
-        <Button onClick={show('sheet')}>Side sheet</Button>
-        <Button onClick={show('large')}>Episode modal shell</Button>
+        <Button onClick={openDialog}>Centred dialog</Button>
+        <Button onClick={openSheet}>Side sheet</Button>
+        <Button onClick={openLarge}>Episode modal shell</Button>
       </Specimen>
 
       <Dialog
         description="Up to S03E05 Children · marks 3 (S03E03–S03E05)"
-        onOpenChange={change('dialog')}
-        open={open === 'dialog'}
+        onOpenChange={changeDialog}
+        open={dialogOpen}
         title="Which episode did you watch last?"
       >
         <div className="flex flex-wrap gap-2">
@@ -97,8 +106,8 @@ export default function DialogSection() {
 
       <SideSheet
         description="34 of 47 watched · 3h 46m left"
-        onOpenChange={change('sheet')}
-        open={open === 'sheet'}
+        onOpenChange={changeSheet}
+        open={sheetOpen}
         title="Watch history"
       >
         <div className="flex flex-col gap-3">
@@ -137,8 +146,8 @@ export default function DialogSection() {
       </SideSheet>
 
       <LargeDialog
-        onOpenChange={change('large')}
-        open={open === 'large'}
+        onOpenChange={changeLarge}
+        open={largeOpen}
         title="S03E05 Children"
         tools={<CircleButton icon={starGlyph} label="Rate" tone="glass" />}
       >

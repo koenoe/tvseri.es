@@ -29,6 +29,7 @@ export default function HistorySection() {
   );
   const months = buildDiary(items, years.years);
   const index = monthIndex(years.years);
+  const undated = years.undated ?? 0;
   const week = thisWeek(statsDaily(all, 2025).days, NOW);
   return (
     <Section
@@ -50,7 +51,7 @@ export default function HistorySection() {
           {months.map((month) => (
             <DiaryMonth key={month.key} month={month} />
           ))}
-          <DiaryEnd more={false} owner undated={years.undated ?? 0} />
+          <DiaryEnd more={false} owner undated={undated} />
         </div>
       </div>
     </Section>

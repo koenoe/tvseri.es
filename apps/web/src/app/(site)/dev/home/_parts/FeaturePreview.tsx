@@ -41,17 +41,22 @@ export default function FeaturePreview() {
     <>
       {KINDS.map((kind) => {
         const feature = FEATURES[kind];
+        const anchor = `feature-${kind}`;
         return feature ? (
-          <div id={`feature-${kind}`} key={kind}>
+          <div id={anchor} key={kind}>
             <Feature feature={feature} today={FIXTURE_TODAY} />
           </div>
         ) : null;
       })}
-      {GHOST_KINDS.map((kind) => (
-        <div id={`feature-ghost-${kind}`} key={kind}>
-          <FeatureSkeleton count={ghostCount(kind)} kind={kind} />
-        </div>
-      ))}
+      {GHOST_KINDS.map((kind) => {
+        const anchor = `feature-ghost-${kind}`;
+        const count = ghostCount(kind);
+        return (
+          <div id={anchor} key={kind}>
+            <FeatureSkeleton count={count} kind={kind} />
+          </div>
+        );
+      })}
     </>
   );
 }

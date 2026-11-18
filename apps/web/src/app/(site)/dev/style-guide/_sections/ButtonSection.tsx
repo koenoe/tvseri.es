@@ -145,11 +145,14 @@ function CircleSpecimens() {
         label="Circle buttons · sizes"
         note="Circle buttons: 32, 40, 44, 48"
       >
-        {CIRCLE_SIZES.map((size) => (
-          <State key={size} name={String(size)}>
-            <CircleButton icon={heartGlyph} label="Favourite" size={size} />
-          </State>
-        ))}
+        {CIRCLE_SIZES.map((size) => {
+          const name = String(size);
+          return (
+            <State key={size} name={name}>
+              <CircleButton icon={heartGlyph} label="Favourite" size={size} />
+            </State>
+          );
+        })}
       </Specimen>
       <Specimen
         label="Circle states · default, pressed, disabled, on a still"

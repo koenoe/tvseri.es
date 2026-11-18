@@ -71,15 +71,14 @@ async function Preview({
           </p>
           <p className="flex flex-wrap gap-x-3 gap-y-1 text-body-sm text-white/60">
             Whole page on:
-            {plansFrom(today, 8).map((plan) => (
-              <Link
-                className="underline"
-                href={`/dev/home?day=${plan.day}`}
-                key={plan.day}
-              >
-                {plan.day}
-              </Link>
-            ))}
+            {plansFrom(today, 8).map((plan) => {
+              const dayHref = `/dev/home?day=${plan.day}`;
+              return (
+                <Link className="underline" href={dayHref} key={plan.day}>
+                  {plan.day}
+                </Link>
+              );
+            })}
           </p>
         </header>
         <RealKinds today={today} />

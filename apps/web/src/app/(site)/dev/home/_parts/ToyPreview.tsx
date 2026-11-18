@@ -19,8 +19,9 @@ export default function ToyPreview() {
     <>
       {KINDS.map((kind) => {
         const toy = TOYS[kind];
+        const anchor = `toy-${kind}`;
         return toy ? (
-          <div id={`toy-${kind}`} key={kind}>
+          <div id={anchor} key={kind}>
             <Toy toy={toy} />
           </div>
         ) : null;
@@ -28,11 +29,14 @@ export default function ToyPreview() {
       <div id="toy-if-you-liked">
         <IfYouLiked data={IF_YOU_LIKED} />
       </div>
-      {KINDS.map((kind) => (
-        <div id={`toy-ghost-${kind}`} key={kind}>
-          <ToySkeleton ifYouLiked={false} kind={kind} />
-        </div>
-      ))}
+      {KINDS.map((kind) => {
+        const anchor = `toy-ghost-${kind}`;
+        return (
+          <div id={anchor} key={kind}>
+            <ToySkeleton ifYouLiked={false} kind={kind} />
+          </div>
+        );
+      })}
       <div id="toy-ghost-if-you-liked">
         <IfYouLikedGhost />
       </div>

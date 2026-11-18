@@ -12,7 +12,6 @@ import { recordFollow } from './followCount';
 const SIZE = {
   circle: 'h-8 shrink-0 rounded-full px-2.5 text-[13px] font-semibold',
   compact: 'h-8 shrink-0 rounded-full px-3 text-[13px] font-semibold',
-  row: 'h-9 shrink-0 rounded-full px-4 text-[14px] font-medium',
   sidebar: 'h-[42px] w-full rounded-10 px-4 text-[14px] font-medium',
 } as const;
 
@@ -21,9 +20,9 @@ type Props = Readonly<{
   followLabel?: string;
   initialFollowing: boolean;
   /**
-   * `sidebar`: Edit profile's slot (full width, 42px); `row`: a 36px pill;
-   * `compact`: the phone sub-pages' identity, Edit's 32px pill; `circle`: a
-   * Circle row's (the compact 32px pill on the phone)
+   * `sidebar`: Edit profile's slot (full width, 42px); `compact`: the phone
+   * sub-pages' identity, Edit's 32px pill; `circle`: a Circle row's (the
+   * compact 32px pill on the phone)
    */
   size?: keyof typeof SIZE;
   userId: string;

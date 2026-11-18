@@ -33,12 +33,13 @@ export default async function GetStarted({
     profile,
     me?.country,
   );
+  const selected = me?.watchProviders ?? [];
   return (
     <GetStartedCard
       alreadySeen={status.steps.alreadySeen}
       history={status.steps.history}
       providers={providers}
-      selected={me?.watchProviders ?? []}
+      selected={selected}
       shows={shows}
     />
   );

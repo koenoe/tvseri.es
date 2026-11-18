@@ -63,6 +63,9 @@ export default async function AlmostDone({
   }
 
   const ids = items.map((item) => item.seriesId);
+  const rows = items.map((item) => (
+    <AlmostDoneRow item={item} key={item.seriesId} />
+  ));
   return (
     <Lane
       count={items.length}
@@ -76,9 +79,7 @@ export default async function AlmostDone({
         className="flex flex-col gap-2.5"
         equalRows
         ids={ids}
-        rows={items.map((item) => (
-          <AlmostDoneRow item={item} key={item.seriesId} />
-        ))}
+        rows={rows}
       />
     </Lane>
   );
@@ -93,7 +94,8 @@ const ROW_TITLE = (
   </>
 );
 const ROW_FACTS = <TextLine className="text-meta" width="w-36" />;
-const ROW_EYE = <span className={ghostCircle()} />;
+const EYE_CIRCLE = ghostCircle();
+const ROW_EYE = <span className={EYE_CIRCLE} />;
 
 function AlmostDoneRowGhost() {
   return (

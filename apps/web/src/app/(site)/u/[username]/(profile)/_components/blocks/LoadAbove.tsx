@@ -26,9 +26,10 @@ export default function LoadAbove({
     'flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-12 bg-white/4 text-meta font-semibold transition-colors hover:bg-white/7 aria-busy:opacity-60',
     className,
   );
+  const ariaBusy = busy || undefined;
   return (
     <button
-      aria-busy={busy || undefined}
+      aria-busy={ariaBusy}
       className={classes}
       onClick={onLoad}
       type="button"

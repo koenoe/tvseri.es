@@ -90,18 +90,22 @@ export default function JumpList({
       ) : null}
       <LayoutGroup id={group}>
         <ul className="flex flex-col gap-0.5">
-          {index.map((year) => (
-            <JumpYear
-              active={activeYear === year.year ? active : null}
-              animate={touched}
-              basePath={basePath}
-              key={year.year}
-              onPick={pick}
-              onToggle={toggle}
-              open={open === year.year}
-              year={year}
-            />
-          ))}
+          {index.map((year) => {
+            const yearActive = activeYear === year.year ? active : null;
+            const yearOpen = open === year.year;
+            return (
+              <JumpYear
+                active={yearActive}
+                animate={touched}
+                basePath={basePath}
+                key={year.year}
+                onPick={pick}
+                onToggle={toggle}
+                open={yearOpen}
+                year={year}
+              />
+            );
+          })}
         </ul>
       </LayoutGroup>
     </MaxMotion>

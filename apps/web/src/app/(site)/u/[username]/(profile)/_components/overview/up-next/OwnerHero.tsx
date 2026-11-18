@@ -13,7 +13,8 @@ export default function OwnerHero({
   now,
   series,
 }: Readonly<{ item: UpNextItem; now: number; series: UpNextArt | null }>) {
-  const facts = <UpNextFacts facts={ownerFacts(item, now)} />;
+  const factLines = ownerFacts(item, now);
+  const facts = <UpNextFacts facts={factLines} />;
   const action = (
     <RowRemote
       season={item.season}

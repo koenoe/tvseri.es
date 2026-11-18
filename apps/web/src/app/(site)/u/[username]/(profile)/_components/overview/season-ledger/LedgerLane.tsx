@@ -88,29 +88,34 @@ export default function LedgerLane({
       <Icon className="shrink-0" glyph={chevronRightGlyph} size={13} />
     </button>
   ) : null;
+  const allClosed = open === 0;
+  const more = moreHoles(view.episodes);
 
   return (
     <Lane
       className="relative"
       count={open}
       dot="white"
-      hollow={open === 0}
+      hollow={allClosed}
       id="season-ledger"
       link={link}
       title="Season ledger"
     >
-      <LedgerShowRow more={moreHoles(view.episodes)} open={open} view={view} />
+      <LedgerShowRow more={more} open={open} view={view} />
       <SeasonChart states={viewStates} view={view} />
       <div className="flex flex-col gap-2" data-equal-rows="">
-        {view.episodes.slice(0, LEDGER_ROWS).map((episode) => (
-          <LedgerRow
-            episode={episode}
-            key={episode.code}
-            onChoose={choose}
-            onIntent={intent}
-            state={stateOf(episode)}
-          />
-        ))}
+        {view.episodes.slice(0, LEDGER_ROWS).map((episode) => {
+          const state = stateOf(episode);
+          return (
+            <LedgerRow
+              episode={episode}
+              key={episode.code}
+              onChoose={choose}
+              onIntent={intent}
+              state={state}
+            />
+          );
+        })}
       </div>
     </Lane>
   );

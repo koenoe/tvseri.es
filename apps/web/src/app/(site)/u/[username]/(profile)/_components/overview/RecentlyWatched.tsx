@@ -106,13 +106,12 @@ export default async function RecentlyWatched({
       <SingleTile key={tile.key} tile={tile} />
     ),
   );
+  const visitorOf = profile.viewer === 'visitor' ? profile.user.username : null;
   return (
     <section aria-labelledby="recently-watched" className="flex flex-col gap-6">
       <SectionHead id="recently-watched" link={link} title="Recently watched" />
       {slots.length === 0 ? (
-        <NothingWatched
-          who={profile.viewer === 'visitor' ? profile.user.username : null}
-        />
+        <NothingWatched who={visitorOf} />
       ) : (
         <MaxMotion>
           <ul className={TILE_ROW} id={RAIL_ID}>

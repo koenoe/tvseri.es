@@ -42,6 +42,7 @@ export default function Identity({
 }: Readonly<{ profile: Profile }>): ReactNode {
   const { user } = profile;
   const joined = memberSince(user.createdAt, Date.now());
+  const isOwner = profile.viewer === 'owner';
   return (
     <>
       <section aria-label="Identity" className={FULL_IDENTITY_CLASS}>
@@ -62,10 +63,7 @@ export default function Identity({
           </Hole>
         </IdentityLines>
         <div className={OVERVIEW_ONLY_CLASS}>
-          <WatchesOn
-            isOwner={profile.viewer === 'owner'}
-            providers={user.watchProviders}
-          />
+          <WatchesOn isOwner={isOwner} providers={user.watchProviders} />
         </div>
         <Hole fallback={<ProfileActionSkeleton />} look="line" title="Follow">
           <ProfileAction profile={profile} />

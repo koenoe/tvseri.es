@@ -38,25 +38,19 @@ export default async function ComingUp({
   if (tickets.length === 0) {
     const nextReturn = waiting.items.find((item) => item.nextDate);
     const dayZero = isDayZero(overview);
+    const emptySub = dayZero
+      ? 'Premieres and new episodes, 30 days ahead.'
+      : nextReturn?.nextDate
+        ? `Next: ${nextReturn.title} ${seasonCode(nextReturn.nextSeason)}, ${formatAirWeekdayDate(nextReturn.nextDate, now)}.`
+        : 'Nothing you follow airs in the next 30 days.';
+    const emptyTitle = dayZero
+      ? 'No dates yet'
+      : nextReturn
+        ? 'Nothing in the next 30 days'
+        : 'No dates announced';
     return (
       <Lane dot="pink" hollow id="v3-cu" title="Coming up">
-        <EmptyState
-          glyph={calendarGlyph}
-          sub={
-            dayZero
-              ? 'Premieres and new episodes, 30 days ahead.'
-              : nextReturn?.nextDate
-                ? `Next: ${nextReturn.title} ${seasonCode(nextReturn.nextSeason)}, ${formatAirWeekdayDate(nextReturn.nextDate, now)}.`
-                : 'Nothing you follow airs in the next 30 days.'
-          }
-          title={
-            dayZero
-              ? 'No dates yet'
-              : nextReturn
-                ? 'Nothing in the next 30 days'
-                : 'No dates announced'
-          }
-        />
+        <EmptyState glyph={calendarGlyph} sub={emptySub} title={emptyTitle} />
       </Lane>
     );
   }
@@ -64,26 +58,21 @@ export default async function ComingUp({
   const finishedAt = new Map(
     waiting.items.map((item) => [item.seriesId, item.finishedAt] as const),
   );
+  const rows = tickets.map((item) => {
+    const finished = finishedAt.get(item.seriesId);
+    const text = ticketText(
+      item,
+      finished ? monthsBetween(finished, item.date) : null,
+    );
+    const episodeId = `${item.seriesId}-${item.season}-${item.episode}`;
+    return <Ticket item={item} key={episodeId} now={now} text={text} />;
+  });
   return (
     <Lane dot="pink" id="v3-cu" title="Coming up">
       <CappedRows
         cap={LANE_CAPS.comingUp}
         className="flex flex-col gap-3"
-        rows={tickets.map((item) => {
-          const finished = finishedAt.get(item.seriesId);
-          const text = ticketText(
-            item,
-            finished ? monthsBetween(finished, item.date) : null,
-          );
-          return (
-            <Ticket
-              item={item}
-              key={`${item.seriesId}-${item.season}-${item.episode}`}
-              now={now}
-              text={text}
-            />
-          );
-        })}
+        rows={rows}
       />
     </Lane>
   );

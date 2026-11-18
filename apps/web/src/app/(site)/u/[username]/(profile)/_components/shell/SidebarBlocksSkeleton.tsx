@@ -21,6 +21,8 @@ export const MATCH_BOX_CLASS = 'md:max-lg:w-[calc(50%-20px)]';
 /** The rule under the match card: below lg the tabs follow it */
 export const MATCH_RULE_CLASS = 'max-lg:hidden';
 
+const MATCH_RULE_BOX = `contents ${MATCH_RULE_CLASS}`;
+
 /**
  * The sidebar under the identity before the profile resolves, at its real
  * size: nothing of your own, someone else's match card and its rule. Both
@@ -40,7 +42,7 @@ export default function SidebarBlocksSkeleton() {
                 <MatchCardSkeleton />
               </div>
             </div>
-            <span className={`contents ${MATCH_RULE_CLASS}`}>
+            <span className={MATCH_RULE_BOX}>
               <SidebarRule />
             </span>
           </>

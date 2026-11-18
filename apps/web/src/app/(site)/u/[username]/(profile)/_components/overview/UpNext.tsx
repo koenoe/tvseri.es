@@ -68,14 +68,10 @@ export default async function UpNext({
     loadSeriesOrNull(item.seriesId),
     loadViewerLibrary(profile),
   ]);
+  const isNew = library ? isNewToViewer(library, item.seriesId) : false;
   return (
     <Frame title={title}>
-      <VisitorHero
-        isNew={library ? isNewToViewer(library, item.seriesId) : false}
-        item={item}
-        now={now}
-        series={series}
-      />
+      <VisitorHero isNew={isNew} item={item} now={now} series={series} />
     </Frame>
   );
 }
@@ -133,7 +129,8 @@ function EmptyPick({
 }
 
 /** The ⋯ (a visitor's +) */
-const ACTION = <span className={ghostCircle()} />;
+const ACTION_CIRCLE = ghostCircle();
+const ACTION = <span className={ACTION_CIRCLE} />;
 
 /**
  * Up next (or Watching now) while it streams: the real title and the shared

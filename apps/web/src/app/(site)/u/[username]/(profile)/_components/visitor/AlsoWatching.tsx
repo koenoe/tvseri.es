@@ -54,19 +54,19 @@ export default async function AlsoWatching({
   const shared = new Set(match.sharedShows.map((show) => show.id));
   const items = alsoWatching(overview.upNext, shared, library);
   const now = Date.now();
+  const watchingHref = libraryPath(profile.user.username, 'watching');
   // No dead ends: the link only when their Watching shelf has shows
   const link =
     overview.upNext.length === 0 ? null : (
-      <HeadLink href={libraryPath(profile.user.username, 'watching')}>
-        All in progress
-      </HeadLink>
+      <HeadLink href={watchingHref}>All in progress</HeadLink>
     );
   if (items.length === 0) {
+    const emptySub = `Nothing else ${profile.user.username} has going.`;
     return (
       <Lane dot="cyan" hollow id="b-also" link={link} title="Also watching">
         <EmptyState
           glyph={pauseCircleGlyph}
-          sub={`Nothing else ${profile.user.username} has going.`}
+          sub={emptySub}
           title="Nothing else in progress"
         />
       </Lane>
@@ -84,15 +84,19 @@ export default async function AlsoWatching({
         className="m-0 flex list-none flex-col gap-2.5 p-0"
         data-equal-rows=""
       >
-        {items.slice(0, LANE_CAPS.alsoWatching).map((item) => (
-          <AlsoRow
-            canAdd={!library?.watched.includes(item.seriesId)}
-            isNew={isNewTo(library, item.seriesId)}
-            item={item}
-            key={item.seriesId}
-            now={now}
-          />
-        ))}
+        {items.slice(0, LANE_CAPS.alsoWatching).map((item) => {
+          const canAdd = !library?.watched.includes(item.seriesId);
+          const isNew = isNewTo(library, item.seriesId);
+          return (
+            <AlsoRow
+              canAdd={canAdd}
+              isNew={isNew}
+              item={item}
+              key={item.seriesId}
+              now={now}
+            />
+          );
+        })}
       </ul>
     </Lane>
   );

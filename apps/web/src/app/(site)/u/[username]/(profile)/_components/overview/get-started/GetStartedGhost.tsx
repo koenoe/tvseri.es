@@ -93,20 +93,23 @@ export default function GetStartedGhost() {
       <p className={GET_STARTED_INTRO}>{INTRO}</p>
       <div className={GET_STARTED_STEPS}>
         <div className="flex flex-col gap-2">
-          {STEPS.map((step, index) => (
-            <div
-              className={STEP_ROW}
-              data-placeholder={`get-started-step-${index + 1}`}
-              key={step.title}
-            >
-              <Ghost className={STEP_CIRCLE} />
-              <div className={STEP_TEXT}>
-                <span className={STEP_TITLE}>{step.title}</span>
-                <span className={STEP_LINE}>{step.line}</span>
-                {CONTROLS[index]}
+          {STEPS.map((step, index) => {
+            const placeholder = `get-started-step-${index + 1}`;
+            return (
+              <div
+                className={STEP_ROW}
+                data-placeholder={placeholder}
+                key={step.title}
+              >
+                <Ghost className={STEP_CIRCLE} />
+                <div className={STEP_TEXT}>
+                  <span className={STEP_TITLE}>{step.title}</span>
+                  <span className={STEP_LINE}>{step.line}</span>
+                  {CONTROLS[index]}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

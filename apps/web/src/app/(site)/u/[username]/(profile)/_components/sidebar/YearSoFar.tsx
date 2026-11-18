@@ -62,19 +62,19 @@ export default async function YearSoFar({
   const stats = await loadYearSoFar(id, year);
   if (isUnavailable(stats)) {
     // an outage: the numbers aren't there, which isn't a year with no episodes
+    const outageTitle = `${year} so far isn’t available.`;
     return (
       <BlockUnavailable
         className="h-[160px] rounded-16"
         line={REST_IS_FINE}
-        title={`${year} so far isn’t available.`}
+        title={outageTitle}
       />
     );
   }
   const empty = stats.episodes === 0;
+  const statsHref = statsPath(username, year);
   // Day one has no Stats link: there is nothing to open yet
-  const link = empty ? null : (
-    <HeadLink href={statsPath(username, year)}>Stats</HeadLink>
-  );
+  const link = empty ? null : <HeadLink href={statsHref}>Stats</HeadLink>;
   const bars = yearBars(stats.weeks, year, now);
   const who = profile.viewer === 'owner' ? '' : `${username} `;
   const label = `Episodes ${who}watched per week in ${year}`;

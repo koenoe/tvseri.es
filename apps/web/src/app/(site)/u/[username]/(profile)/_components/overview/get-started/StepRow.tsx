@@ -34,8 +34,9 @@ export default function StepRow({
   number: number;
   title: string;
 }>) {
+  const slot = `get-started-step-${number}`;
   return (
-    <div className={STEP_ROW} data-slot={`get-started-step-${number}`}>
+    <div className={STEP_ROW} data-slot={slot}>
       <StepCircle
         aria-hidden="true"
         done={done}

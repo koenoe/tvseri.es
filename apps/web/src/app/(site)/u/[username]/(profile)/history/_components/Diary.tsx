@@ -89,13 +89,14 @@ export default function Diary({
     'transition-opacity duration-[120ms]',
     jumping && 'opacity-0',
   );
+  const loadingNewer = diary.beforeStatus === 'loading';
 
   return (
     <>
       <div className={classes} data-diary ref={listRef}>
         {diary.newer ? (
           <LoadAbove
-            busy={diary.beforeStatus === 'loading'}
+            busy={loadingNewer}
             className="mb-2"
             onLoad={diary.newer.load}
           >

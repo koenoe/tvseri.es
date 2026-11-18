@@ -89,8 +89,9 @@ export default function WaitRow({
     'max-w-full truncate',
     dated ? 'font-medium text-pink' : 'text-white/60',
   );
+  const href = showPath(item.seriesId, item.slug);
   return (
-    <TileLink className={WAIT_LINK} href={showPath(item.seriesId, item.slug)}>
+    <TileLink className={WAIT_LINK} href={href}>
       {item.posterImage ? (
         <Image
           alt=""

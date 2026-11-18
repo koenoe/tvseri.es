@@ -36,17 +36,18 @@ export default async function OutNow({
   const now = Date.now();
 
   if (items.length === 0) {
+    const emptySub = emptyLine(overview);
     return (
       <Lane className={TINT_EMPTY} dot="cyan" hollow id="b-out" title="Out now">
-        <EmptyState
-          glyph={inboxGlyph}
-          sub={emptyLine(overview)}
-          title="Nothing new out"
-        />
+        <EmptyState glyph={inboxGlyph} sub={emptySub} title="Nothing new out" />
       </Lane>
     );
   }
 
+  const rows = items.map((item) => {
+    const releaseId = `${item.seriesId}-${item.kind}`;
+    return <OutNowRow item={item} key={releaseId} now={now} />;
+  });
   return (
     <Lane
       className={TINT}
@@ -61,13 +62,7 @@ export default async function OutNow({
         cap={LANE_CAPS.outNow}
         className="flex flex-col gap-5 px-1 pt-0.5 pb-1"
         ids={ids}
-        rows={items.map((item) => (
-          <OutNowRow
-            item={item}
-            key={`${item.seriesId}-${item.kind}`}
-            now={now}
-          />
-        ))}
+        rows={rows}
       />
     </Lane>
   );
@@ -92,10 +87,11 @@ const ROW_POSTER = (
 );
 const ROW_TITLE = <TextLine className="text-body-sm" width="w-32" />;
 const ROW_FACTS = <TextLine className="text-meta" width="w-24" />;
+const CONTROL_CIRCLE = ghostCircle();
 const ROW_CONTROLS = (
   <span className={OUT_NOW_CONTROLS}>
-    <span className={ghostCircle()} />
-    <span className={ghostCircle()} />
+    <span className={CONTROL_CIRCLE} />
+    <span className={CONTROL_CIRCLE} />
   </span>
 );
 

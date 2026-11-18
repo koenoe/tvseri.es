@@ -49,6 +49,7 @@ export default async function Favourites({
   const link = <HeadLink href={favourites}>{formatGrouped(count)}</HeadLink>;
 
   if (tiles.length === 0) {
+    const emptySub = `${username} hasn’t picked any yet.`;
     return (
       <Frame>
         {viewer === 'owner' ? (
@@ -56,7 +57,7 @@ export default async function Favourites({
         ) : (
           <EmptyState
             glyph={heartOutline}
-            sub={`${username} hasn’t picked any yet.`}
+            sub={emptySub}
             title="No favourites yet"
           />
         )}

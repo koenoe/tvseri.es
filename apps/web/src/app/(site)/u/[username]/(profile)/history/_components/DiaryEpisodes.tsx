@@ -36,21 +36,24 @@ export default function DiaryEpisodes({
       initial={initial}
       transition={TRANSITION}
     >
-      {row.episodes.map((episode) => (
-        <li key={episode.key}>
-          <TileLink
-            className="flex h-9 items-center gap-2 border-t border-white/8 text-[14px] leading-5 text-white/85 max-md:text-[13px] max-md:leading-[18px]"
-            href={episodeHref(row, episode.season, episode.episode)}
-            prefetchOn="intent"
-          >
-            <CodeBadge code={episode.code} size="meta" />
-            <span className="min-w-0 truncate">{episode.title}</span>
-            <span className="ml-auto shrink-0 whitespace-nowrap text-[13px] leading-[18px] tabular-nums text-white/60">
-              {formatRuntime(episode.runtime)}
-            </span>
-          </TileLink>
-        </li>
-      ))}
+      {row.episodes.map((episode) => {
+        const href = episodeHref(row, episode.season, episode.episode);
+        return (
+          <li key={episode.key}>
+            <TileLink
+              className="flex h-9 items-center gap-2 border-t border-white/8 text-[14px] leading-5 text-white/85 max-md:text-[13px] max-md:leading-[18px]"
+              href={href}
+              prefetchOn="intent"
+            >
+              <CodeBadge code={episode.code} size="meta" />
+              <span className="min-w-0 truncate">{episode.title}</span>
+              <span className="ml-auto shrink-0 whitespace-nowrap text-[13px] leading-[18px] tabular-nums text-white/60">
+                {formatRuntime(episode.runtime)}
+              </span>
+            </TileLink>
+          </li>
+        );
+      })}
     </m.ul>
   );
 }

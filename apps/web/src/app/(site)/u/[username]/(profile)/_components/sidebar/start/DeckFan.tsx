@@ -32,6 +32,7 @@ export default function DeckFan({
   const visible = order
     .slice(0, VISIBLE)
     .flatMap((id) => cards.filter((card) => card.id === id));
+  const transition = dealt ? SPRING : { duration: 0 };
   return (
     <div aria-hidden="true" className={DECK_FAN}>
       {visible.map((card) => {
@@ -51,7 +52,7 @@ export default function DeckFan({
             initial={false}
             key={card.id}
             style={style}
-            transition={dealt ? SPRING : { duration: 0 }}
+            transition={transition}
           >
             <Image
               alt=""
@@ -64,7 +65,7 @@ export default function DeckFan({
               animate={dim}
               className="absolute inset-0 bg-black"
               initial={false}
-              transition={dealt ? SPRING : { duration: 0 }}
+              transition={transition}
             />
           </m.div>
         );

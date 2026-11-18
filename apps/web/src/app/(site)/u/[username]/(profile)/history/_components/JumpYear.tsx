@@ -58,16 +58,19 @@ function JumpYear({
       </button>
       {open && hasMonths ? (
         <ul className="flex flex-col gap-0.5 pt-0.5" id={monthsId}>
-          {year.months.map((month) => (
-            <JumpMonthLink
-              animate={animate}
-              basePath={basePath}
-              key={month.key}
-              month={month}
-              on={month.key === active}
-              onPick={onPick}
-            />
-          ))}
+          {year.months.map((month) => {
+            const on = month.key === active;
+            return (
+              <JumpMonthLink
+                animate={animate}
+                basePath={basePath}
+                key={month.key}
+                month={month}
+                on={on}
+                onPick={onPick}
+              />
+            );
+          })}
         </ul>
       ) : null}
     </li>

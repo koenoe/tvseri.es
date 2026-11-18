@@ -50,6 +50,7 @@ export default function LedgerRow({
     'transition-[background-color,box-shadow]',
     done && LEDGER_SETTLED,
   );
+  const stateGlyph = state === 'watched' ? eyeGlyph : skippedGlyph;
   return (
     <div
       className={rowClass}
@@ -64,7 +65,7 @@ export default function LedgerRow({
       </MetaRow>
       {done ? (
         <span className="flex shrink-0 items-center gap-3 text-caption text-white/60">
-          <MetaItem icon={state === 'watched' ? eyeGlyph : skippedGlyph}>
+          <MetaItem icon={stateGlyph}>
             {state === 'watched' ? 'Watched' : 'Skipped'}
           </MetaItem>
           <button

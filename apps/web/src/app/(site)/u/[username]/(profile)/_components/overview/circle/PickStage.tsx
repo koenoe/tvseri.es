@@ -33,18 +33,24 @@ export default function PickStage({
           aria-hidden="true"
           className="pointer-events-none absolute top-14 right-7 -bottom-5 left-7 z-0 hidden xl:block"
         >
-          {picks.map((pick, index) => (
-            <Ambient active={index === active} key={pick.id}>
-              {pick.ambient}
-            </Ambient>
-          ))}
+          {picks.map((pick, index) => {
+            const isActive = index === active;
+            return (
+              <Ambient active={isActive} key={pick.id}>
+                {pick.ambient}
+              </Ambient>
+            );
+          })}
         </div>
         <div className="relative z-1 h-[400px] overflow-hidden rounded-14 bg-ground-deep shadow-[0_24px_48px_-20px_rgb(0_0_0/0.8)]">
-          {picks.map((pick, index) => (
-            <Layer active={index === active} key={pick.id}>
-              {pick.card}
-            </Layer>
-          ))}
+          {picks.map((pick, index) => {
+            const isActive = index === active;
+            return (
+              <Layer active={isActive} key={pick.id}>
+                {pick.card}
+              </Layer>
+            );
+          })}
           {picks.length > 1 ? (
             <Switcher active={active} onPick={setActive} picks={picks} />
           ) : null}
@@ -76,11 +82,12 @@ function Layer({
   children,
 }: Readonly<{ active: boolean; children: ReactNode }>) {
   const animate = { opacity: active ? 1 : 0 };
+  const hidden = !active;
   return (
     <m.div
       animate={animate}
       className="absolute inset-0"
-      inert={!active}
+      inert={hidden}
       initial={false}
       transition={CARD_FADE}
     >
@@ -114,15 +121,18 @@ function Switcher({
 }>) {
   return (
     <PillSwitch className={SWITCHER} label="Picks">
-      {picks.map((pick, index) => (
-        <PickButton
-          index={index}
-          isActive={index === active}
-          key={pick.id}
-          onPick={onPick}
-          title={pick.title}
-        />
-      ))}
+      {picks.map((pick, index) => {
+        const isActive = index === active;
+        return (
+          <PickButton
+            index={index}
+            isActive={isActive}
+            key={pick.id}
+            onPick={onPick}
+            title={pick.title}
+          />
+        );
+      })}
     </PillSwitch>
   );
 }

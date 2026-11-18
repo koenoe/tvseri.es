@@ -13,10 +13,11 @@ export default function HistoryDayZero({
   username,
 }: Readonly<{ owner: boolean; username: string }>) {
   if (!owner) {
+    const visitorSub = `Episodes ${username} marks land here by day.`;
     return (
       <EmptyState
         glyph={historyGlyph}
-        sub={`Episodes ${username} marks land here by day.`}
+        sub={visitorSub}
         title="Nothing watched yet"
       />
     );

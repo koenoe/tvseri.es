@@ -57,6 +57,10 @@ export default async function CatchingUp({
       </Lane>
     );
   }
+  const rows = items.map((item) => {
+    const nextUp = nextUpLabel(item, overview.upNext);
+    return <CatchingUpRow item={item} key={item.seriesId} nextUp={nextUp} />;
+  });
   return (
     <Lane count={items.length} dot="cyan" id="b-catch" title="Catching up">
       <CappedRows
@@ -64,13 +68,7 @@ export default async function CatchingUp({
         cap={LANE_CAPS.catchingUp}
         className="flex flex-col gap-3.5"
         ids={ids}
-        rows={items.map((item) => (
-          <CatchingUpRow
-            item={item}
-            key={item.seriesId}
-            nextUp={nextUpLabel(item, overview.upNext)}
-          />
-        ))}
+        rows={rows}
       />
     </Lane>
   );

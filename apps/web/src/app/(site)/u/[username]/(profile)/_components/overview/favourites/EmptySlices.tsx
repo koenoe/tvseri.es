@@ -64,6 +64,7 @@ export function suggestionSlice({
   const href = showPath(item.id, item.slug);
   const backdrop = facts?.backdropImage || series?.backdropImage;
   const shown = facts ? suggestionFacts(facts, now) : [];
+  const openLabel = `Open ${item.title}`;
   return {
     backdrop: (
       <>
@@ -84,7 +85,7 @@ export function suggestionSlice({
         </SliceFull>
         <SliceRing dim />
         <TileLink
-          aria-label={`Open ${item.title}`}
+          aria-label={openLabel}
           className="absolute inset-0 z-2 rounded-12"
           href={href}
         />

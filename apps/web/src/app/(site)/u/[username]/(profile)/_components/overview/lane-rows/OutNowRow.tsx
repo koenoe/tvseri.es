@@ -45,6 +45,8 @@ export default function OutNowRow({
   const isSeason = item.kind === 'season-complete';
   const code = isSeason ? seasonCode(item.season) : (item.code ?? '');
   const markCode = isSeason ? `${code}E01` : (item.code ?? '');
+  const markEpisode = isSeason ? 1 : (item.episode ?? 1);
+  const seasonEpisodes = item.episodes ?? 0;
   const poster = <LanePoster src={item.posterImage} width={34} />;
   const facts = isSeason ? (
     <span className="truncate text-caption font-medium text-cyan">
@@ -62,7 +64,7 @@ export default function OutNowRow({
   );
   const footnote = isSeason ? (
     <SeasonCompleteLine
-      episodes={item.episodes ?? 0}
+      episodes={seasonEpisodes}
       runtimeMinutes={item.runtimeMinutes}
     />
   ) : null;
@@ -70,7 +72,7 @@ export default function OutNowRow({
     <span className={OUT_NOW_CONTROLS}>
       <ToggleEye
         code={markCode}
-        episode={isSeason ? 1 : (item.episode ?? 1)}
+        episode={markEpisode}
         season={item.season}
         seriesId={item.seriesId}
         title={item.title}
@@ -83,6 +85,7 @@ export default function OutNowRow({
       />
     </span>
   );
+  const href = showPath(item.seriesId, item.slug);
   return (
     <LaneRow
       as="li"
@@ -90,7 +93,7 @@ export default function OutNowRow({
       end={controls}
       facts={facts}
       footnote={footnote}
-      href={showPath(item.seriesId, item.slug)}
+      href={href}
       layout={OUT_NOW_ROW}
       poster={poster}
       title={item.title}

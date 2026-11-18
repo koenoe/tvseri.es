@@ -29,11 +29,8 @@ export default async function WaitingFor({
     loadOverview(profile),
   ]);
   const now = Date.now();
-  const link = (
-    <HeadLink href={libraryPath(profile.user.username, 'finished')}>
-      All finished
-    </HeadLink>
-  );
+  const finishedHref = libraryPath(profile.user.username, 'finished');
+  const link = <HeadLink href={finishedHref}>All finished</HeadLink>;
   if (data.items.length === 0) {
     // No dead ends: day one has no "All finished"
     const head = isDayZero(overview) ? null : link;
@@ -47,6 +44,9 @@ export default async function WaitingFor({
       </Lane>
     );
   }
+  const rows = data.items.map((item) => (
+    <WaitRow item={item} key={item.seriesId} now={now} />
+  ));
   return (
     <Lane
       count={data.items.length}
@@ -59,9 +59,7 @@ export default async function WaitingFor({
         cap={LANE_CAPS.waitingFor}
         className="flex flex-col gap-2.5"
         equalRows
-        rows={data.items.map((item) => (
-          <WaitRow item={item} key={item.seriesId} now={now} />
-        ))}
+        rows={rows}
       />
     </Lane>
   );

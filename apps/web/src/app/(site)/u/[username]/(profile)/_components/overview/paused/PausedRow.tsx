@@ -54,6 +54,8 @@ export default function PausedRow({
   const hide = (event: MouseEvent<HTMLButtonElement>) => {
     pressMark(key, event, () => marking.removeFromInProgress(row.seriesId));
   };
+  const keepLabel = `Keep ${row.title}`;
+  const hideLabel = `Hide ${row.title}`;
   return (
     <div className={PAUSED_ROW}>
       <TileLink
@@ -87,7 +89,7 @@ export default function PausedRow({
       </span>
       <span className={PAUSED_ACTIONS}>
         <Button
-          aria-label={`Keep ${row.title}`}
+          aria-label={keepLabel}
           className={PAUSED_BUTTON}
           onClick={keep}
           variant="outline"
@@ -95,7 +97,7 @@ export default function PausedRow({
           Keep
         </Button>
         <Button
-          aria-label={`Hide ${row.title}`}
+          aria-label={hideLabel}
           className={HIDE}
           onClick={hide}
           variant="outline"

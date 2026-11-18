@@ -71,13 +71,10 @@ function BothRow({ show, tone }: Readonly<{ show: SharedShow; tone: string }>) {
     when ? WHEN_TONE[when.tone] : '',
   );
   const facts = factsLine(show);
+  const href = showPath(show.id, show.slug);
   return (
     <li>
-      <TileLink
-        className={ROW_LINK}
-        data-show={show.id}
-        href={showPath(show.id, show.slug)}
-      >
+      <TileLink className={ROW_LINK} data-show={show.id} href={href}>
         <LanePoster src={show.posterImage} width={48} />
         <span className={LINES_CLASS}>
           <span className={TITLE_LINE_CLASS}>

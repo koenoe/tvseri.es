@@ -28,26 +28,29 @@ export default function StackTile({ tile }: Readonly<{ tile: TileData }>) {
   const toggle = useCallback(() => setOpen((current) => !current), []);
   // spread in one line: every episode side by side, the row scrolls
   const columns = tile.episodes.length;
-  const cards: ReadonlyArray<PileCardData> = tile.episodes.map((episode) => ({
-    key: episode.code,
-    node: (
-      <span className="flex min-w-0 flex-col gap-2.5">
-        <PosterLink
-          href={tile.href}
-          label={`${tile.title}, ${episode.code}`}
-          look={RECENT_POSTER}
-          poster={tile.poster}
-          sizes={RECENT_POSTER_SIZES}
-          title={tile.title}
-        />
-        <TileLabel
-          className="group-data-[open=false]/pile:hidden"
-          code={episode.code}
-          when={episode.when}
-        />
-      </span>
-    ),
-  }));
+  const cards: ReadonlyArray<PileCardData> = tile.episodes.map((episode) => {
+    const label = `${tile.title}, ${episode.code}`;
+    return {
+      key: episode.code,
+      node: (
+        <span className="flex min-w-0 flex-col gap-2.5">
+          <PosterLink
+            href={tile.href}
+            label={label}
+            look={RECENT_POSTER}
+            poster={tile.poster}
+            sizes={RECENT_POSTER_SIZES}
+            title={tile.title}
+          />
+          <TileLabel
+            className="group-data-[open=false]/pile:hidden"
+            code={episode.code}
+            when={episode.when}
+          />
+        </span>
+      ),
+    };
+  });
   const footer = (
     // One line, nowrap; the day ends with an ellipsis
     <span className="mt-2.5 flex min-w-0 items-center justify-between gap-1.5">

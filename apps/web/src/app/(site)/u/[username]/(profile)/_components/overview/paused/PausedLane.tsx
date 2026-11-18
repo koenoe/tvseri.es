@@ -49,6 +49,9 @@ export default function PausedLane({
       </Lane>
     );
   }
+  const pausedRows = left.map((row) => (
+    <PausedRow key={row.seriesId} onAnswer={answer} row={row} />
+  ));
   return (
     <Lane
       count={left.length}
@@ -62,9 +65,7 @@ export default function PausedLane({
         cap={LANE_CAPS.paused}
         className="flex flex-col gap-2.5"
         equalRows
-        rows={left.map((row) => (
-          <PausedRow key={row.seriesId} onAnswer={answer} row={row} />
-        ))}
+        rows={pausedRows}
       />
     </Lane>
   );

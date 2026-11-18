@@ -28,11 +28,12 @@ export default function WatchlistAdd({
   title,
 }: Readonly<{ className?: string; seriesId: number; title: string }>) {
   const { isOn, label, toggle } = useWatchlistAdd(seriesId, title);
+  const icon = watchlistGlyph(isOn);
   return (
     <CircleButton
       className={className}
       data-on={isOn}
-      icon={watchlistGlyph(isOn)}
+      icon={icon}
       label={label}
       onClick={toggle}
       pressed={isOn}

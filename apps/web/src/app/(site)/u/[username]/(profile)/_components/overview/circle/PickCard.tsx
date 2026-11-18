@@ -54,6 +54,7 @@ export default function PickCard({
     background: `linear-gradient(0deg, rgb(10 13 14 / 0.3) 0, transparent 186px), linear-gradient(270deg, ${tint(ink, 0)} 0%, ${tint(ink, 63)} 60%, ${tint(ink, 70)} 100%), radial-gradient(${tint(ink, 0)} 0%, ${tint(ink, 70)} 100%)`,
   };
   const tinted: CSSProperties = { backgroundColor: ink };
+  const historyHref = `${href}?history`;
   return (
     <article
       aria-label={series.title}
@@ -100,7 +101,7 @@ export default function PickCard({
       <div className="absolute top-4 right-4 z-4">
         <LazyShowRemote
           hasAired
-          historyHref={`${href}?history`}
+          historyHref={historyHref}
           seriesId={series.id}
           seriesName={series.title}
           size={32}

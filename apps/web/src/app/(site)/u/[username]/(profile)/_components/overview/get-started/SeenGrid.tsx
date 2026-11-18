@@ -32,14 +32,12 @@ export default function SeenGrid({
 }>) {
   return (
     <div className={SEEN_GRID}>
-      {shows.map((show) => (
-        <SeenTile
-          key={show.id}
-          onSeen={onSeen}
-          seen={seen.has(show.id)}
-          show={show}
-        />
-      ))}
+      {shows.map((show) => {
+        const isSeen = seen.has(show.id);
+        return (
+          <SeenTile key={show.id} onSeen={onSeen} seen={isSeen} show={show} />
+        );
+      })}
     </div>
   );
 }
@@ -80,10 +78,12 @@ export function SeenTile({
     'object-cover transition-[filter]',
     isSeen && 'brightness-[0.35] saturate-50',
   );
+  const seenDisabled = isSeen || undefined;
+  const label = `${show.title}, ${isSeen ? 'seen' : 'mark as seen'}`;
   return (
     <button
-      aria-disabled={isSeen || undefined}
-      aria-label={`${show.title}, ${isSeen ? 'seen' : 'mark as seen'}`}
+      aria-disabled={seenDisabled}
+      aria-label={label}
       className="relative block cursor-pointer overflow-hidden rounded-8 text-left aria-disabled:cursor-default"
       onClick={markSeen}
       onFocus={intent}

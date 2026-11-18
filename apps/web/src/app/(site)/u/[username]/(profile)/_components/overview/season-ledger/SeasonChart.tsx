@@ -83,23 +83,25 @@ export default function SeasonChart({ states, view }: Props) {
     LEDGER_CHART,
     columns.length === 1 ? 'grid-cols-1' : 'grid-cols-2',
   );
+  const label = chartLabel(view.seasonCount, open);
   return (
-    <div
-      aria-label={chartLabel(view.seasonCount, open)}
-      className={grid}
-      role="img"
-    >
+    <div aria-label={label} className={grid} role="img">
       {columns.map((column) => (
         <span className="flex flex-col" key={column[0]}>
-          {column.map((number) => (
-            <Season
-              holes={holesOf(view, number, states)}
-              key={number}
-              number={number}
-              total={view.totals[number] ?? 1}
-              unaired={view.unaired.includes(number)}
-            />
-          ))}
+          {column.map((number) => {
+            const holes = holesOf(view, number, states);
+            const total = view.totals[number] ?? 1;
+            const unaired = view.unaired.includes(number);
+            return (
+              <Season
+                holes={holes}
+                key={number}
+                number={number}
+                total={total}
+                unaired={unaired}
+              />
+            );
+          })}
         </span>
       ))}
     </div>

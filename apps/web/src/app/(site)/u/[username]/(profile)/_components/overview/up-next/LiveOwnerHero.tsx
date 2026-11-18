@@ -33,5 +33,6 @@ export default function LiveOwnerHero({ art, empty, items, now }: Props) {
   const index = items.findIndex(
     (candidate) => candidate.seriesId === item.seriesId,
   );
-  return <OwnerHero item={item} now={now} series={art[index] ?? null} />;
+  const series = art[index] ?? null;
+  return <OwnerHero item={item} now={now} series={series} />;
 }

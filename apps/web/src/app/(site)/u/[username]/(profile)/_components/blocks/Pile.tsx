@@ -18,6 +18,7 @@ const TRANSITION = { duration: 0.25, ease: [0.4, 0, 0.2, 1] } as const;
 /** The count chip */
 const CHIP =
   'absolute top-2 left-2 z-20 flex h-6 items-center gap-[5px] rounded-full bg-[rgb(15_20_20/0.6)] px-2 text-caption font-medium tabular-nums text-white backdrop-blur-[12px]';
+const COUNT_BADGE = `pointer-events-none ${CHIP}`;
 
 export type PileCardData = Readonly<{ key: string; node: ReactNode }>;
 
@@ -95,12 +96,9 @@ export default function Pile({
     [onToggle, open],
   );
   const grid = `grid grid-cols-[minmax(0,1fr)] group-data-[open=true]/pile:grid-cols-[repeat(var(--cols),minmax(0,1fr))] ${spreadClass}`;
+  const pileClass = `group/pile relative ${pad}`;
   return (
-    <div
-      className={`group/pile relative ${pad}`}
-      data-open={open}
-      onKeyDown={fold}
-    >
+    <div className={pileClass} data-open={open} onKeyDown={fold}>
       <button
         aria-expanded={open}
         aria-label={toggleLabel}
@@ -111,24 +109,27 @@ export default function Pile({
         {open ? <Count count={count} /> : null}
       </button>
       {open ? null : (
-        <span aria-hidden="true" className={`pointer-events-none ${CHIP}`}>
+        <span aria-hidden="true" className={COUNT_BADGE}>
           <Count count={count} />
         </span>
       )}
       <div className={grid} style={columnVar}>
-        {shown.map((card, index) => (
-          <PileCard
-            card={card}
-            depth={Math.min(index, VISIBLE - 1)}
-            index={index}
-            key={card.key}
-            open={open}
-            origin={origin}
-            sign={sign}
-            total={shown.length}
-            touched={touched}
-          />
-        ))}
+        {shown.map((card, index) => {
+          const depth = Math.min(index, VISIBLE - 1);
+          return (
+            <PileCard
+              card={card}
+              depth={depth}
+              index={index}
+              key={card.key}
+              open={open}
+              origin={origin}
+              sign={sign}
+              total={shown.length}
+              touched={touched}
+            />
+          );
+        })}
       </div>
       {footer ? (
         <div className="group-data-[open=true]/pile:hidden">{footer}</div>
@@ -174,6 +175,8 @@ function PileCard({
         y: sign * depth * OFFSET,
       };
   const behind = !open && index > 0;
+  const hiddenBehind = behind || undefined;
+  const closed = !open;
   return (
     <m.div
       className="min-w-0 [grid-area:1/1] group-data-[open=true]/pile:[grid-area:auto]"
@@ -182,9 +185,9 @@ function PileCard({
     >
       <m.div
         animate={animate}
-        aria-hidden={behind || undefined}
+        aria-hidden={hiddenBehind}
         className={origin}
-        inert={!open}
+        inert={closed}
         initial={false}
         transition={TRANSITION}
       >

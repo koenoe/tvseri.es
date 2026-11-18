@@ -17,11 +17,14 @@ import FinishedCount from './FinishedCount';
 import FollowersCount from './FollowersCount';
 
 const LINES = 'flex flex-col gap-3';
+const LINES_GHOST = `${LINES} ${PULSE}`;
+const COMPACT_LINE_GHOST = `flex h-5 items-center ${PULSE}`;
+const COMPACT_COUNT_GHOST = `h-[13px] w-48 rounded-4 ${GHOST_FILL}`;
 
 /** The two count lines before they load (one 17px line each) */
 export function IdentityMetaSkeleton() {
   return (
-    <div aria-hidden="true" className={`${LINES} ${PULSE}`}>
+    <div aria-hidden="true" className={LINES_GHOST}>
       <Ghost className="h-[17px] w-52 rounded-4" />
       <Ghost className="h-[17px] w-48 rounded-4" />
     </div>
@@ -31,8 +34,8 @@ export function IdentityMetaSkeleton() {
 /** The compact identity's count line before it loads (one 20px line) */
 export function CompactMetaSkeleton() {
   return (
-    <span aria-hidden="true" className={`flex h-5 items-center ${PULSE}`}>
-      <span className={`h-[13px] w-48 rounded-4 ${GHOST_FILL}`} />
+    <span aria-hidden="true" className={COMPACT_LINE_GHOST}>
+      <span className={COMPACT_COUNT_GHOST} />
     </span>
   );
 }

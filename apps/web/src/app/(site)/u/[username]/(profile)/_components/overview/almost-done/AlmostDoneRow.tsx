@@ -42,16 +42,14 @@ export default function AlmostDoneRow({
       ) : null}
     </span>
   );
+  const finishTitle = finishLabel(item.timeLeftMinutes) ?? undefined;
   // One line; "to finish the season" ends with an ellipsis first, the time
   // is never cut (it drops whole if it can't fit). On a phone the title has
   // its line to itself: "1 to go" joins this line and the time goes without
   // its words. The group is never narrower than the clock and the time (the
   // words are 0 wide at least), so on a narrow line it drops whole.
   const facts = time ? (
-    <span
-      className="flex flex-1 items-center gap-1.5"
-      title={finishLabel(item.timeLeftMinutes) ?? undefined}
-    >
+    <span className="flex flex-1 items-center gap-1.5" title={finishTitle}>
       <Icon className="shrink-0" glyph={clockGlyph} size={12} />
       <span className="flex flex-1">
         <span className="shrink-0 tabular-nums">{time}</span>
@@ -70,13 +68,15 @@ export default function AlmostDoneRow({
       title={item.title}
     />
   );
+  const toGo = toGoLabel(item.toGo);
+  const href = showPath(item.seriesId, item.slug);
   return (
     <LaneRow
       code={item.code}
-      count={toGoLabel(item.toGo)}
+      count={toGo}
       end={eye}
       facts={facts}
-      href={showPath(item.seriesId, item.slug)}
+      href={href}
       layout={ALMOST_DONE_ROW}
       poster={poster}
       progress={progress}

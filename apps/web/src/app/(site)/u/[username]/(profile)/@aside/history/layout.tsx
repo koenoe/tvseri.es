@@ -71,13 +71,11 @@ async function Jump({ params }: Props) {
     throw new Error('Jump to: the years are unavailable');
   }
   const basePath = profilePath(profile.user.username, 'history');
+  const index = monthIndex(years.years);
+  const jumpWeek = week === null || isUnavailable(week) ? null : week;
   return (
     <div data-slot="history-jump">
-      <JumpTo
-        basePath={basePath}
-        index={monthIndex(years.years)}
-        week={week === null || isUnavailable(week) ? null : week}
-      />
+      <JumpTo basePath={basePath} index={index} week={jumpWeek} />
     </div>
   );
 }

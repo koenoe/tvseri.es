@@ -49,20 +49,23 @@ export default async function FromYourCircle({
       </Frame>
     );
   }
-  const stage = picks.map((loaded, index) => ({
-    ambient: loaded.series.backdropImage ? (
-      <Image
-        alt=""
-        className="object-cover object-top"
-        fill
-        sizes="160px"
-        src={loaded.series.backdropImage}
-      />
-    ) : null,
-    card: <PickCard eager={index === 0} loaded={loaded} />,
-    id: loaded.series.id,
-    title: loaded.series.title,
-  }));
+  const stage = picks.map((loaded, index) => {
+    const eager = index === 0;
+    return {
+      ambient: loaded.series.backdropImage ? (
+        <Image
+          alt=""
+          className="object-cover object-top"
+          fill
+          sizes="160px"
+          src={loaded.series.backdropImage}
+        />
+      ) : null,
+      card: <PickCard eager={eager} loaded={loaded} />,
+      id: loaded.series.id,
+      title: loaded.series.title,
+    };
+  });
   const circleHref = profilePath(profile.user.username, 'circle');
   return (
     <Frame link={<HeadLink href={circleHref}>More picks</HeadLink>}>

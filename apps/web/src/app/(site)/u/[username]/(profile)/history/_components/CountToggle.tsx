@@ -6,6 +6,7 @@ import cn from '@/lib/cn';
 /** The chevron turns over while the row is open */
 const TURN =
   'transition-transform duration-200 ease-[cubic-bezier(.2,.8,.2,1)]';
+const PHONE_TURN = `${TURN} md:hidden [[aria-expanded=true]>&]:rotate-180`;
 
 /**
  * A run's 32px chevron circle at the row's end, desktop only: it
@@ -57,11 +58,7 @@ export default function CountToggle({
       type="button"
     >
       {count} episodes
-      <Icon
-        className={`${TURN} md:hidden [[aria-expanded=true]>&]:rotate-180`}
-        glyph={chevronDownGlyph}
-        size={16}
-      />
+      <Icon className={PHONE_TURN} glyph={chevronDownGlyph} size={16} />
     </button>
   );
 }

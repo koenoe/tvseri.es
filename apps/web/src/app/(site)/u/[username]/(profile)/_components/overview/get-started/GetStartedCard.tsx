@@ -68,10 +68,12 @@ export default function GetStartedCard(props: Props) {
   });
   const [seen, setSeen] = useState<ReadonlySet<number>>(new Set());
 
+  const servicesDone = selected.length > 0;
+  const alreadySeenDone = props.alreadySeen || seen.size > 0;
   const done = doneCount({
-    alreadySeen: props.alreadySeen || seen.size > 0,
+    alreadySeen: alreadySeenDone,
     history: props.history,
-    services: selected.length > 0,
+    services: servicesDone,
   });
 
   // One way: a seen show stays seen here (the core's toast has the Undo)
@@ -99,7 +101,7 @@ export default function GetStartedCard(props: Props) {
       <div className={GET_STARTED_STEPS}>
         <div className="flex flex-col gap-2">
           <StepRow
-            done={selected.length > 0}
+            done={servicesDone}
             line={STEPS[0].line}
             number={1}
             title={STEPS[0].title}
@@ -111,7 +113,7 @@ export default function GetStartedCard(props: Props) {
             />
           </StepRow>
           <StepRow
-            done={props.alreadySeen || seen.size > 0}
+            done={alreadySeenDone}
             line={STEPS[1].line}
             number={2}
             title={STEPS[1].title}

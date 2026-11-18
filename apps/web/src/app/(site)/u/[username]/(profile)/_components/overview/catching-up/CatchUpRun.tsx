@@ -123,18 +123,22 @@ export default function CatchUpRun({
           className={groupClass}
           role="group"
         >
-          {chips.map((chip, index) => (
-            // keyed by spot: the chip that slides in keeps the pressed
-            // one's focus
-            <Chip
-              chip={chip}
-              className={chipClass(index)}
-              first={index === 0}
-              key={index}
-              onHint={setHint}
-              onMark={markUpTo}
-            />
-          ))}
+          {chips.map((chip, index) => {
+            const placeClass = chipClass(index);
+            const first = index === 0;
+            return (
+              // keyed by spot: the chip that slides in keeps the pressed
+              // one's focus
+              <Chip
+                chip={chip}
+                className={placeClass}
+                first={first}
+                key={index}
+                onHint={setHint}
+                onMark={markUpTo}
+              />
+            );
+          })}
         </div>
         {mores.map(({ className, count }) => (
           <MoreChip
@@ -237,9 +241,10 @@ function Chip({
     first ? 'bg-white text-[#171717]' : 'bg-white/6 text-white/80',
     extra,
   );
+  const label = `Mark up to ${chip.code} as watched`;
   return (
     <button
-      aria-label={`Mark up to ${chip.code} as watched`}
+      aria-label={label}
       className={className}
       onBlur={leave}
       onClick={mark}

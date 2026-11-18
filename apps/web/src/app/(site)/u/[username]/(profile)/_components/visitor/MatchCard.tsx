@@ -44,13 +44,11 @@ export default async function MatchCard({
   const line = levelLine(username, hasLevel);
   const ringLevel = hasLevel ? match.level : null;
   const ring = ringLabel(ringLevel, match.sharedCount);
+  const sectionLabel = `Your match with ${username}`;
+  const proofShows = match.sharedShows.slice(0, 3);
   return (
-    <section
-      aria-label={`Your match with ${username}`}
-      className={MATCH_CARD}
-      style={vars}
-    >
-      <ProofHighlight level={style} shows={match.sharedShows.slice(0, 3)} />
+    <section aria-label={sectionLabel} className={MATCH_CARD} style={vars}>
+      <ProofHighlight level={style} shows={proofShows} />
       <span aria-hidden="true" className="absolute inset-0" style={tint} />
       <div className="relative flex items-center gap-4">
         <MatchRing

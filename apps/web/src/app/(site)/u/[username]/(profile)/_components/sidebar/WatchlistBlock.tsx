@@ -22,6 +22,8 @@ const FAN = 'flex pl-[18px]';
 const TILE = '-ml-[18px] aspect-[2/3] w-[72px] shrink-0 rounded-8';
 
 const GHOST_FAN = `${FAN} ${PULSE}`;
+const POSTER_TILE = `${TILE} object-cover shadow-[-6px_0_16px_rgb(0_0_0/0.6)]`;
+const EMPTY_TILE = `${TILE} box-border border-2 border-white/12 border-dashed bg-ground`;
 
 function Fan({ items }: Readonly<{ items: ReadonlyArray<ListItem> }>) {
   return (
@@ -29,7 +31,7 @@ function Fan({ items }: Readonly<{ items: ReadonlyArray<ListItem> }>) {
       {items.map((item) => (
         <Image
           alt=""
-          className={`${TILE} object-cover shadow-[-6px_0_16px_rgb(0_0_0/0.6)]`}
+          className={POSTER_TILE}
           height={108}
           key={item.id}
           src={item.posterImage}
@@ -45,10 +47,7 @@ function Ghosts() {
   return (
     <span aria-hidden="true" className={FAN}>
       {Array.from({ length: SHOWN }, (_, index) => (
-        <span
-          className={`${TILE} box-border border-2 border-white/12 border-dashed bg-ground`}
-          key={index}
-        />
+        <span className={EMPTY_TILE} key={index} />
       ))}
     </span>
   );

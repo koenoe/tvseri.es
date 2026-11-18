@@ -14,6 +14,7 @@ import {
 /** One episode on its own: the poster, its code and day, a link to the show */
 export default function SingleTile({ tile }: Readonly<{ tile: TileData }>) {
   const episode = tile.episodes[0];
+  const label = `${tile.title}, ${tile.range}`;
   return (
     <Slot>
       {tile.isNew ? (
@@ -26,7 +27,7 @@ export default function SingleTile({ tile }: Readonly<{ tile: TileData }>) {
       <div className="flex flex-col gap-2.5">
         <PosterLink
           href={tile.href}
-          label={`${tile.title}, ${tile.range}`}
+          label={label}
           look={RECENT_POSTER}
           poster={tile.poster}
           sizes={RECENT_POSTER_SIZES}

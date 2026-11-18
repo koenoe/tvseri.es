@@ -90,6 +90,7 @@ export function FailedBlock({
     <TryAgain look={drawn.tryAgain} onClick={onRetry} pending={retrying} />
   );
   const placeholderClass = cn('invisible relative', className);
+  const failedTitle = didNotLoad(title);
   return (
     // the placeholder only holds the space: hidden, so nothing of it shows
     // past the card's rounded corners (a heading's first letter did)
@@ -101,7 +102,7 @@ export function FailedBlock({
         look={drawn.card}
         mark={drawn.mark}
         role="alert"
-        title={didNotLoad(title)}
+        title={failedTitle}
       />
     </div>
   );

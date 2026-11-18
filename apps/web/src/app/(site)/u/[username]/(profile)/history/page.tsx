@@ -32,6 +32,8 @@ type Props = Readonly<{ params: ProfileParams; searchParams: SearchParams }>;
 
 /** SubpageHeader's description line (13/20, white/60) */
 const DESCRIPTION = 'text-meta text-white/60';
+const DESCRIPTION_GHOST = `block h-3 w-80 rounded-6 ${GHOST_FILL} ${PULSE}`;
+const COUNT_GHOST = `inline-block h-3 w-24 rounded-6 ${GHOST_FILL} ${PULSE}`;
 
 const OWNER_DESCRIPTION =
   'Everything you watched, by day, newest first. One row is one series on one day.';
@@ -59,9 +61,7 @@ export default function HistoryPage({ params, searchParams }: Props) {
         <Suspense
           fallback={
             <span className="block h-5 py-1">
-              <span
-                className={`block h-3 w-80 rounded-6 ${GHOST_FILL} ${PULSE}`}
-              />
+              <span className={DESCRIPTION_GHOST} />
             </span>
           }
         >
@@ -85,11 +85,7 @@ export default function HistoryPage({ params, searchParams }: Props) {
 }
 
 function CountGhost() {
-  return (
-    <span
-      className={`inline-block h-3 w-24 rounded-6 ${GHOST_FILL} ${PULSE}`}
-    />
-  );
+  return <span className={COUNT_GHOST} />;
 }
 
 /**
@@ -153,6 +149,8 @@ async function History({ params, searchParams }: Props) {
       </div>
     );
   }
+  const jumpWeek = week === null || isUnavailable(week) ? null : week;
+  const diaryYears = stats?.years ?? null;
   return (
     <div data-slot="history-diary">
       <Diary
@@ -162,8 +160,8 @@ async function History({ params, searchParams }: Props) {
         timeZone={timeZone}
         undated={undated}
         username={profile.user.username}
-        week={week === null || isUnavailable(week) ? null : week}
-        years={stats?.years ?? null}
+        week={jumpWeek}
+        years={diaryYears}
       />
     </div>
   );

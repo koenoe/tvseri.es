@@ -97,10 +97,11 @@ export default function FollowButton({
       : 'border-white bg-white text-[#171717] hover:bg-white/88',
     circle && (following ? CIRCLE.following : CIRCLE.follow),
   );
+  const busy = pending || undefined;
 
   return (
     <button
-      aria-busy={pending || undefined}
+      aria-busy={busy}
       className={className}
       onClick={toggle}
       type="button"

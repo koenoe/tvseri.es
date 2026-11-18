@@ -24,18 +24,17 @@ const ITEMS: ReadonlyArray<Item> = [
 ];
 
 /**
- * A pill's slot is as wide as the widest pill (a glyph and "E03", 53px), so
- * pills with and without a glyph leave every label starting on one line;
- * the pills themselves stay exactly as the grid draws them.
+ * Every pill fills a slot as wide as the widest one (a glyph and "E03"), as
+ * the grid's chips fill their equal columns: one pill size, and every label
+ * starts on one line.
  */
-const ITEM =
-  'grid grid-cols-[54px_auto] items-center gap-2 [&>:first-child]:justify-self-start';
+const ITEM = 'grid grid-cols-[54px_auto] items-center gap-2';
 
 function LegendItem({ item }: Readonly<{ item: Item }>) {
   const chipClass = markChipClass(
     item.state,
     undefined,
-    'pointer-events-none h-6 min-w-11 px-[7px]',
+    'pointer-events-none h-6 w-full px-[7px]',
   );
   const struck = item.state === 'sk';
   return (

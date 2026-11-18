@@ -84,5 +84,6 @@ async function StatsRoute({
   if (!isUnavailable(user) && user.username !== username) {
     permanentRedirect(statsPath(user.username, year));
   }
-  return <StatsBody user={isUnavailable(user) ? null : user} year={year} />;
+  const shownUser = isUnavailable(user) ? null : user;
+  return <StatsBody user={shownUser} year={year} />;
 }

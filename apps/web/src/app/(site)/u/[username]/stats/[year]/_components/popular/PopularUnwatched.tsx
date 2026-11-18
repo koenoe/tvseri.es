@@ -54,10 +54,11 @@ export default async function PopularUnwatched({ user, year }: SectionProps) {
   if (items.length === 0) {
     return null;
   }
+  const decadeHref = decadePath(year);
   const more = (
     <Link
       className="hidden items-center gap-1 whitespace-nowrap font-medium text-body-sm text-white/60 md:flex"
-      href={decadePath(year)}
+      href={decadeHref}
     >
       More
       <Icon glyph={chevronRightGlyph} size={14} />
@@ -74,33 +75,36 @@ export default async function PopularUnwatched({ user, year }: SectionProps) {
         title="Popular unwatched"
       />
       <div className="grid grid-cols-3 gap-3 md:grid-cols-5 md:gap-4">
-        {items.map((series) => (
-          <div
-            className="relative flex min-w-0 flex-col gap-2.5 [--tile-radius:10px]"
-            key={series.id}
-          >
-            <PosterLink
-              href={showPath(series.id, series.slug)}
-              label={series.title}
-              look={POPULAR_POSTER}
-              poster={series.posterImage}
-              sizes={SIZES}
-              title={series.title}
-            />
-            <AddToWatchlist seriesId={series.id} title={series.title} />
-            <span className="flex min-w-0 flex-col gap-2">
-              <span
-                className="truncate font-semibold text-body-sm"
+        {items.map((series) => {
+          const href = showPath(series.id, series.slug);
+          return (
+            <div
+              className="relative flex min-w-0 flex-col gap-2.5 [--tile-radius:10px]"
+              key={series.id}
+            >
+              <PosterLink
+                href={href}
+                label={series.title}
+                look={POPULAR_POSTER}
+                poster={series.posterImage}
+                sizes={SIZES}
                 title={series.title}
-              >
-                {series.title}
+              />
+              <AddToWatchlist seriesId={series.id} title={series.title} />
+              <span className="flex min-w-0 flex-col gap-2">
+                <span
+                  className="truncate font-semibold text-body-sm"
+                  title={series.title}
+                >
+                  {series.title}
+                </span>
+                <span className="text-[13px] text-white/60 leading-5 md:truncate">
+                  {popularMeta(series)}
+                </span>
               </span>
-              <span className="text-[13px] text-white/60 leading-5 md:truncate">
-                {popularMeta(series)}
-              </span>
-            </span>
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </div>
     </section>
   );

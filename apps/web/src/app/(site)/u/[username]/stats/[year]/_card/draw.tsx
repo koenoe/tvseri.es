@@ -61,13 +61,9 @@ export async function drawCard({
       ),
     ),
   ]);
+  const style = themeStyle(theme, colour);
   const card = (
-    <CardImage
-      layout={layout}
-      model={model}
-      posters={posters}
-      style={themeStyle(theme, colour)}
-    />
+    <CardImage layout={layout} model={model} posters={posters} style={style} />
   );
   const response = new ImageResponse(card, {
     fonts: [...fonts],

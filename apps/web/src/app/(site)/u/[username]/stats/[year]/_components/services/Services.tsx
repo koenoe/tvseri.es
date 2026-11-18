@@ -216,16 +216,18 @@ function UsedRow({
   service,
   username,
 }: Readonly<{ service: UsedService; username: string }>) {
+  const chip = chipFor(service.status, username);
+  const strong = service.status !== 'unlisted';
   return (
     <ServiceRow
       bar={service.bar}
-      chip={chipFor(service.status, username)}
+      chip={chip}
       dim={false}
       line={service.line}
       logo={service.logo}
       name={service.name}
       shows={service.shows}
-      strong={service.status !== 'unlisted'}
+      strong={strong}
     />
   );
 }
@@ -234,10 +236,11 @@ function UnusedRow({
   service,
   username,
 }: Readonly<{ service: UnusedService; username: string }>) {
+  const chip = chipFor('unused', username);
   return (
     <ServiceRow
       bar={0}
-      chip={chipFor('unused', username)}
+      chip={chip}
       dim
       line={service.line}
       logo={service.logo}

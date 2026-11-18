@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react';
+
 import type { CardShow } from './cardModel';
 import type { CardLayout } from './layout';
 import { type WallCell, wallLayout } from './wall';
@@ -29,6 +31,9 @@ export default function CardWall({
       {cells.map((cell) => {
         const show = shows[cell.rank]!;
         const poster = posters[cell.rank] ?? null;
+        // The #1 keeps its title clear of the hours chip
+        const reserve =
+          cell.rank === 0 && hours ? layout.chip.inset + layout.chip.height : 0;
         return poster ? (
           // biome-ignore lint/performance/noImgElement: satori (next/og) draws plain img elements
           <img
@@ -52,12 +57,7 @@ export default function CardWall({
           <TitleTile
             cell={cell}
             key={show.id}
-            // The #1 keeps its title clear of the hours chip
-            reserve={
-              cell.rank === 0 && hours
-                ? layout.chip.inset + layout.chip.height
-                : 0
-            }
+            reserve={reserve}
             title={show.title}
           />
         );
@@ -76,28 +76,23 @@ function HoursChip({
   layout,
 }: Readonly<{ cell: WallCell; hours: string; layout: CardLayout }>) {
   const { chip } = layout;
-  return (
-    <div
-      style={{
-        alignItems: 'center',
-        backgroundColor: 'rgba(10,14,15,0.72)',
-        borderRadius: chip.radius,
-        color: '#ffffff',
-        display: 'flex',
-        fontSize: chip.size,
-        fontWeight: 700,
-        height: chip.height,
-        left: cell.left + chip.inset,
-        lineHeight: 1,
-        padding: `0 ${chip.padding}px`,
-        position: 'absolute',
-        top: cell.top + cell.height - chip.inset - chip.height,
-        whiteSpace: 'nowrap',
-      }}
-    >
-      {hours}
-    </div>
-  );
+  const chipStyle: CSSProperties = {
+    alignItems: 'center',
+    backgroundColor: 'rgba(10,14,15,0.72)',
+    borderRadius: chip.radius,
+    color: '#ffffff',
+    display: 'flex',
+    fontSize: chip.size,
+    fontWeight: 700,
+    height: chip.height,
+    left: cell.left + chip.inset,
+    lineHeight: 1,
+    padding: `0 ${chip.padding}px`,
+    position: 'absolute',
+    top: cell.top + cell.height - chip.inset - chip.height,
+    whiteSpace: 'nowrap',
+  };
+  return <div style={chipStyle}>{hours}</div>;
 }
 
 /**
@@ -116,48 +111,43 @@ function TitleTile({
 }>) {
   const padding = Math.round(cell.width * 0.1);
   const inset = Math.round(cell.width * 0.05);
+  const tileStyle: CSSProperties = {
+    backgroundImage: 'linear-gradient(165deg, #2b3335 0%, #1a1f20 70%)',
+    borderRadius: cell.radius,
+    boxShadow: SHADOW,
+    display: 'flex',
+    flexDirection: 'column',
+    height: cell.height,
+    justifyContent: 'flex-end',
+    left: cell.left,
+    overflow: 'hidden',
+    padding,
+    paddingBottom: padding + reserve,
+    position: 'absolute',
+    top: cell.top,
+    width: cell.width,
+  };
+  const frameStyle: CSSProperties = {
+    border: '1px dashed rgba(255,255,255,0.14)',
+    borderRadius: Math.max(4, cell.radius - inset),
+    bottom: inset,
+    left: inset,
+    position: 'absolute',
+    right: inset,
+    top: inset,
+  };
+  const titleStyle: CSSProperties = {
+    color: '#ffffff',
+    display: 'block',
+    fontSize: Math.max(16, Math.round(cell.width * 0.13)),
+    fontWeight: 600,
+    lineClamp: 3,
+    lineHeight: 1.2,
+  };
   return (
-    <div
-      style={{
-        backgroundImage: 'linear-gradient(165deg, #2b3335 0%, #1a1f20 70%)',
-        borderRadius: cell.radius,
-        boxShadow: SHADOW,
-        display: 'flex',
-        flexDirection: 'column',
-        height: cell.height,
-        justifyContent: 'flex-end',
-        left: cell.left,
-        overflow: 'hidden',
-        padding,
-        paddingBottom: padding + reserve,
-        position: 'absolute',
-        top: cell.top,
-        width: cell.width,
-      }}
-    >
-      <div
-        style={{
-          border: '1px dashed rgba(255,255,255,0.14)',
-          borderRadius: Math.max(4, cell.radius - inset),
-          bottom: inset,
-          left: inset,
-          position: 'absolute',
-          right: inset,
-          top: inset,
-        }}
-      />
-      <div
-        style={{
-          color: '#ffffff',
-          display: 'block',
-          fontSize: Math.max(16, Math.round(cell.width * 0.13)),
-          fontWeight: 600,
-          lineClamp: 3,
-          lineHeight: 1.2,
-        }}
-      >
-        {title}
-      </div>
+    <div style={tileStyle}>
+      <div style={frameStyle} />
+      <div style={titleStyle}>{title}</div>
     </div>
   );
 }

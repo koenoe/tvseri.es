@@ -32,6 +32,10 @@ const GLASS =
  * runtime. The whole card links to the show. 300 tall, also on a phone,
  * where it is full width (as the landing's Start here tile).
  */
+const BACKDROP_FADE = `absolute inset-0 opacity-80 ${FADE}`;
+
+const LABEL_PILL = `absolute top-4 left-4 z-3 flex h-8 items-center gap-1.5 whitespace-nowrap rounded-full px-3 font-medium text-caption text-white/80 ${GLASS}`;
+
 function SpotlightArticle({
   card,
   label,
@@ -55,7 +59,7 @@ function SpotlightArticle({
               src={card.backdrop}
             />
           ) : null}
-          <span className={`absolute inset-0 opacity-80 ${FADE}`} />
+          <span className={BACKDROP_FADE} />
         </span>
         <span className="relative flex w-full flex-col gap-[18px] p-7">
           <TitleTreatment
@@ -80,9 +84,7 @@ function SpotlightArticle({
         </span>
       </TileLink>
       <CardRim />
-      <span
-        className={`absolute top-4 left-4 z-3 flex h-8 items-center gap-1.5 whitespace-nowrap rounded-full px-3 font-medium text-caption text-white/80 ${GLASS}`}
-      >
+      <span className={LABEL_PILL}>
         <Icon glyph={historyGlyph} size={13} />
         {label}
       </span>

@@ -35,12 +35,10 @@ const WEEKDAY_CAPTION = cn(CAPTION, 'mt-2 flex gap-2');
  */
 export default async function WhenWatches({ user, year }: SectionProps) {
   const when = await getWhen(user.id, year);
+  const title = `When ${user.username} watches`;
   if (isUnavailable(when)) {
     return (
-      <StatsUnavailable
-        placeholder={<WhenWatchesSkeleton />}
-        title={`When ${user.username} watches`}
-      />
+      <StatsUnavailable placeholder={<WhenWatchesSkeleton />} title={title} />
     );
   }
   const peak = peakText(when.weekdays, when.hours);
@@ -49,11 +47,7 @@ export default async function WhenWatches({ user, year }: SectionProps) {
   }
   const note = bulkNote(when.bulkExcluded);
   return (
-    <Lane
-      className="max-md:p-4"
-      id="when-title"
-      title={`When ${user.username} watches`}
-    >
+    <Lane className="max-md:p-4" id="when-title" title={title}>
       <div className="flex flex-col gap-2">
         <span className="text-title-2">{peak}</span>
         <MetaRow className="max-md:hidden">
@@ -124,15 +118,20 @@ function Bars({
     <>
       <ChartTable caption={label} rows={rows} />
       <div aria-hidden className={barsClass}>
-        {values.map((value, index) => (
-          <Bar
-            episodes={value}
-            key={index}
-            peak={index === peak}
-            ratio={barHeightRatio(value, max)}
-            tip={tip(index)}
-          />
-        ))}
+        {values.map((value, index) => {
+          const isPeak = index === peak;
+          const ratio = barHeightRatio(value, max);
+          const barTip = tip(index);
+          return (
+            <Bar
+              episodes={value}
+              key={index}
+              peak={isPeak}
+              ratio={ratio}
+              tip={barTip}
+            />
+          );
+        })}
       </div>
     </>
   );
@@ -157,10 +156,11 @@ function Bar({
     'block w-full rounded-2 [transition:background-color_.12s] group-hover/bar:bg-white',
     fill,
   );
+  const count = plural(episodes, 'episode');
   return (
     <span className="group/bar relative flex h-full min-w-0 flex-1 items-end justify-center">
       <i className={barClass} style={style} />
-      <BarTip title={plural(episodes, 'episode')}>{tip}</BarTip>
+      <BarTip title={count}>{tip}</BarTip>
     </span>
   );
 }

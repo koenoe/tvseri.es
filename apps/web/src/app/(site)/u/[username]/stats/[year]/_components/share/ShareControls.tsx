@@ -72,17 +72,20 @@ export function FormatSwitch({
 }>) {
   return (
     <Segmented className={SEG} label="Format">
-      {order.map((format) => (
-        <Choice
-          className={ITEM[size]}
-          key={format}
-          onChoose={share.chooseFormat}
-          pressed={share.format === format}
-          value={format}
-        >
-          {FORMAT_LABEL[format]}
-        </Choice>
-      ))}
+      {order.map((format) => {
+        const pressed = share.format === format;
+        return (
+          <Choice
+            className={ITEM[size]}
+            key={format}
+            onChoose={share.chooseFormat}
+            pressed={pressed}
+            value={format}
+          >
+            {FORMAT_LABEL[format]}
+          </Choice>
+        );
+      })}
     </Segmented>
   );
 }
@@ -100,12 +103,13 @@ export function ThemeSwitch({
     <Segmented className={SEG} label="Theme">
       {themes.map((item) => {
         const dot = { backgroundColor: item.colour };
+        const pressed = share.theme === item.theme;
         return (
           <Choice
             className={ITEM[size]}
             key={item.theme}
             onChoose={share.chooseTheme}
-            pressed={share.theme === item.theme}
+            pressed={pressed}
             value={item.theme}
           >
             <span

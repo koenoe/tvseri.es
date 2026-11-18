@@ -61,10 +61,11 @@ export default async function YearHeader({
       getStatsClock(year),
     ]);
   if (isUnavailable(summary) || isUnavailable(weekly)) {
+    const yearTitle = String(year);
     return (
       <StatsUnavailable
         placeholder={<YearHeaderSkeleton />}
-        title={String(year)}
+        title={yearTitle}
       />
     );
   }
@@ -112,23 +113,27 @@ export default async function YearHeader({
 function Sentence({ parts }: Readonly<{ parts: ReadonlyArray<SentencePart> }>) {
   return (
     <p className="max-w-[640px] text-body text-white/80">
-      {parts.map((part, index) =>
-        part.strong ? (
-          <span
-            className="font-semibold text-white"
-            key={`${index}-${part.text}`}
-          >
+      {parts.map((part, index) => {
+        const partId = `${index}-${part.text}`;
+        return part.strong ? (
+          <span className="font-semibold text-white" key={partId}>
             {part.text}
           </span>
         ) : (
           part.text
-        ),
-      )}
+        );
+      })}
     </p>
   );
 }
 
 const BLOCK = `rounded-8 ${GHOST_FILL}`;
+
+const YEAR_GHOST = `h-full w-36 ${BLOCK}`;
+
+const SHARE_GHOST = `hidden size-10 rounded-full md:h-9 md:w-[97px] [html[data-stats-year=finished]_&]:block ${GHOST_FILL}`;
+
+const WEEK_GHOST = `h-1/3 flex-1 ${BLOCK}`;
 
 /** The chart's weeks as even ghost bars */
 const WEEK_GHOSTS = Array.from({ length: 52 }, (_, n) => n);
@@ -147,12 +152,10 @@ export function YearHeaderSkeleton() {
     >
       <div className="flex flex-col gap-3">
         <div className="flex h-[60px] items-center justify-between gap-8 md:h-[76px]">
-          <div className={`h-full w-36 ${BLOCK}`} />
+          <div className={YEAR_GHOST} />
           {/* A finished year's Share (`data-stats-year` on <html>, set
               before the first paint): the circle, or the pill from md */}
-          <div
-            className={`hidden size-10 rounded-full md:h-9 md:w-[97px] [html[data-stats-year=finished]_&]:block ${GHOST_FILL}`}
-          />
+          <div className={SHARE_GHOST} />
         </div>
         {/* the sentence: two lines from lg, four below (three for a current
             year on a phone) */}
@@ -169,7 +172,7 @@ export function YearHeaderSkeleton() {
       <div className="flex flex-col gap-1.5">
         <div className="flex h-[88px] items-end gap-1 md:h-[150px] md:gap-[13px]">
           {WEEK_GHOSTS.map((week) => (
-            <span className={`h-1/3 flex-1 ${BLOCK}`} key={week} />
+            <span className={WEEK_GHOST} key={week} />
           ))}
         </div>
         <TextLine className="text-caption" width="w-full" />

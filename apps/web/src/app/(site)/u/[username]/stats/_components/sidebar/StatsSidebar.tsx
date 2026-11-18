@@ -25,6 +25,10 @@ import YearsList from './YearsList';
 /** The sidebar's column: the box the parity checks measure */
 const COLUMN = 'flex flex-col gap-10';
 
+const PROFILE_BLOCK = `@container ${IDENTITY_BLOCK}`;
+
+const PROFILE_GHOST = `animate-ghost ${IDENTITY_BLOCK}`;
+
 /**
  * The desktop sidebar (sticky, in the Stats layout): the profile block with
  * the way back to the profile and the Years submenu. Nothing in it is about
@@ -40,11 +44,9 @@ export default async function StatsSidebar({
   }
   const { counts, rows, user } = head;
   if (isUnavailable(counts) || isUnavailable(rows)) {
+    const handle = `@${user.username}`;
     return (
-      <StatsUnavailable
-        placeholder={<StatsSidebarSkeleton />}
-        title={`@${user.username}`}
-      />
+      <StatsUnavailable placeholder={<StatsSidebarSkeleton />} title={handle} />
     );
   }
   return (
@@ -83,7 +85,7 @@ function Profile({
   return (
     // the profile sidebar's identity, with the way back as its action; a
     // container, so the handle fits its size to the column (`Handle`)
-    <section aria-label="Profile" className={`@container ${IDENTITY_BLOCK}`}>
+    <section aria-label="Profile" className={PROFILE_BLOCK}>
       <Handle as="h2" href={profileHref} username={user.username} />
       <IdentityLines>
         {user.memberSince ? (
@@ -114,7 +116,7 @@ const YEAR_GHOSTS = [0, 1, 2];
 export function StatsSidebarSkeleton() {
   return (
     <div className={COLUMN} data-placeholder="stats-aside">
-      <div aria-hidden className={`animate-ghost ${IDENTITY_BLOCK}`}>
+      <div aria-hidden className={PROFILE_GHOST}>
         <Ghost className="h-[46px] w-40 rounded-8" />
         <IdentityLinesGhost />
         <Ghost className="h-[22px] rounded-4" />

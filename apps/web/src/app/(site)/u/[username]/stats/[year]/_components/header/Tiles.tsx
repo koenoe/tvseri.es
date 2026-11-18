@@ -100,6 +100,7 @@ function Delta({ delta }: Readonly<{ delta: TileDelta }>) {
     'inline-flex items-center gap-0.5 whitespace-nowrap font-medium text-caption tabular-nums',
     direction === 'up' ? 'text-cyan' : 'text-pink',
   );
+  const arrowGlyph = direction === 'up' ? arrowUpGlyph : arrowDownGlyph;
   // one line: where the tile is narrower than the change and its "vs." (a
   // 148px tile at 360: "↓ 35% vs. 4w 4d 4h (2024)" ran into the next one)
   // the "vs." wraps to a second line the tile clips, dropping whole
@@ -107,10 +108,7 @@ function Delta({ delta }: Readonly<{ delta: TileDelta }>) {
     <span className="flex h-5 flex-wrap content-start items-center gap-x-2 gap-y-8 overflow-clip">
       {direction ? (
         <span className={arrowClass}>
-          <Icon
-            glyph={direction === 'up' ? arrowUpGlyph : arrowDownGlyph}
-            size={12}
-          />
+          <Icon glyph={arrowGlyph} size={12} />
           <span className="sr-only">{word} </span>
           {amount}
         </span>

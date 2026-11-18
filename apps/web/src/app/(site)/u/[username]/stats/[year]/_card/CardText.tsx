@@ -1,4 +1,5 @@
 import { LOGO_PATH, LOGO_VIEWBOX } from '@tvseri.es/constants';
+import type { CSSProperties } from 'react';
 
 import type { CardModel } from './cardModel';
 import { CARD_FONT, labelFont } from './fonts';
@@ -33,34 +34,30 @@ export function CardHandle({
 }: Readonly<{ layout: CardLayout; username: string }>) {
   const { right, size, top } = layout.handle;
   const at = size * 0.6;
+  const handleStyle: CSSProperties = {
+    alignItems: 'baseline',
+    display: 'flex',
+    fontFamily: CARD_FONT.jakarta,
+    fontSize: size,
+    fontWeight: 800,
+    letterSpacing: -0.03 * size,
+    lineHeight: 0.95,
+    position: 'absolute',
+    right,
+    top,
+    whiteSpace: 'nowrap',
+  };
+  const atStyle: CSSProperties = {
+    color: 'rgba(255,255,255,0.4)',
+    fontSize: at,
+    letterSpacing: 0,
+    marginRight: 2,
+    position: 'relative',
+    top: -0.214 * at,
+  };
   return (
-    <div
-      style={{
-        alignItems: 'baseline',
-        display: 'flex',
-        fontFamily: CARD_FONT.jakarta,
-        fontSize: size,
-        fontWeight: 800,
-        letterSpacing: -0.03 * size,
-        lineHeight: 0.95,
-        position: 'absolute',
-        right,
-        top,
-        whiteSpace: 'nowrap',
-      }}
-    >
-      <span
-        style={{
-          color: 'rgba(255,255,255,0.4)',
-          fontSize: at,
-          letterSpacing: 0,
-          marginRight: 2,
-          position: 'relative',
-          top: -0.214 * at,
-        }}
-      >
-        @
-      </span>
+    <div style={handleStyle}>
+      <span style={atStyle}>@</span>
       <span>{username}</span>
     </div>
   );
@@ -71,21 +68,20 @@ export function CardHeadline({
   lines,
 }: Readonly<{ layout: CardLayout; lines: readonly [string, string] }>) {
   const { left, size, top, width } = layout.headline;
+  const headlineStyle: CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    fontSize: size,
+    fontWeight: 700,
+    left,
+    letterSpacing: -0.025 * size,
+    lineHeight: 1.05,
+    position: 'absolute',
+    top,
+    width,
+  };
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        fontSize: size,
-        fontWeight: 700,
-        left,
-        letterSpacing: -0.025 * size,
-        lineHeight: 1.05,
-        position: 'absolute',
-        top,
-        width,
-      }}
-    >
+    <div style={headlineStyle}>
       <span>{lines[0]}</span>
       {lines[1] ? <span>{lines[1]}</span> : null}
     </div>
@@ -104,6 +100,18 @@ export function CardStats({
     { label: model.episodesLabel, spot: stats.episodes, value: model.episodes },
     { label: model.showsLabel, spot: stats.shows, value: model.shows },
   ];
+  const valueStyle: CSSProperties = {
+    fontSize: stats.value,
+    fontWeight: 800,
+    letterSpacing: -0.03 * stats.value,
+    lineHeight: 1,
+  };
+  const labelStyle: CSSProperties = {
+    color: style.soft,
+    fontFamily: labelFont(stats.label),
+    fontSize: stats.label,
+    lineHeight: 1.3,
+  };
   return (
     <>
       {items.map((item) => (
@@ -119,26 +127,8 @@ export function CardStats({
             whiteSpace: 'nowrap',
           }}
         >
-          <span
-            style={{
-              fontSize: stats.value,
-              fontWeight: 800,
-              letterSpacing: -0.03 * stats.value,
-              lineHeight: 1,
-            }}
-          >
-            {item.value}
-          </span>
-          <span
-            style={{
-              color: style.soft,
-              fontFamily: labelFont(stats.label),
-              fontSize: stats.label,
-              lineHeight: 1.3,
-            }}
-          >
-            {item.label}
-          </span>
+          <span style={valueStyle}>{item.value}</span>
+          <span style={labelStyle}>{item.label}</span>
         </div>
       ))}
     </>
@@ -151,19 +141,14 @@ export function CardYear({
   year,
 }: Readonly<{ layout: CardLayout; year: number }>) {
   const { left, size, top } = layout.year;
-  return (
-    <div
-      style={{
-        fontSize: size,
-        fontWeight: 800,
-        left,
-        letterSpacing: -0.055 * size,
-        lineHeight: 0.78,
-        position: 'absolute',
-        top,
-      }}
-    >
-      {String(year)}
-    </div>
-  );
+  const yearStyle: CSSProperties = {
+    fontSize: size,
+    fontWeight: 800,
+    left,
+    letterSpacing: -0.055 * size,
+    lineHeight: 0.78,
+    position: 'absolute',
+    top,
+  };
+  return <div style={yearStyle}>{String(year)}</div>;
 }

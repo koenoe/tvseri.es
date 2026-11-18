@@ -121,6 +121,7 @@ export default function TimelineBoard({
   );
   // the overview draws the lines a phone lists before "All 71"
   const overview = shown.filter((row) => row.rank < PHONE_ROWS);
+  const scrollerLabel = `Series in ${year}, week by week`;
 
   return (
     <section
@@ -135,7 +136,7 @@ export default function TimelineBoard({
       <div className="self-start md:hidden">{sort}</div>
       <div className="flex min-w-0 flex-col rounded-16 bg-black/22 px-3 py-3.5 md:px-2 md:pt-[18px] md:pb-3.5">
         <QuarterScroller
-          label={`Series in ${year}, week by week`}
+          label={scrollerLabel}
           opening={opening}
           overview={overview}
           year={year}

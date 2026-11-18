@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react';
+
 import { WEEKS } from '@/lib/stats/weeks';
 import { weekLinesSvg } from '../../_components/weekLines';
 import type { CardStreak } from './cardModel';
@@ -44,20 +46,27 @@ export default function CardWeeks({
     width: drawingWidth,
   });
   const bracketTop = top + height + layout.weeks.bracketGap;
+  const linesStyle: CSSProperties = {
+    display: 'flex',
+    height,
+    left: left + shift,
+    position: 'absolute',
+    top,
+    width: drawingWidth,
+  };
+  const streakLineStyle: CSSProperties = {
+    color: style.soft,
+    fontFamily: labelFont(layout.weeks.lineSize),
+    fontSize: layout.weeks.lineSize,
+    left,
+    lineHeight: 1.3,
+    position: 'absolute',
+    top: bracketTop + layout.weeks.lineGap,
+    whiteSpace: 'nowrap',
+  };
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          height,
-          left: left + shift,
-          position: 'absolute',
-          top,
-          width: drawingWidth,
-        }}
-      >
-        {lines}
-      </div>
+      <div style={linesStyle}>{lines}</div>
       {streak ? (
         <>
           <div
@@ -76,20 +85,7 @@ export default function CardWeeks({
               ),
             }}
           />
-          <div
-            style={{
-              color: style.soft,
-              fontFamily: labelFont(layout.weeks.lineSize),
-              fontSize: layout.weeks.lineSize,
-              left,
-              lineHeight: 1.3,
-              position: 'absolute',
-              top: bracketTop + layout.weeks.lineGap,
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {streak.line}
-          </div>
+          <div style={streakLineStyle}>{streak.line}</div>
         </>
       ) : null}
     </>

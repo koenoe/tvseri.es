@@ -40,11 +40,12 @@ export default async function YearInShows({ state, user, year }: SectionProps) {
   );
   const reference = endReference(shows.shows, year, state);
   const timeline = buildTimeline(shows.shows, finishedIds, year, reference);
+  const opening = openingQuarter(year, state, clock.currentWeek);
   return (
     <TimelineBoard
       moreEpisodes={timeline.moreEpisodes}
       moreShows={timeline.moreShows}
-      opening={openingQuarter(year, state, clock.currentWeek)}
+      opening={opening}
       rows={timeline.rows}
       total={timeline.total}
       year={year}

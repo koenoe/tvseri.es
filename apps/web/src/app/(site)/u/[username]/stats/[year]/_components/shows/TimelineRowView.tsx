@@ -96,13 +96,16 @@ function Track({ row }: Readonly<{ row: TimelineRow }>) {
         className="absolute top-[5px] h-1.5 rounded-[3px] bg-white/12 md:top-1 md:h-1 md:rounded-2"
         style={span}
       />
-      {row.weeks.map((week) => (
-        <span
-          className="absolute top-[5px] h-1.5 rounded-[3px] bg-white md:top-1 md:h-1 md:rounded-2"
-          key={week}
-          style={segmentStyle(week)}
-        />
-      ))}
+      {row.weeks.map((week) => {
+        const segment = segmentStyle(week);
+        return (
+          <span
+            className="absolute top-[5px] h-1.5 rounded-[3px] bg-white md:top-1 md:h-1 md:rounded-2"
+            key={week}
+            style={segment}
+          />
+        );
+      })}
       <span className={endClass} style={end} />
       <PhoneWindow row={row} />
     </span>

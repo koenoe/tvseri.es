@@ -35,15 +35,14 @@ export default async function PhoneHead({
   }
   const { counts, rows, user } = head;
   if (isUnavailable(counts) || isUnavailable(rows)) {
+    const handle = `@${user.username}`;
     return (
-      <StatsUnavailable
-        placeholder={<PhoneHeadSkeleton />}
-        title={`@${user.username}`}
-      />
+      <StatsUnavailable placeholder={<PhoneHeadSkeleton />} title={handle} />
     );
   }
   const episodes = plural(counts.episodes, 'episode');
   const profileHref = profilePath(user.username);
+  const aboutLabel = `About ${user.username}`;
   const pills = rows.map((row) => ({
     pill: <Pill row={row} username={user.username} />,
     year: row.year,
@@ -55,10 +54,7 @@ export default async function PhoneHead({
   );
   return (
     <div data-slot="stats-phone-head">
-      <section
-        aria-label={`About ${user.username}`}
-        className="flex flex-col gap-3 pt-0.5"
-      >
+      <section aria-label={aboutLabel} className="flex flex-col gap-3 pt-0.5">
         {/* a container, so the handle fits its size to the column */}
         <div className="@container flex flex-col gap-2">
           <Handle

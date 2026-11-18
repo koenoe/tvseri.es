@@ -23,6 +23,7 @@ function AddToWatchlist({
   const label = isOn
     ? `Remove ${title} from watchlist`
     : `Add ${title} to watchlist`;
+  const glyph = watchlistGlyph(isOn);
   return (
     <PosterCircle
       isOn={isOn}
@@ -30,7 +31,7 @@ function AddToWatchlist({
       look={STATS_POSTER_CIRCLE}
       onClick={toggle}
     >
-      <Icon glyph={watchlistGlyph(isOn)} size={16} />
+      <Icon glyph={glyph} size={16} />
     </PosterCircle>
   );
 }

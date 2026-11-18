@@ -112,44 +112,50 @@ export function weekLinesSvg(input: SvgInput): ReactElement {
   const count = lines.length;
   // A slot's centre moves by this many px from its share of the width
   const shift = (index: number) => (gap * (index - (count - 1) / 2)) / count;
-  const rect = (line: WeekLine, x: number, index: number) => (
-    <rect
-      className={lineClass}
-      fill={line.color}
-      height={line.height}
-      rx={lineWidth / 2}
-      style={lineClass ? { animationDelay: `${index * stagger}ms` } : undefined}
-      width={lineWidth}
-      x={x}
-      y={height - line.height}
-    />
-  );
+  const radius = lineWidth / 2;
+  const rect = (line: WeekLine, x: number, index: number) => {
+    const growStyle = lineClass
+      ? { animationDelay: `${index * stagger}ms` }
+      : undefined;
+    const y = height - line.height;
+    return (
+      <rect
+        className={lineClass}
+        fill={line.color}
+        height={line.height}
+        rx={radius}
+        style={growStyle}
+        width={lineWidth}
+        x={x}
+        y={y}
+      />
+    );
+  };
+  const viewBox = width === undefined ? undefined : `0 0 ${width} ${height}`;
+  const svgWidth = width ?? '100%';
   return (
     <svg
       aria-hidden={label ? undefined : true}
       aria-label={label}
       height={height}
       role={label ? 'img' : undefined}
-      viewBox={width === undefined ? undefined : `0 0 ${width} ${height}`}
-      width={width ?? '100%'}
+      viewBox={viewBox}
+      width={svgWidth}
       xmlns="http://www.w3.org/2000/svg"
     >
-      {lines.map((line, index) =>
-        width === undefined ? (
+      {lines.map((line, index) => {
+        const percentX = `${(line.at * 100).toFixed(3)}%`;
+        return width === undefined ? (
           // A fluid width: each line in its own box at a percentage
-          <svg
-            key={index}
-            overflow="visible"
-            x={`${(line.at * 100).toFixed(3)}%`}
-          >
+          <svg key={index} overflow="visible" x={percentX}>
             {rect(line, shift(index) - lineWidth / 2, index)}
           </svg>
         ) : (
           <g key={index}>
             {rect(line, line.at * width + shift(index) - lineWidth / 2, index)}
           </g>
-        ),
-      )}
+        );
+      })}
     </svg>
   );
 }

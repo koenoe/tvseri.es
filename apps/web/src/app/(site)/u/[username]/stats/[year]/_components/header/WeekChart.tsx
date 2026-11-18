@@ -116,10 +116,11 @@ function WeekBars({
         if (inFuture) {
           return <span aria-hidden className="flex-1" key={key} />;
         }
+        const height = heights[index] ?? 0;
         return (
           <WeekHit
             episodes={episodes}
-            height={heights[index] ?? 0}
+            height={height}
             index={index}
             key={key}
             year={year}

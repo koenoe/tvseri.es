@@ -6,6 +6,8 @@ import { monthName, monthStarts } from '@/lib/stats/weeks';
  */
 const GRID_INSET = 'inset-x-0 md:left-[196px] md:right-[82px]';
 
+const MONTH_GRID = `pointer-events-none absolute inset-y-0 ${GRID_INSET}`;
+
 /**
  * The month header over the rows: month names on desktop beside a "Hours"
  * column title, full names along a phone's year track. Months sit where they
@@ -45,10 +47,7 @@ export function MonthAxis({ year }: Readonly<{ year: number }>) {
 export function MonthGrid({ year }: Readonly<{ year: number }>) {
   const months = monthStarts(year);
   return (
-    <div
-      aria-hidden
-      className={`pointer-events-none absolute inset-y-0 ${GRID_INSET}`}
-    >
+    <div aria-hidden className={MONTH_GRID}>
       {months.map(({ at, label }) => {
         const style = { left: `${(at * 100).toFixed(3)}%` };
         return (

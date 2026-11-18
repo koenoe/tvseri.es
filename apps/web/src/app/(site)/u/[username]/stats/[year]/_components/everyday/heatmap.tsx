@@ -38,28 +38,34 @@ export function heatmapSvg({
   const pitch = size + gap;
   const width = columns * pitch - gap;
   const height = rows * pitch - gap;
+  const viewBox = `0 0 ${width} ${height}`;
   return (
     <svg
       aria-label={label}
       className={className}
       height={height}
       role="img"
-      viewBox={`0 0 ${width} ${height}`}
+      viewBox={viewBox}
       width={width}
     >
-      {cells.map((cell) => (
-        <rect
-          fill={STEP_FILLS[cell.step]}
-          height={size}
-          key={`${cell.col}-${cell.row}`}
-          rx={radius}
-          width={size}
-          x={cell.col * pitch}
-          y={cell.row * pitch}
-        >
-          <title>{cell.label}</title>
-        </rect>
-      ))}
+      {cells.map((cell) => {
+        const cellId = `${cell.col}-${cell.row}`;
+        const x = cell.col * pitch;
+        const y = cell.row * pitch;
+        return (
+          <rect
+            fill={STEP_FILLS[cell.step]}
+            height={size}
+            key={cellId}
+            rx={radius}
+            width={size}
+            x={x}
+            y={y}
+          >
+            <title>{cell.label}</title>
+          </rect>
+        );
+      })}
     </svg>
   );
 }

@@ -64,18 +64,21 @@ export default async function WhereFrom({ user, year }: SectionProps) {
         <div>{map}</div>
         <div className="flex flex-col">
           <ul className="flex flex-col">
-            {listed.map((country) => (
-              <li
-                className={COUNTRY_ROW}
-                data-country={country.code ?? undefined}
-                key={country.name}
-              >
-                <span className="text-white/80">{country.name}</span>
-                <span className="text-white/60 tabular-nums">
-                  {country.count}
-                </span>
-              </li>
-            ))}
+            {listed.map((country) => {
+              const code = country.code ?? undefined;
+              return (
+                <li
+                  className={COUNTRY_ROW}
+                  data-country={code}
+                  key={country.name}
+                >
+                  <span className="text-white/80">{country.name}</span>
+                  <span className="text-white/60 tabular-nums">
+                    {country.count}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
           {more > 0 ? <span className={MORE}>{`and ${more} more`}</span> : null}
         </div>

@@ -16,23 +16,27 @@ const liveStyle = (end: number): CSSProperties => ({
 
 function OverviewRow({ row }: Readonly<{ row: TimelineRow }>) {
   const span = at(row.start, row.end - row.start);
+  const live = liveStyle(row.end);
   return (
     <span className="relative block h-0.5">
       <i
         className="absolute top-0 h-0.5 rounded-[1px] bg-white/22"
         style={span}
       />
-      {row.weeks.map((week) => (
-        <i
-          className="absolute top-0 h-0.5 rounded-[1px] bg-white/75"
-          key={week}
-          style={at(week, 1)}
-        />
-      ))}
+      {row.weeks.map((week) => {
+        const weekStyle = at(week, 1);
+        return (
+          <i
+            className="absolute top-0 h-0.5 rounded-[1px] bg-white/75"
+            key={week}
+            style={weekStyle}
+          />
+        );
+      })}
       {row.live ? (
         <i
           className="absolute top-0 h-0.5 w-[3px] rounded-[1px] bg-cyan"
-          style={liveStyle(row.end)}
+          style={live}
         />
       ) : null}
     </span>

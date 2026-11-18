@@ -27,9 +27,10 @@ export default async function Genres({ user, year }: SectionProps) {
   return (
     <Lane className="max-md:p-4" id="genres-title" title="Genres">
       <ul className="flex flex-col">
-        {rows.map((row, index) => (
-          <Row hiddenOnPhone={index >= PHONE_ROWS} key={row.name} row={row} />
-        ))}
+        {rows.map((row, index) => {
+          const hiddenOnPhone = index >= PHONE_ROWS;
+          return <Row hiddenOnPhone={hiddenOnPhone} key={row.name} row={row} />;
+        })}
       </ul>
     </Lane>
   );

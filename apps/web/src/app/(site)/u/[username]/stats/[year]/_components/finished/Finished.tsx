@@ -63,6 +63,7 @@ function finishedSlice({ art, tile }: Tile): AccordionSlice {
 
 /** A card of the sideways strip (phone) */
 function StripCard({ art, tile }: Readonly<Tile>) {
+  const logo = art?.titleTreatmentImage ?? null;
   return (
     <TileLink
       aria-label={tile.title}
@@ -84,11 +85,7 @@ function StripCard({ art, tile }: Readonly<Tile>) {
         <span className="absolute inset-0 bg-[linear-gradient(0deg,rgba(15,20,20,0.92)_0%,rgba(15,20,20,0.2)_70%)]" />
       </span>
       <span className="absolute inset-x-4 bottom-4 flex flex-col gap-3">
-        <TitleTreatment
-          look={FINISHED_TITLE}
-          src={art?.titleTreatmentImage ?? null}
-          title={tile.title}
-        />
+        <TitleTreatment look={FINISHED_TITLE} src={logo} title={tile.title} />
         <MetaRow className="gap-3">
           <MetaItem icon={completeGlyph}>{tile.finished}</MetaItem>
           {tile.duration ? (
@@ -110,12 +107,10 @@ function StripCard({ art, tile }: Readonly<Tile>) {
  */
 export default async function Finished({ user, year }: SectionProps) {
   const finished = await getFinished(user.id, year);
+  const title = `Finished in ${year}`;
   if (isUnavailable(finished)) {
     return (
-      <StatsUnavailable
-        placeholder={<FinishedSkeleton />}
-        title={`Finished in ${year}`}
-      />
+      <StatsUnavailable placeholder={<FinishedSkeleton />} title={title} />
     );
   }
   const shows = finished.shows.slice(0, FINISHED_TILES);
@@ -131,10 +126,11 @@ export default async function Finished({ user, year }: SectionProps) {
     };
   });
   const slices = tiles.map(finishedSlice);
+  const finishedHref = libraryPath(user.username, 'finished');
   const count = (
     <Link
       className="flex items-center gap-1 whitespace-nowrap font-medium text-body-sm text-white/60 tabular-nums"
-      href={libraryPath(user.username, 'finished')}
+      href={finishedHref}
     >
       {finished.count}
       <Icon glyph={chevronRightGlyph} size={14} />
@@ -145,11 +141,7 @@ export default async function Finished({ user, year }: SectionProps) {
       aria-labelledby="finished-title"
       className="flex min-w-0 flex-col gap-6"
     >
-      <SectionHead
-        id="finished-title"
-        link={count}
-        title={`Finished in ${year}`}
-      />
+      <SectionHead id="finished-title" link={count} title={title} />
       <div className="max-md:hidden">
         <SliceAccordion slices={slices} />
       </div>

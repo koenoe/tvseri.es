@@ -4,6 +4,8 @@ import { type CountryCount, countryAlpha, dotPaths, MAP_SIZE } from './model';
 
 const DOT = { strokeLinecap: 'round', strokeWidth: 2.6 } as const;
 
+const VIEW_BOX = `0 0 ${MAP_SIZE.width} ${MAP_SIZE.height}`;
+
 /**
  * The dotted world map with the year's countries lit by how many series came
  * from each: pure, data in, `<svg>` out. Each country path
@@ -34,7 +36,7 @@ export function worldMapSvg({
       height={MAP_SIZE.height}
       role="img"
       style={{ display: 'block', height: 'auto', maxWidth: '100%' }}
-      viewBox={`0 0 ${MAP_SIZE.width} ${MAP_SIZE.height}`}
+      viewBox={VIEW_BOX}
       width={MAP_SIZE.width}
       xmlns="http://www.w3.org/2000/svg"
     >

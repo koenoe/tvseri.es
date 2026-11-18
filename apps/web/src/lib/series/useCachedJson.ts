@@ -40,9 +40,16 @@ export function primeJson(url: string, data: unknown) {
   }
 }
 
-/** A public JSON read; a non-2xx answer rejects like a network failure. */
-export async function fetchJson<T>(url: string): Promise<T> {
-  const response = await fetch(url);
+/**
+ * A JSON read from this site's route handlers, public or the viewer's own
+ * (the session cookie goes along); a non-2xx answer rejects like a network
+ * failure.
+ */
+export async function fetchJson<T>(
+  url: string,
+  init?: Readonly<{ signal?: AbortSignal }>,
+): Promise<T> {
+  const response = await fetch(url, init);
   if (!response.ok) {
     throw new Error(`${response.status}`);
   }

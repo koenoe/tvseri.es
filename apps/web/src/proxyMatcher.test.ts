@@ -16,8 +16,9 @@ import { config } from './proxy';
  */
 
 const API_DIR = path.join(import.meta.dirname, 'app', 'api');
-// a direct read, or a handler on `viewerRoute` (`app/api/handlers.ts`)
-const READS_SESSION = /\b(?:auth|getViewer)\(req\b|\bviewerRoute\(/;
+// a direct read, or a handler on one of `app/api/handlers.ts`'s adapters
+const READS_SESSION =
+  /\b(?:auth|getViewer)\(req\b|\b(?:viewerRoute|ownPagesRoute|adminRoute)\(/;
 /** The adapter itself is no route */
 const ADAPTER = path.join(API_DIR, 'handlers.ts');
 

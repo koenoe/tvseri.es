@@ -4,11 +4,8 @@ import type { NextRequest } from 'next/server';
 
 import type { Viewer } from '@/auth/viewer';
 import { ApiError, apiResponse, errorCode } from '@/lib/api/client';
-import isSameOriginRequest, {
-  crossSiteRefused,
-} from '@/lib/security/sameOrigin';
 
-import { privateJson, viewerRoute } from '../../handlers';
+import { ownPagesRoute, privateJson } from '../../handlers';
 
 /** Exports are up to 5.5 MB: more than the API client's default timeout allows for. */
 const EXPORT_TIMEOUT_MS = 30_000;
@@ -24,7 +21,7 @@ export type ExportFile = 'everything.json' | 'history.csv';
  * `GET /me/export/<file>` for the signed-in viewer, streamed to the browser
  * with the API's own attachment name. The browser can't hold the API key, so
  * this is the only way to it. The proxy answers 401 signed out; this checks
- * again (`viewerRoute`) and never forwards anything but the viewer's own
+ * again (`ownPagesRoute`) and never forwards anything but the viewer's own
  * token. Streamed, so through `apiResponse` (`apiFetch` reads the whole body).
  *
  * - 403: asked for from another site (before the session is read)
@@ -37,10 +34,7 @@ export function forwardExport(
   req: NextRequest,
   file: ExportFile,
 ): Promise<Response> {
-  if (!isSameOriginRequest(req)) {
-    return Promise.resolve(crossSiteRefused());
-  }
-  return viewerRoute((viewer) => forward(viewer, file))(req, undefined);
+  return ownPagesRoute((viewer) => forward(viewer, file))(req, undefined);
 }
 
 async function forward(viewer: Viewer, file: ExportFile): Promise<Response> {

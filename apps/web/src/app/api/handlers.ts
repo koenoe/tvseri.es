@@ -8,12 +8,16 @@ import { ACCOUNT_GONE } from '@/auth/accountGone';
 import { isAccountGone } from '@/auth/me';
 import { getViewer, type Viewer } from '@/auth/viewer';
 import { ApiError } from '@/lib/api/client';
+import isSameOriginRequest, {
+  crossSiteRefused,
+} from '@/lib/security/sameOrigin';
 
 /**
  * What the web's route handlers share: the id check, and for the ones that
- * answer for the signed-in viewer (`/api/me/*`, `/api/u/*`) one adapter,
- * `viewerRoute`, that owns the private header, the 401 and the mapping of a
- * failed API read. Public handlers use `CACHE_HEADERS` instead.
+ * answer for the signed-in viewer (`/api/me/*`, `/api/u/*`, `/api/admin/*`)
+ * one adapter, `viewerRoute`, that owns the private header, the 401 and the
+ * mapping of a failed API read; `ownPagesRoute` and `adminRoute` narrow it.
+ * Public handlers use `CACHE_HEADERS` instead.
  */
 
 /** Per viewer: never kept by the browser or a shared cache */
@@ -76,4 +80,33 @@ export function viewerRoute<Context>(
     response.headers.set('Cache-Control', PRIVATE_HEADERS['Cache-Control']);
     return response;
   };
+}
+
+type ViewerHandler<Context> = Parameters<typeof viewerRoute<Context>>[0];
+type Route<Context> = ReturnType<typeof viewerRoute<Context>>;
+
+/**
+ * `viewerRoute` for a read only this site's pages make: another site gets a
+ * 403 before the session is read (`isSameOriginRequest`; the session cookie
+ * is `SameSite=Lax`, so a sibling subdomain would still send it).
+ */
+export function ownPagesRoute<Context>(
+  handler: ViewerHandler<Context>,
+): Route<Context> {
+  const route = viewerRoute(handler);
+  return (req, context) =>
+    isSameOriginRequest(req)
+      ? route(req, context)
+      : Promise.resolve(crossSiteRefused());
+}
+
+/** `ownPagesRoute` for admins only: a signed-in viewer who isn't one gets a 403 */
+export function adminRoute<Context>(
+  handler: ViewerHandler<Context>,
+): Route<Context> {
+  return ownPagesRoute((viewer, req, context) =>
+    viewer.role === 'admin'
+      ? handler(viewer, req, context)
+      : Promise.resolve(privateJson({ error: 'Forbidden' }, 403)),
+  );
 }

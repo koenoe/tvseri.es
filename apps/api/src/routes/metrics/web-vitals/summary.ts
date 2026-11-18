@@ -21,15 +21,13 @@ const app = new Hono<{ Variables: Variables }>();
  * - Daily time-series for charting
  *
  * Query params:
- * - days: 1 | 7 | 30 (default: 7)
+ * - days: 1 to 30, clamped (default: 7)
  * - device: mobile | tablet | desktop (optional filter)
  * - country: US | GB | etc. (optional filter)
  */
 app.get('/', vValidator('query', MetricsSummaryQuerySchema), async (c) => {
   const { country, days, device } = c.req.valid('query');
-  const numDays = Math.min(Math.max(Number(days) || 7, 1), 30);
-
-  const { dates, endDate, startDate } = getDateRange(numDays);
+  const { dates, endDate, startDate } = getDateRange(days);
 
   // Fetch SUMMARY items for each day with filters
   // Data is stored with combined dimension keys: <date>#D#<device>#C#<country>

@@ -46,14 +46,12 @@ app.use('*', async (c, next) => {
  * - Daily time-series for charting
  *
  * Query params:
- * - days: 1 | 7 | 30 (default: 7)
+ * - days: 1 to 30, clamped (default: 7)
  * - platform: ios | android | web (optional filter)
  */
 app.get('/', vValidator('query', ApiMetricsSummaryQuerySchema), async (c) => {
   const { days, platform } = c.req.valid('query');
-  const numDays = Math.min(Math.max(days, 1), 30);
-
-  const { dates, endDate, startDate } = getDateRange(numDays);
+  const { dates, endDate, startDate } = getDateRange(days);
 
   // SUMMARY item of each day with optional platform filter, sorted by date
   // ascending for the chart
@@ -82,7 +80,7 @@ app.get('/', vValidator('query', ApiMetricsSummaryQuerySchema), async (c) => {
  * List all endpoints with their API metrics (apdex, latency, error rate, throughput).
  *
  * Query params:
- * - days: 1 | 7 | 30 (default: 7)
+ * - days: 1 to 30, clamped (default: 7)
  * - platform: ios | android | web (optional filter)
  * - country: ISO country code (optional filter)
  * - sortBy: requests | errorRate | p75 | p99 | apdex (default: requests)
@@ -101,9 +99,7 @@ app.get(
       sortBy = 'requests',
       sortDir = 'desc',
     } = c.req.valid('query');
-    const numDays = Math.min(Math.max(days, 1), 30);
-
-    const { dates, endDate, startDate } = getDateRange(numDays);
+    const { dates, endDate, startDate } = getDateRange(days);
 
     // Fetch endpoint items for each day with optional filters
     const allEndpointItems: ApiMetricAggregate[] = [];
@@ -199,7 +195,7 @@ app.get(
  * - endpoint: URL-encoded endpoint (e.g., GET%20/tv/[id])
  *
  * Query params:
- * - days: 1 | 7 | 30 (default: 7)
+ * - days: 1 to 30, clamped (default: 7)
  */
 app.get(
   '/endpoints/:endpoint',
@@ -209,9 +205,7 @@ app.get(
     // Hono already URL-decodes path params (decoding twice breaks on '%')
     const { endpoint } = c.req.valid('param');
     const { days } = c.req.valid('query');
-    const numDays = Math.min(Math.max(days, 1), 30);
-
-    const { endDate, startDate } = getDateRange(numDays);
+    const { endDate, startDate } = getDateRange(days);
 
     const items = await queryEndpointTimeSeries(endpoint, startDate, endDate);
 
@@ -276,9 +270,7 @@ app.get(
     // Hono already URL-decodes path params (decoding twice breaks on '%')
     const { source } = c.req.valid('param');
     const { days, platform } = c.req.valid('query');
-    const numDays = Math.min(Math.max(days, 1), 30);
-
-    const { dates, endDate, startDate } = getDateRange(numDays);
+    const { dates, endDate, startDate } = getDateRange(days);
 
     const summaries = await getSummaries(dates, { platform });
 

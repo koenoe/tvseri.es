@@ -19,7 +19,7 @@ const app = new Hono<{ Variables: Variables }>();
  * Supports cross-filtering by device and/or country.
  *
  * Query params:
- * - days: 1 | 7 | 30 (default: 7)
+ * - days: 1 to 30, clamped (default: 7)
  * - device: mobile | tablet | desktop (optional filter)
  * - country: US | GB | etc. (optional filter)
  * - sortBy: pageviews | score | LCP | INP | CLS (default: pageviews)
@@ -35,9 +35,7 @@ app.get('/', vValidator('query', MetricsRoutesQuerySchema), async (c) => {
     sortBy = 'pageviews',
     sortDir = 'desc',
   } = c.req.valid('query');
-  const numDays = Math.min(Math.max(Number(days) || 7, 1), 30);
-
-  const { dates, endDate, startDate } = getDateRange(numDays);
+  const { dates, endDate, startDate } = getDateRange(days);
 
   const routes = sortBreakdown(
     (await aggregateBreakdown(dates, 'R#', { country, device })).map(

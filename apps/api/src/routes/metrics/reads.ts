@@ -21,7 +21,7 @@ export const getDateRange = (
 
   for (let i = 1; i <= days; i++) {
     const date = new Date(now);
-    date.setDate(date.getDate() - i);
+    date.setUTCDate(date.getUTCDate() - i);
     dates.push(date.toISOString().split('T')[0] as string);
   }
 

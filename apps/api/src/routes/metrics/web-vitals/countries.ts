@@ -19,7 +19,7 @@ const app = new Hono<{ Variables: Variables }>();
  * Supports filtering by device type.
  *
  * Query params:
- * - days: 1 | 7 | 30 (default: 7)
+ * - days: 1 to 30, clamped (default: 7)
  * - device: mobile | tablet | desktop (optional filter)
  * - sortBy: pageviews | score | LCP | INP | CLS (default: pageviews)
  * - sortDir: asc | desc (default: desc)
@@ -33,9 +33,7 @@ app.get('/', vValidator('query', MetricsCountriesQuerySchema), async (c) => {
     sortBy = 'pageviews',
     sortDir = 'desc',
   } = c.req.valid('query');
-  const numDays = Math.min(Math.max(Number(days) || 7, 1), 30);
-
-  const { dates, endDate, startDate } = getDateRange(numDays);
+  const { dates, endDate, startDate } = getDateRange(days);
 
   const countries = sortBreakdown(
     (await aggregateBreakdown(dates, 'C#', { device })).map(

@@ -585,7 +585,7 @@ const MetricsDaysSchema = v.optional(
 export const MetricsSummaryQuerySchema = v.object({
   /** Country filter (ISO code) */
   country: v.optional(v.string()),
-  /** Number of days to query (1, 7, or 30) */
+  /** Number of days to query, clamped to 1-30 */
   days: MetricsDaysSchema,
   /** Device filter (mobile, tablet, desktop) */
   device: v.optional(v.string()),
@@ -597,7 +597,7 @@ export const MetricsSummaryQuerySchema = v.object({
 export const MetricsRoutesQuerySchema = v.object({
   /** Country filter (ISO code) */
   country: v.optional(v.string()),
-  /** Number of days to query (1, 7, or 30) */
+  /** Number of days to query, clamped to 1-30 */
   days: MetricsDaysSchema,
   /** Device filter (mobile, tablet, desktop) */
   device: v.optional(v.string()),
@@ -623,7 +623,7 @@ const MetricsKeyParamSchema = v.pipe(
  * Query parameters for metrics countries list endpoint.
  */
 export const MetricsCountriesQuerySchema = v.object({
-  /** Number of days to query (1, 7, or 30) */
+  /** Number of days to query, clamped to 1-30 */
   days: MetricsDaysSchema,
   /** Device filter (mobile, tablet, desktop) */
   device: v.optional(v.string()),
@@ -639,7 +639,7 @@ export const MetricsCountriesQuerySchema = v.object({
  * Query parameters for API metrics summary endpoint.
  */
 export const ApiMetricsSummaryQuerySchema = v.object({
-  /** Number of days to query (1, 7, or 30) */
+  /** Number of days to query, clamped to 1-30 */
   days: MetricsDaysSchema,
   /** Platform filter (ios, android, web) */
   platform: v.optional(v.string()),
@@ -662,7 +662,7 @@ export const ApiMetricsDependencyParamSchema = v.object({
  * Query parameters for API metrics status codes endpoint.
  */
 export const ApiMetricsStatusQuerySchema = v.object({
-  /** Number of days to query (1, 7, or 30) */
+  /** Number of days to query, clamped to 1-30 */
   days: MetricsDaysSchema,
   /** Platform filter (ios, android, web) */
   platform: v.optional(v.string()),
@@ -674,7 +674,7 @@ export const ApiMetricsStatusQuerySchema = v.object({
 export const ApiMetricsEndpointsQuerySchema = v.object({
   /** Country filter (ISO code) */
   country: v.optional(v.string()),
-  /** Number of days to query (1, 7, or 30) */
+  /** Number of days to query, clamped to 1-30 */
   days: MetricsDaysSchema,
   /** Limit results */
   limit: v.optional(v.pipe(v.string(), v.transform(Number))),

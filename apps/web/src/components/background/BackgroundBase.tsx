@@ -4,6 +4,7 @@ import { memo, useMemo } from 'react';
 import type { BackgroundProps } from './Background';
 import BackgroundImage from './BackgroundImage';
 import hexToRgb from './hexToRgb';
+import { PROGRESSIVE_BLUR } from './progressiveBlur';
 
 /**
  * The backdrop's layer. Only a crossfading one (`animated`, BackgroundDynamic)
@@ -60,6 +61,8 @@ function BackgroundBase({
   const bottomGradientStyles = useMemo(
     () => ({
       backgroundImage: `linear-gradient(to top, rgb(${rgbString}), transparent)`,
+      // production's blur on the fade, so the art melts into the page colour
+      ...PROGRESSIVE_BLUR,
     }),
     [rgbString],
   );

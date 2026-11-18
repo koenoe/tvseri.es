@@ -19,6 +19,7 @@ import {
   isValidTmdbEndpoint,
   normalizeDependencyEndpoint,
 } from '@/lib/metrics/dependencyEndpoint';
+import { toPercent } from '@/lib/metrics/percent';
 
 const AGGREGATE_TTL_DAYS = 30;
 /** Rows kept in each leaderboard */
@@ -152,7 +153,7 @@ const calculateApdex = (latencies: number[]): Apdex => {
  *   "P#<platform>"        → Platform metrics (when pk has no platform filter)
  *   "C#<country>"         → Country metrics (when pk has no country filter)
  */
-const aggregateApiMetrics = (
+export const aggregateApiMetrics = (
   records: ApiMetricRecord[],
   date: string,
 ): ApiMetricAggregate[] => {
@@ -271,18 +272,18 @@ const aggregateApiMetrics = (
 
           const codes: Record<string, number> = {};
           for (const [status, count] of opData.codes) {
-            codes[String(status)] = count;
+            codes[String(status)] = count * SAMPLE_RATE_MULTIPLIER;
           }
+          const rawBins = buildLatencyHistogramBins(opData.durations);
 
           return {
             codes,
-            count: opCount,
-            errorCount: opData.errorCount,
-            errorRate:
-              opCount > 0
-                ? Math.round((opData.errorCount / opCount) * 10000) / 100
-                : 0,
-            histogram: { bins: buildLatencyHistogramBins(opData.durations) },
+            count: opCount * SAMPLE_RATE_MULTIPLIER,
+            errorCount: opData.errorCount * SAMPLE_RATE_MULTIPLIER,
+            errorRate: toPercent(opData.errorCount, opCount),
+            histogram: {
+              bins: rawBins.map((bin) => bin * SAMPLE_RATE_MULTIPLIER),
+            },
             operation,
             p75: percentile(75),
             p90: percentile(90),
@@ -295,9 +296,8 @@ const aggregateApiMetrics = (
 
       result[source] = {
         ...percentiles,
-        errorCount,
-        errorRate:
-          count > 0 ? Math.round((errorCount / count) * 10000) / 100 : 0,
+        errorCount: errorCount * SAMPLE_RATE_MULTIPLIER,
+        errorRate: toPercent(errorCount, durations.length),
         throughput,
         topOperations,
       };
@@ -333,8 +333,7 @@ const aggregateApiMetrics = (
 
         const apdex = calculateApdex(latencies);
         const errorCount = recs.filter((r) => r.statusCode >= 400).length;
-        const errorRate =
-          count > 0 ? Math.round((errorCount / count) * 10000) / 100 : 0;
+        const errorRate = toPercent(errorCount, count);
 
         const depNames = new Set<string>();
         for (const rec of recs) {
@@ -402,8 +401,7 @@ const aggregateApiMetrics = (
         const errorCount = countryRecs.filter(
           (r) => r.statusCode >= 400,
         ).length;
-        const errorRate =
-          count > 0 ? Math.round((errorCount / count) * 10000) / 100 : 0;
+        const errorRate = toPercent(errorCount, count);
 
         const rawBins = buildLatencyHistogramBins(latencies);
 

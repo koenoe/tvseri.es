@@ -15,6 +15,7 @@ import {
 import { Resource } from 'sst';
 
 import { batchGet } from '@/lib/db/batch';
+import { toPercent } from '@/lib/metrics/percent';
 
 import {
   metricsDynamo,
@@ -162,7 +163,7 @@ export const aggregateSummaries = (
   }
 
   const totalErrors = statusCodes.clientError + statusCodes.serverError;
-  const errorRate = Math.round((totalErrors / totalRequests) * 10000) / 100;
+  const errorRate = toPercent(totalErrors, totalRequests);
 
   // Aggregate Apdex: sum counts across days, recalculate score
   const apdex: Apdex = {
@@ -266,16 +267,10 @@ export const aggregateSummaries = (
         dependencies[source] = {
           count: totalCount,
           errorCount,
-          errorRate:
-            totalCount > 0
-              ? Math.round((errorCount / totalCount) * 10000) / 100
-              : 0,
-          errorRateHistory: toSeries((day) => {
-            const count = dayCount(day.histogram);
-            return count > 0
-              ? Math.round((day.errorCount / count) * 10000) / 100
-              : 0;
-          }),
+          errorRate: toPercent(errorCount, totalCount),
+          errorRateHistory: toSeries((day) =>
+            toPercent(day.errorCount, dayCount(day.histogram)),
+          ),
           history: toSeries((day) =>
             Math.round(percentileFromLatencyHistogram(day.histogram, 75)),
           ),
@@ -369,8 +364,7 @@ const aggregateDependencyTopOperations = (
     if (histograms.length === 0) continue;
 
     const mergedBins = mergeHistogramBins(histograms);
-    const errorRate =
-      totalCount > 0 ? Math.round((errorCount / totalCount) * 10000) / 100 : 0;
+    const errorRate = toPercent(errorCount, totalCount);
 
     aggregatedOps.push({
       codes: Object.fromEntries(codes),
@@ -450,18 +444,14 @@ export const aggregateDependencyOperationsWithSeries = (
     if (histograms.length === 0) continue;
 
     const mergedBins = mergeHistogramBins(histograms);
-    const errorRate =
-      totalCount > 0 ? Math.round((errorCount / totalCount) * 10000) / 100 : 0;
+    const errorRate = toPercent(errorCount, totalCount);
 
     const series = [...dailyData.entries()]
       .map(([date, data]) => {
         const dayCount = data.histogram.reduce((a, b) => a + b, 0);
         return {
           date,
-          errorRate:
-            dayCount > 0
-              ? Math.round((data.errorCount / dayCount) * 10000) / 100
-              : 0,
+          errorRate: toPercent(data.errorCount, dayCount),
           p75: Math.round(percentileFromLatencyHistogram(data.histogram, 75)),
         };
       })

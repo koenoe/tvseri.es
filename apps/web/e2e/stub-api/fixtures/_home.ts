@@ -7,9 +7,9 @@ import {
 import type { StubRoute } from '../types';
 
 /**
- * Home: its fixture shows, served from `e2e/fixtures/home`. The file name
- * sorts before collection.ts, so Home's trending ten (with backdrops and
- * logos for the spotlight) answer `/collection/trending`. The day's moments
+ * Home: its fixture shows, served from `e2e/fixtures/home`. Home's trending
+ * ten (with backdrops and logos for the spotlight) also answer
+ * `/collection/trending` for the 404's posters. The day's moments
  * switch with `STUB_HOME_FEATURE` / `STUB_HOME_TOY` at start or
  * `POST /__stub/state` `{ "feature": "binge", "toy": "whats-on" }` (send the
  * `x-api-key: stub` header); `GET` reads it.

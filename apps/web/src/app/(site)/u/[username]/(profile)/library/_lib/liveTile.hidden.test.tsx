@@ -3,6 +3,7 @@ import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { setToastShowing } from '@/components/ui/toast/toastShowing';
 import MarkingProvider, {
   useMarkingStoreApi,
 } from '@/lib/marking/MarkingProvider';
@@ -48,33 +49,47 @@ function setup() {
 }
 
 afterEach(() => {
-  vi.useRealTimers();
+  setToastShowing(false);
 });
 
 describe('a Hidden shelf tile leaves once its show is watched again', () => {
-  it('leaves after the mark’s toast', () => {
-    vi.useFakeTimers();
+  it('leaves once the mark’s toast has closed', () => {
     const { onWatched, store } = setup();
     act(() => {
+      setToastShowing(true);
       store().begin(SHOW, mark('S01E02'));
     });
     expect(onWatched).not.toHaveBeenCalled();
     act(() => {
-      vi.advanceTimersByTime(4000);
+      setToastShowing(false);
     });
     expect(onWatched).toHaveBeenCalledExactlyOnceWith(SHOW, 'unhide');
   });
 
+  it('stays when Undo closes the toast', () => {
+    const { onWatched, store } = setup();
+    let id = 0;
+    act(() => {
+      setToastShowing(true);
+      id = store().begin(SHOW, mark('S01E02'));
+    });
+    act(() => {
+      store().fail(SHOW, id);
+      setToastShowing(false);
+    });
+    expect(onWatched).not.toHaveBeenCalled();
+  });
+
   it('stays when the mark fails or is a special', () => {
-    vi.useFakeTimers();
     const { onWatched, store } = setup();
     act(() => {
+      setToastShowing(true);
       const id = store().begin(SHOW, mark('S01E02'));
       store().begin(SHOW, mark('S00E01'));
       store().fail(SHOW, id);
     });
     act(() => {
-      vi.advanceTimersByTime(4000);
+      setToastShowing(false);
     });
     expect(onWatched).not.toHaveBeenCalled();
   });

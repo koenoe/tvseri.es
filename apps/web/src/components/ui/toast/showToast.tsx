@@ -5,6 +5,7 @@ import { checkGlyph, warningGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 
 import ToastCard, { type ToastAction } from './ToastCard';
+import { setToastShowing } from './toastShowing';
 
 export type ToastOptions = Readonly<{
   /** The filled button: Undo, Try again. */
@@ -42,6 +43,7 @@ let created = 0;
 const forget = (id: number | string) => () => {
   if (current === id) {
     current = undefined;
+    setToastShowing(false);
   }
 };
 
@@ -69,6 +71,7 @@ export function showToast({
     toast.dismiss(current);
   }
   current = toastId;
+  setToastShowing(true);
   version += 1;
   const shownVersion = version;
   const toneGlyph = tone === 'error' ? warningGlyph : checkGlyph;

@@ -3,6 +3,7 @@
 import { episodeCode } from '@tvseri.es/schemas';
 import { useEffect, useMemo, useState } from 'react';
 
+import { useToastShowing } from '@/components/ui/toast/toastShowing';
 import { useSeriesAnswer, useSeriesView } from '@/lib/marking/hooks';
 import {
   nextEpisode,
@@ -12,9 +13,6 @@ import {
 import type { SeriesBase } from '@/lib/marking/types';
 
 import { progressPercent, type TileView } from '@/lib/profile/tileView';
-
-/** A show N finished leaves Watching after its toast (4 s) */
-const LEAVE_AFTER_MS = 4000;
 
 /**
  * A Watching tile as the marking store has the show once the Remote seeded
@@ -51,7 +49,7 @@ export function liveWatchingTile(tile: TileView, view: SeriesBase): TileView {
 /**
  * A Watching tile that follows the store: N on its Remote moves its code
  * and line at once, and a show with nothing aired left leaves the shelf
- * after the mark's toast (`onFinished`).
+ * once the mark's toast has closed (`onFinished`).
  */
 export function useLiveWatchingTile(
   tile: TileView,
@@ -65,13 +63,13 @@ export function useLiveWatchingTile(
   );
   // Finished as the lists have it (skipped counts as done): it leaves Watching
   const complete = Boolean(enabled && view && seriesProgress(view).isFinished);
+  // Waits for the toast, so its Undo never brings back a tile already gone
+  const toastShowing = useToastShowing();
   useEffect(() => {
-    if (!complete) {
-      return;
+    if (complete && !toastShowing) {
+      onFinished();
     }
-    const timer = setTimeout(onFinished, LEAVE_AFTER_MS);
-    return () => clearTimeout(timer);
-  }, [complete, onFinished]);
+  }, [complete, toastShowing, onFinished]);
   return live;
 }
 
@@ -80,7 +78,7 @@ const regularOf = (view: SeriesBase | undefined) =>
 
 /**
  * A Hidden shelf tile whose show is watched again: the API brings it back
- * to In progress, so the tile leaves after the mark's toast (`leave`),
+ * to In progress, so the tile leaves once the mark's toast has closed (`leave`),
  * as a finished Watching tile does. Counted from the regular episodes the
  * show had when the store first had it (the Remote seeds it when opened);
  * a failed save or its Undo takes the count back and the tile stays, and a
@@ -99,11 +97,10 @@ export function useLeaveHiddenOnWatch(
     setBaseline(count);
   }
   const watched = baseline !== null && count !== null && count > baseline;
+  const toastShowing = useToastShowing();
   useEffect(() => {
-    if (!watched) {
-      return;
+    if (watched && !toastShowing) {
+      leave(seriesId, 'unhide');
     }
-    const timer = setTimeout(() => leave(seriesId, 'unhide'), LEAVE_AFTER_MS);
-    return () => clearTimeout(timer);
-  }, [watched, leave, seriesId]);
+  }, [watched, toastShowing, leave, seriesId]);
 }

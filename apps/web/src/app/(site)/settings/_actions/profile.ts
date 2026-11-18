@@ -100,7 +100,8 @@ export async function updateProfile(
     // The old URLs stop working and the new ones must not serve a cached 404.
     revalidateUser(user.id, [user.username, username]);
   }
-  // Nothing under /settings is cached: re-rendering the page is enough
+  // Settings caches nothing a profile change touches (its counts are the
+  // user's stats): re-rendering the page is enough
   refresh();
   return okResult({ name, username });
 }

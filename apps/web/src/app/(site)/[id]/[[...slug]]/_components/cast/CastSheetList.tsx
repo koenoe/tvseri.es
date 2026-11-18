@@ -24,11 +24,14 @@ import { castAndCrewUrl } from './castSheetData';
 const ROW =
   'border-white/7 border-b [contain-intrinsic-size:auto_65px] [content-visibility:auto] md:[contain-intrinsic-size:auto_81px]';
 
-/** 8px in from the sides, so the hover's rounded fill clears the face */
-const ROW_BOX = 'flex items-center gap-3 px-2 py-2.5 md:gap-4 md:py-3';
+/**
+ * 8px in from the sides, so the hover's rounded fill clears the face, and
+ * 8px out again (-mx-2), so faces and names stay on the sheet title's edge
+ */
+const ROW_BOX = '-mx-2 flex items-center gap-3 px-2 py-2.5 md:gap-4 md:py-3';
 
 /** A section's name, on the rows' 8px inset */
-const SECTION_TITLE = 'px-2 pt-4 pb-1 text-overline text-white/80 uppercase';
+const SECTION_TITLE = 'pt-4 pb-1 text-overline text-white/80 uppercase';
 
 const CIRCLE = 'size-11 shrink-0 rounded-full md:size-14';
 

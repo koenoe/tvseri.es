@@ -92,7 +92,9 @@ export async function disconnectPlex(): Promise<ActionResult> {
 /**
  * The full webhook URL, only when the viewer asks for it (Show, Copy): the
  * token is a bearer secret, so it is never in the page's HTML or RSC payload.
- * Read fresh from the API with the session's token; never logged.
+ * Read fresh from the API with the session's token; never logged. A read,
+ * but a server action on purpose: a POST is never cached or prefetched, so
+ * the private URL can't land in a browser or shared cache.
  */
 export async function revealPlexUrl(): Promise<
   ActionResult<Readonly<{ url: string }>>

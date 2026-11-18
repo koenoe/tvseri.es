@@ -4,7 +4,11 @@ import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import { GHOST_FILL, GhostLine } from '@/components/ui/row/RowGhosts';
 import cn from '@/lib/cn';
-import { type CastCrewPerson, stackLine } from '@/lib/series/castAndCrew';
+import {
+  type CastCrewPerson,
+  peopleCount,
+  stackLine,
+} from '@/lib/series/castAndCrew';
 
 import type { ShowCast } from '../../_data/loaders';
 import CastSheetButton from './CastSheetButton';
@@ -54,7 +58,7 @@ export default function CastStack({ cast }: Readonly<{ cast: ShowCast }>) {
   const total = cast.peopleCount;
   const more = total - cast.stack.length;
   const line = stackLine(cast.stack, total);
-  const label = `Cast and crew, ${total} people`;
+  const label = `Cast and crew, ${peopleCount(total)}`;
   return (
     <CastSheetButton className={STACK} label={label} total={total}>
       <span aria-hidden="true" className="flex items-center">

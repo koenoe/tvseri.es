@@ -6,7 +6,11 @@ import { GHOST_FILL, GhostLine } from '@/components/ui/row/RowGhosts';
 import { isUnavailable } from '@/lib/cache/unavailable';
 import cn from '@/lib/cn';
 import personPath from '@/lib/routing/personPath';
-import { type CastCrewPerson, faceLabel } from '@/lib/series/castAndCrew';
+import {
+  type CastCrewPerson,
+  faceLabel,
+  peopleCount,
+} from '@/lib/series/castAndCrew';
 import { loadCast, type ShowCast } from '../../_data/loaders';
 import CastSheetButton from './CastSheetButton';
 import CastStack, { CastStackSkeleton } from './CastStack';
@@ -86,12 +90,13 @@ function MoreFace({ cast }: Readonly<{ cast: ShowCast }>) {
   const more = cast.castCount - cast.faces.length;
   const total = cast.peopleCount;
   const label = `All ${total} cast and crew`;
+  const people = peopleCount(total);
   return (
     <CastSheetButton className={CAST_FACE.link} label={label} total={total}>
       <span className={MORE_CIRCLE}>+{more}</span>
       <span aria-hidden="true" className={CAST_FACE.caption}>
         <b className={CAST_FACE.name}>All cast &amp; crew</b>
-        <span className={CAST_FACE.role}>{total} people</span>
+        <span className={CAST_FACE.role}>{people}</span>
       </span>
     </CastSheetButton>
   );

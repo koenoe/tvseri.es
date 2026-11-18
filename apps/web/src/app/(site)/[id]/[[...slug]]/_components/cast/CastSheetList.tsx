@@ -22,11 +22,15 @@ const ROW_BOX = 'flex items-center gap-3 py-2.5 md:gap-4 md:py-3';
 
 const CIRCLE = 'size-11 shrink-0 rounded-full md:size-14';
 
+const GHOST_ROW = `${ROW} ${ROW_BOX}`;
+
+const GHOST_CIRCLE = `${CIRCLE} ${GHOST_FILL}`;
+
 // Each place keeps its own look on purpose; don't unify them.
 const SHEET_FACE: FaceLook = {
   blank: `${CIRCLE} bg-white/10`,
   caption: 'flex min-w-0 flex-col',
-  link: `group/row ${ROW_BOX} rounded-8 outline-none focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2`,
+  link: `group/row ${ROW_BOX} rounded-8 outline-none focus-visible:outline-2 focus-visible:outline-white focus-visible:-outline-offset-2`,
   name: 'truncate font-semibold text-[14px] leading-5 group-hover/row:underline md:text-[15px] md:leading-[22px]',
   photo: `${CIRCLE} object-cover object-top`,
   role: 'truncate text-[12px] text-white/60 leading-4 md:text-[13px] md:leading-[18px]',
@@ -62,8 +66,8 @@ function RowsSkeleton({ count }: Readonly<{ count: number }>) {
       data-placeholder="cast-sheet"
     >
       {rows.map((index) => (
-        <li className={`${ROW} ${ROW_BOX}`} key={index}>
-          <span className={`${CIRCLE} ${GHOST_FILL}`} />
+        <li className={GHOST_ROW} key={index}>
+          <span className={GHOST_CIRCLE} />
           <span className="flex flex-col">
             <GhostLine
               className="h-5 md:h-[22px]"

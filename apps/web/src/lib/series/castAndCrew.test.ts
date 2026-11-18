@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { faceLabel, stackLine, toCastAndCrew } from './castAndCrew';
+import {
+  faceLabel,
+  peopleCount,
+  stackLine,
+  toCastAndCrew,
+} from './castAndCrew';
 
 const credit = (id: number, name: string, character = '') => ({
   character,
@@ -74,6 +79,15 @@ describe('stackLine', () => {
     });
   });
 
+  it('names the first of the cast after the first creator, never a second creator', () => {
+    const two = toCastAndCrew([STORER, credit(9, 'Joanna Calo')], [WHITE]);
+
+    expect(stackLine(two, 3)).toEqual({
+      first: 'Christopher Storer',
+      rest: ', Jeremy Allen White and 1 more',
+    });
+  });
+
   it('names one alone', () => {
     expect(stackLine(people.slice(0, 1), 1)).toEqual({
       first: 'Christopher Storer',
@@ -92,5 +106,13 @@ describe('faceLabel', () => {
       'Jeremy Allen White as Carmy Berzatto',
     );
     expect(nameless && faceLabel(nameless)).toBe('Extra');
+  });
+});
+
+describe('peopleCount', () => {
+  it('counts one person, and groups thousands', () => {
+    expect(peopleCount(1)).toBe('1 person');
+    expect(peopleCount(21)).toBe('21 people');
+    expect(peopleCount(1204)).toBe('1,204 people');
   });
 });

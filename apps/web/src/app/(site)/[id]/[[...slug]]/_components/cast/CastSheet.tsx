@@ -11,6 +11,7 @@ import { BACKDROP, SHADOW, SURFACE } from '@/components/ui/dialog/dialogStyles';
 import ModalShell from '@/components/ui/dialog/ModalShell';
 import SheetHandle from '@/components/ui/dialog/SheetHandle';
 import cn from '@/lib/cn';
+import { peopleCount } from '@/lib/series/castAndCrew';
 
 import CastSheetList from './CastSheetList';
 
@@ -54,7 +55,7 @@ export default function CastSheet({
   total: number;
 }>) {
   const titleId = useId();
-  const subtitle = `${title} · ${total} people`;
+  const subtitle = `${title} · ${peopleCount(total)}`;
   return (
     <ModalShell
       backdropClassName={BACKDROP.side}

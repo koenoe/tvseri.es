@@ -107,10 +107,14 @@ const person = (id: number, character = '') => ({
 });
 
 describe('loadCast', () => {
-  it('draws ten faces and five in the stack, and counts everyone', async () => {
+  it('draws ten faces, five of the cast with a photo in the stack, and counts everyone once', async () => {
     const cast = Array.from({ length: 14 }, (_, index) =>
       person(index + 2, `Role ${index + 2}`),
     );
+    // no photo: skipped in the stack, still counted
+    cast[1] = { ...person(3, 'Role 3'), image: '' };
+    // the creator acts too: one person
+    cast.push(person(1, 'Himself'));
     apiFetch.mockResolvedValue({ cast, crew: [] });
 
     const result = await loadCast(7, [person(1)]);
@@ -127,13 +131,17 @@ describe('loadCast', () => {
       slug: 'person-2',
     });
     expect(result.stack.map((face) => face.role)).toEqual([
-      'Creator',
       'Role 2',
-      'Role 3',
       'Role 4',
       'Role 5',
+      'Role 6',
+      'Role 7',
     ]);
-    expect(result.castCount).toBe(14);
+    expect(result.line).toEqual({
+      first: 'Person 2',
+      rest: ', Person 3 and 13 more',
+    });
+    expect(result.castCount).toBe(15);
     expect(result.peopleCount).toBe(15);
   });
 

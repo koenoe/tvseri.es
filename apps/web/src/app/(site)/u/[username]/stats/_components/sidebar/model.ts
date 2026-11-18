@@ -1,3 +1,4 @@
+import { shouldFold } from '@/lib/fold';
 import type { YearState } from '@/lib/stats/statsYear';
 
 /** "2026 so far" for the year in progress, else the year */
@@ -28,8 +29,9 @@ export function visiblePills(
 /**
  * The sidebar's folded Years list: the newest `max` years, plus the page's
  * year where it falls when it is older, so the highlighted row never hides
- * behind "Show all". `hidden` says whether the fold leaves any year out:
- * with nothing left out, the button would open nothing.
+ * behind "Show all". It folds only by the app's rule (`shouldFold`: more
+ * than three left out on desktop), so a short tail shows whole, like every
+ * other "Show all" list. `hidden` says whether the fold leaves any year out.
  */
 export function visibleYears(
   years: ReadonlyArray<number>,
@@ -37,5 +39,8 @@ export function visibleYears(
   max: number,
 ): Readonly<{ years: ReadonlyArray<number>; hidden: boolean }> {
   const shown = years.filter((year, index) => index < max || year === selected);
-  return { hidden: shown.length < years.length, years: shown };
+  if (!shouldFold(years.length - shown.length, 'desktop')) {
+    return { hidden: false, years };
+  }
+  return { hidden: true, years: shown };
 }

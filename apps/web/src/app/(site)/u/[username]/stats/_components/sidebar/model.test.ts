@@ -27,10 +27,15 @@ describe('visibleYears', () => {
     });
   });
 
-  it('hides nothing when the sixth and last year is the page year', () => {
-    expect(visibleYears(years.slice(0, 6), 2021, 5)).toEqual({
+  it('shows a short tail whole: three or fewer left out never fold', () => {
+    const eight = years.slice(0, 8);
+    expect(visibleYears(eight, 2026, 5)).toEqual({
       hidden: false,
-      years: [...newest, 2021],
+      years: eight,
+    });
+    expect(visibleYears(years.slice(0, 9), 2026, 5)).toEqual({
+      hidden: true,
+      years: newest,
     });
   });
 

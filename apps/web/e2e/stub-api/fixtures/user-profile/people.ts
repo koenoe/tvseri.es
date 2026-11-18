@@ -4,8 +4,8 @@ import { img } from './shows.ts';
 
 /**
  * The profile fixtures' people. `alex`, `nina`, `rae` and `sam` are the
- * auth stub's viewers (same ids as `fixtures/show/store.ts` on the show
- * branch, so one session works for both); `juno` and the circle are
+ * auth stub's viewers (same ids as `fixtures/show/store.ts`, so one session
+ * works for both); `juno` and the circle are
  * profiles you can visit. All invented, emails at example.com.
  *
  * - `alex`: the owner's page: every block filled.

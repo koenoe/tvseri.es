@@ -23,7 +23,7 @@ const REDIRECTS: ReadonlyArray<readonly [from: string, to: string]> = [
     '/0136315/the-bear?season=2&episode=6',
     '/136315/the-bear?season=2&episode=6',
   ],
-  // Old filter-grid links (B10c): one lens to its landing, anything else to the hub
+  // Old filter-grid links: one lens to its landing, anything else to the hub
   ['/discover?with_genres=80', '/genre/crime'],
   ['/discover?with_networks=49&sort_by=vote_average.desc', '/network/hbo'],
   // any keyword of a theme's set; a genre TMDB keeps as a keyword

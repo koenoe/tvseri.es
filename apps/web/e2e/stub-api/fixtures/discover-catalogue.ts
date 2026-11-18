@@ -158,7 +158,7 @@ export const routes: ReadonlyArray<StubRoute> = [
     }),
     path: '/discover/languages',
   },
-  // Catalogue shows only; other ids fall through to other streams' fixtures.
+  // Catalogue shows only; other ids fall through to the next fixture.
   {
     handle: ({ params }) => {
       const entry = byId(Number(params.id));

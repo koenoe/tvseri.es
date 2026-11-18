@@ -14,11 +14,11 @@ import { releaseHeld, signInAs } from './helpers/session';
 import { untilStable } from './helpers/viewport';
 
 /**
- * The Watchlist + Seen it control and the watchlist-only toggle
- *. Signed in, the control is a ghost at first paint and
- * streams in already in the viewer's state (the stub's read is held until
- * the ghost has been measured, `answerStates`), in the same box: the row is measured before and after,
- * and the page's layout shift stays at 0. Writes (server actions) are held,
+ * The Watchlist + Seen it control and the watchlist-only toggle. Signed
+ * in, the control is a ghost at first paint and streams in already in the
+ * viewer's state (the stub's read is held until the ghost has been
+ * measured, `answerStates`), in the same box: the row is measured before
+ * and after, and the page's layout shift stays at 0. Writes (server actions) are held,
  * so the presses stay optimistic, as on a slow network.
  */
 

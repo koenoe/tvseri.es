@@ -598,7 +598,7 @@ test.describe('stats', () => {
     page,
   }) => {
     // Its success path needs the stub API to know the auth stub's viewers
-    // (`/me/library-ids`, the list routes); see the stats report.
+    // (`/me/library-ids`, the list routes).
     await signInAs(context, 'alex');
     await page.goto(PAGE);
     const popular = page.locator('section', {
@@ -663,9 +663,8 @@ for (const width of [390] as const) {
   });
 }
 
-// The tiles' "vs." lines ran
-// across the dividers (800 beside the old sidebar, 360 on a phone) and the
-// First and last cards cut their episode title to two letters. A "vs." line
+// The tiles' "vs." lines ran across the dividers on a phone and the First
+// and last cards cut their episode title to two letters. A "vs." line
 // wraps under its change where the tile is narrower than both.
 for (const width of [360] as const) {
   test(`tiles and First and last keep their text at ${width}px`, async ({

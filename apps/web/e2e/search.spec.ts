@@ -11,8 +11,8 @@ import {
 import { signInAs } from './helpers/session';
 
 /**
- * Search parity and the new rows, against the stub API (fixtures/search.ts). Playwright's
- * Desktop Chrome reports Windows, so the shortcut is Ctrl.
+ * Search against the stub API (fixtures/search.ts). Playwright's Desktop
+ * Chrome reports Windows, so the shortcut is Ctrl.
  */
 
 async function openSearch(page: Page) {

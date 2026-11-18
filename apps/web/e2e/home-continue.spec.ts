@@ -3,8 +3,7 @@ import { expect, type Page, test } from '@playwright/test';
 import { setLibraryHint, signInAs, stubFault } from './helpers/session';
 
 /**
- * Continue watching always ends in one state ("continue
- * watching is very slow and doesn't always load"): its content; nothing,
+ * Continue watching always ends in one state: its content; nothing,
  * when the viewer truly has nothing in progress; or the failed row in the
  * space its placeholder held, with Try again. Never a held space that
  * closes on a failure, never a skeleton that waits forever. `kit` is

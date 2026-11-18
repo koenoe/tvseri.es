@@ -49,8 +49,8 @@ const classicLaunch = process.env.E2E_CLASSIC_SCROLLBARS
  * runner-only failure. Chromium and `next start` run at macOS's background
  * QoS (`e2e/slow/clamped.sh`: the efficiency cores, low priority; set
  * `E2E_SLOW_CLAMP=utility` for less), and two workers share them
- * (`E2E_SLOW_WORKERS`). The
- * browser is Playwright's own headless shell, started through the clamp.
+ * (`E2E_SLOW_WORKERS`). The browser is Playwright's own headless shell,
+ * started through the clamp.
  */
 const slow = Boolean(process.env.E2E_SLOW);
 /**
@@ -132,7 +132,7 @@ export default defineConfig({
   timeout: 45_000 * slowFactor,
   // The trace recorder snapshots the whole DOM before every input action
   // (~55,000 forced layouts per wheel step on a 1,000-row History): timing
-  // runs (`E2E_PERF=1`) go without it, or they measure Playwright
+  // runs (`E2E_PERF=1`) go without it, or they measure Playwright, not the page.
   use: {
     baseURL,
     screenshot: 'only-on-failure',

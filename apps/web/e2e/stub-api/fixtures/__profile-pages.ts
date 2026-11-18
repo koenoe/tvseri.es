@@ -38,9 +38,8 @@ import {
 import { type PersonName, personById } from './user-profile/people.ts';
 
 /**
- * The profile sub-pages: Library, History's month index and
- * Circle, implementing the API's profile pages with the same shared logic as the API (`@tvseri.es/utils`
- * `queryShelf`). Sorts after `__outage.ts` (outage profiles fail their one
+ * The profile sub-pages: Library, History's month index and Circle, with the
+ * API's own shared logic (`@tvseri.es/utils` `queryShelf`). Sorts after `__outage.ts` (outage profiles fail their one
  * read there first) and before `__profile.ts`. Only the profile fixtures'
  * people are answered here; anyone else passes on.
  *
@@ -156,7 +155,6 @@ const shelfPage = (
 const isProfileYear = (year: string | undefined) => /^\d{4}$/.test(year ?? '');
 
 export const routes: readonly StubRoute[] = [
-  // ── Library ──────────────────────────────────────────────────
   {
     handle: (request) =>
       signedIn(request, (owner, viewer) =>
@@ -172,7 +170,6 @@ export const routes: readonly StubRoute[] = [
     path: '/user/:id/library/:shelf',
   },
 
-  // ── Circle ───────────────────────────────────────────────────
   {
     handle: (request) => {
       if (!request.headers.authorization) {
@@ -184,7 +181,7 @@ export const routes: readonly StubRoute[] = [
     path: '/me/circle/people',
   },
 
-  // ── History: years with months and undated, and each year's days ─
+  // History: years with months and undated, and each year's days
   {
     handle: ({ params }) => {
       const owner = nameOf(params.id);
@@ -204,7 +201,7 @@ export const routes: readonly StubRoute[] = [
     path: '/user/:id/stats/:year/daily',
   },
 
-  // ── writes: this test's Library follows them, then they pass on ─
+  // Writes: this test's Library follows them, then they pass on
   {
     handle: (request) =>
       ownWrite(request, (owner) => {

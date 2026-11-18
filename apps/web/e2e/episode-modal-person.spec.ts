@@ -10,9 +10,9 @@ import { untilStable } from './helpers/viewport';
  *   redirected in the stream, and until the redirect landed the page showed
  *   nothing: not the person, not its skeleton.
  * - The show page waits hidden in the router's back/forward cache while the
- *   person page shows. It used to read the person page's URL ("no episode"),
- *   close the modal while hidden, and on Back open it again from the tile,
- *   where it stayed: small, on the tile. Back now brings it back as it was.
+ *   person page shows. It must not read the person page's URL ("no
+ *   episode") and close the modal while hidden: Back brings the modal back
+ *   as it was, not reopened small on the tile.
  */
 const SHOW = '/136315/the-bear';
 const PERSON = '/person/17485/oliver-platt';

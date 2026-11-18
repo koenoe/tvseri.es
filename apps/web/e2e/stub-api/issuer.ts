@@ -7,7 +7,7 @@
  *   SECRET_KEY=<any local value> node --conditions=react-server e2e/stub-api/issuer.ts   # port STUB_AUTH_PORT, else ISSUER_PORT (viewer.ts)
  *   then run the web with the same SECRET_KEY and AUTH_URL=http://localhost:<that port>
  *
- * `pnpm agents:serve web --stub` does both on the worktree's ports.
+ * `pnpm agents:serve web --stub --auth home` does both on the worktree's ports.
  *
  * Never point a browser that holds real sessions at that web server: it can't
  * read their cookies and drops them. Use a fresh browser context.

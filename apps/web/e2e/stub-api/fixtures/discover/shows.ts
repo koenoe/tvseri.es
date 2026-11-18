@@ -100,8 +100,8 @@ const GENRE_NAMES: Readonly<Record<number, string>> = {
 const ENDED_BEFORE = 2025;
 
 /**
- * Dated season premieres: the show's
- * next episode, so a page can say "Returning Tue 17 Nov".
+ * Dated season premieres: the show's next episode, so a page can say
+ * "Returning Tue 17 Nov".
  */
 const NEXT_PREMIERES: Readonly<Record<string, readonly [string, number]>> = {
   pluribus: ['2026-11-20', 2],

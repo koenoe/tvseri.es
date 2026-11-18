@@ -66,12 +66,12 @@ import { daysAgo } from './user-profile/time.ts';
 import { withWatching } from './user-profile/watchingFollows.ts';
 
 /**
- * The profile page's stub routes: identities, counts, lists,
- * history, the overview, ledger, Waiting for, Get started, the match, the
- * circle and follows, per invented person (`user-profile/people.ts`).
- * The file name sorts first, so these answer before Home's `/me*` routes;
- * a request that isn't about these people (another stream's viewer or
- * show) gets no answer here and the next matching fixture decides.
+ * The profile page's stub routes: identities, counts, lists, history, the
+ * overview, ledger, Waiting for, Get started, the match, the circle and
+ * follows, per invented person (`user-profile/people.ts`). The file name
+ * sorts before `_home.ts`, so these answer before Home's `/me*` routes; a
+ * request that isn't about these people (another area's viewer or show)
+ * gets no answer here and the next matching fixture decides.
  */
 
 type Name = PersonName;
@@ -260,8 +260,8 @@ const seriesOf = (id: number): TvSeries | null => {
     backdropImage: show.backdrop,
     backdropPath: show.backdrop ? `/${show.backdrop.split('/').pop()}` : '',
     // the schema's required fields in full (the cast below can't check
-    // them): without them the show page a row links to threw reading
-    // `createdBy.length` and `languages.length` while a test opened it
+    // them): without them the show page a row links to throws reading
+    // `createdBy.length` and `languages.length`
     countries: [],
     createdBy: [],
     description: '',
@@ -313,7 +313,7 @@ const prefsFor = (body: unknown): SeriesPrefs =>
   }) as unknown as SeriesPrefs;
 
 export const routes: readonly StubRoute[] = [
-  // ── the viewer ───────────────────────────────────────────────
+  // The viewer
   {
     handle: (request) =>
       withViewer(request, (viewer) => ok(PEOPLE[viewer].user)),
@@ -396,7 +396,7 @@ export const routes: readonly StubRoute[] = [
     path: '/discover/watch-providers',
   },
 
-  // ── any profile ──────────────────────────────────────────────
+  // Any profile
   {
     handle: ({ params }) => {
       const person = personByUsername(params.username ?? '');
@@ -566,7 +566,7 @@ export const routes: readonly StubRoute[] = [
     path: '/user/:id/unfollow',
   },
 
-  // ── this year (public, `stats` cache life) ───────────────────
+  // This year (public, `stats` cache life)
   {
     handle: (request) => withOwner(request, (owner) => ok(statsSummary(owner))),
     path: '/user/:id/stats/:year/summary',
@@ -589,7 +589,7 @@ export const routes: readonly StubRoute[] = [
     path: '/user/:id/stats/zone',
   },
 
-  // ── the profile's shows (the show fixtures answer first after a merge) ─
+  // The profile's shows
   {
     handle: ({ params }) => {
       const series = seriesOf(Number(params.id));

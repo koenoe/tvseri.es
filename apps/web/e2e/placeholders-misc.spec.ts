@@ -7,7 +7,7 @@ import { fontsSettled } from './helpers/viewport';
 
 /**
  * The 404 is entirely static: its content is in the shell, so nothing
- * arrives later and the page does not grow (the audit measured a dev server).
+ * arrives later and the page does not grow.
  */
 for (const viewport of [
   { height: 900, name: 'desktop', width: 1440 },

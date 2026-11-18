@@ -1,5 +1,5 @@
 /**
- * Generates the favicon set in src/app from the approved drawings in
+ * Generates the favicon set in src/app from the drawings in
  * apps/web/design/logo (“tv.” on the #1c2223 tile):
  *
  * - `icon.svg`: the 32px drawing (modern browsers, any size)

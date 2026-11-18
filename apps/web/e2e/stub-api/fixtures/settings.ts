@@ -17,12 +17,9 @@ import {
 import { fail, isRecord, isResponse, ok, requireViewer } from './show/http.ts';
 
 /**
- * Settings: the profile, services and region, the
- * numbers in the header, and the Plex status line. Import, Connected apps and
- * Your data add their own files (`settings-*.ts`) on the same store.
- *
- * This file sorts before `show.ts`, so its `GET /me` (with the profile edits
- * and `lastImport`) wins over the show fixture's.
+ * Settings: the profile, services and region, the numbers in the header,
+ * and the Plex status line. Import, Connected apps and Your data add their
+ * own files (`settings-*.ts`) on the same store.
  */
 
 const me =
@@ -32,7 +29,7 @@ const me =
     if (isSettingsViewer(viewer)) {
       return handle(request, viewer);
     }
-    // Another stream's viewer (Home's issuer, the profile's visitors): their
+    // Another fixture's viewer (Home's issuer, the profile's visitors): their
     // own fixtures answer. Without a token it is the API's 401.
     return request.headers.authorization && !isOurs(request)
       ? undefined
@@ -68,7 +65,7 @@ const count =
   (pick: (c: NonNullable<ReturnType<typeof userState>>['counts']) => number) =>
   (request: StubRequest): StubResponse | undefined => {
     const state = userState(request.params.id ?? '');
-    // Other streams' users (stats, profile fixtures) pass on to their routes
+    // Other fixtures' users (stats, profile) pass on to their routes
     return state ? ok({ count: pick(state.counts) }) : undefined;
   };
 

@@ -7,8 +7,8 @@ import { platt } from './person/platt.ts';
 import { reddick } from './person/reddick.ts';
 
 /**
- * The person page's routes: `GET /person/:id` and its
- * `known-for`, `external-ids`, `shows`, `career`, `collaborators` and
+ * The person page's routes: `GET /person/:id` and its `known-for`,
+ * `external-ids`, `shows`, `career`, `collaborators` and
  * `family-and-awards`, plus `GET /me/person/:id/watched`. Bodies are shaped
  * with `@tvseri.es/schemas` types and built the way the API builds them
  * (`apps/api/src/lib/person`); data lives in `person/`. Any other id answers

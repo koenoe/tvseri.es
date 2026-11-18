@@ -1,5 +1,5 @@
 /**
- * Generates src/components/ui/icon/glyphs.tsx from the approved SVGs in
+ * Generates src/components/ui/icon/glyphs.tsx from the SVGs in
  * apps/web/design/icons (one file per glyph, 24-unit viewBox).
  * Re-run after the icons are re-synced:
  *

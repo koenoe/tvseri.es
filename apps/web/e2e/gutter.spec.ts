@@ -79,7 +79,7 @@ for (const kind of KINDS) {
 }
 
 // The series page's "Seen X before?" card sat at 20px and the
-// season block's text at 28px on a phone (both from the 20px-gutter days)
+// season block's text at 28px on a phone
 for (const width of [360]) {
   test(`a series page's prompt and season block start on the gutter at ${width}`, async ({
     page,

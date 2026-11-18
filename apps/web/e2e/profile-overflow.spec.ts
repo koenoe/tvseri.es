@@ -103,7 +103,7 @@ test('a busy profile stays short: lanes stay at their caps', async ({
 // Beside the sidebar at tablet width the Recently watched
 // tiles once shrank to a fifth of ~370px while their code chips did not,
 // and the header's arrows pushed "History" past the column. Tablets have no
-// sidebar now; 1024 is the narrowest column beside it. The scan above skips
+// sidebar; 1024 is the narrowest column beside it. The scan above skips
 // rails (scrollers), so the tile and the header are measured here.
 for (const width of [1024] as const) {
   test(`Recently watched keeps chips in their tiles and History in the column at ${width}px`, async ({

@@ -5,7 +5,7 @@ import { signInAs } from './helpers/session';
 import { untilStable } from './helpers/viewport';
 
 /**
- * The episode modal (`?season=N&episode=M`, EP-B) on The Bear's stub
+ * The episode modal (`?season=N&episode=M`) on The Bear's stub
  * (136315): opens from the URL, steps with ‹ › and ←/→ across seasons,
  * closes with Esc, shows the episode's IMDb rating ("No rating" when missing).
  */

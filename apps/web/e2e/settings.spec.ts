@@ -33,8 +33,7 @@ test.describe('settings signed in (desktop)', () => {
   });
 
   // From lg `/settings` is Profile beside the sidebar in the static shell:
-  // no redirect, no list frame first (it was a client redirect that showed
-  // the list for a moment)
+  // no redirect, no list frame first
   test('/settings is Profile on desktop from the first paint', async ({
     page,
     baseURL,

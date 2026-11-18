@@ -18,12 +18,12 @@ import { fontsSettled } from './helpers/viewport';
  * - The viewer's holes on a prerendered show (The Bear): the progress line,
  *   the first-tracking prompt, the actions and the episodes wall.
  *
- * Known, deliberate differences,
- * so they are not asserted: the age rating and provider are the end of a row
- * (its width follows the region); a viewer's own season can be a different
- * height than the signed-out default's. The first-tracking prompt is shell
- * content for everyone, hidden before the first paint where
- * this browser knows it isn't for the viewer.
+ * Known, deliberate differences, so they are not asserted: the age rating
+ * and provider are the end of a row (its width follows the region); a
+ * viewer's own season can be a different height than the signed-out
+ * default's. The first-tracking prompt is shell content for everyone,
+ * hidden before the first paint where this browser knows it isn't for the
+ * viewer.
  */
 
 const VIEWPORTS = namedViewports('desktop', 'phone');
@@ -120,7 +120,7 @@ for (const viewport of VIEWPORTS) {
           shot: `show-bear-nina-${viewport.name}`,
         });
         console.log(parityTable(parity, `${viewport.name} bear nina`));
-        // the prompt is shell content now: it is simply there, nothing streams in
+        // the prompt is shell content: nothing streams in
         expect(parity.slots['first-tracking']?.height ?? 0).toBeGreaterThan(60);
         expectParity(parity, { names: ['progress', 'actions', 'episodes'] });
       });
@@ -211,16 +211,8 @@ for (const viewport of VIEWPORTS) {
 }
 
 /**
- * The inline script runs before the first paint on every page, so what it
- * costs is what it does, not how fast this machine is: with a 5000-show
- * library it reads its two hints, parses one, writes only attributes of
- * `<html>`, reads no layout and stays small. (A wall-clock budget measured
- * the machine's load, not the script.)
- */
-/**
- * The first-tracking card's placeholder (it looked like the
- * card itself, glass and all): flat ghosts in the card's box, with no words,
- * controls, blur or shadow; the card, its question line, its three answers
+ * The first-tracking card's placeholder is flat ghosts in the card's box,
+ * never a copy of the card: no words, controls, blur or shadow; the card, its question line, its three answers
  * and Not now land within 2px of the real ones (the question's width follows
  * the show's title, so only its line is compared).
  */
@@ -308,6 +300,13 @@ for (const viewport of VIEWPORTS.slice(0, 1)) {
   });
 }
 
+/**
+ * The inline script runs before the first paint on every page, so what it
+ * costs is what it does, not how fast this machine is: with a 5000-show
+ * library it reads its two hints, parses one, writes only attributes of
+ * `<html>`, reads no layout and stays small. (A wall-clock budget would
+ * measure the machine's load, not the script.)
+ */
 test('the pre-paint hint script does a bounded amount of work, even with a 5000-show library', async ({
   baseURL,
   context,

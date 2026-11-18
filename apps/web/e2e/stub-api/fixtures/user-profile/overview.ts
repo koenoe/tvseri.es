@@ -9,8 +9,8 @@ import { bulkKeys, identity, SHOWS } from './shows.ts';
 import { day, daysAgo } from './time.ts';
 
 /**
- * alex's tracker and calendar, dated relative to today:
- * Mon 9 Nov is today, so Wed 11 Nov is `day(2)`.
+ * alex's tracker and calendar, dated relative to today (`day(2)` is two days
+ * on).
  */
 const alexCore = (): Overview => ({
   almostDone: {

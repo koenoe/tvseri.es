@@ -11,12 +11,12 @@ import { VIEWERS } from '../show/store.ts';
 import { PEOPLE } from '../user-profile/people.ts';
 
 /**
- * The settings streams' slice of the stub: per viewer, what Settings reads
- * and writes (profile edits, services, region, the last import, the Plex
- * link, a pending deletion) and the numbers the hero shows. It lives as long
- * as the stub process.
+ * The settings slice of the stub: per viewer, what Settings reads and writes
+ * (profile edits, services, region, the last import, the Plex link, a pending
+ * deletion) and the numbers the hero shows. It lives as long as the stub
+ * process.
  *
- * Viewers come from the show stream's store (`alex`, `rae`, `nina`, `sam`).
+ * Viewers come from the show fixtures' store (`alex`, `rae`, `nina`, `sam`).
  */
 
 export type ViewerName = keyof typeof VIEWERS;
@@ -225,7 +225,7 @@ const PLEX_ACCOUNT: ScrobbleAccount = { id: 1, title: 'alex' };
 const seedFor = (name: ViewerName): SettingsState => {
   const now = Date.now();
   // The profile fixtures' person when there is one (same id), so the profile
-  // stream's pages see the same viewer this answers `GET /me` with.
+  // pages see the same viewer this answers `GET /me` with.
   const person = name in PEOPLE ? PEOPLE[name as keyof typeof PEOPLE] : null;
   const base = person?.user ?? VIEWERS[name].user;
   switch (name) {
@@ -256,7 +256,7 @@ const seedFor = (name: ViewerName): SettingsState => {
               ? '3f9c1a7e5b2d4c8e9a0b6f12'
               : '7c2e9b4d1a6f3e8c5b0d2a94',
         },
-        // alex is the profile stream's viewer too: their services stay as the
+        // alex is the profile fixtures' viewer too: their services stay as the
         // profile fixtures have them; rae (who writes) has six.
         user:
           name === 'alex'

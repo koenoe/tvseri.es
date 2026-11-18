@@ -4,13 +4,13 @@ import { PICK_DECK } from '../../fixtures/home/premieres.ts';
 import type { StubRoute } from '../types';
 import { SHOWS } from './discover/shows';
 
-/** As the API reads the owner's MDBList list (`LIST_SIZES.topRated`) */
+/** As the API reads the site's curated MDBList list (`LIST_SIZES.topRated`) */
 const LIST_SIZE = 24;
 
 const deckIds = new Set(PICK_DECK.map((series) => series.id));
 
 /**
- * `GET /collection/top-rated`: the owner's MDBList list as the API sends it
+ * `GET /collection/top-rated`: the site's curated MDBList list as the API sends it
  * (posters only, in the list's order). Discover's numbered All-time
  * favourites draws its first 20; Home's pick deck rotates through all of
  * it. The catalogue's best rated first, then a fixed deck. Sorts before

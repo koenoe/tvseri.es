@@ -26,12 +26,12 @@ import { day, daysAgo } from './time.ts';
 
 /**
  * The heavy profile (`marathonwatcher-2026`) and a medium one (`mira`):
- * real-data shapes for the overflow and caps rules. Every lane is far past
- * its cap: 22 shows catching up with 8 to 32 episodes waiting
- * across seasons (the API sends at most 8 codes), 28 paused, 9 almost done,
- * 5 out now (dates this year and last), 14 tickets, 15 returns, a show with
- * 23 holes, long and non-Latin titles, 80-character episode titles,
- * four-digit counts and "999h 59m".
+ * real-data shapes for the overflow and caps rules. Every lane is far past its
+ * cap: 22 shows catching up with 8 to 32 episodes waiting across seasons (the
+ * API sends at most 8 codes), 28 paused, 9 almost done, 5 out now (dates this
+ * year and last), 14 tickets, 15 returns, a show with 23 holes, long and
+ * non-Latin titles, 80-character episode titles, four-digit counts and "999h
+ * 59m".
  */
 
 /** The heavy show at `index`, wrapping round the list */
@@ -45,7 +45,7 @@ const code = (season: number, episode: number) =>
 const LONG_EPISODE =
   'The One Where Everybody Finally Remembers What Happened at the Lake House in 1987';
 
-// ── Up next: the hero and the In progress tiles ─────────────────────────
+// Up next: the hero and the In progress tiles
 
 const upNextItem = (key: ShowKey, index: number): UpNextItem => ({
   ...identity(key),
@@ -68,7 +68,7 @@ const upNextItem = (key: ShowKey, index: number): UpNextItem => ({
   toWatch: index === 0 ? 1045 : 20 - index,
 });
 
-// ── Catching up: 22 shows, 8 to 32 waiting, some across seasons ─────────
+// Catching up: 22 shows, 8 to 32 waiting, some across seasons
 
 /** The first waiting episodes (at most 8, as the API sends them) */
 const waitingCodes = (
@@ -119,7 +119,7 @@ const catchingUpItem = (index: number): CatchingUpItem => {
   };
 };
 
-// ── Coming up: 14 tickets in the next 30 days ───────────────────────────
+// Coming up: 14 tickets in the next 30 days
 
 const KINDS: ReadonlyArray<ComingUpItem['kind']> = [
   'season-premiere',
@@ -150,7 +150,7 @@ const comingUpItem = (index: number): ComingUpItem => {
   };
 };
 
-// ── Paused: 28 ──────────────────────────────────────────────────────────
+// Paused: 28
 
 const pausedItem = (index: number): PausedItem => ({
   ...identity(h(index + 1)),
@@ -286,7 +286,7 @@ export const heavyLedgerDetail = (seriesId: number): LedgerDetail | null => {
   };
 };
 
-// ── the medium profile (mira): a few rows in every lane ────────────────
+// The medium profile (mira): a few rows in every lane
 
 export const miraOverview = (): Overview => {
   const heavyData = heavyOverview();
@@ -344,7 +344,7 @@ export const miraLedgerDetail = (seriesId: number): LedgerDetail | null =>
       }
     : null;
 
-// ── lists, history and the visitor's match ─────────────────────────────
+// Lists, history and the visitor's match
 
 /** The heavy library: lists far past a first page */
 export const HEAVY_LIBRARY = {

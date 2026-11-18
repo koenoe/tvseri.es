@@ -7,11 +7,12 @@ import {
 import type { StubRoute } from '../types';
 
 /**
- * Home: its fixture shows, served from `e2e/fixtures/home`. The
- * file name sorts first, so Home's trending ten (with backdrops and logos
- * for the spotlight) answer `/collection/trending` before collection.ts. The day's
- * moments switch with `STUB_HOME_FEATURE` / `STUB_HOME_TOY` at start or `POST /__stub/state` `{ "feature": "binge", "toy":
- * "whats-on" }` (send the `x-api-key: stub` header); `GET` reads it.
+ * Home: its fixture shows, served from `e2e/fixtures/home`. The file name
+ * sorts before collection.ts, so Home's trending ten (with backdrops and
+ * logos for the spotlight) answer `/collection/trending`. The day's moments
+ * switch with `STUB_HOME_FEATURE` / `STUB_HOME_TOY` at start or
+ * `POST /__stub/state` `{ "feature": "binge", "toy": "whats-on" }` (send the
+ * `x-api-key: stub` header); `GET` reads it.
  */
 const fromEnv = (name: string) => process.env[name] || undefined;
 
@@ -46,7 +47,7 @@ export const routes: readonly StubRoute[] = [
       handle: ({ headers, path: pathname, query }) => {
         const url = new URL(`http://stub${pathname}?${query.toString()}`);
         const viewer = viewerFromAuthorization(headers.authorization)?.key;
-        // A signed-in viewer of another stream's fixtures (settings, show):
+        // A signed-in viewer of another area's fixtures (settings, show):
         // let their own `/me…` routes answer. If you liked X is Home's
         // alone and the same for everyone, so it answers them too.
         if (

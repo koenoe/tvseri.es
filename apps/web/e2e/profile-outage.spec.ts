@@ -167,8 +167,8 @@ test.describe('a failing read on a profile', () => {
     });
   }
 
-  // a profile read that timed out took the page to "Something
-  // broke"; now the identity says so and the rest of the page stays
+  // a profile read that fails or times out never takes the page to
+  // "Something broke": the identity says so and the rest of the page stays
   for (const [mode, path] of [
     ['500', ''],
     ['500', '/library/watchlist'],

@@ -249,7 +249,7 @@ const HISTORY: Readonly<Partial<Record<PersonName, () => WatchedItem[]>>> = {
       .map(([key, season, episode, at]) =>
         watched('mira', key, season, episode, at),
       ),
-  // one episode: the short list that stretched a lone poster across the column
+  // one episode: a lone poster must not stretch across the column
   sam: () => [watched('sam', 'marathon', 8, 2, daysAgo(2))],
 };
 

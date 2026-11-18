@@ -14,8 +14,9 @@ import { identity, img } from './shows.ts';
 import { day, daysAgo } from './time.ts';
 
 /**
- * rae's tracker: every component in every state in one profile. `/u/rae` draws the first Up next (a full season out); the other
- * Up next states are tiles at `/u/rae/in-progress`. Catching up shows its
+ * rae's tracker: every component in every state in one profile. `/u/rae`
+ * draws the first Up next (a full season out); the other Up next states are
+ * tiles at `/u/rae/in-progress`. Catching up shows its
  * four runway states, Out now a season that just completed, and the rest
  * (Almost done, Paused, the ledger) is alex's so presses can be tried.
  */
@@ -126,14 +127,14 @@ export const raeOverview = (): Overview => {
 const longRunCode = (episode: number) =>
   `S07E${String(episode).padStart(2, '0')}`;
 
-/** The run's window: S07E07 to S07E90, the owner's 84 waiting */
+/** The run's window: S07E07 to S07E90, 84 waiting */
 const LONG_RUN_FROM = 7;
 const LONG_RUN_TO = 90;
 const LONG_RUN_MINUTES = 44;
 
 /**
  * kit's Catching up: The Long Run (the show stub's 900002, so its chips mark
- * through the marking routes) with the owner's real-data shape: 84 episodes
+ * through the marking routes) with a real account's shape: 84 episodes
  * waiting in one long season, the API's eight codes sent. Read from kit's
  * marks in the show stub (seasons 1 to 6 and S07E01 to E06 seeded, the rest
  * as the test marks it), so a refresh after a mark or an Undo answers as

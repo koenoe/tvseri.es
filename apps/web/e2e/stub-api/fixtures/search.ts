@@ -5,8 +5,8 @@ import type { StubRoute } from '../types';
 /**
  * `GET /search?q=` for the search overlay: real TMDB ids, titles and
  * images (themoviedb.org search pages), ranked the way the API ranks them
- * (match tier, then popularity). The query arrives
- * normalised (`normalizeSearchQuery`), so the keys are lowercase.
+ * (match tier, then popularity). The query arrives normalised
+ * (`normalizeSearchQuery`), so the keys are lowercase.
  *
  * Special queries for the error and pending states:
  * - `server error` answers 500 (the overlay's error row);

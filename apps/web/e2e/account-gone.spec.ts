@@ -49,8 +49,8 @@ test('a deleted account ends cleanly on its other browsers', async ({
     .getByRole('status')
     .filter({ hasText: 'Account deleted' });
   await expect(notice).toBeVisible();
-  // It used to be replaced by the 401 page once the header re-rendered
-  // signed out: wait for that render, then the notice must still be there
+  // The 401 page must not replace it once the header re-renders signed
+  // out: wait for that render, then the notice must still be there
   await expect(headerSignIn(page)).toBeVisible();
   await expect(notice).toBeVisible();
   await expect(

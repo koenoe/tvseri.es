@@ -12,10 +12,9 @@ const escapeXml = (value: string) =>
   value.replace(/[<>&'"]/g, (char) => `&#${char.charCodeAt(0)};`);
 
 /**
- * Placeholder art: a muted tile with its name. A
- * `logo` is white letters on a transparent ground; a `logo-block` is a
- * filled block (white letters on blue), a logo the API marks
- * `logoSilhouette: false`.
+ * Placeholder art: a muted tile with its name. A `logo` is white letters on
+ * a transparent ground; a `logo-block` is a filled block (white letters on
+ * blue), a logo the API marks `logoSilhouette: false`.
  */
 export const routes: ReadonlyArray<StubRoute> = [
   {

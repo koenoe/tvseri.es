@@ -4,12 +4,11 @@ import { type StubViewer, signInAs } from './helpers/session';
 import { untilStable } from './helpers/viewport';
 
 /**
- * The air above the footer's band ("content now sits against
- * footer block"): every page kind ends the same distance above the band,
- * the footer's own air (`[data-footer-air]`: 64px at 768 and up, 48px on a
- * phone), never doubled by a page's own bottom padding. A page that ends in
- * a full-width band (a series) has none: its band meets the footer's. One
- * page per kind, at a phone and a desktop.
+ * The air above the footer's band: every page kind ends the same distance
+ * above the band, the footer's own air (`[data-footer-air]`: 64px at 768
+ * and up, 48px on a phone), never doubled by a page's own bottom padding.
+ * A page that ends in a full-width band (a series) has none: its band meets
+ * the footer's. One page per kind, at a phone and a desktop.
  */
 
 const airHeight = (page: Page) =>

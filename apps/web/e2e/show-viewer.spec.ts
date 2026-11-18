@@ -85,10 +85,9 @@ test('a mark survives going Home and pressing Back', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-// Vertically cramped on mobile otherwise: on a phone the hero's rows sit
-// close (title to facts, facts to the progress text, progress text to the
-// rating and actions) and the progress line is a 44px tap target. Measured
-// between boxes.
+// On a phone the hero's rows sit close (title to facts, facts to the
+// progress text, progress text to the rating and actions) and the progress
+// line is a 44px tap target. Measured between boxes.
 const heroGaps = async (page: Page, width: number) => {
   await page.setViewportSize({ height: 844, width });
   await phoneScrollbars(page, width);

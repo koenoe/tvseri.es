@@ -4,7 +4,7 @@ import { signInAs } from './session';
 
 /**
  * The desktop ⋯ Remote (a popover, no dim) holds the page still while it is
- * open, as production's menu did: the wheel and the keys don't scroll the
+ * open: the wheel and the keys don't scroll the
  * page behind, nothing shifts sideways, and every close lets go. A dialog
  * opened from it keeps the page locked after the Remote closes under it.
  * Shared by the Chromium and WebKit specs.

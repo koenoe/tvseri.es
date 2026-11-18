@@ -6,8 +6,9 @@
  * - The first use stamps `timeUsed` and returns the successor. Any use within
  *   the reuse window (`ttl.reuse`, 300 s in `apps/auth`) returns that same
  *   successor again, so concurrent refreshes all get the same tokens.
- * - After the window the used token is gone (`retention` is 0 in `apps/auth`)
- *   and the issuer answers `400 invalid_grant` ("used or expired").
+ * - After the window the used token is gone (`apps/auth` keeps the default
+ *   `retention` of 0) and the issuer answers `400 invalid_grant` ("used or
+ *   expired").
  * - A revoked or unknown token is `400 invalid_grant` too.
  *
  * Time is the stub's own: `lapse(ns)` moves one session family past its reuse

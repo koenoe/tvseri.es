@@ -42,9 +42,9 @@ const viewerOf = (headers: IncomingHttpHeaders): Viewer | null => {
 };
 
 /**
- * A Bearer token for someone this fixture doesn't know (another stream's
- * invented viewer): the route passes (`undefined`) so that stream's fixture
- * answers it.
+ * A Bearer token for someone this fixture doesn't know (another fixture's
+ * invented viewer): the route passes (`undefined`) so that fixture answers
+ * it.
  */
 export const isForeignViewer = (headers: IncomingHttpHeaders): boolean =>
   Boolean(headers.authorization) && viewerOf(headers) === null;

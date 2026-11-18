@@ -5,10 +5,9 @@ import { CATALOGUE } from './discover/catalogue';
 import { byId } from './discover/shows';
 
 /**
- * The language landing: its facts and the romanised titles of
- * the script switch (the catalogue's `romaji`; null when the title is Latin
- * already or none is known, as the API answers). Japanese has a realistic
- * 16,900 shows.
+ * The language landing: its facts and the romanised titles of the script switch
+ * (the catalogue's `romaji`; null when the title is Latin already or none is
+ * known, as the API answers). Japanese has a realistic 16,900 shows.
  */
 const KNOWN_COUNTS: Readonly<Record<string, number>> = { ja: 16_900 };
 

@@ -3,10 +3,8 @@ import type { Episode, Genre, TvSeries } from '@tvseri.es/schemas';
 /**
  * Fixture plumbing for the home page. The stub API (e2e/stub-api)
  * and the dev preview (/dev/home) render the sample shows. Images are
- * TMDB-shaped URLs named after the canvas images (`__IMG__<name>__`), so the
- * page's CSP and the TMDB loader treat them like the real thing; a local
- * screenshot tool can answer them from the canvas image folder (an image and
- * a page screenshot then show the same artwork). In tests they don't load.
+ * TMDB-shaped URLs named after sample image files, so the page's CSP and
+ * the TMDB loader treat them like the real thing. In tests they don't load.
  *
  * Every fixture file only imports from other fixture files with a `.ts`
  * extension, so Node runs them as is (type stripping) in the stub server.
@@ -30,7 +28,7 @@ function segmentFor(name: string): string {
   return 'original';
 }
 
-/** A sample image (`__IMG__<name>__`) as a TMDB image URL */
+/** A sample image name as a TMDB image URL */
 export const img = (name: string) => `${TMDB}/${segmentFor(name)}/${name}`;
 
 /** Today in the demo: Wed 11 Nov 2026 (the demo days are Mon 9 to Sat 14) */

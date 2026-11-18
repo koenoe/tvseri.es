@@ -6,7 +6,7 @@ import { signInAs } from './helpers/session';
  * No hydration error in the console, one page of each kind (the signed-in
  * show page is `show-viewer.spec.ts`'s). The pre-paint
  * scripts change `<html>` before React hydrates (`data-stats-year`,
- * `data-show-lib`, `data-region`), so the root layout's `<html>` carries
+ * `data-show-prompt`, `data-region`), so the root layout's `<html>` carries
  * `suppressHydrationWarning`; nothing below it may mismatch.
  *
  * A production build only reports structural mismatches. For the attribute

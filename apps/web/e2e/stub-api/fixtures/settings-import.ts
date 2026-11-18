@@ -21,9 +21,9 @@ import {
 import { fail, isRecord, ok } from './show/http.ts';
 
 /**
- * The importer's slice of the stub: the catalogue behind the
- * title search (`settings-import/catalog.ts`) and the API's import routes on
- * the settings store's `lastImport`. Marks written by an import are kept per
+ * The importer's slice of the stub: the catalogue behind the title search
+ * (`settings-import/catalog.ts`) and the API's import routes on the settings
+ * store's `lastImport`. Marks written by an import are kept per
  * viewer (`importMarks`: episode key -> import id), so a second import skips
  * what the first wrote, and Undo takes only an import's own marks away.
  */

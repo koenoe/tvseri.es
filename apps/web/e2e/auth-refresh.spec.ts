@@ -222,9 +222,8 @@ test.describe('session refresh', () => {
     // Mid-use the session runs low: the browser's cookie now holds a token
     // of the same session (its namespace) with 30 s left, under the 60 s
     // refresh threshold but still valid, so the next request refreshes, and
-    // the session is revoked, so that fails. (It waited out a 65 s token's
-    // last seconds by the clock: a load slower than five seconds refreshed
-    // it early.)
+    // the session is revoked, so that fails. (Not waited out by the clock:
+    // a slow load would refresh early.)
     await signInRotating(context, 'alex', baseURL ?? '', {
       accessSeconds: 30,
     });

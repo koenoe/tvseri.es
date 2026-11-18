@@ -56,9 +56,8 @@ const makeUser = (
 
 /**
  * `alex`: a regular user partway through The Bear. `rae` and `kit` seed the
- * same way (alex's twins, from before each test got its own copy of this
- * state: see `signInAs` and the README's isolation rule).
- * `nina`: brand new, nothing tracked. `sam`: an admin with some progress.
+ * same way. `nina`: brand new, nothing tracked. `sam`: an admin with some
+ * progress.
  */
 export const VIEWERS: Readonly<
   Record<
@@ -262,7 +261,7 @@ export const deletePreferred = (seriesId: number): void => {
   preferredImages.delete(seriesId);
 };
 
-// --- Seeds -------------------------------------------------------------
+// Seeds
 
 /**
  * Alex's history on The Bear, as the default state: Seasons 1 and 2

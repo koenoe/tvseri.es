@@ -5,7 +5,7 @@ import { signInAs } from './helpers/session';
 /**
  * The sheet swipe under a real touch (Chromium's touch emulation through
  * CDP, which scrolls and hands gestures over as a phone does): only a
- * bottom sheet swipes away; a full-screen panel just scrolls.
+ * bottom sheet swipes away; a full-screen panel scrolls.
  * WebKit has no touch input in Playwright: the iPhone itself is the check.
  */
 test.use({ hasTouch: true, viewport: { height: 844, width: 390 } });

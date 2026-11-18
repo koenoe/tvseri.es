@@ -105,7 +105,7 @@ const series = (
   };
 };
 
-// --- Catalogue ---------------------------------------------------------
+// Catalogue
 
 const catalogue: readonly StubRoute[] = [
   {
@@ -224,7 +224,7 @@ const catalogue: readonly StubRoute[] = [
   },
 ];
 
-// --- Viewer: /me ----------------------------------------------------------
+// Viewer: /me
 
 const me = (
   handle: (
@@ -302,7 +302,7 @@ const meRoutes: readonly StubRoute[] = [
   },
 ];
 
-// --- Viewer: /user/:id ------------------------------------------------------
+// Viewer: /user/:id
 
 const PROGRESS_KEYS = [
   'dateUnknown',
@@ -694,7 +694,7 @@ const userRoutes: readonly StubRoute[] = [
   ...listRoutes,
 ];
 
-// --- Admin: preferred images and the page colour -------------------------
+// Admin: preferred images and the page colour
 
 const admin = (
   handle: (request: StubRequest, id: number) => StubResponse,

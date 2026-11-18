@@ -9,8 +9,7 @@ import { measureParity } from './helpers/shellParity';
  * Placeholder parity for the Discover landings (`helpers/shellParity.ts`).
  * The sample slugs prerender, so each landing is loaded with a slug nobody
  * has visited: its shell is the whole page's placeholder, every section in
- * order at its real size (the audit measured one row where the page has
- * many), and the content that replaces it must land in the same boxes with
+ * order at its real size, and the content that replaces it must land in the same boxes with
  * nothing shifting.
  *
  * `landing-hero` is the hero (genre, theme, network), `landing-rows` the
@@ -27,16 +26,15 @@ const PHONE = new Set(['/genre/drama', '/network/netflix']);
  * `position`: sections whose place and width are compared but not their
  * height, because the stub holds fewer shows than a real landing (a row
  * Country drops under three new shows; Korean has five wall cards, not
- * eight). The skeleton is sized for the real count (the audit's real data).
+ * eight). The skeleton is sized for a real landing's count.
  * Time travel's stub has no night pick, so its Where to start has two cards
  * and is left out (a block needs three posters): a slug's very
  * first visit draws the section's skeleton, then the rows move up.
  */
 /**
  * `inner`: blocks inside a section whose ghost is built from the loaded
- * block's own layout (skeletons match the eventual content as closely as
- * possible): their place and width are compared, not the
- * height, which follows the text (a reason on one line or two).
+ * block's own layout: their place and width are compared, not the height,
+ * which follows the text (a reason on one line or two).
  */
 const LANDINGS = [
   {

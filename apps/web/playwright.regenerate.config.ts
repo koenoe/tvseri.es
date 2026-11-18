@@ -2,10 +2,10 @@ import { defineConfig, devices } from '@playwright/test';
 
 /**
  * Opt-in (`pnpm --filter web e2e:regenerate`, about 5 minutes): proves that a
- * page prerendered while the API was down fills in on its own. `e2e/regenerate/server.ts` builds with no API
- * reachable, then starts the stub API and `next start`; the spec waits out
- * the `unavailable` profile (revalidated after 30 s). Not part of `pnpm e2e`. See
- * instant-nav.rig.md.
+ * page prerendered while the API was down fills in on its own.
+ * `e2e/regenerate/server.ts` builds with no API reachable, then starts the
+ * stub API and `next start`; the spec waits out the `unavailable` profile
+ * (revalidated after 30 s). Not part of `pnpm e2e`. See instant-nav.rig.md.
  */
 const port = Number(process.env.E2E_PORT ?? 3100);
 const stubPort = Number(process.env.STUB_API_PORT ?? port + 1000);

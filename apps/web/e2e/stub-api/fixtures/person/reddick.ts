@@ -14,8 +14,8 @@ import {
 
 /**
  * Lance Reddick (TMDB 129101): deceased (2023-03-17), no upcoming work, work
- * released after his death; the one-off roles and collaborators
- * are illustrative. Ids are real TMDB ids where known, else 9500001 and up.
+ * released after his death; the one-off roles and collaborators are
+ * illustrative. Ids are real TMDB ids where known, else 9500001 and up.
  */
 
 const series: ReadonlyArray<Credit> = [

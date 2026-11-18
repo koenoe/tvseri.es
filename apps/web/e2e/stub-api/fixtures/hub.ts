@@ -13,10 +13,10 @@ import type { StubRoute } from '../types';
 import { byKey, imageUrl, networkId, SHOWS } from './discover/shows';
 
 /**
- * The Discover hub's routes: today's Essentials and Go
- * deeper, the Duration tiles and their rows, Finish it this weekend, the
- * Essentials network, and the hand-picked tile shows under their real TMDB
- * ids. Shows and numbers are fixed so the page is stable.
+ * The Discover hub's routes: today's Essentials and Go deeper, the Duration
+ * tiles and their rows, Finish it this weekend, the Essentials network, and the
+ * hand-picked tile shows under their real TMDB ids. Shows and numbers are fixed
+ * so the page is stable.
  */
 
 const entry = (key: string) => {

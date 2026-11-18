@@ -489,8 +489,8 @@ export const toSeries = (
 
 /**
  * `GET /series/:id/images`: text-free backdrops and logos for the admin, in
- * TMDB's vote order, with measured page colours as
- * the API serves them (its `groundColor` rule darkens the light ones).
+ * TMDB's vote order, with measured page colours as the API serves them (its
+ * `groundColor` rule darkens the light ones).
  */
 const BACKDROP_CHOICES: ReadonlyArray<readonly [name: string, colour: string]> =
   [
@@ -569,7 +569,7 @@ export const toImages = (
   };
 };
 
-// --- The shows ---------------------------------------------------------
+// The shows
 
 const BEAR_FIRST_EPISODE_ID = 3_000_000;
 
@@ -1017,7 +1017,7 @@ const buildShows = (): ReadonlyArray<StubShow> => {
 };
 
 /**
- * The Focus wall's composition lab: one-season shows of every size the case table covers, an
+ * The Focus wall's edge cases: one-season shows from 1 to 60 episodes, an
  * airing season with episodes still to come, a season without stills and one
  * with very long titles and overviews. Viewer states come from marks a test
  * writes in its own copy of the stub.

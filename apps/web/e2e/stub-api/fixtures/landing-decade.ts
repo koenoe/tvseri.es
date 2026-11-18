@@ -4,8 +4,8 @@ import type { StubRoute } from '../types';
 import { CATALOGUE } from './discover/catalogue';
 
 /**
- * The decade landing: its facts. The treemap and Missed by most
- * read `/discover` over the catalogue (`discover-catalogue.ts`); the card's
+ * The decade landing: its facts. The treemap and Missed by most read
+ * `/discover` over the catalogue (`discover-catalogue.ts`); the card's
  * network and seasons come from `/series/summaries` (`discover-api.ts`).
  * The 2010s have a realistic 41,800 shows.
  */

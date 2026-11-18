@@ -24,10 +24,10 @@ import {
 import { daysAgo } from './time.ts';
 
 /**
- * The Library per person: every show a person has on a list,
- * merged into `LibraryEntry`s (the shape `@tvseri.es/utils` pages), plus
- * the writes a test makes (list adds and removes, Hide and Unhide). The
- * module is loaded once per test namespace, so the writes are that test's.
+ * The Library per person: every show a person has on a list, merged into
+ * `LibraryEntry`s (the shape `@tvseri.es/utils` pages), plus the writes a test
+ * makes (list adds and removes, Hide and Unhide). The module is loaded once per
+ * test namespace, so the writes are that test's.
  *
  * - Everyone's lists are the list routes' (`library.ts`, same dates), so the
  *   overview and the Library agree; a few people get older extras after them.
@@ -80,7 +80,7 @@ const fromProfileShow = (show: ProfileShow): Show => ({
 export const catalogueShow = (id: number): ProfileShow | undefined =>
   pgShowById(id) ?? showById(id);
 
-// ── seeds ───────────────────────────────────────────────────────────────
+// Seeds
 
 type Seed = Readonly<{
   shows: Map<number, Show>;
@@ -257,7 +257,7 @@ const heavySeed = (): Seed => {
   return seed;
 };
 
-// ── the store: seeds plus this namespace's writes ───────────────────────
+// The store: seeds plus this namespace's writes
 
 const seeds = new Map<PersonName, Seed>();
 
@@ -345,7 +345,7 @@ export const setPaused = (
   }
 };
 
-// ── what the routes answer ──────────────────────────────────────────────
+// What the routes answer
 
 const code = (season: number, episode: number) =>
   `S${String(season).padStart(2, '0')}E${String(episode).padStart(2, '0')}`;

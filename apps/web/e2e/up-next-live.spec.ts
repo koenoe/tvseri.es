@@ -82,7 +82,7 @@ test('Continue watching moves on after the Remote, and back on Undo', async ({
   await expect(onCard('Napkins')).toBeVisible();
   await expect(tile.getByText('5 of 10 watched')).toBeVisible();
   await expect(tile.getByText('Last watched S03E05 today')).toBeVisible();
-  // Continue watching has no eye any more: the ⋯ is its one control
+  // Continue watching has no eye button: the ⋯ is its one control
   await expect(
     section.getByRole('button', { name: /^Mark The Bear/ }),
   ).toHaveCount(0);
@@ -110,9 +110,9 @@ test('the profile’s Up next moves on after the Remote marks the next episode',
   // The card itself (the open Remote names the next episode too); its
   // link is named after the episode it opens
   const hero = block.getByRole('article').first();
-  // The Remote fetches the show's marks when it opens: time on a loaded machine
   // the card's own badge: the Remote's menu, still closing on a slow run,
-  // names the episode too ("Watched next episode S03E06")
+  // names the episode too ("Watched next episode S03E06"). The Remote
+  // fetches the show's marks when it opens: time on a loaded machine
   const badge = hero
     .getByText('S03E06', { exact: true })
     .locator('xpath=self::*[not(ancestor::*[@role="menuitem"])]');

@@ -1,6 +1,6 @@
 /**
  * The stub API's route shape (see README.md). A fixture file in `fixtures/`
- * exports `routes`; the server loads every file there, so streams add their
+ * exports `routes`; the server loads every file there, so each area adds its
  * own file instead of editing a shared list.
  */
 export type StubRequest = Readonly<{

@@ -6,11 +6,11 @@ import { PEOPLE, type PersonName } from './people.ts';
 import { follows, followsOf, followsWritten, match } from './social.ts';
 
 /**
- * `GET /me/circle/people`, as the API answers it. Levels,
- * rings and proof titles are the ones the viewer sees on each person's
- * profile (`match` in `social.ts`), so the Circle and the match card agree;
- * "Watching" comes from each person's Library (`watchingNow`, the shared
- * logic: their latest In progress show they haven't hidden).
+ * `GET /me/circle/people`, as the API answers it. Levels, rings and proof
+ * titles are the ones the viewer sees on each person's profile (`match` in
+ * `social.ts`), so the Circle and the match card agree; "Watching" comes from
+ * each person's Library (`watchingNow`, the shared logic: their latest In
+ * progress show they haven't hidden).
  *
  * alex follows eight people, one per level (juno super, tamsin very high,
  * oskar high, bea medium, leo low, rumi very low) and two with no level yet

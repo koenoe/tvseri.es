@@ -8,9 +8,8 @@ import { VIEWERS } from './show/store.ts';
 /**
  * The importer UI's slice of the stub: the viewer's finished and in-progress
  * lists, which the drop zone's poster wall reads (only the user's own
- * shows). `alex` and `rae` have
- * twelve; `nina` (brand new) and `sam` have none, so their wall
- * stays neutral.
+ * shows). `alex` and `rae` have twelve; `nina` (brand new) and `sam` have
+ * none, so their wall stays neutral.
  */
 
 const WALL = [
@@ -47,7 +46,7 @@ export const routes: ReadonlyArray<StubRoute> = [
   {
     handle: ({ headers, params, query }) => {
       const owner = (params.id ?? '').toUpperCase();
-      // Only the settings viewers' walls; other streams' users pass on
+      // Only the settings viewers' walls; other fixtures' users pass on
       if (!Object.values(VIEWERS).some((viewer) => viewer.id === owner)) {
         return undefined;
       }

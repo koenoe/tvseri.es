@@ -5,8 +5,7 @@ import { open } from './helpers';
 
 /**
  * The site footer: full width, its links, and that no error view has it
- * under it ("on the error
- * pages we dont want the footer to render below").
+ * under it.
  */
 
 const footer = (page: Page) => page.locator('[data-site-footer]');

@@ -2,9 +2,8 @@ import { landingFilter } from '@tvseri.es/constants';
 
 /**
  * The profile fixtures' shows, with stand-in artwork from the local image
- * folder (`STUB_ASSETS_URL/img`,
- * empty without it). Invented ids (99xxxx), so `/series/:id` here never
- * answers for another stream's shows.
+ * folder (`STUB_ASSETS_URL/img`, empty without it). Invented ids (99xxxx),
+ * so `/series/:id` here never answers for another fixture's shows.
  */
 
 export const img = (name: string): string =>

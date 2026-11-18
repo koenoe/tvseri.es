@@ -195,7 +195,7 @@ export const unmark = (
   }
 };
 
-// --- Per-show prefs ------------------------------------------------------
+// Per-show prefs
 
 const CODE = /^S(\d{1,3})E(\d{1,4})$/i;
 

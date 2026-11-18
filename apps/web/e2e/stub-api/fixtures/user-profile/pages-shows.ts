@@ -1,11 +1,11 @@
 import { type ProfileShow, show } from './shows.ts';
 
 /**
- * The heavy profile's Library: 320 invented shows (ids 993001
- * and up) whose titles meet every rule of the Library's A–Z: leading
- * "The"/"A"/"An", accents, titles that start with digits, Japanese, Korean
- * and Arabic titles (the rail's `#`), titles past 80 characters, and every
- * letter of the rail. Deterministic: a seeded generator, no `Math.random`.
+ * The heavy profile's Library: 320 invented shows (ids 993001 and up) whose
+ * titles meet every rule of the Library's A–Z: leading "The"/"A"/"An", accents,
+ * titles that start with digits, Japanese, Korean and Arabic titles (the rail's
+ * `#`), titles past 80 characters, and every letter of the rail. Deterministic:
+ * a seeded generator, no `Math.random`.
  */
 
 /** mulberry32: a small seeded generator, so every run builds the same data */

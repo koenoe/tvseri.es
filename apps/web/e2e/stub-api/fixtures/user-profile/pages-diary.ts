@@ -191,7 +191,7 @@ export const heavyDiary = (): ReadonlyArray<WatchedItem> => {
   return diary;
 };
 
-// ── GET /user/:id/watched ───────────────────────────────────────────────
+// GET /user/:id/watched
 
 /** A person's whole dated history, newest first (the heavy one: its diary under the recent rows) */
 export const historyItems = (name: PersonName): ReadonlyArray<WatchedItem> =>
@@ -250,7 +250,7 @@ export const watchedPage = (
   };
 };
 
-// ── /stats/years and /stats/:year/daily ─────────────────────────────────
+// /stats/years and /stats/:year/daily
 
 /** Years with dated episodes (specials count), months of regular ones, undated */
 export const statsYears = (

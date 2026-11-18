@@ -117,8 +117,8 @@ test.describe('show page (/{id}/{slug})', () => {
     const poster = page.getByRole('link', { name: 'The Bear' });
     await poster.scrollIntoViewIfNeeded();
     await expect(poster).toBeVisible();
-    // A default <Link> prefetches the App Shell shared by every show (the
-    // plan: no per-link prefetch), so the click shows the header and the
+    // A default <Link> prefetches the App Shell shared by every show (no
+    // per-link prefetch), so the click shows the header and the
     // show's skeleton at once; the show itself streams in after.
     await instant(page, async () => {
       await poster.click();

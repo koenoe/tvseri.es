@@ -6,9 +6,9 @@ import { type StubViewer, setLibraryHint, signInAs } from './helpers/session';
  * The lazy ⋯ opens its Remote on the first press, on a page loaded fresh:
  * the Remote's code is held back after the page has loaded, so the press
  * lands before the code does. One press, one open: a click at 1440, a tap at
- * 390, Enter on the focused ⋯ (one input per surface). It once
- * took two under `next dev`: StrictMode's re-run of the new Remote's
- * effects closed the menu the first press had just opened.
+ * 390, Enter on the focused ⋯ (one input per surface). It once took two
+ * under `next dev`: StrictMode's re-run of the Remote's effects closed the
+ * menu the first press had just opened.
  */
 
 type Surface = Readonly<{

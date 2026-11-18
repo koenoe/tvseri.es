@@ -38,7 +38,7 @@ const cacheLife = Object.fromEntries(
  * straight to the API: an external rewrite is proxied by Vercel's CDN, so no
  * function runs. The API's edge function checks the token
  * (infra/apiEdgeInjection.ts). Every deployed build has API_URL; a local build
- * without it (tests, the style guide) just skips the rewrite.
+ * without it (tests, the style guide) skips the rewrite.
  */
 function scrobbleRewrite() {
   const apiUrl = process.env.API_URL;

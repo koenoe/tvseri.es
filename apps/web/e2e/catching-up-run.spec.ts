@@ -76,8 +76,7 @@ test('marking up to the fourth chip moves the run on', async ({ page }) => {
   // The press is refused until the first write settled (one press, one
   // write; `pressGate` shows no sign of it), so it is tried until taken. A
   // taken press removes E14 at once: then only its result is awaited (a
-  // second click would wait for a chip that is gone; on a slow machine the
-  // 500ms each try had ran out before the taken press had drawn)
+  // second click would wait for a chip that is gone)
   await expect(async () => {
     if (await chip(block, 14).isVisible()) {
       await chip(block, 14).click();

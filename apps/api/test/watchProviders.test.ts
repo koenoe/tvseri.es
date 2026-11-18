@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { findUser, updateUser } from '@/lib/db/user';
+
 import { db } from './db';
 import { request } from './request';
 import { seedUser, USER_ID } from './seed';
@@ -29,6 +31,31 @@ const publicProviders = async () => {
 };
 
 describe('streaming services (PUT /me/watch-providers)', () => {
+  it('a save right after another wins, even from a user read before the first landed', async () => {
+    seedUser();
+    // the auth's read is eventually consistent: a quick second save can
+    // carry the user as it was before the first save
+    const stale = (await findUser({ userId: USER_ID }))!;
+    await updateUser(stale, { watchProviders: [provider()] });
+
+    await expect(
+      updateUser(stale, {
+        country: 'NL',
+        watchProviders: [provider({ id: 9, name: 'Prime Video' })],
+      }),
+    ).resolves.toBeDefined();
+    const saved = await findUser({ userId: USER_ID });
+    expect(saved?.watchProviders?.map((p) => p.name)).toEqual(['Prime Video']);
+    expect(saved?.country).toBe('NL');
+  });
+
+  it('a profile edit from a stale read is still refused', async () => {
+    seedUser();
+    const stale = (await findUser({ userId: USER_ID }))!;
+    await updateUser(stale, { watchProviders: [provider()] });
+    await expect(updateUser(stale, { name: 'Someone' })).rejects.toThrow();
+  });
+
   it('builds the logo from the TMDB path and ignores the one sent', async () => {
     seedUser();
 

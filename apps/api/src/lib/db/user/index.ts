@@ -271,8 +271,16 @@ export const updateUser = async (
 
   const now = new Date().toISOString();
   values[':updatedAt'] = now;
-  values[':lastUpdatedAt'] = user.updatedAt || user.createdAt;
   updateExpressions.push('updatedAt = :updatedAt');
+  // A name or username edit must not overwrite one made on another device
+  // since this user was read. The services list and the country are sent
+  // whole, so the latest save wins: the auth's read of the user is
+  // eventually consistent, and checking it would refuse a quick second save
+  // as if it clashed with the first.
+  const guarded = updates.username !== undefined || updates.name !== undefined;
+  if (guarded) {
+    values[':lastUpdatedAt'] = user.updatedAt || user.createdAt;
+  }
 
   if (updates.username) {
     values[':username'] = updates.username;
@@ -300,8 +308,9 @@ export const updateUser = async (
   const update = {
     // Only an existing user: a request still on its way when the account was
     // deleted must not write a new, partial item
-    ConditionExpression:
-      'attribute_exists(pk) AND (updatedAt = :lastUpdatedAt OR attribute_not_exists(updatedAt))',
+    ConditionExpression: guarded
+      ? 'attribute_exists(pk) AND (updatedAt = :lastUpdatedAt OR attribute_not_exists(updatedAt))'
+      : 'attribute_exists(pk)',
     ExpressionAttributeValues: marshall(values),
     Key: marshall({ pk: userKey(user.id) }),
     TableName: Resource.Users.name,

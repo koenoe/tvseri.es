@@ -9,22 +9,23 @@ vi.mock('../../_lib/ShowProvider', () => ({
   useShow: () => ({ id: showId, title: 'The Bear' }),
 }));
 
-const PEOPLE = [
-  {
-    id: 1,
-    image: 'https://image.tmdb.org/1.jpg',
-    name: 'Christopher Storer',
-    role: 'Creator',
-    slug: 'christopher-storer',
-  },
-  {
-    id: 2,
-    image: '',
-    name: 'Jeremy Allen White',
-    role: 'Carmy Berzatto',
-    slug: 'jeremy-allen-white',
-  },
-];
+const STORER = {
+  id: 1,
+  image: 'https://image.tmdb.org/1.jpg',
+  name: 'Christopher Storer',
+  role: 'Creator',
+  slug: 'christopher-storer',
+};
+
+const WHITE = {
+  id: 2,
+  image: '',
+  name: 'Jeremy Allen White',
+  role: 'Carmy Berzatto',
+  slug: 'jeremy-allen-white',
+};
+
+const PEOPLE = { cast: [WHITE], crew: [STORER] };
 
 const answer = (body: unknown, ok = true) =>
   vi.fn(async () => ({ json: async () => body, ok, status: ok ? 200 : 502 }));
@@ -53,6 +54,31 @@ describe('CastSheetList', () => {
       }),
     ).toBeTruthy();
     expect(fetch).toHaveBeenCalledWith('/api/series/101/credits', undefined);
+  });
+
+  it('lists the cast, then the crew, each under its heading', async () => {
+    showId = 103;
+    vi.stubGlobal('fetch', answer(PEOPLE));
+    render(<CastSheetList total={2} />);
+
+    const cast = await screen.findByRole('region', { name: 'Cast' });
+    const crew = screen.getByRole('region', { name: 'Crew' });
+    expect(cast.textContent).toContain('Jeremy Allen White');
+    expect(cast.textContent).not.toContain('Christopher Storer');
+    expect(crew.textContent).toContain('Christopher Storer');
+    expect(
+      cast.compareDocumentPosition(crew) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('has no Crew section without creators', async () => {
+    showId = 104;
+    vi.stubGlobal('fetch', answer({ cast: [WHITE], crew: [] }));
+    render(<CastSheetList total={1} />);
+
+    expect(await screen.findByRole('region', { name: 'Cast' })).toBeTruthy();
+    expect(screen.queryByRole('region', { name: 'Crew' })).toBeNull();
+    expect(screen.queryByText('Crew')).toBeNull();
   });
 
   it('says the list didn’t load, and Try again loads it', async () => {

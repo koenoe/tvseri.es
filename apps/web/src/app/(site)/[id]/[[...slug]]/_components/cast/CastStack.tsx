@@ -4,16 +4,12 @@ import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import { GHOST_FILL, GhostLine } from '@/components/ui/row/RowGhosts';
 import cn from '@/lib/cn';
-import {
-  type CastCrewPerson,
-  peopleCount,
-  stackLine,
-} from '@/lib/series/castAndCrew';
+import { peopleCount } from '@/lib/series/castAndCrew';
 
 import type { ShowCast } from '../../_data/loaders';
 import CastSheetButton from './CastSheetButton';
 
-/** Phones only: the desktop row and "Created by" take over from md */
+/** Phones only: the desktop row takes over from md */
 const STACK =
   'block w-full rounded-8 text-left outline-none focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-4 md:hidden';
 
@@ -22,8 +18,6 @@ const CIRCLE =
   'size-15 shrink-0 rounded-full border-2 border-white not-first:-ml-2.5';
 
 const PHOTO = cn(CIRCLE, 'object-cover object-top');
-
-const BLANK = cn(CIRCLE, 'bg-white/10');
 
 /** "+N": the first-tracking prompt's glass */
 const MORE = cn(
@@ -34,37 +28,27 @@ const MORE = cn(
 
 const LINE = 'mt-2.5 block truncate text-[13px] text-white/75 leading-5';
 
-function StackFace({ person }: Readonly<{ person: CastCrewPerson }>) {
-  if (!person.image) {
-    return <span className={BLANK} />;
-  }
-  return (
-    <Image
-      alt=""
-      className={PHOTO}
-      height={120}
-      sizes="60px"
-      src={person.image}
-      width={120}
-    />
-  );
-}
-
 /**
- * The phone's cast: five faces (the creators first), "+N" and a chevron,
- * and a line naming the first two; the whole of it opens the sheet with
- * everyone. It stands in for "Created by" too, which phones hide.
+ * The phone's cast: five faces of the cast (only those with a photo), "+N"
+ * for the rest of the cast and a chevron, and a line naming the first two;
+ * the whole of it opens the sheet with everyone, the crew too.
  */
 export default function CastStack({ cast }: Readonly<{ cast: ShowCast }>) {
-  const total = cast.peopleCount;
-  const more = total - cast.stack.length;
-  const line = stackLine(cast.stack, total);
-  const label = `Cast and crew, ${peopleCount(total)}`;
+  const more = cast.castCount - cast.stack.length;
+  const label = `Cast, ${peopleCount(cast.castCount)}`;
   return (
-    <CastSheetButton className={STACK} label={label} total={total}>
+    <CastSheetButton className={STACK} label={label} total={cast.peopleCount}>
       <span aria-hidden="true" className="flex items-center">
         {cast.stack.map((person) => (
-          <StackFace key={person.id} person={person} />
+          <Image
+            alt=""
+            className={PHOTO}
+            height={120}
+            key={person.id}
+            sizes="60px"
+            src={person.image}
+            width={120}
+          />
         ))}
         {more > 0 ? <span className={MORE}>+{more}</span> : null}
         <Icon
@@ -74,8 +58,8 @@ export default function CastStack({ cast }: Readonly<{ cast: ShowCast }>) {
         />
       </span>
       <span aria-hidden="true" className={LINE}>
-        <b className="font-semibold text-white">{line.first}</b>
-        {line.rest}
+        <b className="font-semibold text-white">{cast.line.first}</b>
+        {cast.line.rest}
       </span>
     </CastSheetButton>
   );

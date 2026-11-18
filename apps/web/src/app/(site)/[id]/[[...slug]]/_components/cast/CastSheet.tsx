@@ -38,8 +38,8 @@ const SUBTITLE =
   'mt-0.5 text-[13px] text-white/60 leading-[18px] max-md:hidden';
 
 /**
- * The cast & crew sheet: everyone who made the show, the creators first,
- * each face linking to the person. Its list loads when it opens
+ * The cast & crew sheet: everyone who made the show, the cast then the
+ * crew, each face linking to the person. Its list loads when it opens
  * (`CastSheetList`). Loaded with its first press (`CastSheetButton`).
  */
 export default function CastSheet({

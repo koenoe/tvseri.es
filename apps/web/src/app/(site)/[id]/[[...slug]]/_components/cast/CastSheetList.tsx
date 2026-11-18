@@ -1,10 +1,16 @@
 'use client';
 
+import { useId } from 'react';
+
 import Face, { type FaceLook } from '@/components/ui/faces/Face';
 import { SectionError } from '@/components/ui/row/RowError';
 import { GHOST_FILL, GhostLine } from '@/components/ui/row/RowGhosts';
 import personPath from '@/lib/routing/personPath';
-import { type CastCrewPerson, faceLabel } from '@/lib/series/castAndCrew';
+import {
+  type CastAndCrew,
+  type CastCrewPerson,
+  faceLabel,
+} from '@/lib/series/castAndCrew';
 import useCachedJson, { requestJson } from '@/lib/series/useCachedJson';
 
 import { useShow } from '../../_lib/ShowProvider';
@@ -19,6 +25,9 @@ const ROW =
   'border-white/7 border-b [contain-intrinsic-size:auto_65px] [content-visibility:auto] md:[contain-intrinsic-size:auto_81px]';
 
 const ROW_BOX = 'flex items-center gap-3 py-2.5 md:gap-4 md:py-3';
+
+/** A section's name */
+const SECTION_TITLE = 'pt-4 pb-1 text-overline text-white/80 uppercase';
 
 const CIRCLE = 'size-11 shrink-0 rounded-full md:size-14';
 
@@ -56,46 +65,72 @@ function PersonRow({ person }: Readonly<{ person: CastCrewPerson }>) {
   );
 }
 
-/** The rows while the list loads: as many as will show, up to a screen's worth */
+/**
+ * The rows while the list loads: as many as will show, up to a screen's
+ * worth, under the Cast heading, which every sheet has (it opens from the
+ * cast)
+ */
 function RowsSkeleton({ count }: Readonly<{ count: number }>) {
   const rows = Array.from({ length: Math.min(count, 10) }, (_, index) => index);
   return (
-    <ul
-      aria-hidden="true"
-      className="animate-ghost"
-      data-placeholder="cast-sheet"
-    >
-      {rows.map((index) => (
-        <li className={GHOST_ROW} key={index}>
-          <span className={GHOST_CIRCLE} />
-          <span className="flex flex-col">
-            <GhostLine
-              className="h-5 md:h-[22px]"
-              inPulse
-              look="loading"
-              width="w-40"
-            />
-            <GhostLine
-              className="h-4 md:h-[18px]"
-              inPulse
-              look="loading"
-              width="w-28"
-            />
-          </span>
-        </li>
-      ))}
-    </ul>
+    <div aria-hidden="true" data-placeholder="cast-sheet">
+      <p className={SECTION_TITLE}>Cast</p>
+      <ul className="animate-ghost">
+        {rows.map((index) => (
+          <li className={GHOST_ROW} key={index}>
+            <span className={GHOST_CIRCLE} />
+            <span className="flex flex-col">
+              <GhostLine
+                className="h-5 md:h-[22px]"
+                inPulse
+                look="loading"
+                width="w-40"
+              />
+              <GhostLine
+                className="h-4 md:h-[18px]"
+                inPulse
+                look="loading"
+                width="w-28"
+              />
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** One of the sheet's sections, under its name; none without anyone */
+function Section({
+  people,
+  title,
+}: Readonly<{ people: ReadonlyArray<CastCrewPerson>; title: string }>) {
+  const titleId = useId();
+  if (people.length === 0) {
+    return null;
+  }
+  return (
+    <section aria-labelledby={titleId}>
+      <h3 className={SECTION_TITLE} id={titleId}>
+        {title}
+      </h3>
+      <ul>
+        {people.map((person) => (
+          <PersonRow key={person.id} person={person} />
+        ))}
+      </ul>
+    </section>
   );
 }
 
 /**
- * Everyone, from the public, CDN-cached route (`/api/series/:id/credits`):
- * the rows' skeleton while it loads, the section's failed card over it with
- * Try again when it fails.
+ * Everyone, from the public, CDN-cached route (`/api/series/:id/credits`),
+ * in two sections, Cast then Crew: the rows' skeleton while it loads, the
+ * section's failed card over it with Try again when it fails.
  */
 export default function CastSheetList({ total }: Readonly<{ total: number }>) {
   const url = castAndCrewUrl(useShow().id);
-  const people = useCachedJson<ReadonlyArray<CastCrewPerson>>(url);
+  const people = useCachedJson<CastAndCrew>(url);
   if (people === undefined) {
     return <RowsSkeleton count={total} />;
   }
@@ -113,10 +148,9 @@ export default function CastSheetList({ total }: Readonly<{ total: number }>) {
     );
   }
   return (
-    <ul>
-      {people.map((person) => (
-        <PersonRow key={person.id} person={person} />
-      ))}
-    </ul>
+    <>
+      <Section people={people.cast} title="Cast" />
+      <Section people={people.crew} title="Crew" />
+    </>
   );
 }

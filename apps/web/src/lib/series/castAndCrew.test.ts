@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  countPeople,
   faceLabel,
   peopleCount,
   stackLine,
   toCastAndCrew,
+  toCastStack,
 } from './castAndCrew';
 
 const credit = (id: number, name: string, character = '') => ({
@@ -20,77 +22,98 @@ const WHITE = credit(2, 'Jeremy Allen White', 'Carmy Berzatto');
 const EDEBIRI = credit(3, 'Ayo Edebiri', 'Sydney Adamu');
 
 describe('toCastAndCrew', () => {
-  it('lists the creators first, then the cast with their characters', () => {
-    expect(toCastAndCrew([STORER], [WHITE, EDEBIRI])).toEqual([
-      {
-        id: 1,
-        image: '1.jpg',
-        name: 'Christopher Storer',
-        role: 'Creator',
-        slug: 'christopher-storer',
-      },
-      {
-        id: 2,
-        image: '2.jpg',
-        name: 'Jeremy Allen White',
-        role: 'Carmy Berzatto',
-        slug: 'jeremy-allen-white',
-      },
-      {
-        id: 3,
-        image: '3.jpg',
-        name: 'Ayo Edebiri',
-        role: 'Sydney Adamu',
-        slug: 'ayo-edebiri',
-      },
-    ]);
+  it('splits the cast, with their characters, from the creators', () => {
+    expect(toCastAndCrew([STORER], [WHITE, EDEBIRI])).toEqual({
+      cast: [
+        {
+          id: 2,
+          image: '2.jpg',
+          name: 'Jeremy Allen White',
+          role: 'Carmy Berzatto',
+          slug: 'jeremy-allen-white',
+        },
+        {
+          id: 3,
+          image: '3.jpg',
+          name: 'Ayo Edebiri',
+          role: 'Sydney Adamu',
+          slug: 'ayo-edebiri',
+        },
+      ],
+      crew: [
+        {
+          id: 1,
+          image: '1.jpg',
+          name: 'Christopher Storer',
+          role: 'Creator',
+          slug: 'christopher-storer',
+        },
+      ],
+    });
   });
 
-  it('lists a creator who also acts once, as the creator', () => {
+  it('lists a creator who also acts in both sections', () => {
     const acting = credit(1, 'Christopher Storer', 'Himself');
-    const people = toCastAndCrew([STORER], [acting, WHITE]);
+    const { cast, crew } = toCastAndCrew([STORER], [acting, WHITE]);
 
-    expect(people.map((person) => [person.id, person.role])).toEqual([
-      [1, 'Creator'],
+    expect(cast.map((person) => [person.id, person.role])).toEqual([
+      [1, 'Himself'],
       [2, 'Carmy Berzatto'],
     ]);
+    expect(crew.map((person) => [person.id, person.role])).toEqual([
+      [1, 'Creator'],
+    ]);
   });
 
-  it('is the cast alone without creators, and the creators alone without a cast', () => {
-    expect(toCastAndCrew([], [WHITE]).map((person) => person.id)).toEqual([2]);
-    expect(toCastAndCrew([STORER], []).map((person) => person.id)).toEqual([1]);
+  it('has an empty crew without creators, and an empty cast without a cast', () => {
+    expect(toCastAndCrew([], [WHITE]).crew).toEqual([]);
+    expect(toCastAndCrew([STORER], []).cast).toEqual([]);
+  });
+});
+
+describe('countPeople', () => {
+  it('counts a creator who also acts once', () => {
+    const acting = credit(1, 'Christopher Storer', 'Himself');
+
+    expect(countPeople([STORER], [acting, WHITE, EDEBIRI])).toBe(3);
+    expect(countPeople([STORER], [WHITE, EDEBIRI])).toBe(3);
+    expect(countPeople([], [])).toBe(0);
+  });
+});
+
+describe('toCastStack', () => {
+  it('takes the first five of the cast with a photo, never a blank face', () => {
+    const cast = Array.from({ length: 8 }, (_, index) =>
+      credit(index + 10, `Actor ${index}`, `Role ${index}`),
+    );
+    const blank = { ...credit(5, 'No Photo', 'Extra'), image: '' };
+
+    const withBlank = [...cast.slice(0, 1), blank, ...cast.slice(1)];
+
+    expect(toCastStack(withBlank).map((person) => person.id)).toEqual([
+      10, 11, 12, 13, 14,
+    ]);
   });
 });
 
 describe('stackLine', () => {
-  const people = toCastAndCrew([STORER], [WHITE, EDEBIRI]);
-
-  it('names two and counts the rest', () => {
-    expect(stackLine(people, 21)).toEqual({
-      first: 'Christopher Storer',
-      rest: ', Jeremy Allen White and 19 more',
+  it('names the first two of the cast and counts the rest of the cast', () => {
+    expect(stackLine([WHITE, EDEBIRI], 21)).toEqual({
+      first: 'Jeremy Allen White',
+      rest: ', Ayo Edebiri and 19 more',
     });
   });
 
   it('joins exactly two with "and", never "and 0 more"', () => {
-    expect(stackLine(people.slice(0, 2), 2)).toEqual({
-      first: 'Christopher Storer',
-      rest: ' and Jeremy Allen White',
-    });
-  });
-
-  it('names the first of the cast after the first creator, never a second creator', () => {
-    const two = toCastAndCrew([STORER, credit(9, 'Joanna Calo')], [WHITE]);
-
-    expect(stackLine(two, 3)).toEqual({
-      first: 'Christopher Storer',
-      rest: ', Jeremy Allen White and 1 more',
+    expect(stackLine([WHITE, EDEBIRI], 2)).toEqual({
+      first: 'Jeremy Allen White',
+      rest: ' and Ayo Edebiri',
     });
   });
 
   it('names one alone', () => {
-    expect(stackLine(people.slice(0, 1), 1)).toEqual({
-      first: 'Christopher Storer',
+    expect(stackLine([WHITE], 1)).toEqual({
+      first: 'Jeremy Allen White',
       rest: '',
     });
   });
@@ -98,8 +121,11 @@ describe('stackLine', () => {
 
 describe('faceLabel', () => {
   it('names the role, the creator, or the person alone', () => {
-    const [storer, white] = toCastAndCrew([STORER], [WHITE]);
-    const nameless = toCastAndCrew([], [credit(4, 'Extra')])[0];
+    const {
+      cast: [white],
+      crew: [storer],
+    } = toCastAndCrew([STORER], [WHITE]);
+    const nameless = toCastAndCrew([], [credit(4, 'Extra')]).cast[0];
 
     expect(storer && faceLabel(storer)).toBe('Christopher Storer, creator');
     expect(white && faceLabel(white)).toBe(

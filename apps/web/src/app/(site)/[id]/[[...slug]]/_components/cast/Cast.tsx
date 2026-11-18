@@ -29,8 +29,9 @@ import CastStack, { CastStackSkeleton } from './CastStack';
  * the 8px inset of the role line and the header). With no "Created by" (no
  * creators) the faces are the block's first line and take its place, 24px
  * under the hero, instead of keeping the gap meant for the line above them.
- * Phones: the stack, 32px under the hero's actions ("Created by" is hidden
- * there, so never the first-child rule), 32px above the episodes.
+ * Phones: the stack, 32px under "Created by" or, without it, the hero's
+ * actions (which carry no space of their own there), 32px above the
+ * episodes.
  */
 const CAST_SPACE =
   'mt-8 -mb-2 md:mt-9 md:first:mt-6 lg:mt-13 lg:mb-[67px] lg:first:mt-6';
@@ -124,26 +125,22 @@ export default async function Cast({
       />
     );
   }
-  // Nothing is reserved without anyone: the episodes section's own top
-  // margin is then the whole gap below the hero (or "Created by").
-  if (cast.peopleCount === 0) {
+  // Nothing is reserved without a cast: the episodes section's own top
+  // margin is then the whole gap below the hero (or "Created by", which
+  // names any creators).
+  if (cast.castCount === 0) {
     return null;
   }
-  // creators but no cast: the stack on phones, nothing more on desktop
-  // ("Created by" names them)
-  const block = cn(CAST_SPACE, cast.faces.length === 0 && 'md:hidden');
   const hasMore = cast.castCount > cast.faces.length;
   return (
-    <div className={block} data-slot="cast">
+    <div className={CAST_SPACE} data-slot="cast">
       <CastStack cast={cast} />
-      {cast.faces.length > 0 ? (
-        <div className={ROW}>
-          {cast.faces.map((person) => (
-            <CastFace key={person.id} person={person} />
-          ))}
-          {hasMore ? <MoreFace cast={cast} /> : null}
-        </div>
-      ) : null}
+      <div className={ROW}>
+        {cast.faces.map((person) => (
+          <CastFace key={person.id} person={person} />
+        ))}
+        {hasMore ? <MoreFace cast={cast} /> : null}
+      </div>
     </div>
   );
 }

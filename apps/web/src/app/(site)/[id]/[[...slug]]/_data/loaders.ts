@@ -19,8 +19,10 @@ import {
 } from '@/lib/cache/unavailable';
 import {
   type CastCrewPerson,
-  toCastAndCrew,
+  countPeople,
+  stackLine,
   toCastPerson,
+  toCastStack,
 } from '@/lib/series/castAndCrew';
 import { loadSeries, loadSeriesCredits } from '@/lib/series/loaders';
 
@@ -59,17 +61,16 @@ export async function loadShow(id: number): Promise<ShowResult> {
 
 const CAST_SIZE = 10;
 
-/** The phone stack's faces before its "+N" */
-const STACK_SIZE = 5;
-
 export type ShowCast = Readonly<{
   /** The desktop row: the first ten of the cast */
   faces: ReadonlyArray<CastCrewPerson>;
-  /** The phone stack: the first five of everyone, the creators first */
+  /** The phone stack: the first five of the cast with a photo */
   stack: ReadonlyArray<CastCrewPerson>;
-  /** The whole cast, for the row's "+N" */
+  /** The stack's line: the first two of the cast, photo or not */
+  line: Readonly<{ first: string; rest: string }>;
+  /** The whole cast, for the "+N"s and the stack's line */
   castCount: number;
-  /** Everyone the sheet lists: creators and the whole cast */
+  /** Everyone the sheet lists, each once: the cast and the creators */
   peopleCount: number;
 }>;
 
@@ -88,12 +89,12 @@ export async function loadCast(
     return credits;
   }
   const cast = credits?.cast ?? [];
-  const people = toCastAndCrew(creators, cast);
   return {
     castCount: cast.length,
     faces: cast.slice(0, CAST_SIZE).map(toCastPerson),
-    peopleCount: people.length,
-    stack: people.slice(0, STACK_SIZE),
+    line: stackLine(cast.slice(0, 2), cast.length),
+    peopleCount: countPeople(creators, cast),
+    stack: toCastStack(cast),
   };
 }
 

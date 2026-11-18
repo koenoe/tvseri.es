@@ -10,9 +10,16 @@ const HIT_AREA =
 
 /** An answer pill's box (34px tall, fully round) and Not now's (32px). */
 const ANSWER_BOX = 'h-[34px] shrink-0 rounded-full';
-const NOT_NOW_BOX = 'h-8 rounded-8 md:ml-auto max-md:self-end';
+/**
+ * Phones: beside the question, its 32px box reaching 4px past the 24px line
+ * so the row stays the line's height, and 10px into the card's 16px inset so
+ * its words line up with the inset.
+ */
+const NOT_NOW_BOX =
+  'h-8 rounded-8 max-md:col-start-2 max-md:row-start-1 max-md:-my-1 max-md:-mr-2.5 md:ml-auto';
 
-const answerStyles = `relative inline-flex ${ANSWER_BOX} cursor-pointer items-center whitespace-nowrap bg-white/14 px-3.5 text-body-sm font-medium text-white transition-colors duration-200 hover:bg-white/24 focus-visible:bg-white/24 ${HIT_AREA} max-md:after:-inset-y-[5px]`;
+/** Phones: equal thirds, the words centred at 13px */
+const answerStyles = `relative inline-flex ${ANSWER_BOX} cursor-pointer items-center whitespace-nowrap bg-white/14 font-medium text-white transition-colors duration-200 hover:bg-white/24 focus-visible:bg-white/24 ${HIT_AREA} max-md:after:-inset-y-[5px] max-md:w-full max-md:justify-center max-md:px-1 max-md:text-meta/none md:px-3.5 md:text-body-sm`;
 
 const notNowStyles = `relative ${NOT_NOW_BOX} cursor-pointer whitespace-nowrap px-2.5 text-body-sm font-medium text-white/60 hover:bg-white/8 hover:text-white ${HIT_AREA} max-md:after:-inset-y-1.5`;
 
@@ -21,16 +28,17 @@ const TITLE =
   'flex min-w-0 max-w-full whitespace-nowrap text-body-sm font-medium md:shrink';
 const QUESTION = `${TITLE} text-white max-md:font-semibold`;
 
-/** The three answers: one row on desktop, wrapping on phones. */
-const ANSWERS = 'flex flex-wrap gap-2 md:flex-1 md:flex-nowrap';
+/** The three answers: one row, of equal thirds on phones. */
+const ANSWERS =
+  'grid grid-cols-3 gap-1.5 max-md:col-span-2 md:flex md:flex-1 md:gap-2';
 
 /**
- * The card's box and layout, shared by the card and its placeholder. On
- * phones it ends the hero and takes its whole height: "Created by" or the
- * cast keeps its own space below it.
+ * The card's box and layout, shared by the card and its placeholder, with
+ * the 20px to what follows it inside the frame, so it leaves with the card.
+ * Desktop: one row. Phones: the question and Not now, then the answers.
  */
 const CARD_BOX =
-  'relative z-[5] flex flex-col items-start gap-2.5 rounded-16 border py-3 pr-3 pl-5 max-md:mt-4 md:mb-5 md:-ml-2.5 md:w-[730px] md:max-w-[calc(100%+20px)] md:flex-row md:items-center md:gap-4';
+  'relative z-[5] mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2.5 rounded-16 border px-4 pt-3.5 pb-4 md:-ml-2.5 md:flex md:w-[730px] md:max-w-[calc(100%+20px)] md:flex-row md:gap-4 md:py-3 md:pr-3 md:pl-5';
 
 /** The card's glass: only the real card has it. */
 const CARD = cn(
@@ -107,20 +115,20 @@ const GHOST_TITLE_CLASS = cn(TITLE, 'flex items-center');
 const GHOST_QUESTION_CLASS = cn('h-3 w-[192px] rounded-4', GHOST_FILL);
 const GHOST_ANSWER_JUST_STARTING_CLASS = cn(
   ANSWER_BOX,
-  'w-[112px]',
+  'md:w-[112px]',
   GHOST_FILL,
 );
-const GHOST_ANSWER_UP_TO_CLASS = cn(ANSWER_BOX, 'w-[98px]', GHOST_FILL);
-const GHOST_ANSWER_FINISHED_CLASS = cn(ANSWER_BOX, 'w-[115px]', GHOST_FILL);
+const GHOST_ANSWER_UP_TO_CLASS = cn(ANSWER_BOX, 'md:w-[98px]', GHOST_FILL);
+const GHOST_ANSWER_FINISHED_CLASS = cn(ANSWER_BOX, 'md:w-[115px]', GHOST_FILL);
 const GHOST_NOT_NOW_CLASS = cn(NOT_NOW_BOX, 'w-[76px]', GHOST_FILL);
 
 /**
  * The card while the page loads: flat ghost shapes in the card's own box,
  * one pulsing layer, so it doesn't pass for the real card.
  * The question is a bar in its line box, the answers and Not now are ghost
- * pills as wide as their words (the typical show's "Seen Harbour Lights
- * before?"), so they wrap on phones as the real ones do; no words, no
- * controls, no glass.
+ * pills as wide as their words on desktop (the typical show's "Seen Harbour
+ * Lights before?") and the same thirds on phones; no words, no controls, no
+ * glass.
  */
 export function PromptGhost() {
   return (

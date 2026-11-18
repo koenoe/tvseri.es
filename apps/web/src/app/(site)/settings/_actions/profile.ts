@@ -1,13 +1,12 @@
 'use server';
 
-import { UpdateUserSchema, UsernameSchema } from '@tvseri.es/schemas';
+import { UpdateUserSchema } from '@tvseri.es/schemas';
 import { refresh } from 'next/cache';
 import * as v from 'valibot';
 
 import auth from '@/auth';
 import { missingUser } from '@/auth/missingUser';
 import { setUserDisplayCookie } from '@/auth/sessionCookies';
-import { getViewer } from '@/auth/viewer';
 import { apiFailure } from '@/lib/actions/apiFailure';
 import {
   type ActionError,
@@ -16,7 +15,6 @@ import {
   okResult,
 } from '@/lib/actions/result';
 import { apiFetch } from '@/lib/api/client';
-import { lookupUsernameOwner } from '@/lib/profile/user';
 import { revalidateUser } from '@/lib/stats/revalidateUser';
 
 /** A taken username (the API's 409) is `taken` */
@@ -30,30 +28,6 @@ const ProfileInputSchema = v.object({
   name: v.pipe(v.string(), v.maxLength(128)),
   username: v.pipe(v.string(), v.maxLength(128)),
 });
-
-/**
- * Is this username free for the signed-in viewer? The lookup answers 404
- * for a free one (`lookupUsernameOwner`, on its own CDN key); the viewer's
- * own username counts as free. Public data, but only a signed-in viewer
- * asks.
- */
-export async function checkUsername(
-  username: string,
-): Promise<ProfileResult<'available' | 'taken'>> {
-  if (!v.is(UsernameSchema, username)) {
-    return actionError('invalid');
-  }
-  const viewer = await getViewer();
-  if (!viewer) {
-    return actionError('unauthenticated');
-  }
-  try {
-    const owner = await lookupUsernameOwner(username);
-    return okResult(owner && owner !== viewer.id ? 'taken' : 'available');
-  } catch (error) {
-    return apiFailure('settings', error, TAKEN);
-  }
-}
 
 /**
  * Saves the profile: `PUT /me` with only the fields that differ from what is

@@ -6,7 +6,7 @@ import { getViewer } from '@/auth/viewer';
 import { ApiError, apiFetch } from '@/lib/api/client';
 import { revalidateUser } from '@/lib/stats/revalidateUser';
 
-import { checkUsername, updateProfile } from './profile';
+import { updateProfile } from './profile';
 
 vi.mock('@/auth', () => ({ default: vi.fn() }));
 vi.mock('@/auth/viewer', () => ({ getViewer: vi.fn() }));
@@ -192,50 +192,5 @@ describe('updateProfile', () => {
     expect(JSON.stringify(vi.mocked(apiFetch).mock.calls)).not.toContain(
       'u-someone-else',
     );
-  });
-});
-
-describe('checkUsername', () => {
-  it('is available when the lookup finds nobody', async () => {
-    vi.mocked(apiFetch).mockResolvedValue(null);
-
-    expect(await checkUsername('rae-fox')).toMatchObject({
-      data: 'available',
-      ok: true,
-    });
-    expect(apiFetch).toHaveBeenCalledWith(
-      '/user/by-username/:username',
-      expect.objectContaining({
-        notFound: 'null',
-        params: { username: 'rae-fox' },
-      }),
-    );
-  });
-
-  it('is taken when somebody else has it, available when it is the viewer', async () => {
-    vi.mocked(apiFetch).mockResolvedValueOnce({ id: 'u-margaux' });
-    expect(await checkUsername('margaux')).toMatchObject({
-      data: 'taken',
-      ok: true,
-    });
-
-    vi.mocked(apiFetch).mockResolvedValueOnce({ id: 'u-rae' });
-    expect(await checkUsername('rae')).toMatchObject({
-      data: 'available',
-      ok: true,
-    });
-  });
-
-  it('refuses a username the rule would reject, and signed-out callers', async () => {
-    expect(await checkUsername('No Good')).toEqual({
-      error: 'invalid',
-      ok: false,
-    });
-    vi.mocked(getViewer).mockResolvedValue(null);
-    expect(await checkUsername('rae-fox')).toEqual({
-      error: 'unauthenticated',
-      ok: false,
-    });
-    expect(apiFetch).not.toHaveBeenCalled();
   });
 });

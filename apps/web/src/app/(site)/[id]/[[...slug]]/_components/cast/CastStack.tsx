@@ -1,5 +1,5 @@
 import Image from 'next/image';
-
+import { PANEL_GLASS } from '@/components/ui/glass/glass';
 import { chevronRightGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import { GHOST_FILL, GhostLine } from '@/components/ui/row/RowGhosts';
@@ -17,7 +17,7 @@ import CastSheetButton from './CastSheetButton';
 const STACK =
   'block w-full rounded-8 text-left outline-none focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-4 md:hidden';
 
-/** 60px faces with a 2px white ring, each over the last by 10px */
+/** The stack overlaps so five faces and "+N" fit a phone's width in one line */
 const CIRCLE =
   'size-15 shrink-0 rounded-full border-2 border-white not-first:-ml-2.5';
 
@@ -28,7 +28,8 @@ const BLANK = cn(CIRCLE, 'bg-white/10');
 /** "+N": the first-tracking prompt's glass */
 const MORE = cn(
   CIRCLE,
-  'flex items-center justify-center bg-white/9 font-semibold text-[15px] backdrop-blur-[14px]',
+  'flex items-center justify-center font-semibold text-[15px]',
+  PANEL_GLASS,
 );
 
 const LINE = 'mt-2.5 block truncate text-[13px] text-white/75 leading-5';

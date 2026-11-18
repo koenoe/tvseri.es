@@ -12,7 +12,8 @@ import useOpenedOnce from '../../_lib/useOpenedOnce';
 import { castAndCrewUrl } from './castSheetData';
 
 // A plain loader, not `next/dynamic`: a chunk that failed is tried again on
-// the next press, as the history sheet's
+// the next press (`loadSheet`), since `open` is already true and its effect
+// would not run again
 const sheet = createLoader(() =>
   import('./CastSheet').then((module) => module.default),
 );
@@ -39,7 +40,7 @@ export default function CastSheetButton({
   const show = useShow();
   const [open, setOpen] = useState(false);
   const opened = useOpenedOnce(open);
-  const [CastSheet] = useLoader(sheet, open);
+  const [CastSheet, loadSheet] = useLoader(sheet, open);
   // Back closes it, as every side panel
   const dismiss = useBackCloses(open, () => setOpen(false));
   const handleOpenChange = (next: boolean) => {
@@ -52,7 +53,8 @@ export default function CastSheetButton({
     requestJson(castAndCrewUrl(show.id));
   };
   const press = () => {
-    preload();
+    requestJson(castAndCrewUrl(show.id));
+    loadSheet();
     setOpen(true);
   };
   return (

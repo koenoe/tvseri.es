@@ -8,3 +8,9 @@ export const GLASS =
  */
 export const GLASS_LIGHT =
   'shadow-[inset_0_7px_14px_0_rgb(255_255_255/0.03),inset_0_0.5px_0.5px_0_rgb(255_255_255/0.06),inset_0_0.25px_0.25px_0_rgb(255_255_255/0.12),0_10px_15px_-3px_rgb(0_0_0/0.1)] backdrop-blur-md';
+
+/**
+ * The first-tracking prompt's panel tint and blur, shared with the cast's
+ * "+N" circles so the show page's glass reads as one material
+ */
+export const PANEL_GLASS = 'bg-white/9 backdrop-blur-[14px]';

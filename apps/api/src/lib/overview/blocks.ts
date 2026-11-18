@@ -30,7 +30,9 @@ const SEASON_COMPLETE_DAYS = 14;
 const WINDOW_DAYS = 30;
 
 /** A finished show back within Coming up's window: a ticket there, not a Waiting for row */
-export const returnsSoon = (item: WaitingForItem): boolean =>
+export const returnsSoon = (
+  item: WaitingForItem,
+): item is WaitingForItem & { nextDate: string; daysToGo: number } =>
   item.state === 'dated' &&
   Boolean(item.nextDate) &&
   item.daysToGo !== undefined &&

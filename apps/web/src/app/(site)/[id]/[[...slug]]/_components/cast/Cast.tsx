@@ -1,6 +1,7 @@
 import type { Person } from '@tvseri.es/schemas';
 
 import Face, { type FaceLook } from '@/components/ui/faces/Face';
+import { PANEL_GLASS } from '@/components/ui/glass/glass';
 import { SectionError } from '@/components/ui/row/RowError';
 import { GHOST_FILL, GhostLine } from '@/components/ui/row/RowGhosts';
 import { isUnavailable } from '@/lib/cache/unavailable';
@@ -63,7 +64,8 @@ const CAST_FACE: FaceLook = {
 /** "+N": a face's circle in the first-tracking prompt's glass */
 const MORE_CIRCLE = cn(
   CAST_FACE.photo,
-  'flex items-center justify-center bg-white/9 font-semibold text-[22px] backdrop-blur-[14px]',
+  'flex items-center justify-center font-semibold text-[22px]',
+  PANEL_GLASS,
 );
 
 function CastFace({ person }: Readonly<{ person: CastCrewPerson }>) {
@@ -89,8 +91,8 @@ function CastFace({ person }: Readonly<{ person: CastCrewPerson }>) {
 function MoreFace({ cast }: Readonly<{ cast: ShowCast }>) {
   const more = cast.castCount - cast.faces.length;
   const total = cast.peopleCount;
-  const label = `All ${total} cast and crew`;
   const people = peopleCount(total);
+  const label = `All cast and crew, ${people}`;
   return (
     <CastSheetButton className={CAST_FACE.link} label={label} total={total}>
       <span className={MORE_CIRCLE}>+{more}</span>

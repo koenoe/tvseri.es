@@ -58,7 +58,9 @@ describe('Cast', () => {
     expect(stack.textContent).toContain(
       'Christopher Storer, Actor 2 and 19 more',
     );
-    const more = screen.getByRole('button', { name: 'All 21 cast and crew' });
+    const more = screen.getByRole('button', {
+      name: 'All cast and crew, 21 people',
+    });
     expect(more.textContent).toContain('+10');
     expect(more.textContent).toContain('21 people');
     expect(container.querySelectorAll('a[href^="/person/"]')).toHaveLength(10);

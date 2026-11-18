@@ -5,9 +5,8 @@ import { useBackground } from '@/components/background/BackgroundProvider';
 import hexToRgb from '@/components/background/hexToRgb';
 
 /**
- * A dark top fade that holds behind the header row (the first 8%, where the
- * old shade measured 4.5:1 or better on 40 backdrops) so it reads on bright
- * art, then lets the art through; and a fade
+ * A dark top fade that holds behind the header row (its first 8%) so the
+ * white header reads on bright art, then lets the art through; and a fade
  * to the page colour from the bottom, so the hero's text below the art's
  * upper half reads and the art meets the page with no edge.
  */

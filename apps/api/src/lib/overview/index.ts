@@ -140,8 +140,8 @@ const withTicketDetails = async (
 /** Finished shows that return within 30 days are tickets too */
 const finishedTickets = (waiting: WaitingFor): ComingUpItem[] =>
   waiting.items.filter(returnsSoon).map((item) => ({
-    date: item.nextDate as string,
-    daysToGo: item.daysToGo as number,
+    date: item.nextDate,
+    daysToGo: item.daysToGo,
     episode: item.nextEpisode ?? 1,
     kind: item.nextEpisode === 1 ? 'season-premiere' : 'episode',
     onWatchlist: false,

@@ -1,3 +1,4 @@
+import { PANEL_GLASS } from '@/components/ui/glass/glass';
 import { GHOST_FILL, GHOST_LOOK } from '@/components/ui/row/RowGhosts';
 import cn from '@/lib/cn';
 
@@ -43,7 +44,8 @@ const CARD_BOX =
 /** The card's glass: only the real card has it. */
 const CARD = cn(
   CARD_BOX,
-  'border-white/10 bg-white/9 shadow-[0_14px_34px_-12px_rgb(0_0_0/0.55)] backdrop-blur-[14px]',
+  'border-white/10 shadow-[0_14px_34px_-12px_rgb(0_0_0/0.55)]',
+  PANEL_GLASS,
 );
 
 export type PromptAnswers = Readonly<{

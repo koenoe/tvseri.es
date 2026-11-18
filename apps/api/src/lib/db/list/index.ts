@@ -202,34 +202,6 @@ export const isInList = async (
 };
 
 /**
- * Whether one item is in the user's FAVORITES and WATCHLIST lists, in a single
- * BatchGetItem (keys only) instead of a GetItem per list.
- */
-export const getListStatuses = async (
-  input: Readonly<{
-    userId: string;
-    id: number;
-  }>,
-) => {
-  const favoritesSk = listItemSk('FAVORITES', input.id);
-  const watchlistSk = listItemSk('WATCHLIST', input.id);
-
-  const items = await batchGet(
-    Resource.Lists.name,
-    [favoritesSk, watchlistSk].map((sk) =>
-      marshall({ pk: userPk(input.userId), sk }),
-    ),
-    { ProjectionExpression: 'sk' },
-  );
-  const found = new Set(items.map((item) => item.sk?.S));
-
-  return {
-    isFavorited: found.has(favoritesSk),
-    isWatchlisted: found.has(watchlistSk),
-  };
-};
-
-/**
  * The list statuses plus the user's prefs for the show, in the same
  * single BatchGetItem.
  */

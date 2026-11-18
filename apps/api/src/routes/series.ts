@@ -22,7 +22,6 @@ import {
   fetchTvSeriesKeywords,
   fetchTvSeriesRecommendations,
   fetchTvSeriesSeason,
-  fetchTvSeriesSimilar,
   fetchTvSeriesWatchProviders,
 } from '@/lib/tmdb';
 import { UpstreamUnavailableError } from '@/lib/upstream/errors';
@@ -286,18 +285,6 @@ app.get(
   vValidator('param', IdParamSchema),
   async (c) => {
     const items = await fetchTvSeriesRecommendations(c.req.valid('param').id);
-
-    c.header('Cache-Control', cacheHeader('short'));
-
-    return c.json(items ?? []);
-  },
-);
-
-app.get(
-  '/:id{[0-9]+}/similar',
-  vValidator('param', IdParamSchema),
-  async (c) => {
-    const items = await fetchTvSeriesSimilar(c.req.valid('param').id);
 
     c.header('Cache-Control', cacheHeader('short'));
 

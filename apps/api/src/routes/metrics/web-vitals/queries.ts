@@ -87,42 +87,6 @@ export const queryRouteTimeSeries = (
   });
 
 /**
- * Query country time-series using GSI2 (CountryTimeIndex).
- * Returns daily aggregates for a specific country over a date range.
- */
-export const queryCountryTimeSeries = (
-  country: string,
-  startDate: string,
-  endDate: string,
-) =>
-  queryTimeSeries<WebVitalAggregate>({
-    endDate,
-    gsi: 'GSI2',
-    index: 'CountryTimeIndex',
-    pk: `C#${country}`,
-    startDate,
-    table: Resource.MetricsWebVitalsAggregated.name,
-  });
-
-/**
- * Query device time-series using GSI3 (DeviceTimeIndex).
- * Returns daily aggregates for a specific device type over a date range.
- */
-export const queryDeviceTimeSeries = (
-  device: string,
-  startDate: string,
-  endDate: string,
-) =>
-  queryTimeSeries<WebVitalAggregate>({
-    endDate,
-    gsi: 'GSI3',
-    index: 'DeviceTimeIndex',
-    pk: `D#${device}`,
-    startDate,
-    table: Resource.MetricsWebVitalsAggregated.name,
-  });
-
-/**
  * Aggregate multiple daily summaries into a single summary.
  * Merges histograms to compute accurate percentiles.
  * Falls back to weighted averages for data without histograms.

@@ -21,8 +21,6 @@ import type {
   TmdbExternalSource,
   TmdbFindByIdResults,
   TmdbGenresForTvSeries,
-  TmdbKeyword,
-  TmdbKeywords,
   TmdbLanguages,
   TmdbMovie,
   TmdbNetwork,
@@ -38,7 +36,6 @@ import type {
   TmdbTvSeriesKeywords,
   TmdbTvSeriesRecommendations,
   TmdbTvSeriesSeason,
-  TmdbTvSeriesSimilar,
   TmdbTvSeriesWatchProviders,
   TmdbWatchProviders,
   TvSeries,
@@ -663,20 +660,6 @@ export async function fetchTvSeriesRecommendations(
     });
 }
 
-export async function fetchTvSeriesSimilar(
-  id: number | string,
-): Promise<TvSeries[]> {
-  const response = (await tmdbFetch(`/3/tv/${id}/similar`)) as
-    | TmdbTvSeriesSimilar
-    | undefined;
-
-  return (response?.results ?? [])
-    .filter((series) => !!series.poster_path)
-    .map((series) => {
-      return normalizeTvSeries(series as TmdbTvSeries);
-    });
-}
-
 /**
  * What's needed to pick a Latin-script title: the original name, the origin
  * countries and the alternative titles, in one request.
@@ -1121,11 +1104,6 @@ export async function fetchLanguages() {
     });
 }
 
-export async function fetchKeyword(id: number | string) {
-  const response = (await tmdbFetch(`/3/keyword/${id}`)) as TmdbKeyword;
-  return response as Keyword | undefined;
-}
-
 /**
  * A network's TMDB facts (its logo, country), stored for a month (reference
  * data that rarely changes: the network page and What's on's caption read it
@@ -1152,19 +1130,6 @@ export async function fetchNetwork(
   return logoSilhouette === undefined
     ? network
     : { ...network, logoSilhouette };
-}
-
-export async function searchKeywords(query: string) {
-  const response = (await tmdbFetch('/3/search/keyword', {
-    query: { query },
-  })) as TmdbKeywords | undefined;
-
-  return (response?.results ?? []).map((keyword) => {
-    return {
-      id: keyword.id,
-      name: keyword.name,
-    } as Keyword;
-  });
 }
 
 export async function searchPerson(query: string) {

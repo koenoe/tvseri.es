@@ -88,7 +88,6 @@ describe('catalogue path params', () => {
       '/series/1/season/1000',
       '/series/1/season/1/episode/99999',
       '/series/1/season/123456/ratings',
-      '/keyword/123456789012345',
       '/discover/landing/genre/a-slug-that-is-much-longer-than-forty-chars/facts',
     ];
     for (const path of paths) {
@@ -112,8 +111,8 @@ describe('catalogue path params', () => {
   });
 
   it('serves a normal id', async () => {
-    onTmdb('/keyword/818', { id: 818, name: 'based on novel or book' });
-    expect((await request('/keyword/818')).status).toBe(200);
+    onTmdb('/person/818/external_ids', { id: 818 });
+    expect((await request('/person/818/external-ids')).status).toBe(200);
   });
 });
 
@@ -138,9 +137,11 @@ describe('/user/:id and /user/by-username', () => {
 
   it('still finds a user by id, any case, and by @username', async () => {
     seedUser();
-    expect((await request(`/user/${USER_ID}`)).status).toBe(200);
-    expect((await request(`/user/${USER_ID.toLowerCase()}`)).status).toBe(200);
-    expect((await request('/user/@user-aaaa')).status).toBe(200);
+    const count = async (ref: string) =>
+      (await request(`/user/${ref}/followers/count`)).status;
+    expect(await count(USER_ID)).toBe(200);
+    expect(await count(USER_ID.toLowerCase())).toBe(200);
+    expect(await count('@user-aaaa')).toBe(200);
   });
 
   it('rejects a stats year that is not four digits', async () => {

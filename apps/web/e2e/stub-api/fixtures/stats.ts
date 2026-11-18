@@ -105,7 +105,6 @@ export const routes: readonly StubRoute[] = [
     },
     path: '/user/by-username/:username',
   },
-  { handle: forUser(() => json(buildUser())), path: '/user/:id' },
   {
     handle: forUser(() => json({ count: EPISODES_WATCHED })),
     path: '/user/:id/watched/count',

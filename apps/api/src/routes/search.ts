@@ -3,7 +3,7 @@ import type { SearchPerson, SearchResults } from '@tvseri.es/schemas';
 import { normalizeSearchQuery } from '@tvseri.es/utils';
 import { Hono } from 'hono';
 import { bestBlock, rankByTier } from '@/lib/search/ranking';
-import { searchKeywords, searchPerson, searchTvSeries } from '@/lib/tmdb';
+import { searchPerson, searchTvSeries } from '@/lib/tmdb';
 import { cacheHeader } from '@/utils/cacheHeader';
 import { SearchQuerySchema, SeriesSearchQuerySchema } from '@/utils/params';
 
@@ -63,14 +63,6 @@ app.get('/series', vValidator('query', SeriesSearchQuerySchema), async (c) => {
   c.header('Cache-Control', cacheHeader('medium'));
 
   return c.json(series);
-});
-
-app.get('/keyword', vValidator('query', SearchQuerySchema), async (c) => {
-  const keywords = await searchKeywords(c.req.valid('query').q);
-
-  c.header('Cache-Control', cacheHeader('medium'));
-
-  return c.json(keywords);
 });
 
 export default app;

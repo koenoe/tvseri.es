@@ -281,8 +281,8 @@ export const getOverview = async (
     outNow: buildOutNow(states, now),
     paused: buildPaused(states, now),
     upNext,
-    // Computed here anyway (Coming up's finished shows): the profile page
-    // reads it from this answer instead of a second `/me/waiting-for`
+    // Computed here anyway (Coming up's finished shows), so the profile
+    // page needs no second request for it
     ...(!upNextOnly && { waitingFor: waiting }),
   };
 };

@@ -27,7 +27,7 @@ export type WaitingForItem = Readonly<{
   resumingSoon: boolean;
 }>;
 
-/** `GET /me/waiting-for` */
+/** The full overview's finished shows that are coming back */
 export type WaitingFor = Readonly<{
   /** Dated first (soonest), then renewed (latest finished first) */
   items: ReadonlyArray<WaitingForItem>;
@@ -385,9 +385,6 @@ export type Overview = Readonly<{
   comingUp: ReadonlyArray<ComingUpItem>;
   /** Most recently watched first */
   paused: ReadonlyArray<PausedItem>;
-  /**
-   * Waiting for, as `GET /me/waiting-for` answers it (computed once per
-   * profile view). Not in `?view=up-next`.
-   */
+  /** Waiting for (computed once per profile view). Not in `?view=up-next`. */
   waitingFor?: WaitingFor;
 }>;

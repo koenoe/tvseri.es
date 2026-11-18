@@ -406,11 +406,6 @@ export const routes: readonly StubRoute[] = [
   },
   {
     handle: (request) =>
-      withOwner(request, (owner) => ok(publicUser(PEOPLE[owner]))),
-    path: '/user/:id',
-  },
-  {
-    handle: (request) =>
       withOwner(request, (owner) => ok({ count: PEOPLE[owner].episodes })),
     path: '/user/:id/watched/count',
   },
@@ -526,16 +521,6 @@ export const routes: readonly StubRoute[] = [
         },
       ),
     path: '/user/:id/following',
-  },
-  {
-    handle: (request) =>
-      withOwner(
-        request,
-        (owner, viewer) =>
-          ok({ value: viewer ? follows(viewer, owner) : false }),
-        { auth: true },
-      ),
-    path: '/user/:id/follower/:fid',
   },
   {
     // does :id follow :fid

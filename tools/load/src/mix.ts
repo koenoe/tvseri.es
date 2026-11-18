@@ -115,12 +115,9 @@ const signedInHome = (userId: string, date: string): ReadonlyArray<Call> =>
     '/me/home/more-genre',
   ].map((path) => ({ as: userId, kind: 'home-me', path }));
 
-const profilePage = (userId: string): ReadonlyArray<Call> =>
-  ['/me/overview', '/me/waiting-for'].map((path) => ({
-    as: userId,
-    kind: 'profile',
-    path,
-  }));
+const profilePage = (userId: string): ReadonlyArray<Call> => [
+  { as: userId, kind: 'profile', path: '/me/overview' },
+];
 
 export const createMix = (
   random: () => number,

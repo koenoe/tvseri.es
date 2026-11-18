@@ -26,21 +26,6 @@ describe('query validation on the public routes', () => {
     expect(await status('/search/series?q=dark&year=20x7')).toBe(400);
   });
 
-  it('search/keyword needs a trimmed q of 1 to 100 characters', async () => {
-    onTmdb(
-      '/search/keyword',
-      { results: [{ id: 4565, name: 'dystopia' }] },
-      { query: { query: 'dystopia' } },
-    );
-
-    const ok = await request('/search/keyword?q=dystopia');
-    expect(ok.status).toBe(200);
-    expect(await ok.json()).toEqual([{ id: 4565, name: 'dystopia' }]);
-
-    expect(await status('/search/keyword')).toBe(400);
-    expect(await status(`/search/keyword?q=${'a'.repeat(101)}`)).toBe(400);
-  });
-
   it('region is a two-letter country code, any case, or absent', async () => {
     onTmdb(
       '/watch/providers/tv',
@@ -95,9 +80,6 @@ describe('more bounded inputs', () => {
     const { seedUser, USER_ID } = await import('./seed');
     seedUser();
     const check = (path: string) => request(path, { as: USER_ID });
-    expect(
-      (await check(`/user/${USER_ID}/follower/${'x'.repeat(65)}`)).status,
-    ).toBe(400);
     expect(
       (await check(`/user/${USER_ID}/following/${'x'.repeat(65)}`)).status,
     ).toBe(400);

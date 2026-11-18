@@ -4,7 +4,6 @@ import { requireAuthAdmin, type Variables } from '@/middleware/auth';
 import { cacheHeader } from '@/utils/cacheHeader';
 
 import countries from './countries';
-import devices from './devices';
 import ingest from './ingest';
 import routes from './routes';
 import summary from './summary';
@@ -21,8 +20,7 @@ const dashboard = new Hono<{ Variables: Variables }>()
   })
   .route('/summary', summary)
   .route('/routes', routes)
-  .route('/countries', countries)
-  .route('/devices', devices);
+  .route('/countries', countries);
 
 const app = new Hono<{ Variables: Variables }>();
 

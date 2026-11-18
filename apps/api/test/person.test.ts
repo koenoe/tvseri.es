@@ -364,20 +364,6 @@ describe('merged credits', () => {
 
     expect(response.status).toBe(404);
   });
-
-  it('leaves the old credits route alone', async () => {
-    onTmdb('/person/1/tv_credits', {
-      cast: [castCredit({ genre_ids: [10767], id: 70 })],
-      crew: [],
-    });
-
-    const response = await request('/person/1/credits');
-
-    expect(await response.json()).toEqual({
-      cast: { previous: [], upcoming: [] },
-      crew: { previous: [], upcoming: [] },
-    });
-  });
 });
 
 describe('career chart', () => {

@@ -23,7 +23,7 @@ const put = (watchProviders: ReadonlyArray<unknown>) =>
   });
 
 const publicProviders = async () => {
-  const response = await request(`/user/${USER_ID}`);
+  const response = await request('/user/by-username/user-aaaa');
   const body = (await response.json()) as { watchProviders?: unknown };
   return body.watchProviders;
 };

@@ -23,7 +23,6 @@ import { deleteWebhookToken } from '@/lib/db/webhooks';
 import { getGetStartedStatus } from '@/lib/getStarted';
 import { getOverview } from '@/lib/overview';
 import { getSeriesStates } from '@/lib/seriesStates';
-import { getWaitingFor } from '@/lib/waitingFor';
 import { toWatchProvider } from '@/lib/watchProviders';
 import { requireAuth, type Variables } from '@/middleware/auth';
 import exportRoutes from './export';
@@ -74,12 +73,6 @@ app.get('/overview', vValidator('query', OverviewQuerySchema), async (c) => {
   return c.json(
     await getOverview(user.id, user.country, Date.now(), { upNextOnly }),
   );
-});
-
-// Finished shows that are coming back, labelled
-app.get('/waiting-for', async (c) => {
-  const { user } = c.get('auth')!;
-  return c.json(await getWaitingFor(user.id));
 });
 
 // From your circle: unseen shows from the people you follow

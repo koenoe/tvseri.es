@@ -126,17 +126,13 @@ describe('waiting for', () => {
     ]);
   };
 
-  it('comes with the full overview, equal to /me/waiting-for (computed once per profile view)', async () => {
-    setup();
-
+  /** The full overview's Waiting for (computed once per profile view) */
+  const waitingFor = async () => {
     const overview = await request('/me/overview', { as: USER_ID });
-    const route = await request('/me/waiting-for', { as: USER_ID });
-
+    expect(overview.status).toBe(200);
     expect(overview.headers.get('cache-control')).toBe('private, no-store');
-    expect(
-      ((await overview.json()) as { waitingFor: unknown }).waitingFor,
-    ).toEqual(await route.json());
-  });
+    return ((await overview.json()) as { waitingFor: unknown }).waitingFor;
+  };
 
   it('is left out of Up next only (Home)', async () => {
     setup();
@@ -149,11 +145,7 @@ describe('waiting for', () => {
   it('labels each finished, returning show: date, countdown, renewed', async () => {
     setup();
 
-    const response = await request('/me/waiting-for', { as: USER_ID });
-
-    expect(response.status).toBe(200);
-    expect(response.headers.get('cache-control')).toBe('private, no-store');
-    expect(await response.json()).toEqual({
+    expect(await waitingFor()).toEqual({
       endedCount: 2,
       items: [
         {
@@ -201,13 +193,11 @@ describe('waiting for', () => {
   it('is empty when nothing is finished', async () => {
     seedUser();
 
-    const response = await request('/me/waiting-for', { as: USER_ID });
-
-    expect(await response.json()).toEqual({ endedCount: 0, items: [] });
+    expect(await waitingFor()).toEqual({ endedCount: 0, items: [] });
   });
 
   it('needs a signed-in viewer', async () => {
-    const response = await request('/me/waiting-for');
+    const response = await request('/me/overview');
 
     expect(response.status).toBe(401);
   });

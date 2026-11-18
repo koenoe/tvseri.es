@@ -620,21 +620,6 @@ const MetricsKeyParamSchema = v.pipe(
 );
 
 /**
- * Path parameters for single route endpoint.
- */
-export const MetricsRouteParamSchema = v.object({
-  route: MetricsKeyParamSchema,
-});
-
-/**
- * Query parameters for single route endpoint (time-series only).
- */
-export const MetricsRouteQuerySchema = v.object({
-  /** Number of days to query */
-  days: MetricsDaysSchema,
-});
-
-/**
  * Query parameters for metrics countries list endpoint.
  */
 export const MetricsCountriesQuerySchema = v.object({
@@ -648,40 +633,6 @@ export const MetricsCountriesQuerySchema = v.object({
   sortBy: v.optional(v.picklist(['pageviews', 'score', 'LCP', 'INP', 'CLS'])),
   /** Sort direction */
   sortDir: v.optional(v.picklist(['asc', 'desc'])),
-});
-
-/**
- * Path parameters for single country endpoint.
- */
-export const MetricsCountryParamSchema = v.object({
-  country: MetricsKeyParamSchema,
-});
-
-/**
- * Query parameters for single country endpoint (time-series only).
- */
-export const MetricsCountryQuerySchema = v.object({
-  /** Number of days to query */
-  days: MetricsDaysSchema,
-});
-
-/**
- * Query parameters for metrics devices endpoint.
- */
-export const MetricsDevicesQuerySchema = v.object({
-  /** Number of days to query (1, 7, or 30) */
-  days: MetricsDaysSchema,
-  /** Sort by field */
-  sortBy: v.optional(v.picklist(['pageviews', 'score', 'LCP', 'INP', 'CLS'])),
-  /** Sort direction */
-  sortDir: v.optional(v.picklist(['asc', 'desc'])),
-});
-
-/**
- * Path parameters for single device endpoint.
- */
-export const MetricsDeviceParamSchema = v.object({
-  device: MetricsKeyParamSchema,
 });
 
 /**
@@ -705,11 +656,6 @@ export const ApiMetricsEndpointParamSchema = v.object({
 /** Path parameters for one dependency (`tmdb`, `dynamodb`...) */
 export const ApiMetricsDependencyParamSchema = v.object({
   source: MetricsKeyParamSchema,
-});
-
-/** Path parameters for one platform */
-export const ApiMetricsPlatformParamSchema = v.object({
-  platform: MetricsKeyParamSchema,
 });
 
 /**
@@ -738,18 +684,6 @@ export const ApiMetricsEndpointsQuerySchema = v.object({
   sortBy: v.optional(
     v.picklist(['requests', 'errorRate', 'p75', 'p99', 'apdex']),
   ),
-  /** Sort direction */
-  sortDir: v.optional(v.picklist(['asc', 'desc'])),
-});
-
-/**
- * Query parameters for API metrics platforms endpoint.
- */
-export const ApiMetricsPlatformsQuerySchema = v.object({
-  /** Number of days to query (1, 7, or 30) */
-  days: MetricsDaysSchema,
-  /** Sort by field */
-  sortBy: v.optional(v.picklist(['requests', 'errorRate', 'p75', 'p99'])),
   /** Sort direction */
   sortDir: v.optional(v.picklist(['asc', 'desc'])),
 });
@@ -859,35 +793,6 @@ export const MetricsCountriesResponseSchema = v.object({
 });
 
 /**
- * Device metrics item
- */
-export const DeviceMetricsSchema = v.object({
-  ...WebVitalsMetricsObject,
-  device: v.string(),
-});
-
-/**
- * Response from /metrics/web-vitals/devices
- */
-export const MetricsDevicesResponseSchema = v.object({
-  devices: v.array(DeviceMetricsSchema),
-  endDate: v.string(),
-  startDate: v.string(),
-  total: v.number(),
-});
-
-/**
- * Response from /metrics/web-vitals/devices/:device
- */
-export const MetricsDeviceTimeSeriesResponseSchema = v.object({
-  aggregated: v.nullable(AggregatedMetricsSchema),
-  device: v.string(),
-  endDate: v.string(),
-  series: v.array(MetricSeriesItemSchema),
-  startDate: v.string(),
-});
-
-/**
  * Reusable API metrics object for aggregated data
  */
 const ApiMetricsObject = {
@@ -961,24 +866,6 @@ export const ApiMetricsEndpointsResponseSchema = v.object({
   total: v.number(),
 });
 
-/**
- * API country metrics item
- */
-export const ApiCountryMetricsSchema = v.object({
-  ...ApiMetricsObject,
-  country: v.string(),
-});
-
-/**
- * Response from /metrics/api/countries
- */
-export const ApiMetricsCountriesResponseSchema = v.object({
-  countries: v.array(ApiCountryMetricsSchema),
-  endDate: v.string(),
-  startDate: v.string(),
-  total: v.number(),
-});
-
 export type AggregatedMetrics = v.InferOutput<typeof AggregatedMetricsSchema>;
 export type MetricSeriesItem = v.InferOutput<typeof MetricSeriesItemSchema>;
 export type MetricsSummaryResponse = v.InferOutput<
@@ -991,13 +878,6 @@ export type MetricsRoutesResponse = v.InferOutput<
 export type CountryMetrics = v.InferOutput<typeof CountryMetricsSchema>;
 export type MetricsCountriesResponse = v.InferOutput<
   typeof MetricsCountriesResponseSchema
->;
-export type DeviceMetrics = v.InferOutput<typeof DeviceMetricsSchema>;
-export type MetricsDevicesResponse = v.InferOutput<
-  typeof MetricsDevicesResponseSchema
->;
-export type MetricsDeviceTimeSeriesResponse = v.InferOutput<
-  typeof MetricsDeviceTimeSeriesResponseSchema
 >;
 
 // API Metrics types
@@ -1016,8 +896,4 @@ export type EndpointDailySeriesItem = v.InferOutput<
 export type EndpointMetrics = v.InferOutput<typeof EndpointMetricsSchema>;
 export type ApiMetricsEndpointsResponse = v.InferOutput<
   typeof ApiMetricsEndpointsResponseSchema
->;
-export type ApiCountryMetrics = v.InferOutput<typeof ApiCountryMetricsSchema>;
-export type ApiMetricsCountriesResponse = v.InferOutput<
-  typeof ApiMetricsCountriesResponseSchema
 >;

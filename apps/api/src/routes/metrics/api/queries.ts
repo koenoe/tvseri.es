@@ -92,36 +92,6 @@ export const queryEndpointTimeSeries = (
     table: Resource.MetricsApiAggregated.name,
   });
 
-/** Query platform time-series using GSI2 (PlatformTimeIndex). */
-export const queryPlatformTimeSeries = (
-  platform: string,
-  startDate: string,
-  endDate: string,
-) =>
-  queryTimeSeries<ApiMetricAggregate>({
-    endDate,
-    gsi: 'GSI2',
-    index: 'PlatformTimeIndex',
-    pk: `P#${platform}`,
-    startDate,
-    table: Resource.MetricsApiAggregated.name,
-  });
-
-/** Query country time-series using GSI3 (CountryTimeIndex). */
-export const queryCountryTimeSeries = (
-  country: string,
-  startDate: string,
-  endDate: string,
-) =>
-  queryTimeSeries<ApiMetricAggregate>({
-    endDate,
-    gsi: 'GSI3',
-    index: 'CountryTimeIndex',
-    pk: `C#${country}`,
-    startDate,
-    table: Resource.MetricsApiAggregated.name,
-  });
-
 /**
  * Aggregate multiple daily summaries into a single summary.
  * Uses histogram merging for accurate percentile calculation when histograms

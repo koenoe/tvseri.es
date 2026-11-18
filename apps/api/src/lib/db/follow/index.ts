@@ -235,16 +235,6 @@ export async function isFollowing({
   return !!data.Item;
 }
 
-export async function isFollower({
-  userId,
-  targetUserId,
-}: {
-  userId: string;
-  targetUserId: string;
-}) {
-  return isFollowing({ targetUserId: userId, userId: targetUserId });
-}
-
 /**
  * Resolves which of `targetUserIds` the viewer follows and is followed by,
  * in a single BatchGetItem (instead of 2 GetItems per user).

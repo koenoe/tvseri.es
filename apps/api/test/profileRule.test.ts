@@ -8,16 +8,13 @@ const READS = [
   `/user/${USER_ID}/watched/series/1396`,
   `/user/${USER_ID}/list/watchlist`,
   `/user/${USER_ID}/list/favorites/1396`,
-  `/user/${USER_ID}/list-status/1396`,
   `/user/${USER_ID}/followers`,
   `/user/${USER_ID}/following`,
-  `/user/${USER_ID}/follower/${OTHER_USER_ID}`,
   `/user/${USER_ID}/following/${OTHER_USER_ID}`,
 ];
 
 // What the public Stats page (and its sidebar) reads
 const PUBLIC = [
-  `/user/${USER_ID}`,
   '/user/by-username/wren',
   `/user/${USER_ID}/watched/count`,
   `/user/${USER_ID}/watched/runtime`,

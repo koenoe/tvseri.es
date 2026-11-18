@@ -22,7 +22,6 @@ import {
   follow,
   getFollowers,
   getFollowing,
-  isFollower,
   isFollowing,
   unfollow,
 } from '@/lib/db/follow';
@@ -31,7 +30,6 @@ import {
   forgetParkedWatchlistItem,
   getListItems,
   getListItemsCount,
-  getListStatuses,
   isInList,
   removeFromList,
 } from '@/lib/db/list';
@@ -209,11 +207,6 @@ const withWatching = async <T extends Readonly<{ id?: string }>>(
     watching: (row.id && watching.get(row.id)) || null,
   }));
 };
-
-app.get('/:id', user(), (c) => {
-  const user = c.get('user');
-  return c.json(toPublicUser(user));
-});
 
 app.get('/by-username/:username', async (c) => {
   // Public identity only: kept by the CDN a minute, a 404 too
@@ -681,24 +674,6 @@ app.delete(
   },
 );
 
-// Whether a series is in the user's favorites and watchlist, in one read.
-// Same (public) rules as the per-list `/:id/list/:list/:item-id` routes.
-app.get(
-  '/:id/list-status/:series-id{[0-9]+}',
-  user(),
-  requireAuth(),
-  vValidator('param', MarkSeriesParamSchema),
-  async (c) => {
-    const user = c.get('user');
-    const statuses = await getListStatuses({
-      id: c.req.valid('param')['series-id'],
-      userId: user.id,
-    });
-
-    return c.json(statuses);
-  },
-);
-
 app.post('/:id/follow', user(), requireAuth(), async (c) => {
   const { user: userFromSession } = c.get('auth')!;
   const user = c.get('user');
@@ -746,22 +721,6 @@ app.get('/:id/following/count', user(), (c) => {
 });
 
 const OtherUserParamSchema = v.object({ other: UserIdSchema });
-
-app.get(
-  '/:id/follower/:other',
-  user(),
-  requireAuth(),
-  vValidator('param', OtherUserParamSchema),
-  async (c) => {
-    const user = c.get('user');
-    const followerId = c.req.valid('param').other;
-    const isFollowerResult = await isFollower({
-      targetUserId: followerId,
-      userId: user.id,
-    });
-    return c.json({ value: isFollowerResult });
-  },
-);
 
 app.get(
   '/:id/following/:other',

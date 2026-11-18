@@ -11,7 +11,6 @@ import {
   fetchPerson,
   fetchPersonExternalIds,
   fetchPersonKnownFor,
-  fetchPersonTvCredits,
 } from '@/lib/tmdb';
 import { fetchPersonFamilyAndAwards } from '@/lib/wikidata';
 import { cachedNotFound } from '@/middleware/cacheControl';
@@ -60,23 +59,6 @@ app.get('/:id{[0-9]{1,10}}', vValidator('param', IdParamSchema), async (c) => {
 
   return c.json(person);
 });
-
-app.get(
-  '/:id{[0-9]{1,10}}/credits',
-  vValidator('param', IdParamSchema),
-  async (c) => {
-    const credits = await fetchPersonTvCredits(c.req.valid('param').id);
-
-    c.header('Cache-Control', cacheHeader('medium'));
-
-    return c.json(
-      credits ?? {
-        cast: { previous: [], upcoming: [] },
-        crew: { previous: [], upcoming: [] },
-      },
-    );
-  },
-);
 
 // Socials row: IMDb, Instagram, X, TikTok...
 app.get(

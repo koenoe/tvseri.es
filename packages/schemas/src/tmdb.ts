@@ -30,9 +30,6 @@ export type TmdbTvSeriesCredits =
 export type TmdbTvSeriesRecommendations =
   paths[`/3/tv/${number}/recommendations`]['get']['responses']['200']['content']['application/json'];
 
-export type TmdbTvSeriesSimilar =
-  paths[`/3/tv/${number}/similar`]['get']['responses']['200']['content']['application/json'];
-
 export type TmdbTvSeriesKeywords =
   paths[`/3/tv/${number}/keywords`]['get']['responses']['200']['content']['application/json'];
 
@@ -64,14 +61,8 @@ export type TmdbDiscoverQuery =
 export type TmdbSearchTvSeries =
   paths['/3/search/tv']['get']['responses']['200']['content']['application/json'];
 
-export type TmdbKeywords =
-  paths['/3/search/keyword']['get']['responses']['200']['content']['application/json'];
-
 export type TmdbSearchPerson =
   paths['/3/search/person']['get']['responses']['200']['content']['application/json'];
-
-export type TmdbKeyword =
-  paths[`/3/keyword/${number}`]['get']['responses']['200']['content']['application/json'];
 
 export type TmdbCountries =
   paths['/3/configuration/countries']['get']['responses']['200']['content']['application/json'];

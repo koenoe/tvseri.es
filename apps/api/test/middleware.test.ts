@@ -137,11 +137,13 @@ describe('auth middleware', () => {
 
 describe('public catalogue caching', () => {
   it('serves TMDB data with the long public profile', async () => {
-    onTmdb('/genre/tv/list', { genres: [{ id: 18, name: 'Drama' }] });
-    const response = await request('/genres');
+    onTmdb('/person/1/external_ids', { id: 1, imdb_id: 'nm0000001' });
+    const response = await request('/person/1/external-ids');
     expect(response.status).toBe(200);
     expect(response.headers.get('cache-control')).toMatch(/^public, /);
-    expect(await response.json()).toEqual([{ id: 18, name: 'Drama' }]);
+    expect(await response.json()).toMatchObject({
+      links: [expect.objectContaining({ id: 'nm0000001', type: 'imdb' })],
+    });
   });
 });
 

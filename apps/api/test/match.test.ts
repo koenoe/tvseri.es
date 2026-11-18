@@ -325,8 +325,13 @@ describe('match: where your tastes split', () => {
 
     // Animation and Western tie at 4: alphabetical
     expect(split).toEqual({
-      theirs: { genre: 'Animation', ownerCount: 4, viewerCount: 0 },
-      yours: { genre: 'Crime', ownerCount: 2, viewerCount: 3 },
+      theirs: {
+        genre: 'Animation',
+        genreId: 16,
+        ownerCount: 4,
+        viewerCount: 0,
+      },
+      yours: { genre: 'Crime', genreId: 80, ownerCount: 2, viewerCount: 3 },
     });
   });
 

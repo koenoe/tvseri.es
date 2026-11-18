@@ -43,7 +43,7 @@ const keywordGenre = (keywordId: number, name: string): Genre => ({
   name,
 });
 
-/** Genre landings by slug (a TMDB genre's is `slugify(name)`, as in the API's genre lists) */
+/** Genre landings by slug: the one source of a TMDB genre's slug (`landingSlugForId`) */
 const GENRES: Readonly<Record<string, Genre>> = {
   'action-adventure': tmdbGenre(10759, 'Action & Adventure'),
   animation: tmdbGenre(16, 'Animation'),

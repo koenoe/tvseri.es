@@ -289,8 +289,18 @@ export const match = (
       : [taste('frieren', 'favourite')],
     split: isJuno
       ? {
-          theirs: { genre: 'Animation', ownerCount: 41, viewerCount: 0 },
-          yours: { genre: 'Crime', ownerCount: 2, viewerCount: 23 },
+          theirs: {
+            genre: 'Animation',
+            genreId: 16,
+            ownerCount: 41,
+            viewerCount: 0,
+          },
+          yours: {
+            genre: 'Crime',
+            genreId: 80,
+            ownerCount: 2,
+            viewerCount: 23,
+          },
         }
       : { theirs: null, yours: null },
   };

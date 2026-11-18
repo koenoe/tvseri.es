@@ -121,6 +121,7 @@ export const tasteSplit = async (
     theirs: theirs
       ? {
           genre: theirs.genre,
+          genreId: theirs.genreId,
           ownerCount: theirs.count,
           viewerCount: theirs.otherCount,
         }
@@ -128,6 +129,7 @@ export const tasteSplit = async (
     yours: yours
       ? {
           genre: yours.genre,
+          genreId: yours.genreId,
           ownerCount: yours.otherCount,
           viewerCount: yours.count,
         }

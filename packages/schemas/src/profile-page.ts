@@ -107,6 +107,8 @@ export type SharedShow = TasteShow &
 export type TasteSplitGenre = Readonly<{
   /** TMDB genre name */
   genre: string;
+  /** TMDB genre id: the row opens its landing */
+  genreId: number;
   ownerCount: number;
   viewerCount: number;
 }>;

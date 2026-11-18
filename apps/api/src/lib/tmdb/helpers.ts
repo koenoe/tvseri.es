@@ -1,4 +1,4 @@
-import { networkById } from '@tvseri.es/constants';
+import { landingSlugForId, networkById } from '@tvseri.es/constants';
 import type {
   Movie,
   Network,
@@ -137,6 +137,7 @@ function extractImages(item: TmdbTvSeries | TmdbMovie) {
   };
 }
 
+/** A genre's slug is its landing's; a film genre without one gets its name's */
 function normalizeGenres(genres: TmdbTvSeries['genres']) {
   return (genres ?? []).map((genre) =>
     typeof genre === 'number'
@@ -148,7 +149,8 @@ function normalizeGenres(genres: TmdbTvSeries['genres']) {
       : {
           id: genre.id,
           name: genre.name as string,
-          slug: toSlug(genre.name as string),
+          slug:
+            landingSlugForId('genre', genre.id) ?? toSlug(genre.name as string),
         },
   );
 }

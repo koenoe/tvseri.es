@@ -452,8 +452,18 @@ export const heavyMatch = (following: boolean): TasteMatchResponse => ({
     taste(h(9), 'watching'),
   ],
   split: {
-    theirs: { genre: 'Sci-Fi & Fantasy', ownerCount: 1204, viewerCount: 0 },
-    yours: { genre: 'Action & Adventure', ownerCount: 2, viewerCount: 987 },
+    theirs: {
+      genre: 'Sci-Fi & Fantasy',
+      genreId: 10765,
+      ownerCount: 1204,
+      viewerCount: 0,
+    },
+    yours: {
+      genre: 'Action & Adventure',
+      genreId: 10759,
+      ownerCount: 2,
+      viewerCount: 987,
+    },
   },
 });
 

@@ -4,7 +4,6 @@ import { Ghost, TextLine } from '@/components/ui/ghost/ghosts';
 import { chevronRightGlyph, usersGlyph } from '@/components/ui/icon/glyphs';
 import Icon from '@/components/ui/icon/Icon';
 import cn from '@/lib/cn';
-import landingPath from '@/lib/routing/landingPath';
 
 import type { Profile } from '../../_data/profile';
 import EmptyState from '../blocks/EmptyState';
@@ -12,7 +11,6 @@ import Lane, { LANE_ROW } from '../blocks/Lane';
 import LaneGhost, { GhostRows, LANE_ROW_GHOST } from '../blocks/LaneGhost';
 import { loadMatch } from './loadMatch';
 import {
-  genreSlug,
   type SplitRow,
   type SplitSide,
   theirRow,
@@ -63,11 +61,7 @@ const ROW_LINK = cn(LANE_ROW, 'transition-colors hover:bg-white/6');
 function SplitLink({ row }: Readonly<{ row: SplitRow }>) {
   const [theirs, yours] = row.sides;
   return (
-    <Link
-      aria-label={row.label}
-      className={ROW_LINK}
-      href={landingPath('genre', genreSlug(row.genre))}
-    >
+    <Link aria-label={row.label} className={ROW_LINK} href={row.href}>
       <span className={SPLIT_LINES_CLASS}>
         <span className={GENRE_LINE_CLASS}>
           <span className="min-w-0 truncate">{row.genre}</span>
@@ -92,10 +86,11 @@ const rowsOf = (
     yours: TasteSplitGenre | null;
   }>,
   username: string,
-): ReadonlyArray<SplitRow> => [
-  ...(split.theirs ? [theirRow(split.theirs, username)] : []),
-  ...(split.yours ? [yourRow(split.yours, username)] : []),
-];
+): ReadonlyArray<SplitRow> =>
+  [
+    split.theirs && theirRow(split.theirs, username),
+    split.yours && yourRow(split.yours, username),
+  ].filter((row) => !!row);
 
 /**
  * Where your tastes split: the genre they watch and you don't,

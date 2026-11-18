@@ -8,7 +8,7 @@
     "husky": "^9.1.7",
     "knip": "^6.44.2",
     "lint-staged": "^17.6.0",
-    "turbo": "^2.11.10",
+    "turbo": "^2.11.11",
     "typescript": "catalog:"
   },
   "engines": {

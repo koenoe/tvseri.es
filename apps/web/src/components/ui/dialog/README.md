@@ -6,7 +6,7 @@ Every modal is a native `<dialog>` opened with `showModal()`. That gives the top
 - `useModalDialog.ts`: the one lifecycle. The `<dialog>` exists only while open (or animating out), so opening is mounting. Its ref callback locks the page scroll, calls `showModal()`, tints the edge strips and joins the top-layer stack. The cleanup undoes that in reverse. React bubbles `cancel` and clicks through the component tree, so each dialog handles only its own events; a picker over a sheet would otherwise close both.
 - Escape and a click on the dim ask the owner to close (`onOpenChange(false)`). Motion plays the exit before unmount.
 - Back closes a side panel that has no URL of its own through a history entry it pushes (`panelHistory.ts`, `useBackCloses.ts`). A close by ✕ goes back over that entry, so none stays behind.
-- Phones: bottom sheets swipe down to close on Vaul's numbers (`sheetSwipe.ts`).
+- Phones: bottom sheets swipe down to close on Vaul's numbers (`sheetSwipe.ts`). A dialog is a bottom sheet below `sm`; `sheetBelow="md"` makes one a sheet across the whole phone layout (the show page's cast & crew).
 
 ## Focus
 

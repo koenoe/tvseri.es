@@ -33,11 +33,12 @@ export function DialogClose({
   return <Button onClick={handleClick} variant={variant} {...rest} />;
 }
 
-/** The 32px ✕ in a dialog's header. */
+/** The ✕ in a dialog's header: 32px, or `size`. */
 export function DialogCloseCircle({
   iconSize,
+  size,
   tone,
-}: Pick<ComponentProps<typeof CircleButton>, 'iconSize' | 'tone'>) {
+}: Pick<ComponentProps<typeof CircleButton>, 'iconSize' | 'size' | 'tone'>) {
   const { close } = useDialog();
   return (
     <CircleButton
@@ -45,6 +46,7 @@ export function DialogCloseCircle({
       iconSize={iconSize}
       label="Close"
       onClick={close}
+      size={size}
       tone={tone}
     />
   );

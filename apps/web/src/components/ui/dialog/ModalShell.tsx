@@ -5,7 +5,7 @@ import * as m from 'motion/react-m';
 import { type PointerEvent, type ReactNode, useCallback } from 'react';
 
 import cn from '@/lib/cn';
-import { SMALL_PHONE } from '@/lib/media/breakpoints';
+import { PHONE, SMALL_PHONE } from '@/lib/media/breakpoints';
 import useMediaQuery from '@/lib/media/useMediaQuery';
 import { DialogContext } from './DialogContext';
 import {
@@ -33,6 +33,19 @@ import useModalPanel from './useModalPanel';
 const DIALOG =
   'fixed inset-0 m-0 grid h-dvh max-h-none w-full max-w-none grid-cols-1 overflow-clip bg-transparent p-0 text-white outline-none backdrop:bg-transparent';
 
+/**
+ * Below which width the panel is a bottom sheet: every dialog below `sm`;
+ * one that is a bottom sheet across the whole phone layout (the cast & crew
+ * sheet) below `md`. The query picks the motion and the swipe, the class
+ * hides Safari's edge strips where the panel is no sheet.
+ */
+const SHEET_BELOW = {
+  md: { edgeTint: 'md:hidden', query: PHONE },
+  sm: { edgeTint: 'sm:hidden', query: SMALL_PHONE },
+} as const;
+
+type SheetBelow = keyof typeof SHEET_BELOW;
+
 type Props = Readonly<{
   backdropClassName: string;
   /** Desktop motion of the dim (default: fade in .3s, out with the panel). */
@@ -50,6 +63,8 @@ type Props = Readonly<{
    * gone (a tile the page re-rendered while the dialog was open).
    */
   restoreFocus?: () => HTMLElement | null;
+  /** Where the panel turns into a bottom sheet (default `sm`) */
+  sheetBelow?: SheetBelow;
 }>;
 
 /**
@@ -78,8 +93,10 @@ export default function ModalShell({
   open,
   panelClassName,
   restoreFocus,
+  sheetBelow = 'sm',
 }: Props) {
-  const phone = useMediaQuery(SMALL_PHONE);
+  const sheet = SHEET_BELOW[sheetBelow];
+  const phone = useMediaQuery(sheet.query);
   const panelMotion = phone ? PHONE_MOTION : desktopMotion;
   // The dim leaves with the panel, not after it (the longer exit decides when
   // the element unmounts).
@@ -165,7 +182,7 @@ export default function ModalShell({
                 )}
               </m.div>
               {/* iOS Safari's bars follow the sheet; sheets are phones only */}
-              <EdgeTint className="sm:hidden" />
+              <EdgeTint className={sheet.edgeTint} />
             </DialogContext>
           </KeepValuesOnRemount>
         </dialog>

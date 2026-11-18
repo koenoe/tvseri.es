@@ -1,23 +1,93 @@
 // @vitest-environment jsdom
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { loadCast } from '../../_data/loaders';
 import Cast from './Cast';
 
-vi.mock('../../_data/loaders', () => ({
-  loadCast: vi.fn(async () => ({ unavailable: true })),
+vi.mock('../../_data/loaders', () => ({ loadCast: vi.fn() }));
+vi.mock('../../_lib/ShowProvider', () => ({
+  useShow: () => ({ id: 1, title: 'The Bear' }),
 }));
 const refresh = vi.hoisted(() => vi.fn());
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh }) }));
 
+const face = (id: number, name: string, role: string) => ({
+  id,
+  image: `https://image.tmdb.org/${id}.jpg`,
+  name,
+  role,
+  slug: `p-${id}`,
+});
+
+const FACES = Array.from({ length: 10 }, (_, index) =>
+  face(index + 2, `Actor ${index + 2}`, `Role ${index + 2}`),
+);
+
+const STACK = [face(1, 'Christopher Storer', 'Creator'), ...FACES.slice(0, 4)];
+
 describe('Cast', () => {
+  beforeEach(() => {
+    vi.mocked(loadCast).mockReset();
+  });
+
   it('says the cast didn’t load, over its settled placeholder, with Try again', async () => {
-    const { container } = render(await Cast({ seriesId: 1 }));
+    vi.mocked(loadCast).mockResolvedValue({ unavailable: true });
+    const { container } = render(await Cast({ creators: [], seriesId: 1 }));
 
     expect(screen.getByText('The cast didn’t load.')).toBeTruthy();
     // the faces' space stays: the placeholder, out of the accessibility tree
     expect(container.querySelector('[data-placeholder="cast"]')).toBeTruthy();
     screen.getByRole('button', { name: /Try again/ }).click();
     expect(refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it('draws the phone stack and the row’s "+N", both opening everyone', async () => {
+    vi.mocked(loadCast).mockResolvedValue({
+      castCount: 20,
+      faces: FACES,
+      peopleCount: 21,
+      stack: STACK,
+    });
+    const { container } = render(await Cast({ creators: [], seriesId: 1 }));
+
+    const stack = screen.getByRole('button', {
+      name: 'Cast and crew, 21 people',
+    });
+    expect(stack.textContent).toContain('+16');
+    expect(stack.textContent).toContain(
+      'Christopher Storer, Actor 2 and 19 more',
+    );
+    const more = screen.getByRole('button', { name: 'All 21 cast and crew' });
+    expect(more.textContent).toContain('+10');
+    expect(more.textContent).toContain('21 people');
+    expect(container.querySelectorAll('a[href^="/person/"]')).toHaveLength(10);
+  });
+
+  it('has no "+N" in the row when the ten are the whole cast', async () => {
+    vi.mocked(loadCast).mockResolvedValue({
+      castCount: 10,
+      faces: FACES,
+      peopleCount: 11,
+      stack: STACK,
+    });
+    render(await Cast({ creators: [], seriesId: 1 }));
+
+    expect(screen.queryByRole('button', { name: /^All / })).toBeNull();
+    expect(
+      screen.getByRole('button', { name: 'Cast and crew, 11 people' }),
+    ).toBeTruthy();
+  });
+
+  it('reserves nothing without anyone', async () => {
+    vi.mocked(loadCast).mockResolvedValue({
+      castCount: 0,
+      faces: [],
+      peopleCount: 0,
+      stack: [],
+    });
+    const { container } = render(await Cast({ creators: [], seriesId: 1 }));
+
+    expect(container.innerHTML).toBe('');
   });
 });

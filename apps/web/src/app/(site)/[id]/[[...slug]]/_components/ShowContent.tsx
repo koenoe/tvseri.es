@@ -50,7 +50,7 @@ export default function ShowContent({
           <div className={CAST_FRAME} data-slot="cast-block">
             <CreatedBy creators={series.createdBy} />
             <Suspense fallback={<CastSkeleton />}>
-              <Cast seriesId={series.id} />
+              <Cast creators={series.createdBy} seriesId={series.id} />
             </Suspense>
           </div>
           <EpisodesSection query={query} series={series} />

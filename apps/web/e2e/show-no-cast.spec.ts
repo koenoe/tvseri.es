@@ -50,7 +50,7 @@ test('the hero meets the episodes with the section’s own margin', async ({
   // no cast box in the page, not even an empty one
   await expect(page.locator('[data-slot="cast"]')).toHaveCount(0);
 
-  // on a phone the faces and their names sit in a grid that takes its
+  // on a phone the cast's stack (faces and the names' line) takes its
   // whole height in the page
   const full = await heroToEpisodes(page, WITH_CAST);
   const cast = await page

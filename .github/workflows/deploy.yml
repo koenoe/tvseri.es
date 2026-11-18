@@ -25,6 +25,10 @@ jobs:
       name: Production
       url: https://www.tvseri.es
     env:
+      # Pulumi fetches provider plugins (e.g. pulumiverse/vercel) from GitHub
+      # releases; unauthenticated, runners share a 60-an-hour limit and a
+      # deploy fails on a 403. The job's own read-only token lifts that.
+      GITHUB_TOKEN: ${{ github.token }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_TEAM_ID }}
       VERCEL_TELEMETRY_DISABLED: 1
       NEXT_TELEMETRY_DISABLED: 1

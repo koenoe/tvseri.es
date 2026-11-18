@@ -5,8 +5,9 @@ import { revalidateTag } from 'next/cache';
 import { tags } from '@/lib/cache/tags';
 
 /**
- * Call from a server action after the viewer's own watched history changed
- * (a mark, unmark, re-date, skip or import succeeded): their Stats pages and
+ * Call after the viewer's own watched history changed (a mark, unmark,
+ * re-date, skip, import or Undo succeeded; from a server action, or the
+ * import status route once an Undo is done): their Stats pages and
  * share cards refresh soon instead of up to a day later (visitors keep the cached `stats` profile otherwise).
  *
  * It marks the `stats:{id}` tag stale (`revalidateTag(tag, 'max')`): the

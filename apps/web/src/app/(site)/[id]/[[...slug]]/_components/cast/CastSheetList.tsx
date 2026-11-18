@@ -50,8 +50,10 @@ const SECTION_TITLE = cn(
   'pt-4 pb-1 text-overline text-white/80 uppercase',
   // The heading stays at the top of the sheet's scroll while its section
   // passes under it, on the sheet's own ground and as wide as the rows'
-  // hover fill (-mx-3), so nothing shows round its edges
-  'sticky top-0 z-[1] -mx-3 px-3',
+  // hover fill (-mx-3), so nothing shows round its edges. Its own compositing
+  // layer (transform-gpu): Safari paints the rows' image layers over a sticky
+  // element without one, whatever its z-index
+  'sticky top-0 z-10 -mx-3 transform-gpu px-3',
   SURFACE.sheet,
 );
 

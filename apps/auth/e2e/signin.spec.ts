@@ -46,6 +46,8 @@ test.describe('email code', () => {
     page,
   }) => {
     const email = address('ana');
+    // the resend cooldown counts on the page's clock, moved on below
+    await page.clock.install();
     const first = await requestCode(page, email);
 
     await expect(
@@ -76,10 +78,10 @@ test.describe('email code', () => {
     await expect(page.getByLabel('6-digit code')).toHaveValue('');
 
     // Resend (past the cooldown): confirmation and a fresh cooldown
-    await page
-      .locator('#rsb')
-      .evaluate((b) => b.removeAttribute('aria-disabled'));
-    await page.getByRole('button', { name: 'resend the code' }).click();
+    await page.clock.fastForward('00:31');
+    const resend = page.getByRole('button', { name: 'resend the code' });
+    await expect(resend).not.toHaveAttribute('aria-disabled', 'true');
+    await resend.click();
     await expect(
       page.getByRole('status').filter({ hasText: 'New code sent.' }),
     ).toBeVisible();

@@ -44,13 +44,14 @@ function Face({ card, dealt }: Readonly<{ card: StartCard; dealt: boolean }>) {
       transition={{ duration: 0.25 }}
     >
       {/* one line, so dealing another card never changes the card's height */}
-      <span className="flex max-w-full items-center gap-2.5 text-body font-semibold">
+      <span className="flex max-w-full items-baseline gap-2.5 text-body font-semibold">
         {card.provider ? (
-          // the network's wordmark is wide: drawn white at the title's
-          // height, never squeezed into a square
+          // the network's wordmark is wide: drawn white a little taller than
+          // the title's capitals and standing on its baseline (as on
+          // Discover's lens tiles), never squeezed into a square
           <NetworkWordmark
             alt={card.provider.name}
-            className="h-4 w-auto max-w-16 shrink-0"
+            className="h-[1.3cap] w-auto max-w-16 shrink-0"
             height={32}
             sizes="64px"
             src={card.provider.logo}

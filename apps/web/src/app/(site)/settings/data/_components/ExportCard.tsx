@@ -12,6 +12,7 @@ import DownloadButton from './DownloadButton';
  * line wraps at the same word with either, at every width.
  */
 const EPISODES = 'whitespace-nowrap tabular-nums';
+const EPISODES_GHOST = `relative text-transparent ${EPISODES}`;
 
 /** "4,812 episodes · " (nothing when the count didn't load). */
 async function Episodes() {
@@ -30,10 +31,7 @@ async function Episodes() {
 function EpisodesSkeleton() {
   return (
     <>
-      <span
-        aria-hidden="true"
-        className={`relative text-transparent ${EPISODES}`}
-      >
+      <span aria-hidden="true" className={EPISODES_GHOST}>
         0,000 episodes ·
         <LineSkeleton className="absolute inset-x-0 top-1/2 w-full -translate-y-1/2" />
       </span>{' '}

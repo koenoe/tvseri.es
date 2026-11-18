@@ -84,10 +84,12 @@ export default function DeleteDialog({
       confirm();
     }
   };
+  const description = deleteDialogText(episodes);
+  const deleteBlocked = !canDelete;
 
   return (
     <Dialog
-      description={deleteDialogText(episodes)}
+      description={description}
       onOpenChange={openChange}
       open={open}
       title="Delete your account?"
@@ -120,7 +122,7 @@ export default function DeleteDialog({
       <DialogFooter>
         <DialogClose>Cancel</DialogClose>
         <Button
-          aria-disabled={!canDelete}
+          aria-disabled={deleteBlocked}
           className={DANGER_FILLED_BUTTON}
           onClick={confirm}
           pending={pending}

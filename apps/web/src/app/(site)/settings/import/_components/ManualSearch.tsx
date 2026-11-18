@@ -73,6 +73,7 @@ export default function ManualSearch({
     setQuery(event.target.value);
   const current = answer && answer.key === key ? answer : null;
   const series = current && 'series' in current ? current.series : null;
+  const failed = current !== null && 'failed' in current;
 
   return (
     <div className="flex flex-col gap-3 rounded-12 bg-black/22 px-4 py-3 text-meta leading-5 text-white/80 focus-within:shadow-[inset_0_0_0_1px_rgb(255_255_255/0.45)]">
@@ -98,7 +99,7 @@ export default function ManualSearch({
         </Button>
       </div>
       <SearchResults
-        failed={current !== null && 'failed' in current}
+        failed={failed}
         onPick={onPick}
         query={query}
         series={series}

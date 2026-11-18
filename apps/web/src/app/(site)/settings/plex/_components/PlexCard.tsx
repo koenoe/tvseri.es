@@ -76,13 +76,15 @@ export default async function PlexCard() {
         <WeekMarks />
       </ScrobbleWeek>
     ) : null;
+  const account = status.onlyAccount ?? status.lastAccount;
+  const onlyAccountId = status.onlyAccount?.id ?? null;
   return (
     <PlexPanel
-      account={status.onlyAccount ?? status.lastAccount}
+      account={account}
       connected
       hasUrl
       lastReceivedAt={status.lastReceivedAt}
-      onlyAccountId={status.onlyAccount?.id ?? null}
+      onlyAccountId={onlyAccountId}
       paused={status.paused}
       prefix={prefix}
       recentCount={status.recent.length}

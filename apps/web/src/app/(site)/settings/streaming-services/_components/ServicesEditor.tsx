@@ -85,13 +85,15 @@ export default function ServicesEditor({
   const toggleAll = useCallback(() => setShowAll((value) => !value), []);
 
   const name = regionName(region);
+  const regionLineText = regionLine(region, detected);
+  const popular = popularLabel(name, query);
   return (
     <>
       <RegionCard
         buttonRef={changeButton}
         code={region}
         controls={comboboxId}
-        line={regionLine(region, detected)}
+        line={regionLineText}
         name={name}
         onPreload={combobox.preload}
         onToggle={toggleOpen}
@@ -115,7 +117,7 @@ export default function ServicesEditor({
       {open && !CountryCombobox ? <ComboboxSkeleton /> : null}
       <ServicesShelf onToggle={toggle} selected={selected} />
       <PopularCard
-        label={popularLabel(name, query)}
+        label={popular}
         onQuery={onQuery}
         onToggle={toggle}
         onToggleAll={toggleAll}

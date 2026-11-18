@@ -96,12 +96,15 @@ export default function CheckStep({
   const order = readOrder(prepared.dateOrder, example?.raw ?? null);
   const exampleText = example ? `${example.raw} is ${example.read}` : '';
   const dates = datesLine(source, mapping, prepared.dateOrder, example);
+  const recognised = recognisedLine(source);
+  const checkFailed = state.check.status === 'failed';
+  const notCounted = notCountedLine(state);
 
   return (
     <>
       <CheckBanner
         edit={state.edit}
-        line={recognisedLine(source)}
+        line={recognised}
         name={file.name}
         onToggle={importer.toggleEdit}
       />
@@ -121,9 +124,9 @@ export default function CheckStep({
       <CheckSummary
         checking={checking}
         episodes={summary.episodes}
-        failed={state.check.status === 'failed'}
+        failed={checkFailed}
         lines={lines}
-        notCounted={notCountedLine(state)}
+        notCounted={notCounted}
         onToggle={importer.toggleUnmatched}
         open={state.showUnmatched}
         rows={summary.rows}

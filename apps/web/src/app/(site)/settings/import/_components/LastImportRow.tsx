@@ -12,6 +12,8 @@ import LocalMoment from '../../_components/LocalMoment';
 import type { UndoableImport } from '../_lib/lastImport';
 import { META_ITEM, META_ROW } from './styles';
 
+const ADDED_ROW = `${META_ROW} text-white/60`;
+
 /**
  * "Your last import · 1,834 episodes added · Imported today at 21:14 ·
  * Undo import" for an import that isn't on screen as a result (it stopped,
@@ -38,7 +40,7 @@ export default function LastImportRow({
       />
       <span className="flex min-w-0 flex-col gap-1">
         <b className="text-body-sm font-semibold">Your last import</b>
-        <span className={`${META_ROW} text-white/60`}>
+        <span className={ADDED_ROW}>
           <span className={META_ITEM}>
             <Icon glyph={showGlyph} size={13} />
             {added}

@@ -4,6 +4,8 @@ import FixDone from './FixDone';
 import { ProblemItemFrame } from './ProblemGroup';
 import { LINK, SMALL_BUTTON } from './styles';
 
+const SHOW_LINK = `${LINK} px-3`;
+
 /**
  * The rest of a group in one line ("153 more like these", "38 more
  * rows across 9 shows"): skip them all at once, or show them one by one.
@@ -41,7 +43,7 @@ export default function RestItem({
           >
             <span className="text-body-sm">{skipLabel}</span>
           </Button>
-          <button className={`${LINK} px-3`} onClick={onShow} type="button">
+          <button className={SHOW_LINK} onClick={onShow} type="button">
             Show them
           </button>
         </div>

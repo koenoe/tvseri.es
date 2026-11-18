@@ -18,12 +18,13 @@ export default async function StreamingServicesSection() {
   const region = resolveRegionFromHeaders(user, headerStore);
   // Services only: stores and aggregators aren't something you watch on
   const providers = streamingServices(await loadRegionProviders(region));
+  const initialSelected = user.watchProviders ?? [];
 
   return (
     <ServicesEditor
       detected={detected}
       initialRegion={region}
-      initialSelected={user.watchProviders ?? []}
+      initialSelected={initialSelected}
       providers={providers}
     />
   );

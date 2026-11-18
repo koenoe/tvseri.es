@@ -31,13 +31,10 @@ export default function LastImportUndo({
     return null;
   }
   const askUndo = () => onAsk(true);
+  const undoing = phase === 'undoing';
   return (
     <>
-      <LastImportRow
-        last={last}
-        onUndo={askUndo}
-        undoing={phase === 'undoing'}
-      />
+      <LastImportRow last={last} onUndo={askUndo} undoing={undoing} />
       {ask ? (
         <UndoDialog
           onConfirm={onConfirm}

@@ -25,6 +25,7 @@ import {
 import Flag from './Flag';
 
 const COUNTRIES = listCountries(regionName);
+const SEARCH_PLACEHOLDER = `Search ${COUNTRIES.length} countries`;
 
 const keepFocus = (event: MouseEvent) => event.preventDefault();
 
@@ -94,6 +95,7 @@ export default function CountryCombobox({
       onClose();
     }
   };
+  const activeId = active ? `${listId}-${active.code}` : undefined;
 
   return (
     <div
@@ -105,9 +107,7 @@ export default function CountryCombobox({
       <InputShell className="h-10 gap-2.5 px-3 text-white/60">
         <Icon className="size-[15px]" glyph={searchGlyph} size={16} />
         <input
-          aria-activedescendant={
-            active ? `${listId}-${active.code}` : undefined
-          }
+          aria-activedescendant={activeId}
           aria-autocomplete="list"
           aria-controls={listId}
           aria-expanded="true"
@@ -118,7 +118,7 @@ export default function CountryCombobox({
           className={INPUT_CLASS}
           onChange={onQuery}
           onKeyDown={onKeyDown}
-          placeholder={`Search ${COUNTRIES.length} countries`}
+          placeholder={SEARCH_PLACEHOLDER}
           role="combobox"
           spellCheck={false}
           type="text"
@@ -131,16 +131,21 @@ export default function CountryCombobox({
         id={listId}
         role="listbox"
       >
-        {matches.map((country) => (
-          <CountryOption
-            country={country}
-            id={`${listId}-${country.code}`}
-            isActive={country.code === active?.code}
-            isSelected={country.code === selected}
-            key={country.code}
-            onPick={pick}
-          />
-        ))}
+        {matches.map((country) => {
+          const optionId = `${listId}-${country.code}`;
+          const isActive = country.code === active?.code;
+          const isSelected = country.code === selected;
+          return (
+            <CountryOption
+              country={country}
+              id={optionId}
+              isActive={isActive}
+              isSelected={isSelected}
+              key={country.code}
+              onPick={pick}
+            />
+          );
+        })}
         {matches.length === 0 ? (
           <p className="rounded-14 bg-white/3 p-[18px] text-meta text-white/60">
             No country matches.

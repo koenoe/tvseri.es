@@ -4,6 +4,8 @@ import Icon from '@/components/ui/icon/Icon';
 
 import { SMALL_BUTTON } from './styles';
 
+const EDIT_BUTTON = `${SMALL_BUTTON} justify-self-start max-md:col-start-2`;
+
 /**
  * The Check step's banner: the file, what we
  * recognised and filled in, and the "Edit columns" disclosure.
@@ -32,7 +34,7 @@ export default function CheckBanner({
       </span>
       <Button
         aria-expanded={edit}
-        className={`${SMALL_BUTTON} justify-self-start max-md:col-start-2`}
+        className={EDIT_BUTTON}
         icon={columnsGlyph}
         iconSize={13}
         onClick={onToggle}

@@ -31,12 +31,9 @@ export default function AmbiguousItem({
 }>) {
   const undo = () => onUndo(item.key);
   const skip = () => onSkip(item);
+  const count = rowCount(item.indexes.length);
   return (
-    <ProblemItemFrame
-      count={rowCount(item.indexes.length)}
-      title={item.title}
-      why={item.why}
-    >
+    <ProblemItemFrame count={count} title={item.title} why={item.why}>
       {fix ? (
         <FixDone fix={fix} onUndo={undo} />
       ) : (

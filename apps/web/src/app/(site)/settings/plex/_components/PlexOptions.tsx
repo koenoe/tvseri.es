@@ -65,6 +65,9 @@ export default function PlexOptions({
   const togglePause = () => setPaused(!paused);
   const pickMe = () => account && setOnlyAccountId(account.id);
   const pickAll = () => setOnlyAccountId(null);
+  const noAccount = account === null;
+  const onlyMe = choice === 'me';
+  const everyone = choice === 'all';
   return (
     <div className={classes}>
       <Row description={PAUSE_LINE} title="Pause scrobbling">
@@ -78,16 +81,16 @@ export default function PlexOptions({
         <Segmented className={SEGMENTED_CLASS} label="Whose plays count">
           <SegmentedItem
             className={SEGMENT_CLASS}
-            disabled={account === null}
+            disabled={noAccount}
             onClick={pickMe}
-            pressed={choice === 'me'}
+            pressed={onlyMe}
           >
             {account ? `Only ${account.title}` : 'Only you'}
           </SegmentedItem>
           <SegmentedItem
             className={SEGMENT_CLASS}
             onClick={pickAll}
-            pressed={choice === 'all'}
+            pressed={everyone}
           >
             Everyone
           </SegmentedItem>

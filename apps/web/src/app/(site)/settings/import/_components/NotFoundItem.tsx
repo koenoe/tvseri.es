@@ -48,24 +48,17 @@ export default function NotFoundItem({
     item.kind === 'episode-not-found' &&
     item.series &&
     item.episodes.length > 0;
+  const count = rowCount(item.indexes.length);
 
   if (fix) {
     return (
-      <ProblemItemFrame
-        count={rowCount(item.indexes.length)}
-        title={item.title}
-        why={item.why}
-      >
+      <ProblemItemFrame count={count} title={item.title} why={item.why}>
         <FixDone fix={fix} onUndo={undo} />
       </ProblemItemFrame>
     );
   }
   return (
-    <ProblemItemFrame
-      count={rowCount(item.indexes.length)}
-      title={item.title}
-      why={item.why}
-    >
+    <ProblemItemFrame count={count} title={item.title} why={item.why}>
       {searching && byEpisode ? (
         <EpisodePicker handlers={handlers} item={item} />
       ) : null}
@@ -135,15 +128,14 @@ function EpisodePicker({
         {`${name}${where}: which episode was it?`}
       </span>
       <div className="flex flex-wrap gap-2">
-        {item.episodes.map((episode) => (
-          <OptionChip
-            key={`${episode.seasonNumber}-${episode.episodeNumber}`}
-            onPick={pick}
-            value={episode}
-          >
-            {`${shortCode(episode.episodeNumber)} · ${episode.title}`}
-          </OptionChip>
-        ))}
+        {item.episodes.map((episode) => {
+          const episodeId = `${episode.seasonNumber}-${episode.episodeNumber}`;
+          return (
+            <OptionChip key={episodeId} onPick={pick} value={episode}>
+              {`${shortCode(episode.episodeNumber)} · ${episode.title}`}
+            </OptionChip>
+          );
+        })}
       </div>
     </div>
   );

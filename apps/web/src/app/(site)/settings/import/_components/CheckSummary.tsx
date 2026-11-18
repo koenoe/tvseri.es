@@ -5,6 +5,8 @@ import Icon from '@/components/ui/icon/Icon';
 import type { UnmatchedLine } from '../_lib/problems';
 import { LINK, META_ITEM, META_ROW } from './styles';
 
+const COUNTS_ROW = `${META_ROW} text-white/80 max-md:flex-col max-md:items-start`;
+
 type Props = Readonly<{
   rows: number;
   episodes: number;
@@ -42,9 +44,7 @@ export default function CheckSummary(props: Props) {
   return (
     <>
       <div className="flex flex-wrap items-center gap-4 max-md:flex-col max-md:items-start max-md:gap-3">
-        <span
-          className={`${META_ROW} text-white/80 max-md:flex-col max-md:items-start`}
-        >
+        <span className={COUNTS_ROW}>
           <span className={META_ITEM}>
             <Icon glyph={seasonGlyph} size={13} />
             {`${plural(rows, 'row')} · ${plural(episodes, 'episode')}`}

@@ -37,21 +37,27 @@ export default function ProfileForm({
   username,
 }: Props) {
   const ids = useId();
+  const nameId = `${ids}-name`;
+  const nameHintId = `${ids}-name-hint`;
+  const usernameId = `${ids}-username`;
+  const usernameHintId = `${ids}-username-hint`;
+  const usernameInvalid = hint.tone === 'bad';
+  const saveBlocked = !canSave;
   return (
     <form className={FORM_CARD} noValidate onSubmit={onSubmit}>
       <div className="flex flex-col gap-6">
         <Field
           hint="Private. Visitors only see your username."
-          hintId={`${ids}-name-hint`}
-          id={`${ids}-name`}
+          hintId={nameHintId}
+          id={nameId}
           label="Name"
         >
           <InputShell className="h-12 px-4">
             <input
-              aria-describedby={`${ids}-name-hint`}
+              aria-describedby={nameHintId}
               autoComplete="name"
               className={INPUT_CLASS}
-              id={`${ids}-name`}
+              id={nameId}
               maxLength={128}
               onChange={onName}
               type="text"
@@ -61,8 +67,8 @@ export default function ProfileForm({
         </Field>
         <Field
           hint={hint.message}
-          hintId={`${ids}-username-hint`}
-          id={`${ids}-username`}
+          hintId={usernameHintId}
+          id={usernameId}
           label="Username"
           tone={hint.tone}
         >
@@ -71,13 +77,13 @@ export default function ProfileForm({
               tvseri.es/u/
             </span>
             <input
-              aria-describedby={`${ids}-username-hint`}
-              aria-invalid={hint.tone === 'bad'}
+              aria-describedby={usernameHintId}
+              aria-invalid={usernameInvalid}
               autoCapitalize="off"
               autoComplete="off"
               autoCorrect="off"
               className={INPUT_CLASS}
-              id={`${ids}-username`}
+              id={usernameId}
               onChange={onUsername}
               spellCheck={false}
               type="text"
@@ -103,7 +109,7 @@ export default function ProfileForm({
           </Button>
         ) : null}
         <Button
-          aria-disabled={!canSave}
+          aria-disabled={saveBlocked}
           className="border-0 px-6 aria-disabled:bg-white/18"
           pending={saving}
           type="submit"

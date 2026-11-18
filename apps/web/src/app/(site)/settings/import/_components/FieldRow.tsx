@@ -102,6 +102,7 @@ function ServiceSource({
   onColumn,
   onFixed,
 }: Readonly<{ fixed: boolean; onColumn: () => void; onFixed: () => void }>) {
+  const fromColumn = !fixed;
   return (
     <span
       aria-label="Where the service comes from"
@@ -109,7 +110,7 @@ function ServiceSource({
       role="group"
     >
       <button
-        aria-pressed={!fixed}
+        aria-pressed={fromColumn}
         className={SEGMENT_FILL}
         onClick={onColumn}
         type="button"
@@ -169,6 +170,8 @@ export default function FieldRow({
     'text-caption text-white/60 max-md:col-span-full',
     missing && 'text-white',
   );
+  const invalid = missing || undefined;
+  const columnLabel = `Column for ${label}`;
 
   return (
     <div className={rowClass}>
@@ -196,8 +199,8 @@ export default function FieldRow({
         </select>
       ) : (
         <select
-          aria-invalid={missing || undefined}
-          aria-label={`Column for ${label}`}
+          aria-invalid={invalid}
+          aria-label={columnLabel}
           className={SELECT}
           onChange={onColumn}
           style={SELECT_STYLE}

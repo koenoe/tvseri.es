@@ -6,6 +6,9 @@ import { DANGER_BUTTON, MD_BUTTON } from '../../_lib/appButtons';
 import { DataCard, DataRow } from './DataCard';
 import { STATS_GRID, STATS_LABELS, Tile } from './DataStats';
 
+const VALUE_BAR = `block w-20 animate-ghost rounded-4 text-transparent ${GHOST_FILL}`;
+const DELETE_BUTTON = `${DANGER_BUTTON} ${MD_BUTTON}`;
+
 /** The four tiles: their real labels, a bar for each number */
 export function StatsSkeleton() {
   return (
@@ -14,13 +17,7 @@ export function StatsSkeleton() {
         <Tile
           key={label}
           label={label}
-          value={
-            <span
-              className={`block w-20 animate-ghost rounded-4 text-transparent ${GHOST_FILL}`}
-            >
-              0
-            </span>
-          }
+          value={<span className={VALUE_BAR}>0</span>}
         />
       ))}
     </div>
@@ -34,7 +31,7 @@ export function StatsSkeleton() {
 export function DeleteSkeleton() {
   const action = (
     <Button
-      className={`${DANGER_BUTTON} ${MD_BUTTON}`}
+      className={DELETE_BUTTON}
       disabled
       icon={trashGlyph}
       variant="tonal"

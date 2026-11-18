@@ -60,6 +60,7 @@ export function SectionError({
   const action = (
     <TryAgain look={SETTINGS_TRY_AGAIN} onClick={onRetry} pending={retrying} />
   );
+  const failedTitle = didNotLoad(what);
   return (
     <div className="relative">
       <div aria-hidden className="invisible" inert>
@@ -72,7 +73,7 @@ export function SectionError({
         look={SETTINGS_FAILED}
         mark={warningDisc}
         role="alert"
-        title={didNotLoad(what)}
+        title={failedTitle}
       />
     </div>
   );

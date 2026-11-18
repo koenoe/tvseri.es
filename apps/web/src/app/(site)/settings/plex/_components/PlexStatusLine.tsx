@@ -16,10 +16,11 @@ export default function PlexStatusLine({
   lastReceivedAt,
   state,
 }: Readonly<{ lastReceivedAt: number | null; state: PlexState }>) {
+  const receiving = state === 'on';
   return (
-    <AppStatus dot={DOT[state]} strong={state === 'on'}>
+    <AppStatus dot={DOT[state]} strong={receiving}>
       {STATUS_TEXT[state]}
-      {state === 'on' && lastReceivedAt !== null ? (
+      {receiving && lastReceivedAt !== null ? (
         <LocalMoment at={lastReceivedAt} style="at" />
       ) : null}
     </AppStatus>

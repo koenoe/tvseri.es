@@ -17,6 +17,7 @@ type Ask = 'regen' | 'revoke' | null;
  * but the session.
  */
 const DANGER_CLASSES = `${DANGER_BUTTON} ${MD_BUTTON}`;
+const DISCONNECT_CLASSES = `${SM_BUTTON} ${DANGER_BUTTON}`;
 
 export default function PlexAccountActions({
   onDisconnected,
@@ -90,7 +91,7 @@ export default function PlexAccountActions({
       {ask === 'revoke' ? (
         <ConfirmRow
           confirm="Disconnect Plex"
-          confirmClassName={`${SM_BUTTON} ${DANGER_BUTTON}`}
+          confirmClassName={DISCONNECT_CLASSES}
           onCancel={cancel}
           onConfirm={revoke}
           pending={pending}

@@ -55,11 +55,12 @@ export default function DropZone({
     'cursor-pointer transition-shadow duration-150 hover:shadow-[inset_0_0_0_1.5px_rgb(255_255_255/0.5)] focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2',
     isOver && 'shadow-[inset_0_0_0_1.5px_rgb(255_255_255/0.5)]',
   );
+  const reading = busy || undefined;
 
   return (
     <>
       <button
-        aria-busy={busy || undefined}
+        aria-busy={reading}
         className={classes}
         onClick={open}
         onDragLeave={onDragLeave}

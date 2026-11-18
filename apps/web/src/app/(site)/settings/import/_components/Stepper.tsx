@@ -55,12 +55,10 @@ export default function Stepper({ step }: Readonly<{ step: 1 | 2 | 3 }>) {
             'flex size-6.5 items-center justify-center rounded-full text-caption font-medium not-italic',
             DOT[state],
           );
+          const current = state === 'on' ? 'step' : undefined;
           return (
             <li className={itemClass} key={name}>
-              <span
-                aria-current={state === 'on' ? 'step' : undefined}
-                className={stepClass}
-              >
+              <span aria-current={current} className={stepClass}>
                 <i className={dotClass}>
                   {state === 'done' ? (
                     <Icon glyph={checkGlyph} size={13} />

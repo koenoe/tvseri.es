@@ -60,13 +60,15 @@ function WeekBar({
     WEEK_LETTER_CLASS,
     day.isToday || selected ? 'text-white' : 'text-white/60',
   );
+  const label = dayName(day);
+  const empty = day.count === 0;
   return (
     <button
-      aria-label={dayName(day)}
+      aria-label={label}
       aria-pressed={selected}
       className={classes}
       data-day={day.key}
-      disabled={day.count === 0}
+      disabled={empty}
       onClick={onPress}
       type="button"
     >
@@ -92,16 +94,20 @@ export default function WeekBars() {
   const busiest = Math.max(...days.map(({ count }) => count));
   return (
     <div aria-label="Your week on Plex" className={WEEK_CLASS} role="group">
-      {days.map((day) => (
-        <WeekBar
-          busiest={busiest}
-          day={day}
-          dimmed={selected !== null && selected !== day.key}
-          key={day.key}
-          onPress={toggle}
-          selected={selected === day.key}
-        />
-      ))}
+      {days.map((day) => {
+        const dimmed = selected !== null && selected !== day.key;
+        const isSelected = selected === day.key;
+        return (
+          <WeekBar
+            busiest={busiest}
+            day={day}
+            dimmed={dimmed}
+            key={day.key}
+            onPress={toggle}
+            selected={isSelected}
+          />
+        );
+      })}
     </div>
   );
 }

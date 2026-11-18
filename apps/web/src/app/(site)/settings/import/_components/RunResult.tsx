@@ -34,6 +34,7 @@ export default function RunResult({
   const topTitle =
     source.kind === 'netflix' ? 'The series it brought in' : 'What came in';
   const askUndo = () => importer.askUndo(true);
+  const undoing = run.phase === 'undoing';
   return (
     <>
       <OutcomeGlow outcome={outcome} />
@@ -48,7 +49,7 @@ export default function RunResult({
         showCount={shows}
         shows={top}
         topTitle={topTitle}
-        undoing={run.phase === 'undoing'}
+        undoing={undoing}
         username={username}
       />
     </>

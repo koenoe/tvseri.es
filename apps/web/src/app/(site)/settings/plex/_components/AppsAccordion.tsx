@@ -55,10 +55,11 @@ export function AppToggle({
   const isOpen = open === app;
   const label = isOpen ? 'Hide' : closedLabel;
   const onClick = useCallback(() => toggle(app), [toggle, app]);
+  const accessibleLabel = `${label} ${name}`;
   return (
     <Button
       aria-expanded={isOpen}
-      aria-label={`${label} ${name}`}
+      aria-label={accessibleLabel}
       className={APP_TOGGLE_CLASS}
       onClick={onClick}
       trailingIcon={chevronDownGlyph}
@@ -75,8 +76,9 @@ export function AppBody({
   children,
 }: Readonly<{ app: AppId; children: ReactNode }>) {
   const { open } = useAccordion();
+  const closed = open !== app;
   return (
-    <div className={APP_BODY_CLASS} hidden={open !== app}>
+    <div className={APP_BODY_CLASS} hidden={closed}>
       {children}
     </div>
   );

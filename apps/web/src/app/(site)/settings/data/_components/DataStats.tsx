@@ -46,26 +46,17 @@ export default async function DataStats() {
     loadFirstMarkYear(id),
   ]);
   const { episodes, shows } = counts;
+  const episodesValue = episodes === null ? DASH : formatGrouped(episodes);
+  const showsValue = shows === null ? DASH : formatGrouped(shows);
+  const hoursValue =
+    minutes === null ? DASH : formatGrouped(Math.round(minutes / 60));
+  const firstYearValue = firstYear === null ? DASH : String(firstYear);
   return (
     <div className={STATS_GRID}>
-      <Tile
-        label="episodes"
-        value={episodes === null ? DASH : formatGrouped(episodes)}
-      />
-      <Tile
-        label="series"
-        value={shows === null ? DASH : formatGrouped(shows)}
-      />
-      <Tile
-        label="hours"
-        value={
-          minutes === null ? DASH : formatGrouped(Math.round(minutes / 60))
-        }
-      />
-      <Tile
-        label="your first mark"
-        value={firstYear === null ? DASH : String(firstYear)}
-      />
+      <Tile label="episodes" value={episodesValue} />
+      <Tile label="series" value={showsValue} />
+      <Tile label="hours" value={hoursValue} />
+      <Tile label="your first mark" value={firstYearValue} />
     </div>
   );
 }

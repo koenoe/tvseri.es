@@ -44,12 +44,8 @@ export default async function ProfileSection() {
     member: since ? `Member since ${since}` : null,
     people: people?.join(' · ') ?? null,
   };
+  const email = user.email ?? '—';
+  const initial = { name: user.name ?? '', username: user.username };
 
-  return (
-    <ProfileEditor
-      email={user.email ?? '—'}
-      initial={{ name: user.name ?? '', username: user.username }}
-      preview={preview}
-    />
-  );
+  return <ProfileEditor email={email} initial={initial} preview={preview} />;
 }

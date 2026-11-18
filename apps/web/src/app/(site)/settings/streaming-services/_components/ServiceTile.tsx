@@ -65,6 +65,7 @@ function ServiceTile({ onToggle, provider, variant }: Props) {
     () => onToggle(provider),
     [onToggle, provider],
   );
+  const unoptimized = !isTmdbImage(provider.logo);
   return (
     <button
       aria-label={label}
@@ -78,7 +79,7 @@ function ServiceTile({ onToggle, provider, variant }: Props) {
         className={imageClasses}
         height={look.image}
         src={provider.logo}
-        unoptimized={!isTmdbImage(provider.logo)}
+        unoptimized={unoptimized}
         width={look.image}
       />
       <span className={labelClasses}>{provider.name}</span>

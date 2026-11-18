@@ -23,5 +23,6 @@ export default function SetupSteps({ hasUrl }: Readonly<{ hasUrl: boolean }>) {
   const first = hasUrl
     ? 'Copy your URL. It’s yours alone: anyone with it can mark episodes on your profile.'
     : 'Create and copy your URL. It’s yours alone: anyone with it can mark episodes on your profile.';
-  return <NumberedSteps layout={LAYOUT} lines={STEPS(first)} />;
+  const lines = STEPS(first);
+  return <NumberedSteps layout={LAYOUT} lines={lines} />;
 }

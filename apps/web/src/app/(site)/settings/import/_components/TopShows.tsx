@@ -5,6 +5,8 @@ import Dot from '@/components/ui/lane/Dot';
 import type { ImportedShow } from '@/lib/import/contract';
 import { CARD_COUNT, CARD_HEAD, CARD_TITLE } from './styles';
 
+const COUNT_LINE = `${CARD_COUNT} max-md:basis-full`;
+
 /** "The shows it brought in": 8 posters, most imported episodes first. */
 export default function TopShows({
   count,
@@ -24,7 +26,7 @@ export default function TopShows({
       <div className={CARD_HEAD}>
         <Dot tone="cyan" />
         <h3 className={CARD_TITLE}>{title}</h3>
-        <span className={`${CARD_COUNT} max-md:basis-full`}>{line}</span>
+        <span className={COUNT_LINE}>{line}</span>
       </div>
       <ul className="grid grid-cols-8 gap-4 max-md:grid-cols-4 max-md:gap-x-4 max-md:gap-y-5">
         {shows.map((show) => (

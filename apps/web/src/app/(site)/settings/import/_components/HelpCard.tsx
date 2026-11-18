@@ -58,6 +58,7 @@ export default function HelpCard({
       ?.querySelector<HTMLButtonElement>(`#${CSS.escape(tabId(next[0]))}`)
       ?.focus();
   };
+  const tabLabelId = tabId(tab);
 
   return (
     <div className="flex flex-col gap-4 rounded-16 bg-white/4 p-6 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.06)] max-md:p-6">
@@ -81,12 +82,13 @@ export default function HelpCard({
                 ? 'bg-white/16 text-white'
                 : 'text-white/60 hover:text-white',
             );
+            const id = tabId(key);
             return (
               <button
                 aria-controls={panelId}
                 aria-selected={isOn}
                 className={tabClass}
-                id={tabId(key)}
+                id={id}
                 key={key}
                 onClick={pick}
                 role="tab"
@@ -99,7 +101,7 @@ export default function HelpCard({
           })}
         </div>
       </div>
-      <div aria-labelledby={tabId(tab)} id={panelId} role="tabpanel">
+      <div aria-labelledby={tabLabelId} id={panelId} role="tabpanel">
         <NumberedSteps layout={HELP_STEPS} lines={HELP[tab]} />
       </div>
     </div>

@@ -19,6 +19,7 @@ export default function Flag({
     className,
   );
   const loading = lazy ? 'lazy' : 'eager';
+  const src = flagSrc(code);
   return (
     // biome-ignore lint/performance/noImgElement: a 1 KB static SVG, nothing to optimise
     <img
@@ -27,7 +28,7 @@ export default function Flag({
       decoding="async"
       height={21}
       loading={loading}
-      src={flagSrc(code)}
+      src={src}
       width={32}
     />
   );

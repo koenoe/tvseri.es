@@ -71,7 +71,7 @@ export default function CastSheet({
       <header className={HEADER}>
         <div className="min-w-0">
           <h2 className={TITLE} id={titleId}>
-            Cast &amp; crew
+            All cast &amp; crew
           </h2>
           <p className={SUBTITLE}>{subtitle}</p>
         </div>

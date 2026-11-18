@@ -57,7 +57,9 @@ describe('CastSheetButton', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Cast, 1 person' }));
 
-    const sheet = await screen.findByRole('dialog', { name: 'Cast & crew' });
+    const sheet = await screen.findByRole('dialog', {
+      name: 'All cast & crew',
+    });
     expect(sheet.textContent).toContain('The Bear · 1 person');
     expect(
       await screen.findByRole('link', { name: 'Christopher Storer, creator' }),

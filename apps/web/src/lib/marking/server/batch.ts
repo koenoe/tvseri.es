@@ -152,20 +152,3 @@ export function chunk<T>(
 ): ReadonlyArray<ReadonlyArray<T>> {
   return chunkBy(items, size);
 }
-
-/**
- * The user's preferred provider among the show's providers in their region,
- * else the first one, else none.
- */
-export function pickWatchProvider(
-  providers: ReadonlyArray<WatchProvider>,
-  preferred: ReadonlyArray<Pick<WatchProvider, 'id'>> | undefined,
-): WatchProvider | null {
-  for (const wanted of preferred ?? []) {
-    const match = providers.find((provider) => provider.id === wanted.id);
-    if (match) {
-      return match;
-    }
-  }
-  return providers[0] ?? null;
-}

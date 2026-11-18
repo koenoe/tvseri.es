@@ -329,7 +329,7 @@ describe('the show read does not wait for the profile', () => {
 });
 
 describe('markEpisodes: a restore, and a plain mark', () => {
-  it('a restore reaches the API exactly; a mark gets the show’s service', async () => {
+  it('a restore reaches the API exactly; a mark records no service the viewer doesn’t have', async () => {
     const { loadWatchProviders } = await import('@/lib/series/loaders');
     const netflix = { id: 8, logo: '', logoPath: '/n.jpg', name: 'Netflix' };
     vi.mocked(loadWatchProviders).mockResolvedValue([netflix]);
@@ -370,7 +370,8 @@ describe('markEpisodes: a restore, and a plain mark', () => {
       seriesId: 136315,
     });
     const [item] = vi.mocked(api.postBatch).mock.calls[1]?.[1] ?? [];
-    expect(item?.watchProvider).toEqual(netflix);
+    // Netflix streams it, but it isn't one of the viewer's services
+    expect(item?.watchProvider).toBeNull();
     expect(item).not.toHaveProperty('importId');
     expect(vi.mocked(api.postBatch).mock.calls[1]?.[2]).toEqual({
       restore: false,

@@ -31,6 +31,7 @@ import { resolveRegion } from '@/lib/geo';
 import { loadSeriesForWrite } from '@/lib/series/forWrite';
 import { loadSeason, loadWatchProviders } from '@/lib/series/loaders';
 import { revalidateViewerStats } from '@/lib/stats/revalidateViewerStats';
+import { yourService } from '@/lib/watchProviders/yourService';
 import { airedCountIn, hasEpisodeAired, nextEpisode } from './progress';
 import { toSeasonInfo } from './seasonInfo';
 import {
@@ -45,7 +46,7 @@ import {
   removeFromList,
   settleAll,
 } from './server/api';
-import { pickWatchProvider, toBatchItems, toDeleteItems } from './server/batch';
+import { toBatchItems, toDeleteItems } from './server/batch';
 import { readSeriesSeed } from './server/seed';
 import { seedToBase } from './state';
 import type { SeriesSeed } from './types';
@@ -175,10 +176,7 @@ async function watchProviderFor(
   series: Pick<TvSeries, 'id'>,
   user: ProviderUser,
 ) {
-  return pickWatchProvider(
-    await showProviders(series, user),
-    user.watchProviders,
-  );
+  return yourService(await showProviders(series, user), user.watchProviders);
 }
 
 /** Mark (or re-date) episodes, each with its own date. */
@@ -221,7 +219,7 @@ export async function markEpisodes(
         now,
         series,
         userId: session.user.id,
-        watchProvider: pickWatchProvider(providers, userProviders),
+        watchProvider: yourService(providers, userProviders),
       });
       if (items.length === 0) {
         return actionError('not-found');

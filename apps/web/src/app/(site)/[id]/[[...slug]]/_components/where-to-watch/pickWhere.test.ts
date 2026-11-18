@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { foldPlan, isChannel, pickWhere } from './pickWhere';
+import { pickWhere } from './pickWhere';
 
 const provider = (id: number, name: string) => ({
   id,
@@ -69,14 +69,5 @@ describe('pickWhere', () => {
 
   it('is null when there is nothing in the region', () => {
     expect(pickWhere({ stream: [] }, [disney])).toBeNull();
-  });
-});
-
-describe('helpers', () => {
-  it('folds ad plans and spots channels', () => {
-    expect(foldPlan('Netflix Basic with Ads')).toBe('Netflix');
-    expect(foldPlan('Disney+')).toBe('Disney+');
-    expect(isChannel('Paramount+ Amazon Channel')).toBe(true);
-    expect(isChannel('Channel 4')).toBe(false);
   });
 });

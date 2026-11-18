@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 
 import {
   chunk,
-  pickWatchProvider,
   releaseWatchedAt,
   stampFor,
   toBatchItems,
@@ -234,13 +233,5 @@ describe('helpers', () => {
       (c) => c.length,
     );
     expect(sizes).toEqual([50, 50, 20]);
-  });
-
-  it('prefers the user’s services, else the first provider', () => {
-    const netflix = { id: 8, logo: '', logoPath: '', name: 'Netflix' };
-    const disney = { id: 337, logo: '', logoPath: '', name: 'Disney Plus' };
-    expect(pickWatchProvider([netflix, disney], [{ id: 337 }])).toBe(disney);
-    expect(pickWatchProvider([netflix, disney], [{ id: 1 }])).toBe(netflix);
-    expect(pickWatchProvider([], [{ id: 1 }])).toBeNull();
   });
 });

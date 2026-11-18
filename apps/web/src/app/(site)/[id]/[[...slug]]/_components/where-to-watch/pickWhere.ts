@@ -1,5 +1,7 @@
 import type { WatchProvider } from '@tvseri.es/schemas';
 
+import { foldPlan, yourService } from '@/lib/watchProviders/yourService';
+
 /**
  * Where to watch: one answer per show
  * and region. One of the viewer's services first, the first in their own
@@ -25,32 +27,11 @@ export type Where = Readonly<{
   text: string;
 }>;
 
-const PLAN = /\s+(?:standard|basic|premium)?\s*with ads$/i;
-const CHANNEL = /\s(?:amazon|apple tv|roku premium)?\s*channel$/i;
-
-/** "Netflix Standard with Ads" is Netflix; other names stay as they are. */
-export const foldPlan = (name: string): string => name.replace(PLAN, '').trim();
-
-/** "Apple TV Amazon Channel": a channel never counts as one of yours. */
-export const isChannel = (name: string): boolean => CHANNEL.test(name);
-
-const key = (name: string) => foldPlan(name).toLowerCase();
-
 export function pickWhere(
   offers: WhereOffers,
   services: ReadonlyArray<Pick<WatchProvider, 'id' | 'name'>>,
 ): Where | null {
-  const own = offers.stream.filter((provider) => !isChannel(provider.name));
-  let yours: WatchProvider | undefined;
-  for (const service of services) {
-    const name = key(service.name);
-    yours = own.find(
-      (provider) => provider.id === service.id || key(provider.name) === name,
-    );
-    if (yours) {
-      break;
-    }
-  }
+  const yours = yourService(offers.stream, services);
   if (yours) {
     const name = foldPlan(yours.name);
     return { kind: 'yours', logo: yours.logo, name, text: `On your ${name}` };

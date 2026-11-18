@@ -104,7 +104,7 @@ Upstreams: TMDB (series data, watch providers via JustWatch), OMDb (IMDb ratings
 - `deploy.yml`: production on push to `main`, gated on the same checks.
 - `deploy-pr.yml` / `cleanup-pr.yml`: preview stage per PR.
 
-Domains: `www.tvseri.es` (Vercel, primary); `tvseri.es` redirects to www via CloudFront; previews at `pr-{n}.dev.tvseri.es`. `api.`, `auth.` and `dashboard.tvseri.es` are on AWS.
+Domains: `www.tvseri.es` (Vercel, primary); `tvseri.es` redirects to www via CloudFront; previews at `www.pr-{n}.dev.tvseri.es`. `api.`, `auth.` and `dashboard.tvseri.es` are on AWS.
 
 ## Testing
 

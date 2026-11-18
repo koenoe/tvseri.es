@@ -1,3 +1,4 @@
+import { isHexColor } from '@tvseri.es/schemas';
 /** The ground (`--color-ground`): the page colour when a page sets none. */
 export const DEFAULT_PAGE_COLOR = '#1c2223';
 
@@ -9,8 +10,6 @@ export const DEFAULT_PAGE_COLOR = '#1c2223';
  */
 export const PAGE_COLOUR_LIVE = 'data-page-colour-live';
 
-const HEX_COLOR = /^#[0-9a-f]{6}$/i;
-
 /**
  * The only way a colour reaches the page colour system. It ends up inside a
  * server-rendered `<style>` (BackgroundStyle) and in inline styles, so
@@ -21,7 +20,5 @@ const HEX_COLOR = /^#[0-9a-f]{6}$/i;
  * an admin's pick alike, so the web corrects nothing.
  */
 export function toPageColor(value: unknown): string {
-  return typeof value === 'string' && HEX_COLOR.test(value)
-    ? value.toLowerCase()
-    : DEFAULT_PAGE_COLOR;
+  return isHexColor(value) ? value.toLowerCase() : DEFAULT_PAGE_COLOR;
 }

@@ -1,3 +1,5 @@
+import { isHexColor } from '@tvseri.es/schemas';
+
 /** A colour's red, green and blue channels, 0–255 */
 export type Rgb = readonly [number, number, number];
 
@@ -27,6 +29,12 @@ export function hexWithAlpha(hex: string, alpha: number): string {
  * or detected colour. Readers treat it as "unknown", not as black.
  */
 export const UNKNOWN_COLOR = '#000000';
+
+/** A colour to use: a six-digit hex that isn't the unknown black */
+export const isKnownColor = (
+  colour: string | null | undefined,
+): colour is string =>
+  isHexColor(colour) && colour.toLowerCase() !== UNKNOWN_COLOR;
 
 /** One sRGB channel (0–255) as linear light (IEC 61966-2-1) */
 const linear = (channel: number) => {

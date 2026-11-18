@@ -1,3 +1,4 @@
+import { isHexColor } from '@tvseri.es/schemas';
 import Image from 'next/image';
 import type { CSSProperties } from 'react';
 import { LazyShowRemote } from '@/components/remote/LazyRemote';
@@ -20,9 +21,7 @@ const DEFAULT_INK = '#111a1d';
 
 /** The backdrop colour as a card tint; anything that is not a hex colour falls back */
 const inkOf = (backdropColor: string | undefined) =>
-  backdropColor && /^#[0-9a-f]{3,8}$/i.test(backdropColor)
-    ? backdropColor
-    : DEFAULT_INK;
+  isHexColor(backdropColor) ? backdropColor : DEFAULT_INK;
 
 const tint = (ink: string, percent: number) =>
   `color-mix(in srgb, ${ink} ${percent}%, transparent)`;

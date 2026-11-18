@@ -13,8 +13,8 @@
 import {
   channelsToHex,
   hexChannels,
+  isKnownColor,
   type Rgb,
-  UNKNOWN_COLOR,
 } from '@tvseri.es/utils';
 
 export type LandingLook = Readonly<{
@@ -33,9 +33,6 @@ export const GENRE_FALLBACK: LandingLook = {
   glow: glowOf('196 120 64'),
   ground: '#1c1916',
 };
-
-const HEX = /^#[0-9a-f]{6}$/i;
-/** The API's backdrop colour when it couldn't detect one */
 
 const GROUND_LIGHTNESS = 0.1;
 const GROUND_MAX_SATURATION = 0.35;
@@ -92,20 +89,16 @@ const toRgb = ([hue, saturation, lightness]: Hsl): Rgb => {
 /** Below this saturation a colour is a grey: every grey gives the same ground */
 const TINTED = 0.12;
 
-/** A usable colour: a six-digit hex that isn't the API's unknown black */
-const usable = (colour: string | null | undefined): colour is string =>
-  Boolean(colour && HEX.test(colour) && colour.toLowerCase() !== UNKNOWN_COLOR);
-
 /**
  * The colour to build a landing's look from, given its candidates' colours
  * in order (the lead show first): the first with a hue, else the first
- * usable one (a grey), else null. Greys would give every landing led by a
+ * known one (a grey), else null. Greys would give every landing led by a
  * monochrome backdrop the same ground.
  */
 export function pickLeadColour(
   colours: ReadonlyArray<string | null | undefined>,
 ): string | null {
-  const found = colours.filter(usable);
+  const found = colours.filter(isKnownColor);
   return found.find((colour) => toHsl(colour)[1] >= TINTED) ?? found[0] ?? null;
 }
 
@@ -114,7 +107,7 @@ export function landingLook(
   colour: string | null | undefined,
   fallback: LandingLook,
 ): LandingLook {
-  if (!usable(colour)) {
+  if (!isKnownColor(colour)) {
     return fallback;
   }
   const [hue, saturation, lightness] = toHsl(colour);

@@ -1,5 +1,5 @@
 import { PAGE_COLOR_VERSION } from '@tvseri.es/constants';
-import { TMDB_IMAGE_PATH_REGEX } from '@tvseri.es/schemas';
+import { isHexColor, TMDB_IMAGE_PATH_REGEX } from '@tvseri.es/schemas';
 import { generateTmdbImageUrl } from '@tvseri.es/utils';
 
 import { createLimiter } from '@/utils/limit';
@@ -18,8 +18,6 @@ import { invokeImageLambda } from './imageLambda';
 const CACHE_PREFIX = `detectDominantColorFromImage:v${PAGE_COLOR_VERSION}:`;
 const LEGACY_CACHE_PREFIX = 'detectDominantColorFromImage:v1:';
 
-const HEX_COLOR_REGEX = /^#[0-9a-f]{6}$/i;
-
 // TMDB image size, e.g. `w780`, `original`, `w1920_and_h1080_multi_faces`
 const TMDB_IMAGE_SIZE_REGEX =
   /^(?:original|w\d{2,4}(?:_and_h\d{2,4}_[a-z_]+)?)$/;
@@ -29,14 +27,12 @@ async function invokeDominantColorLambda(url: string) {
     color?: unknown;
   }> | null;
 
-  if (
-    typeof result?.color !== 'string' ||
-    !HEX_COLOR_REGEX.test(result.color)
-  ) {
+  const color = result?.color;
+  if (!isHexColor(color)) {
     throw new Error('DominantColor Lambda returned an invalid color');
   }
 
-  return result.color;
+  return color;
 }
 
 const isValidImage = (path: string, size: string) =>

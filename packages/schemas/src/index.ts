@@ -8,6 +8,7 @@ export * from './episode-code';
 export * from './export';
 export * from './genre';
 export * from './go-deeper';
+export * from './hex-color';
 export * from './home';
 export * from './id-list-query';
 export * from './import';

@@ -1,4 +1,4 @@
-import { UNKNOWN_COLOR } from '@tvseri.es/utils';
+import { isKnownColor } from '@tvseri.es/utils';
 import type { CSSProperties } from 'react';
 
 import { PICTURE_SURFACE } from '@/components/ui/picture/pictureSurface';
@@ -24,10 +24,6 @@ export const PICTURE_CARD =
  */
 export const PICTURE_BLEED = `absolute -inset-px ${PICTURE_SURFACE}`;
 
-const HEX_COLOR = /^#[0-9a-f]{6}$/i;
-
-/** The API's backdrop colour when it couldn't detect one */
-
 /**
  * How much of the picture's colour the shade keeps (the rest is black), so
  * the shade reads as the picture rather than black. The API serves the
@@ -48,7 +44,7 @@ export const PICTURE_SHADE_SHARE = 0.5;
 export function pictureShade(
   color: string | undefined,
 ): CSSProperties | undefined {
-  if (!color || !HEX_COLOR.test(color) || color === UNKNOWN_COLOR) {
+  if (!isKnownColor(color)) {
     return undefined;
   }
   const mix = `color-mix(in srgb, ${color.toLowerCase()} ${PICTURE_SHADE_SHARE * 100}%, black)`;

@@ -1,5 +1,6 @@
 import * as v from 'valibot';
 
+import { HexColorSchema } from './hex-color';
 import { PositiveIdSchema } from './positive-id';
 
 export const PreferredImagesSchema = v.object({
@@ -49,7 +50,7 @@ const TmdbImagePathSchema = v.pipe(
 /** The web's admin save: the pick for one show, paths and colour checked. */
 export const SavePreferredImagesInputSchema = v.object({
   preferred: v.object({
-    backdropColor: v.pipe(v.string(), v.regex(/^#[0-9a-f]{6}$/i)),
+    backdropColor: HexColorSchema,
     backdropImagePath: TmdbImagePathSchema,
     titleTreatment: v.optional(v.literal('text')),
     titleTreatmentImagePath: v.optional(TmdbImagePathSchema),

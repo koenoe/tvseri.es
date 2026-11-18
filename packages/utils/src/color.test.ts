@@ -5,6 +5,7 @@ import {
   contrastRatio,
   hexChannels,
   hexWithAlpha,
+  isKnownColor,
   relativeLuminance,
 } from './color';
 
@@ -56,5 +57,19 @@ describe('contrastRatio', () => {
     for (let channel = 0; channel <= 255; channel += 1) {
       expect(relativeLuminance([channel, 0, 0])).toBe(0.2126 * old(channel));
     }
+  });
+});
+
+describe('isKnownColor', () => {
+  it('takes a six-digit hex in any case', () => {
+    expect(isKnownColor('#1c2223')).toBe(true);
+    expect(isKnownColor('#1C2223')).toBe(true);
+  });
+
+  it('refuses the unknown black, other shapes and nothing', () => {
+    for (const colour of ['#000000', '#fff', 'red', '#1c2223;}', '', null]) {
+      expect(isKnownColor(colour)).toBe(false);
+    }
+    expect(isKnownColor(undefined)).toBe(false);
   });
 });

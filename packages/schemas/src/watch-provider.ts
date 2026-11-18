@@ -1,5 +1,6 @@
 import * as v from 'valibot';
 
+import { HexColorSchema } from './hex-color';
 import { PositiveIdSchema } from './positive-id';
 
 export const WatchProviderSchema = v.object({
@@ -25,7 +26,7 @@ export const MAX_WATCH_PROVIDERS = 60;
  * read through this too (one that fails it is left out).
  */
 export const WatchProviderInputSchema = v.object({
-  color: v.optional(v.pipe(v.string(), v.regex(/^#[0-9a-f]{6}$/i))),
+  color: v.optional(HexColorSchema),
   id: PositiveIdSchema,
   // TMDB lists a few services without a logo
   logoPath: v.union([

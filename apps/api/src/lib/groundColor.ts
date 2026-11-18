@@ -1,3 +1,4 @@
+import { isHexColor } from '@tvseri.es/schemas';
 /**
  * The rule every page colour the API serves follows (a series'
  * `backdropColor`, an admin's pick, a detected dominant colour): it is
@@ -26,8 +27,6 @@ import {
   type Rgb,
 } from '@tvseri.es/utils';
 
-const HEX_COLOR = /^#[0-9a-f]{6}$/i;
-
 /** White at this opacity is the quietest text on a ground */
 const QUIET_TEXT_OPACITY = 0.6;
 /** WCAG AA for body text */
@@ -53,7 +52,7 @@ const scale = (rgb: Rgb, share: number): Rgb =>
  * hex colour.
  */
 export function groundColor(value: unknown): string | undefined {
-  if (typeof value !== 'string' || !HEX_COLOR.test(value)) {
+  if (!isHexColor(value)) {
     return undefined;
   }
   const base = hexChannels(value);

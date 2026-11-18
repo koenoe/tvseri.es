@@ -7,6 +7,7 @@ export {
   contrastRatio,
   hexChannels,
   hexWithAlpha,
+  isKnownColor,
   type Rgb,
   relativeLuminance,
   UNKNOWN_COLOR,

@@ -1,4 +1,4 @@
-name: Checks and e2e
+name: e2e
 
 on:
   pull_request:

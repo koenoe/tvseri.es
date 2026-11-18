@@ -126,7 +126,7 @@ export default defineConfig({
     },
   ],
   // In CI `list` takes the place of the dots Playwright adds beside `github`:
-  // its per-test durations are what the shard weights in checks.yml are cut from
+  // its per-test durations are what the shard weights in e2e.yml are cut from
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
   testDir: './e2e',
   timeout: 45_000 * slowFactor,

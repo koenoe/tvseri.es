@@ -100,7 +100,7 @@ Upstreams: TMDB (series data, watch providers via JustWatch), OMDb (IMDb ratings
 
 `.github/workflows/`:
 
-- `checks.yml` ("Checks and e2e"): format-and-lint, knip, check-types and unit tests on PRs; the web's Playwright suite (stub API, four shards) and the auth pages' suite on PRs.
+- `e2e.yml` ("e2e"): format-and-lint, knip, check-types and unit tests on PRs; the web's Playwright suite (stub API, four shards) and the auth pages' suite on PRs.
 - `deploy.yml`: production on push to `main`, gated on the same checks.
 - `deploy-pr.yml` / `cleanup-pr.yml`: preview stage per PR.
 

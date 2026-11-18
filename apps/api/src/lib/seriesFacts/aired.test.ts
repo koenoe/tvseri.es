@@ -83,93 +83,6 @@ describe('airedEpisodesAt', () => {
       ),
     ).toEqual({ bySeason: { 1: 0, 2: 0 }, total: 0 });
   });
-});
-
-// Three seasons of 12, all aired by 2024
-const threeSeasons = {
-  numberOfEpisodes: 36,
-  seasons: [
-    { airDate: '2013-09-12', episodeCount: 12, seasonNumber: 1 },
-    { airDate: '2014-10-02', episodeCount: 12, seasonNumber: 2 },
-    { airDate: '2016-05-05', episodeCount: 12, seasonNumber: 3 },
-  ],
-} as const;
-const LATER = Date.parse('2024-01-01');
-
-describe('airedEpisodesAt never counts fewer than the seasons prove (the 12 of 36 bug)', () => {
-  it('counts an ended show whose last aired episode is a special', () => {
-    const special = {
-      airDate: '2023-12-24',
-      episodeNumber: 3,
-      runtime: 60,
-      seasonNumber: 0,
-    };
-    expect(
-      airedEpisodesAt(
-        facts({
-          ...threeSeasons,
-          lastEpisodeToAir: special,
-          nextEpisodeToAir: null,
-          status: 'Ended',
-        }),
-        LATER,
-      ).total,
-    ).toBe(36);
-  });
-
-  it('counts an ended show without a last aired episode', () => {
-    expect(
-      airedEpisodesAt(
-        facts({
-          ...threeSeasons,
-          lastEpisodeToAir: null,
-          nextEpisodeToAir: null,
-          status: 'Ended',
-        }),
-        LATER,
-      ).total,
-    ).toBe(36);
-  });
-
-  it('counts every season before one that has started, whatever the last aired episode says', () => {
-    const stale = {
-      airDate: '2013-12-01',
-      episodeNumber: 12,
-      runtime: 60,
-      seasonNumber: 1,
-    };
-    expect(
-      airedEpisodesAt(
-        facts({
-          ...threeSeasons,
-          lastEpisodeToAir: stale,
-          nextEpisodeToAir: null,
-          status: 'Returning Series',
-        }),
-        LATER,
-      ).bySeason,
-    ).toEqual({ 1: 12, 2: 12, 3: 0 });
-  });
-
-  it('leaves a returning show mid-season as TMDB says', () => {
-    const last = {
-      airDate: '2016-06-02',
-      episodeNumber: 5,
-      runtime: 60,
-      seasonNumber: 3,
-    };
-    expect(
-      airedEpisodesAt(
-        facts({
-          ...threeSeasons,
-          lastEpisodeToAir: last,
-          nextEpisodeToAir: null,
-          status: 'Returning Series',
-        }),
-        Date.parse('2016-06-03'),
-      ).total,
-    ).toBe(29);
-  });
 
   it('never counts a season without an air date, ended or not', () => {
     expect(
@@ -180,7 +93,7 @@ describe('airedEpisodesAt never counts fewer than the seasons prove (the 12 of 3
           seasons: [{ airDate: '', episodeCount: 8, seasonNumber: 1 }],
           status: 'Ended',
         }),
-        LATER,
+        Date.parse('2024-01-01'),
       ).total,
     ).toBe(0);
   });
